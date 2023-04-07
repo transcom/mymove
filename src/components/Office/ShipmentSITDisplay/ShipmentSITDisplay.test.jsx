@@ -141,47 +141,30 @@ describe('ShipmentSITDisplay', () => {
     expect(await screen.queryByText('SIT extensions')).not.toBeInTheDocument();
   });
 
-  it('calls review SIT extension callback when button is clicked', async () => {
-    const showReviewSITExtension = jest.fn();
-    render(
-      <MockProviders permissions={[permissionTypes.createSITExtension]}>
-        <ShipmentSITDisplay
-          sitExtensions={SITExtensionPending}
-          sitStatus={SITStatusDestination}
-          shipment={SITShipment}
-          showReviewSITExtension={showReviewSITExtension}
-        />
-      </MockProviders>,
+  it('calls SIT extension callback when button clicked', async () => {
+    const onClick = jest.fn();
+    const OpenModalButton = (
+      <button type="button" onClick={() => onClick()}>
+        Edit
+      </button>
     );
-
-    const reviewButton = screen.getByRole('button', { name: 'View request' });
-
-    await userEvent.click(reviewButton);
-
-    await waitFor(() => {
-      expect(showReviewSITExtension).toHaveBeenCalledWith(true);
-    });
-  });
-
-  it('calls submit SIT extension callback when button is clicked', async () => {
-    const showSubmitSITExtension = jest.fn();
     render(
       <MockProviders permissions={[permissionTypes.updateSITExtension]}>
         <ShipmentSITDisplay
           sitExtensions={SITExtensions}
           sitStatus={SITStatusDestination}
           shipment={SITShipment}
-          showSubmitSITExtension={showSubmitSITExtension}
+          openModalButton={OpenModalButton}
         />
       </MockProviders>,
     );
 
-    const reviewButton = screen.getByRole('button', { name: 'Edit' });
+    const editButton = screen.getByRole('button', { name: 'Edit' });
 
-    await userEvent.click(reviewButton);
+    await userEvent.click(editButton);
 
     await waitFor(() => {
-      expect(showSubmitSITExtension).toHaveBeenCalledWith(true);
+      expect(onClick).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -192,7 +175,6 @@ describe('ShipmentSITDisplay', () => {
           sitExtensions={SITExtensionPending}
           sitStatus={SITStatusDestination}
           shipment={SITShipment}
-          hideSITExtensionAction
         />
       </MockProviders>,
     );
@@ -203,12 +185,7 @@ describe('ShipmentSITDisplay', () => {
   it('hides submit new SIT Extension button when hide prop is true', async () => {
     render(
       <MockProviders permissions={[permissionTypes.updateSITExtension]}>
-        <ShipmentSITDisplay
-          sitExtensions={SITExtensions}
-          sitStatus={SITStatusDestination}
-          shipment={SITShipment}
-          hideSITExtensionAction
-        />
+        <ShipmentSITDisplay sitExtensions={SITExtensions} sitStatus={SITStatusDestination} shipment={SITShipment} />
       </MockProviders>,
     );
 

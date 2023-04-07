@@ -2,7 +2,7 @@ import React from 'react';
 import classnames from 'classnames';
 import moment from 'moment';
 import { PropTypes } from 'prop-types';
-import { Button, Tag } from '@trussworks/react-uswds';
+import { Tag } from '@trussworks/react-uswds';
 
 import DataTableWrapper from '../../DataTableWrapper/index';
 import DataTable from '../../DataTable/index';
@@ -16,8 +16,6 @@ import { utcDateFormat } from 'shared/dates';
 import { SERVICE_ITEM_CODES } from 'constants/serviceItems';
 import { ShipmentShape } from 'types/shipment';
 import { SitStatusShape, LOCATION_TYPES } from 'types/sitStatusShape';
-import Restricted from 'components/Restricted/Restricted';
-import { permissionTypes } from 'constants/permissions';
 
 const SITHistoryItem = ({ sitItem }) => (
   <dl data-testid="sitHistoryItem" className={styles.sitHistoryItem}>
@@ -46,28 +44,16 @@ const SITHistoryItemHeader = ({ sitItem }) => (
     <span>updated on {formatDateFromIso(sitItem.decisionDate, 'DD MMM YYYY')} </span>
   </div>
 );
-const ShipmentSITDisplay = ({
-  sitExtensions,
-  sitStatus,
-  shipment,
-  showReviewSITExtension,
-  showSubmitSITExtension,
-  hideSITExtensionAction,
-  className,
-}) => {
+
+const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton }) => {
   const pendingSITExtension = sitExtensions.find((se) => se.status === SIT_EXTENSION_STATUS.PENDING);
-
-  const sitEndDate = moment().utc().add(sitStatus.totalDaysRemaining, 'days').format('DD MMM YYYY');
-
-  const sitHistory = React.useMemo(
-    () => sitExtensions.filter((sitItem) => sitItem.status !== SIT_EXTENSION_STATUS.PENDING),
-    [sitExtensions],
-  );
   // Currently active SIT
   const currentLocation = sitStatus.location === LOCATION_TYPES.ORIGIN ? 'origin SIT' : 'destination SIT';
 
   const currentDaysInSit = <p>{sitStatus.totalSITDaysUsed}</p>;
   const currentDateEnteredSit = <p>{formatDate(sitStatus.sitEntryDate, utcDateFormat, 'DD MMM YYYY')}</p>;
+
+  const sitEndDate = moment().utc().add(sitStatus.totalDaysRemaining, 'days').format('DD MMM YYYY');
 
   // Previous SIT calculations and date ranges
   const previousDaysUsed = sitStatus.pastSITServiceItems?.map((pastSITItem) => {
@@ -80,53 +66,55 @@ const ShipmentSITDisplay = ({
 
     return <p key={pastSITItem.id}>{text}</p>;
   });
+  return (
+    <div>
+      <div className={styles.title}>
+        <p>SIT (STORAGE IN TRANSIT){pendingSITExtension && <Tag>Extension requested</Tag>}</p>
+        {openModalButton}
+      </div>
+      <div data-testid="sitStatusTable">
+        {/* Sit Total days table */}
+        <DataTable
+          columnHeaders={['Total days of SIT approved', 'Total days used', 'Total days remaining']}
+          dataRow={[shipment.sitDaysAllowance, sitStatus.totalSITDaysUsed, sitStatus.totalDaysRemaining]}
+        />
+      </div>
+      {/* Sit Start and End table */}
+      <p>Current location: {currentLocation}</p>
+      <DataTable
+        columnHeaders={[`SIT start date`, 'SIT authorized end date']}
+        dataRow={[currentDateEnteredSit, sitEndDate]}
+      />
+      {/* Total days at current location */}
+      <DataTable columnHeaders={[`Total days in ${currentLocation}`]} dataRow={[currentDaysInSit]} />
+      {/* Service Items */}
+      {sitStatus.pastSITServiceItems && (
+        <DataTable columnHeaders={['Previously used SIT']} dataRow={[previousDaysUsed]} />
+      )}
+    </div>
+  );
+};
+
+const ShipmentSITDisplay = ({ sitExtensions, sitStatus, shipment, className, openModalButton }) => {
+  const sitHistory = React.useMemo(
+    () => sitExtensions.filter((sitItem) => sitItem.status !== SIT_EXTENSION_STATUS.PENDING),
+    [sitExtensions],
+  );
 
   return (
     <DataTableWrapper
       className={classnames('maxw-tablet', styles.mtoshipmentSITDisplay, className)}
       testID="sitExtensions"
     >
-      <div className={styles.title}>
-        <p>SIT (STORAGE IN TRANSIT){pendingSITExtension && <Tag>Extension requested</Tag>}</p>
-        {!hideSITExtensionAction &&
-          (pendingSITExtension ? (
-            <Restricted to={permissionTypes.createSITExtension}>
-              <p>
-                <Button type="button" onClick={() => showReviewSITExtension(true)} unstyled>
-                  View request
-                </Button>
-              </p>
-            </Restricted>
-          ) : (
-            <Restricted to={permissionTypes.updateSITExtension}>
-              <Button
-                type="button"
-                onClick={() => showSubmitSITExtension(true)}
-                unstyled
-                className={styles.submitSITEXtensionLink}
-              >
-                Edit
-              </Button>
-            </Restricted>
-          ))}
-      </div>
-      <div data-testid="sitStatusTable">
-        <DataTable
-          columnHeaders={['Total days of SIT approved', 'Total days used', 'Total days remaining']}
-          dataRow={[shipment.sitDaysAllowance, sitStatus.totalSITDaysUsed, sitStatus.totalDaysRemaining]}
-        />
-      </div>
-      <p>Current location: {currentLocation}</p>
-      <DataTable
-        columnHeaders={[`SIT start date`, 'SIT authorized end date']}
-        dataRow={[currentDateEnteredSit, sitEndDate]}
+      <SitStatusTables
+        openModalButton={openModalButton}
+        shipment={shipment}
+        sitStatus={sitStatus}
+        sitExtensions={sitExtensions}
       />
-      <DataTable columnHeaders={[`Total days in ${currentLocation}`]} dataRow={[currentDaysInSit]} />
-      {sitStatus.pastSITServiceItems && (
-        <DataTable columnHeaders={['Previously used SIT']} dataRow={[previousDaysUsed]} />
-      )}
+      {/* Sit History */}
       {sitExtensions && sitHistory.length > 0 && (
-        <>
+        <div>
           <p className={styles.sitHeader}>SIT history</p>
           {sitHistory.map((sitItem) => (
             <DataTable
@@ -135,7 +123,7 @@ const ShipmentSITDisplay = ({
               dataRow={[<SITHistoryItem sitItem={sitItem} />]}
             />
           ))}
-        </>
+        </div>
       )}
     </DataTableWrapper>
   );
@@ -145,17 +133,13 @@ ShipmentSITDisplay.propTypes = {
   sitExtensions: PropTypes.arrayOf(SITExtensionShape),
   sitStatus: SitStatusShape.isRequired,
   shipment: ShipmentShape.isRequired,
-  showReviewSITExtension: PropTypes.func,
-  showSubmitSITExtension: PropTypes.func,
-  hideSITExtensionAction: PropTypes.bool,
+  openModalButton: PropTypes.element,
   className: PropTypes.string,
 };
 
 ShipmentSITDisplay.defaultProps = {
   sitExtensions: [],
-  showReviewSITExtension: undefined,
-  showSubmitSITExtension: undefined,
-  hideSITExtensionAction: false,
+  openModalButton: undefined,
   className: '',
 };
 
