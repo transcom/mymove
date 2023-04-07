@@ -1149,6 +1149,33 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 		suite.Equal(requestedMoveDate1.Format("2006/01/02"), moves[0].MTOShipments[0].RequestedPickupDate.Format("2006/01/02"))
 	})
 
+	suite.Run("Sort by submitted date (appearedInTooAt) in TOO queue ", func() {
+		// Scenario: In order to sort the moves the submitted_at, service_counseling_completed_at, and approvals_requested_at are checked to which are the minimum
+		// Expected: The moves appear in the order they are created below
+		officeUser = factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		now := time.Now()
+		oneWeekAgo := now.AddDate(0, 0, -7)
+		move1 := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				SubmittedAt: &oneWeekAgo,
+			},
+		})
+
+		move2 := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{})
+		testdatagen.MakeMTOShipmentWithMove(suite.DB(), &move2, testdatagen.Assertions{})
+		move3 := testdatagen.MakeServiceCounselingCompletedMove(suite.DB(), testdatagen.Assertions{})
+		testdatagen.MakeMTOShipmentWithMove(suite.DB(), &move3, testdatagen.Assertions{})
+
+		params := services.ListOrderParams{Sort: models.StringPointer("appearedInTooAt"), Order: models.StringPointer("asc")}
+
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &params)
+		suite.NoError(err)
+		suite.Equal(3, len(moves))
+		suite.Equal(moves[0].ID, move1.ID)
+		suite.Equal(moves[1].ID, move2.ID)
+		suite.Equal(moves[2].ID, move3.ID)
+	})
+
 	// MUST BE LAST, ADDS EXTRA MOVE
 	suite.Run("Sort by service member last name", func() {
 		setupTestData()
