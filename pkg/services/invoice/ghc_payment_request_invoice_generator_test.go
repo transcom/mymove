@@ -79,7 +79,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	var paymentRequest models.PaymentRequest
 	var paymentServiceItems models.PaymentServiceItems
 	var result ediinvoice.Invoice858C
-	var err error
+	//var err error
 
 	setupTestData := func() {
 		mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
@@ -276,7 +276,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		// setup known next value
 		icnErr := suite.icnSequencer.SetVal(suite.AppContextForTest(), 122)
 		suite.NoError(icnErr)
-
+		var err error
 		// Proceed with full EDI Generation tests
 		result, err = generator.Generate(suite.AppContextForTest(), paymentRequest, false)
 		suite.NoError(err)
@@ -408,6 +408,81 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	// test that service members of affiliation MARINES have a GBLOC of USMC
 	suite.Run("updates the GBLOC for marines to be USMC", func() {
 		setupTestData()
+		affiliationMarines := models.AffiliationMARINES
+		sm := models.ServiceMember{
+			Affiliation: &affiliationMarines,
+			ID:          uuid.FromStringOrNil("d66d2f35-218c-4b85-b9d1-631949b9d100"),
+		}
+		mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			ServiceMember: sm,
+		})
+
+		paymentRequest = testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+			Move: mto,
+			PaymentRequest: models.PaymentRequest{
+				IsFinal:         false,
+				Status:          models.PaymentRequestStatusPending,
+				RejectionReason: nil,
+			},
+		})
+
+		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: mto,
+			MTOShipment: models.MTOShipment{
+				RequestedPickupDate: &requestedPickupDate,
+				ScheduledPickupDate: &scheduledPickupDate,
+				ActualPickupDate:    &actualPickupDate,
+			},
+		})
+
+		priceCents := unit.Cents(888)
+		assertions := testdatagen.Assertions{
+			Move:           mto,
+			MTOShipment:    mtoShipment,
+			PaymentRequest: paymentRequest,
+			PaymentServiceItem: models.PaymentServiceItem{
+				Status:     models.PaymentServiceItemStatusApproved,
+				PriceCents: &priceCents,
+			},
+		}
+		distanceZipSITOriginParam := testdatagen.CreatePaymentServiceItemParams{
+			Key:     models.ServiceItemParamNameDistanceZipSITOrigin,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "33",
+		}
+
+		dopsitParams := append(basicPaymentServiceItemParams, distanceZipSITOriginParam)
+		dopsit := testdatagen.MakePaymentServiceItemWithParams(
+			suite.DB(),
+			models.ReServiceCodeDOPSIT,
+			dopsitParams,
+			assertions,
+		)
+
+		paymentServiceItems = models.PaymentServiceItems{}
+		paymentServiceItems = append(paymentServiceItems, dopsit)
+
+		//serviceMemberMarines = testdatagen.
+		//affiliationMarines1 := models.AffiliationMARINES
+		//serviceMember = factory.BuildExtendedServiceMember(suite.DB(), []factory.Customization{
+		//
+		//	{
+		//		Model: models.ServiceMember{
+		//			Affiliation: &affiliationMarines1,
+		//			ID:          uuid.FromStringOrNil("d66d2f35-218c-4b85-b9d1-631949b9d984"),
+		//		},
+		//	},
+		//}, nil)
+
+		// setup known next value
+		icnErr := suite.icnSequencer.SetVal(suite.AppContextForTest(), 122)
+		suite.NoError(icnErr)
+
+		// Proceed with full EDI Generation tests
+		var err error
+		result, err = generator.Generate(suite.AppContextForTest(), paymentRequest, false)
+		suite.NoError(err)
+
 		// name
 		originDutyLocation := paymentRequest.MoveTaskOrder.Orders.OriginDutyLocation
 		//n1 := result.Header.OriginName
