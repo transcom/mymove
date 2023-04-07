@@ -2,9 +2,11 @@ package services
 
 import (
 	"bytes"
+	"io"
 
 	"github.com/spf13/afero"
 
+	"github.com/transcom/mymove/pkg/models"
 	paperworkforms "github.com/transcom/mymove/pkg/paperwork"
 )
 
@@ -34,4 +36,20 @@ type FormTemplate struct {
 // FormCreator is the service object interface for CreateForm
 type FormCreator interface {
 	CreateForm(template FormTemplate) (afero.File, error)
+}
+
+// FileInfo is a struct that holds information about a file that we'll be converting to a PDF. It's helpful to have
+// this as a single argument for both the work we need to do and for writing better error messages & logs.
+type FileInfo struct {
+	*models.UserUpload
+	OriginalUploadStream io.ReadCloser
+	PDFStream            io.ReadCloser
+}
+
+// NewFileInfo creates a new FileInfo struct.
+func NewFileInfo(userUpload *models.UserUpload, stream io.ReadCloser) *FileInfo {
+	return &FileInfo{
+		UserUpload:           userUpload,
+		OriginalUploadStream: stream,
+	}
 }
