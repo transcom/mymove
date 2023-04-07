@@ -407,12 +407,12 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 
 	// test that service members of affiliation MARINES have a GBLOC of USMC
 	suite.Run("updates the GBLOC for marines to be USMC", func() {
-		setupTestData()
 		affiliationMarines := models.AffiliationMARINES
 		sm := models.ServiceMember{
 			Affiliation: &affiliationMarines,
 			ID:          uuid.FromStringOrNil("d66d2f35-218c-4b85-b9d1-631949b9d100"),
 		}
+
 		mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 			ServiceMember: sm,
 		})
@@ -462,18 +462,6 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		paymentServiceItems = models.PaymentServiceItems{}
 		paymentServiceItems = append(paymentServiceItems, dopsit)
 
-		//serviceMemberMarines = testdatagen.
-		//affiliationMarines1 := models.AffiliationMARINES
-		//serviceMember = factory.BuildExtendedServiceMember(suite.DB(), []factory.Customization{
-		//
-		//	{
-		//		Model: models.ServiceMember{
-		//			Affiliation: &affiliationMarines1,
-		//			ID:          uuid.FromStringOrNil("d66d2f35-218c-4b85-b9d1-631949b9d984"),
-		//		},
-		//	},
-		//}, nil)
-
 		// setup known next value
 		icnErr := suite.icnSequencer.SetVal(suite.AppContextForTest(), 122)
 		suite.NoError(icnErr)
@@ -483,11 +471,9 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		result, err = generator.Generate(suite.AppContextForTest(), paymentRequest, false)
 		suite.NoError(err)
 
-		// name
-		originDutyLocation := paymentRequest.MoveTaskOrder.Orders.OriginDutyLocation
-		//n1 := result.Header.OriginName
-		//suite.Equal(originDutyLocation.TransportationOffice.Gbloc, n1.IdentificationCode)
-		suite.Equal(originDutyLocation.TransportationOffice.Gbloc, "USMC")
+		// reference the N1 EDI segment Identification Code, which in this case should be the GBLOC
+		n1 := result.Header.OriginName
+		suite.Equal("USMC", n1.IdentificationCode)
 	})
 
 	suite.Run("adds actual pickup date to header", func() {
