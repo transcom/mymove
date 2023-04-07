@@ -18,7 +18,7 @@ import { ShipmentShape } from 'types/shipment';
 import { SitStatusShape, LOCATION_TYPES } from 'types/sitStatusShape';
 
 const SITHistoryItem = ({ sitItem }) => (
-  <dl data-testid="sitHistoryItem" className={styles.sitHistoryItem}>
+  <dl data-testid="sitHistoryItem">
     <div>
       <dt>Reason:</dt>
       <dd>{sitExtensionReasons[sitItem.requestReason]}</dd>
@@ -67,31 +67,38 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton }
     return <p key={pastSITItem.id}>{text}</p>;
   });
   return (
-    <div>
+    <>
       <div className={styles.title}>
         <p>SIT (STORAGE IN TRANSIT){pendingSITExtension && <Tag>Extension requested</Tag>}</p>
         {openModalButton}
       </div>
-      <div data-testid="sitStatusTable">
+      <div className={styles.tableContainer} data-testid="sitStatusTable">
         {/* Sit Total days table */}
         <DataTable
           columnHeaders={['Total days of SIT approved', 'Total days used', 'Total days remaining']}
           dataRow={[shipment.sitDaysAllowance, sitStatus.totalSITDaysUsed, sitStatus.totalDaysRemaining]}
         />
       </div>
-      {/* Sit Start and End table */}
-      <p>Current location: {currentLocation}</p>
-      <DataTable
-        columnHeaders={[`SIT start date`, 'SIT authorized end date']}
-        dataRow={[currentDateEnteredSit, sitEndDate]}
-      />
-      {/* Total days at current location */}
-      <DataTable columnHeaders={[`Total days in ${currentLocation}`]} dataRow={[currentDaysInSit]} />
+      <div className={styles.tableContainer}>
+        {/* Sit Start and End table */}
+        <p className={styles.sitHeader}>Current location: {currentLocation}</p>
+        <DataTable
+          columnHeaders={[`SIT start date`, 'SIT authorized end date']}
+          dataRow={[currentDateEnteredSit, sitEndDate]}
+          custClass={styles.currentLocation}
+        />
+      </div>
+      <div className={styles.tableContainer}>
+        {/* Total days at current location */}
+        <DataTable columnHeaders={[`Total days in ${currentLocation}`]} dataRow={[currentDaysInSit]} />
+      </div>
       {/* Service Items */}
       {sitStatus.pastSITServiceItems && (
-        <DataTable columnHeaders={['Previously used SIT']} dataRow={[previousDaysUsed]} />
+        <div className={styles.tableContainer}>
+          <DataTable columnHeaders={['Previously used SIT']} dataRow={[previousDaysUsed]} />
+        </div>
       )}
-    </div>
+    </>
   );
 };
 
@@ -114,13 +121,14 @@ const ShipmentSITDisplay = ({ sitExtensions, sitStatus, shipment, className, ope
       />
       {/* Sit History */}
       {sitExtensions && sitHistory.length > 0 && (
-        <div>
+        <div className={styles.tableContainer}>
           <p className={styles.sitHeader}>SIT history</p>
           {sitHistory.map((sitItem) => (
             <DataTable
               key={sitItem.id}
               columnHeaders={[<SITHistoryItemHeader sitItem={sitItem} />]}
               dataRow={[<SITHistoryItem sitItem={sitItem} />]}
+              custClass={styles.sitHistoryItem}
             />
           ))}
         </div>

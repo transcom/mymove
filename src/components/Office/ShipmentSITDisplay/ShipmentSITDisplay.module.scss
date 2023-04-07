@@ -3,9 +3,10 @@
 
 .mtoshipmentSITDisplay {
   // these styles conflict with the custom.scss .table--data-point-group, we should try to remove that custom class
-  @include u-padding-x(2);
-  padding-top: 18px;
-  padding-bottom: 18px;
+  // @include u-padding-x(2);
+  // padding-top: 18px;
+  // padding-bottom: 18px;
+  padding: 16px;
   @include u-border('base-lighter');
   @include u-border('1px');
   @include u-radius('05');
@@ -17,12 +18,13 @@
 
     p {
       @include u-margin-y(0);
-      @include u-font-size('body', 'sm');
+      @include u-font-size('body', 'md');
 
       :global .usa-tag {
         @include u-font-size('body', 'sm');
       }
       font-weight: bold;
+      //@include u-margin-left(1);
     }
 
     button {
@@ -40,9 +42,13 @@
     margin-top: 10px;
   }
 
-  > p {
-    @include u-margin-left(1);
-    @include u-font-weight('bold');
+  .currentLocation{
+    th {
+      padding: 4px
+    }
+    table.table--data-point {
+      @include u-margin-top(0);
+    }
   }
 
   td {
@@ -76,6 +82,7 @@
     dt {
       @include u-font-weight('bold');
       white-space: nowrap;
+      color: $base-darkest;
     }
 
     dd {
@@ -84,7 +91,9 @@
   }
 }
 .sitHistoryItem {
-  @include u-margin-y(0);
+  th {
+    padding: 0
+  }
   .sitHistoryItemHeader {
     color: $base-darker;
     span {
@@ -100,4 +109,7 @@ p.sitHeader {
     @include u-font-size('body', 'sm');
   }
   font-weight: bold;
+}
+.tableContainer{
+  margin-top:16px
 }
