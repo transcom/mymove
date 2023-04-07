@@ -1,15 +1,6 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { capitalize, find, get, includes, mapValues } from 'lodash';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useLocation } from 'react-router-dom';
-import {
-  ADMIN_BASE_PAGE_TITLE,
-  MILMOVE_BASE_PAGE_TITLE,
-  OFFICE_BASE_PAGE_TITLE,
-  isAdminSite,
-  isMilmoveSite,
-  isOfficeSite,
-} from './constants';
 
 import { formatDateForSwagger } from './dates';
 
@@ -141,7 +132,6 @@ export function openLinkInNewWindow(url, windowName, window, relativeSize) {
     .open(
       url,
       windowName,
-      // eslint-disable-next-line prettier/prettier
       `resizable,scrollbars,status,noopener=true,noreferrer=true,width=${window.outerWidth * relativeSize},height=${
         window.outerHeight * relativeSize
       }`,
@@ -177,51 +167,4 @@ export function isEmpty(obj) {
     }
   });
   return empty;
-}
-
-// helper function for generating a page subtitle from the path
-// "my-favorite_path/:pathId/details" becomes "My Favorite Path - Details"
-export function convertPathToSubtitle(path) {
-  return (
-    path &&
-    path
-      .split('/')
-      .filter((parameter) => parameter)
-      .map((segment) =>
-        segment
-          .split(/[-_]/)
-          .map((word) => capitalize(word))
-          .join(' '),
-      )
-      .join(' - ')
-  );
-}
-
-export function generatePageTitle(string) {
-  const baseTitle = getBasePageTitle();
-  return baseTitle + (string ? ` - ${string}` : '');
-}
-
-export function getBasePageTitle() {
-  let baseTitle = '';
-  if (isAdminSite) {
-    baseTitle = ADMIN_BASE_PAGE_TITLE;
-  }
-  if (isMilmoveSite) {
-    baseTitle = MILMOVE_BASE_PAGE_TITLE;
-  }
-  if (isOfficeSite) {
-    baseTitle = OFFICE_BASE_PAGE_TITLE;
-  }
-  return baseTitle;
-}
-
-export function useTitle(subtitle) {
-  const { pathname } = useLocation();
-  if (!subtitle) {
-    subtitle = convertPathToSubtitle(pathname);
-  }
-  useEffect(() => {
-    document.title = generatePageTitle(subtitle);
-  });
 }

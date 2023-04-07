@@ -13,7 +13,7 @@ import { withContext } from 'shared/AppContext';
 import Alert from 'shared/Alert';
 import ConnectedEulaModal from 'components/EulaModal';
 import { isDevelopment } from 'shared/constants';
-import { useTitle } from 'shared/utils';
+import { useTitle } from 'hooks/custom';
 
 const SignIn = ({ context, showLocalDevLogin }) => {
   const location = useLocation();

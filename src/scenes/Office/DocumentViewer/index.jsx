@@ -22,7 +22,8 @@ import {
   createMoveDocument,
 } from 'shared/Entities/modules/moveDocuments';
 import { stringifyName } from 'shared/utils/serviceMember';
-import { convertDollarsToCents, generatePageTitle } from 'shared/utils';
+import { convertDollarsToCents } from 'shared/utils';
+import { generatePageTitle } from 'hooks/custom';
 
 import './index.css';
 import { RouterShape } from 'types';

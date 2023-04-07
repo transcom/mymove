@@ -13,7 +13,7 @@ import { LogoutUser } from 'utils/api';
 import { logOut } from 'store/auth/actions';
 import { withContext } from 'shared/AppContext';
 import Alert from 'shared/Alert';
-import { useTitle } from 'shared/utils';
+import { useTitle } from 'hooks/custom';
 
 const InvalidPermissions = ({ context }) => {
   const navigate = useNavigate();

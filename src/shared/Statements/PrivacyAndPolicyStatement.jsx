@@ -1,5 +1,5 @@
 import React from 'react';
-import { useTitle } from 'shared/utils';
+import { useTitle } from 'hooks/custom';
 import './statements.css';
 
 function PrivacyPolicy() {

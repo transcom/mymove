@@ -143,8 +143,3 @@ export const defaultRelativeWindowSize = 2 / 3;
 export const DATE_FORMAT_STRING = 'DD MMM YYYY';
 // The date and time used to format date strings
 export const DATE_TIME_FORMAT_STRING = 'DD MMM YYYY, hh:mm a';
-
-// Title prefixes for each part of the application
-export const OFFICE_BASE_PAGE_TITLE = 'Transcom PPP: Office';
-export const ADMIN_BASE_PAGE_TITLE = 'Transcom PPP: Admin';
-export const MILMOVE_BASE_PAGE_TITLE = 'my.move.mil';

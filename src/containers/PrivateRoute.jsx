@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 
 import { selectLoggedInUser } from 'store/entities/selectors';
 import getRoleTypesFromRoles from 'utils/user';
-import { useTitle } from 'shared/utils';
+import { useTitle } from 'hooks/custom';
 import { UserRolesShape } from 'types';
 
 export function userIsAuthorized(userRoles, requiredRoles) {

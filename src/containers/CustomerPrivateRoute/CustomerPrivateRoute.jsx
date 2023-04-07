@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { selectGetCurrentUserIsLoading, selectIsLoggedIn } from 'store/auth/selectors';
 import { LocationShape } from 'types/index';
-import { useTitle } from 'shared/utils';
+import { useTitle } from 'hooks/custom';
 
 const CustomerPrivateRoute = ({ loginIsLoading, userIsLoggedIn, location, ...routeProps }) => {
   useTitle();

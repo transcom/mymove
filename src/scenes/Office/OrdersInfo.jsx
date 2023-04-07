@@ -15,7 +15,7 @@ import { loadOrders, loadOrdersLabel } from 'shared/Entities/modules/orders';
 import { loadServiceMember, selectServiceMember } from 'shared/Entities/modules/serviceMembers';
 import { stringifyName } from 'shared/utils/serviceMember';
 import { selectOrdersById } from 'store/entities/selectors';
-import { generatePageTitle } from 'shared/utils';
+import { generatePageTitle } from 'hooks/custom';
 
 import './office.scss';
 import withRouter from 'utils/routing';

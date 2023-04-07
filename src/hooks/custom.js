@@ -1,5 +1,10 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
+import { useLocation } from 'react-router-dom';
+import { capitalize } from 'lodash';
 
+import { isAdminSite, isMilmoveSite, isOfficeSite } from '../shared/constants';
+
+import { ADMIN_BASE_PAGE_TITLE, MILMOVE_BASE_PAGE_TITLE, OFFICE_BASE_PAGE_TITLE } from 'constants/titles';
 import { shipmentStatuses } from 'constants/shipments';
 import { calculateShipmentNetWeight, getShipmentEstimatedWeight } from 'utils/shipmentWeights';
 
@@ -79,3 +84,54 @@ export const useCalculatedEstimatedWeight = (mtoShipments) => {
     return calculateEstimatedWeight(mtoShipments);
   }, [mtoShipments]);
 };
+
+/**
+ * This function a page subtitle from the path,
+ * by splitting the path at slashes, dashes and underscores, capitalizing, and join wish spaces and dashes.
+ * e.g. "my-favorite_path/{pathId}/details" becomes "My Favorite Path - {pathId} - Details"
+ *
+ * @param path The path to convert
+ * @return {string} The generated subtitle
+ */
+export function convertPathToSubtitle(path) {
+  return (
+    path &&
+    path
+      .split('/')
+      .filter((parameter) => parameter)
+      .map((segment) =>
+        segment
+          .split(/[-_]/)
+          .map((word) => capitalize(word))
+          .join(' '),
+      )
+      .join(' - ')
+  );
+}
+
+export function getBasePageTitle() {
+  let baseTitle = '';
+  if (isAdminSite) {
+    baseTitle = ADMIN_BASE_PAGE_TITLE;
+  }
+  if (isMilmoveSite) {
+    baseTitle = MILMOVE_BASE_PAGE_TITLE;
+  }
+  if (isOfficeSite) {
+    baseTitle = OFFICE_BASE_PAGE_TITLE;
+  }
+  return baseTitle;
+}
+
+export function generatePageTitle(string) {
+  const baseTitle = getBasePageTitle();
+  return baseTitle + (string ? ` - ${string}` : '');
+}
+
+export function useTitle(string) {
+  const { pathname } = useLocation();
+  const subtitle = string || convertPathToSubtitle(pathname);
+  useEffect(() => {
+    document.title = generatePageTitle(subtitle);
+  });
+}
