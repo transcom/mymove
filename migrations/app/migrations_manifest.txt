@@ -793,4 +793,4 @@
 20230314155457_rogeruiz_cac_update.up.sql
 20230324203740_add_secondary_address_radio_states.up.sql
 20230404195728_katyc_cac_access.up.sql
-20230405164241_add-date-sent-for-service-item-approvals-to-moves.up.sql
+20230405164241_add_date_sent_for_service_item_approvals_to_moves.up.sql
