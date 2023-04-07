@@ -398,9 +398,9 @@ func requestedMoveDateFilter(requestedMoveDate *string) QueryOption {
 func closeoutInitiatedFilter(closeoutInitiated *time.Time) QueryOption {
 	return func(query *pop.Query) {
 		if closeoutInitiated != nil {
-			// Between is inclusive, so the end date is set to 1 milsecond prior to the next day
-			closeoutInitiatedEnd := closeoutInitiated.AddDate(0, 0, 1).Add(-1 * time.Millisecond)
-			query.Having("MAX(ppm_shipments.submitted_at) between ? and ?", closeoutInitiated.Format(time.RFC3339), closeoutInitiatedEnd.Format(time.RFC3339))
+			// Between is inclusive, so the end date is set to 1 microsecond prior to the next day
+			closeoutInitiatedEnd := closeoutInitiated.AddDate(0, 0, 1).Add(-1 * time.Microsecond)
+			query.Having("MAX(ppm_shipments.submitted_at) between ? and ?", closeoutInitiated.Format(RFC3339Micro), closeoutInitiatedEnd.Format(RFC3339Micro))
 		}
 	}
 }
