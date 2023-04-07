@@ -82,7 +82,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	//var err error
 
 	setupTestData := func() {
-		mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+		mto := factory.BuildMove(suite.DB(), nil, nil)
 
 		paymentRequest = testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 			Move: mto,
@@ -803,7 +803,7 @@ func (suite *GHCInvoiceSuite) TestOnlyMsandCsGenerateEdi() {
 			Value:   testdatagen.DefaultContractCode,
 		},
 	}
-	mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+	mto := factory.BuildMove(suite.DB(), nil, nil)
 	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 		Move: mto,
 		PaymentRequest: models.PaymentRequest{
@@ -868,7 +868,7 @@ func (suite *GHCInvoiceSuite) TestNilValues() {
 
 	var nilPaymentRequest models.PaymentRequest
 	setupTestData := func() {
-		nilMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+		nilMove := factory.BuildMove(suite.DB(), nil, nil)
 
 		nilPaymentRequest = testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 			Move: nilMove,
@@ -988,7 +988,7 @@ func (suite *GHCInvoiceSuite) TestNoApprovedPaymentServiceItems() {
 				Value:   testdatagen.DefaultContractCode,
 			},
 		}
-		mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+		mto := factory.BuildMove(suite.DB(), nil, nil)
 		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 			Move: mto,
 			PaymentRequest: models.PaymentRequest{
@@ -1086,16 +1086,14 @@ func (suite *GHCInvoiceSuite) TestTACs() {
 	var paymentRequest models.PaymentRequest
 
 	setupTestData := func() {
-		orders := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
-			Order: models.Order{
-				TAC:    &hhgTAC,
-				NtsTAC: &ntsTAC,
+		move := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Order{
+					TAC:    &hhgTAC,
+					NtsTAC: &ntsTAC,
+				},
 			},
-		})
-
-		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Order: orders,
-		})
+		}, nil)
 
 		paymentRequest = testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 			Move: move,

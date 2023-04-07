@@ -4,7 +4,6 @@ import (
 	"errors"
 	"time"
 
-	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -109,31 +108,23 @@ func (suite *PaperworkSuite) TestComputeObligations() {
 				TotalSITCost:          &cents,
 			},
 		})
-
-		address := models.Address{
-			StreetAddress1: "some address",
-			City:           "city",
-			State:          "state",
-			PostalCode:     "31905",
-		}
-		suite.MustSave(&address)
-
-		locationName := "New Duty Location"
-		location := models.DutyLocation{
-			Name:      locationName,
-			AddressID: address.ID,
-			Address:   address,
-		}
-		suite.MustSave(&location)
-
-		orderID := uuid.Must(uuid.NewV4())
-		order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
-			Order: models.Order{
-				ID:                orderID,
-				NewDutyLocationID: location.ID,
-				NewDutyLocation:   location,
+		order := factory.BuildOrder(suite.DB(), []factory.Customization{
+			{
+				Model: models.DutyLocation{
+					Name: "New Duty Location",
+				},
+				Type: &factory.DutyLocations.NewDutyLocation,
 			},
-		})
+			{
+				Model: models.Address{
+					StreetAddress1: "some address",
+					City:           "city",
+					State:          "state",
+					PostalCode:     "31905",
+				},
+				Type: &factory.Addresses.DutyLocationAddress,
+			},
+		}, nil)
 
 		currentDutyLocation := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
 		return ppm, order, currentDutyLocation

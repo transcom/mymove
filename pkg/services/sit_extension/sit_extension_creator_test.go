@@ -4,6 +4,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
@@ -23,7 +24,7 @@ func (suite *SitExtensionServiceSuite) TestSITExtensionCreator() {
 		// Set up:		Established valid shipment and valid SIT extension
 		// Expected:	New sit successfully created
 		// Create new mtoShipment
-		move := testdatagen.MakeAvailableMove(suite.DB())
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		shipment := testdatagen.MakeMTOShipmentWithMove(suite.DB(), &move, testdatagen.Assertions{})
 
 		// Create a valid SIT Extension for the move
@@ -55,7 +56,7 @@ func (suite *SitExtensionServiceSuite) TestSITExtensionCreator() {
 
 	// InvalidInputError
 	suite.Run("Failure - SIT Extension with validation errors returns an InvalidInputError", func() {
-		move := testdatagen.MakeAvailableMove(suite.DB())
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		shipment := testdatagen.MakeMTOShipmentWithMove(suite.DB(), &move, testdatagen.Assertions{})
 
 		// Create a SIT Extension for the move
@@ -85,7 +86,7 @@ func (suite *SitExtensionServiceSuite) TestSITExtensionCreator() {
 	})
 
 	suite.Run("Failure - Not Found Error because shipment uses external vendor", func() {
-		move := testdatagen.MakeAvailableMove(suite.DB())
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		externalShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
 			Move: move,
 			MTOShipment: models.MTOShipment{
@@ -107,8 +108,8 @@ func (suite *SitExtensionServiceSuite) TestSITExtensionCreator() {
 
 	suite.Run("Success - CreateSITExtension with status passed in ", func() {
 		// Create new mtoShipment
-		move := testdatagen.MakeAvailableMove(suite.DB())
-		move2 := testdatagen.MakeAvailableMove(suite.DB())
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		move2 := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		shipment2 := testdatagen.MakeMTOShipmentWithMove(suite.DB(), &move, testdatagen.Assertions{})
 
 		// Create a valid SIT Extension for the move

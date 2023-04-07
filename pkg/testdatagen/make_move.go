@@ -160,8 +160,10 @@ func MakeStubbedMoveWithStatus(db *pop.Connection, status models.MoveStatus) mod
 // MakeApprovalsRequestedMove makes a Move with status 'Approvals Requested'
 func MakeApprovalsRequestedMove(db *pop.Connection, assertions Assertions) models.Move {
 	now := time.Now()
-	assertions.Move.AvailableToPrimeAt = &now
+	availableToPrime := now.Add(time.Hour * -1)
+	assertions.Move.AvailableToPrimeAt = &availableToPrime
 	assertions.Move.Status = models.MoveStatusAPPROVALSREQUESTED
+	assertions.Move.ApprovalsRequestedAt = &now
 
 	move := MakeMove(db, assertions)
 	return move

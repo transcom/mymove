@@ -69,7 +69,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 	})
 
 	suite.Run("successful status update of prime-available payment request", func() {
-		availableMove := testdatagen.MakeAvailableMove(suite.DB())
+		availableMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		availablePaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 			Move: availableMove,
 		})
@@ -254,7 +254,7 @@ func (suite *HandlerSuite) TestListMTOPaymentRequestHandler() {
 	})
 
 	suite.Run("successful get an MTO with no payment requests", func() {
-		mto := testdatagen.MakeDefaultMove(suite.DB())
+		mto := factory.BuildMove(suite.DB(), nil, nil)
 		req := httptest.NewRequest("GET", fmt.Sprintf("/move-task-orders/%s/payment-requests", mto.ID), nil)
 
 		params := paymentrequestop.ListMTOPaymentRequestsParams{
@@ -496,7 +496,7 @@ func (suite *HandlerSuite) createPaymentRequest(num int) models.PaymentRequests 
 			},
 		}
 
-		mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+		mto := factory.BuildMove(suite.DB(), nil, nil)
 		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 			Move: mto,
 			PaymentRequest: models.PaymentRequest{

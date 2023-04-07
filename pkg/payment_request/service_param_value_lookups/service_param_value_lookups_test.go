@@ -58,7 +58,7 @@ func TestServiceParamValueLookupsSuite(t *testing.T) {
 }
 
 func (suite *ServiceParamValueLookupsSuite) setupTestMTOServiceItemWithAllWeights(estimatedWeight *unit.Pound, originalWeight *unit.Pound, reweighWeight *unit.Pound, adjustedWeight *unit.Pound, code models.ReServiceCode, shipmentType models.MTOShipmentType) (models.MTOServiceItem, models.PaymentRequest, *ServiceItemParamKeyData) {
-	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+	move := factory.BuildMove(suite.DB(), nil, nil)
 	mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(),
 		testdatagen.Assertions{
 			Move: move,
@@ -96,7 +96,7 @@ func (suite *ServiceParamValueLookupsSuite) setupTestMTOServiceItemWithAllWeight
 }
 
 func (suite *ServiceParamValueLookupsSuite) setupTestMTOServiceItemWithEstimatedWeightForPPM(estimatedWeight *unit.Pound, originalWeight *unit.Pound, code models.ReServiceCode) (models.MTOServiceItem, models.PaymentRequest, *ServiceItemParamKeyData) {
-	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+	move := factory.BuildMove(suite.DB(), nil, nil)
 	pickupAddress := factory.BuildAddress(suite.DB(), nil, nil)
 	destAddress := factory.BuildAddress(suite.DB(), nil, nil)
 	mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(),
@@ -147,7 +147,7 @@ func (suite *ServiceParamValueLookupsSuite) setupTestMTOServiceItemWithAdjustedW
 }
 
 func (suite *ServiceParamValueLookupsSuite) setupTestMTOServiceItemWithShuttleWeight(itemEstimatedWeight unit.Pound, itemOriginalWeight unit.Pound, code models.ReServiceCode, shipmentType models.MTOShipmentType) (models.MTOServiceItem, models.PaymentRequest, *ServiceItemParamKeyData) {
-	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+	move := factory.BuildMove(suite.DB(), nil, nil)
 	mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(),
 		testdatagen.Assertions{
 			Move: move,
@@ -349,7 +349,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 
 	suite.Run("Correct addresses are used for NTS and NTS-release shipments", func() {
 		// Make a move and service for reuse.
-		move := testdatagen.MakeDefaultMove(suite.DB())
+		move := factory.BuildMove(suite.DB(), nil, nil)
 		reService := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDLH)
 
 		// NTS should have a pickup address and storage facility address.

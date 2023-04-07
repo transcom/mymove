@@ -9,6 +9,7 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/suite"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -171,12 +172,7 @@ func (suite *EventServiceSuite) Test_MTOEventTrigger() {
 
 	// Test successful event
 	suite.Run("Success with GHC MoveTaskOrder endpoint", func() {
-		now := time.Now()
-		mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				AvailableToPrimeAt: &now,
-			},
-		})
+		mto := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		mtoID := mto.ID
 
 		traceID := uuid.Must(uuid.NewV4())
@@ -426,7 +422,7 @@ func (suite *EventServiceSuite) TestOrderEventTrigger() {
 	// Test successful event passing with Support API
 	suite.Run("Success with GHC ServiceItem endpoint", func() {
 
-		move := testdatagen.MakeAvailableMove(suite.DB())
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		traceID := uuid.Must(uuid.NewV4())
 		_, err := TriggerEvent(Event{
 			EventKey:        OrderUpdateEventKey,
@@ -460,7 +456,7 @@ func (suite *EventServiceSuite) TestNotificationEventHandler() {
 
 	// Test a nil MTO ID is present and no notification stored
 	suite.Run("No move and notification stored", func() {
-		order := testdatagen.MakeDefaultOrder(suite.DB())
+		order := factory.BuildOrder(suite.DB(), nil, nil)
 		traceID := uuid.Must(uuid.NewV4())
 		count, _ := suite.DB().Count(&models.WebhookNotification{})
 		event := Event{

@@ -101,11 +101,11 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 			},
 		}, nil)
 
-		moveTaskOrderOne = testdatagen.MakeDefaultMove(suite.DB())
-		moveTaskOrderTwo = testdatagen.MakeDefaultMove(suite.DB())
-		moveTaskOrderThree = testdatagen.MakeDefaultMove(suite.DB())
-		moveTaskOrderFour = testdatagen.MakeDefaultMove(suite.DB())
-		moveTaskOrderFive := testdatagen.MakeDefaultMove(suite.DB())
+		moveTaskOrderOne = factory.BuildMove(suite.DB(), nil, nil)
+		moveTaskOrderTwo = factory.BuildMove(suite.DB(), nil, nil)
+		moveTaskOrderThree = factory.BuildMove(suite.DB(), nil, nil)
+		moveTaskOrderFour = factory.BuildMove(suite.DB(), nil, nil)
+		moveTaskOrderFive := factory.BuildMove(suite.DB(), nil, nil)
 
 		mtoShipmentOne := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: moveTaskOrderOne,
@@ -1507,7 +1507,7 @@ func (suite *ServiceParamValueLookupsSuite) makeAdditionalDaysSITPaymentServiceI
 // SIT service item, and a payment request for that service item.
 func (suite *ServiceParamValueLookupsSuite) setupMoveWithAddlDaysSITAndPaymentRequest(sitFirstDayReService models.ReService, sitEntryDate time.Time, sitAdditionalDaysReService models.ReService, sitAdditionalDaysStartDate string, sitAdditionalDaysEndDate string) (models.Move, models.MTOServiceItem, models.PaymentRequest) {
 	defaultSITDaysAllowance := 90
-	move := testdatagen.MakeDefaultMove(suite.DB())
+	move := factory.BuildMove(suite.DB(), nil, nil)
 	shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: move,
 		MTOShipment: models.MTOShipment{

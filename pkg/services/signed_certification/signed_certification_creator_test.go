@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -55,7 +56,7 @@ func (suite *SignedCertificationSuite) TestCreateSignedCertification() {
 	})
 
 	suite.Run("Can successfully create a signed certification", func() {
-		move := testdatagen.MakeDefaultMove(suite.DB())
+		move := factory.BuildMove(suite.DB(), nil, nil)
 		serviceMember := move.Orders.ServiceMember
 
 		shipmentCertType := models.SignedCertificationTypeSHIPMENT

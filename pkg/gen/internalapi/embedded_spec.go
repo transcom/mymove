@@ -5769,7 +5769,7 @@ func init() {
         "SEPARATION"
       ],
       "x-display-value": {
-        "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station (PCS)",
+        "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station",
         "RETIREMENT": "Retirement",
         "SEPARATION": "Separation"
       }
@@ -14422,7 +14422,7 @@ func init() {
         "SEPARATION"
       ],
       "x-display-value": {
-        "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station (PCS)",
+        "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station",
         "RETIREMENT": "Retirement",
         "SEPARATION": "Separation"
       }

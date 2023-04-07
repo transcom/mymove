@@ -33,7 +33,7 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 	var mtoID uuid.UUID
 
 	setupTestData := func() (models.User, models.MTOServiceItems) {
-		mto := testdatagen.MakeDefaultMove(suite.DB())
+		mto := factory.BuildMove(suite.DB(), nil, nil)
 		mtoID = mto.ID
 		reService := factory.BuildReService(suite.DB(), []factory.Customization{
 			{
@@ -171,7 +171,7 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 }
 
 func (suite *HandlerSuite) createServiceItem() (models.MTOServiceItem, models.Move) {
-	move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{})
+	move := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
 	serviceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 		Move: move,
 	})
