@@ -32,4 +32,8 @@ module.exports = {
       url: 'https://trussworks.github.io/react-uswds/',
     },
   },
+  framework: {
+    name: '@storybook/react',
+    options: {},
+  },
 };
