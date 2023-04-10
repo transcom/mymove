@@ -52,8 +52,8 @@ func (f *sitExtensionDenier) DenySITExtension(appCtx appcontext.AppContext, ship
 	return f.denySITExtension(appCtx, *shipment, *sitExtension, officeRemarks)
 }
 
-func (f *sitExtensionDenier) findSITExtension(appCtx appcontext.AppContext, sitExtensionID uuid.UUID) (*models.SITExtension, error) {
-	var sitExtension models.SITExtension
+func (f *sitExtensionDenier) findSITExtension(appCtx appcontext.AppContext, sitExtensionID uuid.UUID) (*models.SITDurationUpdate, error) {
+	var sitExtension models.SITDurationUpdate
 	err := appCtx.DB().Q().Find(&sitExtension, sitExtensionID)
 
 	if err != nil {
@@ -68,7 +68,7 @@ func (f *sitExtensionDenier) findSITExtension(appCtx appcontext.AppContext, sitE
 	return &sitExtension, nil
 }
 
-func (f *sitExtensionDenier) denySITExtension(appCtx appcontext.AppContext, shipment models.MTOShipment, sitExtension models.SITExtension, officeRemarks *string) (*models.MTOShipment, error) {
+func (f *sitExtensionDenier) denySITExtension(appCtx appcontext.AppContext, shipment models.MTOShipment, sitExtension models.SITDurationUpdate, officeRemarks *string) (*models.MTOShipment, error) {
 	var returnedShipment models.MTOShipment
 
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
@@ -99,7 +99,7 @@ func (f *sitExtensionDenier) denySITExtension(appCtx appcontext.AppContext, ship
 	return &returnedShipment, nil
 }
 
-func (f *sitExtensionDenier) updateSITExtension(appCtx appcontext.AppContext, sitExtension models.SITExtension, officeRemarks *string) error {
+func (f *sitExtensionDenier) updateSITExtension(appCtx appcontext.AppContext, sitExtension models.SITDurationUpdate, officeRemarks *string) error {
 	if officeRemarks != nil {
 		sitExtension.OfficeRemarks = officeRemarks
 	}

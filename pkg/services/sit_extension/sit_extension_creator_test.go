@@ -27,7 +27,7 @@ func (suite *SitExtensionServiceSuite) TestSITExtensionCreator() {
 		shipment := factory.BuildMTOShipmentWithMove(&move, suite.DB(), nil, nil)
 
 		// Create a valid SIT Extension for the move
-		sit := &models.SITExtension{
+		sit := &models.SITDurationUpdate{
 			RequestReason: models.SITExtensionRequestReasonAwaitingCompletionOfResidence,
 			MTOShipmentID: shipment.ID,
 			RequestedDays: 10,
@@ -59,7 +59,7 @@ func (suite *SitExtensionServiceSuite) TestSITExtensionCreator() {
 		shipment := factory.BuildMTOShipmentWithMove(&move, suite.DB(), nil, nil)
 
 		// Create a SIT Extension for the move
-		sit := &models.SITExtension{
+		sit := &models.SITDurationUpdate{
 			RequestReason: models.SITExtensionRequestReason("none"),
 			MTOShipmentID: shipment.ID,
 			RequestedDays: 10,
@@ -74,7 +74,7 @@ func (suite *SitExtensionServiceSuite) TestSITExtensionCreator() {
 
 	suite.Run("Failure - Not Found Error because shipment not found", func() {
 		// Create a SIT Extension for the move
-		sit := &models.SITExtension{
+		sit := &models.SITDurationUpdate{
 			MTOShipmentID: uuid.Must(uuid.NewV4()),
 		}
 
@@ -100,7 +100,7 @@ func (suite *SitExtensionServiceSuite) TestSITExtensionCreator() {
 		}, nil)
 
 		// Create a SIT Extension for the move
-		sit := &models.SITExtension{
+		sit := &models.SITDurationUpdate{
 			MTOShipmentID: externalShipment.ID,
 		}
 
@@ -117,7 +117,7 @@ func (suite *SitExtensionServiceSuite) TestSITExtensionCreator() {
 		shipment2 := factory.BuildMTOShipmentWithMove(&move, suite.DB(), nil, nil)
 
 		// Create a valid SIT Extension for the move
-		sit2 := &models.SITExtension{
+		sit2 := &models.SITDurationUpdate{
 			RequestReason: models.SITExtensionRequestReasonAwaitingCompletionOfResidence,
 			MTOShipmentID: shipment2.ID,
 			Status:        models.SITExtensionStatusApproved,

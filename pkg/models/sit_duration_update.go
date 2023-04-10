@@ -41,11 +41,13 @@ const (
 	SITExtensionStatusDenied SITExtensionStatus = "DENIED"
 )
 
-// SITExtensions is a slice containing SITExtension
-type SITExtensions []SITExtension
+// SITDurationUpdates is a slice containing SITDurationUpdate
+// Formerly known as "SITExtensions"
+type SITDurationUpdates []SITDurationUpdate
 
-// SITExtension struct representing one SIT extension request
-type SITExtension struct {
+// SITDurationUpdate struct representing one SIT duration update
+// Formerly known as "SITExtension"
+type SITDurationUpdate struct {
 	ID                uuid.UUID                 `db:"id"`
 	MTOShipment       MTOShipment               `belongs_to:"mto_shipments" fk_id:"mto_shipment_id"`
 	MTOShipmentID     uuid.UUID                 `db:"mto_shipment_id"`
@@ -61,12 +63,12 @@ type SITExtension struct {
 }
 
 // TableName overrides the table name used by Pop.
-func (m SITExtension) TableName() string {
+func (m SITDurationUpdate) TableName() string {
 	return "sit_extensions"
 }
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-func (m *SITExtension) Validate(tx *pop.Connection) (*validate.Errors, error) {
+func (m *SITDurationUpdate) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	var vs []validate.Validator
 	vs = append(vs, &validators.UUIDIsPresent{Field: m.MTOShipmentID, Name: "MTOShipmentID"})
 	vs = append(vs, &validators.StringInclusion{Field: string(m.RequestReason), Name: "RequestReason", List: []string{

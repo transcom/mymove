@@ -10,14 +10,14 @@ import (
 )
 
 // MakePendingSITExtension makes a SIT Extension that has not yet been approved or denied
-func MakePendingSITExtension(db *pop.Connection, assertions Assertions) models.SITExtension {
+func MakePendingSITExtension(db *pop.Connection, assertions Assertions) models.SITDurationUpdate {
 	mtoShipment := assertions.MTOShipment
 	// make mtoshipment if it was not provided
 	if isZeroUUID(mtoShipment.ID) {
 		mtoShipment = MakeMTOShipment(db, assertions)
 	}
 
-	SITExtension := models.SITExtension{
+	SITExtension := models.SITDurationUpdate{
 		MTOShipment:   mtoShipment,
 		MTOShipmentID: mtoShipment.ID,
 		RequestReason: models.SITExtensionRequestReasonAwaitingCompletionOfResidence,
@@ -33,7 +33,7 @@ func MakePendingSITExtension(db *pop.Connection, assertions Assertions) models.S
 }
 
 // MakeSITExtension creates a single SIT Extension and associated set relationships
-func MakeSITExtension(db *pop.Connection, assertions Assertions) models.SITExtension {
+func MakeSITExtension(db *pop.Connection, assertions Assertions) models.SITDurationUpdate {
 	shipment := assertions.MTOShipment
 	if isZeroUUID(assertions.MTOShipment.ID) {
 		shipment = MakeMTOShipment(db, assertions)
@@ -42,7 +42,7 @@ func MakeSITExtension(db *pop.Connection, assertions Assertions) models.SITExten
 	approvedDays := 100
 	decisionDate := time.Now()
 
-	SITExtension := models.SITExtension{
+	SITExtension := models.SITDurationUpdate{
 		MTOShipmentID: shipment.ID,
 		MTOShipment:   shipment,
 		RequestReason: models.SITExtensionRequestReasonSeriousIllnessMember,

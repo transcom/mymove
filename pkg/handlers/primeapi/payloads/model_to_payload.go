@@ -712,7 +712,7 @@ func Upload(appCtx appcontext.AppContext, storer storage.FileStorer, upload *mod
 }
 
 // SITExtension payload
-func SITExtension(sitExtension *models.SITExtension) *primemessages.SITExtension {
+func SITExtension(sitExtension *models.SITDurationUpdate) *primemessages.SITExtension {
 	if sitExtension == nil {
 		return nil
 	}
@@ -735,7 +735,7 @@ func SITExtension(sitExtension *models.SITExtension) *primemessages.SITExtension
 }
 
 // SITExtensions payload\
-func SITExtensions(sitExtensions *models.SITExtensions) *primemessages.SITExtensions {
+func SITExtensions(sitExtensions *models.SITDurationUpdates) *primemessages.SITExtensions {
 	if sitExtensions == nil {
 		return nil
 	}

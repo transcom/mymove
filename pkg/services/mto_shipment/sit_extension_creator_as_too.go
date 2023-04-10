@@ -23,7 +23,7 @@ func NewCreateSITExtensionAsTOO() services.SITExtensionCreatorAsTOO {
 }
 
 // CreateSITExtensionAsTOO creates a SIT Extension with a status of APPROVED and updates the MTO Shipment's SIT days allowance
-func (f *sitExtensionCreatorAsTOO) CreateSITExtensionAsTOO(appCtx appcontext.AppContext, sitExtension *models.SITExtension, shipmentID uuid.UUID, eTag string) (*models.MTOShipment, error) {
+func (f *sitExtensionCreatorAsTOO) CreateSITExtensionAsTOO(appCtx appcontext.AppContext, sitExtension *models.SITDurationUpdate, shipmentID uuid.UUID, eTag string) (*models.MTOShipment, error) {
 	shipment, err := FindShipment(appCtx, shipmentID)
 	if err != nil {
 		return nil, err

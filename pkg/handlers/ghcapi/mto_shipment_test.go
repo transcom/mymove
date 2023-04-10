@@ -43,7 +43,7 @@ type listMTOShipmentsSubtestData struct {
 	mtoServiceItem models.MTOServiceItem
 	shipments      models.MTOShipments
 	params         mtoshipmentops.ListMTOShipmentsParams
-	sitExtension   models.SITExtension
+	sitExtension   models.SITDurationUpdate
 	sit            models.MTOServiceItem
 }
 
@@ -174,7 +174,7 @@ func (suite *HandlerSuite) makeListMTOShipmentsSubtestData() (subtestData *listM
 	}, nil)
 
 	subtestData.sitExtension = testdatagen.MakeSITExtension(suite.DB(), testdatagen.Assertions{
-		SITExtension: models.SITExtension{
+		SITExtension: models.SITDurationUpdate{
 			MTOShipmentID: mtoShipment.ID,
 		},
 	})

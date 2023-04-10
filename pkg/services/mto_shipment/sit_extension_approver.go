@@ -48,8 +48,8 @@ func (f *sitExtensionApprover) ApproveSITExtension(appCtx appcontext.AppContext,
 	return f.approveSITExtension(appCtx, *shipment, *sitExtension, approvedDays, officeRemarks)
 }
 
-func (f *sitExtensionApprover) findSITExtension(appCtx appcontext.AppContext, sitExtensionID uuid.UUID) (*models.SITExtension, error) {
-	var sitExtension models.SITExtension
+func (f *sitExtensionApprover) findSITExtension(appCtx appcontext.AppContext, sitExtensionID uuid.UUID) (*models.SITDurationUpdate, error) {
+	var sitExtension models.SITDurationUpdate
 	err := appCtx.DB().Q().Find(&sitExtension, sitExtensionID)
 
 	if err != nil {
@@ -64,7 +64,7 @@ func (f *sitExtensionApprover) findSITExtension(appCtx appcontext.AppContext, si
 	return &sitExtension, nil
 }
 
-func (f *sitExtensionApprover) approveSITExtension(appCtx appcontext.AppContext, shipment models.MTOShipment, sitExtension models.SITExtension, approvedDays int, officeRemarks *string) (*models.MTOShipment, error) {
+func (f *sitExtensionApprover) approveSITExtension(appCtx appcontext.AppContext, shipment models.MTOShipment, sitExtension models.SITDurationUpdate, approvedDays int, officeRemarks *string) (*models.MTOShipment, error) {
 	var returnedShipment models.MTOShipment
 
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
@@ -93,7 +93,7 @@ func (f *sitExtensionApprover) approveSITExtension(appCtx appcontext.AppContext,
 	return &returnedShipment, nil
 }
 
-func (f *sitExtensionApprover) updateSITExtension(appCtx appcontext.AppContext, sitExtension models.SITExtension, approvedDays int, officeRemarks *string) error {
+func (f *sitExtensionApprover) updateSITExtension(appCtx appcontext.AppContext, sitExtension models.SITDurationUpdate, approvedDays int, officeRemarks *string) error {
 	sitExtension.ApprovedDays = &approvedDays
 	sitExtension.OfficeRemarks = officeRemarks
 	sitExtension.Status = models.SITExtensionStatusApproved

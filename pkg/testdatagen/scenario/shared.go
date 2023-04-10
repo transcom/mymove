@@ -10195,7 +10195,7 @@ func MakeSITExtensionsForShipment(appCtx appcontext.AppContext, shipment models.
 	approvedDays := 90
 
 	testdatagen.MakeSITExtension(db, testdatagen.Assertions{
-		SITExtension: models.SITExtension{
+		SITExtension: models.SITDurationUpdate{
 			ContractorRemarks: &sitContractorRemarks1,
 			OfficeRemarks:     &sitOfficeRemarks1,
 			ApprovedDays:      &approvedDays,
@@ -10204,7 +10204,7 @@ func MakeSITExtensionsForShipment(appCtx appcontext.AppContext, shipment models.
 	})
 
 	testdatagen.MakeSITExtension(db, testdatagen.Assertions{
-		SITExtension: models.SITExtension{
+		SITExtension: models.SITDurationUpdate{
 			ApprovedDays: &approvedDays,
 		},
 		MTOShipment: shipment,

@@ -15,7 +15,7 @@ func (suite *MTOShipmentServiceSuite) CreateSITExtensionAsTOO() {
 		nonexistentUUID := uuid.Must(uuid.NewV4())
 		requestedDays := 45
 		officeRemarks := "office remarks"
-		sitExtensionToSave := models.SITExtension{
+		sitExtensionToSave := models.SITDurationUpdate{
 			RequestReason: models.SITExtensionRequestReasonAwaitingCompletionOfResidence,
 			RequestedDays: requestedDays,
 			ApprovedDays:  &requestedDays,
@@ -35,7 +35,7 @@ func (suite *MTOShipmentServiceSuite) CreateSITExtensionAsTOO() {
 		mtoShipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
 		requestedDays := 45
 		officeRemarks := "office remarks"
-		sitExtensionToSave := models.SITExtension{
+		sitExtensionToSave := models.SITDurationUpdate{
 			RequestReason: models.SITExtensionRequestReasonAwaitingCompletionOfResidence,
 			RequestedDays: requestedDays,
 			ApprovedDays:  &requestedDays,
@@ -57,7 +57,7 @@ func (suite *MTOShipmentServiceSuite) CreateSITExtensionAsTOO() {
 		eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
 		requestedDays := 45
 		officeRemarks := "office remarks"
-		sitExtensionToSave := models.SITExtension{
+		sitExtensionToSave := models.SITDurationUpdate{
 			MTOShipment:   mtoShipment,
 			MTOShipmentID: mtoShipment.ID,
 			RequestReason: models.SITExtensionRequestReasonAwaitingCompletionOfResidence,
@@ -73,11 +73,11 @@ func (suite *MTOShipmentServiceSuite) CreateSITExtensionAsTOO() {
 		var shipmentInDB models.MTOShipment
 		err = suite.DB().Find(&shipmentInDB, mtoShipment.ID)
 		suite.NoError(err)
-		var sitExtensionInDB models.SITExtension
+		var sitExtensionInDB models.SITDurationUpdate
 		err = suite.DB().First(&sitExtensionInDB)
 		suite.NoError(err)
 
-		var allSITExtensions []models.SITExtension
+		var allSITExtensions []models.SITDurationUpdate
 		err = suite.DB().All(&allSITExtensions)
 		suite.NoError(err)
 		suite.Equal(1, len(allSITExtensions))

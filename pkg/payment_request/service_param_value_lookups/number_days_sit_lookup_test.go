@@ -1991,7 +1991,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 		approvedDays := 400
 		testdatagen.MakeSITExtension(suite.DB(), testdatagen.Assertions{
 			MTOShipment: serviceItemDOASIT.MTOShipment,
-			SITExtension: models.SITExtension{
+			SITExtension: models.SITDurationUpdate{
 				ApprovedDays: &approvedDays,
 			},
 		})

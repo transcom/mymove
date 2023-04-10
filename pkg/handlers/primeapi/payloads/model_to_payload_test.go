@@ -206,7 +206,7 @@ func (suite *PayloadsSuite) TestSitExtension() {
 	createdAt := time.Now()
 	updatedAt := time.Now()
 
-	sitExtension := models.SITExtension{
+	sitExtension := models.SITDurationUpdate{
 		ID:            id,
 		MTOShipmentID: shipmentID,
 		CreatedAt:     createdAt,

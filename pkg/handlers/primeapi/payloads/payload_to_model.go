@@ -532,12 +532,12 @@ func MTOServiceItemModelFromUpdate(mtoServiceItemID string, mtoServiceItem prime
 }
 
 // SITExtensionModel transform the request data the sitExtension model
-func SITExtensionModel(sitExtension *primemessages.CreateSITExtension, mtoShipmentID strfmt.UUID) *models.SITExtension {
+func SITExtensionModel(sitExtension *primemessages.CreateSITExtension, mtoShipmentID strfmt.UUID) *models.SITDurationUpdate {
 	if sitExtension == nil {
 		return nil
 	}
 
-	model := &models.SITExtension{
+	model := &models.SITDurationUpdate{
 		MTOShipmentID:     uuid.FromStringOrNil(mtoShipmentID.String()),
 		RequestedDays:     int(*sitExtension.RequestedDays),
 		ContractorRemarks: sitExtension.ContractorRemarks,

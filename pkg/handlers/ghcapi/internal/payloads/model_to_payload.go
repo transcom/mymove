@@ -623,7 +623,7 @@ func BackupContact(contacts models.BackupContacts) *ghcmessages.BackupContact {
 }
 
 // SITExtension payload
-func SITExtension(sitExtension *models.SITExtension) *ghcmessages.SITExtension {
+func SITExtension(sitExtension *models.SITDurationUpdate) *ghcmessages.SITExtension {
 	if sitExtension == nil {
 		return nil
 	}
@@ -646,7 +646,7 @@ func SITExtension(sitExtension *models.SITExtension) *ghcmessages.SITExtension {
 }
 
 // SITExtensions payload
-func SITExtensions(sitExtensions *models.SITExtensions) *ghcmessages.SITExtensions {
+func SITExtensions(sitExtensions *models.SITDurationUpdates) *ghcmessages.SITExtensions {
 	payload := make(ghcmessages.SITExtensions, len(*sitExtensions))
 
 	if len(*sitExtensions) > 0 {

@@ -13,13 +13,13 @@ import (
 type sitExtensionValidator interface {
 	// Validate checks the sitExtension for adherence to business rules.
 	// It is safe to return a *validate.Errors with zero errors as a success case.
-	Validate(a appcontext.AppContext, sitExtension models.SITExtension, shipment *models.MTOShipment) error
+	Validate(a appcontext.AppContext, sitExtension models.SITDurationUpdate, shipment *models.MTOShipment) error
 }
 
 // validateSITExtension checks a SIT extension against a set of business rule checks
 func validateSITExtension(
 	appCtx appcontext.AppContext,
-	sitExtension models.SITExtension,
+	sitExtension models.SITDurationUpdate,
 	shipment *models.MTOShipment,
 	checks ...sitExtensionValidator,
 ) (result error) {
@@ -44,9 +44,9 @@ func validateSITExtension(
 }
 
 // sitExtensionValidatorFunc is an adapter type for converting a function into an implementation of sitExtensionValidator
-type sitExtensionValidatorFunc func(appcontext.AppContext, models.SITExtension, *models.MTOShipment) error
+type sitExtensionValidatorFunc func(appcontext.AppContext, models.SITDurationUpdate, *models.MTOShipment) error
 
 // Validate fulfills the sitExtensionValidator interface
-func (fn sitExtensionValidatorFunc) Validate(appCtx appcontext.AppContext, sit models.SITExtension, shipment *models.MTOShipment) error {
+func (fn sitExtensionValidatorFunc) Validate(appCtx appcontext.AppContext, sit models.SITDurationUpdate, shipment *models.MTOShipment) error {
 	return fn(appCtx, sit, shipment)
 }

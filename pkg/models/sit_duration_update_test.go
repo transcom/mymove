@@ -20,7 +20,7 @@ func (suite *ModelSuite) TestSITExtensionCreation() {
 		decisionDate := time.Now()
 		contractorRemarks := "some remarks here from the contractor"
 		officeRemarks := "some remarks here from the office"
-		validSITExtension := models.SITExtension{
+		validSITExtension := models.SITDurationUpdate{
 			MTOShipment:       shipment,
 			MTOShipmentID:     shipment.ID,
 			RequestReason:     models.SITExtensionRequestReasonSeriousIllnessMember,
@@ -44,7 +44,7 @@ func (suite *ModelSuite) TestSITExtensionCreation() {
 		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), nil, nil)
 		suite.NotNil(shipment)
 		suite.NotEqual(uuid.Nil, shipment.ID)
-		validSITExtension := models.SITExtension{
+		validSITExtension := models.SITDurationUpdate{
 			MTOShipment:   shipment,
 			MTOShipmentID: shipment.ID,
 			RequestReason: models.SITExtensionRequestReasonSeriousIllnessMember,
@@ -67,7 +67,7 @@ func (suite *ModelSuite) TestSITExtensionValidation() {
 		decisionDate := time.Now()
 		contractorRemarks := "some remarks here from the contractor"
 		officeRemarks := "some remarks here from the office"
-		validSITExtension := models.SITExtension{
+		validSITExtension := models.SITDurationUpdate{
 			MTOShipmentID:     uuid.Must(uuid.NewV4()),
 			RequestReason:     models.SITExtensionRequestReasonSeriousIllnessMember,
 			ContractorRemarks: &contractorRemarks,
@@ -93,7 +93,7 @@ func (suite *ModelSuite) TestSITExtensionValidation() {
 
 	for _, reason := range reasons {
 		suite.Run(fmt.Sprintf("test valid SITExtension Reasons (%s)", reason), func() {
-			validSITExtension := models.SITExtension{
+			validSITExtension := models.SITDurationUpdate{
 				MTOShipmentID: uuid.Must(uuid.NewV4()),
 				RequestReason: reason,
 				RequestedDays: 42,
@@ -112,7 +112,7 @@ func (suite *ModelSuite) TestSITExtensionValidation() {
 
 	for _, status := range statuses {
 		suite.Run(fmt.Sprintf("test valid SITExtension Status (%s)", status), func() {
-			validSITExtension := models.SITExtension{
+			validSITExtension := models.SITDurationUpdate{
 				MTOShipmentID: uuid.Must(uuid.NewV4()),
 				RequestReason: models.SITExtensionRequestReasonSeriousIllnessMember,
 				RequestedDays: 42,
@@ -128,7 +128,7 @@ func (suite *ModelSuite) TestSITExtensionValidation() {
 		const badStatus models.SITExtensionStatus = "bad status"
 		approvedDays := 0
 		badDecisionDate := time.Time{}
-		validSITExtension := models.SITExtension{
+		validSITExtension := models.SITDurationUpdate{
 			MTOShipmentID: uuid.Nil,
 			RequestReason: badReason,
 			RequestedDays: 0,

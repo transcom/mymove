@@ -94,7 +94,7 @@ func (suite *MTOShipmentServiceSuite) TestDenySITExtension() {
 		var shipmentInDB models.MTOShipment
 		err = suite.DB().EagerPreload("MoveTaskOrder").Find(&shipmentInDB, mtoShipment.ID)
 		suite.NoError(err)
-		var sitExtensionInDB models.SITExtension
+		var sitExtensionInDB models.SITDurationUpdate
 		err = suite.DB().Find(&sitExtensionInDB, sitExtension.ID)
 		suite.NoError(err)
 

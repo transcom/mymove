@@ -134,13 +134,13 @@ func StorageFacilityModel(storageFacility *ghcmessages.StorageFacility) *models.
 }
 
 // ApprovedSITExtensionFromCreate model
-func ApprovedSITExtensionFromCreate(sitExtension *ghcmessages.CreateSITExtensionAsTOO, shipmentID strfmt.UUID) *models.SITExtension {
+func ApprovedSITExtensionFromCreate(sitExtension *ghcmessages.CreateSITExtensionAsTOO, shipmentID strfmt.UUID) *models.SITDurationUpdate {
 	if sitExtension == nil {
 		return nil
 	}
 	now := time.Now()
 	ad := int(*sitExtension.ApprovedDays)
-	model := &models.SITExtension{
+	model := &models.SITDurationUpdate{
 		MTOShipmentID: uuid.FromStringOrNil(shipmentID.String()),
 		RequestReason: models.SITExtensionRequestReason(*sitExtension.RequestReason),
 		RequestedDays: int(*sitExtension.ApprovedDays),
