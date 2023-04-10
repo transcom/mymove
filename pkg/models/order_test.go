@@ -39,7 +39,7 @@ func (suite *ModelSuite) TestBasicOrderInstantiation() {
 }
 
 func (suite *ModelSuite) TestMiscValidationsAfterSubmission() {
-	move := testdatagen.MakeStubbedMoveWithStatus(suite.DB(), MoveStatusSUBMITTED)
+	move := factory.BuildStubbedMoveWithStatus(MoveStatusSUBMITTED)
 	order := move.Orders
 	order.Moves = append(order.Moves, move)
 
@@ -72,7 +72,7 @@ func (suite *ModelSuite) TestTacCanBeNilBeforeSubmissionToTOO() {
 		{"NeedsServiceCounseling", MoveStatusNeedsServiceCounseling},
 	}
 	for _, validStatus := range validStatuses {
-		move := testdatagen.MakeStubbedMoveWithStatus(suite.DB(), validStatus.value)
+		move := factory.BuildStubbedMoveWithStatus(validStatus.value)
 		order := move.Orders
 		order.TAC = nil
 		order.Moves = append(order.Moves, move)
@@ -95,7 +95,7 @@ func (suite *ModelSuite) TestTacFormat() {
 		{"TestNonAlphaNumChars", "AB-C"},
 	}
 	for _, invalidCase := range invalidCases {
-		move := testdatagen.MakeStubbedMoveWithStatus(suite.DB(), MoveStatusSUBMITTED)
+		move := factory.BuildStubbedMoveWithStatus(MoveStatusSUBMITTED)
 		order := move.Orders
 		order.TAC = &invalidCase.tac
 		order.Moves = append(order.Moves, move)
@@ -111,7 +111,7 @@ func (suite *ModelSuite) TestTacFormat() {
 func (suite *ModelSuite) TestFetchOrderForUser() {
 
 	suite.Run("successful fetch by authorized user", func() {
-		order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{})
+		order := factory.BuildOrder(suite.DB(), nil, nil)
 
 		// User is authorized to fetch order
 		session := &auth.Session{
@@ -135,11 +135,13 @@ func (suite *ModelSuite) TestFetchOrderForUser() {
 
 	suite.Run("check for closeout office", func() {
 		closeoutOffice := testdatagen.MakeTransportationOffice(suite.DB(), testdatagen.Assertions{})
-		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Move: Move{
-				CloseoutOffice: &closeoutOffice,
+		move := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model:    closeoutOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CloseoutOffice,
 			},
-		})
+		}, nil)
 		orders := move.Orders
 		orders.Moves = append(orders.Moves, move)
 
@@ -176,7 +178,7 @@ func (suite *ModelSuite) TestFetchOrderForUser() {
 	})
 
 	suite.Run("forbidden user cannot fetch order", func() {
-		order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{})
+		order := factory.BuildOrder(suite.DB(), nil, nil)
 		// User is forbidden from fetching order
 		serviceMember2 := factory.BuildServiceMember(suite.DB(), nil, nil)
 		session := &auth.Session{
@@ -223,17 +225,22 @@ func (suite *ModelSuite) TestFetchOrderForUser() {
 			},
 		}, nil)
 
-		expectedOrder := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
-			Order: Order{
-				ServiceMember:           nonDeletedOrdersUpload.Document.ServiceMember,
-				ServiceMemberID:         nonDeletedOrdersUpload.Document.ServiceMemberID,
-				UploadedOrders:          nonDeletedOrdersUpload.Document,
-				UploadedOrdersID:        *nonDeletedOrdersUpload.DocumentID,
-				UploadedAmendedOrders:   &nonDeletedAmendedUpload.Document,
-				UploadedAmendedOrdersID: nonDeletedAmendedUpload.DocumentID,
+		expectedOrder := factory.BuildOrder(suite.DB(), []factory.Customization{
+			{
+				Model:    nonDeletedOrdersUpload.Document.ServiceMember,
+				LinkOnly: true,
 			},
-		})
-
+			{
+				Model:    nonDeletedOrdersUpload.Document,
+				LinkOnly: true,
+				Type:     &factory.Documents.UploadedOrders,
+			},
+			{
+				Model:    nonDeletedAmendedUpload.Document,
+				LinkOnly: true,
+				Type:     &factory.Documents.UploadedAmendedOrders,
+			},
+		}, nil)
 		userSession := auth.Session{
 			ApplicationName: auth.MilApp,
 			UserID:          expectedOrder.ServiceMember.ID,
@@ -344,19 +351,20 @@ func (suite *ModelSuite) TestSaveOrder() {
 	orderID := uuid.Must(uuid.NewV4())
 	moveID, _ := uuid.FromString("7112b18b-7e03-4b28-adde-532b541bba8d")
 
-	order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
-		Order: Order{
-			ID: orderID,
+	move := factory.BuildMove(suite.DB(), []factory.Customization{
+		{
+			Model: Move{
+				ID: moveID,
+			},
 		},
-	})
-	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-		Move: Move{
-			ID:       moveID,
-			OrdersID: orderID,
-			Orders:   order,
+		{
+			Model: Order{
+				ID: orderID,
+			},
 		},
-		Order: order,
-	})
+	}, nil)
+
+	order := move.Orders
 
 	postalCode := "30813"
 	newPostalCode := "12345"
@@ -402,19 +410,20 @@ func (suite *ModelSuite) TestSaveOrderWithoutPPM() {
 	orderID := uuid.Must(uuid.NewV4())
 	moveID, _ := uuid.FromString("7112b18b-7e03-4b28-adde-532b541bba8d")
 
-	order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
-		Order: Order{
-			ID: orderID,
+	move := factory.BuildMove(suite.DB(), []factory.Customization{
+		{
+			Model: Move{
+				ID: moveID,
+			},
 		},
-	})
+		{
+			Model: Order{
+				ID: orderID,
+			},
+		},
+	}, nil)
 
-	testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-		Move: Move{
-			ID:       moveID,
-			OrdersID: orderID,
-			Orders:   order,
-		},
-	})
+	order := move.Orders
 
 	postalCode := "30813"
 	newPostalCode := "12345"

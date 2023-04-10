@@ -49,7 +49,7 @@ Blank.args = {
   },
   order: {
     entitlement: {
-      authorizedWeight: 2000,
+      totalWeight: 2000,
     },
   },
   mtoShipments: [
@@ -89,7 +89,7 @@ FilledIn.args = {
   },
   order: {
     entitlement: {
-      authorizedWeight: 2000,
+      totalWeight: 2000,
     },
   },
   mtoShipments: [
@@ -128,5 +128,10 @@ MissingWeightTickets.args = {
     trailerMeetsCriteria: false,
     missingEmptyWeightTicket: true,
     missingFullWeightTicket: true,
+  },
+  order: {
+    entitlement: {
+      totalWeight: 2000,
+    },
   },
 };

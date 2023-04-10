@@ -37,7 +37,7 @@ func (suite *ModelSuite) TestBasicMoveInstantiation() {
 }
 
 func (suite *ModelSuite) TestCreateNewMoveValidLocatorString() {
-	orders := testdatagen.MakeDefaultOrder(suite.DB())
+	orders := factory.BuildOrder(suite.DB(), nil, nil)
 	factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 	selectedMoveType := SelectedMoveTypeHHG
 
@@ -73,7 +73,7 @@ func (suite *ModelSuite) TestFetchMove() {
 
 	setupTestData := func() (*auth.Session, Order) {
 
-		order := testdatagen.MakeDefaultOrder(suite.DB())
+		order := factory.BuildOrder(suite.DB(), nil, nil)
 		factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 
 		session := &auth.Session{
@@ -143,7 +143,7 @@ func (suite *ModelSuite) TestFetchMove() {
 		session, _ := setupTestData()
 
 		// Create a second sm and a move only on that sm
-		order2 := testdatagen.MakeDefaultOrder(suite.DB())
+		order2 := factory.BuildOrder(suite.DB(), nil, nil)
 		selectedMoveType := SelectedMoveTypeHHG
 		moveOptions := MoveOptions{
 			SelectedType: &selectedMoveType,
@@ -207,7 +207,7 @@ func (suite *ModelSuite) TestFetchMove() {
 
 func (suite *ModelSuite) TestSaveMoveDependenciesFail() {
 	// Given: A move with Orders with unacceptable status
-	orders := testdatagen.MakeDefaultOrder(suite.DB())
+	orders := factory.BuildOrder(suite.DB(), nil, nil)
 	orders.Status = ""
 	factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 	selectedMoveType := SelectedMoveTypeHHGPPM
@@ -228,7 +228,7 @@ func (suite *ModelSuite) TestSaveMoveDependenciesFail() {
 
 func (suite *ModelSuite) TestSaveMoveDependenciesSuccess() {
 	// Given: A move with Orders with acceptable status
-	orders := testdatagen.MakeDefaultOrder(suite.DB())
+	orders := factory.BuildOrder(suite.DB(), nil, nil)
 	orders.Status = OrderStatusSUBMITTED
 	factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 	selectedMoveType := SelectedMoveTypeHHGPPM
@@ -252,18 +252,18 @@ func (suite *ModelSuite) TestFetchMoveByOrderID() {
 	moveID, _ := uuid.FromString("7112b18b-7e03-4b28-adde-532b541bba8d")
 	invalidID, _ := uuid.FromString("00000000-0000-0000-0000-000000000000")
 
-	order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
-		Order: Order{
-			ID: orderID,
+	factory.BuildMove(suite.DB(), []factory.Customization{
+		{
+			Model: Move{
+				ID: moveID,
+			},
 		},
-	})
-	testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-		Move: Move{
-			ID:       moveID,
-			OrdersID: orderID,
-			Orders:   order,
+		{
+			Model: Order{
+				ID: orderID,
+			},
 		},
-	})
+	}, nil)
 
 	tests := []struct {
 		lookupID  uuid.UUID
@@ -286,7 +286,7 @@ func (suite *ModelSuite) TestFetchMoveByOrderID() {
 }
 
 func (suite *ModelSuite) TestMoveIsPPMOnly() {
-	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+	move := factory.BuildMove(suite.DB(), nil, nil)
 	isPPMOnly := move.IsPPMOnly()
 	suite.False(isPPMOnly, "A move with no shipments will return false for isPPMOnly.")
 

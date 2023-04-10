@@ -239,7 +239,7 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailure() {
 func (suite *HandlerSuite) TestDeleteUploadHandlerSuccess() {
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 
-	uploadUser := testdatagen.MakeDefaultUserUpload(suite.DB())
+	uploadUser := factory.BuildUserUpload(suite.DB(), nil, nil)
 	suite.Nil(uploadUser.Upload.DeletedAt)
 
 	file := suite.Fixture(FixturePDF)
@@ -269,7 +269,7 @@ func (suite *HandlerSuite) TestDeleteUploadHandlerSuccess() {
 func (suite *HandlerSuite) TestDeleteUploadsHandlerSuccess() {
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 
-	uploadUser1 := testdatagen.MakeDefaultUserUpload(suite.DB())
+	uploadUser1 := factory.BuildUserUpload(suite.DB(), nil, nil)
 	suite.Nil(uploadUser1.Upload.DeletedAt)
 
 	uploadUser2Customization := []factory.Customization{
@@ -313,7 +313,7 @@ func (suite *HandlerSuite) TestDeleteUploadHandlerSuccessEvenWithS3Failure() {
 	// therefore a failure in the S3 storer will still result in a successful soft delete.
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 
-	uploadUser := testdatagen.MakeDefaultUserUpload(suite.DB())
+	uploadUser := factory.BuildUserUpload(suite.DB(), nil, nil)
 	suite.Nil(uploadUser.Upload.DeletedAt)
 
 	file := suite.Fixture(FixturePDF)

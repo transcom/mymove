@@ -19,6 +19,10 @@ import (
 // swagger:model Move
 type Move struct {
 
+	// The time at which a move is sent back to the TOO becuase the prime added a new service item for approval
+	// Format: date-time
+	ApprovalsRequestedAt *strfmt.DateTime `json:"approvalsRequestedAt,omitempty"`
+
 	// available to prime at
 	// Format: date-time
 	AvailableToPrimeAt *strfmt.DateTime `json:"availableToPrimeAt,omitempty"`
@@ -111,6 +115,10 @@ type Move struct {
 func (m *Move) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateApprovalsRequestedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateAvailableToPrimeAt(formats); err != nil {
 		res = append(res, err)
 	}
@@ -178,6 +186,18 @@ func (m *Move) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *Move) validateApprovalsRequestedAt(formats strfmt.Registry) error {
+	if swag.IsZero(m.ApprovalsRequestedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("approvalsRequestedAt", "body", "date-time", m.ApprovalsRequestedAt.String(), formats); err != nil {
+		return err
+	}
+
 	return nil
 }
 

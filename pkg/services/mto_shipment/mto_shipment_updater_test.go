@@ -12,6 +12,7 @@ import (
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/factory"
+	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/notifications"
@@ -186,6 +187,68 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		mockShipmentRecalculator.AssertNotCalled(suite.T(), "ShipmentRecalculatePaymentRequest", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID"))
 	})
 
+	suite.Run("Successfully remove a secondary pickup address", func() {
+		setupTestData()
+		fmt.Println("secondaryPickupAddress", secondaryPickupAddress)
+
+		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypeHHG,
+			},
+			SecondaryPickupAddress: secondaryPickupAddress,
+		})
+		suite.FatalNotNil(oldShipment.SecondaryPickupAddress)
+		suite.FatalNotNil(oldShipment.SecondaryPickupAddressID)
+		suite.FatalNotNil(oldShipment.HasSecondaryPickupAddress)
+		suite.True(*oldShipment.HasSecondaryPickupAddress)
+
+		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
+
+		no := false
+		updatedShipment := models.MTOShipment{
+			ID:                        oldShipment.ID,
+			HasSecondaryPickupAddress: &no,
+		}
+
+		session := auth.Session{}
+		newShipment, err := mtoShipmentUpdaterCustomer.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag)
+
+		suite.Require().NoError(err)
+		suite.FatalNotNil(newShipment.HasSecondaryPickupAddress)
+		suite.False(*newShipment.HasSecondaryPickupAddress)
+		suite.Nil(newShipment.SecondaryPickupAddress)
+	})
+	suite.Run("Successfully remove a secondary delivery address", func() {
+		setupTestData()
+		fmt.Println("secondaryDeliveryAddress", secondaryDeliveryAddress)
+
+		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypeHHG,
+			},
+			SecondaryDeliveryAddress: secondaryDeliveryAddress,
+		})
+		suite.FatalNotNil(oldShipment.SecondaryDeliveryAddress)
+		suite.FatalNotNil(oldShipment.SecondaryDeliveryAddressID)
+		suite.FatalNotNil(oldShipment.HasSecondaryDeliveryAddress)
+		suite.True(*oldShipment.HasSecondaryDeliveryAddress)
+
+		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
+
+		no := false
+		updatedShipment := models.MTOShipment{
+			ID:                          oldShipment.ID,
+			HasSecondaryDeliveryAddress: &no,
+		}
+
+		session := auth.Session{}
+		newShipment, err := mtoShipmentUpdaterCustomer.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag)
+
+		suite.Require().NoError(err)
+		suite.FatalNotNil(newShipment.HasSecondaryDeliveryAddress)
+		suite.False(*newShipment.HasSecondaryDeliveryAddress)
+		suite.Nil(newShipment.SecondaryDeliveryAddress)
+	})
 	suite.Run("Successful update to all address fields", func() {
 		setupTestData()
 
@@ -196,15 +259,17 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		eTag := etag.GenerateEtag(oldMTOShipment3.UpdatedAt)
 
 		updatedShipment := &models.MTOShipment{
-			ID:                         oldMTOShipment3.ID,
-			DestinationAddress:         &newDestinationAddress,
-			DestinationAddressID:       &newDestinationAddress.ID,
-			PickupAddress:              &newPickupAddress,
-			PickupAddressID:            &newPickupAddress.ID,
-			SecondaryPickupAddress:     &secondaryPickupAddress,
-			SecondaryPickupAddressID:   &secondaryDeliveryAddress.ID,
-			SecondaryDeliveryAddress:   &secondaryDeliveryAddress,
-			SecondaryDeliveryAddressID: &secondaryDeliveryAddress.ID,
+			ID:                          oldMTOShipment3.ID,
+			DestinationAddress:          &newDestinationAddress,
+			DestinationAddressID:        &newDestinationAddress.ID,
+			PickupAddress:               &newPickupAddress,
+			PickupAddressID:             &newPickupAddress.ID,
+			HasSecondaryPickupAddress:   swag.Bool(true),
+			SecondaryPickupAddress:      &secondaryPickupAddress,
+			SecondaryPickupAddressID:    &secondaryDeliveryAddress.ID,
+			HasSecondaryDeliveryAddress: swag.Bool(true),
+			SecondaryDeliveryAddress:    &secondaryDeliveryAddress,
+			SecondaryDeliveryAddressID:  &secondaryDeliveryAddress.ID,
 		}
 		session := auth.Session{}
 		updatedShipment, err := mtoShipmentUpdaterCustomer.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), updatedShipment, eTag)
@@ -246,7 +311,9 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			PickupAddress:                    &newPickupAddress,
 			PickupAddressID:                  &newPickupAddress.ID,
 			SecondaryPickupAddress:           &secondaryPickupAddress,
+			HasSecondaryPickupAddress:        handlers.FmtBool(true),
 			SecondaryDeliveryAddress:         &secondaryDeliveryAddress,
+			HasSecondaryDeliveryAddress:      handlers.FmtBool(true),
 			RequestedPickupDate:              &requestedPickupDate,
 			ScheduledPickupDate:              &scheduledPickupDate,
 			RequestedDeliveryDate:            &requestedDeliveryDate,
@@ -661,11 +728,13 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 
 		// A diverted shipment should transition to the SUBMITTED status.
 		// If the move it is connected to is APPROVED, that move should transition to APPROVALS REQUESTED
-		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				Status: models.MoveStatusAPPROVED,
+		move := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVED,
+				},
 			},
-		})
+		}, nil)
 		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: move,
 			MTOShipment: models.MTOShipment{
@@ -709,7 +778,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		// when ScheduledPickupDate was included in the payload. See PR #6919.
 		// ApprovedDate affects shipment diversions, so we want to make sure it
 		// never gets nullified, regardless of which fields are being updated.
-		move := testdatagen.MakeAvailableMove(suite.DB())
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		oldShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
 				Status: models.MTOShipmentStatusApproved,
@@ -725,20 +794,22 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		scheduledPickupDate := time.Date(2019, time.March, 17, 0, 0, 0, 0, time.UTC)
 		requestedDeliveryDate := time.Date(2019, time.March, 30, 0, 0, 0, 0, time.UTC)
 		updatedShipment := models.MTOShipment{
-			ID:                         oldShipment.ID,
-			DestinationAddress:         &newDestinationAddress,
-			DestinationAddressID:       &newDestinationAddress.ID,
-			PickupAddress:              &newPickupAddress,
-			PickupAddressID:            &newPickupAddress.ID,
-			SecondaryPickupAddress:     &secondaryPickupAddress,
-			SecondaryDeliveryAddress:   &secondaryDeliveryAddress,
-			RequestedPickupDate:        &requestedPickupDate,
-			ScheduledPickupDate:        &scheduledPickupDate,
-			RequestedDeliveryDate:      &requestedDeliveryDate,
-			ActualPickupDate:           &actualPickupDate,
-			PrimeActualWeight:          &primeActualWeight,
-			PrimeEstimatedWeight:       &primeEstimatedWeight,
-			FirstAvailableDeliveryDate: &firstAvailableDeliveryDate,
+			ID:                          oldShipment.ID,
+			DestinationAddress:          &newDestinationAddress,
+			DestinationAddressID:        &newDestinationAddress.ID,
+			PickupAddress:               &newPickupAddress,
+			PickupAddressID:             &newPickupAddress.ID,
+			SecondaryPickupAddress:      &secondaryPickupAddress,
+			HasSecondaryPickupAddress:   handlers.FmtBool(true),
+			SecondaryDeliveryAddress:    &secondaryDeliveryAddress,
+			HasSecondaryDeliveryAddress: handlers.FmtBool(true),
+			RequestedPickupDate:         &requestedPickupDate,
+			ScheduledPickupDate:         &scheduledPickupDate,
+			RequestedDeliveryDate:       &requestedDeliveryDate,
+			ActualPickupDate:            &actualPickupDate,
+			PrimeActualWeight:           &primeActualWeight,
+			PrimeEstimatedWeight:        &primeEstimatedWeight,
+			FirstAvailableDeliveryDate:  &firstAvailableDeliveryDate,
 		}
 
 		session := auth.Session{}
@@ -791,7 +862,13 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 			factory.BuildReServiceByCode(suite.DB(), expectedReServiceCodes[i])
 		}
 
-		mto = testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Move: models.Move{Status: models.MoveStatusAPPROVED}})
+		mto = factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVED,
+				},
+			},
+		}, nil)
 		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: mto,
 			MTOShipment: models.MTOShipment{
@@ -1257,7 +1334,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		setupTestData()
 
 		approvedShipment2 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: testdatagen.MakeAvailableMove(suite.DB()),
+			Move: factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil),
 			MTOShipment: models.MTOShipment{
 				Status: models.MTOShipmentStatusApproved,
 			},
@@ -1278,7 +1355,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		setupTestData()
 
 		cancellationRequestedShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: testdatagen.MakeAvailableMove(suite.DB()),
+			Move: factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil),
 			MTOShipment: models.MTOShipment{
 				Status: models.MTOShipmentStatusCancellationRequested,
 			},
@@ -1335,7 +1412,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		// a diversion or diverted shipment is when the PRIME sets the diversion field to true
 		// the status must also be in diversion requested status to be approvable as well
 		diversionRequestedShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: testdatagen.MakeAvailableMove(suite.DB()),
+			Move: factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil),
 			MTOShipment: models.MTOShipment{
 				Status:    models.MTOShipmentStatusDiversionRequested,
 				Diversion: true,

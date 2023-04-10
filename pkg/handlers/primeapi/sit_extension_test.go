@@ -7,6 +7,7 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/factory"
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -34,7 +35,7 @@ func (suite *HandlerSuite) CreateSITExtensionHandler() {
 	setupTestData := func() (CreateSITExtensionHandler, models.MTOShipment) {
 
 		// Make an available move
-		move := testdatagen.MakeAvailableMove(suite.DB())
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
 		// Make a shipment on the available MTO
 		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{

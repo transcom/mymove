@@ -2752,6 +2752,7 @@ paths:
             - originDutyLocation
             - destinationDutyLocation
             - requestedMoveDate
+            - appearedInTooAt
           description: field that results should be sorted by
         - in: query
           name: order
@@ -2778,6 +2779,10 @@ paths:
         - in: query
           name: destinationDutyLocation
           type: string
+        - in: query
+          name: appearedInTooAt
+          type: string
+          format: date-time
         - in: query
           name: requestedMoveDate
           type: string
@@ -3376,6 +3381,13 @@ definitions:
           The transportation office that will handle reviewing PPM Closeout
           documentation for Army and Air Force service members
         x-nullable: true
+      approvalsRequestedAt:
+        type: string
+        format: date-time
+        description: >-
+          The time at which a move is sent back to the TOO becuase the prime
+          added a new service item for approval
+        x-nullable: true
       createdAt:
         type: string
         format: date-time
@@ -3572,17 +3584,6 @@ definitions:
       ARMY: 21 Army
       AIR_FORCE: 57 Air Force
       COAST_GUARD: 70 Coast Guard
-  OrdersType:
-    type: string
-    title: Orders type
-    enum:
-      - PERMANENT_CHANGE_OF_STATION
-      - RETIREMENT
-      - SEPARATION
-    x-display-value:
-      PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
-      RETIREMENT: Retirement
-      SEPARATION: Separation
   OrdersTypeDetail:
     type: string
     title: Orders type detail
@@ -4748,6 +4749,10 @@ definitions:
         format: date-time
         type: string
         x-nullable: true
+      appearedInTooAt:
+        format: date-time
+        type: string
+        x-nullable: true
       requestedMoveDate:
         format: date
         type: string
@@ -5380,6 +5385,17 @@ definitions:
         $ref: '#/definitions/Address'
       eTag:
         type: string
+  OrdersType:
+    type: string
+    title: Orders type
+    enum:
+      - PERMANENT_CHANGE_OF_STATION
+      - RETIREMENT
+      - SEPARATION
+    x-display-value:
+      PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
+      RETIREMENT: Retirement
+      SEPARATION: Separation
   TransportationOffice:
     type: object
     properties:

@@ -154,7 +154,7 @@ func (suite *HandlerSuite) setupPersonallyProcuredMoveTest() {
 
 func (suite *HandlerSuite) TestCreatePPMHandler() {
 	user1 := factory.BuildServiceMember(suite.DB(), nil, nil)
-	orders := testdatagen.MakeDefaultOrder(suite.DB())
+	orders := factory.BuildOrder(suite.DB(), nil, nil)
 	factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 
 	selectedMoveType := models.SelectedMoveTypeHHGPPM
@@ -205,7 +205,7 @@ func (suite *HandlerSuite) TestSubmitPPMHandler() {
 	t := suite.T()
 
 	// create a ppm
-	move1 := testdatagen.MakeDefaultMove(suite.DB())
+	move1 := factory.BuildMove(suite.DB(), nil, nil)
 	wtgEst := unit.Pound(1)
 	ppm := models.PersonallyProcuredMove{
 		MoveID:         move1.ID,
@@ -261,7 +261,7 @@ func (suite *HandlerSuite) TestPatchPPMHandler() {
 	newPickupPostalCode := swag.String("32168")
 	newSitCost := swag.Int64(60)
 
-	move := testdatagen.MakeDefaultMove(suite.DB())
+	move := factory.BuildMove(suite.DB(), nil, nil)
 
 	newAdvanceWorksheet := models.Document{
 		ServiceMember:   move.Orders.ServiceMember,
@@ -338,7 +338,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerSetWeightLater() {
 	pickupPostalCode := swag.String("32168")
 	destinationPostalCode := swag.String("29401")
 
-	move := testdatagen.MakeDefaultMove(suite.DB())
+	move := factory.BuildMove(suite.DB(), nil, nil)
 
 	ppm1 := models.PersonallyProcuredMove{
 		MoveID:                move.ID,
@@ -413,7 +413,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerWrongUser() {
 	initialMoveDate := newMoveDate.Add(-2 * 24 * time.Hour)
 
 	user2 := factory.BuildServiceMember(suite.DB(), nil, nil)
-	move := testdatagen.MakeDefaultMove(suite.DB())
+	move := factory.BuildMove(suite.DB(), nil, nil)
 
 	ppm1 := models.PersonallyProcuredMove{
 		MoveID:           move.ID,
@@ -448,8 +448,8 @@ func (suite *HandlerSuite) TestPatchPPMHandlerWrongMoveID() {
 	initialWeight := unit.Pound(1)
 	newWeight := swag.Int64(5)
 
-	orders := testdatagen.MakeDefaultOrder(suite.DB())
-	orders1 := testdatagen.MakeDefaultOrder(suite.DB())
+	orders := factory.BuildOrder(suite.DB(), nil, nil)
+	orders1 := factory.BuildOrder(suite.DB(), nil, nil)
 	factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 
 	selectedMoveType := models.SelectedMoveTypeHHGPPM
@@ -500,7 +500,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerNoMove() {
 	initialWeight := unit.Pound(1)
 	newWeight := swag.Int64(5)
 
-	move := testdatagen.MakeDefaultMove(suite.DB())
+	move := factory.BuildMove(suite.DB(), nil, nil)
 
 	badMoveID := uuid.Must(uuid.NewV4())
 
@@ -541,7 +541,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerAdvance() {
 
 	initialWeight := unit.Pound(1)
 
-	move := testdatagen.MakeDefaultMove(suite.DB())
+	move := factory.BuildMove(suite.DB(), nil, nil)
 
 	ppm1 := models.PersonallyProcuredMove{
 		MoveID:         move.ID,
@@ -611,7 +611,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerAdvance() {
 
 	initialWeight := unit.Pound(1)
 
-	move := testdatagen.MakeDefaultMove(suite.DB())
+	move := factory.BuildMove(suite.DB(), nil, nil)
 
 	ppm1 := models.PersonallyProcuredMove{
 		MoveID:         move.ID,
@@ -669,7 +669,7 @@ func (suite *HandlerSuite) TestRequestPPMPayment() {
 
 	initialWeight := unit.Pound(1)
 
-	move := testdatagen.MakeDefaultMove(suite.DB())
+	move := factory.BuildMove(suite.DB(), nil, nil)
 	moveRouter := moverouter.NewMoveRouter()
 	newSignedCertification := testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
 		SignedCertification: models.SignedCertification{

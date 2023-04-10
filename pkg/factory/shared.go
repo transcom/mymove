@@ -42,10 +42,13 @@ var Contractor CustomType = "Contractor"
 var Document CustomType = "Document"
 var DutyLocation CustomType = "DutyLocation"
 var Entitlement CustomType = "Entitlement"
+var Move CustomType = "Move"
+var MTOShipment CustomType = "MTOShipment"
 var OfficePhoneLine CustomType = "OfficePhoneLine"
 var OfficeUser CustomType = "OfficeUser"
 var Order CustomType = "Order"
 var Organization CustomType = "Organization"
+var PostalCodeToGBLOC CustomType = "PostalCodeToGBLOC"
 var ReService CustomType = "ReService"
 var ServiceItemParamKey CustomType = "ServiceItemParamKey"
 var ServiceMember CustomType = "ServiceMember"
@@ -68,10 +71,13 @@ var defaultTypesMap = map[string]CustomType{
 	"models.Document":             Document,
 	"models.DutyLocation":         DutyLocation,
 	"models.Entitlement":          Entitlement,
+	"models.Move":                 Move,
+	"models.MTOShipment":          MTOShipment,
 	"models.OfficePhoneLine":      OfficePhoneLine,
 	"models.OfficeUser":           OfficeUser,
 	"models.Order":                Order,
 	"models.Organization":         Organization,
+	"models.PostalCodeToGBLOC":    PostalCodeToGBLOC,
 	"models.ReService":            ReService,
 	"models.ServiceItemParamKey":  ServiceItemParamKey,
 	"models.ServiceMember":        ServiceMember,
@@ -92,6 +98,7 @@ var defaultTypesMap = map[string]CustomType{
 type addressGroup struct {
 	PickupAddress            CustomType
 	DeliveryAddress          CustomType
+	SecondaryPickupAddress   CustomType
 	SecondaryDeliveryAddress CustomType
 	ResidentialAddress       CustomType
 	BackupMailingAddress     CustomType
@@ -103,6 +110,7 @@ type addressGroup struct {
 var Addresses = addressGroup{
 	PickupAddress:            "PickupAddress",
 	DeliveryAddress:          "DeliveryAddress",
+	SecondaryPickupAddress:   "SecondaryPickupAddress",
 	SecondaryDeliveryAddress: "SecondaryDeliveryAddress",
 	ResidentialAddress:       "ResidentialAddress",
 	BackupMailingAddress:     "BackupMailingAddress",
@@ -123,6 +131,17 @@ var Dimensions = dimensionGroup{
 	ItemDimension:  "ItemDimension",
 }
 
+type documentGroup struct {
+	UploadedOrders        CustomType
+	UploadedAmendedOrders CustomType
+}
+
+var Documents = documentGroup{
+	// Orders may include:
+	UploadedOrders:        "UploadedOrders",
+	UploadedAmendedOrders: "UploadedAmendedOrders",
+}
+
 // dutyLocationsGroup is a grouping of all the duty location related fields
 type dutyLocationsGroup struct {
 	OriginDutyLocation CustomType
@@ -134,6 +153,20 @@ var DutyLocations = dutyLocationsGroup{
 	// Orders may include:
 	OriginDutyLocation: "OriginDutyLocation",
 	NewDutyLocation:    "NewDutyLocation",
+}
+
+// transportationOfficeGroup is a grouping of all the transportation office related fields
+type transportationOfficeGroup struct {
+	OriginDutyLocation CustomType
+	NewDutyLocation    CustomType
+	CloseoutOffice     CustomType
+}
+
+// TransportationOffices is the struct to access the fields externally
+var TransportationOffices = transportationOfficeGroup{
+	OriginDutyLocation: "OriginDutyLocationTransportationOffice",
+	NewDutyLocation:    "NewDutyLocationTransportationOffice",
+	CloseoutOffice:     "CloseoutOffice",
 }
 
 // Below are errors returned by various functions
@@ -371,6 +404,30 @@ func findValidCustomization(customs []Customization, customType CustomType) *Cus
 		}
 	}
 	return custom
+}
+
+func replaceCustomization(customs []Customization, newCustom Customization) []Customization {
+	err := linkOnlyHasID([]Customization{newCustom})
+	if err != nil {
+		log.Panic(err)
+	}
+
+	// assign the type as all customizations should have a type
+	if err := assignType(&newCustom); err != nil {
+		log.Panic(err.Error())
+	}
+	// See if an existing customization exists with the type
+	ndx, _ := findCustomWithIdx(customs, *newCustom.Type)
+	if ndx >= 0 {
+		// Found a customization for the provided model and we need to
+		// replace it
+		customs[ndx] = newCustom
+	} else {
+		// Did not find an existing customization, append it
+		customs = append(customs, newCustom)
+	}
+
+	return customs
 }
 
 // checkNestedModels ensures we have no nested models.

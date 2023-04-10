@@ -29,7 +29,7 @@ func (suite *HandlerSuite) TestFetchPaymentRequestHandler() {
 	expectedShipmentType := models.MTOShipmentTypeHHG
 
 	setupTestData := func() (models.PaymentServiceItemParam, models.OfficeUser) {
-		move := testdatagen.MakeAvailableMove(suite.DB())
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		// This should create all the other associated records we need.
 		paymentServiceItemParam := testdatagen.MakePaymentServiceItemParam(suite.DB(), testdatagen.Assertions{
 			Move: move,
@@ -130,10 +130,6 @@ func (suite *HandlerSuite) TestGetPaymentRequestsForMoveHandler() {
 
 		move := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
 		moveLocator = move.Locator
-		// we need a mapping for the pickup address postal code to our user's gbloc
-		testdatagen.MakePostalCodeToGBLOC(suite.DB(),
-			move.MTOShipments[0].PickupAddress.PostalCode,
-			officeUser.TransportationOffice.Gbloc)
 
 		// This should create all the other associated records we need.
 		paymentServiceItemParam := testdatagen.MakePaymentServiceItemParam(suite.DB(), testdatagen.Assertions{
@@ -369,7 +365,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 
 	suite.Run("successful status update of prime-available payment request", func() {
 		officeUser := setupTestData()
-		availableMove := testdatagen.MakeAvailableMove(suite.DB())
+		availableMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		availablePaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 			Move: availableMove,
 		})

@@ -56,6 +56,7 @@ func Move(move *models.Move) *ghcmessages.Move {
 		BillableWeightsReviewedAt:    handlers.FmtDateTimePtr(move.BillableWeightsReviewedAt),
 		CreatedAt:                    strfmt.DateTime(move.CreatedAt),
 		SubmittedAt:                  handlers.FmtDateTimePtr(move.SubmittedAt),
+		ApprovalsRequestedAt:         handlers.FmtDateTimePtr(move.ApprovalsRequestedAt),
 		UpdatedAt:                    strfmt.DateTime(move.UpdatedAt),
 		ETag:                         etag.GenerateEtag(move.UpdatedAt),
 		ServiceCounselingCompletedAt: handlers.FmtDateTimePtr(move.ServiceCounselingCompletedAt),
@@ -1377,7 +1378,7 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 		// we can't easily modify our sql query to find the earliest shipment pickup date so we must do it here
 		for _, shipment := range move.MTOShipments {
 			if queueIncludeShipmentStatus(shipment.Status) && shipment.DeletedAt == nil {
-				earliestDateInCurrentShipment := findEarliestDate(shipment)
+				earliestDateInCurrentShipment := findEarliestDateForRequestedMoveDate(shipment)
 				if earliestRequestedPickup == nil || (earliestDateInCurrentShipment != nil && earliestDateInCurrentShipment.Before(*earliestRequestedPickup)) {
 					earliestRequestedPickup = earliestDateInCurrentShipment
 				}
@@ -1393,7 +1394,7 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 
 		var gbloc ghcmessages.GBLOC
 		if move.Status == models.MoveStatusNeedsServiceCounseling {
-			gbloc = ghcmessages.GBLOC(move.OriginDutyLocationGBLOC.GBLOC)
+			gbloc = ghcmessages.GBLOC(*move.Orders.OriginDutyLocationGBLOC)
 		} else if len(move.ShipmentGBLOC) > 0 {
 			// There is a Pop bug that prevents us from using a has_one association for
 			// Move.ShipmentGBLOC, so we have to treat move.ShipmentGBLOC as an array, even
@@ -1405,7 +1406,7 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 			// If the move's first shipment doesn't have a pickup address (like with an NTS-Release),
 			// we need to fall back to the origin duty location GBLOC.  If that's not available for
 			// some reason, then we should get the empty string (no GBLOC).
-			gbloc = ghcmessages.GBLOC(move.OriginDutyLocationGBLOC.GBLOC)
+			gbloc = ghcmessages.GBLOC(*move.Orders.OriginDutyLocationGBLOC)
 		}
 		var closeoutLocation string
 		if move.CloseoutOffice != nil {
@@ -1426,6 +1427,7 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 			ID:                      *handlers.FmtUUID(move.ID),
 			Locator:                 move.Locator,
 			SubmittedAt:             handlers.FmtDateTimePtr(move.SubmittedAt),
+			AppearedInTooAt:         handlers.FmtDateTimePtr(findLastSentToTOO(move)),
 			RequestedMoveDate:       handlers.FmtDatePtr(earliestRequestedPickup),
 			DepartmentIndicator:     &deptIndicator,
 			ShipmentsCount:          int64(len(validMTOShipments)),
@@ -1440,7 +1442,17 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 	return &queueMoves
 }
 
-func findEarliestDate(shipment models.MTOShipment) (earliestDate *time.Time) {
+func findLastSentToTOO(move models.Move) (latestOccurance *time.Time) {
+	possibleValues := [3]*time.Time{move.SubmittedAt, move.ServiceCounselingCompletedAt, move.ApprovalsRequestedAt}
+	for _, time := range possibleValues {
+		if time != nil && (latestOccurance == nil || time.After(*latestOccurance)) {
+			latestOccurance = time
+		}
+	}
+	return latestOccurance
+}
+
+func findEarliestDateForRequestedMoveDate(shipment models.MTOShipment) (earliestDate *time.Time) {
 	var possibleValues []*time.Time
 
 	if shipment.RequestedPickupDate != nil {

@@ -8,6 +8,7 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
+	"github.com/transcom/mymove/pkg/factory"
 	moveop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/moves"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -19,12 +20,11 @@ import (
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	"github.com/transcom/mymove/pkg/services/pagination"
 	"github.com/transcom/mymove/pkg/services/query"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *HandlerSuite) TestIndexMovesHandler() {
 	suite.Run("integration test ok response", func() {
-		m := testdatagen.MakeDefaultMove(suite.DB())
+		m := factory.BuildMove(suite.DB(), nil, nil)
 		params := moveop.IndexMovesParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/moves"),
 		}
@@ -98,7 +98,7 @@ func (suite *HandlerSuite) TestUpdateMoveHandler() {
 
 	// Case: Move is successfully updated
 	suite.Run("200 - OK response", func() {
-		defaultMove := testdatagen.MakeDefaultMove(suite.DB())
+		defaultMove := factory.BuildMove(suite.DB(), nil, nil)
 		params := moveop.UpdateMoveParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("PATCH", fmt.Sprintf("/moves/%s", defaultMove.ID)),
 			MoveID:      *handlers.FmtUUID(defaultMove.ID),
@@ -140,7 +140,7 @@ func (suite *HandlerSuite) TestUpdateMoveHandler() {
 
 func (suite *HandlerSuite) TestGetMoveHandler() {
 	suite.Run("200 - OK response", func() {
-		defaultMove := testdatagen.MakeDefaultMove(suite.DB())
+		defaultMove := factory.BuildMove(suite.DB(), nil, nil)
 		params := moveop.GetMoveParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("GET", fmt.Sprintf("/moves/%s", defaultMove.ID)),
 			MoveID:      *handlers.FmtUUID(defaultMove.ID),

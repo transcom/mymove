@@ -26,7 +26,7 @@ func (suite *ModelSuite) TestReport() {
 	})
 
 	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
-	move := testdatagen.MakeDefaultMove(suite.DB())
+	move := factory.BuildMove(suite.DB(), nil, nil)
 	virtualInspection := models.EvaluationReportInspectionTypeVirtual
 	dataReviewInspection := models.EvaluationReportInspectionTypeDataReview
 	physicalInspection := models.EvaluationReportInspectionTypePhysical

@@ -16,12 +16,12 @@ import (
 	"github.com/transcom/mymove/pkg/services/move"
 	orderservice "github.com/transcom/mymove/pkg/services/order"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *HandlerSuite) TestCreateOrder() {
 	sm := factory.BuildExtendedServiceMember(suite.DB(), nil, nil)
 	dutyLocation := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
+	factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), dutyLocation.Address.PostalCode, "KKFA")
 	factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 
 	req := httptest.NewRequest("POST", "/orders", nil)
@@ -84,11 +84,13 @@ func (suite *HandlerSuite) TestShowOrder() {
 			LinkOnly: true,
 		},
 	}, nil)
-	order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
-		Order: models.Order{
-			OriginDutyLocation: &dutyLocation,
+	order := factory.BuildOrder(suite.DB(), []factory.Customization{
+		{
+			Model:    dutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.OriginDutyLocation,
 		},
-	})
+	}, nil)
 	path := fmt.Sprintf("/orders/%v", order.ID.String())
 	req := httptest.NewRequest("GET", path, nil)
 	req = suite.AuthenticateRequest(req, order.ServiceMember)
@@ -121,20 +123,9 @@ func (suite *HandlerSuite) TestShowOrder() {
 }
 
 func (suite *HandlerSuite) TestUploadAmendedOrder() {
-	dutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
-		{
-			Model:    factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2}),
-			LinkOnly: true,
-		},
-	}, nil)
 	var moves models.Moves
-	mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
-	order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
-		Order: models.Order{
-			OriginDutyLocation: &dutyLocation,
-		},
-		Move: mto,
-	})
+	mto := factory.BuildMove(suite.DB(), nil, nil)
+	order := mto.Orders
 	order.Moves = append(moves, mto)
 	path := fmt.Sprintf("/orders/%v/upload_amended_orders", order.ID.String())
 	req := httptest.NewRequest("PATCH", path, nil)
@@ -164,7 +155,7 @@ func (suite *HandlerSuite) TestUploadAmendedOrder() {
 // TODO: Fix now that we capture transaction error. May be a data setup problem
 /*
 func (suite *HandlerSuite) TestUpdateOrder() {
-	order := testdatagen.MakeDefaultOrder(suite.DB())
+	order := factory.BuildOrder(suite.DB(), nil, nil)
 
 	path := fmt.Sprintf("/orders/%v", order.ID.String())
 	req := httptest.NewRequest("PUT", path, nil)

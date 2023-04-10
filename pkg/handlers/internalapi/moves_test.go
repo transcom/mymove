@@ -35,7 +35,7 @@ import (
 
 func (suite *HandlerSuite) TestPatchMoveHandler() {
 	// Given: a set of orders, a move, user and servicemember
-	move := testdatagen.MakeDefaultMove(suite.DB())
+	move := factory.BuildMove(suite.DB(), nil, nil)
 	transportationOffice := testdatagen.MakeTransportationOffice(suite.DB(), testdatagen.Assertions{
 		TransportationOffice: models.TransportationOffice{
 			ProvidesCloseout: true,
@@ -75,7 +75,7 @@ func (suite *HandlerSuite) TestPatchMoveHandler() {
 
 func (suite *HandlerSuite) TestPatchMoveHandlerWrongUser() {
 	// Given: a set of orders, a move, user and servicemember
-	move := testdatagen.MakeDefaultMove(suite.DB())
+	move := factory.BuildMove(suite.DB(), nil, nil)
 	// And: another logged in user
 	anotherUser := factory.BuildServiceMember(suite.DB(), nil, nil)
 
@@ -133,7 +133,7 @@ func (suite *HandlerSuite) TestPatchMoveHandlerNoMove() {
 
 func (suite *HandlerSuite) TestPatchMoveHandlerCloseoutOfficeNotFound() {
 	// Given: a set of orders, a move, user and servicemember
-	move := testdatagen.MakeDefaultMove(suite.DB())
+	move := factory.BuildMove(suite.DB(), nil, nil)
 	// TransportationOffice doesn't provide PPM closeout so should not be found
 	transportationOffice := testdatagen.MakeDefaultTransportationOffice(suite.DB())
 
@@ -163,7 +163,7 @@ func (suite *HandlerSuite) TestPatchMoveHandlerCloseoutOfficeNotFound() {
 
 func (suite *HandlerSuite) TestPatchMoveHandlerETagPreconditionFailure() {
 	// Given: a set of orders, a move, user and servicemember
-	move := testdatagen.MakeDefaultMove(suite.DB())
+	move := factory.BuildMove(suite.DB(), nil, nil)
 	transportationOffice := testdatagen.MakeTransportationOffice(suite.DB(), testdatagen.Assertions{
 		TransportationOffice: models.TransportationOffice{
 			ProvidesCloseout: true,
@@ -196,7 +196,7 @@ func (suite *HandlerSuite) TestPatchMoveHandlerETagPreconditionFailure() {
 func (suite *HandlerSuite) TestShowMoveHandler() {
 
 	// Given: a set of orders, a move, user and servicemember
-	move := testdatagen.MakeDefaultMove(suite.DB())
+	move := factory.BuildMove(suite.DB(), nil, nil)
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("GET", "/moves/some_id", nil)
@@ -221,7 +221,7 @@ func (suite *HandlerSuite) TestShowMoveHandler() {
 
 func (suite *HandlerSuite) TestShowMoveWrongUser() {
 	// Given: a set of orders, a move, user and servicemember
-	move := testdatagen.MakeDefaultMove(suite.DB())
+	move := factory.BuildMove(suite.DB(), nil, nil)
 	// And: another logged in user
 	anotherUser := factory.BuildServiceMember(suite.DB(), nil, nil)
 
@@ -244,7 +244,7 @@ func (suite *HandlerSuite) TestShowMoveWrongUser() {
 func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
 	suite.Run("Submits ppm success", func() {
 		// Given: a set of orders, a move, user and servicemember
-		move := testdatagen.MakeDefaultMove(suite.DB())
+		move := factory.BuildMove(suite.DB(), nil, nil)
 
 		hhgShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
@@ -356,19 +356,14 @@ func (suite *HandlerSuite) TestSubmitMoveForServiceCounselingHandler() {
 	suite.Run("Routes to service counseling when feature flag is true", func() {
 		// Given: a set of orders with an origin duty location that provides services counseling,
 		// a move, user and servicemember
-		dutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+		move := factory.BuildMove(suite.DB(), []factory.Customization{
 			{
 				Model: models.DutyLocation{
 					ProvidesServicesCounseling: true,
 				},
+				Type: &factory.DutyLocations.OriginDutyLocation,
 			},
 		}, nil)
-		assertions := testdatagen.Assertions{
-			Order: models.Order{
-				OriginDutyLocation: &dutyLocation,
-			},
-		}
-		move := testdatagen.MakeMove(suite.DB(), assertions)
 
 		// And: the context contains the auth values
 		req := httptest.NewRequest("POST", "/moves/some_id/submit", nil)
@@ -483,17 +478,29 @@ func (suite *HandlerSuite) TestShowMoveDatesSummaryHandler() {
 		},
 	}, nil)
 
-	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-		Order: models.Order{
-			ServiceMemberID:   serviceMember.ID,
-			ServiceMember:     serviceMember,
-			ReportByDate:      time.Date(2018, 10, 31, 0, 0, 0, 0, time.UTC),
-			NewDutyLocationID: newDutyLocation.ID,
-			NewDutyLocation:   newDutyLocation,
-			HasDependents:     true,
-			SpouseHasProGear:  true,
+	move := factory.BuildMove(suite.DB(), []factory.Customization{
+		{
+			Model: models.Order{
+				ReportByDate:     time.Date(2018, 10, 31, 0, 0, 0, 0, time.UTC),
+				HasDependents:    true,
+				SpouseHasProGear: true,
+			},
 		},
-	})
+		{
+			Model:    serviceMember,
+			LinkOnly: true,
+		},
+		{
+			Model:    dutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.OriginDutyLocation,
+		},
+		{
+			Model:    newDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.NewDutyLocation,
+		},
+	}, nil)
 
 	path := fmt.Sprintf("/moves/%s/move_dates", move.ID.String())
 	req := httptest.NewRequest("GET", path, nil)
@@ -564,7 +571,7 @@ func (suite *HandlerSuite) TestShowMoveDatesSummaryHandler() {
 
 func (suite *HandlerSuite) TestShowMoveDatesSummaryForbiddenUser() {
 	// Given: a set of orders, a move, user and servicemember
-	move := testdatagen.MakeDefaultMove(suite.DB())
+	move := factory.BuildMove(suite.DB(), nil, nil)
 	// And: another logged in user
 	anotherUser := factory.BuildServiceMember(suite.DB(), nil, nil)
 
@@ -659,7 +666,7 @@ func (suite *HandlerSuite) TestShowShipmentSummaryWorksheet() {
 			},
 		})
 
-	move := testdatagen.MakeDefaultMove(suite.DB())
+	move := factory.BuildMove(suite.DB(), nil, nil)
 	netWeight := unit.Pound(1000)
 	ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
@@ -715,20 +722,12 @@ func (suite *HandlerSuite) TestShowShipmentSummaryWorksheet() {
 func (suite *HandlerSuite) TestSubmitAmendedOrdersHandler() {
 	suite.Run("Submits move with amended orders for review", func() {
 		// Given: a set of orders, a move, user and service member
-		document := factory.BuildDocument(suite.DB(), nil, nil)
-		order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
-			Order: models.Order{
-				UploadedAmendedOrders:   &document,
-				UploadedAmendedOrdersID: &document.ID,
+		move := factory.BuildSubmittedMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Document{},
+				Type:  &factory.Documents.UploadedAmendedOrders,
 			},
-		})
-
-		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				Status: models.MoveStatusSUBMITTED,
-			},
-			Order: order,
-		})
+		}, nil)
 
 		testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: move,
