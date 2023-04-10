@@ -93,14 +93,19 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 			},
 		})
 
-		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: mto,
-			MTOShipment: models.MTOShipment{
-				RequestedPickupDate: &requestedPickupDate,
-				ScheduledPickupDate: &scheduledPickupDate,
-				ActualPickupDate:    &actualPickupDate,
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    mto,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: &requestedPickupDate,
+					ScheduledPickupDate: &scheduledPickupDate,
+					ActualPickupDate:    &actualPickupDate,
+				},
+			},
+		}, nil)
 
 		priceCents := unit.Cents(888)
 		assertions := testdatagen.Assertions{
@@ -1032,9 +1037,12 @@ func (suite *GHCInvoiceSuite) TestTACs() {
 			},
 		})
 
-		mtoShipment = testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-		})
+		mtoShipment = factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		testdatagen.MakePaymentServiceItemWithParams(
 			suite.DB(),

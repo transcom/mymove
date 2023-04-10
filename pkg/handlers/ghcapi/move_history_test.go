@@ -211,10 +211,15 @@ func (suite *HandlerSuite) TestMockGetMoveHistoryHandler() {
 
 		// Add shipment to the move, giving the move some "history"
 		shipment := models.MTOShipment{Status: models.MTOShipmentStatusSubmitted}
-		testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move:        move,
-			MTOShipment: shipment,
-		})
+		factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: shipment,
+			},
+		}, nil)
 
 		// Build history request for a TIO user
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTIO})

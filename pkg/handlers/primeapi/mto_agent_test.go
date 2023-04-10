@@ -430,9 +430,12 @@ func (suite *HandlerSuite) TestCreateMTOAgentHandler() {
 		// Set up: 		Pass an invalid payload for a releasing agent.
 		// Expected:	Handler returns 422 Unprocessable Entity Error.
 		subtestData := suite.makeCreateMTOAgentSubtestData()
-		newMTOShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: subtestData.move,
-		})
+		newMTOShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    subtestData.move,
+				LinkOnly: true,
+			},
+		}, nil)
 		subtestData.releasingAgent.MtoShipmentID = strfmt.UUID(newMTOShipment.ID.String())
 		empty := ""
 

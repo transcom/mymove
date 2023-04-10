@@ -33,9 +33,12 @@ func (suite *HandlerSuite) TestGetShipmentEvaluationReportsHandler() {
 
 	suite.Run("Successful list fetch", func() {
 		officeUser, move, handlerConfig := setupTestData()
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-		})
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 		testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{
 			OfficeUser:  officeUser,
 			Move:        move,
@@ -292,11 +295,12 @@ func (suite *HandlerSuite) TestCreateEvaluationReportHandler() {
 			EvaluationReportCreator: creator,
 		}
 
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				MoveTaskOrderID: move.ID,
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-		})
+		}, nil)
 
 		body := ghcmessages.CreateEvaluationReport{ShipmentID: strfmt.UUID(shipment.ID.String())}
 		request := httptest.NewRequest("POST", "/moves/shipment-evaluation-reports/", nil)
@@ -343,13 +347,13 @@ func (suite *HandlerSuite) TestCreateEvaluationReportHandler() {
 
 		creator := &mocks.EvaluationReportCreator{}
 		handler := CreateEvaluationReportHandler{handlerConfig, creator}
-
 		move := factory.BuildMove(suite.DB(), nil, nil)
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				MoveTaskOrderID: move.ID,
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-		})
+		}, nil)
 		body := ghcmessages.CreateEvaluationReport{ShipmentID: strfmt.UUID(shipment.ID.String())}
 		request := httptest.NewRequest("POST", "/moves/shipment-evaluation-reports/", nil)
 

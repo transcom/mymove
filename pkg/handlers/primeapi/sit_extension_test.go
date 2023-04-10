@@ -38,9 +38,12 @@ func (suite *HandlerSuite) CreateSITExtensionHandler() {
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
 		// Make a shipment on the available MTO
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-		})
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		// Create handler
 		handler := CreateSITExtensionHandler{

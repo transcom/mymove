@@ -34,13 +34,19 @@ func (suite *HandlerSuite) TestListMTOsHandler() {
 
 	moveTaskOrder := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
-	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: moveTaskOrder,
-	})
+	factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    moveTaskOrder,
+			LinkOnly: true,
+		},
+	}, nil)
 
-	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: moveTaskOrder,
-	})
+	factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    moveTaskOrder,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	request := httptest.NewRequest("GET", "/move-task-orders", nil)
 

@@ -55,34 +55,49 @@ func (suite *HandlerSuite) makeListMTOShipmentsSubtestData() (subtestData *listM
 	storageFacility := factory.BuildStorageFacility(suite.DB(), nil, nil)
 
 	sitAllowance := int(90)
-	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: mto,
-		MTOShipment: models.MTOShipment{
-			Status:           models.MTOShipmentStatusApproved,
-			CounselorRemarks: handlers.FmtString("counselor remark"),
-			SITDaysAllowance: &sitAllowance,
-			StorageFacility:  &storageFacility,
+	mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    mto,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				Status:           models.MTOShipmentStatusApproved,
+				CounselorRemarks: handlers.FmtString("counselor remark"),
+				SITDaysAllowance: &sitAllowance,
+				StorageFacility:  &storageFacility,
+			},
+		},
+	}, nil)
 
-	secondShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: mto,
-		MTOShipment: models.MTOShipment{
-			Status: models.MTOShipmentStatusSubmitted,
+	secondShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    mto,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				Status: models.MTOShipmentStatusSubmitted,
+			},
+		},
+	}, nil)
 
 	// third shipment with destination address and type
 	destinationAddress := factory.BuildAddress(suite.DB(), nil, nil)
 	destinationType := models.DestinationTypeHomeOfRecord
-	thirdShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: mto,
-		MTOShipment: models.MTOShipment{
-			Status:               models.MTOShipmentStatusSubmitted,
-			DestinationAddressID: &destinationAddress.ID,
-			DestinationType:      &destinationType,
+	thirdShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    mto,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				Status:               models.MTOShipmentStatusSubmitted,
+				DestinationAddressID: &destinationAddress.ID,
+				DestinationType:      &destinationType,
+			},
+		},
+	}, nil)
 
 	subtestData.mtoAgent = testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
 		MTOAgent: models.MTOAgent{
@@ -294,7 +309,7 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 	})
 
 	suite.Run("Returns 204 when all validations pass", func() {
-		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), nil, nil)
+		shipment := testdatagen.MakeDefaultMTOShipmentMinimal(suite.DB())
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 		deleter := &mocks.ShipmentDeleter{}
 
@@ -322,13 +337,7 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 	})
 
 	suite.Run("Returns 404 when deleter returns NotFoundError", func() {
-		shipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					ID: uuid.Must(uuid.NewV4()),
-				},
-			},
-		}, nil)
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 		deleter := &mocks.ShipmentDeleter{}
 
@@ -358,13 +367,7 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 	})
 
 	suite.Run("Returns 403 when deleter returns ForbiddenError", func() {
-		shipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					ID: uuid.Must(uuid.NewV4()),
-				},
-			},
-		}, nil)
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 		deleter := &mocks.ShipmentDeleter{}
 
@@ -394,13 +397,7 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 	})
 
 	suite.Run("Returns 422 - Unprocessable Enitity error", func() {
-		shipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					ID: uuid.Must(uuid.NewV4()),
-				},
-			},
-		}, nil)
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 		deleter := &mocks.ShipmentDeleter{}
 
@@ -430,13 +427,7 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 	})
 
 	suite.Run("Returns 409 - Conflict error", func() {
-		shipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					ID: uuid.Must(uuid.NewV4()),
-				},
-			},
-		}, nil)
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 		deleter := &mocks.ShipmentDeleter{}
 
@@ -469,7 +460,7 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 func (suite *HandlerSuite) TestGetShipmentHandler() {
 	// Success integration test
 	suite.Run("Successful fetch (integration) test", func() {
-		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), nil, nil)
+		shipment := testdatagen.MakeDefaultMTOShipmentMinimal(suite.DB())
 		officeUser := factory.BuildOfficeUser(nil, nil, nil)
 		handlerConfig := suite.HandlerConfig()
 		fetcher := mtoshipment.NewMTOShipmentFetcher()
@@ -529,12 +520,17 @@ func (suite *HandlerSuite) TestGetShipmentHandler() {
 func (suite *HandlerSuite) TestApproveShipmentHandler() {
 	suite.Run("Returns 200 when all validations pass", func() {
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-			MTOShipment: models.MTOShipment{
-				Status: models.MTOShipmentStatusSubmitted,
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusSubmitted,
+				},
+			},
+		}, nil)
 		// Populate the reServices table with codes needed by the
 		// HHG_LONGHAUL_DOMESTIC shipment type
 		reServiceCodes := []models.ReServiceCode{
@@ -625,13 +621,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 	})
 
 	suite.Run("Returns 404 when approver returns NotFoundError", func() {
-		shipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					ID: uuid.Must(uuid.NewV4()),
-				},
-			},
-		}, nil)
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		approver := &mocks.ShipmentApprover{}
@@ -664,13 +654,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 	})
 
 	suite.Run("Returns 409 when approver returns Conflict Error", func() {
-		shipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					ID: uuid.Must(uuid.NewV4()),
-				},
-			},
-		}, nil)
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		approver := &mocks.ShipmentApprover{}
@@ -703,13 +687,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 	})
 
 	suite.Run("Returns 412 when eTag does not match", func() {
-		shipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					ID: uuid.Must(uuid.NewV4()),
-				},
-			},
-		}, nil)
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
 		eTag := etag.GenerateEtag(time.Now())
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		approver := &mocks.ShipmentApprover{}
@@ -742,13 +720,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 	})
 
 	suite.Run("Returns 422 when approver returns validation errors", func() {
-		shipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					ID: uuid.Must(uuid.NewV4()),
-				},
-			},
-		}, nil)
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		approver := &mocks.ShipmentApprover{}
@@ -781,13 +753,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 	})
 
 	suite.Run("Returns 500 when approver returns unexpected error", func() {
-		shipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					ID: uuid.Must(uuid.NewV4()),
-				},
-			},
-		}, nil)
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		approver := &mocks.ShipmentApprover{}
@@ -901,13 +867,7 @@ func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
 	})
 
 	suite.Run("Returns 404 when requester returns NotFoundError", func() {
-		shipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					ID: uuid.Must(uuid.NewV4()),
-				},
-			},
-		}, nil)
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		requester := &mocks.ShipmentDiversionRequester{}
@@ -940,13 +900,7 @@ func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
 	})
 
 	suite.Run("Returns 409 when requester returns Conflict Error", func() {
-		shipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					ID: uuid.Must(uuid.NewV4()),
-				},
-			},
-		}, nil)
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		requester := &mocks.ShipmentDiversionRequester{}
@@ -979,13 +933,7 @@ func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
 	})
 
 	suite.Run("Returns 412 when eTag does not match", func() {
-		shipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					ID: uuid.Must(uuid.NewV4()),
-				},
-			},
-		}, nil)
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
 		eTag := etag.GenerateEtag(time.Now())
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		requester := &mocks.ShipmentDiversionRequester{}
@@ -1018,13 +966,7 @@ func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
 	})
 
 	suite.Run("Returns 422 when requester returns validation errors", func() {
-		shipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					ID: uuid.Must(uuid.NewV4()),
-				},
-			},
-		}, nil)
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		requester := &mocks.ShipmentDiversionRequester{}
@@ -1057,13 +999,7 @@ func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
 	})
 
 	suite.Run("Returns 500 when requester returns unexpected error", func() {
-		shipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					ID: uuid.Must(uuid.NewV4()),
-				},
-			},
-		}, nil)
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		requester := &mocks.ShipmentDiversionRequester{}
@@ -1179,13 +1115,7 @@ func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
 	})
 
 	suite.Run("Returns 404 when approver returns NotFoundError", func() {
-		shipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					ID: uuid.Must(uuid.NewV4()),
-				},
-			},
-		}, nil)
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		approver := &mocks.ShipmentDiversionApprover{}
@@ -1218,13 +1148,7 @@ func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
 	})
 
 	suite.Run("Returns 409 when approver returns Conflict Error", func() {
-		shipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					ID: uuid.Must(uuid.NewV4()),
-				},
-			},
-		}, nil)
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		approver := &mocks.ShipmentDiversionApprover{}
@@ -1257,13 +1181,7 @@ func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
 	})
 
 	suite.Run("Returns 412 when eTag does not match", func() {
-		shipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					ID: uuid.Must(uuid.NewV4()),
-				},
-			},
-		}, nil)
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
 		eTag := etag.GenerateEtag(time.Now())
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		approver := &mocks.ShipmentDiversionApprover{}
@@ -1296,13 +1214,7 @@ func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
 	})
 
 	suite.Run("Returns 422 when approver returns validation errors", func() {
-		shipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					ID: uuid.Must(uuid.NewV4()),
-				},
-			},
-		}, nil)
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		approver := &mocks.ShipmentDiversionApprover{}
@@ -1335,13 +1247,7 @@ func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
 	})
 
 	suite.Run("Returns 500 when approver returns unexpected error", func() {
-		shipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					ID: uuid.Must(uuid.NewV4()),
-				},
-			},
-		}, nil)
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		approver := &mocks.ShipmentDiversionApprover{}
@@ -1461,13 +1367,7 @@ func (suite *HandlerSuite) TestRejectShipmentHandler() {
 	})
 
 	suite.Run("Returns 404 when rejecter returns NotFoundError", func() {
-		shipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					ID: uuid.Must(uuid.NewV4()),
-				},
-			},
-		}, nil)
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		rejecter := &mocks.ShipmentRejecter{}
@@ -1503,13 +1403,7 @@ func (suite *HandlerSuite) TestRejectShipmentHandler() {
 	})
 
 	suite.Run("Returns 409 when rejecter returns Conflict Error", func() {
-		shipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					ID: uuid.Must(uuid.NewV4()),
-				},
-			},
-		}, nil)
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		rejecter := &mocks.ShipmentRejecter{}
@@ -1545,13 +1439,7 @@ func (suite *HandlerSuite) TestRejectShipmentHandler() {
 	})
 
 	suite.Run("Returns 412 when eTag does not match", func() {
-		shipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					ID: uuid.Must(uuid.NewV4()),
-				},
-			},
-		}, nil)
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
 		eTag := etag.GenerateEtag(time.Now())
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		rejecter := &mocks.ShipmentRejecter{}
@@ -1587,13 +1475,7 @@ func (suite *HandlerSuite) TestRejectShipmentHandler() {
 	})
 
 	suite.Run("Returns 422 when rejecter returns validation errors", func() {
-		shipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					ID: uuid.Must(uuid.NewV4()),
-				},
-			},
-		}, nil)
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		rejecter := &mocks.ShipmentRejecter{}
@@ -1629,13 +1511,7 @@ func (suite *HandlerSuite) TestRejectShipmentHandler() {
 	})
 
 	suite.Run("Returns 500 when rejecter returns unexpected error", func() {
-		shipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					ID: uuid.Must(uuid.NewV4()),
-				},
-			},
-		}, nil)
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		rejecter := &mocks.ShipmentRejecter{}
@@ -1790,13 +1666,7 @@ func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 	})
 
 	suite.Run("Returns 404 when canceler returns NotFoundError", func() {
-		shipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					ID: uuid.Must(uuid.NewV4()),
-				},
-			},
-		}, nil)
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		canceler := &mocks.ShipmentCancellationRequester{}
@@ -1829,13 +1699,7 @@ func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 	})
 
 	suite.Run("Returns 409 when canceler returns Conflict Error", func() {
-		shipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					ID: uuid.Must(uuid.NewV4()),
-				},
-			},
-		}, nil)
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		canceler := &mocks.ShipmentCancellationRequester{}
@@ -1868,13 +1732,7 @@ func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 	})
 
 	suite.Run("Returns 412 when eTag does not match", func() {
-		shipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					ID: uuid.Must(uuid.NewV4()),
-				},
-			},
-		}, nil)
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
 		eTag := etag.GenerateEtag(time.Now())
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		canceler := &mocks.ShipmentCancellationRequester{}
@@ -1907,13 +1765,7 @@ func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 	})
 
 	suite.Run("Returns 422 when canceler returns validation errors", func() {
-		shipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					ID: uuid.Must(uuid.NewV4()),
-				},
-			},
-		}, nil)
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		canceler := &mocks.ShipmentCancellationRequester{}
@@ -1946,13 +1798,7 @@ func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 	})
 
 	suite.Run("Returns 500 when canceler returns unexpected error", func() {
-		shipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					ID: uuid.Must(uuid.NewV4()),
-				},
-			},
-		}, nil)
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		canceler := &mocks.ShipmentCancellationRequester{}
@@ -2107,13 +1953,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 	})
 
 	suite.Run("Returns 404 when reweighRequester returns NotFoundError", func() {
-		shipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					ID: uuid.Must(uuid.NewV4()),
-				},
-			},
-		}, nil)
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		reweighRequester := &mocks.ShipmentReweighRequester{}
 
@@ -2163,13 +2003,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 	})
 
 	suite.Run("Returns 409 when reweighRequester returns Conflict Error", func() {
-		shipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					ID: uuid.Must(uuid.NewV4()),
-				},
-			},
-		}, nil)
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		reweighRequester := &mocks.ShipmentReweighRequester{}
 
@@ -2220,13 +2054,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 	})
 
 	suite.Run("Returns 422 when reweighRequester returns validation errors", func() {
-		shipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					ID: uuid.Must(uuid.NewV4()),
-				},
-			},
-		}, nil)
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		reweighRequester := &mocks.ShipmentReweighRequester{}
 
@@ -2276,13 +2104,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 	})
 
 	suite.Run("Returns 500 when reweighRequester returns unexpected error", func() {
-		shipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					ID: uuid.Must(uuid.NewV4()),
-				},
-			},
-		}, nil)
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		reweighRequester := &mocks.ShipmentReweighRequester{}
 
@@ -2343,13 +2165,18 @@ func (suite *HandlerSuite) TestApproveSITExtensionHandler() {
 				},
 			},
 		}, nil)
-		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				SITDaysAllowance: &sitDaysAllowance,
-				Status:           models.MTOShipmentStatusApproved,
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					SITDaysAllowance: &sitDaysAllowance,
+					Status:           models.MTOShipmentStatusApproved,
+				},
 			},
-			Move: move,
-		})
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		year, month, day := time.Now().Date()
 		lastMonthEntry := time.Date(year, month, day-37, 0, 0, 0, 0, time.UTC)
@@ -2417,13 +2244,18 @@ func (suite *HandlerSuite) TestDenySITExtensionHandler() {
 	suite.Run("Returns 200 when validations pass", func() {
 		sitDaysAllowance := 20
 		move := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
-		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				SITDaysAllowance: &sitDaysAllowance,
-				Status:           models.MTOShipmentStatusApproved,
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					SITDaysAllowance: &sitDaysAllowance,
+					Status:           models.MTOShipmentStatusApproved,
+				},
 			},
-			Move: move,
-		})
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 		sitExtension := testdatagen.MakePendingSITExtension(suite.DB(), testdatagen.Assertions{
 			MTOShipment: mtoShipment,
 		})
@@ -2468,9 +2300,7 @@ func (suite *HandlerSuite) TestDenySITExtensionHandler() {
 
 func (suite *HandlerSuite) CreateSITExtensionAsTOO() {
 	suite.Run("Returns 200, creates new SIT extension, and updates SIT days allowance on shipment without an allowance when validations pass", func() {
-		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{},
-		})
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
 
 		eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
@@ -2517,11 +2347,13 @@ func (suite *HandlerSuite) CreateSITExtensionAsTOO() {
 
 	suite.Run("Returns 200, creates new SIT extension, and updates SIT days allowance on shipment that already has an allowance when validations pass", func() {
 		sitDaysAllowance := 20
-		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				SITDaysAllowance: &sitDaysAllowance,
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					SITDaysAllowance: &sitDaysAllowance,
+				},
 			},
-		})
+		}, nil)
 
 		eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
@@ -2579,10 +2411,12 @@ func (suite *HandlerSuite) makeCreateMTOShipmentSubtestData() (subtestData *crea
 	mto := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 	pickupAddress := factory.BuildAddress(suite.DB(), nil, nil)
 	destinationAddress := factory.BuildAddress(suite.DB(), nil, nil)
-	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move:        mto,
-		MTOShipment: models.MTOShipment{},
-	})
+	mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	mtoShipment.MoveTaskOrderID = mto.ID
 
@@ -3171,14 +3005,16 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		}
 
 		hhgLOAType := models.LOATypeHHG
-		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status:             models.MTOShipmentStatusSubmitted,
-				UsesExternalVendor: true,
-				TACType:            &hhgLOAType,
-				Diversion:          true,
+		oldShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:             models.MTOShipmentStatusSubmitted,
+					UsesExternalVendor: true,
+					TACType:            &hhgLOAType,
+					Diversion:          true,
+				},
 			},
-		})
+		}, nil)
 		params := suite.getUpdateShipmentParams(oldShipment)
 
 		// Validate incoming payload
@@ -3335,11 +3171,13 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 			mtoshipment.NewShipmentSITStatus(),
 		}
 
-		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status: models.MTOShipmentStatusSubmitted,
+		oldShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusSubmitted,
+				},
 			},
-		})
+		}, nil)
 		params := suite.getUpdateShipmentParams(oldShipment)
 		params.Body = nil
 
@@ -3372,11 +3210,13 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		}
 
 		uuidString := handlers.FmtUUID(uuid.FromStringOrNil("d874d002-5582-4a91-97d3-786e8f66c763"))
-		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status: models.MTOShipmentStatusSubmitted,
+		oldShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusSubmitted,
+				},
 			},
-		})
+		}, nil)
 		params := suite.getUpdateShipmentParams(oldShipment)
 		params.ShipmentID = *uuidString
 
@@ -3409,11 +3249,13 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 			mtoshipment.NewShipmentSITStatus(),
 		}
 
-		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status: models.MTOShipmentStatusSubmitted,
+		oldShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusSubmitted,
+				},
 			},
-		})
+		}, nil)
 		params := suite.getUpdateShipmentParams(oldShipment)
 		params.IfMatch = "intentionally-bad-if-match-header-value"
 
@@ -3446,11 +3288,13 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 			mtoshipment.NewShipmentSITStatus(),
 		}
 
-		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status: models.MTOShipmentStatusDraft,
+		oldShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusDraft,
+				},
 			},
-		})
+		}, nil)
 
 		params := suite.getUpdateShipmentParams(oldShipment)
 
@@ -3482,11 +3326,13 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 			mock.Anything,
 		).Return(nil, err)
 
-		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status: models.MTOShipmentStatusSubmitted,
+		oldShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusSubmitted,
+				},
 			},
-		})
+		}, nil)
 		params := suite.getUpdateShipmentParams(oldShipment)
 
 		// Validate incoming payload
@@ -3501,3 +3347,4 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		suite.NoError(payload.Validate(strfmt.Default))
 	})
 }
+afaewfawefaewfaewf
