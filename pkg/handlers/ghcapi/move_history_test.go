@@ -17,7 +17,6 @@ import (
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	movehistory "github.com/transcom/mymove/pkg/services/move_history"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func getMoveHistoryForTest() models.MoveHistory {

@@ -14,7 +14,6 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	sitextensionservice "github.com/transcom/mymove/pkg/services/sit_extension"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *HandlerSuite) CreateSITExtensionHandler() {

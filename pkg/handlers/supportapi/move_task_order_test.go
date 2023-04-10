@@ -25,7 +25,6 @@ import (
 	"github.com/transcom/mymove/pkg/services/query"
 	supportMocks "github.com/transcom/mymove/pkg/services/support/mocks"
 	internalmovetaskorder "github.com/transcom/mymove/pkg/services/support/move_task_order"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *HandlerSuite) TestListMTOsHandler() {

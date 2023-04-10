@@ -296,15 +296,18 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerStatuses() {
 		{
 			Model: models.MTOShipment{
 				Status: models.MTOShipmentStatusSubmitted,
-				PickupAddress: &models.Address{
-					PostalCode: "06001",
-				},
 			},
 		},
 		{
 			Model: models.Move{
 				SelectedMoveType: &hhgMoveType,
 			},
+		},
+		{
+			Model: models.Address{
+				PostalCode: "06001",
+			},
+			Type: &factory.Addresses.PickupAddress,
 		},
 	}, nil)
 
@@ -1377,10 +1380,13 @@ func (suite *HandlerSuite) makeServicesCounselingSubtestData() (subtestData *ser
 		{
 			Model: models.MTOShipment{
 				Status: models.MTOShipmentStatusSubmitted,
-				PickupAddress: &models.Address{
-					PostalCode: "06001",
-				},
 			},
+		},
+		{
+			Model: models.Address{
+				PostalCode: "06001",
+			},
+			Type: &factory.Addresses.PickupAddress,
 		},
 	}, nil)
 

@@ -63,10 +63,14 @@ func (suite *HandlerSuite) makeListMTOShipmentsSubtestData() (subtestData *listM
 		{
 			Model: models.MTOShipment{
 				Status:           models.MTOShipmentStatusApproved,
+				ShipmentType:     models.MTOShipmentTypeHHGIntoNTSDom,
 				CounselorRemarks: handlers.FmtString("counselor remark"),
 				SITDaysAllowance: &sitAllowance,
-				StorageFacility:  &storageFacility,
 			},
+		},
+		{
+			Model:    storageFacility,
+			LinkOnly: true,
 		},
 	}, nil)
 
