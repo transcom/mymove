@@ -37,6 +37,10 @@ type GetMovesQueueParams struct {
 	/*
 	  In: query
 	*/
+	AppearedInTooAt *strfmt.DateTime
+	/*
+	  In: query
+	*/
 	Branch *string
 	/*
 	  In: query
@@ -95,6 +99,11 @@ func (o *GetMovesQueueParams) BindRequest(r *http.Request, route *middleware.Mat
 	o.HTTPRequest = r
 
 	qs := runtime.Values(r.URL.Query())
+
+	qAppearedInTooAt, qhkAppearedInTooAt, _ := qs.GetOK("appearedInTooAt")
+	if err := o.bindAppearedInTooAt(qAppearedInTooAt, qhkAppearedInTooAt, route.Formats); err != nil {
+		res = append(res, err)
+	}
 
 	qBranch, qhkBranch, _ := qs.GetOK("branch")
 	if err := o.bindBranch(qBranch, qhkBranch, route.Formats); err != nil {
@@ -157,6 +166,43 @@ func (o *GetMovesQueueParams) BindRequest(r *http.Request, route *middleware.Mat
 	}
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+// bindAppearedInTooAt binds and validates parameter AppearedInTooAt from query.
+func (o *GetMovesQueueParams) bindAppearedInTooAt(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+
+	// Format: date-time
+	value, err := formats.Parse("date-time", raw)
+	if err != nil {
+		return errors.InvalidType("appearedInTooAt", "query", "strfmt.DateTime", raw)
+	}
+	o.AppearedInTooAt = (value.(*strfmt.DateTime))
+
+	if err := o.validateAppearedInTooAt(formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// validateAppearedInTooAt carries on validations for parameter AppearedInTooAt
+func (o *GetMovesQueueParams) validateAppearedInTooAt(formats strfmt.Registry) error {
+
+	if err := validate.FormatOf("appearedInTooAt", "query", "date-time", o.AppearedInTooAt.String(), formats); err != nil {
+		return err
 	}
 	return nil
 }
@@ -390,7 +436,7 @@ func (o *GetMovesQueueParams) bindSort(rawData []string, hasKey bool, formats st
 // validateSort carries on validations for parameter Sort
 func (o *GetMovesQueueParams) validateSort(formats strfmt.Registry) error {
 
-	if err := validate.EnumCase("sort", "query", *o.Sort, []interface{}{"lastName", "dodID", "branch", "locator", "status", "originDutyLocation", "destinationDutyLocation", "requestedMoveDate"}, true); err != nil {
+	if err := validate.EnumCase("sort", "query", *o.Sort, []interface{}{"lastName", "dodID", "branch", "locator", "status", "originDutyLocation", "destinationDutyLocation", "requestedMoveDate", "appearedInTooAt"}, true); err != nil {
 		return err
 	}
 

@@ -56,7 +56,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITDestLookup() {
 				},
 			}, nil)
 
-		move := testdatagen.MakeDefaultMove(suite.DB())
+		move := factory.BuildMove(suite.DB(), nil, nil)
 
 		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(),
 			testdatagen.Assertions{

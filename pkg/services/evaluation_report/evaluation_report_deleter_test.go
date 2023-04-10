@@ -17,7 +17,7 @@ import (
 func (suite *EvaluationReportSuite) TestEvaluationReportDeleter() {
 	setupTestData := func() (services.EvaluationReportDeleter, models.EvaluationReport, appcontext.AppContext) {
 		deleter := NewEvaluationReportDeleter()
-		move := testdatagen.MakeDefaultMove(suite.DB())
+		move := factory.BuildMove(suite.DB(), nil, nil)
 		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: move,
 		})

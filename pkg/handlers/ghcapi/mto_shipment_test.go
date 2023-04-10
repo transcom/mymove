@@ -50,7 +50,7 @@ type listMTOShipmentsSubtestData struct {
 func (suite *HandlerSuite) makeListMTOShipmentsSubtestData() (subtestData *listMTOShipmentsSubtestData) {
 	subtestData = &listMTOShipmentsSubtestData{}
 
-	mto := testdatagen.MakeDefaultMove(suite.DB())
+	mto := factory.BuildMove(suite.DB(), nil, nil)
 
 	storageFacility := factory.BuildStorageFacility(suite.DB(), nil, nil)
 
@@ -504,7 +504,7 @@ func (suite *HandlerSuite) TestGetShipmentHandler() {
 
 func (suite *HandlerSuite) TestApproveShipmentHandler() {
 	suite.Run("Returns 200 when all validations pass", func() {
-		move := testdatagen.MakeAvailableMove(suite.DB())
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: move,
 			MTOShipment: models.MTOShipment{
@@ -768,7 +768,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 
 func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
 	suite.Run("Returns 200 when all validations pass", func() {
-		move := testdatagen.MakeAvailableMove(suite.DB())
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		shipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
 				Status: models.MTOShipmentStatusApproved,
@@ -1014,7 +1014,7 @@ func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
 
 func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
 	suite.Run("Returns 200 when all validations pass", func() {
-		move := testdatagen.MakeAvailableMove(suite.DB())
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		shipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
 				Status:    models.MTOShipmentStatusSubmitted,
@@ -1264,7 +1264,7 @@ func (suite *HandlerSuite) TestRejectShipmentHandler() {
 	reason := "reason"
 
 	suite.Run("Returns 200 when all validations pass", func() {
-		move := testdatagen.MakeAvailableMove(suite.DB())
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		shipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
 			Move: move,
 		})
@@ -1527,7 +1527,7 @@ func (suite *HandlerSuite) TestRejectShipmentHandler() {
 	})
 
 	suite.Run("Requires rejection reason in Body of request", func() {
-		move := testdatagen.MakeAvailableMove(suite.DB())
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		shipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
 			Move: move,
 		})
@@ -1566,7 +1566,7 @@ func (suite *HandlerSuite) TestRejectShipmentHandler() {
 
 func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 	suite.Run("Returns 200 when all validations pass", func() {
-		move := testdatagen.MakeAvailableMove(suite.DB())
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		shipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
 				Status: models.MTOShipmentStatusApproved,
@@ -1813,7 +1813,7 @@ func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 
 func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 	suite.Run("Returns 200 when all validations pass", func() {
-		move := testdatagen.MakeAvailableMove(suite.DB())
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		shipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
 				Status: models.MTOShipmentStatusApproved,
@@ -2138,11 +2138,13 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 func (suite *HandlerSuite) TestApproveSITExtensionHandler() {
 	suite.Run("Returns 200 and updates SIT days allowance when validations pass", func() {
 		sitDaysAllowance := 20
-		move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{
-			Entitlement: models.Entitlement{
-				StorageInTransit: &sitDaysAllowance,
+		move := factory.BuildApprovalsRequestedMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Entitlement{
+					StorageInTransit: &sitDaysAllowance,
+				},
 			},
-		})
+		}, nil)
 		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
 				SITDaysAllowance: &sitDaysAllowance,
@@ -2216,7 +2218,7 @@ func (suite *HandlerSuite) TestApproveSITExtensionHandler() {
 func (suite *HandlerSuite) TestDenySITExtensionHandler() {
 	suite.Run("Returns 200 when validations pass", func() {
 		sitDaysAllowance := 20
-		move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{})
+		move := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
 		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
 				SITDaysAllowance: &sitDaysAllowance,
@@ -2376,7 +2378,7 @@ type createMTOShipmentSubtestData struct {
 func (suite *HandlerSuite) makeCreateMTOShipmentSubtestData() (subtestData *createMTOShipmentSubtestData) {
 	subtestData = &createMTOShipmentSubtestData{}
 
-	mto := testdatagen.MakeAvailableMove(suite.DB())
+	mto := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 	pickupAddress := factory.BuildAddress(suite.DB(), nil, nil)
 	destinationAddress := factory.BuildAddress(suite.DB(), nil, nil)
 	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
@@ -2661,7 +2663,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 	suite.Run("Successful POST - Integration Test (PPM, all fields)", func() {
 		// Make a move along with an attached minimal shipment. Shouldn't matter what's in them.
-		move := testdatagen.MakeDefaultMove(suite.DB())
+		move := factory.BuildMove(suite.DB(), nil, nil)
 		hhgShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
 			Move: move,
 		})
@@ -2779,7 +2781,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 
 	suite.Run("Successful POST - Integration Test (PPM, minimal fields)", func() {
 		// Make a move along with an attached minimal shipment. Shouldn't matter what's in them.
-		move := testdatagen.MakeDefaultMove(suite.DB())
+		move := factory.BuildMove(suite.DB(), nil, nil)
 		hhgShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
 			Move: move,
 		})

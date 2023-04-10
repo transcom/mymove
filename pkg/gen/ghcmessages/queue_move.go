@@ -20,6 +20,10 @@ import (
 // swagger:model QueueMove
 type QueueMove struct {
 
+	// appeared in too at
+	// Format: date-time
+	AppearedInTooAt *strfmt.DateTime `json:"appearedInTooAt,omitempty"`
+
 	// closeout initiated
 	// Format: date-time
 	CloseoutInitiated *strfmt.DateTime `json:"closeoutInitiated,omitempty"`
@@ -72,6 +76,10 @@ type QueueMove struct {
 func (m *QueueMove) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateAppearedInTooAt(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateCloseoutInitiated(formats); err != nil {
 		res = append(res, err)
 	}
@@ -119,6 +127,18 @@ func (m *QueueMove) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *QueueMove) validateAppearedInTooAt(formats strfmt.Registry) error {
+	if swag.IsZero(m.AppearedInTooAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("appearedInTooAt", "body", "date-time", m.AppearedInTooAt.String(), formats); err != nil {
+		return err
+	}
+
 	return nil
 }
 

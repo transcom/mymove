@@ -24,10 +24,10 @@ type createShipmentSubtestData struct {
 	shipmentCreator services.MTOShipmentCreator
 }
 
-func (suite *MTOShipmentServiceSuite) createSubtestData(assertions testdatagen.Assertions) (subtestData *createShipmentSubtestData) {
+func (suite *MTOShipmentServiceSuite) createSubtestData(customs []factory.Customization) (subtestData *createShipmentSubtestData) {
 	subtestData = &createShipmentSubtestData{}
 
-	subtestData.move = testdatagen.MakeMove(suite.DB(), assertions)
+	subtestData.move = factory.BuildMove(suite.DB(), customs, nil)
 
 	subtestData.appCtx = suite.AppContextForTest()
 
@@ -43,7 +43,7 @@ func (suite *MTOShipmentServiceSuite) createSubtestData(assertions testdatagen.A
 func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 	// Invalid ID fields set
 	suite.Run("invalid IDs found", func() {
-		subtestData := suite.createSubtestData(testdatagen.Assertions{})
+		subtestData := suite.createSubtestData(nil)
 		appCtx := subtestData.appCtx
 		creator := subtestData.shipmentCreator
 
@@ -63,7 +63,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 	})
 
 	suite.Run("Test requested pickup date requirement for various shipment types", func() {
-		subtestData := suite.createSubtestData(testdatagen.Assertions{})
+		subtestData := suite.createSubtestData(nil)
 		appCtx := subtestData.appCtx
 		creator := subtestData.shipmentCreator
 
@@ -107,7 +107,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 
 	// Happy path
 	suite.Run("If the shipment is created successfully it should be returned", func() {
-		subtestData := suite.createSubtestData(testdatagen.Assertions{})
+		subtestData := suite.createSubtestData(nil)
 		appCtx := subtestData.appCtx
 		creator := subtestData.shipmentCreator
 
@@ -129,7 +129,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 	})
 	suite.Run("If the shipment is created successfully with a destination address type it should be returned", func() {
 		destinationType := models.DestinationTypeHomeOfRecord
-		subtestData := suite.createSubtestData(testdatagen.Assertions{})
+		subtestData := suite.createSubtestData(nil)
 		appCtx := subtestData.appCtx
 		creator := subtestData.shipmentCreator
 
@@ -153,7 +153,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 	})
 
 	suite.Run("If the shipment is created successfully with submitted status it should be returned", func() {
-		subtestData := suite.createSubtestData(testdatagen.Assertions{})
+		subtestData := suite.createSubtestData(nil)
 		appCtx := subtestData.appCtx
 		creator := subtestData.shipmentCreator
 
@@ -176,7 +176,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 	})
 
 	suite.Run("If the submitted shipment has a storage facility attached", func() {
-		subtestData := suite.createSubtestData(testdatagen.Assertions{})
+		subtestData := suite.createSubtestData(nil)
 		appCtx := subtestData.appCtx
 		creator := subtestData.shipmentCreator
 
@@ -201,7 +201,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 	})
 
 	suite.Run("If the submitted shipment is an NTS shipment", func() {
-		subtestData := suite.createSubtestData(testdatagen.Assertions{})
+		subtestData := suite.createSubtestData(nil)
 		appCtx := subtestData.appCtx
 		creator := subtestData.shipmentCreator
 
@@ -232,7 +232,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 	})
 
 	suite.Run("If the submitted shipment is a PPM shipment", func() {
-		subtestData := suite.createSubtestData(testdatagen.Assertions{})
+		subtestData := suite.createSubtestData(nil)
 		appCtx := subtestData.appCtx
 		creator := subtestData.shipmentCreator
 
@@ -254,7 +254,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 	})
 
 	suite.Run("When NTSRecordedWeight it set for a non NTS Release shipment", func() {
-		subtestData := suite.createSubtestData(testdatagen.Assertions{})
+		subtestData := suite.createSubtestData(nil)
 		appCtx := subtestData.appCtx
 		creator := subtestData.shipmentCreator
 
@@ -280,7 +280,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 	})
 
 	suite.Run("If the shipment has mto service items", func() {
-		subtestData := suite.createSubtestData(testdatagen.Assertions{})
+		subtestData := suite.createSubtestData(nil)
 		appCtx := subtestData.appCtx
 		creator := subtestData.shipmentCreator
 
@@ -331,7 +331,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 	})
 
 	suite.Run("422 Validation Error - only one mto agent of each type", func() {
-		subtestData := suite.createSubtestData(testdatagen.Assertions{})
+		subtestData := suite.createSubtestData(nil)
 		appCtx := subtestData.appCtx
 		creator := subtestData.shipmentCreator
 
@@ -377,9 +377,11 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 	suite.Run("Move status transitions when a new shipment is created and SUBMITTED", func() {
 		// If a new shipment is added to an APPROVED move and given the SUBMITTED status,
 		// the move should transition to "APPROVALS REQUESTED"
-		subtestData := suite.createSubtestData(testdatagen.Assertions{
-			Move: models.Move{
-				Status: models.MoveStatusAPPROVED,
+		subtestData := suite.createSubtestData([]factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVED,
+				},
 			},
 		})
 		appCtx := subtestData.appCtx
@@ -412,7 +414,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 	suite.Run("Sets SIT days allowance to default", func() {
 		// This test will have to change in the future, but for now, service members are expected to get 90 days by
 		// default.
-		subtestData := suite.createSubtestData(testdatagen.Assertions{})
+		subtestData := suite.createSubtestData(nil)
 		appCtx := subtestData.appCtx
 		creator := subtestData.shipmentCreator
 

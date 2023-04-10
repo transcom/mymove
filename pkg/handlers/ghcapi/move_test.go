@@ -238,7 +238,7 @@ func (suite *HandlerSuite) TestSearchMovesHandler() {
 
 	suite.Run("Successful move search by locator", func() {
 		req := setupTestData()
-		move := testdatagen.MakeDefaultMove(suite.DB())
+		move := factory.BuildMove(suite.DB(), nil, nil)
 		moves := models.Moves{move}
 
 		mockSearcher := mocks.MoveSearcher{}
@@ -286,7 +286,7 @@ func (suite *HandlerSuite) TestSearchMovesHandler() {
 
 	suite.Run("Successful move search by DoD ID", func() {
 		req := setupTestData()
-		move := testdatagen.MakeDefaultMove(suite.DB())
+		move := factory.BuildMove(suite.DB(), nil, nil)
 		moves := models.Moves{move}
 
 		mockSearcher := mocks.MoveSearcher{}
@@ -330,7 +330,7 @@ func (suite *HandlerSuite) TestSetFinancialReviewFlagHandler() {
 	var move models.Move
 	var requestUser models.User
 	setupTestData := func() (*http.Request, models.Move) {
-		move = testdatagen.MakeDefaultMove(suite.DB())
+		move = factory.BuildMove(suite.DB(), nil, nil)
 		requestUser = factory.BuildUser(nil, nil, nil)
 		req := httptest.NewRequest("GET", "/move/#{move.locator}", nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
@@ -520,7 +520,7 @@ func (suite *HandlerSuite) TestUpdateMoveCloseoutOfficeHandler() {
 	closeoutOfficeUpdater := moveservice.NewCloseoutOfficeUpdater(moveservice.NewMoveFetcher(), transportationoffice.NewTransportationOfficesFetcher())
 
 	setupTestData := func() (*http.Request, models.Move, models.TransportationOffice) {
-		move = testdatagen.MakeDefaultMove(suite.DB())
+		move = factory.BuildMove(suite.DB(), nil, nil)
 		requestUser = factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 		transportationOffice = testdatagen.MakeTransportationOffice(suite.DB(), testdatagen.Assertions{
 			TransportationOffice: models.TransportationOffice{

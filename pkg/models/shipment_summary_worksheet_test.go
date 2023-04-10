@@ -31,19 +31,33 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheet() {
 	rank := models.ServiceMemberRankE9
 	moveType := models.SelectedMoveTypeHHGPPM
 
-	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			SelectedMoveType: &moveType,
+	move := factory.BuildMove(suite.DB(), []factory.Customization{
+		{
+			Model: models.Move{
+				SelectedMoveType: &moveType,
+			},
 		},
-		Order: models.Order{
-			OrdersType:        ordersType,
-			NewDutyLocationID: fortGordon.ID,
+		{
+			Model: models.Order{
+				OrdersType: ordersType,
+			},
 		},
-		ServiceMember: models.ServiceMember{
-			DutyLocationID: &yuma.ID,
-			Rank:           &rank,
+		{
+			Model:    fortGordon,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.NewDutyLocation,
 		},
-	})
+		{
+			Model:    yuma,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.OriginDutyLocation,
+		},
+		{
+			Model: models.ServiceMember{
+				Rank: &rank,
+			},
+		},
+	}, nil)
 
 	moveID := move.ID
 	serviceMemberID := move.Orders.ServiceMemberID
@@ -130,19 +144,33 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheetWithErrorNoMove() 
 	rank := models.ServiceMemberRankE9
 	moveType := models.SelectedMoveTypeHHGPPM
 
-	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			SelectedMoveType: &moveType,
+	move := factory.BuildMove(suite.DB(), []factory.Customization{
+		{
+			Model: models.Move{
+				SelectedMoveType: &moveType,
+			},
 		},
-		Order: models.Order{
-			OrdersType:        ordersType,
-			NewDutyLocationID: fortGordon.ID,
+		{
+			Model: models.Order{
+				OrdersType: ordersType,
+			},
 		},
-		ServiceMember: models.ServiceMember{
-			DutyLocationID: &yuma.ID,
-			Rank:           &rank,
+		{
+			Model:    fortGordon,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.NewDutyLocation,
 		},
-	})
+		{
+			Model:    yuma,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.OriginDutyLocation,
+		},
+		{
+			Model: models.ServiceMember{
+				Rank: &rank,
+			},
+		},
+	}, nil)
 
 	moveID := uuid.Nil
 	serviceMemberID := move.Orders.ServiceMemberID
@@ -160,16 +188,16 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheetWithErrorNoMove() 
 }
 
 func (suite *ModelSuite) TestFetchMovingExpensesShipmentSummaryWorksheetNoPPM() {
-	moveID, _ := uuid.NewV4()
 	serviceMemberID, _ := uuid.NewV4()
 	moveType := models.SelectedMoveTypeHHG
 
-	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			ID:               moveID,
-			SelectedMoveType: &moveType,
+	move := factory.BuildMove(suite.DB(), []factory.Customization{
+		{
+			Model: models.Move{
+				SelectedMoveType: &moveType,
+			},
 		},
-	})
+	}, nil)
 	session := auth.Session{
 		UserID:          move.Orders.ServiceMember.UserID,
 		ServiceMemberID: serviceMemberID,
@@ -189,19 +217,33 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheetOnlyPPM() {
 	rank := models.ServiceMemberRankE9
 	moveType := models.SelectedMoveTypePPM
 
-	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			SelectedMoveType: &moveType,
+	move := factory.BuildMove(suite.DB(), []factory.Customization{
+		{
+			Model: models.Move{
+				SelectedMoveType: &moveType,
+			},
 		},
-		Order: models.Order{
-			OrdersType:        ordersType,
-			NewDutyLocationID: fortGordon.ID,
+		{
+			Model: models.Order{
+				OrdersType: ordersType,
+			},
 		},
-		ServiceMember: models.ServiceMember{
-			DutyLocationID: &yuma.ID,
-			Rank:           &rank,
+		{
+			Model:    fortGordon,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.NewDutyLocation,
 		},
-	})
+		{
+			Model:    yuma,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.OriginDutyLocation,
+		},
+		{
+			Model: models.ServiceMember{
+				Rank: &rank,
+			},
+		},
+	}, nil)
 
 	moveID := move.ID
 	serviceMemberID := move.Orders.ServiceMemberID
