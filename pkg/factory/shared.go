@@ -42,6 +42,7 @@ var Document CustomType = "Document"
 var DutyLocation CustomType = "DutyLocation"
 var Entitlement CustomType = "Entitlement"
 var Move CustomType = "Move"
+var MTOServiceItem CustomType = "MTOServiceItem"
 var MTOShipment CustomType = "MTOShipment"
 var OfficePhoneLine CustomType = "OfficePhoneLine"
 var OfficeUser CustomType = "OfficeUser"
@@ -71,6 +72,7 @@ var defaultTypesMap = map[string]CustomType{
 	"models.DutyLocation":         DutyLocation,
 	"models.Entitlement":          Entitlement,
 	"models.Move":                 Move,
+	"models.MTOServiceItem":       MTOServiceItem,
 	"models.MTOShipment":          MTOShipment,
 	"models.OfficePhoneLine":      OfficePhoneLine,
 	"models.OfficeUser":           OfficeUser,
