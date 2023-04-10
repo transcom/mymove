@@ -5,6 +5,7 @@ import ReviewDocumentsSidePanel from './ReviewDocumentsSidePanel';
 
 import { createCompleteWeightTicket } from 'utils/test/factories/weightTicket';
 import PPMDocumentsStatus from 'constants/ppms';
+import { MockProviders } from 'testUtils';
 
 const mockWeightTickets = [
   createCompleteWeightTicket(
@@ -24,13 +25,21 @@ const mockWeightTickets = [
 
 describe('ReviewDocumentsSidePanel', () => {
   it('renders the component', async () => {
-    render(<ReviewDocumentsSidePanel />);
+    render(
+      <MockProviders>
+        <ReviewDocumentsSidePanel />
+      </MockProviders>,
+    );
     const h3 = await screen.getByRole('heading', { name: 'Send to customer?', level: 3 });
     expect(h3).toBeInTheDocument();
   });
 
   it('shows the appropriate statuses once weight tickets are reviewed', async () => {
-    render(<ReviewDocumentsSidePanel weightTickets={mockWeightTickets} />);
+    render(
+      <MockProviders>
+        <ReviewDocumentsSidePanel weightTickets={mockWeightTickets} />
+      </MockProviders>,
+    );
     const listItems = await screen.getAllByRole('listitem');
     expect(listItems).toHaveLength(2);
     expect(listItems[0]).toHaveTextContent(/Trip 1/);

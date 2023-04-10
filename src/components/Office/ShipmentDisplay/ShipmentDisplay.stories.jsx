@@ -11,6 +11,7 @@ import {
   diversionInfo,
   cancelledInfo,
   ppmInfo,
+  ppmInfoApproved,
   ppmInfoMultiple,
   ppmInfoMultiple2,
 } from './ShipmentDisplayTestData';
@@ -287,6 +288,20 @@ export const PPMShipmentServiceCounselorWithReviewButton = () => (
   <div style={{ padding: '20px' }}>
     <ShipmentDisplay
       displayInfo={ppmInfo}
+      ordersLOA={ordersLOA}
+      shipmentType={SHIPMENT_OPTIONS.PPM}
+      isSubmitted
+      allowApproval={false}
+      warnIfMissing={[{ fieldName: 'counselorRemarks' }]}
+      reviewURL="/"
+    />
+  </div>
+);
+
+export const PPMShipmentServiceCounselorWithPacketReadyForDownloadLabel = () => (
+  <div style={{ padding: '20px' }}>
+    <ShipmentDisplay
+      displayInfo={ppmInfoApproved}
       ordersLOA={ordersLOA}
       shipmentType={SHIPMENT_OPTIONS.PPM}
       isSubmitted

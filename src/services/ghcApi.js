@@ -74,6 +74,19 @@ export async function patchProGearWeightTicket({ ppmShipmentId, proGearWeightTic
   );
 }
 
+export async function postPPMDocumentsSetStatus({ ppmShipmentId, eTag }) {
+  return makeGHCRequest(
+    'ppm.finishDocumentReview',
+    {
+      ppmShipmentId,
+      'If-Match': eTag,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
 export async function getMove(key, locator) {
   return makeGHCRequest('move.getMove', { locator }, { normalize: false });
 }

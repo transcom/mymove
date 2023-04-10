@@ -109,9 +109,6 @@ export const ReviewDocuments = ({ match }) => {
 
   const queryClient = useQueryClient();
 
-  if (isLoading) return <LoadingPlaceholder />;
-  if (isError) return <SomethingWentWrong />;
-
   const onClose = () => {
     history.push(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
   };
@@ -136,12 +133,12 @@ export const ReviewDocuments = ({ match }) => {
     }
   };
 
-  const onConfirmSuccess = () => {
-    history.push(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
-  };
-
   const onError = () => {
     setServerError('There was an error submitting the form. Please try again later.');
+  };
+
+  const onConfirmSuccess = () => {
+    history.push(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
   };
 
   const onContinue = () => {
@@ -150,6 +147,9 @@ export const ReviewDocuments = ({ match }) => {
       formRef.current.handleSubmit();
     }
   };
+
+  if (isLoading) return <LoadingPlaceholder />;
+  if (isError) return <SomethingWentWrong />;
 
   const currentDocumentSet = documentSets[documentSetIndex];
   const disableBackButton = documentSetIndex === 0 && !showOverview;
