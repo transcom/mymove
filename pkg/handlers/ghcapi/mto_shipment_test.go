@@ -3347,4 +3347,3 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		suite.NoError(payload.Validate(strfmt.Default))
 	})
 }
-afaewfawefaewfaewf
