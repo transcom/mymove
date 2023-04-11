@@ -2,7 +2,7 @@ import React from 'react';
 import classnames from 'classnames';
 import moment from 'moment';
 import { PropTypes } from 'prop-types';
-import { Button, Tag } from '@trussworks/react-uswds';
+import { Tag } from '@trussworks/react-uswds';
 
 import DataTableWrapper from '../../DataTableWrapper/index';
 import DataTable from '../../DataTable/index';
@@ -16,78 +16,44 @@ import { utcDateFormat } from 'shared/dates';
 import { SERVICE_ITEM_CODES } from 'constants/serviceItems';
 import { ShipmentShape } from 'types/shipment';
 import { SitStatusShape, LOCATION_TYPES } from 'types/sitStatusShape';
-import Restricted from 'components/Restricted/Restricted';
-import { permissionTypes } from 'constants/permissions';
 
-const ShipmentSITDisplay = ({
-  sitExtensions,
-  sitStatus,
-  shipment,
-  showReviewSITExtension,
-  showSubmitSITExtension,
-  hideSITExtensionAction,
-  className,
-}) => {
+const SITHistoryItem = ({ sitItem }) => (
+  <dl data-testid="sitHistoryItem">
+    <div>
+      <dt>Reason:</dt>
+      <dd>{sitExtensionReasons[sitItem.requestReason]}</dd>
+    </div>
+    {sitItem.contractorRemarks && (
+      <div>
+        <dt>Contractor remarks:</dt>
+        <dd>{sitItem.contractorRemarks}</dd>
+      </div>
+    )}
+    {sitItem.officeRemarks && (
+      <div>
+        <dt>Office remarks:</dt>
+        <dd>{sitItem.officeRemarks}</dd>
+      </div>
+    )}
+  </dl>
+);
+
+const SITHistoryItemHeader = ({ sitItem }) => (
+  <div className={styles.sitHistoryItemHeader}>
+    Total days of SIT approved: {sitItem.approvedDays ?? '0'}{' '}
+    <span>updated on {formatDateFromIso(sitItem.decisionDate, 'DD MMM YYYY')} </span>
+  </div>
+);
+
+const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton }) => {
   const pendingSITExtension = sitExtensions.find((se) => se.status === SIT_EXTENSION_STATUS.PENDING);
-
-  const sitEndDate = `Ends ${moment().utc().add(sitStatus.totalDaysRemaining, 'days').format('DD MMM YYYY')}`;
-
-  const mappedSITExtensionList = sitExtensions
-    .filter((sitExt) => sitExt.status !== SIT_EXTENSION_STATUS.PENDING)
-    .map((sitExt) => {
-      return (
-        <dl key={sitExt.id}>
-          {sitExt.status === SIT_EXTENSION_STATUS.APPROVED ? (
-            <div>
-              <dt>{sitExt.approvedDays} days added</dt>
-              <dd>on {formatDateFromIso(sitExt.decisionDate, 'DD MMM YYYY')}</dd>
-            </div>
-          ) : (
-            <div>
-              <dt>0 days added</dt>
-              <dd>on {formatDateFromIso(sitExt.decisionDate, 'DD MMM YYYY')} — request rejected</dd>
-            </div>
-          )}
-          <div>
-            <dt>Reason:</dt>
-            <dd>{sitExtensionReasons[sitExt.requestReason]}</dd>
-          </div>
-          {sitExt.contractorRemarks && (
-            <div>
-              <dt>Contractor remarks:</dt>
-              <dd>{sitExt.contractorRemarks}</dd>
-            </div>
-          )}
-          {sitExt.officeRemarks && (
-            <div>
-              <dt>Office remarks:</dt>
-              <dd>{sitExt.officeRemarks}</dd>
-            </div>
-          )}
-        </dl>
-      );
-    });
-
-  const totalDaysAuthorizedAndUsed = (
-    <>
-      <p>{shipment.sitDaysAllowance} authorized</p>
-      <p>{sitStatus.totalSITDaysUsed} used</p>
-    </>
-  );
-
-  // data-happo-hide is in place to compensate for mockDate being ignored in Storybook
-  const daysRemainingAndEndDate = (
-    <>
-      <p>{sitStatus.totalDaysRemaining} remaining</p>
-      <p data-happo-hide>{sitEndDate}</p>
-    </>
-  );
-
   // Currently active SIT
-  const currentLocation = sitStatus.location === LOCATION_TYPES.ORIGIN ? 'origin' : 'destination';
+  const currentLocation = sitStatus.location === LOCATION_TYPES.ORIGIN ? 'origin SIT' : 'destination SIT';
 
   const currentDaysInSit = <p>{sitStatus.totalSITDaysUsed}</p>;
   const currentDateEnteredSit = <p>{formatDate(sitStatus.sitEntryDate, utcDateFormat, 'DD MMM YYYY')}</p>;
+
+  const sitEndDate = moment().utc().add(sitStatus.totalDaysRemaining, 'days').format('DD MMM YYYY');
 
   // Previous SIT calculations and date ranges
   const previousDaysUsed = sitStatus.pastSITServiceItems?.map((pastSITItem) => {
@@ -100,51 +66,72 @@ const ShipmentSITDisplay = ({
 
     return <p key={pastSITItem.id}>{text}</p>;
   });
+  return (
+    <>
+      <div className={styles.title}>
+        <p>SIT (STORAGE IN TRANSIT){pendingSITExtension && <Tag>Extension requested</Tag>}</p>
+        {openModalButton}
+      </div>
+      <div className={styles.tableContainer} data-testid="sitStatusTable">
+        {/* Sit Total days table */}
+        <DataTable
+          columnHeaders={['Total days of SIT approved', 'Total days used', 'Total days remaining']}
+          dataRow={[shipment.sitDaysAllowance, sitStatus.totalSITDaysUsed, sitStatus.totalDaysRemaining]}
+        />
+      </div>
+      <div className={styles.tableContainer}>
+        {/* Sit Start and End table */}
+        <p className={styles.sitHeader}>Current location: {currentLocation}</p>
+        <DataTable
+          columnHeaders={[`SIT start date`, 'SIT authorized end date']}
+          dataRow={[currentDateEnteredSit, sitEndDate]}
+          custClass={styles.currentLocation}
+        />
+      </div>
+      <div className={styles.tableContainer}>
+        {/* Total days at current location */}
+        <DataTable columnHeaders={[`Total days in ${currentLocation}`]} dataRow={[currentDaysInSit]} />
+      </div>
+      {/* Service Items */}
+      {sitStatus.pastSITServiceItems && (
+        <div className={styles.tableContainer}>
+          <DataTable columnHeaders={['Previously used SIT']} dataRow={[previousDaysUsed]} />
+        </div>
+      )}
+    </>
+  );
+};
+
+const ShipmentSITDisplay = ({ sitExtensions, sitStatus, shipment, className, openModalButton }) => {
+  const sitHistory = React.useMemo(
+    () => sitExtensions.filter((sitItem) => sitItem.status !== SIT_EXTENSION_STATUS.PENDING),
+    [sitExtensions],
+  );
 
   return (
     <DataTableWrapper
       className={classnames('maxw-tablet', styles.mtoshipmentSITDisplay, className)}
       testID="sitExtensions"
     >
-      <div className={styles.title}>
-        <p>SIT (STORAGE IN TRANSIT){pendingSITExtension && <Tag>Extension requested</Tag>}</p>
-        {!hideSITExtensionAction &&
-          (pendingSITExtension ? (
-            <Restricted to={permissionTypes.createSITExtension}>
-              <p>
-                <Button type="button" onClick={() => showReviewSITExtension(true)} unstyled>
-                  View request
-                </Button>
-              </p>
-            </Restricted>
-          ) : (
-            <Restricted to={permissionTypes.updateSITExtension}>
-              <Button
-                type="button"
-                onClick={() => showSubmitSITExtension(true)}
-                unstyled
-                className={styles.submitSITEXtensionLink}
-              >
-                Edit
-              </Button>
-            </Restricted>
+      <SitStatusTables
+        openModalButton={openModalButton}
+        shipment={shipment}
+        sitStatus={sitStatus}
+        sitExtensions={sitExtensions}
+      />
+      {/* Sit History */}
+      {sitExtensions && sitHistory.length > 0 && (
+        <div className={styles.tableContainer}>
+          <p className={styles.sitHeader}>SIT history</p>
+          {sitHistory.map((sitItem) => (
+            <DataTable
+              key={sitItem.id}
+              columnHeaders={[<SITHistoryItemHeader sitItem={sitItem} />]}
+              dataRow={[<SITHistoryItem sitItem={sitItem} />]}
+              custClass={styles.sitHistoryItem}
+            />
           ))}
-      </div>
-
-      <DataTable
-        columnHeaders={['Total days of SIT', 'Total days remaining']}
-        dataRow={[totalDaysAuthorizedAndUsed, daysRemainingAndEndDate]}
-      />
-      <p>Current location: {currentLocation}</p>
-      <DataTable
-        columnHeaders={[`Days in ${currentLocation} SIT`, 'Date entered SIT']}
-        dataRow={[currentDaysInSit, currentDateEnteredSit]}
-      />
-      {sitStatus.pastSITServiceItems && (
-        <DataTable columnHeaders={['Previously used SIT']} dataRow={[previousDaysUsed]} />
-      )}
-      {sitExtensions && mappedSITExtensionList.length > 0 && (
-        <DataTable columnHeaders={['SIT extensions']} dataRow={[mappedSITExtensionList]} />
+        </div>
       )}
     </DataTableWrapper>
   );
@@ -154,17 +141,13 @@ ShipmentSITDisplay.propTypes = {
   sitExtensions: PropTypes.arrayOf(SITExtensionShape),
   sitStatus: SitStatusShape.isRequired,
   shipment: ShipmentShape.isRequired,
-  showReviewSITExtension: PropTypes.func,
-  showSubmitSITExtension: PropTypes.func,
-  hideSITExtensionAction: PropTypes.bool,
+  openModalButton: PropTypes.element,
   className: PropTypes.string,
 };
 
 ShipmentSITDisplay.defaultProps = {
   sitExtensions: [],
-  showReviewSITExtension: undefined,
-  showSubmitSITExtension: undefined,
-  hideSITExtensionAction: false,
+  openModalButton: undefined,
   className: '',
 };
 
