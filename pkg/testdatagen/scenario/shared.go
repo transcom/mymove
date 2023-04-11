@@ -1271,18 +1271,20 @@ func createApprovedMoveWithPPMCloseoutCompleteWithAllDocTypes(appCtx appcontext.
 		UserUploader:  userUploader,
 	}
 
-	testdatagen.MakeWeightTicket(appCtx.DB(), weightTicketAssertions)
+	testdatagen.MakeWeightTicketWithConstructedWeight(appCtx.DB(), weightTicketAssertions)
 
 	testdatagen.MakeMovingExpense(appCtx.DB(), testdatagen.Assertions{
 		ServiceMember: shipment.Shipment.MoveTaskOrder.Orders.ServiceMember,
 		PPMShipment:   shipment,
 		UserUploader:  userUploader,
+		File:          factory.FixtureOpen("test.png"),
 	})
 
 	testdatagen.MakeProgearWeightTicket(appCtx.DB(), testdatagen.Assertions{
 		ServiceMember: shipment.Shipment.MoveTaskOrder.Orders.ServiceMember,
 		PPMShipment:   shipment,
 		UserUploader:  userUploader,
+		File:          factory.FixtureOpen("test.jpg"),
 	})
 }
 
