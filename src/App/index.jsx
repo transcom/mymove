@@ -41,11 +41,11 @@ const officeQueryConfig = new QueryClient({
       // do not re-query on window refocus
       refetchOnWindowFocus: false,
       // onError: noop, // TODO - log errors?
-      networkMode: 'offlineFirst', // restoring previous-behavior. Without this, it will be paused without a network
+      networkMode: 'online', // queries will not fire unless there is a network connection
     },
     mutations: {
       // onError: noop, // TODO - log errors?
-      networkMode: 'offlineFirst', // restoring previous-behavior. Without this, it will be paused without a network
+      networkMode: 'online', // mutations will not fire unless there is a network connection
     },
   },
 });
