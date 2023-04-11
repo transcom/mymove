@@ -87,13 +87,12 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_Hide() {
 
 		// Make a whole move with an invalid MTO agent name
 		serviceMember := setupTestData()
-		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			ServiceMember: serviceMember,
-			Order: models.Order{
-				ServiceMemberID: serviceMember.ID,
-				ServiceMember:   serviceMember,
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    serviceMember,
+				LinkOnly: true,
 			},
-		})
+		}, nil)
 		testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
 			MTOShipment: mtoShipment,
 			MTOAgent: models.MTOAgent{
@@ -434,15 +433,33 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeModelM
 				},
 			},
 		}, nil)
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				ShipmentType: models.MTOShipmentTypeHHG,
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypeHHG,
+				},
 			},
-			PickupAddress:            validPickupAddress,
-			SecondaryPickupAddress:   validSecondaryPickupAddress,
-			DestinationAddress:       validDestinationAddress,
-			SecondaryDeliveryAddress: validSecondaryDeliveryAddress,
-		})
+			{
+				Model:    validPickupAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.PickupAddress,
+			},
+			{
+				Model:    validSecondaryPickupAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.SecondaryPickupAddress,
+			},
+			{
+				Model:    validDestinationAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.DeliveryAddress,
+			},
+			{
+				Model:    validSecondaryDeliveryAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.SecondaryDeliveryAddress,
+			},
+		}, nil)
 		return shipment
 	}
 	suite.Run("valid shipment data", func() {

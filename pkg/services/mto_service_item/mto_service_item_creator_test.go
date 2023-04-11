@@ -24,7 +24,6 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	"github.com/transcom/mymove/pkg/services/query"
-	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -57,9 +56,12 @@ func (suite *MTOServiceItemServiceSuite) buildValidServiceItemWithInvalidMove() 
 	// Approvals Requested
 	move := factory.BuildMove(suite.DB(), nil, nil)
 	reServiceDDFSIT := factory.BuildDDFSITReService(suite.DB())
-	shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: move,
-	})
+	shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	serviceItemForUnapprovedMove := models.MTOServiceItem{
 		MoveTaskOrderID: move.ID,
@@ -83,9 +85,12 @@ func (suite *MTOServiceItemServiceSuite) buildValidDDFSITServiceItemWithValidMov
 		UpdatedAt: time.Now(),
 	}
 	reServiceDDFSIT := factory.BuildDDFSITReService(suite.DB())
-	shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: move,
-	})
+	shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	serviceItem := models.MTOServiceItem{
 		MoveTaskOrderID: move.ID,
@@ -105,12 +110,17 @@ func (suite *MTOServiceItemServiceSuite) buildValidDOSHUTServiceItemWithValidMov
 	reServiceDOSHUT := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDOSHUT)
 
 	estimatedPrimeWeight := unit.Pound(6000)
-	shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			PrimeEstimatedWeight: &estimatedPrimeWeight,
+	shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				PrimeEstimatedWeight: &estimatedPrimeWeight,
+			},
+		},
+	}, nil)
 
 	estimatedWeight := unit.Pound(4200)
 	actualWeight := unit.Pound(4000)
@@ -140,9 +150,12 @@ func (suite *MTOServiceItemServiceSuite) buildValidServiceItemWithNoStatusAndVal
 		UpdatedAt: time.Now(),
 	}
 	reService := factory.BuildReService(suite.DB(), nil, nil)
-	shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: move,
-	})
+	shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	serviceItem := models.MTOServiceItem{
 		MoveTaskOrderID: move.ID,
@@ -430,9 +443,12 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		//             Conflict error returned, no new service items created
 
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-		})
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		reService := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDDSHUT)
 
@@ -453,9 +469,12 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 
 	setupDDFSITData := func() (models.MTOServiceItemCustomerContact, models.MTOServiceItem) {
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-		})
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 		reServiceDDFSIT := factory.BuildDDFSITReService(suite.DB())
 
 		contact := models.MTOServiceItemCustomerContact{
@@ -566,9 +585,12 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 
 	setupTestData := func() models.MTOShipment {
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-		})
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		reServiceDOASIT = factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDOASIT)
 		reServiceDOFSIT = factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
@@ -897,9 +919,12 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItemFailToCre
 		// Set up data to use for all Origin SIT Service Item tests
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		move.Status = models.MoveStatusAPPROVED
-		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-		})
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		reServiceDOFSIT := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
 
@@ -935,9 +960,12 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 				},
 			},
 		}, nil)
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-		})
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 		builder := query.NewQueryBuilder()
 		moveRouter := moverouter.NewMoveRouter()
 		creator := NewMTOServiceItemCreator(builder, moveRouter)
@@ -1158,12 +1186,14 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 
 		// Make a shipment with no DDFSIT
 		now := time.Now()
-		shipmentNoDDFSIT := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				AvailableToPrimeAt: &now,
-				Status:             models.MoveStatusAPPROVED,
+		shipmentNoDDFSIT := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					AvailableToPrimeAt: &now,
+					Status:             models.MoveStatusAPPROVED,
+				},
 			},
-		})
+		}, nil)
 		serviceItemDDASIT := models.MTOServiceItem{
 			MoveTaskOrderID: shipmentNoDDFSIT.MoveTaskOrderID,
 			MoveTaskOrder:   shipmentNoDDFSIT.MoveTaskOrder,

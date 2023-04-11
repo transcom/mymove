@@ -156,11 +156,13 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 
 				shipment = ppmShipment.Shipment
 			} else {
-				shipment = testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
-					MTOShipment: models.MTOShipment{
-						ShipmentType: shipmentType,
+				shipment = factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+					{
+						Model: models.MTOShipment{
+							ShipmentType: shipmentType,
+						},
 					},
-				})
+				}, nil)
 			}
 
 			eTag := etag.GenerateEtag(shipment.UpdatedAt)
@@ -271,11 +273,13 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 
 				shipment = ppmShipment.Shipment
 			} else {
-				shipment = testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
-					MTOShipment: models.MTOShipment{
-						ShipmentType: tc.shipmentType,
+				shipment = factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+					{
+						Model: models.MTOShipment{
+							ShipmentType: tc.shipmentType,
+						},
 					},
-				})
+				}, nil)
 			}
 
 			mtoShipment, err := subtestData.shipmentUpdaterOrchestrator.UpdateShipment(appCtx, &shipment, etag.GenerateEtag(shipment.UpdatedAt))
@@ -292,11 +296,13 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 
 		subtestData := makeSubtestData(true, false)
 
-		shipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				ShipmentType: models.MTOShipmentTypeHHG,
+		shipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypeHHG,
+				},
 			},
-		})
+		}, nil)
 
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 

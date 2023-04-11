@@ -1508,13 +1508,18 @@ func (suite *ServiceParamValueLookupsSuite) makeAdditionalDaysSITPaymentServiceI
 func (suite *ServiceParamValueLookupsSuite) setupMoveWithAddlDaysSITAndPaymentRequest(sitFirstDayReService models.ReService, sitEntryDate time.Time, sitAdditionalDaysReService models.ReService, sitAdditionalDaysStartDate string, sitAdditionalDaysEndDate string) (models.Move, models.MTOServiceItem, models.PaymentRequest) {
 	defaultSITDaysAllowance := 90
 	move := factory.BuildMove(suite.DB(), nil, nil)
-	shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			Status:           models.MTOShipmentStatusSubmitted,
-			SITDaysAllowance: &defaultSITDaysAllowance,
+	shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				Status:           models.MTOShipmentStatusSubmitted,
+				SITDaysAllowance: &defaultSITDaysAllowance,
+			},
+		},
+	}, nil)
 	move.MTOShipments = models.MTOShipments{
 		shipment,
 	}

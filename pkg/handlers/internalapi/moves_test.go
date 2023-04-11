@@ -729,9 +729,12 @@ func (suite *HandlerSuite) TestSubmitAmendedOrdersHandler() {
 			},
 		}, nil)
 
-		testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-		})
+		factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		// And: the context contains the auth values
 		req := httptest.NewRequest("POST", "/moves/some_id/submit_amended_orders", nil)
