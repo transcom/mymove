@@ -285,13 +285,13 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 			suite.NoError(err)
 
 			// Take that raw json and unmarshal it into a MTOServiceItemDestSIT
-			ddfSITSI := primemessages.MTOServiceItemDestSIT{}
-			err = ddfSITSI.UnmarshalJSON(raw)
+			ddfsitServiceItem := primemessages.MTOServiceItemDestSIT{}
+			err = ddfsitServiceItem.UnmarshalJSON(raw)
 			suite.NoError(err)
 
-			suite.Equal(address.StreetAddress1, *ddfSITSI.SitDestinationFinalAddress.StreetAddress1)
-			suite.Equal(address.State, *ddfSITSI.SitDestinationFinalAddress.State)
-			suite.Equal(address.City, *ddfSITSI.SitDestinationFinalAddress.City)
+			suite.Equal(address.StreetAddress1, *ddfsitServiceItem.SitDestinationFinalAddress.StreetAddress1)
+			suite.Equal(address.State, *ddfsitServiceItem.SitDestinationFinalAddress.State)
+			suite.Equal(address.City, *ddfsitServiceItem.SitDestinationFinalAddress.City)
 		}
 
 	})
@@ -333,7 +333,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		movePayload := moveResponse.Payload
 
 		// Validate outgoing payload
-		// suite.NoError(movePayload.Validate(strfmt.Default))
+		suite.NoError(movePayload.Validate(strfmt.Default))
 
 		suite.Equal(move.ID.String(), movePayload.ID.String())
 		if suite.Len(movePayload.MtoShipments, 1) {
