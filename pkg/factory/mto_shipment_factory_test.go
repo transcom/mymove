@@ -51,14 +51,12 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 		// Expected outcome: Create a move, and mtoShipment
 
 		// SETUP
-		moveType := models.SelectedMoveTypeHHG
 		locator := "ABC123"
 		ppmType := "FULL"
 
 		move := models.Move{
-			SelectedMoveType: &moveType,
-			PPMType:          &ppmType,
-			Locator:          locator,
+			PPMType: &ppmType,
+			Locator: locator,
 		}
 
 		mtoShipment := BuildBaseMTOShipment(suite.DB(), []Customization{
@@ -76,7 +74,6 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 		suite.Equal(mtoShipment.ShipmentType, models.MTOShipmentTypeBoatHaulAway)
 		suite.Equal(mtoShipment.Status, models.MTOShipmentStatusApproved)
 
-		suite.Equal(mtoShipment.MoveTaskOrder.SelectedMoveType, &moveType)
 		suite.Equal(mtoShipment.MoveTaskOrder.PPMType, &ppmType)
 		suite.Equal(mtoShipment.MoveTaskOrder.Locator, locator)
 	})
@@ -100,11 +97,9 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 			StreetAddress3: models.StringPointer("c/o Some Person"),
 		}
 
-		moveType := models.SelectedMoveTypePPM
 		partialType := "PARTIAL"
 		defaultMove := models.Move{
-			PPMType:          &partialType,
-			SelectedMoveType: &moveType,
+			PPMType: &partialType,
 		}
 
 		defaultRequestedPickupDate := time.Date(GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC)
@@ -130,7 +125,6 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 
 		// Check move
 		suite.Equal(defaultMove.PPMType, mtoShipment.MoveTaskOrder.PPMType)
-		suite.Equal(defaultMove.SelectedMoveType, mtoShipment.MoveTaskOrder.SelectedMoveType)
 
 		suite.Nil(mtoShipment.StorageFacility)
 
@@ -153,7 +147,6 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 		// SETUP
 		var estimatedWeight = unit.Pound(1400)
 		var actualWeight = unit.Pound(2000)
-		var hhgMoveType = models.SelectedMoveTypeHHG
 
 		customMTOShipment := models.MTOShipment{
 			ID:                   uuid.FromStringOrNil("acf7b357-5cad-40e2-baa7-dedc1d4cf04c"),
@@ -167,7 +160,6 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 		customMove := models.Move{
 			ID:                 uuid.FromStringOrNil("d4d95b22-2d9d-428b-9a11-284455aa87ba"),
 			Status:             models.MoveStatusAPPROVALSREQUESTED,
-			SelectedMoveType:   &hhgMoveType,
 			AvailableToPrimeAt: models.TimePointer(time.Now()),
 		}
 
@@ -237,7 +229,6 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 
 		// Check move
 		suite.Equal(customMove.Status, mtoShipment.MoveTaskOrder.Status)
-		suite.Equal(customMove.SelectedMoveType, mtoShipment.MoveTaskOrder.SelectedMoveType)
 		suite.Equal(customMove.AvailableToPrimeAt, mtoShipment.MoveTaskOrder.AvailableToPrimeAt)
 	})
 
@@ -249,7 +240,6 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 		// SETUP
 		var estimatedWeight = unit.Pound(1400)
 		var actualWeight = unit.Pound(2000)
-		var hhgMoveType = models.SelectedMoveTypeHHG
 
 		customMTOShipment := models.MTOShipment{
 			ID:                   uuid.FromStringOrNil("acf7b357-5cad-40e2-baa7-dedc1d4cf04c"),
@@ -263,7 +253,6 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 		customMove := models.Move{
 			ID:                 uuid.FromStringOrNil("d4d95b22-2d9d-428b-9a11-284455aa87ba"),
 			Status:             models.MoveStatusAPPROVALSREQUESTED,
-			SelectedMoveType:   &hhgMoveType,
 			AvailableToPrimeAt: models.TimePointer(time.Now()),
 		}
 
@@ -317,7 +306,6 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 
 		// Check move
 		suite.Equal(customMove.Status, mtoShipment.MoveTaskOrder.Status)
-		suite.Equal(customMove.SelectedMoveType, mtoShipment.MoveTaskOrder.SelectedMoveType)
 		suite.Equal(customMove.AvailableToPrimeAt, mtoShipment.MoveTaskOrder.AvailableToPrimeAt)
 	})
 

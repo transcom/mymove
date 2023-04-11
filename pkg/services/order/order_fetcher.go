@@ -148,8 +148,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 			// and we don't want it to get hidden from services counselors.
 			LeftJoin("move_to_gbloc", "move_to_gbloc.move_id = moves.id").
 			LeftJoin("duty_locations as dest_dl", "dest_dl.id = orders.new_duty_location_id").
-			Where("show = ?", swag.Bool(true)).
-			Where("moves.selected_move_type NOT IN (?)", models.SelectedMoveTypeUB, models.SelectedMoveTypePOV)
+			Where("show = ?", swag.Bool(true))
 		if params.NeedsPPMCloseout != nil {
 			if *params.NeedsPPMCloseout {
 				query.InnerJoin("ppm_shipments", "ppm_shipments.shipment_id = mto_shipments.id").

@@ -47,10 +47,6 @@ func payloadForMoveModel(storer storage.FileStorer, order models.Order, move mod
 		hhgPayloads = append(hhgPayloads, payload)
 	}
 
-	var SelectedMoveType internalmessages.SelectedMoveType
-	if move.SelectedMoveType != nil {
-		SelectedMoveType = internalmessages.SelectedMoveType(*move.SelectedMoveType)
-	}
 	var SubmittedAt time.Time
 	if move.SubmittedAt != nil {
 		SubmittedAt = *move.SubmittedAt
@@ -61,7 +57,6 @@ func payloadForMoveModel(storer storage.FileStorer, order models.Order, move mod
 	movePayload := &internalmessages.MovePayload{
 		CreatedAt:               handlers.FmtDateTime(move.CreatedAt),
 		SubmittedAt:             handlers.FmtDateTime(SubmittedAt),
-		SelectedMoveType:        &SelectedMoveType,
 		Locator:                 swag.String(move.Locator),
 		ID:                      handlers.FmtUUID(move.ID),
 		UpdatedAt:               handlers.FmtDateTime(move.UpdatedAt),

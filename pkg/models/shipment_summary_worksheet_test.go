@@ -29,14 +29,8 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheet() {
 	yuma := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
 	fortGordon := factory.FetchOrBuildOrdersDutyLocation(suite.DB())
 	rank := models.ServiceMemberRankE9
-	moveType := models.SelectedMoveTypeHHGPPM
 
 	move := factory.BuildMove(suite.DB(), []factory.Customization{
-		{
-			Model: models.Move{
-				SelectedMoveType: &moveType,
-			},
-		},
 		{
 			Model: models.Order{
 				OrdersType: ordersType,
@@ -142,14 +136,8 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheetWithErrorNoMove() 
 	yuma := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
 	fortGordon := factory.FetchOrBuildOrdersDutyLocation(suite.DB())
 	rank := models.ServiceMemberRankE9
-	moveType := models.SelectedMoveTypeHHGPPM
 
 	move := factory.BuildMove(suite.DB(), []factory.Customization{
-		{
-			Model: models.Move{
-				SelectedMoveType: &moveType,
-			},
-		},
 		{
 			Model: models.Order{
 				OrdersType: ordersType,
@@ -189,15 +177,8 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheetWithErrorNoMove() 
 
 func (suite *ModelSuite) TestFetchMovingExpensesShipmentSummaryWorksheetNoPPM() {
 	serviceMemberID, _ := uuid.NewV4()
-	moveType := models.SelectedMoveTypeHHG
 
-	move := factory.BuildMove(suite.DB(), []factory.Customization{
-		{
-			Model: models.Move{
-				SelectedMoveType: &moveType,
-			},
-		},
-	}, nil)
+	move := factory.BuildMove(suite.DB(), nil, nil)
 	session := auth.Session{
 		UserID:          move.Orders.ServiceMember.UserID,
 		ServiceMemberID: serviceMemberID,
@@ -215,14 +196,8 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheetOnlyPPM() {
 	yuma := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
 	fortGordon := factory.FetchOrBuildOrdersDutyLocation(suite.DB())
 	rank := models.ServiceMemberRankE9
-	moveType := models.SelectedMoveTypePPM
 
 	move := factory.BuildMove(suite.DB(), []factory.Customization{
-		{
-			Model: models.Move{
-				SelectedMoveType: &moveType,
-			},
-		},
 		{
 			Model: models.Order{
 				OrdersType: ordersType,

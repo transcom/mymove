@@ -27,15 +27,8 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandler() {
 		RoleType: roles.RoleTypeTOO,
 	})
 
-	hhgMoveType := models.SelectedMoveTypeHHG
 	// Default Origin Duty Location GBLOC is KKFA
-	hhgMove := factory.BuildSubmittedMove(suite.DB(), []factory.Customization{
-		{
-			Model: models.Move{
-				SelectedMoveType: &hhgMoveType,
-			},
-		},
-	}, nil)
+	hhgMove := factory.BuildSubmittedMove(suite.DB(), nil, nil)
 
 	factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 		{
@@ -56,11 +49,6 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandler() {
 				Gbloc: "AGFM",
 			},
 			Type: &factory.TransportationOffices.CloseoutOffice,
-		},
-		{
-			Model: models.Move{
-				SelectedMoveType: &hhgMoveType,
-			},
 		},
 	}, nil)
 
@@ -176,11 +164,8 @@ func (suite *HandlerSuite) TestGetMoveQueuesBranchFilter() {
 		RoleType: roles.RoleTypeTOO,
 	})
 
-	hhgMoveType := models.SelectedMoveTypeHHG
-
 	move := models.Move{
-		SelectedMoveType: &hhgMoveType,
-		Status:           models.MoveStatusSUBMITTED,
+		Status: models.MoveStatusSUBMITTED,
 	}
 
 	shipment := models.MTOShipment{
@@ -247,15 +232,8 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerStatuses() {
 		RoleType: roles.RoleTypeTOO,
 	})
 
-	hhgMoveType := models.SelectedMoveTypeHHG
 	// Default Origin Duty Location GBLOC is KKFA
-	hhgMove := factory.BuildSubmittedMove(suite.DB(), []factory.Customization{
-		{
-			Model: models.Move{
-				SelectedMoveType: &hhgMoveType,
-			},
-		},
-	}, nil)
+	hhgMove := factory.BuildSubmittedMove(suite.DB(), nil, nil)
 
 	factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 		{
@@ -296,11 +274,6 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerStatuses() {
 		{
 			Model: models.MTOShipment{
 				Status: models.MTOShipmentStatusSubmitted,
-			},
-		},
-		{
-			Model: models.Move{
-				SelectedMoveType: &hhgMoveType,
 			},
 		},
 		{
@@ -380,10 +353,8 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 		RoleType: roles.RoleTypeTOO,
 	})
 
-	hhgMoveType := models.SelectedMoveTypeHHG
 	submittedMove := models.Move{
-		SelectedMoveType: &hhgMoveType,
-		Status:           models.MoveStatusSUBMITTED,
+		Status: models.MoveStatusSUBMITTED,
 	}
 	submittedShipment := models.MTOShipment{
 		Status: models.MTOShipmentStatusSubmitted,
@@ -406,13 +377,8 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 	}, nil)
 
 	// Approvals requested
-	approvedMove := factory.BuildApprovalsRequestedMove(suite.DB(), []factory.Customization{
-		{
-			Model: models.Move{
-				SelectedMoveType: &hhgMoveType,
-			},
-		},
-	}, nil)
+	approvedMove := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
+
 	factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 		{
 			Model:    approvedMove,
@@ -434,7 +400,6 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 	factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 		{
 			Model: models.Move{
-				SelectedMoveType: &hhgMoveType,
 				Status:           models.MoveStatusAPPROVED,
 			},
 		},
@@ -449,7 +414,6 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 	factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 		{
 			Model: models.Move{
-				SelectedMoveType: &hhgMoveType,
 				Status:           models.MoveStatusDRAFT,
 			},
 		},
@@ -460,7 +424,6 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 	factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 		{
 			Model: models.Move{
-				SelectedMoveType: &hhgMoveType,
 				Status:           models.MoveStatusCANCELED,
 			},
 		},
@@ -643,7 +606,6 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 		RoleType: roles.RoleTypeTOO,
 	})
 
-	hhgMoveType := models.SelectedMoveTypeHHG
 	// Default Origin Duty Location GBLOC is KKFA
 
 	serviceMember1 := factory.BuildServiceMember(suite.DB(), []factory.Customization{
@@ -668,11 +630,6 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 
 	move1 := factory.BuildSubmittedMove(suite.DB(), []factory.Customization{
 		{
-			Model: models.Move{
-				SelectedMoveType: &hhgMoveType,
-			},
-		},
-		{
 			Model:    dutyLocation1,
 			LinkOnly: true,
 			Type:     &factory.DutyLocations.OriginDutyLocation,
@@ -689,11 +646,6 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 	}, nil)
 
 	move2 := factory.BuildSubmittedMove(suite.DB(), []factory.Customization{
-		{
-			Model: models.Move{
-				SelectedMoveType: &hhgMoveType,
-			},
-		},
 		{
 			Model:    dutyLocation2,
 			LinkOnly: true,
@@ -928,18 +880,12 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerEmptyResults() {
 	})
 
 	// Create an order with an origin duty location outside of office user GBLOC
-	hhgMoveType := models.SelectedMoveTypeHHG
 	excludedMove := factory.BuildMove(suite.DB(), []factory.Customization{
 		{
 			Model: models.TransportationOffice{
 				Gbloc: "AGFM",
 			},
 			Type: &factory.TransportationOffices.CloseoutOffice,
-		},
-		{
-			Model: models.Move{
-				SelectedMoveType: &hhgMoveType,
-			},
 		},
 	}, nil)
 	factory.BuildMTOShipment(suite.DB(), []factory.Customization{
@@ -1245,14 +1191,12 @@ func (suite *HandlerSuite) makeServicesCounselingSubtestData() (subtestData *ser
 	subtestData = &servicesCounselingSubtestData{}
 	subtestData.officeUser = factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 
-	hhgMoveType := models.SelectedMoveTypeHHG
 	submittedAt := time.Date(2021, 03, 15, 0, 0, 0, 0, time.UTC)
 	// Default Origin Duty Location GBLOC is KKFA
 	subtestData.needsCounselingMove = factory.BuildNeedsServiceCounselingMove(suite.DB(), []factory.Customization{
 		{
 			Model: models.Move{
-				SelectedMoveType: &hhgMoveType,
-				SubmittedAt:      &submittedAt,
+				SubmittedAt: &submittedAt,
 			},
 		},
 	}, nil)
@@ -1291,8 +1235,7 @@ func (suite *HandlerSuite) makeServicesCounselingSubtestData() (subtestData *ser
 	subtestData.counselingCompletedMove = factory.BuildServiceCounselingCompletedMove(suite.DB(), []factory.Customization{
 		{
 			Model: models.Move{
-				SelectedMoveType: &hhgMoveType,
-				SubmittedAt:      &earlierSubmittedAt,
+				SubmittedAt: &earlierSubmittedAt,
 			},
 		},
 	}, nil)
@@ -1343,11 +1286,6 @@ func (suite *HandlerSuite) makeServicesCounselingSubtestData() (subtestData *ser
 			LinkOnly: true,
 			Type:     &factory.DutyLocations.OriginDutyLocation,
 		},
-		{
-			Model: models.Move{
-				SelectedMoveType: &hhgMoveType,
-			},
-		},
 	}, nil)
 	factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 		{
@@ -1371,11 +1309,6 @@ func (suite *HandlerSuite) makeServicesCounselingSubtestData() (subtestData *ser
 			Model:    originDutyLocation,
 			LinkOnly: true,
 			Type:     &factory.DutyLocations.OriginDutyLocation,
-		},
-		{
-			Model: models.Move{
-				SelectedMoveType: &hhgMoveType,
-			},
 		},
 	}, nil)
 
@@ -1407,8 +1340,7 @@ func (suite *HandlerSuite) makeServicesCounselingSubtestData() (subtestData *ser
 		},
 		{
 			Model: models.Move{
-				SelectedMoveType: &hhgMoveType,
-				SubmittedAt:      &submittedAt,
+				SubmittedAt: &submittedAt,
 			},
 		},
 	}, nil)

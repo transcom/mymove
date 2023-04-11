@@ -121,8 +121,7 @@ func (m Move) TableName() string {
 
 // MoveOptions is used when creating new moves based on parameters
 type MoveOptions struct {
-	SelectedType *SelectedMoveType
-	Show         *bool
+	Show *bool
 }
 
 type Moves []Move
@@ -278,11 +277,6 @@ func createNewMove(db *pop.Connection,
 	orders Order,
 	moveOptions MoveOptions) (*Move, *validate.Errors, error) {
 
-	var stringSelectedType SelectedMoveType
-	if moveOptions.SelectedType != nil {
-		stringSelectedType = SelectedMoveType(*moveOptions.SelectedType)
-	}
-
 	show := swag.Bool(true)
 	if moveOptions.Show != nil {
 		show = moveOptions.Show
@@ -301,14 +295,13 @@ func createNewMove(db *pop.Connection,
 
 	for i := 0; i < maxLocatorAttempts; i++ {
 		move := Move{
-			Orders:           orders,
-			OrdersID:         orders.ID,
-			Locator:          GenerateLocator(),
-			SelectedMoveType: &stringSelectedType,
-			Status:           MoveStatusDRAFT,
-			Show:             show,
-			ContractorID:     &contractor.ID,
-			ReferenceID:      &referenceID,
+			Orders:       orders,
+			OrdersID:     orders.ID,
+			Locator:      GenerateLocator(),
+			Status:       MoveStatusDRAFT,
+			Show:         show,
+			ContractorID: &contractor.ID,
+			ReferenceID:  &referenceID,
 		}
 		verrs, err := db.ValidateAndCreate(&move)
 		if verrs.HasAny() {
