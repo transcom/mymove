@@ -14,16 +14,16 @@ import (
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
-type sitExtensionCreatorAsTOO struct {
+type approvedSITDurationUpdateCreator struct {
 }
 
-// NewCreateSITExtensionAsTOO creates a new struct with the service dependencies
-func NewCreateSITExtensionAsTOO() services.SITExtensionCreatorAsTOO {
-	return &sitExtensionCreatorAsTOO{}
+// NewApprovedSITDurationUpdateCreator creates a new struct with the service dependencies
+func NewApprovedSITDurationUpdateCreator() services.ApprovedSITDurationUpdateCreator {
+	return &approvedSITDurationUpdateCreator{}
 }
 
-// CreateSITExtensionAsTOO creates a SIT Extension with a status of APPROVED and updates the MTO Shipment's SIT days allowance
-func (f *sitExtensionCreatorAsTOO) CreateSITExtensionAsTOO(appCtx appcontext.AppContext, sitExtension *models.SITDurationUpdate, shipmentID uuid.UUID, eTag string) (*models.MTOShipment, error) {
+// CreateApprovedSITDurationUpdate creates a SIT Duration Update with a status of APPROVED and updates the MTO Shipment's SIT days allowance
+func (f *approvedSITDurationUpdateCreator) CreateApprovedSITDurationUpdate(appCtx appcontext.AppContext, sitDurationUpdate *models.SITDurationUpdate, shipmentID uuid.UUID, eTag string) (*models.MTOShipment, error) {
 	shipment, err := FindShipment(appCtx, shipmentID)
 	if err != nil {
 		return nil, err
@@ -37,12 +37,12 @@ func (f *sitExtensionCreatorAsTOO) CreateSITExtensionAsTOO(appCtx appcontext.App
 	var returnedShipment *models.MTOShipment
 
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-		verrs, err := txnAppCtx.DB().ValidateAndCreate(sitExtension)
-		if e := f.handleError(sitExtension.ID, verrs, err); e != nil {
+		verrs, err := txnAppCtx.DB().ValidateAndCreate(sitDurationUpdate)
+		if e := f.handleError(sitDurationUpdate.ID, verrs, err); e != nil {
 			return e
 		}
 
-		returnedShipment, err = f.updateSitDaysAllowance(txnAppCtx, *shipment, *sitExtension.ApprovedDays)
+		returnedShipment, err = f.updateSitDaysAllowance(txnAppCtx, *shipment, *sitDurationUpdate.ApprovedDays)
 		if err != nil {
 			return err
 		}
@@ -57,7 +57,7 @@ func (f *sitExtensionCreatorAsTOO) CreateSITExtensionAsTOO(appCtx appcontext.App
 	return returnedShipment, nil
 }
 
-func (f *sitExtensionCreatorAsTOO) updateSitDaysAllowance(appCtx appcontext.AppContext, shipment models.MTOShipment, approvedDays int) (*models.MTOShipment, error) {
+func (f *approvedSITDurationUpdateCreator) updateSitDaysAllowance(appCtx appcontext.AppContext, shipment models.MTOShipment, approvedDays int) (*models.MTOShipment, error) {
 	if shipment.SITDaysAllowance != nil {
 		sda := approvedDays + int(*shipment.SITDaysAllowance)
 		shipment.SITDaysAllowance = &sda
@@ -82,7 +82,7 @@ func (f *sitExtensionCreatorAsTOO) updateSitDaysAllowance(appCtx appcontext.AppC
 	return &shipment, nil
 }
 
-func (f *sitExtensionCreatorAsTOO) handleError(modelID uuid.UUID, verrs *validate.Errors, err error) error {
+func (f *approvedSITDurationUpdateCreator) handleError(modelID uuid.UUID, verrs *validate.Errors, err error) error {
 	if verrs != nil && verrs.HasAny() {
 		return apperror.NewInvalidInputError(modelID, nil, verrs, "")
 	}

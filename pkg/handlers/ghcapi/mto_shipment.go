@@ -1030,15 +1030,15 @@ func (h DenySITExtensionHandler) triggerDenySITExtensionEvent(appCtx appcontext.
 	}
 }
 
-// CreateSITExtensionAsTOOHandler creates a SIT extension in the approved state
-type CreateSITExtensionAsTOOHandler struct {
+// CreateApprovedSITDurationUpdateHandler creates a SIT Duration Update in the approved state
+type CreateApprovedSITDurationUpdateHandler struct {
 	handlers.HandlerConfig
-	services.SITExtensionCreatorAsTOO
+	services.ApprovedSITDurationUpdateCreator
 	services.ShipmentSITStatus
 }
 
 // Handle creates the approved SIT extension
-func (h CreateSITExtensionAsTOOHandler) Handle(params shipmentops.CreateSITExtensionAsTOOParams) middleware.Responder {
+func (h CreateApprovedSITDurationUpdateHandler) Handle(params shipmentops.CreateSITExtensionAsTOOParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
@@ -1078,7 +1078,7 @@ func (h CreateSITExtensionAsTOOHandler) Handle(params shipmentops.CreateSITExten
 			}
 
 			sitExtension := payloads.ApprovedSITExtensionFromCreate(payload, shipmentID)
-			shipment, err := h.SITExtensionCreatorAsTOO.CreateSITExtensionAsTOO(appCtx, sitExtension, sitExtension.MTOShipmentID, params.IfMatch)
+			shipment, err := h.ApprovedSITDurationUpdateCreator.CreateApprovedSITDurationUpdate(appCtx, sitExtension, sitExtension.MTOShipmentID, params.IfMatch)
 			if err != nil {
 				return handleError(err)
 			}

@@ -11,7 +11,7 @@ import (
 
 func (suite *MTOShipmentServiceSuite) CreateSITExtensionAsTOO() {
 	suite.Run("Returns an error when shipment is not found", func() {
-		sitExtensionCreator := NewCreateSITExtensionAsTOO()
+		sitExtensionCreator := NewApprovedSITDurationUpdateCreator()
 		nonexistentUUID := uuid.Must(uuid.NewV4())
 		requestedDays := 45
 		officeRemarks := "office remarks"
@@ -24,14 +24,14 @@ func (suite *MTOShipmentServiceSuite) CreateSITExtensionAsTOO() {
 		}
 		eTag := ""
 
-		_, err := sitExtensionCreator.CreateSITExtensionAsTOO(suite.AppContextForTest(), &sitExtensionToSave, nonexistentUUID, eTag)
+		_, err := sitExtensionCreator.CreateApprovedSITDurationUpdate(suite.AppContextForTest(), &sitExtensionToSave, nonexistentUUID, eTag)
 
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
 	})
 
 	suite.Run("Returns an error when etag does not match", func() {
-		sitExtensionCreator := NewCreateSITExtensionAsTOO()
+		sitExtensionCreator := NewApprovedSITDurationUpdateCreator()
 		mtoShipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
 		requestedDays := 45
 		officeRemarks := "office remarks"
@@ -44,7 +44,7 @@ func (suite *MTOShipmentServiceSuite) CreateSITExtensionAsTOO() {
 		}
 		eTag := ""
 
-		_, err := sitExtensionCreator.CreateSITExtensionAsTOO(suite.AppContextForTest(), &sitExtensionToSave, mtoShipment.ID, eTag)
+		_, err := sitExtensionCreator.CreateApprovedSITDurationUpdate(suite.AppContextForTest(), &sitExtensionToSave, mtoShipment.ID, eTag)
 
 		suite.Error(err)
 		suite.IsType(apperror.PreconditionFailedError{}, err)
@@ -52,7 +52,7 @@ func (suite *MTOShipmentServiceSuite) CreateSITExtensionAsTOO() {
 	})
 
 	suite.Run("Creates one approved SIT extension when all fields are valid and updates the shipment's SIT days allowance", func() {
-		sitExtensionCreator := NewCreateSITExtensionAsTOO()
+		sitExtensionCreator := NewApprovedSITDurationUpdateCreator()
 		mtoShipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
 		eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
 		requestedDays := 45
@@ -67,7 +67,7 @@ func (suite *MTOShipmentServiceSuite) CreateSITExtensionAsTOO() {
 			Status:        models.SITExtensionStatusApproved,
 		}
 
-		updatedShipment, err := sitExtensionCreator.CreateSITExtensionAsTOO(suite.AppContextForTest(), &sitExtensionToSave, mtoShipment.ID, eTag)
+		updatedShipment, err := sitExtensionCreator.CreateApprovedSITDurationUpdate(suite.AppContextForTest(), &sitExtensionToSave, mtoShipment.ID, eTag)
 		suite.NoError(err)
 
 		var shipmentInDB models.MTOShipment

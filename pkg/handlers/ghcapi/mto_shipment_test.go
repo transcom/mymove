@@ -2558,18 +2558,18 @@ func (suite *HandlerSuite) TestDenySITExtensionHandler() {
 	})
 }
 
-func (suite *HandlerSuite) CreateSITExtensionAsTOO() {
+func (suite *HandlerSuite) CreateApprovedSITDurationUpdate() {
 	suite.Run("Returns 200, creates new SIT extension, and updates SIT days allowance on shipment without an allowance when validations pass", func() {
 		mtoShipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
 
 		eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
-		sitExtensionCreatorAsTOO := mtoshipment.NewCreateSITExtensionAsTOO()
+		sitExtensionCreatorAsTOO := mtoshipment.NewApprovedSITDurationUpdateCreator()
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/sit-extension/", mtoShipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerConfig := suite.HandlerConfig()
 
-		handler := CreateSITExtensionAsTOOHandler{
+		handler := CreateApprovedSITDurationUpdateHandler{
 			handlerConfig,
 			sitExtensionCreatorAsTOO,
 			mtoshipment.NewShipmentSITStatus(),
@@ -2617,12 +2617,12 @@ func (suite *HandlerSuite) CreateSITExtensionAsTOO() {
 
 		eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
-		sitExtensionCreatorAsTOO := mtoshipment.NewCreateSITExtensionAsTOO()
+		sitExtensionCreatorAsTOO := mtoshipment.NewApprovedSITDurationUpdateCreator()
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/sit-extension/", mtoShipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerConfig := suite.HandlerConfig()
 
-		handler := CreateSITExtensionAsTOOHandler{
+		handler := CreateApprovedSITDurationUpdateHandler{
 			handlerConfig,
 			sitExtensionCreatorAsTOO,
 			mtoshipment.NewShipmentSITStatus(),
