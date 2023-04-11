@@ -79,7 +79,6 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	var paymentRequest models.PaymentRequest
 	var paymentServiceItems models.PaymentServiceItems
 	var result ediinvoice.Invoice858C
-	//var err error
 
 	setupTestData := func() {
 		mto := factory.BuildMove(suite.DB(), nil, nil)
@@ -1190,10 +1189,6 @@ func (suite *GHCInvoiceSuite) TestTACs() {
 		suite.Error(err)
 		suite.Contains(err.Error(), "Must have an NTS TAC value")
 	})
-}
-
-func (suite *ghcPaymentRequestInvoiceGenerator) TestCheckMarinesBranchFunc() {
-
 }
 
 func (suite *GHCInvoiceSuite) TestTruncateStrFunc() {
