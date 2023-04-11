@@ -189,6 +189,7 @@ export const ReviewDocuments = ({ match }) => {
               <ReviewDocumentsSidePanel
                 ppmShipment={mtoShipment.ppmShipment}
                 weightTickets={weightTickets}
+                proGearTickets={proGearWeightTickets}
                 expenseTickets={movingExpenses}
                 onError={onError}
                 onSuccess={onConfirmSuccess}
