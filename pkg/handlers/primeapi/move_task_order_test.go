@@ -237,6 +237,50 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		suite.Equal(strfmt.UUID(sitExtension.ID.String()), reweighPayload.ID)
 	})
 
+	suite.Run("Success - returns SitDestinationFinalAddress on related MTO service Items if they exist", func() {
+		handler := GetMoveTaskOrderHandler{
+			suite.HandlerConfig(),
+			movetaskorder.NewMoveTaskOrderFetcher(),
+		}
+		successMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		params := movetaskorderops.GetMoveTaskOrderParams{
+			HTTPRequest: request,
+			MoveID:      successMove.Locator,
+		}
+
+		address := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{})
+
+		testdatagen.MakeMTOServiceItemBasic(suite.DB(), testdatagen.Assertions{
+			MTOServiceItem: models.MTOServiceItem{
+				Status:                     models.MTOServiceItemStatusApproved,
+				SITDestinationFinalAddress: &address,
+			},
+			Move: successMove,
+			ReService: models.ReService{
+				Code: models.ReServiceCodeDDFSIT, // DDFSIT - Domestic destination 1st day SIT
+			},
+		})
+
+		// Validate incoming payload: no body to validate
+
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+		suite.IsType(&movetaskorderops.GetMoveTaskOrderOK{}, response)
+
+		moveResponse := response.(*movetaskorderops.GetMoveTaskOrderOK)
+		movePayload := moveResponse.Payload
+
+		// Validate outgoing payload
+		suite.NoError(movePayload.Validate(strfmt.Default))
+
+		suite.Equal(successMove.ID.String(), movePayload.ID.String())
+		if suite.Len(movePayload.MtoServiceItems(), 1) {
+			serviceItem := movePayload.MtoServiceItems()[0]
+			suite.Equal(address, serviceItem)
+		}
+
+	})
+
 	suite.Run("Success - filters shipments handled by an external vendor", func() {
 		handler := GetMoveTaskOrderHandler{
 			suite.HandlerConfig(),
