@@ -62,3 +62,51 @@ func (h GetPPMDocumentsHandler) Handle(params ppmdocumentops.GetPPMDocumentsPara
 			return ppmdocumentops.NewGetPPMDocumentsOK().WithPayload(returnPayload), nil
 		})
 }
+
+// FinishDocumentReviewHandler is the handler that updates a PPM shipment for the office api when documents have been reviewed
+
+type FinishDocumentReviewHandler struct {
+	handlers.HandlerConfig
+	services.PPMShipmentReviewDocuments
+}
+
+// Handle retrieves all documents for a PPM shipment
+func (h FinishDocumentReviewHandler) Handle(params ppmdocumentops.FinishDocumentReviewParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			errInstance := fmt.Sprintf("Instance: %s", h.GetTraceIDFromRequest(params.HTTPRequest))
+
+			errPayload := &ghcmessages.Error{Message: &errInstance}
+
+			if !appCtx.Session().IsOfficeApp() {
+				return ppmdocumentops.NewFinishDocumentReviewForbidden().WithPayload(errPayload), apperror.NewSessionError("Request should come from the office app.")
+			}
+
+			shipmentID := uuid.FromStringOrNil(params.PpmShipmentID.String())
+
+			ppmShipment, err := h.PPMShipmentReviewDocuments.SubmitReviewedDocuments(appCtx, shipmentID)
+
+			if err != nil {
+				appCtx.Logger().Error("ghcapi.FinishDocumentReviewHandler error", zap.Error(err))
+
+				switch e := err.(type) {
+				case apperror.QueryError:
+					if e.Unwrap() != nil {
+						// If you can unwrap, log the error (usually a pq error) for better debugging
+						appCtx.Logger().Error(
+							"ghcapi.FinishDocumentReviewHandler error",
+							zap.Error(e.Unwrap()),
+						)
+					}
+
+					return ppmdocumentops.NewFinishDocumentReviewInternalServerError().WithPayload(errPayload), nil
+				default:
+					return ppmdocumentops.NewFinishDocumentReviewInternalServerError().WithPayload(errPayload), nil
+				}
+			}
+
+			returnPayload := payloads.PPMShipment(h.FileStorer(), ppmShipment)
+
+			return ppmdocumentops.NewFinishDocumentReviewOK().WithPayload(returnPayload), nil
+		})
+}

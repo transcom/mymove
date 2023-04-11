@@ -290,3 +290,119 @@ func (suite *HandlerSuite) TestGetPPMDocumentsHandlerIntegration() {
 		}
 	})
 }
+
+func (suite *HandlerSuite) TestFinishPPMDocumentsReview() {
+	var ppmShipment models.PPMShipment
+
+	suite.PreloadData(func() {
+		userUploader, err := uploader.NewUserUploader(suite.createS3HandlerConfig().FileStorer(), uploader.MaxCustomerUserUploadFileSizeLimit)
+
+		suite.FatalNoError(err)
+
+		ppmShipment = testdatagen.MakePPMShipmentWithApprovedDocuments(suite.DB(), testdatagen.Assertions{
+			UserUploader: userUploader,
+		})
+
+	})
+
+	setUpRequestAndParams := func() ppmdocumentops.FinishDocumentReviewParams {
+		endpoint := fmt.Sprintf("/ppm-shipments/%s/finish-document-review", ppmShipment.Shipment.ID.String())
+
+		req := httptest.NewRequest("POST", endpoint, nil)
+
+		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
+
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+
+		params := ppmdocumentops.FinishDocumentReviewParams{
+			HTTPRequest:   req,
+			PpmShipmentID: handlers.FmtUUIDValue(ppmShipment.Shipment.ID),
+		}
+
+		return params
+	}
+
+	setUpMockPPMDocumentReviewer := func(returnValues ...interface{}) services.PPMShipmentReviewDocuments {
+		mockPPMDocumentReviewer := &mocks.PPMShipmentReviewDocuments{}
+
+		mockPPMDocumentReviewer.On("SubmitReviewedDocuments",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("uuid.UUID"),
+		).Return(returnValues...)
+
+		return mockPPMDocumentReviewer
+	}
+
+	setUpHandler := func(ppmDocumentReviewer services.PPMShipmentReviewDocuments) FinishDocumentReviewHandler {
+		return FinishDocumentReviewHandler{
+			suite.createS3HandlerConfig(),
+			ppmDocumentReviewer,
+		}
+	}
+
+	suite.Run("Returns an error if the request is not coming from the office app", func() {
+		params := setUpRequestAndParams()
+
+		params.HTTPRequest = suite.AuthenticateRequest(params.HTTPRequest, ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember)
+
+		ppmDocumentReviewer := setUpMockPPMDocumentReviewer(ppmShipment.ShipmentID, nil)
+
+		handler := setUpHandler(ppmDocumentReviewer)
+
+		response := handler.Handle(params)
+
+		if suite.IsType(&ppmdocumentops.FinishDocumentReviewForbidden{}, response) {
+			payload := response.(*ppmdocumentops.FinishDocumentReviewForbidden).Payload
+
+			suite.NoError(payload.Validate(strfmt.Default))
+
+			suite.True(strings.HasPrefix(*payload.Message, "Instance: "))
+		}
+	})
+
+	serverErrorCases := map[string]error{
+		"issue finishing document review": apperror.NewQueryError("PPMShipment", nil, "Unable to finish documents review"),
+		"unexpected error":                apperror.NewConflictError(uuid.Nil, "Unexpected error"),
+	}
+
+	for errorDetail, reviewerError := range serverErrorCases {
+		errorDetail := errorDetail
+		reviewerError := reviewerError
+
+		suite.Run(fmt.Sprintf("Returns a server error if there is an %s", errorDetail), func() {
+			params := setUpRequestAndParams()
+
+			ppmDocumentReviewer := setUpMockPPMDocumentReviewer(nil, reviewerError)
+
+			handler := setUpHandler(ppmDocumentReviewer)
+
+			response := handler.Handle(params)
+
+			if suite.IsType(&ppmdocumentops.FinishDocumentReviewInternalServerError{}, response) {
+				payload := response.(*ppmdocumentops.FinishDocumentReviewInternalServerError).Payload
+
+				suite.NoError(payload.Validate(strfmt.Default))
+
+				suite.True(strings.HasPrefix(*payload.Message, "Instance:"))
+			}
+		})
+	}
+
+	suite.Run("Returns 200 when a PPM is reviewed", func() {
+		params := setUpRequestAndParams()
+
+		ppmDocumentReviewer := setUpMockPPMDocumentReviewer(&ppmShipment, nil)
+
+		handler := setUpHandler(ppmDocumentReviewer)
+
+		response := handler.Handle(params)
+
+		if suite.IsType(&ppmdocumentops.FinishDocumentReviewOK{}, response) {
+			okResponse := response.(*ppmdocumentops.FinishDocumentReviewOK)
+			returnedPPMShipment := okResponse.Payload
+
+			suite.NoError(returnedPPMShipment.Validate(strfmt.Default))
+
+		}
+	})
+}
