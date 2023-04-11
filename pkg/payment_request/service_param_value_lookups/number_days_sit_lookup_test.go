@@ -107,133 +107,226 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 		moveTaskOrderFour = factory.BuildMove(suite.DB(), nil, nil)
 		moveTaskOrderFive := factory.BuildMove(suite.DB(), nil, nil)
 
-		mtoShipmentOne := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: moveTaskOrderOne,
-			MTOShipment: models.MTOShipment{
-				Status:           models.MTOShipmentStatusSubmitted,
-				SITDaysAllowance: &defaultSITDaysAllowance,
+		factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusSubmitted,
+					SITDaysAllowance: &defaultSITDaysAllowance,
+				},
+			},
+		}, nil)
 
-		mtoShipmentTwo := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: moveTaskOrderOne,
-			MTOShipment: models.MTOShipment{
-				Status:           models.MTOShipmentStatusSubmitted,
-				SITDaysAllowance: &defaultSITDaysAllowance,
+		mtoShipmentOne := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusSubmitted,
+					SITDaysAllowance: &defaultSITDaysAllowance,
+				},
+			},
+		}, nil)
 
-		mtoShipmentThree := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: moveTaskOrderOne,
-			MTOShipment: models.MTOShipment{
-				Status:           models.MTOShipmentStatusSubmitted,
-				SITDaysAllowance: &defaultSITDaysAllowance,
+		mtoShipmentTwo := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusSubmitted,
+					SITDaysAllowance: &defaultSITDaysAllowance,
+				},
+			},
+		}, nil)
 
-		mtoShipmentFour := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: moveTaskOrderOne,
-			MTOShipment: models.MTOShipment{
-				Status:           models.MTOShipmentStatusSubmitted,
-				SITDaysAllowance: &defaultSITDaysAllowance,
+		mtoShipmentThree := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusSubmitted,
+					SITDaysAllowance: &defaultSITDaysAllowance,
+				},
+			},
+		}, nil)
 
-		mtoShipmentFive := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: moveTaskOrderOne,
-			MTOShipment: models.MTOShipment{
-				Status:           models.MTOShipmentStatusSubmitted,
-				SITDaysAllowance: &defaultSITDaysAllowance,
+		mtoShipmentFour := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusSubmitted,
+					SITDaysAllowance: &defaultSITDaysAllowance,
+				},
+			},
+		}, nil)
 
-		mtoShipmentSix := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: moveTaskOrderOne,
-			MTOShipment: models.MTOShipment{
-				Status:           models.MTOShipmentStatusSubmitted,
-				SITDaysAllowance: &defaultSITDaysAllowance,
+		mtoShipmentFive := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusSubmitted,
+					SITDaysAllowance: &defaultSITDaysAllowance,
+				},
+			},
+		}, nil)
 
-		mtoShipmentSeven = testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: moveTaskOrderOne,
-			MTOShipment: models.MTOShipment{
-				Status:           models.MTOShipmentStatusSubmitted,
-				SITDaysAllowance: &defaultSITDaysAllowance,
+		mtoShipmentSix := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusSubmitted,
+					SITDaysAllowance: &defaultSITDaysAllowance,
+				},
+			},
+		}, nil)
 
-		mtoShipmentEight := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: moveTaskOrderOne,
-			MTOShipment: models.MTOShipment{
-				Status:           models.MTOShipmentStatusSubmitted,
-				SITDaysAllowance: &defaultSITDaysAllowance,
+		mtoShipmentSeven = factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusSubmitted,
+					SITDaysAllowance: &defaultSITDaysAllowance,
+				},
+			},
+		}, nil)
 
-		mtoShipmentNine := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: moveTaskOrderOne,
-			MTOShipment: models.MTOShipment{
-				Status:           models.MTOShipmentStatusSubmitted,
-				SITDaysAllowance: &defaultSITDaysAllowance,
+		mtoShipmentEight := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusSubmitted,
+					SITDaysAllowance: &defaultSITDaysAllowance,
+				},
+			},
+		}, nil)
 
-		mtoShipmentTen := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: moveTaskOrderOne,
-			MTOShipment: models.MTOShipment{
-				Status:           models.MTOShipmentStatusSubmitted,
-				SITDaysAllowance: &defaultSITDaysAllowance,
+		mtoShipmentNine := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusSubmitted,
+					SITDaysAllowance: &defaultSITDaysAllowance,
+				},
+			},
+		}, nil)
 
-		mtoShipmentEleven := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: moveTaskOrderTwo,
-			MTOShipment: models.MTOShipment{
-				Status:           models.MTOShipmentStatusSubmitted,
-				SITDaysAllowance: &defaultSITDaysAllowance,
+		mtoShipmentTen := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusSubmitted,
+					SITDaysAllowance: &defaultSITDaysAllowance,
+				},
+			},
+		}, nil)
 
-		mtoShipmentTwelve := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: moveTaskOrderThree,
-			MTOShipment: models.MTOShipment{
-				Status:           models.MTOShipmentStatusSubmitted,
-				SITDaysAllowance: &defaultSITDaysAllowance,
+		mtoShipmentEleven := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    moveTaskOrderTwo,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusSubmitted,
+					SITDaysAllowance: &defaultSITDaysAllowance,
+				},
+			},
+		}, nil)
 
-		mtoShipmentThirteen := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: moveTaskOrderThree,
-			MTOShipment: models.MTOShipment{
-				Status:           models.MTOShipmentStatusSubmitted,
-				SITDaysAllowance: &defaultSITDaysAllowance,
+		mtoShipmentTwelve := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    moveTaskOrderThree,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusSubmitted,
+					SITDaysAllowance: &defaultSITDaysAllowance,
+				},
+			},
+		}, nil)
 
-		mtoShipmentFourteen := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: moveTaskOrderFour,
-			MTOShipment: models.MTOShipment{
-				Status:           models.MTOShipmentStatusSubmitted,
-				SITDaysAllowance: &defaultSITDaysAllowance,
+		mtoShipmentThirteen := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    moveTaskOrderThree,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusSubmitted,
+					SITDaysAllowance: &defaultSITDaysAllowance,
+				},
+			},
+		}, nil)
 
-		mtoShipmentFifteen := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: moveTaskOrderFive,
-			MTOShipment: models.MTOShipment{
-				Status:           models.MTOShipmentStatusSubmitted,
-				SITDaysAllowance: &defaultSITDaysAllowance,
+		mtoShipmentFourteen := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    moveTaskOrderFour,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusSubmitted,
+					SITDaysAllowance: &defaultSITDaysAllowance,
+				},
+			},
+		}, nil)
 
-		mtoShipmentSixteen := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: moveTaskOrderFive,
-			MTOShipment: models.MTOShipment{
-				Status:           models.MTOShipmentStatusSubmitted,
-				SITDaysAllowance: &defaultSITDaysAllowance,
+		mtoShipmentFifteen := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    moveTaskOrderFive,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusSubmitted,
+					SITDaysAllowance: &defaultSITDaysAllowance,
+				},
+			},
+		}, nil)
+
+		mtoShipmentSixteen := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    moveTaskOrderFive,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusSubmitted,
+					SITDaysAllowance: &defaultSITDaysAllowance,
+				},
+			},
+		}, nil)
 
 		moveTaskOrderOne.MTOShipments = models.MTOShipments{
 			mtoShipmentOne,

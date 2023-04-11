@@ -87,9 +87,20 @@ func buildMTOShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 			newMTOShipment.PickupAddressID = &pickupAddress.ID
 
 			// Check that a GBLOC exists for pickup address postal code, make one if not
-			gbloc, err := models.FetchGBLOCForPostalCode(db, pickupAddress.PostalCode)
-			if gbloc.GBLOC == "" || err != nil {
-				FetchOrBuildPostalCodeToGBLOC(db, pickupAddress.PostalCode, "KKFA")
+			if db == nil {
+				BuildPostalCodeToGBLOC(nil, []Customization{
+					{
+						Model: models.PostalCodeToGBLOC{
+							PostalCode: pickupAddress.PostalCode,
+							GBLOC:      "KKFA",
+						},
+					},
+				}, nil)
+			} else {
+				gbloc, err := models.FetchGBLOCForPostalCode(db, pickupAddress.PostalCode)
+				if gbloc.GBLOC == "" || err != nil {
+					FetchOrBuildPostalCodeToGBLOC(db, pickupAddress.PostalCode, "KKFA")
+				}
 			}
 
 			// Find Secondary Pickup Address

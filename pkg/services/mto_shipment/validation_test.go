@@ -226,11 +226,13 @@ func (suite *MTOShipmentServiceSuite) TestDeleteValidations() {
 
 		for status, allowed := range testCases {
 			suite.Run("Move status "+string(status), func() {
-				shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-					Move: models.Move{
-						Status: status,
+				shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+					{
+						Model: models.Move{
+							Status: status,
+						},
 					},
-				})
+				}, nil)
 
 				err := checkDeleteAllowed().Validate(
 					suite.AppContextForTest(),
@@ -264,15 +266,18 @@ func (suite *MTOShipmentServiceSuite) TestDeleteValidations() {
 		for shipmentType, allowed := range testCases {
 			suite.Run("Shipment type "+string(shipmentType), func() {
 				now := time.Now()
-				shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-					MTOShipment: models.MTOShipment{
-						ShipmentType: shipmentType,
+				shipment := factory.BuildMTOShipment(nil, []factory.Customization{
+					{
+						Model: models.MTOShipment{
+							ShipmentType: shipmentType,
+						},
 					},
-					Move: models.Move{
-						AvailableToPrimeAt: &now,
+					{
+						Model: models.Move{
+							AvailableToPrimeAt: &now,
+						},
 					},
-					Stub: true,
-				})
+				}, nil)
 
 				err := checkPrimeDeleteAllowed().Validate(
 					suite.AppContextForTest(),
@@ -329,14 +334,18 @@ func (suite *MTOShipmentServiceSuite) TestDeleteValidations() {
 	})
 
 	suite.Run("checkPrimeDeleteAllowed for move not available to prime", func() {
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				ShipmentType: models.MTOShipmentTypePPM,
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypePPM,
+				},
 			},
-			Move: models.Move{
-				AvailableToPrimeAt: nil,
+			{
+				Model: models.Move{
+					AvailableToPrimeAt: nil,
+				},
 			},
-		})
+		}, nil)
 
 		err := checkPrimeDeleteAllowed().Validate(
 			suite.AppContextForTest(),

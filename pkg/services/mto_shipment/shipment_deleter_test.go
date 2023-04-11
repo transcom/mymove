@@ -132,11 +132,13 @@ func (suite *MTOShipmentServiceSuite) TestPrimeShipmentDeleter() {
 	suite.Run("Returns an error when a shipment is not available to prime", func() {
 		shipmentDeleter := NewPrimeShipmentDeleter()
 
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				AvailableToPrimeAt: nil,
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					AvailableToPrimeAt: nil,
+				},
 			},
-		})
+		}, nil)
 
 		_, err := shipmentDeleter.DeleteShipment(suite.AppContextForTest(), shipment.ID)
 		suite.Error(err)
@@ -145,14 +147,18 @@ func (suite *MTOShipmentServiceSuite) TestPrimeShipmentDeleter() {
 	suite.Run("Returns an error when a shipment is not a PPM", func() {
 		shipmentDeleter := NewPrimeShipmentDeleter()
 		now := time.Now()
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				AvailableToPrimeAt: &now,
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					AvailableToPrimeAt: &now,
+				},
 			},
-			MTOShipment: models.MTOShipment{
-				ShipmentType: models.MTOShipmentTypeHHG,
+			{
+				Model: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypeHHG,
+				},
 			},
-		})
+		}, nil)
 
 		_, err := shipmentDeleter.DeleteShipment(suite.AppContextForTest(), shipment.ID)
 		suite.Error(err)
@@ -161,14 +167,18 @@ func (suite *MTOShipmentServiceSuite) TestPrimeShipmentDeleter() {
 	suite.Run("Returns an error when PPM status is WAITING_ON_CUSTOMER", func() {
 		shipmentDeleter := NewPrimeShipmentDeleter()
 		now := time.Now()
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				AvailableToPrimeAt: &now,
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					AvailableToPrimeAt: &now,
+				},
 			},
-			MTOShipment: models.MTOShipment{
-				ShipmentType: models.MTOShipmentTypeHHG,
+			{
+				Model: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypeHHG,
+				},
 			},
-		})
+		}, nil)
 
 		_, err := shipmentDeleter.DeleteShipment(suite.AppContextForTest(), shipment.ID)
 		suite.Error(err)

@@ -11,7 +11,6 @@ import (
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/mocks"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *MTOShipmentServiceSuite) TestRejectShipment() {
@@ -40,12 +39,14 @@ func (suite *MTOShipmentServiceSuite) TestRejectShipment() {
 
 	suite.Run("When status transition is not allowed, returns a ConflictStatusError", func() {
 		rejectionReason := "goods already shipped"
-		rejectedShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status:          models.MTOShipmentStatusRejected,
-				RejectionReason: &rejectionReason,
+		rejectedShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:          models.MTOShipmentStatusRejected,
+					RejectionReason: &rejectionReason,
+				},
 			},
-		})
+		}, nil)
 		eTag := etag.GenerateEtag(rejectedShipment.UpdatedAt)
 
 		_, err := approver.RejectShipment(suite.AppContextForTest(), rejectedShipment.ID, eTag, &reason)

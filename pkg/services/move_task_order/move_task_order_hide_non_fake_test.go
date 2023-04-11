@@ -487,63 +487,89 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeModelM
 		// Create valid shipment only to have valid addresses
 		validShipment := setupTestData()
 
-		// Create a valid set of assertions
-		validMTOShipmentAssertion := testdatagen.Assertions{
-			PickupAddress:            *validShipment.PickupAddress,
-			SecondaryPickupAddress:   *validShipment.SecondaryPickupAddress,
-			DestinationAddress:       *validShipment.DestinationAddress,
-			SecondaryDeliveryAddress: *validShipment.SecondaryDeliveryAddress,
+		// Create a valid set of customizations
+		validCustomizations := []factory.Customization{
+			{
+				Model:    *validShipment.PickupAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.PickupAddress,
+			},
+			{
+				Model:    *validShipment.SecondaryPickupAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.SecondaryPickupAddress,
+			},
+			{
+				Model:    *validShipment.DestinationAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.DeliveryAddress,
+			},
+			{
+				Model:    *validShipment.SecondaryDeliveryAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.SecondaryDeliveryAddress,
+			},
 		}
 
-		// Based on test index, swap out a valid assertion with an invalid one
+		// Based on test index, swap out a valid customization with an invalid one
 		var shipment models.MTOShipment
-		invalidAssertion := validMTOShipmentAssertion
+		invalidCustomization := validCustomizations
 		if index == 0 {
-			invalidPickupAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
-				{
-					Model: models.Address{
-						StreetAddress1: "1600 pennsylvania ave",
+			// Copy the valid customizations then overwrite the pickup address
+			invalidCustomization[0] = factory.Customization{
+				Model: factory.BuildAddress(suite.DB(), []factory.Customization{
+					{
+						Model: models.Address{
+							StreetAddress1: "1600 pennsylvania ave",
+						},
 					},
-				},
-			}, nil)
-			// Copy the valid assertions then overwrite the pickup address
-			invalidAssertion.PickupAddress = invalidPickupAddress
-			shipment = testdatagen.MakeMTOShipment(suite.DB(), invalidAssertion)
+				}, nil),
+				LinkOnly: true,
+				Type:     &factory.Addresses.PickupAddress,
+			}
+			shipment = factory.BuildMTOShipment(suite.DB(), invalidCustomization, nil)
 
 		} else if index == 1 {
-			invalidSecondaryPickupAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
-				{
-					Model: models.Address{
-						StreetAddress1: "20 W 34th St",
+			invalidCustomization[1] = factory.Customization{
+				Model: factory.BuildAddress(suite.DB(), []factory.Customization{
+					{
+						Model: models.Address{
+							StreetAddress1: "20 W 34th St",
+						},
 					},
-				},
-			}, nil)
-			invalidAssertion.SecondaryPickupAddress = invalidSecondaryPickupAddress
-			shipment = testdatagen.MakeMTOShipment(suite.DB(), invalidAssertion)
+				}, nil),
+				LinkOnly: true,
+				Type:     &factory.Addresses.SecondaryPickupAddress,
+			}
+			shipment = factory.BuildMTOShipment(suite.DB(), invalidCustomization, nil)
 
 		} else if index == 2 {
-
-			invalidDestinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
-				{
-					Model: models.Address{
-						StreetAddress1: "86 Pike Pl",
+			invalidCustomization[2] = factory.Customization{
+				Model: factory.BuildAddress(suite.DB(), []factory.Customization{
+					{
+						Model: models.Address{
+							StreetAddress1: "86 Pike Pl",
+						},
 					},
-				},
-			}, nil)
-			invalidAssertion.DestinationAddress = invalidDestinationAddress
-			shipment = testdatagen.MakeMTOShipment(suite.DB(), invalidAssertion)
+				}, nil),
+				LinkOnly: true,
+				Type:     &factory.Addresses.DeliveryAddress,
+			}
+			shipment = factory.BuildMTOShipment(suite.DB(), invalidCustomization, nil)
 
 		} else if index == 3 {
-
-			invalidSecondaryDeliveryAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
-				{
-					Model: models.Address{
-						StreetAddress1: "4000 Central Florida Blvd",
+			invalidCustomization[3] = factory.Customization{
+				Model: factory.BuildAddress(suite.DB(), []factory.Customization{
+					{
+						Model: models.Address{
+							StreetAddress1: "4000 Central Florida Blvd",
+						},
 					},
-				},
-			}, nil)
-			invalidAssertion.SecondaryDeliveryAddress = invalidSecondaryDeliveryAddress
-			shipment = testdatagen.MakeMTOShipment(suite.DB(), invalidAssertion)
+				}, nil),
+				LinkOnly: true,
+				Type:     &factory.Addresses.SecondaryDeliveryAddress,
+			}
+			shipment = factory.BuildMTOShipment(suite.DB(), invalidCustomization, nil)
 		}
 		return shipment, hideReasons[index]
 	}
