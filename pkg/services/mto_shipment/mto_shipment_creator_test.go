@@ -47,10 +47,12 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		appCtx := subtestData.appCtx
 		creator := subtestData.shipmentCreator
 
-		mtoShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
-			Move: subtestData.move,
-			Stub: true,
-		})
+		mtoShipment := factory.BuildMTOShipment(nil, []factory.Customization{
+			{
+				Model:    subtestData.move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		createdShipment, err := creator.CreateMTOShipment(appCtx, &mtoShipment)
 
@@ -68,10 +70,12 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		creator := subtestData.shipmentCreator
 
 		// Default is HHG, but we set it explicitly below via the test cases
-		mtoShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
-			Move: subtestData.move,
-			Stub: true,
-		})
+		mtoShipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+			{
+				Model:    subtestData.move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		testCases := []struct {
 			input        *time.Time
@@ -111,10 +115,12 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		appCtx := subtestData.appCtx
 		creator := subtestData.shipmentCreator
 
-		mtoShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
-			Move: subtestData.move,
-			Stub: true,
-		})
+		mtoShipment := factory.BuildMTOShipment(nil, []factory.Customization{
+			{
+				Model:    subtestData.move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		mtoShipmentClear := clearShipmentIDFields(&mtoShipment)
 		mtoShipmentClear.MTOServiceItems = models.MTOServiceItems{}
@@ -157,13 +163,17 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		appCtx := subtestData.appCtx
 		creator := subtestData.shipmentCreator
 
-		mtoShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
-			Move: subtestData.move,
-			MTOShipment: models.MTOShipment{
-				Status: models.MTOShipmentStatusSubmitted,
+		mtoShipment := factory.BuildMTOShipment(nil, []factory.Customization{
+			{
+				Model:    subtestData.move,
+				LinkOnly: true,
 			},
-			Stub: true,
-		})
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusSubmitted,
+				},
+			},
+		}, nil)
 
 		mtoShipmentClear := clearShipmentIDFields(&mtoShipment)
 		mtoShipmentClear.MTOServiceItems = models.MTOServiceItems{}
@@ -182,15 +192,22 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 
 		storageFacility := factory.BuildStorageFacility(nil, nil, nil)
 
-		mtoShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
-			Move: subtestData.move,
-			MTOShipment: models.MTOShipment{
-				StorageFacility: &storageFacility,
-				ShipmentType:    models.MTOShipmentTypeHHGOutOfNTSDom,
-				Status:          models.MTOShipmentStatusSubmitted,
+		mtoShipment := factory.BuildMTOShipment(nil, []factory.Customization{
+			{
+				Model:    subtestData.move,
+				LinkOnly: true,
 			},
-			Stub: true,
-		})
+			{
+				Model: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypeHHGOutOfNTSDom,
+					Status:       models.MTOShipmentStatusSubmitted,
+				},
+			},
+			{
+				Model:    storageFacility,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		mtoShipmentClear := clearShipmentIDFields(&mtoShipment)
 
@@ -207,16 +224,20 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 
 		ntsRecordedWeight := unit.Pound(980)
 		requestedDeliveryDate := time.Date(testdatagen.GHCTestYear, time.April, 5, 0, 0, 0, 0, time.UTC)
-		mtoShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
-			Move: subtestData.move,
-			MTOShipment: models.MTOShipment{
-				ShipmentType:          models.MTOShipmentTypeHHGOutOfNTSDom,
-				Status:                models.MTOShipmentStatusSubmitted,
-				NTSRecordedWeight:     &ntsRecordedWeight,
-				RequestedDeliveryDate: &requestedDeliveryDate,
+		mtoShipment := factory.BuildMTOShipment(nil, []factory.Customization{
+			{
+				Model:    subtestData.move,
+				LinkOnly: true,
 			},
-			Stub: true,
-		})
+			{
+				Model: models.MTOShipment{
+					ShipmentType:          models.MTOShipmentTypeHHGOutOfNTSDom,
+					Status:                models.MTOShipmentStatusSubmitted,
+					NTSRecordedWeight:     &ntsRecordedWeight,
+					RequestedDeliveryDate: &requestedDeliveryDate,
+				},
+			},
+		}, nil)
 
 		mtoShipmentClear := clearShipmentIDFields(&mtoShipment)
 
@@ -236,14 +257,18 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		appCtx := subtestData.appCtx
 		creator := subtestData.shipmentCreator
 
-		mtoShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
-			Move: subtestData.move,
-			MTOShipment: models.MTOShipment{
-				ShipmentType: models.MTOShipmentTypePPM,
-				Status:       models.MTOShipmentStatusDraft,
+		mtoShipment := factory.BuildMTOShipment(nil, []factory.Customization{
+			{
+				Model:    subtestData.move,
+				LinkOnly: true,
 			},
-			Stub: true,
-		})
+			{
+				Model: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypePPM,
+					Status:       models.MTOShipmentStatusDraft,
+				},
+			},
+		}, nil)
 
 		mtoShipmentClear := clearShipmentIDFields(&mtoShipment)
 
@@ -259,14 +284,18 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		creator := subtestData.shipmentCreator
 
 		ntsRecordedWeight := unit.Pound(980)
-		mtoShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
-			Move: subtestData.move,
-			MTOShipment: models.MTOShipment{
-				Status:            models.MTOShipmentStatusSubmitted,
-				NTSRecordedWeight: &ntsRecordedWeight,
+		mtoShipment := factory.BuildMTOShipment(nil, []factory.Customization{
+			{
+				Model:    subtestData.move,
+				LinkOnly: true,
 			},
-			Stub: true,
-		})
+			{
+				Model: models.MTOShipment{
+					Status:            models.MTOShipmentStatusSubmitted,
+					NTSRecordedWeight: &ntsRecordedWeight,
+				},
+			},
+		}, nil)
 		ntsrShipmentNoIDs := clearShipmentIDFields(&mtoShipment)
 		ntsrShipmentNoIDs.RequestedPickupDate = swag.Time(time.Now())
 
@@ -311,13 +340,17 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		}
 
 		weight := unit.Pound(2) // for DDSHUT service item type
-		mtoShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
-			Move: subtestData.move,
-			MTOShipment: models.MTOShipment{
-				PrimeEstimatedWeight: &weight,
+		mtoShipment := factory.BuildMTOShipment(nil, []factory.Customization{
+			{
+				Model:    subtestData.move,
+				LinkOnly: true,
 			},
-			Stub: true,
-		})
+			{
+				Model: models.MTOShipment{
+					PrimeEstimatedWeight: &weight,
+				},
+			},
+		}, nil)
 
 		mtoShipmentClear := clearShipmentIDFields(&mtoShipment)
 		mtoShipmentClear.MTOServiceItems = serviceItemsList
@@ -357,13 +390,17 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 
 		agents = append(agents, agent1, agent2)
 
-		shipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
-			Move: subtestData.move,
-			MTOShipment: models.MTOShipment{
-				MTOAgents: agents,
+		shipment := factory.BuildMTOShipment(nil, []factory.Customization{
+			{
+				Model:    subtestData.move,
+				LinkOnly: true,
 			},
-			Stub: true,
-		})
+			{
+				Model: models.MTOShipment{
+					MTOAgents: agents,
+				},
+			},
+		}, nil)
 
 		shipment.MTOServiceItems = models.MTOServiceItems{}
 
@@ -388,13 +425,17 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		creator := subtestData.shipmentCreator
 		move := subtestData.move
 
-		shipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
-			Move: move,
-			MTOShipment: models.MTOShipment{
-				Status: models.MTOShipmentStatusSubmitted,
+		shipment := factory.BuildMTOShipment(nil, []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-			Stub: true,
-		})
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusSubmitted,
+				},
+			},
+		}, nil)
 		cleanShipment := clearShipmentIDFields(&shipment)
 		cleanShipment.MTOServiceItems = models.MTOServiceItems{}
 
@@ -438,13 +479,17 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		for _, tt := range testCases {
 			tt := tt
 			suite.Run(tt.desc, func() {
-				mtoShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
-					Move: subtestData.move,
-					MTOShipment: models.MTOShipment{
-						ShipmentType: tt.shipmentType,
+				mtoShipment := factory.BuildMTOShipment(nil, []factory.Customization{
+					{
+						Model:    subtestData.move,
+						LinkOnly: true,
 					},
-					Stub: true,
-				})
+					{
+						Model: models.MTOShipment{
+							ShipmentType: tt.shipmentType,
+						},
+					},
+				}, nil)
 
 				clearedShipment := clearShipmentIDFields(&mtoShipment)
 

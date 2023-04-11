@@ -14,20 +14,6 @@ import (
 func (suite *MTOShipmentServiceSuite) TestApprove() {
 	shipmentRouter := NewShipmentRouter()
 
-	setUpTestData := func(overrides testdatagen.Assertions) models.MTOShipment {
-		fullAssertions := testdatagen.Assertions{
-			Move: models.Move{
-				Status: models.MoveStatusAPPROVED,
-			},
-			Stub: true,
-		}
-
-		// Merge the overrides into the base assertions
-		testdatagen.MergeModels(&fullAssertions, overrides)
-
-		return testdatagen.MakeMTOShipment(suite.DB(), fullAssertions)
-	}
-
 	validStatuses := []models.MTOShipmentStatus{
 		models.MTOShipmentStatusSubmitted,
 		models.MTOShipmentStatusDiversionRequested,
@@ -37,18 +23,25 @@ func (suite *MTOShipmentServiceSuite) TestApprove() {
 		validStatus := validStatus
 
 		suite.Run("from valid status: "+string(validStatus), func() {
-			overrides := testdatagen.Assertions{
-				MTOShipment: models.MTOShipment{
-					Status: validStatus,
-				},
+			mtoShipment := models.MTOShipment{
+				Status: validStatus,
 			}
 
 			// special case for diversion requested
 			if validStatus == models.MTOShipmentStatusDiversionRequested {
-				overrides.MTOShipment.Diversion = true
+				mtoShipment.Diversion = true
 			}
 
-			shipment := setUpTestData(overrides)
+			shipment := factory.BuildMTOShipment(nil, []factory.Customization{
+				{
+					Model: models.Move{
+						Status: models.MoveStatusAPPROVED,
+					},
+				},
+				{
+					Model: mtoShipment,
+				},
+			}, nil)
 
 			err := shipmentRouter.Approve(suite.AppContextForTest(), &shipment)
 
@@ -69,11 +62,18 @@ func (suite *MTOShipmentServiceSuite) TestApprove() {
 		invalidStatus := invalidStatus
 
 		suite.Run("from invalid status: "+string(invalidStatus), func() {
-			shipment := setUpTestData(testdatagen.Assertions{
-				MTOShipment: models.MTOShipment{
-					Status: invalidStatus,
+			shipment := factory.BuildMTOShipment(nil, []factory.Customization{
+				{
+					Model: models.Move{
+						Status: models.MoveStatusAPPROVED,
+					},
 				},
-			})
+				{
+					Model: models.MTOShipment{
+						Status: invalidStatus,
+					},
+				},
+			}, nil)
 
 			err := shipmentRouter.Approve(suite.AppContextForTest(), &shipment)
 
@@ -98,14 +98,17 @@ func (suite *MTOShipmentServiceSuite) TestApprove() {
 		suite.Run(fmt.Sprintf("Doesn't approve a shipment if the move status is %s", invalidMoveStatus), func() {
 			move := factory.BuildStubbedMoveWithStatus(invalidMoveStatus)
 
-			overrides := testdatagen.Assertions{
-				Move: move,
-				MTOShipment: models.MTOShipment{
-					Status: models.MTOShipmentStatusSubmitted,
+			shipment := factory.BuildMTOShipment(nil, []factory.Customization{
+				{
+					Model:    move,
+					LinkOnly: true,
 				},
-			}
-
-			shipment := setUpTestData(overrides)
+				{
+					Model: models.MTOShipment{
+						Status: models.MTOShipmentStatusSubmitted,
+					},
+				},
+			}, nil)
 
 			err := shipmentRouter.Approve(suite.AppContextForTest(), &shipment)
 
@@ -148,13 +151,20 @@ func (suite *MTOShipmentServiceSuite) TestApprove() {
 	})
 
 	suite.Run("does not approve a shipment if the shipment uses an external vendor", func() {
-		shipment := setUpTestData(testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				UsesExternalVendor: true,
-				ShipmentType:       models.MTOShipmentTypeHHGOutOfNTSDom,
-				Status:             models.MTOShipmentStatusSubmitted,
+		shipment := factory.BuildMTOShipment(nil, []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVED,
+				},
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					UsesExternalVendor: true,
+					ShipmentType:       models.MTOShipmentTypeHHGOutOfNTSDom,
+					Status:             models.MTOShipmentStatusSubmitted,
+				},
+			},
+		}, nil)
 
 		err := shipmentRouter.Approve(suite.AppContextForTest(), &shipment)
 

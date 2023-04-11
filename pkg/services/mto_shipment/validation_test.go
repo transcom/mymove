@@ -49,9 +49,12 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 		now := time.Now()
 		hide := false
 		availableToPrimeMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-		primeShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
-			Move: availableToPrimeMove,
-		})
+		primeShipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+			{
+				Model:    availableToPrimeMove,
+				LinkOnly: true,
+			},
+		}, nil)
 		nonPrimeShipment := factory.BuildMTOShipmentMinimal(appCtx.DB(), nil, nil)
 		externalShipment := factory.BuildMTOShipmentMinimal(appCtx.DB(), []factory.Customization{
 			{
@@ -65,12 +68,14 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 				},
 			},
 		}, nil)
-		hiddenPrimeShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				AvailableToPrimeAt: &now,
-				Show:               &hide,
+		hiddenPrimeShipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					AvailableToPrimeAt: &now,
+					Show:               &hide,
+				},
 			},
-		})
+		}, nil)
 		badUUID := uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001")
 
 		testCases := map[string]struct {
