@@ -245,7 +245,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 
 	suite.Run("successful status update of payment request", func() {
 		officeUser := setupTestData()
-		pendingPaymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
+		pendingPaymentRequest := factory.BuildPaymentRequest(suite.DB(), nil, nil)
 
 		paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
 		paymentRequestFetcher.On("FetchPaymentRequest", mock.AnythingOfType("*appcontext.appContext"),
@@ -283,7 +283,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 
 	suite.Run("successful status update of rejected payment request", func() {
 		officeUser := setupTestData()
-		pendingPaymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
+		pendingPaymentRequest := factory.BuildPaymentRequest(suite.DB(), nil, nil)
 
 		paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
 		paymentRequestFetcher.On("FetchPaymentRequest", mock.AnythingOfType("*appcontext.appContext"),

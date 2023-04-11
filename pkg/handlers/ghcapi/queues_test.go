@@ -973,7 +973,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandler() {
 		},
 	})
 
-	testdatagen.MakeDefaultPaymentRequest(suite.DB())
+	factory.BuildPaymentRequest(suite.DB(), nil, nil)
 
 	request := httptest.NewRequest("GET", "/queues/payment-requests", nil)
 	request = suite.AuthenticateOfficeRequest(request, officeUser)

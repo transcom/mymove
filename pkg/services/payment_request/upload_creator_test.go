@@ -90,7 +90,7 @@ func (suite *PaymentRequestServiceSuite) TestCreateUploadFailure() {
 
 	setupTestData := func() {
 		contractor = factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
-		testdatagen.MakeDefaultPaymentRequest(suite.DB())
+		factory.BuildPaymentRequest(suite.DB(), nil, nil)
 	}
 
 	suite.Run("invalid payment request ID", func() {
@@ -118,7 +118,7 @@ func (suite *PaymentRequestServiceSuite) TestCreateUploadFailure() {
 			}
 		}()
 
-		paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
+		paymentRequest := factory.BuildPaymentRequest(suite.DB(), nil, nil)
 		uploadCreator := NewPaymentRequestUploadCreator(fakeS3)
 		_, err = uploadCreator.CreateUpload(suite.AppContextForTest(), testFile, paymentRequest.ID, uuid.FromStringOrNil("806e2f96-f9f9-4cbb-9a3d-d2f488539a1f"), "unit-test-file.pdf")
 		suite.Error(err)
@@ -126,7 +126,7 @@ func (suite *PaymentRequestServiceSuite) TestCreateUploadFailure() {
 
 	suite.Run("invalid file type", func() {
 		setupTestData()
-		paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
+		paymentRequest := factory.BuildPaymentRequest(suite.DB(), nil, nil)
 		uploadCreator := NewPaymentRequestUploadCreator(fakeS3)
 		wrongTypeFile, err := os.Open("../../testdatagen/testdata/test.txt")
 		suite.NoError(err)

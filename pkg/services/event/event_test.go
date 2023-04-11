@@ -90,7 +90,7 @@ func (suite *EventServiceSuite) Test_EventTrigger() {
 	// This test verifies that if the object updated is not on an MTO that
 	// is available to prime, no notification is created.
 	suite.Run("Fail with no notification - unavailable mto", func() {
-		unavailablePaymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
+		unavailablePaymentRequest := factory.BuildPaymentRequest(suite.DB(), nil, nil)
 		count, _ := suite.DB().Count(&models.WebhookNotification{})
 
 		unavailablePRID := unavailablePaymentRequest.ID
