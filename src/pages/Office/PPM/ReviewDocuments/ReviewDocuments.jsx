@@ -176,7 +176,9 @@ export const ReviewDocuments = ({ match }) => {
         title="Review documents"
         onClose={onClose}
         className={styles.sidebar}
-        supertitle={`${documentSetIndex + 1} of ${documentSets.length} Document Sets`}
+        supertitle={
+          showOverview ? 'All Document Sets' : `${documentSetIndex + 1} of ${documentSets.length} Document Sets`
+        }
         defaultH3
         hyperlink={reviewShipmentWeightsLink}
       >

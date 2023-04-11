@@ -488,6 +488,8 @@ describe('ReviewDocuments', () => {
 
       expect(await screen.findByRole('heading', { name: 'Send to customer?', level: 3 })).toBeInTheDocument();
       expect(await screen.getByRole('button', { name: 'Back' })).toBeEnabled();
+
+      expect(screen.getByRole('heading', { level: 2, name: /All Document Sets/ })).toBeInTheDocument();
     });
 
     const usePPMShipmentDocsQueriesReturnValueProGearOnly = {
