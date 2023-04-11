@@ -136,6 +136,12 @@ export const ReviewDocuments = ({ match }) => {
     }
   };
 
+  const getAllUploads = () => {
+    return documentSets.reduce((acc, documentSet) => {
+      return acc.concat(documentSet.uploads);
+    }, []);
+  };
+
   const onConfirmSuccess = () => {
     history.push(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
   };
@@ -164,7 +170,7 @@ export const ReviewDocuments = ({ match }) => {
   return (
     <div data-testid="ReviewDocuments" className={styles.ReviewDocuments}>
       <div className={styles.embed}>
-        <DocumentViewer files={currentDocumentSet.uploads} allowDownload />
+        <DocumentViewer files={showOverview ? getAllUploads() : currentDocumentSet.uploads} allowDownload />
       </div>
       <DocumentViewerSidebar
         title="Review documents"
