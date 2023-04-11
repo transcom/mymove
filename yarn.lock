@@ -11632,10 +11632,10 @@ imagetracerjs@^1.2.5:
   resolved "https://registry.yarnpkg.com/imagetracerjs/-/imagetracerjs-1.2.6.tgz#1f618b9b94b6f298145ce9cb5e74a88447f15184"
   integrity sha512-LKJlnKmXFzDdh6IZtXTyBxXcCLTAkwgKYS+NMiPXiXVnlTLjQC8fq7U89laUSgHtypJB3TdMMDK4ecG5NI/Cgw==
 
-imask@^6.4.3:
-  version "6.4.3"
-  resolved "https://registry.yarnpkg.com/imask/-/imask-6.4.3.tgz#b81b247043807995e048f559e98930c2fec8004a"
-  integrity sha512-aH2GHemGkr3cbRBfhogHMIx05eUxdHrZNlKTTLmz8VxpSopuHHJ8+85FsDlBVQqxPlDLhZuwj4lpHHWbLOdBSw==
+imask@^6.5.0:
+  version "6.5.0"
+  resolved "https://registry.yarnpkg.com/imask/-/imask-6.5.0.tgz#825c4640450a6a3b0b7700abf0361c0cb1b5a489"
+  integrity sha512-CqZTJ7FBdpTN20TAICrbKwQzl/4SOfopBzjSoEEKmMhGdiSDY/yNRMX8Z+epEWLja0W8kqFTZnayGBheYrOnEg==
 
 immer@^9.0.2, immer@^9.0.6, immer@^9.0.7:
   version "9.0.6"
@@ -16938,13 +16938,13 @@ react-idle-timer@^5.5.3:
   resolved "https://registry.yarnpkg.com/react-idle-timer/-/react-idle-timer-5.5.3.tgz#e1428095e124dea9277f45b68fa4f856a448a6d9"
   integrity sha512-fn2kNPz4BVEN/U05IzBQGPIfFlkjk0ekj8uKQaHAH/uBbATJDFmyxK0k36hv4kmzN8oFr8pe+C4zU5NJDBnfBQ==
 
-react-imask@^6.4.3:
-  version "6.4.3"
-  resolved "https://registry.yarnpkg.com/react-imask/-/react-imask-6.4.3.tgz#845de954e03e98179a23b92722ed3661cbd11037"
-  integrity sha512-5WyCbubQErO8Wr/zLDyUyC1zCqQXP979QXW6BNirUGsM1VxFmVG0nNfXA1PSXlgdbaXWBiBj+VJBvg/8BDzieA==
+react-imask@^6.5.0:
+  version "6.5.0"
+  resolved "https://registry.yarnpkg.com/react-imask/-/react-imask-6.5.0.tgz#04978baedb87f13f6a2202978a0bced62547a809"
+  integrity sha512-4l5jfJj+DSl9M/gGd7H1fRntFfzzIob86HC1nzeSA+9kvF681wYjdrzZF0IopD2KNMc167iSUfMo4UMBLXtcVQ==
   dependencies:
-    imask "^6.4.3"
-    prop-types "^15.7.2"
+    imask "^6.5.0"
+    prop-types "^15.8.1"
 
 react-input-autosize@^3.0.0:
   version "3.0.0"
