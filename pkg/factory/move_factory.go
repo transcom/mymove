@@ -189,12 +189,10 @@ func GetTraitSubmittedMove() []Customization {
 }
 
 func GetTraitNeedsServiceCounselingMove() []Customization {
-	now := time.Now()
 	return []Customization{
 		{
 			Model: models.Move{
-				SubmittedAt: &now,
-				Status:      models.MoveStatusNeedsServiceCounseling,
+				Status: models.MoveStatusNeedsServiceCounseling,
 			},
 		},
 	}
@@ -202,12 +200,10 @@ func GetTraitNeedsServiceCounselingMove() []Customization {
 
 func GetTraitServiceCounselingCompletedMove() []Customization {
 	now := time.Now()
-	lastWeek := now.Add(-7 * 24 * time.Hour)
 	return []Customization{
 		{
 			Model: models.Move{
 				ServiceCounselingCompletedAt: &now,
-				SubmittedAt:                  &lastWeek,
 				Status:                       models.MoveStatusServiceCounselingCompleted,
 			},
 		},
@@ -216,13 +212,13 @@ func GetTraitServiceCounselingCompletedMove() []Customization {
 
 func GetTraitApprovalsRequestedMove() []Customization {
 	now := time.Now()
-	lastWeek := now.Add(-7 * 24 * time.Hour)
+	availableToPrime := now.Add(time.Hour * -1)
 	return []Customization{
 		{
 			Model: models.Move{
-				AvailableToPrimeAt: &now,
-				SubmittedAt:        &lastWeek,
-				Status:             models.MoveStatusAPPROVALSREQUESTED,
+				AvailableToPrimeAt:   &availableToPrime,
+				ApprovalsRequestedAt: &now,
+				Status:               models.MoveStatusAPPROVALSREQUESTED,
 			},
 		},
 	}
@@ -230,12 +226,10 @@ func GetTraitApprovalsRequestedMove() []Customization {
 
 func GetTraitAvailableToPrimeMove() []Customization {
 	now := time.Now()
-	lastWeek := now.Add(-7 * 24 * time.Hour)
 	return []Customization{
 		{
 			Model: models.Move{
 				AvailableToPrimeAt: &now,
-				SubmittedAt:        &lastWeek,
 				Status:             models.MoveStatusAPPROVED,
 			},
 		},

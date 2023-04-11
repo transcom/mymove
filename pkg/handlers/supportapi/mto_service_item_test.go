@@ -16,6 +16,7 @@ import (
 	"github.com/go-openapi/swag"
 
 	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/factory"
 	mtoserviceitemop "github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/mto_service_item"
 	"github.com/transcom/mymove/pkg/gen/supportmessages"
 	"github.com/transcom/mymove/pkg/models"
@@ -27,7 +28,7 @@ import (
 
 // Create a service item on a Move with Approvals Requested status
 func (suite *HandlerSuite) createServiceItem() models.MTOServiceItem {
-	move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{})
+	move := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
 	serviceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 		Move: move,
 	})

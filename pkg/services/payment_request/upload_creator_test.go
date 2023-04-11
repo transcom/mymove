@@ -37,9 +37,13 @@ func (suite *PaymentRequestServiceSuite) TestCreateUploadSuccess() {
 		paymentRequestID, err := uuid.FromString("9b873071-149f-43c2-8971-e93348ebc5e3")
 		suite.NoError(err)
 
-		moveTaskOrder := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{ID: moveTaskOrderID},
-		})
+		moveTaskOrder := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					ID: moveTaskOrderID,
+				},
+			},
+		}, nil)
 
 		paymentRequest = testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 			Move: moveTaskOrder,

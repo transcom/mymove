@@ -346,7 +346,7 @@ func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingCompletedHandler(
 		request := httptest.NewRequest("PATCH", "/move-task-orders/{moveTaskOrderID}/status/service-counseling-completed", nil)
 		requestUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
-		move := testdatagen.MakeNeedsServiceCounselingMove(suite.DB())
+		move := factory.BuildNeedsServiceCounselingMove(suite.DB(), nil, nil)
 		testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
 			Move: move,
 		})

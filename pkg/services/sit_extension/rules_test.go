@@ -5,6 +5,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -36,7 +37,7 @@ func (suite *SitExtensionServiceSuite) TestValidationRules() {
 		//returns a verification error
 		suite.Run("success", func() {
 			shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-				Move: testdatagen.MakeAvailableMove(suite.DB()), // Move status is automatically set to APPROVED
+				Move: factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil), // Move status is automatically set to APPROVED
 			})
 			sitExtension := testdatagen.MakeSITExtension(suite.DB(), testdatagen.Assertions{
 				MTOShipment: shipment,
@@ -74,7 +75,7 @@ func (suite *SitExtensionServiceSuite) TestValidationRules() {
 		// Testing: There is no new sit extension
 		sit := models.SITExtension{MTOShipmentID: uuid.Must(uuid.NewV4())}
 		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: testdatagen.MakeAvailableMove(suite.DB()), // Move status is automatically set to APPROVED
+			Move: factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil), // Move status is automatically set to APPROVED
 		})
 		err := checkSITExtensionPending().Validate(suite.AppContextForTest(), sit, &shipment)
 
@@ -84,7 +85,7 @@ func (suite *SitExtensionServiceSuite) TestValidationRules() {
 	suite.Run("checkSITExtensionPending - Success after existing SIT is Approved", func() {
 		// Testing: There is no new sit extension
 		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: testdatagen.MakeAvailableMove(suite.DB()), // Move status is automatically set to APPROVED
+			Move: factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil), // Move status is automatically set to APPROVED
 		})
 
 		// Approved Status SIT Extension
@@ -108,7 +109,7 @@ func (suite *SitExtensionServiceSuite) TestValidationRules() {
 	suite.Run("checkSITExtensionPending - Success after existing SIT is Denied", func() {
 		// Testing: There is no new sit extension
 		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: testdatagen.MakeAvailableMove(suite.DB()), // Move status is automatically set to APPROVED
+			Move: factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil), // Move status is automatically set to APPROVED
 		})
 
 		// Denied SIT Extension
@@ -131,7 +132,7 @@ func (suite *SitExtensionServiceSuite) TestValidationRules() {
 	suite.Run("checkSITExtensionPending - Failure", func() {
 		// Testing: There is a SIT extension and trying to be created
 		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: testdatagen.MakeAvailableMove(suite.DB()), // Move status is automatically set to APPROVED
+			Move: factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil), // Move status is automatically set to APPROVED
 		})
 
 		// Create SIT Extension #1 in DB
@@ -164,7 +165,7 @@ func (suite *SitExtensionServiceSuite) TestValidationRules() {
 
 	suite.Run("checkPrimeAvailability - Success", func() {
 		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: testdatagen.MakeAvailableMove(suite.DB()), // Move status is automatically set to APPROVED
+			Move: factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil), // Move status is automatically set to APPROVED
 		})
 		checker := movetaskorder.NewMoveTaskOrderChecker()
 		err := checkPrimeAvailability(checker).Validate(suite.AppContextForTest(), models.SITExtension{}, &shipment)

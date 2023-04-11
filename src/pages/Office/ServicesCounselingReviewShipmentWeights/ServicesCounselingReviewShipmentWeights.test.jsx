@@ -5,6 +5,7 @@ import {
   missingSomeWeightQuery,
   riskOfExcessWeightQuery,
   reviewWeightsQuery,
+  reviewWeightsNoProGearQuery,
 } from '../MoveTaskOrder/moveTaskOrderUnitTestData';
 
 import ServicesCounselingReviewShipmentWeights from './ServicesCounselingReviewShipmentWeights';
@@ -95,6 +96,18 @@ describe('Services Counseling Review Shipment Weights', () => {
       expect(container).toBeInTheDocument();
       const table = await within(container).getByRole('table');
       expect(table).toBeInTheDocument();
+      expect(screen.getByText('Shipments')).toBeInTheDocument();
+    });
+
+    it('displays non-PPM shipments weights section when there are shipments without pro-gear', async () => {
+      useReviewShipmentWeightsQuery.mockReturnValue(reviewWeightsNoProGearQuery);
+      render(<ServicesCounselingReviewShipmentWeights moveCode="XSWT05" />);
+      const container = await screen.findByTestId('nonPpmShipmentContainer');
+      expect(container).toBeInTheDocument();
+      const table = await within(container).getByRole('table');
+      expect(table).toBeInTheDocument();
+      const progear = await screen.queryByTestId('progearContainer');
+      expect(progear).not.toBeInTheDocument();
       expect(screen.getByText('Shipments')).toBeInTheDocument();
     });
 

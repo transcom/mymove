@@ -2,6 +2,7 @@ package ppmshipment
 
 import (
 	"database/sql"
+	"fmt"
 
 	"github.com/gofrs/uuid"
 
@@ -9,7 +10,188 @@ import (
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/db/utilities"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
 )
+
+// ppmShipmentFetcher is the concrete struct implementing the PPMShipmentFetcher interface
+type ppmShipmentFetcher struct{}
+
+// NewPPMShipmentFetcher creates a new PPMShipmentFetcher
+func NewPPMShipmentFetcher() services.PPMShipmentFetcher {
+	return &ppmShipmentFetcher{}
+}
+
+// These are helper constants for requesting eager preload associations
+const (
+	// EagerPreloadAssociationShipment is the name of the association for the shipment
+	EagerPreloadAssociationShipment = "Shipment"
+	// EagerPreloadAssociationWeightTickets is the name of the association for the weight tickets
+	EagerPreloadAssociationWeightTickets = "WeightTickets"
+	// EagerPreloadAssociationProgearWeightTickets is the name of the association for the pro-gear weight tickets
+	EagerPreloadAssociationProgearWeightTickets = "ProgearWeightTickets"
+	// EagerPreloadAssociationMovingExpenses is the name of the association for the moving expenses
+	EagerPreloadAssociationMovingExpenses = "MovingExpenses"
+	// EagerPreloadAssociationW2Address is the name of the association for the W2 address
+	EagerPreloadAssociationW2Address = "W2Address"
+	// EagerPreloadAssociationAOAPacket is the name of the association for the AOA packet
+	EagerPreloadAssociationAOAPacket = "AOAPacket"
+	// EagerPreloadAssociationPaymentPacket is the name of the association for the payment packet
+	EagerPreloadAssociationPaymentPacket = "PaymentPacket"
+)
+
+// These are helper constants for requesting post load associations, meaning associations that can't be eager pre-loaded
+// due to bugs in pop
+const (
+	// PostLoadAssociationSignedCertification is the name of the association for the signed certification
+	PostLoadAssociationSignedCertification = "SignedCertification"
+	// PostLoadAssociationWeightTicketUploads is the name of the association for the weight ticket uploads
+	PostLoadAssociationWeightTicketUploads = "WeightTicketUploads"
+	// PostLoadAssociationProgearWeightTicketUploads is the name of the association for the pro-gear weight ticket uploads
+	PostLoadAssociationProgearWeightTicketUploads = "ProgearWeightTicketUploads"
+	// PostLoadAssociationMovingExpenseUploads is the name of the association for the moving expense uploads
+	PostLoadAssociationMovingExpenseUploads = "MovingExpenseUploads"
+)
+
+// GetListOfAllPreloadAssociations returns all associations for a PPMShipment that can be eagerly preloaded for ease of use.
+func GetListOfAllPreloadAssociations() []string {
+	return []string{
+		EagerPreloadAssociationShipment,
+		EagerPreloadAssociationWeightTickets,
+		EagerPreloadAssociationProgearWeightTickets,
+		EagerPreloadAssociationMovingExpenses,
+		EagerPreloadAssociationW2Address,
+		EagerPreloadAssociationAOAPacket,
+		EagerPreloadAssociationPaymentPacket,
+	}
+}
+
+// GetListOfAllPostloadAssociations returns all associations for a PPMShipment that can't be eagerly preloaded due to bugs in pop
+func GetListOfAllPostloadAssociations() []string {
+	return []string{
+		PostLoadAssociationSignedCertification,
+		PostLoadAssociationWeightTicketUploads,
+		PostLoadAssociationProgearWeightTicketUploads,
+		PostLoadAssociationMovingExpenseUploads,
+	}
+}
+
+// GetPPMShipment returns a PPMShipment with any desired associations by ID
+func (f ppmShipmentFetcher) GetPPMShipment(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID, eagerPreloadAssociations []string, postloadAssociations []string) (*models.PPMShipment, error) {
+	if eagerPreloadAssociations != nil {
+		validPreloadAssociations := make(map[string]bool)
+		for _, v := range GetListOfAllPreloadAssociations() {
+			validPreloadAssociations[v] = true
+		}
+
+		for _, association := range eagerPreloadAssociations {
+
+			if !validPreloadAssociations[association] {
+				return nil, apperror.NewNotImplementedError(fmt.Sprintf("Requested eager preload association %s is not implemented", association))
+			}
+		}
+	}
+
+	var ppmShipment models.PPMShipment
+
+	q := appCtx.DB().Q().
+		Scope(utilities.ExcludeDeletedScope())
+
+	if eagerPreloadAssociations != nil {
+		q.EagerPreload(eagerPreloadAssociations...)
+	}
+
+	err := q.Find(&ppmShipment, ppmShipmentID)
+
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			return nil, apperror.NewNotFoundError(ppmShipmentID, "while looking for PPMShipment")
+		default:
+			return nil, apperror.NewQueryError("PPMShipment", err, "unable to find PPMShipment")
+		}
+	}
+
+	ppmShipment.WeightTickets = ppmShipment.WeightTickets.FilterDeleted()
+	ppmShipment.ProgearWeightTickets = ppmShipment.ProgearWeightTickets.FilterDeleted()
+	ppmShipment.MovingExpenses = ppmShipment.MovingExpenses.FilterDeleted()
+
+	if postloadAssociations != nil {
+		postloadErr := f.PostloadAssociations(appCtx, &ppmShipment, postloadAssociations)
+
+		if postloadErr != nil {
+			return nil, postloadErr
+		}
+	}
+
+	return &ppmShipment, nil
+}
+
+// PostloadAssociations loads associations that can't be eager preloaded due to bugs in pop
+func (f ppmShipmentFetcher) PostloadAssociations(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment, postloadAssociations []string) error {
+	for _, association := range postloadAssociations {
+		switch association {
+		case PostLoadAssociationSignedCertification:
+			// We can't load SignedCertification with EagerPreload because of a bug in Pop, so we'll load it directly next.
+			loadErr := appCtx.DB().Load(ppmShipment, "SignedCertification")
+
+			// Pop will load an empty struct here and we'll get validation errors when attempting to save, if we don't set the
+			// field to nil
+			if ppmShipment.SignedCertification != nil && ppmShipment.SignedCertification.ID.IsNil() {
+				ppmShipment.SignedCertification = nil
+			}
+
+			if loadErr != nil {
+				return apperror.NewQueryError("PPMShipment", loadErr, "unable to load SignedCertification")
+			}
+		case PostLoadAssociationWeightTicketUploads:
+			for i := range ppmShipment.WeightTickets {
+				weightTicket := &ppmShipment.WeightTickets[i]
+
+				err := appCtx.DB().Load(weightTicket,
+					"EmptyDocument.UserUploads.Upload",
+					"FullDocument.UserUploads.Upload",
+					"ProofOfTrailerOwnershipDocument.UserUploads.Upload")
+
+				if err != nil {
+					return apperror.NewQueryError("WeightTicket", err, "failed to load WeightTicket document uploads")
+				}
+
+				weightTicket.EmptyDocument.UserUploads = weightTicket.EmptyDocument.UserUploads.FilterDeleted()
+				weightTicket.FullDocument.UserUploads = weightTicket.FullDocument.UserUploads.FilterDeleted()
+				weightTicket.ProofOfTrailerOwnershipDocument.UserUploads = weightTicket.ProofOfTrailerOwnershipDocument.UserUploads.FilterDeleted()
+			}
+		case PostLoadAssociationProgearWeightTicketUploads:
+			for i := range ppmShipment.ProgearWeightTickets {
+				progearWeightTicket := &ppmShipment.ProgearWeightTickets[i]
+				err := appCtx.DB().Load(progearWeightTicket,
+					"Document.UserUploads.Upload")
+
+				if err != nil {
+					return apperror.NewQueryError("ProgearWeightTickets", err, "failed to load ProgearWeightTickets document uploads")
+				}
+
+				progearWeightTicket.Document.UserUploads = progearWeightTicket.Document.UserUploads.FilterDeleted()
+			}
+
+		case PostLoadAssociationMovingExpenseUploads:
+			for i := range ppmShipment.MovingExpenses {
+				movingExpense := &ppmShipment.MovingExpenses[i]
+				err := appCtx.DB().Load(movingExpense,
+					"Document.UserUploads.Upload")
+
+				if err != nil {
+					return apperror.NewQueryError("MovingExpenses", err, "failed to load  MovingExpenses document uploads")
+				}
+
+				movingExpense.Document.UserUploads = movingExpense.Document.UserUploads.FilterDeleted()
+			}
+		default:
+			return apperror.NewNotImplementedError(fmt.Sprintf("Requested post load association %s is not implemented", association))
+		}
+	}
+
+	return nil
+}
 
 func FindPPMShipmentAndWeightTickets(appCtx appcontext.AppContext, id uuid.UUID) (*models.PPMShipment, error) {
 	var ppmShipment models.PPMShipment

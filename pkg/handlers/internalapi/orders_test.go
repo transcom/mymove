@@ -16,7 +16,6 @@ import (
 	"github.com/transcom/mymove/pkg/services/move"
 	orderservice "github.com/transcom/mymove/pkg/services/order"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *HandlerSuite) TestCreateOrder() {
@@ -125,7 +124,7 @@ func (suite *HandlerSuite) TestShowOrder() {
 
 func (suite *HandlerSuite) TestUploadAmendedOrder() {
 	var moves models.Moves
-	mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+	mto := factory.BuildMove(suite.DB(), nil, nil)
 	order := mto.Orders
 	order.Moves = append(moves, mto)
 	path := fmt.Sprintf("/orders/%v/upload_amended_orders", order.ID.String())

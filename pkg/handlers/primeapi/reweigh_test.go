@@ -9,6 +9,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/factory"
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -51,7 +52,7 @@ func (suite *HandlerSuite) TestUpdateReweighHandler() {
 			reweighservice.NewReweighUpdater(movetaskorder.NewMoveTaskOrderChecker(), paymentRequestShipmentRecalculator),
 		}
 		// Make an available MTO
-		mto := testdatagen.MakeAvailableMove(suite.DB())
+		mto := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
 		// Make a shipment on the available MTO
 		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{

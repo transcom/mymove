@@ -2653,7 +2653,7 @@ paths:
         - in: query
           name: sort
           type: string
-          enum: [lastName, dodID, branch, locator, status, originDutyLocation, destinationDutyLocation, requestedMoveDate]
+          enum: [lastName, dodID, branch, locator, status, originDutyLocation, destinationDutyLocation, requestedMoveDate, appearedInTooAt]
           description: field that results should be sorted by
         - in: query
           name: order
@@ -2678,6 +2678,10 @@ paths:
         - in: query
           name: destinationDutyLocation
           type: string
+        - in: query
+          name: appearedInTooAt
+          type: string
+          format: date-time
         - in: query
           name: requestedMoveDate
           type: string
@@ -3252,6 +3256,11 @@ definitions:
         type: string
         format: uuid
         description: The transportation office that will handle reviewing PPM Closeout documentation for Army and Air Force service members
+        x-nullable: true
+      approvalsRequestedAt:
+        type: string
+        format: date-time
+        description: The time at which a move is sent back to the TOO becuase the prime added a new service item for approval
         x-nullable: true
       createdAt:
         type: string
@@ -4567,6 +4576,10 @@ definitions:
       locator:
         type: string
       submittedAt:
+        format: date-time
+        type: string
+        x-nullable: true
+      appearedInTooAt:
         format: date-time
         type: string
         x-nullable: true

@@ -3,6 +3,7 @@ package paymentrequest
 import (
 	"time"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -11,14 +12,13 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 	service := NewPaymentRequestShipmentsSITBalance()
 
 	suite.Run("returns only pending SIT status when there are no previous payments", func() {
-		availableToPrimeAt := time.Now()
-		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				Locator:            "PARSIT",
-				Status:             models.MoveStatusAPPROVED,
-				AvailableToPrimeAt: &availableToPrimeAt,
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Locator: "PARSIT",
+				},
 			},
-		})
+		}, nil)
 
 		oneHundredAndTwentyDays := 120
 		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
@@ -106,13 +106,7 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 	})
 
 	suite.Run("calculates pending destination SIT balance when origin was invoiced previously", func() {
-		availableToPrimeAt := time.Now()
-		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				Status:             models.MoveStatusAPPROVED,
-				AvailableToPrimeAt: &availableToPrimeAt,
-			},
-		})
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
 		oneHundredAndTwentyDays := 120
 		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
@@ -268,13 +262,7 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 	})
 
 	suite.Run("ignores including previously denied service items in SIT balance", func() {
-		availableToPrimeAt := time.Now()
-		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				Status:             models.MoveStatusAPPROVED,
-				AvailableToPrimeAt: &availableToPrimeAt,
-			},
-		})
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
 		oneHundredAndTwentyDays := 120
 		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
@@ -428,13 +416,7 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 	})
 
 	suite.Run("returns nil for reviewed payment request without SIT service items", func() {
-		availableToPrimeAt := time.Now()
-		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				Status:             models.MoveStatusAPPROVED,
-				AvailableToPrimeAt: &availableToPrimeAt,
-			},
-		})
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
 		oneHundredAndTwentyDays := 120
 		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
@@ -473,13 +455,7 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 	})
 
 	suite.Run("returns nil for pending payment request without SIT service items", func() {
-		availableToPrimeAt := time.Now()
-		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				Status:             models.MoveStatusAPPROVED,
-				AvailableToPrimeAt: &availableToPrimeAt,
-			},
-		})
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
 		oneHundredAndTwentyDays := 120
 		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
@@ -515,13 +491,7 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 	})
 
 	suite.Run("returns zero authorized days for pending payment request shipment without a set SITDaysAllowance", func() {
-		availableToPrimeAt := time.Now()
-		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				Status:             models.MoveStatusAPPROVED,
-				AvailableToPrimeAt: &availableToPrimeAt,
-			},
-		})
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
 		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
@@ -619,13 +589,7 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 	})
 
 	suite.Run("returns zero authorized days for reviewed payment request shipment without a set SITDaysAllowance", func() {
-		availableToPrimeAt := time.Now()
-		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				Status:             models.MoveStatusAPPROVED,
-				AvailableToPrimeAt: &availableToPrimeAt,
-			},
-		})
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
 		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{

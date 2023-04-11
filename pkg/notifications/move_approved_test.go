@@ -8,12 +8,11 @@ import (
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *NotificationSuite) TestMoveApproved() {
 	approver := factory.BuildUser(nil, nil, nil)
-	move := testdatagen.MakeDefaultMove(suite.DB())
+	move := factory.BuildMove(suite.DB(), nil, nil)
 
 	session := &auth.Session{
 		UserID:          approver.ID,
