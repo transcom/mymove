@@ -3,7 +3,6 @@ package serviceparamvaluelookups
 import (
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *ServiceParamValueLookupsSuite) TestZipSITOriginHHGActualAddressLookup() {
@@ -40,10 +39,12 @@ func (suite *ServiceParamValueLookupsSuite) TestZipSITOriginHHGActualAddressLook
 
 		move := factory.BuildMove(suite.DB(), nil, nil)
 
-		paymentRequest = testdatagen.MakePaymentRequest(suite.DB(),
-			testdatagen.Assertions{
-				Move: move,
-			})
+		paymentRequest = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		mtoServiceItemWithSITOriginZips = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{

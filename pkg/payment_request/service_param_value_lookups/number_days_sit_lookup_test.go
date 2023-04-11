@@ -1234,15 +1234,20 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 
 		cost := unit.Cents(20000)
 
-		paymentRequestOne := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				IsFinal:         true,
-				Status:          models.PaymentRequestStatusPaid,
-				RejectionReason: nil,
-				SequenceNumber:  1,
+		paymentRequestOne := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					IsFinal:         true,
+					Status:          models.PaymentRequestStatusPaid,
+					RejectionReason: nil,
+					SequenceNumber:  1,
+				},
 			},
-			Move: moveTaskOrderOne,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+		}, nil)
 		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
 			PaymentServiceItem: models.PaymentServiceItem{
 				PriceCents: &cost,
@@ -1261,15 +1266,20 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 			MTOServiceItem: serviceItemDOASITOne,
 		})
 
-		paymentRequestTwo := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				IsFinal:         true,
-				Status:          models.PaymentRequestStatusPaid,
-				RejectionReason: nil,
-				SequenceNumber:  2,
+		paymentRequestTwo := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					IsFinal:         true,
+					Status:          models.PaymentRequestStatusPaid,
+					RejectionReason: nil,
+					SequenceNumber:  2,
+				},
 			},
-			Move: moveTaskOrderOne,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+		}, nil)
 		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
 			PaymentServiceItem: models.PaymentServiceItem{
 				PriceCents: &cost,
@@ -1288,30 +1298,40 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 			MTOServiceItem: serviceItemDDASITOne,
 		})
 
-		paymentRequestThree := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				IsFinal:         true,
-				Status:          models.PaymentRequestStatusPaid,
-				RejectionReason: nil,
-				SequenceNumber:  3,
+		paymentRequestThree := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					IsFinal:         true,
+					Status:          models.PaymentRequestStatusPaid,
+					RejectionReason: nil,
+					SequenceNumber:  3,
+				},
 			},
-			Move: moveTaskOrderOne,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		suite.makeAdditionalDaysSITPaymentServiceItem(paymentRequestThree, serviceItemDOFSITTwo, "2021-11-11", "2021-11-20")
 		suite.makeAdditionalDaysSITPaymentServiceItem(paymentRequestThree, serviceItemDOASITThree, "2021-11-11", "2021-11-20")
 		suite.makeAdditionalDaysSITPaymentServiceItem(paymentRequestThree, serviceItemDDFSITTwo, "2021-11-11", "2021-11-20")
 		suite.makeAdditionalDaysSITPaymentServiceItem(paymentRequestThree, serviceItemDDASITThree, "2021-11-11", "2021-11-20")
 
-		paymentRequestFour := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				IsFinal:         true,
-				Status:          models.PaymentRequestStatusPaid,
-				RejectionReason: nil,
-				SequenceNumber:  4,
+		paymentRequestFour := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					IsFinal:         true,
+					Status:          models.PaymentRequestStatusPaid,
+					RejectionReason: nil,
+					SequenceNumber:  4,
+				},
 			},
-			Move: moveTaskOrderOne,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+		}, nil)
 		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
 			PaymentServiceItem: models.PaymentServiceItem{
 				PriceCents: &cost,
@@ -1321,15 +1341,20 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 			MTOServiceItem: serviceItemDOFSITThree,
 		})
 
-		paymentRequestFive := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				IsFinal:         true,
-				Status:          models.PaymentRequestStatusPaid,
-				RejectionReason: nil,
-				SequenceNumber:  5,
+		paymentRequestFive := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					IsFinal:         true,
+					Status:          models.PaymentRequestStatusPaid,
+					RejectionReason: nil,
+					SequenceNumber:  5,
+				},
 			},
-			Move: moveTaskOrderOne,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+		}, nil)
 		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
 			PaymentServiceItem: models.PaymentServiceItem{
 				PriceCents: &cost,
@@ -1339,15 +1364,20 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 			MTOServiceItem: serviceItemDDFSITThree,
 		})
 
-		paymentRequestSix := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				IsFinal:         true,
-				Status:          models.PaymentRequestStatusPaid,
-				RejectionReason: nil,
-				SequenceNumber:  6,
+		paymentRequestSix := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					IsFinal:         true,
+					Status:          models.PaymentRequestStatusPaid,
+					RejectionReason: nil,
+					SequenceNumber:  6,
+				},
 			},
-			Move: moveTaskOrderOne,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+		}, nil)
 		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
 			PaymentServiceItem: models.PaymentServiceItem{
 				PriceCents: &cost,
@@ -1366,15 +1396,20 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 			MTOServiceItem: serviceItemDDFSITFour,
 		})
 
-		paymentRequestSeven = testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				IsFinal:         true,
-				Status:          models.PaymentRequestStatusPaid,
-				RejectionReason: nil,
-				SequenceNumber:  7,
+		paymentRequestSeven = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					IsFinal:         true,
+					Status:          models.PaymentRequestStatusPaid,
+					RejectionReason: nil,
+					SequenceNumber:  7,
+				},
 			},
-			Move: moveTaskOrderOne,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+		}, nil)
 		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
 			PaymentServiceItem: models.PaymentServiceItem{
 				PriceCents: &cost,
@@ -1393,15 +1428,20 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 			MTOServiceItem: serviceItemDDFSITFive,
 		})
 
-		paymentRequestEight := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				IsFinal:         true,
-				Status:          models.PaymentRequestStatusPaid,
-				RejectionReason: nil,
-				SequenceNumber:  8,
+		paymentRequestEight := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					IsFinal:         true,
+					Status:          models.PaymentRequestStatusPaid,
+					RejectionReason: nil,
+					SequenceNumber:  8,
+				},
 			},
-			Move: moveTaskOrderOne,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+		}, nil)
 		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
 			PaymentServiceItem: models.PaymentServiceItem{
 				PriceCents: &cost,
@@ -1420,15 +1460,20 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 			MTOServiceItem: serviceItemDOASITEight,
 		})
 
-		paymentRequestNine := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				IsFinal:         true,
-				Status:          models.PaymentRequestStatusPaid,
-				RejectionReason: nil,
-				SequenceNumber:  9,
+		paymentRequestNine := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					IsFinal:         true,
+					Status:          models.PaymentRequestStatusPaid,
+					RejectionReason: nil,
+					SequenceNumber:  9,
+				},
 			},
-			Move: moveTaskOrderOne,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+		}, nil)
 		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
 			PaymentServiceItem: models.PaymentServiceItem{
 				PriceCents: &cost,
@@ -1447,15 +1492,20 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 			MTOServiceItem: serviceItemDDASITEight,
 		})
 
-		paymentRequestTen := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				IsFinal:         true,
-				Status:          models.PaymentRequestStatusPaid,
-				RejectionReason: nil,
-				SequenceNumber:  1,
+		paymentRequestTen := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					IsFinal:         true,
+					Status:          models.PaymentRequestStatusPaid,
+					RejectionReason: nil,
+					SequenceNumber:  1,
+				},
 			},
-			Move: moveTaskOrderThree,
-		})
+			{
+				Model:    moveTaskOrderThree,
+				LinkOnly: true,
+			},
+		}, nil)
 		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
 			PaymentServiceItem: models.PaymentServiceItem{
 				PriceCents: &cost,
@@ -1467,15 +1517,20 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 
 		suite.makeAdditionalDaysSITPaymentServiceItem(paymentRequestTen, serviceItemDOASITTen, "2021-11-11", "2021-11-20")
 
-		paymentRequestEleven := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				IsFinal:         true,
-				Status:          models.PaymentRequestStatusPaid,
-				RejectionReason: nil,
-				SequenceNumber:  1,
+		paymentRequestEleven := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					IsFinal:         true,
+					Status:          models.PaymentRequestStatusPaid,
+					RejectionReason: nil,
+					SequenceNumber:  1,
+				},
 			},
-			Move: moveTaskOrderFour,
-		})
+			{
+				Model:    moveTaskOrderFour,
+				LinkOnly: true,
+			},
+		}, nil)
 		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
 			PaymentServiceItem: models.PaymentServiceItem{
 				PriceCents: &cost,
@@ -1485,15 +1540,20 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 			MTOServiceItem: serviceItemDDFSITEight,
 		})
 
-		paymentRequestTwelve := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				IsFinal:         true,
-				Status:          models.PaymentRequestStatusPaid,
-				RejectionReason: nil,
-				SequenceNumber:  1,
+		paymentRequestTwelve := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					IsFinal:         true,
+					Status:          models.PaymentRequestStatusPaid,
+					RejectionReason: nil,
+					SequenceNumber:  1,
+				},
 			},
-			Move: moveTaskOrderFive,
-		})
+			{
+				Model:    moveTaskOrderFive,
+				LinkOnly: true,
+			},
+		}, nil)
 		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
 			PaymentServiceItem: models.PaymentServiceItem{
 				PriceCents: &cost,
@@ -1543,15 +1603,20 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 				MTOServiceItem: serviceItemDOASITThirteen,
 			})
 
-		paymentRequestThirteen := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				IsFinal:         true,
-				Status:          models.PaymentRequestStatusPaid,
-				RejectionReason: nil,
-				SequenceNumber:  2,
+		paymentRequestThirteen := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					IsFinal:         true,
+					Status:          models.PaymentRequestStatusPaid,
+					RejectionReason: nil,
+					SequenceNumber:  2,
+				},
 			},
-			Move: moveTaskOrderFive,
-		})
+			{
+				Model:    moveTaskOrderFive,
+				LinkOnly: true,
+			},
+		}, nil)
 		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
 			PaymentServiceItem: models.PaymentServiceItem{
 				PriceCents: &cost,
@@ -1561,15 +1626,20 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 			MTOServiceItem: serviceItemDDFSITNine,
 		})
 
-		paymentRequestFourteen := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				IsFinal:         true,
-				Status:          models.PaymentRequestStatusReviewedAllRejected,
-				RejectionReason: nil,
-				SequenceNumber:  3,
+		paymentRequestFourteen := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					IsFinal:         true,
+					Status:          models.PaymentRequestStatusReviewedAllRejected,
+					RejectionReason: nil,
+					SequenceNumber:  3,
+				},
 			},
-			Move: moveTaskOrderFive,
-		})
+			{
+				Model:    moveTaskOrderFive,
+				LinkOnly: true,
+			},
+		}, nil)
 		paymentServiceItemParamFour := []testdatagen.CreatePaymentServiceItemParams{
 			{
 				Key:     models.ServiceItemParamNameNumberDaysSIT,
@@ -1590,15 +1660,20 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 				MTOServiceItem: serviceItemDDASITEleven,
 			})
 
-		paymentRequestFifteen = testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				IsFinal:         true,
-				Status:          models.PaymentRequestStatusReviewedAllRejected,
-				RejectionReason: nil,
-				SequenceNumber:  10,
+		paymentRequestFifteen = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					IsFinal:         true,
+					Status:          models.PaymentRequestStatusReviewedAllRejected,
+					RejectionReason: nil,
+					SequenceNumber:  10,
+				},
 			},
-			Move: moveTaskOrderOne,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		suite.makeAdditionalDaysSITPaymentServiceItem(paymentRequestFifteen, serviceItemDOASITTwo, "2021-10-11", "2021-10-20")
 		suite.makeAdditionalDaysSITPaymentServiceItem(paymentRequestFifteen, serviceItemDOASITFour, "2021-10-21", "2021-10-30")
@@ -1607,47 +1682,67 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 		suite.makeAdditionalDaysSITPaymentServiceItem(paymentRequestFifteen, serviceItemDDASITSix, "2021-11-11", "2021-11-20")
 		suite.makeAdditionalDaysSITPaymentServiceItem(paymentRequestFifteen, serviceItemDOASITNine, "2021-11-11", "2021-11-20")
 
-		paymentRequestSixteen = testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				IsFinal:         true,
-				Status:          models.PaymentRequestStatusReviewedAllRejected,
-				RejectionReason: nil,
-				SequenceNumber:  1,
+		paymentRequestSixteen = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					IsFinal:         true,
+					Status:          models.PaymentRequestStatusReviewedAllRejected,
+					RejectionReason: nil,
+					SequenceNumber:  1,
+				},
 			},
-			Move: moveTaskOrderTwo,
-		})
+			{
+				Model:    moveTaskOrderTwo,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		paymentRequestSeventeen = testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				IsFinal:         true,
-				Status:          models.PaymentRequestStatusReviewedAllRejected,
-				RejectionReason: nil,
-				SequenceNumber:  2,
+		paymentRequestSeventeen = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					IsFinal:         true,
+					Status:          models.PaymentRequestStatusReviewedAllRejected,
+					RejectionReason: nil,
+					SequenceNumber:  2,
+				},
 			},
-			Move: moveTaskOrderThree,
-		})
+			{
+				Model:    moveTaskOrderThree,
+				LinkOnly: true,
+			},
+		}, nil)
 		suite.makeAdditionalDaysSITPaymentServiceItem(paymentRequestSeventeen, serviceItemDOASITEleven, "2021-11-21", "2021-11-30")
 
-		paymentRequestEighteen = testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				IsFinal:         true,
-				Status:          models.PaymentRequestStatusReviewedAllRejected,
-				RejectionReason: nil,
-				SequenceNumber:  2,
+		paymentRequestEighteen = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					IsFinal:         true,
+					Status:          models.PaymentRequestStatusReviewedAllRejected,
+					RejectionReason: nil,
+					SequenceNumber:  2,
+				},
 			},
-			Move: moveTaskOrderFour,
-		})
+			{
+				Model:    moveTaskOrderFour,
+				LinkOnly: true,
+			},
+		}, nil)
 		suite.makeAdditionalDaysSITPaymentServiceItem(paymentRequestEighteen, serviceItemDDASITTen, "2021-11-11", "2021-11-20")
 
-		paymentRequestNineteen := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				IsFinal:         true,
-				Status:          models.PaymentRequestStatusReviewedAllRejected,
-				RejectionReason: nil,
-				SequenceNumber:  4,
+		paymentRequestNineteen := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					IsFinal:         true,
+					Status:          models.PaymentRequestStatusReviewedAllRejected,
+					RejectionReason: nil,
+					SequenceNumber:  4,
+				},
 			},
-			Move: moveTaskOrderFive,
-		})
+			{
+				Model:    moveTaskOrderFive,
+				LinkOnly: true,
+			},
+		}, nil)
 		suite.makeAdditionalDaysSITPaymentServiceItem(paymentRequestNineteen, serviceItemDDASITTwelve, "2021-11-11", "2021-11-20")
 	}
 
@@ -1931,15 +2026,20 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 		setupTestData()
 
 		move, serviceItemDOASIT, _ := suite.setupMoveWithAddlDaysSITAndPaymentRequest(reServiceDOFSIT, originSITEntryDateOne, reServiceDOASIT, "2020-07-21", "2020-07-30")
-		paymentRequestOverlapping := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				IsFinal:         false,
-				Status:          models.PaymentRequestStatusPending,
-				RejectionReason: nil,
-				SequenceNumber:  2,
+		paymentRequestOverlapping := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					IsFinal:         false,
+					Status:          models.PaymentRequestStatusPending,
+					RejectionReason: nil,
+					SequenceNumber:  2,
+				},
 			},
-			Move: move,
-		})
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 		suite.makeAdditionalDaysSITPaymentServiceItem(paymentRequestOverlapping, serviceItemDOASIT, "2020-07-25", "2020-08-10")
 		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, serviceItemDOASIT, paymentRequestOverlapping.ID, move.ID, nil)
 		suite.FatalNoError(err)
@@ -1952,15 +2052,20 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 
 		move, serviceItemDOASIT, paymentRequest := suite.setupMoveWithAddlDaysSITAndPaymentRequest(reServiceDOFSIT, originSITEntryDateOne, reServiceDOASIT, "2020-07-21", "2020-07-30")
 
-		paymentRequestRejected := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				IsFinal:         false,
-				Status:          models.PaymentRequestStatusReviewedAllRejected,
-				RejectionReason: nil,
-				SequenceNumber:  1 + paymentRequest.SequenceNumber,
+		paymentRequestRejected := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					IsFinal:         false,
+					Status:          models.PaymentRequestStatusReviewedAllRejected,
+					RejectionReason: nil,
+					SequenceNumber:  1 + paymentRequest.SequenceNumber,
+				},
 			},
-			Move: move,
-		})
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 		suite.makeAdditionalDaysSITPaymentServiceItemWithStatus(paymentRequestRejected, serviceItemDOASIT, "2020-07-21", "2020-07-30", models.PaymentServiceItemStatusDenied)
 
 		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, serviceItemDOASIT, paymentRequest.ID, move.ID, nil)
@@ -2025,15 +2130,20 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 			reServiceDOASIT,
 			"2020-07-21", "2020-07-30")
 
-		paymentRequestOverlapping := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				IsFinal:         false,
-				Status:          models.PaymentRequestStatusPending,
-				RejectionReason: nil,
-				SequenceNumber:  2,
+		paymentRequestOverlapping := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					IsFinal:         false,
+					Status:          models.PaymentRequestStatusPending,
+					RejectionReason: nil,
+					SequenceNumber:  2,
+				},
 			},
-			Move: move,
-		})
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 		// Previously billed DOASIT ends on 2020-07-30. This one starts on that same date, so the lookup should fail.
 		suite.makeAdditionalDaysSITPaymentServiceItem(
 			paymentRequestOverlapping,
@@ -2141,15 +2251,20 @@ func (suite *ServiceParamValueLookupsSuite) setupMoveWithAddlDaysSITAndPaymentRe
 		},
 	}, nil)
 
-	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-		PaymentRequest: models.PaymentRequest{
-			IsFinal:         false,
-			Status:          models.PaymentRequestStatusPaid,
-			RejectionReason: nil,
-			SequenceNumber:  1,
+	paymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+		{
+			Model: models.PaymentRequest{
+				IsFinal:         false,
+				Status:          models.PaymentRequestStatusPaid,
+				RejectionReason: nil,
+				SequenceNumber:  1,
+			},
 		},
-		Move: move,
-	})
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 	cost := unit.Cents(20000)
 	testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
 		PaymentServiceItem: models.PaymentServiceItem{

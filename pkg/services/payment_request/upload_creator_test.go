@@ -18,7 +18,6 @@ import (
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/storage/test"
-	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
@@ -46,12 +45,17 @@ func (suite *PaymentRequestServiceSuite) TestCreateUploadSuccess() {
 			},
 		}, nil)
 
-		paymentRequest = testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			Move: moveTaskOrder,
-			PaymentRequest: models.PaymentRequest{
-				ID: paymentRequestID,
+		paymentRequest = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    moveTaskOrder,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.PaymentRequest{
+					ID: paymentRequestID,
+				},
+			},
+		}, nil)
 
 		testFile, err = os.Open("../../testdatagen/testdata/test.pdf")
 		suite.NoError(err)

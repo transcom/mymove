@@ -24,6 +24,9 @@ func BuildPaymentRequest(db *pop.Connection, customs []Customization, traits []T
 	move := BuildMove(db, customs, traits)
 
 	sequenceNumber := 1
+	if cPaymentRequest.SequenceNumber != 0 {
+		sequenceNumber = cPaymentRequest.SequenceNumber
+	}
 	paymentRequestNumber := fmt.Sprintf("%s-%d", *move.ReferenceID, sequenceNumber)
 
 	// Create default PaymentRequest

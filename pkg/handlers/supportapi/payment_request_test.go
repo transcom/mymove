@@ -1,11 +1,3 @@
-// RA Summary: gosec - errcheck - Unchecked return value
-// RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
-// RA: Functions with unchecked return values in the file are used set up environment variables
-// RA: Given the functions causing the lint errors are used to set environment variables for testing purposes, it does not present a risk
-// RA Developer Status: Mitigated
-// RA Validator Status: Mitigated
-// RA Modified Severity: N/A
-// nolint:errcheck
 package supportapi
 
 import (
@@ -70,9 +62,12 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 
 	suite.Run("successful status update of prime-available payment request", func() {
 		availableMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-		availablePaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			Move: availableMove,
-		})
+		availablePaymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    availableMove,
+				LinkOnly: true,
+			},
+		}, nil)
 		availablePaymentRequestID := availablePaymentRequest.ID
 
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/payment_request/%s/status", availablePaymentRequestID), nil)
@@ -502,14 +497,19 @@ func (suite *HandlerSuite) createPaymentRequest(num int) models.PaymentRequests 
 		}
 
 		mto := factory.BuildMove(suite.DB(), nil, nil)
-		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			Move: mto,
-			PaymentRequest: models.PaymentRequest{
-				IsFinal:         false,
-				Status:          models.PaymentRequestStatusReviewed,
-				RejectionReason: nil,
+		paymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    mto,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.PaymentRequest{
+					IsFinal:         false,
+					Status:          models.PaymentRequestStatusReviewed,
+					RejectionReason: nil,
+				},
+			},
+		}, nil)
 		prs = append(prs, paymentRequest)
 		requestedPickupDate := time.Date(testdatagen.GHCTestYear, time.September, 15, 0, 0, 0, 0, time.UTC)
 		scheduledPickupDate := time.Date(testdatagen.GHCTestYear, time.September, 20, 0, 0, 0, 0, time.UTC)

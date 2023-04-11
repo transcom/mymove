@@ -315,11 +315,13 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestErrors() {
 	})
 
 	suite.Run("Old payment status has unexpected status", func() {
-		paidPaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				Status: models.PaymentRequestStatusPaid,
+		paidPaymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					Status: models.PaymentRequestStatusPaid,
+				},
 			},
-		})
+		}, nil)
 		newPaymentRequest, err := recalculator.RecalculatePaymentRequest(suite.AppContextForTest(), paidPaymentRequest.ID)
 		suite.Nil(newPaymentRequest)
 		if suite.Error(err) {

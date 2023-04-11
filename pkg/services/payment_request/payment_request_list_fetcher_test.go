@@ -12,7 +12,6 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListbyMove() {
@@ -29,19 +28,21 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListbyMove() {
 			},
 		}, nil)
 		// We need a payment request with a move that has a shipment that's within the GBLOC
-		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				MoveTaskOrderID: expectedMove.ID,
-				MoveTaskOrder:   expectedMove,
+		paymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    expectedMove,
+				LinkOnly: true,
 			},
-		})
+		}, nil)
 
 		// Hidden move should not be returned
-		testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				Show: swag.Bool(false),
+		factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Show: swag.Bool(false),
+				},
 			},
-		})
+		}, nil)
 
 		expectedPaymentRequests, err := paymentRequestListFetcher.FetchPaymentRequestListByMove(suite.AppContextForTest(), officeUser.ID, "ABC123")
 
@@ -64,43 +65,55 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestList() {
 		expectedMove = factory.BuildMoveWithShipment(suite.DB(), nil, nil)
 
 		// We need a payment request with a move that has a shipment that's within the GBLOC
-		paymentRequest = testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				MoveTaskOrderID: expectedMove.ID,
-				MoveTaskOrder:   expectedMove,
+		paymentRequest = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    expectedMove,
+				LinkOnly: true,
 			},
-		})
+		}, nil)
 
-		testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			TransportationOffice: models.TransportationOffice{
-				Gbloc: "ABCD",
+		factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationOffice{
+					Gbloc: "ABCD",
+				},
+				Type: &factory.TransportationOffices.OriginDutyLocation,
 			},
-			OriginDutyLocation: models.DutyLocation{
-				Name: "KJKJKJKJKJK",
+			{
+				Model: models.DutyLocation{
+					Name: "KJKJKJKJKJK",
+				},
+				Type: &factory.DutyLocations.OriginDutyLocation,
 			},
-		})
+		}, nil)
 
 		// Hidden move should not be returned
-		testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				Show: swag.Bool(false),
+		factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Show: swag.Bool(false),
+				},
 			},
-		})
+		}, nil)
 		// Marine Corps payment requests should be excluded even if in the same GBLOC
 		marines := models.AffiliationMARINES
-		testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status: models.MTOShipmentStatusSubmitted,
+		factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusSUBMITTED,
+				},
 			},
-			Move: models.Move{
-				Status: models.MoveStatusSUBMITTED,
+			{
+				Model: models.TransportationOffice{
+					Gbloc: "LKNQ",
+					ID:    uuid.Must(uuid.NewV4()),
+				},
+				Type: &factory.TransportationOffices.OriginDutyLocation,
 			},
-			TransportationOffice: models.TransportationOffice{
-				Gbloc: "LKNQ",
-				ID:    uuid.Must(uuid.NewV4()),
+			{
+				Model: models.ServiceMember{Affiliation: &marines},
 			},
-			ServiceMember: models.ServiceMember{Affiliation: &marines},
-		})
+		}, nil)
 	})
 
 	suite.Run("Only returns visible (where Move.Show is not false) payment requests matching office user GBLOC", func() {
@@ -169,51 +182,75 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListStatusFilter
 		expectedMove5 := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
 		expectedMove6 := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
 
-		reviewedPaymentRequest = testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				Status:          models.PaymentRequestStatusReviewed,
-				MoveTaskOrderID: expectedMove1.ID,
-				MoveTaskOrder:   expectedMove1,
+		reviewedPaymentRequest = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    expectedMove1,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.PaymentRequest{
+					Status: models.PaymentRequestStatusReviewed,
+				},
+			},
+		}, nil)
 
-		rejectedPaymentRequest = testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				Status:          models.PaymentRequestStatusReviewedAllRejected,
-				MoveTaskOrderID: expectedMove2.ID,
-				MoveTaskOrder:   expectedMove2,
+		rejectedPaymentRequest = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    expectedMove2,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.PaymentRequest{
+					Status: models.PaymentRequestStatusReviewedAllRejected,
+				},
+			},
+		}, nil)
 
-		sentToGexPaymentRequest = testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				Status:          models.PaymentRequestStatusSentToGex,
-				MoveTaskOrderID: expectedMove3.ID,
-				MoveTaskOrder:   expectedMove3,
+		sentToGexPaymentRequest = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    expectedMove3,
+				LinkOnly: true,
 			},
-		})
-		recByGexPaymentRequest = testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				Status:          models.PaymentRequestStatusReceivedByGex,
-				MoveTaskOrderID: expectedMove4.ID,
-				MoveTaskOrder:   expectedMove4,
+			{
+				Model: models.PaymentRequest{
+					Status: models.PaymentRequestStatusSentToGex,
+				},
 			},
-		})
-		paidPaymentRequest = testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				Status:          models.PaymentRequestStatusPaid,
-				MoveTaskOrderID: expectedMove5.ID,
-				MoveTaskOrder:   expectedMove5,
+		}, nil)
+		recByGexPaymentRequest = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    expectedMove4,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.PaymentRequest{
+					Status: models.PaymentRequestStatusReceivedByGex,
+				},
+			},
+		}, nil)
+		paidPaymentRequest = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    expectedMove5,
+				LinkOnly: true,
+			},
+			{
+				Model: models.PaymentRequest{
+					Status: models.PaymentRequestStatusPaid,
+				},
+			},
+		}, nil)
 
-		pendingPaymentRequest = testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				Status:          models.PaymentRequestStatusPending,
-				MoveTaskOrderID: expectedMove6.ID,
-				MoveTaskOrder:   expectedMove6,
+		pendingPaymentRequest = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    expectedMove6,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.PaymentRequest{
+					Status: models.PaymentRequestStatusPending,
+				},
+			},
+		}, nil)
 
 		allPaymentRequests = []models.PaymentRequest{pendingPaymentRequest, reviewedPaymentRequest, rejectedPaymentRequest, sentToGexPaymentRequest, recByGexPaymentRequest, paidPaymentRequest}
 	})
@@ -279,43 +316,65 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListUSMCGBLOC() 
 
 		expectedMoveNotUSMC := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
 
-		paymentRequestUSMC = testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status: models.MTOShipmentStatusSubmitted,
+		paymentRequestUSMC = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationOffice{
+					Gbloc: "LKNQ",
+					ID:    officeUUID,
+				},
+				Type: &factory.TransportationOffices.OriginDutyLocation,
 			},
-			TransportationOffice: models.TransportationOffice{
-				Gbloc: "LKNQ",
-				ID:    officeUUID,
+			{
+				Model: models.Move{
+					Status: models.MoveStatusSUBMITTED,
+				},
 			},
-			Move: models.Move{
-				Status: models.MoveStatusSUBMITTED,
+			{
+				Model: models.ServiceMember{Affiliation: &marines},
 			},
-			ServiceMember: models.ServiceMember{Affiliation: &marines},
-		})
+		}, nil)
 
-		paymentRequestUSMC2 = testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				SequenceNumber: 2,
+		paymentRequestUSMC2 = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					SequenceNumber: 2,
+				},
 			},
-			MTOShipment: models.MTOShipment{
-				Status: models.MTOShipmentStatusSubmitted,
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusSubmitted,
+				},
 			},
-			TransportationOffice: models.TransportationOffice{
-				Gbloc: "LKNQ",
-				ID:    officeUUID,
+			{
+				Model: models.TransportationOffice{
+					Gbloc: "LKNQ",
+					ID:    officeUUID,
+				},
+				Type: &factory.TransportationOffices.OriginDutyLocation,
 			},
-			Move:          paymentRequestUSMC.MoveTaskOrder,
-			ServiceMember: models.ServiceMember{Affiliation: &marines},
-		})
+			{
+				Model:    paymentRequestUSMC.MoveTaskOrder,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ServiceMember{Affiliation: &marines},
+			},
+		}, nil)
 
-		testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				Status:          models.PaymentRequestStatusPending,
-				MoveTaskOrderID: expectedMoveNotUSMC.ID,
-				MoveTaskOrder:   expectedMoveNotUSMC,
+		factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    expectedMoveNotUSMC,
+				LinkOnly: true,
 			},
-			ServiceMember: models.ServiceMember{Affiliation: &army},
-		})
+			{
+				Model: models.PaymentRequest{
+					Status: models.PaymentRequestStatusPending,
+				},
+			},
+			{
+				Model: models.ServiceMember{Affiliation: &army},
+			},
+		}, nil)
 
 		tioRole := factory.FetchOrBuildRoleByRoleType(suite.DB(), roles.RoleTypeTIO)
 		tooRole := factory.FetchOrBuildRoleByRoleType(suite.DB(), roles.RoleTypeTOO)
@@ -370,16 +429,22 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListNoGBLOCMatch
 	suite.Run("No results when GBLOC does not match", func() {
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
-		testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			TransportationOffice: models.TransportationOffice{
-				Gbloc: "EFGH",
+		factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationOffice{
+					Gbloc: "EFGH",
+				},
+				Type: &factory.TransportationOffices.OriginDutyLocation,
 			},
-		})
-		testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			TransportationOffice: models.TransportationOffice{
-				Gbloc: "ABCD",
+		}, nil)
+		factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationOffice{
+					Gbloc: "ABCD",
+				},
+				Type: &factory.TransportationOffices.OriginDutyLocation,
 			},
-		})
+		}, nil)
 
 		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID,
 			&services.FetchPaymentRequestListParams{Page: swag.Int64(1), PerPage: swag.Int64(2)})
@@ -410,20 +475,28 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListWithPaginati
 	expectedMove1 := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
 	expectedMove2 := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
 
-	_ = testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-		PaymentRequest: models.PaymentRequest{
-			Status:          models.PaymentRequestStatusPending,
-			MoveTaskOrderID: expectedMove1.ID,
-			MoveTaskOrder:   expectedMove1,
+	factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+		{
+			Model: models.PaymentRequest{
+				Status: models.PaymentRequestStatusPending,
+			},
 		},
-	})
-	_ = testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-		PaymentRequest: models.PaymentRequest{
-			Status:          models.PaymentRequestStatusPending,
-			MoveTaskOrderID: expectedMove2.ID,
-			MoveTaskOrder:   expectedMove2,
+		{
+			Model:    expectedMove1,
+			LinkOnly: true,
 		},
-	})
+	}, nil)
+	factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+		{
+			Model: models.PaymentRequest{
+				Status: models.PaymentRequestStatusPending,
+			},
+		},
+		{
+			Model:    expectedMove2,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	expectedPaymentRequests, count, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID, &services.FetchPaymentRequestListParams{Page: swag.Int64(1), PerPage: swag.Int64(1)})
 
@@ -510,21 +583,29 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 
 		// Fake this as a day and a half in the past so floating point age values can be tested
 		prevCreatedAt := time.Now().Add(time.Duration(time.Hour * -36))
-		paymentRequest1 := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				MoveTaskOrderID: expectedMove1.ID,
-				MoveTaskOrder:   expectedMove1,
-				Status:          models.PaymentRequestStatusPending,
-				CreatedAt:       prevCreatedAt,
+		paymentRequest1 := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					Status:    models.PaymentRequestStatusPending,
+					CreatedAt: prevCreatedAt,
+				},
 			},
-		})
-		paymentRequest2 := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				Status:          models.PaymentRequestStatusReviewed,
-				MoveTaskOrderID: expectedMove2.ID,
-				MoveTaskOrder:   expectedMove2,
+			{
+				Model:    expectedMove1,
+				LinkOnly: true,
 			},
-		})
+		}, nil)
+		paymentRequest2 := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					Status: models.PaymentRequestStatusReviewed,
+				},
+			},
+			{
+				Model:    expectedMove2,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
