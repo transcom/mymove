@@ -66,6 +66,40 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 		suite.Len(actualMTO.MTOShipments, 2)
 	})
 
+	suite.Run("Success with fetching move with a related service item", func() {
+		expectedMTO, _ := setupTestData()
+		searchParams := services.MoveTaskOrderFetcherParams{
+			IncludeHidden:   false,
+			MoveTaskOrderID: expectedMTO.ID,
+		}
+
+		address := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{})
+		sitEntryDate := time.Now()
+
+		testdatagen.MakeMTOServiceItemBasic(suite.DB(), testdatagen.Assertions{
+			MTOServiceItem: models.MTOServiceItem{
+				Status:                     models.MTOServiceItemStatusApproved,
+				SITDestinationFinalAddress: &address,
+				SITEntryDate:               &sitEntryDate,
+			},
+			Move: expectedMTO,
+			ReService: models.ReService{
+				Code: models.ReServiceCodeDDFSIT, // DDFSIT - Domestic destination 1st day SIT
+			},
+		})
+
+		actualMTO, err := mtoFetcher.FetchMoveTaskOrder(suite.AppContextForTest(), &searchParams)
+		suite.NoError(err)
+		// Should get two shipments back since we didn't set searchParams to exclude external ones.
+		if suite.Len(actualMTO.MTOServiceItems, 1) {
+			serviceItem := actualMTO.MTOServiceItems[0]
+			suite.Equal(models.ReServiceCodeDDFSIT, serviceItem.ReService.Code)
+			suite.Equal(address.StreetAddress1, serviceItem.SITDestinationFinalAddress.StreetAddress1)
+			suite.Equal(address.State, serviceItem.SITDestinationFinalAddress.State)
+			suite.Equal(address.City, serviceItem.SITDestinationFinalAddress.City)
+		}
+	})
+
 	suite.Run("Success with Prime-available move by Locator, no deleted or external shipments", func() {
 		expectedMTO, primeShipment := setupTestData()
 		searchParams := services.MoveTaskOrderFetcherParams{
