@@ -27,7 +27,7 @@ const ResidentialAddressForm = ({ formFieldsName, initialValues, onSubmit, onBac
       {({ isValid, isSubmitting, handleSubmit }) => {
         return (
           <Form className={formStyles.form}>
-            <h1>Current mailing address</h1>
+            <h1>Current pickup address</h1>
 
             <SectionWrapper className={formStyles.formSection}>
               <AddressFields name={formFieldsName} validators={validators} />

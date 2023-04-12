@@ -58,7 +58,7 @@ export class WaitForPage {
    * @returns {Promise<void>}
    */
   async onboardingCurrentAddress() {
-    await base.expect(this.page.getByRole('heading', { name: 'Current mailing address' })).toBeVisible();
+    await base.expect(this.page.getByRole('heading', { name: 'Current pickup address' })).toBeVisible();
   }
 
   /**
