@@ -131,11 +131,15 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		subtestData := suite.createSubtestData(nil)
 		creator := subtestData.shipmentCreator
 
-		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move:        subtestData.move,
-			MTOShipment: models.MTOShipment{DestinationType: &destinationType},
-			Stub:        true,
-		})
+		mtoShipment := factory.BuildMTOShipment(nil, []factory.Customization{
+			{
+				Model:    subtestData.move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{DestinationType: &destinationType},
+			},
+		}, nil)
 
 		mtoShipmentClear := clearShipmentIDFields(&mtoShipment)
 		mtoShipmentClear.MTOServiceItems = models.MTOServiceItems{}
