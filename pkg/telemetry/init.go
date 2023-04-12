@@ -173,10 +173,12 @@ func Init(logger *zap.Logger, config *Config) (shutdown func()) {
 	otel.SetTracerProvider(tp)
 	global.SetMeterProvider(mp)
 	if config.UseXrayID {
-		propagation.NewCompositeTextMapPropagator(
-			xray.Propagator{},
-			propagation.Baggage{},
-			propagation.TraceContext{},
+		otel.SetTextMapPropagator(
+			propagation.NewCompositeTextMapPropagator(
+				xray.Propagator{},
+				propagation.Baggage{},
+				propagation.TraceContext{},
+			),
 		)
 	} else {
 		otel.SetTextMapPropagator(
