@@ -90,7 +90,6 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 
 		actualMTO, err := mtoFetcher.FetchMoveTaskOrder(suite.AppContextForTest(), &searchParams)
 		suite.NoError(err)
-		// Should get two shipments back since we didn't set searchParams to exclude external ones.
 		if suite.Len(actualMTO.MTOServiceItems, 1) {
 			serviceItem := actualMTO.MTOServiceItems[0]
 			suite.Equal(models.ReServiceCodeDDFSIT, serviceItem.ReService.Code)
