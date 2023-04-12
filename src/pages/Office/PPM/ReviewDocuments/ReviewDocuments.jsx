@@ -133,6 +133,12 @@ export const ReviewDocuments = ({ match }) => {
     }
   };
 
+  const getAllUploads = () => {
+    return documentSets.reduce((acc, documentSet) => {
+      return acc.concat(documentSet.uploads);
+    }, []);
+  };
+
   const onError = () => {
     setServerError('There was an error submitting the form. Please try again later.');
   };
@@ -164,13 +170,15 @@ export const ReviewDocuments = ({ match }) => {
   return (
     <div data-testid="ReviewDocuments" className={styles.ReviewDocuments}>
       <div className={styles.embed}>
-        <DocumentViewer files={currentDocumentSet.uploads} allowDownload />
+        <DocumentViewer files={showOverview ? getAllUploads() : currentDocumentSet.uploads} allowDownload />
       </div>
       <DocumentViewerSidebar
         title="Review documents"
         onClose={onClose}
         className={styles.sidebar}
-        supertitle={`${documentSetIndex + 1} of ${documentSets.length} Document Sets`}
+        supertitle={
+          showOverview ? 'All Document Sets' : `${documentSetIndex + 1} of ${documentSets.length} Document Sets`
+        }
         defaultH3
         hyperlink={reviewShipmentWeightsLink}
       >
@@ -189,6 +197,7 @@ export const ReviewDocuments = ({ match }) => {
               <ReviewDocumentsSidePanel
                 ppmShipment={mtoShipment.ppmShipment}
                 weightTickets={weightTickets}
+                proGearTickets={proGearWeightTickets}
                 expenseTickets={movingExpenses}
                 onError={onError}
                 onSuccess={onConfirmSuccess}
