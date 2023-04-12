@@ -44,37 +44,29 @@ func buildMTOShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 	}
 
 	if buildType == mtoShipmentBuild {
-		shipmentStatus := models.MTOShipmentStatusDraft
-		var storageFacilityID *uuid.UUID
-		var storageFacility models.StorageFacility
+		newMTOShipment.Status = models.MTOShipmentStatusDraft
 
 		if cMtoShipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom || cMtoShipment.ShipmentType == models.MTOShipmentTypeHHGIntoNTSDom {
-			storageFacility = BuildStorageFacility(db, customs, traits)
-			storageFacilityID = &storageFacility.ID
+			storageFacility := BuildStorageFacility(db, customs, traits)
+			// only set storage facility pointers if building a
+			// storage facility
+			newMTOShipment.StorageFacility = &storageFacility
+			newMTOShipment.StorageFacilityID = &storageFacility.ID
 		}
 
 		actualWeight := unit.Pound(980)
+		newMTOShipment.PrimeActualWeight = &actualWeight
+		newMTOShipment.CustomerRemarks = models.StringPointer("Please treat gently")
 
 		shipmentHasPickupDetails := cMtoShipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTSDom && cMtoShipment.ShipmentType != models.MTOShipmentTypePPM
 		shipmentHasDeliveryDetails := cMtoShipment.ShipmentType != models.MTOShipmentTypeHHGIntoNTSDom && cMtoShipment.ShipmentType != models.MTOShipmentTypePPM
 
-		newMTOShipment = models.MTOShipment{
-			MoveTaskOrder:     move,
-			MoveTaskOrderID:   move.ID,
-			CustomerRemarks:   models.StringPointer("Please treat gently"),
-			ShipmentType:      shipmentType,
-			Status:            shipmentStatus,
-			PrimeActualWeight: &actualWeight,
-			StorageFacilityID: storageFacilityID,
-			StorageFacility:   &storageFacility,
-		}
-
 		if shipmentHasPickupDetails {
 			newMTOShipment.RequestedPickupDate = models.TimePointer(time.Date(GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC))
 			newMTOShipment.ScheduledPickupDate = models.TimePointer(time.Date(GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC))
-			if cMtoShipment.Status != "" && cMtoShipment.Status != models.MTOShipmentStatusDraft {
-				newMTOShipment.ActualPickupDate = models.TimePointer(time.Date(GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC))
-			}
+			// if cMtoShipment.Status != "" && cMtoShipment.Status != models.MTOShipmentStatusDraft {
+			newMTOShipment.ActualPickupDate = models.TimePointer(time.Date(GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC))
+			// }
 			// Find/create the Pickup Address
 			tempPickupAddressCustoms := customs
 			result := findValidCustomization(customs, Addresses.PickupAddress)
@@ -83,6 +75,10 @@ func buildMTOShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 			}
 
 			pickupAddress := BuildAddress(db, tempPickupAddressCustoms, traits)
+			if db == nil {
+				// fake an id for stubbed address, needed by the MTOShipmentCreator
+				pickupAddress.ID = uuid.Must(uuid.NewV4())
+			}
 			newMTOShipment.PickupAddress = &pickupAddress
 			newMTOShipment.PickupAddressID = &pickupAddress.ID
 
@@ -128,6 +124,10 @@ func buildMTOShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 
 			traits = append(traits, GetTraitAddress2)
 			deliveryAddress := BuildAddress(db, tempDeliveryAddressCustoms, traits)
+			if db == nil {
+				// fake an id for stubbed address, needed by the MTOShipmentCreator
+				deliveryAddress.ID = uuid.Must(uuid.NewV4())
+			}
 			newMTOShipment.DestinationAddress = &deliveryAddress
 			newMTOShipment.DestinationAddressID = &deliveryAddress.ID
 
