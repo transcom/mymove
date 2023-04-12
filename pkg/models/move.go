@@ -289,7 +289,7 @@ func createNewMove(db *pop.Connection,
 	}
 
 	var contractor Contractor
-	err := db.Where("contract_number = ?", "HTC111-11-1-1111").First(&contractor)
+	err := db.Where("type='Prime'").First(&contractor)
 	if err != nil {
 		return nil, nil, fmt.Errorf("Could not find contractor: %w", err)
 	}
