@@ -65,11 +65,13 @@ describe('ReviewDocumentsSidePanel', () => {
     ];
 
     render(
-      <ReviewDocumentsSidePanel
-        weightTickets={mockWeightTickets}
-        proGearTickets={progearWeightTickets}
-        expenseTickets={movingExpenses}
-      />,
+      <MockProviders>
+        <ReviewDocumentsSidePanel
+          weightTickets={mockWeightTickets}
+          proGearTickets={progearWeightTickets}
+          expenseTickets={movingExpenses}
+        />
+      </MockProviders>,
     );
 
     const listItems = await screen.getAllByRole('listitem');
