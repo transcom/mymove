@@ -6,7 +6,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -20,7 +19,7 @@ func (suite *ServiceParamValueLookupsSuite) TestSITSchedule() {
 	var destDomesticServiceArea models.ReDomesticServiceArea
 
 	setupTestData := func() {
-
+		testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
 		originAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
@@ -132,7 +131,7 @@ func (suite *ServiceParamValueLookupsSuite) TestSITSchedule() {
 		valueStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), originKey)
 		suite.Equal("", valueStr)
 		suite.Error(err)
-		expected := fmt.Sprintf(" with error unable to find domestic service area for 000 under contract code %s", ghcrateengine.DefaultContractCode)
+		expected := fmt.Sprintf(" with error unable to find domestic service area for 000 under contract code %s", testdatagen.DefaultContractCode)
 		suite.Contains(err.Error(), expected)
 	})
 
@@ -162,7 +161,7 @@ func (suite *ServiceParamValueLookupsSuite) TestSITSchedule() {
 		valueStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), destKey)
 		suite.Equal("", valueStr)
 		suite.Error(err)
-		expected := fmt.Sprintf(" with error unable to find domestic service area for 001 under contract code %s", ghcrateengine.DefaultContractCode)
+		expected := fmt.Sprintf(" with error unable to find domestic service area for 001 under contract code %s", testdatagen.DefaultContractCode)
 		suite.Contains(err.Error(), expected)
 	})
 }

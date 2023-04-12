@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/gofrs/uuid"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
@@ -47,6 +48,7 @@ func fetchDomOtherPrice(appCtx appcontext.AppContext, contractCode string, servi
 
 func fetchDomServiceAreaPrice(appCtx appcontext.AppContext, contractCode string, serviceCode models.ReServiceCode, serviceArea string, isPeakPeriod bool) (models.ReDomesticServiceAreaPrice, error) {
 	var domServiceAreaPrice models.ReDomesticServiceAreaPrice
+	appCtx.Logger().Debug("fetchDomServiceAreaPrice", zap.String("contract code", contractCode))
 	err := appCtx.DB().Q().
 		Join("re_domestic_service_areas sa", "domestic_service_area_id = sa.id").
 		Join("re_services", "service_id = re_services.id").
@@ -58,6 +60,7 @@ func fetchDomServiceAreaPrice(appCtx appcontext.AppContext, contractCode string,
 		First(&domServiceAreaPrice)
 
 	if err != nil {
+		appCtx.Logger().Debug("fetchDomServiceAreaPrice errror", zap.Error(err))
 		return models.ReDomesticServiceAreaPrice{}, err
 	}
 

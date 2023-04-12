@@ -251,6 +251,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 	})
 
 	suite.Run("Payment request is created successfully (using IncomingKey)", func() {
+		testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
 		paymentRequest := models.PaymentRequest{
 			MoveTaskOrderID: moveTaskOrder.ID,
 			IsFinal:         false,
@@ -315,6 +316,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 	})
 
 	suite.Run("Payment request is created successfully (using ServiceItemParamKeyID)", func() {
+		testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
 		paymentRequest := models.PaymentRequest{
 			MoveTaskOrderID: moveTaskOrder.ID,
 			IsFinal:         false,
@@ -379,6 +381,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 	})
 
 	suite.Run("Payment request is created successfully (using no IncomingKey data or ServiceItemParamKeyID data)", func() {
+		testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
 		paymentRequest := models.PaymentRequest{
 			MoveTaskOrderID: moveTaskOrder.ID,
 			IsFinal:         false,
@@ -426,6 +429,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 	})
 
 	suite.Run("Payment request fails when MTOShipment uses external vendor", func() {
+		testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
 		paymentRequest := models.PaymentRequest{
 			MoveTaskOrderID: moveTaskOrder.ID,
 			IsFinal:         false,
@@ -458,6 +462,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 	})
 
 	suite.Run("Payment request fails when pricing", func() {
+		testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
 		paymentRequest := models.PaymentRequest{
 			MoveTaskOrderID: moveTaskOrder.ID,
 			IsFinal:         false,
@@ -840,6 +845,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 	})
 
 	suite.Run("Payment request numbers increment by 1", func() {
+		testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
 		// Determine the max sequence number we already have for this MTO ID
 		var max int
 		err := suite.DB().RawQuery("SELECT COALESCE(MAX(sequence_number),0) FROM payment_requests WHERE move_id = $1", moveTaskOrder.ID).First(&max)
@@ -926,6 +932,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		suite.MustSave(&moveTaskOrder)
 	})
 	suite.Run("payment request created after final request fails", func() {
+		testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
 		paymentRequest1 := models.PaymentRequest{
 			MoveTaskOrderID: moveTaskOrder.ID,
 			IsFinal:         true,
@@ -1001,6 +1008,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 	})
 
 	suite.Run("payment request can be created after a final request that was rejected", func() {
+		testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
 		paymentRequest1 := models.PaymentRequest{
 			MoveTaskOrderID: moveTaskOrder.ID,
 			IsFinal:         true,
@@ -1108,6 +1116,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 	})
 
 	suite.Run("CreatePaymentRequest should not return params from rate engine", func() {
+		testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
 		paymentRequest := models.PaymentRequest{
 			MoveTaskOrderID: moveTaskOrder.ID,
 			IsFinal:         false,
@@ -1248,6 +1257,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequestCheckOnNTSRelea
 
 	// Create an initial payment request.
 	creator := NewPaymentRequestCreator(mockPlanner, ghcrateengine.NewServiceItemPricer())
+	// TODO Actually uses lookup
 	paymentRequest, err := creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &paymentRequestArg)
 	suite.FatalNoError(err)
 

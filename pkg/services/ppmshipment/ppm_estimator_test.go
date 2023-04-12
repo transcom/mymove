@@ -472,6 +472,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 
 	suite.Run("Estimated Incentive", func() {
 		suite.Run("Estimated Incentive - Success", func() {
+			// TODO this test actually uses the contract code lookup, whoa
 			oldPPMShipment := testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{})
 
 			setupPricerData()
@@ -490,6 +491,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
 				"90210", "30813").Return(2294, nil)
 
+			// Uses lookup
 			ppmEstimate, _, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), oldPPMShipment, &newPPM)
 			suite.NilOrNoVerrs(err)
 

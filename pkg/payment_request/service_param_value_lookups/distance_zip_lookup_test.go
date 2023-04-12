@@ -17,6 +17,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 	key := models.ServiceItemParamNameDistanceZip
 
 	suite.Run("Calculate transit zip distance", func() {
+		testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
 		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 			MTOShipment: testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 				PickupAddress: factory.BuildAddress(suite.DB(), []factory.Customization{
@@ -146,6 +147,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 	})
 
 	suite.Run("Sucessfully updates mtoShipment distance when the pickup and destination zips are the same", func() {
+		testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
 		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 			MTOShipment: testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 				PickupAddress: factory.BuildAddress(suite.DB(), []factory.Customization{
@@ -188,6 +190,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 	})
 
 	suite.Run("Calculate zip distance with param cache", func() {
+		testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
 		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 			MTOShipment: testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 				PickupAddress: factory.BuildAddress(suite.DB(), []factory.Customization{
@@ -271,6 +274,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 	})
 
 	suite.Run("returns error if the pickup zipcode isn't at least 5 digits", func() {
+		testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
 		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 			MTOShipment: testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 				PickupAddress: factory.BuildAddress(suite.DB(), []factory.Customization{
@@ -304,6 +308,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 	})
 
 	suite.Run("returns error if the destination zipcode isn't at least 5 digits", func() {
+		testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
 		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 			MTOShipment: testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 				PickupAddress: factory.BuildAddress(suite.DB(), []factory.Customization{

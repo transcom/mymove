@@ -34,6 +34,7 @@ type paramsCacheSubtestData struct {
 }
 
 func (suite *ServiceParamValueLookupsSuite) makeSubtestData() (subtestData *paramsCacheSubtestData) {
+	testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
 	subtestData = &paramsCacheSubtestData{}
 	subtestData.move = testdatagen.MakeDefaultMove(suite.DB())
 

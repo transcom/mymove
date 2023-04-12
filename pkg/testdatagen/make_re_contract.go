@@ -2,6 +2,7 @@ package testdatagen
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 
 	"github.com/gobuffalo/pop/v6"
@@ -22,6 +23,7 @@ func MakeReContract(db *pop.Connection, assertions Assertions) models.ReContract
 
 	mustCreate(db, &reContract, assertions.Stub)
 
+	fmt.Println("🎉🎉🎉🎉🎉🎉🎉🎉 We made a contract!!!", reContract.Code)
 	return reContract
 }
 

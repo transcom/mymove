@@ -26,6 +26,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITDestLookup() {
 	var mtoServiceItemDiffZip3 models.MTOServiceItem
 
 	setupTestData := func() {
+		testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
 
 		reService := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDDDSIT)
 

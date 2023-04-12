@@ -1,6 +1,7 @@
 package ppmshipment
 
 import (
+	"database/sql"
 	"fmt"
 	"time"
 
@@ -242,6 +243,16 @@ func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment *m
 		mtoShipment = mapPPMShipmentEstimatedFields(*ppmShipment)
 	}
 
+	var contract models.ReContract
+	err = appCtx.DB().First(&contract)
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			return nil, apperror.NewNotFoundError(ppmShipment.ID, "looking for Contracts")
+		default:
+			return nil, apperror.NewQueryError("Contract", err, "")
+		}
+	}
 	totalPrice := unit.Cents(0)
 	for _, serviceItem := range serviceItemsToPrice {
 		pricer, err := ghcrateengine.PricerForServiceItem(serviceItem.ReService.Code)
@@ -256,7 +267,7 @@ func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment *m
 		serviceItemLookups := serviceparamvaluelookups.InitializeLookups(mtoShipment, serviceItem)
 
 		// This is the struct that gets passed to every param lookup() method that was initialized above
-		keyData := serviceparamvaluelookups.NewServiceItemParamKeyData(f.planner, serviceItemLookups, serviceItem, mtoShipment)
+		keyData := serviceparamvaluelookups.NewServiceItemParamKeyData(f.planner, serviceItemLookups, serviceItem, mtoShipment, contract.Code)
 
 		// The distance value gets saved to the mto shipment model to reduce repeated api calls.
 		var shipmentWithDistance models.MTOShipment
@@ -362,16 +373,31 @@ func priceFirstDaySIT(appCtx appcontext.AppContext, pricer services.ParamsPricer
 	serviceAreaLookup := serviceparamvaluelookups.ServiceAreaLookup{
 		Address: models.Address{PostalCode: serviceAreaPostalCode},
 	}
-	serviceArea, err := serviceAreaLookup.ParamValue(appCtx, ghcrateengine.DefaultContractCode)
+	appCtx.Logger().Debug("priceFirstDaySIT 0")
+	var contract models.ReContract
+	err := appCtx.DB().First(&contract)
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			// TODO
+			return nil, apperror.NewNotFoundError(ppmShipment.ID, "looking for Contracts")
+		default:
+			return nil, apperror.NewQueryError("Contract", err, "")
+		}
+	}
+	appCtx.Logger().Debug("priceFirstDaySIT 0.5")
+	serviceArea, err := serviceAreaLookup.ParamValue(appCtx, contract.Code)
 	if err != nil {
 		return nil, err
 	}
 
-	price, pricingParams, err := firstDayPricer.Price(appCtx, ghcrateengine.DefaultContractCode, ppmShipment.ExpectedDepartureDate, *ppmShipment.SITEstimatedWeight, serviceArea, true)
+	appCtx.Logger().Debug("priceFirstDaySIT 1")
+	price, pricingParams, err := firstDayPricer.Price(appCtx, contract.Code, ppmShipment.ExpectedDepartureDate, *ppmShipment.SITEstimatedWeight, serviceArea, true)
 	if err != nil {
 		return nil, err
 	}
 
+	appCtx.Logger().Debug("priceFirstDaySIT 2")
 	appCtx.Logger().Debug(fmt.Sprintf("Pricing params for first day SIT %+v", pricingParams), zap.String("shipmentId", ppmShipment.ShipmentID.String()))
 
 	return &price, nil
@@ -388,6 +414,17 @@ func additionalDaysInSIT(sitEntryDate time.Time, sitDepartureDate time.Time) int
 }
 
 func priceAdditionalDaySIT(appCtx appcontext.AppContext, pricer services.ParamsPricer, serviceItem models.MTOServiceItem, ppmShipment *models.PPMShipment, additionalDaysInSIT int) (*unit.Cents, error) {
+	var contract models.ReContract
+	err := appCtx.DB().First(&contract)
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			// TODO
+			return nil, apperror.NewNotFoundError(ppmShipment.ID, "looking for Contracts")
+		default:
+			return nil, apperror.NewQueryError("Contract", err, "")
+		}
+	}
 	additionalDaysPricer, ok := pricer.(services.DomesticAdditionalDaysSITPricer)
 	if !ok {
 		return nil, errors.New("ppm estimate pricer for SIT service item does not implement the additional days pricer interface")
@@ -401,12 +438,12 @@ func priceAdditionalDaySIT(appCtx appcontext.AppContext, pricer services.ParamsP
 		Address: models.Address{PostalCode: serviceAreaPostalCode},
 	}
 
-	serviceArea, err := serviceAreaLookup.ParamValue(appCtx, ghcrateengine.DefaultContractCode)
+	serviceArea, err := serviceAreaLookup.ParamValue(appCtx, contract.Code)
 	if err != nil {
 		return nil, err
 	}
 
-	price, pricingParams, err := additionalDaysPricer.Price(appCtx, ghcrateengine.DefaultContractCode, ppmShipment.ExpectedDepartureDate, *ppmShipment.SITEstimatedWeight, serviceArea, additionalDaysInSIT, true)
+	price, pricingParams, err := additionalDaysPricer.Price(appCtx, contract.Code, ppmShipment.ExpectedDepartureDate, *ppmShipment.SITEstimatedWeight, serviceArea, additionalDaysInSIT, true)
 	if err != nil {
 		return nil, err
 	}

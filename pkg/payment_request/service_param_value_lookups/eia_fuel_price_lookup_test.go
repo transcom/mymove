@@ -16,6 +16,7 @@ func (suite *ServiceParamValueLookupsSuite) TestEIAFuelPriceLookup() {
 	actualPickupDate := time.Date(2020, time.July, 15, 0, 0, 0, 0, time.UTC)
 
 	setupTestData := func() {
+		testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
 		var firstGHCDieselFuelPrice models.GHCDieselFuelPrice
 		var secondGHCDieselFuelPrice models.GHCDieselFuelPrice
 		var thirdGHCDieselFuelPrice models.GHCDieselFuelPrice

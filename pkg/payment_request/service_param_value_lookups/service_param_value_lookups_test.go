@@ -22,7 +22,6 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/route/mocks"
-	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testingsuite"
 	"github.com/transcom/mymove/pkg/unit"
@@ -147,6 +146,7 @@ func (suite *ServiceParamValueLookupsSuite) setupTestMTOServiceItemWithAdjustedW
 }
 
 func (suite *ServiceParamValueLookupsSuite) setupTestMTOServiceItemWithShuttleWeight(itemEstimatedWeight unit.Pound, itemOriginalWeight unit.Pound, code models.ReServiceCode, shipmentType models.MTOShipmentType) (models.MTOServiceItem, models.PaymentRequest, *ServiceItemParamKeyData) {
+	testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
 	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
 	mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(),
 		testdatagen.Assertions{
@@ -180,14 +180,16 @@ func (suite *ServiceParamValueLookupsSuite) setupTestMTOServiceItemWithShuttleWe
 
 func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 	suite.Run("contract passed in", func() {
+		testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
 		mtoServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
 		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
 
 		suite.FatalNoError(err)
-		suite.Equal(ghcrateengine.DefaultContractCode, paramLookup.ContractCode)
+		suite.Equal(testdatagen.DefaultContractCode, paramLookup.ContractCode)
 	})
 
 	suite.Run("MTOServiceItem passed in", func() {
+		testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
 		mtoServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
 
 		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
@@ -206,6 +208,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 
 	for _, code := range serviceCodesWithoutShipment {
 		suite.Run(fmt.Sprintf("MTOShipment not looked up for %s", code), func() {
+			testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
 			mtoServiceItem := testdatagen.MakeMTOServiceItemBasic(suite.DB(), testdatagen.Assertions{
 				ReService: models.ReService{
 					Code: code,
@@ -236,6 +239,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 	}
 
 	suite.Run("MTOShipment is looked up for other service items", func() {
+		testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
 		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 			ReService: models.ReService{
 				Code: models.ReServiceCodeDLH,
@@ -255,6 +259,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 	})
 
 	suite.Run("DestinationAddress is looked up for other service items", func() {
+		testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
 		testData := []models.MTOServiceItem{
 			testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 				ReService: models.ReService{
@@ -284,6 +289,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 	})
 
 	suite.Run("DestinationAddress is not required for service items like domestic pack", func() {
+		testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
 		servicesToTest := []models.ReServiceCode{models.ReServiceCodeDPK, models.ReServiceCodeDNPK}
 		for _, service := range servicesToTest {
 			mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
@@ -318,6 +324,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 			}),
 		}
 
+		testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
 		for _, mtoServiceItem := range testData {
 			paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
 			suite.FatalNoError(err)
@@ -332,6 +339,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 	})
 
 	suite.Run("PickupAddress is not required for service items like domestic unpack", func() {
+		testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
 		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 			ReService: models.ReService{
 				Code: models.ReServiceCodeDUPK,
@@ -348,6 +356,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 	})
 
 	suite.Run("Correct addresses are used for NTS and NTS-release shipments", func() {
+		testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
 		// Make a move and service for reuse.
 		move := testdatagen.MakeDefaultMove(suite.DB())
 		reService := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDLH)
@@ -420,6 +429,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 	})
 
 	suite.Run("SITDestinationAddress is looked up for destination sit", func() {
+		testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
 		sitFinalDestAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress3})
 		testData := []models.MTOServiceItem{
 			testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
@@ -468,6 +478,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 	})
 
 	suite.Run("SITDestinationAddress is not loaded non sit", func() {
+		testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
 		testData := []models.MTOServiceItem{
 			testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 				ReService: models.ReService{
@@ -497,6 +508,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 	})
 
 	suite.Run("Non-basic MTOServiceItem is missing a MTOShipmentID", func() {
+		testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
 		badMTOServiceItem := models.MTOServiceItem{ID: uuid.Must(uuid.NewV4())}
 		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, badMTOServiceItem, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
 
@@ -508,6 +520,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 	})
 
 	suite.Run("Non-basic MTOServiceItem has a MTOShipmentID that is not found", func() {
+		testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
 		badMTOServiceItem := models.MTOServiceItem{ID: uuid.Must(uuid.NewV4()), MTOShipmentID: models.UUIDPointer(uuid.Must(uuid.NewV4()))}
 		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, badMTOServiceItem, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
 

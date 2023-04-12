@@ -14,6 +14,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDimensionWidthLookup() {
 	key := models.ServiceItemParamNameDimensionWidth
 
 	suite.Run("successful DimensionWidth lookup", func() {
+		testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
 		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 			ReService: models.ReService{
 				Code: models.ReServiceCodeDCRT,
@@ -57,6 +58,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDimensionWidthLookup() {
 	})
 
 	suite.Run("missing dimension should error", func() {
+		testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
 		mtoServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
 		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
 		suite.FatalNoError(err)

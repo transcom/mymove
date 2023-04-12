@@ -13,6 +13,7 @@ func (suite *ServiceParamValueLookupsSuite) TestCubicFeetCratingLookup() {
 	key := models.ServiceItemParamNameCubicFeetCrating
 
 	suite.Run("successful CubicFeetCrating lookup", func() {
+		testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
 		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 			ReService: models.ReService{
 				Code: models.ReServiceCodeDCRT,
@@ -54,6 +55,7 @@ func (suite *ServiceParamValueLookupsSuite) TestCubicFeetCratingLookup() {
 	})
 
 	suite.Run("missing dimension should error", func() {
+		testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
 		mtoServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
 		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
 		suite.FatalNoError(err)

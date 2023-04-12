@@ -22,6 +22,7 @@ func (suite *ServiceParamValueLookupsSuite) TestMTOAvailableToPrimeLookup() {
 	var paramLookup *ServiceItemParamKeyData
 
 	setupTestData := func() {
+		testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
 		mtoServiceItem = testdatagen.MakeMTOServiceItem(suite.DB(),
 			testdatagen.Assertions{
 				Move: models.Move{

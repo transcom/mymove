@@ -5,7 +5,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -14,13 +13,14 @@ func (suite *ServiceParamValueLookupsSuite) TestContractCodeLookup() {
 
 	suite.Run("golden path", func() {
 		mtoServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
+		testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
 
 		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
 		suite.FatalNoError(err)
 
 		valueStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
 		suite.FatalNoError(err)
-		suite.Equal(ghcrateengine.DefaultContractCode, valueStr)
+		suite.Equal(testdatagen.DefaultContractCode, valueStr)
 	})
 
 	suite.Run("golden path with param cache", func() {
@@ -32,6 +32,7 @@ func (suite *ServiceParamValueLookupsSuite) TestContractCodeLookup() {
 		})
 
 		// ContractCode
+		testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
 		serviceItemParamKey1 := factory.FetchOrBuildServiceItemParamKey(suite.DB(), []factory.Customization{
 			{
 				Model: models.ServiceItemParamKey{
@@ -57,10 +58,10 @@ func (suite *ServiceParamValueLookupsSuite) TestContractCodeLookup() {
 
 		valueStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), serviceItemParamKey1.Key)
 		suite.FatalNoError(err)
-		suite.Equal(ghcrateengine.DefaultContractCode, valueStr)
+		suite.Equal(testdatagen.DefaultContractCode, valueStr)
 
 		// Verify value from paramCache
 		paramCacheValue := paramCache.ParamValue(*mtoServiceItem1.MTOShipmentID, key)
-		suite.Equal(ghcrateengine.DefaultContractCode, *paramCacheValue)
+		suite.Equal(testdatagen.DefaultContractCode, *paramCacheValue)
 	})
 }

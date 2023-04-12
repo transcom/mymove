@@ -10,6 +10,7 @@ func (suite *ServiceParamValueLookupsSuite) TestZipAddressLookup() {
 	destKey := models.ServiceItemParamNameZipDestAddress
 
 	setupTestData := func() (models.PaymentRequest, models.MTOServiceItem) {
+		testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
 		mtoServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
 
 		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),

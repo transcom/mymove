@@ -10,7 +10,6 @@ import (
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/route"
-	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 )
 
 // ServiceItemParamKeyData contains service item parameter keys
@@ -26,7 +25,9 @@ type ServiceItemParamKeyData struct {
 	paramCache       *ServiceParamsCache
 }
 
-func NewServiceItemParamKeyData(planner route.Planner, lookups map[models.ServiceItemParamName]ServiceItemParamKeyLookup, mtoServiceItem models.MTOServiceItem, mtoShipment models.MTOShipment) ServiceItemParamKeyData {
+// TODO seems like this is only used in ppm estimator, which is surprising
+func NewServiceItemParamKeyData(planner route.Planner, lookups map[models.ServiceItemParamName]ServiceItemParamKeyLookup, mtoServiceItem models.MTOServiceItem, mtoShipment models.MTOShipment, contractCode string) ServiceItemParamKeyData {
+	fmt.Println("NewServiceItemParamKeyData")
 	return ServiceItemParamKeyData{
 		planner:          planner,
 		lookups:          lookups,
@@ -34,7 +35,7 @@ func NewServiceItemParamKeyData(planner route.Planner, lookups map[models.Servic
 		MTOServiceItemID: mtoServiceItem.ID,
 		mtoShipmentID:    &mtoShipment.ID,
 		MoveTaskOrderID:  mtoShipment.MoveTaskOrderID,
-		ContractCode:     ghcrateengine.DefaultContractCode,
+		ContractCode:     contractCode,
 	}
 }
 
@@ -91,6 +92,17 @@ func ServiceParamLookupInitialize(
 	paramCache *ServiceParamsCache,
 ) (*ServiceItemParamKeyData, error) {
 
+	var contract models.ReContract
+	err := appCtx.DB().First(&contract)
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			return nil, apperror.NewNotFoundError(moveTaskOrderID, "looking for Contracts")
+		default:
+			return nil, apperror.NewQueryError("Contract", err, "")
+		}
+	}
+	// TODO can we use the init function here
 	s := ServiceItemParamKeyData{
 		planner:          planner,
 		lookups:          make(map[models.ServiceItemParamName]ServiceItemParamKeyLookup),
@@ -110,7 +122,7 @@ func ServiceParamLookupInitialize(
 			then it would be ideal for the mtoServiceItem records to contain a contract code that can then be passed
 			to this query. Otherwise the contract_code field could be added to the MTO.
 		*/
-		ContractCode: ghcrateengine.DefaultContractCode,
+		ContractCode: contract.Code,
 	}
 
 	//

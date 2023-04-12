@@ -17,6 +17,7 @@ func (suite *ServiceParamValueLookupsSuite) TestZipSITOriginHHGOriginalAddressLo
 	var mtoServiceItemNoSITOriginZips models.MTOServiceItem
 
 	setupTestData := func() {
+		testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
 		reService := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
 
 		originAddress := factory.BuildAddress(suite.DB(),

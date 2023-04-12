@@ -7,7 +7,7 @@ import (
 )
 
 // DefaultContractCode is the default contract code to assume for now
-const DefaultContractCode = "TRUSS_TEST"
+const DefaultContractCode = "TRUSS_WRONG"
 
 // minDomesticWeight is the minimum weight used in domestic calculations (weights below this are upgraded to the min)
 const minDomesticWeight = unit.Pound(500)

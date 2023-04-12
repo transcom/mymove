@@ -18,6 +18,7 @@ func (suite *ServiceParamValueLookupsSuite) TestReferenceDateLookup() {
 	actualPickupDate := time.Date(testdatagen.TestYear, time.May, 14, 0, 0, 0, 0, time.UTC)
 
 	setupTestData := func(shipmentType models.MTOShipmentType) models.MTOServiceItem {
+		testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
 		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(),
 			testdatagen.Assertions{
 				MTOShipment: models.MTOShipment{

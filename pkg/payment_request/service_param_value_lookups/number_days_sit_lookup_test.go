@@ -64,7 +64,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 	destinationSITDepartureDateThree := time.Date(2020, time.November, 30, 0, 0, 0, 0, time.UTC)
 
 	setupTestData := func() {
-
+		testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
 		reServiceDOFSIT = factory.BuildReService(suite.DB(), []factory.Customization{
 			{
 				Model: models.ReService{
