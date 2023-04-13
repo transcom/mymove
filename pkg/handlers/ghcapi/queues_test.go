@@ -400,7 +400,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 	factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 		{
 			Model: models.Move{
-				Status:           models.MoveStatusAPPROVED,
+				Status: models.MoveStatusAPPROVED,
 			},
 		},
 		{
@@ -414,7 +414,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 	factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 		{
 			Model: models.Move{
-				Status:           models.MoveStatusDRAFT,
+				Status: models.MoveStatusDRAFT,
 			},
 		},
 		{
@@ -424,7 +424,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 	factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 		{
 			Model: models.Move{
-				Status:           models.MoveStatusCANCELED,
+				Status: models.MoveStatusCANCELED,
 			},
 		},
 		{
