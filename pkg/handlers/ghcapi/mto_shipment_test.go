@@ -55,34 +55,53 @@ func (suite *HandlerSuite) makeListMTOShipmentsSubtestData() (subtestData *listM
 	storageFacility := factory.BuildStorageFacility(suite.DB(), nil, nil)
 
 	sitAllowance := int(90)
-	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: mto,
-		MTOShipment: models.MTOShipment{
-			Status:           models.MTOShipmentStatusApproved,
-			CounselorRemarks: handlers.FmtString("counselor remark"),
-			SITDaysAllowance: &sitAllowance,
-			StorageFacility:  &storageFacility,
+	mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    mto,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				Status:           models.MTOShipmentStatusApproved,
+				ShipmentType:     models.MTOShipmentTypeHHGIntoNTSDom,
+				CounselorRemarks: handlers.FmtString("counselor remark"),
+				SITDaysAllowance: &sitAllowance,
+			},
+		},
+		{
+			Model:    storageFacility,
+			LinkOnly: true,
+		},
+	}, nil)
 
-	secondShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: mto,
-		MTOShipment: models.MTOShipment{
-			Status: models.MTOShipmentStatusSubmitted,
+	secondShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    mto,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				Status: models.MTOShipmentStatusSubmitted,
+			},
+		},
+	}, nil)
 
 	// third shipment with destination address and type
 	destinationAddress := factory.BuildAddress(suite.DB(), nil, nil)
 	destinationType := models.DestinationTypeHomeOfRecord
-	thirdShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: mto,
-		MTOShipment: models.MTOShipment{
-			Status:               models.MTOShipmentStatusSubmitted,
-			DestinationAddressID: &destinationAddress.ID,
-			DestinationType:      &destinationType,
+	thirdShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    mto,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				Status:               models.MTOShipmentStatusSubmitted,
+				DestinationAddressID: &destinationAddress.ID,
+				DestinationType:      &destinationType,
+			},
+		},
+	}, nil)
 
 	subtestData.mtoAgent = testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
 		MTOAgent: models.MTOAgent{
@@ -505,12 +524,17 @@ func (suite *HandlerSuite) TestGetShipmentHandler() {
 func (suite *HandlerSuite) TestApproveShipmentHandler() {
 	suite.Run("Returns 200 when all validations pass", func() {
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-			MTOShipment: models.MTOShipment{
-				Status: models.MTOShipmentStatusSubmitted,
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusSubmitted,
+				},
+			},
+		}, nil)
 		// Populate the reServices table with codes needed by the
 		// HHG_LONGHAUL_DOMESTIC shipment type
 		reServiceCodes := []models.ReServiceCode{
@@ -2145,13 +2169,18 @@ func (suite *HandlerSuite) TestApproveSITExtensionHandler() {
 				},
 			},
 		}, nil)
-		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				SITDaysAllowance: &sitDaysAllowance,
-				Status:           models.MTOShipmentStatusApproved,
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					SITDaysAllowance: &sitDaysAllowance,
+					Status:           models.MTOShipmentStatusApproved,
+				},
 			},
-			Move: move,
-		})
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		year, month, day := time.Now().Date()
 		lastMonthEntry := time.Date(year, month, day-37, 0, 0, 0, 0, time.UTC)
@@ -2219,13 +2248,18 @@ func (suite *HandlerSuite) TestDenySITExtensionHandler() {
 	suite.Run("Returns 200 when validations pass", func() {
 		sitDaysAllowance := 20
 		move := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
-		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				SITDaysAllowance: &sitDaysAllowance,
-				Status:           models.MTOShipmentStatusApproved,
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					SITDaysAllowance: &sitDaysAllowance,
+					Status:           models.MTOShipmentStatusApproved,
+				},
 			},
-			Move: move,
-		})
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 		sitExtension := testdatagen.MakePendingSITExtension(suite.DB(), testdatagen.Assertions{
 			MTOShipment: mtoShipment,
 		})
@@ -2270,9 +2304,7 @@ func (suite *HandlerSuite) TestDenySITExtensionHandler() {
 
 func (suite *HandlerSuite) CreateSITExtensionAsTOO() {
 	suite.Run("Returns 200, creates new SIT extension, and updates SIT days allowance on shipment without an allowance when validations pass", func() {
-		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{},
-		})
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
 
 		eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
@@ -2319,11 +2351,13 @@ func (suite *HandlerSuite) CreateSITExtensionAsTOO() {
 
 	suite.Run("Returns 200, creates new SIT extension, and updates SIT days allowance on shipment that already has an allowance when validations pass", func() {
 		sitDaysAllowance := 20
-		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				SITDaysAllowance: &sitDaysAllowance,
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					SITDaysAllowance: &sitDaysAllowance,
+				},
 			},
-		})
+		}, nil)
 
 		eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
@@ -2381,10 +2415,12 @@ func (suite *HandlerSuite) makeCreateMTOShipmentSubtestData() (subtestData *crea
 	mto := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 	pickupAddress := factory.BuildAddress(suite.DB(), nil, nil)
 	destinationAddress := factory.BuildAddress(suite.DB(), nil, nil)
-	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move:        mto,
-		MTOShipment: models.MTOShipment{},
-	})
+	mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	mtoShipment.MoveTaskOrderID = mto.ID
 
@@ -2973,14 +3009,16 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		}
 
 		hhgLOAType := models.LOATypeHHG
-		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status:             models.MTOShipmentStatusSubmitted,
-				UsesExternalVendor: true,
-				TACType:            &hhgLOAType,
-				Diversion:          true,
+		oldShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:             models.MTOShipmentStatusSubmitted,
+					UsesExternalVendor: true,
+					TACType:            &hhgLOAType,
+					Diversion:          true,
+				},
 			},
-		})
+		}, nil)
 		params := suite.getUpdateShipmentParams(oldShipment)
 
 		// Validate incoming payload
@@ -3137,11 +3175,13 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 			mtoshipment.NewShipmentSITStatus(),
 		}
 
-		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status: models.MTOShipmentStatusSubmitted,
+		oldShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusSubmitted,
+				},
 			},
-		})
+		}, nil)
 		params := suite.getUpdateShipmentParams(oldShipment)
 		params.Body = nil
 
@@ -3174,11 +3214,13 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		}
 
 		uuidString := handlers.FmtUUID(uuid.FromStringOrNil("d874d002-5582-4a91-97d3-786e8f66c763"))
-		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status: models.MTOShipmentStatusSubmitted,
+		oldShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusSubmitted,
+				},
 			},
-		})
+		}, nil)
 		params := suite.getUpdateShipmentParams(oldShipment)
 		params.ShipmentID = *uuidString
 
@@ -3211,11 +3253,13 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 			mtoshipment.NewShipmentSITStatus(),
 		}
 
-		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status: models.MTOShipmentStatusSubmitted,
+		oldShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusSubmitted,
+				},
 			},
-		})
+		}, nil)
 		params := suite.getUpdateShipmentParams(oldShipment)
 		params.IfMatch = "intentionally-bad-if-match-header-value"
 
@@ -3248,11 +3292,13 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 			mtoshipment.NewShipmentSITStatus(),
 		}
 
-		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status: models.MTOShipmentStatusDraft,
+		oldShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusDraft,
+				},
 			},
-		})
+		}, nil)
 
 		params := suite.getUpdateShipmentParams(oldShipment)
 
@@ -3284,11 +3330,13 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 			mock.Anything,
 		).Return(nil, err)
 
-		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status: models.MTOShipmentStatusSubmitted,
+		oldShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusSubmitted,
+				},
 			},
-		})
+		}, nil)
 		params := suite.getUpdateShipmentParams(oldShipment)
 
 		// Validate incoming payload

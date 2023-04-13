@@ -7,6 +7,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
@@ -43,11 +44,13 @@ func (suite *ReweighSuite) TestReweighUpdater() {
 
 	// Test Success - Reweigh updated
 	suite.Run("Updated reweigh - Success", func() {
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				AvailableToPrimeAt: &currentTime,
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					AvailableToPrimeAt: &currentTime,
+				},
 			},
-		})
+		}, nil)
 		oldReweigh := testdatagen.MakeReweigh(suite.DB(), testdatagen.Assertions{
 			MTOShipment: shipment,
 		})
@@ -81,11 +84,13 @@ func (suite *ReweighSuite) TestReweighUpdater() {
 	})
 	// PreconditionFailedError
 	suite.Run("Precondition Failed", func() {
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				AvailableToPrimeAt: &currentTime,
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					AvailableToPrimeAt: &currentTime,
+				},
 			},
-		})
+		}, nil)
 		oldReweigh := testdatagen.MakeReweigh(suite.DB(), testdatagen.Assertions{
 			MTOShipment: shipment,
 		})

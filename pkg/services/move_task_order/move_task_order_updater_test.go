@@ -82,12 +82,16 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 		}, nil)
 
 		expectedMTOWithFacility := factory.BuildNeedsServiceCounselingMove(suite.DB(), nil, nil)
-		testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: expectedMTOWithFacility,
-			MTOShipment: models.MTOShipment{
-				StorageFacility: &storageFacility,
+		factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    expectedMTOWithFacility,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model:    storageFacility,
+				LinkOnly: true,
+			},
+		}, nil)
 		eTag := etag.GenerateEtag(expectedMTOWithFacility.UpdatedAt)
 
 		actualMTO, err := mtoUpdater.UpdateStatusServiceCounselingCompleted(suite.AppContextForTest(), expectedMTOWithFacility.ID, eTag)
@@ -100,12 +104,17 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 
 	suite.Run("Invalid input error when there is no facility information on NTS-r shipment", func() {
 		noFacilityInfoMove := factory.BuildNeedsServiceCounselingMove(suite.DB(), nil, nil)
-		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				ShipmentType: models.MTOShipmentTypeHHGOutOfNTSDom,
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypeHHGOutOfNTSDom,
+				},
 			},
-			Move: noFacilityInfoMove,
-		})
+			{
+				Model:    noFacilityInfoMove,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		// Clear out the NTS Storage Facility
 		mtoShipment.StorageFacility = nil

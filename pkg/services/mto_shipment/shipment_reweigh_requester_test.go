@@ -7,6 +7,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -42,12 +43,14 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentReweigh() {
 
 	suite.Run("When the shipment is not in a permitted status, returns a ConflictError", func() {
 		rejectionReason := "rejection reason"
-		rejectedShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status:          models.MTOShipmentStatusRejected,
-				RejectionReason: &rejectionReason,
+		rejectedShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:          models.MTOShipmentStatusRejected,
+					RejectionReason: &rejectionReason,
+				},
 			},
-		})
+		}, nil)
 
 		_, err := requester.RequestShipmentReweigh(suite.AppContextForTest(), rejectedShipment.ID, models.ReweighRequesterTOO)
 

@@ -671,7 +671,13 @@ func (suite *MoveServiceSuite) TestCompleteServiceCounseling() {
 
 	suite.Run("status changed to service counseling completed", func() {
 		move := factory.BuildStubbedMoveWithStatus(models.MoveStatusNeedsServiceCounseling)
-		hhgShipment := testdatagen.MakeStubbedShipment(suite.DB())
+		hhgShipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					ID: uuid.Must(uuid.NewV4()),
+				},
+			},
+		}, nil)
 		move.MTOShipments = models.MTOShipments{hhgShipment}
 
 		err := moveRouter.CompleteServiceCounseling(suite.AppContextForTest(), &move)

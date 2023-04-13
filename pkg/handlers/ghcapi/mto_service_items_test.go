@@ -43,9 +43,11 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 				},
 			},
 		}, nil)
-		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{ID: mtoShipmentID},
-		})
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{ID: mtoShipmentID},
+			},
+		}, nil)
 		requestUser := factory.BuildUser(nil, nil, nil)
 		serviceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 			MTOServiceItem: models.MTOServiceItem{

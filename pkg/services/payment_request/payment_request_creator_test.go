@@ -1207,18 +1207,28 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequestCheckOnNTSRelea
 	// Make move and shipment
 	move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 	actualPickupDate := time.Date(testdatagen.GHCTestYear, time.January, 15, 0, 0, 0, 0, time.UTC)
-	shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			ShipmentType:         models.MTOShipmentTypeHHGOutOfNTSDom,
-			PrimeActualWeight:    &testOriginalWeight,
-			StorageFacilityID:    &storageFacility.ID,
-			StorageFacility:      &storageFacility,
-			DestinationAddressID: &destinationAddress.ID,
-			DestinationAddress:   &destinationAddress,
-			ActualPickupDate:     &actualPickupDate,
+	shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				ShipmentType:      models.MTOShipmentTypeHHGOutOfNTSDom,
+				PrimeActualWeight: &testOriginalWeight,
+				ActualPickupDate:  &actualPickupDate,
+			},
+		},
+		{
+			Model:    storageFacility,
+			LinkOnly: true,
+		},
+		{
+			Model:    destinationAddress,
+			LinkOnly: true,
+			Type:     &factory.Addresses.DeliveryAddress,
+		},
+	}, nil)
 
 	mtoServiceItemDLH := testdatagen.MakeRealMTOServiceItemWithAllDeps(suite.DB(), models.ReServiceCodeDLH, move, shipment)
 

@@ -99,12 +99,17 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		approver := subtestData.shipmentApprover
 		planner := subtestData.planner
 
-		shipmentForAutoApprove := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
-			Move: move,
-			MTOShipment: models.MTOShipment{
-				Status: models.MTOShipmentStatusSubmitted,
+		shipmentForAutoApprove := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusSubmitted,
+				},
+			},
+		}, nil)
 		shipmentForAutoApproveEtag := etag.GenerateEtag(shipmentForAutoApprove.UpdatedAt)
 		fetchedShipment := models.MTOShipment{}
 		serviceItems := models.MTOServiceItems{}
@@ -231,13 +236,18 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		approver := subtestData.shipmentApprover
 
 		rejectionReason := "a reason"
-		rejectedShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-			MTOShipment: models.MTOShipment{
-				Status:          models.MTOShipmentStatusRejected,
-				RejectionReason: &rejectionReason,
+		rejectedShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					Status:          models.MTOShipmentStatusRejected,
+					RejectionReason: &rejectionReason,
+				},
+			},
+		}, nil)
 		eTag := etag.GenerateEtag(rejectedShipment.UpdatedAt)
 
 		_, err := approver.ApproveShipment(appCtx, rejectedShipment.ID, eTag)
@@ -253,12 +263,17 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		approver := subtestData.shipmentApprover
 
 		staleETag := etag.GenerateEtag(time.Now())
-		staleShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-			MTOShipment: models.MTOShipment{
-				Status: models.MTOShipmentStatusSubmitted,
+		staleShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusSubmitted,
+				},
+			},
+		}, nil)
 
 		_, err := approver.ApproveShipment(appCtx, staleShipment.ID, staleETag)
 
@@ -287,12 +302,17 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		approver := subtestData.mockedShipmentApprover
 		shipmentRouter := subtestData.mockedShipmentRouter
 
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-			MTOShipment: models.MTOShipment{
-				Status: models.MTOShipmentStatusSubmitted,
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusSubmitted,
+				},
+			},
+		}, nil)
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 
 		createdShipment := models.MTOShipment{}
@@ -316,14 +336,19 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		approver := subtestData.shipmentApprover
 		planner := subtestData.planner
 
-		shipmentForAutoApprove := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
-			Move: move,
-			MTOShipment: models.MTOShipment{
-				Status:             models.MTOShipmentStatusSubmitted,
-				UsesExternalVendor: true,
-				ShipmentType:       models.MTOShipmentTypeHHGOutOfNTSDom,
+		shipmentForAutoApprove := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					Status:             models.MTOShipmentStatusSubmitted,
+					UsesExternalVendor: true,
+					ShipmentType:       models.MTOShipmentTypeHHGOutOfNTSDom,
+				},
+			},
+		}, nil)
 		shipmentForAutoApproveEtag := etag.GenerateEtag(shipmentForAutoApprove.UpdatedAt)
 		fetchedShipment := models.MTOShipment{}
 		serviceItems := models.MTOServiceItems{}

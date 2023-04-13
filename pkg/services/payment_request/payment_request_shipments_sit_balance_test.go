@@ -21,13 +21,18 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 		}, nil)
 
 		oneHundredAndTwentyDays := 120
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status:           models.MTOShipmentStatusApproved,
-				SITDaysAllowance: &oneHundredAndTwentyDays,
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusApproved,
+					SITDaysAllowance: &oneHundredAndTwentyDays,
+				},
 			},
-			Move: move,
-		})
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 			Move: move,
@@ -109,13 +114,18 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
 		oneHundredAndTwentyDays := 120
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status:           models.MTOShipmentStatusApproved,
-				SITDaysAllowance: &oneHundredAndTwentyDays,
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusApproved,
+					SITDaysAllowance: &oneHundredAndTwentyDays,
+				},
 			},
-			Move: move,
-		})
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		reviewedPaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 			Move: move,
@@ -265,13 +275,18 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
 		oneHundredAndTwentyDays := 120
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status:           models.MTOShipmentStatusApproved,
-				SITDaysAllowance: &oneHundredAndTwentyDays,
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusApproved,
+					SITDaysAllowance: &oneHundredAndTwentyDays,
+				},
 			},
-			Move: move,
-		})
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		reviewedPaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 			Move: move,
@@ -419,13 +434,18 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
 		oneHundredAndTwentyDays := 120
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status:           models.MTOShipmentStatusApproved,
-				SITDaysAllowance: &oneHundredAndTwentyDays,
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusApproved,
+					SITDaysAllowance: &oneHundredAndTwentyDays,
+				},
 			},
-			Move: move,
-		})
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		reviewedPaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 			Move: move,
@@ -458,13 +478,18 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
 		oneHundredAndTwentyDays := 120
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status:           models.MTOShipmentStatusApproved,
-				SITDaysAllowance: &oneHundredAndTwentyDays,
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusApproved,
+					SITDaysAllowance: &oneHundredAndTwentyDays,
+				},
 			},
-			Move: move,
-		})
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		pendingPaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 			Move: move,
@@ -493,13 +518,18 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 	suite.Run("returns zero authorized days for pending payment request shipment without a set SITDaysAllowance", func() {
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status:       models.MTOShipmentStatusApproved,
-				ShipmentType: models.MTOShipmentTypeHHGIntoNTSDom,
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:       models.MTOShipmentStatusApproved,
+					ShipmentType: models.MTOShipmentTypeHHGIntoNTSDom,
+				},
 			},
-			Move: move,
-		})
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		pendingPaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 			Move: move,
@@ -591,13 +621,18 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 	suite.Run("returns zero authorized days for reviewed payment request shipment without a set SITDaysAllowance", func() {
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status:       models.MTOShipmentStatusApproved,
-				ShipmentType: models.MTOShipmentTypeHHGIntoNTSDom,
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:       models.MTOShipmentStatusApproved,
+					ShipmentType: models.MTOShipmentTypeHHGIntoNTSDom,
+				},
 			},
-			Move: move,
-		})
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		reviewedPaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 			Move: move,
