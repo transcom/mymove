@@ -21,7 +21,7 @@ var actionDispatcher = map[string]actionFunc{
 		return factory.BuildDefaultAdminUser(appCtx.DB())
 	},
 	"DefaultMove": func(appCtx appcontext.AppContext) testHarnessResponse {
-		return testdatagen.MakeDefaultMove(appCtx.DB())
+		return factory.BuildMove(appCtx.DB(), nil, nil)
 	},
 	"MoveWithOrders": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeMoveWithOrders(appCtx.DB())
