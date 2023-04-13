@@ -35,6 +35,14 @@ func MakeContractor(db *pop.Connection, assertions Assertions) models.Contractor
 		return contractor
 	}
 
+	// Don't create multiple contractors of the same type
+	err = db.Q().Where(`type=$1`, contractor.Type).First(&contractor)
+	if err != nil && err != sql.ErrNoRows {
+		log.Panic(err)
+	} else if err == nil {
+		return contractor
+	}
+
 	// Overwrite values with those from assertions
 	mergeModels(&contractor, assertions.Contractor)
 
