@@ -182,6 +182,26 @@ func BuildMTOShipment(db *pop.Connection, customs []Customization, traits []Trai
 func BuildMTOShipmentMinimal(db *pop.Connection, customs []Customization, traits []Trait) models.MTOShipment {
 	mtoShipment := BuildBaseMTOShipment(db, customs, traits)
 
+	customs = setupCustomizations(customs, traits)
+
+	// Find pickup address in case it was added to customizations list
+	tempPickupAddressCustoms := customs
+	result := findValidCustomization(customs, Addresses.PickupAddress)
+	if result != nil {
+		tempPickupAddressCustoms = convertCustomizationInList(tempPickupAddressCustoms, Addresses.PickupAddress, Address)
+		pickupAddress := BuildAddress(db, tempPickupAddressCustoms, traits)
+		if db == nil {
+			// fake an id for stubbed address, needed by the MTOShipmentCreator
+			pickupAddress.ID = uuid.Must(uuid.NewV4())
+		}
+		mtoShipment.PickupAddress = &pickupAddress
+		mtoShipment.PickupAddressID = &pickupAddress.ID
+
+		if db != nil {
+			mustSave(db, &mtoShipment)
+		}
+	}
+
 	if mtoShipment.RequestedPickupDate == nil {
 		requestedPickupDate := time.Date(GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC)
 
