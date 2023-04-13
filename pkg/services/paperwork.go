@@ -6,6 +6,7 @@ import (
 
 	"github.com/spf13/afero"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	paperworkforms "github.com/transcom/mymove/pkg/paperwork"
 )
@@ -52,4 +53,11 @@ func NewFileInfo(userUpload *models.UserUpload, stream io.ReadCloser) *FileInfo 
 		UserUpload:           userUpload,
 		OriginalUploadStream: stream,
 	}
+}
+
+// UserUploadToPDFConverter converts user uploads to PDFs
+//
+//go:generate mockery --name UserUploadToPDFConverter
+type UserUploadToPDFConverter interface {
+	ConvertUserUploadsToPDF(appCtx appcontext.AppContext, userUploads models.UserUploads) ([]*FileInfo, error)
 }
