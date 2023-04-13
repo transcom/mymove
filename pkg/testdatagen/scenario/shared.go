@@ -1101,6 +1101,7 @@ func createApprovedMoveWithPPMCloseoutComplete(appCtx appcontext.AppContext, use
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
 	address := factory.BuildAddress(appCtx.DB(), nil, nil)
+	approvedAdvanceStatus := models.PPMAdvanceStatusApproved
 
 	assertions := testdatagen.Assertions{
 		UserUploader: userUploader,
@@ -1119,6 +1120,7 @@ func createApprovedMoveWithPPMCloseoutComplete(appCtx appcontext.AppContext, use
 			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
 			ActualPickupPostalCode:      models.StringPointer("42444"),
 			ActualDestinationPostalCode: models.StringPointer("30813"),
+			AdvanceStatus:               &approvedAdvanceStatus,
 			HasReceivedAdvance:          models.BoolPointer(true),
 			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
 			W2Address:                   &address,
@@ -1149,6 +1151,7 @@ func createApprovedMoveWithPPMCloseoutCompleteMultipleWeightTickets(appCtx appco
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
 	address := factory.BuildAddress(appCtx.DB(), nil, nil)
+	approvedAdvanceStatus := models.PPMAdvanceStatusApproved
 
 	assertions := testdatagen.Assertions{
 		UserUploader: userUploader,
@@ -1167,6 +1170,7 @@ func createApprovedMoveWithPPMCloseoutCompleteMultipleWeightTickets(appCtx appco
 			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
 			ActualPickupPostalCode:      models.StringPointer("42444"),
 			ActualDestinationPostalCode: models.StringPointer("30813"),
+			AdvanceStatus:               &approvedAdvanceStatus,
 			HasReceivedAdvance:          models.BoolPointer(true),
 			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
 			W2Address:                   &address,
@@ -1199,6 +1203,7 @@ func createApprovedMoveWithPPMCloseoutCompleteWithExpenses(appCtx appcontext.App
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
 	address := factory.BuildAddress(appCtx.DB(), nil, nil)
+	approvedAdvanceStatus := models.PPMAdvanceStatusApproved
 
 	assertions := testdatagen.Assertions{
 		UserUploader: userUploader,
@@ -1217,6 +1222,7 @@ func createApprovedMoveWithPPMCloseoutCompleteWithExpenses(appCtx appcontext.App
 			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
 			ActualPickupPostalCode:      models.StringPointer("42444"),
 			ActualDestinationPostalCode: models.StringPointer("30813"),
+			AdvanceStatus:               &approvedAdvanceStatus,
 			HasReceivedAdvance:          models.BoolPointer(true),
 			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
 			W2Address:                   &address,
@@ -1259,6 +1265,7 @@ func createApprovedMoveWithPPMCloseoutCompleteWithAllDocTypes(appCtx appcontext.
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
 	address := factory.BuildAddress(appCtx.DB(), nil, nil)
+	approvedAdvanceStatus := models.PPMAdvanceStatusApproved
 
 	assertions := testdatagen.Assertions{
 		UserUploader: userUploader,
@@ -1277,6 +1284,7 @@ func createApprovedMoveWithPPMCloseoutCompleteWithAllDocTypes(appCtx appcontext.
 			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
 			ActualPickupPostalCode:      models.StringPointer("42444"),
 			ActualDestinationPostalCode: models.StringPointer("30813"),
+			AdvanceStatus:               &approvedAdvanceStatus,
 			HasReceivedAdvance:          models.BoolPointer(true),
 			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
 			W2Address:                   &address,
@@ -1291,18 +1299,20 @@ func createApprovedMoveWithPPMCloseoutCompleteWithAllDocTypes(appCtx appcontext.
 		UserUploader:  userUploader,
 	}
 
-	testdatagen.MakeWeightTicket(appCtx.DB(), weightTicketAssertions)
+	testdatagen.MakeWeightTicketWithConstructedWeight(appCtx.DB(), weightTicketAssertions)
 
 	testdatagen.MakeMovingExpense(appCtx.DB(), testdatagen.Assertions{
 		ServiceMember: shipment.Shipment.MoveTaskOrder.Orders.ServiceMember,
 		PPMShipment:   shipment,
 		UserUploader:  userUploader,
+		File:          factory.FixtureOpen("test.png"),
 	})
 
 	testdatagen.MakeProgearWeightTicket(appCtx.DB(), testdatagen.Assertions{
 		ServiceMember: shipment.Shipment.MoveTaskOrder.Orders.ServiceMember,
 		PPMShipment:   shipment,
 		UserUploader:  userUploader,
+		File:          factory.FixtureOpen("test.jpg"),
 	})
 }
 

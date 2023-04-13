@@ -78,6 +78,7 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 		"MTOServiceItems.ReService",
 		"MTOServiceItems.Dimensions",
 		"MTOServiceItems.CustomerContacts",
+		"MTOServiceItems.SITDestinationFinalAddress",
 		"MTOShipments.DestinationAddress",
 		"MTOShipments.PickupAddress",
 		"MTOShipments.SecondaryDeliveryAddress",

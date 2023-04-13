@@ -1,6 +1,7 @@
 package primeapi
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http/httptest"
 	"time"
@@ -235,6 +236,64 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		reweighPayload := movePayload.MtoShipments[0].SitExtensions[0]
 		suite.Equal(successMove.ID.String(), movePayload.ID.String())
 		suite.Equal(strfmt.UUID(sitExtension.ID.String()), reweighPayload.ID)
+	})
+
+	suite.Run("Success - returns SitDestinationFinalAddress on related MTO service Items if they exist", func() {
+		handler := GetMoveTaskOrderHandler{
+			suite.HandlerConfig(),
+			movetaskorder.NewMoveTaskOrderFetcher(),
+		}
+		successMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		params := movetaskorderops.GetMoveTaskOrderParams{
+			HTTPRequest: request,
+			MoveID:      successMove.Locator,
+		}
+
+		address := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{})
+		sitEntryDate := time.Now()
+
+		testdatagen.MakeMTOServiceItemBasic(suite.DB(), testdatagen.Assertions{
+			MTOServiceItem: models.MTOServiceItem{
+				Status:                     models.MTOServiceItemStatusApproved,
+				SITDestinationFinalAddress: &address,
+				SITEntryDate:               &sitEntryDate,
+			},
+			Move: successMove,
+			ReService: models.ReService{
+				Code: models.ReServiceCodeDDFSIT, // DDFSIT - Domestic destination 1st day SIT
+			},
+		})
+
+		// Validate incoming payload: no body to validate
+
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+		suite.IsType(&movetaskorderops.GetMoveTaskOrderOK{}, response)
+
+		moveResponse := response.(*movetaskorderops.GetMoveTaskOrderOK)
+		movePayload := moveResponse.Payload
+
+		// Validate outgoing payload
+		suite.NoError(movePayload.Validate(strfmt.Default))
+
+		suite.Equal(successMove.ID.String(), movePayload.ID.String())
+		if suite.Len(movePayload.MtoServiceItems(), 1) {
+			serviceItem := movePayload.MtoServiceItems()[0]
+
+			// Take the service item and marshal it into json
+			raw, err := json.Marshal(serviceItem)
+			suite.NoError(err)
+
+			// Take that raw json and unmarshal it into a MTOServiceItemDestSIT
+			ddfsitServiceItem := primemessages.MTOServiceItemDestSIT{}
+			err = ddfsitServiceItem.UnmarshalJSON(raw)
+			suite.NoError(err)
+
+			suite.Equal(address.StreetAddress1, *ddfsitServiceItem.SitDestinationFinalAddress.StreetAddress1)
+			suite.Equal(address.State, *ddfsitServiceItem.SitDestinationFinalAddress.State)
+			suite.Equal(address.City, *ddfsitServiceItem.SitDestinationFinalAddress.City)
+		}
+
 	})
 
 	suite.Run("Success - filters shipments handled by an external vendor", func() {
