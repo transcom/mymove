@@ -248,10 +248,17 @@ func subScenarioCustomerSupportRemarks(appCtx appcontext.AppContext) func() {
 				},
 			},
 		}, nil)
-		_ = testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{MTOShipment: models.MTOShipment{
-			MoveTaskOrderID: remarkMove.ID,
-			Status:          models.MTOShipmentStatusSubmitted,
-		}})
+		_ = factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusSubmitted,
+				},
+			},
+			{
+				Model:    remarkMove,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		officeUser := factory.BuildOfficeUserWithRoles(appCtx.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		testdatagen.MakeCustomerSupportRemark(appCtx.DB(), testdatagen.Assertions{
@@ -310,11 +317,18 @@ func subScenarioEvaluationReport(appCtx appcontext.AppContext) func() {
 			testdatagen.MustSave(appCtx.DB(), &move)
 		}
 
-		shipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{MTOShipment: models.MTOShipment{
-			MoveTaskOrderID:       move.ID,
-			Status:                models.MTOShipmentStatusSubmitted,
-			ScheduledDeliveryDate: swag.Time(time.Now()),
-		}})
+		shipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:                models.MTOShipmentStatusSubmitted,
+					ScheduledDeliveryDate: models.TimePointer(time.Now()),
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 		testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{Move: move})
 
 		storageFacility := factory.BuildStorageFacility(appCtx.DB(), nil, nil)
