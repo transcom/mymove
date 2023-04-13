@@ -184,7 +184,7 @@ func (suite *MTOShipmentServiceSuite) TestListMTOShipments() {
 		suite.Equal(shipment.DestinationAddress.ID.String(), actualShipment.DestinationAddress.ID.String())
 		suite.Equal(secondaryDeliveryAddress.ID.String(), actualShipment.SecondaryDeliveryAddress.ID.String())
 		suite.Len(actualShipment.MTOServiceItems[0].Dimensions, 2)
-		suite.Equal(SITExtension.ID.String(), actualShipment.SITExtensions[0].ID.String())
+		suite.Equal(SITExtension.ID.String(), actualShipment.SITDurationUpdates[0].ID.String())
 		suite.Equal(reweigh.ID.String(), actualShipment.Reweigh.ID.String())
 	})
 	suite.Run("Loads PPM associations", func() {

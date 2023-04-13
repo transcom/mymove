@@ -69,7 +69,7 @@ func (f *approvedSITDurationUpdateCreator) updateSitDaysAllowance(appCtx appcont
 		return &shipment, e
 	}
 
-	err = appCtx.DB().Q().EagerPreload("SITExtensions").Find(&shipment, shipment.ID)
+	err = appCtx.DB().Q().EagerPreload("SITDurationUpdates").Find(&shipment, shipment.ID)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:

@@ -206,7 +206,7 @@ func (suite *PayloadsSuite) TestSitExtension() {
 	createdAt := time.Now()
 	updatedAt := time.Now()
 
-	sitExtension := models.SITDurationUpdate{
+	sitDurationUpdate := models.SITDurationUpdate{
 		ID:            id,
 		MTOShipmentID: shipmentID,
 		CreatedAt:     createdAt,
@@ -217,13 +217,13 @@ func (suite *PayloadsSuite) TestSitExtension() {
 	}
 
 	suite.Run("Success - Returns a sitextension payload without optional fields", func() {
-		returnedPayload := SITExtension(&sitExtension)
+		returnedPayload := SITDurationUpdate(&sitDurationUpdate)
 
 		suite.IsType(&primemessages.SITExtension{}, returnedPayload)
-		suite.Equal(strfmt.UUID(sitExtension.ID.String()), returnedPayload.ID)
-		suite.Equal(strfmt.UUID(sitExtension.MTOShipmentID.String()), returnedPayload.MtoShipmentID)
-		suite.Equal(strfmt.DateTime(sitExtension.CreatedAt), returnedPayload.CreatedAt)
-		suite.Equal(strfmt.DateTime(sitExtension.UpdatedAt), returnedPayload.UpdatedAt)
+		suite.Equal(strfmt.UUID(sitDurationUpdate.ID.String()), returnedPayload.ID)
+		suite.Equal(strfmt.UUID(sitDurationUpdate.MTOShipmentID.String()), returnedPayload.MtoShipmentID)
+		suite.Equal(strfmt.DateTime(sitDurationUpdate.CreatedAt), returnedPayload.CreatedAt)
+		suite.Equal(strfmt.DateTime(sitDurationUpdate.UpdatedAt), returnedPayload.UpdatedAt)
 		suite.Nil(returnedPayload.ApprovedDays)
 		suite.Nil(returnedPayload.ContractorRemarks)
 		suite.Nil(returnedPayload.OfficeRemarks)
@@ -232,32 +232,32 @@ func (suite *PayloadsSuite) TestSitExtension() {
 
 	})
 
-	suite.Run("Success - Returns a sit extension payload with optional fields", func() {
+	suite.Run("Success - Returns a sit duration update payload with optional fields", func() {
 		// Set optional fields
 		approvedDays := int(30)
-		sitExtension.ApprovedDays = &approvedDays
+		sitDurationUpdate.ApprovedDays = &approvedDays
 
 		contractorRemarks := "some reason"
-		sitExtension.ContractorRemarks = &contractorRemarks
+		sitDurationUpdate.ContractorRemarks = &contractorRemarks
 
 		officeRemarks := "some other reason"
-		sitExtension.OfficeRemarks = &officeRemarks
+		sitDurationUpdate.OfficeRemarks = &officeRemarks
 
 		decisionDate := time.Now()
-		sitExtension.DecisionDate = &decisionDate
+		sitDurationUpdate.DecisionDate = &decisionDate
 
 		// Send model through func
-		returnedPayload := SITExtension(&sitExtension)
+		returnedPayload := SITDurationUpdate(&sitDurationUpdate)
 
 		suite.IsType(&primemessages.SITExtension{}, returnedPayload)
-		suite.Equal(strfmt.UUID(sitExtension.ID.String()), returnedPayload.ID)
-		suite.Equal(strfmt.UUID(sitExtension.MTOShipmentID.String()), returnedPayload.MtoShipmentID)
-		suite.Equal(strfmt.DateTime(sitExtension.CreatedAt), returnedPayload.CreatedAt)
-		suite.Equal(strfmt.DateTime(sitExtension.UpdatedAt), returnedPayload.UpdatedAt)
-		suite.Equal(handlers.FmtIntPtrToInt64(sitExtension.ApprovedDays), returnedPayload.ApprovedDays)
-		suite.Equal(sitExtension.ContractorRemarks, returnedPayload.ContractorRemarks)
-		suite.Equal(sitExtension.OfficeRemarks, returnedPayload.OfficeRemarks)
-		suite.Equal((*strfmt.DateTime)(sitExtension.DecisionDate), returnedPayload.DecisionDate)
+		suite.Equal(strfmt.UUID(sitDurationUpdate.ID.String()), returnedPayload.ID)
+		suite.Equal(strfmt.UUID(sitDurationUpdate.MTOShipmentID.String()), returnedPayload.MtoShipmentID)
+		suite.Equal(strfmt.DateTime(sitDurationUpdate.CreatedAt), returnedPayload.CreatedAt)
+		suite.Equal(strfmt.DateTime(sitDurationUpdate.UpdatedAt), returnedPayload.UpdatedAt)
+		suite.Equal(handlers.FmtIntPtrToInt64(sitDurationUpdate.ApprovedDays), returnedPayload.ApprovedDays)
+		suite.Equal(sitDurationUpdate.ContractorRemarks, returnedPayload.ContractorRemarks)
+		suite.Equal(sitDurationUpdate.OfficeRemarks, returnedPayload.OfficeRemarks)
+		suite.Equal((*strfmt.DateTime)(sitDurationUpdate.DecisionDate), returnedPayload.DecisionDate)
 		suite.NotNil(returnedPayload.ETag)
 
 	})

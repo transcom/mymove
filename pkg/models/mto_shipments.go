@@ -125,7 +125,7 @@ type MTOShipment struct {
 	SecondaryDeliveryAddressID       *uuid.UUID         `db:"secondary_delivery_address_id"`
 	HasSecondaryDeliveryAddress      *bool              `db:"has_secondary_delivery_address"`
 	SITDaysAllowance                 *int               `db:"sit_days_allowance"`
-	SITExtensions                    SITDurationUpdates `has_many:"sit_extensions" fk_id:"mto_shipment_id"`
+	SITDurationUpdates               SITDurationUpdates `has_many:"sit_extensions" fk_id:"mto_shipment_id"`
 	PrimeEstimatedWeight             *unit.Pound        `db:"prime_estimated_weight"`
 	PrimeEstimatedWeightRecordedDate *time.Time         `db:"prime_estimated_weight_recorded_date"`
 	PrimeActualWeight                *unit.Pound        `db:"prime_actual_weight"`
