@@ -1,6 +1,7 @@
 package factory
 
 import (
+	"log"
 	"time"
 
 	"github.com/gobuffalo/pop/v6"
@@ -231,4 +232,26 @@ func BuildMTOShipmentMinimal(db *pop.Connection, customs []Customization, traits
 	}
 
 	return mtoShipment
+}
+
+func BuildMTOShipmentWithMove(move *models.Move, db *pop.Connection, customs []Customization, traits []Trait) models.MTOShipment {
+	customs = setupCustomizations(customs, traits)
+
+	// Cannot provide move customization to this Build
+	if result := findValidCustomization(customs, Move); result != nil {
+		log.Panicf("Cannot provide Move customization to BuildMTOShipmentWithMove")
+	}
+
+	// provide linkonly customization for the provided move
+	customs = append(customs, Customization{
+		Model:    *move,
+		LinkOnly: true,
+	})
+
+	shipment := BuildMTOShipment(db, customs, traits)
+
+	move.MTOShipments = append(move.MTOShipments, shipment)
+
+	return shipment
+
 }

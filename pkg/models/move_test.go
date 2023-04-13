@@ -295,19 +295,23 @@ func (suite *ModelSuite) TestMoveIsPPMOnly() {
 	isPPMOnly := move.IsPPMOnly()
 	suite.False(isPPMOnly, "A move with no shipments will return false for isPPMOnly.")
 
-	testdatagen.MakeMTOShipmentWithMove(suite.DB(), &move, testdatagen.Assertions{
-		MTOShipment: MTOShipment{
-			ShipmentType: MTOShipmentTypePPM,
+	factory.BuildMTOShipmentWithMove(&move, suite.DB(), []factory.Customization{
+		{
+			Model: MTOShipment{
+				ShipmentType: MTOShipmentTypePPM,
+			},
 		},
-	})
+	}, nil)
 	isPPMOnly = move.IsPPMOnly()
 	suite.True(isPPMOnly, "A move with only PPM shipments will return true for isPPMOnly")
 
-	testdatagen.MakeMTOShipmentWithMove(suite.DB(), &move, testdatagen.Assertions{
-		MTOShipment: MTOShipment{
-			ShipmentType: MTOShipmentTypeHHG,
+	factory.BuildMTOShipmentWithMove(&move, suite.DB(), []factory.Customization{
+		{
+			Model: MTOShipment{
+				ShipmentType: MTOShipmentTypeHHG,
+			},
 		},
-	})
+	}, nil)
 	isPPMOnly = move.IsPPMOnly()
 	suite.False(isPPMOnly, "A move with one PPM shipment and one HHG shipment will return false for isPPMOnly.")
 }

@@ -34,15 +34,22 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherFunctionality() {
 		now := time.Now()
 		pickupDate := now.AddDate(0, 0, 10)
 		secondaryPickupAddress := factory.BuildAddress(suite.DB(), nil, nil)
-		approvedShipment := testdatagen.MakeMTOShipmentWithMove(suite.DB(), &approvedMove, testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status:              models.MTOShipmentStatusApproved,
-				ApprovedDate:        &now,
-				ScheduledPickupDate: &pickupDate,
+		approvedShipment := factory.BuildMTOShipmentWithMove(&approvedMove, suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:              models.MTOShipmentStatusApproved,
+					ApprovedDate:        &now,
+					ScheduledPickupDate: &pickupDate,
+				},
 			},
-			Move:                   approvedMove,
-			SecondaryPickupAddress: secondaryPickupAddress,
-		})
+			{
+				Model:    secondaryPickupAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.SecondaryPickupAddress,
+			},
+		}, nil)
+
+		factory.BuildMTOShipmentWithMove(&approvedMove, suite.DB(), nil, nil)
 
 		testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
 			MTOAgent: models.MTOAgent{
@@ -245,13 +252,13 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherFunctionality() {
 		}
 
 		approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-		approvedShipment := testdatagen.MakeMTOShipmentWithMove(suite.DB(), &approvedMove, testdatagen.Assertions{})
+		approvedShipment := factory.BuildMTOShipmentWithMove(&approvedMove, suite.DB(), nil, nil)
 		serviceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 			Move: approvedMove,
 		})
 
 		approvedMoveToFilter := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-		approvedShipmentToFilter := testdatagen.MakeMTOShipmentWithMove(suite.DB(), &approvedMoveToFilter, testdatagen.Assertions{})
+		approvedShipmentToFilter := factory.BuildMTOShipmentWithMove(&approvedMoveToFilter, suite.DB(), nil, nil)
 		serviceItemToFilter := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 			Move: approvedMoveToFilter,
 		})
@@ -446,7 +453,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 	})
 
 	suite.Run("has audit history records for reweighs", func() {
-		shipment := testdatagen.MakeMTOShipmentWithMove(suite.DB(), nil, testdatagen.Assertions{})
+		shipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
 		shipmentIDAbbr := shipment.ID.String()[0:5]
 		// Create a valid reweigh for the move
 		newReweigh := &models.Reweigh{
@@ -703,14 +710,15 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 		order := approvedMove.Orders
 		now := time.Now()
 		pickupDate := now.AddDate(0, 0, 10)
-		testdatagen.MakeMTOShipmentWithMove(suite.DB(), &approvedMove, testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status:              models.MTOShipmentStatusApproved,
-				ApprovedDate:        &now,
-				ScheduledPickupDate: &pickupDate,
+		factory.BuildMTOShipmentWithMove(&approvedMove, suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:              models.MTOShipmentStatusApproved,
+					ApprovedDate:        &now,
+					ScheduledPickupDate: &pickupDate,
+				},
 			},
-			Move: approvedMove,
-		})
+		}, nil)
 
 		changeOldDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
 		changeNewDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
@@ -931,17 +939,32 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 		secondaryPickupAddress := factory.BuildAddress(suite.DB(), nil, nil)
 		destinationAddress := factory.BuildAddress(suite.DB(), nil, nil)
 		secondaryDestinationAddress := factory.BuildAddress(suite.DB(), nil, nil)
-		approvedShipment := testdatagen.MakeMTOShipmentWithMove(suite.DB(), &approvedMove, testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status:              models.MTOShipmentStatusApproved,
-				ApprovedDate:        &now,
-				ScheduledPickupDate: &pickupDate,
+
+		approvedShipment := factory.BuildMTOShipmentWithMove(&approvedMove, suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:              models.MTOShipmentStatusApproved,
+					ApprovedDate:        &now,
+					ScheduledPickupDate: &pickupDate,
+				},
 			},
-			Move:                     approvedMove,
-			SecondaryPickupAddress:   secondaryPickupAddress,
-			DestinationAddress:       destinationAddress,
-			SecondaryDeliveryAddress: secondaryDestinationAddress,
-		})
+			{
+				Model:    secondaryPickupAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.SecondaryPickupAddress,
+			},
+			{
+				Model:    destinationAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.DeliveryAddress,
+			},
+			{
+				Model:    secondaryDestinationAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.SecondaryDeliveryAddress,
+			},
+		}, nil)
+
 		shipmentIDAbbr := approvedShipment.ID.String()[0:5]
 
 		foundPickupAddress := false

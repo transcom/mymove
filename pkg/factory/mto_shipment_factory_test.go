@@ -143,7 +143,6 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 		suite.Equal(defaultActualPickupDate, *mtoShipment.ActualPickupDate)
 		suite.NotNil(mtoShipment.RequestedDeliveryDate)
 		suite.Equal(defaultRequestedDeliveryDate, *mtoShipment.RequestedDeliveryDate)
-
 	})
 
 	suite.Run("Successful creation of custom MTOShipment with pickup details and other associated set relationships", func() {

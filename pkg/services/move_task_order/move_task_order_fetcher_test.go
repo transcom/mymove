@@ -369,7 +369,7 @@ func (suite *MoveTaskOrderServiceSuite) TestListPrimeMoveTaskOrdersFetcher() {
 	primeMove1 := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 	primeMove2 := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 	primeMove3 := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-	testdatagen.MakeMTOShipmentWithMove(suite.DB(), &primeMove3, testdatagen.Assertions{})
+	factory.BuildMTOShipmentWithMove(&primeMove3, suite.DB(), nil, nil)
 
 	// Move primeMove1 and primeMove3 into the past so we can exclude them:
 	suite.Require().NoError(suite.DB().RawQuery("UPDATE moves SET updated_at=$1 WHERE id IN ($2, $3);",
