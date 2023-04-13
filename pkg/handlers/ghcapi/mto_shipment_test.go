@@ -2577,10 +2577,10 @@ func (suite *HandlerSuite) CreateApprovedSITDurationUpdate() {
 		approvedDays := int64(10)
 		officeRemarks := "new office remarks"
 		requestReason := "OTHER"
-		createParams := shipmentops.CreateSITExtensionAsTOOParams{
+		createParams := shipmentops.CreateApprovedSITDurationUpdateParams{
 			HTTPRequest: req,
 			IfMatch:     eTag,
-			Body: &ghcmessages.CreateSITExtensionAsTOO{
+			Body: &ghcmessages.CreateApprovedSITDurationUpdate{
 				ApprovedDays:  &approvedDays,
 				OfficeRemarks: &officeRemarks,
 				RequestReason: &requestReason,
@@ -2592,8 +2592,8 @@ func (suite *HandlerSuite) CreateApprovedSITDurationUpdate() {
 		suite.NoError(createParams.Body.Validate(strfmt.Default))
 
 		response := handler.Handle(createParams)
-		suite.IsType(&shipmentops.CreateSITExtensionAsTOOOK{}, response)
-		okResponse := response.(*shipmentops.CreateSITExtensionAsTOOOK)
+		suite.IsType(&shipmentops.CreateApprovedSITDurationUpdateOK{}, response)
+		okResponse := response.(*shipmentops.CreateApprovedSITDurationUpdateOK)
 		payload := okResponse.Payload
 
 		// Validate outgoing payload
@@ -2630,10 +2630,10 @@ func (suite *HandlerSuite) CreateApprovedSITDurationUpdate() {
 		approvedDays := int64(10)
 		officeRemarks := "new office remarks"
 		requestReason := "OTHER"
-		createParams := shipmentops.CreateSITExtensionAsTOOParams{
+		createParams := shipmentops.CreateApprovedSITDurationUpdateParams{
 			HTTPRequest: req,
 			IfMatch:     eTag,
-			Body: &ghcmessages.CreateSITExtensionAsTOO{
+			Body: &ghcmessages.CreateApprovedSITDurationUpdate{
 				ApprovedDays:  &approvedDays,
 				OfficeRemarks: &officeRemarks,
 				RequestReason: &requestReason,
@@ -2645,8 +2645,8 @@ func (suite *HandlerSuite) CreateApprovedSITDurationUpdate() {
 		suite.NoError(createParams.Body.Validate(strfmt.Default))
 
 		response := handler.Handle(createParams)
-		suite.IsType(&shipmentops.CreateSITExtensionAsTOOOK{}, response)
-		okResponse := response.(*shipmentops.CreateSITExtensionAsTOOOK)
+		suite.IsType(&shipmentops.CreateApprovedSITDurationUpdateOK{}, response)
+		okResponse := response.(*shipmentops.CreateApprovedSITDurationUpdateOK)
 		payload := okResponse.Payload
 
 		// Validate outgoing payload

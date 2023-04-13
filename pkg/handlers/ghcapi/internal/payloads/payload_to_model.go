@@ -134,7 +134,7 @@ func StorageFacilityModel(storageFacility *ghcmessages.StorageFacility) *models.
 }
 
 // ApprovedSITExtensionFromCreate model
-func ApprovedSITExtensionFromCreate(sitExtension *ghcmessages.CreateSITExtensionAsTOO, shipmentID strfmt.UUID) *models.SITDurationUpdate {
+func ApprovedSITExtensionFromCreate(sitExtension *ghcmessages.CreateApprovedSITDurationUpdate, shipmentID strfmt.UUID) *models.SITDurationUpdate {
 	if sitExtension == nil {
 		return nil
 	}

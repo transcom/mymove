@@ -370,7 +370,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		shipmentSITStatus,
 	}
 
-	ghcAPI.ShipmentCreateSITExtensionAsTOOHandler = CreateApprovedSITDurationUpdateHandler{
+	ghcAPI.ShipmentCreateApprovedSITDurationUpdateHandler = CreateApprovedSITDurationUpdateHandler{
 		handlerConfig,
 		mtoshipment.NewApprovedSITDurationUpdateCreator(),
 		shipmentSITStatus,
