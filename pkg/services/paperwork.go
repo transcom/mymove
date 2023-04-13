@@ -61,3 +61,10 @@ func NewFileInfo(userUpload *models.UserUpload, stream io.ReadCloser) *FileInfo 
 type UserUploadToPDFConverter interface {
 	ConvertUserUploadsToPDF(appCtx appcontext.AppContext, userUploads models.UserUploads) ([]*FileInfo, error)
 }
+
+// PDFMerger merges PDFs
+//
+//go:generate mockery --name PDFMerger
+type PDFMerger interface {
+	MergePDFs(appCtx appcontext.AppContext, pdfsToMerge []io.ReadCloser) (io.ReadCloser, error)
+}
