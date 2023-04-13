@@ -1029,18 +1029,19 @@ func serviceMemberWithOrdersAndAMovePPMandHHG(appCtx appcontext.AppContext, user
 	}, nil)
 	// currently don't have "combo move" selection option, so testing ppm office when type is HHG
 	selectedMoveType := models.SelectedMoveTypeHHG
-	move := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
-		Order: models.Order{
-			ServiceMemberID: uuid.FromStringOrNil(smIDCombo),
-			ServiceMember:   smWithCombo,
+	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
+		{
+			Model:    smWithCombo,
+			LinkOnly: true,
 		},
-		Move: models.Move{
-			ID:               uuid.FromStringOrNil("7024c8c5-52ca-4639-bf69-dd8238308c98"),
-			Locator:          "COMBOS",
-			SelectedMoveType: &selectedMoveType,
+		{
+			Model: models.Move{
+				ID:               uuid.FromStringOrNil("7024c8c5-52ca-4639-bf69-dd8238308c98"),
+				Locator:          "COMBOS",
+				SelectedMoveType: &selectedMoveType,
+			},
 		},
-	})
-
+	}, nil)
 	estimatedHHGWeight := unit.Pound(1400)
 	actualHHGWeight := unit.Pound(2000)
 	testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
@@ -1141,18 +1142,19 @@ func serviceMemberWithUnsubmittedHHG(appCtx appcontext.AppContext, userUploader 
 	}, nil)
 
 	selectedMoveType := models.SelectedMoveTypeHHG
-	move := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
-		Order: models.Order{
-			ServiceMemberID: uuid.FromStringOrNil(smWithHHGID),
-			ServiceMember:   smWithHHG,
+	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
+		{
+			Model:    smWithHHG,
+			LinkOnly: true,
 		},
-		Move: models.Move{
-			ID:               uuid.FromStringOrNil("3a8c9f4f-7344-4f18-9ab5-0de3ef57b901"),
-			Locator:          "ONEHHG",
-			SelectedMoveType: &selectedMoveType,
+		{
+			Model: models.Move{
+				ID:               uuid.FromStringOrNil("3a8c9f4f-7344-4f18-9ab5-0de3ef57b901"),
+				Locator:          "ONEHHG",
+				SelectedMoveType: &selectedMoveType,
+			},
 		},
-	})
-
+	}, nil)
 	estimatedHHGWeight := unit.Pound(1400)
 	actualHHGWeight := unit.Pound(2000)
 	testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
@@ -1204,18 +1206,19 @@ func serviceMemberWithNTSandNTSRandUnsubmittedMove01(appCtx appcontext.AppContex
 	}, nil)
 
 	selectedMoveType := models.SelectedMoveTypeNTS
-	move := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
-		Order: models.Order{
-			ServiceMemberID: uuid.FromStringOrNil(smWithNTSID),
-			ServiceMember:   smWithNTS,
+	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
+		{
+			Model:    smWithNTS,
+			LinkOnly: true,
 		},
-		Move: models.Move{
-			ID:               uuid.FromStringOrNil("f4503551-b636-41ee-b4bb-b05d55d0e856"),
-			Locator:          "TWONTS",
-			SelectedMoveType: &selectedMoveType,
+		{
+			Model: models.Move{
+				ID:               uuid.FromStringOrNil("f4503551-b636-41ee-b4bb-b05d55d0e856"),
+				Locator:          "TWONTS",
+				SelectedMoveType: &selectedMoveType,
+			},
 		},
-	})
-
+	}, nil)
 	estimatedNTSWeight := unit.Pound(1400)
 	actualNTSWeight := unit.Pound(2000)
 	ntsShipment := testdatagen.MakeNTSShipment(appCtx.DB(), testdatagen.Assertions{
@@ -1296,18 +1299,19 @@ func serviceMemberWithNTSandNTSRandUnsubmittedMove02(appCtx appcontext.AppContex
 	}, nil)
 
 	selectedMoveType := models.SelectedMoveTypeNTS
-	move := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
-		Order: models.Order{
-			ServiceMemberID: uuid.FromStringOrNil(smWithNTSID),
-			ServiceMember:   smWithNTS,
+	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
+		{
+			Model:    smWithNTS,
+			LinkOnly: true,
 		},
-		Move: models.Move{
-			ID:               uuid.FromStringOrNil("a1ed9091-e44c-410c-b028-78589dbc0a77"),
-			Locator:          "NTSR02",
-			SelectedMoveType: &selectedMoveType,
+		{
+			Model: models.Move{
+				ID:               uuid.FromStringOrNil("a1ed9091-e44c-410c-b028-78589dbc0a77"),
+				Locator:          "NTSR02",
+				SelectedMoveType: &selectedMoveType,
+			},
 		},
-	})
-
+	}, nil)
 	estimatedNTSWeight := unit.Pound(1400)
 	actualNTSWeight := unit.Pound(2000)
 	ntsShipment := testdatagen.MakeNTSShipment(appCtx.DB(), testdatagen.Assertions{
@@ -1599,155 +1603,169 @@ func serviceMemberWithPPMApprovedNotInProgress(appCtx appcontext.AppContext, use
 
 func serviceMemberWithOrdersAndPPMMove01(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	email := "profile@comple.te"
-	uuidStr := "13f3949d-0d53-4be4-b1b1-ae4314793f34"
-	loginGovID := uuid.Must(uuid.NewV4())
 
-	factory.BuildUser(appCtx.DB(), []factory.Customization{
+	factory.BuildMove(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				ID:            uuid.Must(uuid.FromString(uuidStr)),
-				LoginGovUUID:  &loginGovID,
+				ID:            uuid.Must(uuid.FromString("13f3949d-0d53-4be4-b1b1-ae4314793f34")),
 				LoginGovEmail: email,
 				Active:        true,
 			},
 		},
+		{
+			Model: models.ServiceMember{
+				ID:            uuid.FromStringOrNil("0a1e72b0-1b9f-442b-a6d3-7b7cfa6bbb95"),
+				FirstName:     models.StringPointer("Profile"),
+				LastName:      models.StringPointer("Complete"),
+				Edipi:         models.StringPointer("8893308161"),
+				PersonalEmail: models.StringPointer(email),
+			},
+		},
+		{
+			Model: models.Order{
+				HasDependents:    false,
+				SpouseHasProGear: false,
+			},
+		},
+		{
+			Model: models.Move{
+				ID:      uuid.FromStringOrNil("173da49c-fcec-4d01-a622-3651e81c654e"),
+				Locator: "BLABLA",
+				Status:  models.MoveStatusSUBMITTED,
+			},
+		},
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
 	}, nil)
-
-	testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			ID:            uuid.FromStringOrNil("0a1e72b0-1b9f-442b-a6d3-7b7cfa6bbb95"),
-			UserID:        uuid.FromStringOrNil(uuidStr),
-			FirstName:     models.StringPointer("Profile"),
-			LastName:      models.StringPointer("Complete"),
-			Edipi:         models.StringPointer("8893308161"),
-			PersonalEmail: models.StringPointer(email),
-		},
-		Order: models.Order{
-			HasDependents:    true,
-			SpouseHasProGear: true,
-		},
-		Move: models.Move{
-			ID:      uuid.FromStringOrNil("173da49c-fcec-4d01-a622-3651e81c654e"),
-			Locator: "BLABLA",
-			Status:  models.MoveStatusSUBMITTED,
-		},
-		UserUploader: userUploader,
-	})
-
 }
 
 func serviceMemberWithOrdersAndPPMMove02(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	email := "profile@co.mple.te"
-	uuidStr := "99360a51-8cfa-4e25-ae57-24e66077305f"
-	loginGovID := uuid.Must(uuid.NewV4())
-
-	factory.BuildUser(appCtx.DB(), []factory.Customization{
+	factory.BuildMove(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				ID:            uuid.Must(uuid.FromString(uuidStr)),
-				LoginGovUUID:  &loginGovID,
+				ID:            uuid.Must(uuid.FromString("99360a51-8cfa-4e25-ae57-24e66077305f")),
 				LoginGovEmail: email,
 				Active:        true,
 			},
 		},
+		{
+			Model: models.ServiceMember{
+				ID:            uuid.FromStringOrNil("2672baac-53a1-4767-b4a3-976e53cc224e"),
+				FirstName:     models.StringPointer("Another Profile"),
+				LastName:      models.StringPointer("Complete"),
+				Edipi:         models.StringPointer("8893105161"),
+				PersonalEmail: models.StringPointer(email),
+			},
+		},
+		{
+			Model: models.Order{
+				HasDependents:    true,
+				SpouseHasProGear: true,
+			},
+		},
+		{
+			Model: models.Move{
+				ID:      uuid.FromStringOrNil("6f6ac599-e23f-43af-9b83-5d75a78e933f"),
+				Locator: "COMPLE",
+			},
+		},
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
 	}, nil)
-
-	testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			ID:            uuid.FromStringOrNil("2672baac-53a1-4767-b4a3-976e53cc224e"),
-			UserID:        uuid.FromStringOrNil(uuidStr),
-			FirstName:     models.StringPointer("Another Profile"),
-			LastName:      models.StringPointer("Complete"),
-			Edipi:         models.StringPointer("8893105161"),
-			PersonalEmail: models.StringPointer(email),
-		},
-		Order: models.Order{
-			HasDependents:    true,
-			SpouseHasProGear: true,
-		},
-		Move: models.Move{
-			ID:      uuid.FromStringOrNil("6f6ac599-e23f-43af-9b83-5d75a78e933f"),
-			Locator: "COMPLE",
-		},
-		UserUploader: userUploader,
-	})
-
 }
 
 func serviceMemberWithOrdersAndPPMMove03(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	email := "profile@complete.draft"
-	uuidStr := "3b9360a3-3304-4c60-90f4-83d687884070"
-	loginGovID := uuid.Must(uuid.NewV4())
-
-	factory.BuildUser(appCtx.DB(), []factory.Customization{
+	factory.BuildMove(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				ID:            uuid.Must(uuid.FromString(uuidStr)),
-				LoginGovUUID:  &loginGovID,
+				ID:            uuid.Must(uuid.FromString("3b9360a3-3304-4c60-90f4-83d687884070")),
 				LoginGovEmail: email,
 				Active:        true,
 			},
 		},
+		{
+			Model: models.ServiceMember{
+				ID:            uuid.FromStringOrNil("0ec71d80-ac21-45a7-88ed-2ae8de3961fd"),
+				FirstName:     models.StringPointer("Move"),
+				LastName:      models.StringPointer("Draft"),
+				Edipi:         models.StringPointer("8893308161"),
+				PersonalEmail: models.StringPointer(email),
+			},
+		},
+		{
+			Model: models.Order{
+				HasDependents:    true,
+				SpouseHasProGear: true,
+			},
+		},
+		{
+			Model: models.Move{
+				ID:      uuid.FromStringOrNil("a5d9c7b2-0fe8-4b80-b7c5-3323a066e98c"),
+				Locator: "DFTMVE",
+			},
+		},
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
 	}, nil)
-
-	testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			ID:            uuid.FromStringOrNil("0ec71d80-ac21-45a7-88ed-2ae8de3961fd"),
-			UserID:        uuid.FromStringOrNil(uuidStr),
-			FirstName:     models.StringPointer("Move"),
-			LastName:      models.StringPointer("Draft"),
-			Edipi:         models.StringPointer("8893308161"),
-			PersonalEmail: models.StringPointer(email),
-		},
-		Order: models.Order{
-			HasDependents:    true,
-			SpouseHasProGear: true,
-		},
-		Move: models.Move{
-			ID:      uuid.FromStringOrNil("a5d9c7b2-0fe8-4b80-b7c5-3323a066e98c"),
-			Locator: "DFTMVE",
-		},
-		UserUploader: userUploader,
-	})
-
 }
 
 func serviceMemberWithOrdersAndPPMMove04(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	email := "profile2@complete.draft"
-	uuidStr := "3b9360a3-3304-4c60-90f4-83d687884077"
-	loginGovID := uuid.Must(uuid.NewV4())
 
-	factory.BuildUser(appCtx.DB(), []factory.Customization{
+	factory.BuildMove(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				ID:            uuid.Must(uuid.FromString(uuidStr)),
-				LoginGovUUID:  &loginGovID,
+				ID:            uuid.Must(uuid.FromString("3b9360a3-3304-4c60-90f4-83d687884077")),
 				LoginGovEmail: email,
 				Active:        true,
 			},
 		},
+		{
+			Model: models.ServiceMember{
+				ID:            uuid.FromStringOrNil("0ec71d80-ac21-45a7-88ed-2ae8de3961ff"),
+				FirstName:     models.StringPointer("Move"),
+				LastName:      models.StringPointer("Draft"),
+				Edipi:         models.StringPointer("8893308163"),
+				PersonalEmail: models.StringPointer(email),
+			},
+		},
+		{
+			Model: models.Order{
+				HasDependents:    true,
+				SpouseHasProGear: true,
+			},
+		},
+		{
+			Model: models.Move{
+				ID:      uuid.FromStringOrNil("a5d9c7b2-0fe8-4b80-b7c5-3323a066e98a"),
+				Locator: "TEST13",
+			},
+		},
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
 	}, nil)
-
-	testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			ID:            uuid.FromStringOrNil("0ec71d80-ac21-45a7-88ed-2ae8de3961ff"),
-			UserID:        uuid.FromStringOrNil(uuidStr),
-			FirstName:     models.StringPointer("Move"),
-			LastName:      models.StringPointer("Draft"),
-			Edipi:         models.StringPointer("8893308163"),
-			PersonalEmail: models.StringPointer(email),
-		},
-		Order: models.Order{
-			HasDependents:    true,
-			SpouseHasProGear: true,
-		},
-		Move: models.Move{
-			ID:      uuid.FromStringOrNil("a5d9c7b2-0fe8-4b80-b7c5-3323a066e98a"),
-			Locator: "TEST13",
-		},
-		UserUploader: userUploader,
-	})
-
 }
 
 func serviceMemberWithOrdersAndPPMMove05(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -1833,12 +1851,17 @@ func serviceMemberWithOrdersAndPPMMove07(appCtx appcontext.AppContext, userUploa
 		},
 	}, nil)
 
-	testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			ID:       uuid.FromStringOrNil("c251267f-dbe1-42b9-8239-4f628fa7279f"),
-			OrdersID: orders.ID,
+	factory.BuildMove(appCtx.DB(), []factory.Customization{
+		{
+			Model:    orders,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.Move{
+				ID: uuid.FromStringOrNil("c251267f-dbe1-42b9-8239-4f628fa7279f"),
+			},
+		},
+	}, nil)
 }
 
 func serviceMemberWithOrdersAndPPMMove08(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -1863,12 +1886,17 @@ func serviceMemberWithOrdersAndPPMMove08(appCtx appcontext.AppContext, userUploa
 		},
 	}, nil)
 
-	testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			ID:       uuid.FromStringOrNil("2b485ded-a395-4dbb-9aa7-3f902dd4ccea"),
-			OrdersID: orders.ID,
+	factory.BuildMove(appCtx.DB(), []factory.Customization{
+		{
+			Model:    orders,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.Move{
+				ID: uuid.FromStringOrNil("2b485ded-a395-4dbb-9aa7-3f902dd4ccea"),
+			},
+		},
+	}, nil)
 }
 
 func createBasicNTSMove(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -1876,7 +1904,7 @@ func createBasicNTSMove(appCtx appcontext.AppContext, userUploader *uploader.Use
 	uuidStr := "2194daed-3589-408f-b988-e9889c9f120e"
 	loginGovID := uuid.Must(uuid.NewV4())
 
-	factory.BuildUser(appCtx.DB(), []factory.Customization{
+	factory.BuildMove(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
 				ID:            uuid.Must(uuid.FromString(uuidStr)),
@@ -1885,28 +1913,35 @@ func createBasicNTSMove(appCtx appcontext.AppContext, userUploader *uploader.Use
 				Active:        true,
 			},
 		},
+		{
+			Model: models.ServiceMember{
+				ID:            uuid.FromStringOrNil("1319a13d-019b-4afa-b8fe-f51c15572681"),
+				FirstName:     models.StringPointer("Move"),
+				LastName:      models.StringPointer("Draft"),
+				Edipi:         models.StringPointer("7273579005"),
+				PersonalEmail: models.StringPointer(email),
+			},
+		},
+		{
+			Model: models.Order{
+				HasDependents:    false,
+				SpouseHasProGear: false,
+			},
+		},
+		{
+			Model: models.Move{
+				ID:      uuid.FromStringOrNil("7c4c7aa0-9e28-4065-93d2-74ea75e6323c"),
+				Locator: "NTS000",
+			},
+		},
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
 	}, nil)
-
-	testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			ID:            uuid.FromStringOrNil("1319a13d-019b-4afa-b8fe-f51c15572681"),
-			UserID:        uuid.FromStringOrNil(uuidStr),
-			FirstName:     models.StringPointer("Move"),
-			LastName:      models.StringPointer("Draft"),
-			Edipi:         models.StringPointer("7273579005"),
-			PersonalEmail: models.StringPointer(email),
-		},
-		Order: models.Order{
-			HasDependents:    false,
-			SpouseHasProGear: false,
-		},
-		Move: models.Move{
-			ID:      uuid.FromStringOrNil("7c4c7aa0-9e28-4065-93d2-74ea75e6323c"),
-			Locator: "NTS000",
-		},
-		UserUploader: userUploader,
-	})
-
 }
 
 func createBasicMovePPM01(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -1914,7 +1949,7 @@ func createBasicMovePPM01(appCtx appcontext.AppContext, userUploader *uploader.U
 	uuidStr := "4635b5a7-0f57-4557-8ba4-bbbb760c300a"
 	loginGovID := uuid.Must(uuid.NewV4())
 
-	factory.BuildUser(appCtx.DB(), []factory.Customization{
+	factory.BuildMove(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
 				ID:            uuid.Must(uuid.FromString(uuidStr)),
@@ -1923,35 +1958,42 @@ func createBasicMovePPM01(appCtx appcontext.AppContext, userUploader *uploader.U
 				Active:        true,
 			},
 		},
+		{
+			Model: models.ServiceMember{
+				ID:            uuid.FromStringOrNil("7d756c59-1a46-4f59-9c51-6e708886eaf1"),
+				FirstName:     models.StringPointer("Move"),
+				LastName:      models.StringPointer("Draft"),
+				Edipi:         models.StringPointer("2342122439"),
+				PersonalEmail: models.StringPointer(email),
+			},
+		},
+		{
+			Model: models.Order{
+				HasDependents:    false,
+				SpouseHasProGear: false,
+			},
+		},
+		{
+			Model: models.Move{
+				ID:      uuid.FromStringOrNil("4397b137-f4ee-49b7-baae-3aa0b237d08e"),
+				Locator: "PPM001",
+			},
+		},
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
 	}, nil)
-
-	testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			ID:            uuid.FromStringOrNil("7d756c59-1a46-4f59-9c51-6e708886eaf1"),
-			UserID:        uuid.FromStringOrNil(uuidStr),
-			FirstName:     models.StringPointer("Move"),
-			LastName:      models.StringPointer("Draft"),
-			Edipi:         models.StringPointer("2342122439"),
-			PersonalEmail: models.StringPointer(email),
-		},
-		Order: models.Order{
-			HasDependents:    false,
-			SpouseHasProGear: false,
-		},
-		Move: models.Move{
-			ID:      uuid.FromStringOrNil("4397b137-f4ee-49b7-baae-3aa0b237d08e"),
-			Locator: "PPM001",
-		},
-		UserUploader: userUploader,
-	})
-
 }
 func createBasicMovePPM02(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	email := "ppm.test.user2@example.com"
 	uuidStr := "324dec0a-850c-41c8-976b-068e27121b84"
 	loginGovID := uuid.Must(uuid.NewV4())
 
-	factory.BuildUser(appCtx.DB(), []factory.Customization{
+	factory.BuildMove(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
 				ID:            uuid.Must(uuid.FromString(uuidStr)),
@@ -1960,27 +2002,35 @@ func createBasicMovePPM02(appCtx appcontext.AppContext, userUploader *uploader.U
 				Active:        true,
 			},
 		},
+		{
+			Model: models.ServiceMember{
+				ID:            uuid.FromStringOrNil("a9b51cc4-e73e-4734-9714-a2066f207c3b"),
+				FirstName:     models.StringPointer("Move"),
+				LastName:      models.StringPointer("Draft"),
+				Edipi:         models.StringPointer("6213314987"),
+				PersonalEmail: models.StringPointer(email),
+			},
+		},
+		{
+			Model: models.Order{
+				HasDependents:    false,
+				SpouseHasProGear: false,
+			},
+		},
+		{
+			Model: models.Move{
+				ID:      uuid.FromStringOrNil("a738f6b8-4dee-4875-bdb1-1b4da2aa4f4b"),
+				Locator: "PPM002",
+			},
+		},
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
 	}, nil)
-
-	testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			ID:            uuid.FromStringOrNil("a9b51cc4-e73e-4734-9714-a2066f207c3b"),
-			UserID:        uuid.FromStringOrNil(uuidStr),
-			FirstName:     models.StringPointer("Move"),
-			LastName:      models.StringPointer("Draft"),
-			Edipi:         models.StringPointer("6213314987"),
-			PersonalEmail: models.StringPointer(email),
-		},
-		Order: models.Order{
-			HasDependents:    false,
-			SpouseHasProGear: false,
-		},
-		Move: models.Move{
-			ID:      uuid.FromStringOrNil("a738f6b8-4dee-4875-bdb1-1b4da2aa4f4b"),
-			Locator: "PPM002",
-		},
-		UserUploader: userUploader,
-	})
 }
 
 func createBasicMovePPM03(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -1988,7 +2038,7 @@ func createBasicMovePPM03(appCtx appcontext.AppContext, userUploader *uploader.U
 	uuidStr := "f154929c-5f07-41f5-b90c-d90b83d5773d"
 	loginGovID := uuid.Must(uuid.NewV4())
 
-	factory.BuildUser(appCtx.DB(), []factory.Customization{
+	factory.BuildMove(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
 				ID:            uuid.Must(uuid.FromString(uuidStr)),
@@ -1997,27 +2047,35 @@ func createBasicMovePPM03(appCtx appcontext.AppContext, userUploader *uploader.U
 				Active:        true,
 			},
 		},
+		{
+			Model: models.ServiceMember{
+				ID:            uuid.FromStringOrNil("9027d05d-4c4e-4e5d-9954-6a6ba4017b4d"),
+				FirstName:     models.StringPointer("Move"),
+				LastName:      models.StringPointer("Draft"),
+				Edipi:         models.StringPointer("7814245500"),
+				PersonalEmail: models.StringPointer(email),
+			},
+		},
+		{
+			Model: models.Order{
+				HasDependents:    false,
+				SpouseHasProGear: false,
+			},
+		},
+		{
+			Model: models.Move{
+				ID:      uuid.FromStringOrNil("460011f4-126d-40e5-b4f4-62cc9c2f0b7a"),
+				Locator: "PPM003",
+			},
+		},
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
 	}, nil)
-
-	testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			ID:            uuid.FromStringOrNil("9027d05d-4c4e-4e5d-9954-6a6ba4017b4d"),
-			UserID:        uuid.FromStringOrNil(uuidStr),
-			FirstName:     models.StringPointer("Move"),
-			LastName:      models.StringPointer("Draft"),
-			Edipi:         models.StringPointer("7814245500"),
-			PersonalEmail: models.StringPointer(email),
-		},
-		Order: models.Order{
-			HasDependents:    false,
-			SpouseHasProGear: false,
-		},
-		Move: models.Move{
-			ID:      uuid.FromStringOrNil("460011f4-126d-40e5-b4f4-62cc9c2f0b7a"),
-			Locator: "PPM003",
-		},
-		UserUploader: userUploader,
-	})
 }
 
 func createMoveWithServiceItemsandPaymentRequests01(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -2049,15 +2107,19 @@ func createMoveWithServiceItemsandPaymentRequests01(appCtx appcontext.AppContext
 		},
 	}, nil)
 
-	mto := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			ID:                 uuid.FromStringOrNil("99783f4d-ee83-4fc9-8e0c-d32496bef32b"),
-			Locator:            "TIOFLO",
-			OrdersID:           orders.ID,
-			AvailableToPrimeAt: swag.Time(time.Now()),
+	mto := factory.BuildMove(appCtx.DB(), []factory.Customization{
+		{
+			Model:    orders,
+			LinkOnly: true,
 		},
-	})
-
+		{
+			Model: models.Move{
+				ID:                 uuid.FromStringOrNil("99783f4d-ee83-4fc9-8e0c-d32496bef32b"),
+				Locator:            "TIOFLO",
+				AvailableToPrimeAt: models.TimePointer(time.Now()),
+			},
+		},
+	}, nil)
 	shipmentPickupAddress := factory.BuildAddress(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.Address{
@@ -2430,13 +2492,17 @@ func createMoveWithServiceItemsandPaymentRequests02(appCtx appcontext.AppContext
 		},
 	}, nil)
 
-	move8 := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			ID:       uuid.FromStringOrNil("d4d95b22-2d9d-428b-9a11-284455aa87ba"),
-			OrdersID: orders8.ID,
+	move8 := factory.BuildMove(appCtx.DB(), []factory.Customization{
+		{
+			Model:    orders8,
+			LinkOnly: true,
 		},
-	})
-
+		{
+			Model: models.Move{
+				ID: uuid.FromStringOrNil("d4d95b22-2d9d-428b-9a11-284455aa87ba"),
+			},
+		},
+	}, nil)
 	mtoShipment8 := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
 		MTOShipment: models.MTOShipment{
 			ID:                   uuid.FromStringOrNil("acf7b357-5cad-40e2-baa7-dedc1d4cf04c"),
@@ -2731,17 +2797,20 @@ func createHHGMoveWithServiceItemsAndPaymentRequestsAndFiles(appCtx appcontext.A
 	}, nil)
 
 	mtoSelectedMoveType := models.SelectedMoveTypeHHG
-	mto := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			Locator:          "TEST12",
-			ID:               uuid.FromStringOrNil("5d4b25bb-eb04-4c03-9a81-ee0398cb779e"),
-			Status:           models.MoveStatusSUBMITTED,
-			OrdersID:         orders.ID,
-			Orders:           orders,
-			SelectedMoveType: &mtoSelectedMoveType,
+	mto := factory.BuildMove(appCtx.DB(), []factory.Customization{
+		{
+			Model:    orders,
+			LinkOnly: true,
 		},
-	})
-
+		{
+			Model: models.Move{
+				Locator:          "TEST12",
+				ID:               uuid.FromStringOrNil("5d4b25bb-eb04-4c03-9a81-ee0398cb779e"),
+				Status:           models.MoveStatusSUBMITTED,
+				SelectedMoveType: &mtoSelectedMoveType,
+			},
+		},
+	}, nil)
 	sitDaysAllowance := 270
 	MTOShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
 		MTOShipment: models.MTOShipment{
@@ -2966,15 +3035,19 @@ func createMoveWithSinceParamater(appCtx appcontext.AppContext, userUploader *up
 			},
 		},
 	}, nil)
-	mto2 := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			ID:                 uuid.FromStringOrNil("da3f34cc-fb94-4e0b-1c90-ba3333cb7791"),
-			OrdersID:           orders6.ID,
-			UpdatedAt:          time.Unix(1576779681256, 0),
-			AvailableToPrimeAt: swag.Time(time.Now()),
+	mto2 := factory.BuildMove(appCtx.DB(), []factory.Customization{
+		{
+			Model:    orders6,
+			LinkOnly: true,
 		},
-	})
-
+		{
+			Model: models.Move{
+				ID:                 uuid.FromStringOrNil("da3f34cc-fb94-4e0b-1c90-ba3333cb7791"),
+				UpdatedAt:          time.Unix(1576779681256, 0),
+				AvailableToPrimeAt: models.TimePointer(time.Now()),
+			},
+		},
+	}, nil)
 	mtoShipment2 := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
 		Move: mto2,
 	})
@@ -3055,14 +3128,21 @@ func createMoveWithSinceParamater(appCtx appcontext.AppContext, userUploader *up
 }
 
 func createMoveWithTaskOrderServices(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
-	mtoWithTaskOrderServices := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			ID:                 uuid.FromStringOrNil("9c7b255c-2981-4bf8-839f-61c7458e2b4d"),
-			AvailableToPrimeAt: swag.Time(time.Now()),
+	mtoWithTaskOrderServices := factory.BuildMove(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Move{
+				ID:                 uuid.FromStringOrNil("9c7b255c-2981-4bf8-839f-61c7458e2b4d"),
+				AvailableToPrimeAt: models.TimePointer(time.Now()),
+			},
 		},
-		UserUploader: userUploader,
-	})
-
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
 	estimated := unit.Pound(1400)
 	actual := unit.Pound(1349)
 	mtoShipment4 := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
@@ -3190,16 +3270,23 @@ func createPrimeSimulatorMoveNeedsShipmentUpdate(appCtx appcontext.AppContext, u
 	appCtx.DB()
 
 	now := time.Now()
-	move := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			ID:                 uuid.FromStringOrNil("ef4a2b75-ceb3-4620-96a8-5ccf26dddb16"),
-			Status:             models.MoveStatusAPPROVED,
-			Locator:            "PRMUPD",
-			AvailableToPrimeAt: &now,
+	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Move{
+				ID:                 uuid.FromStringOrNil("ef4a2b75-ceb3-4620-96a8-5ccf26dddb16"),
+				Status:             models.MoveStatusAPPROVED,
+				Locator:            "PRMUPD",
+				AvailableToPrimeAt: &now,
+			},
 		},
-		UserUploader: userUploader,
-	})
-
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
 	testdatagen.MakeMTOServiceItemBasic(appCtx.DB(), testdatagen.Assertions{
 		MTOServiceItem: models.MTOServiceItem{
 			Status: models.MTOServiceItemStatusApproved,
@@ -3339,17 +3426,20 @@ func createNTSRMoveWithServiceItemsAndPaymentRequest(appCtx appcontext.AppContex
 
 	// Create Move
 	selectedMoveType := models.SelectedMoveTypeNTSR
-	move := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			Locator:            locator,
-			OrdersID:           orders.ID,
-			AvailableToPrimeAt: swag.Time(time.Now()),
-			SelectedMoveType:   &selectedMoveType,
-			SubmittedAt:        &currentTime,
+	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Move{
+				Locator:            locator,
+				AvailableToPrimeAt: models.TimePointer(time.Now()),
+				SelectedMoveType:   &selectedMoveType,
+				SubmittedAt:        &currentTime,
+			},
 		},
-		Order: orders,
-	})
-
+		{
+			Model:    orders,
+			LinkOnly: true,
+		},
+	}, nil)
 	// Create Pickup Address
 	shipmentPickupAddress := factory.BuildAddress(appCtx.DB(), []factory.Customization{
 		{
@@ -3860,17 +3950,20 @@ func createNTSRMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader
 
 	// Create Move
 	selectedMoveType := models.SelectedMoveTypeNTSR
-	move := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			Locator:            locator,
-			OrdersID:           orders.ID,
-			AvailableToPrimeAt: swag.Time(time.Now()),
-			SelectedMoveType:   &selectedMoveType,
-			SubmittedAt:        &currentTime,
+	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
+		{
+			Model:    orders,
+			LinkOnly: true,
 		},
-		Order: orders,
-	})
-
+		{
+			Model: models.Move{
+				Locator:            locator,
+				AvailableToPrimeAt: models.TimePointer(time.Now()),
+				SelectedMoveType:   &selectedMoveType,
+				SubmittedAt:        &currentTime,
+			},
+		},
+	}, nil)
 	// Create Pickup Address
 	shipmentPickupAddress := factory.BuildAddress(appCtx.DB(), []factory.Customization{
 		{
@@ -3958,29 +4051,23 @@ func createNTSMoveWithServiceItemsandPaymentRequests(appCtx appcontext.AppContex
 	msCost := unit.Cents(10000)
 	dlhCost := unit.Cents(99999)
 
-	serviceMemberID := "f0d00265-e1e3-4fc7-aefd-a8dbfc774c06"
-	serviceMember := factory.BuildExtendedServiceMember(appCtx.DB(), []factory.Customization{
+	selectedMoveType := models.SelectedMoveTypeNTS
+	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.ServiceMember{
-				ID:        uuid.FromStringOrNil(serviceMemberID),
+				ID:        uuid.FromStringOrNil("f0d00265-e1e3-4fc7-aefd-a8dbfc774c06"),
 				FirstName: models.StringPointer("NTS"),
 				LastName:  models.StringPointer("TIO"),
 			},
 		},
+		{
+			Model: models.Move{
+				ID:               uuid.FromStringOrNil("f38c4257-c8fe-4cbc-a112-d9e24b5b5b49"),
+				Locator:          "NTSTIO",
+				SelectedMoveType: &selectedMoveType,
+			},
+		},
 	}, nil)
-
-	selectedMoveType := models.SelectedMoveTypeNTS
-	move := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
-		Order: models.Order{
-			ServiceMemberID: uuid.FromStringOrNil(serviceMemberID),
-			ServiceMember:   serviceMember,
-		},
-		Move: models.Move{
-			ID:               uuid.FromStringOrNil("f38c4257-c8fe-4cbc-a112-d9e24b5b5b49"),
-			Locator:          "NTSTIO",
-			SelectedMoveType: &selectedMoveType,
-		},
-	})
 
 	estimatedNTSWeight := unit.Pound(1400)
 	actualNTSWeight := unit.Pound(1000)
