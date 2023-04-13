@@ -2743,7 +2743,7 @@ func init() {
       }
     },
     "/ppm-shipments/{ppmShipmentId}/finish-document-review": {
-      "post": {
+      "patch": {
         "description": "Updates a PPM shipment's status once documents have been reviewed. Status is updated depending on whether any documents have been rejected.\n",
         "consumes": [
           "application/json"
@@ -3240,7 +3240,8 @@ func init() {
               "status",
               "originDutyLocation",
               "destinationDutyLocation",
-              "requestedMoveDate"
+              "requestedMoveDate",
+              "appearedInTooAt"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -12870,7 +12871,7 @@ func init() {
       }
     },
     "/ppm-shipments/{ppmShipmentId}/finish-document-review": {
-      "post": {
+      "patch": {
         "description": "Updates a PPM shipment's status once documents have been reviewed. Status is updated depending on whether any documents have been rejected.\n",
         "consumes": [
           "application/json"
@@ -13519,7 +13520,8 @@ func init() {
               "status",
               "originDutyLocation",
               "destinationDutyLocation",
-              "requestedMoveDate"
+              "requestedMoveDate",
+              "appearedInTooAt"
             ],
             "type": "string",
             "description": "field that results should be sorted by",

@@ -1438,7 +1438,7 @@ paths:
   /ppm-shipments/{ppmShipmentId}/finish-document-review:
     parameters:
       - $ref: '#/parameters/ppmShipmentId'
-    post:
+    patch:
       summary: Updates a PPM shipment's status after document review
       description: >
         Updates a PPM shipment's status once documents have been reviewed.
@@ -2795,6 +2795,7 @@ paths:
             - originDutyLocation
             - destinationDutyLocation
             - requestedMoveDate
+            - appearedInTooAt
           description: field that results should be sorted by
         - in: query
           name: order

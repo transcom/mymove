@@ -912,10 +912,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/mto-agents"] = mto_agent.NewFetchMTOAgentList(o.context, o.MtoAgentFetchMTOAgentListHandler)
-	if o.handlers["POST"] == nil {
-		o.handlers["POST"] = make(map[string]http.Handler)
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
-	o.handlers["POST"]["/ppm-shipments/{ppmShipmentId}/finish-document-review"] = ppm.NewFinishDocumentReview(o.context, o.PpmFinishDocumentReviewHandler)
+	o.handlers["PATCH"]["/ppm-shipments/{ppmShipmentId}/finish-document-review"] = ppm.NewFinishDocumentReview(o.context, o.PpmFinishDocumentReviewHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

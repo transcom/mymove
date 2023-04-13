@@ -295,11 +295,6 @@ func (suite *HandlerSuite) TestGetPPMDocumentsHandlerIntegration() {
 }
 
 func (suite *HandlerSuite) TestFinishPPMDocumentsReviewHandlerUnit() {
-
-	// TODO: match these tests to ppm_shipment_test unit and integration tests
-	// unit tests mock the service
-	// integration tests use the actual service
-
 	var ppmShipment models.PPMShipment
 
 	setUpPPMShipment := func() models.PPMShipment {
@@ -321,7 +316,7 @@ func (suite *HandlerSuite) TestFinishPPMDocumentsReviewHandlerUnit() {
 	setUpRequestAndParams := func(ppmShipment models.PPMShipment, authUser bool) (*http.Request, ppmdocumentops.FinishDocumentReviewParams) {
 		endpoint := fmt.Sprintf("/ppm-shipments/%s/finish-document-review", ppmShipment.ID.String())
 
-		req := httptest.NewRequest("POST", endpoint, nil)
+		req := httptest.NewRequest("PATCH", endpoint, nil)
 
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 
@@ -428,7 +423,7 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerIntegratio
 			ppmShipment.ID.String(),
 		)
 
-		request := httptest.NewRequest("POST", endpoint, nil)
+		request := httptest.NewRequest("PATCH", endpoint, nil)
 
 		request = suite.AuthenticateOfficeRequest(request, officeUser)
 

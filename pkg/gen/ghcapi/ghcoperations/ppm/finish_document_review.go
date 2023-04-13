@@ -30,7 +30,7 @@ func NewFinishDocumentReview(ctx *middleware.Context, handler FinishDocumentRevi
 }
 
 /*
-	FinishDocumentReview swagger:route POST /ppm-shipments/{ppmShipmentId}/finish-document-review ppm finishDocumentReview
+	FinishDocumentReview swagger:route PATCH /ppm-shipments/{ppmShipmentId}/finish-document-review ppm finishDocumentReview
 
 # Updates a PPM shipment's status after document review
 
