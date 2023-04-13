@@ -41,10 +41,13 @@ var Contractor CustomType = "Contractor"
 var Document CustomType = "Document"
 var DutyLocation CustomType = "DutyLocation"
 var Entitlement CustomType = "Entitlement"
+var Move CustomType = "Move"
+var MTOShipment CustomType = "MTOShipment"
 var OfficePhoneLine CustomType = "OfficePhoneLine"
 var OfficeUser CustomType = "OfficeUser"
 var Order CustomType = "Order"
 var Organization CustomType = "Organization"
+var PostalCodeToGBLOC CustomType = "PostalCodeToGBLOC"
 var ReService CustomType = "ReService"
 var ServiceItemParamKey CustomType = "ServiceItemParamKey"
 var ServiceMember CustomType = "ServiceMember"
@@ -66,10 +69,13 @@ var defaultTypesMap = map[string]CustomType{
 	"models.Document":             Document,
 	"models.DutyLocation":         DutyLocation,
 	"models.Entitlement":          Entitlement,
+	"models.Move":                 Move,
+	"models.MTOShipment":          MTOShipment,
 	"models.OfficePhoneLine":      OfficePhoneLine,
 	"models.OfficeUser":           OfficeUser,
 	"models.Order":                Order,
 	"models.Organization":         Organization,
+	"models.PostalCodeToGBLOC":    PostalCodeToGBLOC,
 	"models.ReService":            ReService,
 	"models.ServiceItemParamKey":  ServiceItemParamKey,
 	"models.ServiceMember":        ServiceMember,
@@ -90,6 +96,7 @@ var defaultTypesMap = map[string]CustomType{
 type addressGroup struct {
 	PickupAddress            CustomType
 	DeliveryAddress          CustomType
+	SecondaryPickupAddress   CustomType
 	SecondaryDeliveryAddress CustomType
 	ResidentialAddress       CustomType
 	BackupMailingAddress     CustomType
@@ -101,6 +108,7 @@ type addressGroup struct {
 var Addresses = addressGroup{
 	PickupAddress:            "PickupAddress",
 	DeliveryAddress:          "DeliveryAddress",
+	SecondaryPickupAddress:   "SecondaryPickupAddress",
 	SecondaryDeliveryAddress: "SecondaryDeliveryAddress",
 	ResidentialAddress:       "ResidentialAddress",
 	BackupMailingAddress:     "BackupMailingAddress",
@@ -143,6 +151,20 @@ var DutyLocations = dutyLocationsGroup{
 	// Orders may include:
 	OriginDutyLocation: "OriginDutyLocation",
 	NewDutyLocation:    "NewDutyLocation",
+}
+
+// transportationOfficeGroup is a grouping of all the transportation office related fields
+type transportationOfficeGroup struct {
+	OriginDutyLocation CustomType
+	NewDutyLocation    CustomType
+	CloseoutOffice     CustomType
+}
+
+// TransportationOffices is the struct to access the fields externally
+var TransportationOffices = transportationOfficeGroup{
+	OriginDutyLocation: "OriginDutyLocationTransportationOffice",
+	NewDutyLocation:    "NewDutyLocationTransportationOffice",
+	CloseoutOffice:     "CloseoutOffice",
 }
 
 // Below are errors returned by various functions

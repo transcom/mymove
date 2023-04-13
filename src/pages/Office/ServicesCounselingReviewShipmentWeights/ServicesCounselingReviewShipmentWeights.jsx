@@ -22,8 +22,6 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 
-const hasProGear = (orders) => Boolean(orders.entitlement?.proGearWeight || orders.entitlement?.spouseProGearWeight);
-
 const sortShipments = (shipments) => {
   const ppmShipment = [];
   const hhgShipment = [];
@@ -58,7 +56,8 @@ const ServicesCounselingReviewShipmentWeights = ({ moveCode }) => {
   if (isError) return <SomethingWentWrong />;
   // sort shipments for the table
   const sortedShipments = sortShipments(mtoShipments);
-  const showWeightsMoved = Boolean(hasProGear(order) || sortShipments.hhgShipment);
+  const hasProGear = Boolean(order.entitlement?.proGearWeight || order.entitlement?.spouseProGearWeight);
+  const showWeightsMoved = Boolean(hasProGear || sortedShipments.hhgShipment);
 
   return (
     <div className={tabStyles.tabContent}>

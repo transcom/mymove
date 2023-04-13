@@ -26,7 +26,6 @@ import (
 	orderservice "github.com/transcom/mymove/pkg/services/order"
 	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/swagger/nullable"
-	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/trace"
 	"github.com/transcom/mymove/pkg/uploader"
 )
@@ -34,7 +33,7 @@ import (
 func (suite *HandlerSuite) TestGetOrderHandlerIntegration() {
 	officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 
-	move := testdatagen.MakeDefaultMove(suite.DB())
+	move := factory.BuildMove(suite.DB(), nil, nil)
 	order := move.Orders
 	request := httptest.NewRequest("GET", "/orders/{orderID}", nil)
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
@@ -80,19 +79,22 @@ func (suite *HandlerSuite) TestGetOrderHandlerIntegration() {
 
 func (suite *HandlerSuite) TestWeightAllowances() {
 	suite.Run("With E-1 rank and no dependents", func() {
-		order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
-			Stub: true,
-			Order: models.Order{
-				ID:            uuid.Must(uuid.NewV4()),
-				HasDependents: *swag.Bool(false),
+		order := factory.BuildOrder(nil, []factory.Customization{
+			{
+				Model: models.Order{
+					ID:            uuid.Must(uuid.NewV4()),
+					HasDependents: *models.BoolPointer(false),
+				},
 			},
-			Entitlement: models.Entitlement{
-				ID:                   uuid.Must(uuid.NewV4()),
-				DependentsAuthorized: swag.Bool(false),
-				ProGearWeight:        2000,
-				ProGearWeightSpouse:  500,
+			{
+				Model: models.Entitlement{
+					DependentsAuthorized: models.BoolPointer(false),
+					ProGearWeight:        2000,
+					ProGearWeightSpouse:  500,
+				},
 			},
-		})
+		}, nil)
+
 		request := httptest.NewRequest("GET", "/orders/{orderID}", nil)
 		params := orderop.GetOrderParams{
 			HTTPRequest: request,
@@ -131,13 +133,14 @@ func (suite *HandlerSuite) TestWeightAllowances() {
 	})
 
 	suite.Run("With E-1 rank and dependents", func() {
-		order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
-			Stub: true,
-			Order: models.Order{
-				ID:            uuid.Must(uuid.NewV4()),
-				HasDependents: *swag.Bool(true),
+		order := factory.BuildOrder(nil, []factory.Customization{
+			{
+				Model: models.Order{
+					ID:            uuid.Must(uuid.NewV4()),
+					HasDependents: *models.BoolPointer(true),
+				},
 			},
-		})
+		}, nil)
 
 		request := httptest.NewRequest("GET", "/orders/{orderID}", nil)
 		params := orderop.GetOrderParams{
@@ -210,14 +213,18 @@ func (suite *HandlerSuite) makeUpdateOrderHandlerAmendedUploadSubtestData() (sub
 	}, nil)
 
 	amendedDocument.UserUploads = append(amendedDocument.UserUploads, amendedUpload)
-	subtestData.approvalsRequestedMove = testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{
-		Order: models.Order{
-			UploadedAmendedOrders:   &amendedDocument,
-			UploadedAmendedOrdersID: &amendedDocument.ID,
-			ServiceMember:           amendedDocument.ServiceMember,
-			ServiceMemberID:         amendedDocument.ServiceMemberID,
+
+	subtestData.approvalsRequestedMove = factory.BuildApprovalsRequestedMove(suite.DB(), []factory.Customization{
+		{
+			Model:    amendedDocument,
+			LinkOnly: true,
+			Type:     &factory.Documents.UploadedAmendedOrders,
 		},
-	})
+		{
+			Model:    amendedDocument.ServiceMember,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	subtestData.amendedOrder = subtestData.approvalsRequestedMove.Orders
 
@@ -269,14 +276,17 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 		}, nil)
 
 		document.UserUploads = append(document.UserUploads, upload)
-		move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{
-			Order: models.Order{
-				UploadedAmendedOrders:   &document,
-				UploadedAmendedOrdersID: &document.ID,
-				ServiceMember:           document.ServiceMember,
-				ServiceMemberID:         document.ServiceMemberID,
+		move := factory.BuildApprovalsRequestedMove(suite.DB(), []factory.Customization{
+			{
+				Model:    document,
+				LinkOnly: true,
+				Type:     &factory.Documents.UploadedAmendedOrders,
 			},
-		})
+			{
+				Model:    document.ServiceMember,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		order := move.Orders
 
@@ -480,7 +490,7 @@ type updateOrderHandlerSubtestData struct {
 func (suite *HandlerSuite) makeUpdateOrderHandlerSubtestData() (subtestData *updateOrderHandlerSubtestData) {
 	subtestData = &updateOrderHandlerSubtestData{}
 
-	subtestData.move = testdatagen.MakeServiceCounselingCompletedMove(suite.DB(), testdatagen.Assertions{})
+	subtestData.move = factory.BuildServiceCounselingCompletedMove(suite.DB(), nil, nil)
 	subtestData.order = subtestData.move.Orders
 
 	originDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
@@ -721,7 +731,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 
 // Test that an order notification got stored Successfully
 func (suite *HandlerSuite) TestUpdateOrderEventTrigger() {
-	move := testdatagen.MakeAvailableMove(suite.DB())
+	move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 	order := move.Orders
 
 	body := &ghcmessages.UpdateOrderPayload{}
@@ -780,7 +790,7 @@ func (suite *HandlerSuite) makeCounselingUpdateOrderHandlerSubtestData() (subtes
 
 	issueDate, _ := time.Parse("2006-01-02", "2020-08-01")
 	reportByDate, _ := time.Parse("2006-01-02", "2020-10-31")
-	subtestData.move = testdatagen.MakeNeedsServiceCounselingMove(suite.DB())
+	subtestData.move = factory.BuildNeedsServiceCounselingMove(suite.DB(), nil, nil)
 	subtestData.order = subtestData.move.Orders
 	originDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
 	destinationDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
@@ -983,7 +993,7 @@ type updateMaxBillableWeightAsTIOHandlerSubtestData struct {
 func (suite *HandlerSuite) makeUpdateAllowanceHandlerSubtestData() (subtestData *updateAllowanceHandlerSubtestData) {
 	subtestData = &updateAllowanceHandlerSubtestData{}
 
-	subtestData.move = testdatagen.MakeServiceCounselingCompletedMove(suite.DB(), testdatagen.Assertions{})
+	subtestData.move = factory.BuildServiceCounselingCompletedMove(suite.DB(), nil, nil)
 	subtestData.order = subtestData.move.Orders
 
 	newAuthorizedWeight := int64(10000)
@@ -1011,9 +1021,13 @@ func (suite *HandlerSuite) makeUpdateAllowanceHandlerSubtestData() (subtestData 
 func (suite *HandlerSuite) makeUpdateMaxBillableWeightAsTIOHandlerSubtestData() (subtestData *updateMaxBillableWeightAsTIOHandlerSubtestData) {
 	subtestData = &updateMaxBillableWeightAsTIOHandlerSubtestData{}
 	now := time.Now()
-	subtestData.move = testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{ExcessWeightQualifiedAt: &now},
-	})
+	subtestData.move = factory.BuildApprovalsRequestedMove(suite.DB(), []factory.Customization{
+		{
+			Model: models.Move{
+				ExcessWeightQualifiedAt: &now,
+			},
+		},
+	}, nil)
 	subtestData.order = subtestData.move.Orders
 
 	newAuthorizedWeight := int64(10000)
@@ -1029,9 +1043,13 @@ func (suite *HandlerSuite) makeUpdateMaxBillableWeightAsTIOHandlerSubtestData() 
 func (suite *HandlerSuite) makeUpdateBillableWeightHandlerSubtestData() (subtestData *updateBillableWeightHandlerSubtestData) {
 	subtestData = &updateBillableWeightHandlerSubtestData{}
 	now := time.Now()
-	subtestData.move = testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{ExcessWeightQualifiedAt: &now},
-	})
+	subtestData.move = factory.BuildApprovalsRequestedMove(suite.DB(), []factory.Customization{
+		{
+			Model: models.Move{
+				ExcessWeightQualifiedAt: &now,
+			},
+		},
+	}, nil)
 	subtestData.order = subtestData.move.Orders
 
 	newAuthorizedWeight := int64(10000)
@@ -1206,7 +1224,7 @@ func (suite *HandlerSuite) TestUpdateAllowanceHandler() {
 
 // Test that an order notification got stored Successfully
 func (suite *HandlerSuite) TestUpdateAllowanceEventTrigger() {
-	move := testdatagen.MakeAvailableMove(suite.DB())
+	move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 	order := move.Orders
 
 	body := &ghcmessages.UpdateAllowancePayload{}
@@ -1277,7 +1295,7 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 
 	suite.Run("Returns 200 when all validations pass", func() {
 		handlerConfig := suite.HandlerConfig()
-		move := testdatagen.MakeNeedsServiceCounselingMove(suite.DB())
+		move := factory.BuildNeedsServiceCounselingMove(suite.DB(), nil, nil)
 		order := move.Orders
 
 		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeTIO, roles.RoleTypeServicesCounselor})
@@ -1322,7 +1340,7 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 
 	suite.Run("Returns 404 when updater returns NotFoundError", func() {
 		handlerConfig := suite.HandlerConfig()
-		move := testdatagen.MakeNeedsServiceCounselingMove(suite.DB())
+		move := factory.BuildNeedsServiceCounselingMove(suite.DB(), nil, nil)
 		order := move.Orders
 
 		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
@@ -1358,7 +1376,7 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 
 	suite.Run("Returns 412 when eTag does not match", func() {
 		handlerConfig := suite.HandlerConfig()
-		move := testdatagen.MakeNeedsServiceCounselingMove(suite.DB())
+		move := factory.BuildNeedsServiceCounselingMove(suite.DB(), nil, nil)
 		order := move.Orders
 
 		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
@@ -1394,7 +1412,7 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 
 	suite.Run("Returns 422 when updater service returns validation errors", func() {
 		handlerConfig := suite.HandlerConfig()
-		move := testdatagen.MakeNeedsServiceCounselingMove(suite.DB())
+		move := factory.BuildNeedsServiceCounselingMove(suite.DB(), nil, nil)
 		order := move.Orders
 
 		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
@@ -1809,9 +1827,13 @@ func (suite *HandlerSuite) TestAcknowledgeExcessWeightRiskHandler() {
 	suite.Run("Returns 200 when all validations pass", func() {
 		handlerConfig := suite.HandlerConfig()
 		now := time.Now()
-		move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{ExcessWeightQualifiedAt: &now},
-		})
+		move := factory.BuildApprovalsRequestedMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					ExcessWeightQualifiedAt: &now,
+				},
+			},
+		}, nil)
 		order := move.Orders
 
 		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeTIO, roles.RoleTypeServicesCounselor})
@@ -1848,9 +1870,13 @@ func (suite *HandlerSuite) TestAcknowledgeExcessWeightRiskHandler() {
 	suite.Run("Returns 404 when updater returns NotFoundError", func() {
 		handlerConfig := suite.HandlerConfig()
 		now := time.Now()
-		move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{ExcessWeightQualifiedAt: &now},
-		})
+		move := factory.BuildApprovalsRequestedMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					ExcessWeightQualifiedAt: &now,
+				},
+			},
+		}, nil)
 		order := move.Orders
 
 		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
@@ -1885,9 +1911,13 @@ func (suite *HandlerSuite) TestAcknowledgeExcessWeightRiskHandler() {
 	suite.Run("Returns 412 when eTag does not match", func() {
 		handlerConfig := suite.HandlerConfig()
 		now := time.Now()
-		move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{ExcessWeightQualifiedAt: &now},
-		})
+		move := factory.BuildApprovalsRequestedMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					ExcessWeightQualifiedAt: &now,
+				},
+			},
+		}, nil)
 		order := move.Orders
 
 		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
@@ -1922,9 +1952,13 @@ func (suite *HandlerSuite) TestAcknowledgeExcessWeightRiskHandler() {
 	suite.Run("Returns 422 when updater service returns validation errors", func() {
 		handlerConfig := suite.HandlerConfig()
 		now := time.Now()
-		move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{ExcessWeightQualifiedAt: &now},
-		})
+		move := factory.BuildApprovalsRequestedMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					ExcessWeightQualifiedAt: &now,
+				},
+			},
+		}, nil)
 		order := move.Orders
 
 		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
@@ -1963,9 +1997,13 @@ func (suite *HandlerSuite) TestAcknowledgeExcessWeightRiskHandler() {
 // Test that an order notification got stored successfully
 func (suite *HandlerSuite) TestAcknowledgeExcessWeightRiskEventTrigger() {
 	now := time.Now()
-	move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{ExcessWeightQualifiedAt: &now},
-	})
+	move := factory.BuildApprovalsRequestedMove(suite.DB(), []factory.Customization{
+		{
+			Model: models.Move{
+				ExcessWeightQualifiedAt: &now,
+			},
+		},
+	}, nil)
 	order := move.Orders
 
 	requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})

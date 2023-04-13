@@ -3176,7 +3176,8 @@ func init() {
               "status",
               "originDutyLocation",
               "destinationDutyLocation",
-              "requestedMoveDate"
+              "requestedMoveDate",
+              "appearedInTooAt"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -3221,6 +3222,12 @@ func init() {
           {
             "type": "string",
             "name": "destinationDutyLocation",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "name": "appearedInTooAt",
             "in": "query"
           },
           {
@@ -6154,6 +6161,12 @@ func init() {
     },
     "Move": {
       "properties": {
+        "approvalsRequestedAt": {
+          "description": "The time at which a move is sent back to the TOO becuase the prime added a new service item for approval",
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "availableToPrimeAt": {
           "type": "string",
           "format": "date-time",
@@ -7621,6 +7634,11 @@ func init() {
     "QueueMove": {
       "type": "object",
       "properties": {
+        "appearedInTooAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "closeoutInitiated": {
           "type": "string",
           "format": "date-time",
@@ -13345,7 +13363,8 @@ func init() {
               "status",
               "originDutyLocation",
               "destinationDutyLocation",
-              "requestedMoveDate"
+              "requestedMoveDate",
+              "appearedInTooAt"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -13390,6 +13409,12 @@ func init() {
           {
             "type": "string",
             "name": "destinationDutyLocation",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "name": "appearedInTooAt",
             "in": "query"
           },
           {
@@ -16603,6 +16628,12 @@ func init() {
     },
     "Move": {
       "properties": {
+        "approvalsRequestedAt": {
+          "description": "The time at which a move is sent back to the TOO becuase the prime added a new service item for approval",
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "availableToPrimeAt": {
           "type": "string",
           "format": "date-time",
@@ -18071,6 +18102,11 @@ func init() {
     "QueueMove": {
       "type": "object",
       "properties": {
+        "appearedInTooAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "closeoutInitiated": {
           "type": "string",
           "format": "date-time",

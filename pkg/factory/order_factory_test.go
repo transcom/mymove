@@ -22,6 +22,7 @@ func (suite *FactorySuite) TestBuildOrder() {
 	testYear := 2018
 	defaultIssueDate := time.Date(testYear, time.March, 15, 0, 0, 0, 0, time.UTC)
 	defaultReportByDate := time.Date(testYear, time.August, 1, 0, 0, 0, 0, time.UTC)
+	defaultGBLOC := "KKFA"
 
 	suite.Run("Successful creation of default order", func() {
 		// Under test:      BuildOrder
@@ -46,6 +47,7 @@ func (suite *FactorySuite) TestBuildOrder() {
 		suite.Equal(defaultStatus, order.Status)
 		suite.Equal(defaultIssueDate, order.IssueDate)
 		suite.Equal(defaultReportByDate, order.ReportByDate)
+		suite.Equal(defaultGBLOC, *order.OriginDutyLocationGBLOC)
 
 		// extended service members have backup contacts
 		suite.False(order.ServiceMemberID.IsNil())
@@ -90,6 +92,7 @@ func (suite *FactorySuite) TestBuildOrder() {
 		originDutyLocation := models.DutyLocation{
 			Name: "Custom Origin",
 		}
+		originDutyLocationTOName := "origin duty location transportation office"
 		firstName := "customFirst"
 		lastName := "customLast"
 		serviceMember := models.ServiceMember{
@@ -112,6 +115,12 @@ func (suite *FactorySuite) TestBuildOrder() {
 				Type:  &DutyLocations.OriginDutyLocation,
 			},
 			{
+				Model: models.TransportationOffice{
+					Name: originDutyLocationTOName,
+				},
+				Type: &TransportationOffices.OriginDutyLocation,
+			},
+			{
 				Model: serviceMember,
 			},
 			{
@@ -131,6 +140,8 @@ func (suite *FactorySuite) TestBuildOrder() {
 
 		suite.Equal(originDutyLocation.Name, order.OriginDutyLocation.Name)
 		suite.Equal(originDutyLocation.Name, order.ServiceMember.DutyLocation.Name)
+		suite.Equal(originDutyLocationTOName, order.OriginDutyLocation.TransportationOffice.Name)
+		suite.Equal(originDutyLocationTOName, order.ServiceMember.DutyLocation.TransportationOffice.Name)
 		suite.Equal(*serviceMember.FirstName, *order.ServiceMember.FirstName)
 		suite.Equal(*serviceMember.LastName, *order.ServiceMember.LastName)
 		suite.Equal(uploadedOrders.ID, order.UploadedOrdersID)

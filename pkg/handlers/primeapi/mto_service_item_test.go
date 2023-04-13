@@ -42,7 +42,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 	makeSubtestData := func() (subtestData *localSubtestData) {
 		subtestData = &localSubtestData{}
 
-		mto := testdatagen.MakeAvailableMove(suite.DB())
+		mto := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		subtestData.mtoShipment = testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: mto,
 		})
@@ -220,7 +220,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 
 	suite.Run("POST failure - 404 - MTO is not available to Prime", func() {
 		subtestData := makeSubtestData()
-		mtoNotAvailable := testdatagen.MakeDefaultMove(suite.DB())
+		mtoNotAvailable := factory.BuildMove(suite.DB(), nil, nil)
 		moveRouter := moverouter.NewMoveRouter()
 		creator := mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter)
 		handler := CreateMTOServiceItemHandler{
@@ -252,7 +252,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 
 	suite.Run("POST failure - 404 - Integration - ShipmentID not linked by MoveTaskOrderID", func() {
 		subtestData := makeSubtestData()
-		mto2 := testdatagen.MakeAvailableMove(suite.DB())
+		mto2 := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		mtoShipment2 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: mto2,
 		})
@@ -363,7 +363,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
 	makeSubtestData := func() (subtestData *localSubtestData) {
 		subtestData = &localSubtestData{}
 
-		mto := testdatagen.MakeAvailableMove(suite.DB())
+		mto := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: mto,
 		})
@@ -511,7 +511,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandler() {
 	makeSubtestData := func() (subtestData *localSubtestData) {
 		subtestData = &localSubtestData{}
 
-		subtestData.mto = testdatagen.MakeAvailableMove(suite.DB())
+		subtestData.mto = factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		subtestData.mtoShipment = testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: subtestData.mto,
 		})
@@ -674,7 +674,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandlerWithDOFSITNoA
 
 	makeSubtestData := func() (subtestData *localSubtestData) {
 		subtestData = &localSubtestData{}
-		mto := testdatagen.MakeAvailableMove(suite.DB())
+		mto := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: mto,
 		})
@@ -751,7 +751,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandlerWithDOFSITWit
 
 	makeSubtestData := func() (subtestData *localSubtestData) {
 		subtestData = &localSubtestData{}
-		mto := testdatagen.MakeAvailableMove(suite.DB())
+		mto := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		subtestData.mtoShipment = testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: mto,
 		})
@@ -920,7 +920,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 
 	makeSubtestData := func() (subtestData *localSubtestData) {
 		subtestData = &localSubtestData{}
-		subtestData.mto = testdatagen.MakeAvailableMove(suite.DB())
+		subtestData.mto = factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		subtestData.mtoShipment = testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: subtestData.mto,
 		})

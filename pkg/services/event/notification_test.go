@@ -182,7 +182,7 @@ func (suite *EventServiceSuite) Test_MTOServiceItemPayload() {
 func (suite *EventServiceSuite) TestAssembleOrderPayload() {
 
 	suite.Run("Success with default Order", func() {
-		order := testdatagen.MakeDefaultOrder(suite.DB())
+		order := factory.BuildOrder(suite.DB(), nil, nil)
 		payload, err := assembleOrderPayload(suite.AppContextForTest(), order.ID)
 		suite.FatalNoError(err)
 

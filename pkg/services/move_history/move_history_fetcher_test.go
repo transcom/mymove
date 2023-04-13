@@ -30,7 +30,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherFunctionality() {
 
 	suite.Run("successfully returns submitted move history available to prime", func() {
 
-		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
+		approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		now := time.Now()
 		pickupDate := now.AddDate(0, 0, 10)
 		secondaryPickupAddress := factory.BuildAddress(suite.DB(), nil, nil)
@@ -203,7 +203,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherFunctionality() {
 	})
 
 	suite.Run("returns not found error for unknown locator", func() {
-		_ = testdatagen.MakeAvailableMove(suite.DB())
+		_ = factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
 		params := services.FetchMoveHistoryParams{Locator: "QX97UY", Page: swag.Int64(1), PerPage: swag.Int64(100)}
 		_, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
@@ -212,7 +212,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherFunctionality() {
 	})
 
 	suite.Run("returns paginated results", func() {
-		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
+		approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
 		// update move
 		tioRemarks := "updating TIO remarks for test"
@@ -244,13 +244,13 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherFunctionality() {
 			}
 		}
 
-		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
+		approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		approvedShipment := testdatagen.MakeMTOShipmentWithMove(suite.DB(), &approvedMove, testdatagen.Assertions{})
 		serviceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 			Move: approvedMove,
 		})
 
-		approvedMoveToFilter := testdatagen.MakeAvailableMove(suite.DB())
+		approvedMoveToFilter := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		approvedShipmentToFilter := testdatagen.MakeMTOShipmentWithMove(suite.DB(), &approvedMoveToFilter, testdatagen.Assertions{})
 		serviceItemToFilter := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 			Move: approvedMoveToFilter,
@@ -288,7 +288,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherFunctionality() {
 	})
 
 	suite.Run("returns Audit History with session information", func() {
-		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
+		approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		fakeRole := factory.FetchOrBuildRoleByRoleType(suite.DB(), roles.RoleTypeTOO)
 		fakeUser := factory.BuildUser(suite.DB(), nil, nil)
 		_ = testdatagen.MakeUsersRoles(suite.DB(), testdatagen.Assertions{
@@ -344,7 +344,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 		moveRouter := moverouter.NewMoveRouter()
 
 		updater := mtoserviceitem.NewMTOServiceItemUpdater(builder, moveRouter)
-		move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{})
+		move := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
 		serviceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 			Move: move,
 		})
@@ -381,7 +381,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 	})
 
 	suite.Run("has audit history records for approved payment request", func() {
-		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
+		approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		cents := unit.Cents(1000)
 		approvedPaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 			PaymentRequest: models.PaymentRequest{
@@ -484,7 +484,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 	})
 
 	suite.Run("has audit history records for service item dimensions", func() {
-		move := testdatagen.MakeAvailableMove(suite.DB())
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: move,
 		})
@@ -548,7 +548,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 	})
 
 	suite.Run("has audit history records for service item customer contacts", func() {
-		move := testdatagen.MakeAvailableMove(suite.DB())
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: move,
 		})
@@ -608,7 +608,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 	})
 
 	suite.Run("has audit history records for service members", func() {
-		move := testdatagen.MakeAvailableMove(suite.DB())
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		serviceMember := move.Orders.ServiceMember
 		suite.NotNil(serviceMember)
 
@@ -638,7 +638,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 	})
 
 	suite.Run("has audit history records for mto_agents", func() {
-		move := testdatagen.MakeAvailableMove(suite.DB())
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		mtoAgent := testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
 			Move: move,
 		})
@@ -692,7 +692,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 	})
 
 	suite.Run("has audit history records for orders with context", func() {
-		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
+		approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		order := approvedMove.Orders
 		now := time.Now()
 		pickupDate := now.AddDate(0, 0, 10)
@@ -807,7 +807,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 
 	suite.Run("has audit history records for user uploads with context", func() {
 		// Make an approved move and get the associated orders, service member, uploaded orders and related document
-		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
+		approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		orders := approvedMove.Orders
 		serviceMember := orders.ServiceMember
 		uploadedOrdersDocument := orders.UploadedOrders
@@ -858,7 +858,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 	})
 
 	suite.Run("has audit history records for proof of service documents", func() {
-		move := testdatagen.MakeAvailableMove(suite.DB())
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		priceCents := unit.Cents(1000000)
 
 		// Create a payment request
@@ -918,7 +918,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 	})
 
 	suite.Run("has audit history records for shipment addresses", func() {
-		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
+		approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		now := time.Now()
 		pickupDate := now.AddDate(0, 0, 10)
 		secondaryPickupAddress := factory.BuildAddress(suite.DB(), nil, nil)
@@ -979,7 +979,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 	})
 
 	suite.Run("has audit history records for service member addresses", func() {
-		move := testdatagen.MakeAvailableMove(suite.DB())
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		serviceMember := move.Orders.ServiceMember
 		suite.NotNil(serviceMember)
 
@@ -1020,7 +1020,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 	})
 
 	suite.Run("has audit history records for backup contacts", func() {
-		move := testdatagen.MakeAvailableMove(suite.DB())
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		serviceMember := move.Orders.ServiceMember
 		suite.NotNil(serviceMember)
 
@@ -1087,7 +1087,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherUserInfo() {
 		} else {
 			user = testdatagen.MakeUserWithRoleTypes(suite.DB(), roleTypes, assertions)
 		}
-		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
+		approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		testdatagen.MakeAuditHistory(suite.DB(), testdatagen.Assertions{
 			User: user,
 			Move: models.Move{
@@ -1098,13 +1098,14 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherUserInfo() {
 	}
 
 	setupServiceMemberTestData := func(userFirstName string, fakeEventName string) (string, models.User) {
-		assertions := testdatagen.Assertions{
-			ServiceMember: models.ServiceMember{
-				FirstName: &userFirstName,
-			},
-		}
 		// Create an unsubmitted move with the service member attached to the orders.
-		move := testdatagen.MakeMove(suite.DB(), assertions)
+		move := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.ServiceMember{
+					FirstName: &userFirstName,
+				},
+			},
+		}, nil)
 		user := move.Orders.ServiceMember.User
 		testdatagen.MakeAuditHistory(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{

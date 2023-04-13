@@ -79,10 +79,9 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	var paymentRequest models.PaymentRequest
 	var paymentServiceItems models.PaymentServiceItems
 	var result ediinvoice.Invoice858C
-	var err error
 
 	setupTestData := func() {
-		mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+		mto := factory.BuildMove(suite.DB(), nil, nil)
 
 		paymentRequest = testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 			Move: mto,
@@ -276,7 +275,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		// setup known next value
 		icnErr := suite.icnSequencer.SetVal(suite.AppContextForTest(), 122)
 		suite.NoError(icnErr)
-
+		var err error
 		// Proceed with full EDI Generation tests
 		result, err = generator.Generate(suite.AppContextForTest(), paymentRequest, false)
 		suite.NoError(err)
@@ -403,6 +402,77 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		currency := result.Header.Currency
 		suite.IsType(edisegment.C3{}, currency)
 		suite.Equal("USD", currency.CurrencyCodeC301)
+	})
+
+	// test that service members of affiliation MARINES have a GBLOC of USMC
+	suite.Run("updates the GBLOC for marines to be USMC", func() {
+		affiliationMarines := models.AffiliationMARINES
+		sm := models.ServiceMember{
+			Affiliation: &affiliationMarines,
+			ID:          uuid.FromStringOrNil("d66d2f35-218c-4b85-b9d1-631949b9d100"),
+		}
+
+		mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			ServiceMember: sm,
+		})
+
+		paymentRequest = testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+			Move: mto,
+			PaymentRequest: models.PaymentRequest{
+				IsFinal:         false,
+				Status:          models.PaymentRequestStatusPending,
+				RejectionReason: nil,
+			},
+		})
+
+		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: mto,
+			MTOShipment: models.MTOShipment{
+				RequestedPickupDate: &requestedPickupDate,
+				ScheduledPickupDate: &scheduledPickupDate,
+				ActualPickupDate:    &actualPickupDate,
+			},
+		})
+
+		priceCents := unit.Cents(888)
+		assertions := testdatagen.Assertions{
+			Move:           mto,
+			MTOShipment:    mtoShipment,
+			PaymentRequest: paymentRequest,
+			PaymentServiceItem: models.PaymentServiceItem{
+				Status:     models.PaymentServiceItemStatusApproved,
+				PriceCents: &priceCents,
+			},
+		}
+		distanceZipSITOriginParam := testdatagen.CreatePaymentServiceItemParams{
+			Key:     models.ServiceItemParamNameDistanceZipSITOrigin,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "33",
+		}
+
+		dopsitParams := append(basicPaymentServiceItemParams, distanceZipSITOriginParam)
+		dopsit := testdatagen.MakePaymentServiceItemWithParams(
+			suite.DB(),
+			models.ReServiceCodeDOPSIT,
+			dopsitParams,
+			assertions,
+		)
+
+		paymentServiceItems = models.PaymentServiceItems{}
+		paymentServiceItems = append(paymentServiceItems, dopsit)
+
+		// setup known next value
+		icnErr := suite.icnSequencer.SetVal(suite.AppContextForTest(), 122)
+		suite.NoError(icnErr)
+
+		// Proceed with full EDI Generation tests
+		var err error
+		result, err = generator.Generate(suite.AppContextForTest(), paymentRequest, false)
+		suite.NoError(err)
+
+		// reference the N1 EDI segment Identification Code, which in this case should be the GBLOC
+		n1 := result.Header.OriginName
+		suite.Equal("USMC", n1.IdentificationCode)
 	})
 
 	suite.Run("adds actual pickup date to header", func() {
@@ -732,7 +802,7 @@ func (suite *GHCInvoiceSuite) TestOnlyMsandCsGenerateEdi() {
 			Value:   testdatagen.DefaultContractCode,
 		},
 	}
-	mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+	mto := factory.BuildMove(suite.DB(), nil, nil)
 	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 		Move: mto,
 		PaymentRequest: models.PaymentRequest{
@@ -797,7 +867,7 @@ func (suite *GHCInvoiceSuite) TestNilValues() {
 
 	var nilPaymentRequest models.PaymentRequest
 	setupTestData := func() {
-		nilMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+		nilMove := factory.BuildMove(suite.DB(), nil, nil)
 
 		nilPaymentRequest = testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 			Move: nilMove,
@@ -917,7 +987,7 @@ func (suite *GHCInvoiceSuite) TestNoApprovedPaymentServiceItems() {
 				Value:   testdatagen.DefaultContractCode,
 			},
 		}
-		mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+		mto := factory.BuildMove(suite.DB(), nil, nil)
 		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 			Move: mto,
 			PaymentRequest: models.PaymentRequest{
@@ -1015,16 +1085,14 @@ func (suite *GHCInvoiceSuite) TestTACs() {
 	var paymentRequest models.PaymentRequest
 
 	setupTestData := func() {
-		orders := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
-			Order: models.Order{
-				TAC:    &hhgTAC,
-				NtsTAC: &ntsTAC,
+		move := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Order{
+					TAC:    &hhgTAC,
+					NtsTAC: &ntsTAC,
+				},
 			},
-		})
-
-		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Order: orders,
-		})
+		}, nil)
 
 		paymentRequest = testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 			Move: move,

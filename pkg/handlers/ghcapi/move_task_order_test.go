@@ -37,10 +37,7 @@ import (
 )
 
 func (suite *HandlerSuite) TestGetMoveTaskOrderHandlerIntegration() {
-	order := testdatagen.MakeDefaultOrder(suite.DB())
-	moveTaskOrder := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-		Order: order,
-	})
+	moveTaskOrder := factory.BuildMove(suite.DB(), nil, nil)
 	factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeMS)
 	factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeCS)
 
@@ -86,7 +83,13 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationSuccess() {
 		{"Service Counseling Completed", models.MoveStatusServiceCounselingCompleted},
 	}
 	for _, validStatus := range validStatuses {
-		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Move: models.Move{Status: validStatus.status}})
+		move := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: validStatus.status,
+				},
+			},
+		}, nil)
 
 		request := httptest.NewRequest("PATCH", "/move-task-orders/{moveID}/status", nil)
 		requestUser := factory.BuildUser(nil, nil, nil)
@@ -158,12 +161,13 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationSuccess() {
 }
 
 func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationWithStaleEtag() {
-	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-		Stub: true,
-		Move: models.Move{
-			Status: models.MoveStatusSUBMITTED,
+	move := factory.BuildMove(suite.DB(), []factory.Customization{
+		{
+			Model: models.Move{
+				Status: models.MoveStatusSUBMITTED,
+			},
 		},
-	})
+	}, nil)
 
 	request := httptest.NewRequest("PATCH", "/move-task-orders/{moveTaskOrderID}/status", nil)
 	requestUser := factory.BuildUser(nil, nil, nil)
@@ -200,13 +204,18 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationWithStaleEta
 }
 
 func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationWithIncompleteOrder() {
-	orderWithoutDefaults := testdatagen.MakeOrderWithoutDefaults(suite.DB(), testdatagen.Assertions{})
-	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			Status: models.MoveStatusServiceCounselingCompleted,
+	orderWithoutDefaults := factory.BuildOrderWithoutDefaults(suite.DB(), nil, nil)
+	move := factory.BuildMove(suite.DB(), []factory.Customization{
+		{
+			Model: models.Move{
+				Status: models.MoveStatusServiceCounselingCompleted,
+			},
 		},
-		Order: orderWithoutDefaults,
-	})
+		{
+			Model:    orderWithoutDefaults,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	request := httptest.NewRequest("PATCH", "/move-task-orders/{moveTaskOrderID}/status", nil)
 	requestUser := factory.BuildUser(nil, nil, nil)
@@ -337,7 +346,7 @@ func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingCompletedHandler(
 		request := httptest.NewRequest("PATCH", "/move-task-orders/{moveTaskOrderID}/status/service-counseling-completed", nil)
 		requestUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
-		move := testdatagen.MakeNeedsServiceCounselingMove(suite.DB())
+		move := factory.BuildNeedsServiceCounselingMove(suite.DB(), nil, nil)
 		testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
 			Move: move,
 		})
@@ -364,11 +373,7 @@ func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingCompletedHandler(
 		request := httptest.NewRequest("PATCH", "/move-task-orders/{moveTaskOrderID}/status/service-counseling-completed", nil)
 		requestUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
-		draftMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				Status: models.MoveStatusDRAFT,
-			},
-		})
+		draftMove := factory.BuildMove(suite.DB(), nil, nil)
 		testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
 			Move: draftMove,
 		})
@@ -404,7 +409,7 @@ func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingCompletedHandler(
 			{errors.New("generic error"), &movetaskorderops.UpdateMTOStatusServiceCounselingCompletedInternalServerError{}},
 		}
 
-		move := testdatagen.MakeStubbedMoveWithStatus(suite.DB(), models.MoveStatusNeedsServiceCounseling)
+		move := factory.BuildStubbedMoveWithStatus(models.MoveStatusNeedsServiceCounseling)
 		eTag := etag.GenerateEtag(move.UpdatedAt)
 		params := movetaskorderops.UpdateMTOStatusServiceCounselingCompletedParams{
 			HTTPRequest:     request,
@@ -446,14 +451,13 @@ func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingCompletedHandler(
 
 func (suite *HandlerSuite) TestUpdateMoveTIORemarksHandler() {
 	setupTestData := func() (models.Move, UpdateMoveTIORemarksHandlerFunc, models.User) {
-
-		order := testdatagen.MakeDefaultOrder(suite.DB())
-		moveTaskOrder := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				Status: models.MoveStatusNeedsServiceCounseling,
+		moveTaskOrder := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusNeedsServiceCounseling,
+				},
 			},
-			Order: order,
-		})
+		}, nil)
 		requestUser := factory.BuildUser(nil, nil, nil)
 		handlerConfig := suite.HandlerConfig()
 		queryBuilder := query.NewQueryBuilder()

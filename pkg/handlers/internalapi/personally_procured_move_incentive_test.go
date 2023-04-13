@@ -14,7 +14,6 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/route/mocks"
-	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testdatagen/scenario"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -99,37 +98,35 @@ func (suite *HandlerSuite) setupPersonallyProcuredMoveIncentiveTest(ordersID uui
 	}
 	suite.MustSave(&tspPerformance)
 
-	address := models.Address{
-		StreetAddress1: "some address",
-		City:           "city",
-		State:          "state",
-		PostalCode:     "78626",
-	}
-	suite.MustSave(&address)
-
-	locationName := "New Duty Location"
-	location := models.DutyLocation{
-		Name:      locationName,
-		AddressID: address.ID,
-		Address:   address,
-	}
-	suite.MustSave(&location)
-
-	orders := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
-		Order: models.Order{
-			ID:                ordersID,
-			NewDutyLocationID: location.ID,
+	orders := factory.BuildOrder(suite.DB(), []factory.Customization{
+		{
+			Model: models.Order{
+				ID: ordersID,
+			},
 		},
-	})
-
-	moveID, _ := uuid.NewV4()
-	_ = testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			ID:       moveID,
-			OrdersID: ordersID,
+		{
+			Model: models.DutyLocation{
+				Name: "New Duty Location",
+			},
+			Type: &factory.DutyLocations.NewDutyLocation,
 		},
-		Order: orders,
-	})
+		{
+			Model: models.Address{
+				StreetAddress1: "some address",
+				City:           "city",
+				State:          "state",
+				PostalCode:     "78626",
+			},
+			Type: &factory.Addresses.DutyLocationAddress,
+		},
+	}, nil)
+
+	_ = factory.BuildMove(suite.DB(), []factory.Customization{
+		{
+			Model:    orders,
+			LinkOnly: true,
+		},
+	}, nil)
 }
 
 func (suite *HandlerSuite) TestShowPPMIncentiveHandlerForbidden() {

@@ -5,6 +5,7 @@ import (
 
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	. "github.com/transcom/mymove/pkg/services/move_task_order"
@@ -15,7 +16,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 
 	setupTestData := func() (models.Move, models.MTOShipment) {
 
-		expectedMTO := testdatagen.MakeDefaultMove(suite.DB())
+		expectedMTO := factory.BuildMove(suite.DB(), nil, nil)
 
 		// Make a couple of shipments for the move; one prime, one external
 		primeShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
@@ -65,6 +66,39 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 		suite.Len(actualMTO.MTOShipments, 2)
 	})
 
+	suite.Run("Success with fetching move with a related service item", func() {
+		expectedMTO, _ := setupTestData()
+		searchParams := services.MoveTaskOrderFetcherParams{
+			IncludeHidden:   false,
+			MoveTaskOrderID: expectedMTO.ID,
+		}
+
+		address := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{})
+		sitEntryDate := time.Now()
+
+		testdatagen.MakeMTOServiceItemBasic(suite.DB(), testdatagen.Assertions{
+			MTOServiceItem: models.MTOServiceItem{
+				Status:                     models.MTOServiceItemStatusApproved,
+				SITDestinationFinalAddress: &address,
+				SITEntryDate:               &sitEntryDate,
+			},
+			Move: expectedMTO,
+			ReService: models.ReService{
+				Code: models.ReServiceCodeDDFSIT, // DDFSIT - Domestic destination 1st day SIT
+			},
+		})
+
+		actualMTO, err := mtoFetcher.FetchMoveTaskOrder(suite.AppContextForTest(), &searchParams)
+		suite.NoError(err)
+		if suite.Len(actualMTO.MTOServiceItems, 1) {
+			serviceItem := actualMTO.MTOServiceItems[0]
+			suite.Equal(models.ReServiceCodeDDFSIT, serviceItem.ReService.Code)
+			suite.Equal(address.StreetAddress1, serviceItem.SITDestinationFinalAddress.StreetAddress1)
+			suite.Equal(address.State, serviceItem.SITDestinationFinalAddress.State)
+			suite.Equal(address.City, serviceItem.SITDestinationFinalAddress.City)
+		}
+	})
+
 	suite.Run("Success with Prime-available move by Locator, no deleted or external shipments", func() {
 		expectedMTO, primeShipment := setupTestData()
 		searchParams := services.MoveTaskOrderFetcherParams{
@@ -92,7 +126,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 	})
 
 	suite.Run("Success with move that has only deleted shipments", func() {
-		mtoWithAllShipmentsDeleted := testdatagen.MakeDefaultMove(suite.DB())
+		mtoWithAllShipmentsDeleted := factory.BuildMove(suite.DB(), nil, nil)
 		testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
 			Move: mtoWithAllShipmentsDeleted,
 			MTOShipment: models.MTOShipment{
@@ -157,14 +191,15 @@ func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 	now := time.Now()
 	show := false
 	setupTestData := func() (models.Move, models.Move, models.MTOShipment) {
-		hiddenMTO := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				AvailableToPrimeAt: &now,
-				Show:               &show,
+		hiddenMTO := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Show: &show,
+				},
 			},
-		})
+		}, nil)
 
-		mto := testdatagen.MakeDefaultMove(suite.DB())
+		mto := factory.BuildMove(suite.DB(), nil, nil)
 
 		// Make a couple of shipments for the default move; one prime, one external
 		primeShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
@@ -256,8 +291,8 @@ func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 		now = time.Now()
 
 		// Create the two moves
-		newMove := testdatagen.MakeAvailableMove(suite.DB())
-		oldMTO := testdatagen.MakeAvailableMove(suite.DB())
+		newMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		oldMTO := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
 		// Check that they're both returned
 		searchParams := services.MoveTaskOrderFetcherParams{
@@ -289,21 +324,21 @@ func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 }
 
 func (suite *MoveTaskOrderServiceSuite) TestListPrimeMoveTaskOrdersFetcher() {
-	// Set up a hidden move so we can check if it's in the output:
 	now := time.Now()
-	show := false
-	hiddenMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			AvailableToPrimeAt: &now,
-			Show:               &show,
+	// Set up a hidden move so we can check if it's in the output:
+	hiddenMove := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
+		{
+			Model: models.Move{
+				Show: models.BoolPointer(false),
+			},
 		},
-	})
+	}, nil)
 	// Make a default, not Prime-available move:
-	nonPrimeMove := testdatagen.MakeDefaultMove(suite.DB())
+	nonPrimeMove := factory.BuildMove(suite.DB(), nil, nil)
 	// Make some Prime moves:
-	primeMove1 := testdatagen.MakeAvailableMove(suite.DB())
-	primeMove2 := testdatagen.MakeAvailableMove(suite.DB())
-	primeMove3 := testdatagen.MakeAvailableMove(suite.DB())
+	primeMove1 := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+	primeMove2 := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+	primeMove3 := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 	testdatagen.MakeMTOShipmentWithMove(suite.DB(), &primeMove3, testdatagen.Assertions{})
 
 	// Move primeMove1 and primeMove3 into the past so we can exclude them:

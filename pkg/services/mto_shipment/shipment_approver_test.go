@@ -35,7 +35,7 @@ type approveShipmentSubtestData struct {
 func (suite *MTOShipmentServiceSuite) createApproveShipmentSubtestData() (subtestData *approveShipmentSubtestData) {
 	subtestData = &approveShipmentSubtestData{}
 
-	subtestData.move = testdatagen.MakeAvailableMove(suite.DB())
+	subtestData.move = factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
 	ghcDomesticTransitTime := models.GHCDomesticTransitTime{
 		MaxDaysTransitTime: 12,

@@ -1,13 +1,13 @@
 package models_test
 
 import (
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *ModelSuite) Test_FetchGBLOCForPostalCode() {
 	t := suite.T()
-	postalCodeToGBLOC := testdatagen.MakePostalCodeToGBLOC(suite.DB(), "77777", "UUUU")
+	postalCodeToGBLOC := factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), "77777", "UUUU")
 
 	gbloc, err := models.FetchGBLOCForPostalCode(suite.DB(), postalCodeToGBLOC.PostalCode)
 	if err != nil {

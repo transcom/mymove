@@ -79,57 +79,46 @@ func newUserInfo(emailSubstring string) userInfo {
 
 func MakeMoveWithOrders(db *pop.Connection) models.Move {
 	userInfo := newUserInfo("customer")
-
-	u := factory.BuildUser(db, []factory.Customization{
+	move := factory.BuildMove(db, []factory.Customization{
 		{
 			Model: models.User{
 				LoginGovEmail: userInfo.email,
 				Active:        true,
 			},
 		},
-	}, nil)
-
-	move := testdatagen.MakeMove(db, testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			UserID:        u.ID,
-			PersonalEmail: models.StringPointer(userInfo.email),
+		{
+			Model: models.ServiceMember{
+				PersonalEmail: models.StringPointer(userInfo.email),
+			},
 		},
-		Order: models.Order{},
-	})
-
-	move.Orders.ServiceMember.User = u
-	move.Orders.ServiceMember.UserID = u.ID
+	}, nil)
 
 	return move
 }
 
 func MakeSpouseProGearMove(db *pop.Connection) models.Move {
 	userInfo := newUserInfo("customer")
-	u := factory.BuildUser(db, []factory.Customization{
+	move := factory.BuildMove(db, []factory.Customization{
 		{
 			Model: models.User{
 				LoginGovEmail: userInfo.email,
 				Active:        true,
 			},
 		},
+		{
+			Model: models.ServiceMember{
+				PersonalEmail: models.StringPointer(userInfo.email),
+				FirstName:     &userInfo.firstName,
+				LastName:      &userInfo.lastName,
+			},
+		},
+		{
+			Model: models.Order{
+				HasDependents:    true,
+				SpouseHasProGear: true,
+			},
+		},
 	}, nil)
-
-	move := testdatagen.MakeMove(db, testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			UserID:        u.ID,
-			PersonalEmail: models.StringPointer(userInfo.email),
-			FirstName:     &userInfo.firstName,
-			LastName:      &userInfo.lastName,
-		},
-		Order: models.Order{
-			HasDependents:    true,
-			SpouseHasProGear: true,
-		},
-	})
-
-	// make sure that the updated information is returned
-	move.Orders.ServiceMember.User = u
-	move.Orders.ServiceMember.UserID = u.ID
 
 	return move
 }
@@ -194,26 +183,25 @@ func MakePPMInProgressMove(appCtx appcontext.AppContext) models.Move {
 
 func MakeWithShipmentMove(appCtx appcontext.AppContext) models.Move {
 	userInfo := newUserInfo("customer")
-	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
+	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
 				LoginGovEmail: userInfo.email,
 				Active:        true,
 			},
 		},
+		{
+			Model: models.ServiceMember{
+				PersonalEmail: models.StringPointer(userInfo.email),
+			},
+		},
+		{
+			Model: models.Order{
+				HasDependents:    true,
+				SpouseHasProGear: true,
+			},
+		},
 	}, nil)
-
-	move := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			UserID:        user.ID,
-			PersonalEmail: models.StringPointer(userInfo.email),
-		},
-		Order: models.Order{
-			HasDependents:    true,
-			SpouseHasProGear: true,
-		},
-	})
-
 	addressAssertion := testdatagen.Assertions{
 		Address: models.Address{
 			// This is a postal code that maps to the default office user gbloc KKFA in the PostalCodeToGBLOC table
@@ -278,24 +266,36 @@ func MakeHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO(appCtx appconte
 			DependentsAuthorized: &dependentsAuthorized,
 		},
 	})
-	orders := testdatagen.MakeOrder(appCtx.DB(), testdatagen.Assertions{
-		Order: models.Order{
-			ServiceMemberID: customer.ID,
-			ServiceMember:   customer,
+	orders := factory.BuildOrder(appCtx.DB(), []factory.Customization{
+		{
+			Model:    customer,
+			LinkOnly: true,
 		},
-		UserUploader: userUploader,
-		Entitlement:  entitlements,
-	})
+		{
+			Model:    entitlements,
+			LinkOnly: true,
+		},
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
 	mtoSelectedMoveType := models.SelectedMoveTypeHHG
-	mto := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			Status:           models.MoveStatusSUBMITTED,
-			OrdersID:         orders.ID,
-			Orders:           orders,
-			SelectedMoveType: &mtoSelectedMoveType,
+	mto := factory.BuildMove(appCtx.DB(), []factory.Customization{
+		{
+			Model:    orders,
+			LinkOnly: true,
 		},
-	})
-
+		{
+			Model: models.Move{
+				Status:           models.MoveStatusSUBMITTED,
+				SelectedMoveType: &mtoSelectedMoveType,
+			},
+		},
+	}, nil)
 	sitDaysAllowance := 270
 	estimatedWeight := unit.Pound(1400)
 	actualWeight := unit.Pound(2000)
@@ -509,13 +509,14 @@ func MakeHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO(appCtx appconte
 // copied almost verbatim from e2ebasic
 func MakePrimeSimulatorMoveNeedsShipmentUpdate(appCtx appcontext.AppContext) models.Move {
 	now := time.Now()
-	move := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			Status:             models.MoveStatusAPPROVED,
-			AvailableToPrimeAt: &now,
+	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Move{
+				Status:             models.MoveStatusAPPROVED,
+				AvailableToPrimeAt: &now,
+			},
 		},
-	})
-
+	}, nil)
 	testdatagen.MakeMTOServiceItemBasic(appCtx.DB(), testdatagen.Assertions{
 		MTOServiceItem: models.MTOServiceItem{
 			Status: models.MTOServiceItemStatusApproved,
@@ -625,26 +626,35 @@ func MakeHHGMoveWithNTSAndNeedsSC(appCtx appcontext.AppContext) models.Move {
 	dodID := testdatagen.MakeRandomNumberString(10)
 	userInfo := newUserInfo("customer")
 
-	orders := testdatagen.MakeOrderWithoutDefaults(appCtx.DB(), testdatagen.Assertions{
-		DutyLocation: models.DutyLocation{
-			ProvidesServicesCounseling: true,
+	orders := factory.BuildOrderWithoutDefaults(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				PersonalEmail: &userInfo.email,
+				FirstName:     &userInfo.firstName,
+				LastName:      &userInfo.lastName,
+				Edipi:         models.StringPointer(dodID),
+			},
 		},
-		ServiceMember: models.ServiceMember{
-			PersonalEmail: &userInfo.email,
-			FirstName:     &userInfo.firstName,
-			LastName:      &userInfo.lastName,
-			Edipi:         swag.String(dodID),
+		{
+			Model: models.DutyLocation{
+				ProvidesServicesCounseling: true,
+			},
+			Type: &factory.DutyLocations.OriginDutyLocation,
 		},
-	})
-	move := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			Status:           models.MoveStatusNeedsServiceCounseling,
-			SelectedMoveType: &ntsMoveType,
-			SubmittedAt:      &submittedAt,
+	}, nil)
+	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Move{
+				Status:           models.MoveStatusNeedsServiceCounseling,
+				SelectedMoveType: &ntsMoveType,
+				SubmittedAt:      &submittedAt,
+			},
 		},
-		Order: orders,
-	})
-
+		{
+			Model:    orders,
+			LinkOnly: true,
+		},
+	}, nil)
 	// Makes a basic HHG shipment to reflect likely real scenario
 	requestedPickupDate := submittedAt.Add(60 * 24 * time.Hour)
 	requestedDeliveryDate := requestedPickupDate.Add(7 * 24 * time.Hour)
@@ -689,27 +699,40 @@ func MakeNTSRMoveWithPaymentRequest(appCtx appcontext.AppContext) models.Move {
 	}, nil)
 
 	// Create Orders
-	orders := testdatagen.MakeOrder(appCtx.DB(), testdatagen.Assertions{
-		Order: models.Order{
-			ServiceMemberID: customer.ID,
-			ServiceMember:   customer,
-			TAC:             &tac,
+	orders := factory.BuildOrder(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Order{
+				TAC: &tac,
+			},
 		},
-		UserUploader: userUploader,
-	})
+		{
+			Model:    customer,
+			LinkOnly: true,
+		},
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
 
 	// Create Move
 	selectedMoveType := models.SelectedMoveTypeNTSR
-	move := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			OrdersID:           orders.ID,
-			AvailableToPrimeAt: swag.Time(time.Now()),
-			SelectedMoveType:   &selectedMoveType,
-			SubmittedAt:        &currentTime,
+	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
+		{
+			Model:    orders,
+			LinkOnly: true,
 		},
-		Order: orders,
-	})
-
+		{
+			Model: models.Move{
+				AvailableToPrimeAt: models.TimePointer(time.Now()),
+				SelectedMoveType:   &selectedMoveType,
+				SubmittedAt:        &currentTime,
+			},
+		},
+	}, nil)
 	// Create Pickup Address
 	shipmentPickupAddress := testdatagen.MakeAddress(appCtx.DB(), testdatagen.Assertions{
 		Address: models.Address{
@@ -830,21 +853,31 @@ func MakeHHGMoveWithServiceItemsandPaymentRequestsForTIO(appCtx appcontext.AppCo
 		},
 	}, nil)
 
-	orders := testdatagen.MakeOrder(appCtx.DB(), testdatagen.Assertions{
-		Order: models.Order{
-			ServiceMemberID: customer.ID,
-			ServiceMember:   customer,
+	orders := factory.BuildOrder(appCtx.DB(), []factory.Customization{
+		{
+			Model:    customer,
+			LinkOnly: true,
 		},
-		UserUploader: userUploader,
-	})
-
-	mto := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			OrdersID:           orders.ID,
-			AvailableToPrimeAt: swag.Time(time.Now()),
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
 		},
-	})
+	}, nil)
 
+	mto := factory.BuildMove(appCtx.DB(), []factory.Customization{
+		{
+			Model:    orders,
+			LinkOnly: true,
+		},
+		{
+			Model: models.Move{
+				AvailableToPrimeAt: models.TimePointer(time.Now()),
+			},
+		},
+	}, nil)
 	addressAssertion := testdatagen.Assertions{
 		Address: models.Address{
 			// This is a postal code that maps to the default office user gbloc KKFA in the PostalCodeToGBLOC table
@@ -1219,30 +1252,43 @@ func MakeNTSRMoveWithServiceItemsAndPaymentRequest(appCtx appcontext.AppContext)
 	}, nil)
 
 	// Create Orders
-	orders := testdatagen.MakeOrder(appCtx.DB(), testdatagen.Assertions{
-		Order: models.Order{
-			ServiceMemberID: customer.ID,
-			ServiceMember:   customer,
-			TAC:             &tac,
-			NtsTAC:          &tac2,
-			SAC:             &sac,
-			NtsSAC:          &sac2,
+	orders := factory.BuildOrder(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Order{
+				TAC:    &tac,
+				NtsTAC: &tac2,
+				SAC:    &sac,
+				NtsSAC: &sac2,
+			},
 		},
-		UserUploader: userUploader,
-	})
+		{
+			Model:    customer,
+			LinkOnly: true,
+		},
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
 
 	// Create Move
 	selectedMoveType := models.SelectedMoveTypeNTSR
-	move := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			OrdersID:           orders.ID,
-			AvailableToPrimeAt: swag.Time(time.Now()),
-			SelectedMoveType:   &selectedMoveType,
-			SubmittedAt:        &currentTime,
+	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
+		{
+			Model:    orders,
+			LinkOnly: true,
 		},
-		Order: orders,
-	})
-
+		{
+			Model: models.Move{
+				AvailableToPrimeAt: swag.Time(time.Now()),
+				SelectedMoveType:   &selectedMoveType,
+				SubmittedAt:        &currentTime,
+			},
+		},
+	}, nil)
 	// Create Pickup Address
 	shipmentPickupAddress := testdatagen.MakeAddress(appCtx.DB(), testdatagen.Assertions{
 		Address: models.Address{
