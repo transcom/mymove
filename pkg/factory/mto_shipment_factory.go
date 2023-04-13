@@ -64,9 +64,7 @@ func buildMTOShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 		if shipmentHasPickupDetails {
 			newMTOShipment.RequestedPickupDate = models.TimePointer(time.Date(GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC))
 			newMTOShipment.ScheduledPickupDate = models.TimePointer(time.Date(GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC))
-			// if cMtoShipment.Status != "" && cMtoShipment.Status != models.MTOShipmentStatusDraft {
 			newMTOShipment.ActualPickupDate = models.TimePointer(time.Date(GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC))
-			// }
 			// Find/create the Pickup Address
 			tempPickupAddressCustoms := customs
 			result := findValidCustomization(customs, Addresses.PickupAddress)

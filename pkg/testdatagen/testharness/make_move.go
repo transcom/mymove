@@ -202,26 +202,37 @@ func MakeWithShipmentMove(appCtx appcontext.AppContext) models.Move {
 			},
 		},
 	}, nil)
-	addressAssertion := testdatagen.Assertions{
-		Address: models.Address{
-			// This is a postal code that maps to the default office user gbloc KKFA in the PostalCodeToGBLOC table
-			PostalCode: "85004",
-		}}
 
-	shipmentPickupAddress := testdatagen.MakeAddress(appCtx.DB(), addressAssertion)
+	shipmentPickupAddress := factory.BuildAddress(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				// This is a postal code that maps to the default office user gbloc KKFA in the PostalCodeToGBLOC table
+				PostalCode: "85004",
+			},
+		},
+	}, nil)
 
 	estimatedWeight := unit.Pound(1400)
 	actualWeight := unit.Pound(2000)
-	testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			PrimeEstimatedWeight: &estimatedWeight,
-			PrimeActualWeight:    &actualWeight,
-			ShipmentType:         models.MTOShipmentTypeHHGShortHaulDom,
-			ApprovedDate:         swag.Time(time.Now()),
-			PickupAddress:        &shipmentPickupAddress,
+	factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				PrimeEstimatedWeight: &estimatedWeight,
+				PrimeActualWeight:    &actualWeight,
+				ShipmentType:         models.MTOShipmentTypeHHGShortHaulDom,
+				ApprovedDate:         models.TimePointer(time.Now()),
+			},
 		},
-		Move: move,
-	})
+		{
+			Model:    shipmentPickupAddress,
+			LinkOnly: true,
+			Type:     &factory.Addresses.PickupAddress,
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	// re-fetch the move so that we ensure we have exactly what is in
 	// the db
@@ -299,16 +310,21 @@ func MakeHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO(appCtx appconte
 	sitDaysAllowance := 270
 	estimatedWeight := unit.Pound(1400)
 	actualWeight := unit.Pound(2000)
-	MTOShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			PrimeEstimatedWeight: &estimatedWeight,
-			PrimeActualWeight:    &actualWeight,
-			ShipmentType:         models.MTOShipmentTypeHHG,
-			Status:               models.MTOShipmentStatusSubmitted,
-			SITDaysAllowance:     &sitDaysAllowance,
+	MTOShipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				PrimeEstimatedWeight: &estimatedWeight,
+				PrimeActualWeight:    &actualWeight,
+				ShipmentType:         models.MTOShipmentTypeHHG,
+				Status:               models.MTOShipmentStatusSubmitted,
+				SITDaysAllowance:     &sitDaysAllowance,
+			},
 		},
-		Move: mto,
-	})
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	agentUserInfo := newUserInfo("agent")
 	testdatagen.MakeMTOAgent(appCtx.DB(), testdatagen.Assertions{
@@ -529,20 +545,28 @@ func MakePrimeSimulatorMoveNeedsShipmentUpdate(appCtx appcontext.AppContext) mod
 
 	requestedPickupDate := time.Now().AddDate(0, 3, 0)
 	requestedDeliveryDate := requestedPickupDate.AddDate(0, 1, 0)
-	pickupAddress := testdatagen.MakeAddress(appCtx.DB(), testdatagen.Assertions{})
+	pickupAddress := factory.BuildAddress(appCtx.DB(), nil, nil)
 
 	shipmentFields := models.MTOShipment{
 		Status:                models.MTOShipmentStatusApproved,
 		RequestedPickupDate:   &requestedPickupDate,
 		RequestedDeliveryDate: &requestedDeliveryDate,
-		PickupAddress:         &pickupAddress,
-		PickupAddressID:       &pickupAddress.ID,
 	}
 
-	firstShipment := testdatagen.MakeMTOShipmentMinimal(appCtx.DB(), testdatagen.Assertions{
-		MTOShipment: shipmentFields,
-		Move:        move,
-	})
+	firstShipment := factory.BuildMTOShipmentMinimal(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+		{
+			Model: shipmentFields,
+		},
+		{
+			Model:    pickupAddress,
+			LinkOnly: true,
+			Type:     &factory.Addresses.PickupAddress,
+		},
+	}, nil)
 
 	testdatagen.MakeMTOServiceItem(appCtx.DB(), testdatagen.Assertions{
 		MTOServiceItem: models.MTOServiceItem{
@@ -658,17 +682,26 @@ func MakeHHGMoveWithNTSAndNeedsSC(appCtx appcontext.AppContext) models.Move {
 	// Makes a basic HHG shipment to reflect likely real scenario
 	requestedPickupDate := submittedAt.Add(60 * 24 * time.Hour)
 	requestedDeliveryDate := requestedPickupDate.Add(7 * 24 * time.Hour)
-	destinationAddress := testdatagen.MakeDefaultAddress(appCtx.DB())
-	testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			ShipmentType:          models.MTOShipmentTypeHHG,
-			Status:                models.MTOShipmentStatusSubmitted,
-			RequestedPickupDate:   &requestedPickupDate,
-			RequestedDeliveryDate: &requestedDeliveryDate,
-			DestinationAddressID:  &destinationAddress.ID,
+	destinationAddress := factory.BuildAddress(appCtx.DB(), nil, nil)
+	factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				ShipmentType:          models.MTOShipmentTypeHHG,
+				Status:                models.MTOShipmentStatusSubmitted,
+				RequestedPickupDate:   &requestedPickupDate,
+				RequestedDeliveryDate: &requestedDeliveryDate,
+			},
+		},
+		{
+			Model:    destinationAddress,
+			LinkOnly: true,
+			Type:     &factory.Addresses.DeliveryAddress,
+		},
+	}, nil)
 
 	// re-fetch the move so that we ensure we have exactly what is in
 	// the db
@@ -878,26 +911,37 @@ func MakeHHGMoveWithServiceItemsandPaymentRequestsForTIO(appCtx appcontext.AppCo
 			},
 		},
 	}, nil)
-	addressAssertion := testdatagen.Assertions{
-		Address: models.Address{
-			// This is a postal code that maps to the default office user gbloc KKFA in the PostalCodeToGBLOC table
-			PostalCode: "85004",
-		}}
 
-	shipmentPickupAddress := testdatagen.MakeAddress(appCtx.DB(), addressAssertion)
+	shipmentPickupAddress := factory.BuildAddress(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				// This is a postal code that maps to the default office user gbloc KKFA in the PostalCodeToGBLOC table
+				PostalCode: "85004",
+			},
+		},
+	}, nil)
 
 	estimatedWeight := unit.Pound(1400)
 	actualWeight := unit.Pound(2000)
-	mtoShipmentHHG := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			PrimeEstimatedWeight: &estimatedWeight,
-			PrimeActualWeight:    &actualWeight,
-			ShipmentType:         models.MTOShipmentTypeHHGShortHaulDom,
-			ApprovedDate:         swag.Time(time.Now()),
-			PickupAddress:        &shipmentPickupAddress,
+	mtoShipmentHHG := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				PrimeEstimatedWeight: &estimatedWeight,
+				PrimeActualWeight:    &actualWeight,
+				ShipmentType:         models.MTOShipmentTypeHHGShortHaulDom,
+				ApprovedDate:         models.TimePointer(time.Now()),
+			},
 		},
-		Move: mto,
-	})
+		{
+			Model:    shipmentPickupAddress,
+			LinkOnly: true,
+			Type:     &factory.Addresses.PickupAddress,
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	// Create Releasing Agent
 	agentUserInfo := newUserInfo("agent")
@@ -1188,16 +1232,21 @@ func MakeHHGMoveWithServiceItemsandPaymentRequestsForTIO(appCtx appcontext.AppCo
 		MTOServiceItem: serviceItemCS,
 	})
 
-	MTOShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			PrimeEstimatedWeight: &estimatedWeight,
-			PrimeActualWeight:    &actualWeight,
-			ShipmentType:         models.MTOShipmentTypeHHG,
-			ApprovedDate:         swag.Time(time.Now()),
-			Status:               models.MTOShipmentStatusSubmitted,
+	MTOShipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				PrimeEstimatedWeight: &estimatedWeight,
+				PrimeActualWeight:    &actualWeight,
+				ShipmentType:         models.MTOShipmentTypeHHG,
+				ApprovedDate:         models.TimePointer(time.Now()),
+				Status:               models.MTOShipmentStatusSubmitted,
+			},
 		},
-		Move: mto,
-	})
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+	}, nil)
 	serviceItemFSC := testdatagen.MakeMTOServiceItem(appCtx.DB(), testdatagen.Assertions{
 		Move:        mto,
 		MTOShipment: MTOShipment,

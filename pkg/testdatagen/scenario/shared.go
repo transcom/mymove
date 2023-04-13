@@ -1059,9 +1059,12 @@ func createApprovedMoveWithPPMAndHHGShipmentsAndExcessWeights(appCtx appcontext.
 			MoveID:      uuid.Must(uuid.NewV4()),
 			MoveLocator: "XSWT04",
 		})
-	testdatagen.MakeBaseMTOShipment(appCtx.DB(), testdatagen.Assertions{
-		Move: move,
-	})
+	factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 }
 func createApprovedMoveWithAllShipmentTypesAndExcessWeights(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	move, _ := createApprovedMoveWithPPMExcessWeight(appCtx, userUploader,
@@ -1074,15 +1077,18 @@ func createApprovedMoveWithAllShipmentTypesAndExcessWeights(appCtx appcontext.Ap
 			MoveID:      uuid.Must(uuid.NewV4()),
 			MoveLocator: "XSWT05",
 		})
-	testdatagen.MakeBaseMTOShipment(appCtx.DB(), testdatagen.Assertions{
-		Move: move,
-	})
-	testdatagen.MakeBaseMTOShipment(appCtx.DB(), testdatagen.Assertions{
-		Move: move,
-	})
-	testdatagen.MakeNTSShipment(appCtx.DB(), testdatagen.Assertions{
-		Move: move,
-	})
+	factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
+	factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 	testdatagen.MakeNTSRShipment(appCtx.DB(), testdatagen.Assertions{
 		Move: move,
 	})
