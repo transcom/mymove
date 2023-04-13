@@ -1,7 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Formik } from 'formik';
+import classnames from 'classnames';
 import * as Yup from 'yup';
+
+import styles from './ResidentialAddressForm.module.scss';
 
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
 import SectionWrapper from 'components/Customer/SectionWrapper';
@@ -28,8 +31,8 @@ const ResidentialAddressForm = ({ formFieldsName, initialValues, onSubmit, onBac
         return (
           <Form className={formStyles.form}>
             <h1>Current pickup address</h1>
-
-            <SectionWrapper className={formStyles.formSection}>
+            <p className={styles.noBottomMargin}>Must be a physical address.</p>
+            <SectionWrapper className={classnames(styles.noTopMargin, formStyles.formSection)}>
               <AddressFields name={formFieldsName} validators={validators} />
             </SectionWrapper>
 
