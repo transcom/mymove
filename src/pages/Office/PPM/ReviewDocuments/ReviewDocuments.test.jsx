@@ -33,14 +33,14 @@ jest.mock('react-router-dom', () => ({
 const mockPatchWeightTicket = jest.fn();
 const mockPatchProGear = jest.fn();
 const mockPatchExpense = jest.fn();
-const mockPostPPMDocumentsSetStatus = jest.fn();
+const mockPatchPPMDocumentsSetStatus = jest.fn();
 
 jest.mock('services/ghcApi', () => ({
   ...jest.requireActual('services/ghcApi'),
   patchWeightTicket: (options) => mockPatchWeightTicket(options),
   patchProGearWeightTicket: (options) => mockPatchProGear(options),
   patchExpense: (options) => mockPatchExpense(options),
-  postPPMDocumentsSetStatus: (options) => mockPostPPMDocumentsSetStatus(options),
+  patchPPMDocumentsSetStatus: (options) => mockPatchPPMDocumentsSetStatus(options),
 }));
 
 // prevents react-fileviewer from throwing errors without mocking relevant DOM elements
@@ -272,7 +272,7 @@ describe('ReviewDocuments', () => {
         ppmShipmentId: mtoShipmentWithOneWeightTicket.ppmShipment.id,
         eTag: mtoShipmentWithOneWeightTicket.ppmShipment.eTag,
       };
-      expect(mockPostPPMDocumentsSetStatus).toHaveBeenCalledWith(confirmPayload);
+      expect(mockPatchPPMDocumentsSetStatus).toHaveBeenCalledWith(confirmPayload);
       expect(mockPush).toHaveBeenCalled();
     });
 

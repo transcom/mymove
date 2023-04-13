@@ -10,7 +10,7 @@ import PPMHeaderSummary from '../PPMHeaderSummary/PPMHeaderSummary';
 
 import styles from './ReviewDocumentsSidePanel.module.scss';
 
-import { postPPMDocumentsSetStatus } from 'services/ghcApi';
+import { patchPPMDocumentsSetStatus } from 'services/ghcApi';
 import { ExpenseShape, PPMShipmentShape, ProGearTicketShape, WeightTicketShape } from 'types/shipment';
 import formStyles from 'styles/form.module.scss';
 import DocumentViewerSidebar from 'pages/Office/DocumentViewerSidebar/DocumentViewerSidebar';
@@ -32,13 +32,13 @@ export default function ReviewDocumentsSidePanel({
   let storageNumber = 0;
   let receiptNumber = 0;
 
-  const { mutate: postDocumentsSetStatusMutation } = useMutation(postPPMDocumentsSetStatus, {
+  const { mutate: patchDocumentsSetStatusMutation } = useMutation(patchPPMDocumentsSetStatus, {
     onSuccess,
     onError,
   });
 
   const handleSubmit = () => {
-    postDocumentsSetStatusMutation({
+    patchDocumentsSetStatusMutation({
       ppmShipmentId: ppmShipment.id,
       eTag: ppmShipment.eTag,
     });
