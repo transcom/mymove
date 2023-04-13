@@ -121,10 +121,10 @@ export class BaseTestPage {
         // eslint-disable-next-line security/detect-object-injection
         if (typeof WaitForPage.prototype[name] === 'function') {
           // eslint-disable-next-line security/detect-object-injection
-          WaitForPage.prototype[name] = async () => {
+          WaitForPage.prototype[name] = async (...args) => {
             await this.runAccessibilityAudit();
             // eslint-disable-next-line security/detect-object-injection
-            await WaitForPage.prototype[name]();
+            await WaitForPage.prototype[name](...args);
             await this.runAccessibilityAudit();
           };
         }
