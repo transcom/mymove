@@ -70,26 +70,49 @@ type FinishDocumentReviewHandler struct {
 	services.PPMShipmentReviewDocuments
 }
 
-// Handle retrieves all documents for a PPM shipment
+// Handle finishes a review for a PPM shipment's documents
 func (h FinishDocumentReviewHandler) Handle(params ppmdocumentops.FinishDocumentReviewParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			errInstance := fmt.Sprintf("Instance: %s", h.GetTraceIDFromRequest(params.HTTPRequest))
-
 			errPayload := &ghcmessages.Error{Message: &errInstance}
 
-			if !appCtx.Session().IsOfficeApp() {
-				return ppmdocumentops.NewFinishDocumentReviewForbidden().WithPayload(errPayload), apperror.NewSessionError("Request should come from the office app.")
+			if appCtx.Session() == nil {
+				return ppmdocumentops.NewFinishDocumentReviewUnauthorized(), apperror.NewSessionError("No user session")
+			} else if !appCtx.Session().IsOfficeApp() {
+				return ppmdocumentops.NewFinishDocumentReviewForbidden(), apperror.NewSessionError("Request is not from the customer app")
+			} else if appCtx.Session().UserID.IsNil() {
+				return ppmdocumentops.NewFinishDocumentReviewForbidden(), apperror.NewSessionError("No user ID in session")
 			}
 
-			shipmentID := uuid.FromStringOrNil(params.PpmShipmentID.String())
+			ppmShipmentID, err := uuid.FromString(params.PpmShipmentID.String())
+			if err != nil || ppmShipmentID.IsNil() {
+				appCtx.Logger().Error("error with PPM Shipment ID", zap.Error(err))
 
-			ppmShipment, err := h.PPMShipmentReviewDocuments.SubmitReviewedDocuments(appCtx, shipmentID)
-
+				return ppmdocumentops.NewFinishDocumentReviewBadRequest().WithPayload(errPayload), err
+			}
+			ppmShipment, err := h.PPMShipmentReviewDocuments.SubmitReviewedDocuments(appCtx, ppmShipmentID)
 			if err != nil {
-				appCtx.Logger().Error("ghcapi.FinishDocumentReviewHandler error", zap.Error(err))
-
+				appCtx.Logger().Error("ghcapi.FinishDocumentReviewHandler", zap.Error(err))
 				switch e := err.(type) {
+				case apperror.NotFoundError:
+					return ppmdocumentops.NewFinishDocumentReviewNotFound(), err
+				case apperror.ConflictError:
+					return ppmdocumentops.NewFinishDocumentReviewConflict(), err
+				case apperror.InvalidInputError:
+					return ppmdocumentops.NewFinishDocumentReviewUnprocessableEntity().WithPayload(
+						payloadForValidationError(
+							handlers.ValidationErrMessage,
+							err.Error(),
+							h.GetTraceIDFromRequest(params.HTTPRequest),
+							e.ValidationErrors,
+						),
+					), err
+				case apperror.PreconditionFailedError:
+					msg := fmt.Sprintf("%v | Instance: %v", handlers.FmtString(err.Error()), h.GetTraceIDFromRequest(params.HTTPRequest))
+					return ppmdocumentops.NewFinishDocumentReviewPreconditionFailed().WithPayload(
+						&ghcmessages.Error{Message: &msg},
+					), err
 				case apperror.QueryError:
 					if e.Unwrap() != nil {
 						// If you can unwrap, log the error (usually a pq error) for better debugging
@@ -98,11 +121,11 @@ func (h FinishDocumentReviewHandler) Handle(params ppmdocumentops.FinishDocument
 							zap.Error(e.Unwrap()),
 						)
 					}
-
-					return ppmdocumentops.NewFinishDocumentReviewInternalServerError().WithPayload(errPayload), nil
+					return ppmdocumentops.NewFinishDocumentReviewInternalServerError(), err
 				default:
-					return ppmdocumentops.NewFinishDocumentReviewInternalServerError().WithPayload(errPayload), nil
+					return ppmdocumentops.NewFinishDocumentReviewInternalServerError(), err
 				}
+
 			}
 
 			returnPayload := payloads.PPMShipment(h.FileStorer(), ppmShipment)

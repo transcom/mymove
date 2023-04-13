@@ -1389,13 +1389,14 @@ paths:
           $ref: '#/responses/ServerError'
   /ppm-shipments/{ppmShipmentId}/finish-document-review:
     parameters:
-      - description: ID of the shipment
-        in: path
-        name: ppmShipmentId
-        required: true
-        format: uuid
-        type: string
+      - $ref: 'parameters/ppmShipmentId.yaml'
     post:
+      summary: Updates a PPM shipment's status after document review
+      description: |
+        Updates a PPM shipment's status once documents have been reviewed. Status is updated depending on whether any documents have been rejected.
+      operationId: finishDocumentReview
+      tags:
+        - ppm
       consumes:
         - application/json
       produces:
@@ -1418,18 +1419,14 @@ paths:
           $ref: '#/responses/PermissionDenied'
         '404':
           $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
         '412':
           $ref: '#/responses/PreconditionFailed'
         '422':
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-      tags:
-        - ppm
-      description: |
-        Updates a PPM shipment's status once documents have been reviewed. Status is updated depending on whether any documents have been rejected.
-      operationId: finishDocumentReview
-      summary: Updates a PPM shipment's status after document review
       x-permissions:
         - update.shipment
   '/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/mto-agents':

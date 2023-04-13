@@ -36,7 +36,7 @@ type FinishDocumentReviewParams struct {
 	  In: header
 	*/
 	IfMatch string
-	/*ID of the shipment
+	/*UUID of the PPM shipment
 	  Required: true
 	  In: path
 	*/

@@ -2783,6 +2783,9 @@ func init() {
           "404": {
             "$ref": "#/responses/NotFound"
           },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
           "412": {
             "$ref": "#/responses/PreconditionFailed"
           },
@@ -2799,12 +2802,7 @@ func init() {
       },
       "parameters": [
         {
-          "type": "string",
-          "format": "uuid",
-          "description": "ID of the shipment",
-          "name": "ppmShipmentId",
-          "in": "path",
-          "required": true
+          "$ref": "#/parameters/ppmShipmentId"
         }
       ]
     },
@@ -12924,6 +12922,12 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           },
+          "409": {
+            "description": "Conflict error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
           "412": {
             "description": "Precondition failed",
             "schema": {
@@ -12951,7 +12955,7 @@ func init() {
         {
           "type": "string",
           "format": "uuid",
-          "description": "ID of the shipment",
+          "description": "UUID of the PPM shipment",
           "name": "ppmShipmentId",
           "in": "path",
           "required": true

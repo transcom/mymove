@@ -238,6 +238,51 @@ func (o *FinishDocumentReviewNotFound) WriteResponse(rw http.ResponseWriter, pro
 	}
 }
 
+// FinishDocumentReviewConflictCode is the HTTP code returned for type FinishDocumentReviewConflict
+const FinishDocumentReviewConflictCode int = 409
+
+/*
+FinishDocumentReviewConflict Conflict error
+
+swagger:response finishDocumentReviewConflict
+*/
+type FinishDocumentReviewConflict struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *ghcmessages.Error `json:"body,omitempty"`
+}
+
+// NewFinishDocumentReviewConflict creates FinishDocumentReviewConflict with default headers values
+func NewFinishDocumentReviewConflict() *FinishDocumentReviewConflict {
+
+	return &FinishDocumentReviewConflict{}
+}
+
+// WithPayload adds the payload to the finish document review conflict response
+func (o *FinishDocumentReviewConflict) WithPayload(payload *ghcmessages.Error) *FinishDocumentReviewConflict {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the finish document review conflict response
+func (o *FinishDocumentReviewConflict) SetPayload(payload *ghcmessages.Error) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *FinishDocumentReviewConflict) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(409)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
+}
+
 // FinishDocumentReviewPreconditionFailedCode is the HTTP code returned for type FinishDocumentReviewPreconditionFailed
 const FinishDocumentReviewPreconditionFailedCode int = 412
 
