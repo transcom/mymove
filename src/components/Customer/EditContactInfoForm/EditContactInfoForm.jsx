@@ -51,10 +51,10 @@ const EditContactInfoForm = ({ initialValues, onSubmit, onCancel }) => {
             </SectionWrapper>
 
             <SectionWrapper className={sectionStyles}>
-              <h2>Backup mailing address</h2>
+              <h2>Backup address</h2>
               <p>
-                Where should we send mail if if we can&apos;t reach you at your primary address? You might use a
-                parent&apos;s or friend&apos;s address, or a post office box.
+                Provide a physical address where either you can be reached or someone can contact you while you are in
+                transit during your move.
               </p>
 
               <AddressFields name={backupAddressName} />
