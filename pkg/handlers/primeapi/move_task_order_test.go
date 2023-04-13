@@ -135,14 +135,19 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		successMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		destinationAddress := factory.BuildAddress(suite.DB(), nil, nil)
 		destinationType := models.DestinationTypeHomeOfRecord
-		successShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				MoveTaskOrderID:      successMove.ID,
-				DestinationAddressID: &destinationAddress.ID,
-				DestinationType:      &destinationType,
-				Status:               models.MTOShipmentStatusApproved,
+		successShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					DestinationAddressID: &destinationAddress.ID,
+					DestinationType:      &destinationType,
+					Status:               models.MTOShipmentStatusApproved,
+				},
 			},
-		})
+			{
+				Model:    successMove,
+				LinkOnly: true,
+			},
+		}, nil)
 		params := movetaskorderops.GetMoveTaskOrderParams{
 			HTTPRequest: request,
 			MoveID:      successMove.Locator,

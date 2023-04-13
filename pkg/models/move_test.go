@@ -179,16 +179,21 @@ func (suite *ModelSuite) TestFetchMove() {
 	})
 
 	suite.Run("deleted shipments are excluded from the results", func() {
-		mtoShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
 		mto := mtoShipment.MoveTaskOrder
-		testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: MTOShipment{
-				ShipmentType: MTOShipmentTypeHHG,
-				Status:       MTOShipmentStatusSubmitted,
-				DeletedAt:    TimePointer(time.Now()),
+		factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: MTOShipment{
+					ShipmentType: MTOShipmentTypeHHG,
+					Status:       MTOShipmentStatusSubmitted,
+					DeletedAt:    TimePointer(time.Now()),
+				},
 			},
-			Move: mto,
-		})
+			{
+				Model:    mto,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		session := &auth.Session{
 			UserID:          mto.Orders.ServiceMember.UserID,

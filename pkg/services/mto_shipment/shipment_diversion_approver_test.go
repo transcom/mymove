@@ -8,6 +8,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -42,13 +43,15 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipmentDiversion() {
 
 	suite.Run("When status transition is not allowed, returns a ConflictStatusError", func() {
 		rejectionReason := "we lost it"
-		rejectedShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status:          models.MTOShipmentStatusRejected,
-				RejectionReason: &rejectionReason,
-				Diversion:       true,
+		rejectedShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:          models.MTOShipmentStatusRejected,
+					RejectionReason: &rejectionReason,
+					Diversion:       true,
+				},
 			},
-		})
+		}, nil)
 		eTag := etag.GenerateEtag(rejectedShipment.UpdatedAt)
 
 		_, err := approver.ApproveShipmentDiversion(suite.AppContextForTest(), rejectedShipment.ID, eTag)

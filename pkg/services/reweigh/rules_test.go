@@ -176,11 +176,13 @@ func (suite *ReweighSuite) TestValidationRules() {
 	})
 
 	suite.Run("checkPrimeAvailability - Failure because not available to prime", func() {
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				AvailableToPrimeAt: nil,
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					AvailableToPrimeAt: nil,
+				},
 			},
-		})
+		}, nil)
 		checker := movetaskorder.NewMoveTaskOrderChecker()
 		err := checkPrimeAvailability(checker).Validate(suite.AppContextForTest(), models.Reweigh{}, nil, &shipment)
 		suite.NotNil(err)
@@ -206,11 +208,13 @@ func (suite *ReweighSuite) TestValidationRules() {
 
 	suite.Run("checkPrimeAvailability - Success", func() {
 		currentTime := time.Now()
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				AvailableToPrimeAt: &currentTime,
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					AvailableToPrimeAt: &currentTime,
+				},
 			},
-		})
+		}, nil)
 		checker := movetaskorder.NewMoveTaskOrderChecker()
 		err := checkPrimeAvailability(checker).Validate(suite.AppContextForTest(), models.Reweigh{}, nil, &shipment)
 		suite.NoError(err)

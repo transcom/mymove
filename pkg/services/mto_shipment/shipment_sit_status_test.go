@@ -3,6 +3,7 @@ package mtoshipment
 import (
 	"time"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -19,12 +20,15 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 	})
 
 	suite.Run("returns nil when the shipment has no SIT service items", func() {
-		approvedShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status:          models.MTOShipmentStatusApproved,
-				MTOServiceItems: testdatagen.MakeMTOServiceItems(suite.DB()),
+		approvedShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusApproved,
+					// TODO: Come back and add these service items to customizations
+					//MTOServiceItems: testdatagen.MakeMTOServiceItems(suite.DB()),
+				},
 			},
-		})
+		}, nil)
 
 		sitStatus, err := sitStatusService.CalculateShipmentSITStatus(suite.AppContextForTest(), approvedShipment)
 		suite.NoError(err)
@@ -32,11 +36,13 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 	})
 
 	suite.Run("returns nil when the shipment has a SIT service item with entry date in the future", func() {
-		approvedShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status: models.MTOShipmentStatusApproved,
+		approvedShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusApproved,
+				},
 			},
-		})
+		}, nil)
 
 		nextWeek := time.Now().Add(time.Hour * 24 * 7)
 		futureSIT := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
@@ -59,12 +65,14 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 
 	suite.Run("includes SIT service item that has departed storage", func() {
 		shipmentSITAllowance := int(90)
-		approvedShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status:           models.MTOShipmentStatusApproved,
-				SITDaysAllowance: &shipmentSITAllowance,
+		approvedShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusApproved,
+					SITDaysAllowance: &shipmentSITAllowance,
+				},
 			},
-		})
+		}, nil)
 
 		year, month, day := time.Now().Add(time.Hour * 24 * -30).Date()
 		aMonthAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
@@ -96,12 +104,14 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 
 	suite.Run("calculates status for a shipment currently in SIT", func() {
 		shipmentSITAllowance := int(90)
-		approvedShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status:           models.MTOShipmentStatusApproved,
-				SITDaysAllowance: &shipmentSITAllowance,
+		approvedShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusApproved,
+					SITDaysAllowance: &shipmentSITAllowance,
+				},
 			},
-		})
+		}, nil)
 
 		year, month, day := time.Now().Add(time.Hour * 24 * -30).Date()
 		aMonthAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
@@ -134,12 +144,14 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 
 	suite.Run("combines SIT days sum for shipment with past and current SIT", func() {
 		shipmentSITAllowance := int(90)
-		approvedShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status:           models.MTOShipmentStatusApproved,
-				SITDaysAllowance: &shipmentSITAllowance,
+		approvedShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusApproved,
+					SITDaysAllowance: &shipmentSITAllowance,
+				},
 			},
-		})
+		}, nil)
 
 		year, month, day := time.Now().Add(time.Hour * 24 * -30).Date()
 		aMonthAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
@@ -190,12 +202,14 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 
 	suite.Run("combines SIT days sum for shipment with past origin and current destination SIT", func() {
 		shipmentSITAllowance := int(90)
-		approvedShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status:           models.MTOShipmentStatusApproved,
-				SITDaysAllowance: &shipmentSITAllowance,
+		approvedShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusApproved,
+					SITDaysAllowance: &shipmentSITAllowance,
+				},
 			},
-		})
+		}, nil)
 
 		year, month, day := time.Now().Add(time.Hour * 24 * -30).Date()
 		aMonthAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
@@ -246,12 +260,14 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 
 	suite.Run("returns negative days remaining when days in SIT exceeds shipment allowance", func() {
 		shipmentSITAllowance := int(90)
-		approvedShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status:           models.MTOShipmentStatusApproved,
-				SITDaysAllowance: &shipmentSITAllowance,
+		approvedShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusApproved,
+					SITDaysAllowance: &shipmentSITAllowance,
+				},
 			},
-		})
+		}, nil)
 
 		year, month, day := time.Now().Add(time.Hour * 24 * 30 * -6).Date()
 		sixMonthsAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
@@ -302,12 +318,14 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 
 	suite.Run("excludes SIT service items that have not been approved by the TOO", func() {
 		shipmentSITAllowance := int(90)
-		approvedShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status:           models.MTOShipmentStatusApproved,
-				SITDaysAllowance: &shipmentSITAllowance,
+		approvedShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusApproved,
+					SITDaysAllowance: &shipmentSITAllowance,
+				},
 			},
-		})
+		}, nil)
 
 		year, month, day := time.Now().Add(time.Hour * 24 * 30 * -6).Date()
 		sixMonthsAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)

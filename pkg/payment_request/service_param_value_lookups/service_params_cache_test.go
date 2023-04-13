@@ -45,8 +45,11 @@ func (suite *ServiceParamValueLookupsSuite) makeSubtestData() (subtestData *para
 		})
 
 	subtestData.estimatedWeight = unit.Pound(2048)
-	subtestData.mtoShipment1 = testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: subtestData.move})
+	subtestData.mtoShipment1 = factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    subtestData.move,
+			LinkOnly: true,
+		}}, nil)
 	subtestData.mtoShipment1.PrimeEstimatedWeight = &subtestData.estimatedWeight
 	suite.MustSave(&subtestData.mtoShipment1)
 
@@ -70,8 +73,11 @@ func (suite *ServiceParamValueLookupsSuite) makeSubtestData() (subtestData *para
 		MTOShipment: subtestData.mtoShipment1,
 	})
 
-	subtestData.mtoShipment2 = testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: subtestData.move})
+	subtestData.mtoShipment2 = factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    subtestData.move,
+			LinkOnly: true,
+		}}, nil)
 	subtestData.mtoShipment2.PrimeEstimatedWeight = &subtestData.estimatedWeight
 	suite.MustSave(&subtestData.mtoShipment2)
 

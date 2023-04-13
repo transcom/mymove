@@ -1294,11 +1294,13 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 
 			originLocation := models.SITLocationTypeOrigin
 			entryDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
-			mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-				MTOShipment: models.MTOShipment{
-					ShipmentType: models.MTOShipmentTypePPM,
+			mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+				{
+					Model: models.MTOShipment{
+						ShipmentType: models.MTOShipmentTypePPM,
+					},
 				},
-			})
+			}, nil)
 			shipmentOriginSIT := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
 				PPMShipment: models.PPMShipment{
 					Shipment:                  mtoShipment,
@@ -1328,11 +1330,13 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 
 			destinationLocation := models.SITLocationTypeDestination
 			entryDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
-			mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-				MTOShipment: models.MTOShipment{
-					ShipmentType: models.MTOShipmentTypePPM,
+			mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+				{
+					Model: models.MTOShipment{
+						ShipmentType: models.MTOShipmentTypePPM,
+					},
 				},
-			})
+			}, nil)
 			shipmentOriginSIT := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
 				PPMShipment: models.PPMShipment{
 					Shipment:                  mtoShipment,
@@ -1362,11 +1366,13 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 
 			destinationLocation := models.SITLocationTypeDestination
 			entryDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
-			mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-				MTOShipment: models.MTOShipment{
-					ShipmentType: models.MTOShipmentTypePPM,
+			mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+				{
+					Model: models.MTOShipment{
+						ShipmentType: models.MTOShipmentTypePPM,
+					},
 				},
-			})
+			}, nil)
 			shipmentOriginSIT := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
 				PPMShipment: models.PPMShipment{
 					Shipment:                  mtoShipment,

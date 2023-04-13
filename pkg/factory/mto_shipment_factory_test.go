@@ -13,6 +13,7 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 	defaultShipmentType := models.MTOShipmentTypeHHG
 	defaultStatus := models.MTOShipmentStatusDraft
 	defaultBaseStatus := models.MTOShipmentStatusSubmitted
+
 	suite.Run("Successful creation of basic MTOShipment", func() {
 		// Under test:      BuildBaseMTOShipment
 		// Set up:          Create a basic mtoShipment
@@ -106,6 +107,11 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 			SelectedMoveType: &moveType,
 		}
 
+		defaultRequestedPickupDate := time.Date(GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC)
+		defaultScheduledPickupDate := time.Date(GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)
+		defaultActualPickupDate := time.Date(GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)
+		defaultRequestedDeliveryDate := time.Date(GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC)
+
 		mtoShipment := BuildMTOShipment(suite.DB(), nil, nil)
 
 		suite.Equal(defaultShipmentType, mtoShipment.ShipmentType)
@@ -125,6 +131,19 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 		// Check move
 		suite.Equal(defaultMove.PPMType, mtoShipment.MoveTaskOrder.PPMType)
 		suite.Equal(defaultMove.SelectedMoveType, mtoShipment.MoveTaskOrder.SelectedMoveType)
+
+		suite.Nil(mtoShipment.StorageFacility)
+
+		// Check dates
+		suite.NotNil(mtoShipment.RequestedPickupDate)
+		suite.Equal(defaultRequestedPickupDate, *mtoShipment.RequestedPickupDate)
+		suite.NotNil(mtoShipment.ScheduledPickupDate)
+		suite.Equal(defaultScheduledPickupDate, *mtoShipment.ScheduledPickupDate)
+		suite.NotNil(mtoShipment.ActualPickupDate)
+		suite.Equal(defaultActualPickupDate, *mtoShipment.ActualPickupDate)
+		suite.NotNil(mtoShipment.RequestedDeliveryDate)
+		suite.Equal(defaultRequestedDeliveryDate, *mtoShipment.RequestedDeliveryDate)
+
 	})
 
 	suite.Run("Successful creation of custom MTOShipment with pickup details and other associated set relationships", func() {
@@ -329,4 +348,20 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 		suite.NoError(err)
 		suite.Equal(customMTOShipment.Status, mtoShipment.Status)
 	})
+
+	suite.Run("Successful creation of stubbed MTOShipment", func() {
+		move := BuildMove(suite.DB(), nil, nil)
+		mtoShipment := BuildMTOShipment(nil, []Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		// the stubbed shipment still needs non nil ids for the pickup
+		// and delivery addresses
+		suite.NotNil(mtoShipment.PickupAddressID)
+		suite.NotNil(mtoShipment.DestinationAddressID)
+	})
+
 }

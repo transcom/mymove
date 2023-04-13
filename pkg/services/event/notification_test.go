@@ -213,17 +213,33 @@ func (suite *EventServiceSuite) TestAssembleMTOShipmentPayload() {
 		destinationAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress3})
 		secondaryDeliveryAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress4})
 
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				PickupAddress:            &pickupAddress,
-				SecondaryPickupAddress:   &secondaryPickupAddress,
-				DestinationAddress:       &destinationAddress,
-				SecondaryDeliveryAddress: &secondaryDeliveryAddress,
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    pickupAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.PickupAddress,
 			},
-			Move: models.Move{
-				AvailableToPrimeAt: swag.Time(time.Now()),
+			{
+				Model:    secondaryPickupAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.SecondaryPickupAddress,
 			},
-		})
+			{
+				Model:    destinationAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.DeliveryAddress,
+			},
+			{
+				Model:    secondaryDeliveryAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.SecondaryDeliveryAddress,
+			},
+			{
+				Model: models.Move{
+					AvailableToPrimeAt: swag.Time(time.Now()),
+				},
+			},
+		}, nil)
 
 		agent := testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
 			MTOShipment: shipment,
@@ -248,14 +264,18 @@ func (suite *EventServiceSuite) TestAssembleMTOShipmentPayload() {
 
 	suite.Run("External shipment reports that it should not notify", func() {
 		// Setup test data
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				UsesExternalVendor: true,
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					UsesExternalVendor: true,
+				},
 			},
-			Move: models.Move{
-				AvailableToPrimeAt: swag.Time(time.Now()),
+			{
+				Model: models.Move{
+					AvailableToPrimeAt: swag.Time(time.Now()),
+				},
 			},
-		})
+		}, nil)
 
 		// Test the assemble function
 		payload, shouldNotify, err := assembleMTOShipmentPayload(suite.AppContextForTest(), shipment.ID)

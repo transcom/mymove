@@ -36,9 +36,12 @@ func (suite *SitExtensionServiceSuite) TestValidationRules() {
 		//takes an app context& sit extension
 		//returns a verification error
 		suite.Run("success", func() {
-			shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-				Move: factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil), // Move status is automatically set to APPROVED
-			})
+			shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+				{
+					Model:    factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil),
+					LinkOnly: true,
+				}, // Move status is automatically set to APPROVED
+			}, nil)
 			sitExtension := testdatagen.MakeSITExtension(suite.DB(), testdatagen.Assertions{
 				MTOShipment: shipment,
 				SITExtension: models.SITExtension{
@@ -74,9 +77,12 @@ func (suite *SitExtensionServiceSuite) TestValidationRules() {
 	suite.Run("checkSITExtensionPending - Success", func() {
 		// Testing: There is no new sit extension
 		sit := models.SITExtension{MTOShipmentID: uuid.Must(uuid.NewV4())}
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil), // Move status is automatically set to APPROVED
-		})
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil),
+				LinkOnly: true,
+			}, // Move status is automatically set to APPROVED
+		}, nil)
 		err := checkSITExtensionPending().Validate(suite.AppContextForTest(), sit, &shipment)
 
 		suite.NoError(err)
@@ -84,9 +90,12 @@ func (suite *SitExtensionServiceSuite) TestValidationRules() {
 
 	suite.Run("checkSITExtensionPending - Success after existing SIT is Approved", func() {
 		// Testing: There is no new sit extension
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil), // Move status is automatically set to APPROVED
-		})
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil),
+				LinkOnly: true,
+			}, // Move status is automatically set to APPROVED
+		}, nil)
 
 		// Approved Status SIT Extension
 		// Changed Request Reason from the default
@@ -108,9 +117,12 @@ func (suite *SitExtensionServiceSuite) TestValidationRules() {
 
 	suite.Run("checkSITExtensionPending - Success after existing SIT is Denied", func() {
 		// Testing: There is no new sit extension
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil), // Move status is automatically set to APPROVED
-		})
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil),
+				LinkOnly: true,
+			}, // Move status is automatically set to APPROVED
+		}, nil)
 
 		// Denied SIT Extension
 		testdatagen.MakeSITExtension(suite.DB(), testdatagen.Assertions{
@@ -131,9 +143,12 @@ func (suite *SitExtensionServiceSuite) TestValidationRules() {
 
 	suite.Run("checkSITExtensionPending - Failure", func() {
 		// Testing: There is a SIT extension and trying to be created
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil), // Move status is automatically set to APPROVED
-		})
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil),
+				LinkOnly: true,
+			}, // Move status is automatically set to APPROVED
+		}, nil)
 
 		// Create SIT Extension #1 in DB
 		// Change default status to Pending:
@@ -164,9 +179,12 @@ func (suite *SitExtensionServiceSuite) TestValidationRules() {
 	})
 
 	suite.Run("checkPrimeAvailability - Success", func() {
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil), // Move status is automatically set to APPROVED
-		})
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil),
+				LinkOnly: true,
+			}, // Move status is automatically set to APPROVED
+		}, nil)
 		checker := movetaskorder.NewMoveTaskOrderChecker()
 		err := checkPrimeAvailability(checker).Validate(suite.AppContextForTest(), models.SITExtension{}, &shipment)
 		suite.NoError(err)
