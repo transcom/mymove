@@ -40,7 +40,7 @@ describe('BackupMailingAddress page', () => {
     const { queryByRole } = render(<BackupMailingAddress {...testProps} />);
 
     await waitFor(() => {
-      expect(queryByRole('heading', { name: 'Backup mailing address', level: 1 })).toBeInTheDocument();
+      expect(queryByRole('heading', { name: 'Backup address', level: 1 })).toBeInTheDocument();
     });
   });
 

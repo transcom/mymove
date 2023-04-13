@@ -27,7 +27,12 @@ const BackupMailingAddressForm = ({ formFieldsName, initialValues, onSubmit, onB
       {({ isValid, isSubmitting, handleSubmit }) => {
         return (
           <Form className={formStyles.form}>
-            <h1>Backup mailing address</h1>
+            <h1>Backup address</h1>
+
+            <p>
+              Provide a physical address where either you can be reached or someone can contact you while you are in
+              transit during your move.
+            </p>
 
             <SectionWrapper className={formStyles.formSection}>
               <AddressFields name={formFieldsName} />
