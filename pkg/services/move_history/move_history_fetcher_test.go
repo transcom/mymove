@@ -253,15 +253,21 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherFunctionality() {
 
 		approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		approvedShipment := factory.BuildMTOShipmentWithMove(&approvedMove, suite.DB(), nil, nil)
-		serviceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			Move: approvedMove,
-		})
+		serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    approvedMove,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		approvedMoveToFilter := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		approvedShipmentToFilter := factory.BuildMTOShipmentWithMove(&approvedMoveToFilter, suite.DB(), nil, nil)
-		serviceItemToFilter := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			Move: approvedMoveToFilter,
-		})
+		serviceItemToFilter := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    approvedMoveToFilter,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		reason := "heavy"
 		serviceItem.Reason = &reason
@@ -352,9 +358,12 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 
 		updater := mtoserviceitem.NewMTOServiceItemUpdater(builder, moveRouter)
 		move := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
-		serviceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			Move: move,
-		})
+		serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 		eTag := etag.GenerateEtag(serviceItem.UpdatedAt)
 		rejectionReason := swag.String("")
 		shipmentIDAbbr := serviceItem.MTOShipment.ID.String()[0:5]
@@ -397,9 +406,12 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 			Move: approvedMove,
 		})
 
-		testServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			Move: approvedMove,
-		})
+		testServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    approvedMove,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		paymentServiceItem := testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
 			ReService: models.ReService{
@@ -882,9 +894,12 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 		})
 
 		// Create service item and payment service item to associate payment correctly to move
-		testServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			Move: move,
-		})
+		testServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
 			PaymentServiceItem: models.PaymentServiceItem{

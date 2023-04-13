@@ -158,4 +158,30 @@ func (suite *FactorySuite) TestBuildMTOServiceItem() {
 		suite.Equal(models.MTOServiceItemStatusSubmitted, mtoServiceItem.Status)
 	})
 
+	suite.Run("Find or create ReService by code", func() {
+		// build 2 service items, they will have the same ReService Code
+		si1 := BuildMTOServiceItem(suite.DB(), nil, nil)
+		si2 := BuildMTOServiceItem(suite.DB(), nil, nil)
+		suite.Equal(si1.ReService.Code, si2.ReService.Code)
+	})
+	suite.Run("Find or create ReService by custom code", func() {
+		// build 2 service items with the same code
+		customReService := models.ReService{
+			Code: models.ReServiceCodeDOPSIT,
+		}
+		si1 := BuildMTOServiceItem(suite.DB(), []Customization{
+			{
+				Model: customReService,
+			},
+		}, nil)
+		si2 := BuildMTOServiceItem(suite.DB(), []Customization{
+			{
+				Model: customReService,
+			},
+		}, nil)
+
+		suite.Equal(customReService.Code, si1.ReService.Code)
+		suite.Equal(customReService.Code, si2.ReService.Code)
+	})
+
 }
