@@ -309,19 +309,29 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
 		// Create two shipments, one prime, one external.  Only prime one should be returned.
-		primeShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			Move: move,
-			MTOShipment: models.MTOShipment{
-				UsesExternalVendor: false,
+		primeShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-		})
-		testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			Move: move,
-			MTOShipment: models.MTOShipment{
-				ShipmentType:       models.MTOShipmentTypeHHGOutOfNTSDom,
-				UsesExternalVendor: true,
+			{
+				Model: models.MTOShipment{
+					UsesExternalVendor: false,
+				},
 			},
-		})
+		}, nil)
+		factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					ShipmentType:       models.MTOShipmentTypeHHGOutOfNTSDom,
+					UsesExternalVendor: true,
+				},
+			},
+		}, nil)
 
 		params := movetaskorderops.GetMoveTaskOrderParams{
 			HTTPRequest: request,
@@ -529,13 +539,18 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 				UsesExternalVendor: false,
 			},
 		})
-		testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			Move: mto,
-			MTOShipment: models.MTOShipment{
-				ShipmentType:       models.MTOShipmentTypeHHGOutOfNTSDom,
-				UsesExternalVendor: true,
+		factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model:    mto,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					ShipmentType:       models.MTOShipmentTypeHHGOutOfNTSDom,
+					UsesExternalVendor: true,
+				},
+			},
+		}, nil)
 		testdatagen.MakeMTOServiceItemBasic(suite.DB(), testdatagen.Assertions{
 			MTOServiceItem: models.MTOServiceItem{
 				Status: models.MTOServiceItemStatusApproved,

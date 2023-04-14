@@ -265,9 +265,12 @@ func (suite *HandlerSuite) makeCreateMTOAgentSubtestData() (subtestData *createM
 
 	// Create new mtoShipment with no agents
 	subtestData.move = factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-	subtestData.mtoShipment = testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-		Move: subtestData.move,
-	})
+	subtestData.mtoShipment = factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+		{
+			Model:    subtestData.move,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	const agentTypeReceiving = "RECEIVING_AGENT"
 	const agentTypeReleasing = "RELEASING_AGENT"

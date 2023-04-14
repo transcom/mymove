@@ -142,9 +142,12 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 
 	suite.Run("MTO status is in a conflicted state", func() {
 		draftMove := factory.BuildMove(suite.DB(), nil, nil)
-		testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			Move: draftMove,
-		})
+		factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model:    draftMove,
+				LinkOnly: true,
+			},
+		}, nil)
 		eTag := etag.GenerateEtag(draftMove.UpdatedAt)
 
 		_, err := mtoUpdater.UpdateStatusServiceCounselingCompleted(suite.AppContextForTest(), draftMove.ID, eTag)
@@ -156,9 +159,12 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 
 	suite.Run("Etag is stale", func() {
 		move := factory.BuildNeedsServiceCounselingMove(suite.DB(), nil, nil)
-		testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			Move: move,
-		})
+		factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 		eTag := etag.GenerateEtag(time.Now())
 
 		_, err := mtoUpdater.UpdateStatusServiceCounselingCompleted(suite.AppContextForTest(), move.ID, eTag)
@@ -187,13 +193,18 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdatePostCouns
 				UsesExternalVendor: false,
 			},
 		})
-		testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			Move: expectedMTO,
-			MTOShipment: models.MTOShipment{
-				ShipmentType:       models.MTOShipmentTypeHHGOutOfNTSDom,
-				UsesExternalVendor: true,
+		factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model:    expectedMTO,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					ShipmentType:       models.MTOShipmentTypeHHGOutOfNTSDom,
+					UsesExternalVendor: true,
+				},
+			},
+		}, nil)
 		testdatagen.MakeMTOServiceItemBasic(suite.DB(), testdatagen.Assertions{
 			MTOServiceItem: models.MTOServiceItem{
 				Status: models.MTOServiceItemStatusApproved,
