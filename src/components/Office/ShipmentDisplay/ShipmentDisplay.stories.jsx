@@ -11,7 +11,8 @@ import {
   diversionInfo,
   cancelledInfo,
   ppmInfo,
-  ppmInfoApproved,
+  ppmInfoApprovedOrExcluded,
+  ppmInfoRejected,
   ppmInfoMultiple,
   ppmInfoMultiple2,
 } from './ShipmentDisplayTestData';
@@ -20,7 +21,6 @@ import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { MockProviders } from 'testUtils';
 import { permissionTypes } from 'constants/permissions';
-import ppmDocumentStatus from 'constants/ppms';
 
 export default {
   title: 'Office Components/Shipment Display',
@@ -288,20 +288,6 @@ export const PPMShipmentServiceCounselorWithReviewButton = () => (
   <div style={{ padding: '20px' }}>
     <ShipmentDisplay
       displayInfo={ppmInfo}
-      ordersLOA={ordersLOA}
-      shipmentType={SHIPMENT_OPTIONS.PPM}
-      isSubmitted
-      allowApproval={false}
-      warnIfMissing={[{ fieldName: 'counselorRemarks' }]}
-      reviewURL="/"
-    />
-  </div>
-);
-
-export const PPMShipmentServiceCounselorWithPacketReadyForDownloadLabel = () => (
-  <div style={{ padding: '20px' }}>
-    <ShipmentDisplay
-      displayInfo={ppmInfoApproved}
       ordersLOA={ordersLOA}
       shipmentType={SHIPMENT_OPTIONS.PPM}
       isSubmitted
@@ -584,7 +570,7 @@ export const PPMShipmentWithCounselorRemarksReadOnly = () => (
 export const PPMShipmentServiceCounselorApproved = () => (
   <div style={{ padding: '20px' }}>
     <ShipmentDisplay
-      displayInfo={{ ...ppmInfo, ppmDocumentStatus: ppmDocumentStatus.APPROVED }}
+      displayInfo={ppmInfoApprovedOrExcluded}
       ordersLOA={ordersLOA}
       shipmentType={SHIPMENT_OPTIONS.PPM}
       isSubmitted
@@ -598,7 +584,7 @@ export const PPMShipmentServiceCounselorApproved = () => (
 export const PPMShipmentServiceCounselorRejected = () => (
   <div style={{ padding: '20px' }}>
     <ShipmentDisplay
-      displayInfo={{ ...ppmInfo, ppmDocumentStatus: ppmDocumentStatus.REJECTED }}
+      displayInfo={ppmInfoRejected}
       ordersLOA={ordersLOA}
       shipmentType={SHIPMENT_OPTIONS.PPM}
       isSubmitted
@@ -612,7 +598,7 @@ export const PPMShipmentServiceCounselorRejected = () => (
 export const PPMShipmentServiceCounselorExcluded = () => (
   <div style={{ padding: '20px' }}>
     <ShipmentDisplay
-      displayInfo={{ ...ppmInfo, ppmDocumentStatus: ppmDocumentStatus.EXCLUDED }}
+      displayInfo={ppmInfoApprovedOrExcluded}
       ordersLOA={ordersLOA}
       shipmentType={SHIPMENT_OPTIONS.PPM}
       isSubmitted

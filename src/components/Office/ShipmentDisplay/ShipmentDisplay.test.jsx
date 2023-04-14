@@ -13,7 +13,8 @@ import {
   ntsReleaseMissingInfo,
   ordersLOA,
   ppmInfo,
-  ppmInfoApproved,
+  ppmInfoApprovedOrExcluded,
+  ppmInfoRejected,
 } from './ShipmentDisplayTestData';
 import ShipmentDisplay from './ShipmentDisplay';
 
@@ -210,7 +211,39 @@ describe('Shipment Container', () => {
         render(
           <MockProviders permissions={[permissionTypes.updateShipment]}>
             <ShipmentDisplay
-              displayInfo={{ ...ppmInfoApproved }}
+              displayInfo={{ ...ppmInfoApprovedOrExcluded }}
+              ordersLOA={ordersLOA}
+              shipmentType={SHIPMENT_OPTIONS.PPM}
+              isSubmitted
+              allowApproval={false}
+              warnIfMissing={['counselorRemarks']}
+              reviewURL="/"
+            />
+          </MockProviders>,
+        );
+        expect(screen.getByTestId('tag', { name: 'packet ready for download' })).toBeInTheDocument();
+      });
+      it('excluded', () => {
+        render(
+          <MockProviders permissions={[permissionTypes.updateShipment]}>
+            <ShipmentDisplay
+              displayInfo={{ ...ppmInfoApprovedOrExcluded }}
+              ordersLOA={ordersLOA}
+              shipmentType={SHIPMENT_OPTIONS.PPM}
+              isSubmitted
+              allowApproval={false}
+              warnIfMissing={['counselorRemarks']}
+              reviewURL="/"
+            />
+          </MockProviders>,
+        );
+        expect(screen.getByTestId('tag', { name: 'packet ready for download' })).toBeInTheDocument();
+      });
+      it('rejected', () => {
+        render(
+          <MockProviders permissions={[permissionTypes.updateShipment]}>
+            <ShipmentDisplay
+              displayInfo={{ ...ppmInfoRejected }}
               ordersLOA={ordersLOA}
               shipmentType={SHIPMENT_OPTIONS.PPM}
               isSubmitted
