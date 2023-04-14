@@ -300,14 +300,11 @@ func (suite *MoveServiceSuite) TestExcessWeight() {
 				Model:    approvedMove,
 				LinkOnly: true,
 			},
-			{
-				Model:    ppmShipment,
-				LinkOnly: true,
-			},
 		}, nil)
 
 		primeEstimatedWeight := unit.Pound(3200)
 		approvedShipment.PrimeEstimatedWeight = &primeEstimatedWeight
+		approvedShipment.PPMShipment = &ppmShipment
 		//When accounting for PPM weight, the sum should exceed the 90% threshold
 		updatedMove, verrs, err := moveWeights.CheckExcessWeight(suite.AppContextForTest(), approvedMove.ID, approvedShipment)
 

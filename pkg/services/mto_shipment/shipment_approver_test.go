@@ -461,12 +461,12 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 				},
 			},
 			{
-				Model:    pickupAddress,
-				Type:     &factory.Addresses.PickupAddress,
+				Model:    storageFacility,
 				LinkOnly: true,
 			},
 			{
-				Model:    storageFacility,
+				Model:    pickupAddress,
+				Type:     &factory.Addresses.PickupAddress,
 				LinkOnly: true,
 			},
 		}, nil)

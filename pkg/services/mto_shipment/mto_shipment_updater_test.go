@@ -1227,12 +1227,12 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 				},
 			},
 			{
-				Model:    pickupAddress,
-				Type:     &factory.Addresses.PickupAddress,
+				Model:    storageFacility,
 				LinkOnly: true,
 			},
 			{
-				Model:    storageFacility,
+				Model:    pickupAddress,
+				Type:     &factory.Addresses.PickupAddress,
 				LinkOnly: true,
 			},
 		}, nil)
@@ -1251,12 +1251,12 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 				},
 			},
 			{
-				Model:    destinationAddress,
-				Type:     &factory.Addresses.DeliveryAddress,
+				Model:    storageFacility,
 				LinkOnly: true,
 			},
 			{
-				Model:    storageFacility,
+				Model:    destinationAddress,
+				Type:     &factory.Addresses.DeliveryAddress,
 				LinkOnly: true,
 			},
 		}, nil)

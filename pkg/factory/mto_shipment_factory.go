@@ -43,6 +43,11 @@ func buildMTOShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 		Status:          models.MTOShipmentStatusSubmitted,
 	}
 
+	if cMtoShipment.Status == models.MTOShipmentStatusApproved {
+		approvedDate := time.Date(GHCTestYear, time.March, 20, 0, 0, 0, 0, time.UTC)
+		newMTOShipment.ApprovedDate = &approvedDate
+	}
+
 	if buildType == mtoShipmentBuild {
 		newMTOShipment.Status = models.MTOShipmentStatusDraft
 
@@ -142,11 +147,6 @@ func buildMTOShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 			}
 		}
 
-		if cMtoShipment.Status == models.MTOShipmentStatusApproved {
-			approvedDate := time.Date(GHCTestYear, time.March, 20, 0, 0, 0, 0, time.UTC)
-			newMTOShipment.ApprovedDate = &approvedDate
-		}
-
 		if cMtoShipment.ScheduledPickupDate != nil {
 			requiredDeliveryDate := time.Date(GHCTestYear, time.April, 15, 0, 0, 0, 0, time.UTC)
 			newMTOShipment.RequiredDeliveryDate = &requiredDeliveryDate
@@ -214,6 +214,18 @@ func BuildMTOShipmentMinimal(db *pop.Connection, customs []Customization, traits
 		}
 		mtoShipment.DestinationAddress = &deliveryAddress
 		mtoShipment.DestinationAddressID = &deliveryAddress.ID
+
+		if db != nil {
+			mustSave(db, &mtoShipment)
+		}
+	}
+
+	// Find storage facility in case it was added to customizations list
+	storageResult := findValidCustomization(customs, StorageFacility)
+	if storageResult != nil {
+		storageFacility := BuildStorageFacility(db, customs, traits)
+		mtoShipment.StorageFacility = &storageFacility
+		mtoShipment.StorageFacilityID = &storageFacility.ID
 
 		if db != nil {
 			mustSave(db, &mtoShipment)

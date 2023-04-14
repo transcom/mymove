@@ -935,9 +935,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		// Create a shipment handled by an external vendor
 		externalShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
 			{
-				Model: models.Move{
-					ID: ogShipment.MoveTaskOrderID,
-				},
+				Model:    ogShipment.MoveTaskOrder,
+				LinkOnly: true,
 			},
 			{
 				Model: models.MTOShipment{
@@ -986,9 +985,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		// Create a minimal shipment on the previously created move
 		minimalShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
 			{
-				Model: models.Move{
-					ID: ogShipment.MoveTaskOrderID,
-				},
+				Model:    ogShipment.MoveTaskOrder,
+				LinkOnly: true,
 			},
 			{
 				Model: models.MTOShipment{
@@ -1053,9 +1051,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		// Create a minimal shipment on the previously created move
 		minimalShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
 			{
-				Model: models.Move{
-					ID: ogShipment.MoveTaskOrderID,
-				},
+				Model:    ogShipment.MoveTaskOrder,
+				LinkOnly: true,
 			},
 			{
 				Model: models.MTOShipment{
@@ -1126,9 +1123,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		// Create a shipment with no scheduled pickup date
 		noScheduledPickupShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
 			{
-				Model: models.Move{
-					ID: ogShipment.MoveTaskOrderID,
-				},
+				Model:    ogShipment.MoveTaskOrder,
+				LinkOnly: true,
 			},
 			{
 				Model: models.MTOShipment{
