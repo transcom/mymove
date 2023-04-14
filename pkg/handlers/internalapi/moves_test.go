@@ -246,13 +246,14 @@ func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
 		// Given: a set of orders, a move, user and servicemember
 		move := factory.BuildMove(suite.DB(), nil, nil)
 
-		hhgShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status:       models.MTOShipmentStatusDraft,
-				ShipmentType: models.MTOShipmentTypePPM,
+		hhgShipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:       models.MTOShipmentStatusDraft,
+					ShipmentType: models.MTOShipmentTypePPM,
+				},
 			},
-			Stub: true,
-		})
+		}, nil)
 		testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
 			Move:        move,
 			MTOShipment: hhgShipment,

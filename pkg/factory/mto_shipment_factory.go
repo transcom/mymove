@@ -202,6 +202,24 @@ func BuildMTOShipmentMinimal(db *pop.Connection, customs []Customization, traits
 		}
 	}
 
+	// Find destination address in case it was added to customizations list
+	tempDestinationAddressCustoms := customs
+	result = findValidCustomization(customs, Addresses.DeliveryAddress)
+	if result != nil {
+		tempDestinationAddressCustoms = convertCustomizationInList(tempDestinationAddressCustoms, Addresses.DeliveryAddress, Address)
+		deliveryAddress := BuildAddress(db, tempDestinationAddressCustoms, traits)
+		if db == nil {
+			// fake an id for stubbed address, needed by the MTOShipmentCreator
+			deliveryAddress.ID = uuid.Must(uuid.NewV4())
+		}
+		mtoShipment.DestinationAddress = &deliveryAddress
+		mtoShipment.DestinationAddressID = &deliveryAddress.ID
+
+		if db != nil {
+			mustSave(db, &mtoShipment)
+		}
+	}
+
 	if mtoShipment.RequestedPickupDate == nil {
 		requestedPickupDate := time.Date(GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC)
 

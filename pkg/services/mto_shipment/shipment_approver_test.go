@@ -192,19 +192,30 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		destinationAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
 		pickupAddress := factory.BuildAddress(suite.DB(), nil, nil)
 
-		shipmentHeavy := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			Move: move,
-			MTOShipment: models.MTOShipment{
-				ShipmentType:         models.MTOShipmentTypeHHGLongHaulDom,
-				ScheduledPickupDate:  &testdatagen.DateInsidePeakRateCycle,
-				PrimeEstimatedWeight: &estimatedWeight,
-				Status:               models.MTOShipmentStatusSubmitted,
-				DestinationAddress:   &destinationAddress,
-				DestinationAddressID: &destinationAddress.ID,
-				PickupAddress:        &pickupAddress,
-				PickupAddressID:      &pickupAddress.ID,
+		shipmentHeavy := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					ShipmentType:         models.MTOShipmentTypeHHGLongHaulDom,
+					ScheduledPickupDate:  &testdatagen.DateInsidePeakRateCycle,
+					PrimeEstimatedWeight: &estimatedWeight,
+					Status:               models.MTOShipmentStatusSubmitted,
+				},
+			},
+			{
+				Model:    pickupAddress,
+				Type:     &factory.Addresses.PickupAddress,
+				LinkOnly: true,
+			},
+			{
+				Model:    destinationAddress,
+				Type:     &factory.Addresses.DeliveryAddress,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		createdShipment := models.MTOShipment{}
 		err := suite.DB().Find(&createdShipment, shipmentHeavy.ID)
@@ -411,47 +422,78 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		pickupAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress3})
 		storageFacility := factory.BuildStorageFacility(suite.DB(), nil, nil)
 
-		hhgShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			Move: move,
-			MTOShipment: models.MTOShipment{
-				ShipmentType:         models.MTOShipmentTypeHHG,
-				ScheduledPickupDate:  &testdatagen.DateInsidePeakRateCycle,
-				PrimeEstimatedWeight: &estimatedWeight,
-				Status:               models.MTOShipmentStatusSubmitted,
-				DestinationAddress:   &destinationAddress,
-				DestinationAddressID: &destinationAddress.ID,
-				PickupAddress:        &pickupAddress,
-				PickupAddressID:      &pickupAddress.ID,
+		hhgShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					ShipmentType:         models.MTOShipmentTypeHHG,
+					ScheduledPickupDate:  &testdatagen.DateInsidePeakRateCycle,
+					PrimeEstimatedWeight: &estimatedWeight,
+					Status:               models.MTOShipmentStatusSubmitted,
+				},
+			},
+			{
+				Model:    pickupAddress,
+				Type:     &factory.Addresses.PickupAddress,
+				LinkOnly: true,
+			},
+			{
+				Model:    destinationAddress,
+				Type:     &factory.Addresses.DeliveryAddress,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		ntsShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			Move: move,
-			MTOShipment: models.MTOShipment{
-				ShipmentType:         models.MTOShipmentTypeHHGIntoNTSDom,
-				ScheduledPickupDate:  &testdatagen.DateInsidePeakRateCycle,
-				PrimeEstimatedWeight: &estimatedWeight,
-				Status:               models.MTOShipmentStatusSubmitted,
-				StorageFacility:      &storageFacility,
-				StorageFacilityID:    &storageFacility.ID,
-				PickupAddress:        &pickupAddress,
-				PickupAddressID:      &pickupAddress.ID,
+		ntsShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					ShipmentType:         models.MTOShipmentTypeHHGIntoNTSDom,
+					ScheduledPickupDate:  &testdatagen.DateInsidePeakRateCycle,
+					PrimeEstimatedWeight: &estimatedWeight,
+					Status:               models.MTOShipmentStatusSubmitted,
+				},
+			},
+			{
+				Model:    pickupAddress,
+				Type:     &factory.Addresses.PickupAddress,
+				LinkOnly: true,
+			},
+			{
+				Model:    storageFacility,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		ntsrShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			Move: move,
-			MTOShipment: models.MTOShipment{
-				ShipmentType:         models.MTOShipmentTypeHHGOutOfNTSDom,
-				ScheduledPickupDate:  &testdatagen.DateInsidePeakRateCycle,
-				NTSRecordedWeight:    &estimatedWeight,
-				Status:               models.MTOShipmentStatusSubmitted,
-				StorageFacility:      &storageFacility,
-				StorageFacilityID:    &storageFacility.ID,
-				DestinationAddress:   &destinationAddress,
-				DestinationAddressID: &destinationAddress.ID,
+		ntsrShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					ShipmentType:        models.MTOShipmentTypeHHGOutOfNTSDom,
+					ScheduledPickupDate: &testdatagen.DateInsidePeakRateCycle,
+					NTSRecordedWeight:   &estimatedWeight,
+					Status:              models.MTOShipmentStatusSubmitted,
+				},
+			},
+			{
+				Model:    storageFacility,
+				LinkOnly: true,
+			},
+			{
+				Model:    destinationAddress,
+				Type:     &factory.Addresses.DeliveryAddress,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		var TransitDistancePickupArg *models.Address
 		var TransitDistanceDestinationArg *models.Address
