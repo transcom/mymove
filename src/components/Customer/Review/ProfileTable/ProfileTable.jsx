@@ -80,7 +80,7 @@ const ProfileTable = ({
             <td>{email}</td>
           </tr>
           <tr>
-            <th scope="row">Current mailing address</th>
+            <th scope="row">Current pickup address</th>
             <td>
               {streetAddress1} {streetAddress2}
               <br />
