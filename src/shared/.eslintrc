@@ -1,3 +1,4 @@
+// Adding a comment here to test the codeowners for this file
 {
   "plugins": ["prettier", "security", "no-only-tests"],
   "extends": ["react-app", "plugin:prettier/recommended", "plugin:security/recommended"],
