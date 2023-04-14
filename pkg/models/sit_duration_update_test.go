@@ -81,7 +81,7 @@ func (suite *ModelSuite) TestSITExtensionValidation() {
 		suite.verifyValidationErrors(&validSITExtension, expErrors)
 	})
 
-	reasons := []models.SITExtensionRequestReason{
+	reasons := []models.SITDurationUpdateRequestReason{
 		models.SITExtensionRequestReasonSeriousIllnessMember,
 		models.SITExtensionRequestReasonSeriousIllnessDependent,
 		models.SITExtensionRequestReasonImpendingAssignment,
@@ -104,7 +104,7 @@ func (suite *ModelSuite) TestSITExtensionValidation() {
 		})
 	}
 
-	statuses := []models.SITExtensionStatus{
+	statuses := []models.SITDurationUpdateStatus{
 		models.SITExtensionStatusPending,
 		models.SITExtensionStatusApproved,
 		models.SITExtensionStatusDenied,
@@ -124,8 +124,8 @@ func (suite *ModelSuite) TestSITExtensionValidation() {
 	}
 
 	suite.Run("test invalid sit extension", func() {
-		const badReason models.SITExtensionRequestReason = "bad reason"
-		const badStatus models.SITExtensionStatus = "bad status"
+		const badReason models.SITDurationUpdateRequestReason = "bad reason"
+		const badStatus models.SITDurationUpdateStatus = "bad status"
 		approvedDays := 0
 		badDecisionDate := time.Time{}
 		validSITExtension := models.SITDurationUpdate{

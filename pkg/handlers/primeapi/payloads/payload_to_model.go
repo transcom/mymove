@@ -541,7 +541,7 @@ func SITExtensionModel(sitExtension *primemessages.CreateSITExtension, mtoShipme
 		MTOShipmentID:     uuid.FromStringOrNil(mtoShipmentID.String()),
 		RequestedDays:     int(*sitExtension.RequestedDays),
 		ContractorRemarks: sitExtension.ContractorRemarks,
-		RequestReason:     models.SITExtensionRequestReason(*sitExtension.RequestReason),
+		RequestReason:     models.SITDurationUpdateRequestReason(*sitExtension.RequestReason),
 	}
 
 	return model

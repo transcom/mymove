@@ -60,7 +60,7 @@ func (suite *SitExtensionServiceSuite) TestSITExtensionCreator() {
 
 		// Create a SIT Extension for the move
 		sit := &models.SITDurationUpdate{
-			RequestReason: models.SITExtensionRequestReason("none"),
+			RequestReason: models.SITDurationUpdateRequestReason("none"),
 			MTOShipmentID: shipment.ID,
 			RequestedDays: 10,
 		}

@@ -142,7 +142,7 @@ func ApprovedSITExtensionFromCreate(sitExtension *ghcmessages.CreateApprovedSITD
 	ad := int(*sitExtension.ApprovedDays)
 	model := &models.SITDurationUpdate{
 		MTOShipmentID: uuid.FromStringOrNil(shipmentID.String()),
-		RequestReason: models.SITExtensionRequestReason(*sitExtension.RequestReason),
+		RequestReason: models.SITDurationUpdateRequestReason(*sitExtension.RequestReason),
 		RequestedDays: int(*sitExtension.ApprovedDays),
 		Status:        models.SITExtensionStatusApproved,
 		ApprovedDays:  &ad,
