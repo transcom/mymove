@@ -407,6 +407,13 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		progear.NewOfficeProgearWeightTicketUpdater(),
 	}
 
+	ghcAPI.PpmFinishDocumentReviewHandler = FinishDocumentReviewHandler{
+		handlerConfig,
+		ppmshipment.NewPPMShipmentReviewDocuments(
+			ppmshipment.NewPPMShipmentRouter(mtoshipment.NewShipmentRouter()),
+		),
+	}
+
 	ppmDocumentsFetcher := ppmshipment.NewPPMDocumentFetcher()
 
 	ghcAPI.PpmGetPPMDocumentsHandler = GetPPMDocumentsHandler{
