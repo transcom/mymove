@@ -71,31 +71,57 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITDestLookup() {
 				Move: move,
 			})
 
-		mtoServiceItemSameZip3 = testdatagen.MakeMTOServiceItem(suite.DB(),
-			testdatagen.Assertions{
-				DestinationAddress: destAddress,
-				ReService:          reService,
-				Move:               move,
-				MTOShipment:        mtoShipment,
-				MTOServiceItem: models.MTOServiceItem{
-					SITDestinationFinalAddressID: &finalDestSameZip3Address.ID,
-					SITDestinationFinalAddress:   &finalDestSameZip3Address,
+		mtoServiceItemSameZip3 = factory.BuildMTOServiceItem(suite.DB(),
+			[]factory.Customization{
+				{
+					Model:    destAddress,
+					LinkOnly: true,
+					Type:     &factory.Addresses.DeliveryAddress,
 				},
-			},
-		)
+				{
+					Model:    reService,
+					LinkOnly: true,
+				},
+				{
+					Model:    move,
+					LinkOnly: true,
+				},
+				{
+					Model:    mtoShipment,
+					LinkOnly: true,
+				},
+				{
+					Model:    finalDestSameZip3Address,
+					LinkOnly: true,
+					Type:     &factory.Addresses.SITDestinationFinalAddress,
+				},
+			}, nil)
 
-		mtoServiceItemDiffZip3 = testdatagen.MakeMTOServiceItem(suite.DB(),
-			testdatagen.Assertions{
-				DestinationAddress: destAddress,
-				ReService:          reService,
-				Move:               move,
-				MTOShipment:        mtoShipment,
-				MTOServiceItem: models.MTOServiceItem{
-					SITDestinationFinalAddressID: &finalDestDiffZip3Address.ID,
-					SITDestinationFinalAddress:   &finalDestDiffZip3Address,
+		mtoServiceItemDiffZip3 = factory.BuildMTOServiceItem(suite.DB(),
+			[]factory.Customization{
+				{
+					Model:    destAddress,
+					LinkOnly: true,
+					Type:     &factory.Addresses.DeliveryAddress,
 				},
-			},
-		)
+				{
+					Model:    reService,
+					LinkOnly: true,
+				},
+				{
+					Model:    move,
+					LinkOnly: true,
+				},
+				{
+					Model:    mtoShipment,
+					LinkOnly: true,
+				},
+				{
+					Model:    finalDestDiffZip3Address,
+					LinkOnly: true,
+					Type:     &factory.Addresses.SITDestinationFinalAddress,
+				},
+			}, nil)
 	}
 
 	suite.Run("distance when zip3s are identical", func() {

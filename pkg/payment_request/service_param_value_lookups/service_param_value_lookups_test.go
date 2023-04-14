@@ -501,36 +501,48 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 	suite.Run("SITDestinationAddress is looked up for destination sit", func() {
 		sitFinalDestAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress3})
 		testData := []models.MTOServiceItem{
-			testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-				ReService: models.ReService{
-					Code: models.ReServiceCodeDDASIT,
-					Name: models.ReServiceCodeDDASIT.String(),
-				},
-				MTOServiceItem: models.MTOServiceItem{
-					SITDestinationFinalAddressID: &sitFinalDestAddress.ID,
-					SITDestinationFinalAddress:   &sitFinalDestAddress,
-				},
-			}),
-			testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-				ReService: models.ReService{
-					Code: models.ReServiceCodeDDDSIT,
-					Name: models.ReServiceCodeDDDSIT.String(),
-				},
-				MTOServiceItem: models.MTOServiceItem{
-					SITDestinationFinalAddressID: &sitFinalDestAddress.ID,
-					SITDestinationFinalAddress:   &sitFinalDestAddress,
-				},
-			}),
-			testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-				ReService: models.ReService{
-					Code: models.ReServiceCodeDDFSIT,
-					Name: models.ReServiceCodeDDFSIT.String(),
-				},
-				MTOServiceItem: models.MTOServiceItem{
-					SITDestinationFinalAddressID: &sitFinalDestAddress.ID,
-					SITDestinationFinalAddress:   &sitFinalDestAddress,
-				},
-			}),
+			factory.BuildMTOServiceItem(suite.DB(),
+				[]factory.Customization{
+					{
+						Model: models.ReService{
+							Code: models.ReServiceCodeDDASIT,
+							Name: models.ReServiceCodeDDASIT.String(),
+						},
+					},
+					{
+						Model:    sitFinalDestAddress,
+						LinkOnly: true,
+						Type:     &factory.Addresses.SITDestinationFinalAddress,
+					},
+				}, nil),
+			factory.BuildMTOServiceItem(suite.DB(),
+				[]factory.Customization{
+					{
+						Model: models.ReService{
+							Code: models.ReServiceCodeDDDSIT,
+							Name: models.ReServiceCodeDDDSIT.String(),
+						},
+					},
+					{
+						Model:    sitFinalDestAddress,
+						LinkOnly: true,
+						Type:     &factory.Addresses.SITDestinationFinalAddress,
+					},
+				}, nil),
+			factory.BuildMTOServiceItem(suite.DB(),
+				[]factory.Customization{
+					{
+						Model: models.ReService{
+							Code: models.ReServiceCodeDDFSIT,
+							Name: models.ReServiceCodeDDFSIT.String(),
+						},
+					},
+					{
+						Model:    sitFinalDestAddress,
+						LinkOnly: true,
+						Type:     &factory.Addresses.SITDestinationFinalAddress,
+					},
+				}, nil),
 		}
 
 		for _, mtoServiceItem := range testData {

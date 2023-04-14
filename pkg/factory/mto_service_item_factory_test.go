@@ -52,6 +52,7 @@ func (suite *FactorySuite) TestBuildMTOServiceItem() {
 		}
 		sitOriginalAddress := BuildAddress(suite.DB(), nil, nil)
 		sitActualAddress := BuildAddress(suite.DB(), nil, nil)
+		sitDestinationAddress := BuildAddress(suite.DB(), nil, nil)
 		customs := []Customization{
 			{
 				Model: customMove,
@@ -74,6 +75,11 @@ func (suite *FactorySuite) TestBuildMTOServiceItem() {
 				Model:    sitActualAddress,
 				LinkOnly: true,
 				Type:     &Addresses.SITOriginHHGActualAddress,
+			},
+			{
+				Model:    sitDestinationAddress,
+				LinkOnly: true,
+				Type:     &Addresses.SITDestinationFinalAddress,
 			},
 		}
 		// CALL FUNCTION UNDER TEST
@@ -104,6 +110,9 @@ func (suite *FactorySuite) TestBuildMTOServiceItem() {
 		suite.NotNil(mtoServiceItem.SITOriginHHGActualAddressID)
 		suite.Equal(sitActualAddress.ID, *mtoServiceItem.SITOriginHHGActualAddressID)
 		suite.Equal(sitActualAddress.ID, mtoServiceItem.SITOriginHHGActualAddress.ID)
+		suite.NotNil(mtoServiceItem.SITDestinationFinalAddressID)
+		suite.Equal(sitDestinationAddress.ID, *mtoServiceItem.SITDestinationFinalAddressID)
+		suite.Equal(sitDestinationAddress.ID, mtoServiceItem.SITDestinationFinalAddress.ID)
 	})
 
 	suite.Run("Successful return of linkOnly MTOServiceItem", func() {
