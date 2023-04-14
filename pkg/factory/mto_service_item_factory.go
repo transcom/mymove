@@ -62,6 +62,22 @@ func buildMTOServiceItemWithBuildType(db *pop.Connection, customs []Customizatio
 		Status:          models.MTOServiceItemStatusSubmitted,
 	}
 
+	// only set SITOriginHHGOriginalAddress if a customization is provided
+	if result := findValidCustomization(customs, Addresses.SITOriginHHGOriginalAddress); result != nil {
+		addressCustoms := convertCustomizationInList(customs, Addresses.SITOriginHHGOriginalAddress, Address)
+		address := BuildAddress(db, addressCustoms, traits)
+		mtoServiceItem.SITOriginHHGOriginalAddress = &address
+		mtoServiceItem.SITOriginHHGOriginalAddressID = &address.ID
+	}
+
+	// only set SITOriginHHGActualAddress if a customization is provided
+	if result := findValidCustomization(customs, Addresses.SITOriginHHGActualAddress); result != nil {
+		addressCustoms := convertCustomizationInList(customs, Addresses.SITOriginHHGActualAddress, Address)
+		address := BuildAddress(db, addressCustoms, traits)
+		mtoServiceItem.SITOriginHHGActualAddress = &address
+		mtoServiceItem.SITOriginHHGActualAddressID = &address.ID
+	}
+
 	// Overwrite values with those from customizations
 	testdatagen.MergeModels(&mtoServiceItem, cMTOServiceItem)
 

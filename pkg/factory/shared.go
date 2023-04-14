@@ -98,26 +98,30 @@ var defaultTypesMap = map[string]CustomType{
 
 // addressGroup is a grouping of all address related fields
 type addressGroup struct {
-	PickupAddress            CustomType
-	DeliveryAddress          CustomType
-	SecondaryPickupAddress   CustomType
-	SecondaryDeliveryAddress CustomType
-	ResidentialAddress       CustomType
-	BackupMailingAddress     CustomType
-	DutyLocationAddress      CustomType
-	DutyLocationTOAddress    CustomType
+	PickupAddress               CustomType
+	DeliveryAddress             CustomType
+	SecondaryPickupAddress      CustomType
+	SecondaryDeliveryAddress    CustomType
+	ResidentialAddress          CustomType
+	BackupMailingAddress        CustomType
+	DutyLocationAddress         CustomType
+	DutyLocationTOAddress       CustomType
+	SITOriginHHGOriginalAddress CustomType
+	SITOriginHHGActualAddress   CustomType
 }
 
 // Addresses is the struct to access the various fields externally
 var Addresses = addressGroup{
-	PickupAddress:            "PickupAddress",
-	DeliveryAddress:          "DeliveryAddress",
-	SecondaryPickupAddress:   "SecondaryPickupAddress",
-	SecondaryDeliveryAddress: "SecondaryDeliveryAddress",
-	ResidentialAddress:       "ResidentialAddress",
-	BackupMailingAddress:     "BackupMailingAddress",
-	DutyLocationAddress:      "DutyLocationAddress",
-	DutyLocationTOAddress:    "DutyLocationTOAddress",
+	PickupAddress:               "PickupAddress",
+	DeliveryAddress:             "DeliveryAddress",
+	SecondaryPickupAddress:      "SecondaryPickupAddress",
+	SecondaryDeliveryAddress:    "SecondaryDeliveryAddress",
+	ResidentialAddress:          "ResidentialAddress",
+	BackupMailingAddress:        "BackupMailingAddress",
+	DutyLocationAddress:         "DutyLocationAddress",
+	DutyLocationTOAddress:       "DutyLocationTOAddress",
+	SITOriginHHGOriginalAddress: "SITOriginHHGOriginalAddress",
+	SITOriginHHGActualAddress:   "SITOriginHHGActualAddress",
 }
 
 // dimensionGroup is a grouping of all the Dimension related fields
