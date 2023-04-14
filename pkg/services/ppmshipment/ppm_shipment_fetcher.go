@@ -25,6 +25,8 @@ func NewPPMShipmentFetcher() services.PPMShipmentFetcher {
 const (
 	// EagerPreloadAssociationShipment is the name of the association for the shipment
 	EagerPreloadAssociationShipment = "Shipment"
+	// EagerPreloadAssociationServiceMember is the name of the association for the service member
+	EagerPreloadAssociationServiceMember = "Shipment.MoveTaskOrder.Orders.ServiceMember"
 	// EagerPreloadAssociationWeightTickets is the name of the association for the weight tickets
 	EagerPreloadAssociationWeightTickets = "WeightTickets"
 	// EagerPreloadAssociationProgearWeightTickets is the name of the association for the pro-gear weight tickets
@@ -50,12 +52,15 @@ const (
 	PostLoadAssociationProgearWeightTicketUploads = "ProgearWeightTicketUploads"
 	// PostLoadAssociationMovingExpenseUploads is the name of the association for the moving expense uploads
 	PostLoadAssociationMovingExpenseUploads = "MovingExpenseUploads"
+	// PostLoadAssociationUploadedOrders is the name of the association for the orders uploaded by the service member
+	PostLoadAssociationUploadedOrders = "UploadedOrders"
 )
 
 // GetListOfAllPreloadAssociations returns all associations for a PPMShipment that can be eagerly preloaded for ease of use.
 func GetListOfAllPreloadAssociations() []string {
 	return []string{
 		EagerPreloadAssociationShipment,
+		EagerPreloadAssociationServiceMember,
 		EagerPreloadAssociationWeightTickets,
 		EagerPreloadAssociationProgearWeightTickets,
 		EagerPreloadAssociationMovingExpenses,
@@ -72,6 +77,7 @@ func GetListOfAllPostloadAssociations() []string {
 		PostLoadAssociationWeightTicketUploads,
 		PostLoadAssociationProgearWeightTicketUploads,
 		PostLoadAssociationMovingExpenseUploads,
+		PostLoadAssociationUploadedOrders,
 	}
 }
 
@@ -84,7 +90,6 @@ func (f ppmShipmentFetcher) GetPPMShipment(appCtx appcontext.AppContext, ppmShip
 		}
 
 		for _, association := range eagerPreloadAssociations {
-
 			if !validPreloadAssociations[association] {
 				return nil, apperror.NewNotImplementedError(fmt.Sprintf("Requested eager preload association %s is not implemented", association))
 			}
@@ -180,10 +185,16 @@ func (f ppmShipmentFetcher) PostloadAssociations(appCtx appcontext.AppContext, p
 					"Document.UserUploads.Upload")
 
 				if err != nil {
-					return apperror.NewQueryError("MovingExpenses", err, "failed to load  MovingExpenses document uploads")
+					return apperror.NewQueryError("MovingExpenses", err, "failed to load MovingExpenses document uploads")
 				}
 
 				movingExpense.Document.UserUploads = movingExpense.Document.UserUploads.FilterDeleted()
+			}
+		case PostLoadAssociationUploadedOrders:
+			err := appCtx.DB().Load(ppmShipment, "Shipment.MoveTaskOrder.Orders.UploadedOrders.UserUploads.Upload")
+
+			if err != nil {
+				return apperror.NewQueryError("PPMShipment", err, "failed to load PPMShipment uploaded orders")
 			}
 		default:
 			return apperror.NewNotImplementedError(fmt.Sprintf("Requested post load association %s is not implemented", association))
