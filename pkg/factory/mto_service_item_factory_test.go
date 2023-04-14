@@ -1,7 +1,6 @@
 package factory
 
 import (
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -38,7 +37,7 @@ func (suite *FactorySuite) TestBuildMTOServiceItem() {
 		// SETUP
 		customMove := models.Move{
 			Locator: "ABC123",
-			Show:    swag.Bool(true),
+			Show:    models.BoolPointer(true),
 		}
 		customMTOShipment := models.MTOShipment{
 			Status: models.MTOShipmentStatusDraft,
