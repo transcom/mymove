@@ -162,7 +162,7 @@ func (suite *MTOShipmentServiceSuite) TestListMTOShipments() {
 			MTOShipment: shipment,
 		})
 
-		SITExtension := testdatagen.MakeSITExtension(suite.DB(), testdatagen.Assertions{
+		SITExtension := testdatagen.MakeSITDurationUpdate(suite.DB(), testdatagen.Assertions{
 			MTOShipment: shipment,
 		})
 

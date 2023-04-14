@@ -42,7 +42,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveSITExtension() {
 
 	suite.Run("Returns an error when etag does not match", func() {
 		mtoShipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
-		sitExtension := testdatagen.MakePendingSITExtension(suite.DB(), testdatagen.Assertions{
+		sitExtension := testdatagen.MakePendingSITDurationUpdate(suite.DB(), testdatagen.Assertions{
 			MTOShipment: mtoShipment,
 		})
 		approvedDays := int(20)
@@ -59,7 +59,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveSITExtension() {
 	suite.Run("Returns an error when shipment ID from SIT extension and shipment ID found do not match", func() {
 		mtoShipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
 		otherMtoShipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
-		sitExtension := testdatagen.MakePendingSITExtension(suite.DB(), testdatagen.Assertions{
+		sitExtension := testdatagen.MakePendingSITDurationUpdate(suite.DB(), testdatagen.Assertions{
 			MTOShipment: mtoShipment,
 		})
 		approvedDays := int(20)
@@ -86,7 +86,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveSITExtension() {
 				LinkOnly: true,
 			},
 		}, nil)
-		sitExtension := testdatagen.MakePendingSITExtension(suite.DB(), testdatagen.Assertions{
+		sitExtension := testdatagen.MakePendingSITDurationUpdate(suite.DB(), testdatagen.Assertions{
 			MTOShipment: mtoShipment,
 		})
 		approvedDays := int(20)
@@ -126,11 +126,11 @@ func (suite *MTOShipmentServiceSuite) TestApproveSITExtension() {
 				LinkOnly: true,
 			},
 		}, nil)
-		sitExtensionToBeApproved := testdatagen.MakePendingSITExtension(suite.DB(), testdatagen.Assertions{
+		sitExtensionToBeApproved := testdatagen.MakePendingSITDurationUpdate(suite.DB(), testdatagen.Assertions{
 			MTOShipment: mtoShipment,
 		})
 		// Pending SIT Extension that won't be approved or denied
-		testdatagen.MakePendingSITExtension(suite.DB(), testdatagen.Assertions{
+		testdatagen.MakePendingSITDurationUpdate(suite.DB(), testdatagen.Assertions{
 			MTOShipment: mtoShipment,
 		})
 		approvedDays := int(20)

@@ -42,9 +42,9 @@ func (suite *SitExtensionServiceSuite) TestValidationRules() {
 					LinkOnly: true,
 				}, // Move status is automatically set to APPROVED
 			}, nil)
-			sitExtension := testdatagen.MakeSITExtension(suite.DB(), testdatagen.Assertions{
+			sitExtension := testdatagen.MakeSITDurationUpdate(suite.DB(), testdatagen.Assertions{
 				MTOShipment: shipment,
-				SITExtension: models.SITDurationUpdate{
+				SITDurationUpdate: models.SITDurationUpdate{
 					MTOShipmentID: shipment.ID,
 					RequestReason: models.SITExtensionRequestReasonAwaitingCompletionOfResidence,
 					Status:        models.SITExtensionStatusApproved,
@@ -99,9 +99,9 @@ func (suite *SitExtensionServiceSuite) TestValidationRules() {
 
 		// Approved Status SIT Extension
 		// Changed Request Reason from the default
-		testdatagen.MakeSITExtension(suite.DB(), testdatagen.Assertions{
+		testdatagen.MakeSITDurationUpdate(suite.DB(), testdatagen.Assertions{
 			MTOShipment: shipment,
-			SITExtension: models.SITDurationUpdate{
+			SITDurationUpdate: models.SITDurationUpdate{
 				MTOShipmentID: shipment.ID,
 				RequestReason: models.SITExtensionRequestReasonAwaitingCompletionOfResidence,
 				Status:        models.SITExtensionStatusApproved,
@@ -125,9 +125,9 @@ func (suite *SitExtensionServiceSuite) TestValidationRules() {
 		}, nil)
 
 		// Denied SIT Extension
-		testdatagen.MakeSITExtension(suite.DB(), testdatagen.Assertions{
+		testdatagen.MakeSITDurationUpdate(suite.DB(), testdatagen.Assertions{
 			MTOShipment: shipment,
-			SITExtension: models.SITDurationUpdate{
+			SITDurationUpdate: models.SITDurationUpdate{
 				MTOShipmentID: shipment.ID,
 				RequestReason: models.SITExtensionRequestReasonSeriousIllnessMember,
 				Status:        models.SITExtensionStatusDenied,
@@ -152,9 +152,9 @@ func (suite *SitExtensionServiceSuite) TestValidationRules() {
 
 		// Create SIT Extension #1 in DB
 		// Change default status to Pending:
-		testdatagen.MakeSITExtension(suite.DB(), testdatagen.Assertions{
+		testdatagen.MakeSITDurationUpdate(suite.DB(), testdatagen.Assertions{
 			MTOShipment: shipment,
-			SITExtension: models.SITDurationUpdate{
+			SITDurationUpdate: models.SITDurationUpdate{
 				MTOShipmentID: shipment.ID,
 				RequestReason: models.SITExtensionRequestReasonSeriousIllnessMember,
 				Status:        models.SITExtensionStatusPending,

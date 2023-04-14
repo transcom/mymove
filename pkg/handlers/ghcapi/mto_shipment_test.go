@@ -173,8 +173,8 @@ func (suite *HandlerSuite) makeListMTOShipmentsSubtestData() (subtestData *listM
 		},
 	}, nil)
 
-	subtestData.sitExtension = testdatagen.MakeSITExtension(suite.DB(), testdatagen.Assertions{
-		SITExtension: models.SITDurationUpdate{
+	subtestData.sitExtension = testdatagen.MakeSITDurationUpdate(suite.DB(), testdatagen.Assertions{
+		SITDurationUpdate: models.SITDurationUpdate{
 			MTOShipmentID: mtoShipment.ID,
 		},
 	})
@@ -2453,7 +2453,7 @@ func (suite *HandlerSuite) TestApproveSITExtensionHandler() {
 				},
 			},
 		}, nil)
-		sitExtension := testdatagen.MakePendingSITExtension(suite.DB(), testdatagen.Assertions{
+		sitExtension := testdatagen.MakePendingSITDurationUpdate(suite.DB(), testdatagen.Assertions{
 			MTOShipment: mtoShipment,
 		})
 		eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
@@ -2516,7 +2516,7 @@ func (suite *HandlerSuite) TestDenySITExtensionHandler() {
 				LinkOnly: true,
 			},
 		}, nil)
-		sitExtension := testdatagen.MakePendingSITExtension(suite.DB(), testdatagen.Assertions{
+		sitExtension := testdatagen.MakePendingSITDurationUpdate(suite.DB(), testdatagen.Assertions{
 			MTOShipment: mtoShipment,
 		})
 		eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
