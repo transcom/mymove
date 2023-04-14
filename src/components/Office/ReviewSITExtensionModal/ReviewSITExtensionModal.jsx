@@ -20,10 +20,11 @@ const ReviewSITExtensionsModal = ({ onClose, onSubmit, sitExtension, summarySITC
     acceptExtension: Yup.mixed().oneOf(['yes', 'no']).required('Required'),
     daysApproved: Yup.number().when('acceptExtension', {
       is: 'yes',
-      then: Yup.number()
-        .min(1, 'Days approved must be greater than or equal to 1.')
-        .max(sitExtension.requestedDays, 'Days approved must be equal to or less than the requested days.')
-        .required('Required'),
+      then: () =>
+        Yup.number()
+          .min(1, 'Days approved must be greater than or equal to 1.')
+          .max(sitExtension.requestedDays, 'Days approved must be equal to or less than the requested days.')
+          .required('Required'),
     }),
     officeRemarks: Yup.string().nullable(),
   });

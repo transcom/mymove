@@ -14,7 +14,7 @@ import Modal, { ModalActions, ModalClose, ModalTitle } from 'components/Modal/Mo
 const financialReviewSchema = Yup.object().shape({
   remarks: Yup.string().when('flagForReview', {
     is: 'yes',
-    then: Yup.string().test('remarks', 'Remarks are required', (value) => value?.length > 0),
+    then: () => Yup.string().test('remarks', 'Remarks are required', (value) => value?.length > 0),
   }),
   // must select yest or no before they can click save.
   flagForReview: Yup.string().required('Required').oneOf(['yes', 'no']),

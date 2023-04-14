@@ -140,27 +140,27 @@ const QAEViolationsForm = ({
     seriousIncident: Yup.string().required(),
     seriousIncidentDesc: Yup.string().when('seriousIncident', {
       is: 'yes',
-      then: Yup.string().required(),
+      then: () => Yup.string().required(),
     }),
     observedClaimsResponseDate: Yup.date().when('kpiViolations', {
       is: (kpiViolations) => kpiViolations.includes('observedClaimsResponseDate'),
-      then: Yup.date().optional(),
+      then: () => Yup.date().optional(),
     }),
     observedPickupDate: Yup.date().when('kpiViolations', {
       is: (kpiViolations) => kpiViolations.includes('observedPickupDate'),
-      then: Yup.date().required(),
+      then: () => Yup.date().required(),
     }),
     observedPickupSpreadStartDate: Yup.date().when('kpiViolations', {
       is: (kpiViolations) => kpiViolations.includes('observedPickupSpreadDates'),
-      then: Yup.date().required(),
+      then: () => Yup.date().required(),
     }),
     observedPickupSpreadEndDate: Yup.date().when('kpiViolations', {
       is: (kpiViolations) => kpiViolations.includes('observedPickupSpreadDates'),
-      then: Yup.date().required(),
+      then: () => Yup.date().required(),
     }),
     observedDeliveryDate: Yup.date().when('kpiViolations', {
       is: (kpiViolations) => kpiViolations.includes('observedDeliveryDate'),
-      then: Yup.date().required(),
+      then: () => Yup.date().required(),
     }),
   });
 

@@ -266,7 +266,7 @@ const EvaluationForm = ({
 
   const EvalDurationSchema = Yup.string().when(['evaluationType'], {
     is: (evaluationType) => evaluationType === 'physical',
-    then: Yup.string().required(),
+    then: () => Yup.string().required(),
   });
 
   const validationSchema = Yup.object().shape(
@@ -284,7 +284,7 @@ const EvaluationForm = ({
       remarks: Yup.string().required(),
       otherEvaluationLocation: Yup.string().when('evaluationLocation', {
         is: 'other',
-        then: Yup.string().required(),
+        then: () => Yup.string().required(),
       }),
     },
     [

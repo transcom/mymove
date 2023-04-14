@@ -23,7 +23,8 @@ const validationSchema = Yup.object().shape({
             `Enter weight in at least one pro-gear field. If the customer will not move pro-gear in this PPM, select No above.`,
           )
           .max(2000, 'Enter a weight 2,000 lbs or less'),
-      otherwise: Yup.number().min(0, 'Enter a weight 0 lbs or greater').max(2000, 'Enter a weight 2,000 lbs or less'),
+      otherwise: () =>
+        Yup.number().min(0, 'Enter a weight 0 lbs or greater').max(2000, 'Enter a weight 2,000 lbs or less'),
     }),
   spouseProGearWeight: Yup.number()
     .min(0, 'Enter a weight 0 lbs or greater')

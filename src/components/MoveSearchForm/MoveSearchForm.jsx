@@ -15,12 +15,13 @@ const validationSchema = Yup.object().shape({
   searchType: Yup.string().required('searchtype error'),
   searchText: Yup.string().when('searchType', {
     is: 'moveCode',
-    then: Yup.string().length(6, 'Move Code must be exactly 6 characters'),
-    otherwise: Yup.string().when('searchType', {
-      is: 'dodID',
-      then: Yup.string().length(10, 'DOD ID must be exactly 10 characters'),
-      otherwise: Yup.string().min(1, 'Search must contain at least one character'),
-    }),
+    then: () => Yup.string().length(6, 'Move Code must be exactly 6 characters'),
+    otherwise: () =>
+      Yup.string().when('searchType', {
+        is: 'dodID',
+        then: () => Yup.string().length(10, 'DOD ID must be exactly 10 characters'),
+        otherwise: () => Yup.string().min(1, 'Search must contain at least one character'),
+      }),
   }),
 });
 

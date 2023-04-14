@@ -174,46 +174,47 @@ const PrimeUIShipmentCreate = ({ setFlashMessage }) => {
     // PPM
     ppmShipment: Yup.object().when('shipmentType', {
       is: (shipmentType) => shipmentType === 'PPM',
-      then: Yup.object().shape({
-        expectedDepartureDate: Yup.date()
-          .required('Required')
-          .typeError('Invalid date. Must be in the format: DD MMM YYYY'),
-        pickupPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).required('Required'),
-        secondaryPickupPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).nullable(),
-        destinationPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).required('Required'),
-        secondaryDestinationPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).nullable(),
-        sitExpected: Yup.boolean().required('Required'),
-        sitLocation: Yup.string().when('sitExpected', {
-          is: true,
-          then: (schema) => schema.required('Required'),
+      then: () =>
+        Yup.object().shape({
+          expectedDepartureDate: Yup.date()
+            .required('Required')
+            .typeError('Invalid date. Must be in the format: DD MMM YYYY'),
+          pickupPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).required('Required'),
+          secondaryPickupPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).nullable(),
+          destinationPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).required('Required'),
+          secondaryDestinationPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).nullable(),
+          sitExpected: Yup.boolean().required('Required'),
+          sitLocation: Yup.string().when('sitExpected', {
+            is: true,
+            then: (schema) => schema.required('Required'),
+          }),
+          sitEstimatedWeight: Yup.number().when('sitExpected', {
+            is: true,
+            then: (schema) => schema.required('Required'),
+          }),
+          // TODO: Figure out how to validate this but be optional.  Right now, when you uncheck
+          //  sitEnabled, the "Save" button remains disabled in certain situations.
+          // sitEstimatedEntryDate: Yup.date().when('sitExpected', {
+          //   is: true,
+          //   then: (schema) =>
+          //     schema.typeError('Enter a complete date in DD MMM YYYY format (day, month, year).').required('Required'),
+          // }),
+          // sitEstimatedDepartureDate: Yup.date().when('sitExpected', {
+          //   is: true,
+          //   then: (schema) =>
+          //     schema.typeError('Enter a complete date in DD MMM YYYY format (day, month, year).').required('Required'),
+          // }),
+          estimatedWeight: Yup.number().required('Required'),
+          hasProGear: Yup.boolean().required('Required'),
+          proGearWeight: Yup.number().when(['hasProGear', 'spouseProGearWeight'], {
+            is: (hasProGear, spouseProGearWeight) => hasProGear && !spouseProGearWeight,
+            then: (schema) =>
+              schema.required(
+                `Enter a weight into at least one pro-gear field. If you won't have pro-gear, uncheck above.`,
+              ),
+          }),
+          spouseProGearWeight: Yup.number(),
         }),
-        sitEstimatedWeight: Yup.number().when('sitExpected', {
-          is: true,
-          then: (schema) => schema.required('Required'),
-        }),
-        // TODO: Figure out how to validate this but be optional.  Right now, when you uncheck
-        //  sitEnabled, the "Save" button remains disabled in certain situations.
-        // sitEstimatedEntryDate: Yup.date().when('sitExpected', {
-        //   is: true,
-        //   then: (schema) =>
-        //     schema.typeError('Enter a complete date in DD MMM YYYY format (day, month, year).').required('Required'),
-        // }),
-        // sitEstimatedDepartureDate: Yup.date().when('sitExpected', {
-        //   is: true,
-        //   then: (schema) =>
-        //     schema.typeError('Enter a complete date in DD MMM YYYY format (day, month, year).').required('Required'),
-        // }),
-        estimatedWeight: Yup.number().required('Required'),
-        hasProGear: Yup.boolean().required('Required'),
-        proGearWeight: Yup.number().when(['hasProGear', 'spouseProGearWeight'], {
-          is: (hasProGear, spouseProGearWeight) => hasProGear && !spouseProGearWeight,
-          then: (schema) =>
-            schema.required(
-              `Enter a weight into at least one pro-gear field. If you won't have pro-gear, uncheck above.`,
-            ),
-        }),
-        spouseProGearWeight: Yup.number(),
-      }),
     }),
     // counselorRemarks is an optional string
 
