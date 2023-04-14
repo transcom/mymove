@@ -46,7 +46,7 @@ describe('ResidentialAddress page', () => {
     render(<ResidentialAddress {...testProps} />);
 
     await waitFor(() => {
-      expect(screen.getByRole('heading', { name: 'Current mailing address', level: 1 })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Current pickup address', level: 1 })).toBeInTheDocument();
     });
   });
 
@@ -225,7 +225,7 @@ describe('requireCustomerState ResidentialAddress', () => {
       </MockProviders>,
     );
 
-    const h1 = screen.getByRole('heading', { name: 'Current mailing address', level: 1 });
+    const h1 = screen.getByRole('heading', { name: 'Current pickup address', level: 1 });
     expect(h1).toBeInTheDocument();
 
     await waitFor(async () => {
@@ -268,7 +268,7 @@ describe('requireCustomerState ResidentialAddress', () => {
       </MockProviders>,
     );
 
-    const h1 = screen.getByRole('heading', { name: 'Current mailing address', level: 1 });
+    const h1 = screen.getByRole('heading', { name: 'Current pickup address', level: 1 });
     expect(h1).toBeInTheDocument();
 
     await waitFor(async () => {
@@ -317,7 +317,7 @@ describe('requireCustomerState ResidentialAddress', () => {
       </MockProviders>,
     );
 
-    const h1 = screen.getByRole('heading', { name: 'Current mailing address', level: 1 });
+    const h1 = screen.getByRole('heading', { name: 'Current pickup address', level: 1 });
     expect(h1).toBeInTheDocument();
 
     await waitFor(async () => {
@@ -371,7 +371,7 @@ describe('requireCustomerState ResidentialAddress', () => {
       </MockProviders>,
     );
 
-    const h1 = screen.getByRole('heading', { name: 'Current mailing address', level: 1 });
+    const h1 = screen.getByRole('heading', { name: 'Current pickup address', level: 1 });
     expect(h1).toBeInTheDocument();
 
     await waitFor(async () => {

@@ -72,7 +72,7 @@ describe('EditContactInfo page', () => {
     const contactHeader = screen.getByRole('heading', { name: 'Your contact info', level: 2 });
     expect(contactHeader).toBeInTheDocument();
 
-    const addressHeader = screen.getByRole('heading', { name: 'Current mailing address', level: 2 });
+    const addressHeader = screen.getByRole('heading', { name: 'Current pickup address', level: 2 });
     expect(addressHeader).toBeInTheDocument();
 
     const backupAddressHeader = screen.getByRole('heading', { name: 'Backup mailing address', level: 2 });
