@@ -56,11 +56,22 @@ func FetchOrBuildReService(db *pop.Connection, reService models.ReService) model
 		}, nil)
 	}
 
-	err := db.Where("code=$1", reService.Code).First(&reService)
-	if err != nil && err != sql.ErrNoRows {
-		log.Panic(err)
-	} else if err == nil {
-		return reService
+	if !reService.ID.IsNil() {
+		err := db.Where("ID = $1", reService.ID).First(&reService)
+		if err != nil && err != sql.ErrNoRows {
+			log.Panic(err)
+		} else if err == nil {
+			return reService
+		}
+	}
+
+	if reService.Code.String() != "" {
+		err := db.Where("code = $1", reService.Code).First(&reService)
+		if err != nil && err != sql.ErrNoRows {
+			log.Panic(err)
+		} else if err == nil {
+			return reService
+		}
 	}
 
 	return BuildReService(db, []Customization{

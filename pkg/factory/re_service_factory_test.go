@@ -144,6 +144,17 @@ func (suite *FactorySuite) TestBuildReServiceHelpers() {
 		suite.Equal(customReService.Code, reService.Code)
 		suite.Equal(customReService.Name, reService.Name)
 
+		// find by ID
+		customReServiceByID := models.ReService{
+			ID: reService.ID,
+		}
+		reService = FetchOrBuildReService(suite.DB(), customReServiceByID)
+		suite.NoError(err)
+
+		suite.Equal(customReServiceByID.ID, reService.ID)
+		suite.Equal(customReService.Code, reService.Code)
+		suite.Equal(customReService.Name, reService.Name)
+
 		// Count how many reServices are in the DB, new reService should have been created.
 		count, err := suite.DB().Count(&models.ReService{})
 		suite.NoError(err)
