@@ -52,7 +52,7 @@ describe('ContactInfoDisplay component', () => {
 
     expect(emailTerm.nextElementSibling.textContent).toBe(testProps.personalEmail);
 
-    const addressTerm = screen.getByText('Current mailing address');
+    const addressTerm = screen.getByText('Current pickup address');
 
     expect(addressTerm).toBeInTheDocument();
 
