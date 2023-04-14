@@ -5,6 +5,7 @@ import (
 
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -13,11 +14,13 @@ func (suite *ServiceParamValueLookupsSuite) TestCubicFeetBilledLookup() {
 	key := models.ServiceItemParamNameCubicFeetBilled
 
 	suite.Run("successful CubicFeetBilled lookup, above minimum", func() {
-		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDCRT,
+		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDCRT,
+				},
 			},
-		})
+		}, nil)
 		cratingDimension := testdatagen.MakeMTOServiceItemDimension(suite.DB(), testdatagen.Assertions{
 			MTOServiceItemDimension: models.MTOServiceItemDimension{
 				MTOServiceItemID: mtoServiceItem.ID,
@@ -54,11 +57,13 @@ func (suite *ServiceParamValueLookupsSuite) TestCubicFeetBilledLookup() {
 	})
 
 	suite.Run("When crate volume is less than minimum, billed volume should be set to minimum", func() {
-		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDCRT,
+		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDCRT,
+				},
 			},
-		})
+		}, nil)
 		cratingDimension := testdatagen.MakeMTOServiceItemDimension(suite.DB(), testdatagen.Assertions{
 			MTOServiceItemDimension: models.MTOServiceItemDimension{
 				MTOServiceItemID: mtoServiceItem.ID,

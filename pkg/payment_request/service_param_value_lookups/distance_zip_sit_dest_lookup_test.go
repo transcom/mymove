@@ -176,9 +176,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITDestLookup() {
 	})
 
 	suite.Run("sets distance to one when origin and destination postal codes are the same", func() {
-		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOShipment: factory.BuildMTOShipment(suite.DB(), nil, nil),
-		})
+		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), nil, nil)
 
 		distanceZipLookup := DistanceZipSITDestLookup{
 			FinalDestinationAddress: models.Address{PostalCode: mtoServiceItem.MTOShipment.DestinationAddress.PostalCode},
