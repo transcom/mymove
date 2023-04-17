@@ -2024,17 +2024,9 @@ workflows:
 
       - check_tls_certificate_prd
 
-      - pre_deps_golang:
-          requires:
-            - check_tls_certificate_dp3
-            - check_tls_certificate_stg
-            - check_tls_certificate_prd
+      - pre_deps_golang
 
-      - pre_deps_yarn:
-          requires:
-            - check_tls_certificate_dp3
-            - check_tls_certificate_stg
-            - check_tls_certificate_prd
+      - pre_deps_yarn
 
       - check_generated_code:
           requires:
@@ -2051,6 +2043,9 @@ workflows:
           requires:
             - pre_deps_golang
             - pre_deps_yarn
+            - check_tls_certificate_dp3
+            - check_tls_certificate_stg
+            - check_tls_certificate_prd
 
       - integration_tests_admin:
           requires:
