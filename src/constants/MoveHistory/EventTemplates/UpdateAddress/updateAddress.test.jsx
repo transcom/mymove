@@ -7,7 +7,7 @@ import { shipmentTypes } from 'constants/shipments';
 import { formatMoveHistoryFullAddress } from 'utils/formatters';
 
 const LABEL = {
-  backupMailingAddress: 'Backup mailing address',
+  backupMailingAddress: 'Backup address',
   destinationAddress: 'Destination address',
   pickupAddress: 'Origin address',
   residentialAddress: 'Current pickup address',

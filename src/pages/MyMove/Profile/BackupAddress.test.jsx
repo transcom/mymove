@@ -5,7 +5,7 @@ import { render, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { MockProviders } from 'testUtils';
-import ConnectedBackupMailingAddress, { BackupMailingAddress } from 'pages/MyMove/Profile/BackupMailingAddress';
+import ConnectedBackupAddress, { BackupAddress } from 'pages/MyMove/Profile/BackupAddress';
 import { customerRoutes } from 'constants/routes';
 import { patchServiceMember } from 'services/internalApi';
 
@@ -14,7 +14,7 @@ jest.mock('services/internalApi', () => ({
   patchServiceMember: jest.fn(),
 }));
 
-describe('BackupMailingAddress page', () => {
+describe('BackupAddress page', () => {
   const fakeAddress = {
     streetAddress1: '235 Prospect Valley Road SE',
     streetAddress2: '#125',
@@ -34,20 +34,20 @@ describe('BackupMailingAddress page', () => {
     },
   });
 
-  it('renders the BackupMailingAddressForm', async () => {
+  it('renders the BackupAddressForm', async () => {
     const testProps = generateTestProps(blankAddress);
 
-    const { queryByRole } = render(<BackupMailingAddress {...testProps} />);
+    const { queryByRole } = render(<BackupAddress {...testProps} />);
 
     await waitFor(() => {
-      expect(queryByRole('heading', { name: 'Backup mailing address', level: 1 })).toBeInTheDocument();
+      expect(queryByRole('heading', { name: 'Backup address', level: 1 })).toBeInTheDocument();
     });
   });
 
   it('back button goes to the Residential address step', async () => {
     const testProps = generateTestProps(blankAddress);
 
-    const { findByRole } = render(<BackupMailingAddress {...testProps} />);
+    const { findByRole } = render(<BackupAddress {...testProps} />);
 
     const backButton = await findByRole('button', { name: 'Back' });
     expect(backButton).toBeInTheDocument();
@@ -63,7 +63,7 @@ describe('BackupMailingAddress page', () => {
 
     patchServiceMember.mockImplementation(() => Promise.resolve(expectedServiceMemberPayload));
 
-    const { getByRole, getByLabelText } = render(<BackupMailingAddress {...testProps} />);
+    const { getByRole, getByLabelText } = render(<BackupAddress {...testProps} />);
 
     await userEvent.type(getByLabelText('Address 1'), fakeAddress.streetAddress1);
     await userEvent.type(getByLabelText(/Address 2/), fakeAddress.streetAddress2);
@@ -104,7 +104,7 @@ describe('BackupMailingAddress page', () => {
       }),
     );
 
-    const { getByRole, queryByText } = render(<BackupMailingAddress {...testProps} />);
+    const { getByRole, queryByText } = render(<BackupAddress {...testProps} />);
 
     const submitButton = getByRole('button', { name: 'Next' });
     expect(submitButton).toBeInTheDocument();
@@ -122,7 +122,7 @@ describe('BackupMailingAddress page', () => {
   afterEach(jest.resetAllMocks);
 });
 
-describe('requireCustomerState BackupMailingAddress', () => {
+describe('requireCustomerState BackupAddress', () => {
   const useDispatchMock = jest.spyOn(reactRedux, 'useDispatch');
   const mockDispatch = jest.fn();
 
@@ -168,7 +168,7 @@ describe('requireCustomerState BackupMailingAddress', () => {
 
     render(
       <MockProviders initialState={mockState}>
-        <ConnectedBackupMailingAddress {...props} />
+        <ConnectedBackupAddress {...props} />
       </MockProviders>,
     );
 
@@ -211,7 +211,7 @@ describe('requireCustomerState BackupMailingAddress', () => {
 
     render(
       <MockProviders initialState={mockState}>
-        <ConnectedBackupMailingAddress {...props} />
+        <ConnectedBackupAddress {...props} />
       </MockProviders>,
     );
 
@@ -257,7 +257,7 @@ describe('requireCustomerState BackupMailingAddress', () => {
 
     render(
       <MockProviders initialState={mockState}>
-        <ConnectedBackupMailingAddress {...props} />
+        <ConnectedBackupAddress {...props} />
       </MockProviders>,
     );
 
@@ -308,7 +308,7 @@ describe('requireCustomerState BackupMailingAddress', () => {
 
     render(
       <MockProviders initialState={mockState}>
-        <ConnectedBackupMailingAddress {...props} />
+        <ConnectedBackupAddress {...props} />
       </MockProviders>,
     );
 
