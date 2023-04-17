@@ -2,10 +2,13 @@ package postalcode
 
 import (
 	"testing"
+	"time"
 
+	"github.com/benbjohnson/clock"
 	"github.com/stretchr/testify/suite"
 
-	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
@@ -22,22 +25,160 @@ func TestValidatePostalCodeTestSuite(t *testing.T) {
 	ts.PopTestSuite.TearDown()
 }
 
-func (suite *ValidatePostalCodeTestSuite) TestValidatePostalCode_ValidPostalCode() {
-	postalCodeType := services.PostalCodeType("Destination")
-	postalCode := "30813"
+func (suite *ValidatePostalCodeTestSuite) TestValidatePostalCode() {
+	mockClock := clock.NewMock()
+	mockClock.Set(time.Date(testdatagen.GHCTestYear, 6, 1, 0, 0, 0, 0, time.UTC))
+	postalCodeValidator := NewPostalCodeValidator(mockClock)
 
-	validatePostalCode := NewPostalCodeValidator()
-	valid, _ := validatePostalCode.ValidatePostalCode(suite.AppContextForTest(), postalCode, postalCodeType)
+	suite.Run("Postal code should be at least 5 characters", func() {
+		valid, err := postalCodeValidator.ValidatePostalCode(suite.AppContextForTest(), "123")
 
-	suite.True(valid)
+		suite.False(valid)
+		suite.Error(err)
+		// TODO: Test error type
+		suite.Contains(err.Error(), "less than 5 characters")
+	})
+
+	suite.Run("Postal code should only contain digits", func() {
+		valid, err := postalCodeValidator.ValidatePostalCode(suite.AppContextForTest(), "1234x")
+
+		suite.False(valid)
+		suite.Error(err)
+		// TODO: Test error type
+		suite.Contains(err.Error(), "should only contain digits")
+	})
+
+	suite.Run("Postal code is not in lat long map", func() {
+		valid, err := postalCodeValidator.ValidatePostalCode(suite.AppContextForTest(), "00000")
+
+		suite.False(valid)
+		suite.Error(err)
+		// TODO: Test error type
+		suite.Contains(err.Error(), "zip5 not found in lat/long map")
+	})
+
+	suite.Run("Postal code is not in postal_code_to_gblocs table", func() {
+		valid, err := postalCodeValidator.ValidatePostalCode(suite.AppContextForTest(), "30907")
+
+		suite.False(valid)
+		suite.Error(err)
+		// TODO: Test error type
+		suite.Contains(err.Error(), "not found in postal_code_to_gblocs")
+	})
+
+	suite.Run("Contract year cannot be found", func() {
+		testPostalCode := "30183"
+		testdatagen.MakePostalCodeToGBLOC(suite.DB(), testPostalCode, "CNNQ")
+
+		suite.buildContractYear(testdatagen.GHCTestYear - 1)
+
+		valid, err := postalCodeValidator.ValidatePostalCode(suite.AppContextForTest(), testPostalCode)
+
+		suite.False(valid)
+		suite.Error(err)
+		// TODO: Test error type
+		suite.Contains(err.Error(), "could not find contract year")
+	})
+
+	suite.Run("Postal code is not in re_zip3s table", func() {
+		testPostalCode := "30183"
+		testdatagen.MakePostalCodeToGBLOC(suite.DB(), testPostalCode, "CNNQ")
+
+		suite.buildContractYear(testdatagen.GHCTestYear)
+
+		valid, err := postalCodeValidator.ValidatePostalCode(suite.AppContextForTest(), testPostalCode)
+
+		suite.False(valid)
+		suite.Error(err)
+		// TODO: Test error type
+		suite.Contains(err.Error(), "not found in re_zip3s")
+	})
+
+	suite.Run("Postal code is not in re_zip5_rate_areas table", func() {
+		testPostalCode := "32102"
+		testdatagen.MakePostalCodeToGBLOC(suite.DB(), testPostalCode, "CNNQ")
+
+		reContractYear := suite.buildContractYear(testdatagen.GHCTestYear)
+		serviceArea := testdatagen.MakeDefaultReDomesticServiceArea(suite.DB())
+		testdatagen.MakeReZip3(suite.DB(), testdatagen.Assertions{
+			ReZip3: models.ReZip3{
+				Zip3:                 testPostalCode[:3],
+				Contract:             reContractYear.Contract,
+				DomesticServiceArea:  serviceArea,
+				HasMultipleRateAreas: true,
+			},
+		})
+
+		valid, err := postalCodeValidator.ValidatePostalCode(suite.AppContextForTest(), testPostalCode)
+
+		suite.False(valid)
+		suite.Error(err)
+		// TODO: Test error type
+		suite.Contains(err.Error(), "not found in re_zip5_rate_areas")
+	})
+
+	suite.Run("Valid postal code for zip3 with single rate area", func() {
+		testPostalCode := "30813"
+		testdatagen.MakePostalCodeToGBLOC(suite.DB(), testPostalCode, "CNNQ")
+
+		reContractYear := suite.buildContractYear(testdatagen.GHCTestYear)
+		serviceArea := testdatagen.MakeDefaultReDomesticServiceArea(suite.DB())
+		testdatagen.MakeReZip3(suite.DB(), testdatagen.Assertions{
+			ReZip3: models.ReZip3{
+				Zip3:                testPostalCode[:3],
+				Contract:            reContractYear.Contract,
+				DomesticServiceArea: serviceArea,
+			},
+		})
+
+		valid, err := postalCodeValidator.ValidatePostalCode(suite.AppContextForTest(), testPostalCode)
+
+		suite.True(valid)
+		suite.NoError(err)
+	})
+
+	suite.Run("Valid postal code for zip3 with multiple rate areas", func() {
+		testPostalCode := "32102"
+		testdatagen.MakePostalCodeToGBLOC(suite.DB(), testPostalCode, "CNNQ")
+
+		reContractYear := suite.buildContractYear(testdatagen.GHCTestYear)
+		serviceArea := testdatagen.MakeDefaultReDomesticServiceArea(suite.DB())
+		testdatagen.MakeReZip3(suite.DB(), testdatagen.Assertions{
+			ReZip3: models.ReZip3{
+				Zip3:                 testPostalCode[:3],
+				Contract:             reContractYear.Contract,
+				DomesticServiceArea:  serviceArea,
+				HasMultipleRateAreas: true,
+			},
+		})
+
+		rateArea := testdatagen.FetchOrMakeReRateArea(suite.DB(), testdatagen.Assertions{
+			ReContractYear: reContractYear,
+		})
+		testdatagen.MakeReZip5RateArea(suite.DB(), testdatagen.Assertions{
+			ReZip5RateArea: models.ReZip5RateArea{
+				Zip5: testPostalCode,
+			},
+			ReContract: reContractYear.Contract,
+			ReRateArea: rateArea,
+		})
+
+		valid, err := postalCodeValidator.ValidatePostalCode(suite.AppContextForTest(), testPostalCode)
+
+		suite.True(valid)
+		suite.NoError(err)
+	})
 }
 
-func (suite *ValidatePostalCodeTestSuite) TestValidatePostalCode_InvalidPostalCode() {
-	postalCodeType := services.PostalCodeType("Destination")
-	postalCode := "00000"
+func (suite *ValidatePostalCodeTestSuite) buildContractYear(testYear int) models.ReContractYear {
+	reContract := testdatagen.MakeDefaultReContract(suite.DB())
+	reContractYear := testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
+		ReContractYear: models.ReContractYear{
+			Contract:  reContract,
+			StartDate: time.Date(testYear, time.January, 1, 0, 0, 0, 0, time.UTC),
+			EndDate:   time.Date(testYear, time.December, 31, 0, 0, 0, 0, time.UTC),
+		},
+	})
 
-	validatePostalCode := NewPostalCodeValidator()
-	valid, _ := validatePostalCode.ValidatePostalCode(suite.AppContextForTest(), postalCode, postalCodeType)
-
-	suite.False(valid)
+	return reContractYear
 }

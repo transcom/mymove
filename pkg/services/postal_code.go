@@ -15,5 +15,5 @@ const (
 //
 //go:generate mockery --name PostalCodeValidator
 type PostalCodeValidator interface {
-	ValidatePostalCode(appCtx appcontext.AppContext, postalCode string, postalCodeType PostalCodeType) (bool, error)
+	ValidatePostalCode(appCtx appcontext.AppContext, postalCode string) (bool, error)
 }

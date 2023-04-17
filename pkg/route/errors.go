@@ -45,18 +45,20 @@ func (b *baseError) Code() ErrorCode {
 type unsupportedPostalCode struct {
 	baseError
 	postalCode string
+	reason     string
 }
 
 // NewUnsupportedPostalCodeError creates a new UnsupportedPostalCode error.
-func NewUnsupportedPostalCodeError(postalCode string) Error {
+func NewUnsupportedPostalCodeError(postalCode string, reason string) Error {
 	return &unsupportedPostalCode{
 		baseError{UnsupportedPostalCode},
 		postalCode,
+		reason,
 	}
 }
 
 func (e *unsupportedPostalCode) Error() string {
-	return fmt.Sprintf("Unsupported postal code lookup (%s)", e.postalCode)
+	return fmt.Sprintf("Unsupported postal code (%s): %s", e.postalCode, e.reason)
 }
 
 type responseError struct {

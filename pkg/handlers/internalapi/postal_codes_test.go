@@ -9,7 +9,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/factory"
 	postalcodesops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/postal_codes"
-	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/mocks"
 )
 
@@ -19,7 +18,6 @@ func (suite *HandlerSuite) TestValidatePostalCodeWithRateDataHandler_Valid() {
 
 	postalCode := "30813"
 	postalCodeTypeString := "Destination"
-	postalCodeType := services.PostalCodeType(postalCodeTypeString)
 
 	// makes request
 	request := httptest.NewRequest("GET", fmt.Sprintf("/postal_codes/%s", postalCode), strings.NewReader("postal_code_type=origin"))
@@ -36,7 +34,6 @@ func (suite *HandlerSuite) TestValidatePostalCodeWithRateDataHandler_Valid() {
 	postalCodeValidator.On("ValidatePostalCode",
 		mock.AnythingOfType("*appcontext.appContext"),
 		postalCode,
-		postalCodeType,
 	).Return(true, nil)
 
 	handler := ValidatePostalCodeWithRateDataHandler{handlerConfig, postalCodeValidator}
@@ -58,7 +55,6 @@ func (suite *HandlerSuite) TestValidatePostalCodeWithRateDataHandler_Invalid() {
 
 	postalCode := "00000"
 	postalCodeTypeString := "Destination"
-	postalCodeType := services.PostalCodeType(postalCodeTypeString)
 
 	// makes request
 	request := httptest.NewRequest("GET", fmt.Sprintf("/postal_codes/%s", postalCode), strings.NewReader("postal_code_type=origin"))
@@ -75,7 +71,6 @@ func (suite *HandlerSuite) TestValidatePostalCodeWithRateDataHandler_Invalid() {
 	postalCodeValidator.On("ValidatePostalCode",
 		mock.AnythingOfType("*appcontext.appContext"),
 		postalCode,
-		postalCodeType,
 	).Return(false, nil)
 
 	handler := ValidatePostalCodeWithRateDataHandler{handlerConfig, postalCodeValidator}
