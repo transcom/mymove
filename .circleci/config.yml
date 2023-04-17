@@ -26,6 +26,9 @@ references:
 
   redis: &redis redis:5.0.6
 
+  # base image that spins up quickly
+  cimg_base: &cimg_base cimg/base:2022.12-22.04
+
   # To deploy to loadtest, demo or exp:
   # set dp3-branch to the branch you want to deploy to the env specifed
   # in dp3-env (loadtest, demo, exp), or
@@ -60,6 +63,13 @@ references:
   server-ignore-branch: &server-ignore-branch placeholder_branch_name
 
 executors:
+  base_small:
+    resource_class: small
+    docker:
+      - image: *cimg_base
+        auth:
+          username: $DOCKERHUB_USERNAME
+          password: $DOCKERHUB_PASSWORD
   tls_small:
     resource_class: small
     working_directory: ~/transcom/mymove
@@ -945,6 +955,11 @@ commands:
             mv tmp/milmove_load_testing/local_load_tests* reports
 
 jobs:
+  base_noop:
+    executor: base_small
+    steps:
+      - run: echo "noop"
+
   # `pre_deps_golang` is used for caching Go module sources
   pre_deps_golang:
     executor: mymove_compiler
@@ -1215,7 +1230,7 @@ jobs:
   # keep track of the manual splitting of the integration_tests when
   # specifying dependencies
   integration_tests:
-    executor: mymove_pusher
+    executor: base_small
     steps:
       - run: echo "integration_tests done"
 
@@ -2023,6 +2038,32 @@ workflows:
 
       - pre_deps_yarn
 
+      - base_noop
+
+      - anti_virus:
+          filters:
+            branches:
+              only: main
+
+      # compile_app_client does not rely on pre_deps_yarn
+      # anymore so that it can start sooner. This helps the
+      # overall build time since the compile is so slow. It does
+      # the same steps as pre_deps_yarn, it just doesn't cache
+      # the yarn downloads, so compile_app_client and
+      # pre_deps_yarn might both wind up downloading packages,
+      # but the speedup is worth the duplicate work
+      #
+      # CircleCI has a "feature" where if all dependencies are
+      # filtered, the job is not run, so add a base_noop step that
+      # should complete very quickly
+      # See workflows -> jobs -> requires at
+      #
+      # https://circleci.com/docs/configuration-reference/
+      - compile_app_client:
+          requires:
+            - base_noop
+            - anti_virus
+
       - check_generated_code:
           requires:
             - pre_deps_golang
@@ -2030,10 +2071,6 @@ workflows:
             branches:
               ignore: [*integration-mtls-ignore-branch, *integration-ignore-branch]
 
-      - anti_virus:
-          filters:
-            branches:
-              only: main
       - pre_test:
           requires:
             - pre_deps_golang
@@ -2132,11 +2169,6 @@ workflows:
           requires:
             - anti_virus
             - pre_deps_golang
-
-      - compile_app_client:
-          requires:
-            - anti_virus
-            - pre_deps_yarn
 
       - build_app:
           requires:
