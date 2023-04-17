@@ -419,10 +419,12 @@ func createMoveWithPPMAndHHG(appCtx appcontext.AppContext, userUploader *uploade
 			ID: uuid.FromStringOrNil("d733fe2f-b08d-434a-ad8d-551f4d597b03"),
 		},
 	})
-	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
-		Move: move,
-		Stub: true,
-	})
+	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 	err := moveRouter.Submit(appCtx, &move, &newSignedCertification)
 	if err != nil {
 		log.Panic(err)
@@ -2028,10 +2030,12 @@ func createSubmittedMoveWithPPMShipment(appCtx appcontext.AppContext, userUpload
 	}
 
 	move, _ := CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
-	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
-		Move: move,
-		Stub: true,
-	})
+	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 	err := moveRouter.Submit(appCtx, &move, &newSignedCertification)
 
 	if err != nil {
@@ -2170,12 +2174,12 @@ func CreateMoveWithCloseOut(appCtx appcontext.AppContext, userUploader *uploader
 		},
 	})
 
-	testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
-		SignedCertification: models.SignedCertification{
-			MoveID:           move.ID,
-			SubmittingUserID: moveInfo.UserID,
+	factory.BuildSignedCertification(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+	}, nil)
 
 	return move
 }
@@ -2278,12 +2282,12 @@ func createMoveWithCloseOutandNonCloseOut(appCtx appcontext.AppContext, userUplo
 		},
 	})
 
-	testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
-		SignedCertification: models.SignedCertification{
-			MoveID:           move.ID,
-			SubmittingUserID: userID,
+	factory.BuildSignedCertification(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+	}, nil)
 }
 
 func createMoveWith2CloseOuts(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, locator string, branch models.ServiceMemberAffiliation) {
@@ -2386,12 +2390,12 @@ func createMoveWith2CloseOuts(appCtx appcontext.AppContext, userUploader *upload
 		},
 	})
 
-	testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
-		SignedCertification: models.SignedCertification{
-			MoveID:           move.ID,
-			SubmittingUserID: userID,
+	factory.BuildSignedCertification(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+	}, nil)
 }
 
 func createMoveWithCloseOutandHHG(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, locator string, branch models.ServiceMemberAffiliation) {
@@ -2486,12 +2490,12 @@ func createMoveWithCloseOutandHHG(appCtx appcontext.AppContext, userUploader *up
 		},
 	})
 
-	testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
-		SignedCertification: models.SignedCertification{
-			MoveID:           move.ID,
-			SubmittingUserID: userID,
+	factory.BuildSignedCertification(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+	}, nil)
 }
 
 func CreateMoveWithCloseoutOffice(appCtx appcontext.AppContext, moveInfo MoveCreatorInfo, userUploader *uploader.UserUploader) models.Move {
@@ -2684,12 +2688,12 @@ func CreateSubmittedMoveWithPPMShipmentForSC(appCtx appcontext.AppContext, userU
 		},
 	})
 
-	testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
-		SignedCertification: models.SignedCertification{
-			MoveID:           move.ID,
-			SubmittingUserID: moveInfo.UserID,
+	factory.BuildSignedCertification(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+	}, nil)
 
 	return move
 }
@@ -2780,12 +2784,12 @@ func createSubmittedMoveWithPPMShipmentForSCWithSIT(appCtx appcontext.AppContext
 		},
 	})
 
-	testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
-		SignedCertification: models.SignedCertification{
-			MoveID:           move.ID,
-			SubmittingUserID: userID,
+	factory.BuildSignedCertification(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+	}, nil)
 
 }
 
@@ -2927,12 +2931,12 @@ func createSubmittedMoveWithFullPPMShipmentComplete(appCtx appcontext.AppContext
 		},
 	})
 
-	testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
-		SignedCertification: models.SignedCertification{
-			MoveID:           move.ID,
-			SubmittingUserID: userID,
+	factory.BuildSignedCertification(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+	}, nil)
 }
 
 func createMoveWithPPM(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
@@ -2962,10 +2966,12 @@ func createMoveWithPPM(appCtx appcontext.AppContext, userUploader *uploader.User
 	}
 
 	move, _ := CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
-	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
-		Move: move,
-		Stub: true,
-	})
+	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 	err := moveRouter.Submit(appCtx, &move, &newSignedCertification)
 	if err != nil {
 		log.Panic(err)
@@ -2991,10 +2997,12 @@ func createMoveWithHHGMissingOrdersInfo(appCtx appcontext.AppContext, moveRouter
 	order.DepartmentIndicator = nil
 	order.OrdersTypeDetail = nil
 	testdatagen.MustSave(db, &order)
-	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
-		Move: move,
-		Stub: true,
-	})
+	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 	err := moveRouter.Submit(appCtx, &move, &newSignedCertification)
 	if err != nil {
 		log.Panic(err)
@@ -3456,10 +3464,12 @@ func createMoveWithNTSAndNTSR(appCtx appcontext.AppContext, userUploader *upload
 	})
 
 	if opts.moveStatus == models.MoveStatusSUBMITTED {
-		newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
-			Move: move,
-			Stub: true,
-		})
+		newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 		err := moveRouter.Submit(appCtx, &move, &newSignedCertification)
 		if err != nil {
 			log.Panic(err)
@@ -3552,10 +3562,12 @@ func createHHGWithOriginSITServiceItems(appCtx appcontext.AppContext, primeUploa
 	}, nil)
 
 	move := shipment.MoveTaskOrder
-	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
-		Move: move,
-		Stub: true,
-	})
+	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 	submissionErr := moveRouter.Submit(appCtx, &move, &newSignedCertification)
 	if submissionErr != nil {
 		logger.Fatal(fmt.Sprintf("Error submitting move: %s", submissionErr))
@@ -3774,10 +3786,12 @@ func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, prime
 	}, nil)
 
 	move := shipment.MoveTaskOrder
-	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
-		Move: move,
-		Stub: true,
-	})
+	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 	submissionErr := moveRouter.Submit(appCtx, &move, &newSignedCertification)
 	if submissionErr != nil {
 		logger.Fatal(fmt.Sprintf("Error submitting move: %s", submissionErr))
@@ -4138,10 +4152,12 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 			LinkOnly: true,
 		},
 	}, nil)
-	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
-		Move: move,
-		Stub: true,
-	})
+	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 	submissionErr := moveRouter.Submit(appCtx, &move, &newSignedCertification)
 	if submissionErr != nil {
 		logger.Fatal(fmt.Sprintf("Error submitting move: %s", submissionErr))
@@ -5878,10 +5894,12 @@ func createMoveWithHHGAndNTSRMissingInfo(appCtx appcontext.AppContext, moveRoute
 			LinkOnly: true,
 		},
 	}, nil)
-	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
-		Move: move,
-		Stub: true,
-	})
+	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 	err := moveRouter.Submit(appCtx, &move, &newSignedCertification)
 	if err != nil {
 		log.Panic(err)
@@ -5935,10 +5953,12 @@ func createMoveWithHHGAndNTSMissingInfo(appCtx appcontext.AppContext, moveRouter
 			LinkOnly: true,
 		},
 	}, nil)
-	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
-		Move: move,
-		Stub: true,
-	})
+	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 	err := moveRouter.Submit(appCtx, &move, &newSignedCertification)
 	if err != nil {
 		log.Panic(err)
@@ -7572,10 +7592,12 @@ func createReweighWithMultipleShipments(appCtx appcontext.AppContext, userUpload
 		},
 	}, nil)
 	testdatagen.MakeReweighForShipment(db, testdatagen.Assertions{UserUploader: userUploader}, shipmentForReweigh, unit.Pound(1541))
-	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
-		Move: move,
-		Stub: true,
-	})
+	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 	err := moveRouter.Submit(appCtx, &move, &newSignedCertification)
 	if err != nil {
 		log.Panic(err)
@@ -7626,10 +7648,12 @@ func createReweighWithShipmentMissingReweigh(appCtx appcontext.AppContext, userU
 			LinkOnly: true,
 		},
 	}, nil)
-	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
-		Move: move,
-		Stub: true,
-	})
+	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 	err := moveRouter.Submit(appCtx, &move, &newSignedCertification)
 	if err != nil {
 		log.Panic(err)
@@ -7680,10 +7704,12 @@ func createReweighWithShipmentMaxBillableWeightExceeded(appCtx appcontext.AppCon
 			LinkOnly: true,
 		},
 	}, nil)
-	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
-		Move: move,
-		Stub: true,
-	})
+	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 	err := moveRouter.Submit(appCtx, &move, &newSignedCertification)
 	if err != nil {
 		log.Panic(err)
@@ -7732,10 +7758,12 @@ func createReweighWithShipmentNoEstimatedWeight(appCtx appcontext.AppContext, us
 			LinkOnly: true,
 		},
 	}, nil)
-	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
-		Move: move,
-		Stub: true,
-	})
+	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 	err := moveRouter.Submit(appCtx, &move, &newSignedCertification)
 	if err != nil {
 		log.Panic(err)
@@ -7828,10 +7856,12 @@ func createReweighWithShipmentDeprecatedPaymentRequest(appCtx appcontext.AppCont
 			LinkOnly: true,
 		},
 	}, nil)
-	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
-		Move: move,
-		Stub: true,
-	})
+	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 	err := moveRouter.Submit(appCtx, &move, &newSignedCertification)
 	if err != nil {
 		log.Panic(err)

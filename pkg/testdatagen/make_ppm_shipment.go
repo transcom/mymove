@@ -366,6 +366,9 @@ func MakePPMShipmentThatNeedsPaymentApproval(db *pop.Connection, assertions Asse
 
 	mergeModels(&fullSignedCertificationAssertions, assertions)
 
+	// cannot switch yet to BuildSignedCertification because of import
+	// cycle factory -> testdatagen -> factory MakePPMShipment will
+	// need to be replaced with a factory
 	signedCert := MakeSignedCertification(db, fullSignedCertificationAssertions)
 
 	ppmShipment.SignedCertification = &signedCert

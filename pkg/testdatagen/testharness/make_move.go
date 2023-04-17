@@ -152,12 +152,12 @@ func MakePPMInProgressMove(appCtx appcontext.AppContext) models.Move {
 		},
 	})
 
-	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
-		SignedCertification: models.SignedCertification{
-			MoveID: ppm1.Move.ID,
+	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+		{
+			Model:    ppm1.Move,
+			LinkOnly: true,
 		},
-		Stub: true,
-	})
+	}, nil)
 	moveRouter := moverouter.NewMoveRouter()
 	err := moveRouter.Submit(appCtx, &ppm1.Move, &newSignedCertification)
 	if err != nil {
