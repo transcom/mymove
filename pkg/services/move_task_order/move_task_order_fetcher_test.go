@@ -91,17 +91,28 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 		address := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{})
 		sitEntryDate := time.Now()
 
-		testdatagen.MakeMTOServiceItemBasic(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				Status:                     models.MTOServiceItemStatusApproved,
-				SITDestinationFinalAddress: &address,
-				SITEntryDate:               &sitEntryDate,
+		factory.BuildMTOServiceItemBasic(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status:       models.MTOServiceItemStatusApproved,
+					SITEntryDate: &sitEntryDate,
+				},
 			},
-			Move: expectedMTO,
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDDFSIT, // DDFSIT - Domestic destination 1st day SIT
+			{
+				Model:    address,
+				LinkOnly: true,
+				Type:     &factory.Addresses.SITDestinationFinalAddress,
 			},
-		})
+			{
+				Model:    expectedMTO,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDFSIT, // DDFSIT - Domestic destination 1st day SIT
+				},
+			},
+		}, nil)
 
 		actualMTO, err := mtoFetcher.FetchMoveTaskOrder(suite.AppContextForTest(), &searchParams)
 		suite.NoError(err)

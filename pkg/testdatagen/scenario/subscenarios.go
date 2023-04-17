@@ -46,14 +46,21 @@ func subScenarioShipmentHHGCancelled(appCtx appcontext.AppContext, allDutyLocati
 			MTOShipment:   cancelledShipment,
 		})
 		moveManagementUUID := "1130e612-94eb-49a7-973d-72f33685e551"
-		testdatagen.MakeMTOServiceItemBasic(db, testdatagen.Assertions{
-			ReService: models.ReService{ID: uuid.FromStringOrNil(moveManagementUUID)},
-			MTOServiceItem: models.MTOServiceItem{
-				MoveTaskOrderID: move.ID,
-				Status:          models.MTOServiceItemStatusApproved,
-				ApprovedAt:      &approvedDate,
+		factory.BuildMTOServiceItemBasic(db, []factory.Customization{
+			{
+				Model: models.ReService{ID: uuid.FromStringOrNil(moveManagementUUID)},
 			},
-		})
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status:     models.MTOServiceItemStatusApproved,
+					ApprovedAt: &approvedDate,
+				},
+			},
+		}, nil)
 	}
 }
 
