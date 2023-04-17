@@ -11,7 +11,7 @@ import formStyles from 'styles/form.module.scss';
 import { requiredAddressSchema } from 'utils/validation';
 import { ResidentialAddressShape } from 'types/address';
 
-const BackupMailingAddressForm = ({ formFieldsName, initialValues, onSubmit, onBack }) => {
+const BackupAddressForm = ({ formFieldsName, initialValues, onSubmit, onBack }) => {
   const validationSchema = Yup.object().shape({
     [formFieldsName]: requiredAddressSchema.required(),
   });
@@ -52,11 +52,11 @@ const BackupMailingAddressForm = ({ formFieldsName, initialValues, onSubmit, onB
   );
 };
 
-BackupMailingAddressForm.propTypes = {
+BackupAddressForm.propTypes = {
   formFieldsName: PropTypes.string.isRequired,
   initialValues: ResidentialAddressShape.isRequired,
   onBack: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
 };
 
-export default BackupMailingAddressForm;
+export default BackupAddressForm;
