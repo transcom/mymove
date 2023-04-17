@@ -6,6 +6,7 @@ import (
 
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
@@ -57,7 +58,7 @@ func (suite *ModelSuite) TestPaymentServiceItemValidation() {
 func (suite *ModelSuite) TestPSIBeforeCreate() {
 
 	suite.Run("test with no ID or Reference ID", func() {
-		serviceItem := testdatagen.MakeMTOServiceItemBasic(suite.DB(), testdatagen.Assertions{})
+		serviceItem := factory.BuildMTOServiceItemBasic(suite.DB(), nil, nil)
 		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 			Move: serviceItem.MoveTaskOrder,
 		})
@@ -75,7 +76,7 @@ func (suite *ModelSuite) TestPSIBeforeCreate() {
 	})
 
 	suite.Run("test with ID and Reference ID already provided", func() {
-		serviceItem := testdatagen.MakeMTOServiceItemBasic(suite.DB(), testdatagen.Assertions{})
+		serviceItem := factory.BuildMTOServiceItemBasic(suite.DB(), nil, nil)
 		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 			Move: serviceItem.MoveTaskOrder,
 		})
@@ -97,7 +98,7 @@ func (suite *ModelSuite) TestPSIBeforeCreate() {
 	})
 
 	suite.Run("test failure because payment request not found", func() {
-		serviceItem := testdatagen.MakeMTOServiceItemBasic(suite.DB(), testdatagen.Assertions{})
+		serviceItem := factory.BuildMTOServiceItemBasic(suite.DB(), nil, nil)
 		testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 			Move: serviceItem.MoveTaskOrder,
 		})
@@ -116,7 +117,7 @@ func (suite *ModelSuite) TestPSIBeforeCreate() {
 func (suite *ModelSuite) TestGeneratePSIReferenceID() {
 
 	setupTestData := func() (models.PaymentRequest, models.MTOServiceItem) {
-		serviceItem := testdatagen.MakeMTOServiceItemBasic(suite.DB(), testdatagen.Assertions{})
+		serviceItem := factory.BuildMTOServiceItemBasic(suite.DB(), nil, nil)
 		move := serviceItem.MoveTaskOrder
 		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 			Move: move,

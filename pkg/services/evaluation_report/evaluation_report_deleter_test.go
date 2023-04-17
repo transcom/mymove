@@ -18,9 +18,12 @@ func (suite *EvaluationReportSuite) TestEvaluationReportDeleter() {
 	setupTestData := func() (services.EvaluationReportDeleter, models.EvaluationReport, appcontext.AppContext) {
 		deleter := NewEvaluationReportDeleter()
 		move := factory.BuildMove(suite.DB(), nil, nil)
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-		})
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 		officeUser := factory.BuildOfficeUser(suite.DB(), nil, nil)
 		report := testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{
 			OfficeUser:  officeUser,

@@ -6,14 +6,14 @@ import (
 
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *ModelSuite) TestSITExtensionCreation() {
 
 	suite.Run("test valid SITExtension", func() {
-		shipment := testdatagen.MakeDefaultMTOShipmentMinimal(suite.DB())
+		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), nil, nil)
 		suite.NotNil(shipment)
 		suite.NotEqual(uuid.Nil, shipment.ID)
 		approvedDays := 90
@@ -41,7 +41,7 @@ func (suite *ModelSuite) TestSITExtensionCreation() {
 	})
 
 	suite.Run("test minimal valid SITExtension", func() {
-		shipment := testdatagen.MakeDefaultMTOShipmentMinimal(suite.DB())
+		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), nil, nil)
 		suite.NotNil(shipment)
 		suite.NotEqual(uuid.Nil, shipment.ID)
 		validSITExtension := models.SITExtension{

@@ -20,15 +20,19 @@ func (suite *EventServiceSuite) Test_MTOServiceItemPayload() {
 		// Mocked:     None
 		// Set up:     Create a DOFSIT in the db, assemble the webhook notification payload
 		// Expected outcome: Payload should contain the DOFSIT details
-		mtoServiceItemDOFSIT := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				AvailableToPrimeAt: &now,
+		mtoServiceItemDOFSIT := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					AvailableToPrimeAt: &now,
+				},
 			},
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDOFSIT,
-				Name: "Destination 1st Day SIT",
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDOFSIT,
+					Name: "Destination 1st Day SIT",
+				},
 			},
-		})
+		}, nil)
 		data := &primemessages.MTOServiceItemOriginSIT{}
 
 		payload, assemblePayloadErr := assembleMTOServiceItemPayload(suite.AppContextForTest(), mtoServiceItemDOFSIT.ID)
@@ -47,15 +51,19 @@ func (suite *EventServiceSuite) Test_MTOServiceItemPayload() {
 		// Under test: assembleMTOServiceItemPayload
 		// Set up:     Create a DDFSIT in the db, assemble the webhook notification payload
 		// Expected outcome: Payload should contain the DDFSIT details
-		mtoServiceItemDDFSIT := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				AvailableToPrimeAt: &now,
+		mtoServiceItemDDFSIT := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					AvailableToPrimeAt: &now,
+				},
 			},
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDDFSIT,
-				Name: "Destination 1st Day SIT",
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDFSIT,
+					Name: "Destination 1st Day SIT",
+				},
 			},
-		})
+		}, nil)
 		customerContact1 := testdatagen.MakeMTOServiceItemCustomerContact(suite.DB(), testdatagen.Assertions{
 			MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
 				MTOServiceItemID:           mtoServiceItemDDFSIT.ID,
@@ -99,15 +107,19 @@ func (suite *EventServiceSuite) Test_MTOServiceItemPayload() {
 		// Under test: assembleMTOServiceItemPayload
 		// Set up:     Create a DCRT in the db, assemble the webhook notification payload
 		// Expected outcome: Payload should contain the DCRT details
-		mtoServiceItemDCRT := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				AvailableToPrimeAt: &now,
+		mtoServiceItemDCRT := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					AvailableToPrimeAt: &now,
+				},
 			},
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDCRT,
-				Name: "Dom. Crating",
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDCRT,
+					Name: "Dom. Crating",
+				},
 			},
-		})
+		}, nil)
 
 		itemDimension1 := testdatagen.MakeMTOServiceItemDimension(suite.DB(), testdatagen.Assertions{
 			MTOServiceItemDimension: models.MTOServiceItemDimension{
@@ -151,18 +163,24 @@ func (suite *EventServiceSuite) Test_MTOServiceItemPayload() {
 	suite.Run("Success with MTOServiceItemDOSHUT", func() {
 		testString := "Lorem ipsum"
 
-		mtoServiceItemDOSHUT := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				AvailableToPrimeAt: &now,
+		mtoServiceItemDOSHUT := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					AvailableToPrimeAt: &now,
+				},
 			},
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDOSHUT,
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDOSHUT,
+				},
 			},
-			MTOServiceItem: models.MTOServiceItem{
-				Description: &testString,
-				Reason:      &testString,
+			{
+				Model: models.MTOServiceItem{
+					Description: &testString,
+					Reason:      &testString,
+				},
 			},
-		})
+		}, nil)
 		data := &primemessages.MTOServiceItemShuttle{}
 
 		payload, assemblePayloadErr := assembleMTOServiceItemPayload(suite.AppContextForTest(), mtoServiceItemDOSHUT.ID)
@@ -213,17 +231,33 @@ func (suite *EventServiceSuite) TestAssembleMTOShipmentPayload() {
 		destinationAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress3})
 		secondaryDeliveryAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress4})
 
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				PickupAddress:            &pickupAddress,
-				SecondaryPickupAddress:   &secondaryPickupAddress,
-				DestinationAddress:       &destinationAddress,
-				SecondaryDeliveryAddress: &secondaryDeliveryAddress,
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    pickupAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.PickupAddress,
 			},
-			Move: models.Move{
-				AvailableToPrimeAt: swag.Time(time.Now()),
+			{
+				Model:    secondaryPickupAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.SecondaryPickupAddress,
 			},
-		})
+			{
+				Model:    destinationAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.DeliveryAddress,
+			},
+			{
+				Model:    secondaryDeliveryAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.SecondaryDeliveryAddress,
+			},
+			{
+				Model: models.Move{
+					AvailableToPrimeAt: swag.Time(time.Now()),
+				},
+			},
+		}, nil)
 
 		agent := testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
 			MTOShipment: shipment,
@@ -248,14 +282,18 @@ func (suite *EventServiceSuite) TestAssembleMTOShipmentPayload() {
 
 	suite.Run("External shipment reports that it should not notify", func() {
 		// Setup test data
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				UsesExternalVendor: true,
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					UsesExternalVendor: true,
+				},
 			},
-			Move: models.Move{
-				AvailableToPrimeAt: swag.Time(time.Now()),
+			{
+				Model: models.Move{
+					AvailableToPrimeAt: swag.Time(time.Now()),
+				},
 			},
-		})
+		}, nil)
 
 		// Test the assemble function
 		payload, shouldNotify, err := assembleMTOShipmentPayload(suite.AppContextForTest(), shipment.ID)

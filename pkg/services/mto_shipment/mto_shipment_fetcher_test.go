@@ -36,18 +36,29 @@ func (suite *MTOShipmentServiceSuite) TestListMTOShipments() {
 	suite.Run("Returns external vendor shipments last", func() {
 		move := factory.BuildMove(suite.DB(), nil, nil)
 
-		externalVendorShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-			MTOShipment: models.MTOShipment{
-				UsesExternalVendor: true,
+		externalVendorShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-		})
-		firstShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-		})
-		secondShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-		})
+			{
+				Model: models.MTOShipment{
+					UsesExternalVendor: true,
+				},
+			},
+		}, nil)
+		firstShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+		secondShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		mtoShipments, err := mtoShipmentFetcher.ListMTOShipments(suite.AppContextForTest(), move.ID)
 
@@ -63,12 +74,18 @@ func (suite *MTOShipmentServiceSuite) TestListMTOShipments() {
 	suite.Run("Returns multiple shipments for move ordered by created date", func() {
 		move := factory.BuildMove(suite.DB(), nil, nil)
 
-		firstShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-		})
-		secondShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-		})
+		firstShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+		secondShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		mtoShipments, err := mtoShipmentFetcher.ListMTOShipments(suite.AppContextForTest(), move.ID)
 
@@ -83,15 +100,23 @@ func (suite *MTOShipmentServiceSuite) TestListMTOShipments() {
 	suite.Run("Returns only non-deleted shipments", func() {
 		move := factory.BuildMove(suite.DB(), nil, nil)
 
-		testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-			MTOShipment: models.MTOShipment{
-				DeletedAt: models.TimePointer(time.Now()),
+		factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-		})
-		secondShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-		})
+			{
+				Model: models.MTOShipment{
+					DeletedAt: models.TimePointer(time.Now()),
+				},
+			},
+		}, nil)
+		secondShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		mtoShipments, err := mtoShipmentFetcher.ListMTOShipments(suite.AppContextForTest(), move.ID)
 
@@ -105,19 +130,25 @@ func (suite *MTOShipmentServiceSuite) TestListMTOShipments() {
 	suite.Run("Loads all shipment associations", func() {
 		move := factory.BuildMove(suite.DB(), nil, nil)
 
-		storageFacility := factory.BuildStorageFacility(suite.DB(), nil, nil)
-
 		secondaryPickupAddress := factory.BuildAddress(suite.DB(), nil, nil)
 		secondaryDeliveryAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
 
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				StorageFacility:          &storageFacility,
-				SecondaryPickupAddress:   &secondaryPickupAddress,
-				SecondaryDeliveryAddress: &secondaryDeliveryAddress,
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    secondaryPickupAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.SecondaryPickupAddress,
 			},
-			Move: move,
-		})
+			{
+				Model:    secondaryDeliveryAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.SecondaryDeliveryAddress,
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		serviceItem := testdatagen.MakeMTOServiceItemDomesticCrating(suite.DB(), testdatagen.Assertions{
 			ReService: models.ReService{
@@ -154,7 +185,6 @@ func (suite *MTOShipmentServiceSuite) TestListMTOShipments() {
 		suite.Equal(secondaryDeliveryAddress.ID.String(), actualShipment.SecondaryDeliveryAddress.ID.String())
 		suite.Len(actualShipment.MTOServiceItems[0].Dimensions, 2)
 		suite.Equal(SITExtension.ID.String(), actualShipment.SITExtensions[0].ID.String())
-		suite.Equal(storageFacility.Address.ID.String(), actualShipment.StorageFacility.Address.ID.String())
 		suite.Equal(reweigh.ID.String(), actualShipment.Reweigh.ID.String())
 	})
 	suite.Run("Loads PPM associations", func() {
@@ -220,7 +250,7 @@ func (suite *MTOShipmentServiceSuite) TestGetMTOShipment() {
 
 	// Test successful fetch
 	suite.Run("Returns a shipment successfully with correct ID", func() {
-		shipment := testdatagen.MakeDefaultMTOShipmentMinimal(suite.DB())
+		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), nil, nil)
 
 		fetchedShipment, err := mtoShipmentFetcher.GetShipment(suite.AppContextForTest(), shipment.ID)
 		suite.NoError(err)

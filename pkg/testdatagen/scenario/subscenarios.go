@@ -46,14 +46,21 @@ func subScenarioShipmentHHGCancelled(appCtx appcontext.AppContext, allDutyLocati
 			MTOShipment:   cancelledShipment,
 		})
 		moveManagementUUID := "1130e612-94eb-49a7-973d-72f33685e551"
-		testdatagen.MakeMTOServiceItemBasic(db, testdatagen.Assertions{
-			ReService: models.ReService{ID: uuid.FromStringOrNil(moveManagementUUID)},
-			MTOServiceItem: models.MTOServiceItem{
-				MoveTaskOrderID: move.ID,
-				Status:          models.MTOServiceItemStatusApproved,
-				ApprovedAt:      &approvedDate,
+		factory.BuildMTOServiceItemBasic(db, []factory.Customization{
+			{
+				Model: models.ReService{ID: uuid.FromStringOrNil(moveManagementUUID)},
 			},
-		})
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status:     models.MTOServiceItemStatusApproved,
+					ApprovedAt: &approvedDate,
+				},
+			},
+		}, nil)
 	}
 }
 
@@ -240,18 +247,25 @@ func subScenarioHHGServicesCounseling(appCtx appcontext.AppContext, userUploader
 func subScenarioCustomerSupportRemarks(appCtx appcontext.AppContext) func() {
 	return func() {
 		// Move with a couple of customer support remarks
-		remarkMove := testdatagen.MakeMove(appCtx.DB(),
-			testdatagen.Assertions{
-				Move: models.Move{
+		remarkMove := factory.BuildMove(appCtx.DB(), []factory.Customization{
+			{
+				Model: models.Move{
 					Locator: "SPTRMK",
 					Status:  models.MoveStatusSUBMITTED,
 				},
 			},
-		)
-		_ = testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{MTOShipment: models.MTOShipment{
-			MoveTaskOrderID: remarkMove.ID,
-			Status:          models.MTOShipmentStatusSubmitted,
-		}})
+		}, nil)
+		_ = factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusSubmitted,
+				},
+			},
+			{
+				Model:    remarkMove,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		officeUser := factory.BuildOfficeUserWithRoles(appCtx.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		testdatagen.MakeCustomerSupportRemark(appCtx.DB(), testdatagen.Assertions{
@@ -289,14 +303,14 @@ func subScenarioEvaluationReport(appCtx appcontext.AppContext) func() {
 			appCtx.Logger().Panic(fmt.Errorf("failed to query OfficeUser in the DB: %w", err).Error())
 		}
 		// Move with a few evaluation reports
-		move := testdatagen.MakeMove(appCtx.DB(),
-			testdatagen.Assertions{
-				Move: models.Move{
+		move := factory.BuildMove(appCtx.DB(), []factory.Customization{
+			{
+				Model: models.Move{
 					Locator: "EVLRPT",
 					Status:  models.MoveStatusSUBMITTED,
 				},
 			},
-		)
+		}, nil)
 		// Make a transportation office to use as the closeout office
 		closeoutOffice := factory.BuildTransportationOffice(appCtx.DB(), []factory.Customization{
 			{
@@ -310,11 +324,18 @@ func subScenarioEvaluationReport(appCtx appcontext.AppContext) func() {
 			testdatagen.MustSave(appCtx.DB(), &move)
 		}
 
-		shipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{MTOShipment: models.MTOShipment{
-			MoveTaskOrderID:       move.ID,
-			Status:                models.MTOShipmentStatusSubmitted,
-			ScheduledDeliveryDate: swag.Time(time.Now()),
-		}})
+		shipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:                models.MTOShipmentStatusSubmitted,
+					ScheduledDeliveryDate: models.TimePointer(time.Now()),
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 		testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{Move: move})
 
 		storageFacility := factory.BuildStorageFacility(appCtx.DB(), nil, nil)
