@@ -36,12 +36,12 @@ func (suite *HandlerSuite) TestApproveMoveHandler() {
 	moveRouter := moverouter.NewMoveRouter()
 
 	// Move is submitted and saved
-	newSignedCertification := testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
-		SignedCertification: models.SignedCertification{
-			MoveID: move.ID,
+	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-		Stub: true,
-	})
+	}, nil)
 	err := moveRouter.Submit(suite.AppContextForTest(), &move, &newSignedCertification)
 	suite.NoError(err)
 	suite.Equal(models.MoveStatusSUBMITTED, move.Status, "expected Submitted")
@@ -78,12 +78,12 @@ func (suite *HandlerSuite) TestApproveMoveHandlerIncompleteOrders() {
 	moveRouter := moverouter.NewMoveRouter()
 
 	// Move is submitted and saved
-	newSignedCertification := testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
-		SignedCertification: models.SignedCertification{
-			MoveID: move.ID,
+	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-		Stub: true,
-	})
+	}, nil)
 	err := moveRouter.Submit(suite.AppContextForTest(), &move, &newSignedCertification)
 	suite.NoError(err)
 	suite.Equal(models.MoveStatusSUBMITTED, move.Status, "expected Submitted")
@@ -160,12 +160,12 @@ func (suite *HandlerSuite) TestCancelMoveHandler() {
 	suite.NoError(err)
 
 	// Move is submitted
-	newSignedCertification := testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
-		SignedCertification: models.SignedCertification{
-			MoveID: move.ID,
+	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+		{
+			Model:    *move,
+			LinkOnly: true,
 		},
-		Stub: true,
-	})
+	}, nil)
 	err = moveRouter.Submit(suite.AppContextForTest(), move, &newSignedCertification)
 	suite.NoError(err)
 	suite.Equal(models.MoveStatusSUBMITTED, move.Status, "expected Submitted")

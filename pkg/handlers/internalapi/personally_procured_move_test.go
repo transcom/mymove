@@ -671,12 +671,12 @@ func (suite *HandlerSuite) TestRequestPPMPayment() {
 
 	move := factory.BuildMove(suite.DB(), nil, nil)
 	moveRouter := moverouter.NewMoveRouter()
-	newSignedCertification := testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
-		SignedCertification: models.SignedCertification{
-			MoveID: move.ID,
+	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-		Stub: true,
-	})
+	}, nil)
 	err := moveRouter.Submit(suite.AppContextForTest(), &move, &newSignedCertification)
 	if err != nil {
 		t.Fatal("Should transition.")

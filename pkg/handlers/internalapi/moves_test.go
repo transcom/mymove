@@ -679,14 +679,18 @@ func (suite *HandlerSuite) TestShowShipmentSummaryWorksheet() {
 		},
 	})
 	certificationType := models.SignedCertificationTypePPMPAYMENT
-	testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
-		SignedCertification: models.SignedCertification{
-			SubmittingUserID:         move.Orders.ServiceMember.UserID,
-			MoveID:                   move.ID,
-			PersonallyProcuredMoveID: &ppm.ID,
-			CertificationType:        &certificationType,
+	factory.BuildSignedCertification(suite.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.SignedCertification{
+				PersonallyProcuredMoveID: &ppm.ID,
+				CertificationType:        &certificationType,
+			},
+		},
+	}, nil)
 
 	req := httptest.NewRequest("GET", "/moves/some_id/shipment_summary_worksheet", nil)
 	req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
