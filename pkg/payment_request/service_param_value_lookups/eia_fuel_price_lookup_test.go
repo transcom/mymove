@@ -130,7 +130,7 @@ func (suite *ServiceParamValueLookupsSuite) TestEIAFuelPriceLookup() {
 
 		// create a service item that has a shipment without an ActualPickupDate
 		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOShipment: testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{}),
+			MTOShipment: factory.BuildMTOShipmentMinimal(suite.DB(), nil, nil),
 		})
 
 		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),

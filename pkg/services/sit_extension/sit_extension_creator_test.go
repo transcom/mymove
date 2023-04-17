@@ -87,13 +87,18 @@ func (suite *SitExtensionServiceSuite) TestSITExtensionCreator() {
 
 	suite.Run("Failure - Not Found Error because shipment uses external vendor", func() {
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-		externalShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			Move: move,
-			MTOShipment: models.MTOShipment{
-				ShipmentType:       models.MTOShipmentTypeHHGOutOfNTSDom,
-				UsesExternalVendor: true,
+		externalShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					ShipmentType:       models.MTOShipmentTypeHHGOutOfNTSDom,
+					UsesExternalVendor: true,
+				},
+			},
+		}, nil)
 
 		// Create a SIT Extension for the move
 		sit := &models.SITExtension{

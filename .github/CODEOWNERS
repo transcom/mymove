@@ -52,3 +52,5 @@ src/pages/PrimeUI/
 .eslintrc.js @transcom/Truss-IS3
 /eslint-plugin-ato/ @transcom/Truss-IS3
 /pkg/ato-linter/ @transcom/Truss-IS3
+src/scenes/.eslintrc @transcom/Truss-IS3
+src/shared/.eslintrc @transcom/Truss-IS3

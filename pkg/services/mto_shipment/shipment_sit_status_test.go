@@ -12,7 +12,7 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 	sitStatusService := NewShipmentSITStatus()
 
 	suite.Run("returns nil when the shipment has no service items", func() {
-		submittedShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{})
+		submittedShipment := factory.BuildMTOShipmentMinimal(suite.DB(), nil, nil)
 
 		sitStatus, err := sitStatusService.CalculateShipmentSITStatus(suite.AppContextForTest(), submittedShipment)
 		suite.NoError(err)

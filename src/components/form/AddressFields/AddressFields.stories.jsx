@@ -48,7 +48,7 @@ export const CurrentResidentialAddress = () => (
   >
     {() => (
       <Form className={formStyles.form}>
-        <AddressFields legend="Current mailing address" name="residential_address" />
+        <AddressFields legend="Current pickup address" name="residential_address" />
       </Form>
     )}
   </Formik>
@@ -69,7 +69,7 @@ export const CurrentResidentialAddressWithInitialValues = () => (
   >
     {() => (
       <Form className={formStyles.form}>
-        <AddressFields legend="Current mailing address" name="residential_address" />
+        <AddressFields legend="Current pickup address" name="residential_address" />
       </Form>
     )}
   </Formik>
@@ -91,7 +91,7 @@ export const CurrentResidentialAddressWithCustomValidators = () => (
     {() => (
       <Form className={formStyles.form}>
         <AddressFields
-          legend="Current mailing address"
+          legend="Current pickup address"
           name="residential_address"
           validators={{
             city: (value) => (value === 'Nowhere' ? 'No one lives there' : ''),
@@ -152,7 +152,7 @@ export const InsideSectionWrapper = () => (
     {() => (
       <Form className={formStyles.form}>
         <SectionWrapper className={formStyles.formSection}>
-          <AddressFields legend="Current mailing address" name="residential_address" />
+          <AddressFields legend="Current pickup address" name="residential_address" />
         </SectionWrapper>
       </Form>
     )}
