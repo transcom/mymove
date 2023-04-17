@@ -2,6 +2,7 @@ package weightticket
 
 import (
 	"fmt"
+	"github.com/transcom/mymove/pkg/services/ppmshipment"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -17,6 +18,8 @@ import (
 )
 
 func (suite *WeightTicketSuite) TestDeleteWeightTicket() {
+	wtFetcher := NewWeightTicketFetcher()
+	ppmShipmentFetcher := ppmshipment.NewPPMShipmentFetcher()
 
 	setupForTest := func(overrides *models.WeightTicket, hasDocumentUploads bool) *models.WeightTicket {
 		serviceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
@@ -75,9 +78,8 @@ func (suite *WeightTicketSuite) TestDeleteWeightTicket() {
 	}
 	suite.Run("Returns an error if the original doesn't exist", func() {
 		notFoundWeightTicketID := uuid.Must(uuid.NewV4())
-		fetcher := NewWeightTicketFetcher()
 		estimator := mocks.PPMEstimator{}
-		deleter := NewWeightTicketDeleter(fetcher, &estimator)
+		deleter := NewWeightTicketDeleter(wtFetcher, ppmShipmentFetcher, &estimator)
 
 		err := deleter.DeleteWeightTicket(suite.AppContextForTest(), notFoundWeightTicketID)
 
@@ -98,11 +100,10 @@ func (suite *WeightTicketSuite) TestDeleteWeightTicket() {
 			ServiceMemberID: originalWeightTicket.EmptyDocument.ServiceMemberID,
 		})
 
-		fetcher := NewWeightTicketFetcher()
 		estimator := mocks.PPMEstimator{}
 		mockIncentive := unit.Cents(10000)
 		estimator.On("FinalIncentiveWithDefaultChecks", appCtx, mock.AnythingOfType("models.PPMShipment"), mock.AnythingOfType("*models.PPMShipment")).Return(&mockIncentive, nil)
-		deleter := NewWeightTicketDeleter(fetcher, &estimator)
+		deleter := NewWeightTicketDeleter(wtFetcher, ppmShipmentFetcher, &estimator)
 
 		suite.Nil(originalWeightTicket.DeletedAt)
 		err := deleter.DeleteWeightTicket(appCtx, originalWeightTicket.ID)
@@ -145,14 +146,13 @@ func (suite *WeightTicketSuite) TestDeleteWeightTicket() {
 			ServiceMemberID: originalWeightTicket.EmptyDocument.ServiceMemberID,
 		})
 
-		fetcher := NewWeightTicketFetcher()
 		estimator := mocks.PPMEstimator{}
 		mockIncentive := unit.Cents(10000)
 		estimator.On("FinalIncentiveWithDefaultChecks",
 			appCtx,
 			mock.AnythingOfType("models.PPMShipment"),
 			mock.AnythingOfType("*models.PPMShipment")).Return(&mockIncentive, nil).Once()
-		deleter := NewWeightTicketDeleter(fetcher, &estimator)
+		deleter := NewWeightTicketDeleter(wtFetcher, ppmShipmentFetcher, &estimator)
 		err := deleter.DeleteWeightTicket(appCtx, originalWeightTicket.ID)
 		suite.NoError(err)
 

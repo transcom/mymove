@@ -11,12 +11,14 @@ import (
 
 type weightTicketDeleter struct {
 	services.WeightTicketFetcher
+	services.PPMShipmentFetcher
 	services.PPMEstimator
 }
 
-func NewWeightTicketDeleter(fetcher services.WeightTicketFetcher, estimator services.PPMEstimator) services.WeightTicketDeleter {
+func NewWeightTicketDeleter(weightTicketFetcher services.WeightTicketFetcher, ppmShipmentFetcher services.PPMShipmentFetcher, estimator services.PPMEstimator) services.WeightTicketDeleter {
 	return &weightTicketDeleter{
-		fetcher,
+		weightTicketFetcher,
+		ppmShipmentFetcher,
 		estimator,
 	}
 }
@@ -26,7 +28,14 @@ func (d *weightTicketDeleter) DeleteWeightTicket(appCtx appcontext.AppContext, w
 	if err != nil {
 		return err
 	}
-	oldPPM, err := ppmshipment.FindPPMShipmentAndWeightTickets(appCtx, weightTicket.PPMShipmentID)
+
+	oldPPM, err := d.GetPPMShipment(
+		appCtx,
+		weightTicket.PPMShipmentID,
+		[]string{ppmshipment.EagerPreloadAssociationShipment, ppmshipment.EagerPreloadAssociationWeightTickets},
+		nil,
+	)
+
 	if err != nil {
 		return err
 	}
@@ -50,7 +59,12 @@ func (d *weightTicketDeleter) DeleteWeightTicket(appCtx appcontext.AppContext, w
 		if err != nil {
 			return err
 		}
-		newPPM, err := ppmshipment.FindPPMShipmentAndWeightTickets(appCtx, weightTicket.PPMShipmentID)
+		newPPM, err := d.GetPPMShipment(
+			appCtx,
+			weightTicket.PPMShipmentID,
+			[]string{ppmshipment.EagerPreloadAssociationShipment, ppmshipment.EagerPreloadAssociationWeightTickets},
+			nil,
+		)
 		if err != nil {
 			return err
 		}
