@@ -149,7 +149,7 @@ executors:
           GOPATH: /home/circleci/go
 
   mymove_tester:
-    resource_class: large
+    resource_class: xlarge
     working_directory: ~/transcom/mymove
     docker:
       - image: *circleci-docker
@@ -627,7 +627,8 @@ commands:
             make server_test
           environment:
             APPLICATION: '<< parameters.application >>'
-            GOFLAGS: '-p=4'
+            # 8 since this runs on xlarge with 8 CPUs
+            GOTEST_PARALLEL: 8
             DB_PASSWORD: mysecretpassword
             DB_USER_LOW_PRIV: crud
             DB_PASSWORD_LOW_PRIV: mysecretpassword
