@@ -1,9 +1,14 @@
 import React from 'react';
 import classnames from 'classnames';
-import { Formik, Field } from 'formik';
+import { Formik, Field, useField } from 'formik';
 import PropTypes from 'prop-types';
 import * as Yup from 'yup';
-import { Button, Label, Textarea } from '@trussworks/react-uswds';
+import { Button, Label, Textarea, Tag } from '@trussworks/react-uswds';
+import moment from 'moment';
+
+import DataTableWrapper from '../../DataTableWrapper/index';
+import DataTable from '../../DataTable/index';
+// import { SITExtensionShape } from '../../../types/sitExtensions';
 
 import styles from './SubmitSITExtensionModal.module.scss';
 
@@ -11,19 +16,147 @@ import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextFi
 import { Form } from 'components/form';
 import { ModalContainer, Overlay } from 'components/MigratedModal/MigratedModal';
 import Modal, { ModalActions, ModalClose, ModalTitle } from 'components/Modal/Modal';
-import { DropdownInput } from 'components/form/fields';
-import { sitExtensionReasons } from 'constants/sitExtensions';
-import { dropdownInputOptions } from 'utils/formatters';
+import { DropdownInput, DatePickerInput } from 'components/form/fields';
+import { dropdownInputOptions, formatDate } from 'utils/formatters';
+import { sitExtensionReasons, SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
+import { utcDateFormat } from 'shared/dates';
+import { SERVICE_ITEM_CODES } from 'constants/serviceItems';
+// import { ShipmentShape } from 'types/shipment';
+import { LOCATION_TYPES } from 'types/sitStatusShape';
 
-const reviewSITExtensionSchema = Yup.object().shape({
-  requestReason: Yup.string().required('Required'),
-  daysApproved: Yup.number()
-    .min(1, 'Additional days approved must be greater than or equal to 1.')
-    .required('Required'),
-  officeRemarks: Yup.string().nullable(),
-});
+const SitDaysAllowanceForm = ({ onChange }) => (
+  <MaskedTextField
+    data-testid="daysApproved"
+    defaultValue="1"
+    id="daysApproved"
+    name="daysApproved"
+    mask={Number}
+    lazy={false}
+    scale={0}
+    signed={false} // no negative numbers
+    inputClassName={styles.weightInput}
+    errorClassName={styles.errors}
+    labelClassName={styles.weightLabel}
+    onChange={onChange}
+  />
+);
 
-const SubmitSITExtensionModal = ({ onClose, onSubmit, summarySITComponent }) => {
+const SitEndDateForm = ({ onChange }) => (
+  <DatePickerInput name="sitEndDate" label="" id="sitEndDate" onChange={onChange} />
+);
+
+const SitStatusTables = ({ sitExtensions, sitStatus }) => {
+  const { sitEntryDate, totalSITDaysUsed, daysInSIT } = sitStatus;
+  const pastSITDaysUsed = totalSITDaysUsed - daysInSIT;
+
+  const sitAllowanceHelper = useField({ name: 'daysApproved', id: 'daysApproved' })[2];
+  const endDateHelper = useField({ name: 'sitEndDate', id: 'sitEndDate' })[2];
+
+  const pendingSITExtension = sitExtensions.find((se) => se.status === SIT_EXTENSION_STATUS.PENDING);
+  // Currently active SIT
+  const currentLocation = sitStatus.location === LOCATION_TYPES.ORIGIN ? 'origin SIT' : 'destination SIT';
+
+  const currentDaysInSit = <p>{sitStatus.totalSITDaysUsed}</p>;
+  const currentDateEnteredSit = <p>{formatDate(sitStatus.sitEntryDate, utcDateFormat, 'DD MMM YYYY')}</p>;
+
+  const handleSitEndDateChange = (endDate) => {
+    endDateHelper.setValue(endDate);
+    // Total days of SIT
+    const calculatedSitDaysAllowance = Math.ceil(
+      moment.duration(moment(endDate).diff(moment(sitEntryDate))).asDays() + pastSITDaysUsed,
+    );
+    // Update form value
+    sitAllowanceHelper.setValue(String(calculatedSitDaysAllowance));
+  };
+
+  const handleDaysAllowanceChange = (daysApproved) => {
+    // Sit days allowamce
+    sitAllowanceHelper.setValue(daysApproved);
+    // // // Sit End date
+    const calculatedSitEndDate = moment(sitEntryDate)
+      .utc()
+      .add(daysApproved - pastSITDaysUsed, 'days')
+      .format('DD MMM YYYY');
+    endDateHelper.setValue(calculatedSitEndDate);
+  };
+
+  // Previous SIT calculations and date ranges
+  const previousDaysUsed = sitStatus.pastSITServiceItems?.map((pastSITItem) => {
+    const sitDaysUsed = moment(pastSITItem.sitDepartureDate).utc().diff(pastSITItem.sitEntryDate, 'days');
+    const location = pastSITItem.reServiceCode === SERVICE_ITEM_CODES.DOPSIT ? 'origin' : 'destination';
+
+    const start = formatDate(pastSITItem.sitEntryDate, utcDateFormat, 'DD MMM YYYY');
+    const end = formatDate(pastSITItem.sitDepartureDate, utcDateFormat, 'DD MMM YYYY');
+    const text = `${sitDaysUsed} days at ${location} (${start} - ${end})`;
+
+    return <p key={pastSITItem.id}>{text}</p>;
+  });
+  return (
+    <>
+      <div className={styles.title}>
+        <p>SIT (STORAGE IN TRANSIT){pendingSITExtension && <Tag>Extension requested</Tag>}</p>
+      </div>
+      <div className={styles.tableContainer} data-testid="sitStatusTable">
+        {/* Sit Total days table */}
+        <DataTable
+          columnHeaders={['Total days of SIT approved', 'Total days used', 'Total days remaining']}
+          dataRow={[
+            <SitDaysAllowanceForm onChange={(e) => handleDaysAllowanceChange(e.target.value)} />,
+            sitStatus.totalSITDaysUsed,
+            sitStatus.totalDaysRemaining,
+          ]}
+        />
+      </div>
+      <div className={styles.tableContainer}>
+        {/* Sit Start and End table */}
+        <p className={styles.sitHeader}>Current location: {currentLocation}</p>
+        <DataTable
+          columnHeaders={[`SIT start date`, 'SIT authorized end date']}
+          dataRow={[
+            currentDateEnteredSit,
+            <SitEndDateForm
+              onChange={(value) => {
+                handleSitEndDateChange(value);
+              }}
+            />,
+          ]}
+          custClass={styles.currentLocation}
+        />
+      </div>
+      <div className={styles.tableContainer}>
+        {/* Total days at current location */}
+        <DataTable columnHeaders={[`Total days in ${currentLocation}`]} dataRow={[currentDaysInSit]} />
+      </div>
+      {/* Service Items */}
+      {sitStatus.pastSITServiceItems && (
+        <div className={styles.tableContainer}>
+          <DataTable columnHeaders={['Previously used SIT']} dataRow={[previousDaysUsed]} />
+        </div>
+      )}
+    </>
+  );
+};
+
+const SubmitSITExtensionModal = ({ shipment, sitExtensions, sitStatus, onClose, onSubmit }) => {
+  const initialValues = {
+    requestReason: '',
+    officeRemarks: '',
+    daysApproved: String(shipment.sitDaysAllowance),
+    sitEndDate: moment().utc().add(sitStatus.totalDaysRemaining, 'days').format('DD MMM YYYY'),
+  };
+  const minimumDaysAllowed = sitStatus.totalSITDaysUsed - sitStatus.daysInSIT + 1;
+  const reviewSITExtensionSchema = Yup.object().shape({
+    requestReason: Yup.string().required('Required'),
+    officeRemarks: Yup.string().nullable(),
+    daysApproved: Yup.number()
+      .min(minimumDaysAllowed, 'Total days of SIT approved must be 1 or more.')
+      .required('Required'),
+    sitEndDate: Yup.date().min(
+      moment(sitStatus.sitEntryDate).utc().format('DD MMM YYYY'),
+      'Total days of SIT approved must be 1 or more. Select a new date.',
+    ),
+  });
+
   return (
     <div>
       <Overlay />
@@ -33,70 +166,44 @@ const SubmitSITExtensionModal = ({ onClose, onSubmit, summarySITComponent }) => 
           <ModalTitle>
             <h2>Edit SIT authorization</h2>
           </ModalTitle>
-          <div className={styles.summarySITComponent}>{summarySITComponent}</div>
-          <div className={styles.ModalPanel}>
-            <Formik
-              validationSchema={reviewSITExtensionSchema}
-              onSubmit={(e) => onSubmit(e)}
-              initialValues={{
-                requestReason: '',
-                daysApproved: '',
-                officeRemarks: '',
-              }}
-            >
-              {({ isValid }) => {
-                return (
-                  <Form>
-                    <div className={styles.reasonDropdown}>
-                      <DropdownInput
-                        label="Reason for edit"
-                        name="requestReason"
-                        options={dropdownInputOptions(sitExtensionReasons)}
-                      />
-                    </div>
-                    <MaskedTextField
-                      name="daysApproved"
-                      id="daysApproved"
-                      label="Days approved"
-                      mask="num"
-                      blocks={{
-                        num: {
-                          mask: Number,
-                          signed: false,
-                          scale: 0,
-                          thousandsSeparator: ',',
-                        },
-                      }}
-                      lazy={false}
-                      className={classnames(styles.ApprovedDaysInput, 'usa-input')}
+          <Formik
+            validationSchema={reviewSITExtensionSchema}
+            onSubmit={(e) => onSubmit(e)}
+            initialValues={initialValues}
+          >
+            {({ isValid }) => {
+              return (
+                <Form>
+                  <DataTableWrapper className={classnames('maxw-tablet', styles.sitDisplayForm)} testID="sitExtensions">
+                    <SitStatusTables sitExtensions={sitExtensions} sitStatus={sitStatus} shipment={shipment} />
+                  </DataTableWrapper>
+                  <div className={styles.reasonDropdown}>
+                    <DropdownInput
+                      label="Reason for edit"
+                      name="requestReason"
+                      options={dropdownInputOptions(sitExtensionReasons)}
                     />
-                    <Label htmlFor="officeRemarks">Office remarks</Label>
-                    <Field
-                      as={Textarea}
-                      data-testid="officeRemarks"
-                      label="No"
-                      name="officeRemarks"
-                      id="officeRemarks"
-                    />
-                    <ModalActions>
-                      <Button type="submit" disabled={!isValid}>
-                        Save
-                      </Button>
-                      <Button
-                        type="button"
-                        onClick={() => onClose()}
-                        data-testid="modalCancelButton"
-                        outline
-                        className={styles.CancelButton}
-                      >
-                        Cancel
-                      </Button>
-                    </ModalActions>
-                  </Form>
-                );
-              }}
-            </Formik>
-          </div>
+                  </div>
+                  <Label htmlFor="officeRemarks">Office remarks</Label>
+                  <Field as={Textarea} data-testid="officeRemarks" label="No" name="officeRemarks" id="officeRemarks" />
+                  <ModalActions>
+                    <Button type="submit" disabled={!isValid}>
+                      Save
+                    </Button>
+                    <Button
+                      type="button"
+                      onClick={() => onClose()}
+                      data-testid="modalCancelButton"
+                      outline
+                      className={styles.CancelButton}
+                    >
+                      Cancel
+                    </Button>
+                  </ModalActions>
+                </Form>
+              );
+            }}
+          </Formik>
         </Modal>
       </ModalContainer>
     </div>
@@ -106,6 +213,5 @@ const SubmitSITExtensionModal = ({ onClose, onSubmit, summarySITComponent }) => 
 SubmitSITExtensionModal.propTypes = {
   onClose: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
-  summarySITComponent: PropTypes.node.isRequired,
 };
 export default SubmitSITExtensionModal;
