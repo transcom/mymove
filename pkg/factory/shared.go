@@ -50,10 +50,11 @@ var Organization CustomType = "Organization"
 var PPMShipment CustomType = "PPMShipment"
 var PostalCodeToGBLOC CustomType = "PostalCodeToGBLOC"
 var ReService CustomType = "ReService"
+var Role CustomType = "Role"
 var ServiceItemParamKey CustomType = "ServiceItemParamKey"
 var ServiceMember CustomType = "ServiceMember"
+var SignedCertification CustomType = "SignedCertification"
 var StorageFacility CustomType = "StorageFacility"
-var Role CustomType = "Role"
 var Tariff400ngZip3 CustomType = "Tariff400ngZip3"
 var TransportationOffice CustomType = "TransportationOffice"
 var Upload CustomType = "Upload"
@@ -81,6 +82,7 @@ var defaultTypesMap = map[string]CustomType{
 	"models.ReService":            ReService,
 	"models.ServiceItemParamKey":  ServiceItemParamKey,
 	"models.ServiceMember":        ServiceMember,
+	"models.SignedCertification":  SignedCertification,
 	"models.StorageFacility":      StorageFacility,
 	"models.Tariff400ngZip3":      Tariff400ngZip3,
 	"models.TransportationOffice": TransportationOffice,
