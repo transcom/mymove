@@ -4,6 +4,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
@@ -129,11 +130,13 @@ func (suite *MTOShipmentServiceSuite) TestShipmentBillableWeightCalculator() {
 
 	suite.Run("Eagerly loaded reweigh where a reweigh exists", func() {
 		actualWeight := unit.Pound(3100)
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				PrimeActualWeight: &actualWeight,
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					PrimeActualWeight: &actualWeight,
+				},
 			},
-		})
+		}, nil)
 		reweigh := testdatagen.MakeReweighForShipment(suite.DB(), testdatagen.Assertions{}, shipment, unit.Pound(3000))
 
 		var dbShipment models.MTOShipment
@@ -147,11 +150,13 @@ func (suite *MTOShipmentServiceSuite) TestShipmentBillableWeightCalculator() {
 
 	suite.Run("Eagerly loaded reweigh where a reweigh does not exist", func() {
 		actualWeight := unit.Pound(3100)
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				PrimeActualWeight: &actualWeight,
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					PrimeActualWeight: &actualWeight,
+				},
 			},
-		})
+		}, nil)
 		// No reweigh
 
 		var dbShipment models.MTOShipment
@@ -165,11 +170,13 @@ func (suite *MTOShipmentServiceSuite) TestShipmentBillableWeightCalculator() {
 
 	suite.Run("Did not eagerly load reweigh even though one exists", func() {
 		actualWeight := unit.Pound(3100)
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				PrimeActualWeight: &actualWeight,
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					PrimeActualWeight: &actualWeight,
+				},
 			},
-		})
+		}, nil)
 		testdatagen.MakeReweighForShipment(suite.DB(), testdatagen.Assertions{}, shipment, unit.Pound(3000))
 
 		var dbShipment models.MTOShipment

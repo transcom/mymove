@@ -2,8 +2,10 @@ package ghcapi
 
 import (
 	"fmt"
+	"net/http"
 	"net/http/httptest"
 	"strings"
+	"time"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
@@ -17,6 +19,7 @@ import (
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/mocks"
+	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	"github.com/transcom/mymove/pkg/services/ppmshipment"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/uploader"
@@ -287,6 +290,221 @@ func (suite *HandlerSuite) TestGetPPMDocumentsHandlerIntegration() {
 			for i, returnedProGearWeightTicket := range returnedPPMDocuments.ProGearWeightTickets {
 				suite.Equal(ppmShipment.ProgearWeightTickets[i].ID.String(), returnedProGearWeightTicket.ID.String())
 			}
+		}
+	})
+}
+
+func (suite *HandlerSuite) TestFinishPPMDocumentsReviewHandlerUnit() {
+	var ppmShipment models.PPMShipment
+
+	setUpPPMShipment := func() models.PPMShipment {
+		ppmShipment = testdatagen.MakePPMShipmentWithApprovedDocuments(
+			suite.DB(),
+			testdatagen.Assertions{
+				Stub: true,
+			},
+		)
+
+		ppmShipment.ID = uuid.Must(uuid.NewV4())
+		ppmShipment.CreatedAt = time.Now()
+		ppmShipment.UpdatedAt = ppmShipment.CreatedAt.AddDate(0, 0, 5)
+		ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember.UserID = uuid.Must(uuid.NewV4())
+
+		return ppmShipment
+	}
+
+	setUpRequestAndParams := func(ppmShipment models.PPMShipment, authUser bool) (*http.Request, ppmdocumentops.FinishDocumentReviewParams) {
+		endpoint := fmt.Sprintf("/ppm-shipments/%s/finish-document-review", ppmShipment.ID.String())
+
+		req := httptest.NewRequest("PATCH", endpoint, nil)
+
+		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
+
+		if authUser {
+			req = suite.AuthenticateOfficeRequest(req, officeUser)
+		}
+
+		params := ppmdocumentops.FinishDocumentReviewParams{
+			HTTPRequest:   req,
+			PpmShipmentID: handlers.FmtUUIDValue(ppmShipment.ID),
+		}
+
+		return req, params
+	}
+
+	setUpMockPPMDocumentReviewer := func(returnValues ...interface{}) services.PPMShipmentReviewDocuments {
+		mockPPMDocumentReviewer := &mocks.PPMShipmentReviewDocuments{}
+
+		mockPPMDocumentReviewer.On("SubmitReviewedDocuments",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("uuid.UUID"),
+			mock.AnythingOfType("string"),
+		).Return(returnValues...)
+
+		return mockPPMDocumentReviewer
+	}
+
+	setUpHandler := func(ppmDocumentReviewer services.PPMShipmentReviewDocuments) FinishDocumentReviewHandler {
+		return FinishDocumentReviewHandler{
+			suite.createS3HandlerConfig(),
+			ppmDocumentReviewer,
+		}
+	}
+
+	suite.Run("Returns an error if the request is not coming from the office app", func() {
+		ppmShipment := setUpPPMShipment()
+
+		request, params := setUpRequestAndParams(ppmShipment, false)
+
+		officeUser := factory.BuildOfficeUser(nil, nil, nil)
+		request = suite.AuthenticateOfficeRequest(request, officeUser)
+		params.HTTPRequest = request
+
+		ppmDocumentReviewer := setUpMockPPMDocumentReviewer(ppmShipment.ShipmentID, nil)
+
+		handler := setUpHandler(ppmDocumentReviewer)
+
+		response := handler.Handle(params)
+
+		suite.IsType(&ppmdocumentops.FinishDocumentReviewForbidden{}, response)
+	})
+
+	suite.Run("Returns an error if the PPMShipment ID in the url is invalid", func() {
+		ppmShipment := setUpPPMShipment()
+		ppmShipment.ID = uuid.Nil
+
+		_, params := setUpRequestAndParams(ppmShipment, true)
+
+		handler := setUpHandler(setUpMockPPMDocumentReviewer(nil, nil))
+
+		response := handler.Handle(params)
+
+		suite.IsType(&ppmdocumentops.FinishDocumentReviewBadRequest{}, response)
+	})
+
+	suite.Run("Returns 200 when a PPM is reviewed", func() {
+		ppmShipment := setUpPPMShipment()
+
+		_, params := setUpRequestAndParams(ppmShipment, true)
+
+		expectedPPMShipment := ppmShipment
+		expectedPPMShipment.Status = models.PPMShipmentStatusPaymentApproved
+
+		suite.FatalNotNil(expectedPPMShipment.SubmittedAt)
+
+		handler := setUpHandler(setUpMockPPMDocumentReviewer(&expectedPPMShipment, nil))
+
+		response := handler.Handle(params)
+
+		if suite.IsType(&ppmdocumentops.FinishDocumentReviewOK{}, response) {
+			okResponse := response.(*ppmdocumentops.FinishDocumentReviewOK)
+
+			returnedPPMShipment := okResponse.Payload
+
+			suite.NoError(returnedPPMShipment.Validate(strfmt.Default))
+			suite.EqualUUID(expectedPPMShipment.ID, returnedPPMShipment.ID)
+
+		}
+	})
+
+}
+
+func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerIntegration() {
+	mtoShipmentRouter := mtoshipment.NewShipmentRouter()
+	ppmShipmentRouter := ppmshipment.NewPPMShipmentRouter(mtoShipmentRouter)
+
+	officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
+
+	reviewer := ppmshipment.NewPPMShipmentReviewDocuments(ppmShipmentRouter)
+
+	setUpParamsAndHandler := func(ppmShipment models.PPMShipment, officeUser models.OfficeUser) (ppmdocumentops.FinishDocumentReviewParams, FinishDocumentReviewHandler) {
+		endpoint := fmt.Sprintf(
+			"/ppm-shipments/%s/finish-document-review",
+			ppmShipment.ID.String(),
+		)
+
+		request := httptest.NewRequest("PATCH", endpoint, nil)
+
+		request = suite.AuthenticateOfficeRequest(request, officeUser)
+
+		params := ppmdocumentops.FinishDocumentReviewParams{
+			HTTPRequest:   request,
+			PpmShipmentID: handlers.FmtUUIDValue(ppmShipment.ID),
+		}
+
+		handler := FinishDocumentReviewHandler{
+			suite.createS3HandlerConfig(),
+			reviewer,
+		}
+
+		return params, handler
+	}
+
+	suite.Run("Returns an error if the PPM shipment is not found", func() {
+		shipmentWithUnknownID := models.PPMShipment{
+			ID: uuid.Must(uuid.NewV4()),
+		}
+
+		params, handler := setUpParamsAndHandler(shipmentWithUnknownID, officeUser)
+
+		response := handler.Handle(params)
+
+		suite.IsType(&ppmdocumentops.FinishDocumentReviewNotFound{}, response)
+	})
+
+	suite.Run("Returns an error if the PPM shipment is not awaiting payment review", func() {
+		draftPpmShipment := testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{
+			PPMShipment: models.PPMShipment{
+				Status: models.PPMShipmentStatusDraft,
+			},
+		})
+
+		params, handler := setUpParamsAndHandler(draftPpmShipment, officeUser)
+
+		response := handler.Handle(params)
+
+		fmt.Printf("Response type: %T\n", response)
+
+		suite.IsType(&ppmdocumentops.FinishDocumentReviewConflict{}, response)
+	})
+
+	suite.Run("Can successfully submit a PPM shipment for close out", func() {
+		ppmShipment := testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{})
+
+		params, handler := setUpParamsAndHandler(ppmShipment, officeUser)
+
+		response := handler.Handle(params)
+
+		if suite.IsType(&ppmdocumentops.FinishDocumentReviewOK{}, response) {
+			okResponse := response.(*ppmdocumentops.FinishDocumentReviewOK)
+			returnedPPMShipment := okResponse.Payload
+
+			suite.NoError(returnedPPMShipment.Validate(strfmt.Default))
+
+			suite.EqualUUID(ppmShipment.ID, returnedPPMShipment.ID)
+			suite.Equal(string(models.PPMShipmentStatusPaymentApproved), string(returnedPPMShipment.Status))
+		}
+	})
+
+	suite.Run("Sets PPM to await customer if there are rejected documents", func() {
+		ppmShipment := testdatagen.MakePPMShipmentThatNeedsToBeResubmitted(suite.DB(), testdatagen.Assertions{
+			PPMShipment: models.PPMShipment{
+				Status: models.PPMShipmentStatusNeedsPaymentApproval,
+			},
+		})
+
+		params, handler := setUpParamsAndHandler(ppmShipment, officeUser)
+
+		response := handler.Handle(params)
+
+		if suite.IsType(&ppmdocumentops.FinishDocumentReviewOK{}, response) {
+			okResponse := response.(*ppmdocumentops.FinishDocumentReviewOK)
+			returnedPPMShipment := okResponse.Payload
+
+			suite.NoError(returnedPPMShipment.Validate(strfmt.Default))
+
+			suite.EqualUUID(ppmShipment.ID, returnedPPMShipment.ID)
+			suite.Equal(string(models.PPMShipmentStatusWaitingOnCustomer), string(returnedPPMShipment.Status))
 		}
 	})
 }

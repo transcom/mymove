@@ -25,7 +25,6 @@ import (
 	"github.com/transcom/mymove/pkg/services/query"
 	supportMocks "github.com/transcom/mymove/pkg/services/support/mocks"
 	internalmovetaskorder "github.com/transcom/mymove/pkg/services/support/move_task_order"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *HandlerSuite) TestListMTOsHandler() {
@@ -34,13 +33,19 @@ func (suite *HandlerSuite) TestListMTOsHandler() {
 
 	moveTaskOrder := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
-	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: moveTaskOrder,
-	})
+	factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    moveTaskOrder,
+			LinkOnly: true,
+		},
+	}, nil)
 
-	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: moveTaskOrder,
-	})
+	factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    moveTaskOrder,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	request := httptest.NewRequest("GET", "/move-task-orders", nil)
 

@@ -179,16 +179,21 @@ func (suite *ModelSuite) TestFetchMove() {
 	})
 
 	suite.Run("deleted shipments are excluded from the results", func() {
-		mtoShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
 		mto := mtoShipment.MoveTaskOrder
-		testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: MTOShipment{
-				ShipmentType: MTOShipmentTypeHHG,
-				Status:       MTOShipmentStatusSubmitted,
-				DeletedAt:    TimePointer(time.Now()),
+		factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: MTOShipment{
+					ShipmentType: MTOShipmentTypeHHG,
+					Status:       MTOShipmentStatusSubmitted,
+					DeletedAt:    TimePointer(time.Now()),
+				},
 			},
-			Move: mto,
-		})
+			{
+				Model:    mto,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		session := &auth.Session{
 			UserID:          mto.Orders.ServiceMember.UserID,
@@ -290,19 +295,23 @@ func (suite *ModelSuite) TestMoveIsPPMOnly() {
 	isPPMOnly := move.IsPPMOnly()
 	suite.False(isPPMOnly, "A move with no shipments will return false for isPPMOnly.")
 
-	testdatagen.MakeMTOShipmentWithMove(suite.DB(), &move, testdatagen.Assertions{
-		MTOShipment: MTOShipment{
-			ShipmentType: MTOShipmentTypePPM,
+	factory.BuildMTOShipmentWithMove(&move, suite.DB(), []factory.Customization{
+		{
+			Model: MTOShipment{
+				ShipmentType: MTOShipmentTypePPM,
+			},
 		},
-	})
+	}, nil)
 	isPPMOnly = move.IsPPMOnly()
 	suite.True(isPPMOnly, "A move with only PPM shipments will return true for isPPMOnly")
 
-	testdatagen.MakeMTOShipmentWithMove(suite.DB(), &move, testdatagen.Assertions{
-		MTOShipment: MTOShipment{
-			ShipmentType: MTOShipmentTypeHHG,
+	factory.BuildMTOShipmentWithMove(&move, suite.DB(), []factory.Customization{
+		{
+			Model: MTOShipment{
+				ShipmentType: MTOShipmentTypeHHG,
+			},
 		},
-	})
+	}, nil)
 	isPPMOnly = move.IsPPMOnly()
 	suite.False(isPPMOnly, "A move with one PPM shipment and one HHG shipment will return false for isPPMOnly.")
 }

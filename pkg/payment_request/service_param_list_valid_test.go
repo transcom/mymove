@@ -18,20 +18,32 @@ func (suite *PaymentRequestHelperSuite) makeServiceParamTestData() (subtestData 
 	subtestData = &serviceParamSubtestData{}
 	// Create some records we'll need to link to
 	subtestData.move = factory.BuildMove(suite.DB(), nil, nil)
-	subtestData.mtoServiceItem1 = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-		Move: subtestData.move,
-		ReService: models.ReService{
-			Code: models.ReServiceCodeDLH,
-			Name: "Domestic Linehaul",
+	subtestData.mtoServiceItem1 = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+		{
+			Model:    subtestData.move,
+			LinkOnly: true,
 		},
-	})
-	subtestData.mtoServiceItem2 = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-		Move: subtestData.move,
-		ReService: models.ReService{
-			Code: models.ReServiceCodeDOP,
-			Name: "Domestic Origin Pickup",
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDLH,
+				Name: "Domestic Linehaul",
+			},
 		},
-	})
+	}, nil)
+
+	subtestData.mtoServiceItem2 = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+		{
+			Model:    subtestData.move,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDOP,
+				Name: "Domestic Origin Pickup",
+			},
+		},
+	}, nil)
+
 	serviceItemParamKey1 := factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{
 		{
 			Model: models.ServiceItemParamKey{

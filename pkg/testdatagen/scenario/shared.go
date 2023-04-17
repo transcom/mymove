@@ -129,6 +129,7 @@ func createGenericPPMRelatedMove(appCtx appcontext.AppContext, moveInfo MoveCrea
 
 	testdatagen.MergeModels(&moveAssertions, assertions)
 
+	// assertions passed in means we cannot yet convert to BuildMove
 	move := testdatagen.MakeMove(appCtx.DB(), moveAssertions)
 
 	if moveInfo.CloseoutOfficeID == nil && (*smWithPPM.Affiliation == models.AffiliationARMY || *smWithPPM.Affiliation == models.AffiliationAIRFORCE) {
@@ -208,9 +209,20 @@ func makeMoveForOrders(appCtx appcontext.AppContext, orders models.Order, moveCo
 		config(&move)
 	}
 
-	move = testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
-		Move: move,
-	})
+	move = factory.BuildMove(appCtx.DB(), []factory.Customization{
+		{
+			Model:    orders,
+			LinkOnly: true,
+		},
+		{
+			Model: models.Move{
+				Status:             moveStatus,
+				SelectedMoveType:   &hhgSelectedMoveType,
+				Locator:            moveCode,
+				AvailableToPrimeAt: availableToPrimeAt,
+			},
+		},
+	}, nil)
 
 	return move
 }
@@ -321,18 +333,26 @@ func createMoveWithPPMAndHHG(appCtx appcontext.AppContext, userUploader *uploade
 		},
 	}, nil)
 	// SelectedMoveType could be either HHG or PPM depending on creation order of combo
-	move := testdatagen.MakeMove(db, testdatagen.Assertions{
-		Order: models.Order{
-			ServiceMemberID: uuid.FromStringOrNil(smIDCombo),
-			ServiceMember:   smWithCombo,
+	move := factory.BuildMove(db, []factory.Customization{
+		{
+			Model:    smWithCombo,
+			LinkOnly: true,
 		},
-		UserUploader: userUploader,
-		Move: models.Move{
-			ID:               uuid.FromStringOrNil("7024c8c5-52ca-4639-bf69-dd8238308c98"),
-			Locator:          "COMBOS",
-			SelectedMoveType: &ppmMoveType,
+		{
+			Model: models.Move{
+				ID:               uuid.FromStringOrNil("7024c8c5-52ca-4639-bf69-dd8238308c98"),
+				Locator:          "COMBOS",
+				SelectedMoveType: &ppmMoveType,
+			},
 		},
-	})
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
 
 	if *smWithCombo.Affiliation == models.AffiliationARMY || *smWithCombo.Affiliation == models.AffiliationAIRFORCE {
 		move.CloseoutOfficeID = &DefaultCloseoutOfficeID
@@ -341,48 +361,57 @@ func createMoveWithPPMAndHHG(appCtx appcontext.AppContext, userUploader *uploade
 
 	estimatedHHGWeight := unit.Pound(1400)
 	actualHHGWeight := unit.Pound(2000)
-	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			ID:                   uuid.FromStringOrNil("8689afc7-84d6-4c60-a739-8cf96ede2606"),
-			PrimeEstimatedWeight: &estimatedHHGWeight,
-			PrimeActualWeight:    &actualHHGWeight,
-			ShipmentType:         models.MTOShipmentTypeHHG,
-			ApprovedDate:         swag.Time(time.Now()),
-			Status:               models.MTOShipmentStatusSubmitted,
-			MoveTaskOrder:        move,
-			MoveTaskOrderID:      move.ID,
+	factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				ID:                   uuid.FromStringOrNil("8689afc7-84d6-4c60-a739-8cf96ede2606"),
+				PrimeEstimatedWeight: &estimatedHHGWeight,
+				PrimeActualWeight:    &actualHHGWeight,
+				ShipmentType:         models.MTOShipmentTypeHHG,
+				ApprovedDate:         models.TimePointer(time.Now()),
+				Status:               models.MTOShipmentStatusSubmitted,
+			},
+		},
+	}, nil)
 
-	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			ID:                   uuid.FromStringOrNil("8689afc7-84d6-4c60-a739-333333333333"),
-			PrimeEstimatedWeight: &estimatedHHGWeight,
-			PrimeActualWeight:    &actualHHGWeight,
-			ShipmentType:         models.MTOShipmentTypeHHG,
-			ApprovedDate:         swag.Time(time.Now()),
-			Status:               models.MTOShipmentStatusSubmitted,
-			CounselorRemarks:     swag.String("Please handle with care"),
-			MoveTaskOrder:        move,
-			MoveTaskOrderID:      move.ID,
+	factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				ID:                   uuid.FromStringOrNil("8689afc7-84d6-4c60-a739-333333333333"),
+				PrimeEstimatedWeight: &estimatedHHGWeight,
+				PrimeActualWeight:    &actualHHGWeight,
+				ShipmentType:         models.MTOShipmentTypeHHG,
+				ApprovedDate:         models.TimePointer(time.Now()),
+				Status:               models.MTOShipmentStatusSubmitted,
+				CounselorRemarks:     models.StringPointer("Please handle with care"),
+			},
+		},
+	}, nil)
 
-	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			PrimeEstimatedWeight: &estimatedHHGWeight,
-			PrimeActualWeight:    &actualHHGWeight,
-			ShipmentType:         models.MTOShipmentTypeHHG,
-			ApprovedDate:         swag.Time(time.Now()),
-			Status:               models.MTOShipmentStatusRejected,
-			MoveTaskOrder:        move,
-			MoveTaskOrderID:      move.ID,
-			RejectionReason:      swag.String("No longer necessary, included in other shipment"),
+	factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				PrimeEstimatedWeight: &estimatedHHGWeight,
+				PrimeActualWeight:    &actualHHGWeight,
+				ShipmentType:         models.MTOShipmentTypeHHG,
+				ApprovedDate:         models.TimePointer(time.Now()),
+				Status:               models.MTOShipmentStatusRejected,
+				RejectionReason:      models.StringPointer("No longer necessary, included in other shipment"),
+			},
+		},
+	}, nil)
 
 	testdatagen.MakePPMShipment(db, testdatagen.Assertions{
 		Move: move,
@@ -1039,9 +1068,12 @@ func createApprovedMoveWithPPMAndHHGShipmentsAndExcessWeights(appCtx appcontext.
 			MoveID:      uuid.Must(uuid.NewV4()),
 			MoveLocator: "XSWT04",
 		})
-	testdatagen.MakeBaseMTOShipment(appCtx.DB(), testdatagen.Assertions{
-		Move: move,
-	})
+	factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 }
 func createApprovedMoveWithAllShipmentTypesAndExcessWeights(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	move, _ := createApprovedMoveWithPPMExcessWeight(appCtx, userUploader,
@@ -1054,15 +1086,18 @@ func createApprovedMoveWithAllShipmentTypesAndExcessWeights(appCtx appcontext.Ap
 			MoveID:      uuid.Must(uuid.NewV4()),
 			MoveLocator: "XSWT05",
 		})
-	testdatagen.MakeBaseMTOShipment(appCtx.DB(), testdatagen.Assertions{
-		Move: move,
-	})
-	testdatagen.MakeBaseMTOShipment(appCtx.DB(), testdatagen.Assertions{
-		Move: move,
-	})
-	testdatagen.MakeNTSShipment(appCtx.DB(), testdatagen.Assertions{
-		Move: move,
-	})
+	factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
+	factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 	testdatagen.MakeNTSRShipment(appCtx.DB(), testdatagen.Assertions{
 		Move: move,
 	})
@@ -1081,6 +1116,7 @@ func createApprovedMoveWithPPMCloseoutComplete(appCtx appcontext.AppContext, use
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
 	address := factory.BuildAddress(appCtx.DB(), nil, nil)
+	approvedAdvanceStatus := models.PPMAdvanceStatusApproved
 
 	assertions := testdatagen.Assertions{
 		UserUploader: userUploader,
@@ -1099,6 +1135,7 @@ func createApprovedMoveWithPPMCloseoutComplete(appCtx appcontext.AppContext, use
 			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
 			ActualPickupPostalCode:      models.StringPointer("42444"),
 			ActualDestinationPostalCode: models.StringPointer("30813"),
+			AdvanceStatus:               &approvedAdvanceStatus,
 			HasReceivedAdvance:          models.BoolPointer(true),
 			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
 			W2Address:                   &address,
@@ -1129,6 +1166,7 @@ func createApprovedMoveWithPPMCloseoutCompleteMultipleWeightTickets(appCtx appco
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
 	address := factory.BuildAddress(appCtx.DB(), nil, nil)
+	approvedAdvanceStatus := models.PPMAdvanceStatusApproved
 
 	assertions := testdatagen.Assertions{
 		UserUploader: userUploader,
@@ -1147,6 +1185,7 @@ func createApprovedMoveWithPPMCloseoutCompleteMultipleWeightTickets(appCtx appco
 			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
 			ActualPickupPostalCode:      models.StringPointer("42444"),
 			ActualDestinationPostalCode: models.StringPointer("30813"),
+			AdvanceStatus:               &approvedAdvanceStatus,
 			HasReceivedAdvance:          models.BoolPointer(true),
 			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
 			W2Address:                   &address,
@@ -1179,6 +1218,7 @@ func createApprovedMoveWithPPMCloseoutCompleteWithExpenses(appCtx appcontext.App
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
 	address := factory.BuildAddress(appCtx.DB(), nil, nil)
+	approvedAdvanceStatus := models.PPMAdvanceStatusApproved
 
 	assertions := testdatagen.Assertions{
 		UserUploader: userUploader,
@@ -1197,6 +1237,7 @@ func createApprovedMoveWithPPMCloseoutCompleteWithExpenses(appCtx appcontext.App
 			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
 			ActualPickupPostalCode:      models.StringPointer("42444"),
 			ActualDestinationPostalCode: models.StringPointer("30813"),
+			AdvanceStatus:               &approvedAdvanceStatus,
 			HasReceivedAdvance:          models.BoolPointer(true),
 			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
 			W2Address:                   &address,
@@ -1239,6 +1280,7 @@ func createApprovedMoveWithPPMCloseoutCompleteWithAllDocTypes(appCtx appcontext.
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
 	address := factory.BuildAddress(appCtx.DB(), nil, nil)
+	approvedAdvanceStatus := models.PPMAdvanceStatusApproved
 
 	assertions := testdatagen.Assertions{
 		UserUploader: userUploader,
@@ -1257,6 +1299,7 @@ func createApprovedMoveWithPPMCloseoutCompleteWithAllDocTypes(appCtx appcontext.
 			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
 			ActualPickupPostalCode:      models.StringPointer("42444"),
 			ActualDestinationPostalCode: models.StringPointer("30813"),
+			AdvanceStatus:               &approvedAdvanceStatus,
 			HasReceivedAdvance:          models.BoolPointer(true),
 			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
 			W2Address:                   &address,
@@ -1271,18 +1314,20 @@ func createApprovedMoveWithPPMCloseoutCompleteWithAllDocTypes(appCtx appcontext.
 		UserUploader:  userUploader,
 	}
 
-	testdatagen.MakeWeightTicket(appCtx.DB(), weightTicketAssertions)
+	testdatagen.MakeWeightTicketWithConstructedWeight(appCtx.DB(), weightTicketAssertions)
 
 	testdatagen.MakeMovingExpense(appCtx.DB(), testdatagen.Assertions{
 		ServiceMember: shipment.Shipment.MoveTaskOrder.Orders.ServiceMember,
 		PPMShipment:   shipment,
 		UserUploader:  userUploader,
+		File:          factory.FixtureOpen("test.png"),
 	})
 
 	testdatagen.MakeProgearWeightTicket(appCtx.DB(), testdatagen.Assertions{
 		ServiceMember: shipment.Shipment.MoveTaskOrder.Orders.ServiceMember,
 		PPMShipment:   shipment,
 		UserUploader:  userUploader,
+		File:          factory.FixtureOpen("test.jpg"),
 	})
 }
 
@@ -2051,37 +2096,70 @@ func CreateMoveWithCloseOut(appCtx appcontext.AppContext, userUploader *uploader
 		},
 	}, nil)
 
-	move := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
-		Order: models.Order{
-			ServiceMemberID:   smWithPPM.ID,
-			ServiceMember:     smWithPPM,
-			NewDutyLocationID: newDutyLocation.ID,
-			NewDutyLocation:   newDutyLocation,
-		},
-		UserUploader: userUploader,
-		Move: models.Move{
-			ID:               moveInfo.MoveID,
-			Locator:          moveInfo.MoveLocator,
-			SelectedMoveType: &ppmMoveType,
-			Status:           models.MoveStatusAPPROVED,
-			SubmittedAt:      &submittedAt,
-			PPMType:          models.StringPointer("FULL"),
-			CloseoutOfficeID: moveInfo.CloseoutOfficeID,
-		},
-	})
-
-	if moveInfo.CloseoutOfficeID == nil && (branch == models.AffiliationARMY || branch == models.AffiliationAIRFORCE) {
-		move.CloseoutOfficeID = &DefaultCloseoutOfficeID
-		testdatagen.MustSave(appCtx.DB(), &move)
+	var closeoutOffice models.TransportationOffice
+	if moveInfo.CloseoutOfficeID != nil {
+		err := appCtx.DB().Q().Where(`id=$1`, moveInfo.CloseoutOfficeID).First(&closeoutOffice)
+		if err != nil {
+			log.Panic(err)
+		}
+	} else if branch == models.AffiliationARMY || branch == models.AffiliationAIRFORCE {
+		err := appCtx.DB().Q().Where(`id=$1`, DefaultCloseoutOfficeID).First(&closeoutOffice)
+		if err != nil {
+			log.Panic(err)
+		}
 	}
 
-	mtoShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			ShipmentType: models.MTOShipmentTypePPM,
-			Status:       models.MTOShipmentStatusSubmitted,
+	customs := []factory.Customization{
+		{
+			Model:    smWithPPM,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    newDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.NewDutyLocation,
+		},
+		{
+			Model: models.Move{
+				ID:               moveInfo.MoveID,
+				Locator:          moveInfo.MoveLocator,
+				SelectedMoveType: &ppmMoveType,
+				Status:           models.MoveStatusAPPROVED,
+				SubmittedAt:      &submittedAt,
+				PPMType:          models.StringPointer("FULL"),
+			},
+		},
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}
+
+	if !closeoutOffice.ID.IsNil() {
+		customs = append(customs, factory.Customization{
+			Model:    closeoutOffice,
+			LinkOnly: true,
+			Type:     &factory.TransportationOffices.CloseoutOffice,
+		})
+	}
+
+	move := factory.BuildMove(appCtx.DB(), customs, nil)
+
+	mtoShipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypePPM,
+				Status:       models.MTOShipmentStatusSubmitted,
+			},
+		},
+	}, nil)
 
 	testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
 		Move:        move,
@@ -2132,40 +2210,57 @@ func createMoveWithCloseOutandNonCloseOut(appCtx appcontext.AppContext, userUplo
 		},
 	}, nil)
 
-	move := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
-		Order: models.Order{
-			ServiceMemberID: smWithPPM.ID,
-			ServiceMember:   smWithPPM,
+	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
+		{
+			Model:    smWithPPM,
+			LinkOnly: true,
 		},
-		UserUploader: userUploader,
-		Move: models.Move{
-			Locator:          locator,
-			SelectedMoveType: &ppmMoveType,
-			Status:           models.MoveStatusAPPROVED,
-			SubmittedAt:      &submittedAt,
+		{
+			Model: models.Move{
+				Locator:          locator,
+				SelectedMoveType: &ppmMoveType,
+				Status:           models.MoveStatusAPPROVED,
+				SubmittedAt:      &submittedAt,
+			},
 		},
-	})
-
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
 	if branch == models.AffiliationARMY || branch == models.AffiliationAIRFORCE {
 		move.CloseoutOfficeID = &DefaultCloseoutOfficeID
 		testdatagen.MustSave(appCtx.DB(), &move)
 	}
 
-	mtoShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			ShipmentType: models.MTOShipmentTypePPM,
-			Status:       models.MTOShipmentStatusSubmitted,
+	mtoShipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypePPM,
+				Status:       models.MTOShipmentStatusSubmitted,
+			},
+		},
+	}, nil)
 
-	mtoShipment2 := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			ShipmentType: models.MTOShipmentTypePPM,
-			Status:       models.MTOShipmentStatusSubmitted,
+	mtoShipment2 := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypePPM,
+				Status:       models.MTOShipmentStatusSubmitted,
+			},
+		},
+	}, nil)
 
 	testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
 		Move:        move,
@@ -2222,40 +2317,58 @@ func createMoveWith2CloseOuts(appCtx appcontext.AppContext, userUploader *upload
 		},
 	}, nil)
 
-	move := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
-		Order: models.Order{
-			ServiceMemberID: smWithPPM.ID,
-			ServiceMember:   smWithPPM,
+	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
+		{
+			Model:    smWithPPM,
+			LinkOnly: true,
 		},
-		UserUploader: userUploader,
-		Move: models.Move{
-			Locator:          locator,
-			SelectedMoveType: &ppmMoveType,
-			Status:           models.MoveStatusAPPROVED,
-			SubmittedAt:      &submittedAt,
+		{
+			Model: models.Move{
+				Locator:          locator,
+				SelectedMoveType: &ppmMoveType,
+				Status:           models.MoveStatusAPPROVED,
+				SubmittedAt:      &submittedAt,
+			},
 		},
-	})
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
 
 	if branch == models.AffiliationARMY || branch == models.AffiliationAIRFORCE {
 		move.CloseoutOfficeID = &DefaultCloseoutOfficeID
 		testdatagen.MustSave(appCtx.DB(), &move)
 	}
 
-	mtoShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			ShipmentType: models.MTOShipmentTypePPM,
-			Status:       models.MTOShipmentStatusSubmitted,
+	mtoShipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypePPM,
+				Status:       models.MTOShipmentStatusSubmitted,
+			},
+		},
+	}, nil)
 
-	mtoShipment2 := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			ShipmentType: models.MTOShipmentTypePPM,
-			Status:       models.MTOShipmentStatusSubmitted,
+	mtoShipment2 := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypePPM,
+				Status:       models.MTOShipmentStatusSubmitted,
+			},
+		},
+	}, nil)
 
 	testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
 		Move:        move,
@@ -2312,40 +2425,58 @@ func createMoveWithCloseOutandHHG(appCtx appcontext.AppContext, userUploader *up
 		},
 	}, nil)
 
-	move := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
-		Order: models.Order{
-			ServiceMemberID: smWithPPM.ID,
-			ServiceMember:   smWithPPM,
+	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
+		{
+			Model:    smWithPPM,
+			LinkOnly: true,
 		},
-		UserUploader: userUploader,
-		Move: models.Move{
-			Locator:          locator,
-			SelectedMoveType: &ppmMoveType,
-			Status:           models.MoveStatusAPPROVED,
-			SubmittedAt:      &submittedAt,
+		{
+			Model: models.Move{
+				Locator:          locator,
+				SelectedMoveType: &ppmMoveType,
+				Status:           models.MoveStatusAPPROVED,
+				SubmittedAt:      &submittedAt,
+			},
 		},
-	})
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
 
 	if branch == models.AffiliationARMY || branch == models.AffiliationAIRFORCE {
 		move.CloseoutOfficeID = &DefaultCloseoutOfficeID
 		testdatagen.MustSave(appCtx.DB(), &move)
 	}
 
-	mtoShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			ShipmentType: models.MTOShipmentTypePPM,
-			Status:       models.MTOShipmentStatusSubmitted,
+	mtoShipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypePPM,
+				Status:       models.MTOShipmentStatusSubmitted,
+			},
+		},
+	}, nil)
 
-	testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			ShipmentType: models.MTOShipmentTypeHHG,
-			Status:       models.MTOShipmentStatusSubmitted,
+	factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypeHHG,
+				Status:       models.MTOShipmentStatusSubmitted,
+			},
+		},
+	}, nil)
 
 	testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
 		Move:        move,
@@ -2400,30 +2531,46 @@ func CreateMoveWithCloseoutOffice(appCtx appcontext.AppContext, moveInfo MoveCre
 	}, nil)
 
 	// Make a move with the closeout office
-	move := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
-		Order: models.Order{
-			ServiceMemberID: serviceMember.ID,
-			ServiceMember:   serviceMember,
+	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
+		{
+			Model:    serviceMember,
+			LinkOnly: true,
 		},
-		UserUploader: userUploader,
-		Move: models.Move{
-			ID:               moveInfo.MoveID,
-			Locator:          moveInfo.MoveLocator,
-			SelectedMoveType: &ppmMoveType,
-			CloseoutOfficeID: &closeoutOffice.ID,
-			CloseoutOffice:   &closeoutOffice,
-			SubmittedAt:      &submittedAt,
-			Status:           models.MoveStatusAPPROVED,
+		{
+			Model:    closeoutOffice,
+			LinkOnly: true,
+			Type:     &factory.TransportationOffices.CloseoutOffice,
 		},
-	})
+		{
+			Model: models.Move{
+				ID:               moveInfo.MoveID,
+				Locator:          moveInfo.MoveLocator,
+				SelectedMoveType: &ppmMoveType,
+				SubmittedAt:      &submittedAt,
+				Status:           models.MoveStatusAPPROVED,
+			},
+		},
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
 
-	mtoShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			ShipmentType: models.MTOShipmentTypePPM,
-			Status:       models.MTOShipmentStatusSubmitted,
+	mtoShipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypePPM,
+				Status:       models.MTOShipmentStatusSubmitted,
+			},
+		},
+	}, nil)
 
 	testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
 		Move:        move,
@@ -2489,33 +2636,45 @@ func CreateSubmittedMoveWithPPMShipmentForSC(appCtx appcontext.AppContext, userU
 		},
 	}, nil)
 
-	move := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
-		Order: models.Order{
-			ServiceMemberID: smWithPPM.ID,
-			ServiceMember:   smWithPPM,
+	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
+		{
+			Model:    smWithPPM,
+			LinkOnly: true,
 		},
-		UserUploader: userUploader,
-		Move: models.Move{
-			ID:               moveInfo.MoveID,
-			Locator:          moveInfo.MoveLocator,
-			SelectedMoveType: &ppmMoveType,
-			Status:           models.MoveStatusNeedsServiceCounseling,
-			SubmittedAt:      &submittedAt,
+		{
+			Model: models.Move{
+				ID:               moveInfo.MoveID,
+				Locator:          moveInfo.MoveLocator,
+				SelectedMoveType: &ppmMoveType,
+				Status:           models.MoveStatusNeedsServiceCounseling,
+				SubmittedAt:      &submittedAt,
+			},
 		},
-	})
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
 
 	if *smWithPPM.Affiliation == models.AffiliationARMY || *smWithPPM.Affiliation == models.AffiliationAIRFORCE {
 		move.CloseoutOfficeID = &DefaultCloseoutOfficeID
 		testdatagen.MustSave(appCtx.DB(), &move)
 	}
-	mtoShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			ShipmentType:    models.MTOShipmentTypePPM,
-			Status:          models.MTOShipmentStatusSubmitted,
-			MoveTaskOrder:   move,
-			MoveTaskOrderID: move.ID,
+	mtoShipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypePPM,
+				Status:       models.MTOShipmentStatusSubmitted,
+			},
 		},
-	})
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
 		Move:        move,
@@ -2566,34 +2725,45 @@ func createSubmittedMoveWithPPMShipmentForSCWithSIT(appCtx appcontext.AppContext
 		},
 	}, nil)
 
-	move := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
-		Order: models.Order{
-			ServiceMemberID: smWithPPM.ID,
-			ServiceMember:   smWithPPM,
+	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
+		{
+			Model:    smWithPPM,
+			LinkOnly: true,
 		},
-		UserUploader: userUploader,
-		Move: models.Move{
-			Locator:          locator,
-			SelectedMoveType: &ppmMoveType,
-			Status:           models.MoveStatusNeedsServiceCounseling,
-			SubmittedAt:      &submittedAt,
-			CloseoutOfficeID: &DefaultCloseoutOfficeID,
+		{
+			Model: models.Move{
+				Locator:          locator,
+				SelectedMoveType: &ppmMoveType,
+				Status:           models.MoveStatusNeedsServiceCounseling,
+				SubmittedAt:      &submittedAt,
+				CloseoutOfficeID: &DefaultCloseoutOfficeID,
+			},
 		},
-	})
-
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
 	if *smWithPPM.Affiliation == models.AffiliationARMY || *smWithPPM.Affiliation == models.AffiliationAIRFORCE {
 		move.CloseoutOfficeID = &DefaultCloseoutOfficeID
 		testdatagen.MustSave(appCtx.DB(), &move)
 	}
 
-	mtoShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			ShipmentType:    models.MTOShipmentTypePPM,
-			Status:          models.MTOShipmentStatusSubmitted,
-			MoveTaskOrder:   move,
-			MoveTaskOrderID: move.ID,
+	mtoShipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypePPM,
+				Status:       models.MTOShipmentStatusSubmitted,
+			},
 		},
-	})
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
 		Move:        move,
@@ -2710,32 +2880,44 @@ func createSubmittedMoveWithFullPPMShipmentComplete(appCtx appcontext.AppContext
 		},
 	}, nil)
 
-	move := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
-		Order: models.Order{
-			ServiceMemberID: smWithPPM.ID,
-			ServiceMember:   smWithPPM,
+	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
+		{
+			Model:    smWithPPM,
+			LinkOnly: true,
 		},
-		UserUploader: userUploader,
-		Move: models.Move{
-			Locator:          "PPMSUB",
-			SelectedMoveType: &ppmMoveType,
-			Status:           models.MoveStatusSUBMITTED,
+		{
+			Model: models.Move{
+				Locator:          "PPMSUB",
+				SelectedMoveType: &ppmMoveType,
+				Status:           models.MoveStatusSUBMITTED,
+			},
 		},
-	})
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
 
 	if *smWithPPM.Affiliation == models.AffiliationARMY || *smWithPPM.Affiliation == models.AffiliationAIRFORCE {
 		move.CloseoutOfficeID = &DefaultCloseoutOfficeID
 		testdatagen.MustSave(appCtx.DB(), &move)
 	}
 
-	mtoShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			ShipmentType:    models.MTOShipmentTypePPM,
-			Status:          models.MTOShipmentStatusSubmitted,
-			MoveTaskOrder:   move,
-			MoveTaskOrderID: move.ID,
+	mtoShipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypePPM,
+				Status:       models.MTOShipmentStatusSubmitted,
+			},
 		},
-	})
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
 		Move:        move,
@@ -2856,33 +3038,38 @@ func createUnsubmittedHHGMove(appCtx appcontext.AppContext) {
 		},
 	}, nil)
 
-	move := testdatagen.MakeMove(db, testdatagen.Assertions{
-		Order: models.Order{
-			ServiceMemberID: uuid.FromStringOrNil(smWithHHGID),
-			ServiceMember:   smWithHHG,
+	move := factory.BuildMove(db, []factory.Customization{
+		{
+			Model:    smWithHHG,
+			LinkOnly: true,
 		},
-		Move: models.Move{
-			ID:               uuid.FromStringOrNil("3a8c9f4f-7344-4f18-9ab5-0de3ef57b901"),
-			Locator:          "ONEHHG",
-			SelectedMoveType: &hhgMoveType,
+		{
+			Model: models.Move{
+				ID:               uuid.FromStringOrNil("3a8c9f4f-7344-4f18-9ab5-0de3ef57b901"),
+				Locator:          "ONEHHG",
+				SelectedMoveType: &hhgMoveType,
+			},
 		},
-	})
+	}, nil)
 
 	estimatedHHGWeight := unit.Pound(1400)
 	actualHHGWeight := unit.Pound(2000)
-	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			ID:                   uuid.FromStringOrNil("b67157bd-d2eb-47e2-94b6-3bc90f6fb8fe"),
-			PrimeEstimatedWeight: &estimatedHHGWeight,
-			PrimeActualWeight:    &actualHHGWeight,
-			ShipmentType:         models.MTOShipmentTypeHHG,
-			ApprovedDate:         swag.Time(time.Now()),
-			Status:               models.MTOShipmentStatusSubmitted,
-			MoveTaskOrder:        move,
-			MoveTaskOrderID:      move.ID,
+	factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				ID:                   uuid.FromStringOrNil("b67157bd-d2eb-47e2-94b6-3bc90f6fb8fe"),
+				PrimeEstimatedWeight: &estimatedHHGWeight,
+				PrimeActualWeight:    &actualHHGWeight,
+				ShipmentType:         models.MTOShipmentTypeHHG,
+				ApprovedDate:         models.TimePointer(time.Now()),
+				Status:               models.MTOShipmentStatusSubmitted,
+			},
+		},
+	}, nil)
 }
 
 func createUnsubmittedHHGMoveMultipleDestinations(appCtx appcontext.AppContext) {
@@ -2921,45 +3108,65 @@ func createUnsubmittedHHGMoveMultipleDestinations(appCtx appcontext.AppContext) 
 		},
 	}, nil)
 
-	move := testdatagen.MakeMove(db, testdatagen.Assertions{
-		Order: models.Order{
-			ServiceMemberID: uuid.FromStringOrNil(smID),
-			ServiceMember:   smWithHHG,
+	move := factory.BuildMove(db, []factory.Customization{
+		{
+			Model:    smWithHHG,
+			LinkOnly: true,
 		},
-		Move: models.Move{
-			ID:               uuid.FromStringOrNil("c799098d-10f6-4e5a-9c88-a0de961e35b3"),
-			Locator:          "HHGSMA",
-			SelectedMoveType: &hhgMoveType,
+		{
+			Model: models.Move{
+				ID:               uuid.FromStringOrNil("c799098d-10f6-4e5a-9c88-a0de961e35b3"),
+				Locator:          "HHGSMA",
+				SelectedMoveType: &hhgMoveType,
+			},
 		},
-	})
+	}, nil)
 
 	destinationAddress1 := factory.BuildAddress(db, nil, []factory.Trait{factory.GetTraitAddress3})
 	destinationAddress2 := factory.BuildAddress(db, nil, []factory.Trait{factory.GetTraitAddress4})
 
-	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			ID:              uuid.FromStringOrNil("fee1181f-22eb-452d-9252-292066e7b0a5"),
-			ShipmentType:    models.MTOShipmentTypeHHG,
-			Status:          models.MTOShipmentStatusSubmitted,
-			MoveTaskOrder:   move,
-			MoveTaskOrderID: move.ID,
+	factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-		DestinationAddress: destinationAddress1,
-	})
+		{
+			Model: models.MTOShipment{
+				ID:           uuid.FromStringOrNil("fee1181f-22eb-452d-9252-292066e7b0a5"),
+				ShipmentType: models.MTOShipmentTypeHHG,
+				Status:       models.MTOShipmentStatusSubmitted,
+			},
+		},
+		{
+			Model:    destinationAddress1,
+			Type:     &factory.Addresses.DeliveryAddress,
+			LinkOnly: true,
+		},
+	}, nil)
 
-	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			ID:              uuid.FromStringOrNil("05361631-0e51-4a87-a8bc-82b3af120ce2"),
-			ShipmentType:    models.MTOShipmentTypeHHG,
-			Status:          models.MTOShipmentStatusSubmitted,
-			MoveTaskOrder:   move,
-			MoveTaskOrderID: move.ID,
+	factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-		DestinationAddress:       destinationAddress1,
-		SecondaryDeliveryAddress: destinationAddress2,
-	})
+		{
+			Model: models.MTOShipment{
+				ID:           uuid.FromStringOrNil("05361631-0e51-4a87-a8bc-82b3af120ce2"),
+				ShipmentType: models.MTOShipmentTypeHHG,
+				Status:       models.MTOShipmentStatusSubmitted,
+			},
+		},
+		{
+			Model:    destinationAddress1,
+			Type:     &factory.Addresses.DeliveryAddress,
+			LinkOnly: true,
+		},
+		{
+			Model:    destinationAddress2,
+			Type:     &factory.Addresses.SecondaryDeliveryAddress,
+			LinkOnly: true,
+		},
+	}, nil)
 }
 
 func createUnsubmittedHHGMoveMultiplePickup(appCtx appcontext.AppContext) {
@@ -2998,17 +3205,19 @@ func createUnsubmittedHHGMoveMultiplePickup(appCtx appcontext.AppContext) {
 		},
 	}, nil)
 
-	move := testdatagen.MakeMove(db, testdatagen.Assertions{
-		Order: models.Order{
-			ServiceMemberID: uuid.FromStringOrNil(smWithHHGID),
-			ServiceMember:   smWithHHG,
+	move := factory.BuildMove(db, []factory.Customization{
+		{
+			Model:    smWithHHG,
+			LinkOnly: true,
 		},
-		Move: models.Move{
-			ID:               uuid.FromStringOrNil("390341ca-2b76-4655-9555-161f4a0c9817"),
-			Locator:          "TWOPIC",
-			SelectedMoveType: &hhgMoveType,
+		{
+			Model: models.Move{
+				ID:               uuid.FromStringOrNil("390341ca-2b76-4655-9555-161f4a0c9817"),
+				Locator:          "TWOPIC",
+				SelectedMoveType: &hhgMoveType,
+			},
 		},
-	})
+	}, nil)
 
 	pickupAddress1 := factory.BuildAddress(db, []factory.Customization{
 		{
@@ -3040,21 +3249,30 @@ func createUnsubmittedHHGMoveMultiplePickup(appCtx appcontext.AppContext) {
 		},
 	}, nil)
 
-	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			ID:                       uuid.FromStringOrNil("a35b1247-b4c2-48f6-9846-8e96050fbc95"),
-			PickupAddress:            &pickupAddress1,
-			PickupAddressID:          &pickupAddress1.ID,
-			SecondaryPickupAddress:   &pickupAddress2,
-			SecondaryPickupAddressID: &pickupAddress2.ID,
-			ShipmentType:             models.MTOShipmentTypeHHG,
-			ApprovedDate:             swag.Time(time.Now()),
-			Status:                   models.MTOShipmentStatusSubmitted,
-			MoveTaskOrder:            move,
-			MoveTaskOrderID:          move.ID,
+	factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				ID:           uuid.FromStringOrNil("a35b1247-b4c2-48f6-9846-8e96050fbc95"),
+				ShipmentType: models.MTOShipmentTypeHHG,
+				ApprovedDate: models.TimePointer(time.Now()),
+				Status:       models.MTOShipmentStatusSubmitted,
+			},
+		},
+		{
+			Model:    pickupAddress1,
+			Type:     &factory.Addresses.PickupAddress,
+			LinkOnly: true,
+		},
+		{
+			Model:    pickupAddress2,
+			Type:     &factory.Addresses.SecondaryPickupAddress,
+			LinkOnly: true,
+		},
+	}, nil)
 }
 
 func createSubmittedHHGMoveMultiplePickupAmendedOrders(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -3096,16 +3314,20 @@ func createSubmittedHHGMoveMultiplePickupAmendedOrders(appCtx appcontext.AppCont
 
 	orders = makeAmendedOrders(appCtx, orders, userUploader, &[]string{"medium.jpg", "small.pdf"})
 
-	move := testdatagen.MakeMove(db, testdatagen.Assertions{
-		Order: orders,
-		Move: models.Move{
-			ID:               uuid.FromStringOrNil("e0463784-d5ea-4974-b526-f2a58c79ed07"),
-			Locator:          "AMENDO",
-			SelectedMoveType: &hhgMoveType,
-			Status:           models.MoveStatusSUBMITTED,
+	move := factory.BuildMove(db, []factory.Customization{
+		{
+			Model:    orders,
+			LinkOnly: true,
 		},
-	})
-
+		{
+			Model: models.Move{
+				ID:               uuid.FromStringOrNil("e0463784-d5ea-4974-b526-f2a58c79ed07"),
+				Locator:          "AMENDO",
+				SelectedMoveType: &hhgMoveType,
+				Status:           models.MoveStatusSUBMITTED,
+			},
+		},
+	}, nil)
 	pickupAddress1 := factory.BuildAddress(db, []factory.Customization{
 		{
 			Model: models.Address{
@@ -3136,21 +3358,30 @@ func createSubmittedHHGMoveMultiplePickupAmendedOrders(appCtx appcontext.AppCont
 		},
 	}, nil)
 
-	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			ID:                       uuid.FromStringOrNil("3c207b2a-d946-11eb-b8bc-0242ac130003"),
-			PickupAddress:            &pickupAddress1,
-			PickupAddressID:          &pickupAddress1.ID,
-			SecondaryPickupAddress:   &pickupAddress2,
-			SecondaryPickupAddressID: &pickupAddress2.ID,
-			ShipmentType:             models.MTOShipmentTypeHHG,
-			ApprovedDate:             swag.Time(time.Now()),
-			Status:                   models.MTOShipmentStatusSubmitted,
-			MoveTaskOrder:            move,
-			MoveTaskOrderID:          move.ID,
+	factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				ID:           uuid.FromStringOrNil("3c207b2a-d946-11eb-b8bc-0242ac130003"),
+				ShipmentType: models.MTOShipmentTypeHHG,
+				ApprovedDate: models.TimePointer(time.Now()),
+				Status:       models.MTOShipmentStatusSubmitted,
+			},
+		},
+		{
+			Model:    pickupAddress1,
+			Type:     &factory.Addresses.PickupAddress,
+			LinkOnly: true,
+		},
+		{
+			Model:    pickupAddress2,
+			Type:     &factory.Addresses.SecondaryPickupAddress,
+			LinkOnly: true,
+		},
+	}, nil)
 
 }
 
@@ -3282,33 +3513,43 @@ func createHHGWithOriginSITServiceItems(appCtx appcontext.AppContext, primeUploa
 	reportByDate := time.Date(testdatagen.GHCTestYear, 8, 1, 0, 0, 0, 0, time.UTC)
 
 	SITAllowance := 90
-	shipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			Status:               models.MTOShipmentStatusSubmitted,
-			PrimeEstimatedWeight: &estimatedWeight,
-			PrimeActualWeight:    &actualWeight,
-			ShipmentType:         models.MTOShipmentTypeHHG,
-			RequestedPickupDate:  &issueDate,
-			ActualPickupDate:     &issueDate,
-			SITDaysAllowance:     &SITAllowance,
-		},
-		Move: models.Move{
-			Locator: "ORGSIT",
-		},
-		Order: models.Order{
-			IssueDate:    issueDate,
-			ReportByDate: reportByDate,
-		},
-		DestinationAddress: factory.BuildAddress(db, []factory.Customization{
-			{
-				Model: models.Address{
-					City:       "Harlem",
-					State:      "GA",
-					PostalCode: "30813",
-				},
+	shipment := factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				Status:               models.MTOShipmentStatusSubmitted,
+				PrimeEstimatedWeight: &estimatedWeight,
+				PrimeActualWeight:    &actualWeight,
+				ShipmentType:         models.MTOShipmentTypeHHG,
+				RequestedPickupDate:  &issueDate,
+				ActualPickupDate:     &issueDate,
+				SITDaysAllowance:     &SITAllowance,
 			},
-		}, nil),
-	})
+		},
+		{
+			Model: models.Move{
+				Locator: "ORGSIT",
+			},
+		},
+		{
+			Model: models.Order{
+				IssueDate:    issueDate,
+				ReportByDate: reportByDate,
+			},
+		},
+		{
+			Model: factory.BuildAddress(db, []factory.Customization{
+				{
+					Model: models.Address{
+						City:       "Harlem",
+						State:      "GA",
+						PostalCode: "30813",
+					},
+				},
+			}, nil),
+			LinkOnly: true,
+			Type:     &factory.Addresses.DeliveryAddress,
+		},
+	}, nil)
 
 	move := shipment.MoveTaskOrder
 	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
@@ -3355,21 +3596,32 @@ func createHHGWithOriginSITServiceItems(appCtx appcontext.AppContext, primeUploa
 	originSITAddress := shipment.PickupAddress
 	originSITAddress.ID = uuid.Nil
 
-	originSIT := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		Move:        move,
-		MTOShipment: shipment,
-		ReService: models.ReService{
-			Code: models.ReServiceCodeDOFSIT,
+	originSIT := factory.BuildMTOServiceItem(nil, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-		MTOServiceItem: models.MTOServiceItem{
-			Reason:                      models.StringPointer("Holiday break"),
-			SITEntryDate:                &issueDate,
-			SITPostalCode:               &originSITAddress.PostalCode,
-			SITOriginHHGActualAddress:   originSITAddress,
-			SITOriginHHGActualAddressID: &originSITAddress.ID,
+		{
+			Model:    shipment,
+			LinkOnly: true,
 		},
-		Stub: true,
-	})
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDOFSIT,
+			},
+		},
+		{
+			Model: *originSITAddress,
+			Type:  &factory.Addresses.SITOriginHHGActualAddress,
+		},
+		{
+			Model: models.MTOServiceItem{
+				Reason:        models.StringPointer("Holiday break"),
+				SITEntryDate:  &issueDate,
+				SITPostalCode: &originSITAddress.PostalCode,
+			},
+		},
+	}, nil)
 
 	createdOriginServiceItems, validErrs, createErr := serviceItemCreator.CreateMTOServiceItem(appCtx, &originSIT)
 	if validErrs.HasAny() || createErr != nil {
@@ -3494,33 +3746,43 @@ func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, prime
 	issueDate := time.Date(testdatagen.GHCTestYear, 3, 15, 0, 0, 0, 0, time.UTC)
 	reportByDate := time.Date(testdatagen.GHCTestYear, 8, 1, 0, 0, 0, 0, time.UTC)
 	SITAllowance := 90
-	shipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			Status:               models.MTOShipmentStatusSubmitted,
-			PrimeEstimatedWeight: &estimatedWeight,
-			PrimeActualWeight:    &actualWeight,
-			ShipmentType:         models.MTOShipmentTypeHHG,
-			RequestedPickupDate:  &issueDate,
-			ActualPickupDate:     &issueDate,
-			SITDaysAllowance:     &SITAllowance,
-		},
-		Move: models.Move{
-			Locator: "DSTSIT",
-		},
-		Order: models.Order{
-			IssueDate:    issueDate,
-			ReportByDate: reportByDate,
-		},
-		DestinationAddress: factory.BuildAddress(db, []factory.Customization{
-			{
-				Model: models.Address{
-					City:       "Harlem",
-					State:      "GA",
-					PostalCode: "30813",
-				},
+	shipment := factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				Status:               models.MTOShipmentStatusSubmitted,
+				PrimeEstimatedWeight: &estimatedWeight,
+				PrimeActualWeight:    &actualWeight,
+				ShipmentType:         models.MTOShipmentTypeHHG,
+				RequestedPickupDate:  &issueDate,
+				ActualPickupDate:     &issueDate,
+				SITDaysAllowance:     &SITAllowance,
 			},
-		}, nil),
-	})
+		},
+		{
+			Model: models.Move{
+				Locator: "DSTSIT",
+			},
+		},
+		{
+			Model: models.Order{
+				IssueDate:    issueDate,
+				ReportByDate: reportByDate,
+			},
+		},
+		{
+			Model: factory.BuildAddress(db, []factory.Customization{
+				{
+					Model: models.Address{
+						City:       "Harlem",
+						State:      "GA",
+						PostalCode: "30813",
+					},
+				},
+			}, nil),
+			LinkOnly: true,
+			Type:     &factory.Addresses.DeliveryAddress,
+		},
+	}, nil)
 
 	move := shipment.MoveTaskOrder
 	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
@@ -3567,18 +3829,27 @@ func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, prime
 	originSITAddress := shipment.PickupAddress
 	originSITAddress.ID = uuid.Nil
 
-	destinationSIT := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		Move:        move,
-		MTOShipment: shipment,
-		ReService: models.ReService{
-			Code: models.ReServiceCodeDDFSIT,
+	destinationSIT := factory.BuildMTOServiceItem(nil, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-		MTOServiceItem: models.MTOServiceItem{
-			Reason:       models.StringPointer("Holiday break"),
-			SITEntryDate: &issueDate,
+		{
+			Model:    shipment,
+			LinkOnly: true,
 		},
-		Stub: true,
-	})
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDDFSIT,
+			},
+		},
+		{
+			Model: models.MTOServiceItem{
+				Reason:       models.StringPointer("Holiday break"),
+				SITEntryDate: &issueDate,
+			},
+		},
+	}, nil)
 
 	createdOriginServiceItems, validErrs, createErr := serviceItemCreator.CreateMTOServiceItem(appCtx, &destinationSIT)
 	if validErrs.HasAny() || createErr != nil {
@@ -3704,23 +3975,29 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 	reportByDate := time.Date(testdatagen.GHCTestYear, 8, 1, 0, 0, 0, 0, time.UTC)
 	actualPickupDate := issueDate.Add(31 * 24 * time.Hour)
 	SITAllowance := 90
-	longhaulShipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			Status:               models.MTOShipmentStatusSubmitted,
-			PrimeEstimatedWeight: &estimatedWeight,
-			PrimeActualWeight:    &actualWeight,
-			ShipmentType:         models.MTOShipmentTypeHHG,
-			ActualPickupDate:     &actualPickupDate,
-			SITDaysAllowance:     &SITAllowance,
+	longhaulShipment := factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				Status:               models.MTOShipmentStatusSubmitted,
+				PrimeEstimatedWeight: &estimatedWeight,
+				PrimeActualWeight:    &actualWeight,
+				ShipmentType:         models.MTOShipmentTypeHHG,
+				ActualPickupDate:     &actualPickupDate,
+				SITDaysAllowance:     &SITAllowance,
+			},
 		},
-		Move: models.Move{
-			Locator: "PARAMS",
+		{
+			Model: models.Move{
+				Locator: "PARAMS",
+			},
 		},
-		Order: models.Order{
-			IssueDate:    issueDate,
-			ReportByDate: reportByDate,
+		{
+			Model: models.Order{
+				IssueDate:    issueDate,
+				ReportByDate: reportByDate,
+			},
 		},
-	})
+	}, nil)
 
 	move := longhaulShipment.MoveTaskOrder
 
@@ -3731,42 +4008,66 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 			},
 		},
 	}, nil)
-	shorthaulShipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			Status:               models.MTOShipmentStatusSubmitted,
-			PrimeEstimatedWeight: &estimatedWeight,
-			PrimeActualWeight:    &actualWeight,
-			ShipmentType:         models.MTOShipmentTypeHHGShortHaulDom,
-			DestinationAddress:   &shorthaulDestinationAddress,
-			DestinationAddressID: &shorthaulDestinationAddress.ID,
-			SITDaysAllowance:     &SITAllowance,
+	shorthaulShipment := factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				Status:               models.MTOShipmentStatusSubmitted,
+				PrimeEstimatedWeight: &estimatedWeight,
+				PrimeActualWeight:    &actualWeight,
+				ShipmentType:         models.MTOShipmentTypeHHGShortHaulDom,
+				SITDaysAllowance:     &SITAllowance,
+			},
 		},
-		Move: move,
-	})
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+		{
+			Model:    shorthaulDestinationAddress,
+			Type:     &factory.Addresses.DeliveryAddress,
+			LinkOnly: true,
+		},
+	}, nil)
 
-	shipmentWithOriginalWeight := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			Status:               models.MTOShipmentStatusSubmitted,
-			PrimeEstimatedWeight: &estimatedWeight,
-			PrimeActualWeight:    &actualWeight,
-			ShipmentType:         models.MTOShipmentTypeHHG,
-			DestinationAddress:   &shorthaulDestinationAddress,
-			DestinationAddressID: &shorthaulDestinationAddress.ID,
+	shipmentWithOriginalWeight := factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				Status:               models.MTOShipmentStatusSubmitted,
+				PrimeEstimatedWeight: &estimatedWeight,
+				PrimeActualWeight:    &actualWeight,
+				ShipmentType:         models.MTOShipmentTypeHHG,
+			},
 		},
-		Move: move,
-	})
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+		{
+			Model:    shorthaulDestinationAddress,
+			Type:     &factory.Addresses.DeliveryAddress,
+			LinkOnly: true,
+		},
+	}, nil)
 
-	shipmentWithOriginalAndReweighWeight := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			Status:               models.MTOShipmentStatusSubmitted,
-			PrimeEstimatedWeight: &estimatedWeight,
-			PrimeActualWeight:    &actualWeight,
-			ShipmentType:         models.MTOShipmentTypeHHG,
-			DestinationAddress:   &shorthaulDestinationAddress,
-			DestinationAddressID: &shorthaulDestinationAddress.ID,
+	shipmentWithOriginalAndReweighWeight := factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				Status:               models.MTOShipmentStatusSubmitted,
+				PrimeEstimatedWeight: &estimatedWeight,
+				PrimeActualWeight:    &actualWeight,
+				ShipmentType:         models.MTOShipmentTypeHHG,
+			},
 		},
-		Move: move,
-	})
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+		{
+			Model:    shorthaulDestinationAddress,
+			Type:     &factory.Addresses.DeliveryAddress,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	reweighWeight := unit.Pound(100000)
 	testdatagen.MakeReweigh(db, testdatagen.Assertions{
@@ -3776,17 +4077,25 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 		},
 	})
 
-	shipmentWithOriginalAndReweighWeightReweihBolded := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			Status:               models.MTOShipmentStatusSubmitted,
-			PrimeEstimatedWeight: &estimatedWeight,
-			PrimeActualWeight:    &actualWeight,
-			ShipmentType:         models.MTOShipmentTypeHHG,
-			DestinationAddress:   &shorthaulDestinationAddress,
-			DestinationAddressID: &shorthaulDestinationAddress.ID,
+	shipmentWithOriginalAndReweighWeightReweihBolded := factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				Status:               models.MTOShipmentStatusSubmitted,
+				PrimeEstimatedWeight: &estimatedWeight,
+				PrimeActualWeight:    &actualWeight,
+				ShipmentType:         models.MTOShipmentTypeHHG,
+			},
 		},
-		Move: move,
-	})
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+		{
+			Model:    shorthaulDestinationAddress,
+			Type:     &factory.Addresses.DeliveryAddress,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	// Make the reweigh weight and the estimated weight (original weight) be the same to create devseed
 	// data where we can check that the reweigh weight is bolded.
@@ -3799,19 +4108,27 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 
 	billableWeightCap := unit.Pound(2000)
 	billableWeightJustification := "Capped shipment"
-	shipmentWithOriginalReweighAndAdjustedWeight := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			Status:                      models.MTOShipmentStatusSubmitted,
-			PrimeEstimatedWeight:        &estimatedWeight,
-			PrimeActualWeight:           &actualWeight,
-			ShipmentType:                models.MTOShipmentTypeHHG,
-			DestinationAddress:          &shorthaulDestinationAddress,
-			DestinationAddressID:        &shorthaulDestinationAddress.ID,
-			BillableWeightCap:           &billableWeightCap,
-			BillableWeightJustification: &billableWeightJustification,
+	shipmentWithOriginalReweighAndAdjustedWeight := factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				Status:                      models.MTOShipmentStatusSubmitted,
+				PrimeEstimatedWeight:        &estimatedWeight,
+				PrimeActualWeight:           &actualWeight,
+				ShipmentType:                models.MTOShipmentTypeHHG,
+				BillableWeightCap:           &billableWeightCap,
+				BillableWeightJustification: &billableWeightJustification,
+			},
 		},
-		Move: move,
-	})
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+		{
+			Model:    shorthaulDestinationAddress,
+			Type:     &factory.Addresses.DeliveryAddress,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	testdatagen.MakeReweigh(db, testdatagen.Assertions{
 		MTOShipment: shipmentWithOriginalReweighAndAdjustedWeight,
@@ -3820,19 +4137,27 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 		},
 	})
 
-	shipmentWithOriginalAndAdjustedWeight := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			Status:                      models.MTOShipmentStatusSubmitted,
-			PrimeEstimatedWeight:        &estimatedWeight,
-			PrimeActualWeight:           &actualWeight,
-			ShipmentType:                models.MTOShipmentTypeHHG,
-			DestinationAddress:          &shorthaulDestinationAddress,
-			DestinationAddressID:        &shorthaulDestinationAddress.ID,
-			BillableWeightCap:           &billableWeightCap,
-			BillableWeightJustification: &billableWeightJustification,
+	shipmentWithOriginalAndAdjustedWeight := factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				Status:                      models.MTOShipmentStatusSubmitted,
+				PrimeEstimatedWeight:        &estimatedWeight,
+				PrimeActualWeight:           &actualWeight,
+				ShipmentType:                models.MTOShipmentTypeHHG,
+				BillableWeightCap:           &billableWeightCap,
+				BillableWeightJustification: &billableWeightJustification,
+			},
 		},
-		Move: move,
-	})
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+		{
+			Model:    shorthaulDestinationAddress,
+			Type:     &factory.Addresses.DeliveryAddress,
+			LinkOnly: true,
+		},
+	}, nil)
 	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
 		Move: move,
 		Stub: true,
@@ -3901,21 +4226,31 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 	originSITAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress2})
 	originSITAddress.ID = uuid.Nil
 
-	originSIT := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		Move:        move,
-		MTOShipment: longhaulShipment,
-		ReService: models.ReService{
-			Code: models.ReServiceCodeDOFSIT,
+	originSIT := factory.BuildMTOServiceItem(nil, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-		MTOServiceItem: models.MTOServiceItem{
-			Reason:                      models.StringPointer("Holiday break"),
-			SITEntryDate:                &originEntryDate,
-			SITPostalCode:               &originSITAddress.PostalCode,
-			SITOriginHHGActualAddress:   &originSITAddress,
-			SITOriginHHGActualAddressID: &originSITAddress.ID,
+		{
+			Model:    longhaulShipment,
+			LinkOnly: true,
 		},
-		Stub: true,
-	})
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDOFSIT,
+			}},
+		{
+			Model: originSITAddress,
+			Type:  &factory.Addresses.SITOriginHHGActualAddress,
+		},
+		{
+			Model: models.MTOServiceItem{
+				Reason:        models.StringPointer("Holiday break"),
+				SITEntryDate:  &originEntryDate,
+				SITPostalCode: &originSITAddress.PostalCode,
+			},
+		},
+	}, nil)
 
 	createdOriginServiceItems, validErrs, createErr := serviceItemCreator.CreateMTOServiceItem(appCtx, &originSIT)
 	if validErrs.HasAny() || createErr != nil {
@@ -3925,21 +4260,32 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 	destEntryDate := actualPickupDate
 	destDepDate := actualPickupDate
 	destSITAddress := factory.BuildAddress(db, nil, nil)
-	destSIT := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		Move:        move,
-		MTOShipment: longhaulShipment,
-		ReService: models.ReService{
-			Code: models.ReServiceCodeDDFSIT,
+	destSIT := factory.BuildMTOServiceItem(nil, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-		MTOServiceItem: models.MTOServiceItem{
-			SITEntryDate:                 &destEntryDate,
-			SITDepartureDate:             &destDepDate,
-			SITPostalCode:                models.StringPointer("90210"),
-			SITDestinationFinalAddress:   &destSITAddress,
-			SITDestinationFinalAddressID: &destSITAddress.ID,
+		{
+			Model:    longhaulShipment,
+			LinkOnly: true,
 		},
-		Stub: true,
-	})
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDDFSIT,
+			}},
+		{
+			Model:    destSITAddress,
+			LinkOnly: true,
+			Type:     &factory.Addresses.SITDestinationFinalAddress,
+		},
+		{
+			Model: models.MTOServiceItem{
+				SITEntryDate:     &destEntryDate,
+				SITDepartureDate: &destDepDate,
+				SITPostalCode:    models.StringPointer("90210"),
+			},
+		},
+	}, nil)
 
 	createdDestServiceItems, validErrs, createErr := serviceItemCreator.CreateMTOServiceItem(appCtx, &destSIT)
 	if validErrs.HasAny() || createErr != nil {
@@ -4029,6 +4375,7 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 		Height: unit.ThousandthInches(60000),
 		Width:  unit.ThousandthInches(10000),
 	}
+	// cannot convert yet, has MTOServiceItemDimensions
 	crating := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
 		ReService: models.ReService{
 			Code: models.ReServiceCodeDCRT,
@@ -4048,6 +4395,7 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 		Stub:        true,
 	})
 
+	// cannot convert yet, has MTOServiceItemDimensions
 	uncrating := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
 		ReService: models.ReService{
 			Code: models.ReServiceCodeDUCRT,
@@ -4079,39 +4427,59 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 	shuttleReason := "the bridge clearance was too low"
 	estimatedShuttleWeigtht := unit.Pound(1000)
 	actualShuttleWeight := unit.Pound(1500)
-	originShuttle := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		ReService: models.ReService{
-			Code: models.ReServiceCodeDOSHUT,
+	originShuttle := factory.BuildMTOServiceItem(nil, []factory.Customization{
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDOSHUT,
+			},
 		},
-		MTOServiceItem: models.MTOServiceItem{
-			Description:     &shuttleDesc,
-			Reason:          &shuttleReason,
-			EstimatedWeight: &estimatedShuttleWeigtht,
-			ActualWeight:    &actualShuttleWeight,
-			Status:          models.MTOServiceItemStatusApproved,
-			ApprovedAt:      &approvedAt,
+		{
+			Model: models.MTOServiceItem{
+				Description:     &shuttleDesc,
+				Reason:          &shuttleReason,
+				EstimatedWeight: &estimatedShuttleWeigtht,
+				ActualWeight:    &actualShuttleWeight,
+				Status:          models.MTOServiceItemStatusApproved,
+				ApprovedAt:      &approvedAt,
+			},
 		},
-		Move:        move,
-		MTOShipment: longhaulShipment,
-		Stub:        true,
-	})
+		{
+			Model: move,
 
-	destShuttle := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		ReService: models.ReService{
-			Code: models.ReServiceCodeDDSHUT,
+			LinkOnly: true,
 		},
-		MTOServiceItem: models.MTOServiceItem{
-			Description:     &shuttleDesc,
-			Reason:          &shuttleReason,
-			EstimatedWeight: &estimatedShuttleWeigtht,
-			ActualWeight:    &actualShuttleWeight,
-			Status:          models.MTOServiceItemStatusApproved,
-			ApprovedAt:      &approvedAt,
+		{
+			Model:    longhaulShipment,
+			LinkOnly: true,
 		},
-		Move:        move,
-		MTOShipment: longhaulShipment,
-		Stub:        true,
-	})
+	}, nil)
+
+	destShuttle := factory.BuildMTOServiceItem(nil, []factory.Customization{
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDDSHUT,
+			},
+		},
+		{
+			Model: models.MTOServiceItem{
+				Description:     &shuttleDesc,
+				Reason:          &shuttleReason,
+				EstimatedWeight: &estimatedShuttleWeigtht,
+				ActualWeight:    &actualShuttleWeight,
+				Status:          models.MTOServiceItemStatusApproved,
+				ApprovedAt:      &approvedAt,
+			},
+		},
+		{
+			Model: move,
+
+			LinkOnly: true,
+		},
+		{
+			Model:    longhaulShipment,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	shuttleServiceItems := []models.MTOServiceItem{originShuttle, destShuttle}
 	for index := range shuttleServiceItems {
@@ -4253,43 +4621,61 @@ func CreateMoveWithOptions(appCtx appcontext.AppContext, assertions testdatagen.
 			},
 		},
 	}, nil)
-	move := testdatagen.MakeMove(db, testdatagen.Assertions{
-		Move: models.Move{
-			Locator:          locator,
-			Status:           status,
-			SubmittedAt:      &submittedAt,
-			SelectedMoveType: selectedMoveType,
+	move := factory.BuildMove(db, []factory.Customization{
+		{
+			Model:    orders,
+			LinkOnly: true,
 		},
-		Order: orders,
-	})
-
+		{
+			Model: models.Move{
+				Locator:          locator,
+				Status:           status,
+				SubmittedAt:      &submittedAt,
+				SelectedMoveType: selectedMoveType,
+			},
+		},
+	}, nil)
 	requestedPickupDate := submittedAt.Add(60 * 24 * time.Hour)
 	requestedDeliveryDate := requestedPickupDate.Add(7 * 24 * time.Hour)
 	destinationAddress := factory.BuildAddress(db, nil, nil)
-	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			ShipmentType:          shipmentType,
-			Status:                models.MTOShipmentStatusSubmitted,
-			RequestedPickupDate:   &requestedPickupDate,
-			RequestedDeliveryDate: &requestedDeliveryDate,
-			DestinationAddressID:  &destinationAddress.ID,
-			DestinationType:       destinationType,
-			UsesExternalVendor:    usesExternalVendor,
+	factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				ShipmentType:          shipmentType,
+				Status:                models.MTOShipmentStatusSubmitted,
+				RequestedPickupDate:   &requestedPickupDate,
+				RequestedDeliveryDate: &requestedDeliveryDate,
+				DestinationType:       destinationType,
+				UsesExternalVendor:    usesExternalVendor,
+			},
+		},
+		{
+			Model:    destinationAddress,
+			Type:     &factory.Addresses.DeliveryAddress,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	requestedPickupDate = submittedAt.Add(30 * 24 * time.Hour)
 	requestedDeliveryDate = requestedPickupDate.Add(7 * 24 * time.Hour)
-	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			ShipmentType:          shipmentType,
-			Status:                models.MTOShipmentStatusSubmitted,
-			RequestedPickupDate:   &requestedPickupDate,
-			RequestedDeliveryDate: &requestedDeliveryDate,
+	factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				ShipmentType:          shipmentType,
+				Status:                models.MTOShipmentStatusSubmitted,
+				RequestedPickupDate:   &requestedPickupDate,
+				RequestedDeliveryDate: &requestedDeliveryDate,
+			},
+		},
+	}, nil)
 
 	return move
 }
@@ -4326,6 +4712,7 @@ func createHHGMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader 
 		AvailableToPrimeAt: swag.Time(time.Now()),
 	}
 	testdatagen.MergeModels(&move, assertions.Move)
+	// assertions passed in means we cannot yet convert to BuildMove
 	mto := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: move,
 	})
@@ -4343,16 +4730,24 @@ func createHHGMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader 
 		PrimeEstimatedWeight: &estimatedWeight,
 		PrimeActualWeight:    &actualWeight,
 		ShipmentType:         models.MTOShipmentTypeHHG,
-		ApprovedDate:         swag.Time(time.Now()),
+		ApprovedDate:         models.TimePointer(time.Now()),
 		Status:               models.MTOShipmentStatusSubmitted,
-		PickupAddress:        &shipmentPickupAddress,
-		PickupAddressID:      &shipmentPickupAddress.ID,
 	}
 	testdatagen.MergeModels(&shipment, assertions.MTOShipment)
-	MTOShipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		MTOShipment: shipment,
-		Move:        mto,
-	})
+	MTOShipment := factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model: shipment,
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+		{
+			Model:    shipmentPickupAddress,
+			Type:     &factory.Addresses.PickupAddress,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	agent := models.MTOAgent{
 		MTOShipment:   MTOShipment,
@@ -4431,27 +4826,36 @@ func createHHGMoveWith10ServiceItems(appCtx appcontext.AppContext, userUploader 
 		},
 	}, nil)
 
-	move8 := testdatagen.MakeMove(db, testdatagen.Assertions{
-		Move: models.Move{
-			ID:                 uuid.FromStringOrNil("d4d95b22-2d9d-428b-9a11-284455aa87ba"),
-			OrdersID:           orders8.ID,
-			Status:             models.MoveStatusAPPROVALSREQUESTED,
-			SelectedMoveType:   &hhgMoveType,
-			AvailableToPrimeAt: swag.Time(time.Now()),
+	move8 := factory.BuildMove(db, []factory.Customization{
+		{
+			Model:    orders8,
+			LinkOnly: true,
 		},
-	})
-
-	mtoShipment8 := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			ID:                   uuid.FromStringOrNil("acf7b357-5cad-40e2-baa7-dedc1d4cf04c"),
-			PrimeEstimatedWeight: &estimatedWeight,
-			PrimeActualWeight:    &actualWeight,
-			ShipmentType:         models.MTOShipmentTypeHHG,
-			ApprovedDate:         swag.Time(time.Now()),
-			Status:               models.MTOShipmentStatusApproved,
+		{
+			Model: models.Move{
+				ID:                 uuid.FromStringOrNil("d4d95b22-2d9d-428b-9a11-284455aa87ba"),
+				Status:             models.MoveStatusAPPROVALSREQUESTED,
+				SelectedMoveType:   &hhgMoveType,
+				AvailableToPrimeAt: models.TimePointer(time.Now()),
+			},
 		},
-		Move: move8,
-	})
+	}, nil)
+	mtoShipment8 := factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				ID:                   uuid.FromStringOrNil("acf7b357-5cad-40e2-baa7-dedc1d4cf04c"),
+				PrimeEstimatedWeight: &estimatedWeight,
+				PrimeActualWeight:    &actualWeight,
+				ShipmentType:         models.MTOShipmentTypeHHG,
+				ApprovedDate:         models.TimePointer(time.Now()),
+				Status:               models.MTOShipmentStatusApproved,
+			},
+		},
+		{
+			Model:    move8,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	paymentRequest8 := testdatagen.MakePaymentRequest(db, testdatagen.Assertions{
 		PaymentRequest: models.PaymentRequest{
@@ -4464,17 +4868,24 @@ func createHHGMoveWith10ServiceItems(appCtx appcontext.AppContext, userUploader 
 	})
 
 	approvedAt := time.Now()
-	serviceItemMS := testdatagen.MakeMTOServiceItemBasic(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			ID:         uuid.FromStringOrNil("4fba4249-b5aa-4c29-8448-66aa07ac8560"),
-			Status:     models.MTOServiceItemStatusApproved,
-			ApprovedAt: &approvedAt,
+	serviceItemMS := factory.BuildMTOServiceItemBasic(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				ID:         uuid.FromStringOrNil("4fba4249-b5aa-4c29-8448-66aa07ac8560"),
+				Status:     models.MTOServiceItemStatusApproved,
+				ApprovedAt: &approvedAt,
+			},
 		},
-		Move: move8,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("1130e612-94eb-49a7-973d-72f33685e551"), // MS - Move Management
+		{
+			Model:    move8,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("1130e612-94eb-49a7-973d-72f33685e551"), // MS - Move Management
+			},
+		},
+	}, nil)
 
 	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
 		PaymentServiceItem: models.PaymentServiceItem{
@@ -4485,17 +4896,24 @@ func createHHGMoveWith10ServiceItems(appCtx appcontext.AppContext, userUploader 
 	})
 
 	csCost := unit.Cents(25000)
-	serviceItemCS := testdatagen.MakeMTOServiceItemBasic(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			ID:         uuid.FromStringOrNil("e43c0df3-0dcd-4b70-adaa-46d669e094ad"),
-			Status:     models.MTOServiceItemStatusApproved,
-			ApprovedAt: &approvedAt,
+	serviceItemCS := factory.BuildMTOServiceItemBasic(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				ID:         uuid.FromStringOrNil("e43c0df3-0dcd-4b70-adaa-46d669e094ad"),
+				Status:     models.MTOServiceItemStatusApproved,
+				ApprovedAt: &approvedAt,
+			},
 		},
-		Move: move8,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("9dc919da-9b66-407b-9f17-05c0f03fcb50"), // CS - Counseling Services
+		{
+			Model:    move8,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("9dc919da-9b66-407b-9f17-05c0f03fcb50"), // CS - Counseling Services
+			},
+		},
+	}, nil)
 
 	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
 		PaymentServiceItem: models.PaymentServiceItem{
@@ -4506,16 +4924,26 @@ func createHHGMoveWith10ServiceItems(appCtx appcontext.AppContext, userUploader 
 	})
 
 	dlhCost := unit.Cents(99999)
-	serviceItemDLH := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			ID: uuid.FromStringOrNil("9db1bf43-0964-44ff-8384-3297951f6781"),
+	serviceItemDLH := factory.BuildMTOServiceItem(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				ID: uuid.FromStringOrNil("9db1bf43-0964-44ff-8384-3297951f6781"),
+			},
 		},
-		Move:        move8,
-		MTOShipment: mtoShipment8,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("8d600f25-1def-422d-b159-617c7d59156e"), // DLH - Domestic Linehaul
+		{
+			Model:    move8,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    mtoShipment8,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("8d600f25-1def-422d-b159-617c7d59156e"), // DLH - Domestic Linehaul
+			},
+		},
+	}, nil)
 
 	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
 		PaymentServiceItem: models.PaymentServiceItem{
@@ -4526,16 +4954,26 @@ func createHHGMoveWith10ServiceItems(appCtx appcontext.AppContext, userUploader 
 	})
 
 	fscCost := unit.Cents(55555)
-	serviceItemFSC := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			ID: uuid.FromStringOrNil("b380f732-2fb2-49a0-8260-7a52ce223c59"),
+	serviceItemFSC := factory.BuildMTOServiceItem(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				ID: uuid.FromStringOrNil("b380f732-2fb2-49a0-8260-7a52ce223c59"),
+			},
 		},
-		Move:        move8,
-		MTOShipment: mtoShipment8,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("4780b30c-e846-437a-b39a-c499a6b09872"), // FSC - Fuel Surcharge
+		{
+			Model:    move8,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    mtoShipment8,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("4780b30c-e846-437a-b39a-c499a6b09872"), // FSC - Fuel Surcharge
+			},
+		},
+	}, nil)
 
 	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
 		PaymentServiceItem: models.PaymentServiceItem{
@@ -4547,18 +4985,28 @@ func createHHGMoveWith10ServiceItems(appCtx appcontext.AppContext, userUploader 
 
 	dopCost := unit.Cents(3456)
 	rejectionReason := "Customer no longer required this service"
-	serviceItemDOP := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			ID:              uuid.FromStringOrNil("d886431c-c357-46b7-a084-a0c85dd496d4"),
-			Status:          models.MTOServiceItemStatusRejected,
-			RejectionReason: &rejectionReason,
+	serviceItemDOP := factory.BuildMTOServiceItem(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				ID:              uuid.FromStringOrNil("d886431c-c357-46b7-a084-a0c85dd496d4"),
+				Status:          models.MTOServiceItemStatusRejected,
+				RejectionReason: &rejectionReason,
+			},
 		},
-		Move:        move8,
-		MTOShipment: mtoShipment8,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("2bc3e5cb-adef-46b1-bde9-55570bfdd43e"), // DOP - Domestic Origin Price
+		{
+			Model:    move8,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    mtoShipment8,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("2bc3e5cb-adef-46b1-bde9-55570bfdd43e"), // DOP - Domestic Origin Price
+			},
+		},
+	}, nil)
 
 	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
 		PaymentServiceItem: models.PaymentServiceItem{
@@ -4569,16 +5017,26 @@ func createHHGMoveWith10ServiceItems(appCtx appcontext.AppContext, userUploader 
 	})
 
 	ddpCost := unit.Cents(7890)
-	serviceItemDDP := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			ID: uuid.FromStringOrNil("551caa30-72fe-469a-b463-ad1f14780432"),
+	serviceItemDDP := factory.BuildMTOServiceItem(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				ID: uuid.FromStringOrNil("551caa30-72fe-469a-b463-ad1f14780432"),
+			},
 		},
-		Move:        move8,
-		MTOShipment: mtoShipment8,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("50f1179a-3b72-4fa1-a951-fe5bcc70bd14"), // DDP - Domestic Destination Price
+		{
+			Model:    move8,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    mtoShipment8,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("50f1179a-3b72-4fa1-a951-fe5bcc70bd14"), // DDP - Domestic Destination Price
+			},
+		},
+	}, nil)
 
 	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
 		PaymentServiceItem: models.PaymentServiceItem{
@@ -4590,16 +5048,26 @@ func createHHGMoveWith10ServiceItems(appCtx appcontext.AppContext, userUploader 
 
 	// Schedule 1 peak price
 	dpkCost := unit.Cents(6544)
-	serviceItemDPK := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			ID: uuid.FromStringOrNil("616dfdb5-52ec-436d-a570-a464c9dbd47a"),
+	serviceItemDPK := factory.BuildMTOServiceItem(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				ID: uuid.FromStringOrNil("616dfdb5-52ec-436d-a570-a464c9dbd47a"),
+			},
 		},
-		Move:        move8,
-		MTOShipment: mtoShipment8,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("bdea5a8d-f15f-47d2-85c9-bba5694802ce"), // DPK - Domestic Packing
+		{
+			Model:    move8,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    mtoShipment8,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("bdea5a8d-f15f-47d2-85c9-bba5694802ce"), // DPK - Domestic Packing
+			},
+		},
+	}, nil)
 
 	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
 		PaymentServiceItem: models.PaymentServiceItem{
@@ -4611,16 +5079,26 @@ func createHHGMoveWith10ServiceItems(appCtx appcontext.AppContext, userUploader 
 
 	// Schedule 1 peak price
 	dupkCost := unit.Cents(8544)
-	serviceItemDUPK := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			ID: uuid.FromStringOrNil("1baeee0e-00d6-4d90-b22c-654c11d50d0f"),
+	serviceItemDUPK := factory.BuildMTOServiceItem(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				ID: uuid.FromStringOrNil("1baeee0e-00d6-4d90-b22c-654c11d50d0f"),
+			},
 		},
-		Move:        move8,
-		MTOShipment: mtoShipment8,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("15f01bc1-0754-4341-8e0f-25c8f04d5a77"), // DUPK - Domestic Unpacking
+		{
+			Model:    move8,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    mtoShipment8,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("15f01bc1-0754-4341-8e0f-25c8f04d5a77"), // DUPK - Domestic Unpacking
+			},
+		},
+	}, nil)
 
 	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
 		PaymentServiceItem: models.PaymentServiceItem{
@@ -4632,18 +5110,28 @@ func createHHGMoveWith10ServiceItems(appCtx appcontext.AppContext, userUploader 
 
 	dofsitPostal := "90210"
 	dofsitReason := "Storage items need to be picked up"
-	serviceItemDOFSIT := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			ID:               uuid.FromStringOrNil("61ce8a9b-5fcf-4d98-b192-a35f17819ae6"),
-			PickupPostalCode: &dofsitPostal,
-			Reason:           &dofsitReason,
+	serviceItemDOFSIT := factory.BuildMTOServiceItem(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				ID:               uuid.FromStringOrNil("61ce8a9b-5fcf-4d98-b192-a35f17819ae6"),
+				PickupPostalCode: &dofsitPostal,
+				Reason:           &dofsitReason,
+			},
 		},
-		Move:        move8,
-		MTOShipment: mtoShipment8,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("998beda7-e390-4a83-b15e-578a24326937"), // DOFSIT - Domestic Origin 1st Day SIT
+		{
+			Model:    move8,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    mtoShipment8,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("998beda7-e390-4a83-b15e-578a24326937"), // DOFSIT - Domestic Origin 1st Day SIT
+			},
+		},
+	}, nil)
 
 	dofsitCost := unit.Cents(8544)
 	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
@@ -4654,16 +5142,26 @@ func createHHGMoveWith10ServiceItems(appCtx appcontext.AppContext, userUploader 
 		MTOServiceItem: serviceItemDOFSIT,
 	})
 
-	serviceItemDDFSIT := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			ID: uuid.FromStringOrNil("b2c770ab-db6f-465c-87f1-164ecd2f36a4"),
+	serviceItemDDFSIT := factory.BuildMTOServiceItem(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				ID: uuid.FromStringOrNil("b2c770ab-db6f-465c-87f1-164ecd2f36a4"),
+			},
 		},
-		Move:        move8,
-		MTOShipment: mtoShipment8,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("d0561c49-e1a9-40b8-a739-3e639a9d77af"), // DDFSIT - Domestic Destination 1st Day SIT
+		{
+			Model:    move8,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    mtoShipment8,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("d0561c49-e1a9-40b8-a739-3e639a9d77af"), // DDFSIT - Domestic Destination 1st Day SIT
+			},
+		},
+	}, nil)
 
 	firstDeliveryDate := swag.Time(time.Now())
 	testdatagen.MakeMTOServiceItemCustomerContact(db, testdatagen.Assertions{
@@ -4698,20 +5196,30 @@ func createHHGMoveWith10ServiceItems(appCtx appcontext.AppContext, userUploader 
 	})
 
 	doshutCost := unit.Cents(623)
-	serviceItemDOSHUT := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			ID:              uuid.FromStringOrNil("801c8cdb-1573-40cc-be5f-d0a24034894b"),
-			Status:          models.MTOServiceItemStatusApproved,
-			ApprovedAt:      &approvedAt,
-			EstimatedWeight: &estimatedWeight,
-			ActualWeight:    &actualWeight,
+	serviceItemDOSHUT := factory.BuildMTOServiceItem(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				ID:              uuid.FromStringOrNil("801c8cdb-1573-40cc-be5f-d0a24034894b"),
+				Status:          models.MTOServiceItemStatusApproved,
+				ApprovedAt:      &approvedAt,
+				EstimatedWeight: &estimatedWeight,
+				ActualWeight:    &actualWeight,
+			},
 		},
-		Move:        move8,
-		MTOShipment: mtoShipment8,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("d979e8af-501a-44bb-8532-2799753a5810"), // DOSHUT - Dom Origin Shuttling
+		{
+			Model:    move8,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    mtoShipment8,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("d979e8af-501a-44bb-8532-2799753a5810"), // DOSHUT - Dom Origin Shuttling
+			},
+		},
+	}, nil)
 	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
 		PaymentServiceItem: models.PaymentServiceItem{
 			PriceCents: &doshutCost,
@@ -4720,20 +5228,30 @@ func createHHGMoveWith10ServiceItems(appCtx appcontext.AppContext, userUploader 
 		MTOServiceItem: serviceItemDOSHUT,
 	})
 
-	serviceItemDDSHUT := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			ID:              uuid.FromStringOrNil("2b0ce635-d71b-4000-a22a-7c098a3b6ae9"),
-			Status:          models.MTOServiceItemStatusApproved,
-			ApprovedAt:      &approvedAt,
-			EstimatedWeight: &estimatedWeight,
-			ActualWeight:    &actualWeight,
+	serviceItemDDSHUT := factory.BuildMTOServiceItem(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				ID:              uuid.FromStringOrNil("2b0ce635-d71b-4000-a22a-7c098a3b6ae9"),
+				Status:          models.MTOServiceItemStatusApproved,
+				ApprovedAt:      &approvedAt,
+				EstimatedWeight: &estimatedWeight,
+				ActualWeight:    &actualWeight,
+			},
 		},
-		Move:        move8,
-		MTOShipment: mtoShipment8,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("556663e3-675a-4b06-8da3-e4f1e9a9d3cd"), // DDSHUT - Dom Dest Shuttling
+		{
+			Model:    move8,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    mtoShipment8,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("556663e3-675a-4b06-8da3-e4f1e9a9d3cd"), // DDSHUT - Dom Dest Shuttling
+			},
+		},
+	}, nil)
 
 	ddshutCost := unit.Cents(852)
 	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
@@ -4776,27 +5294,37 @@ func createHHGMoveWith2PaymentRequests(appCtx appcontext.AppContext, userUploade
 		},
 	}, nil)
 
-	mto7 := testdatagen.MakeMove(db, testdatagen.Assertions{
-		Move: models.Move{
-			ID:                 uuid.FromStringOrNil("99783f4d-ee83-4fc9-8e0c-d32496bef32b"),
-			OrdersID:           orders7.ID,
-			AvailableToPrimeAt: swag.Time(time.Now()),
-			Status:             models.MoveStatusAPPROVED,
-			SelectedMoveType:   &hhgMoveType,
+	mto7 := factory.BuildMove(db, []factory.Customization{
+		{
+			Model:    orders7,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.Move{
+				ID:                 uuid.FromStringOrNil("99783f4d-ee83-4fc9-8e0c-d32496bef32b"),
+				AvailableToPrimeAt: models.TimePointer(time.Now()),
+				Status:             models.MoveStatusAPPROVED,
+				SelectedMoveType:   &hhgMoveType,
+			},
+		},
+	}, nil)
 
-	mtoShipmentHHG7 := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			ID:                   uuid.FromStringOrNil("baa00811-2381-433e-8a96-2ced58e37a14"),
-			PrimeEstimatedWeight: &estimatedWeight,
-			PrimeActualWeight:    &actualWeight,
-			ShipmentType:         models.MTOShipmentTypeHHGShortHaulDom,
-			ApprovedDate:         swag.Time(time.Now()),
-			Status:               models.MTOShipmentStatusApproved,
+	mtoShipmentHHG7 := factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				ID:                   uuid.FromStringOrNil("baa00811-2381-433e-8a96-2ced58e37a14"),
+				PrimeEstimatedWeight: &estimatedWeight,
+				PrimeActualWeight:    &actualWeight,
+				ShipmentType:         models.MTOShipmentTypeHHGShortHaulDom,
+				ApprovedDate:         models.TimePointer(time.Now()),
+				Status:               models.MTOShipmentStatusApproved,
+			},
 		},
-		Move: mto7,
-	})
+		{
+			Model:    mto7,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	testdatagen.MakeMTOAgent(db, testdatagen.Assertions{
 		MTOAgent: models.MTOAgent{
@@ -4840,16 +5368,23 @@ func createHHGMoveWith2PaymentRequests(appCtx appcontext.AppContext, userUploade
 		},
 	})
 
-	serviceItemMS7 := testdatagen.MakeMTOServiceItemBasic(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			ID:     uuid.FromStringOrNil("923acbd4-5e65-4d62-aecc-19edf785df69"),
-			Status: models.MTOServiceItemStatusApproved,
+	serviceItemMS7 := factory.BuildMTOServiceItemBasic(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				ID:     uuid.FromStringOrNil("923acbd4-5e65-4d62-aecc-19edf785df69"),
+				Status: models.MTOServiceItemStatusApproved,
+			},
 		},
-		Move: mto7,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("1130e612-94eb-49a7-973d-72f33685e551"), // MS - Move Management
+		{
+			Model:    mto7,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("1130e612-94eb-49a7-973d-72f33685e551"), // MS - Move Management
+			},
+		},
+	}, nil)
 
 	msCost := unit.Cents(10000)
 
@@ -4861,15 +5396,22 @@ func createHHGMoveWith2PaymentRequests(appCtx appcontext.AppContext, userUploade
 		MTOServiceItem: serviceItemMS7,
 	})
 
-	serviceItemDLH7 := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			ID: uuid.FromStringOrNil("aab8df9a-bbc9-4f26-a3ab-d5dcf1c8c40f"),
+	serviceItemDLH7 := factory.BuildMTOServiceItem(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				ID: uuid.FromStringOrNil("aab8df9a-bbc9-4f26-a3ab-d5dcf1c8c40f"),
+			},
 		},
-		Move: mto7,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("8d600f25-1def-422d-b159-617c7d59156e"), // DLH - Domestic Linehaul
+		{
+			Model:    mto7,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("8d600f25-1def-422d-b159-617c7d59156e"), // DLH - Domestic Linehaul
+			},
+		},
+	}, nil)
 
 	dlhCost := unit.Cents(99999)
 
@@ -4893,16 +5435,23 @@ func createHHGMoveWith2PaymentRequests(appCtx appcontext.AppContext, userUploade
 		Move: mto7,
 	})
 
-	serviceItemCS7 := testdatagen.MakeMTOServiceItemBasic(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			ID:     uuid.FromStringOrNil("ab37c0a4-ad3f-44aa-b294-f9e646083cec"),
-			Status: models.MTOServiceItemStatusApproved,
+	serviceItemCS7 := factory.BuildMTOServiceItemBasic(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				ID:     uuid.FromStringOrNil("ab37c0a4-ad3f-44aa-b294-f9e646083cec"),
+				Status: models.MTOServiceItemStatusApproved,
+			},
 		},
-		Move: mto7,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("9dc919da-9b66-407b-9f17-05c0f03fcb50"), // CS - Counseling Services
+		{
+			Model:    mto7,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("9dc919da-9b66-407b-9f17-05c0f03fcb50"), // CS - Counseling Services
+			},
+		},
+	}, nil)
 
 	csCost := unit.Cents(25000)
 
@@ -4914,28 +5463,43 @@ func createHHGMoveWith2PaymentRequests(appCtx appcontext.AppContext, userUploade
 		MTOServiceItem: serviceItemCS7,
 	})
 
-	MTOShipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			ID:                   uuid.FromStringOrNil("475579d5-aaa4-4755-8c43-c510381ff9b5"),
-			PrimeEstimatedWeight: &estimatedWeight,
-			PrimeActualWeight:    &actualWeight,
-			ShipmentType:         models.MTOShipmentTypeHHG,
-			ApprovedDate:         swag.Time(time.Now()),
-			Status:               models.MTOShipmentStatusSubmitted,
+	MTOShipment := factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				ID:                   uuid.FromStringOrNil("475579d5-aaa4-4755-8c43-c510381ff9b5"),
+				PrimeEstimatedWeight: &estimatedWeight,
+				PrimeActualWeight:    &actualWeight,
+				ShipmentType:         models.MTOShipmentTypeHHG,
+				ApprovedDate:         models.TimePointer(time.Now()),
+				Status:               models.MTOShipmentStatusSubmitted,
+			},
 		},
-		Move: mto7,
-	})
+		{
+			Model:    mto7,
+			LinkOnly: true,
+		},
+	}, nil)
 
-	serviceItemFSC7 := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			ID: uuid.FromStringOrNil("f23eeb02-66c7-43f5-ad9c-1d1c3ae66b15"),
+	serviceItemFSC7 := factory.BuildMTOServiceItem(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				ID: uuid.FromStringOrNil("f23eeb02-66c7-43f5-ad9c-1d1c3ae66b15"),
+			},
 		},
-		Move:        mto7,
-		MTOShipment: MTOShipment,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("4780b30c-e846-437a-b39a-c499a6b09872"), // FSC - Fuel Surcharge
+		{
+			Model:    mto7,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    MTOShipment,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("4780b30c-e846-437a-b39a-c499a6b09872"), // FSC - Fuel Surcharge
+			},
+		},
+	}, nil)
 
 	fscCost := unit.Cents(55555)
 
@@ -4975,17 +5539,21 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 		},
 	}, nil)
 
-	move := testdatagen.MakeMove(db, testdatagen.Assertions{
-		Move: models.Move{
-			ID:                 uuid.Must(uuid.NewV4()),
-			OrdersID:           orders.ID,
-			Status:             models.MoveStatusAPPROVED,
-			SelectedMoveType:   &hhgMoveType,
-			AvailableToPrimeAt: swag.Time(time.Now()),
-			Locator:            "HGNTSR",
+	move := factory.BuildMove(db, []factory.Customization{
+		{
+			Model:    orders,
+			LinkOnly: true,
 		},
-	})
-
+		{
+			Model: models.Move{
+				ID:                 uuid.Must(uuid.NewV4()),
+				Status:             models.MoveStatusAPPROVED,
+				SelectedMoveType:   &hhgMoveType,
+				AvailableToPrimeAt: models.TimePointer(time.Now()),
+				Locator:            "HGNTSR",
+			},
+		},
+	}, nil)
 	// Create an HHG MTO Shipment
 	pickupAddress := factory.BuildAddress(db, []factory.Customization{
 		{
@@ -5017,19 +5585,27 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 		},
 	}, nil)
 
-	hhgShipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			ID:                   uuid.Must(uuid.NewV4()),
-			PrimeEstimatedWeight: &estimatedWeight,
-			PrimeActualWeight:    &actualWeight,
-			ShipmentType:         models.MTOShipmentTypeHHG,
-			ApprovedDate:         swag.Time(time.Now()),
-			Status:               models.MTOShipmentStatusApproved,
-			DestinationAddress:   &destinationAddress,
-			DestinationAddressID: &destinationAddress.ID,
+	hhgShipment := factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				ID:                   uuid.Must(uuid.NewV4()),
+				PrimeEstimatedWeight: &estimatedWeight,
+				PrimeActualWeight:    &actualWeight,
+				ShipmentType:         models.MTOShipmentTypeHHG,
+				ApprovedDate:         models.TimePointer(time.Now()),
+				Status:               models.MTOShipmentStatusApproved,
+			},
 		},
-		Move: move,
-	})
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+		{
+			Model:    destinationAddress,
+			Type:     &factory.Addresses.DeliveryAddress,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	lotNumber := "654321"
 
@@ -5058,22 +5634,30 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 	serviceOrderNumber := "1234"
 
 	// Create an NTSR MTO Shipment
-	ntsrShipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			ID:                   uuid.Must(uuid.NewV4()),
-			PrimeEstimatedWeight: &estimatedWeight,
-			PrimeActualWeight:    &actualWeight,
-			ShipmentType:         models.MTOShipmentTypeHHGOutOfNTSDom,
-			ApprovedDate:         swag.Time(time.Now()),
-			ActualPickupDate:     swag.Time(time.Now()),
-			Status:               models.MTOShipmentStatusApproved,
-			StorageFacility:      &storageFacility,
-			TACType:              &tacType,
-			SACType:              &sacType,
-			ServiceOrderNumber:   &serviceOrderNumber,
+	ntsrShipment := factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				ID:                   uuid.Must(uuid.NewV4()),
+				PrimeEstimatedWeight: &estimatedWeight,
+				PrimeActualWeight:    &actualWeight,
+				ShipmentType:         models.MTOShipmentTypeHHGOutOfNTSDom,
+				ApprovedDate:         models.TimePointer(time.Now()),
+				ActualPickupDate:     models.TimePointer(time.Now()),
+				Status:               models.MTOShipmentStatusApproved,
+				TACType:              &tacType,
+				SACType:              &sacType,
+				ServiceOrderNumber:   &serviceOrderNumber,
+			},
 		},
-		Move: move,
-	})
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+		{
+			Model:    storageFacility,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	testdatagen.MakeMTOAgent(db, testdatagen.Assertions{
 		MTOAgent: models.MTOAgent{
@@ -5104,17 +5688,24 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 		Move: move,
 	})
 
-	serviceItemMS := testdatagen.MakeMTOServiceItemBasic(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			ID:         uuid.Must(uuid.NewV4()),
-			Status:     models.MTOServiceItemStatusApproved,
-			ApprovedAt: swag.Time(time.Now()),
+	serviceItemMS := factory.BuildMTOServiceItemBasic(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				ID:         uuid.Must(uuid.NewV4()),
+				Status:     models.MTOServiceItemStatusApproved,
+				ApprovedAt: swag.Time(time.Now()),
+			},
 		},
-		Move: move,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("1130e612-94eb-49a7-973d-72f33685e551"), // MS - Move Management
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("1130e612-94eb-49a7-973d-72f33685e551"), // MS - Move Management
+			},
+		},
+	}, nil)
 
 	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
 		PaymentServiceItem: models.PaymentServiceItem{
@@ -5125,17 +5716,24 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 	})
 
 	csCost := unit.Cents(25000)
-	serviceItemCS := testdatagen.MakeMTOServiceItemBasic(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			ID:         uuid.Must(uuid.NewV4()),
-			Status:     models.MTOServiceItemStatusApproved,
-			ApprovedAt: swag.Time(time.Now()),
+	serviceItemCS := factory.BuildMTOServiceItemBasic(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				ID:         uuid.Must(uuid.NewV4()),
+				Status:     models.MTOServiceItemStatusApproved,
+				ApprovedAt: swag.Time(time.Now()),
+			},
 		},
-		Move: move,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("9dc919da-9b66-407b-9f17-05c0f03fcb50"), // CS - Counseling Services
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("9dc919da-9b66-407b-9f17-05c0f03fcb50"), // CS - Counseling Services
+			},
+		},
+	}, nil)
 
 	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
 		PaymentServiceItem: models.PaymentServiceItem{
@@ -5146,17 +5744,27 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 	})
 
 	dlhCost := unit.Cents(99999)
-	serviceItemDLH := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			ID:     uuid.Must(uuid.NewV4()),
-			Status: models.MTOServiceItemStatusApproved,
+	serviceItemDLH := factory.BuildMTOServiceItem(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				ID:     uuid.Must(uuid.NewV4()),
+				Status: models.MTOServiceItemStatusApproved,
+			},
 		},
-		Move:        move,
-		MTOShipment: hhgShipment,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("8d600f25-1def-422d-b159-617c7d59156e"), // DLH - Domestic Linehaul
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    hhgShipment,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("8d600f25-1def-422d-b159-617c7d59156e"), // DLH - Domestic Linehaul
+			},
+		},
+	}, nil)
 
 	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
 		PaymentServiceItem: models.PaymentServiceItem{
@@ -5166,17 +5774,27 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 		MTOServiceItem: serviceItemDLH,
 	})
 
-	serviceItemFSC := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			ID:     uuid.Must(uuid.NewV4()),
-			Status: models.MTOServiceItemStatusApproved,
+	serviceItemFSC := factory.BuildMTOServiceItem(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				ID:     uuid.Must(uuid.NewV4()),
+				Status: models.MTOServiceItemStatusApproved,
+			},
 		},
-		Move:        move,
-		MTOShipment: hhgShipment,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("4780b30c-e846-437a-b39a-c499a6b09872"), // FSC - Fuel Surcharge
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    hhgShipment,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("4780b30c-e846-437a-b39a-c499a6b09872"), // FSC - Fuel Surcharge
+			},
+		},
+	}, nil)
 
 	fscCost := unit.Cents(55555)
 	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
@@ -5187,17 +5805,27 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 		MTOServiceItem: serviceItemFSC,
 	})
 
-	serviceItemDOP := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			ID:     uuid.Must(uuid.NewV4()),
-			Status: models.MTOServiceItemStatusApproved,
+	serviceItemDOP := factory.BuildMTOServiceItem(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				ID:     uuid.Must(uuid.NewV4()),
+				Status: models.MTOServiceItemStatusApproved,
+			},
 		},
-		Move:        move,
-		MTOShipment: hhgShipment,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("2bc3e5cb-adef-46b1-bde9-55570bfdd43e"), // DOP - Domestic Origin Price
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    hhgShipment,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("2bc3e5cb-adef-46b1-bde9-55570bfdd43e"), // DOP - Domestic Origin Price
+			},
+		},
+	}, nil)
 
 	dopCost := unit.Cents(3456)
 	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
@@ -5209,17 +5837,27 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 	})
 
 	ddpCost := unit.Cents(7890)
-	serviceItemDDP := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			ID:     uuid.Must(uuid.NewV4()),
-			Status: models.MTOServiceItemStatusApproved,
+	serviceItemDDP := factory.BuildMTOServiceItem(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				ID:     uuid.Must(uuid.NewV4()),
+				Status: models.MTOServiceItemStatusApproved,
+			},
 		},
-		Move:        move,
-		MTOShipment: hhgShipment,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("50f1179a-3b72-4fa1-a951-fe5bcc70bd14"), // DDP - Domestic Destination Price
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    hhgShipment,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("50f1179a-3b72-4fa1-a951-fe5bcc70bd14"), // DDP - Domestic Destination Price
+			},
+		},
+	}, nil)
 
 	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
 		PaymentServiceItem: models.PaymentServiceItem{
@@ -5231,17 +5869,27 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 
 	// Schedule 1 peak price
 	dpkCost := unit.Cents(6544)
-	serviceItemDPK := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			ID:     uuid.Must(uuid.NewV4()),
-			Status: models.MTOServiceItemStatusApproved,
+	serviceItemDPK := factory.BuildMTOServiceItem(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				ID:     uuid.Must(uuid.NewV4()),
+				Status: models.MTOServiceItemStatusApproved,
+			},
 		},
-		Move:        move,
-		MTOShipment: hhgShipment,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("bdea5a8d-f15f-47d2-85c9-bba5694802ce"), // DPK - Domestic Packing
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    hhgShipment,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("bdea5a8d-f15f-47d2-85c9-bba5694802ce"), // DPK - Domestic Packing
+			},
+		},
+	}, nil)
 
 	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
 		PaymentServiceItem: models.PaymentServiceItem{
@@ -5253,17 +5901,27 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 
 	// Schedule 1 peak price
 	dupkCost := unit.Cents(8544)
-	serviceItemDUPK := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			ID:     uuid.Must(uuid.NewV4()),
-			Status: models.MTOServiceItemStatusApproved,
+	serviceItemDUPK := factory.BuildMTOServiceItem(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				ID:     uuid.Must(uuid.NewV4()),
+				Status: models.MTOServiceItemStatusApproved,
+			},
 		},
-		Move:        move,
-		MTOShipment: hhgShipment,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("15f01bc1-0754-4341-8e0f-25c8f04d5a77"), // DUPK - Domestic Unpacking
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    hhgShipment,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("15f01bc1-0754-4341-8e0f-25c8f04d5a77"), // DUPK - Domestic Unpacking
+			},
+		},
+	}, nil)
 
 	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
 		PaymentServiceItem: models.PaymentServiceItem{
@@ -5275,19 +5933,29 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 
 	dofsitPostal := "90210"
 	dofsitReason := "Storage items need to be picked up"
-	serviceItemDOFSIT := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			ID:               uuid.Must(uuid.NewV4()),
-			Status:           models.MTOServiceItemStatusApproved,
-			PickupPostalCode: &dofsitPostal,
-			Reason:           &dofsitReason,
+	serviceItemDOFSIT := factory.BuildMTOServiceItem(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				ID:               uuid.Must(uuid.NewV4()),
+				Status:           models.MTOServiceItemStatusApproved,
+				PickupPostalCode: &dofsitPostal,
+				Reason:           &dofsitReason,
+			},
 		},
-		Move:        move,
-		MTOShipment: hhgShipment,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("998beda7-e390-4a83-b15e-578a24326937"), // DOFSIT - Domestic Origin 1st Day SIT
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    hhgShipment,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("998beda7-e390-4a83-b15e-578a24326937"), // DOFSIT - Domestic Origin 1st Day SIT
+			},
+		},
+	}, nil)
 
 	dofsitCost := unit.Cents(8544)
 	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
@@ -5298,17 +5966,27 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 		MTOServiceItem: serviceItemDOFSIT,
 	})
 
-	serviceItemDDFSIT := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			ID:     uuid.Must(uuid.NewV4()),
-			Status: models.MTOServiceItemStatusApproved,
+	serviceItemDDFSIT := factory.BuildMTOServiceItem(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				ID:     uuid.Must(uuid.NewV4()),
+				Status: models.MTOServiceItemStatusApproved,
+			},
 		},
-		Move:        move,
-		MTOShipment: hhgShipment,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("d0561c49-e1a9-40b8-a739-3e639a9d77af"), // DDFSIT - Domestic Destination 1st Day SIT
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    hhgShipment,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("d0561c49-e1a9-40b8-a739-3e639a9d77af"), // DDFSIT - Domestic Destination 1st Day SIT
+			},
+		},
+	}, nil)
 
 	testdatagen.MakeMTOServiceItemCustomerContact(db, testdatagen.Assertions{
 		MTOServiceItem: serviceItemDDFSIT,
@@ -5359,17 +6037,27 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 		MTOServiceItem: serviceItemDCRT,
 	})
 
-	ntsrServiceItemDLH := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			ID:     uuid.Must(uuid.NewV4()),
-			Status: models.MTOServiceItemStatusApproved,
+	ntsrServiceItemDLH := factory.BuildMTOServiceItem(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				ID:     uuid.Must(uuid.NewV4()),
+				Status: models.MTOServiceItemStatusApproved,
+			},
 		},
-		Move:        move,
-		MTOShipment: ntsrShipment,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("8d600f25-1def-422d-b159-617c7d59156e"), // DLH - Domestic Linehaul
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    ntsrShipment,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("8d600f25-1def-422d-b159-617c7d59156e"), // DLH - Domestic Linehaul
+			},
+		},
+	}, nil)
 
 	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
 		PaymentServiceItem: models.PaymentServiceItem{
@@ -5379,17 +6067,27 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 		MTOServiceItem: ntsrServiceItemDLH,
 	})
 
-	ntsrServiceItemFSC := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			ID:     uuid.Must(uuid.NewV4()),
-			Status: models.MTOServiceItemStatusApproved,
+	ntsrServiceItemFSC := factory.BuildMTOServiceItem(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				ID:     uuid.Must(uuid.NewV4()),
+				Status: models.MTOServiceItemStatusApproved,
+			},
 		},
-		Move:        move,
-		MTOShipment: ntsrShipment,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("4780b30c-e846-437a-b39a-c499a6b09872"), // FSC - Fuel Surcharge
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    ntsrShipment,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("4780b30c-e846-437a-b39a-c499a6b09872"), // FSC - Fuel Surcharge
+			},
+		},
+	}, nil)
 
 	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
 		PaymentServiceItem: models.PaymentServiceItem{
@@ -5399,17 +6097,27 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 		MTOServiceItem: ntsrServiceItemFSC,
 	})
 
-	ntsrServiceItemDOP := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			ID:     uuid.Must(uuid.NewV4()),
-			Status: models.MTOServiceItemStatusApproved,
+	ntsrServiceItemDOP := factory.BuildMTOServiceItem(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				ID:     uuid.Must(uuid.NewV4()),
+				Status: models.MTOServiceItemStatusApproved,
+			},
 		},
-		Move:        move,
-		MTOShipment: ntsrShipment,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("2bc3e5cb-adef-46b1-bde9-55570bfdd43e"), // DOP - Domestic Origin Price
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    ntsrShipment,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("2bc3e5cb-adef-46b1-bde9-55570bfdd43e"), // DOP - Domestic Origin Price
+			},
+		},
+	}, nil)
 
 	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
 		PaymentServiceItem: models.PaymentServiceItem{
@@ -5419,17 +6127,27 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 		MTOServiceItem: ntsrServiceItemDOP,
 	})
 
-	ntsrServiceItemDDP := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			ID:     uuid.Must(uuid.NewV4()),
-			Status: models.MTOServiceItemStatusApproved,
+	ntsrServiceItemDDP := factory.BuildMTOServiceItem(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				ID:     uuid.Must(uuid.NewV4()),
+				Status: models.MTOServiceItemStatusApproved,
+			},
 		},
-		Move:        move,
-		MTOShipment: ntsrShipment,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("50f1179a-3b72-4fa1-a951-fe5bcc70bd14"), // DDP - Domestic Destination Price
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    ntsrShipment,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("50f1179a-3b72-4fa1-a951-fe5bcc70bd14"), // DDP - Domestic Destination Price
+			},
+		},
+	}, nil)
 
 	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
 		PaymentServiceItem: models.PaymentServiceItem{
@@ -5439,17 +6157,27 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 		MTOServiceItem: ntsrServiceItemDDP,
 	})
 
-	ntsrServiceItemDUPK := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			ID:     uuid.Must(uuid.NewV4()),
-			Status: models.MTOServiceItemStatusApproved,
+	ntsrServiceItemDUPK := factory.BuildMTOServiceItem(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				ID:     uuid.Must(uuid.NewV4()),
+				Status: models.MTOServiceItemStatusApproved,
+			},
 		},
-		Move:        move,
-		MTOShipment: ntsrShipment,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("15f01bc1-0754-4341-8e0f-25c8f04d5a77"), // DUPK - Domestic Unpacking
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    ntsrShipment,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("15f01bc1-0754-4341-8e0f-25c8f04d5a77"), // DUPK - Domestic Unpacking
+			},
+		},
+	}, nil)
 
 	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
 		PaymentServiceItem: models.PaymentServiceItem{
@@ -5462,34 +6190,46 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 
 func createMoveWithHHGAndNTSRMissingInfo(appCtx appcontext.AppContext, moveRouter services.MoveRouter) {
 	db := appCtx.DB()
-	move := testdatagen.MakeMove(db, testdatagen.Assertions{
-		Move: models.Move{
-			Locator: "HNRMIS",
+	move := factory.BuildMove(db, []factory.Customization{
+		{
+			Model: models.Move{
+				Locator: "HNRMIS",
+			},
 		},
-	})
+	}, nil)
 	// original shipment that was previously approved and is now diverted
-	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			ID:                   uuid.Must(uuid.NewV4()),
-			PrimeEstimatedWeight: &estimatedWeight,
-			PrimeActualWeight:    &actualWeight,
-			ShipmentType:         models.MTOShipmentTypeHHG,
-			ApprovedDate:         swag.Time(time.Now()),
-			Status:               models.MTOShipmentStatusSubmitted,
+	factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				ID:                   uuid.Must(uuid.NewV4()),
+				PrimeEstimatedWeight: &estimatedWeight,
+				PrimeActualWeight:    &actualWeight,
+				ShipmentType:         models.MTOShipmentTypeHHG,
+				ApprovedDate:         models.TimePointer(time.Now()),
+				Status:               models.MTOShipmentStatusSubmitted,
+			},
 		},
-		Move: move,
-	})
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 	// new diverted shipment created by the Prime
-	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			ID:                   uuid.Must(uuid.NewV4()),
-			PrimeEstimatedWeight: &estimatedWeight,
-			ShipmentType:         models.MTOShipmentTypeHHGOutOfNTSDom,
-			ApprovedDate:         swag.Time(time.Now()),
-			Status:               models.MTOShipmentStatusSubmitted,
+	factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				ID:                   uuid.Must(uuid.NewV4()),
+				PrimeEstimatedWeight: &estimatedWeight,
+				ShipmentType:         models.MTOShipmentTypeHHGOutOfNTSDom,
+				ApprovedDate:         models.TimePointer(time.Now()),
+				Status:               models.MTOShipmentStatusSubmitted,
+			},
 		},
-		Move: move,
-	})
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
 		Move: move,
 		Stub: true,
@@ -5507,34 +6247,46 @@ func createMoveWithHHGAndNTSRMissingInfo(appCtx appcontext.AppContext, moveRoute
 
 func createMoveWithHHGAndNTSMissingInfo(appCtx appcontext.AppContext, moveRouter services.MoveRouter) {
 	db := appCtx.DB()
-	move := testdatagen.MakeMove(db, testdatagen.Assertions{
-		Move: models.Move{
-			Locator: "HNTMIS",
+	move := factory.BuildMove(db, []factory.Customization{
+		{
+			Model: models.Move{
+				Locator: "HNTMIS",
+			},
 		},
-	})
+	}, nil)
 	// original shipment that was previously approved and is now diverted
-	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			ID:                   uuid.Must(uuid.NewV4()),
-			PrimeEstimatedWeight: &estimatedWeight,
-			PrimeActualWeight:    &actualWeight,
-			ShipmentType:         models.MTOShipmentTypeHHG,
-			ApprovedDate:         swag.Time(time.Now()),
-			Status:               models.MTOShipmentStatusSubmitted,
+	factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				ID:                   uuid.Must(uuid.NewV4()),
+				PrimeEstimatedWeight: &estimatedWeight,
+				PrimeActualWeight:    &actualWeight,
+				ShipmentType:         models.MTOShipmentTypeHHG,
+				ApprovedDate:         models.TimePointer(time.Now()),
+				Status:               models.MTOShipmentStatusSubmitted,
+			},
 		},
-		Move: move,
-	})
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 	// new diverted shipment created by the Prime
-	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			ID:                   uuid.Must(uuid.NewV4()),
-			PrimeEstimatedWeight: &estimatedWeight,
-			ShipmentType:         models.MTOShipmentTypeHHGIntoNTSDom,
-			ApprovedDate:         swag.Time(time.Now()),
-			Status:               models.MTOShipmentStatusSubmitted,
+	factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				ID:                   uuid.Must(uuid.NewV4()),
+				PrimeEstimatedWeight: &estimatedWeight,
+				ShipmentType:         models.MTOShipmentTypeHHGIntoNTSDom,
+				ApprovedDate:         models.TimePointer(time.Now()),
+				Status:               models.MTOShipmentStatusSubmitted,
+			},
 		},
-		Move: move,
-	})
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
 		Move: move,
 		Stub: true,
@@ -5552,54 +6304,85 @@ func createMoveWithHHGAndNTSMissingInfo(appCtx appcontext.AppContext, moveRouter
 
 func createMoveWith2MinimalShipments(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	db := appCtx.DB()
-	move := testdatagen.MakeMove(db, testdatagen.Assertions{
-		Move: models.Move{
-			Status:  models.MoveStatusSUBMITTED,
-			Locator: "NOADDR",
+	move := factory.BuildMove(db, []factory.Customization{
+		{
+			Model: models.Move{
+				Status:  models.MoveStatusSUBMITTED,
+				Locator: "NOADDR",
+			},
 		},
-		UserUploader: userUploader,
-	})
-
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
 	requestedPickupDate := time.Now().AddDate(0, 3, 0)
-	testdatagen.MakeMTOShipmentMinimal(db, testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			Status:              models.MTOShipmentStatusSubmitted,
-			RequestedPickupDate: &requestedPickupDate,
+	factory.BuildMTOShipmentMinimal(db, []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				Status:              models.MTOShipmentStatusSubmitted,
+				RequestedPickupDate: &requestedPickupDate,
+			},
 		},
-		Move: move,
-	})
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 
-	testdatagen.MakeMTOShipmentMinimal(db, testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			Status:              models.MTOShipmentStatusSubmitted,
-			RequestedPickupDate: &requestedPickupDate,
+	factory.BuildMTOShipmentMinimal(db, []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				Status:              models.MTOShipmentStatusSubmitted,
+				RequestedPickupDate: &requestedPickupDate,
+			},
 		},
-		Move: move,
-	})
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 }
 
 func createApprovedMoveWithMinimalShipment(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	db := appCtx.DB()
 
 	now := time.Now()
-	move := testdatagen.MakeMove(db, testdatagen.Assertions{
-		Move: models.Move{
-			Status:             models.MoveStatusAPPROVED,
-			Locator:            "MISHIP",
-			AvailableToPrimeAt: &now,
+	move := factory.BuildMove(db, []factory.Customization{
+		{
+			Model: models.Move{
+				Status:             models.MoveStatusAPPROVED,
+				Locator:            "MISHIP",
+				AvailableToPrimeAt: &now,
+			},
 		},
-		UserUploader: userUploader,
-	})
-
-	testdatagen.MakeMTOServiceItemBasic(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			Status: models.MTOServiceItemStatusApproved,
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
 		},
-		ReService: models.ReService{
-			Code: models.ReServiceCodeMS,
+	}, nil)
+	factory.BuildMTOServiceItemBasic(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status: models.MTOServiceItemStatusApproved,
+			},
 		},
-		Move: move,
-	})
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeMS,
+			},
+		},
+	}, nil)
 
 	// requestedPickupDate := time.Now().AddDate(0, 3, 0)
 	// requestedDeliveryDate := requestedPickupDate.AddDate(0, 1, 0)
@@ -5609,16 +6392,7 @@ func createApprovedMoveWithMinimalShipment(appCtx appcontext.AppContext, userUpl
 		Status: models.MTOShipmentStatusApproved,
 		// RequestedPickupDate:   &requestedPickupDate,
 		// RequestedDeliveryDate: &requestedDeliveryDate,
-		PickupAddress:   &pickupAddress,
-		PickupAddressID: &pickupAddress.ID,
 	}
-
-	// Uncomment to create the shipment with a destination address
-	/*
-		destinationAddress := factory.BuildAddress(db, nil, []factory.Trait{factory.GetTraitAddress2})
-		shipmentFields.DestinationAddress = &destinationAddress
-		shipmentFields.DestinationAddressID = &destinationAddress.ID
-	*/
 
 	// Uncomment to create the shipment with an actual weight
 	/*
@@ -5626,76 +6400,157 @@ func createApprovedMoveWithMinimalShipment(appCtx appcontext.AppContext, userUpl
 		shipmentFields.PrimeActualWeight = &actualWeight
 	*/
 
-	firstShipment := testdatagen.MakeMTOShipmentMinimal(db, testdatagen.Assertions{
-		MTOShipment: shipmentFields,
-		Move:        move,
-	})
+	shipmentCustomizations := []factory.Customization{
+		{
+			Model: shipmentFields,
+		},
+		{
+			Model:    pickupAddress,
+			LinkOnly: true,
+			Type:     &factory.Addresses.PickupAddress,
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}
 
-	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			Status: models.MTOServiceItemStatusApproved,
-		},
-		ReService: models.ReService{
-			Code: models.ReServiceCodeDLH,
-		},
-		MTOShipment: firstShipment,
-		Move:        move,
-	})
+	// Uncomment to create the shipment with a destination address
+	/*
+		shipmentCustomizations = append(shipmentCustomizations, factory.Customization{
+			Model:    factory.BuildAddress(appCtx.DB(), nil, []factory.Trait{factory.GetTraitAddress2}),
+			LinkOnly: true,
+			Type:     &factory.Addresses.DeliveryAddress,
+		})
+	*/
 
-	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			Status: models.MTOServiceItemStatusApproved,
-		},
-		ReService: models.ReService{
-			Code: models.ReServiceCodeFSC,
-		},
-		MTOShipment: firstShipment,
-		Move:        move,
-	})
+	firstShipment := factory.BuildMTOShipmentMinimal(db, shipmentCustomizations, nil)
 
-	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			Status: models.MTOServiceItemStatusApproved,
+	factory.BuildMTOServiceItem(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status: models.MTOServiceItemStatusApproved,
+			},
 		},
-		ReService: models.ReService{
-			Code: models.ReServiceCodeDOP,
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDLH,
+			},
 		},
-		MTOShipment: firstShipment,
-		Move:        move,
-	})
+		{
+			Model:    firstShipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 
-	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			Status: models.MTOServiceItemStatusApproved,
+	factory.BuildMTOServiceItem(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status: models.MTOServiceItemStatusApproved,
+			},
 		},
-		ReService: models.ReService{
-			Code: models.ReServiceCodeDDP,
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeFSC,
+			},
 		},
-		MTOShipment: firstShipment,
-		Move:        move,
-	})
+		{
+			Model:    firstShipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 
-	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			Status: models.MTOServiceItemStatusApproved,
+	factory.BuildMTOServiceItem(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status: models.MTOServiceItemStatusApproved,
+			},
 		},
-		ReService: models.ReService{
-			Code: models.ReServiceCodeDPK,
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDOP,
+			},
 		},
-		MTOShipment: firstShipment,
-		Move:        move,
-	})
+		{
+			Model:    firstShipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 
-	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			Status: models.MTOServiceItemStatusApproved,
+	factory.BuildMTOServiceItem(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status: models.MTOServiceItemStatusApproved,
+			},
 		},
-		ReService: models.ReService{
-			Code: models.ReServiceCodeDUPK,
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDDP,
+			},
 		},
-		MTOShipment: firstShipment,
-		Move:        move,
-	})
+		{
+			Model:    firstShipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	factory.BuildMTOServiceItem(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status: models.MTOServiceItemStatusApproved,
+			},
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDPK,
+			},
+		},
+		{
+			Model:    firstShipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	factory.BuildMTOServiceItem(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status: models.MTOServiceItemStatusApproved,
+			},
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDUPK,
+			},
+		},
+		{
+			Model:    firstShipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 }
 
 func createMoveWith2ShipmentsAndPaymentRequest(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -5712,17 +6567,21 @@ func createMoveWith2ShipmentsAndPaymentRequest(appCtx appcontext.AppContext, use
 		},
 	}, nil)
 
-	move := testdatagen.MakeMove(db, testdatagen.Assertions{
-		Move: models.Move{
-			ID:                 uuid.Must(uuid.NewV4()),
-			OrdersID:           orders.ID,
-			Status:             models.MoveStatusAPPROVED,
-			SelectedMoveType:   &hhgMoveType,
-			AvailableToPrimeAt: swag.Time(time.Now()),
-			Locator:            "REQSRV",
+	move := factory.BuildMove(db, []factory.Customization{
+		{
+			Model:    orders,
+			LinkOnly: true,
 		},
-	})
-
+		{
+			Model: models.Move{
+				ID:                 uuid.Must(uuid.NewV4()),
+				Status:             models.MoveStatusAPPROVED,
+				SelectedMoveType:   &hhgMoveType,
+				AvailableToPrimeAt: models.TimePointer(time.Now()),
+				Locator:            "REQSRV",
+			},
+		},
+	}, nil)
 	// Create an HHG MTO Shipment
 	pickupAddress := factory.BuildAddress(db, []factory.Customization{
 		{
@@ -5754,34 +6613,50 @@ func createMoveWith2ShipmentsAndPaymentRequest(appCtx appcontext.AppContext, use
 		},
 	}, nil)
 
-	hhgShipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			ID:                   uuid.Must(uuid.NewV4()),
-			PrimeEstimatedWeight: &estimatedWeight,
-			PrimeActualWeight:    &actualWeight,
-			ShipmentType:         models.MTOShipmentTypeHHG,
-			ApprovedDate:         swag.Time(time.Now()),
-			Status:               models.MTOShipmentStatusApproved,
-			PickupAddress:        &pickupAddress,
-			PickupAddressID:      &pickupAddress.ID,
-			DestinationAddress:   &destinationAddress,
-			DestinationAddressID: &destinationAddress.ID,
+	hhgShipment := factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				ID:                   uuid.Must(uuid.NewV4()),
+				PrimeEstimatedWeight: &estimatedWeight,
+				PrimeActualWeight:    &actualWeight,
+				ShipmentType:         models.MTOShipmentTypeHHG,
+				ApprovedDate:         models.TimePointer(time.Now()),
+				Status:               models.MTOShipmentStatusApproved,
+			},
 		},
-		Move: move,
-	})
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+		{
+			Model:    pickupAddress,
+			Type:     &factory.Addresses.PickupAddress,
+			LinkOnly: true,
+		},
+		{
+			Model:    destinationAddress,
+			Type:     &factory.Addresses.DeliveryAddress,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	// Create an NTSR MTO Shipment
-	ntsrShipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			ID:                   uuid.Must(uuid.NewV4()),
-			PrimeEstimatedWeight: &estimatedWeight,
-			PrimeActualWeight:    &actualWeight,
-			ShipmentType:         models.MTOShipmentTypeHHGOutOfNTSDom,
-			ApprovedDate:         swag.Time(time.Now()),
-			Status:               models.MTOShipmentStatusApproved,
+	ntsrShipment := factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				ID:                   uuid.Must(uuid.NewV4()),
+				PrimeEstimatedWeight: &estimatedWeight,
+				PrimeActualWeight:    &actualWeight,
+				ShipmentType:         models.MTOShipmentTypeHHGOutOfNTSDom,
+				ApprovedDate:         models.TimePointer(time.Now()),
+				Status:               models.MTOShipmentStatusApproved,
+			},
 		},
-		Move: move,
-	})
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	ntsrShipment.PickupAddressID = &pickupAddress.ID
 	ntsrShipment.PickupAddress = &pickupAddress
@@ -5800,17 +6675,24 @@ func createMoveWith2ShipmentsAndPaymentRequest(appCtx appcontext.AppContext, use
 		Move: move,
 	})
 
-	serviceItemMS := testdatagen.MakeMTOServiceItemBasic(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			ID:         uuid.Must(uuid.NewV4()),
-			Status:     models.MTOServiceItemStatusApproved,
-			ApprovedAt: swag.Time(time.Now()),
+	serviceItemMS := factory.BuildMTOServiceItemBasic(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				ID:         uuid.Must(uuid.NewV4()),
+				Status:     models.MTOServiceItemStatusApproved,
+				ApprovedAt: swag.Time(time.Now()),
+			},
 		},
-		Move: move,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("1130e612-94eb-49a7-973d-72f33685e551"), // MS - Move Management
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("1130e612-94eb-49a7-973d-72f33685e551"), // MS - Move Management
+			},
+		},
+	}, nil)
 
 	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
 		PaymentServiceItem: models.PaymentServiceItem{
@@ -5821,17 +6703,24 @@ func createMoveWith2ShipmentsAndPaymentRequest(appCtx appcontext.AppContext, use
 	})
 
 	csCost := unit.Cents(25000)
-	serviceItemCS := testdatagen.MakeMTOServiceItemBasic(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			ID:         uuid.Must(uuid.NewV4()),
-			Status:     models.MTOServiceItemStatusApproved,
-			ApprovedAt: swag.Time(time.Now()),
+	serviceItemCS := factory.BuildMTOServiceItemBasic(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				ID:         uuid.Must(uuid.NewV4()),
+				Status:     models.MTOServiceItemStatusApproved,
+				ApprovedAt: swag.Time(time.Now()),
+			},
 		},
-		Move: move,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("9dc919da-9b66-407b-9f17-05c0f03fcb50"), // CS - Counseling Services
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("9dc919da-9b66-407b-9f17-05c0f03fcb50"), // CS - Counseling Services
+			},
+		},
+	}, nil)
 
 	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
 		PaymentServiceItem: models.PaymentServiceItem{
@@ -5842,17 +6731,27 @@ func createMoveWith2ShipmentsAndPaymentRequest(appCtx appcontext.AppContext, use
 	})
 
 	dlhCost := unit.Cents(99999)
-	serviceItemDLH := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			ID:     uuid.Must(uuid.NewV4()),
-			Status: models.MTOServiceItemStatusApproved,
+	serviceItemDLH := factory.BuildMTOServiceItem(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				ID:     uuid.Must(uuid.NewV4()),
+				Status: models.MTOServiceItemStatusApproved,
+			},
 		},
-		Move:        move,
-		MTOShipment: hhgShipment,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("8d600f25-1def-422d-b159-617c7d59156e"), // DLH - Domestic Linehaul
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    hhgShipment,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("8d600f25-1def-422d-b159-617c7d59156e"), // DLH - Domestic Linehaul
+			},
+		},
+	}, nil)
 
 	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
 		PaymentServiceItem: models.PaymentServiceItem{
@@ -5862,17 +6761,27 @@ func createMoveWith2ShipmentsAndPaymentRequest(appCtx appcontext.AppContext, use
 		MTOServiceItem: serviceItemDLH,
 	})
 
-	serviceItemFSC := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			ID:     uuid.Must(uuid.NewV4()),
-			Status: models.MTOServiceItemStatusApproved,
+	serviceItemFSC := factory.BuildMTOServiceItem(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				ID:     uuid.Must(uuid.NewV4()),
+				Status: models.MTOServiceItemStatusApproved,
+			},
 		},
-		Move:        move,
-		MTOShipment: hhgShipment,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("4780b30c-e846-437a-b39a-c499a6b09872"), // FSC - Fuel Surcharge
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    hhgShipment,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("4780b30c-e846-437a-b39a-c499a6b09872"), // FSC - Fuel Surcharge
+			},
+		},
+	}, nil)
 
 	fscCost := unit.Cents(55555)
 	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
@@ -5883,17 +6792,27 @@ func createMoveWith2ShipmentsAndPaymentRequest(appCtx appcontext.AppContext, use
 		MTOServiceItem: serviceItemFSC,
 	})
 
-	serviceItemDOP := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			ID:     uuid.Must(uuid.NewV4()),
-			Status: models.MTOServiceItemStatusApproved,
+	serviceItemDOP := factory.BuildMTOServiceItem(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				ID:     uuid.Must(uuid.NewV4()),
+				Status: models.MTOServiceItemStatusApproved,
+			},
 		},
-		Move:        move,
-		MTOShipment: hhgShipment,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("2bc3e5cb-adef-46b1-bde9-55570bfdd43e"), // DOP - Domestic Origin Price
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    hhgShipment,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("2bc3e5cb-adef-46b1-bde9-55570bfdd43e"), // DOP - Domestic Origin Price
+			},
+		},
+	}, nil)
 
 	dopCost := unit.Cents(3456)
 	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
@@ -5905,17 +6824,27 @@ func createMoveWith2ShipmentsAndPaymentRequest(appCtx appcontext.AppContext, use
 	})
 
 	ddpCost := unit.Cents(7890)
-	serviceItemDDP := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			ID:     uuid.Must(uuid.NewV4()),
-			Status: models.MTOServiceItemStatusApproved,
+	serviceItemDDP := factory.BuildMTOServiceItem(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				ID:     uuid.Must(uuid.NewV4()),
+				Status: models.MTOServiceItemStatusApproved,
+			},
 		},
-		Move:        move,
-		MTOShipment: hhgShipment,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("50f1179a-3b72-4fa1-a951-fe5bcc70bd14"), // DDP - Domestic Destination Price
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    hhgShipment,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("50f1179a-3b72-4fa1-a951-fe5bcc70bd14"), // DDP - Domestic Destination Price
+			},
+		},
+	}, nil)
 
 	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
 		PaymentServiceItem: models.PaymentServiceItem{
@@ -5927,17 +6856,27 @@ func createMoveWith2ShipmentsAndPaymentRequest(appCtx appcontext.AppContext, use
 
 	// Schedule 1 peak price
 	dpkCost := unit.Cents(6544)
-	serviceItemDPK := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			ID:     uuid.Must(uuid.NewV4()),
-			Status: models.MTOServiceItemStatusApproved,
+	serviceItemDPK := factory.BuildMTOServiceItem(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				ID:     uuid.Must(uuid.NewV4()),
+				Status: models.MTOServiceItemStatusApproved,
+			},
 		},
-		Move:        move,
-		MTOShipment: hhgShipment,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("bdea5a8d-f15f-47d2-85c9-bba5694802ce"), // DPK - Domestic Packing
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    hhgShipment,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("bdea5a8d-f15f-47d2-85c9-bba5694802ce"), // DPK - Domestic Packing
+			},
+		},
+	}, nil)
 
 	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
 		PaymentServiceItem: models.PaymentServiceItem{
@@ -5949,17 +6888,27 @@ func createMoveWith2ShipmentsAndPaymentRequest(appCtx appcontext.AppContext, use
 
 	// Schedule 1 peak price
 	dupkCost := unit.Cents(8544)
-	serviceItemDUPK := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			ID:     uuid.Must(uuid.NewV4()),
-			Status: models.MTOServiceItemStatusApproved,
+	serviceItemDUPK := factory.BuildMTOServiceItem(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				ID:     uuid.Must(uuid.NewV4()),
+				Status: models.MTOServiceItemStatusApproved,
+			},
 		},
-		Move:        move,
-		MTOShipment: hhgShipment,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("15f01bc1-0754-4341-8e0f-25c8f04d5a77"), // DUPK - Domestic Unpacking
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    hhgShipment,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("15f01bc1-0754-4341-8e0f-25c8f04d5a77"), // DUPK - Domestic Unpacking
+			},
+		},
+	}, nil)
 
 	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
 		PaymentServiceItem: models.PaymentServiceItem{
@@ -5971,31 +6920,51 @@ func createMoveWith2ShipmentsAndPaymentRequest(appCtx appcontext.AppContext, use
 
 	dofsitPostal := "90210"
 	dofsitReason := "Storage items need to be picked up"
-	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			ID:               uuid.Must(uuid.NewV4()),
-			Status:           models.MTOServiceItemStatusSubmitted,
-			PickupPostalCode: &dofsitPostal,
-			Reason:           &dofsitReason,
+	factory.BuildMTOServiceItem(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				ID:               uuid.Must(uuid.NewV4()),
+				Status:           models.MTOServiceItemStatusSubmitted,
+				PickupPostalCode: &dofsitPostal,
+				Reason:           &dofsitReason,
+			},
 		},
-		Move:        move,
-		MTOShipment: hhgShipment,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("998beda7-e390-4a83-b15e-578a24326937"), // DOFSIT - Domestic Origin 1st Day SIT
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    hhgShipment,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("998beda7-e390-4a83-b15e-578a24326937"), // DOFSIT - Domestic Origin 1st Day SIT
+			},
+		},
+	}, nil)
 
-	serviceItemDDFSIT := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			ID:     uuid.Must(uuid.NewV4()),
-			Status: models.MTOServiceItemStatusSubmitted,
+	serviceItemDDFSIT := factory.BuildMTOServiceItem(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				ID:     uuid.Must(uuid.NewV4()),
+				Status: models.MTOServiceItemStatusSubmitted,
+			},
 		},
-		Move:        move,
-		MTOShipment: hhgShipment,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("d0561c49-e1a9-40b8-a739-3e639a9d77af"), // DDFSIT - Domestic Destination 1st Day SIT
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    hhgShipment,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("d0561c49-e1a9-40b8-a739-3e639a9d77af"), // DDFSIT - Domestic Destination 1st Day SIT
+			},
+		},
+	}, nil)
 
 	testdatagen.MakeMTOServiceItemCustomerContact(db, testdatagen.Assertions{
 		MTOServiceItem: serviceItemDDFSIT,
@@ -6037,17 +7006,27 @@ func createMoveWith2ShipmentsAndPaymentRequest(appCtx appcontext.AppContext, use
 		MTOServiceItem: serviceItemDCRT,
 	})
 
-	ntsrServiceItemDLH := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			ID:     uuid.Must(uuid.NewV4()),
-			Status: models.MTOServiceItemStatusApproved,
+	ntsrServiceItemDLH := factory.BuildMTOServiceItem(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				ID:     uuid.Must(uuid.NewV4()),
+				Status: models.MTOServiceItemStatusApproved,
+			},
 		},
-		Move:        move,
-		MTOShipment: ntsrShipment,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("8d600f25-1def-422d-b159-617c7d59156e"), // DLH - Domestic Linehaul
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    ntsrShipment,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("8d600f25-1def-422d-b159-617c7d59156e"), // DLH - Domestic Linehaul
+			},
+		},
+	}, nil)
 
 	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
 		PaymentServiceItem: models.PaymentServiceItem{
@@ -6057,17 +7036,27 @@ func createMoveWith2ShipmentsAndPaymentRequest(appCtx appcontext.AppContext, use
 		MTOServiceItem: ntsrServiceItemDLH,
 	})
 
-	ntsrServiceItemFSC := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			ID:     uuid.Must(uuid.NewV4()),
-			Status: models.MTOServiceItemStatusApproved,
+	ntsrServiceItemFSC := factory.BuildMTOServiceItem(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				ID:     uuid.Must(uuid.NewV4()),
+				Status: models.MTOServiceItemStatusApproved,
+			},
 		},
-		Move:        move,
-		MTOShipment: ntsrShipment,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("4780b30c-e846-437a-b39a-c499a6b09872"), // FSC - Fuel Surcharge
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    ntsrShipment,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("4780b30c-e846-437a-b39a-c499a6b09872"), // FSC - Fuel Surcharge
+			},
+		},
+	}, nil)
 
 	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
 		PaymentServiceItem: models.PaymentServiceItem{
@@ -6077,17 +7066,27 @@ func createMoveWith2ShipmentsAndPaymentRequest(appCtx appcontext.AppContext, use
 		MTOServiceItem: ntsrServiceItemFSC,
 	})
 
-	ntsrServiceItemDOP := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			ID:     uuid.Must(uuid.NewV4()),
-			Status: models.MTOServiceItemStatusApproved,
+	ntsrServiceItemDOP := factory.BuildMTOServiceItem(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				ID:     uuid.Must(uuid.NewV4()),
+				Status: models.MTOServiceItemStatusApproved,
+			},
 		},
-		Move:        move,
-		MTOShipment: ntsrShipment,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("2bc3e5cb-adef-46b1-bde9-55570bfdd43e"), // DOP - Domestic Origin Price
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    ntsrShipment,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("2bc3e5cb-adef-46b1-bde9-55570bfdd43e"), // DOP - Domestic Origin Price
+			},
+		},
+	}, nil)
 
 	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
 		PaymentServiceItem: models.PaymentServiceItem{
@@ -6097,17 +7096,27 @@ func createMoveWith2ShipmentsAndPaymentRequest(appCtx appcontext.AppContext, use
 		MTOServiceItem: ntsrServiceItemDOP,
 	})
 
-	ntsrServiceItemDDP := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			ID:     uuid.Must(uuid.NewV4()),
-			Status: models.MTOServiceItemStatusApproved,
+	ntsrServiceItemDDP := factory.BuildMTOServiceItem(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				ID:     uuid.Must(uuid.NewV4()),
+				Status: models.MTOServiceItemStatusApproved,
+			},
 		},
-		Move:        move,
-		MTOShipment: ntsrShipment,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("50f1179a-3b72-4fa1-a951-fe5bcc70bd14"), // DDP - Domestic Destination Price
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    ntsrShipment,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("50f1179a-3b72-4fa1-a951-fe5bcc70bd14"), // DDP - Domestic Destination Price
+			},
+		},
+	}, nil)
 
 	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
 		PaymentServiceItem: models.PaymentServiceItem{
@@ -6117,17 +7126,27 @@ func createMoveWith2ShipmentsAndPaymentRequest(appCtx appcontext.AppContext, use
 		MTOServiceItem: ntsrServiceItemDDP,
 	})
 
-	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			ID:     uuid.Must(uuid.NewV4()),
-			Status: models.MTOServiceItemStatusSubmitted,
+	factory.BuildMTOServiceItem(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				ID:     uuid.Must(uuid.NewV4()),
+				Status: models.MTOServiceItemStatusSubmitted,
+			},
 		},
-		Move:        move,
-		MTOShipment: ntsrShipment,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("15f01bc1-0754-4341-8e0f-25c8f04d5a77"), // DUPK - Domestic Unpacking
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    ntsrShipment,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("15f01bc1-0754-4341-8e0f-25c8f04d5a77"), // DUPK - Domestic Unpacking
+			},
+		},
+	}, nil)
 }
 
 func createHHGMoveWith2PaymentRequestsReviewedAllRejectedServiceItems(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -6154,28 +7173,37 @@ func createHHGMoveWith2PaymentRequestsReviewedAllRejectedServiceItems(appCtx app
 	}, nil)
 
 	locatorID := "PAYREJ"
-	mto7 := testdatagen.MakeMove(db, testdatagen.Assertions{
-		Move: models.Move{
-			ID:                 uuid.FromStringOrNil("99783f4d-ee83-4fc9-8e0c-ffffffffffff"),
-			OrdersID:           orders7.ID,
-			AvailableToPrimeAt: swag.Time(time.Now()),
-			Status:             models.MoveStatusAPPROVED,
-			SelectedMoveType:   &hhgMoveType,
-			Locator:            locatorID,
+	mto7 := factory.BuildMove(db, []factory.Customization{
+		{
+			Model:    orders7,
+			LinkOnly: true,
 		},
-	})
-
-	mtoShipmentHHG7 := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			ID:                   uuid.FromStringOrNil("baa00811-2381-433e-8a96-ffffffffffff"),
-			PrimeEstimatedWeight: &estimatedWeight,
-			PrimeActualWeight:    &actualWeight,
-			ShipmentType:         models.MTOShipmentTypeHHG,
-			ApprovedDate:         swag.Time(time.Now()),
-			Status:               models.MTOShipmentStatusApproved,
+		{
+			Model: models.Move{
+				ID:                 uuid.FromStringOrNil("99783f4d-ee83-4fc9-8e0c-ffffffffffff"),
+				AvailableToPrimeAt: models.TimePointer(time.Now()),
+				Status:             models.MoveStatusAPPROVED,
+				SelectedMoveType:   &hhgMoveType,
+				Locator:            locatorID,
+			},
 		},
-		Move: mto7,
-	})
+	}, nil)
+	mtoShipmentHHG7 := factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				ID:                   uuid.FromStringOrNil("baa00811-2381-433e-8a96-ffffffffffff"),
+				PrimeEstimatedWeight: &estimatedWeight,
+				PrimeActualWeight:    &actualWeight,
+				ShipmentType:         models.MTOShipmentTypeHHG,
+				ApprovedDate:         models.TimePointer(time.Now()),
+				Status:               models.MTOShipmentStatusApproved,
+			},
+		},
+		{
+			Model:    mto7,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	testdatagen.MakeMTOAgent(db, testdatagen.Assertions{
 		MTOAgent: models.MTOAgent{
@@ -6220,16 +7248,23 @@ func createHHGMoveWith2PaymentRequestsReviewedAllRejectedServiceItems(appCtx app
 		},
 	})
 
-	serviceItemMS7 := testdatagen.MakeMTOServiceItemBasic(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			ID:     uuid.FromStringOrNil("923acbd4-5e65-4d62-aecc-ffffffffffff"),
-			Status: models.MTOServiceItemStatusApproved,
+	serviceItemMS7 := factory.BuildMTOServiceItemBasic(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				ID:     uuid.FromStringOrNil("923acbd4-5e65-4d62-aecc-ffffffffffff"),
+				Status: models.MTOServiceItemStatusApproved,
+			},
 		},
-		Move: mto7,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("1130e612-94eb-49a7-973d-72f33685e551"), // MS - Move Management
+		{
+			Model:    mto7,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("1130e612-94eb-49a7-973d-72f33685e551"), // MS - Move Management
+			},
+		},
+	}, nil)
 
 	rejectionReason := "Just because."
 	msCost := unit.Cents(10000)
@@ -6243,16 +7278,23 @@ func createHHGMoveWith2PaymentRequestsReviewedAllRejectedServiceItems(appCtx app
 		MTOServiceItem: serviceItemMS7,
 	})
 
-	serviceItemDLH7 := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			ID:     uuid.FromStringOrNil("aab8df9a-bbc9-4f26-a3ab-ffffffffffff"),
-			Status: models.MTOServiceItemStatusApproved,
+	serviceItemDLH7 := factory.BuildMTOServiceItem(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				ID:     uuid.FromStringOrNil("aab8df9a-bbc9-4f26-a3ab-ffffffffffff"),
+				Status: models.MTOServiceItemStatusApproved,
+			},
 		},
-		Move: mto7,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("8d600f25-1def-422d-b159-617c7d59156e"), // DLH - Domestic Linehaul
+		{
+			Model:    mto7,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("8d600f25-1def-422d-b159-617c7d59156e"), // DLH - Domestic Linehaul
+			},
+		},
+	}, nil)
 
 	dlhCost := unit.Cents(99999)
 	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
@@ -6278,16 +7320,23 @@ func createHHGMoveWith2PaymentRequestsReviewedAllRejectedServiceItems(appCtx app
 		Move: mto7,
 	})
 
-	serviceItemCS7 := testdatagen.MakeMTOServiceItemBasic(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			ID:     uuid.FromStringOrNil("ab37c0a4-ad3f-44aa-b294-ffffffffffff"),
-			Status: models.MTOServiceItemStatusApproved,
+	serviceItemCS7 := factory.BuildMTOServiceItemBasic(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				ID:     uuid.FromStringOrNil("ab37c0a4-ad3f-44aa-b294-ffffffffffff"),
+				Status: models.MTOServiceItemStatusApproved,
+			},
 		},
-		Move: mto7,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("9dc919da-9b66-407b-9f17-05c0f03fcb50"), // CS - Counseling Services
+		{
+			Model:    mto7,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("9dc919da-9b66-407b-9f17-05c0f03fcb50"), // CS - Counseling Services
+			},
+		},
+	}, nil)
 
 	csCost := unit.Cents(25000)
 
@@ -6301,29 +7350,44 @@ func createHHGMoveWith2PaymentRequestsReviewedAllRejectedServiceItems(appCtx app
 		MTOServiceItem: serviceItemCS7,
 	})
 
-	MTOShipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			ID:                   uuid.FromStringOrNil("475579d5-aaa4-4755-8c43-ffffffffffff"),
-			PrimeEstimatedWeight: &estimatedWeight,
-			PrimeActualWeight:    &actualWeight,
-			ShipmentType:         models.MTOShipmentTypeHHG, // same as HHG for now
-			ApprovedDate:         swag.Time(time.Now()),
-			Status:               models.MTOShipmentStatusApproved,
+	MTOShipment := factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				ID:                   uuid.FromStringOrNil("475579d5-aaa4-4755-8c43-ffffffffffff"),
+				PrimeEstimatedWeight: &estimatedWeight,
+				PrimeActualWeight:    &actualWeight,
+				ShipmentType:         models.MTOShipmentTypeHHG, // same as HHG for now
+				ApprovedDate:         models.TimePointer(time.Now()),
+				Status:               models.MTOShipmentStatusApproved,
+			},
 		},
-		Move: mto7,
-	})
+		{
+			Model:    mto7,
+			LinkOnly: true,
+		},
+	}, nil)
 
-	serviceItemFSC7 := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			ID:     uuid.FromStringOrNil("f23eeb02-66c7-43f5-ad9c-ffffffffffff"),
-			Status: models.MTOServiceItemStatusApproved,
+	serviceItemFSC7 := factory.BuildMTOServiceItem(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				ID:     uuid.FromStringOrNil("f23eeb02-66c7-43f5-ad9c-ffffffffffff"),
+				Status: models.MTOServiceItemStatusApproved,
+			},
 		},
-		Move:        mto7,
-		MTOShipment: MTOShipment,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("4780b30c-e846-437a-b39a-c499a6b09872"), // FSC - Fuel Surcharge
+		{
+			Model:    mto7,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    MTOShipment,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("4780b30c-e846-437a-b39a-c499a6b09872"), // FSC - Fuel Surcharge
+			},
+		},
+	}, nil)
 
 	fscCost := unit.Cents(55555)
 
@@ -6869,25 +7933,35 @@ func createReweighWithMixedShipmentStatuses(appCtx appcontext.AppContext, userUp
 	move := makeMoveForOrders(appCtx, orders, "WTSTAT", models.MoveStatusAPPROVALSREQUESTED)
 
 	// shipment is not yet approved so will be excluded from MTO weight calculations
-	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			Status: models.MTOShipmentStatusSubmitted,
+	factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				Status: models.MTOShipmentStatusSubmitted,
+			},
 		},
-		Move: move,
-	})
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	divertedEstimated := unit.Pound(5000)
 	divertedActual := unit.Pound(6000)
 	// shipment was diverted so will have weights values already
-	divertedShipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			Status:               models.MTOShipmentStatusSubmitted,
-			Diversion:            true,
-			PrimeEstimatedWeight: &divertedEstimated,
-			PrimeActualWeight:    &divertedActual,
+	divertedShipment := factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				Status:               models.MTOShipmentStatusSubmitted,
+				Diversion:            true,
+				PrimeEstimatedWeight: &divertedEstimated,
+				PrimeActualWeight:    &divertedActual,
+			},
 		},
-		Move: move,
-	})
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 	diveretedReweigh := unit.Pound(5500)
 	testdatagen.MakeReweigh(db, testdatagen.Assertions{
 		MTOShipment: divertedShipment,
@@ -6900,14 +7974,19 @@ func createReweighWithMixedShipmentStatuses(appCtx appcontext.AppContext, userUp
 	canceledActual := unit.Pound(6000)
 	canceledReweigh := unit.Pound(5500)
 	// cancelled shipment will still appear on MTO page but will not be included in weight calculations
-	canceledShipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			Status:               models.MTOShipmentStatusCanceled,
-			PrimeEstimatedWeight: &canceledEstimated,
-			PrimeActualWeight:    &canceledActual,
+	canceledShipment := factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				Status:               models.MTOShipmentStatusCanceled,
+				PrimeEstimatedWeight: &canceledEstimated,
+				PrimeActualWeight:    &canceledActual,
+			},
 		},
-		Move: move,
-	})
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 	testdatagen.MakeReweigh(db, testdatagen.Assertions{
 		MTOShipment: canceledShipment,
 		Reweigh: models.Reweigh{
@@ -6918,14 +7997,19 @@ func createReweighWithMixedShipmentStatuses(appCtx appcontext.AppContext, userUp
 	approvedEstimated := unit.Pound(1000)
 	approvedActual := unit.Pound(1500)
 	approvedReweigh := unit.Pound(1250)
-	approvedShipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			Status:               models.MTOShipmentStatusApproved,
-			PrimeEstimatedWeight: &approvedEstimated,
-			PrimeActualWeight:    &approvedActual,
+	approvedShipment := factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				Status:               models.MTOShipmentStatusApproved,
+				PrimeEstimatedWeight: &approvedEstimated,
+				PrimeActualWeight:    &approvedActual,
+			},
 		},
-		Move: move,
-	})
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 	testdatagen.MakeReweigh(db, testdatagen.Assertions{
 		MTOShipment: approvedShipment,
 		Reweigh: models.Reweigh{
@@ -6935,14 +8019,19 @@ func createReweighWithMixedShipmentStatuses(appCtx appcontext.AppContext, userUp
 
 	approvedReweighRequestedEstimated := unit.Pound(1000)
 	approvedReweighRequestedActual := unit.Pound(1500)
-	approvedReweighRequestedShipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			Status:               models.MTOShipmentStatusApproved,
-			PrimeEstimatedWeight: &approvedReweighRequestedEstimated,
-			PrimeActualWeight:    &approvedReweighRequestedActual,
+	approvedReweighRequestedShipment := factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				Status:               models.MTOShipmentStatusApproved,
+				PrimeEstimatedWeight: &approvedReweighRequestedEstimated,
+				PrimeActualWeight:    &approvedReweighRequestedActual,
+			},
 		},
-		Move: move,
-	})
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 	testdatagen.MakeReweigh(db, testdatagen.Assertions{
 		MTOShipment: approvedReweighRequestedShipment,
 	})
@@ -6950,14 +8039,19 @@ func createReweighWithMixedShipmentStatuses(appCtx appcontext.AppContext, userUp
 	divRequestedEstimated := unit.Pound(1000)
 	divRequestedActual := unit.Pound(1500)
 	divRequestedReweigh := unit.Pound(1750)
-	divRequestedShipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			Status:               models.MTOShipmentStatusDiversionRequested,
-			PrimeEstimatedWeight: &divRequestedEstimated,
-			PrimeActualWeight:    &divRequestedActual,
+	divRequestedShipment := factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				Status:               models.MTOShipmentStatusDiversionRequested,
+				PrimeEstimatedWeight: &divRequestedEstimated,
+				PrimeActualWeight:    &divRequestedActual,
+			},
 		},
-		Move: move,
-	})
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 	testdatagen.MakeReweigh(db, testdatagen.Assertions{
 		MTOShipment: divRequestedShipment,
 		Reweigh: models.Reweigh{
@@ -6968,14 +8062,19 @@ func createReweighWithMixedShipmentStatuses(appCtx appcontext.AppContext, userUp
 	cancellationRequestedEstimated := unit.Pound(1000)
 	cancellationRequestedActual := unit.Pound(1500)
 	cancellationRequestedReweigh := unit.Pound(1250)
-	cancellationRequestedShipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			Status:               models.MTOShipmentStatusCancellationRequested,
-			PrimeEstimatedWeight: &cancellationRequestedEstimated,
-			PrimeActualWeight:    &cancellationRequestedActual,
+	cancellationRequestedShipment := factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				Status:               models.MTOShipmentStatusCancellationRequested,
+				PrimeEstimatedWeight: &cancellationRequestedEstimated,
+				PrimeActualWeight:    &cancellationRequestedActual,
+			},
 		},
-		Move: move,
-	})
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 	testdatagen.MakeReweigh(db, testdatagen.Assertions{
 		MTOShipment: cancellationRequestedShipment,
 		Reweigh: models.Reweigh{
@@ -6998,58 +8097,74 @@ func createReweighWithMultipleShipments(appCtx appcontext.AppContext, userUpload
 	estimatedHHGWeight := unit.Pound(1400)
 	actualHHGWeight := unit.Pound(3000)
 	now := time.Now()
-	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			ID:                   uuid.FromStringOrNil("5b72c64e-ffad-11eb-9a03-0242ac130003"),
-			PrimeEstimatedWeight: &estimatedHHGWeight,
-			PrimeActualWeight:    &actualHHGWeight,
-			ShipmentType:         models.MTOShipmentTypeHHG,
-			ApprovedDate:         &now,
-			Status:               models.MTOShipmentStatusApproved,
-			MoveTaskOrder:        move,
-			MoveTaskOrderID:      move.ID,
+	factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				ID:                   uuid.FromStringOrNil("5b72c64e-ffad-11eb-9a03-0242ac130003"),
+				PrimeEstimatedWeight: &estimatedHHGWeight,
+				PrimeActualWeight:    &actualHHGWeight,
+				ShipmentType:         models.MTOShipmentTypeHHG,
+				ApprovedDate:         &now,
+				Status:               models.MTOShipmentStatusApproved,
+			},
 		},
-	})
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 
-	shipmentWithMissingReweigh := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			ID:                   uuid.FromStringOrNil("6192766e-ffad-11eb-9a03-0242ac130003"),
-			PrimeEstimatedWeight: &estimatedHHGWeight,
-			PrimeActualWeight:    &actualHHGWeight,
-			ShipmentType:         models.MTOShipmentTypeHHG,
-			ApprovedDate:         &now,
-			Status:               models.MTOShipmentStatusApproved,
-			CounselorRemarks:     swag.String("Please handle with care"),
-			MoveTaskOrder:        move,
-			MoveTaskOrderID:      move.ID,
+	shipmentWithMissingReweigh := factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				ID:                   uuid.FromStringOrNil("6192766e-ffad-11eb-9a03-0242ac130003"),
+				PrimeEstimatedWeight: &estimatedHHGWeight,
+				PrimeActualWeight:    &actualHHGWeight,
+				ShipmentType:         models.MTOShipmentTypeHHG,
+				ApprovedDate:         &now,
+				Status:               models.MTOShipmentStatusApproved,
+				CounselorRemarks:     models.StringPointer("Please handle with care"),
+			},
 		},
-	})
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 	testdatagen.MakeReweighWithNoWeightForShipment(db, testdatagen.Assertions{UserUploader: userUploader}, shipmentWithMissingReweigh)
 
-	shipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			PrimeEstimatedWeight: &estimatedHHGWeight,
-			PrimeActualWeight:    &actualHHGWeight,
-			ShipmentType:         models.MTOShipmentTypeHHG,
-			ApprovedDate:         &now,
-			Status:               models.MTOShipmentStatusApproved,
-			MoveTaskOrder:        move,
-			MoveTaskOrderID:      move.ID,
+	shipment := factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				PrimeEstimatedWeight: &estimatedHHGWeight,
+				PrimeActualWeight:    &actualHHGWeight,
+				ShipmentType:         models.MTOShipmentTypeHHG,
+				ApprovedDate:         &now,
+				Status:               models.MTOShipmentStatusApproved,
+			},
 		},
-	})
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 	testdatagen.MakeReweighForShipment(db, testdatagen.Assertions{UserUploader: userUploader}, shipment, unit.Pound(5000))
 
-	shipmentForReweigh := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			PrimeEstimatedWeight: &estimatedHHGWeight,
-			PrimeActualWeight:    &actualHHGWeight,
-			ShipmentType:         models.MTOShipmentTypeHHG,
-			ApprovedDate:         &now,
-			Status:               models.MTOShipmentStatusApproved,
-			MoveTaskOrder:        move,
-			MoveTaskOrderID:      move.ID,
+	shipmentForReweigh := factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				PrimeEstimatedWeight: &estimatedHHGWeight,
+				PrimeActualWeight:    &actualHHGWeight,
+				ShipmentType:         models.MTOShipmentTypeHHG,
+				ApprovedDate:         &now,
+				Status:               models.MTOShipmentStatusApproved,
+			},
 		},
-	})
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 	testdatagen.MakeReweighForShipment(db, testdatagen.Assertions{UserUploader: userUploader}, shipmentForReweigh, unit.Pound(1541))
 	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
 		Move: move,
@@ -7090,17 +8205,21 @@ func createReweighWithShipmentMissingReweigh(appCtx appcontext.AppContext, userU
 	estimatedHHGWeight := unit.Pound(1400)
 	actualHHGWeight := unit.Pound(6000)
 	now := time.Now()
-	shipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			PrimeEstimatedWeight: &estimatedHHGWeight,
-			PrimeActualWeight:    &actualHHGWeight,
-			ShipmentType:         models.MTOShipmentTypeHHG,
-			ApprovedDate:         &now,
-			Status:               models.MTOShipmentStatusApproved,
-			MoveTaskOrder:        move,
-			MoveTaskOrderID:      move.ID,
+	shipment := factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				PrimeEstimatedWeight: &estimatedHHGWeight,
+				PrimeActualWeight:    &actualHHGWeight,
+				ShipmentType:         models.MTOShipmentTypeHHG,
+				ApprovedDate:         &now,
+				Status:               models.MTOShipmentStatusApproved,
+			},
 		},
-	})
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
 		Move: move,
 		Stub: true,
@@ -7140,17 +8259,21 @@ func createReweighWithShipmentMaxBillableWeightExceeded(appCtx appcontext.AppCon
 	estimatedHHGWeight := unit.Pound(1400)
 	actualHHGWeight := unit.Pound(8900)
 	now := time.Now()
-	shipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			PrimeEstimatedWeight: &estimatedHHGWeight,
-			PrimeActualWeight:    &actualHHGWeight,
-			ShipmentType:         models.MTOShipmentTypeHHG,
-			ApprovedDate:         &now,
-			Status:               models.MTOShipmentStatusApproved,
-			MoveTaskOrder:        move,
-			MoveTaskOrderID:      move.ID,
+	shipment := factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				PrimeEstimatedWeight: &estimatedHHGWeight,
+				PrimeActualWeight:    &actualHHGWeight,
+				ShipmentType:         models.MTOShipmentTypeHHG,
+				ApprovedDate:         &now,
+				Status:               models.MTOShipmentStatusApproved,
+			},
 		},
-	})
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
 		Move: move,
 		Stub: true,
@@ -7189,16 +8312,20 @@ func createReweighWithShipmentNoEstimatedWeight(appCtx appcontext.AppContext, us
 
 	actualHHGWeight := unit.Pound(6000)
 	now := time.Now()
-	shipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			PrimeActualWeight: &actualHHGWeight,
-			ShipmentType:      models.MTOShipmentTypeHHG,
-			ApprovedDate:      &now,
-			Status:            models.MTOShipmentStatusApproved,
-			MoveTaskOrder:     move,
-			MoveTaskOrderID:   move.ID,
+	shipment := factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				PrimeActualWeight: &actualHHGWeight,
+				ShipmentType:      models.MTOShipmentTypeHHG,
+				ApprovedDate:      &now,
+				Status:            models.MTOShipmentStatusApproved,
+			},
 		},
-	})
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
 		Move: move,
 		Stub: true,
@@ -7258,32 +8385,43 @@ func createReweighWithShipmentDeprecatedPaymentRequest(appCtx appcontext.AppCont
 		},
 	}, nil)
 
-	move := testdatagen.MakeMove(db, testdatagen.Assertions{
-		Order: models.Order{
-			ServiceMemberID: uuid.FromStringOrNil(smID),
-			ServiceMember:   sm,
+	move := factory.BuildMove(db, []factory.Customization{
+		{
+			Model:    sm,
+			LinkOnly: true,
 		},
-		UserUploader: userUploader,
-		Move: models.Move{
-			ID:               uuid.FromStringOrNil("bb0c2329-e225-41cc-a931-823c6026425b"),
-			Locator:          "DEPPRQ",
-			SelectedMoveType: &hhgMoveType,
-			TIORemarks:       &tioRemarks,
+		{
+			Model: models.Move{
+				ID:               uuid.FromStringOrNil("bb0c2329-e225-41cc-a931-823c6026425b"),
+				Locator:          "DEPPRQ",
+				SelectedMoveType: &hhgMoveType,
+				TIORemarks:       &tioRemarks,
+			},
 		},
-	})
-
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
 	actualHHGWeight := unit.Pound(6000)
 	now := time.Now()
-	shipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			PrimeActualWeight: &actualHHGWeight,
-			ShipmentType:      models.MTOShipmentTypeHHG,
-			ApprovedDate:      &now,
-			Status:            models.MTOShipmentStatusApproved,
-			MoveTaskOrder:     move,
-			MoveTaskOrderID:   move.ID,
+	shipment := factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				PrimeActualWeight: &actualHHGWeight,
+				ShipmentType:      models.MTOShipmentTypeHHG,
+				ApprovedDate:      &now,
+				Status:            models.MTOShipmentStatusApproved,
+			},
 		},
-	})
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
 		Move: move,
 		Stub: true,
@@ -7315,137 +8453,228 @@ func createReweighWithShipmentDeprecatedPaymentRequest(appCtx appcontext.AppCont
 func createHHGMoveWithTaskOrderServices(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 
 	db := appCtx.DB()
-	mtoWithTaskOrderServices := testdatagen.MakeMove(db, testdatagen.Assertions{
-		Move: models.Move{
-			ID:                 uuid.FromStringOrNil("9c7b255c-2981-4bf8-839f-61c7458e2b4d"),
-			Locator:            "RDY4PY",
-			AvailableToPrimeAt: swag.Time(time.Now()),
-			Status:             models.MoveStatusAPPROVED,
-			SelectedMoveType:   &hhgMoveType,
+	mtoWithTaskOrderServices := factory.BuildMove(db, []factory.Customization{
+		{
+			Model: models.Move{
+				ID:                 uuid.FromStringOrNil("9c7b255c-2981-4bf8-839f-61c7458e2b4d"),
+				Locator:            "RDY4PY",
+				AvailableToPrimeAt: models.TimePointer(time.Now()),
+				Status:             models.MoveStatusAPPROVED,
+				SelectedMoveType:   &hhgMoveType,
+			},
 		},
-		UserUploader: userUploader,
-	})
-
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
 	estimated := unit.Pound(1400)
 	actual := unit.Pound(1349)
-	mtoShipment4 := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			ID:                   uuid.FromStringOrNil("c3a9e368-188b-4828-a64a-204da9b988c2"),
-			RequestedPickupDate:  swag.Time(time.Now()),
-			ScheduledPickupDate:  swag.Time(time.Now().AddDate(0, 0, -1)),
-			PrimeEstimatedWeight: &estimated, // so we can price Dom. Destination Price
-			PrimeActualWeight:    &actual,    // so we can price DLH
-			Status:               models.MTOShipmentStatusApproved,
-			ApprovedDate:         swag.Time(time.Now()),
+	mtoShipment4 := factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				ID:                   uuid.FromStringOrNil("c3a9e368-188b-4828-a64a-204da9b988c2"),
+				RequestedPickupDate:  models.TimePointer(time.Now()),
+				ScheduledPickupDate:  models.TimePointer(time.Now().AddDate(0, 0, -1)),
+				PrimeEstimatedWeight: &estimated, // so we can price Dom. Destination Price
+				PrimeActualWeight:    &actual,    // so we can price DLH
+				Status:               models.MTOShipmentStatusApproved,
+				ApprovedDate:         models.TimePointer(time.Now()),
+			},
 		},
-		Move: mtoWithTaskOrderServices,
-	})
-	mtoShipment5 := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			ID:                   uuid.FromStringOrNil("01b9671e-b268-4906-967b-ba661a1d3933"),
-			RequestedPickupDate:  swag.Time(time.Now()),
-			ScheduledPickupDate:  swag.Time(time.Now().AddDate(0, 0, -1)),
-			PrimeEstimatedWeight: &estimated,
-			PrimeActualWeight:    &actual,
-			Status:               models.MTOShipmentStatusApproved,
-			ApprovedDate:         swag.Time(time.Now()),
+		{
+			Model:    mtoWithTaskOrderServices,
+			LinkOnly: true,
 		},
-		Move: mtoWithTaskOrderServices,
-	})
+	}, nil)
+	mtoShipment5 := factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				ID:                   uuid.FromStringOrNil("01b9671e-b268-4906-967b-ba661a1d3933"),
+				RequestedPickupDate:  models.TimePointer(time.Now()),
+				ScheduledPickupDate:  models.TimePointer(time.Now().AddDate(0, 0, -1)),
+				PrimeEstimatedWeight: &estimated,
+				PrimeActualWeight:    &actual,
+				Status:               models.MTOShipmentStatusApproved,
+				ApprovedDate:         models.TimePointer(time.Now()),
+			},
+		},
+		{
+			Model:    mtoWithTaskOrderServices,
+			LinkOnly: true,
+		},
+	}, nil)
 
-	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			ID:     uuid.FromStringOrNil("94bc8b44-fefe-469f-83a0-39b1e31116fb"),
-			Status: models.MTOServiceItemStatusApproved,
+	factory.BuildMTOServiceItem(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				ID:     uuid.FromStringOrNil("94bc8b44-fefe-469f-83a0-39b1e31116fb"),
+				Status: models.MTOServiceItemStatusApproved,
+			},
 		},
-		Move:        mtoWithTaskOrderServices,
-		MTOShipment: mtoShipment4,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("50f1179a-3b72-4fa1-a951-fe5bcc70bd14"), // Dom. Destination Price
+		{
+			Model:    mtoWithTaskOrderServices,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    mtoShipment4,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("50f1179a-3b72-4fa1-a951-fe5bcc70bd14"), // Dom. Destination Price
+			},
+		},
+	}, nil)
 
-	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			ID:     uuid.FromStringOrNil("fd6741a5-a92c-44d5-8303-1d7f5e60afbf"),
-			Status: models.MTOServiceItemStatusApproved,
+	factory.BuildMTOServiceItem(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				ID:     uuid.FromStringOrNil("fd6741a5-a92c-44d5-8303-1d7f5e60afbf"),
+				Status: models.MTOServiceItemStatusApproved,
+			},
 		},
-		Move:        mtoWithTaskOrderServices,
-		MTOShipment: mtoShipment4,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("8d600f25-1def-422d-b159-617c7d59156e"), // DLH
+		{
+			Model:    mtoWithTaskOrderServices,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    mtoShipment4,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("8d600f25-1def-422d-b159-617c7d59156e"), // DLH
+			},
+		},
+	}, nil)
 
-	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			ID:     uuid.FromStringOrNil("6431e3e2-4ee4-41b5-b226-393f9133eb6c"),
-			Status: models.MTOServiceItemStatusApproved,
+	factory.BuildMTOServiceItem(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				ID:     uuid.FromStringOrNil("6431e3e2-4ee4-41b5-b226-393f9133eb6c"),
+				Status: models.MTOServiceItemStatusApproved,
+			},
 		},
-		Move:        mtoWithTaskOrderServices,
-		MTOShipment: mtoShipment4,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("4780b30c-e846-437a-b39a-c499a6b09872"), // FSC
+		{
+			Model:    mtoWithTaskOrderServices,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    mtoShipment4,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("4780b30c-e846-437a-b39a-c499a6b09872"), // FSC
+			},
+		},
+	}, nil)
 
-	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			ID:     uuid.FromStringOrNil("eee4b555-2475-4e67-a5b8-102f28d950f8"),
-			Status: models.MTOServiceItemStatusApproved,
+	factory.BuildMTOServiceItem(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				ID:     uuid.FromStringOrNil("eee4b555-2475-4e67-a5b8-102f28d950f8"),
+				Status: models.MTOServiceItemStatusApproved,
+			},
 		},
-		Move:        mtoWithTaskOrderServices,
-		MTOShipment: mtoShipment5,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("4b85962e-25d3-4485-b43c-2497c4365598"), // DSH
+		{
+			Model:    mtoWithTaskOrderServices,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    mtoShipment5,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("4b85962e-25d3-4485-b43c-2497c4365598"), // DSH
+			},
+		},
+	}, nil)
 
-	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			ID:     uuid.FromStringOrNil("a6e5debc-9e73-421b-8f68-92936ce34737"),
-			Status: models.MTOServiceItemStatusApproved,
+	factory.BuildMTOServiceItem(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				ID:     uuid.FromStringOrNil("a6e5debc-9e73-421b-8f68-92936ce34737"),
+				Status: models.MTOServiceItemStatusApproved,
+			},
 		},
-		Move:        mtoWithTaskOrderServices,
-		MTOShipment: mtoShipment5,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("bdea5a8d-f15f-47d2-85c9-bba5694802ce"), // DPK
+		{
+			Model:    mtoWithTaskOrderServices,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    mtoShipment5,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("bdea5a8d-f15f-47d2-85c9-bba5694802ce"), // DPK
+			},
+		},
+	}, nil)
 
-	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			ID:     uuid.FromStringOrNil("999504a9-45b0-477f-a00b-3ede8ffde379"),
-			Status: models.MTOServiceItemStatusApproved,
+	factory.BuildMTOServiceItem(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				ID:     uuid.FromStringOrNil("999504a9-45b0-477f-a00b-3ede8ffde379"),
+				Status: models.MTOServiceItemStatusApproved,
+			},
 		},
-		Move:        mtoWithTaskOrderServices,
-		MTOShipment: mtoShipment5,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("15f01bc1-0754-4341-8e0f-25c8f04d5a77"), // DUPK
+		{
+			Model:    mtoWithTaskOrderServices,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    mtoShipment5,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("15f01bc1-0754-4341-8e0f-25c8f04d5a77"), // DUPK
+			},
+		},
+	}, nil)
 
-	testdatagen.MakeMTOServiceItemBasic(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			ID:     uuid.FromStringOrNil("ca9aeb58-e5a9-44b0-abe8-81d233dbdebf"),
-			Status: models.MTOServiceItemStatusApproved,
+	factory.BuildMTOServiceItemBasic(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				ID:     uuid.FromStringOrNil("ca9aeb58-e5a9-44b0-abe8-81d233dbdebf"),
+				Status: models.MTOServiceItemStatusApproved,
+			},
 		},
-		Move: mtoWithTaskOrderServices,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("9dc919da-9b66-407b-9f17-05c0f03fcb50"), // CS - Counseling Services
+		{
+			Model:    mtoWithTaskOrderServices,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("9dc919da-9b66-407b-9f17-05c0f03fcb50"), // CS - Counseling Services
+			},
+		},
+	}, nil)
 
-	testdatagen.MakeMTOServiceItemBasic(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			ID:     uuid.FromStringOrNil("722a6f4e-b438-4655-88c7-51609056550d"),
-			Status: models.MTOServiceItemStatusApproved,
+	factory.BuildMTOServiceItemBasic(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				ID:     uuid.FromStringOrNil("722a6f4e-b438-4655-88c7-51609056550d"),
+				Status: models.MTOServiceItemStatusApproved,
+			},
 		},
-		Move: mtoWithTaskOrderServices,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("1130e612-94eb-49a7-973d-72f33685e551"), // MS - Move Management
+		{
+			Model:    mtoWithTaskOrderServices,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("1130e612-94eb-49a7-973d-72f33685e551"), // MS - Move Management
+			},
+		},
+	}, nil)
 }
 
 func createWebhookSubscriptionForPaymentRequestUpdate(appCtx appcontext.AppContext) {
@@ -7475,26 +8704,35 @@ func createMoveWithServiceItems(appCtx appcontext.AppContext, userUploader *uplo
 		},
 	}, nil)
 
-	move9 := testdatagen.MakeMove(db, testdatagen.Assertions{
-		Move: models.Move{
-			ID:               uuid.FromStringOrNil("7cbe57ba-fd3a-45a7-aa9a-1970f1908ae7"),
-			OrdersID:         orders9.ID,
-			SelectedMoveType: &hhgMoveType,
-			Status:           models.MoveStatusSUBMITTED,
+	move9 := factory.BuildMove(db, []factory.Customization{
+		{
+			Model:    orders9,
+			LinkOnly: true,
 		},
-	})
-
-	mtoShipment9 := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			ID:                   uuid.FromStringOrNil("ec3f4edf-1463-43fb-98c4-272d3acb204a"),
-			PrimeEstimatedWeight: &estimatedWeight,
-			PrimeActualWeight:    &actualWeight,
-			ShipmentType:         models.MTOShipmentTypeHHG,
-			ApprovedDate:         swag.Time(time.Now()),
-			Status:               models.MTOShipmentStatusSubmitted,
+		{
+			Model: models.Move{
+				ID:               uuid.FromStringOrNil("7cbe57ba-fd3a-45a7-aa9a-1970f1908ae7"),
+				SelectedMoveType: &hhgMoveType,
+				Status:           models.MoveStatusSUBMITTED,
+			},
 		},
-		Move: move9,
-	})
+	}, nil)
+	mtoShipment9 := factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				ID:                   uuid.FromStringOrNil("ec3f4edf-1463-43fb-98c4-272d3acb204a"),
+				PrimeEstimatedWeight: &estimatedWeight,
+				PrimeActualWeight:    &actualWeight,
+				ShipmentType:         models.MTOShipmentTypeHHG,
+				ApprovedDate:         models.TimePointer(time.Now()),
+				Status:               models.MTOShipmentStatusSubmitted,
+			},
+		},
+		{
+			Model:    move9,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	paymentRequest9 := testdatagen.MakePaymentRequest(db, testdatagen.Assertions{
 		PaymentRequest: models.PaymentRequest{
@@ -7578,21 +8816,30 @@ func createMoveWithBasicServiceItems(appCtx appcontext.AppContext, userUploader 
 		},
 	}, nil)
 
-	move10 := testdatagen.MakeMove(db, testdatagen.Assertions{
-		Move: models.Move{
-			ID:                 uuid.FromStringOrNil("7cbe57ba-fd3a-45a7-aa9a-1970f1908ae8"),
-			OrdersID:           orders10.ID,
-			Status:             models.MoveStatusAPPROVED,
-			AvailableToPrimeAt: swag.Time(time.Now()),
+	move10 := factory.BuildMove(db, []factory.Customization{
+		{
+			Model:    orders10,
+			LinkOnly: true,
 		},
-	})
-
-	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		Move: move10,
-		MTOShipment: models.MTOShipment{
-			Status: models.MTOShipmentStatusApproved,
+		{
+			Model: models.Move{
+				ID:                 uuid.FromStringOrNil("7cbe57ba-fd3a-45a7-aa9a-1970f1908ae8"),
+				Status:             models.MoveStatusAPPROVED,
+				AvailableToPrimeAt: models.TimePointer(time.Now()),
+			},
 		},
-	})
+	}, nil)
+	factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model:    move10,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOShipment{
+				Status: models.MTOShipmentStatusApproved,
+			},
+		},
+	}, nil)
 
 	paymentRequest10 := testdatagen.MakePaymentRequest(db, testdatagen.Assertions{
 		PaymentRequest: models.PaymentRequest{
@@ -7604,21 +8851,27 @@ func createMoveWithBasicServiceItems(appCtx appcontext.AppContext, userUploader 
 		Move: move10,
 	})
 
-	serviceItemA := testdatagen.MakeMTOServiceItemBasic(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{Status: models.MTOServiceItemStatusApproved},
-		PaymentRequest: paymentRequest10,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("9dc919da-9b66-407b-9f17-05c0f03fcb50"), // CS - Counseling Services
+	serviceItemA := factory.BuildMTOServiceItemBasic(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{Status: models.MTOServiceItemStatusApproved},
 		},
-	})
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("9dc919da-9b66-407b-9f17-05c0f03fcb50"), // CS - Counseling Services
+			},
+		},
+	}, nil)
 
-	serviceItemB := testdatagen.MakeMTOServiceItemBasic(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{Status: models.MTOServiceItemStatusApproved},
-		PaymentRequest: paymentRequest10,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("1130e612-94eb-49a7-973d-72f33685e551"), // MS - Move Management
+	serviceItemB := factory.BuildMTOServiceItemBasic(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{Status: models.MTOServiceItemStatusApproved},
 		},
-	})
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("1130e612-94eb-49a7-973d-72f33685e551"), // MS - Move Management
+			},
+		},
+	}, nil)
 
 	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
 		PaymentServiceItem: models.PaymentServiceItem{
@@ -7661,14 +8914,19 @@ func createMoveWithUniqueDestinationAddress(appCtx appcontext.AppContext) {
 		},
 	}, nil)
 
-	testdatagen.MakeMove(db, testdatagen.Assertions{
-		Move: models.Move{
-			ID:                 uuid.FromStringOrNil("ecbc2e6a-1b45-403b-9bd4-ea315d4d3d93"),
-			AvailableToPrimeAt: swag.Time(time.Now()),
-			Status:             models.MoveStatusAPPROVED,
+	factory.BuildMove(db, []factory.Customization{
+		{
+			Model:    order,
+			LinkOnly: true,
 		},
-		Order: order,
-	})
+		{
+			Model: models.Move{
+				ID:                 uuid.FromStringOrNil("ecbc2e6a-1b45-403b-9bd4-ea315d4d3d93"),
+				AvailableToPrimeAt: models.TimePointer(time.Now()),
+				Status:             models.MoveStatusAPPROVED,
+			},
+		},
+	}, nil)
 }
 
 /*
@@ -7698,41 +8956,59 @@ func CreateNeedsServicesCounseling(appCtx appcontext.AppContext, ordersType inte
 			},
 		},
 	}, nil)
-	move := testdatagen.MakeMove(db, testdatagen.Assertions{
-		Move: models.Move{
-			Locator:     locator,
-			Status:      models.MoveStatusNeedsServiceCounseling,
-			SubmittedAt: &submittedAt,
+	move := factory.BuildMove(db, []factory.Customization{
+		{
+			Model:    orders,
+			LinkOnly: true,
 		},
-		Order: orders,
-	})
-
+		{
+			Model: models.Move{
+				Locator:     locator,
+				Status:      models.MoveStatusNeedsServiceCounseling,
+				SubmittedAt: &submittedAt,
+			},
+		},
+	}, nil)
 	requestedPickupDate := submittedAt.Add(60 * 24 * time.Hour)
 	requestedDeliveryDate := requestedPickupDate.Add(7 * 24 * time.Hour)
 	destinationAddress := factory.BuildAddress(db, nil, nil)
-	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			ShipmentType:          shipmentType,
-			Status:                models.MTOShipmentStatusSubmitted,
-			RequestedPickupDate:   &requestedPickupDate,
-			RequestedDeliveryDate: &requestedDeliveryDate,
-			DestinationAddressID:  &destinationAddress.ID,
-			DestinationType:       destinationType,
+	factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				ShipmentType:          shipmentType,
+				Status:                models.MTOShipmentStatusSubmitted,
+				RequestedPickupDate:   &requestedPickupDate,
+				RequestedDeliveryDate: &requestedDeliveryDate,
+				DestinationType:       destinationType,
+			},
+		},
+		{
+			Model:    destinationAddress,
+			LinkOnly: true,
+			Type:     &factory.Addresses.DeliveryAddress,
+		},
+	}, nil)
 
 	requestedPickupDate = submittedAt.Add(30 * 24 * time.Hour)
 	requestedDeliveryDate = requestedPickupDate.Add(7 * 24 * time.Hour)
-	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			ShipmentType:          shipmentType,
-			Status:                models.MTOShipmentStatusSubmitted,
-			RequestedPickupDate:   &requestedPickupDate,
-			RequestedDeliveryDate: &requestedDeliveryDate,
+	factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				ShipmentType:          shipmentType,
+				Status:                models.MTOShipmentStatusSubmitted,
+				RequestedPickupDate:   &requestedPickupDate,
+				RequestedDeliveryDate: &requestedDeliveryDate,
+			},
+		},
+	}, nil)
 	officeUser := factory.BuildOfficeUserWithRoles(db, nil, []roles.RoleType{roles.RoleTypeTOO})
 	testdatagen.MakeCustomerSupportRemark(appCtx.DB(), testdatagen.Assertions{
 		CustomerSupportRemark: models.CustomerSupportRemark{
@@ -7764,15 +9040,19 @@ func createNeedsServicesCounselingWithoutCompletedOrders(appCtx appcontext.AppCo
 			},
 		},
 	}, nil)
-	move := testdatagen.MakeMove(db, testdatagen.Assertions{
-		Move: models.Move{
-			Locator:     locator,
-			Status:      models.MoveStatusNeedsServiceCounseling,
-			SubmittedAt: &submittedAt,
+	move := factory.BuildMove(db, []factory.Customization{
+		{
+			Model:    orders,
+			LinkOnly: true,
 		},
-		Order: orders,
-	})
-
+		{
+			Model: models.Move{
+				Locator:     locator,
+				Status:      models.MoveStatusNeedsServiceCounseling,
+				SubmittedAt: &submittedAt,
+			},
+		},
+	}, nil)
 	if *orders.ServiceMember.Affiliation == models.AffiliationARMY || *orders.ServiceMember.Affiliation == models.AffiliationAIRFORCE {
 		move.CloseoutOfficeID = &DefaultCloseoutOfficeID
 		testdatagen.MustSave(appCtx.DB(), &move)
@@ -7781,29 +9061,43 @@ func createNeedsServicesCounselingWithoutCompletedOrders(appCtx appcontext.AppCo
 	requestedPickupDate := submittedAt.Add(60 * 24 * time.Hour)
 	requestedDeliveryDate := requestedPickupDate.Add(7 * 24 * time.Hour)
 	destinationAddress := factory.BuildAddress(db, nil, nil)
-	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			ShipmentType:          shipmentType,
-			Status:                models.MTOShipmentStatusSubmitted,
-			RequestedPickupDate:   &requestedPickupDate,
-			RequestedDeliveryDate: &requestedDeliveryDate,
-			DestinationAddressID:  &destinationAddress.ID,
-			DestinationType:       destinationType,
+	factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				ShipmentType:          shipmentType,
+				Status:                models.MTOShipmentStatusSubmitted,
+				RequestedPickupDate:   &requestedPickupDate,
+				RequestedDeliveryDate: &requestedDeliveryDate,
+				DestinationType:       destinationType,
+			},
+		},
+		{
+			Model:    destinationAddress,
+			LinkOnly: true,
+			Type:     &factory.Addresses.DeliveryAddress,
+		},
+	}, nil)
 
 	requestedPickupDate = submittedAt.Add(30 * 24 * time.Hour)
 	requestedDeliveryDate = requestedPickupDate.Add(7 * 24 * time.Hour)
-	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			ShipmentType:          shipmentType,
-			Status:                models.MTOShipmentStatusSubmitted,
-			RequestedPickupDate:   &requestedPickupDate,
-			RequestedDeliveryDate: &requestedDeliveryDate,
+	factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				ShipmentType:          shipmentType,
+				Status:                models.MTOShipmentStatusSubmitted,
+				RequestedPickupDate:   &requestedPickupDate,
+				RequestedDeliveryDate: &requestedDeliveryDate,
+			},
+		},
+	}, nil)
 }
 
 func createUserWithLocatorAndDODID(appCtx appcontext.AppContext, locator string, dodID string) {
@@ -7824,30 +9118,43 @@ func createUserWithLocatorAndDODID(appCtx appcontext.AppContext, locator string,
 			},
 		},
 	}, nil)
-	move := testdatagen.MakeMove(db, testdatagen.Assertions{
-		Move: models.Move{
-			Locator:          locator,
-			Status:           models.MoveStatusNeedsServiceCounseling,
-			SelectedMoveType: &ntsMoveType,
-			SubmittedAt:      &submittedAt,
+	move := factory.BuildMove(db, []factory.Customization{
+		{
+			Model:    orders,
+			LinkOnly: true,
 		},
-		Order: orders,
-	})
-
+		{
+			Model: models.Move{
+				Locator:          locator,
+				Status:           models.MoveStatusNeedsServiceCounseling,
+				SelectedMoveType: &ntsMoveType,
+				SubmittedAt:      &submittedAt,
+			},
+		},
+	}, nil)
 	// Makes a basic HHG shipment to reflect likely real scenario
 	requestedPickupDate := submittedAt.Add(60 * 24 * time.Hour)
 	requestedDeliveryDate := requestedPickupDate.Add(7 * 24 * time.Hour)
 	destinationAddress := factory.BuildAddress(db, nil, nil)
-	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			ShipmentType:          models.MTOShipmentTypeHHG,
-			Status:                models.MTOShipmentStatusSubmitted,
-			RequestedPickupDate:   &requestedPickupDate,
-			RequestedDeliveryDate: &requestedDeliveryDate,
-			DestinationAddressID:  &destinationAddress.ID,
+	factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				ShipmentType:          models.MTOShipmentTypeHHG,
+				Status:                models.MTOShipmentStatusSubmitted,
+				RequestedPickupDate:   &requestedPickupDate,
+				RequestedDeliveryDate: &requestedDeliveryDate,
+			},
+		},
+		{
+			Model:    destinationAddress,
+			Type:     &factory.Addresses.DeliveryAddress,
+			LinkOnly: true,
+		},
+	}, nil)
 
 }
 
@@ -7868,30 +9175,43 @@ func createNeedsServicesCounselingSingleHHG(appCtx appcontext.AppContext, orders
 			},
 		},
 	}, nil)
-	move := testdatagen.MakeMove(db, testdatagen.Assertions{
-		Move: models.Move{
-			Locator:          locator,
-			Status:           models.MoveStatusNeedsServiceCounseling,
-			SelectedMoveType: &ntsMoveType,
-			SubmittedAt:      &submittedAt,
+	move := factory.BuildMove(db, []factory.Customization{
+		{
+			Model:    orders,
+			LinkOnly: true,
 		},
-		Order: orders,
-	})
-
+		{
+			Model: models.Move{
+				Locator:          locator,
+				Status:           models.MoveStatusNeedsServiceCounseling,
+				SelectedMoveType: &ntsMoveType,
+				SubmittedAt:      &submittedAt,
+			},
+		},
+	}, nil)
 	// Makes a basic HHG shipment to reflect likely real scenario
 	requestedPickupDate := submittedAt.Add(60 * 24 * time.Hour)
 	requestedDeliveryDate := requestedPickupDate.Add(7 * 24 * time.Hour)
 	destinationAddress := factory.BuildAddress(db, nil, nil)
-	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			ShipmentType:          models.MTOShipmentTypeHHG,
-			Status:                models.MTOShipmentStatusSubmitted,
-			RequestedPickupDate:   &requestedPickupDate,
-			RequestedDeliveryDate: &requestedDeliveryDate,
-			DestinationAddressID:  &destinationAddress.ID,
+	factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				ShipmentType:          models.MTOShipmentTypeHHG,
+				Status:                models.MTOShipmentStatusSubmitted,
+				RequestedPickupDate:   &requestedPickupDate,
+				RequestedDeliveryDate: &requestedDeliveryDate,
+			},
+		},
+		{
+			Model:    destinationAddress,
+			Type:     &factory.Addresses.DeliveryAddress,
+			LinkOnly: true,
+		},
+	}, nil)
 
 }
 
@@ -7912,27 +9232,40 @@ func CreateNeedsServicesCounselingMinimalNTSR(appCtx appcontext.AppContext, orde
 			},
 		},
 	}, nil)
-	move := testdatagen.MakeMove(db, testdatagen.Assertions{
-		Move: models.Move{
-			Locator:          locator,
-			Status:           models.MoveStatusNeedsServiceCounseling,
-			SelectedMoveType: &ntsMoveType,
-			SubmittedAt:      &submittedAt,
+	move := factory.BuildMove(db, []factory.Customization{
+		{
+			Model:    orders,
+			LinkOnly: true,
 		},
-		Order: orders,
-	})
-
+		{
+			Model: models.Move{
+				Locator:          locator,
+				Status:           models.MoveStatusNeedsServiceCounseling,
+				SelectedMoveType: &ntsMoveType,
+				SubmittedAt:      &submittedAt,
+			},
+		},
+	}, nil)
 	// Makes a basic NTS-R shipment with minimal info.
 	requestedDeliveryDate := time.Now().AddDate(0, 0, 14)
 	destinationAddress := factory.BuildAddress(db, nil, nil)
-	testdatagen.MakeMTOShipmentMinimal(db, testdatagen.Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			ShipmentType:          models.MTOShipmentTypeHHGOutOfNTSDom,
-			RequestedDeliveryDate: &requestedDeliveryDate,
-			DestinationAddressID:  &destinationAddress.ID,
+	factory.BuildMTOShipmentMinimal(db, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				ShipmentType:          models.MTOShipmentTypeHHGOutOfNTSDom,
+				RequestedDeliveryDate: &requestedDeliveryDate,
+			},
+		},
+		{
+			Model:    destinationAddress,
+			LinkOnly: true,
+			Type:     &factory.Addresses.DeliveryAddress,
+		},
+	}, nil)
 
 	return move
 }
@@ -7943,46 +9276,68 @@ func createHHGNeedsServicesCounselingUSMC(appCtx appcontext.AppContext, userUplo
 	marineCorps := models.AffiliationMARINES
 	submittedAt := time.Now()
 
-	move := testdatagen.MakeMove(db, testdatagen.Assertions{
-		DutyLocation: models.DutyLocation{
-			ProvidesServicesCounseling: true,
+	move := factory.BuildMove(db, []factory.Customization{
+		{
+			Model: models.DutyLocation{
+				ProvidesServicesCounseling: true,
+			},
+			Type: &factory.DutyLocations.OriginDutyLocation,
 		},
-		Move: models.Move{
-			Locator:     "USMCSS",
-			Status:      models.MoveStatusNeedsServiceCounseling,
-			SubmittedAt: &submittedAt,
+		{
+			Model: models.Move{
+				Locator:     "USMCSS",
+				Status:      models.MoveStatusNeedsServiceCounseling,
+				SubmittedAt: &submittedAt,
+			},
 		},
-		ServiceMember: models.ServiceMember{
-			Affiliation: &marineCorps,
-			LastName:    swag.String("Marine"),
-			FirstName:   swag.String("Ted"),
+		{
+			Model: models.ServiceMember{
+				Affiliation: &marineCorps,
+				LastName:    swag.String("Marine"),
+				FirstName:   swag.String("Ted"),
+			},
 		},
-		UserUploader: userUploader,
-	})
-
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
 	requestedPickupDate := submittedAt.Add(60 * 24 * time.Hour)
 	requestedDeliveryDate := requestedPickupDate.Add(7 * 24 * time.Hour)
-	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			ShipmentType:          models.MTOShipmentTypeHHG,
-			Status:                models.MTOShipmentStatusSubmitted,
-			RequestedPickupDate:   &requestedPickupDate,
-			RequestedDeliveryDate: &requestedDeliveryDate,
+	factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				ShipmentType:          models.MTOShipmentTypeHHG,
+				Status:                models.MTOShipmentStatusSubmitted,
+				RequestedPickupDate:   &requestedPickupDate,
+				RequestedDeliveryDate: &requestedDeliveryDate,
+			},
+		},
+	}, nil)
 
 	requestedPickupDate = submittedAt.Add(30 * 24 * time.Hour)
 	requestedDeliveryDate = requestedPickupDate.Add(7 * 24 * time.Hour)
-	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			ShipmentType:          models.MTOShipmentTypeHHG,
-			Status:                models.MTOShipmentStatusSubmitted,
-			RequestedPickupDate:   &requestedPickupDate,
-			RequestedDeliveryDate: &requestedDeliveryDate,
+	factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				ShipmentType:          models.MTOShipmentTypeHHG,
+				Status:                models.MTOShipmentStatusSubmitted,
+				RequestedPickupDate:   &requestedPickupDate,
+				RequestedDeliveryDate: &requestedDeliveryDate,
+			},
+		},
+	}, nil)
 }
 
 func createHHGNeedsServicesCounselingUSMC2(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -7991,38 +9346,57 @@ func createHHGNeedsServicesCounselingUSMC2(appCtx appcontext.AppContext, userUpl
 	marineCorps := models.AffiliationMARINES
 	submittedAt := time.Now()
 
-	move := testdatagen.MakeMove(db, testdatagen.Assertions{
-		DutyLocation: models.DutyLocation{
-			ProvidesServicesCounseling: true,
+	move := factory.BuildMove(db, []factory.Customization{
+		{
+			Model: models.DutyLocation{
+				ProvidesServicesCounseling: true,
+			},
+			Type: &factory.DutyLocations.OriginDutyLocation,
 		},
-		Move: models.Move{
-			Locator:     "USMCSC",
-			Status:      models.MoveStatusNeedsServiceCounseling,
-			SubmittedAt: &submittedAt,
+		{
+			Model: models.Move{
+				Locator:     "USMCSC",
+				Status:      models.MoveStatusNeedsServiceCounseling,
+				SubmittedAt: &submittedAt,
+			},
 		},
-		Order: models.Order{},
-		ServiceMember: models.ServiceMember{
-			Affiliation: &marineCorps,
-			LastName:    swag.String("Marine"),
-			FirstName:   swag.String("Barbara"),
+		{
+			Model: models.ServiceMember{
+				Affiliation: &marineCorps,
+				LastName:    swag.String("Marine"),
+				FirstName:   swag.String("Barbara"),
+			},
 		},
-		TransportationOffice: models.TransportationOffice{
-			Gbloc: "ZANY",
+		{
+			Model: models.TransportationOffice{
+				Gbloc: "ZANY",
+			},
+			Type: &factory.TransportationOffices.CloseoutOffice,
 		},
-		UserUploader: userUploader,
-	})
-
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
 	requestedPickupDate := submittedAt.Add(20 * 24 * time.Hour)
 	requestedDeliveryDate := requestedPickupDate.Add(14 * 24 * time.Hour)
-	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			ShipmentType:          models.MTOShipmentTypeHHG,
-			Status:                models.MTOShipmentStatusSubmitted,
-			RequestedPickupDate:   &requestedPickupDate,
-			RequestedDeliveryDate: &requestedDeliveryDate,
+	factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				ShipmentType:          models.MTOShipmentTypeHHG,
+				Status:                models.MTOShipmentStatusSubmitted,
+				RequestedPickupDate:   &requestedPickupDate,
+				RequestedDeliveryDate: &requestedDeliveryDate,
+			},
+		},
+	}, nil)
 
 }
 
@@ -8030,25 +9404,34 @@ func createHHGServicesCounselingCompleted(appCtx appcontext.AppContext) {
 	db := appCtx.DB()
 	servicesCounselingCompletedAt := time.Now()
 	submittedAt := servicesCounselingCompletedAt.Add(-7 * 24 * time.Hour)
-	move := testdatagen.MakeMove(db, testdatagen.Assertions{
-		DutyLocation: models.DutyLocation{
-			ProvidesServicesCounseling: true,
+	move := factory.BuildMove(db, []factory.Customization{
+		{
+			Model: models.DutyLocation{
+				ProvidesServicesCounseling: true,
+			},
+			Type: &factory.DutyLocations.OriginDutyLocation,
 		},
-		Move: models.Move{
-			Locator:                      "CSLCMP",
-			Status:                       models.MoveStatusServiceCounselingCompleted,
-			SubmittedAt:                  &submittedAt,
-			ServiceCounselingCompletedAt: &servicesCounselingCompletedAt,
+		{
+			Model: models.Move{
+				Locator:                      "CSLCMP",
+				Status:                       models.MoveStatusServiceCounselingCompleted,
+				SubmittedAt:                  &submittedAt,
+				ServiceCounselingCompletedAt: &servicesCounselingCompletedAt,
+			},
 		},
-	})
-
-	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			ShipmentType: models.MTOShipmentTypeHHG,
-			Status:       models.MTOShipmentStatusSubmitted,
+	}, nil)
+	factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypeHHG,
+				Status:       models.MTOShipmentStatusSubmitted,
+			},
+		},
+	}, nil)
 }
 
 func createHHGNoShipments(appCtx appcontext.AppContext) {
@@ -8063,14 +9446,19 @@ func createHHGNoShipments(appCtx appcontext.AppContext) {
 		},
 	}, nil)
 
-	testdatagen.MakeMove(db, testdatagen.Assertions{
-		Move: models.Move{
-			Locator:     "NOSHIP",
-			Status:      models.MoveStatusNeedsServiceCounseling,
-			SubmittedAt: &submittedAt,
+	factory.BuildMove(db, []factory.Customization{
+		{
+			Model:    orders,
+			LinkOnly: true,
 		},
-		Order: orders,
-	})
+		{
+			Model: models.Move{
+				Locator:     "NOSHIP",
+				Status:      models.MoveStatusNeedsServiceCounseling,
+				SubmittedAt: &submittedAt,
+			},
+		},
+	}, nil)
 }
 
 func createHHGMoveWithMultipleOrdersFiles(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader) {
@@ -8095,22 +9483,25 @@ func createHHGMoveWithAmendedOrders(appCtx appcontext.AppContext, userUploader *
 }
 
 func createHHGMoveWithRiskOfExcess(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader) {
-	db := appCtx.DB()
 	filterFile := &[]string{"2mb.png", "150Kb.png"}
 	serviceMember := makeServiceMember(appCtx)
 	orders := makeOrdersForServiceMember(appCtx, serviceMember, userUploader, filterFile)
 	now := time.Now()
-	move := testdatagen.MakeMove(db, testdatagen.Assertions{
-		Move: models.Move{
-			Status:                  models.MoveStatusAPPROVALSREQUESTED,
-			OrdersID:                orders.ID,
-			Orders:                  orders,
-			SelectedMoveType:        &hhgMoveType,
-			Locator:                 "RISKEX",
-			AvailableToPrimeAt:      &now,
-			ExcessWeightQualifiedAt: &now,
+	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
+		{
+			Model:    orders,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.Move{
+				Status:                  models.MoveStatusAPPROVALSREQUESTED,
+				SelectedMoveType:        &hhgMoveType,
+				Locator:                 "RISKEX",
+				AvailableToPrimeAt:      &now,
+				ExcessWeightQualifiedAt: &now,
+			},
+		},
+	}, nil)
 	shipment := makeRiskOfExcessShipmentForMove(appCtx, move, models.MTOShipmentStatusApproved)
 	paymentRequestID := uuid.Must(uuid.FromString("50b35add-705a-468b-8bad-056f5d9ef7e1"))
 	makePaymentRequestForShipment(appCtx, move, shipment, primeUploader, filterFile, paymentRequestID, models.PaymentRequestStatusPending)
@@ -8118,30 +9509,42 @@ func createHHGMoveWithRiskOfExcess(appCtx appcontext.AppContext, userUploader *u
 
 func createMoveWithDivertedShipments(appCtx appcontext.AppContext) {
 	db := appCtx.DB()
-	move := testdatagen.MakeMove(db, testdatagen.Assertions{
-		Move: models.Move{
-			Status:             models.MoveStatusAPPROVALSREQUESTED,
-			Locator:            "DVRS0N",
-			AvailableToPrimeAt: swag.Time(time.Now()),
+	move := factory.BuildMove(db, []factory.Customization{
+		{
+			Model: models.Move{
+				Status:             models.MoveStatusAPPROVALSREQUESTED,
+				Locator:            "DVRS0N",
+				AvailableToPrimeAt: models.TimePointer(time.Now()),
+			},
 		},
-	})
+	}, nil)
 	// original shipment that was previously approved and is now diverted
-	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			Status:       models.MTOShipmentStatusSubmitted,
-			ApprovedDate: swag.Time(time.Now()),
-			Diversion:    true,
+	factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				Status:       models.MTOShipmentStatusSubmitted,
+				ApprovedDate: models.TimePointer(time.Now()),
+				Diversion:    true,
+			},
+		},
+	}, nil)
 	// new diverted shipment created by the Prime
-	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			Status:    models.MTOShipmentStatusSubmitted,
-			Diversion: true,
+	factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				Status:    models.MTOShipmentStatusSubmitted,
+				Diversion: true,
+			},
+		},
+	}, nil)
 }
 
 func createMoveWithSITExtensionHistory(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -8153,13 +9556,18 @@ func createMoveWithSITExtensionHistory(appCtx appcontext.AppContext, userUploade
 
 	// manually calculated SIT days including SIT extension approved days
 	sitDaysAllowance := 270
-	mtoShipmentSIT := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			Status:           models.MTOShipmentStatusApproved,
-			SITDaysAllowance: &sitDaysAllowance,
+	mtoShipmentSIT := factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				Status:           models.MTOShipmentStatusApproved,
+				SITDaysAllowance: &sitDaysAllowance,
+			},
+		},
+	}, nil)
 
 	year, month, day := time.Now().Add(time.Hour * 24 * -60).Date()
 	threeMonthsAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
@@ -8168,90 +9576,150 @@ func createMoveWithSITExtensionHistory(appCtx appcontext.AppContext, userUploade
 	reason := "peak season all trucks in use"
 
 	// This will in practice not exist without DOFSIT and DOASIT
-	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			Status:        models.MTOServiceItemStatusApproved,
-			SITEntryDate:  &threeMonthsAgo,
-			SITPostalCode: &postalCode,
-			Reason:        &reason,
+	factory.BuildMTOServiceItem(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:        models.MTOServiceItemStatusApproved,
+				SITEntryDate:  &threeMonthsAgo,
+				SITPostalCode: &postalCode,
+				Reason:        &reason,
+			},
 		},
-		ReService: models.ReService{
-			Code: models.ReServiceCodeDOFSIT,
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDOFSIT,
+			},
 		},
-		MTOShipment: mtoShipmentSIT,
-		Move:        move,
-	})
+		{
+			Model:    mtoShipmentSIT,
+			LinkOnly: true,
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 
-	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			Status:        models.MTOServiceItemStatusApproved,
-			SITEntryDate:  &threeMonthsAgo,
-			SITPostalCode: &postalCode,
-			Reason:        &reason,
+	factory.BuildMTOServiceItem(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:        models.MTOServiceItemStatusApproved,
+				SITEntryDate:  &threeMonthsAgo,
+				SITPostalCode: &postalCode,
+				Reason:        &reason,
+			},
 		},
-		ReService: models.ReService{
-			Code: models.ReServiceCodeDOASIT,
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDOASIT,
+			},
 		},
-		MTOShipment: mtoShipmentSIT,
-		Move:        move,
-	})
+		{
+			Model:    mtoShipmentSIT,
+			LinkOnly: true,
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 
-	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			Status:           models.MTOServiceItemStatusApproved,
-			SITEntryDate:     &threeMonthsAgo,
-			SITDepartureDate: &twoMonthsAgo,
-			SITPostalCode:    &postalCode,
-			Reason:           &reason,
+	factory.BuildMTOServiceItem(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:           models.MTOServiceItemStatusApproved,
+				SITEntryDate:     &threeMonthsAgo,
+				SITDepartureDate: &twoMonthsAgo,
+				SITPostalCode:    &postalCode,
+				Reason:           &reason,
+			},
 		},
-		ReService: models.ReService{
-			Code: models.ReServiceCodeDOPSIT,
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDOPSIT,
+			},
 		},
-		MTOShipment: mtoShipmentSIT,
-		Move:        move,
-	})
+		{
+			Model:    mtoShipmentSIT,
+			LinkOnly: true,
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 
-	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			Status:        models.MTOServiceItemStatusApproved,
-			SITEntryDate:  &twoMonthsAgo,
-			SITPostalCode: &postalCode,
-			Reason:        &reason,
+	factory.BuildMTOServiceItem(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:        models.MTOServiceItemStatusApproved,
+				SITEntryDate:  &twoMonthsAgo,
+				SITPostalCode: &postalCode,
+				Reason:        &reason,
+			},
 		},
-		ReService: models.ReService{
-			Code: models.ReServiceCodeDDFSIT,
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDDFSIT,
+			},
 		},
-		MTOShipment: mtoShipmentSIT,
-		Move:        move,
-	})
+		{
+			Model:    mtoShipmentSIT,
+			LinkOnly: true,
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 
-	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			Status:        models.MTOServiceItemStatusApproved,
-			SITEntryDate:  &twoMonthsAgo,
-			SITPostalCode: &postalCode,
-			Reason:        &reason,
+	factory.BuildMTOServiceItem(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:        models.MTOServiceItemStatusApproved,
+				SITEntryDate:  &twoMonthsAgo,
+				SITPostalCode: &postalCode,
+				Reason:        &reason,
+			},
 		},
-		ReService: models.ReService{
-			Code: models.ReServiceCodeDDASIT,
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDDASIT,
+			},
 		},
-		MTOShipment: mtoShipmentSIT,
-		Move:        move,
-	})
+		{
+			Model:    mtoShipmentSIT,
+			LinkOnly: true,
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 
-	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			Status:        models.MTOServiceItemStatusApproved,
-			SITEntryDate:  &twoMonthsAgo,
-			SITPostalCode: &postalCode,
-			Reason:        &reason,
+	factory.BuildMTOServiceItem(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:        models.MTOServiceItemStatusApproved,
+				SITEntryDate:  &twoMonthsAgo,
+				SITPostalCode: &postalCode,
+				Reason:        &reason,
+			},
 		},
-		ReService: models.ReService{
-			Code: models.ReServiceCodeDDDSIT,
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDDDSIT,
+			},
 		},
-		MTOShipment: mtoShipmentSIT,
-		Move:        move,
-	})
+		{
+			Model:    mtoShipmentSIT,
+			LinkOnly: true,
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	MakeSITExtensionsForShipment(appCtx, mtoShipmentSIT)
 
@@ -8270,32 +9738,51 @@ func createMoveWithSITExtensionHistory(appCtx appcontext.AppContext, userUploade
 func createMoveWithOriginAndDestinationSIT(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	db := appCtx.DB()
 
-	move := testdatagen.MakeMove(db, testdatagen.Assertions{
-		Move: models.Move{
-			ID:                 uuid.Must(uuid.NewV4()),
-			Locator:            "S1TT3R",
-			Status:             models.MoveStatusAPPROVED,
-			AvailableToPrimeAt: swag.Time(time.Now()),
+	move := factory.BuildMove(db, []factory.Customization{
+		{
+			Model: models.Move{
+				ID:                 uuid.Must(uuid.NewV4()),
+				Locator:            "S1TT3R",
+				Status:             models.MoveStatusAPPROVED,
+				AvailableToPrimeAt: models.TimePointer(time.Now()),
+			},
 		},
-		UserUploader: userUploader,
-	})
-
-	testdatagen.MakeMTOServiceItemBasic(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{Status: models.MTOServiceItemStatusApproved},
-		ReService: models.ReService{
-			Code: models.ReServiceCodeMS,
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
 		},
-		Move: move,
-	})
+	}, nil)
+	factory.BuildMTOServiceItemBasic(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{Status: models.MTOServiceItemStatusApproved},
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeMS,
+			},
+		},
+	}, nil)
 
 	sitDaysAllowance := 90
-	mtoShipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			Status:           models.MTOShipmentStatusApproved,
-			SITDaysAllowance: &sitDaysAllowance,
+	mtoShipment := factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				Status:           models.MTOShipmentStatusApproved,
+				SITDaysAllowance: &sitDaysAllowance,
+			},
+		},
+	}, nil)
 
 	year, month, day := time.Now().Add(time.Hour * 24 * -60).Date()
 	twoMonthsAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
@@ -8303,34 +9790,54 @@ func createMoveWithOriginAndDestinationSIT(appCtx appcontext.AppContext, userUpl
 	postalCode := "90210"
 	reason := "peak season all trucks in use"
 	// This will in practice not exist without DOFSIT and DOASIT
-	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			Status:           models.MTOServiceItemStatusApproved,
-			SITEntryDate:     &twoMonthsAgo,
-			SITDepartureDate: &oneMonthAgo,
-			SITPostalCode:    &postalCode,
-			Reason:           &reason,
+	factory.BuildMTOServiceItem(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:           models.MTOServiceItemStatusApproved,
+				SITEntryDate:     &twoMonthsAgo,
+				SITDepartureDate: &oneMonthAgo,
+				SITPostalCode:    &postalCode,
+				Reason:           &reason,
+			},
 		},
-		ReService: models.ReService{
-			Code: models.ReServiceCodeDOPSIT,
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDOPSIT,
+			},
 		},
-		MTOShipment: mtoShipment,
-		Move:        move,
-	})
+		{
+			Model:    mtoShipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	oneWeekAgo := oneMonthAgo.Add(time.Hour * 24 * 23)
-	dddsit := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			Status:       models.MTOServiceItemStatusApproved,
-			SITEntryDate: &oneWeekAgo,
-			Reason:       &reason,
+	dddsit := factory.BuildMTOServiceItem(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:       models.MTOServiceItemStatusApproved,
+				SITEntryDate: &oneWeekAgo,
+				Reason:       &reason,
+			},
 		},
-		ReService: models.ReService{
-			Code: models.ReServiceCodeDDDSIT,
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDDDSIT,
+			},
 		},
-		MTOShipment: mtoShipment,
-		Move:        move,
-	})
+		{
+			Model:    mtoShipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	testdatagen.MakeMTOServiceItemCustomerContact(db, testdatagen.Assertions{
 		MTOServiceItem: dddsit,
@@ -8348,22 +9855,28 @@ func createMoveWithOriginAndDestinationSIT(appCtx appcontext.AppContext, userUpl
 func createPaymentRequestsWithPartialSITInvoice(appCtx appcontext.AppContext, primeUploader *uploader.PrimeUploader) {
 	// Move available to the prime with 3 shipments (control, 2 w/ SITS)
 	availableToPrimeAt := time.Now()
-	move := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			Locator:            "PARSIT",
-			Status:             models.MoveStatusAPPROVED,
-			AvailableToPrimeAt: &availableToPrimeAt,
+	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Move{
+				Locator:            "PARSIT",
+				Status:             models.MoveStatusAPPROVED,
+				AvailableToPrimeAt: &availableToPrimeAt,
+			},
 		},
-	})
-
+	}, nil)
 	oneHundredAndTwentyDays := 120
-	shipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			Status:           models.MTOShipmentStatusApproved,
-			SITDaysAllowance: &oneHundredAndTwentyDays,
+	shipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				Status:           models.MTOShipmentStatusApproved,
+				SITDaysAllowance: &oneHundredAndTwentyDays,
+			},
 		},
-		Move: move,
-	})
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	firstPrimeUpload := testdatagen.MakePrimeUpload(appCtx.DB(), testdatagen.Assertions{
 		PrimeUploader: primeUploader,
@@ -8393,17 +9906,27 @@ func createPaymentRequestsWithPartialSITInvoice(appCtx appcontext.AppContext, pr
 	destinationDepartureDate := destinationEntryDate.Add(time.Hour * 24 * 60)
 
 	// First reviewed payment request with 30 days billed for origin SIT
-	dofsit := testdatagen.MakeMTOServiceItem(appCtx.DB(), testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			Status:       models.MTOServiceItemStatusApproved,
-			SITEntryDate: &originEntryDate,
+	dofsit := factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:       models.MTOServiceItemStatusApproved,
+				SITEntryDate: &originEntryDate,
+			},
 		},
-		ReService: models.ReService{
-			Code: models.ReServiceCodeDOFSIT,
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDOFSIT,
+			},
 		},
-		MTOShipment: shipment,
-		Move:        move,
-	})
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	testdatagen.MakePaymentServiceItem(appCtx.DB(), testdatagen.Assertions{
 		PaymentServiceItem: models.PaymentServiceItem{
@@ -8413,17 +9936,27 @@ func createPaymentRequestsWithPartialSITInvoice(appCtx appcontext.AppContext, pr
 		MTOServiceItem: dofsit,
 	})
 
-	doasit := testdatagen.MakeMTOServiceItem(appCtx.DB(), testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			Status:       models.MTOServiceItemStatusApproved,
-			SITEntryDate: &originEntryDate,
+	doasit := factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:       models.MTOServiceItemStatusApproved,
+				SITEntryDate: &originEntryDate,
+			},
 		},
-		ReService: models.ReService{
-			Code: models.ReServiceCodeDOASIT,
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDOASIT,
+			},
 		},
-		MTOShipment: shipment,
-		Move:        move,
-	})
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	// Creates the approved payment service item for DOASIT w/ SIT start date param
 	doasitParam := testdatagen.MakePaymentServiceItemParam(appCtx.DB(), testdatagen.Assertions{
@@ -8467,18 +10000,28 @@ func createPaymentRequestsWithPartialSITInvoice(appCtx appcontext.AppContext, pr
 		MTOServiceItem:     doasit,
 	})
 
-	dopsit := testdatagen.MakeMTOServiceItem(appCtx.DB(), testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			Status:           models.MTOServiceItemStatusApproved,
-			SITEntryDate:     &originEntryDate,
-			SITDepartureDate: &originDepartureDate,
+	dopsit := factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:           models.MTOServiceItemStatusApproved,
+				SITEntryDate:     &originEntryDate,
+				SITDepartureDate: &originDepartureDate,
+			},
 		},
-		ReService: models.ReService{
-			Code: models.ReServiceCodeDOPSIT,
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDOPSIT,
+			},
 		},
-		MTOShipment: shipment,
-		Move:        move,
-	})
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	testdatagen.MakePaymentServiceItem(appCtx.DB(), testdatagen.Assertions{
 		PaymentServiceItem: models.PaymentServiceItem{
@@ -8489,34 +10032,54 @@ func createPaymentRequestsWithPartialSITInvoice(appCtx appcontext.AppContext, pr
 	})
 
 	// Destination SIT service items for the second payment request
-	ddfsit := testdatagen.MakeMTOServiceItem(appCtx.DB(), testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			Status:       models.MTOServiceItemStatusApproved,
-			SITEntryDate: &destinationEntryDate,
+	ddfsit := factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:       models.MTOServiceItemStatusApproved,
+				SITEntryDate: &destinationEntryDate,
+			},
 		},
-		ReService: models.ReService{
-			Code: models.ReServiceCodeDDFSIT,
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDDFSIT,
+			},
 		},
-		MTOShipment: shipment,
-		Move:        move,
-	})
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	testdatagen.MakePaymentServiceItem(appCtx.DB(), testdatagen.Assertions{
 		MTOServiceItem: ddfsit,
 		PaymentRequest: secondPaymentRequest,
 	})
 
-	ddasit := testdatagen.MakeMTOServiceItem(appCtx.DB(), testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			Status:       models.MTOServiceItemStatusApproved,
-			SITEntryDate: &destinationEntryDate,
+	ddasit := factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:       models.MTOServiceItemStatusApproved,
+				SITEntryDate: &destinationEntryDate,
+			},
 		},
-		ReService: models.ReService{
-			Code: models.ReServiceCodeDDASIT,
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDDASIT,
+			},
 		},
-		MTOShipment: shipment,
-		Move:        move,
-	})
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	ddasitParam := testdatagen.MakePaymentServiceItemParam(appCtx.DB(), testdatagen.Assertions{
 		PaymentServiceItemParam: models.PaymentServiceItemParam{
@@ -8555,17 +10118,27 @@ func createPaymentRequestsWithPartialSITInvoice(appCtx appcontext.AppContext, pr
 	})
 
 	// Will leave the departure date blank with 30 days left in SIT Days authorized
-	testdatagen.MakeMTOServiceItem(appCtx.DB(), testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			Status:       models.MTOServiceItemStatusApproved,
-			SITEntryDate: &destinationEntryDate,
+	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:       models.MTOServiceItemStatusApproved,
+				SITEntryDate: &destinationEntryDate,
+			},
 		},
-		ReService: models.ReService{
-			Code: models.ReServiceCodeDDDSIT,
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDDDSIT,
+			},
 		},
-		MTOShipment: shipment,
-		Move:        move,
-	})
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 }
 
 func createMoveWithAllPendingTOOActions(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader) {
@@ -8589,16 +10162,23 @@ func makePendingSITExtensionsForShipment(appCtx appcontext.AppContext, shipment 
 
 	year, month, day := time.Now().Date()
 	thirtyDaysAgo := time.Date(year, month, day-30, 0, 0, 0, 0, time.UTC)
-	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOShipment: shipment,
-		MTOServiceItem: models.MTOServiceItem{
-			SITEntryDate: &thirtyDaysAgo,
-			Status:       models.MTOServiceItemStatusApproved,
+	factory.BuildMTOServiceItem(db, []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
 		},
-		ReService: models.ReService{
-			Code: models.ReServiceCodeDOPSIT,
+		{
+			Model: models.MTOServiceItem{
+				SITEntryDate: &thirtyDaysAgo,
+				Status:       models.MTOServiceItemStatusApproved,
+			},
 		},
-	})
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDOPSIT,
+			},
+		},
+	}, nil)
 
 	for i := 0; i < 2; i++ {
 		testdatagen.MakePendingSITExtension(db, testdatagen.Assertions{
@@ -8648,30 +10228,43 @@ func CreateMoveWithHHGAndNTSShipments(appCtx appcontext.AppContext, locator stri
 			},
 		},
 	}, nil)
-	move := testdatagen.MakeMove(db, testdatagen.Assertions{
-		Move: models.Move{
-			Locator:          locator,
-			Status:           models.MoveStatusSUBMITTED,
-			SelectedMoveType: &ntsMoveType,
-			SubmittedAt:      &submittedAt,
+	move := factory.BuildMove(db, []factory.Customization{
+		{
+			Model:    orders,
+			LinkOnly: true,
 		},
-		Order: orders,
-	})
-
+		{
+			Model: models.Move{
+				Locator:          locator,
+				Status:           models.MoveStatusSUBMITTED,
+				SelectedMoveType: &ntsMoveType,
+				SubmittedAt:      &submittedAt,
+			},
+		},
+	}, nil)
 	// Makes a basic HHG shipment to reflect likely real scenario
 	requestedPickupDate := submittedAt.Add(60 * 24 * time.Hour)
 	requestedDeliveryDate := requestedPickupDate.Add(7 * 24 * time.Hour)
 	destinationAddress := factory.BuildAddress(db, nil, nil)
-	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			ShipmentType:          models.MTOShipmentTypeHHG,
-			Status:                models.MTOShipmentStatusSubmitted,
-			RequestedPickupDate:   &requestedPickupDate,
-			RequestedDeliveryDate: &requestedDeliveryDate,
-			DestinationAddressID:  &destinationAddress.ID,
+	factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				ShipmentType:          models.MTOShipmentTypeHHG,
+				Status:                models.MTOShipmentStatusSubmitted,
+				RequestedPickupDate:   &requestedPickupDate,
+				RequestedDeliveryDate: &requestedDeliveryDate,
+			},
+		},
+		{
+			Model:    destinationAddress,
+			Type:     &factory.Addresses.DeliveryAddress,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	testdatagen.MakeNTSShipment(db, testdatagen.Assertions{
 		Move: move,
@@ -8702,30 +10295,43 @@ func CreateMoveWithHHGAndNTSRShipments(appCtx appcontext.AppContext, locator str
 			},
 		},
 	}, nil)
-	move := testdatagen.MakeMove(db, testdatagen.Assertions{
-		Move: models.Move{
-			Locator:          locator,
-			Status:           models.MoveStatusSUBMITTED,
-			SelectedMoveType: &ntsrMoveType,
-			SubmittedAt:      &submittedAt,
+	move := factory.BuildMove(db, []factory.Customization{
+		{
+			Model:    orders,
+			LinkOnly: true,
 		},
-		Order: orders,
-	})
-
+		{
+			Model: models.Move{
+				Locator:          locator,
+				Status:           models.MoveStatusSUBMITTED,
+				SelectedMoveType: &ntsrMoveType,
+				SubmittedAt:      &submittedAt,
+			},
+		},
+	}, nil)
 	// Makes a basic HHG shipment to reflect likely real scenario
 	requestedPickupDate := submittedAt.Add(60 * 24 * time.Hour)
 	requestedDeliveryDate := requestedPickupDate.Add(7 * 24 * time.Hour)
 	destinationAddress := factory.BuildAddress(db, nil, nil)
-	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			ShipmentType:          models.MTOShipmentTypeHHG,
-			Status:                models.MTOShipmentStatusSubmitted,
-			RequestedPickupDate:   &requestedPickupDate,
-			RequestedDeliveryDate: &requestedDeliveryDate,
-			DestinationAddressID:  &destinationAddress.ID,
+	factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				ShipmentType:          models.MTOShipmentTypeHHG,
+				Status:                models.MTOShipmentStatusSubmitted,
+				RequestedPickupDate:   &requestedPickupDate,
+				RequestedDeliveryDate: &requestedDeliveryDate,
+			},
+		},
+		{
+			Model:    destinationAddress,
+			Type:     &factory.Addresses.DeliveryAddress,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	testdatagen.MakeNTSRShipment(db, testdatagen.Assertions{
 		Move: move,
@@ -8755,16 +10361,20 @@ func CreateMoveWithNTSShipment(appCtx appcontext.AppContext, locator string, use
 			},
 		},
 	}, nil)
-	move := testdatagen.MakeMove(db, testdatagen.Assertions{
-		Move: models.Move{
-			Locator:          locator,
-			Status:           models.MoveStatusSUBMITTED,
-			SelectedMoveType: &ntsMoveType,
-			SubmittedAt:      &submittedAt,
+	move := factory.BuildMove(db, []factory.Customization{
+		{
+			Model:    orders,
+			LinkOnly: true,
 		},
-		Order: orders,
-	})
-
+		{
+			Model: models.Move{
+				Locator:          locator,
+				Status:           models.MoveStatusSUBMITTED,
+				SelectedMoveType: &ntsMoveType,
+				SubmittedAt:      &submittedAt,
+			},
+		},
+	}, nil)
 	testdatagen.MakeNTSShipment(db, testdatagen.Assertions{
 		Move: move,
 		MTOShipment: models.MTOShipment{
@@ -8793,16 +10403,20 @@ func createMoveWithNTSRShipment(appCtx appcontext.AppContext, locator string, us
 			},
 		},
 	}, nil)
-	move := testdatagen.MakeMove(db, testdatagen.Assertions{
-		Move: models.Move{
-			Locator:          locator,
-			Status:           models.MoveStatusSUBMITTED,
-			SelectedMoveType: &ntsrMoveType,
-			SubmittedAt:      &submittedAt,
+	move := factory.BuildMove(db, []factory.Customization{
+		{
+			Model:    orders,
+			LinkOnly: true,
 		},
-		Order: orders,
-	})
-
+		{
+			Model: models.Move{
+				Locator:          locator,
+				Status:           models.MoveStatusSUBMITTED,
+				SelectedMoveType: &ntsrMoveType,
+				SubmittedAt:      &submittedAt,
+			},
+		},
+	}, nil)
 	testdatagen.MakeNTSRShipment(db, testdatagen.Assertions{
 		Move: move,
 		MTOShipment: models.MTOShipment{
@@ -8897,6 +10511,7 @@ func createRandomMove(
 			assertions.Move.ServiceCounselingCompletedAt = &counseledAt
 		}
 	}
+	// assertions passed in means we cannot yet convert to BuildMove
 	move := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move:  assertions.Move,
 		Order: order,
@@ -8909,31 +10524,41 @@ func createRandomMove(
 
 	laterRequestedPickupDate := submittedAt.Add(60 * 24 * time.Hour)
 	laterRequestedDeliveryDate := laterRequestedPickupDate.Add(7 * 24 * time.Hour)
-	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			ShipmentType:          models.MTOShipmentTypeHHG,
-			Status:                shipmentStatus,
-			RequestedPickupDate:   &laterRequestedPickupDate,
-			RequestedDeliveryDate: &laterRequestedDeliveryDate,
-			ApprovedDate:          assertions.MTOShipment.ApprovedDate,
-			Diversion:             assertions.MTOShipment.Diversion,
+	factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				ShipmentType:          models.MTOShipmentTypeHHG,
+				Status:                shipmentStatus,
+				RequestedPickupDate:   &laterRequestedPickupDate,
+				RequestedDeliveryDate: &laterRequestedDeliveryDate,
+				ApprovedDate:          assertions.MTOShipment.ApprovedDate,
+				Diversion:             assertions.MTOShipment.Diversion,
+			},
+		},
+	}, nil)
 
 	earlierRequestedPickupDate := submittedAt.Add(30 * 24 * time.Hour)
 	earlierRequestedDeliveryDate := earlierRequestedPickupDate.Add(7 * 24 * time.Hour)
-	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			ShipmentType:          models.MTOShipmentTypeHHG,
-			Status:                shipmentStatus,
-			RequestedPickupDate:   &earlierRequestedPickupDate,
-			RequestedDeliveryDate: &earlierRequestedDeliveryDate,
-			ApprovedDate:          assertions.MTOShipment.ApprovedDate,
-			Diversion:             assertions.MTOShipment.Diversion,
+	factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				ShipmentType:          models.MTOShipmentTypeHHG,
+				Status:                shipmentStatus,
+				RequestedPickupDate:   &earlierRequestedPickupDate,
+				RequestedDeliveryDate: &earlierRequestedDeliveryDate,
+				ApprovedDate:          assertions.MTOShipment.ApprovedDate,
+				Diversion:             assertions.MTOShipment.Diversion,
+			},
+		},
+	}, nil)
 
 	return move
 }

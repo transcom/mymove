@@ -3,15 +3,15 @@ package mtoshipment
 import (
 	"time"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 	sitStatusService := NewShipmentSITStatus()
 
 	suite.Run("returns nil when the shipment has no service items", func() {
-		submittedShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{})
+		submittedShipment := factory.BuildMTOShipmentMinimal(suite.DB(), nil, nil)
 
 		sitStatus, err := sitStatusService.CalculateShipmentSITStatus(suite.AppContextForTest(), submittedShipment)
 		suite.NoError(err)
@@ -19,12 +19,15 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 	})
 
 	suite.Run("returns nil when the shipment has no SIT service items", func() {
-		approvedShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status:          models.MTOShipmentStatusApproved,
-				MTOServiceItems: testdatagen.MakeMTOServiceItems(suite.DB()),
+		approvedShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusApproved,
+					// TODO: Come back and add these service items to customizations
+					//MTOServiceItems: testdatagen.MakeMTOServiceItems(suite.DB()),
+				},
 			},
-		})
+		}, nil)
 
 		sitStatus, err := sitStatusService.CalculateShipmentSITStatus(suite.AppContextForTest(), approvedShipment)
 		suite.NoError(err)
@@ -32,23 +35,32 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 	})
 
 	suite.Run("returns nil when the shipment has a SIT service item with entry date in the future", func() {
-		approvedShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status: models.MTOShipmentStatusApproved,
+		approvedShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusApproved,
+				},
 			},
-		})
+		}, nil)
 
 		nextWeek := time.Now().Add(time.Hour * 24 * 7)
-		futureSIT := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOShipment: approvedShipment,
-			MTOServiceItem: models.MTOServiceItem{
-				SITEntryDate: &nextWeek,
-				Status:       models.MTOServiceItemStatusApproved,
+		futureSIT := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    approvedShipment,
+				LinkOnly: true,
 			},
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDOPSIT,
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate: &nextWeek,
+					Status:       models.MTOServiceItemStatusApproved,
+				},
 			},
-		})
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDOPSIT,
+				},
+			},
+		}, nil)
 
 		approvedShipment.MTOServiceItems = models.MTOServiceItems{futureSIT}
 
@@ -59,27 +71,36 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 
 	suite.Run("includes SIT service item that has departed storage", func() {
 		shipmentSITAllowance := int(90)
-		approvedShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status:           models.MTOShipmentStatusApproved,
-				SITDaysAllowance: &shipmentSITAllowance,
+		approvedShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusApproved,
+					SITDaysAllowance: &shipmentSITAllowance,
+				},
 			},
-		})
+		}, nil)
 
 		year, month, day := time.Now().Add(time.Hour * 24 * -30).Date()
 		aMonthAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
 		fifteenDaysAgo := aMonthAgo.Add(time.Hour * 24 * 15)
-		dopsit := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOShipment: approvedShipment,
-			MTOServiceItem: models.MTOServiceItem{
-				SITEntryDate:     &aMonthAgo,
-				SITDepartureDate: &fifteenDaysAgo,
-				Status:           models.MTOServiceItemStatusApproved,
+		dopsit := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    approvedShipment,
+				LinkOnly: true,
 			},
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDOPSIT,
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate:     &aMonthAgo,
+					SITDepartureDate: &fifteenDaysAgo,
+					Status:           models.MTOServiceItemStatusApproved,
+				},
 			},
-		})
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDOPSIT,
+				},
+			},
+		}, nil)
 
 		approvedShipment.MTOServiceItems = models.MTOServiceItems{dopsit}
 
@@ -96,25 +117,34 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 
 	suite.Run("calculates status for a shipment currently in SIT", func() {
 		shipmentSITAllowance := int(90)
-		approvedShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status:           models.MTOShipmentStatusApproved,
-				SITDaysAllowance: &shipmentSITAllowance,
+		approvedShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusApproved,
+					SITDaysAllowance: &shipmentSITAllowance,
+				},
 			},
-		})
+		}, nil)
 
 		year, month, day := time.Now().Add(time.Hour * 24 * -30).Date()
 		aMonthAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
-		dopsit := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOShipment: approvedShipment,
-			MTOServiceItem: models.MTOServiceItem{
-				SITEntryDate: &aMonthAgo,
-				Status:       models.MTOServiceItemStatusApproved,
+		dopsit := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    approvedShipment,
+				LinkOnly: true,
 			},
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDOPSIT,
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate: &aMonthAgo,
+					Status:       models.MTOServiceItemStatusApproved,
+				},
 			},
-		})
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDOPSIT,
+				},
+			},
+		}, nil)
 
 		approvedShipment.MTOServiceItems = models.MTOServiceItems{dopsit}
 
@@ -134,40 +164,56 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 
 	suite.Run("combines SIT days sum for shipment with past and current SIT", func() {
 		shipmentSITAllowance := int(90)
-		approvedShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status:           models.MTOShipmentStatusApproved,
-				SITDaysAllowance: &shipmentSITAllowance,
+		approvedShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusApproved,
+					SITDaysAllowance: &shipmentSITAllowance,
+				},
 			},
-		})
+		}, nil)
 
 		year, month, day := time.Now().Add(time.Hour * 24 * -30).Date()
 		aMonthAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
 		fifteenDaysAgo := aMonthAgo.Add(time.Hour * 24 * 15)
-		pastDOPSIT := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOShipment: approvedShipment,
-			MTOServiceItem: models.MTOServiceItem{
-				SITEntryDate:     &aMonthAgo,
-				SITDepartureDate: &fifteenDaysAgo,
-				Status:           models.MTOServiceItemStatusApproved,
+		pastDOPSIT := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    approvedShipment,
+				LinkOnly: true,
 			},
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDOPSIT,
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate:     &aMonthAgo,
+					SITDepartureDate: &fifteenDaysAgo,
+					Status:           models.MTOServiceItemStatusApproved,
+				},
 			},
-		})
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDOPSIT,
+				},
+			},
+		}, nil)
 
 		year, month, day = time.Now().Add(time.Hour * 24 * -7).Date()
 		aWeekAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
-		currentDOPSIT := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOShipment: approvedShipment,
-			MTOServiceItem: models.MTOServiceItem{
-				SITEntryDate: &aWeekAgo,
-				Status:       models.MTOServiceItemStatusApproved,
+		currentDOPSIT := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    approvedShipment,
+				LinkOnly: true,
 			},
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDOPSIT,
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate: &aWeekAgo,
+					Status:       models.MTOServiceItemStatusApproved,
+				},
 			},
-		})
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDOPSIT,
+				},
+			},
+		}, nil)
 
 		approvedShipment.MTOServiceItems = models.MTOServiceItems{pastDOPSIT, currentDOPSIT}
 
@@ -190,40 +236,56 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 
 	suite.Run("combines SIT days sum for shipment with past origin and current destination SIT", func() {
 		shipmentSITAllowance := int(90)
-		approvedShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status:           models.MTOShipmentStatusApproved,
-				SITDaysAllowance: &shipmentSITAllowance,
+		approvedShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusApproved,
+					SITDaysAllowance: &shipmentSITAllowance,
+				},
 			},
-		})
+		}, nil)
 
 		year, month, day := time.Now().Add(time.Hour * 24 * -30).Date()
 		aMonthAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
 		fifteenDaysAgo := aMonthAgo.Add(time.Hour * 24 * 15)
-		pastDOPSIT := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOShipment: approvedShipment,
-			MTOServiceItem: models.MTOServiceItem{
-				SITEntryDate:     &aMonthAgo,
-				SITDepartureDate: &fifteenDaysAgo,
-				Status:           models.MTOServiceItemStatusApproved,
+		pastDOPSIT := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    approvedShipment,
+				LinkOnly: true,
 			},
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDOPSIT,
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate:     &aMonthAgo,
+					SITDepartureDate: &fifteenDaysAgo,
+					Status:           models.MTOServiceItemStatusApproved,
+				},
 			},
-		})
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDOPSIT,
+				},
+			},
+		}, nil)
 
 		year, month, day = time.Now().Add(time.Hour * 24 * -7).Date()
 		aWeekAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
-		currentDDPSIT := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOShipment: approvedShipment,
-			MTOServiceItem: models.MTOServiceItem{
-				SITEntryDate: &aWeekAgo,
-				Status:       models.MTOServiceItemStatusApproved,
+		currentDDPSIT := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    approvedShipment,
+				LinkOnly: true,
 			},
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDDDSIT,
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate: &aWeekAgo,
+					Status:       models.MTOServiceItemStatusApproved,
+				},
 			},
-		})
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDDSIT,
+				},
+			},
+		}, nil)
 
 		approvedShipment.MTOServiceItems = models.MTOServiceItems{pastDOPSIT, currentDDPSIT}
 
@@ -246,40 +308,56 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 
 	suite.Run("returns negative days remaining when days in SIT exceeds shipment allowance", func() {
 		shipmentSITAllowance := int(90)
-		approvedShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status:           models.MTOShipmentStatusApproved,
-				SITDaysAllowance: &shipmentSITAllowance,
+		approvedShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusApproved,
+					SITDaysAllowance: &shipmentSITAllowance,
+				},
 			},
-		})
+		}, nil)
 
 		year, month, day := time.Now().Add(time.Hour * 24 * 30 * -6).Date()
 		sixMonthsAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
 		threeMonthsAgo := sixMonthsAgo.Add(time.Hour * 24 * 30 * 3)
-		pastDOPSIT := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOShipment: approvedShipment,
-			MTOServiceItem: models.MTOServiceItem{
-				SITEntryDate:     &sixMonthsAgo,
-				SITDepartureDate: &threeMonthsAgo,
-				Status:           models.MTOServiceItemStatusApproved,
+		pastDOPSIT := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    approvedShipment,
+				LinkOnly: true,
 			},
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDOPSIT,
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate:     &sixMonthsAgo,
+					SITDepartureDate: &threeMonthsAgo,
+					Status:           models.MTOServiceItemStatusApproved,
+				},
 			},
-		})
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDOPSIT,
+				},
+			},
+		}, nil)
 
 		year, month, day = time.Now().Add(time.Hour * 24 * -7).Date()
 		aWeekAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
-		currentDDPSIT := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOShipment: approvedShipment,
-			MTOServiceItem: models.MTOServiceItem{
-				SITEntryDate: &aWeekAgo,
-				Status:       models.MTOServiceItemStatusApproved,
+		currentDDPSIT := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    approvedShipment,
+				LinkOnly: true,
 			},
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDDDSIT,
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate: &aWeekAgo,
+					Status:       models.MTOServiceItemStatusApproved,
+				},
 			},
-		})
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDDSIT,
+				},
+			},
+		}, nil)
 
 		approvedShipment.MTOServiceItems = models.MTOServiceItems{pastDOPSIT, currentDDPSIT}
 
@@ -302,40 +380,56 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 
 	suite.Run("excludes SIT service items that have not been approved by the TOO", func() {
 		shipmentSITAllowance := int(90)
-		approvedShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status:           models.MTOShipmentStatusApproved,
-				SITDaysAllowance: &shipmentSITAllowance,
+		approvedShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusApproved,
+					SITDaysAllowance: &shipmentSITAllowance,
+				},
 			},
-		})
+		}, nil)
 
 		year, month, day := time.Now().Add(time.Hour * 24 * 30 * -6).Date()
 		sixMonthsAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
 		threeMonthsAgo := sixMonthsAgo.Add(time.Hour * 24 * 30 * 3)
-		pastDOPSIT := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOShipment: approvedShipment,
-			MTOServiceItem: models.MTOServiceItem{
-				SITEntryDate:     &sixMonthsAgo,
-				SITDepartureDate: &threeMonthsAgo,
-				Status:           models.MTOServiceItemStatusRejected,
+		pastDOPSIT := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    approvedShipment,
+				LinkOnly: true,
 			},
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDOPSIT,
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate:     &sixMonthsAgo,
+					SITDepartureDate: &threeMonthsAgo,
+					Status:           models.MTOServiceItemStatusRejected,
+				},
 			},
-		})
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDOPSIT,
+				},
+			},
+		}, nil)
 
 		year, month, day = time.Now().Add(time.Hour * 24 * -7).Date()
 		aWeekAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
-		currentDDPSIT := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOShipment: approvedShipment,
-			MTOServiceItem: models.MTOServiceItem{
-				SITEntryDate: &aWeekAgo,
-				Status:       models.MTOServiceItemStatusRejected,
+		currentDDPSIT := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    approvedShipment,
+				LinkOnly: true,
 			},
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDDDSIT,
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate: &aWeekAgo,
+					Status:       models.MTOServiceItemStatusRejected,
+				},
 			},
-		})
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDDSIT,
+				},
+			},
+		}, nil)
 
 		approvedShipment.MTOServiceItems = models.MTOServiceItems{pastDOPSIT, currentDDPSIT}
 
