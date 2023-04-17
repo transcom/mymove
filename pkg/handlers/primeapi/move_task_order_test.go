@@ -28,6 +28,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/upload"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 func (suite *HandlerSuite) TestListMovesHandlerReturnsUpdated() {
@@ -377,6 +378,162 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		suite.NotNil(movePayload.MtoShipments[0].PpmShipment)
 		suite.Equal(ppmShipment.ShipmentID.String(), movePayload.MtoShipments[0].PpmShipment.ShipmentID.String())
 		suite.Equal(ppmShipment.ID.String(), movePayload.MtoShipments[0].PpmShipment.ID.String())
+	})
+
+	suite.Run("Success - returns all the fields at the mtoShipment level", func() {
+		handler := GetMoveTaskOrderHandler{
+			suite.HandlerConfig(),
+			movetaskorder.NewMoveTaskOrderFetcher(),
+		}
+		successMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		destinationAddress := factory.BuildAddress(suite.DB(), nil, nil)
+		destinationType := models.DestinationTypeHomeOfRecord
+		secondaryDeliveryAddress := factory.BuildAddress(suite.DB(), nil, nil)
+		secondaryPickupAddress := factory.BuildAddress(suite.DB(), nil, nil)
+		now := time.Now()
+		nowDate := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC)
+		yesterDate := nowDate.AddDate(0, 0, -1)
+		aWeekAgo := nowDate.AddDate(0, 0, -7)
+		successShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					ActualDeliveryDate:               &nowDate,
+					CounselorRemarks:                 models.StringPointer("LGTM"),
+					DestinationAddressID:             &destinationAddress.ID,
+					DestinationType:                  &destinationType,
+					FirstAvailableDeliveryDate:       &yesterDate,
+					Status:                           models.MTOShipmentStatusApproved,
+					NTSRecordedWeight:                models.PoundPointer(unit.Pound(249)),
+					PrimeEstimatedWeight:             models.PoundPointer(unit.Pound(980)),
+					PrimeEstimatedWeightRecordedDate: &aWeekAgo,
+					RequiredDeliveryDate:             &nowDate,
+					ScheduledDeliveryDate:            &nowDate,
+					// RejectionReason:                  models.StringPointer("Reason"),
+				},
+			},
+			{
+				Model:    secondaryDeliveryAddress,
+				Type:     &factory.Addresses.SecondaryDeliveryAddress,
+				LinkOnly: true,
+			},
+			{
+				Model:    secondaryPickupAddress,
+				Type:     &factory.Addresses.SecondaryPickupAddress,
+				LinkOnly: true,
+			},
+			{
+				Model:    successMove,
+				LinkOnly: true,
+			},
+		}, nil)
+		params := movetaskorderops.GetMoveTaskOrderParams{
+			HTTPRequest: request,
+			MoveID:      successMove.Locator,
+		}
+
+		// Validate incoming payload: no body to validate
+
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+		suite.IsType(&movetaskorderops.GetMoveTaskOrderOK{}, response)
+
+		moveResponse := response.(*movetaskorderops.GetMoveTaskOrderOK)
+		movePayload := moveResponse.Payload
+
+		// Validate outgoing payload
+		suite.NoError(movePayload.Validate(strfmt.Default))
+
+		suite.Equal(movePayload.ID.String(), successMove.ID.String())
+
+		shipment := movePayload.MtoShipments[0]
+		suite.Equal(successShipment.ID, handlers.FmtUUIDToPop(shipment.ID))
+		suite.Equal(successShipment.ActualDeliveryDate.Format(time.RFC3339), handlers.FmtDatePtrToPop(shipment.ActualDeliveryDate).Format(time.RFC3339))
+		suite.Equal(successShipment.ActualPickupDate.Format(time.RFC3339), handlers.FmtDatePtrToPop(shipment.ActualPickupDate).Format(time.RFC3339))
+		suite.Equal(successShipment.ApprovedDate.Format(time.RFC3339), handlers.FmtDatePtrToPop(shipment.ApprovedDate).Format(time.RFC3339))
+
+		// TODO: test agents
+
+		suite.Equal(*successShipment.CounselorRemarks, *shipment.CounselorRemarks)
+		suite.Equal(*successShipment.CustomerRemarks, *shipment.CustomerRemarks)
+
+		suite.Equal(destinationAddress.ID, handlers.FmtUUIDToPop(shipment.DestinationAddress.ID))
+		suite.Equal(destinationAddress.StreetAddress1, *shipment.DestinationAddress.StreetAddress1)
+		suite.Equal(*destinationAddress.StreetAddress2, *shipment.DestinationAddress.StreetAddress2)
+		suite.Equal(*destinationAddress.StreetAddress3, *shipment.DestinationAddress.StreetAddress3)
+		suite.Equal(destinationAddress.City, *shipment.DestinationAddress.City)
+		suite.Equal(destinationAddress.State, *shipment.DestinationAddress.State)
+		suite.Equal(destinationAddress.PostalCode, *shipment.DestinationAddress.PostalCode)
+		suite.Equal(*destinationAddress.Country, *shipment.DestinationAddress.Country)
+
+		suite.Equal(string(*successShipment.DestinationType), string(*shipment.DestinationType))
+
+		suite.Equal(successShipment.Diversion, shipment.Diversion)
+		suite.Equal(successShipment.FirstAvailableDeliveryDate.Format(time.RFC3339), handlers.FmtDatePtrToPop(shipment.FirstAvailableDeliveryDate).Format(time.RFC3339))
+
+		suite.Equal(successShipment.MoveTaskOrderID, handlers.FmtUUIDToPop(shipment.MoveTaskOrderID))
+
+		// TODO: test mtoServiceItemsField
+
+		suite.Equal(*successShipment.NTSRecordedWeight, *handlers.PoundPtrFromInt64Ptr(shipment.NtsRecordedWeight))
+
+		suite.Equal(successShipment.PickupAddress.ID, handlers.FmtUUIDToPop(shipment.PickupAddress.ID))
+		suite.Equal(successShipment.PickupAddress.StreetAddress1, *shipment.PickupAddress.StreetAddress1)
+		suite.Equal(*successShipment.PickupAddress.StreetAddress2, *shipment.PickupAddress.StreetAddress2)
+		suite.Equal(*successShipment.PickupAddress.StreetAddress3, *shipment.PickupAddress.StreetAddress3)
+		suite.Equal(successShipment.PickupAddress.City, *shipment.PickupAddress.City)
+		suite.Equal(successShipment.PickupAddress.State, *shipment.PickupAddress.State)
+		suite.Equal(successShipment.PickupAddress.PostalCode, *shipment.PickupAddress.PostalCode)
+		suite.Equal(*successShipment.PickupAddress.Country, *shipment.PickupAddress.Country)
+
+		// TODO: PointOfContact is not a valid field atm. Should we remove or add link (transportation_service_providers table)
+		// TODO: test PpmShipment
+
+		suite.Equal(*successShipment.PrimeActualWeight, *handlers.PoundPtrFromInt64Ptr(shipment.PrimeActualWeight))
+		suite.Equal(*successShipment.PrimeEstimatedWeight, *handlers.PoundPtrFromInt64Ptr(shipment.PrimeEstimatedWeight))
+
+		suite.Equal(successShipment.PrimeEstimatedWeightRecordedDate.Format(time.RFC3339), handlers.FmtDatePtrToPop(shipment.PrimeEstimatedWeightRecordedDate).Format(time.RFC3339))
+		// TODO: Rejection Reason not in model_to_payload
+		// suite.Equal(*successShipment.RejectionReason, *shipment.RejectionReason)
+		suite.Equal(successShipment.RequestedPickupDate.Format(time.RFC3339), handlers.FmtDatePtrToPop(shipment.RequestedPickupDate).Format(time.RFC3339))
+		suite.Equal(successShipment.RequiredDeliveryDate.Format(time.RFC3339), handlers.FmtDatePtrToPop(shipment.RequiredDeliveryDate).Format(time.RFC3339))
+		suite.Equal(successShipment.RequestedDeliveryDate.Format(time.RFC3339), handlers.FmtDatePtrToPop(shipment.RequestedDeliveryDate).Format(time.RFC3339))
+
+		// TODO: test Reweigh
+
+		suite.Equal(successShipment.ScheduledDeliveryDate.Format(time.RFC3339), handlers.FmtDatePtrToPop(shipment.ScheduledDeliveryDate).Format(time.RFC3339))
+		suite.Equal(successShipment.ScheduledPickupDate.Format(time.RFC3339), handlers.FmtDatePtrToPop(shipment.ScheduledPickupDate).Format(time.RFC3339))
+
+		suite.Equal(successShipment.SecondaryDeliveryAddress.ID, handlers.FmtUUIDToPop(shipment.SecondaryDeliveryAddress.ID))
+		suite.Equal(successShipment.SecondaryDeliveryAddress.StreetAddress1, *shipment.SecondaryDeliveryAddress.StreetAddress1)
+		suite.Equal(*successShipment.SecondaryDeliveryAddress.StreetAddress2, *shipment.SecondaryDeliveryAddress.StreetAddress2)
+		suite.Equal(*successShipment.SecondaryDeliveryAddress.StreetAddress3, *shipment.SecondaryDeliveryAddress.StreetAddress3)
+		suite.Equal(successShipment.SecondaryDeliveryAddress.City, *shipment.SecondaryDeliveryAddress.City)
+		suite.Equal(successShipment.SecondaryDeliveryAddress.State, *shipment.SecondaryDeliveryAddress.State)
+		suite.Equal(successShipment.SecondaryDeliveryAddress.PostalCode, *shipment.SecondaryDeliveryAddress.PostalCode)
+		suite.Equal(*successShipment.SecondaryDeliveryAddress.Country, *shipment.SecondaryDeliveryAddress.Country)
+
+		suite.Equal(successShipment.SecondaryPickupAddress.ID, handlers.FmtUUIDToPop(shipment.SecondaryPickupAddress.ID))
+		suite.Equal(successShipment.SecondaryPickupAddress.StreetAddress1, *shipment.SecondaryPickupAddress.StreetAddress1)
+		suite.Equal(*successShipment.SecondaryPickupAddress.StreetAddress2, *shipment.SecondaryPickupAddress.StreetAddress2)
+		suite.Equal(*successShipment.SecondaryPickupAddress.StreetAddress3, *shipment.SecondaryPickupAddress.StreetAddress3)
+		suite.Equal(successShipment.SecondaryPickupAddress.City, *shipment.SecondaryPickupAddress.City)
+		suite.Equal(successShipment.SecondaryPickupAddress.State, *shipment.SecondaryPickupAddress.State)
+		suite.Equal(successShipment.SecondaryPickupAddress.PostalCode, *shipment.SecondaryPickupAddress.PostalCode)
+		suite.Equal(*successShipment.SecondaryPickupAddress.Country, *shipment.SecondaryPickupAddress.Country)
+
+		// TODO: test SitExtensions
+
+		suite.Equal(string(successShipment.ShipmentType), string(shipment.ShipmentType))
+		suite.Equal(string(successShipment.Status), shipment.Status)
+
+		// TODO: test StorageFacility
+
+		suite.NotNil(shipment.ETag)
+		suite.Equal(successShipment.CreatedAt.Format(time.RFC3339), handlers.FmtDateTimePtrToPop(&shipment.CreatedAt).Format(time.RFC3339))
+		suite.Equal(successShipment.UpdatedAt.Format(time.RFC3339), handlers.FmtDateTimePtrToPop(&shipment.UpdatedAt).Format(time.RFC3339))
+
+		suite.NotNil(movePayload.AvailableToPrimeAt)
+		suite.NotEmpty(movePayload.AvailableToPrimeAt) // checks that the date is not 0001-01-01
 	})
 
 	suite.Run("Failure 'Not Found' for non-available move", func() {
