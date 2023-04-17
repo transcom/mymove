@@ -281,14 +281,18 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 					},
 				}, nil)
 
-				shipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-					MTOShipment: models.MTOShipment{
-						Status:          models.MTOShipmentStatusDraft,
-						ShipmentType:    models.MTOShipmentTypePPM,
-						MoveTaskOrder:   move,
-						MoveTaskOrderID: move.ID,
+				shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+					{
+						Model: models.MTOShipment{
+							Status:       models.MTOShipmentStatusDraft,
+							ShipmentType: models.MTOShipmentTypePPM,
+						},
 					},
-				})
+					{
+						Model:    move,
+						LinkOnly: true,
+					},
+				}, nil)
 
 				ppmShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
 					PPMShipment: models.PPMShipment{
@@ -354,14 +358,18 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 	suite.Run("PPM status changes to Submitted", func() {
 		move := factory.BuildMove(suite.DB(), nil, nil)
 
-		hhgShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status:          models.MTOShipmentStatusDraft,
-				ShipmentType:    models.MTOShipmentTypePPM,
-				MoveTaskOrder:   move,
-				MoveTaskOrderID: move.ID,
+		hhgShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:       models.MTOShipmentStatusDraft,
+					ShipmentType: models.MTOShipmentTypePPM,
+				},
 			},
-		})
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		ppmShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
 			PPMShipment: models.PPMShipment{
@@ -721,14 +729,18 @@ func (suite *MoveServiceSuite) TestCompleteServiceCounseling() {
 
 	suite.Run("NTS-release with no facility info", func() {
 		move := factory.BuildStubbedMoveWithStatus(models.MoveStatusNeedsServiceCounseling)
-		ntsrShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				ID:           uuid.Must(uuid.NewV4()),
-				ShipmentType: models.MTOShipmentTypeHHGOutOfNTSDom,
+		ntsrShipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					ID:           uuid.Must(uuid.NewV4()),
+					ShipmentType: models.MTOShipmentTypeHHGOutOfNTSDom,
+				},
 			},
-			Move: move,
-			Stub: true,
-		})
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 		move.MTOShipments = models.MTOShipments{ntsrShipment}
 
 		err := moveRouter.CompleteServiceCounseling(suite.AppContextForTest(), &move)

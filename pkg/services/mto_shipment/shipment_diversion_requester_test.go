@@ -11,7 +11,6 @@ import (
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/mocks"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *MTOShipmentServiceSuite) TestRequestShipmentDiversion() {
@@ -19,11 +18,13 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentDiversion() {
 	requester := NewShipmentDiversionRequester(router)
 
 	suite.Run("If the shipment diversion is requested successfully, it should update the shipment status in the DB", func() {
-		shipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status: models.MTOShipmentStatusApproved,
+		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusApproved,
+				},
 			},
-		})
+		}, nil)
 		shipmentEtag := etag.GenerateEtag(shipment.UpdatedAt)
 		fetchedShipment := models.MTOShipment{}
 
@@ -60,11 +61,13 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentDiversion() {
 
 	suite.Run("Passing in a stale identifier returns a PreconditionFailedError", func() {
 		staleETag := etag.GenerateEtag(time.Now())
-		staleShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status: models.MTOShipmentStatusApproved,
+		staleShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusApproved,
+				},
 			},
-		})
+		}, nil)
 
 		_, err := requester.RequestShipmentDiversion(suite.AppContextForTest(), staleShipment.ID, staleETag)
 
@@ -85,11 +88,13 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentDiversion() {
 	suite.Run("It calls RequestDiversion on the ShipmentRouter", func() {
 		shipmentRouter := &mocks.ShipmentRouter{}
 		requester := NewShipmentDiversionRequester(shipmentRouter)
-		shipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status: models.MTOShipmentStatusApproved,
+		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusApproved,
+				},
 			},
-		})
+		}, nil)
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 
 		createdShipment := models.MTOShipment{}

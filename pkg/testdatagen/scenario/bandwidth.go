@@ -112,17 +112,22 @@ func makeRiskOfExcessShipmentForMove(appCtx appcontext.AppContext, move models.M
 	estimatedWeight := unit.Pound(7200)
 	actualWeight := unit.Pound(7400)
 	daysOfSIT := 90
-	MTOShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			SITDaysAllowance:     &daysOfSIT,
-			PrimeEstimatedWeight: &estimatedWeight,
-			PrimeActualWeight:    &actualWeight,
-			ShipmentType:         models.MTOShipmentTypeHHG,
-			ApprovedDate:         swag.Time(time.Now()),
-			Status:               shipmentStatus,
+	MTOShipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				SITDaysAllowance:     &daysOfSIT,
+				PrimeEstimatedWeight: &estimatedWeight,
+				PrimeActualWeight:    &actualWeight,
+				ShipmentType:         models.MTOShipmentTypeHHG,
+				ApprovedDate:         models.TimePointer(time.Now()),
+				Status:               shipmentStatus,
+			},
 		},
-		Move: move,
-	})
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	testdatagen.MakeMTOAgent(appCtx.DB(), testdatagen.Assertions{
 		MTOAgent: models.MTOAgent{
@@ -144,18 +149,23 @@ func makeShipmentForMove(appCtx appcontext.AppContext, move models.Move, shipmen
 	billableWeight := unit.Pound(4000)
 	billableWeightJustification := "heavy"
 
-	MTOShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			PrimeEstimatedWeight:        &estimatedWeight,
-			PrimeActualWeight:           &actualWeight,
-			ShipmentType:                models.MTOShipmentTypeHHG,
-			ApprovedDate:                swag.Time(time.Now()),
-			Status:                      shipmentStatus,
-			BillableWeightCap:           &billableWeight,
-			BillableWeightJustification: &billableWeightJustification,
+	MTOShipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				PrimeEstimatedWeight:        &estimatedWeight,
+				PrimeActualWeight:           &actualWeight,
+				ShipmentType:                models.MTOShipmentTypeHHG,
+				ApprovedDate:                models.TimePointer(time.Now()),
+				Status:                      shipmentStatus,
+				BillableWeightCap:           &billableWeight,
+				BillableWeightJustification: &billableWeightJustification,
+			},
 		},
-		Move: move,
-	})
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	testdatagen.MakeMTOAgent(appCtx.DB(), testdatagen.Assertions{
 		MTOAgent: models.MTOAgent{
