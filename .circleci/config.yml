@@ -1177,7 +1177,7 @@ jobs:
 
   integration_tests_office:
     executor: milmove_playwright_tester
-    parallelism: 6
+    parallelism: 10
     steps:
       - e2e_tests_playwright:
           path: playwright/tests/office
@@ -1186,7 +1186,7 @@ jobs:
   # reads integration tests in mymove dir, should eventually be removed when tests are in milmove dir
   integration_tests_my:
     executor: milmove_playwright_tester
-    parallelism: 6
+    parallelism: 10
     steps:
       - e2e_tests_playwright:
           path: playwright/tests/my
