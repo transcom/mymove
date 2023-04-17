@@ -122,24 +122,14 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
   if (mtoShipments) {
     const submittedShipments = mtoShipments?.filter((shipment) => !shipment.deletedAt);
     const submittedShipmentsNonPPM = submittedShipments.filter(
-      (shipment) =>
-        shipment.ppmShipment?.status !== ppmShipmentStatuses.NEEDS_PAYMENT_APPROVAL ||
-        shipment.ppmShipment?.status !== ppmShipmentStatuses.PAYMENT_APPROVED ||
-        shipment.ppmShipment?.status !== ppmShipmentStatuses.WAITING_ON_CUSTOMER,
+      (shipment) => shipment.ppmShipment?.status !== ppmShipmentStatuses.NEEDS_PAYMENT_APPROVAL,
     );
-
     const ppmNeedsApprovalShipments = submittedShipments.filter(
-      (shipment) =>
-        shipment.ppmShipment?.status === ppmShipmentStatuses.NEEDS_PAYMENT_APPROVAL ||
-        shipment.ppmShipment?.status === ppmShipmentStatuses.PAYMENT_APPROVED ||
-        shipment.ppmShipment?.status === ppmShipmentStatuses.WAITING_ON_CUSTOMER,
+      (shipment) => shipment.ppmShipment?.status === ppmShipmentStatuses.NEEDS_PAYMENT_APPROVAL,
     );
     const onlyPpmShipments = submittedShipments.filter((shipment) => shipment.shipmentType === 'PPM');
     ppmShipmentsOtherStatuses = onlyPpmShipments.filter(
-      (shipment) =>
-        shipment.ppmShipment?.status !== ppmShipmentStatuses.NEEDS_PAYMENT_APPROVAL ||
-        shipment.ppmShipment?.status !== ppmShipmentStatuses.PAYMENT_APPROVED ||
-        shipment.ppmShipment?.status !== ppmShipmentStatuses.WAITING_ON_CUSTOMER,
+      (shipment) => shipment.ppmShipment?.status !== ppmShipmentStatuses.NEEDS_PAYMENT_APPROVAL,
     );
 
     ppmShipmentsInfoNeedsApproval = ppmNeedsApprovalShipments.map((shipment) => {
