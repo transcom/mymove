@@ -1,5 +1,5 @@
 {
-  "plugins": ["prettier", "security", "no-only-tests"],
+  "plugins": ["prettier", "security", "no-only-tests", "ato"],
   "extends": ["react-app", "plugin:prettier/recommended", "plugin:security/recommended"],
   "rules": {
     "consistent-return": "error",
@@ -9,9 +9,13 @@
     "no-only-tests/no-only-tests": "error",
     "no-case-declarations": "error",
     "no-debugger": "warn",
+    "no-unused-vars": "warn",
+    "ato/no-explicit-eslint-disable": "error",
+    "ato/no-unapproved-annotation": "error",
     "jsx-a11y/anchor-is-valid": "off",
     "react/jsx-no-target-blank": "error",
     "react/jsx-curly-brace-presence": "error",
-    "security/detect-object-injection": "off"
+    "security/detect-object-injection": "off",
+    "security/detect-non-literal-fs-filename": "error"
   }
 }
