@@ -16,11 +16,13 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentReweigh() {
 	requester := NewShipmentReweighRequester()
 
 	suite.Run("If the shipment reweigh is requested successfully, it creates a reweigh in the DB", func() {
-		shipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status: models.MTOShipmentStatusApproved,
+		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusApproved,
+				},
 			},
-		})
+		}, nil)
 		fetchedShipment := models.MTOShipment{}
 
 		reweigh, err := requester.RequestShipmentReweigh(suite.AppContextForTest(), shipment.ID, models.ReweighRequesterTOO)

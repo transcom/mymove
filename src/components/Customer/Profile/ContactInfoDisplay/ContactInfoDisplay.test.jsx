@@ -60,7 +60,7 @@ describe('ContactInfoDisplay component', () => {
       expect(addressTerm.nextElementSibling.textContent).toContain(value);
     });
 
-    const backupAddressTerm = screen.getByText('Backup mailing address');
+    const backupAddressTerm = screen.getByText('Backup address');
 
     expect(backupAddressTerm).toBeInTheDocument();
 

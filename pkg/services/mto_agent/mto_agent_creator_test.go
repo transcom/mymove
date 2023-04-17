@@ -9,7 +9,6 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 const agentTypeReceiving = "RECEIVING_AGENT"
@@ -36,9 +35,12 @@ func (suite *MTOAgentServiceSuite) TestMTOAgentCreator() {
 
 		// Create new mtoShipment with no agents
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-		mtoShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			Move: move,
-		})
+		mtoShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 		return mtoAgentCreator, mtoShipment
 	}
 
@@ -140,7 +142,7 @@ func (suite *MTOAgentServiceSuite) TestMTOAgentCreator() {
 		// Expected:	NotFoundError is returned. Shipment must be available to Prime to add an agent.
 
 		// Creates a shipment, which creates a move that is unavailable to Prime
-		unavailableShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{})
+		unavailableShipment := factory.BuildMTOShipmentMinimal(suite.DB(), nil, nil)
 		// Add a receiving agent on that shipment
 		receivingAgent := createAgentModel("Jason", "Ash", agentTypeReceiving, unavailableShipment.ID)
 
