@@ -91,17 +91,28 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 		address := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{})
 		sitEntryDate := time.Now()
 
-		testdatagen.MakeMTOServiceItemBasic(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				Status:                     models.MTOServiceItemStatusApproved,
-				SITDestinationFinalAddress: &address,
-				SITEntryDate:               &sitEntryDate,
+		factory.BuildMTOServiceItemBasic(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status:       models.MTOServiceItemStatusApproved,
+					SITEntryDate: &sitEntryDate,
+				},
 			},
-			Move: expectedMTO,
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDDFSIT, // DDFSIT - Domestic destination 1st day SIT
+			{
+				Model:    address,
+				LinkOnly: true,
+				Type:     &factory.Addresses.SITDestinationFinalAddress,
 			},
-		})
+			{
+				Model:    expectedMTO,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDFSIT, // DDFSIT - Domestic destination 1st day SIT
+				},
+			},
+		}, nil)
 
 		actualMTO, err := mtoFetcher.FetchMoveTaskOrder(suite.AppContextForTest(), &searchParams)
 		suite.NoError(err)
@@ -369,7 +380,7 @@ func (suite *MoveTaskOrderServiceSuite) TestListPrimeMoveTaskOrdersFetcher() {
 	primeMove1 := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 	primeMove2 := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 	primeMove3 := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-	testdatagen.MakeMTOShipmentWithMove(suite.DB(), &primeMove3, testdatagen.Assertions{})
+	factory.BuildMTOShipmentWithMove(&primeMove3, suite.DB(), nil, nil)
 
 	// Move primeMove1 and primeMove3 into the past so we can exclude them:
 	suite.Require().NoError(suite.DB().RawQuery("UPDATE moves SET updated_at=$1 WHERE id IN ($2, $3);",

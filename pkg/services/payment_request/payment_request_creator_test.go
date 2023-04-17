@@ -34,59 +34,104 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		// Create some records we'll need to link to
 		moveTaskOrder = factory.BuildMove(suite.DB(), nil, nil)
 		estimatedWeight := unit.Pound(2048)
-		mtoServiceItem1 = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			Move: moveTaskOrder,
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDLH,
+		mtoServiceItem1 = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    moveTaskOrder,
+				LinkOnly: true,
 			},
-			MTOShipment: models.MTOShipment{
-				PrimeEstimatedWeight: &estimatedWeight,
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDLH,
+				},
 			},
-			MTOServiceItem: models.MTOServiceItem{Status: models.MTOServiceItemStatusApproved},
-		})
-		mtoServiceItem2 = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			Move: moveTaskOrder,
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDOP,
+			{
+				Model: models.MTOShipment{
+					PrimeEstimatedWeight: &estimatedWeight,
+				},
 			},
-			MTOShipment: models.MTOShipment{
-				PrimeEstimatedWeight: &estimatedWeight,
+			{
+				Model: models.MTOServiceItem{Status: models.MTOServiceItemStatusApproved},
 			},
-			MTOServiceItem: models.MTOServiceItem{Status: models.MTOServiceItemStatusApproved},
-		})
-		mtoServiceItem3 = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			Move: moveTaskOrder,
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDOP,
+		}, nil)
+		mtoServiceItem2 = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    moveTaskOrder,
+				LinkOnly: true,
 			},
-			MTOShipment: models.MTOShipment{
-				PrimeEstimatedWeight: &estimatedWeight,
-				UsesExternalVendor:   true,
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDOP,
+				},
 			},
-			MTOServiceItem: models.MTOServiceItem{Status: models.MTOServiceItemStatusApproved},
-		})
-		mtoServiceItemSubmitted = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			Move: moveTaskOrder,
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDOP,
+			{
+				Model: models.MTOShipment{
+					PrimeEstimatedWeight: &estimatedWeight,
+				},
 			},
-			MTOShipment: models.MTOShipment{
-				PrimeEstimatedWeight: &estimatedWeight,
-				UsesExternalVendor:   true,
+			{
+				Model: models.MTOServiceItem{Status: models.MTOServiceItemStatusApproved},
 			},
-			MTOServiceItem: models.MTOServiceItem{Status: models.MTOServiceItemStatusSubmitted},
-		})
-		mtoServiceItemRejected = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			Move: moveTaskOrder,
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDOP,
+		}, nil)
+		mtoServiceItem3 = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    moveTaskOrder,
+				LinkOnly: true,
 			},
-			MTOShipment: models.MTOShipment{
-				PrimeEstimatedWeight: &estimatedWeight,
-				UsesExternalVendor:   true,
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDOP,
+				},
 			},
-			MTOServiceItem: models.MTOServiceItem{Status: models.MTOServiceItemStatusRejected},
-		})
+			{
+				Model: models.MTOShipment{
+					PrimeEstimatedWeight: &estimatedWeight,
+					UsesExternalVendor:   true,
+				},
+			},
+			{
+				Model: models.MTOServiceItem{Status: models.MTOServiceItemStatusApproved},
+			},
+		}, nil)
+		mtoServiceItemSubmitted = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    moveTaskOrder,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDOP,
+				},
+			},
+			{
+				Model: models.MTOShipment{
+					PrimeEstimatedWeight: &estimatedWeight,
+					UsesExternalVendor:   true,
+				},
+			},
+			{
+				Model: models.MTOServiceItem{Status: models.MTOServiceItemStatusSubmitted},
+			},
+		}, nil)
+		mtoServiceItemRejected = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    moveTaskOrder,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDOP,
+				},
+			},
+			{
+				Model: models.MTOShipment{
+					PrimeEstimatedWeight: &estimatedWeight,
+					UsesExternalVendor:   true,
+				},
+			},
+			{
+				Model: models.MTOServiceItem{Status: models.MTOServiceItemStatusRejected},
+			},
+		}, nil)
 		serviceItemParamKey1 = factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{
 			{
 				Model: models.ServiceItemParamKey{

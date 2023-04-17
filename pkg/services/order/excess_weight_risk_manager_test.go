@@ -11,7 +11,6 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
-	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
@@ -629,9 +628,12 @@ func (suite *OrderServiceSuite) createServiceItem() (string, models.MTOServiceIt
 			},
 		},
 	}, nil)
-	serviceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-		Move: move,
-	})
+	serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	eTag := etag.GenerateEtag(serviceItem.UpdatedAt)
 

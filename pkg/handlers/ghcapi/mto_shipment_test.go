@@ -108,11 +108,13 @@ func (suite *HandlerSuite) makeListMTOShipmentsSubtestData() (subtestData *listM
 			MTOShipmentID: mtoShipment.ID,
 		},
 	})
-	subtestData.mtoServiceItem = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			MTOShipmentID: &mtoShipment.ID,
+	subtestData.mtoServiceItem = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				MTOShipmentID: &mtoShipment.ID,
+			},
 		},
-	})
+	}, nil)
 
 	ppm := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
 		Move: mto,
@@ -123,33 +125,53 @@ func (suite *HandlerSuite) makeListMTOShipmentsSubtestData() (subtestData *listM
 	year, month, day := time.Now().Date()
 	lastMonthEntry := time.Date(year, month, day-37, 0, 0, 0, 0, time.UTC)
 	lastMonthDeparture := time.Date(year, month, day-30, 0, 0, 0, 0, time.UTC)
-	testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			SITEntryDate:     &lastMonthEntry,
-			SITDepartureDate: &lastMonthDeparture,
-			Status:           models.MTOServiceItemStatusApproved,
+	factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				SITEntryDate:     &lastMonthEntry,
+				SITDepartureDate: &lastMonthDeparture,
+				Status:           models.MTOServiceItemStatusApproved,
+			},
 		},
-		Move:        mto,
-		MTOShipment: mtoShipment,
-		ReService: models.ReService{
-			Code: models.ReServiceCodeDOPSIT,
+		{
+			Model:    mto,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    mtoShipment,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDOPSIT,
+			},
+		},
+	}, nil)
 
 	aWeekAgo := time.Date(year, month, day-7, 0, 0, 0, 0, time.UTC)
 	departureDate := aWeekAgo.Add(time.Hour * 24 * 30)
-	subtestData.sit = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			SITEntryDate:     &aWeekAgo,
-			SITDepartureDate: &departureDate,
-			Status:           models.MTOServiceItemStatusApproved,
+	subtestData.sit = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				SITEntryDate:     &aWeekAgo,
+				SITDepartureDate: &departureDate,
+				Status:           models.MTOServiceItemStatusApproved,
+			},
 		},
-		Move:        mto,
-		MTOShipment: mtoShipment,
-		ReService: models.ReService{
-			Code: models.ReServiceCodeDOPSIT,
+		{
+			Model:    mto,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    mtoShipment,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDOPSIT,
+			},
+		},
+	}, nil)
 
 	subtestData.sitExtension = testdatagen.MakeSITExtension(suite.DB(), testdatagen.Assertions{
 		SITExtension: models.SITExtension{
@@ -2409,18 +2431,28 @@ func (suite *HandlerSuite) TestApproveSITExtensionHandler() {
 		year, month, day := time.Now().Date()
 		lastMonthEntry := time.Date(year, month, day-37, 0, 0, 0, 0, time.UTC)
 		lastMonthDeparture := time.Date(year, month, day-30, 0, 0, 0, 0, time.UTC)
-		testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				SITEntryDate:     &lastMonthEntry,
-				SITDepartureDate: &lastMonthDeparture,
-				Status:           models.MTOServiceItemStatusApproved,
+		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate:     &lastMonthEntry,
+					SITDepartureDate: &lastMonthDeparture,
+					Status:           models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        move,
-			MTOShipment: mtoShipment,
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDOPSIT,
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model:    mtoShipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDOPSIT,
+				},
+			},
+		}, nil)
 		sitExtension := testdatagen.MakePendingSITExtension(suite.DB(), testdatagen.Assertions{
 			MTOShipment: mtoShipment,
 		})

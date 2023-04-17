@@ -754,9 +754,12 @@ func (suite *MoveServiceSuite) TestCompleteServiceCounseling() {
 func (suite *MoveServiceSuite) createServiceItem() (models.MTOServiceItem, models.Move) {
 	move := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
 
-	serviceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-		Move: move,
-	})
+	serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	return serviceItem, move
 }

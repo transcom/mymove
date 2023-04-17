@@ -413,15 +413,22 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 			},
 		},
 	}, nil)
-	testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-		Move: approvedMove,
-		MTOShipment: models.MTOShipment{
-			Status: models.MTOShipmentStatusApproved,
+	factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+		{
+			Model:    approvedMove,
+			LinkOnly: true,
 		},
-		MTOServiceItem: models.MTOServiceItem{
-			Status: models.MTOServiceItemStatusSubmitted,
+		{
+			Model: models.MTOShipment{
+				Status: models.MTOShipmentStatusApproved,
+			},
 		},
-	})
+		{
+			Model: models.MTOServiceItem{
+				Status: models.MTOServiceItemStatusSubmitted,
+			},
+		},
+	}, nil)
 
 	// Move approved
 	factory.BuildMTOShipment(suite.DB(), []factory.Customization{
