@@ -15,9 +15,6 @@ version: '2.1'
 references:
   circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-59d1b5d814b190c7c5a8c460ca97ed193d518350
 
-  # the cypress image to use
-  cypress: &cypress milmove/circleci-docker:milmove-cypress-bc1b345eabd5f3607948f78455aa8257183345c5
-
   # the playwright image to use
   playwright: &playwright cimg/node:18.13.0-browsers
 
@@ -1515,13 +1512,11 @@ jobs:
       - persist_to_workspace:
           root: .
           # Need build for integration tests
-          # Need cypress for, uh, cypress tests
           # Need playwright, playwright.config.js, package.json, and
           # yarn.lock for playwright
           # Need eslint-plugin-ato as referenced by package.json/yarn.lock
           paths:
             - build
-            - cypress
             - playwright
             - playwright.config.js
             - package.json
@@ -2100,6 +2095,8 @@ workflows:
               ignore: *integration-ignore-branch
 
       - integration_tests_mtls:
+          # mtls integration tests use the same server image as the
+          # e2e playwright tests and so needs the client build
           requires:
             - compile_app_server
           # See comments at the top of this file for configuring/using
