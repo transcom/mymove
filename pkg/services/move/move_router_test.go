@@ -281,14 +281,18 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 					},
 				}, nil)
 
-				shipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-					MTOShipment: models.MTOShipment{
-						Status:          models.MTOShipmentStatusDraft,
-						ShipmentType:    models.MTOShipmentTypePPM,
-						MoveTaskOrder:   move,
-						MoveTaskOrderID: move.ID,
+				shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+					{
+						Model: models.MTOShipment{
+							Status:       models.MTOShipmentStatusDraft,
+							ShipmentType: models.MTOShipmentTypePPM,
+						},
 					},
-				})
+					{
+						Model:    move,
+						LinkOnly: true,
+					},
+				}, nil)
 
 				ppmShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
 					PPMShipment: models.PPMShipment{
@@ -354,14 +358,18 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 	suite.Run("PPM status changes to Submitted", func() {
 		move := factory.BuildMove(suite.DB(), nil, nil)
 
-		hhgShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status:          models.MTOShipmentStatusDraft,
-				ShipmentType:    models.MTOShipmentTypePPM,
-				MoveTaskOrder:   move,
-				MoveTaskOrderID: move.ID,
+		hhgShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:       models.MTOShipmentStatusDraft,
+					ShipmentType: models.MTOShipmentTypePPM,
+				},
 			},
-		})
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		ppmShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
 			PPMShipment: models.PPMShipment{
@@ -507,6 +515,7 @@ func (suite *MoveServiceSuite) TestSendToOfficeUser() {
 
 			suite.NoError(err)
 			suite.Equal(models.MoveStatusAPPROVALSREQUESTED, move.Status)
+			suite.NotNil(move.ApprovalsRequestedAt)
 		}
 	})
 
@@ -528,6 +537,18 @@ func (suite *MoveServiceSuite) TestSendToOfficeUser() {
 			suite.Contains(err.Error(), "can not be sent to 'Approvals Requested' if the status is cancelled.")
 		}
 	})
+
+	suite.Run("from APPROVALS REQUESTED status", func() {
+		move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{})
+		err := moveRouter.SendToOfficeUser(suite.AppContextForTest(), &move)
+		suite.NoError(err)
+		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, move.Status)
+
+		var moveInDB models.Move
+		err = suite.DB().Find(&moveInDB, move.ID)
+		suite.NoError(err)
+		suite.Equal(move.ApprovalsRequestedAt.Format(time.RFC3339), moveInDB.ApprovalsRequestedAt.Format(time.RFC3339))
+	})
 }
 
 func (suite *MoveServiceSuite) TestApproveOrRequestApproval() {
@@ -544,6 +565,7 @@ func (suite *MoveServiceSuite) TestApproveOrRequestApproval() {
 		err = suite.DB().Find(&moveInDB, move.ID)
 		suite.NoError(err)
 		suite.Equal(models.MoveStatusAPPROVED, moveInDB.Status)
+		suite.Equal(move.ApprovalsRequestedAt.Format(time.RFC3339), moveInDB.ApprovalsRequestedAt.Format(time.RFC3339))
 	})
 
 	suite.Run("does not approve the move if excess weight risk exists and has not been acknowledged", func() {
@@ -565,6 +587,7 @@ func (suite *MoveServiceSuite) TestApproveOrRequestApproval() {
 		err = suite.DB().Find(&moveInDB, move.ID)
 		suite.NoError(err)
 		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, moveInDB.Status)
+		suite.Equal(move.ApprovalsRequestedAt.Format(time.RFC3339), moveInDB.ApprovalsRequestedAt.Format(time.RFC3339))
 	})
 
 	suite.Run("does not approve the move if unreviewed service items exist", func() {
@@ -579,6 +602,7 @@ func (suite *MoveServiceSuite) TestApproveOrRequestApproval() {
 		err = suite.DB().Find(&moveInDB, move.ID)
 		suite.NoError(err)
 		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, moveInDB.Status)
+		suite.Equal(move.ApprovalsRequestedAt.Format(time.RFC3339), moveInDB.ApprovalsRequestedAt.Format(time.RFC3339))
 	})
 
 	suite.Run("does not approve the move if unacknowledged amended orders exist", func() {
@@ -628,6 +652,7 @@ func (suite *MoveServiceSuite) TestApproveOrRequestApproval() {
 		err = suite.DB().Find(&moveInDB, move.ID)
 		suite.NoError(err)
 		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, moveInDB.Status)
+		suite.Equal(move.ApprovalsRequestedAt.Format(time.RFC3339), moveInDB.ApprovalsRequestedAt.Format(time.RFC3339))
 	})
 
 	suite.Run("does not approve the move if unreviewed SIT extensions exist", func() {
@@ -645,6 +670,7 @@ func (suite *MoveServiceSuite) TestApproveOrRequestApproval() {
 		err = suite.DB().Find(&moveInDB, move.ID)
 		suite.NoError(err)
 		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, moveInDB.Status)
+		suite.Equal(move.ApprovalsRequestedAt.Format(time.RFC3339), moveInDB.ApprovalsRequestedAt.Format(time.RFC3339))
 	})
 }
 
@@ -653,7 +679,13 @@ func (suite *MoveServiceSuite) TestCompleteServiceCounseling() {
 
 	suite.Run("status changed to service counseling completed", func() {
 		move := factory.BuildStubbedMoveWithStatus(models.MoveStatusNeedsServiceCounseling)
-		hhgShipment := testdatagen.MakeStubbedShipment(suite.DB())
+		hhgShipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					ID: uuid.Must(uuid.NewV4()),
+				},
+			},
+		}, nil)
 		move.MTOShipments = models.MTOShipments{hhgShipment}
 
 		err := moveRouter.CompleteServiceCounseling(suite.AppContextForTest(), &move)
@@ -697,14 +729,18 @@ func (suite *MoveServiceSuite) TestCompleteServiceCounseling() {
 
 	suite.Run("NTS-release with no facility info", func() {
 		move := factory.BuildStubbedMoveWithStatus(models.MoveStatusNeedsServiceCounseling)
-		ntsrShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				ID:           uuid.Must(uuid.NewV4()),
-				ShipmentType: models.MTOShipmentTypeHHGOutOfNTSDom,
+		ntsrShipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					ID:           uuid.Must(uuid.NewV4()),
+					ShipmentType: models.MTOShipmentTypeHHGOutOfNTSDom,
+				},
 			},
-			Move: move,
-			Stub: true,
-		})
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 		move.MTOShipments = models.MTOShipments{ntsrShipment}
 
 		err := moveRouter.CompleteServiceCounseling(suite.AppContextForTest(), &move)
@@ -718,9 +754,12 @@ func (suite *MoveServiceSuite) TestCompleteServiceCounseling() {
 func (suite *MoveServiceSuite) createServiceItem() (models.MTOServiceItem, models.Move) {
 	move := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
 
-	serviceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-		Move: move,
-	})
+	serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	return serviceItem, move
 }

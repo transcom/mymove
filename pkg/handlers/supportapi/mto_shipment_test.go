@@ -22,7 +22,6 @@ import (
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	"github.com/transcom/mymove/pkg/services/query"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
@@ -43,13 +42,19 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 				},
 			},
 		}, nil)
-		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: mto,
-			MTOShipment: models.MTOShipment{
-				Status:       models.MTOShipmentStatusSubmitted,
-				ShipmentType: models.MTOShipmentTypeHHGLongHaulDom,
+
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    mto,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					Status:       models.MTOShipmentStatusSubmitted,
+					ShipmentType: models.MTOShipmentTypeHHGLongHaulDom,
+				},
+			},
+		}, nil)
 		// Populate the reServices table with codes needed by the
 		// HHG_LONGHAUL_DOMESTIC shipment type
 		reServiceCodes := []models.ReServiceCode{
@@ -215,13 +220,19 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 				},
 			},
 		}, nil)
-		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: mto,
-			MTOShipment: models.MTOShipment{
-				Status:       models.MTOShipmentStatusApproved,
-				ShipmentType: models.MTOShipmentTypeHHGLongHaulDom,
+
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    mto,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					Status:       models.MTOShipmentStatusApproved,
+					ShipmentType: models.MTOShipmentTypeHHGLongHaulDom,
+				},
+			},
+		}, nil)
 		eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
 
 		baseParams := setupParams(mtoShipment)

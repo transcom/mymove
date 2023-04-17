@@ -378,7 +378,6 @@ func (g ghcPaymentRequestInvoiceGenerator) createBuyerAndSellerOrganizationNames
 
 	var err error
 	var originDutyLocation models.DutyLocation
-
 	if orders.OriginDutyLocationID != nil && *orders.OriginDutyLocationID != uuid.Nil {
 		originDutyLocation, err = models.FetchDutyLocation(appCtx.DB(), *orders.OriginDutyLocationID)
 		if err != nil {
@@ -398,9 +397,8 @@ func (g ghcPaymentRequestInvoiceGenerator) createBuyerAndSellerOrganizationNames
 		EntityIdentifierCode:        "BY",
 		Name:                        originTransportationOffice.Name,
 		IdentificationCodeQualifier: "92",
-		IdentificationCode:          originTransportationOffice.Gbloc,
+		IdentificationCode:          modifyGblocIfMarines(*orders.ServiceMember.Affiliation, *orders.OriginDutyLocationGBLOC),
 	}
-
 	// seller organization name
 	header.SellerOrganizationName = edisegment.N1{
 		EntityIdentifierCode:        "SE",
@@ -434,7 +432,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(ap
 		EntityIdentifierCode:        "ST",
 		Name:                        destinationDutyLocation.Name,
 		IdentificationCodeQualifier: "10",
-		IdentificationCode:          destTransportationOffice.Gbloc,
+		IdentificationCode:          modifyGblocIfMarines(*orders.ServiceMember.Affiliation, destTransportationOffice.Gbloc),
 	}
 
 	// destination address
@@ -506,7 +504,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(ap
 		EntityIdentifierCode:        "SF",
 		Name:                        originDutyLocation.Name,
 		IdentificationCodeQualifier: "10",
-		IdentificationCode:          originTransportationOffice.Gbloc,
+		IdentificationCode:          modifyGblocIfMarines(*orders.ServiceMember.Affiliation, *orders.OriginDutyLocationGBLOC),
 	}
 
 	// origin address
@@ -850,6 +848,16 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(ap
 	}
 
 	return segments, l3, nil
+}
+
+// This business logic should likely live in the transportation_office.go file,
+// however, since the change would likely impact other parts of the application it is here so that it only
+// updates the Gbloc sent to Syncada
+func modifyGblocIfMarines(affiliation models.ServiceMemberAffiliation, gbloc string) string {
+	if affiliation == models.AffiliationMARINES {
+		gbloc = "USMC"
+	}
+	return gbloc
 }
 
 func msOrCsOnly(paymentServiceItems models.PaymentServiceItems) bool {

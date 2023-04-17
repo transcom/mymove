@@ -519,12 +519,17 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 			},
 		})
 
-		testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: paymentRequest2.MoveTaskOrder,
-			MTOShipment: models.MTOShipment{
-				Status: models.MTOShipmentStatusSubmitted,
+		factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    paymentRequest2.MoveTaskOrder,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusSubmitted,
+				},
+			},
+		}, nil)
 
 		expectedNameOrder = append(expectedNameOrder, *paymentRequest1.MoveTaskOrder.Orders.ServiceMember.FirstName, *paymentRequest2.MoveTaskOrder.Orders.ServiceMember.FirstName)
 		expectedDodIDOrder = append(expectedDodIDOrder, *paymentRequest1.MoveTaskOrder.Orders.ServiceMember.Edipi, *paymentRequest2.MoveTaskOrder.Orders.ServiceMember.Edipi)

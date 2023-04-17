@@ -255,6 +255,61 @@ func (suite *OrderServiceSuite) TestListOrders() {
 
 	})
 
+	suite.Run("returns moves filtered appeared in TOO at", func() {
+		// Under test: ListOrders
+		// Expected outcome: Only the three move with the right date should be returned
+		officeUser, _ := setupTestData()
+
+		// Moves with specified timestamp
+		specifiedDay := time.Date(2022, 04, 01, 0, 0, 0, 0, time.UTC)
+		specifiedTimestamp1 := time.Date(2022, 04, 01, 1, 0, 0, 0, time.UTC)
+		specifiedTimestamp2 := time.Date(2022, 04, 01, 23, 59, 59, 999999000, time.UTC) // the upper bound is 999999499 nanoseconds but the DB only stores microseconds
+
+		matchingSubmittedAt := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				SubmittedAt: &specifiedDay,
+			},
+		})
+
+		matchingSCCompletedAt := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				ServiceCounselingCompletedAt: &specifiedTimestamp1,
+			},
+		})
+
+		matchingApprovalsRequestedAt := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				ApprovalsRequestedAt: &specifiedTimestamp2,
+			},
+		})
+
+		// Test non dates matching
+		nonMatchingDate1 := time.Date(2022, 04, 02, 0, 0, 0, 0, time.UTC)
+		nonMatchingDate2 := time.Date(2022, 03, 31, 23, 59, 59, 999999000, time.UTC) // the upper bound is 999999499 nanoseconds but the DB only stores microseconds
+		nonMatchingDate3 := time.Date(2023, 04, 01, 0, 0, 0, 0, time.UTC)
+		testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				SubmittedAt:                  &nonMatchingDate1,
+				ServiceCounselingCompletedAt: &nonMatchingDate2,
+				ApprovalsRequestedAt:         &nonMatchingDate3,
+			},
+		})
+
+		// Filter by AppearedInTOOAt timestamp
+		params := services.ListOrderParams{AppearedInTOOAt: &specifiedDay}
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &params)
+
+		suite.FatalNoError(err)
+		suite.Equal(3, len(moves))
+		var foundIDs []uuid.UUID
+		for _, move := range moves {
+			foundIDs = append(foundIDs, move.ID)
+		}
+		suite.Contains(foundIDs, matchingSubmittedAt.ID)
+		suite.Contains(foundIDs, matchingSCCompletedAt.ID)
+		suite.Contains(foundIDs, matchingApprovalsRequestedAt.ID)
+	})
+
 	suite.Run("returns moves filtered by requested pickup date", func() {
 		// Under test: ListOrders
 		// Set up:           Make 3 moves, with different submitted_at times, and search for a specific move
@@ -873,12 +928,17 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 				},
 			},
 		}, nil)
-		testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				ShipmentType: models.MTOShipmentTypeHHG,
+		factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypeHHG,
+				},
 			},
-			Move: moveWithHHG,
-		})
+			{
+				Model:    moveWithHHG,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		officeUserSC := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
 			{
@@ -930,20 +990,30 @@ func (suite *OrderServiceSuite) TestListOrdersWithEmptyFields() {
 	}, nil)
 	// Only orders with shipments are returned, so we need to add a shipment
 	// to the move we just created
-	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			Status: models.MTOShipmentStatusSubmitted,
+	factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				Status: models.MTOShipmentStatusSubmitted,
+			},
+		},
+	}, nil)
 	// Add a second shipment to make sure we only return 1 order even if its
 	// move has more than one shipment
-	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			Status: models.MTOShipmentStatusSubmitted,
+	factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				Status: models.MTOShipmentStatusSubmitted,
+			},
+		},
+	}, nil)
 
 	officeUser := factory.BuildOfficeUser(suite.DB(), nil, nil)
 	orderFetcher := NewOrderFetcher()
@@ -1011,11 +1081,13 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 			},
 		})
 		// Create a second shipment so we can test min() sort
-		testdatagen.MakeMTOShipmentWithMove(suite.DB(), &expectedMove2, testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				RequestedPickupDate: &requestedMoveDate3,
+		factory.BuildMTOShipmentWithMove(&expectedMove2, suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: &requestedMoveDate3,
+				},
 			},
-		})
+		}, nil)
 		officeUser = factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
 		return expectedMove1, expectedMove2
@@ -1092,6 +1164,33 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 		suite.Equal(1, len(moves[0].MTOShipments)) // the move with one shipment should be first
 		suite.Equal(2, len(moves[1].MTOShipments))
 		suite.Equal(requestedMoveDate1.Format("2006/01/02"), moves[0].MTOShipments[0].RequestedPickupDate.Format("2006/01/02"))
+	})
+
+	suite.Run("Sort by submitted date (appearedInTooAt) in TOO queue ", func() {
+		// Scenario: In order to sort the moves the submitted_at, service_counseling_completed_at, and approvals_requested_at are checked to which are the minimum
+		// Expected: The moves appear in the order they are created below
+		officeUser = factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		now := time.Now()
+		oneWeekAgo := now.AddDate(0, 0, -7)
+		move1 := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				SubmittedAt: &oneWeekAgo,
+			},
+		})
+
+		move2 := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{})
+		factory.BuildMTOShipmentWithMove(&move2, suite.DB(), nil, nil)
+		move3 := testdatagen.MakeServiceCounselingCompletedMove(suite.DB(), testdatagen.Assertions{})
+		factory.BuildMTOShipmentWithMove(&move3, suite.DB(), nil, nil)
+
+		params := services.ListOrderParams{Sort: models.StringPointer("appearedInTooAt"), Order: models.StringPointer("asc")}
+
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &params)
+		suite.NoError(err)
+		suite.Equal(3, len(moves))
+		suite.Equal(moves[0].ID, move1.ID)
+		suite.Equal(moves[1].ID, move2.ID)
+		suite.Equal(moves[2].ID, move3.ID)
 	})
 
 	// MUST BE LAST, ADDS EXTRA MOVE
@@ -1501,14 +1600,22 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPMWithDeletedShipment()
 			PickupPostalCode: postalCode,
 		},
 	})
-	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			Status:      models.MTOShipmentStatusSubmitted,
-			DeletedAt:   &deletedAt,
-			PPMShipment: &ppmShipment,
+	factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				Status:    models.MTOShipmentStatusSubmitted,
+				DeletedAt: &deletedAt,
+			},
+		},
+		{
+			Model:    ppmShipment,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	// Make a TOO user.
 	tooOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
@@ -1546,14 +1653,22 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPMWithOneDeletedShipmen
 			CreatedAt:        time.Now().Add(time.Minute * time.Duration(1)),
 		},
 	})
-	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			Status:      models.MTOShipmentStatusSubmitted,
-			DeletedAt:   &deletedAt,
-			PPMShipment: &ppmShipment1,
+	factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				Status:    models.MTOShipmentStatusSubmitted,
+				DeletedAt: &deletedAt,
+			},
+		},
+		{
+			Model:    ppmShipment1,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	// Make a TOO user and the postal code to GBLOC link.
 	tooOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})

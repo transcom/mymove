@@ -1,6 +1,7 @@
 package primeapi
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http/httptest"
 	"time"
@@ -134,14 +135,19 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		successMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		destinationAddress := factory.BuildAddress(suite.DB(), nil, nil)
 		destinationType := models.DestinationTypeHomeOfRecord
-		successShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				MoveTaskOrderID:      successMove.ID,
-				DestinationAddressID: &destinationAddress.ID,
-				DestinationType:      &destinationType,
-				Status:               models.MTOShipmentStatusApproved,
+		successShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					DestinationAddressID: &destinationAddress.ID,
+					DestinationType:      &destinationType,
+					Status:               models.MTOShipmentStatusApproved,
+				},
 			},
-		})
+			{
+				Model:    successMove,
+				LinkOnly: true,
+			},
+		}, nil)
 		params := movetaskorderops.GetMoveTaskOrderParams{
 			HTTPRequest: request,
 			MoveID:      successMove.Locator,
@@ -237,6 +243,75 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		suite.Equal(strfmt.UUID(sitExtension.ID.String()), reweighPayload.ID)
 	})
 
+	suite.Run("Success - returns SitDestinationFinalAddress on related MTO service Items if they exist", func() {
+		handler := GetMoveTaskOrderHandler{
+			suite.HandlerConfig(),
+			movetaskorder.NewMoveTaskOrderFetcher(),
+		}
+		successMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		params := movetaskorderops.GetMoveTaskOrderParams{
+			HTTPRequest: request,
+			MoveID:      successMove.Locator,
+		}
+
+		address := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{})
+		sitEntryDate := time.Now()
+
+		factory.BuildMTOServiceItemBasic(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status:       models.MTOServiceItemStatusApproved,
+					SITEntryDate: &sitEntryDate,
+				},
+			},
+			{
+				Model:    address,
+				LinkOnly: true,
+				Type:     &factory.Addresses.SITDestinationFinalAddress,
+			},
+			{
+				Model:    successMove,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDFSIT, // DDFSIT - Domestic destination 1st day SIT
+				},
+			},
+		}, nil)
+
+		// Validate incoming payload: no body to validate
+
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+		suite.IsType(&movetaskorderops.GetMoveTaskOrderOK{}, response)
+
+		moveResponse := response.(*movetaskorderops.GetMoveTaskOrderOK)
+		movePayload := moveResponse.Payload
+
+		// Validate outgoing payload
+		suite.NoError(movePayload.Validate(strfmt.Default))
+
+		suite.Equal(successMove.ID.String(), movePayload.ID.String())
+		if suite.Len(movePayload.MtoServiceItems(), 1) {
+			serviceItem := movePayload.MtoServiceItems()[0]
+
+			// Take the service item and marshal it into json
+			raw, err := json.Marshal(serviceItem)
+			suite.NoError(err)
+
+			// Take that raw json and unmarshal it into a MTOServiceItemDestSIT
+			ddfsitServiceItem := primemessages.MTOServiceItemDestSIT{}
+			err = ddfsitServiceItem.UnmarshalJSON(raw)
+			suite.NoError(err)
+
+			suite.Equal(address.StreetAddress1, *ddfsitServiceItem.SitDestinationFinalAddress.StreetAddress1)
+			suite.Equal(address.State, *ddfsitServiceItem.SitDestinationFinalAddress.State)
+			suite.Equal(address.City, *ddfsitServiceItem.SitDestinationFinalAddress.City)
+		}
+
+	})
+
 	suite.Run("Success - filters shipments handled by an external vendor", func() {
 		handler := GetMoveTaskOrderHandler{
 			suite.HandlerConfig(),
@@ -245,19 +320,29 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
 		// Create two shipments, one prime, one external.  Only prime one should be returned.
-		primeShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			Move: move,
-			MTOShipment: models.MTOShipment{
-				UsesExternalVendor: false,
+		primeShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-		})
-		testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			Move: move,
-			MTOShipment: models.MTOShipment{
-				ShipmentType:       models.MTOShipmentTypeHHGOutOfNTSDom,
-				UsesExternalVendor: true,
+			{
+				Model: models.MTOShipment{
+					UsesExternalVendor: false,
+				},
 			},
-		})
+		}, nil)
+		factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					ShipmentType:       models.MTOShipmentTypeHHGOutOfNTSDom,
+					UsesExternalVendor: true,
+				},
+			},
+		}, nil)
 
 		params := movetaskorderops.GetMoveTaskOrderParams{
 			HTTPRequest: request,
@@ -465,22 +550,34 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 				UsesExternalVendor: false,
 			},
 		})
-		testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			Move: mto,
-			MTOShipment: models.MTOShipment{
-				ShipmentType:       models.MTOShipmentTypeHHGOutOfNTSDom,
-				UsesExternalVendor: true,
+		factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model:    mto,
+				LinkOnly: true,
 			},
-		})
-		testdatagen.MakeMTOServiceItemBasic(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				Status: models.MTOServiceItemStatusApproved,
+			{
+				Model: models.MTOShipment{
+					ShipmentType:       models.MTOShipmentTypeHHGOutOfNTSDom,
+					UsesExternalVendor: true,
+				},
 			},
-			Move: mto,
-			ReService: models.ReService{
-				Code: models.ReServiceCodeCS, // CS - Counseling Services
+		}, nil)
+		factory.BuildMTOServiceItemBasic(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusApproved,
+				},
 			},
-		})
+			{
+				Model:    mto,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeCS, // CS - Counseling Services
+				},
+			},
+		}, nil)
 
 		queryBuilder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(queryBuilder)

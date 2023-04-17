@@ -2742,6 +2742,70 @@ func init() {
         ]
       }
     },
+    "/ppm-shipments/{ppmShipmentId}/finish-document-review": {
+      "patch": {
+        "description": "Updates a PPM shipment's status once documents have been reviewed. Status is updated depending on whether any documents have been rejected.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Updates a PPM shipment's status after document review",
+        "operationId": "finishDocumentReview",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully finished document review",
+            "schema": {
+              "$ref": "#/definitions/PPMShipment"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        },
+        "x-permissions": [
+          "update.shipment"
+        ]
+      },
+      "parameters": [
+        {
+          "$ref": "#/parameters/ppmShipmentId"
+        }
+      ]
+    },
     "/ppm-shipments/{ppmShipmentId}/moving-expenses/{movingExpenseId}": {
       "patch": {
         "description": "Updates a PPM shipment's moving expense with new information. Only some of the moving expense's fields are\neditable because some have to be set by the customer, e.g. the description and the moving expense type.\n",
@@ -3176,7 +3240,8 @@ func init() {
               "status",
               "originDutyLocation",
               "destinationDutyLocation",
-              "requestedMoveDate"
+              "requestedMoveDate",
+              "appearedInTooAt"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -3221,6 +3286,12 @@ func init() {
           {
             "type": "string",
             "name": "destinationDutyLocation",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "name": "appearedInTooAt",
             "in": "query"
           },
           {
@@ -6154,6 +6225,12 @@ func init() {
     },
     "Move": {
       "properties": {
+        "approvalsRequestedAt": {
+          "description": "The time at which a move is sent back to the TOO becuase the prime added a new service item for approval",
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "availableToPrimeAt": {
           "type": "string",
           "format": "date-time",
@@ -7621,6 +7698,11 @@ func init() {
     "QueueMove": {
       "type": "object",
       "properties": {
+        "appearedInTooAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "closeoutInitiated": {
           "type": "string",
           "format": "date-time",
@@ -12788,6 +12870,99 @@ func init() {
         ]
       }
     },
+    "/ppm-shipments/{ppmShipmentId}/finish-document-review": {
+      "patch": {
+        "description": "Updates a PPM shipment's status once documents have been reviewed. Status is updated depending on whether any documents have been rejected.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Updates a PPM shipment's status after document review",
+        "operationId": "finishDocumentReview",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully finished document review",
+            "schema": {
+              "$ref": "#/definitions/PPMShipment"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "409": {
+            "description": "Conflict error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "x-permissions": [
+          "update.shipment"
+        ]
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "UUID of the PPM shipment",
+          "name": "ppmShipmentId",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/ppm-shipments/{ppmShipmentId}/moving-expenses/{movingExpenseId}": {
       "patch": {
         "description": "Updates a PPM shipment's moving expense with new information. Only some of the moving expense's fields are\neditable because some have to be set by the customer, e.g. the description and the moving expense type.\n",
@@ -13345,7 +13520,8 @@ func init() {
               "status",
               "originDutyLocation",
               "destinationDutyLocation",
-              "requestedMoveDate"
+              "requestedMoveDate",
+              "appearedInTooAt"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -13390,6 +13566,12 @@ func init() {
           {
             "type": "string",
             "name": "destinationDutyLocation",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "name": "appearedInTooAt",
             "in": "query"
           },
           {
@@ -16603,6 +16785,12 @@ func init() {
     },
     "Move": {
       "properties": {
+        "approvalsRequestedAt": {
+          "description": "The time at which a move is sent back to the TOO becuase the prime added a new service item for approval",
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "availableToPrimeAt": {
           "type": "string",
           "format": "date-time",
@@ -18071,6 +18259,11 @@ func init() {
     "QueueMove": {
       "type": "object",
       "properties": {
+        "appearedInTooAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "closeoutInitiated": {
           "type": "string",
           "format": "date-time",

@@ -75,12 +75,13 @@ func (suite *UtilitiesSuite) TestSoftDestroy_ModelWithoutDeletedAtWithAssociatio
 
 func (suite *UtilitiesSuite) TestSoftDestroy_ModelWithDeletedAtWithHasOneAssociations() {
 	// model with deleted_at with "has one" associations
-	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			ShipmentType: models.MTOShipmentTypePPM,
+	mtoShipment := factory.BuildMTOShipment(nil, []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypePPM,
+			},
 		},
-		Stub: true,
-	})
+	}, nil)
 	ppmShipment := testdatagen.MakePPMShipment(suite.DB(),
 		testdatagen.Assertions{
 			MTOShipment: mtoShipment,
