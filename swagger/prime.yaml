@@ -1678,8 +1678,8 @@ definitions:
       ppmType:
         type: string
         enum:
-          - FULL
           - PARTIAL
+          - FULL
       ppmEstimatedWeight:
         type: integer
       excessWeightQualifiedAt:
