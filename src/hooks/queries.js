@@ -698,6 +698,7 @@ export const useMoveDetailsQueries = (moveCode) => {
     queryKey: [MOVES, moveCode],
     queryFn: ({ queryKey }) => getMove(...queryKey),
   });
+  console.log('getMove', move, moveQuery);
 
   const moveId = move?.id;
   const orderId = move?.ordersId;
@@ -709,6 +710,7 @@ export const useMoveDetailsQueries = (moveCode) => {
       enabled: !!orderId,
     },
   });
+  console.log('getorder', orders, orderQuery);
 
   const order = Object.values(orders || {})?.[0];
 
@@ -719,9 +721,11 @@ export const useMoveDetailsQueries = (moveCode) => {
       enabled: !!moveId,
     },
   });
+  console.log('getMto', mtoShipments, mtoShipmentQuery);
 
   // attach ppm documents to their respective ppm shipments
   const ppmDocsQueriesResults = useAddWeightTicketsToPPMShipments(mtoShipments, moveCode);
+  console.log('ppmDocsQueriesResults', ppmDocsQueriesResults);
 
   const customerId = order?.customerID;
   const { data: { customer } = {}, ...customerQuery } = useQuery({
@@ -731,6 +735,8 @@ export const useMoveDetailsQueries = (moveCode) => {
       enabled: !!customerId,
     },
   });
+  console.log('getCustomer', customer, customerQuery);
+
   const customerData = customer && Object.values(customer)[0];
   const closeoutOffice = move.closeoutOffice && move.closeoutOffice.name;
 
@@ -740,6 +746,7 @@ export const useMoveDetailsQueries = (moveCode) => {
     queryFn: ({ queryKey }) => getMTOServiceItems(...queryKey),
     options: { enabled: !!moveId },
   });
+  console.log('getMTOServiceItems', mtoServiceItems, mtoServiceItemQuery);
 
   const { isLoading, isError, isSuccess } = getQueriesStatus([
     moveQuery,
@@ -749,6 +756,7 @@ export const useMoveDetailsQueries = (moveCode) => {
     mtoServiceItemQuery,
     ...ppmDocsQueriesResults,
   ]);
+  console.log(isLoading, isError, isSuccess);
 
   return {
     move,
