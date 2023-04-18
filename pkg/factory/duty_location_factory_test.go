@@ -322,6 +322,17 @@ func (suite *FactorySuite) TestDetermineWhetherToCreateTransportationOffice() {
 		suite.False(createTransportationOffice)
 	})
 
+	suite.Run("Returns true when Customization for transportation office is present", func() {
+		customTransportationOffice := models.TransportationOffice{
+			ProvidesCloseout: true,
+		}
+		customs := setupCustomizations([]Customization{
+			{Model: customTransportationOffice},
+		}, nil)
+		createTransportationOffice := determineWhetherToCreateTransportationOffice(customs)
+		suite.True(createTransportationOffice)
+	})
+
 	suite.Run("Returns true when Customization Overrides the 'No Transportation Office' trait", func() {
 		customTransportationOffice := models.TransportationOffice{
 			ProvidesCloseout: true,
