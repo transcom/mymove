@@ -144,9 +144,10 @@ func (suite *FactorySuite) TestBuildDutyLocation() {
 	})
 
 	suite.Run("Successful creation of default duty location without transportation office", func() {
-		// Under test:       BuildDutyLocationWithoutTransportationOffice
+		// Under test:       BuildDutyLocation
 		// Mocked:           None
-		// Set up:           Create a Duty Location with no customizations or traits
+		// Set up:           Create a Duty Location with no customizations
+		//                   using the GetTraitNoAssociatedTransportationOfficeDutyLocation trait
 		// Expected outcome: Duty Location should be created with default values
 		//                   but not have an associated transportation office
 		emptyOffice := models.TransportationOffice{}
@@ -170,9 +171,10 @@ func (suite *FactorySuite) TestBuildDutyLocation() {
 	})
 
 	suite.Run("Successful creation of customized duty location without transportation office", func() {
-		// Under test:       BuildDutyLocationWithoutTransportationOffice
+		// Under test:       BuildDutyLocation
 		// Mocked:           None
-		// Set up:           Create a Duty Location with no customizations or traits
+		// Set up:           Create a Duty Location with customizations and
+		//                   using the GetTraitNoAssociatedTransportationOfficeDutyLocation trait
 		// Expected outcome: Duty Location should be created with default values
 		//                   but not have an associated transportation office
 		emptyOffice := models.TransportationOffice{}
