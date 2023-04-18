@@ -66,6 +66,12 @@ playwright/results
 playwright-report
 playwright-results.xml
 
+# Spreadsheets that might accidentally include sensitive pricing data
+*.xls*
+*.csv
+*.numbers
+*.ods
+
 # XLSX backup files
 ~$*.xlsx
 
