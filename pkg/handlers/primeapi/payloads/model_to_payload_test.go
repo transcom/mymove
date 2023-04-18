@@ -21,7 +21,6 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 	referenceID := "testID"
 	primeTime := time.Now()
 	submittedAt := time.Now()
-	hhgMoveType := models.SelectedMoveTypeHHG
 	excessWeightQualifiedAt := time.Now()
 	excessWeightAcknowledgedAt := time.Now()
 	excessWeightUploadID := uuid.Must(uuid.NewV4())
@@ -39,7 +38,6 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 		PaymentRequests:            models.PaymentRequests{},
 		SubmittedAt:                &submittedAt,
 		UpdatedAt:                  time.Now(),
-		SelectedMoveType:           &hhgMoveType,
 		PersonallyProcuredMoves:    models.PersonallyProcuredMoves{},
 		Status:                     models.MoveStatusAPPROVED,
 		SignedCertifications:       models.SignedCertifications{},

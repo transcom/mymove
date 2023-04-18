@@ -1481,11 +1481,9 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithGBLOC
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 
 		// Create a move with Origin KKFA, needs service couseling
-		hhgMoveType := models.SelectedMoveTypeHHG
 		kkfaMove := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
-				SelectedMoveType: &hhgMoveType,
-				Status:           models.MoveStatusNeedsServiceCounseling,
+				Status: models.MoveStatusNeedsServiceCounseling,
 			},
 		})
 

@@ -143,20 +143,23 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerBadMoveID() {
 func (suite *HandlerSuite) TestIndexSignedCertificationHandlerBadMoveID() {
 	ppm := testdatagen.MakeDefaultPPM(suite.DB())
 	move := ppm.Move
-	sm := ppm.Move.Orders.ServiceMember
 
 	ppmPayment := models.SignedCertificationTypePPMPAYMENT
-	testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
-		SignedCertification: models.SignedCertification{
-			MoveID:                   ppm.Move.ID,
-			SubmittingUserID:         sm.User.ID,
-			PersonallyProcuredMoveID: &ppm.ID,
-			CertificationType:        &ppmPayment,
-			CertificationText:        "LEGAL",
-			Signature:                "ACCEPT",
-			Date:                     testdatagen.NextValidMoveDate,
+	factory.BuildSignedCertification(suite.DB(), []factory.Customization{
+		{
+			Model:    ppm.Move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.SignedCertification{
+				PersonallyProcuredMoveID: &ppm.ID,
+				CertificationType:        &ppmPayment,
+				CertificationText:        "LEGAL",
+				Signature:                "ACCEPT",
+				Date:                     testdatagen.NextValidMoveDate,
+			},
+		},
+	}, nil)
 
 	req := httptest.NewRequest("GET", "/move/id/thing", nil)
 	req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
@@ -176,19 +179,22 @@ func (suite *HandlerSuite) TestIndexSignedCertificationHandlerBadMoveID() {
 func (suite *HandlerSuite) TestIndexSignedCertificationHandlerMismatchedUser() {
 	ppm := testdatagen.MakeDefaultPPM(suite.DB())
 	move := ppm.Move
-	sm := ppm.Move.Orders.ServiceMember
 	ppmPayment := models.SignedCertificationTypePPMPAYMENT
-	testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
-		SignedCertification: models.SignedCertification{
-			MoveID:                   ppm.Move.ID,
-			SubmittingUserID:         sm.User.ID,
-			PersonallyProcuredMoveID: &ppm.ID,
-			CertificationType:        &ppmPayment,
-			CertificationText:        "LEGAL",
-			Signature:                "ACCEPT",
-			Date:                     testdatagen.NextValidMoveDate,
+	factory.BuildSignedCertification(suite.DB(), []factory.Customization{
+		{
+			Model:    ppm.Move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.SignedCertification{
+				PersonallyProcuredMoveID: &ppm.ID,
+				CertificationType:        &ppmPayment,
+				CertificationText:        "LEGAL",
+				Signature:                "ACCEPT",
+				Date:                     testdatagen.NextValidMoveDate,
+			},
+		},
+	}, nil)
 	userUUID2, _ := uuid.FromString("3511d4d6-019d-4031-9c27-8a553e055543")
 	unauthorizedUser := models.User{
 		LoginGovUUID:  &userUUID2,
@@ -215,17 +221,21 @@ func (suite *HandlerSuite) TestIndexSignedCertificationHandler() {
 	move := ppm.Move
 	sm := ppm.Move.Orders.ServiceMember
 	ppmPayment := models.SignedCertificationTypePPMPAYMENT
-	testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
-		SignedCertification: models.SignedCertification{
-			MoveID:                   ppm.Move.ID,
-			SubmittingUserID:         sm.User.ID,
-			PersonallyProcuredMoveID: &ppm.ID,
-			CertificationType:        &ppmPayment,
-			CertificationText:        "LEGAL",
-			Signature:                "ACCEPT",
-			Date:                     testdatagen.NextValidMoveDate,
+	factory.BuildSignedCertification(suite.DB(), []factory.Customization{
+		{
+			Model:    ppm.Move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.SignedCertification{
+				PersonallyProcuredMoveID: &ppm.ID,
+				CertificationType:        &ppmPayment,
+				CertificationText:        "LEGAL",
+				Signature:                "ACCEPT",
+				Date:                     testdatagen.NextValidMoveDate,
+			},
+		},
+	}, nil)
 	params := certop.IndexSignedCertificationParams{
 		MoveID: *handlers.FmtUUID(move.ID),
 	}
