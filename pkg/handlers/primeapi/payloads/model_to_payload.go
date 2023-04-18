@@ -451,7 +451,7 @@ func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
 		ScheduledDeliveryDate:            handlers.FmtDatePtr(mtoShipment.ScheduledDeliveryDate),
 		ActualDeliveryDate:               handlers.FmtDatePtr(mtoShipment.ActualDeliveryDate),
 		Agents:                           *MTOAgents(&mtoShipment.MTOAgents),
-		SitExtensions:                    *SITExtensions(&mtoShipment.SITExtensions),
+		SitExtensions:                    *SITDurationUpdates(&mtoShipment.SITDurationUpdates),
 		Reweigh:                          Reweigh(mtoShipment.Reweigh),
 		MoveTaskOrderID:                  strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
 		ShipmentType:                     primemessages.MTOShipmentType(mtoShipment.ShipmentType),
@@ -711,40 +711,40 @@ func Upload(appCtx appcontext.AppContext, storer storage.FileStorer, upload *mod
 	return payload
 }
 
-// SITExtension payload
-func SITExtension(sitExtension *models.SITExtension) *primemessages.SITExtension {
-	if sitExtension == nil {
+// SITDurationUpdate payload
+func SITDurationUpdate(sitDurationUpdate *models.SITDurationUpdate) *primemessages.SITExtension {
+	if sitDurationUpdate == nil {
 		return nil
 	}
 	payload := &primemessages.SITExtension{
-		ID:                strfmt.UUID(sitExtension.ID.String()),
-		ETag:              etag.GenerateEtag(sitExtension.UpdatedAt),
-		MtoShipmentID:     strfmt.UUID(sitExtension.MTOShipmentID.String()),
-		RequestReason:     string(sitExtension.RequestReason),
-		RequestedDays:     int64(sitExtension.RequestedDays),
-		Status:            string(sitExtension.Status),
-		CreatedAt:         strfmt.DateTime(sitExtension.CreatedAt),
-		UpdatedAt:         strfmt.DateTime(sitExtension.UpdatedAt),
-		ApprovedDays:      handlers.FmtIntPtrToInt64(sitExtension.ApprovedDays),
-		ContractorRemarks: handlers.FmtStringPtr(sitExtension.ContractorRemarks),
-		DecisionDate:      handlers.FmtDateTimePtr(sitExtension.DecisionDate),
-		OfficeRemarks:     handlers.FmtStringPtr(sitExtension.OfficeRemarks),
+		ID:                strfmt.UUID(sitDurationUpdate.ID.String()),
+		ETag:              etag.GenerateEtag(sitDurationUpdate.UpdatedAt),
+		MtoShipmentID:     strfmt.UUID(sitDurationUpdate.MTOShipmentID.String()),
+		RequestReason:     string(sitDurationUpdate.RequestReason),
+		RequestedDays:     int64(sitDurationUpdate.RequestedDays),
+		Status:            string(sitDurationUpdate.Status),
+		CreatedAt:         strfmt.DateTime(sitDurationUpdate.CreatedAt),
+		UpdatedAt:         strfmt.DateTime(sitDurationUpdate.UpdatedAt),
+		ApprovedDays:      handlers.FmtIntPtrToInt64(sitDurationUpdate.ApprovedDays),
+		ContractorRemarks: handlers.FmtStringPtr(sitDurationUpdate.ContractorRemarks),
+		DecisionDate:      handlers.FmtDateTimePtr(sitDurationUpdate.DecisionDate),
+		OfficeRemarks:     handlers.FmtStringPtr(sitDurationUpdate.OfficeRemarks),
 	}
 
 	return payload
 }
 
-// SITExtensions payload\
-func SITExtensions(sitExtensions *models.SITExtensions) *primemessages.SITExtensions {
-	if sitExtensions == nil {
+// SITDurationUpdates payload\
+func SITDurationUpdates(sitDurationUpdates *models.SITDurationUpdates) *primemessages.SITExtensions {
+	if sitDurationUpdates == nil {
 		return nil
 	}
 
-	payload := make(primemessages.SITExtensions, len(*sitExtensions))
+	payload := make(primemessages.SITExtensions, len(*sitDurationUpdates))
 
-	for i, m := range *sitExtensions {
+	for i, m := range *sitDurationUpdates {
 		copyOfM := m // Make copy to avoid implicit memory aliasing of items from a range statement.
-		payload[i] = SITExtension(&copyOfM)
+		payload[i] = SITDurationUpdate(&copyOfM)
 	}
 
 	return &payload
