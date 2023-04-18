@@ -521,12 +521,12 @@ func serviceMemberWithUploadedOrdersAndNewPPM(appCtx appcontext.AppContext, user
 		},
 		UserUploader: userUploader,
 	})
-	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
-		SignedCertification: models.SignedCertification{
-			MoveID: move.ID,
+	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-		Stub: true,
-	})
+	}, nil)
 	moveRouter.Submit(appCtx, &ppm0.Move, &newSignedCertification)
 	verrs, err := models.SaveMoveDependencies(appCtx.DB(), &ppm0.Move)
 	if err != nil || verrs.HasAny() {
@@ -569,12 +569,13 @@ func serviceMemberWithUploadedOrdersNewPPMNoAdvance(appCtx appcontext.AppContext
 		},
 		UserUploader: userUploader,
 	})
-	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
-		SignedCertification: models.SignedCertification{
-			MoveID: move.ID,
+	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-		Stub: true,
-	})
+	}, nil)
+
 	moveRouter.Submit(appCtx, &ppmNoAdvance.Move, &newSignedCertification)
 	verrs, err := models.SaveMoveDependencies(appCtx.DB(), &ppmNoAdvance.Move)
 	if err != nil || verrs.HasAny() {
@@ -616,12 +617,13 @@ func officeUserFindsMoveCompletesStoragePanel(appCtx appcontext.AppContext, user
 		},
 		UserUploader: userUploader,
 	})
-	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
-		SignedCertification: models.SignedCertification{
-			MoveID: move.ID,
+	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-		Stub: true,
-	})
+	}, nil)
+
 	moveRouter.Submit(appCtx, &ppmStorage.Move, &newSignedCertification)
 	moveRouter.Approve(appCtx, &ppmStorage.Move)
 	ppmStorage.Move.PersonallyProcuredMoves[0].Submit(time.Now())
@@ -667,12 +669,13 @@ func officeUserFindsMoveCancelsStoragePanel(appCtx appcontext.AppContext, userUp
 		},
 		UserUploader: userUploader,
 	})
-	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
-		SignedCertification: models.SignedCertification{
-			MoveID: move.ID,
+	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-		Stub: true,
-	})
+	}, nil)
+
 	moveRouter.Submit(appCtx, &ppmNoStorage.Move, &newSignedCertification)
 	moveRouter.Approve(appCtx, &ppmNoStorage.Move)
 	ppmNoStorage.Move.PersonallyProcuredMoves[0].Submit(time.Now())
@@ -719,12 +722,13 @@ func aMoveThatWillBeCancelledByAnE2ETest(appCtx appcontext.AppContext, userUploa
 		},
 		UserUploader: userUploader,
 	})
-	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
-		SignedCertification: models.SignedCertification{
-			MoveID: move.ID,
+	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-		Stub: true,
-	})
+	}, nil)
+
 	moveRouter.Submit(appCtx, &ppmToCancel.Move, &newSignedCertification)
 	verrs, err := models.SaveMoveDependencies(appCtx.DB(), &ppmToCancel.Move)
 	if err != nil || verrs.HasAny() {
@@ -768,12 +772,13 @@ func serviceMemberWithPPMInProgress(appCtx appcontext.AppContext, userUploader *
 		},
 		UserUploader: userUploader,
 	})
-	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
-		SignedCertification: models.SignedCertification{
-			MoveID: move.ID,
+	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-		Stub: true,
-	})
+	}, nil)
+
 	moveRouter.Submit(appCtx, &ppm1.Move, &newSignedCertification)
 	moveRouter.Approve(appCtx, &ppm1.Move)
 	verrs, err := models.SaveMoveDependencies(appCtx.DB(), &ppm1.Move)
@@ -826,12 +831,13 @@ func serviceMemberWithPPMMoveWithPaymentRequested01(appCtx appcontext.AppContext
 		},
 		UserUploader: userUploader,
 	})
-	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
-		SignedCertification: models.SignedCertification{
-			MoveID: move.ID,
+	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-		Stub: true,
-	})
+	}, nil)
+
 	moveRouter.Submit(appCtx, &ppm2.Move, &newSignedCertification)
 	moveRouter.Approve(appCtx, &ppm2.Move)
 	// This is the same PPM model as ppm2, but this is the one that will be saved by SaveMoveDependencies
@@ -891,12 +897,13 @@ func serviceMemberWithPPMMoveWithPaymentRequested02(appCtx appcontext.AppContext
 		},
 		UserUploader: userUploader,
 	})
-	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
-		SignedCertification: models.SignedCertification{
-			MoveID: move.ID,
+	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-		Stub: true,
-	})
+	}, nil)
+
 	moveRouter.Submit(appCtx, &ppm3.Move, &newSignedCertification)
 	moveRouter.Approve(appCtx, &ppm3.Move)
 	// This is the same PPM model as ppm3, but this is the one that will be saved by SaveMoveDependencies
@@ -944,12 +951,13 @@ func aCanceledPPMMove(appCtx appcontext.AppContext, userUploader *uploader.UserU
 		},
 		UserUploader: userUploader,
 	})
-	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
-		SignedCertification: models.SignedCertification{
-			MoveID: move.ID,
+	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-		Stub: true,
-	})
+	}, nil)
+
 	moveRouter.Submit(appCtx, &ppmCanceled.Move, &newSignedCertification)
 	verrs, err := models.SaveMoveDependencies(appCtx.DB(), &ppmCanceled.Move)
 	if err != nil || verrs.HasAny() {
@@ -1105,12 +1113,13 @@ func serviceMemberWithOrdersAndAMovePPMandHHG(appCtx appcontext.AppContext, user
 	})
 
 	move.PersonallyProcuredMoves = models.PersonallyProcuredMoves{ppm}
-	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
-		SignedCertification: models.SignedCertification{
-			MoveID: move.ID,
+	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-		Stub: true,
-	})
+	}, nil)
+
 	moveRouter.Submit(appCtx, &move, &newSignedCertification)
 	verrs, err := models.SaveMoveDependencies(appCtx.DB(), &move)
 	if err != nil || verrs.HasAny() {
@@ -1411,12 +1420,13 @@ func serviceMemberWithPPMReadyToRequestPayment01(appCtx appcontext.AppContext, u
 		},
 		UserUploader: userUploader,
 	})
-	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
-		SignedCertification: models.SignedCertification{
-			MoveID: move.ID,
+	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-		Stub: true,
-	})
+	}, nil)
+
 	moveRouter.Submit(appCtx, &ppm6.Move, &newSignedCertification)
 	moveRouter.Approve(appCtx, &ppm6.Move)
 	ppm6.Move.PersonallyProcuredMoves[0].Submit(time.Now())
@@ -1471,12 +1481,13 @@ func serviceMemberWithPPMReadyToRequestPayment02(appCtx appcontext.AppContext, u
 		},
 		UserUploader: userUploader,
 	})
-	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
-		SignedCertification: models.SignedCertification{
-			MoveID: move.ID,
+	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-		Stub: true,
-	})
+	}, nil)
+
 	moveRouter.Submit(appCtx, &ppm7.Move, &newSignedCertification)
 	moveRouter.Approve(appCtx, &ppm7.Move)
 	ppm7.Move.PersonallyProcuredMoves[0].Submit(time.Now())
@@ -1531,12 +1542,13 @@ func serviceMemberWithPPMReadyToRequestPayment03(appCtx appcontext.AppContext, u
 		},
 		UserUploader: userUploader,
 	})
-	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
-		SignedCertification: models.SignedCertification{
-			MoveID: move.ID,
+	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-		Stub: true,
-	})
+	}, nil)
+
 	moveRouter.Submit(appCtx, &ppm5.Move, &newSignedCertification)
 	moveRouter.Approve(appCtx, &ppm5.Move)
 	// This is the same PPM model as ppm5, but this is the one that will be saved by SaveMoveDependencies
@@ -1592,12 +1604,13 @@ func serviceMemberWithPPMApprovedNotInProgress(appCtx appcontext.AppContext, use
 		},
 		UserUploader: userUploader,
 	})
-	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
-		SignedCertification: models.SignedCertification{
-			MoveID: move.ID,
+	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-		Stub: true,
-	})
+	}, nil)
+
 	moveRouter.Submit(appCtx, &ppmApproved.Move, &newSignedCertification)
 	moveRouter.Approve(appCtx, &ppmApproved.Move)
 	// This is the same PPM model as ppm2, but this is the one that will be saved by SaveMoveDependencies
