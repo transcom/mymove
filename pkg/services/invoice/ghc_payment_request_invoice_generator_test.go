@@ -420,6 +420,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 			ServiceMember: sm,
 		})
+		factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), mto.Orders.NewDutyLocation.Address.PostalCode, "KKFA")
 
 		paymentRequest = testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 			Move: mto,
@@ -587,14 +588,13 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		setupTestData()
 		// buyer name
 		originDutyLocation := paymentRequest.MoveTaskOrder.Orders.OriginDutyLocation
-		transportationOffice, err := models.FetchDutyLocationTransportationOffice(suite.DB(), originDutyLocation.ID)
-		suite.FatalNoError(err)
 		buyerOrg := result.Header.BuyerOrganizationName
+		originDutyLocationGbloc := paymentRequest.MoveTaskOrder.Orders.OriginDutyLocationGBLOC
 		suite.IsType(edisegment.N1{}, buyerOrg)
 		suite.Equal("BY", buyerOrg.EntityIdentifierCode)
-		suite.Equal(transportationOffice.Name, buyerOrg.Name)
+		suite.Equal(originDutyLocation.Name, buyerOrg.Name)
 		suite.Equal("92", buyerOrg.IdentificationCodeQualifier)
-		suite.Equal(transportationOffice.Gbloc, buyerOrg.IdentificationCode)
+		suite.Equal(*originDutyLocationGbloc, buyerOrg.IdentificationCode)
 
 		sellerOrg := result.Header.SellerOrganizationName
 		suite.IsType(edisegment.N1{}, sellerOrg)
