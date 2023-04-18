@@ -31,8 +31,3 @@ func MakeCustomerSupportRemark(db *pop.Connection, assertions Assertions) models
 
 	return officeMoveRemark
 }
-
-func MakeDefaultCustomerSupportRemark(db *pop.Connection) models.CustomerSupportRemark {
-	officeMoveRemark := MakeCustomerSupportRemark(db, Assertions{})
-	return officeMoveRemark
-}
