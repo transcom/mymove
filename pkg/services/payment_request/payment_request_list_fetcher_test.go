@@ -441,7 +441,6 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 	var expectedOriginDutyLocation []string
 	var officeUser models.OfficeUser
 
-	hhgMoveType := models.SelectedMoveTypeHHG
 	branchNavy := models.AffiliationNAVY
 	paymentRequestListFetcher := NewPaymentRequestListFetcher()
 
@@ -473,8 +472,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 				Affiliation: &branchNavy,
 			},
 			Move: models.Move{
-				SelectedMoveType: &hhgMoveType,
-				Locator:          "AAAA",
+				Locator: "AAAA",
 			},
 			PaymentRequest: models.PaymentRequest{
 				Status: models.PaymentRequestStatusPaid,
@@ -492,8 +490,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 				Edipi:     models.StringPointer("AZFG"),
 			},
 			Move: models.Move{
-				SelectedMoveType: &hhgMoveType,
-				Locator:          "ZZZZ",
+				Locator: "ZZZZ",
 			},
 			Order: models.Order{
 				OriginDutyLocationID: &originDutyLocation2.ID,
@@ -519,12 +516,17 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 			},
 		})
 
-		testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: paymentRequest2.MoveTaskOrder,
-			MTOShipment: models.MTOShipment{
-				Status: models.MTOShipmentStatusSubmitted,
+		factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    paymentRequest2.MoveTaskOrder,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusSubmitted,
+				},
+			},
+		}, nil)
 
 		expectedNameOrder = append(expectedNameOrder, *paymentRequest1.MoveTaskOrder.Orders.ServiceMember.FirstName, *paymentRequest2.MoveTaskOrder.Orders.ServiceMember.FirstName)
 		expectedDodIDOrder = append(expectedDodIDOrder, *paymentRequest1.MoveTaskOrder.Orders.ServiceMember.Edipi, *paymentRequest2.MoveTaskOrder.Orders.ServiceMember.Edipi)

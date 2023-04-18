@@ -55,9 +55,12 @@ func (suite *HandlerSuite) TestUpdateReweighHandler() {
 		mto := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
 		// Make a shipment on the available MTO
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: mto,
-		})
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    mto,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		// Make Reweigh Request
 		reweigh := testdatagen.MakeReweighWithNoWeightForShipment(

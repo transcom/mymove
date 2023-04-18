@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
 
 	"github.com/transcom/mymove/pkg/factory"
 	officeop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/office"
@@ -146,10 +145,8 @@ func (suite *HandlerSuite) TestCancelMoveHandler() {
 	factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 	moveRouter := moverouter.NewMoveRouter()
 
-	selectedMoveType := models.SelectedMoveTypePPM
 	moveOptions := models.MoveOptions{
-		SelectedType: &selectedMoveType,
-		Show:         swag.Bool(true),
+		Show: models.BoolPointer(true),
 	}
 	move, verrs, err := orders.CreateNewMove(suite.DB(), moveOptions)
 	suite.NoError(err)

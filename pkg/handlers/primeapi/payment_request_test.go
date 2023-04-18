@@ -50,36 +50,48 @@ func (suite *HandlerSuite) makeCreatePaymentRequestHandlerSubtestData() (subtest
 	subtestData.requestUser = factory.BuildUser(nil, nil, nil)
 
 	subtestData.serviceItemID1, _ = uuid.FromString("1b7b134a-7c44-45f2-9114-bb0831cc5db3")
-	testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-		ReService: models.ReService{
-			Code:     models.ReServiceCodeDLH,
-			Priority: 1,
+	factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+		{
+			Model: models.ReService{
+				Code:     models.ReServiceCodeDLH,
+				Priority: 1,
+			},
 		},
-		MTOServiceItem: models.MTOServiceItem{
-			ID: subtestData.serviceItemID1,
+		{
+			Model: models.MTOServiceItem{
+				ID: subtestData.serviceItemID1,
+			},
 		},
-	})
+	}, nil)
 	subtestData.serviceItemID2, _ = uuid.FromString("119f0a05-34d7-4d86-9745-009c0707b4c2")
-	testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-		ReService: models.ReService{
-			Code:     models.ReServiceCodeFSC,
-			Priority: 99,
+	factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+		{
+			Model: models.ReService{
+				Code:     models.ReServiceCodeFSC,
+				Priority: 99,
+			},
 		},
-		MTOServiceItem: models.MTOServiceItem{
-			ID: subtestData.serviceItemID2,
+		{
+			Model: models.MTOServiceItem{
+				ID: subtestData.serviceItemID2,
+			},
 		},
-	})
+	}, nil)
 
 	subtestData.serviceItemID3, _ = uuid.FromString("d01a9002-7ce5-4c07-9187-c00de15293ed")
-	testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-		ReService: models.ReService{
-			Code:     models.ReServiceCodeDOASIT,
-			Priority: 99,
+	factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+		{
+			Model: models.ReService{
+				Code:     models.ReServiceCodeDOASIT,
+				Priority: 99,
+			},
 		},
-		MTOServiceItem: models.MTOServiceItem{
-			ID: subtestData.serviceItemID3,
+		{
+			Model: models.MTOServiceItem{
+				ID: subtestData.serviceItemID3,
+			},
 		},
-	})
+	}, nil)
 	return subtestData
 }
 

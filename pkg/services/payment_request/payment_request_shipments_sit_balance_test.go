@@ -21,13 +21,18 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 		}, nil)
 
 		oneHundredAndTwentyDays := 120
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status:           models.MTOShipmentStatusApproved,
-				SITDaysAllowance: &oneHundredAndTwentyDays,
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusApproved,
+					SITDaysAllowance: &oneHundredAndTwentyDays,
+				},
 			},
-			Move: move,
-		})
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 			Move: move,
@@ -38,17 +43,27 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 
 		year, month, day := time.Now().Date()
 		originEntryDate := time.Date(year, month, day-120, 0, 0, 0, 0, time.UTC)
-		doasit := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				Status:       models.MTOServiceItemStatusApproved,
-				SITEntryDate: &originEntryDate,
+		doasit := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status:       models.MTOServiceItemStatusApproved,
+					SITEntryDate: &originEntryDate,
+				},
 			},
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDOASIT,
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDOASIT,
+				},
 			},
-			MTOShipment: shipment,
-			Move:        move,
-		})
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		// Creates the payment service item for DOASIT w/ SIT start date param
 		doasitParam := testdatagen.MakePaymentServiceItemParam(suite.DB(), testdatagen.Assertions{
@@ -109,13 +124,18 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
 		oneHundredAndTwentyDays := 120
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status:           models.MTOShipmentStatusApproved,
-				SITDaysAllowance: &oneHundredAndTwentyDays,
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusApproved,
+					SITDaysAllowance: &oneHundredAndTwentyDays,
+				},
 			},
-			Move: move,
-		})
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		reviewedPaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 			Move: move,
@@ -126,17 +146,27 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 
 		year, month, day := time.Now().Date()
 		originEntryDate := time.Date(year, month, day-120, 0, 0, 0, 0, time.UTC)
-		doasit := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				Status:       models.MTOServiceItemStatusApproved,
-				SITEntryDate: &originEntryDate,
+		doasit := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status:       models.MTOServiceItemStatusApproved,
+					SITEntryDate: &originEntryDate,
+				},
 			},
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDOASIT,
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDOASIT,
+				},
 			},
-			MTOShipment: shipment,
-			Move:        move,
-		})
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		// Creates the payment service item for DOASIT w/ SIT start date param
 		doasitParam := testdatagen.MakePaymentServiceItemParam(suite.DB(), testdatagen.Assertions{
@@ -192,17 +222,27 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 		})
 
 		destinationEntryDate := time.Date(year, month, day-89, 0, 0, 0, 0, time.UTC)
-		ddasit := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				Status:       models.MTOServiceItemStatusApproved,
-				SITEntryDate: &destinationEntryDate,
+		ddasit := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status:       models.MTOServiceItemStatusApproved,
+					SITEntryDate: &destinationEntryDate,
+				},
 			},
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDDASIT,
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDASIT,
+				},
 			},
-			MTOShipment: shipment,
-			Move:        move,
-		})
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		// Creates the payment service item for DOASIT w/ SIT start date param
 		ddasitParam := testdatagen.MakePaymentServiceItemParam(suite.DB(), testdatagen.Assertions{
@@ -265,13 +305,18 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
 		oneHundredAndTwentyDays := 120
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status:           models.MTOShipmentStatusApproved,
-				SITDaysAllowance: &oneHundredAndTwentyDays,
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusApproved,
+					SITDaysAllowance: &oneHundredAndTwentyDays,
+				},
 			},
-			Move: move,
-		})
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		reviewedPaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 			Move: move,
@@ -282,17 +327,27 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 
 		year, month, day := time.Now().Date()
 		originEntryDate := time.Date(year, month, day-120, 0, 0, 0, 0, time.UTC)
-		doasit := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				Status:       models.MTOServiceItemStatusApproved,
-				SITEntryDate: &originEntryDate,
+		doasit := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status:       models.MTOServiceItemStatusApproved,
+					SITEntryDate: &originEntryDate,
+				},
 			},
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDOASIT,
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDOASIT,
+				},
 			},
-			MTOShipment: shipment,
-			Move:        move,
-		})
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		// Creates the payment service item for DOASIT w/ SIT start date param
 		doasitParam := testdatagen.MakePaymentServiceItemParam(suite.DB(), testdatagen.Assertions{
@@ -348,17 +403,27 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 		})
 
 		destinationEntryDate := time.Date(year, month, day-90, 0, 0, 0, 0, time.UTC)
-		ddasit := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				Status:       models.MTOServiceItemStatusApproved,
-				SITEntryDate: &destinationEntryDate,
+		ddasit := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status:       models.MTOServiceItemStatusApproved,
+					SITEntryDate: &destinationEntryDate,
+				},
 			},
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDDASIT,
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDASIT,
+				},
 			},
-			MTOShipment: shipment,
-			Move:        move,
-		})
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		// Creates the payment service item for DOASIT w/ SIT start date param
 		ddasitParam := testdatagen.MakePaymentServiceItemParam(suite.DB(), testdatagen.Assertions{
@@ -419,13 +484,18 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
 		oneHundredAndTwentyDays := 120
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status:           models.MTOShipmentStatusApproved,
-				SITDaysAllowance: &oneHundredAndTwentyDays,
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusApproved,
+					SITDaysAllowance: &oneHundredAndTwentyDays,
+				},
 			},
-			Move: move,
-		})
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		reviewedPaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 			Move: move,
@@ -458,13 +528,18 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
 		oneHundredAndTwentyDays := 120
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status:           models.MTOShipmentStatusApproved,
-				SITDaysAllowance: &oneHundredAndTwentyDays,
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusApproved,
+					SITDaysAllowance: &oneHundredAndTwentyDays,
+				},
 			},
-			Move: move,
-		})
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		pendingPaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 			Move: move,
@@ -493,13 +568,18 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 	suite.Run("returns zero authorized days for pending payment request shipment without a set SITDaysAllowance", func() {
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status:       models.MTOShipmentStatusApproved,
-				ShipmentType: models.MTOShipmentTypeHHGIntoNTSDom,
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:       models.MTOShipmentStatusApproved,
+					ShipmentType: models.MTOShipmentTypeHHGIntoNTSDom,
+				},
 			},
-			Move: move,
-		})
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		pendingPaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 			Move: move,
@@ -522,17 +602,27 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 
 		year, month, day := time.Now().Date()
 		originEntryDate := time.Date(year, month, day-120, 0, 0, 0, 0, time.UTC)
-		doasit := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				Status:       models.MTOServiceItemStatusApproved,
-				SITEntryDate: &originEntryDate,
+		doasit := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status:       models.MTOServiceItemStatusApproved,
+					SITEntryDate: &originEntryDate,
+				},
 			},
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDOASIT,
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDOASIT,
+				},
 			},
-			MTOShipment: shipment,
-			Move:        move,
-		})
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		// Creates the payment service item for DOASIT w/ SIT start date param
 		doasitParam := testdatagen.MakePaymentServiceItemParam(suite.DB(), testdatagen.Assertions{
@@ -591,13 +681,18 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 	suite.Run("returns zero authorized days for reviewed payment request shipment without a set SITDaysAllowance", func() {
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status:       models.MTOShipmentStatusApproved,
-				ShipmentType: models.MTOShipmentTypeHHGIntoNTSDom,
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:       models.MTOShipmentStatusApproved,
+					ShipmentType: models.MTOShipmentTypeHHGIntoNTSDom,
+				},
 			},
-			Move: move,
-		})
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		reviewedPaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 			Move: move,
@@ -608,17 +703,27 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 
 		year, month, day := time.Now().Date()
 		originEntryDate := time.Date(year, month, day-120, 0, 0, 0, 0, time.UTC)
-		doasit := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				Status:       models.MTOServiceItemStatusApproved,
-				SITEntryDate: &originEntryDate,
+		doasit := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status:       models.MTOServiceItemStatusApproved,
+					SITEntryDate: &originEntryDate,
+				},
 			},
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDOASIT,
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDOASIT,
+				},
 			},
-			MTOShipment: shipment,
-			Move:        move,
-		})
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		// Creates the payment service item for DOASIT w/ SIT start date param
 		doasitParam := testdatagen.MakePaymentServiceItemParam(suite.DB(), testdatagen.Assertions{

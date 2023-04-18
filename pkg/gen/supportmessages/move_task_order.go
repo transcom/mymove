@@ -95,9 +95,6 @@ type MoveTaskOrder struct {
 	// Read Only: true
 	ReferenceID string `json:"referenceId,omitempty"`
 
-	// selected move type
-	SelectedMoveType *SelectedMoveType `json:"selectedMoveType,omitempty"`
-
 	// status
 	Status MoveStatus `json:"status,omitempty"`
 
@@ -147,8 +144,6 @@ func (m *MoveTaskOrder) UnmarshalJSON(raw []byte) error {
 		PpmType string `json:"ppmType,omitempty"`
 
 		ReferenceID string `json:"referenceId,omitempty"`
-
-		SelectedMoveType *SelectedMoveType `json:"selectedMoveType,omitempty"`
 
 		Status MoveStatus `json:"status,omitempty"`
 
@@ -215,9 +210,6 @@ func (m *MoveTaskOrder) UnmarshalJSON(raw []byte) error {
 	// referenceId
 	result.ReferenceID = data.ReferenceID
 
-	// selectedMoveType
-	result.SelectedMoveType = data.SelectedMoveType
-
 	// status
 	result.Status = data.Status
 
@@ -260,8 +252,6 @@ func (m MoveTaskOrder) MarshalJSON() ([]byte, error) {
 
 		ReferenceID string `json:"referenceId,omitempty"`
 
-		SelectedMoveType *SelectedMoveType `json:"selectedMoveType,omitempty"`
-
 		Status MoveStatus `json:"status,omitempty"`
 
 		UpdatedAt strfmt.DateTime `json:"updatedAt,omitempty"`
@@ -292,8 +282,6 @@ func (m MoveTaskOrder) MarshalJSON() ([]byte, error) {
 		PpmType: m.PpmType,
 
 		ReferenceID: m.ReferenceID,
-
-		SelectedMoveType: m.SelectedMoveType,
 
 		Status: m.Status,
 
@@ -356,10 +344,6 @@ func (m *MoveTaskOrder) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validatePpmType(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateSelectedMoveType(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -555,25 +539,6 @@ func (m *MoveTaskOrder) validatePpmType(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *MoveTaskOrder) validateSelectedMoveType(formats strfmt.Registry) error {
-	if swag.IsZero(m.SelectedMoveType) { // not required
-		return nil
-	}
-
-	if m.SelectedMoveType != nil {
-		if err := m.SelectedMoveType.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("selectedMoveType")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("selectedMoveType")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
 func (m *MoveTaskOrder) validateStatus(formats strfmt.Registry) error {
 	if swag.IsZero(m.Status) { // not required
 		return nil
@@ -640,10 +605,6 @@ func (m *MoveTaskOrder) ContextValidate(ctx context.Context, formats strfmt.Regi
 	}
 
 	if err := m.contextValidateReferenceID(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.contextValidateSelectedMoveType(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -763,22 +724,6 @@ func (m *MoveTaskOrder) contextValidateReferenceID(ctx context.Context, formats 
 
 	if err := validate.ReadOnly(ctx, "referenceId", "body", string(m.ReferenceID)); err != nil {
 		return err
-	}
-
-	return nil
-}
-
-func (m *MoveTaskOrder) contextValidateSelectedMoveType(ctx context.Context, formats strfmt.Registry) error {
-
-	if m.SelectedMoveType != nil {
-		if err := m.SelectedMoveType.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("selectedMoveType")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("selectedMoveType")
-			}
-			return err
-		}
 	}
 
 	return nil

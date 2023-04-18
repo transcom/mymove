@@ -6,8 +6,8 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *ReweighSuite) TestReweighCreator() {
@@ -17,7 +17,7 @@ func (suite *ReweighSuite) TestReweighCreator() {
 		// Under test:	CreateReweigh
 		// Set up:		Established valid shipment and valid reweigh
 		// Expected:	New reweigh successfully created
-		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{})
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
 
 		// Create a valid reweigh for the move
 		newReweigh := &models.Reweigh{
@@ -36,7 +36,7 @@ func (suite *ReweighSuite) TestReweighCreator() {
 
 	// InvalidInputError
 	suite.Run("Reweigh with validation errors returns an InvalidInputError", func() {
-		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{})
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
 
 		// Create a reweigh with a bad requester
 		newReweigh := &models.Reweigh{

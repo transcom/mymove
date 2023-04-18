@@ -6,7 +6,6 @@ import (
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *EvaluationReportSuite) TestEvaluationReportCreator() {
@@ -14,9 +13,12 @@ func (suite *EvaluationReportSuite) TestEvaluationReportCreator() {
 
 	suite.Run("Can create customer support report successfully", func() {
 		move := factory.BuildMove(suite.DB(), nil, nil)
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-		})
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		report := &models.EvaluationReport{ShipmentID: &shipment.ID, Type: models.EvaluationReportTypeShipment, OfficeUserID: officeUser.ID}
 		createdEvaluationReport, err := creator.CreateEvaluationReport(suite.AppContextForTest(), report, move.Locator)
