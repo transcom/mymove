@@ -224,7 +224,9 @@ paths:
         This update uses the moveTaskOrderID provided in the path, updates the
         move status and marks child elements of the move to indicate the update.
 
-        No body object is expected for this request.**For Full/Partial PPMs**:
+        No body object is expected for this request.
+
+        **For Full/Partial PPMs**:
         This action is required so that the customer can start uploading their
         proof of service docs.
 
