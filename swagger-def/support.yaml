@@ -980,8 +980,6 @@ definitions:
           $ref: '#/definitions/MTOServiceItem'
       mtoShipments:
         $ref: '#/definitions/MTOShipments'
-      selectedMoveType:
-        $ref: '#/definitions/SelectedMoveType'
       ppmType:
         description: If the move is a PPM, indicates whether it is full or partial.
         type: string
@@ -1718,18 +1716,6 @@ definitions:
       - CIVILIAN_EMPLOYEE
       - ACADEMY_CADET
       - MIDSHIPMAN
-  SelectedMoveType:
-    type: string
-    title: Selected Move Type
-    enum:
-      - HHG
-      - PPM
-      - UB
-      - POV
-      - HHG_INTO_NTS_DOMESTIC
-      - HHG_OUTOF_NTS_DOMESTIC
-      - HHG_PPM
-    x-nullable: true
   UpdateMTOServiceItemStatus:
     properties:
       status:

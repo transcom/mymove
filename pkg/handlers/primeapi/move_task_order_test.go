@@ -257,17 +257,28 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		address := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{})
 		sitEntryDate := time.Now()
 
-		testdatagen.MakeMTOServiceItemBasic(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				Status:                     models.MTOServiceItemStatusApproved,
-				SITDestinationFinalAddress: &address,
-				SITEntryDate:               &sitEntryDate,
+		factory.BuildMTOServiceItemBasic(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status:       models.MTOServiceItemStatusApproved,
+					SITEntryDate: &sitEntryDate,
+				},
 			},
-			Move: successMove,
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDDFSIT, // DDFSIT - Domestic destination 1st day SIT
+			{
+				Model:    address,
+				LinkOnly: true,
+				Type:     &factory.Addresses.SITDestinationFinalAddress,
 			},
-		})
+			{
+				Model:    successMove,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDFSIT, // DDFSIT - Domestic destination 1st day SIT
+				},
+			},
+		}, nil)
 
 		// Validate incoming payload: no body to validate
 
@@ -551,15 +562,22 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 				},
 			},
 		}, nil)
-		testdatagen.MakeMTOServiceItemBasic(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				Status: models.MTOServiceItemStatusApproved,
+		factory.BuildMTOServiceItemBasic(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move: mto,
-			ReService: models.ReService{
-				Code: models.ReServiceCodeCS, // CS - Counseling Services
+			{
+				Model:    mto,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeCS, // CS - Counseling Services
+				},
+			},
+		}, nil)
 
 		queryBuilder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(queryBuilder)

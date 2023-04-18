@@ -5,6 +5,7 @@ import (
 
 	"github.com/stretchr/testify/mock"
 
+	"github.com/transcom/mymove/pkg/factory"
 	notificationsop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/notifications"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -12,14 +13,13 @@ import (
 	"github.com/transcom/mymove/pkg/services/mocks"
 	"github.com/transcom/mymove/pkg/services/pagination"
 	"github.com/transcom/mymove/pkg/services/query"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *HandlerSuite) TestIndexNotificationsHandler() {
 	// test that everything is wired up
 	suite.Run("integration test ok response", func() {
-		notification0 := testdatagen.MakeDefaultNotification(suite.DB())
-		testdatagen.MakeDefaultNotification(suite.DB())
+		notification0 := factory.BuildNotification(suite.DB(), nil, nil)
+		factory.BuildNotification(suite.DB(), nil, nil)
 		params := notificationsop.IndexNotificationsParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/notifications"),
 		}

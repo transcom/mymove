@@ -1,6 +1,7 @@
 package factory
 
 import (
+	"log"
 	"time"
 
 	"github.com/gobuffalo/pop/v6"
@@ -86,20 +87,8 @@ func buildMTOShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 			newMTOShipment.PickupAddressID = &pickupAddress.ID
 
 			// Check that a GBLOC exists for pickup address postal code, make one if not
-			if db == nil {
-				BuildPostalCodeToGBLOC(nil, []Customization{
-					{
-						Model: models.PostalCodeToGBLOC{
-							PostalCode: pickupAddress.PostalCode,
-							GBLOC:      "KKFA",
-						},
-					},
-				}, nil)
-			} else {
-				gbloc, err := models.FetchGBLOCForPostalCode(db, pickupAddress.PostalCode)
-				if gbloc.GBLOC == "" || err != nil {
-					FetchOrBuildPostalCodeToGBLOC(db, pickupAddress.PostalCode, "KKFA")
-				}
+			if db != nil {
+				FetchOrBuildPostalCodeToGBLOC(db, pickupAddress.PostalCode, "KKFA")
 			}
 
 			// Find Secondary Pickup Address
@@ -243,4 +232,26 @@ func BuildMTOShipmentMinimal(db *pop.Connection, customs []Customization, traits
 	}
 
 	return mtoShipment
+}
+
+func BuildMTOShipmentWithMove(move *models.Move, db *pop.Connection, customs []Customization, traits []Trait) models.MTOShipment {
+	customs = setupCustomizations(customs, traits)
+
+	// Cannot provide move customization to this Build
+	if result := findValidCustomization(customs, Move); result != nil {
+		log.Panicf("Cannot provide Move customization to BuildMTOShipmentWithMove")
+	}
+
+	// provide linkonly customization for the provided move
+	customs = append(customs, Customization{
+		Model:    *move,
+		LinkOnly: true,
+	})
+
+	shipment := BuildMTOShipment(db, customs, traits)
+
+	move.MTOShipments = append(move.MTOShipments, shipment)
+
+	return shipment
+
 }

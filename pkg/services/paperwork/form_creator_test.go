@@ -33,14 +33,8 @@ func (suite *PaperworkServiceSuite) GenerateSSWFormPage1Values() models.Shipment
 	yuma := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
 	fortGordon := factory.FetchOrBuildOrdersDutyLocation(suite.DB())
 	rank := models.ServiceMemberRankE9
-	moveType := models.SelectedMoveTypeHHGPPM
 
 	move := factory.BuildMove(suite.DB(), []factory.Customization{
-		{
-			Model: models.Move{
-				SelectedMoveType: &moveType,
-			},
-		},
 		{
 			Model: models.Order{
 				OrdersType: ordersType,

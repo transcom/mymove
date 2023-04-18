@@ -67,7 +67,7 @@ const ContactInfoDisplay = ({
           </div>
 
           <div className={descriptionListStyles.row}>
-            <dt>Backup mailing address</dt>
+            <dt>Backup address</dt>
             <dd>
               {backupMailingAddress.streetAddress1} {backupMailingAddress.streetAddress2}
               <br />

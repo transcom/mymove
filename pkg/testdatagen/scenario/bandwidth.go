@@ -207,13 +207,21 @@ func makePaymentRequestForShipment(appCtx appcontext.AppContext, move models.Mov
 	})
 
 	ducrtCost := unit.Cents(99999)
-	mtoServiceItemDUCRT := testdatagen.MakeMTOServiceItem(appCtx.DB(), testdatagen.Assertions{
-		Move:        move,
-		MTOShipment: shipment,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("fc14935b-ebd3-4df3-940b-f30e71b6a56c"), // DUCRT - Domestic uncrating
+	mtoServiceItemDUCRT := factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("fc14935b-ebd3-4df3-940b-f30e71b6a56c"), // DUCRT - Domestic uncrating
+			},
+		},
+	}, nil)
 
 	testdatagen.MakePaymentServiceItem(appCtx.DB(), testdatagen.Assertions{
 		PaymentServiceItem: models.PaymentServiceItem{

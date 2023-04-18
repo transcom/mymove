@@ -1238,19 +1238,29 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		// Add service items to our shipment
 		// Create a service item in the db, associate with the shipment
 		reService := factory.BuildDDFSITReService(suite.DB())
-		testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				ID: shipment.MoveTaskOrderID,
+		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					ID: shipment.MoveTaskOrderID,
+				},
 			},
-			MTOShipment: shipment,
-			ReService:   reService,
-			MTOServiceItem: models.MTOServiceItem{
-				MoveTaskOrderID: shipment.MoveTaskOrderID,
-				ReServiceID:     reService.ID,
-				MTOShipmentID:   &shipment.ID,
-				SITEntryDate:    swag.Time(time.Now()),
+			{
+				Model:    shipment,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model:    reService,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOServiceItem{
+					MoveTaskOrderID: shipment.MoveTaskOrderID,
+					ReServiceID:     reService.ID,
+					MTOShipmentID:   &shipment.ID,
+					SITEntryDate:    swag.Time(time.Now()),
+				},
+			},
+		}, nil)
 
 		// Add agents associated to our shipment
 		agent1 := testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{

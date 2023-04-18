@@ -205,15 +205,22 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdatePostCouns
 				},
 			},
 		}, nil)
-		testdatagen.MakeMTOServiceItemBasic(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				Status: models.MTOServiceItemStatusApproved,
+		factory.BuildMTOServiceItemBasic(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move: expectedMTO,
-			ReService: models.ReService{
-				Code: models.ReServiceCodeCS, // CS - Counseling Services
+			{
+				Model:    expectedMTO,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeCS, // CS - Counseling Services
+				},
+			},
+		}, nil)
 
 		eTag := etag.GenerateEtag(expectedMTO.UpdatedAt)
 
@@ -263,15 +270,22 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdatePostCouns
 
 	suite.Run("Etag is stale", func() {
 		expectedMTO := factory.BuildMove(suite.DB(), nil, nil)
-		testdatagen.MakeMTOServiceItemBasic(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				Status: models.MTOServiceItemStatusApproved,
+		factory.BuildMTOServiceItemBasic(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move: expectedMTO,
-			ReService: models.ReService{
-				Code: models.ReServiceCodeCS, // CS - Counseling Services
+			{
+				Model:    expectedMTO,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeCS, // CS - Counseling Services
+				},
+			},
+		}, nil)
 
 		eTag := etag.GenerateEtag(time.Now())
 		_, err := mtoUpdater.UpdatePostCounselingInfo(suite.AppContextForTest(), expectedMTO.ID, eTag)

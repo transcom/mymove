@@ -45,26 +45,37 @@ func (suite *ServiceParamValueLookupsSuite) TestZipSITOriginHHGActualAddressLook
 				Move: move,
 			})
 
-		mtoServiceItemWithSITOriginZips = testdatagen.MakeMTOServiceItem(suite.DB(),
-			testdatagen.Assertions{
-				ReService: reService,
-				Move:      move,
-				MTOServiceItem: models.MTOServiceItem{
-					SITOriginHHGOriginalAddressID: &originAddress.ID,
-					SITOriginHHGOriginalAddress:   &originAddress,
-					SITOriginHHGActualAddressID:   &actualOriginSameZip3Address.ID,
-					SITOriginHHGActualAddress:     &actualOriginSameZip3Address,
-				},
+		mtoServiceItemWithSITOriginZips = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    reService,
+				LinkOnly: true,
 			},
-		)
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    originAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.SITOriginHHGOriginalAddress,
+			},
+			{
+				Model:    actualOriginSameZip3Address,
+				LinkOnly: true,
+				Type:     &factory.Addresses.SITOriginHHGActualAddress,
+			},
+		}, nil)
 
-		mtoServiceItemNoSITOriginZips = testdatagen.MakeMTOServiceItem(suite.DB(),
-			testdatagen.Assertions{
-				ReService:      reService,
-				Move:           move,
-				MTOServiceItem: models.MTOServiceItem{},
+		mtoServiceItemNoSITOriginZips = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    reService,
+				LinkOnly: true,
 			},
-		)
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 	}
 
 	suite.Run("success SIT origin actual zip lookup", func() {

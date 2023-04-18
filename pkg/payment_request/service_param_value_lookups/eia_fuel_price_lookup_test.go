@@ -52,11 +52,13 @@ func (suite *ServiceParamValueLookupsSuite) TestEIAFuelPriceLookup() {
 
 		suite.NoError(suite.DB().Save(&thirdGHCDieselFuelPrice))
 
-		mtoServiceItem = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				ActualPickupDate: &actualPickupDate,
+		mtoServiceItem = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					ActualPickupDate: &actualPickupDate,
+				},
 			},
-		})
+		}, nil)
 
 		paymentRequest = testdatagen.MakePaymentRequest(suite.DB(),
 			testdatagen.Assertions{
@@ -85,12 +87,17 @@ func (suite *ServiceParamValueLookupsSuite) TestEIAFuelPriceLookup() {
 		reService1 := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeFSC)
 
 		// FSC
-		mtoServiceItemFSC := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			ReService: reService1,
-			MTOShipment: models.MTOShipment{
-				ActualPickupDate: &actualPickupDate,
+		mtoServiceItemFSC := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    reService1,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					ActualPickupDate: &actualPickupDate,
+				},
+			},
+		}, nil)
 
 		// EIAFuelPrice
 		serviceItemParamKey1 := factory.FetchOrBuildServiceItemParamKey(suite.DB(), []factory.Customization{
@@ -129,9 +136,12 @@ func (suite *ServiceParamValueLookupsSuite) TestEIAFuelPriceLookup() {
 		setupTestData()
 
 		// create a service item that has a shipment without an ActualPickupDate
-		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOShipment: factory.BuildMTOShipmentMinimal(suite.DB(), nil, nil),
-		})
+		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    factory.BuildMTOShipmentMinimal(suite.DB(), nil, nil),
+				LinkOnly: true,
+			},
+		}, nil)
 
 		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
 			testdatagen.Assertions{
