@@ -480,6 +480,90 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		suite.Equal("USMC", n1.IdentificationCode)
 	})
 
+	// test that when duty locations do not have associated transportation offices, there is no error thrown
+	suite.Run("updates the origin and destination duty locations to not have associated transportation offices", func() {
+		originDutyLocation := factory.BuildDutyLocation(
+			suite.DB(),
+			nil,
+			[]factory.Trait{factory.GetTraitNoAssociatedTransportationOfficeDutyLocation})
+
+		customAddress := models.Address{
+			ID:         uuid.Must(uuid.NewV4()),
+			PostalCode: "73403",
+		}
+		destDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+			{Model: customAddress, Type: &factory.Addresses.DutyLocationAddress},
+		}, []factory.Trait{factory.GetTraitNoAssociatedTransportationOfficeDutyLocation})
+
+		mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Order: models.Order{
+				NewDutyLocation:   destDutyLocation,
+				NewDutyLocationID: destDutyLocation.ID,
+			},
+			OriginDutyLocation: originDutyLocation,
+		})
+
+		paymentRequest = testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+			Move: mto,
+			PaymentRequest: models.PaymentRequest{
+				IsFinal:         false,
+				Status:          models.PaymentRequestStatusPending,
+				RejectionReason: nil,
+			},
+		})
+
+		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: mto,
+			MTOShipment: models.MTOShipment{
+				RequestedPickupDate: &requestedPickupDate,
+				ScheduledPickupDate: &scheduledPickupDate,
+				ActualPickupDate:    &actualPickupDate,
+			},
+		})
+
+		priceCents := unit.Cents(888)
+		assertions := testdatagen.Assertions{
+			Move:           mto,
+			MTOShipment:    mtoShipment,
+			PaymentRequest: paymentRequest,
+			PaymentServiceItem: models.PaymentServiceItem{
+				Status:     models.PaymentServiceItemStatusApproved,
+				PriceCents: &priceCents,
+			},
+		}
+		distanceZipSITOriginParam := testdatagen.CreatePaymentServiceItemParams{
+			Key:     models.ServiceItemParamNameDistanceZipSITOrigin,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "33",
+		}
+
+		dopsitParams := append(basicPaymentServiceItemParams, distanceZipSITOriginParam)
+		dopsit := testdatagen.MakePaymentServiceItemWithParams(
+			suite.DB(),
+			models.ReServiceCodeDOPSIT,
+			dopsitParams,
+			assertions,
+		)
+
+		paymentServiceItems = models.PaymentServiceItems{}
+		paymentServiceItems = append(paymentServiceItems, dopsit)
+
+		// setup known next value
+		icnErr := suite.icnSequencer.SetVal(suite.AppContextForTest(), 122)
+		suite.NoError(icnErr)
+
+		// Proceed with full EDI Generation tests
+		var err error
+		result, err = generator.Generate(suite.AppContextForTest(), paymentRequest, false)
+		suite.NoError(err)
+
+		// reference the N1 EDI segment Name,
+		// which should match the Origin Duty location name when there is no associated transportation office.
+		n1 := result.Header.OriginName
+		suite.Equal(originDutyLocation.Name, n1.Name)
+
+	})
+
 	suite.Run("adds actual pickup date to header", func() {
 		setupTestData()
 		g62Requested := result.Header.RequestedPickupDate
@@ -1196,6 +1280,89 @@ func (suite *GHCInvoiceSuite) TestTACs() {
 		_, err := generator.Generate(suite.AppContextForTest(), paymentRequest, false)
 		suite.Error(err)
 		suite.Contains(err.Error(), "Must have an NTS TAC value")
+	})
+}
+
+func (suite *GHCInvoiceSuite) TestDutyLocationFuncs() {
+	suite.Run("determineBuyerOrganizationName returns duty location name when there is no associated transportation office", func() {
+		dutyLocation := factory.BuildDutyLocation(
+			suite.DB(),
+			nil,
+			[]factory.Trait{factory.GetTraitNoAssociatedTransportationOfficeDutyLocation})
+		buyerOrganizationName := determineBuyerOrganizationName(dutyLocation)
+		suite.Equal(dutyLocation.Name, buyerOrganizationName)
+	})
+	suite.Run("determineBuyerOrganizationName returns transportation office name when there is an associated transportation office", func() {
+		dutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
+		buyerOrganizationName := determineBuyerOrganizationName(dutyLocation)
+		suite.Equal(dutyLocation.TransportationOffice.Name, buyerOrganizationName)
+	})
+	suite.Run("determineDutyLocationPhoneLines returns empty slice of phone lines when when there is no associated transportation office", func() {
+		var emptyPhoneLines []string
+		dutyLocation := factory.BuildDutyLocation(
+			suite.DB(),
+			nil,
+			[]factory.Trait{factory.GetTraitNoAssociatedTransportationOfficeDutyLocation})
+		phoneLines := determineDutyLocationPhoneLines(dutyLocation)
+		suite.Equal(emptyPhoneLines, phoneLines)
+	})
+	suite.Run("determineDutyLocationPhoneLines returns transportation office name when there is an associated transportation office", func() {
+		customVoicePhoneNumber := "(555) 444-3333"
+		customVoicePhoneLine := models.OfficePhoneLine{
+			Type:   "voice",
+			Number: customVoicePhoneNumber,
+		}
+		customFaxPhoneNumber := "(555) 777-8888"
+		customFaxPhoneLine := models.OfficePhoneLine{
+			Type:   "fax",
+			Number: customFaxPhoneNumber,
+		}
+		customTransportationOffice := models.TransportationOffice{
+			PhoneLines: models.OfficePhoneLines{customFaxPhoneLine, customVoicePhoneLine},
+		}
+
+		dutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+			{Model: customTransportationOffice},
+		}, nil)
+		phoneLines := determineDutyLocationPhoneLines(dutyLocation)
+
+		voiceNumberFound := false
+		faxNumberFound := false
+
+		for _, phoneLine := range phoneLines {
+			if phoneLine == customVoicePhoneNumber {
+				voiceNumberFound = true
+			}
+			if phoneLine == customFaxPhoneNumber {
+				faxNumberFound = true
+			}
+		}
+
+		suite.True(voiceNumberFound, "Phone numbers of type voice will be returned")
+		suite.False(faxNumberFound, "Phone numbers not of type voice will not be returned")
+	})
+	suite.Run("determineDutyLocationGbloc returns GBLOC determined from duty location postal code when there is no associated transportation office", func() {
+		// TODO make duty location a novel GBLOC
+		defaultGbloc := "KKFA"
+		dutyLocation := factory.BuildDutyLocation(
+			suite.DB(),
+			nil,
+			[]factory.Trait{factory.GetTraitNoAssociatedTransportationOfficeDutyLocation})
+		gbloc, err := determineDutyLocationGbloc(suite.AppContextForTest(), dutyLocation)
+		suite.NoError(err)
+		suite.Equal(defaultGbloc, gbloc)
+	})
+	suite.Run("determineDutyLocationGbloc returns GBLOC of Transportation office when one is associated", func() {
+		customGbloc := "BGAC"
+		customTransportationOffice := models.TransportationOffice{
+			Gbloc: customGbloc,
+		}
+		dutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+			{Model: customTransportationOffice},
+		}, nil)
+		gbloc, err := determineDutyLocationGbloc(suite.AppContextForTest(), dutyLocation)
+		suite.NoError(err)
+		suite.Equal(customGbloc, gbloc)
 	})
 }
 

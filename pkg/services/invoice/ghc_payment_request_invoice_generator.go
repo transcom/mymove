@@ -873,8 +873,7 @@ func determineDutyLocationGbloc(appCtx appcontext.AppContext, dutyLocation model
 	// If there is no related transportation office we can determine the GBLOC from the postal code of the duty location
 	destPostalCodeToGbloc, gblocErr := models.FetchGBLOCForPostalCode(appCtx.DB(), dutyLocation.Address.PostalCode)
 	if gblocErr != nil {
-		err := apperror.NewInvalidInputError(dutyLocation.ID, gblocErr, nil, "unable to determine GBLOC for duty location postal code")
-		return "", err
+		return "", apperror.NewInvalidInputError(dutyLocation.ID, gblocErr, nil, "unable to determine GBLOC for duty location postal code")
 	}
 	return destPostalCodeToGbloc.GBLOC, nil
 
