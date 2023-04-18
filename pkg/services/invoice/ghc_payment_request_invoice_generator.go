@@ -386,12 +386,9 @@ func (g ghcPaymentRequestInvoiceGenerator) createBuyerAndSellerOrganizationNames
 		return apperror.NewConflictError(orders.ID, "Invalid Order, must have OriginDutyLocation")
 	}
 
-	// buyer organization name
-	buyerOrganizationName := determineBuyerOrganizationName(originDutyLocation)
-
 	header.BuyerOrganizationName = edisegment.N1{
 		EntityIdentifierCode:        "BY",
-		Name:                        buyerOrganizationName,
+		Name:                        originDutyLocation.Name,
 		IdentificationCodeQualifier: "92",
 		IdentificationCode:          modifyGblocIfMarines(*orders.ServiceMember.Affiliation, *orders.OriginDutyLocationGBLOC),
 	}
@@ -418,10 +415,9 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(ap
 		return apperror.NewConflictError(orders.ID, "Invalid Order, must have NewDutyLocation")
 	}
 
-	var destGbloc string
-	destGbloc, err = determineDutyLocationGbloc(appCtx, destinationDutyLocation)
-	if err != nil {
-		return apperror.NewInvalidInputError(orders.NewDutyLocationID, err, nil, "unable to determine information regarding the destination duty location")
+	destPostalCodeToGbloc, gblocErr := models.FetchGBLOCForPostalCode(appCtx.DB(), destinationDutyLocation.Address.PostalCode)
+	if gblocErr != nil {
+		return apperror.NewInvalidInputError(destinationDutyLocation.ID, gblocErr, nil, "unable to determine GBLOC for duty location postal code")
 	}
 
 	// destination name
@@ -429,7 +425,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(ap
 		EntityIdentifierCode:        "ST",
 		Name:                        destinationDutyLocation.Name,
 		IdentificationCodeQualifier: "10",
-		IdentificationCode:          modifyGblocIfMarines(*orders.ServiceMember.Affiliation, destGbloc),
+		IdentificationCode:          modifyGblocIfMarines(*orders.ServiceMember.Affiliation, destPostalCodeToGbloc.GBLOC),
 	}
 
 	// destination address
@@ -840,14 +836,6 @@ func modifyGblocIfMarines(affiliation models.ServiceMemberAffiliation, gbloc str
 	return gbloc
 }
 
-// determineBuyerOrganizationName returns the name of the buyer organization for the N1 eid segment
-func determineBuyerOrganizationName(originDutyLocation models.DutyLocation) (buyerOrganizationName string) {
-	if originDutyLocation.TransportationOfficeID == nil {
-		return originDutyLocation.Name
-	}
-	return originDutyLocation.TransportationOffice.Name
-}
-
 // determineDutyLocationPhoneLines returns a slice of strings of the phone numbers of all voice type phones lines for
 // the associated Transportation Office
 func determineDutyLocationPhoneLines(dutyLocation models.DutyLocation) (phoneLines []string) {
@@ -862,21 +850,6 @@ func determineDutyLocationPhoneLines(dutyLocation models.DutyLocation) (phoneLin
 		}
 	}
 	return phoneLines
-}
-
-// determineDutyLocationGbloc returns the GBLOC of the associated transportation office if there is one
-// otherwise it determines the GBLOC from the postal code of the duty location
-func determineDutyLocationGbloc(appCtx appcontext.AppContext, dutyLocation models.DutyLocation) (string, error) {
-	if dutyLocation.TransportationOfficeID != nil {
-		return dutyLocation.TransportationOffice.Gbloc, nil
-	}
-	// If there is no related transportation office we can determine the GBLOC from the postal code of the duty location
-	destPostalCodeToGbloc, gblocErr := models.FetchGBLOCForPostalCode(appCtx.DB(), dutyLocation.Address.PostalCode)
-	if gblocErr != nil {
-		return "", apperror.NewInvalidInputError(dutyLocation.ID, gblocErr, nil, "unable to determine GBLOC for duty location postal code")
-	}
-	return destPostalCodeToGbloc.GBLOC, nil
-
 }
 
 func msOrCsOnly(paymentServiceItems models.PaymentServiceItems) bool {

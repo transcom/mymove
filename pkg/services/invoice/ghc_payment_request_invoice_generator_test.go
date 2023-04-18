@@ -1283,20 +1283,7 @@ func (suite *GHCInvoiceSuite) TestTACs() {
 	})
 }
 
-func (suite *GHCInvoiceSuite) TestDutyLocationFuncs() {
-	suite.Run("determineBuyerOrganizationName returns duty location name when there is no associated transportation office", func() {
-		dutyLocation := factory.BuildDutyLocation(
-			suite.DB(),
-			nil,
-			[]factory.Trait{factory.GetTraitNoAssociatedTransportationOfficeDutyLocation})
-		buyerOrganizationName := determineBuyerOrganizationName(dutyLocation)
-		suite.Equal(dutyLocation.Name, buyerOrganizationName)
-	})
-	suite.Run("determineBuyerOrganizationName returns transportation office name when there is an associated transportation office", func() {
-		dutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
-		buyerOrganizationName := determineBuyerOrganizationName(dutyLocation)
-		suite.Equal(dutyLocation.TransportationOffice.Name, buyerOrganizationName)
-	})
+func (suite *GHCInvoiceSuite) TestDetermineDutyLocationPhoneLinesFunc() {
 	suite.Run("determineDutyLocationPhoneLines returns empty slice of phone lines when when there is no associated transportation office", func() {
 		var emptyPhoneLines []string
 		dutyLocation := factory.BuildDutyLocation(
@@ -1340,42 +1327,6 @@ func (suite *GHCInvoiceSuite) TestDutyLocationFuncs() {
 
 		suite.True(voiceNumberFound, "Phone numbers of type voice will be returned")
 		suite.False(faxNumberFound, "Phone numbers not of type voice will not be returned")
-	})
-	suite.Run("determineDutyLocationGbloc returns GBLOC determined from duty location postal code when there is no associated transportation office", func() {
-		customGbloc := "MAPK"
-		customPostalCode := "99999"
-		customPostalCodeToGbloc := models.PostalCodeToGBLOC{
-			GBLOC:      customGbloc,
-			PostalCode: customPostalCode,
-		}
-		factory.BuildPostalCodeToGBLOC(suite.DB(), []factory.Customization{
-			{Model: customPostalCodeToGbloc},
-		}, nil)
-		customAddress := models.Address{PostalCode: customPostalCode}
-		dutyLocation := factory.BuildDutyLocation(
-			suite.DB(),
-			[]factory.Customization{
-				{
-					Model: customAddress,
-					Type:  &factory.Addresses.DutyLocationAddress,
-				},
-			},
-			[]factory.Trait{factory.GetTraitNoAssociatedTransportationOfficeDutyLocation})
-		gbloc, err := determineDutyLocationGbloc(suite.AppContextForTest(), dutyLocation)
-		suite.NoError(err)
-		suite.Equal(customGbloc, gbloc)
-	})
-	suite.Run("determineDutyLocationGbloc returns GBLOC of Transportation office when one is associated", func() {
-		customGbloc := "BGAC"
-		customTransportationOffice := models.TransportationOffice{
-			Gbloc: customGbloc,
-		}
-		dutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
-			{Model: customTransportationOffice},
-		}, nil)
-		gbloc, err := determineDutyLocationGbloc(suite.AppContextForTest(), dutyLocation)
-		suite.NoError(err)
-		suite.Equal(customGbloc, gbloc)
 	})
 }
 
