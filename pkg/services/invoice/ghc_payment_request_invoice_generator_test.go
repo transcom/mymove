@@ -1342,15 +1342,28 @@ func (suite *GHCInvoiceSuite) TestDutyLocationFuncs() {
 		suite.False(faxNumberFound, "Phone numbers not of type voice will not be returned")
 	})
 	suite.Run("determineDutyLocationGbloc returns GBLOC determined from duty location postal code when there is no associated transportation office", func() {
-		// TODO make duty location a novel GBLOC
-		defaultGbloc := "KKFA"
+		customGbloc := "MAPK"
+		customPostalCode := "99999"
+		customPostalCodeToGbloc := models.PostalCodeToGBLOC{
+			GBLOC:      customGbloc,
+			PostalCode: customPostalCode,
+		}
+		factory.BuildPostalCodeToGBLOC(suite.DB(), []factory.Customization{
+			{Model: customPostalCodeToGbloc},
+		}, nil)
+		customAddress := models.Address{PostalCode: customPostalCode}
 		dutyLocation := factory.BuildDutyLocation(
 			suite.DB(),
-			nil,
+			[]factory.Customization{
+				{
+					Model: customAddress,
+					Type:  &factory.Addresses.DutyLocationAddress,
+				},
+			},
 			[]factory.Trait{factory.GetTraitNoAssociatedTransportationOfficeDutyLocation})
 		gbloc, err := determineDutyLocationGbloc(suite.AppContextForTest(), dutyLocation)
 		suite.NoError(err)
-		suite.Equal(defaultGbloc, gbloc)
+		suite.Equal(customGbloc, gbloc)
 	})
 	suite.Run("determineDutyLocationGbloc returns GBLOC of Transportation office when one is associated", func() {
 		customGbloc := "BGAC"
