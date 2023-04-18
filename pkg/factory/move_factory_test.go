@@ -7,7 +7,6 @@ import (
 )
 
 func (suite *FactorySuite) TestBuildMove() {
-	defaultMoveType := models.SelectedMoveTypePPM
 	partialType := "PARTIAL"
 	defaultPpmType := &partialType
 	defaultShow := true
@@ -23,7 +22,6 @@ func (suite *FactorySuite) TestBuildMove() {
 		// Create move
 		move := BuildMove(suite.DB(), nil, nil)
 
-		suite.Equal(defaultMoveType, *move.SelectedMoveType)
 		suite.Equal(*defaultPpmType, *move.PPMType)
 		suite.Equal(defaultShow, *move.Show)
 		suite.NotNil(move.Contractor)
@@ -40,7 +38,6 @@ func (suite *FactorySuite) TestBuildMove() {
 		suite.NoError(err)
 
 		move := BuildMove(nil, nil, nil)
-		suite.Equal(defaultMoveType, *move.SelectedMoveType)
 		suite.Equal(*defaultPpmType, *move.PPMType)
 		suite.Equal(defaultShow, *move.Show)
 		suite.NotNil(move.Contractor)
@@ -62,16 +59,14 @@ func (suite *FactorySuite) TestBuildMove() {
 		referenceID := "refID"
 		show := false
 		ppmType := "FULL"
-		moveType := models.SelectedMoveTypeHHG
 		locator := "ABC123"
 		closeoutOfficeName := "Closeout office"
 
 		customMove := models.Move{
-			ReferenceID:      &referenceID,
-			Show:             &show,
-			SelectedMoveType: &moveType,
-			PPMType:          &ppmType,
-			Locator:          locator,
+			ReferenceID: &referenceID,
+			Show:        &show,
+			PPMType:     &ppmType,
+			Locator:     locator,
 		}
 		customs := []Customization{
 			{
@@ -86,28 +81,12 @@ func (suite *FactorySuite) TestBuildMove() {
 		}
 		move := BuildMove(suite.DB(), customs, nil)
 
-		suite.Equal(moveType, *move.SelectedMoveType)
 		suite.Equal(ppmType, *move.PPMType)
 		suite.False(*move.Show)
 		suite.Equal(locator, move.Locator)
 		suite.Equal(closeoutOfficeName, move.CloseoutOffice.Name)
 		suite.Equal(referenceID, *move.ReferenceID)
 		suite.NotNil(move.Contractor)
-	})
-	suite.Run("Successful creation of move without move type", func() {
-		// Under test:      BuildMoveWithoutMoveType
-		// Set up:          Create a move without move type set
-		// Expected outcome:Create a contractor, order and move
-
-		// Create move
-		move := BuildMoveWithoutMoveType(suite.DB(), nil, nil)
-
-		suite.Nil(move.SelectedMoveType)
-		suite.Nil(move.PPMType)
-		suite.NotNil(move.Contractor)
-		suite.False(move.ContractorID.IsNil())
-		suite.NotNil(move.ReferenceID)
-		suite.NotEmpty(*move.ReferenceID)
 	})
 	suite.Run("Successful creation of stubbed move with status", func() {
 		// Under test:      BuildStubbedMoveWithStatus

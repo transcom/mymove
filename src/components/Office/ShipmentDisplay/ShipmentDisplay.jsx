@@ -13,8 +13,7 @@ import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { AddressShape } from 'types/address';
 import { AgentShape } from 'types/agent';
 import { OrdersLOAShape } from 'types/order';
-import { shipmentStatuses } from 'constants/shipments';
-import ppmDocumentStatus from 'constants/ppms';
+import { shipmentStatuses, ppmShipmentStatuses } from 'constants/shipments';
 import { ShipmentStatusesOneOf } from 'types/shipment';
 import { retrieveSAC, retrieveTAC } from 'utils/shipmentDisplay';
 import Restricted from 'components/Restricted/Restricted';
@@ -88,11 +87,8 @@ const ShipmentDisplay = ({
               <Tag>cancellation requested</Tag>
             )}
             {displayInfo.usesExternalVendor && <Tag>external vendor</Tag>}
-            {displayInfo.ppmDocumentStatus === ppmDocumentStatus.REJECTED && (
-              <Tag className={styles.ppmStatus}>sent to customer</Tag>
-            )}
-            {(displayInfo.ppmDocumentStatus === ppmDocumentStatus.APPROVED ||
-              displayInfo.ppmDocumentStatus === ppmDocumentStatus.EXCLUDED) && (
+            {(displayInfo.ppmShipment?.status === ppmShipmentStatuses.PAYMENT_APPROVED ||
+              displayInfo.ppmShipment?.status === ppmShipmentStatuses.WAITING_ON_CUSTOMER) && (
               <Tag className={styles.ppmStatus}>packet ready for download</Tag>
             )}
           </div>

@@ -157,11 +157,8 @@ func (suite *HandlerSuite) TestCreatePPMHandler() {
 	orders := factory.BuildOrder(suite.DB(), nil, nil)
 	factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 
-	selectedMoveType := models.SelectedMoveTypeHHGPPM
-
 	moveOptions := models.MoveOptions{
-		SelectedType: &selectedMoveType,
-		Show:         swag.Bool(true),
+		Show: models.BoolPointer(true),
 	}
 	move, verrs, locErr := orders.CreateNewMove(suite.DB(), moveOptions)
 	suite.False(verrs.HasAny(), "failed to create new move")
@@ -452,11 +449,8 @@ func (suite *HandlerSuite) TestPatchPPMHandlerWrongMoveID() {
 	orders1 := factory.BuildOrder(suite.DB(), nil, nil)
 	factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 
-	selectedMoveType := models.SelectedMoveTypeHHGPPM
-
 	moveOptions := models.MoveOptions{
-		SelectedType: &selectedMoveType,
-		Show:         swag.Bool(true),
+		Show: models.BoolPointer(true),
 	}
 	move, verrs, err := orders.CreateNewMove(suite.DB(), moveOptions)
 	suite.Nil(err, "Failed to save move")
@@ -671,12 +665,12 @@ func (suite *HandlerSuite) TestRequestPPMPayment() {
 
 	move := factory.BuildMove(suite.DB(), nil, nil)
 	moveRouter := moverouter.NewMoveRouter()
-	newSignedCertification := testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
-		SignedCertification: models.SignedCertification{
-			MoveID: move.ID,
+	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-		Stub: true,
-	})
+	}, nil)
 	err := moveRouter.Submit(suite.AppContextForTest(), &move, &newSignedCertification)
 	if err != nil {
 		t.Fatal("Should transition.")

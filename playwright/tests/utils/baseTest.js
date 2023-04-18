@@ -11,6 +11,7 @@ import { expect } from '@playwright/test';
 import { injectAxe, checkA11y } from 'axe-playwright';
 
 import { TestHarness } from './testharness';
+import WaitForPage from './waitForPage';
 
 /**
  * base test fixture for playwright
@@ -105,15 +106,30 @@ export class BaseTestPage {
         undefined,
         {
           detailedReport: true,
-          detailedReportOptions: {
-            html: true,
-          },
         },
         // skip failures
         true,
         'default',
       );
     }
+  }
+
+  injectAccessibilityTestsInWaitForPage() {
+    Object.getOwnPropertyNames(WaitForPage.prototype)
+      .filter((name) => name !== 'constructor')
+      .forEach((name) => {
+        // eslint-disable-next-line security/detect-object-injection
+        const value = WaitForPage.prototype[name];
+        if (typeof value === 'function') {
+          const wrappedMethod = async (args) => {
+            await this.runAccessibilityAudit();
+            await value.apply(this, args);
+            await this.runAccessibilityAudit();
+          };
+          Reflect.deleteProperty(WaitForPage.prototype, name);
+          Reflect.defineProperty(WaitForPage.prototype, name, { value: wrappedMethod });
+        }
+      });
   }
 }
 

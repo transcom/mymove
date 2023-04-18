@@ -161,7 +161,6 @@ class WeightTicket extends Component {
 
     const uploaderKeys = this.nonEmptyUploaderKeys();
     const uploadIds = [];
-    // eslint-disable-next-line no-unused-vars
     for (const key of uploaderKeys) {
       let files = this.uploaders[key].uploaderRef.getFiles();
       const documentUploadIds = map(files, 'id');
@@ -201,7 +200,6 @@ class WeightTicket extends Component {
     const { reset } = this.props;
     const uploaders = this.uploaders;
     const uploaderKeys = this.nonEmptyUploaderKeys();
-    // eslint-disable-next-line no-unused-vars
     for (const key of uploaderKeys) {
       uploaders[key].uploaderRef.clearFiles();
     }

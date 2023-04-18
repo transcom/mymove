@@ -39,11 +39,9 @@ func (suite *ModelSuite) TestBasicMoveInstantiation() {
 func (suite *ModelSuite) TestCreateNewMoveValidLocatorString() {
 	orders := factory.BuildOrder(suite.DB(), nil, nil)
 	factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
-	selectedMoveType := SelectedMoveTypeHHG
 
 	moveOptions := MoveOptions{
-		SelectedType: &selectedMoveType,
-		Show:         swag.Bool(true),
+		Show: swag.Bool(true),
 	}
 	move, verrs, err := orders.CreateNewMove(suite.DB(), moveOptions)
 	suite.NoError(err)
@@ -93,10 +91,8 @@ func (suite *ModelSuite) TestFetchMove() {
 		session, order := setupTestData()
 
 		// Create HHG Move
-		selectedMoveType := SelectedMoveTypeHHG
 		moveOptions := MoveOptions{
-			SelectedType: &selectedMoveType,
-			Show:         swag.Bool(true),
+			Show: swag.Bool(true),
 		}
 		move, verrs, err := order.CreateNewMove(suite.DB(), moveOptions)
 		suite.NoError(err)
@@ -144,10 +140,8 @@ func (suite *ModelSuite) TestFetchMove() {
 
 		// Create a second sm and a move only on that sm
 		order2 := factory.BuildOrder(suite.DB(), nil, nil)
-		selectedMoveType := SelectedMoveTypeHHG
 		moveOptions := MoveOptions{
-			SelectedType: &selectedMoveType,
-			Show:         swag.Bool(true),
+			Show: swag.Bool(true),
 		}
 		move2, verrs, err := order2.CreateNewMove(suite.DB(), moveOptions)
 		suite.NoError(err)
@@ -215,11 +209,9 @@ func (suite *ModelSuite) TestSaveMoveDependenciesFail() {
 	orders := factory.BuildOrder(suite.DB(), nil, nil)
 	orders.Status = ""
 	factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
-	selectedMoveType := SelectedMoveTypeHHGPPM
 
 	moveOptions := MoveOptions{
-		SelectedType: &selectedMoveType,
-		Show:         swag.Bool(true),
+		Show: swag.Bool(true),
 	}
 	move, verrs, err := orders.CreateNewMove(suite.DB(), moveOptions)
 	suite.NoError(err)
@@ -236,11 +228,9 @@ func (suite *ModelSuite) TestSaveMoveDependenciesSuccess() {
 	orders := factory.BuildOrder(suite.DB(), nil, nil)
 	orders.Status = OrderStatusSUBMITTED
 	factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
-	selectedMoveType := SelectedMoveTypeHHGPPM
 
 	moveOptions := MoveOptions{
-		SelectedType: &selectedMoveType,
-		Show:         swag.Bool(true),
+		Show: swag.Bool(true),
 	}
 	move, verrs, err := orders.CreateNewMove(suite.DB(), moveOptions)
 	suite.NoError(err)
@@ -295,19 +285,23 @@ func (suite *ModelSuite) TestMoveIsPPMOnly() {
 	isPPMOnly := move.IsPPMOnly()
 	suite.False(isPPMOnly, "A move with no shipments will return false for isPPMOnly.")
 
-	testdatagen.MakeMTOShipmentWithMove(suite.DB(), &move, testdatagen.Assertions{
-		MTOShipment: MTOShipment{
-			ShipmentType: MTOShipmentTypePPM,
+	factory.BuildMTOShipmentWithMove(&move, suite.DB(), []factory.Customization{
+		{
+			Model: MTOShipment{
+				ShipmentType: MTOShipmentTypePPM,
+			},
 		},
-	})
+	}, nil)
 	isPPMOnly = move.IsPPMOnly()
 	suite.True(isPPMOnly, "A move with only PPM shipments will return true for isPPMOnly")
 
-	testdatagen.MakeMTOShipmentWithMove(suite.DB(), &move, testdatagen.Assertions{
-		MTOShipment: MTOShipment{
-			ShipmentType: MTOShipmentTypeHHG,
+	factory.BuildMTOShipmentWithMove(&move, suite.DB(), []factory.Customization{
+		{
+			Model: MTOShipment{
+				ShipmentType: MTOShipmentTypeHHG,
+			},
 		},
-	})
+	}, nil)
 	isPPMOnly = move.IsPPMOnly()
 	suite.False(isPPMOnly, "A move with one PPM shipment and one HHG shipment will return false for isPPMOnly.")
 }

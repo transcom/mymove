@@ -1081,11 +1081,13 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 			},
 		})
 		// Create a second shipment so we can test min() sort
-		testdatagen.MakeMTOShipmentWithMove(suite.DB(), &expectedMove2, testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				RequestedPickupDate: &requestedMoveDate3,
+		factory.BuildMTOShipmentWithMove(&expectedMove2, suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: &requestedMoveDate3,
+				},
 			},
-		})
+		}, nil)
 		officeUser = factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
 		return expectedMove1, expectedMove2
@@ -1177,9 +1179,9 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 		})
 
 		move2 := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{})
-		testdatagen.MakeMTOShipmentWithMove(suite.DB(), &move2, testdatagen.Assertions{})
+		factory.BuildMTOShipmentWithMove(&move2, suite.DB(), nil, nil)
 		move3 := testdatagen.MakeServiceCounselingCompletedMove(suite.DB(), testdatagen.Assertions{})
-		testdatagen.MakeMTOShipmentWithMove(suite.DB(), &move3, testdatagen.Assertions{})
+		factory.BuildMTOShipmentWithMove(&move3, suite.DB(), nil, nil)
 
 		params := services.ListOrderParams{Sort: models.StringPointer("appearedInTooAt"), Order: models.StringPointer("asc")}
 
@@ -1479,11 +1481,9 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithGBLOC
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 
 		// Create a move with Origin KKFA, needs service couseling
-		hhgMoveType := models.SelectedMoveTypeHHG
 		kkfaMove := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
-				SelectedMoveType: &hhgMoveType,
-				Status:           models.MoveStatusNeedsServiceCounseling,
+				Status: models.MoveStatusNeedsServiceCounseling,
 			},
 		})
 

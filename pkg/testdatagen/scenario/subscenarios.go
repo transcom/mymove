@@ -46,14 +46,21 @@ func subScenarioShipmentHHGCancelled(appCtx appcontext.AppContext, allDutyLocati
 			MTOShipment:   cancelledShipment,
 		})
 		moveManagementUUID := "1130e612-94eb-49a7-973d-72f33685e551"
-		testdatagen.MakeMTOServiceItemBasic(db, testdatagen.Assertions{
-			ReService: models.ReService{ID: uuid.FromStringOrNil(moveManagementUUID)},
-			MTOServiceItem: models.MTOServiceItem{
-				MoveTaskOrderID: move.ID,
-				Status:          models.MTOServiceItemStatusApproved,
-				ApprovedAt:      &approvedDate,
+		factory.BuildMTOServiceItemBasic(db, []factory.Customization{
+			{
+				Model: models.ReService{ID: uuid.FromStringOrNil(moveManagementUUID)},
 			},
-		})
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status:     models.MTOServiceItemStatusApproved,
+					ApprovedAt: &approvedDate,
+				},
+			},
+		}, nil)
 	}
 }
 
@@ -248,10 +255,17 @@ func subScenarioCustomerSupportRemarks(appCtx appcontext.AppContext) func() {
 				},
 			},
 		}, nil)
-		_ = testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{MTOShipment: models.MTOShipment{
-			MoveTaskOrderID: remarkMove.ID,
-			Status:          models.MTOShipmentStatusSubmitted,
-		}})
+		_ = factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusSubmitted,
+				},
+			},
+			{
+				Model:    remarkMove,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		officeUser := factory.BuildOfficeUserWithRoles(appCtx.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		testdatagen.MakeCustomerSupportRemark(appCtx.DB(), testdatagen.Assertions{
@@ -310,11 +324,18 @@ func subScenarioEvaluationReport(appCtx appcontext.AppContext) func() {
 			testdatagen.MustSave(appCtx.DB(), &move)
 		}
 
-		shipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{MTOShipment: models.MTOShipment{
-			MoveTaskOrderID:       move.ID,
-			Status:                models.MTOShipmentStatusSubmitted,
-			ScheduledDeliveryDate: swag.Time(time.Now()),
-		}})
+		shipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:                models.MTOShipmentStatusSubmitted,
+					ScheduledDeliveryDate: models.TimePointer(time.Now()),
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 		testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{Move: move})
 
 		storageFacility := factory.BuildStorageFacility(appCtx.DB(), nil, nil)
@@ -488,7 +509,6 @@ func subScenarioTXOQueues(appCtx appcontext.AppContext, userUploader *uploader.U
 		})
 
 		//Retiree, HOS, NTS
-		ntsMoveType := models.SelectedMoveTypeNTS
 		CreateMoveWithOptions(appCtx, testdatagen.Assertions{
 			Order: models.Order{
 				OrdersType: retirement,
@@ -499,9 +519,8 @@ func subScenarioTXOQueues(appCtx appcontext.AppContext, userUploader *uploader.U
 				UsesExternalVendor: false,
 			},
 			Move: models.Move{
-				Locator:          "R3TNTS",
-				Status:           models.MoveStatusSUBMITTED,
-				SelectedMoveType: &ntsMoveType,
+				Locator: "R3TNTS",
+				Status:  models.MoveStatusSUBMITTED,
 			},
 			DutyLocation: models.DutyLocation{
 				ProvidesServicesCounseling: true,
@@ -509,7 +528,6 @@ func subScenarioTXOQueues(appCtx appcontext.AppContext, userUploader *uploader.U
 		})
 
 		//Retiree, HOS, NTSR
-		ntsrMoveType := models.SelectedMoveTypeNTSR
 		CreateMoveWithOptions(appCtx, testdatagen.Assertions{
 			Order: models.Order{
 				OrdersType: retirement,
@@ -520,9 +538,8 @@ func subScenarioTXOQueues(appCtx appcontext.AppContext, userUploader *uploader.U
 				UsesExternalVendor: false,
 			},
 			Move: models.Move{
-				Locator:          "R3TNTR",
-				Status:           models.MoveStatusSUBMITTED,
-				SelectedMoveType: &ntsrMoveType,
+				Locator: "R3TNTR",
+				Status:  models.MoveStatusSUBMITTED,
 			},
 			DutyLocation: models.DutyLocation{
 				ProvidesServicesCounseling: true,

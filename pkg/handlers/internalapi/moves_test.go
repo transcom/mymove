@@ -246,13 +246,14 @@ func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
 		// Given: a set of orders, a move, user and servicemember
 		move := factory.BuildMove(suite.DB(), nil, nil)
 
-		hhgShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status:       models.MTOShipmentStatusDraft,
-				ShipmentType: models.MTOShipmentTypePPM,
+		hhgShipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:       models.MTOShipmentStatusDraft,
+					ShipmentType: models.MTOShipmentTypePPM,
+				},
 			},
-			Stub: true,
-		})
+		}, nil)
 		testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
 			Move:        move,
 			MTOShipment: hhgShipment,
@@ -678,14 +679,18 @@ func (suite *HandlerSuite) TestShowShipmentSummaryWorksheet() {
 		},
 	})
 	certificationType := models.SignedCertificationTypePPMPAYMENT
-	testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
-		SignedCertification: models.SignedCertification{
-			SubmittingUserID:         move.Orders.ServiceMember.UserID,
-			MoveID:                   move.ID,
-			PersonallyProcuredMoveID: &ppm.ID,
-			CertificationType:        &certificationType,
+	factory.BuildSignedCertification(suite.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.SignedCertification{
+				PersonallyProcuredMoveID: &ppm.ID,
+				CertificationType:        &certificationType,
+			},
+		},
+	}, nil)
 
 	req := httptest.NewRequest("GET", "/moves/some_id/shipment_summary_worksheet", nil)
 	req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)

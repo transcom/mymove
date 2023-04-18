@@ -627,19 +627,29 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandler() {
 		//             Receive a 404 - Not Found
 		// SETUP
 		// Create the payload
-		testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDOFSIT,
+		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDOFSIT,
+				},
 			},
-			Move:        subtestData.mto,
-			MTOShipment: subtestData.mtoShipment,
+			{
+				Model:    subtestData.mto,
+				LinkOnly: true,
+			},
+			{
+				Model:    subtestData.mtoShipment,
+				LinkOnly: true,
+			},
 			// These get copied over to the DOASIT as part of creation and are needed for the response to validate
-			MTOServiceItem: models.MTOServiceItem{
-				Reason:        swag.String("lorem ipsum"),
-				SITEntryDate:  swag.Time(time.Now()),
-				SITPostalCode: swag.String("00000"),
+			{
+				Model: models.MTOServiceItem{
+					Reason:        swag.String("lorem ipsum"),
+					SITEntryDate:  swag.Time(time.Now()),
+					SITPostalCode: swag.String("00000"),
+				},
 			},
-		})
+		}, nil)
 
 		subtestData.mtoServiceItem.ReService.Code = models.ReServiceCodeDOASIT
 		moveRouter := moverouter.NewMoveRouter()
@@ -1187,17 +1197,23 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 	makeSubtestData := func() (subtestData *localSubtestData) {
 		subtestData = &localSubtestData{}
 		timeNow := time.Now()
-		subtestData.dddsit = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				AvailableToPrimeAt: &timeNow,
+		subtestData.dddsit = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					AvailableToPrimeAt: &timeNow,
+				},
 			},
-			MTOServiceItem: models.MTOServiceItem{
-				SITEntryDate: swag.Time(time.Now()),
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate: swag.Time(time.Now()),
+				},
 			},
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDDDSIT,
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDDSIT,
+				},
 			},
-		})
+		}, nil)
 
 		destinationAddress := factory.BuildAddress(suite.DB(), nil, nil)
 		addr := primemessages.Address{
@@ -1391,17 +1407,23 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDOPSIT() {
 	makeSubtestData := func() (subtestData *localSubtestData) {
 		subtestData = &localSubtestData{}
 		timeNow := time.Now()
-		subtestData.dopsit = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				AvailableToPrimeAt: &timeNow,
+		subtestData.dopsit = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					AvailableToPrimeAt: &timeNow,
+				},
 			},
-			MTOServiceItem: models.MTOServiceItem{
-				SITEntryDate: swag.Time(time.Now()),
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate: swag.Time(time.Now()),
+				},
 			},
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDOPSIT,
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDOPSIT,
+				},
 			},
-		})
+		}, nil)
 
 		// Create the payload with the desired update
 		subtestData.reqPayload = &primemessages.UpdateMTOServiceItemSIT{

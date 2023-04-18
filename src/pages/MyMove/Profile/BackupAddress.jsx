@@ -10,10 +10,10 @@ import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 import requireCustomerState from 'containers/requireCustomerState/requireCustomerState';
 import { profileStates } from 'constants/customerStates';
 import { customerRoutes } from 'constants/routes';
-import BackupMailingAddressForm from 'components/Customer/BackupMailingAddressForm/BackupMailingAddressForm';
+import BackupAddressForm from 'components/Customer/BackupAddressForm/BackupAddressForm';
 import { ResidentialAddressShape } from 'types/address';
 
-export const BackupMailingAddress = ({ serviceMember, updateServiceMember, push }) => {
+export const BackupAddress = ({ serviceMember, updateServiceMember, push }) => {
   const [serverError, setServerError] = useState(null);
 
   const formFieldsName = 'backup_mailing_address';
@@ -71,7 +71,7 @@ export const BackupMailingAddress = ({ serviceMember, updateServiceMember, push 
 
       <Grid row>
         <Grid col desktop={{ col: 8, offset: 2 }}>
-          <BackupMailingAddressForm
+          <BackupAddressForm
             formFieldsName={formFieldsName}
             initialValues={initialValues}
             onBack={handleBack}
@@ -83,7 +83,7 @@ export const BackupMailingAddress = ({ serviceMember, updateServiceMember, push 
   );
 };
 
-BackupMailingAddress.propTypes = {
+BackupAddress.propTypes = {
   updateServiceMember: PropTypes.func.isRequired,
   serviceMember: PropTypes.shape({
     id: PropTypes.string.isRequired,
@@ -103,4 +103,4 @@ const mapStateToProps = (state) => ({
 export default connect(
   mapStateToProps,
   mapDispatchToProps,
-)(requireCustomerState(BackupMailingAddress, profileStates.ADDRESS_COMPLETE));
+)(requireCustomerState(BackupAddress, profileStates.ADDRESS_COMPLETE));
