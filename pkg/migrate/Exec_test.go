@@ -56,6 +56,21 @@ func (suite *MigrateSuite) TestExecWithCopyFromStdinSQL() {
 	suite.NoError(errTransaction)
 }
 
+func (suite *MigrateSuite) TestExecWithCopyFromStdinMultipleSQL() {
+
+	// Load the fixture with the sql example
+	f, err := os.Open("./fixtures/copyFromStdinMultiple.sql")
+	suite.NoError(err)
+
+	errTransaction := suite.DB().Transaction(func(tx *pop.Connection) error {
+		wait := 10 * time.Millisecond
+		err := Exec(f, tx, wait, suite.Logger())
+		suite.NoError(err)
+		return err
+	})
+	suite.NoError(errTransaction)
+}
+
 func (suite *MigrateSuite) TestExecWithCopyFromStdinTypes() {
 
 	// Load the fixture with the sql example
