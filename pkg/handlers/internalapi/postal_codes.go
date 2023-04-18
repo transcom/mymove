@@ -29,7 +29,7 @@ func (h ValidatePostalCodeWithRateDataHandler) Handle(params postalcodesops.Vali
 			if err != nil {
 				switch err.(type) {
 				case *apperror.UnsupportedPostalCodeError:
-					appCtx.Logger().Error(err.Error(), zap.Error(err))
+					appCtx.Logger().Warn(err.Error(), zap.Error(err))
 				default:
 					appCtx.Logger().Error("Validate postal code", zap.Error(err))
 					return postalcodesops.NewValidatePostalCodeWithRateDataBadRequest(), err
