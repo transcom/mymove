@@ -82,12 +82,16 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 		}, nil)
 
 		expectedMTOWithFacility := factory.BuildNeedsServiceCounselingMove(suite.DB(), nil, nil)
-		testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: expectedMTOWithFacility,
-			MTOShipment: models.MTOShipment{
-				StorageFacility: &storageFacility,
+		factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    expectedMTOWithFacility,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model:    storageFacility,
+				LinkOnly: true,
+			},
+		}, nil)
 		eTag := etag.GenerateEtag(expectedMTOWithFacility.UpdatedAt)
 
 		actualMTO, err := mtoUpdater.UpdateStatusServiceCounselingCompleted(suite.AppContextForTest(), expectedMTOWithFacility.ID, eTag)
@@ -100,12 +104,17 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 
 	suite.Run("Invalid input error when there is no facility information on NTS-r shipment", func() {
 		noFacilityInfoMove := factory.BuildNeedsServiceCounselingMove(suite.DB(), nil, nil)
-		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				ShipmentType: models.MTOShipmentTypeHHGOutOfNTSDom,
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypeHHGOutOfNTSDom,
+				},
 			},
-			Move: noFacilityInfoMove,
-		})
+			{
+				Model:    noFacilityInfoMove,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		// Clear out the NTS Storage Facility
 		mtoShipment.StorageFacility = nil
@@ -133,9 +142,12 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 
 	suite.Run("MTO status is in a conflicted state", func() {
 		draftMove := factory.BuildMove(suite.DB(), nil, nil)
-		testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			Move: draftMove,
-		})
+		factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model:    draftMove,
+				LinkOnly: true,
+			},
+		}, nil)
 		eTag := etag.GenerateEtag(draftMove.UpdatedAt)
 
 		_, err := mtoUpdater.UpdateStatusServiceCounselingCompleted(suite.AppContextForTest(), draftMove.ID, eTag)
@@ -147,9 +159,12 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 
 	suite.Run("Etag is stale", func() {
 		move := factory.BuildNeedsServiceCounselingMove(suite.DB(), nil, nil)
-		testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			Move: move,
-		})
+		factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 		eTag := etag.GenerateEtag(time.Now())
 
 		_, err := mtoUpdater.UpdateStatusServiceCounselingCompleted(suite.AppContextForTest(), move.ID, eTag)
@@ -178,22 +193,34 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdatePostCouns
 				UsesExternalVendor: false,
 			},
 		})
-		testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			Move: expectedMTO,
-			MTOShipment: models.MTOShipment{
-				ShipmentType:       models.MTOShipmentTypeHHGOutOfNTSDom,
-				UsesExternalVendor: true,
+		factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model:    expectedMTO,
+				LinkOnly: true,
 			},
-		})
-		testdatagen.MakeMTOServiceItemBasic(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				Status: models.MTOServiceItemStatusApproved,
+			{
+				Model: models.MTOShipment{
+					ShipmentType:       models.MTOShipmentTypeHHGOutOfNTSDom,
+					UsesExternalVendor: true,
+				},
 			},
-			Move: expectedMTO,
-			ReService: models.ReService{
-				Code: models.ReServiceCodeCS, // CS - Counseling Services
+		}, nil)
+		factory.BuildMTOServiceItemBasic(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusApproved,
+				},
 			},
-		})
+			{
+				Model:    expectedMTO,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeCS, // CS - Counseling Services
+				},
+			},
+		}, nil)
 
 		eTag := etag.GenerateEtag(expectedMTO.UpdatedAt)
 
@@ -243,15 +270,22 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdatePostCouns
 
 	suite.Run("Etag is stale", func() {
 		expectedMTO := factory.BuildMove(suite.DB(), nil, nil)
-		testdatagen.MakeMTOServiceItemBasic(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				Status: models.MTOServiceItemStatusApproved,
+		factory.BuildMTOServiceItemBasic(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move: expectedMTO,
-			ReService: models.ReService{
-				Code: models.ReServiceCodeCS, // CS - Counseling Services
+			{
+				Model:    expectedMTO,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeCS, // CS - Counseling Services
+				},
+			},
+		}, nil)
 
 		eTag := etag.GenerateEtag(time.Now())
 		_, err := mtoUpdater.UpdatePostCounselingInfo(suite.AppContextForTest(), expectedMTO.ID, eTag)

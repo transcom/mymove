@@ -179,9 +179,12 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 
 	// Test successful Prime validation
 	suite.Run("UpdateMTOServiceItemPrimeValidator - success", func() {
-		oldServiceItemPrime := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			Move: factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil),
-		})
+		oldServiceItemPrime := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil),
+				LinkOnly: true,
+			},
+		}, nil)
 		newServiceItemPrime := oldServiceItemPrime
 
 		// Change something allowed by Prime:
@@ -221,9 +224,12 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 
 	// Test unsuccessful Prime validation - Invalid input
 	suite.Run("UpdateMTOServiceItemPrimeValidator - invalid input failure", func() {
-		oldServiceItemPrime := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			Move: factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil),
-		})
+		oldServiceItemPrime := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil),
+				LinkOnly: true,
+			},
+		}, nil)
 		newServiceItemPrime := oldServiceItemPrime
 
 		// Change something unavailable to Prime:
@@ -250,9 +256,12 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 
 	// Test unsuccessful Prime validation - Payment requests
 	suite.Run("UpdateMTOServiceItemPrimeValidator - payment request failure", func() {
-		oldServiceItemPrime := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			Move: factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil),
-		})
+		oldServiceItemPrime := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil),
+				LinkOnly: true,
+			},
+		}, nil)
 		newServiceItemPrime := oldServiceItemPrime
 
 		// Create payment requests for service item:
@@ -295,9 +304,12 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 func (suite *MTOServiceItemServiceSuite) createServiceItem() (string, models.MTOServiceItem, models.Move) {
 	move := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
 
-	serviceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-		Move: move,
-	})
+	serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	eTag := etag.GenerateEtag(serviceItem.UpdatedAt)
 
@@ -307,9 +319,12 @@ func (suite *MTOServiceItemServiceSuite) createServiceItem() (string, models.MTO
 func (suite *MTOServiceItemServiceSuite) createServiceItemForUnapprovedMove() (string, models.MTOServiceItem, models.Move) {
 	move := factory.BuildMove(suite.DB(), nil, nil)
 
-	serviceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-		Move: move,
-	})
+	serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	eTag := etag.GenerateEtag(serviceItem.UpdatedAt)
 
@@ -354,9 +369,12 @@ func (suite *MTOServiceItemServiceSuite) createServiceItemForMoveWithUnacknowled
 		},
 	}, nil)
 
-	serviceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-		Move: move,
-	})
+	serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	eTag := etag.GenerateEtag(serviceItem.UpdatedAt)
 

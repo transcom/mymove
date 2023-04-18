@@ -45,8 +45,11 @@ func (suite *ServiceParamValueLookupsSuite) makeSubtestData() (subtestData *para
 		})
 
 	subtestData.estimatedWeight = unit.Pound(2048)
-	subtestData.mtoShipment1 = testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: subtestData.move})
+	subtestData.mtoShipment1 = factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    subtestData.move,
+			LinkOnly: true,
+		}}, nil)
 	subtestData.mtoShipment1.PrimeEstimatedWeight = &subtestData.estimatedWeight
 	suite.MustSave(&subtestData.mtoShipment1)
 
@@ -57,36 +60,72 @@ func (suite *ServiceParamValueLookupsSuite) makeSubtestData() (subtestData *para
 	reServiceDOSHUT := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDOSHUT)
 
 	// DLH
-	subtestData.mtoServiceItemShip1DLH = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-		Move:        subtestData.move,
-		ReService:   reServiceDLH,
-		MTOShipment: subtestData.mtoShipment1,
-	})
+	subtestData.mtoServiceItemShip1DLH = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+		{
+			Model:    subtestData.move,
+			LinkOnly: true,
+		},
+		{
+			Model:    reServiceDLH,
+			LinkOnly: true,
+		},
+		{
+			Model:    subtestData.mtoShipment1,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	// DOP
-	mtoServiceItemShip1DOP := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-		Move:        subtestData.move,
-		ReService:   reServiceDOP,
-		MTOShipment: subtestData.mtoShipment1,
-	})
+	mtoServiceItemShip1DOP := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+		{
+			Model:    subtestData.move,
+			LinkOnly: true,
+		},
+		{
+			Model:    reServiceDOP,
+			LinkOnly: true,
+		},
+		{
+			Model:    subtestData.mtoShipment1,
+			LinkOnly: true,
+		},
+	}, nil)
 
-	subtestData.mtoShipment2 = testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: subtestData.move})
+	subtestData.mtoShipment2 = factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    subtestData.move,
+			LinkOnly: true,
+		}}, nil)
 	subtestData.mtoShipment2.PrimeEstimatedWeight = &subtestData.estimatedWeight
 	suite.MustSave(&subtestData.mtoShipment2)
 
 	// DLH
-	subtestData.mtoServiceItemShip2DLH = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-		Move:        subtestData.move,
-		ReService:   reServiceDLH,
-		MTOShipment: subtestData.mtoShipment2,
-	})
+	subtestData.mtoServiceItemShip2DLH = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+		{
+			Model:    subtestData.move,
+			LinkOnly: true,
+		},
+		{
+			Model:    reServiceDLH,
+			LinkOnly: true,
+		},
+		{
+			Model:    subtestData.mtoShipment2,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	// MS
-	subtestData.mtoServiceItemMS = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-		Move:      subtestData.move,
-		ReService: reServiceMS,
-	})
+	subtestData.mtoServiceItemMS = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+		{
+			Model:    subtestData.move,
+			LinkOnly: true,
+		},
+		{
+			Model:    reServiceMS,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	subtestData.paramKeyWeightEstimated = factory.FetchOrBuildServiceItemParamKey(suite.DB(), []factory.Customization{
 		{
@@ -160,15 +199,26 @@ func (suite *ServiceParamValueLookupsSuite) makeSubtestData() (subtestData *para
 
 	subtestData.shuttleEstimatedWeight = unit.Pound(400)
 	subtestData.shuttleActualWeight = unit.Pound(450)
-	subtestData.mtoServiceItemShuttle = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-		Move:        subtestData.move,
-		ReService:   reServiceDOSHUT,
-		MTOShipment: subtestData.mtoShipment2,
-		MTOServiceItem: models.MTOServiceItem{
-			EstimatedWeight: &subtestData.shuttleEstimatedWeight,
-			ActualWeight:    &subtestData.shuttleActualWeight,
+	subtestData.mtoServiceItemShuttle = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+		{
+			Model:    subtestData.move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    reServiceDOSHUT,
+			LinkOnly: true,
+		},
+		{
+			Model:    subtestData.mtoShipment2,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOServiceItem{
+				EstimatedWeight: &subtestData.shuttleEstimatedWeight,
+				ActualWeight:    &subtestData.shuttleActualWeight,
+			},
+		},
+	}, nil)
 
 	// DOSHUT estimated weight
 	_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
@@ -179,11 +229,20 @@ func (suite *ServiceParamValueLookupsSuite) makeSubtestData() (subtestData *para
 			IsOptional:            true,
 		},
 	})
-	subtestData.mtoServiceItemCrate1 = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-		Move:        subtestData.move,
-		ReService:   reServiceDCRT,
-		MTOShipment: subtestData.mtoShipment2,
-	})
+	subtestData.mtoServiceItemCrate1 = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+		{
+			Model:    subtestData.move,
+			LinkOnly: true,
+		},
+		{
+			Model:    reServiceDCRT,
+			LinkOnly: true,
+		},
+		{
+			Model:    subtestData.mtoShipment2,
+			LinkOnly: true,
+		},
+	}, nil)
 	_ = testdatagen.MakeMTOServiceItemDimension(suite.DB(), testdatagen.Assertions{
 		MTOServiceItemDimension: models.MTOServiceItemDimension{
 			MTOServiceItemID: subtestData.mtoServiceItemCrate1.ID,
@@ -208,11 +267,20 @@ func (suite *ServiceParamValueLookupsSuite) makeSubtestData() (subtestData *para
 			UpdatedAt:        time.Time{},
 		},
 	})
-	subtestData.mtoServiceItemCrate2 = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-		Move:        subtestData.move,
-		ReService:   reServiceDCRT,
-		MTOShipment: subtestData.mtoShipment2,
-	})
+	subtestData.mtoServiceItemCrate2 = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+		{
+			Model:    subtestData.move,
+			LinkOnly: true,
+		},
+		{
+			Model:    reServiceDCRT,
+			LinkOnly: true,
+		},
+		{
+			Model:    subtestData.mtoShipment2,
+			LinkOnly: true,
+		},
+	}, nil)
 	_ = testdatagen.MakeMTOServiceItemDimension(suite.DB(), testdatagen.Assertions{
 		MTOServiceItemDimension: models.MTOServiceItemDimension{
 			MTOServiceItemID: subtestData.mtoServiceItemCrate2.ID,

@@ -46,33 +46,45 @@ func BuildReService(db *pop.Connection, customs []Customization, traits []Trait)
 	return reService
 }
 
-// FetchOrBuildReServiceByCode tries fetching a ReService using ReServiceCode, then falls back to creating one
-func FetchOrBuildReServiceByCode(db *pop.Connection, reServiceCode models.ReServiceCode) models.ReService {
+// FetchOrBuildReService tries fetching a ReService using ReServiceCode, then falls back to creating one
+func FetchOrBuildReService(db *pop.Connection, reService models.ReService) models.ReService {
 	if db == nil {
 		return BuildReService(db, []Customization{
 			{
-				Model: models.ReService{
-					Code: reServiceCode,
-				},
+				Model: reService,
 			},
 		}, nil)
 	}
 
-	var reService models.ReService
-	err := db.Where("code=$1", reServiceCode).First(&reService)
-	if err != nil && err != sql.ErrNoRows {
-		log.Panic(err)
-	} else if err == nil {
-		return reService
+	if !reService.ID.IsNil() {
+		err := db.Where("ID = $1", reService.ID).First(&reService)
+		if err != nil && err != sql.ErrNoRows {
+			log.Panic(err)
+		} else if err == nil {
+			return reService
+		}
+	}
+
+	if reService.Code.String() != "" {
+		err := db.Where("code = $1", reService.Code).First(&reService)
+		if err != nil && err != sql.ErrNoRows {
+			log.Panic(err)
+		} else if err == nil {
+			return reService
+		}
 	}
 
 	return BuildReService(db, []Customization{
 		{
-			Model: models.ReService{
-				Code: reServiceCode,
-			},
+			Model: reService,
 		},
 	}, nil)
+}
+
+func FetchOrBuildReServiceByCode(db *pop.Connection, reServiceCode models.ReServiceCode) models.ReService {
+	return FetchOrBuildReService(db, models.ReService{
+		Code: reServiceCode,
+	})
 }
 
 // BuildReServiceByCode builds ReService using ReServiceCode

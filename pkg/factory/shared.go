@@ -42,11 +42,14 @@ var Document CustomType = "Document"
 var DutyLocation CustomType = "DutyLocation"
 var Entitlement CustomType = "Entitlement"
 var Move CustomType = "Move"
+var MTOServiceItem CustomType = "MTOServiceItem"
 var MTOShipment CustomType = "MTOShipment"
+var Notification CustomType = "Notification"
 var OfficePhoneLine CustomType = "OfficePhoneLine"
 var OfficeUser CustomType = "OfficeUser"
 var Order CustomType = "Order"
 var Organization CustomType = "Organization"
+var PPMShipment CustomType = "PPMShipment"
 var PostalCodeToGBLOC CustomType = "PostalCodeToGBLOC"
 var ReService CustomType = "ReService"
 var ServiceItemParamKey CustomType = "ServiceItemParamKey"
@@ -70,11 +73,14 @@ var defaultTypesMap = map[string]CustomType{
 	"models.DutyLocation":         DutyLocation,
 	"models.Entitlement":          Entitlement,
 	"models.Move":                 Move,
+	"models.MTOServiceItem":       MTOServiceItem,
 	"models.MTOShipment":          MTOShipment,
+	"models.Notification":         Notification,
 	"models.OfficePhoneLine":      OfficePhoneLine,
 	"models.OfficeUser":           OfficeUser,
 	"models.Order":                Order,
 	"models.Organization":         Organization,
+	"models.PPMShipment":          PPMShipment,
 	"models.PostalCodeToGBLOC":    PostalCodeToGBLOC,
 	"models.ReService":            ReService,
 	"models.ServiceItemParamKey":  ServiceItemParamKey,
@@ -94,26 +100,32 @@ var defaultTypesMap = map[string]CustomType{
 
 // addressGroup is a grouping of all address related fields
 type addressGroup struct {
-	PickupAddress            CustomType
-	DeliveryAddress          CustomType
-	SecondaryPickupAddress   CustomType
-	SecondaryDeliveryAddress CustomType
-	ResidentialAddress       CustomType
-	BackupMailingAddress     CustomType
-	DutyLocationAddress      CustomType
-	DutyLocationTOAddress    CustomType
+	PickupAddress               CustomType
+	DeliveryAddress             CustomType
+	SecondaryPickupAddress      CustomType
+	SecondaryDeliveryAddress    CustomType
+	ResidentialAddress          CustomType
+	BackupMailingAddress        CustomType
+	DutyLocationAddress         CustomType
+	DutyLocationTOAddress       CustomType
+	SITOriginHHGOriginalAddress CustomType
+	SITOriginHHGActualAddress   CustomType
+	SITDestinationFinalAddress  CustomType
 }
 
 // Addresses is the struct to access the various fields externally
 var Addresses = addressGroup{
-	PickupAddress:            "PickupAddress",
-	DeliveryAddress:          "DeliveryAddress",
-	SecondaryPickupAddress:   "SecondaryPickupAddress",
-	SecondaryDeliveryAddress: "SecondaryDeliveryAddress",
-	ResidentialAddress:       "ResidentialAddress",
-	BackupMailingAddress:     "BackupMailingAddress",
-	DutyLocationAddress:      "DutyLocationAddress",
-	DutyLocationTOAddress:    "DutyLocationTOAddress",
+	PickupAddress:               "PickupAddress",
+	DeliveryAddress:             "DeliveryAddress",
+	SecondaryPickupAddress:      "SecondaryPickupAddress",
+	SecondaryDeliveryAddress:    "SecondaryDeliveryAddress",
+	ResidentialAddress:          "ResidentialAddress",
+	BackupMailingAddress:        "BackupMailingAddress",
+	DutyLocationAddress:         "DutyLocationAddress",
+	DutyLocationTOAddress:       "DutyLocationTOAddress",
+	SITOriginHHGOriginalAddress: "SITOriginHHGOriginalAddress",
+	SITOriginHHGActualAddress:   "SITOriginHHGActualAddress",
+	SITDestinationFinalAddress:  "SITDestinationFinalAddress",
 }
 
 // dimensionGroup is a grouping of all the Dimension related fields

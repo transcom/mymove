@@ -566,15 +566,28 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		// Create an available shipment in DB
 		now := testdatagen.CurrentDateWithoutTime()
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-			MTOShipment: models.MTOShipment{
-				Status:       models.MTOShipmentStatusApproved,
-				ApprovedDate: now,
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-			SecondaryPickupAddress:   factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress3}),
-			SecondaryDeliveryAddress: factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress4}),
-		})
+			{
+				Model: models.MTOShipment{
+					Status:       models.MTOShipmentStatusApproved,
+					ApprovedDate: now,
+				},
+			},
+			{
+				Model:    factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress3}),
+				LinkOnly: true,
+				Type:     &factory.Addresses.SecondaryPickupAddress,
+			},
+			{
+				Model:    factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress4}),
+				LinkOnly: true,
+				Type:     &factory.Addresses.SecondaryDeliveryAddress,
+			},
+		}, nil)
 		return handler, shipment
 	}
 
@@ -877,11 +890,13 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		handler, _ := setupTestData()
 
 		// Create a shipment unavailable to Prime in DB
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status: models.MTOShipmentStatusSubmitted,
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusSubmitted,
+				},
 			},
-		})
+		}, nil)
 		suite.Nil(shipment.MoveTaskOrder.AvailableToPrimeAt)
 
 		// Create params
@@ -918,15 +933,18 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		handler, ogShipment := setupTestData()
 
 		// Create a shipment handled by an external vendor
-		externalShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				ID: ogShipment.MoveTaskOrderID,
+		externalShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model:    ogShipment.MoveTaskOrder,
+				LinkOnly: true,
 			},
-			MTOShipment: models.MTOShipment{
-				ShipmentType:       models.MTOShipmentTypeHHGOutOfNTSDom,
-				UsesExternalVendor: true,
+			{
+				Model: models.MTOShipment{
+					ShipmentType:       models.MTOShipmentTypeHHGOutOfNTSDom,
+					UsesExternalVendor: true,
+				},
 			},
-		})
+		}, nil)
 		// Check that they point to the same move and that it's available
 		suite.Equal(ogShipment.MoveTaskOrderID, externalShipment.MoveTaskOrderID)
 		suite.NotNil(ogShipment.MoveTaskOrder.AvailableToPrimeAt)
@@ -965,15 +983,18 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		//             Weights are updated, and prime estimated weight recorded date is updated.
 		handler, ogShipment := setupTestData()
 		// Create a minimal shipment on the previously created move
-		minimalShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				ID: ogShipment.MoveTaskOrderID,
+		minimalShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model:    ogShipment.MoveTaskOrder,
+				LinkOnly: true,
 			},
-			MTOShipment: models.MTOShipment{
-				Status:              models.MTOShipmentStatusSubmitted,
-				ScheduledPickupDate: &time.Time{},
+			{
+				Model: models.MTOShipment{
+					Status:              models.MTOShipmentStatusSubmitted,
+					ScheduledPickupDate: &time.Time{},
+				},
 			},
-		})
+		}, nil)
 		minimalReq := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", minimalShipment.ID.String()), nil)
 
 		// Check that PrimeEstimatedWeightRecordedDate was nil at first
@@ -1028,15 +1049,18 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		//             primeEstimatedWeight cannot be updated more than once.
 		handler, ogShipment := setupTestData()
 		// Create a minimal shipment on the previously created move
-		minimalShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				ID: ogShipment.MoveTaskOrderID,
+		minimalShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model:    ogShipment.MoveTaskOrder,
+				LinkOnly: true,
 			},
-			MTOShipment: models.MTOShipment{
-				Status:              models.MTOShipmentStatusSubmitted,
-				ScheduledPickupDate: &time.Time{},
+			{
+				Model: models.MTOShipment{
+					Status:              models.MTOShipmentStatusSubmitted,
+					ScheduledPickupDate: &time.Time{},
+				},
 			},
-		})
+		}, nil)
 		minimalReq := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", minimalShipment.ID.String()), nil)
 
 		// Set the primeEstimatedWeight
@@ -1097,15 +1121,18 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		handler, ogShipment := setupTestData()
 
 		// Create a shipment with no scheduled pickup date
-		noScheduledPickupShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				ID: ogShipment.MoveTaskOrderID,
+		noScheduledPickupShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model:    ogShipment.MoveTaskOrder,
+				LinkOnly: true,
 			},
-			MTOShipment: models.MTOShipment{
-				Status:              models.MTOShipmentStatusSubmitted,
-				ScheduledPickupDate: nil,
+			{
+				Model: models.MTOShipment{
+					Status:              models.MTOShipmentStatusSubmitted,
+					ScheduledPickupDate: nil,
+				},
 			},
-		})
+		}, nil)
 
 		// Create an update with updated weights
 		mtoShipment := primemessages.UpdateMTOShipment{
@@ -1211,19 +1238,29 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		// Add service items to our shipment
 		// Create a service item in the db, associate with the shipment
 		reService := factory.BuildDDFSITReService(suite.DB())
-		testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				ID: shipment.MoveTaskOrderID,
+		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					ID: shipment.MoveTaskOrderID,
+				},
 			},
-			MTOShipment: shipment,
-			ReService:   reService,
-			MTOServiceItem: models.MTOServiceItem{
-				MoveTaskOrderID: shipment.MoveTaskOrderID,
-				ReServiceID:     reService.ID,
-				MTOShipmentID:   &shipment.ID,
-				SITEntryDate:    swag.Time(time.Now()),
+			{
+				Model:    shipment,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model:    reService,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOServiceItem{
+					MoveTaskOrderID: shipment.MoveTaskOrderID,
+					ReServiceID:     reService.ID,
+					MTOShipmentID:   &shipment.ID,
+					SITEntryDate:    swag.Time(time.Now()),
+				},
+			},
+		}, nil)
 
 		// Add agents associated to our shipment
 		agent1 := testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
@@ -1343,9 +1380,12 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressLogic() {
 		}
 		// Create a shipment in the DB that has no addresses populated:
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-		shipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			Move: move,
-		})
+		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 		return handler, shipment
 
 	}
@@ -1405,9 +1445,12 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressLogic() {
 		//             Addresses cannot be updated with this endpoint, only created,  and should be listed in errors
 		handler, _ := setupTestData()
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-		})
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto_shipments/%s", shipment.ID.String()), nil)
 
@@ -1457,12 +1500,17 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressLogic() {
 		//             This endpoint was previously blanking out addresses which is why we have this test.
 		handler, _ := setupTestData()
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-			MTOShipment: models.MTOShipment{
-				Status: models.MTOShipmentStatusSubmitted,
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusSubmitted,
+				},
+			},
+		}, nil)
 
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto_shipments/%s", shipment.ID.String()), nil)
 
@@ -1561,14 +1609,19 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 
 		eightDaysFromNow := now.AddDate(0, 0, 8)
 		threeDaysBefore := now.AddDate(0, 0, -3)
-		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-			MTOShipment: models.MTOShipment{
-				Status:              models.MTOShipmentStatusApproved,
-				ScheduledPickupDate: &eightDaysFromNow,
-				ApprovedDate:        &threeDaysBefore,
+		oldShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					Status:              models.MTOShipmentStatusApproved,
+					ScheduledPickupDate: &eightDaysFromNow,
+					ApprovedDate:        &threeDaysBefore,
+				},
+			},
+		}, nil)
 		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
 		payload := primemessages.UpdateMTOShipment{
 			PrimeEstimatedWeight: handlers.FmtPoundPtr(&primeEstimatedWeight),
@@ -1598,14 +1651,19 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 		handler, move := setupTestData()
 
 		tenDaysFromNow := now.AddDate(0, 0, 11)
-		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-			MTOShipment: models.MTOShipment{
-				Status:              models.MTOShipmentStatusApproved,
-				ScheduledPickupDate: &tenDaysFromNow,
-				ApprovedDate:        &now,
+		oldShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					Status:              models.MTOShipmentStatusApproved,
+					ScheduledPickupDate: &tenDaysFromNow,
+					ApprovedDate:        &now,
+				},
+			},
+		}, nil)
 		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
 		payload := primemessages.UpdateMTOShipment{
 			PrimeEstimatedWeight: handlers.FmtPoundPtr(&primeEstimatedWeight),
@@ -1644,40 +1702,65 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 		address := factory.BuildAddress(suite.DB(), nil, nil)
 		storageFacility := factory.BuildStorageFacility(suite.DB(), nil, nil)
 
-		hhgShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-			MTOShipment: models.MTOShipment{
-				ShipmentType: models.MTOShipmentTypeHHG,
-				Status:       models.MTOShipmentStatusApproved,
-				ApprovedDate: &now,
+		hhgShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypeHHG,
+					Status:       models.MTOShipmentStatusApproved,
+					ApprovedDate: &now,
+				},
+			},
+		}, nil)
 
-		ntsShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-			MTOShipment: models.MTOShipment{
-				ShipmentType:      models.MTOShipmentTypeHHGIntoNTSDom,
-				Status:            models.MTOShipmentStatusApproved,
-				StorageFacility:   &storageFacility,
-				StorageFacilityID: &storageFacility.ID,
-				PickupAddress:     &address,
-				PickupAddressID:   &address.ID,
+		ntsShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypeHHGIntoNTSDom,
+					Status:       models.MTOShipmentStatusApproved,
+				},
+			},
+			{
+				Model:    storageFacility,
+				LinkOnly: true,
+			},
+			{
+				Model:    address,
+				LinkOnly: true,
+				Type:     &factory.Addresses.PickupAddress,
+			},
+		}, nil)
 
 		NTSRecordedWeight := unit.Pound(1400)
-		ntsrShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-			MTOShipment: models.MTOShipment{
-				ShipmentType:         models.MTOShipmentTypeHHGOutOfNTSDom,
-				NTSRecordedWeight:    &NTSRecordedWeight,
-				Status:               models.MTOShipmentStatusApproved,
-				StorageFacility:      &storageFacility,
-				StorageFacilityID:    &storageFacility.ID,
-				DestinationAddress:   &address,
-				DestinationAddressID: &address.ID,
+		ntsrShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					ShipmentType:      models.MTOShipmentTypeHHGOutOfNTSDom,
+					NTSRecordedWeight: &NTSRecordedWeight,
+					Status:            models.MTOShipmentStatusApproved,
+				},
+			},
+			{
+				Model:    storageFacility,
+				LinkOnly: true,
+			},
+			{
+				Model:    address,
+				LinkOnly: true,
+				Type:     &factory.Addresses.DeliveryAddress,
+			},
+		}, nil)
 
 		tenDaysFromNow := now.AddDate(0, 0, 11)
 		schedDate := strfmt.Date(tenDaysFromNow)
@@ -1754,16 +1837,25 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 		// Create shipment with populated estimated weight and scheduled date
 		tenDaysFromNow := now.AddDate(0, 0, 11)
 		pickupAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
-		oldShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			Move: move,
-			MTOShipment: models.MTOShipment{
-				Status:               models.MTOShipmentStatusApproved,
-				ApprovedDate:         &now,
-				PrimeEstimatedWeight: &primeEstimatedWeight,
-				ScheduledPickupDate:  &tenDaysFromNow,
-				PickupAddress:        &pickupAddress,
+		oldShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					Status:               models.MTOShipmentStatusApproved,
+					ApprovedDate:         &now,
+					PrimeEstimatedWeight: &primeEstimatedWeight,
+					ScheduledPickupDate:  &tenDaysFromNow,
+				},
+			},
+			{
+				Model:    pickupAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.PickupAddress,
+			},
+		}, nil)
 
 		// CREATE REQUEST
 		// Update destination address
@@ -1812,17 +1904,25 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 		handler, move := setupTestData()
 
 		// Create shipment with Alaska destination
-		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-			MTOShipment: models.MTOShipment{
-				Status:       models.MTOShipmentStatusApproved,
-				ApprovedDate: &now,
+		oldShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-			DestinationAddress: models.Address{
-				PostalCode: "12345",
-				State:      "AK",
+			{
+				Model: models.MTOShipment{
+					Status:       models.MTOShipmentStatusApproved,
+					ApprovedDate: &now,
+				},
 			},
-		})
+			{
+				Model: models.Address{
+					PostalCode: "12345",
+					State:      "AK",
+				},
+				Type: &factory.Addresses.DeliveryAddress,
+			},
+		}, nil)
 
 		// CREATE REQUEST
 		// Update with scheduledPickupDate and PrimeEstimatedWeight
@@ -1878,18 +1978,26 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 		//             which is a special rule for Adak (look at it on a map!)
 		handler, move := setupTestData()
 
-		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-			MTOShipment: models.MTOShipment{
-				Status:       models.MTOShipmentStatusApproved,
-				ApprovedDate: &now,
+		oldShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-			DestinationAddress: models.Address{
-				PostalCode: "99546",
-				City:       "Adak",
-				State:      "AK",
+			{
+				Model: models.MTOShipment{
+					Status:       models.MTOShipmentStatusApproved,
+					ApprovedDate: &now,
+				},
 			},
-		})
+			{
+				Model: models.Address{
+					PostalCode: "99546",
+					City:       "Adak",
+					State:      "AK",
+				},
+				Type: &factory.Addresses.DeliveryAddress,
+			},
+		}, nil)
 
 		// CREATE REQUEST
 		// Update with scheduledPickupDate and PrimeEstimatedWeight
@@ -1940,14 +2048,19 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 
 		twoDaysFromNow := now.AddDate(0, 0, 2)
 		twoDaysBefore := now.AddDate(0, 0, -2)
-		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-			MTOShipment: models.MTOShipment{
-				Status:              models.MTOShipmentStatusApproved,
-				ScheduledPickupDate: &twoDaysFromNow,
-				ApprovedDate:        &twoDaysBefore,
+		oldShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					Status:              models.MTOShipmentStatusApproved,
+					ScheduledPickupDate: &twoDaysFromNow,
+					ApprovedDate:        &twoDaysBefore,
+				},
+			},
+		}, nil)
 		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
 		payload := primemessages.UpdateMTOShipment{
 			PrimeEstimatedWeight: handlers.FmtPoundPtr(&primeEstimatedWeight),
@@ -1979,14 +2092,19 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 
 		sixDaysFromNow := now.AddDate(0, 0, 6)
 		twoDaysBefore := now.AddDate(0, 0, -2)
-		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-			MTOShipment: models.MTOShipment{
-				Status:              models.MTOShipmentStatusApproved,
-				ScheduledPickupDate: &sixDaysFromNow,
-				ApprovedDate:        &twoDaysBefore,
+		oldShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					Status:              models.MTOShipmentStatusApproved,
+					ScheduledPickupDate: &sixDaysFromNow,
+					ApprovedDate:        &twoDaysBefore,
+				},
+			},
+		}, nil)
 		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
 		payload := primemessages.UpdateMTOShipment{
 			PrimeEstimatedWeight: handlers.FmtPoundPtr(&primeEstimatedWeight),
@@ -2025,14 +2143,19 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 
 		oneDayFromNow := now.AddDate(0, 0, 1)
 		oneDayBefore := now.AddDate(0, 0, -1)
-		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-			MTOShipment: models.MTOShipment{
-				Status:              models.MTOShipmentStatusApproved,
-				ScheduledPickupDate: &oneDayFromNow,
-				ApprovedDate:        &oneDayBefore,
+		oldShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					Status:              models.MTOShipmentStatusApproved,
+					ScheduledPickupDate: &oneDayFromNow,
+					ApprovedDate:        &oneDayBefore,
+				},
+			},
+		}, nil)
 		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
 		payload := primemessages.UpdateMTOShipment{
 			PrimeEstimatedWeight: handlers.FmtPoundPtr(&primeEstimatedWeight),
@@ -2064,14 +2187,19 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 		handler, move := setupTestData()
 
 		twoDaysFromNow := now.AddDate(0, 0, 2)
-		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-			MTOShipment: models.MTOShipment{
-				Status:              models.MTOShipmentStatusApproved,
-				ScheduledPickupDate: &twoDaysFromNow,
-				ApprovedDate:        &now,
+		oldShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					Status:              models.MTOShipmentStatusApproved,
+					ScheduledPickupDate: &twoDaysFromNow,
+					ApprovedDate:        &now,
+				},
+			},
+		}, nil)
 		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
 		payload := primemessages.UpdateMTOShipment{
 			PrimeEstimatedWeight: handlers.FmtPoundPtr(&primeEstimatedWeight),
@@ -2135,13 +2263,17 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 
 		// Set up Prime-available move
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				MoveTaskOrder:   move,
-				MoveTaskOrderID: move.ID,
-				Status:          models.MTOShipmentStatusCancellationRequested,
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusCancellationRequested,
+				},
 			},
-		})
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 		return handler, shipment
 	}
 
@@ -2198,7 +2330,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 	suite.Run("404 FAIL - Shipment was not Prime-available", func() {
 		handler, _ := setupTestData()
 
-		nonPrimeShipment := testdatagen.MakeDefaultMTOShipment(suite.DB()) // default is non-Prime available
+		nonPrimeShipment := factory.BuildMTOShipment(suite.DB(), nil, nil) // default is non-Prime available
 		params := mtoshipmentops.UpdateMTOShipmentStatusParams{
 			HTTPRequest:   req,
 			MtoShipmentID: *handlers.FmtUUID(nonPrimeShipment.ID),
@@ -2223,12 +2355,14 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 	suite.Run("412 FAIL - Stale eTag", func() {
 		handler, shipment := setupTestData()
 
-		staleShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				MoveTaskOrderID: shipment.MoveTaskOrderID,
-				Status:          models.MTOShipmentStatusCancellationRequested,
+		staleShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					MoveTaskOrderID: shipment.MoveTaskOrderID,
+					Status:          models.MTOShipmentStatusCancellationRequested,
+				},
 			},
-		})
+		}, nil)
 		params := mtoshipmentops.UpdateMTOShipmentStatusParams{
 			HTTPRequest:   req,
 			MtoShipmentID: *handlers.FmtUUID(staleShipment.ID),
@@ -2256,12 +2390,14 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 		handler, shipment := setupTestData()
 
 		// Create a shipment in Canceled Status
-		staleShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				MoveTaskOrderID: shipment.MoveTaskOrderID,
-				Status:          models.MTOShipmentStatusCanceled,
+		staleShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					MoveTaskOrderID: shipment.MoveTaskOrderID,
+					Status:          models.MTOShipmentStatusCanceled,
+				},
 			},
-		})
+		}, nil)
 
 		// Attempt to cancel again
 		params := mtoshipmentops.UpdateMTOShipmentStatusParams{
@@ -2340,11 +2476,13 @@ func (suite *HandlerSuite) TestDeleteMTOShipmentHandler() {
 	suite.Run("Returns a 403 when deleting a non-PPM shipment", func() {
 		handler := setupTestData()
 		now := time.Now()
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				AvailableToPrimeAt: &now,
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					AvailableToPrimeAt: &now,
+				},
 			},
-		})
+		}, nil)
 
 		deletionParams := mtoshipmentops.DeleteMTOShipmentParams{
 			HTTPRequest:   request,
@@ -2386,7 +2524,13 @@ func (suite *HandlerSuite) TestDeleteMTOShipmentHandler() {
 	})
 
 	suite.Run("Returns 409 - Conflict error", func() {
-		shipment := testdatagen.MakeStubbedShipment(suite.DB())
+		shipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					ID: uuid.Must(uuid.NewV4()),
+				},
+			},
+		}, nil)
 		deleter := &mocks.ShipmentDeleter{}
 		deleter.On("DeleteShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID).Return(uuid.Nil, apperror.ConflictError{})
 		handlerConfig := suite.HandlerConfig()
@@ -2410,7 +2554,13 @@ func (suite *HandlerSuite) TestDeleteMTOShipmentHandler() {
 	})
 
 	suite.Run("Returns 422 - Unprocessable Entity error", func() {
-		shipment := testdatagen.MakeStubbedShipment(suite.DB())
+		shipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					ID: uuid.Must(uuid.NewV4()),
+				},
+			},
+		}, nil)
 		deleter := &mocks.ShipmentDeleter{}
 		deleter.On("DeleteShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID).Return(uuid.Nil, apperror.UnprocessableEntityError{})
 		handlerConfig := suite.HandlerConfig()
@@ -2434,7 +2584,13 @@ func (suite *HandlerSuite) TestDeleteMTOShipmentHandler() {
 	})
 
 	suite.Run("Returns 500 - Server error", func() {
-		shipment := testdatagen.MakeStubbedShipment(suite.DB())
+		shipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					ID: uuid.Must(uuid.NewV4()),
+				},
+			},
+		}, nil)
 		deleter := &mocks.ShipmentDeleter{}
 		deleter.On("DeleteShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID).Return(uuid.Nil, apperror.EventError{})
 		handlerConfig := suite.HandlerConfig()

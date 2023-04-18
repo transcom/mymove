@@ -58,10 +58,12 @@ func (suite *PaymentRequestHelperSuite) TestFetchServiceParamList() {
 	}
 
 	// Make an MTO service item for DLH
-	dlhServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-		ReService: dlhService,
-		Stub:      true,
-	})
+	dlhServiceItem := factory.BuildMTOServiceItem(nil, []factory.Customization{
+		{
+			Model:    dlhService,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	helper := RequestPaymentHelper{}
 	serviceParams, err := helper.FetchServiceParamList(suite.AppContextForTest(), dlhServiceItem)

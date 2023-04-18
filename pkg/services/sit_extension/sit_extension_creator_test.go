@@ -9,7 +9,6 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	movefetcher "github.com/transcom/mymove/pkg/services/move_task_order"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *SitExtensionServiceSuite) TestSITExtensionCreator() {
@@ -25,7 +24,7 @@ func (suite *SitExtensionServiceSuite) TestSITExtensionCreator() {
 		// Expected:	New sit successfully created
 		// Create new mtoShipment
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-		shipment := testdatagen.MakeMTOShipmentWithMove(suite.DB(), &move, testdatagen.Assertions{})
+		shipment := factory.BuildMTOShipmentWithMove(&move, suite.DB(), nil, nil)
 
 		// Create a valid SIT Extension for the move
 		sit := &models.SITExtension{
@@ -57,7 +56,7 @@ func (suite *SitExtensionServiceSuite) TestSITExtensionCreator() {
 	// InvalidInputError
 	suite.Run("Failure - SIT Extension with validation errors returns an InvalidInputError", func() {
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-		shipment := testdatagen.MakeMTOShipmentWithMove(suite.DB(), &move, testdatagen.Assertions{})
+		shipment := factory.BuildMTOShipmentWithMove(&move, suite.DB(), nil, nil)
 
 		// Create a SIT Extension for the move
 		sit := &models.SITExtension{
@@ -87,13 +86,18 @@ func (suite *SitExtensionServiceSuite) TestSITExtensionCreator() {
 
 	suite.Run("Failure - Not Found Error because shipment uses external vendor", func() {
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-		externalShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			Move: move,
-			MTOShipment: models.MTOShipment{
-				ShipmentType:       models.MTOShipmentTypeHHGOutOfNTSDom,
-				UsesExternalVendor: true,
+		externalShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					ShipmentType:       models.MTOShipmentTypeHHGOutOfNTSDom,
+					UsesExternalVendor: true,
+				},
+			},
+		}, nil)
 
 		// Create a SIT Extension for the move
 		sit := &models.SITExtension{
@@ -110,7 +114,7 @@ func (suite *SitExtensionServiceSuite) TestSITExtensionCreator() {
 		// Create new mtoShipment
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		move2 := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-		shipment2 := testdatagen.MakeMTOShipmentWithMove(suite.DB(), &move, testdatagen.Assertions{})
+		shipment2 := factory.BuildMTOShipmentWithMove(&move, suite.DB(), nil, nil)
 
 		// Create a valid SIT Extension for the move
 		sit2 := &models.SITExtension{

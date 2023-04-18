@@ -105,7 +105,10 @@ func (suite *EvaluationReportSuite) TestFetchEvaluationReportList() {
 				SubmittedAt:  swag.Time(time.Now()),
 			},
 		})
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{Move: move})
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{{
+			Model:    move,
+			LinkOnly: true,
+		}}, nil)
 		testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{
 			EvaluationReport: models.EvaluationReport{
 				MoveID:       move.ID,
@@ -130,7 +133,10 @@ func (suite *EvaluationReportSuite) TestFetchEvaluationReportList() {
 				SubmittedAt:  swag.Time(time.Now()),
 			},
 		})
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{Move: move})
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{{
+			Model:    move,
+			LinkOnly: true,
+		}}, nil)
 		shipmentReport := testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{
 			EvaluationReport: models.EvaluationReport{
 				MoveID:       move.ID,

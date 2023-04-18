@@ -48,7 +48,7 @@ export const CurrentResidentialAddress = () => (
   >
     {() => (
       <Form className={formStyles.form}>
-        <AddressFields legend="Current mailing address" name="residential_address" />
+        <AddressFields legend="Current pickup address" name="residential_address" />
       </Form>
     )}
   </Formik>
@@ -69,7 +69,7 @@ export const CurrentResidentialAddressWithInitialValues = () => (
   >
     {() => (
       <Form className={formStyles.form}>
-        <AddressFields legend="Current mailing address" name="residential_address" />
+        <AddressFields legend="Current pickup address" name="residential_address" />
       </Form>
     )}
   </Formik>
@@ -91,45 +91,12 @@ export const CurrentResidentialAddressWithCustomValidators = () => (
     {() => (
       <Form className={formStyles.form}>
         <AddressFields
-          legend="Current mailing address"
+          legend="Current pickup address"
           name="residential_address"
           validators={{
             city: (value) => (value === 'Nowhere' ? 'No one lives there' : ''),
             postalCode: (value) => (value !== '99999' ? 'ZIP code must be 99999' : ''),
           }}
-        />
-      </Form>
-    )}
-  </Formik>
-);
-
-export const WithAdditionalText = () => (
-  <Formik
-    initialValues={{
-      backup_mailing_address: {
-        streetAddress1: '',
-        streetAddress2: '',
-        city: '',
-        state: '',
-        postalCode: '',
-      },
-    }}
-    validationSchema={Yup.object().shape({ backup_mailing_address: requiredAddressSchema.required() })}
-  >
-    {() => (
-      <Form className={formStyles.form}>
-        <AddressFields
-          legend="Backup mailing address"
-          name="backup_mailing_address"
-          render={(fields) => (
-            <>
-              <p>
-                Where should we send mail if we can’t reach you at your primary address? You might use a parent’s or
-                friend’s address, or a post office box.
-              </p>
-              {fields}
-            </>
-          )}
         />
       </Form>
     )}
@@ -152,7 +119,7 @@ export const InsideSectionWrapper = () => (
     {() => (
       <Form className={formStyles.form}>
         <SectionWrapper className={formStyles.formSection}>
-          <AddressFields legend="Current mailing address" name="residential_address" />
+          <AddressFields legend="Current pickup address" name="residential_address" />
         </SectionWrapper>
       </Form>
     )}

@@ -8,6 +8,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -22,12 +23,13 @@ func (suite *ServiceParamValueLookupsSuite) TestMTOAvailableToPrimeLookup() {
 	var paramLookup *ServiceItemParamKeyData
 
 	setupTestData := func() {
-		mtoServiceItem = testdatagen.MakeMTOServiceItem(suite.DB(),
-			testdatagen.Assertions{
-				Move: models.Move{
+		mtoServiceItem = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
 					AvailableToPrimeAt: &availableToPrimeAt,
 				},
-			})
+			},
+		}, nil)
 
 		paymentRequest = testdatagen.MakePaymentRequest(suite.DB(),
 			testdatagen.Assertions{
