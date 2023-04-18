@@ -119,14 +119,15 @@ export class BaseTestPage {
       .filter((name) => name !== 'constructor')
       .forEach((name) => {
         // eslint-disable-next-line security/detect-object-injection
-        if (typeof WaitForPage.prototype[name] === 'function') {
-          // eslint-disable-next-line security/detect-object-injection
-          WaitForPage.prototype[name] = async (...args) => {
+        const value = WaitForPage.prototype[name];
+        if (typeof value === 'function') {
+          const wrappedMethod = async (args) => {
             await this.runAccessibilityAudit();
-            // eslint-disable-next-line security/detect-object-injection
-            await WaitForPage.prototype[name](...args);
+            await value.apply(this, args);
             await this.runAccessibilityAudit();
           };
+          Reflect.deleteProperty(WaitForPage.prototype, name);
+          Reflect.defineProperty(WaitForPage.prototype, name, { value: wrappedMethod });
         }
       });
   }
