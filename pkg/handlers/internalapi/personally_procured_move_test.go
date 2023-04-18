@@ -157,11 +157,8 @@ func (suite *HandlerSuite) TestCreatePPMHandler() {
 	orders := factory.BuildOrder(suite.DB(), nil, nil)
 	factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 
-	selectedMoveType := models.SelectedMoveTypeHHGPPM
-
 	moveOptions := models.MoveOptions{
-		SelectedType: &selectedMoveType,
-		Show:         swag.Bool(true),
+		Show: models.BoolPointer(true),
 	}
 	move, verrs, locErr := orders.CreateNewMove(suite.DB(), moveOptions)
 	suite.False(verrs.HasAny(), "failed to create new move")
@@ -452,11 +449,8 @@ func (suite *HandlerSuite) TestPatchPPMHandlerWrongMoveID() {
 	orders1 := factory.BuildOrder(suite.DB(), nil, nil)
 	factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 
-	selectedMoveType := models.SelectedMoveTypeHHGPPM
-
 	moveOptions := models.MoveOptions{
-		SelectedType: &selectedMoveType,
-		Show:         swag.Bool(true),
+		Show: models.BoolPointer(true),
 	}
 	move, verrs, err := orders.CreateNewMove(suite.DB(), moveOptions)
 	suite.Nil(err, "Failed to save move")

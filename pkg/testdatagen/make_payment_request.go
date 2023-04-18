@@ -128,12 +128,7 @@ func MakeMultiPaymentRequestWithItems(db *pop.Connection, assertions Assertions,
 
 // MakeFullDLHMTOServiceItem makes a DLH type service item along with all its expected parameters returns the created move and all service items
 func MakeFullDLHMTOServiceItem(db *pop.Connection, assertions Assertions) (models.Move, models.MTOServiceItems) {
-	hhgMoveType := models.SelectedMoveTypeHHG
-	moveTaskOrder := models.Move{
-		SelectedMoveType: &hhgMoveType,
-	}
-
-	mergeModels(&moveTaskOrder, assertions.Move)
+	moveTaskOrder := assertions.Move
 
 	moveTaskOrder = MakeMove(db, Assertions{
 		Move: moveTaskOrder,
@@ -170,12 +165,7 @@ func MakeFullDLHMTOServiceItem(db *pop.Connection, assertions Assertions) (model
 
 // MakeFullOriginMTOServiceItems (follow-on to  MakeFullDLHMTOServiceItem) makes a DLH type service item along with all its expected parameters returns the created move and all service items
 func MakeFullOriginMTOServiceItems(db *pop.Connection, assertions Assertions) (models.Move, models.MTOServiceItems) {
-	hhgMoveType := models.SelectedMoveTypeHHG
-	moveTaskOrder := models.Move{
-		SelectedMoveType: &hhgMoveType,
-	}
-
-	mergeModels(&moveTaskOrder, assertions.Move)
+	moveTaskOrder := assertions.Move
 
 	var move models.Move
 	if isZeroUUID(assertions.Move.ID) {

@@ -1028,7 +1028,6 @@ func serviceMemberWithOrdersAndAMovePPMandHHG(appCtx appcontext.AppContext, user
 		},
 	}, nil)
 	// currently don't have "combo move" selection option, so testing ppm office when type is HHG
-	selectedMoveType := models.SelectedMoveTypeHHG
 	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
 		{
 			Model:    smWithCombo,
@@ -1036,9 +1035,8 @@ func serviceMemberWithOrdersAndAMovePPMandHHG(appCtx appcontext.AppContext, user
 		},
 		{
 			Model: models.Move{
-				ID:               uuid.FromStringOrNil("7024c8c5-52ca-4639-bf69-dd8238308c98"),
-				Locator:          "COMBOS",
-				SelectedMoveType: &selectedMoveType,
+				ID:      uuid.FromStringOrNil("7024c8c5-52ca-4639-bf69-dd8238308c98"),
+				Locator: "COMBOS",
 			},
 		},
 	}, nil)
@@ -1153,7 +1151,6 @@ func serviceMemberWithUnsubmittedHHG(appCtx appcontext.AppContext, userUploader 
 		},
 	}, nil)
 
-	selectedMoveType := models.SelectedMoveTypeHHG
 	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
 		{
 			Model:    smWithHHG,
@@ -1161,9 +1158,8 @@ func serviceMemberWithUnsubmittedHHG(appCtx appcontext.AppContext, userUploader 
 		},
 		{
 			Model: models.Move{
-				ID:               uuid.FromStringOrNil("3a8c9f4f-7344-4f18-9ab5-0de3ef57b901"),
-				Locator:          "ONEHHG",
-				SelectedMoveType: &selectedMoveType,
+				ID:      uuid.FromStringOrNil("3a8c9f4f-7344-4f18-9ab5-0de3ef57b901"),
+				Locator: "ONEHHG",
 			},
 		},
 	}, nil)
@@ -1221,7 +1217,6 @@ func serviceMemberWithNTSandNTSRandUnsubmittedMove01(appCtx appcontext.AppContex
 		},
 	}, nil)
 
-	selectedMoveType := models.SelectedMoveTypeNTS
 	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
 		{
 			Model:    smWithNTS,
@@ -1229,9 +1224,8 @@ func serviceMemberWithNTSandNTSRandUnsubmittedMove01(appCtx appcontext.AppContex
 		},
 		{
 			Model: models.Move{
-				ID:               uuid.FromStringOrNil("f4503551-b636-41ee-b4bb-b05d55d0e856"),
-				Locator:          "TWONTS",
-				SelectedMoveType: &selectedMoveType,
+				ID:      uuid.FromStringOrNil("f4503551-b636-41ee-b4bb-b05d55d0e856"),
+				Locator: "TWONTS",
 			},
 		},
 	}, nil)
@@ -1314,7 +1308,6 @@ func serviceMemberWithNTSandNTSRandUnsubmittedMove02(appCtx appcontext.AppContex
 		},
 	}, nil)
 
-	selectedMoveType := models.SelectedMoveTypeNTS
 	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
 		{
 			Model:    smWithNTS,
@@ -1322,9 +1315,8 @@ func serviceMemberWithNTSandNTSRandUnsubmittedMove02(appCtx appcontext.AppContex
 		},
 		{
 			Model: models.Move{
-				ID:               uuid.FromStringOrNil("a1ed9091-e44c-410c-b028-78589dbc0a77"),
-				Locator:          "NTSR02",
-				SelectedMoveType: &selectedMoveType,
+				ID:      uuid.FromStringOrNil("a1ed9091-e44c-410c-b028-78589dbc0a77"),
+				Locator: "NTSR02",
 			},
 		},
 	}, nil)
@@ -2976,7 +2968,6 @@ func createHHGMoveWithServiceItemsAndPaymentRequestsAndFiles(appCtx appcontext.A
 		},
 	}, nil)
 
-	mtoSelectedMoveType := models.SelectedMoveTypeHHG
 	mto := factory.BuildMove(appCtx.DB(), []factory.Customization{
 		{
 			Model:    orders,
@@ -2984,10 +2975,9 @@ func createHHGMoveWithServiceItemsAndPaymentRequestsAndFiles(appCtx appcontext.A
 		},
 		{
 			Model: models.Move{
-				Locator:          "TEST12",
-				ID:               uuid.FromStringOrNil("5d4b25bb-eb04-4c03-9a81-ee0398cb779e"),
-				Status:           models.MoveStatusSUBMITTED,
-				SelectedMoveType: &mtoSelectedMoveType,
+				Locator: "TEST12",
+				ID:      uuid.FromStringOrNil("5d4b25bb-eb04-4c03-9a81-ee0398cb779e"),
+				Status:  models.MoveStatusSUBMITTED,
 			},
 		},
 	}, nil)
@@ -3869,13 +3859,11 @@ func createNTSRMoveWithServiceItemsAndPaymentRequest(appCtx appcontext.AppContex
 	}, nil)
 
 	// Create Move
-	selectedMoveType := models.SelectedMoveTypeNTSR
 	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.Move{
 				Locator:            locator,
 				AvailableToPrimeAt: models.TimePointer(time.Now()),
-				SelectedMoveType:   &selectedMoveType,
 				SubmittedAt:        &currentTime,
 			},
 		},
@@ -4393,7 +4381,6 @@ func createNTSRMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader
 	}, nil)
 
 	// Create Move
-	selectedMoveType := models.SelectedMoveTypeNTSR
 	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
 		{
 			Model:    orders,
@@ -4403,7 +4390,6 @@ func createNTSRMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader
 			Model: models.Move{
 				Locator:            locator,
 				AvailableToPrimeAt: models.TimePointer(time.Now()),
-				SelectedMoveType:   &selectedMoveType,
 				SubmittedAt:        &currentTime,
 			},
 		},
@@ -4495,7 +4481,6 @@ func createNTSMoveWithServiceItemsandPaymentRequests(appCtx appcontext.AppContex
 	msCost := unit.Cents(10000)
 	dlhCost := unit.Cents(99999)
 
-	selectedMoveType := models.SelectedMoveTypeNTS
 	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.ServiceMember{
@@ -4506,9 +4491,8 @@ func createNTSMoveWithServiceItemsandPaymentRequests(appCtx appcontext.AppContex
 		},
 		{
 			Model: models.Move{
-				ID:               uuid.FromStringOrNil("f38c4257-c8fe-4cbc-a112-d9e24b5b5b49"),
-				Locator:          "NTSTIO",
-				SelectedMoveType: &selectedMoveType,
+				ID:      uuid.FromStringOrNil("f38c4257-c8fe-4cbc-a112-d9e24b5b5b49"),
+				Locator: "NTSTIO",
 			},
 		},
 	}, nil)
