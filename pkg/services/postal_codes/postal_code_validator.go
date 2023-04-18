@@ -57,6 +57,15 @@ func (v postalCodeValidator) ValidatePostalCode(appCtx appcontext.AppContext, po
 		return false, apperror.NewUnsupportedPostalCodeError(zip5, "not found in postal_code_to_gblocs")
 	}
 
+	// Check that the postal code exists in the zip3_distances table.  Just checking the `from_zip3` side
+	// to make sure there's some knowledge of the zip3 since we don't know what the zip pair might be.
+	exists, err = appCtx.DB().Where("from_zip3 = ?", zip3).Exists(&models.Zip3Distance{})
+	if err != nil {
+		return false, err
+	} else if !exists {
+		return false, apperror.NewUnsupportedPostalCodeError(zip5, "not found in zip3_distances")
+	}
+
 	// Get contract ID based on the current date.
 	var reContract models.ReContract
 	err = appCtx.DB().Q().

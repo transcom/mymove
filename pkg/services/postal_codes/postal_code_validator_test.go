@@ -67,9 +67,28 @@ func (suite *ValidatePostalCodeTestSuite) TestValidatePostalCode() {
 		suite.Contains(err.Error(), "not found in postal_code_to_gblocs")
 	})
 
+	suite.Run("Postal code is not in zip3_distances table", func() {
+		testPostalCode := "30183"
+		testdatagen.MakePostalCodeToGBLOC(suite.DB(), testPostalCode, "CNNQ")
+
+		valid, err := postalCodeValidator.ValidatePostalCode(suite.AppContextForTest(), testPostalCode)
+
+		suite.False(valid)
+		suite.Error(err)
+		suite.IsType(&apperror.UnsupportedPostalCodeError{}, err)
+		suite.Contains(err.Error(), "not found in zip3_distances")
+	})
+
 	suite.Run("Contract year cannot be found", func() {
 		testPostalCode := "30183"
 		testdatagen.MakePostalCodeToGBLOC(suite.DB(), testPostalCode, "CNNQ")
+
+		testdatagen.MakeZip3Distance(suite.DB(), testdatagen.Assertions{
+			Zip3Distance: models.Zip3Distance{
+				FromZip3: testPostalCode[:3],
+				ToZip3:   "993",
+			},
+		})
 
 		suite.buildContractYear(testdatagen.GHCTestYear - 1)
 
@@ -85,6 +104,13 @@ func (suite *ValidatePostalCodeTestSuite) TestValidatePostalCode() {
 		testPostalCode := "30183"
 		testdatagen.MakePostalCodeToGBLOC(suite.DB(), testPostalCode, "CNNQ")
 
+		testdatagen.MakeZip3Distance(suite.DB(), testdatagen.Assertions{
+			Zip3Distance: models.Zip3Distance{
+				FromZip3: testPostalCode[:3],
+				ToZip3:   "993",
+			},
+		})
+
 		suite.buildContractYear(testdatagen.GHCTestYear)
 
 		valid, err := postalCodeValidator.ValidatePostalCode(suite.AppContextForTest(), testPostalCode)
@@ -98,6 +124,13 @@ func (suite *ValidatePostalCodeTestSuite) TestValidatePostalCode() {
 	suite.Run("Postal code is not in re_zip5_rate_areas table", func() {
 		testPostalCode := "32102"
 		testdatagen.MakePostalCodeToGBLOC(suite.DB(), testPostalCode, "CNNQ")
+
+		testdatagen.MakeZip3Distance(suite.DB(), testdatagen.Assertions{
+			Zip3Distance: models.Zip3Distance{
+				FromZip3: testPostalCode[:3],
+				ToZip3:   "993",
+			},
+		})
 
 		reContractYear := suite.buildContractYear(testdatagen.GHCTestYear)
 		serviceArea := testdatagen.MakeDefaultReDomesticServiceArea(suite.DB())
@@ -122,6 +155,13 @@ func (suite *ValidatePostalCodeTestSuite) TestValidatePostalCode() {
 		testPostalCode := "30813"
 		testdatagen.MakePostalCodeToGBLOC(suite.DB(), testPostalCode, "CNNQ")
 
+		testdatagen.MakeZip3Distance(suite.DB(), testdatagen.Assertions{
+			Zip3Distance: models.Zip3Distance{
+				FromZip3: testPostalCode[:3],
+				ToZip3:   "993",
+			},
+		})
+
 		reContractYear := suite.buildContractYear(testdatagen.GHCTestYear)
 		serviceArea := testdatagen.MakeDefaultReDomesticServiceArea(suite.DB())
 		testdatagen.MakeReZip3(suite.DB(), testdatagen.Assertions{
@@ -141,6 +181,13 @@ func (suite *ValidatePostalCodeTestSuite) TestValidatePostalCode() {
 	suite.Run("Valid postal code for zip3 with multiple rate areas", func() {
 		testPostalCode := "32102"
 		testdatagen.MakePostalCodeToGBLOC(suite.DB(), testPostalCode, "CNNQ")
+
+		testdatagen.MakeZip3Distance(suite.DB(), testdatagen.Assertions{
+			Zip3Distance: models.Zip3Distance{
+				FromZip3: testPostalCode[:3],
+				ToZip3:   "993",
+			},
+		})
 
 		reContractYear := suite.buildContractYear(testdatagen.GHCTestYear)
 		serviceArea := testdatagen.MakeDefaultReDomesticServiceArea(suite.DB())
