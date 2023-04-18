@@ -128,53 +128,6 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		suite.NotEmpty(movePayload.AvailableToPrimeAt) // checks that the date is not 0001-01-01
 	})
 
-	suite.Run("Returns the destination address type for a shipment on a move if it exists", func() {
-		handler := GetMoveTaskOrderHandler{
-			suite.HandlerConfig(),
-			movetaskorder.NewMoveTaskOrderFetcher(),
-		}
-		successMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-		destinationAddress := factory.BuildAddress(suite.DB(), nil, nil)
-		destinationType := models.DestinationTypeHomeOfRecord
-		successShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					DestinationAddressID: &destinationAddress.ID,
-					DestinationType:      &destinationType,
-					Status:               models.MTOShipmentStatusApproved,
-				},
-			},
-			{
-				Model:    successMove,
-				LinkOnly: true,
-			},
-		}, nil)
-		params := movetaskorderops.GetMoveTaskOrderParams{
-			HTTPRequest: request,
-			MoveID:      successMove.Locator,
-		}
-
-		// Validate incoming payload: no body to validate
-
-		response := handler.Handle(params)
-		suite.IsNotErrResponse(response)
-		suite.IsType(&movetaskorderops.GetMoveTaskOrderOK{}, response)
-
-		moveResponse := response.(*movetaskorderops.GetMoveTaskOrderOK)
-		movePayload := moveResponse.Payload
-
-		// Validate outgoing payload
-		suite.NoError(movePayload.Validate(strfmt.Default))
-
-		suite.Equal(movePayload.ID.String(), successMove.ID.String())
-		suite.NotNil(movePayload.AvailableToPrimeAt)
-		suite.NotEmpty(movePayload.AvailableToPrimeAt) // checks that the date is not 0001-01-01
-
-		// check for the destination address type
-		suite.Equal(string(*successShipment.DestinationType), string(*movePayload.MtoShipments[0].DestinationType))
-
-	})
-
 	suite.Run("Success returns reweighs on shipments if they exist", func() {
 		handler := GetMoveTaskOrderHandler{
 			suite.HandlerConfig(),
@@ -402,6 +355,8 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 	})
 
 	suite.Run("Success - returns all the fields at the mtoShipment level", func() {
+		// TODO: add comment indicating what fields this actually tests if we decide to break up the tests
+		// right now this tests fields that aren't other structs and Addresses
 		handler := GetMoveTaskOrderHandler{
 			suite.HandlerConfig(),
 			movetaskorder.NewMoveTaskOrderFetcher(),
@@ -507,7 +462,8 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		suite.Equal(*successShipment.PickupAddress.Country, *shipment.PickupAddress.Country)
 
 		// TODO: PointOfContact is not a valid field atm. Should we remove or add link (transportation_service_providers table)
-		// TODO: test PpmShipment
+
+		// TODO: test fields on PpmShipment, existing test "Success - returns shipment with attached PpmShipment"
 
 		suite.Equal(*successShipment.PrimeActualWeight, *handlers.PoundPtrFromInt64Ptr(shipment.PrimeActualWeight))
 		suite.Equal(*successShipment.PrimeEstimatedWeight, *handlers.PoundPtrFromInt64Ptr(shipment.PrimeEstimatedWeight))
@@ -519,7 +475,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		suite.Equal(successShipment.RequiredDeliveryDate.Format(time.RFC3339), handlers.FmtDatePtrToPop(shipment.RequiredDeliveryDate).Format(time.RFC3339))
 		suite.Equal(successShipment.RequestedDeliveryDate.Format(time.RFC3339), handlers.FmtDatePtrToPop(shipment.RequestedDeliveryDate).Format(time.RFC3339))
 
-		// TODO: test Reweigh
+		// TODO: test fields on Reweigh, existing test "Success returns reweighs on shipments if they exist"
 
 		suite.Equal(successShipment.ScheduledDeliveryDate.Format(time.RFC3339), handlers.FmtDatePtrToPop(shipment.ScheduledDeliveryDate).Format(time.RFC3339))
 		suite.Equal(successShipment.ScheduledPickupDate.Format(time.RFC3339), handlers.FmtDatePtrToPop(shipment.ScheduledPickupDate).Format(time.RFC3339))
@@ -542,7 +498,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		suite.Equal(successShipment.SecondaryPickupAddress.PostalCode, *shipment.SecondaryPickupAddress.PostalCode)
 		suite.Equal(*successShipment.SecondaryPickupAddress.Country, *shipment.SecondaryPickupAddress.Country)
 
-		// TODO: test SitExtensions
+		// TODO: test fields on SitExtensions, existing test "Success - returns sit extensions on shipments if they exist"
 
 		suite.Equal(string(successShipment.ShipmentType), string(shipment.ShipmentType))
 		suite.Equal(string(successShipment.Status), shipment.Status)
