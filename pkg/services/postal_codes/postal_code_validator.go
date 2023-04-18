@@ -7,6 +7,7 @@ import (
 	"github.com/benbjohnson/clock"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/services"
@@ -32,11 +33,11 @@ func NewPostalCodeValidator(clock clock.Clock) services.PostalCodeValidator {
 func (v postalCodeValidator) ValidatePostalCode(appCtx appcontext.AppContext, postalCode string) (bool, error) {
 	// Get the zip5 and zip3 after verifying proper format.
 	if len(postalCode) < 5 {
-		return false, route.NewUnsupportedPostalCodeError(postalCode, "less than 5 characters")
+		return false, apperror.NewUnsupportedPostalCodeError(postalCode, "less than 5 characters")
 	}
 	zip5 := postalCode[:5]
 	if _, err := strconv.Atoi(zip5); err != nil {
-		return false, route.NewUnsupportedPostalCodeError(postalCode, "should only contain digits")
+		return false, apperror.NewUnsupportedPostalCodeError(postalCode, "should only contain digits")
 	}
 	zip3 := zip5[:3]
 
@@ -53,7 +54,7 @@ func (v postalCodeValidator) ValidatePostalCode(appCtx appcontext.AppContext, po
 	if err != nil {
 		return false, err
 	} else if !exists {
-		return false, route.NewUnsupportedPostalCodeError(zip5, "not found in postal_code_to_gblocs")
+		return false, apperror.NewUnsupportedPostalCodeError(zip5, "not found in postal_code_to_gblocs")
 	}
 
 	// Get contract ID based on the current date.
@@ -62,7 +63,7 @@ func (v postalCodeValidator) ValidatePostalCode(appCtx appcontext.AppContext, po
 		InnerJoin("re_contract_years cy", "re_contracts.id = cy.contract_id").
 		Where("? between cy.start_date and cy.end_date", v.clock.Now()).First(&reContract)
 	if err == sql.ErrNoRows {
-		return false, route.NewUnsupportedPostalCodeError(zip5, "could not find contract year")
+		return false, apperror.NewUnsupportedPostalCodeError(zip5, "could not find contract year")
 	} else if err != nil {
 		return false, err
 	}
@@ -73,7 +74,7 @@ func (v postalCodeValidator) ValidatePostalCode(appCtx appcontext.AppContext, po
 	err = appCtx.DB().Q().
 		Where("contract_id = ? and zip3 = ?", reContract.ID, zip3).First(&reZip3)
 	if err == sql.ErrNoRows {
-		return false, route.NewUnsupportedPostalCodeError(zip3, "not found in re_zip3s")
+		return false, apperror.NewUnsupportedPostalCodeError(zip3, "not found in re_zip3s")
 	} else if err != nil {
 		return false, err
 	}
@@ -84,7 +85,7 @@ func (v postalCodeValidator) ValidatePostalCode(appCtx appcontext.AppContext, po
 		if err != nil {
 			return false, err
 		} else if !exists {
-			return false, route.NewUnsupportedPostalCodeError(zip5, "not found in re_zip5_rate_areas")
+			return false, apperror.NewUnsupportedPostalCodeError(zip5, "not found in re_zip5_rate_areas")
 		}
 	}
 

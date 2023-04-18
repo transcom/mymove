@@ -1,12 +1,11 @@
 package internalapi
 
 import (
-	"regexp"
-
 	"github.com/go-openapi/runtime/middleware"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	postalcodesops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/postal_codes"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -27,11 +26,9 @@ func (h ValidatePostalCodeWithRateDataHandler) Handle(params postalcodesops.Vali
 			postalCodeType := params.PostalCodeType
 
 			valid, err := h.validatePostalCode.ValidatePostalCode(appCtx, postalCode)
-			latLongErrorRegex := regexp.MustCompile("Unsupported postal code")
-
 			if err != nil {
-				switch {
-				case latLongErrorRegex.MatchString(err.Error()):
+				switch err.(type) {
+				case *apperror.UnsupportedPostalCodeError:
 					appCtx.Logger().Error(err.Error(), zap.Error(err))
 				default:
 					appCtx.Logger().Error("Validate postal code", zap.Error(err))

@@ -7,6 +7,7 @@ import (
 	"github.com/benbjohnson/clock"
 	"github.com/stretchr/testify/suite"
 
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testingsuite"
@@ -35,7 +36,7 @@ func (suite *ValidatePostalCodeTestSuite) TestValidatePostalCode() {
 
 		suite.False(valid)
 		suite.Error(err)
-		// TODO: Test error type
+		suite.IsType(&apperror.UnsupportedPostalCodeError{}, err)
 		suite.Contains(err.Error(), "less than 5 characters")
 	})
 
@@ -44,7 +45,7 @@ func (suite *ValidatePostalCodeTestSuite) TestValidatePostalCode() {
 
 		suite.False(valid)
 		suite.Error(err)
-		// TODO: Test error type
+		suite.IsType(&apperror.UnsupportedPostalCodeError{}, err)
 		suite.Contains(err.Error(), "should only contain digits")
 	})
 
@@ -53,7 +54,7 @@ func (suite *ValidatePostalCodeTestSuite) TestValidatePostalCode() {
 
 		suite.False(valid)
 		suite.Error(err)
-		// TODO: Test error type
+		suite.IsType(&apperror.UnsupportedPostalCodeError{}, err)
 		suite.Contains(err.Error(), "zip5 not found in lat/long map")
 	})
 
@@ -62,7 +63,7 @@ func (suite *ValidatePostalCodeTestSuite) TestValidatePostalCode() {
 
 		suite.False(valid)
 		suite.Error(err)
-		// TODO: Test error type
+		suite.IsType(&apperror.UnsupportedPostalCodeError{}, err)
 		suite.Contains(err.Error(), "not found in postal_code_to_gblocs")
 	})
 
@@ -76,7 +77,7 @@ func (suite *ValidatePostalCodeTestSuite) TestValidatePostalCode() {
 
 		suite.False(valid)
 		suite.Error(err)
-		// TODO: Test error type
+		suite.IsType(&apperror.UnsupportedPostalCodeError{}, err)
 		suite.Contains(err.Error(), "could not find contract year")
 	})
 
@@ -90,7 +91,7 @@ func (suite *ValidatePostalCodeTestSuite) TestValidatePostalCode() {
 
 		suite.False(valid)
 		suite.Error(err)
-		// TODO: Test error type
+		suite.IsType(&apperror.UnsupportedPostalCodeError{}, err)
 		suite.Contains(err.Error(), "not found in re_zip3s")
 	})
 
@@ -113,7 +114,7 @@ func (suite *ValidatePostalCodeTestSuite) TestValidatePostalCode() {
 
 		suite.False(valid)
 		suite.Error(err)
-		// TODO: Test error type
+		suite.IsType(&apperror.UnsupportedPostalCodeError{}, err)
 		suite.Contains(err.Error(), "not found in re_zip5_rate_areas")
 	})
 

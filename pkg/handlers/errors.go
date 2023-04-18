@@ -15,6 +15,7 @@ import (
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/trace"
@@ -162,13 +163,16 @@ func ResponseForError(logger *zap.Logger, err error) middleware.Responder {
 		skipLogger.Info("Encountered error using route planner", zap.Error(e))
 		// Handle RouteError codes
 		switch e.Code() {
-		case route.UnsupportedPostalCode, route.UnroutableRoute:
+		case route.UnroutableRoute:
 			return newErrResponse(http.StatusUnprocessableEntity, err)
 		case route.ShortHaulError:
 			return newErrResponse(http.StatusConflict, err)
 		default:
 			return newErrResponse(http.StatusInternalServerError, err)
 		}
+	case *apperror.UnsupportedPostalCodeError:
+		skipLogger.Info("Encountered error using postal code", zap.Error(e))
+		return newErrResponse(http.StatusUnprocessableEntity, err)
 	case *pq.Error:
 		skipLogger.Info(SQLErrMessage, zap.Error(e))
 		return newErrResponse(http.StatusInternalServerError, errors.New(SQLErrMessage))
