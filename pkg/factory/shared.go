@@ -38,6 +38,7 @@ var Address CustomType = "Address"
 var AdminUser CustomType = "AdminUser"
 var BackupContact CustomType = "BackupContact"
 var Contractor CustomType = "Contractor"
+var CustomerSupportRemark CustomType = "CustomerSupportRemark"
 var Document CustomType = "Document"
 var DutyLocation CustomType = "DutyLocation"
 var Entitlement CustomType = "Entitlement"
@@ -66,35 +67,36 @@ var UsersRoles CustomType = "UsersRoles"
 
 // defaultTypesMap allows us to assign CustomTypes for most default types
 var defaultTypesMap = map[string]CustomType{
-	"models.Address":              Address,
-	"models.AdminUser":            AdminUser,
-	"models.BackupContact":        BackupContact,
-	"models.Contractor":           Contractor,
-	"models.Document":             Document,
-	"models.DutyLocation":         DutyLocation,
-	"models.Entitlement":          Entitlement,
-	"models.Move":                 Move,
-	"models.MTOServiceItem":       MTOServiceItem,
-	"models.MTOShipment":          MTOShipment,
-	"models.Notification":         Notification,
-	"models.OfficePhoneLine":      OfficePhoneLine,
-	"models.OfficeUser":           OfficeUser,
-	"models.Order":                Order,
-	"models.Organization":         Organization,
-	"models.PPMShipment":          PPMShipment,
-	"models.PostalCodeToGBLOC":    PostalCodeToGBLOC,
-	"models.ReService":            ReService,
-	"models.ServiceItemParamKey":  ServiceItemParamKey,
-	"models.ServiceMember":        ServiceMember,
-	"models.SignedCertification":  SignedCertification,
-	"models.StorageFacility":      StorageFacility,
-	"models.Tariff400ngZip3":      Tariff400ngZip3,
-	"models.TransportationOffice": TransportationOffice,
-	"models.Upload":               Upload,
-	"models.UserUpload":           UserUpload,
-	"models.User":                 User,
-	"models.UsersRoles":           UsersRoles,
-	"roles.Role":                  Role,
+	"models.Address":               Address,
+	"models.AdminUser":             AdminUser,
+	"models.BackupContact":         BackupContact,
+	"models.Contractor":            Contractor,
+	"models.CustomerSupportRemark": CustomerSupportRemark,
+	"models.Document":              Document,
+	"models.DutyLocation":          DutyLocation,
+	"models.Entitlement":           Entitlement,
+	"models.Move":                  Move,
+	"models.MTOServiceItem":        MTOServiceItem,
+	"models.MTOShipment":           MTOShipment,
+	"models.Notification":          Notification,
+	"models.OfficePhoneLine":       OfficePhoneLine,
+	"models.OfficeUser":            OfficeUser,
+	"models.Order":                 Order,
+	"models.Organization":          Organization,
+	"models.PPMShipment":           PPMShipment,
+	"models.PostalCodeToGBLOC":     PostalCodeToGBLOC,
+	"models.ReService":             ReService,
+	"models.ServiceItemParamKey":   ServiceItemParamKey,
+	"models.ServiceMember":         ServiceMember,
+	"models.SignedCertification":   SignedCertification,
+	"models.StorageFacility":       StorageFacility,
+	"models.Tariff400ngZip3":       Tariff400ngZip3,
+	"models.TransportationOffice":  TransportationOffice,
+	"models.Upload":                Upload,
+	"models.UserUpload":            UserUpload,
+	"models.User":                  User,
+	"models.UsersRoles":            UsersRoles,
+	"roles.Role":                   Role,
 }
 
 // Instead of nesting structs, we create specific CustomTypes here to give devs
