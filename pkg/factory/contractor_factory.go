@@ -34,14 +34,6 @@ func BuildContractor(db *pop.Connection, customs []Customization, traits []Trait
 	// Overwrite values with those from customizations
 	testdatagen.MergeModels(&contractor, cContractor)
 
-	// Dont create a contractor if one of the same type already exists
-	err := db.Q().Where(`type=$1`, contractor.Type).First(&contractor)
-	if err != nil && err != sql.ErrNoRows {
-		log.Panic(err)
-	} else if err == nil {
-		return contractor
-	}
-
 	// If db is false, it's a stub. No need to create in database
 	if db != nil {
 		mustCreate(db, &contractor)
@@ -63,6 +55,12 @@ func FetchOrBuildDefaultContractor(db *pop.Connection, customs []Customization, 
 		return contractor
 	}
 
+	err = db.Q().Where(`type=$1`, DefaultContractType).First(&contractor)
+	if err != nil && err != sql.ErrNoRows {
+		log.Panic(err)
+	} else if err == nil {
+		return contractor
+	}
 	return BuildContractor(db, customs, traits)
 
 }
