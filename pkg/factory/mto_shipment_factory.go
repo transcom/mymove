@@ -1,6 +1,7 @@
 package factory
 
 import (
+	"log"
 	"time"
 
 	"github.com/gobuffalo/pop/v6"
@@ -43,6 +44,11 @@ func buildMTOShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 		Status:          models.MTOShipmentStatusSubmitted,
 	}
 
+	if cMtoShipment.Status == models.MTOShipmentStatusApproved {
+		approvedDate := time.Date(GHCTestYear, time.March, 20, 0, 0, 0, 0, time.UTC)
+		newMTOShipment.ApprovedDate = &approvedDate
+	}
+
 	if buildType == mtoShipmentBuild {
 		newMTOShipment.Status = models.MTOShipmentStatusDraft
 
@@ -64,9 +70,7 @@ func buildMTOShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 		if shipmentHasPickupDetails {
 			newMTOShipment.RequestedPickupDate = models.TimePointer(time.Date(GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC))
 			newMTOShipment.ScheduledPickupDate = models.TimePointer(time.Date(GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC))
-			// if cMtoShipment.Status != "" && cMtoShipment.Status != models.MTOShipmentStatusDraft {
 			newMTOShipment.ActualPickupDate = models.TimePointer(time.Date(GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC))
-			// }
 			// Find/create the Pickup Address
 			tempPickupAddressCustoms := customs
 			result := findValidCustomization(customs, Addresses.PickupAddress)
@@ -83,20 +87,8 @@ func buildMTOShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 			newMTOShipment.PickupAddressID = &pickupAddress.ID
 
 			// Check that a GBLOC exists for pickup address postal code, make one if not
-			if db == nil {
-				BuildPostalCodeToGBLOC(nil, []Customization{
-					{
-						Model: models.PostalCodeToGBLOC{
-							PostalCode: pickupAddress.PostalCode,
-							GBLOC:      "KKFA",
-						},
-					},
-				}, nil)
-			} else {
-				gbloc, err := models.FetchGBLOCForPostalCode(db, pickupAddress.PostalCode)
-				if gbloc.GBLOC == "" || err != nil {
-					FetchOrBuildPostalCodeToGBLOC(db, pickupAddress.PostalCode, "KKFA")
-				}
+			if db != nil {
+				FetchOrBuildPostalCodeToGBLOC(db, pickupAddress.PostalCode, "KKFA")
 			}
 
 			// Find Secondary Pickup Address
@@ -144,11 +136,6 @@ func buildMTOShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 			}
 		}
 
-		if cMtoShipment.Status == models.MTOShipmentStatusApproved {
-			approvedDate := time.Date(GHCTestYear, time.March, 20, 0, 0, 0, 0, time.UTC)
-			newMTOShipment.ApprovedDate = &approvedDate
-		}
-
 		if cMtoShipment.ScheduledPickupDate != nil {
 			requiredDeliveryDate := time.Date(GHCTestYear, time.April, 15, 0, 0, 0, 0, time.UTC)
 			newMTOShipment.RequiredDeliveryDate = &requiredDeliveryDate
@@ -184,6 +171,56 @@ func BuildMTOShipment(db *pop.Connection, customs []Customization, traits []Trai
 func BuildMTOShipmentMinimal(db *pop.Connection, customs []Customization, traits []Trait) models.MTOShipment {
 	mtoShipment := BuildBaseMTOShipment(db, customs, traits)
 
+	customs = setupCustomizations(customs, traits)
+
+	// Find pickup address in case it was added to customizations list
+	tempPickupAddressCustoms := customs
+	result := findValidCustomization(customs, Addresses.PickupAddress)
+	if result != nil {
+		tempPickupAddressCustoms = convertCustomizationInList(tempPickupAddressCustoms, Addresses.PickupAddress, Address)
+		pickupAddress := BuildAddress(db, tempPickupAddressCustoms, traits)
+		if db == nil {
+			// fake an id for stubbed address, needed by the MTOShipmentCreator
+			pickupAddress.ID = uuid.Must(uuid.NewV4())
+		}
+		mtoShipment.PickupAddress = &pickupAddress
+		mtoShipment.PickupAddressID = &pickupAddress.ID
+
+		if db != nil {
+			mustSave(db, &mtoShipment)
+		}
+	}
+
+	// Find destination address in case it was added to customizations list
+	tempDestinationAddressCustoms := customs
+	result = findValidCustomization(customs, Addresses.DeliveryAddress)
+	if result != nil {
+		tempDestinationAddressCustoms = convertCustomizationInList(tempDestinationAddressCustoms, Addresses.DeliveryAddress, Address)
+		deliveryAddress := BuildAddress(db, tempDestinationAddressCustoms, traits)
+		if db == nil {
+			// fake an id for stubbed address, needed by the MTOShipmentCreator
+			deliveryAddress.ID = uuid.Must(uuid.NewV4())
+		}
+		mtoShipment.DestinationAddress = &deliveryAddress
+		mtoShipment.DestinationAddressID = &deliveryAddress.ID
+
+		if db != nil {
+			mustSave(db, &mtoShipment)
+		}
+	}
+
+	// Find storage facility in case it was added to customizations list
+	storageResult := findValidCustomization(customs, StorageFacility)
+	if storageResult != nil {
+		storageFacility := BuildStorageFacility(db, customs, traits)
+		mtoShipment.StorageFacility = &storageFacility
+		mtoShipment.StorageFacilityID = &storageFacility.ID
+
+		if db != nil {
+			mustSave(db, &mtoShipment)
+		}
+	}
+
 	if mtoShipment.RequestedPickupDate == nil {
 		requestedPickupDate := time.Date(GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC)
 
@@ -195,4 +232,26 @@ func BuildMTOShipmentMinimal(db *pop.Connection, customs []Customization, traits
 	}
 
 	return mtoShipment
+}
+
+func BuildMTOShipmentWithMove(move *models.Move, db *pop.Connection, customs []Customization, traits []Trait) models.MTOShipment {
+	customs = setupCustomizations(customs, traits)
+
+	// Cannot provide move customization to this Build
+	if result := findValidCustomization(customs, Move); result != nil {
+		log.Panicf("Cannot provide Move customization to BuildMTOShipmentWithMove")
+	}
+
+	// provide linkonly customization for the provided move
+	customs = append(customs, Customization{
+		Model:    *move,
+		LinkOnly: true,
+	})
+
+	shipment := BuildMTOShipment(db, customs, traits)
+
+	move.MTOShipments = append(move.MTOShipments, shipment)
+
+	return shipment
+
 }

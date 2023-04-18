@@ -2,9 +2,9 @@ import React from 'react';
 import { render, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import BackupMailingAddressForm from './BackupMailingAddressForm';
+import BackupAddressForm from './BackupAddressForm';
 
-describe('BackupMailingAddressForm component', () => {
+describe('BackupAddressForm component', () => {
   const formFieldsName = 'backup_mailing_residence';
 
   const testProps = {
@@ -31,7 +31,7 @@ describe('BackupMailingAddressForm component', () => {
   };
 
   it('renders the form inputs', async () => {
-    const { getByLabelText } = render(<BackupMailingAddressForm {...testProps} />);
+    const { getByLabelText } = render(<BackupAddressForm {...testProps} />);
 
     await waitFor(() => {
       expect(getByLabelText('Address 1')).toBeInstanceOf(HTMLInputElement);
@@ -47,7 +47,7 @@ describe('BackupMailingAddressForm component', () => {
   });
 
   it('shows an error message if trying to submit an invalid form', async () => {
-    const { getByRole, findAllByRole, getByLabelText } = render(<BackupMailingAddressForm {...testProps} />);
+    const { getByRole, findAllByRole, getByLabelText } = render(<BackupAddressForm {...testProps} />);
     await userEvent.click(getByLabelText('Address 1'));
     await userEvent.click(getByLabelText(/Address 2/));
     await userEvent.click(getByLabelText('City'));
@@ -68,7 +68,7 @@ describe('BackupMailingAddressForm component', () => {
   });
 
   it('submits the form when its valid', async () => {
-    const { getByRole, getByLabelText } = render(<BackupMailingAddressForm {...testProps} />);
+    const { getByRole, getByLabelText } = render(<BackupAddressForm {...testProps} />);
     const submitBtn = getByRole('button', { name: 'Next' });
 
     await userEvent.type(getByLabelText('Address 1'), fakeAddress.streetAddress1);
@@ -93,7 +93,7 @@ describe('BackupMailingAddressForm component', () => {
   });
 
   it('implements the onBack handler when the Back button is clicked', async () => {
-    const { getByRole } = render(<BackupMailingAddressForm {...testProps} />);
+    const { getByRole } = render(<BackupAddressForm {...testProps} />);
     const backBtn = getByRole('button', { name: 'Back' });
 
     await userEvent.click(backBtn);

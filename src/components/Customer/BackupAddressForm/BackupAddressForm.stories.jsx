@@ -1,10 +1,10 @@
 import React from 'react';
 
-import BackupMailingAddressForm from './BackupMailingAddressForm';
+import BackupAddressForm from './BackupAddressForm';
 
 export default {
-  title: 'Customer Components / Forms / BackupMailingAddressForm',
-  component: BackupMailingAddressForm,
+  title: 'Customer Components / Forms / BackupAddressForm',
+  component: BackupAddressForm,
   argTypes: {
     onSubmit: {
       action: 'submit form',
@@ -16,7 +16,7 @@ export default {
 };
 
 export const DefaultState = (argTypes) => (
-  <BackupMailingAddressForm
+  <BackupAddressForm
     formFieldsName="backup_mailing_address"
     initialValues={{
       backup_mailing_address: {
@@ -33,7 +33,7 @@ export const DefaultState = (argTypes) => (
 );
 
 export const WithInitialValues = (argTypes) => (
-  <BackupMailingAddressForm
+  <BackupAddressForm
     formFieldsName="backup_mailing_address"
     initialValues={{
       backup_mailing_address: {
