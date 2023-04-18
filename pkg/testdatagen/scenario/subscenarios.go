@@ -509,7 +509,6 @@ func subScenarioTXOQueues(appCtx appcontext.AppContext, userUploader *uploader.U
 		})
 
 		//Retiree, HOS, NTS
-		ntsMoveType := models.SelectedMoveTypeNTS
 		CreateMoveWithOptions(appCtx, testdatagen.Assertions{
 			Order: models.Order{
 				OrdersType: retirement,
@@ -520,9 +519,8 @@ func subScenarioTXOQueues(appCtx appcontext.AppContext, userUploader *uploader.U
 				UsesExternalVendor: false,
 			},
 			Move: models.Move{
-				Locator:          "R3TNTS",
-				Status:           models.MoveStatusSUBMITTED,
-				SelectedMoveType: &ntsMoveType,
+				Locator: "R3TNTS",
+				Status:  models.MoveStatusSUBMITTED,
 			},
 			DutyLocation: models.DutyLocation{
 				ProvidesServicesCounseling: true,
@@ -530,7 +528,6 @@ func subScenarioTXOQueues(appCtx appcontext.AppContext, userUploader *uploader.U
 		})
 
 		//Retiree, HOS, NTSR
-		ntsrMoveType := models.SelectedMoveTypeNTSR
 		CreateMoveWithOptions(appCtx, testdatagen.Assertions{
 			Order: models.Order{
 				OrdersType: retirement,
@@ -541,9 +538,8 @@ func subScenarioTXOQueues(appCtx appcontext.AppContext, userUploader *uploader.U
 				UsesExternalVendor: false,
 			},
 			Move: models.Move{
-				Locator:          "R3TNTR",
-				Status:           models.MoveStatusSUBMITTED,
-				SelectedMoveType: &ntsrMoveType,
+				Locator: "R3TNTR",
+				Status:  models.MoveStatusSUBMITTED,
 			},
 			DutyLocation: models.DutyLocation{
 				ProvidesServicesCounseling: true,

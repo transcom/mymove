@@ -57,10 +57,6 @@ func MoveTaskOrder(moveTaskOrder *models.Move) *supportmessages.MoveTaskOrder {
 		payload.PpmType = *moveTaskOrder.PPMType
 	}
 
-	if moveTaskOrder.SelectedMoveType != nil {
-		payload.SelectedMoveType = (*supportmessages.SelectedMoveType)(moveTaskOrder.SelectedMoveType)
-	}
-
 	payload.SetMtoServiceItems(*mtoServiceItems)
 
 	return payload

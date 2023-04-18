@@ -152,12 +152,12 @@ func MakePPMInProgressMove(appCtx appcontext.AppContext) models.Move {
 		},
 	})
 
-	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
-		SignedCertification: models.SignedCertification{
-			MoveID: ppm1.Move.ID,
+	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+		{
+			Model:    ppm1.Move,
+			LinkOnly: true,
 		},
-		Stub: true,
-	})
+	}, nil)
 	moveRouter := moverouter.NewMoveRouter()
 	err := moveRouter.Submit(appCtx, &ppm1.Move, &newSignedCertification)
 	if err != nil {
@@ -294,7 +294,6 @@ func MakeHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO(appCtx appconte
 			},
 		},
 	}, nil)
-	mtoSelectedMoveType := models.SelectedMoveTypeHHG
 	mto := factory.BuildMove(appCtx.DB(), []factory.Customization{
 		{
 			Model:    orders,
@@ -302,8 +301,7 @@ func MakeHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO(appCtx appconte
 		},
 		{
 			Model: models.Move{
-				Status:           models.MoveStatusSUBMITTED,
-				SelectedMoveType: &mtoSelectedMoveType,
+				Status: models.MoveStatusSUBMITTED,
 			},
 		},
 	}, nil)
@@ -781,7 +779,6 @@ func MakePrimeSimulatorMoveNeedsShipmentUpdate(appCtx appcontext.AppContext) mod
 func MakeHHGMoveWithNTSAndNeedsSC(appCtx appcontext.AppContext) models.Move {
 
 	submittedAt := time.Now()
-	ntsMoveType := models.SelectedMoveTypeNTS
 	dodID := testdatagen.MakeRandomNumberString(10)
 	userInfo := newUserInfo("customer")
 
@@ -804,9 +801,8 @@ func MakeHHGMoveWithNTSAndNeedsSC(appCtx appcontext.AppContext) models.Move {
 	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.Move{
-				Status:           models.MoveStatusNeedsServiceCounseling,
-				SelectedMoveType: &ntsMoveType,
-				SubmittedAt:      &submittedAt,
+				Status:      models.MoveStatusNeedsServiceCounseling,
+				SubmittedAt: &submittedAt,
 			},
 		},
 		{
@@ -887,7 +883,6 @@ func MakeNTSRMoveWithPaymentRequest(appCtx appcontext.AppContext) models.Move {
 	}, nil)
 
 	// Create Move
-	selectedMoveType := models.SelectedMoveTypeNTSR
 	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
 		{
 			Model:    orders,
@@ -896,7 +891,6 @@ func MakeNTSRMoveWithPaymentRequest(appCtx appcontext.AppContext) models.Move {
 		{
 			Model: models.Move{
 				AvailableToPrimeAt: models.TimePointer(time.Now()),
-				SelectedMoveType:   &selectedMoveType,
 				SubmittedAt:        &currentTime,
 			},
 		},
@@ -1506,7 +1500,6 @@ func MakeNTSRMoveWithServiceItemsAndPaymentRequest(appCtx appcontext.AppContext)
 	}, nil)
 
 	// Create Move
-	selectedMoveType := models.SelectedMoveTypeNTSR
 	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
 		{
 			Model:    orders,
@@ -1515,7 +1508,6 @@ func MakeNTSRMoveWithServiceItemsAndPaymentRequest(appCtx appcontext.AppContext)
 		{
 			Model: models.Move{
 				AvailableToPrimeAt: swag.Time(time.Now()),
-				SelectedMoveType:   &selectedMoveType,
 				SubmittedAt:        &currentTime,
 			},
 		},
