@@ -128,7 +128,10 @@ func (suite *ModelSuite) Test_FetchDutyLocationTransportationOffice() {
 	})
 
 	suite.Run("if duty location does not have a transportation office, it throws ErrFetchNotFound error and returns and empty office", func() {
-		dutyLocationWithoutTransportationOffice := factory.BuildDutyLocationWithoutTransportationOffice(suite.DB(), nil, nil)
+		dutyLocationWithoutTransportationOffice := factory.BuildDutyLocation(
+			suite.DB(),
+			nil,
+			[]factory.Trait{factory.GetTraitNoAssociatedTransportationOfficeDutyLocation})
 
 		suite.Equal(uuid.Nil, dutyLocationWithoutTransportationOffice.TransportationOffice.ID)
 

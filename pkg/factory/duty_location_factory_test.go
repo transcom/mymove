@@ -155,7 +155,10 @@ func (suite *FactorySuite) TestBuildDutyLocation() {
 		}
 
 		// CALL FUNCTION UNDER TEST
-		dutyLocation := BuildDutyLocationWithoutTransportationOffice(suite.DB(), nil, nil)
+		dutyLocation := BuildDutyLocation(
+			suite.DB(),
+			nil,
+			[]Trait{GetTraitNoAssociatedTransportationOfficeDutyLocation})
 
 		// VALIDATE RESULTS
 		suite.Equal(defaultAffiliation, *dutyLocation.Affiliation)
@@ -186,10 +189,13 @@ func (suite *FactorySuite) TestBuildDutyLocation() {
 		}
 
 		// CALL FUNCTION UNDER TEST
-		dutyLocation := BuildDutyLocationWithoutTransportationOffice(suite.DB(), []Customization{
-			{Model: customDutyLocation},
-			{Model: customAddress},
-		}, nil)
+		dutyLocation := BuildDutyLocation(
+			suite.DB(),
+			[]Customization{
+				{Model: customDutyLocation},
+				{Model: customAddress},
+			},
+			[]Trait{GetTraitNoAssociatedTransportationOfficeDutyLocation})
 
 		// VALIDATE RESULTS
 		suite.Equal(customAffiliation, *dutyLocation.Affiliation)
