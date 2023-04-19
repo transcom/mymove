@@ -3414,16 +3414,21 @@ func createMoveWithNTSAndNTSR(appCtx appcontext.AppContext, userUploader *upload
 
 	estimatedNTSWeight := unit.Pound(1400)
 	actualNTSWeight := unit.Pound(2000)
-	ntsShipment := testdatagen.MakeNTSShipment(db, testdatagen.Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			PrimeEstimatedWeight: &estimatedNTSWeight,
-			PrimeActualWeight:    &actualNTSWeight,
-			ShipmentType:         models.MTOShipmentTypeHHGIntoNTSDom,
-			Status:               models.MTOShipmentStatusSubmitted,
-			UsesExternalVendor:   opts.usesExternalVendor,
+	ntsShipment := factory.BuildNTSShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				PrimeEstimatedWeight: &estimatedNTSWeight,
+				PrimeActualWeight:    &actualNTSWeight,
+				ShipmentType:         models.MTOShipmentTypeHHGIntoNTSDom,
+				Status:               models.MTOShipmentStatusSubmitted,
+				UsesExternalVendor:   opts.usesExternalVendor,
+			},
+		},
+	}, nil)
 	testdatagen.MakeMTOAgent(db, testdatagen.Assertions{
 		MTOShipment: ntsShipment,
 		MTOAgent: models.MTOAgent{
@@ -10279,14 +10284,19 @@ func CreateMoveWithHHGAndNTSShipments(appCtx appcontext.AppContext, locator stri
 		},
 	}, nil)
 
-	testdatagen.MakeNTSShipment(db, testdatagen.Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			ShipmentType:       models.MTOShipmentTypeHHGIntoNTSDom,
-			Status:             models.MTOShipmentStatusSubmitted,
-			UsesExternalVendor: usesExternalVendor,
+	factory.BuildNTSShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+
+				Status:             models.MTOShipmentStatusSubmitted,
+				UsesExternalVendor: usesExternalVendor,
+			},
+		},
+	}, nil)
 
 	return move
 }
@@ -10384,13 +10394,18 @@ func CreateMoveWithNTSShipment(appCtx appcontext.AppContext, locator string, use
 			},
 		},
 	}, nil)
-	testdatagen.MakeNTSShipment(db, testdatagen.Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			Status:             models.MTOShipmentStatusSubmitted,
-			UsesExternalVendor: usesExternalVendor,
+	factory.BuildNTSShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				Status:             models.MTOShipmentStatusSubmitted,
+				UsesExternalVendor: usesExternalVendor,
+			},
+		},
+	}, nil)
 
 	return move
 }

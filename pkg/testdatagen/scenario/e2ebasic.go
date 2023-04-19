@@ -1240,18 +1240,22 @@ func serviceMemberWithNTSandNTSRandUnsubmittedMove01(appCtx appcontext.AppContex
 	}, nil)
 	estimatedNTSWeight := unit.Pound(1400)
 	actualNTSWeight := unit.Pound(2000)
-	ntsShipment := testdatagen.MakeNTSShipment(appCtx.DB(), testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			ID:                   uuid.FromStringOrNil("06578216-3e9d-4c11-80bf-f7acfd4e7a4f"),
-			PrimeEstimatedWeight: &estimatedNTSWeight,
-			PrimeActualWeight:    &actualNTSWeight,
-			ShipmentType:         models.MTOShipmentTypeHHGIntoNTSDom,
-			ApprovedDate:         swag.Time(time.Now()),
-			Status:               models.MTOShipmentStatusSubmitted,
-			MoveTaskOrder:        move,
-			MoveTaskOrderID:      move.ID,
+	ntsShipment := factory.BuildNTSShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				ID:                   uuid.FromStringOrNil("06578216-3e9d-4c11-80bf-f7acfd4e7a4f"),
+				PrimeEstimatedWeight: &estimatedNTSWeight,
+				PrimeActualWeight:    &actualNTSWeight,
+				ShipmentType:         models.MTOShipmentTypeHHGIntoNTSDom,
+				ApprovedDate:         swag.Time(time.Now()),
+				Status:               models.MTOShipmentStatusSubmitted,
+			},
+		},
+	}, nil)
 	testdatagen.MakeMTOAgent(appCtx.DB(), testdatagen.Assertions{
 		MTOAgent: models.MTOAgent{
 			ID:            uuid.FromStringOrNil("1bdbb940-0326-438a-89fb-aa72e46f7c72"),
@@ -1331,18 +1335,22 @@ func serviceMemberWithNTSandNTSRandUnsubmittedMove02(appCtx appcontext.AppContex
 	}, nil)
 	estimatedNTSWeight := unit.Pound(1400)
 	actualNTSWeight := unit.Pound(2000)
-	ntsShipment := testdatagen.MakeNTSShipment(appCtx.DB(), testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			ID:                   uuid.FromStringOrNil("52d03f2c-179e-450a-b726-23cbb99304b9"),
-			PrimeEstimatedWeight: &estimatedNTSWeight,
-			PrimeActualWeight:    &actualNTSWeight,
-			ShipmentType:         models.MTOShipmentTypeHHGIntoNTSDom,
-			ApprovedDate:         swag.Time(time.Now()),
-			Status:               models.MTOShipmentStatusSubmitted,
-			MoveTaskOrder:        move,
-			MoveTaskOrderID:      move.ID,
+	ntsShipment := factory.BuildNTSShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				ID:                   uuid.FromStringOrNil("52d03f2c-179e-450a-b726-23cbb99304b9"),
+				PrimeEstimatedWeight: &estimatedNTSWeight,
+				PrimeActualWeight:    &actualNTSWeight,
+				ShipmentType:         models.MTOShipmentTypeHHGIntoNTSDom,
+				ApprovedDate:         swag.Time(time.Now()),
+				Status:               models.MTOShipmentStatusSubmitted,
+			},
+		},
+	}, nil)
 	testdatagen.MakeMTOAgent(appCtx.DB(), testdatagen.Assertions{
 		MTOAgent: models.MTOAgent{
 			ID:            uuid.FromStringOrNil("2675ed07-4f1e-44fd-995f-f6d6e5c461b0"),
@@ -4512,18 +4520,22 @@ func createNTSMoveWithServiceItemsandPaymentRequests(appCtx appcontext.AppContex
 
 	estimatedNTSWeight := unit.Pound(1400)
 	actualNTSWeight := unit.Pound(1000)
-	ntsShipment := testdatagen.MakeNTSShipment(appCtx.DB(), testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			ID:                   uuid.FromStringOrNil("c37464ff-acf5-4113-9364-7d84de8aeaf9"),
-			PrimeEstimatedWeight: &estimatedNTSWeight,
-			PrimeActualWeight:    &actualNTSWeight,
-			ShipmentType:         models.MTOShipmentTypeHHGIntoNTSDom,
-			ApprovedDate:         swag.Time(time.Now()),
-			Status:               models.MTOShipmentStatusApproved,
-			MoveTaskOrder:        move,
-			MoveTaskOrderID:      move.ID,
+	ntsShipment := factory.BuildNTSShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				ID:                   uuid.FromStringOrNil("c37464ff-acf5-4113-9364-7d84de8aeaf9"),
+				PrimeEstimatedWeight: &estimatedNTSWeight,
+				PrimeActualWeight:    &actualNTSWeight,
+				ShipmentType:         models.MTOShipmentTypeHHGIntoNTSDom,
+				ApprovedDate:         swag.Time(time.Now()),
+				Status:               models.MTOShipmentStatusApproved,
+			},
+		},
+	}, nil)
 
 	testdatagen.MakeMTOAgent(appCtx.DB(), testdatagen.Assertions{
 		MTOAgent: models.MTOAgent{

@@ -356,13 +356,21 @@ func subScenarioEvaluationReport(appCtx appcontext.AppContext) func() {
 		testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{Move: move})
 
 		storageFacility := factory.BuildStorageFacility(appCtx.DB(), nil, nil)
-		ntsShipment := testdatagen.MakeNTSShipment(appCtx.DB(), testdatagen.Assertions{
-			Move: move,
-			MTOShipment: models.MTOShipment{
-				StorageFacility:       &storageFacility,
-				ScheduledDeliveryDate: swag.Time(time.Now()),
+		ntsShipment := factory.BuildNTSShipment(appCtx.DB(), []factory.Customization{
+			{
+				Model:    storageFacility,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					ScheduledDeliveryDate: swag.Time(time.Now()),
+				},
+			},
+		}, nil)
 		testdatagen.MakeNTSRShipment(appCtx.DB(), testdatagen.Assertions{
 			Move: move,
 			MTOShipment: models.MTOShipment{

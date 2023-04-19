@@ -8,7 +8,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *PaperworkSuite) TestFormatValuesInspectionInformation() {
@@ -80,10 +79,12 @@ func (suite *PaperworkSuite) TestFormatValuesInspectionInformation() {
 func (suite *PaperworkSuite) TestFormatValuesShipment() {
 	suite.Run("storage facility with phone and email", func() {
 		storageFacility := factory.BuildStorageFacility(suite.DB(), nil, nil)
-		shipment := testdatagen.MakeNTSShipment(suite.DB(), testdatagen.Assertions{
-			StorageFacility: storageFacility,
-			MTOShipment:     models.MTOShipment{StorageFacility: &storageFacility},
-		})
+		shipment := factory.BuildNTSShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    storageFacility,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		shipmentValues := FormatValuesShipment(shipment)
 		expectedContactInfo := strings.Join([]string{*storageFacility.Phone, *storageFacility.Email}, "\n")
@@ -94,10 +95,12 @@ func (suite *PaperworkSuite) TestFormatValuesShipment() {
 		storageFacility := factory.BuildStorageFacility(suite.DB(), nil, nil)
 		storageFacility.Phone = nil
 		suite.MustSave(&storageFacility)
-		shipment := testdatagen.MakeNTSShipment(suite.DB(), testdatagen.Assertions{
-			StorageFacility: storageFacility,
-			MTOShipment:     models.MTOShipment{StorageFacility: &storageFacility},
-		})
+		shipment := factory.BuildNTSShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    storageFacility,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		shipmentValues := FormatValuesShipment(shipment)
 		suite.Equal(*storageFacility.Email, shipmentValues.StorageFacility)
@@ -107,10 +110,12 @@ func (suite *PaperworkSuite) TestFormatValuesShipment() {
 		storageFacility := factory.BuildStorageFacility(suite.DB(), nil, nil)
 		storageFacility.Email = nil
 		suite.MustSave(&storageFacility)
-		shipment := testdatagen.MakeNTSShipment(suite.DB(), testdatagen.Assertions{
-			StorageFacility: storageFacility,
-			MTOShipment:     models.MTOShipment{StorageFacility: &storageFacility},
-		})
+		shipment := factory.BuildNTSShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    storageFacility,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		shipmentValues := FormatValuesShipment(shipment)
 		suite.Equal(*storageFacility.Phone, shipmentValues.StorageFacility)
