@@ -76,3 +76,10 @@ type PPMShipmentReviewDocuments interface {
 type PPMShipmentUpdatedSubmitter interface {
 	SubmitUpdatedCustomerCloseOut(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID, signedCertification models.SignedCertification, eTag string) (*models.PPMShipment, error)
 }
+
+// AOAPacketCreator creates an AOA packet for a PPM shipment
+//
+//go:generate mockery --name AOAPacketCreator
+type AOAPacketCreator interface {
+	CreateAOAPacket(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) error
+}
