@@ -6,6 +6,7 @@ import (
 
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -14,11 +15,13 @@ func (suite *ServiceParamValueLookupsSuite) TestDimensionLengthLookup() {
 	key := models.ServiceItemParamNameDimensionLength
 
 	suite.Run("successful DimensionLength lookup", func() {
-		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDCRT,
+		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDCRT,
+				},
 			},
-		})
+		}, nil)
 		cratingDimension := testdatagen.MakeMTOServiceItemDimension(suite.DB(), testdatagen.Assertions{
 			MTOServiceItemDimension: models.MTOServiceItemDimension{
 				MTOServiceItemID: mtoServiceItem.ID,

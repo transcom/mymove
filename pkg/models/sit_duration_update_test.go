@@ -6,21 +6,21 @@ import (
 
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *ModelSuite) TestSITExtensionCreation() {
 
 	suite.Run("test valid SITExtension", func() {
-		shipment := testdatagen.MakeDefaultMTOShipmentMinimal(suite.DB())
+		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), nil, nil)
 		suite.NotNil(shipment)
 		suite.NotEqual(uuid.Nil, shipment.ID)
 		approvedDays := 90
 		decisionDate := time.Now()
 		contractorRemarks := "some remarks here from the contractor"
 		officeRemarks := "some remarks here from the office"
-		validSITExtension := models.SITExtension{
+		validSITExtension := models.SITDurationUpdate{
 			MTOShipment:       shipment,
 			MTOShipmentID:     shipment.ID,
 			RequestReason:     models.SITExtensionRequestReasonSeriousIllnessMember,
@@ -41,10 +41,10 @@ func (suite *ModelSuite) TestSITExtensionCreation() {
 	})
 
 	suite.Run("test minimal valid SITExtension", func() {
-		shipment := testdatagen.MakeDefaultMTOShipmentMinimal(suite.DB())
+		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), nil, nil)
 		suite.NotNil(shipment)
 		suite.NotEqual(uuid.Nil, shipment.ID)
-		validSITExtension := models.SITExtension{
+		validSITExtension := models.SITDurationUpdate{
 			MTOShipment:   shipment,
 			MTOShipmentID: shipment.ID,
 			RequestReason: models.SITExtensionRequestReasonSeriousIllnessMember,
@@ -67,7 +67,7 @@ func (suite *ModelSuite) TestSITExtensionValidation() {
 		decisionDate := time.Now()
 		contractorRemarks := "some remarks here from the contractor"
 		officeRemarks := "some remarks here from the office"
-		validSITExtension := models.SITExtension{
+		validSITExtension := models.SITDurationUpdate{
 			MTOShipmentID:     uuid.Must(uuid.NewV4()),
 			RequestReason:     models.SITExtensionRequestReasonSeriousIllnessMember,
 			ContractorRemarks: &contractorRemarks,
@@ -81,7 +81,7 @@ func (suite *ModelSuite) TestSITExtensionValidation() {
 		suite.verifyValidationErrors(&validSITExtension, expErrors)
 	})
 
-	reasons := []models.SITExtensionRequestReason{
+	reasons := []models.SITDurationUpdateRequestReason{
 		models.SITExtensionRequestReasonSeriousIllnessMember,
 		models.SITExtensionRequestReasonSeriousIllnessDependent,
 		models.SITExtensionRequestReasonImpendingAssignment,
@@ -93,7 +93,7 @@ func (suite *ModelSuite) TestSITExtensionValidation() {
 
 	for _, reason := range reasons {
 		suite.Run(fmt.Sprintf("test valid SITExtension Reasons (%s)", reason), func() {
-			validSITExtension := models.SITExtension{
+			validSITExtension := models.SITDurationUpdate{
 				MTOShipmentID: uuid.Must(uuid.NewV4()),
 				RequestReason: reason,
 				RequestedDays: 42,
@@ -104,7 +104,7 @@ func (suite *ModelSuite) TestSITExtensionValidation() {
 		})
 	}
 
-	statuses := []models.SITExtensionStatus{
+	statuses := []models.SITDurationUpdateStatus{
 		models.SITExtensionStatusPending,
 		models.SITExtensionStatusApproved,
 		models.SITExtensionStatusDenied,
@@ -112,7 +112,7 @@ func (suite *ModelSuite) TestSITExtensionValidation() {
 
 	for _, status := range statuses {
 		suite.Run(fmt.Sprintf("test valid SITExtension Status (%s)", status), func() {
-			validSITExtension := models.SITExtension{
+			validSITExtension := models.SITDurationUpdate{
 				MTOShipmentID: uuid.Must(uuid.NewV4()),
 				RequestReason: models.SITExtensionRequestReasonSeriousIllnessMember,
 				RequestedDays: 42,
@@ -124,11 +124,11 @@ func (suite *ModelSuite) TestSITExtensionValidation() {
 	}
 
 	suite.Run("test invalid sit extension", func() {
-		const badReason models.SITExtensionRequestReason = "bad reason"
-		const badStatus models.SITExtensionStatus = "bad status"
+		const badReason models.SITDurationUpdateRequestReason = "bad reason"
+		const badStatus models.SITDurationUpdateStatus = "bad status"
 		approvedDays := 0
 		badDecisionDate := time.Time{}
-		validSITExtension := models.SITExtension{
+		validSITExtension := models.SITDurationUpdate{
 			MTOShipmentID: uuid.Nil,
 			RequestReason: badReason,
 			RequestedDays: 0,

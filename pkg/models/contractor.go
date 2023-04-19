@@ -36,16 +36,13 @@ func (c *Contractor) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	), nil
 }
 
-// FetchGHCPrimeTestContractor returns a test contractor for dev
-func FetchGHCPrimeTestContractor(db *pop.Connection) (*Contractor, error) {
+// FetchGHCPrimeContractor returns the prime contractor
+func FetchGHCPrimeContractor(db *pop.Connection) (*Contractor, error) {
 	var contractor Contractor
-	err := db.Q().Where("contract_number='HTC111-11-1-1111'").First(&contractor)
+	err := db.Q().Where("type='Prime'").First(&contractor)
 	if err != nil {
-		err = db.Q().Where(`contract_number = $1`, "TEST").First(&contractor)
-		if err != nil {
-			if errors.Cause(err).Error() == RecordNotFoundErrorString {
-				return nil, errors.Wrap(ErrFetchNotFound, "error fetching contractor")
-			}
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
+			return nil, errors.Wrap(ErrFetchNotFound, "error fetching contractor")
 		}
 		// Otherwise, it's an unexpected err so we return that.
 		return &contractor, err

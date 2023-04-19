@@ -1,7 +1,6 @@
 package mtoshipment
 
 import (
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
@@ -30,7 +29,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveSITExtension() {
 
 	suite.Run("Returns an error when SIT extension is not found", func() {
 		nonexistentUUID := uuid.Must(uuid.NewV4())
-		mtoShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
 		approvedDays := int(20)
 		officeRemarks := "office remarks"
 		eTag := ""
@@ -42,8 +41,8 @@ func (suite *MTOShipmentServiceSuite) TestApproveSITExtension() {
 	})
 
 	suite.Run("Returns an error when etag does not match", func() {
-		mtoShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
-		sitExtension := testdatagen.MakePendingSITExtension(suite.DB(), testdatagen.Assertions{
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
+		sitExtension := testdatagen.MakePendingSITDurationUpdate(suite.DB(), testdatagen.Assertions{
 			MTOShipment: mtoShipment,
 		})
 		approvedDays := int(20)
@@ -58,9 +57,9 @@ func (suite *MTOShipmentServiceSuite) TestApproveSITExtension() {
 	})
 
 	suite.Run("Returns an error when shipment ID from SIT extension and shipment ID found do not match", func() {
-		mtoShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
-		otherMtoShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
-		sitExtension := testdatagen.MakePendingSITExtension(suite.DB(), testdatagen.Assertions{
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
+		otherMtoShipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
+		sitExtension := testdatagen.MakePendingSITDurationUpdate(suite.DB(), testdatagen.Assertions{
 			MTOShipment: mtoShipment,
 		})
 		approvedDays := int(20)
@@ -76,13 +75,18 @@ func (suite *MTOShipmentServiceSuite) TestApproveSITExtension() {
 
 	suite.Run("Updates the shipment's SIT days allowance and the SIT extension's status and approved days if all fields are valid", func() {
 		move := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
-		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				SITDaysAllowance: swag.Int(20),
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					SITDaysAllowance: models.IntPointer(20),
+				},
 			},
-			Move: move,
-		})
-		sitExtension := testdatagen.MakePendingSITExtension(suite.DB(), testdatagen.Assertions{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+		sitExtension := testdatagen.MakePendingSITDurationUpdate(suite.DB(), testdatagen.Assertions{
 			MTOShipment: mtoShipment,
 		})
 		approvedDays := int(20)
@@ -97,7 +101,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveSITExtension() {
 		var shipmentInDB models.MTOShipment
 		err = suite.DB().EagerPreload("MoveTaskOrder").Find(&shipmentInDB, mtoShipment.ID)
 		suite.NoError(err)
-		var sitExtensionInDB models.SITExtension
+		var sitExtensionInDB models.SITDurationUpdate
 		err = suite.DB().Find(&sitExtensionInDB, sitExtension.ID)
 		suite.NoError(err)
 
@@ -111,17 +115,22 @@ func (suite *MTOShipmentServiceSuite) TestApproveSITExtension() {
 
 	suite.Run("Sets move to approvals requested if there are remaining pending SIT extensions", func() {
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				SITDaysAllowance: swag.Int(20),
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					SITDaysAllowance: models.IntPointer(20),
+				},
 			},
-			Move: move,
-		})
-		sitExtensionToBeApproved := testdatagen.MakePendingSITExtension(suite.DB(), testdatagen.Assertions{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+		sitExtensionToBeApproved := testdatagen.MakePendingSITDurationUpdate(suite.DB(), testdatagen.Assertions{
 			MTOShipment: mtoShipment,
 		})
 		// Pending SIT Extension that won't be approved or denied
-		testdatagen.MakePendingSITExtension(suite.DB(), testdatagen.Assertions{
+		testdatagen.MakePendingSITDurationUpdate(suite.DB(), testdatagen.Assertions{
 			MTOShipment: mtoShipment,
 		})
 		approvedDays := int(20)

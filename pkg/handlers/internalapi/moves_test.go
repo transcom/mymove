@@ -244,13 +244,14 @@ func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
 		// Given: a set of orders, a move, user and servicemember
 		move := factory.BuildMove(suite.DB(), nil, nil)
 
-		hhgShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status:       models.MTOShipmentStatusDraft,
-				ShipmentType: models.MTOShipmentTypePPM,
+		hhgShipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:       models.MTOShipmentStatusDraft,
+					ShipmentType: models.MTOShipmentTypePPM,
+				},
 			},
-			Stub: true,
-		})
+		}, nil)
 		testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
 			Move:        move,
 			MTOShipment: hhgShipment,
@@ -307,7 +308,7 @@ func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
 	})
 	suite.Run("Submits hhg shipment success", func() {
 		// Given: a set of orders, a move, user and servicemember
-		hhg := testdatagen.MakeDefaultMTOShipment(suite.DB())
+		hhg := factory.BuildMTOShipment(suite.DB(), nil, nil)
 		move := hhg.MoveTaskOrder
 
 		// And: the context contains the auth values

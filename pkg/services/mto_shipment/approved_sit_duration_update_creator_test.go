@@ -5,17 +5,17 @@ import (
 
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *MTOShipmentServiceSuite) CreateSITExtensionAsTOO() {
 	suite.Run("Returns an error when shipment is not found", func() {
-		sitExtensionCreator := NewCreateSITExtensionAsTOO()
+		sitExtensionCreator := NewApprovedSITDurationUpdateCreator()
 		nonexistentUUID := uuid.Must(uuid.NewV4())
 		requestedDays := 45
 		officeRemarks := "office remarks"
-		sitExtensionToSave := models.SITExtension{
+		sitExtensionToSave := models.SITDurationUpdate{
 			RequestReason: models.SITExtensionRequestReasonAwaitingCompletionOfResidence,
 			RequestedDays: requestedDays,
 			ApprovedDays:  &requestedDays,
@@ -24,18 +24,18 @@ func (suite *MTOShipmentServiceSuite) CreateSITExtensionAsTOO() {
 		}
 		eTag := ""
 
-		_, err := sitExtensionCreator.CreateSITExtensionAsTOO(suite.AppContextForTest(), &sitExtensionToSave, nonexistentUUID, eTag)
+		_, err := sitExtensionCreator.CreateApprovedSITDurationUpdate(suite.AppContextForTest(), &sitExtensionToSave, nonexistentUUID, eTag)
 
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
 	})
 
 	suite.Run("Returns an error when etag does not match", func() {
-		sitExtensionCreator := NewCreateSITExtensionAsTOO()
-		mtoShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
+		sitExtensionCreator := NewApprovedSITDurationUpdateCreator()
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
 		requestedDays := 45
 		officeRemarks := "office remarks"
-		sitExtensionToSave := models.SITExtension{
+		sitExtensionToSave := models.SITDurationUpdate{
 			RequestReason: models.SITExtensionRequestReasonAwaitingCompletionOfResidence,
 			RequestedDays: requestedDays,
 			ApprovedDays:  &requestedDays,
@@ -44,7 +44,7 @@ func (suite *MTOShipmentServiceSuite) CreateSITExtensionAsTOO() {
 		}
 		eTag := ""
 
-		_, err := sitExtensionCreator.CreateSITExtensionAsTOO(suite.AppContextForTest(), &sitExtensionToSave, mtoShipment.ID, eTag)
+		_, err := sitExtensionCreator.CreateApprovedSITDurationUpdate(suite.AppContextForTest(), &sitExtensionToSave, mtoShipment.ID, eTag)
 
 		suite.Error(err)
 		suite.IsType(apperror.PreconditionFailedError{}, err)
@@ -52,12 +52,12 @@ func (suite *MTOShipmentServiceSuite) CreateSITExtensionAsTOO() {
 	})
 
 	suite.Run("Creates one approved SIT extension when all fields are valid and updates the shipment's SIT days allowance", func() {
-		sitExtensionCreator := NewCreateSITExtensionAsTOO()
-		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{})
+		sitExtensionCreator := NewApprovedSITDurationUpdateCreator()
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
 		eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
 		requestedDays := 45
 		officeRemarks := "office remarks"
-		sitExtensionToSave := models.SITExtension{
+		sitExtensionToSave := models.SITDurationUpdate{
 			MTOShipment:   mtoShipment,
 			MTOShipmentID: mtoShipment.ID,
 			RequestReason: models.SITExtensionRequestReasonAwaitingCompletionOfResidence,
@@ -67,17 +67,17 @@ func (suite *MTOShipmentServiceSuite) CreateSITExtensionAsTOO() {
 			Status:        models.SITExtensionStatusApproved,
 		}
 
-		updatedShipment, err := sitExtensionCreator.CreateSITExtensionAsTOO(suite.AppContextForTest(), &sitExtensionToSave, mtoShipment.ID, eTag)
+		updatedShipment, err := sitExtensionCreator.CreateApprovedSITDurationUpdate(suite.AppContextForTest(), &sitExtensionToSave, mtoShipment.ID, eTag)
 		suite.NoError(err)
 
 		var shipmentInDB models.MTOShipment
 		err = suite.DB().Find(&shipmentInDB, mtoShipment.ID)
 		suite.NoError(err)
-		var sitExtensionInDB models.SITExtension
+		var sitExtensionInDB models.SITDurationUpdate
 		err = suite.DB().First(&sitExtensionInDB)
 		suite.NoError(err)
 
-		var allSITExtensions []models.SITExtension
+		var allSITExtensions []models.SITDurationUpdate
 		err = suite.DB().All(&allSITExtensions)
 		suite.NoError(err)
 		suite.Equal(1, len(allSITExtensions))

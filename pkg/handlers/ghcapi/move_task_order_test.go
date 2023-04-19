@@ -347,9 +347,12 @@ func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingCompletedHandler(
 		requestUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 		move := factory.BuildNeedsServiceCounselingMove(suite.DB(), nil, nil)
-		testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			Move: move,
-		})
+		factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		params := movetaskorderops.UpdateMTOStatusServiceCounselingCompletedParams{
 			HTTPRequest:     request,
@@ -374,9 +377,12 @@ func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingCompletedHandler(
 		requestUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 		draftMove := factory.BuildMove(suite.DB(), nil, nil)
-		testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			Move: draftMove,
-		})
+		factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model:    draftMove,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		params := movetaskorderops.UpdateMTOStatusServiceCounselingCompletedParams{
 			HTTPRequest:     request,

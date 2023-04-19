@@ -8,19 +8,22 @@ import { expenseTypes } from 'constants/ppmExpenseTypes';
 import { createCompleteMovingExpense } from 'utils/test/factories/movingExpense';
 import { createBaseProGearWeightTicket } from 'utils/test/factories/proGearWeightTicket';
 import { createCompleteWeightTicket } from 'utils/test/factories/weightTicket';
+import { MockProviders } from 'testUtils';
 
 export default {
   title: 'Office Components / PPM / Review Documents Side Panel',
   component: ReviewDocumentsSidePanel,
   decorators: [
     (Story) => (
-      <GridContainer>
-        <Grid row>
-          <Grid col desktop={{ col: 2, offset: 8 }}>
-            <Story />
+      <MockProviders>
+        <GridContainer>
+          <Grid row>
+            <Grid col desktop={{ col: 2, offset: 8 }}>
+              <Story />
+            </Grid>
           </Grid>
-        </Grid>
-      </GridContainer>
+        </GridContainer>
+      </MockProviders>
     ),
   ],
   argTypes: { onClose: { action: 'back button clicked' } },

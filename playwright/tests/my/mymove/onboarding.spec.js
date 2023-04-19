@@ -38,7 +38,7 @@ test('A customer can go through onboarding', async ({ page, customerPage }) => {
   await page.getByRole('mark').click();
   await customerPage.navigateForward();
 
-  // Current mailing address section
+  // Current pickup address section
   await customerPage.waitForPage.onboardingCurrentAddress();
   await page.getByLabel('Address 1').fill('7 Q St');
   await page.getByLabel('City').fill('Atco');

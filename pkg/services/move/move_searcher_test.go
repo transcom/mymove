@@ -8,7 +8,6 @@ import (
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *MoveServiceSuite) TestMoveSearch() {
@@ -229,9 +228,12 @@ func setupTestData(suite *MoveServiceSuite) (models.Move, models.Move) {
 		},
 	}, nil)
 
-	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: firstMove,
-	})
+	factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    firstMove,
+			LinkOnly: true,
+		},
+	}, nil)
 	secondMoveOriginDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
 		{
 			Model: models.Address{PostalCode: "90211"},
@@ -268,14 +270,29 @@ func setupTestData(suite *MoveServiceSuite) (models.Move, models.Move) {
 			Type:     &factory.DutyLocations.NewDutyLocation,
 		},
 	}, nil)
-	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move:        secondMove,
-		MTOShipment: models.MTOShipment{Status: models.MTOShipmentStatusSubmitted},
-	})
-	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move:        secondMove,
-		MTOShipment: models.MTOShipment{Status: models.MTOShipmentStatusApproved},
-	})
+	factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    secondMove,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOShipment{
+				Status: models.MTOShipmentStatusSubmitted,
+			},
+		},
+	}, nil)
+
+	factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    secondMove,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOShipment{
+				Status: models.MTOShipmentStatusApproved,
+			},
+		},
+	}, nil)
 
 	return firstMove, secondMove
 }

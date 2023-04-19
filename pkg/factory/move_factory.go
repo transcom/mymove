@@ -11,14 +11,7 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-type moveBuildType byte
-
-const (
-	moveBuildBasic moveBuildType = iota
-	moveBuildWithoutMoveType
-)
-
-func buildMoveWithBuildType(db *pop.Connection, customs []Customization, traits []Trait, buildType moveBuildType) models.Move {
+func BuildMove(db *pop.Connection, customs []Customization, traits []Trait) models.Move {
 	customs = setupCustomizations(customs, traits)
 
 	// Find upload assertion and convert to models upload
@@ -50,16 +43,9 @@ func buildMoveWithBuildType(db *pop.Connection, customs []Customization, traits 
 			log.Panic(err)
 		}
 	}
-	var moveType *models.SelectedMoveType
-	var ppmType *string
 
-	// only set these for basic builds
-	if buildType == moveBuildBasic {
-		ppmMoveType := models.SelectedMoveTypePPM
-		moveType = &ppmMoveType
-		partialType := "PARTIAL"
-		ppmType = &partialType
-	}
+	partialType := "PARTIAL"
+	ppmType := &partialType
 	contractor := FetchOrBuildDefaultContractor(db, customs, traits)
 	defaultShow := true
 
@@ -71,16 +57,15 @@ func buildMoveWithBuildType(db *pop.Connection, customs []Customization, traits 
 	defaultLocator := models.GenerateLocator()
 
 	move := models.Move{
-		Orders:           order,
-		OrdersID:         order.ID,
-		SelectedMoveType: moveType,
-		PPMType:          ppmType,
-		Status:           models.MoveStatusDRAFT,
-		Locator:          defaultLocator,
-		Show:             &defaultShow,
-		Contractor:       &contractor,
-		ContractorID:     &contractor.ID,
-		ReferenceID:      &defaultReferenceID,
+		Orders:       order,
+		OrdersID:     order.ID,
+		PPMType:      ppmType,
+		Status:       models.MoveStatusDRAFT,
+		Locator:      defaultLocator,
+		Show:         &defaultShow,
+		Contractor:   &contractor,
+		ContractorID: &contractor.ID,
+		ReferenceID:  &defaultReferenceID,
 	}
 
 	if closeoutOfficeResult != nil {
@@ -97,14 +82,6 @@ func buildMoveWithBuildType(db *pop.Connection, customs []Customization, traits 
 	}
 
 	return move
-}
-
-func BuildMove(db *pop.Connection, customs []Customization, traits []Trait) models.Move {
-	return buildMoveWithBuildType(db, customs, traits, moveBuildBasic)
-}
-
-func BuildMoveWithoutMoveType(db *pop.Connection, customs []Customization, traits []Trait) models.Move {
-	return buildMoveWithBuildType(db, customs, traits, moveBuildWithoutMoveType)
 }
 
 func BuildStubbedMoveWithStatus(status models.MoveStatus) models.Move {

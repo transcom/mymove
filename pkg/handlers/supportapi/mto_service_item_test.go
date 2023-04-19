@@ -23,15 +23,17 @@ import (
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	"github.com/transcom/mymove/pkg/services/query"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 // Create a service item on a Move with Approvals Requested status
 func (suite *HandlerSuite) createServiceItem() models.MTOServiceItem {
 	move := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
-	serviceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-		Move: move,
-	})
+	serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	return serviceItem
 }

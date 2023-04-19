@@ -25,7 +25,6 @@ import (
 	"github.com/transcom/mymove/pkg/services/query"
 	supportMocks "github.com/transcom/mymove/pkg/services/support/mocks"
 	internalmovetaskorder "github.com/transcom/mymove/pkg/services/support/move_task_order"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *HandlerSuite) TestListMTOsHandler() {
@@ -34,13 +33,19 @@ func (suite *HandlerSuite) TestListMTOsHandler() {
 
 	moveTaskOrder := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
-	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: moveTaskOrder,
-	})
+	factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    moveTaskOrder,
+			LinkOnly: true,
+		},
+	}, nil)
 
-	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: moveTaskOrder,
-	})
+	factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    moveTaskOrder,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	request := httptest.NewRequest("GET", "/move-task-orders", nil)
 
@@ -231,13 +236,11 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		reportByDate := swag.Time(time.Now().AddDate(0, 0, -1))
 		ordersTypedetail := supportmessages.OrdersTypeDetailHHGPERMITTED
 		deptIndicator := supportmessages.DeptIndicatorAIRFORCE
-		selectedMoveType := supportmessages.SelectedMoveTypeHHG
 
 		rank := (supportmessages.Rank)("E_6")
 		mtoPayload := &supportmessages.MoveTaskOrder{
-			PpmType:          "FULL",
-			SelectedMoveType: &selectedMoveType,
-			ContractorID:     handlers.FmtUUID(contractor.ID),
+			PpmType:      "FULL",
+			ContractorID: handlers.FmtUUID(contractor.ID),
 			Order: &supportmessages.Order{
 				Rank:                      &rank,
 				OrderNumber:               swag.String("4554"),
@@ -305,8 +308,6 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		suite.Equal(customer.FirstName, responsePayload.Order.Customer.FirstName)
 		// Check that status has defaulted to DRAFT
 		suite.Equal(models.MoveStatusDRAFT, (models.MoveStatus)(responsePayload.Status))
-		// Check that SelectedMoveType was set
-		suite.Equal(string(models.SelectedMoveTypeHHG), string(*responsePayload.SelectedMoveType))
 	})
 
 	suite.Run("Successful integration test with createMoveTaskOrder", func() {
