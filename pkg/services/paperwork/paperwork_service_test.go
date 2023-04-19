@@ -26,10 +26,11 @@ func TestPaperworkServiceSuite(t *testing.T) {
 }
 
 // setUpMockGotenbergServer sets up a mock Gotenberg server and sets the corresponding env vars to make it easier to
-// functions that hit gotenberg endpoints. This asks the caller to pass in a handler function so that the caller can
-// decide how the mock server should respond to their requests (e.g. setting a 404 status code or returning a specific
-// file). The caller will need to close the mock server when they are done with it. The easiest way to ensure it happens
-// even if the test fails is to defer the call to mockGotenbergServer.Close() right after calling this function.
+// test functions that hit gotenberg endpoints. This asks the caller to pass in a handler function so that the caller
+// can decide how the mock server should respond to their requests (e.g. setting a 404 status code or returning a
+// specific file). The caller will need to close the mock server when they are done with it. The easiest way to ensure
+// it happens even if the test fails is to defer the call to mockGotenbergServer.Close() right after calling this
+// function.
 // E.g.
 //
 //	mockGotenbergServer := suite.setUpMockGotenbergServer(func(w http.ResponseWriter, r *http.Request) {
