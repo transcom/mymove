@@ -29,14 +29,8 @@ func MakeMove(db *pop.Connection, assertions Assertions) models.Move {
 	var contractorID uuid.UUID
 	moveContractorID := assertions.Move.ContractorID
 	if moveContractorID == nil {
-		contractor := MakeContractor(db, assertions)
+		contractor := FetchOrMakeContractor(db, assertions)
 		contractorID = contractor.ID
-	}
-
-	defaultMoveType := models.SelectedMoveTypePPM
-	selectedMoveType := assertions.Move.SelectedMoveType
-	if selectedMoveType == nil {
-		selectedMoveType = &defaultMoveType
 	}
 
 	ppmType := assertions.Move.PPMType
@@ -46,15 +40,14 @@ func MakeMove(db *pop.Connection, assertions Assertions) models.Move {
 	}
 
 	move := models.Move{
-		Orders:           orders,
-		OrdersID:         orders.ID,
-		SelectedMoveType: selectedMoveType,
-		PPMType:          ppmType,
-		Status:           models.MoveStatusDRAFT,
-		Locator:          models.GenerateLocator(),
-		Show:             setShow(assertions.Move.Show),
-		ContractorID:     &contractorID,
-		ReferenceID:      &referenceID,
+		Orders:       orders,
+		OrdersID:     orders.ID,
+		PPMType:      ppmType,
+		Status:       models.MoveStatusDRAFT,
+		Locator:      models.GenerateLocator(),
+		Show:         setShow(assertions.Move.Show),
+		ContractorID: &contractorID,
+		ReferenceID:  &referenceID,
 	}
 
 	// Overwrite values with those from assertions
@@ -83,7 +76,7 @@ func MakeMoveWithoutMoveType(db *pop.Connection, assertions Assertions) models.M
 	var contractorID uuid.UUID
 	moveContractorID := assertions.Move.ContractorID
 	if moveContractorID == nil {
-		contractor := MakeContractor(db, assertions)
+		contractor := FetchOrMakeContractor(db, assertions)
 		contractorID = contractor.ID
 	}
 
@@ -195,12 +188,10 @@ func MakeDefaultMove(db *pop.Connection) models.Move {
 
 // MakeHiddenHHGMoveWithShipment makes an HHG Move with show = false
 func MakeHiddenHHGMoveWithShipment(db *pop.Connection, assertions Assertions) models.Move {
-	hhgMoveType := models.SelectedMoveTypeHHG
 	move := MakeMove(db, Assertions{
 		Move: models.Move{
-			SelectedMoveType: &hhgMoveType,
-			Status:           models.MoveStatusSUBMITTED,
-			Show:             swag.Bool(false),
+			Status: models.MoveStatusSUBMITTED,
+			Show:   swag.Bool(false),
 		},
 	})
 
@@ -211,12 +202,10 @@ func MakeHiddenHHGMoveWithShipment(db *pop.Connection, assertions Assertions) mo
 
 // MakeHHGMoveWithShipment makes an HHG Move with one submitted shipment
 func MakeHHGMoveWithShipment(db *pop.Connection, assertions Assertions) models.Move {
-	hhgMoveType := models.SelectedMoveTypeHHG
 	move := MakeMove(db, Assertions{
 		Move: models.Move{
-			SelectedMoveType: &hhgMoveType,
-			Status:           models.MoveStatusSUBMITTED,
-			SubmittedAt:      assertions.Move.SubmittedAt,
+			Status:      models.MoveStatusSUBMITTED,
+			SubmittedAt: assertions.Move.SubmittedAt,
 		},
 		ServiceMember:        assertions.ServiceMember,
 		TransportationOffice: assertions.TransportationOffice,
@@ -239,11 +228,9 @@ func MakeHHGMoveWithShipment(db *pop.Connection, assertions Assertions) models.M
 
 // MakeHHGPPMMoveWithShipment makes an HHG_PPM Move with one submitted shipment
 func MakeHHGPPMMoveWithShipment(db *pop.Connection, assertions Assertions) models.Move {
-	hhgPPMMoveType := models.SelectedMoveTypePPM
 	move := MakeMove(db, Assertions{
 		Move: models.Move{
-			SelectedMoveType: &hhgPPMMoveType,
-			Status:           models.MoveStatusSUBMITTED,
+			Status: models.MoveStatusSUBMITTED,
 		},
 		Stub: assertions.Stub,
 	})
@@ -255,11 +242,9 @@ func MakeHHGPPMMoveWithShipment(db *pop.Connection, assertions Assertions) model
 
 // MakeNTSMoveWithShipment makes an NTS Move with one submitted shipment
 func MakeNTSMoveWithShipment(db *pop.Connection, assertions Assertions) models.Move {
-	ntsMoveType := models.SelectedMoveTypeNTS
 	move := MakeMove(db, Assertions{
 		Move: models.Move{
-			SelectedMoveType: &ntsMoveType,
-			Status:           models.MoveStatusSUBMITTED,
+			Status: models.MoveStatusSUBMITTED,
 		},
 		ServiceMember: assertions.ServiceMember,
 		Stub:          assertions.Stub,
@@ -273,11 +258,9 @@ func MakeNTSMoveWithShipment(db *pop.Connection, assertions Assertions) models.M
 
 // MakeNTSRMoveWithShipment makes an NTSR Move with one submitted shipment
 func MakeNTSRMoveWithShipment(db *pop.Connection, assertions Assertions) models.Move {
-	ntsrMoveType := models.SelectedMoveTypeNTSR
 	move := MakeMove(db, Assertions{
 		Move: models.Move{
-			SelectedMoveType: &ntsrMoveType,
-			Status:           models.MoveStatusSUBMITTED,
+			Status: models.MoveStatusSUBMITTED,
 		},
 		ServiceMember: assertions.ServiceMember,
 		Stub:          assertions.Stub,

@@ -59,8 +59,6 @@ var May14FollowingYear = time.Date(testdatagen.TestYear+1, time.May, 14, 0, 0, 0
 
 var estimatedWeight = unit.Pound(1400)
 var actualWeight = unit.Pound(2000)
-var hhgMoveType = models.SelectedMoveTypeHHG
-var ppmMoveType = models.SelectedMoveTypePPM
 var tioRemarks = "New billable weight set"
 
 // Closeout offices populated via migrations, this is the ID of one within the GBLOC 'KKFA' with the name 'Creech AFB'
@@ -122,7 +120,6 @@ func createGenericPPMRelatedMove(appCtx appcontext.AppContext, moveInfo MoveCrea
 		Move: models.Move{
 			ID:               moveInfo.MoveID,
 			Locator:          moveInfo.MoveLocator,
-			SelectedMoveType: &ppmMoveType,
 			CloseoutOfficeID: moveInfo.CloseoutOfficeID,
 		},
 	}
@@ -186,7 +183,6 @@ func makeOrdersForServiceMember(appCtx appcontext.AppContext, serviceMember mode
 
 func makeMoveForOrders(appCtx appcontext.AppContext, orders models.Order, moveCode string, moveStatus models.MoveStatus,
 	moveOptConfigs ...func(move *models.Move)) models.Move {
-	hhgSelectedMoveType := models.SelectedMoveTypeHHG
 
 	var availableToPrimeAt *time.Time
 	if moveStatus == models.MoveStatusAPPROVED || moveStatus == models.MoveStatusAPPROVALSREQUESTED {
@@ -198,7 +194,6 @@ func makeMoveForOrders(appCtx appcontext.AppContext, orders models.Order, moveCo
 		Status:             moveStatus,
 		OrdersID:           orders.ID,
 		Orders:             orders,
-		SelectedMoveType:   &hhgSelectedMoveType,
 		Locator:            moveCode,
 		AvailableToPrimeAt: availableToPrimeAt,
 	}
@@ -217,7 +212,6 @@ func makeMoveForOrders(appCtx appcontext.AppContext, orders models.Order, moveCo
 		{
 			Model: models.Move{
 				Status:             moveStatus,
-				SelectedMoveType:   &hhgSelectedMoveType,
 				Locator:            moveCode,
 				AvailableToPrimeAt: availableToPrimeAt,
 			},
@@ -332,7 +326,6 @@ func createMoveWithPPMAndHHG(appCtx appcontext.AppContext, userUploader *uploade
 			LinkOnly: true,
 		},
 	}, nil)
-	// SelectedMoveType could be either HHG or PPM depending on creation order of combo
 	move := factory.BuildMove(db, []factory.Customization{
 		{
 			Model:    smWithCombo,
@@ -340,9 +333,8 @@ func createMoveWithPPMAndHHG(appCtx appcontext.AppContext, userUploader *uploade
 		},
 		{
 			Model: models.Move{
-				ID:               uuid.FromStringOrNil("7024c8c5-52ca-4639-bf69-dd8238308c98"),
-				Locator:          "COMBOS",
-				SelectedMoveType: &ppmMoveType,
+				ID:      uuid.FromStringOrNil("7024c8c5-52ca-4639-bf69-dd8238308c98"),
+				Locator: "COMBOS",
 			},
 		},
 		{
@@ -419,10 +411,12 @@ func createMoveWithPPMAndHHG(appCtx appcontext.AppContext, userUploader *uploade
 			ID: uuid.FromStringOrNil("d733fe2f-b08d-434a-ad8d-551f4d597b03"),
 		},
 	})
-	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
-		Move: move,
-		Stub: true,
-	})
+	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 	err := moveRouter.Submit(appCtx, &move, &newSignedCertification)
 	if err != nil {
 		log.Panic(err)
@@ -2028,10 +2022,12 @@ func createSubmittedMoveWithPPMShipment(appCtx appcontext.AppContext, userUpload
 	}
 
 	move, _ := CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
-	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
-		Move: move,
-		Stub: true,
-	})
+	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 	err := moveRouter.Submit(appCtx, &move, &newSignedCertification)
 
 	if err != nil {
@@ -2121,12 +2117,11 @@ func CreateMoveWithCloseOut(appCtx appcontext.AppContext, userUploader *uploader
 		},
 		{
 			Model: models.Move{
-				ID:               moveInfo.MoveID,
-				Locator:          moveInfo.MoveLocator,
-				SelectedMoveType: &ppmMoveType,
-				Status:           models.MoveStatusAPPROVED,
-				SubmittedAt:      &submittedAt,
-				PPMType:          models.StringPointer("FULL"),
+				ID:          moveInfo.MoveID,
+				Locator:     moveInfo.MoveLocator,
+				Status:      models.MoveStatusAPPROVED,
+				SubmittedAt: &submittedAt,
+				PPMType:     models.StringPointer("FULL"),
 			},
 		},
 		{
@@ -2170,12 +2165,12 @@ func CreateMoveWithCloseOut(appCtx appcontext.AppContext, userUploader *uploader
 		},
 	})
 
-	testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
-		SignedCertification: models.SignedCertification{
-			MoveID:           move.ID,
-			SubmittingUserID: moveInfo.UserID,
+	factory.BuildSignedCertification(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+	}, nil)
 
 	return move
 }
@@ -2217,10 +2212,9 @@ func createMoveWithCloseOutandNonCloseOut(appCtx appcontext.AppContext, userUplo
 		},
 		{
 			Model: models.Move{
-				Locator:          locator,
-				SelectedMoveType: &ppmMoveType,
-				Status:           models.MoveStatusAPPROVED,
-				SubmittedAt:      &submittedAt,
+				Locator:     locator,
+				Status:      models.MoveStatusAPPROVED,
+				SubmittedAt: &submittedAt,
 			},
 		},
 		{
@@ -2278,12 +2272,12 @@ func createMoveWithCloseOutandNonCloseOut(appCtx appcontext.AppContext, userUplo
 		},
 	})
 
-	testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
-		SignedCertification: models.SignedCertification{
-			MoveID:           move.ID,
-			SubmittingUserID: userID,
+	factory.BuildSignedCertification(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+	}, nil)
 }
 
 func createMoveWith2CloseOuts(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, locator string, branch models.ServiceMemberAffiliation) {
@@ -2324,10 +2318,9 @@ func createMoveWith2CloseOuts(appCtx appcontext.AppContext, userUploader *upload
 		},
 		{
 			Model: models.Move{
-				Locator:          locator,
-				SelectedMoveType: &ppmMoveType,
-				Status:           models.MoveStatusAPPROVED,
-				SubmittedAt:      &submittedAt,
+				Locator:     locator,
+				Status:      models.MoveStatusAPPROVED,
+				SubmittedAt: &submittedAt,
 			},
 		},
 		{
@@ -2386,12 +2379,12 @@ func createMoveWith2CloseOuts(appCtx appcontext.AppContext, userUploader *upload
 		},
 	})
 
-	testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
-		SignedCertification: models.SignedCertification{
-			MoveID:           move.ID,
-			SubmittingUserID: userID,
+	factory.BuildSignedCertification(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+	}, nil)
 }
 
 func createMoveWithCloseOutandHHG(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, locator string, branch models.ServiceMemberAffiliation) {
@@ -2432,10 +2425,9 @@ func createMoveWithCloseOutandHHG(appCtx appcontext.AppContext, userUploader *up
 		},
 		{
 			Model: models.Move{
-				Locator:          locator,
-				SelectedMoveType: &ppmMoveType,
-				Status:           models.MoveStatusAPPROVED,
-				SubmittedAt:      &submittedAt,
+				Locator:     locator,
+				Status:      models.MoveStatusAPPROVED,
+				SubmittedAt: &submittedAt,
 			},
 		},
 		{
@@ -2486,12 +2478,12 @@ func createMoveWithCloseOutandHHG(appCtx appcontext.AppContext, userUploader *up
 		},
 	})
 
-	testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
-		SignedCertification: models.SignedCertification{
-			MoveID:           move.ID,
-			SubmittingUserID: userID,
+	factory.BuildSignedCertification(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+	}, nil)
 }
 
 func CreateMoveWithCloseoutOffice(appCtx appcontext.AppContext, moveInfo MoveCreatorInfo, userUploader *uploader.UserUploader) models.Move {
@@ -2543,11 +2535,10 @@ func CreateMoveWithCloseoutOffice(appCtx appcontext.AppContext, moveInfo MoveCre
 		},
 		{
 			Model: models.Move{
-				ID:               moveInfo.MoveID,
-				Locator:          moveInfo.MoveLocator,
-				SelectedMoveType: &ppmMoveType,
-				SubmittedAt:      &submittedAt,
-				Status:           models.MoveStatusAPPROVED,
+				ID:          moveInfo.MoveID,
+				Locator:     moveInfo.MoveLocator,
+				SubmittedAt: &submittedAt,
+				Status:      models.MoveStatusAPPROVED,
 			},
 		},
 		{
@@ -2643,11 +2634,10 @@ func CreateSubmittedMoveWithPPMShipmentForSC(appCtx appcontext.AppContext, userU
 		},
 		{
 			Model: models.Move{
-				ID:               moveInfo.MoveID,
-				Locator:          moveInfo.MoveLocator,
-				SelectedMoveType: &ppmMoveType,
-				Status:           models.MoveStatusNeedsServiceCounseling,
-				SubmittedAt:      &submittedAt,
+				ID:          moveInfo.MoveID,
+				Locator:     moveInfo.MoveLocator,
+				Status:      models.MoveStatusNeedsServiceCounseling,
+				SubmittedAt: &submittedAt,
 			},
 		},
 		{
@@ -2684,12 +2674,12 @@ func CreateSubmittedMoveWithPPMShipmentForSC(appCtx appcontext.AppContext, userU
 		},
 	})
 
-	testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
-		SignedCertification: models.SignedCertification{
-			MoveID:           move.ID,
-			SubmittingUserID: moveInfo.UserID,
+	factory.BuildSignedCertification(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+	}, nil)
 
 	return move
 }
@@ -2733,7 +2723,6 @@ func createSubmittedMoveWithPPMShipmentForSCWithSIT(appCtx appcontext.AppContext
 		{
 			Model: models.Move{
 				Locator:          locator,
-				SelectedMoveType: &ppmMoveType,
 				Status:           models.MoveStatusNeedsServiceCounseling,
 				SubmittedAt:      &submittedAt,
 				CloseoutOfficeID: &DefaultCloseoutOfficeID,
@@ -2780,12 +2769,12 @@ func createSubmittedMoveWithPPMShipmentForSCWithSIT(appCtx appcontext.AppContext
 		},
 	})
 
-	testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
-		SignedCertification: models.SignedCertification{
-			MoveID:           move.ID,
-			SubmittingUserID: userID,
+	factory.BuildSignedCertification(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+	}, nil)
 
 }
 
@@ -2887,9 +2876,8 @@ func createSubmittedMoveWithFullPPMShipmentComplete(appCtx appcontext.AppContext
 		},
 		{
 			Model: models.Move{
-				Locator:          "PPMSUB",
-				SelectedMoveType: &ppmMoveType,
-				Status:           models.MoveStatusSUBMITTED,
+				Locator: "PPMSUB",
+				Status:  models.MoveStatusSUBMITTED,
 			},
 		},
 		{
@@ -2927,12 +2915,12 @@ func createSubmittedMoveWithFullPPMShipmentComplete(appCtx appcontext.AppContext
 		},
 	})
 
-	testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
-		SignedCertification: models.SignedCertification{
-			MoveID:           move.ID,
-			SubmittingUserID: userID,
+	factory.BuildSignedCertification(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+	}, nil)
 }
 
 func createMoveWithPPM(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
@@ -2962,10 +2950,12 @@ func createMoveWithPPM(appCtx appcontext.AppContext, userUploader *uploader.User
 	}
 
 	move, _ := CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
-	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
-		Move: move,
-		Stub: true,
-	})
+	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 	err := moveRouter.Submit(appCtx, &move, &newSignedCertification)
 	if err != nil {
 		log.Panic(err)
@@ -2991,10 +2981,12 @@ func createMoveWithHHGMissingOrdersInfo(appCtx appcontext.AppContext, moveRouter
 	order.DepartmentIndicator = nil
 	order.OrdersTypeDetail = nil
 	testdatagen.MustSave(db, &order)
-	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
-		Move: move,
-		Stub: true,
-	})
+	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 	err := moveRouter.Submit(appCtx, &move, &newSignedCertification)
 	if err != nil {
 		log.Panic(err)
@@ -3045,9 +3037,8 @@ func createUnsubmittedHHGMove(appCtx appcontext.AppContext) {
 		},
 		{
 			Model: models.Move{
-				ID:               uuid.FromStringOrNil("3a8c9f4f-7344-4f18-9ab5-0de3ef57b901"),
-				Locator:          "ONEHHG",
-				SelectedMoveType: &hhgMoveType,
+				ID:      uuid.FromStringOrNil("3a8c9f4f-7344-4f18-9ab5-0de3ef57b901"),
+				Locator: "ONEHHG",
 			},
 		},
 	}, nil)
@@ -3115,9 +3106,8 @@ func createUnsubmittedHHGMoveMultipleDestinations(appCtx appcontext.AppContext) 
 		},
 		{
 			Model: models.Move{
-				ID:               uuid.FromStringOrNil("c799098d-10f6-4e5a-9c88-a0de961e35b3"),
-				Locator:          "HHGSMA",
-				SelectedMoveType: &hhgMoveType,
+				ID:      uuid.FromStringOrNil("c799098d-10f6-4e5a-9c88-a0de961e35b3"),
+				Locator: "HHGSMA",
 			},
 		},
 	}, nil)
@@ -3212,9 +3202,8 @@ func createUnsubmittedHHGMoveMultiplePickup(appCtx appcontext.AppContext) {
 		},
 		{
 			Model: models.Move{
-				ID:               uuid.FromStringOrNil("390341ca-2b76-4655-9555-161f4a0c9817"),
-				Locator:          "TWOPIC",
-				SelectedMoveType: &hhgMoveType,
+				ID:      uuid.FromStringOrNil("390341ca-2b76-4655-9555-161f4a0c9817"),
+				Locator: "TWOPIC",
 			},
 		},
 	}, nil)
@@ -3321,10 +3310,9 @@ func createSubmittedHHGMoveMultiplePickupAmendedOrders(appCtx appcontext.AppCont
 		},
 		{
 			Model: models.Move{
-				ID:               uuid.FromStringOrNil("e0463784-d5ea-4974-b526-f2a58c79ed07"),
-				Locator:          "AMENDO",
-				SelectedMoveType: &hhgMoveType,
-				Status:           models.MoveStatusSUBMITTED,
+				ID:      uuid.FromStringOrNil("e0463784-d5ea-4974-b526-f2a58c79ed07"),
+				Locator: "AMENDO",
+				Status:  models.MoveStatusSUBMITTED,
 			},
 		},
 	}, nil)
@@ -3412,12 +3400,7 @@ func createMoveWithNTSAndNTSR(appCtx appcontext.AppContext, userUploader *upload
 
 	filterFile := &[]string{"150Kb.png"}
 	orders := makeOrdersForServiceMember(appCtx, smWithNTS, userUploader, filterFile)
-	move := makeMoveForOrders(appCtx, orders, opts.shipmentMoveCode, models.MoveStatusDRAFT,
-		func(move *models.Move) {
-			// updating the move struct here
-			selectedMoveType := models.SelectedMoveTypeNTS
-			move.SelectedMoveType = &selectedMoveType
-		})
+	move := makeMoveForOrders(appCtx, orders, opts.shipmentMoveCode, models.MoveStatusDRAFT)
 
 	estimatedNTSWeight := unit.Pound(1400)
 	actualNTSWeight := unit.Pound(2000)
@@ -3456,10 +3439,12 @@ func createMoveWithNTSAndNTSR(appCtx appcontext.AppContext, userUploader *upload
 	})
 
 	if opts.moveStatus == models.MoveStatusSUBMITTED {
-		newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
-			Move: move,
-			Stub: true,
-		})
+		newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 		err := moveRouter.Submit(appCtx, &move, &newSignedCertification)
 		if err != nil {
 			log.Panic(err)
@@ -3552,10 +3537,12 @@ func createHHGWithOriginSITServiceItems(appCtx appcontext.AppContext, primeUploa
 	}, nil)
 
 	move := shipment.MoveTaskOrder
-	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
-		Move: move,
-		Stub: true,
-	})
+	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 	submissionErr := moveRouter.Submit(appCtx, &move, &newSignedCertification)
 	if submissionErr != nil {
 		logger.Fatal(fmt.Sprintf("Error submitting move: %s", submissionErr))
@@ -3785,10 +3772,12 @@ func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, prime
 	}, nil)
 
 	move := shipment.MoveTaskOrder
-	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
-		Move: move,
-		Stub: true,
-	})
+	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 	submissionErr := moveRouter.Submit(appCtx, &move, &newSignedCertification)
 	if submissionErr != nil {
 		logger.Fatal(fmt.Sprintf("Error submitting move: %s", submissionErr))
@@ -4158,10 +4147,12 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 			LinkOnly: true,
 		},
 	}, nil)
-	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
-		Move: move,
-		Stub: true,
-	})
+	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 	submissionErr := moveRouter.Submit(appCtx, &move, &newSignedCertification)
 	if submissionErr != nil {
 		logger.Fatal(fmt.Sprintf("Error submitting move: %s", submissionErr))
@@ -4604,7 +4595,6 @@ func CreateMoveWithOptions(appCtx appcontext.AppContext, assertions testdatagen.
 	status := assertions.Move.Status
 	servicesCounseling := assertions.DutyLocation.ProvidesServicesCounseling
 	usesExternalVendor := assertions.MTOShipment.UsesExternalVendor
-	selectedMoveType := assertions.Move.SelectedMoveType
 
 	db := appCtx.DB()
 	submittedAt := time.Now()
@@ -4628,10 +4618,9 @@ func CreateMoveWithOptions(appCtx appcontext.AppContext, assertions testdatagen.
 		},
 		{
 			Model: models.Move{
-				Locator:          locator,
-				Status:           status,
-				SubmittedAt:      &submittedAt,
-				SelectedMoveType: selectedMoveType,
+				Locator:     locator,
+				Status:      status,
+				SubmittedAt: &submittedAt,
 			},
 		},
 	}, nil)
@@ -4708,7 +4697,6 @@ func createHHGMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader 
 		Status:             models.MoveStatusAPPROVED,
 		OrdersID:           orders.ID,
 		Orders:             orders,
-		SelectedMoveType:   &hhgMoveType,
 		AvailableToPrimeAt: swag.Time(time.Now()),
 	}
 	testdatagen.MergeModels(&move, assertions.Move)
@@ -4835,7 +4823,6 @@ func createHHGMoveWith10ServiceItems(appCtx appcontext.AppContext, userUploader 
 			Model: models.Move{
 				ID:                 uuid.FromStringOrNil("d4d95b22-2d9d-428b-9a11-284455aa87ba"),
 				Status:             models.MoveStatusAPPROVALSREQUESTED,
-				SelectedMoveType:   &hhgMoveType,
 				AvailableToPrimeAt: models.TimePointer(time.Now()),
 			},
 		},
@@ -5304,7 +5291,6 @@ func createHHGMoveWith2PaymentRequests(appCtx appcontext.AppContext, userUploade
 				ID:                 uuid.FromStringOrNil("99783f4d-ee83-4fc9-8e0c-d32496bef32b"),
 				AvailableToPrimeAt: models.TimePointer(time.Now()),
 				Status:             models.MoveStatusAPPROVED,
-				SelectedMoveType:   &hhgMoveType,
 			},
 		},
 	}, nil)
@@ -5548,7 +5534,6 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 			Model: models.Move{
 				ID:                 uuid.Must(uuid.NewV4()),
 				Status:             models.MoveStatusAPPROVED,
-				SelectedMoveType:   &hhgMoveType,
 				AvailableToPrimeAt: models.TimePointer(time.Now()),
 				Locator:            "HGNTSR",
 			},
@@ -6230,10 +6215,12 @@ func createMoveWithHHGAndNTSRMissingInfo(appCtx appcontext.AppContext, moveRoute
 			LinkOnly: true,
 		},
 	}, nil)
-	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
-		Move: move,
-		Stub: true,
-	})
+	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 	err := moveRouter.Submit(appCtx, &move, &newSignedCertification)
 	if err != nil {
 		log.Panic(err)
@@ -6287,10 +6274,12 @@ func createMoveWithHHGAndNTSMissingInfo(appCtx appcontext.AppContext, moveRouter
 			LinkOnly: true,
 		},
 	}, nil)
-	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
-		Move: move,
-		Stub: true,
-	})
+	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 	err := moveRouter.Submit(appCtx, &move, &newSignedCertification)
 	if err != nil {
 		log.Panic(err)
@@ -6576,7 +6565,6 @@ func createMoveWith2ShipmentsAndPaymentRequest(appCtx appcontext.AppContext, use
 			Model: models.Move{
 				ID:                 uuid.Must(uuid.NewV4()),
 				Status:             models.MoveStatusAPPROVED,
-				SelectedMoveType:   &hhgMoveType,
 				AvailableToPrimeAt: models.TimePointer(time.Now()),
 				Locator:            "REQSRV",
 			},
@@ -7183,7 +7171,6 @@ func createHHGMoveWith2PaymentRequestsReviewedAllRejectedServiceItems(appCtx app
 				ID:                 uuid.FromStringOrNil("99783f4d-ee83-4fc9-8e0c-ffffffffffff"),
 				AvailableToPrimeAt: models.TimePointer(time.Now()),
 				Status:             models.MoveStatusAPPROVED,
-				SelectedMoveType:   &hhgMoveType,
 				Locator:            locatorID,
 			},
 		},
@@ -8092,7 +8079,6 @@ func createReweighWithMultipleShipments(appCtx appcontext.AppContext, userUpload
 	orders := makeOrdersForServiceMember(appCtx, serviceMember, userUploader, filterFile)
 	move := makeMoveForOrders(appCtx, orders, "MULTRW", models.MoveStatusDRAFT)
 	move.TIORemarks = &tioRemarks
-	move.SelectedMoveType = &hhgMoveType
 
 	estimatedHHGWeight := unit.Pound(1400)
 	actualHHGWeight := unit.Pound(3000)
@@ -8166,10 +8152,12 @@ func createReweighWithMultipleShipments(appCtx appcontext.AppContext, userUpload
 		},
 	}, nil)
 	testdatagen.MakeReweighForShipment(db, testdatagen.Assertions{UserUploader: userUploader}, shipmentForReweigh, unit.Pound(1541))
-	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
-		Move: move,
-		Stub: true,
-	})
+	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 	err := moveRouter.Submit(appCtx, &move, &newSignedCertification)
 	if err != nil {
 		log.Panic(err)
@@ -8200,7 +8188,6 @@ func createReweighWithShipmentMissingReweigh(appCtx appcontext.AppContext, userU
 	orders := makeOrdersForServiceMember(appCtx, serviceMember, userUploader, filterFile)
 	move := makeMoveForOrders(appCtx, orders, "MISHRW", models.MoveStatusDRAFT)
 	move.TIORemarks = &tioRemarks
-	move.SelectedMoveType = &hhgMoveType
 
 	estimatedHHGWeight := unit.Pound(1400)
 	actualHHGWeight := unit.Pound(6000)
@@ -8220,10 +8207,12 @@ func createReweighWithShipmentMissingReweigh(appCtx appcontext.AppContext, userU
 			LinkOnly: true,
 		},
 	}, nil)
-	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
-		Move: move,
-		Stub: true,
-	})
+	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 	err := moveRouter.Submit(appCtx, &move, &newSignedCertification)
 	if err != nil {
 		log.Panic(err)
@@ -8254,7 +8243,6 @@ func createReweighWithShipmentMaxBillableWeightExceeded(appCtx appcontext.AppCon
 	orders := makeOrdersForServiceMember(appCtx, serviceMember, userUploader, filterFile)
 	move := makeMoveForOrders(appCtx, orders, "MAXCED", models.MoveStatusDRAFT)
 	move.TIORemarks = &tioRemarks
-	move.SelectedMoveType = &hhgMoveType
 
 	estimatedHHGWeight := unit.Pound(1400)
 	actualHHGWeight := unit.Pound(8900)
@@ -8274,10 +8262,12 @@ func createReweighWithShipmentMaxBillableWeightExceeded(appCtx appcontext.AppCon
 			LinkOnly: true,
 		},
 	}, nil)
-	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
-		Move: move,
-		Stub: true,
-	})
+	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 	err := moveRouter.Submit(appCtx, &move, &newSignedCertification)
 	if err != nil {
 		log.Panic(err)
@@ -8308,7 +8298,6 @@ func createReweighWithShipmentNoEstimatedWeight(appCtx appcontext.AppContext, us
 	orders := makeOrdersForServiceMember(appCtx, serviceMember, userUploader, filterFile)
 	move := makeMoveForOrders(appCtx, orders, "NOESTW", models.MoveStatusDRAFT)
 	move.TIORemarks = &tioRemarks
-	move.SelectedMoveType = &hhgMoveType
 
 	actualHHGWeight := unit.Pound(6000)
 	now := time.Now()
@@ -8326,10 +8315,12 @@ func createReweighWithShipmentNoEstimatedWeight(appCtx appcontext.AppContext, us
 			LinkOnly: true,
 		},
 	}, nil)
-	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
-		Move: move,
-		Stub: true,
-	})
+	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 	err := moveRouter.Submit(appCtx, &move, &newSignedCertification)
 	if err != nil {
 		log.Panic(err)
@@ -8392,10 +8383,9 @@ func createReweighWithShipmentDeprecatedPaymentRequest(appCtx appcontext.AppCont
 		},
 		{
 			Model: models.Move{
-				ID:               uuid.FromStringOrNil("bb0c2329-e225-41cc-a931-823c6026425b"),
-				Locator:          "DEPPRQ",
-				SelectedMoveType: &hhgMoveType,
-				TIORemarks:       &tioRemarks,
+				ID:         uuid.FromStringOrNil("bb0c2329-e225-41cc-a931-823c6026425b"),
+				Locator:    "DEPPRQ",
+				TIORemarks: &tioRemarks,
 			},
 		},
 		{
@@ -8422,10 +8412,12 @@ func createReweighWithShipmentDeprecatedPaymentRequest(appCtx appcontext.AppCont
 			LinkOnly: true,
 		},
 	}, nil)
-	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
-		Move: move,
-		Stub: true,
-	})
+	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 	err := moveRouter.Submit(appCtx, &move, &newSignedCertification)
 	if err != nil {
 		log.Panic(err)
@@ -8460,7 +8452,6 @@ func createHHGMoveWithTaskOrderServices(appCtx appcontext.AppContext, userUpload
 				Locator:            "RDY4PY",
 				AvailableToPrimeAt: models.TimePointer(time.Now()),
 				Status:             models.MoveStatusAPPROVED,
-				SelectedMoveType:   &hhgMoveType,
 			},
 		},
 		{
@@ -8711,9 +8702,8 @@ func createMoveWithServiceItems(appCtx appcontext.AppContext, userUploader *uplo
 		},
 		{
 			Model: models.Move{
-				ID:               uuid.FromStringOrNil("7cbe57ba-fd3a-45a7-aa9a-1970f1908ae7"),
-				SelectedMoveType: &hhgMoveType,
-				Status:           models.MoveStatusSUBMITTED,
+				ID:     uuid.FromStringOrNil("7cbe57ba-fd3a-45a7-aa9a-1970f1908ae7"),
+				Status: models.MoveStatusSUBMITTED,
 			},
 		},
 	}, nil)
@@ -9103,7 +9093,6 @@ func createNeedsServicesCounselingWithoutCompletedOrders(appCtx appcontext.AppCo
 func createUserWithLocatorAndDODID(appCtx appcontext.AppContext, locator string, dodID string) {
 	db := appCtx.DB()
 	submittedAt := time.Now()
-	ntsMoveType := models.SelectedMoveTypeNTS
 	orders := factory.BuildOrderWithoutDefaults(db, []factory.Customization{
 		{
 			Model: models.DutyLocation{
@@ -9125,10 +9114,9 @@ func createUserWithLocatorAndDODID(appCtx appcontext.AppContext, locator string,
 		},
 		{
 			Model: models.Move{
-				Locator:          locator,
-				Status:           models.MoveStatusNeedsServiceCounseling,
-				SelectedMoveType: &ntsMoveType,
-				SubmittedAt:      &submittedAt,
+				Locator:     locator,
+				Status:      models.MoveStatusNeedsServiceCounseling,
+				SubmittedAt: &submittedAt,
 			},
 		},
 	}, nil)
@@ -9161,7 +9149,6 @@ func createUserWithLocatorAndDODID(appCtx appcontext.AppContext, locator string,
 func createNeedsServicesCounselingSingleHHG(appCtx appcontext.AppContext, ordersType internalmessages.OrdersType, locator string) {
 	db := appCtx.DB()
 	submittedAt := time.Now()
-	ntsMoveType := models.SelectedMoveTypeNTS
 	orders := factory.BuildOrderWithoutDefaults(db, []factory.Customization{
 		{
 			Model: models.DutyLocation{
@@ -9182,10 +9169,9 @@ func createNeedsServicesCounselingSingleHHG(appCtx appcontext.AppContext, orders
 		},
 		{
 			Model: models.Move{
-				Locator:          locator,
-				Status:           models.MoveStatusNeedsServiceCounseling,
-				SelectedMoveType: &ntsMoveType,
-				SubmittedAt:      &submittedAt,
+				Locator:     locator,
+				Status:      models.MoveStatusNeedsServiceCounseling,
+				SubmittedAt: &submittedAt,
 			},
 		},
 	}, nil)
@@ -9218,7 +9204,6 @@ func createNeedsServicesCounselingSingleHHG(appCtx appcontext.AppContext, orders
 func CreateNeedsServicesCounselingMinimalNTSR(appCtx appcontext.AppContext, ordersType internalmessages.OrdersType, locator string) models.Move {
 	db := appCtx.DB()
 	submittedAt := time.Now()
-	ntsMoveType := models.SelectedMoveTypeNTS
 	orders := factory.BuildOrderWithoutDefaults(db, []factory.Customization{
 		{
 			Model: models.DutyLocation{
@@ -9239,10 +9224,9 @@ func CreateNeedsServicesCounselingMinimalNTSR(appCtx appcontext.AppContext, orde
 		},
 		{
 			Model: models.Move{
-				Locator:          locator,
-				Status:           models.MoveStatusNeedsServiceCounseling,
-				SelectedMoveType: &ntsMoveType,
-				SubmittedAt:      &submittedAt,
+				Locator:     locator,
+				Status:      models.MoveStatusNeedsServiceCounseling,
+				SubmittedAt: &submittedAt,
 			},
 		},
 	}, nil)
@@ -9495,7 +9479,6 @@ func createHHGMoveWithRiskOfExcess(appCtx appcontext.AppContext, userUploader *u
 		{
 			Model: models.Move{
 				Status:                  models.MoveStatusAPPROVALSREQUESTED,
-				SelectedMoveType:        &hhgMoveType,
 				Locator:                 "RISKEX",
 				AvailableToPrimeAt:      &now,
 				ExcessWeightQualifiedAt: &now,
@@ -10181,7 +10164,7 @@ func makePendingSITExtensionsForShipment(appCtx appcontext.AppContext, shipment 
 	}, nil)
 
 	for i := 0; i < 2; i++ {
-		testdatagen.MakePendingSITExtension(db, testdatagen.Assertions{
+		testdatagen.MakePendingSITDurationUpdate(db, testdatagen.Assertions{
 			MTOShipment: shipment,
 		})
 	}
@@ -10194,8 +10177,8 @@ func MakeSITExtensionsForShipment(appCtx appcontext.AppContext, shipment models.
 	sitOfficeRemarks1 := "The service member is unable to move into their new home at the expected time."
 	approvedDays := 90
 
-	testdatagen.MakeSITExtension(db, testdatagen.Assertions{
-		SITExtension: models.SITExtension{
+	testdatagen.MakeSITDurationUpdate(db, testdatagen.Assertions{
+		SITDurationUpdate: models.SITDurationUpdate{
 			ContractorRemarks: &sitContractorRemarks1,
 			OfficeRemarks:     &sitOfficeRemarks1,
 			ApprovedDays:      &approvedDays,
@@ -10203,8 +10186,8 @@ func MakeSITExtensionsForShipment(appCtx appcontext.AppContext, shipment models.
 		MTOShipment: shipment,
 	})
 
-	testdatagen.MakeSITExtension(db, testdatagen.Assertions{
-		SITExtension: models.SITExtension{
+	testdatagen.MakeSITDurationUpdate(db, testdatagen.Assertions{
+		SITDurationUpdate: models.SITDurationUpdate{
 			ApprovedDays: &approvedDays,
 		},
 		MTOShipment: shipment,
@@ -10214,7 +10197,6 @@ func MakeSITExtensionsForShipment(appCtx appcontext.AppContext, shipment models.
 func CreateMoveWithHHGAndNTSShipments(appCtx appcontext.AppContext, locator string, usesExternalVendor bool) models.Move {
 	db := appCtx.DB()
 	submittedAt := time.Now()
-	ntsMoveType := models.SelectedMoveTypeNTS
 	orders := factory.BuildOrderWithoutDefaults(db, []factory.Customization{
 		{
 			Model: models.DutyLocation{
@@ -10235,10 +10217,9 @@ func CreateMoveWithHHGAndNTSShipments(appCtx appcontext.AppContext, locator stri
 		},
 		{
 			Model: models.Move{
-				Locator:          locator,
-				Status:           models.MoveStatusSUBMITTED,
-				SelectedMoveType: &ntsMoveType,
-				SubmittedAt:      &submittedAt,
+				Locator:     locator,
+				Status:      models.MoveStatusSUBMITTED,
+				SubmittedAt: &submittedAt,
 			},
 		},
 	}, nil)
@@ -10281,7 +10262,6 @@ func CreateMoveWithHHGAndNTSShipments(appCtx appcontext.AppContext, locator stri
 func CreateMoveWithHHGAndNTSRShipments(appCtx appcontext.AppContext, locator string, usesExternalVendor bool) models.Move {
 	db := appCtx.DB()
 	submittedAt := time.Now()
-	ntsrMoveType := models.SelectedMoveTypeNTSR
 	orders := factory.BuildOrderWithoutDefaults(db, []factory.Customization{
 		{
 			Model: models.DutyLocation{
@@ -10302,10 +10282,9 @@ func CreateMoveWithHHGAndNTSRShipments(appCtx appcontext.AppContext, locator str
 		},
 		{
 			Model: models.Move{
-				Locator:          locator,
-				Status:           models.MoveStatusSUBMITTED,
-				SelectedMoveType: &ntsrMoveType,
-				SubmittedAt:      &submittedAt,
+				Locator:     locator,
+				Status:      models.MoveStatusSUBMITTED,
+				SubmittedAt: &submittedAt,
 			},
 		},
 	}, nil)
@@ -10347,7 +10326,6 @@ func CreateMoveWithHHGAndNTSRShipments(appCtx appcontext.AppContext, locator str
 func CreateMoveWithNTSShipment(appCtx appcontext.AppContext, locator string, usesExternalVendor bool) models.Move {
 	db := appCtx.DB()
 	submittedAt := time.Now()
-	ntsMoveType := models.SelectedMoveTypeNTS
 	orders := factory.BuildOrderWithoutDefaults(db, []factory.Customization{
 		{
 			Model: models.DutyLocation{
@@ -10368,10 +10346,9 @@ func CreateMoveWithNTSShipment(appCtx appcontext.AppContext, locator string, use
 		},
 		{
 			Model: models.Move{
-				Locator:          locator,
-				Status:           models.MoveStatusSUBMITTED,
-				SelectedMoveType: &ntsMoveType,
-				SubmittedAt:      &submittedAt,
+				Locator:     locator,
+				Status:      models.MoveStatusSUBMITTED,
+				SubmittedAt: &submittedAt,
 			},
 		},
 	}, nil)
@@ -10389,7 +10366,6 @@ func CreateMoveWithNTSShipment(appCtx appcontext.AppContext, locator string, use
 func createMoveWithNTSRShipment(appCtx appcontext.AppContext, locator string, usesExternalVendor bool) {
 	db := appCtx.DB()
 	submittedAt := time.Now()
-	ntsrMoveType := models.SelectedMoveTypeNTSR
 	orders := factory.BuildOrderWithoutDefaults(db, []factory.Customization{
 		{
 			Model: models.DutyLocation{
@@ -10410,10 +10386,9 @@ func createMoveWithNTSRShipment(appCtx appcontext.AppContext, locator string, us
 		},
 		{
 			Model: models.Move{
-				Locator:          locator,
-				Status:           models.MoveStatusSUBMITTED,
-				SelectedMoveType: &ntsrMoveType,
-				SubmittedAt:      &submittedAt,
+				Locator:     locator,
+				Status:      models.MoveStatusSUBMITTED,
+				SubmittedAt: &submittedAt,
 			},
 		},
 	}, nil)

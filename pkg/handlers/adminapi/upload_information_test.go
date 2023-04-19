@@ -13,6 +13,7 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	"github.com/transcom/mymove/pkg/services/upload"
+	"github.com/transcom/mymove/pkg/uploader"
 )
 
 func (suite *HandlerSuite) TestGetUploadHandler() {
@@ -27,7 +28,7 @@ func (suite *HandlerSuite) TestGetUploadHandler() {
 				Model: models.Upload{
 					Filename:    "FileName",
 					Bytes:       int64(15),
-					ContentType: "application/pdf",
+					ContentType: uploader.FileTypePDF,
 				},
 			},
 		}, nil)

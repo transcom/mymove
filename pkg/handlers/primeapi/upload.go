@@ -38,21 +38,21 @@ func (h CreateUploadHandler) Handle(params paymentrequestop.CreateUploadParams) 
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			var contractorID uuid.UUID
-			contractor, err := models.FetchGHCPrimeTestContractor(appCtx.DB())
+			contractor, err := models.FetchGHCPrimeContractor(appCtx.DB())
 			if err != nil {
-				appCtx.Logger().Error("error getting TEST GHC Prime Contractor", zap.Error(err))
+				appCtx.Logger().Error("error getting GHC Prime Contractor", zap.Error(err))
 				// Setting a custom message so we don't reveal the SQL error:
 				return paymentrequestop.NewCreateUploadBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage,
-					"Unable to get the TEST GHC Prime Contractor.", h.GetTraceIDFromRequest(params.HTTPRequest))), err
+					"Unable to get the GHC Prime Contractor.", h.GetTraceIDFromRequest(params.HTTPRequest))), err
 			}
 			if contractor != nil {
 				contractorID = contractor.ID
 			} else {
-				err = apperror.NewBadDataError("error with TEST GHC Prime Contractor value is nil")
+				err = apperror.NewBadDataError("error with GHC Prime Contractor value is nil")
 				appCtx.Logger().Error(err.Error())
 				// Same message as before (same base issue):
 				return paymentrequestop.NewCreateUploadBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage,
-					"Unable to get the TEST GHC Prime Contractor.", h.GetTraceIDFromRequest(params.HTTPRequest))), err
+					"Unable to get the GHC Prime Contractor.", h.GetTraceIDFromRequest(params.HTTPRequest))), err
 			}
 
 			paymentRequestID, err := uuid.FromString(params.PaymentRequestID)

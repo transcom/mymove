@@ -9,15 +9,15 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-// MakePendingSITExtension makes a SIT Extension that has not yet been approved or denied
-func MakePendingSITExtension(db *pop.Connection, assertions Assertions) models.SITExtension {
+// MakePendingSITDurationUpdate makes a SIT Extension that has not yet been approved or denied
+func MakePendingSITDurationUpdate(db *pop.Connection, assertions Assertions) models.SITDurationUpdate {
 	mtoShipment := assertions.MTOShipment
 	// make mtoshipment if it was not provided
 	if isZeroUUID(mtoShipment.ID) {
 		mtoShipment = MakeMTOShipment(db, assertions)
 	}
 
-	SITExtension := models.SITExtension{
+	SITDurationUpdate := models.SITDurationUpdate{
 		MTOShipment:   mtoShipment,
 		MTOShipmentID: mtoShipment.ID,
 		RequestReason: models.SITExtensionRequestReasonAwaitingCompletionOfResidence,
@@ -25,15 +25,15 @@ func MakePendingSITExtension(db *pop.Connection, assertions Assertions) models.S
 		Status:        models.SITExtensionStatusPending,
 	}
 	// Overwrite values with those from assertions
-	mergeModels(&SITExtension, assertions.SITExtension)
+	mergeModels(&SITDurationUpdate, assertions.SITDurationUpdate)
 
-	mustCreate(db, &SITExtension, assertions.Stub)
+	mustCreate(db, &SITDurationUpdate, assertions.Stub)
 
-	return SITExtension
+	return SITDurationUpdate
 }
 
-// MakeSITExtension creates a single SIT Extension and associated set relationships
-func MakeSITExtension(db *pop.Connection, assertions Assertions) models.SITExtension {
+// MakeSITDurationUpdate creates a single SIT Extension and associated set relationships
+func MakeSITDurationUpdate(db *pop.Connection, assertions Assertions) models.SITDurationUpdate {
 	shipment := assertions.MTOShipment
 	if isZeroUUID(assertions.MTOShipment.ID) {
 		shipment = MakeMTOShipment(db, assertions)
@@ -42,7 +42,7 @@ func MakeSITExtension(db *pop.Connection, assertions Assertions) models.SITExten
 	approvedDays := 100
 	decisionDate := time.Now()
 
-	SITExtension := models.SITExtension{
+	SITDurationUpdate := models.SITDurationUpdate{
 		MTOShipmentID: shipment.ID,
 		MTOShipment:   shipment,
 		RequestReason: models.SITExtensionRequestReasonSeriousIllnessMember,
@@ -53,9 +53,9 @@ func MakeSITExtension(db *pop.Connection, assertions Assertions) models.SITExten
 	}
 
 	// Overwrite values with those from assertions
-	mergeModels(&SITExtension, assertions.SITExtension)
+	mergeModels(&SITDurationUpdate, assertions.SITDurationUpdate)
 
-	mustCreate(db, &SITExtension, assertions.Stub)
+	mustCreate(db, &SITDurationUpdate, assertions.Stub)
 
-	return SITExtension
+	return SITDurationUpdate
 }

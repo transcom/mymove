@@ -152,7 +152,7 @@ func (g *Generator) ConvertUploadsToPDF(appCtx appcontext.AppContext, uploads mo
 
 	for _, upload := range uploads {
 		copyOfUpload := upload // Make copy to avoid implicit memory aliasing of items from a range statement.
-		if copyOfUpload.ContentType == "application/pdf" {
+		if copyOfUpload.ContentType == uploader.FileTypePDF {
 			if len(images) > 0 {
 				// We want to retain page order and will generate a PDF for images
 				// that have already been encountered before handling this PDF.
@@ -189,7 +189,7 @@ func (g *Generator) ConvertUploadsToPDF(appCtx appcontext.AppContext, uploads mo
 
 		path := outputFile.Name()
 
-		if copyOfUpload.ContentType == "application/pdf" {
+		if copyOfUpload.ContentType == uploader.FileTypePDF {
 			pdfs = append(pdfs, path)
 		} else {
 			images = append(images, inputFile{Path: path, ContentType: copyOfUpload.ContentType})
@@ -221,8 +221,8 @@ func (g *Generator) ConvertUploadsToPDF(appCtx appcontext.AppContext, uploads mo
 
 // convert between image MIME types and the values expected by gofpdf
 var contentTypeToImageType = map[string]string{
-	"image/jpeg": "JPG",
-	"image/png":  "PNG",
+	uploader.FileTypeJPEG: "JPG",
+	uploader.FileTypePNG:  "PNG",
 }
 
 // ReduceUnusedSpace reduces unused space
@@ -245,7 +245,7 @@ func ReduceUnusedSpace(appCtx appcontext.AppContext, file afero.File, g *Generat
 
 		// Rotate and save new file
 		newPic := imaging.Rotate90(pic)
-		if contentType == "image/png" {
+		if contentType == uploader.FileTypePNG {
 			err := png.Encode(newFile, newPic)
 			if err != nil {
 				return nil, 0.0, 0.0, errors.Wrap(err, "Encountered an error rotating and encoding the png")
@@ -322,7 +322,7 @@ func (g *Generator) PDFFromImages(appCtx appcontext.AppContext, images []inputFi
 			}
 		}()
 
-		if img.ContentType == "image/png" {
+		if img.ContentType == uploader.FileTypePNG {
 			appCtx.Logger().Debug("Converting png to 8-bit")
 			// gofpdf isn't able to process 16-bit PNGs, so to be safe we convert all PNGs to an 8-bit color depth
 			newFile, newTemplateFileErr := g.newTempFile()

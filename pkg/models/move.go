@@ -40,33 +40,6 @@ const (
 	MoveStatusServiceCounselingCompleted MoveStatus = "SERVICE COUNSELING COMPLETED"
 )
 
-// SelectedMoveType represents the type of move being represented
-type SelectedMoveType string
-
-func (s SelectedMoveType) String() string {
-	return string(s)
-}
-
-// This lists available move types in the system
-// Combination move types like HHG+PPM should be added as an underscore separated list
-// The list should be lexigraphically sorted. Ex: UB + PPM will always be 'PPM_UB'
-const (
-	// MoveStatusHHG captures enum value "HHG" for House Hold Goods
-	SelectedMoveTypeHHG SelectedMoveType = "HHG"
-	// MoveStatusPPM captures enum value "PPM" for Personally Procured Move
-	SelectedMoveTypePPM SelectedMoveType = "PPM"
-	// MoveStatusUB captures enum value "UB" for Unaccompanied Baggage
-	SelectedMoveTypeUB SelectedMoveType = "UB"
-	// MoveStatusPOV captures enum value "POV" for Privately-Owned Vehicle
-	SelectedMoveTypePOV SelectedMoveType = "POV"
-	// MoveStatusNTS captures enum value "NTS" for Non-Temporary Storage
-	SelectedMoveTypeNTS SelectedMoveType = NTSRaw
-	// MoveStatusNTS captures enum value "NTS" for Non-Temporary Storage Release
-	SelectedMoveTypeNTSR SelectedMoveType = NTSrRaw
-	// MoveStatusHHGPPM captures enum value "HHG_PPM" for combination move HHG + PPM
-	SelectedMoveTypeHHGPPM SelectedMoveType = "HHG_PPM"
-)
-
 const maxLocatorAttempts = 3
 const locatorLength = 6
 
@@ -82,7 +55,6 @@ type Move struct {
 	SubmittedAt                  *time.Time              `json:"submitted_at" db:"submitted_at"`
 	OrdersID                     uuid.UUID               `json:"orders_id" db:"orders_id"`
 	Orders                       Order                   `belongs_to:"orders" fk_id:"orders_id"`
-	SelectedMoveType             *SelectedMoveType       `json:"selected_move_type" db:"selected_move_type"`
 	PersonallyProcuredMoves      PersonallyProcuredMoves `has_many:"personally_procured_moves" fk_id:"move_id" order_by:"created_at desc"`
 	Status                       MoveStatus              `json:"status" db:"status"`
 	SignedCertifications         SignedCertifications    `has_many:"signed_certifications" fk_id:"move_id" order_by:"created_at desc"`
@@ -121,8 +93,7 @@ func (m Move) TableName() string {
 
 // MoveOptions is used when creating new moves based on parameters
 type MoveOptions struct {
-	SelectedType *SelectedMoveType
-	Show         *bool
+	Show *bool
 }
 
 type Moves []Move
@@ -278,18 +249,13 @@ func createNewMove(db *pop.Connection,
 	orders Order,
 	moveOptions MoveOptions) (*Move, *validate.Errors, error) {
 
-	var stringSelectedType SelectedMoveType
-	if moveOptions.SelectedType != nil {
-		stringSelectedType = SelectedMoveType(*moveOptions.SelectedType)
-	}
-
 	show := swag.Bool(true)
 	if moveOptions.Show != nil {
 		show = moveOptions.Show
 	}
 
 	var contractor Contractor
-	err := db.Where("contract_number = ?", "HTC111-11-1-1111").First(&contractor)
+	err := db.Where("type='Prime'").First(&contractor)
 	if err != nil {
 		return nil, nil, fmt.Errorf("Could not find contractor: %w", err)
 	}
@@ -301,14 +267,13 @@ func createNewMove(db *pop.Connection,
 
 	for i := 0; i < maxLocatorAttempts; i++ {
 		move := Move{
-			Orders:           orders,
-			OrdersID:         orders.ID,
-			Locator:          GenerateLocator(),
-			SelectedMoveType: &stringSelectedType,
-			Status:           MoveStatusDRAFT,
-			Show:             show,
-			ContractorID:     &contractor.ID,
-			ReferenceID:      &referenceID,
+			Orders:       orders,
+			OrdersID:     orders.ID,
+			Locator:      GenerateLocator(),
+			Status:       MoveStatusDRAFT,
+			Show:         show,
+			ContractorID: &contractor.ID,
+			ReferenceID:  &referenceID,
 		}
 		verrs, err := db.ValidateAndCreate(&move)
 		if verrs.HasAny() {

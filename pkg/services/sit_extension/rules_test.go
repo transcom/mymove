@@ -14,13 +14,13 @@ import (
 func (suite *SitExtensionServiceSuite) TestValidationRules() {
 	suite.Run("checkShipmentID", func() {
 		suite.Run("success", func() {
-			sit := models.SITExtension{MTOShipmentID: uuid.Must(uuid.NewV4())}
+			sit := models.SITDurationUpdate{MTOShipmentID: uuid.Must(uuid.NewV4())}
 			err := checkShipmentID().Validate(suite.AppContextForTest(), sit, nil)
 			suite.NilOrNoVerrs(err)
 		})
 
 		suite.Run("failure", func() {
-			var sit models.SITExtension
+			var sit models.SITDurationUpdate
 			err := checkShipmentID().Validate(suite.AppContextForTest(), sit, nil)
 			switch verr := err.(type) {
 			case *validate.Errors:
@@ -42,9 +42,9 @@ func (suite *SitExtensionServiceSuite) TestValidationRules() {
 					LinkOnly: true,
 				}, // Move status is automatically set to APPROVED
 			}, nil)
-			sitExtension := testdatagen.MakeSITExtension(suite.DB(), testdatagen.Assertions{
+			sitExtension := testdatagen.MakeSITDurationUpdate(suite.DB(), testdatagen.Assertions{
 				MTOShipment: shipment,
-				SITExtension: models.SITExtension{
+				SITDurationUpdate: models.SITDurationUpdate{
 					MTOShipmentID: shipment.ID,
 					RequestReason: models.SITExtensionRequestReasonAwaitingCompletionOfResidence,
 					Status:        models.SITExtensionStatusApproved,
@@ -62,7 +62,7 @@ func (suite *SitExtensionServiceSuite) TestValidationRules() {
 		})
 
 		suite.Run("failure", func() {
-			var sit models.SITExtension
+			var sit models.SITDurationUpdate
 			err := checkRequiredFields().Validate(suite.AppContextForTest(), sit, nil)
 			switch verr := err.(type) {
 			case *validate.Errors:
@@ -76,7 +76,7 @@ func (suite *SitExtensionServiceSuite) TestValidationRules() {
 
 	suite.Run("checkSITExtensionPending - Success", func() {
 		// Testing: There is no new sit extension
-		sit := models.SITExtension{MTOShipmentID: uuid.Must(uuid.NewV4())}
+		sit := models.SITDurationUpdate{MTOShipmentID: uuid.Must(uuid.NewV4())}
 		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model:    factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil),
@@ -99,16 +99,16 @@ func (suite *SitExtensionServiceSuite) TestValidationRules() {
 
 		// Approved Status SIT Extension
 		// Changed Request Reason from the default
-		testdatagen.MakeSITExtension(suite.DB(), testdatagen.Assertions{
+		testdatagen.MakeSITDurationUpdate(suite.DB(), testdatagen.Assertions{
 			MTOShipment: shipment,
-			SITExtension: models.SITExtension{
+			SITDurationUpdate: models.SITDurationUpdate{
 				MTOShipmentID: shipment.ID,
 				RequestReason: models.SITExtensionRequestReasonAwaitingCompletionOfResidence,
 				Status:        models.SITExtensionStatusApproved,
 				RequestedDays: 90,
 			},
 		})
-		sit := models.SITExtension{MTOShipmentID: uuid.Must(uuid.NewV4())}
+		sit := models.SITDurationUpdate{MTOShipmentID: uuid.Must(uuid.NewV4())}
 
 		err := checkSITExtensionPending().Validate(suite.AppContextForTest(), sit, &shipment)
 
@@ -125,16 +125,16 @@ func (suite *SitExtensionServiceSuite) TestValidationRules() {
 		}, nil)
 
 		// Denied SIT Extension
-		testdatagen.MakeSITExtension(suite.DB(), testdatagen.Assertions{
+		testdatagen.MakeSITDurationUpdate(suite.DB(), testdatagen.Assertions{
 			MTOShipment: shipment,
-			SITExtension: models.SITExtension{
+			SITDurationUpdate: models.SITDurationUpdate{
 				MTOShipmentID: shipment.ID,
 				RequestReason: models.SITExtensionRequestReasonSeriousIllnessMember,
 				Status:        models.SITExtensionStatusDenied,
 				RequestedDays: 90,
 			},
 		})
-		sit := models.SITExtension{MTOShipmentID: uuid.Must(uuid.NewV4())}
+		sit := models.SITDurationUpdate{MTOShipmentID: uuid.Must(uuid.NewV4())}
 
 		err := checkSITExtensionPending().Validate(suite.AppContextForTest(), sit, &shipment)
 
@@ -152,9 +152,9 @@ func (suite *SitExtensionServiceSuite) TestValidationRules() {
 
 		// Create SIT Extension #1 in DB
 		// Change default status to Pending:
-		testdatagen.MakeSITExtension(suite.DB(), testdatagen.Assertions{
+		testdatagen.MakeSITDurationUpdate(suite.DB(), testdatagen.Assertions{
 			MTOShipment: shipment,
-			SITExtension: models.SITExtension{
+			SITDurationUpdate: models.SITDurationUpdate{
 				MTOShipmentID: shipment.ID,
 				RequestReason: models.SITExtensionRequestReasonSeriousIllnessMember,
 				Status:        models.SITExtensionStatusPending,
@@ -162,7 +162,7 @@ func (suite *SitExtensionServiceSuite) TestValidationRules() {
 			},
 		})
 		// Object we are trying to add to DB
-		newSIT := models.SITExtension{MTOShipmentID: uuid.Must(uuid.NewV4()), Status: models.SITExtensionStatusPending, RequestedDays: 4}
+		newSIT := models.SITDurationUpdate{MTOShipmentID: uuid.Must(uuid.NewV4()), Status: models.SITExtensionStatusPending, RequestedDays: 4}
 
 		err := checkSITExtensionPending().Validate(suite.AppContextForTest(), newSIT, &shipment)
 
@@ -172,7 +172,7 @@ func (suite *SitExtensionServiceSuite) TestValidationRules() {
 
 	suite.Run("checkPrimeAvailability - Failure", func() {
 		checker := movetaskorder.NewMoveTaskOrderChecker()
-		err := checkPrimeAvailability(checker).Validate(suite.AppContextForTest(), models.SITExtension{}, nil)
+		err := checkPrimeAvailability(checker).Validate(suite.AppContextForTest(), models.SITDurationUpdate{}, nil)
 		suite.NotNil(err)
 		suite.IsType(apperror.NotFoundError{}, err)
 		suite.Equal("Not found while looking for Prime-available Shipment", err.Error())
@@ -186,7 +186,7 @@ func (suite *SitExtensionServiceSuite) TestValidationRules() {
 			}, // Move status is automatically set to APPROVED
 		}, nil)
 		checker := movetaskorder.NewMoveTaskOrderChecker()
-		err := checkPrimeAvailability(checker).Validate(suite.AppContextForTest(), models.SITExtension{}, &shipment)
+		err := checkPrimeAvailability(checker).Validate(suite.AppContextForTest(), models.SITDurationUpdate{}, &shipment)
 		suite.NoError(err)
 	})
 }
