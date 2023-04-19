@@ -29,6 +29,7 @@ import (
 	signedcertification "github.com/transcom/mymove/pkg/services/signed_certification"
 	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 	weightticket "github.com/transcom/mymove/pkg/services/weight_ticket"
+	"github.com/transcom/mymove/pkg/uploader"
 )
 
 // NewInternalAPI returns the internal API
@@ -117,7 +118,7 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 
 	internalAPI.MovesShowShipmentSummaryWorksheetHandler = ShowShipmentSummaryWorksheetHandler{handlerConfig}
 
-	internalAPI.RegisterProducer("application/pdf", PDFProducer())
+	internalAPI.RegisterProducer(uploader.FileTypePDF, PDFProducer())
 
 	internalAPI.PostalCodesValidatePostalCodeWithRateDataHandler = ValidatePostalCodeWithRateDataHandler{
 		handlerConfig,

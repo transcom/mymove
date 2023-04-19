@@ -6,7 +6,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/models"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
-	"github.com/transcom/mymove/pkg/uploader"
+	uploaderPkg "github.com/transcom/mymove/pkg/uploader"
 )
 
 func (suite *FactorySuite) TestBuildUpload() {
@@ -18,7 +18,7 @@ func (suite *FactorySuite) TestBuildUpload() {
 		defaults := models.Upload{
 			Filename:    "testFile.pdf",
 			Bytes:       int64(2202009),
-			ContentType: "application/pdf",
+			ContentType: uploaderPkg.FileTypePDF,
 			Checksum:    "ImGQ2Ush0bDHsaQthV5BnQ==",
 			UploadType:  models.UploadTypeUSER,
 		}
@@ -39,7 +39,7 @@ func (suite *FactorySuite) TestBuildUpload() {
 		customUpload := models.Upload{
 			Filename:    "BaisWinery.jpg",
 			Bytes:       int64(6081979),
-			ContentType: "application/jpg",
+			ContentType: uploaderPkg.FileTypeJPEG,
 			Checksum:    "GauMarJosbDHsaQthV5BnQ==",
 			UploadType:  models.UploadTypePRIME,
 		}
@@ -62,7 +62,7 @@ func (suite *FactorySuite) TestBuildUpload() {
 		// Set up:          Create an upload with an uploader and default file
 		// Expected outcome:Upload filename should be the default file
 		storer := storageTest.NewFakeS3Storage(true)
-		uploader, err := uploader.NewUploader(storer, 100*uploader.MB, "USER")
+		uploader, err := uploaderPkg.NewUploader(storer, 100*uploaderPkg.MB, "USER")
 		suite.NoError(err)
 
 		defaultFileName := "testdata/test.pdf"
@@ -79,7 +79,7 @@ func (suite *FactorySuite) TestBuildUpload() {
 		suite.Contains(upload.Filename, defaultFileName)
 		suite.Equal(encodeMD5("9ce13a1f0cf21385440d79faed42de78"), upload.Checksum)
 		suite.Equal(int64(10596), upload.Bytes)
-		suite.Equal("application/pdf", upload.ContentType)
+		suite.Equal(uploaderPkg.FileTypePDF, upload.ContentType)
 		suite.Equal(models.UploadTypeUSER, upload.UploadType)
 	})
 	suite.Run("Failed creation of upload - no appcontext", func() {
@@ -88,7 +88,7 @@ func (suite *FactorySuite) TestBuildUpload() {
 		// Set up:          Create an upload with an uploader but no appcontext
 		// Expected outcome:Should cause a panic
 		storer := storageTest.NewFakeS3Storage(true)
-		uploader, err := uploader.NewUploader(storer, 100*uploader.MB, "USER")
+		uploader, err := uploaderPkg.NewUploader(storer, 100*uploaderPkg.MB, "USER")
 		suite.NoError(err)
 
 		suite.Panics(func() {
@@ -109,7 +109,7 @@ func (suite *FactorySuite) TestBuildUpload() {
 		// Set up:          Create an upload with a specific file
 		// Expected outcome:User should be created with default values
 		storer := storageTest.NewFakeS3Storage(true)
-		uploader, err := uploader.NewUploader(storer, 100*uploader.MB, "USER")
+		uploader, err := uploaderPkg.NewUploader(storer, 100*uploaderPkg.MB, "USER")
 		suite.NoError(err)
 
 		uploadFile := "testdata/test.jpg"
@@ -128,7 +128,7 @@ func (suite *FactorySuite) TestBuildUpload() {
 		suite.Contains(upload.Filename, uploadFile)
 		suite.Equal(encodeMD5("b1e74a6bc8e52bdf45075927168c4bb0"), upload.Checksum)
 		suite.Equal(int64(37986), upload.Bytes)
-		suite.Equal("image/jpeg", upload.ContentType)
+		suite.Equal(uploaderPkg.FileTypeJPEG, upload.ContentType)
 		suite.Equal(models.UploadTypeUSER, upload.UploadType)
 	})
 }
