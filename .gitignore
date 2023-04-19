@@ -99,9 +99,6 @@ playwright-results.xml
 !playwright/fixtures/constructedWeight.xls
 !src/components/DocumentViewer/sample.xls
 
-# XLSX backup files
-~$*.xlsx
-
 # SQLEditor
 *.sqs
 
