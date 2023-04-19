@@ -33,30 +33,30 @@ references:
 
   # In addition, it's common practice to disable acceptance tests and
   # ignore tests for dp3 deploys. See the branch settings below.
-  dp3-branch: &dp3-branch yan-MB-15660-cleanup-aws-parameter-store-dtod
+  dp3-branch: &dp3-branch placeholder_branch_name
   # MUST BE ONE OF: loadtest, demo, exp.
   # These are used to pull in env vars so the spelling matters!
-  dp3-env: &dp3-env exp
+  dp3-env: &dp3-env placeholder_env
 
   # set integration-ignore-branch to the branch if you want to IGNORE
   # integration tests, or `placeholder_branch_name` if you do want to
   # run them
-  integration-ignore-branch: &integration-ignore-branch yan-MB-15660-cleanup-aws-parameter-store-dtod
+  integration-ignore-branch: &integration-ignore-branch placeholder_branch_name
 
   # set integration-mtls-ignore-branch to the branch if you want to
   # IGNORE mtls integration tests, or `placeholder_branch_name` if you
   # do want to run them
-  integration-mtls-ignore-branch: &integration-mtls-ignore-branch yan-MB-15660-cleanup-aws-parameter-store-dtod
+  integration-mtls-ignore-branch: &integration-mtls-ignore-branch placeholder_branch_name
 
   # set client-ignore-branch to the branch if you want to IGNORE
   # client tests, or `placeholder_branch_name` if you do want to run
   # them
-  client-ignore-branch: &client-ignore-branch yan-MB-15660-cleanup-aws-parameter-store-dtod
+  client-ignore-branch: &client-ignore-branch placeholder_branch_name
 
   # set server-ignore-branch to the branch if you want to IGNORE
   # server tests, or `placeholder_branch_name` if you do want to run
   # them
-  server-ignore-branch: &server-ignore-branch yan-MB-15660-cleanup-aws-parameter-store-dtod
+  server-ignore-branch: &server-ignore-branch placeholder_branch_name
 
 executors:
   tls_small:
@@ -926,20 +926,20 @@ jobs:
             - v1-pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
       - restore_cache:
           keys:
-            #
-            # https://circleci.com/docs/caching/#restoring-cache
-            #
-            # restore the latest version of the listing results in the
-            # cache
-            #
-            # To manually reset counts increment the version number of
-            # the cache e.g. go from v1-spectrial-lint- to
-            # v2-spectral-lint-
-            #
-            # Make sure you also update the key in the save_cache below
-            #
-            # The trailing hyphen in restore_cache seems important
-            # according to the page linked above
+          #
+          # https://circleci.com/docs/caching/#restoring-cache
+          #
+          # restore the latest version of the listing results in the
+          # cache
+          #
+          # To manually reset counts increment the version number of
+          # the cache e.g. go from v1-spectrial-lint- to
+          # v2-spectral-lint-
+          #
+          # Make sure you also update the key in the save_cache below
+          #
+          # The trailing hyphen in restore_cache seems important
+          # according to the page linked above
             - v1-spectral-lint-
       - run:
           name: Save Baseline Spectral Lint
@@ -1096,23 +1096,23 @@ jobs:
       - run: echo 'export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - restore_cache:
           keys:
-            #
-            # https://circleci.com/docs/caching/#restoring-cache
-            #
-            # restore the latest version of the test coverage in the
-            # cache
-            #
-            # To manually reset test coverage (e.g. a refactor or
-            # deleting code means coverage has gone down and we are ok
-            # with it), increment the version number of the cache
-            # e.g. go from v1-server-tests-coverage- to
-            # v2-server-tests-coverage-
-            #
-            # ##### NOTE: Make sure you also update the key in the
-            # ##### save_cache below
-            #
-            # The trailing hyphen in restore_cache seems important
-            # according to the page linked above
+          #
+          # https://circleci.com/docs/caching/#restoring-cache
+          #
+          # restore the latest version of the test coverage in the
+          # cache
+          #
+          # To manually reset test coverage (e.g. a refactor or
+          # deleting code means coverage has gone down and we are ok
+          # with it), increment the version number of the cache
+          # e.g. go from v1-server-tests-coverage- to
+          # v2-server-tests-coverage-
+          #
+          # ##### NOTE: Make sure you also update the key in the
+          # ##### save_cache below
+          #
+          # The trailing hyphen in restore_cache seems important
+          # according to the page linked above
             - v3-server-tests-coverage-
       - run:
           name: Save Baseline Test Coverage
@@ -1920,6 +1920,7 @@ workflows:
           filters:
             branches:
               ignore: *integration-ignore-branch
+
 
       - integration_tests:
           requires:
