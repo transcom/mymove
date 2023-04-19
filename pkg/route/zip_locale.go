@@ -22,7 +22,7 @@ func Zip5ToLatLong(zip5 string) (LatLong, error) {
 		var ok bool
 		ll, ok = zip5ToLatLongMap[zipAsInt]
 		if !ok {
-			err = apperror.NewUnsupportedPostalCodeError(zip, "zip5 not found in lat/long map")
+			err = apperror.NewUnsupportedPostalCodeError(zip, "zip5 not found in zip5ToLatLongMap")
 		}
 	}
 	return ll, err
