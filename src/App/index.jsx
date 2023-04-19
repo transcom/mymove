@@ -73,17 +73,13 @@ const App = () => {
 
   if (isAdminSite)
     return (
-      <Provider store={store}>
-        <PersistGate loading={<LoadingPlaceholder />} persistor={persistor}>
-          <AppContext.Provider value={adminContext}>
-            <BrowserRouter>
-              <Suspense fallback={<LoadingPlaceholder />}>
-                <SystemAdmin />
-              </Suspense>
-            </BrowserRouter>
-          </AppContext.Provider>
-        </PersistGate>
-      </Provider>
+      <AppContext.Provider value={adminContext}>
+        <BrowserRouter>
+          <Suspense fallback={<LoadingPlaceholder />}>
+            <SystemAdmin />
+          </Suspense>
+        </BrowserRouter>
+      </AppContext.Provider>
     );
 
   return (

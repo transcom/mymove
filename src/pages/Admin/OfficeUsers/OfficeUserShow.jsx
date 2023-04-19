@@ -10,25 +10,11 @@ import {
   TextField,
   useRecordContext,
 } from 'react-admin';
-import PropTypes from 'prop-types';
 
 const OfficeUserShowTitle = () => {
   const record = useRecordContext();
+
   return <span>{`${record?.firstName} ${record?.lastName}`}</span>;
-};
-
-OfficeUserShowTitle.propTypes = {
-  record: PropTypes.shape({
-    firstName: PropTypes.string,
-    lastName: PropTypes.string,
-  }),
-};
-
-OfficeUserShowTitle.defaultProps = {
-  record: {
-    firstName: '',
-    lastName: '',
-  },
 };
 
 const OfficeUserShow = () => {

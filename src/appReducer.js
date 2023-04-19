@@ -1,6 +1,5 @@
 import { combineReducers } from 'redux';
 import { reducer as formReducer } from 'redux-form';
-import defaultMessages from 'ra-language-english';
 import storage from 'redux-persist/lib/storage';
 import { persistReducer } from 'redux-persist';
 
@@ -13,9 +12,6 @@ import { requestsReducer } from 'shared/Swagger/requestsReducer';
 import { entitiesReducer } from 'shared/Entities/reducer';
 import { officeFlashMessagesReducer } from 'scenes/Office/ducks';
 import officePpmReducer from 'scenes/Office/Ppm/ducks';
-
-const locale = 'en';
-const i18nProvider = () => defaultMessages;
 
 const authPersistConfig = {
   key: 'auth',
@@ -40,13 +36,6 @@ export const appReducer = () =>
     flashMessages: officeFlashMessagesReducer,
     interceptor: interceptorReducer,
     ppmIncentive: officePpmReducer,
-  });
-
-export const adminAppReducer = () =>
-  combineReducers({
-    ...defaultReducers,
-    i18n: i18nProvider(locale),
-    form: formReducer,
   });
 
 export default appReducer;

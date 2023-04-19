@@ -1,13 +1,13 @@
 import { createStore, applyMiddleware } from 'redux';
 import { persistStore, persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
-import { appReducer, adminAppReducer } from 'appReducer';
+import { appReducer } from 'appReducer';
 import thunk from 'redux-thunk';
 import createSagaMiddleware from 'redux-saga';
 
 import { composeWithDevTools } from 'redux-devtools-extension/logOnlyInProduction';
 
-import { isDevelopment, isAdminSite, isMilmoveSite } from 'shared/constants';
+import { isAdminSite, isDevelopment, isMilmoveSite } from 'shared/constants';
 import logger from './reduxLogger';
 import * as schema from 'shared/Entities/schema';
 
@@ -15,11 +15,8 @@ import rootSaga, { rootCustomerSaga } from 'sagas/index';
 import { interceptorInjectionMiddleware } from 'store/interceptor/injectionMiddleware';
 
 function appSelector() {
-  if (isAdminSite) {
-    return adminAppReducer();
-  } else {
-    return appReducer();
-  }
+  if (!isAdminSite) return appReducer();
+  return () => {};
 }
 
 export const configureStore = (initialState = {}) => {
