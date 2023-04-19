@@ -371,13 +371,21 @@ func subScenarioEvaluationReport(appCtx appcontext.AppContext) func() {
 				},
 			},
 		}, nil)
-		testdatagen.MakeNTSRShipment(appCtx.DB(), testdatagen.Assertions{
-			Move: move,
-			MTOShipment: models.MTOShipment{
-				StorageFacility:       &storageFacility,
-				ScheduledDeliveryDate: swag.Time(time.Now()),
+		factory.BuildNTSRShipment(appCtx.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model:    storageFacility,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					ScheduledDeliveryDate: models.TimePointer(time.Now()),
+				},
+			},
+		}, nil)
 
 		submittedTime := time.Now()
 		dataReviewInspection := models.EvaluationReportInspectionTypeDataReview

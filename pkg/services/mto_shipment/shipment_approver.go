@@ -3,6 +3,7 @@ package mtoshipment
 import (
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
@@ -115,6 +116,15 @@ func (f *shipmentApprover) setRequiredDeliveryDate(appCtx appcontext.AppContext,
 		shipment.RequiredDeliveryDate == nil &&
 		(shipment.PrimeEstimatedWeight != nil || (shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom &&
 			shipment.NTSRecordedWeight != nil)) {
+
+		appCtx.Logger().Info("DREW DEBUG setRequiredDeliveryDate doing something")
+		appCtx.Logger().Info("DREW DEBUG setRequiredDeliveryDate",
+			zap.Any("schedpickupdate", shipment.ScheduledPickupDate),
+			zap.Any("reqdelivdate", shipment.RequiredDeliveryDate),
+			zap.Any("primeestweight", shipment.PrimeEstimatedWeight),
+			zap.Any("shipmenttype", shipment.ShipmentType),
+			zap.Any("ntsrecordedweight", shipment.NTSRecordedWeight),
+		)
 
 		var pickupLocation *models.Address
 		var deliveryLocation *models.Address

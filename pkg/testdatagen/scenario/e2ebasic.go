@@ -1265,18 +1265,22 @@ func serviceMemberWithNTSandNTSRandUnsubmittedMove01(appCtx appcontext.AppContex
 		},
 	})
 
-	ntsrShipment := testdatagen.MakeNTSRShipment(appCtx.DB(), testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			ID:                   uuid.FromStringOrNil("5afaaa39-ca7d-4403-b33a-262586ad64f6"),
-			PrimeEstimatedWeight: &estimatedNTSWeight,
-			PrimeActualWeight:    &actualNTSWeight,
-			ShipmentType:         models.MTOShipmentTypeHHGOutOfNTSDom,
-			ApprovedDate:         swag.Time(time.Now()),
-			Status:               models.MTOShipmentStatusSubmitted,
-			MoveTaskOrder:        move,
-			MoveTaskOrderID:      move.ID,
+	ntsrShipment := factory.BuildNTSRShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				ID:                   uuid.FromStringOrNil("5afaaa39-ca7d-4403-b33a-262586ad64f6"),
+				PrimeEstimatedWeight: &estimatedNTSWeight,
+				PrimeActualWeight:    &actualNTSWeight,
+				ShipmentType:         models.MTOShipmentTypeHHGOutOfNTSDom,
+				ApprovedDate:         swag.Time(time.Now()),
+				Status:               models.MTOShipmentStatusSubmitted,
+			},
+		},
+	}, nil)
 
 	testdatagen.MakeMTOAgent(appCtx.DB(), testdatagen.Assertions{
 		MTOAgent: models.MTOAgent{
@@ -1345,8 +1349,7 @@ func serviceMemberWithNTSandNTSRandUnsubmittedMove02(appCtx appcontext.AppContex
 				ID:                   uuid.FromStringOrNil("52d03f2c-179e-450a-b726-23cbb99304b9"),
 				PrimeEstimatedWeight: &estimatedNTSWeight,
 				PrimeActualWeight:    &actualNTSWeight,
-				ShipmentType:         models.MTOShipmentTypeHHGIntoNTSDom,
-				ApprovedDate:         swag.Time(time.Now()),
+				ApprovedDate:         models.TimePointer(time.Now()),
 				Status:               models.MTOShipmentStatusSubmitted,
 			},
 		},
@@ -1360,18 +1363,21 @@ func serviceMemberWithNTSandNTSRandUnsubmittedMove02(appCtx appcontext.AppContex
 		},
 	})
 
-	ntsrShipment := testdatagen.MakeNTSRShipment(appCtx.DB(), testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			ID:                   uuid.FromStringOrNil("d95ba5b9-af82-417a-b901-b25d34ce79fa"),
-			PrimeEstimatedWeight: &estimatedNTSWeight,
-			PrimeActualWeight:    &actualNTSWeight,
-			ShipmentType:         models.MTOShipmentTypeHHGOutOfNTSDom,
-			ApprovedDate:         swag.Time(time.Now()),
-			Status:               models.MTOShipmentStatusSubmitted,
-			MoveTaskOrder:        move,
-			MoveTaskOrderID:      move.ID,
+	ntsrShipment := factory.BuildNTSRShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				ID:                   uuid.FromStringOrNil("d95ba5b9-af82-417a-b901-b25d34ce79fa"),
+				PrimeEstimatedWeight: &estimatedNTSWeight,
+				PrimeActualWeight:    &actualNTSWeight,
+				ApprovedDate:         models.TimePointer(time.Now()),
+				Status:               models.MTOShipmentStatusSubmitted,
+			},
+		},
+	}, nil)
 
 	testdatagen.MakeMTOAgent(appCtx.DB(), testdatagen.Assertions{
 		MTOAgent: models.MTOAgent{
@@ -3917,20 +3923,32 @@ func createNTSRMoveWithServiceItemsAndPaymentRequest(appCtx appcontext.AppContex
 	tacType := models.LOATypeHHG
 	sacType := models.LOATypeNTS
 	serviceOrderNumber := "1234"
-	ntsrShipment := testdatagen.MakeNTSRShipment(appCtx.DB(), testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			PrimeEstimatedWeight: &estimatedWeight,
-			PrimeActualWeight:    &actualWeight,
-			ApprovedDate:         swag.Time(time.Now()),
-			PickupAddress:        &shipmentPickupAddress,
-			TACType:              &tacType,
-			Status:               models.MTOShipmentStatusApproved,
-			SACType:              &sacType,
-			StorageFacility:      &storageFacility,
-			ServiceOrderNumber:   &serviceOrderNumber,
+	ntsrShipment := factory.BuildNTSRShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-		Move: move,
-	})
+		{
+			Model:    storageFacility,
+			LinkOnly: true,
+		},
+		{
+			Model:    shipmentPickupAddress,
+			LinkOnly: true,
+			Type:     &factory.Addresses.PickupAddress,
+		},
+		{
+			Model: models.MTOShipment{
+				PrimeEstimatedWeight: &estimatedWeight,
+				PrimeActualWeight:    &actualWeight,
+				ApprovedDate:         models.TimePointer(time.Now()),
+				TACType:              &tacType,
+				Status:               models.MTOShipmentStatusApproved,
+				SACType:              &sacType,
+				ServiceOrderNumber:   &serviceOrderNumber,
+			},
+		},
+	}, nil)
 
 	// Create Releasing Agent
 	testdatagen.MakeMTOAgent(appCtx.DB(), testdatagen.Assertions{
@@ -4433,20 +4451,32 @@ func createNTSRMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader
 	// Create NTS-R Shipment
 	tacType := models.LOATypeHHG
 	serviceOrderNumber := "1234"
-	ntsrShipment := testdatagen.MakeNTSRShipment(appCtx.DB(), testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			PrimeEstimatedWeight: &estimatedWeight,
-			PrimeActualWeight:    &actualWeight,
-			ApprovedDate:         swag.Time(time.Now()),
-			PickupAddress:        &shipmentPickupAddress,
-			TACType:              &tacType,
-			Status:               models.MTOShipmentStatusApproved,
-			StorageFacility:      &storageFacility,
-			ServiceOrderNumber:   &serviceOrderNumber,
-			UsesExternalVendor:   true,
+	ntsrShipment := factory.BuildNTSRShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-		Move: move,
-	})
+		{
+			Model:    storageFacility,
+			LinkOnly: true,
+		},
+		{
+			Model:    shipmentPickupAddress,
+			LinkOnly: true,
+			Type:     &factory.Addresses.PickupAddress,
+		},
+		{
+			Model: models.MTOShipment{
+				PrimeEstimatedWeight: &estimatedWeight,
+				PrimeActualWeight:    &actualWeight,
+				ApprovedDate:         models.TimePointer(time.Now()),
+				TACType:              &tacType,
+				Status:               models.MTOShipmentStatusApproved,
+				ServiceOrderNumber:   &serviceOrderNumber,
+				UsesExternalVendor:   true,
+			},
+		},
+	}, nil)
 
 	// Create Releasing Agent
 	testdatagen.MakeMTOAgent(appCtx.DB(), testdatagen.Assertions{

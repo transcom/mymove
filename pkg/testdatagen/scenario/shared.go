@@ -1093,9 +1093,12 @@ func createApprovedMoveWithAllShipmentTypesAndExcessWeights(appCtx appcontext.Ap
 			LinkOnly: true,
 		},
 	}, nil)
-	testdatagen.MakeNTSRShipment(appCtx.DB(), testdatagen.Assertions{
-		Move: move,
-	})
+	factory.BuildNTSRShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 }
 
 func createApprovedMoveWithPPMCloseoutComplete(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -3436,16 +3439,21 @@ func createMoveWithNTSAndNTSR(appCtx appcontext.AppContext, userUploader *upload
 		},
 	})
 
-	ntsrShipment := testdatagen.MakeNTSRShipment(db, testdatagen.Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			PrimeEstimatedWeight: &estimatedNTSWeight,
-			PrimeActualWeight:    &actualNTSWeight,
-			ShipmentType:         models.MTOShipmentTypeHHGOutOfNTSDom,
-			Status:               models.MTOShipmentStatusSubmitted,
-			UsesExternalVendor:   opts.usesExternalVendor,
+	ntsrShipment := factory.BuildNTSRShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				PrimeEstimatedWeight: &estimatedNTSWeight,
+				PrimeActualWeight:    &actualNTSWeight,
+				ShipmentType:         models.MTOShipmentTypeHHGOutOfNTSDom,
+				Status:               models.MTOShipmentStatusSubmitted,
+				UsesExternalVendor:   opts.usesExternalVendor,
+			},
+		},
+	}, nil)
 	testdatagen.MakeMTOAgent(db, testdatagen.Assertions{
 		MTOShipment: ntsrShipment,
 		MTOAgent: models.MTOAgent{
@@ -10354,13 +10362,26 @@ func CreateMoveWithHHGAndNTSRShipments(appCtx appcontext.AppContext, locator str
 		},
 	}, nil)
 
-	testdatagen.MakeNTSRShipment(db, testdatagen.Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			Status:             models.MTOShipmentStatusSubmitted,
-			UsesExternalVendor: usesExternalVendor,
+	debug := factory.BuildNTSRShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				Status:             models.MTOShipmentStatusSubmitted,
+				UsesExternalVendor: usesExternalVendor,
+			},
+		},
+	}, nil)
+	appCtx.Logger().Info("DREW DEBUG factory debug",
+		zap.Any("schedpickupdate", debug.Status),
+		zap.Any("schedpickupdate", debug.ScheduledPickupDate),
+		zap.Any("reqdelivdate", debug.RequiredDeliveryDate),
+		zap.Any("primeestweight", debug.PrimeEstimatedWeight),
+		zap.Any("shipmenttype", debug.ShipmentType),
+		zap.Any("ntsrecordedweight", debug.NTSRecordedWeight),
+	)
 
 	return move
 }
@@ -10439,13 +10460,18 @@ func createMoveWithNTSRShipment(appCtx appcontext.AppContext, locator string, us
 			},
 		},
 	}, nil)
-	testdatagen.MakeNTSRShipment(db, testdatagen.Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			Status:             models.MTOShipmentStatusSubmitted,
-			UsesExternalVendor: usesExternalVendor,
+	factory.BuildNTSRShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				Status:             models.MTOShipmentStatusSubmitted,
+				UsesExternalVendor: usesExternalVendor,
+			},
+		},
+	}, nil)
 }
 
 // createRandomMove creates a random move with fake data that has been approved for usage
