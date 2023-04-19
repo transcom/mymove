@@ -94,6 +94,7 @@ const useAddWeightTicketsToPPMShipments = (mtoShipments, moveCode) => {
       };
     }),
   });
+  // eslint-disable-next-line no-console
   console.log('ppmDocsQueriesResults from origin', ppmDocsQueriesResults);
   return ppmDocsQueriesResults;
 };
@@ -699,6 +700,7 @@ export const useMoveDetailsQueries = (moveCode) => {
     queryKey: [MOVES, moveCode],
     queryFn: ({ queryKey }) => getMove(...queryKey),
   });
+  // eslint-disable-next-line no-console
   console.log('getMove', move, moveQuery);
 
   const moveId = move?.id;
@@ -711,6 +713,7 @@ export const useMoveDetailsQueries = (moveCode) => {
       enabled: !!orderId,
     },
   });
+  // eslint-disable-next-line no-console
   console.log('getorder', orders, orderQuery);
 
   const order = Object.values(orders || {})?.[0];
@@ -722,10 +725,12 @@ export const useMoveDetailsQueries = (moveCode) => {
       enabled: !!moveId,
     },
   });
+  // eslint-disable-next-line no-console
   console.log('getMto', mtoShipments, mtoShipmentQuery);
 
   // attach ppm documents to their respective ppm shipments
   const ppmDocsQueriesResults = useAddWeightTicketsToPPMShipments(mtoShipments, moveCode);
+  // eslint-disable-next-line no-console
   console.log('ppmDocsQueriesResults', ppmDocsQueriesResults);
 
   const customerId = order?.customerID;
@@ -736,6 +741,7 @@ export const useMoveDetailsQueries = (moveCode) => {
       enabled: !!customerId,
     },
   });
+  // eslint-disable-next-line no-console
   console.log('getCustomer', customer, customerQuery);
 
   const customerData = customer && Object.values(customer)[0];
@@ -747,6 +753,7 @@ export const useMoveDetailsQueries = (moveCode) => {
     queryFn: ({ queryKey }) => getMTOServiceItems(...queryKey),
     options: { enabled: !!moveId },
   });
+  // eslint-disable-next-line no-console
   console.log('getMTOServiceItems', mtoServiceItems, mtoServiceItemQuery);
 
   const { isLoading, isError, isSuccess } = getQueriesStatus([
@@ -757,6 +764,7 @@ export const useMoveDetailsQueries = (moveCode) => {
     mtoServiceItemQuery,
     ...ppmDocsQueriesResults,
   ]);
+  // eslint-disable-next-line no-console
   console.log(isLoading, isError, isSuccess, ppmDocsQueriesResults);
 
   return {
