@@ -25,11 +25,13 @@ func (suite *ServiceParamValueLookupsSuite) TestContractCodeLookup() {
 
 	suite.Run("golden path with param cache", func() {
 		// DLH
-		mtoServiceItem1 := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDLH,
+		mtoServiceItem1 := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDLH,
+				},
 			},
-		})
+		}, nil)
 
 		// ContractCode
 		serviceItemParamKey1 := factory.FetchOrBuildServiceItemParamKey(suite.DB(), []factory.Customization{

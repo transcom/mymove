@@ -5,7 +5,7 @@ import createAddress from 'constants/MoveHistory/EventTemplates/UpdateAddress/cr
 import ADDRESS_TYPE from 'constants/MoveHistory/Database/AddressTypes';
 
 const LABEL = {
-  backupMailingAddress: 'Backup mailing address',
+  backupMailingAddress: 'Backup address',
   destinationAddress: 'Destination address',
   pickupAddress: 'Origin address',
   residentialAddress: 'Current pickup address',

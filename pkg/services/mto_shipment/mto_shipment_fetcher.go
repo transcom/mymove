@@ -47,7 +47,7 @@ func (f mtoShipmentFetcher) ListMTOShipments(appCtx appcontext.AppContext, moveI
 			"PPMShipment.MovingExpenses",
 			"PPMShipment.ProgearWeightTickets",
 			"Reweigh",
-			"SITExtensions",
+			"SITDurationUpdates",
 			"StorageFacility.Address",
 		). // Right now no use case for showing deleted shipments.
 		Where("move_id = ?", moveID).

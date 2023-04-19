@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import Alert from 'shared/Alert'; // eslint-disable-line
+import Alert from 'shared/Alert';
 import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
 
 export default class ConfirmWithReasonButton extends Component {

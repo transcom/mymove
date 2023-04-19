@@ -116,7 +116,7 @@ func (f shipmentSITStatus) CalculateShipmentSITAllowance(appCtx appcontext.AppCo
 	if entitlement.StorageInTransit != nil {
 		totalSITAllowance = *entitlement.StorageInTransit
 	}
-	for _, ext := range shipment.SITExtensions {
+	for _, ext := range shipment.SITDurationUpdates {
 		if ext.ApprovedDays != nil {
 			totalSITAllowance += *ext.ApprovedDays
 		}

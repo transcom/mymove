@@ -40,7 +40,7 @@ func (suite *MTOShipmentServiceSuite) TestDenySITExtension() {
 
 	suite.Run("Returns an error when etag does not match", func() {
 		mtoShipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
-		sitExtension := testdatagen.MakePendingSITExtension(suite.DB(), testdatagen.Assertions{
+		sitExtension := testdatagen.MakePendingSITDurationUpdate(suite.DB(), testdatagen.Assertions{
 			MTOShipment: mtoShipment,
 		})
 		officeRemarks := "office remarks"
@@ -56,7 +56,7 @@ func (suite *MTOShipmentServiceSuite) TestDenySITExtension() {
 	suite.Run("Returns an error when shipment ID from SIT extension and shipment ID found do not match", func() {
 		mtoShipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
 		otherMtoShipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
-		sitExtension := testdatagen.MakePendingSITExtension(suite.DB(), testdatagen.Assertions{
+		sitExtension := testdatagen.MakePendingSITDurationUpdate(suite.DB(), testdatagen.Assertions{
 			MTOShipment: mtoShipment,
 		})
 		officeRemarks := "office remarks"
@@ -82,7 +82,7 @@ func (suite *MTOShipmentServiceSuite) TestDenySITExtension() {
 				LinkOnly: true,
 			},
 		}, nil)
-		sitExtension := testdatagen.MakePendingSITExtension(suite.DB(), testdatagen.Assertions{
+		sitExtension := testdatagen.MakePendingSITDurationUpdate(suite.DB(), testdatagen.Assertions{
 			MTOShipment: mtoShipment,
 		})
 		officeRemarks := "office remarks"
@@ -94,7 +94,7 @@ func (suite *MTOShipmentServiceSuite) TestDenySITExtension() {
 		var shipmentInDB models.MTOShipment
 		err = suite.DB().EagerPreload("MoveTaskOrder").Find(&shipmentInDB, mtoShipment.ID)
 		suite.NoError(err)
-		var sitExtensionInDB models.SITExtension
+		var sitExtensionInDB models.SITDurationUpdate
 		err = suite.DB().Find(&sitExtensionInDB, sitExtension.ID)
 		suite.NoError(err)
 
@@ -117,11 +117,11 @@ func (suite *MTOShipmentServiceSuite) TestDenySITExtension() {
 				LinkOnly: true,
 			},
 		}, nil)
-		sitExtensionToBeDenied := testdatagen.MakePendingSITExtension(suite.DB(), testdatagen.Assertions{
+		sitExtensionToBeDenied := testdatagen.MakePendingSITDurationUpdate(suite.DB(), testdatagen.Assertions{
 			MTOShipment: mtoShipment,
 		})
 		// Pending SIT Extension that won't be approved or denied
-		testdatagen.MakePendingSITExtension(suite.DB(), testdatagen.Assertions{
+		testdatagen.MakePendingSITDurationUpdate(suite.DB(), testdatagen.Assertions{
 			MTOShipment: mtoShipment,
 		})
 		officeRemarks := "office remarks"

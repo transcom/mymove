@@ -46,6 +46,10 @@ func (fake *FakeS3Storage) Store(key string, data io.ReadSeeker, md5 string, tag
 
 // Fetch returns the file at the given key
 func (fake *FakeS3Storage) Fetch(key string) (io.ReadCloser, error) {
+	if !fake.willSucceed {
+		return nil, errors.New("failed to fetch file")
+	}
+
 	return fake.fs.Open(key)
 }
 

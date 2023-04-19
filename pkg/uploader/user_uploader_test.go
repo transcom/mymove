@@ -9,6 +9,7 @@
 package uploader_test
 
 import (
+	"fmt"
 	"io"
 
 	"github.com/transcom/mymove/pkg/factory"
@@ -26,7 +27,7 @@ func (suite *UploaderSuite) TestUserUploadFromLocalFile() {
 	userUpload, verrs, err := userUploader.CreateUserUploadForDocument(suite.AppContextForTest(), &document.ID, document.ServiceMember.UserID, uploader.File{File: file}, uploader.AllowedTypesPDF)
 	suite.Nil(err, "failed to create upload")
 	suite.False(verrs.HasAny(), "failed to validate upload", verrs)
-	suite.Equal(userUpload.Upload.ContentType, "application/pdf")
+	suite.Equal(userUpload.Upload.ContentType, uploader.FileTypePDF)
 	suite.Equal(userUpload.Upload.Checksum, "nOE6HwzyE4VEDXn67ULeeA==")
 }
 
@@ -56,7 +57,7 @@ func (suite *UploaderSuite) TestUserUploadFromLocalFileWrongContentType() {
 
 	upload, verrs, err := userUploader.CreateUserUploadForDocument(suite.AppContextForTest(), &document.ID, document.ServiceMember.UserID, uploader.File{File: file}, uploader.AllowedTypesPDF)
 	suite.Error(err)
-	suite.Equal("content type \"application/octet-stream\" is not one of the supported types [application/pdf]", err.Error())
+	suite.Equal(fmt.Sprintf("content type \"application/octet-stream\" is not one of the supported types [%s]", uploader.FileTypePDF), err.Error())
 	suite.True(verrs.HasAny(), "invalid content type for upload")
 	suite.Nil(upload, "returned an upload when erroring")
 }

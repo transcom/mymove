@@ -8,13 +8,14 @@ import (
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/uploader"
 )
 
 func (suite *ModelSuite) Test_PrimeUploadCreate() {
 	upload := models.Upload{
 		Filename:    "test.pdf",
 		Bytes:       1048576,
-		ContentType: "application/pdf",
+		ContentType: uploader.FileTypePDF,
 		Checksum:    "ImGQ2Ush0bDHsaQthV5BnQ==",
 		UploadType:  models.UploadTypePRIME,
 	}
@@ -70,7 +71,7 @@ func (suite *ModelSuite) TestFetchPrimeUpload() {
 	upload := models.Upload{
 		Filename:    "test.pdf",
 		Bytes:       1048576,
-		ContentType: "application/pdf",
+		ContentType: uploader.FileTypePDF,
 		Checksum:    "ImGQ2Ush0bDHsaQthV5BnQ==",
 		UploadType:  models.UploadTypePRIME,
 	}
@@ -113,7 +114,7 @@ func (suite *ModelSuite) TestFetchDeletedPrimeUpload() {
 	upload := models.Upload{
 		Filename:    "test.pdf",
 		Bytes:       1048576,
-		ContentType: "application/pdf",
+		ContentType: uploader.FileTypePDF,
 		Checksum:    "ImGQ2Ush0bDHsaQthV5BnQ==",
 		UploadType:  models.UploadTypePRIME,
 	}

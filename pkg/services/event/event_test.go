@@ -403,11 +403,13 @@ func (suite *EventServiceSuite) Test_MTOServiceItemEventTrigger() {
 	// Test successful event passing with Support API
 	suite.Run("Success with GHC ServiceItem endpoint", func() {
 		now := time.Now()
-		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				AvailableToPrimeAt: &now,
+		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					AvailableToPrimeAt: &now,
+				},
 			},
-		})
+		}, nil)
 
 		mtoServiceItemID := mtoServiceItem.ID
 		mtoID := mtoServiceItem.MoveTaskOrderID

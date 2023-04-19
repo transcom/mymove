@@ -103,39 +103,6 @@ export const CurrentResidentialAddressWithCustomValidators = () => (
   </Formik>
 );
 
-export const WithAdditionalText = () => (
-  <Formik
-    initialValues={{
-      backup_mailing_address: {
-        streetAddress1: '',
-        streetAddress2: '',
-        city: '',
-        state: '',
-        postalCode: '',
-      },
-    }}
-    validationSchema={Yup.object().shape({ backup_mailing_address: requiredAddressSchema.required() })}
-  >
-    {() => (
-      <Form className={formStyles.form}>
-        <AddressFields
-          legend="Backup mailing address"
-          name="backup_mailing_address"
-          render={(fields) => (
-            <>
-              <p>
-                Where should we send mail if we can’t reach you at your primary address? You might use a parent’s or
-                friend’s address, or a post office box.
-              </p>
-              {fields}
-            </>
-          )}
-        />
-      </Form>
-    )}
-  </Formik>
-);
-
 export const InsideSectionWrapper = () => (
   <Formik
     initialValues={{

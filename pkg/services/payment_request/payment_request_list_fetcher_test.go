@@ -441,7 +441,6 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 	var expectedOriginDutyLocation []string
 	var officeUser models.OfficeUser
 
-	hhgMoveType := models.SelectedMoveTypeHHG
 	branchNavy := models.AffiliationNAVY
 	paymentRequestListFetcher := NewPaymentRequestListFetcher()
 
@@ -473,8 +472,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 				Affiliation: &branchNavy,
 			},
 			Move: models.Move{
-				SelectedMoveType: &hhgMoveType,
-				Locator:          "AAAA",
+				Locator: "AAAA",
 			},
 			PaymentRequest: models.PaymentRequest{
 				Status: models.PaymentRequestStatusPaid,
@@ -492,8 +490,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 				Edipi:     models.StringPointer("AZFG"),
 			},
 			Move: models.Move{
-				SelectedMoveType: &hhgMoveType,
-				Locator:          "ZZZZ",
+				Locator: "ZZZZ",
 			},
 			Order: models.Order{
 				OriginDutyLocationID: &originDutyLocation2.ID,

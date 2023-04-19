@@ -6,6 +6,7 @@ import ReviewDocumentsSidePanel from './ReviewDocumentsSidePanel';
 
 import { createCompleteWeightTicket } from 'utils/test/factories/weightTicket';
 import PPMDocumentsStatus from 'constants/ppms';
+import { MockProviders } from 'testUtils';
 import { createCompleteProGearWeightTicket } from 'utils/test/factories/proGearWeightTicket';
 import { createCompleteMovingExpense } from 'utils/test/factories/movingExpense';
 import { expenseTypes } from 'constants/ppmExpenseTypes';
@@ -29,7 +30,11 @@ const mockWeightTickets = [
 
 describe('ReviewDocumentsSidePanel', () => {
   it('renders the component', async () => {
-    render(<ReviewDocumentsSidePanel />);
+    render(
+      <MockProviders>
+        <ReviewDocumentsSidePanel />
+      </MockProviders>,
+    );
     const h3 = await screen.getByRole('heading', { name: 'Send to customer?', level: 3 });
     expect(h3).toBeInTheDocument();
   });
@@ -60,11 +65,13 @@ describe('ReviewDocumentsSidePanel', () => {
     ];
 
     render(
-      <ReviewDocumentsSidePanel
-        weightTickets={mockWeightTickets}
-        proGearTickets={progearWeightTickets}
-        expenseTickets={movingExpenses}
-      />,
+      <MockProviders>
+        <ReviewDocumentsSidePanel
+          weightTickets={mockWeightTickets}
+          proGearTickets={progearWeightTickets}
+          expenseTickets={movingExpenses}
+        />
+      </MockProviders>,
     );
 
     const listItems = await screen.getAllByRole('listitem');
