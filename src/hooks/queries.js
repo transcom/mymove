@@ -94,6 +94,7 @@ const useAddWeightTicketsToPPMShipments = (mtoShipments, moveCode) => {
       };
     }),
   });
+  console.log('ppmDocsQueriesResults from origin', ppmDocsQueriesResults);
   return ppmDocsQueriesResults;
 };
 
@@ -756,7 +757,7 @@ export const useMoveDetailsQueries = (moveCode) => {
     mtoServiceItemQuery,
     ...ppmDocsQueriesResults,
   ]);
-  console.log(isLoading, isError, isSuccess);
+  console.log(isLoading, isError, isSuccess, ppmDocsQueriesResults);
 
   return {
     move,
