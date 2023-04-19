@@ -131,11 +131,14 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		officeUser, expectedMove := setupTestData()
 
 		// This move's pickup GBLOC of the office user's GBLOC, so it should not be returned
-		testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
-			PickupAddress: models.Address{
-				PostalCode: agfmPostalCode,
+		factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					PostalCode: agfmPostalCode,
+				},
+				Type: &factory.Addresses.PickupAddress,
 			},
-		})
+		}, nil)
 
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &services.ListOrderParams{Page: swag.Int64(1)})
 
@@ -1178,9 +1181,9 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 			},
 		})
 
-		move2 := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{})
+		move2 := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
 		factory.BuildMTOShipmentWithMove(&move2, suite.DB(), nil, nil)
-		move3 := testdatagen.MakeServiceCounselingCompletedMove(suite.DB(), testdatagen.Assertions{})
+		move3 := factory.BuildServiceCounselingCompletedMove(suite.DB(), nil, nil)
 		factory.BuildMTOShipmentWithMove(&move3, suite.DB(), nil, nil)
 
 		params := services.ListOrderParams{Sort: models.StringPointer("appearedInTooAt"), Order: models.StringPointer("asc")}

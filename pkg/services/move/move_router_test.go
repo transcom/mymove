@@ -541,7 +541,7 @@ func (suite *MoveServiceSuite) TestSendToOfficeUser() {
 	})
 
 	suite.Run("from APPROVALS REQUESTED status", func() {
-		move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{})
+		move := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
 		err := moveRouter.SendToOfficeUser(suite.AppContextForTest(), &move)
 		suite.NoError(err)
 		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, move.Status)

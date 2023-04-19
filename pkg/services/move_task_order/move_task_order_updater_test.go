@@ -29,11 +29,18 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 	)
 
 	suite.Run("Move status is updated successfully (with HHG shipment)", func() {
-		move := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				Status: models.MoveStatusNeedsServiceCounseling,
+		//move := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
+		//	Move: models.Move{
+		//		Status: models.MoveStatusNeedsServiceCounseling,
+		//	},
+		//})
+		move := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusNeedsServiceCounseling,
+				},
 			},
-		})
+		}, nil)
 		eTag := etag.GenerateEtag(move.UpdatedAt)
 
 		actualMTO, err := mtoUpdater.UpdateStatusServiceCounselingCompleted(suite.AppContextForTest(), move.ID, eTag)
