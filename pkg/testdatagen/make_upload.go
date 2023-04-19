@@ -42,7 +42,7 @@ func MakeUpload(db *pop.Connection, assertions Assertions) models.Upload {
 		upload = &models.Upload{
 			Filename:    "testFile.pdf",
 			Bytes:       int64(2202009),
-			ContentType: "application/pdf",
+			ContentType: uploader.FileTypePDF,
 			Checksum:    "ImGQ2Ush0bDHsaQthV5BnQ==",
 			UploadType:  models.UploadTypeUSER,
 		}
