@@ -46,15 +46,23 @@ func buildMTOShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 	buildStorageFacility :=
 		cMtoShipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom ||
 			cMtoShipment.ShipmentType == models.MTOShipmentTypeHHGIntoNTSDom
+	shipmentHasPickupDetails := cMtoShipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTSDom && cMtoShipment.ShipmentType != models.MTOShipmentTypePPM
+	shipmentHasDeliveryDetails := cMtoShipment.ShipmentType != models.MTOShipmentTypeHHGIntoNTSDom && cMtoShipment.ShipmentType != models.MTOShipmentTypePPM
+	addPrimeActualWeight := true
 	switch buildType {
 	case mtoShipmentNTS:
 		defaultShipmentType = models.MTOShipmentTypeHHGIntoNTSDom
 		defaultStatus = models.MTOShipmentStatusDraft
 		buildStorageFacility = hasStorageFacilityCustom
+		shipmentHasPickupDetails = true
+		shipmentHasDeliveryDetails = false
 	case mtoShipmentNTSR:
 		defaultShipmentType = models.MTOShipmentTypeHHGOutOfNTSDom
 		defaultStatus = models.MTOShipmentStatusDraft
 		buildStorageFacility = hasStorageFacilityCustom
+		addPrimeActualWeight = false
+		shipmentHasPickupDetails = false
+		shipmentHasDeliveryDetails = true
 	case mtoShipmentBuildBasic:
 		setupPickupAndDelivery = false
 	default:
@@ -85,17 +93,19 @@ func buildMTOShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 			newMTOShipment.StorageFacilityID = &storageFacility.ID
 		}
 
-		actualWeight := unit.Pound(980)
-		newMTOShipment.PrimeActualWeight = &actualWeight
+		if addPrimeActualWeight {
+			actualWeight := unit.Pound(980)
+			newMTOShipment.PrimeActualWeight = &actualWeight
+		}
 		newMTOShipment.CustomerRemarks = models.StringPointer("Please treat gently")
-
-		shipmentHasPickupDetails := cMtoShipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTSDom && cMtoShipment.ShipmentType != models.MTOShipmentTypePPM
-		shipmentHasDeliveryDetails := cMtoShipment.ShipmentType != models.MTOShipmentTypeHHGIntoNTSDom && cMtoShipment.ShipmentType != models.MTOShipmentTypePPM
 
 		if shipmentHasPickupDetails {
 			newMTOShipment.RequestedPickupDate = models.TimePointer(time.Date(GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC))
 			newMTOShipment.ScheduledPickupDate = models.TimePointer(time.Date(GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC))
 			newMTOShipment.ActualPickupDate = models.TimePointer(time.Date(GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC))
+		}
+
+		if shipmentHasPickupDetails || findValidCustomization(customs, Addresses.PickupAddress) != nil {
 			// Find/create the Pickup Address
 			tempPickupAddressCustoms := customs
 			result := findValidCustomization(customs, Addresses.PickupAddress)

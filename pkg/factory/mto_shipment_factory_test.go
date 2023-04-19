@@ -370,7 +370,12 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 		suite.NotNil(ntsShipment.CustomerRemarks)
 		suite.Equal("Please treat gently", *ntsShipment.CustomerRemarks)
 		suite.Equal(models.MTOShipmentStatusDraft, ntsShipment.Status)
+		suite.NotNil(ntsShipment.PrimeActualWeight)
 		suite.Nil(ntsShipment.StorageFacility)
+		suite.NotNil(ntsShipment.ScheduledPickupDate)
+		suite.Nil(ntsShipment.RequestedDeliveryDate)
+		suite.Nil(ntsShipment.ActualDeliveryDate)
+
 	})
 
 	suite.Run("Successful creation of NTSShipment with storage facility", func() {
@@ -404,7 +409,11 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 		suite.NotNil(ntsrShipment.CustomerRemarks)
 		suite.Equal("Please treat gently", *ntsrShipment.CustomerRemarks)
 		suite.Equal(models.MTOShipmentStatusDraft, ntsrShipment.Status)
+		suite.Nil(ntsrShipment.PrimeActualWeight)
 		suite.Nil(ntsrShipment.StorageFacility)
+		suite.Nil(ntsrShipment.ScheduledPickupDate)
+		suite.NotNil(ntsrShipment.RequestedDeliveryDate)
+		suite.Nil(ntsrShipment.ActualDeliveryDate)
 	})
 
 	suite.Run("Successful creation of NTSRShipment with storage facility", func() {
@@ -417,6 +426,19 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 		}, nil)
 		suite.NotNil(ntsrShipment.StorageFacilityID)
 		suite.Equal(storageFacility.ID, *ntsrShipment.StorageFacilityID)
+	})
+	suite.Run("Successful creation of NTSRShipment with pickup address", func() {
+		address := BuildAddress(suite.DB(), nil, nil)
+		ntsrShipment := BuildNTSRShipment(suite.DB(), []Customization{
+			{
+				Model:    address,
+				LinkOnly: true,
+				Type:     &Addresses.PickupAddress,
+			},
+		}, nil)
+		suite.NotNil(ntsrShipment.PickupAddress)
+		suite.NotNil(ntsrShipment.PickupAddressID)
+		suite.Equal(address.ID, *ntsrShipment.PickupAddressID)
 	})
 
 }
