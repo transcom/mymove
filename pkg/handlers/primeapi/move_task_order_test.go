@@ -173,7 +173,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 			MoveID:      successMove.Locator,
 		}
 
-		sitExtension := testdatagen.MakeSITExtension(suite.DB(), testdatagen.Assertions{
+		sitExtension := testdatagen.MakeSITDurationUpdate(suite.DB(), testdatagen.Assertions{
 			Move: successMove,
 			MTOShipment: models.MTOShipment{
 				Status: models.MTOShipmentStatusApproved,

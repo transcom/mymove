@@ -43,7 +43,7 @@ type listMTOShipmentsSubtestData struct {
 	mtoServiceItem models.MTOServiceItem
 	shipments      models.MTOShipments
 	params         mtoshipmentops.ListMTOShipmentsParams
-	sitExtension   models.SITExtension
+	sitExtension   models.SITDurationUpdate
 	sit            models.MTOServiceItem
 }
 
@@ -173,8 +173,8 @@ func (suite *HandlerSuite) makeListMTOShipmentsSubtestData() (subtestData *listM
 		},
 	}, nil)
 
-	subtestData.sitExtension = testdatagen.MakeSITExtension(suite.DB(), testdatagen.Assertions{
-		SITExtension: models.SITExtension{
+	subtestData.sitExtension = testdatagen.MakeSITDurationUpdate(suite.DB(), testdatagen.Assertions{
+		SITDurationUpdate: models.SITDurationUpdate{
 			MTOShipmentID: mtoShipment.ID,
 		},
 	})
@@ -2453,7 +2453,7 @@ func (suite *HandlerSuite) TestApproveSITExtensionHandler() {
 				},
 			},
 		}, nil)
-		sitExtension := testdatagen.MakePendingSITExtension(suite.DB(), testdatagen.Assertions{
+		sitExtension := testdatagen.MakePendingSITDurationUpdate(suite.DB(), testdatagen.Assertions{
 			MTOShipment: mtoShipment,
 		})
 		eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
@@ -2516,7 +2516,7 @@ func (suite *HandlerSuite) TestDenySITExtensionHandler() {
 				LinkOnly: true,
 			},
 		}, nil)
-		sitExtension := testdatagen.MakePendingSITExtension(suite.DB(), testdatagen.Assertions{
+		sitExtension := testdatagen.MakePendingSITDurationUpdate(suite.DB(), testdatagen.Assertions{
 			MTOShipment: mtoShipment,
 		})
 		eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
@@ -2558,18 +2558,18 @@ func (suite *HandlerSuite) TestDenySITExtensionHandler() {
 	})
 }
 
-func (suite *HandlerSuite) CreateSITExtensionAsTOO() {
+func (suite *HandlerSuite) CreateApprovedSITDurationUpdate() {
 	suite.Run("Returns 200, creates new SIT extension, and updates SIT days allowance on shipment without an allowance when validations pass", func() {
 		mtoShipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
 
 		eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
-		sitExtensionCreatorAsTOO := mtoshipment.NewCreateSITExtensionAsTOO()
+		sitExtensionCreatorAsTOO := mtoshipment.NewApprovedSITDurationUpdateCreator()
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/sit-extension/", mtoShipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerConfig := suite.HandlerConfig()
 
-		handler := CreateSITExtensionAsTOOHandler{
+		handler := CreateApprovedSITDurationUpdateHandler{
 			handlerConfig,
 			sitExtensionCreatorAsTOO,
 			mtoshipment.NewShipmentSITStatus(),
@@ -2577,10 +2577,10 @@ func (suite *HandlerSuite) CreateSITExtensionAsTOO() {
 		approvedDays := int64(10)
 		officeRemarks := "new office remarks"
 		requestReason := "OTHER"
-		createParams := shipmentops.CreateSITExtensionAsTOOParams{
+		createParams := shipmentops.CreateApprovedSITDurationUpdateParams{
 			HTTPRequest: req,
 			IfMatch:     eTag,
-			Body: &ghcmessages.CreateSITExtensionAsTOO{
+			Body: &ghcmessages.CreateApprovedSITDurationUpdate{
 				ApprovedDays:  &approvedDays,
 				OfficeRemarks: &officeRemarks,
 				RequestReason: &requestReason,
@@ -2592,8 +2592,8 @@ func (suite *HandlerSuite) CreateSITExtensionAsTOO() {
 		suite.NoError(createParams.Body.Validate(strfmt.Default))
 
 		response := handler.Handle(createParams)
-		suite.IsType(&shipmentops.CreateSITExtensionAsTOOOK{}, response)
-		okResponse := response.(*shipmentops.CreateSITExtensionAsTOOOK)
+		suite.IsType(&shipmentops.CreateApprovedSITDurationUpdateOK{}, response)
+		okResponse := response.(*shipmentops.CreateApprovedSITDurationUpdateOK)
 		payload := okResponse.Payload
 
 		// Validate outgoing payload
@@ -2617,12 +2617,12 @@ func (suite *HandlerSuite) CreateSITExtensionAsTOO() {
 
 		eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
-		sitExtensionCreatorAsTOO := mtoshipment.NewCreateSITExtensionAsTOO()
+		sitExtensionCreatorAsTOO := mtoshipment.NewApprovedSITDurationUpdateCreator()
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/sit-extension/", mtoShipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerConfig := suite.HandlerConfig()
 
-		handler := CreateSITExtensionAsTOOHandler{
+		handler := CreateApprovedSITDurationUpdateHandler{
 			handlerConfig,
 			sitExtensionCreatorAsTOO,
 			mtoshipment.NewShipmentSITStatus(),
@@ -2630,10 +2630,10 @@ func (suite *HandlerSuite) CreateSITExtensionAsTOO() {
 		approvedDays := int64(10)
 		officeRemarks := "new office remarks"
 		requestReason := "OTHER"
-		createParams := shipmentops.CreateSITExtensionAsTOOParams{
+		createParams := shipmentops.CreateApprovedSITDurationUpdateParams{
 			HTTPRequest: req,
 			IfMatch:     eTag,
-			Body: &ghcmessages.CreateSITExtensionAsTOO{
+			Body: &ghcmessages.CreateApprovedSITDurationUpdate{
 				ApprovedDays:  &approvedDays,
 				OfficeRemarks: &officeRemarks,
 				RequestReason: &requestReason,
@@ -2645,8 +2645,8 @@ func (suite *HandlerSuite) CreateSITExtensionAsTOO() {
 		suite.NoError(createParams.Body.Validate(strfmt.Default))
 
 		response := handler.Handle(createParams)
-		suite.IsType(&shipmentops.CreateSITExtensionAsTOOOK{}, response)
-		okResponse := response.(*shipmentops.CreateSITExtensionAsTOOOK)
+		suite.IsType(&shipmentops.CreateApprovedSITDurationUpdateOK{}, response)
+		okResponse := response.(*shipmentops.CreateApprovedSITDurationUpdateOK)
 		payload := okResponse.Payload
 
 		// Validate outgoing payload

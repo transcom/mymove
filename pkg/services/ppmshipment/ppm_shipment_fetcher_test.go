@@ -741,6 +741,9 @@ func (suite *PPMShipmentSuite) TestFetchPPMShipment() {
 	})
 
 	suite.Run("FindPPMShipment - loads signed certification", func() {
+		// cannot switch yet to BuildSignedCertification because of import
+		// cycle factory -> testdatagen -> factory MakePPMShipment will
+		// need to be replaced with a factory
 		signedCertification := testdatagen.MakeSignedCertificationForPPM(suite.DB(), testdatagen.Assertions{})
 
 		actualShipment, err := FindPPMShipment(suite.AppContextForTest(), *signedCertification.PpmID)

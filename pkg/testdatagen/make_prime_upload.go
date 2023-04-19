@@ -28,7 +28,7 @@ func MakePrimeUpload(db *pop.Connection, assertions Assertions) models.PrimeUplo
 	contractor := assertions.PrimeUpload.Contractor
 	if isZeroUUID(assertions.PrimeUpload.ContractorID) {
 		if isZeroUUID(assertions.Contractor.ID) {
-			contractor = MakeContractor(db, assertions)
+			contractor = FetchOrMakeContractor(db, assertions)
 		} else {
 			contractor = assertions.Contractor
 		}

@@ -1,6 +1,8 @@
 package uploader_test
 
 import (
+	"fmt"
+
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -19,7 +21,7 @@ func (suite *UploaderSuite) TestPrimeUploadFromLocalFile() {
 	primeUpload, verrs, err := primeUploader.CreatePrimeUploadForDocument(suite.AppContextForTest(), &document.ID, contractor.ID, uploader.File{File: file}, uploader.AllowedTypesPDF)
 	suite.Nil(err, "failed to create upload")
 	suite.False(verrs.HasAny(), "failed to validate upload", verrs)
-	suite.Equal(primeUpload.Upload.ContentType, "application/pdf")
+	suite.Equal(primeUpload.Upload.ContentType, uploader.FileTypePDF)
 	suite.Equal(primeUpload.Upload.Checksum, "nOE6HwzyE4VEDXn67ULeeA==")
 }
 
@@ -53,7 +55,7 @@ func (suite *UploaderSuite) TestPrimeUploadFromLocalFileWrongContentType() {
 
 	upload, verrs, err := primeUploader.CreatePrimeUploadForDocument(suite.AppContextForTest(), &document.ID, contractor.ID, uploader.File{File: file}, uploader.AllowedTypesPDF)
 	suite.Error(err)
-	suite.Equal("content type \"application/octet-stream\" is not one of the supported types [application/pdf]", err.Error())
+	suite.Equal(fmt.Sprintf("content type \"application/octet-stream\" is not one of the supported types [%s]", uploader.FileTypePDF), err.Error())
 	suite.True(verrs.HasAny(), "invalid content type for upload")
 	suite.Nil(upload, "returned an upload when erroring")
 }

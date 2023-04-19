@@ -7,7 +7,6 @@ import (
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *CustomerSupportRemarksSuite) setupTestData() (models.CustomerSupportRemarks, models.Move) {
@@ -17,13 +16,21 @@ func (suite *CustomerSupportRemarksSuite) setupTestData() (models.CustomerSuppor
 
 	var customerSupportRemarks models.CustomerSupportRemarks
 	for i := 0; i < 5; i++ {
-		remark := testdatagen.MakeCustomerSupportRemark(suite.DB(),
-			testdatagen.Assertions{
-				CustomerSupportRemark: models.CustomerSupportRemark{
-					Content:      fmt.Sprintln("This is remark number: %i", i),
-					OfficeUserID: officeUser.ID,
-					MoveID:       move.ID,
-				}})
+		remark := factory.BuildCustomerSupportRemark(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    officeUser,
+				LinkOnly: true,
+			},
+			{
+				Model: models.CustomerSupportRemark{
+					Content: fmt.Sprintln("This is remark number: %i", i),
+				},
+			},
+		}, nil)
 		customerSupportRemarks = append(customerSupportRemarks, remark)
 	}
 	return customerSupportRemarks, move
@@ -37,13 +44,21 @@ func (suite *CustomerSupportRemarksSuite) setupTestDataMultipleUsers() (models.C
 	for i := 0; i < 3; i++ {
 		officeUsers = append(officeUsers, factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO}))
 		for x := 0; x < 2; x++ {
-			remark := testdatagen.MakeCustomerSupportRemark(suite.DB(),
-				testdatagen.Assertions{
-					CustomerSupportRemark: models.CustomerSupportRemark{
-						Content:      fmt.Sprintln("This is remark number: %i", i),
-						OfficeUserID: officeUsers[i].ID,
-						MoveID:       move.ID,
-					}})
+			remark := factory.BuildCustomerSupportRemark(suite.DB(), []factory.Customization{
+				{
+					Model:    move,
+					LinkOnly: true,
+				},
+				{
+					Model:    officeUsers[i],
+					LinkOnly: true,
+				},
+				{
+					Model: models.CustomerSupportRemark{
+						Content: fmt.Sprintln("This is remark number: %i", i),
+					},
+				},
+			}, nil)
 			customerSupportRemarks = append(customerSupportRemarks, remark)
 		}
 	}
@@ -83,23 +98,39 @@ func (suite *CustomerSupportRemarksSuite) TestCustomerSupportRemarksListFetcher(
 	suite.Run("Soft deleted remarks should not be returned", func() {
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		move := factory.BuildMove(suite.DB(), nil, nil)
-		remark := testdatagen.MakeCustomerSupportRemark(suite.DB(),
-			testdatagen.Assertions{
-				CustomerSupportRemark: models.CustomerSupportRemark{
-					Content:      "this is a remark",
-					OfficeUserID: officeUser.ID,
-					MoveID:       move.ID,
-				}})
+		remark := factory.BuildCustomerSupportRemark(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    officeUser,
+				LinkOnly: true,
+			},
+			{
+				Model: models.CustomerSupportRemark{
+					Content: "this is a remark",
+				},
+			},
+		}, nil)
 
 		deletedTime := time.Now()
-		testdatagen.MakeCustomerSupportRemark(suite.DB(),
-			testdatagen.Assertions{
-				CustomerSupportRemark: models.CustomerSupportRemark{
-					Content:      "this is a deleted remark",
-					OfficeUserID: officeUser.ID,
-					MoveID:       move.ID,
-					DeletedAt:    &deletedTime,
-				}})
+		factory.BuildCustomerSupportRemark(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    officeUser,
+				LinkOnly: true,
+			},
+			{
+				Model: models.CustomerSupportRemark{
+					Content:   "this is a deleted remark",
+					DeletedAt: &deletedTime,
+				},
+			},
+		}, nil)
 		customerSupportRemarks, err := fetcher.ListCustomerSupportRemarks(suite.AppContextForTest(), move.Locator)
 		suite.NoError(err)
 		suite.NotNil(customerSupportRemarks)
