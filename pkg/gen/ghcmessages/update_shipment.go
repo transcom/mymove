@@ -47,6 +47,12 @@ type UpdateShipment struct {
 	// destination type
 	DestinationType *DestinationType `json:"destinationType,omitempty"`
 
+	// has secondary delivery address
+	HasSecondaryDeliveryAddress *bool `json:"hasSecondaryDeliveryAddress"`
+
+	// has secondary pickup address
+	HasSecondaryPickupAddress *bool `json:"hasSecondaryPickupAddress"`
+
 	// The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.
 	// Example: 2000
 	NtsRecordedWeight *int64 `json:"ntsRecordedWeight,omitempty"`
@@ -69,6 +75,12 @@ type UpdateShipment struct {
 
 	// sac type
 	SacType nullable.String `json:"sacType,omitempty"`
+
+	// secondary delivery address
+	SecondaryDeliveryAddress *Address `json:"secondaryDeliveryAddress,omitempty"`
+
+	// secondary pickup address
+	SecondaryPickupAddress *Address `json:"secondaryPickupAddress,omitempty"`
 
 	// service order number
 	ServiceOrderNumber *string `json:"serviceOrderNumber,omitempty"`
@@ -120,6 +132,14 @@ func (m *UpdateShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateSacType(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSecondaryDeliveryAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSecondaryPickupAddress(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -253,6 +273,44 @@ func (m *UpdateShipment) validateSacType(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *UpdateShipment) validateSecondaryDeliveryAddress(formats strfmt.Registry) error {
+	if swag.IsZero(m.SecondaryDeliveryAddress) { // not required
+		return nil
+	}
+
+	if m.SecondaryDeliveryAddress != nil {
+		if err := m.SecondaryDeliveryAddress.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("secondaryDeliveryAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("secondaryDeliveryAddress")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *UpdateShipment) validateSecondaryPickupAddress(formats strfmt.Registry) error {
+	if swag.IsZero(m.SecondaryPickupAddress) { // not required
+		return nil
+	}
+
+	if m.SecondaryPickupAddress != nil {
+		if err := m.SecondaryPickupAddress.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("secondaryPickupAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("secondaryPickupAddress")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *UpdateShipment) validateShipmentType(formats strfmt.Registry) error {
 	if swag.IsZero(m.ShipmentType) { // not required
 		return nil
@@ -331,6 +389,14 @@ func (m *UpdateShipment) ContextValidate(ctx context.Context, formats strfmt.Reg
 	}
 
 	if err := m.contextValidateSacType(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateSecondaryDeliveryAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateSecondaryPickupAddress(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -417,6 +483,38 @@ func (m *UpdateShipment) contextValidateSacType(ctx context.Context, formats str
 			return ce.ValidateName("sacType")
 		}
 		return err
+	}
+
+	return nil
+}
+
+func (m *UpdateShipment) contextValidateSecondaryDeliveryAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.SecondaryDeliveryAddress != nil {
+		if err := m.SecondaryDeliveryAddress.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("secondaryDeliveryAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("secondaryDeliveryAddress")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *UpdateShipment) contextValidateSecondaryPickupAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.SecondaryPickupAddress != nil {
+		if err := m.SecondaryPickupAddress.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("secondaryPickupAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("secondaryPickupAddress")
+			}
+			return err
+		}
 	}
 
 	return nil

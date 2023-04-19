@@ -796,6 +796,8 @@ paths:
         * Customer requested pick-up date
         * Pick-up Address
         * Delivery Address
+        * Secondary Pick-up Address
+        * Secondary Delivery Address
         * Delivery Address Type
         * Customer Remarks
         * Counselor Remarks
@@ -4291,10 +4293,22 @@ definitions:
       pickupAddress:
         allOf:
           - $ref: '#/definitions/Address'
+      secondaryPickupAddress:
+        $ref: '#/definitions/Address'
+      hasSecondaryPickupAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
       destinationAddress:
         allOf:
           - $ref: '#/definitions/Address'
         x-nullable: true
+      secondaryDeliveryAddress:
+        $ref: '#/definitions/Address'
+      hasSecondaryDeliveryAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
       destinationType:
         $ref: '#/definitions/DestinationType'
       agents:

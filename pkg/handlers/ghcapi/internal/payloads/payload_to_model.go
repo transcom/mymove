@@ -356,9 +356,21 @@ func MTOShipmentModelFromUpdate(mtoShipment *ghcmessages.UpdateShipment) *models
 		SACType:                     sacType,
 		UsesExternalVendor:          usesExternalVendor,
 		ServiceOrderNumber:          mtoShipment.ServiceOrderNumber,
+		HasSecondaryPickupAddress:   mtoShipment.HasSecondaryPickupAddress,
+		HasSecondaryDeliveryAddress: mtoShipment.HasSecondaryDeliveryAddress,
 	}
 
 	model.PickupAddress = AddressModel(&mtoShipment.PickupAddress.Address)
+	if mtoShipment.HasSecondaryPickupAddress != nil {
+		if *mtoShipment.HasSecondaryPickupAddress {
+			model.SecondaryPickupAddress = AddressModel(mtoShipment.SecondaryPickupAddress)
+		}
+	}
+	if mtoShipment.HasSecondaryDeliveryAddress != nil {
+		if *mtoShipment.HasSecondaryDeliveryAddress {
+			model.SecondaryDeliveryAddress = AddressModel(mtoShipment.SecondaryDeliveryAddress)
+		}
+	}
 	model.DestinationAddress = AddressModel(&mtoShipment.DestinationAddress.Address)
 
 	if mtoShipment.DestinationType != nil {
