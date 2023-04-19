@@ -611,7 +611,6 @@ func (suite *HandlerSuite) TestSubmitAmendedOrdersHandler() {
 				Type:  &factory.Documents.UploadedAmendedOrders,
 			},
 		}, nil)
-
 		// And: the context contains the auth values
 		req := httptest.NewRequest("POST", "/moves/some_id/submit_amended_orders", nil)
 		req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
