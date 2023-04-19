@@ -10164,7 +10164,7 @@ func makePendingSITExtensionsForShipment(appCtx appcontext.AppContext, shipment 
 	}, nil)
 
 	for i := 0; i < 2; i++ {
-		testdatagen.MakePendingSITExtension(db, testdatagen.Assertions{
+		testdatagen.MakePendingSITDurationUpdate(db, testdatagen.Assertions{
 			MTOShipment: shipment,
 		})
 	}
@@ -10177,8 +10177,8 @@ func MakeSITExtensionsForShipment(appCtx appcontext.AppContext, shipment models.
 	sitOfficeRemarks1 := "The service member is unable to move into their new home at the expected time."
 	approvedDays := 90
 
-	testdatagen.MakeSITExtension(db, testdatagen.Assertions{
-		SITExtension: models.SITExtension{
+	testdatagen.MakeSITDurationUpdate(db, testdatagen.Assertions{
+		SITDurationUpdate: models.SITDurationUpdate{
 			ContractorRemarks: &sitContractorRemarks1,
 			OfficeRemarks:     &sitOfficeRemarks1,
 			ApprovedDays:      &approvedDays,
@@ -10186,8 +10186,8 @@ func MakeSITExtensionsForShipment(appCtx appcontext.AppContext, shipment models.
 		MTOShipment: shipment,
 	})
 
-	testdatagen.MakeSITExtension(db, testdatagen.Assertions{
-		SITExtension: models.SITExtension{
+	testdatagen.MakeSITDurationUpdate(db, testdatagen.Assertions{
+		SITDurationUpdate: models.SITDurationUpdate{
 			ApprovedDays: &approvedDays,
 		},
 		MTOShipment: shipment,
