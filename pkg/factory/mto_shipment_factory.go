@@ -20,6 +20,8 @@ type mtoShipmentBuildType byte
 const (
 	mtoShipmentBuildBasic mtoShipmentBuildType = iota
 	mtoShipmentBuild
+	mtoShipmentNTS
+	mtoShipmentNTSR
 )
 
 func buildMTOShipmentWithBuildType(db *pop.Connection, customs []Customization, traits []Trait, buildType mtoShipmentBuildType) models.MTOShipment {
@@ -35,13 +37,36 @@ func buildMTOShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 	}
 
 	move := BuildMove(db, customs, traits)
-	shipmentType := models.MTOShipmentTypeHHG
+
+	// defaults change depending on mtoshipment build type
+	defaultShipmentType := models.MTOShipmentTypeHHG
+	defaultStatus := models.MTOShipmentStatusSubmitted
+	setupPickupAndDelivery := true
+	hasStorageFacilityCustom := findValidCustomization(customs, StorageFacility) != nil
+	buildStorageFacility :=
+		cMtoShipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom ||
+			cMtoShipment.ShipmentType == models.MTOShipmentTypeHHGIntoNTSDom
+	switch buildType {
+	case mtoShipmentNTS:
+		defaultShipmentType = models.MTOShipmentTypeHHGIntoNTSDom
+		defaultStatus = models.MTOShipmentStatusDraft
+		buildStorageFacility = hasStorageFacilityCustom
+	case mtoShipmentNTSR:
+		defaultShipmentType = models.MTOShipmentTypeHHGOutOfNTSDom
+		defaultStatus = models.MTOShipmentStatusDraft
+		buildStorageFacility = hasStorageFacilityCustom
+	case mtoShipmentBuildBasic:
+		setupPickupAndDelivery = false
+	default:
+		defaultShipmentType = models.MTOShipmentTypeHHG
+		setupPickupAndDelivery = true
+	}
 
 	newMTOShipment := models.MTOShipment{
 		MoveTaskOrder:   move,
 		MoveTaskOrderID: move.ID,
-		ShipmentType:    shipmentType,
-		Status:          models.MTOShipmentStatusSubmitted,
+		ShipmentType:    defaultShipmentType,
+		Status:          defaultStatus,
 	}
 
 	if cMtoShipment.Status == models.MTOShipmentStatusApproved {
@@ -49,10 +74,10 @@ func buildMTOShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 		newMTOShipment.ApprovedDate = &approvedDate
 	}
 
-	if buildType == mtoShipmentBuild {
+	if setupPickupAndDelivery {
 		newMTOShipment.Status = models.MTOShipmentStatusDraft
 
-		if cMtoShipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom || cMtoShipment.ShipmentType == models.MTOShipmentTypeHHGIntoNTSDom {
+		if buildStorageFacility {
 			storageFacility := BuildStorageFacility(db, customs, traits)
 			// only set storage facility pointers if building a
 			// storage facility
@@ -256,10 +281,40 @@ func BuildMTOShipmentWithMove(move *models.Move, db *pop.Connection, customs []C
 
 }
 
+func BuildNTSShipment(db *pop.Connection, customs []Customization, traits []Trait) models.MTOShipment {
+	// add secondary if not already customized
+	result := findValidCustomization(customs, Addresses.SecondaryPickupAddress)
+	if result == nil {
+		// we already know customs do not apply
+		secondaryAddress := BuildAddress(db, nil, traits)
+		customs = append(customs, Customization{
+			Model:    secondaryAddress,
+			LinkOnly: true,
+			Type:     &Addresses.SecondaryPickupAddress,
+		})
+	}
+
+	return buildMTOShipmentWithBuildType(db, customs, traits, mtoShipmentNTS)
+}
+
+func BuildNTSRShipment(db *pop.Connection, customs []Customization, traits []Trait) models.MTOShipment {
+	// add secondary if not already customized
+	result := findValidCustomization(customs, Addresses.SecondaryDeliveryAddress)
+	if result == nil {
+		// we already know customs do not apply
+		secondaryAddress := BuildAddress(db, nil, traits)
+		customs = append(customs, Customization{
+			Model:    secondaryAddress,
+			LinkOnly: true,
+			Type:     &Addresses.SecondaryDeliveryAddress,
+		})
+	}
+	return buildMTOShipmentWithBuildType(db, customs, traits, mtoShipmentNTSR)
+}
+
 // ------------------------
 //        TRAITS
 // ------------------------
-
 func GetTraitSubmittedShipment() []Customization {
 	return []Customization{
 		{
