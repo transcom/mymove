@@ -154,9 +154,9 @@ func MakeMinimalStubbedPPMShipment(db *pop.Connection) models.PPMShipment {
 	})
 }
 
-// MakeApprovedPPMShipmentWaitingOnCustomer creates a single PPMShipment that has been approved by a counselor and is
-// waiting on the customer to fill in the info for the actual move and upload necessary documents.
-func MakeApprovedPPMShipmentWaitingOnCustomer(db *pop.Connection, assertions Assertions) models.PPMShipment {
+// MakeApprovedPPMShipment creates a single PPMShipment that has been approved by a counselor, but hasn't had an AOA
+// packet generated yet, if even applicable.
+func MakeApprovedPPMShipment(db *pop.Connection, assertions Assertions) models.PPMShipment {
 	submittedTime := time.Now()
 	approvedTime := submittedTime.AddDate(0, 0, 3)
 
@@ -178,31 +178,41 @@ func MakeApprovedPPMShipmentWaitingOnCustomer(db *pop.Connection, assertions Ass
 	// Overwrite values with those from assertions
 	mergeModels(&fullAssertions, assertions)
 
-	ppmShipment := MakePPMShipment(db, fullAssertions)
+	return MakePPMShipment(db, fullAssertions)
+}
 
-	if ppmShipment.HasRequestedAdvance != nil && *ppmShipment.HasRequestedAdvance {
-		aoaFullAssertions := Assertions{
-			ServiceMember: ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember,
-		}
+// MakeApprovedPPMShipmentWaitingOnCustomer creates a single PPMShipment that has been approved by a counselor and is
+// waiting on the customer to fill in the info for the actual move and upload necessary documents.
+func MakeApprovedPPMShipmentWaitingOnCustomer(db *pop.Connection, assertions Assertions) models.PPMShipment {
+	// It's easier to use some of the data from other downstream functions if we have them go first and then make our
+	// changes on top of those changes.
+	ppmShipment := MakeApprovedPPMShipment(db, assertions)
 
-		mergeModels(&aoaFullAssertions, assertions)
-
-		aoaFullAssertions = EnsureServiceMemberIsSetUpInAssertionsForDocumentCreation(db, aoaFullAssertions)
-
-		aoaDocumentAssertion := models.Document{}
-		if aoaFullAssertions.PPMShipment.AOAPacket != nil {
-			aoaDocumentAssertion = *aoaFullAssertions.PPMShipment.AOAPacket
-		}
-
-		if aoaFullAssertions.File == nil {
-			aoaFullAssertions.File = Fixture("aoa-packet.pdf")
-		}
-
-		aoaPacket := GetOrCreateDocumentWithUploads(db, aoaDocumentAssertion, aoaFullAssertions)
-
-		ppmShipment.AOAPacket = &aoaPacket
-		ppmShipment.AOAPacketID = &aoaPacket.ID
+	if ppmShipment.HasRequestedAdvance == nil || !*ppmShipment.HasRequestedAdvance {
+		return ppmShipment
 	}
+
+	aoaFullAssertions := Assertions{
+		ServiceMember: ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember,
+	}
+
+	mergeModels(&aoaFullAssertions, assertions)
+
+	aoaFullAssertions = EnsureServiceMemberIsSetUpInAssertionsForDocumentCreation(db, aoaFullAssertions)
+
+	aoaDocumentAssertion := models.Document{}
+	if aoaFullAssertions.PPMShipment.AOAPacket != nil {
+		aoaDocumentAssertion = *aoaFullAssertions.PPMShipment.AOAPacket
+	}
+
+	if aoaFullAssertions.File == nil {
+		aoaFullAssertions.File = Fixture("aoa-packet.pdf")
+	}
+
+	aoaPacket := GetOrCreateDocumentWithUploads(db, aoaDocumentAssertion, aoaFullAssertions)
+
+	ppmShipment.AOAPacket = &aoaPacket
+	ppmShipment.AOAPacketID = &aoaPacket.ID
 
 	if !assertions.Stub {
 		MustSave(db, &ppmShipment)
