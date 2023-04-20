@@ -47,6 +47,7 @@ const MovePaymentRequests = ({
   const history = useHistory();
 
   const queryResults = useMovePaymentRequestsQueries(moveCode);
+  // Is this enough annotation?
   // eslint-disable-next-line no-console
   console.log('queryResults: ', queryResults);
   const { move, paymentRequests, order, mtoShipments, isLoading, isError } = queryResults;
@@ -92,6 +93,7 @@ const MovePaymentRequests = ({
 
   const { mutate: mutateMTOhipment } = useMutation(updateMTOShipment, {
     onSuccess(_, variables) {
+      // is this enough annotation?
       // eslint-disable-next-line no-console
       console.log('in on success of mutate, going to set mtoShipments to ', mtoShipments);
       queryClient.setQueryData([MTO_SHIPMENTS, variables.moveTaskOrderID, false], mtoShipments);
@@ -153,6 +155,7 @@ const MovePaymentRequests = ({
   if (isError) return <SomethingWentWrong />;
 
   const shipmentsInfo = [];
+  // is this enough annotation?
   // eslint-disable-next-line no-console
   console.log('about to hit the part that fails, I have query results: ', queryResults);
   if (paymentRequests.length) {
