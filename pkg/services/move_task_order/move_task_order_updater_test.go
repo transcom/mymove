@@ -29,11 +29,6 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 	)
 
 	suite.Run("Move status is updated successfully (with HHG shipment)", func() {
-		//move := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
-		//	Move: models.Move{
-		//		Status: models.MoveStatusNeedsServiceCounseling,
-		//	},
-		//})
 		move := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.Move{
@@ -459,7 +454,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableTo
 		serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
 		mtoUpdater := NewMoveTaskOrderUpdater(queryBuilder, serviceItemCreator, moveRouter)
 
-		move := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
+		move := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
 		eTag := etag.GenerateEtag(move.UpdatedAt)
 		fetchedMove := models.Move{}
 		var serviceItems models.MTOServiceItems
@@ -490,7 +485,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableTo
 		serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
 		mtoUpdater := NewMoveTaskOrderUpdater(queryBuilder, serviceItemCreator, moveRouter)
 
-		move := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
+		move := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
 		eTag := etag.GenerateEtag(move.UpdatedAt)
 		fetchedMove := models.Move{}
 		var serviceItems models.MTOServiceItems
@@ -518,7 +513,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableTo
 		serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
 		mtoUpdater := NewMoveTaskOrderUpdater(queryBuilder, serviceItemCreator, moveRouter)
 
-		move := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
+		move := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
 		eTag := etag.GenerateEtag(move.UpdatedAt)
 		fetchedMove := models.Move{}
 		var serviceItems models.MTOServiceItems
@@ -544,7 +539,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableTo
 		mockserviceItemCreator := &mocks.MTOServiceItemCreator{}
 		mtoUpdater := NewMoveTaskOrderUpdater(queryBuilder, mockserviceItemCreator, moveRouter)
 
-		move := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
+		move := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
 		eTag := etag.GenerateEtag(move.UpdatedAt)
 		fetchedMove := models.Move{}
 

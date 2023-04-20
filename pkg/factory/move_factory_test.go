@@ -258,7 +258,7 @@ func (suite *FactorySuite) TestBuildMove() {
 		// Expected outcome:Move with shipment
 
 		move := BuildMoveWithShipment(suite.DB(), nil, nil)
-		suite.NotNil(move.MTOShipments)
+		suite.NotEmpty(move.MTOShipments)
 		suite.Equal(models.MTOShipmentStatusSubmitted, move.MTOShipments[0].Status)
 	})
 

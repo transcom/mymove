@@ -2969,13 +2969,22 @@ func createMoveWithPPM(appCtx appcontext.AppContext, userUploader *uploader.User
 
 func createMoveWithHHGMissingOrdersInfo(appCtx appcontext.AppContext, moveRouter services.MoveRouter, userUploader *uploader.UserUploader) {
 	db := appCtx.DB()
-	move := testdatagen.MakeHHGMoveWithShipment(db, testdatagen.Assertions{
-		Move: models.Move{
-			Locator: "REQINF",
-			Status:  models.MoveStatusDRAFT,
+	move := factory.BuildMoveWithShipment(db, []factory.Customization{
+		{
+			Model: models.Move{
+				Locator: "REQINF",
+				Status:  models.MoveStatusDRAFT,
+			},
 		},
-		UserUploader: userUploader,
-	})
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
+
 	order := move.Orders
 	order.TAC = nil
 	order.OrdersNumber = nil
@@ -3460,22 +3469,36 @@ func createMoveWithNTSAndNTSR(appCtx appcontext.AppContext, userUploader *upload
 
 func createNTSMove(appCtx appcontext.AppContext) {
 	db := appCtx.DB()
-	testdatagen.MakeNTSMoveWithShipment(db, testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			FirstName: models.StringPointer("Spaceman"),
-			LastName:  models.StringPointer("NTS"),
+	factory.BuildMoveWithShipment(db, []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				FirstName: models.StringPointer("Spaceman"),
+				LastName:  models.StringPointer("NTS"),
+			},
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypeHHGIntoNTSDom,
+			},
+		},
+	}, nil)
 }
 
 func createNTSRMove(appCtx appcontext.AppContext) {
 	db := appCtx.DB()
-	testdatagen.MakeNTSRMoveWithShipment(db, testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			FirstName: models.StringPointer("Spaceman"),
-			LastName:  models.StringPointer("NTS-release"),
+	factory.BuildMoveWithShipment(db, []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				FirstName: models.StringPointer("Spaceman"),
+				LastName:  models.StringPointer("NTS-release"),
+			},
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypeHHGOutOfNTSDom,
+			},
+		},
+	}, nil)
 }
 
 func createDefaultHHGMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, affiliation models.ServiceMemberAffiliation) {
