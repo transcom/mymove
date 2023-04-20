@@ -258,14 +258,14 @@ func (suite *MigrateSuite) TestSplitStatementsCopyFromStdinMultiple() {
 	go SplitStatements(lines, statements, wait, suite.Logger())
 
 	expectedStmt := []string{
-		"COPY public.tariff400ng_full_unpack_rates (id, schedule, rate_millicents, effective_date_lower, effective_date_upper, created_at, updated_at) FROM stdin;",
-		"759fc749-2c32-4529-ad8a-131df722cb17\t1\t629370\t2020-05-15\t2021-05-15\t2020-03-23 16:31:50.313853\t2020-03-23 16:31:50.313853",
-		"8bd34c5c-ef6e-45b1-9d3d-8a89e46af743\t2\t696150\t2020-05-15\t2021-05-15\t2020-03-23 16:31:50.313853\t2020-03-23 16:31:50.313853",
+		"COPY public.re_services (id, code, name, created_at, updated_at, priority) FROM stdin;",
+		"759fc749-2c32-4529-ad8a-131df722cb17\t1\tCat\t2020-03-23 16:31:50.313853\t2020-03-23 16:31:50.313853\t1",
+		"8bd34c5c-ef6e-45b1-9d3d-8a89e46af743\t2\tBob\t2020-03-23 16:31:50.313853\t2020-03-23 16:31:50.313853\t2",
 		"\\.",
-		"COPY public.tariff400ng_shorthaul_rates (id, cwt_miles_lower, cwt_miles_upper, rate_cents, effective_date_lower, effective_date_upper, created_at, updated_at) FROM stdin;",
-		"55c74996-f208-414d-b8de-022938dbfe1e\t0\t16001\t35511\t2020-05-15\t2021-05-15\t2020-03-23 16:31:50.324166\t2020-03-23 16:31:50.324166",
-		"b8e87afb-6287-4837-8b49-a6cf3aad0d1a\t16001\t32001\t31567\t2020-05-15\t2021-05-15\t2020-03-23 16:31:50.324166\t2020-03-23 16:31:50.324166",
-		"b36e9835-9794-4465-8c43-b63088c5ebe1\t32001\t64001\t27620\t2020-05-15\t2021-05-15\t2020-03-23 16:31:50.324166\t2020-03-23 16:31:50.324166",
+		"COPY public.re_contracts (id, code, name, created_at, updated_at) FROM stdin;",
+		"55c74996-f208-414d-b8de-022938dbfe1e\t1\tMary\t2020-03-23 16:31:50.324166\t2020-03-23 16:31:50.324166",
+		"b8e87afb-6287-4837-8b49-a6cf3aad0d1a\t2\tFrank\t2020-03-23 16:31:50.324166\t2020-03-23 16:31:50.324166",
+		"b36e9835-9794-4465-8c43-b63088c5ebe1\t3\tSam\t2020-03-23 16:31:50.324166\t2020-03-23 16:31:50.324166",
 		"\\.",
 	}
 

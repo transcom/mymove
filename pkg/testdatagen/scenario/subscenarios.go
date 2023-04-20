@@ -268,28 +268,45 @@ func subScenarioCustomerSupportRemarks(appCtx appcontext.AppContext) func() {
 		}, nil)
 
 		officeUser := factory.BuildOfficeUserWithRoles(appCtx.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
-		testdatagen.MakeCustomerSupportRemark(appCtx.DB(), testdatagen.Assertions{
-			CustomerSupportRemark: models.CustomerSupportRemark{
-				Content: "This is a customer support remark. It can have text content like this." +
-					"This comment has some length to it because sometimes people type a lot of thoughts." +
-					"For example during this move the customer perhaps called and explained a unique situation" +
-					"that they have to me, leading me to leave this note. Hopefully that could turn into " +
-					"some sort of helpful action that leads to a resolution that makes things swell for them." +
-					"Here's some more text just to make sure I've gotten all my thoughts out, though I do realize" +
-					"how meta this whole thing sounds." +
-					"Also Grace Griffin told me to write this.",
-				OfficeUserID: officeUser.ID,
-				MoveID:       remarkMove.ID,
+		factory.BuildCustomerSupportRemark(appCtx.DB(), []factory.Customization{
+			{
+				Model:    remarkMove,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model:    officeUser,
+				LinkOnly: true,
+			},
+			{
+				Model: models.CustomerSupportRemark{
+					Content: "This is a customer support remark. It can have text content like this." +
+						"This comment has some length to it because sometimes people type a lot of thoughts." +
+						"For example during this move the customer perhaps called and explained a unique situation" +
+						"that they have to me, leading me to leave this note. Hopefully that could turn into " +
+						"some sort of helpful action that leads to a resolution that makes things swell for them." +
+						"Here's some more text just to make sure I've gotten all my thoughts out, though I do realize" +
+						"how meta this whole thing sounds." +
+						"Also Grace Griffin told me to write this.",
+				},
+			},
+		}, nil)
 		officeUser2 := factory.BuildOfficeUserWithRoles(appCtx.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
-		testdatagen.MakeCustomerSupportRemark(appCtx.DB(), testdatagen.Assertions{
-			CustomerSupportRemark: models.CustomerSupportRemark{
-				Content:      "The customer mentioned that there was some damage done to their grandfather clock.",
-				OfficeUserID: officeUser2.ID,
-				MoveID:       remarkMove.ID,
+
+		factory.BuildCustomerSupportRemark(appCtx.DB(), []factory.Customization{
+			{
+				Model:    remarkMove,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model:    officeUser2,
+				LinkOnly: true,
+			},
+			{
+				Model: models.CustomerSupportRemark{
+					Content: "The customer mentioned that there was some damage done to their grandfather clock.",
+				},
+			},
+		}, nil)
 	}
 }
 

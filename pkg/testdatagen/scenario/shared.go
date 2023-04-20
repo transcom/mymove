@@ -9000,13 +9000,21 @@ func CreateNeedsServicesCounseling(appCtx appcontext.AppContext, ordersType inte
 		},
 	}, nil)
 	officeUser := factory.BuildOfficeUserWithRoles(db, nil, []roles.RoleType{roles.RoleTypeTOO})
-	testdatagen.MakeCustomerSupportRemark(appCtx.DB(), testdatagen.Assertions{
-		CustomerSupportRemark: models.CustomerSupportRemark{
-			Content:      "The customer mentioned that they need to provide some more complex instructions for pickup and drop off.",
-			OfficeUserID: officeUser.ID,
-			MoveID:       move.ID,
+	factory.BuildCustomerSupportRemark(db, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    officeUser,
+			LinkOnly: true,
+		},
+		{
+			Model: models.CustomerSupportRemark{
+				Content: "The customer mentioned that they need to provide some more complex instructions for pickup and drop off.",
+			},
+		},
+	}, nil)
 
 	return move
 }
