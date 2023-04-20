@@ -29,7 +29,8 @@ func NewPostalCodeValidator(clock clock.Clock) services.PostalCodeValidator {
 // with pricing and such:
 //   - zip5ToLatLongMap map (may be temporary until the HERE planner is removed)
 //   - postal_code_to_gblocs table
-//   - re_zip3s table (and re_zip5_rate_areas if a zip3 with multiple rate areas)
+//   - zip3_distances table
+//   - re_zip3s table (and re_zip5_rate_areas table if a zip3 with multiple rate areas)
 func (v postalCodeValidator) ValidatePostalCode(appCtx appcontext.AppContext, postalCode string) (bool, error) {
 	// Get the zip5 and zip3 after verifying proper format.
 	if len(postalCode) < 5 {

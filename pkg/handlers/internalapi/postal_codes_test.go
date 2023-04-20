@@ -1,87 +1,126 @@
 package internalapi
 
 import (
+	"database/sql"
 	"fmt"
 	"net/http/httptest"
-	"strings"
 
+	"github.com/go-openapi/strfmt"
 	"github.com/stretchr/testify/mock"
 
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/factory"
 	postalcodesops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/postal_codes"
 	"github.com/transcom/mymove/pkg/services/mocks"
 )
 
-func (suite *HandlerSuite) TestValidatePostalCodeWithRateDataHandler_Valid() {
-	// create user
-	user := factory.BuildUser(nil, nil, nil)
+func (suite *HandlerSuite) TestValidatePostalCodeWithRateDataHandler() {
+	suite.Run("Valid postal code", func() {
+		user := factory.BuildUser(nil, nil, nil)
 
-	postalCode := "30813"
-	postalCodeTypeString := "Destination"
+		postalCode := "30813"
+		postalCodeTypeString := "origin"
 
-	// makes request
-	request := httptest.NewRequest("GET", fmt.Sprintf("/postal_codes/%s", postalCode), strings.NewReader("postal_code_type=origin"))
-	request = suite.AuthenticateUserRequest(request, user)
+		request := httptest.NewRequest("GET", fmt.Sprintf("/rate_engine_postal_codes/%s?postal_code_type=%s", postalCode, postalCodeTypeString), nil)
+		request = suite.AuthenticateUserRequest(request, user)
 
-	params := postalcodesops.ValidatePostalCodeWithRateDataParams{
-		HTTPRequest:    request,
-		PostalCode:     postalCode,
-		PostalCodeType: postalCodeTypeString,
-	}
+		params := postalcodesops.ValidatePostalCodeWithRateDataParams{
+			HTTPRequest:    request,
+			PostalCode:     postalCode,
+			PostalCodeType: postalCodeTypeString,
+		}
 
-	handlerConfig := suite.HandlerConfig()
-	postalCodeValidator := &mocks.PostalCodeValidator{}
-	postalCodeValidator.On("ValidatePostalCode",
-		mock.AnythingOfType("*appcontext.appContext"),
-		postalCode,
-	).Return(true, nil)
+		handlerConfig := suite.HandlerConfig()
+		postalCodeValidator := &mocks.PostalCodeValidator{}
+		postalCodeValidator.On("ValidatePostalCode",
+			mock.AnythingOfType("*appcontext.appContext"),
+			postalCode,
+		).Return(true, nil)
+		handler := ValidatePostalCodeWithRateDataHandler{handlerConfig, postalCodeValidator}
 
-	handler := ValidatePostalCodeWithRateDataHandler{handlerConfig, postalCodeValidator}
-	response := handler.Handle(params)
+		// Validate incoming payload: no body to validate
 
-	suite.IsNotErrResponse(response)
-	validatePostalCodeResponse := response.(*postalcodesops.ValidatePostalCodeWithRateDataOK)
-	validatePostalCodePayload := validatePostalCodeResponse.Payload
+		response := handler.Handle(params)
 
-	suite.NotNil(validatePostalCodePayload.PostalCode)
-	suite.NotNil(validatePostalCodePayload.PostalCodeType)
-	suite.True(*validatePostalCodePayload.Valid)
-	suite.Assertions.IsType(&postalcodesops.ValidatePostalCodeWithRateDataOK{}, response)
-}
+		suite.IsType(&postalcodesops.ValidatePostalCodeWithRateDataOK{}, response)
+		validatePostalCodeResponse := response.(*postalcodesops.ValidatePostalCodeWithRateDataOK)
+		validatePostalCodePayload := validatePostalCodeResponse.Payload
 
-func (suite *HandlerSuite) TestValidatePostalCodeWithRateDataHandler_Invalid() {
-	// create user
-	user := factory.BuildUser(nil, nil, nil)
+		// Validate outgoing payload
+		suite.NoError(validatePostalCodePayload.Validate(strfmt.Default))
 
-	postalCode := "00000"
-	postalCodeTypeString := "Destination"
+		suite.NotNil(validatePostalCodePayload.PostalCode)
+		suite.NotNil(validatePostalCodePayload.PostalCodeType)
+		suite.True(*validatePostalCodePayload.Valid)
+	})
 
-	// makes request
-	request := httptest.NewRequest("GET", fmt.Sprintf("/postal_codes/%s", postalCode), strings.NewReader("postal_code_type=origin"))
-	request = suite.AuthenticateUserRequest(request, user)
+	suite.Run("Invalid postal code", func() {
+		user := factory.BuildUser(nil, nil, nil)
 
-	params := postalcodesops.ValidatePostalCodeWithRateDataParams{
-		HTTPRequest:    request,
-		PostalCode:     postalCode,
-		PostalCodeType: postalCodeTypeString,
-	}
+		postalCode := "00000"
+		postalCodeTypeString := "destination"
 
-	handlerConfig := suite.HandlerConfig()
-	postalCodeValidator := &mocks.PostalCodeValidator{}
-	postalCodeValidator.On("ValidatePostalCode",
-		mock.AnythingOfType("*appcontext.appContext"),
-		postalCode,
-	).Return(false, nil)
+		request := httptest.NewRequest("GET", fmt.Sprintf("/rate_engine_postal_codes/%s?postal_code_type=%s", postalCode, postalCodeTypeString), nil)
+		request = suite.AuthenticateUserRequest(request, user)
 
-	handler := ValidatePostalCodeWithRateDataHandler{handlerConfig, postalCodeValidator}
-	response := handler.Handle(params)
+		params := postalcodesops.ValidatePostalCodeWithRateDataParams{
+			HTTPRequest:    request,
+			PostalCode:     postalCode,
+			PostalCodeType: postalCodeTypeString,
+		}
 
-	suite.IsNotErrResponse(response)
-	validatePostalCodeResponse := response.(*postalcodesops.ValidatePostalCodeWithRateDataOK)
-	validatePostalCodePayload := validatePostalCodeResponse.Payload
+		handlerConfig := suite.HandlerConfig()
+		postalCodeValidator := &mocks.PostalCodeValidator{}
+		postalCodeValidator.On("ValidatePostalCode",
+			mock.AnythingOfType("*appcontext.appContext"),
+			postalCode,
+		).Return(false, apperror.NewUnsupportedPostalCodeError(postalCode, "bad postal code"))
+		handler := ValidatePostalCodeWithRateDataHandler{handlerConfig, postalCodeValidator}
 
-	suite.NotNil(validatePostalCodePayload.PostalCode)
-	suite.NotNil(validatePostalCodePayload.PostalCodeType)
-	suite.False(*validatePostalCodePayload.Valid)
-	suite.Assertions.IsType(&postalcodesops.ValidatePostalCodeWithRateDataOK{}, response)
+		// Validate incoming payload: no body to validate
+
+		response := handler.Handle(params)
+
+		suite.IsType(&postalcodesops.ValidatePostalCodeWithRateDataOK{}, response)
+		validatePostalCodeResponse := response.(*postalcodesops.ValidatePostalCodeWithRateDataOK)
+		validatePostalCodePayload := validatePostalCodeResponse.Payload
+
+		// Validate outgoing payload
+		suite.NoError(validatePostalCodePayload.Validate(strfmt.Default))
+
+		suite.NotNil(validatePostalCodePayload.PostalCode)
+		suite.NotNil(validatePostalCodePayload.PostalCodeType)
+		suite.False(*validatePostalCodePayload.Valid)
+	})
+
+	suite.Run("Database error", func() {
+		user := factory.BuildUser(nil, nil, nil)
+
+		postalCode := "30813"
+		postalCodeTypeString := "destination"
+
+		request := httptest.NewRequest("GET", fmt.Sprintf("/rate_engine_postal_codes/%s?postal_code_type=%s", postalCode, postalCodeTypeString), nil)
+		request = suite.AuthenticateUserRequest(request, user)
+
+		params := postalcodesops.ValidatePostalCodeWithRateDataParams{
+			HTTPRequest:    request,
+			PostalCode:     postalCode,
+			PostalCodeType: postalCodeTypeString,
+		}
+
+		handlerConfig := suite.HandlerConfig()
+		postalCodeValidator := &mocks.PostalCodeValidator{}
+		postalCodeValidator.On("ValidatePostalCode",
+			mock.AnythingOfType("*appcontext.appContext"),
+			postalCode,
+		).Return(false, sql.ErrNoRows)
+		handler := ValidatePostalCodeWithRateDataHandler{handlerConfig, postalCodeValidator}
+
+		// Validate incoming payload: no body to validate
+
+		response := handler.Handle(params)
+		suite.IsType(&postalcodesops.ValidatePostalCodeWithRateDataBadRequest{}, response)
+
+		// Validate outgoing payload: no payload
+	})
 }
