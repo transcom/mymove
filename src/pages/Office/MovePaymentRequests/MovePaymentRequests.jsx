@@ -53,7 +53,6 @@ const MovePaymentRequests = ({
   // RA Developer Status: Known Issue
   // RA Validator Status: Known Issue
   // eslint-disable-next-line no-console
-  // eslint-disable-next-line no-console
   console.log('queryResults: ', queryResults);
   const { move, paymentRequests, order, mtoShipments, isLoading, isError } = queryResults;
   const [alertMessage, setAlertMessage] = useState(null);
@@ -103,7 +102,6 @@ const MovePaymentRequests = ({
       // RA: This console displays an error message.
       // RA Developer Status: Known Issue
       // RA Validator Status: Known Issue
-      // eslint-disable-next-line no-console
       // eslint-disable-next-line no-console
       console.log('in on success of mutate, going to set mtoShipments to ', mtoShipments);
       queryClient.setQueryData([MTO_SHIPMENTS, variables.moveTaskOrderID, false], mtoShipments);
@@ -170,7 +168,6 @@ const MovePaymentRequests = ({
   // RA: This console displays an error message.
   // RA Developer Status: Known Issue
   // RA Validator Status: Known Issue
-  // eslint-disable-next-line no-console
   // eslint-disable-next-line no-console
   console.log('about to hit the part that fails, I have query results: ', queryResults);
   if (paymentRequests.length) {
