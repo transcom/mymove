@@ -3,12 +3,11 @@ import classnames from 'classnames';
 import { Formik, Field, useField } from 'formik';
 import PropTypes from 'prop-types';
 import * as Yup from 'yup';
-import { Button, Label, Textarea, Tag } from '@trussworks/react-uswds';
+import { Button, Label, Textarea } from '@trussworks/react-uswds';
 import moment from 'moment';
 
 import DataTableWrapper from '../../DataTableWrapper/index';
 import DataTable from '../../DataTable/index';
-// import { SITExtensionShape } from '../../../types/sitExtensions';
 
 import styles from './SubmitSITExtensionModal.module.scss';
 
@@ -18,10 +17,8 @@ import { ModalContainer, Overlay } from 'components/MigratedModal/MigratedModal'
 import Modal, { ModalActions, ModalClose, ModalTitle } from 'components/Modal/Modal';
 import { DropdownInput, DatePickerInput } from 'components/form/fields';
 import { dropdownInputOptions, formatDate } from 'utils/formatters';
-import { sitExtensionReasons, SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
+import { sitExtensionReasons } from 'constants/sitExtensions';
 import { utcDateFormat } from 'shared/dates';
-import { SERVICE_ITEM_CODES } from 'constants/serviceItems';
-// import { ShipmentShape } from 'types/shipment';
 import { LOCATION_TYPES } from 'types/sitStatusShape';
 
 const SitDaysAllowanceForm = ({ onChange }) => (
@@ -45,14 +42,12 @@ const SitEndDateForm = ({ onChange }) => (
   <DatePickerInput name="sitEndDate" label="" id="sitEndDate" onChange={onChange} />
 );
 
-const SitStatusTables = ({ sitExtensions, sitStatus }) => {
+const SitStatusTables = ({ sitStatus }) => {
   const { sitEntryDate, totalSITDaysUsed, daysInSIT } = sitStatus;
   const pastSITDaysUsed = totalSITDaysUsed - daysInSIT;
 
   const sitAllowanceHelper = useField({ name: 'daysApproved', id: 'daysApproved' })[2];
   const endDateHelper = useField({ name: 'sitEndDate', id: 'sitEndDate' })[2];
-
-  const pendingSITExtension = sitExtensions.find((se) => se.status === SIT_EXTENSION_STATUS.PENDING);
   // Currently active SIT
   const currentLocation = sitStatus.location === LOCATION_TYPES.ORIGIN ? 'origin SIT' : 'destination SIT';
 
@@ -80,21 +75,10 @@ const SitStatusTables = ({ sitExtensions, sitStatus }) => {
     endDateHelper.setValue(calculatedSitEndDate);
   };
 
-  // Previous SIT calculations and date ranges
-  const previousDaysUsed = sitStatus.pastSITServiceItems?.map((pastSITItem) => {
-    const sitDaysUsed = moment(pastSITItem.sitDepartureDate).utc().diff(pastSITItem.sitEntryDate, 'days');
-    const location = pastSITItem.reServiceCode === SERVICE_ITEM_CODES.DOPSIT ? 'origin' : 'destination';
-
-    const start = formatDate(pastSITItem.sitEntryDate, utcDateFormat, 'DD MMM YYYY');
-    const end = formatDate(pastSITItem.sitDepartureDate, utcDateFormat, 'DD MMM YYYY');
-    const text = `${sitDaysUsed} days at ${location} (${start} - ${end})`;
-
-    return <p key={pastSITItem.id}>{text}</p>;
-  });
   return (
     <>
       <div className={styles.title}>
-        <p>SIT (STORAGE IN TRANSIT){pendingSITExtension && <Tag>Extension requested</Tag>}</p>
+        <p>SIT (STORAGE IN TRANSIT)</p>
       </div>
       <div className={styles.tableContainer} data-testid="sitStatusTable">
         {/* Sit Total days table */}
@@ -127,17 +111,11 @@ const SitStatusTables = ({ sitExtensions, sitStatus }) => {
         {/* Total days at current location */}
         <DataTable columnHeaders={[`Total days in ${currentLocation}`]} dataRow={[currentDaysInSit]} />
       </div>
-      {/* Service Items */}
-      {sitStatus.pastSITServiceItems && (
-        <div className={styles.tableContainer}>
-          <DataTable columnHeaders={['Previously used SIT']} dataRow={[previousDaysUsed]} />
-        </div>
-      )}
     </>
   );
 };
 
-const SubmitSITExtensionModal = ({ shipment, sitExtensions, sitStatus, onClose, onSubmit }) => {
+const SubmitSITExtensionModal = ({ shipment, sitStatus, onClose, onSubmit }) => {
   const initialValues = {
     requestReason: '',
     officeRemarks: '',
@@ -175,7 +153,7 @@ const SubmitSITExtensionModal = ({ shipment, sitExtensions, sitStatus, onClose, 
               return (
                 <Form>
                   <DataTableWrapper className={classnames('maxw-tablet', styles.sitDisplayForm)} testID="sitExtensions">
-                    <SitStatusTables sitExtensions={sitExtensions} sitStatus={sitStatus} shipment={shipment} />
+                    <SitStatusTables sitStatus={sitStatus} shipment={shipment} />
                   </DataTableWrapper>
                   <div className={styles.reasonDropdown}>
                     <DropdownInput
