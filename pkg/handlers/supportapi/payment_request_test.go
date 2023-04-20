@@ -322,6 +322,10 @@ func (suite *HandlerSuite) TestGetPaymentRequestEDIHandler() {
 		paymentServiceItem.PriceCents = &priceCents
 		suite.MustSave(&paymentServiceItem)
 
+		// Make sure that there is a Postal Code to GBLOC for the duty location postal code
+
+		factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), paymentServiceItem.PaymentRequest.MoveTaskOrder.Orders.NewDutyLocation.Address.PostalCode, "KKFA")
+
 		return paymentServiceItem.PaymentRequest
 	}
 
@@ -338,6 +342,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestEDIHandler() {
 
 	suite.Run("successful get of EDI for payment request", func() {
 		paymentRequest := setupTestData()
+
 		req := httptest.NewRequest("GET", fmt.Sprintf(urlFormat, paymentRequest.ID), nil)
 
 		params := paymentrequestop.GetPaymentRequestEDIParams{
