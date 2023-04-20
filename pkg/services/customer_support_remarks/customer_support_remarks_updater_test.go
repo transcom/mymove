@@ -6,16 +6,16 @@ import (
 
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/factory"
 	customersupportremarksop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/customer_support_remarks"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *CustomerSupportRemarksSuite) TestCustomerSupportRemarksUpdater() {
 	updater := NewCustomerSupportRemarkUpdater()
 
 	suite.Run("Can update customer support remark successfully", func() {
-		origRemark := testdatagen.MakeDefaultCustomerSupportRemark(suite.DB())
+		origRemark := factory.BuildCustomerSupportRemark(suite.DB(), nil, nil)
 
 		remarkEdit := "Test Remark"
 		remarkID := origRemark.ID

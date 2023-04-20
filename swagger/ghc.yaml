@@ -1105,15 +1105,15 @@ paths:
         - create.reweighRequest
   /shipments/{shipmentID}/sit-extensions/:
     post:
-      summary: Create an approved SIT extension
+      summary: Create an approved SIT Duration Update
       description: >-
-        TOO can creates an already-approved SIT extension on behalf of a
+        TOO can creates an already-approved SIT Duration Update on behalf of a
         customer
       consumes:
         - application/json
       produces:
         - application/json
-      operationId: createSITExtensionAsTOO
+      operationId: createApprovedSITDurationUpdate
       tags:
         - shipment
         - sitExtension
@@ -1127,12 +1127,12 @@ paths:
         - in: body
           name: body
           schema:
-            $ref: '#/definitions/CreateSITExtensionAsTOO'
+            $ref: '#/definitions/CreateApprovedSITDurationUpdate'
           required: true
         - in: header
           description: >-
-            We want the shipment's eTag rather than the SIT extension eTag as
-            the SIT extension is always associated with a shipment
+            We want the shipment's eTag rather than the SIT Duration Update eTag
+            as the SIT Duration Update is always associated with a shipment
           name: If-Match
           type: string
           required: true
@@ -4698,10 +4698,12 @@ definitions:
         type: string
         example: Denied this extension as it does not match the criteria
         x-nullable: true
-  CreateSITExtensionAsTOO:
+  CreateApprovedSITDurationUpdate:
     properties:
       requestReason:
-        description: Reason from service counselor-provided picklist for SIT extension
+        description: >-
+          Reason from service counselor-provided picklist for SIT Duration
+          Update
         example: AWAITING_COMPLETION_OF_RESIDENCE
         type: string
         enum:
@@ -4720,7 +4722,7 @@ definitions:
         example: 21
         minimum: 1
       officeRemarks:
-        description: Remarks from TOO about SIT extension creation
+        description: Remarks from TOO about SIT Duration Update creation
         type: string
         example: >-
           Customer needs additional storage time as their new place of residence

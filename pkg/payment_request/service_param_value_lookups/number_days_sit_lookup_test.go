@@ -1989,9 +1989,9 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 		move, serviceItemDOASIT, paymentRequest := suite.setupMoveWithAddlDaysSITAndPaymentRequest(reServiceDOFSIT, originSITEntryDateOne, reServiceDOASIT, "2020-07-21", "2021-07-30")
 
 		approvedDays := 400
-		testdatagen.MakeSITExtension(suite.DB(), testdatagen.Assertions{
+		testdatagen.MakeSITDurationUpdate(suite.DB(), testdatagen.Assertions{
 			MTOShipment: serviceItemDOASIT.MTOShipment,
-			SITExtension: models.SITExtension{
+			SITDurationUpdate: models.SITDurationUpdate{
 				ApprovedDays: &approvedDays,
 			},
 		})

@@ -205,8 +205,7 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 			}
 
 			moveOptions := models.MoveOptions{
-				SelectedType: nil,
-				Show:         swag.Bool(true),
+				Show: swag.Bool(true),
 			}
 			newMove, verrs, err := newOrder.CreateNewMove(appCtx.DB(), moveOptions)
 			if err != nil || verrs.HasAny() {

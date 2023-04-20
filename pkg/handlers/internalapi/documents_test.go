@@ -13,6 +13,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
+	"github.com/transcom/mymove/pkg/uploader"
 )
 
 func (suite *HandlerSuite) TestCreateDocumentsHandler() {
@@ -99,7 +100,7 @@ func (suite *HandlerSuite) TestShowDocumentHandler() {
 	}
 
 	uploadPayload := documentPayload.Uploads[0]
-	expectedURL := fmt.Sprintf("https://example.com/dir/%s?contentType=application/pdf&signed=test", userUpload.Upload.StorageKey)
+	expectedURL := fmt.Sprintf("https://example.com/dir/%s?contentType=%s&signed=test", userUpload.Upload.StorageKey, uploader.FileTypePDF)
 	if (uploadPayload.URL).String() != expectedURL {
 		t.Errorf("wrong URL for upload, expected %s, got %s", expectedURL, uploadPayload.URL)
 	}

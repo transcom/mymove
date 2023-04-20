@@ -926,20 +926,20 @@ jobs:
             - v1-pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
       - restore_cache:
           keys:
-          #
-          # https://circleci.com/docs/caching/#restoring-cache
-          #
-          # restore the latest version of the listing results in the
-          # cache
-          #
-          # To manually reset counts increment the version number of
-          # the cache e.g. go from v1-spectrial-lint- to
-          # v2-spectral-lint-
-          #
-          # Make sure you also update the key in the save_cache below
-          #
-          # The trailing hyphen in restore_cache seems important
-          # according to the page linked above
+            #
+            # https://circleci.com/docs/caching/#restoring-cache
+            #
+            # restore the latest version of the listing results in the
+            # cache
+            #
+            # To manually reset counts increment the version number of
+            # the cache e.g. go from v1-spectrial-lint- to
+            # v2-spectral-lint-
+            #
+            # Make sure you also update the key in the save_cache below
+            #
+            # The trailing hyphen in restore_cache seems important
+            # according to the page linked above
             - v1-spectral-lint-
       - run:
           name: Save Baseline Spectral Lint
@@ -1096,24 +1096,24 @@ jobs:
       - run: echo 'export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - restore_cache:
           keys:
-          #
-          # https://circleci.com/docs/caching/#restoring-cache
-          #
-          # restore the latest version of the test coverage in the
-          # cache
-          #
-          # To manually reset test coverage (e.g. a refactor or
-          # deleting code means coverage has gone down and we are ok
-          # with it), increment the version number of the cache
-          # e.g. go from v1-server-tests-coverage- to
-          # v2-server-tests-coverage-
-          #
-          # ##### NOTE: Make sure you also update the key in the
-          # ##### save_cache below
-          #
-          # The trailing hyphen in restore_cache seems important
-          # according to the page linked above
-            - v3-server-tests-coverage-
+            #
+            # https://circleci.com/docs/caching/#restoring-cache
+            #
+            # restore the latest version of the test coverage in the
+            # cache
+            #
+            # To manually reset test coverage (e.g. a refactor or
+            # deleting code means coverage has gone down and we are ok
+            # with it), increment the version number of the cache
+            # e.g. go from v1-server-tests-coverage- to
+            # v2-server-tests-coverage-
+            #
+            # ##### NOTE: Make sure you also update the key in the
+            # ##### save_cache below
+            #
+            # The trailing hyphen in restore_cache seems important
+            # according to the page linked above
+            - v4-server-tests-coverage-
       - run:
           name: Save Baseline Test Coverage
           command: |
@@ -1153,7 +1153,7 @@ jobs:
             # Use the BuildNum to update the cache key so that the
             # coverage cache is always updated
             save_cache:
-              key: v3-server-tests-coverage-{{ .BuildNum }}
+              key: v4-server-tests-coverage-{{ .BuildNum }}
               paths:
                 - ~/transcom/mymove/tmp/test-results
       - announce_failure
@@ -1920,7 +1920,6 @@ workflows:
           filters:
             branches:
               ignore: *integration-ignore-branch
-
 
       - integration_tests:
           requires:
