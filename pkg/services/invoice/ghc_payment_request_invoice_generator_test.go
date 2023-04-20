@@ -488,18 +488,15 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 
 	// test that when duty locations do not have associated transportation offices, there is no error thrown
 	suite.Run("updates the origin and destination duty locations to not have associated transportation offices", func() {
-		originDutyLocation := factory.BuildDutyLocation(
-			suite.DB(),
-			nil,
-			[]factory.Trait{factory.GetTraitNoAssociatedTransportationOfficeDutyLocation})
+		originDutyLocation := factory.BuildDutyLocationWithoutTransportationOffice(suite.DB(), nil, nil)
 
 		customAddress := models.Address{
 			ID:         uuid.Must(uuid.NewV4()),
 			PostalCode: "73403",
 		}
-		destDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+		destDutyLocation := factory.BuildDutyLocationWithoutTransportationOffice(suite.DB(), []factory.Customization{
 			{Model: customAddress, Type: &factory.Addresses.DutyLocationAddress},
-		}, []factory.Trait{factory.GetTraitNoAssociatedTransportationOfficeDutyLocation})
+		}, nil)
 
 		mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 			Order: models.Order{
@@ -1291,10 +1288,7 @@ func (suite *GHCInvoiceSuite) TestTACs() {
 func (suite *GHCInvoiceSuite) TestDetermineDutyLocationPhoneLinesFunc() {
 	suite.Run("determineDutyLocationPhoneLines returns empty slice of phone lines when when there is no associated transportation office", func() {
 		var emptyPhoneLines []string
-		dutyLocation := factory.BuildDutyLocation(
-			suite.DB(),
-			nil,
-			[]factory.Trait{factory.GetTraitNoAssociatedTransportationOfficeDutyLocation})
+		dutyLocation := factory.BuildDutyLocationWithoutTransportationOffice(suite.DB(), nil, nil)
 		phoneLines := determineDutyLocationPhoneLines(dutyLocation)
 		suite.Equal(emptyPhoneLines, phoneLines)
 	})

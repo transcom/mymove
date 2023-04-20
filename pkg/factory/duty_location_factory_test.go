@@ -156,10 +156,7 @@ func (suite *FactorySuite) TestBuildDutyLocation() {
 		}
 
 		// CALL FUNCTION UNDER TEST
-		dutyLocation := BuildDutyLocation(
-			suite.DB(),
-			nil,
-			[]Trait{GetTraitNoAssociatedTransportationOfficeDutyLocation})
+		dutyLocation := BuildDutyLocationWithoutTransportationOffice(suite.DB(), nil, nil)
 
 		// VALIDATE RESULTS
 		suite.Equal(defaultAffiliation, *dutyLocation.Affiliation)
@@ -191,13 +188,13 @@ func (suite *FactorySuite) TestBuildDutyLocation() {
 		}
 
 		// CALL FUNCTION UNDER TEST
-		dutyLocation := BuildDutyLocation(
+		dutyLocation := BuildDutyLocationWithoutTransportationOffice(
 			suite.DB(),
 			[]Customization{
 				{Model: customDutyLocation},
 				{Model: customAddress},
 			},
-			[]Trait{GetTraitNoAssociatedTransportationOfficeDutyLocation})
+			nil)
 
 		// VALIDATE RESULTS
 		suite.Equal(customAffiliation, *dutyLocation.Affiliation)
@@ -293,56 +290,5 @@ func (suite *FactorySuite) TestBuildDutyLocation() {
 		suite.NoError(err)
 		suite.Equal(precountTO+1, countTO)
 
-	})
-}
-
-func (suite *FactorySuite) TestDetermineWhetherToCreateTransportationOffice() {
-	suite.Run("Returns true when no customizations or traits are passed", func() {
-		customs := setupCustomizations(nil, nil)
-		createTransportationOffice := determineWhetherToCreateTransportationOffice(customs)
-		suite.True(createTransportationOffice)
-	})
-
-	suite.Run("Returns true when default trait is passed", func() {
-		customs := setupCustomizations(nil, []Trait{GetTraitDefaultOrdersDutyLocation})
-		createTransportationOffice := determineWhetherToCreateTransportationOffice(customs)
-		suite.True(createTransportationOffice)
-	})
-
-	suite.Run("Returns false when 'No Transportation Office' trait is passed", func() {
-		customs := setupCustomizations(nil, []Trait{GetTraitNoAssociatedTransportationOfficeDutyLocation})
-		createTransportationOffice := determineWhetherToCreateTransportationOffice(customs)
-		suite.False(createTransportationOffice)
-	})
-
-	suite.Run("Returns false when empty transportation office is passed in customizations", func() {
-		var emptyTransportationOffice models.TransportationOffice
-		customs := setupCustomizations([]Customization{
-			{Model: emptyTransportationOffice},
-		}, nil)
-		createTransportationOffice := determineWhetherToCreateTransportationOffice(customs)
-		suite.False(createTransportationOffice)
-	})
-
-	suite.Run("Returns true when Customization for transportation office is present", func() {
-		customTransportationOffice := models.TransportationOffice{
-			ProvidesCloseout: true,
-		}
-		customs := setupCustomizations([]Customization{
-			{Model: customTransportationOffice},
-		}, nil)
-		createTransportationOffice := determineWhetherToCreateTransportationOffice(customs)
-		suite.True(createTransportationOffice)
-	})
-
-	suite.Run("Returns true when Customization Overrides the 'No Transportation Office' trait", func() {
-		customTransportationOffice := models.TransportationOffice{
-			ProvidesCloseout: true,
-		}
-		customs := setupCustomizations([]Customization{
-			{Model: customTransportationOffice},
-		}, []Trait{GetTraitNoAssociatedTransportationOfficeDutyLocation})
-		createTransportationOffice := determineWhetherToCreateTransportationOffice(customs)
-		suite.True(createTransportationOffice)
 	})
 }

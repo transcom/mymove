@@ -1,8 +1,6 @@
 package factory
 
 import (
-	"reflect"
-
 	"github.com/gobuffalo/pop/v6"
 
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -10,25 +8,24 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-// BuildDutyLocation creates a single DutyLocation
-// Also creates:
-//   - Address of the DL (use Addresses.DutyLocationAddress)
-//   - TransportationOffice (However, in order to test Duty Locations with no associated Transportation Office, you
-//     can pass an empty TransportationOffice model in the customizations)
-//   - Address of the TO (use Addresses.DutyLocationTOAddress)
+type dutyLocationBuildType byte
+
+const (
+	dutyLocationBuildStandard dutyLocationBuildType = iota
+	dutyLocationBuildWithoutTransportationOffice
+)
+
+// buildDutyLocationWithBuildType does the actual work
+// if buildType is standard, it builds
+//   - DutyLocation
+//   - Address of the DL
+//   - TransportationOffice
+//   - Address of the TO
 //
-// Params:
-//   - customs is a slice that will be modified by the factory
-//   - db can be set to nil to create a stubbed model that is not stored in DB.
-//
-// Example:
-//
-//	dutyLocation := BuildDutyLocation(suite.DB(), []Customization{
-//	       {Model: customDutyLocation},
-//	       {Model: customDutyLocationAddress, Type: &Addresses.DutyLocationAddress},
-//	       {Model: customTransportationOfficeAddress, Type: &Addresses.DutyLocationTOAddress},
-//	       }, nil)
-func BuildDutyLocation(db *pop.Connection, customs []Customization, traits []Trait) models.DutyLocation {
+// if buildType is withoutTransportationOffice, it builds
+//   - DutyLocation
+//   - Address of the DL
+func buildDutyLocationWithBuildType(db *pop.Connection, customs []Customization, traits []Trait, buildType dutyLocationBuildType) models.DutyLocation {
 	customs = setupCustomizations(customs, traits)
 
 	// Find dutyLocation customization and extract the custom dutyLocation
@@ -53,7 +50,7 @@ func BuildDutyLocation(db *pop.Connection, customs []Customization, traits []Tra
 	}
 
 	// Determine if we are creating an associated Transportation Office
-	createTransportationOffice := determineWhetherToCreateTransportationOffice(customs)
+	createTransportationOffice := buildType != dutyLocationBuildWithoutTransportationOffice
 
 	var transportationOffice models.TransportationOffice
 	if createTransportationOffice {
@@ -116,22 +113,44 @@ func BuildDutyLocation(db *pop.Connection, customs []Customization, traits []Tra
 	return location
 }
 
-// determineWhetherToCreateTransportationOffice returns a bool of whether to create a transportation office.
-// It defaults to true and will return false only if the most prioritized Transportation Office customization is empty.
-func determineWhetherToCreateTransportationOffice(customs []Customization) bool {
-	// Determine if we are creating an associated Transportation Office
-	customTO := findValidCustomization(customs, TransportationOffice)
-	createTransportationOffice := true
-	if customTO != nil {
-		var emptyTransportationOffice models.TransportationOffice
-		cTransportationOffice := customTO.Model.(models.TransportationOffice)
-		// If an empty Transportation Office is the most prioritized in the customizations,
-		// then we will not create an associated Transportation Office with this Duty Location.
-		if reflect.DeepEqual(cTransportationOffice, emptyTransportationOffice) {
-			createTransportationOffice = false
-		}
-	}
-	return createTransportationOffice
+// BuildDutyLocation creates a single DutyLocation
+// Also creates:
+//   - Address of the DL (use Addresses.DutyLocationAddress)
+//   - TransportationOffice
+//   - Address of the TO (use Addresses.DutyLocationTOAddress)
+//
+// Params:
+//   - customs is a slice that will be modified by the factory
+//   - db can be set to nil to create a stubbed model that is not stored in DB.
+//
+// Example:
+//
+//	dutyLocation := BuildDutyLocation(suite.DB(), []Customization{
+//	       {Model: customDutyLocation},
+//	       {Model: customDutyLocationAddress, Type: &Addresses.DutyLocationAddress},
+//	       {Model: customTransportationOfficeAddress, Type: &Addresses.DutyLocationTOAddress},
+//	       }, nil)
+func BuildDutyLocation(db *pop.Connection, customs []Customization, traits []Trait) models.DutyLocation {
+	return buildDutyLocationWithBuildType(db, customs, traits, dutyLocationBuildStandard)
+}
+
+// BuildDutyLocationWithoutTransportationOffice returns a duty location without a transportation office.
+// Also creates:
+//   - Address of the DL (use Addresses.DutyLocationAddress)
+//   - Will not create a Transportation Office even if one is supplied in the customizations or traits
+//
+// Params:
+//   - customs is a slice that will be modified by the factory
+//   - db can be set to nil to create a stubbed model that is not stored in DB.
+//
+// Example:
+//
+//	dutyLocation := BuildDutyLocationWithoutTransportationOffice(suite.DB(), []Customization{
+//	       {Model: customDutyLocation},
+//	       {Model: customDutyLocationAddress, Type: &Addresses.DutyLocationAddress},
+//	       }, nil)
+func BuildDutyLocationWithoutTransportationOffice(db *pop.Connection, customs []Customization, traits []Trait) models.DutyLocation {
+	return buildDutyLocationWithBuildType(db, customs, traits, dutyLocationBuildWithoutTransportationOffice)
 }
 
 // FetchOrBuildCurrentDutyLocation returns a default duty location
@@ -210,12 +229,5 @@ func GetTraitDefaultOrdersDutyLocation() []Customization {
 				Region:        "12",
 			},
 		},
-	}
-}
-
-func GetTraitNoAssociatedTransportationOfficeDutyLocation() []Customization {
-	var emptyTransportationOffice models.TransportationOffice
-	return []Customization{
-		{Model: emptyTransportationOffice},
 	}
 }
