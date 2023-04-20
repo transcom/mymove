@@ -31,9 +31,8 @@ const SitDaysAllowanceForm = ({ onChange }) => (
     lazy={false}
     scale={0}
     signed={false} // no negative numbers
-    inputClassName={styles.weightInput}
+    inputClassName={styles.approvedDaysInput}
     errorClassName={styles.errors}
-    labelClassName={styles.weightLabel}
     onChange={onChange}
   />
 );
@@ -83,6 +82,7 @@ const SitStatusTables = ({ sitStatus }) => {
       <div className={styles.tableContainer} data-testid="sitStatusTable">
         {/* Sit Total days table */}
         <DataTable
+          custClass={styles.totalDaysTable}
           columnHeaders={['Total days of SIT approved', 'Total days used', 'Total days remaining']}
           dataRow={[
             <SitDaysAllowanceForm onChange={(e) => handleDaysAllowanceChange(e.target.value)} />,
@@ -131,7 +131,7 @@ const SubmitSITExtensionModal = ({ shipment, sitStatus, onClose, onSubmit }) => 
       .required('Required'),
     sitEndDate: Yup.date().min(
       moment(sitStatus.sitEntryDate).utc().format('DD MMM YYYY'),
-      'Total days of SIT approved must be 1 or more. Select a new date.',
+      'The end date must occur after the start date. Select a new date.',
     ),
   });
 

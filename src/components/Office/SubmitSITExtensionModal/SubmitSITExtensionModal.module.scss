@@ -10,8 +10,8 @@
     @include u-margin-bottom(3);
   }
 
-  .ApprovedDaysInput {
-    max-width: 3rem;
+  .approvedDaysInput {
+    max-width: 7rem;
   }
 
   .ModalPanel {
@@ -28,6 +28,13 @@
 
   .CancelButton {
     @include u-bg('transparent');
+  }
+  .errors {
+    margin-top: 0;
+    color: #b50909;
+    font-weight: 700;
+    font-size: 15px;
+    padding: 4px 0px;
   }
 }
 
@@ -64,9 +71,6 @@
     span {
       margin-left: 0.5rem !important;
     }
-    .submitSITEXtensionLink {
-      @include u-margin-right(2);
-    }
   }
 
   :global table.table--data-point {
@@ -81,11 +85,11 @@
     table.table--data-point {
       @include u-margin-top(0);
     }
-    // td{
-    //   display: flex;
-    //   flex-direction: row;
-    //   flex-wrap: wrap;
-    // }
+  }
+  .totalDaysTable{
+    th{
+      padding: 4px
+    }
   }
 
   td {
