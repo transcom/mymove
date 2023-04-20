@@ -40,7 +40,7 @@ func (suite *ReportViolationSuite) TestReportViolationCreator() {
 		err := creator.AssociateReportViolations(suite.AppContextForTest(), &reportViolations, report.ID)
 
 		suite.Error(err)
-		suite.Equal("Could not complete query related to object of type: reportViolations.", err.Error())
+		suite.Equal("Could not complete query related to object of type 'reportViolations': pq: insert or update on table \"report_violations\" violates foreign key constraint \"report_violations_violation_id_fkey\"", err.Error())
 	})
 
 	suite.Run("Association requires a valid report", func() {
@@ -52,7 +52,7 @@ func (suite *ReportViolationSuite) TestReportViolationCreator() {
 		err := creator.AssociateReportViolations(suite.AppContextForTest(), &reportViolations, badID)
 
 		suite.Error(err)
-		suite.Equal("Could not complete query related to object of type: reportViolations.", err.Error())
+		suite.Equal("Could not complete query related to object of type 'reportViolations': pq: insert or update on table \"report_violations\" violates foreign key constraint \"report_violations_report_id_fkey\"", err.Error())
 	})
 	suite.Run("Adding new associations to a report replaces existing associations for the report", func() {
 		report := testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{})
