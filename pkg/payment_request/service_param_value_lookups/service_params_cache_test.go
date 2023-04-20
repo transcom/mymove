@@ -246,8 +246,7 @@ func (suite *ServiceParamValueLookupsSuite) makeSubtestData() (subtestData *para
 	_ = factory.BuildMTOServiceItemDimension(suite.DB(), []factory.Customization{
 		{
 			Model: models.MTOServiceItemDimension{
-				MTOServiceItemID: subtestData.mtoServiceItemCrate1.ID,
-				Type:             models.DimensionTypeCrate,
+				Type: models.DimensionTypeCrate,
 				// These dimensions are chosen to overflow 32bit ints if multiplied, and give a fractional result
 				// when converted to cubic feet.
 				Length:    16*12*1000 + 1000,
@@ -257,18 +256,25 @@ func (suite *ServiceParamValueLookupsSuite) makeSubtestData() (subtestData *para
 				UpdatedAt: time.Time{},
 			},
 		},
+		{
+			Model:    subtestData.mtoServiceItemCrate1,
+			LinkOnly: true,
+		},
 	}, nil)
 	_ = factory.BuildMTOServiceItemDimension(suite.DB(), []factory.Customization{
 		{
 			Model: models.MTOServiceItemDimension{
-				MTOServiceItemID: subtestData.mtoServiceItemCrate1.ID,
-				Type:             models.DimensionTypeItem,
-				Length:           12000,
-				Height:           12000,
-				Width:            12000,
-				CreatedAt:        time.Time{},
-				UpdatedAt:        time.Time{},
+				Type:      models.DimensionTypeItem,
+				Length:    12000,
+				Height:    12000,
+				Width:     12000,
+				CreatedAt: time.Time{},
+				UpdatedAt: time.Time{},
 			},
+		},
+		{
+			Model:    subtestData.mtoServiceItemCrate1,
+			LinkOnly: true,
 		},
 	}, nil)
 	subtestData.mtoServiceItemCrate2 = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
@@ -288,8 +294,7 @@ func (suite *ServiceParamValueLookupsSuite) makeSubtestData() (subtestData *para
 	_ = factory.BuildMTOServiceItemDimension(suite.DB(), []factory.Customization{
 		{
 			Model: models.MTOServiceItemDimension{
-				MTOServiceItemID: subtestData.mtoServiceItemCrate2.ID,
-				Type:             models.DimensionTypeCrate,
+				Type: models.DimensionTypeCrate,
 				// These dimensions are chosen to overflow 32bit ints if multiplied, and give a fractional result
 				// when converted to cubic feet.
 				Length:    7000,
@@ -299,18 +304,25 @@ func (suite *ServiceParamValueLookupsSuite) makeSubtestData() (subtestData *para
 				UpdatedAt: time.Time{},
 			},
 		},
+		{
+			Model:    subtestData.mtoServiceItemCrate2,
+			LinkOnly: true,
+		},
 	}, nil)
 	_ = factory.BuildMTOServiceItemDimension(suite.DB(), []factory.Customization{
 		{
 			Model: models.MTOServiceItemDimension{
-				MTOServiceItemID: subtestData.mtoServiceItemCrate2.ID,
-				Type:             models.DimensionTypeItem,
-				Length:           6000,
-				Height:           6000,
-				Width:            6000,
-				CreatedAt:        time.Time{},
-				UpdatedAt:        time.Time{},
+				Type:      models.DimensionTypeItem,
+				Length:    6000,
+				Height:    6000,
+				Width:     6000,
+				CreatedAt: time.Time{},
+				UpdatedAt: time.Time{},
 			},
+		},
+		{
+			Model:    subtestData.mtoServiceItemCrate2,
+			LinkOnly: true,
 		},
 	}, nil)
 	subtestData.paramKeyDimensionHeight = factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{

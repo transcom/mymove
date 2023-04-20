@@ -141,14 +141,17 @@ func (suite *EventServiceSuite) Test_MTOServiceItemPayload() {
 		crateDimension1 := factory.BuildMTOServiceItemDimension(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOServiceItemDimension{
-					MTOServiceItemID: mtoServiceItemDCRT.ID,
-					Type:             models.DimensionTypeCrate,
-					Length:           2000,
-					Height:           2000,
-					Width:            2000,
-					CreatedAt:        time.Time{},
-					UpdatedAt:        time.Time{},
+					Type:      models.DimensionTypeCrate,
+					Length:    2000,
+					Height:    2000,
+					Width:     2000,
+					CreatedAt: time.Time{},
+					UpdatedAt: time.Time{},
 				},
+			},
+			{
+				Model:    mtoServiceItemDCRT,
+				LinkOnly: true,
 			},
 		}, nil)
 		data := &primemessages.MTOServiceItemDomesticCrating{}

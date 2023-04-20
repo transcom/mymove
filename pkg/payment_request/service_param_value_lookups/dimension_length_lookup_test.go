@@ -25,8 +25,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDimensionLengthLookup() {
 		cratingDimension := factory.BuildMTOServiceItemDimension(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOServiceItemDimension{
-					MTOServiceItemID: mtoServiceItem.ID,
-					Type:             models.DimensionTypeCrate,
+					Type: models.DimensionTypeCrate,
 					// These dimensions are chosen to overflow 32bit ints if multiplied, and give a fractional result
 					// when converted to cubic feet.
 					Length:    16*12*1000 + 1000,
@@ -36,18 +35,25 @@ func (suite *ServiceParamValueLookupsSuite) TestDimensionLengthLookup() {
 					UpdatedAt: time.Time{},
 				},
 			},
+			{
+				Model:    mtoServiceItem,
+				LinkOnly: true,
+			},
 		}, nil)
 		itemDimension := factory.BuildMTOServiceItemDimension(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOServiceItemDimension{
-					MTOServiceItemID: mtoServiceItem.ID,
-					Type:             models.DimensionTypeItem,
-					Length:           12000,
-					Height:           12000,
-					Width:            12000,
-					CreatedAt:        time.Time{},
-					UpdatedAt:        time.Time{},
+					Type:      models.DimensionTypeItem,
+					Length:    12000,
+					Height:    12000,
+					Width:     12000,
+					CreatedAt: time.Time{},
+					UpdatedAt: time.Time{},
 				},
+			},
+			{
+				Model:    mtoServiceItem,
+				LinkOnly: true,
 			},
 		}, nil)
 		mtoServiceItem.Dimensions = []models.MTOServiceItemDimension{itemDimension, cratingDimension}
