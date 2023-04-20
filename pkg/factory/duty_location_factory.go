@@ -49,20 +49,6 @@ func buildDutyLocationWithBuildType(db *pop.Connection, customs []Customization,
 		FetchOrBuildPostalCodeToGBLOC(db, dlAddress.PostalCode, "KKFA")
 	}
 
-	// Determine if we are creating an associated Transportation Office
-	createTransportationOffice := buildType != dutyLocationBuildWithoutTransportationOffice
-
-	var transportationOffice models.TransportationOffice
-	if createTransportationOffice {
-		// Find/create the transportationOffice Model
-		tempTOAddressCustoms := customs
-		dltoAddress := findValidCustomization(customs, Addresses.DutyLocationTOAddress)
-		if dltoAddress != nil {
-			tempTOAddressCustoms = convertCustomizationInList(tempTOAddressCustoms, Addresses.DutyLocationTOAddress, Address)
-		}
-		transportationOffice = BuildTransportationOfficeWithPhoneLine(db, tempTOAddressCustoms, traits)
-	}
-
 	tarifCustoms := findValidCustomization(customs, Tariff400ngZip3)
 	if tarifCustoms == nil {
 		// Build the required Tariff 400 NG Zip3 to correspond with the
@@ -83,23 +69,22 @@ func buildDutyLocationWithBuildType(db *pop.Connection, customs []Customization,
 	// Create default Duty Location
 	affiliation := internalmessages.AffiliationAIRFORCE
 
-	var location models.DutyLocation
-	if createTransportationOffice {
-		location = models.DutyLocation{
-			Name:                   makeRandomString(10),
-			Affiliation:            &affiliation,
-			AddressID:              dlAddress.ID,
-			Address:                dlAddress,
-			TransportationOfficeID: &transportationOffice.ID,
-			TransportationOffice:   transportationOffice,
+	location := models.DutyLocation{
+		Name:        makeRandomString(10),
+		Affiliation: &affiliation,
+		AddressID:   dlAddress.ID,
+		Address:     dlAddress,
+	}
+	if buildType == dutyLocationBuildStandard {
+		// Find/create the transportationOffice Model
+		tempTOAddressCustoms := customs
+		dltoAddress := findValidCustomization(customs, Addresses.DutyLocationTOAddress)
+		if dltoAddress != nil {
+			tempTOAddressCustoms = convertCustomizationInList(tempTOAddressCustoms, Addresses.DutyLocationTOAddress, Address)
 		}
-	} else {
-		location = models.DutyLocation{
-			Name:        makeRandomString(10),
-			Affiliation: &affiliation,
-			AddressID:   dlAddress.ID,
-			Address:     dlAddress,
-		}
+		transportationOffice := BuildTransportationOfficeWithPhoneLine(db, tempTOAddressCustoms, traits)
+		location.TransportationOffice = transportationOffice
+		location.TransportationOfficeID = &transportationOffice.ID
 	}
 
 	// Overwrite values with those from customizations
