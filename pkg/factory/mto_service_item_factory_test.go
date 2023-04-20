@@ -211,4 +211,39 @@ func (suite *FactorySuite) TestBuildMTOServiceItem() {
 		suite.Equal(customReService.Code, si2.ReService.Code)
 	})
 
+	suite.Run("build real MTOServiceItem with all deps valid code", func() {
+		move := BuildMove(suite.DB(), nil, nil)
+		shipment := BuildMTOShipment(suite.DB(), []Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+		mtoServiceItem := BuildRealMTOServiceItemWithAllDeps(suite.DB(),
+			models.ReServiceCodeMS, move, shipment)
+
+		reService := FetchOrBuildReServiceByCode(suite.DB(), models.ReServiceCodeMS)
+
+		suite.Equal(move.ID, mtoServiceItem.MoveTaskOrderID)
+		suite.NotNil(mtoServiceItem.MTOShipmentID)
+		suite.Equal(shipment.ID, *mtoServiceItem.MTOShipmentID)
+		suite.Equal(reService.ID, mtoServiceItem.ReServiceID)
+		suite.Equal(models.MTOServiceItemStatusApproved, mtoServiceItem.Status)
+	})
+
+	suite.Run("build real MTOServiceItem with all deps invalid code", func() {
+		move := BuildMove(suite.DB(), nil, nil)
+		shipment := BuildMTOShipment(suite.DB(), []Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+		suite.Panics(func() {
+			// this code is not a supported one
+			BuildRealMTOServiceItemWithAllDeps(suite.DB(),
+				models.ReServiceCodeDOFSIT, move, shipment)
+		})
+	})
+
 }

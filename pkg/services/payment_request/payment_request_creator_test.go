@@ -1304,7 +1304,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequestCheckOnNTSRelea
 		},
 	}, nil)
 
-	mtoServiceItemDLH := testdatagen.MakeRealMTOServiceItemWithAllDeps(suite.DB(), models.ReServiceCodeDLH, move, shipment)
+	mtoServiceItemDLH := factory.BuildRealMTOServiceItemWithAllDeps(suite.DB(), models.ReServiceCodeDLH, move, shipment)
 
 	// Build up a payment request for the DLH.
 	paymentRequestArg := models.PaymentRequest{
