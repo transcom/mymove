@@ -9,6 +9,7 @@
 package uploader_test
 
 import (
+	"fmt"
 	"io"
 	"log"
 	"os"
@@ -112,7 +113,7 @@ func (suite *UploaderSuite) TestUploadFromLocalFile() {
 	upload, verrs, err := up.CreateUpload(suite.AppContextForTest(), uploader.File{File: file}, uploader.AllowedTypesPDF)
 	suite.Nil(err, "failed to create upload")
 	suite.False(verrs.HasAny(), "failed to validate upload", verrs)
-	suite.Equal(upload.ContentType, "application/pdf")
+	suite.Equal(upload.ContentType, uploader.FileTypePDF)
 	suite.Equal(upload.Checksum, "nOE6HwzyE4VEDXn67ULeeA==")
 }
 
@@ -138,7 +139,7 @@ func (suite *UploaderSuite) TestUploadFromLocalFileWrongContentType() {
 
 	upload, verrs, err := up.CreateUpload(suite.AppContextForTest(), uploader.File{File: file}, uploader.AllowedTypesPDF)
 	suite.Error(err)
-	suite.Equal("content type \"application/octet-stream\" is not one of the supported types [application/pdf]", err.Error())
+	suite.Equal(fmt.Sprintf("content type \"application/octet-stream\" is not one of the supported types [%s]", uploader.FileTypePDF), err.Error())
 	suite.True(verrs.HasAny(), "invalid content type for upload")
 	suite.Nil(upload, "returned an upload when erroring")
 }

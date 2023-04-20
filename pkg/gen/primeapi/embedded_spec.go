@@ -2448,6 +2448,14 @@ func init() {
           "readOnly": true,
           "example": "MTO Shipment not good enough"
         },
+        "requestedDeliveryDate": {
+          "description": "The customer's preferred delivery date.",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "readOnly": true
+        },
         "requestedPickupDate": {
           "description": "The date the customer selects during onboarding as their preferred pickup date. Other dates, such as required delivery date and (outside MilMove) the pack date, are derived from this date.\n",
           "type": "string",
@@ -6839,6 +6847,14 @@ func init() {
           "x-nullable": true,
           "readOnly": true,
           "example": "MTO Shipment not good enough"
+        },
+        "requestedDeliveryDate": {
+          "description": "The customer's preferred delivery date.",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "readOnly": true
         },
         "requestedPickupDate": {
           "description": "The date the customer selects during onboarding as their preferred pickup date. Other dates, such as required delivery date and (outside MilMove) the pack date, are derived from this date.\n",

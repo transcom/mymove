@@ -1030,15 +1030,15 @@ func (h DenySITExtensionHandler) triggerDenySITExtensionEvent(appCtx appcontext.
 	}
 }
 
-// CreateSITExtensionAsTOOHandler creates a SIT extension in the approved state
-type CreateSITExtensionAsTOOHandler struct {
+// CreateApprovedSITDurationUpdateHandler creates a SIT Duration Update in the approved state
+type CreateApprovedSITDurationUpdateHandler struct {
 	handlers.HandlerConfig
-	services.SITExtensionCreatorAsTOO
+	services.ApprovedSITDurationUpdateCreator
 	services.ShipmentSITStatus
 }
 
 // Handle creates the approved SIT extension
-func (h CreateSITExtensionAsTOOHandler) Handle(params shipmentops.CreateSITExtensionAsTOOParams) middleware.Responder {
+func (h CreateApprovedSITDurationUpdateHandler) Handle(params shipmentops.CreateApprovedSITDurationUpdateParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
@@ -1052,14 +1052,14 @@ func (h CreateSITExtensionAsTOOHandler) Handle(params shipmentops.CreateSITExten
 					payload := ghcmessages.Error{
 						Message: handlers.FmtString(err.Error()),
 					}
-					return shipmentops.NewCreateSITExtensionAsTOONotFound().WithPayload(&payload), err
+					return shipmentops.NewCreateApprovedSITDurationUpdateNotFound().WithPayload(&payload), err
 				case apperror.InvalidInputError:
 					payload := payloadForValidationError(
 						"Validation errors",
 						"CreateApprovedSITExtension",
 						h.GetTraceIDFromRequest(params.HTTPRequest),
 						e.ValidationErrors)
-					return shipmentops.NewCreateSITExtensionAsTOOUnprocessableEntity().WithPayload(payload), err
+					return shipmentops.NewCreateApprovedSITDurationUpdateUnprocessableEntity().WithPayload(payload), err
 				case apperror.PreconditionFailedError:
 					return shipmentops.NewDenySITExtensionPreconditionFailed().
 						WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())}), err
@@ -1068,17 +1068,17 @@ func (h CreateSITExtensionAsTOOHandler) Handle(params shipmentops.CreateSITExten
 						// If you can unwrap, log the internal error (usually a pq error) for better debugging
 						appCtx.Logger().Error("ghcapi.CreateApprovedSITExtension query error", zap.Error(e.Unwrap()))
 					}
-					return shipmentops.NewCreateSITExtensionAsTOOInternalServerError(), err
+					return shipmentops.NewCreateApprovedSITDurationUpdateInternalServerError(), err
 				case apperror.ForbiddenError:
-					return shipmentops.NewCreateSITExtensionAsTOOForbidden().
+					return shipmentops.NewCreateApprovedSITDurationUpdateForbidden().
 						WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())}), err
 				default:
-					return shipmentops.NewCreateSITExtensionAsTOOInternalServerError(), err
+					return shipmentops.NewCreateApprovedSITDurationUpdateInternalServerError(), err
 				}
 			}
 
 			sitExtension := payloads.ApprovedSITExtensionFromCreate(payload, shipmentID)
-			shipment, err := h.SITExtensionCreatorAsTOO.CreateSITExtensionAsTOO(appCtx, sitExtension, sitExtension.MTOShipmentID, params.IfMatch)
+			shipment, err := h.ApprovedSITDurationUpdateCreator.CreateApprovedSITDurationUpdate(appCtx, sitExtension, sitExtension.MTOShipmentID, params.IfMatch)
 			if err != nil {
 				return handleError(err)
 			}
@@ -1094,6 +1094,6 @@ func (h CreateSITExtensionAsTOOHandler) Handle(params shipmentops.CreateSITExten
 
 			sitStatusPayload := payloads.SITStatus(shipmentSITStatus)
 			returnPayload := payloads.MTOShipment(h.FileStorer(), shipment, sitStatusPayload)
-			return shipmentops.NewCreateSITExtensionAsTOOOK().WithPayload(returnPayload), nil
+			return shipmentops.NewCreateApprovedSITDurationUpdateOK().WithPayload(returnPayload), nil
 		})
 }

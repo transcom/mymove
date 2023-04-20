@@ -2086,6 +2086,13 @@ definitions:
         readOnly: true
         x-omitempty: false
         x-nullable: true
+      requestedDeliveryDate:
+        description: The customer's preferred delivery date.
+        format: date
+        type: string
+        readOnly: true
+        x-omitempty: false
+        x-nullable: true
       scheduledPickupDate:
         description: >-
           The date the Prime contractor scheduled to pick up this shipment after

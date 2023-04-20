@@ -470,7 +470,7 @@ export function denySITExtension({
 }
 
 export function submitSITExtension({ shipmentID, ifMatchETag, normalize = true, schemaKey = 'mtoShipment', body }) {
-  const operationPath = 'shipment.createSITExtensionAsTOO';
+  const operationPath = 'shipment.createApprovedSITDurationUpdate';
   return makeGHCRequest(
     operationPath,
     {

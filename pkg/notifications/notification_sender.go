@@ -15,6 +15,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/cli"
+	"github.com/transcom/mymove/pkg/uploader"
 )
 
 // Notification is an interface for creating emails
@@ -137,7 +138,7 @@ func formatRawEmailMessage(email emailContent, domain string) ([]byte, error) {
 	m.SetHeader("From", senderEmail(domain))
 	m.SetHeader("To", email.recipientEmail)
 	m.SetHeader("Subject", email.subject)
-	m.SetBody("text/plain", email.textBody)
+	m.SetBody(uploader.FileTypeText, email.textBody)
 	m.AddAlternative("text/html", email.htmlBody)
 	for _, attachment := range email.attachments {
 		m.Attach(attachment)
