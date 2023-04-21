@@ -83,3 +83,10 @@ type PPMShipmentUpdatedSubmitter interface {
 type AOAPacketCreator interface {
 	CreateAOAPacket(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) error
 }
+
+// PaymentPacketCreator creates a payment packet for a PPM shipment
+//
+//go:generate mockery --name PaymentPacketCreator
+type PaymentPacketCreator interface {
+	CreatePaymentPacket(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) error
+}
