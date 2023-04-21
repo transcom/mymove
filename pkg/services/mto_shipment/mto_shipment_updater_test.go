@@ -1443,7 +1443,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 	suite.Run("When move is not yet approved, cannot approve shipment", func() {
 		setupTestData()
 
-		submittedMTO := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
+		submittedMTO := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
 		mtoShipment := submittedMTO.MTOShipments[0]
 		eTag = etag.GenerateEtag(mtoShipment.UpdatedAt)
 
@@ -1964,12 +1964,15 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentNullableFields() {
 		mockedUpdater := NewOfficeMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, &mockShipmentRecalculator)
 
 		ntsLOAType := models.LOATypeNTS
-		ntsMove := testdatagen.MakeNTSMoveWithShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				TACType: &ntsLOAType,
-				SACType: &ntsLOAType,
+		ntsMove := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypeHHGIntoNTSDom,
+					TACType:      &ntsLOAType,
+					SACType:      &ntsLOAType,
+				},
 			},
-		})
+		}, nil)
 
 		nullLOAType := models.LOAType("")
 		requestedUpdate := &models.MTOShipment{
@@ -1999,12 +2002,15 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentNullableFields() {
 		ntsLOAType := models.LOATypeNTS
 		hhgLOAType := models.LOATypeHHG
 
-		ntsMove := testdatagen.MakeNTSMoveWithShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				TACType: &ntsLOAType,
-				SACType: &ntsLOAType,
+		ntsMove := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypeHHGIntoNTSDom,
+					TACType:      &ntsLOAType,
+					SACType:      &ntsLOAType,
+				},
 			},
-		})
+		}, nil)
 		shipment := ntsMove.MTOShipments[0]
 
 		requestedUpdate := &models.MTOShipment{

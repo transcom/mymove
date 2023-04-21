@@ -252,5 +252,45 @@ func (suite *FactorySuite) TestBuildMove() {
 		suite.Equal(availableToPrimeAt, *move.AvailableToPrimeAt)
 		suite.NotNil(move.AvailableToPrimeAt)
 	})
+	suite.Run("Successful creation of move with shipment", func() {
+		// Under test:      BuildMoveWithShipment
+		// Set up:          Create a move using BuildMoveWithShipment
+		// Expected outcome:Move with shipment
+
+		move := BuildMoveWithShipment(suite.DB(), nil, nil)
+		suite.NotEmpty(move.MTOShipments)
+		suite.Equal(models.MTOShipmentStatusSubmitted, move.MTOShipments[0].Status)
+	})
+
+	suite.Run("Successful creation of customized move with shipment", func() {
+		// Under test:      BuildMoveWithShipment
+		// Set up:          Create a custom move using BuildMoveWithShipment
+		// Expected outcome:Customized move with shipment
+		customMove := models.Move{
+			Locator: "999111",
+			Status:  models.MoveStatusAPPROVALSREQUESTED,
+		}
+		customServiceMember := models.ServiceMember{
+			FirstName: models.StringPointer("Riley"),
+		}
+		customOrders := models.Order{
+			HasDependents: true,
+		}
+		customShipment := models.MTOShipment{
+			Status: models.MTOShipmentStatusCanceled,
+		}
+		// Create move
+		move := BuildMoveWithShipment(suite.DB(), []Customization{
+			{Model: customMove},
+			{Model: customServiceMember},
+			{Model: customOrders},
+			{Model: customShipment},
+		}, nil)
+		suite.Equal(customMove.Locator, move.Locator)
+		suite.Equal(customMove.Status, move.Status)
+		suite.Equal(customServiceMember.FirstName, move.Orders.ServiceMember.FirstName)
+		suite.Equal(customOrders.HasDependents, move.Orders.HasDependents)
+		suite.Equal(customShipment.Status, move.MTOShipments[0].Status)
+	})
 
 }

@@ -230,29 +230,30 @@ func createServiceMemberWithOrdersButNoMoveType(appCtx appcontext.AppContext) {
 	uuidStr := "9ceb8321-6a82-4f6d-8bb3-a1d85922a202"
 	loginGovUUID := uuid.Must(uuid.NewV4())
 
-	factory.BuildUser(db, []factory.Customization{
+	factory.BuildMove(db, []factory.Customization{
 		{
 			Model: models.User{
 				ID:            uuid.Must(uuid.FromString(uuidStr)),
 				LoginGovUUID:  &loginGovUUID,
 				LoginGovEmail: email,
-			}},
+			},
+		},
+		{
+			Model: models.ServiceMember{
+				ID:            uuid.FromStringOrNil("7554e347-2215-484f-9240-c61bae050220"),
+				FirstName:     models.StringPointer("LandingTest1"),
+				LastName:      models.StringPointer("UserPerson2"),
+				Edipi:         models.StringPointer("6833908164"),
+				PersonalEmail: models.StringPointer(email),
+			},
+		},
+		{
+			Model: models.Move{
+				ID:      uuid.FromStringOrNil("b2ecbbe5-36ad-49fc-86c8-66e55e0697a7"),
+				Locator: "ZPGVED",
+			},
+		},
 	}, nil)
-
-	testdatagen.MakeMoveWithoutMoveType(db, testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			ID:            uuid.FromStringOrNil("7554e347-2215-484f-9240-c61bae050220"),
-			UserID:        uuid.FromStringOrNil(uuidStr),
-			FirstName:     models.StringPointer("LandingTest1"),
-			LastName:      models.StringPointer("UserPerson2"),
-			Edipi:         models.StringPointer("6833908164"),
-			PersonalEmail: models.StringPointer(email),
-		},
-		Move: models.Move{
-			ID:      uuid.FromStringOrNil("b2ecbbe5-36ad-49fc-86c8-66e55e0697a7"),
-			Locator: "ZPGVED",
-		},
-	})
 }
 
 func createServiceMemberWithNoUploadedOrders(appCtx appcontext.AppContext) {
@@ -2968,13 +2969,22 @@ func createMoveWithPPM(appCtx appcontext.AppContext, userUploader *uploader.User
 
 func createMoveWithHHGMissingOrdersInfo(appCtx appcontext.AppContext, moveRouter services.MoveRouter, userUploader *uploader.UserUploader) {
 	db := appCtx.DB()
-	move := testdatagen.MakeHHGMoveWithShipment(db, testdatagen.Assertions{
-		Move: models.Move{
-			Locator: "REQINF",
-			Status:  models.MoveStatusDRAFT,
+	move := factory.BuildMoveWithShipment(db, []factory.Customization{
+		{
+			Model: models.Move{
+				Locator: "REQINF",
+				Status:  models.MoveStatusDRAFT,
+			},
 		},
-		UserUploader: userUploader,
-	})
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
+
 	order := move.Orders
 	order.TAC = nil
 	order.OrdersNumber = nil
@@ -3459,22 +3469,36 @@ func createMoveWithNTSAndNTSR(appCtx appcontext.AppContext, userUploader *upload
 
 func createNTSMove(appCtx appcontext.AppContext) {
 	db := appCtx.DB()
-	testdatagen.MakeNTSMoveWithShipment(db, testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			FirstName: models.StringPointer("Spaceman"),
-			LastName:  models.StringPointer("NTS"),
+	factory.BuildMoveWithShipment(db, []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				FirstName: models.StringPointer("Spaceman"),
+				LastName:  models.StringPointer("NTS"),
+			},
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypeHHGIntoNTSDom,
+			},
+		},
+	}, nil)
 }
 
 func createNTSRMove(appCtx appcontext.AppContext) {
 	db := appCtx.DB()
-	testdatagen.MakeNTSRMoveWithShipment(db, testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			FirstName: models.StringPointer("Spaceman"),
-			LastName:  models.StringPointer("NTS-release"),
+	factory.BuildMoveWithShipment(db, []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				FirstName: models.StringPointer("Spaceman"),
+				LastName:  models.StringPointer("NTS-release"),
+			},
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypeHHGOutOfNTSDom,
+			},
+		},
+	}, nil)
 }
 
 func createDefaultHHGMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, affiliation models.ServiceMemberAffiliation) {

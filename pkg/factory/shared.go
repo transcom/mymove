@@ -44,6 +44,7 @@ var DutyLocation CustomType = "DutyLocation"
 var Entitlement CustomType = "Entitlement"
 var Move CustomType = "Move"
 var MTOServiceItem CustomType = "MTOServiceItem"
+var MTOServiceItemDimension CustomType = "MTOServiceItemDimension"
 var MTOShipment CustomType = "MTOShipment"
 var Notification CustomType = "Notification"
 var OfficePhoneLine CustomType = "OfficePhoneLine"
@@ -67,36 +68,37 @@ var UsersRoles CustomType = "UsersRoles"
 
 // defaultTypesMap allows us to assign CustomTypes for most default types
 var defaultTypesMap = map[string]CustomType{
-	"models.Address":               Address,
-	"models.AdminUser":             AdminUser,
-	"models.BackupContact":         BackupContact,
-	"models.Contractor":            Contractor,
-	"models.CustomerSupportRemark": CustomerSupportRemark,
-	"models.Document":              Document,
-	"models.DutyLocation":          DutyLocation,
-	"models.Entitlement":           Entitlement,
-	"models.Move":                  Move,
-	"models.MTOServiceItem":        MTOServiceItem,
-	"models.MTOShipment":           MTOShipment,
-	"models.Notification":          Notification,
-	"models.OfficePhoneLine":       OfficePhoneLine,
-	"models.OfficeUser":            OfficeUser,
-	"models.Order":                 Order,
-	"models.Organization":          Organization,
-	"models.PPMShipment":           PPMShipment,
-	"models.PostalCodeToGBLOC":     PostalCodeToGBLOC,
-	"models.ReService":             ReService,
-	"models.ServiceItemParamKey":   ServiceItemParamKey,
-	"models.ServiceMember":         ServiceMember,
-	"models.SignedCertification":   SignedCertification,
-	"models.StorageFacility":       StorageFacility,
-	"models.Tariff400ngZip3":       Tariff400ngZip3,
-	"models.TransportationOffice":  TransportationOffice,
-	"models.Upload":                Upload,
-	"models.UserUpload":            UserUpload,
-	"models.User":                  User,
-	"models.UsersRoles":            UsersRoles,
-	"roles.Role":                   Role,
+	"models.Address":                 Address,
+	"models.AdminUser":               AdminUser,
+	"models.BackupContact":           BackupContact,
+	"models.Contractor":              Contractor,
+	"models.CustomerSupportRemark":   CustomerSupportRemark,
+	"models.Document":                Document,
+	"models.DutyLocation":            DutyLocation,
+	"models.Entitlement":             Entitlement,
+	"models.Move":                    Move,
+	"models.MTOServiceItem":          MTOServiceItem,
+	"models.MTOServiceItemDimension": MTOServiceItemDimension,
+	"models.MTOShipment":             MTOShipment,
+	"models.Notification":            Notification,
+	"models.OfficePhoneLine":         OfficePhoneLine,
+	"models.OfficeUser":              OfficeUser,
+	"models.Order":                   Order,
+	"models.Organization":            Organization,
+	"models.PPMShipment":             PPMShipment,
+	"models.PostalCodeToGBLOC":       PostalCodeToGBLOC,
+	"models.ReService":               ReService,
+	"models.ServiceItemParamKey":     ServiceItemParamKey,
+	"models.ServiceMember":           ServiceMember,
+	"models.SignedCertification":     SignedCertification,
+	"models.StorageFacility":         StorageFacility,
+	"models.Tariff400ngZip3":         Tariff400ngZip3,
+	"models.TransportationOffice":    TransportationOffice,
+	"models.Upload":                  Upload,
+	"models.UserUpload":              UserUpload,
+	"models.User":                    User,
+	"models.UsersRoles":              UsersRoles,
+	"roles.Role":                     Role,
 }
 
 // Instead of nesting structs, we create specific CustomTypes here to give devs
@@ -439,6 +441,22 @@ func replaceCustomization(customs []Customization, newCustom Customization) []Cu
 	} else {
 		// Did not find an existing customization, append it
 		customs = append(customs, newCustom)
+	}
+
+	return customs
+}
+
+// Caller should have already setup Customizations using setupCustomizations
+func removeCustomization(customs []Customization, customType CustomType) []Customization {
+	// See if an existing customization exists with the type
+	ndx, _ := findCustomWithIdx(customs, customType)
+	if ndx >= 0 {
+		// Found a customization for the provided model and we need to remove it
+		// Order shouldn't matter because the setupCustomizations should have already merged customizations and traits
+		// and ensured that there's only one customization per type
+		// Replace the customization we want to remove with the last customization in the slice
+		customs[ndx] = customs[len(customs)-1]
+		customs = customs[:len(customs)-1]
 	}
 
 	return customs
