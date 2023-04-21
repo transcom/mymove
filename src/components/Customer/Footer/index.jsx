@@ -15,12 +15,15 @@ function Footer() {
             <nav className="usa-footer__nav">
               <ul className="grid-row grid-gap">
                 <li className="mobile-lg:grid-col-6 desktop:grid-col-auto usa-footer__primary-content">
-                  <a className="usa-footer__primary-link" href="https://www.move.mil/">
-                    Move.mil
+                  <a
+                    className="usa-footer__primary-link"
+                    href="https://www.militaryonesource.mil/moving-pcs/moving-personal-property/"
+                  >
+                    Military OneSource
                   </a>
                 </li>
                 <li className="mobile-lg:grid-col-6 desktop:grid-col-auto usa-footer__primary-content">
-                  <a className="usa-footer__primary-link" href="mailto:transcom.scott.tcj5j4.mbx.ppcf@mail.mil">
+                  <a className="usa-footer__primary-link" href="mailto:usarmy.scott.sddc.mbx.g6-src-dps-hd@army.mil">
                     Help Me
                   </a>
                 </li>
@@ -85,7 +88,9 @@ function Footer() {
               </h3>
               <address className="usa-footer__address">
                 <div className="usa-footer__contact-info grid-row grid-gap">
-                  <a href="https://move.mil/customer-service">Customer service</a>
+                  <a href="https://www.militaryonesource.mil/resources/gov/customer-service-contacts-for-military-pcs/">
+                    Customer service
+                  </a>
                 </div>
               </address>
             </div>
