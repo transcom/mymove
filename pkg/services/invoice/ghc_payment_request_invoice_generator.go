@@ -375,11 +375,10 @@ func (g ghcPaymentRequestInvoiceGenerator) createG62Segments(appCtx appcontext.A
 }
 
 func (g ghcPaymentRequestInvoiceGenerator) createBuyerAndSellerOrganizationNamesSegments(appCtx appcontext.AppContext, paymentRequestID uuid.UUID, orders models.Order, header *ediinvoice.InvoiceHeader) error {
-
 	var err error
 	var originDutyLocation models.DutyLocation
 	if orders.OriginDutyLocationID != nil && *orders.OriginDutyLocationID != uuid.Nil {
-		originDutyLocation, err = models.FetchDutyLocation(appCtx.DB(), *orders.OriginDutyLocationID)
+		originDutyLocation, err = models.FetchDutyLocationWithTransportationOffice(appCtx.DB(), *orders.OriginDutyLocationID)
 		if err != nil {
 			return apperror.NewInvalidInputError(*orders.OriginDutyLocationID, err, nil, "unable to find origin duty location")
 		}
@@ -387,15 +386,9 @@ func (g ghcPaymentRequestInvoiceGenerator) createBuyerAndSellerOrganizationNames
 		return apperror.NewConflictError(orders.ID, "Invalid Order, must have OriginDutyLocation")
 	}
 
-	originTransportationOffice, err := models.FetchDutyLocationTransportationOffice(appCtx.DB(), originDutyLocation.ID)
-	if err != nil {
-		return apperror.NewInvalidInputError(originDutyLocation.ID, err, nil, "unable to find origin duty location")
-	}
-
-	// buyer organization name
 	header.BuyerOrganizationName = edisegment.N1{
 		EntityIdentifierCode:        "BY",
-		Name:                        originTransportationOffice.Name,
+		Name:                        originDutyLocation.Name,
 		IdentificationCodeQualifier: "92",
 		IdentificationCode:          modifyGblocIfMarines(*orders.ServiceMember.Affiliation, *orders.OriginDutyLocationGBLOC),
 	}
@@ -414,7 +407,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(ap
 	var err error
 	var destinationDutyLocation models.DutyLocation
 	if orders.NewDutyLocationID != uuid.Nil {
-		destinationDutyLocation, err = models.FetchDutyLocation(appCtx.DB(), orders.NewDutyLocationID)
+		destinationDutyLocation, err = models.FetchDutyLocationWithTransportationOffice(appCtx.DB(), orders.NewDutyLocationID)
 		if err != nil {
 			return apperror.NewInvalidInputError(orders.NewDutyLocationID, err, nil, "unable to find new duty location")
 		}
@@ -422,9 +415,9 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(ap
 		return apperror.NewConflictError(orders.ID, "Invalid Order, must have NewDutyLocation")
 	}
 
-	destTransportationOffice, err := models.FetchDutyLocationTransportationOffice(appCtx.DB(), destinationDutyLocation.ID)
-	if err != nil {
-		return apperror.NewInvalidInputError(destinationDutyLocation.ID, err, nil, "unable to find destination duty location")
+	destPostalCodeToGbloc, gblocErr := models.FetchGBLOCForPostalCode(appCtx.DB(), destinationDutyLocation.Address.PostalCode)
+	if gblocErr != nil {
+		return apperror.NewInvalidInputError(destinationDutyLocation.ID, gblocErr, nil, "unable to determine GBLOC for duty location postal code")
 	}
 
 	// destination name
@@ -432,7 +425,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(ap
 		EntityIdentifierCode:        "ST",
 		Name:                        destinationDutyLocation.Name,
 		IdentificationCodeQualifier: "10",
-		IdentificationCode:          modifyGblocIfMarines(*orders.ServiceMember.Affiliation, destTransportationOffice.Gbloc),
+		IdentificationCode:          modifyGblocIfMarines(*orders.ServiceMember.Affiliation, destPostalCodeToGbloc.GBLOC),
 	}
 
 	// destination address
@@ -461,13 +454,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(ap
 	}
 
 	// Destination PER
-	destinationDutyLocationPhoneLines := destTransportationOffice.PhoneLines
-	var destPhoneLines []string
-	for _, phoneLine := range destinationDutyLocationPhoneLines {
-		if phoneLine.Type == "voice" {
-			destPhoneLines = append(destPhoneLines, phoneLine.Number)
-		}
-	}
+	destPhoneLines := determineDutyLocationPhoneLines(destinationDutyLocation)
 
 	if len(destPhoneLines) > 0 {
 		digits, digitsErr := g.getPhoneNumberDigitsOnly(destPhoneLines[0])
@@ -487,17 +474,12 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(ap
 	var originDutyLocation models.DutyLocation
 
 	if orders.OriginDutyLocationID != nil && *orders.OriginDutyLocationID != uuid.Nil {
-		originDutyLocation, err = models.FetchDutyLocation(appCtx.DB(), *orders.OriginDutyLocationID)
+		originDutyLocation, err = models.FetchDutyLocationWithTransportationOffice(appCtx.DB(), *orders.OriginDutyLocationID)
 		if err != nil {
 			return apperror.NewInvalidInputError(*orders.OriginDutyLocationID, err, nil, "unable to find origin duty location")
 		}
 	} else {
 		return apperror.NewConflictError(orders.ID, "Invalid Order, must have OriginDutyLocation")
-	}
-
-	originTransportationOffice, err := models.FetchDutyLocationTransportationOffice(appCtx.DB(), originDutyLocation.ID)
-	if err != nil {
-		return apperror.NewInvalidInputError(originDutyLocation.ID, err, nil, "unable to find transportation office of origin duty location")
 	}
 
 	header.OriginName = edisegment.N1{
@@ -533,13 +515,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(ap
 	}
 
 	// Origin Duty Location Phone
-	originDutyLocationPhoneLines := originTransportationOffice.PhoneLines
-	var originPhoneLines []string
-	for _, phoneLine := range originDutyLocationPhoneLines {
-		if phoneLine.Type == "voice" {
-			originPhoneLines = append(originPhoneLines, phoneLine.Number)
-		}
-	}
+	originPhoneLines := determineDutyLocationPhoneLines(originDutyLocation)
 
 	if len(originPhoneLines) > 0 {
 		digits, digitsErr := g.getPhoneNumberDigitsOnly(originPhoneLines[0])
@@ -858,6 +834,22 @@ func modifyGblocIfMarines(affiliation models.ServiceMemberAffiliation, gbloc str
 		gbloc = "USMC"
 	}
 	return gbloc
+}
+
+// determineDutyLocationPhoneLines returns a slice of strings of the phone numbers of all voice type phones lines for
+// the associated Transportation Office
+func determineDutyLocationPhoneLines(dutyLocation models.DutyLocation) (phoneLines []string) {
+	if dutyLocation.TransportationOfficeID == nil {
+		return phoneLines
+	}
+
+	dutyLocationPhoneLines := dutyLocation.TransportationOffice.PhoneLines
+	for _, phoneLine := range dutyLocationPhoneLines {
+		if phoneLine.Type == "voice" {
+			phoneLines = append(phoneLines, phoneLine.Number)
+		}
+	}
+	return phoneLines
 }
 
 func msOrCsOnly(paymentServiceItems models.PaymentServiceItems) bool {
