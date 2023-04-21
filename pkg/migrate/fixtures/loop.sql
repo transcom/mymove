@@ -1,5 +1,8 @@
--- Shipment table no longer exists
+-- Shipment, transportation_service_providers,
+-- traffic_distribution_list tables no longer exists.
+--
 -- Creating the table here as a workaround for now
+--
 -- Will re-visit to squash migrations
 CREATE TABLE IF NOT EXISTS shipments (id serial PRIMARY KEY);
 ALTER TABLE invoices ADD COLUMN IF NOT EXISTS shipment_id uuid NULL;
