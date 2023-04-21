@@ -1,12 +1,3 @@
-// RA Summary: gosec - errcheck - Unchecked return value
-// RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
-// RA: Functions with unchecked return values in the file are used to clean up file created for unit test
-// RA: Given the functions causing the lint errors are used to clean up local storage space after a unit test, it does not present a risk
-// RA Developer Status: Mitigated
-// RA Validator Status: Mitigated
-// RA Modified Severity: N/A
-// nolint:errcheck
-// #nosec G307
 package migrate
 
 import (
@@ -335,9 +326,9 @@ to_char(s.created_at, 'YY')
 INTO scac, shipment_year, shipment_two_digit_year
 FROM shipments s
 INNER JOIN shipment_offers so ON s.id = so.shipment_id
-INNER JOIN transportation_service_provider_performances tspp
-ON so.transportation_service_provider_performance_id = tspp.id
-INNER JOIN transportation_service_providers tsp ON tspp.transportation_service_provider_id = tsp.id
+INNER JOIN some_service_provider_performances sspp
+ON so.some_service_provider_performance_id = sspp.id
+INNER JOIN some_service_providers tsp ON sspp.some_service_provider_id = tsp.id
 WHERE s.id = current_shipment_id
 AND so.accepted = TRUE
 ORDER BY so.created_at
