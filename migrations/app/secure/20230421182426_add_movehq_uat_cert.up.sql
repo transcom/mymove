@@ -78,7 +78,7 @@
 -- 	VALUES (
 -- 		movehq_client_cert_id,
 -- 		movehq_sha256,
--- 		'subject= CN=depot.sandbox.movehqhsc.us,OU=MoveHQ Inc.,OU=IdenTrust,OU=ECA,O=U.S. Government,C=US',
+-- 		'subject= CN=mmb.gov.homesafeconnect.com,OU=MoveHQ Inc.,OU=IdenTrust,OU=ECA,O=U.S. Government,C=US',
 -- 		true,
 -- 		now(),
 -- 		now(),
