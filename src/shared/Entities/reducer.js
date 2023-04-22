@@ -5,7 +5,7 @@ import { ADD_ENTITIES } from 'shared/Entities/actions';
 // merge new entities into existing entities
 function mergeEntities(entities, newEntities) {
   // shallow clone to mutate
-  let result = clone(entities);
+  const result = clone(entities);
   each(newEntities, function (_value, key) {
     /* eslint-disable security/detect-object-injection */
     result[key] = {
@@ -21,14 +21,14 @@ function mergeEntities(entities, newEntities) {
 // deletes all items from entities with matching key, id in deleteEntities
 function deleteEntities(entities, deleteEntities) {
   return mapValues(entities, function (value, key) {
-    //RA Summary: eslint - security/detect-object-injection
-    //RA: Using square bracket notation with user input can lead to exploitation
-    //RA: Uses object square bracket notation
-    //RA: Valuable for state management cleanup
-    //RA: The threat actor (web application user) already controls the execution environment (web browser)
-    //RA Developer Status: Mitigated
-    //RA Validator Status: Mitigated
-    //RA Modified Severity: N/A
+    // RA Summary: eslint - security/detect-object-injection
+    // RA: Using square bracket notation with user input can lead to exploitation
+    // RA: Uses object square bracket notation
+    // RA: Valuable for state management cleanup
+    // RA: The threat actor (web application user) already controls the execution environment (web browser)
+    // RA Developer Status: Mitigated
+    // RA Validator Status: Mitigated
+    // RA Modified Severity: N/A
     // eslint-disable-next-line security/detect-object-injection
     const idsToDelete = Object.keys(deleteEntities[key] || {});
     return omit(value, idsToDelete);
@@ -57,7 +57,7 @@ export function entitiesReducer(state = initialState, action) {
   if (action.type === 'UPDATE_MTO_SHIPMENTS_ENTITIY') {
     return {
       ...state,
-      mtoShipments: action.entities['mtoShipments'] || {},
+      mtoShipments: action.entities.mtoShipments || {},
     };
   }
   if (action.type === ADD_ENTITIES) {

@@ -7,14 +7,14 @@ import { push } from 'connected-react-router';
 import { reduxForm } from 'redux-form';
 import { Button } from '@trussworks/react-uswds';
 
-import Alert from 'shared/Alert';
 import generatePath from './generatePath';
+import { beforeTransition, getNextPagePath, getPreviousPagePath, isFirstPage, isLastPage } from './utils';
+
+import Alert from 'shared/Alert';
 import './index.css';
 import { validateRequiredFields } from 'shared/JsonSchemaForm';
 import styles from 'components/Customer/WizardNavigation/WizardNavigation.module.scss';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
-
-import { beforeTransition, getNextPagePath, getPreviousPagePath, isFirstPage, isLastPage } from './utils';
 
 export class WizardFormPage extends Component {
   constructor(props) {
@@ -45,7 +45,7 @@ export class WizardFormPage extends Component {
       match: { params },
       additionalParams,
     } = this.props;
-    const combinedParams = additionalParams ? Object.assign({}, additionalParams, params) : params;
+    const combinedParams = additionalParams ? { ...additionalParams, ...params } : params;
     // comes from react router redux: doing this moves to the route at path  (might consider going back to history since we need withRouter)
     push(generatePath(path, combinedParams));
   }
@@ -154,7 +154,7 @@ WizardFormPage.propTypes = {
   valid: PropTypes.bool,
   dirty: PropTypes.bool,
   push: PropTypes.func,
-  match: PropTypes.object, //from withRouter
+  match: PropTypes.object, // from withRouter
   additionalParams: PropTypes.object,
   additionalValues: PropTypes.object, // These values are passed into the form with change()
   discardOnBack: PropTypes.bool,

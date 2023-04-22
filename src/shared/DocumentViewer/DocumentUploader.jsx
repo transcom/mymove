@@ -85,7 +85,7 @@ export class DocumentUploader extends Component {
     const hasFiles = this.state.newUploads.length;
     const isValid = hasFormFilled && hasFiles && this.state.uploaderIsIdle;
     return (
-      <Fragment>
+      <>
         {this.state.moveDocumentCreateError && (
           <div className="grid-row">
             <div className="grid-col-12 error-message">
@@ -119,7 +119,7 @@ export class DocumentUploader extends Component {
             Save
           </button>
         </form>
-      </Fragment>
+      </>
     );
   }
 }

@@ -3,8 +3,9 @@ import PropTypes from 'prop-types';
 import { get } from 'lodash';
 import { connect } from 'react-redux';
 
-import { selectMoveDocument } from 'shared/Entities/modules/moveDocuments';
 import DocumentContent from './DocumentContent';
+
+import { selectMoveDocument } from 'shared/Entities/modules/moveDocuments';
 import { ExistingUploadsShape } from 'types/uploads';
 
 export const DocumentUploadViewer = ({ moveDocument }) => {
@@ -34,7 +35,7 @@ DocumentUploadViewer.propTypes = {
 };
 
 function mapStateToProps(state, props) {
-  const moveDocumentId = props.match.params.moveDocumentId;
+  const { moveDocumentId } = props.match.params;
   return {
     moveDocument: selectMoveDocument(state, moveDocumentId),
   };

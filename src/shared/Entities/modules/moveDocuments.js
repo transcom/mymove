@@ -1,12 +1,13 @@
 import { filter, map } from 'lodash';
 import { denormalize, normalize } from 'normalizr';
-import { getClient, checkResponse } from 'shared/Swagger/api';
-import { swaggerRequest } from 'shared/Swagger/request';
-import { MOVE_DOC_TYPE, MOVE_DOC_STATUS } from 'shared/constants';
+
 import { moveDocuments } from '../schema';
 import { ADD_ENTITIES, addEntities } from '../actions';
+import { WEIGHT_TICKET_SET_TYPE, MOVE_DOC_TYPE, MOVE_DOC_STATUS } from '../../constants';
+
+import { getClient, checkResponse } from 'shared/Swagger/api';
+import { swaggerRequest } from 'shared/Swagger/request';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
-import { WEIGHT_TICKET_SET_TYPE } from '../../constants';
 
 export const STATE_KEY = 'moveDocuments';
 
@@ -70,9 +71,9 @@ export function createMoveDocument({ moveId, personallyProcuredMoveId, uploadIds
       createGenericMoveDocumentPayload: {
         personally_procured_move_id: personallyProcuredMoveId,
         upload_ids: uploadIds,
-        title: title,
+        title,
         move_document_type: moveDocumentType,
-        notes: notes,
+        notes,
       },
     });
     checkResponse(response, 'failed to create move document due to server error');

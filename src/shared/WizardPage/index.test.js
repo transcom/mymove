@@ -206,7 +206,7 @@ describe('the WizardPage component', () => {
     describe('is true', () => {
       describe('on the first page', () => {
         const wrapper = mount(
-          <WizardPage {...minProps} pageIsValid={true}>
+          <WizardPage {...minProps} pageIsValid>
             <div>This is page 1</div>
           </WizardPage>,
         );
@@ -219,7 +219,7 @@ describe('the WizardPage component', () => {
 
       describe('on the last page', () => {
         const wrapper = mount(
-          <WizardPage {...minProps} pageKey="3" pageIsValid={true}>
+          <WizardPage {...minProps} pageKey="3" pageIsValid>
             <div>This is page 3</div>
           </WizardPage>,
         );

@@ -4,9 +4,10 @@ import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import { push } from 'connected-react-router';
 
+import generatePath from './generatePath';
+
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import Alert from 'shared/Alert';
-import generatePath from './generatePath';
 import './index.css';
 
 import { getNextPagePath, getPreviousPagePath, isFirstPage, isLastPage, beforeTransition } from './utils';
@@ -103,7 +104,7 @@ WizardPage.propTypes = {
   canMoveNext: PropTypes.bool,
   dirty: PropTypes.bool,
   push: PropTypes.func,
-  match: PropTypes.object, //from withRouter
+  match: PropTypes.object, // from withRouter
   additionalParams: PropTypes.object,
   footerText: PropTypes.node,
 };

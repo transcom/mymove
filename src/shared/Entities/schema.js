@@ -47,7 +47,7 @@ export const moves = new schema.Array(move);
 export const order = new schema.Entity('orders');
 export const orders = new schema.Entity('orders');
 orders.define({
-  moves: moves,
+  moves,
 });
 
 export const ordersArray = new schema.Array(orders);
@@ -83,19 +83,19 @@ export const loggedInUser = new schema.Entity('user', {
 
 // Documents
 export const document = new schema.Entity('documents', {
-  uploads: uploads,
+  uploads,
   service_member: serviceMember,
 });
 export const documents = new schema.Array(document);
 
 // MoveDocuments
 export const moveDocument = new schema.Entity('moveDocuments', {
-  document: document,
+  document,
 });
 
 export const moveDocuments = new schema.Array(moveDocument);
 moveDocument.define({
-  move: move,
+  move,
 });
 
 export const moveDocumentPayload = moveDocument;
