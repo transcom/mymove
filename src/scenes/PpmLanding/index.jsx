@@ -4,8 +4,9 @@ import { connect } from 'react-redux';
 import { push } from 'connected-react-router';
 import { withLastLocation } from 'react-router-last-location';
 
-import { withContext } from 'shared/AppContext';
 import { PpmSummary } from './PpmSummary';
+
+import { withContext } from 'shared/AppContext';
 import {
   selectServiceMemberFromLoggedInUser,
   selectIsProfileComplete,
@@ -110,7 +111,7 @@ const mapStateToProps = (state) => {
     serviceMember,
     backupContacts: serviceMember?.backup_contacts || [],
     orders: selectCurrentOrders(state) || {},
-    move: move,
+    move,
     ppm: selectCurrentPPM(state) || {},
     entitlement: loadEntitlementsFromState(state),
   };

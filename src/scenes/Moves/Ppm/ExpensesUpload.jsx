@@ -6,9 +6,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { getFormValues, reduxForm } from 'redux-form';
 import { connect } from 'react-redux';
 
+import WizardHeader from '../WizardHeader';
+
 import PPMPaymentRequestActionBtns from './PPMPaymentRequestActionBtns';
 import DocumentsUploaded from './PaymentReview/DocumentsUploaded';
-import WizardHeader from '../WizardHeader';
 
 import { ProgressTimeline, ProgressTimelineStep } from 'shared/ProgressTimeline';
 import { convertDollarsToCents } from 'shared/utils';
@@ -84,7 +85,7 @@ class ExpensesUpload extends Component {
       requested_amount_cents: requestedAmountCents,
     } = formValues;
 
-    let files = this.uploader.getFiles();
+    const files = this.uploader.getFiles();
     const uploadIds = map(files, 'id');
     const personallyProcuredMoveId = currentPpm ? currentPpm.id : null;
     const title = this.isStorageExpense(formValues) ? 'Storage Expense' : formValues.title;
@@ -301,7 +302,7 @@ class ExpensesUpload extends Component {
             )}
             <PPMPaymentRequestActionBtns
               nextBtnLabel={nextBtnLabel}
-              hasConfirmation={true}
+              hasConfirmation
               submitButtonsAreDisabled={this.isInvalidUploaderState() || invalid}
               submitting={submitting}
               skipHandler={this.skipHandler}
@@ -319,9 +320,9 @@ const formName = 'expense_document_upload';
 ExpensesUpload = reduxForm({ form: formName })(ExpensesUpload);
 
 function mapStateToProps(state, props) {
-  const moveId = props.match.params.moveId;
+  const { moveId } = props.match.params;
   return {
-    moveId: moveId,
+    moveId,
     formValues: getFormValues(formName)(state),
     moveDocSchema: get(state, 'swaggerInternal.spec.definitions.MoveDocumentPayload', {}),
     expenseSchema: get(state, 'swaggerInternal.spec.definitions.CreateMovingExpenseDocumentPayload', {}),
@@ -331,7 +332,7 @@ function mapStateToProps(state, props) {
 }
 
 const mapDispatchToProps = {
-  //TODO we can possibly remove selectPPMCloseoutDocumentsForMove and
+  // TODO we can possibly remove selectPPMCloseoutDocumentsForMove and
   // getMoveDocumentsForMove once the document reviewer component is added
   // as it may be possible to get the number of expenses from that.
   selectPPMCloseoutDocumentsForMove,

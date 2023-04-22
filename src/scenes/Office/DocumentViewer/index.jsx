@@ -3,20 +3,19 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { includes, get, isEmpty } from 'lodash';
 import qs from 'query-string';
+import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 
-import { selectMove } from 'shared/Entities/modules/moves';
+import DocumentDetailPanel from './DocumentDetailPanel';
+
+import { selectMove, loadMove, loadMoveLabel } from 'shared/Entities/modules/moves';
 import { createMovingExpenseDocument } from 'shared/Entities/modules/movingExpenseDocuments';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import Alert from 'shared/Alert';
 import { PanelField } from 'shared/EditablePanel';
-import { loadMove, loadMoveLabel } from 'shared/Entities/modules/moves';
 import { getRequestStatus } from 'shared/Swagger/selectors';
 import { loadServiceMember, selectServiceMember } from 'shared/Entities/modules/serviceMembers';
-import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
-
 import DocumentList from 'shared/DocumentViewer/DocumentList';
 import { selectActivePPMForMove } from 'shared/Entities/modules/ppms';
-
 import {
   selectAllDocumentsForMove,
   getMoveDocumentsForMove,
@@ -24,8 +23,6 @@ import {
 } from 'shared/Entities/modules/moveDocuments';
 import { stringifyName } from 'shared/utils/serviceMember';
 import { convertDollarsToCents } from 'shared/utils';
-
-import DocumentDetailPanel from './DocumentDetailPanel';
 
 import './index.css';
 
@@ -46,7 +43,7 @@ class DocumentViewer extends Component {
   get getDocumentUploaderProps() {
     const { docTypes, location, genericMoveDocSchema, moveDocSchema } = this.props;
     // Parse query string parameters
-    const moveDocumentType = qs.parse(location.search).moveDocumentType;
+    const { moveDocumentType } = qs.parse(location.search);
 
     const initialValues = {};
     // Verify the provided doc type against the schema
@@ -99,6 +96,7 @@ class DocumentViewer extends Component {
       notes,
     });
   };
+
   render() {
     const { serviceMember, moveId, moveDocumentId, moveDocuments, moveLocator } = this.props;
     const numMoveDocs = moveDocuments ? moveDocuments.length : 0;

@@ -18,9 +18,11 @@ class ProfileReview extends Component {
   componentDidMount() {
     scrollToTop();
   }
+
   resumeMove = () => {
     this.props.push(this.getNextIncompletePage());
   };
+
   getNextIncompletePage = () => {
     const {
       conusStatus,
@@ -47,15 +49,11 @@ class ProfileReview extends Component {
       context,
     });
   };
+
   render() {
     const { serviceMember, schemaRank, schemaAffiliation, schemaOrdersType } = this.props;
     return (
-      <WizardPage
-        handleSubmit={this.resumeMove}
-        pageList={this.props.pages}
-        pageKey={this.props.pageKey}
-        pageIsValid={true}
-      >
+      <WizardPage handleSubmit={this.resumeMove} pageList={this.props.pages} pageKey={this.props.pageKey} pageIsValid>
         <h1>Review your Profile</h1>
         <p>Has anything changed since your last move? Please check your info below, especially your Rank.</p>
         <ServiceMemberSummary

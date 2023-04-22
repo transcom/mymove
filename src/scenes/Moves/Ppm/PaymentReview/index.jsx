@@ -4,6 +4,11 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { isEmpty } from 'lodash';
 import moment from 'moment';
 
+import { calcNetWeight } from '../utility';
+import WizardHeader from '../../WizardHeader';
+
+import DocumentsUploaded from './DocumentsUploaded';
+
 import Alert from 'shared/Alert';
 import { formatCents } from 'utils/formatters';
 import { SIGNED_CERT_OPTIONS } from 'shared/constants';
@@ -27,9 +32,6 @@ import { updatePPMs, updatePPM, updatePPMEstimate } from 'store/entities/actions
 import { setPPMEstimateError } from 'store/onboarding/actions';
 import { getPPMsForMove, calculatePPMEstimate, requestPayment } from 'services/internalApi';
 
-import DocumentsUploaded from './DocumentsUploaded';
-import { calcNetWeight } from '../utility';
-import WizardHeader from '../../WizardHeader';
 import './PaymentReview.css';
 
 const nextBtnLabel = 'Submit Request';
@@ -135,7 +137,7 @@ class PaymentReview extends Component {
 
   render() {
     const { moveId, moveDocuments, submitting, history, incentiveEstimateMin } = this.props;
-    const weightTickets = moveDocuments.weightTickets;
+    const { weightTickets } = moveDocuments;
     const missingSomeWeightTicket = weightTickets.some(
       ({ empty_weight_ticket_missing, full_weight_ticket_missing }) =>
         empty_weight_ticket_missing || full_weight_ticket_missing,

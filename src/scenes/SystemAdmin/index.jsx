@@ -2,6 +2,7 @@ import React, { Component, lazy } from 'react';
 import { Route, Switch, withRouter } from 'react-router-dom';
 
 import Home from './Home';
+
 import { GetLoggedInUser } from 'utils/api';
 import CUIHeader from 'components/CUIHeader/CUIHeader';
 // Lazy load these dependencies (they correspond to unique routes & only need to be loaded when that URL is accessed)

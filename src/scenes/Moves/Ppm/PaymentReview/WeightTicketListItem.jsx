@@ -9,8 +9,7 @@ import carTrailerImg from 'shared/images/car-trailer_mobile.png';
 import { formatToOrdinal } from 'utils/formatters';
 import deleteButtonImg from 'shared/images/delete-doc-button.png';
 import AlertWithDeleteConfirmation from 'shared/AlertWithDeleteConfirmation';
-import { UPLOAD_SCAN_STATUS } from 'shared/constants';
-import { WEIGHT_TICKET_SET_TYPE } from 'shared/constants';
+import { UPLOAD_SCAN_STATUS, WEIGHT_TICKET_SET_TYPE } from 'shared/constants';
 
 const WEIGHT_TICKET_IMAGES = {
   CAR: carImg,
@@ -100,11 +99,9 @@ class WeightTicketListItem extends Component {
             )}
           </div>
           {isInfected && (
-            <>
-              <div className="infected-indicator">
-                <strong>Delete this file, take a photo of the document, then upload that</strong>
-              </div>
-            </>
+            <div className="infected-indicator">
+              <strong>Delete this file, take a photo of the document, then upload that</strong>
+            </div>
           )}
           {empty_weight_ticket_missing ? (
             <MissingLabel>

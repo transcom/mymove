@@ -1,6 +1,7 @@
 import React from 'react';
-import Summary from 'components/Customer/Review/Summary/Summary';
 import { withRouter } from 'react-router-dom';
+
+import Summary from 'components/Customer/Review/Summary/Summary';
 import scrollToTop from 'shared/scrollToTop';
 
 export class Edit extends React.Component {

@@ -1,14 +1,16 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 
+import WizardHeader from '../WizardHeader';
+
+import PPMPaymentRequestActionBtns from './PPMPaymentRequestActionBtns';
+
 import { ProgressTimeline, ProgressTimelineStep } from 'shared/ProgressTimeline';
 import RadioButton from 'shared/RadioButton';
 
-import PPMPaymentRequestActionBtns from './PPMPaymentRequestActionBtns';
-import WizardHeader from '../WizardHeader';
-
 import './Expenses.css';
 import { connect } from 'react-redux';
+
 import DocumentsUploaded from './PaymentReview/DocumentsUploaded';
 
 const reviewPagePath = '/ppm-payment-review';
@@ -105,9 +107,9 @@ class ExpensesLanding extends Component {
 }
 
 function mapStateToProps(state, ownProps) {
-  const moveId = ownProps.match.params.moveId;
+  const { moveId } = ownProps.match.params;
   return {
-    moveId: moveId,
+    moveId,
   };
 }
 

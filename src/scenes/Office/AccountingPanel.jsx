@@ -5,7 +5,6 @@ import { bindActionCreators } from 'redux';
 import { reduxForm, getFormValues } from 'redux-form';
 
 import { updateOrders, selectOrdersForMove } from 'shared/Entities/modules/orders';
-
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { PanelSwaggerField, editablePanelify } from 'shared/EditablePanel';
 
@@ -15,7 +14,7 @@ const AccountingDisplay = (props) => {
     values: props.orders,
   };
   return (
-    <React.Fragment>
+    <>
       <div className="editable-panel-column">
         <PanelSwaggerField title="Department indicator" fieldName="department_indicator" required {...fieldProps} />
 
@@ -24,14 +23,14 @@ const AccountingDisplay = (props) => {
       <div className="editable-panel-column">
         <PanelSwaggerField title="TAC / MDC" required fieldName="tac" {...fieldProps} />
       </div>
-    </React.Fragment>
+    </>
   );
 };
 
 const AccountingEdit = (props) => {
   const { ordersSchema } = props;
   return (
-    <React.Fragment>
+    <>
       <div className="editable-panel-column">
         <SwaggerField title="Department indicator" fieldName="department_indicator" swagger={ordersSchema} required />
       </div>
@@ -41,7 +40,7 @@ const AccountingEdit = (props) => {
       <div className="editable-panel-column">
         <SwaggerField title="SAC / SDN" fieldName="sac" swagger={ordersSchema} required />
       </div>
-    </React.Fragment>
+    </>
   );
 };
 
@@ -64,11 +63,11 @@ function mapStateToProps(state, ownProps) {
 
     // Wrapper
     ordersSchema: get(state, 'swaggerInternal.spec.definitions.Orders', {}),
-    orders: orders,
+    orders,
 
     // editablePanelify
-    getUpdateArgs: function () {
-      let values = getFormValues(formName)(state);
+    getUpdateArgs() {
+      const values = getFormValues(formName)(state);
       values.new_duty_location_id = values.new_duty_location.id;
       return [orders.id, values];
     },

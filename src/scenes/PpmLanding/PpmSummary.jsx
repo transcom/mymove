@@ -1,6 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { get, includes, isEmpty } from 'lodash';
+import classnames from 'classnames';
 
 import Alert from 'shared/Alert';
 import TransportationOfficeContactInfo from 'shared/TransportationOffices/TransportationOfficeContactInfo';
@@ -16,9 +17,7 @@ import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 import { calculatePPMEstimate } from 'services/internalApi';
 import { updatePPMEstimate } from 'store/entities/actions';
 import { setPPMEstimateError } from 'store/onboarding/actions';
-
 import styles from 'scenes/PpmLanding/PpmSummary.module.css';
-import classnames from 'classnames';
 
 const MoveInfoHeader = (props) => {
   const { orders, profile, move, entitlement } = props;
@@ -92,11 +91,12 @@ export class PpmSummaryComponent extends React.Component {
               this.setState({ hasEstimateError: true });
             });
 
-          this.setState({ netWeight: netWeight });
+          this.setState({ netWeight });
         }
       });
     }
   }
+
   render() {
     const {
       profile,
@@ -166,7 +166,7 @@ export class PpmSummaryComponent extends React.Component {
             </div>
             <div className={styles.contact_block}>
               <h2>Contacts</h2>
-              <TransportationOfficeContactInfo dutyLocation={profile.current_location} isOrigin={true} />
+              <TransportationOfficeContactInfo dutyLocation={profile.current_location} isOrigin />
             </div>
           </div>
         </div>

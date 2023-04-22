@@ -1,9 +1,11 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { debounce, get } from 'lodash';
-import SaveCancelButtons from './SaveCancelButtons';
 import { push } from 'connected-react-router';
 import { reduxForm } from 'redux-form';
+
+import SaveCancelButtons from './SaveCancelButtons';
+import profileImage from './images/profile.png';
 
 import Alert from 'shared/Alert';
 import { formatCentsRange, formatCents } from 'utils/formatters';
@@ -22,11 +24,9 @@ import { updatePPM, updatePPMEstimate, updatePPMs } from 'store/entities/actions
 import { setPPMEstimateError } from 'store/onboarding/actions';
 import { selectPPMEstimateError } from 'store/onboarding/selectors';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
-
 import EntitlementBar from 'scenes/EntitlementBar';
 import './Review.css';
 import './EditWeight.css';
-import profileImage from './images/profile.png';
 
 const editWeightFormName = 'edit_weight';
 const weightEstimateDebounce = 300;
@@ -245,7 +245,7 @@ class EditWeight extends Component {
 
   updatePpm = (values, dispatch, props) => {
     const { setFlashMessage } = this.props;
-    const moveId = this.props.match.params.moveId;
+    const { moveId } = this.props.match.params;
     return patchPPM(moveId, {
       id: this.props.currentPPM.id,
       weight_estimate: values.weight_estimate,

@@ -10,7 +10,6 @@ import { no_op } from 'shared/utils';
 import { NULL_UUID, SHIPMENT_OPTIONS, CONUS_STATUS } from 'shared/constants';
 import BackupContact from 'pages/MyMove/Profile/BackupContact';
 import ProfileReview from 'scenes/Review/ProfileReview';
-
 import Home from 'pages/MyMove/Home';
 import ConusOrNot from 'pages/MyMove/ConusOrNot';
 import DodInfo from 'pages/MyMove/Profile/DodInfo';
@@ -282,8 +281,7 @@ export const getWorkflowRoutes = (props) => {
     if (currPage.isInFlow(flowProps)) {
       const render = currPage.render(key, pageList, currPage.description, props);
       return <CustomerPrivateRoute exact path={key} key={key} render={render} />;
-    } else {
-      return <Route exact path={key} key={key} component={PageNotInFlow} />;
     }
+    return <Route exact path={key} key={key} component={PageNotInFlow} />;
   });
 };

@@ -88,7 +88,7 @@ class PPMPaymentRequestIntro extends Component {
               required
             />
             <PPMPaymentRequestActionBtns
-              hasConfirmation={true}
+              hasConfirmation
               saveAndAddHandler={handleSubmit(this.updatePpmDate)}
               submitButtonsAreDisabled={invalid || submitting}
               nextBtnLabel="Get Started"

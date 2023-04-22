@@ -1,5 +1,6 @@
 import React from 'react';
 import { Pagination } from 'react-admin';
+
 import styles from './AdminPagination.module.scss';
 
 const AdminPagination = (props) =>

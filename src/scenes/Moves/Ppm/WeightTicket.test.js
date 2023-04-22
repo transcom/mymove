@@ -1,10 +1,12 @@
 import React from 'react';
-import WeightTicket from './WeightTicket';
 import { mount } from 'enzyme';
 import { Provider } from 'react-redux';
-import store from 'shared/store';
 import { HashRouter as Router } from 'react-router-dom';
+
+import WeightTicket from './WeightTicket';
 import PPMPaymentRequestActionBtns from './PPMPaymentRequestActionBtns';
+
+import store from 'shared/store';
 
 function mountComponents(
   moreWeightTickets = 'Yes',
@@ -15,7 +17,7 @@ function mountComponents(
   const initialValues = {
     emptyWeight: 1100,
     fullWeight: 2000,
-    weightTicketSetType: weightTicketSetType,
+    weightTicketSetType,
     weightTicketDate: '2019-05-22',
   };
   const match = { params: { moveId: 'someID' } };

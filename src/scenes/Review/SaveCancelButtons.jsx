@@ -1,11 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-
 import { withRouter } from 'react-router-dom';
 
 const SaveCancelButtons = (props) => {
   const { submitting, valid } = props;
-  const goBack = props.history.goBack;
+  const { goBack } = props.history;
   return (
     <div className="margin-top-2">
       <button className="usa-button margin-bottom-1" type="submit" disabled={submitting || !valid}>

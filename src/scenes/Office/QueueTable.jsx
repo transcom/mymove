@@ -4,13 +4,15 @@ import ReactTable from 'react-table-6';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { get } from 'lodash';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+
+import { defaultColumns } from './queueTableColumns';
+
 import Alert from 'shared/Alert';
 import { formatTimeAgo } from 'utils/formatters';
 import { logOut as logOutAction } from 'store/auth/actions';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
-import { defaultColumns } from './queueTableColumns';
 
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import 'react-table-6/react-table.css';
 
 class QueueTable extends Component {
@@ -75,8 +77,8 @@ class QueueTable extends Component {
       const body = await this.props.retrieveMoves(this.props.queueType);
       // grab all destination duty location and remove duplicates
       // this will build on top of the current duty locations list we see from the data
-      let origDutyLocationDataSet = new Set(this.getOriginDutyLocations());
-      let destDutyLocationDataSet = new Set(this.getDestinationDutyLocations());
+      const origDutyLocationDataSet = new Set(this.getOriginDutyLocations());
+      const destDutyLocationDataSet = new Set(this.getDestinationDutyLocations());
       body.forEach((value) => {
         if (value.origin_duty_location_name !== undefined && value.origin_duty_location_name !== '') {
           origDutyLocationDataSet.add(value.origin_duty_location_name);
@@ -182,7 +184,7 @@ class QueueTable extends Component {
           <span className="staleness-indicator" data-testid="staleness-indicator">
             Last updated {formatTimeAgo(this.state.lastLoadedAt)}
           </span>
-          <span className={'refresh' + (this.state.refreshing ? ' focused' : '')} title="Refresh" aria-label="Refresh">
+          <span className={`refresh${this.state.refreshing ? ' focused' : ''}`} title="Refresh" aria-label="Refresh">
             <FontAwesomeIcon
               data-testid="refreshQueue"
               className="link-blue"

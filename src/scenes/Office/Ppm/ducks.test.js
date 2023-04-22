@@ -1,4 +1,5 @@
 import reducer, { getDocsByStatusAndType, getIncentiveActionType, getTabularExpenses } from './ducks';
+
 describe('office ppm reducer', () => {
   describe('GET_PPM_INCENTIVE', () => {
     it('handles SUCCESS', () => {

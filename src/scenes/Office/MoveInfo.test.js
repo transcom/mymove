@@ -2,11 +2,11 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 import { HashRouter as Router } from 'react-router-dom';
-
-import MoveInfo from './MoveInfo';
-import store from 'shared/store';
 import { mount } from 'enzyme/build';
-import { ReferrerQueueLink } from './MoveInfo';
+
+import MoveInfo, { ReferrerQueueLink } from './MoveInfo';
+
+import store from 'shared/store';
 
 const dummyFunc = () => {};
 const loadDependenciesHasError = null;
@@ -50,7 +50,7 @@ describe('Loads MoveInfo', () => {
         <Router push={push}>
           <MoveInfo
             loadDependenciesHasError={false}
-            loadDependenciesHasSuccess={true}
+            loadDependenciesHasSuccess
             location={location}
             match={match}
             loadMoveDependencies={dummyFunc}

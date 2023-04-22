@@ -7,6 +7,12 @@ import { Link } from 'react-router-dom';
 import { withLastLocation } from 'react-router-last-location';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
+import WizardHeader from '../WizardHeader';
+
+import { getNextPage } from './utility';
+import DocumentsUploaded from './PaymentReview/DocumentsUploaded';
+import PPMPaymentRequestActionBtns from './PPMPaymentRequestActionBtns';
+
 import { ProgressTimeline, ProgressTimelineStep } from 'shared/ProgressTimeline';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import RadioButton from 'shared/RadioButton';
@@ -16,18 +22,12 @@ import Alert from 'shared/Alert';
 import { formatDateForSwagger } from 'shared/dates';
 import { documentSizeLimitMsg, WEIGHT_TICKET_SET_TYPE } from 'shared/constants';
 import { selectCurrentPPM, selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
-
 import carTrailerImg from 'shared/images/car-trailer_mobile.png';
 import carImg from 'shared/images/car_mobile.png';
 import { createWeightTicketSetDocument } from 'shared/Entities/modules/weightTicketSetDocuments';
 import { selectPPMCloseoutDocumentsForMove } from 'shared/Entities/modules/movingExpenseDocuments';
 import { getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
 import { withContext } from 'shared/AppContext';
-
-import { getNextPage } from './utility';
-import DocumentsUploaded from './PaymentReview/DocumentsUploaded';
-import PPMPaymentRequestActionBtns from './PPMPaymentRequestActionBtns';
-import WizardHeader from '../WizardHeader';
 import { formatToOrdinal } from 'utils/formatters';
 
 import './PPMPaymentRequest.css';
@@ -49,6 +49,7 @@ const uploadTrailerProofOfOwnership =
 
 class WeightTicket extends Component {
   state = { ...this.initialState };
+
   uploaders = {
     trailer: { uploaderRef: null, isMissingChecked: () => this.state.missingDocumentation },
     emptyWeight: { uploaderRef: null, isMissingChecked: () => this.state.missingEmptyWeightTicket },
@@ -91,7 +92,8 @@ class WeightTicket extends Component {
   invalidState = (uploader) => {
     if (uploader.isMissingChecked()) {
       return true;
-    } else return !this.hasWeightTicket(uploader.uploaderRef);
+    }
+    return !this.hasWeightTicket(uploader.uploaderRef);
   };
 
   carTrailerText = (isValidTrailer) => {
@@ -101,7 +103,8 @@ class WeightTicket extends Component {
           You can claim this trailer's weight as part of the total weight of your trip.
         </div>
       );
-    } else if (this.isCarTrailer) {
+    }
+    if (this.isCarTrailer) {
       return (
         <div style={{ marginBottom: '1em' }}>
           The weight of this trailer should be <strong>excluded</strong> from the total weight of this trip.
@@ -162,7 +165,7 @@ class WeightTicket extends Component {
     const uploaderKeys = this.nonEmptyUploaderKeys();
     const uploadIds = [];
     for (const key of uploaderKeys) {
-      let files = this.uploaders[key].uploaderRef.getFiles();
+      const files = this.uploaders[key].uploaderRef.getFiles();
       const documentUploadIds = map(files, 'id');
       uploadIds.push(...documentUploadIds);
     }
@@ -198,7 +201,7 @@ class WeightTicket extends Component {
 
   cleanup = () => {
     const { reset } = this.props;
-    const uploaders = this.uploaders;
+    const { uploaders } = this;
     const uploaderKeys = this.nonEmptyUploaderKeys();
     for (const key of uploaderKeys) {
       uploaders[key].uploaderRef.clearFiles();
@@ -508,7 +511,7 @@ class WeightTicket extends Component {
                 )}
                 <PPMPaymentRequestActionBtns
                   nextBtnLabel={nextBtnLabel}
-                  hasConfirmation={true}
+                  hasConfirmation
                   submitButtonsAreDisabled={this.uploaderWithInvalidState() || invalid}
                   submitting={submitting}
                   skipHandler={this.skipHandler}
@@ -536,21 +539,21 @@ WeightTicket.propTypes = {
 };
 
 function mapStateToProps(state, ownProps) {
-  const moveId = ownProps.match.params.moveId;
+  const { moveId } = ownProps.match.params;
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
   const dutyLocationId = serviceMember?.current_location?.id;
   const transportationOffice = serviceMember?.current_location.transportation_office;
 
   return {
-    moveId: moveId,
+    moveId,
     formValues: getFormValues(formName)(state),
     genericMoveDocSchema: get(state, 'swaggerInternal.spec.definitions.CreateGenericMoveDocumentPayload', {}),
     moveDocSchema: get(state, 'swaggerInternal.spec.definitions.MoveDocumentPayload', {}),
     schema: get(state, 'swaggerInternal.spec.definitions.CreateWeightTicketDocumentsPayload', {}),
     currentPpm: selectCurrentPPM(state) || {},
     weightTicketSets: selectPPMCloseoutDocumentsForMove(state, moveId, ['WEIGHT_TICKET_SET']),
-    transportationOffice: transportationOffice,
-    dutyLocationId: dutyLocationId,
+    transportationOffice,
+    dutyLocationId,
   };
 }
 
