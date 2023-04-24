@@ -3425,7 +3425,6 @@ func createMoveWithNTSAndNTSR(appCtx appcontext.AppContext, userUploader *upload
 			Model: models.MTOShipment{
 				PrimeEstimatedWeight: &estimatedNTSWeight,
 				PrimeActualWeight:    &actualNTSWeight,
-				ShipmentType:         models.MTOShipmentTypeHHGIntoNTSDom,
 				Status:               models.MTOShipmentStatusSubmitted,
 				UsesExternalVendor:   opts.usesExternalVendor,
 			},
@@ -3447,7 +3446,6 @@ func createMoveWithNTSAndNTSR(appCtx appcontext.AppContext, userUploader *upload
 			Model: models.MTOShipment{
 				PrimeEstimatedWeight: &estimatedNTSWeight,
 				PrimeActualWeight:    &actualNTSWeight,
-				ShipmentType:         models.MTOShipmentTypeHHGOutOfNTSDom,
 				Status:               models.MTOShipmentStatusSubmitted,
 				UsesExternalVendor:   opts.usesExternalVendor,
 			},
