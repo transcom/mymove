@@ -6,11 +6,10 @@ import * as Yup from 'yup';
 import { Button, Label, Textarea } from '@trussworks/react-uswds';
 import moment from 'moment';
 
-import DataTableWrapper from '../../DataTableWrapper/index';
-import DataTable from '../../DataTable/index';
-
 import styles from './SubmitSITExtensionModal.module.scss';
 
+import DataTableWrapper from 'components/DataTableWrapper/index';
+import DataTable from 'components/DataTable/index';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import { Form } from 'components/form';
 import { ModalContainer, Overlay } from 'components/MigratedModal/MigratedModal';
