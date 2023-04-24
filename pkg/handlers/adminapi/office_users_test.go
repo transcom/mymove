@@ -54,6 +54,7 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 		okResponse := response.(*officeuserop.IndexOfficeUsersOK)
 		suite.Len(okResponse.Payload, 2)
 		suite.Equal(officeUsers[0].ID.String(), okResponse.Payload[0].ID.String())
+		suite.Equal(string(officeUsers[0].User.Roles[0].RoleType), *okResponse.Payload[0].Roles[0].RoleType)
 	})
 
 	suite.Run("fetch return an empty list", func() {
