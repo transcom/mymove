@@ -4,11 +4,11 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	movefetcher "github.com/transcom/mymove/pkg/services/move_task_order"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *SitExtensionServiceSuite) TestSITExtensionCreator() {
@@ -23,11 +23,11 @@ func (suite *SitExtensionServiceSuite) TestSITExtensionCreator() {
 		// Set up:		Established valid shipment and valid SIT extension
 		// Expected:	New sit successfully created
 		// Create new mtoShipment
-		move := testdatagen.MakeAvailableMove(suite.DB())
-		shipment := testdatagen.MakeMTOShipmentWithMove(suite.DB(), &move, testdatagen.Assertions{})
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		shipment := factory.BuildMTOShipmentWithMove(&move, suite.DB(), nil, nil)
 
 		// Create a valid SIT Extension for the move
-		sit := &models.SITExtension{
+		sit := &models.SITDurationUpdate{
 			RequestReason: models.SITExtensionRequestReasonAwaitingCompletionOfResidence,
 			MTOShipmentID: shipment.ID,
 			RequestedDays: 10,
@@ -55,12 +55,12 @@ func (suite *SitExtensionServiceSuite) TestSITExtensionCreator() {
 
 	// InvalidInputError
 	suite.Run("Failure - SIT Extension with validation errors returns an InvalidInputError", func() {
-		move := testdatagen.MakeAvailableMove(suite.DB())
-		shipment := testdatagen.MakeMTOShipmentWithMove(suite.DB(), &move, testdatagen.Assertions{})
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		shipment := factory.BuildMTOShipmentWithMove(&move, suite.DB(), nil, nil)
 
 		// Create a SIT Extension for the move
-		sit := &models.SITExtension{
-			RequestReason: models.SITExtensionRequestReason("none"),
+		sit := &models.SITDurationUpdate{
+			RequestReason: models.SITDurationUpdateRequestReason("none"),
 			MTOShipmentID: shipment.ID,
 			RequestedDays: 10,
 		}
@@ -74,7 +74,7 @@ func (suite *SitExtensionServiceSuite) TestSITExtensionCreator() {
 
 	suite.Run("Failure - Not Found Error because shipment not found", func() {
 		// Create a SIT Extension for the move
-		sit := &models.SITExtension{
+		sit := &models.SITDurationUpdate{
 			MTOShipmentID: uuid.Must(uuid.NewV4()),
 		}
 
@@ -85,17 +85,22 @@ func (suite *SitExtensionServiceSuite) TestSITExtensionCreator() {
 	})
 
 	suite.Run("Failure - Not Found Error because shipment uses external vendor", func() {
-		move := testdatagen.MakeAvailableMove(suite.DB())
-		externalShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			Move: move,
-			MTOShipment: models.MTOShipment{
-				ShipmentType:       models.MTOShipmentTypeHHGOutOfNTSDom,
-				UsesExternalVendor: true,
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		externalShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					ShipmentType:       models.MTOShipmentTypeHHGOutOfNTSDom,
+					UsesExternalVendor: true,
+				},
+			},
+		}, nil)
 
 		// Create a SIT Extension for the move
-		sit := &models.SITExtension{
+		sit := &models.SITDurationUpdate{
 			MTOShipmentID: externalShipment.ID,
 		}
 
@@ -107,12 +112,12 @@ func (suite *SitExtensionServiceSuite) TestSITExtensionCreator() {
 
 	suite.Run("Success - CreateSITExtension with status passed in ", func() {
 		// Create new mtoShipment
-		move := testdatagen.MakeAvailableMove(suite.DB())
-		move2 := testdatagen.MakeAvailableMove(suite.DB())
-		shipment2 := testdatagen.MakeMTOShipmentWithMove(suite.DB(), &move, testdatagen.Assertions{})
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		move2 := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		shipment2 := factory.BuildMTOShipmentWithMove(&move, suite.DB(), nil, nil)
 
 		// Create a valid SIT Extension for the move
-		sit2 := &models.SITExtension{
+		sit2 := &models.SITDurationUpdate{
 			RequestReason: models.SITExtensionRequestReasonAwaitingCompletionOfResidence,
 			MTOShipmentID: shipment2.ID,
 			Status:        models.SITExtensionStatusApproved,

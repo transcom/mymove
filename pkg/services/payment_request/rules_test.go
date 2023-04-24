@@ -4,8 +4,8 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *PaymentRequestServiceSuite) TestValidationRules() {
@@ -14,7 +14,7 @@ func (suite *PaymentRequestServiceSuite) TestValidationRules() {
 
 		suite.Run("success", func() {
 
-			move := testdatagen.MakeDefaultMove(suite.DB())
+			move := factory.BuildMove(suite.DB(), nil, nil)
 			paymentRequest := models.PaymentRequest{
 				MoveTaskOrderID: move.ID,
 			}

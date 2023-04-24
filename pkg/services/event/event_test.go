@@ -172,12 +172,7 @@ func (suite *EventServiceSuite) Test_MTOEventTrigger() {
 
 	// Test successful event
 	suite.Run("Success with GHC MoveTaskOrder endpoint", func() {
-		now := time.Now()
-		mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				AvailableToPrimeAt: &now,
-			},
-		})
+		mto := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		mtoID := mto.ID
 
 		traceID := uuid.Must(uuid.NewV4())
@@ -220,11 +215,13 @@ func (suite *EventServiceSuite) Test_MTOEventTrigger() {
 func (suite *EventServiceSuite) Test_MTOShipmentEventTrigger() {
 	// Test successful event passing with Support API
 	suite.Run("Success with GHC MTOShipment endpoint", func() {
-		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				AvailableToPrimeAt: swag.Time(time.Now()),
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					AvailableToPrimeAt: swag.Time(time.Now()),
+				},
 			},
-		})
+		}, nil)
 
 		mtoShipmentID := mtoShipment.ID
 		mtoID := mtoShipment.MoveTaskOrderID
@@ -266,14 +263,18 @@ func (suite *EventServiceSuite) Test_MTOShipmentEventTrigger() {
 	})
 
 	suite.Run("No notification for GHC MTOShipment endpoint when shipment uses external vendor", func() {
-		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				UsesExternalVendor: true,
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					UsesExternalVendor: true,
+				},
 			},
-			Move: models.Move{
-				AvailableToPrimeAt: swag.Time(time.Now()),
+			{
+				Model: models.Move{
+					AvailableToPrimeAt: swag.Time(time.Now()),
+				},
 			},
-		})
+		}, nil)
 
 		mtoShipmentID := mtoShipment.ID
 		mtoID := mtoShipment.MoveTaskOrderID
@@ -301,15 +302,19 @@ func (suite *EventServiceSuite) Test_MTOShipmentEventTrigger() {
 	// Test successful event passing with Support API
 	suite.Run("Success with GHC MTOShipment endpoint for NTS Shipment", func() {
 		ntsRecordedWeight := unit.Pound(6989)
-		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				AvailableToPrimeAt: swag.Time(time.Now()),
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					AvailableToPrimeAt: swag.Time(time.Now()),
+				},
 			},
-			MTOShipment: models.MTOShipment{
-				ShipmentType:      models.MTOShipmentTypeHHGIntoNTSDom,
-				NTSRecordedWeight: &ntsRecordedWeight,
+			{
+				Model: models.MTOShipment{
+					ShipmentType:      models.MTOShipmentTypeHHGIntoNTSDom,
+					NTSRecordedWeight: &ntsRecordedWeight,
+				},
 			},
-		})
+		}, nil)
 
 		mtoShipmentID := mtoShipment.ID
 		mtoID := mtoShipment.MoveTaskOrderID
@@ -354,15 +359,19 @@ func (suite *EventServiceSuite) Test_MTOShipmentEventTrigger() {
 	// Test successful no event passing with Support API when shipment is assigned to external vendor
 	suite.Run("Error with GHC MTOShipment endpoint for NTS Shipment using external vendor", func() {
 
-		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				AvailableToPrimeAt: swag.Time(time.Now()),
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					AvailableToPrimeAt: swag.Time(time.Now()),
+				},
 			},
-			MTOShipment: models.MTOShipment{
-				ShipmentType:       models.MTOShipmentTypeHHGIntoNTSDom,
-				UsesExternalVendor: true,
+			{
+				Model: models.MTOShipment{
+					ShipmentType:       models.MTOShipmentTypeHHGIntoNTSDom,
+					UsesExternalVendor: true,
+				},
 			},
-		})
+		}, nil)
 
 		mtoShipmentID := mtoShipment.ID
 		mtoID := mtoShipment.MoveTaskOrderID
@@ -394,11 +403,13 @@ func (suite *EventServiceSuite) Test_MTOServiceItemEventTrigger() {
 	// Test successful event passing with Support API
 	suite.Run("Success with GHC ServiceItem endpoint", func() {
 		now := time.Now()
-		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				AvailableToPrimeAt: &now,
+		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					AvailableToPrimeAt: &now,
+				},
 			},
-		})
+		}, nil)
 
 		mtoServiceItemID := mtoServiceItem.ID
 		mtoID := mtoServiceItem.MoveTaskOrderID
@@ -427,7 +438,7 @@ func (suite *EventServiceSuite) TestOrderEventTrigger() {
 	// Test successful event passing with Support API
 	suite.Run("Success with GHC ServiceItem endpoint", func() {
 
-		move := testdatagen.MakeAvailableMove(suite.DB())
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		traceID := uuid.Must(uuid.NewV4())
 		_, err := TriggerEvent(Event{
 			EventKey:        OrderUpdateEventKey,

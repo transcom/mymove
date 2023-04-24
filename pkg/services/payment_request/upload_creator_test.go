@@ -19,6 +19,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/uploader"
 )
 
 func (suite *PaymentRequestServiceSuite) TestCreateUploadSuccess() {
@@ -37,9 +38,13 @@ func (suite *PaymentRequestServiceSuite) TestCreateUploadSuccess() {
 		paymentRequestID, err := uuid.FromString("9b873071-149f-43c2-8971-e93348ebc5e3")
 		suite.NoError(err)
 
-		moveTaskOrder := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{ID: moveTaskOrderID},
-		})
+		moveTaskOrder := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					ID: moveTaskOrderID,
+				},
+			},
+		}, nil)
 
 		paymentRequest = testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 			Move: moveTaskOrder,
@@ -61,7 +66,7 @@ func (suite *PaymentRequestServiceSuite) TestCreateUploadSuccess() {
 		suite.NoError(err)
 		suite.Contains(upload.Filename, expectedFilename)
 		suite.Equal(int64(10596), upload.Bytes)
-		suite.Equal("application/pdf", upload.ContentType)
+		suite.Equal(uploader.FileTypePDF, upload.ContentType)
 
 		var proofOfServiceDoc models.ProofOfServiceDoc
 		proofOfServiceDocExists, err := suite.DB().Q().

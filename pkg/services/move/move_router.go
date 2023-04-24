@@ -348,8 +348,8 @@ func moveHasAcknowledgedExcessWeightRisk(move models.Move) bool {
 
 func allSITExtensionsAreReviewed(move models.Move) bool {
 	for _, shipment := range move.MTOShipments {
-		for _, sitExtension := range shipment.SITExtensions {
-			if sitExtension.Status == models.SITExtensionStatusPending {
+		for _, sitDurationUpdate := range shipment.SITDurationUpdates {
+			if sitDurationUpdate.Status == models.SITExtensionStatusPending {
 				return false
 			}
 		}
@@ -374,6 +374,8 @@ func (router moveRouter) SendToOfficeUser(appCtx appcontext.AppContext, move *mo
 		return errors.Wrap(models.ErrInvalidTransition, errorMessage)
 	}
 	move.Status = models.MoveStatusAPPROVALSREQUESTED
+	now := time.Now()
+	move.ApprovalsRequestedAt = &now
 
 	if verrs, err := appCtx.DB().ValidateAndSave(move); verrs.HasAny() || err != nil {
 		msg := "failure saving move when routing move submission"
@@ -465,7 +467,7 @@ func (router moveRouter) CompleteServiceCounseling(appCtx appcontext.AppContext,
 // ApproveOrRequestApproval routes the move appropriately based on whether or
 // not the TOO has any tasks requiring their attention.
 func (router moveRouter) ApproveOrRequestApproval(appCtx appcontext.AppContext, move models.Move) (*models.Move, error) {
-	err := appCtx.DB().Q().EagerPreload("MTOServiceItems", "Orders.ServiceMember", "Orders.NewDutyLocation.Address", "MTOShipments.SITExtensions").Find(&move, move.ID)
+	err := appCtx.DB().Q().EagerPreload("MTOServiceItems", "Orders.ServiceMember", "Orders.NewDutyLocation.Address", "MTOShipments.SITDurationUpdates").Find(&move, move.ID)
 	if err != nil {
 		appCtx.Logger().Error("Failed to preload MTOServiceItems and Orders for Move", zap.Error(err))
 		switch err {

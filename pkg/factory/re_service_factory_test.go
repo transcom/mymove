@@ -65,6 +65,41 @@ func (suite *FactorySuite) TestBuildReService() {
 }
 
 func (suite *FactorySuite) TestBuildReServiceHelpers() {
+	suite.Run("FetchOrBuildReService - reService exists", func() {
+		// Under test:      FetchOrBuildReService
+		// Set up:          Create a reService, then call FetchOrBuildReService
+		// Expected outcome:Existing ReService should be returned
+		//                  No new reService should be created in database
+
+		ServicesCounselorReService := BuildReService(suite.DB(), []Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeCS,
+				},
+			},
+		},
+			nil)
+
+		precount, err := suite.DB().Count(&models.ReService{})
+		suite.NoError(err)
+
+		reService := FetchOrBuildReService(suite.DB(), []Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeCS,
+				},
+			},
+		}, nil)
+		suite.NoError(err)
+		suite.Equal(ServicesCounselorReService.Code, reService.Code)
+		suite.Equal(ServicesCounselorReService.ID, reService.ID)
+
+		// Count how many reServices are in the DB, no new reServices should have been created.
+		count, err := suite.DB().Count(&models.ReService{})
+		suite.NoError(err)
+		suite.Equal(precount, count)
+	})
+
 	suite.Run("FetchOrBuildReServiceByCode - reService exists", func() {
 		// Under test:      FetchOrBuildReServiceByCode
 		// Set up:          Create a reService, then call FetchOrBuildReServiceByCode
@@ -92,6 +127,49 @@ func (suite *FactorySuite) TestBuildReServiceHelpers() {
 		count, err := suite.DB().Count(&models.ReService{})
 		suite.NoError(err)
 		suite.Equal(precount, count)
+	})
+
+	suite.Run("FetchOrBuildReService - reService does not exists", func() {
+		// Under test:      FetchOrBuildReService
+		// Set up:          Call FetchOrBuildReService with a non-existent reService
+		// Expected outcome:new reService is created
+
+		precount, err := suite.DB().Count(&models.ReService{})
+		suite.NoError(err)
+
+		customReService := models.ReService{
+			Name: "custom name",
+			Code: models.ReServiceCodeCS,
+		}
+		reService := FetchOrBuildReService(suite.DB(), []Customization{
+			{
+				Model: customReService,
+			},
+		}, nil)
+		suite.NoError(err)
+
+		suite.Equal(customReService.Code, reService.Code)
+		suite.Equal(customReService.Name, reService.Name)
+
+		// find by ID
+		customReServiceByID := models.ReService{
+			ID: reService.ID,
+		}
+		reService = FetchOrBuildReService(suite.DB(), []Customization{
+			{
+				Model: customReServiceByID,
+			},
+		}, nil)
+		suite.NoError(err)
+
+		suite.Equal(customReServiceByID.ID, reService.ID)
+		suite.Equal(customReService.Code, reService.Code)
+		suite.Equal(customReService.Name, reService.Name)
+
+		// Count how many reServices are in the DB, new reService should have been created.
+		count, err := suite.DB().Count(&models.ReService{})
+		suite.NoError(err)
+		suite.Equal(precount+1, count)
 	})
 
 	suite.Run("FetchOrBuildReServiceByCode - reService does not exists", func() {

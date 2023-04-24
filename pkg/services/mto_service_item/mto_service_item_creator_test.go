@@ -24,7 +24,6 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	"github.com/transcom/mymove/pkg/services/query"
-	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -55,11 +54,14 @@ func (suite *MTOServiceItemServiceSuite) buildValidServiceItemWithInvalidMove() 
 	// Default move has status DRAFT, which is invalid for this test because
 	// service items can only be created if a Move's status is Approved or
 	// Approvals Requested
-	move := testdatagen.MakeDefaultMove(suite.DB())
+	move := factory.BuildMove(suite.DB(), nil, nil)
 	reServiceDDFSIT := factory.BuildDDFSITReService(suite.DB())
-	shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: move,
-	})
+	shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	serviceItemForUnapprovedMove := models.MTOServiceItem{
 		MoveTaskOrderID: move.ID,
@@ -73,7 +75,7 @@ func (suite *MTOServiceItemServiceSuite) buildValidServiceItemWithInvalidMove() 
 }
 
 func (suite *MTOServiceItemServiceSuite) buildValidDDFSITServiceItemWithValidMove() models.MTOServiceItem {
-	move := testdatagen.MakeAvailableMove(suite.DB())
+	move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 	dimension := models.MTOServiceItemDimension{
 		Type:      models.DimensionTypeItem,
 		Length:    12000,
@@ -83,9 +85,12 @@ func (suite *MTOServiceItemServiceSuite) buildValidDDFSITServiceItemWithValidMov
 		UpdatedAt: time.Now(),
 	}
 	reServiceDDFSIT := factory.BuildDDFSITReService(suite.DB())
-	shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: move,
-	})
+	shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	serviceItem := models.MTOServiceItem{
 		MoveTaskOrderID: move.ID,
@@ -101,16 +106,21 @@ func (suite *MTOServiceItemServiceSuite) buildValidDDFSITServiceItemWithValidMov
 }
 
 func (suite *MTOServiceItemServiceSuite) buildValidDOSHUTServiceItemWithValidMove() models.MTOServiceItem {
-	move := testdatagen.MakeAvailableMove(suite.DB())
+	move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 	reServiceDOSHUT := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDOSHUT)
 
 	estimatedPrimeWeight := unit.Pound(6000)
-	shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			PrimeEstimatedWeight: &estimatedPrimeWeight,
+	shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				PrimeEstimatedWeight: &estimatedPrimeWeight,
+			},
+		},
+	}, nil)
 
 	estimatedWeight := unit.Pound(4200)
 	actualWeight := unit.Pound(4000)
@@ -130,7 +140,7 @@ func (suite *MTOServiceItemServiceSuite) buildValidDOSHUTServiceItemWithValidMov
 }
 
 func (suite *MTOServiceItemServiceSuite) buildValidServiceItemWithNoStatusAndValidMove() models.MTOServiceItem {
-	move := testdatagen.MakeAvailableMove(suite.DB())
+	move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 	dimension := models.MTOServiceItemDimension{
 		Type:      models.DimensionTypeItem,
 		Length:    12000,
@@ -140,9 +150,12 @@ func (suite *MTOServiceItemServiceSuite) buildValidServiceItemWithNoStatusAndVal
 		UpdatedAt: time.Now(),
 	}
 	reService := factory.BuildReService(suite.DB(), nil, nil)
-	shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: move,
-	})
+	shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	serviceItem := models.MTOServiceItem{
 		MoveTaskOrderID: move.ID,
@@ -364,7 +377,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		// Expected outcome:
 		//             Success, CS and MS can be created on moves without shipments.
 
-		move := testdatagen.MakeAvailableMove(suite.DB())
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		reServiceCS := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeCS)
 		serviceItemCS := models.MTOServiceItem{
 			MoveTaskOrderID: move.ID,
@@ -402,8 +415,8 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		// Expected outcome:
 		//             Not found error returned, no new service items created
 
-		move := testdatagen.MakeAvailableMove(suite.DB())
-		shipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		shipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
 		reService := factory.BuildReServiceByCode(suite.DB(), "ANY")
 		serviceItemBadShip := models.MTOServiceItem{
 			MoveTaskOrderID: move.ID,
@@ -429,10 +442,13 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		// Expected outcome:
 		//             Conflict error returned, no new service items created
 
-		move := testdatagen.MakeAvailableMove(suite.DB())
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-		})
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		reService := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDDSHUT)
 
@@ -452,10 +468,13 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 	})
 
 	setupDDFSITData := func() (models.MTOServiceItemCustomerContact, models.MTOServiceItem) {
-		move := testdatagen.MakeAvailableMove(suite.DB())
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-		})
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 		reServiceDDFSIT := factory.BuildDDFSITReService(suite.DB())
 
 		contact := models.MTOServiceItemCustomerContact{
@@ -565,10 +584,13 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 	var reServiceDOPSIT models.ReService
 
 	setupTestData := func() models.MTOShipment {
-		move := testdatagen.MakeAvailableMove(suite.DB())
-		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-		})
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		reServiceDOASIT = factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDOASIT)
 		reServiceDOFSIT = factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
@@ -895,11 +917,14 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItemFailToCre
 
 	suite.Run("Fail to create DOFSIT service item due to missing SITOriginHHGActualAddress", func() {
 		// Set up data to use for all Origin SIT Service Item tests
-		move := testdatagen.MakeAvailableMove(suite.DB())
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		move.Status = models.MoveStatusAPPROVED
-		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-		})
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		reServiceDOFSIT := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
 
@@ -928,14 +953,19 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItemFailToCre
 func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 
 	setupTestData := func() (models.MTOShipment, services.MTOServiceItemCreator, models.ReService) {
-		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				Status: models.MoveStatusAPPROVED,
+		move := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVED,
+				},
 			},
-		})
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-		})
+		}, nil)
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 		builder := query.NewQueryBuilder()
 		moveRouter := moverouter.NewMoveRouter()
 		creator := NewMTOServiceItemCreator(builder, moveRouter)
@@ -1156,12 +1186,14 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 
 		// Make a shipment with no DDFSIT
 		now := time.Now()
-		shipmentNoDDFSIT := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				AvailableToPrimeAt: &now,
-				Status:             models.MoveStatusAPPROVED,
+		shipmentNoDDFSIT := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					AvailableToPrimeAt: &now,
+					Status:             models.MoveStatusAPPROVED,
+				},
 			},
-		})
+		}, nil)
 		serviceItemDDASIT := models.MTOServiceItem{
 			MoveTaskOrderID: shipmentNoDDFSIT.MoveTaskOrderID,
 			MoveTaskOrder:   shipmentNoDDFSIT.MoveTaskOrder,

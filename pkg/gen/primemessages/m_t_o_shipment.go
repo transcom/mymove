@@ -147,6 +147,11 @@ type MTOShipment struct {
 	// Read Only: true
 	RejectionReason *string `json:"rejectionReason,omitempty"`
 
+	// The customer's preferred delivery date.
+	// Read Only: true
+	// Format: date
+	RequestedDeliveryDate *strfmt.Date `json:"requestedDeliveryDate"`
+
 	// The date the customer selects during onboarding as their preferred pickup date. Other dates, such as required delivery date and (outside MilMove) the pack date, are derived from this date.
 	//
 	// Read Only: true
@@ -264,6 +269,8 @@ func (m *MTOShipment) UnmarshalJSON(raw []byte) error {
 
 		RejectionReason *string `json:"rejectionReason,omitempty"`
 
+		RequestedDeliveryDate *strfmt.Date `json:"requestedDeliveryDate"`
+
 		RequestedPickupDate *strfmt.Date `json:"requestedPickupDate"`
 
 		RequiredDeliveryDate *strfmt.Date `json:"requiredDeliveryDate"`
@@ -380,6 +387,9 @@ func (m *MTOShipment) UnmarshalJSON(raw []byte) error {
 	// rejectionReason
 	result.RejectionReason = data.RejectionReason
 
+	// requestedDeliveryDate
+	result.RequestedDeliveryDate = data.RequestedDeliveryDate
+
 	// requestedPickupDate
 	result.RequestedPickupDate = data.RequestedPickupDate
 
@@ -474,6 +484,8 @@ func (m MTOShipment) MarshalJSON() ([]byte, error) {
 
 		RejectionReason *string `json:"rejectionReason,omitempty"`
 
+		RequestedDeliveryDate *strfmt.Date `json:"requestedDeliveryDate"`
+
 		RequestedPickupDate *strfmt.Date `json:"requestedPickupDate"`
 
 		RequiredDeliveryDate *strfmt.Date `json:"requiredDeliveryDate"`
@@ -546,6 +558,8 @@ func (m MTOShipment) MarshalJSON() ([]byte, error) {
 		PrimeEstimatedWeightRecordedDate: m.PrimeEstimatedWeightRecordedDate,
 
 		RejectionReason: m.RejectionReason,
+
+		RequestedDeliveryDate: m.RequestedDeliveryDate,
 
 		RequestedPickupDate: m.RequestedPickupDate,
 
@@ -652,6 +666,10 @@ func (m *MTOShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validatePrimeEstimatedWeightRecordedDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateRequestedDeliveryDate(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -915,6 +933,18 @@ func (m *MTOShipment) validatePrimeEstimatedWeightRecordedDate(formats strfmt.Re
 	}
 
 	if err := validate.FormatOf("primeEstimatedWeightRecordedDate", "body", "date", m.PrimeEstimatedWeightRecordedDate.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) validateRequestedDeliveryDate(formats strfmt.Registry) error {
+	if swag.IsZero(m.RequestedDeliveryDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("requestedDeliveryDate", "body", "date", m.RequestedDeliveryDate.String(), formats); err != nil {
 		return err
 	}
 
@@ -1187,6 +1217,10 @@ func (m *MTOShipment) ContextValidate(ctx context.Context, formats strfmt.Regist
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateRequestedDeliveryDate(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateRequestedPickupDate(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -1386,6 +1420,15 @@ func (m *MTOShipment) contextValidatePrimeEstimatedWeightRecordedDate(ctx contex
 func (m *MTOShipment) contextValidateRejectionReason(ctx context.Context, formats strfmt.Registry) error {
 
 	if err := validate.ReadOnly(ctx, "rejectionReason", "body", m.RejectionReason); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) contextValidateRequestedDeliveryDate(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "requestedDeliveryDate", "body", m.RequestedDeliveryDate); err != nil {
 		return err
 	}
 

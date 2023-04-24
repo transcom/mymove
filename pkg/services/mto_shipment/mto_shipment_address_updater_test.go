@@ -5,7 +5,6 @@ import (
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
@@ -20,16 +19,25 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 	//             With mustBeAvailableToPrime = true, we should receive an error
 	//             With mustBeAvailableToPrime = false, there should be no error
 	suite.Run("Using external vendor shipment", func() {
-		availableToPrimeMove := testdatagen.MakeAvailableMove(suite.DB())
+		availableToPrimeMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		address := factory.BuildAddress(suite.DB(), nil, nil)
-		externalShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: availableToPrimeMove,
-			MTOShipment: models.MTOShipment{
-				ShipmentType:       models.MTOShipmentTypeHHGOutOfNTSDom,
-				UsesExternalVendor: true,
-				DestinationAddress: &address,
+		externalShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    availableToPrimeMove,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					ShipmentType:       models.MTOShipmentTypeHHGOutOfNTSDom,
+					UsesExternalVendor: true,
+				},
+			},
+			{
+				Model:    address,
+				Type:     &factory.Addresses.DeliveryAddress,
+				LinkOnly: true,
+			},
+		}, nil)
 		eTag := etag.GenerateEtag(address.UpdatedAt)
 
 		updatedAddress := address

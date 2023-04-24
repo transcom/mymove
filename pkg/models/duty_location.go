@@ -91,6 +91,15 @@ func FetchDutyLocationByName(tx *pop.Connection, name string) (DutyLocation, err
 	return dutyLocation, err
 }
 
+// FetchDutyLocationWithTransportationOffice returns a DutyLocation for a given id
+// with the associated transportation office eagerly loaded
+func FetchDutyLocationWithTransportationOffice(tx *pop.Connection, id uuid.UUID) (DutyLocation, error) {
+	var dutyLocation DutyLocation
+	err := tx.Q().Eager("Address", "TransportationOffice", "TransportationOffice.Address",
+		"TransportationOffice.PhoneLines").Find(&dutyLocation, id)
+	return dutyLocation, err
+}
+
 // FindDutyLocations returns all duty locations matching a search query
 func FindDutyLocations(tx *pop.Connection, search string) (DutyLocations, error) {
 	var locations DutyLocations

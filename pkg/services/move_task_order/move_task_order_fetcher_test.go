@@ -5,6 +5,7 @@ import (
 
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	. "github.com/transcom/mymove/pkg/services/move_task_order"
@@ -15,28 +16,43 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 
 	setupTestData := func() (models.Move, models.MTOShipment) {
 
-		expectedMTO := testdatagen.MakeDefaultMove(suite.DB())
+		expectedMTO := factory.BuildMove(suite.DB(), nil, nil)
 
 		// Make a couple of shipments for the move; one prime, one external
-		primeShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			Move: expectedMTO,
-			MTOShipment: models.MTOShipment{
-				UsesExternalVendor: false,
+		primeShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model:    expectedMTO,
+				LinkOnly: true,
 			},
-		})
-		testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			Move: expectedMTO,
-			MTOShipment: models.MTOShipment{
-				ShipmentType:       models.MTOShipmentTypeHHGOutOfNTSDom,
-				UsesExternalVendor: true,
+			{
+				Model: models.MTOShipment{
+					UsesExternalVendor: false,
+				},
 			},
-		})
-		testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			Move: expectedMTO,
-			MTOShipment: models.MTOShipment{
-				DeletedAt: models.TimePointer(time.Now()),
+		}, nil)
+		factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model:    expectedMTO,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					ShipmentType:       models.MTOShipmentTypeHHGOutOfNTSDom,
+					UsesExternalVendor: true,
+				},
+			},
+		}, nil)
+		factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model:    expectedMTO,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					DeletedAt: models.TimePointer(time.Now()),
+				},
+			},
+		}, nil)
 
 		return expectedMTO, primeShipment
 	}
@@ -63,6 +79,50 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 
 		// Should get two shipments back since we didn't set searchParams to exclude external ones.
 		suite.Len(actualMTO.MTOShipments, 2)
+	})
+
+	suite.Run("Success with fetching move with a related service item", func() {
+		expectedMTO, _ := setupTestData()
+		searchParams := services.MoveTaskOrderFetcherParams{
+			IncludeHidden:   false,
+			MoveTaskOrderID: expectedMTO.ID,
+		}
+
+		address := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{})
+		sitEntryDate := time.Now()
+
+		factory.BuildMTOServiceItemBasic(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status:       models.MTOServiceItemStatusApproved,
+					SITEntryDate: &sitEntryDate,
+				},
+			},
+			{
+				Model:    address,
+				LinkOnly: true,
+				Type:     &factory.Addresses.SITDestinationFinalAddress,
+			},
+			{
+				Model:    expectedMTO,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDFSIT, // DDFSIT - Domestic destination 1st day SIT
+				},
+			},
+		}, nil)
+
+		actualMTO, err := mtoFetcher.FetchMoveTaskOrder(suite.AppContextForTest(), &searchParams)
+		suite.NoError(err)
+		if suite.Len(actualMTO.MTOServiceItems, 1) {
+			serviceItem := actualMTO.MTOServiceItems[0]
+			suite.Equal(models.ReServiceCodeDDFSIT, serviceItem.ReService.Code)
+			suite.Equal(address.StreetAddress1, serviceItem.SITDestinationFinalAddress.StreetAddress1)
+			suite.Equal(address.State, serviceItem.SITDestinationFinalAddress.State)
+			suite.Equal(address.City, serviceItem.SITDestinationFinalAddress.City)
+		}
 	})
 
 	suite.Run("Success with Prime-available move by Locator, no deleted or external shipments", func() {
@@ -92,13 +152,18 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 	})
 
 	suite.Run("Success with move that has only deleted shipments", func() {
-		mtoWithAllShipmentsDeleted := testdatagen.MakeDefaultMove(suite.DB())
-		testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			Move: mtoWithAllShipmentsDeleted,
-			MTOShipment: models.MTOShipment{
-				DeletedAt: models.TimePointer(time.Now()),
+		mtoWithAllShipmentsDeleted := factory.BuildMove(suite.DB(), nil, nil)
+		factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model:    mtoWithAllShipmentsDeleted,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					DeletedAt: models.TimePointer(time.Now()),
+				},
+			},
+		}, nil)
 		searchParams := services.MoveTaskOrderFetcherParams{
 			IncludeHidden:   false,
 			MoveTaskOrderID: mtoWithAllShipmentsDeleted.ID,
@@ -157,29 +222,40 @@ func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 	now := time.Now()
 	show := false
 	setupTestData := func() (models.Move, models.Move, models.MTOShipment) {
-		hiddenMTO := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				AvailableToPrimeAt: &now,
-				Show:               &show,
+		hiddenMTO := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Show: &show,
+				},
 			},
-		})
+		}, nil)
 
-		mto := testdatagen.MakeDefaultMove(suite.DB())
+		mto := factory.BuildMove(suite.DB(), nil, nil)
 
 		// Make a couple of shipments for the default move; one prime, one external
-		primeShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			Move: mto,
-			MTOShipment: models.MTOShipment{
-				UsesExternalVendor: false,
+		primeShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model:    mto,
+				LinkOnly: true,
 			},
-		})
-		testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			Move: mto,
-			MTOShipment: models.MTOShipment{
-				ShipmentType:       models.MTOShipmentTypeHHGOutOfNTSDom,
-				UsesExternalVendor: true,
+			{
+				Model: models.MTOShipment{
+					UsesExternalVendor: false,
+				},
 			},
-		})
+		}, nil)
+		factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model:    mto,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					ShipmentType:       models.MTOShipmentTypeHHGOutOfNTSDom,
+					UsesExternalVendor: true,
+				},
+			},
+		}, nil)
 		return hiddenMTO, mto, primeShipment
 	}
 
@@ -256,8 +332,8 @@ func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 		now = time.Now()
 
 		// Create the two moves
-		newMove := testdatagen.MakeAvailableMove(suite.DB())
-		oldMTO := testdatagen.MakeAvailableMove(suite.DB())
+		newMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		oldMTO := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
 		// Check that they're both returned
 		searchParams := services.MoveTaskOrderFetcherParams{
@@ -289,22 +365,22 @@ func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 }
 
 func (suite *MoveTaskOrderServiceSuite) TestListPrimeMoveTaskOrdersFetcher() {
-	// Set up a hidden move so we can check if it's in the output:
 	now := time.Now()
-	show := false
-	hiddenMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			AvailableToPrimeAt: &now,
-			Show:               &show,
+	// Set up a hidden move so we can check if it's in the output:
+	hiddenMove := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
+		{
+			Model: models.Move{
+				Show: models.BoolPointer(false),
+			},
 		},
-	})
+	}, nil)
 	// Make a default, not Prime-available move:
-	nonPrimeMove := testdatagen.MakeDefaultMove(suite.DB())
+	nonPrimeMove := factory.BuildMove(suite.DB(), nil, nil)
 	// Make some Prime moves:
-	primeMove1 := testdatagen.MakeAvailableMove(suite.DB())
-	primeMove2 := testdatagen.MakeAvailableMove(suite.DB())
-	primeMove3 := testdatagen.MakeAvailableMove(suite.DB())
-	testdatagen.MakeMTOShipmentWithMove(suite.DB(), &primeMove3, testdatagen.Assertions{})
+	primeMove1 := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+	primeMove2 := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+	primeMove3 := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+	factory.BuildMTOShipmentWithMove(&primeMove3, suite.DB(), nil, nil)
 
 	// Move primeMove1 and primeMove3 into the past so we can exclude them:
 	suite.Require().NoError(suite.DB().RawQuery("UPDATE moves SET updated_at=$1 WHERE id IN ($2, $3);",

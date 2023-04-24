@@ -11,6 +11,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/factory"
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -33,7 +34,7 @@ func (suite *HandlerSuite) makeUpdateMTOAgentSubtestData() (subtestData *updateM
 	subtestData = &updateMTOAgentSubtestData{}
 	// Set up db objects
 	subtestData.agent = testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
-		Move: testdatagen.MakeAvailableMove(suite.DB()),
+		Move: factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil),
 	})
 
 	firstName := "Carol"
@@ -263,10 +264,13 @@ func (suite *HandlerSuite) makeCreateMTOAgentSubtestData() (subtestData *createM
 	subtestData = &createMTOAgentSubtestData{}
 
 	// Create new mtoShipment with no agents
-	subtestData.move = testdatagen.MakeAvailableMove(suite.DB())
-	subtestData.mtoShipment = testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-		Move: subtestData.move,
-	})
+	subtestData.move = factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+	subtestData.mtoShipment = factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+		{
+			Model:    subtestData.move,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	const agentTypeReceiving = "RECEIVING_AGENT"
 	const agentTypeReleasing = "RELEASING_AGENT"
@@ -429,9 +433,12 @@ func (suite *HandlerSuite) TestCreateMTOAgentHandler() {
 		// Set up: 		Pass an invalid payload for a releasing agent.
 		// Expected:	Handler returns 422 Unprocessable Entity Error.
 		subtestData := suite.makeCreateMTOAgentSubtestData()
-		newMTOShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: subtestData.move,
-		})
+		newMTOShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    subtestData.move,
+				LinkOnly: true,
+			},
+		}, nil)
 		subtestData.releasingAgent.MtoShipmentID = strfmt.UUID(newMTOShipment.ID.String())
 		empty := ""
 

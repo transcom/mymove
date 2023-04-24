@@ -11,14 +11,7 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-type moveBuildType byte
-
-const (
-	moveBuildBasic moveBuildType = iota
-	moveBuildWithoutMoveType
-)
-
-func buildMoveWithBuildType(db *pop.Connection, customs []Customization, traits []Trait, buildType moveBuildType) models.Move {
+func BuildMove(db *pop.Connection, customs []Customization, traits []Trait) models.Move {
 	customs = setupCustomizations(customs, traits)
 
 	// Find upload assertion and convert to models upload
@@ -50,16 +43,9 @@ func buildMoveWithBuildType(db *pop.Connection, customs []Customization, traits 
 			log.Panic(err)
 		}
 	}
-	var moveType *models.SelectedMoveType
-	var ppmType *string
 
-	// only set these for basic builds
-	if buildType == moveBuildBasic {
-		ppmMoveType := models.SelectedMoveTypePPM
-		moveType = &ppmMoveType
-		partialType := "PARTIAL"
-		ppmType = &partialType
-	}
+	partialType := "PARTIAL"
+	ppmType := &partialType
 	contractor := FetchOrBuildDefaultContractor(db, customs, traits)
 	defaultShow := true
 
@@ -71,16 +57,15 @@ func buildMoveWithBuildType(db *pop.Connection, customs []Customization, traits 
 	defaultLocator := models.GenerateLocator()
 
 	move := models.Move{
-		Orders:           order,
-		OrdersID:         order.ID,
-		SelectedMoveType: moveType,
-		PPMType:          ppmType,
-		Status:           models.MoveStatusDRAFT,
-		Locator:          defaultLocator,
-		Show:             &defaultShow,
-		Contractor:       &contractor,
-		ContractorID:     &contractor.ID,
-		ReferenceID:      &defaultReferenceID,
+		Orders:       order,
+		OrdersID:     order.ID,
+		PPMType:      ppmType,
+		Status:       models.MoveStatusDRAFT,
+		Locator:      defaultLocator,
+		Show:         &defaultShow,
+		Contractor:   &contractor,
+		ContractorID: &contractor.ID,
+		ReferenceID:  &defaultReferenceID,
 	}
 
 	if closeoutOfficeResult != nil {
@@ -97,14 +82,6 @@ func buildMoveWithBuildType(db *pop.Connection, customs []Customization, traits 
 	}
 
 	return move
-}
-
-func BuildMove(db *pop.Connection, customs []Customization, traits []Trait) models.Move {
-	return buildMoveWithBuildType(db, customs, traits, moveBuildBasic)
-}
-
-func BuildMoveWithoutMoveType(db *pop.Connection, customs []Customization, traits []Trait) models.Move {
-	return buildMoveWithBuildType(db, customs, traits, moveBuildWithoutMoveType)
 }
 
 func BuildStubbedMoveWithStatus(status models.MoveStatus) models.Move {
@@ -172,6 +149,20 @@ func BuildAvailableToPrimeMove(db *pop.Connection, customs []Customization, trai
 	return BuildMove(db, customs, traits)
 }
 
+// BuildMoveWithShipment builds a submitted move with a submitted HHG shipment
+func BuildMoveWithShipment(db *pop.Connection, customs []Customization, traits []Trait) models.Move {
+	moveTraits := append(traits, GetTraitSubmittedMove)
+	move := BuildMove(db, customs, moveTraits)
+
+	// BuildMTOShipmentWithMove doesn't allow Move customizations or traits
+	shipmentTraits := append(traits, GetTraitSubmittedShipment)
+	shipmentCustoms := setupCustomizations(customs, shipmentTraits)
+	shipmentCustoms = removeCustomization(shipmentCustoms, Move)
+	BuildMTOShipmentWithMove(&move, db, shipmentCustoms, shipmentTraits)
+
+	return move
+}
+
 // ------------------------
 //        TRAITS
 // ------------------------
@@ -189,12 +180,10 @@ func GetTraitSubmittedMove() []Customization {
 }
 
 func GetTraitNeedsServiceCounselingMove() []Customization {
-	now := time.Now()
 	return []Customization{
 		{
 			Model: models.Move{
-				SubmittedAt: &now,
-				Status:      models.MoveStatusNeedsServiceCounseling,
+				Status: models.MoveStatusNeedsServiceCounseling,
 			},
 		},
 	}
@@ -202,12 +191,10 @@ func GetTraitNeedsServiceCounselingMove() []Customization {
 
 func GetTraitServiceCounselingCompletedMove() []Customization {
 	now := time.Now()
-	lastWeek := now.Add(-7 * 24 * time.Hour)
 	return []Customization{
 		{
 			Model: models.Move{
 				ServiceCounselingCompletedAt: &now,
-				SubmittedAt:                  &lastWeek,
 				Status:                       models.MoveStatusServiceCounselingCompleted,
 			},
 		},
@@ -216,13 +203,13 @@ func GetTraitServiceCounselingCompletedMove() []Customization {
 
 func GetTraitApprovalsRequestedMove() []Customization {
 	now := time.Now()
-	lastWeek := now.Add(-7 * 24 * time.Hour)
+	availableToPrime := now.Add(time.Hour * -1)
 	return []Customization{
 		{
 			Model: models.Move{
-				AvailableToPrimeAt: &now,
-				SubmittedAt:        &lastWeek,
-				Status:             models.MoveStatusAPPROVALSREQUESTED,
+				AvailableToPrimeAt:   &availableToPrime,
+				ApprovalsRequestedAt: &now,
+				Status:               models.MoveStatusAPPROVALSREQUESTED,
 			},
 		},
 	}
@@ -230,12 +217,10 @@ func GetTraitApprovalsRequestedMove() []Customization {
 
 func GetTraitAvailableToPrimeMove() []Customization {
 	now := time.Now()
-	lastWeek := now.Add(-7 * 24 * time.Hour)
 	return []Customization{
 		{
 			Model: models.Move{
 				AvailableToPrimeAt: &now,
-				SubmittedAt:        &lastWeek,
 				Status:             models.MoveStatusAPPROVED,
 			},
 		},

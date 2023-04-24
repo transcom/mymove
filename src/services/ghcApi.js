@@ -74,6 +74,19 @@ export async function patchProGearWeightTicket({ ppmShipmentId, proGearWeightTic
   );
 }
 
+export async function patchPPMDocumentsSetStatus({ ppmShipmentId, eTag }) {
+  return makeGHCRequest(
+    'ppm.finishDocumentReview',
+    {
+      ppmShipmentId,
+      'If-Match': eTag,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
 export async function getMove(key, locator) {
   return makeGHCRequest('move.getMove', { locator }, { normalize: false });
 }
@@ -457,7 +470,7 @@ export function denySITExtension({
 }
 
 export function submitSITExtension({ shipmentID, ifMatchETag, normalize = true, schemaKey = 'mtoShipment', body }) {
-  const operationPath = 'shipment.createSITExtensionAsTOO';
+  const operationPath = 'shipment.createApprovedSITDurationUpdate';
   return makeGHCRequest(
     operationPath,
     {

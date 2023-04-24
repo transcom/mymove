@@ -370,9 +370,9 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		shipmentSITStatus,
 	}
 
-	ghcAPI.ShipmentCreateSITExtensionAsTOOHandler = CreateSITExtensionAsTOOHandler{
+	ghcAPI.ShipmentCreateApprovedSITDurationUpdateHandler = CreateApprovedSITDurationUpdateHandler{
 		handlerConfig,
-		mtoshipment.NewCreateSITExtensionAsTOO(),
+		mtoshipment.NewApprovedSITDurationUpdateCreator(),
 		shipmentSITStatus,
 	}
 
@@ -405,6 +405,13 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	ghcAPI.PpmUpdateProGearWeightTicketHandler = UpdateProgearWeightTicketHandler{
 		handlerConfig,
 		progear.NewOfficeProgearWeightTicketUpdater(),
+	}
+
+	ghcAPI.PpmFinishDocumentReviewHandler = FinishDocumentReviewHandler{
+		handlerConfig,
+		ppmshipment.NewPPMShipmentReviewDocuments(
+			ppmshipment.NewPPMShipmentRouter(mtoshipment.NewShipmentRouter()),
+		),
 	}
 
 	ppmDocumentsFetcher := ppmshipment.NewPPMDocumentFetcher()

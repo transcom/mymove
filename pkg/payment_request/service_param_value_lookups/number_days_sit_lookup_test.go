@@ -101,139 +101,232 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 			},
 		}, nil)
 
-		moveTaskOrderOne = testdatagen.MakeDefaultMove(suite.DB())
-		moveTaskOrderTwo = testdatagen.MakeDefaultMove(suite.DB())
-		moveTaskOrderThree = testdatagen.MakeDefaultMove(suite.DB())
-		moveTaskOrderFour = testdatagen.MakeDefaultMove(suite.DB())
-		moveTaskOrderFive := testdatagen.MakeDefaultMove(suite.DB())
+		moveTaskOrderOne = factory.BuildMove(suite.DB(), nil, nil)
+		moveTaskOrderTwo = factory.BuildMove(suite.DB(), nil, nil)
+		moveTaskOrderThree = factory.BuildMove(suite.DB(), nil, nil)
+		moveTaskOrderFour = factory.BuildMove(suite.DB(), nil, nil)
+		moveTaskOrderFive := factory.BuildMove(suite.DB(), nil, nil)
 
-		mtoShipmentOne := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: moveTaskOrderOne,
-			MTOShipment: models.MTOShipment{
-				Status:           models.MTOShipmentStatusSubmitted,
-				SITDaysAllowance: &defaultSITDaysAllowance,
+		factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusSubmitted,
+					SITDaysAllowance: &defaultSITDaysAllowance,
+				},
+			},
+		}, nil)
 
-		mtoShipmentTwo := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: moveTaskOrderOne,
-			MTOShipment: models.MTOShipment{
-				Status:           models.MTOShipmentStatusSubmitted,
-				SITDaysAllowance: &defaultSITDaysAllowance,
+		mtoShipmentOne := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusSubmitted,
+					SITDaysAllowance: &defaultSITDaysAllowance,
+				},
+			},
+		}, nil)
 
-		mtoShipmentThree := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: moveTaskOrderOne,
-			MTOShipment: models.MTOShipment{
-				Status:           models.MTOShipmentStatusSubmitted,
-				SITDaysAllowance: &defaultSITDaysAllowance,
+		mtoShipmentTwo := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusSubmitted,
+					SITDaysAllowance: &defaultSITDaysAllowance,
+				},
+			},
+		}, nil)
 
-		mtoShipmentFour := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: moveTaskOrderOne,
-			MTOShipment: models.MTOShipment{
-				Status:           models.MTOShipmentStatusSubmitted,
-				SITDaysAllowance: &defaultSITDaysAllowance,
+		mtoShipmentThree := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusSubmitted,
+					SITDaysAllowance: &defaultSITDaysAllowance,
+				},
+			},
+		}, nil)
 
-		mtoShipmentFive := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: moveTaskOrderOne,
-			MTOShipment: models.MTOShipment{
-				Status:           models.MTOShipmentStatusSubmitted,
-				SITDaysAllowance: &defaultSITDaysAllowance,
+		mtoShipmentFour := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusSubmitted,
+					SITDaysAllowance: &defaultSITDaysAllowance,
+				},
+			},
+		}, nil)
 
-		mtoShipmentSix := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: moveTaskOrderOne,
-			MTOShipment: models.MTOShipment{
-				Status:           models.MTOShipmentStatusSubmitted,
-				SITDaysAllowance: &defaultSITDaysAllowance,
+		mtoShipmentFive := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusSubmitted,
+					SITDaysAllowance: &defaultSITDaysAllowance,
+				},
+			},
+		}, nil)
 
-		mtoShipmentSeven = testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: moveTaskOrderOne,
-			MTOShipment: models.MTOShipment{
-				Status:           models.MTOShipmentStatusSubmitted,
-				SITDaysAllowance: &defaultSITDaysAllowance,
+		mtoShipmentSix := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusSubmitted,
+					SITDaysAllowance: &defaultSITDaysAllowance,
+				},
+			},
+		}, nil)
 
-		mtoShipmentEight := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: moveTaskOrderOne,
-			MTOShipment: models.MTOShipment{
-				Status:           models.MTOShipmentStatusSubmitted,
-				SITDaysAllowance: &defaultSITDaysAllowance,
+		mtoShipmentSeven = factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusSubmitted,
+					SITDaysAllowance: &defaultSITDaysAllowance,
+				},
+			},
+		}, nil)
 
-		mtoShipmentNine := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: moveTaskOrderOne,
-			MTOShipment: models.MTOShipment{
-				Status:           models.MTOShipmentStatusSubmitted,
-				SITDaysAllowance: &defaultSITDaysAllowance,
+		mtoShipmentEight := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusSubmitted,
+					SITDaysAllowance: &defaultSITDaysAllowance,
+				},
+			},
+		}, nil)
 
-		mtoShipmentTen := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: moveTaskOrderOne,
-			MTOShipment: models.MTOShipment{
-				Status:           models.MTOShipmentStatusSubmitted,
-				SITDaysAllowance: &defaultSITDaysAllowance,
+		mtoShipmentNine := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusSubmitted,
+					SITDaysAllowance: &defaultSITDaysAllowance,
+				},
+			},
+		}, nil)
 
-		mtoShipmentEleven := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: moveTaskOrderTwo,
-			MTOShipment: models.MTOShipment{
-				Status:           models.MTOShipmentStatusSubmitted,
-				SITDaysAllowance: &defaultSITDaysAllowance,
+		mtoShipmentTen := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusSubmitted,
+					SITDaysAllowance: &defaultSITDaysAllowance,
+				},
+			},
+		}, nil)
 
-		mtoShipmentTwelve := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: moveTaskOrderThree,
-			MTOShipment: models.MTOShipment{
-				Status:           models.MTOShipmentStatusSubmitted,
-				SITDaysAllowance: &defaultSITDaysAllowance,
+		mtoShipmentEleven := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    moveTaskOrderTwo,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusSubmitted,
+					SITDaysAllowance: &defaultSITDaysAllowance,
+				},
+			},
+		}, nil)
 
-		mtoShipmentThirteen := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: moveTaskOrderThree,
-			MTOShipment: models.MTOShipment{
-				Status:           models.MTOShipmentStatusSubmitted,
-				SITDaysAllowance: &defaultSITDaysAllowance,
+		mtoShipmentTwelve := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    moveTaskOrderThree,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusSubmitted,
+					SITDaysAllowance: &defaultSITDaysAllowance,
+				},
+			},
+		}, nil)
 
-		mtoShipmentFourteen := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: moveTaskOrderFour,
-			MTOShipment: models.MTOShipment{
-				Status:           models.MTOShipmentStatusSubmitted,
-				SITDaysAllowance: &defaultSITDaysAllowance,
+		mtoShipmentThirteen := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    moveTaskOrderThree,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusSubmitted,
+					SITDaysAllowance: &defaultSITDaysAllowance,
+				},
+			},
+		}, nil)
 
-		mtoShipmentFifteen := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: moveTaskOrderFive,
-			MTOShipment: models.MTOShipment{
-				Status:           models.MTOShipmentStatusSubmitted,
-				SITDaysAllowance: &defaultSITDaysAllowance,
+		mtoShipmentFourteen := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    moveTaskOrderFour,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusSubmitted,
+					SITDaysAllowance: &defaultSITDaysAllowance,
+				},
+			},
+		}, nil)
 
-		mtoShipmentSixteen := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: moveTaskOrderFive,
-			MTOShipment: models.MTOShipment{
-				Status:           models.MTOShipmentStatusSubmitted,
-				SITDaysAllowance: &defaultSITDaysAllowance,
+		mtoShipmentFifteen := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    moveTaskOrderFive,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusSubmitted,
+					SITDaysAllowance: &defaultSITDaysAllowance,
+				},
+			},
+		}, nil)
+
+		mtoShipmentSixteen := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    moveTaskOrderFive,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusSubmitted,
+					SITDaysAllowance: &defaultSITDaysAllowance,
+				},
+			},
+		}, nil)
 
 		moveTaskOrderOne.MTOShipments = models.MTOShipments{
 			mtoShipmentOne,
@@ -266,416 +359,878 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 			mtoShipmentSixteen,
 		}
 
-		serviceItemDOFSITOne := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				SITEntryDate: &originSITEntryDateOne,
-				Status:       models.MTOServiceItemStatusApproved,
+		serviceItemDOFSITOne := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate: &originSITEntryDateOne,
+					Status:       models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderOne,
-			MTOShipment: mtoShipmentOne,
-			ReService:   reServiceDOFSIT,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentOne,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDOFSIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDOFSITTwo := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				SITEntryDate: &originSITEntryDateOne,
-				Status:       models.MTOServiceItemStatusApproved,
+		serviceItemDOFSITTwo := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate: &originSITEntryDateOne,
+					Status:       models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderOne,
-			MTOShipment: mtoShipmentThree,
-			ReService:   reServiceDOFSIT,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentThree,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDOFSIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDOFSITThree := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				SITEntryDate: &originSITEntryDateOne,
-				Status:       models.MTOServiceItemStatusApproved,
+		serviceItemDOFSITThree := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate: &originSITEntryDateOne,
+					Status:       models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderOne,
-			MTOShipment: mtoShipmentFour,
-			ReService:   reServiceDOFSIT,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentFour,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDOFSIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDOFSITFour := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				SITEntryDate: &originSITEntryDateOne,
-				Status:       models.MTOServiceItemStatusApproved,
+		serviceItemDOFSITFour := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate: &originSITEntryDateOne,
+					Status:       models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderOne,
-			MTOShipment: mtoShipmentSix,
-			ReService:   reServiceDOFSIT,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentSix,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDOFSIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDOFSITFive = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				Status: models.MTOServiceItemStatusApproved,
+		serviceItemDOFSITFive = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderOne,
-			MTOShipment: mtoShipmentSeven,
-			ReService:   reServiceDOFSIT,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentSeven,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDOFSIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDOFSITSix := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				Status: models.MTOServiceItemStatusApproved,
+		serviceItemDOFSITSix := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderOne,
-			MTOShipment: mtoShipmentEight,
-			ReService:   reServiceDOFSIT,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentEight,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDOFSIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDOFSITSeven = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				SITEntryDate:     &originSITEntryDateOne,
-				SITDepartureDate: &originSITDepartureDateTwo,
-				Status:           models.MTOServiceItemStatusApproved,
+		serviceItemDOFSITSeven = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate:     &originSITEntryDateOne,
+					SITDepartureDate: &originSITDepartureDateTwo,
+					Status:           models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderOne,
-			MTOShipment: mtoShipmentTen,
-			ReService:   reServiceDOFSIT,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentTen,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDOFSIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDOFSITEight = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				SITEntryDate:     &originSITEntryDateOne,
-				SITDepartureDate: &originSITDepartureDateTwo,
-				Status:           models.MTOServiceItemStatusApproved,
+		serviceItemDOFSITEight = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate:     &originSITEntryDateOne,
+					SITDepartureDate: &originSITDepartureDateTwo,
+					Status:           models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderTwo,
-			MTOShipment: mtoShipmentEleven,
-			ReService:   reServiceDOFSIT,
-		})
+			{
+				Model:    moveTaskOrderTwo,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentEleven,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDOFSIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDOFSITNine := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				SITEntryDate: &originSITEntryDateOne,
-				Status:       models.MTOServiceItemStatusApproved,
+		serviceItemDOFSITNine := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate: &originSITEntryDateOne,
+					Status:       models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderThree,
-			MTOShipment: mtoShipmentThirteen,
-			ReService:   reServiceDOFSIT,
-		})
+			{
+				Model:    moveTaskOrderThree,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentThirteen,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDOFSIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDOFSITTen := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				SITEntryDate: &originSITEntryDateOne,
-				Status:       models.MTOServiceItemStatusApproved,
+		serviceItemDOFSITTen := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate: &originSITEntryDateOne,
+					Status:       models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderFive,
-			MTOShipment: mtoShipmentFifteen,
-			ReService:   reServiceDOFSIT,
-		})
+			{
+				Model:    moveTaskOrderFive,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentFifteen,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDOFSIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDOASITOne := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				SITEntryDate: &originSITEntryDateTwo,
-				Status:       models.MTOServiceItemStatusApproved,
+		serviceItemDOASITOne := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate: &originSITEntryDateTwo,
+					Status:       models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderOne,
-			MTOShipment: mtoShipmentOne,
-			ReService:   reServiceDOASIT,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentOne,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDOASIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDOASITTwo = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				Status: models.MTOServiceItemStatusApproved,
+		serviceItemDOASITTwo = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderOne,
-			MTOShipment: mtoShipmentOne,
-			ReService:   reServiceDOASIT,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentOne,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDOASIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDOASITThree := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				SITEntryDate: &originSITEntryDateOne,
-				Status:       models.MTOServiceItemStatusApproved,
+		serviceItemDOASITThree := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate: &originSITEntryDateOne,
+					Status:       models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderOne,
-			MTOShipment: mtoShipmentThree,
-			ReService:   reServiceDOASIT,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentThree,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDOASIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDOASITFour = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				SITDepartureDate: &originSITDepartureDateOne,
-				Status:           models.MTOServiceItemStatusApproved,
+		serviceItemDOASITFour = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITDepartureDate: &originSITDepartureDateOne,
+					Status:           models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderOne,
-			MTOShipment: mtoShipmentThree,
-			ReService:   reServiceDOASIT,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentThree,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDOASIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDOASITFive = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				SITEntryDate: &originSITEntryDateTwo,
-				Status:       models.MTOServiceItemStatusApproved,
+		serviceItemDOASITFive = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate: &originSITEntryDateTwo,
+					Status:       models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderOne,
-			MTOShipment: mtoShipmentFour,
-			ReService:   reServiceDOASIT,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentFour,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDOASIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDOASITSix = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				SITEntryDate: &originSITEntryDateOne,
-				Status:       models.MTOServiceItemStatusApproved,
+		serviceItemDOASITSix = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate: &originSITEntryDateOne,
+					Status:       models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderOne,
-			MTOShipment: mtoShipmentSix,
-			ReService:   reServiceDOASIT,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentSix,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDOASIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDOASITEight := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				SITDepartureDate: &originSITDepartureDateOne,
-				Status:           models.MTOServiceItemStatusApproved,
+		serviceItemDOASITEight := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITDepartureDate: &originSITDepartureDateOne,
+					Status:           models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderOne,
-			MTOShipment: mtoShipmentEight,
-			ReService:   reServiceDOASIT,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentEight,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDOASIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDOASITNine = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				Status: models.MTOServiceItemStatusApproved,
+		serviceItemDOASITNine = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderOne,
-			MTOShipment: mtoShipmentEight,
-			ReService:   reServiceDOASIT,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentEight,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDOASIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDOASITTen := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				Status: models.MTOServiceItemStatusApproved,
+		serviceItemDOASITTen := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderThree,
-			MTOShipment: mtoShipmentThirteen,
-			ReService:   reServiceDOASIT,
-		})
+			{
+				Model:    moveTaskOrderThree,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentThirteen,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDOASIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDOASITEleven = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				SITDepartureDate: &originSITDepartureDateThree,
-				Status:           models.MTOServiceItemStatusApproved,
+		serviceItemDOASITEleven = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITDepartureDate: &originSITDepartureDateThree,
+					Status:           models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderThree,
-			MTOShipment: mtoShipmentThirteen,
-			ReService:   reServiceDOASIT,
-		})
+			{
+				Model:    moveTaskOrderThree,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentThirteen,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDOASIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDOASITTwelve := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				Status: models.MTOServiceItemStatusApproved,
+		serviceItemDOASITTwelve := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderFive,
-			MTOShipment: mtoShipmentFifteen,
-			ReService:   reServiceDOASIT,
-		})
+			{
+				Model:    moveTaskOrderFive,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentFifteen,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDOASIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDOASITThirteen := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				SITDepartureDate: &originSITDepartureDateOne,
-				Status:           models.MTOServiceItemStatusApproved,
+		serviceItemDOASITThirteen := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITDepartureDate: &originSITDepartureDateOne,
+					Status:           models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderFive,
-			MTOShipment: mtoShipmentFifteen,
-			ReService:   reServiceDOASIT,
-		})
+			{
+				Model:    moveTaskOrderFive,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentFifteen,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDOASIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDDFSITOne := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				SITEntryDate: &destinationSITEntryDateOne,
-				Status:       models.MTOServiceItemStatusApproved,
+		serviceItemDDFSITOne := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate: &destinationSITEntryDateOne,
+					Status:       models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderOne,
-			MTOShipment: mtoShipmentTwo,
-			ReService:   reServiceDDFSIT,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentTwo,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDDFSIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDDFSITTwo := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				SITEntryDate: &destinationSITEntryDateOne,
-				Status:       models.MTOServiceItemStatusApproved,
+		serviceItemDDFSITTwo := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate: &destinationSITEntryDateOne,
+					Status:       models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderOne,
-			MTOShipment: mtoShipmentThree,
-			ReService:   reServiceDDFSIT,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentThree,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDDFSIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDDFSITThree := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				SITEntryDate: &destinationSITEntryDateOne,
-				Status:       models.MTOServiceItemStatusApproved,
+		serviceItemDDFSITThree := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate: &destinationSITEntryDateOne,
+					Status:       models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderOne,
-			MTOShipment: mtoShipmentFive,
-			ReService:   reServiceDDFSIT,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentFive,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDDFSIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDDFSITFour := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				SITEntryDate: &destinationSITEntryDateOne,
-				Status:       models.MTOServiceItemStatusApproved,
+		serviceItemDDFSITFour := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate: &destinationSITEntryDateOne,
+					Status:       models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderOne,
-			MTOShipment: mtoShipmentSix,
-			ReService:   reServiceDDFSIT,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentSix,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDDFSIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDDFSITFive = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				Status: models.MTOServiceItemStatusApproved,
+		serviceItemDDFSITFive = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderOne,
-			MTOShipment: mtoShipmentSeven,
-			ReService:   reServiceDDFSIT,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentSeven,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDDFSIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDDFSITSix := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				SITEntryDate: &destinationSITEntryDateOne,
-				Status:       models.MTOServiceItemStatusApproved,
+		serviceItemDDFSITSix := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate: &destinationSITEntryDateOne,
+					Status:       models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderOne,
-			MTOShipment: mtoShipmentNine,
-			ReService:   reServiceDDFSIT,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentNine,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDDFSIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDDFSITSeven = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				SITEntryDate:     &destinationSITEntryDateOne,
-				SITDepartureDate: &destinationSITDepartureDateTwo,
-				Status:           models.MTOServiceItemStatusApproved,
+		serviceItemDDFSITSeven = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate:     &destinationSITEntryDateOne,
+					SITDepartureDate: &destinationSITDepartureDateTwo,
+					Status:           models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderOne,
-			MTOShipment: mtoShipmentTen,
-			ReService:   reServiceDDFSIT,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentTen,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDDFSIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDDFSITEight := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				SITEntryDate: &destinationSITEntryDateOne,
-				Status:       models.MTOServiceItemStatusApproved,
+		serviceItemDDFSITEight := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate: &destinationSITEntryDateOne,
+					Status:       models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderFour,
-			MTOShipment: mtoShipmentFourteen,
-			ReService:   reServiceDDFSIT,
-		})
+			{
+				Model:    moveTaskOrderFour,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentFourteen,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDDFSIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDDFSITNine := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				SITEntryDate: &destinationSITEntryDateOne,
-				Status:       models.MTOServiceItemStatusApproved,
+		serviceItemDDFSITNine := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate: &destinationSITEntryDateOne,
+					Status:       models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderFive,
-			MTOShipment: mtoShipmentSixteen,
-			ReService:   reServiceDDFSIT,
-		})
+			{
+				Model:    moveTaskOrderFive,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentSixteen,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDDFSIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDDASITOne := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				SITEntryDate: &destinationSITEntryDateTwo,
-				Status:       models.MTOServiceItemStatusApproved,
+		serviceItemDDASITOne := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate: &destinationSITEntryDateTwo,
+					Status:       models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderOne,
-			MTOShipment: mtoShipmentTwo,
-			ReService:   reServiceDDASIT,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentTwo,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDDASIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDDASITTwo = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				Status: models.MTOServiceItemStatusApproved,
+		serviceItemDDASITTwo = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderOne,
-			MTOShipment: mtoShipmentTwo,
-			ReService:   reServiceDDASIT,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentTwo,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDDASIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDDASITThree := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				SITEntryDate: &destinationSITEntryDateOne,
-				Status:       models.MTOServiceItemStatusApproved,
+		serviceItemDDASITThree := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate: &destinationSITEntryDateOne,
+					Status:       models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderOne,
-			MTOShipment: mtoShipmentThree,
-			ReService:   reServiceDDASIT,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentThree,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDDASIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDDASITFour = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				Status: models.MTOServiceItemStatusApproved,
+		serviceItemDDASITFour = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderOne,
-			MTOShipment: mtoShipmentThree,
-			ReService:   reServiceDDASIT,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentThree,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDDASIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDDASITFive = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				SITEntryDate: &destinationSITEntryDateTwo,
-				Status:       models.MTOServiceItemStatusApproved,
+		serviceItemDDASITFive = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate: &destinationSITEntryDateTwo,
+					Status:       models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderOne,
-			MTOShipment: mtoShipmentFive,
-			ReService:   reServiceDDASIT,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentFive,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDDASIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDDASITSix = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				SITEntryDate: &destinationSITEntryDateOne,
-				Status:       models.MTOServiceItemStatusApproved,
+		serviceItemDDASITSix = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate: &destinationSITEntryDateOne,
+					Status:       models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderOne,
-			MTOShipment: mtoShipmentSix,
-			ReService:   reServiceDDASIT,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentSix,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDDASIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDDASITEight := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				SITDepartureDate: &destinationSITDepartureDateOne,
-				Status:           models.MTOServiceItemStatusApproved,
+		serviceItemDDASITEight := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITDepartureDate: &destinationSITDepartureDateOne,
+					Status:           models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderOne,
-			MTOShipment: mtoShipmentNine,
-			ReService:   reServiceDDASIT,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentNine,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDDASIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDDASITNine = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				Status: models.MTOServiceItemStatusApproved,
+		serviceItemDDASITNine = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderOne,
-			MTOShipment: mtoShipmentNine,
-			ReService:   reServiceDDASIT,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentNine,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDDASIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDDASITTen = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				Status: models.MTOServiceItemStatusApproved,
+		serviceItemDDASITTen = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderFour,
-			MTOShipment: mtoShipmentFourteen,
-			ReService:   reServiceDDASIT,
-		})
+			{
+				Model:    moveTaskOrderFour,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentFourteen,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDDASIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDDASITEleven := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				Status: models.MTOServiceItemStatusApproved,
+		serviceItemDDASITEleven := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderFive,
-			MTOShipment: mtoShipmentSixteen,
-			ReService:   reServiceDDASIT,
-		})
+			{
+				Model:    moveTaskOrderFive,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentSixteen,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDDASIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDDASITTwelve := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				SITDepartureDate: &destinationSITDepartureDateThree,
-				Status:           models.MTOServiceItemStatusApproved,
+		serviceItemDDASITTwelve := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITDepartureDate: &destinationSITDepartureDateThree,
+					Status:           models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderFive,
-			MTOShipment: mtoShipmentSixteen,
-			ReService:   reServiceDDASIT,
-		})
+			{
+				Model:    moveTaskOrderFive,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentSixteen,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDDASIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		cost := unit.Cents(20000)
 
@@ -1194,15 +1749,26 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 		suite.Contains(err.Error(), "does not have an Origin MTO Service Item with a SIT Entry Date")
 
 		// Now test that it succeeds after we add a service item with entry date
-		serviceItemDOASITSeven := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				SITEntryDate: &originSITEntryDateOne,
-				Status:       models.MTOServiceItemStatusApproved,
+		serviceItemDOASITSeven := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate: &originSITEntryDateOne,
+					Status:       models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderOne,
-			MTOShipment: mtoShipmentSeven,
-			ReService:   reServiceDOASIT,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentSeven,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDOASIT,
+				LinkOnly: true,
+			},
+		}, nil)
 		suite.makeAdditionalDaysSITPaymentServiceItem(paymentRequestFifteen, serviceItemDOASITSeven, "2021-11-21", "2021-11-30")
 
 		paramLookup, err = ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, serviceItemDOASITSeven, paymentRequestFifteen.ID, moveTaskOrderOne.ID, nil)
@@ -1222,15 +1788,26 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 		suite.Error(err)
 		suite.Contains(err.Error(), "does not have a Destination MTO Service Item with a SIT Entry Date")
 
-		serviceItemDDASITSeven := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				SITEntryDate: &destinationSITEntryDateOne,
-				Status:       models.MTOServiceItemStatusApproved,
+		serviceItemDDASITSeven := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate: &destinationSITEntryDateOne,
+					Status:       models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderOne,
-			MTOShipment: mtoShipmentSeven,
-			ReService:   reServiceDDASIT,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentSeven,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDDASIT,
+				LinkOnly: true,
+			},
+		}, nil)
 		suite.makeAdditionalDaysSITPaymentServiceItem(paymentRequestSeven, serviceItemDDASITSeven, "2021-12-01", "2021-12-10")
 
 		paramLookup, err = ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, serviceItemDDASITSeven, paymentRequestSeven.ID, moveTaskOrderOne.ID, nil)
@@ -1412,9 +1989,9 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 		move, serviceItemDOASIT, paymentRequest := suite.setupMoveWithAddlDaysSITAndPaymentRequest(reServiceDOFSIT, originSITEntryDateOne, reServiceDOASIT, "2020-07-21", "2021-07-30")
 
 		approvedDays := 400
-		testdatagen.MakeSITExtension(suite.DB(), testdatagen.Assertions{
+		testdatagen.MakeSITDurationUpdate(suite.DB(), testdatagen.Assertions{
 			MTOShipment: serviceItemDOASIT.MTOShipment,
-			SITExtension: models.SITExtension{
+			SITDurationUpdate: models.SITDurationUpdate{
 				ApprovedDays: &approvedDays,
 			},
 		})
@@ -1507,35 +2084,62 @@ func (suite *ServiceParamValueLookupsSuite) makeAdditionalDaysSITPaymentServiceI
 // SIT service item, and a payment request for that service item.
 func (suite *ServiceParamValueLookupsSuite) setupMoveWithAddlDaysSITAndPaymentRequest(sitFirstDayReService models.ReService, sitEntryDate time.Time, sitAdditionalDaysReService models.ReService, sitAdditionalDaysStartDate string, sitAdditionalDaysEndDate string) (models.Move, models.MTOServiceItem, models.PaymentRequest) {
 	defaultSITDaysAllowance := 90
-	move := testdatagen.MakeDefaultMove(suite.DB())
-	shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			Status:           models.MTOShipmentStatusSubmitted,
-			SITDaysAllowance: &defaultSITDaysAllowance,
+	move := factory.BuildMove(suite.DB(), nil, nil)
+	shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				Status:           models.MTOShipmentStatusSubmitted,
+				SITDaysAllowance: &defaultSITDaysAllowance,
+			},
+		},
+	}, nil)
 	move.MTOShipments = models.MTOShipments{
 		shipment,
 	}
-	serviceItemFirstDaySIT := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			SITEntryDate: &sitEntryDate,
-			Status:       models.MTOServiceItemStatusApproved,
+	serviceItemFirstDaySIT := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				SITEntryDate: &sitEntryDate,
+				Status:       models.MTOServiceItemStatusApproved,
+			},
 		},
-		Move:        move,
-		MTOShipment: shipment,
-		ReService:   sitFirstDayReService,
-	})
-	serviceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			SITEntryDate: &sitEntryDate,
-			Status:       models.MTOServiceItemStatusApproved,
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-		Move:        move,
-		MTOShipment: shipment,
-		ReService:   sitAdditionalDaysReService,
-	})
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    sitFirstDayReService,
+			LinkOnly: true,
+		},
+	}, nil)
+	serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				SITEntryDate: &sitEntryDate,
+				Status:       models.MTOServiceItemStatusApproved,
+			},
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    sitAdditionalDaysReService,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 		PaymentRequest: models.PaymentRequest{

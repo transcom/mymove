@@ -69,7 +69,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 	})
 
 	suite.Run("successful status update of prime-available payment request", func() {
-		availableMove := testdatagen.MakeAvailableMove(suite.DB())
+		availableMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		availablePaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 			Move: availableMove,
 		})
@@ -254,7 +254,7 @@ func (suite *HandlerSuite) TestListMTOPaymentRequestHandler() {
 	})
 
 	suite.Run("successful get an MTO with no payment requests", func() {
-		mto := testdatagen.MakeDefaultMove(suite.DB())
+		mto := factory.BuildMove(suite.DB(), nil, nil)
 		req := httptest.NewRequest("GET", fmt.Sprintf("/move-task-orders/%s/payment-requests", mto.ID), nil)
 
 		params := paymentrequestop.ListMTOPaymentRequestsParams{
@@ -322,6 +322,10 @@ func (suite *HandlerSuite) TestGetPaymentRequestEDIHandler() {
 		paymentServiceItem.PriceCents = &priceCents
 		suite.MustSave(&paymentServiceItem)
 
+		// Make sure that there is a Postal Code to GBLOC for the duty location postal code
+
+		factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), paymentServiceItem.PaymentRequest.MoveTaskOrder.Orders.NewDutyLocation.Address.PostalCode, "KKFA")
+
 		return paymentServiceItem.PaymentRequest
 	}
 
@@ -338,6 +342,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestEDIHandler() {
 
 	suite.Run("successful get of EDI for payment request", func() {
 		paymentRequest := setupTestData()
+
 		req := httptest.NewRequest("GET", fmt.Sprintf(urlFormat, paymentRequest.ID), nil)
 
 		params := paymentrequestop.GetPaymentRequestEDIParams{
@@ -496,7 +501,7 @@ func (suite *HandlerSuite) createPaymentRequest(num int) models.PaymentRequests 
 			},
 		}
 
-		mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+		mto := factory.BuildMove(suite.DB(), nil, nil)
 		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 			Move: mto,
 			PaymentRequest: models.PaymentRequest{
@@ -510,14 +515,19 @@ func (suite *HandlerSuite) createPaymentRequest(num int) models.PaymentRequests 
 		scheduledPickupDate := time.Date(testdatagen.GHCTestYear, time.September, 20, 0, 0, 0, 0, time.UTC)
 		actualPickupDate := time.Date(testdatagen.GHCTestYear, time.September, 22, 0, 0, 0, 0, time.UTC)
 
-		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: mto,
-			MTOShipment: models.MTOShipment{
-				RequestedPickupDate: &requestedPickupDate,
-				ScheduledPickupDate: &scheduledPickupDate,
-				ActualPickupDate:    &actualPickupDate,
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    mto,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: &requestedPickupDate,
+					ScheduledPickupDate: &scheduledPickupDate,
+					ActualPickupDate:    &actualPickupDate,
+				},
+			},
+		}, nil)
 
 		assertions := testdatagen.Assertions{
 			Move:           mto,

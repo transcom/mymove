@@ -79,10 +79,9 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	var paymentRequest models.PaymentRequest
 	var paymentServiceItems models.PaymentServiceItems
 	var result ediinvoice.Invoice858C
-	var err error
 
 	setupTestData := func() {
-		mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+		mto := factory.BuildMove(suite.DB(), nil, nil)
 
 		paymentRequest = testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 			Move: mto,
@@ -93,14 +92,19 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 			},
 		})
 
-		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: mto,
-			MTOShipment: models.MTOShipment{
-				RequestedPickupDate: &requestedPickupDate,
-				ScheduledPickupDate: &scheduledPickupDate,
-				ActualPickupDate:    &actualPickupDate,
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    mto,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: &requestedPickupDate,
+					ScheduledPickupDate: &scheduledPickupDate,
+					ActualPickupDate:    &actualPickupDate,
+				},
+			},
+		}, nil)
 
 		priceCents := unit.Cents(888)
 		assertions := testdatagen.Assertions{
@@ -276,7 +280,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		// setup known next value
 		icnErr := suite.icnSequencer.SetVal(suite.AppContextForTest(), 122)
 		suite.NoError(icnErr)
-
+		var err error
 		// Proceed with full EDI Generation tests
 		result, err = generator.Generate(suite.AppContextForTest(), paymentRequest, false)
 		suite.NoError(err)
@@ -405,6 +409,164 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		suite.Equal("USD", currency.CurrencyCodeC301)
 	})
 
+	// test that service members of affiliation MARINES have a GBLOC of USMC
+	suite.Run("updates the GBLOC for marines to be USMC", func() {
+		affiliationMarines := models.AffiliationMARINES
+		sm := models.ServiceMember{
+			Affiliation: &affiliationMarines,
+			ID:          uuid.FromStringOrNil("d66d2f35-218c-4b85-b9d1-631949b9d100"),
+		}
+
+		mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			ServiceMember: sm,
+		})
+		factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), mto.Orders.NewDutyLocation.Address.PostalCode, "KKFA")
+
+		paymentRequest = testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+			Move: mto,
+			PaymentRequest: models.PaymentRequest{
+				IsFinal:         false,
+				Status:          models.PaymentRequestStatusPending,
+				RejectionReason: nil,
+			},
+		})
+
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    mto,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: &requestedPickupDate,
+					ScheduledPickupDate: &scheduledPickupDate,
+					ActualPickupDate:    &actualPickupDate,
+				},
+			},
+		}, nil)
+
+		priceCents := unit.Cents(888)
+		assertions := testdatagen.Assertions{
+			Move:           mto,
+			MTOShipment:    mtoShipment,
+			PaymentRequest: paymentRequest,
+			PaymentServiceItem: models.PaymentServiceItem{
+				Status:     models.PaymentServiceItemStatusApproved,
+				PriceCents: &priceCents,
+			},
+		}
+		distanceZipSITOriginParam := testdatagen.CreatePaymentServiceItemParams{
+			Key:     models.ServiceItemParamNameDistanceZipSITOrigin,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "33",
+		}
+
+		dopsitParams := append(basicPaymentServiceItemParams, distanceZipSITOriginParam)
+		dopsit := testdatagen.MakePaymentServiceItemWithParams(
+			suite.DB(),
+			models.ReServiceCodeDOPSIT,
+			dopsitParams,
+			assertions,
+		)
+
+		paymentServiceItems = models.PaymentServiceItems{}
+		paymentServiceItems = append(paymentServiceItems, dopsit)
+
+		// setup known next value
+		icnErr := suite.icnSequencer.SetVal(suite.AppContextForTest(), 122)
+		suite.NoError(icnErr)
+
+		// Proceed with full EDI Generation tests
+		var err error
+		result, err = generator.Generate(suite.AppContextForTest(), paymentRequest, false)
+		suite.NoError(err)
+
+		// reference the N1 EDI segment Identification Code, which in this case should be the GBLOC
+		n1 := result.Header.OriginName
+		suite.Equal("USMC", n1.IdentificationCode)
+	})
+
+	// test that when duty locations do not have associated transportation offices, there is no error thrown
+	suite.Run("updates the origin and destination duty locations to not have associated transportation offices", func() {
+		originDutyLocation := factory.BuildDutyLocationWithoutTransportationOffice(suite.DB(), nil, nil)
+
+		customAddress := models.Address{
+			ID:         uuid.Must(uuid.NewV4()),
+			PostalCode: "73403",
+		}
+		destDutyLocation := factory.BuildDutyLocationWithoutTransportationOffice(suite.DB(), []factory.Customization{
+			{Model: customAddress, Type: &factory.Addresses.DutyLocationAddress},
+		}, nil)
+
+		mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Order: models.Order{
+				NewDutyLocation:   destDutyLocation,
+				NewDutyLocationID: destDutyLocation.ID,
+			},
+			OriginDutyLocation: originDutyLocation,
+		})
+
+		paymentRequest = testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+			Move: mto,
+			PaymentRequest: models.PaymentRequest{
+				IsFinal:         false,
+				Status:          models.PaymentRequestStatusPending,
+				RejectionReason: nil,
+			},
+		})
+
+		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: mto,
+			MTOShipment: models.MTOShipment{
+				RequestedPickupDate: &requestedPickupDate,
+				ScheduledPickupDate: &scheduledPickupDate,
+				ActualPickupDate:    &actualPickupDate,
+			},
+		})
+
+		priceCents := unit.Cents(888)
+		assertions := testdatagen.Assertions{
+			Move:           mto,
+			MTOShipment:    mtoShipment,
+			PaymentRequest: paymentRequest,
+			PaymentServiceItem: models.PaymentServiceItem{
+				Status:     models.PaymentServiceItemStatusApproved,
+				PriceCents: &priceCents,
+			},
+		}
+		distanceZipSITOriginParam := testdatagen.CreatePaymentServiceItemParams{
+			Key:     models.ServiceItemParamNameDistanceZipSITOrigin,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "33",
+		}
+
+		dopsitParams := append(basicPaymentServiceItemParams, distanceZipSITOriginParam)
+		dopsit := testdatagen.MakePaymentServiceItemWithParams(
+			suite.DB(),
+			models.ReServiceCodeDOPSIT,
+			dopsitParams,
+			assertions,
+		)
+
+		paymentServiceItems = models.PaymentServiceItems{}
+		paymentServiceItems = append(paymentServiceItems, dopsit)
+
+		// setup known next value
+		icnErr := suite.icnSequencer.SetVal(suite.AppContextForTest(), 122)
+		suite.NoError(icnErr)
+
+		// Proceed with full EDI Generation tests
+		var err error
+		result, err = generator.Generate(suite.AppContextForTest(), paymentRequest, false)
+		suite.NoError(err)
+
+		// reference the N1 EDI segment Name,
+		// which should match the Origin Duty location name when there is no associated transportation office.
+		n1 := result.Header.OriginName
+		suite.Equal(originDutyLocation.Name, n1.Name)
+
+	})
+
 	suite.Run("adds actual pickup date to header", func() {
 		setupTestData()
 		g62Requested := result.Header.RequestedPickupDate
@@ -428,14 +590,13 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		setupTestData()
 		// buyer name
 		originDutyLocation := paymentRequest.MoveTaskOrder.Orders.OriginDutyLocation
-		transportationOffice, err := models.FetchDutyLocationTransportationOffice(suite.DB(), originDutyLocation.ID)
-		suite.FatalNoError(err)
 		buyerOrg := result.Header.BuyerOrganizationName
+		originDutyLocationGbloc := paymentRequest.MoveTaskOrder.Orders.OriginDutyLocationGBLOC
 		suite.IsType(edisegment.N1{}, buyerOrg)
 		suite.Equal("BY", buyerOrg.EntityIdentifierCode)
-		suite.Equal(transportationOffice.Name, buyerOrg.Name)
+		suite.Equal(originDutyLocation.Name, buyerOrg.Name)
 		suite.Equal("92", buyerOrg.IdentificationCodeQualifier)
-		suite.Equal(transportationOffice.Gbloc, buyerOrg.IdentificationCode)
+		suite.Equal(*originDutyLocationGbloc, buyerOrg.IdentificationCode)
 
 		sellerOrg := result.Header.SellerOrganizationName
 		suite.IsType(edisegment.N1{}, sellerOrg)
@@ -732,7 +893,7 @@ func (suite *GHCInvoiceSuite) TestOnlyMsandCsGenerateEdi() {
 			Value:   testdatagen.DefaultContractCode,
 		},
 	}
-	mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+	mto := factory.BuildMove(suite.DB(), nil, nil)
 	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 		Move: mto,
 		PaymentRequest: models.PaymentRequest{
@@ -797,7 +958,7 @@ func (suite *GHCInvoiceSuite) TestNilValues() {
 
 	var nilPaymentRequest models.PaymentRequest
 	setupTestData := func() {
-		nilMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+		nilMove := factory.BuildMove(suite.DB(), nil, nil)
 
 		nilPaymentRequest = testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 			Move: nilMove,
@@ -917,7 +1078,7 @@ func (suite *GHCInvoiceSuite) TestNoApprovedPaymentServiceItems() {
 				Value:   testdatagen.DefaultContractCode,
 			},
 		}
-		mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+		mto := factory.BuildMove(suite.DB(), nil, nil)
 		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 			Move: mto,
 			PaymentRequest: models.PaymentRequest{
@@ -1015,7 +1176,7 @@ func (suite *GHCInvoiceSuite) TestTACs() {
 	var paymentRequest models.PaymentRequest
 
 	setupTestData := func() {
-		orders := factory.BuildOrder(suite.DB(), []factory.Customization{
+		move := factory.BuildMove(suite.DB(), []factory.Customization{
 			{
 				Model: models.Order{
 					TAC:    &hhgTAC,
@@ -1023,9 +1184,6 @@ func (suite *GHCInvoiceSuite) TestTACs() {
 				},
 			},
 		}, nil)
-		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Order: orders,
-		})
 
 		paymentRequest = testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 			Move: move,
@@ -1035,9 +1193,12 @@ func (suite *GHCInvoiceSuite) TestTACs() {
 			},
 		})
 
-		mtoShipment = testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-		})
+		mtoShipment = factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		testdatagen.MakePaymentServiceItemWithParams(
 			suite.DB(),
@@ -1121,6 +1282,50 @@ func (suite *GHCInvoiceSuite) TestTACs() {
 		_, err := generator.Generate(suite.AppContextForTest(), paymentRequest, false)
 		suite.Error(err)
 		suite.Contains(err.Error(), "Must have an NTS TAC value")
+	})
+}
+
+func (suite *GHCInvoiceSuite) TestDetermineDutyLocationPhoneLinesFunc() {
+	suite.Run("determineDutyLocationPhoneLines returns empty slice of phone lines when when there is no associated transportation office", func() {
+		var emptyPhoneLines []string
+		dutyLocation := factory.BuildDutyLocationWithoutTransportationOffice(suite.DB(), nil, nil)
+		phoneLines := determineDutyLocationPhoneLines(dutyLocation)
+		suite.Equal(emptyPhoneLines, phoneLines)
+	})
+	suite.Run("determineDutyLocationPhoneLines returns transportation office name when there is an associated transportation office", func() {
+		customVoicePhoneNumber := "(555) 444-3333"
+		customVoicePhoneLine := models.OfficePhoneLine{
+			Type:   "voice",
+			Number: customVoicePhoneNumber,
+		}
+		customFaxPhoneNumber := "(555) 777-8888"
+		customFaxPhoneLine := models.OfficePhoneLine{
+			Type:   "fax",
+			Number: customFaxPhoneNumber,
+		}
+		customTransportationOffice := models.TransportationOffice{
+			PhoneLines: models.OfficePhoneLines{customFaxPhoneLine, customVoicePhoneLine},
+		}
+
+		dutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+			{Model: customTransportationOffice},
+		}, nil)
+		phoneLines := determineDutyLocationPhoneLines(dutyLocation)
+
+		voiceNumberFound := false
+		faxNumberFound := false
+
+		for _, phoneLine := range phoneLines {
+			if phoneLine == customVoicePhoneNumber {
+				voiceNumberFound = true
+			}
+			if phoneLine == customFaxPhoneNumber {
+				faxNumberFound = true
+			}
+		}
+
+		suite.True(voiceNumberFound, "Phone numbers of type voice will be returned")
+		suite.False(faxNumberFound, "Phone numbers not of type voice will not be returned")
 	})
 }
 

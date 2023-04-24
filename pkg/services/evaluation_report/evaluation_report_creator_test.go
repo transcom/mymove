@@ -6,17 +6,19 @@ import (
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *EvaluationReportSuite) TestEvaluationReportCreator() {
 	creator := NewEvaluationReportCreator()
 
 	suite.Run("Can create customer support report successfully", func() {
-		move := testdatagen.MakeDefaultMove(suite.DB())
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-		})
+		move := factory.BuildMove(suite.DB(), nil, nil)
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		report := &models.EvaluationReport{ShipmentID: &shipment.ID, Type: models.EvaluationReportTypeShipment, OfficeUserID: officeUser.ID}
 		createdEvaluationReport, err := creator.CreateEvaluationReport(suite.AppContextForTest(), report, move.Locator)
@@ -37,7 +39,7 @@ func (suite *EvaluationReportSuite) TestEvaluationReportCreator() {
 	suite.Run("Shipment evaluation report requires valid shipmnet", func() {
 
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
-		move := testdatagen.MakeDefaultMove(suite.DB())
+		move := factory.BuildMove(suite.DB(), nil, nil)
 		badID := uuid.Must(uuid.NewV4())
 		report := &models.EvaluationReport{ShipmentID: &badID, Type: models.EvaluationReportTypeShipment, OfficeUserID: officeUser.ID}
 		createdEvaluationReport, err := creator.CreateEvaluationReport(suite.AppContextForTest(), report, move.Locator)

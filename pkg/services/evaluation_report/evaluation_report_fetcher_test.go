@@ -16,7 +16,7 @@ import (
 func (suite *EvaluationReportSuite) TestFetchEvaluationReportList() {
 	suite.Run("fetch for move with no evaluation reports should return empty array", func() {
 		fetcher := NewEvaluationReportFetcher()
-		move := testdatagen.MakeDefaultMove(suite.DB())
+		move := factory.BuildMove(suite.DB(), nil, nil)
 		officeUser := factory.BuildOfficeUser(suite.DB(), nil, nil)
 		reports, err := fetcher.FetchEvaluationReports(suite.AppContextForTest(), models.EvaluationReportTypeCounseling, move.ID, officeUser.ID)
 		suite.NoError(err)
@@ -34,7 +34,7 @@ func (suite *EvaluationReportSuite) TestFetchEvaluationReportList() {
 	})
 	suite.Run("submitted and draft reports for current user should be included", func() {
 		fetcher := NewEvaluationReportFetcher()
-		move := testdatagen.MakeDefaultMove(suite.DB())
+		move := factory.BuildMove(suite.DB(), nil, nil)
 		officeUser := factory.BuildOfficeUser(suite.DB(), nil, nil)
 		testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{
 			EvaluationReport: models.EvaluationReport{
@@ -55,7 +55,7 @@ func (suite *EvaluationReportSuite) TestFetchEvaluationReportList() {
 	})
 	suite.Run("reports submitted by other office users should be included", func() {
 		fetcher := NewEvaluationReportFetcher()
-		move := testdatagen.MakeDefaultMove(suite.DB())
+		move := factory.BuildMove(suite.DB(), nil, nil)
 		officeUser := factory.BuildOfficeUser(suite.DB(), nil, []factory.Trait{
 			factory.GetTraitOfficeUserEmail,
 		})
@@ -76,7 +76,7 @@ func (suite *EvaluationReportSuite) TestFetchEvaluationReportList() {
 	})
 	suite.Run("draft reports by other office users should not be included", func() {
 		fetcher := NewEvaluationReportFetcher()
-		move := testdatagen.MakeDefaultMove(suite.DB())
+		move := factory.BuildMove(suite.DB(), nil, nil)
 		officeUser := factory.BuildOfficeUser(suite.DB(), nil, []factory.Trait{
 			factory.GetTraitOfficeUserEmail,
 		})
@@ -96,7 +96,7 @@ func (suite *EvaluationReportSuite) TestFetchEvaluationReportList() {
 	})
 	suite.Run("fetch counseling reports should only return counseling reports", func() {
 		fetcher := NewEvaluationReportFetcher()
-		move := testdatagen.MakeDefaultMove(suite.DB())
+		move := factory.BuildMove(suite.DB(), nil, nil)
 		officeUser := factory.BuildOfficeUser(suite.DB(), nil, nil)
 		counselingReport := testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{
 			EvaluationReport: models.EvaluationReport{
@@ -105,7 +105,10 @@ func (suite *EvaluationReportSuite) TestFetchEvaluationReportList() {
 				SubmittedAt:  swag.Time(time.Now()),
 			},
 		})
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{Move: move})
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{{
+			Model:    move,
+			LinkOnly: true,
+		}}, nil)
 		testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{
 			EvaluationReport: models.EvaluationReport{
 				MoveID:       move.ID,
@@ -121,7 +124,7 @@ func (suite *EvaluationReportSuite) TestFetchEvaluationReportList() {
 	})
 	suite.Run("fetch shipment reports should only return shipment reports", func() {
 		fetcher := NewEvaluationReportFetcher()
-		move := testdatagen.MakeDefaultMove(suite.DB())
+		move := factory.BuildMove(suite.DB(), nil, nil)
 		officeUser := factory.BuildOfficeUser(suite.DB(), nil, nil)
 		testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{
 			EvaluationReport: models.EvaluationReport{
@@ -130,7 +133,10 @@ func (suite *EvaluationReportSuite) TestFetchEvaluationReportList() {
 				SubmittedAt:  swag.Time(time.Now()),
 			},
 		})
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{Move: move})
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{{
+			Model:    move,
+			LinkOnly: true,
+		}}, nil)
 		shipmentReport := testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{
 			EvaluationReport: models.EvaluationReport{
 				MoveID:       move.ID,
@@ -150,7 +156,7 @@ func (suite *EvaluationReportSuite) TestFetchEvaluationReportByID() {
 	// successful fetch
 	suite.Run("fetch for a submitted evaluation report that exists should be successful", func() {
 		fetcher := NewEvaluationReportFetcher()
-		move := testdatagen.MakeDefaultMove(suite.DB())
+		move := factory.BuildMove(suite.DB(), nil, nil)
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeQaeCsr})
 		report := testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{EvaluationReport: models.EvaluationReport{
 			OfficeUserID: officeUser.ID,
@@ -166,7 +172,7 @@ func (suite *EvaluationReportSuite) TestFetchEvaluationReportByID() {
 	// forbidden if they don't own the draft
 	suite.Run("fetch for a draft evaluation report should return a forbidden if the requester isn't the owner", func() {
 		fetcher := NewEvaluationReportFetcher()
-		move := testdatagen.MakeDefaultMove(suite.DB())
+		move := factory.BuildMove(suite.DB(), nil, nil)
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeQaeCsr})
 		officeUserOwner := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeQaeCsr})
 		report := testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{EvaluationReport: models.EvaluationReport{
@@ -181,7 +187,7 @@ func (suite *EvaluationReportSuite) TestFetchEvaluationReportByID() {
 	// not found error if the ID is wrong
 	suite.Run("fetch should return a not found error if the reportID doesn't exist", func() {
 		fetcher := NewEvaluationReportFetcher()
-		move := testdatagen.MakeDefaultMove(suite.DB())
+		move := factory.BuildMove(suite.DB(), nil, nil)
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeQaeCsr})
 		testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{EvaluationReport: models.EvaluationReport{
 			OfficeUserID: officeUser.ID,

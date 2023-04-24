@@ -17,10 +17,13 @@ import (
 func (suite *EvaluationReportSuite) TestEvaluationReportDeleter() {
 	setupTestData := func() (services.EvaluationReportDeleter, models.EvaluationReport, appcontext.AppContext) {
 		deleter := NewEvaluationReportDeleter()
-		move := testdatagen.MakeDefaultMove(suite.DB())
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-		})
+		move := factory.BuildMove(suite.DB(), nil, nil)
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 		officeUser := factory.BuildOfficeUser(suite.DB(), nil, nil)
 		report := testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{
 			OfficeUser:  officeUser,

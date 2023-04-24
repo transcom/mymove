@@ -13,7 +13,7 @@ version: '2.1'
 
 # References for variables shared across the file
 references:
-  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-bc1b345eabd5f3607948f78455aa8257183345c5
+  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-c56dd82c1274f5550bf26c828712cbc33f37047c
 
   # the cypress image to use
   cypress: &cypress milmove/circleci-docker:milmove-cypress-bc1b345eabd5f3607948f78455aa8257183345c5
@@ -59,6 +59,14 @@ references:
   server-ignore-branch: &server-ignore-branch placeholder_branch_name
 
 executors:
+  tls_small:
+    resource_class: small
+    working_directory: ~/transcom/mymove
+    docker:
+      - image: *circleci-docker
+        auth:
+          username: $DOCKERHUB_USERNAME
+          password: $DOCKERHUB_PASSWORD
   av_medium:
     resource_class: medium
     working_directory: ~/transcom/mymove
@@ -850,29 +858,26 @@ jobs:
 
   # `check_tls_certificate_env` is used to confirm that the certificate-key pair match
   check_tls_certificate_prd:
-    executor: av_medium
+    executor: tls_small
     steps:
-      - checkout
       - tls_vars_prd
-      - run: scripts/check-tls-pair ${TLS_KEY} ${TLS_CERT}
+      - run: /usr/local/bin/check-tls-pair ${TLS_KEY} ${TLS_CERT}
       - announce_failure
 
   check_tls_certificate_stg:
-    executor: av_medium
+    executor: tls_small
     steps:
-      - checkout
       - tls_vars_stg
-      - run: scripts/check-tls-pair ${TLS_KEY} ${TLS_CERT}
+      - run: /usr/local/bin/check-tls-pair ${TLS_KEY} ${TLS_CERT}
       - announce_failure
 
   check_tls_certificate_dp3:
-    executor: av_medium
+    executor: tls_small
     parameters:
       dp3-env:
         type: string
         default: *dp3-env
     steps:
-      - checkout
       - run:
           name: Check if we are using a dp3 environment at all
           command: |
@@ -880,7 +885,7 @@ jobs:
               circleci-agent step halt
             fi
       - tls_vars_dp3
-      - run: scripts/check-tls-pair ${TLS_KEY} ${TLS_CERT}
+      - run: /usr/local/bin/check-tls-pair ${TLS_KEY} ${TLS_CERT}
       - announce_failure
 
   # `anti_virus` uses virus detection software to scan the source code
@@ -921,20 +926,20 @@ jobs:
             - v1-pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
       - restore_cache:
           keys:
-          #
-          # https://circleci.com/docs/caching/#restoring-cache
-          #
-          # restore the latest version of the listing results in the
-          # cache
-          #
-          # To manually reset counts increment the version number of
-          # the cache e.g. go from v1-spectrial-lint- to
-          # v2-spectral-lint-
-          #
-          # Make sure you also update the key in the save_cache below
-          #
-          # The trailing hyphen in restore_cache seems important
-          # according to the page linked above
+            #
+            # https://circleci.com/docs/caching/#restoring-cache
+            #
+            # restore the latest version of the listing results in the
+            # cache
+            #
+            # To manually reset counts increment the version number of
+            # the cache e.g. go from v1-spectrial-lint- to
+            # v2-spectral-lint-
+            #
+            # Make sure you also update the key in the save_cache below
+            #
+            # The trailing hyphen in restore_cache seems important
+            # according to the page linked above
             - v1-spectral-lint-
       - run:
           name: Save Baseline Spectral Lint
@@ -1091,24 +1096,24 @@ jobs:
       - run: echo 'export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - restore_cache:
           keys:
-          #
-          # https://circleci.com/docs/caching/#restoring-cache
-          #
-          # restore the latest version of the test coverage in the
-          # cache
-          #
-          # To manually reset test coverage (e.g. a refactor or
-          # deleting code means coverage has gone down and we are ok
-          # with it), increment the version number of the cache
-          # e.g. go from v1-server-tests-coverage- to
-          # v2-server-tests-coverage-
-          #
-          # ##### NOTE: Make sure you also update the key in the
-          # ##### save_cache below
-          #
-          # The trailing hyphen in restore_cache seems important
-          # according to the page linked above
-            - v3-server-tests-coverage-
+            #
+            # https://circleci.com/docs/caching/#restoring-cache
+            #
+            # restore the latest version of the test coverage in the
+            # cache
+            #
+            # To manually reset test coverage (e.g. a refactor or
+            # deleting code means coverage has gone down and we are ok
+            # with it), increment the version number of the cache
+            # e.g. go from v1-server-tests-coverage- to
+            # v2-server-tests-coverage-
+            #
+            # ##### NOTE: Make sure you also update the key in the
+            # ##### save_cache below
+            #
+            # The trailing hyphen in restore_cache seems important
+            # according to the page linked above
+            - v4-server-tests-coverage-
       - run:
           name: Save Baseline Test Coverage
           command: |
@@ -1148,7 +1153,7 @@ jobs:
             # Use the BuildNum to update the cache key so that the
             # coverage cache is always updated
             save_cache:
-              key: v3-server-tests-coverage-{{ .BuildNum }}
+              key: v4-server-tests-coverage-{{ .BuildNum }}
               paths:
                 - ~/transcom/mymove/tmp/test-results
       - announce_failure
@@ -1915,7 +1920,6 @@ workflows:
           filters:
             branches:
               ignore: *integration-ignore-branch
-
 
       - integration_tests:
           requires:

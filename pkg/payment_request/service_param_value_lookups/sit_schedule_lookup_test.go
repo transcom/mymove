@@ -35,14 +35,18 @@ func (suite *ServiceParamValueLookupsSuite) TestSITSchedule() {
 			},
 		}, nil)
 
-		mtoServiceItem = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				PickupAddressID:      &originAddress.ID,
-				PickupAddress:        &originAddress,
-				DestinationAddressID: &destAddress.ID,
-				DestinationAddress:   &destAddress,
+		mtoServiceItem = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    originAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.PickupAddress,
 			},
-		})
+			{
+				Model:    destAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.DeliveryAddress,
+			},
+		}, nil)
 
 		paymentRequest = testdatagen.MakePaymentRequest(suite.DB(),
 			testdatagen.Assertions{
@@ -114,12 +118,13 @@ func (suite *ServiceParamValueLookupsSuite) TestSITSchedule() {
 			},
 		}, nil)
 
-		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				PickupAddress:   &pickupAddress,
-				PickupAddressID: &pickupAddress.ID,
+		mtoServiceItem = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    pickupAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.PickupAddress,
 			},
-		})
+		}, nil)
 
 		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
 			testdatagen.Assertions{
@@ -144,12 +149,13 @@ func (suite *ServiceParamValueLookupsSuite) TestSITSchedule() {
 			},
 		}, nil)
 
-		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				DestinationAddress:   &destinationAddress,
-				DestinationAddressID: &destinationAddress.ID,
+		mtoServiceItem = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    destinationAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.DeliveryAddress,
 			},
-		})
+		}, nil)
 
 		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
 			testdatagen.Assertions{

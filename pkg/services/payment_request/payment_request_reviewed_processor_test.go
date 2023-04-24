@@ -52,7 +52,7 @@ func (suite *PaymentRequestServiceSuite) createPaymentRequest(num int) models.Pa
 			},
 		}
 
-		mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+		mto := factory.BuildMove(suite.DB(), nil, nil)
 		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 			Move: mto,
 			PaymentRequest: models.PaymentRequest{
@@ -66,14 +66,19 @@ func (suite *PaymentRequestServiceSuite) createPaymentRequest(num int) models.Pa
 		scheduledPickupDate := time.Date(testdatagen.GHCTestYear, time.September, 20, 0, 0, 0, 0, time.UTC)
 		actualPickupDate := time.Date(testdatagen.GHCTestYear, time.September, 22, 0, 0, 0, 0, time.UTC)
 
-		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: mto,
-			MTOShipment: models.MTOShipment{
-				RequestedPickupDate: &requestedPickupDate,
-				ScheduledPickupDate: &scheduledPickupDate,
-				ActualPickupDate:    &actualPickupDate,
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    mto,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: &requestedPickupDate,
+					ScheduledPickupDate: &scheduledPickupDate,
+					ActualPickupDate:    &actualPickupDate,
+				},
+			},
+		}, nil)
 
 		assertions := testdatagen.Assertions{
 			Move:           mto,

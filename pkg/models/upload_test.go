@@ -4,6 +4,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/uploader"
 )
 
 func (suite *ModelSuite) Test_ValidateUpload() {
@@ -11,7 +12,7 @@ func (suite *ModelSuite) Test_ValidateUpload() {
 		ID:          uuid.Must(uuid.NewV4()),
 		Filename:    "test.pdf",
 		Bytes:       1048576,
-		ContentType: "application/pdf",
+		ContentType: uploader.FileTypePDF,
 		Checksum:    "ImGQ2Ush0bDHsaQthV5BnQ==",
 		UploadType:  models.UploadTypeUSER,
 	}

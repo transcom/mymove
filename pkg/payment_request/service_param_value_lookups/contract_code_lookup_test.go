@@ -25,11 +25,13 @@ func (suite *ServiceParamValueLookupsSuite) TestContractCodeLookup() {
 
 	suite.Run("golden path with param cache", func() {
 		// DLH
-		mtoServiceItem1 := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDLH,
+		mtoServiceItem1 := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDLH,
+				},
 			},
-		})
+		}, nil)
 
 		// ContractCode
 		testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
@@ -44,13 +46,16 @@ func (suite *ServiceParamValueLookupsSuite) TestContractCodeLookup() {
 			},
 		}, nil)
 
-		_ = testdatagen.FetchOrMakeServiceParam(suite.DB(), testdatagen.Assertions{
-			ServiceParam: models.ServiceParam{
-				ServiceID:             mtoServiceItem1.ReServiceID,
-				ServiceItemParamKeyID: serviceItemParamKey1.ID,
-				ServiceItemParamKey:   serviceItemParamKey1,
+		factory.FetchOrBuildServiceParam(suite.DB(), []factory.Customization{
+			{
+				Model:    mtoServiceItem1.ReService,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model:    serviceItemParamKey1,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		paramCache := NewServiceParamsCache()
 		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem1, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), &paramCache)

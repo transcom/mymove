@@ -21,7 +21,6 @@ import (
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
 	. "github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *ModelSuite) TestBasicMoveInstantiation() {
@@ -39,11 +38,9 @@ func (suite *ModelSuite) TestBasicMoveInstantiation() {
 func (suite *ModelSuite) TestCreateNewMoveValidLocatorString() {
 	orders := factory.BuildOrder(suite.DB(), nil, nil)
 	factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
-	selectedMoveType := SelectedMoveTypeHHG
 
 	moveOptions := MoveOptions{
-		SelectedType: &selectedMoveType,
-		Show:         swag.Bool(true),
+		Show: swag.Bool(true),
 	}
 	move, verrs, err := orders.CreateNewMove(suite.DB(), moveOptions)
 	suite.NoError(err)
@@ -93,10 +90,8 @@ func (suite *ModelSuite) TestFetchMove() {
 		session, order := setupTestData()
 
 		// Create HHG Move
-		selectedMoveType := SelectedMoveTypeHHG
 		moveOptions := MoveOptions{
-			SelectedType: &selectedMoveType,
-			Show:         swag.Bool(true),
+			Show: swag.Bool(true),
 		}
 		move, verrs, err := order.CreateNewMove(suite.DB(), moveOptions)
 		suite.NoError(err)
@@ -144,10 +139,8 @@ func (suite *ModelSuite) TestFetchMove() {
 
 		// Create a second sm and a move only on that sm
 		order2 := factory.BuildOrder(suite.DB(), nil, nil)
-		selectedMoveType := SelectedMoveTypeHHG
 		moveOptions := MoveOptions{
-			SelectedType: &selectedMoveType,
-			Show:         swag.Bool(true),
+			Show: swag.Bool(true),
 		}
 		move2, verrs, err := order2.CreateNewMove(suite.DB(), moveOptions)
 		suite.NoError(err)
@@ -167,11 +160,17 @@ func (suite *ModelSuite) TestFetchMove() {
 		// Expected outcome: Move not found, ErrFetchNotFound error
 		session, order := setupTestData()
 		// Create a hidden move
-		hiddenMove := testdatagen.MakeHiddenHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
-			Order: Order{
-				ID: order.ID,
+		hiddenMove := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: Move{
+					Show: BoolPointer(false),
+				},
 			},
-		})
+			{
+				Model:    order,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		// Attempt to fetch this move. We should receive an error.
 		_, err := FetchMove(suite.DB(), session, hiddenMove.ID)
@@ -179,16 +178,21 @@ func (suite *ModelSuite) TestFetchMove() {
 	})
 
 	suite.Run("deleted shipments are excluded from the results", func() {
-		mtoShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
 		mto := mtoShipment.MoveTaskOrder
-		testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: MTOShipment{
-				ShipmentType: MTOShipmentTypeHHG,
-				Status:       MTOShipmentStatusSubmitted,
-				DeletedAt:    TimePointer(time.Now()),
+		factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: MTOShipment{
+					ShipmentType: MTOShipmentTypeHHG,
+					Status:       MTOShipmentStatusSubmitted,
+					DeletedAt:    TimePointer(time.Now()),
+				},
 			},
-			Move: mto,
-		})
+			{
+				Model:    mto,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		session := &auth.Session{
 			UserID:          mto.Orders.ServiceMember.UserID,
@@ -210,11 +214,9 @@ func (suite *ModelSuite) TestSaveMoveDependenciesFail() {
 	orders := factory.BuildOrder(suite.DB(), nil, nil)
 	orders.Status = ""
 	factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
-	selectedMoveType := SelectedMoveTypeHHGPPM
 
 	moveOptions := MoveOptions{
-		SelectedType: &selectedMoveType,
-		Show:         swag.Bool(true),
+		Show: swag.Bool(true),
 	}
 	move, verrs, err := orders.CreateNewMove(suite.DB(), moveOptions)
 	suite.NoError(err)
@@ -231,11 +233,9 @@ func (suite *ModelSuite) TestSaveMoveDependenciesSuccess() {
 	orders := factory.BuildOrder(suite.DB(), nil, nil)
 	orders.Status = OrderStatusSUBMITTED
 	factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
-	selectedMoveType := SelectedMoveTypeHHGPPM
 
 	moveOptions := MoveOptions{
-		SelectedType: &selectedMoveType,
-		Show:         swag.Bool(true),
+		Show: swag.Bool(true),
 	}
 	move, verrs, err := orders.CreateNewMove(suite.DB(), moveOptions)
 	suite.NoError(err)
@@ -251,20 +251,19 @@ func (suite *ModelSuite) TestFetchMoveByOrderID() {
 	orderID := uuid.Must(uuid.NewV4())
 	moveID, _ := uuid.FromString("7112b18b-7e03-4b28-adde-532b541bba8d")
 	invalidID, _ := uuid.FromString("00000000-0000-0000-0000-000000000000")
-	order := factory.BuildOrder(suite.DB(), []factory.Customization{
+
+	factory.BuildMove(suite.DB(), []factory.Customization{
+		{
+			Model: Move{
+				ID: moveID,
+			},
+		},
 		{
 			Model: Order{
 				ID: orderID,
 			},
 		},
 	}, nil)
-	testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-		Move: Move{
-			ID:       moveID,
-			OrdersID: orderID,
-			Orders:   order,
-		},
-	})
 
 	tests := []struct {
 		lookupID  uuid.UUID
@@ -287,23 +286,27 @@ func (suite *ModelSuite) TestFetchMoveByOrderID() {
 }
 
 func (suite *ModelSuite) TestMoveIsPPMOnly() {
-	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+	move := factory.BuildMove(suite.DB(), nil, nil)
 	isPPMOnly := move.IsPPMOnly()
 	suite.False(isPPMOnly, "A move with no shipments will return false for isPPMOnly.")
 
-	testdatagen.MakeMTOShipmentWithMove(suite.DB(), &move, testdatagen.Assertions{
-		MTOShipment: MTOShipment{
-			ShipmentType: MTOShipmentTypePPM,
+	factory.BuildMTOShipmentWithMove(&move, suite.DB(), []factory.Customization{
+		{
+			Model: MTOShipment{
+				ShipmentType: MTOShipmentTypePPM,
+			},
 		},
-	})
+	}, nil)
 	isPPMOnly = move.IsPPMOnly()
 	suite.True(isPPMOnly, "A move with only PPM shipments will return true for isPPMOnly")
 
-	testdatagen.MakeMTOShipmentWithMove(suite.DB(), &move, testdatagen.Assertions{
-		MTOShipment: MTOShipment{
-			ShipmentType: MTOShipmentTypeHHG,
+	factory.BuildMTOShipmentWithMove(&move, suite.DB(), []factory.Customization{
+		{
+			Model: MTOShipment{
+				ShipmentType: MTOShipmentTypeHHG,
+			},
 		},
-	})
+	}, nil)
 	isPPMOnly = move.IsPPMOnly()
 	suite.False(isPPMOnly, "A move with one PPM shipment and one HHG shipment will return false for isPPMOnly.")
 }

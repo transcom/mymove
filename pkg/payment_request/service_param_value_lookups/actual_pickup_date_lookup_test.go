@@ -5,6 +5,7 @@ import (
 
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -19,12 +20,13 @@ func (suite *ServiceParamValueLookupsSuite) TestActualPickupDateLookup() {
 
 	setupTestData := func() {
 		testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
-		mtoServiceItem = testdatagen.MakeMTOServiceItem(suite.DB(),
-			testdatagen.Assertions{
-				MTOShipment: models.MTOShipment{
+		mtoServiceItem = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
 					ActualPickupDate: &actualPickupDate,
 				},
-			})
+			},
+		}, nil)
 
 		// Don't need a payment request for this test.
 	}

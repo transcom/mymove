@@ -135,11 +135,13 @@ func (suite *ModelSuite) TestFetchOrderForUser() {
 
 	suite.Run("check for closeout office", func() {
 		closeoutOffice := testdatagen.MakeTransportationOffice(suite.DB(), testdatagen.Assertions{})
-		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Move: Move{
-				CloseoutOffice: &closeoutOffice,
+		move := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model:    closeoutOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CloseoutOffice,
 			},
-		})
+		}, nil)
 		orders := move.Orders
 		orders.Moves = append(orders.Moves, move)
 
@@ -349,21 +351,20 @@ func (suite *ModelSuite) TestSaveOrder() {
 	orderID := uuid.Must(uuid.NewV4())
 	moveID, _ := uuid.FromString("7112b18b-7e03-4b28-adde-532b541bba8d")
 
-	order := factory.BuildOrder(suite.DB(), []factory.Customization{
+	move := factory.BuildMove(suite.DB(), []factory.Customization{
+		{
+			Model: Move{
+				ID: moveID,
+			},
+		},
 		{
 			Model: Order{
 				ID: orderID,
 			},
 		},
 	}, nil)
-	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-		Move: Move{
-			ID:       moveID,
-			OrdersID: orderID,
-			Orders:   order,
-		},
-		Order: order,
-	})
+
+	order := move.Orders
 
 	postalCode := "30813"
 	newPostalCode := "12345"
@@ -409,7 +410,12 @@ func (suite *ModelSuite) TestSaveOrderWithoutPPM() {
 	orderID := uuid.Must(uuid.NewV4())
 	moveID, _ := uuid.FromString("7112b18b-7e03-4b28-adde-532b541bba8d")
 
-	order := factory.BuildOrder(suite.DB(), []factory.Customization{
+	move := factory.BuildMove(suite.DB(), []factory.Customization{
+		{
+			Model: Move{
+				ID: moveID,
+			},
+		},
 		{
 			Model: Order{
 				ID: orderID,
@@ -417,13 +423,7 @@ func (suite *ModelSuite) TestSaveOrderWithoutPPM() {
 		},
 	}, nil)
 
-	testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-		Move: Move{
-			ID:       moveID,
-			OrdersID: orderID,
-			Orders:   order,
-		},
-	})
+	order := move.Orders
 
 	postalCode := "30813"
 	newPostalCode := "12345"
