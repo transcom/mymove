@@ -116,6 +116,15 @@ export async function makeSwaggerRequest(client, operationPath, params = {}, opt
 
   return request
     .then((response) => {
+      // Otherwise, return raw response body
+      // RA Summary: eslint: no-console - System Information Leak: External
+      // RA: The linter flags any use of console.
+      // RA: This console displays an error message.
+      // RA Developer Status: Known Issue
+      // RA Validator Status: Known Issue
+      // eslint-disable-next-line no-console
+      console.log('swaggerRequest: raw response body', response, response.body);
+
       const normalizeData = options.normalize !== undefined ? options.normalize : true;
       // Normalize the data (defaults to true)
       if (normalizeData) {
@@ -141,14 +150,6 @@ export async function makeSwaggerRequest(client, operationPath, params = {}, opt
         return normalizeResponse(response.body, schemaKey);
       }
 
-      // Otherwise, return raw response body
-      // RA Summary: eslint: no-console - System Information Leak: External
-      // RA: The linter flags any use of console.
-      // RA: This console displays an error message.
-      // RA Developer Status: Known Issue
-      // RA Validator Status: Known Issue
-      // eslint-disable-next-line no-console
-      console.log('swaggerRequest: returning raw response body', response, response.body);
       return response.body;
     })
     .catch((response) => {
