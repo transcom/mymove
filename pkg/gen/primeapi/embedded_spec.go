@@ -1611,6 +1611,7 @@ func init() {
         },
         "requestedDays": {
           "type": "integer",
+          "minimum": 1,
           "example": 30
         }
       }
@@ -6011,6 +6012,7 @@ func init() {
         },
         "requestedDays": {
           "type": "integer",
+          "minimum": 1,
           "example": 30
         }
       }
