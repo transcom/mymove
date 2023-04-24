@@ -797,7 +797,7 @@ paths:
         * Pick-up Address
         * Delivery Address
         * Secondary Pick-up Address
-        * Secondary Delivery Address
+        * SecondaryDelivery Address
         * Delivery Address Type
         * Customer Remarks
         * Counselor Remarks
@@ -4291,24 +4291,21 @@ definitions:
         example: more weight than expected
         x-nullable: true
       pickupAddress:
-        allOf:
-          - $ref: '#/definitions/Address'
-      secondaryPickupAddress:
+        $ref: '#/definitions/Address'
+      destinationAddress:
         $ref: '#/definitions/Address'
       hasSecondaryPickupAddress:
         type: boolean
         x-nullable: true
         x-omitempty: false
-      destinationAddress:
-        allOf:
-          - $ref: '#/definitions/Address'
-        x-nullable: true
-      secondaryDeliveryAddress:
-        $ref: '#/definitions/Address'
       hasSecondaryDeliveryAddress:
         type: boolean
         x-nullable: true
         x-omitempty: false
+      secondaryDeliveryAddress:
+        $ref: '#/definitions/Address'
+      secondaryPickupAddress:
+        $ref: '#/definitions/Address'
       destinationType:
         $ref: '#/definitions/DestinationType'
       agents:
@@ -6849,19 +6846,23 @@ definitions:
         type: boolean
         example: true
       pickupAddress:
-        x-nullable: true
         $ref: '#/definitions/Address'
       destinationAddress:
-        x-nullable: true
         $ref: '#/definitions/Address'
       destinationType:
         $ref: '#/definitions/DestinationType'
       secondaryPickupAddress:
-        x-nullable: true
         $ref: '#/definitions/Address'
       secondaryDeliveryAddress:
-        x-nullable: true
         $ref: '#/definitions/Address'
+      hasSecondaryPickupAddress:
+        type: boolean
+        x-omitempty: false
+        x-nullable: true
+      hasSecondaryDeliveryAddress:
+        type: boolean
+        x-omitempty: false
+        x-nullable: true
       customerRemarks:
         type: string
         example: handle with care

@@ -1477,7 +1477,7 @@ func init() {
     },
     "/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}": {
       "patch": {
-        "description": "Updates a specified MTO shipment.\nRequired fields include:\n* MTO Shipment ID required in path\n* If-Match required in headers\n* No fields required in body\nOptional fields include:\n* New shipment status type\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Secondary Pick-up Address\n* Secondary Delivery Address\n* Delivery Address Type\n* Customer Remarks\n* Counselor Remarks\n* Releasing / Receiving agents\n",
+        "description": "Updates a specified MTO shipment.\nRequired fields include:\n* MTO Shipment ID required in path\n* If-Match required in headers\n* No fields required in body\nOptional fields include:\n* New shipment status type\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Secondary Pick-up Address\n* SecondaryDelivery Address\n* Delivery Address Type\n* Customer Remarks\n* Counselor Remarks\n* Releasing / Receiving agents\n",
         "consumes": [
           "application/json"
         ],
@@ -6031,7 +6031,6 @@ func init() {
           "x-nullable": true
         },
         "destinationAddress": {
-          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "destinationType": {
@@ -6043,6 +6042,16 @@ func init() {
         },
         "eTag": {
           "type": "string"
+        },
+        "hasSecondaryDeliveryAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasSecondaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "id": {
           "type": "string",
@@ -6068,7 +6077,6 @@ func init() {
           "example": 2000
         },
         "pickupAddress": {
-          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "ppmShipment": {
@@ -6130,11 +6138,9 @@ func init() {
           "x-nullable": true
         },
         "secondaryDeliveryAddress": {
-          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "secondaryPickupAddress": {
-          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "serviceOrderNumber": {
@@ -8919,12 +8925,7 @@ func init() {
           "example": "handle with care"
         },
         "destinationAddress": {
-          "allOf": [
-            {
-              "$ref": "#/definitions/Address"
-            }
-          ],
-          "x-nullable": true
+          "$ref": "#/definitions/Address"
         },
         "destinationType": {
           "$ref": "#/definitions/DestinationType"
@@ -8947,11 +8948,7 @@ func init() {
           "example": 2000
         },
         "pickupAddress": {
-          "allOf": [
-            {
-              "$ref": "#/definitions/Address"
-            }
-          ]
+          "$ref": "#/definitions/Address"
         },
         "ppmShipment": {
           "$ref": "#/definitions/UpdatePPMShipment"
@@ -11311,7 +11308,7 @@ func init() {
     },
     "/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}": {
       "patch": {
-        "description": "Updates a specified MTO shipment.\nRequired fields include:\n* MTO Shipment ID required in path\n* If-Match required in headers\n* No fields required in body\nOptional fields include:\n* New shipment status type\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Secondary Pick-up Address\n* Secondary Delivery Address\n* Delivery Address Type\n* Customer Remarks\n* Counselor Remarks\n* Releasing / Receiving agents\n",
+        "description": "Updates a specified MTO shipment.\nRequired fields include:\n* MTO Shipment ID required in path\n* If-Match required in headers\n* No fields required in body\nOptional fields include:\n* New shipment status type\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Secondary Pick-up Address\n* SecondaryDelivery Address\n* Delivery Address Type\n* Customer Remarks\n* Counselor Remarks\n* Releasing / Receiving agents\n",
         "consumes": [
           "application/json"
         ],
@@ -16607,7 +16604,6 @@ func init() {
           "x-nullable": true
         },
         "destinationAddress": {
-          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "destinationType": {
@@ -16619,6 +16615,16 @@ func init() {
         },
         "eTag": {
           "type": "string"
+        },
+        "hasSecondaryDeliveryAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasSecondaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "id": {
           "type": "string",
@@ -16644,7 +16650,6 @@ func init() {
           "example": 2000
         },
         "pickupAddress": {
-          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "ppmShipment": {
@@ -16706,11 +16711,9 @@ func init() {
           "x-nullable": true
         },
         "secondaryDeliveryAddress": {
-          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "secondaryPickupAddress": {
-          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "serviceOrderNumber": {
@@ -19504,12 +19507,7 @@ func init() {
           "example": "handle with care"
         },
         "destinationAddress": {
-          "allOf": [
-            {
-              "$ref": "#/definitions/Address"
-            }
-          ],
-          "x-nullable": true
+          "$ref": "#/definitions/Address"
         },
         "destinationType": {
           "$ref": "#/definitions/DestinationType"
@@ -19532,11 +19530,7 @@ func init() {
           "example": 2000
         },
         "pickupAddress": {
-          "allOf": [
-            {
-              "$ref": "#/definitions/Address"
-            }
-          ]
+          "$ref": "#/definitions/Address"
         },
         "ppmShipment": {
           "$ref": "#/definitions/UpdatePPMShipment"

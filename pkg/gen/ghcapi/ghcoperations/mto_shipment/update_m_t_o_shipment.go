@@ -46,7 +46,7 @@ Optional fields include:
 * Pick-up Address
 * Delivery Address
 * Secondary Pick-up Address
-* Secondary Delivery Address
+* SecondaryDelivery Address
 * Delivery Address Type
 * Customer Remarks
 * Counselor Remarks

@@ -769,7 +769,7 @@ paths:
         * Pick-up Address
         * Delivery Address
         * Secondary Pick-up Address
-        * Secondary Delivery Address
+        * SecondaryDelivery Address
         * Delivery Address Type
         * Customer Remarks
         * Counselor Remarks
@@ -4159,24 +4159,21 @@ definitions:
         example: more weight than expected
         x-nullable: true
       pickupAddress:
-        allOf:
-          - $ref: 'definitions/Address.yaml'
-      secondaryPickupAddress:
+        $ref: 'definitions/Address.yaml'
+      destinationAddress:
         $ref: 'definitions/Address.yaml'
       hasSecondaryPickupAddress:
-          type: boolean
-          x-nullable: true
-          x-omitempty: false
-      destinationAddress:
-        allOf:
-          - $ref: 'definitions/Address.yaml'
+        type: boolean
         x-nullable: true
-      secondaryDeliveryAddress:
-        $ref: 'definitions/Address.yaml'
+        x-omitempty: false
       hasSecondaryDeliveryAddress:
         type: boolean
         x-nullable: true
         x-omitempty: false
+      secondaryDeliveryAddress:
+        $ref: 'definitions/Address.yaml'
+      secondaryPickupAddress:
+        $ref: 'definitions/Address.yaml'
       destinationType:
         $ref: 'definitions/DestinationType.yaml'
       agents:

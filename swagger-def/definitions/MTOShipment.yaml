@@ -73,19 +73,23 @@ properties:
     type: boolean
     example: true
   pickupAddress:
-    x-nullable: true
     $ref: 'Address.yaml'
   destinationAddress:
-    x-nullable: true
     $ref: 'Address.yaml'
   destinationType:
     $ref: 'DestinationType.yaml'
   secondaryPickupAddress:
-    x-nullable: true
     $ref: 'Address.yaml'
   secondaryDeliveryAddress:
-    x-nullable: true
     $ref: 'Address.yaml'
+  hasSecondaryPickupAddress:
+    type: boolean
+    x-omitempty: false
+    x-nullable: true
+  hasSecondaryDeliveryAddress:
+    type: boolean
+    x-omitempty: false
+    x-nullable: true
   customerRemarks:
     type: string
     example: handle with care
