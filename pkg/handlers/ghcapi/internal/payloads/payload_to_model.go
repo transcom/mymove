@@ -360,16 +360,16 @@ func MTOShipmentModelFromUpdate(mtoShipment *ghcmessages.UpdateShipment) *models
 		HasSecondaryDeliveryAddress: mtoShipment.HasSecondaryDeliveryAddress,
 	}
 
-	model.PickupAddress = AddressModel(mtoShipment.PickupAddress)
-	model.DestinationAddress = AddressModel(mtoShipment.DestinationAddress)
+	model.PickupAddress = AddressModel(&mtoShipment.PickupAddress.Address)
+	model.DestinationAddress = AddressModel(&mtoShipment.DestinationAddress.Address)
 	if mtoShipment.HasSecondaryPickupAddress != nil {
 		if *mtoShipment.HasSecondaryPickupAddress {
-			model.SecondaryPickupAddress = AddressModel(mtoShipment.SecondaryPickupAddress)
+			model.SecondaryPickupAddress = AddressModel(&mtoShipment.SecondaryPickupAddress.Address)
 		}
 	}
 	if mtoShipment.HasSecondaryDeliveryAddress != nil {
 		if *mtoShipment.HasSecondaryDeliveryAddress {
-			model.SecondaryDeliveryAddress = AddressModel(mtoShipment.SecondaryDeliveryAddress)
+			model.SecondaryDeliveryAddress = AddressModel(&mtoShipment.SecondaryDeliveryAddress.Address)
 		}
 	}
 	// model.SecondaryDeliveryAddress = AddressModel(mtoShipment.SecondaryDeliveryAddress)

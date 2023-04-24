@@ -4291,9 +4291,11 @@ definitions:
         example: more weight than expected
         x-nullable: true
       pickupAddress:
-        $ref: '#/definitions/Address'
+        allOf:
+          - $ref: '#/definitions/Address'
       destinationAddress:
-        $ref: '#/definitions/Address'
+        allOf:
+          - $ref: '#/definitions/Address'
       hasSecondaryPickupAddress:
         type: boolean
         x-nullable: true
@@ -4303,9 +4305,11 @@ definitions:
         x-nullable: true
         x-omitempty: false
       secondaryDeliveryAddress:
-        $ref: '#/definitions/Address'
+        allOf:
+          - $ref: '#/definitions/Address'
       secondaryPickupAddress:
-        $ref: '#/definitions/Address'
+        allOf:
+          - $ref: '#/definitions/Address'
       destinationType:
         $ref: '#/definitions/DestinationType'
       agents:

@@ -8925,7 +8925,11 @@ func init() {
           "example": "handle with care"
         },
         "destinationAddress": {
-          "$ref": "#/definitions/Address"
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "destinationType": {
           "$ref": "#/definitions/DestinationType"
@@ -8948,7 +8952,11 @@ func init() {
           "example": 2000
         },
         "pickupAddress": {
-          "$ref": "#/definitions/Address"
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "ppmShipment": {
           "$ref": "#/definitions/UpdatePPMShipment"
@@ -8967,10 +8975,18 @@ func init() {
           "$ref": "#/definitions/LOATypeNullable"
         },
         "secondaryDeliveryAddress": {
-          "$ref": "#/definitions/Address"
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "secondaryPickupAddress": {
-          "$ref": "#/definitions/Address"
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "serviceOrderNumber": {
           "type": "string",
@@ -19507,7 +19523,11 @@ func init() {
           "example": "handle with care"
         },
         "destinationAddress": {
-          "$ref": "#/definitions/Address"
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "destinationType": {
           "$ref": "#/definitions/DestinationType"
@@ -19530,7 +19550,11 @@ func init() {
           "example": 2000
         },
         "pickupAddress": {
-          "$ref": "#/definitions/Address"
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "ppmShipment": {
           "$ref": "#/definitions/UpdatePPMShipment"
@@ -19549,10 +19573,18 @@ func init() {
           "$ref": "#/definitions/LOATypeNullable"
         },
         "secondaryDeliveryAddress": {
-          "$ref": "#/definitions/Address"
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "secondaryPickupAddress": {
-          "$ref": "#/definitions/Address"
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "serviceOrderNumber": {
           "type": "string",
