@@ -93,6 +93,13 @@ export function normalizeResponse(data, schemaKey) {
 }
 
 export async function makeSwaggerRequest(client, operationPath, params = {}, options = { normalize: true }) {
+  // RA Summary: eslint: no-console - System Information Leak: External
+  // RA: The linter flags any use of console.
+  // RA: This console displays an error message.
+  // RA Developer Status: Known Issue
+  // RA Validator Status: Known Issue
+  // eslint-disable-next-line no-console
+  console.log('swaggerRequest: about to make request for operationPath', operationPath);
   const operation = get(client, `apis.${operationPath}`);
   if (!operation) {
     throw new Error(`Operation '${operationPath}' does not exist!`);
@@ -135,6 +142,13 @@ export async function makeSwaggerRequest(client, operationPath, params = {}, opt
       }
 
       // Otherwise, return raw response body
+      // RA Summary: eslint: no-console - System Information Leak: External
+      // RA: The linter flags any use of console.
+      // RA: This console displays an error message.
+      // RA Developer Status: Known Issue
+      // RA Validator Status: Known Issue
+      // eslint-disable-next-line no-console
+      console.log('swaggerRequest: returning raw response body', response, response.body);
       return response.body;
     })
     .catch((response) => {
