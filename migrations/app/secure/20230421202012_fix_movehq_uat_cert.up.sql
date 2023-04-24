@@ -10,7 +10,7 @@
 -- BEGIN
 
 -- 	movehq_user_id := '<UUID>';
--- 	new_movehq_sha256 := '<SHA256>'
+-- 	new_movehq_sha256 := '<SHA256>';
 -- 	movehq_client_cert_id := '<UUID>';
 
 -- 	UPDATE users
