@@ -323,7 +323,9 @@ func BuildNTSRShipment(db *pop.Connection, customs []Customization, traits []Tra
 }
 
 // ------------------------
-//        TRAITS
+//
+//	TRAITS
+//
 // ------------------------
 func GetTraitSubmittedShipment() []Customization {
 	return []Customization{

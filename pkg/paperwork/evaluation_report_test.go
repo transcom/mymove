@@ -4,8 +4,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-openapi/swag"
-
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -26,8 +24,8 @@ func (suite *PaperworkSuite) TestFormatValuesInspectionInformation() {
 			TimeDepart:         &timeDepart,
 			EvalStart:          &evalStart,
 			EvalEnd:            &evalEnd,
-			ViolationsObserved: swag.Bool(false),
-			Remarks:            swag.String("remarks"),
+			ViolationsObserved: models.BoolPointer(false),
+			Remarks:            models.StringPointer("remarks"),
 			UpdatedAt:          time.Time{},
 		}
 
@@ -57,10 +55,10 @@ func (suite *PaperworkSuite) TestFormatValuesInspectionInformation() {
 			InspectionType:      &inspectionType,
 			Location:            &location,
 			LocationDescription: &locationDescription,
-			ViolationsObserved:  swag.Bool(true),
-			Remarks:             swag.String("remarks"),
-			SeriousIncident:     swag.Bool(true),
-			SeriousIncidentDesc: swag.String("serious incident"),
+			ViolationsObserved:  models.BoolPointer(true),
+			Remarks:             models.StringPointer("remarks"),
+			SeriousIncident:     models.BoolPointer(true),
+			SeriousIncidentDesc: models.StringPointer("serious incident"),
 			UpdatedAt:           time.Time{},
 		}
 		values := FormatValuesInspectionInformation(report)
