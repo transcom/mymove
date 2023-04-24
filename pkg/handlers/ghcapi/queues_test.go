@@ -8,6 +8,7 @@ import (
 
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/factory"
@@ -101,22 +102,55 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandler() {
 func (suite *HandlerSuite) TestGetMoveQueuesHandlerMoveInfo() {
 	suite.Run("displays move attributes for all move types returned by ListOrders", func() {
 		gbloc := "LKNQ"
-		stub := testdatagen.Assertions{Stub: true}
 
 		// Stub HHG move
-		hhgMove := testdatagen.MakeHHGMoveWithShipment(suite.DB(), stub)
+		hhgMove := factory.BuildMoveWithShipment(nil, []factory.Customization{
+			{
+				Model: models.Move{
+					ID: uuid.Must(uuid.NewV4()),
+				},
+			},
+		}, nil)
 		hhgMove.ShipmentGBLOC = append(hhgMove.ShipmentGBLOC, models.MoveToGBLOC{GBLOC: &gbloc})
 
 		// Stub HHG_PPM move
-		hhgPPMMove := testdatagen.MakeHHGPPMMoveWithShipment(suite.DB(), stub)
+		hhgPPMMove := factory.BuildMoveWithShipment(nil, []factory.Customization{
+			{
+				Model: models.Move{
+					ID: uuid.Must(uuid.NewV4()),
+				},
+			},
+		}, nil)
 		hhgPPMMove.ShipmentGBLOC = append(hhgPPMMove.ShipmentGBLOC, models.MoveToGBLOC{GBLOC: &gbloc})
 
 		// Stub NTS move
-		ntsMove := testdatagen.MakeNTSMoveWithShipment(suite.DB(), stub)
+		ntsMove := factory.BuildMoveWithShipment(nil, []factory.Customization{
+			{
+				Model: models.Move{
+					ID: uuid.Must(uuid.NewV4()),
+				},
+			},
+			{
+				Model: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypeHHGIntoNTSDom,
+				},
+			},
+		}, nil)
 		ntsMove.ShipmentGBLOC = append(ntsMove.ShipmentGBLOC, models.MoveToGBLOC{GBLOC: &gbloc})
 
 		// Stub NTSR move
-		ntsrMove := testdatagen.MakeNTSRMoveWithShipment(suite.DB(), stub)
+		ntsrMove := factory.BuildMoveWithShipment(nil, []factory.Customization{
+			{
+				Model: models.Move{
+					ID: uuid.Must(uuid.NewV4()),
+				},
+			},
+			{
+				Model: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypeHHGOutOfNTSDom,
+				},
+			},
+		}, nil)
 		ntsrMove.ShipmentGBLOC = append(ntsrMove.ShipmentGBLOC, models.MoveToGBLOC{GBLOC: &gbloc})
 
 		var expectedMoves []models.Move
@@ -928,8 +962,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandler() {
 	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTIO})
 
 	// Default Origin Duty Location GBLOC is KKFA
-	hhgMove := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
-
+	hhgMove := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
 	// Fake this as a day and a half in the past so floating point age values can be tested
 	prevCreatedAt := time.Now().Add(time.Duration(time.Hour * -36))
 
@@ -990,8 +1023,8 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueSubmittedAtFilter() {
 
 	outOfRangeDate, _ := time.Parse("2006-01-02", "2020-10-10")
 
-	hhgMove1 := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
-	hhgMove2 := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
+	hhgMove1 := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
+	hhgMove2 := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
 
 	testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 		PaymentRequest: models.PaymentRequest{

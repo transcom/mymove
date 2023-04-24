@@ -149,6 +149,20 @@ func BuildAvailableToPrimeMove(db *pop.Connection, customs []Customization, trai
 	return BuildMove(db, customs, traits)
 }
 
+// BuildMoveWithShipment builds a submitted move with a submitted HHG shipment
+func BuildMoveWithShipment(db *pop.Connection, customs []Customization, traits []Trait) models.Move {
+	moveTraits := append(traits, GetTraitSubmittedMove)
+	move := BuildMove(db, customs, moveTraits)
+
+	// BuildMTOShipmentWithMove doesn't allow Move customizations or traits
+	shipmentTraits := append(traits, GetTraitSubmittedShipment)
+	shipmentCustoms := setupCustomizations(customs, shipmentTraits)
+	shipmentCustoms = removeCustomization(shipmentCustoms, Move)
+	BuildMTOShipmentWithMove(&move, db, shipmentCustoms, shipmentTraits)
+
+	return move
+}
+
 // ------------------------
 //        TRAITS
 // ------------------------

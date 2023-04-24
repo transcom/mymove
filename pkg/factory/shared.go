@@ -448,6 +448,22 @@ func replaceCustomization(customs []Customization, newCustom Customization) []Cu
 	return customs
 }
 
+// Caller should have already setup Customizations using setupCustomizations
+func removeCustomization(customs []Customization, customType CustomType) []Customization {
+	// See if an existing customization exists with the type
+	ndx, _ := findCustomWithIdx(customs, customType)
+	if ndx >= 0 {
+		// Found a customization for the provided model and we need to remove it
+		// Order shouldn't matter because the setupCustomizations should have already merged customizations and traits
+		// and ensured that there's only one customization per type
+		// Replace the customization we want to remove with the last customization in the slice
+		customs[ndx] = customs[len(customs)-1]
+		customs = customs[:len(customs)-1]
+	}
+
+	return customs
+}
+
 // checkNestedModels ensures we have no nested models.
 // - If a field is a struct that is a model, it should be empty
 // - If a field is a pointer to struct, and that struct is a model it should be nil
