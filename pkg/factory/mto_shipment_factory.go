@@ -255,3 +255,17 @@ func BuildMTOShipmentWithMove(move *models.Move, db *pop.Connection, customs []C
 	return shipment
 
 }
+
+// ------------------------
+//        TRAITS
+// ------------------------
+
+func GetTraitSubmittedShipment() []Customization {
+	return []Customization{
+		{
+			Model: models.MTOShipment{
+				Status: models.MTOShipmentStatusSubmitted,
+			},
+		},
+	}
+}
