@@ -123,7 +123,7 @@ export async function makeSwaggerRequest(client, operationPath, params = {}, opt
       // RA Developer Status: Known Issue
       // RA Validator Status: Known Issue
       // eslint-disable-next-line no-console
-      console.log('swaggerRequest: raw response body', response, response.body);
+      console.log('SwaggerRequest: raw response body', response, response.body);
 
       const normalizeData = options.normalize !== undefined ? options.normalize : true;
       // Normalize the data (defaults to true)
