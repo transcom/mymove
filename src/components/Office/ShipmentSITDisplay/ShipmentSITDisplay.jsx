@@ -53,11 +53,11 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton }
   const currentDaysInSit = <p>{sitStatus.totalSITDaysUsed}</p>;
   const currentDateEnteredSit = <p>{formatDate(sitStatus.sitEntryDate, utcDateFormat, 'DD MMM YYYY')}</p>;
 
-  const sitEndDate = moment().utc().add(sitStatus.totalDaysRemaining, 'days').format('DD MMM YYYY');
+  const sitEndDate = moment().add(sitStatus.totalDaysRemaining, 'days').format('DD MMM YYYY');
 
   // Previous SIT calculations and date ranges
   const previousDaysUsed = sitStatus.pastSITServiceItems?.map((pastSITItem) => {
-    const sitDaysUsed = moment(pastSITItem.sitDepartureDate).utc().diff(pastSITItem.sitEntryDate, 'days');
+    const sitDaysUsed = moment(pastSITItem.sitDepartureDate).diff(pastSITItem.sitEntryDate, 'days');
     const location = pastSITItem.reServiceCode === SERVICE_ITEM_CODES.DOPSIT ? 'origin' : 'destination';
 
     const start = formatDate(pastSITItem.sitEntryDate, utcDateFormat, 'DD MMM YYYY');

@@ -42,7 +42,7 @@ const SitEndDateForm = ({ onChange }) => (
 
 const SitStatusTables = ({ sitStatus }) => {
   const { sitEntryDate, totalSITDaysUsed, daysInSIT } = sitStatus;
-  const pastSITDaysUsed = totalSITDaysUsed - daysInSIT;
+  const daysInPreviousSIT = totalSITDaysUsed - daysInSIT;
 
   const sitAllowanceHelper = useField({ name: 'daysApproved', id: 'daysApproved' })[2];
   const endDateHelper = useField({ name: 'sitEndDate', id: 'sitEndDate' })[2];
@@ -56,20 +56,20 @@ const SitStatusTables = ({ sitStatus }) => {
     endDateHelper.setValue(endDate);
     // Total days of SIT
     const calculatedSitDaysAllowance = Math.ceil(
-      moment.duration(moment(endDate).diff(moment(sitEntryDate))).asDays() + pastSITDaysUsed,
+      moment.duration(moment(endDate).diff(moment(sitEntryDate))).asDays() + daysInPreviousSIT,
     );
     // Update form value
     sitAllowanceHelper.setValue(String(calculatedSitDaysAllowance));
   };
 
   const handleDaysAllowanceChange = (daysApproved) => {
-    // Sit days allowamce
+    // Sit days allowance
     sitAllowanceHelper.setValue(daysApproved);
     // // // Sit End date
     const calculatedSitEndDate = moment(sitEntryDate)
-      .utc()
-      .add(daysApproved - pastSITDaysUsed, 'days')
+      .add(daysApproved - daysInPreviousSIT, 'days')
       .format('DD MMM YYYY');
+    endDateHelper.setTouched(true);
     endDateHelper.setValue(calculatedSitEndDate);
   };
 
@@ -119,18 +119,18 @@ const SubmitSITExtensionModal = ({ shipment, sitStatus, onClose, onSubmit }) => 
     requestReason: '',
     officeRemarks: '',
     daysApproved: String(shipment.sitDaysAllowance),
-    sitEndDate: moment().utc().add(sitStatus.totalDaysRemaining, 'days').format('DD MMM YYYY'),
+    sitEndDate: moment().add(sitStatus.totalDaysRemaining, 'days').format('DD MMM YYYY'),
   };
   const minimumDaysAllowed = sitStatus.totalSITDaysUsed - sitStatus.daysInSIT + 1;
   const reviewSITExtensionSchema = Yup.object().shape({
     requestReason: Yup.string().required('Required'),
     officeRemarks: Yup.string().nullable(),
     daysApproved: Yup.number()
-      .min(minimumDaysAllowed, 'Total days of SIT approved must be 1 or more.')
+      .min(minimumDaysAllowed, `Total days of SIT approved must be ${minimumDaysAllowed} or more.`)
       .required('Required'),
     sitEndDate: Yup.date().min(
-      moment(sitStatus.sitEntryDate).utc().format('DD MMM YYYY'),
-      'The end date must occur after the start date. Select a new date.',
+      moment(sitStatus.sitEntryDate).add(1, 'days').format('DD MMM YYYY'),
+      'The end date must occur after the start date. Please select a new date.',
     ),
   });
 
