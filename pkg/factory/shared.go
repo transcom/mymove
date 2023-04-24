@@ -56,6 +56,7 @@ var PostalCodeToGBLOC CustomType = "PostalCodeToGBLOC"
 var ReService CustomType = "ReService"
 var Role CustomType = "Role"
 var ServiceItemParamKey CustomType = "ServiceItemParamKey"
+var ServiceParam CustomType = "ServiceParam"
 var ServiceMember CustomType = "ServiceMember"
 var SignedCertification CustomType = "SignedCertification"
 var StorageFacility CustomType = "StorageFacility"
@@ -91,6 +92,7 @@ var defaultTypesMap = map[string]CustomType{
 	"models.ReService":               ReService,
 	"models.ServiceItemParamKey":     ServiceItemParamKey,
 	"models.ServiceMember":           ServiceMember,
+	"models.ServiceParam":            ServiceParam,
 	"models.SignedCertification":     SignedCertification,
 	"models.StorageFacility":         StorageFacility,
 	"models.Tariff400ngZip3":         Tariff400ngZip3,
