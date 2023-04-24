@@ -398,12 +398,9 @@ const ShipmentForm = (props) => {
     else {
       submitHandler(updateMTOShipmentPayload, {
         onSuccess: () => {
-          console.log(updateMTOShipmentPayload);
-
           history.push(moveDetailsPath);
         },
         onError: () => {
-          console.log(updateMTOShipmentPayload);
           setErrorMessage(`Something went wrong, and your changes were not saved. Please try again.`);
         },
       });
@@ -420,7 +417,6 @@ const ShipmentForm = (props) => {
     >
       {({ values, isValid, isSubmitting, setValues, handleSubmit, errors }) => {
         const { hasDeliveryAddress, hasSecondaryPickup, hasSecondaryDelivery } = values;
-        // console.log(values);
         const handleUseCurrentResidenceChange = (e) => {
           const { checked } = e.target;
           if (checked) {

@@ -4164,6 +4164,12 @@ definitions:
       destinationAddress:
         allOf:
           - $ref: 'definitions/Address.yaml'
+      secondaryDeliveryAddress:
+        allOf:
+          - $ref: 'definitions/Address.yaml'
+      secondaryPickupAddress:
+        allOf:
+          - $ref: 'definitions/Address.yaml'
       hasSecondaryPickupAddress:
         type: boolean
         x-nullable: true
@@ -4172,12 +4178,6 @@ definitions:
         type: boolean
         x-nullable: true
         x-omitempty: false
-      secondaryDeliveryAddress:
-        allOf:
-          - $ref: 'definitions/Address.yaml'
-      secondaryPickupAddress:
-        allOf:
-          - $ref: 'definitions/Address.yaml'
       destinationType:
         $ref: 'definitions/DestinationType.yaml'
       agents:

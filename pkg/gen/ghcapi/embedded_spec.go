@@ -6031,9 +6031,11 @@ func init() {
           "x-nullable": true
         },
         "destinationAddress": {
+          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "destinationType": {
+          "x-nullable": true,
           "$ref": "#/definitions/DestinationType"
         },
         "diversion": {
@@ -6077,6 +6079,7 @@ func init() {
           "example": 2000
         },
         "pickupAddress": {
+          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "ppmShipment": {
@@ -6141,6 +6144,7 @@ func init() {
           "$ref": "#/definitions/Address"
         },
         "secondaryPickupAddress": {
+          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "serviceOrderNumber": {
@@ -16620,9 +16624,11 @@ func init() {
           "x-nullable": true
         },
         "destinationAddress": {
+          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "destinationType": {
+          "x-nullable": true,
           "$ref": "#/definitions/DestinationType"
         },
         "diversion": {
@@ -16666,6 +16672,7 @@ func init() {
           "example": 2000
         },
         "pickupAddress": {
+          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "ppmShipment": {
@@ -16730,6 +16737,7 @@ func init() {
           "$ref": "#/definitions/Address"
         },
         "secondaryPickupAddress": {
+          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "serviceOrderNumber": {

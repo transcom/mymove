@@ -73,12 +73,16 @@ properties:
     type: boolean
     example: true
   pickupAddress:
+    x-nullable: true
     $ref: 'Address.yaml'
   destinationAddress:
+    x-nullable: true
     $ref: 'Address.yaml'
   destinationType:
+    x-nullable: true
     $ref: 'DestinationType.yaml'
   secondaryPickupAddress:
+    x-nullable: true
     $ref: 'Address.yaml'
   secondaryDeliveryAddress:
     $ref: 'Address.yaml'
