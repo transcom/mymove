@@ -7,7 +7,7 @@ test('A service counselor can approve/reject moving expenses', async ({ page, sc
 
   // Navigate to the "Review documents" page
   await page.getByRole('button', { name: 'Review documents' }).click();
-  await scPage.waitForPage.reviewDocuments();
+  await scPage.waitForPage.reviewWeightTicket();
 
   // Weight ticket is first in the order of docs. Click "Accept" on the weight ticket, then proceed
   await page.getByText('Accept').click();
@@ -33,7 +33,7 @@ test('A service counselor can approve/reject moving expenses', async ({ page, sc
 
   // Return to the expenses ticket and verify that it's approved
   // await page.getByRole('button', { name: 'Review documents' }).click();
-  // await scPage.waitForPage.reviewDocuments();
+  // await scPage.waitForPage.reviewWeightTicket();
 
   // // Weight ticket is first. Need to skip over to expense ticket
   // await page.getByRole('button', { name: 'Continue' }).click();
@@ -58,7 +58,7 @@ test('A service counselor can approve/reject moving expenses', async ({ page, sc
 
   // // Return to the expense and verify that it's been rejected
   // await page.getByRole('button', { name: 'Review documents' }).click();
-  // await scPage.waitForPage.reviewDocuments();
+  // await scPage.waitForPage.reviewWeightTicket();
   // await page.getByRole('button', { name: 'Continue' }).click();
 
   // await expect(page.getByRole('heading', { name: 'Review receipt 1' })).toBeVisible();
@@ -81,7 +81,7 @@ test('A service counselor can approve/reject moving expenses', async ({ page, sc
 
   // // Return to the expense and verify that it's been excluded
   // await page.getByRole('button', { name: 'Review documents' }).click();
-  // await scPage.waitForPage.reviewDocuments();
+  // await scPage.waitForPage.reviewWeightTicket();
   // await page.getByRole('button', { name: 'Continue' }).click();
 
   // await expect(page.getByRole('heading', { name: 'Review receipt 1' })).toBeVisible();
