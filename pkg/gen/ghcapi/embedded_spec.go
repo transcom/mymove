@@ -6035,7 +6035,6 @@ func init() {
           "$ref": "#/definitions/Address"
         },
         "destinationType": {
-          "x-nullable": true,
           "$ref": "#/definitions/DestinationType"
         },
         "diversion": {
@@ -6141,6 +6140,7 @@ func init() {
           "x-nullable": true
         },
         "secondaryDeliveryAddress": {
+          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "secondaryPickupAddress": {
@@ -16628,7 +16628,6 @@ func init() {
           "$ref": "#/definitions/Address"
         },
         "destinationType": {
-          "x-nullable": true,
           "$ref": "#/definitions/DestinationType"
         },
         "diversion": {
@@ -16734,6 +16733,7 @@ func init() {
           "x-nullable": true
         },
         "secondaryDeliveryAddress": {
+          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "secondaryPickupAddress": {

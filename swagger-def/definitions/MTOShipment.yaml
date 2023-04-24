@@ -79,12 +79,12 @@ properties:
     x-nullable: true
     $ref: 'Address.yaml'
   destinationType:
-    x-nullable: true
     $ref: 'DestinationType.yaml'
   secondaryPickupAddress:
     x-nullable: true
     $ref: 'Address.yaml'
   secondaryDeliveryAddress:
+    x-nullable: true
     $ref: 'Address.yaml'
   hasSecondaryPickupAddress:
     type: boolean

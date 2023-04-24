@@ -6856,12 +6856,12 @@ definitions:
         x-nullable: true
         $ref: '#/definitions/Address'
       destinationType:
-        x-nullable: true
         $ref: '#/definitions/DestinationType'
       secondaryPickupAddress:
         x-nullable: true
         $ref: '#/definitions/Address'
       secondaryDeliveryAddress:
+        x-nullable: true
         $ref: '#/definitions/Address'
       hasSecondaryPickupAddress:
         type: boolean
