@@ -3,10 +3,10 @@
 -- It should mirror what you intend to apply on loadtest/demo/exp/stg/prd
 -- DO NOT include any sensitive data.
 
--- WARN: Everything below this line exists in a migration for the STG
+-- WARN: Everything below this line exists in a migration for the PRD
 -- environment. This migration is commented out so that we don't deploy this
 -- across all the environments. Values here have been redacted. Please pull
--- down the S3 migration file of the same name in the STG migration folder.
+-- down the S3 migration file of the same name in the PRD migration folder.
 
 -- DO $$
 -- NOTE: Variables for UserID, ClientCert SHA256, client_certs.id for
