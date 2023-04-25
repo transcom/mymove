@@ -19,6 +19,7 @@ describe('EditMaxBillableWeightModal', () => {
   it('renders the component', async () => {
     render(
       <EditMaxBillableWeightModal
+        isOpen
         onSubmit={onSubmit}
         onClose={onClose}
         defaultWeight={7500}
@@ -39,6 +40,7 @@ describe('EditMaxBillableWeightModal', () => {
   it('closes the modal when close icon is clicked', async () => {
     render(
       <EditMaxBillableWeightModal
+        isOpen
         onSubmit={onSubmit}
         onClose={onClose}
         defaultWeight={7500}
@@ -56,6 +58,7 @@ describe('EditMaxBillableWeightModal', () => {
   it('closes the modal when the cancel button is clicked', async () => {
     render(
       <EditMaxBillableWeightModal
+        isOpen
         onSubmit={onSubmit}
         onClose={onClose}
         defaultWeight={7500}
@@ -73,6 +76,7 @@ describe('EditMaxBillableWeightModal', () => {
   it('calls the submit function when submit button is clicked', async () => {
     render(
       <EditMaxBillableWeightModal
+        isOpen
         onSubmit={onSubmit}
         onClose={onClose}
         defaultWeight={7500}
@@ -90,6 +94,7 @@ describe('EditMaxBillableWeightModal', () => {
   it('displays required validation error when max billable weight is empty', async () => {
     render(
       <EditMaxBillableWeightModal
+        isOpen
         onSubmit={onSubmit}
         onClose={onClose}
         defaultWeight={7500}
@@ -106,6 +111,7 @@ describe('EditMaxBillableWeightModal', () => {
   it('displays minimum validation error when max billable weight value is less than 1', async () => {
     render(
       <EditMaxBillableWeightModal
+        isOpen
         onSubmit={onSubmit}
         onClose={onClose}
         defaultWeight={7500}
