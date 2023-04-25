@@ -7,7 +7,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 	"go.uber.org/zap"
@@ -1093,9 +1092,12 @@ func createApprovedMoveWithAllShipmentTypesAndExcessWeights(appCtx appcontext.Ap
 			LinkOnly: true,
 		},
 	}, nil)
-	testdatagen.MakeNTSRShipment(appCtx.DB(), testdatagen.Assertions{
-		Move: move,
-	})
+	factory.BuildNTSRShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 }
 
 func createApprovedMoveWithPPMCloseoutComplete(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -3414,16 +3416,20 @@ func createMoveWithNTSAndNTSR(appCtx appcontext.AppContext, userUploader *upload
 
 	estimatedNTSWeight := unit.Pound(1400)
 	actualNTSWeight := unit.Pound(2000)
-	ntsShipment := testdatagen.MakeNTSShipment(db, testdatagen.Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			PrimeEstimatedWeight: &estimatedNTSWeight,
-			PrimeActualWeight:    &actualNTSWeight,
-			ShipmentType:         models.MTOShipmentTypeHHGIntoNTSDom,
-			Status:               models.MTOShipmentStatusSubmitted,
-			UsesExternalVendor:   opts.usesExternalVendor,
+	ntsShipment := factory.BuildNTSShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				PrimeEstimatedWeight: &estimatedNTSWeight,
+				PrimeActualWeight:    &actualNTSWeight,
+				Status:               models.MTOShipmentStatusSubmitted,
+				UsesExternalVendor:   opts.usesExternalVendor,
+			},
+		},
+	}, nil)
 	testdatagen.MakeMTOAgent(db, testdatagen.Assertions{
 		MTOShipment: ntsShipment,
 		MTOAgent: models.MTOAgent{
@@ -3431,16 +3437,20 @@ func createMoveWithNTSAndNTSR(appCtx appcontext.AppContext, userUploader *upload
 		},
 	})
 
-	ntsrShipment := testdatagen.MakeNTSRShipment(db, testdatagen.Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			PrimeEstimatedWeight: &estimatedNTSWeight,
-			PrimeActualWeight:    &actualNTSWeight,
-			ShipmentType:         models.MTOShipmentTypeHHGOutOfNTSDom,
-			Status:               models.MTOShipmentStatusSubmitted,
-			UsesExternalVendor:   opts.usesExternalVendor,
+	ntsrShipment := factory.BuildNTSRShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				PrimeEstimatedWeight: &estimatedNTSWeight,
+				PrimeActualWeight:    &actualNTSWeight,
+				Status:               models.MTOShipmentStatusSubmitted,
+				UsesExternalVendor:   opts.usesExternalVendor,
+			},
+		},
+	}, nil)
 	testdatagen.MakeMTOAgent(db, testdatagen.Assertions{
 		MTOShipment: ntsrShipment,
 		MTOAgent: models.MTOAgent{
@@ -4721,7 +4731,7 @@ func createHHGMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader 
 		Status:             models.MoveStatusAPPROVED,
 		OrdersID:           orders.ID,
 		Orders:             orders,
-		AvailableToPrimeAt: swag.Time(time.Now()),
+		AvailableToPrimeAt: models.TimePointer(time.Now()),
 	}
 	testdatagen.MergeModels(&move, assertions.Move)
 	// assertions passed in means we cannot yet convert to BuildMove
@@ -4764,9 +4774,9 @@ func createHHGMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader 
 	agent := models.MTOAgent{
 		MTOShipment:   MTOShipment,
 		MTOShipmentID: MTOShipment.ID,
-		FirstName:     swag.String("Test"),
-		LastName:      swag.String("Agent"),
-		Email:         swag.String("test@test.email.com"),
+		FirstName:     models.StringPointer("Test"),
+		LastName:      models.StringPointer("Agent"),
+		Email:         models.StringPointer("test@test.email.com"),
 		MTOAgentType:  models.MTOAgentReleasing,
 	}
 	testdatagen.MergeModels(&agent, assertions.MTOAgent)
@@ -5174,7 +5184,7 @@ func createHHGMoveWith10ServiceItems(appCtx appcontext.AppContext, userUploader 
 		},
 	}, nil)
 
-	firstDeliveryDate := swag.Time(time.Now())
+	firstDeliveryDate := models.TimePointer(time.Now())
 	testdatagen.MakeMTOServiceItemCustomerContact(db, testdatagen.Assertions{
 		MTOServiceItem: serviceItemDDFSIT,
 		MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
@@ -5341,9 +5351,9 @@ func createHHGMoveWith2PaymentRequests(appCtx appcontext.AppContext, userUploade
 			ID:            uuid.FromStringOrNil("82036387-a113-4b45-a172-94e49e4600d2"),
 			MTOShipment:   mtoShipmentHHG7,
 			MTOShipmentID: mtoShipmentHHG7.ID,
-			FirstName:     swag.String("Test"),
-			LastName:      swag.String("Agent"),
-			Email:         swag.String("test@test.email.com"),
+			FirstName:     models.StringPointer("Test"),
+			LastName:      models.StringPointer("Agent"),
+			Email:         models.StringPointer("test@test.email.com"),
 			MTOAgentType:  models.MTOAgentReleasing,
 		},
 	})
@@ -5673,9 +5683,9 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 			ID:            uuid.FromStringOrNil("e338e05c-6f5d-11ec-90d6-0242ac120003"),
 			MTOShipment:   ntsrShipment,
 			MTOShipmentID: ntsrShipment.ID,
-			FirstName:     swag.String("Receiving"),
-			LastName:      swag.String("Agent"),
-			Email:         swag.String("test@test.email.com"),
+			FirstName:     models.StringPointer("Receiving"),
+			LastName:      models.StringPointer("Agent"),
+			Email:         models.StringPointer("test@test.email.com"),
 			MTOAgentType:  models.MTOAgentReceiving,
 		},
 	})
@@ -5702,7 +5712,7 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 			Model: models.MTOServiceItem{
 				ID:         uuid.Must(uuid.NewV4()),
 				Status:     models.MTOServiceItemStatusApproved,
-				ApprovedAt: swag.Time(time.Now()),
+				ApprovedAt: models.TimePointer(time.Now()),
 			},
 		},
 		{
@@ -5730,7 +5740,7 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 			Model: models.MTOServiceItem{
 				ID:         uuid.Must(uuid.NewV4()),
 				Status:     models.MTOServiceItemStatusApproved,
-				ApprovedAt: swag.Time(time.Now()),
+				ApprovedAt: models.TimePointer(time.Now()),
 			},
 		},
 		{
@@ -6692,7 +6702,7 @@ func createMoveWith2ShipmentsAndPaymentRequest(appCtx appcontext.AppContext, use
 			Model: models.MTOServiceItem{
 				ID:         uuid.Must(uuid.NewV4()),
 				Status:     models.MTOServiceItemStatusApproved,
-				ApprovedAt: swag.Time(time.Now()),
+				ApprovedAt: models.TimePointer(time.Now()),
 			},
 		},
 		{
@@ -6720,7 +6730,7 @@ func createMoveWith2ShipmentsAndPaymentRequest(appCtx appcontext.AppContext, use
 			Model: models.MTOServiceItem{
 				ID:         uuid.Must(uuid.NewV4()),
 				Status:     models.MTOServiceItemStatusApproved,
-				ApprovedAt: swag.Time(time.Now()),
+				ApprovedAt: models.TimePointer(time.Now()),
 			},
 		},
 		{
@@ -7221,9 +7231,9 @@ func createHHGMoveWith2PaymentRequestsReviewedAllRejectedServiceItems(appCtx app
 			ID:            uuid.FromStringOrNil("82036387-a113-4b45-a172-ffffffffffff"),
 			MTOShipment:   mtoShipmentHHG7,
 			MTOShipmentID: mtoShipmentHHG7.ID,
-			FirstName:     swag.String("Test"),
-			LastName:      swag.String("Agent"),
-			Email:         swag.String("test@test.email.com"),
+			FirstName:     models.StringPointer("Test"),
+			LastName:      models.StringPointer("Agent"),
+			Email:         models.StringPointer("test@test.email.com"),
 			MTOAgentType:  models.MTOAgentReleasing,
 		},
 	})
@@ -8754,7 +8764,7 @@ func createMoveWithServiceItems(appCtx appcontext.AppContext, userUploader *uplo
 			MoveTaskOrder: move9,
 			IsFinal:       false,
 			Status:        models.PaymentRequestStatusReviewed,
-			ReviewedAt:    swag.Time(time.Now()),
+			ReviewedAt:    models.TimePointer(time.Now()),
 		},
 		Move: move9,
 	})
@@ -8859,7 +8869,7 @@ func createMoveWithBasicServiceItems(appCtx appcontext.AppContext, userUploader 
 		PaymentRequest: models.PaymentRequest{
 			ID:            uuid.FromStringOrNil("cfd110d4-1f62-401c-a92c-39987a0b4229"),
 			Status:        models.PaymentRequestStatusReviewed,
-			ReviewedAt:    swag.Time(time.Now()),
+			ReviewedAt:    models.TimePointer(time.Now()),
 			MoveTaskOrder: move10,
 		},
 		Move: move10,
@@ -9134,8 +9144,8 @@ func createUserWithLocatorAndDODID(appCtx appcontext.AppContext, locator string,
 		},
 		{
 			Model: models.ServiceMember{
-				Edipi:     swag.String(dodID),
-				FirstName: swag.String("QAECSRTestFirst"),
+				Edipi:     models.StringPointer(dodID),
+				FirstName: models.StringPointer("QAECSRTestFirst"),
 			},
 		},
 	}, nil)
@@ -9309,8 +9319,8 @@ func createHHGNeedsServicesCounselingUSMC(appCtx appcontext.AppContext, userUplo
 		{
 			Model: models.ServiceMember{
 				Affiliation: &marineCorps,
-				LastName:    swag.String("Marine"),
-				FirstName:   swag.String("Ted"),
+				LastName:    models.StringPointer("Marine"),
+				FirstName:   models.StringPointer("Ted"),
 			},
 		},
 		{
@@ -9379,8 +9389,8 @@ func createHHGNeedsServicesCounselingUSMC2(appCtx appcontext.AppContext, userUpl
 		{
 			Model: models.ServiceMember{
 				Affiliation: &marineCorps,
-				LastName:    swag.String("Marine"),
-				FirstName:   swag.String("Barbara"),
+				LastName:    models.StringPointer("Marine"),
+				FirstName:   models.StringPointer("Barbara"),
 			},
 		},
 		{
@@ -9742,7 +9752,7 @@ func createMoveWithSITExtensionHistory(appCtx appcontext.AppContext, userUploade
 		PaymentRequest: models.PaymentRequest{
 			ID:            uuid.Must(uuid.NewV4()),
 			Status:        models.PaymentRequestStatusReviewed,
-			ReviewedAt:    swag.Time(time.Now()),
+			ReviewedAt:    models.TimePointer(time.Now()),
 			MoveTaskOrder: move,
 		},
 		Move: move,
@@ -10279,14 +10289,19 @@ func CreateMoveWithHHGAndNTSShipments(appCtx appcontext.AppContext, locator stri
 		},
 	}, nil)
 
-	testdatagen.MakeNTSShipment(db, testdatagen.Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			ShipmentType:       models.MTOShipmentTypeHHGIntoNTSDom,
-			Status:             models.MTOShipmentStatusSubmitted,
-			UsesExternalVendor: usesExternalVendor,
+	factory.BuildNTSShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+
+				Status:             models.MTOShipmentStatusSubmitted,
+				UsesExternalVendor: usesExternalVendor,
+			},
+		},
+	}, nil)
 
 	return move
 }
@@ -10344,13 +10359,18 @@ func CreateMoveWithHHGAndNTSRShipments(appCtx appcontext.AppContext, locator str
 		},
 	}, nil)
 
-	testdatagen.MakeNTSRShipment(db, testdatagen.Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			Status:             models.MTOShipmentStatusSubmitted,
-			UsesExternalVendor: usesExternalVendor,
+	factory.BuildNTSRShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				Status:             models.MTOShipmentStatusSubmitted,
+				UsesExternalVendor: usesExternalVendor,
+			},
+		},
+	}, nil)
 
 	return move
 }
@@ -10384,13 +10404,18 @@ func CreateMoveWithNTSShipment(appCtx appcontext.AppContext, locator string, use
 			},
 		},
 	}, nil)
-	testdatagen.MakeNTSShipment(db, testdatagen.Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			Status:             models.MTOShipmentStatusSubmitted,
-			UsesExternalVendor: usesExternalVendor,
+	factory.BuildNTSShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				Status:             models.MTOShipmentStatusSubmitted,
+				UsesExternalVendor: usesExternalVendor,
+			},
+		},
+	}, nil)
 
 	return move
 }
@@ -10424,13 +10449,18 @@ func createMoveWithNTSRShipment(appCtx appcontext.AppContext, locator string, us
 			},
 		},
 	}, nil)
-	testdatagen.MakeNTSRShipment(db, testdatagen.Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			Status:             models.MTOShipmentStatusSubmitted,
-			UsesExternalVendor: usesExternalVendor,
+	factory.BuildNTSRShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				Status:             models.MTOShipmentStatusSubmitted,
+				UsesExternalVendor: usesExternalVendor,
+			},
+		},
+	}, nil)
 }
 
 // createRandomMove creates a random move with fake data that has been approved for usage
