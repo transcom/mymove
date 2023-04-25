@@ -17,61 +17,59 @@ const maxBillableWeightSchema = Yup.object().shape({
 
 const EditMaxBillableWeightModal = ({ onClose, onSubmit, defaultWeight, maxBillableWeight }) => {
   return (
-    <div className={styles.EditMaxBillableWeightModal}>
-      <Modal>
-        <ModalClose className={styles.weightModalClose} handleClick={() => onClose()} />
-        <ModalTitle>
-          <h4>Edit max billable weight</h4>
-        </ModalTitle>
-        <dl>
-          <dt>Default:</dt>
-          <dd>{formatWeight(defaultWeight)}</dd>
-        </dl>
-        <Formik
-          initialValues={{ maxBillableWeight: `${maxBillableWeight}` }}
-          validationSchema={maxBillableWeightSchema}
-          onSubmit={(values) => {
-            onSubmit(Number.parseInt(values.maxBillableWeight, 10));
-          }}
-        >
-          {({ isValid }) => {
-            return (
-              <Form>
-                <MaskedTextField
-                  name="maxBillableWeight"
-                  id="maxBillableWeight"
-                  label="New max billable weight"
-                  mask="num lbs"
-                  blocks={{
-                    num: {
-                      mask: Number,
-                      signed: false,
-                      scale: 0,
-                      thousandsSeparator: ',',
-                    },
-                  }}
-                  lazy={false}
-                />
-                <ModalActions>
-                  <Button type="submit" disabled={!isValid}>
-                    Save
-                  </Button>
-                  <Button
-                    type="button"
-                    onClick={() => onClose()}
-                    className={styles.backButton}
-                    data-testid="modalBackButton"
-                    outline
-                  >
-                    Back
-                  </Button>
-                </ModalActions>
-              </Form>
-            );
-          }}
-        </Formik>
-      </Modal>
-    </div>
+    <Modal className={styles.EditMaxBillableWeightModal}>
+      <ModalClose className={styles.weightModalClose} handleClick={() => onClose()} />
+      <ModalTitle>
+        <h4>Edit max billable weight</h4>
+      </ModalTitle>
+      <dl>
+        <dt>Default:</dt>
+        <dd>{formatWeight(defaultWeight)}</dd>
+      </dl>
+      <Formik
+        initialValues={{ maxBillableWeight: `${maxBillableWeight}` }}
+        validationSchema={maxBillableWeightSchema}
+        onSubmit={(values) => {
+          onSubmit(Number.parseInt(values.maxBillableWeight, 10));
+        }}
+      >
+        {({ isValid }) => {
+          return (
+            <Form>
+              <MaskedTextField
+                name="maxBillableWeight"
+                id="maxBillableWeight"
+                label="New max billable weight"
+                mask="num lbs"
+                blocks={{
+                  num: {
+                    mask: Number,
+                    signed: false,
+                    scale: 0,
+                    thousandsSeparator: ',',
+                  },
+                }}
+                lazy={false}
+              />
+              <ModalActions>
+                <Button type="submit" disabled={!isValid}>
+                  Save
+                </Button>
+                <Button
+                  type="button"
+                  onClick={() => onClose()}
+                  className={styles.backButton}
+                  data-testid="modalBackButton"
+                  outline
+                >
+                  Back
+                </Button>
+              </ModalActions>
+            </Form>
+          );
+        }}
+      </Formik>
+    </Modal>
   );
 };
 
