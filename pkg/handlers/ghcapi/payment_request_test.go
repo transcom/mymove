@@ -331,7 +331,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		}
 
 		for _, nonApprovedPRStatus := range nonApprovedPRStatuses {
-			pendingPaymentRequest := testdatagen.MakeStubbedPaymentRequest(suite.DB())
+			pendingPaymentRequest := factory.BuildPaymentRequest(nil, nil, nil)
 
 			paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
 			paymentRequestFetcher.On("FetchPaymentRequest", mock.AnythingOfType("*appcontext.appContext"),
