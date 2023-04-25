@@ -9,7 +9,6 @@ import (
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func newUUIDPtr() *uuid.UUID {
@@ -20,7 +19,7 @@ func newUUIDPtr() *uuid.UUID {
 func (suite *ModelSuite) TestReport() {
 	suite.Run("Create and query a report successfully", func() {
 		reports := models.EvaluationReports{}
-		testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{})
+		factory.BuildEvaluationReport(suite.DB(), nil, nil)
 		err := suite.DB().All(&reports)
 		suite.NoError(err)
 	})

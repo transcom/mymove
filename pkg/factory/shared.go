@@ -42,6 +42,7 @@ var CustomerSupportRemark CustomType = "CustomerSupportRemark"
 var Document CustomType = "Document"
 var DutyLocation CustomType = "DutyLocation"
 var Entitlement CustomType = "Entitlement"
+var EvaluationReport CustomType = "EvaluationReport"
 var Move CustomType = "Move"
 var MTOServiceItem CustomType = "MTOServiceItem"
 var MTOServiceItemDimension CustomType = "MTOServiceItemDimension"
@@ -78,6 +79,7 @@ var defaultTypesMap = map[string]CustomType{
 	"models.Document":                Document,
 	"models.DutyLocation":            DutyLocation,
 	"models.Entitlement":             Entitlement,
+	"models.EvaluationReport":        EvaluationReport,
 	"models.Move":                    Move,
 	"models.MTOServiceItem":          MTOServiceItem,
 	"models.MTOServiceItemDimension": MTOServiceItemDimension,
