@@ -48,19 +48,17 @@ const ServiceItemDetails = ({ id, code, details }) => {
       detailSection = (
         <div>
           <dl>
-            <div className={styles.customerContact}>
-              {generateDetailText(
-                {
-                  'First Customer Contact':
-                    firstCustomerContact && firstCustomerContact.timeMilitary ? firstCustomerContact.timeMilitary : '-',
-                  'First Available Delivery Date 1':
-                    firstCustomerContact && firstCustomerContact.firstAvailableDeliveryDate
-                      ? formatDate(firstCustomerContact.firstAvailableDeliveryDate, 'DD MMM YYYY')
-                      : '-',
-                },
-                id,
-              )}
-            </div>
+            {generateDetailText(
+              {
+                'First Customer Contact':
+                  firstCustomerContact && firstCustomerContact.timeMilitary ? firstCustomerContact.timeMilitary : '-',
+                'First Available Delivery Date 1':
+                  firstCustomerContact && firstCustomerContact.firstAvailableDeliveryDate
+                    ? formatDate(firstCustomerContact.firstAvailableDeliveryDate, 'DD MMM YYYY')
+                    : '-',
+              },
+              id,
+            )}
             <div className={styles.customerContact}>
               {generateDetailText(
                 {
