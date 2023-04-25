@@ -23,7 +23,6 @@ type CreateApprovedSITDurationUpdate struct {
 	// Number of days approved for SIT extension. This will match requested days saved to the SIT extension model.
 	// Example: 21
 	// Required: true
-	// Minimum: 1
 	ApprovedDays *int64 `json:"approvedDays"`
 
 	// Remarks from TOO about SIT Duration Update creation
@@ -58,10 +57,6 @@ func (m *CreateApprovedSITDurationUpdate) Validate(formats strfmt.Registry) erro
 func (m *CreateApprovedSITDurationUpdate) validateApprovedDays(formats strfmt.Registry) error {
 
 	if err := validate.Required("approvedDays", "body", m.ApprovedDays); err != nil {
-		return err
-	}
-
-	if err := validate.MinimumInt("approvedDays", "body", *m.ApprovedDays, 1, false); err != nil {
 		return err
 	}
 

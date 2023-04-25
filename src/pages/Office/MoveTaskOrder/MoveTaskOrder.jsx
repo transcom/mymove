@@ -359,7 +359,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
         body: {
           requestReason: formValues.requestReason,
           officeRemarks: formValues.officeRemarks,
-          approvedDays: parseInt(formValues.daysApproved, 10),
+          approvedDays: parseInt(formValues.daysApproved, 10) - shipment.sitDaysAllowance,
         },
       },
       {
