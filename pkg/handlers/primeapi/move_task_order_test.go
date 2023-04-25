@@ -208,7 +208,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 			MoveID:      successMove.Locator,
 		}
 
-		address := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{})
+		address := factory.BuildAddress(suite.DB(), nil, nil)
 		sitEntryDate := time.Now()
 
 		factory.BuildMTOServiceItemBasic(suite.DB(), []factory.Customization{

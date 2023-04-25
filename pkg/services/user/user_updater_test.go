@@ -21,7 +21,6 @@ import (
 	adminUser "github.com/transcom/mymove/pkg/services/admin_user"
 	officeUser "github.com/transcom/mymove/pkg/services/office_user"
 	"github.com/transcom/mymove/pkg/services/query"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func setUpMockNotificationSender() notifications.NotificationSender {
@@ -118,7 +117,18 @@ func (suite *UserServiceSuite) TestUserUpdater() {
 		//				status set to False.
 
 		appCtx := appcontext.NewAppContext(suite.DB(), suite.AppContextForTest().Logger(), &auth.Session{})
-		adminUser := testdatagen.MakeActiveAdminUser(suite.DB())
+		adminUser := factory.BuildAdminUser(suite.DB(), []factory.Customization{
+			{
+				Model: models.AdminUser{
+					Active: true,
+				},
+			},
+			{
+				Model: models.User{
+					Active: true,
+				},
+			},
+		}, nil)
 
 		// Deactivate user. This should also update their adminUser status in parallel.
 		// This case should send an email to sys admins

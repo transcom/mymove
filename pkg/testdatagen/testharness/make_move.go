@@ -272,11 +272,13 @@ func MakeHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO(appCtx appconte
 		},
 	}, nil)
 	dependentsAuthorized := true
-	entitlements := testdatagen.MakeEntitlement(appCtx.DB(), testdatagen.Assertions{
-		Entitlement: models.Entitlement{
-			DependentsAuthorized: &dependentsAuthorized,
+	entitlements := factory.BuildEntitlement(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Entitlement{
+				DependentsAuthorized: &dependentsAuthorized,
+			},
 		},
-	})
+	}, nil)
 	orders := factory.BuildOrder(appCtx.DB(), []factory.Customization{
 		{
 			Model:    customer,
@@ -896,12 +898,14 @@ func MakeNTSRMoveWithPaymentRequest(appCtx appcontext.AppContext) models.Move {
 		},
 	}, nil)
 	// Create Pickup Address
-	shipmentPickupAddress := testdatagen.MakeAddress(appCtx.DB(), testdatagen.Assertions{
-		Address: models.Address{
-			// KKFA GBLOC
-			PostalCode: "85004",
+	shipmentPickupAddress := factory.BuildAddress(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				// KKFA GBLOC
+				PostalCode: "85004",
+			},
 		},
-	})
+	}, nil)
 
 	// Create Storage Facility
 	storageFacility := factory.BuildStorageFacility(appCtx.DB(), nil, []factory.Trait{
@@ -1525,12 +1529,14 @@ func MakeNTSRMoveWithServiceItemsAndPaymentRequest(appCtx appcontext.AppContext)
 		},
 	}, nil)
 	// Create Pickup Address
-	shipmentPickupAddress := testdatagen.MakeAddress(appCtx.DB(), testdatagen.Assertions{
-		Address: models.Address{
-			// KKFA GBLOC
-			PostalCode: "85004",
+	shipmentPickupAddress := factory.BuildAddress(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				// KKFA GBLOC
+				PostalCode: "85004",
+			},
 		},
-	})
+	}, nil)
 
 	// Create Storage Facility
 	storageFacility := factory.BuildStorageFacility(appCtx.DB(), []factory.Customization{

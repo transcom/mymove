@@ -26,8 +26,3 @@ func MakeDocument(db *pop.Connection, assertions Assertions) models.Document {
 
 	return document
 }
-
-// MakeDefaultDocument returns a Document with default values
-func MakeDefaultDocument(db *pop.Connection) models.Document {
-	return MakeDocument(db, Assertions{})
-}
