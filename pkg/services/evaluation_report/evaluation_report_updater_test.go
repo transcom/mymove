@@ -27,17 +27,23 @@ func (suite EvaluationReportSuite) TestSubmitEvaluationReport() {
 		evalStart := inspectionTime
 		evalEnd := inspectionTime
 
-		evaluationReport := testdatagen.MakeEvaluationReport(suite.DB(),
-			testdatagen.Assertions{EvaluationReport: models.EvaluationReport{
-				OfficeUserID:       officeUser.ID,
-				InspectionDate:     swag.Time(time.Now()),
-				InspectionType:     &inspectionType,
-				Location:           &location,
-				EvalStart:          &evalStart,
-				EvalEnd:            &evalEnd,
-				ViolationsObserved: swag.Bool(false),
-				Remarks:            swag.String("This is a remark."),
-			}})
+		evaluationReport := factory.BuildEvaluationReport(suite.DB(), []factory.Customization{
+			{
+				Model:    officeUser,
+				LinkOnly: true,
+			},
+			{
+				Model: models.EvaluationReport{
+					InspectionDate:     models.TimePointer(time.Now()),
+					InspectionType:     &inspectionType,
+					Location:           &location,
+					EvalStart:          &evalStart,
+					EvalEnd:            &evalEnd,
+					ViolationsObserved: models.BoolPointer(false),
+					Remarks:            models.StringPointer("This is a remark."),
+				},
+			},
+		}, nil)
 		// Generate an etag
 		eTag := etag.GenerateEtag(evaluationReport.UpdatedAt)
 		// Submit the report
@@ -52,15 +58,21 @@ func (suite EvaluationReportSuite) TestSubmitEvaluationReport() {
 		// Create a report
 		inspectionType := models.EvaluationReportInspectionTypeVirtual
 		location := models.EvaluationReportLocationTypeOrigin
-		evaluationReport := testdatagen.MakeEvaluationReport(suite.DB(),
-			testdatagen.Assertions{EvaluationReport: models.EvaluationReport{
-				OfficeUserID:       officeUser.ID,
-				InspectionDate:     swag.Time(time.Now()),
-				InspectionType:     &inspectionType,
-				Location:           &location,
-				ViolationsObserved: swag.Bool(false),
-				Remarks:            swag.String("This is a remark."),
-			}})
+		evaluationReport := factory.BuildEvaluationReport(suite.DB(), []factory.Customization{
+			{
+				Model:    officeUser,
+				LinkOnly: true,
+			},
+			{
+				Model: models.EvaluationReport{
+					InspectionDate:     models.TimePointer(time.Now()),
+					InspectionType:     &inspectionType,
+					Location:           &location,
+					ViolationsObserved: models.BoolPointer(false),
+					Remarks:            models.StringPointer("This is a remark."),
+				},
+			},
+		}, nil)
 		// Generate an etag
 		eTag := ""
 		// Submit the report
@@ -79,16 +91,22 @@ func (suite EvaluationReportSuite) TestSubmitEvaluationReport() {
 		evalEnd := inspectionTime
 
 		// Missing inspection date
-		evaluationReport := testdatagen.MakeEvaluationReport(suite.DB(),
-			testdatagen.Assertions{EvaluationReport: models.EvaluationReport{
-				OfficeUserID:       officeUser.ID,
-				InspectionType:     &inspectionType,
-				Location:           &location,
-				EvalStart:          &evalStart,
-				EvalEnd:            &evalEnd,
-				ViolationsObserved: swag.Bool(false),
-				Remarks:            swag.String("This is a remark."),
-			}})
+		evaluationReport := factory.BuildEvaluationReport(suite.DB(), []factory.Customization{
+			{
+				Model:    officeUser,
+				LinkOnly: true,
+			},
+			{
+				Model: models.EvaluationReport{
+					InspectionType:     &inspectionType,
+					Location:           &location,
+					EvalStart:          &evalStart,
+					EvalEnd:            &evalEnd,
+					ViolationsObserved: models.BoolPointer(false),
+					Remarks:            models.StringPointer("This is a remark."),
+				},
+			},
+		}, nil)
 		// Generate an etag
 		eTag := etag.GenerateEtag(evaluationReport.UpdatedAt)
 		// Submit the report
@@ -106,17 +124,23 @@ func (suite EvaluationReportSuite) TestSubmitEvaluationReport() {
 		evalStart := inspectionTime
 		evalEnd := inspectionTime
 		// Missing location description
-		evaluationReport := testdatagen.MakeEvaluationReport(suite.DB(),
-			testdatagen.Assertions{EvaluationReport: models.EvaluationReport{
-				OfficeUserID:       officeUser.ID,
-				InspectionDate:     swag.Time(time.Now()),
-				InspectionType:     &inspectionType,
-				Location:           &location,
-				EvalStart:          &evalStart,
-				EvalEnd:            &evalEnd,
-				ViolationsObserved: swag.Bool(false),
-				Remarks:            swag.String("This is a remark."),
-			}})
+		evaluationReport := factory.BuildEvaluationReport(suite.DB(), []factory.Customization{
+			{
+				Model:    officeUser,
+				LinkOnly: true,
+			},
+			{
+				Model: models.EvaluationReport{
+					InspectionDate:     models.TimePointer(time.Now()),
+					InspectionType:     &inspectionType,
+					Location:           &location,
+					EvalStart:          &evalStart,
+					EvalEnd:            &evalEnd,
+					ViolationsObserved: models.BoolPointer(false),
+					Remarks:            models.StringPointer("This is a remark."),
+				},
+			},
+		}, nil)
 		// Generate an etag
 		eTag := etag.GenerateEtag(evaluationReport.UpdatedAt)
 		// Submit the report
@@ -134,17 +158,23 @@ func (suite EvaluationReportSuite) TestSubmitEvaluationReport() {
 		evalStart := inspectionTime
 		evalEnd := inspectionTime
 		// Missing location description
-		evaluationReport := testdatagen.MakeEvaluationReport(suite.DB(),
-			testdatagen.Assertions{EvaluationReport: models.EvaluationReport{
-				OfficeUserID:       officeUser.ID,
-				InspectionDate:     swag.Time(time.Now()),
-				InspectionType:     &inspectionType,
-				Location:           &location,
-				EvalStart:          &evalStart,
-				EvalEnd:            &evalEnd,
-				ViolationsObserved: swag.Bool(false),
-				Remarks:            swag.String("This is a remark."),
-			}})
+		evaluationReport := factory.BuildEvaluationReport(suite.DB(), []factory.Customization{
+			{
+				Model:    officeUser,
+				LinkOnly: true,
+			},
+			{
+				Model: models.EvaluationReport{
+					InspectionDate:     models.TimePointer(time.Now()),
+					InspectionType:     &inspectionType,
+					Location:           &location,
+					EvalStart:          &evalStart,
+					EvalEnd:            &evalEnd,
+					ViolationsObserved: models.BoolPointer(false),
+					Remarks:            models.StringPointer("This is a remark."),
+				},
+			},
+		}, nil)
 		// Generate an etag
 		eTag := etag.GenerateEtag(evaluationReport.UpdatedAt)
 		// Submit the report
@@ -158,7 +188,7 @@ func (suite EvaluationReportSuite) TestUpdateEvaluationReport() {
 
 	suite.Run("successful save", func() {
 		// Create a report
-		originalReport := testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{})
+		originalReport := factory.BuildEvaluationReport(suite.DB(), nil, nil)
 
 		// Copy report to new object
 		report := originalReport
@@ -179,7 +209,7 @@ func (suite EvaluationReportSuite) TestUpdateEvaluationReport() {
 	})
 
 	suite.Run("saving report with pre-existing violations should be removed or preserved based on observedViolations bool", func() {
-		report := testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{})
+		report := factory.BuildEvaluationReport(suite.DB(), nil, nil)
 		testdatagen.MakeReportViolation(suite.DB(), testdatagen.Assertions{ReportViolation: models.ReportViolation{
 			ReportID:    report.ID,
 			Violation:   models.PWSViolation{},
@@ -212,12 +242,17 @@ func (suite EvaluationReportSuite) TestUpdateEvaluationReport() {
 	suite.Run("saving report does not overwrite readonly fields", func() {
 		// Create a report and save it to the database
 		move := factory.BuildMove(suite.DB(), nil, nil)
-		shipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
-		originalReport := testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{
-			Move:        move,
-			MTOShipment: shipment,
-		})
-
+		originalReport := factory.BuildEvaluationReport(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.EvaluationReport{
+					Type: models.EvaluationReportTypeShipment,
+				},
+			},
+		}, nil)
 		// Copy report to new object
 		reportPayload := originalReport
 
@@ -245,7 +280,7 @@ func (suite EvaluationReportSuite) TestUpdateEvaluationReport() {
 
 	suite.Run("saving evaluation report with bad report id should fail", func() {
 		// Create a report
-		report := testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{})
+		report := factory.BuildEvaluationReport(suite.DB(), nil, nil)
 
 		// Overwrite the report's ID with some nonsense
 		report.ID = uuid.Must(uuid.NewV4())
@@ -259,7 +294,7 @@ func (suite EvaluationReportSuite) TestUpdateEvaluationReport() {
 	})
 	suite.Run("saving evaluation report created by another office user should fail", func() {
 		// Create a report
-		report := testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{})
+		report := factory.BuildEvaluationReport(suite.DB(), nil, nil)
 
 		otherOfficeUserID := uuid.Must(uuid.NewV4())
 
@@ -273,12 +308,13 @@ func (suite EvaluationReportSuite) TestUpdateEvaluationReport() {
 
 	suite.Run("updating a non-draft report should fail", func() {
 		// Create a report
-		originalReport := testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{
-			EvaluationReport: models.EvaluationReport{
-				SubmittedAt: swag.Time(time.Now()),
+		originalReport := factory.BuildEvaluationReport(suite.DB(), []factory.Customization{
+			{
+				Model: models.EvaluationReport{
+					SubmittedAt: models.TimePointer(time.Now()),
+				},
 			},
-		})
-
+		}, nil)
 		report := originalReport
 		report.Remarks = swag.String("spectacular packing job!!")
 
@@ -288,11 +324,13 @@ func (suite EvaluationReportSuite) TestUpdateEvaluationReport() {
 	})
 	suite.Run("updating a report with a bad ETag should fail", func() {
 		// Create a report
-		originalReport := testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{
-			EvaluationReport: models.EvaluationReport{
-				SubmittedAt: swag.Time(time.Now()),
+		originalReport := factory.BuildEvaluationReport(suite.DB(), []factory.Customization{
+			{
+				Model: models.EvaluationReport{
+					SubmittedAt: models.TimePointer(time.Now()),
+				},
 			},
-		})
+		}, nil)
 
 		report := originalReport
 		report.Remarks = swag.String("spectacular packing job!!")
@@ -337,7 +375,7 @@ func (suite EvaluationReportSuite) TestUpdateEvaluationReport() {
 		tc := tc
 
 		suite.Run(name, func() {
-			report := testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{})
+			report := factory.BuildEvaluationReport(suite.DB(), nil, nil)
 			report.InspectionType = tc.inspectionType
 			report.ObservedShipmentDeliveryDate = tc.observedShipmentDeliveryDate
 			report.ObservedShipmentPhysicalPickupDate = tc.observedShipmentPhysicalPickupDate
