@@ -96,16 +96,17 @@ const ShipmentDetailsMain = ({
   );
 
   const summarySITComponent = useMemo(
-    () => (
-      <ShipmentSITDisplay
-        sitExtensions={sitExtensions}
-        sitStatus={sitStatus}
-        storageInTransit={storageInTransit}
-        shipment={shipment}
-        showReviewSITExtension={setIsReviewSITExtensionModalVisible}
-        showSubmitSITExtension={setIsSubmitITExtensionModalVisible}
-      />
-    ),
+    () =>
+      sitStatus && (
+        <ShipmentSITDisplay
+          sitExtensions={sitExtensions}
+          sitStatus={sitStatus}
+          storageInTransit={storageInTransit}
+          shipment={shipment}
+          showReviewSITExtension={setIsReviewSITExtensionModalVisible}
+          showSubmitSITExtension={setIsSubmitITExtensionModalVisible}
+        />
+      ),
     [
       sitExtensions,
       sitStatus,
@@ -122,7 +123,7 @@ const ShipmentDetailsMain = ({
   switch (shipmentType) {
     case SHIPMENT_OPTIONS.HHG:
       displayedPickupAddress = pickupAddress;
-      displayedDeliveryAddress = destinationAddress || destinationDutyLocationAddress?.postalCode;
+      displayedDeliveryAddress = destinationAddress || destinationDutyLocationAddress;
       break;
     case SHIPMENT_OPTIONS.NTS:
       displayedPickupAddress = pickupAddress;
@@ -134,7 +135,7 @@ const ShipmentDetailsMain = ({
       break;
     default:
       displayedPickupAddress = pickupAddress;
-      displayedDeliveryAddress = destinationAddress || destinationDutyLocationAddress?.postalCode;
+      displayedDeliveryAddress = destinationAddress || destinationDutyLocationAddress;
   }
 
   return (
