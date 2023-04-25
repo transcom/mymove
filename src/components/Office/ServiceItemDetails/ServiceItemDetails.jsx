@@ -48,33 +48,33 @@ const ServiceItemDetails = ({ id, code, details }) => {
       detailSection = (
         <div>
           <dl>
-            {firstCustomerContact &&
-              generateDetailText(
+            <div className={styles.customerContact}>
+              {generateDetailText(
                 {
-                  'First Customer Contact': firstCustomerContact.timeMilitary,
-                  'First Available Delivery Date': formatDate(
-                    firstCustomerContact.firstAvailableDeliveryDate,
-                    'DD MMM YYYY',
-                  ),
+                  'First Customer Contact':
+                    firstCustomerContact && firstCustomerContact.timeMilitary ? firstCustomerContact.timeMilitary : '-',
+                  'First Available Delivery Date 1':
+                    firstCustomerContact && firstCustomerContact.firstAvailableDeliveryDate
+                      ? formatDate(firstCustomerContact.firstAvailableDeliveryDate, 'DD MMM YYYY')
+                      : '-',
                 },
                 id,
               )}
-            {!firstCustomerContact &&
-              generateDetailText({ 'First Customer Contact': '-', 'First Available Delivery Date': '-' })}
+            </div>
             <div className={styles.customerContact}>
-              {secondCustomerContact &&
-                generateDetailText(
-                  {
-                    'Second Customer Contact': secondCustomerContact.timeMilitary,
-                    'Second Available Delivery Date': formatDate(
-                      secondCustomerContact.firstAvailableDeliveryDate,
-                      'DD MMM YYYY',
-                    ),
-                  },
-                  id,
-                )}
-              {!secondCustomerContact &&
-                generateDetailText({ 'Second Customer Contact': '-', 'Second Available Delivery Date': '-' })}
+              {generateDetailText(
+                {
+                  'Second Customer Contact':
+                    secondCustomerContact && secondCustomerContact.timeMilitary
+                      ? secondCustomerContact.timeMilitary
+                      : '-',
+                  'First Available Delivery Date 2':
+                    secondCustomerContact && secondCustomerContact.firstAvailableDeliveryDate
+                      ? formatDate(secondCustomerContact.firstAvailableDeliveryDate, 'DD MMM YYYY')
+                      : '-',
+                },
+                id,
+              )}
             </div>
             {generateDetailText({ Reason: details.reason ? details.reason : '-' })}
             {details.rejectionReason &&
