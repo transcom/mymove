@@ -428,6 +428,10 @@ func BuildRealMTOServiceItemWithAllDeps(db *pop.Connection, serviceCode models.R
 // BuildFullDLHMTOServiceItems makes a DLH type service item along with
 // all its expected parameters returns the created move and all
 // service items
+//
+// NOTE: the original did an override of the MTOShipment.Status to
+// ensure it was Approved, but that is now the responsibility of the
+// caller
 func BuildFullDLHMTOServiceItems(db *pop.Connection, customs []Customization, traits []Trait) (models.Move, models.MTOServiceItems) {
 
 	mtoShipment := BuildMTOShipment(db, customs, traits)
@@ -452,6 +456,33 @@ func BuildFullDLHMTOServiceItems(db *pop.Connection, customs []Customization, tr
 	mtoServiceItemFSC := BuildRealMTOServiceItemWithAllDeps(db,
 		models.ReServiceCodeFSC, move, mtoShipment)
 	mtoServiceItems = append(mtoServiceItems, mtoServiceItemFSC)
+
+	return move, mtoServiceItems
+}
+
+// BuildFullOriginMTOServiceItems (follow-on to
+// BuildFullDLHMTOServiceItem) makes a DLH type service item along
+// with all its expected parameters returns the created move and all
+// service items
+//
+// NOTE: the original did an override of the MTOShipment.Status to
+// ensure it was Approved, but that is now the responsibility of the
+// caller
+func BuildFullOriginMTOServiceItems(db *pop.Connection, customs []Customization, traits []Trait) (models.Move, models.MTOServiceItems) {
+	mtoShipment := BuildMTOShipment(db, customs, traits)
+
+	move := mtoShipment.MoveTaskOrder
+	move.MTOShipments = models.MTOShipments{mtoShipment}
+
+	var mtoServiceItems models.MTOServiceItems
+	// Service Item DPK
+	mtoServiceItemDPK := BuildRealMTOServiceItemWithAllDeps(db,
+		models.ReServiceCodeDPK, move, mtoShipment)
+	mtoServiceItems = append(mtoServiceItems, mtoServiceItemDPK)
+	// Service Item DOP
+	mtoServiceItemDOP := BuildRealMTOServiceItemWithAllDeps(db,
+		models.ReServiceCodeDOP, move, mtoShipment)
+	mtoServiceItems = append(mtoServiceItems, mtoServiceItemDOP)
 
 	return move, mtoServiceItems
 }

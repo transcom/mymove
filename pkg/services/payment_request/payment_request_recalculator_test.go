@@ -555,10 +555,16 @@ func (suite *PaymentRequestServiceSuite) setupRecalculateData1() (models.Move, m
 
 func (suite *PaymentRequestServiceSuite) setupRecalculateData2(move models.Move, shipment models.MTOShipment) (models.Move, models.PaymentRequest) {
 
-	moveTaskOrder, mtoServiceItems := testdatagen.MakeFullOriginMTOServiceItems(suite.DB(), testdatagen.Assertions{
-		Move:        move,
-		MTOShipment: shipment,
-	})
+	moveTaskOrder, mtoServiceItems := factory.BuildFullOriginMTOServiceItems(suite.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	// Build up a payment request with service item references for creating a payment request.
 	paymentRequestArg := models.PaymentRequest{
