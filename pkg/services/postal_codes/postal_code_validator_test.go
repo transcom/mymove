@@ -49,15 +49,6 @@ func (suite *ValidatePostalCodeTestSuite) TestValidatePostalCode() {
 		suite.Contains(err.Error(), "should only contain digits")
 	})
 
-	suite.Run("Postal code is not in zip5ToLatLongMap", func() {
-		valid, err := postalCodeValidator.ValidatePostalCode(suite.AppContextForTest(), "00000")
-
-		suite.False(valid)
-		suite.Error(err)
-		suite.IsType(&apperror.UnsupportedPostalCodeError{}, err)
-		suite.Contains(err.Error(), "zip5 not found in zip5ToLatLongMap")
-	})
-
 	suite.Run("Postal code is not in postal_code_to_gblocs table", func() {
 		valid, err := postalCodeValidator.ValidatePostalCode(suite.AppContextForTest(), "30907")
 

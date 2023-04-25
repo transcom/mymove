@@ -9,7 +9,6 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/services"
 )
 
@@ -27,7 +26,6 @@ func NewPostalCodeValidator(clock clock.Clock) services.PostalCodeValidator {
 
 // ValidatePostalCode will ensure that the zip code is found in several data sources so we avoid issues
 // with pricing and such:
-//   - zip5ToLatLongMap map (may be temporary until the HERE planner is removed)
 //   - postal_code_to_gblocs table
 //   - zip3_distances table
 //   - re_zip3s table (and re_zip5_rate_areas table if a zip3 with multiple rate areas)
@@ -42,13 +40,7 @@ func (v postalCodeValidator) ValidatePostalCode(appCtx appcontext.AppContext, po
 	}
 	zip3 := zip5[:3]
 
-	// Note: We don't appear to use the zip3ToLatLongMap currently, so not looking for a zip3 there.
-
-	// Should be able to delete this validation if the HERE planner is eventually removed.
-	_, err := route.Zip5ToLatLong(zip5)
-	if err != nil {
-		return false, err // Already returns an UnsupportedPostalCodeError
-	}
+	// Note: We don't appear to use the zip3ToLatLongMap or zip5ToLatLongMap currently, so not looking for a zip there.
 
 	// Check that the postal code exists in the postal_code_to_gblocs table.
 	exists, err := appCtx.DB().Where("postal_code = ?", zip5).Exists(&models.PostalCodeToGBLOC{})
