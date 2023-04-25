@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
@@ -342,32 +341,44 @@ func (o *mtoServiceItemCreator) makeExtraSITServiceItem(appCtx appcontext.AppCon
 			return nil, apperror.NewQueryError("ReService", err, "")
 		}
 	}
-	//When a DDFSIT is created, this is where we auto create the accompanying DDASIT and DDDSIT
-	sitEntryDate := time.Now()
-	contact1 := models.MTOServiceItemCustomerContact{
-		Type:                       models.CustomerContactTypeFirst,
-		FirstAvailableDeliveryDate: sitEntryDate,
-		TimeMilitary:               "0815Z",
-	}
-	contact2 := models.MTOServiceItemCustomerContact{
-		Type:                       models.CustomerContactTypeSecond,
-		FirstAvailableDeliveryDate: sitEntryDate,
-		TimeMilitary:               "0815Z",
-	}
-	var contacts models.MTOServiceItemCustomerContacts
-	contacts = append(contacts, contact1, contact2)
-	reason := "This is a hardcoded reason"
 
-	extraServiceItem := models.MTOServiceItem{
-		MTOShipmentID:    firstSIT.MTOShipmentID,
-		MoveTaskOrderID:  firstSIT.MoveTaskOrderID,
-		ReServiceID:      reService.ID,
-		ReService:        reService,
-		SITEntryDate:     firstSIT.SITEntryDate,
-		SITPostalCode:    firstSIT.SITPostalCode,
-		Reason:           &reason,
-		Status:           models.MTOServiceItemStatusSubmitted,
-		CustomerContacts: contacts,
+	//When a DDFSIT is created, this is where we auto create the accompanying DDASIT and DDDSIT
+	var extraServiceItem models.MTOServiceItem
+
+	if firstSIT.CustomerContacts != nil {
+		extraServiceItem = models.MTOServiceItem{
+			MTOShipmentID:   firstSIT.MTOShipmentID,
+			MoveTaskOrderID: firstSIT.MoveTaskOrderID,
+			ReServiceID:     reService.ID,
+			ReService:       reService,
+			SITEntryDate:    firstSIT.SITEntryDate,
+			SITPostalCode:   firstSIT.SITPostalCode,
+			Reason:          firstSIT.Reason,
+			Status:          models.MTOServiceItemStatusSubmitted,
+			CustomerContacts: []models.MTOServiceItemCustomerContact{
+				{
+					Type:                       models.CustomerContactTypeFirst,
+					FirstAvailableDeliveryDate: firstSIT.CustomerContacts[0].FirstAvailableDeliveryDate,
+					TimeMilitary:               firstSIT.CustomerContacts[0].TimeMilitary,
+				},
+				{
+					Type:                       models.CustomerContactTypeSecond,
+					FirstAvailableDeliveryDate: firstSIT.CustomerContacts[1].FirstAvailableDeliveryDate,
+					TimeMilitary:               firstSIT.CustomerContacts[1].TimeMilitary,
+				},
+			},
+		}
+	} else {
+		extraServiceItem = models.MTOServiceItem{
+			MTOShipmentID:   firstSIT.MTOShipmentID,
+			MoveTaskOrderID: firstSIT.MoveTaskOrderID,
+			ReServiceID:     reService.ID,
+			ReService:       reService,
+			SITEntryDate:    firstSIT.SITEntryDate,
+			SITPostalCode:   firstSIT.SITPostalCode,
+			Reason:          firstSIT.Reason,
+			Status:          models.MTOServiceItemStatusSubmitted,
+		}
 	}
 
 	return &extraServiceItem, nil
