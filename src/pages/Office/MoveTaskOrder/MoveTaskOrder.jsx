@@ -11,7 +11,7 @@ import styles from '../TXOMoveInfo/TXOTab.module.scss';
 
 import moveTaskOrderStyles from './MoveTaskOrder.module.scss';
 
-import EditMaxBillableWeightModal from 'components/Office/EditMaxBillableWeightModal/EditMaxBillableWeightModal';
+import ConnectedEditMaxBillableWeightModal from 'components/Office/EditMaxBillableWeightModal/EditMaxBillableWeightModal';
 import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
 import { formatStorageFacilityForAPI, formatAddressForAPI, removeEtag } from 'utils/formatMtoShipment';
 import hasRiskOfExcess from 'utils/hasRiskOfExcess';
@@ -736,7 +736,8 @@ export const MoveTaskOrder = ({ match, ...props }) => {
             />
           )}
           {isWeightModalVisible && (
-            <EditMaxBillableWeightModal
+            <ConnectedEditMaxBillableWeightModal
+              isOpen={isWeightModalVisible}
               defaultWeight={order.entitlement.totalWeight}
               maxBillableWeight={order.entitlement.authorizedWeight}
               onSubmit={handleUpdateBillableWeight}
