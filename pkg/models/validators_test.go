@@ -14,6 +14,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
+	"github.com/transcom/mymove/pkg/uploader"
 )
 
 type stringList []string
@@ -32,7 +33,7 @@ func (sl stringList) Contents() []string {
 }
 
 func TestStringInList_IsValid(t *testing.T) {
-	validTypes := stringList{"image/png", "image/jpeg", "application/pdf"}
+	validTypes := stringList{uploader.FileTypePNG, uploader.FileTypeJPEG, uploader.FileTypePDF}
 	for _, validType := range validTypes {
 		t.Run(validType, func(t *testing.T) {
 			validator := models.NewStringInList(validType, "fieldName", validTypes)

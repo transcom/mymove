@@ -6,15 +6,15 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *CustomerSupportRemarksSuite) TestCustomerSupportRemarkDeleter() {
 	setupTestData := func() (services.CustomerSupportRemarkDeleter, models.CustomerSupportRemark, appcontext.AppContext) {
 		deleter := NewCustomerSupportRemarkDeleter()
-		remark := testdatagen.MakeDefaultCustomerSupportRemark(suite.DB())
+		remark := factory.BuildCustomerSupportRemark(suite.DB(), nil, nil)
 
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 			OfficeUserID: remark.OfficeUserID,

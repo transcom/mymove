@@ -24,6 +24,7 @@ import (
 	"github.com/transcom/mymove/cmd/webhook-client/utils"
 	"github.com/transcom/mymove/cmd/webhook-client/utils/mocks"
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/supportmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -66,12 +67,14 @@ func (suite *WebhookClientTestingSuite) Test_SendStgNotification() {
 		MaxImmediateRetries: 3,
 	}
 	// Create a notification
-	notification := testdatagen.MakeWebhookNotification(suite.DB(), testdatagen.Assertions{
-		WebhookNotification: models.WebhookNotification{
-			Status:  models.WebhookNotificationPending,
-			Payload: "{\"message\":\"This is an updated notification #1\"}",
+	notification := factory.BuildWebhookNotification(suite.DB(), []factory.Customization{
+		{
+			Model: models.WebhookNotification{
+				Status:  models.WebhookNotificationPending,
+				Payload: "{\"message\":\"This is an updated notification #1\"}",
+			},
 		},
-	})
+	}, nil)
 	// Create a subscription
 	subscription := testdatagen.MakeWebhookSubscription(suite.DB(), testdatagen.Assertions{
 		WebhookSubscription: models.WebhookSubscription{
@@ -122,12 +125,14 @@ func (suite *WebhookClientTestingSuite) Test_SendOneNotification() {
 		MaxImmediateRetries: 3,
 	}
 	// Create a notification
-	notification := testdatagen.MakeWebhookNotification(suite.DB(), testdatagen.Assertions{
-		WebhookNotification: models.WebhookNotification{
-			Status:  models.WebhookNotificationSent,
-			Payload: "{\"message\":\"This is an updated notification #1\"}",
+	notification := factory.BuildWebhookNotification(suite.DB(), []factory.Customization{
+		{
+			Model: models.WebhookNotification{
+				Status:  models.WebhookNotificationSent,
+				Payload: "{\"message\":\"This is an updated notification #1\"}",
+			},
 		},
-	})
+	}, nil)
 	// Create a subscription
 	subscription := testdatagen.MakeWebhookSubscription(suite.DB(), testdatagen.Assertions{
 		WebhookSubscription: models.WebhookSubscription{
@@ -972,26 +977,32 @@ func setupEngineRun(suite *WebhookClientTestingSuite) (*Engine, []models.Webhook
 	}
 	// Create 3 notifications
 	// Pending notification for Payment.Update
-	notification0 := testdatagen.MakeWebhookNotification(suite.DB(), testdatagen.Assertions{
-		WebhookNotification: models.WebhookNotification{
-			EventKey: "Payment.Update",
-			Payload:  "{\"message\":\"This is an updated notification #0\"}",
+	notification0 := factory.BuildWebhookNotification(suite.DB(), []factory.Customization{
+		{
+			Model: models.WebhookNotification{
+				EventKey: "Payment.Update",
+				Payload:  "{\"message\":\"This is an updated notification #0\"}",
+			},
 		},
-	})
+	}, nil)
 	// Pending notification for Payment.Create
-	notification1 := testdatagen.MakeWebhookNotification(suite.DB(), testdatagen.Assertions{
-		WebhookNotification: models.WebhookNotification{
-			EventKey: "Payment.Create",
-			Payload:  "{\"message\":\"This is an updated notification #1\"}",
+	notification1 := factory.BuildWebhookNotification(suite.DB(), []factory.Customization{
+		{
+			Model: models.WebhookNotification{
+				EventKey: "Payment.Create",
+				Payload:  "{\"message\":\"This is an updated notification #1\"}",
+			},
 		},
-	})
+	}, nil)
 	// Pending notification for Payment.Update
-	notification2 := testdatagen.MakeWebhookNotification(suite.DB(), testdatagen.Assertions{
-		WebhookNotification: models.WebhookNotification{
-			EventKey: "Payment.Update",
-			Payload:  "{\"message\":\"This is an updated notification #2\"}",
+	notification2 := factory.BuildWebhookNotification(suite.DB(), []factory.Customization{
+		{
+			Model: models.WebhookNotification{
+				EventKey: "Payment.Update",
+				Payload:  "{\"message\":\"This is an updated notification #2\"}",
+			},
 		},
-	})
+	}, nil)
 
 	// Active subscription for the Payment.Update event
 	subscription0 := testdatagen.MakeWebhookSubscription(suite.DB(), testdatagen.Assertions{

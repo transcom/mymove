@@ -24,7 +24,6 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *HandlerSuite) TestShowServiceMemberHandler() {
@@ -445,13 +444,13 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
 
 	suite.MustSave(&move.Orders)
 	moveRouter := moverouter.NewMoveRouter()
-	newSignedCertification := testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
-		SignedCertification: models.SignedCertification{
-			SubmittingUserID: newServiceMember.UserID,
-			MoveID:           move.ID,
+	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-		Stub: true,
-	})
+	}, nil)
+
 	err := moveRouter.Submit(suite.AppContextForTest(), &move, &newSignedCertification)
 	suite.NoError(err)
 	suite.MustSave(&move)

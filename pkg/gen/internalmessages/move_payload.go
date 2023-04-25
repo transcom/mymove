@@ -58,9 +58,6 @@ type MovePayload struct {
 	// personally procured moves
 	PersonallyProcuredMoves IndexPersonallyProcuredMovePayload `json:"personally_procured_moves,omitempty"`
 
-	// selected move type
-	SelectedMoveType *SelectedMoveType `json:"selected_move_type,omitempty"`
-
 	// service member id
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Read Only: true
@@ -113,10 +110,6 @@ func (m *MovePayload) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validatePersonallyProcuredMoves(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateSelectedMoveType(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -252,25 +245,6 @@ func (m *MovePayload) validatePersonallyProcuredMoves(formats strfmt.Registry) e
 	return nil
 }
 
-func (m *MovePayload) validateSelectedMoveType(formats strfmt.Registry) error {
-	if swag.IsZero(m.SelectedMoveType) { // not required
-		return nil
-	}
-
-	if m.SelectedMoveType != nil {
-		if err := m.SelectedMoveType.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("selected_move_type")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("selected_move_type")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
 func (m *MovePayload) validateServiceMemberID(formats strfmt.Registry) error {
 	if swag.IsZero(m.ServiceMemberID) { // not required
 		return nil
@@ -341,10 +315,6 @@ func (m *MovePayload) ContextValidate(ctx context.Context, formats strfmt.Regist
 		res = append(res, err)
 	}
 
-	if err := m.contextValidateSelectedMoveType(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.contextValidateServiceMemberID(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -398,22 +368,6 @@ func (m *MovePayload) contextValidatePersonallyProcuredMoves(ctx context.Context
 			return ce.ValidateName("personally_procured_moves")
 		}
 		return err
-	}
-
-	return nil
-}
-
-func (m *MovePayload) contextValidateSelectedMoveType(ctx context.Context, formats strfmt.Registry) error {
-
-	if m.SelectedMoveType != nil {
-		if err := m.SelectedMoveType.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("selected_move_type")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("selected_move_type")
-			}
-			return err
-		}
 	}
 
 	return nil

@@ -84,12 +84,12 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 		order.OriginDutyLocation = nil
 		order.OriginDutyLocationID = nil
 		suite.NoError(suite.DB().Update(&order))
-		newSignedCertification := testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
-			SignedCertification: models.SignedCertification{
-				MoveID: move.ID,
+		newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-			Stub: true,
-		})
+		}, nil)
 		err := moveRouter.Submit(suite.AppContextForTest(), &move, &newSignedCertification)
 		suite.Error(err)
 		suite.Contains(err.Error(), "orders missing OriginDutyLocation")
@@ -204,12 +204,12 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 		}
 		for _, tt := range invalidStatuses {
 			move.Status = tt.status
-			newSignedCertification := testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
-				SignedCertification: models.SignedCertification{
-					MoveID: move.ID,
+			newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+				{
+					Model:    move,
+					LinkOnly: true,
 				},
-				Stub: true,
-			})
+			}, nil)
 			err := moveRouter.Submit(suite.AppContextForTest(), &move, &newSignedCertification)
 			suite.Error(err)
 			suite.Contains(err.Error(), "Cannot move to Submitted state for TOO review when the Move is not in Draft status")
@@ -242,10 +242,12 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 		}
 		for _, tt := range invalidStatuses {
 			move.Status = tt.status
-			newSignedCertification := testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
-				Move: move,
-				Stub: true,
-			})
+			newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+				{
+					Model:    move,
+					LinkOnly: true,
+				},
+			}, nil)
 			err := moveRouter.Submit(suite.AppContextForTest(), &move, &newSignedCertification)
 			suite.Error(err)
 			suite.Contains(err.Error(), "Cannot move to NeedsServiceCounseling state when the Move is not in Draft status")
@@ -303,12 +305,12 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 				move.MTOShipments = models.MTOShipments{shipment}
 				move.MTOShipments[0].PPMShipment = &ppmShipment
 
-				newSignedCertification := testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
-					SignedCertification: models.SignedCertification{
-						MoveID: move.ID,
+				newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+					{
+						Model:    move,
+						LinkOnly: true,
 					},
-					Stub: true,
-				})
+				}, nil)
 				err := moveRouter.Submit(suite.AppContextForTest(), &move, &newSignedCertification)
 				suite.NoError(err)
 				err = suite.DB().Where("move_id = $1", move.ID).First(&newSignedCertification)
@@ -380,12 +382,12 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 		move.MTOShipments = models.MTOShipments{hhgShipment}
 		move.MTOShipments[0].PPMShipment = &ppmShipment
 
-		newSignedCertification := testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
-			SignedCertification: models.SignedCertification{
-				MoveID: move.ID,
+		newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-			Stub: true,
-		})
+		}, nil)
 		err := moveRouter.Submit(suite.AppContextForTest(), &move, &newSignedCertification)
 
 		suite.NoError(err)
@@ -539,7 +541,7 @@ func (suite *MoveServiceSuite) TestSendToOfficeUser() {
 	})
 
 	suite.Run("from APPROVALS REQUESTED status", func() {
-		move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{})
+		move := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
 		err := moveRouter.SendToOfficeUser(suite.AppContextForTest(), &move)
 		suite.NoError(err)
 		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, move.Status)
@@ -657,7 +659,7 @@ func (suite *MoveServiceSuite) TestApproveOrRequestApproval() {
 
 	suite.Run("does not approve the move if unreviewed SIT extensions exist", func() {
 		move := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
-		testdatagen.MakePendingSITExtension(suite.DB(), testdatagen.Assertions{
+		testdatagen.MakePendingSITDurationUpdate(suite.DB(), testdatagen.Assertions{
 			Move: move,
 		})
 

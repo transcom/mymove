@@ -150,33 +150,50 @@ func (suite *ServiceParamValueLookupsSuite) makeSubtestData() (subtestData *para
 	}, nil)
 
 	// DLH
-	_ = testdatagen.FetchOrMakeServiceParam(suite.DB(), testdatagen.Assertions{
-		ServiceParam: models.ServiceParam{
-			ServiceID:             subtestData.mtoServiceItemShip1DLH.ReServiceID,
-			ServiceItemParamKeyID: subtestData.paramKeyWeightEstimated.ID,
-			ServiceItemParamKey:   subtestData.paramKeyWeightEstimated,
-			IsOptional:            true,
+	factory.FetchOrBuildServiceParam(suite.DB(), []factory.Customization{
+		{
+			Model:    subtestData.mtoServiceItemShip1DLH.ReService,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    subtestData.paramKeyWeightEstimated,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ServiceParam{
+				IsOptional: true,
+			},
+		},
+	}, nil)
 
 	// DLH
-	_ = testdatagen.FetchOrMakeServiceParam(suite.DB(), testdatagen.Assertions{
-		ServiceParam: models.ServiceParam{
-			ServiceID:             subtestData.mtoServiceItemShip1DLH.ReServiceID,
-			ServiceItemParamKeyID: subtestData.paramKeyRequestedPickupDate.ID,
-			ServiceItemParamKey:   subtestData.paramKeyRequestedPickupDate,
+	factory.FetchOrBuildServiceParam(suite.DB(), []factory.Customization{
+		{
+			Model:    subtestData.mtoServiceItemShip1DLH.ReService,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    subtestData.paramKeyRequestedPickupDate,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	// DOP
-	_ = testdatagen.FetchOrMakeServiceParam(suite.DB(), testdatagen.Assertions{
-		ServiceParam: models.ServiceParam{
-			ServiceID:             mtoServiceItemShip1DOP.ReServiceID,
-			ServiceItemParamKeyID: subtestData.paramKeyWeightEstimated.ID,
-			ServiceItemParamKey:   subtestData.paramKeyWeightEstimated,
-			IsOptional:            true,
+	factory.FetchOrBuildServiceParam(suite.DB(), []factory.Customization{
+		{
+			Model:    mtoServiceItemShip1DOP.ReService,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    subtestData.paramKeyWeightEstimated,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ServiceParam{
+				IsOptional: true,
+			},
+		},
+	}, nil)
 
 	subtestData.paramKeyMTOAvailableToPrimeAt = factory.FetchOrBuildServiceItemParamKey(suite.DB(), []factory.Customization{
 		{
@@ -189,13 +206,16 @@ func (suite *ServiceParamValueLookupsSuite) makeSubtestData() (subtestData *para
 		},
 	}, nil)
 
-	_ = testdatagen.FetchOrMakeServiceParam(suite.DB(), testdatagen.Assertions{
-		ServiceParam: models.ServiceParam{
-			ServiceID:             subtestData.mtoServiceItemMS.ReServiceID,
-			ServiceItemParamKeyID: subtestData.paramKeyMTOAvailableToPrimeAt.ID,
-			ServiceItemParamKey:   subtestData.paramKeyMTOAvailableToPrimeAt,
+	factory.FetchOrBuildServiceParam(suite.DB(), []factory.Customization{
+		{
+			Model:    subtestData.mtoServiceItemMS.ReService,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    subtestData.paramKeyMTOAvailableToPrimeAt,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	subtestData.shuttleEstimatedWeight = unit.Pound(400)
 	subtestData.shuttleActualWeight = unit.Pound(450)
@@ -221,14 +241,21 @@ func (suite *ServiceParamValueLookupsSuite) makeSubtestData() (subtestData *para
 	}, nil)
 
 	// DOSHUT estimated weight
-	_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
-		ServiceParam: models.ServiceParam{
-			ServiceID:             subtestData.mtoServiceItemShuttle.ReServiceID,
-			ServiceItemParamKeyID: subtestData.paramKeyWeightEstimated.ID, // estimated weight
-			ServiceItemParamKey:   subtestData.paramKeyWeightEstimated,
-			IsOptional:            true,
+	factory.BuildServiceParam(suite.DB(), []factory.Customization{
+		{
+			Model:    subtestData.mtoServiceItemShuttle.ReService,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    subtestData.paramKeyWeightEstimated,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ServiceParam{
+				IsOptional: true,
+			},
+		},
+	}, nil)
 	subtestData.mtoServiceItemCrate1 = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 		{
 			Model:    subtestData.move,
@@ -243,30 +270,40 @@ func (suite *ServiceParamValueLookupsSuite) makeSubtestData() (subtestData *para
 			LinkOnly: true,
 		},
 	}, nil)
-	_ = testdatagen.MakeMTOServiceItemDimension(suite.DB(), testdatagen.Assertions{
-		MTOServiceItemDimension: models.MTOServiceItemDimension{
-			MTOServiceItemID: subtestData.mtoServiceItemCrate1.ID,
-			Type:             models.DimensionTypeCrate,
-			// These dimensions are chosen to overflow 32bit ints if multiplied, and give a fractional result
-			// when converted to cubic feet.
-			Length:    16*12*1000 + 1000,
-			Height:    8 * 12 * 1000,
-			Width:     8 * 12 * 1000,
-			CreatedAt: time.Time{},
-			UpdatedAt: time.Time{},
+	_ = factory.BuildMTOServiceItemDimension(suite.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItemDimension{
+				Type: models.DimensionTypeCrate,
+				// These dimensions are chosen to overflow 32bit ints if multiplied, and give a fractional result
+				// when converted to cubic feet.
+				Length:    16*12*1000 + 1000,
+				Height:    8 * 12 * 1000,
+				Width:     8 * 12 * 1000,
+				CreatedAt: time.Time{},
+				UpdatedAt: time.Time{},
+			},
 		},
-	})
-	_ = testdatagen.MakeMTOServiceItemDimension(suite.DB(), testdatagen.Assertions{
-		MTOServiceItemDimension: models.MTOServiceItemDimension{
-			MTOServiceItemID: subtestData.mtoServiceItemCrate1.ID,
-			Type:             models.DimensionTypeItem,
-			Length:           12000,
-			Height:           12000,
-			Width:            12000,
-			CreatedAt:        time.Time{},
-			UpdatedAt:        time.Time{},
+		{
+			Model:    subtestData.mtoServiceItemCrate1,
+			LinkOnly: true,
 		},
-	})
+	}, nil)
+	_ = factory.BuildMTOServiceItemDimension(suite.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItemDimension{
+				Type:      models.DimensionTypeItem,
+				Length:    12000,
+				Height:    12000,
+				Width:     12000,
+				CreatedAt: time.Time{},
+				UpdatedAt: time.Time{},
+			},
+		},
+		{
+			Model:    subtestData.mtoServiceItemCrate1,
+			LinkOnly: true,
+		},
+	}, nil)
 	subtestData.mtoServiceItemCrate2 = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 		{
 			Model:    subtestData.move,
@@ -281,30 +318,40 @@ func (suite *ServiceParamValueLookupsSuite) makeSubtestData() (subtestData *para
 			LinkOnly: true,
 		},
 	}, nil)
-	_ = testdatagen.MakeMTOServiceItemDimension(suite.DB(), testdatagen.Assertions{
-		MTOServiceItemDimension: models.MTOServiceItemDimension{
-			MTOServiceItemID: subtestData.mtoServiceItemCrate2.ID,
-			Type:             models.DimensionTypeCrate,
-			// These dimensions are chosen to overflow 32bit ints if multiplied, and give a fractional result
-			// when converted to cubic feet.
-			Length:    7000,
-			Height:    7000,
-			Width:     7000,
-			CreatedAt: time.Time{},
-			UpdatedAt: time.Time{},
+	_ = factory.BuildMTOServiceItemDimension(suite.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItemDimension{
+				Type: models.DimensionTypeCrate,
+				// These dimensions are chosen to overflow 32bit ints if multiplied, and give a fractional result
+				// when converted to cubic feet.
+				Length:    7000,
+				Height:    7000,
+				Width:     7000,
+				CreatedAt: time.Time{},
+				UpdatedAt: time.Time{},
+			},
 		},
-	})
-	_ = testdatagen.MakeMTOServiceItemDimension(suite.DB(), testdatagen.Assertions{
-		MTOServiceItemDimension: models.MTOServiceItemDimension{
-			MTOServiceItemID: subtestData.mtoServiceItemCrate2.ID,
-			Type:             models.DimensionTypeItem,
-			Length:           6000,
-			Height:           6000,
-			Width:            6000,
-			CreatedAt:        time.Time{},
-			UpdatedAt:        time.Time{},
+		{
+			Model:    subtestData.mtoServiceItemCrate2,
+			LinkOnly: true,
 		},
-	})
+	}, nil)
+	_ = factory.BuildMTOServiceItemDimension(suite.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItemDimension{
+				Type:      models.DimensionTypeItem,
+				Length:    6000,
+				Height:    6000,
+				Width:     6000,
+				CreatedAt: time.Time{},
+				UpdatedAt: time.Time{},
+			},
+		},
+		{
+			Model:    subtestData.mtoServiceItemCrate2,
+			LinkOnly: true,
+		},
+	}, nil)
 	subtestData.paramKeyDimensionHeight = factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{
 		{
 			Model: models.ServiceItemParamKey{
@@ -315,13 +362,16 @@ func (suite *ServiceParamValueLookupsSuite) makeSubtestData() (subtestData *para
 			},
 		},
 	}, nil)
-	_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
-		ServiceParam: models.ServiceParam{
-			ServiceID:             reServiceDCRT.ID,
-			ServiceItemParamKeyID: subtestData.paramKeyDimensionHeight.ID,
-			ServiceItemParamKey:   subtestData.paramKeyDimensionHeight,
+	factory.BuildServiceParam(suite.DB(), []factory.Customization{
+		{
+			Model:    reServiceDCRT,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    subtestData.paramKeyDimensionHeight,
+			LinkOnly: true,
+		},
+	}, nil)
 	subtestData.paramKeyDimensionWidth = factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{
 		{
 			Model: models.ServiceItemParamKey{
@@ -332,13 +382,16 @@ func (suite *ServiceParamValueLookupsSuite) makeSubtestData() (subtestData *para
 			},
 		},
 	}, nil)
-	_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
-		ServiceParam: models.ServiceParam{
-			ServiceID:             reServiceDCRT.ID,
-			ServiceItemParamKeyID: subtestData.paramKeyDimensionWidth.ID,
-			ServiceItemParamKey:   subtestData.paramKeyDimensionWidth,
+	factory.BuildServiceParam(suite.DB(), []factory.Customization{
+		{
+			Model:    reServiceDCRT,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    subtestData.paramKeyDimensionWidth,
+			LinkOnly: true,
+		},
+	}, nil)
 	subtestData.paramKeyDimensionLength = factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{
 		{
 			Model: models.ServiceItemParamKey{
@@ -349,13 +402,16 @@ func (suite *ServiceParamValueLookupsSuite) makeSubtestData() (subtestData *para
 			},
 		},
 	}, nil)
-	_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
-		ServiceParam: models.ServiceParam{
-			ServiceID:             reServiceDCRT.ID,
-			ServiceItemParamKeyID: subtestData.paramKeyDimensionLength.ID,
-			ServiceItemParamKey:   subtestData.paramKeyDimensionLength,
+	factory.BuildServiceParam(suite.DB(), []factory.Customization{
+		{
+			Model:    reServiceDCRT,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    subtestData.paramKeyDimensionLength,
+			LinkOnly: true,
+		},
+	}, nil)
 	subtestData.paramKeyCubicFeetBilled = factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{
 		{
 			Model: models.ServiceItemParamKey{
@@ -367,13 +423,16 @@ func (suite *ServiceParamValueLookupsSuite) makeSubtestData() (subtestData *para
 		},
 	}, nil)
 
-	_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
-		ServiceParam: models.ServiceParam{
-			ServiceID:             reServiceDCRT.ID,
-			ServiceItemParamKeyID: subtestData.paramKeyCubicFeetBilled.ID,
-			ServiceItemParamKey:   subtestData.paramKeyCubicFeetBilled,
+	factory.BuildServiceParam(suite.DB(), []factory.Customization{
+		{
+			Model:    reServiceDCRT,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    subtestData.paramKeyCubicFeetBilled,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	return subtestData
 }

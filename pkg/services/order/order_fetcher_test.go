@@ -78,7 +78,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
 		// Create a move with a shipment → GBLOC X
-		move := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
+		move := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
 
 		// Make a postal code and GBLOC → AGFM
 		factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), agfmPostalCode, "AGFM")
@@ -131,11 +131,14 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		officeUser, expectedMove := setupTestData()
 
 		// This move's pickup GBLOC of the office user's GBLOC, so it should not be returned
-		testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
-			PickupAddress: models.Address{
-				PostalCode: agfmPostalCode,
+		factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					PostalCode: agfmPostalCode,
+				},
+				Type: &factory.Addresses.PickupAddress,
 			},
-		})
+		}, nil)
 
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &services.ListOrderParams{Page: swag.Int64(1)})
 
@@ -154,8 +157,13 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		officeUser, expectedMove := setupTestData()
 
 		params := services.ListOrderParams{}
-		testdatagen.MakeHiddenHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
-
+		factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Show: models.BoolPointer(false),
+				},
+			},
+		}, nil)
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &params)
 
 		suite.FatalNoError(err)
@@ -171,7 +179,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		//                   and one a combination HHG and PPM move and make sure it's included
 		// Expected outcome: Both moves should be returned by ListOrders
 		officeUser, expectedMove := setupTestData()
-		expectedComboMove := testdatagen.MakeHHGPPMMoveWithShipment(suite.DB(), testdatagen.Assertions{})
+		expectedComboMove := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
 
 		moves, moveCount, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &services.ListOrderParams{})
 
@@ -198,11 +206,13 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		// Create the airforce move
 		airForce := models.AffiliationAIRFORCE
 		airForceString := "AIR_FORCE"
-		airForceMove := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
-			ServiceMember: models.ServiceMember{
-				Affiliation: &airForce,
+		airForceMove := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.ServiceMember{
+					Affiliation: &airForce,
+				},
 			},
-		})
+		}, nil)
 		// Filter by airforce move
 		params := services.ListOrderParams{Branch: &airForceString, Page: swag.Int64(1)}
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &params)
@@ -222,27 +232,31 @@ func (suite *OrderServiceSuite) TestListOrders() {
 
 		// Move with specified timestamp
 		submittedAt := time.Date(2022, 04, 01, 0, 0, 0, 0, time.UTC)
-		expectedMove := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				SubmittedAt: &submittedAt,
+		expectedMove := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					SubmittedAt: &submittedAt,
+				},
 			},
-		})
-
+		}, nil)
 		// Test edge cases (one day later)
 		submittedAt2 := time.Date(2022, 04, 02, 0, 0, 0, 0, time.UTC)
-		testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				SubmittedAt: &submittedAt2,
+		factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					SubmittedAt: &submittedAt2,
+				},
 			},
-		})
-
+		}, nil)
 		// Test edge cases (one second earlier)
 		submittedAt3 := time.Date(2022, 03, 31, 23, 59, 59, 59, time.UTC)
-		testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				SubmittedAt: &submittedAt3,
+		factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					SubmittedAt: &submittedAt3,
+				},
 			},
-		})
+		}, nil)
 
 		// Filter by submittedAt timestamp
 		params := services.ListOrderParams{SubmittedAt: &submittedAt}
@@ -265,36 +279,40 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		specifiedTimestamp1 := time.Date(2022, 04, 01, 1, 0, 0, 0, time.UTC)
 		specifiedTimestamp2 := time.Date(2022, 04, 01, 23, 59, 59, 999999000, time.UTC) // the upper bound is 999999499 nanoseconds but the DB only stores microseconds
 
-		matchingSubmittedAt := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				SubmittedAt: &specifiedDay,
+		matchingSubmittedAt := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					SubmittedAt: &specifiedDay,
+				},
 			},
-		})
-
-		matchingSCCompletedAt := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				ServiceCounselingCompletedAt: &specifiedTimestamp1,
+		}, nil)
+		matchingSCCompletedAt := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					ServiceCounselingCompletedAt: &specifiedTimestamp1,
+				},
 			},
-		})
-
-		matchingApprovalsRequestedAt := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				ApprovalsRequestedAt: &specifiedTimestamp2,
+		}, nil)
+		matchingApprovalsRequestedAt := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					ApprovalsRequestedAt: &specifiedTimestamp2,
+				},
 			},
-		})
-
+		}, nil)
 		// Test non dates matching
 		nonMatchingDate1 := time.Date(2022, 04, 02, 0, 0, 0, 0, time.UTC)
 		nonMatchingDate2 := time.Date(2022, 03, 31, 23, 59, 59, 999999000, time.UTC) // the upper bound is 999999499 nanoseconds but the DB only stores microseconds
 		nonMatchingDate3 := time.Date(2023, 04, 01, 0, 0, 0, 0, time.UTC)
-		testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				SubmittedAt:                  &nonMatchingDate1,
-				ServiceCounselingCompletedAt: &nonMatchingDate2,
-				ApprovalsRequestedAt:         &nonMatchingDate3,
+		factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					SubmittedAt:                  &nonMatchingDate1,
+					ServiceCounselingCompletedAt: &nonMatchingDate2,
+					ApprovalsRequestedAt:         &nonMatchingDate3,
+				},
 			},
-		})
-
+		}, nil)
 		// Filter by AppearedInTOOAt timestamp
 		params := services.ListOrderParams{AppearedInTOOAt: &specifiedDay}
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &params)
@@ -317,11 +335,13 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		officeUser, _ := setupTestData()
 
 		requestedPickupDate := time.Date(2022, 04, 01, 0, 0, 0, 0, time.UTC)
-		createdMove := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				RequestedPickupDate: &requestedPickupDate,
+		createdMove := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: &requestedPickupDate,
+				},
 			},
-		})
+		}, nil)
 		requestedMoveDateString := createdMove.MTOShipments[0].RequestedPickupDate.Format("2006-01-02")
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &services.ListOrderParams{
 			RequestedMoveDate: &requestedMoveDateString,
@@ -477,12 +497,15 @@ func (suite *OrderServiceSuite) TestListOrdersUSMCGBLOC() {
 		marines := models.AffiliationMARINES
 		// It doesn't matter what the Origin GBLOC is for the move. Only the Marines
 		// affiliation matters for office users who are tied to the USMC GBLOC.
-		testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
-			ServiceMember: models.ServiceMember{Affiliation: &marines},
-		})
-
+		factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.ServiceMember{
+					Affiliation: &marines,
+				},
+			},
+		}, nil)
 		// Create move where service member has the default ARMY affiliation
-		testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
+		factory.BuildMoveWithShipment(suite.DB(), nil, nil)
 
 		tioRole := roles.Role{RoleType: roles.RoleTypeTIO}
 		tooRole := roles.Role{RoleType: roles.RoleTypeTOO}
@@ -959,9 +982,13 @@ func (suite *OrderServiceSuite) TestListOrdersMarines() {
 	suite.Run("does not return moves where the service member affiliation is Marines for non-USMC office user", func() {
 		orderFetcher := NewOrderFetcher()
 		marines := models.AffiliationMARINES
-		testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
-			ServiceMember: models.ServiceMember{Affiliation: &marines},
-		})
+		factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.ServiceMember{
+					Affiliation: &marines,
+				},
+			},
+		}, nil)
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
 		params := services.ListOrderParams{PerPage: swag.Int64(2), Page: swag.Int64(1)}
@@ -1028,7 +1055,7 @@ func (suite *OrderServiceSuite) TestListOrdersWithPagination() {
 	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
 	for i := 0; i < 2; i++ {
-		testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
+		factory.BuildMoveWithShipment(suite.DB(), nil, nil)
 	}
 
 	orderFetcher := NewOrderFetcher()
@@ -1060,26 +1087,38 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 	setupTestData := func() (models.Move, models.Move) {
 
 		// CREATE EXPECTED MOVES
-		expectedMove1 := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
-			// Default New Duty Location name is Fort Gordon
-			Move: models.Move{
-				Status:  models.MoveStatusAPPROVED,
-				Locator: "AA1234",
+		expectedMove1 := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{ // Default New Duty Location name is Fort Gordon
+				Model: models.Move{
+					Status:  models.MoveStatusAPPROVED,
+					Locator: "AA1234",
+				},
 			},
-			MTOShipment: models.MTOShipment{
-				RequestedPickupDate: &requestedMoveDate1,
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: &requestedMoveDate1,
+				},
 			},
-		})
-		expectedMove2 := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				Locator: "TTZ123",
+		}, nil)
+		expectedMove2 := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Locator: "TTZ123",
+				},
 			},
-			// Lea Spacemen
-			ServiceMember: models.ServiceMember{Affiliation: &affiliation, FirstName: &serviceMemberFirstName, Edipi: &edipi},
-			MTOShipment: models.MTOShipment{
-				RequestedPickupDate: &requestedMoveDate2,
+			{
+				Model: models.ServiceMember{
+					Affiliation: &affiliation,
+					FirstName:   &serviceMemberFirstName,
+					Edipi:       &edipi,
+				},
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: &requestedMoveDate2,
+				},
+			},
+		}, nil)
 		// Create a second shipment so we can test min() sort
 		factory.BuildMTOShipmentWithMove(&expectedMove2, suite.DB(), []factory.Customization{
 			{
@@ -1172,15 +1211,16 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 		officeUser = factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		now := time.Now()
 		oneWeekAgo := now.AddDate(0, 0, -7)
-		move1 := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				SubmittedAt: &oneWeekAgo,
+		move1 := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					SubmittedAt: &oneWeekAgo,
+				},
 			},
-		})
-
-		move2 := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{})
+		}, nil)
+		move2 := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
 		factory.BuildMTOShipmentWithMove(&move2, suite.DB(), nil, nil)
-		move3 := testdatagen.MakeServiceCounselingCompletedMove(suite.DB(), testdatagen.Assertions{})
+		move3 := factory.BuildServiceCounselingCompletedMove(suite.DB(), nil, nil)
 		factory.BuildMTOShipmentWithMove(&move3, suite.DB(), nil, nil)
 
 		params := services.ListOrderParams{Sort: models.StringPointer("appearedInTooAt"), Order: models.StringPointer("asc")}
@@ -1198,11 +1238,13 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 		setupTestData()
 
 		// Last name sort is the only one that needs 3 moves for a complete test, so add that here at the end
-		testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
-			// Leo Zephyer
-			ServiceMember: models.ServiceMember{LastName: &serviceMemberLastName},
-		})
-
+		factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.ServiceMember{ // Leo Zephyer
+					LastName: &serviceMemberLastName,
+				},
+			},
+		}, nil)
 		params := services.ListOrderParams{Sort: swag.String("lastName"), Order: swag.String("asc")}
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &params)
 
@@ -1481,14 +1523,13 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithGBLOC
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 
 		// Create a move with Origin KKFA, needs service couseling
-		hhgMoveType := models.SelectedMoveTypeHHG
-		kkfaMove := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				SelectedMoveType: &hhgMoveType,
-				Status:           models.MoveStatusNeedsServiceCounseling,
+		kkfaMove := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusNeedsServiceCounseling,
+				},
 			},
-		})
-
+		}, nil)
 		// Create data for a second Origin ZANY
 		dutyLocationAddress2 := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
@@ -1516,18 +1557,19 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithGBLOC
 		}, nil)
 
 		// Create a second move from the ZANY gbloc
-		testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				Status:  models.MoveStatusNeedsServiceCounseling,
-				Locator: "ZZ1234",
+		factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status:  models.MoveStatusNeedsServiceCounseling,
+					Locator: "ZZ1234",
+				},
 			},
-			Order: models.Order{
-				OriginDutyLocation:   &originDutyLocation2,
-				OriginDutyLocationID: &originDutyLocation2.ID,
+			{
+				Model:    originDutyLocation2,
+				LinkOnly: true,
+				Type:     &factory.DutyLocations.OriginDutyLocation,
 			},
-			OriginDutyLocation: originDutyLocation2,
-		})
-
+		}, nil)
 		// Setup and run the function under test requesting status NEEDS SERVICE COUNSELING
 		orderFetcher := NewOrderFetcher()
 		statuses := []string{"NEEDS SERVICE COUNSELING"}
@@ -1544,8 +1586,13 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithGBLOC
 
 func (suite *OrderServiceSuite) TestListOrdersForTOOWithNTSRelease() {
 	// Make an NTS-Release shipment (and a move).  Should not have a pickup address.
-	testdatagen.MakeNTSRMoveWithShipment(suite.DB(), testdatagen.Assertions{})
-
+	factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypeHHGOutOfNTSDom,
+			},
+		},
+	}, nil)
 	// Make a TOO user and the postal code to GBLOC link.
 	tooOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 

@@ -128,7 +128,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestsForMoveHandler() {
 	setupTestData := func() (models.PaymentServiceItemParam, models.OfficeUser) {
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
-		move := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
+		move := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
 		moveLocator = move.Locator
 
 		// This should create all the other associated records we need.

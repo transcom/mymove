@@ -377,9 +377,5 @@ func MoveTaskOrderModel(mtoPayload *supportmessages.MoveTaskOrder) *models.Move 
 		model.AvailableToPrimeAt = &availableToPrimeAt
 	}
 
-	if mtoPayload.SelectedMoveType != nil {
-		model.SelectedMoveType = (*models.SelectedMoveType)(mtoPayload.SelectedMoveType)
-	}
-
 	return model
 }
