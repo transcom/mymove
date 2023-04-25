@@ -4,6 +4,7 @@ import (
 	"io"
 	"log"
 
+	"github.com/benbjohnson/clock"
 	"github.com/go-openapi/loads"
 	"github.com/go-openapi/runtime"
 	"github.com/pkg/errors"
@@ -122,7 +123,7 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 
 	internalAPI.PostalCodesValidatePostalCodeWithRateDataHandler = ValidatePostalCodeWithRateDataHandler{
 		handlerConfig,
-		postalcodeservice.NewPostalCodeValidator(),
+		postalcodeservice.NewPostalCodeValidator(clock.New()),
 	}
 
 	mtoShipmentCreator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moveRouter)
