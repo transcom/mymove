@@ -168,6 +168,14 @@ func (suite *PaperworkServiceSuite) TestConvertFileToPDF() {
 
 		defer expectedPDF.Close()
 
+		expectedBytes, readOriginalErr := io.ReadAll(expectedPDF)
+
+		suite.FatalNoError(readOriginalErr)
+
+		_, seekErr := expectedPDF.Seek(0, io.SeekStart)
+
+		suite.FatalNoError(seekErr)
+
 		mockGotenbergServer := suite.setUpMockGotenbergServer(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusOK)
 
@@ -190,14 +198,6 @@ func (suite *PaperworkServiceSuite) TestConvertFileToPDF() {
 		err := convertFileToPDF(suite.AppContextForTest(), fileInfo)
 
 		if suite.NotNil(fileInfo.PDFStream) && suite.NoError(err) {
-			_, seekErr := expectedPDF.Seek(0, io.SeekStart)
-
-			suite.FatalNoError(seekErr)
-
-			expectedBytes, readOriginalErr := io.ReadAll(expectedPDF)
-
-			suite.FatalNoError(readOriginalErr)
-
 			actualBytes, readConvertedErr := io.ReadAll(fileInfo.PDFStream)
 
 			suite.NoError(readConvertedErr)
