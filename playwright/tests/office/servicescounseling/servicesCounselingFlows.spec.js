@@ -187,7 +187,7 @@ test.describe('Services counselor user', () => {
       await page.locator('#requestedDeliveryDate').clear();
       await page.locator('#requestedDeliveryDate').type('16 Mar 2022');
       await page.locator('#requestedDeliveryDate').blur();
-      await page.getByRole('group', { name: 'Delivery location' }).getByText('Yes').click();
+      await page.getByRole('group', { name: 'Delivery location' }).getByText('Yes').nth(1).click();
       await page.locator('input[name="delivery.address.streetAddress1"]').clear();
       await page.locator('input[name="delivery.address.streetAddress1"]').type('7 q st');
       await page.locator('input[name="delivery.address.city"]').clear();
