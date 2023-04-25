@@ -424,3 +424,34 @@ func BuildRealMTOServiceItemWithAllDeps(db *pop.Connection, serviceCode models.R
 	return models.MTOServiceItem{}
 
 }
+
+// BuildFullDLHMTOServiceItems makes a DLH type service item along with
+// all its expected parameters returns the created move and all
+// service items
+func BuildFullDLHMTOServiceItems(db *pop.Connection, customs []Customization, traits []Trait) (models.Move, models.MTOServiceItems) {
+
+	mtoShipment := BuildMTOShipment(db, customs, traits)
+
+	move := mtoShipment.MoveTaskOrder
+	move.MTOShipments = models.MTOShipments{mtoShipment}
+
+	var mtoServiceItems models.MTOServiceItems
+	// Service Item MS
+	mtoServiceItemMS := BuildRealMTOServiceItemWithAllDeps(db,
+		models.ReServiceCodeMS, move, mtoShipment)
+	mtoServiceItems = append(mtoServiceItems, mtoServiceItemMS)
+	// Service Item CS
+	mtoServiceItemCS := BuildRealMTOServiceItemWithAllDeps(db,
+		models.ReServiceCodeCS, move, mtoShipment)
+	mtoServiceItems = append(mtoServiceItems, mtoServiceItemCS)
+	// Service Item DLH
+	mtoServiceItemDLH := BuildRealMTOServiceItemWithAllDeps(db,
+		models.ReServiceCodeDLH, move, mtoShipment)
+	mtoServiceItems = append(mtoServiceItems, mtoServiceItemDLH)
+	// Service Item FSC
+	mtoServiceItemFSC := BuildRealMTOServiceItemWithAllDeps(db,
+		models.ReServiceCodeFSC, move, mtoShipment)
+	mtoServiceItems = append(mtoServiceItems, mtoServiceItemFSC)
+
+	return move, mtoServiceItems
+}

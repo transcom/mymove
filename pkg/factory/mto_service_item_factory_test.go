@@ -246,4 +246,32 @@ func (suite *FactorySuite) TestBuildMTOServiceItem() {
 		})
 	})
 
+	suite.Run("build full DLH MTOServiceItem", func() {
+		// the original MakeFullDHLMTOServiceItem did an override of
+		// the MTOShipment Status to ensure it was Submitted, but in
+		// our conversion, we will require the caller to make that
+		// customization
+		move, mtoServiceItems := BuildFullDLHMTOServiceItems(suite.DB(), []Customization{
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusSubmitted,
+				},
+			},
+		}, nil)
+
+		suite.Equal(1, len(move.MTOShipments))
+		suite.Equal(models.MTOShipmentStatusSubmitted, move.MTOShipments[0].Status)
+		reServiceCodes := []models.ReServiceCode{}
+		for i := range mtoServiceItems {
+			reServiceCodes = append(reServiceCodes, mtoServiceItems[i].ReService.Code)
+		}
+		expectedCodes := []models.ReServiceCode{
+			models.ReServiceCodeMS,
+			models.ReServiceCodeCS,
+			models.ReServiceCodeDLH,
+			models.ReServiceCodeFSC,
+		}
+		suite.Equal(expectedCodes, reServiceCodes)
+	})
+
 }
