@@ -421,6 +421,7 @@ func checkOrCreatePPMShipment(db *pop.Connection, assertions Assertions) models.
 	ppmShipment := assertions.PPMShipment
 
 	if !assertions.Stub && ppmShipment.CreatedAt.IsZero() || ppmShipment.ID.IsNil() {
+		// assertions passed in means we cannot yet convert to BuildPPMShipment
 		ppmShipment = MakeApprovedPPMShipmentWithActualInfo(db, assertions)
 	}
 

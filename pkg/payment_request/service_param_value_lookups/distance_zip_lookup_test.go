@@ -55,7 +55,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 	})
 
 	suite.Run("Calculate zip distance lookup without a saved service item", func() {
-		ppmShipment := testdatagen.MakeDefaultPPMShipment(suite.DB())
+		ppmShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
 
 		distanceZipLookup := DistanceZipLookup{
 			PickupAddress:      models.Address{PostalCode: ppmShipment.PickupPostalCode},
@@ -81,13 +81,13 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 
 	suite.Run("Call ZipTransitDistance on PPMs with shipments that have a distance", func() {
 		miles := unit.Miles(defaultZipDistance)
-		ppmShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Distance:     &miles,
-				ShipmentType: models.MTOShipmentTypePPM,
+		ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Distance: &miles,
+				},
 			},
-		})
-
+		}, nil)
 		distanceZipLookup := DistanceZipLookup{
 			PickupAddress:      models.Address{PostalCode: ppmShipment.PickupPostalCode},
 			DestinationAddress: models.Address{PostalCode: ppmShipment.DestinationPostalCode},

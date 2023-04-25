@@ -17,7 +17,7 @@ import (
 func (suite *ProgearWeightTicketSuite) TestUpdateProgearWeightTicket() {
 	setupForTest := func(appCtx appcontext.AppContext, overrides *models.ProgearWeightTicket, hasdocFiles bool) *models.ProgearWeightTicket {
 		serviceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
-		ppmShipment := testdatagen.MakeMinimalDefaultPPMShipment(suite.DB())
+		ppmShipment := factory.BuildMinimalPPMShipment(suite.DB(), nil, nil)
 
 		document := factory.BuildDocumentLinkServiceMember(suite.DB(), serviceMember)
 

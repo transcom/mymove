@@ -786,14 +786,18 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 
 		hasProGear := true
 		now := time.Now()
-		ppmShipment := testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				AvailableToPrimeAt: &now,
+		ppmShipment := factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					AvailableToPrimeAt: &now,
+				},
 			},
-			PPMShipment: models.PPMShipment{
-				HasProGear: &hasProGear,
+			{
+				Model: models.PPMShipment{
+					HasProGear: &hasProGear,
+				},
 			},
-		})
+		}, nil)
 		year, month, day := time.Now().Date()
 		actualMoveDate := time.Date(year, month, day-7, 0, 0, 0, 0, time.UTC)
 		expectedDepartureDate := actualMoveDate.Add(time.Hour * 24 * 2)
@@ -2459,15 +2463,18 @@ func (suite *HandlerSuite) TestDeleteMTOShipmentHandler() {
 	suite.Run("Returns 204 when all validations pass", func() {
 		handler := setupTestData()
 		now := time.Now()
-		ppmShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				AvailableToPrimeAt: &now,
+		ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					AvailableToPrimeAt: &now,
+				},
 			},
-			PPMShipment: models.PPMShipment{
-				Status: models.PPMShipmentStatusSubmitted,
+			{
+				Model: models.PPMShipment{
+					Status: models.PPMShipmentStatusSubmitted,
+				},
 			},
-		})
-
+		}, nil)
 		params := mtoshipmentops.DeleteMTOShipmentParams{
 			HTTPRequest:   request,
 			MtoShipmentID: *handlers.FmtUUID(ppmShipment.ShipmentID),
@@ -2511,12 +2518,13 @@ func (suite *HandlerSuite) TestDeleteMTOShipmentHandler() {
 
 	suite.Run("Returns 404 when deleting a move not available to prime", func() {
 		handler := setupTestData()
-		ppmShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				AvailableToPrimeAt: nil,
+		ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					AvailableToPrimeAt: nil,
+				},
 			},
-		})
-
+		}, nil)
 		deletionParams := mtoshipmentops.DeleteMTOShipmentParams{
 			HTTPRequest:   request,
 			MtoShipmentID: *handlers.FmtUUID(ppmShipment.ShipmentID),

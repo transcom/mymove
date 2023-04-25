@@ -464,6 +464,8 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		})
 		// Add another PPM for the same move submitted on April 1st
 		closeoutInitiatedDate2 := time.Date(2022, 04, 02, 0, 0, 0, 0, time.UTC)
+
+		// Replace this after replacing MakePPMShipmentThatNeedsPaymentApproval
 		testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{
 			PPMShipment: models.PPMShipment{
 				SubmittedAt: &closeoutInitiatedDate2,
@@ -560,16 +562,17 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForArmyAirforce() {
 				},
 			},
 		}, nil)
-		testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{
-			PPMShipment: models.PPMShipment{
-				Status: models.PPMShipmentStatusNeedsPaymentApproval,
+		factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					Status: models.PPMShipmentStatusNeedsPaymentApproval,
+				},
 			},
-			MTOShipment: models.MTOShipment{
-				ShipmentType: models.MTOShipmentTypePPM,
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-			Move: move,
-		})
-
+		}, nil)
 		// Moves that are not ready for closeout should not show in this queue
 		af := models.AffiliationAIRFORCE
 		afMove := factory.BuildMove(suite.DB(), []factory.Customization{
@@ -585,16 +588,17 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForArmyAirforce() {
 				},
 			},
 		}, nil)
-		testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{
-			PPMShipment: models.PPMShipment{
-				Status: models.PPMShipmentStatusDraft,
+		factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					Status: models.PPMShipmentStatusDraft,
+				},
 			},
-			MTOShipment: models.MTOShipment{
-				ShipmentType: models.MTOShipmentTypePPM,
+			{
+				Model:    afMove,
+				LinkOnly: true,
 			},
-			Move: afMove,
-		})
-
+		}, nil)
 		// Coast guard moves should not show up in our office user's closeout queue
 		cg := models.AffiliationCOASTGUARD
 		cgMove := factory.BuildMove(suite.DB(), []factory.Customization{
@@ -611,15 +615,17 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForArmyAirforce() {
 			},
 		}, nil)
 
-		testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{
-			PPMShipment: models.PPMShipment{
-				Status: models.PPMShipmentStatusNeedsPaymentApproval,
+		factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					Status: models.PPMShipmentStatusNeedsPaymentApproval,
+				},
 			},
-			MTOShipment: models.MTOShipment{
-				ShipmentType: models.MTOShipmentTypePPM,
+			{
+				Model:    cgMove,
+				LinkOnly: true,
 			},
-			Move: cgMove,
-		})
+		}, nil)
 
 		params := services.ListOrderParams{PerPage: swag.Int64(9), Page: swag.Int64(1), NeedsPPMCloseout: swag.Bool(true), Status: []string{string(models.MoveStatusNeedsServiceCounseling)}}
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUserSC.ID, &params)
@@ -646,16 +652,17 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForArmyAirforce() {
 				},
 			},
 		}, nil)
-		testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{
-			PPMShipment: models.PPMShipment{
-				Status: models.PPMShipmentStatusNeedsPaymentApproval,
+		factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					Status: models.PPMShipmentStatusNeedsPaymentApproval,
+				},
 			},
-			MTOShipment: models.MTOShipment{
-				ShipmentType: models.MTOShipmentTypePPM,
+			{
+				Model:    closeoutMove,
+				LinkOnly: true,
 			},
-			Move: closeoutMove,
-		})
-
+		}, nil)
 		// PPM moves that are not in one of the closeout statuses
 		airforce := models.AffiliationAIRFORCE
 		nonCloseoutMove := factory.BuildMove(suite.DB(), []factory.Customization{
@@ -671,16 +678,17 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForArmyAirforce() {
 				},
 			},
 		}, nil)
-		testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{
-			PPMShipment: models.PPMShipment{
-				Status: models.PPMShipmentStatusDraft,
+		factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					Status: models.PPMShipmentStatusDraft,
+				},
 			},
-			MTOShipment: models.MTOShipment{
-				ShipmentType: models.MTOShipmentTypePPM,
+			{
+				Model:    nonCloseoutMove,
+				LinkOnly: true,
 			},
-			Move: nonCloseoutMove,
-		})
-
+		}, nil)
 		params := services.ListOrderParams{PerPage: swag.Int64(9), Page: swag.Int64(1), NeedsPPMCloseout: swag.Bool(false), Status: []string{string(models.MoveStatusNeedsServiceCounseling)}}
 
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUserSC.ID, &params)
@@ -712,15 +720,17 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 				},
 			},
 		}, nil)
-		testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{
-			PPMShipment: models.PPMShipment{
-				Status: models.PPMShipmentStatusNeedsPaymentApproval,
+		factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					Status: models.PPMShipmentStatusNeedsPaymentApproval,
+				},
 			},
-			MTOShipment: models.MTOShipment{
-				ShipmentType: models.MTOShipmentTypePPM,
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-			Move: move,
-		})
+		}, nil)
 
 		cg := models.AffiliationCOASTGUARD
 		cgMove := factory.BuildMove(suite.DB(), []factory.Customization{
@@ -736,16 +746,17 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 				},
 			},
 		}, nil)
-		testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{
-			PPMShipment: models.PPMShipment{
-				Status: models.PPMShipmentStatusNeedsPaymentApproval,
+		factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					Status: models.PPMShipmentStatusNeedsPaymentApproval,
+				},
 			},
-			MTOShipment: models.MTOShipment{
-				ShipmentType: models.MTOShipmentTypePPM,
+			{
+				Model:    cgMove,
+				LinkOnly: true,
 			},
-			Move: cgMove,
-		})
-
+		}, nil)
 		officeUserSC := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
 			{
 				Model: models.TransportationOffice{
@@ -779,16 +790,17 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 				},
 			},
 		}, nil)
-		testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{
-			PPMShipment: models.PPMShipment{
-				Status: models.PPMShipmentStatusNeedsPaymentApproval,
+		factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					Status: models.PPMShipmentStatusNeedsPaymentApproval,
+				},
 			},
-			MTOShipment: models.MTOShipment{
-				ShipmentType: models.MTOShipmentTypePPM,
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-			Move: move,
-		})
-
+		}, nil)
 		army := models.AffiliationARMY
 		nonMarineMove := factory.BuildMove(suite.DB(), []factory.Customization{
 			{
@@ -803,16 +815,17 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 				},
 			},
 		}, nil)
-		testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{
-			PPMShipment: models.PPMShipment{
-				Status: models.PPMShipmentStatusNeedsPaymentApproval,
+		factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					Status: models.PPMShipmentStatusNeedsPaymentApproval,
+				},
 			},
-			MTOShipment: models.MTOShipment{
-				ShipmentType: models.MTOShipmentTypePPM,
+			{
+				Model:    nonMarineMove,
+				LinkOnly: true,
 			},
-			Move: nonMarineMove,
-		})
-
+		}, nil)
 		officeUserSC := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
 			{
 				Model: models.TransportationOffice{
@@ -846,16 +859,17 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 				},
 			},
 		}, nil)
-		testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{
-			PPMShipment: models.PPMShipment{
-				Status: models.PPMShipmentStatusNeedsPaymentApproval,
+		factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					Status: models.PPMShipmentStatusNeedsPaymentApproval,
+				},
 			},
-			MTOShipment: models.MTOShipment{
-				ShipmentType: models.MTOShipmentTypePPM,
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-			Move: move,
-		})
-
+		}, nil)
 		army := models.AffiliationARMY
 		armyMove := factory.BuildMove(suite.DB(), []factory.Customization{
 			{
@@ -870,16 +884,17 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 				},
 			},
 		}, nil)
-		testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{
-			PPMShipment: models.PPMShipment{
-				Status: models.PPMShipmentStatusNeedsPaymentApproval,
+		factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					Status: models.PPMShipmentStatusNeedsPaymentApproval,
+				},
 			},
-			MTOShipment: models.MTOShipment{
-				ShipmentType: models.MTOShipmentTypePPM,
+			{
+				Model:    armyMove,
+				LinkOnly: true,
 			},
-			Move: armyMove,
-		})
-
+		}, nil)
 		officeUserSC := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
 			{
 				Model: models.TransportationOffice{
@@ -911,16 +926,17 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 				},
 			},
 		}, nil)
-		testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{
-			PPMShipment: models.PPMShipment{
-				Status: models.PPMShipmentStatusPaymentApproved,
+		factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					Status: models.PPMShipmentStatusPaymentApproved,
+				},
 			},
-			MTOShipment: models.MTOShipment{
-				ShipmentType: models.MTOShipmentTypePPM,
+			{
+				Model:    cgMoveInWrongStatus,
+				LinkOnly: true,
 			},
-			Move: cgMoveInWrongStatus,
-		})
-
+		}, nil)
 		officeUserSC := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
 			{
 				Model: models.TransportationOffice{
@@ -1613,13 +1629,17 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPM() {
 			},
 		},
 	}, nil)
-	ppmShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
-		Move: move,
-		PPMShipment: models.PPMShipment{
-			PickupPostalCode: postalCode,
+	ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
-
+		{
+			Model: models.PPMShipment{
+				PickupPostalCode: postalCode,
+			},
+		},
+	}, nil)
 	// Make a TOO user.
 	tooOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 	// GBLOC for the below doesn't really matter, it just means the query for the moves passes the inner join in ListOrders
@@ -1642,11 +1662,13 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPMWithDeletedShipment()
 			},
 		},
 	}, nil)
-	ppmShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
-		PPMShipment: models.PPMShipment{
-			PickupPostalCode: postalCode,
+	ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+		{
+			Model: models.PPMShipment{
+				PickupPostalCode: postalCode,
+			},
 		},
-	})
+	}, nil)
 	factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 		{
 			Model:    move,
@@ -1685,21 +1707,31 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPMWithOneDeletedShipmen
 		},
 	}, nil)
 	// This shipment is created first, but later deleted
-	ppmShipment1 := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
-		Move: move,
-		PPMShipment: models.PPMShipment{
-			PickupPostalCode: postalCode,
-			CreatedAt:        time.Now(),
+	ppmShipment1 := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.PPMShipment{
+				PickupPostalCode: postalCode,
+				CreatedAt:        time.Now(),
+			},
+		},
+	}, nil)
 	// This shipment is created after the first one, but not deleted
-	testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
-		Move: move,
-		PPMShipment: models.PPMShipment{
-			PickupPostalCode: postalCode,
-			CreatedAt:        time.Now().Add(time.Minute * time.Duration(1)),
+	factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.PPMShipment{
+				PickupPostalCode: postalCode,
+				CreatedAt:        time.Now().Add(time.Minute * time.Duration(1)),
+			},
+		},
+	}, nil)
 	factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 		{
 			Model:    move,

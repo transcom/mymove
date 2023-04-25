@@ -76,7 +76,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentFetcher() {
 
 	suite.Run("GetPPMShipment", func() {
 		suite.Run("Can fetch a PPM Shipment", func() {
-			ppmShipment := testdatagen.MakeDefaultPPMShipment(suite.DB())
+			ppmShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
 
 			ppmShipmentReturned, err := fetcher.GetPPMShipment(
 				suite.AppContextForTest(),
@@ -238,7 +238,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentFetcher() {
 		})
 
 		suite.Run("Returns an error if an invalid association is requested", func() {
-			ppmShipment := testdatagen.MakeDefaultPPMShipment(suite.DB())
+			ppmShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
 
 			invalidAssociation := "invalid"
 			ppmShipmentReturned, err := fetcher.GetPPMShipment(
@@ -259,7 +259,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentFetcher() {
 		})
 
 		suite.Run("Returns an error if the shipment has been deleted", func() {
-			ppmShipment := testdatagen.MakeDefaultPPMShipment(suite.DB())
+			ppmShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
 
 			err := utilities.SoftDestroy(suite.DB(), &ppmShipment)
 			suite.FatalNoError(err)
@@ -390,7 +390,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentFetcher() {
 		})
 
 		suite.Run("Returns an error if an invalid postload association is passed in", func() {
-			ppmShipment := testdatagen.MakeDefaultPPMShipment(suite.DB())
+			ppmShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
 
 			invalidAssociation := "invalid"
 			ppmShipmentReturned, err := fetcher.GetPPMShipment(
@@ -726,7 +726,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentFetcher() {
 		suite.Run("Returns an error if an invalid association is passed in", func() {
 			appCtx := suite.AppContextForTest()
 
-			ppmShipment := testdatagen.MakeDefaultPPMShipment(appCtx.DB())
+			ppmShipment := factory.BuildPPMShipment(appCtx.DB(), nil, nil)
 
 			invalidAssociation := "invalid_association"
 
@@ -855,7 +855,7 @@ func (suite *PPMShipmentSuite) TestFetchPPMShipment() {
 	})
 
 	suite.Run("FindPPMShipment - returns not found for deleted shipment", func() {
-		ppmShipment := testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{})
+		ppmShipment := factory.BuildMinimalPPMShipment(suite.DB(), nil, nil)
 
 		err := utilities.SoftDestroy(suite.DB(), &ppmShipment)
 		suite.NoError(err)
@@ -917,7 +917,7 @@ func (suite *PPMShipmentSuite) TestFetchPPMShipment() {
 	})
 
 	suite.Run("FetchPPMShipmentFromMTOShipmentID - finds records", func() {
-		ppm := testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{})
+		ppm := factory.BuildMinimalPPMShipment(suite.DB(), nil, nil)
 
 		retrievedPPM, _ := FetchPPMShipmentFromMTOShipmentID(suite.AppContextForTest(), ppm.ShipmentID)
 
@@ -936,7 +936,7 @@ func (suite *PPMShipmentSuite) TestFetchPPMShipment() {
 	})
 
 	suite.Run("FetchPPMShipmentFromMTOShipmentID  - returns not found for deleted shipment", func() {
-		ppmShipment := testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{})
+		ppmShipment := factory.BuildMinimalPPMShipment(suite.DB(), nil, nil)
 
 		err := utilities.SoftDestroy(suite.DB(), &ppmShipment)
 		suite.NoError(err)
@@ -961,7 +961,7 @@ func (suite *PPMShipmentSuite) TestFetchPPMShipment() {
 	})
 
 	suite.Run("FindPPMShipmentAndWeightTickets - still returns if weightTicket does not exist", func() {
-		ppmShipment := testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{})
+		ppmShipment := factory.BuildMinimalPPMShipment(suite.DB(), nil, nil)
 		foundPPMShipment, err := FindPPMShipmentAndWeightTickets(suite.AppContextForTest(), ppmShipment.ID)
 
 		suite.Nil(err)

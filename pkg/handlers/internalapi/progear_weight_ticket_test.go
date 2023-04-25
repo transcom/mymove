@@ -30,7 +30,7 @@ func (suite *HandlerSuite) TestCreateProGearWeightTicketHandler() {
 		handler     CreateProGearWeightTicketHandler
 	}
 	makeCreateSubtestData := func(authenticateRequest bool) (subtestData progearCreateSubtestData) {
-		subtestData.ppmShipment = testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{})
+		subtestData.ppmShipment = factory.BuildPPMShipment(suite.DB(), nil, nil)
 		endpoint := fmt.Sprintf("/ppm-shipments/%s/pro-gear-weight-tickets", subtestData.ppmShipment.ID.String())
 		req := httptest.NewRequest("POST", endpoint, nil)
 		serviceMember := subtestData.ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember

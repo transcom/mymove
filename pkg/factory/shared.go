@@ -127,6 +127,7 @@ type addressGroup struct {
 	SITOriginHHGOriginalAddress CustomType
 	SITOriginHHGActualAddress   CustomType
 	SITDestinationFinalAddress  CustomType
+	W2Address                   CustomType
 }
 
 // Addresses is the struct to access the various fields externally
@@ -142,6 +143,7 @@ var Addresses = addressGroup{
 	SITOriginHHGOriginalAddress: "SITOriginHHGOriginalAddress",
 	SITOriginHHGActualAddress:   "SITOriginHHGActualAddress",
 	SITDestinationFinalAddress:  "SITDestinationFinalAddress",
+	W2Address:                   "W2Address",
 }
 
 // dimensionGroup is a grouping of all the Dimension related fields

@@ -32,7 +32,7 @@ func (suite *HandlerSuite) TestCreateMovingExpenseHandler() {
 
 	makeCreateSubtestData := func(authenticateRequest bool) (subtestData movingExpenseCreateSubtestData) {
 
-		subtestData.ppmShipment = testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{})
+		subtestData.ppmShipment = factory.BuildPPMShipment(suite.DB(), nil, nil)
 		endpoint := fmt.Sprintf("/ppm-shipments/%s/moving-expense", subtestData.ppmShipment.ID.String())
 		req := httptest.NewRequest("POST", endpoint, nil)
 		serviceMember := subtestData.ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember

@@ -247,22 +247,17 @@ func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
 	suite.Run("Submits ppm success", func() {
 		// Given: a set of orders, a move, user and servicemember
 		move := factory.BuildMove(suite.DB(), nil, nil)
-
-		hhgShipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
+		factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
 			{
 				Model: models.MTOShipment{
-					Status:       models.MTOShipmentStatusDraft,
-					ShipmentType: models.MTOShipmentTypePPM,
+					Status: models.MTOShipmentStatusDraft,
 				},
 			},
 		}, nil)
-		testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
-			Move:        move,
-			MTOShipment: hhgShipment,
-			PPMShipment: models.PPMShipment{
-				Status: models.PPMShipmentStatusDraft,
-			},
-		})
 
 		// And: the context contains the auth values
 		req := httptest.NewRequest("POST", "/moves/some_id/submit", nil)
