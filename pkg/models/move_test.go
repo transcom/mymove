@@ -21,7 +21,6 @@ import (
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
 	. "github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *ModelSuite) TestBasicMoveInstantiation() {
@@ -161,11 +160,17 @@ func (suite *ModelSuite) TestFetchMove() {
 		// Expected outcome: Move not found, ErrFetchNotFound error
 		session, order := setupTestData()
 		// Create a hidden move
-		hiddenMove := testdatagen.MakeHiddenHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
-			Order: Order{
-				ID: order.ID,
+		hiddenMove := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: Move{
+					Show: BoolPointer(false),
+				},
 			},
-		})
+			{
+				Model:    order,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		// Attempt to fetch this move. We should receive an error.
 		_, err := FetchMove(suite.DB(), session, hiddenMove.ID)

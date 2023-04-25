@@ -333,6 +333,14 @@ export class TestHarness {
   }
 
   /**
+   * Use testharness to build submitted move with ppm and all doc types
+   * @returns {Promise<Object>}
+   */
+  async buildApprovedMoveWithPPMAllDocTypesOffice() {
+    return this.buildDefault('ApprovedMoveWithPPMAllDocTypesOffice');
+  }
+
+  /**
    * Use testharness to build approved move with two ppm shipments and excess weight
    * @returns {Promise<Move>}
    */
