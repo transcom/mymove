@@ -50,9 +50,9 @@ const ServiceItemDetails = ({ id, code, details }) => {
           <dl>
             {generateDetailText(
               {
-                'First Customer Contact':
+                'Customer contact 1':
                   firstCustomerContact && firstCustomerContact.timeMilitary ? firstCustomerContact.timeMilitary : '-',
-                'First Available Delivery Date 1':
+                'Available delivery date 1':
                   firstCustomerContact && firstCustomerContact.firstAvailableDeliveryDate
                     ? formatDate(firstCustomerContact.firstAvailableDeliveryDate, 'DD MMM YYYY')
                     : '-',
@@ -62,11 +62,11 @@ const ServiceItemDetails = ({ id, code, details }) => {
             <div className={styles.customerContact}>
               {generateDetailText(
                 {
-                  'Second Customer Contact':
+                  'Customer contact 2':
                     secondCustomerContact && secondCustomerContact.timeMilitary
                       ? secondCustomerContact.timeMilitary
                       : '-',
-                  'First Available Delivery Date 2':
+                  'Available delivery date 2':
                     secondCustomerContact && secondCustomerContact.firstAvailableDeliveryDate
                       ? formatDate(secondCustomerContact.firstAvailableDeliveryDate, 'DD MMM YYYY')
                       : '-',
