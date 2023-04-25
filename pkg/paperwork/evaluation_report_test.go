@@ -4,11 +4,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-openapi/swag"
-
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *PaperworkSuite) TestFormatValuesInspectionInformation() {
@@ -27,8 +24,8 @@ func (suite *PaperworkSuite) TestFormatValuesInspectionInformation() {
 			TimeDepart:         &timeDepart,
 			EvalStart:          &evalStart,
 			EvalEnd:            &evalEnd,
-			ViolationsObserved: swag.Bool(false),
-			Remarks:            swag.String("remarks"),
+			ViolationsObserved: models.BoolPointer(false),
+			Remarks:            models.StringPointer("remarks"),
 			UpdatedAt:          time.Time{},
 		}
 
@@ -58,10 +55,10 @@ func (suite *PaperworkSuite) TestFormatValuesInspectionInformation() {
 			InspectionType:      &inspectionType,
 			Location:            &location,
 			LocationDescription: &locationDescription,
-			ViolationsObserved:  swag.Bool(true),
-			Remarks:             swag.String("remarks"),
-			SeriousIncident:     swag.Bool(true),
-			SeriousIncidentDesc: swag.String("serious incident"),
+			ViolationsObserved:  models.BoolPointer(true),
+			Remarks:             models.StringPointer("remarks"),
+			SeriousIncident:     models.BoolPointer(true),
+			SeriousIncidentDesc: models.StringPointer("serious incident"),
 			UpdatedAt:           time.Time{},
 		}
 		values := FormatValuesInspectionInformation(report)
@@ -80,10 +77,12 @@ func (suite *PaperworkSuite) TestFormatValuesInspectionInformation() {
 func (suite *PaperworkSuite) TestFormatValuesShipment() {
 	suite.Run("storage facility with phone and email", func() {
 		storageFacility := factory.BuildStorageFacility(suite.DB(), nil, nil)
-		shipment := testdatagen.MakeNTSShipment(suite.DB(), testdatagen.Assertions{
-			StorageFacility: storageFacility,
-			MTOShipment:     models.MTOShipment{StorageFacility: &storageFacility},
-		})
+		shipment := factory.BuildNTSShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    storageFacility,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		shipmentValues := FormatValuesShipment(shipment)
 		expectedContactInfo := strings.Join([]string{*storageFacility.Phone, *storageFacility.Email}, "\n")
@@ -94,10 +93,12 @@ func (suite *PaperworkSuite) TestFormatValuesShipment() {
 		storageFacility := factory.BuildStorageFacility(suite.DB(), nil, nil)
 		storageFacility.Phone = nil
 		suite.MustSave(&storageFacility)
-		shipment := testdatagen.MakeNTSShipment(suite.DB(), testdatagen.Assertions{
-			StorageFacility: storageFacility,
-			MTOShipment:     models.MTOShipment{StorageFacility: &storageFacility},
-		})
+		shipment := factory.BuildNTSShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    storageFacility,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		shipmentValues := FormatValuesShipment(shipment)
 		suite.Equal(*storageFacility.Email, shipmentValues.StorageFacility)
@@ -107,10 +108,12 @@ func (suite *PaperworkSuite) TestFormatValuesShipment() {
 		storageFacility := factory.BuildStorageFacility(suite.DB(), nil, nil)
 		storageFacility.Email = nil
 		suite.MustSave(&storageFacility)
-		shipment := testdatagen.MakeNTSShipment(suite.DB(), testdatagen.Assertions{
-			StorageFacility: storageFacility,
-			MTOShipment:     models.MTOShipment{StorageFacility: &storageFacility},
-		})
+		shipment := factory.BuildNTSShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    storageFacility,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		shipmentValues := FormatValuesShipment(shipment)
 		suite.Equal(*storageFacility.Phone, shipmentValues.StorageFacility)
