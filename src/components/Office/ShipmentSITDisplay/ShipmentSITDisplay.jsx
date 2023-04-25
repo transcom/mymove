@@ -104,7 +104,7 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton }
 
 const ShipmentSITDisplay = ({ sitExtensions, sitStatus, shipment, className, openModalButton }) => {
   const sitHistory = React.useMemo(
-    () => sitExtensions.filter((sitItem) => sitItem.status !== SIT_EXTENSION_STATUS.PENDING),
+    () => sitExtensions.reverse().filter((sitItem) => sitItem.status !== SIT_EXTENSION_STATUS.PENDING),
     [sitExtensions],
   );
 
