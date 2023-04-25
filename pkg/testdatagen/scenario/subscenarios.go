@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -356,20 +355,36 @@ func subScenarioEvaluationReport(appCtx appcontext.AppContext) func() {
 		testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{Move: move})
 
 		storageFacility := factory.BuildStorageFacility(appCtx.DB(), nil, nil)
-		ntsShipment := testdatagen.MakeNTSShipment(appCtx.DB(), testdatagen.Assertions{
-			Move: move,
-			MTOShipment: models.MTOShipment{
-				StorageFacility:       &storageFacility,
-				ScheduledDeliveryDate: swag.Time(time.Now()),
+		ntsShipment := factory.BuildNTSShipment(appCtx.DB(), []factory.Customization{
+			{
+				Model:    storageFacility,
+				LinkOnly: true,
 			},
-		})
-		testdatagen.MakeNTSRShipment(appCtx.DB(), testdatagen.Assertions{
-			Move: move,
-			MTOShipment: models.MTOShipment{
-				StorageFacility:       &storageFacility,
-				ScheduledDeliveryDate: swag.Time(time.Now()),
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					ScheduledDeliveryDate: models.TimePointer(time.Now()),
+				},
+			},
+		}, nil)
+		factory.BuildNTSRShipment(appCtx.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    storageFacility,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					ScheduledDeliveryDate: models.TimePointer(time.Now()),
+				},
+			},
+		}, nil)
 
 		submittedTime := time.Now()
 		dataReviewInspection := models.EvaluationReportInspectionTypeDataReview
@@ -388,7 +403,7 @@ func subScenarioEvaluationReport(appCtx appcontext.AppContext) func() {
 				InspectionDate:     &submittedTime,
 				InspectionType:     &dataReviewInspection,
 				Location:           &location,
-				ViolationsObserved: swag.Bool(false),
+				ViolationsObserved: models.BoolPointer(false),
 				Remarks:            &remark,
 			},
 			Move:       move,
@@ -412,7 +427,7 @@ func subScenarioEvaluationReport(appCtx appcontext.AppContext) func() {
 				InspectionDate:     &submittedTime,
 				InspectionType:     &virtualInspection,
 				Location:           &location,
-				ViolationsObserved: swag.Bool(true),
+				ViolationsObserved: models.BoolPointer(true),
 				Remarks:            &remark2,
 			},
 			Move:        move,
@@ -440,7 +455,7 @@ func subScenarioEvaluationReport(appCtx appcontext.AppContext) func() {
 				EvalStart:          &evalStart,
 				EvalEnd:            &evalEnd,
 				Location:           &location,
-				ViolationsObserved: swag.Bool(true),
+				ViolationsObserved: models.BoolPointer(true),
 			},
 			Move:        move,
 			OfficeUser:  officeUser,
@@ -460,7 +475,7 @@ func subScenarioEvaluationReport(appCtx appcontext.AppContext) func() {
 				EvalEnd:             &evalEnd,
 				Location:            &location,
 				LocationDescription: &locationDescription,
-				ViolationsObserved:  swag.Bool(true),
+				ViolationsObserved:  models.BoolPointer(true),
 				Remarks:             &remark,
 			},
 			Move:        move,
@@ -635,13 +650,13 @@ func subScenarioDivertedShipments(appCtx appcontext.AppContext, userUploader *up
 			Move: models.Move{
 				Status:             models.MoveStatusAPPROVED,
 				Locator:            "APRDVS",
-				AvailableToPrimeAt: swag.Time(time.Now()),
+				AvailableToPrimeAt: models.TimePointer(time.Now()),
 			},
 			MTOShipment: models.MTOShipment{
 				Diversion:           true,
 				Status:              models.MTOShipmentStatusApproved,
-				ApprovedDate:        swag.Time(time.Now()),
-				ScheduledPickupDate: swag.Time(time.Now().AddDate(0, 3, 0)),
+				ApprovedDate:        models.TimePointer(time.Now()),
+				ScheduledPickupDate: models.TimePointer(time.Now().AddDate(0, 3, 0)),
 			},
 		})
 	}

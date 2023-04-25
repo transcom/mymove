@@ -11,6 +11,8 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
+const defaultServiceCode = models.ReServiceCode("STEST")
+
 // BuildReService creates a ReService
 // Params:
 // - customs is a slice that will be modified by the factory
@@ -32,7 +34,7 @@ func BuildReService(db *pop.Connection, customs []Customization, traits []Trait)
 	reService := models.ReService{
 		ID:   reServiceUUID,
 		Name: "Test Service",
-		Code: models.ReServiceCode("STEST"),
+		Code: defaultServiceCode,
 	}
 
 	// Overwrite values with those from assertions
@@ -47,17 +49,24 @@ func BuildReService(db *pop.Connection, customs []Customization, traits []Trait)
 }
 
 // FetchOrBuildReService tries fetching a ReService using ReServiceCode, then falls back to creating one
-func FetchOrBuildReService(db *pop.Connection, reService models.ReService) models.ReService {
+func FetchOrBuildReService(db *pop.Connection, customs []Customization, traits []Trait) models.ReService {
 	if db == nil {
-		return BuildReService(db, []Customization{
-			{
-				Model: reService,
-			},
-		}, nil)
+		return BuildReService(db, customs, traits)
 	}
 
-	if !reService.ID.IsNil() {
-		err := db.Where("ID = $1", reService.ID).First(&reService)
+	customs = setupCustomizations(customs, traits)
+
+	// Find reService assertion and convert to models ReService
+	var cReService models.ReService
+	if result := findValidCustomization(customs, ReService); result != nil {
+		cReService = result.Model.(models.ReService)
+		if result.LinkOnly {
+			return cReService
+		}
+	}
+	var reService models.ReService
+	if !cReService.ID.IsNil() {
+		err := db.Where("ID = $1", cReService.ID).First(&reService)
 		if err != nil && err != sql.ErrNoRows {
 			log.Panic(err)
 		} else if err == nil {
@@ -65,26 +74,30 @@ func FetchOrBuildReService(db *pop.Connection, reService models.ReService) model
 		}
 	}
 
-	if reService.Code.String() != "" {
-		err := db.Where("code = $1", reService.Code).First(&reService)
-		if err != nil && err != sql.ErrNoRows {
-			log.Panic(err)
-		} else if err == nil {
-			return reService
-		}
+	// search for the default code if one is not provided
+	reServiceCode := defaultServiceCode
+
+	if cReService.Code.String() != "" {
+		reServiceCode = cReService.Code
+	}
+	err := db.Where("code = $1", reServiceCode).First(&reService)
+	if err != nil && err != sql.ErrNoRows {
+		log.Panic(err)
+	} else if err == nil {
+		return reService
 	}
 
-	return BuildReService(db, []Customization{
-		{
-			Model: reService,
-		},
-	}, nil)
+	return BuildReService(db, customs, traits)
 }
 
 func FetchOrBuildReServiceByCode(db *pop.Connection, reServiceCode models.ReServiceCode) models.ReService {
-	return FetchOrBuildReService(db, models.ReService{
-		Code: reServiceCode,
-	})
+	return FetchOrBuildReService(db, []Customization{
+		{
+			Model: models.ReService{
+				Code: reServiceCode,
+			},
+		},
+	}, nil)
 }
 
 // BuildReServiceByCode builds ReService using ReServiceCode

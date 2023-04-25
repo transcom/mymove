@@ -1,12 +1,3 @@
-// RA Summary: gosec - errcheck - Unchecked return value
-// RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
-// RA: Functions with unchecked return values in the file are used to generate stub data for a localized version of the application.
-// RA: Given the data is being generated for local use and does not contain any sensitive information, there are no unexpected states and conditions
-// RA: in which this would be considered a risk
-// RA Developer Status: Mitigated
-// RA Validator Status: Mitigated
-// RA Modified Severity: N/A
-// nolint:errcheck
 package scenario
 
 import (
@@ -15,7 +6,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
@@ -527,7 +517,10 @@ func serviceMemberWithUploadedOrdersAndNewPPM(appCtx appcontext.AppContext, user
 			LinkOnly: true,
 		},
 	}, nil)
-	moveRouter.Submit(appCtx, &ppm0.Move, &newSignedCertification)
+	err := moveRouter.Submit(appCtx, &ppm0.Move, &newSignedCertification)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to submit move: %w", err))
+	}
 	verrs, err := models.SaveMoveDependencies(appCtx.DB(), &ppm0.Move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
@@ -576,7 +569,10 @@ func serviceMemberWithUploadedOrdersNewPPMNoAdvance(appCtx appcontext.AppContext
 		},
 	}, nil)
 
-	moveRouter.Submit(appCtx, &ppmNoAdvance.Move, &newSignedCertification)
+	err := moveRouter.Submit(appCtx, &ppmNoAdvance.Move, &newSignedCertification)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to submit move: %w", err))
+	}
 	verrs, err := models.SaveMoveDependencies(appCtx.DB(), &ppmNoAdvance.Move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
@@ -624,11 +620,26 @@ func officeUserFindsMoveCompletesStoragePanel(appCtx appcontext.AppContext, user
 		},
 	}, nil)
 
-	moveRouter.Submit(appCtx, &ppmStorage.Move, &newSignedCertification)
-	moveRouter.Approve(appCtx, &ppmStorage.Move)
-	ppmStorage.Move.PersonallyProcuredMoves[0].Submit(time.Now())
-	ppmStorage.Move.PersonallyProcuredMoves[0].Approve(time.Now())
-	ppmStorage.Move.PersonallyProcuredMoves[0].RequestPayment()
+	err := moveRouter.Submit(appCtx, &ppmStorage.Move, &newSignedCertification)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to submit move: %w", err))
+	}
+	err = moveRouter.Approve(appCtx, &ppmStorage.Move)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to approve move: %w", err))
+	}
+	err = ppmStorage.Move.PersonallyProcuredMoves[0].Submit(time.Now())
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to submit move: %w", err))
+	}
+	err = ppmStorage.Move.PersonallyProcuredMoves[0].Approve(time.Now())
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to approve move: %w", err))
+	}
+	err = ppmStorage.Move.PersonallyProcuredMoves[0].RequestPayment()
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to request payment: %w", err))
+	}
 	verrs, err := models.SaveMoveDependencies(appCtx.DB(), &ppmStorage.Move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
@@ -676,11 +687,26 @@ func officeUserFindsMoveCancelsStoragePanel(appCtx appcontext.AppContext, userUp
 		},
 	}, nil)
 
-	moveRouter.Submit(appCtx, &ppmNoStorage.Move, &newSignedCertification)
-	moveRouter.Approve(appCtx, &ppmNoStorage.Move)
-	ppmNoStorage.Move.PersonallyProcuredMoves[0].Submit(time.Now())
-	ppmNoStorage.Move.PersonallyProcuredMoves[0].Approve(time.Now())
-	ppmNoStorage.Move.PersonallyProcuredMoves[0].RequestPayment()
+	err := moveRouter.Submit(appCtx, &ppmNoStorage.Move, &newSignedCertification)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to submit move: %w", err))
+	}
+	err = moveRouter.Approve(appCtx, &ppmNoStorage.Move)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to approve move: %w", err))
+	}
+	err = ppmNoStorage.Move.PersonallyProcuredMoves[0].Submit(time.Now())
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to submit move: %w", err))
+	}
+	err = ppmNoStorage.Move.PersonallyProcuredMoves[0].Approve(time.Now())
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to approve move: %w", err))
+	}
+	err = ppmNoStorage.Move.PersonallyProcuredMoves[0].RequestPayment()
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to request payment: %w", err))
+	}
 	verrs, err := models.SaveMoveDependencies(appCtx.DB(), &ppmNoStorage.Move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
@@ -729,7 +755,10 @@ func aMoveThatWillBeCancelledByAnE2ETest(appCtx appcontext.AppContext, userUploa
 		},
 	}, nil)
 
-	moveRouter.Submit(appCtx, &ppmToCancel.Move, &newSignedCertification)
+	err := moveRouter.Submit(appCtx, &ppmToCancel.Move, &newSignedCertification)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to submit move: %w", err))
+	}
 	verrs, err := models.SaveMoveDependencies(appCtx.DB(), &ppmToCancel.Move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
@@ -779,8 +808,14 @@ func serviceMemberWithPPMInProgress(appCtx appcontext.AppContext, userUploader *
 		},
 	}, nil)
 
-	moveRouter.Submit(appCtx, &ppm1.Move, &newSignedCertification)
-	moveRouter.Approve(appCtx, &ppm1.Move)
+	err := moveRouter.Submit(appCtx, &ppm1.Move, &newSignedCertification)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to submit move: %w", err))
+	}
+	err = moveRouter.Approve(appCtx, &ppm1.Move)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to approve move: %w", err))
+	}
 	verrs, err := models.SaveMoveDependencies(appCtx.DB(), &ppm1.Move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
@@ -838,12 +873,27 @@ func serviceMemberWithPPMMoveWithPaymentRequested01(appCtx appcontext.AppContext
 		},
 	}, nil)
 
-	moveRouter.Submit(appCtx, &ppm2.Move, &newSignedCertification)
-	moveRouter.Approve(appCtx, &ppm2.Move)
+	err := moveRouter.Submit(appCtx, &ppm2.Move, &newSignedCertification)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to submit move: %w", err))
+	}
+	err = moveRouter.Approve(appCtx, &ppm2.Move)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to approve move: %w", err))
+	}
 	// This is the same PPM model as ppm2, but this is the one that will be saved by SaveMoveDependencies
-	ppm2.Move.PersonallyProcuredMoves[0].Submit(time.Now())
-	ppm2.Move.PersonallyProcuredMoves[0].Approve(time.Now())
-	ppm2.Move.PersonallyProcuredMoves[0].RequestPayment()
+	err = ppm2.Move.PersonallyProcuredMoves[0].Submit(time.Now())
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to submit move: %w", err))
+	}
+	err = ppm2.Move.PersonallyProcuredMoves[0].Approve(time.Now())
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to approve move: %w", err))
+	}
+	err = ppm2.Move.PersonallyProcuredMoves[0].RequestPayment()
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to request payment: %w", err))
+	}
 	verrs, err := models.SaveMoveDependencies(appCtx.DB(), &ppm2.Move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
@@ -904,12 +954,27 @@ func serviceMemberWithPPMMoveWithPaymentRequested02(appCtx appcontext.AppContext
 		},
 	}, nil)
 
-	moveRouter.Submit(appCtx, &ppm3.Move, &newSignedCertification)
-	moveRouter.Approve(appCtx, &ppm3.Move)
+	err := moveRouter.Submit(appCtx, &ppm3.Move, &newSignedCertification)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to submit move: %w", err))
+	}
+	err = moveRouter.Approve(appCtx, &ppm3.Move)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to approve move: %w", err))
+	}
 	// This is the same PPM model as ppm3, but this is the one that will be saved by SaveMoveDependencies
-	ppm3.Move.PersonallyProcuredMoves[0].Submit(time.Now())
-	ppm3.Move.PersonallyProcuredMoves[0].Approve(time.Now())
-	ppm3.Move.PersonallyProcuredMoves[0].RequestPayment()
+	err = ppm3.Move.PersonallyProcuredMoves[0].Submit(time.Now())
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to submit move: %w", err))
+	}
+	err = ppm3.Move.PersonallyProcuredMoves[0].Approve(time.Now())
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to approve move: %w", err))
+	}
+	err = ppm3.Move.PersonallyProcuredMoves[0].RequestPayment()
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to request payment: %w", err))
+	}
 	verrs, err := models.SaveMoveDependencies(appCtx.DB(), &ppm3.Move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
@@ -958,12 +1023,18 @@ func aCanceledPPMMove(appCtx appcontext.AppContext, userUploader *uploader.UserU
 		},
 	}, nil)
 
-	moveRouter.Submit(appCtx, &ppmCanceled.Move, &newSignedCertification)
+	err := moveRouter.Submit(appCtx, &ppmCanceled.Move, &newSignedCertification)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to submit move: %w", err))
+	}
 	verrs, err := models.SaveMoveDependencies(appCtx.DB(), &ppmCanceled.Move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
 	}
-	moveRouter.Cancel(appCtx, "reasons", &ppmCanceled.Move)
+	err = moveRouter.Cancel(appCtx, "reasons", &ppmCanceled.Move)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to cancel move: %w", err))
+	}
 	verrs, err = models.SaveMoveDependencies(appCtx.DB(), &ppmCanceled.Move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
@@ -1120,7 +1191,10 @@ func serviceMemberWithOrdersAndAMovePPMandHHG(appCtx appcontext.AppContext, user
 		},
 	}, nil)
 
-	moveRouter.Submit(appCtx, &move, &newSignedCertification)
+	err := moveRouter.Submit(appCtx, &move, &newSignedCertification)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to submit move: %w", err))
+	}
 	verrs, err := models.SaveMoveDependencies(appCtx.DB(), &move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
@@ -1240,18 +1314,21 @@ func serviceMemberWithNTSandNTSRandUnsubmittedMove01(appCtx appcontext.AppContex
 	}, nil)
 	estimatedNTSWeight := unit.Pound(1400)
 	actualNTSWeight := unit.Pound(2000)
-	ntsShipment := testdatagen.MakeNTSShipment(appCtx.DB(), testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			ID:                   uuid.FromStringOrNil("06578216-3e9d-4c11-80bf-f7acfd4e7a4f"),
-			PrimeEstimatedWeight: &estimatedNTSWeight,
-			PrimeActualWeight:    &actualNTSWeight,
-			ShipmentType:         models.MTOShipmentTypeHHGIntoNTSDom,
-			ApprovedDate:         swag.Time(time.Now()),
-			Status:               models.MTOShipmentStatusSubmitted,
-			MoveTaskOrder:        move,
-			MoveTaskOrderID:      move.ID,
+	ntsShipment := factory.BuildNTSShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				ID:                   uuid.FromStringOrNil("06578216-3e9d-4c11-80bf-f7acfd4e7a4f"),
+				PrimeEstimatedWeight: &estimatedNTSWeight,
+				PrimeActualWeight:    &actualNTSWeight,
+				ApprovedDate:         models.TimePointer(time.Now()),
+				Status:               models.MTOShipmentStatusSubmitted,
+			},
+		},
+	}, nil)
 	testdatagen.MakeMTOAgent(appCtx.DB(), testdatagen.Assertions{
 		MTOAgent: models.MTOAgent{
 			ID:            uuid.FromStringOrNil("1bdbb940-0326-438a-89fb-aa72e46f7c72"),
@@ -1261,18 +1338,21 @@ func serviceMemberWithNTSandNTSRandUnsubmittedMove01(appCtx appcontext.AppContex
 		},
 	})
 
-	ntsrShipment := testdatagen.MakeNTSRShipment(appCtx.DB(), testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			ID:                   uuid.FromStringOrNil("5afaaa39-ca7d-4403-b33a-262586ad64f6"),
-			PrimeEstimatedWeight: &estimatedNTSWeight,
-			PrimeActualWeight:    &actualNTSWeight,
-			ShipmentType:         models.MTOShipmentTypeHHGOutOfNTSDom,
-			ApprovedDate:         swag.Time(time.Now()),
-			Status:               models.MTOShipmentStatusSubmitted,
-			MoveTaskOrder:        move,
-			MoveTaskOrderID:      move.ID,
+	ntsrShipment := factory.BuildNTSRShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				ID:                   uuid.FromStringOrNil("5afaaa39-ca7d-4403-b33a-262586ad64f6"),
+				PrimeEstimatedWeight: &estimatedNTSWeight,
+				PrimeActualWeight:    &actualNTSWeight,
+				ApprovedDate:         models.TimePointer(time.Now()),
+				Status:               models.MTOShipmentStatusSubmitted,
+			},
+		},
+	}, nil)
 
 	testdatagen.MakeMTOAgent(appCtx.DB(), testdatagen.Assertions{
 		MTOAgent: models.MTOAgent{
@@ -1331,18 +1411,21 @@ func serviceMemberWithNTSandNTSRandUnsubmittedMove02(appCtx appcontext.AppContex
 	}, nil)
 	estimatedNTSWeight := unit.Pound(1400)
 	actualNTSWeight := unit.Pound(2000)
-	ntsShipment := testdatagen.MakeNTSShipment(appCtx.DB(), testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			ID:                   uuid.FromStringOrNil("52d03f2c-179e-450a-b726-23cbb99304b9"),
-			PrimeEstimatedWeight: &estimatedNTSWeight,
-			PrimeActualWeight:    &actualNTSWeight,
-			ShipmentType:         models.MTOShipmentTypeHHGIntoNTSDom,
-			ApprovedDate:         swag.Time(time.Now()),
-			Status:               models.MTOShipmentStatusSubmitted,
-			MoveTaskOrder:        move,
-			MoveTaskOrderID:      move.ID,
+	ntsShipment := factory.BuildNTSShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				ID:                   uuid.FromStringOrNil("52d03f2c-179e-450a-b726-23cbb99304b9"),
+				PrimeEstimatedWeight: &estimatedNTSWeight,
+				PrimeActualWeight:    &actualNTSWeight,
+				ApprovedDate:         models.TimePointer(time.Now()),
+				Status:               models.MTOShipmentStatusSubmitted,
+			},
+		},
+	}, nil)
 	testdatagen.MakeMTOAgent(appCtx.DB(), testdatagen.Assertions{
 		MTOAgent: models.MTOAgent{
 			ID:            uuid.FromStringOrNil("2675ed07-4f1e-44fd-995f-f6d6e5c461b0"),
@@ -1352,18 +1435,21 @@ func serviceMemberWithNTSandNTSRandUnsubmittedMove02(appCtx appcontext.AppContex
 		},
 	})
 
-	ntsrShipment := testdatagen.MakeNTSRShipment(appCtx.DB(), testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			ID:                   uuid.FromStringOrNil("d95ba5b9-af82-417a-b901-b25d34ce79fa"),
-			PrimeEstimatedWeight: &estimatedNTSWeight,
-			PrimeActualWeight:    &actualNTSWeight,
-			ShipmentType:         models.MTOShipmentTypeHHGOutOfNTSDom,
-			ApprovedDate:         swag.Time(time.Now()),
-			Status:               models.MTOShipmentStatusSubmitted,
-			MoveTaskOrder:        move,
-			MoveTaskOrderID:      move.ID,
+	ntsrShipment := factory.BuildNTSRShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				ID:                   uuid.FromStringOrNil("d95ba5b9-af82-417a-b901-b25d34ce79fa"),
+				PrimeEstimatedWeight: &estimatedNTSWeight,
+				PrimeActualWeight:    &actualNTSWeight,
+				ApprovedDate:         models.TimePointer(time.Now()),
+				Status:               models.MTOShipmentStatusSubmitted,
+			},
+		},
+	}, nil)
 
 	testdatagen.MakeMTOAgent(appCtx.DB(), testdatagen.Assertions{
 		MTOAgent: models.MTOAgent{
@@ -1427,10 +1513,22 @@ func serviceMemberWithPPMReadyToRequestPayment01(appCtx appcontext.AppContext, u
 		},
 	}, nil)
 
-	moveRouter.Submit(appCtx, &ppm6.Move, &newSignedCertification)
-	moveRouter.Approve(appCtx, &ppm6.Move)
-	ppm6.Move.PersonallyProcuredMoves[0].Submit(time.Now())
-	ppm6.Move.PersonallyProcuredMoves[0].Approve(time.Now())
+	err := moveRouter.Submit(appCtx, &ppm6.Move, &newSignedCertification)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to submit move: %w", err))
+	}
+	err = moveRouter.Approve(appCtx, &ppm6.Move)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to approve move: %w", err))
+	}
+	err = ppm6.Move.PersonallyProcuredMoves[0].Submit(time.Now())
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to submit move: %w", err))
+	}
+	err = ppm6.Move.PersonallyProcuredMoves[0].Approve(time.Now())
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to approve move: %w", err))
+	}
 	verrs, err := models.SaveMoveDependencies(appCtx.DB(), &ppm6.Move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
@@ -1488,10 +1586,22 @@ func serviceMemberWithPPMReadyToRequestPayment02(appCtx appcontext.AppContext, u
 		},
 	}, nil)
 
-	moveRouter.Submit(appCtx, &ppm7.Move, &newSignedCertification)
-	moveRouter.Approve(appCtx, &ppm7.Move)
-	ppm7.Move.PersonallyProcuredMoves[0].Submit(time.Now())
-	ppm7.Move.PersonallyProcuredMoves[0].Approve(time.Now())
+	err := moveRouter.Submit(appCtx, &ppm7.Move, &newSignedCertification)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to submit move: %w", err))
+	}
+	err = moveRouter.Approve(appCtx, &ppm7.Move)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to approve move: %w", err))
+	}
+	err = ppm7.Move.PersonallyProcuredMoves[0].Submit(time.Now())
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to submit move: %w", err))
+	}
+	err = ppm7.Move.PersonallyProcuredMoves[0].Approve(time.Now())
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to approve move: %w", err))
+	}
 	verrs, err := models.SaveMoveDependencies(appCtx.DB(), &ppm7.Move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
@@ -1549,11 +1659,23 @@ func serviceMemberWithPPMReadyToRequestPayment03(appCtx appcontext.AppContext, u
 		},
 	}, nil)
 
-	moveRouter.Submit(appCtx, &ppm5.Move, &newSignedCertification)
-	moveRouter.Approve(appCtx, &ppm5.Move)
+	err := moveRouter.Submit(appCtx, &ppm5.Move, &newSignedCertification)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to submit move: %w", err))
+	}
+	err = moveRouter.Approve(appCtx, &ppm5.Move)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to approve move: %w", err))
+	}
 	// This is the same PPM model as ppm5, but this is the one that will be saved by SaveMoveDependencies
-	ppm5.Move.PersonallyProcuredMoves[0].Submit(time.Now())
-	ppm5.Move.PersonallyProcuredMoves[0].Approve(time.Now())
+	err = ppm5.Move.PersonallyProcuredMoves[0].Submit(time.Now())
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to submit move: %w", err))
+	}
+	err = ppm5.Move.PersonallyProcuredMoves[0].Approve(time.Now())
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to approve move: %w", err))
+	}
 	verrs, err := models.SaveMoveDependencies(appCtx.DB(), &ppm5.Move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
@@ -1611,11 +1733,23 @@ func serviceMemberWithPPMApprovedNotInProgress(appCtx appcontext.AppContext, use
 		},
 	}, nil)
 
-	moveRouter.Submit(appCtx, &ppmApproved.Move, &newSignedCertification)
-	moveRouter.Approve(appCtx, &ppmApproved.Move)
+	err := moveRouter.Submit(appCtx, &ppmApproved.Move, &newSignedCertification)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to submit move: %w", err))
+	}
+	err = moveRouter.Approve(appCtx, &ppmApproved.Move)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to approve move: %w", err))
+	}
 	// This is the same PPM model as ppm2, but this is the one that will be saved by SaveMoveDependencies
-	ppmApproved.Move.PersonallyProcuredMoves[0].Submit(time.Now())
-	ppmApproved.Move.PersonallyProcuredMoves[0].Approve(time.Now())
+	err = ppmApproved.Move.PersonallyProcuredMoves[0].Submit(time.Now())
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to submit move: %w", err))
+	}
+	err = ppmApproved.Move.PersonallyProcuredMoves[0].Approve(time.Now())
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to approve move: %w", err))
+	}
 	verrs, err := models.SaveMoveDependencies(appCtx.DB(), &ppmApproved.Move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
@@ -2176,9 +2310,9 @@ func createMoveWithServiceItemsandPaymentRequests01(appCtx appcontext.AppContext
 			ID:            uuid.FromStringOrNil("82036387-a113-4b45-a172-94e49e4600d2"),
 			MTOShipment:   mtoShipmentHHG,
 			MTOShipmentID: mtoShipmentHHG.ID,
-			FirstName:     swag.String("Test"),
-			LastName:      swag.String("Agent"),
-			Email:         swag.String("test@test.email.com"),
+			FirstName:     models.StringPointer("Test"),
+			LastName:      models.StringPointer("Agent"),
+			Email:         models.StringPointer("test@test.email.com"),
 			MTOAgentType:  models.MTOAgentReleasing,
 		},
 	})
@@ -2911,7 +3045,7 @@ func createMoveWithServiceItemsandPaymentRequests02(appCtx appcontext.AppContext
 		},
 	}, nil)
 
-	firstDeliveryDate := swag.Time(time.Now())
+	firstDeliveryDate := models.TimePointer(time.Now())
 	testdatagen.MakeMTOServiceItemCustomerContact(appCtx.DB(), testdatagen.Assertions{
 		MTOServiceItem: serviceItemDDFSIT,
 		MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
@@ -3017,9 +3151,9 @@ func createHHGMoveWithServiceItemsAndPaymentRequestsAndFiles(appCtx appcontext.A
 			ID:            uuid.FromStringOrNil("d73cc488-d5a1-4c9c-bea3-8b02d9bd0dea"),
 			MTOShipment:   MTOShipment,
 			MTOShipmentID: MTOShipment.ID,
-			FirstName:     swag.String("Test"),
-			LastName:      swag.String("Agent"),
-			Email:         swag.String("test@test.email.com"),
+			FirstName:     models.StringPointer("Test"),
+			LastName:      models.StringPointer("Agent"),
+			Email:         models.StringPointer("test@test.email.com"),
 			MTOAgentType:  models.MTOAgentReleasing,
 		},
 	})
@@ -3324,9 +3458,9 @@ func createMoveWithSinceParamater(appCtx appcontext.AppContext, userUploader *up
 		MTOAgent: models.MTOAgent{
 			MTOShipment:   mtoShipment2,
 			MTOShipmentID: mtoShipment2.ID,
-			FirstName:     swag.String("Test"),
-			LastName:      swag.String("Agent"),
-			Email:         swag.String("test@test.email.com"),
+			FirstName:     models.StringPointer("Test"),
+			LastName:      models.StringPointer("Agent"),
+			Email:         models.StringPointer("test@test.email.com"),
 			MTOAgentType:  models.MTOAgentReleasing,
 		},
 	})
@@ -3335,9 +3469,9 @@ func createMoveWithSinceParamater(appCtx appcontext.AppContext, userUploader *up
 		MTOAgent: models.MTOAgent{
 			MTOShipment:   mtoShipment2,
 			MTOShipmentID: mtoShipment2.ID,
-			FirstName:     swag.String("Test"),
-			LastName:      swag.String("Agent"),
-			Email:         swag.String("test@test.email.com"),
+			FirstName:     models.StringPointer("Test"),
+			LastName:      models.StringPointer("Agent"),
+			Email:         models.StringPointer("test@test.email.com"),
 			MTOAgentType:  models.MTOAgentReceiving,
 		},
 	})
@@ -3358,9 +3492,9 @@ func createMoveWithSinceParamater(appCtx appcontext.AppContext, userUploader *up
 		MTOAgent: models.MTOAgent{
 			MTOShipment:   mtoShipment3,
 			MTOShipmentID: mtoShipment3.ID,
-			FirstName:     swag.String("Test"),
-			LastName:      swag.String("Agent"),
-			Email:         swag.String("test@test.email.com"),
+			FirstName:     models.StringPointer("Test"),
+			LastName:      models.StringPointer("Agent"),
+			Email:         models.StringPointer("test@test.email.com"),
 			MTOAgentType:  models.MTOAgentReleasing,
 		},
 	})
@@ -3369,9 +3503,9 @@ func createMoveWithSinceParamater(appCtx appcontext.AppContext, userUploader *up
 		MTOAgent: models.MTOAgent{
 			MTOShipment:   mtoShipment3,
 			MTOShipmentID: mtoShipment3.ID,
-			FirstName:     swag.String("Test"),
-			LastName:      swag.String("Agent"),
-			Email:         swag.String("test@test.email.com"),
+			FirstName:     models.StringPointer("Test"),
+			LastName:      models.StringPointer("Agent"),
+			Email:         models.StringPointer("test@test.email.com"),
 			MTOAgentType:  models.MTOAgentReceiving,
 		},
 	})
@@ -3909,20 +4043,32 @@ func createNTSRMoveWithServiceItemsAndPaymentRequest(appCtx appcontext.AppContex
 	tacType := models.LOATypeHHG
 	sacType := models.LOATypeNTS
 	serviceOrderNumber := "1234"
-	ntsrShipment := testdatagen.MakeNTSRShipment(appCtx.DB(), testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			PrimeEstimatedWeight: &estimatedWeight,
-			PrimeActualWeight:    &actualWeight,
-			ApprovedDate:         swag.Time(time.Now()),
-			PickupAddress:        &shipmentPickupAddress,
-			TACType:              &tacType,
-			Status:               models.MTOShipmentStatusApproved,
-			SACType:              &sacType,
-			StorageFacility:      &storageFacility,
-			ServiceOrderNumber:   &serviceOrderNumber,
+	ntsrShipment := factory.BuildNTSRShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-		Move: move,
-	})
+		{
+			Model:    storageFacility,
+			LinkOnly: true,
+		},
+		{
+			Model:    shipmentPickupAddress,
+			LinkOnly: true,
+			Type:     &factory.Addresses.PickupAddress,
+		},
+		{
+			Model: models.MTOShipment{
+				PrimeEstimatedWeight: &estimatedWeight,
+				PrimeActualWeight:    &actualWeight,
+				ApprovedDate:         models.TimePointer(time.Now()),
+				TACType:              &tacType,
+				Status:               models.MTOShipmentStatusApproved,
+				SACType:              &sacType,
+				ServiceOrderNumber:   &serviceOrderNumber,
+			},
+		},
+	}, nil)
 
 	// Create Releasing Agent
 	testdatagen.MakeMTOAgent(appCtx.DB(), testdatagen.Assertions{
@@ -3930,9 +4076,9 @@ func createNTSRMoveWithServiceItemsAndPaymentRequest(appCtx appcontext.AppContex
 			ID:            uuid.Must(uuid.NewV4()),
 			MTOShipment:   ntsrShipment,
 			MTOShipmentID: ntsrShipment.ID,
-			FirstName:     swag.String("Test"),
-			LastName:      swag.String("Agent"),
-			Email:         swag.String("test@test.email.com"),
+			FirstName:     models.StringPointer("Test"),
+			LastName:      models.StringPointer("Agent"),
+			Email:         models.StringPointer("test@test.email.com"),
 			MTOAgentType:  models.MTOAgentReleasing,
 		},
 	})
@@ -4425,20 +4571,32 @@ func createNTSRMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader
 	// Create NTS-R Shipment
 	tacType := models.LOATypeHHG
 	serviceOrderNumber := "1234"
-	ntsrShipment := testdatagen.MakeNTSRShipment(appCtx.DB(), testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			PrimeEstimatedWeight: &estimatedWeight,
-			PrimeActualWeight:    &actualWeight,
-			ApprovedDate:         swag.Time(time.Now()),
-			PickupAddress:        &shipmentPickupAddress,
-			TACType:              &tacType,
-			Status:               models.MTOShipmentStatusApproved,
-			StorageFacility:      &storageFacility,
-			ServiceOrderNumber:   &serviceOrderNumber,
-			UsesExternalVendor:   true,
+	ntsrShipment := factory.BuildNTSRShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-		Move: move,
-	})
+		{
+			Model:    storageFacility,
+			LinkOnly: true,
+		},
+		{
+			Model:    shipmentPickupAddress,
+			LinkOnly: true,
+			Type:     &factory.Addresses.PickupAddress,
+		},
+		{
+			Model: models.MTOShipment{
+				PrimeEstimatedWeight: &estimatedWeight,
+				PrimeActualWeight:    &actualWeight,
+				ApprovedDate:         models.TimePointer(time.Now()),
+				TACType:              &tacType,
+				Status:               models.MTOShipmentStatusApproved,
+				ServiceOrderNumber:   &serviceOrderNumber,
+				UsesExternalVendor:   true,
+			},
+		},
+	}, nil)
 
 	// Create Releasing Agent
 	testdatagen.MakeMTOAgent(appCtx.DB(), testdatagen.Assertions{
@@ -4446,9 +4604,9 @@ func createNTSRMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader
 			ID:            uuid.Must(uuid.NewV4()),
 			MTOShipment:   ntsrShipment,
 			MTOShipmentID: ntsrShipment.ID,
-			FirstName:     swag.String("Test"),
-			LastName:      swag.String("Agent"),
-			Email:         swag.String("test@test.email.com"),
+			FirstName:     models.StringPointer("Test"),
+			LastName:      models.StringPointer("Agent"),
+			Email:         models.StringPointer("test@test.email.com"),
 			MTOAgentType:  models.MTOAgentReleasing,
 		},
 	})
@@ -4512,18 +4670,21 @@ func createNTSMoveWithServiceItemsandPaymentRequests(appCtx appcontext.AppContex
 
 	estimatedNTSWeight := unit.Pound(1400)
 	actualNTSWeight := unit.Pound(1000)
-	ntsShipment := testdatagen.MakeNTSShipment(appCtx.DB(), testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			ID:                   uuid.FromStringOrNil("c37464ff-acf5-4113-9364-7d84de8aeaf9"),
-			PrimeEstimatedWeight: &estimatedNTSWeight,
-			PrimeActualWeight:    &actualNTSWeight,
-			ShipmentType:         models.MTOShipmentTypeHHGIntoNTSDom,
-			ApprovedDate:         swag.Time(time.Now()),
-			Status:               models.MTOShipmentStatusApproved,
-			MoveTaskOrder:        move,
-			MoveTaskOrderID:      move.ID,
+	ntsShipment := factory.BuildNTSShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				ID:                   uuid.FromStringOrNil("c37464ff-acf5-4113-9364-7d84de8aeaf9"),
+				PrimeEstimatedWeight: &estimatedNTSWeight,
+				PrimeActualWeight:    &actualNTSWeight,
+				ApprovedDate:         models.TimePointer(time.Now()),
+				Status:               models.MTOShipmentStatusApproved,
+			},
+		},
+	}, nil)
 
 	testdatagen.MakeMTOAgent(appCtx.DB(), testdatagen.Assertions{
 		MTOAgent: models.MTOAgent{
@@ -4826,12 +4987,18 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	moveRouter := moverouter.NewMoveRouter()
 	// Testdatagen factories will create new random duty locations so let's get the standard ones in the migrations
 	var allDutyLocations []models.DutyLocation
-	appCtx.DB().All(&allDutyLocations)
+	err := appCtx.DB().All(&allDutyLocations)
+	if err != nil {
+		log.Panic("Cannot load all duty locations: %w", err)
+	}
 
 	var originDutyLocationsInGBLOC []models.DutyLocation
-	appCtx.DB().Where("transportation_offices.GBLOC = ?", "LKNQ").
+	err = appCtx.DB().Where("transportation_offices.GBLOC = ?", "LKNQ").
 		InnerJoin("transportation_offices", "duty_locations.transportation_office_id = transportation_offices.id").
 		All(&originDutyLocationsInGBLOC)
+	if err != nil {
+		log.Panic("Cannot load all transportation offices: %w", err)
+	}
 
 	// Create one webhook subscription for PaymentRequestUpdate
 	testdatagen.MakeWebhookSubscription(appCtx.DB(), testdatagen.Assertions{
