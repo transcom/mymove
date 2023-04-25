@@ -21,10 +21,13 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListbyMove() {
 
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
-		expectedMove := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{Locator: "ABC123"},
-		})
-
+		expectedMove := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Locator: "ABC123",
+				},
+			},
+		}, nil)
 		// We need a payment request with a move that has a shipment that's within the GBLOC
 		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 			PaymentRequest: models.PaymentRequest{
@@ -58,7 +61,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestList() {
 
 	suite.PreloadData(func() {
 		officeUser = factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
-		expectedMove = testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
+		expectedMove = factory.BuildMoveWithShipment(suite.DB(), nil, nil)
 
 		// We need a payment request with a move that has a shipment that's within the GBLOC
 		paymentRequest = testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
@@ -159,12 +162,12 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListStatusFilter
 	suite.PreloadData(func() {
 		officeUser = factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
-		expectedMove1 := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
-		expectedMove2 := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
-		expectedMove3 := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
-		expectedMove4 := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
-		expectedMove5 := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
-		expectedMove6 := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
+		expectedMove1 := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
+		expectedMove2 := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
+		expectedMove3 := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
+		expectedMove4 := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
+		expectedMove5 := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
+		expectedMove6 := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
 
 		reviewedPaymentRequest = testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 			PaymentRequest: models.PaymentRequest{
@@ -274,7 +277,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListUSMCGBLOC() 
 		army := models.AffiliationARMY
 		officeUser = factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
-		expectedMoveNotUSMC := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
+		expectedMoveNotUSMC := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
 
 		paymentRequestUSMC = testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
@@ -404,8 +407,8 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListWithPaginati
 	paymentRequestListFetcher := NewPaymentRequestListFetcher()
 	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
-	expectedMove1 := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
-	expectedMove2 := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
+	expectedMove1 := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
+	expectedMove2 := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
 
 	_ = testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 		PaymentRequest: models.PaymentRequest{
@@ -464,39 +467,46 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 			},
 		}, nil)
 
-		expectedMove1 := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
-			ServiceMember: models.ServiceMember{
-				Edipi:       models.StringPointer("EZFG"),
-				LastName:    models.StringPointer("Spacemen"),
-				FirstName:   models.StringPointer("Lena"),
-				Affiliation: &branchNavy,
+		expectedMove1 := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.ServiceMember{
+					Edipi:       models.StringPointer("EZFG"),
+					LastName:    models.StringPointer("Spacemen"),
+					FirstName:   models.StringPointer("Lena"),
+					Affiliation: &branchNavy,
+				},
 			},
-			Move: models.Move{
-				Locator: "AAAA",
+			{
+				Model: models.Move{
+					Locator: "AAAA",
+				},
 			},
-			PaymentRequest: models.PaymentRequest{
-				Status: models.PaymentRequestStatusPaid,
+			{
+				Model:    originDutyLocation1,
+				LinkOnly: true,
+				Type:     &factory.DutyLocations.OriginDutyLocation,
 			},
-			Order: models.Order{
-				OriginDutyLocationID: &originDutyLocation1.ID,
-				OriginDutyLocation:   &originDutyLocation1,
-			},
-		})
+		}, nil)
 
-		expectedMove2 := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
-			ServiceMember: models.ServiceMember{
-				FirstName: models.StringPointer("Leo"),
-				LastName:  models.StringPointer("Spacemen"),
-				Edipi:     models.StringPointer("AZFG"),
+		expectedMove2 := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.ServiceMember{
+					FirstName: models.StringPointer("Leo"),
+					LastName:  models.StringPointer("Spacemen"),
+					Edipi:     models.StringPointer("AZFG"),
+				},
 			},
-			Move: models.Move{
-				Locator: "ZZZZ",
+			{
+				Model: models.Move{
+					Locator: "ZZZZ",
+				},
 			},
-			Order: models.Order{
-				OriginDutyLocationID: &originDutyLocation2.ID,
-				OriginDutyLocation:   &originDutyLocation2,
+			{
+				Model:    originDutyLocation2,
+				LinkOnly: true,
+				Type:     &factory.DutyLocations.OriginDutyLocation,
 			},
-		})
+		}, nil)
 
 		// Fake this as a day and a half in the past so floating point age values can be tested
 		prevCreatedAt := time.Now().Add(time.Duration(time.Hour * -36))

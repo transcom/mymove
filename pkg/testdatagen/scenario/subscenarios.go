@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -356,20 +355,36 @@ func subScenarioEvaluationReport(appCtx appcontext.AppContext) func() {
 		testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{Move: move})
 
 		storageFacility := factory.BuildStorageFacility(appCtx.DB(), nil, nil)
-		ntsShipment := testdatagen.MakeNTSShipment(appCtx.DB(), testdatagen.Assertions{
-			Move: move,
-			MTOShipment: models.MTOShipment{
-				StorageFacility:       &storageFacility,
-				ScheduledDeliveryDate: swag.Time(time.Now()),
+		ntsShipment := factory.BuildNTSShipment(appCtx.DB(), []factory.Customization{
+			{
+				Model:    storageFacility,
+				LinkOnly: true,
 			},
-		})
-		testdatagen.MakeNTSRShipment(appCtx.DB(), testdatagen.Assertions{
-			Move: move,
-			MTOShipment: models.MTOShipment{
-				StorageFacility:       &storageFacility,
-				ScheduledDeliveryDate: swag.Time(time.Now()),
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					ScheduledDeliveryDate: models.TimePointer(time.Now()),
+				},
+			},
+		}, nil)
+		factory.BuildNTSRShipment(appCtx.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    storageFacility,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					ScheduledDeliveryDate: models.TimePointer(time.Now()),
+				},
+			},
+		}, nil)
 
 		submittedTime := time.Now()
 		dataReviewInspection := models.EvaluationReportInspectionTypeDataReview
@@ -382,6 +397,7 @@ func subScenarioEvaluationReport(appCtx appcontext.AppContext) func() {
 
 		remark := "this is a submitted counseling report"
 		location := models.EvaluationReportLocationTypeOrigin
+
 		factory.BuildEvaluationReport(appCtx.DB(), []factory.Customization{
 			{
 				Model:    move,
@@ -402,6 +418,7 @@ func subScenarioEvaluationReport(appCtx appcontext.AppContext) func() {
 				},
 			},
 		}, nil)
+
 		remark1 := "this is a draft counseling report"
 		factory.BuildEvaluationReport(appCtx.DB(), []factory.Customization{
 			{
@@ -421,6 +438,7 @@ func subScenarioEvaluationReport(appCtx appcontext.AppContext) func() {
 
 		location = models.EvaluationReportLocationTypeDestination
 		remark2 := "this is a submitted shipment report"
+
 		factory.BuildEvaluationReport(appCtx.DB(), []factory.Customization{
 			{
 				Model:    move,
@@ -446,6 +464,7 @@ func subScenarioEvaluationReport(appCtx appcontext.AppContext) func() {
 				},
 			},
 		}, nil)
+
 		remark3 := "this is a draft shipment report"
 		factory.BuildEvaluationReport(appCtx.DB(), []factory.Customization{
 			{
@@ -469,6 +488,7 @@ func subScenarioEvaluationReport(appCtx appcontext.AppContext) func() {
 		}, nil)
 		location = models.EvaluationReportLocationTypeOrigin
 		remark4 := "this is a report with eval times recorded"
+
 		factory.BuildEvaluationReport(appCtx.DB(), []factory.Customization{
 			{
 				Model:    move,
@@ -500,6 +520,7 @@ func subScenarioEvaluationReport(appCtx appcontext.AppContext) func() {
 		location = models.EvaluationReportLocationTypeOther
 		locationDescription := "Route 66 at crash inspection site 3"
 		remark = "this is a submitted NTS shipment report"
+
 		factory.BuildEvaluationReport(appCtx.DB(), []factory.Customization{
 			{
 				Model:    move,
@@ -697,13 +718,13 @@ func subScenarioDivertedShipments(appCtx appcontext.AppContext, userUploader *up
 			Move: models.Move{
 				Status:             models.MoveStatusAPPROVED,
 				Locator:            "APRDVS",
-				AvailableToPrimeAt: swag.Time(time.Now()),
+				AvailableToPrimeAt: models.TimePointer(time.Now()),
 			},
 			MTOShipment: models.MTOShipment{
 				Diversion:           true,
 				Status:              models.MTOShipmentStatusApproved,
-				ApprovedDate:        swag.Time(time.Now()),
-				ScheduledPickupDate: swag.Time(time.Now().AddDate(0, 3, 0)),
+				ApprovedDate:        models.TimePointer(time.Now()),
+				ScheduledPickupDate: models.TimePointer(time.Now().AddDate(0, 3, 0)),
 			},
 		})
 	}

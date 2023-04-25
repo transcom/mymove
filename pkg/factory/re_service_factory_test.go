@@ -83,10 +83,13 @@ func (suite *FactorySuite) TestBuildReServiceHelpers() {
 		precount, err := suite.DB().Count(&models.ReService{})
 		suite.NoError(err)
 
-		reService := FetchOrBuildReService(suite.DB(),
-			models.ReService{
-				Code: models.ReServiceCodeCS,
-			})
+		reService := FetchOrBuildReService(suite.DB(), []Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeCS,
+				},
+			},
+		}, nil)
 		suite.NoError(err)
 		suite.Equal(ServicesCounselorReService.Code, reService.Code)
 		suite.Equal(ServicesCounselorReService.ID, reService.ID)
@@ -138,7 +141,11 @@ func (suite *FactorySuite) TestBuildReServiceHelpers() {
 			Name: "custom name",
 			Code: models.ReServiceCodeCS,
 		}
-		reService := FetchOrBuildReService(suite.DB(), customReService)
+		reService := FetchOrBuildReService(suite.DB(), []Customization{
+			{
+				Model: customReService,
+			},
+		}, nil)
 		suite.NoError(err)
 
 		suite.Equal(customReService.Code, reService.Code)
@@ -148,7 +155,11 @@ func (suite *FactorySuite) TestBuildReServiceHelpers() {
 		customReServiceByID := models.ReService{
 			ID: reService.ID,
 		}
-		reService = FetchOrBuildReService(suite.DB(), customReServiceByID)
+		reService = FetchOrBuildReService(suite.DB(), []Customization{
+			{
+				Model: customReServiceByID,
+			},
+		}, nil)
 		suite.NoError(err)
 
 		suite.Equal(customReServiceByID.ID, reService.ID)
