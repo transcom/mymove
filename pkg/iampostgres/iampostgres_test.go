@@ -3,6 +3,7 @@ package iampostgres
 import (
 	"errors"
 	"fmt"
+	"sync"
 	"testing"
 	"time"
 
@@ -33,14 +34,12 @@ func TestEnableIamNilCreds(t *testing.T) {
 	rdsu := RDSUTest{}
 	logger := zaptest.NewLogger(t)
 
-	tmr := time.NewTicker(1 * time.Second)
-
 	shouldQuitChan := make(chan bool)
 
 	err := EnableIAM("server", "8080", "us-east-1", "dbuser", "***",
 		nil,
 		&rdsu,
-		tmr,
+		1*time.Second,
 		logger,
 		shouldQuitChan)
 	assert.Error(err, "Enable IAM with nil creds?")
@@ -55,35 +54,36 @@ func TestGetCurrentPassword(t *testing.T) {
 	rdsu.passes = append(rdsu.passes, "")
 	rdsu.passes = append(rdsu.passes, "abc")
 	logger := zaptest.NewLogger(t)
-	iamConfig.currentIamPass = "" // ensure iamConfig is in new state
 
 	// use Millisecond so the tests run faster
 	tickerDuration := 1 * time.Millisecond
 	pauseCounter := 0
-	iamConfig.pauseFn = func() {
+	origPauseFn := defaultPauseFn
+	defer func() {
+		defaultPauseFn = origPauseFn
+	}()
+	defaultPauseFn = func() {
 		pauseCounter++
 		// make sure we wait at least one ticker duration for the
 		// password to be updated
 		time.Sleep(tickerDuration)
 	}
 
-	tmr := time.NewTicker(tickerDuration)
-
 	shouldQuitChan := make(chan bool)
 
 	err := EnableIAM("server", "8080", "us-east-1", "dbuser", "***",
 		credentials.NewStaticCredentials("id", "pass", "token"),
 		&rdsu,
-		tmr,
+		tickerDuration,
 		logger,
 		shouldQuitChan)
 	assert.Nil(err, "Enable IAM error")
+	assert.NotNil(iamPostgres)
 
 	// this should block once and then continue
-	currentPass := getCurrentPass()
+	currentPass := iamPostgres.getCurrentPass()
 	assert.Equal(currentPass, "abc")
 	shouldQuitChan <- true
-	tmr.Stop()
 
 	// This test wants to ensure that getCurrentPass does not return
 	// an empty string and keeps looping until it does gets a non
@@ -126,36 +126,37 @@ func TestGetCurrentPasswordFail(t *testing.T) {
 	rdsu := RDSUTest{}
 	rdsu.passes = append(rdsu.passes, "") // set mocked pass to empty to simulate failed cred generation
 	logger := zaptest.NewLogger(t)
-	iamConfig.currentIamPass = ""
 
 	// use Millisecond so the tests run faster
 	tickerDuration := 1 * time.Millisecond
 	pauseCounter := 0
-	iamConfig.pauseFn = func() {
+	origPauseFn := defaultPauseFn
+	defer func() {
+		defaultPauseFn = origPauseFn
+	}()
+	defaultPauseFn = func() {
 		pauseCounter++
 		// make sure we wait at least one ticker duration for the
 		// password to be updated
 		time.Sleep(tickerDuration)
 	}
 
-	tmr := time.NewTicker(tickerDuration)
-
 	shouldQuitChan := make(chan bool)
 
 	err := EnableIAM("server", "8080", "us-east-1", "dbuser", "***",
 		credentials.NewStaticCredentials("id", "pass", "token"),
 		&rdsu,
-		tmr,
+		tickerDuration,
 		logger,
 		shouldQuitChan)
 	assert.Nil(err, "Enable IAM error")
+	assert.NotNil(iamPostgres)
 
 	// this should block until maxRetries, then return empty string
-	currentPass := getCurrentPass()
+	currentPass := iamPostgres.getCurrentPass()
 	assert.Equal(currentPass, "")
 	shouldQuitChan <- true
-	tmr.Stop()
-	assert.Equal(int(iamConfig.maxRetries), pauseCounter)
+	assert.Equal(int(iamPostgres.maxRetries), pauseCounter)
 }
 
 /*
@@ -188,27 +189,34 @@ func TestEnableIAMNormal(t *testing.T) {
 	logger := zaptest.NewLogger(t)
 	// Set the current password to something not in the above list of passwords
 	// to cycle through.
-	iamConfig.currentIamPass = "123"
+	origInitialPassword := defaultInitialPassword
+	defer func() {
+		defaultInitialPassword = origInitialPassword
+	}()
+	defaultInitialPassword = "123"
+
+	origPauseFn := defaultPauseFn
+	defer func() {
+		defaultPauseFn = origPauseFn
+	}()
+
 	pauseCounter := 0
-	iamConfig.pauseFn = func() { pauseCounter++ }
+	defaultPauseFn = func() { pauseCounter++ }
 
 	// use Millisecond so the tests run faster
-	tmr := time.NewTicker(1 * time.Millisecond)
+	tickerDuration := 1 * time.Millisecond
 
 	shouldQuitChan := make(chan bool)
-
-	// Confirm that the password got set to what we initially set it to.
-	pass := getCurrentPass()
-	assert.Equal("123", pass)
 
 	// Start cycling through the list of passwords.
 	err := EnableIAM("server", "8080", "us-east-1", "dbuser", "***",
 		credentials.NewStaticCredentials("id", "pass", "token"),
 		&rdsu,
-		tmr,
+		tickerDuration,
 		logger,
 		shouldQuitChan)
 	assert.Nil(err, "Enable IAM error")
+	assert.NotNil(iamPostgres)
 
 	// The sleep time should be greater than how often the password will cycle
 	// so that the next time the password is fetched, it will have changed.
@@ -217,11 +225,10 @@ func TestEnableIAMNormal(t *testing.T) {
 
 	// Confirm that the password has changed (it's no longer the initial
 	// password) to the 1 password being cycled through.
-	pass = getCurrentPass()
+	pass := iamPostgres.getCurrentPass()
 	assert.Equal("abc", pass)
 
 	shouldQuitChan <- true
-	tmr.Stop()
 
 	// in this case, should never pause
 	assert.Equal(0, pauseCounter)
@@ -256,9 +263,13 @@ func TestUpdateDSN(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Logf("Running scenario: %s", tt.name)
-		iamConfig.currentIamPass = tt.pass
-		iamConfig.passHolder = tt.passHolder
-		dsn, err := updateDSN(tt.dsn)
+		localIamPostgresConfig := &iamPostgresConfig{
+			currentIamPass:   tt.pass,
+			passHolder:       tt.passHolder,
+			currentPassMutex: sync.Mutex{},
+			logger:           zaptest.NewLogger(t),
+		}
+		dsn, err := localIamPostgresConfig.updateDSN(tt.dsn)
 		assert.Equal(dsn, tt.expectedDSN)
 		assert.Nil(err)
 	}
