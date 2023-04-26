@@ -7,7 +7,7 @@ require (
 	github.com/XSAM/otelsql v0.21.0
 	github.com/alexedwards/scs/redisstore v0.0.0-20221223131519-238b052508b6
 	github.com/alexedwards/scs/v2 v2.5.1
-	github.com/aws/aws-sdk-go v1.44.249
+	github.com/aws/aws-sdk-go v1.44.250
 	github.com/benbjohnson/clock v1.3.3
 	github.com/codegangsta/gin v0.0.0-20211113050330-71f90109db02
 	github.com/disintegration/imaging v1.6.2
