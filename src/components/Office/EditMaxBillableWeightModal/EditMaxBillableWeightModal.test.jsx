@@ -73,7 +73,6 @@ describe('EditMaxBillableWeightModal', () => {
   it('calls the submit function when submit button is clicked', async () => {
     render(
       <EditMaxBillableWeightModal
-        isOpen
         onSubmit={onSubmit}
         onClose={onClose}
         defaultWeight={7500}
