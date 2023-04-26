@@ -16,11 +16,19 @@ import (
 )
 
 type approvedSITDurationUpdateCreator struct {
+	checks []sitExtensionValidator
 }
 
 // NewApprovedSITDurationUpdateCreator creates a new struct with the service dependencies
 func NewApprovedSITDurationUpdateCreator() services.ApprovedSITDurationUpdateCreator {
-	return &approvedSITDurationUpdateCreator{}
+	return &approvedSITDurationUpdateCreator{
+		[]sitExtensionValidator{
+			checkShipmentID(),
+			checkRequiredFields(),
+			checkSITExtensionPending(),
+			checkMinimumSITDuration(),
+		},
+	}
 }
 
 // CreateApprovedSITDurationUpdate creates a SIT Duration Update with a status of APPROVED and updates the MTO Shipment's SIT days allowance
@@ -30,14 +38,14 @@ func (f *approvedSITDurationUpdateCreator) CreateApprovedSITDurationUpdate(appCt
 		return nil, err
 	}
 
+	err = validateSITExtension(appCtx, *sitDurationUpdate, shipment, f.checks...)
+	if err != nil {
+		return nil, err
+	}
+
 	existingETag := etag.GenerateEtag(shipment.UpdatedAt)
 	if existingETag != eTag {
 		return nil, apperror.NewPreconditionFailedError(shipmentID, query.StaleIdentifierError{StaleIdentifier: eTag})
-	}
-
-	newSITDuration := int(*sitDurationUpdate.ApprovedDays) + int(*shipment.SITDaysAllowance)
-	if newSITDuration < 1 {
-		return nil, apperror.NewInvalidInputError(shipmentID, nil, nil, "can't reduce a SIT duration to less than one day")
 	}
 
 	var returnedShipment *models.MTOShipment
