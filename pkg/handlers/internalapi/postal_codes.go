@@ -1,16 +1,14 @@
 package internalapi
 
 import (
-	"regexp"
-
 	"github.com/go-openapi/runtime/middleware"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	postalcodesops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/postal_codes"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
-	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
 
@@ -27,20 +25,11 @@ func (h ValidatePostalCodeWithRateDataHandler) Handle(params postalcodesops.Vali
 			postalCode := params.PostalCode
 			postalCodeType := params.PostalCodeType
 
-			valid, err := h.validatePostalCode.ValidatePostalCode(appCtx,
-				postalCode,
-				services.PostalCodeType(postalCodeType),
-			)
-			latLongErrorRegex := regexp.MustCompile("Unsupported postal code lookup")
-
+			valid, err := h.validatePostalCode.ValidatePostalCode(appCtx, postalCode)
 			if err != nil {
-				switch {
-				case latLongErrorRegex.MatchString(err.Error()):
-					appCtx.Logger().Error("We don't have latlong for postal code", zap.Error(err))
-				case err == models.ErrFetchNotFound && postalCodeType == "origin":
-					appCtx.Logger().Error("We do not have rate area data for origin postal code", zap.Error(err))
-				case err == models.ErrFetchNotFound && postalCodeType == "destination":
-					appCtx.Logger().Error("We do not have region rate data for destination postal code", zap.Error(err))
+				switch err.(type) {
+				case *apperror.UnsupportedPostalCodeError:
+					appCtx.Logger().Warn(err.Error(), zap.Error(err))
 				default:
 					appCtx.Logger().Error("Validate postal code", zap.Error(err))
 					return postalcodesops.NewValidatePostalCodeWithRateDataBadRequest(), err

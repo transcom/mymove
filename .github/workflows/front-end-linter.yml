@@ -19,5 +19,8 @@ jobs:
       - name: Install dependencies
         run: yarn install
 
+      - name: Run eslint tests
+        run: yarn test:lint-rules
+
       - name: Run eslint production
         run: yarn run lint:production

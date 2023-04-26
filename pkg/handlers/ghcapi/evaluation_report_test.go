@@ -20,7 +20,6 @@ import (
 	"github.com/transcom/mymove/pkg/models/roles"
 	evaluationreportservice "github.com/transcom/mymove/pkg/services/evaluation_report"
 	"github.com/transcom/mymove/pkg/services/mocks"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *HandlerSuite) TestGetShipmentEvaluationReportsHandler() {
@@ -33,17 +32,21 @@ func (suite *HandlerSuite) TestGetShipmentEvaluationReportsHandler() {
 
 	suite.Run("Successful list fetch", func() {
 		officeUser, move, handlerConfig := setupTestData()
-		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		factory.BuildEvaluationReport(suite.DB(), []factory.Customization{
+			{
+				Model:    officeUser,
+				LinkOnly: true,
+			},
 			{
 				Model:    move,
 				LinkOnly: true,
 			},
+			{
+				Model: models.EvaluationReport{
+					Type: models.EvaluationReportTypeShipment,
+				},
+			},
 		}, nil)
-		testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{
-			OfficeUser:  officeUser,
-			Move:        move,
-			MTOShipment: shipment,
-		})
 
 		fetcher := evaluationreportservice.NewEvaluationReportFetcher()
 		handler := GetShipmentEvaluationReportsHandler{
@@ -111,11 +114,16 @@ func (suite *HandlerSuite) TestGetCounselingEvaluationReportsHandler() {
 
 	suite.Run("Successful list fetch", func() {
 		officeUser, move, handlerConfig := setupTestData()
-		testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{
-			OfficeUser: officeUser,
-			Move:       move,
-		})
-
+		factory.BuildEvaluationReport(suite.DB(), []factory.Customization{
+			{
+				Model:    officeUser,
+				LinkOnly: true,
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 		fetcher := evaluationreportservice.NewEvaluationReportFetcher()
 		handler := GetCounselingEvaluationReportsHandler{
 			HandlerConfig:           handlerConfig,
@@ -180,11 +188,16 @@ func (suite *HandlerSuite) TestGetEvaluationReportByIDHandler() {
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		fetcher := evaluationreportservice.NewEvaluationReportFetcher()
 
-		evaluationReport := testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{
-			EvaluationReport: models.EvaluationReport{
-				OfficeUserID: officeUser.ID,
-				MoveID:       move.ID,
-			}})
+		evaluationReport := factory.BuildEvaluationReport(suite.DB(), []factory.Customization{
+			{
+				Model:    officeUser,
+				LinkOnly: true,
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		handler := GetEvaluationReportHandler{
 			HandlerConfig:           handlerConfig,
@@ -631,7 +644,7 @@ func (suite *HandlerSuite) TestSubmitEvaluationReportHandler() {
 func (suite *HandlerSuite) TestSaveEvaluationReportHandler() {
 
 	suite.Run("Successful save", func() {
-		report := testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{})
+		report := factory.BuildEvaluationReport(suite.DB(), nil, nil)
 		reportID := report.ID
 
 		updater := &mocks.EvaluationReportUpdater{}
@@ -908,7 +921,7 @@ func (suite *HandlerSuite) TestSaveEvaluationReportHandler() {
 func (suite *HandlerSuite) TestDownloadEvaluationReportHandler() {
 
 	suite.Run("Successful download", func() {
-		report := testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{})
+		report := factory.BuildEvaluationReport(suite.DB(), nil, nil)
 		reportID := report.ID
 
 		reportFetcher := &mocks.EvaluationReportFetcher{}

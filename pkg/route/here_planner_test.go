@@ -12,6 +12,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/suite"
 
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
@@ -87,6 +88,15 @@ func (t *testClient) Get(getURL string) (*http.Response, error) {
 func (suite *HereTestSuite) checkErrorCode(err error, c ErrorCode) bool {
 	if suite.Error(err) && suite.Implements((*Error)(nil), err) {
 		r := err.(Error)
+		return suite.Equal(r.Code(), c)
+	}
+
+	return false
+}
+
+func (suite *HereTestSuite) checkAppErrorCode(err error, c apperror.ErrorCode) bool {
+	if suite.Error(err) && suite.Implements((*apperror.Error)(nil), err) {
+		r := err.(apperror.Error)
 		return suite.Equal(r.Code(), c)
 	}
 
@@ -214,11 +224,11 @@ func (suite *HereTestSuite) TestZipLookups() {
 
 	// Postal code errors should be returned
 	_, err := planner.Zip5TransitDistanceLineHaul(suite.AppContextForTest(), badZip, goodZip)
-	suite.checkErrorCode(err, UnsupportedPostalCode)
+	suite.checkAppErrorCode(err, apperror.UnsupportedPostalCode)
 
 	// Postal code errors should be returned
 	_, err = planner.Zip3TransitDistance(suite.AppContextForTest(), badZip, goodZip)
-	suite.checkErrorCode(err, UnsupportedPostalCode)
+	suite.checkAppErrorCode(err, apperror.UnsupportedPostalCode)
 }
 
 func TestHereTestSuite(t *testing.T) {

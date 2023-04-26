@@ -50,7 +50,7 @@ const OfficeUserList = (props) => (
     bulkActionButtons={false}
     sort={defaultSort}
     filters={<OfficeUserListFilter />}
-    actions={<ListActions />}
+    actions={<ListActions {...props} />}
   >
     <Datagrid rowClick="show">
       <TextField source="id" />
@@ -82,7 +82,7 @@ ListActions.propTypes = {
 };
 
 ListActions.defaultProps = {
-  resource: 'office_users',
+  resource: 'office-users',
   currentSort: {
     field: 'last_name',
     order: 'ASC',
