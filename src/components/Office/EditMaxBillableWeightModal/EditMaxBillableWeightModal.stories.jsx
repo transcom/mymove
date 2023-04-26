@@ -10,6 +10,7 @@ export default {
     maxBillableWeight: { type: 'number', defaultValue: 10999 },
     onSubmit: { action: 'submit form' },
     onClose: { action: 'close modal' },
+    isOpen: { type: 'boolean', defaultValue: true },
   },
 };
 
