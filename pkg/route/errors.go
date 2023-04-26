@@ -10,8 +10,6 @@ import (
 type ErrorCode string
 
 const (
-	// UnsupportedPostalCode happens when we can't map a ZIP5 to a set of Lat/Long
-	UnsupportedPostalCode ErrorCode = "UNSUPPORTED_POSTAL_CODE"
 	// UnroutableRoute happens when a valid route can't be calculated between two locations
 	UnroutableRoute ErrorCode = "UNROUTABLE_ROUTE"
 	// AddressLookupError happens when doing a LatLong lookup of an address
@@ -40,23 +38,6 @@ type baseError struct {
 // Code returns the error code enum
 func (b *baseError) Code() ErrorCode {
 	return b.code
-}
-
-type unsupportedPostalCode struct {
-	baseError
-	postalCode string
-}
-
-// NewUnsupportedPostalCodeError creates a new UnsupportedPostalCode error.
-func NewUnsupportedPostalCodeError(postalCode string) Error {
-	return &unsupportedPostalCode{
-		baseError{UnsupportedPostalCode},
-		postalCode,
-	}
-}
-
-func (e *unsupportedPostalCode) Error() string {
-	return fmt.Sprintf("Unsupported postal code lookup (%s)", e.postalCode)
 }
 
 type responseError struct {
