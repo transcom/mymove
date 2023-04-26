@@ -441,21 +441,32 @@ func (suite *PaymentRequestServiceSuite) setupRecalculateData1() (models.Move, m
 	availableToPrimeAt := time.Date(testdatagen.GHCTestYear, time.July, 1, 0, 0, 0, 0, time.UTC)
 	estimatedWeight := recalculateTestEstimatedWeight
 	originalWeight := recalculateTestOriginalWeight
-	moveTaskOrder, mtoServiceItems := testdatagen.MakeFullDLHMTOServiceItem(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			Status:             models.MoveStatusAPPROVED,
-			AvailableToPrimeAt: &availableToPrimeAt,
+	moveTaskOrder, mtoServiceItems := factory.BuildFullDLHMTOServiceItems(suite.DB(), []factory.Customization{
+		{
+			Model: models.Move{
+				Status:             models.MoveStatusAPPROVED,
+				AvailableToPrimeAt: &availableToPrimeAt,
+			},
 		},
-		MTOShipment: models.MTOShipment{
-			PrimeEstimatedWeight: &estimatedWeight,
-			PrimeActualWeight:    &originalWeight,
-			PickupAddressID:      &pickupAddress.ID,
-			PickupAddress:        &pickupAddress,
-			DestinationAddressID: &destinationAddress.ID,
-			DestinationAddress:   &destinationAddress,
-			SITDaysAllowance:     swag.Int(90),
+		{
+			Model:    pickupAddress,
+			LinkOnly: true,
+			Type:     &factory.Addresses.PickupAddress,
 		},
-	})
+		{
+			Model:    destinationAddress,
+			LinkOnly: true,
+			Type:     &factory.Addresses.DeliveryAddress,
+		},
+		{
+			Model: models.MTOShipment{
+				Status:               models.MTOShipmentStatusSubmitted,
+				PrimeEstimatedWeight: &estimatedWeight,
+				PrimeActualWeight:    &originalWeight,
+				SITDaysAllowance:     swag.Int(90),
+			},
+		},
+	}, nil)
 
 	// FSC price data (needs actual pickup date from move created above)
 	publicationDate := moveTaskOrder.MTOShipments[0].ActualPickupDate.AddDate(0, 0, -3) // 3 days earlier
@@ -510,7 +521,7 @@ func (suite *PaymentRequestServiceSuite) setupRecalculateData1() (models.Move, m
 	}
 
 	// DOASIT
-	mtoServiceItemDOASIT := testdatagen.MakeRealMTOServiceItemWithAllDeps(suite.DB(), models.ReServiceCodeDOASIT, moveTaskOrder, moveTaskOrder.MTOShipments[0])
+	mtoServiceItemDOASIT := factory.BuildRealMTOServiceItemWithAllDeps(suite.DB(), models.ReServiceCodeDOASIT, moveTaskOrder, moveTaskOrder.MTOShipments[0])
 	mtoServiceItemDOASIT.SITEntryDate = &recalculateSITEntryDate
 	suite.MustSave(&mtoServiceItemDOASIT)
 
@@ -544,10 +555,16 @@ func (suite *PaymentRequestServiceSuite) setupRecalculateData1() (models.Move, m
 
 func (suite *PaymentRequestServiceSuite) setupRecalculateData2(move models.Move, shipment models.MTOShipment) (models.Move, models.PaymentRequest) {
 
-	moveTaskOrder, mtoServiceItems := testdatagen.MakeFullOriginMTOServiceItems(suite.DB(), testdatagen.Assertions{
-		Move:        move,
-		MTOShipment: shipment,
-	})
+	moveTaskOrder, mtoServiceItems := factory.BuildFullOriginMTOServiceItems(suite.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	// Build up a payment request with service item references for creating a payment request.
 	paymentRequestArg := models.PaymentRequest{

@@ -99,11 +99,8 @@ type Assertions struct {
 	Tariff400ngServiceArea                   models.Tariff400ngServiceArea
 	Tariff400ngZip3                          models.Tariff400ngZip3
 	TestDataAuditHistory                     TestDataAuditHistory
-	TrafficDistributionList                  models.TrafficDistributionList
 	TransportationAccountingCode             models.TransportationAccountingCode
 	TransportationOffice                     models.TransportationOffice
-	TransportationServiceProvider            models.TransportationServiceProvider
-	TransportationServiceProviderPerformance models.TransportationServiceProviderPerformance
 	Upload                                   models.Upload
 	Uploader                                 *uploader.Uploader
 	UploadUseZeroBytes                       bool

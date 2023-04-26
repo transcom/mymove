@@ -1,6 +1,10 @@
 package factory
 
 import (
+	"bytes"
+	"log"
+	"os"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -209,6 +213,100 @@ func (suite *FactorySuite) TestBuildMTOServiceItem() {
 
 		suite.Equal(customReService.Code, si1.ReService.Code)
 		suite.Equal(customReService.Code, si2.ReService.Code)
+	})
+
+	suite.Run("build real MTOServiceItem with all deps valid code", func() {
+		move := BuildMove(suite.DB(), nil, nil)
+		shipment := BuildMTOShipment(suite.DB(), []Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+		mtoServiceItem := BuildRealMTOServiceItemWithAllDeps(suite.DB(),
+			models.ReServiceCodeMS, move, shipment)
+
+		reService := FetchOrBuildReServiceByCode(suite.DB(), models.ReServiceCodeMS)
+
+		suite.Equal(move.ID, mtoServiceItem.MoveTaskOrderID)
+		suite.NotNil(mtoServiceItem.MTOShipmentID)
+		suite.Equal(shipment.ID, *mtoServiceItem.MTOShipmentID)
+		suite.Equal(reService.ID, mtoServiceItem.ReServiceID)
+		suite.Equal(models.MTOServiceItemStatusApproved, mtoServiceItem.Status)
+	})
+
+	suite.Run("build real MTOServiceItem with all deps invalid code", func() {
+		move := BuildMove(suite.DB(), nil, nil)
+		shipment := BuildMTOShipment(suite.DB(), []Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+		buf := bytes.NewBuffer([]byte{})
+		log.SetOutput(buf)
+		// ensure log output is set back to default
+		defer log.SetOutput(os.Stderr)
+		suite.Panics(func() {
+			// this code is not a supported one
+			BuildRealMTOServiceItemWithAllDeps(suite.DB(),
+				models.ReServiceCodeDOFSIT, move, shipment)
+		})
+		suite.Contains(buf.String(), "couldn't create service item service code")
+	})
+
+	suite.Run("build full DLH MTOServiceItem", func() {
+		// the original MakeFullDHLMTOServiceItem did an override of
+		// the MTOShipment Status to ensure it was Submitted, but in
+		// our conversion, we will require the caller to make that
+		// customization
+		move, mtoServiceItems := BuildFullDLHMTOServiceItems(suite.DB(), []Customization{
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusSubmitted,
+				},
+			},
+		}, nil)
+
+		suite.Equal(1, len(move.MTOShipments))
+		suite.Equal(models.MTOShipmentStatusSubmitted, move.MTOShipments[0].Status)
+		reServiceCodes := []models.ReServiceCode{}
+		for i := range mtoServiceItems {
+			reServiceCodes = append(reServiceCodes, mtoServiceItems[i].ReService.Code)
+		}
+		expectedCodes := []models.ReServiceCode{
+			models.ReServiceCodeMS,
+			models.ReServiceCodeCS,
+			models.ReServiceCodeDLH,
+			models.ReServiceCodeFSC,
+		}
+		suite.Equal(expectedCodes, reServiceCodes)
+	})
+
+	suite.Run("build full origin MTOServiceItem", func() {
+		// the original MakeFullOriginMTOServiceItem did an override of
+		// the MTOShipment Status to ensure it was Submitted, but in
+		// our conversion, we will require the caller to make that
+		// customization
+		move, mtoServiceItems := BuildFullOriginMTOServiceItems(suite.DB(), []Customization{
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusSubmitted,
+				},
+			},
+		}, nil)
+
+		suite.Equal(1, len(move.MTOShipments))
+		suite.Equal(models.MTOShipmentStatusSubmitted, move.MTOShipments[0].Status)
+		reServiceCodes := []models.ReServiceCode{}
+		for i := range mtoServiceItems {
+			reServiceCodes = append(reServiceCodes, mtoServiceItems[i].ReService.Code)
+		}
+		expectedCodes := []models.ReServiceCode{
+			models.ReServiceCodeDPK,
+			models.ReServiceCodeDOP,
+		}
+		suite.Equal(expectedCodes, reServiceCodes)
 	})
 
 }
