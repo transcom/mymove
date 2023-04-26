@@ -6,7 +6,6 @@ import (
 	"net/http"
 
 	"github.com/gofrs/uuid"
-	"github.com/spf13/afero"
 
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
@@ -60,6 +59,14 @@ func (suite *PaperworkServiceSuite) TestUserUploadToPDFConverter() {
 
 		defer expectedPDF.Close()
 
+		expectedBytes, readExpectedErr := io.ReadAll(expectedPDF)
+
+		suite.FatalNoError(readExpectedErr)
+
+		_, seekErr := expectedPDF.Seek(0, io.SeekStart)
+
+		suite.FatalNoError(seekErr)
+
 		appCtx := suite.AppContextForTest()
 
 		userUpload := factory.BuildUserUpload(appCtx.DB(), []factory.Customization{
@@ -76,14 +83,6 @@ func (suite *PaperworkServiceSuite) TestUserUploadToPDFConverter() {
 		convertedFiles, err := uploadToPDFConverter.ConvertUserUploadsToPDF(appCtx, models.UserUploads{userUpload})
 
 		if suite.NoError(err) && suite.Len(convertedFiles, 1) {
-			_, seekErr := expectedPDF.Seek(0, io.SeekStart)
-
-			suite.FatalNoError(seekErr)
-
-			expectedBytes, readExpectedErr := io.ReadAll(expectedPDF)
-
-			suite.FatalNoError(readExpectedErr)
-
 			// The way this is tested, by reading the stream, also serves to let us know that the stream is open,
 			// which is what we want since the caller will want to have access to it.
 			actualBytes, readConvertedErr := io.ReadAll(convertedFiles[0].PDFStream)
@@ -150,18 +149,40 @@ func (suite *PaperworkServiceSuite) TestUserUploadToPDFConverter() {
 
 		defer expectedPDF1.Close()
 
+		expectedBytes1, readExpectedErr1 := io.ReadAll(expectedPDF1)
+
+		suite.FatalNoError(readExpectedErr1)
+
+		_, seekErr1 := expectedPDF1.Seek(0, io.SeekStart)
+
+		suite.FatalNoError(seekErr1)
+
 		expectedPDF2 := factory.FixtureOpen("full-weight-ticket.pdf")
 
 		defer expectedPDF2.Close()
 
-		expectedPDFs := []io.Reader{expectedPDF1, expectedPDF2}
+		expectedBytes2, readExpectedErr2 := io.ReadAll(expectedPDF2)
+
+		suite.FatalNoError(readExpectedErr2)
+
+		_, seekErr2 := expectedPDF2.Seek(0, io.SeekStart)
+
+		suite.FatalNoError(seekErr2)
+
+		expectedFiles := []struct {
+			pdf   io.Reader
+			bytes []byte
+		}{
+			{expectedPDF1, expectedBytes1},
+			{expectedPDF2, expectedBytes2},
+		}
 
 		timesGotenbergServerCalled := 0
 
 		mockGotenbergServer := suite.setUpMockGotenbergServer(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusOK)
 
-			_, err := io.Copy(w, expectedPDFs[timesGotenbergServerCalled])
+			_, err := io.Copy(w, expectedFiles[timesGotenbergServerCalled].pdf)
 
 			suite.FatalNoError(err)
 
@@ -197,24 +218,16 @@ func (suite *PaperworkServiceSuite) TestUserUploadToPDFConverter() {
 
 		convertedFiles, err := uploadToPDFConverter.ConvertUserUploadsToPDF(appCtx, models.UserUploads{userUpload1, userUpload2})
 
-		if suite.NoError(err) && suite.Len(convertedFiles, len(expectedPDFs)) {
+		if suite.NoError(err) && suite.Len(convertedFiles, len(expectedFiles)) {
 			for i, convertedFile := range convertedFiles {
 				if suite.NotNil(convertedFile.PDFStream) {
-					_, seekErr := expectedPDFs[i].(afero.File).Seek(0, io.SeekStart)
-
-					suite.FatalNoError(seekErr)
-
-					expectedBytes, readExpectedErr := io.ReadAll(expectedPDFs[i])
-
-					suite.FatalNoError(readExpectedErr)
-
 					// The way this is tested, by reading the stream, also serves to let us know that the stream is
 					// open, which is what we want since the caller will want to have access to it.
 					actualBytes, readConvertedErr := io.ReadAll(convertedFile.PDFStream)
 
 					suite.NoError(readConvertedErr)
 
-					suite.Equal(expectedBytes, actualBytes)
+					suite.Equal(expectedFiles[i].bytes, actualBytes)
 
 					// We also want to make sure that the original stream is closed, since we don't want to leave
 					// the file open and we won't be using it since we have a PDF stream.

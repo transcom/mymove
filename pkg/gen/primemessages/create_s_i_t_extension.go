@@ -33,6 +33,7 @@ type CreateSITExtension struct {
 	// requested days
 	// Example: 30
 	// Required: true
+	// Minimum: 1
 	RequestedDays *int64 `json:"requestedDays"`
 }
 
@@ -128,6 +129,10 @@ func (m *CreateSITExtension) validateRequestReason(formats strfmt.Registry) erro
 func (m *CreateSITExtension) validateRequestedDays(formats strfmt.Registry) error {
 
 	if err := validate.Required("requestedDays", "body", m.RequestedDays); err != nil {
+		return err
+	}
+
+	if err := validate.MinimumInt("requestedDays", "body", *m.RequestedDays, 1, false); err != nil {
 		return err
 	}
 
