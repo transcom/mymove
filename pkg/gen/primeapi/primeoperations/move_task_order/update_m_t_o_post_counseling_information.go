@@ -38,6 +38,10 @@ updateMTOPostCounselingInformation
 This endpoint **updates** the MoveTaskOrder to indicate that the Prime has completed Counseling.
 This update uses the moveTaskOrderID provided in the path, updates the move status and marks child elements of the move to indicate the update.
 No body object is expected for this request.
+
+**For Full/Partial PPMs**: This action is required so that the customer can start uploading their proof of service docs.
+
+**For other move types**: This action is required for auditing reasons so that we have a record of when the Prime counseled the customer.
 */
 type UpdateMTOPostCounselingInformation struct {
 	Context *middleware.Context

@@ -8,7 +8,7 @@ test('A service counselor can approve/reject weight tickets', async ({ page, scP
 
   // Navigate to the "Review documents" page
   await page.getByRole('button', { name: 'Review documents' }).click();
-  await scPage.waitForPage.reviewDocuments();
+  await scPage.waitForPage.reviewWeightTicket();
 
   // Click "Accept" on the weight ticket, then proceed
   await page.getByText('Accept').click();
@@ -24,7 +24,7 @@ test('A service counselor can approve/reject weight tickets', async ({ page, scP
 
   // Return to the weight ticket and verify that it's approved
   // await page.getByRole('button', { name: 'Review documents' }).click();
-  // await scPage.waitForPage.reviewDocuments();
+  // await scPage.waitForPage.reviewWeightTicket();
   // await expect(page.getByRole('radio', { name: 'Accept' })).toBeChecked();
 
   // // Click "Reject" on the weight ticket, provide a reason, then save
@@ -37,7 +37,7 @@ test('A service counselor can approve/reject weight tickets', async ({ page, scP
 
   // // Return to the weight ticket and verify that it's been edited
   // await page.getByRole('button', { name: 'Review documents' }).click();
-  // await scPage.waitForPage.reviewDocuments();
+  // await scPage.waitForPage.reviewWeightTicket();
   // await expect(page.getByRole('radio', { name: 'Reject' })).toBeChecked();
   // await expect(page.getByLabel('Reason')).toHaveValue('Justification for rejection');
 });
@@ -64,7 +64,7 @@ test('A services counselor can reduce PPM weights for a move with excess weight'
 
   // navigate to review-documents page and decrease ppm shipment weight below threshold
   await page.getByRole('link', { name: 'Review Documents' }).click();
-  await scPage.waitForPage.reviewDocuments();
+  await scPage.waitForPage.reviewWeightTicket();
 
   await page.getByTestId('net-weight-display').getByTestId('button').click();
   await page.getByTestId('weightInput').fill('0');
