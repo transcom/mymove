@@ -510,17 +510,26 @@ func MTOServiceItemModelFromUpdate(mtoServiceItemID string, mtoServiceItem prime
 			model.SITDestinationFinalAddressID = &model.SITDestinationFinalAddress.ID
 		}
 
-		model.CustomerContacts = models.MTOServiceItemCustomerContacts{
-			models.MTOServiceItemCustomerContact{
+		var customerContacts models.MTOServiceItemCustomerContacts
+		if sit.TimeMilitary1 != nil && sit.FirstAvailableDeliveryDate1 != nil {
+			contact1 := models.MTOServiceItemCustomerContact{
 				Type:                       models.CustomerContactTypeFirst,
 				TimeMilitary:               *sit.TimeMilitary1,
 				FirstAvailableDeliveryDate: time.Time(*sit.FirstAvailableDeliveryDate1),
-			},
-			models.MTOServiceItemCustomerContact{
-				Type:                       models.CustomerContactTypeSecond,
+			}
+			customerContacts = append(customerContacts, contact1)
+		}
+		if sit.TimeMilitary2 != nil && sit.FirstAvailableDeliveryDate2 != nil {
+			contact2 := models.MTOServiceItemCustomerContact{
+				Type:                       models.CustomerContactTypeFirst,
 				TimeMilitary:               *sit.TimeMilitary2,
 				FirstAvailableDeliveryDate: time.Time(*sit.FirstAvailableDeliveryDate2),
-			},
+			}
+			customerContacts = append(customerContacts, contact2)
+		}
+
+		if len(customerContacts) > 0 {
+			model.CustomerContacts = customerContacts
 		}
 
 		if verrs != nil && verrs.HasAny() {
