@@ -369,7 +369,7 @@ func (suite *HandlerSuite) TestDeleteProgearWeightTicketHandler() {
 	suite.Run("DELETE failure - 404 - not found - ppm shipment ID and moving expense ID don't match", func() {
 		subtestData := makeDeleteSubtestData(false)
 		serviceMember := subtestData.ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
-
+		// Replace this once MakeProgearWeightTicket has been replaced
 		otherPPMShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
 			Order: subtestData.ppmShipment.Shipment.MoveTaskOrder.Orders,
 		})

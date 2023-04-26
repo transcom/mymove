@@ -108,7 +108,7 @@ func GetTraitPPMShipment() []Customization {
 	}
 }
 
-func GetTraitApprovedPPMWaitingOnCustomer() []Customization {
+func GetTraitApprovedPPMShipment() []Customization {
 	submittedTime := time.Now()
 	approvedTime := submittedTime.AddDate(0, 0, 3)
 

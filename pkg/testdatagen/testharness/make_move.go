@@ -2718,10 +2718,12 @@ func MakeUnsubmittedMoveWithMultipleFullPPMShipmentComplete(appCtx appcontext.Ap
 
 	move, _ := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
 
-	testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
-		Move: move,
-	})
-
+	factory.BuildPPMShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 	// re-fetch the move so that we ensure we have exactly what is in
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)

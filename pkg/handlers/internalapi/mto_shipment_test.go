@@ -1381,7 +1381,7 @@ func (suite *HandlerSuite) makeListSubtestData() (subtestData *mtoListSubtestDat
 			Model:    mto,
 			LinkOnly: true,
 		},
-	}, []factory.Trait{factory.GetTraitApprovedPPMWaitingOnCustomer})
+	}, []factory.Trait{factory.GetTraitApprovedPPMShipment})
 
 	advanceAmountRequested := unit.Cents(10000)
 	ppmShipment3 := factory.BuildPPMShipment(suite.DB(), []factory.Customization{

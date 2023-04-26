@@ -28,7 +28,6 @@ import (
 	"github.com/transcom/mymove/pkg/route/mocks"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *HandlerSuite) TestPatchMoveHandler() {

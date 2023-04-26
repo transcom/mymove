@@ -126,7 +126,7 @@ func (suite *PPMShipmentSuite) TestSubmit() {
 	})
 
 	suite.Run(fmt.Sprintf("Can't set status to %s if it's not new or in the %s status", models.PPMShipmentStatusSubmitted, models.PPMShipmentStatusDraft), func() {
-		ppmShipment := factory.BuildPPMShipment(nil, nil, []factory.Trait{factory.GetTraitApprovedPPMWaitingOnCustomer})
+		ppmShipment := factory.BuildPPMShipment(nil, nil, []factory.Trait{factory.GetTraitApprovedPPMShipment})
 		originalPPMShipmentStatus := ppmShipment.Status
 		originalMTOShipmentStatus := ppmShipment.Shipment.Status
 
@@ -203,7 +203,7 @@ func (suite *PPMShipmentSuite) TestSendToCustomer() {
 			}, nil)
 		},
 		models.PPMShipmentStatusWaitingOnCustomer: func() models.PPMShipment {
-			return factory.BuildPPMShipment(nil, nil, []factory.Trait{factory.GetTraitApprovedPPMWaitingOnCustomer})
+			return factory.BuildPPMShipment(nil, nil, []factory.Trait{factory.GetTraitApprovedPPMShipment})
 		},
 	}
 
@@ -262,7 +262,7 @@ func (suite *PPMShipmentSuite) TestSendToCustomer() {
 	})
 
 	suite.Run("Skips approving MTOShipment if it is already approved", func() {
-		ppmShipment := factory.BuildPPMShipment(nil, nil, []factory.Trait{factory.GetTraitApprovedPPMWaitingOnCustomer})
+		ppmShipment := factory.BuildPPMShipment(nil, nil, []factory.Trait{factory.GetTraitApprovedPPMShipment})
 		ppmShipment.Status = models.PPMShipmentStatusSubmitted
 
 		mtoShipmentRouter := &mocks.ShipmentRouter{}
@@ -280,7 +280,7 @@ func (suite *PPMShipmentSuite) TestSendToCustomer() {
 	})
 
 	suite.Run("Doesn't set a new approval time if there is one already.", func() {
-		ppmShipment := factory.BuildPPMShipment(nil, nil, []factory.Trait{factory.GetTraitApprovedPPMWaitingOnCustomer})
+		ppmShipment := factory.BuildPPMShipment(nil, nil, []factory.Trait{factory.GetTraitApprovedPPMShipment})
 
 		differentApprovedAt := time.Now().AddDate(0, 0, 1)
 		ppmShipment.ApprovedAt = &differentApprovedAt
