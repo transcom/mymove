@@ -7,11 +7,10 @@
 
 import * as path from 'path';
 
+import { injectAxe } from 'axe-playwright';
 import { expect } from '@playwright/test';
-import { injectAxe, checkA11y } from 'axe-playwright';
 
 import { TestHarness } from './testharness';
-import WaitForPage from './waitForPage';
 
 /**
  * base test fixture for playwright
@@ -92,44 +91,6 @@ export class BaseTestPage {
     await actionLink.click();
     const fileChooser = await fileChooserPromise;
     await fileChooser.setFiles(filePath);
-  }
-
-  /**
-   * Run an accessibility audit against the page in its current state
-   *
-   */
-
-  async runAccessibilityAudit() {
-    if (process.env.A11Y_AUDIT) {
-      await checkA11y(
-        this.page,
-        undefined,
-        {
-          detailedReport: true,
-        },
-        // skip failures
-        true,
-        'default',
-      );
-    }
-  }
-
-  injectAccessibilityTestsInWaitForPage() {
-    Object.getOwnPropertyNames(WaitForPage.prototype)
-      .filter((name) => name !== 'constructor')
-      .forEach((name) => {
-        // eslint-disable-next-line security/detect-object-injection
-        const value = WaitForPage.prototype[name];
-        if (typeof value === 'function') {
-          const wrappedMethod = async (args) => {
-            await this.runAccessibilityAudit();
-            await value.apply(this, args);
-            await this.runAccessibilityAudit();
-          };
-          Reflect.deleteProperty(WaitForPage.prototype, name);
-          Reflect.defineProperty(WaitForPage.prototype, name, { value: wrappedMethod });
-        }
-      });
   }
 }
 

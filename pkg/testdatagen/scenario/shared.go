@@ -3430,13 +3430,18 @@ func createMoveWithNTSAndNTSR(appCtx appcontext.AppContext, userUploader *upload
 			},
 		},
 	}, nil)
-	testdatagen.MakeMTOAgent(db, testdatagen.Assertions{
-		MTOShipment: ntsShipment,
-		MTOAgent: models.MTOAgent{
-			MTOAgentType: models.MTOAgentReleasing,
-		},
-	})
 
+	factory.BuildMTOAgent(db, []factory.Customization{
+		{
+			Model:    ntsShipment,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOAgent{
+				MTOAgentType: models.MTOAgentReleasing,
+			},
+		},
+	}, nil)
 	ntsrShipment := factory.BuildNTSRShipment(appCtx.DB(), []factory.Customization{
 		{
 			Model:    move,
@@ -3451,13 +3456,17 @@ func createMoveWithNTSAndNTSR(appCtx appcontext.AppContext, userUploader *upload
 			},
 		},
 	}, nil)
-	testdatagen.MakeMTOAgent(db, testdatagen.Assertions{
-		MTOShipment: ntsrShipment,
-		MTOAgent: models.MTOAgent{
-			MTOAgentType: models.MTOAgentReceiving,
+	factory.BuildMTOAgent(db, []factory.Customization{
+		{
+			Model:    ntsrShipment,
+			LinkOnly: true,
 		},
-	})
-
+		{
+			Model: models.MTOAgent{
+				MTOAgentType: models.MTOAgentReceiving,
+			},
+		},
+	}, nil)
 	if opts.moveStatus == models.MoveStatusSUBMITTED {
 		newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
 			{
@@ -4776,14 +4785,14 @@ func createHHGMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader 
 	}, nil)
 
 	agent := models.MTOAgent{
-		MTOShipment:   MTOShipment,
-		MTOShipmentID: MTOShipment.ID,
-		FirstName:     models.StringPointer("Test"),
-		LastName:      models.StringPointer("Agent"),
-		Email:         models.StringPointer("test@test.email.com"),
-		MTOAgentType:  models.MTOAgentReleasing,
+		FirstName:    models.StringPointer("Test"),
+		LastName:     models.StringPointer("Agent"),
+		Email:        models.StringPointer("test@test.email.com"),
+		MTOAgentType: models.MTOAgentReleasing,
 	}
 	testdatagen.MergeModels(&agent, assertions.MTOAgent)
+
+	// assertions passed in means we cannot yet convert to BuildMTOAgent
 	testdatagen.MakeMTOAgent(db, testdatagen.Assertions{
 		MTOAgent: agent,
 	})
@@ -5350,18 +5359,21 @@ func createHHGMoveWith2PaymentRequests(appCtx appcontext.AppContext, userUploade
 		},
 	}, nil)
 
-	testdatagen.MakeMTOAgent(db, testdatagen.Assertions{
-		MTOAgent: models.MTOAgent{
-			ID:            uuid.FromStringOrNil("82036387-a113-4b45-a172-94e49e4600d2"),
-			MTOShipment:   mtoShipmentHHG7,
-			MTOShipmentID: mtoShipmentHHG7.ID,
-			FirstName:     models.StringPointer("Test"),
-			LastName:      models.StringPointer("Agent"),
-			Email:         models.StringPointer("test@test.email.com"),
-			MTOAgentType:  models.MTOAgentReleasing,
+	factory.BuildMTOAgent(db, []factory.Customization{
+		{
+			Model:    mtoShipmentHHG7,
+			LinkOnly: true,
 		},
-	})
-
+		{
+			Model: models.MTOAgent{
+				ID:           uuid.FromStringOrNil("82036387-a113-4b45-a172-94e49e4600d2"),
+				FirstName:    models.StringPointer("Test"),
+				LastName:     models.StringPointer("Agent"),
+				Email:        models.StringPointer("test@test.email.com"),
+				MTOAgentType: models.MTOAgentReleasing,
+			},
+		},
+	}, nil)
 	paymentRequest7 := testdatagen.MakePaymentRequest(db, testdatagen.Assertions{
 		PaymentRequest: models.PaymentRequest{
 			ID:              uuid.FromStringOrNil("ea945ab7-099a-4819-82de-6968efe131dc"),
@@ -5682,18 +5694,21 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 		},
 	}, nil)
 
-	testdatagen.MakeMTOAgent(db, testdatagen.Assertions{
-		MTOAgent: models.MTOAgent{
-			ID:            uuid.FromStringOrNil("e338e05c-6f5d-11ec-90d6-0242ac120003"),
-			MTOShipment:   ntsrShipment,
-			MTOShipmentID: ntsrShipment.ID,
-			FirstName:     models.StringPointer("Receiving"),
-			LastName:      models.StringPointer("Agent"),
-			Email:         models.StringPointer("test@test.email.com"),
-			MTOAgentType:  models.MTOAgentReceiving,
+	factory.BuildMTOAgent(db, []factory.Customization{
+		{
+			Model:    ntsrShipment,
+			LinkOnly: true,
 		},
-	})
-
+		{
+			Model: models.MTOAgent{
+				ID:           uuid.FromStringOrNil("e338e05c-6f5d-11ec-90d6-0242ac120003"),
+				FirstName:    models.StringPointer("Receiving"),
+				LastName:     models.StringPointer("Agent"),
+				Email:        models.StringPointer("test@test.email.com"),
+				MTOAgentType: models.MTOAgentReceiving,
+			},
+		},
+	}, nil)
 	ntsrShipment.PickupAddressID = &pickupAddress.ID
 	ntsrShipment.PickupAddress = &pickupAddress
 	saveErr := db.Save(&ntsrShipment)
@@ -7230,18 +7245,21 @@ func createHHGMoveWith2PaymentRequestsReviewedAllRejectedServiceItems(appCtx app
 		},
 	}, nil)
 
-	testdatagen.MakeMTOAgent(db, testdatagen.Assertions{
-		MTOAgent: models.MTOAgent{
-			ID:            uuid.FromStringOrNil("82036387-a113-4b45-a172-ffffffffffff"),
-			MTOShipment:   mtoShipmentHHG7,
-			MTOShipmentID: mtoShipmentHHG7.ID,
-			FirstName:     models.StringPointer("Test"),
-			LastName:      models.StringPointer("Agent"),
-			Email:         models.StringPointer("test@test.email.com"),
-			MTOAgentType:  models.MTOAgentReleasing,
+	factory.BuildMTOAgent(db, []factory.Customization{
+		{
+			Model:    mtoShipmentHHG7,
+			LinkOnly: true,
 		},
-	})
-
+		{
+			Model: models.MTOAgent{
+				ID:           uuid.FromStringOrNil("82036387-a113-4b45-a172-ffffffffffff"),
+				FirstName:    models.StringPointer("Test"),
+				LastName:     models.StringPointer("Agent"),
+				Email:        models.StringPointer("test@test.email.com"),
+				MTOAgentType: models.MTOAgentReleasing,
+			},
+		},
+	}, nil)
 	reviewedDate := time.Now()
 	paymentRequest7 := testdatagen.MakePaymentRequest(db, testdatagen.Assertions{
 		PaymentRequest: models.PaymentRequest{

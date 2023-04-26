@@ -461,8 +461,6 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		suite.Equal(successShipment.PickupAddress.PostalCode, *shipment.PickupAddress.PostalCode)
 		suite.Equal(*successShipment.PickupAddress.Country, *shipment.PickupAddress.Country)
 
-		// TODO: PointOfContact is not a valid field atm. Should we remove or add link (transportation_service_providers table)
-
 		// TODO: test fields on PpmShipment, existing test "Success - returns shipment with attached PpmShipment"
 
 		suite.Equal(*successShipment.PrimeActualWeight, *handlers.PoundPtrFromInt64Ptr(shipment.PrimeActualWeight))
