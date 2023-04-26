@@ -4,27 +4,9 @@ import (
 	"time"
 
 	"github.com/gobuffalo/pop/v6"
-	"github.com/gofrs/uuid"
-
-	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *MigrateSuite) TestBuilderCompile() {
-
-	// Create common TSP
-	testdatagen.MakeTSP(suite.DB(), testdatagen.Assertions{
-		TransportationServiceProvider: models.TransportationServiceProvider{
-			ID: uuid.Must(uuid.FromString("231a7b21-346c-4e94-b6bc-672413733f77")),
-		},
-	})
-
-	// Create TDLs
-	testdatagen.MakeTDL(suite.DB(), testdatagen.Assertions{
-		TrafficDistributionList: models.TrafficDistributionList{
-			ID: uuid.Must(uuid.FromString("27f1fbeb-090c-4a91-955c-67899de4d6d6")),
-		},
-	})
 
 	// Create the builder and point to the fixture path
 	uri := "file://./fixtures/loop.sql"

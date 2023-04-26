@@ -128,9 +128,6 @@ export const availableMoveDates = new schema.Entity(
 // MoveDatesSummary
 export const moveDatesSummary = new schema.Entity('moveDatesSummaries');
 
-// TransportationServiceProviders
-export const transportationServiceProvider = new schema.Entity('transportationServiceProviders');
-
 // StorageInTransits
 export const storageInTransit = new schema.Entity('storageInTransits');
 
