@@ -236,6 +236,9 @@ func (v *updateMTOServiceItemData) setNewMTOServiceItem() *models.MTOServiceItem
 		}
 	}
 
+	// Set customer contact fields:
+	newMTOServiceItem.CustomerContacts = v.updatedServiceItem.CustomerContacts
+
 	// Set weight fields:
 	newMTOServiceItem.EstimatedWeight = services.SetOptionalPoundField(
 		v.updatedServiceItem.EstimatedWeight, newMTOServiceItem.EstimatedWeight)
