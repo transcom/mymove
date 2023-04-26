@@ -158,10 +158,12 @@ func (suite *MTOShipmentServiceSuite) TestListMTOShipments() {
 			Move:        move,
 		})
 
-		agents := testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
-			MTOShipment: shipment,
-		})
-
+		agents := factory.BuildMTOAgent(suite.DB(), []factory.Customization{
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+		}, nil)
 		SITExtension := testdatagen.MakeSITDurationUpdate(suite.DB(), testdatagen.Assertions{
 			MTOShipment: shipment,
 		})

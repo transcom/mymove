@@ -468,26 +468,34 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		setupTestData()
 
 		shipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
-		mtoAgent1 := testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
-			MTOAgent: models.MTOAgent{
-				MTOShipment:   shipment,
-				MTOShipmentID: shipment.ID,
-				FirstName:     swag.String("Test"),
-				LastName:      swag.String("Agent"),
-				Email:         swag.String("test@test.email.com"),
-				MTOAgentType:  models.MTOAgentReleasing,
+		mtoAgent1 := factory.BuildMTOAgent(suite.DB(), []factory.Customization{
+			{
+				Model:    shipment,
+				LinkOnly: true,
 			},
-		})
-		mtoAgent2 := testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
-			MTOAgent: models.MTOAgent{
-				MTOShipment:   shipment,
-				MTOShipmentID: shipment.ID,
-				FirstName:     swag.String("Test2"),
-				LastName:      swag.String("Agent2"),
-				Email:         swag.String("test2@test.email.com"),
-				MTOAgentType:  models.MTOAgentReceiving,
+			{
+				Model: models.MTOAgent{
+					FirstName:    models.StringPointer("Test"),
+					LastName:     models.StringPointer("Agent"),
+					Email:        models.StringPointer("test@test.email.com"),
+					MTOAgentType: models.MTOAgentReleasing,
+				},
 			},
-		})
+		}, nil)
+		mtoAgent2 := factory.BuildMTOAgent(suite.DB(), []factory.Customization{
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOAgent{
+					FirstName:    models.StringPointer("Test2"),
+					LastName:     models.StringPointer("Agent2"),
+					Email:        models.StringPointer("test2@test.email.com"),
+					MTOAgentType: models.MTOAgentReceiving,
+				},
+			},
+		}, nil)
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 
 		updatedAgents := make(models.MTOAgents, 2)
@@ -525,23 +533,26 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		setupTestData()
 
 		shipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
-		existingAgent := testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
-			MTOAgent: models.MTOAgent{
-				MTOShipment:   shipment,
-				MTOShipmentID: shipment.ID,
-				FirstName:     swag.String("Test"),
-				LastName:      swag.String("Agent"),
-				Email:         swag.String("test@test.email.com"),
-				MTOAgentType:  models.MTOAgentReleasing,
+		existingAgent := factory.BuildMTOAgent(suite.DB(), []factory.Customization{
+			{
+				Model:    shipment,
+				LinkOnly: true,
 			},
-		})
-
+			{
+				Model: models.MTOAgent{
+					FirstName:    models.StringPointer("Test"),
+					LastName:     models.StringPointer("Agent"),
+					Email:        models.StringPointer("test@test.email.com"),
+					MTOAgentType: models.MTOAgentReleasing,
+				},
+			},
+		}, nil)
 		mtoAgentToCreate := models.MTOAgent{
 			MTOShipment:   shipment,
 			MTOShipmentID: shipment.ID,
-			FirstName:     swag.String("Ima"),
-			LastName:      swag.String("Newagent"),
-			Email:         swag.String("test2@test.email.com"),
+			FirstName:     models.StringPointer("Ima"),
+			LastName:      models.StringPointer("Newagent"),
+			Email:         models.StringPointer("test2@test.email.com"),
 			MTOAgentType:  models.MTOAgentReceiving,
 		}
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
@@ -659,7 +670,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			City:           "Houston",
 			State:          "TX",
 			PostalCode:     "77083",
-			Country:        swag.String("US"),
+			Country:        models.StringPointer("US"),
 		}
 
 		newEmail := "new@email.com"
