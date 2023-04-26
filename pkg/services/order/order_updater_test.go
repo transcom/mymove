@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
@@ -546,15 +545,15 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsTOO() {
 		grade := ghcmessages.GradeO5
 		affiliation := ghcmessages.AffiliationAIRFORCE
 		ocie := false
-		proGearWeight := swag.Int64(100)
-		proGearWeightSpouse := swag.Int64(10)
-		rmeWeight := swag.Int64(10000)
+		proGearWeight := models.Int64Pointer(100)
+		proGearWeightSpouse := models.Int64Pointer(10)
+		rmeWeight := models.Int64Pointer(10000)
 		eTag := etag.GenerateEtag(order.UpdatedAt)
 
 		payload := ghcmessages.UpdateAllowancePayload{
 			Agency:               &affiliation,
 			AuthorizedWeight:     &newAuthorizedWeight,
-			DependentsAuthorized: swag.Bool(true),
+			DependentsAuthorized: models.BoolPointer(true),
 			Grade:                &grade,
 			OrganizationalClothingAndIndividualEquipment: &ocie,
 			ProGearWeight:                  proGearWeight,
@@ -616,14 +615,14 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 		grade := ghcmessages.GradeO5
 		affiliation := ghcmessages.AffiliationAIRFORCE
 		ocie := false
-		proGearWeight := swag.Int64(100)
-		proGearWeightSpouse := swag.Int64(10)
-		rmeWeight := swag.Int64(10000)
+		proGearWeight := models.Int64Pointer(100)
+		proGearWeightSpouse := models.Int64Pointer(10)
+		rmeWeight := models.Int64Pointer(10000)
 		eTag := etag.GenerateEtag(order.UpdatedAt)
 
 		payload := ghcmessages.CounselingUpdateAllowancePayload{
 			Agency:               &affiliation,
-			DependentsAuthorized: swag.Bool(true),
+			DependentsAuthorized: models.BoolPointer(true),
 			Grade:                &grade,
 			OrganizationalClothingAndIndividualEquipment: &ocie,
 			ProGearWeight:                  proGearWeight,
@@ -665,14 +664,14 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 		grade := ghcmessages.GradeO5
 		affiliation := ghcmessages.AffiliationAIRFORCE
 		ocie := false
-		proGearWeight := swag.Int64(100)
-		proGearWeightSpouse := swag.Int64(10)
-		rmeWeight := swag.Int64(10000)
+		proGearWeight := models.Int64Pointer(100)
+		proGearWeightSpouse := models.Int64Pointer(10)
+		rmeWeight := models.Int64Pointer(10000)
 		eTag := etag.GenerateEtag(orderWithoutDefaults.UpdatedAt)
 
 		payload := ghcmessages.CounselingUpdateAllowancePayload{
 			Agency:               &affiliation,
-			DependentsAuthorized: swag.Bool(true),
+			DependentsAuthorized: models.BoolPointer(true),
 			Grade:                &grade,
 			OrganizationalClothingAndIndividualEquipment: &ocie,
 			ProGearWeight:                  proGearWeight,
@@ -717,14 +716,14 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 		grade := ghcmessages.GradeO5
 		affiliation := ghcmessages.AffiliationAIRFORCE
 		ocie := false
-		proGearWeight := swag.Int64(2001)
-		proGearWeightSpouse := swag.Int64(10)
-		rmeWeight := swag.Int64(10000)
+		proGearWeight := models.Int64Pointer(2001)
+		proGearWeightSpouse := models.Int64Pointer(10)
+		rmeWeight := models.Int64Pointer(10000)
 		eTag := etag.GenerateEtag(order.UpdatedAt)
 
 		payload := ghcmessages.CounselingUpdateAllowancePayload{
 			Agency:               &affiliation,
-			DependentsAuthorized: swag.Bool(true),
+			DependentsAuthorized: models.BoolPointer(true),
 			Grade:                &grade,
 			OrganizationalClothingAndIndividualEquipment: &ocie,
 			ProGearWeight:                  proGearWeight,
@@ -753,14 +752,14 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 		grade := ghcmessages.GradeO5
 		affiliation := ghcmessages.AffiliationAIRFORCE
 		ocie := false
-		proGearWeight := swag.Int64(100)
-		proGearWeightSpouse := swag.Int64(501)
-		rmeWeight := swag.Int64(10000)
+		proGearWeight := models.Int64Pointer(100)
+		proGearWeightSpouse := models.Int64Pointer(501)
+		rmeWeight := models.Int64Pointer(10000)
 		eTag := etag.GenerateEtag(order.UpdatedAt)
 
 		payload := ghcmessages.CounselingUpdateAllowancePayload{
 			Agency:               &affiliation,
-			DependentsAuthorized: swag.Bool(true),
+			DependentsAuthorized: models.BoolPointer(true),
 			Grade:                &grade,
 			OrganizationalClothingAndIndividualEquipment: &ocie,
 			ProGearWeight:                  proGearWeight,

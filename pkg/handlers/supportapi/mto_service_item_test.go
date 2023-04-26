@@ -13,7 +13,6 @@ import (
 	"net/http/httptest"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
 
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/factory"
@@ -109,7 +108,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandlerRejectSuccess() 
 	request := httptest.NewRequest("PATCH", "/mto-service-items/{mtoServiceItemID}/status", nil)
 	requestPayload := &supportmessages.UpdateMTOServiceItemStatus{
 		Status:          supportmessages.MTOServiceItemStatusREJECTED,
-		RejectionReason: swag.String("Should definitely update the reason"),
+		RejectionReason: models.StringPointer("Should definitely update the reason"),
 	}
 	params := mtoserviceitemop.UpdateMTOServiceItemStatusParams{
 		HTTPRequest:      request,

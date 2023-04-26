@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
@@ -507,8 +506,8 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 				string(models.MoveStatusAPPROVED),
 				string(models.MoveStatusAPPROVALSREQUESTED),
 			},
-			PerPage: swag.Int64(1),
-			Page:    swag.Int64(1),
+			PerPage: models.Int64Pointer(1),
+			Page:    models.Int64Pointer(1),
 		}
 
 		// Validate incoming payload: no body to validate
@@ -531,8 +530,8 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 			Status: []string{
 				string(models.MoveStatusSUBMITTED),
 			},
-			Page:    swag.Int64(1),
-			PerPage: swag.Int64(1),
+			Page:    models.Int64Pointer(1),
+			PerPage: models.Int64Pointer(1),
 		}
 
 		// Validate incoming payload: no body to validate
@@ -1084,8 +1083,8 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueSubmittedAtFilter() {
 	suite.Run("returns unfiltered paginated results", func() {
 		params := queues.GetPaymentRequestsQueueParams{
 			HTTPRequest: request,
-			Page:        swag.Int64(1),
-			PerPage:     swag.Int64(1),
+			Page:        models.Int64Pointer(1),
+			PerPage:     models.Int64Pointer(1),
 		}
 
 		// Validate incoming payload: no body to validate
@@ -1132,8 +1131,8 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerUnauthorizedRole() 
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
 	params := queues.GetPaymentRequestsQueueParams{
 		HTTPRequest: request,
-		Page:        swag.Int64(1),
-		PerPage:     swag.Int64(1),
+		Page:        models.Int64Pointer(1),
+		PerPage:     models.Int64Pointer(1),
 	}
 	handlerConfig := suite.HandlerConfig()
 	handler := GetPaymentRequestsQueueHandler{
@@ -1165,8 +1164,8 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerServerError() {
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
 	params := queues.GetPaymentRequestsQueueParams{
 		HTTPRequest: request,
-		Page:        swag.Int64(1),
-		PerPage:     swag.Int64(1),
+		Page:        models.Int64Pointer(1),
+		PerPage:     models.Int64Pointer(1),
 	}
 	handlerConfig := suite.HandlerConfig()
 	handler := GetPaymentRequestsQueueHandler{
@@ -1199,8 +1198,8 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerEmptyResults() {
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
 	params := queues.GetPaymentRequestsQueueParams{
 		HTTPRequest: request,
-		Page:        swag.Int64(1),
-		PerPage:     swag.Int64(1),
+		Page:        models.Int64Pointer(1),
+		PerPage:     models.Int64Pointer(1),
 	}
 	handlerConfig := suite.HandlerConfig()
 	handler := GetPaymentRequestsQueueHandler{
@@ -1420,8 +1419,8 @@ func (suite *HandlerSuite) TestGetServicesCounselingQueueHandler() {
 
 		params := queues.GetServicesCounselingQueueParams{
 			HTTPRequest: subtestData.request,
-			Sort:        swag.String("branch"),
-			Order:       swag.String("asc"),
+			Sort:        models.StringPointer("branch"),
+			Order:       models.StringPointer("asc"),
 		}
 
 		// Validate incoming payload: no body to validate

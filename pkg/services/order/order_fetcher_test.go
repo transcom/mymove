@@ -3,7 +3,6 @@ package order
 import (
 	"time"
 
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/factory"
@@ -140,7 +139,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 			},
 		}, nil)
 
-		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &services.ListOrderParams{Page: swag.Int64(1)})
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &services.ListOrderParams{Page: models.Int64Pointer(1)})
 
 		suite.FatalNoError(err)
 		suite.Equal(1, len(moves))
@@ -214,7 +213,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 			},
 		}, nil)
 		// Filter by airforce move
-		params := services.ListOrderParams{Branch: &airForceString, Page: swag.Int64(1)}
+		params := services.ListOrderParams{Branch: &airForceString, Page: models.Int64Pointer(1)}
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &params)
 
 		suite.FatalNoError(err)
@@ -359,7 +358,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		suite.Equal("PARTIAL", *partialPPMMove.PPMType)
 		ppmShipment := testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
-				PPMType: swag.String("FULL"),
+				PPMType: models.StringPointer("FULL"),
 				Locator: "FULLLL",
 			},
 		})
@@ -367,7 +366,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 
 		// Search for PARTIAL PPM moves
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &services.ListOrderParams{
-			PPMType: swag.String("PARTIAL"),
+			PPMType: models.StringPointer("PARTIAL"),
 		})
 
 		suite.FatalNoError(err)
@@ -376,7 +375,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 
 		// Search for FULL PPM moves
 		moves, _, err = orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &services.ListOrderParams{
-			PPMType: swag.String("FULL"),
+			PPMType: models.StringPointer("FULL"),
 		})
 
 		suite.FatalNoError(err)
@@ -526,14 +525,14 @@ func (suite *OrderServiceSuite) TestListOrdersUSMCGBLOC() {
 		// Create office user tied to the default KKFA GBLOC
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
-		params := services.ListOrderParams{PerPage: swag.Int64(2), Page: swag.Int64(1)}
+		params := services.ListOrderParams{PerPage: models.Int64Pointer(2), Page: models.Int64Pointer(1)}
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUserOooRah.ID, &params)
 
 		suite.FatalNoError(err)
 		suite.Equal(1, len(moves))
 		suite.Equal(models.AffiliationMARINES, *moves[0].Orders.ServiceMember.Affiliation)
 
-		params = services.ListOrderParams{PerPage: swag.Int64(2), Page: swag.Int64(1)}
+		params = services.ListOrderParams{PerPage: models.Int64Pointer(2), Page: models.Int64Pointer(1)}
 		moves, _, err = orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &params)
 
 		suite.FatalNoError(err)
@@ -627,7 +626,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForArmyAirforce() {
 			},
 		}, nil)
 
-		params := services.ListOrderParams{PerPage: swag.Int64(9), Page: swag.Int64(1), NeedsPPMCloseout: swag.Bool(true), Status: []string{string(models.MoveStatusNeedsServiceCounseling)}}
+		params := services.ListOrderParams{PerPage: models.Int64Pointer(9), Page: models.Int64Pointer(1), NeedsPPMCloseout: models.BoolPointer(true), Status: []string{string(models.MoveStatusNeedsServiceCounseling)}}
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUserSC.ID, &params)
 
 		suite.FatalNoError(err)
@@ -689,7 +688,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForArmyAirforce() {
 				LinkOnly: true,
 			},
 		}, nil)
-		params := services.ListOrderParams{PerPage: swag.Int64(9), Page: swag.Int64(1), NeedsPPMCloseout: swag.Bool(false), Status: []string{string(models.MoveStatusNeedsServiceCounseling)}}
+		params := services.ListOrderParams{PerPage: models.Int64Pointer(9), Page: models.Int64Pointer(1), NeedsPPMCloseout: models.BoolPointer(false), Status: []string{string(models.MoveStatusNeedsServiceCounseling)}}
 
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUserSC.ID, &params)
 
@@ -764,7 +763,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 				},
 			},
 		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
-		params := services.ListOrderParams{PerPage: swag.Int64(9), Page: swag.Int64(1)}
+		params := services.ListOrderParams{PerPage: models.Int64Pointer(9), Page: models.Int64Pointer(1)}
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUserSC.ID, &params)
 
 		suite.FatalNoError(err)
@@ -833,7 +832,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 				},
 			},
 		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
-		params := services.ListOrderParams{PerPage: swag.Int64(2), Page: swag.Int64(1)}
+		params := services.ListOrderParams{PerPage: models.Int64Pointer(2), Page: models.Int64Pointer(1)}
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUserSC.ID, &params)
 
 		suite.FatalNoError(err)
@@ -902,7 +901,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 				},
 			},
 		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
-		params := services.ListOrderParams{PerPage: swag.Int64(2), Page: swag.Int64(1)}
+		params := services.ListOrderParams{PerPage: models.Int64Pointer(2), Page: models.Int64Pointer(1)}
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUserSC.ID, &params)
 
 		suite.FatalNoError(err)
@@ -944,7 +943,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 				},
 			},
 		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
-		params := services.ListOrderParams{PerPage: swag.Int64(2), Page: swag.Int64(1)}
+		params := services.ListOrderParams{PerPage: models.Int64Pointer(2), Page: models.Int64Pointer(1)}
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUserSC.ID, &params)
 
 		suite.FatalNoError(err)
@@ -986,7 +985,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 				},
 			},
 		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
-		params := services.ListOrderParams{PerPage: swag.Int64(2), Page: swag.Int64(1)}
+		params := services.ListOrderParams{PerPage: models.Int64Pointer(2), Page: models.Int64Pointer(1)}
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUserSC.ID, &params)
 
 		suite.FatalNoError(err)
@@ -1007,7 +1006,7 @@ func (suite *OrderServiceSuite) TestListOrdersMarines() {
 		}, nil)
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
-		params := services.ListOrderParams{PerPage: swag.Int64(2), Page: swag.Int64(1)}
+		params := services.ListOrderParams{PerPage: models.Int64Pointer(2), Page: models.Int64Pointer(1)}
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &params)
 
 		suite.FatalNoError(err)
@@ -1060,7 +1059,7 @@ func (suite *OrderServiceSuite) TestListOrdersWithEmptyFields() {
 
 	officeUser := factory.BuildOfficeUser(suite.DB(), nil, nil)
 	orderFetcher := NewOrderFetcher()
-	moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &services.ListOrderParams{PerPage: swag.Int64(1), Page: swag.Int64(1)})
+	moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &services.ListOrderParams{PerPage: models.Int64Pointer(1), Page: models.Int64Pointer(1)})
 
 	suite.FatalNoError(err)
 	suite.Nil(moves)
@@ -1075,7 +1074,7 @@ func (suite *OrderServiceSuite) TestListOrdersWithPagination() {
 	}
 
 	orderFetcher := NewOrderFetcher()
-	params := services.ListOrderParams{Page: swag.Int64(1), PerPage: swag.Int64(1)}
+	params := services.ListOrderParams{Page: models.Int64Pointer(1), PerPage: models.Int64Pointer(1)}
 	moves, count, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &params)
 
 	suite.NoError(err)
@@ -1152,14 +1151,14 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 
 	suite.Run("Sort by locator code", func() {
 		expectedMove1, expectedMove2 := setupTestData()
-		params := services.ListOrderParams{Sort: swag.String("locator"), Order: swag.String("asc")}
+		params := services.ListOrderParams{Sort: models.StringPointer("locator"), Order: models.StringPointer("asc")}
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &params)
 		suite.NoError(err)
 		suite.Equal(2, len(moves))
 		suite.Equal(expectedMove1.Locator, moves[0].Locator)
 		suite.Equal(expectedMove2.Locator, moves[1].Locator)
 
-		params = services.ListOrderParams{Sort: swag.String("locator"), Order: swag.String("desc")}
+		params = services.ListOrderParams{Sort: models.StringPointer("locator"), Order: models.StringPointer("desc")}
 		moves, _, err = orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &params)
 		suite.NoError(err)
 		suite.Equal(2, len(moves))
@@ -1169,14 +1168,14 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 
 	suite.Run("Sort by move status", func() {
 		expectedMove1, expectedMove2 := setupTestData()
-		params := services.ListOrderParams{Sort: swag.String("status"), Order: swag.String("asc")}
+		params := services.ListOrderParams{Sort: models.StringPointer("status"), Order: models.StringPointer("asc")}
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &params)
 		suite.NoError(err)
 		suite.Equal(2, len(moves))
 		suite.Equal(expectedMove1.Status, moves[0].Status)
 		suite.Equal(expectedMove2.Status, moves[1].Status)
 
-		params = services.ListOrderParams{Sort: swag.String("status"), Order: swag.String("desc")}
+		params = services.ListOrderParams{Sort: models.StringPointer("status"), Order: models.StringPointer("desc")}
 		moves, _, err = orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &params)
 		suite.NoError(err)
 		suite.Equal(2, len(moves))
@@ -1186,14 +1185,14 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 
 	suite.Run("Sort by service member affiliations", func() {
 		expectedMove1, expectedMove2 := setupTestData()
-		params := services.ListOrderParams{Sort: swag.String("branch"), Order: swag.String("asc")}
+		params := services.ListOrderParams{Sort: models.StringPointer("branch"), Order: models.StringPointer("asc")}
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &params)
 		suite.NoError(err)
 		suite.Equal(2, len(moves))
 		suite.Equal(*expectedMove1.Orders.ServiceMember.Affiliation, *moves[0].Orders.ServiceMember.Affiliation)
 		suite.Equal(*expectedMove2.Orders.ServiceMember.Affiliation, *moves[1].Orders.ServiceMember.Affiliation)
 
-		params = services.ListOrderParams{Sort: swag.String("branch"), Order: swag.String("desc")}
+		params = services.ListOrderParams{Sort: models.StringPointer("branch"), Order: models.StringPointer("desc")}
 		moves, _, err = orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &params)
 		suite.NoError(err)
 		suite.Equal(2, len(moves))
@@ -1203,7 +1202,7 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 
 	suite.Run("Sort by request move date", func() {
 		setupTestData()
-		params := services.ListOrderParams{Sort: swag.String("requestedMoveDate"), Order: swag.String("asc")}
+		params := services.ListOrderParams{Sort: models.StringPointer("requestedMoveDate"), Order: models.StringPointer("asc")}
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &params)
 		suite.NoError(err)
 		suite.Equal(2, len(moves))
@@ -1212,7 +1211,7 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 		// NOTE: You have to use Jan 02, 2006 as the example for date/time formatting in Go
 		suite.Equal(requestedMoveDate1.Format("2006/01/02"), moves[1].MTOShipments[0].RequestedPickupDate.Format("2006/01/02"))
 
-		params = services.ListOrderParams{Sort: swag.String("requestedMoveDate"), Order: swag.String("desc")}
+		params = services.ListOrderParams{Sort: models.StringPointer("requestedMoveDate"), Order: models.StringPointer("desc")}
 		moves, _, err = orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &params)
 		suite.NoError(err)
 		suite.Equal(2, len(moves))
@@ -1261,7 +1260,7 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 				},
 			},
 		}, nil)
-		params := services.ListOrderParams{Sort: swag.String("lastName"), Order: swag.String("asc")}
+		params := services.ListOrderParams{Sort: models.StringPointer("lastName"), Order: models.StringPointer("asc")}
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &params)
 
 		suite.NoError(err)
@@ -1270,7 +1269,7 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 		suite.Equal("Spacemen, Leo", *moves[1].Orders.ServiceMember.LastName+", "+*moves[1].Orders.ServiceMember.FirstName)
 		suite.Equal("Zephyer, Leo", *moves[2].Orders.ServiceMember.LastName+", "+*moves[2].Orders.ServiceMember.FirstName)
 
-		params = services.ListOrderParams{Sort: swag.String("lastName"), Order: swag.String("desc")}
+		params = services.ListOrderParams{Sort: models.StringPointer("lastName"), Order: models.StringPointer("desc")}
 		moves, _, err = orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &params)
 
 		suite.NoError(err)
@@ -1483,14 +1482,14 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 		}, nil)
 		ppmShipmentPartial := testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
-				PPMType:          swag.String("Partial"),
+				PPMType:          models.StringPointer("Partial"),
 				CloseoutOffice:   &closeoutOffice,
 				CloseoutOfficeID: &closeoutOffice.ID,
 			},
 		})
 		ppmShipmentFull := testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
-				PPMType:          swag.String("FULL"),
+				PPMType:          models.StringPointer("FULL"),
 				CloseoutOffice:   &closeoutOffice,
 				CloseoutOfficeID: &closeoutOffice.ID,
 			},
@@ -1590,7 +1589,7 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithGBLOC
 		orderFetcher := NewOrderFetcher()
 		statuses := []string{"NEEDS SERVICE COUNSELING"}
 		// Sort by origin GBLOC, filter by status
-		params := services.ListOrderParams{Sort: swag.String("originGBLOC"), Order: swag.String("asc"), Status: statuses}
+		params := services.ListOrderParams{Sort: models.StringPointer("originGBLOC"), Order: models.StringPointer("asc"), Status: statuses}
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &params)
 
 		// Expect only LKNQ move to be returned

@@ -3,7 +3,6 @@ package models_test
 import (
 	"time"
 
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -15,10 +14,10 @@ import (
 
 func (suite *ModelSuite) TestBasicOrderInstantiation() {
 	order := &Order{
-		TAC:    swag.String(""),
-		SAC:    swag.String(""),
-		NtsTAC: swag.String(""),
-		NtsSAC: swag.String(""),
+		TAC:    StringPointer(""),
+		SAC:    StringPointer(""),
+		NtsTAC: StringPointer(""),
+		NtsSAC: StringPointer(""),
 	}
 
 	expErrors := map[string][]string{
@@ -385,7 +384,7 @@ func (suite *ModelSuite) TestSaveOrder() {
 	suite.MustSave(&location)
 
 	advance := BuildDraftReimbursement(1000, MethodOfReceiptMILPAY)
-	_, verrs, err := move.CreatePPM(suite.DB(), nil, nil, nil, nil, nil, swag.String("55555"), nil, nil, nil, true, &advance)
+	_, verrs, err := move.CreatePPM(suite.DB(), nil, nil, nil, nil, nil, StringPointer("55555"), nil, nil, nil, true, &advance)
 	suite.NoError(err)
 	suite.False(verrs.HasAny())
 

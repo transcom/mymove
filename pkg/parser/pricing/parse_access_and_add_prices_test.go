@@ -4,7 +4,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/go-openapi/swag"
+	"github.com/transcom/mymove/pkg/models"
 )
 
 func (suite *PricingParserSuite) Test_parseDomesticMoveAccessorialPrices() {
@@ -27,7 +27,7 @@ func (suite *PricingParserSuite) Test_parseDomesticMoveAccessorialPrices() {
 		slice, err := parseDomesticMoveAccessorialPrices(suite.AppContextForTest(), params, sheetIndex)
 		suite.NoError(err, "parseDomesticMoveAccessorialPrices function failed")
 
-		outputFilename := dataSheet.generateOutputFilename(sheetIndex, params.RunTime, swag.String("domestic"))
+		outputFilename := dataSheet.generateOutputFilename(sheetIndex, params.RunTime, models.StringPointer("domestic"))
 		err = createCSV(suite.AppContextForTest(), outputFilename, slice)
 		suite.NoError(err, "could not create CSV")
 
@@ -63,7 +63,7 @@ func (suite *PricingParserSuite) Test_parseInternationalMoveAccessorialPrices() 
 		slice, err := parseInternationalMoveAccessorialPrices(suite.AppContextForTest(), params, sheetIndex)
 		suite.NoError(err, "parseInternationalMoveAccessorialPrices function failed")
 
-		outputFilename := dataSheet.generateOutputFilename(sheetIndex, params.RunTime, swag.String("international"))
+		outputFilename := dataSheet.generateOutputFilename(sheetIndex, params.RunTime, models.StringPointer("international"))
 		err = createCSV(suite.AppContextForTest(), outputFilename, slice)
 		suite.NoError(err, "could not create CSV")
 
@@ -99,7 +99,7 @@ func (suite *PricingParserSuite) Test_parseDomesticInternationalAdditionalPrices
 		slice, err := parseDomesticInternationalAdditionalPrices(suite.AppContextForTest(), params, sheetIndex)
 		suite.NoError(err, "parseDomesticInternationalAdditionalPrices function failed")
 
-		outputFilename := dataSheet.generateOutputFilename(sheetIndex, params.RunTime, swag.String("additional"))
+		outputFilename := dataSheet.generateOutputFilename(sheetIndex, params.RunTime, models.StringPointer("additional"))
 		err = createCSV(suite.AppContextForTest(), outputFilename, slice)
 		suite.NoError(err, "could not create CSV")
 

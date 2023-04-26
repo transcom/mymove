@@ -7,7 +7,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
@@ -1539,7 +1538,7 @@ func MakeNTSRMoveWithServiceItemsAndPaymentRequest(appCtx appcontext.AppContext)
 		},
 		{
 			Model: models.Move{
-				AvailableToPrimeAt: swag.Time(time.Now()),
+				AvailableToPrimeAt: models.TimePointer(time.Now()),
 				SubmittedAt:        &currentTime,
 			},
 		},
@@ -1587,7 +1586,7 @@ func MakeNTSRMoveWithServiceItemsAndPaymentRequest(appCtx appcontext.AppContext)
 			Model: models.MTOShipment{
 				PrimeEstimatedWeight: &estimatedWeight,
 				PrimeActualWeight:    &actualWeight,
-				ApprovedDate:         swag.Time(time.Now()),
+				ApprovedDate:         models.TimePointer(time.Now()),
 				TACType:              &tacType,
 				Status:               models.MTOShipmentStatusApproved,
 				SACType:              &sacType,
@@ -2145,10 +2144,10 @@ func MakeHHGMoveWithApprovedNTSShipmentsForTOO(appCtx appcontext.AppContext) mod
 	}
 
 	orders := newmove.Orders
-	orders.SAC = swag.String("4K988AS098F")
-	orders.TAC = swag.String("E15A")
-	orders.NtsSAC = swag.String("3L988AS098F")
-	orders.NtsTAC = swag.String("F123")
+	orders.SAC = models.StringPointer("4K988AS098F")
+	orders.TAC = models.StringPointer("E15A")
+	orders.NtsSAC = models.StringPointer("3L988AS098F")
+	orders.NtsTAC = models.StringPointer("F123")
 	err = appCtx.DB().Save(&orders)
 	if err != nil {
 		log.Panic("Failed to save orders: %w", err)
@@ -2180,7 +2179,7 @@ func MakeHHGMoveWithApprovedNTSShipmentsForTOO(appCtx appcontext.AppContext) mod
 	updatedShipment.SACType = &sacType
 	tacType := models.LOATypeNTS
 	updatedShipment.TACType = &tacType
-	updatedShipment.ServiceOrderNumber = swag.String("999999")
+	updatedShipment.ServiceOrderNumber = models.StringPointer("999999")
 	updatedShipment.StorageFacilityID = &storageFacility.ID
 	err = appCtx.DB().Save(updatedShipment)
 	if err != nil {
@@ -2249,10 +2248,10 @@ func MakeHHGMoveWithApprovedNTSRShipmentsForTOO(appCtx appcontext.AppContext) mo
 	}
 
 	orders := newmove.Orders
-	orders.SAC = swag.String("4K988AS098F")
-	orders.TAC = swag.String("E15A")
-	orders.NtsSAC = swag.String("3L988AS098F")
-	orders.NtsTAC = swag.String("F123")
+	orders.SAC = models.StringPointer("4K988AS098F")
+	orders.TAC = models.StringPointer("E15A")
+	orders.NtsSAC = models.StringPointer("3L988AS098F")
+	orders.NtsTAC = models.StringPointer("F123")
 	err = appCtx.DB().Save(&orders)
 	if err != nil {
 		log.Panic("Failed to save orders: %w", err)
@@ -2284,7 +2283,7 @@ func MakeHHGMoveWithApprovedNTSRShipmentsForTOO(appCtx appcontext.AppContext) mo
 	updatedShipment.SACType = &sacType
 	tacType := models.LOATypeNTS
 	updatedShipment.TACType = &tacType
-	updatedShipment.ServiceOrderNumber = swag.String("999999")
+	updatedShipment.ServiceOrderNumber = models.StringPointer("999999")
 	updatedShipment.StorageFacilityID = &storageFacility.ID
 	err = appCtx.DB().Save(updatedShipment)
 	if err != nil {

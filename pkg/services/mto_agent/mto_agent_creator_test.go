@@ -1,7 +1,6 @@
 package mtoagent
 
 import (
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
@@ -17,11 +16,11 @@ const agentTypeReleasing = "RELEASING_AGENT"
 func createAgentModel(firstName string, lastName string, agentType string, shipmentID uuid.UUID) *models.MTOAgent {
 	// Create valid Receiving Agent for the shipment
 	return &models.MTOAgent{
-		FirstName:     swag.String(firstName),
-		LastName:      swag.String(lastName),
+		FirstName:     models.StringPointer(firstName),
+		LastName:      models.StringPointer(lastName),
 		MTOAgentType:  agentTypeReceiving,
-		Email:         swag.String("rileybaker@example.com"),
-		Phone:         swag.String("555-555-5555"),
+		Email:         models.StringPointer("rileybaker@example.com"),
+		Phone:         models.StringPointer("555-555-5555"),
 		MTOShipmentID: shipmentID,
 	}
 }
@@ -165,8 +164,8 @@ func (suite *MTOAgentServiceSuite) TestMTOAgentCreator() {
 		mtoAgentCreator, shipment := setupTestData()
 
 		invalidAgent := &models.MTOAgent{
-			FirstName:     swag.String("Riley"),
-			LastName:      swag.String("Baker"),
+			FirstName:     models.StringPointer("Riley"),
+			LastName:      models.StringPointer("Baker"),
 			MTOShipmentID: shipment.ID,
 		}
 

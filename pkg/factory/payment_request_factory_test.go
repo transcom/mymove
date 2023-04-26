@@ -3,7 +3,6 @@ package factory
 import (
 	"time"
 
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -40,12 +39,12 @@ func (suite *FactorySuite) TestBuildPaymentRequest() {
 		// SETUP
 		customMove := models.Move{
 			Locator: "ABC123",
-			Show:    swag.Bool(true),
+			Show:    models.BoolPointer(true),
 		}
 		customPaymentRequest := models.PaymentRequest{
 			Status:               models.PaymentRequestStatusReceivedByGex,
 			IsFinal:              true,
-			RejectionReason:      swag.String("custom reason"),
+			RejectionReason:      models.StringPointer("custom reason"),
 			PaymentRequestNumber: "abc-2",
 			SequenceNumber:       2,
 			CreatedAt:            time.Now().Add(time.Hour * -24),

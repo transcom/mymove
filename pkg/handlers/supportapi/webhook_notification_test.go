@@ -4,12 +4,12 @@ import (
 	"net/http/httptest"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
 	webhookops "github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/webhook"
 	supportmessages "github.com/transcom/mymove/pkg/gen/supportmessages"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/event"
 	"github.com/transcom/mymove/pkg/trace"
 )
@@ -33,7 +33,7 @@ func (suite *HandlerSuite) TestCreateWebhookNotification() {
 
 		requestPayload := &supportmessages.WebhookNotification{
 			EventKey: "Test.Create",
-			Object:   swag.String("{ \"message\": \"This is an example notification.\" } "),
+			Object:   models.StringPointer("{ \"message\": \"This is an example notification.\" } "),
 		}
 		params := webhookops.CreateWebhookNotificationParams{
 			HTTPRequest: request,
@@ -114,7 +114,7 @@ func (suite *HandlerSuite) TestCreateWebhookNotification() {
 		moveTaskOrderID := uuid.Must(uuid.NewV4())
 		requestPayload := &supportmessages.WebhookNotification{
 			EventKey:        "Test.Create",
-			Object:          swag.String("{ \"message\": \"This is an example notification.\" } "),
+			Object:          models.StringPointer("{ \"message\": \"This is an example notification.\" } "),
 			MoveTaskOrderID: handlers.FmtUUID(moveTaskOrderID),
 		}
 		params := webhookops.CreateWebhookNotificationParams{
