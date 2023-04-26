@@ -27,7 +27,7 @@ func (suite *HandlerSuite) makeUpdatePaymentSubtestData() (subtestData *updatePa
 	subtestData = &updatePaymentSubtestData{}
 
 	mto := factory.BuildMove(suite.DB(), nil, nil)
-	paymentServiceItem := testdatagen.MakeDefaultPaymentServiceItem(suite.DB())
+	paymentServiceItem := factory.BuildPaymentServiceItem(suite.DB(), nil, nil)
 	subtestData.paymentServiceItem = paymentServiceItem
 	requestUser := factory.BuildUser(nil, nil, nil)
 
@@ -120,7 +120,7 @@ func (suite *HandlerSuite) TestUpdatePaymentServiceItemHandler() {
 
 	suite.Run("Successful patch - Rejection - Integration Test", func() {
 		subtestData := suite.makeUpdatePaymentSubtestData()
-		paymentServiceItem := testdatagen.MakeDefaultPaymentServiceItem(suite.DB())
+		paymentServiceItem := factory.BuildPaymentServiceItem(suite.DB(), nil, nil)
 
 		handler := UpdatePaymentServiceItemStatusHandler{
 			HandlerConfig:                   suite.HandlerConfig(),
