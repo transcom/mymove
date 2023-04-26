@@ -83,6 +83,7 @@ type Assertions struct {
 	ReService                                models.ReService
 	Reweigh                                  models.Reweigh
 	ReZip3                                   models.ReZip3
+	ReZip5RateArea                           models.ReZip5RateArea
 	Role                                     roles.Role
 	SecondaryDeliveryAddress                 models.Address
 	SecondaryPickupAddress                   models.Address
