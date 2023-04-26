@@ -346,7 +346,7 @@ func (o *mtoServiceItemCreator) makeExtraSITServiceItem(appCtx appcontext.AppCon
 	var extraServiceItem models.MTOServiceItem
 
 	if firstSIT.CustomerContacts != nil {
-		//If customer contacts exist we copy them over
+		//If customer contacts exist we copy them over to the DDASIT and DDDSIT items
 		extraServiceItem = models.MTOServiceItem{
 			MTOShipmentID:   firstSIT.MTOShipmentID,
 			MoveTaskOrderID: firstSIT.MoveTaskOrderID,
