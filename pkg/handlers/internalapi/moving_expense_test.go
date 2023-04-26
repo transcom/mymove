@@ -346,7 +346,7 @@ func (suite *HandlerSuite) TestDeleteMovingExpenseHandler() {
 	suite.Run("DELETE failure - 403 - permission denied - wrong application / user", func() {
 		subtestData := makeDeleteSubtestData(false)
 
-		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+		officeUser := factory.BuildOfficeUser(suite.DB(), nil, nil)
 
 		req := subtestData.params.HTTPRequest
 		unauthorizedReq := suite.AuthenticateOfficeRequest(req, officeUser)

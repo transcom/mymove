@@ -43,7 +43,7 @@ func (suite *SignedCertificationSuite) TestCreateSignedCertification() {
 		// creator that doesn't have any validation so we can trigger the model-level validation.
 		creator := &signedCertificationCreator{}
 
-		signedCertification := testdatagen.MakeDefaultSignedCertification(suite.DB())
+		signedCertification := factory.BuildSignedCertification(suite.DB(), nil, nil)
 
 		newSignedCertification, createErr := creator.CreateSignedCertification(suite.AppContextForTest(), signedCertification)
 
