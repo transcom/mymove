@@ -10,9 +10,9 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func (suite *ModelSuite) TestSITExtensionCreation() {
+func (suite *ModelSuite) TestSITDurationUpdateCreation() {
 
-	suite.Run("test valid SITExtension", func() {
+	suite.Run("test valid SITDurationUpdate", func() {
 		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), nil, nil)
 		suite.NotNil(shipment)
 		suite.NotEqual(uuid.Nil, shipment.ID)
@@ -40,7 +40,7 @@ func (suite *ModelSuite) TestSITExtensionCreation() {
 		suite.NotEqual(time.Time{}, validSITExtension.UpdatedAt)
 	})
 
-	suite.Run("test minimal valid SITExtension", func() {
+	suite.Run("test minimal valid SITDurationUpdate", func() {
 		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), nil, nil)
 		suite.NotNil(shipment)
 		suite.NotEqual(uuid.Nil, shipment.ID)
@@ -81,6 +81,25 @@ func (suite *ModelSuite) TestSITExtensionValidation() {
 		suite.verifyValidationErrors(&validSITExtension, expErrors)
 	})
 
+	suite.Run("test valid SITDurationUpdate for a SIT duration decrease", func() {
+		approvedDays := -2
+		decisionDate := time.Now()
+		contractorRemarks := "some remarks here from the contractor"
+		officeRemarks := "some remarks here from the office"
+		validSITExtension := models.SITDurationUpdate{
+			MTOShipmentID:     uuid.Must(uuid.NewV4()),
+			RequestReason:     models.SITExtensionRequestReasonSeriousIllnessMember,
+			ContractorRemarks: &contractorRemarks,
+			RequestedDays:     -2,
+			Status:            models.SITExtensionStatusPending,
+			ApprovedDays:      &approvedDays,
+			DecisionDate:      &decisionDate,
+			OfficeRemarks:     &officeRemarks,
+		}
+		expErrors := map[string][]string{}
+		suite.verifyValidationErrors(&validSITExtension, expErrors)
+	})
+
 	reasons := []models.SITDurationUpdateRequestReason{
 		models.SITExtensionRequestReasonSeriousIllnessMember,
 		models.SITExtensionRequestReasonSeriousIllnessDependent,
@@ -92,7 +111,7 @@ func (suite *ModelSuite) TestSITExtensionValidation() {
 	}
 
 	for _, reason := range reasons {
-		suite.Run(fmt.Sprintf("test valid SITExtension Reasons (%s)", reason), func() {
+		suite.Run(fmt.Sprintf("test valid SITDurationUpdate Reasons (%s)", reason), func() {
 			validSITExtension := models.SITDurationUpdate{
 				MTOShipmentID: uuid.Must(uuid.NewV4()),
 				RequestReason: reason,
@@ -111,7 +130,7 @@ func (suite *ModelSuite) TestSITExtensionValidation() {
 	}
 
 	for _, status := range statuses {
-		suite.Run(fmt.Sprintf("test valid SITExtension Status (%s)", status), func() {
+		suite.Run(fmt.Sprintf("test valid SITDurationUpdate Status (%s)", status), func() {
 			validSITExtension := models.SITDurationUpdate{
 				MTOShipmentID: uuid.Must(uuid.NewV4()),
 				RequestReason: models.SITExtensionRequestReasonSeriousIllnessMember,
@@ -123,7 +142,7 @@ func (suite *ModelSuite) TestSITExtensionValidation() {
 		})
 	}
 
-	suite.Run("test invalid sit extension", func() {
+	suite.Run("test invalid SITDurationUpdate", func() {
 		const badReason models.SITDurationUpdateRequestReason = "bad reason"
 		const badStatus models.SITDurationUpdateStatus = "bad status"
 		approvedDays := 0
@@ -139,9 +158,7 @@ func (suite *ModelSuite) TestSITExtensionValidation() {
 		expErrors := map[string][]string{
 			"mtoshipment_id": {"MTOShipmentID can not be blank."},
 			"request_reason": {"RequestReason is not in the list [SERIOUS_ILLNESS_MEMBER, SERIOUS_ILLNESS_DEPENDENT, IMPENDING_ASSIGNEMENT, DIRECTED_TEMPORARY_DUTY, NONAVAILABILITY_OF_CIVILIAN_HOUSING, AWAITING_COMPLETION_OF_RESIDENCE, OTHER]."},
-			"requested_days": {"0 is not greater than 0."},
 			"status":         {"Status is not in the list [PENDING, APPROVED, DENIED]."},
-			"approved_days":  {"0 is not greater than 0."},
 			"decision_date":  {"DecisionDate can not be blank."},
 		}
 		suite.verifyValidationErrors(&validSITExtension, expErrors)
