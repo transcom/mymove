@@ -10,7 +10,6 @@
 package internalapi
 
 import (
-	"bytes"
 	"fmt"
 	"net/http/httptest"
 	"time"
@@ -30,7 +29,6 @@ import (
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 	"github.com/transcom/mymove/pkg/testdatagen"
-	"github.com/transcom/mymove/pkg/unit"
 )
 
 func (suite *HandlerSuite) TestPatchMoveHandler() {
@@ -604,122 +602,6 @@ func (suite *HandlerSuite) TestShowMoveDatesSummaryForbiddenUser() {
 
 }
 
-func (suite *HandlerSuite) TestShowShipmentSummaryWorksheet() {
-	testdatagen.MakeTariff400ngItemRate(suite.DB(), testdatagen.Assertions{
-		Tariff400ngItemRate: models.Tariff400ngItemRate{
-			Code:     "210A",
-			Schedule: models.IntPointer(1),
-		},
-	})
-	testdatagen.MakeTariff400ngItemRate(suite.DB(), testdatagen.Assertions{
-		Tariff400ngItemRate: models.Tariff400ngItemRate{
-			Code:     "225A",
-			Schedule: models.IntPointer(1),
-		},
-	})
-	testdatagen.MakeDefaultTariff400ngItem(suite.DB())
-	testdatagen.MakeTariff400ngServiceArea(suite.DB(), testdatagen.Assertions{
-		Tariff400ngServiceArea: models.Tariff400ngServiceArea{
-			ServiceArea: "296",
-		},
-	})
-	testdatagen.MakeTariff400ngServiceArea(suite.DB(), testdatagen.Assertions{
-		Tariff400ngServiceArea: models.Tariff400ngServiceArea{
-			ServiceArea: "208",
-		},
-	})
-	lhr := models.Tariff400ngLinehaulRate{
-		DistanceMilesLower: 1,
-		DistanceMilesUpper: 10000,
-		WeightLbsLower:     1,
-		WeightLbsUpper:     10000,
-		RateCents:          20000,
-		Type:               "ConusLinehaul",
-		EffectiveDateLower: testdatagen.PeakRateCycleStart,
-		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
-	}
-	suite.MustSave(&lhr)
-	fpr := models.Tariff400ngFullPackRate{
-		Schedule:           1,
-		WeightLbsLower:     1,
-		WeightLbsUpper:     10000,
-		RateCents:          100,
-		EffectiveDateLower: testdatagen.PeakRateCycleStart,
-		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
-	}
-	suite.MustSave(&fpr)
-	fupr := models.Tariff400ngFullUnpackRate{
-		Schedule:           1,
-		EffectiveDateLower: testdatagen.PeakRateCycleStart,
-		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
-	}
-	suite.MustSave(&fupr)
-	tdl := testdatagen.MakeTDL(suite.DB(), testdatagen.Assertions{
-		TrafficDistributionList: models.TrafficDistributionList{
-			SourceRateArea:    "US53",
-			DestinationRegion: "12",
-		},
-	})
-	testdatagen.MakeTSPPerformance(suite.DB(),
-		testdatagen.Assertions{
-			TransportationServiceProviderPerformance: models.TransportationServiceProviderPerformance{
-				TrafficDistributionListID: tdl.ID,
-			},
-		})
-
-	move := factory.BuildMove(suite.DB(), nil, nil)
-	netWeight := unit.Pound(1000)
-	ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
-		PersonallyProcuredMove: models.PersonallyProcuredMove{
-			MoveID:                move.ID,
-			ActualMoveDate:        &testdatagen.DateInsidePerformancePeriod,
-			NetWeight:             &netWeight,
-			PickupPostalCode:      models.StringPointer("50303"),
-			DestinationPostalCode: models.StringPointer("30814"),
-		},
-	})
-	certificationType := models.SignedCertificationTypePPMPAYMENT
-	testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
-		SignedCertification: models.SignedCertification{
-			SubmittingUserID:         move.Orders.ServiceMember.UserID,
-			MoveID:                   move.ID,
-			PersonallyProcuredMoveID: &ppm.ID,
-			CertificationType:        &certificationType,
-		},
-	})
-
-	req := httptest.NewRequest("GET", "/moves/some_id/shipment_summary_worksheet", nil)
-	req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
-
-	preparationDate := strfmt.Date(time.Date(2019, time.January, 1, 1, 1, 1, 1, time.UTC))
-	params := moveop.ShowShipmentSummaryWorksheetParams{
-		HTTPRequest:     req,
-		MoveID:          strfmt.UUID(move.ID.String()),
-		PreparationDate: preparationDate,
-	}
-
-	handlerConfig := suite.HandlerConfig()
-	planner := &mocks.Planner{}
-	planner.On("Zip5TransitDistanceLineHaul",
-		mock.AnythingOfType("*appcontext.appContext"),
-		mock.Anything,
-		mock.Anything,
-	).Return(1044, nil)
-	handlerConfig.SetPlanner(planner)
-
-	handler := ShowShipmentSummaryWorksheetHandler{handlerConfig}
-	response := handler.Handle(params)
-
-	suite.Assertions.IsType(&moveop.ShowShipmentSummaryWorksheetOK{}, response)
-	okResponse := response.(*moveop.ShowShipmentSummaryWorksheetOK)
-
-	// check that the payload wasn't empty
-	buf := new(bytes.Buffer)
-	bytesRead, err := buf.ReadFrom(okResponse.Payload)
-	suite.NoError(err)
-	suite.NotZero(bytesRead)
-}
-
 func (suite *HandlerSuite) TestSubmitAmendedOrdersHandler() {
 	suite.Run("Submits move with amended orders for review", func() {
 		// Given: a set of orders, a move, user and service member
@@ -729,14 +611,6 @@ func (suite *HandlerSuite) TestSubmitAmendedOrdersHandler() {
 				Type:  &factory.Documents.UploadedAmendedOrders,
 			},
 		}, nil)
-
-		factory.BuildMTOShipment(suite.DB(), []factory.Customization{
-			{
-				Model:    move,
-				LinkOnly: true,
-			},
-		}, nil)
-
 		// And: the context contains the auth values
 		req := httptest.NewRequest("POST", "/moves/some_id/submit_amended_orders", nil)
 		req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)

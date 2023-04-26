@@ -4062,7 +4062,7 @@ func init() {
     },
     "/shipments/{shipmentID}/sit-extensions/": {
       "post": {
-        "description": "TOO can creates an already-approved SIT extension on behalf of a customer",
+        "description": "TOO can creates an already-approved SIT Duration Update on behalf of a customer",
         "consumes": [
           "application/json"
         ],
@@ -4073,8 +4073,8 @@ func init() {
           "shipment",
           "sitExtension"
         ],
-        "summary": "Create an approved SIT extension",
-        "operationId": "createSITExtensionAsTOO",
+        "summary": "Create an approved SIT Duration Update",
+        "operationId": "createApprovedSITDurationUpdate",
         "parameters": [
           {
             "type": "string",
@@ -4089,12 +4089,12 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/CreateSITExtensionAsTOO"
+              "$ref": "#/definitions/CreateApprovedSITDurationUpdate"
             }
           },
           {
             "type": "string",
-            "description": "We want the shipment's eTag rather than the SIT extension eTag as the SIT extension is always associated with a shipment",
+            "description": "We want the shipment's eTag rather than the SIT Duration Update eTag as the SIT Duration Update is always associated with a shipment",
             "name": "If-Match",
             "in": "header",
             "required": true
@@ -4784,6 +4784,39 @@ func init() {
         }
       }
     },
+    "CreateApprovedSITDurationUpdate": {
+      "required": [
+        "requestReason",
+        "approvedDays"
+      ],
+      "properties": {
+        "approvedDays": {
+          "description": "Number of days approved for SIT extension. This will match requested days saved to the SIT extension model.",
+          "type": "integer",
+          "example": 21
+        },
+        "officeRemarks": {
+          "description": "Remarks from TOO about SIT Duration Update creation",
+          "type": "string",
+          "x-nullable": true,
+          "example": "Customer needs additional storage time as their new place of residence is not yet ready"
+        },
+        "requestReason": {
+          "description": "Reason from service counselor-provided picklist for SIT Duration Update",
+          "type": "string",
+          "enum": [
+            "SERIOUS_ILLNESS_MEMBER",
+            "SERIOUS_ILLNESS_DEPENDENT",
+            "IMPENDING_ASSIGNEMENT",
+            "DIRECTED_TEMPORARY_DUTY",
+            "NONAVAILABILITY_OF_CIVILIAN_HOUSING",
+            "AWAITING_COMPLETION_OF_RESIDENCE",
+            "OTHER"
+          ],
+          "example": "AWAITING_COMPLETION_OF_RESIDENCE"
+        }
+      }
+    },
     "CreateCustomerSupportRemark": {
       "description": "A text remark written by an customer support user that is associated with a specific move.",
       "type": "object",
@@ -5015,40 +5048,6 @@ func init() {
         "spouseProGearWeight": {
           "type": "integer",
           "x-nullable": true
-        }
-      }
-    },
-    "CreateSITExtensionAsTOO": {
-      "required": [
-        "requestReason",
-        "approvedDays"
-      ],
-      "properties": {
-        "approvedDays": {
-          "description": "Number of days approved for SIT extension. This will match requested days saved to the SIT extension model.",
-          "type": "integer",
-          "minimum": 1,
-          "example": 21
-        },
-        "officeRemarks": {
-          "description": "Remarks from TOO about SIT extension creation",
-          "type": "string",
-          "x-nullable": true,
-          "example": "Customer needs additional storage time as their new place of residence is not yet ready"
-        },
-        "requestReason": {
-          "description": "Reason from service counselor-provided picklist for SIT extension",
-          "type": "string",
-          "enum": [
-            "SERIOUS_ILLNESS_MEMBER",
-            "SERIOUS_ILLNESS_DEPENDENT",
-            "IMPENDING_ASSIGNEMENT",
-            "DIRECTED_TEMPORARY_DUTY",
-            "NONAVAILABILITY_OF_CIVILIAN_HOUSING",
-            "AWAITING_COMPLETION_OF_RESIDENCE",
-            "OTHER"
-          ],
-          "example": "AWAITING_COMPLETION_OF_RESIDENCE"
         }
       }
     },
@@ -14537,7 +14536,7 @@ func init() {
     },
     "/shipments/{shipmentID}/sit-extensions/": {
       "post": {
-        "description": "TOO can creates an already-approved SIT extension on behalf of a customer",
+        "description": "TOO can creates an already-approved SIT Duration Update on behalf of a customer",
         "consumes": [
           "application/json"
         ],
@@ -14548,8 +14547,8 @@ func init() {
           "shipment",
           "sitExtension"
         ],
-        "summary": "Create an approved SIT extension",
-        "operationId": "createSITExtensionAsTOO",
+        "summary": "Create an approved SIT Duration Update",
+        "operationId": "createApprovedSITDurationUpdate",
         "parameters": [
           {
             "type": "string",
@@ -14564,12 +14563,12 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/CreateSITExtensionAsTOO"
+              "$ref": "#/definitions/CreateApprovedSITDurationUpdate"
             }
           },
           {
             "type": "string",
-            "description": "We want the shipment's eTag rather than the SIT extension eTag as the SIT extension is always associated with a shipment",
+            "description": "We want the shipment's eTag rather than the SIT Duration Update eTag as the SIT Duration Update is always associated with a shipment",
             "name": "If-Match",
             "in": "header",
             "required": true
@@ -15344,6 +15343,39 @@ func init() {
         }
       }
     },
+    "CreateApprovedSITDurationUpdate": {
+      "required": [
+        "requestReason",
+        "approvedDays"
+      ],
+      "properties": {
+        "approvedDays": {
+          "description": "Number of days approved for SIT extension. This will match requested days saved to the SIT extension model.",
+          "type": "integer",
+          "example": 21
+        },
+        "officeRemarks": {
+          "description": "Remarks from TOO about SIT Duration Update creation",
+          "type": "string",
+          "x-nullable": true,
+          "example": "Customer needs additional storage time as their new place of residence is not yet ready"
+        },
+        "requestReason": {
+          "description": "Reason from service counselor-provided picklist for SIT Duration Update",
+          "type": "string",
+          "enum": [
+            "SERIOUS_ILLNESS_MEMBER",
+            "SERIOUS_ILLNESS_DEPENDENT",
+            "IMPENDING_ASSIGNEMENT",
+            "DIRECTED_TEMPORARY_DUTY",
+            "NONAVAILABILITY_OF_CIVILIAN_HOUSING",
+            "AWAITING_COMPLETION_OF_RESIDENCE",
+            "OTHER"
+          ],
+          "example": "AWAITING_COMPLETION_OF_RESIDENCE"
+        }
+      }
+    },
     "CreateCustomerSupportRemark": {
       "description": "A text remark written by an customer support user that is associated with a specific move.",
       "type": "object",
@@ -15575,40 +15607,6 @@ func init() {
         "spouseProGearWeight": {
           "type": "integer",
           "x-nullable": true
-        }
-      }
-    },
-    "CreateSITExtensionAsTOO": {
-      "required": [
-        "requestReason",
-        "approvedDays"
-      ],
-      "properties": {
-        "approvedDays": {
-          "description": "Number of days approved for SIT extension. This will match requested days saved to the SIT extension model.",
-          "type": "integer",
-          "minimum": 1,
-          "example": 21
-        },
-        "officeRemarks": {
-          "description": "Remarks from TOO about SIT extension creation",
-          "type": "string",
-          "x-nullable": true,
-          "example": "Customer needs additional storage time as their new place of residence is not yet ready"
-        },
-        "requestReason": {
-          "description": "Reason from service counselor-provided picklist for SIT extension",
-          "type": "string",
-          "enum": [
-            "SERIOUS_ILLNESS_MEMBER",
-            "SERIOUS_ILLNESS_DEPENDENT",
-            "IMPENDING_ASSIGNEMENT",
-            "DIRECTED_TEMPORARY_DUTY",
-            "NONAVAILABILITY_OF_CIVILIAN_HOUSING",
-            "AWAITING_COMPLETION_OF_RESIDENCE",
-            "OTHER"
-          ],
-          "example": "AWAITING_COMPLETION_OF_RESIDENCE"
         }
       }
     },

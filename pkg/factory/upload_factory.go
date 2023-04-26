@@ -82,7 +82,7 @@ func BuildUpload(db *pop.Connection, customs []Customization, traits []Trait) mo
 	upload := models.Upload{
 		Filename:    "testFile.pdf",
 		Bytes:       int64(2202009),
-		ContentType: "application/pdf",
+		ContentType: uploader.FileTypePDF,
 		Checksum:    "ImGQ2Ush0bDHsaQthV5BnQ==",
 		UploadType:  models.UploadTypeUSER,
 	}

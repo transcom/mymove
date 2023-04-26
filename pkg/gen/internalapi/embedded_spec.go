@@ -5162,9 +5162,6 @@ func init() {
         "personally_procured_moves": {
           "$ref": "#/definitions/IndexPersonallyProcuredMovePayload"
         },
-        "selected_move_type": {
-          "$ref": "#/definitions/SelectedMoveType"
-        },
         "service_member_id": {
           "type": "string",
           "format": "uuid",
@@ -6846,29 +6843,6 @@ func init() {
           "type": "string"
         }
       }
-    },
-    "SelectedMoveType": {
-      "type": "string",
-      "title": "Selected Move Type",
-      "enum": [
-        "HHG",
-        "PPM",
-        "UB",
-        "POV",
-        "HHG_INTO_NTS_DOMESTIC",
-        "HHG_OUTOF_NTS_DOMESTIC",
-        "HHG_PPM"
-      ],
-      "x-display-value": {
-        "HHG": "Household Goods Move",
-        "HHG_INTO_NTS_DOMESTIC": "Non-Temporary Storage",
-        "HHG_OUTOF_NTS_DOMESTIC": "Non-Temporary Storage Release",
-        "HHG_PPM": "Both HHG and PPM",
-        "POV": "Privately-Owned Vehicle",
-        "PPM": "Personal Procured Move",
-        "UB": "Unaccompanied Baggage"
-      },
-      "x-nullable": true
     },
     "ServiceMemberBackupContactPayload": {
       "type": "object",
@@ -13815,9 +13789,6 @@ func init() {
         "personally_procured_moves": {
           "$ref": "#/definitions/IndexPersonallyProcuredMovePayload"
         },
-        "selected_move_type": {
-          "$ref": "#/definitions/SelectedMoveType"
-        },
         "service_member_id": {
           "type": "string",
           "format": "uuid",
@@ -15504,29 +15475,6 @@ func init() {
           "type": "string"
         }
       }
-    },
-    "SelectedMoveType": {
-      "type": "string",
-      "title": "Selected Move Type",
-      "enum": [
-        "HHG",
-        "PPM",
-        "UB",
-        "POV",
-        "HHG_INTO_NTS_DOMESTIC",
-        "HHG_OUTOF_NTS_DOMESTIC",
-        "HHG_PPM"
-      ],
-      "x-display-value": {
-        "HHG": "Household Goods Move",
-        "HHG_INTO_NTS_DOMESTIC": "Non-Temporary Storage",
-        "HHG_OUTOF_NTS_DOMESTIC": "Non-Temporary Storage Release",
-        "HHG_PPM": "Both HHG and PPM",
-        "POV": "Privately-Owned Vehicle",
-        "PPM": "Personal Procured Move",
-        "UB": "Unaccompanied Baggage"
-      },
-      "x-nullable": true
     },
     "ServiceMemberBackupContactPayload": {
       "type": "object",

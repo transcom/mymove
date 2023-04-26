@@ -83,6 +83,7 @@ type Assertions struct {
 	ReService                                models.ReService
 	Reweigh                                  models.Reweigh
 	ReZip3                                   models.ReZip3
+	ReZip5RateArea                           models.ReZip5RateArea
 	Role                                     roles.Role
 	SecondaryDeliveryAddress                 models.Address
 	SecondaryPickupAddress                   models.Address
@@ -90,7 +91,7 @@ type Assertions struct {
 	ServiceMember                            models.ServiceMember
 	ServiceParam                             models.ServiceParam
 	SignedCertification                      models.SignedCertification
-	SITExtension                             models.SITExtension
+	SITDurationUpdate                        models.SITDurationUpdate
 	StorageFacility                          models.StorageFacility
 	Stub                                     bool
 	Tariff400ngItem                          models.Tariff400ngItem

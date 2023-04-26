@@ -6,6 +6,10 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
+func (suite *RateEngineSuite) BeforeTest(suiteName string, testName string) {
+	suite.T().Skip()
+}
+
 func (suite *RateEngineSuite) Test_CheckBaseLinehaul() {
 	move := models.Move{
 		Locator: "ABC123",

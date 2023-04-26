@@ -8,6 +8,7 @@ import (
 	"github.com/transcom/mymove/pkg/db/dberr"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/uploader"
 )
 
 func (suite *ModelSuite) Test_UserUploadCreate() {
@@ -16,7 +17,7 @@ func (suite *ModelSuite) Test_UserUploadCreate() {
 	upload := models.Upload{
 		Filename:    "test.pdf",
 		Bytes:       1048576,
-		ContentType: "application/pdf",
+		ContentType: uploader.FileTypePDF,
 		Checksum:    "ImGQ2Ush0bDHsaQthV5BnQ==",
 		UploadType:  models.UploadTypeUSER,
 	}

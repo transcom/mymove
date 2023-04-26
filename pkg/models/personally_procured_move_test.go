@@ -10,7 +10,6 @@
 package models_test
 
 import (
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -68,11 +67,8 @@ func (suite *ModelSuite) TestPPMStateMachine() {
 	suite.MustSave(&orders)
 	factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 
-	selectedMoveType := SelectedMoveTypeHHGPPM
-
 	moveOptions := MoveOptions{
-		SelectedType: &selectedMoveType,
-		Show:         swag.Bool(true),
+		Show: BoolPointer(true),
 	}
 	move, verrs, err := orders.CreateNewMove(suite.DB(), moveOptions)
 	suite.NoError(err)

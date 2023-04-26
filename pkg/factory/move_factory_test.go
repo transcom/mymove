@@ -7,7 +7,6 @@ import (
 )
 
 func (suite *FactorySuite) TestBuildMove() {
-	defaultMoveType := models.SelectedMoveTypePPM
 	partialType := "PARTIAL"
 	defaultPpmType := &partialType
 	defaultShow := true
@@ -23,7 +22,6 @@ func (suite *FactorySuite) TestBuildMove() {
 		// Create move
 		move := BuildMove(suite.DB(), nil, nil)
 
-		suite.Equal(defaultMoveType, *move.SelectedMoveType)
 		suite.Equal(*defaultPpmType, *move.PPMType)
 		suite.Equal(defaultShow, *move.Show)
 		suite.NotNil(move.Contractor)
@@ -40,7 +38,6 @@ func (suite *FactorySuite) TestBuildMove() {
 		suite.NoError(err)
 
 		move := BuildMove(nil, nil, nil)
-		suite.Equal(defaultMoveType, *move.SelectedMoveType)
 		suite.Equal(*defaultPpmType, *move.PPMType)
 		suite.Equal(defaultShow, *move.Show)
 		suite.NotNil(move.Contractor)
@@ -62,16 +59,14 @@ func (suite *FactorySuite) TestBuildMove() {
 		referenceID := "refID"
 		show := false
 		ppmType := "FULL"
-		moveType := models.SelectedMoveTypeHHG
 		locator := "ABC123"
 		closeoutOfficeName := "Closeout office"
 
 		customMove := models.Move{
-			ReferenceID:      &referenceID,
-			Show:             &show,
-			SelectedMoveType: &moveType,
-			PPMType:          &ppmType,
-			Locator:          locator,
+			ReferenceID: &referenceID,
+			Show:        &show,
+			PPMType:     &ppmType,
+			Locator:     locator,
 		}
 		customs := []Customization{
 			{
@@ -86,28 +81,12 @@ func (suite *FactorySuite) TestBuildMove() {
 		}
 		move := BuildMove(suite.DB(), customs, nil)
 
-		suite.Equal(moveType, *move.SelectedMoveType)
 		suite.Equal(ppmType, *move.PPMType)
 		suite.False(*move.Show)
 		suite.Equal(locator, move.Locator)
 		suite.Equal(closeoutOfficeName, move.CloseoutOffice.Name)
 		suite.Equal(referenceID, *move.ReferenceID)
 		suite.NotNil(move.Contractor)
-	})
-	suite.Run("Successful creation of move without move type", func() {
-		// Under test:      BuildMoveWithoutMoveType
-		// Set up:          Create a move without move type set
-		// Expected outcome:Create a contractor, order and move
-
-		// Create move
-		move := BuildMoveWithoutMoveType(suite.DB(), nil, nil)
-
-		suite.Nil(move.SelectedMoveType)
-		suite.Nil(move.PPMType)
-		suite.NotNil(move.Contractor)
-		suite.False(move.ContractorID.IsNil())
-		suite.NotNil(move.ReferenceID)
-		suite.NotEmpty(*move.ReferenceID)
 	})
 	suite.Run("Successful creation of stubbed move with status", func() {
 		// Under test:      BuildStubbedMoveWithStatus
@@ -272,6 +251,46 @@ func (suite *FactorySuite) TestBuildMove() {
 		suite.Equal(models.MoveStatusAPPROVED, move.Status)
 		suite.Equal(availableToPrimeAt, *move.AvailableToPrimeAt)
 		suite.NotNil(move.AvailableToPrimeAt)
+	})
+	suite.Run("Successful creation of move with shipment", func() {
+		// Under test:      BuildMoveWithShipment
+		// Set up:          Create a move using BuildMoveWithShipment
+		// Expected outcome:Move with shipment
+
+		move := BuildMoveWithShipment(suite.DB(), nil, nil)
+		suite.NotEmpty(move.MTOShipments)
+		suite.Equal(models.MTOShipmentStatusSubmitted, move.MTOShipments[0].Status)
+	})
+
+	suite.Run("Successful creation of customized move with shipment", func() {
+		// Under test:      BuildMoveWithShipment
+		// Set up:          Create a custom move using BuildMoveWithShipment
+		// Expected outcome:Customized move with shipment
+		customMove := models.Move{
+			Locator: "999111",
+			Status:  models.MoveStatusAPPROVALSREQUESTED,
+		}
+		customServiceMember := models.ServiceMember{
+			FirstName: models.StringPointer("Riley"),
+		}
+		customOrders := models.Order{
+			HasDependents: true,
+		}
+		customShipment := models.MTOShipment{
+			Status: models.MTOShipmentStatusCanceled,
+		}
+		// Create move
+		move := BuildMoveWithShipment(suite.DB(), []Customization{
+			{Model: customMove},
+			{Model: customServiceMember},
+			{Model: customOrders},
+			{Model: customShipment},
+		}, nil)
+		suite.Equal(customMove.Locator, move.Locator)
+		suite.Equal(customMove.Status, move.Status)
+		suite.Equal(customServiceMember.FirstName, move.Orders.ServiceMember.FirstName)
+		suite.Equal(customOrders.HasDependents, move.Orders.HasDependents)
+		suite.Equal(customShipment.Status, move.MTOShipments[0].Status)
 	})
 
 }

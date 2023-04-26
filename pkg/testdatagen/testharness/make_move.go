@@ -152,12 +152,12 @@ func MakePPMInProgressMove(appCtx appcontext.AppContext) models.Move {
 		},
 	})
 
-	newSignedCertification := testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
-		SignedCertification: models.SignedCertification{
-			MoveID: ppm1.Move.ID,
+	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+		{
+			Model:    ppm1.Move,
+			LinkOnly: true,
 		},
-		Stub: true,
-	})
+	}, nil)
 	moveRouter := moverouter.NewMoveRouter()
 	err := moveRouter.Submit(appCtx, &ppm1.Move, &newSignedCertification)
 	if err != nil {
@@ -294,7 +294,6 @@ func MakeHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO(appCtx appconte
 			},
 		},
 	}, nil)
-	mtoSelectedMoveType := models.SelectedMoveTypeHHG
 	mto := factory.BuildMove(appCtx.DB(), []factory.Customization{
 		{
 			Model:    orders,
@@ -302,8 +301,7 @@ func MakeHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO(appCtx appconte
 		},
 		{
 			Model: models.Move{
-				Status:           models.MoveStatusSUBMITTED,
-				SelectedMoveType: &mtoSelectedMoveType,
+				Status: models.MoveStatusSUBMITTED,
 			},
 		},
 	}, nil)
@@ -781,7 +779,6 @@ func MakePrimeSimulatorMoveNeedsShipmentUpdate(appCtx appcontext.AppContext) mod
 func MakeHHGMoveWithNTSAndNeedsSC(appCtx appcontext.AppContext) models.Move {
 
 	submittedAt := time.Now()
-	ntsMoveType := models.SelectedMoveTypeNTS
 	dodID := testdatagen.MakeRandomNumberString(10)
 	userInfo := newUserInfo("customer")
 
@@ -804,9 +801,8 @@ func MakeHHGMoveWithNTSAndNeedsSC(appCtx appcontext.AppContext) models.Move {
 	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.Move{
-				Status:           models.MoveStatusNeedsServiceCounseling,
-				SelectedMoveType: &ntsMoveType,
-				SubmittedAt:      &submittedAt,
+				Status:      models.MoveStatusNeedsServiceCounseling,
+				SubmittedAt: &submittedAt,
 			},
 		},
 		{
@@ -887,7 +883,6 @@ func MakeNTSRMoveWithPaymentRequest(appCtx appcontext.AppContext) models.Move {
 	}, nil)
 
 	// Create Move
-	selectedMoveType := models.SelectedMoveTypeNTSR
 	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
 		{
 			Model:    orders,
@@ -896,7 +891,6 @@ func MakeNTSRMoveWithPaymentRequest(appCtx appcontext.AppContext) models.Move {
 		{
 			Model: models.Move{
 				AvailableToPrimeAt: models.TimePointer(time.Now()),
-				SelectedMoveType:   &selectedMoveType,
 				SubmittedAt:        &currentTime,
 			},
 		},
@@ -918,20 +912,32 @@ func MakeNTSRMoveWithPaymentRequest(appCtx appcontext.AppContext) models.Move {
 	serviceOrderNumber := testdatagen.MakeRandomNumberString(4)
 	estimatedWeight := unit.Pound(1400)
 	actualWeight := unit.Pound(2000)
-	ntsrShipment := testdatagen.MakeNTSRShipment(appCtx.DB(), testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			PrimeEstimatedWeight: &estimatedWeight,
-			PrimeActualWeight:    &actualWeight,
-			ApprovedDate:         swag.Time(time.Now()),
-			PickupAddress:        &shipmentPickupAddress,
-			TACType:              &tacType,
-			Status:               models.MTOShipmentStatusApproved,
-			StorageFacility:      &storageFacility,
-			ServiceOrderNumber:   &serviceOrderNumber,
-			UsesExternalVendor:   true,
+	ntsrShipment := factory.BuildNTSRShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-		Move: move,
-	})
+		{
+			Model:    storageFacility,
+			LinkOnly: true,
+		},
+		{
+			Model:    shipmentPickupAddress,
+			LinkOnly: true,
+			Type:     &factory.Addresses.PickupAddress,
+		},
+		{
+			Model: models.MTOShipment{
+				PrimeEstimatedWeight: &estimatedWeight,
+				PrimeActualWeight:    &actualWeight,
+				ApprovedDate:         models.TimePointer(time.Now()),
+				TACType:              &tacType,
+				Status:               models.MTOShipmentStatusApproved,
+				ServiceOrderNumber:   &serviceOrderNumber,
+				UsesExternalVendor:   true,
+			},
+		},
+	}, nil)
 
 	// Create Releasing Agent
 	agentUserInfo := newUserInfo("agent")
@@ -1506,7 +1512,6 @@ func MakeNTSRMoveWithServiceItemsAndPaymentRequest(appCtx appcontext.AppContext)
 	}, nil)
 
 	// Create Move
-	selectedMoveType := models.SelectedMoveTypeNTSR
 	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
 		{
 			Model:    orders,
@@ -1515,7 +1520,6 @@ func MakeNTSRMoveWithServiceItemsAndPaymentRequest(appCtx appcontext.AppContext)
 		{
 			Model: models.Move{
 				AvailableToPrimeAt: swag.Time(time.Now()),
-				SelectedMoveType:   &selectedMoveType,
 				SubmittedAt:        &currentTime,
 			},
 		},
@@ -1543,20 +1547,32 @@ func MakeNTSRMoveWithServiceItemsAndPaymentRequest(appCtx appcontext.AppContext)
 	serviceOrderNumber := "1234"
 	estimatedWeight := unit.Pound(1400)
 	actualWeight := unit.Pound(2000)
-	ntsrShipment := testdatagen.MakeNTSRShipment(appCtx.DB(), testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			PrimeEstimatedWeight: &estimatedWeight,
-			PrimeActualWeight:    &actualWeight,
-			ApprovedDate:         swag.Time(time.Now()),
-			PickupAddress:        &shipmentPickupAddress,
-			TACType:              &tacType,
-			Status:               models.MTOShipmentStatusApproved,
-			SACType:              &sacType,
-			StorageFacility:      &storageFacility,
-			ServiceOrderNumber:   &serviceOrderNumber,
+	ntsrShipment := factory.BuildNTSRShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-		Move: move,
-	})
+		{
+			Model:    storageFacility,
+			LinkOnly: true,
+		},
+		{
+			Model:    shipmentPickupAddress,
+			LinkOnly: true,
+			Type:     &factory.Addresses.PickupAddress,
+		},
+		{
+			Model: models.MTOShipment{
+				PrimeEstimatedWeight: &estimatedWeight,
+				PrimeActualWeight:    &actualWeight,
+				ApprovedDate:         swag.Time(time.Now()),
+				TACType:              &tacType,
+				Status:               models.MTOShipmentStatusApproved,
+				SACType:              &sacType,
+				ServiceOrderNumber:   &serviceOrderNumber,
+			},
+		},
+	}, nil)
 
 	// Create Releasing Agent
 	agentUserInfo := newUserInfo("agent")
@@ -3009,6 +3025,71 @@ func MakeApprovedMoveWithPPMMovingExpenseOffice(appCtx appcontext.AppContext) mo
 		},
 	}
 	testdatagen.MakeMovingExpense(appCtx.DB(), storageExpenseAssertions)
+
+	// re-fetch the move so that we ensure we have exactly what is in
+	// the db
+	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+	}
+
+	return *newmove
+}
+
+func MakeApprovedMoveWithPPMAllDocTypesOffice(appCtx appcontext.AppContext) models.Move {
+	userUploader := newUserUploader(appCtx)
+	closeoutOffice := factory.BuildTransportationOffice(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.TransportationOffice{Gbloc: "KKFA", ProvidesCloseout: true},
+		},
+	}, nil)
+
+	userInfo := newUserInfo("customer")
+	moveInfo := scenario.MoveCreatorInfo{
+		UserID:           uuid.Must(uuid.NewV4()),
+		Email:            userInfo.email,
+		SmID:             uuid.Must(uuid.NewV4()),
+		FirstName:        userInfo.firstName,
+		LastName:         userInfo.lastName,
+		MoveID:           uuid.Must(uuid.NewV4()),
+		MoveLocator:      models.GenerateLocator(),
+		CloseoutOfficeID: &closeoutOffice.ID,
+	}
+
+	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
+	address := factory.BuildAddress(appCtx.DB(), nil, nil)
+
+	assertions := testdatagen.Assertions{
+		UserUploader: userUploader,
+		Move: models.Move{
+			Status: models.MoveStatusAPPROVED,
+		},
+		MTOShipment: models.MTOShipment{
+			ID:     uuid.Must(uuid.NewV4()),
+			Status: models.MTOShipmentStatusApproved,
+		},
+		PPMShipment: models.PPMShipment{
+			ID:                          uuid.Must(uuid.NewV4()),
+			ApprovedAt:                  &approvedAt,
+			Status:                      models.PPMShipmentStatusNeedsPaymentApproval,
+			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
+			ActualPickupPostalCode:      models.StringPointer("42444"),
+			ActualDestinationPostalCode: models.StringPointer("30813"),
+			HasReceivedAdvance:          models.BoolPointer(true),
+			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
+			W2Address:                   &address,
+		},
+	}
+
+	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
+
+	ppmCloseoutAssertions := testdatagen.Assertions{
+		PPMShipment:   shipment,
+		ServiceMember: move.Orders.ServiceMember,
+	}
+	testdatagen.MakeWeightTicket(appCtx.DB(), ppmCloseoutAssertions)
+	testdatagen.MakeProgearWeightTicket(appCtx.DB(), ppmCloseoutAssertions)
+	testdatagen.MakeMovingExpense(appCtx.DB(), ppmCloseoutAssertions)
 
 	// re-fetch the move so that we ensure we have exactly what is in
 	// the db
