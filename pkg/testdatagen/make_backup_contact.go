@@ -30,8 +30,3 @@ func MakeBackupContact(db *pop.Connection, assertions Assertions) models.BackupC
 
 	return backupContact
 }
-
-// MakeDefaultBackupContact returns a BackupContact with default values
-func MakeDefaultBackupContact(db *pop.Connection) models.BackupContact {
-	return MakeBackupContact(db, Assertions{})
-}

@@ -69,7 +69,7 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 		// Set up: Submit a move without an OrdersID
 		// Expected outcome: Error on ordersID
 		var move models.Move
-		newSignedCertification := testdatagen.MakeDefaultSignedCertification(suite.DB())
+		newSignedCertification := factory.BuildSignedCertification(suite.DB(), nil, nil)
 		err := moveRouter.Submit(suite.AppContextForTest(), &move, &newSignedCertification)
 		suite.Error(err)
 		suite.Contains(err.Error(), "Not found looking for move.OrdersID")

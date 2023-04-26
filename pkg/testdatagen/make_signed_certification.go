@@ -75,8 +75,3 @@ func MakeSignedCertificationForPPM(db *pop.Connection, assertions Assertions) mo
 
 	return signedCertification
 }
-
-// MakeDefaultSignedCertification returns a MoveDocument with default values
-func MakeDefaultSignedCertification(db *pop.Connection) models.SignedCertification {
-	return MakeSignedCertification(db, Assertions{})
-}

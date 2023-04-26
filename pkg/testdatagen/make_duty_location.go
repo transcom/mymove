@@ -50,11 +50,6 @@ func MakeDutyLocation(db *pop.Connection, assertions Assertions) models.DutyLoca
 	return location
 }
 
-// MakeDefaultDutyLocation makes a DutyLocation with default values
-func MakeDefaultDutyLocation(db *pop.Connection) models.DutyLocation {
-	return MakeDutyLocation(db, Assertions{})
-}
-
 // FetchOrMakeDefaultCurrentDutyLocation returns a default duty location - Yuma AFB
 func FetchOrMakeDefaultCurrentDutyLocation(db *pop.Connection) models.DutyLocation {
 	defaultLocation, err := models.FetchDutyLocationByName(db, "Yuma AFB")

@@ -4738,15 +4738,19 @@ func createHHGMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader 
 
 	move := models.Move{
 		Status:             models.MoveStatusAPPROVED,
-		OrdersID:           orders.ID,
-		Orders:             orders,
 		AvailableToPrimeAt: models.TimePointer(time.Now()),
 	}
 	testdatagen.MergeModels(&move, assertions.Move)
-	// assertions passed in means we cannot yet convert to BuildMove
-	mto := testdatagen.MakeMove(db, testdatagen.Assertions{
-		Move: move,
-	})
+
+	mto := factory.BuildMove(db, []factory.Customization{
+		{
+			Model: move,
+		},
+		{
+			Model:    orders,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	shipmentPickupAddress := factory.BuildAddress(db, []factory.Customization{
 		{
@@ -10566,11 +10570,16 @@ func createRandomMove(
 			assertions.Move.ServiceCounselingCompletedAt = &counseledAt
 		}
 	}
-	// assertions passed in means we cannot yet convert to BuildMove
-	move := testdatagen.MakeMove(db, testdatagen.Assertions{
-		Move:  assertions.Move,
-		Order: order,
-	})
+
+	move := factory.BuildMove(db, []factory.Customization{
+		{
+			Model: assertions.Move,
+		},
+		{
+			Model:    order,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	shipmentStatus := models.MTOShipmentStatusSubmitted
 	if assertions.MTOShipment.Status != "" {
