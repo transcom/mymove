@@ -372,7 +372,6 @@ func MTOShipmentModelFromUpdate(mtoShipment *ghcmessages.UpdateShipment) *models
 			model.SecondaryDeliveryAddress = AddressModel(&mtoShipment.SecondaryDeliveryAddress.Address)
 		}
 	}
-	// model.SecondaryDeliveryAddress = AddressModel(mtoShipment.SecondaryDeliveryAddress)
 
 	if mtoShipment.DestinationType != nil {
 		valDestinationType := models.DestinationType(*mtoShipment.DestinationType)
