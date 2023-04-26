@@ -103,11 +103,12 @@ func (suite *HandlerSuite) makeListMTOShipmentsSubtestData() (subtestData *listM
 		},
 	}, nil)
 
-	subtestData.mtoAgent = testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
-		MTOAgent: models.MTOAgent{
-			MTOShipmentID: mtoShipment.ID,
+	subtestData.mtoAgent = factory.BuildMTOAgent(suite.DB(), []factory.Customization{
+		{
+			Model:    mtoShipment,
+			LinkOnly: true,
 		},
-	})
+	}, nil)
 	subtestData.mtoServiceItem = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 		{
 			Model: models.MTOServiceItem{

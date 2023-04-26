@@ -44,6 +44,7 @@ var DutyLocation CustomType = "DutyLocation"
 var Entitlement CustomType = "Entitlement"
 var EvaluationReport CustomType = "EvaluationReport"
 var Move CustomType = "Move"
+var MTOAgent CustomType = "MTOAgent"
 var MTOServiceItem CustomType = "MTOServiceItem"
 var MTOServiceItemDimension CustomType = "MTOServiceItemDimension"
 var MTOShipment CustomType = "MTOShipment"
@@ -81,6 +82,7 @@ var defaultTypesMap = map[string]CustomType{
 	"models.Entitlement":             Entitlement,
 	"models.EvaluationReport":        EvaluationReport,
 	"models.Move":                    Move,
+	"models.MTOAgent":                MTOAgent,
 	"models.MTOServiceItem":          MTOServiceItem,
 	"models.MTOServiceItemDimension": MTOServiceItemDimension,
 	"models.MTOShipment":             MTOShipment,

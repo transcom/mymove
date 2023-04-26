@@ -51,16 +51,20 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherFunctionality() {
 
 		factory.BuildMTOShipmentWithMove(&approvedMove, suite.DB(), nil, nil)
 
-		testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
-			MTOAgent: models.MTOAgent{
-				FirstName:    swag.String("Test1"),
-				LastName:     swag.String("Agent"),
-				Email:        swag.String("test@test.email.com"),
-				MTOAgentType: models.MTOAgentReceiving,
+		factory.BuildMTOAgent(suite.DB(), []factory.Customization{
+			{
+				Model:    approvedShipment,
+				LinkOnly: true,
 			},
-			MTOShipment: approvedShipment,
-		})
-
+			{
+				Model: models.MTOAgent{
+					FirstName:    models.StringPointer("Test1"),
+					LastName:     models.StringPointer("Agent"),
+					Email:        models.StringPointer("test@test.email.com"),
+					MTOAgentType: models.MTOAgentReceiving,
+				},
+			},
+		}, nil)
 		// update HHG SAC
 		updateSAC := "23456"
 		approvedMove.Orders.SAC = &updateSAC
@@ -365,7 +369,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 			},
 		}, nil)
 		eTag := etag.GenerateEtag(serviceItem.UpdatedAt)
-		rejectionReason := swag.String("")
+		rejectionReason := models.StringPointer("")
 		shipmentIDAbbr := serviceItem.MTOShipment.ID.String()[0:5]
 
 		updatedServiceItem, err := updater.ApproveOrRejectServiceItem(
@@ -665,10 +669,12 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 
 	suite.Run("has audit history records for mto_agents", func() {
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-		mtoAgent := testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
-			Move: move,
-		})
-
+		mtoAgent := factory.BuildMTOAgent(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 		// Make two audit history entries, one with an event name we should find
 		// and another with the eventName we are intentionally not returning in our query.
 		eventNameToFind := "updateShipment"
