@@ -45,6 +45,11 @@ func (f *sitExtensionApprover) ApproveSITExtension(appCtx appcontext.AppContext,
 		return nil, apperror.NewPreconditionFailedError(shipmentID, query.StaleIdentifierError{StaleIdentifier: eTag})
 	}
 
+	newSITDuration := approvedDays + int(*shipment.SITDaysAllowance)
+	if newSITDuration < 1 {
+		return nil, apperror.NewInvalidInputError(shipmentID, nil, nil, "can't reduce a SIT duration to less than one day")
+	}
+
 	return f.approveSITExtension(appCtx, *shipment, *sitExtension, approvedDays, officeRemarks)
 }
 

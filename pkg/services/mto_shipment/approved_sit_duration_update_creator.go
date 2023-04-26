@@ -34,6 +34,11 @@ func (f *approvedSITDurationUpdateCreator) CreateApprovedSITDurationUpdate(appCt
 		return nil, apperror.NewPreconditionFailedError(shipmentID, query.StaleIdentifierError{StaleIdentifier: eTag})
 	}
 
+	newSITDuration := int(*sitDurationUpdate.ApprovedDays) + int(*shipment.SITDaysAllowance)
+	if newSITDuration < 1 {
+		return nil, apperror.NewInvalidInputError(shipmentID, nil, nil, "can't reduce a SIT duration to less than one day")
+	}
+
 	var returnedShipment *models.MTOShipment
 
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
