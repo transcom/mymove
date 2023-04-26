@@ -1,4 +1,4 @@
-package mtoshipment
+package sitextension
 
 import (
 	"database/sql"
@@ -11,6 +11,7 @@ import (
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
@@ -24,7 +25,7 @@ func NewApprovedSITDurationUpdateCreator() services.ApprovedSITDurationUpdateCre
 
 // CreateApprovedSITDurationUpdate creates a SIT Duration Update with a status of APPROVED and updates the MTO Shipment's SIT days allowance
 func (f *approvedSITDurationUpdateCreator) CreateApprovedSITDurationUpdate(appCtx appcontext.AppContext, sitDurationUpdate *models.SITDurationUpdate, shipmentID uuid.UUID, eTag string) (*models.MTOShipment, error) {
-	shipment, err := FindShipment(appCtx, shipmentID)
+	shipment, err := mtoshipment.FindShipment(appCtx, shipmentID)
 	if err != nil {
 		return nil, err
 	}
