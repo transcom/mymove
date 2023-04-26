@@ -467,7 +467,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		suite.IsType(apperror.ConflictError{}, err)
 	})
 
-	setupDDFSITData := func() (models.MTOServiceItemCustomerContact, models.MTOServiceItem) {
+	setupDDFSITData := func() (models.MTOServiceItemCustomerContact, models.MTOServiceItemCustomerContact, models.MTOServiceItem) {
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
@@ -477,10 +477,16 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		}, nil)
 		reServiceDDFSIT := factory.BuildDDFSITReService(suite.DB())
 
-		contact := models.MTOServiceItemCustomerContact{
+		contactOne := models.MTOServiceItemCustomerContact{
 			Type:                       models.CustomerContactTypeFirst,
 			FirstAvailableDeliveryDate: time.Now(),
 		}
+
+		contactTwo := models.MTOServiceItemCustomerContact{
+			Type:                       models.CustomerContactTypeSecond,
+			FirstAvailableDeliveryDate: time.Now(),
+		}
+
 		serviceItemDDFSIT := models.MTOServiceItem{
 			MoveTaskOrderID: move.ID,
 			MoveTaskOrder:   move,
@@ -491,7 +497,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 				Code: reServiceDDFSIT.Code,
 			},
 		}
-		return contact, serviceItemDDFSIT
+		return contactOne, contactTwo, serviceItemDDFSIT
 	}
 	// The timeMilitary fields need to be in the correct format.
 	suite.Run("Check DDFSIT timeMilitary=HH:MMZ", func() {
@@ -499,9 +505,10 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		// Under test: CreateMTOServiceItem function
 		// Set up:     Create DDFSIT service item with a bad time "10:30Z"
 		// Expected outcome: InvalidInput error returned, no new service items created
-		contact, serviceItemDDFSIT := setupDDFSITData()
-		contact.TimeMilitary = "10:30Z"
-		serviceItemDDFSIT.CustomerContacts = models.MTOServiceItemCustomerContacts{contact}
+		contactOne, contactTwo, serviceItemDDFSIT := setupDDFSITData()
+		contactOne.TimeMilitary = "10:30Z"
+		contactTwo.TimeMilitary = "14:00Z"
+		serviceItemDDFSIT.CustomerContacts = models.MTOServiceItemCustomerContacts{contactOne, contactTwo}
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDFSIT)
 
 		suite.Nil(createdServiceItems)
@@ -515,9 +522,10 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		// Under test: CreateMTOServiceItem function
 		// Set up:     Create DDFSIT service item with a bad time "2645Z"
 		// Expected outcome: InvalidInput error returned, no new service items created
-		contact, serviceItemDDFSIT := setupDDFSITData()
-		contact.TimeMilitary = "2645Z"
-		serviceItemDDFSIT.CustomerContacts = models.MTOServiceItemCustomerContacts{contact}
+		contactOne, contactTwo, serviceItemDDFSIT := setupDDFSITData()
+		contactOne.TimeMilitary = "2645Z"
+		contactTwo.TimeMilitary = "3625Z"
+		serviceItemDDFSIT.CustomerContacts = models.MTOServiceItemCustomerContacts{contactOne, contactTwo}
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDFSIT)
 
 		suite.Nil(createdServiceItems)
@@ -532,9 +540,10 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		// Under test: CreateMTOServiceItem function
 		// Set up:     Create DDFSIT service item with a bad time "2167Z"
 		// Expected outcome: InvalidInput error returned, no new service items created
-		contact, serviceItemDDFSIT := setupDDFSITData()
-		contact.TimeMilitary = "2167Z"
-		serviceItemDDFSIT.CustomerContacts = models.MTOServiceItemCustomerContacts{contact}
+		contactOne, contactTwo, serviceItemDDFSIT := setupDDFSITData()
+		contactOne.TimeMilitary = "2167Z"
+		contactTwo.TimeMilitary = "1253Z"
+		serviceItemDDFSIT.CustomerContacts = models.MTOServiceItemCustomerContacts{contactOne, contactTwo}
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDFSIT)
 
 		suite.Nil(createdServiceItems)
@@ -549,9 +558,10 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		// Under test: CreateMTOServiceItem function
 		// Set up:     Create DDFSIT service item with a bad time "2050M"
 		// Expected outcome: InvalidInput error returned, no new service items created
-		contact, serviceItemDDFSIT := setupDDFSITData()
-		contact.TimeMilitary = "2050M"
-		serviceItemDDFSIT.CustomerContacts = models.MTOServiceItemCustomerContacts{contact}
+		contactOne, contactTwo, serviceItemDDFSIT := setupDDFSITData()
+		contactOne.TimeMilitary = "2050M"
+		contactTwo.TimeMilitary = "1224M"
+		serviceItemDDFSIT.CustomerContacts = models.MTOServiceItemCustomerContacts{contactOne, contactTwo}
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDFSIT)
 
 		suite.Nil(createdServiceItems)
@@ -566,9 +576,10 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		// Under test: CreateMTOServiceItem function
 		// Set up:     Create DDFSIT service item with a correctly formatted time"
 		// Expected outcome: Success, service items created.
-		contact, serviceItemDDFSIT := setupDDFSITData()
-		contact.TimeMilitary = "1405Z"
-		serviceItemDDFSIT.CustomerContacts = models.MTOServiceItemCustomerContacts{contact}
+		contactOne, contactTwo, serviceItemDDFSIT := setupDDFSITData()
+		contactOne.TimeMilitary = "1405Z"
+		contactTwo.TimeMilitary = "2013Z"
+		serviceItemDDFSIT.CustomerContacts = models.MTOServiceItemCustomerContacts{contactOne, contactTwo}
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDFSIT)
 
 		suite.NotNil(createdServiceItems)
