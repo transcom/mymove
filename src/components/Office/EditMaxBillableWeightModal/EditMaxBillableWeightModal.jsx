@@ -15,7 +15,7 @@ const maxBillableWeightSchema = Yup.object().shape({
   maxBillableWeight: Yup.number().min(1, 'Max billable weight must be greater than or equal to 1').required('Required'),
 });
 
-const EditMaxBillableWeightModal = ({ onClose, onSubmit, defaultWeight, maxBillableWeight }) => {
+export const EditMaxBillableWeightModal = ({ onClose, onSubmit, defaultWeight, maxBillableWeight }) => {
   return (
     <Modal className={styles.EditMaxBillableWeightModal}>
       <ModalClose className={styles.weightModalClose} handleClick={() => onClose()} />
@@ -55,13 +55,7 @@ const EditMaxBillableWeightModal = ({ onClose, onSubmit, defaultWeight, maxBilla
                 <Button type="submit" disabled={!isValid}>
                   Save
                 </Button>
-                <Button
-                  type="button"
-                  onClick={() => onClose()}
-                  className={styles.backButton}
-                  data-testid="modalBackButton"
-                  outline
-                >
+                <Button type="button" secondary onClick={() => onClose()} data-testid="modalBackButton" outline>
                   Back
                 </Button>
               </ModalActions>
