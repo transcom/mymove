@@ -735,15 +735,15 @@ export const MoveTaskOrder = ({ match, ...props }) => {
               onSubmit={handleReweighShipment}
             />
           )}
-          {isWeightModalVisible && (
-            <ConnectedEditMaxBillableWeightModal
-              isOpen={isWeightModalVisible}
-              defaultWeight={order.entitlement.totalWeight}
-              maxBillableWeight={order.entitlement.authorizedWeight}
-              onSubmit={handleUpdateBillableWeight}
-              onClose={setIsWeightModalVisible}
-            />
-          )}
+
+          <ConnectedEditMaxBillableWeightModal
+            isOpen={isWeightModalVisible}
+            defaultWeight={order.entitlement.totalWeight}
+            maxBillableWeight={order.entitlement.authorizedWeight}
+            onSubmit={handleUpdateBillableWeight}
+            onClose={setIsWeightModalVisible}
+          />
+
           {isFinancialModalVisible && (
             <FinancialReviewModal
               onClose={handleCancelFinancialReviewModal}
