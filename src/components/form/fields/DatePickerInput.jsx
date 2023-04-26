@@ -13,13 +13,24 @@ import Hint from 'components/Hint';
 
 export const DatePickerInput = (props) => {
   const dateFormat = 'DD MMM YYYY';
-  const { label, showOptional, name, id, className, renderInput, disabled, required, hint, disableErrorLabel } = props;
+  const {
+    label,
+    showOptional,
+    name,
+    id,
+    className,
+    renderInput,
+    disabled,
+    required,
+    hint,
+    disableErrorLabel,
+    onChange,
+  } = props;
   const [field, meta, helpers] = useField(props);
   const hasError = disableErrorLabel ? false : meta.touched && !!meta.error;
 
   // Input elements need an ID prop to be associated with the label
   const inputId = useRef(id || `${name}_${uuidv4()}`);
-
   return (
     <FormGroup error={hasError}>
       {renderInput(
@@ -39,7 +50,7 @@ export const DatePickerInput = (props) => {
             inputClassName={className}
             placeholder={dateFormat}
             format={dateFormat}
-            onChange={(value) => helpers.setValue(formatDate(value, dateFormat))}
+            onChange={onChange || ((value) => helpers.setValue(formatDate(value, dateFormat)))}
             onBlur={() => helpers.setTouched(true)}
             value={field.value}
             required={required}
@@ -63,6 +74,7 @@ DatePickerInput.propTypes = {
   hint: PropTypes.string,
   required: PropTypes.bool,
   disableErrorLabel: PropTypes.bool,
+  onChange: PropTypes.func,
 };
 
 DatePickerInput.defaultProps = {
@@ -73,6 +85,7 @@ DatePickerInput.defaultProps = {
   required: false,
   hint: undefined,
   disableErrorLabel: false,
+  onChange: undefined,
 };
 
 export default DatePickerInput;

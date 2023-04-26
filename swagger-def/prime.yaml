@@ -1238,6 +1238,7 @@ definitions:
       requestedDays:
         type: integer
         example: 30
+        minimum: 1
     required:
       - requestReason
       - contractorRemarks
