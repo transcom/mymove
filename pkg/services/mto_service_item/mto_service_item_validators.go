@@ -68,6 +68,16 @@ func (v *primeUpdateMTOServiceItemValidator) validate(appCtx appcontext.AppConte
 		return err
 	}
 
+	// Checks that if the updated service item has customer contacts that
+	// the time fields are in the expected military time
+	for index := range serviceItemData.updatedServiceItem.CustomerContacts {
+		createCustContacts := &serviceItemData.updatedServiceItem.CustomerContacts[index]
+		err = validateTimeMilitaryField(appCtx, createCustContacts.TimeMilitary)
+		if err != nil {
+			return err
+		}
+	}
+
 	// Checks that there aren't any pending payment requests for this service item
 	err = serviceItemData.checkPaymentRequests(appCtx)
 	if err != nil {
