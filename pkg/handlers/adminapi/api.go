@@ -19,7 +19,6 @@ import (
 	"github.com/transcom/mymove/pkg/services/organization"
 	"github.com/transcom/mymove/pkg/services/pagination"
 	"github.com/transcom/mymove/pkg/services/query"
-	tspop "github.com/transcom/mymove/pkg/services/tsp"
 	"github.com/transcom/mymove/pkg/services/upload"
 	user "github.com/transcom/mymove/pkg/services/user"
 	usersroles "github.com/transcom/mymove/pkg/services/users_roles"
@@ -83,19 +82,6 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 		organization.NewOrganizationListFetcher(queryBuilder),
 		query.NewQueryFilter,
 		pagination.NewPagination,
-	}
-
-	adminAPI.TransportationServiceProviderPerformancestspPsIndexTSPPsHandler = IndexTSPPsHandler{
-		handlerConfig,
-		tspop.NewTransportationServiceProviderPerformanceListFetcher(queryBuilder),
-		query.NewQueryFilter,
-		pagination.NewPagination,
-	}
-
-	adminAPI.TransportationServiceProviderPerformancestspPsGetTSPPHandler = GetTSPPHandler{
-		handlerConfig,
-		tspop.NewTransportationServiceProviderPerformanceFetcher(queryBuilder),
-		query.NewQueryFilter,
 	}
 
 	adminAPI.ElectronicOrdersIndexElectronicOrdersHandler = IndexElectronicOrdersHandler{
