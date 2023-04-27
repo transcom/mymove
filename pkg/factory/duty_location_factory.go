@@ -151,7 +151,6 @@ func FetchOrBuildCurrentDutyLocation(db *pop.Connection) models.DutyLocation {
 // FetchOrBuildOrdersDutyLocation returns a default orders duty location
 // It always fetches or builds a Fort Gordon duty location with the specified city/state/postal code
 // Some tests rely on the duty location being in 30813
-// It also creates a GA 208 tariff
 func FetchOrBuildOrdersDutyLocation(db *pop.Connection) models.DutyLocation {
 	if db == nil {
 		return BuildDutyLocation(nil, []Customization{
