@@ -14,12 +14,7 @@ func (suite *ServiceParamValueLookupsSuite) TestContractCodeLookup() {
 	key := models.ServiceItemParamNameContractCode
 
 	suite.Run("golden path", func() {
-		availableDate := time.Date(testdatagen.TestYear, time.May, 1, 0, 0, 0, 0, time.UTC)
-		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				AvailableToPrimeAt: &availableDate,
-			},
-		})
+		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), nil, []factory.Trait{factory.GetTraitAvailableToPrimeMove})
 		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
 				EndDate: time.Now().Add(24 * time.Hour),
