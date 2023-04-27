@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import EditMaxBillableWeightModal from './EditMaxBillableWeightModal';
+import { EditMaxBillableWeightModal } from './EditMaxBillableWeightModal';
 
 let onClose;
 let onSubmit;

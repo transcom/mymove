@@ -1,6 +1,6 @@
 import React from 'react';
 
-import EditMaxBillableWeightModal from './EditMaxBillableWeightModal';
+import { EditMaxBillableWeightModal } from './EditMaxBillableWeightModal';
 
 export default {
   title: 'Office Components/EditMaxBillableWeightModal',
