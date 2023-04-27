@@ -34,11 +34,13 @@ import (
 func (suite *HandlerSuite) TestPatchMoveHandler() {
 	// Given: a set of orders, a move, user and servicemember
 	move := factory.BuildMove(suite.DB(), nil, nil)
-	transportationOffice := testdatagen.MakeTransportationOffice(suite.DB(), testdatagen.Assertions{
-		TransportationOffice: models.TransportationOffice{
-			ProvidesCloseout: true,
+	transportationOffice := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+		{
+			Model: models.TransportationOffice{
+				ProvidesCloseout: true,
+			},
 		},
-	})
+	}, nil)
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("PATCH", "/moves/some_id", nil)
@@ -133,7 +135,7 @@ func (suite *HandlerSuite) TestPatchMoveHandlerCloseoutOfficeNotFound() {
 	// Given: a set of orders, a move, user and servicemember
 	move := factory.BuildMove(suite.DB(), nil, nil)
 	// TransportationOffice doesn't provide PPM closeout so should not be found
-	transportationOffice := testdatagen.MakeDefaultTransportationOffice(suite.DB())
+	transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("PATCH", "/moves/some_id", nil)
@@ -162,11 +164,13 @@ func (suite *HandlerSuite) TestPatchMoveHandlerCloseoutOfficeNotFound() {
 func (suite *HandlerSuite) TestPatchMoveHandlerETagPreconditionFailure() {
 	// Given: a set of orders, a move, user and servicemember
 	move := factory.BuildMove(suite.DB(), nil, nil)
-	transportationOffice := testdatagen.MakeTransportationOffice(suite.DB(), testdatagen.Assertions{
-		TransportationOffice: models.TransportationOffice{
-			ProvidesCloseout: true,
+	transportationOffice := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+		{
+			Model: models.TransportationOffice{
+				ProvidesCloseout: true,
+			},
 		},
-	})
+	}, nil)
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("PATCH", "/moves/some_id", nil)

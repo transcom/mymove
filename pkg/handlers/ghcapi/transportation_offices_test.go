@@ -5,19 +5,21 @@ import (
 
 	"github.com/go-openapi/strfmt"
 
+	"github.com/transcom/mymove/pkg/factory"
 	transportationofficeop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/transportation_office"
 	"github.com/transcom/mymove/pkg/models"
 	transportationofficeservice "github.com/transcom/mymove/pkg/services/transportation_office"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *HandlerSuite) TestGetTransportationOfficesHandler() {
-	transportationOffice := testdatagen.MakeTransportationOffice(suite.DB(), testdatagen.Assertions{
-		TransportationOffice: models.TransportationOffice{
-			Name:             "LRC Fort Knox",
-			ProvidesCloseout: true,
+	transportationOffice := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+		{
+			Model: models.TransportationOffice{
+				Name:             "LRC Fort Knox",
+				ProvidesCloseout: true,
+			},
 		},
-	})
+	}, nil)
 	fetcher := transportationofficeservice.NewTransportationOfficesFetcher()
 
 	req := httptest.NewRequest("GET", "/transportation_offices", nil)

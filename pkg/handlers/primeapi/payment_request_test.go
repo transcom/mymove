@@ -687,20 +687,31 @@ func (suite *HandlerSuite) setupDomesticLinehaulData() (models.Move, models.MTOS
 	suite.MustSave(&msTaskOrderFee)
 
 	availableToPrimeAt := time.Date(testdatagen.GHCTestYear, time.July, 1, 0, 0, 0, 0, time.UTC)
-	moveTaskOrder, mtoServiceItems := testdatagen.MakeFullDLHMTOServiceItem(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			Status:             models.MoveStatusAPPROVED,
-			AvailableToPrimeAt: &availableToPrimeAt,
+	moveTaskOrder, mtoServiceItems := factory.BuildFullDLHMTOServiceItems(suite.DB(), []factory.Customization{
+		{
+			Model: models.Move{
+				Status:             models.MoveStatusAPPROVED,
+				AvailableToPrimeAt: &availableToPrimeAt,
+			},
 		},
-		MTOShipment: models.MTOShipment{
-			PrimeEstimatedWeight: &testEstWeight,
-			PrimeActualWeight:    &testActualWeight,
-			PickupAddressID:      &pickupAddress.ID,
-			PickupAddress:        &pickupAddress,
-			DestinationAddressID: &destinationAddress.ID,
-			DestinationAddress:   &destinationAddress,
+		{
+			Model:    pickupAddress,
+			LinkOnly: true,
+			Type:     &factory.Addresses.PickupAddress,
 		},
-	})
+		{
+			Model:    destinationAddress,
+			LinkOnly: true,
+			Type:     &factory.Addresses.DeliveryAddress,
+		},
+		{
+			Model: models.MTOShipment{
+				Status:               models.MTOShipmentStatusSubmitted,
+				PrimeEstimatedWeight: &testEstWeight,
+				PrimeActualWeight:    &testActualWeight,
+			},
+		},
+	}, nil)
 
 	publicationDate := moveTaskOrder.MTOShipments[0].ActualPickupDate.AddDate(0, 0, -3) // 3 days earlier
 	ghcDieselFuelPrice := models.GHCDieselFuelPrice{

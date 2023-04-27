@@ -3,7 +3,6 @@ package testdatagen
 import (
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop/v6"
-	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -65,38 +64,9 @@ func MakeAddress3(db *pop.Connection, assertions Assertions) models.Address {
 	return address
 }
 
-// MakeAddress4 creates a different single Address and associated service member.
-func MakeAddress4(db *pop.Connection, assertions Assertions) models.Address {
-	address := models.Address{
-		StreetAddress1: "987 Over There Avenue",
-		StreetAddress2: swag.String("P.O. Box 1234"),
-		StreetAddress3: swag.String("c/o Another Person"),
-		City:           "Houston",
-		State:          "TX",
-		PostalCode:     "77083",
-		Country:        swag.String("US"),
-	}
-
-	mergeModels(&address, assertions.Address)
-
-	mustCreate(db, &address, assertions.Stub)
-
-	return address
-}
-
 // MakeDefaultAddress makes an Address with default values
 func MakeDefaultAddress(db *pop.Connection) models.Address {
 	// Make associated lookup table records.
 	FetchOrMakeDefaultTariff400ngZip3(db)
 	return MakeAddress(db, Assertions{})
-}
-
-// MakeStubbedAddress returns a stubbed address without saving it to the DB
-func MakeStubbedAddress(db *pop.Connection) models.Address {
-	return MakeAddress(db, Assertions{
-		Address: models.Address{
-			ID: uuid.Must(uuid.NewV4()),
-		},
-		Stub: true,
-	})
 }

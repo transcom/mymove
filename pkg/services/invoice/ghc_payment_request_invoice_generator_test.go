@@ -417,9 +417,11 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 			ID:          uuid.FromStringOrNil("d66d2f35-218c-4b85-b9d1-631949b9d100"),
 		}
 
-		mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			ServiceMember: sm,
-		})
+		mto := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: sm,
+			},
+		}, nil)
 		factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), mto.Orders.NewDutyLocation.Address.PostalCode, "KKFA")
 
 		paymentRequest = testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{

@@ -46,8 +46,3 @@ func MakeTransportationOffice(db *pop.Connection, assertions Assertions) models.
 
 	return office
 }
-
-// MakeDefaultTransportationOffice makes a default TransportationOffice
-func MakeDefaultTransportationOffice(db *pop.Connection) models.TransportationOffice {
-	return MakeTransportationOffice(db, Assertions{})
-}

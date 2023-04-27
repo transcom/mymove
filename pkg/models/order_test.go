@@ -134,7 +134,7 @@ func (suite *ModelSuite) TestFetchOrderForUser() {
 	})
 
 	suite.Run("check for closeout office", func() {
-		closeoutOffice := testdatagen.MakeTransportationOffice(suite.DB(), testdatagen.Assertions{})
+		closeoutOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
 		move := factory.BuildMove(suite.DB(), []factory.Customization{
 			{
 				Model:    closeoutOffice,

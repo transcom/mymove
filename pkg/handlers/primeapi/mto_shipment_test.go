@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
@@ -108,7 +107,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 				CustomerRemarks:      nil,
 				PointOfContact:       "John Doe",
 				PrimeEstimatedWeight: handlers.FmtInt64(1200),
-				RequestedPickupDate:  handlers.FmtDatePtr(swag.Time(time.Now())),
+				RequestedPickupDate:  handlers.FmtDatePtr(models.TimePointer(time.Now())),
 				ShipmentType:         primemessages.NewMTOShipmentType(primemessages.MTOShipmentTypeHHG),
 				PickupAddress:        struct{ primemessages.Address }{pickupAddress},
 				DestinationAddress:   struct{ primemessages.Address }{destinationAddress},
@@ -249,7 +248,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 				MoveTaskOrderID:      handlers.FmtUUID(move.ID),
 				PointOfContact:       "John Doe",
 				PrimeEstimatedWeight: handlers.FmtInt64(1200),
-				RequestedPickupDate:  handlers.FmtDatePtr(swag.Time(time.Now())),
+				RequestedPickupDate:  handlers.FmtDatePtr(models.TimePointer(time.Now())),
 				ShipmentType:         primemessages.NewMTOShipmentType(primemessages.MTOShipmentTypeHHG),
 				PickupAddress:        struct{ primemessages.Address }{pickupAddress},
 				DestinationAddress:   struct{ primemessages.Address }{destinationAddress},
@@ -290,7 +289,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 				PointOfContact:       "John Doe",
 				PrimeEstimatedWeight: handlers.FmtInt64(1200),
 				Agents:               primemessages.MTOAgents{agent},
-				RequestedPickupDate:  handlers.FmtDatePtr(swag.Time(time.Now())),
+				RequestedPickupDate:  handlers.FmtDatePtr(models.TimePointer(time.Now())),
 				ShipmentType:         primemessages.NewMTOShipmentType(primemessages.MTOShipmentTypeHHG),
 				PickupAddress:        struct{ primemessages.Address }{pickupAddress},
 				DestinationAddress:   struct{ primemessages.Address }{destinationAddress},
@@ -326,7 +325,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 				MoveTaskOrderID:      handlers.FmtUUID(move.ID),
 				PointOfContact:       "John Doe",
 				PrimeEstimatedWeight: handlers.FmtInt64(1200),
-				RequestedPickupDate:  handlers.FmtDatePtr(swag.Time(time.Now())),
+				RequestedPickupDate:  handlers.FmtDatePtr(models.TimePointer(time.Now())),
 				ShipmentType:         primemessages.NewMTOShipmentType(primemessages.MTOShipmentTypeHHG),
 				PickupAddress:        struct{ primemessages.Address }{pickupAddress},
 				DestinationAddress:   struct{ primemessages.Address }{destinationAddress},
@@ -366,7 +365,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 				MoveTaskOrderID:      &badID,
 				PointOfContact:       "John Doe",
 				PrimeEstimatedWeight: handlers.FmtInt64(1200),
-				RequestedPickupDate:  handlers.FmtDatePtr(swag.Time(time.Now())),
+				RequestedPickupDate:  handlers.FmtDatePtr(models.TimePointer(time.Now())),
 				ShipmentType:         primemessages.NewMTOShipmentType(primemessages.MTOShipmentTypeHHG),
 				PickupAddress:        struct{ primemessages.Address }{pickupAddress},
 				DestinationAddress:   struct{ primemessages.Address }{destinationAddress},
@@ -421,7 +420,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 				MoveTaskOrderID:      handlers.FmtUUID(unavailableMove.ID),
 				PointOfContact:       "John Doe",
 				PrimeEstimatedWeight: handlers.FmtInt64(1200),
-				RequestedPickupDate:  handlers.FmtDatePtr(swag.Time(time.Now())),
+				RequestedPickupDate:  handlers.FmtDatePtr(models.TimePointer(time.Now())),
 				ShipmentType:         primemessages.NewMTOShipmentType(primemessages.MTOShipmentTypeHHG),
 				PickupAddress:        struct{ primemessages.Address }{pickupAddress},
 				DestinationAddress:   struct{ primemessages.Address }{destinationAddress},
@@ -475,7 +474,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 				MoveTaskOrderID:      handlers.FmtUUID(move.ID),
 				PointOfContact:       "John Doe",
 				PrimeEstimatedWeight: handlers.FmtInt64(1200),
-				RequestedPickupDate:  handlers.FmtDatePtr(swag.Time(time.Now())),
+				RequestedPickupDate:  handlers.FmtDatePtr(models.TimePointer(time.Now())),
 				ShipmentType:         primemessages.NewMTOShipmentType(primemessages.MTOShipmentTypeHHG),
 			},
 		}
@@ -1257,30 +1256,40 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 					MoveTaskOrderID: shipment.MoveTaskOrderID,
 					ReServiceID:     reService.ID,
 					MTOShipmentID:   &shipment.ID,
-					SITEntryDate:    swag.Time(time.Now()),
+					SITEntryDate:    models.TimePointer(time.Now()),
 				},
 			},
 		}, nil)
 
 		// Add agents associated to our shipment
-		agent1 := testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
-			MTOAgent: models.MTOAgent{
-				FirstName:    swag.String("Test1"),
-				LastName:     swag.String("Agent"),
-				Email:        swag.String("test@test.email.com"),
-				MTOAgentType: models.MTOAgentReceiving,
+		agent1 := factory.BuildMTOAgent(suite.DB(), []factory.Customization{
+			{
+				Model:    shipment,
+				LinkOnly: true,
 			},
-			MTOShipment: shipment,
-		})
-		agent2 := testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
-			MTOAgent: models.MTOAgent{
-				FirstName:    swag.String("Test2"),
-				LastName:     swag.String("Agent"),
-				Email:        swag.String("test@test.email.com"),
-				MTOAgentType: models.MTOAgentReleasing,
+			{
+				Model: models.MTOAgent{
+					FirstName:    models.StringPointer("Test1"),
+					LastName:     models.StringPointer("Agent"),
+					Email:        models.StringPointer("test@test.email.com"),
+					MTOAgentType: models.MTOAgentReceiving,
+				},
 			},
-			MTOShipment: shipment,
-		})
+		}, nil)
+		agent2 := factory.BuildMTOAgent(suite.DB(), []factory.Customization{
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOAgent{
+					FirstName:    models.StringPointer("Test2"),
+					LastName:     models.StringPointer("Agent"),
+					Email:        models.StringPointer("test@test.email.com"),
+					MTOAgentType: models.MTOAgentReleasing,
+				},
+			},
+		}, nil)
 
 		// Create an almost empty update
 		// We only want to see the response payload to make sure it is populated correctly
@@ -2620,9 +2629,9 @@ func getFakeAddress() struct{ primemessages.Address } {
 	// Using same zip so not a good helper for tests testing zip calculations
 	return struct{ primemessages.Address }{
 		Address: primemessages.Address{
-			City:           swag.String("San Diego"),
-			PostalCode:     swag.String("92102"),
-			State:          swag.String("CA"),
+			City:           models.StringPointer("San Diego"),
+			PostalCode:     models.StringPointer("92102"),
+			State:          models.StringPointer("CA"),
 			StreetAddress1: &streetAddr,
 		},
 	}

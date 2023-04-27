@@ -94,6 +94,14 @@ func (suite *PaperworkServiceSuite) TestPDFMerger() {
 	suite.Run("Returns a merged PDF if there are no errors", func() {
 		expectedPDF := factory.FixtureOpen("test.pdf")
 
+		expectedBytes, readExpectedErr := io.ReadAll(expectedPDF)
+
+		suite.FatalNoError(readExpectedErr)
+
+		_, seekErr := expectedPDF.Seek(0, 0)
+
+		suite.FatalNoError(seekErr)
+
 		mockGotenbergServer := suite.setUpMockGotenbergServer(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusOK)
 
@@ -112,15 +120,6 @@ func (suite *PaperworkServiceSuite) TestPDFMerger() {
 		mergedPDF, err := merger.MergePDFs(suite.AppContextForTest(), pdfsToMerge)
 
 		if suite.NoError(err) && suite.NotNil(mergedPDF) {
-			// We need to reset the reader to the beginning of the file before we compare the two.
-			_, err = expectedPDF.Seek(0, 0)
-
-			suite.FatalNoError(err)
-
-			expectedBytes, readExpectedErr := io.ReadAll(expectedPDF)
-
-			suite.FatalNoError(readExpectedErr)
-
 			mergedBytes, readMergedErr := io.ReadAll(mergedPDF)
 
 			suite.NoError(readMergedErr)

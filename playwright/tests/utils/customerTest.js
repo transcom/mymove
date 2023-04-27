@@ -26,7 +26,6 @@ export class CustomerPage extends BaseTestPage {
    */
   constructor(page, request) {
     super(page, request);
-    this.injectAccessibilityTestsInWaitForPage();
     this.waitForPage = new WaitForPage(page);
   }
 

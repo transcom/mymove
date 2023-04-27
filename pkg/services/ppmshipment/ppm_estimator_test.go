@@ -1231,7 +1231,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			})
 
 			newPPM := oldPPMShipment
-			address := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{})
+			address := factory.BuildAddress(suite.DB(), nil, nil)
 			newPPM.W2Address = &address
 
 			finalIncentive, err := ppmEstimator.FinalIncentiveWithDefaultChecks(suite.AppContextForTest(), oldPPMShipment, &newPPM)

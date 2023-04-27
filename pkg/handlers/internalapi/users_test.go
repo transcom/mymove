@@ -8,7 +8,6 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	officeuser "github.com/transcom/mymove/pkg/services/office_user"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *HandlerSuite) TestUnknownLoggedInUserHandler() {
@@ -118,7 +117,7 @@ func (suite *HandlerSuite) TestServiceMemberNoMovesLoggedInUserHandler() {
 }
 
 func (suite *HandlerSuite) TestServiceMemberWithCloseoutOfficeHandler() {
-	closeoutOffice := testdatagen.MakeTransportationOffice(suite.DB(), testdatagen.Assertions{})
+	closeoutOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
 	move := factory.BuildMove(suite.DB(), []factory.Customization{
 		{
 			Model:    closeoutOffice,

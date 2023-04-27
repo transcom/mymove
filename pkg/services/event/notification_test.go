@@ -3,7 +3,6 @@ package event
 import (
 	"time"
 
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/factory"
@@ -264,15 +263,17 @@ func (suite *EventServiceSuite) TestAssembleMTOShipmentPayload() {
 			},
 			{
 				Model: models.Move{
-					AvailableToPrimeAt: swag.Time(time.Now()),
+					AvailableToPrimeAt: models.TimePointer(time.Now()),
 				},
 			},
 		}, nil)
 
-		agent := testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
-			MTOShipment: shipment,
-		})
-
+		agent := factory.BuildMTOAgent(suite.DB(), []factory.Customization{
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+		}, nil)
 		// Test the assemble function
 		payload, shouldNotify, err := assembleMTOShipmentPayload(suite.AppContextForTest(), shipment.ID)
 		suite.Nil(err)
@@ -300,7 +301,7 @@ func (suite *EventServiceSuite) TestAssembleMTOShipmentPayload() {
 			},
 			{
 				Model: models.Move{
-					AvailableToPrimeAt: swag.Time(time.Now()),
+					AvailableToPrimeAt: models.TimePointer(time.Now()),
 				},
 			},
 		}, nil)

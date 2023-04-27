@@ -208,7 +208,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 			MoveID:      successMove.Locator,
 		}
 
-		address := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{})
+		address := factory.BuildAddress(suite.DB(), nil, nil)
 		sitEntryDate := time.Now()
 
 		factory.BuildMTOServiceItemBasic(suite.DB(), []factory.Customization{
@@ -460,8 +460,6 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		suite.Equal(successShipment.PickupAddress.State, *shipment.PickupAddress.State)
 		suite.Equal(successShipment.PickupAddress.PostalCode, *shipment.PickupAddress.PostalCode)
 		suite.Equal(*successShipment.PickupAddress.Country, *shipment.PickupAddress.Country)
-
-		// TODO: PointOfContact is not a valid field atm. Should we remove or add link (transportation_service_providers table)
 
 		// TODO: test fields on PpmShipment, existing test "Success - returns shipment with attached PpmShipment"
 

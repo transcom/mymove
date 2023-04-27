@@ -21,7 +21,6 @@ import (
 	"github.com/transcom/mymove/pkg/services/mocks"
 	moveservice "github.com/transcom/mymove/pkg/services/move"
 	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *HandlerSuite) TestGetMoveHandler() {
@@ -522,11 +521,13 @@ func (suite *HandlerSuite) TestUpdateMoveCloseoutOfficeHandler() {
 	setupTestData := func() (*http.Request, models.Move, models.TransportationOffice) {
 		move = factory.BuildMove(suite.DB(), nil, nil)
 		requestUser = factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
-		transportationOffice = testdatagen.MakeTransportationOffice(suite.DB(), testdatagen.Assertions{
-			TransportationOffice: models.TransportationOffice{
-				ProvidesCloseout: true,
+		transportationOffice = factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationOffice{
+					ProvidesCloseout: true,
+				},
 			},
-		})
+		}, nil)
 
 		req := httptest.NewRequest("GET", "/move/#{move.locator}/closeout-office", nil)
 		req = suite.AuthenticateOfficeRequest(req, requestUser)
@@ -590,11 +591,13 @@ func (suite *HandlerSuite) TestUpdateMoveCloseoutOfficeHandler() {
 	})
 
 	suite.Run("Unsuccessful closeout office not found", func() {
-		transportationOfficeNonCloseout := testdatagen.MakeTransportationOffice(suite.DB(), testdatagen.Assertions{
-			TransportationOffice: models.TransportationOffice{
-				ProvidesCloseout: false,
+		transportationOfficeNonCloseout := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationOffice{
+					ProvidesCloseout: false,
+				},
 			},
-		})
+		}, nil)
 
 		req, move, _ := setupTestData()
 		handler := UpdateMoveCloseoutOfficeHandler{
