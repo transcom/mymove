@@ -3,6 +3,7 @@ package serviceparamvaluelookups
 import (
 	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/gofrs/uuid"
 
@@ -17,7 +18,11 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 	key := models.ServiceItemParamNameDistanceZip
 
 	suite.Run("Calculate transit zip distance", func() {
-		testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
+		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				EndDate: time.Now().Add(24 * time.Hour),
+			},
+		})
 		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
@@ -31,7 +36,9 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 				},
 				Type: &factory.Addresses.DeliveryAddress,
 			},
-		}, nil)
+		}, []factory.Trait{
+			factory.GetTraitAvailableToPrimeMove,
+		})
 
 		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
 			testdatagen.Assertions{
@@ -145,7 +152,11 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 	})
 
 	suite.Run("Sucessfully updates mtoShipment distance when the pickup and destination zips are the same", func() {
-		testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
+		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				EndDate: time.Now().Add(24 * time.Hour),
+			},
+		})
 		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
@@ -159,7 +170,9 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 				},
 				Type: &factory.Addresses.DeliveryAddress,
 			},
-		}, nil)
+		}, []factory.Trait{
+			factory.GetTraitAvailableToPrimeMove,
+		})
 
 		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
 			testdatagen.Assertions{
@@ -184,7 +197,11 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 	})
 
 	suite.Run("Calculate zip distance with param cache", func() {
-		testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
+		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				EndDate: time.Now().Add(24 * time.Hour),
+			},
+		})
 		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
@@ -198,7 +215,10 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 				},
 				Type: &factory.Addresses.DeliveryAddress,
 			},
-		}, nil)
+		}, []factory.Trait{
+			factory.GetTraitAvailableToPrimeMove,
+		})
+
 		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
 			testdatagen.Assertions{
 				PaymentRequest: models.PaymentRequest{
@@ -272,7 +292,11 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 	})
 
 	suite.Run("returns error if the pickup zipcode isn't at least 5 digits", func() {
-		testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
+		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				EndDate: time.Now().Add(24 * time.Hour),
+			},
+		})
 		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
@@ -286,7 +310,9 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 				},
 				Type: &factory.Addresses.DeliveryAddress,
 			},
-		}, nil)
+		}, []factory.Trait{
+			factory.GetTraitAvailableToPrimeMove,
+		})
 
 		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
 			testdatagen.Assertions{
@@ -303,7 +329,11 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 
 	suite.Run("returns error if the destination zipcode isn't at least 5 digits", func() {
 
-		testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
+		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				EndDate: time.Now().Add(24 * time.Hour),
+			},
+		})
 		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
@@ -317,7 +347,9 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 				},
 				Type: &factory.Addresses.DeliveryAddress,
 			},
-		}, nil)
+		}, []factory.Trait{
+			factory.GetTraitAvailableToPrimeMove,
+		})
 
 		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
 			testdatagen.Assertions{

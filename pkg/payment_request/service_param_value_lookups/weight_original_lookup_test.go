@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -12,7 +11,6 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightOriginalLookupForShipment(
 	key := models.ServiceItemParamNameWeightOriginal
 
 	suite.Run("actual weight is present on MTO Shipment", func() {
-		testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
 		_, _, paramLookup := suite.setupTestMTOServiceItemWithWeight(unit.Pound(1234), unit.Pound(1234), models.ReServiceCodeDLH, models.MTOShipmentTypeHHG)
 		valueStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
 		suite.FatalNoError(err)
@@ -20,7 +18,6 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightOriginalLookupForShipment(
 	})
 
 	suite.Run("nil PrimeActualWeight", func() {
-		testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
 		// Set the actual weight to nil
 		mtoServiceItem, paymentRequest, _ := suite.setupTestMTOServiceItemWithWeight(unit.Pound(1234), unit.Pound(450), models.ReServiceCodeDLH, models.MTOShipmentTypeHHG)
 		mtoShipment := mtoServiceItem.MTOShipment

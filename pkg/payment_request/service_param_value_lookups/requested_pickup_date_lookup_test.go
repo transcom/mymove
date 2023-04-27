@@ -19,14 +19,20 @@ func (suite *ServiceParamValueLookupsSuite) TestRequestedPickupDateLookup() {
 	var mtoServiceItem models.MTOServiceItem
 
 	setupTestData := func() {
-		testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
+		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				EndDate: time.Now().Add(24 * time.Hour),
+			},
+		})
 		mtoServiceItem = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{
 					RequestedPickupDate: &requestedPickupDate,
 				},
 			},
-		}, nil)
+		}, []factory.Trait{
+			factory.GetTraitAvailableToPrimeMove,
+		})
 
 		// Don't need a payment request for this test.
 	}

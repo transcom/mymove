@@ -132,13 +132,27 @@ func (f *estimatePPM) estimateIncentive(appCtx appcontext.AppContext, oldPPMShip
 		return oldPPMShipment.EstimatedIncentive, newPPMShipment.SITEstimatedCost, nil
 	}
 
+	contractDate := newPPMShipment.ExpectedDepartureDate
+	//if newPPMShipment.ActualMoveDate != nil {
+	//	contractDate = *ppmShipment.ActualMoveDate
+	//}
+	contract, err := serviceparamvaluelookups.FetchContract(appCtx, contractDate)
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			return nil, nil, apperror.NewNotFoundError(newPPMShipment.ID, "looking for Contracts")
+		default:
+			return nil, nil, apperror.NewQueryError("Contract", err, "")
+		}
+	}
+
 	estimatedIncentive := oldPPMShipment.EstimatedIncentive
 	if !skipCalculatingEstimatedIncentive {
 		// Clear out advance and advance requested fields when the estimated incentive is reset.
 		newPPMShipment.HasRequestedAdvance = nil
 		newPPMShipment.AdvanceAmountRequested = nil
 
-		estimatedIncentive, err = f.calculatePrice(appCtx, newPPMShipment, 0)
+		estimatedIncentive, err = f.calculatePrice(appCtx, newPPMShipment, 0, contract)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -146,7 +160,7 @@ func (f *estimatePPM) estimateIncentive(appCtx appcontext.AppContext, oldPPMShip
 
 	estimatedSITCost := oldPPMShipment.SITEstimatedCost
 	if calculateSITEstimate {
-		estimatedSITCost, err = f.calculateSITCost(appCtx, newPPMShipment)
+		estimatedSITCost, err = f.calculateSITCost(appCtx, newPPMShipment, contract)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -178,7 +192,21 @@ func (f *estimatePPM) finalIncentive(appCtx appcontext.AppContext, oldPPMShipmen
 	if !isMissingInfo {
 		skipCalculateFinalIncentive = shouldSkipCalculatingFinalIncentive(newPPMShipment, &oldPPMShipment, originalTotalWeight, newTotalWeight)
 		if !skipCalculateFinalIncentive {
-			finalIncentive, err = f.calculatePrice(appCtx, newPPMShipment, newTotalWeight)
+			contractDate := newPPMShipment.ExpectedDepartureDate
+			if newPPMShipment.ActualMoveDate != nil {
+				contractDate = *newPPMShipment.ActualMoveDate
+			}
+			contract, err := serviceparamvaluelookups.FetchContract(appCtx, contractDate)
+			if err != nil {
+				switch err {
+				case sql.ErrNoRows:
+					return nil, apperror.NewNotFoundError(newPPMShipment.ID, "looking for Contracts")
+				default:
+					return nil, apperror.NewQueryError("Contract", err, "")
+				}
+			}
+
+			finalIncentive, err = f.calculatePrice(appCtx, newPPMShipment, newTotalWeight, contract)
 			if err != nil {
 				return nil, err
 			}
@@ -222,9 +250,10 @@ func SumWeightTickets(ppmShipment, newPPMShipment models.PPMShipment) (originalT
 // calculatePrice returns an incentive value for the ppm shipment as if we were pricing the service items for
 // an HHG shipment with the same values for a payment request.  In this case we're not persisting service items,
 // MTOServiceItems or PaymentRequestServiceItems, to the database to avoid unnecessary work and get a quicker result.
-func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment, totalWeightFromWeightTickets unit.Pound) (*unit.Cents, error) {
+func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment, totalWeightFromWeightTickets unit.Pound, contract models.ReContract) (*unit.Cents, error) {
 	logger := appCtx.Logger()
 
+	logger.Debug("blarp ppmEstimator.calculatePrice", zap.String("contract", contract.Code))
 	serviceItemsToPrice := baseServiceItems(ppmShipment.ShipmentID)
 
 	// Get a list of all the pricing params needed to calculate the price for each service item
@@ -243,16 +272,6 @@ func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment *m
 		mtoShipment = mapPPMShipmentEstimatedFields(*ppmShipment)
 	}
 
-	var contract models.ReContract
-	err = appCtx.DB().First(&contract)
-	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return nil, apperror.NewNotFoundError(ppmShipment.ID, "looking for Contracts")
-		default:
-			return nil, apperror.NewQueryError("Contract", err, "")
-		}
-	}
 	totalPrice := unit.Cents(0)
 	for _, serviceItem := range serviceItemsToPrice {
 		pricer, err := ghcrateengine.PricerForServiceItem(serviceItem.ReService.Code)
@@ -323,7 +342,7 @@ func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment *m
 	return &totalPrice, nil
 }
 
-func (f estimatePPM) calculateSITCost(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment) (*unit.Cents, error) {
+func (f estimatePPM) calculateSITCost(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment, contract models.ReContract) (*unit.Cents, error) {
 	logger := appCtx.Logger()
 
 	additionalDaysInSIT := additionalDaysInSIT(*ppmShipment.SITEstimatedEntryDate, *ppmShipment.SITEstimatedDepartureDate)
@@ -341,9 +360,9 @@ func (f estimatePPM) calculateSITCost(appCtx appcontext.AppContext, ppmShipment 
 		var price *unit.Cents
 		switch serviceItemPricer := pricer.(type) {
 		case services.DomesticOriginFirstDaySITPricer, services.DomesticDestinationFirstDaySITPricer:
-			price, err = priceFirstDaySIT(appCtx, serviceItemPricer, serviceItem, ppmShipment)
+			price, err = priceFirstDaySIT(appCtx, serviceItemPricer, serviceItem, ppmShipment, contract)
 		case services.DomesticOriginAdditionalDaysSITPricer, services.DomesticDestinationAdditionalDaysSITPricer:
-			price, err = priceAdditionalDaySIT(appCtx, serviceItemPricer, serviceItem, ppmShipment, additionalDaysInSIT)
+			price, err = priceAdditionalDaySIT(appCtx, serviceItemPricer, serviceItem, ppmShipment, additionalDaysInSIT, contract)
 		default:
 			return nil, fmt.Errorf("unknown SIT pricer type found for service item code %s", serviceItem.ReService.Code)
 		}
@@ -359,7 +378,7 @@ func (f estimatePPM) calculateSITCost(appCtx appcontext.AppContext, ppmShipment 
 	return &totalPrice, nil
 }
 
-func priceFirstDaySIT(appCtx appcontext.AppContext, pricer services.ParamsPricer, serviceItem models.MTOServiceItem, ppmShipment *models.PPMShipment) (*unit.Cents, error) {
+func priceFirstDaySIT(appCtx appcontext.AppContext, pricer services.ParamsPricer, serviceItem models.MTOServiceItem, ppmShipment *models.PPMShipment, contract models.ReContract) (*unit.Cents, error) {
 	firstDayPricer, ok := pricer.(services.DomesticFirstDaySITPricer)
 	if !ok {
 		return nil, errors.New("ppm estimate pricer for SIT service item does not implement the first day pricer interface")
@@ -374,17 +393,6 @@ func priceFirstDaySIT(appCtx appcontext.AppContext, pricer services.ParamsPricer
 		Address: models.Address{PostalCode: serviceAreaPostalCode},
 	}
 	appCtx.Logger().Debug("priceFirstDaySIT 0")
-	var contract models.ReContract
-	err := appCtx.DB().First(&contract)
-	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			// TODO
-			return nil, apperror.NewNotFoundError(ppmShipment.ID, "looking for Contracts")
-		default:
-			return nil, apperror.NewQueryError("Contract", err, "")
-		}
-	}
 	appCtx.Logger().Debug("priceFirstDaySIT 0.5")
 	serviceArea, err := serviceAreaLookup.ParamValue(appCtx, contract.Code)
 	if err != nil {
@@ -413,18 +421,7 @@ func additionalDaysInSIT(sitEntryDate time.Time, sitDepartureDate time.Time) int
 	return int(difference.Hours() / 24)
 }
 
-func priceAdditionalDaySIT(appCtx appcontext.AppContext, pricer services.ParamsPricer, serviceItem models.MTOServiceItem, ppmShipment *models.PPMShipment, additionalDaysInSIT int) (*unit.Cents, error) {
-	var contract models.ReContract
-	err := appCtx.DB().First(&contract)
-	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			// TODO
-			return nil, apperror.NewNotFoundError(ppmShipment.ID, "looking for Contracts")
-		default:
-			return nil, apperror.NewQueryError("Contract", err, "")
-		}
-	}
+func priceAdditionalDaySIT(appCtx appcontext.AppContext, pricer services.ParamsPricer, serviceItem models.MTOServiceItem, ppmShipment *models.PPMShipment, additionalDaysInSIT int, contract models.ReContract) (*unit.Cents, error) {
 	additionalDaysPricer, ok := pricer.(services.DomesticAdditionalDaysSITPricer)
 	if !ok {
 		return nil, errors.New("ppm estimate pricer for SIT service item does not implement the additional days pricer interface")

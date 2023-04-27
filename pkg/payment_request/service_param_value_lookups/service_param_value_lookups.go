@@ -3,8 +3,10 @@ package serviceparamvaluelookups
 import (
 	"database/sql"
 	"fmt"
+	"time"
 
 	"github.com/gofrs/uuid"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
@@ -91,12 +93,24 @@ func ServiceParamLookupInitialize(
 	moveTaskOrderID uuid.UUID,
 	paramCache *ServiceParamsCache,
 ) (*ServiceItemParamKeyData, error) {
+	appCtx.Logger().Debug("🧤🧤🧤🧤🧤🧤🧤🧤 ServiceParamLookupInitialize")
 
-	var contract models.ReContract
-	err := appCtx.DB().First(&contract)
+	// TODO query for contract based on date
+	// TODO maybe i start by just printing out all the different dates i have access to here.
+	// does this stuff get called for PPMs? or do we know we're in HHG land?
+	// i can test with a ppm and see if we get the debug print. i'm pretty sure we will.
+	//		mmmmm actually im not sure will just have to try it
+	// i feel liek duncan and i talked thouigh some of these things and i dont remember what we arrived on
+	// can a payment request involve multiple contracts? doesnt make sense to me.
+	// so thej how do we know? is it based on service items? could we have a contract field on the service items?
+
+	// TODO this is the wrong date
+	contract, err := fetchContractForMove(appCtx, moveTaskOrderID)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
+			// TODO this error isn't quite right, i think we need to return it from inside the function
+			// TODO there's no way to know if we failed to find the move or the contract
 			return nil, apperror.NewNotFoundError(moveTaskOrderID, "looking for Contracts")
 		default:
 			return nil, apperror.NewQueryError("Contract", err, "")
@@ -495,4 +509,45 @@ func getDestinationAddressForService(serviceCode models.ReServiceCode, mtoShipme
 		}
 		return *ptrDestinationAddress, nil
 	}
+}
+
+func fetchContractForMove(appCtx appcontext.AppContext, moveID uuid.UUID) (models.ReContract, error) {
+	fmt.Println("fetch contract for move")
+	var move models.Move
+	err := appCtx.DB().Find(&move, moveID)
+	if err != nil {
+		fmt.Println("problems 0: cant find move " + moveID.String())
+		appCtx.Logger().Debug("problems 0.1:", zap.Error(err))
+		//if err == sql.ErrNoRows {
+		//	return models.ReContract{}, apperror.NewNotFoundError(moveID, "arrrrrgh")
+		//}
+		return models.ReContract{}, err
+	}
+
+	if move.AvailableToPrimeAt == nil {
+		fmt.Println("problems 1: AvailableToPrimeAt == nil")
+		// TODO fmt.Errorf bad
+		return models.ReContract{}, fmt.Errorf("cannot pick contract, not available to prime yet")
+	}
+
+	appCtx.Logger().Debug("blarp fetchContractForMove")
+	return FetchContract(appCtx, *move.AvailableToPrimeAt)
+}
+
+// tests: get contract with year outside of range, multiple contracts results (impossible due to db constraints dont test)?
+// TODO should this go here?
+// TODO should i return more detailed errors? or just pass along what we get?
+func FetchContract(appCtx appcontext.AppContext, date time.Time) (models.ReContract, error) {
+	fmt.Println("fetch contract")
+	appCtx.Logger().Debug("blarp FetchContract", zap.Time("date", date))
+	var contractYear models.ReContractYear
+	err := appCtx.DB().EagerPreload("Contract").Where("? between start_date and end_date", date).
+		First(&contractYear)
+	if err != nil {
+		fmt.Println("problems 2: can't find contract year")
+		return models.ReContract{}, err
+	}
+
+	appCtx.Logger().Debug("blarp FetchContract", zap.String("Using contract", contractYear.Contract.Code))
+	return contractYear.Contract, nil
 }

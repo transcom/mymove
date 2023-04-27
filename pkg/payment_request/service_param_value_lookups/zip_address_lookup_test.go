@@ -1,6 +1,8 @@
 package serviceparamvaluelookups
 
 import (
+	"time"
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -10,8 +12,17 @@ func (suite *ServiceParamValueLookupsSuite) TestZipAddressLookup() {
 	destKey := models.ServiceItemParamNameZipDestAddress
 
 	setupTestData := func() (models.PaymentRequest, models.MTOServiceItem) {
-		testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
-		mtoServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
+		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				EndDate: time.Now().Add(24 * time.Hour),
+			},
+		})
+		availableDate := time.Date(testdatagen.TestYear, time.May, 1, 0, 0, 0, 0, time.UTC)
+		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				AvailableToPrimeAt: &availableDate,
+			},
+		})
 
 		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
 			testdatagen.Assertions{

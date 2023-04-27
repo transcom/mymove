@@ -32,7 +32,12 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 
 	suite.PreloadData(func() {
 		// Create some records we'll need to link to
-		moveTaskOrder = factory.BuildMove(suite.DB(), nil, nil)
+		moveTaskOrder = factory.BuildMove(suite.DB(), nil, []factory.Trait{factory.GetTraitAvailableToPrimeMove})
+		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				EndDate: time.Now().Add(time.Hour * 24),
+			},
+		})
 		estimatedWeight := unit.Pound(2048)
 		mtoServiceItem1 = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
@@ -325,7 +330,6 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 	})
 
 	suite.Run("Payment request is created successfully (using IncomingKey)", func() {
-		testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
 		paymentRequest := models.PaymentRequest{
 			MoveTaskOrderID: moveTaskOrder.ID,
 			IsFinal:         false,
@@ -390,7 +394,6 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 	})
 
 	suite.Run("Payment request is created successfully (using ServiceItemParamKeyID)", func() {
-		testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
 		paymentRequest := models.PaymentRequest{
 			MoveTaskOrderID: moveTaskOrder.ID,
 			IsFinal:         false,
@@ -455,7 +458,6 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 	})
 
 	suite.Run("Payment request is created successfully (using no IncomingKey data or ServiceItemParamKeyID data)", func() {
-		testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
 		paymentRequest := models.PaymentRequest{
 			MoveTaskOrderID: moveTaskOrder.ID,
 			IsFinal:         false,
@@ -503,7 +505,6 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 	})
 
 	suite.Run("Payment request fails when MTOShipment uses external vendor", func() {
-		testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
 		paymentRequest := models.PaymentRequest{
 			MoveTaskOrderID: moveTaskOrder.ID,
 			IsFinal:         false,
@@ -536,7 +537,6 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 	})
 
 	suite.Run("Payment request fails when pricing", func() {
-		testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
 		paymentRequest := models.PaymentRequest{
 			MoveTaskOrderID: moveTaskOrder.ID,
 			IsFinal:         false,
@@ -919,7 +919,6 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 	})
 
 	suite.Run("Payment request numbers increment by 1", func() {
-		testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
 		// Determine the max sequence number we already have for this MTO ID
 		var max int
 		err := suite.DB().RawQuery("SELECT COALESCE(MAX(sequence_number),0) FROM payment_requests WHERE move_id = $1", moveTaskOrder.ID).First(&max)
@@ -1006,7 +1005,6 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		suite.MustSave(&moveTaskOrder)
 	})
 	suite.Run("payment request created after final request fails", func() {
-		testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
 		paymentRequest1 := models.PaymentRequest{
 			MoveTaskOrderID: moveTaskOrder.ID,
 			IsFinal:         true,
@@ -1082,7 +1080,6 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 	})
 
 	suite.Run("payment request can be created after a final request that was rejected", func() {
-		testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
 		paymentRequest1 := models.PaymentRequest{
 			MoveTaskOrderID: moveTaskOrder.ID,
 			IsFinal:         true,
@@ -1190,7 +1187,6 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 	})
 
 	suite.Run("CreatePaymentRequest should not return params from rate engine", func() {
-		testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
 		paymentRequest := models.PaymentRequest{
 			MoveTaskOrderID: moveTaskOrder.ID,
 			IsFinal:         false,
@@ -1264,6 +1260,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequestCheckOnNTSRelea
 	contractYear, serviceArea, _, _ := testdatagen.SetupServiceAreaRateArea(suite.DB(), testdatagen.Assertions{
 		ReContractYear: models.ReContractYear{
 			EscalationCompounded: testEscalationCompounded,
+			EndDate:              time.Now().Add(time.Hour * 24),
 		},
 		ReRateArea: models.ReRateArea{
 			Name: "Georgia",
@@ -1290,6 +1287,10 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequestCheckOnNTSRelea
 	// Make move and shipment
 	move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 	actualPickupDate := time.Date(testdatagen.GHCTestYear, time.January, 15, 0, 0, 0, 0, time.UTC)
+	//testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
+	//	ReContractYear: models.ReContractYear{
+	//	},
+	//})
 	shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 		{
 			Model:    move,

@@ -1,6 +1,8 @@
 package serviceparamvaluelookups
 
 import (
+	"time"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/factory"
@@ -12,10 +14,19 @@ func (suite *ServiceParamValueLookupsSuite) TestContractCodeLookup() {
 	key := models.ServiceItemParamNameContractCode
 
 	suite.Run("golden path", func() {
-		mtoServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
-		testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
+		availableDate := time.Date(testdatagen.TestYear, time.May, 1, 0, 0, 0, 0, time.UTC)
+		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				AvailableToPrimeAt: &availableDate,
+			},
+		})
+		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				EndDate: time.Now().Add(24 * time.Hour),
+			},
+		})
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, uuid.Must(uuid.NewV4()), mtoServiceItem.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 
 		valueStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
@@ -31,10 +42,16 @@ func (suite *ServiceParamValueLookupsSuite) TestContractCodeLookup() {
 					Code: models.ReServiceCodeDLH,
 				},
 			},
-		}, nil)
+		}, []factory.Trait{
+			factory.GetTraitAvailableToPrimeMove,
+		})
 
 		// ContractCode
-		testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
+		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				EndDate: time.Now().Add(24 * time.Hour),
+			},
+		})
 		serviceItemParamKey1 := factory.FetchOrBuildServiceItemParamKey(suite.DB(), []factory.Customization{
 			{
 				Model: models.ServiceItemParamKey{
@@ -58,7 +75,7 @@ func (suite *ServiceParamValueLookupsSuite) TestContractCodeLookup() {
 		}, nil)
 
 		paramCache := NewServiceParamsCache()
-		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem1, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), &paramCache)
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem1, uuid.Must(uuid.NewV4()), mtoServiceItem1.MoveTaskOrderID, &paramCache)
 		suite.FatalNoError(err)
 
 		valueStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), serviceItemParamKey1.Key)

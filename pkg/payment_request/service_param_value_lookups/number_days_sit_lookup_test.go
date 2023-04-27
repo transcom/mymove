@@ -64,7 +64,11 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 	destinationSITDepartureDateThree := time.Date(2020, time.November, 30, 0, 0, 0, 0, time.UTC)
 
 	setupTestData := func() {
-		testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
+		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				EndDate: time.Now().Add(24 * time.Hour),
+			},
+		})
 		reServiceDOFSIT = factory.BuildReService(suite.DB(), []factory.Customization{
 			{
 				Model: models.ReService{
@@ -101,11 +105,11 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 			},
 		}, nil)
 
-		moveTaskOrderOne = factory.BuildMove(suite.DB(), nil, nil)
-		moveTaskOrderTwo = factory.BuildMove(suite.DB(), nil, nil)
-		moveTaskOrderThree = factory.BuildMove(suite.DB(), nil, nil)
-		moveTaskOrderFour = factory.BuildMove(suite.DB(), nil, nil)
-		moveTaskOrderFive := factory.BuildMove(suite.DB(), nil, nil)
+		moveTaskOrderOne = factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		moveTaskOrderTwo = factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		moveTaskOrderThree = factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		moveTaskOrderFour = factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		moveTaskOrderFive := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
 		factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
@@ -2084,7 +2088,7 @@ func (suite *ServiceParamValueLookupsSuite) makeAdditionalDaysSITPaymentServiceI
 // SIT service item, and a payment request for that service item.
 func (suite *ServiceParamValueLookupsSuite) setupMoveWithAddlDaysSITAndPaymentRequest(sitFirstDayReService models.ReService, sitEntryDate time.Time, sitAdditionalDaysReService models.ReService, sitAdditionalDaysStartDate string, sitAdditionalDaysEndDate string) (models.Move, models.MTOServiceItem, models.PaymentRequest) {
 	defaultSITDaysAllowance := 90
-	move := factory.BuildMove(suite.DB(), nil, nil)
+	move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 	shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 		{
 			Model:    move,

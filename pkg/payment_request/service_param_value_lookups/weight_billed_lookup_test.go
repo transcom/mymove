@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -12,7 +11,6 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightBilledLookup() {
 	key := models.ServiceItemParamNameWeightBilled
 
 	suite.Run("estimated and original are the same", func() {
-		testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
 		_, _, paramLookup := suite.setupTestMTOServiceItemWithWeight(unit.Pound(1234), unit.Pound(1234), models.ReServiceCodeDLH, models.MTOShipmentTypeHHG)
 		valueStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
 		suite.FatalNoError(err)
@@ -20,7 +18,6 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightBilledLookup() {
 	})
 
 	suite.Run("estimated is greater than original", func() {
-		testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
 		// Set the original weight to less than estimated weight
 		_, _, paramLookup := suite.setupTestMTOServiceItemWithWeight(unit.Pound(1234), unit.Pound(1024), models.ReServiceCodeDLH, models.MTOShipmentTypeHHG)
 		valueStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
@@ -29,7 +26,6 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightBilledLookup() {
 	})
 
 	suite.Run("original is exactly 110% of estimated weight", func() {
-		testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
 		// Set the original weight to exactly 110% of estimated weight
 		_, _, paramLookup := suite.setupTestMTOServiceItemWithWeight(unit.Pound(100), unit.Pound(110), models.ReServiceCodeNSTH, models.MTOShipmentTypeHHG)
 
@@ -39,7 +35,6 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightBilledLookup() {
 	})
 
 	suite.Run("original is 120% of estimated weight but there is no adjusted weight", func() {
-		testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
 		// Set the original weight to about 120% of estimated weight
 		_, _, paramLookup := suite.setupTestMTOServiceItemWithWeight(unit.Pound(1234), unit.Pound(1481), models.ReServiceCodeDLH, models.MTOShipmentTypeHHG)
 
@@ -49,7 +44,6 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightBilledLookup() {
 	})
 
 	suite.Run("has only original weight", func() {
-		testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
 		// Set the original weight only; no estimated, reweigh, or adjusted weight.
 		_, _, paramLookup := suite.setupTestMTOServiceItemWithOriginalWeightOnly(unit.Pound(1755), models.ReServiceCodeDLH, models.MTOShipmentTypeHHG)
 
@@ -59,7 +53,6 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightBilledLookup() {
 	})
 
 	suite.Run("has reweigh weight where reweigh is lower", func() {
-		testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
 		// Set the original weight to greater than the reweigh weight. Lower weight (reweigh) should win.
 		_, _, paramLookup := suite.setupTestMTOServiceItemWithReweigh(unit.Pound(1450), unit.Pound(1481), models.ReServiceCodeDLH, models.MTOShipmentTypeHHG)
 
@@ -69,7 +62,6 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightBilledLookup() {
 	})
 
 	suite.Run("has reweigh weight where reweigh is lower", func() {
-		testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
 		// Set the original weight to greater than the reweigh weight. Lower weight (reweigh) should win.
 		_, _, paramLookup := suite.setupTestMTOServiceItemWithReweigh(unit.Pound(1450), unit.Pound(1481), models.ReServiceCodeDLH, models.MTOShipmentTypeHHG)
 
@@ -79,7 +71,6 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightBilledLookup() {
 	})
 
 	suite.Run("has adjusted weight", func() {
-		testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
 		// Set the original weight to greater than the adjusted weight (adjusted weight should always win)
 		adjustedWeight := unit.Pound(1400)
 		_, _, paramLookup := suite.setupTestMTOServiceItemWithAdjustedWeight(&adjustedWeight, unit.Pound(1481), models.ReServiceCodeDLH, models.MTOShipmentTypeHHG)
@@ -133,7 +124,6 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightBilledLookup() {
 	// test minimums are correct
 	for _, data := range serviceCodesWithMinimum {
 		suite.Run(fmt.Sprintf("original below minimum service code %s", data.code), func() {
-			testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
 			// Set the original weight to below minimum
 			_, _, paramLookup := suite.setupTestMTOServiceItemWithWeight(unit.Pound(1234), data.originalWeight, data.code, data.shipmentType)
 
@@ -161,7 +151,6 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightBilledLookup() {
 
 	for _, data := range serviceCodesForPPM {
 		suite.Run("returns the original weight for PPM service items", func() {
-			testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
 			estimatedWeight := unit.Pound(400)
 			_, _, paramLookup := suite.setupTestMTOServiceItemWithEstimatedWeightForPPM(&estimatedWeight, &data.originalWeight, data.code)
 
@@ -172,7 +161,6 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightBilledLookup() {
 	}
 
 	suite.Run("nil PrimeActualWeight", func() {
-		testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
 		// Set the actual weight to nil
 		mtoServiceItem, paymentRequest, _ := suite.setupTestMTOServiceItemWithWeight(unit.Pound(1234), unit.Pound(1234), models.ReServiceCodeDLH, models.MTOShipmentTypeHHG)
 		mtoShipment := mtoServiceItem.MTOShipment
@@ -190,7 +178,6 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightBilledLookup() {
 	})
 
 	suite.Run("nil PrimeEstimatedWeight", func() {
-		testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
 		// Set the estimated weight to nil
 		mtoServiceItem, paymentRequest, _ := suite.setupTestMTOServiceItemWithWeight(unit.Pound(1234), unit.Pound(450), models.ReServiceCodeDLH, models.MTOShipmentTypeHHG)
 		mtoShipment := mtoServiceItem.MTOShipment

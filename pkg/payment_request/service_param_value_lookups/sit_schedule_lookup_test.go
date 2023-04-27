@@ -3,6 +3,7 @@ package serviceparamvaluelookups
 import (
 	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
@@ -19,7 +20,11 @@ func (suite *ServiceParamValueLookupsSuite) TestSITSchedule() {
 	var destDomesticServiceArea models.ReDomesticServiceArea
 
 	setupTestData := func() {
-		testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
+		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				EndDate: time.Now().Add(24 * time.Hour),
+			},
+		})
 		originAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
@@ -46,7 +51,9 @@ func (suite *ServiceParamValueLookupsSuite) TestSITSchedule() {
 				LinkOnly: true,
 				Type:     &factory.Addresses.DeliveryAddress,
 			},
-		}, nil)
+		}, []factory.Trait{
+			factory.GetTraitAvailableToPrimeMove,
+		})
 
 		paymentRequest = testdatagen.MakePaymentRequest(suite.DB(),
 			testdatagen.Assertions{
@@ -124,7 +131,9 @@ func (suite *ServiceParamValueLookupsSuite) TestSITSchedule() {
 				LinkOnly: true,
 				Type:     &factory.Addresses.PickupAddress,
 			},
-		}, nil)
+		}, []factory.Trait{
+			factory.GetTraitAvailableToPrimeMove,
+		})
 
 		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
 			testdatagen.Assertions{
@@ -155,7 +164,9 @@ func (suite *ServiceParamValueLookupsSuite) TestSITSchedule() {
 				LinkOnly: true,
 				Type:     &factory.Addresses.DeliveryAddress,
 			},
-		}, nil)
+		}, []factory.Trait{
+			factory.GetTraitAvailableToPrimeMove,
+		})
 
 		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
 			testdatagen.Assertions{

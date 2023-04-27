@@ -3,6 +3,7 @@ package serviceparamvaluelookups
 import (
 	"errors"
 	"strconv"
+	"time"
 
 	"github.com/stretchr/testify/mock"
 
@@ -26,7 +27,11 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITDestLookup() {
 	var mtoServiceItemDiffZip3 models.MTOServiceItem
 
 	setupTestData := func() {
-		testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{})
+		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				EndDate: time.Now().Add(24 * time.Hour),
+			},
+		})
 
 		reService := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDDDSIT)
 
@@ -57,7 +62,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITDestLookup() {
 				},
 			}, nil)
 
-		move := factory.BuildMove(suite.DB(), nil, nil)
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
 		mtoShipment := factory.BuildMTOShipment(suite.DB(),
 			[]factory.Customization{
