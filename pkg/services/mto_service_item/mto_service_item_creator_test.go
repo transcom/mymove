@@ -1114,6 +1114,22 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 		suite.Equal(numDDASITFound, 1)
 		suite.Equal(numDDDSITFound, 1)
 		suite.Equal(numDDFSITFound, 1)
+
+		//We currently copy the data from the submitted DDFSIT to the generated DDASIT and DDDSIT items, this portion checks said data is properly copied
+		suite.Equal(createdServiceItemList[1].CustomerContacts[0].Type, serviceItemDDFSIT.CustomerContacts[0].Type)
+		suite.Equal(createdServiceItemList[1].CustomerContacts[1].Type, serviceItemDDFSIT.CustomerContacts[1].Type)
+		suite.Equal(createdServiceItemList[2].CustomerContacts[0].Type, serviceItemDDFSIT.CustomerContacts[0].Type)
+		suite.Equal(createdServiceItemList[2].CustomerContacts[1].Type, serviceItemDDFSIT.CustomerContacts[1].Type)
+
+		suite.Equal(createdServiceItemList[1].CustomerContacts[0].FirstAvailableDeliveryDate, serviceItemDDFSIT.CustomerContacts[0].FirstAvailableDeliveryDate)
+		suite.Equal(createdServiceItemList[1].CustomerContacts[1].FirstAvailableDeliveryDate, serviceItemDDFSIT.CustomerContacts[1].FirstAvailableDeliveryDate)
+		suite.Equal(createdServiceItemList[2].CustomerContacts[0].FirstAvailableDeliveryDate, serviceItemDDFSIT.CustomerContacts[0].FirstAvailableDeliveryDate)
+		suite.Equal(createdServiceItemList[2].CustomerContacts[1].FirstAvailableDeliveryDate, serviceItemDDFSIT.CustomerContacts[1].FirstAvailableDeliveryDate)
+
+		suite.Equal(createdServiceItemList[1].CustomerContacts[0].TimeMilitary, serviceItemDDFSIT.CustomerContacts[0].TimeMilitary)
+		suite.Equal(createdServiceItemList[1].CustomerContacts[1].TimeMilitary, serviceItemDDFSIT.CustomerContacts[1].TimeMilitary)
+		suite.Equal(createdServiceItemList[2].CustomerContacts[0].TimeMilitary, serviceItemDDFSIT.CustomerContacts[0].TimeMilitary)
+		suite.Equal(createdServiceItemList[2].CustomerContacts[1].TimeMilitary, serviceItemDDFSIT.CustomerContacts[1].TimeMilitary)
 	})
 
 	// Failed creation of DDFSIT because of duplicate service for shipment
