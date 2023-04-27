@@ -146,52 +146,9 @@ func (suite *RateEngineSuite) Test_SITCharge() {
 		suite.MustSave(&sa)
 
 		sit210ARateCentsAtMin := unit.Cents(57600)
-		itemRate210AAtMin := models.Tariff400ngItemRate{
-			Code:               "210A",
-			Schedule:           &sa.SITPDSchedule,
-			WeightLbsLower:     unit.Pound(1000),
-			WeightLbsUpper:     unit.Pound(1099),
-			RateCents:          sit210ARateCentsAtMin,
-			EffectiveDateLower: testdatagen.PeakRateCycleStart,
-			EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
-		}
-		suite.MustSave(&itemRate210AAtMin)
-
 		sit225ARateCentsAtMin := unit.Cents(9900)
-		itemRate225AAtMin := models.Tariff400ngItemRate{
-			Code:               "225A",
-			Schedule:           &sa.ServicesSchedule,
-			WeightLbsLower:     itemRate210AAtMin.WeightLbsLower,
-			WeightLbsUpper:     itemRate210AAtMin.WeightLbsUpper,
-			RateCents:          sit225ARateCentsAtMin,
-			EffectiveDateLower: testdatagen.PeakRateCycleStart,
-			EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
-		}
-		suite.MustSave(&itemRate225AAtMin)
-
 		sit210ARateCentsBelowMin := unit.Cents(42100)
-		itemRate210ABelowMin := models.Tariff400ngItemRate{
-			Code:               "210A",
-			Schedule:           &sa.SITPDSchedule,
-			WeightLbsLower:     unit.Pound(0),
-			WeightLbsUpper:     unit.Pound(999),
-			RateCents:          sit210ARateCentsBelowMin,
-			EffectiveDateLower: testdatagen.PeakRateCycleStart,
-			EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
-		}
-		suite.MustSave(&itemRate210ABelowMin)
-
 		sit225ARateCentsBelowMin := unit.Cents(7700)
-		itemRate225ABelowMin := models.Tariff400ngItemRate{
-			Code:               "225A",
-			Schedule:           &sa.ServicesSchedule,
-			WeightLbsLower:     itemRate210ABelowMin.WeightLbsLower,
-			WeightLbsUpper:     itemRate210ABelowMin.WeightLbsUpper,
-			RateCents:          sit225ARateCentsBelowMin,
-			EffectiveDateLower: testdatagen.PeakRateCycleStart,
-			EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
-		}
-		suite.MustSave(&itemRate225ABelowMin)
 
 		cwtAtMin = unit.CWT(10)
 

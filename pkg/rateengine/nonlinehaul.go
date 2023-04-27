@@ -132,21 +132,15 @@ func (re *RateEngine) SitCharge(appCtx appcontext.AppContext, cwt unit.CWT, days
 		//   (185B SIT additional day rate * additional days * CWT) +
 		//   210A SIT PD 30 miles or less for SIT PD schedule of service area +
 		//   225A SIT PD Self/Mini Storage for services schedule of service area
-		rate210A, rate210AErr := models.FetchTariff400ngItemRate(appCtx.DB(), "210A", sa.SITPDSchedule, effectiveCWT.ToPounds(), date)
-		if rate210AErr != nil {
-			return SITComputation{}, errors.Wrapf(rate210AErr, "No 210A rate found for schedule %v, %v pounds, date %v", sa.SITPDSchedule, effectiveCWT.ToPounds(), date)
-		}
-		sitPart = sitPart.AddCents(rate210A.RateCents)
+		rate210ACents := unit.Cents(0)
+		sitPart = sitPart.AddCents(rate210ACents)
 
-		rate225A, rate225AErr := models.FetchTariff400ngItemRate(appCtx.DB(), "225A", sa.ServicesSchedule, effectiveCWT.ToPounds(), date)
-		if rate225AErr != nil {
-			return SITComputation{}, errors.Wrapf(rate225AErr, "No 225A rate found for schedule %v, %v pounds, date %v", sa.ServicesSchedule, effectiveCWT.ToPounds(), date)
-		}
-		linehaulPart = rate225A.RateCents
+		rate225ACents := unit.Cents(0)
+		linehaulPart = rate225ACents
 
 		zapFields = append(zapFields,
-			zap.Int("210A", rate210A.RateCents.Int()),
-			zap.Int("225A", rate225A.RateCents.Int()))
+			zap.Int("210A", rate210ACents.Int()),
+			zap.Int("225A", rate225ACents.Int()))
 	}
 	// TODO: The rest of the HHG scenarios are as follows (to be added to the 185A and 185B parts):
 	//   * 30 miles or less from original delivery address to final delivery address (block 18 on GBL):

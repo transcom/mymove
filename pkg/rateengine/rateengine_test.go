@@ -62,26 +62,6 @@ func (suite *RateEngineSuite) setupRateEngineTest() {
 		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
 	}
 	suite.MustSave(&newBaseLinehaul)
-	itemRate210A := models.Tariff400ngItemRate{
-		Code:               "210A",
-		Schedule:           &destinationServiceArea.SITPDSchedule,
-		WeightLbsLower:     newBaseLinehaul.WeightLbsLower,
-		WeightLbsUpper:     newBaseLinehaul.WeightLbsUpper,
-		RateCents:          unit.Cents(57600),
-		EffectiveDateLower: testdatagen.PeakRateCycleStart,
-		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
-	}
-	suite.MustSave(&itemRate210A)
-	itemRate225A := models.Tariff400ngItemRate{
-		Code:               "225A",
-		Schedule:           &destinationServiceArea.ServicesSchedule,
-		WeightLbsLower:     newBaseLinehaul.WeightLbsLower,
-		WeightLbsUpper:     newBaseLinehaul.WeightLbsUpper,
-		RateCents:          unit.Cents(9900),
-		EffectiveDateLower: testdatagen.PeakRateCycleStart,
-		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
-	}
-	suite.MustSave(&itemRate225A)
 }
 
 func (suite *RateEngineSuite) Test_CheckPPMTotal() {

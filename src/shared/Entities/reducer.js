@@ -46,7 +46,6 @@ const initialState = {
   mtoShipments: {},
   reimbursements: {},
   signedCertifications: {},
-  tariff400ngItems: {},
   transportationServiceProviders: {},
 };
 

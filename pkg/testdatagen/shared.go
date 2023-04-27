@@ -94,8 +94,6 @@ type Assertions struct {
 	SITDurationUpdate                        models.SITDurationUpdate
 	StorageFacility                          models.StorageFacility
 	Stub                                     bool
-	Tariff400ngItem                          models.Tariff400ngItem
-	Tariff400ngItemRate                      models.Tariff400ngItemRate
 	Tariff400ngServiceArea                   models.Tariff400ngServiceArea
 	TestDataAuditHistory                     TestDataAuditHistory
 	TransportationAccountingCode             models.TransportationAccountingCode
