@@ -73,6 +73,28 @@ func (suite *SitExtensionServiceSuite) TestApproveSITExtension() {
 		suite.Contains(err.Error(), otherMtoShipment.ID.String())
 	})
 
+	suite.Run("Returns an error when SIT duration update reduces the SIT allowance to < 1 day", func() {
+		sitDaysAllowance := 20
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					SITDaysAllowance: &sitDaysAllowance,
+				},
+			}}, nil)
+		sitExtension := testdatagen.MakePendingSITDurationUpdate(suite.DB(), testdatagen.Assertions{
+			MTOShipment: mtoShipment,
+		})
+		approvedDays := int(-30)
+		officeRemarks := "office remarks"
+		eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
+
+		_, err := sitExtensionApprover.ApproveSITExtension(suite.AppContextForTest(), mtoShipment.ID, sitExtension.ID, approvedDays, &officeRemarks, eTag)
+
+		suite.NotNil(err)
+		suite.IsType(apperror.InvalidInputError{}, err)
+		suite.Equal("can't reduce a SIT duration to less than one day", err.Error())
+	})
+
 	suite.Run("Updates the shipment's SIT days allowance and the SIT extension's status and approved days if all fields are valid", func() {
 		move := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
 		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
