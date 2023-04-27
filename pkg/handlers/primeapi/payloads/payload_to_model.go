@@ -521,7 +521,7 @@ func MTOServiceItemModelFromUpdate(mtoServiceItemID string, mtoServiceItem prime
 		}
 		if sit.TimeMilitary2 != nil && sit.FirstAvailableDeliveryDate2 != nil {
 			contact2 := models.MTOServiceItemCustomerContact{
-				Type:                       models.CustomerContactTypeFirst,
+				Type:                       models.CustomerContactTypeSecond,
 				TimeMilitary:               *sit.TimeMilitary2,
 				FirstAvailableDeliveryDate: time.Time(*sit.FirstAvailableDeliveryDate2),
 			}
