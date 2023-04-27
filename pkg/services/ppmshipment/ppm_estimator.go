@@ -1,7 +1,6 @@
 package ppmshipment
 
 import (
-	"database/sql"
 	"fmt"
 	"time"
 
@@ -133,17 +132,9 @@ func (f *estimatePPM) estimateIncentive(appCtx appcontext.AppContext, oldPPMShip
 	}
 
 	contractDate := newPPMShipment.ExpectedDepartureDate
-	//if newPPMShipment.ActualMoveDate != nil {
-	//	contractDate = *ppmShipment.ActualMoveDate
-	//}
 	contract, err := serviceparamvaluelookups.FetchContract(appCtx, contractDate)
 	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return nil, nil, apperror.NewNotFoundError(newPPMShipment.ID, "looking for Contracts")
-		default:
-			return nil, nil, apperror.NewQueryError("Contract", err, "")
-		}
+		return nil, nil, err
 	}
 
 	estimatedIncentive := oldPPMShipment.EstimatedIncentive
@@ -198,12 +189,7 @@ func (f *estimatePPM) finalIncentive(appCtx appcontext.AppContext, oldPPMShipmen
 			}
 			contract, err := serviceparamvaluelookups.FetchContract(appCtx, contractDate)
 			if err != nil {
-				switch err {
-				case sql.ErrNoRows:
-					return nil, apperror.NewNotFoundError(newPPMShipment.ID, "looking for Contracts")
-				default:
-					return nil, apperror.NewQueryError("Contract", err, "")
-				}
+				return nil, err
 			}
 
 			finalIncentive, err = f.calculatePrice(appCtx, newPPMShipment, newTotalWeight, contract)
@@ -253,7 +239,6 @@ func SumWeightTickets(ppmShipment, newPPMShipment models.PPMShipment) (originalT
 func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment, totalWeightFromWeightTickets unit.Pound, contract models.ReContract) (*unit.Cents, error) {
 	logger := appCtx.Logger()
 
-	logger.Debug("blarp ppmEstimator.calculatePrice", zap.String("contract", contract.Code))
 	serviceItemsToPrice := baseServiceItems(ppmShipment.ShipmentID)
 
 	// Get a list of all the pricing params needed to calculate the price for each service item
@@ -392,20 +377,16 @@ func priceFirstDaySIT(appCtx appcontext.AppContext, pricer services.ParamsPricer
 	serviceAreaLookup := serviceparamvaluelookups.ServiceAreaLookup{
 		Address: models.Address{PostalCode: serviceAreaPostalCode},
 	}
-	appCtx.Logger().Debug("priceFirstDaySIT 0")
-	appCtx.Logger().Debug("priceFirstDaySIT 0.5")
 	serviceArea, err := serviceAreaLookup.ParamValue(appCtx, contract.Code)
 	if err != nil {
 		return nil, err
 	}
 
-	appCtx.Logger().Debug("priceFirstDaySIT 1")
 	price, pricingParams, err := firstDayPricer.Price(appCtx, contract.Code, ppmShipment.ExpectedDepartureDate, *ppmShipment.SITEstimatedWeight, serviceArea, true)
 	if err != nil {
 		return nil, err
 	}
 
-	appCtx.Logger().Debug("priceFirstDaySIT 2")
 	appCtx.Logger().Debug(fmt.Sprintf("Pricing params for first day SIT %+v", pricingParams), zap.String("shipmentId", ppmShipment.ShipmentID.String()))
 
 	return &price, nil

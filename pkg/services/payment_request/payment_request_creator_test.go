@@ -1287,10 +1287,6 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequestCheckOnNTSRelea
 	// Make move and shipment
 	move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 	actualPickupDate := time.Date(testdatagen.GHCTestYear, time.January, 15, 0, 0, 0, 0, time.UTC)
-	//testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
-	//	ReContractYear: models.ReContractYear{
-	//	},
-	//})
 	shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 		{
 			Model:    move,

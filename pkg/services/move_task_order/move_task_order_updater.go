@@ -7,7 +7,6 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
-	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
@@ -185,7 +184,6 @@ func (o moveTaskOrderUpdater) UpdateTIORemarks(appCtx appcontext.AppContext, mov
 // service item will automatically be created without the TOO having to select it.
 func (o *moveTaskOrderUpdater) MakeAvailableToPrime(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID, eTag string,
 	includeServiceCodeMS bool, includeServiceCodeCS bool) (*models.Move, error) {
-	appCtx.Logger().Debug("🔥🔥🔥🔥🔥🔥 MakeAvailableToPrime", zap.String("moveID", moveTaskOrderID.String()))
 
 	searchParams := services.MoveTaskOrderFetcherParams{
 		IncludeHidden:   false,

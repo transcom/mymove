@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/gofrs/uuid"
-	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
@@ -92,8 +91,6 @@ func ServiceParamLookupInitialize(
 	moveTaskOrderID uuid.UUID,
 	paramCache *ServiceParamsCache,
 ) (*ServiceItemParamKeyData, error) {
-	appCtx.Logger().Debug("🧤🧤🧤🧤🧤🧤🧤🧤 ServiceParamLookupInitialize")
-
 	contract, err := fetchContractForMove(appCtx, moveTaskOrderID)
 	if err != nil {
 		return nil, err
@@ -497,7 +494,6 @@ func fetchContractForMove(appCtx appcontext.AppContext, moveID uuid.UUID) (model
 	var move models.Move
 	err := appCtx.DB().Find(&move, moveID)
 	if err != nil {
-		appCtx.Logger().Debug("problems 0.1 can't find move:", zap.Error(err))
 		if err == sql.ErrNoRows {
 			return models.ReContract{}, apperror.NewNotFoundError(moveID, "looking for Move")
 		}
@@ -505,30 +501,22 @@ func fetchContractForMove(appCtx appcontext.AppContext, moveID uuid.UUID) (model
 	}
 
 	if move.AvailableToPrimeAt == nil {
-		appCtx.Logger().Debug("problems 1: AvailableToPrimeAt == nil")
 		return models.ReContract{}, apperror.NewConflictError(moveID, "unable to pick contract because move is not available to prime")
 	}
 
-	appCtx.Logger().Debug("blarp fetchContractForMove")
 	return FetchContract(appCtx, *move.AvailableToPrimeAt)
 }
 
-// tests: get contract with year outside of range, multiple contracts results (impossible due to db constraints dont test)?
-// TODO should this go here?
-// TODO should i return more detailed errors? or just pass along what we get?
 func FetchContract(appCtx appcontext.AppContext, date time.Time) (models.ReContract, error) {
-	appCtx.Logger().Debug("blarp FetchContract", zap.Time("date", date))
 	var contractYear models.ReContractYear
 	err := appCtx.DB().EagerPreload("Contract").Where("? between start_date and end_date", date).
 		First(&contractYear)
 	if err != nil {
-		fmt.Println("problems 2: can't find contract year")
 		if err == sql.ErrNoRows {
 			return models.ReContract{}, apperror.NewNotFoundError(uuid.Nil, "no contract year found for "+date.String())
 		}
 		return models.ReContract{}, err
 	}
 
-	appCtx.Logger().Debug("blarp FetchContract", zap.String("Using contract", contractYear.Contract.Code))
 	return contractYear.Contract, nil
 }

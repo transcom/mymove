@@ -43,7 +43,6 @@ func (p *paymentRequestCreator) CreatePaymentRequestCheck(appCtx appcontext.AppC
 
 func (p *paymentRequestCreator) CreatePaymentRequest(appCtx appcontext.AppContext, paymentRequestArg *models.PaymentRequest, checks ...paymentRequestValidator) (*models.PaymentRequest, error) {
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-		txnAppCtx.Logger().Debug("CreatePaymentRequest 1")
 		var err error
 		now := time.Now()
 
@@ -88,7 +87,6 @@ func (p *paymentRequestCreator) CreatePaymentRequest(appCtx appcontext.AppContex
 		// Service Item Param Cache
 		serviceParamCache := serviceparamlookups.NewServiceParamsCache()
 
-		txnAppCtx.Logger().Debug("CreatePaymentRequest 2")
 		// Track which shipments have been verified already
 		shipmentIDs := make(map[uuid.UUID]bool)
 
@@ -153,7 +151,6 @@ func (p *paymentRequestCreator) CreatePaymentRequest(appCtx appcontext.AppContex
 			// this service item
 			//
 
-			txnAppCtx.Logger().Debug("CreatePaymentRequest 3")
 			// Retrieve all of the params needed to price this service item
 			paymentHelper := paymentrequesthelper.RequestPaymentHelper{}
 
@@ -163,13 +160,11 @@ func (p *paymentRequestCreator) CreatePaymentRequest(appCtx appcontext.AppContex
 				return fmt.Errorf("%s err: %w", errMessage, err)
 			}
 
-			txnAppCtx.Logger().Debug("CreatePaymentRequest 3.5")
 			// Get values for needed service item params (do lookups)
 			paramLookup, err := serviceparamlookups.ServiceParamLookupInitialize(txnAppCtx, p.planner, paymentServiceItem.MTOServiceItem, paymentRequestArg.ID, paymentRequestArg.MoveTaskOrderID, &serviceParamCache)
 			if err != nil {
 				return err
 			}
-			txnAppCtx.Logger().Debug("CreatePaymentRequest 3.7")
 			for _, reServiceParam := range reServiceParams {
 				if _, found := incomingMTOServiceItemParams[reServiceParam.ServiceItemParamKey.Key.String()]; !found {
 					// create the missing service item param
@@ -184,7 +179,6 @@ func (p *paymentRequestCreator) CreatePaymentRequest(appCtx appcontext.AppContex
 					}
 				}
 			}
-			txnAppCtx.Logger().Debug("CreatePaymentRequest 4")
 
 			//
 			// Save all params for current service item
@@ -218,7 +212,6 @@ func (p *paymentRequestCreator) CreatePaymentRequest(appCtx appcontext.AppContex
 		}
 
 		paymentRequestArg.PaymentServiceItems = newPaymentServiceItems
-		txnAppCtx.Logger().Debug("CreatePaymentRequest 5")
 
 		return nil
 	})
