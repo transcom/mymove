@@ -27,7 +27,6 @@ type ServiceItemParamKeyData struct {
 	paramCache       *ServiceParamsCache
 }
 
-// TODO seems like this is only used in ppm estimator, which is surprising
 func NewServiceItemParamKeyData(planner route.Planner, lookups map[models.ServiceItemParamName]ServiceItemParamKeyLookup, mtoServiceItem models.MTOServiceItem, mtoShipment models.MTOShipment, contractCode string) ServiceItemParamKeyData {
 	fmt.Println("NewServiceItemParamKeyData")
 	return ServiceItemParamKeyData{
@@ -95,16 +94,6 @@ func ServiceParamLookupInitialize(
 ) (*ServiceItemParamKeyData, error) {
 	appCtx.Logger().Debug("🧤🧤🧤🧤🧤🧤🧤🧤 ServiceParamLookupInitialize")
 
-	// TODO query for contract based on date
-	// TODO maybe i start by just printing out all the different dates i have access to here.
-	// does this stuff get called for PPMs? or do we know we're in HHG land?
-	// i can test with a ppm and see if we get the debug print. i'm pretty sure we will.
-	//		mmmmm actually im not sure will just have to try it
-	// i feel liek duncan and i talked thouigh some of these things and i dont remember what we arrived on
-	// can a payment request involve multiple contracts? doesnt make sense to me.
-	// so thej how do we know? is it based on service items? could we have a contract field on the service items?
-
-	// TODO this is the wrong date
 	contract, err := fetchContractForMove(appCtx, moveTaskOrderID)
 	if err != nil {
 		switch err {

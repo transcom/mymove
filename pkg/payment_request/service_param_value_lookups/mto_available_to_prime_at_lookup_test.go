@@ -77,7 +77,6 @@ func (suite *ServiceParamValueLookupsSuite) TestMTOAvailableToPrimeLookup() {
 		suite.MustSave(&moveTaskOrder)
 	})
 
-	// TODO maybe this test just doesnt make sense? we can't make the lookup without the move
 	suite.Run("bogus MoveTaskOrderID", func() {
 		setupTestData()
 
