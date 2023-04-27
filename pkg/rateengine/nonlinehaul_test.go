@@ -13,20 +13,6 @@ func (suite *RateEngineSuite) Test_CheckServiceFee() {
 	t := suite.T()
 	engine := NewRateEngine(move)
 
-	serviceArea := models.Tariff400ngServiceArea{
-		Name:               "Gulfport, MS",
-		ServiceArea:        "428",
-		ServicesSchedule:   1,
-		LinehaulFactor:     57,
-		ServiceChargeCents: 350,
-		EffectiveDateLower: testdatagen.PeakRateCycleStart,
-		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
-		SIT185ARateCents:   unit.Cents(50),
-		SIT185BRateCents:   unit.Cents(50),
-		SITPDSchedule:      1,
-	}
-	suite.MustSave(&serviceArea)
-
 	feeAndRate, err := engine.serviceFeeCents(suite.AppContextForTest(), unit.CWT(50), "395", testdatagen.DateInsidePeakRateCycle)
 	if err != nil {
 		suite.Fail("failed to calculate service fee: %s", err)
@@ -50,20 +36,6 @@ func (suite *RateEngineSuite) Test_CheckFullPack() {
 	t := suite.T()
 	engine := NewRateEngine(move)
 
-	serviceArea := models.Tariff400ngServiceArea{
-		Name:               "Gulfport, MS",
-		ServiceArea:        "428",
-		LinehaulFactor:     57,
-		ServiceChargeCents: 350,
-		ServicesSchedule:   1,
-		EffectiveDateLower: testdatagen.PeakRateCycleStart,
-		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
-		SIT185ARateCents:   unit.Cents(50),
-		SIT185BRateCents:   unit.Cents(50),
-		SITPDSchedule:      1,
-	}
-	suite.MustSave(&serviceArea)
-
 	feeAndRate, err := engine.fullPackCents(suite.AppContextForTest(), unit.CWT(50), "395", testdatagen.DateInsidePeakRateCycle)
 	if err != nil {
 		suite.Fail("failed to calculate full pack fee: %s", err)
@@ -85,20 +57,6 @@ func (suite *RateEngineSuite) Test_CheckFullUnpack() {
 	}
 	t := suite.T()
 	engine := NewRateEngine(move)
-
-	serviceArea := models.Tariff400ngServiceArea{
-		Name:               "Gulfport, MS",
-		ServiceArea:        "428",
-		LinehaulFactor:     57,
-		ServiceChargeCents: 350,
-		ServicesSchedule:   1,
-		EffectiveDateLower: testdatagen.PeakRateCycleStart,
-		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
-		SIT185ARateCents:   unit.Cents(50),
-		SIT185BRateCents:   unit.Cents(50),
-		SITPDSchedule:      1,
-	}
-	suite.MustSave(&serviceArea)
 
 	feeAndRate, err := engine.fullUnpackCents(suite.AppContextForTest(), unit.CWT(50), "395", testdatagen.DateInsidePeakRateCycle)
 	if err != nil {
@@ -131,19 +89,6 @@ func (suite *RateEngineSuite) Test_SITCharge() {
 
 		sit185ARate := unit.Cents(2324)
 		sit185BRate := unit.Cents(431)
-		sa := models.Tariff400ngServiceArea{
-			Name:               "Tampa, FL",
-			ServiceArea:        "428",
-			LinehaulFactor:     69,
-			ServiceChargeCents: 663,
-			ServicesSchedule:   1,
-			EffectiveDateLower: testdatagen.PeakRateCycleStart,
-			EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
-			SIT185ARateCents:   sit185ARate,
-			SIT185BRateCents:   sit185BRate,
-			SITPDSchedule:      1,
-		}
-		suite.MustSave(&sa)
 
 		sit210ARateCentsAtMin := unit.Cents(57600)
 		sit225ARateCentsAtMin := unit.Cents(9900)
@@ -213,34 +158,6 @@ func (suite *RateEngineSuite) Test_CheckNonLinehaulChargeTotal() {
 	}
 	t := suite.T()
 	engine := NewRateEngine(move)
-
-	originServiceArea := models.Tariff400ngServiceArea{
-		Name:               "Gulfport, MS",
-		ServiceArea:        "428",
-		LinehaulFactor:     57,
-		ServiceChargeCents: 350,
-		ServicesSchedule:   1,
-		EffectiveDateLower: testdatagen.PeakRateCycleStart,
-		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
-		SIT185ARateCents:   unit.Cents(50),
-		SIT185BRateCents:   unit.Cents(50),
-		SITPDSchedule:      1,
-	}
-	suite.MustSave(&originServiceArea)
-
-	destinationServiceArea := models.Tariff400ngServiceArea{
-		Name:               "Tampa, FL",
-		ServiceArea:        "197",
-		LinehaulFactor:     69,
-		ServiceChargeCents: 663,
-		ServicesSchedule:   1,
-		EffectiveDateLower: testdatagen.PeakRateCycleStart,
-		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
-		SIT185ARateCents:   unit.Cents(1750),
-		SIT185BRateCents:   unit.Cents(50),
-		SITPDSchedule:      1,
-	}
-	suite.MustSave(&destinationServiceArea)
 
 	cost, err := engine.nonLinehaulChargeComputation(
 		suite.AppContextForTest(), unit.Pound(2000), "39503", "33607", testdatagen.DateInsidePeakRateCycle)

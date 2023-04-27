@@ -11,53 +11,10 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-func (suite *RateEngineSuite) setupRateEngineTest() {
-	originServiceArea := models.Tariff400ngServiceArea{
-		Name:               "Gulfport, MS",
-		ServiceArea:        "428",
-		LinehaulFactor:     57,
-		ServiceChargeCents: 350,
-		ServicesSchedule:   1,
-		EffectiveDateLower: testdatagen.PeakRateCycleStart,
-		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
-		SIT185ARateCents:   unit.Cents(50),
-		SIT185BRateCents:   unit.Cents(50),
-		SITPDSchedule:      1,
-	}
-	suite.MustSave(&originServiceArea)
-	originServiceArea503 := models.Tariff400ngServiceArea{
-		Name:               "Des Moines, IA",
-		ServiceArea:        "296",
-		LinehaulFactor:     unit.Cents(263),
-		ServiceChargeCents: unit.Cents(489),
-		ServicesSchedule:   3,
-		EffectiveDateLower: testdatagen.PeakRateCycleStart,
-		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
-		SIT185ARateCents:   unit.Cents(1447),
-		SIT185BRateCents:   unit.Cents(51),
-		SITPDSchedule:      3,
-	}
-	suite.MustSave(&originServiceArea503)
-	destinationServiceArea := models.Tariff400ngServiceArea{
-		Name:               "Tampa, FL",
-		ServiceArea:        "197",
-		LinehaulFactor:     69,
-		ServiceChargeCents: 663,
-		ServicesSchedule:   1,
-		EffectiveDateLower: testdatagen.PeakRateCycleStart,
-		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
-		SIT185ARateCents:   unit.Cents(5550),
-		SIT185BRateCents:   unit.Cents(222),
-		SITPDSchedule:      1,
-	}
-	suite.MustSave(&destinationServiceArea)
-}
-
 func (suite *RateEngineSuite) Test_CheckPPMTotal() {
 	move := models.Move{
 		Locator: "ABC123",
 	}
-	suite.setupRateEngineTest()
 
 	engine := NewRateEngine(move)
 

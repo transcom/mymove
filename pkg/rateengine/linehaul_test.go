@@ -40,20 +40,6 @@ func (suite *RateEngineSuite) Test_CheckLinehaulFactors() {
 	t := suite.T()
 	engine := NewRateEngine(move)
 
-	serviceArea := models.Tariff400ngServiceArea{
-		Name:               "Gulfport, MS",
-		ServiceArea:        "428",
-		ServicesSchedule:   1,
-		LinehaulFactor:     57,
-		ServiceChargeCents: 350,
-		EffectiveDateLower: testdatagen.PeakRateCycleStart,
-		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
-		SIT185ARateCents:   unit.Cents(50),
-		SIT185BRateCents:   unit.Cents(50),
-		SITPDSchedule:      1,
-	}
-	suite.MustSave(&serviceArea)
-
 	linehaulFactor, err := engine.linehaulFactors(suite.AppContextForTest(), 60, "395", testdatagen.RateEngineDate)
 	if err != nil {
 		t.Error("Unable to determine linehaulFactor: ", err)
@@ -95,35 +81,6 @@ func (suite *RateEngineSuite) Test_CheckLinehaulChargeTotal() {
 	assertions := testdatagen.Assertions{}
 	assertions.FuelEIADieselPrice.BaselineRate = 6
 	testdatagen.MakeFuelEIADieselPrices(suite.DB(), assertions)
-
-	// Create fees for service areas
-	sa1 := models.Tariff400ngServiceArea{
-		Name:               "Austin",
-		ServiceChargeCents: 100,
-		ServiceArea:        "744",
-		ServicesSchedule:   1,
-		LinehaulFactor:     78,
-		EffectiveDateLower: testdatagen.PeakRateCycleStart,
-		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
-		SIT185ARateCents:   unit.Cents(50),
-		SIT185BRateCents:   unit.Cents(50),
-		SITPDSchedule:      1,
-	}
-	suite.MustSave(&sa1)
-
-	sa2 := models.Tariff400ngServiceArea{
-		Name:               "SF",
-		ServiceChargeCents: 200,
-		ServiceArea:        "81",
-		ServicesSchedule:   1,
-		LinehaulFactor:     263,
-		EffectiveDateLower: testdatagen.PeakRateCycleStart,
-		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
-		SIT185ARateCents:   unit.Cents(50),
-		SIT185BRateCents:   unit.Cents(50),
-		SITPDSchedule:      1,
-	}
-	suite.MustSave(&sa2)
 
 	cost, err := engine.linehaulChargeComputation(
 		suite.AppContextForTest(), weight, zip5Austin, zip5SanFrancisco, distanceMiles, testdatagen.DateInsidePeakRateCycle)

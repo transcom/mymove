@@ -9,7 +9,6 @@ import (
 	"go.uber.org/zap/zapcore"
 
 	"github.com/transcom/mymove/pkg/appcontext"
-	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -58,11 +57,7 @@ func (s SITComputation) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
 
 // serviceFeeCents returns the NON-DISCOUNTED rate in millicents with the fee
 func (re *RateEngine) serviceFeeCents(appCtx appcontext.AppContext, cwt unit.CWT, zip3 string, date time.Time) (FeeAndRate, error) {
-	serviceArea, err := models.FetchTariff400ngServiceAreaForZip3(appCtx.DB(), zip3, date)
-	if err != nil {
-		return FeeAndRate{}, err
-	}
-	rateCents := serviceArea.ServiceChargeCents
+	rateCents := unit.Cents(0)
 	feeCents := rateCents.Multiply(cwt.Int())
 	return FeeAndRate{Fee: feeCents, Rate: rateCents.ToMillicents()}, nil
 }
@@ -100,16 +95,11 @@ func (re *RateEngine) SitCharge(appCtx appcontext.AppContext, cwt unit.CWT, days
 		}
 	}
 
-	sa, err := models.FetchTariff400ngServiceAreaForZip3(appCtx.DB(), zip3, date)
-	if err != nil {
-		return SITComputation{}, err
-	}
-
 	// Both PPMs and HHGs use 185A and 185B in the same way.
-	sitPart := sa.SIT185ARateCents.Multiply(effectiveCWT.Int())
+	sitPart := unit.Cents(0)
 	additionalDays := daysInSIT - 1
 	if additionalDays > 0 {
-		sitPart = sitPart.AddCents(sa.SIT185BRateCents.Multiply(additionalDays).Multiply(effectiveCWT.Int()))
+		sitPart = sitPart.AddCents(unit.Cents(0))
 	}
 
 	zapFields := []zap.Field{
@@ -119,10 +109,6 @@ func (re *RateEngine) SitCharge(appCtx appcontext.AppContext, cwt unit.CWT, days
 		zap.Time("date", date),
 		zap.Bool("isPPM", isPPM),
 		zap.Int("effectiveCWT", effectiveCWT.Int()),
-		zap.Int("servicesSchedule", sa.ServicesSchedule),
-		zap.Int("sitPDSchedule", sa.SITPDSchedule),
-		zap.Int("185A", sa.SIT185ARateCents.Int()),
-		zap.Int("185B", sa.SIT185BRateCents.Int()),
 	}
 
 	var linehaulPart unit.Cents
@@ -166,7 +152,7 @@ func (re *RateEngine) SitCharge(appCtx appcontext.AppContext, cwt unit.CWT, days
 	zapFields = append(zapFields, zap.Object("sit computation", sitComputation), zap.String("moveLocator", re.move.Locator))
 	appCtx.Logger().Info("sit calculation", zapFields...)
 
-	return sitComputation, err
+	return sitComputation, nil
 }
 
 func (re *RateEngine) nonLinehaulChargeComputation(appCtx appcontext.AppContext, weight unit.Pound, originZip5 string, destinationZip5 string, date time.Time) (cost NonLinehaulCostComputation, err error) {
