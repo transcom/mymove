@@ -16,7 +16,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequest() {
 
 		fetcher := NewPaymentRequestFetcher()
 
-		pr := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
+		pr := factory.BuildPaymentRequest(suite.DB(), nil, nil)
 		paymentRequest, err := fetcher.FetchPaymentRequest(suite.AppContextForTest(), pr.ID)
 
 		suite.NoError(err)
@@ -27,7 +27,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequest() {
 
 		fetcher := NewPaymentRequestFetcher()
 
-		pr := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
+		pr := factory.BuildPaymentRequest(suite.DB(), nil, nil)
 		posd := testdatagen.MakeProofOfServiceDoc(suite.DB(), testdatagen.Assertions{
 			ProofOfServiceDoc: models.ProofOfServiceDoc{
 				PaymentRequestID: pr.ID,
@@ -59,7 +59,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequest() {
 
 		fetcher := NewPaymentRequestFetcher()
 
-		pr := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
+		pr := factory.BuildPaymentRequest(suite.DB(), nil, nil)
 		posd := testdatagen.MakeProofOfServiceDoc(suite.DB(), testdatagen.Assertions{
 			ProofOfServiceDoc: models.ProofOfServiceDoc{
 				PaymentRequestID: pr.ID,

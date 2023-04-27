@@ -34,12 +34,17 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 			},
 		}, nil)
 
-		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			Move: move,
-			PaymentRequest: models.PaymentRequest{
-				Status: models.PaymentRequestStatusPending,
+		paymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.PaymentRequest{
+					Status: models.PaymentRequestStatusPending,
+				},
+			},
+		}, nil)
 
 		year, month, day := time.Now().Date()
 		originEntryDate := time.Date(year, month, day-120, 0, 0, 0, 0, time.UTC)
@@ -137,12 +142,17 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 			},
 		}, nil)
 
-		reviewedPaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			Move: move,
-			PaymentRequest: models.PaymentRequest{
-				Status: models.PaymentRequestStatusReviewed,
+		reviewedPaymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.PaymentRequest{
+					Status: models.PaymentRequestStatusReviewed,
+				},
+			},
+		}, nil)
 
 		year, month, day := time.Now().Date()
 		originEntryDate := time.Date(year, month, day-120, 0, 0, 0, 0, time.UTC)
@@ -213,13 +223,18 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 			Move:               move,
 		})
 
-		pendingPaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			Move: move,
-			PaymentRequest: models.PaymentRequest{
-				Status:         models.PaymentRequestStatusReviewed,
-				SequenceNumber: 2,
+		pendingPaymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.PaymentRequest{
+					Status:         models.PaymentRequestStatusReviewed,
+					SequenceNumber: 2,
+				},
+			},
+		}, nil)
 
 		destinationEntryDate := time.Date(year, month, day-89, 0, 0, 0, 0, time.UTC)
 		ddasit := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
@@ -318,12 +333,17 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 			},
 		}, nil)
 
-		reviewedPaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			Move: move,
-			PaymentRequest: models.PaymentRequest{
-				Status: models.PaymentRequestStatusReviewed,
+		reviewedPaymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.PaymentRequest{
+					Status: models.PaymentRequestStatusReviewed,
+				},
+			},
+		}, nil)
 
 		year, month, day := time.Now().Date()
 		originEntryDate := time.Date(year, month, day-120, 0, 0, 0, 0, time.UTC)
@@ -394,13 +414,18 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 			Move:               move,
 		})
 
-		pendingPaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			Move: move,
-			PaymentRequest: models.PaymentRequest{
-				Status:         models.PaymentRequestStatusReviewed,
-				SequenceNumber: 2,
+		pendingPaymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.PaymentRequest{
+					Status:         models.PaymentRequestStatusReviewed,
+					SequenceNumber: 2,
+				},
+			},
+		}, nil)
 
 		destinationEntryDate := time.Date(year, month, day-90, 0, 0, 0, 0, time.UTC)
 		ddasit := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
@@ -497,12 +522,17 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 			},
 		}, nil)
 
-		reviewedPaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			Move: move,
-			PaymentRequest: models.PaymentRequest{
-				Status: models.PaymentRequestStatusReviewed,
+		reviewedPaymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.PaymentRequest{
+					Status: models.PaymentRequestStatusReviewed,
+				},
+			},
+		}, nil)
 
 		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
 			MTOServiceItem: models.MTOServiceItem{
@@ -541,12 +571,17 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 			},
 		}, nil)
 
-		pendingPaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			Move: move,
-			PaymentRequest: models.PaymentRequest{
-				Status: models.PaymentRequestStatusPending,
+		pendingPaymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.PaymentRequest{
+					Status: models.PaymentRequestStatusPending,
+				},
+			},
+		}, nil)
 
 		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
 			MTOServiceItem: models.MTOServiceItem{
@@ -581,12 +616,17 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 			},
 		}, nil)
 
-		pendingPaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			Move: move,
-			PaymentRequest: models.PaymentRequest{
-				Status: models.PaymentRequestStatusPending,
+		pendingPaymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.PaymentRequest{
+					Status: models.PaymentRequestStatusPending,
+				},
+			},
+		}, nil)
 
 		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
 			MTOServiceItem: models.MTOServiceItem{
@@ -694,12 +734,17 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 			},
 		}, nil)
 
-		reviewedPaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			Move: move,
-			PaymentRequest: models.PaymentRequest{
-				Status: models.PaymentRequestStatusReviewed,
+		reviewedPaymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.PaymentRequest{
+					Status: models.PaymentRequestStatusReviewed,
+				},
+			},
+		}, nil)
 
 		year, month, day := time.Now().Date()
 		originEntryDate := time.Date(year, month, day-120, 0, 0, 0, 0, time.UTC)

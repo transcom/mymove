@@ -187,15 +187,19 @@ func makeShipmentForMove(appCtx appcontext.AppContext, move models.Move, shipmen
 }
 
 func makePaymentRequestForShipment(appCtx appcontext.AppContext, move models.Move, shipment models.MTOShipment, primeUploader *uploader.PrimeUploader, fileNames *[]string, paymentRequestID uuid.UUID, status models.PaymentRequestStatus) {
-	paymentRequest := testdatagen.MakePaymentRequest(appCtx.DB(), testdatagen.Assertions{
-		PaymentRequest: models.PaymentRequest{
-			ID:            paymentRequestID,
-			MoveTaskOrder: move,
-			IsFinal:       false,
-			Status:        status,
+	paymentRequest := factory.BuildPaymentRequest(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentRequest{
+				ID:      paymentRequestID,
+				IsFinal: false,
+				Status:  status,
+			},
 		},
-		Move: move,
-	})
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	dcrtCost := unit.Cents(99999)
 	mtoServiceItemDCRT := testdatagen.MakeMTOServiceItemDomesticCrating(appCtx.DB(), testdatagen.Assertions{

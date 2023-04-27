@@ -19,7 +19,6 @@ import (
 	"github.com/transcom/mymove/pkg/services/mocks"
 	order "github.com/transcom/mymove/pkg/services/order"
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *HandlerSuite) TestGetMoveQueuesHandler() {
@@ -966,14 +965,19 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandler() {
 	// Fake this as a day and a half in the past so floating point age values can be tested
 	prevCreatedAt := time.Now().Add(time.Duration(time.Hour * -36))
 
-	actualPaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-		Move: hhgMove,
-		PaymentRequest: models.PaymentRequest{
-			CreatedAt: prevCreatedAt,
+	actualPaymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+		{
+			Model:    hhgMove,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.PaymentRequest{
+				CreatedAt: prevCreatedAt,
+			},
+		},
+	}, nil)
 
-	testdatagen.MakeDefaultPaymentRequest(suite.DB())
+	factory.BuildPaymentRequest(suite.DB(), nil, nil)
 
 	request := httptest.NewRequest("GET", "/queues/payment-requests", nil)
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
@@ -1026,22 +1030,30 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueSubmittedAtFilter() {
 	hhgMove1 := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
 	hhgMove2 := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
 
-	testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-		PaymentRequest: models.PaymentRequest{
-			CreatedAt:       outOfRangeDate,
-			MoveTaskOrderID: hhgMove1.ID,
-			MoveTaskOrder:   hhgMove1,
+	factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+		{
+			Model: models.PaymentRequest{
+				CreatedAt: outOfRangeDate,
+			},
 		},
-	})
+		{
+			Model:    hhgMove1,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	createdAtTime := time.Date(2020, 10, 29, 0, 0, 0, 0, time.UTC)
-	testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-		PaymentRequest: models.PaymentRequest{
-			CreatedAt:       createdAtTime,
-			MoveTaskOrderID: hhgMove2.ID,
-			MoveTaskOrder:   hhgMove2,
+	factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+		{
+			Model: models.PaymentRequest{
+				CreatedAt: createdAtTime,
+			},
 		},
-	})
+		{
+			Model:    hhgMove2,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	request := httptest.NewRequest("GET", "/queues/payment-requests", nil)
 	request = suite.AuthenticateOfficeRequest(request, officeUser)

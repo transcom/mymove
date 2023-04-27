@@ -8,7 +8,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -59,9 +58,12 @@ func (suite *ModelSuite) TestPSIBeforeCreate() {
 
 	suite.Run("test with no ID or Reference ID", func() {
 		serviceItem := factory.BuildMTOServiceItemBasic(suite.DB(), nil, nil)
-		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			Move: serviceItem.MoveTaskOrder,
-		})
+		paymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    serviceItem.MoveTaskOrder,
+				LinkOnly: true,
+			},
+		}, nil)
 		paymentServiceItem := models.PaymentServiceItem{
 			PaymentRequestID: paymentRequest.ID,
 			MTOServiceItemID: serviceItem.ID,
@@ -77,9 +79,12 @@ func (suite *ModelSuite) TestPSIBeforeCreate() {
 
 	suite.Run("test with ID and Reference ID already provided", func() {
 		serviceItem := factory.BuildMTOServiceItemBasic(suite.DB(), nil, nil)
-		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			Move: serviceItem.MoveTaskOrder,
-		})
+		paymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    serviceItem.MoveTaskOrder,
+				LinkOnly: true,
+			},
+		}, nil)
 		psiID := uuid.FromStringOrNil("8dce708b-58ab-4adc-a243-ae0c53a44a41")
 		referenceID := "1234-5678-8dce708b"
 		filledPaymentServiceItem := models.PaymentServiceItem{
@@ -99,9 +104,12 @@ func (suite *ModelSuite) TestPSIBeforeCreate() {
 
 	suite.Run("test failure because payment request not found", func() {
 		serviceItem := factory.BuildMTOServiceItemBasic(suite.DB(), nil, nil)
-		testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			Move: serviceItem.MoveTaskOrder,
-		})
+		factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    serviceItem.MoveTaskOrder,
+				LinkOnly: true,
+			},
+		}, nil)
 		badPaymentServiceItem := models.PaymentServiceItem{
 			PaymentRequestID: uuid.Must(uuid.NewV4()), // new UUID pointing nowhere
 			MTOServiceItemID: serviceItem.ID,
@@ -119,9 +127,12 @@ func (suite *ModelSuite) TestGeneratePSIReferenceID() {
 	setupTestData := func() (models.PaymentRequest, models.MTOServiceItem) {
 		serviceItem := factory.BuildMTOServiceItemBasic(suite.DB(), nil, nil)
 		move := serviceItem.MoveTaskOrder
-		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			Move: move,
-		})
+		paymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		return paymentRequest, serviceItem
 	}

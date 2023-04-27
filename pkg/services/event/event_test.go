@@ -13,7 +13,6 @@ import (
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testingsuite"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -40,11 +39,13 @@ func (suite *EventServiceSuite) Test_EventTrigger() {
 
 	now := time.Now()
 	setupTestData := func() models.PaymentRequest {
-		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				AvailableToPrimeAt: &now,
+		paymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					AvailableToPrimeAt: &now,
+				},
 			},
-		})
+		}, nil)
 
 		return paymentRequest
 	}
@@ -90,7 +91,7 @@ func (suite *EventServiceSuite) Test_EventTrigger() {
 	// This test verifies that if the object updated is not on an MTO that
 	// is available to prime, no notification is created.
 	suite.Run("Fail with no notification - unavailable mto", func() {
-		unavailablePaymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
+		unavailablePaymentRequest := factory.BuildPaymentRequest(suite.DB(), nil, nil)
 		count, _ := suite.DB().Count(&models.WebhookNotification{})
 
 		unavailablePRID := unavailablePaymentRequest.ID

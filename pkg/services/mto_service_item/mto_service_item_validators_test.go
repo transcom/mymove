@@ -248,7 +248,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		oldServiceItem, newServiceItem := setupTestData() // These
 		newServiceItem.Description = swag.String("1234")
 
-		paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
+		paymentRequest := factory.BuildPaymentRequest(suite.DB(), nil, nil)
 		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
 			PaymentRequest: paymentRequest,
 			MTOServiceItem: oldServiceItem,

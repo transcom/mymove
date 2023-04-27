@@ -83,14 +83,19 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	setupTestData := func() {
 		mto := factory.BuildMove(suite.DB(), nil, nil)
 
-		paymentRequest = testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			Move: mto,
-			PaymentRequest: models.PaymentRequest{
-				IsFinal:         false,
-				Status:          models.PaymentRequestStatusPending,
-				RejectionReason: nil,
+		paymentRequest = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    mto,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.PaymentRequest{
+					IsFinal:         false,
+					Status:          models.PaymentRequestStatusPending,
+					RejectionReason: nil,
+				},
+			},
+		}, nil)
 
 		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
@@ -424,14 +429,19 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		}, nil)
 		factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), mto.Orders.NewDutyLocation.Address.PostalCode, "KKFA")
 
-		paymentRequest = testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			Move: mto,
-			PaymentRequest: models.PaymentRequest{
-				IsFinal:         false,
-				Status:          models.PaymentRequestStatusPending,
-				RejectionReason: nil,
+		paymentRequest = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    mto,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.PaymentRequest{
+					IsFinal:         false,
+					Status:          models.PaymentRequestStatusPending,
+					RejectionReason: nil,
+				},
+			},
+		}, nil)
 
 		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
@@ -508,14 +518,19 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 			OriginDutyLocation: originDutyLocation,
 		})
 
-		paymentRequest = testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			Move: mto,
-			PaymentRequest: models.PaymentRequest{
-				IsFinal:         false,
-				Status:          models.PaymentRequestStatusPending,
-				RejectionReason: nil,
+		paymentRequest = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    mto,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.PaymentRequest{
+					IsFinal:         false,
+					Status:          models.PaymentRequestStatusPending,
+					RejectionReason: nil,
+				},
+			},
+		}, nil)
 
 		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: mto,
@@ -896,14 +911,19 @@ func (suite *GHCInvoiceSuite) TestOnlyMsandCsGenerateEdi() {
 		},
 	}
 	mto := factory.BuildMove(suite.DB(), nil, nil)
-	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-		Move: mto,
-		PaymentRequest: models.PaymentRequest{
-			IsFinal:         false,
-			Status:          models.PaymentRequestStatusPending,
-			RejectionReason: nil,
+	paymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+		{
+			Model:    mto,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.PaymentRequest{
+				IsFinal:         false,
+				Status:          models.PaymentRequestStatusPending,
+				RejectionReason: nil,
+			},
+		},
+	}, nil)
 
 	assertions := testdatagen.Assertions{
 		Move:           mto,
@@ -962,14 +982,19 @@ func (suite *GHCInvoiceSuite) TestNilValues() {
 	setupTestData := func() {
 		nilMove := factory.BuildMove(suite.DB(), nil, nil)
 
-		nilPaymentRequest = testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			Move: nilMove,
-			PaymentRequest: models.PaymentRequest{
-				IsFinal:         false,
-				Status:          models.PaymentRequestStatusPending,
-				RejectionReason: nil,
+		nilPaymentRequest = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    nilMove,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.PaymentRequest{
+					IsFinal:         false,
+					Status:          models.PaymentRequestStatusPending,
+					RejectionReason: nil,
+				},
+			},
+		}, nil)
 
 		assertions := testdatagen.Assertions{
 			Move:           nilMove,
@@ -1081,14 +1106,19 @@ func (suite *GHCInvoiceSuite) TestNoApprovedPaymentServiceItems() {
 			},
 		}
 		mto := factory.BuildMove(suite.DB(), nil, nil)
-		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			Move: mto,
-			PaymentRequest: models.PaymentRequest{
-				IsFinal:         false,
-				Status:          models.PaymentRequestStatusPending,
-				RejectionReason: nil,
+		paymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    mto,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.PaymentRequest{
+					IsFinal:         false,
+					Status:          models.PaymentRequestStatusPending,
+					RejectionReason: nil,
+				},
+			},
+		}, nil)
 
 		assertions := testdatagen.Assertions{
 			Move:               mto,
@@ -1187,13 +1217,18 @@ func (suite *GHCInvoiceSuite) TestTACs() {
 			},
 		}, nil)
 
-		paymentRequest = testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			Move: move,
-			PaymentRequest: models.PaymentRequest{
-				IsFinal: false,
-				Status:  models.PaymentRequestStatusReviewed,
+		paymentRequest = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.PaymentRequest{
+					IsFinal: false,
+					Status:  models.PaymentRequestStatusReviewed,
+				},
+			},
+		}, nil)
 
 		mtoShipment = factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{

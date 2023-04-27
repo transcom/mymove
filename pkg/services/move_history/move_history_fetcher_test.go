@@ -403,12 +403,17 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 	suite.Run("has audit history records for approved payment request", func() {
 		approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		cents := unit.Cents(1000)
-		approvedPaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				Status: models.PaymentRequestStatusPending,
+		approvedPaymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					Status: models.PaymentRequestStatusPending,
+				},
 			},
-			Move: approvedMove,
-		})
+			{
+				Model:    approvedMove,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		testServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
@@ -895,9 +900,12 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 		priceCents := unit.Cents(1000000)
 
 		// Create a payment request
-		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			Move: move,
-		})
+		paymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		// Create service item and payment service item to associate payment correctly to move
 		testServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{

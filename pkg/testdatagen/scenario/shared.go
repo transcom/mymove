@@ -4891,15 +4891,19 @@ func createHHGMoveWith10ServiceItems(appCtx appcontext.AppContext, userUploader 
 		},
 	}, nil)
 
-	paymentRequest8 := testdatagen.MakePaymentRequest(db, testdatagen.Assertions{
-		PaymentRequest: models.PaymentRequest{
-			ID:            uuid.FromStringOrNil("154c9ebb-972f-4711-acb2-5911f52aced4"),
-			MoveTaskOrder: move8,
-			IsFinal:       false,
-			Status:        models.PaymentRequestStatusPending,
+	paymentRequest8 := factory.BuildPaymentRequest(db, []factory.Customization{
+		{
+			Model: models.PaymentRequest{
+				ID:      uuid.FromStringOrNil("154c9ebb-972f-4711-acb2-5911f52aced4"),
+				IsFinal: false,
+				Status:  models.PaymentRequestStatusPending,
+			},
 		},
-		Move: move8,
-	})
+		{
+			Model:    move8,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	approvedAt := time.Now()
 	serviceItemMS := factory.BuildMTOServiceItemBasic(db, []factory.Customization{
@@ -5374,16 +5378,20 @@ func createHHGMoveWith2PaymentRequests(appCtx appcontext.AppContext, userUploade
 			},
 		},
 	}, nil)
-	paymentRequest7 := testdatagen.MakePaymentRequest(db, testdatagen.Assertions{
-		PaymentRequest: models.PaymentRequest{
-			ID:              uuid.FromStringOrNil("ea945ab7-099a-4819-82de-6968efe131dc"),
-			MoveTaskOrder:   mto7,
-			IsFinal:         false,
-			Status:          models.PaymentRequestStatusPending,
-			RejectionReason: nil,
+	paymentRequest7 := factory.BuildPaymentRequest(db, []factory.Customization{
+		{
+			Model: models.PaymentRequest{
+				ID:              uuid.FromStringOrNil("ea945ab7-099a-4819-82de-6968efe131dc"),
+				IsFinal:         false,
+				Status:          models.PaymentRequestStatusPending,
+				RejectionReason: nil,
+			},
 		},
-		Move: mto7,
-	})
+		{
+			Model:    mto7,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	// for soft deleted proof of service docs
 	proofOfService := testdatagen.MakeProofOfServiceDoc(db, testdatagen.Assertions{
@@ -5459,17 +5467,21 @@ func createHHGMoveWith2PaymentRequests(appCtx appcontext.AppContext, userUploade
 		MTOServiceItem: serviceItemDLH7,
 	})
 
-	additionalPaymentRequest7 := testdatagen.MakePaymentRequest(db, testdatagen.Assertions{
-		PaymentRequest: models.PaymentRequest{
-			ID:              uuid.FromStringOrNil("540e2268-6899-4b67-828d-bb3b0331ecf2"),
-			MoveTaskOrder:   mto7,
-			IsFinal:         false,
-			Status:          models.PaymentRequestStatusPending,
-			RejectionReason: nil,
-			SequenceNumber:  2,
+	additionalPaymentRequest7 := factory.BuildPaymentRequest(db, []factory.Customization{
+		{
+			Model: models.PaymentRequest{
+				ID:              uuid.FromStringOrNil("540e2268-6899-4b67-828d-bb3b0331ecf2"),
+				IsFinal:         false,
+				Status:          models.PaymentRequestStatusPending,
+				RejectionReason: nil,
+				SequenceNumber:  2,
+			},
 		},
-		Move: mto7,
-	})
+		{
+			Model:    mto7,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	serviceItemCS7 := factory.BuildMTOServiceItemBasic(db, []factory.Customization{
 		{
@@ -5716,15 +5728,19 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 		log.Panic("error saving NTSR shipment pickup address")
 	}
 
-	paymentRequest := testdatagen.MakePaymentRequest(db, testdatagen.Assertions{
-		PaymentRequest: models.PaymentRequest{
-			ID:            uuid.FromStringOrNil("3806be8d-ec39-43a2-a0ff-83b80bc4ba46"),
-			MoveTaskOrder: move,
-			IsFinal:       false,
-			Status:        models.PaymentRequestStatusPending,
+	paymentRequest := factory.BuildPaymentRequest(db, []factory.Customization{
+		{
+			Model: models.PaymentRequest{
+				ID:      uuid.FromStringOrNil("3806be8d-ec39-43a2-a0ff-83b80bc4ba46"),
+				IsFinal: false,
+				Status:  models.PaymentRequestStatusPending,
+			},
 		},
-		Move: move,
-	})
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	serviceItemMS := factory.BuildMTOServiceItemBasic(db, []factory.Customization{
 		{
@@ -6706,15 +6722,19 @@ func createMoveWith2ShipmentsAndPaymentRequest(appCtx appcontext.AppContext, use
 		log.Panic("error saving NTSR shipment pickup address")
 	}
 
-	paymentRequest := testdatagen.MakePaymentRequest(db, testdatagen.Assertions{
-		PaymentRequest: models.PaymentRequest{
-			ID:            uuid.FromStringOrNil("207216bf-0d60-4d91-957b-f0ddaeeb2dff"),
-			MoveTaskOrder: move,
-			IsFinal:       false,
-			Status:        models.PaymentRequestStatusPending,
+	paymentRequest := factory.BuildPaymentRequest(db, []factory.Customization{
+		{
+			Model: models.PaymentRequest{
+				ID:      uuid.FromStringOrNil("207216bf-0d60-4d91-957b-f0ddaeeb2dff"),
+				IsFinal: false,
+				Status:  models.PaymentRequestStatusPending,
+			},
 		},
-		Move: move,
-	})
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	serviceItemMS := factory.BuildMTOServiceItemBasic(db, []factory.Customization{
 		{
@@ -7261,16 +7281,20 @@ func createHHGMoveWith2PaymentRequestsReviewedAllRejectedServiceItems(appCtx app
 		},
 	}, nil)
 	reviewedDate := time.Now()
-	paymentRequest7 := testdatagen.MakePaymentRequest(db, testdatagen.Assertions{
-		PaymentRequest: models.PaymentRequest{
-			ID:            uuid.FromStringOrNil("ea945ab7-099a-4819-82de-ffffffffffff"),
-			MoveTaskOrder: mto7,
-			IsFinal:       false,
-			Status:        models.PaymentRequestStatusReviewedAllRejected,
-			ReviewedAt:    &reviewedDate,
+	paymentRequest7 := factory.BuildPaymentRequest(db, []factory.Customization{
+		{
+			Model: models.PaymentRequest{
+				ID:         uuid.FromStringOrNil("ea945ab7-099a-4819-82de-ffffffffffff"),
+				IsFinal:    false,
+				Status:     models.PaymentRequestStatusReviewedAllRejected,
+				ReviewedAt: &reviewedDate,
+			},
 		},
-		Move: mto7,
-	})
+		{
+			Model:    mto7,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	// for soft deleted proof of service docs
 	proofOfService := testdatagen.MakeProofOfServiceDoc(db, testdatagen.Assertions{
@@ -7350,18 +7374,22 @@ func createHHGMoveWith2PaymentRequestsReviewedAllRejectedServiceItems(appCtx app
 		MTOServiceItem: serviceItemDLH7,
 	})
 
-	additionalPaymentRequest7 := testdatagen.MakePaymentRequest(db, testdatagen.Assertions{
-		PaymentRequest: models.PaymentRequest{
-			ID:              uuid.FromStringOrNil("540e2268-6899-4b67-828d-ffffffffffff"),
-			MoveTaskOrder:   mto7,
-			IsFinal:         false,
-			Status:          models.PaymentRequestStatusReviewedAllRejected,
-			ReviewedAt:      &reviewedDate,
-			RejectionReason: nil,
-			SequenceNumber:  2,
+	additionalPaymentRequest7 := factory.BuildPaymentRequest(db, []factory.Customization{
+		{
+			Model: models.PaymentRequest{
+				ID:              uuid.FromStringOrNil("540e2268-6899-4b67-828d-ffffffffffff"),
+				IsFinal:         false,
+				Status:          models.PaymentRequestStatusReviewedAllRejected,
+				ReviewedAt:      &reviewedDate,
+				RejectionReason: nil,
+				SequenceNumber:  2,
+			},
 		},
-		Move: mto7,
-	})
+		{
+			Model:    mto7,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	serviceItemCS7 := factory.BuildMTOServiceItemBasic(db, []factory.Customization{
 		{
@@ -8780,16 +8808,20 @@ func createMoveWithServiceItems(appCtx appcontext.AppContext, userUploader *uplo
 		},
 	}, nil)
 
-	paymentRequest9 := testdatagen.MakePaymentRequest(db, testdatagen.Assertions{
-		PaymentRequest: models.PaymentRequest{
-			ID:            uuid.FromStringOrNil("cfd110d4-1f62-401c-a92c-39987a0b4228"),
-			MoveTaskOrder: move9,
-			IsFinal:       false,
-			Status:        models.PaymentRequestStatusReviewed,
-			ReviewedAt:    models.TimePointer(time.Now()),
+	paymentRequest9 := factory.BuildPaymentRequest(db, []factory.Customization{
+		{
+			Model: models.PaymentRequest{
+				ID:         uuid.FromStringOrNil("cfd110d4-1f62-401c-a92c-39987a0b4228"),
+				IsFinal:    false,
+				Status:     models.PaymentRequestStatusReviewed,
+				ReviewedAt: models.TimePointer(time.Now()),
+			},
 		},
-		Move: move9,
-	})
+		{
+			Model:    move9,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
 		PaymentServiceItem: models.PaymentServiceItem{
@@ -8887,15 +8919,19 @@ func createMoveWithBasicServiceItems(appCtx appcontext.AppContext, userUploader 
 		},
 	}, nil)
 
-	paymentRequest10 := testdatagen.MakePaymentRequest(db, testdatagen.Assertions{
-		PaymentRequest: models.PaymentRequest{
-			ID:            uuid.FromStringOrNil("cfd110d4-1f62-401c-a92c-39987a0b4229"),
-			Status:        models.PaymentRequestStatusReviewed,
-			ReviewedAt:    models.TimePointer(time.Now()),
-			MoveTaskOrder: move10,
+	paymentRequest10 := factory.BuildPaymentRequest(db, []factory.Customization{
+		{
+			Model: models.PaymentRequest{
+				ID:         uuid.FromStringOrNil("cfd110d4-1f62-401c-a92c-39987a0b4229"),
+				Status:     models.PaymentRequestStatusReviewed,
+				ReviewedAt: models.TimePointer(time.Now()),
+			},
 		},
-		Move: move10,
-	})
+		{
+			Model:    move10,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	serviceItemA := factory.BuildMTOServiceItemBasic(db, []factory.Customization{
 		{
@@ -9770,15 +9806,19 @@ func createMoveWithSITExtensionHistory(appCtx appcontext.AppContext, userUploade
 
 	MakeSITExtensionsForShipment(appCtx, mtoShipmentSIT)
 
-	testdatagen.MakePaymentRequest(db, testdatagen.Assertions{
-		PaymentRequest: models.PaymentRequest{
-			ID:            uuid.Must(uuid.NewV4()),
-			Status:        models.PaymentRequestStatusReviewed,
-			ReviewedAt:    models.TimePointer(time.Now()),
-			MoveTaskOrder: move,
+	factory.BuildPaymentRequest(db, []factory.Customization{
+		{
+			Model: models.PaymentRequest{
+				ID:         uuid.Must(uuid.NewV4()),
+				Status:     models.PaymentRequestStatusReviewed,
+				ReviewedAt: models.TimePointer(time.Now()),
+			},
 		},
-		Move: move,
-	})
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 
 }
 
