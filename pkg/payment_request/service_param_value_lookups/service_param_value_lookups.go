@@ -96,14 +96,7 @@ func ServiceParamLookupInitialize(
 
 	contract, err := fetchContractForMove(appCtx, moveTaskOrderID)
 	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			// TODO this error isn't quite right, i think we need to return it from inside the function
-			// TODO there's no way to know if we failed to find the move or the contract
-			return nil, apperror.NewNotFoundError(moveTaskOrderID, "looking for Contracts")
-		default:
-			return nil, apperror.NewQueryError("Contract", err, "")
-		}
+		return nil, err
 	}
 	// TODO can we use the init function here
 	s := ServiceItemParamKeyData{
@@ -501,22 +494,19 @@ func getDestinationAddressForService(serviceCode models.ReServiceCode, mtoShipme
 }
 
 func fetchContractForMove(appCtx appcontext.AppContext, moveID uuid.UUID) (models.ReContract, error) {
-	fmt.Println("fetch contract for move")
 	var move models.Move
 	err := appCtx.DB().Find(&move, moveID)
 	if err != nil {
-		fmt.Println("problems 0: cant find move " + moveID.String())
-		appCtx.Logger().Debug("problems 0.1:", zap.Error(err))
-		//if err == sql.ErrNoRows {
-		//	return models.ReContract{}, apperror.NewNotFoundError(moveID, "arrrrrgh")
-		//}
+		appCtx.Logger().Debug("problems 0.1 can't find move:", zap.Error(err))
+		if err == sql.ErrNoRows {
+			return models.ReContract{}, apperror.NewNotFoundError(moveID, "looking for Move")
+		}
 		return models.ReContract{}, err
 	}
 
 	if move.AvailableToPrimeAt == nil {
-		fmt.Println("problems 1: AvailableToPrimeAt == nil")
-		// TODO fmt.Errorf bad
-		return models.ReContract{}, fmt.Errorf("cannot pick contract, not available to prime yet")
+		appCtx.Logger().Debug("problems 1: AvailableToPrimeAt == nil")
+		return models.ReContract{}, apperror.NewConflictError(moveID, "unable to pick contract because move is not available to prime")
 	}
 
 	appCtx.Logger().Debug("blarp fetchContractForMove")
@@ -527,13 +517,15 @@ func fetchContractForMove(appCtx appcontext.AppContext, moveID uuid.UUID) (model
 // TODO should this go here?
 // TODO should i return more detailed errors? or just pass along what we get?
 func FetchContract(appCtx appcontext.AppContext, date time.Time) (models.ReContract, error) {
-	fmt.Println("fetch contract")
 	appCtx.Logger().Debug("blarp FetchContract", zap.Time("date", date))
 	var contractYear models.ReContractYear
 	err := appCtx.DB().EagerPreload("Contract").Where("? between start_date and end_date", date).
 		First(&contractYear)
 	if err != nil {
 		fmt.Println("problems 2: can't find contract year")
+		if err == sql.ErrNoRows {
+			return models.ReContract{}, apperror.NewNotFoundError(uuid.Nil, "no contract year found for "+date.String())
+		}
 		return models.ReContract{}, err
 	}
 
