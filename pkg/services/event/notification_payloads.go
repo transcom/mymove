@@ -2,7 +2,6 @@ package event
 
 import (
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
 
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/gen/primemessages"
@@ -121,7 +120,7 @@ func PaymentServiceItemModelToPayload(paymentServiceItem *models.PaymentServiceI
 	}
 
 	if paymentServiceItem.PriceCents != nil {
-		payload.PriceCents = swag.Int64(int64(*paymentServiceItem.PriceCents))
+		payload.PriceCents = models.Int64Pointer(int64(*paymentServiceItem.PriceCents))
 	}
 
 	return payload

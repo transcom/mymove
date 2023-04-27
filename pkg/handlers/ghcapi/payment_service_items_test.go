@@ -5,7 +5,6 @@ import (
 	"net/http/httptest"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/etag"
@@ -130,7 +129,7 @@ func (suite *HandlerSuite) TestUpdatePaymentServiceItemHandler() {
 		subtestData.params.IfMatch = etag.GenerateEtag(paymentServiceItem.UpdatedAt)
 		subtestData.params.PaymentServiceItemID = paymentServiceItem.ID.String()
 		subtestData.params.Body.Status = ghcmessages.PaymentServiceItemStatusDENIED
-		subtestData.params.Body.RejectionReason = swag.String("Because reasons")
+		subtestData.params.Body.RejectionReason = models.StringPointer("Because reasons")
 
 		// Validate incoming payload
 		suite.NoError(subtestData.params.Body.Validate(strfmt.Default))

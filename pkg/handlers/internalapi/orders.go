@@ -8,7 +8,6 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
@@ -70,9 +69,9 @@ func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*inte
 	dBAuthorizedWeight = nil
 	var entitlement internalmessages.Entitlement
 	if order.Entitlement != nil {
-		dBAuthorizedWeight = swag.Int64(int64(*order.Entitlement.AuthorizedWeight()))
-		entitlement.ProGear = swag.Int64(int64(order.Entitlement.ProGearWeight))
-		entitlement.ProGearSpouse = swag.Int64(int64(order.Entitlement.ProGearWeightSpouse))
+		dBAuthorizedWeight = models.Int64Pointer(int64(*order.Entitlement.AuthorizedWeight()))
+		entitlement.ProGear = models.Int64Pointer(int64(order.Entitlement.ProGearWeight))
+		entitlement.ProGearSpouse = models.Int64Pointer(int64(order.Entitlement.ProGearWeightSpouse))
 	}
 	var originDutyLocation models.DutyLocation
 	originDutyLocation = models.DutyLocation{}
@@ -205,7 +204,7 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 			}
 
 			moveOptions := models.MoveOptions{
-				Show: swag.Bool(true),
+				Show: models.BoolPointer(true),
 			}
 			newMove, verrs, err := newOrder.CreateNewMove(appCtx.DB(), moveOptions)
 			if err != nil || verrs.HasAny() {

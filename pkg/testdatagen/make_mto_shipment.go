@@ -4,7 +4,6 @@ import (
 	"log"
 	"time"
 
-	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
 
@@ -111,12 +110,12 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 	var requestedPickupDate, scheduledPickupDate, actualPickupDate, requestedDeliveryDate *time.Time
 
 	if shipmentHasPickupDetails {
-		requestedPickupDate = swag.Time(time.Date(GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC))
-		scheduledPickupDate = swag.Time(time.Date(GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC))
-		actualPickupDate = swag.Time(time.Date(GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC))
+		requestedPickupDate = models.TimePointer(time.Date(GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC))
+		scheduledPickupDate = models.TimePointer(time.Date(GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC))
+		actualPickupDate = models.TimePointer(time.Date(GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC))
 	}
 	if shipmentHasDeliveryDetails {
-		requestedDeliveryDate = swag.Time(time.Date(GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC))
+		requestedDeliveryDate = models.TimePointer(time.Date(GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC))
 	}
 
 	var storageFacilityID *uuid.UUID
@@ -167,7 +166,7 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 		ScheduledPickupDate:   scheduledPickupDate,
 		ActualPickupDate:      actualPickupDate,
 		RequestedDeliveryDate: requestedDeliveryDate,
-		CustomerRemarks:       swag.String("Please treat gently"),
+		CustomerRemarks:       models.StringPointer("Please treat gently"),
 		PrimeEstimatedWeight:  estimatedWeight,
 		PrimeActualWeight:     &actualWeight,
 		ShipmentType:          shipmentType,
@@ -187,7 +186,7 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 		if !isZeroUUID(secondaryDeliveryAddress.ID) {
 			MTOShipment.SecondaryDeliveryAddress = &secondaryDeliveryAddress
 			MTOShipment.SecondaryDeliveryAddressID = &secondaryDeliveryAddress.ID
-			MTOShipment.HasSecondaryDeliveryAddress = swag.Bool(true)
+			MTOShipment.HasSecondaryDeliveryAddress = models.BoolPointer(true)
 		}
 	}
 
@@ -198,7 +197,7 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 		if !isZeroUUID(secondaryPickupAddress.ID) {
 			MTOShipment.SecondaryPickupAddress = &secondaryPickupAddress
 			MTOShipment.SecondaryPickupAddressID = &secondaryPickupAddress.ID
-			MTOShipment.HasSecondaryPickupAddress = swag.Bool(true)
+			MTOShipment.HasSecondaryPickupAddress = models.BoolPointer(true)
 		}
 	}
 

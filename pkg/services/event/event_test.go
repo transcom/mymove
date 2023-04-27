@@ -5,7 +5,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/suite"
 
@@ -219,7 +218,7 @@ func (suite *EventServiceSuite) Test_MTOShipmentEventTrigger() {
 		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.Move{
-					AvailableToPrimeAt: swag.Time(time.Now()),
+					AvailableToPrimeAt: models.TimePointer(time.Now()),
 				},
 			},
 		}, nil)
@@ -272,7 +271,7 @@ func (suite *EventServiceSuite) Test_MTOShipmentEventTrigger() {
 			},
 			{
 				Model: models.Move{
-					AvailableToPrimeAt: swag.Time(time.Now()),
+					AvailableToPrimeAt: models.TimePointer(time.Now()),
 				},
 			},
 		}, nil)
@@ -306,7 +305,7 @@ func (suite *EventServiceSuite) Test_MTOShipmentEventTrigger() {
 		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.Move{
-					AvailableToPrimeAt: swag.Time(time.Now()),
+					AvailableToPrimeAt: models.TimePointer(time.Now()),
 				},
 			},
 			{
@@ -363,7 +362,7 @@ func (suite *EventServiceSuite) Test_MTOShipmentEventTrigger() {
 		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.Move{
-					AvailableToPrimeAt: swag.Time(time.Now()),
+					AvailableToPrimeAt: models.TimePointer(time.Now()),
 				},
 			},
 			{

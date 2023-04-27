@@ -15,7 +15,6 @@ import (
 	"time"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
@@ -264,10 +263,10 @@ func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
 		certType := internalmessages.SignedCertificationTypeCreateSHIPMENT
 		signingDate := strfmt.DateTime(time.Now())
 		certificate := internalmessages.CreateSignedCertificationPayload{
-			CertificationText: swag.String("This is your legal message"),
+			CertificationText: models.StringPointer("This is your legal message"),
 			CertificationType: &certType,
 			Date:              &signingDate,
-			Signature:         swag.String("Jane Doe"),
+			Signature:         models.StringPointer("Jane Doe"),
 		}
 		newSubmitMoveForApprovalPayload := internalmessages.SubmitMoveForApprovalPayload{Certificate: &certificate}
 
@@ -315,10 +314,10 @@ func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
 		certType := internalmessages.SignedCertificationTypeCreateSHIPMENT
 		signingDate := strfmt.DateTime(time.Now())
 		certificate := internalmessages.CreateSignedCertificationPayload{
-			CertificationText: swag.String("This is your legal message"),
+			CertificationText: models.StringPointer("This is your legal message"),
 			CertificationType: &certType,
 			Date:              &signingDate,
-			Signature:         swag.String("Jane Doe"),
+			Signature:         models.StringPointer("Jane Doe"),
 		}
 		newSubmitMoveForApprovalPayload := internalmessages.SubmitMoveForApprovalPayload{Certificate: &certificate}
 
@@ -368,10 +367,10 @@ func (suite *HandlerSuite) TestSubmitMoveForServiceCounselingHandler() {
 		certType := internalmessages.SignedCertificationTypeCreateSHIPMENT
 		signingDate := strfmt.DateTime(time.Now())
 		certificate := internalmessages.CreateSignedCertificationPayload{
-			CertificationText: swag.String("This is your legal message"),
+			CertificationText: models.StringPointer("This is your legal message"),
 			CertificationType: &certType,
 			Date:              &signingDate,
-			Signature:         swag.String("Jane Doe"),
+			Signature:         models.StringPointer("Jane Doe"),
 		}
 		newSubmitMoveForApprovalPayload := internalmessages.SubmitMoveForApprovalPayload{Certificate: &certificate}
 

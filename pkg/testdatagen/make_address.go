@@ -1,7 +1,6 @@
 package testdatagen
 
 import (
-	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop/v6"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -11,12 +10,12 @@ import (
 func MakeAddress(db *pop.Connection, assertions Assertions) models.Address {
 	address := models.Address{
 		StreetAddress1: "123 Any Street",
-		StreetAddress2: swag.String("P.O. Box 12345"),
-		StreetAddress3: swag.String("c/o Some Person"),
+		StreetAddress2: models.StringPointer("P.O. Box 12345"),
+		StreetAddress3: models.StringPointer("c/o Some Person"),
 		City:           "Beverly Hills",
 		State:          "CA",
 		PostalCode:     "90210",
-		Country:        swag.String("US"),
+		Country:        models.StringPointer("US"),
 	}
 
 	mergeModels(&address, assertions.Address)
@@ -30,12 +29,12 @@ func MakeAddress(db *pop.Connection, assertions Assertions) models.Address {
 func MakeAddress2(db *pop.Connection, assertions Assertions) models.Address {
 	address := models.Address{
 		StreetAddress1: "987 Any Avenue",
-		StreetAddress2: swag.String("P.O. Box 9876"),
-		StreetAddress3: swag.String("c/o Some Person"),
+		StreetAddress2: models.StringPointer("P.O. Box 9876"),
+		StreetAddress3: models.StringPointer("c/o Some Person"),
 		City:           "Fairfield",
 		State:          "CA",
 		PostalCode:     "94535",
-		Country:        swag.String("US"),
+		Country:        models.StringPointer("US"),
 	}
 
 	mergeModels(&address, assertions.Address)
@@ -49,12 +48,12 @@ func MakeAddress2(db *pop.Connection, assertions Assertions) models.Address {
 func MakeAddress3(db *pop.Connection, assertions Assertions) models.Address {
 	address := models.Address{
 		StreetAddress1: "987 Other Avenue",
-		StreetAddress2: swag.String("P.O. Box 1234"),
-		StreetAddress3: swag.String("c/o Another Person"),
+		StreetAddress2: models.StringPointer("P.O. Box 1234"),
+		StreetAddress3: models.StringPointer("c/o Another Person"),
 		City:           "Des Moines",
 		State:          "IA",
 		PostalCode:     "50309",
-		Country:        swag.String("US"),
+		Country:        models.StringPointer("US"),
 	}
 
 	mergeModels(&address, assertions.Address)
