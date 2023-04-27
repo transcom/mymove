@@ -2349,9 +2349,12 @@ func createMoveWithServiceItemsandPaymentRequests01(appCtx appcontext.AppContext
 	}, nil)
 
 	// for soft deleted proof of service docs
-	proofOfService := testdatagen.MakeProofOfServiceDoc(appCtx.DB(), testdatagen.Assertions{
-		PaymentRequest: paymentRequestHHG,
-	})
+	proofOfService := factory.BuildProofOfServiceDoc(appCtx.DB(), []factory.Customization{
+		{
+			Model:    paymentRequestHHG,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	deletedAt := time.Now()
 	testdatagen.MakePrimeUpload(appCtx.DB(), testdatagen.Assertions{
@@ -3403,10 +3406,12 @@ func createHHGMoveWithServiceItemsAndPaymentRequestsAndFiles(appCtx appcontext.A
 		MTOServiceItem: mtoServiceItemDUCRT,
 	})
 
-	proofOfService := testdatagen.MakeProofOfServiceDoc(appCtx.DB(), testdatagen.Assertions{
-		PaymentRequest: paymentRequest,
-	})
-
+	proofOfService := factory.BuildProofOfServiceDoc(appCtx.DB(), []factory.Customization{
+		{
+			Model:    paymentRequest,
+			LinkOnly: true,
+		},
+	}, nil)
 	testdatagen.MakePrimeUpload(appCtx.DB(), testdatagen.Assertions{
 		PrimeUpload: models.PrimeUpload{
 			ID:                  uuid.FromStringOrNil("18413213-0aaf-4eb1-8d7f-1b557a4e425b"),
@@ -3420,9 +3425,12 @@ func createHHGMoveWithServiceItemsAndPaymentRequestsAndFiles(appCtx appcontext.A
 		PrimeUploader: primeUploader,
 	})
 
-	posImage := testdatagen.MakeProofOfServiceDoc(appCtx.DB(), testdatagen.Assertions{
-		PaymentRequest: paymentRequest,
-	})
+	posImage := factory.BuildProofOfServiceDoc(appCtx.DB(), []factory.Customization{
+		{
+			Model:    paymentRequest,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	primeContractor := uuid.FromStringOrNil("5db13bb4-6d29-4bdb-bc81-262f4513ecf6")
 
@@ -4775,9 +4783,12 @@ func createNTSMoveWithServiceItemsandPaymentRequests(appCtx appcontext.AppContex
 	}, nil)
 
 	// for soft deleted proof of service docs
-	proofOfService := testdatagen.MakeProofOfServiceDoc(appCtx.DB(), testdatagen.Assertions{
-		PaymentRequest: paymentRequestNTS,
-	})
+	proofOfService := factory.BuildProofOfServiceDoc(appCtx.DB(), []factory.Customization{
+		{
+			Model:    paymentRequestNTS,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	deletedAt := time.Now()
 	testdatagen.MakePrimeUpload(appCtx.DB(), testdatagen.Assertions{

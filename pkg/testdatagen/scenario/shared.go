@@ -3823,10 +3823,12 @@ func createHHGWithOriginSITServiceItems(appCtx appcontext.AppContext, primeUploa
 		logger.Fatal("Error creating payment request", zap.Error(createErr))
 	}
 
-	proofOfService := testdatagen.MakeProofOfServiceDoc(db, testdatagen.Assertions{
-		PaymentRequest: *newPaymentRequest,
-	})
-
+	proofOfService := factory.BuildProofOfServiceDoc(db, []factory.Customization{
+		{
+			Model:    *newPaymentRequest,
+			LinkOnly: true,
+		},
+	}, nil)
 	primeContractor := uuid.FromStringOrNil("5db13bb4-6d29-4bdb-bc81-262f4513ecf6")
 	testdatagen.MakePrimeUpload(db, testdatagen.Assertions{
 		PrimeUpload: models.PrimeUpload{
@@ -3840,10 +3842,12 @@ func createHHGWithOriginSITServiceItems(appCtx appcontext.AppContext, primeUploa
 		PrimeUploader: primeUploader,
 	})
 
-	posImage := testdatagen.MakeProofOfServiceDoc(db, testdatagen.Assertions{
-		PaymentRequest: *newPaymentRequest,
-	})
-
+	posImage := factory.BuildProofOfServiceDoc(db, []factory.Customization{
+		{
+			Model:    *newPaymentRequest,
+			LinkOnly: true,
+		},
+	}, nil)
 	// Creates custom test.jpg prime upload
 	file := testdatagen.Fixture("test.jpg")
 	_, verrs, err = primeUploader.CreatePrimeUploadForDocument(appCtx, &posImage.ID, primeContractor, uploader.File{File: file}, uploader.AllowedTypesPaymentRequest)
@@ -4054,9 +4058,12 @@ func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, prime
 		logger.Fatal("Error creating payment request", zap.Error(createErr))
 	}
 
-	proofOfService := testdatagen.MakeProofOfServiceDoc(db, testdatagen.Assertions{
-		PaymentRequest: *newPaymentRequest,
-	})
+	proofOfService := factory.BuildProofOfServiceDoc(db, []factory.Customization{
+		{
+			Model:    *newPaymentRequest,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	primeContractor := uuid.FromStringOrNil("5db13bb4-6d29-4bdb-bc81-262f4513ecf6")
 	testdatagen.MakePrimeUpload(db, testdatagen.Assertions{
@@ -4071,10 +4078,12 @@ func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, prime
 		PrimeUploader: primeUploader,
 	})
 
-	posImage := testdatagen.MakeProofOfServiceDoc(db, testdatagen.Assertions{
-		PaymentRequest: *newPaymentRequest,
-	})
-
+	posImage := factory.BuildProofOfServiceDoc(db, []factory.Customization{
+		{
+			Model:    *newPaymentRequest,
+			LinkOnly: true,
+		},
+	}, nil)
 	// Creates custom test.jpg prime upload
 	file := testdatagen.Fixture("test.jpg")
 	_, verrs, err = primeUploader.CreatePrimeUploadForDocument(appCtx, &posImage.ID, primeContractor, uploader.File{File: file}, uploader.AllowedTypesPaymentRequest)
@@ -4685,9 +4694,12 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 		logger.Fatal("Error creating payment request", zap.Error(createErr))
 	}
 
-	proofOfService := testdatagen.MakeProofOfServiceDoc(db, testdatagen.Assertions{
-		PaymentRequest: *newPaymentRequest,
-	})
+	proofOfService := factory.BuildProofOfServiceDoc(db, []factory.Customization{
+		{
+			Model:    *newPaymentRequest,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	primeContractor := uuid.FromStringOrNil("5db13bb4-6d29-4bdb-bc81-262f4513ecf6")
 	testdatagen.MakePrimeUpload(db, testdatagen.Assertions{
@@ -4702,9 +4714,12 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 		PrimeUploader: primeUploader,
 	})
 
-	posImage := testdatagen.MakeProofOfServiceDoc(db, testdatagen.Assertions{
-		PaymentRequest: *newPaymentRequest,
-	})
+	posImage := factory.BuildProofOfServiceDoc(db, []factory.Customization{
+		{
+			Model:    *newPaymentRequest,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	// Creates custom test.jpg prime upload
 	file := testdatagen.Fixture("test.jpg")
@@ -5489,10 +5504,12 @@ func createHHGMoveWith2PaymentRequests(appCtx appcontext.AppContext, userUploade
 	}, nil)
 
 	// for soft deleted proof of service docs
-	proofOfService := testdatagen.MakeProofOfServiceDoc(db, testdatagen.Assertions{
-		PaymentRequest: paymentRequest7,
-	})
-
+	proofOfService := factory.BuildProofOfServiceDoc(db, []factory.Customization{
+		{
+			Model:    paymentRequest7,
+			LinkOnly: true,
+		},
+	}, nil)
 	deletedAt := time.Now()
 	testdatagen.MakePrimeUpload(db, testdatagen.Assertions{
 		PrimeUpload: models.PrimeUpload{
@@ -7392,9 +7409,12 @@ func createHHGMoveWith2PaymentRequestsReviewedAllRejectedServiceItems(appCtx app
 	}, nil)
 
 	// for soft deleted proof of service docs
-	proofOfService := testdatagen.MakeProofOfServiceDoc(db, testdatagen.Assertions{
-		PaymentRequest: paymentRequest7,
-	})
+	proofOfService := factory.BuildProofOfServiceDoc(db, []factory.Customization{
+		{
+			Model:    paymentRequest7,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	deletedAt := time.Now()
 	testdatagen.MakePrimeUpload(db, testdatagen.Assertions{

@@ -925,11 +925,12 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 		})
 
 		// Create proof of service doc
-		proofOfServiceDoc := testdatagen.MakeProofOfServiceDoc(suite.DB(), testdatagen.Assertions{
-			ProofOfServiceDoc: models.ProofOfServiceDoc{
-				PaymentRequestID: paymentRequest.ID,
+		proofOfServiceDoc := factory.BuildProofOfServiceDoc(suite.DB(), []factory.Customization{
+			{
+				Model:    paymentRequest,
+				LinkOnly: true,
 			},
-		})
+		}, nil)
 
 		parameters := services.FetchMoveHistoryParams{
 			Locator: move.Locator,

@@ -56,6 +56,7 @@ var Organization CustomType = "Organization"
 var PPMShipment CustomType = "PPMShipment"
 var PaymentRequest CustomType = "PaymentRequest"
 var PostalCodeToGBLOC CustomType = "PostalCodeToGBLOC"
+var ProofOfServiceDoc CustomType = "ProofOfServiceDoc"
 var ReService CustomType = "ReService"
 var Role CustomType = "Role"
 var ServiceItemParamKey CustomType = "ServiceItemParamKey"
@@ -95,6 +96,7 @@ var defaultTypesMap = map[string]CustomType{
 	"models.PaymentRequest":          PaymentRequest,
 	"models.PPMShipment":             PPMShipment,
 	"models.PostalCodeToGBLOC":       PostalCodeToGBLOC,
+	"models.ProofOfServiceDoc":       ProofOfServiceDoc,
 	"models.ReService":               ReService,
 	"models.ServiceItemParamKey":     ServiceItemParamKey,
 	"models.ServiceMember":           ServiceMember,
