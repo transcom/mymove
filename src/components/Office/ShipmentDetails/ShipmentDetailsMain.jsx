@@ -96,17 +96,16 @@ const ShipmentDetailsMain = ({
   );
 
   const summarySITComponent = useMemo(
-    () =>
-      sitStatus && (
-        <ShipmentSITDisplay
-          sitExtensions={sitExtensions}
-          sitStatus={sitStatus}
-          storageInTransit={storageInTransit}
-          shipment={shipment}
-          showReviewSITExtension={setIsReviewSITExtensionModalVisible}
-          showSubmitSITExtension={setIsSubmitITExtensionModalVisible}
-        />
-      ),
+    () => (
+      <ShipmentSITDisplay
+        sitExtensions={sitExtensions}
+        sitStatus={sitStatus}
+        storageInTransit={storageInTransit}
+        shipment={shipment}
+        showReviewSITExtension={setIsReviewSITExtensionModalVisible}
+        showSubmitSITExtension={setIsSubmitITExtensionModalVisible}
+      />
+    ),
     [
       sitExtensions,
       sitStatus,
@@ -138,6 +137,8 @@ const ShipmentDetailsMain = ({
       displayedDeliveryAddress = destinationAddress || destinationDutyLocationAddress;
   }
 
+  // console.log(sitStatus);
+
   return (
     <div className={className}>
       {isReviewSITExtensionModalVisible && (
@@ -157,16 +158,16 @@ const ShipmentDetailsMain = ({
           sitStatus={sitStatus}
         />
       )}
-      {sitStatus && (
-        <ShipmentSITDisplay
-          sitExtensions={sitExtensions}
-          sitStatus={sitStatus}
-          storageInTransit={storageInTransit}
-          shipment={shipment}
-          className={styles.shipmentSITSummary}
-          openModalButton={openModalButton}
-        />
-      )}
+      {/* {sitStatus && ( */}
+      <ShipmentSITDisplay
+        sitExtensions={sitExtensions}
+        sitStatus={sitStatus}
+        storageInTransit={storageInTransit}
+        shipment={shipment}
+        className={styles.shipmentSITSummary}
+        openModalButton={openModalButton}
+      />
+      {/* )} */}
       <ImportantShipmentDates
         requestedPickupDate={formatDate(requestedPickupDate)}
         scheduledPickupDate={scheduledPickupDate ? formatDate(scheduledPickupDate) : null}
