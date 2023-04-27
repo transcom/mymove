@@ -65,17 +65,6 @@ func (suite *RateEngineSuite) Test_CheckLinehaulFactors() {
 	t := suite.T()
 	engine := NewRateEngine(move)
 
-	// Load fake data
-	originZip3 := models.Tariff400ngZip3{
-		Zip3:          "395",
-		BasepointCity: "Saucier",
-		State:         "MS",
-		ServiceArea:   "428",
-		RateArea:      "US48",
-		Region:        "11",
-	}
-	suite.MustSave(&originZip3)
-
 	serviceArea := models.Tariff400ngServiceArea{
 		Name:               "Gulfport, MS",
 		ServiceArea:        "428",
@@ -133,9 +122,7 @@ func (suite *RateEngineSuite) Test_CheckLinehaulChargeTotal() {
 	engine := NewRateEngine(move)
 	weight := unit.Pound(2000)
 	expected := unit.Cents(11462)
-	zip3Austin := "787"
 	zip5Austin := "78717"
-	zip3SanFrancisco := "941"
 	zip5SanFrancisco := "94103"
 	distanceMiles := 1234
 
@@ -155,27 +142,6 @@ func (suite *RateEngineSuite) Test_CheckLinehaulChargeTotal() {
 		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
 	}
 	suite.MustSave(&newBaseLinehaul)
-
-	// Create Service Area entries for Zip3s
-	zipAustin := models.Tariff400ngZip3{
-		Zip3:          zip3Austin,
-		BasepointCity: "Austin",
-		State:         "TX",
-		ServiceArea:   "744",
-		RateArea:      "US1",
-		Region:        "1",
-	}
-	suite.MustSave(&zipAustin)
-
-	zipSanFrancisco := models.Tariff400ngZip3{
-		Zip3:          zip3SanFrancisco,
-		BasepointCity: "San Francisco",
-		State:         "CA",
-		ServiceArea:   "81",
-		RateArea:      "US2",
-		Region:        "2",
-	}
-	suite.MustSave(&zipSanFrancisco)
 
 	// Create fees for service areas
 	sa1 := models.Tariff400ngServiceArea{

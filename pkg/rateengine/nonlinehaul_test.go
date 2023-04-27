@@ -13,16 +13,6 @@ func (suite *RateEngineSuite) Test_CheckServiceFee() {
 	t := suite.T()
 	engine := NewRateEngine(move)
 
-	originZip3 := models.Tariff400ngZip3{
-		Zip3:          "395",
-		BasepointCity: "Saucier",
-		State:         "MS",
-		ServiceArea:   "428",
-		RateArea:      "US48",
-		Region:        "11",
-	}
-	suite.MustSave(&originZip3)
-
 	serviceArea := models.Tariff400ngServiceArea{
 		Name:               "Gulfport, MS",
 		ServiceArea:        "428",
@@ -59,16 +49,6 @@ func (suite *RateEngineSuite) Test_CheckFullPack() {
 	}
 	t := suite.T()
 	engine := NewRateEngine(move)
-
-	originZip3 := models.Tariff400ngZip3{
-		Zip3:          "395",
-		BasepointCity: "Saucier",
-		State:         "MS",
-		ServiceArea:   "428",
-		RateArea:      "US48",
-		Region:        "11",
-	}
-	suite.MustSave(&originZip3)
 
 	serviceArea := models.Tariff400ngServiceArea{
 		Name:               "Gulfport, MS",
@@ -115,16 +95,6 @@ func (suite *RateEngineSuite) Test_CheckFullUnpack() {
 	}
 	t := suite.T()
 	engine := NewRateEngine(move)
-
-	originZip3 := models.Tariff400ngZip3{
-		Zip3:          "395",
-		BasepointCity: "Saucier",
-		State:         "MS",
-		ServiceArea:   "428",
-		RateArea:      "US48",
-		Region:        "11",
-	}
-	suite.MustSave(&originZip3)
 
 	serviceArea := models.Tariff400ngServiceArea{
 		Name:               "Gulfport, MS",
@@ -186,16 +156,6 @@ func (suite *RateEngineSuite) Test_SITCharge() {
 	daysInSIT := 4
 
 	suite.PreloadData(func() {
-
-		z := models.Tariff400ngZip3{
-			Zip3:          zip3,
-			BasepointCity: "Saucier",
-			State:         "MS",
-			ServiceArea:   "428",
-			RateArea:      "US48",
-			Region:        "11",
-		}
-		suite.MustSave(&z)
 
 		sit185ARate := unit.Cents(2324)
 		sit185BRate := unit.Cents(431)
@@ -325,16 +285,6 @@ func (suite *RateEngineSuite) Test_CheckNonLinehaulChargeTotal() {
 	t := suite.T()
 	engine := NewRateEngine(move)
 
-	originZip3 := models.Tariff400ngZip3{
-		Zip3:          "395",
-		BasepointCity: "Saucier",
-		State:         "MS",
-		ServiceArea:   "428",
-		RateArea:      "US48",
-		Region:        "11",
-	}
-	suite.MustSave(&originZip3)
-
 	originServiceArea := models.Tariff400ngServiceArea{
 		Name:               "Gulfport, MS",
 		ServiceArea:        "428",
@@ -348,16 +298,6 @@ func (suite *RateEngineSuite) Test_CheckNonLinehaulChargeTotal() {
 		SITPDSchedule:      1,
 	}
 	suite.MustSave(&originServiceArea)
-
-	destinationZip3 := models.Tariff400ngZip3{
-		Zip3:          "336",
-		BasepointCity: "Tampa",
-		State:         "FL",
-		ServiceArea:   "197",
-		RateArea:      "US4964400",
-		Region:        "13",
-	}
-	suite.MustSave(&destinationZip3)
 
 	destinationServiceArea := models.Tariff400ngServiceArea{
 		Name:               "Tampa, FL",

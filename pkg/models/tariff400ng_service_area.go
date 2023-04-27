@@ -61,6 +61,7 @@ func (t *Tariff400ngServiceArea) Validate(tx *pop.Connection) (*validate.Errors,
 }
 
 // FetchTariff400ngServiceAreaForZip3 returns the service area for a specified Zip3.
+// TODO: Delete me eventually!  Has reference to tariff400ng_zip3s table.
 func FetchTariff400ngServiceAreaForZip3(tx *pop.Connection, zip3 string, date time.Time) (Tariff400ngServiceArea, error) {
 	serviceArea := Tariff400ngServiceArea{}
 	sql := `SELECT

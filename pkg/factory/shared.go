@@ -63,7 +63,6 @@ var ServiceParam CustomType = "ServiceParam"
 var ServiceMember CustomType = "ServiceMember"
 var SignedCertification CustomType = "SignedCertification"
 var StorageFacility CustomType = "StorageFacility"
-var Tariff400ngZip3 CustomType = "Tariff400ngZip3"
 var TransportationOffice CustomType = "TransportationOffice"
 var Upload CustomType = "Upload"
 var UserUpload CustomType = "UserUpload"
@@ -101,7 +100,6 @@ var defaultTypesMap = map[string]CustomType{
 	"models.ServiceParam":            ServiceParam,
 	"models.SignedCertification":     SignedCertification,
 	"models.StorageFacility":         StorageFacility,
-	"models.Tariff400ngZip3":         Tariff400ngZip3,
 	"models.TransportationOffice":    TransportationOffice,
 	"models.Upload":                  Upload,
 	"models.UserUpload":              UserUpload,
