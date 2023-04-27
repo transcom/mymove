@@ -101,7 +101,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		}, nil)
 		subtestData.mtoShipment.MoveTaskOrderID = mto.ID
 
-		mtoAgent := testdatagen.MakeDefaultMTOAgent(suite.DB())
+		mtoAgent := factory.BuildMTOAgent(suite.DB(), nil, nil)
 		agents := internalmessages.MTOAgents{&internalmessages.MTOAgent{
 			FirstName: mtoAgent.FirstName,
 			LastName:  mtoAgent.LastName,
@@ -573,7 +573,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		secondaryDeliveryAddress := factory.BuildAddress(suite.DB(), nil, nil)
 		secondaryDeliveryAddress.StreetAddress1 = "9999 Test Fake Rd SE"
 
-		mtoAgent := testdatagen.MakeDefaultMTOAgent(suite.DB())
+		mtoAgent := factory.BuildMTOAgent(suite.DB(), nil, nil)
 		agents := internalmessages.MTOAgents{&internalmessages.MTOAgent{
 			FirstName: mtoAgent.FirstName,
 			LastName:  mtoAgent.LastName,

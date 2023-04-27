@@ -35,14 +35,3 @@ func MakeMTOAgent(db *pop.Connection, assertions Assertions) models.MTOAgent {
 
 	return MTOAgent
 }
-
-// MakeDefaultMTOAgent returns a MTOAgent with default values
-func MakeDefaultMTOAgent(db *pop.Connection) models.MTOAgent {
-	return MakeMTOAgent(db, Assertions{})
-}
-
-func MakeStubbedAgent(db *pop.Connection, assertions Assertions) models.MTOAgent {
-	return MakeMTOAgent(db, Assertions{
-		Stub: true,
-	})
-}

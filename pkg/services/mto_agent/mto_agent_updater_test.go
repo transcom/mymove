@@ -6,9 +6,9 @@ import (
 
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *MTOAgentServiceSuite) TestMTOAgentUpdater() {
@@ -22,7 +22,7 @@ func (suite *MTOAgentServiceSuite) TestMTOAgentUpdater() {
 		// Under test: UpdateMTOAgentBasic function
 		// Set up:     Update an agent that doesn't exist
 		// Expected outcome: NotFound Error
-		agent := testdatagen.MakeStubbedAgent(suite.DB(), testdatagen.Assertions{})
+		agent := factory.BuildMTOAgent(nil, nil, nil)
 		agent.ID = uuid.Must(uuid.NewV4())
 
 		eTag := etag.GenerateEtag(agent.UpdatedAt)
@@ -41,7 +41,7 @@ func (suite *MTOAgentServiceSuite) TestMTOAgentUpdater() {
 		// Set up:      Create an agent
 		//              Update the agent with a shipment that doesn't exist
 		// Expected outcome: InvalidInput Error
-		originalAgent := testdatagen.MakeDefaultMTOAgent(suite.DB())
+		originalAgent := factory.BuildMTOAgent(suite.DB(), nil, nil)
 		originalAgent.MTOShipmentID = uuid.Must(uuid.NewV4())
 
 		eTag := etag.GenerateEtag(originalAgent.UpdatedAt)
@@ -63,7 +63,7 @@ func (suite *MTOAgentServiceSuite) TestMTOAgentUpdater() {
 		// Under test:  UpdateMTOAgentBasic function
 		// Set up:      Create an agent, then update it with a bad etag
 		// Expected outcome: PreconditionFailedError
-		oldAgent := testdatagen.MakeDefaultMTOAgent(suite.DB())
+		oldAgent := factory.BuildMTOAgent(suite.DB(), nil, nil)
 		updatedAgent, err := mtoAgentUpdater.UpdateMTOAgentBasic(suite.AppContextForTest(), &oldAgent, "bloop") // base validation
 
 		suite.Nil(updatedAgent)
@@ -77,7 +77,7 @@ func (suite *MTOAgentServiceSuite) TestMTOAgentUpdater() {
 		// Under test:  UpdateMTOAgentBasic function
 		// Set up:      Create an agent, then update it successfully
 		// Expected outcome: Success and an updated agent
-		oldAgent := testdatagen.MakeDefaultMTOAgent(suite.DB())
+		oldAgent := factory.BuildMTOAgent(suite.DB(), nil, nil)
 		eTag := etag.GenerateEtag(oldAgent.UpdatedAt)
 
 		firstName := "Carol"

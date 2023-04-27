@@ -3186,7 +3186,7 @@ func (suite *HandlerSuite) getUpdateShipmentParams(originalShipment models.MTOSh
 	counselorRemarks := "counselor approved"
 	billableWeightCap := int64(8000)
 	billableWeightJustification := "Unable to perform reweigh because shipment was already unloaded."
-	mtoAgent := testdatagen.MakeDefaultMTOAgent(suite.DB())
+	mtoAgent := factory.BuildMTOAgent(suite.DB(), nil, nil)
 	agents := ghcmessages.MTOAgents{&ghcmessages.MTOAgent{
 		FirstName: mtoAgent.FirstName,
 		LastName:  mtoAgent.LastName,
