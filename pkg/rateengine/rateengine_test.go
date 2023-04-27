@@ -51,17 +51,6 @@ func (suite *RateEngineSuite) setupRateEngineTest() {
 		SITPDSchedule:      1,
 	}
 	suite.MustSave(&destinationServiceArea)
-	newBaseLinehaul := models.Tariff400ngLinehaulRate{
-		DistanceMilesLower: 1,
-		DistanceMilesUpper: 10000,
-		WeightLbsLower:     1000,
-		WeightLbsUpper:     4000,
-		RateCents:          20000,
-		Type:               "ConusLinehaul",
-		EffectiveDateLower: testdatagen.PeakRateCycleStart,
-		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
-	}
-	suite.MustSave(&newBaseLinehaul)
 }
 
 func (suite *RateEngineSuite) Test_CheckPPMTotal() {

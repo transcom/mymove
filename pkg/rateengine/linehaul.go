@@ -44,12 +44,7 @@ func (c LinehaulCostComputation) MarshalLogObject(encoder zapcore.ObjectEncoder)
 
 // Determine the Base Linehaul (BLH)
 func (re *RateEngine) baseLinehaul(appCtx appcontext.AppContext, mileage int, weight unit.Pound, date time.Time) (baseLinehaulChargeCents unit.Cents, err error) {
-	baseLinehaulChargeCents, err = models.FetchBaseLinehaulRate(appCtx.DB(), mileage, weight, date)
-	if err != nil {
-		appCtx.Logger().Error("Base Linehaul query didn't complete: ", zap.Error(err))
-	}
-
-	return baseLinehaulChargeCents, err
+	return unit.Cents(0), err
 }
 
 // Determine the Linehaul Factors (OLF and DLF)
@@ -71,10 +66,7 @@ func (re *RateEngine) shorthaulCharge(appCtx appcontext.AppContext, mileage int,
 		zap.Int("miles", mileage),
 	)
 
-	cwtMiles := mileage * cwt.Int()
-	shorthaulChargeCents, err = models.FetchShorthaulRateCents(appCtx.DB(), cwtMiles, date)
-
-	return shorthaulChargeCents, err
+	return unit.Cents(0), nil
 }
 
 // Determine Linehaul Charge (LC) TOTAL

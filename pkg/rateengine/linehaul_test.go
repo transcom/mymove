@@ -20,31 +20,6 @@ func (suite *RateEngineSuite) Test_CheckBaseLinehaul() {
 
 	expected := unit.Cents(128000)
 
-	newBaseLinehaul := models.Tariff400ngLinehaulRate{
-		DistanceMilesLower: 3101,
-		DistanceMilesUpper: 3300,
-		WeightLbsLower:     3000,
-		WeightLbsUpper:     4000,
-		RateCents:          expected,
-		Type:               "ConusLinehaul",
-		EffectiveDateLower: testdatagen.PeakRateCycleStart,
-		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
-	}
-
-	otherBaseLinehaul := models.Tariff400ngLinehaulRate{
-		DistanceMilesLower: 3401,
-		DistanceMilesUpper: 3500,
-		WeightLbsLower:     3000,
-		WeightLbsUpper:     4000,
-		RateCents:          158000,
-		Type:               "ConusLinehaul",
-		EffectiveDateLower: testdatagen.NonPeakRateCycleStart,
-		EffectiveDateUpper: testdatagen.NonPeakRateCycleEnd,
-	}
-
-	suite.MustSave(&newBaseLinehaul)
-	suite.MustSave(&otherBaseLinehaul)
-
 	mileage := 3200
 	weight := unit.Pound(3900)
 	date := testdatagen.DateInsidePeakRateCycle
@@ -99,15 +74,6 @@ func (suite *RateEngineSuite) Test_CheckShorthaulCharge() {
 	cwt := unit.CWT(40)
 	rate := unit.Cents(5656)
 
-	sh := models.Tariff400ngShorthaulRate{
-		CwtMilesLower:      1,
-		CwtMilesUpper:      50000,
-		RateCents:          rate,
-		EffectiveDateLower: testdatagen.PeakRateCycleStart,
-		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
-	}
-	suite.MustSave(&sh)
-
 	shc, _ := engine.shorthaulCharge(suite.AppContextForTest(), mileage, cwt, testdatagen.DateInsidePeakRateCycle)
 	if shc != rate {
 		t.Errorf("Shorthaul charge should have been %d, but is %d.", rate, shc)
@@ -129,19 +95,6 @@ func (suite *RateEngineSuite) Test_CheckLinehaulChargeTotal() {
 	assertions := testdatagen.Assertions{}
 	assertions.FuelEIADieselPrice.BaselineRate = 6
 	testdatagen.MakeFuelEIADieselPrices(suite.DB(), assertions)
-
-	// $4642 is the 2018 baseline rate for a 1700 mile (Austin -> SF), 2000lb move
-	newBaseLinehaul := models.Tariff400ngLinehaulRate{
-		DistanceMilesLower: 1,
-		DistanceMilesUpper: 10000,
-		WeightLbsLower:     1000,
-		WeightLbsUpper:     4000,
-		RateCents:          4642,
-		Type:               "ConusLinehaul",
-		EffectiveDateLower: testdatagen.PeakRateCycleStart,
-		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
-	}
-	suite.MustSave(&newBaseLinehaul)
 
 	// Create fees for service areas
 	sa1 := models.Tariff400ngServiceArea{
