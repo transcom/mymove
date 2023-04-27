@@ -54,6 +54,7 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton }
   const currentDateEnteredSit = <p>{formatDate(sitStatus.sitEntryDate, utcDateFormat, 'DD MMM YYYY')}</p>;
 
   const sitEndDate = moment().add(sitStatus.totalDaysRemaining, 'days').format('DD MMM YYYY');
+  const totalDaysRemaining = Number(sitStatus.totalDaysRemaining) < 0 ? 'Expired' : sitStatus.totalDaysRemaining;
 
   // Previous SIT calculations and date ranges
   const previousDaysUsed = sitStatus.pastSITServiceItems?.map((pastSITItem) => {
@@ -76,7 +77,7 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton }
         {/* Sit Total days table */}
         <DataTable
           columnHeaders={['Total days of SIT approved', 'Total days used', 'Total days remaining']}
-          dataRow={[shipment.sitDaysAllowance, sitStatus.totalSITDaysUsed, sitStatus.totalDaysRemaining]}
+          dataRow={[shipment.sitDaysAllowance, sitStatus.totalSITDaysUsed, totalDaysRemaining]}
         />
       </div>
       <div className={styles.tableContainer}>

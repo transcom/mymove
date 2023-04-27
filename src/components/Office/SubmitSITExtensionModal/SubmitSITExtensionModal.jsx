@@ -51,6 +51,7 @@ const SitStatusTables = ({ sitStatus }) => {
 
   const currentDaysInSit = <p>{sitStatus.totalSITDaysUsed}</p>;
   const currentDateEnteredSit = <p>{formatDate(sitStatus.sitEntryDate, utcDateFormat, 'DD MMM YYYY')}</p>;
+  const totalDaysRemaining = Number(sitStatus.totalDaysRemaining) < 0 ? 'Expired' : sitStatus.totalDaysRemaining;
 
   /**
    * @function
@@ -105,7 +106,7 @@ const SitStatusTables = ({ sitStatus }) => {
           dataRow={[
             <SitDaysAllowanceForm onChange={(e) => handleDaysAllowanceChange(e.target.value)} />,
             sitStatus.totalSITDaysUsed,
-            sitStatus.totalDaysRemaining,
+            totalDaysRemaining,
           ]}
         />
       </div>
