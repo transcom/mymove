@@ -69,30 +69,14 @@ func (re *RateEngine) serviceFeeCents(appCtx appcontext.AppContext, cwt unit.CWT
 
 // fullPackCents Returns the NON-DISCOUNTED rate in millicents with the fee
 func (re *RateEngine) fullPackCents(appCtx appcontext.AppContext, cwt unit.CWT, zip3 string, date time.Time) (FeeAndRate, error) {
-	serviceArea, err := models.FetchTariff400ngServiceAreaForZip3(appCtx.DB(), zip3, date)
-	if err != nil {
-		return FeeAndRate{}, err
-	}
-
-	fullPackRate, err := models.FetchTariff400ngFullPackRateCents(appCtx.DB(), cwt.ToPounds(), serviceArea.ServicesSchedule, date)
-	if err != nil {
-		return FeeAndRate{}, err
-	}
+	fullPackRate := unit.Cents(0)
 
 	return FeeAndRate{Fee: fullPackRate.Multiply(cwt.Int()), Rate: fullPackRate.ToMillicents()}, nil
 }
 
 // fullUnpackCents Returns the NON-DISCOUNTED rate in millicents with the fee
 func (re *RateEngine) fullUnpackCents(appCtx appcontext.AppContext, cwt unit.CWT, zip3 string, date time.Time) (FeeAndRate, error) {
-	serviceArea, err := models.FetchTariff400ngServiceAreaForZip3(appCtx.DB(), zip3, date)
-	if err != nil {
-		return FeeAndRate{}, err
-	}
-
-	fullUnpackRate, err := models.FetchTariff400ngFullUnpackRateMillicents(appCtx.DB(), serviceArea.ServicesSchedule, date)
-	if err != nil {
-		return FeeAndRate{}, err
-	}
+	fullUnpackRate := 0
 
 	return FeeAndRate{Fee: unit.Cents(math.Round(float64(cwt.Int()*fullUnpackRate) / 1000.0)), Rate: unit.Millicents(fullUnpackRate)}, nil
 }

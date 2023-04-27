@@ -64,16 +64,6 @@ func (suite *RateEngineSuite) Test_CheckFullPack() {
 	}
 	suite.MustSave(&serviceArea)
 
-	fullPackRate := models.Tariff400ngFullPackRate{
-		Schedule:           1,
-		WeightLbsLower:     0,
-		WeightLbsUpper:     16001,
-		RateCents:          5429,
-		EffectiveDateLower: testdatagen.PeakRateCycleStart,
-		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
-	}
-	suite.MustSave(&fullPackRate)
-
 	feeAndRate, err := engine.fullPackCents(suite.AppContextForTest(), unit.CWT(50), "395", testdatagen.DateInsidePeakRateCycle)
 	if err != nil {
 		suite.Fail("failed to calculate full pack fee: %s", err)
@@ -109,24 +99,6 @@ func (suite *RateEngineSuite) Test_CheckFullUnpack() {
 		SITPDSchedule:      1,
 	}
 	suite.MustSave(&serviceArea)
-
-	fullPackRate := models.Tariff400ngFullPackRate{
-		Schedule:           1,
-		WeightLbsLower:     0,
-		WeightLbsUpper:     16001,
-		RateCents:          5429,
-		EffectiveDateLower: testdatagen.PeakRateCycleStart,
-		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
-	}
-	suite.MustSave(&fullPackRate)
-
-	fullUnpackRate := models.Tariff400ngFullUnpackRate{
-		Schedule:           1,
-		RateMillicents:     542900,
-		EffectiveDateLower: testdatagen.PeakRateCycleStart,
-		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
-	}
-	suite.MustSave(&fullUnpackRate)
 
 	feeAndRate, err := engine.fullUnpackCents(suite.AppContextForTest(), unit.CWT(50), "395", testdatagen.DateInsidePeakRateCycle)
 	if err != nil {
@@ -312,24 +284,6 @@ func (suite *RateEngineSuite) Test_CheckNonLinehaulChargeTotal() {
 		SITPDSchedule:      1,
 	}
 	suite.MustSave(&destinationServiceArea)
-
-	fullPackRate := models.Tariff400ngFullPackRate{
-		Schedule:           1,
-		WeightLbsLower:     0,
-		WeightLbsUpper:     16001,
-		RateCents:          5429,
-		EffectiveDateLower: testdatagen.PeakRateCycleStart,
-		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
-	}
-	suite.MustSave(&fullPackRate)
-
-	fullUnpackRate := models.Tariff400ngFullUnpackRate{
-		Schedule:           1,
-		RateMillicents:     542900,
-		EffectiveDateLower: testdatagen.PeakRateCycleStart,
-		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
-	}
-	suite.MustSave(&fullUnpackRate)
 
 	cost, err := engine.nonLinehaulChargeComputation(
 		suite.AppContextForTest(), unit.Pound(2000), "39503", "33607", testdatagen.DateInsidePeakRateCycle)

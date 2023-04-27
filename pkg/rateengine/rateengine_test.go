@@ -51,22 +51,6 @@ func (suite *RateEngineSuite) setupRateEngineTest() {
 		SITPDSchedule:      1,
 	}
 	suite.MustSave(&destinationServiceArea)
-	fullPackRate := models.Tariff400ngFullPackRate{
-		Schedule:           1,
-		WeightLbsLower:     0,
-		WeightLbsUpper:     16001,
-		RateCents:          5429,
-		EffectiveDateLower: testdatagen.PeakRateCycleStart,
-		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
-	}
-	suite.MustSave(&fullPackRate)
-	fullUnpackRate := models.Tariff400ngFullUnpackRate{
-		Schedule:           1,
-		RateMillicents:     542900,
-		EffectiveDateLower: testdatagen.PeakRateCycleStart,
-		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
-	}
-	suite.MustSave(&fullUnpackRate)
 	newBaseLinehaul := models.Tariff400ngLinehaulRate{
 		DistanceMilesLower: 1,
 		DistanceMilesUpper: 10000,
@@ -98,15 +82,6 @@ func (suite *RateEngineSuite) setupRateEngineTest() {
 		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
 	}
 	suite.MustSave(&itemRate225A)
-	fullPackRate1 := models.Tariff400ngFullPackRate{
-		Schedule:           3,
-		WeightLbsLower:     0,
-		WeightLbsUpper:     16001,
-		RateCents:          6130,
-		EffectiveDateLower: testdatagen.PeakRateCycleStart,
-		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
-	}
-	suite.MustSave(&fullPackRate1)
 }
 
 func (suite *RateEngineSuite) Test_CheckPPMTotal() {
