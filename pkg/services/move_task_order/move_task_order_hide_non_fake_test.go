@@ -4,12 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/go-openapi/swag"
-
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	. "github.com/transcom/mymove/pkg/services/move_task_order"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_Hide() {
@@ -93,13 +90,17 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_Hide() {
 				LinkOnly: true,
 			},
 		}, nil)
-		testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
-			MTOShipment: mtoShipment,
-			MTOAgent: models.MTOAgent{
-				FirstName: swag.String("Beyonce"),
+		factory.BuildMTOAgent(suite.DB(), []factory.Customization{
+			{
+				Model:    mtoShipment,
+				LinkOnly: true,
 			},
-		})
-
+			{
+				Model: models.MTOAgent{
+					FirstName: models.StringPointer("Beyonce"),
+				},
+			},
+		}, nil)
 		result, err := mtoHider.Hide(suite.AppContextForTest())
 		suite.NoError(err)
 
@@ -111,7 +112,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_Hide() {
 		var savedMove models.Move
 		findErr := suite.DB().Find(&savedMove, mtoShipment.MoveTaskOrder.ID)
 		suite.NoError(findErr)
-		suite.Equal(savedMove.Show, swag.Bool(false))
+		suite.Equal(savedMove.Show, models.BoolPointer(false))
 	})
 }
 
@@ -272,11 +273,11 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeServic
 
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeModelMTOAgent() {
 
-	badFakeData := []testdatagen.Assertions{
-		{MTOAgent: models.MTOAgent{FirstName: swag.String("Billy")}},
-		{MTOAgent: models.MTOAgent{LastName: swag.String("Smith")}},
-		{MTOAgent: models.MTOAgent{Phone: swag.String("111-111-1111")}},
-		{MTOAgent: models.MTOAgent{Email: swag.String("billy@move.mil")}},
+	badFakeData := []factory.Customization{
+		{Model: models.MTOAgent{FirstName: models.StringPointer("Billy")}},
+		{Model: models.MTOAgent{LastName: models.StringPointer("Smith")}},
+		{Model: models.MTOAgent{Phone: models.StringPointer("111-111-1111")}},
+		{Model: models.MTOAgent{Email: models.StringPointer("billy@move.mil")}},
 	}
 
 	suite.Run("valid MTOAgent data", func() {
@@ -284,14 +285,16 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeModelM
 		//                   Returns true/false, and err if there was a failure
 		// Set up:           Create an agent with valid data
 		// Expected outcome: Returns true, no error
-		agent := testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
-			MTOAgent: models.MTOAgent{
-				FirstName: swag.String("Peyton"),
-				LastName:  swag.String("Wing"),
-				Phone:     swag.String("999-999-9999"),
-				Email:     swag.String("peyton@example.com"),
+		agent := factory.BuildMTOAgent(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOAgent{
+					FirstName: models.StringPointer("Peyton"),
+					LastName:  models.StringPointer("Wing"),
+					Phone:     models.StringPointer("999-999-9999"),
+					Email:     models.StringPointer("peyton@example.com"),
+				},
 			},
-		})
+		}, nil)
 		result, err := IsValidFakeModelMTOAgent(agent)
 		suite.NoError(err)
 		suite.Equal(true, result)
@@ -304,7 +307,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeModelM
 	// Expected outcome: Returns false
 	for idx, badData := range badFakeData {
 		suite.Run(fmt.Sprintf("invalid fake MTOAgent data %d", idx), func() {
-			agent := testdatagen.MakeMTOAgent(suite.DB(), badData)
+			agent := factory.BuildMTOAgent(suite.DB(), []factory.Customization{badData}, nil)
 			result, err := IsValidFakeModelMTOAgent(agent)
 			suite.NoError(err)
 			suite.Equal(false, result)
@@ -319,7 +322,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeModelB
 	invalidFakeData := []models.BackupContact{
 		{Name: "Britney"},
 		{Email: "Spears"},
-		{Phone: swag.String("415-275-9467")},
+		{Phone: models.StringPointer("415-275-9467")},
 	}
 
 	suite.Run("valid backup contact", func() {

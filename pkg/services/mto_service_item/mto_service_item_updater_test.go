@@ -12,7 +12,6 @@ package mtoserviceitem
 import (
 	"time"
 
-	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
@@ -265,7 +264,7 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 		newServiceItemPrime := oldServiceItemPrime
 
 		// Create payment requests for service item:
-		paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
+		paymentRequest := factory.BuildPaymentRequest(suite.DB(), nil, nil)
 		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
 			PaymentRequest: paymentRequest,
 			MTOServiceItem: oldServiceItemPrime,
@@ -386,7 +385,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 	moveRouter := moverouter.NewMoveRouter()
 	updater := NewMTOServiceItemUpdater(builder, moveRouter)
 
-	rejectionReason := swag.String("")
+	rejectionReason := models.StringPointer("")
 
 	// Test that the move's status changes to Approved when the service item's
 	// status is no longer SUBMITTED
@@ -439,7 +438,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 	// rejected
 	suite.Run("When TOO reviews move and rejects service item", func() {
 		eTag, serviceItem, move := suite.createServiceItem()
-		rejectionReason = swag.String("incomplete")
+		rejectionReason = models.StringPointer("incomplete")
 
 		updatedServiceItem, err := updater.ApproveOrRejectServiceItem(
 			suite.AppContextForTest(), serviceItem.ID, models.MTOServiceItemStatusRejected, rejectionReason, eTag)
@@ -502,7 +501,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 
 	suite.Run("Returns an error when eTag is stale", func() {
 		_, serviceItem, _ := suite.createServiceItem()
-		rejectionReason = swag.String("incomplete")
+		rejectionReason = models.StringPointer("incomplete")
 
 		_, err := updater.ApproveOrRejectServiceItem(
 			suite.AppContextForTest(), serviceItem.ID, models.MTOServiceItemStatusRejected, rejectionReason, "")

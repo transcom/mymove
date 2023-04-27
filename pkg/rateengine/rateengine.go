@@ -3,6 +3,7 @@ package rateengine
 import (
 	"time"
 
+	"github.com/pkg/errors"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
@@ -234,37 +235,13 @@ func (re *RateEngine) computePPM(
 // 	return cost, nil
 // }
 
+var errDeprecatedPPM = errors.New("computePPMIncludingLHDiscount function is deprecated")
+
 // computePPMIncludingLHDiscount Calculates the cost of a PPM move using zip + date derived linehaul discount
-func (re *RateEngine) computePPMIncludingLHDiscount(appCtx appcontext.AppContext, weight unit.Pound, originZip5 string, destinationZip5 string, distanceMiles int, date time.Time, daysInSIT int) (cost CostComputation, err error) {
+func (re *RateEngine) computePPMIncludingLHDiscount(appCtx appcontext.AppContext, weight unit.Pound, originZip5 string, destinationZip5 string, distanceMiles int, date time.Time, daysInSIT int) (CostComputation, error) {
 
-	lhDiscount, sitDiscount, err := models.PPMDiscountFetch(appCtx.DB(),
-		appCtx.Logger(),
-		re.move,
-		originZip5,
-		destinationZip5,
-		date,
-	)
-	if err != nil {
-		appCtx.Logger().Error("Failed to compute linehaul cost", zap.Error(err))
-		return
-	}
-
-	cost, err = re.computePPM(appCtx,
-		weight,
-		originZip5,
-		destinationZip5,
-		distanceMiles,
-		date,
-		daysInSIT,
-		lhDiscount,
-		sitDiscount,
-	)
-
-	if err != nil {
-		appCtx.Logger().Error("Failed to compute PPM cost", zap.Error(err))
-		return
-	}
-	return cost, nil
+	appCtx.Logger().Error("Invoking deprecated function", zap.Error(errDeprecatedPPM))
+	return CostComputation{}, errDeprecatedPPM
 }
 
 // ComputePPMMoveCosts uses zip codes to make two calculations for the price of a PPM move - once with the pickup zip and once with the current duty location zip - and returns both calcs.

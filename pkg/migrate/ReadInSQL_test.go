@@ -1,12 +1,3 @@
-// RA Summary: gosec - errcheck - Unchecked return value
-// RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
-// RA: Functions with unchecked return values in the file are used to clean up file created for unit test
-// RA: Given the functions causing the lint errors are used to clean up local storage space after a unit test, it does not present a risk
-// RA Developer Status: Mitigated
-// RA Validator Status: Mitigated
-// RA Modified Severity: N/A
-// nolint:errcheck
-// #nosec G307
 package migrate
 
 import (
@@ -64,9 +55,9 @@ func TestReadInSQLLine(t *testing.T) {
 		"",
 		"",
 		"",
-		"COPY public.transportation_service_provider_performances (id, performance_period_start, performance_period_end, traffic_distribution_list_id, quality_band, offer_count, best_value_score, transportation_service_provider_id, created_at, updated_at, rate_cycle_start, rate_cycle_end, linehaul_rate, sit_rate) FROM stdin;",
-		"fbfb095e-6ea3-4c1e-bd3d-7f131d73e295\t2019-01-01\t2019-05-14\t27f1fbeb-090c-4a91-955c-67899de4d6d6\t\\N\t0\t89\t231a7b21-346c-4e94-b6bc-672413733f77\t2018-12-28 18:35:37.147546\t2018-12-28 18:35:37.147546\t2018-10-01\t2019-05-14\t0.55000000000000000000\t0.55000000000000000000",
-		"5147b246-19c4-487a-b3fd-a503f889daf7\t2019-01-01\t2019-05-14\t27f1fbeb-090c-4a91-955c-67899de4d6d6\t\\N\t0\t92\t231a7b21-346c-4e94-b6bc-672413733f77\t2018-12-28 18:35:37.147546\t2018-12-28 18:35:37.147546\t2018-10-01\t2019-05-14\t0.67000000000000000000\t0.60000000000000000000",
+		"COPY public.re_services (id, code, name, created_at, updated_at, priority) FROM stdin;",
+		"10000012-2c32-4529-ad8a-131df722cb17\t12\tTwelve\t2020-03-23 16:31:50.313853\t2020-03-23 16:31:50.313853\t1",
+		"10000013-ef6e-45b1-9d3d-8a89e46af743\t13\tThirteen\t2020-03-23 16:31:50.313853\t2020-03-23 16:31:50.313853\t2",
 		"\\.",
 		"",
 		"",
@@ -81,5 +72,5 @@ func TestReadInSQLLine(t *testing.T) {
 		require.Equal(t, expectedStmt[i], stmt)
 		i++
 	}
-	require.Equal(t, i, 31)
+	require.Equal(t, i, 30)
 }

@@ -6,7 +6,6 @@ import (
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *MovingExpenseSuite) TestMovingExpenseCreator() {
@@ -16,7 +15,7 @@ func (suite *MovingExpenseSuite) TestMovingExpenseCreator() {
 			ServiceMemberID: serviceMember.ID,
 		}
 
-		ppmShipment := testdatagen.MakeMinimalDefaultPPMShipment(suite.DB())
+		ppmShipment := factory.BuildMinimalPPMShipment(suite.DB(), nil, nil)
 		movingExpenseCreator := NewMovingExpenseCreator()
 		movingExpense, err := movingExpenseCreator.CreateMovingExpense(suite.AppContextWithSessionForTest(session), ppmShipment.ID)
 
@@ -44,7 +43,7 @@ func (suite *MovingExpenseSuite) TestMovingExpenseCreator() {
 		session := &auth.Session{
 			ServiceMemberID: uuid.Nil,
 		}
-		ppmShipment := testdatagen.MakeMinimalDefaultPPMShipment(suite.DB())
+		ppmShipment := factory.BuildMinimalPPMShipment(suite.DB(), nil, nil)
 
 		movingExpenseCreator := NewMovingExpenseCreator()
 		movingExpense, err := movingExpenseCreator.CreateMovingExpense(suite.AppContextWithSessionForTest(session), ppmShipment.ID)

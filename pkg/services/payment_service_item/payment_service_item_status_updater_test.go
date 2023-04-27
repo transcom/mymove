@@ -1,7 +1,6 @@
 package paymentserviceitem
 
 import (
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
@@ -35,7 +34,7 @@ func (suite *PaymentServiceItemSuite) TestUpdatePaymentServiceItemStatus() {
 		updater := NewPaymentServiceItemStatusUpdater()
 
 		updatedPaymentServiceItem, verrs, err := updater.UpdatePaymentServiceItemStatus(suite.AppContextForTest(),
-			paymentServiceItem.ID, models.PaymentServiceItemStatusDenied, swag.String("reasons"), eTag)
+			paymentServiceItem.ID, models.PaymentServiceItemStatusDenied, models.StringPointer("reasons"), eTag)
 
 		suite.NoError(err)
 		suite.NoVerrs(verrs)

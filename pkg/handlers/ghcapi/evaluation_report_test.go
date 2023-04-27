@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
@@ -662,11 +661,11 @@ func (suite *HandlerSuite) TestSaveEvaluationReportHandler() {
 				InspectionDate:                     &now,
 				InspectionType:                     ghcmessages.EvaluationReportInspectionTypePHYSICAL.Pointer(),
 				Location:                           ghcmessages.EvaluationReportLocationOTHER.Pointer(),
-				LocationDescription:                swag.String("location description"),
+				LocationDescription:                models.StringPointer("location description"),
 				ObservedShipmentDeliveryDate:       handlers.FmtDate(time.Date(2020, 1, 2, 0, 0, 0, 0, time.UTC)),
-				ObservedShipmentPhysicalPickupDate: handlers.FmtDate(time.Date(2020, 1, 2, 0, 0, 0, 0, time.UTC)), Remarks: swag.String("new remarks"),
+				ObservedShipmentPhysicalPickupDate: handlers.FmtDate(time.Date(2020, 1, 2, 0, 0, 0, 0, time.UTC)), Remarks: models.StringPointer("new remarks"),
 				SeriousIncident:     handlers.FmtBool(true),
-				SeriousIncidentDesc: swag.String("serious incident description"),
+				SeriousIncidentDesc: models.StringPointer("serious incident description"),
 				ViolationsObserved:  handlers.FmtBool(false),
 			},
 			ReportID: *handlers.FmtUUID(reportID),
@@ -703,7 +702,7 @@ func (suite *HandlerSuite) TestSaveEvaluationReportHandler() {
 		params := evaluationReportop.SaveEvaluationReportParams{
 			HTTPRequest: request,
 			Body: &ghcmessages.EvaluationReport{
-				Remarks: swag.String("new remarks"),
+				Remarks: models.StringPointer("new remarks"),
 			},
 			ReportID: *handlers.FmtUUID(reportID),
 		}
@@ -741,7 +740,7 @@ func (suite *HandlerSuite) TestSaveEvaluationReportHandler() {
 		params := evaluationReportop.SaveEvaluationReportParams{
 			HTTPRequest: request,
 			Body: &ghcmessages.EvaluationReport{
-				Remarks: swag.String("new remarks"),
+				Remarks: models.StringPointer("new remarks"),
 			},
 			ReportID: *handlers.FmtUUID(reportID),
 		}
@@ -779,7 +778,7 @@ func (suite *HandlerSuite) TestSaveEvaluationReportHandler() {
 		params := evaluationReportop.SaveEvaluationReportParams{
 			HTTPRequest: request,
 			Body: &ghcmessages.EvaluationReport{
-				Remarks: swag.String("new remarks"),
+				Remarks: models.StringPointer("new remarks"),
 			},
 			ReportID: *handlers.FmtUUID(reportID),
 		}
@@ -817,7 +816,7 @@ func (suite *HandlerSuite) TestSaveEvaluationReportHandler() {
 		params := evaluationReportop.SaveEvaluationReportParams{
 			HTTPRequest: request,
 			Body: &ghcmessages.EvaluationReport{
-				Remarks: swag.String("new remarks"),
+				Remarks: models.StringPointer("new remarks"),
 			},
 			ReportID: *handlers.FmtUUID(reportID),
 		}
@@ -855,7 +854,7 @@ func (suite *HandlerSuite) TestSaveEvaluationReportHandler() {
 		params := evaluationReportop.SaveEvaluationReportParams{
 			HTTPRequest: request,
 			Body: &ghcmessages.EvaluationReport{
-				Remarks: swag.String("new remarks"),
+				Remarks: models.StringPointer("new remarks"),
 			},
 			ReportID: *handlers.FmtUUID(reportID),
 		}
@@ -893,7 +892,7 @@ func (suite *HandlerSuite) TestSaveEvaluationReportHandler() {
 		params := evaluationReportop.SaveEvaluationReportParams{
 			HTTPRequest: request,
 			Body: &ghcmessages.EvaluationReport{
-				Remarks: swag.String("new remarks"),
+				Remarks: models.StringPointer("new remarks"),
 			},
 			ReportID: *handlers.FmtUUID(reportID),
 		}

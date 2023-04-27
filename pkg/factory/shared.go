@@ -44,6 +44,7 @@ var DutyLocation CustomType = "DutyLocation"
 var Entitlement CustomType = "Entitlement"
 var EvaluationReport CustomType = "EvaluationReport"
 var Move CustomType = "Move"
+var MTOAgent CustomType = "MTOAgent"
 var MTOServiceItem CustomType = "MTOServiceItem"
 var MTOServiceItemDimension CustomType = "MTOServiceItemDimension"
 var MTOShipment CustomType = "MTOShipment"
@@ -53,6 +54,7 @@ var OfficeUser CustomType = "OfficeUser"
 var Order CustomType = "Order"
 var Organization CustomType = "Organization"
 var PPMShipment CustomType = "PPMShipment"
+var PaymentRequest CustomType = "PaymentRequest"
 var PostalCodeToGBLOC CustomType = "PostalCodeToGBLOC"
 var ReService CustomType = "ReService"
 var Role CustomType = "Role"
@@ -81,6 +83,7 @@ var defaultTypesMap = map[string]CustomType{
 	"models.Entitlement":             Entitlement,
 	"models.EvaluationReport":        EvaluationReport,
 	"models.Move":                    Move,
+	"models.MTOAgent":                MTOAgent,
 	"models.MTOServiceItem":          MTOServiceItem,
 	"models.MTOServiceItemDimension": MTOServiceItemDimension,
 	"models.MTOShipment":             MTOShipment,
@@ -89,6 +92,7 @@ var defaultTypesMap = map[string]CustomType{
 	"models.OfficeUser":              OfficeUser,
 	"models.Order":                   Order,
 	"models.Organization":            Organization,
+	"models.PaymentRequest":          PaymentRequest,
 	"models.PPMShipment":             PPMShipment,
 	"models.PostalCodeToGBLOC":       PostalCodeToGBLOC,
 	"models.ReService":               ReService,
@@ -123,6 +127,7 @@ type addressGroup struct {
 	SITOriginHHGOriginalAddress CustomType
 	SITOriginHHGActualAddress   CustomType
 	SITDestinationFinalAddress  CustomType
+	W2Address                   CustomType
 }
 
 // Addresses is the struct to access the various fields externally
@@ -138,6 +143,7 @@ var Addresses = addressGroup{
 	SITOriginHHGOriginalAddress: "SITOriginHHGOriginalAddress",
 	SITOriginHHGActualAddress:   "SITOriginHHGActualAddress",
 	SITDestinationFinalAddress:  "SITDestinationFinalAddress",
+	W2Address:                   "W2Address",
 }
 
 // dimensionGroup is a grouping of all the Dimension related fields

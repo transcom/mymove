@@ -582,6 +582,14 @@ func (suite *PPMShipmentSuite) TestSavePaymentPacket() {
 
 		defer mockMergedPDF.Close()
 
+		expectedBytes, readExpectedErr := io.ReadAll(mockMergedPDF)
+
+		suite.FatalNoError(readExpectedErr)
+
+		_, seekErr := mockMergedPDF.Seek(0, io.SeekStart)
+
+		suite.FatalNoError(seekErr)
+
 		// need to start a transaction so that our mocks know what the appCtx will actually be pointing to since
 		// the savePaymentPacket function will be using a transaction.
 		suite.NoError(appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
@@ -610,14 +618,6 @@ func (suite *PPMShipmentSuite) TestSavePaymentPacket() {
 			download, downloadErr := userUploader.Download(appCtx, &ppmShipment.PaymentPacket.UserUploads[0])
 
 			suite.FatalNoError(downloadErr)
-
-			_, seekErr := mockMergedPDF.Seek(0, io.SeekStart)
-
-			suite.FatalNoError(seekErr)
-
-			expectedBytes, readExpectedErr := io.ReadAll(mockMergedPDF)
-
-			suite.FatalNoError(readExpectedErr)
 
 			actualBytes, readActualErr := io.ReadAll(download)
 

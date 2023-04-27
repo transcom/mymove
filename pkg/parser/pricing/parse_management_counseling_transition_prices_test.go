@@ -4,7 +4,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/go-openapi/swag"
+	"github.com/transcom/mymove/pkg/models"
 )
 
 func (suite *PricingParserSuite) Test_parseShipmentManagementServicesPrices() {
@@ -27,7 +27,7 @@ func (suite *PricingParserSuite) Test_parseShipmentManagementServicesPrices() {
 		slice, err := parseShipmentManagementServicesPrices(suite.AppContextForTest(), params, sheetIndex)
 		suite.NoError(err, "parseShipmentManagementServices function failed")
 
-		outputFilename := dataSheet.generateOutputFilename(sheetIndex, params.RunTime, swag.String("management"))
+		outputFilename := dataSheet.generateOutputFilename(sheetIndex, params.RunTime, models.StringPointer("management"))
 		err = createCSV(suite.AppContextForTest(), outputFilename, slice)
 		suite.NoError(err, "could not create CSV")
 
@@ -63,7 +63,7 @@ func (suite *PricingParserSuite) Test_parseCounselServicesPrices() {
 		slice, err := parseCounselingServicesPrices(suite.AppContextForTest(), params, sheetIndex)
 		suite.NoError(err, "parseCounselingServicesPrices function failed")
 
-		outputFilename := dataSheet.generateOutputFilename(sheetIndex, params.RunTime, swag.String("counsel"))
+		outputFilename := dataSheet.generateOutputFilename(sheetIndex, params.RunTime, models.StringPointer("counsel"))
 		err = createCSV(suite.AppContextForTest(), outputFilename, slice)
 		suite.NoError(err, "could not create CSV")
 
@@ -99,7 +99,7 @@ func (suite *PricingParserSuite) Test_parseTransitionPrices() {
 		slice, err := parseTransitionPrices(suite.AppContextForTest(), params, sheetIndex)
 		suite.NoError(err, "parseTransitionPrices function failed")
 
-		outputFilename := dataSheet.generateOutputFilename(sheetIndex, params.RunTime, swag.String("transition"))
+		outputFilename := dataSheet.generateOutputFilename(sheetIndex, params.RunTime, models.StringPointer("transition"))
 		err = createCSV(suite.AppContextForTest(), outputFilename, slice)
 		suite.NoError(err, "could not create CSV")
 

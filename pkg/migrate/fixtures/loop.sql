@@ -1,5 +1,12 @@
--- Shipment table no longer exists
+-- Shipment and transportation service provider tables no longer
+-- exists, but that's ok this file is just used for parsing a
+-- complicated file
+--
+-- that's ok, as this file is used to test parsing of a complicated
+-- file, not run it
+--
 -- Creating the table here as a workaround for now
+--
 -- Will re-visit to squash migrations
 CREATE TABLE IF NOT EXISTS shipments (id serial PRIMARY KEY);
 ALTER TABLE invoices ADD COLUMN IF NOT EXISTS shipment_id uuid NULL;
@@ -41,9 +48,9 @@ DO $do$
                INTO scac, shipment_year, shipment_two_digit_year
         FROM shipments s
                INNER JOIN shipment_offers so ON s.id = so.shipment_id
-               INNER JOIN transportation_service_provider_performances tspp
-                          ON so.transportation_service_provider_performance_id = tspp.id
-               INNER JOIN transportation_service_providers tsp ON tspp.transportation_service_provider_id = tsp.id
+               INNER JOIN some_service_provider_performances sspp
+                          ON so.some_service_provider_performance_id = sspp.id
+               INNER JOIN some_service_providers tsp ON sspp.some_service_provider_id = tsp.id
         WHERE s.id = current_shipment_id
           AND so.accepted = TRUE
         ORDER BY so.created_at

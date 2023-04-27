@@ -1329,15 +1329,18 @@ func serviceMemberWithNTSandNTSRandUnsubmittedMove01(appCtx appcontext.AppContex
 			},
 		},
 	}, nil)
-	testdatagen.MakeMTOAgent(appCtx.DB(), testdatagen.Assertions{
-		MTOAgent: models.MTOAgent{
-			ID:            uuid.FromStringOrNil("1bdbb940-0326-438a-89fb-aa72e46f7c72"),
-			MTOShipment:   ntsShipment,
-			MTOShipmentID: ntsShipment.ID,
-			MTOAgentType:  models.MTOAgentReleasing,
+	factory.BuildMTOAgent(appCtx.DB(), []factory.Customization{
+		{
+			Model:    ntsShipment,
+			LinkOnly: true,
 		},
-	})
-
+		{
+			Model: models.MTOAgent{
+				ID:           uuid.FromStringOrNil("1bdbb940-0326-438a-89fb-aa72e46f7c72"),
+				MTOAgentType: models.MTOAgentReleasing,
+			},
+		},
+	}, nil)
 	ntsrShipment := factory.BuildNTSRShipment(appCtx.DB(), []factory.Customization{
 		{
 			Model:    move,
@@ -1354,15 +1357,18 @@ func serviceMemberWithNTSandNTSRandUnsubmittedMove01(appCtx appcontext.AppContex
 		},
 	}, nil)
 
-	testdatagen.MakeMTOAgent(appCtx.DB(), testdatagen.Assertions{
-		MTOAgent: models.MTOAgent{
-			ID:            uuid.FromStringOrNil("eecc3b59-7173-4ddd-b826-6f11f15338d9"),
-			MTOShipment:   ntsrShipment,
-			MTOShipmentID: ntsrShipment.ID,
-			MTOAgentType:  models.MTOAgentReceiving,
+	factory.BuildMTOAgent(appCtx.DB(), []factory.Customization{
+		{
+			Model:    ntsrShipment,
+			LinkOnly: true,
 		},
-	})
-
+		{
+			Model: models.MTOAgent{
+				ID:           uuid.FromStringOrNil("eecc3b59-7173-4ddd-b826-6f11f15338d9"),
+				MTOAgentType: models.MTOAgentReceiving,
+			},
+		},
+	}, nil)
 }
 func serviceMemberWithNTSandNTSRandUnsubmittedMove02(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	email := "nts2@ntsr.unsubmitted"
@@ -1426,15 +1432,18 @@ func serviceMemberWithNTSandNTSRandUnsubmittedMove02(appCtx appcontext.AppContex
 			},
 		},
 	}, nil)
-	testdatagen.MakeMTOAgent(appCtx.DB(), testdatagen.Assertions{
-		MTOAgent: models.MTOAgent{
-			ID:            uuid.FromStringOrNil("2675ed07-4f1e-44fd-995f-f6d6e5c461b0"),
-			MTOShipment:   ntsShipment,
-			MTOShipmentID: ntsShipment.ID,
-			MTOAgentType:  models.MTOAgentReleasing,
+	factory.BuildMTOAgent(appCtx.DB(), []factory.Customization{
+		{
+			Model:    ntsShipment,
+			LinkOnly: true,
 		},
-	})
-
+		{
+			Model: models.MTOAgent{
+				ID:           uuid.FromStringOrNil("2675ed07-4f1e-44fd-995f-f6d6e5c461b0"),
+				MTOAgentType: models.MTOAgentReleasing,
+			},
+		},
+	}, nil)
 	ntsrShipment := factory.BuildNTSRShipment(appCtx.DB(), []factory.Customization{
 		{
 			Model:    move,
@@ -1451,15 +1460,18 @@ func serviceMemberWithNTSandNTSRandUnsubmittedMove02(appCtx appcontext.AppContex
 		},
 	}, nil)
 
-	testdatagen.MakeMTOAgent(appCtx.DB(), testdatagen.Assertions{
-		MTOAgent: models.MTOAgent{
-			ID:            uuid.FromStringOrNil("2068f14e-4a04-420e-a7e1-b8a89683bbe8"),
-			MTOShipment:   ntsrShipment,
-			MTOShipmentID: ntsrShipment.ID,
-			MTOAgentType:  models.MTOAgentReceiving,
+	factory.BuildMTOAgent(appCtx.DB(), []factory.Customization{
+		{
+			Model:    ntsrShipment,
+			LinkOnly: true,
 		},
-	})
-
+		{
+			Model: models.MTOAgent{
+				ID:           uuid.FromStringOrNil("2068f14e-4a04-420e-a7e1-b8a89683bbe8"),
+				MTOAgentType: models.MTOAgentReceiving,
+			},
+		},
+	}, nil)
 }
 
 func serviceMemberWithPPMReadyToRequestPayment01(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
@@ -2305,28 +2317,36 @@ func createMoveWithServiceItemsandPaymentRequests01(appCtx appcontext.AppContext
 		},
 	}, nil)
 
-	testdatagen.MakeMTOAgent(appCtx.DB(), testdatagen.Assertions{
-		MTOAgent: models.MTOAgent{
-			ID:            uuid.FromStringOrNil("82036387-a113-4b45-a172-94e49e4600d2"),
-			MTOShipment:   mtoShipmentHHG,
-			MTOShipmentID: mtoShipmentHHG.ID,
-			FirstName:     models.StringPointer("Test"),
-			LastName:      models.StringPointer("Agent"),
-			Email:         models.StringPointer("test@test.email.com"),
-			MTOAgentType:  models.MTOAgentReleasing,
+	factory.BuildMTOAgent(appCtx.DB(), []factory.Customization{
+		{
+			Model:    mtoShipmentHHG,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOAgent{
+				ID:           uuid.FromStringOrNil("82036387-a113-4b45-a172-94e49e4600d2"),
+				FirstName:    models.StringPointer("Test"),
+				LastName:     models.StringPointer("Agent"),
+				Email:        models.StringPointer("test@test.email.com"),
+				MTOAgentType: models.MTOAgentReleasing,
+			},
+		},
+	}, nil)
 
-	paymentRequestHHG := testdatagen.MakePaymentRequest(appCtx.DB(), testdatagen.Assertions{
-		PaymentRequest: models.PaymentRequest{
-			ID:              uuid.FromStringOrNil("ea945ab7-099a-4819-82de-6968efe131dc"),
-			MoveTaskOrder:   mto,
-			IsFinal:         false,
-			Status:          models.PaymentRequestStatusPending,
-			RejectionReason: nil,
+	paymentRequestHHG := factory.BuildPaymentRequest(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentRequest{
+				ID:              uuid.FromStringOrNil("ea945ab7-099a-4819-82de-6968efe131dc"),
+				IsFinal:         false,
+				Status:          models.PaymentRequestStatusPending,
+				RejectionReason: nil,
+			},
 		},
-		Move: mto,
-	})
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	// for soft deleted proof of service docs
 	proofOfService := testdatagen.MakeProofOfServiceDoc(appCtx.DB(), testdatagen.Assertions{
@@ -2604,18 +2624,22 @@ func createMoveWithServiceItemsandPaymentRequests01(appCtx appcontext.AppContext
 	})
 
 	createdAtTime := time.Now().Add(time.Duration(time.Hour * -24))
-	additionalPaymentRequest := testdatagen.MakePaymentRequest(appCtx.DB(), testdatagen.Assertions{
-		PaymentRequest: models.PaymentRequest{
-			ID:              uuid.FromStringOrNil("540e2268-6899-4b67-828d-bb3b0331ecf2"),
-			MoveTaskOrder:   mto,
-			IsFinal:         false,
-			Status:          models.PaymentRequestStatusPending,
-			RejectionReason: nil,
-			SequenceNumber:  2,
-			CreatedAt:       createdAtTime,
+	additionalPaymentRequest := factory.BuildPaymentRequest(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentRequest{
+				ID:              uuid.FromStringOrNil("540e2268-6899-4b67-828d-bb3b0331ecf2"),
+				IsFinal:         false,
+				Status:          models.PaymentRequestStatusPending,
+				RejectionReason: nil,
+				SequenceNumber:  2,
+				CreatedAt:       createdAtTime,
+			},
 		},
-		Move: mto,
-	})
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	serviceItemCS := factory.BuildMTOServiceItemBasic(appCtx.DB(), []factory.Customization{
 		{
@@ -2740,15 +2764,19 @@ func createMoveWithServiceItemsandPaymentRequests02(appCtx appcontext.AppContext
 		},
 	}, nil)
 
-	paymentRequest8 := testdatagen.MakePaymentRequest(appCtx.DB(), testdatagen.Assertions{
-		PaymentRequest: models.PaymentRequest{
-			ID:            uuid.FromStringOrNil("154c9ebb-972f-4711-acb2-5911f52aced4"),
-			MoveTaskOrder: move8,
-			IsFinal:       false,
-			Status:        models.PaymentRequestStatusPending,
+	paymentRequest8 := factory.BuildPaymentRequest(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentRequest{
+				ID:      uuid.FromStringOrNil("154c9ebb-972f-4711-acb2-5911f52aced4"),
+				IsFinal: false,
+				Status:  models.PaymentRequestStatusPending,
+			},
 		},
-		Move: move8,
-	})
+		{
+			Model:    move8,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	serviceItemMS := factory.BuildMTOServiceItemBasic(appCtx.DB(), []factory.Customization{
 		{
@@ -3146,27 +3174,34 @@ func createHHGMoveWithServiceItemsAndPaymentRequestsAndFiles(appCtx appcontext.A
 		},
 	}, nil)
 
-	testdatagen.MakeMTOAgent(appCtx.DB(), testdatagen.Assertions{
-		MTOAgent: models.MTOAgent{
-			ID:            uuid.FromStringOrNil("d73cc488-d5a1-4c9c-bea3-8b02d9bd0dea"),
-			MTOShipment:   MTOShipment,
-			MTOShipmentID: MTOShipment.ID,
-			FirstName:     models.StringPointer("Test"),
-			LastName:      models.StringPointer("Agent"),
-			Email:         models.StringPointer("test@test.email.com"),
-			MTOAgentType:  models.MTOAgentReleasing,
+	factory.BuildMTOAgent(appCtx.DB(), []factory.Customization{
+		{
+			Model:    MTOShipment,
+			LinkOnly: true,
 		},
-	})
-
-	paymentRequest := testdatagen.MakePaymentRequest(appCtx.DB(), testdatagen.Assertions{
-		PaymentRequest: models.PaymentRequest{
-			ID:            uuid.FromStringOrNil("a2c34dba-015f-4f96-a38b-0c0b9272e208"),
-			MoveTaskOrder: mto,
-			IsFinal:       false,
-			Status:        models.PaymentRequestStatusPending,
+		{
+			Model: models.MTOAgent{
+				ID:           uuid.FromStringOrNil("d73cc488-d5a1-4c9c-bea3-8b02d9bd0dea"),
+				FirstName:    models.StringPointer("Test"),
+				LastName:     models.StringPointer("Agent"),
+				Email:        models.StringPointer("test@test.email.com"),
+				MTOAgentType: models.MTOAgentReleasing,
+			},
 		},
-		Move: mto,
-	})
+	}, nil)
+	paymentRequest := factory.BuildPaymentRequest(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentRequest{
+				ID:      uuid.FromStringOrNil("a2c34dba-015f-4f96-a38b-0c0b9272e208"),
+				IsFinal: false,
+				Status:  models.PaymentRequestStatusPending,
+			},
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	year, month, day := time.Now().Add(time.Hour * 24 * -60).Date()
 	threeMonthsAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
@@ -3454,28 +3489,34 @@ func createMoveWithSinceParamater(appCtx appcontext.AppContext, userUploader *up
 		},
 	}, nil)
 
-	testdatagen.MakeMTOAgent(appCtx.DB(), testdatagen.Assertions{
-		MTOAgent: models.MTOAgent{
-			MTOShipment:   mtoShipment2,
-			MTOShipmentID: mtoShipment2.ID,
-			FirstName:     models.StringPointer("Test"),
-			LastName:      models.StringPointer("Agent"),
-			Email:         models.StringPointer("test@test.email.com"),
-			MTOAgentType:  models.MTOAgentReleasing,
+	factory.BuildMTOAgent(appCtx.DB(), []factory.Customization{
+		{
+			Model:    mtoShipment2,
+			LinkOnly: true,
 		},
-	})
-
-	testdatagen.MakeMTOAgent(appCtx.DB(), testdatagen.Assertions{
-		MTOAgent: models.MTOAgent{
-			MTOShipment:   mtoShipment2,
-			MTOShipmentID: mtoShipment2.ID,
-			FirstName:     models.StringPointer("Test"),
-			LastName:      models.StringPointer("Agent"),
-			Email:         models.StringPointer("test@test.email.com"),
-			MTOAgentType:  models.MTOAgentReceiving,
+		{
+			Model: models.MTOAgent{
+				FirstName:    models.StringPointer("Test"),
+				LastName:     models.StringPointer("Agent"),
+				Email:        models.StringPointer("test@test.email.com"),
+				MTOAgentType: models.MTOAgentReleasing,
+			},
 		},
-	})
-
+	}, nil)
+	factory.BuildMTOAgent(appCtx.DB(), []factory.Customization{
+		{
+			Model:    mtoShipment2,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOAgent{
+				FirstName:    models.StringPointer("Test"),
+				LastName:     models.StringPointer("Agent"),
+				Email:        models.StringPointer("test@test.email.com"),
+				MTOAgentType: models.MTOAgentReceiving,
+			},
+		},
+	}, nil)
 	mtoShipment3 := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.MTOShipment{
@@ -3488,28 +3529,34 @@ func createMoveWithSinceParamater(appCtx appcontext.AppContext, userUploader *up
 		},
 	}, nil)
 
-	testdatagen.MakeMTOAgent(appCtx.DB(), testdatagen.Assertions{
-		MTOAgent: models.MTOAgent{
-			MTOShipment:   mtoShipment3,
-			MTOShipmentID: mtoShipment3.ID,
-			FirstName:     models.StringPointer("Test"),
-			LastName:      models.StringPointer("Agent"),
-			Email:         models.StringPointer("test@test.email.com"),
-			MTOAgentType:  models.MTOAgentReleasing,
+	factory.BuildMTOAgent(appCtx.DB(), []factory.Customization{
+		{
+			Model:    mtoShipment3,
+			LinkOnly: true,
 		},
-	})
-
-	testdatagen.MakeMTOAgent(appCtx.DB(), testdatagen.Assertions{
-		MTOAgent: models.MTOAgent{
-			MTOShipment:   mtoShipment3,
-			MTOShipmentID: mtoShipment3.ID,
-			FirstName:     models.StringPointer("Test"),
-			LastName:      models.StringPointer("Agent"),
-			Email:         models.StringPointer("test@test.email.com"),
-			MTOAgentType:  models.MTOAgentReceiving,
+		{
+			Model: models.MTOAgent{
+				FirstName:    models.StringPointer("Test"),
+				LastName:     models.StringPointer("Agent"),
+				Email:        models.StringPointer("test@test.email.com"),
+				MTOAgentType: models.MTOAgentReleasing,
+			},
 		},
-	})
-
+	}, nil)
+	factory.BuildMTOAgent(appCtx.DB(), []factory.Customization{
+		{
+			Model:    mtoShipment3,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOAgent{
+				FirstName:    models.StringPointer("Test"),
+				LastName:     models.StringPointer("Agent"),
+				Email:        models.StringPointer("test@test.email.com"),
+				MTOAgentType: models.MTOAgentReceiving,
+			},
+		},
+	}, nil)
 	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.MTOServiceItem{
@@ -4071,29 +4118,36 @@ func createNTSRMoveWithServiceItemsAndPaymentRequest(appCtx appcontext.AppContex
 	}, nil)
 
 	// Create Releasing Agent
-	testdatagen.MakeMTOAgent(appCtx.DB(), testdatagen.Assertions{
-		MTOAgent: models.MTOAgent{
-			ID:            uuid.Must(uuid.NewV4()),
-			MTOShipment:   ntsrShipment,
-			MTOShipmentID: ntsrShipment.ID,
-			FirstName:     models.StringPointer("Test"),
-			LastName:      models.StringPointer("Agent"),
-			Email:         models.StringPointer("test@test.email.com"),
-			MTOAgentType:  models.MTOAgentReleasing,
+	factory.BuildMTOAgent(appCtx.DB(), []factory.Customization{
+		{
+			Model:    ntsrShipment,
+			LinkOnly: true,
 		},
-	})
-
+		{
+			Model: models.MTOAgent{
+				ID:           uuid.Must(uuid.NewV4()),
+				FirstName:    models.StringPointer("Test"),
+				LastName:     models.StringPointer("Agent"),
+				Email:        models.StringPointer("test@test.email.com"),
+				MTOAgentType: models.MTOAgentReleasing,
+			},
+		},
+	}, nil)
 	// Create Payment Request
-	paymentRequest := testdatagen.MakePaymentRequest(appCtx.DB(), testdatagen.Assertions{
-		PaymentRequest: models.PaymentRequest{
-			ID:              uuid.Must(uuid.NewV4()),
-			MoveTaskOrder:   move,
-			IsFinal:         false,
-			Status:          models.PaymentRequestStatusPending,
-			RejectionReason: nil,
+	paymentRequest := factory.BuildPaymentRequest(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentRequest{
+				ID:              uuid.Must(uuid.NewV4()),
+				IsFinal:         false,
+				Status:          models.PaymentRequestStatusPending,
+				RejectionReason: nil,
+			},
 		},
-		Move: move,
-	})
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	// Create Domestic linehaul service item
 	dlCost := unit.Cents(80000)
@@ -4599,29 +4653,36 @@ func createNTSRMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader
 	}, nil)
 
 	// Create Releasing Agent
-	testdatagen.MakeMTOAgent(appCtx.DB(), testdatagen.Assertions{
-		MTOAgent: models.MTOAgent{
-			ID:            uuid.Must(uuid.NewV4()),
-			MTOShipment:   ntsrShipment,
-			MTOShipmentID: ntsrShipment.ID,
-			FirstName:     models.StringPointer("Test"),
-			LastName:      models.StringPointer("Agent"),
-			Email:         models.StringPointer("test@test.email.com"),
-			MTOAgentType:  models.MTOAgentReleasing,
+	factory.BuildMTOAgent(appCtx.DB(), []factory.Customization{
+		{
+			Model:    ntsrShipment,
+			LinkOnly: true,
 		},
-	})
-
+		{
+			Model: models.MTOAgent{
+				ID:           uuid.Must(uuid.NewV4()),
+				FirstName:    models.StringPointer("Test"),
+				LastName:     models.StringPointer("Agent"),
+				Email:        models.StringPointer("test@test.email.com"),
+				MTOAgentType: models.MTOAgentReleasing,
+			},
+		},
+	}, nil)
 	// Create Payment Request
-	paymentRequest := testdatagen.MakePaymentRequest(appCtx.DB(), testdatagen.Assertions{
-		PaymentRequest: models.PaymentRequest{
-			ID:              uuid.Must(uuid.NewV4()),
-			MoveTaskOrder:   move,
-			IsFinal:         false,
-			Status:          models.PaymentRequestStatusPending,
-			RejectionReason: nil,
+	paymentRequest := factory.BuildPaymentRequest(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentRequest{
+				ID:              uuid.Must(uuid.NewV4()),
+				IsFinal:         false,
+				Status:          models.PaymentRequestStatusPending,
+				RejectionReason: nil,
+			},
 		},
-		Move: move,
-	})
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	// create service item
 	msCostcos := unit.Cents(32400)
@@ -4686,25 +4747,32 @@ func createNTSMoveWithServiceItemsandPaymentRequests(appCtx appcontext.AppContex
 		},
 	}, nil)
 
-	testdatagen.MakeMTOAgent(appCtx.DB(), testdatagen.Assertions{
-		MTOAgent: models.MTOAgent{
-			ID:            uuid.FromStringOrNil("732390ca-c15b-408e-8242-d37e709d8056"),
-			MTOShipment:   ntsShipment,
-			MTOShipmentID: ntsShipment.ID,
-			MTOAgentType:  models.MTOAgentReleasing,
+	factory.BuildMTOAgent(appCtx.DB(), []factory.Customization{
+		{
+			Model:    ntsShipment,
+			LinkOnly: true,
 		},
-	})
-
-	paymentRequestNTS := testdatagen.MakePaymentRequest(appCtx.DB(), testdatagen.Assertions{
-		PaymentRequest: models.PaymentRequest{
-			ID:              uuid.FromStringOrNil("2c5b6e64-d7c3-413e-8c3c-813f83019dad"),
-			MoveTaskOrder:   move,
-			IsFinal:         false,
-			Status:          models.PaymentRequestStatusPending,
-			RejectionReason: nil,
+		{
+			Model: models.MTOAgent{
+				ID:           uuid.FromStringOrNil("732390ca-c15b-408e-8242-d37e709d8056"),
+				MTOAgentType: models.MTOAgentReleasing,
+			},
 		},
-		Move: move,
-	})
+	}, nil)
+	paymentRequestNTS := factory.BuildPaymentRequest(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentRequest{
+				ID:              uuid.FromStringOrNil("2c5b6e64-d7c3-413e-8c3c-813f83019dad"),
+				IsFinal:         false,
+				Status:          models.PaymentRequestStatusPending,
+				RejectionReason: nil,
+			},
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	// for soft deleted proof of service docs
 	proofOfService := testdatagen.MakeProofOfServiceDoc(appCtx.DB(), testdatagen.Assertions{
