@@ -405,12 +405,18 @@ func createMoveWithPPMAndHHG(appCtx appcontext.AppContext, userUploader *uploade
 		},
 	}, nil)
 
-	testdatagen.MakePPMShipment(db, testdatagen.Assertions{
-		Move: move,
-		PPMShipment: models.PPMShipment{
-			ID: uuid.FromStringOrNil("d733fe2f-b08d-434a-ad8d-551f4d597b03"),
+	factory.BuildPPMShipment(db, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.PPMShipment{
+				ID: uuid.FromStringOrNil("d733fe2f-b08d-434a-ad8d-551f4d597b03"),
+			},
+		},
+	}, nil)
+
 	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
 		{
 			Model:    move,
@@ -438,11 +444,12 @@ func CreateGenericMoveWithPPMShipment(appCtx appcontext.AppContext, moveInfo Mov
 	}
 
 	testdatagen.MergeModels(&fullAssertions, assertions)
-
+	// assertions passed in means we cannot yet convert to BuildMinimalPPMShipment
 	if useMinimalPPMShipment {
 		return move, testdatagen.MakeMinimalPPMShipment(appCtx.DB(), fullAssertions)
 	}
 
+	// assertions passed in means we cannot yet convert to BuildPPMShipment
 	return move, testdatagen.MakePPMShipment(appCtx.DB(), fullAssertions)
 }
 
@@ -1031,15 +1038,17 @@ func createApprovedMoveWith2PPMShipmentsAndExcessWeights(appCtx appcontext.AppCo
 			MoveID:      uuid.Must(uuid.NewV4()),
 			MoveLocator: "XSWT03",
 		})
-	secondPPMShipment := testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			Status: models.MTOShipmentStatusApproved,
+	secondPPMShipment := factory.BuildPPMShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-		PPMShipment: models.PPMShipment{
-			ID: uuid.Must(uuid.NewV4()),
+		{
+			Model: models.MTOShipment{
+				Status: models.MTOShipmentStatusApproved,
+			},
 		},
-	})
+	}, nil)
 	secondWeightTicketAssertions := testdatagen.Assertions{
 		PPMShipment:   secondPPMShipment,
 		ServiceMember: move.Orders.ServiceMember,
@@ -2159,14 +2168,22 @@ func CreateMoveWithCloseOut(appCtx appcontext.AppContext, userUploader *uploader
 		},
 	}, nil)
 
-	testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
-		Move:        move,
-		MTOShipment: mtoShipment,
-		PPMShipment: models.PPMShipment{
-			Status:      models.PPMShipmentStatusNeedsPaymentApproval,
-			SubmittedAt: models.TimePointer(time.Now()),
+	factory.BuildPPMShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    mtoShipment,
+			LinkOnly: true,
+		},
+		{
+			Model: models.PPMShipment{
+				Status:      models.PPMShipmentStatusNeedsPaymentApproval,
+				SubmittedAt: models.TimePointer(time.Now()),
+			},
+		},
+	}, nil)
 
 	factory.BuildSignedCertification(appCtx.DB(), []factory.Customization{
 		{
@@ -2259,21 +2276,37 @@ func createMoveWithCloseOutandNonCloseOut(appCtx appcontext.AppContext, userUplo
 		},
 	}, nil)
 
-	testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
-		Move:        move,
-		MTOShipment: mtoShipment,
-		PPMShipment: models.PPMShipment{
-			Status: models.PPMShipmentStatusNeedsPaymentApproval,
+	factory.BuildPPMShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    mtoShipment,
+			LinkOnly: true,
+		},
+		{
+			Model: models.PPMShipment{
+				Status: models.PPMShipmentStatusNeedsPaymentApproval,
+			},
+		},
+	}, nil)
 
-	testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
-		Move:        move,
-		MTOShipment: mtoShipment2,
-		PPMShipment: models.PPMShipment{
-			Status: models.PPMShipmentStatusWaitingOnCustomer,
+	factory.BuildPPMShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    mtoShipment2,
+			LinkOnly: true,
+		},
+		{
+			Model: models.PPMShipment{
+				Status: models.PPMShipmentStatusWaitingOnCustomer,
+			},
+		},
+	}, nil)
 
 	factory.BuildSignedCertification(appCtx.DB(), []factory.Customization{
 		{
@@ -2366,21 +2399,37 @@ func createMoveWith2CloseOuts(appCtx appcontext.AppContext, userUploader *upload
 		},
 	}, nil)
 
-	testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
-		Move:        move,
-		MTOShipment: mtoShipment,
-		PPMShipment: models.PPMShipment{
-			Status: models.PPMShipmentStatusNeedsPaymentApproval,
+	factory.BuildPPMShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    mtoShipment,
+			LinkOnly: true,
+		},
+		{
+			Model: models.PPMShipment{
+				Status: models.PPMShipmentStatusNeedsPaymentApproval,
+			},
+		},
+	}, nil)
 
-	testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
-		Move:        move,
-		MTOShipment: mtoShipment2,
-		PPMShipment: models.PPMShipment{
-			Status: models.PPMShipmentStatusNeedsPaymentApproval,
+	factory.BuildPPMShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    mtoShipment2,
+			LinkOnly: true,
+		},
+		{
+			Model: models.PPMShipment{
+				Status: models.PPMShipmentStatusNeedsPaymentApproval,
+			},
+		},
+	}, nil)
 
 	factory.BuildSignedCertification(appCtx.DB(), []factory.Customization{
 		{
@@ -2473,13 +2522,21 @@ func createMoveWithCloseOutandHHG(appCtx appcontext.AppContext, userUploader *up
 		},
 	}, nil)
 
-	testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
-		Move:        move,
-		MTOShipment: mtoShipment,
-		PPMShipment: models.PPMShipment{
-			Status: models.PPMShipmentStatusNeedsPaymentApproval,
+	factory.BuildPPMShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    mtoShipment,
+			LinkOnly: true,
+		},
+		{
+			Model: models.PPMShipment{
+				Status: models.PPMShipmentStatusNeedsPaymentApproval,
+			},
+		},
+	}, nil)
 
 	factory.BuildSignedCertification(appCtx.DB(), []factory.Customization{
 		{
@@ -2566,13 +2623,21 @@ func CreateMoveWithCloseoutOffice(appCtx appcontext.AppContext, moveInfo MoveCre
 		},
 	}, nil)
 
-	testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
-		Move:        move,
-		MTOShipment: mtoShipment,
-		PPMShipment: models.PPMShipment{
-			Status: models.PPMShipmentStatusNeedsPaymentApproval,
+	factory.BuildPPMShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    mtoShipment,
+			LinkOnly: true,
+		},
+		{
+			Model: models.PPMShipment{
+				Status: models.PPMShipmentStatusNeedsPaymentApproval,
+			},
+		},
+	}, nil)
 
 	return move
 }
@@ -2669,13 +2734,21 @@ func CreateSubmittedMoveWithPPMShipmentForSC(appCtx appcontext.AppContext, userU
 		},
 	}, nil)
 
-	testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
-		Move:        move,
-		MTOShipment: mtoShipment,
-		PPMShipment: models.PPMShipment{
-			Status: models.PPMShipmentStatusSubmitted,
+	factory.BuildPPMShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    mtoShipment,
+			LinkOnly: true,
+		},
+		{
+			Model: models.PPMShipment{
+				Status: models.PPMShipmentStatusSubmitted,
+			},
+		},
+	}, nil)
 
 	factory.BuildSignedCertification(appCtx.DB(), []factory.Customization{
 		{
@@ -2757,20 +2830,28 @@ func createSubmittedMoveWithPPMShipmentForSCWithSIT(appCtx appcontext.AppContext
 		},
 	}, nil)
 
-	testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
-		Move:        move,
-		MTOShipment: mtoShipment,
-		PPMShipment: models.PPMShipment{
-			ID:                        testdatagen.ConvertUUIDStringToUUID("8158f06c-3cfa-4852-8984-c12de39da48f"),
-			Status:                    models.PPMShipmentStatusSubmitted,
-			SITExpected:               models.BoolPointer(true),
-			SITEstimatedEntryDate:     models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
-			SITEstimatedDepartureDate: models.TimePointer(time.Date(testdatagen.GHCTestYear, time.April, 16, 0, 0, 0, 0, time.UTC)),
-			SITEstimatedWeight:        models.PoundPointer(unit.Pound(1234)),
-			SITEstimatedCost:          models.CentPointer(unit.Cents(12345600)),
-			SITLocation:               &sitLocationType,
+	factory.BuildPPMShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    mtoShipment,
+			LinkOnly: true,
+		},
+		{
+			Model: models.PPMShipment{
+				ID:                        testdatagen.ConvertUUIDStringToUUID("8158f06c-3cfa-4852-8984-c12de39da48f"),
+				Status:                    models.PPMShipmentStatusSubmitted,
+				SITExpected:               models.BoolPointer(true),
+				SITEstimatedEntryDate:     models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
+				SITEstimatedDepartureDate: models.TimePointer(time.Date(testdatagen.GHCTestYear, time.April, 16, 0, 0, 0, 0, time.UTC)),
+				SITEstimatedWeight:        models.PoundPointer(unit.Pound(1234)),
+				SITEstimatedCost:          models.CentPointer(unit.Cents(12345600)),
+				SITLocation:               &sitLocationType,
+			},
+		},
+	}, nil)
 
 	factory.BuildSignedCertification(appCtx.DB(), []factory.Customization{
 		{
@@ -2806,9 +2887,12 @@ func createUnsubmittedMoveWithMultipleFullPPMShipmentComplete1(appCtx appcontext
 
 	move, _ := CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
 
-	testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
-		Move: move,
-	})
+	factory.BuildPPMShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 }
 
 func createUnsubmittedMoveWithMultipleFullPPMShipmentComplete2(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -2837,9 +2921,12 @@ func createUnsubmittedMoveWithMultipleFullPPMShipmentComplete2(appCtx appcontext
 
 	move, _ := CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
 
-	testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
-		Move: move,
-	})
+	factory.BuildPPMShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 }
 
 func createSubmittedMoveWithFullPPMShipmentComplete(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -2910,13 +2997,21 @@ func createSubmittedMoveWithFullPPMShipmentComplete(appCtx appcontext.AppContext
 		},
 	}, nil)
 
-	testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
-		Move:        move,
-		MTOShipment: mtoShipment,
-		PPMShipment: models.PPMShipment{
-			Status: models.PPMShipmentStatusSubmitted,
+	factory.BuildPPMShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    mtoShipment,
+			LinkOnly: true,
+		},
+		{
+			Model: models.PPMShipment{
+				Status: models.PPMShipmentStatusSubmitted,
+			},
+		},
+	}, nil)
 
 	factory.BuildSignedCertification(appCtx.DB(), []factory.Customization{
 		{

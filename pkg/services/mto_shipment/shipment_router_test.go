@@ -8,7 +8,6 @@ import (
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *MTOShipmentServiceSuite) TestApprove() {
@@ -132,15 +131,17 @@ func (suite *MTOShipmentServiceSuite) TestApprove() {
 	suite.Run(fmt.Sprintf("can approve a shipment if it is a PPM shipment and the move status is %s", models.MoveStatusNeedsServiceCounseling), func() {
 		move := factory.BuildStubbedMoveWithStatus(models.MoveStatusNeedsServiceCounseling)
 
-		overrides := testdatagen.Assertions{
-			Move: move,
-			MTOShipment: models.MTOShipment{
-				Status: models.MTOShipmentStatusSubmitted,
+		ppmShipment := factory.BuildPPMShipment(nil, []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-			Stub: true,
-		}
-
-		ppmShipment := testdatagen.MakePPMShipment(suite.DB(), overrides)
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusSubmitted,
+				},
+			},
+		}, nil)
 
 		err := shipmentRouter.Approve(suite.AppContextForTest(), &ppmShipment.Shipment)
 

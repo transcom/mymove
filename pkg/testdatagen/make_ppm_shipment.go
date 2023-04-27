@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/gobuffalo/pop/v6"
-	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
@@ -98,21 +97,6 @@ func MakePPMShipment(db *pop.Connection, assertions Assertions) models.PPMShipme
 	return MakeMinimalPPMShipment(db, fullAssertions)
 }
 
-// MakeDefaultPPMShipment makes a PPMShipment with default values
-func MakeDefaultPPMShipment(db *pop.Connection) models.PPMShipment {
-	return MakePPMShipment(db, Assertions{})
-}
-
-// MakeStubbedPPMShipment makes a stubbed PPM shipment
-func MakeStubbedPPMShipment(db *pop.Connection) models.PPMShipment {
-	return MakePPMShipment(db, Assertions{
-		PPMShipment: models.PPMShipment{
-			ID: uuid.Must(uuid.NewV4()),
-		},
-		Stub: true,
-	})
-}
-
 // MakeMinimalPPMShipment creates a single PPMShipment and associated relationships with a minimal set of data
 func MakeMinimalPPMShipment(db *pop.Connection, assertions Assertions) models.PPMShipment {
 	shipment := checkOrCreateMTOShipment(db, assertions)
@@ -137,21 +121,6 @@ func MakeMinimalPPMShipment(db *pop.Connection, assertions Assertions) models.PP
 	newPPMShipment.Shipment.PPMShipment = &newPPMShipment
 
 	return newPPMShipment
-}
-
-// MakeMinimalDefaultPPMShipment makes a PPMShipment with default values
-func MakeMinimalDefaultPPMShipment(db *pop.Connection) models.PPMShipment {
-	return MakeMinimalPPMShipment(db, Assertions{})
-}
-
-// MakeMinimalStubbedPPMShipment makes a stubbed PPM shipment
-func MakeMinimalStubbedPPMShipment(db *pop.Connection) models.PPMShipment {
-	return MakeMinimalPPMShipment(db, Assertions{
-		PPMShipment: models.PPMShipment{
-			ID: uuid.Must(uuid.NewV4()),
-		},
-		Stub: true,
-	})
 }
 
 // MakeApprovedPPMShipment creates a single PPMShipment that has been approved by a counselor, but hasn't had an AOA
