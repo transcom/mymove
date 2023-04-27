@@ -9,7 +9,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *ModelSuite) TestMovingExpenseValidation() {
@@ -72,8 +71,7 @@ func (suite *ModelSuite) TestMovingExpenseValidation() {
 
 	suite.Run("Can create a moving expense", func() {
 		// This test is meant to be a base smoke test to make sure this model/table works
-		ppmShipment := testdatagen.MakeApprovedPPMShipmentWithActualInfo(suite.DB(), testdatagen.Assertions{})
-
+		ppmShipment := factory.BuildPPMShipment(suite.DB(), nil, []factory.Trait{factory.GetTraitApprovedPPMWithActualInfo})
 		serviceMember := ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
 
 		document := factory.BuildDocumentLinkServiceMember(suite.DB(), serviceMember)

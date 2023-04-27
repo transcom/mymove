@@ -1,7 +1,6 @@
 package serviceparamvaluelookups
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/transcom/mymove/pkg/factory"
@@ -68,12 +67,12 @@ func (suite *ServiceParamValueLookupsSuite) TestEIAFuelPriceLookup() {
 			factory.GetTraitAvailableToPrimeMove,
 		})
 
-		paymentRequest = testdatagen.MakePaymentRequest(suite.DB(),
-			testdatagen.Assertions{
-				PaymentRequest: models.PaymentRequest{
-					MoveTaskOrderID: mtoServiceItem.MoveTaskOrderID,
-				},
-			})
+		paymentRequest = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    mtoServiceItem.MoveTaskOrder,
+				LinkOnly: true,
+			},
+		}, nil)
 	}
 
 	suite.Run("lookup GHC diesel fuel price successfully", func() {
@@ -146,7 +145,6 @@ func (suite *ServiceParamValueLookupsSuite) TestEIAFuelPriceLookup() {
 	suite.Run("No MTO shipment pickup date found", func() {
 		setupTestData()
 
-		fmt.Println("after setupTestData")
 		// create a service item that has a shipment without an ActualPickupDate
 		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
@@ -156,12 +154,13 @@ func (suite *ServiceParamValueLookupsSuite) TestEIAFuelPriceLookup() {
 		}, nil)
 
 		suite.NotNil(mtoServiceItem.MoveTaskOrder.AvailableToPrimeAt)
-		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
-			testdatagen.Assertions{
-				PaymentRequest: models.PaymentRequest{
-					MoveTaskOrderID: mtoServiceItem.MoveTaskOrderID,
-				},
-			})
+
+		paymentRequest = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    mtoServiceItem.MoveTaskOrder,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		_, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.Error(err)

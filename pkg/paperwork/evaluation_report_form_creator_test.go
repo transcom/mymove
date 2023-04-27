@@ -9,7 +9,7 @@ import (
 )
 
 func setupTestData(suite *PaperworkSuite) (models.EvaluationReport, models.ReportViolations, models.MTOShipments, models.ServiceMember) {
-	report := testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{})
+	report := factory.BuildEvaluationReport(suite.DB(), nil, nil)
 	shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{{
 		Model:    report.Move,
 		LinkOnly: true,

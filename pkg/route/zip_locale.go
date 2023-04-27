@@ -3,6 +3,8 @@ package route
 import (
 	"strconv"
 	"strings"
+
+	"github.com/transcom/mymove/pkg/apperror"
 )
 
 // Zip5ToLatLong return only first 5 char of zip (xxxxx-xxxx)
@@ -20,7 +22,7 @@ func Zip5ToLatLong(zip5 string) (LatLong, error) {
 		var ok bool
 		ll, ok = zip5ToLatLongMap[zipAsInt]
 		if !ok {
-			err = NewUnsupportedPostalCodeError(zip)
+			err = apperror.NewUnsupportedPostalCodeError(zip, "zip5 not found in zip5ToLatLongMap")
 		}
 	}
 	return ll, err

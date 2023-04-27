@@ -103,11 +103,12 @@ func (suite *HandlerSuite) makeListMTOShipmentsSubtestData() (subtestData *listM
 		},
 	}, nil)
 
-	subtestData.mtoAgent = testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
-		MTOAgent: models.MTOAgent{
-			MTOShipmentID: mtoShipment.ID,
+	subtestData.mtoAgent = factory.BuildMTOAgent(suite.DB(), []factory.Customization{
+		{
+			Model:    mtoShipment,
+			LinkOnly: true,
 		},
-	})
+	}, nil)
 	subtestData.mtoServiceItem = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 		{
 			Model: models.MTOServiceItem{
@@ -116,9 +117,12 @@ func (suite *HandlerSuite) makeListMTOShipmentsSubtestData() (subtestData *listM
 		},
 	}, nil)
 
-	ppm := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
-		Move: mto,
-	})
+	ppm := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	// testdatagen.MakeDOFSITReService(suite.DB(), testdatagen.Assertions{})
 
@@ -3335,11 +3339,13 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		}
 
 		hasProGear := true
-		ppmShipment := testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{
-			PPMShipment: models.PPMShipment{
-				HasProGear: &hasProGear,
+		ppmShipment := factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					HasProGear: &hasProGear,
+				},
 			},
-		})
+		}, nil)
 		year, month, day := time.Now().Date()
 		actualMoveDate := time.Date(year, month, day-7, 0, 0, 0, 0, time.UTC)
 		expectedDepartureDate := actualMoveDate.Add(time.Hour * 24 * 2)

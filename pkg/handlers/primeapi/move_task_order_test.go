@@ -208,7 +208,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 			MoveID:      successMove.Locator,
 		}
 
-		address := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{})
+		address := factory.BuildAddress(suite.DB(), nil, nil)
 		sitEntryDate := time.Now()
 
 		factory.BuildMTOServiceItemBasic(suite.DB(), []factory.Customization{
@@ -327,10 +327,12 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 			movetaskorder.NewMoveTaskOrderFetcher(),
 		}
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-		ppmShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-		})
-
+		ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 		params := movetaskorderops.GetMoveTaskOrderParams{
 			HTTPRequest: request,
 			MoveID:      move.Locator,
@@ -460,8 +462,6 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		suite.Equal(successShipment.PickupAddress.State, *shipment.PickupAddress.State)
 		suite.Equal(successShipment.PickupAddress.PostalCode, *shipment.PickupAddress.PostalCode)
 		suite.Equal(*successShipment.PickupAddress.Country, *shipment.PickupAddress.Country)
-
-		// TODO: PointOfContact is not a valid field atm. Should we remove or add link (transportation_service_providers table)
 
 		// TODO: test fields on PpmShipment, existing test "Success - returns shipment with attached PpmShipment"
 
@@ -657,12 +657,17 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 			IfMatch:         eTag,
 		}
 		// Create two shipments, one prime, one external.  Only prime one should be returned.
-		primeShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
-			Move: mto,
-			MTOShipment: models.MTOShipment{
-				UsesExternalVendor: false,
+		primeShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    mto,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					UsesExternalVendor: false,
+				},
+			},
+		}, nil)
 		factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
 			{
 				Model:    mto,

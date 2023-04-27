@@ -42,12 +42,12 @@ func (suite *ServiceParamValueLookupsSuite) makeSubtestData() (subtestData *para
 	subtestData = &paramsCacheSubtestData{}
 	subtestData.move = factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
-	subtestData.paymentRequest = testdatagen.MakePaymentRequest(suite.DB(),
-		testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				MoveTaskOrderID: subtestData.move.ID,
-			},
-		})
+	subtestData.paymentRequest = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+		{
+			Model:    subtestData.move,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	subtestData.estimatedWeight = unit.Pound(2048)
 	subtestData.mtoShipment1 = factory.BuildMTOShipment(suite.DB(), []factory.Customization{

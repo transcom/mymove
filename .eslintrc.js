@@ -7,6 +7,7 @@ module.exports = {
     'prettier/prettier',
     'plugin:security/recommended',
     'plugin:you-dont-need-lodash-underscore/compatible',
+    'plugin:jsx-a11y/recommended',
   ],
   root: true,
   parserOptions: {

@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/go-openapi/swag"
 	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/models"
 )
 
 func (suite *TransitTimeParserSuite) Test_xlsxDataSheetInfo_generateOutputFilename() {
@@ -33,8 +34,8 @@ func (suite *TransitTimeParserSuite) Test_xlsxDataSheetInfo_generateOutputFilena
 		{
 			name: "TC 1: generate filename with outputFilename provided",
 			fields: fields{
-				description:    swag.String("test_case_1"),
-				outputFilename: swag.String("test_case_1"),
+				description:    models.StringPointer("test_case_1"),
+				outputFilename: models.StringPointer("test_case_1"),
 				// process not needed for this function
 				// verify not needed for this function
 			},
@@ -58,7 +59,7 @@ func (suite *TransitTimeParserSuite) Test_xlsxDataSheetInfo_generateOutputFilena
 				index:   2,
 				runTime: currentTime,
 			},
-			adtlSuffix: swag.String("adtlSuffix"),
+			adtlSuffix: models.StringPointer("adtlSuffix"),
 			want:       "2_transit_time_ghc_parse_adtlSuffix_" + currentTime.Format("20060102150405") + ".csv",
 		},
 	}
@@ -132,8 +133,8 @@ func (suite *TransitTimeParserSuite) helperTestSetup() []XlsxDataSheetInfo {
 
 	// 0:
 	xlsxDataSheets[0] = XlsxDataSheetInfo{
-		Description:    swag.String("0) Test Process 1"),
-		outputFilename: swag.String("0_test_process_1"),
+		Description:    models.StringPointer("0) Test Process 1"),
+		outputFilename: models.StringPointer("0_test_process_1"),
 		ProcessMethods: []xlsxProcessInfo{{
 			process: &testProcessFunc1,
 		},
@@ -143,8 +144,8 @@ func (suite *TransitTimeParserSuite) helperTestSetup() []XlsxDataSheetInfo {
 
 	// 1:
 	xlsxDataSheets[1] = XlsxDataSheetInfo{
-		Description:    swag.String("1) Test Process 2"),
-		outputFilename: swag.String("1_test_process_2"),
+		Description:    models.StringPointer("1) Test Process 2"),
+		outputFilename: models.StringPointer("1_test_process_2"),
 		ProcessMethods: []xlsxProcessInfo{{
 			process: &testProcessFunc2,
 		},
@@ -154,8 +155,8 @@ func (suite *TransitTimeParserSuite) helperTestSetup() []XlsxDataSheetInfo {
 
 	// 2:
 	xlsxDataSheets[2] = XlsxDataSheetInfo{
-		Description:    swag.String("2) Test Process 3"),
-		outputFilename: swag.String("2_test_process_3"),
+		Description:    models.StringPointer("2) Test Process 3"),
+		outputFilename: models.StringPointer("2_test_process_3"),
 		ProcessMethods: []xlsxProcessInfo{{
 			process: &testProcessFunc3,
 		},
@@ -165,20 +166,20 @@ func (suite *TransitTimeParserSuite) helperTestSetup() []XlsxDataSheetInfo {
 
 	// 3:
 	xlsxDataSheets[3] = XlsxDataSheetInfo{
-		Description:    swag.String("3) Test Process 4"),
-		outputFilename: swag.String("3_test_process_4"),
+		Description:    models.StringPointer("3) Test Process 4"),
+		outputFilename: models.StringPointer("3_test_process_4"),
 		ProcessMethods: []xlsxProcessInfo{
 			{
 				process:    &testProcessFunc4,
-				adtlSuffix: swag.String("suffix1"),
+				adtlSuffix: models.StringPointer("suffix1"),
 			},
 			{
 				process:    &testProcessFunc5,
-				adtlSuffix: swag.String("suffix2"),
+				adtlSuffix: models.StringPointer("suffix2"),
 			},
 			{
 				process:    &testProcessFunc6,
-				adtlSuffix: swag.String("suffix4"),
+				adtlSuffix: models.StringPointer("suffix4"),
 			},
 		},
 		verify: &testVerifyFunc4,

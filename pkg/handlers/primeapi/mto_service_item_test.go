@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
@@ -644,9 +643,9 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandler() {
 			// These get copied over to the DOASIT as part of creation and are needed for the response to validate
 			{
 				Model: models.MTOServiceItem{
-					Reason:        swag.String("lorem ipsum"),
-					SITEntryDate:  swag.Time(time.Now()),
-					SITPostalCode: swag.String("00000"),
+					Reason:        models.StringPointer("lorem ipsum"),
+					SITEntryDate:  models.TimePointer(time.Now()),
+					SITPostalCode: models.StringPointer("00000"),
 				},
 			},
 		}, nil)
@@ -1205,7 +1204,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 			},
 			{
 				Model: models.MTOServiceItem{
-					SITEntryDate: swag.Time(time.Now()),
+					SITEntryDate: models.TimePointer(time.Now()),
 				},
 			},
 			{
@@ -1361,7 +1360,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 
 		// SETUP
 		// Make a payment request and link to the dddsit service item
-		paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
+		paymentRequest := factory.BuildPaymentRequest(suite.DB(), nil, nil)
 		cost := unit.Cents(20000)
 		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
 			PaymentServiceItem: models.PaymentServiceItem{
@@ -1415,7 +1414,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDOPSIT() {
 			},
 			{
 				Model: models.MTOServiceItem{
-					SITEntryDate: swag.Time(time.Now()),
+					SITEntryDate: models.TimePointer(time.Now()),
 				},
 			},
 			{
@@ -1555,7 +1554,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDOPSIT() {
 
 		// SETUP
 		// Make a payment request and link to the DOPSIT service item
-		paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
+		paymentRequest := factory.BuildPaymentRequest(suite.DB(), nil, nil)
 		cost := unit.Cents(20000)
 		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
 			PaymentServiceItem: models.PaymentServiceItem{

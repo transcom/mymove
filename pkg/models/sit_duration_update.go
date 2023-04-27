@@ -80,16 +80,11 @@ func (m *SITDurationUpdate) Validate(tx *pop.Connection) (*validate.Errors, erro
 		string(SITExtensionRequestReasonAwaitingCompletionOfResidence),
 		string(SITExtensionRequestReasonOther),
 	}})
-	vs = append(vs, &validators.IntIsGreaterThan{Field: m.RequestedDays, Compared: 0, Name: "RequestedDays"})
 	vs = append(vs, &validators.StringInclusion{Field: string(m.Status), Name: "Status", List: []string{
 		string(SITExtensionStatusPending),
 		string(SITExtensionStatusApproved),
 		string(SITExtensionStatusDenied),
 	}})
-
-	if m.ApprovedDays != nil {
-		vs = append(vs, &validators.IntIsGreaterThan{Field: *m.ApprovedDays, Compared: 0, Name: "ApprovedDays"})
-	}
 
 	if m.DecisionDate != nil {
 		vs = append(vs, &validators.TimeIsPresent{Field: *m.DecisionDate, Name: "DecisionDate"})

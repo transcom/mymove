@@ -27,20 +27,30 @@ func MakeOrder(db *pop.Connection, assertions Assertions) models.Order {
 	document := assertions.Order.UploadedOrders
 	// Note above
 	if isZeroUUID(assertions.Order.UploadedOrdersID) {
-		document = MakeDocument(db, Assertions{
+		fullDocumentAssertions := Assertions{
 			Document: models.Document{
 				ServiceMemberID: sm.ID,
 				ServiceMember:   sm,
 			},
-		})
-		u := MakeUserUpload(db, Assertions{
+		}
+
+		mergeModels(&fullDocumentAssertions, assertions)
+
+		document = MakeDocument(db, fullDocumentAssertions)
+
+		fullUserUploadAssertions := Assertions{
 			UserUpload: models.UserUpload{
 				DocumentID: &document.ID,
 				Document:   document,
 				UploaderID: sm.UserID,
 			},
 			UserUploader: assertions.UserUploader,
-		})
+		}
+
+		mergeModels(&fullUserUploadAssertions, assertions)
+
+		u := MakeUserUpload(db, fullUserUploadAssertions)
+
 		document.UserUploads = append(document.UserUploads, u)
 	}
 
@@ -228,87 +238,4 @@ func MakeOrderWithoutDefaults(db *pop.Connection, assertions Assertions) models.
 	mustCreate(db, &order, assertions.Stub)
 
 	return order
-}
-
-// MakeOrderWithoutUpload only includes fields that the service member would have supplied prior to uploading their
-// documents
-func MakeOrderWithoutUpload(db *pop.Connection, assertions Assertions) models.Order {
-	// Create new relational data if not provided
-	sm := assertions.Order.ServiceMember
-	// ID is required because it must be populated for Eager saving to work.
-	if isZeroUUID(assertions.Order.ServiceMemberID) {
-		sm = MakeExtendedServiceMember(db, assertions)
-	}
-
-	dutyLocation := assertions.Order.NewDutyLocation
-	// Note above
-	if isZeroUUID(assertions.Order.NewDutyLocationID) {
-		dutyLocation = FetchOrMakeDefaultNewOrdersDutyLocation(db)
-	}
-
-	document := MakeDocument(db, Assertions{
-		Document: models.Document{
-			ServiceMemberID: sm.ID,
-			ServiceMember:   sm,
-		},
-	})
-
-	var ordersNumber *string
-	if assertions.Order.OrdersNumber != nil {
-		ordersNumber = assertions.Order.OrdersNumber
-	}
-
-	hasDependents := assertions.Order.HasDependents || false
-	spouseHasProGear := assertions.Order.SpouseHasProGear || false
-	grade := "E_1"
-
-	entitlement := assertions.Entitlement
-	if isZeroUUID(entitlement.ID) {
-		assertions.Order.Grade = &grade
-		entitlement = MakeEntitlement(db, assertions)
-	}
-
-	originDutyLocation := assertions.OriginDutyLocation
-	if isZeroUUID(originDutyLocation.ID) {
-		originDutyLocation = MakeDutyLocation(db, assertions)
-	}
-
-	gbloc, err := models.FetchGBLOCForPostalCode(db, originDutyLocation.Address.PostalCode)
-	if gbloc.GBLOC == "" || err != nil {
-		gbloc = MakePostalCodeToGBLOC(db, originDutyLocation.Address.PostalCode, "KKFA")
-	}
-
-	order := models.Order{
-		ServiceMember:           sm,
-		ServiceMemberID:         sm.ID,
-		NewDutyLocation:         dutyLocation,
-		NewDutyLocationID:       dutyLocation.ID,
-		UploadedOrders:          document,
-		UploadedOrdersID:        document.ID,
-		IssueDate:               time.Date(TestYear, time.March, 15, 0, 0, 0, 0, time.UTC),
-		ReportByDate:            time.Date(TestYear, time.August, 1, 0, 0, 0, 0, time.UTC),
-		OrdersType:              internalmessages.OrdersTypePERMANENTCHANGEOFSTATION,
-		OrdersNumber:            ordersNumber,
-		HasDependents:           hasDependents,
-		SpouseHasProGear:        spouseHasProGear,
-		Status:                  models.OrderStatusDRAFT,
-		Grade:                   &grade,
-		Entitlement:             &entitlement,
-		EntitlementID:           &entitlement.ID,
-		OriginDutyLocation:      &originDutyLocation,
-		OriginDutyLocationID:    &originDutyLocation.ID,
-		OriginDutyLocationGBLOC: &gbloc.GBLOC,
-	}
-
-	// Overwrite values with those from assertions
-	mergeModels(&order, assertions.Order)
-
-	mustCreate(db, &order, assertions.Stub)
-
-	return order
-}
-
-// MakeDefaultOrder return an Order with default values
-func MakeDefaultOrder(db *pop.Connection) models.Order {
-	return MakeOrder(db, Assertions{})
 }

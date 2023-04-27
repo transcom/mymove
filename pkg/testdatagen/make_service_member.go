@@ -4,9 +4,7 @@ import (
 	"log"
 	"strconv"
 
-	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop/v6"
-	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/random"
@@ -63,11 +61,11 @@ func MakeServiceMember(db *pop.Connection, assertions Assertions) models.Service
 	serviceMember := models.ServiceMember{
 		UserID:               user.ID,
 		User:                 user,
-		Edipi:                swag.String(randomEdipi),
+		Edipi:                models.StringPointer(randomEdipi),
 		Affiliation:          agency,
-		FirstName:            swag.String("Leo"),
-		LastName:             swag.String("Spacemen"),
-		Telephone:            swag.String("212-123-4567"),
+		FirstName:            models.StringPointer("Leo"),
+		LastName:             models.StringPointer("Spacemen"),
+		Telephone:            models.StringPointer("212-123-4567"),
 		PersonalEmail:        &email,
 		ResidentialAddressID: currentAddressID,
 		ResidentialAddress:   currentAddress,
@@ -122,15 +120,15 @@ func MakeExtendedServiceMember(db *pop.Connection, assertions Assertions) models
 
 	// Combine extended SM defaults with assertions
 	smDefaults := models.ServiceMember{
-		Edipi:                  swag.String(RandomEdipi()),
+		Edipi:                  models.StringPointer(RandomEdipi()),
 		Rank:                   &e1,
 		Affiliation:            affiliation,
 		ResidentialAddressID:   &residentialAddress.ID,
 		BackupMailingAddressID: &backupMailingAddress.ID,
 		DutyLocationID:         &dutyLocation.ID,
 		DutyLocation:           dutyLocation,
-		EmailIsPreferred:       swag.Bool(true),
-		Telephone:              swag.String("555-555-5555"),
+		EmailIsPreferred:       models.BoolPointer(true),
+		Telephone:              models.StringPointer("555-555-5555"),
 	}
 
 	mergeModels(&smDefaults, assertions.ServiceMember)
@@ -152,18 +150,4 @@ func MakeExtendedServiceMember(db *pop.Connection, assertions Assertions) models
 	}
 
 	return serviceMember
-}
-
-// MakeStubbedServiceMember returns a stubbed service member that is not stored in the DB
-func MakeStubbedServiceMember(db *pop.Connection) models.ServiceMember {
-	user := MakeStubbedUser(db)
-
-	return MakeServiceMember(db, Assertions{
-		ServiceMember: models.ServiceMember{
-			ID:     uuid.Must(uuid.NewV4()),
-			User:   user,
-			UserID: user.ID,
-		},
-		Stub: true,
-	})
 }

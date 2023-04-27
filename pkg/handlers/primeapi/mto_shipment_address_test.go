@@ -5,7 +5,6 @@ import (
 	"net/http/httptest"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
 
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/factory"
@@ -106,8 +105,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressHandler() {
 		}, nil)
 		newAddress2 := models.Address{
 			StreetAddress1: "7 Q St",
-			StreetAddress2: swag.String("6622 Airport Way S #1430"),
-			StreetAddress3: swag.String("441 SW Río de la Plata Drive"),
+			StreetAddress2: models.StringPointer("6622 Airport Way S #1430"),
+			StreetAddress3: models.StringPointer("441 SW Río de la Plata Drive"),
 			City:           "Alameda",
 			State:          "CA",
 			PostalCode:     "94055",

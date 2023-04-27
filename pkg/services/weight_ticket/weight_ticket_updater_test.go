@@ -23,7 +23,7 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 
 	setupForTest := func(appCtx appcontext.AppContext, overrides *models.WeightTicket, hasEmptyFiles bool, hasFullFiles bool, hasProofFiles bool) *models.WeightTicket {
 		serviceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
-		ppmShipment := testdatagen.MakeMinimalDefaultPPMShipment(suite.DB())
+		ppmShipment := factory.BuildMinimalPPMShipment(suite.DB(), nil, nil)
 
 		emptyDocument := factory.BuildDocumentLinkServiceMember(suite.DB(), serviceMember)
 		fullDocument := factory.BuildDocumentLinkServiceMember(suite.DB(), serviceMember)

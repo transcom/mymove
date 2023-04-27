@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/go-openapi/swag"
-
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -62,7 +60,7 @@ func (suite *NotificationSuite) TestPaymentReminderFetchSomeFound() {
 		},
 		{
 			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date9DaysAgo, Status: models.PPMStatusAPPROVED},
-			Move:                   models.Move{Show: swag.Bool(false), Locator: "def456"},
+			Move:                   models.Move{Show: models.BoolPointer(false), Locator: "def456"},
 		},
 		{
 			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date10DaysAgo, Status: models.PPMStatusDRAFT},
@@ -127,7 +125,7 @@ func (suite *NotificationSuite) TestPaymentReminderFetchNoneFound() {
 		},
 		{
 			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date9DaysAgo, Status: models.PPMStatusAPPROVED},
-			Move:                   models.Move{Show: swag.Bool(false)},
+			Move:                   models.Move{Show: models.BoolPointer(false)},
 		},
 	}
 
