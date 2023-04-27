@@ -27,7 +27,6 @@ type ServiceItemParamKeyData struct {
 }
 
 func NewServiceItemParamKeyData(planner route.Planner, lookups map[models.ServiceItemParamName]ServiceItemParamKeyLookup, mtoServiceItem models.MTOServiceItem, mtoShipment models.MTOShipment, contractCode string) ServiceItemParamKeyData {
-	fmt.Println("NewServiceItemParamKeyData")
 	return ServiceItemParamKeyData{
 		planner:          planner,
 		lookups:          lookups,
@@ -95,7 +94,6 @@ func ServiceParamLookupInitialize(
 	if err != nil {
 		return nil, err
 	}
-	// TODO can we use the init function here
 	s := ServiceItemParamKeyData{
 		planner:          planner,
 		lookups:          make(map[models.ServiceItemParamName]ServiceItemParamKeyLookup),

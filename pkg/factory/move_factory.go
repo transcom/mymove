@@ -1,7 +1,6 @@
 package factory
 
 import (
-	"fmt"
 	"log"
 	"time"
 
@@ -82,13 +81,6 @@ func BuildMove(db *pop.Connection, customs []Customization, traits []Trait) mode
 		mustCreate(db, &move)
 	}
 
-	// TODO remove
-	if move.AvailableToPrimeAt == nil {
-		fmt.Println("MakeMove not avail to prime: move id " + move.ID.String())
-	} else {
-		fmt.Println("MakeMove avail to prime 😎: move id " + move.ID.String())
-
-	}
 	return move
 }
 
