@@ -6,7 +6,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
@@ -66,11 +65,12 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestSuccess() 
 	// Add a few proof of service docs and prime uploads.
 	var oldProofOfServiceDocIDs []string
 	for i := 0; i < recalculateNumProofOfServiceDocs; i++ {
-		proofOfServiceDoc := testdatagen.MakeProofOfServiceDoc(suite.DB(), testdatagen.Assertions{
-			ProofOfServiceDoc: models.ProofOfServiceDoc{
-				PaymentRequestID: paymentRequest.ID,
+		proofOfServiceDoc := factory.BuildProofOfServiceDoc(suite.DB(), []factory.Customization{
+			{
+				Model:    *paymentRequest,
+				LinkOnly: true,
 			},
-		})
+		}, nil)
 		oldProofOfServiceDocIDs = append(oldProofOfServiceDocIDs, proofOfServiceDoc.ID.String())
 		contractor := factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 		testdatagen.MakePrimeUpload(suite.DB(), testdatagen.Assertions{
@@ -83,7 +83,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestSuccess() 
 			PrimeUpload: models.PrimeUpload{
 				ProofOfServiceDocID: proofOfServiceDoc.ID,
 				ContractorID:        contractor.ID,
-				DeletedAt:           swag.Time(time.Now()),
+				DeletedAt:           models.TimePointer(time.Now()),
 			},
 		})
 	}
@@ -315,11 +315,13 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestErrors() {
 	})
 
 	suite.Run("Old payment status has unexpected status", func() {
-		paidPaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				Status: models.PaymentRequestStatusPaid,
+		paidPaymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					Status: models.PaymentRequestStatusPaid,
+				},
 			},
-		})
+		}, nil)
 		newPaymentRequest, err := recalculator.RecalculatePaymentRequest(suite.AppContextForTest(), paidPaymentRequest.ID)
 		suite.Nil(newPaymentRequest)
 		if suite.Error(err) {
@@ -340,7 +342,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestErrors() {
 
 		recalculatorWithMockCreator := NewPaymentRequestRecalculator(mockCreator, statusUpdater)
 
-		paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
+		paymentRequest := factory.BuildPaymentRequest(suite.DB(), nil, nil)
 		newPaymentRequest, err := recalculatorWithMockCreator.RecalculatePaymentRequest(suite.AppContextForTest(), paymentRequest.ID)
 		suite.Nil(newPaymentRequest)
 		if suite.Error(err) {
@@ -360,7 +362,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestErrors() {
 
 		recalculatorWithMockStatusUpdater := NewPaymentRequestRecalculator(creator, mockStatusUpdater)
 
-		paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
+		paymentRequest := factory.BuildPaymentRequest(suite.DB(), nil, nil)
 		newPaymentRequest, err := recalculatorWithMockStatusUpdater.RecalculatePaymentRequest(suite.AppContextForTest(), paymentRequest.ID)
 		suite.Nil(newPaymentRequest)
 		if suite.Error(err) {
@@ -463,7 +465,7 @@ func (suite *PaymentRequestServiceSuite) setupRecalculateData1() (models.Move, m
 				Status:               models.MTOShipmentStatusSubmitted,
 				PrimeEstimatedWeight: &estimatedWeight,
 				PrimeActualWeight:    &originalWeight,
-				SITDaysAllowance:     swag.Int(90),
+				SITDaysAllowance:     models.IntPointer(90),
 			},
 		},
 	}, nil)

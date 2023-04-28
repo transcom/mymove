@@ -3,7 +3,6 @@ package payloads
 import (
 	"time"
 
-	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
@@ -47,7 +46,7 @@ func OrderModel(orderPayload *supportmessages.Order) *models.Order {
 	}
 
 	if orderPayload.Rank != nil {
-		model.Grade = swag.String((string)(*orderPayload.Rank))
+		model.Grade = models.StringPointer((string)(*orderPayload.Rank))
 	}
 
 	customerID := uuid.FromStringOrNil(orderPayload.CustomerID.String())
@@ -82,7 +81,7 @@ func EntitlementModel(entitlementPayload *supportmessages.Entitlement) *models.E
 	}
 
 	if entitlementPayload.AuthorizedWeight != nil {
-		model.DBAuthorizedWeight = swag.Int(int(*entitlementPayload.AuthorizedWeight))
+		model.DBAuthorizedWeight = models.IntPointer(int(*entitlementPayload.AuthorizedWeight))
 	}
 
 	totalDependents := int(entitlementPayload.TotalDependents)

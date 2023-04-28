@@ -1,4 +1,4 @@
-package mtoshipment
+package sitextension
 
 import (
 	"github.com/gofrs/uuid"
@@ -9,7 +9,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func (suite *MTOShipmentServiceSuite) CreateSITExtensionAsTOO() {
+func (suite *SitExtensionServiceSuite) CreateSITExtensionAsTOO() {
 	suite.Run("Returns an error when shipment is not found", func() {
 		sitExtensionCreator := NewApprovedSITDurationUpdateCreator()
 		nonexistentUUID := uuid.Must(uuid.NewV4())

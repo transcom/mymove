@@ -101,7 +101,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		}, nil)
 		subtestData.mtoShipment.MoveTaskOrderID = mto.ID
 
-		mtoAgent := testdatagen.MakeDefaultMTOAgent(suite.DB())
+		mtoAgent := factory.BuildMTOAgent(suite.DB(), nil, nil)
 		agents := internalmessages.MTOAgents{&internalmessages.MTOAgent{
 			FirstName: mtoAgent.FirstName,
 			LastName:  mtoAgent.LastName,
@@ -573,7 +573,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		secondaryDeliveryAddress := factory.BuildAddress(suite.DB(), nil, nil)
 		secondaryDeliveryAddress.StreetAddress1 = "9999 Test Fake Rd SE"
 
-		mtoAgent := testdatagen.MakeDefaultMTOAgent(suite.DB())
+		mtoAgent := factory.BuildMTOAgent(suite.DB(), nil, nil)
 		agents := internalmessages.MTOAgents{&internalmessages.MTOAgent{
 			FirstName: mtoAgent.FirstName,
 			LastName:  mtoAgent.LastName,
@@ -708,14 +708,16 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		}{
 			"Edit estimated dates & locations": {
 				setUpOriginalPPM: func() models.PPMShipment {
-					return testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{
-						PPMShipment: models.PPMShipment{
-							ExpectedDepartureDate: time.Date(testdatagen.GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC),
-							PickupPostalCode:      "90808",
-							DestinationPostalCode: "79912",
-							SITExpected:           models.BoolPointer(true),
+					return factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
+						{
+							Model: models.PPMShipment{
+								ExpectedDepartureDate: time.Date(testdatagen.GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC),
+								PickupPostalCode:      "90808",
+								DestinationPostalCode: "79912",
+								SITExpected:           models.BoolPointer(true),
+							},
 						},
-					})
+					}, nil)
 				},
 				desiredShipment: internalmessages.UpdatePPMShipment{
 					ExpectedDepartureDate: handlers.FmtDate(time.Date(testdatagen.GHCTestYear, time.April, 27, 0, 0, 0, 0, time.UTC)),
@@ -735,7 +737,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			},
 			"Edit estimated dates & locations - add secondary zips": {
 				setUpOriginalPPM: func() models.PPMShipment {
-					return testdatagen.MakeMinimalDefaultPPMShipment(suite.DB())
+					return factory.BuildMinimalPPMShipment(suite.DB(), nil, nil)
 				},
 				desiredShipment: internalmessages.UpdatePPMShipment{
 					SecondaryPickupPostalCode:      nullable.NewString("90900"),
@@ -752,12 +754,14 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			},
 			"Edit estimated dates & locations - remove secondary zips": {
 				setUpOriginalPPM: func() models.PPMShipment {
-					return testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{
-						PPMShipment: models.PPMShipment{
-							SecondaryPickupPostalCode:      models.StringPointer("90900"),
-							SecondaryDestinationPostalCode: models.StringPointer("79916"),
+					return factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
+						{
+							Model: models.PPMShipment{
+								SecondaryPickupPostalCode:      models.StringPointer("90900"),
+								SecondaryDestinationPostalCode: models.StringPointer("79916"),
+							},
 						},
-					})
+					}, nil)
 				},
 				desiredShipment: internalmessages.UpdatePPMShipment{
 					SecondaryPickupPostalCode:      nullable.NewNullString(),
@@ -774,7 +778,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			},
 			"Add estimated weights - no pro gear": {
 				setUpOriginalPPM: func() models.PPMShipment {
-					return testdatagen.MakeMinimalDefaultPPMShipment(suite.DB())
+					return factory.BuildMinimalPPMShipment(suite.DB(), nil, nil)
 				},
 				desiredShipment: internalmessages.UpdatePPMShipment{
 					EstimatedWeight: handlers.FmtInt64(3500),
@@ -794,7 +798,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			},
 			"Add estimated weights - yes pro gear": {
 				setUpOriginalPPM: func() models.PPMShipment {
-					return testdatagen.MakeMinimalDefaultPPMShipment(suite.DB())
+					return factory.BuildMinimalPPMShipment(suite.DB(), nil, nil)
 				},
 				desiredShipment: internalmessages.UpdatePPMShipment{
 					EstimatedWeight:     handlers.FmtInt64(3500),
@@ -816,15 +820,17 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			},
 			"Remove pro gear": {
 				setUpOriginalPPM: func() models.PPMShipment {
-					return testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{
-						PPMShipment: models.PPMShipment{
-							EstimatedWeight:     models.PoundPointer(4000),
-							HasProGear:          models.BoolPointer(true),
-							ProGearWeight:       models.PoundPointer(1250),
-							SpouseProGearWeight: models.PoundPointer(150),
-							EstimatedIncentive:  models.CentPointer(unit.Cents(500000)),
+					return factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
+						{
+							Model: models.PPMShipment{
+								EstimatedWeight:     models.PoundPointer(4000),
+								HasProGear:          models.BoolPointer(true),
+								ProGearWeight:       models.PoundPointer(1250),
+								SpouseProGearWeight: models.PoundPointer(150),
+								EstimatedIncentive:  models.CentPointer(unit.Cents(500000)),
+							},
 						},
-					})
+					}, nil)
 				},
 				desiredShipment: internalmessages.UpdatePPMShipment{
 					HasProGear: handlers.FmtBool(false),
@@ -844,13 +850,15 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			},
 			"Add advance requested info - no advance": {
 				setUpOriginalPPM: func() models.PPMShipment {
-					return testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{
-						PPMShipment: models.PPMShipment{
-							EstimatedWeight:    models.PoundPointer(4000),
-							HasProGear:         models.BoolPointer(false),
-							EstimatedIncentive: models.CentPointer(unit.Cents(500000)),
+					return factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
+						{
+							Model: models.PPMShipment{
+								EstimatedWeight:    models.PoundPointer(4000),
+								HasProGear:         models.BoolPointer(false),
+								EstimatedIncentive: models.CentPointer(unit.Cents(500000)),
+							},
 						},
-					})
+					}, nil)
 				},
 				desiredShipment: internalmessages.UpdatePPMShipment{
 					HasRequestedAdvance: handlers.FmtBool(false),
@@ -868,13 +876,15 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			},
 			"Add advance requested info - yes advance": {
 				setUpOriginalPPM: func() models.PPMShipment {
-					return testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{
-						PPMShipment: models.PPMShipment{
-							EstimatedWeight:    models.PoundPointer(4000),
-							HasProGear:         models.BoolPointer(false),
-							EstimatedIncentive: models.CentPointer(unit.Cents(500000)),
+					return factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
+						{
+							Model: models.PPMShipment{
+								EstimatedWeight:    models.PoundPointer(4000),
+								HasProGear:         models.BoolPointer(false),
+								EstimatedIncentive: models.CentPointer(unit.Cents(500000)),
+							},
 						},
-					})
+					}, nil)
 				},
 				desiredShipment: internalmessages.UpdatePPMShipment{
 					HasRequestedAdvance:    handlers.FmtBool(true),
@@ -893,15 +903,17 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			},
 			"Remove advance requested": {
 				setUpOriginalPPM: func() models.PPMShipment {
-					return testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{
-						PPMShipment: models.PPMShipment{
-							EstimatedWeight:        models.PoundPointer(4000),
-							HasProGear:             models.BoolPointer(false),
-							EstimatedIncentive:     models.CentPointer(unit.Cents(500000)),
-							HasRequestedAdvance:    models.BoolPointer(true),
-							AdvanceAmountRequested: models.CentPointer(unit.Cents(200000)),
+					return factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
+						{
+							Model: models.PPMShipment{
+								EstimatedWeight:        models.PoundPointer(4000),
+								HasProGear:             models.BoolPointer(false),
+								EstimatedIncentive:     models.CentPointer(unit.Cents(500000)),
+								HasRequestedAdvance:    models.BoolPointer(true),
+								AdvanceAmountRequested: models.CentPointer(unit.Cents(200000)),
+							},
 						},
-					})
+					}, nil)
 				},
 				desiredShipment: internalmessages.UpdatePPMShipment{
 					HasRequestedAdvance: handlers.FmtBool(false),
@@ -919,15 +931,17 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			},
 			"Add actual zips and advance info - no advance": {
 				setUpOriginalPPM: func() models.PPMShipment {
-					return testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{
-						PPMShipment: models.PPMShipment{
-							EstimatedWeight:        models.PoundPointer(4000),
-							HasProGear:             models.BoolPointer(false),
-							EstimatedIncentive:     models.CentPointer(unit.Cents(500000)),
-							HasRequestedAdvance:    models.BoolPointer(true),
-							AdvanceAmountRequested: models.CentPointer(unit.Cents(200000)),
+					return factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
+						{
+							Model: models.PPMShipment{
+								EstimatedWeight:        models.PoundPointer(4000),
+								HasProGear:             models.BoolPointer(false),
+								EstimatedIncentive:     models.CentPointer(unit.Cents(500000)),
+								HasRequestedAdvance:    models.BoolPointer(true),
+								AdvanceAmountRequested: models.CentPointer(unit.Cents(200000)),
+							},
 						},
-					})
+					}, nil)
 				},
 				desiredShipment: internalmessages.UpdatePPMShipment{
 					ActualPickupPostalCode:      handlers.FmtString("90210"),
@@ -950,15 +964,17 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			},
 			"Add actual zips and advance info - yes advance": {
 				setUpOriginalPPM: func() models.PPMShipment {
-					return testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{
-						PPMShipment: models.PPMShipment{
-							EstimatedWeight:        models.PoundPointer(4000),
-							HasProGear:             models.BoolPointer(false),
-							EstimatedIncentive:     models.CentPointer(unit.Cents(500000)),
-							HasRequestedAdvance:    models.BoolPointer(true),
-							AdvanceAmountRequested: models.CentPointer(unit.Cents(200000)),
+					return factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
+						{
+							Model: models.PPMShipment{
+								EstimatedWeight:        models.PoundPointer(4000),
+								HasProGear:             models.BoolPointer(false),
+								EstimatedIncentive:     models.CentPointer(unit.Cents(500000)),
+								HasRequestedAdvance:    models.BoolPointer(true),
+								AdvanceAmountRequested: models.CentPointer(unit.Cents(200000)),
+							},
 						},
-					})
+					}, nil)
 				},
 				desiredShipment: internalmessages.UpdatePPMShipment{
 					ActualPickupPostalCode:      handlers.FmtString("90210"),
@@ -982,15 +998,17 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			},
 			"Add W2 Address": {
 				setUpOriginalPPM: func() models.PPMShipment {
-					return testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{
-						PPMShipment: models.PPMShipment{
-							EstimatedWeight:        models.PoundPointer(4000),
-							HasProGear:             models.BoolPointer(false),
-							EstimatedIncentive:     models.CentPointer(unit.Cents(500000)),
-							HasRequestedAdvance:    models.BoolPointer(true),
-							AdvanceAmountRequested: models.CentPointer(unit.Cents(200000)),
+					return factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
+						{
+							Model: models.PPMShipment{
+								EstimatedWeight:        models.PoundPointer(4000),
+								HasProGear:             models.BoolPointer(false),
+								EstimatedIncentive:     models.CentPointer(unit.Cents(500000)),
+								HasRequestedAdvance:    models.BoolPointer(true),
+								AdvanceAmountRequested: models.CentPointer(unit.Cents(200000)),
+							},
 						},
-					})
+					}, nil)
 				},
 				desiredShipment: internalmessages.UpdatePPMShipment{
 					W2Address: &internalmessages.Address{
@@ -1017,12 +1035,13 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			"Allows updates to W2 Address": {
 				setUpOriginalPPM: func() models.PPMShipment {
 					address := factory.BuildAddress(suite.DB(), nil, nil)
-					return testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{
-						PPMShipment: models.PPMShipment{
-							W2Address:   &address,
-							W2AddressID: &address.ID,
+					return factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
+						{
+							Model:    address,
+							LinkOnly: true,
+							Type:     &factory.Addresses.W2Address,
 						},
-					})
+					}, nil)
 				},
 				desiredShipment: internalmessages.UpdatePPMShipment{
 					W2Address: &internalmessages.Address{
@@ -1050,7 +1069,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			},
 			"Prevents arbitrary address updates": {
 				setUpOriginalPPM: func() models.PPMShipment {
-					return testdatagen.MakeMinimalDefaultPPMShipment(suite.DB())
+					return factory.BuildMinimalPPMShipment(suite.DB(), nil, nil)
 				},
 				desiredShipment: internalmessages.UpdatePPMShipment{
 					W2Address: &internalmessages.Address{
@@ -1078,19 +1097,21 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			},
 			"Remove actual advance": {
 				setUpOriginalPPM: func() models.PPMShipment {
-					return testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{
-						PPMShipment: models.PPMShipment{
-							EstimatedWeight:             models.PoundPointer(4000),
-							HasProGear:                  models.BoolPointer(false),
-							EstimatedIncentive:          models.CentPointer(unit.Cents(500000)),
-							HasRequestedAdvance:         models.BoolPointer(true),
-							AdvanceAmountRequested:      models.CentPointer(unit.Cents(200000)),
-							ActualPickupPostalCode:      models.StringPointer("90210"),
-							ActualDestinationPostalCode: models.StringPointer("90210"),
-							HasReceivedAdvance:          models.BoolPointer(true),
-							AdvanceAmountReceived:       models.CentPointer(unit.Cents(250000)),
+					return factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
+						{
+							Model: models.PPMShipment{
+								EstimatedWeight:             models.PoundPointer(4000),
+								HasProGear:                  models.BoolPointer(false),
+								EstimatedIncentive:          models.CentPointer(unit.Cents(500000)),
+								HasRequestedAdvance:         models.BoolPointer(true),
+								AdvanceAmountRequested:      models.CentPointer(unit.Cents(200000)),
+								ActualPickupPostalCode:      models.StringPointer("90210"),
+								ActualDestinationPostalCode: models.StringPointer("90210"),
+								HasReceivedAdvance:          models.BoolPointer(true),
+								AdvanceAmountReceived:       models.CentPointer(unit.Cents(250000)),
+							},
 						},
-					})
+					}, nil)
 				},
 				desiredShipment: internalmessages.UpdatePPMShipment{
 					HasReceivedAdvance: handlers.FmtBool(false),
@@ -1348,19 +1369,32 @@ func (suite *HandlerSuite) makeListSubtestData() (subtestData *mtoListSubtestDat
 		},
 	}, nil)
 
-	ppmShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
-		Move: mto,
-	})
+	ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+	}, nil)
 
-	ppmShipment2 := testdatagen.MakeApprovedPPMShipmentWaitingOnCustomer(suite.DB(), testdatagen.Assertions{
-		Move: mto,
-	})
+	ppmShipment2 := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+	}, []factory.Trait{factory.GetTraitApprovedPPMShipment})
 
 	advanceAmountRequested := unit.Cents(10000)
-	ppmShipment3 := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
-		Move:        mto,
-		PPMShipment: models.PPMShipment{AdvanceAmountRequested: &advanceAmountRequested},
-	})
+	ppmShipment3 := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+		{
+			Model: models.PPMShipment{
+				AdvanceAmountRequested: &advanceAmountRequested,
+			},
+		},
+	}, nil)
 
 	subtestData.shipments = models.MTOShipments{mtoShipment, mtoShipment2, ppmShipment.Shipment, ppmShipment2.Shipment, ppmShipment3.Shipment}
 	requestUser := factory.BuildUser(nil, nil, nil)

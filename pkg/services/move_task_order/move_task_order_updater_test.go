@@ -48,9 +48,12 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 
 	suite.Run("Move/shipment/PPM statuses are updated successfully (with PPM shipment)", func() {
 		move := factory.BuildNeedsServiceCounselingMove(suite.DB(), nil, nil)
-		testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-		})
+		factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 		eTag := etag.GenerateEtag(move.UpdatedAt)
 
 		actualMTO, err := mtoUpdater.UpdateStatusServiceCounselingCompleted(suite.AppContextForTest(), move.ID, eTag)
@@ -189,12 +192,17 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdatePostCouns
 	suite.Run("MTO post counseling information is updated successfully", func() {
 		expectedMTO := factory.BuildMove(suite.DB(), nil, nil)
 		// Make a couple of shipments for the move; one prime, one external
-		primeShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
-			Move: expectedMTO,
-			MTOShipment: models.MTOShipment{
-				UsesExternalVendor: false,
+		primeShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    expectedMTO,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					UsesExternalVendor: false,
+				},
+			},
+		}, nil)
 		factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
 			{
 				Model:    expectedMTO,
@@ -257,12 +265,17 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdatePostCouns
 
 	suite.Run("Counseling isn't an approved service item", func() {
 		expectedMTO := factory.BuildMove(suite.DB(), nil, nil)
-		testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
-			Move: expectedMTO,
-			MTOShipment: models.MTOShipment{
-				UsesExternalVendor: false,
+		factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    expectedMTO,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					UsesExternalVendor: false,
+				},
+			},
+		}, nil)
 		eTag := etag.GenerateEtag(expectedMTO.UpdatedAt)
 		_, err := mtoUpdater.UpdatePostCounselingInfo(suite.AppContextForTest(), expectedMTO.ID, eTag)
 

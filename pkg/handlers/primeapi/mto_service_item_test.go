@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
@@ -25,7 +24,6 @@ import (
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	"github.com/transcom/mymove/pkg/services/query"
-	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -644,9 +642,9 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandler() {
 			// These get copied over to the DOASIT as part of creation and are needed for the response to validate
 			{
 				Model: models.MTOServiceItem{
-					Reason:        swag.String("lorem ipsum"),
-					SITEntryDate:  swag.Time(time.Now()),
-					SITPostalCode: swag.String("00000"),
+					Reason:        models.StringPointer("lorem ipsum"),
+					SITEntryDate:  models.TimePointer(time.Now()),
+					SITPostalCode: models.StringPointer("00000"),
 				},
 			},
 		}, nil)
@@ -1205,7 +1203,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 			},
 			{
 				Model: models.MTOServiceItem{
-					SITEntryDate: swag.Time(time.Now()),
+					SITEntryDate: models.TimePointer(time.Now()),
 				},
 			},
 			{
@@ -1361,15 +1359,21 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 
 		// SETUP
 		// Make a payment request and link to the dddsit service item
-		paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
+		paymentRequest := factory.BuildPaymentRequest(suite.DB(), nil, nil)
 		cost := unit.Cents(20000)
-		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
-			PaymentServiceItem: models.PaymentServiceItem{
-				PriceCents: &cost,
+		factory.BuildPaymentServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &cost,
+				},
+			}, {
+				Model:    paymentRequest,
+				LinkOnly: true,
+			}, {
+				Model:    subtestData.dddsit,
+				LinkOnly: true,
 			},
-			PaymentRequest: paymentRequest,
-			MTOServiceItem: subtestData.dddsit,
-		})
+		}, nil)
 
 		// CALL FUNCTION UNDER TEST
 
@@ -1415,7 +1419,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDOPSIT() {
 			},
 			{
 				Model: models.MTOServiceItem{
-					SITEntryDate: swag.Time(time.Now()),
+					SITEntryDate: models.TimePointer(time.Now()),
 				},
 			},
 			{
@@ -1555,15 +1559,21 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDOPSIT() {
 
 		// SETUP
 		// Make a payment request and link to the DOPSIT service item
-		paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
+		paymentRequest := factory.BuildPaymentRequest(suite.DB(), nil, nil)
 		cost := unit.Cents(20000)
-		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
-			PaymentServiceItem: models.PaymentServiceItem{
-				PriceCents: &cost,
+		factory.BuildPaymentServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &cost,
+				},
+			}, {
+				Model:    paymentRequest,
+				LinkOnly: true,
+			}, {
+				Model:    subtestData.dopsit,
+				LinkOnly: true,
 			},
-			PaymentRequest: paymentRequest,
-			MTOServiceItem: subtestData.dopsit,
-		})
+		}, nil)
 
 		// CALL FUNCTION UNDER TEST
 

@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/go-openapi/swag"
-
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	fakedata "github.com/transcom/mymove/pkg/fakedata_approved"
@@ -40,7 +38,7 @@ func (o *moveTaskOrderHider) Hide(appCtx appcontext.AppContext) (services.Hidden
 			"MTOShipments.SecondaryDeliveryAddress",
 			"MTOShipments.MTOAgents",
 		).
-		Where("show = ?", swag.Bool(true)).
+		Where("show = ?", models.BoolPointer(true)).
 		All(&mtos)
 	if err != nil {
 		return nil, apperror.NewQueryError("Moves", err, fmt.Sprintf("Could not find move task orders: %s", err))
@@ -59,7 +57,7 @@ func (o *moveTaskOrderHider) Hide(appCtx appcontext.AppContext) (services.Hidden
 		}
 
 		if !isValid {
-			mto.Show = swag.Bool(false)
+			mto.Show = models.BoolPointer(false)
 			invalidFakeMoves = append(invalidFakeMoves, mto)
 			reasonsJSONString, jsonErr := json.Marshal(invalidReasons)
 			hide.MTOID = mto.ID

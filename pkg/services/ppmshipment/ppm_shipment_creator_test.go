@@ -26,23 +26,27 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 	}
 
 	// createSubtestData - Sets up objects/data that need to be set up on a per-test basis.
-	createSubtestData := func(assertions testdatagen.Assertions) (subtestData *createShipmentSubtestData) {
+	createSubtestData := func(ppmShipmentTemplate models.PPMShipment, mtoShipmentTemplate *models.MTOShipment) (subtestData *createShipmentSubtestData) {
 		subtestData = &createShipmentSubtestData{}
 
 		// TODO: pass customs through once we refactor this function to take in []factory.Customization instead of assertions
 		subtestData.move = factory.BuildMove(suite.DB(), nil, nil)
 
-		fullAssertions := testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				MoveTaskOrderID: subtestData.move.ID,
-				ShipmentType:    models.MTOShipmentTypePPM,
-				Status:          models.MTOShipmentStatusDraft,
-			},
+		customMTOShipment := models.MTOShipment{
+			MoveTaskOrderID: subtestData.move.ID,
+			ShipmentType:    models.MTOShipmentTypePPM,
+			Status:          models.MTOShipmentStatusDraft,
 		}
 
-		testdatagen.MergeModels(&fullAssertions, assertions)
+		if mtoShipmentTemplate != nil {
+			testdatagen.MergeModels(&customMTOShipment, *mtoShipmentTemplate)
+		}
 
-		mtoShipment := testdatagen.MakeBaseMTOShipment(suite.DB(), fullAssertions)
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: customMTOShipment,
+			},
+		}, nil)
 
 		// Initialize a valid PPMShipment properly with the MTOShipment
 		subtestData.newPPMShipment = &models.PPMShipment{
@@ -50,7 +54,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 			Shipment:   mtoShipment,
 		}
 
-		testdatagen.MergeModels(subtestData.newPPMShipment, assertions.PPMShipment)
+		testdatagen.MergeModels(subtestData.newPPMShipment, ppmShipmentTemplate)
 
 		return subtestData
 	}
@@ -62,14 +66,12 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 		appCtx := suite.AppContextForTest()
 
 		// Set required fields for PPMShipment
-		subtestData := createSubtestData(testdatagen.Assertions{
-			PPMShipment: models.PPMShipment{
-				ExpectedDepartureDate: testdatagen.NextValidMoveDate,
-				PickupPostalCode:      "90909",
-				DestinationPostalCode: "90905",
-				SITExpected:           models.BoolPointer(false),
-			},
-		})
+		subtestData := createSubtestData(models.PPMShipment{
+			ExpectedDepartureDate: testdatagen.NextValidMoveDate,
+			PickupPostalCode:      "90909",
+			DestinationPostalCode: "90905",
+			SITExpected:           models.BoolPointer(false),
+		}, nil)
 
 		ppmEstimator.On(
 			"EstimateIncentiveWithDefaultChecks",
@@ -85,45 +87,49 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 	})
 
 	var invalidInputTests = []struct {
-		name             string
-		assertions       testdatagen.Assertions
-		expectedErrorMsg string
+		name                string
+		mtoShipmentTemplate *models.MTOShipment
+		ppmShipmentTemplate models.PPMShipment
+		expectedErrorMsg    string
 	}{
 		{
 			"MTOShipment type is not PPM",
-			testdatagen.Assertions{
-				MTOShipment: models.MTOShipment{
-					ShipmentType: models.MTOShipmentTypeHHG,
-				},
+			&models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypeHHG,
 			},
+			models.PPMShipment{},
 			"MTO shipment type must be PPM shipment",
 		},
 		{
 			"MTOShipment is not a draft or submitted shipment",
-			testdatagen.Assertions{
-				MTOShipment: models.MTOShipment{
-					Status: models.MTOShipmentStatusApproved,
-				},
+			&models.MTOShipment{
+				Status: models.MTOShipmentStatusApproved,
 			},
+			models.PPMShipment{},
 			"Must have a DRAFT or SUBMITTED status associated with MTO shipment",
 		},
 		{
 			"missing MTOShipment ID",
-			testdatagen.Assertions{PPMShipment: models.PPMShipment{
+			nil,
+			models.PPMShipment{
 				ShipmentID: uuid.Nil,
-			}},
+			},
 			"Invalid input found while validating the PPM shipment.",
 		},
 		{
 			"already has a PPMShipment ID",
-			testdatagen.Assertions{PPMShipment: models.PPMShipment{
+			nil,
+			models.PPMShipment{
 				ID: uuid.Must(uuid.NewV4()),
-			}},
+			},
 			"Invalid input found while validating the PPM shipment.",
 		},
 		{
 			"missing a required field",
-			testdatagen.Assertions{}, // Passing in blank assertions, leaving out required fields.
+			// Passing in blank assertions, leaving out required
+			// fields.
+			nil,
+			models.PPMShipment{},
 			"Invalid input found while validating the PPM shipment.",
 		},
 	}
@@ -134,7 +140,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 		suite.Run(fmt.Sprintf("Returns an InvalidInputError if %s", tt.name), func() {
 			appCtx := suite.AppContextForTest()
 
-			subtestData := createSubtestData(tt.assertions)
+			subtestData := createSubtestData(tt.ppmShipmentTemplate, tt.mtoShipmentTemplate)
 
 			createdPPMShipment, err := ppmShipmentCreator.CreatePPMShipmentWithDefaultCheck(appCtx, subtestData.newPPMShipment)
 
@@ -158,17 +164,15 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 		estimatedWeight := unit.Pound(2450)
 		hasProGear := false
 		estimatedIncentive := unit.Cents(123456)
-		subtestData := createSubtestData(testdatagen.Assertions{
-			PPMShipment: models.PPMShipment{
-				Status:                models.PPMShipmentStatusSubmitted,
-				ExpectedDepartureDate: expectedDepartureDate,
-				PickupPostalCode:      pickupPostalCode,
-				DestinationPostalCode: destinationPostalCode,
-				SITExpected:           &sitExpected,
-				EstimatedWeight:       &estimatedWeight,
-				HasProGear:            &hasProGear,
-			},
-		})
+		subtestData := createSubtestData(models.PPMShipment{
+			Status:                models.PPMShipmentStatusSubmitted,
+			ExpectedDepartureDate: expectedDepartureDate,
+			PickupPostalCode:      pickupPostalCode,
+			DestinationPostalCode: destinationPostalCode,
+			SITExpected:           &sitExpected,
+			EstimatedWeight:       &estimatedWeight,
+			HasProGear:            &hasProGear,
+		}, nil)
 
 		ppmEstimator.On(
 			"EstimateIncentiveWithDefaultChecks",

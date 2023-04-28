@@ -1,4 +1,4 @@
-package mtoshipment
+package sitextension
 
 import (
 	"database/sql"
@@ -12,6 +12,7 @@ import (
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
@@ -26,7 +27,7 @@ func NewSITExtensionDenier(moveRouter services.MoveRouter) services.SITExtension
 
 // DenySITExtension denies the SIT Extension
 func (f *sitExtensionDenier) DenySITExtension(appCtx appcontext.AppContext, shipmentID uuid.UUID, sitExtensionID uuid.UUID, officeRemarks *string, eTag string) (*models.MTOShipment, error) {
-	shipment, err := FindShipment(appCtx, shipmentID, "MoveTaskOrder")
+	shipment, err := mtoshipment.FindShipment(appCtx, shipmentID, "MoveTaskOrder")
 	if err != nil {
 		return nil, err
 	}

@@ -3,7 +3,6 @@ package movehistory
 import (
 	"database/sql"
 
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -32,10 +31,10 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 	audits := &models.AuditHistories{}
 	locator := params.Locator
 	if params.Page == nil {
-		params.Page = swag.Int64(1)
+		params.Page = models.Int64Pointer(1)
 	}
 	if params.PerPage == nil {
-		params.PerPage = swag.Int64(20)
+		params.PerPage = models.Int64Pointer(20)
 	}
 
 	query := appCtx.DB().RawQuery(rawQuery, locator).Paginate(int(*params.Page), int(*params.PerPage))

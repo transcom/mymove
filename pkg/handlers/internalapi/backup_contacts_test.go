@@ -5,8 +5,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 
-	"github.com/go-openapi/swag"
-
 	"github.com/transcom/mymove/pkg/factory"
 	contactop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/backup_contacts"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -20,10 +18,10 @@ func (suite *HandlerSuite) TestCreateBackupContactHandler() {
 	serviceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
 
 	newContactPayload := internalmessages.CreateServiceMemberBackupContactPayload{
-		Email:      swag.String("email@example.com"),
-		Name:       swag.String("name"),
+		Email:      models.StringPointer("email@example.com"),
+		Name:       models.StringPointer("name"),
 		Permission: internalmessages.NewBackupContactPermission(internalmessages.BackupContactPermissionEDIT),
-		Telephone:  swag.String("5555555555"),
+		Telephone:  models.StringPointer("5555555555"),
 	}
 	req := httptest.NewRequest("POST", fmt.Sprintf("/service_member/%v/backup_contacts", serviceMember.ID.String()), nil)
 
@@ -176,10 +174,10 @@ func (suite *HandlerSuite) TestUpdateBackupContactsHandler() {
 	req := httptest.NewRequest("PUT", updatePath, nil)
 
 	updateContactPayload := internalmessages.UpdateServiceMemberBackupContactPayload{
-		Email:      swag.String("otheremail@example.com"),
-		Name:       swag.String("other name"),
+		Email:      models.StringPointer("otheremail@example.com"),
+		Name:       models.StringPointer("other name"),
 		Permission: internalmessages.NewBackupContactPermission(internalmessages.BackupContactPermissionNONE),
-		Telephone:  swag.String("4444444444"),
+		Telephone:  models.StringPointer("4444444444"),
 	}
 
 	params := contactop.UpdateServiceMemberBackupContactParams{
@@ -209,10 +207,10 @@ func (suite *HandlerSuite) TestUpdateBackupContactsHandlerWrongUser() {
 	req := httptest.NewRequest("PUT", updatePath, nil)
 
 	updateContactPayload := internalmessages.UpdateServiceMemberBackupContactPayload{
-		Email:      swag.String("otheremail@example.com"),
-		Name:       swag.String("other name"),
+		Email:      models.StringPointer("otheremail@example.com"),
+		Name:       models.StringPointer("other name"),
 		Permission: internalmessages.NewBackupContactPermission(internalmessages.BackupContactPermissionNONE),
-		Telephone:  swag.String("4444444444"),
+		Telephone:  models.StringPointer("4444444444"),
 	}
 
 	params := contactop.UpdateServiceMemberBackupContactParams{
