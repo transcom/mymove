@@ -509,7 +509,9 @@ func MTOServiceItemModelFromUpdate(mtoServiceItemID string, mtoServiceItem prime
 			model.SITDestinationFinalAddressID = &model.SITDestinationFinalAddress.ID
 		}
 
-		if sit.ReServiceCode == string(models.ReServiceCodeDDDSIT) || sit.ReServiceCode == string(models.ReServiceCodeDDASIT) || sit.ReServiceCode == string(models.ReServiceCodeDDFSIT) {
+		if sit.ReServiceCode == string(models.ReServiceCodeDDDSIT) ||
+			sit.ReServiceCode == string(models.ReServiceCodeDDASIT) ||
+			sit.ReServiceCode == string(models.ReServiceCodeDDFSIT) {
 			var customerContacts models.MTOServiceItemCustomerContacts
 			if sit.TimeMilitary1 != nil && sit.FirstAvailableDeliveryDate1 != nil {
 				contact1 := models.MTOServiceItemCustomerContact{
