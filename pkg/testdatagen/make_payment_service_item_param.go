@@ -41,11 +41,6 @@ func MakePaymentServiceItemParam(db *pop.Connection, assertions Assertions) mode
 	return paymentServiceItemParam
 }
 
-// MakeDefaultPaymentServiceItemParam makes a PaymentServiceItemParam with default values
-func MakeDefaultPaymentServiceItemParam(db *pop.Connection) models.PaymentServiceItemParam {
-	return MakePaymentServiceItemParam(db, Assertions{})
-}
-
 // MakePaymentServiceItemWithParams creates more than one payment service item param at a time
 func MakePaymentServiceItemWithParams(db *pop.Connection, serviceCode models.ReServiceCode, paramsToCreate []CreatePaymentServiceItemParams, assertions Assertions) models.PaymentServiceItem {
 	var params models.PaymentServiceItemParams
