@@ -222,29 +222,3 @@ func makeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 	mustCreate(db, &MTOShipment, assertions.Stub)
 	return MTOShipment
 }
-
-// MakeDefaultMTOShipment makes an MTOShipment with default values
-func MakeDefaultMTOShipment(db *pop.Connection) models.MTOShipment {
-	return makeMTOShipment(db, Assertions{})
-}
-
-// MakeMTOShipmentWithMove makes a shipment connected to a given move and updates the move's MTOShipments array
-func MakeMTOShipmentWithMove(db *pop.Connection, move *models.Move, assertions Assertions) models.MTOShipment {
-	if move != nil {
-		assertions.Move = *move
-		assertions.MTOShipment.MoveTaskOrder = *move
-		assertions.MTOShipment.MoveTaskOrderID = move.ID
-	}
-	shipment := makeMTOShipment(db, assertions)
-	if move != nil {
-		// This will allow someone to easily create multiple test shipments for one move
-		move.MTOShipments = append(move.MTOShipments, shipment)
-	}
-	return shipment
-}
-
-// MakeSubmittedMTOShipmentWithMove makes a shipment with the "SUBMITTED" status and a specific move
-func MakeSubmittedMTOShipmentWithMove(db *pop.Connection, move *models.Move, assertions Assertions) models.MTOShipment {
-	assertions.MTOShipment.Status = models.MTOShipmentStatusSubmitted
-	return MakeMTOShipmentWithMove(db, move, assertions)
-}
