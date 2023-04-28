@@ -137,8 +137,6 @@ const ShipmentDetailsMain = ({
       displayedDeliveryAddress = destinationAddress || destinationDutyLocationAddress;
   }
 
-  // console.log(sitStatus);
-
   return (
     <div className={className}>
       {isReviewSITExtensionModalVisible && (
@@ -158,7 +156,6 @@ const ShipmentDetailsMain = ({
           sitStatus={sitStatus}
         />
       )}
-      {/* {sitStatus && ( */}
       <ShipmentSITDisplay
         sitExtensions={sitExtensions}
         sitStatus={sitStatus}
@@ -167,7 +164,6 @@ const ShipmentDetailsMain = ({
         className={styles.shipmentSITSummary}
         openModalButton={openModalButton}
       />
-      {/* )} */}
       <ImportantShipmentDates
         requestedPickupDate={formatDate(requestedPickupDate)}
         scheduledPickupDate={scheduledPickupDate ? formatDate(scheduledPickupDate) : null}

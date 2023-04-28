@@ -64,11 +64,11 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton }
   const sitEndDate = sitStatus
     ? moment().utc().add(sitStatus?.totalDaysRemaining, 'days')
     : moment(sitStartDate).utc().add(shipment.sitDaysAllowance, 'days');
-  const sitEndDateElement = <p>{formatDate(sitEndDate, utcDateFormat, 'DD MMM YYYY')}</p>;
+  const sitEndDateElement = formatDate(sitEndDate, utcDateFormat, 'DD MMM YYYY');
 
   // Previous SIT calculations and date ranges
   const previousDaysUsed = sitStatus?.pastSITServiceItems?.map((pastSITItem) => {
-    const sitDaysUsed = moment(pastSITItem.sitDepartureDate).utc().diff(pastSITItem.sitEntryDate, 'days');
+    const sitDaysUsed = moment(pastSITItem.sitDepartureDate).diff(pastSITItem.sitEntryDate, 'days');
     const location = pastSITItem.reServiceCode === SERVICE_ITEM_CODES.DOPSIT ? 'origin' : 'destination';
 
     const start = formatDate(pastSITItem.sitEntryDate, utcDateFormat, 'DD MMM YYYY');
@@ -79,11 +79,7 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton }
   });
 
   // Currently active SIT
-  // const currentLocation = sitStatus.location === LOCATION_TYPES.ORIGIN ? 'origin SIT' : 'destination SIT';
-  let currentLocation = 'origin SIT';
-  if (sitStatus) {
-    currentLocation = sitStatus.location === LOCATION_TYPES.ORIGIN ? 'origin SIT' : 'destination SIT';
-  }
+  const currentLocation = sitStatus?.location === LOCATION_TYPES.DESTINATION ? 'destination SIT' : 'origin SIT';
 
   const totalSITDaysUsed = sitStatus?.totalSITDaysUsed || 0;
   const totalDaysRemaining = sitStatus?.totalDaysRemaining || shipment.sitDaysAllowance;
@@ -108,7 +104,7 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton }
         <DataTable
           columnHeaders={[`SIT start date`, 'SIT authorized end date']}
           dataRow={[sitStartDateElement, sitEndDateElement]}
-          custClass={styles.currentLocation}
+          custClass={styles.currentLoca}
         />
       </div>
       <div className={styles.tableContainer} data-testid="sitDaysAtCurrentLocation">
