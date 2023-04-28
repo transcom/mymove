@@ -6,7 +6,18 @@ Is there anything you would like reviewers to give additional scrutiny?
 
 [this article](tbd) explains more about the approach used.
 
-## Setup to Run Your Code
+## Verification Steps for the Author
+
+These are to be checked by the author.
+
+- [ ] Tested in the Experimental environment (for changes to containers, app startup, or connection to data stores)
+- [ ] Have the Jira acceptance criteria been met for this change?
+
+## Verification Steps for Reviewers
+
+These are to be checked by a reviewer.
+
+### Setup to Run the Code
 
 - [Instructions for starting storybook](https://transcom.github.io/mymove-docs/docs/frontend/setup/run-storybook)
 - [Instructions for starting the MilMove application](https://transcom.github.io/mymove-docs/docs/about/application-setup/milmove-local-client/)
@@ -17,17 +28,6 @@ Is there anything you would like reviewers to give additional scrutiny?
 1. Access the
 2. Login as a
 3.
-
-## Verification Steps for Author
-
-These are to be checked by the author.
-
-- [ ] Tested in the Experimental environment (for changes to containers, app startup, or connection to data stores)
-- [ ] Have the Jira acceptance criteria been met for this change?
-
-## Verification Steps for Reviewers
-
-These are to be checked by a reviewer.
 
 ### Frontend
 
