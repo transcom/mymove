@@ -120,6 +120,51 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		suite.Equal(newServiceItem.EstimatedWeight, updatedServiceItem.EstimatedWeight)
 		suite.NotEqual(newServiceItem.Status, updatedServiceItem.Status)
 	})
+
+	// Success for DDDSIT
+	suite.Run("Success", func() {
+		serviceItem, eTag := setupServiceItem()
+		serviceItem.ReService.Code = models.ReServiceCodeDDDSIT
+		reason := "because we did this service"
+		sitEntryDate := time.Date(2020, time.December, 02, 0, 0, 0, 0, time.UTC)
+
+		newAddress := factory.BuildAddress(nil, nil, nil)
+		newServiceItem := serviceItem
+		newServiceItem.Reason = &reason
+		newServiceItem.SITEntryDate = &sitEntryDate
+		newServiceItem.Status = "" // should keep the status from the original service item
+		newServiceItem.SITDestinationFinalAddress = &newAddress
+		actualWeight := int64(4000)
+		estimatedWeight := int64(4200)
+		newServiceItem.ActualWeight = handlers.PoundPtrFromInt64Ptr(&actualWeight)
+		newServiceItem.ActualWeight = handlers.PoundPtrFromInt64Ptr(&estimatedWeight)
+		newServiceItem.CustomerContacts = models.MTOServiceItemCustomerContacts{
+			models.MTOServiceItemCustomerContact{
+				TimeMilitary:               "1400Z",
+				FirstAvailableDeliveryDate: time.Date(2020, time.December, 02, 0, 0, 0, 0, time.UTC),
+			},
+		}
+		updatedServiceItem, err := updater.UpdateMTOServiceItemBasic(suite.AppContextForTest(), &newServiceItem, eTag)
+
+		suite.NoError(err)
+		suite.NotNil(updatedServiceItem)
+		suite.Equal(serviceItem.ID, updatedServiceItem.ID)
+		suite.Equal(serviceItem.MTOShipmentID, updatedServiceItem.MTOShipmentID)
+		suite.Equal(serviceItem.MoveTaskOrderID, updatedServiceItem.MoveTaskOrderID)
+		suite.Equal(newServiceItem.Reason, updatedServiceItem.Reason)
+		suite.Equal(newServiceItem.SITEntryDate.Local(), updatedServiceItem.SITEntryDate.Local())
+		suite.Equal(serviceItem.Status, updatedServiceItem.Status) // should not have been updated
+		suite.Equal(newAddress.StreetAddress1, updatedServiceItem.SITDestinationFinalAddress.StreetAddress1)
+		suite.Equal(newAddress.City, updatedServiceItem.SITDestinationFinalAddress.City)
+		suite.Equal(newAddress.State, updatedServiceItem.SITDestinationFinalAddress.State)
+		suite.Equal(newAddress.Country, updatedServiceItem.SITDestinationFinalAddress.Country)
+		suite.Equal(newAddress.PostalCode, updatedServiceItem.SITDestinationFinalAddress.PostalCode)
+		suite.Equal(newServiceItem.ActualWeight, updatedServiceItem.ActualWeight)
+		suite.Equal(newServiceItem.EstimatedWeight, updatedServiceItem.EstimatedWeight)
+		suite.Equal(newServiceItem.CustomerContacts[0].TimeMilitary, updatedServiceItem.CustomerContacts[0].TimeMilitary)
+		suite.Equal(newServiceItem.CustomerContacts[0].FirstAvailableDeliveryDate, updatedServiceItem.CustomerContacts[0].FirstAvailableDeliveryDate)
+		suite.NotEqual(newServiceItem.Status, updatedServiceItem.Status)
+	})
 }
 
 func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
