@@ -6,7 +6,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
@@ -83,7 +82,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestSuccess() 
 			PrimeUpload: models.PrimeUpload{
 				ProofOfServiceDocID: proofOfServiceDoc.ID,
 				ContractorID:        contractor.ID,
-				DeletedAt:           swag.Time(time.Now()),
+				DeletedAt:           models.TimePointer(time.Now()),
 			},
 		})
 	}
@@ -465,7 +464,7 @@ func (suite *PaymentRequestServiceSuite) setupRecalculateData1() (models.Move, m
 				Status:               models.MTOShipmentStatusSubmitted,
 				PrimeEstimatedWeight: &estimatedWeight,
 				PrimeActualWeight:    &originalWeight,
-				SITDaysAllowance:     swag.Int(90),
+				SITDaysAllowance:     models.IntPointer(90),
 			},
 		},
 	}, nil)

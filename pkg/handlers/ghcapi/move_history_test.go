@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
@@ -64,8 +63,8 @@ func (suite *HandlerSuite) TestMockGetMoveHistoryHandler() {
 		params := moveops.GetMoveHistoryParams{
 			HTTPRequest: req,
 			Locator:     "ABCD1234",
-			Page:        swag.Int64(1),
-			PerPage:     swag.Int64(20),
+			Page:        models.Int64Pointer(1),
+			PerPage:     models.Int64Pointer(20),
 		}
 
 		handler := GetMoveHistoryHandler{
@@ -126,8 +125,8 @@ func (suite *HandlerSuite) TestMockGetMoveHistoryHandler() {
 		badParams := moveops.GetMoveHistoryParams{
 			HTTPRequest: req,
 			Locator:     "",
-			Page:        swag.Int64(1),
-			PerPage:     swag.Int64(20),
+			Page:        models.Int64Pointer(1),
+			PerPage:     models.Int64Pointer(20),
 		}
 
 		// Validate incoming payload: no body to validate
@@ -148,8 +147,8 @@ func (suite *HandlerSuite) TestMockGetMoveHistoryHandler() {
 		params := moveops.GetMoveHistoryParams{
 			HTTPRequest: req,
 			Locator:     "ABCD1234",
-			Page:        swag.Int64(1),
-			PerPage:     swag.Int64(20),
+			Page:        models.Int64Pointer(1),
+			PerPage:     models.Int64Pointer(20),
 		}
 
 		handler := GetMoveHistoryHandler{
@@ -180,8 +179,8 @@ func (suite *HandlerSuite) TestMockGetMoveHistoryHandler() {
 		params := moveops.GetMoveHistoryParams{
 			HTTPRequest: req,
 			Locator:     "ABCD1234",
-			Page:        swag.Int64(1),
-			PerPage:     swag.Int64(20),
+			Page:        models.Int64Pointer(1),
+			PerPage:     models.Int64Pointer(20),
 		}
 
 		handler := GetMoveHistoryHandler{
@@ -228,8 +227,8 @@ func (suite *HandlerSuite) TestMockGetMoveHistoryHandler() {
 		pagedParams := moveops.GetMoveHistoryParams{
 			HTTPRequest: request,
 			Locator:     move.Locator,
-			Page:        swag.Int64(1),
-			PerPage:     swag.Int64(2), // This should limit results to only the first 2 records of the possible 4
+			Page:        models.Int64Pointer(1),
+			PerPage:     models.Int64Pointer(2), // This should limit results to only the first 2 records of the possible 4
 		}
 
 		handlerConfig := suite.HandlerConfig()

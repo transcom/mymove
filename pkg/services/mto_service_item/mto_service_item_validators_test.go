@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
@@ -246,13 +245,18 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		// Set up:      Create any service item with associated payment requests
 		// Expected outcome: ConflictError
 		oldServiceItem, newServiceItem := setupTestData() // These
-		newServiceItem.Description = swag.String("1234")
+		newServiceItem.Description = models.StringPointer("1234")
 
 		paymentRequest := factory.BuildPaymentRequest(suite.DB(), nil, nil)
-		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: paymentRequest,
-			MTOServiceItem: oldServiceItem,
-		})
+		factory.BuildPaymentServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    paymentRequest,
+				LinkOnly: true,
+			}, {
+				Model:    oldServiceItem,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		serviceItemData := updateMTOServiceItemData{
 			updatedServiceItem: newServiceItem,

@@ -14,7 +14,6 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/stretchr/testify/mock"
 
@@ -205,9 +204,9 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 		params := userop.UpdateUserParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("PUT", fmt.Sprintf("/users/%s", user.ID)),
 			User: &adminmessages.UserUpdate{
-				RevokeMilSession:    swag.Bool(true),
-				RevokeAdminSession:  swag.Bool(false),
-				RevokeOfficeSession: swag.Bool(true),
+				RevokeMilSession:    models.BoolPointer(true),
+				RevokeAdminSession:  models.BoolPointer(false),
+				RevokeOfficeSession: models.BoolPointer(true),
 				Active:              nil,
 			},
 			UserID: strfmt.UUID(user.ID.String()),
@@ -244,9 +243,9 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 		params := userop.UpdateUserParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("PUT", fmt.Sprintf("/users/%s", user.ID)),
 			User: &adminmessages.UserUpdate{
-				Active:              swag.Bool(false),
-				RevokeMilSession:    swag.Bool(true),
-				RevokeOfficeSession: swag.Bool(true),
+				Active:              models.BoolPointer(false),
+				RevokeMilSession:    models.BoolPointer(true),
+				RevokeOfficeSession: models.BoolPointer(true),
 			},
 			UserID: strfmt.UUID(user.ID.String()),
 		}
@@ -282,7 +281,7 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 		params := userop.UpdateUserParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("PUT", fmt.Sprintf("/users/%s", user.ID)),
 			User: &adminmessages.UserUpdate{
-				Active: swag.Bool(false),
+				Active: models.BoolPointer(false),
 			},
 			UserID: strfmt.UUID(user.ID.String()),
 		}
@@ -326,7 +325,7 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 		params := userop.UpdateUserParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("PUT", fmt.Sprintf("/users/%s", user.ID)),
 			User: &adminmessages.UserUpdate{
-				Active: swag.Bool(true),
+				Active: models.BoolPointer(true),
 			},
 			UserID: strfmt.UUID(user.ID.String()),
 		}
@@ -361,7 +360,7 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 		params := userop.UpdateUserParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("PUT", fmt.Sprintf("/users/%s", user.ID)),
 			User: &adminmessages.UserUpdate{
-				Active: swag.Bool(false),
+				Active: models.BoolPointer(false),
 			},
 			UserID: strfmt.UUID(user.ID.String()),
 		}
@@ -406,10 +405,10 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 		params := userop.UpdateUserParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("PUT", fmt.Sprintf("/users/%s", user.ID)),
 			User: &adminmessages.UserUpdate{
-				Active:              swag.Bool(false),
-				RevokeAdminSession:  swag.Bool(true),
-				RevokeMilSession:    swag.Bool(true),
-				RevokeOfficeSession: swag.Bool(true),
+				Active:              models.BoolPointer(false),
+				RevokeAdminSession:  models.BoolPointer(true),
+				RevokeMilSession:    models.BoolPointer(true),
+				RevokeOfficeSession: models.BoolPointer(true),
 			},
 			UserID: strfmt.UUID(user.ID.String()),
 		}
@@ -456,9 +455,9 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 			HTTPRequest: suite.setupAuthenticatedRequest("PUT", fmt.Sprintf("/users/%s", user.ID)),
 			User: &adminmessages.UserUpdate{
 				Active:              nil,
-				RevokeAdminSession:  swag.Bool(true),
-				RevokeMilSession:    swag.Bool(true),
-				RevokeOfficeSession: swag.Bool(true),
+				RevokeAdminSession:  models.BoolPointer(true),
+				RevokeMilSession:    models.BoolPointer(true),
+				RevokeOfficeSession: models.BoolPointer(true),
 			},
 			UserID: strfmt.UUID(user.ID.String()),
 		}

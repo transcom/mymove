@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -78,8 +77,8 @@ func (h ShowPPMIncentiveHandler) Handle(params ppmop.ShowPPMIncentiveParams) mid
 			incentivePercentage := cost.GCC.MultiplyFloat64(0.95)
 
 			ppmObligation := internalmessages.PPMIncentive{
-				Gcc:                 swag.Int64(gcc.Int64()),
-				IncentivePercentage: swag.Int64(incentivePercentage.Int64()),
+				Gcc:                 models.Int64Pointer(gcc.Int64()),
+				IncentivePercentage: models.Int64Pointer(incentivePercentage.Int64()),
 			}
 			return ppmop.NewShowPPMIncentiveOK().WithPayload(&ppmObligation), nil
 		})

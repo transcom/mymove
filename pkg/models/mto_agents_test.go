@@ -1,7 +1,6 @@
 package models_test
 
 import (
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -15,9 +14,9 @@ func (suite *ModelSuite) TestMTOAgentValidation() {
 		validMTOAgent := models.MTOAgent{
 			ID:            mtoAgentID,
 			MTOShipmentID: mtoShipmentID,
-			FirstName:     swag.String("Test"),
-			LastName:      swag.String("Agent"),
-			Email:         swag.String("test@testagent.agent"),
+			FirstName:     models.StringPointer("Test"),
+			LastName:      models.StringPointer("Agent"),
+			Email:         models.StringPointer("test@testagent.agent"),
 			Phone:         nil,
 			MTOAgentType:  models.MTOAgentReleasing,
 		}

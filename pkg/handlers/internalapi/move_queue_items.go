@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
@@ -22,18 +21,18 @@ func payloadForMoveQueueItem(MoveQueueItem models.MoveQueueItem) *internalmessag
 	MoveQueueItemPayload := internalmessages.MoveQueueItem{
 		ID:                          handlers.FmtUUID(MoveQueueItem.ID),
 		CreatedAt:                   handlers.FmtDateTime(MoveQueueItem.CreatedAt),
-		Edipi:                       swag.String(MoveQueueItem.Edipi),
+		Edipi:                       models.StringPointer(MoveQueueItem.Edipi),
 		Rank:                        (*internalmessages.ServiceMemberRank)(MoveQueueItem.Rank),
-		CustomerName:                swag.String(MoveQueueItem.CustomerName),
-		Locator:                     swag.String(MoveQueueItem.Locator),
-		Status:                      swag.String(MoveQueueItem.Status),
+		CustomerName:                models.StringPointer(MoveQueueItem.CustomerName),
+		Locator:                     models.StringPointer(MoveQueueItem.Locator),
+		Status:                      models.StringPointer(MoveQueueItem.Status),
 		PpmStatus:                   handlers.FmtStringPtr(MoveQueueItem.PpmStatus),
-		OrdersType:                  swag.String(MoveQueueItem.OrdersType),
+		OrdersType:                  models.StringPointer(MoveQueueItem.OrdersType),
 		MoveDate:                    handlers.FmtDatePtr(MoveQueueItem.MoveDate),
 		SubmittedDate:               handlers.FmtDateTimePtr(MoveQueueItem.SubmittedDate),
 		LastModifiedDate:            handlers.FmtDateTime(MoveQueueItem.LastModifiedDate),
-		OriginDutyLocationName:      swag.String(MoveQueueItem.OriginDutyLocationName),
-		DestinationDutyLocationName: swag.String(MoveQueueItem.DestinationDutyLocationName),
+		OriginDutyLocationName:      models.StringPointer(MoveQueueItem.OriginDutyLocationName),
+		DestinationDutyLocationName: models.StringPointer(MoveQueueItem.DestinationDutyLocationName),
 		PmSurveyConductedDate:       handlers.FmtDateTimePtr(MoveQueueItem.PmSurveyConductedDate),
 		OriginGbloc:                 handlers.FmtStringPtr(MoveQueueItem.OriginGBLOC),
 		DestinationGbloc:            handlers.FmtStringPtr(MoveQueueItem.DestinationGBLOC),

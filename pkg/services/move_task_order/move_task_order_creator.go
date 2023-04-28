@@ -4,7 +4,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/validate/v3"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -32,7 +31,7 @@ func (o *moveTaskOrderCreator) CreateMoveTaskOrder(appCtx appcontext.AppContext,
 		moveTaskOrder.ReferenceID = &referenceID
 	}
 
-	moveTaskOrder.Show = swag.Bool(true)
+	moveTaskOrder.Show = models.BoolPointer(true)
 
 	// TODO: Remove this? Doesn't Pop automatically do this?
 	moveTaskOrder.CreatedAt = time.Now()

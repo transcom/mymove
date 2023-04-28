@@ -3,7 +3,6 @@ package evaluationreport
 import (
 	"time"
 
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 
@@ -193,7 +192,7 @@ func (suite EvaluationReportSuite) TestUpdateEvaluationReport() {
 		// Copy report to new object
 		report := originalReport
 
-		report.Remarks = swag.String("spectacular packing job!!")
+		report.Remarks = models.StringPointer("spectacular packing job!!")
 
 		// Attempt to update the report
 		err := updater.UpdateEvaluationReport(suite.AppContextForTest(), &report, report.OfficeUserID, etag.GenerateEtag(report.UpdatedAt))
@@ -215,7 +214,7 @@ func (suite EvaluationReportSuite) TestUpdateEvaluationReport() {
 			Violation:   models.PWSViolation{},
 			ViolationID: uuid.UUID{},
 		}})
-		report.ViolationsObserved = swag.Bool(true)
+		report.ViolationsObserved = models.BoolPointer(true)
 
 		// do the update
 		err := updater.UpdateEvaluationReport(suite.AppContextForTest(), &report, report.OfficeUserID, etag.GenerateEtag(report.UpdatedAt))
@@ -227,7 +226,7 @@ func (suite EvaluationReportSuite) TestUpdateEvaluationReport() {
 		// we should find any report violations, which means this object should have a 1 length
 		suite.Equal(1, len(reportViolations))
 
-		report.ViolationsObserved = swag.Bool(false)
+		report.ViolationsObserved = models.BoolPointer(false)
 
 		// do the update
 		err = updater.UpdateEvaluationReport(suite.AppContextForTest(), &report, report.OfficeUserID, etag.GenerateEtag(report.UpdatedAt))
@@ -257,7 +256,7 @@ func (suite EvaluationReportSuite) TestUpdateEvaluationReport() {
 		reportPayload := originalReport
 
 		wrongUUID := uuid.Must(uuid.NewV4())
-		reportPayload.Remarks = swag.String("spectacular packing job!!")
+		reportPayload.Remarks = models.StringPointer("spectacular packing job!!")
 		reportPayload.MoveID = wrongUUID
 		reportPayload.ShipmentID = &wrongUUID
 
@@ -316,7 +315,7 @@ func (suite EvaluationReportSuite) TestUpdateEvaluationReport() {
 			},
 		}, nil)
 		report := originalReport
-		report.Remarks = swag.String("spectacular packing job!!")
+		report.Remarks = models.StringPointer("spectacular packing job!!")
 
 		// Attempt to update the report
 		err := updater.UpdateEvaluationReport(suite.AppContextForTest(), &report, report.OfficeUserID, etag.GenerateEtag(report.UpdatedAt))
@@ -333,7 +332,7 @@ func (suite EvaluationReportSuite) TestUpdateEvaluationReport() {
 		}, nil)
 
 		report := originalReport
-		report.Remarks = swag.String("spectacular packing job!!")
+		report.Remarks = models.StringPointer("spectacular packing job!!")
 
 		// Attempt to update the report
 		err := updater.UpdateEvaluationReport(suite.AppContextForTest(), &report, report.OfficeUserID, "not a real etag")

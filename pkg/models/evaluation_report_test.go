@@ -3,7 +3,6 @@ package models_test
 import (
 	"time"
 
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/factory"
@@ -87,7 +86,7 @@ func (suite *ModelSuite) TestReport() {
 				MoveID:         move.ID,
 				Type:           models.EvaluationReportTypeCounseling,
 				InspectionType: &physicalInspection,
-				TimeDepart:     swag.Time(time.Now()),
+				TimeDepart:     models.TimePointer(time.Now()),
 				Location:       &location,
 			},
 			expectedErrors: map[string][]string{},
@@ -101,7 +100,7 @@ func (suite *ModelSuite) TestReport() {
 				MoveID:                       move.ID,
 				Type:                         models.EvaluationReportTypeCounseling,
 				InspectionType:               &virtualInspection,
-				ObservedShipmentDeliveryDate: swag.Time(time.Now()),
+				ObservedShipmentDeliveryDate: models.TimePointer(time.Now()),
 			},
 			expectedErrors: map[string][]string{
 				"inspection_type": {"VIRTUAL does not equal PHYSICAL."},
@@ -116,7 +115,7 @@ func (suite *ModelSuite) TestReport() {
 				MoveID:                             move.ID,
 				Type:                               models.EvaluationReportTypeCounseling,
 				InspectionType:                     &dataReviewInspection,
-				ObservedShipmentPhysicalPickupDate: swag.Time(time.Now()),
+				ObservedShipmentPhysicalPickupDate: models.TimePointer(time.Now()),
 			},
 			expectedErrors: map[string][]string{
 				"inspection_type": {"DATA_REVIEW does not equal PHYSICAL."},

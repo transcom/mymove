@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/apperror"
@@ -358,7 +357,7 @@ func (suite *HandlerSuite) TestSetFinancialReviewFlagHandler() {
 			IfMatch:     &fakeEtag,
 			Body: moveops.SetFinancialReviewFlagBody{
 				Remarks:       &defaultRemarks,
-				FlagForReview: swag.Bool(true),
+				FlagForReview: models.BoolPointer(true),
 			},
 			MoveID: *handlers.FmtUUID(move.ID),
 		}
@@ -381,7 +380,7 @@ func (suite *HandlerSuite) TestSetFinancialReviewFlagHandler() {
 			IfMatch:     &fakeEtag,
 			Body: moveops.SetFinancialReviewFlagBody{
 				Remarks:       nil,
-				FlagForReview: swag.Bool(true),
+				FlagForReview: models.BoolPointer(true),
 			},
 			MoveID: *handlers.FmtUUID(move.ID),
 		}
@@ -422,7 +421,7 @@ func (suite *HandlerSuite) TestSetFinancialReviewFlagHandler() {
 			IfMatch:     &fakeEtag,
 			Body: moveops.SetFinancialReviewFlagBody{
 				Remarks:       &defaultRemarks,
-				FlagForReview: swag.Bool(true),
+				FlagForReview: models.BoolPointer(true),
 			},
 			MoveID: *handlers.FmtUUID(move.ID),
 		}
@@ -458,7 +457,7 @@ func (suite *HandlerSuite) TestSetFinancialReviewFlagHandler() {
 			IfMatch:     &fakeEtag,
 			Body: moveops.SetFinancialReviewFlagBody{
 				Remarks:       &defaultRemarks,
-				FlagForReview: swag.Bool(true),
+				FlagForReview: models.BoolPointer(true),
 			},
 			MoveID: *handlers.FmtUUID(move.ID),
 		}
@@ -494,7 +493,7 @@ func (suite *HandlerSuite) TestSetFinancialReviewFlagHandler() {
 			IfMatch:     &fakeEtag,
 			Body: moveops.SetFinancialReviewFlagBody{
 				Remarks:       &defaultRemarks,
-				FlagForReview: swag.Bool(true),
+				FlagForReview: models.BoolPointer(true),
 			},
 			MoveID: *handlers.FmtUUID(move.ID),
 		}

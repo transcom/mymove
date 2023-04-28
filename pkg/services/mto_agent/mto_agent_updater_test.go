@@ -1,7 +1,6 @@
 package mtoagent
 
 import (
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
@@ -86,9 +85,9 @@ func (suite *MTOAgentServiceSuite) TestMTOAgentUpdater() {
 
 		newAgent := models.MTOAgent{
 			ID:        oldAgent.ID,
-			FirstName: swag.String(firstName),
-			LastName:  swag.String(lastName),
-			Email:     swag.String(email),
+			FirstName: models.StringPointer(firstName),
+			LastName:  models.StringPointer(lastName),
+			Email:     models.StringPointer(email),
 			Phone:     nil,
 		}
 

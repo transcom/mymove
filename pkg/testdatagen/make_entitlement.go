@@ -1,7 +1,6 @@
 package testdatagen
 
 import (
-	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop/v6"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -46,7 +45,7 @@ func MakeEntitlement(db *pop.Connection, assertions Assertions) models.Entitleme
 }
 
 func setDependentsAuthorized(assertionDependentsAuthorized *bool) *bool {
-	dependentsAuthorized := swag.Bool(true)
+	dependentsAuthorized := models.BoolPointer(true)
 	if assertionDependentsAuthorized != nil {
 		dependentsAuthorized = assertionDependentsAuthorized
 	}

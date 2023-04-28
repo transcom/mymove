@@ -1,7 +1,6 @@
 package models_test
 
 import (
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -19,8 +18,8 @@ func (suite *ModelSuite) TestEdiErrors() {
 				EDIType:                    models.EDIType824,
 				PaymentRequestID:           uuid.Must(uuid.NewV4()),
 				InterchangeControlNumberID: &icnID,
-				Code:                       swag.String("B"),
-				Description:                swag.String("EDI Error happened to field 99"),
+				Code:                       models.StringPointer("B"),
+				Description:                models.StringPointer("EDI Error happened to field 99"),
 			},
 			expectedErrs: nil,
 		},
@@ -39,8 +38,8 @@ func (suite *ModelSuite) TestEdiErrors() {
 				EDIType:                    "956",
 				PaymentRequestID:           uuid.Must(uuid.NewV4()),
 				InterchangeControlNumberID: &icnID,
-				Code:                       swag.String("C"),
-				Description:                swag.String("EDI Error happened to field 123"),
+				Code:                       models.StringPointer("C"),
+				Description:                models.StringPointer("EDI Error happened to field 123"),
 			},
 			expectedErrs: map[string][]string{
 				"editype": {"EDIType is not in the list [810, 824, 858, 997]."},
@@ -52,7 +51,7 @@ func (suite *ModelSuite) TestEdiErrors() {
 				EDIType:                    models.EDIType824,
 				PaymentRequestID:           uuid.Must(uuid.NewV4()),
 				InterchangeControlNumberID: &icnID,
-				Description:                swag.String("EDI Error happened to field 99"),
+				Description:                models.StringPointer("EDI Error happened to field 99"),
 			},
 			expectedErrs: nil,
 		},
@@ -62,7 +61,7 @@ func (suite *ModelSuite) TestEdiErrors() {
 				EDIType:                    models.EDIType824,
 				PaymentRequestID:           uuid.Must(uuid.NewV4()),
 				InterchangeControlNumberID: &icnID,
-				Description:                swag.String(""),
+				Description:                models.StringPointer(""),
 			},
 			expectedErrs: map[string][]string{
 				"description": {"Description string if present should not be empty"},
