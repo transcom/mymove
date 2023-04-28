@@ -534,20 +534,35 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 			},
 		}, nil)
 
-		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				Status: models.MTOServiceItemStatusApproved,
+		factory.BuildPaymentServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusApproved,
+				},
 			},
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDLH,
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDLH,
+				},
 			},
-			PaymentServiceItem: models.PaymentServiceItem{
-				Status: models.PaymentServiceItemStatusApproved,
+			{
+				Model: models.PaymentServiceItem{
+					Status: models.PaymentServiceItemStatusApproved,
+				},
 			},
-			PaymentRequest: reviewedPaymentRequest,
-			MTOShipment:    shipment,
-			Move:           move,
-		})
+			{
+				Model:    reviewedPaymentRequest,
+				LinkOnly: true,
+			},
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		sitBalances, err := service.ListShipmentPaymentSITBalance(suite.AppContextForTest(), reviewedPaymentRequest.ID)
 		suite.NoError(err)
@@ -583,17 +598,26 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 			},
 		}, nil)
 
-		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				Status: models.MTOServiceItemStatusApproved,
+		factory.BuildPaymentServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusApproved,
+				},
+			}, {
+				Model: models.ReService{
+					Code: models.ReServiceCodeDLH,
+				},
+			}, {
+				Model:    pendingPaymentRequest,
+				LinkOnly: true,
+			}, {
+				Model:    shipment,
+				LinkOnly: true,
+			}, {
+				Model:    move,
+				LinkOnly: true,
 			},
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDLH,
-			},
-			PaymentRequest: pendingPaymentRequest,
-			MTOShipment:    shipment,
-			Move:           move,
-		})
+		}, nil)
 
 		sitBalances, err := service.ListShipmentPaymentSITBalance(suite.AppContextForTest(), pendingPaymentRequest.ID)
 		suite.NoError(err)
@@ -628,17 +652,26 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 			},
 		}, nil)
 
-		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				Status: models.MTOServiceItemStatusApproved,
+		factory.BuildPaymentServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusApproved,
+				},
+			}, {
+				Model: models.ReService{
+					Code: models.ReServiceCodeDLH,
+				},
+			}, {
+				Model:    pendingPaymentRequest,
+				LinkOnly: true,
+			}, {
+				Model:    shipment,
+				LinkOnly: true,
+			}, {
+				Model:    move,
+				LinkOnly: true,
 			},
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDLH,
-			},
-			PaymentRequest: pendingPaymentRequest,
-			MTOShipment:    shipment,
-			Move:           move,
-		})
+		}, nil)
 
 		year, month, day := time.Now().Date()
 		originEntryDate := time.Date(year, month, day-120, 0, 0, 0, 0, time.UTC)

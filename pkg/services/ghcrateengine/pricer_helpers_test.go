@@ -433,10 +433,8 @@ func (suite *GHCRateEngineServiceSuite) makePricerParamsSubtestData() (subtestDa
 		},
 	}, nil)
 
-	subtestData.paymentServiceItem = testdatagen.MakePaymentServiceItem(
-		suite.DB(),
-		testdatagen.Assertions{},
-	)
+	subtestData.paymentServiceItem = factory.BuildPaymentServiceItem(suite.DB(),
+		nil, nil)
 
 	return subtestData
 }
