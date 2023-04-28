@@ -243,6 +243,18 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 				requestedServiceItem.SITOriginHHGOriginalAddressID = &address.ID
 			}
 
+			// create SITDestinationFinalAddress address if ID (UUID) is Nil
+			if requestedServiceItem.SITDestinationFinalAddress != nil {
+				address := requestedServiceItem.SITDestinationFinalAddress
+				if address.ID == uuid.Nil {
+					verrs, err = o.builder.CreateOne(txnAppCtx, address)
+					if verrs != nil || err != nil {
+						return fmt.Errorf("failed to save SITOriginHHGOriginalAddress: %#v %e", verrs, err)
+					}
+				}
+				requestedServiceItem.SITDestinationFinalAddressID = &address.ID
+			}
+
 			verrs, err = o.builder.CreateOne(txnAppCtx, requestedServiceItem)
 			if verrs != nil || err != nil {
 				return fmt.Errorf("%#v %e", verrs, err)
