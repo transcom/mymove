@@ -51,6 +51,47 @@ export class OfficePage extends BaseTestPage {
   }
 
   /**
+   * Wait for an office app page to load
+   * Page load waiting should be used any time you navigate to a new page
+   */
+  waitForPage = {
+    moveDetails: async () => {
+      await base.expect(this.page.getByRole('heading', { level: 1 })).toHaveText('Move details');
+    },
+    addNTSShipment: async () => {
+      await base.expect(this.page.getByRole('heading', { level: 1 })).toHaveText('Add shipment details');
+      await base.expect(this.page.getByTestId('tag')).toHaveText('NTS');
+    },
+    addNTSReleaseShipment: async () => {
+      await base.expect(this.page.getByRole('heading', { level: 1 })).toHaveText('Add shipment details');
+      await base.expect(this.page.getByTestId('tag')).toHaveText('NTS-release');
+    },
+    editNTSShipment: async () => {
+      await base.expect(this.page.getByRole('heading', { level: 1 })).toHaveText('Edit shipment details');
+      await base.expect(this.page.getByTestId('tag')).toHaveText('NTS');
+    },
+    editNTSReleaseShipment: async () => {
+      await base.expect(this.page.getByRole('heading', { level: 1 })).toHaveText('Edit shipment details');
+      await base.expect(this.page.getByTestId('tag')).toHaveText('NTS-release');
+    },
+    moveOrders: async () => {
+      await base.expect(this.page.getByRole('heading', { level: 2, name: 'View orders' })).toBeVisible();
+    },
+    reviewWeightTicket: async () => {
+      await base.expect(this.page.getByRole('heading', { name: 'Review trip 1', level: 3 })).toBeVisible();
+    },
+    reviewProGear: async () => {
+      await base.expect(this.page.getByRole('heading', { name: 'Review pro-gear 1', level: 3 })).toBeVisible();
+    },
+    reviewReceipt: async () => {
+      await base.expect(this.page.getByRole('heading', { name: 'Review receipt 1', level: 3 })).toBeVisible();
+    },
+    reviewDocumentsConfirmation: async () => {
+      await base.expect(this.page.getByRole('heading', { name: 'Send to customer?', level: 3 })).toBeVisible();
+    },
+  };
+
+  /**
    * Sign in as existing office user with devlocal
    *
    * @param {string} email

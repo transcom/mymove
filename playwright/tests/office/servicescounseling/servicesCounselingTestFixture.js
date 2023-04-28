@@ -16,45 +16,12 @@ export class ServiceCounselorPage extends OfficePage {
   }
 
   waitForPage = {
+    ...this.waitForPage,
     counselingQueue: async () => {
       await expect(this.page.getByRole('link', { name: 'Counseling' })).toHaveClass('usa-current');
     },
     closeoutQueue: async () => {
       await expect(this.page.getByRole('link', { name: 'PPM Closeout' })).toHaveClass('usa-current');
-    },
-    moveDetails: async () => {
-      await expect(this.page.getByRole('heading', { level: 1 })).toHaveText('Move details');
-    },
-    addNTSShipment: async () => {
-      await expect(this.page.getByRole('heading', { level: 1 })).toHaveText('Add shipment details');
-      await expect(this.page.getByTestId('tag')).toHaveText('NTS');
-    },
-    addNTSReleaseShipment: async () => {
-      await expect(this.page.getByRole('heading', { level: 1 })).toHaveText('Add shipment details');
-      await expect(this.page.getByTestId('tag')).toHaveText('NTS-release');
-    },
-    editNTSShipment: async () => {
-      await expect(this.page.getByRole('heading', { level: 1 })).toHaveText('Edit shipment details');
-      await expect(this.page.getByTestId('tag')).toHaveText('NTS');
-    },
-    editNTSReleaseShipment: async () => {
-      await expect(this.page.getByRole('heading', { level: 1 })).toHaveText('Edit shipment details');
-      await expect(this.page.getByTestId('tag')).toHaveText('NTS-release');
-    },
-    moveOrders: async () => {
-      await expect(this.page.getByRole('heading', { level: 2, name: 'View orders' })).toBeVisible();
-    },
-    reviewWeightTicket: async () => {
-      await expect(this.page.getByRole('heading', { name: 'Review trip 1', level: 3 })).toBeVisible();
-    },
-    reviewProGear: async () => {
-      await expect(this.page.getByRole('heading', { name: 'Review pro-gear 1', level: 3 })).toBeVisible();
-    },
-    reviewReceipt: async () => {
-      await expect(this.page.getByRole('heading', { name: 'Review receipt 1', level: 3 })).toBeVisible();
-    },
-    reviewDocumentsConfirmation: async () => {
-      await expect(this.page.getByRole('heading', { name: 'Send to customer?', level: 3 })).toBeVisible();
     },
     reviewShipmentWeights: async () => {
       await expect(this.page.getByRole('heading', { name: 'Review shipment weights', level: 1 })).toBeVisible();
