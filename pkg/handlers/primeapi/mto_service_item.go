@@ -120,6 +120,7 @@ type UpdateMTOServiceItemHandler struct {
 func (h UpdateMTOServiceItemHandler) Handle(params mtoserviceitemops.UpdateMTOServiceItemParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+
 			mtoServiceItem, verrs := payloads.MTOServiceItemModelFromUpdate(params.MtoServiceItemID, params.Body)
 			if verrs != nil && verrs.HasAny() {
 				return mtoserviceitemops.NewUpdateMTOServiceItemUnprocessableEntity().WithPayload(payloads.ValidationError(
