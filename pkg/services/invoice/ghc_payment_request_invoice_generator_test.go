@@ -510,13 +510,18 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 			{Model: customAddress, Type: &factory.Addresses.DutyLocationAddress},
 		}, nil)
 
-		mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Order: models.Order{
-				NewDutyLocation:   destDutyLocation,
-				NewDutyLocationID: destDutyLocation.ID,
+		mto := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model:    destDutyLocation,
+				LinkOnly: true,
+				Type:     &factory.DutyLocations.NewDutyLocation,
 			},
-			OriginDutyLocation: originDutyLocation,
-		})
+			{
+				Model:    originDutyLocation,
+				LinkOnly: true,
+				Type:     &factory.DutyLocations.OriginDutyLocation,
+			},
+		}, nil)
 
 		paymentRequest = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
 			{

@@ -16,7 +16,7 @@ func MakeBaseMTOShipment(db *pop.Connection, assertions Assertions) models.MTOSh
 	moveTaskOrder := assertions.Move
 
 	if isZeroUUID(moveTaskOrder.ID) {
-		moveTaskOrder = MakeMove(db, assertions)
+		moveTaskOrder = makeMove(db, assertions)
 	}
 
 	newMTOShipment := models.MTOShipment{
@@ -53,7 +53,7 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 	// Make move if it was not provided
 	moveTaskOrder := assertions.Move
 	if isZeroUUID(moveTaskOrder.ID) {
-		moveTaskOrder = MakeMove(db, assertions)
+		moveTaskOrder = makeMove(db, assertions)
 	}
 
 	if mtoShipment.ShipmentType != "" {

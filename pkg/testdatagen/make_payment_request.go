@@ -14,7 +14,7 @@ func MakePaymentRequest(db *pop.Connection, assertions Assertions) models.Paymen
 	// ID is required because it must be populated for Eager saving to work.
 	moveTaskOrder := assertions.Move
 	if isZeroUUID(moveTaskOrder.ID) {
-		moveTaskOrder = MakeMove(db, assertions)
+		moveTaskOrder = makeMove(db, assertions)
 	}
 
 	paymentRequestNumber := assertions.PaymentRequest.PaymentRequestNumber

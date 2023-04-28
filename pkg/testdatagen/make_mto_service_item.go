@@ -11,7 +11,7 @@ import (
 func makeServiceItem(db *pop.Connection, assertions Assertions, isBasicServiceItem bool) models.MTOServiceItem {
 	moveTaskOrder := assertions.Move
 	if isZeroUUID(moveTaskOrder.ID) {
-		moveTaskOrder = MakeMove(db, assertions)
+		moveTaskOrder = makeMove(db, assertions)
 	}
 
 	var mtoShipmentID *uuid.UUID
