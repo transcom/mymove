@@ -5,12 +5,11 @@ import (
 
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/storage/test"
-	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
 func (suite *UploaderSuite) TestPrimeUploadFromLocalFile() {
-	document := testdatagen.MakeDefaultProofOfServiceDoc(suite.DB())
+	document := factory.BuildProofOfServiceDoc(suite.DB(), nil, nil)
 
 	primeUploader, err := uploader.NewPrimeUploader(suite.storer, 25*uploader.MB)
 	suite.NoError(err)
@@ -26,7 +25,7 @@ func (suite *UploaderSuite) TestPrimeUploadFromLocalFile() {
 }
 
 func (suite *UploaderSuite) TestPrimeUploadFromLocalFileZeroLength() {
-	document := testdatagen.MakeDefaultProofOfServiceDoc(suite.DB())
+	document := factory.BuildProofOfServiceDoc(suite.DB(), nil, nil)
 
 	primeUploader, err := uploader.NewPrimeUploader(suite.storer, 25*uploader.MB)
 	suite.NoError(err)
@@ -43,7 +42,7 @@ func (suite *UploaderSuite) TestPrimeUploadFromLocalFileZeroLength() {
 }
 
 func (suite *UploaderSuite) TestPrimeUploadFromLocalFileWrongContentType() {
-	document := testdatagen.MakeDefaultProofOfServiceDoc(suite.DB())
+	document := factory.BuildProofOfServiceDoc(suite.DB(), nil, nil)
 
 	primeUploader, err := uploader.NewPrimeUploader(suite.storer, 25*uploader.MB)
 	suite.NoError(err)
@@ -61,7 +60,7 @@ func (suite *UploaderSuite) TestPrimeUploadFromLocalFileWrongContentType() {
 }
 
 func (suite *UploaderSuite) TestTooLargePrimeUploadFromLocalFile() {
-	document := testdatagen.MakeDefaultProofOfServiceDoc(suite.DB())
+	document := factory.BuildProofOfServiceDoc(suite.DB(), nil, nil)
 
 	primeUploader, err := uploader.NewPrimeUploader(suite.storer, 25*uploader.MB)
 	suite.NoError(err)
@@ -78,7 +77,7 @@ func (suite *UploaderSuite) TestTooLargePrimeUploadFromLocalFile() {
 }
 
 func (suite *UploaderSuite) TestPrimeUploadStorerCalledWithTags() {
-	document := testdatagen.MakeDefaultProofOfServiceDoc(suite.DB())
+	document := factory.BuildProofOfServiceDoc(suite.DB(), nil, nil)
 	fakeS3 := test.NewFakeS3Storage(true)
 
 	primeUploader, err := uploader.NewPrimeUploader(fakeS3, 25*uploader.MB)

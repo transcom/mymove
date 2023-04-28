@@ -7,7 +7,6 @@ import (
 	"github.com/transcom/mymove/pkg/db/dberr"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
@@ -50,7 +49,7 @@ func (suite *ModelSuite) Test_PrimeUploadValidations() {
 }
 
 func (suite *ModelSuite) TestFetchPrimeUploadWithNoUpload() {
-	posDoc := testdatagen.MakeDefaultProofOfServiceDoc(suite.DB())
+	posDoc := factory.BuildProofOfServiceDoc(suite.DB(), nil, nil)
 	contractor := factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 
 	primeUpload := models.PrimeUpload{
@@ -65,7 +64,7 @@ func (suite *ModelSuite) TestFetchPrimeUploadWithNoUpload() {
 func (suite *ModelSuite) TestFetchPrimeUpload() {
 	t := suite.T()
 
-	posDoc := testdatagen.MakeDefaultProofOfServiceDoc(suite.DB())
+	posDoc := factory.BuildProofOfServiceDoc(suite.DB(), nil, nil)
 	contractor := factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 
 	upload := models.Upload{
@@ -108,7 +107,7 @@ func (suite *ModelSuite) TestFetchPrimeUpload() {
 func (suite *ModelSuite) TestFetchDeletedPrimeUpload() {
 	t := suite.T()
 
-	posDoc := testdatagen.MakeDefaultProofOfServiceDoc(suite.DB())
+	posDoc := factory.BuildProofOfServiceDoc(suite.DB(), nil, nil)
 	contractor := factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 
 	upload := models.Upload{
