@@ -19,6 +19,9 @@ func (s *L1) StringArray() []string {
 	if s.FreightRate != nil {
 		freightRate = strconv.FormatFloat(*s.FreightRate, 'f', 2, 64)
 	}
+	if s.FreightRate == nil {
+		s.RateValueQualifier = ""
+	}
 	return []string{
 		"L1",
 		strconv.Itoa(s.LadingLineItemNumber),

@@ -43,6 +43,22 @@ func (suite *SegmentSuite) TestValidateL1() {
 		suite.ValidateErrorLen(err, 4)
 	})
 
+	suite.Run("validate nil freightRate", func() {
+		l1 := L1{
+			// LadingLineItemNumber:          // required
+			FreightRate:        nil,
+			RateValueQualifier: "", // oneof
+			// Charge:                        // required
+		}
+
+		err := suite.validator.Struct(l1)
+		suite.ValidateError(err, "LadingLineItemNumber", "required")
+		suite.ValidateError(err, "FreightRate", "")
+		suite.ValidateError(err, "RateValueQualifier", "")
+		suite.ValidateError(err, "Charge", "required")
+		suite.ValidateErrorLen(err, 4)
+	})
+
 	suite.Run("validate failure 2", func() {
 		l1 := validL1
 		l1.LadingLineItemNumber = 1000 // max
