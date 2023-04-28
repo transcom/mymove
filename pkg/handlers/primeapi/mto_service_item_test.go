@@ -1194,10 +1194,8 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 			ReServiceCode:               models.ReServiceCodeDDDSIT.String(),
 			SitDepartureDate:            *handlers.FmtDate(time.Now().AddDate(0, 0, 5)),
 			SitDestinationFinalAddress:  &addr,
-			TimeMilitary1:               &milTime,
-			FirstAvailableDeliveryDate1: handlers.FmtDate(time.Now().AddDate(0, 0, 5)),
-			// TimeMilitary2:               handlers.FmtStringPtrNonEmpty(&milTime),
-			// FirstAvailableDeliveryDate2: handlers.FmtDate(time.Now().AddDate(0, 0, 5)),
+			TimeMilitary1:               handlers.FmtStringPtrNonEmpty(&milTime),
+			FirstAvailableDeliveryDate1: handlers.FmtDate(time.Date(2020, time.December, 02, 0, 0, 0, 0, time.UTC)),
 		}
 		subtestData.reqPayload.SetID(strfmt.UUID(subtestData.dddsit.ID.String()))
 
