@@ -109,7 +109,13 @@ func BuildUserUpload(db *pop.Connection, customs []Customization, traits []Trait
 	}
 
 	// Find/create the Upload model
-	upload := BuildUpload(db, customs, traits)
+	tempUploadCustoms := customs
+	result := findValidCustomization(customs, Uploads.UploadTypeUser)
+	if result != nil {
+		tempUploadCustoms = convertCustomizationInList(tempUploadCustoms, Uploads.UploadTypeUser, Upload)
+	}
+	// Treat any Upload customizations that aren't specified as Uploads.UploadTypePrime as user uploads
+	upload := BuildUpload(db, tempUploadCustoms, traits)
 
 	// Ensure the UserUpload has the correct UploadType
 	if upload.UploadType != models.UploadTypeUSER {
