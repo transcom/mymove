@@ -187,7 +187,12 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 		// Change something allowed by Prime:
 		reason := "because"
 		newServiceItemPrime.Reason = &reason
-
+		newServiceItemPrime.CustomerContacts = models.MTOServiceItemCustomerContacts{
+			models.MTOServiceItemCustomerContact{
+				TimeMilitary:               "1300Z",
+				FirstAvailableDeliveryDate: time.Date(2020, time.December, 02, 0, 0, 0, 0, time.UTC),
+			},
+		}
 		serviceItemData := updateMTOServiceItemData{
 			updatedServiceItem:  newServiceItemPrime,
 			oldServiceItem:      oldServiceItemPrime,
@@ -199,6 +204,8 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 		suite.NoError(err)
 		suite.NotNil(updatedServiceItem)
 		suite.IsType(models.MTOServiceItem{}, *updatedServiceItem)
+		suite.Equal(updatedServiceItem.CustomerContacts[0].TimeMilitary, newServiceItemPrime.CustomerContacts[0].TimeMilitary)
+		suite.Equal(updatedServiceItem.CustomerContacts[0].FirstAvailableDeliveryDate, newServiceItemPrime.CustomerContacts[0].FirstAvailableDeliveryDate)
 	})
 
 	// Test unsuccessful Prime validation - Not available to Prime

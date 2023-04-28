@@ -195,6 +195,7 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItem(appCtx appcontext.AppContex
 				}
 			}
 		}
+
 		// Make the update and create a InvalidInputError if there were validation issues
 		verrs, updateErr := txnAppCtx.DB().ValidateAndUpdate(validServiceItem)
 

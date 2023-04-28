@@ -71,8 +71,8 @@ func (v *primeUpdateMTOServiceItemValidator) validate(appCtx appcontext.AppConte
 	// Checks that if the updated service item has customer contacts that
 	// the time fields are in the expected military time
 	for index := range serviceItemData.updatedServiceItem.CustomerContacts {
-		createCustContacts := &serviceItemData.updatedServiceItem.CustomerContacts[index]
-		err = validateTimeMilitaryField(appCtx, createCustContacts.TimeMilitary)
+		customerContacts := &serviceItemData.updatedServiceItem.CustomerContacts[index]
+		err = validateTimeMilitaryField(appCtx, customerContacts.TimeMilitary)
 		if err != nil {
 			return err
 		}
@@ -246,8 +246,10 @@ func (v *updateMTOServiceItemData) setNewMTOServiceItem() *models.MTOServiceItem
 		}
 	}
 
-	// Set customer contact fields:
-	newMTOServiceItem.CustomerContacts = v.updatedServiceItem.CustomerContacts
+	// Set customer contact fields
+	if len(v.updatedServiceItem.CustomerContacts) > 0 {
+		newMTOServiceItem.CustomerContacts = v.updatedServiceItem.CustomerContacts
+	}
 
 	// Set weight fields:
 	newMTOServiceItem.EstimatedWeight = services.SetOptionalPoundField(

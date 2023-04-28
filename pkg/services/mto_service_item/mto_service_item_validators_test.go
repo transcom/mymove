@@ -23,6 +23,13 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 	setupTestData := func() (models.MTOServiceItem, models.MTOServiceItem) {
 		// Create a service item to serve as the old object
 		oldServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
+		oldServiceItem.CustomerContacts = models.MTOServiceItemCustomerContacts{
+			models.MTOServiceItemCustomerContact{
+				Type:                       models.CustomerContactTypeFirst,
+				TimeMilitary:               "1300Z",
+				FirstAvailableDeliveryDate: time.Now().AddDate(0, 0, 3),
+			},
+		}
 		// Shallow copy service item to create the "updated" object
 		updatedServiceItem := oldServiceItem
 		return oldServiceItem, updatedServiceItem
@@ -329,7 +336,13 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		estimatedWeight := int64(4200)
 		editServiceItem.ActualWeight = handlers.PoundPtrFromInt64Ptr(&actualWeight)
 		editServiceItem.EstimatedWeight = handlers.PoundPtrFromInt64Ptr(&estimatedWeight)
-
+		editServiceItem.CustomerContacts = models.MTOServiceItemCustomerContacts{
+			models.MTOServiceItemCustomerContact{
+				Type:                       models.CustomerContactTypeFirst,
+				TimeMilitary:               "1400Z",
+				FirstAvailableDeliveryDate: time.Now().AddDate(0, 0, 5),
+			},
+		}
 		serviceItemData := updateMTOServiceItemData{
 			updatedServiceItem: editServiceItem,
 			oldServiceItem:     oldServiceItem,
@@ -344,5 +357,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		suite.Equal(newServiceItem.Description, editServiceItem.Description)
 		suite.NotEqual(newServiceItem.Description, oldServiceItem.Description)
 		suite.NotEqual(newServiceItem.Description, serviceItemData.oldServiceItem.Description)
+		suite.NotEqual(newServiceItem.CustomerContacts[0].TimeMilitary, serviceItemData.oldServiceItem.CustomerContacts[0].TimeMilitary)
+		suite.NotEqual(newServiceItem.CustomerContacts[0].FirstAvailableDeliveryDate, serviceItemData.oldServiceItem.CustomerContacts[0].FirstAvailableDeliveryDate)
 	})
 }

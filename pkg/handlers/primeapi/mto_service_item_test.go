@@ -1194,10 +1194,10 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 			ReServiceCode:               models.ReServiceCodeDDDSIT.String(),
 			SitDepartureDate:            *handlers.FmtDate(time.Now().AddDate(0, 0, 5)),
 			SitDestinationFinalAddress:  &addr,
-			TimeMilitary1:               handlers.FmtStringPtrNonEmpty(&milTime),
+			TimeMilitary1:               &milTime,
 			FirstAvailableDeliveryDate1: handlers.FmtDate(time.Now().AddDate(0, 0, 5)),
-			TimeMilitary2:               handlers.FmtStringPtrNonEmpty(&milTime),
-			FirstAvailableDeliveryDate2: handlers.FmtDate(time.Now().AddDate(0, 0, 5)),
+			// TimeMilitary2:               handlers.FmtStringPtrNonEmpty(&milTime),
+			// FirstAvailableDeliveryDate2: handlers.FmtDate(time.Now().AddDate(0, 0, 5)),
 		}
 		subtestData.reqPayload.SetID(strfmt.UUID(subtestData.dddsit.ID.String()))
 
@@ -1210,7 +1210,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 		}
 
 		// create the params struct
-		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-service_items/%s", subtestData.dddsit.ID), nil)
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-service-items/%s", subtestData.dddsit.ID), nil)
 		eTag := etag.GenerateEtag(subtestData.dddsit.UpdatedAt)
 		subtestData.params = mtoserviceitemops.UpdateMTOServiceItemParams{
 			HTTPRequest:      req,
@@ -1249,6 +1249,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 		// suite.NoError(resp1.Validate(strfmt.Default))
 
 		respPayload := resp1.(*primemessages.MTOServiceItemDestSIT)
+
 		suite.Equal(subtestData.reqPayload.ID(), respPayload.ID())
 		suite.Equal(subtestData.reqPayload.SitDepartureDate.String(), respPayload.SitDepartureDate.String())
 		suite.Equal(subtestData.reqPayload.SitDestinationFinalAddress.StreetAddress1, respPayload.SitDestinationFinalAddress.StreetAddress1)

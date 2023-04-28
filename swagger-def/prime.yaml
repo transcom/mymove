@@ -1615,16 +1615,16 @@ definitions:
             description: Time of delivery corresponding to `firstAvailableDeliveryDate1`, in military format.
             pattern: '\d{4}Z'
             x-nullable: true
-          firstAvailableDeliveryDate1:
-            format: date
-            type: string
-            description: First available date that Prime can deliver SIT service item.
-            x-nullable: true
           timeMilitary2:
             type: string
             example: 1400Z
             description: Time of delivery corresponding to `firstAvailableDeliveryDate2`, in military format.
             pattern: '\d{4}Z'
+            x-nullable: true
+          firstAvailableDeliveryDate1:
+            format: date
+            type: string
+            description: First available date that Prime can deliver SIT service item.
             x-nullable: true
           firstAvailableDeliveryDate2:
             format: date
