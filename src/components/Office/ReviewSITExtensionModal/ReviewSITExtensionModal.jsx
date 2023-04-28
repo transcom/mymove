@@ -1,5 +1,4 @@
 import React from 'react';
-import classnames from 'classnames';
 import { Formik, Field } from 'formik';
 import PropTypes from 'prop-types';
 import * as Yup from 'yup';
@@ -9,7 +8,8 @@ import { SITExtensionShape } from '../../../types/sitExtensions';
 
 import styles from './ReviewSITExtensionModal.module.scss';
 
-import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
+import { DropdownInput } from 'components/form/fields';
+import { dropdownInputOptions } from 'utils/formatters';
 import { Form } from 'components/form';
 import { ModalContainer, Overlay } from 'components/MigratedModal/MigratedModal';
 import Modal, { ModalActions, ModalClose, ModalTitle } from 'components/Modal/Modal';
@@ -98,22 +98,13 @@ const ReviewSITExtensionsModal = ({ onClose, onSubmit, sitExtension, summarySITC
                       </Fieldset>
                     </FormGroup>
                     {values.acceptExtension === 'yes' && (
-                      <MaskedTextField
-                        name="daysApproved"
-                        id="daysApproved"
-                        label="Days approved"
-                        mask="num"
-                        blocks={{
-                          num: {
-                            mask: Number,
-                            signed: false,
-                            scale: 0,
-                            thousandsSeparator: ',',
-                          },
-                        }}
-                        lazy={false}
-                        className={classnames(styles.ApprovedDaysInput, 'usa-input')}
-                      />
+                      <div className={styles.reasonDropdown}>
+                        <DropdownInput
+                          label="Reason for edit"
+                          name="requestReason"
+                          options={dropdownInputOptions(sitExtensionReasons)}
+                        />
+                      </div>
                     )}
                     <Label htmlFor="officeRemarks">Office remarks</Label>
                     <Field
