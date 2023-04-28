@@ -1,15 +1,16 @@
 package testdatagen
 
 import (
-	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
 )
 
-// MakeMove creates a single Move and associated set of Orders
-func MakeMove(db *pop.Connection, assertions Assertions) models.Move {
+// makeMove creates a single Move and associated set of Orders
+//
+// Deprecated: use factory.BuildMove for all new code
+func makeMove(db *pop.Connection, assertions Assertions) models.Move {
 
 	// Create new Orders if not provided
 	orders := assertions.Order
@@ -57,7 +58,7 @@ func MakeMove(db *pop.Connection, assertions Assertions) models.Move {
 }
 
 func setShow(assertionShow *bool) *bool {
-	show := swag.Bool(true)
+	show := models.BoolPointer(true)
 	if assertionShow != nil {
 		show = assertionShow
 	}

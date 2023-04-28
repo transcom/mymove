@@ -54,7 +54,10 @@ var OfficeUser CustomType = "OfficeUser"
 var Order CustomType = "Order"
 var Organization CustomType = "Organization"
 var PPMShipment CustomType = "PPMShipment"
+var PaymentRequest CustomType = "PaymentRequest"
+var PaymentServiceItem CustomType = "PaymentServiceItem"
 var PostalCodeToGBLOC CustomType = "PostalCodeToGBLOC"
+var ProofOfServiceDoc CustomType = "ProofOfServiceDoc"
 var ReService CustomType = "ReService"
 var Role CustomType = "Role"
 var ServiceItemParamKey CustomType = "ServiceItemParamKey"
@@ -91,8 +94,11 @@ var defaultTypesMap = map[string]CustomType{
 	"models.OfficeUser":              OfficeUser,
 	"models.Order":                   Order,
 	"models.Organization":            Organization,
+	"models.PaymentRequest":          PaymentRequest,
+	"models.PaymentServiceItem":      PaymentServiceItem,
 	"models.PPMShipment":             PPMShipment,
 	"models.PostalCodeToGBLOC":       PostalCodeToGBLOC,
+	"models.ProofOfServiceDoc":       ProofOfServiceDoc,
 	"models.ReService":               ReService,
 	"models.ServiceItemParamKey":     ServiceItemParamKey,
 	"models.ServiceMember":           ServiceMember,
@@ -125,6 +131,7 @@ type addressGroup struct {
 	SITOriginHHGOriginalAddress CustomType
 	SITOriginHHGActualAddress   CustomType
 	SITDestinationFinalAddress  CustomType
+	W2Address                   CustomType
 }
 
 // Addresses is the struct to access the various fields externally
@@ -140,6 +147,7 @@ var Addresses = addressGroup{
 	SITOriginHHGOriginalAddress: "SITOriginHHGOriginalAddress",
 	SITOriginHHGActualAddress:   "SITOriginHHGActualAddress",
 	SITDestinationFinalAddress:  "SITDestinationFinalAddress",
+	W2Address:                   "W2Address",
 }
 
 // dimensionGroup is a grouping of all the Dimension related fields

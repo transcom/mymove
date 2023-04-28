@@ -3,7 +3,6 @@ package mtoshipment
 import (
 	"time"
 
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
@@ -78,12 +77,12 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		}{
 			{nil, models.MTOShipmentTypeHHG, true},
 			{&time.Time{}, models.MTOShipmentTypeHHG, true},
-			{swag.Time(time.Now()), models.MTOShipmentTypeHHG, false},
+			{models.TimePointer(time.Now()), models.MTOShipmentTypeHHG, false},
 			{nil, models.MTOShipmentTypeHHGOutOfNTSDom, false},
 			{&time.Time{}, models.MTOShipmentTypeHHGOutOfNTSDom, true},
-			{swag.Time(time.Now()), models.MTOShipmentTypeHHGOutOfNTSDom, true},
+			{models.TimePointer(time.Now()), models.MTOShipmentTypeHHGOutOfNTSDom, true},
 			{nil, models.MTOShipmentTypePPM, false},
-			{swag.Time(time.Now()), models.MTOShipmentTypePPM, false},
+			{models.TimePointer(time.Now()), models.MTOShipmentTypePPM, false},
 		}
 
 		for _, testCase := range testCases {
@@ -290,7 +289,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			},
 		}, nil)
 		ntsrShipmentNoIDs := clearShipmentIDFields(&mtoShipment)
-		ntsrShipmentNoIDs.RequestedPickupDate = swag.Time(time.Now())
+		ntsrShipmentNoIDs.RequestedPickupDate = models.TimePointer(time.Now())
 
 		// We don't need the shipment because it only returns data that wasn't saved.
 		_, err := creator.CreateMTOShipment(suite.AppContextForTest(), ntsrShipmentNoIDs)

@@ -352,8 +352,12 @@ func subScenarioEvaluationReport(appCtx appcontext.AppContext) func() {
 				LinkOnly: true,
 			},
 		}, nil)
-		testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{Move: move})
-
+		factory.BuildPPMShipment(appCtx.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 		storageFacility := factory.BuildStorageFacility(appCtx.DB(), nil, nil)
 		ntsShipment := factory.BuildNTSShipment(appCtx.DB(), []factory.Customization{
 			{
@@ -747,6 +751,7 @@ func subScenarioSITExtensions(appCtx appcontext.AppContext, userUploader *upload
 	return func() {
 		createTOO(appCtx)
 		createMoveWithSITExtensionHistory(appCtx, userUploader)
+		createMoveWithFutureSIT(appCtx, userUploader)
 		createMoveWithAllPendingTOOActions(appCtx, userUploader, primeUploader)
 	}
 }

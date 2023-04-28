@@ -11,7 +11,7 @@ import styles from '../TXOMoveInfo/TXOTab.module.scss';
 
 import moveTaskOrderStyles from './MoveTaskOrder.module.scss';
 
-import EditMaxBillableWeightModal from 'components/Office/EditMaxBillableWeightModal/EditMaxBillableWeightModal';
+import ConnectedEditMaxBillableWeightModal from 'components/Office/EditMaxBillableWeightModal/EditMaxBillableWeightModal';
 import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
 import { formatStorageFacilityForAPI, formatAddressForAPI, removeEtag } from 'utils/formatMtoShipment';
 import hasRiskOfExcess from 'utils/hasRiskOfExcess';
@@ -735,14 +735,15 @@ export const MoveTaskOrder = ({ match, ...props }) => {
               onSubmit={handleReweighShipment}
             />
           )}
-          {isWeightModalVisible && (
-            <EditMaxBillableWeightModal
-              defaultWeight={order.entitlement.totalWeight}
-              maxBillableWeight={order.entitlement.authorizedWeight}
-              onSubmit={handleUpdateBillableWeight}
-              onClose={setIsWeightModalVisible}
-            />
-          )}
+
+          <ConnectedEditMaxBillableWeightModal
+            isOpen={isWeightModalVisible}
+            defaultWeight={order.entitlement.totalWeight}
+            maxBillableWeight={order.entitlement.authorizedWeight}
+            onSubmit={handleUpdateBillableWeight}
+            onClose={setIsWeightModalVisible}
+          />
+
           {isFinancialModalVisible && (
             <FinancialReviewModal
               onClose={handleCancelFinancialReviewModal}
@@ -825,9 +826,9 @@ export const MoveTaskOrder = ({ match, ...props }) => {
                     shipmentID: mtoShipment.id,
                     shipmentType: mtoShipmentTypes[mtoShipment.shipmentType],
                     isDiversion: mtoShipment.diversion,
-                    originCity: pickupAddress?.city,
-                    originState: pickupAddress?.state,
-                    originPostalCode: pickupAddress?.postalCode,
+                    originCity: pickupAddress?.city || '',
+                    originState: pickupAddress?.state || '',
+                    originPostalCode: pickupAddress?.postalCode || '',
                     destinationAddress: destinationAddress || dutyLocationPostal,
                     scheduledPickupDate: formattedScheduledPickup,
                     shipmentStatus: mtoShipment.status,

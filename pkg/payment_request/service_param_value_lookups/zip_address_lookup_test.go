@@ -1,6 +1,7 @@
 package serviceparamvaluelookups
 
 import (
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -12,12 +13,12 @@ func (suite *ServiceParamValueLookupsSuite) TestZipAddressLookup() {
 	setupTestData := func() (models.PaymentRequest, models.MTOServiceItem) {
 		mtoServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
 
-		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
-			testdatagen.Assertions{
-				PaymentRequest: models.PaymentRequest{
-					MoveTaskOrderID: mtoServiceItem.MoveTaskOrderID,
-				},
-			})
+		paymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    mtoServiceItem.MoveTaskOrder,
+				LinkOnly: true,
+			},
+		}, nil)
 		return paymentRequest, mtoServiceItem
 	}
 

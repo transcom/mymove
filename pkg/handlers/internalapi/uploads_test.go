@@ -46,7 +46,7 @@ func createPrereqs(suite *HandlerSuite, fixtureFile string) (models.Document, up
 }
 
 func createPPMPrereqs(suite *HandlerSuite, fixtureFile string) (models.Document, ppmop.CreatePPMUploadParams) {
-	ppmShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{})
+	ppmShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
 
 	weightTicket := testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{
 		PPMShipment: ppmShipment,
@@ -61,7 +61,7 @@ func createPPMPrereqs(suite *HandlerSuite, fixtureFile string) (models.Document,
 }
 
 func createPPMProgearPrereqs(suite *HandlerSuite, fixtureFile string) (models.Document, ppmop.CreatePPMUploadParams) {
-	ppmShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{})
+	ppmShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
 
 	proGear := testdatagen.MakeProgearWeightTicket(suite.DB(), testdatagen.Assertions{
 		PPMShipment: ppmShipment,
@@ -76,7 +76,7 @@ func createPPMProgearPrereqs(suite *HandlerSuite, fixtureFile string) (models.Do
 }
 
 func createPPMExpensePrereqs(suite *HandlerSuite, fixtureFile string) (models.Document, ppmop.CreatePPMUploadParams) {
-	ppmShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{})
+	ppmShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
 
 	movingExpense := testdatagen.MakeMovingExpense(suite.DB(), testdatagen.Assertions{
 		PPMShipment: ppmShipment,

@@ -4,7 +4,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/suite"
 
@@ -353,8 +352,8 @@ func (suite *FactorySuite) TestNestedModelsCheck() {
 				Telephone:              &phone,
 				SecondaryTelephone:     &phone,
 				PersonalEmail:          &name,
-				PhoneIsPreferred:       swag.Bool(true),
-				EmailIsPreferred:       swag.Bool(false),
+				PhoneIsPreferred:       models.BoolPointer(true),
+				EmailIsPreferred:       models.BoolPointer(false),
 				ResidentialAddressID:   &testid,
 				BackupMailingAddressID: &testid,
 				DutyLocationID:         &testid,

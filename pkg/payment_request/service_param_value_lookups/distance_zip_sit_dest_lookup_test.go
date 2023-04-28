@@ -9,7 +9,6 @@ import (
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/route/mocks"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITDestLookup() {
@@ -66,10 +65,12 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITDestLookup() {
 				},
 			}, nil)
 
-		paymentRequest = testdatagen.MakePaymentRequest(suite.DB(),
-			testdatagen.Assertions{
-				Move: move,
-			})
+		paymentRequest = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		mtoServiceItemSameZip3 = factory.BuildMTOServiceItem(suite.DB(),
 			[]factory.Customization{

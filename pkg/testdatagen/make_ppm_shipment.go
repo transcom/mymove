@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/gobuffalo/pop/v6"
-	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
@@ -26,7 +25,7 @@ func checkOrCreateMTOShipment(db *pop.Connection, assertions Assertions) models.
 			assertions.MTOShipment.Status = models.MTOShipmentStatusSubmitted
 		}
 
-		shipment = MakeBaseMTOShipment(db, assertions)
+		shipment = makeBaseMTOShipment(db, assertions)
 	}
 
 	return shipment
@@ -67,8 +66,10 @@ func getDefaultValuesForRequiredFields(db *pop.Connection, shipment models.MTOSh
 	return requiredFields
 }
 
-// MakePPMShipment creates a single PPMShipment and associated relationships
-func MakePPMShipment(db *pop.Connection, assertions Assertions) models.PPMShipment {
+// makePPMShipment creates a single PPMShipment and associated
+// relationships
+// Deprecated: use BuildPPMShipment
+func makePPMShipment(db *pop.Connection, assertions Assertions) models.PPMShipment {
 	fullAssertions := Assertions{
 		PPMShipment: models.PPMShipment{
 			Status:                         models.PPMShipmentStatusSubmitted,
@@ -95,26 +96,13 @@ func MakePPMShipment(db *pop.Connection, assertions Assertions) models.PPMShipme
 	// Overwrite values with those from assertions
 	mergeModels(&fullAssertions, assertions)
 
-	return MakeMinimalPPMShipment(db, fullAssertions)
+	return makeMinimalPPMShipment(db, fullAssertions)
 }
 
-// MakeDefaultPPMShipment makes a PPMShipment with default values
-func MakeDefaultPPMShipment(db *pop.Connection) models.PPMShipment {
-	return MakePPMShipment(db, Assertions{})
-}
-
-// MakeStubbedPPMShipment makes a stubbed PPM shipment
-func MakeStubbedPPMShipment(db *pop.Connection) models.PPMShipment {
-	return MakePPMShipment(db, Assertions{
-		PPMShipment: models.PPMShipment{
-			ID: uuid.Must(uuid.NewV4()),
-		},
-		Stub: true,
-	})
-}
-
-// MakeMinimalPPMShipment creates a single PPMShipment and associated relationships with a minimal set of data
-func MakeMinimalPPMShipment(db *pop.Connection, assertions Assertions) models.PPMShipment {
+// makeMinimalPPMShipment creates a single PPMShipment and associated
+// relationships with a minimal set of data
+// Deprecated: use factory.BuildPPMShipment
+func makeMinimalPPMShipment(db *pop.Connection, assertions Assertions) models.PPMShipment {
 	shipment := checkOrCreateMTOShipment(db, assertions)
 
 	requiredFields := getDefaultValuesForRequiredFields(db, shipment)
@@ -139,24 +127,10 @@ func MakeMinimalPPMShipment(db *pop.Connection, assertions Assertions) models.PP
 	return newPPMShipment
 }
 
-// MakeMinimalDefaultPPMShipment makes a PPMShipment with default values
-func MakeMinimalDefaultPPMShipment(db *pop.Connection) models.PPMShipment {
-	return MakeMinimalPPMShipment(db, Assertions{})
-}
-
-// MakeMinimalStubbedPPMShipment makes a stubbed PPM shipment
-func MakeMinimalStubbedPPMShipment(db *pop.Connection) models.PPMShipment {
-	return MakeMinimalPPMShipment(db, Assertions{
-		PPMShipment: models.PPMShipment{
-			ID: uuid.Must(uuid.NewV4()),
-		},
-		Stub: true,
-	})
-}
-
-// MakeApprovedPPMShipment creates a single PPMShipment that has been approved by a counselor, but hasn't had an AOA
+// makeApprovedPPMShipment creates a single PPMShipment that has been approved by a counselor, but hasn't had an AOA
 // packet generated yet, if even applicable.
-func MakeApprovedPPMShipment(db *pop.Connection, assertions Assertions) models.PPMShipment {
+// Deprecated: Use factory.BuildPPMShipment
+func makeApprovedPPMShipment(db *pop.Connection, assertions Assertions) models.PPMShipment {
 	submittedTime := time.Now()
 	approvedTime := submittedTime.AddDate(0, 0, 3)
 
@@ -178,15 +152,17 @@ func MakeApprovedPPMShipment(db *pop.Connection, assertions Assertions) models.P
 	// Overwrite values with those from assertions
 	mergeModels(&fullAssertions, assertions)
 
-	return MakePPMShipment(db, fullAssertions)
+	return makePPMShipment(db, fullAssertions)
 }
 
-// MakeApprovedPPMShipmentWaitingOnCustomer creates a single PPMShipment that has been approved by a counselor and is
-// waiting on the customer to fill in the info for the actual move and upload necessary documents.
-func MakeApprovedPPMShipmentWaitingOnCustomer(db *pop.Connection, assertions Assertions) models.PPMShipment {
+// makeApprovedPPMShipmentWaitingOnCustomer creates a single PPMShipment that has been approved by a counselor and is
+// waiting on the customer to fill in the info for the actual move and
+// upload necessary documents.
+// Deprecated: use factory.BuildPPMShipment
+func makeApprovedPPMShipmentWaitingOnCustomer(db *pop.Connection, assertions Assertions) models.PPMShipment {
 	// It's easier to use some of the data from other downstream functions if we have them go first and then make our
 	// changes on top of those changes.
-	ppmShipment := MakeApprovedPPMShipment(db, assertions)
+	ppmShipment := makeApprovedPPMShipment(db, assertions)
 
 	if ppmShipment.HasRequestedAdvance == nil || !*ppmShipment.HasRequestedAdvance {
 		return ppmShipment
@@ -225,12 +201,14 @@ func MakeApprovedPPMShipmentWaitingOnCustomer(db *pop.Connection, assertions Ass
 	return ppmShipment
 }
 
-// MakeApprovedPPMShipmentWithActualInfo creates a single PPMShipment that has been approved by a counselor, has some
-// actual move info, and is waiting on the customer to finish filling out info and upload documents.
-func MakeApprovedPPMShipmentWithActualInfo(db *pop.Connection, assertions Assertions) models.PPMShipment {
+// makeApprovedPPMShipmentWithActualInfo creates a single PPMShipment that has been approved by a counselor, has some
+// actual move info, and is waiting on the customer to finish filling
+// out info and upload documents.
+// Deprecated: use factory.BuildPPMShipment
+func makeApprovedPPMShipmentWithActualInfo(db *pop.Connection, assertions Assertions) models.PPMShipment {
 	// It's easier to use some of the data from other downstream functions if we have them go first and then make our
 	// changes on top of those changes.
-	ppmShipment := MakeApprovedPPMShipmentWaitingOnCustomer(db, assertions)
+	ppmShipment := makeApprovedPPMShipmentWaitingOnCustomer(db, assertions)
 
 	ppmShipment.ActualMoveDate = models.TimePointer(ppmShipment.ExpectedDepartureDate.AddDate(0, 0, 1))
 	ppmShipment.ActualPickupPostalCode = &ppmShipment.PickupPostalCode
@@ -319,7 +297,7 @@ func AddMovingExpenseToPPMShipment(db *pop.Connection, ppmShipment *models.PPMSh
 func MakePPMShipmentReadyForFinalCustomerCloseOut(db *pop.Connection, assertions Assertions) models.PPMShipment {
 	// It's easier to use some of the data from other downstream functions if we have them go first and then make our
 	// changes on top of those changes.
-	ppmShipment := MakeApprovedPPMShipmentWithActualInfo(db, assertions)
+	ppmShipment := makeApprovedPPMShipmentWithActualInfo(db, assertions)
 
 	AddWeightTicketToPPMShipment(db, &ppmShipment, assertions)
 

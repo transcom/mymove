@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
@@ -276,10 +275,10 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			DestinationAddressID:        &newDestinationAddress.ID,
 			PickupAddress:               &newPickupAddress,
 			PickupAddressID:             &newPickupAddress.ID,
-			HasSecondaryPickupAddress:   swag.Bool(true),
+			HasSecondaryPickupAddress:   models.BoolPointer(true),
 			SecondaryPickupAddress:      &secondaryPickupAddress,
 			SecondaryPickupAddressID:    &secondaryDeliveryAddress.ID,
-			HasSecondaryDeliveryAddress: swag.Bool(true),
+			HasSecondaryDeliveryAddress: models.BoolPointer(true),
 			SecondaryDeliveryAddress:    &secondaryDeliveryAddress,
 			SecondaryDeliveryAddressID:  &secondaryDeliveryAddress.ID,
 		}

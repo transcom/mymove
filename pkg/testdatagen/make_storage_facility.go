@@ -1,7 +1,6 @@
 package testdatagen
 
 import (
-	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop/v6"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -18,9 +17,9 @@ func MakeStorageFacility(db *pop.Connection, assertions Assertions) models.Stora
 		FacilityName: "Storage R Us",
 		Address:      address,
 		AddressID:    address.ID,
-		LotNumber:    swag.String("1234"),
-		Phone:        swag.String("555-555-5555"),
-		Email:        swag.String("storage@email.com"),
+		LotNumber:    models.StringPointer("1234"),
+		Phone:        models.StringPointer("555-555-5555"),
+		Email:        models.StringPointer("storage@email.com"),
 	}
 
 	// Overwrite values with those from assertions

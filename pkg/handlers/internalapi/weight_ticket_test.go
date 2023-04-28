@@ -31,7 +31,7 @@ func (suite *HandlerSuite) TestCreateWeightTicketHandler() {
 		handler     CreateWeightTicketHandler
 	}
 	makeCreateSubtestData := func(authenticateRequest bool) (subtestData weightTicketCreateSubtestData) {
-		subtestData.ppmShipment = testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{})
+		subtestData.ppmShipment = factory.BuildPPMShipment(suite.DB(), nil, nil)
 		endpoint := fmt.Sprintf("/ppm-shipments/%s/weight_ticket", subtestData.ppmShipment.ID.String())
 		req := httptest.NewRequest("POST", endpoint, nil)
 		serviceMember := subtestData.ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
@@ -392,10 +392,12 @@ func (suite *HandlerSuite) TestDeleteWeightTicketHandler() {
 	suite.Run("DELETE failure - 404 - not found - ppm shipment ID and weight ticket ID don't match", func() {
 		subtestData := makeDeleteSubtestData(false)
 		serviceMember := subtestData.ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
-
-		otherPPMShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
-			Order: subtestData.ppmShipment.Shipment.MoveTaskOrder.Orders,
-		})
+		otherPPMShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    subtestData.ppmShipment.Shipment.MoveTaskOrder.Orders,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		subtestData.params.PpmShipmentID = *handlers.FmtUUID(otherPPMShipment.ID)
 		req := subtestData.params.HTTPRequest

@@ -192,9 +192,12 @@ func (suite *MTOShipmentServiceSuite) TestListMTOShipments() {
 	suite.Run("Loads PPM associations", func() {
 		// not reusing the test above because the fetcher only loads PPM associations if the shipment type is PPM
 		move := factory.BuildMove(suite.DB(), nil, nil)
-		ppmShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-		})
+		ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{
 			ServiceMember: move.Orders.ServiceMember,

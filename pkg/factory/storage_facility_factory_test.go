@@ -1,7 +1,6 @@
 package factory
 
 import (
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -47,9 +46,9 @@ func (suite *FactorySuite) TestBuildStorageFacility() {
 		customStorageFacility := models.StorageFacility{
 			ID:           uuid.Must(uuid.NewV4()),
 			FacilityName: "Storage R Us",
-			LotNumber:    swag.String("1234"),
-			Phone:        swag.String("555-555-5555"),
-			Email:        swag.String("storage@email.com"),
+			LotNumber:    models.StringPointer("1234"),
+			Phone:        models.StringPointer("555-555-5555"),
+			Email:        models.StringPointer("storage@email.com"),
 		}
 		customAddress := models.Address{
 			StreetAddress1: "987 Another Street",

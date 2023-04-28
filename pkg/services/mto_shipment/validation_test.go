@@ -11,7 +11,6 @@ import (
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
@@ -313,15 +312,18 @@ func (suite *MTOShipmentServiceSuite) TestDeleteValidations() {
 		for status, allowed := range testCases {
 			now := time.Now()
 			suite.Run("PPM status "+string(status), func() {
-				ppmShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
-					PPMShipment: models.PPMShipment{
-						Status: status,
+				ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+					{
+						Model: models.PPMShipment{
+							Status: status,
+						},
 					},
-					Move: models.Move{
-						AvailableToPrimeAt: &now,
+					{
+						Model: models.Move{
+							AvailableToPrimeAt: &now,
+						},
 					},
-				})
-
+				}, nil)
 				err := checkPrimeDeleteAllowed().Validate(
 					suite.AppContextForTest(),
 					nil,

@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/mock"
@@ -232,8 +231,8 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		document := factory.BuildDocument(suite.DB(), nil, nil)
 
 		// Create the mto payload we will be requesting to create
-		issueDate := swag.Time(time.Now())
-		reportByDate := swag.Time(time.Now().AddDate(0, 0, -1))
+		issueDate := models.TimePointer(time.Now())
+		reportByDate := models.TimePointer(time.Now().AddDate(0, 0, -1))
 		ordersTypedetail := supportmessages.OrdersTypeDetailHHGPERMITTED
 		deptIndicator := supportmessages.DeptIndicatorAIRFORCE
 
@@ -243,13 +242,13 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 			ContractorID: handlers.FmtUUID(contractor.ID),
 			Order: &supportmessages.Order{
 				Rank:                      &rank,
-				OrderNumber:               swag.String("4554"),
+				OrderNumber:               models.StringPointer("4554"),
 				DestinationDutyLocationID: handlers.FmtUUID(destinationDutyLocation.ID),
 				OriginDutyLocationID:      handlers.FmtUUID(originDutyLocation.ID),
 				Entitlement: &supportmessages.Entitlement{
-					DependentsAuthorized: swag.Bool(true),
+					DependentsAuthorized: models.BoolPointer(true),
 					TotalDependents:      5,
-					NonTemporaryStorage:  swag.Bool(false),
+					NonTemporaryStorage:  models.BoolPointer(false),
 				},
 				IssueDate:           handlers.FmtDatePtr(issueDate),
 				ReportByDate:        handlers.FmtDatePtr(reportByDate),
@@ -257,7 +256,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 				OrdersTypeDetail:    &ordersTypedetail,
 				UploadedOrdersID:    handlers.FmtUUID(document.ID),
 				Status:              supportmessages.NewOrdersStatus(supportmessages.OrdersStatusDRAFT),
-				Tac:                 swag.String("E19A"),
+				Tac:                 models.StringPointer("E19A"),
 				DepartmentIndicator: &deptIndicator,
 			},
 		}
@@ -424,9 +423,9 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		newCustomerFirstName := "Grace"
 		mtoPayload.Order.Customer = &supportmessages.Customer{
 			FirstName: &newCustomerFirstName,
-			LastName:  swag.String("Griffin"),
-			Agency:    swag.String("Marines"),
-			DodID:     swag.String("1209457894"),
+			LastName:  models.StringPointer("Griffin"),
+			Agency:    models.StringPointer("Marines"),
+			DodID:     models.StringPointer("1209457894"),
 			Rank:      supportmessages.NewRank("ACADEMY_CADET"),
 		}
 		mtoPayload.Order.CustomerID = nil

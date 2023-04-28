@@ -13,7 +13,6 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
-	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
@@ -100,15 +99,13 @@ func (suite *PPMShipmentSuite) TestCreateAOAPacket() {
 	suite.Run("returns an error if we get an error trying to convert the orders to a PDF", func() {
 		appCtx := suite.AppContextForTest()
 
-		ppmShipment := testdatagen.MakeApprovedPPMShipment(
-			appCtx.DB(),
-			testdatagen.Assertions{
-				PPMShipment: models.PPMShipment{
+		ppmShipment := factory.BuildPPMShipment(nil, []factory.Customization{
+			{
+				Model: models.PPMShipment{
 					ID: uuid.Must(uuid.NewV4()),
 				},
-				Stub: true,
 			},
-		)
+		}, []factory.Trait{factory.GetTraitApprovedPPMShipment})
 
 		userUploads, _, _, cleanUpFunc := prepMockInfo(&ppmShipment)
 
@@ -144,15 +141,13 @@ func (suite *PPMShipmentSuite) TestCreateAOAPacket() {
 	suite.Run("returns an error if we get an error trying to merge the orders PDF with the SSW PDF", func() {
 		appCtx := suite.AppContextForTest()
 
-		ppmShipment := testdatagen.MakeApprovedPPMShipment(
-			appCtx.DB(),
-			testdatagen.Assertions{
-				PPMShipment: models.PPMShipment{
+		ppmShipment := factory.BuildPPMShipment(nil, []factory.Customization{
+			{
+				Model: models.PPMShipment{
 					ID: uuid.Must(uuid.NewV4()),
 				},
-				Stub: true,
 			},
-		)
+		}, []factory.Trait{factory.GetTraitApprovedPPMShipment})
 
 		userUploads, fileInfoSet, pdfStreams, cleanUpFunc := prepMockInfo(&ppmShipment)
 
@@ -187,18 +182,18 @@ func (suite *PPMShipmentSuite) TestCreateAOAPacket() {
 		// member ID is mainly chosen because it's one of the first things we can error on and is easy to set up.
 		appCtx := suite.AppContextForTest()
 
-		ppmShipment := testdatagen.MakeApprovedPPMShipment(
-			appCtx.DB(),
-			testdatagen.Assertions{
-				PPMShipment: models.PPMShipment{
+		ppmShipment := factory.BuildPPMShipment(nil, []factory.Customization{
+			{
+				Model: models.PPMShipment{
 					ID: uuid.Must(uuid.NewV4()),
 				},
-				ServiceMember: models.ServiceMember{
+			},
+			{
+				Model: models.ServiceMember{
 					ID: uuid.Nil,
 				},
-				Stub: true,
 			},
-		)
+		}, []factory.Trait{factory.GetTraitApprovedPPMShipment})
 
 		userUploads, fileInfoSet, pdfStreams, cleanUpFunc := prepMockInfo(&ppmShipment)
 
@@ -234,7 +229,7 @@ func (suite *PPMShipmentSuite) TestCreateAOAPacket() {
 	suite.Run("returns nil if all goes well", func() {
 		appCtx := suite.AppContextForTest()
 
-		ppmShipment := testdatagen.MakeApprovedPPMShipment(appCtx.DB(), testdatagen.Assertions{})
+		ppmShipment := factory.BuildPPMShipment(appCtx.DB(), nil, []factory.Trait{factory.GetTraitApprovedPPMShipment})
 
 		userUploads, fileInfoSet, pdfStreams, cleanUpFunc := prepMockInfo(&ppmShipment)
 
@@ -317,21 +312,23 @@ func (suite *PPMShipmentSuite) TestSaveAOAPacket() {
 			suite.Run(fmt.Sprintf("bad service member ID: %s", name), func() {
 				appCtx := suite.AppContextForTest()
 
-				ppmShipment := testdatagen.MakeApprovedPPMShipment(
-					appCtx.DB(),
-					testdatagen.Assertions{
-						PPMShipment: models.PPMShipment{
+				ppmShipment := factory.BuildPPMShipment(nil, []factory.Customization{
+					{
+						Model: models.PPMShipment{
 							ID: uuid.Must(uuid.NewV4()),
 						},
-						ServiceMember: models.ServiceMember{
+					},
+					{
+						Model: models.ServiceMember{
 							ID: testCase.serviceMemberID,
 						},
-						UserUpload: models.UserUpload{
+					},
+					{
+						Model: models.UserUpload{
 							ID: uuid.Must(uuid.NewV4()),
 						},
-						Stub: true,
 					},
-				)
+				}, []factory.Trait{factory.GetTraitApprovedPPMShipment})
 
 				mockMergedPDF := factory.FixtureOpen("aoa-packet.pdf")
 
@@ -351,8 +348,7 @@ func (suite *PPMShipmentSuite) TestSaveAOAPacket() {
 	suite.Run("returns an error if we fail to update the PPM shipment", func() {
 		appCtx := suite.AppContextForTest()
 
-		ppmShipment := testdatagen.MakeApprovedPPMShipment(appCtx.DB(), testdatagen.Assertions{})
-
+		ppmShipment := factory.BuildPPMShipment(appCtx.DB(), nil, []factory.Trait{factory.GetTraitApprovedPPMShipment})
 		suite.FatalNil(ppmShipment.AOAPacketID)
 
 		mockMergedPDF := factory.FixtureOpen("aoa-packet.pdf")
@@ -387,7 +383,7 @@ func (suite *PPMShipmentSuite) TestSaveAOAPacket() {
 	suite.Run("returns an error if we fail to prepare the file for upload", func() {
 		appCtx := suite.AppContextForTest()
 
-		ppmShipment := testdatagen.MakeApprovedPPMShipment(appCtx.DB(), testdatagen.Assertions{})
+		ppmShipment := factory.BuildPPMShipment(appCtx.DB(), nil, []factory.Trait{factory.GetTraitApprovedPPMShipment})
 
 		suite.FatalNil(ppmShipment.AOAPacketID)
 
@@ -447,7 +443,7 @@ func (suite *PPMShipmentSuite) TestSaveAOAPacket() {
 			suite.Run(fmt.Sprintf("UserID error: %s", name), func() {
 				appCtx := suite.AppContextForTest()
 
-				ppmShipment := testdatagen.MakeApprovedPPMShipment(appCtx.DB(), testdatagen.Assertions{})
+				ppmShipment := factory.BuildPPMShipment(appCtx.DB(), nil, []factory.Trait{factory.GetTraitApprovedPPMShipment})
 
 				suite.FatalNil(ppmShipment.AOAPacketID)
 
@@ -488,7 +484,7 @@ func (suite *PPMShipmentSuite) TestSaveAOAPacket() {
 	suite.Run("returns nil if all goes well", func() {
 		appCtx := suite.AppContextForTest()
 
-		ppmShipment := testdatagen.MakeApprovedPPMShipment(appCtx.DB(), testdatagen.Assertions{})
+		ppmShipment := factory.BuildPPMShipment(appCtx.DB(), nil, []factory.Trait{factory.GetTraitApprovedPPMShipment})
 
 		suite.FatalNil(ppmShipment.AOAPacketID)
 
