@@ -45,6 +45,36 @@ const SITHistoryItemHeader = ({ sitItem }) => (
   </div>
 );
 
+const SitHistoryList = ({ sitHistory, dayAllowance }) => {
+  let first = true;
+  let approvedDays;
+  return (
+    <div className={styles.tableContainer}>
+      <p className={styles.sitHeader}>SIT history</p>
+      {sitHistory.map((currentItem) => {
+        if (first === true) {
+          approvedDays = dayAllowance;
+          first = false;
+        } else {
+          approvedDays -= currentItem.approvedDays;
+        }
+        const sitItem = {
+          ...currentItem,
+          approvedDays,
+        };
+        return (
+          <DataTable
+            key={sitItem.id}
+            columnHeaders={[<SITHistoryItemHeader sitItem={sitItem} />]}
+            dataRow={[<SITHistoryItem sitItem={sitItem} />]}
+            custClass={styles.sitHistoryItem}
+          />
+        );
+      })}
+    </div>
+  );
+};
+
 const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton }) => {
   const pendingSITExtension = sitExtensions.find((se) => se.status === SIT_EXTENSION_STATUS.PENDING);
   // Currently active SIT
@@ -122,17 +152,7 @@ const ShipmentSITDisplay = ({ sitExtensions, sitStatus, shipment, className, ope
       />
       {/* Sit History */}
       {sitExtensions && sitHistory.length > 0 && (
-        <div className={styles.tableContainer}>
-          <p className={styles.sitHeader}>SIT history</p>
-          {sitHistory.map((sitItem) => (
-            <DataTable
-              key={sitItem.id}
-              columnHeaders={[<SITHistoryItemHeader sitItem={sitItem} />]}
-              dataRow={[<SITHistoryItem sitItem={sitItem} />]}
-              custClass={styles.sitHistoryItem}
-            />
-          ))}
-        </div>
+        <SitHistoryList sitHistory={sitHistory} dayAllowance={shipment.sitDaysAllowance} />
       )}
     </DataTableWrapper>
   );
