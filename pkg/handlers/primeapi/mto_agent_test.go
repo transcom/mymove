@@ -18,7 +18,6 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	mtoagent "github.com/transcom/mymove/pkg/services/mto_agent"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 type updateMTOAgentSubtestData struct {
@@ -227,7 +226,7 @@ func (suite *HandlerSuite) TestUpdateMTOAgentHandler() {
 	// Test not Prime-available (not found response)
 	suite.Run("404 - Not available response", func() {
 		subtestData := suite.makeUpdateMTOAgentSubtestData()
-		unavailableAgent := testdatagen.MakeDefaultMTOAgent(suite.DB()) // default is not available to Prime
+		unavailableAgent := factory.BuildMTOAgent(suite.DB(), nil, nil) // default is not available to Prime
 
 		payload := payloads.MTOAgent(&unavailableAgent)
 		params := mtoshipmentops.UpdateMTOAgentParams{
