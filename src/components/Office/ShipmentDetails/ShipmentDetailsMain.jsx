@@ -122,7 +122,7 @@ const ShipmentDetailsMain = ({
   switch (shipmentType) {
     case SHIPMENT_OPTIONS.HHG:
       displayedPickupAddress = pickupAddress;
-      displayedDeliveryAddress = destinationAddress || destinationDutyLocationAddress?.postalCode;
+      displayedDeliveryAddress = destinationAddress || destinationDutyLocationAddress;
       break;
     case SHIPMENT_OPTIONS.NTS:
       displayedPickupAddress = pickupAddress;
@@ -134,7 +134,7 @@ const ShipmentDetailsMain = ({
       break;
     default:
       displayedPickupAddress = pickupAddress;
-      displayedDeliveryAddress = destinationAddress || destinationDutyLocationAddress?.postalCode;
+      displayedDeliveryAddress = destinationAddress || destinationDutyLocationAddress;
   }
 
   return (
@@ -156,16 +156,14 @@ const ShipmentDetailsMain = ({
           sitStatus={sitStatus}
         />
       )}
-      {sitStatus && (
-        <ShipmentSITDisplay
-          sitExtensions={sitExtensions}
-          sitStatus={sitStatus}
-          storageInTransit={storageInTransit}
-          shipment={shipment}
-          className={styles.shipmentSITSummary}
-          openModalButton={openModalButton}
-        />
-      )}
+      <ShipmentSITDisplay
+        sitExtensions={sitExtensions}
+        sitStatus={sitStatus}
+        storageInTransit={storageInTransit}
+        shipment={shipment}
+        className={styles.shipmentSITSummary}
+        openModalButton={openModalButton}
+      />
       <ImportantShipmentDates
         requestedPickupDate={formatDate(requestedPickupDate)}
         scheduledPickupDate={scheduledPickupDate ? formatDate(scheduledPickupDate) : null}
