@@ -3,20 +3,18 @@ package evaluationreport
 import (
 	"time"
 
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *EvaluationReportSuite) TestFetchEvaluationReportList() {
 	suite.Run("fetch for move with no evaluation reports should return empty array", func() {
 		fetcher := NewEvaluationReportFetcher()
-		move := testdatagen.MakeDefaultMove(suite.DB())
+		move := factory.BuildMove(suite.DB(), nil, nil)
 		officeUser := factory.BuildOfficeUser(suite.DB(), nil, nil)
 		reports, err := fetcher.FetchEvaluationReports(suite.AppContextForTest(), models.EvaluationReportTypeCounseling, move.ID, officeUser.ID)
 		suite.NoError(err)
@@ -34,41 +32,61 @@ func (suite *EvaluationReportSuite) TestFetchEvaluationReportList() {
 	})
 	suite.Run("submitted and draft reports for current user should be included", func() {
 		fetcher := NewEvaluationReportFetcher()
-		move := testdatagen.MakeDefaultMove(suite.DB())
+		move := factory.BuildMove(suite.DB(), nil, nil)
 		officeUser := factory.BuildOfficeUser(suite.DB(), nil, nil)
-		testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{
-			EvaluationReport: models.EvaluationReport{
-				MoveID:       move.ID,
-				OfficeUserID: officeUser.ID,
+		factory.BuildEvaluationReport(suite.DB(), []factory.Customization{
+			{
+				Model:    officeUser,
+				LinkOnly: true,
 			},
-		})
-		testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{
-			EvaluationReport: models.EvaluationReport{
-				MoveID:       move.ID,
-				OfficeUserID: officeUser.ID,
-				SubmittedAt:  swag.Time(time.Now()),
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-		})
+		}, nil)
+		factory.BuildEvaluationReport(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    officeUser,
+				LinkOnly: true,
+			},
+			{
+				Model: models.EvaluationReport{
+					SubmittedAt: models.TimePointer(time.Now()),
+				},
+			},
+		}, nil)
 		reports, err := fetcher.FetchEvaluationReports(suite.AppContextForTest(), models.EvaluationReportTypeCounseling, move.ID, officeUser.ID)
 		suite.NoError(err)
 		suite.Len(reports, 2)
 	})
 	suite.Run("reports submitted by other office users should be included", func() {
 		fetcher := NewEvaluationReportFetcher()
-		move := testdatagen.MakeDefaultMove(suite.DB())
+		move := factory.BuildMove(suite.DB(), nil, nil)
 		officeUser := factory.BuildOfficeUser(suite.DB(), nil, []factory.Trait{
 			factory.GetTraitOfficeUserEmail,
 		})
 		otherOfficeUser := factory.BuildOfficeUser(suite.DB(), nil, []factory.Trait{
 			factory.GetTraitOfficeUserEmail,
 		})
-		report := testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{
-			EvaluationReport: models.EvaluationReport{
-				MoveID:       move.ID,
-				OfficeUserID: otherOfficeUser.ID,
-				SubmittedAt:  swag.Time(time.Now()),
+		report := factory.BuildEvaluationReport(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model:    otherOfficeUser,
+				LinkOnly: true,
+			},
+			{
+				Model: models.EvaluationReport{
+					SubmittedAt: models.TimePointer(time.Now()),
+				},
+			},
+		}, nil)
 		reports, err := fetcher.FetchEvaluationReports(suite.AppContextForTest(), models.EvaluationReportTypeCounseling, move.ID, officeUser.ID)
 		suite.NoError(err)
 		suite.Len(reports, 1)
@@ -76,44 +94,63 @@ func (suite *EvaluationReportSuite) TestFetchEvaluationReportList() {
 	})
 	suite.Run("draft reports by other office users should not be included", func() {
 		fetcher := NewEvaluationReportFetcher()
-		move := testdatagen.MakeDefaultMove(suite.DB())
+		move := factory.BuildMove(suite.DB(), nil, nil)
 		officeUser := factory.BuildOfficeUser(suite.DB(), nil, []factory.Trait{
 			factory.GetTraitOfficeUserEmail,
 		})
 		otherOfficeUser := factory.BuildOfficeUser(suite.DB(), nil, []factory.Trait{
 			factory.GetTraitOfficeUserEmail,
 		})
-		testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{
-			EvaluationReport: models.EvaluationReport{
-				MoveID:       move.ID,
-				OfficeUserID: otherOfficeUser.ID,
-				SubmittedAt:  nil,
+		factory.BuildEvaluationReport(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model:    otherOfficeUser,
+				LinkOnly: true,
+			},
+		}, nil)
 		reports, err := fetcher.FetchEvaluationReports(suite.AppContextForTest(), models.EvaluationReportTypeCounseling, move.ID, officeUser.ID)
 		suite.NoError(err)
 		suite.Empty(reports)
 	})
 	suite.Run("fetch counseling reports should only return counseling reports", func() {
 		fetcher := NewEvaluationReportFetcher()
-		move := testdatagen.MakeDefaultMove(suite.DB())
+		move := factory.BuildMove(suite.DB(), nil, nil)
 		officeUser := factory.BuildOfficeUser(suite.DB(), nil, nil)
-		counselingReport := testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{
-			EvaluationReport: models.EvaluationReport{
-				MoveID:       move.ID,
-				OfficeUserID: officeUser.ID,
-				SubmittedAt:  swag.Time(time.Now()),
+		counselingReport := factory.BuildEvaluationReport(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-		})
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{Move: move})
-		testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{
-			EvaluationReport: models.EvaluationReport{
-				MoveID:       move.ID,
-				OfficeUserID: officeUser.ID,
-				SubmittedAt:  swag.Time(time.Now()),
+			{
+				Model:    officeUser,
+				LinkOnly: true,
 			},
-			MTOShipment: shipment,
-		})
+			{
+				Model: models.EvaluationReport{
+					SubmittedAt: models.TimePointer(time.Now()),
+				},
+			},
+		}, nil)
+
+		factory.BuildEvaluationReport(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    officeUser,
+				LinkOnly: true,
+			},
+			{
+				Model: models.EvaluationReport{
+					Type:        models.EvaluationReportTypeShipment,
+					SubmittedAt: models.TimePointer(time.Now()),
+				},
+			},
+		}, nil)
 		reports, err := fetcher.FetchEvaluationReports(suite.AppContextForTest(), models.EvaluationReportTypeCounseling, move.ID, officeUser.ID)
 		suite.NoError(err)
 		suite.Len(reports, 1)
@@ -121,24 +158,40 @@ func (suite *EvaluationReportSuite) TestFetchEvaluationReportList() {
 	})
 	suite.Run("fetch shipment reports should only return shipment reports", func() {
 		fetcher := NewEvaluationReportFetcher()
-		move := testdatagen.MakeDefaultMove(suite.DB())
+		move := factory.BuildMove(suite.DB(), nil, nil)
 		officeUser := factory.BuildOfficeUser(suite.DB(), nil, nil)
-		testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{
-			EvaluationReport: models.EvaluationReport{
-				MoveID:       move.ID,
-				OfficeUserID: officeUser.ID,
-				SubmittedAt:  swag.Time(time.Now()),
+		factory.BuildEvaluationReport(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-		})
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{Move: move})
-		shipmentReport := testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{
-			EvaluationReport: models.EvaluationReport{
-				MoveID:       move.ID,
-				OfficeUserID: officeUser.ID,
-				SubmittedAt:  swag.Time(time.Now()),
+			{
+				Model:    officeUser,
+				LinkOnly: true,
 			},
-			MTOShipment: shipment,
-		})
+			{
+				Model: models.EvaluationReport{
+					SubmittedAt: models.TimePointer(time.Now()),
+				},
+			},
+		}, nil)
+
+		shipmentReport := factory.BuildEvaluationReport(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    officeUser,
+				LinkOnly: true,
+			},
+			{
+				Model: models.EvaluationReport{
+					Type:        models.EvaluationReportTypeShipment,
+					SubmittedAt: models.TimePointer(time.Now()),
+				},
+			},
+		}, nil)
 		reports, err := fetcher.FetchEvaluationReports(suite.AppContextForTest(), models.EvaluationReportTypeShipment, move.ID, officeUser.ID)
 		suite.NoError(err)
 		suite.Len(reports, 1)
@@ -150,14 +203,18 @@ func (suite *EvaluationReportSuite) TestFetchEvaluationReportByID() {
 	// successful fetch
 	suite.Run("fetch for a submitted evaluation report that exists should be successful", func() {
 		fetcher := NewEvaluationReportFetcher()
-		move := testdatagen.MakeDefaultMove(suite.DB())
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeQaeCsr})
-		report := testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{EvaluationReport: models.EvaluationReport{
-			OfficeUserID: officeUser.ID,
-			MoveID:       move.ID,
-			SubmittedAt:  swag.Time(time.Now()),
-		}})
-
+		report := factory.BuildEvaluationReport(suite.DB(), []factory.Customization{
+			{
+				Model:    officeUser,
+				LinkOnly: true,
+			},
+			{
+				Model: models.EvaluationReport{
+					SubmittedAt: models.TimePointer(time.Now()),
+				},
+			},
+		}, nil)
 		fetchedReport, err := fetcher.FetchEvaluationReportByID(suite.AppContextForTest(), report.ID, officeUser.ID)
 		suite.NoError(err)
 		suite.Equal(report.ID, fetchedReport.ID)
@@ -166,14 +223,14 @@ func (suite *EvaluationReportSuite) TestFetchEvaluationReportByID() {
 	// forbidden if they don't own the draft
 	suite.Run("fetch for a draft evaluation report should return a forbidden if the requester isn't the owner", func() {
 		fetcher := NewEvaluationReportFetcher()
-		move := testdatagen.MakeDefaultMove(suite.DB())
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeQaeCsr})
 		officeUserOwner := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeQaeCsr})
-		report := testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{EvaluationReport: models.EvaluationReport{
-			OfficeUserID: officeUserOwner.ID,
-			MoveID:       move.ID,
-			SubmittedAt:  nil,
-		}})
+		report := factory.BuildEvaluationReport(suite.DB(), []factory.Customization{
+			{
+				Model:    officeUserOwner,
+				LinkOnly: true,
+			},
+		}, nil)
 		fetchedReport, err := fetcher.FetchEvaluationReportByID(suite.AppContextForTest(), report.ID, officeUser.ID)
 		suite.Nil(fetchedReport)
 		suite.Error(err, apperror.NewForbiddenError("Draft evaluation reports are viewable only by their owner/creator."))
@@ -181,13 +238,18 @@ func (suite *EvaluationReportSuite) TestFetchEvaluationReportByID() {
 	// not found error if the ID is wrong
 	suite.Run("fetch should return a not found error if the reportID doesn't exist", func() {
 		fetcher := NewEvaluationReportFetcher()
-		move := testdatagen.MakeDefaultMove(suite.DB())
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeQaeCsr})
-		testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{EvaluationReport: models.EvaluationReport{
-			OfficeUserID: officeUser.ID,
-			MoveID:       move.ID,
-			SubmittedAt:  swag.Time(time.Now()),
-		}})
+		factory.BuildEvaluationReport(suite.DB(), []factory.Customization{
+			{
+				Model:    officeUser,
+				LinkOnly: true,
+			},
+			{
+				Model: models.EvaluationReport{
+					SubmittedAt: models.TimePointer(time.Now()),
+				},
+			},
+		}, nil)
 		wrongID, _ := uuid.NewV4()
 		expectedError := apperror.NewNotFoundError(wrongID, "while looking for evaluation report")
 

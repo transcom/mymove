@@ -22,6 +22,14 @@ type PPMShipmentUpdater interface {
 	UpdatePPMShipmentWithDefaultCheck(appCtx appcontext.AppContext, ppmshipment *models.PPMShipment, mtoShipmentID uuid.UUID) (*models.PPMShipment, error)
 }
 
+// PPMShipmentFetcher fetches a PPM shipment
+//
+//go:generate mockery --name PPMShipmentFetcher
+type PPMShipmentFetcher interface {
+	GetPPMShipment(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID, eagerPreloadAssociations []string, postloadAssociations []string) (*models.PPMShipment, error)
+	PostloadAssociations(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment, postloadAssociations []string) error
+}
+
 // PPMDocumentFetcher fetches all documents associated with a PPM shipment
 //
 //go:generate mockery --name PPMDocumentFetcher
@@ -67,4 +75,18 @@ type PPMShipmentReviewDocuments interface {
 //go:generate mockery --name PPMShipmentUpdatedSubmitter
 type PPMShipmentUpdatedSubmitter interface {
 	SubmitUpdatedCustomerCloseOut(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID, signedCertification models.SignedCertification, eTag string) (*models.PPMShipment, error)
+}
+
+// AOAPacketCreator creates an AOA packet for a PPM shipment
+//
+//go:generate mockery --name AOAPacketCreator
+type AOAPacketCreator interface {
+	CreateAOAPacket(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) error
+}
+
+// PaymentPacketCreator creates a payment packet for a PPM shipment
+//
+//go:generate mockery --name PaymentPacketCreator
+type PaymentPacketCreator interface {
+	CreatePaymentPacket(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) error
 }

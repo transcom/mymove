@@ -92,6 +92,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation order.CounselingUpdateOrder has not yet been implemented")
 		})
 	}
+	if api.ShipmentCreateApprovedSITDurationUpdateHandler == nil {
+		api.ShipmentCreateApprovedSITDurationUpdateHandler = shipment.CreateApprovedSITDurationUpdateHandlerFunc(func(params shipment.CreateApprovedSITDurationUpdateParams) middleware.Responder {
+			return middleware.NotImplemented("operation shipment.CreateApprovedSITDurationUpdate has not yet been implemented")
+		})
+	}
 	if api.CustomerSupportRemarksCreateCustomerSupportRemarkForMoveHandler == nil {
 		api.CustomerSupportRemarksCreateCustomerSupportRemarkForMoveHandler = customer_support_remarks.CreateCustomerSupportRemarkForMoveHandlerFunc(func(params customer_support_remarks.CreateCustomerSupportRemarkForMoveParams) middleware.Responder {
 			return middleware.NotImplemented("operation customer_support_remarks.CreateCustomerSupportRemarkForMove has not yet been implemented")
@@ -105,11 +110,6 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 	if api.MtoShipmentCreateMTOShipmentHandler == nil {
 		api.MtoShipmentCreateMTOShipmentHandler = mto_shipment.CreateMTOShipmentHandlerFunc(func(params mto_shipment.CreateMTOShipmentParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_shipment.CreateMTOShipment has not yet been implemented")
-		})
-	}
-	if api.ShipmentCreateSITExtensionAsTOOHandler == nil {
-		api.ShipmentCreateSITExtensionAsTOOHandler = shipment.CreateSITExtensionAsTOOHandlerFunc(func(params shipment.CreateSITExtensionAsTOOParams) middleware.Responder {
-			return middleware.NotImplemented("operation shipment.CreateSITExtensionAsTOO has not yet been implemented")
 		})
 	}
 	if api.CustomerSupportRemarksDeleteCustomerSupportRemarkHandler == nil {
@@ -140,6 +140,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 	if api.MtoAgentFetchMTOAgentListHandler == nil {
 		api.MtoAgentFetchMTOAgentListHandler = mto_agent.FetchMTOAgentListHandlerFunc(func(params mto_agent.FetchMTOAgentListParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_agent.FetchMTOAgentList has not yet been implemented")
+		})
+	}
+	if api.PpmFinishDocumentReviewHandler == nil {
+		api.PpmFinishDocumentReviewHandler = ppm.FinishDocumentReviewHandlerFunc(func(params ppm.FinishDocumentReviewParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.FinishDocumentReview has not yet been implemented")
 		})
 	}
 	if api.CustomerGetCustomerHandler == nil {

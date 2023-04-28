@@ -56,6 +56,7 @@ func Move(move *models.Move) *ghcmessages.Move {
 		BillableWeightsReviewedAt:    handlers.FmtDateTimePtr(move.BillableWeightsReviewedAt),
 		CreatedAt:                    strfmt.DateTime(move.CreatedAt),
 		SubmittedAt:                  handlers.FmtDateTimePtr(move.SubmittedAt),
+		ApprovalsRequestedAt:         handlers.FmtDateTimePtr(move.ApprovalsRequestedAt),
 		UpdatedAt:                    strfmt.DateTime(move.UpdatedAt),
 		ETag:                         etag.GenerateEtag(move.UpdatedAt),
 		ServiceCounselingCompletedAt: handlers.FmtDateTimePtr(move.ServiceCounselingCompletedAt),
@@ -275,7 +276,7 @@ func TransportationOffice(office *models.TransportationOffice) *ghcmessages.Tran
 		ID:         handlers.FmtUUID(office.ID),
 		CreatedAt:  handlers.FmtDateTime(office.CreatedAt),
 		UpdatedAt:  handlers.FmtDateTime(office.UpdatedAt),
-		Name:       swag.String(office.Name),
+		Name:       models.StringPointer(office.Name),
 		Gbloc:      office.Gbloc,
 		Address:    Address(&office.Address),
 		PhoneLines: phoneLines,
@@ -621,37 +622,37 @@ func BackupContact(contacts models.BackupContacts) *ghcmessages.BackupContact {
 	}
 }
 
-// SITExtension payload
-func SITExtension(sitExtension *models.SITExtension) *ghcmessages.SITExtension {
-	if sitExtension == nil {
+// SITDurationUpdate payload
+func SITDurationUpdate(sitDurationUpdate *models.SITDurationUpdate) *ghcmessages.SITExtension {
+	if sitDurationUpdate == nil {
 		return nil
 	}
 	payload := &ghcmessages.SITExtension{
-		ID:                strfmt.UUID(sitExtension.ID.String()),
-		ETag:              etag.GenerateEtag(sitExtension.UpdatedAt),
-		MtoShipmentID:     strfmt.UUID(sitExtension.MTOShipmentID.String()),
-		RequestReason:     string(sitExtension.RequestReason),
-		RequestedDays:     int64(sitExtension.RequestedDays),
-		Status:            string(sitExtension.Status),
-		CreatedAt:         strfmt.DateTime(sitExtension.CreatedAt),
-		UpdatedAt:         strfmt.DateTime(sitExtension.UpdatedAt),
-		ApprovedDays:      handlers.FmtIntPtrToInt64(sitExtension.ApprovedDays),
-		ContractorRemarks: handlers.FmtStringPtr(sitExtension.ContractorRemarks),
-		DecisionDate:      handlers.FmtDateTimePtr(sitExtension.DecisionDate),
-		OfficeRemarks:     handlers.FmtStringPtr(sitExtension.OfficeRemarks),
+		ID:                strfmt.UUID(sitDurationUpdate.ID.String()),
+		ETag:              etag.GenerateEtag(sitDurationUpdate.UpdatedAt),
+		MtoShipmentID:     strfmt.UUID(sitDurationUpdate.MTOShipmentID.String()),
+		RequestReason:     string(sitDurationUpdate.RequestReason),
+		RequestedDays:     int64(sitDurationUpdate.RequestedDays),
+		Status:            string(sitDurationUpdate.Status),
+		CreatedAt:         strfmt.DateTime(sitDurationUpdate.CreatedAt),
+		UpdatedAt:         strfmt.DateTime(sitDurationUpdate.UpdatedAt),
+		ApprovedDays:      handlers.FmtIntPtrToInt64(sitDurationUpdate.ApprovedDays),
+		ContractorRemarks: handlers.FmtStringPtr(sitDurationUpdate.ContractorRemarks),
+		DecisionDate:      handlers.FmtDateTimePtr(sitDurationUpdate.DecisionDate),
+		OfficeRemarks:     handlers.FmtStringPtr(sitDurationUpdate.OfficeRemarks),
 	}
 
 	return payload
 }
 
-// SITExtensions payload
-func SITExtensions(sitExtensions *models.SITExtensions) *ghcmessages.SITExtensions {
-	payload := make(ghcmessages.SITExtensions, len(*sitExtensions))
+// SITDurationUpdates payload
+func SITDurationUpdates(sitDurationUpdates *models.SITDurationUpdates) *ghcmessages.SITExtensions {
+	payload := make(ghcmessages.SITExtensions, len(*sitDurationUpdates))
 
-	if len(*sitExtensions) > 0 {
-		for i, m := range *sitExtensions {
-			copyOfSITExtension := m // Make copy to avoid implicit memory aliasing of items from a range statement.
-			payload[i] = SITExtension(&copyOfSITExtension)
+	if len(*sitDurationUpdates) > 0 {
+		for i, m := range *sitDurationUpdates {
+			copyOfSITDurationUpdate := m // Make copy to avoid implicit memory aliasing of items from a range statement.
+			payload[i] = SITDurationUpdate(&copyOfSITDurationUpdate)
 		}
 	}
 	return &payload
@@ -959,7 +960,7 @@ func MTOShipment(storer storage.FileStorer, mtoShipment *models.MTOShipment, sit
 		DeletedAt:                   handlers.FmtDateTimePtr(mtoShipment.DeletedAt),
 		ApprovedDate:                handlers.FmtDateTimePtr(mtoShipment.ApprovedDate),
 		SitDaysAllowance:            handlers.FmtIntPtrToInt64(mtoShipment.SITDaysAllowance),
-		SitExtensions:               *SITExtensions(&mtoShipment.SITExtensions),
+		SitExtensions:               *SITDurationUpdates(&mtoShipment.SITDurationUpdates),
 		BillableWeightCap:           handlers.FmtPoundPtr(mtoShipment.BillableWeightCap),
 		BillableWeightJustification: mtoShipment.BillableWeightJustification,
 		UsesExternalVendor:          mtoShipment.UsesExternalVendor,
@@ -980,8 +981,8 @@ func MTOShipment(storer storage.FileStorer, mtoShipment *models.MTOShipment, sit
 		payload.SitDaysAllowance = handlers.FmtIntPtrToInt64(&totalSITAllowance)
 	}
 
-	if mtoShipment.SITExtensions != nil && len(mtoShipment.SITExtensions) > 0 {
-		payload.SitExtensions = *SITExtensions(&mtoShipment.SITExtensions)
+	if mtoShipment.SITDurationUpdates != nil && len(mtoShipment.SITDurationUpdates) > 0 {
+		payload.SitExtensions = *SITDurationUpdates(&mtoShipment.SITDurationUpdates)
 	}
 
 	if mtoShipment.RequestedPickupDate != nil && !mtoShipment.RequestedPickupDate.IsZero() {
@@ -1377,7 +1378,7 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 		// we can't easily modify our sql query to find the earliest shipment pickup date so we must do it here
 		for _, shipment := range move.MTOShipments {
 			if queueIncludeShipmentStatus(shipment.Status) && shipment.DeletedAt == nil {
-				earliestDateInCurrentShipment := findEarliestDate(shipment)
+				earliestDateInCurrentShipment := findEarliestDateForRequestedMoveDate(shipment)
 				if earliestRequestedPickup == nil || (earliestDateInCurrentShipment != nil && earliestDateInCurrentShipment.Before(*earliestRequestedPickup)) {
 					earliestRequestedPickup = earliestDateInCurrentShipment
 				}
@@ -1426,6 +1427,7 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 			ID:                      *handlers.FmtUUID(move.ID),
 			Locator:                 move.Locator,
 			SubmittedAt:             handlers.FmtDateTimePtr(move.SubmittedAt),
+			AppearedInTooAt:         handlers.FmtDateTimePtr(findLastSentToTOO(move)),
 			RequestedMoveDate:       handlers.FmtDatePtr(earliestRequestedPickup),
 			DepartmentIndicator:     &deptIndicator,
 			ShipmentsCount:          int64(len(validMTOShipments)),
@@ -1440,7 +1442,17 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 	return &queueMoves
 }
 
-func findEarliestDate(shipment models.MTOShipment) (earliestDate *time.Time) {
+func findLastSentToTOO(move models.Move) (latestOccurance *time.Time) {
+	possibleValues := [3]*time.Time{move.SubmittedAt, move.ServiceCounselingCompletedAt, move.ApprovalsRequestedAt}
+	for _, time := range possibleValues {
+		if time != nil && (latestOccurance == nil || time.After(*latestOccurance)) {
+			latestOccurance = time
+		}
+	}
+	return latestOccurance
+}
+
+func findEarliestDateForRequestedMoveDate(shipment models.MTOShipment) (earliestDate *time.Time) {
 	var possibleValues []*time.Time
 
 	if shipment.RequestedPickupDate != nil {

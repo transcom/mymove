@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
@@ -148,7 +147,7 @@ func MTOShipmentModelFromCreate(mtoShipment *primemessages.CreateMTOShipment) *m
 	}
 
 	if mtoShipment.RequestedPickupDate != nil {
-		model.RequestedPickupDate = swag.Time(time.Time(*mtoShipment.RequestedPickupDate))
+		model.RequestedPickupDate = models.TimePointer(time.Time(*mtoShipment.RequestedPickupDate))
 	}
 
 	// Set up address models
@@ -503,7 +502,7 @@ func MTOServiceItemModelFromUpdate(mtoServiceItemID string, mtoServiceItem prime
 	switch mtoServiceItem.ModelType() {
 	case primemessages.UpdateMTOServiceItemModelTypeUpdateMTOServiceItemSIT:
 		sit := mtoServiceItem.(*primemessages.UpdateMTOServiceItemSIT)
-		model.SITDepartureDate = swag.Time(time.Time(sit.SitDepartureDate))
+		model.SITDepartureDate = models.TimePointer(time.Time(sit.SitDepartureDate))
 		model.ReService.Code = models.ReServiceCode(sit.ReServiceCode)
 		model.SITDestinationFinalAddress = AddressModel(sit.SitDestinationFinalAddress)
 		if model.SITDestinationFinalAddress != nil {
@@ -557,16 +556,16 @@ func MTOServiceItemModelFromUpdate(mtoServiceItemID string, mtoServiceItem prime
 }
 
 // SITExtensionModel transform the request data the sitExtension model
-func SITExtensionModel(sitExtension *primemessages.CreateSITExtension, mtoShipmentID strfmt.UUID) *models.SITExtension {
+func SITExtensionModel(sitExtension *primemessages.CreateSITExtension, mtoShipmentID strfmt.UUID) *models.SITDurationUpdate {
 	if sitExtension == nil {
 		return nil
 	}
 
-	model := &models.SITExtension{
+	model := &models.SITDurationUpdate{
 		MTOShipmentID:     uuid.FromStringOrNil(mtoShipmentID.String()),
 		RequestedDays:     int(*sitExtension.RequestedDays),
 		ContractorRemarks: sitExtension.ContractorRemarks,
-		RequestReason:     models.SITExtensionRequestReason(*sitExtension.RequestReason),
+		RequestReason:     models.SITDurationUpdateRequestReason(*sitExtension.RequestReason),
 	}
 
 	return model

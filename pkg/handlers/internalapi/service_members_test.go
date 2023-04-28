@@ -15,7 +15,6 @@ import (
 	"net/http/httptest"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/factory"
@@ -25,7 +24,6 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *HandlerSuite) TestShowServiceMemberHandler() {
@@ -135,16 +133,16 @@ func (suite *HandlerSuite) TestSubmitServiceMemberHandlerAllValues() {
 	// When: a new ServiceMember is posted
 	newServiceMemberPayload := internalmessages.CreateServiceMemberPayload{
 		UserID:               strfmt.UUID(user.ID.String()),
-		Edipi:                swag.String("random string bla"),
-		FirstName:            swag.String("random string bla"),
-		MiddleName:           swag.String("random string bla"),
-		LastName:             swag.String("random string bla"),
-		Suffix:               swag.String("random string bla"),
-		Telephone:            swag.String("random string bla"),
-		SecondaryTelephone:   swag.String("random string bla"),
-		PersonalEmail:        swag.String("wml@example.com"),
-		PhoneIsPreferred:     swag.Bool(false),
-		EmailIsPreferred:     swag.Bool(true),
+		Edipi:                models.StringPointer("random string bla"),
+		FirstName:            models.StringPointer("random string bla"),
+		MiddleName:           models.StringPointer("random string bla"),
+		LastName:             models.StringPointer("random string bla"),
+		Suffix:               models.StringPointer("random string bla"),
+		Telephone:            models.StringPointer("random string bla"),
+		SecondaryTelephone:   models.StringPointer("random string bla"),
+		PersonalEmail:        models.StringPointer("wml@example.com"),
+		PhoneIsPreferred:     models.BoolPointer(false),
+		EmailIsPreferred:     models.BoolPointer(true),
 		ResidentialAddress:   fakeAddressPayload(),
 		BackupMailingAddress: fakeAddressPayload(),
 	}
@@ -173,9 +171,6 @@ func (suite *HandlerSuite) TestSubmitServiceMemberHandlerAllValues() {
 }
 
 func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
-	// Given: a logged in user
-	user := factory.BuildDefaultUser(suite.DB())
-
 	// TODO: add more fields to change
 	var origEdipi = "2342342344"
 	var newEdipi = "9999999999"
@@ -185,32 +180,32 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 	origAffiliation := models.AffiliationAIRFORCE
 	newAffiliation := internalmessages.AffiliationARMY
 
-	origFirstName := swag.String("random string bla")
-	newFirstName := swag.String("John")
+	origFirstName := models.StringPointer("random string bla")
+	newFirstName := models.StringPointer("John")
 
-	origMiddleName := swag.String("random string bla")
-	newMiddleName := swag.String("")
+	origMiddleName := models.StringPointer("random string bla")
+	newMiddleName := models.StringPointer("")
 
-	origLastName := swag.String("random string bla")
-	newLastName := swag.String("Doe")
+	origLastName := models.StringPointer("random string bla")
+	newLastName := models.StringPointer("Doe")
 
-	origSuffix := swag.String("random string bla")
-	newSuffix := swag.String("Mr.")
+	origSuffix := models.StringPointer("random string bla")
+	newSuffix := models.StringPointer("Mr.")
 
-	origTelephone := swag.String("random string bla")
-	newTelephone := swag.String("555-555-5555")
+	origTelephone := models.StringPointer("random string bla")
+	newTelephone := models.StringPointer("555-555-5555")
 
-	origSecondaryTelephone := swag.String("random string bla")
-	newSecondaryTelephone := swag.String("555-555-5555")
+	origSecondaryTelephone := models.StringPointer("random string bla")
+	newSecondaryTelephone := models.StringPointer("555-555-5555")
 
-	origPersonalEmail := swag.String("wml@example.com")
-	newPersonalEmail := swag.String("example@email.com")
+	origPersonalEmail := models.StringPointer("wml@example.com")
+	newPersonalEmail := models.StringPointer("example@email.com")
 
-	origPhoneIsPreferred := swag.Bool(false)
-	newPhoneIsPreferred := swag.Bool(true)
+	origPhoneIsPreferred := models.BoolPointer(false)
+	newPhoneIsPreferred := models.BoolPointer(true)
 
-	origEmailIsPreferred := swag.Bool(true)
-	newEmailIsPreferred := swag.Bool(false)
+	origEmailIsPreferred := models.BoolPointer(true)
+	newEmailIsPreferred := models.BoolPointer(false)
 
 	origDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
 	// Test updating duty location to one with different GBLOC
@@ -227,7 +222,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 	}, nil)
 
 	// Create a custom postal code to GBLOC
-	newGBLOC := testdatagen.MakePostalCodeToGBLOC(suite.DB(), newDutyLocationAddress.PostalCode, "UUUU")
+	newGBLOC := factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), newDutyLocationAddress.PostalCode, "UUUU")
 	newDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
 		{
 			Model: models.DutyLocation{
@@ -241,35 +236,47 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 	}, nil)
 	newDutyLocationID := strfmt.UUID(newDutyLocation.ID.String())
 
-	newServiceMember := models.ServiceMember{
-		UserID:             user.ID,
-		Edipi:              &origEdipi,
-		DutyLocationID:     &origDutyLocation.ID,
-		DutyLocation:       origDutyLocation,
-		Rank:               &origRank,
-		Affiliation:        &origAffiliation,
-		FirstName:          origFirstName,
-		MiddleName:         origMiddleName,
-		LastName:           origLastName,
-		Suffix:             origSuffix,
-		Telephone:          origTelephone,
-		SecondaryTelephone: origSecondaryTelephone,
-		PersonalEmail:      origPersonalEmail,
-		PhoneIsPreferred:   origPhoneIsPreferred,
-		EmailIsPreferred:   origEmailIsPreferred,
-	}
-	suite.MustSave(&newServiceMember)
+	newServiceMember := factory.BuildServiceMember(suite.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				Edipi:              &origEdipi,
+				Rank:               &origRank,
+				Affiliation:        &origAffiliation,
+				FirstName:          origFirstName,
+				MiddleName:         origMiddleName,
+				LastName:           origLastName,
+				Suffix:             origSuffix,
+				Telephone:          origTelephone,
+				SecondaryTelephone: origSecondaryTelephone,
+				PersonalEmail:      origPersonalEmail,
+				PhoneIsPreferred:   origPhoneIsPreferred,
+				EmailIsPreferred:   origEmailIsPreferred,
+			},
+		},
+		{
+			Model:    origDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.OriginDutyLocation,
+		},
+	}, nil)
 
 	orderGrade := (string)(models.ServiceMemberRankE5)
-	testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-		Order: models.Order{
-			ServiceMember:        newServiceMember,
-			ServiceMemberID:      newServiceMember.ID,
-			OriginDutyLocation:   &origDutyLocation,
-			OriginDutyLocationID: &origDutyLocation.ID,
-			Grade:                &orderGrade,
+	factory.BuildMove(suite.DB(), []factory.Customization{
+		{
+			Model: models.Order{
+				Grade: &orderGrade,
+			},
 		},
-	})
+		{
+			Model:    origDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.OriginDutyLocation,
+		},
+		{
+			Model:    newServiceMember,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	rank := internalmessages.ServiceMemberRankE1
 	resAddress := fakeAddressPayload()
@@ -350,64 +357,83 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
 	newDutyLocation := factory.FetchOrBuildOrdersDutyLocation(suite.DB())
 	newDutyLocationID := strfmt.UUID(newDutyLocation.ID.String())
 
-	origFirstName := swag.String("random string bla")
-	newFirstName := swag.String("John")
+	origFirstName := models.StringPointer("random string bla")
+	newFirstName := models.StringPointer("John")
 
-	origMiddleName := swag.String("random string bla")
-	newMiddleName := swag.String("")
+	origMiddleName := models.StringPointer("random string bla")
+	newMiddleName := models.StringPointer("")
 
-	origLastName := swag.String("random string bla")
-	newLastName := swag.String("Doe")
+	origLastName := models.StringPointer("random string bla")
+	newLastName := models.StringPointer("Doe")
 
-	origSuffix := swag.String("random string bla")
-	newSuffix := swag.String("Mr.")
+	origSuffix := models.StringPointer("random string bla")
+	newSuffix := models.StringPointer("Mr.")
 
-	origTelephone := swag.String("random string bla")
-	newTelephone := swag.String("555-555-5555")
+	origTelephone := models.StringPointer("random string bla")
+	newTelephone := models.StringPointer("555-555-5555")
 
-	origSecondaryTelephone := swag.String("random string bla")
-	newSecondaryTelephone := swag.String("555-555-5555")
+	origSecondaryTelephone := models.StringPointer("random string bla")
+	newSecondaryTelephone := models.StringPointer("555-555-5555")
 
-	origPersonalEmail := swag.String("wml@example.com")
-	newPersonalEmail := swag.String("example@email.com")
+	origPersonalEmail := models.StringPointer("wml@example.com")
+	newPersonalEmail := models.StringPointer("example@email.com")
 
-	origPhoneIsPreferred := swag.Bool(false)
-	newPhoneIsPreferred := swag.Bool(true)
+	origPhoneIsPreferred := models.BoolPointer(false)
+	newPhoneIsPreferred := models.BoolPointer(true)
 
-	origEmailIsPreferred := swag.Bool(true)
-	newEmailIsPreferred := swag.Bool(false)
+	origEmailIsPreferred := models.BoolPointer(true)
+	newEmailIsPreferred := models.BoolPointer(false)
 
-	newServiceMember := models.ServiceMember{
-		UserID:             user.ID,
-		Edipi:              &edipi,
-		Rank:               &origRank,
-		Affiliation:        &origAffiliation,
-		DutyLocationID:     &origDutyLocation.ID,
-		DutyLocation:       origDutyLocation,
-		FirstName:          origFirstName,
-		MiddleName:         origMiddleName,
-		LastName:           origLastName,
-		Suffix:             origSuffix,
-		Telephone:          origTelephone,
-		SecondaryTelephone: origSecondaryTelephone,
-		PersonalEmail:      origPersonalEmail,
-		PhoneIsPreferred:   origPhoneIsPreferred,
-		EmailIsPreferred:   origEmailIsPreferred,
-	}
-	suite.MustSave(&newServiceMember)
-
-	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-		ServiceMember: newServiceMember,
-		Order: models.Order{
-			ServiceMemberID:   newServiceMember.ID,
-			ServiceMember:     newServiceMember,
-			NewDutyLocationID: newDutyLocation.ID,
-			NewDutyLocation:   newDutyLocation,
+	newServiceMember := factory.BuildServiceMember(suite.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				UserID:             user.ID,
+				Edipi:              &edipi,
+				Rank:               &origRank,
+				Affiliation:        &origAffiliation,
+				FirstName:          origFirstName,
+				MiddleName:         origMiddleName,
+				LastName:           origLastName,
+				Suffix:             origSuffix,
+				Telephone:          origTelephone,
+				SecondaryTelephone: origSecondaryTelephone,
+				PersonalEmail:      origPersonalEmail,
+				PhoneIsPreferred:   origPhoneIsPreferred,
+				EmailIsPreferred:   origEmailIsPreferred,
+			},
 		},
-		OriginDutyLocation: origDutyLocation,
-	})
+		{
+			Model:    origDutyLocation,
+			LinkOnly: true,
+		},
+	}, nil)
 
-	// The testdatagen sets these values, fails if you try to blank them out via Assertions,
+	move := factory.BuildMove(suite.DB(), []factory.Customization{
+		{
+			Model: models.Order{
+				TAC:                 nil,
+				DepartmentIndicator: nil,
+				OrdersNumber:        nil,
+				OrdersTypeDetail:    nil,
+			},
+		},
+		{
+			Model:    newServiceMember,
+			LinkOnly: true,
+		},
+		{
+			Model:    origDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.OriginDutyLocation,
+		},
+		{
+			Model:    newDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.NewDutyLocation,
+		},
+	}, nil)
+
+	// The factory sets these values, fails if you try to blank them out via Customizations,
 	// and gives defaults if you pass nil, so we have to set this after the creation.
 	// This more closely resembles what orders would look like pre and post submission, before
 	// a TOO gets to them.
@@ -418,13 +444,13 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
 
 	suite.MustSave(&move.Orders)
 	moveRouter := moverouter.NewMoveRouter()
-	newSignedCertification := testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
-		SignedCertification: models.SignedCertification{
-			SubmittingUserID: newServiceMember.UserID,
-			MoveID:           move.ID,
+	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-		Stub: true,
-	})
+	}, nil)
+
 	err := moveRouter.Submit(suite.AppContextForTest(), &move, &newSignedCertification)
 	suite.NoError(err)
 	suite.MustSave(&move)
@@ -594,14 +620,13 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerNoChange() {
 }
 
 func (suite *HandlerSuite) TestShowServiceMemberOrders() {
-	order1 := testdatagen.MakeDefaultOrder(suite.DB())
-	order2Assertions := testdatagen.Assertions{
-		Order: models.Order{
-			ServiceMember:   order1.ServiceMember,
-			ServiceMemberID: order1.ServiceMemberID,
+	order1 := factory.BuildOrder(suite.DB(), nil, nil)
+	order2 := factory.BuildOrder(suite.DB(), []factory.Customization{
+		{
+			Model:    order1.ServiceMember,
+			LinkOnly: true,
 		},
-	}
-	order2 := testdatagen.MakeOrder(suite.DB(), order2Assertions)
+	}, nil)
 
 	req := httptest.NewRequest("GET", "/service_members/some_id/current_orders", nil)
 	req = suite.AuthenticateRequest(req, order1.ServiceMember)

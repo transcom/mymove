@@ -1,9 +1,6 @@
 package testdatagen
 
 import (
-	"database/sql"
-	"log"
-
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
 
@@ -82,35 +79,4 @@ func setServiceParamIDs(db *pop.Connection, serviceParam *models.ServiceParam, a
 	} else if assertions.ServiceItemParamKey.ID != uuid.Nil {
 		serviceParam.ServiceItemParamKeyID = assertions.ServiceItemParamKey.ID
 	}
-}
-
-func FetchOrMakeServiceParam(db *pop.Connection, assertions Assertions) models.ServiceParam {
-	// ServiceID and ServiceItemParmKeyID are unique to the ServiceParam and must be set unless creating with defaults
-	if (assertions.ServiceParam.ServiceID == uuid.Nil && assertions.ServiceParam.Service.ID == uuid.Nil && assertions.ReService.ID == uuid.Nil) ||
-		(assertions.ServiceParam.ServiceItemParamKeyID == uuid.Nil &&
-			assertions.ServiceParam.ServiceItemParamKey.ID == uuid.Nil &&
-			assertions.ServiceItemParamKey.ID == uuid.Nil) {
-		return MakeServiceParam(db, assertions)
-	}
-
-	serviceParam := models.ServiceParam{}
-
-	setServiceParamIDs(db, &serviceParam, assertions)
-
-	existingServiceParam := models.ServiceParam{}
-	err := db.Where("service_params.service_id = ? AND service_params.service_item_param_key_id = ?", serviceParam.ServiceID, serviceParam.ServiceItemParamKeyID).First(&existingServiceParam)
-	if err != nil && err != sql.ErrNoRows {
-		log.Panic(err)
-	}
-
-	if existingServiceParam.ID == uuid.Nil {
-		return MakeServiceParam(db, assertions)
-	}
-
-	return existingServiceParam
-}
-
-// MakeDefaultServiceParam makes a ServiceParam with default values
-func MakeDefaultServiceParam(db *pop.Connection) models.ServiceParam {
-	return MakeServiceParam(db, Assertions{})
 }

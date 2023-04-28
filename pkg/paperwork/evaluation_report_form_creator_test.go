@@ -3,13 +3,17 @@ package paperwork
 import (
 	"github.com/spf13/afero"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func setupTestData(suite *PaperworkSuite) (models.EvaluationReport, models.ReportViolations, models.MTOShipments, models.ServiceMember) {
-	report := testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{})
-	shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{Move: report.Move})
+	report := factory.BuildEvaluationReport(suite.DB(), nil, nil)
+	shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{{
+		Model:    report.Move,
+		LinkOnly: true,
+	}}, nil)
 	violations := testdatagen.MakeReportViolation(suite.DB(), testdatagen.Assertions{Report: report})
 	return report, models.ReportViolations{violations}, models.MTOShipments{shipment}, report.Move.Orders.ServiceMember
 }

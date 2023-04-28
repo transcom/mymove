@@ -5,7 +5,6 @@ import (
 	"net/http/httptest"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
 
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/factory"
@@ -15,7 +14,6 @@ import (
 	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
 	"github.com/transcom/mymove/pkg/models"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 // isAddressEqual compares 2 addresses
@@ -38,7 +36,7 @@ func isAddressEqual(suite *HandlerSuite, reqAddress *primemessages.Address, resp
 func (suite *HandlerSuite) TestUpdateMTOShipmentAddressHandler() {
 	setupTestData := func() (UpdateMTOShipmentAddressHandler, models.Move) {
 		// Make an available MTO
-		availableMove := testdatagen.MakeAvailableMove(suite.DB())
+		availableMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
 		// Create handler
 		handler := UpdateMTOShipmentAddressHandler{
@@ -61,9 +59,12 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressHandler() {
 		// Under Test: UpdateMTOShipmentAddress handler code and mtoShipmentAddressUpdater service object
 		handler, availableMove := setupTestData()
 		// Make a shipment on the available MTO
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: availableMove,
-		})
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    availableMove,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		// Update with new address
 		payload := payloads.Address(&newAddress)
@@ -96,13 +97,16 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressHandler() {
 		// Expected:   Success response 200
 		// Under Test: UpdateMTOShipmentAddress handler code and mtoShipmentAddressUpdater service object
 		handler, availableMove := setupTestData()
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: availableMove,
-		})
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    availableMove,
+				LinkOnly: true,
+			},
+		}, nil)
 		newAddress2 := models.Address{
 			StreetAddress1: "7 Q St",
-			StreetAddress2: swag.String("6622 Airport Way S #1430"),
-			StreetAddress3: swag.String("441 SW Río de la Plata Drive"),
+			StreetAddress2: models.StringPointer("6622 Airport Way S #1430"),
+			StreetAddress3: models.StringPointer("441 SW Río de la Plata Drive"),
 			City:           "Alameda",
 			State:          "CA",
 			PostalCode:     "94055",
@@ -142,11 +146,13 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressHandler() {
 		handler, _ := setupTestData()
 		// Make a shipment with an unavailable MTO
 		pickupAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
-		shipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				PickupAddress: &pickupAddress,
+		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model:    pickupAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.PickupAddress,
 			},
-		})
+		}, nil)
 
 		// Update with new address
 		payload := payloads.Address(&newAddress)
@@ -176,9 +182,12 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressHandler() {
 		// Expected:   Conflict error is returned
 		// Under Test: UpdateMTOShipmentAddress handler code and mtoShipmentAddressUpdater service object
 		handler, availableMove := setupTestData()
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: availableMove,
-		})
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    availableMove,
+				LinkOnly: true,
+			},
+		}, nil)
 		// Make a random address that is not associated
 		randomAddress := factory.BuildAddress(suite.DB(), nil, nil)
 
@@ -209,9 +218,12 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressHandler() {
 		// Expected:   PreconditionFailed error is returned
 		// Under Test: UpdateMTOShipmentAddress handler code and mtoShipmentAddressUpdater service object
 		handler, availableMove := setupTestData()
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: availableMove,
-		})
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    availableMove,
+				LinkOnly: true,
+			},
+		}, nil)
 		// Update with new address with a bad etag
 		payload := payloads.Address(&newAddress)
 		req := httptest.NewRequest("PUT", fmt.Sprintf("/mto-shipments/%s/addresses/%s", shipment.ID.String(), shipment.ID.String()), nil)

@@ -3,14 +3,11 @@ package internalapi
 import (
 	"net/http/httptest"
 
-	"github.com/go-openapi/swag"
-
 	"github.com/transcom/mymove/pkg/factory"
 	userop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/users"
 	"github.com/transcom/mymove/pkg/models"
 	officeuser "github.com/transcom/mymove/pkg/services/office_user"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *HandlerSuite) TestUnknownLoggedInUserHandler() {
@@ -60,7 +57,7 @@ func (suite *HandlerSuite) TestServiceMemberNoTransportationOfficeLoggedInUserHa
 
 	suite.Run("new duty location missing", func() {
 		// add orders
-		order := testdatagen.MakeOrderWithoutDefaults(suite.DB(), testdatagen.Assertions{})
+		order := factory.BuildOrderWithoutDefaults(suite.DB(), nil, nil)
 
 		sm := order.ServiceMember
 
@@ -92,12 +89,13 @@ func (suite *HandlerSuite) TestServiceMemberNoTransportationOfficeLoggedInUserHa
 }
 
 func (suite *HandlerSuite) TestServiceMemberNoMovesLoggedInUserHandler() {
-
-	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			Show: swag.Bool(false),
+	move := factory.BuildMove(suite.DB(), []factory.Customization{
+		{
+			Model: models.Move{
+				Show: models.BoolPointer(false),
+			},
 		},
-	})
+	}, nil)
 
 	req := httptest.NewRequest("GET", "/users/logged_in", nil)
 	req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
@@ -119,12 +117,14 @@ func (suite *HandlerSuite) TestServiceMemberNoMovesLoggedInUserHandler() {
 }
 
 func (suite *HandlerSuite) TestServiceMemberWithCloseoutOfficeHandler() {
-	closeoutOffice := testdatagen.MakeTransportationOffice(suite.DB(), testdatagen.Assertions{})
-	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			CloseoutOffice: &closeoutOffice,
+	closeoutOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+	move := factory.BuildMove(suite.DB(), []factory.Customization{
+		{
+			Model:    closeoutOffice,
+			LinkOnly: true,
+			Type:     &factory.TransportationOffices.CloseoutOffice,
 		},
-	})
+	}, nil)
 	orders := move.Orders
 	orders.Moves = append(orders.Moves, move)
 
@@ -154,9 +154,8 @@ func (suite *HandlerSuite) TestServiceMemberWithCloseoutOfficeHandler() {
 }
 
 func (suite *HandlerSuite) TestServiceMemberWithNoCloseoutOfficeHandler() {
-	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
-	move.CloseoutOffice = nil
-	suite.MustSave(&move)
+	// factory.BuildMove doesn't create a CloseoutOffice unless it's passed in via customizations
+	move := factory.BuildMove(suite.DB(), nil, nil)
 
 	orders := move.Orders
 	orders.Moves = append(orders.Moves, move)

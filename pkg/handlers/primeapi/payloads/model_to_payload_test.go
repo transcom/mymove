@@ -8,6 +8,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/factory"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -20,10 +21,11 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 	referenceID := "testID"
 	primeTime := time.Now()
 	submittedAt := time.Now()
-	hhgMoveType := models.SelectedMoveTypeHHG
 	excessWeightQualifiedAt := time.Now()
 	excessWeightAcknowledgedAt := time.Now()
 	excessWeightUploadID := uuid.Must(uuid.NewV4())
+	ordersType := primemessages.OrdersTypeRETIREMENT
+	originDutyGBLOC := "KKFA"
 
 	basicMove := models.Move{
 		ID:                         moveTaskOrderID,
@@ -31,12 +33,11 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 		CreatedAt:                  time.Now(),
 		AvailableToPrimeAt:         &primeTime,
 		OrdersID:                   ordersID,
-		Orders:                     models.Order{},
+		Orders:                     models.Order{OrdersType: internalmessages.OrdersType(ordersType), OriginDutyLocationGBLOC: &originDutyGBLOC},
 		ReferenceID:                &referenceID,
 		PaymentRequests:            models.PaymentRequests{},
 		SubmittedAt:                &submittedAt,
 		UpdatedAt:                  time.Now(),
-		SelectedMoveType:           &hhgMoveType,
 		PersonallyProcuredMoves:    models.PersonallyProcuredMoves{},
 		Status:                     models.MoveStatusAPPROVED,
 		SignedCertifications:       models.SignedCertifications{},
@@ -56,6 +57,8 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 		suite.Equal(strfmt.DateTime(basicMove.CreatedAt), returnedModel.CreatedAt)
 		suite.Equal(handlers.FmtDateTimePtr(basicMove.AvailableToPrimeAt), returnedModel.AvailableToPrimeAt)
 		suite.Equal(strfmt.UUID(basicMove.OrdersID.String()), returnedModel.OrderID)
+		suite.Equal(ordersType, returnedModel.Order.OrdersType)
+		suite.Equal(originDutyGBLOC, returnedModel.Order.OriginDutyLocationGBLOC)
 		suite.Equal(referenceID, returnedModel.ReferenceID)
 		suite.Equal(strfmt.DateTime(basicMove.UpdatedAt), returnedModel.UpdatedAt)
 		suite.NotEmpty(returnedModel.ETag)
@@ -201,7 +204,7 @@ func (suite *PayloadsSuite) TestSitExtension() {
 	createdAt := time.Now()
 	updatedAt := time.Now()
 
-	sitExtension := models.SITExtension{
+	sitDurationUpdate := models.SITDurationUpdate{
 		ID:            id,
 		MTOShipmentID: shipmentID,
 		CreatedAt:     createdAt,
@@ -212,13 +215,13 @@ func (suite *PayloadsSuite) TestSitExtension() {
 	}
 
 	suite.Run("Success - Returns a sitextension payload without optional fields", func() {
-		returnedPayload := SITExtension(&sitExtension)
+		returnedPayload := SITDurationUpdate(&sitDurationUpdate)
 
 		suite.IsType(&primemessages.SITExtension{}, returnedPayload)
-		suite.Equal(strfmt.UUID(sitExtension.ID.String()), returnedPayload.ID)
-		suite.Equal(strfmt.UUID(sitExtension.MTOShipmentID.String()), returnedPayload.MtoShipmentID)
-		suite.Equal(strfmt.DateTime(sitExtension.CreatedAt), returnedPayload.CreatedAt)
-		suite.Equal(strfmt.DateTime(sitExtension.UpdatedAt), returnedPayload.UpdatedAt)
+		suite.Equal(strfmt.UUID(sitDurationUpdate.ID.String()), returnedPayload.ID)
+		suite.Equal(strfmt.UUID(sitDurationUpdate.MTOShipmentID.String()), returnedPayload.MtoShipmentID)
+		suite.Equal(strfmt.DateTime(sitDurationUpdate.CreatedAt), returnedPayload.CreatedAt)
+		suite.Equal(strfmt.DateTime(sitDurationUpdate.UpdatedAt), returnedPayload.UpdatedAt)
 		suite.Nil(returnedPayload.ApprovedDays)
 		suite.Nil(returnedPayload.ContractorRemarks)
 		suite.Nil(returnedPayload.OfficeRemarks)
@@ -227,32 +230,32 @@ func (suite *PayloadsSuite) TestSitExtension() {
 
 	})
 
-	suite.Run("Success - Returns a sit extension payload with optional fields", func() {
+	suite.Run("Success - Returns a sit duration update payload with optional fields", func() {
 		// Set optional fields
 		approvedDays := int(30)
-		sitExtension.ApprovedDays = &approvedDays
+		sitDurationUpdate.ApprovedDays = &approvedDays
 
 		contractorRemarks := "some reason"
-		sitExtension.ContractorRemarks = &contractorRemarks
+		sitDurationUpdate.ContractorRemarks = &contractorRemarks
 
 		officeRemarks := "some other reason"
-		sitExtension.OfficeRemarks = &officeRemarks
+		sitDurationUpdate.OfficeRemarks = &officeRemarks
 
 		decisionDate := time.Now()
-		sitExtension.DecisionDate = &decisionDate
+		sitDurationUpdate.DecisionDate = &decisionDate
 
 		// Send model through func
-		returnedPayload := SITExtension(&sitExtension)
+		returnedPayload := SITDurationUpdate(&sitDurationUpdate)
 
 		suite.IsType(&primemessages.SITExtension{}, returnedPayload)
-		suite.Equal(strfmt.UUID(sitExtension.ID.String()), returnedPayload.ID)
-		suite.Equal(strfmt.UUID(sitExtension.MTOShipmentID.String()), returnedPayload.MtoShipmentID)
-		suite.Equal(strfmt.DateTime(sitExtension.CreatedAt), returnedPayload.CreatedAt)
-		suite.Equal(strfmt.DateTime(sitExtension.UpdatedAt), returnedPayload.UpdatedAt)
-		suite.Equal(handlers.FmtIntPtrToInt64(sitExtension.ApprovedDays), returnedPayload.ApprovedDays)
-		suite.Equal(sitExtension.ContractorRemarks, returnedPayload.ContractorRemarks)
-		suite.Equal(sitExtension.OfficeRemarks, returnedPayload.OfficeRemarks)
-		suite.Equal((*strfmt.DateTime)(sitExtension.DecisionDate), returnedPayload.DecisionDate)
+		suite.Equal(strfmt.UUID(sitDurationUpdate.ID.String()), returnedPayload.ID)
+		suite.Equal(strfmt.UUID(sitDurationUpdate.MTOShipmentID.String()), returnedPayload.MtoShipmentID)
+		suite.Equal(strfmt.DateTime(sitDurationUpdate.CreatedAt), returnedPayload.CreatedAt)
+		suite.Equal(strfmt.DateTime(sitDurationUpdate.UpdatedAt), returnedPayload.UpdatedAt)
+		suite.Equal(handlers.FmtIntPtrToInt64(sitDurationUpdate.ApprovedDays), returnedPayload.ApprovedDays)
+		suite.Equal(sitDurationUpdate.ContractorRemarks, returnedPayload.ContractorRemarks)
+		suite.Equal(sitDurationUpdate.OfficeRemarks, returnedPayload.OfficeRemarks)
+		suite.Equal((*strfmt.DateTime)(sitDurationUpdate.DecisionDate), returnedPayload.DecisionDate)
 		suite.NotNil(returnedPayload.ETag)
 
 	})

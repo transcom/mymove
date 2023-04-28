@@ -7,10 +7,10 @@ import (
 	"time"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/factory"
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -18,7 +18,6 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	mtoagent "github.com/transcom/mymove/pkg/services/mto_agent"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 type updateMTOAgentSubtestData struct {
@@ -32,9 +31,13 @@ type updateMTOAgentSubtestData struct {
 func (suite *HandlerSuite) makeUpdateMTOAgentSubtestData() (subtestData *updateMTOAgentSubtestData) {
 	subtestData = &updateMTOAgentSubtestData{}
 	// Set up db objects
-	subtestData.agent = testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
-		Move: testdatagen.MakeAvailableMove(suite.DB()),
-	})
+	move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+	subtestData.agent = factory.BuildMTOAgent(suite.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	firstName := "Carol"
 	lastName := "Romilly"
@@ -223,7 +226,7 @@ func (suite *HandlerSuite) TestUpdateMTOAgentHandler() {
 	// Test not Prime-available (not found response)
 	suite.Run("404 - Not available response", func() {
 		subtestData := suite.makeUpdateMTOAgentSubtestData()
-		unavailableAgent := testdatagen.MakeDefaultMTOAgent(suite.DB()) // default is not available to Prime
+		unavailableAgent := factory.BuildMTOAgent(suite.DB(), nil, nil) // default is not available to Prime
 
 		payload := payloads.MTOAgent(&unavailableAgent)
 		params := mtoshipmentops.UpdateMTOAgentParams{
@@ -263,10 +266,13 @@ func (suite *HandlerSuite) makeCreateMTOAgentSubtestData() (subtestData *createM
 	subtestData = &createMTOAgentSubtestData{}
 
 	// Create new mtoShipment with no agents
-	subtestData.move = testdatagen.MakeAvailableMove(suite.DB())
-	subtestData.mtoShipment = testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-		Move: subtestData.move,
-	})
+	subtestData.move = factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+	subtestData.mtoShipment = factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+		{
+			Model:    subtestData.move,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	const agentTypeReceiving = "RECEIVING_AGENT"
 	const agentTypeReleasing = "RELEASING_AGENT"
@@ -274,22 +280,22 @@ func (suite *HandlerSuite) makeCreateMTOAgentSubtestData() (subtestData *createM
 	// Create valid Receiving Agent payload for the shipment
 	subtestData.receivingAgent = &primemessages.MTOAgent{
 
-		FirstName:     swag.String("Riley"),
-		LastName:      swag.String("Baker"),
+		FirstName:     models.StringPointer("Riley"),
+		LastName:      models.StringPointer("Baker"),
 		AgentType:     agentTypeReceiving,
-		Email:         swag.String("rileybaker@example.com"),
-		Phone:         swag.String("555-555-5555"),
+		Email:         models.StringPointer("rileybaker@example.com"),
+		Phone:         models.StringPointer("555-555-5555"),
 		MtoShipmentID: strfmt.UUID(subtestData.mtoShipment.ID.String()),
 	}
 
 	// Create valid Releasing Agent payload for the shipment
 	subtestData.releasingAgent = &primemessages.MTOAgent{
 
-		FirstName:     swag.String("Jason"),
-		LastName:      swag.String("Ash"),
+		FirstName:     models.StringPointer("Jason"),
+		LastName:      models.StringPointer("Ash"),
 		AgentType:     agentTypeReleasing,
-		Email:         swag.String("jasonash@example.com"),
-		Phone:         swag.String("555-555-5555"),
+		Email:         models.StringPointer("jasonash@example.com"),
+		Phone:         models.StringPointer("555-555-5555"),
 		MtoShipmentID: strfmt.UUID(subtestData.mtoShipment.ID.String()),
 	}
 
@@ -429,9 +435,12 @@ func (suite *HandlerSuite) TestCreateMTOAgentHandler() {
 		// Set up: 		Pass an invalid payload for a releasing agent.
 		// Expected:	Handler returns 422 Unprocessable Entity Error.
 		subtestData := suite.makeCreateMTOAgentSubtestData()
-		newMTOShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: subtestData.move,
-		})
+		newMTOShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    subtestData.move,
+				LinkOnly: true,
+			},
+		}, nil)
 		subtestData.releasingAgent.MtoShipmentID = strfmt.UUID(newMTOShipment.ID.String())
 		empty := ""
 

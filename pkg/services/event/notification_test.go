@@ -3,7 +3,6 @@ package event
 import (
 	"time"
 
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/factory"
@@ -20,15 +19,19 @@ func (suite *EventServiceSuite) Test_MTOServiceItemPayload() {
 		// Mocked:     None
 		// Set up:     Create a DOFSIT in the db, assemble the webhook notification payload
 		// Expected outcome: Payload should contain the DOFSIT details
-		mtoServiceItemDOFSIT := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				AvailableToPrimeAt: &now,
+		mtoServiceItemDOFSIT := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					AvailableToPrimeAt: &now,
+				},
 			},
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDOFSIT,
-				Name: "Destination 1st Day SIT",
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDOFSIT,
+					Name: "Destination 1st Day SIT",
+				},
 			},
-		})
+		}, nil)
 		data := &primemessages.MTOServiceItemOriginSIT{}
 
 		payload, assemblePayloadErr := assembleMTOServiceItemPayload(suite.AppContextForTest(), mtoServiceItemDOFSIT.ID)
@@ -47,15 +50,19 @@ func (suite *EventServiceSuite) Test_MTOServiceItemPayload() {
 		// Under test: assembleMTOServiceItemPayload
 		// Set up:     Create a DDFSIT in the db, assemble the webhook notification payload
 		// Expected outcome: Payload should contain the DDFSIT details
-		mtoServiceItemDDFSIT := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				AvailableToPrimeAt: &now,
+		mtoServiceItemDDFSIT := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					AvailableToPrimeAt: &now,
+				},
 			},
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDDFSIT,
-				Name: "Destination 1st Day SIT",
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDFSIT,
+					Name: "Destination 1st Day SIT",
+				},
 			},
-		})
+		}, nil)
 		customerContact1 := testdatagen.MakeMTOServiceItemCustomerContact(suite.DB(), testdatagen.Assertions{
 			MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
 				MTOServiceItemID:           mtoServiceItemDDFSIT.ID,
@@ -99,39 +106,53 @@ func (suite *EventServiceSuite) Test_MTOServiceItemPayload() {
 		// Under test: assembleMTOServiceItemPayload
 		// Set up:     Create a DCRT in the db, assemble the webhook notification payload
 		// Expected outcome: Payload should contain the DCRT details
-		mtoServiceItemDCRT := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				AvailableToPrimeAt: &now,
+		mtoServiceItemDCRT := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					AvailableToPrimeAt: &now,
+				},
 			},
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDCRT,
-				Name: "Dom. Crating",
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDCRT,
+					Name: "Dom. Crating",
+				},
 			},
-		})
+		}, nil)
 
-		itemDimension1 := testdatagen.MakeMTOServiceItemDimension(suite.DB(), testdatagen.Assertions{
-			MTOServiceItemDimension: models.MTOServiceItemDimension{
-				Type:      models.DimensionTypeItem,
-				Length:    900,
-				Height:    900,
-				Width:     900,
-				CreatedAt: time.Time{},
-				UpdatedAt: time.Time{},
+		itemDimension1 := factory.BuildMTOServiceItemDimension(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItemDimension{
+					Type:      models.DimensionTypeItem,
+					Length:    900,
+					Height:    900,
+					Width:     900,
+					CreatedAt: time.Time{},
+					UpdatedAt: time.Time{},
+				},
 			},
-			MTOServiceItem: mtoServiceItemDCRT,
-		})
+			{
+				Model:    mtoServiceItemDCRT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		crateDimension1 := testdatagen.MakeMTOServiceItemDimension(suite.DB(), testdatagen.Assertions{
-			MTOServiceItemDimension: models.MTOServiceItemDimension{
-				MTOServiceItemID: mtoServiceItemDCRT.ID,
-				Type:             models.DimensionTypeCrate,
-				Length:           2000,
-				Height:           2000,
-				Width:            2000,
-				CreatedAt:        time.Time{},
-				UpdatedAt:        time.Time{},
+		crateDimension1 := factory.BuildMTOServiceItemDimension(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItemDimension{
+					Type:      models.DimensionTypeCrate,
+					Length:    2000,
+					Height:    2000,
+					Width:     2000,
+					CreatedAt: time.Time{},
+					UpdatedAt: time.Time{},
+				},
 			},
-		})
+			{
+				Model:    mtoServiceItemDCRT,
+				LinkOnly: true,
+			},
+		}, nil)
 		data := &primemessages.MTOServiceItemDomesticCrating{}
 
 		payload, assemblePayloadErr := assembleMTOServiceItemPayload(suite.AppContextForTest(), mtoServiceItemDCRT.ID)
@@ -151,18 +172,24 @@ func (suite *EventServiceSuite) Test_MTOServiceItemPayload() {
 	suite.Run("Success with MTOServiceItemDOSHUT", func() {
 		testString := "Lorem ipsum"
 
-		mtoServiceItemDOSHUT := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				AvailableToPrimeAt: &now,
+		mtoServiceItemDOSHUT := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					AvailableToPrimeAt: &now,
+				},
 			},
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDOSHUT,
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDOSHUT,
+				},
 			},
-			MTOServiceItem: models.MTOServiceItem{
-				Description: &testString,
-				Reason:      &testString,
+			{
+				Model: models.MTOServiceItem{
+					Description: &testString,
+					Reason:      &testString,
+				},
 			},
-		})
+		}, nil)
 		data := &primemessages.MTOServiceItemShuttle{}
 
 		payload, assemblePayloadErr := assembleMTOServiceItemPayload(suite.AppContextForTest(), mtoServiceItemDOSHUT.ID)
@@ -182,7 +209,7 @@ func (suite *EventServiceSuite) Test_MTOServiceItemPayload() {
 func (suite *EventServiceSuite) TestAssembleOrderPayload() {
 
 	suite.Run("Success with default Order", func() {
-		order := testdatagen.MakeDefaultOrder(suite.DB())
+		order := factory.BuildOrder(suite.DB(), nil, nil)
 		payload, err := assembleOrderPayload(suite.AppContextForTest(), order.ID)
 		suite.FatalNoError(err)
 
@@ -213,22 +240,40 @@ func (suite *EventServiceSuite) TestAssembleMTOShipmentPayload() {
 		destinationAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress3})
 		secondaryDeliveryAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress4})
 
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				PickupAddress:            &pickupAddress,
-				SecondaryPickupAddress:   &secondaryPickupAddress,
-				DestinationAddress:       &destinationAddress,
-				SecondaryDeliveryAddress: &secondaryDeliveryAddress,
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    pickupAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.PickupAddress,
 			},
-			Move: models.Move{
-				AvailableToPrimeAt: swag.Time(time.Now()),
+			{
+				Model:    secondaryPickupAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.SecondaryPickupAddress,
 			},
-		})
+			{
+				Model:    destinationAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.DeliveryAddress,
+			},
+			{
+				Model:    secondaryDeliveryAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.SecondaryDeliveryAddress,
+			},
+			{
+				Model: models.Move{
+					AvailableToPrimeAt: models.TimePointer(time.Now()),
+				},
+			},
+		}, nil)
 
-		agent := testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
-			MTOShipment: shipment,
-		})
-
+		agent := factory.BuildMTOAgent(suite.DB(), []factory.Customization{
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+		}, nil)
 		// Test the assemble function
 		payload, shouldNotify, err := assembleMTOShipmentPayload(suite.AppContextForTest(), shipment.ID)
 		suite.Nil(err)
@@ -248,14 +293,18 @@ func (suite *EventServiceSuite) TestAssembleMTOShipmentPayload() {
 
 	suite.Run("External shipment reports that it should not notify", func() {
 		// Setup test data
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				UsesExternalVendor: true,
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					UsesExternalVendor: true,
+				},
 			},
-			Move: models.Move{
-				AvailableToPrimeAt: swag.Time(time.Now()),
+			{
+				Model: models.Move{
+					AvailableToPrimeAt: models.TimePointer(time.Now()),
+				},
 			},
-		})
+		}, nil)
 
 		// Test the assemble function
 		payload, shouldNotify, err := assembleMTOShipmentPayload(suite.AppContextForTest(), shipment.ID)

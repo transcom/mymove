@@ -51,6 +51,10 @@ func (suite *FactorySuite) TestBuildDutyLocation() {
 		suite.Equal(defaultOffice.Gbloc, dutyLocation.TransportationOffice.Gbloc)
 		suite.Equal(defaultOffice.Latitude, dutyLocation.TransportationOffice.Latitude)
 		suite.Equal(defaultOffice.Longitude, dutyLocation.TransportationOffice.Longitude)
+
+		gblocForPostalCode, err := models.FetchGBLOCForPostalCode(suite.DB(), dutyLocation.Address.PostalCode)
+		suite.NoError(err)
+		suite.Equal(gblocForPostalCode.GBLOC, defaultOffice.Gbloc)
 	})
 
 	suite.Run("Successful creation of customized DutyLocation", func() {
@@ -137,6 +141,68 @@ func (suite *FactorySuite) TestBuildDutyLocation() {
 		suite.Equal(customDutyLocationAddress.StreetAddress1, dutyLocation.Address.StreetAddress1)
 		// Check that Transportation Office Address is different
 		suite.NotEqual(dutyLocation.Address.StreetAddress1, dutyLocation.TransportationOffice.Address.StreetAddress1)
+	})
+
+	suite.Run("Successful creation of default duty location without transportation office", func() {
+		// Under test:       BuildDutyLocation
+		// Mocked:           None
+		// Set up:           Create a Duty Location with no customizations
+		//                   using the GetTraitNoAssociatedTransportationOfficeDutyLocation trait
+		// Expected outcome: Duty Location should be created with default values
+		//                   but not have an associated transportation office
+		emptyOffice := models.TransportationOffice{}
+		defaultAddress := models.Address{
+			StreetAddress1: "987 Other Avenue",
+		}
+
+		// CALL FUNCTION UNDER TEST
+		dutyLocation := BuildDutyLocationWithoutTransportationOffice(suite.DB(), nil, nil)
+
+		// VALIDATE RESULTS
+		suite.Equal(defaultAffiliation, *dutyLocation.Affiliation)
+		// Check that address was hooked in
+		suite.Equal(defaultAddress.StreetAddress1, dutyLocation.Address.StreetAddress1)
+		// Check that no transportation office is associated with the move
+		suite.Equal(uuid.Nil, dutyLocation.TransportationOffice.ID)
+		suite.Equal(emptyOffice, dutyLocation.TransportationOffice)
+	})
+
+	suite.Run("Successful creation of customized duty location without transportation office", func() {
+		// Under test:       BuildDutyLocation
+		// Mocked:           None
+		// Set up:           Create a Duty Location with customizations and
+		//                   using the GetTraitNoAssociatedTransportationOfficeDutyLocation trait
+		// Expected outcome: Duty Location should be created with default values
+		//                   but not have an associated transportation office
+		emptyOffice := models.TransportationOffice{}
+
+		customAddress := models.Address{
+			StreetAddress1: "123 Any Street",
+		}
+
+		customAffiliation := internalmessages.AffiliationNAVY
+
+		customDutyLocation := models.DutyLocation{
+			ID:          uuid.Must(uuid.NewV4()),
+			Affiliation: &customAffiliation,
+		}
+
+		// CALL FUNCTION UNDER TEST
+		dutyLocation := BuildDutyLocationWithoutTransportationOffice(
+			suite.DB(),
+			[]Customization{
+				{Model: customDutyLocation},
+				{Model: customAddress},
+			},
+			nil)
+
+		// VALIDATE RESULTS
+		suite.Equal(customAffiliation, *dutyLocation.Affiliation)
+		// Check that address was hooked in
+		suite.Equal(customAddress.StreetAddress1, dutyLocation.Address.StreetAddress1)
+		// Check that no transportation office is associated with the move
+		suite.Equal(uuid.Nil, dutyLocation.TransportationOffice.ID)
+		suite.Equal(emptyOffice, dutyLocation.TransportationOffice)
 	})
 
 	suite.Run("Successful return of linkOnly DutyLocation", func() {

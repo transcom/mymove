@@ -25,11 +25,13 @@ func (suite *GHCRateEngineServiceSuite) TestPriceServiceItem() {
 		suite.setupPriceServiceItemData()
 		serviceItemPricer := NewServiceItemPricer()
 
-		badPaymentServiceItem := testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
-			ReService: models.ReService{
-				Code: "BOGUS",
+		badPaymentServiceItem := factory.BuildPaymentServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: "BOGUS",
+				},
 			},
-		})
+		}, nil)
 
 		_, _, err := serviceItemPricer.PriceServiceItem(suite.AppContextForTest(), badPaymentServiceItem)
 		suite.Error(err)

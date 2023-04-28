@@ -85,7 +85,7 @@ type MoveTaskOrder struct {
 	PpmEstimatedWeight int64 `json:"ppmEstimatedWeight,omitempty"`
 
 	// ppm type
-	// Enum: [FULL PARTIAL]
+	// Enum: [PARTIAL FULL]
 	PpmType string `json:"ppmType,omitempty"`
 
 	// prime counseling completed at
@@ -547,7 +547,7 @@ var moveTaskOrderTypePpmTypePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["FULL","PARTIAL"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["PARTIAL","FULL"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -557,11 +557,11 @@ func init() {
 
 const (
 
-	// MoveTaskOrderPpmTypeFULL captures enum value "FULL"
-	MoveTaskOrderPpmTypeFULL string = "FULL"
-
 	// MoveTaskOrderPpmTypePARTIAL captures enum value "PARTIAL"
 	MoveTaskOrderPpmTypePARTIAL string = "PARTIAL"
+
+	// MoveTaskOrderPpmTypeFULL captures enum value "FULL"
+	MoveTaskOrderPpmTypeFULL string = "FULL"
 )
 
 // prop value enum

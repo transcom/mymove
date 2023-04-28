@@ -29,7 +29,7 @@ func (suite *HandlerSuite) TestFetchPaymentRequestHandler() {
 	expectedShipmentType := models.MTOShipmentTypeHHG
 
 	setupTestData := func() (models.PaymentServiceItemParam, models.OfficeUser) {
-		move := testdatagen.MakeAvailableMove(suite.DB())
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		// This should create all the other associated records we need.
 		paymentServiceItemParam := testdatagen.MakePaymentServiceItemParam(suite.DB(), testdatagen.Assertions{
 			Move: move,
@@ -128,7 +128,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestsForMoveHandler() {
 	setupTestData := func() (models.PaymentServiceItemParam, models.OfficeUser) {
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
-		move := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
+		move := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
 		moveLocator = move.Locator
 
 		// This should create all the other associated records we need.
@@ -245,7 +245,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 
 	suite.Run("successful status update of payment request", func() {
 		officeUser := setupTestData()
-		pendingPaymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
+		pendingPaymentRequest := factory.BuildPaymentRequest(suite.DB(), nil, nil)
 
 		paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
 		paymentRequestFetcher.On("FetchPaymentRequest", mock.AnythingOfType("*appcontext.appContext"),
@@ -283,7 +283,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 
 	suite.Run("successful status update of rejected payment request", func() {
 		officeUser := setupTestData()
-		pendingPaymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
+		pendingPaymentRequest := factory.BuildPaymentRequest(suite.DB(), nil, nil)
 
 		paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
 		paymentRequestFetcher.On("FetchPaymentRequest", mock.AnythingOfType("*appcontext.appContext"),
@@ -331,7 +331,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		}
 
 		for _, nonApprovedPRStatus := range nonApprovedPRStatuses {
-			pendingPaymentRequest := testdatagen.MakeStubbedPaymentRequest(suite.DB())
+			pendingPaymentRequest := factory.BuildPaymentRequest(nil, nil, nil)
 
 			paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
 			paymentRequestFetcher.On("FetchPaymentRequest", mock.AnythingOfType("*appcontext.appContext"),
@@ -365,10 +365,13 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 
 	suite.Run("successful status update of prime-available payment request", func() {
 		officeUser := setupTestData()
-		availableMove := testdatagen.MakeAvailableMove(suite.DB())
-		availablePaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			Move: availableMove,
-		})
+		availableMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		availablePaymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    availableMove,
+				LinkOnly: true,
+			},
+		}, nil)
 		availablePaymentRequestID := availablePaymentRequest.ID
 
 		paymentRequestStatusUpdater := &mocks.PaymentRequestStatusUpdater{}
@@ -573,43 +576,61 @@ func (suite *HandlerSuite) TestShipmentsSITBalanceHandler() {
 
 		now := time.Now()
 
-		reviewedPaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				Status: models.PaymentRequestStatusReviewed,
+		reviewedPaymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					Status: models.PaymentRequestStatusReviewed,
+				},
 			},
-			Move: models.Move{
-				Status:             models.MoveStatusAPPROVED,
-				AvailableToPrimeAt: &now,
+			{
+				Model: models.Move{
+					Status:             models.MoveStatusAPPROVED,
+					AvailableToPrimeAt: &now,
+				},
 			},
-		})
+		}, nil)
 
 		move := reviewedPaymentRequest.MoveTaskOrder
 
-		pendingPaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				SequenceNumber: 2,
+		pendingPaymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					SequenceNumber: 2,
+				},
 			},
-			Move: move,
-		})
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		year, month, day := time.Now().Date()
 		originEntryDate := time.Date(year, month, day-120, 0, 0, 0, 0, time.UTC)
 		sitDaysAllowance := 120
 
-		doasit := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				Status:       models.MTOServiceItemStatusApproved,
-				SITEntryDate: &originEntryDate,
+		doasit := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status:       models.MTOServiceItemStatusApproved,
+					SITEntryDate: &originEntryDate,
+				},
 			},
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDOASIT,
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDOASIT,
+				},
 			},
-			MTOShipment: models.MTOShipment{
-				Status:           models.MTOShipmentStatusApproved,
-				SITDaysAllowance: &sitDaysAllowance,
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusApproved,
+					SITDaysAllowance: &sitDaysAllowance,
+				},
 			},
-			Move: move,
-		})
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		shipment := doasit.MTOShipment
 		// Creates the payment service item for DOASIT w/ SIT start date param
@@ -657,17 +678,27 @@ func (suite *HandlerSuite) TestShipmentsSITBalanceHandler() {
 		})
 
 		destinationEntryDate := time.Date(year, month, day-90, 0, 0, 0, 0, time.UTC)
-		ddasit := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				Status:       models.MTOServiceItemStatusApproved,
-				SITEntryDate: &destinationEntryDate,
+		ddasit := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status:       models.MTOServiceItemStatusApproved,
+					SITEntryDate: &destinationEntryDate,
+				},
 			},
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDDASIT,
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDASIT,
+				},
 			},
-			MTOShipment: shipment,
-			Move:        move,
-		})
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		// Creates the payment service item for DOASIT w/ SIT start date param
 		ddasitParam := testdatagen.MakePaymentServiceItemParam(suite.DB(), testdatagen.Assertions{

@@ -6,8 +6,6 @@ import (
 	"time"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
-	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/apperror"
@@ -22,7 +20,6 @@ import (
 	"github.com/transcom/mymove/pkg/services/mocks"
 	moveservice "github.com/transcom/mymove/pkg/services/move"
 	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *HandlerSuite) TestGetMoveHandler() {
@@ -30,18 +27,18 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 	availableToPrimeAt := time.Now()
 	submittedAt := availableToPrimeAt.Add(-1 * time.Hour)
 
-	ordersID := uuid.Must(uuid.NewV4())
 	var move models.Move
 	var requestUser models.User
 	setupTestData := func() {
-		move = testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				Status:             models.MoveStatusAPPROVED,
-				AvailableToPrimeAt: &availableToPrimeAt,
-				SubmittedAt:        &submittedAt,
-				Orders:             models.Order{ID: ordersID},
+		move = factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status:             models.MoveStatusAPPROVED,
+					AvailableToPrimeAt: &availableToPrimeAt,
+					SubmittedAt:        &submittedAt,
+				},
 			},
-		})
+		}, nil)
 		requestUser = factory.BuildUser(nil, nil, nil)
 	}
 
@@ -86,25 +83,31 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 		suite.Equal(move.CreatedAt.Format(swaggerTimeFormat), time.Time(payload.CreatedAt).Format(swaggerTimeFormat))
 		suite.Equal(move.SubmittedAt.Format(swaggerTimeFormat), time.Time(*payload.SubmittedAt).Format(swaggerTimeFormat))
 		suite.Equal(move.UpdatedAt.Format(swaggerTimeFormat), time.Time(payload.UpdatedAt).Format(swaggerTimeFormat))
-		suite.Equal(ordersID, move.Orders.ID)
 		suite.Nil(payload.CloseoutOffice)
 	})
 
 	suite.Run("Successful move with a saved transportation office", func() {
-		transportationOffice := testdatagen.MakeTransportationOffice(suite.DB(), testdatagen.Assertions{
-			TransportationOffice: models.TransportationOffice{
-				ProvidesCloseout: true,
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationOffice{
+					ProvidesCloseout: true,
+				},
 			},
-		})
+		}, nil)
 
-		move = testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				Status:           models.MoveStatusSUBMITTED,
-				SubmittedAt:      &submittedAt,
-				CloseoutOffice:   &transportationOffice,
-				CloseoutOfficeID: &transportationOffice.ID,
+		move = factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status:      models.MoveStatusSUBMITTED,
+					SubmittedAt: &submittedAt,
+				},
 			},
-		})
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CloseoutOffice,
+			},
+		}, nil)
 		moveFetcher := moveservice.NewMoveFetcher()
 		requestOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 
@@ -233,7 +236,7 @@ func (suite *HandlerSuite) TestSearchMovesHandler() {
 
 	suite.Run("Successful move search by locator", func() {
 		req := setupTestData()
-		move := testdatagen.MakeDefaultMove(suite.DB())
+		move := factory.BuildMove(suite.DB(), nil, nil)
 		moves := models.Moves{move}
 
 		mockSearcher := mocks.MoveSearcher{}
@@ -281,7 +284,7 @@ func (suite *HandlerSuite) TestSearchMovesHandler() {
 
 	suite.Run("Successful move search by DoD ID", func() {
 		req := setupTestData()
-		move := testdatagen.MakeDefaultMove(suite.DB())
+		move := factory.BuildMove(suite.DB(), nil, nil)
 		moves := models.Moves{move}
 
 		mockSearcher := mocks.MoveSearcher{}
@@ -325,7 +328,7 @@ func (suite *HandlerSuite) TestSetFinancialReviewFlagHandler() {
 	var move models.Move
 	var requestUser models.User
 	setupTestData := func() (*http.Request, models.Move) {
-		move = testdatagen.MakeDefaultMove(suite.DB())
+		move = factory.BuildMove(suite.DB(), nil, nil)
 		requestUser = factory.BuildUser(nil, nil, nil)
 		req := httptest.NewRequest("GET", "/move/#{move.locator}", nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
@@ -354,7 +357,7 @@ func (suite *HandlerSuite) TestSetFinancialReviewFlagHandler() {
 			IfMatch:     &fakeEtag,
 			Body: moveops.SetFinancialReviewFlagBody{
 				Remarks:       &defaultRemarks,
-				FlagForReview: swag.Bool(true),
+				FlagForReview: models.BoolPointer(true),
 			},
 			MoveID: *handlers.FmtUUID(move.ID),
 		}
@@ -377,7 +380,7 @@ func (suite *HandlerSuite) TestSetFinancialReviewFlagHandler() {
 			IfMatch:     &fakeEtag,
 			Body: moveops.SetFinancialReviewFlagBody{
 				Remarks:       nil,
-				FlagForReview: swag.Bool(true),
+				FlagForReview: models.BoolPointer(true),
 			},
 			MoveID: *handlers.FmtUUID(move.ID),
 		}
@@ -418,7 +421,7 @@ func (suite *HandlerSuite) TestSetFinancialReviewFlagHandler() {
 			IfMatch:     &fakeEtag,
 			Body: moveops.SetFinancialReviewFlagBody{
 				Remarks:       &defaultRemarks,
-				FlagForReview: swag.Bool(true),
+				FlagForReview: models.BoolPointer(true),
 			},
 			MoveID: *handlers.FmtUUID(move.ID),
 		}
@@ -454,7 +457,7 @@ func (suite *HandlerSuite) TestSetFinancialReviewFlagHandler() {
 			IfMatch:     &fakeEtag,
 			Body: moveops.SetFinancialReviewFlagBody{
 				Remarks:       &defaultRemarks,
-				FlagForReview: swag.Bool(true),
+				FlagForReview: models.BoolPointer(true),
 			},
 			MoveID: *handlers.FmtUUID(move.ID),
 		}
@@ -490,7 +493,7 @@ func (suite *HandlerSuite) TestSetFinancialReviewFlagHandler() {
 			IfMatch:     &fakeEtag,
 			Body: moveops.SetFinancialReviewFlagBody{
 				Remarks:       &defaultRemarks,
-				FlagForReview: swag.Bool(true),
+				FlagForReview: models.BoolPointer(true),
 			},
 			MoveID: *handlers.FmtUUID(move.ID),
 		}
@@ -515,13 +518,15 @@ func (suite *HandlerSuite) TestUpdateMoveCloseoutOfficeHandler() {
 	closeoutOfficeUpdater := moveservice.NewCloseoutOfficeUpdater(moveservice.NewMoveFetcher(), transportationoffice.NewTransportationOfficesFetcher())
 
 	setupTestData := func() (*http.Request, models.Move, models.TransportationOffice) {
-		move = testdatagen.MakeDefaultMove(suite.DB())
+		move = factory.BuildMove(suite.DB(), nil, nil)
 		requestUser = factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
-		transportationOffice = testdatagen.MakeTransportationOffice(suite.DB(), testdatagen.Assertions{
-			TransportationOffice: models.TransportationOffice{
-				ProvidesCloseout: true,
+		transportationOffice = factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationOffice{
+					ProvidesCloseout: true,
+				},
 			},
-		})
+		}, nil)
 
 		req := httptest.NewRequest("GET", "/move/#{move.locator}/closeout-office", nil)
 		req = suite.AuthenticateOfficeRequest(req, requestUser)
@@ -585,11 +590,13 @@ func (suite *HandlerSuite) TestUpdateMoveCloseoutOfficeHandler() {
 	})
 
 	suite.Run("Unsuccessful closeout office not found", func() {
-		transportationOfficeNonCloseout := testdatagen.MakeTransportationOffice(suite.DB(), testdatagen.Assertions{
-			TransportationOffice: models.TransportationOffice{
-				ProvidesCloseout: false,
+		transportationOfficeNonCloseout := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationOffice{
+					ProvidesCloseout: false,
+				},
 			},
-		})
+		}, nil)
 
 		req, move, _ := setupTestData()
 		handler := UpdateMoveCloseoutOfficeHandler{

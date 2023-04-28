@@ -29,7 +29,7 @@ func NewSitExtensionCreator(moveRouter services.MoveRouter) services.SITExtensio
 }
 
 // CreateSITExtension creates a SIT extension
-func (f *sitExtensionCreator) CreateSITExtension(appCtx appcontext.AppContext, sitExtension *models.SITExtension) (*models.SITExtension, error) {
+func (f *sitExtensionCreator) CreateSITExtension(appCtx appcontext.AppContext, sitExtension *models.SITDurationUpdate) (*models.SITDurationUpdate, error) {
 	// Get existing shipment info
 	shipment := &models.MTOShipment{}
 	// Find the shipment, return error if not found (or if using an external vendor since this is called

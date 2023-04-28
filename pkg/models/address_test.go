@@ -1,16 +1,14 @@
 package models_test
 
 import (
-	"github.com/go-openapi/swag"
-
 	. "github.com/transcom/mymove/pkg/models"
 )
 
 func (suite *ModelSuite) TestBasicAddressInstantiation() {
 	newAddress := &Address{
 		StreetAddress1: "street 1",
-		StreetAddress2: swag.String("street 2"),
-		StreetAddress3: swag.String("street 3"),
+		StreetAddress2: StringPointer("street 2"),
+		StreetAddress3: StringPointer("street 3"),
 		City:           "city",
 		State:          "state",
 		PostalCode:     "90210",
@@ -37,8 +35,8 @@ func (suite *ModelSuite) TestEmptyAddressInstantiation() {
 func (suite *ModelSuite) TestAddressCountryCode() {
 	noCountry := Address{
 		StreetAddress1: "street 1",
-		StreetAddress2: swag.String("street 2"),
-		StreetAddress3: swag.String("street 3"),
+		StreetAddress2: StringPointer("street 2"),
+		StreetAddress3: StringPointer("street 3"),
 		City:           "city",
 		State:          "state",
 		PostalCode:     "90210",
@@ -51,12 +49,12 @@ func (suite *ModelSuite) TestAddressCountryCode() {
 
 	usaCountry := Address{
 		StreetAddress1: "street 1",
-		StreetAddress2: swag.String("street 2"),
-		StreetAddress3: swag.String("street 3"),
+		StreetAddress2: StringPointer("street 2"),
+		StreetAddress3: StringPointer("street 3"),
 		City:           "city",
 		State:          "state",
 		PostalCode:     "90210",
-		Country:        swag.String("United States"),
+		Country:        StringPointer("United States"),
 	}
 	countryCode, err = usaCountry.CountryCode()
 	suite.NoError(err)
@@ -64,12 +62,12 @@ func (suite *ModelSuite) TestAddressCountryCode() {
 
 	usCountry := Address{
 		StreetAddress1: "street 1",
-		StreetAddress2: swag.String("street 2"),
-		StreetAddress3: swag.String("street 3"),
+		StreetAddress2: StringPointer("street 2"),
+		StreetAddress3: StringPointer("street 3"),
 		City:           "city",
 		State:          "state",
 		PostalCode:     "90210",
-		Country:        swag.String("US"),
+		Country:        StringPointer("US"),
 	}
 	countryCode, err = usCountry.CountryCode()
 	suite.NoError(err)
@@ -77,12 +75,12 @@ func (suite *ModelSuite) TestAddressCountryCode() {
 
 	notUsaCountry := Address{
 		StreetAddress1: "street 1",
-		StreetAddress2: swag.String("street 2"),
-		StreetAddress3: swag.String("street 3"),
+		StreetAddress2: StringPointer("street 2"),
+		StreetAddress3: StringPointer("street 3"),
 		City:           "city",
 		State:          "state",
 		PostalCode:     "90210",
-		Country:        swag.String("Ireland"),
+		Country:        StringPointer("Ireland"),
 	}
 
 	countryCode, err = notUsaCountry.CountryCode()

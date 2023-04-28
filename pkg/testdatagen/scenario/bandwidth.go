@@ -7,7 +7,6 @@ import (
 	"path"
 	"time"
 
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -112,29 +111,37 @@ func makeRiskOfExcessShipmentForMove(appCtx appcontext.AppContext, move models.M
 	estimatedWeight := unit.Pound(7200)
 	actualWeight := unit.Pound(7400)
 	daysOfSIT := 90
-	MTOShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			SITDaysAllowance:     &daysOfSIT,
-			PrimeEstimatedWeight: &estimatedWeight,
-			PrimeActualWeight:    &actualWeight,
-			ShipmentType:         models.MTOShipmentTypeHHG,
-			ApprovedDate:         swag.Time(time.Now()),
-			Status:               shipmentStatus,
+	MTOShipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				SITDaysAllowance:     &daysOfSIT,
+				PrimeEstimatedWeight: &estimatedWeight,
+				PrimeActualWeight:    &actualWeight,
+				ShipmentType:         models.MTOShipmentTypeHHG,
+				ApprovedDate:         models.TimePointer(time.Now()),
+				Status:               shipmentStatus,
+			},
 		},
-		Move: move,
-	})
-
-	testdatagen.MakeMTOAgent(appCtx.DB(), testdatagen.Assertions{
-		MTOAgent: models.MTOAgent{
-			MTOShipment:   MTOShipment,
-			MTOShipmentID: MTOShipment.ID,
-			FirstName:     swag.String("Test"),
-			LastName:      swag.String("Agent"),
-			Email:         swag.String("test@test.email.com"),
-			MTOAgentType:  models.MTOAgentReleasing,
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+	}, nil)
 
+	factory.BuildMTOAgent(appCtx.DB(), []factory.Customization{
+		{
+			Model:    MTOShipment,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOAgent{
+				FirstName:    models.StringPointer("Test"),
+				LastName:     models.StringPointer("Agent"),
+				Email:        models.StringPointer("test@test.email.com"),
+				MTOAgentType: models.MTOAgentReleasing,
+			},
+		},
+	}, nil)
 	return MTOShipment
 }
 
@@ -144,43 +151,55 @@ func makeShipmentForMove(appCtx appcontext.AppContext, move models.Move, shipmen
 	billableWeight := unit.Pound(4000)
 	billableWeightJustification := "heavy"
 
-	MTOShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			PrimeEstimatedWeight:        &estimatedWeight,
-			PrimeActualWeight:           &actualWeight,
-			ShipmentType:                models.MTOShipmentTypeHHG,
-			ApprovedDate:                swag.Time(time.Now()),
-			Status:                      shipmentStatus,
-			BillableWeightCap:           &billableWeight,
-			BillableWeightJustification: &billableWeightJustification,
+	MTOShipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				PrimeEstimatedWeight:        &estimatedWeight,
+				PrimeActualWeight:           &actualWeight,
+				ShipmentType:                models.MTOShipmentTypeHHG,
+				ApprovedDate:                models.TimePointer(time.Now()),
+				Status:                      shipmentStatus,
+				BillableWeightCap:           &billableWeight,
+				BillableWeightJustification: &billableWeightJustification,
+			},
 		},
-		Move: move,
-	})
-
-	testdatagen.MakeMTOAgent(appCtx.DB(), testdatagen.Assertions{
-		MTOAgent: models.MTOAgent{
-			MTOShipment:   MTOShipment,
-			MTOShipmentID: MTOShipment.ID,
-			FirstName:     swag.String("Test"),
-			LastName:      swag.String("Agent"),
-			Email:         swag.String("test@test.email.com"),
-			MTOAgentType:  models.MTOAgentReleasing,
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+	}, nil)
 
+	factory.BuildMTOAgent(appCtx.DB(), []factory.Customization{
+		{
+			Model:    MTOShipment,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOAgent{
+				FirstName:    models.StringPointer("Test"),
+				LastName:     models.StringPointer("Agent"),
+				Email:        models.StringPointer("test@test.email.com"),
+				MTOAgentType: models.MTOAgentReleasing,
+			},
+		},
+	}, nil)
 	return MTOShipment
 }
 
 func makePaymentRequestForShipment(appCtx appcontext.AppContext, move models.Move, shipment models.MTOShipment, primeUploader *uploader.PrimeUploader, fileNames *[]string, paymentRequestID uuid.UUID, status models.PaymentRequestStatus) {
-	paymentRequest := testdatagen.MakePaymentRequest(appCtx.DB(), testdatagen.Assertions{
-		PaymentRequest: models.PaymentRequest{
-			ID:            paymentRequestID,
-			MoveTaskOrder: move,
-			IsFinal:       false,
-			Status:        status,
+	paymentRequest := factory.BuildPaymentRequest(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentRequest{
+				ID:      paymentRequestID,
+				IsFinal: false,
+				Status:  status,
+			},
 		},
-		Move: move,
-	})
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	dcrtCost := unit.Cents(99999)
 	mtoServiceItemDCRT := testdatagen.MakeMTOServiceItemDomesticCrating(appCtx.DB(), testdatagen.Assertions{
@@ -188,30 +207,50 @@ func makePaymentRequestForShipment(appCtx appcontext.AppContext, move models.Mov
 		MTOShipment: shipment,
 	})
 
-	testdatagen.MakePaymentServiceItem(appCtx.DB(), testdatagen.Assertions{
-		PaymentServiceItem: models.PaymentServiceItem{
-			PriceCents: &dcrtCost,
+	factory.BuildPaymentServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentServiceItem{
+				PriceCents: &dcrtCost,
+			},
+		}, {
+			Model:    paymentRequest,
+			LinkOnly: true,
+		}, {
+			Model:    mtoServiceItemDCRT,
+			LinkOnly: true,
 		},
-		PaymentRequest: paymentRequest,
-		MTOServiceItem: mtoServiceItemDCRT,
-	})
+	}, nil)
 
 	ducrtCost := unit.Cents(99999)
-	mtoServiceItemDUCRT := testdatagen.MakeMTOServiceItem(appCtx.DB(), testdatagen.Assertions{
-		Move:        move,
-		MTOShipment: shipment,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("fc14935b-ebd3-4df3-940b-f30e71b6a56c"), // DUCRT - Domestic uncrating
+	mtoServiceItemDUCRT := factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("fc14935b-ebd3-4df3-940b-f30e71b6a56c"), // DUCRT - Domestic uncrating
+			},
+		},
+	}, nil)
 
-	testdatagen.MakePaymentServiceItem(appCtx.DB(), testdatagen.Assertions{
-		PaymentServiceItem: models.PaymentServiceItem{
-			PriceCents: &ducrtCost,
+	factory.BuildPaymentServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentServiceItem{
+				PriceCents: &ducrtCost,
+			},
+		}, {
+			Model:    paymentRequest,
+			LinkOnly: true,
+		}, {
+			Model:    mtoServiceItemDUCRT,
+			LinkOnly: true,
 		},
-		PaymentRequest: paymentRequest,
-		MTOServiceItem: mtoServiceItemDUCRT,
-	})
+	}, nil)
 
 	files := filesInBandwidthTestDirectory(fileNames)
 	// Creates prime upload documents from the files in this directory:

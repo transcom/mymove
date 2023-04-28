@@ -225,6 +225,14 @@ paths:
         move status and marks child elements of the move to indicate the update.
 
         No body object is expected for this request.
+
+
+        **For Full/Partial PPMs**: This action is required so that the customer
+        can start uploading their proof of service docs.
+
+
+        **For other move types**: This action is required for auditing reasons
+        so that we have a record of when the Prime counseled the customer.
       operationId: updateMTOPostCounselingInformation
       consumes:
         - application/json
@@ -1239,7 +1247,7 @@ definitions:
           The estimated weight of this shipment, determined by the movers during
           the pre-move survey. This value **can only be updated once.** If there
           was an issue with estimating the weight and a mistake was made, the
-          Prime contracter will need to contact the TOO to change it.
+          Prime contractor will need to contact the TOO to change it.
         type: integer
         example: 4500
         minimum: 1
@@ -1445,6 +1453,7 @@ definitions:
       requestedDays:
         type: integer
         example: 30
+        minimum: 1
     required:
       - requestReason
       - contractorRemarks
@@ -1670,8 +1679,8 @@ definitions:
       ppmType:
         type: string
         enum:
-          - FULL
           - PARTIAL
+          - FULL
       ppmEstimatedWeight:
         type: integer
       excessWeightQualifiedAt:
@@ -2086,6 +2095,13 @@ definitions:
         readOnly: true
         x-omitempty: false
         x-nullable: true
+      requestedDeliveryDate:
+        description: The customer's preferred delivery date.
+        format: date
+        type: string
+        readOnly: true
+        x-omitempty: false
+        x-nullable: true
       scheduledPickupDate:
         description: >-
           The date the Prime contractor scheduled to pick up this shipment after
@@ -2359,12 +2375,17 @@ definitions:
         $ref: '#/definitions/DutyLocation'
       originDutyLocation:
         $ref: '#/definitions/DutyLocation'
+      originDutyLocationGBLOC:
+        type: string
+        example: KKFA
       rank:
         type: string
         example: E_5
       reportByDate:
         type: string
         format: date
+      ordersType:
+        $ref: '#/definitions/OrdersType'
       orderNumber:
         type: string
       linesOfAccounting:
@@ -3381,6 +3402,17 @@ definitions:
       - city
       - state
       - postalCode
+  OrdersType:
+    type: string
+    title: Orders type
+    enum:
+      - PERMANENT_CHANGE_OF_STATION
+      - RETIREMENT
+      - SEPARATION
+    x-display-value:
+      PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
+      RETIREMENT: Retirement
+      SEPARATION: Separation
   UploadWithOmissions:
     description: An uploaded file.
     type: object

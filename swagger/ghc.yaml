@@ -1105,15 +1105,15 @@ paths:
         - create.reweighRequest
   /shipments/{shipmentID}/sit-extensions/:
     post:
-      summary: Create an approved SIT extension
+      summary: Create an approved SIT Duration Update
       description: >-
-        TOO can creates an already-approved SIT extension on behalf of a
+        TOO can creates an already-approved SIT Duration Update on behalf of a
         customer
       consumes:
         - application/json
       produces:
         - application/json
-      operationId: createSITExtensionAsTOO
+      operationId: createApprovedSITDurationUpdate
       tags:
         - shipment
         - sitExtension
@@ -1127,12 +1127,12 @@ paths:
         - in: body
           name: body
           schema:
-            $ref: '#/definitions/CreateSITExtensionAsTOO'
+            $ref: '#/definitions/CreateApprovedSITDurationUpdate'
           required: true
         - in: header
           description: >-
-            We want the shipment's eTag rather than the SIT extension eTag as
-            the SIT extension is always associated with a shipment
+            We want the shipment's eTag rather than the SIT Duration Update eTag
+            as the SIT Duration Update is always associated with a shipment
           name: If-Match
           type: string
           required: true
@@ -1435,6 +1435,49 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+  /ppm-shipments/{ppmShipmentId}/finish-document-review:
+    parameters:
+      - $ref: '#/parameters/ppmShipmentId'
+    patch:
+      summary: Updates a PPM shipment's status after document review
+      description: >
+        Updates a PPM shipment's status once documents have been reviewed.
+        Status is updated depending on whether any documents have been rejected.
+      operationId: finishDocumentReview
+      tags:
+        - ppm
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+      responses:
+        '200':
+          description: Successfully finished document review
+          schema:
+            $ref: '#/definitions/PPMShipment'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+      x-permissions:
+        - update.shipment
   /move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/mto-agents:
     parameters:
       - description: ID of move task order
@@ -2752,6 +2795,7 @@ paths:
             - originDutyLocation
             - destinationDutyLocation
             - requestedMoveDate
+            - appearedInTooAt
           description: field that results should be sorted by
         - in: query
           name: order
@@ -2778,6 +2822,10 @@ paths:
         - in: query
           name: destinationDutyLocation
           type: string
+        - in: query
+          name: appearedInTooAt
+          type: string
+          format: date-time
         - in: query
           name: requestedMoveDate
           type: string
@@ -3376,6 +3424,13 @@ definitions:
           The transportation office that will handle reviewing PPM Closeout
           documentation for Army and Air Force service members
         x-nullable: true
+      approvalsRequestedAt:
+        type: string
+        format: date-time
+        description: >-
+          The time at which a move is sent back to the TOO becuase the prime
+          added a new service item for approval
+        x-nullable: true
       createdAt:
         type: string
         format: date-time
@@ -3572,17 +3627,6 @@ definitions:
       ARMY: 21 Army
       AIR_FORCE: 57 Air Force
       COAST_GUARD: 70 Coast Guard
-  OrdersType:
-    type: string
-    title: Orders type
-    enum:
-      - PERMANENT_CHANGE_OF_STATION
-      - RETIREMENT
-      - SEPARATION
-    x-display-value:
-      PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
-      RETIREMENT: Retirement
-      SEPARATION: Separation
   OrdersTypeDetail:
     type: string
     title: Orders type detail
@@ -4654,10 +4698,12 @@ definitions:
         type: string
         example: Denied this extension as it does not match the criteria
         x-nullable: true
-  CreateSITExtensionAsTOO:
+  CreateApprovedSITDurationUpdate:
     properties:
       requestReason:
-        description: Reason from service counselor-provided picklist for SIT extension
+        description: >-
+          Reason from service counselor-provided picklist for SIT Duration
+          Update
         example: AWAITING_COMPLETION_OF_RESIDENCE
         type: string
         enum:
@@ -4674,9 +4720,8 @@ definitions:
           days saved to the SIT extension model.
         type: integer
         example: 21
-        minimum: 1
       officeRemarks:
-        description: Remarks from TOO about SIT extension creation
+        description: Remarks from TOO about SIT Duration Update creation
         type: string
         example: >-
           Customer needs additional storage time as their new place of residence
@@ -4745,6 +4790,10 @@ definitions:
       locator:
         type: string
       submittedAt:
+        format: date-time
+        type: string
+        x-nullable: true
+      appearedInTooAt:
         format: date-time
         type: string
         x-nullable: true
@@ -5380,6 +5429,17 @@ definitions:
         $ref: '#/definitions/Address'
       eTag:
         type: string
+  OrdersType:
+    type: string
+    title: Orders type
+    enum:
+      - PERMANENT_CHANGE_OF_STATION
+      - RETIREMENT
+      - SEPARATION
+    x-display-value:
+      PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
+      RETIREMENT: Retirement
+      SEPARATION: Separation
   TransportationOffice:
     type: object
     properties:

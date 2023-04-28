@@ -11,7 +11,6 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
-	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
@@ -32,7 +31,7 @@ func (suite *OrderServiceSuite) TestUpdateBillableWeightAsTOO() {
 	suite.Run("Returns an error when the etag does not match", func() {
 		moveRouter := moverouter.NewMoveRouter()
 		excessWeightRiskManager := NewExcessWeightRiskManager(moveRouter)
-		order := testdatagen.MakeDefaultMove(suite.DB()).Orders
+		order := factory.BuildMove(suite.DB(), nil, nil).Orders
 		newAuthorizedWeight := int(10000)
 		eTag := ""
 
@@ -47,9 +46,13 @@ func (suite *OrderServiceSuite) TestUpdateBillableWeightAsTOO() {
 		moveRouter := moverouter.NewMoveRouter()
 		excessWeightRiskManager := NewExcessWeightRiskManager(moveRouter)
 		now := time.Now()
-		move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{ExcessWeightQualifiedAt: &now},
-		})
+		move := factory.BuildApprovalsRequestedMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					ExcessWeightQualifiedAt: &now,
+				},
+			},
+		}, nil)
 		order := move.Orders
 		newAuthorizedWeight := int(12345)
 		eTag := etag.GenerateEtag(order.UpdatedAt)
@@ -95,15 +98,22 @@ func (suite *OrderServiceSuite) TestUpdateBillableWeightAsTOO() {
 
 		amendedDocument.UserUploads = append(amendedDocument.UserUploads, amendedUpload)
 		now := time.Now()
-		approvalsRequestedMove := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{
-			Order: models.Order{
-				UploadedAmendedOrders:   &amendedDocument,
-				UploadedAmendedOrdersID: &amendedDocument.ID,
-				ServiceMember:           amendedDocument.ServiceMember,
-				ServiceMemberID:         amendedDocument.ServiceMemberID,
+		approvalsRequestedMove := factory.BuildApprovalsRequestedMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					ExcessWeightQualifiedAt: &now,
+				},
 			},
-			Move: models.Move{ExcessWeightQualifiedAt: &now},
-		})
+			{
+				Model:    amendedDocument,
+				LinkOnly: true,
+				Type:     &factory.Documents.UploadedAmendedOrders,
+			},
+			{
+				Model:    amendedDocument.ServiceMember,
+				LinkOnly: true,
+			},
+		}, nil)
 		order := approvalsRequestedMove.Orders
 		newAuthorizedWeight := int(10000)
 		eTag := etag.GenerateEtag(order.UpdatedAt)
@@ -156,7 +166,7 @@ func (suite *OrderServiceSuite) TestUpdateBillableWeightAsTOO() {
 	suite.Run("Updates the BillableWeight but does not acknowledge the risk if there is no excess weight risk", func() {
 		moveRouter := moverouter.NewMoveRouter()
 		excessWeightRiskManager := NewExcessWeightRiskManager(moveRouter)
-		move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{})
+		move := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
 		order := move.Orders
 		newAuthorizedWeight := int(10000)
 		eTag := etag.GenerateEtag(order.UpdatedAt)
@@ -182,12 +192,14 @@ func (suite *OrderServiceSuite) TestUpdateBillableWeightAsTOO() {
 		moveRouter := moverouter.NewMoveRouter()
 		excessWeightRiskManager := NewExcessWeightRiskManager(moveRouter)
 		now := time.Now()
-		move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				ExcessWeightAcknowledgedAt: &now,
-				ExcessWeightQualifiedAt:    &now,
+		move := factory.BuildApprovalsRequestedMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					ExcessWeightAcknowledgedAt: &now,
+					ExcessWeightQualifiedAt:    &now,
+				},
 			},
-		})
+		}, nil)
 		order := move.Orders
 		newAuthorizedWeight := int(10000)
 		eTag := etag.GenerateEtag(order.UpdatedAt)
@@ -227,7 +239,7 @@ func (suite *OrderServiceSuite) TestUpdateBillableWeightAsTIO() {
 	suite.Run("Returns an error when the etag does not match", func() {
 		moveRouter := moverouter.NewMoveRouter()
 		excessWeightRiskManager := NewExcessWeightRiskManager(moveRouter)
-		order := testdatagen.MakeDefaultMove(suite.DB()).Orders
+		order := factory.BuildMove(suite.DB(), nil, nil).Orders
 		newAuthorizedWeight := int(10000)
 		newTIOremarks := "TIO remarks"
 		eTag := ""
@@ -243,9 +255,13 @@ func (suite *OrderServiceSuite) TestUpdateBillableWeightAsTIO() {
 		moveRouter := moverouter.NewMoveRouter()
 		excessWeightRiskManager := NewExcessWeightRiskManager(moveRouter)
 		now := time.Now()
-		move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{ExcessWeightQualifiedAt: &now},
-		})
+		move := factory.BuildApprovalsRequestedMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					ExcessWeightQualifiedAt: &now,
+				},
+			},
+		}, nil)
 		order := move.Orders
 		newAuthorizedWeight := int(12345)
 		newTIOremarks := "TIO remarks"
@@ -293,15 +309,22 @@ func (suite *OrderServiceSuite) TestUpdateBillableWeightAsTIO() {
 
 		amendedDocument.UserUploads = append(amendedDocument.UserUploads, amendedUpload)
 		now := time.Now()
-		approvalsRequestedMove := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{
-			Order: models.Order{
-				UploadedAmendedOrders:   &amendedDocument,
-				UploadedAmendedOrdersID: &amendedDocument.ID,
-				ServiceMember:           amendedDocument.ServiceMember,
-				ServiceMemberID:         amendedDocument.ServiceMemberID,
+		approvalsRequestedMove := factory.BuildApprovalsRequestedMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					ExcessWeightQualifiedAt: &now,
+				},
 			},
-			Move: models.Move{ExcessWeightQualifiedAt: &now},
-		})
+			{
+				Model:    amendedDocument,
+				LinkOnly: true,
+				Type:     &factory.Documents.UploadedAmendedOrders,
+			},
+			{
+				Model:    amendedDocument.ServiceMember,
+				LinkOnly: true,
+			},
+		}, nil)
 		order := approvalsRequestedMove.Orders
 		newAuthorizedWeight := int(10000)
 		newTIOremarks := "TIO remarks"
@@ -358,7 +381,7 @@ func (suite *OrderServiceSuite) TestUpdateBillableWeightAsTIO() {
 	suite.Run("Updates the MaxBillableWeight and TIO remarks but does not acknowledge the risk if there is no excess weight risk", func() {
 		moveRouter := moverouter.NewMoveRouter()
 		excessWeightRiskManager := NewExcessWeightRiskManager(moveRouter)
-		move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{})
+		move := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
 		order := move.Orders
 		newAuthorizedWeight := int(10000)
 		newTIOremarks := "TIO remarks"
@@ -386,12 +409,14 @@ func (suite *OrderServiceSuite) TestUpdateBillableWeightAsTIO() {
 		moveRouter := moverouter.NewMoveRouter()
 		excessWeightRiskManager := NewExcessWeightRiskManager(moveRouter)
 		now := time.Now()
-		move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				ExcessWeightAcknowledgedAt: &now,
-				ExcessWeightQualifiedAt:    &now,
+		move := factory.BuildApprovalsRequestedMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					ExcessWeightAcknowledgedAt: &now,
+					ExcessWeightQualifiedAt:    &now,
+				},
 			},
-		})
+		}, nil)
 		order := move.Orders
 		newAuthorizedWeight := int(10000)
 		newTIOremarks := "TIO remarks"
@@ -431,7 +456,7 @@ func (suite *OrderServiceSuite) TestAcknowledgeExcessWeightRisk() {
 	suite.Run("Returns an error when the etag does not match", func() {
 		moveRouter := moverouter.NewMoveRouter()
 		excessWeightRiskManager := NewExcessWeightRiskManager(moveRouter)
-		move := testdatagen.MakeDefaultMove(suite.DB())
+		move := factory.BuildMove(suite.DB(), nil, nil)
 		order := move.Orders
 		eTag := ""
 
@@ -446,9 +471,13 @@ func (suite *OrderServiceSuite) TestAcknowledgeExcessWeightRisk() {
 		moveRouter := moverouter.NewMoveRouter()
 		excessWeightRiskManager := NewExcessWeightRiskManager(moveRouter)
 		now := time.Now()
-		move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{ExcessWeightQualifiedAt: &now},
-		})
+		move := factory.BuildApprovalsRequestedMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					ExcessWeightQualifiedAt: &now,
+				},
+			},
+		}, nil)
 		order := move.Orders
 		eTag := etag.GenerateEtag(move.UpdatedAt)
 
@@ -489,15 +518,22 @@ func (suite *OrderServiceSuite) TestAcknowledgeExcessWeightRisk() {
 
 		amendedDocument.UserUploads = append(amendedDocument.UserUploads, amendedUpload)
 		now := time.Now()
-		approvalsRequestedMove := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{
-			Order: models.Order{
-				UploadedAmendedOrders:   &amendedDocument,
-				UploadedAmendedOrdersID: &amendedDocument.ID,
-				ServiceMember:           amendedDocument.ServiceMember,
-				ServiceMemberID:         amendedDocument.ServiceMemberID,
+		approvalsRequestedMove := factory.BuildApprovalsRequestedMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					ExcessWeightQualifiedAt: &now,
+				},
 			},
-			Move: models.Move{ExcessWeightQualifiedAt: &now},
-		})
+			{
+				Model:    amendedDocument,
+				LinkOnly: true,
+				Type:     &factory.Documents.UploadedAmendedOrders,
+			},
+			{
+				Model:    amendedDocument.ServiceMember,
+				LinkOnly: true,
+			},
+		}, nil)
 		order := approvalsRequestedMove.Orders
 		eTag := etag.GenerateEtag(approvalsRequestedMove.UpdatedAt)
 
@@ -537,7 +573,7 @@ func (suite *OrderServiceSuite) TestAcknowledgeExcessWeightRisk() {
 		moveRouter := moverouter.NewMoveRouter()
 		excessWeightRiskManager := NewExcessWeightRiskManager(moveRouter)
 
-		move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{})
+		move := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
 		eTag := etag.GenerateEtag(move.UpdatedAt)
 		order := move.Orders
 
@@ -559,12 +595,14 @@ func (suite *OrderServiceSuite) TestAcknowledgeExcessWeightRisk() {
 		excessWeightRiskManager := NewExcessWeightRiskManager(moveRouter)
 
 		date := time.Now().Add(30 * time.Minute)
-		move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				ExcessWeightAcknowledgedAt: &date,
-				ExcessWeightQualifiedAt:    &date,
+		move := factory.BuildApprovalsRequestedMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					ExcessWeightAcknowledgedAt: &date,
+					ExcessWeightQualifiedAt:    &date,
+				},
 			},
-		})
+		}, nil)
 		eTag := etag.GenerateEtag(move.UpdatedAt)
 		order := move.Orders
 
@@ -583,13 +621,19 @@ func (suite *OrderServiceSuite) TestAcknowledgeExcessWeightRisk() {
 
 func (suite *OrderServiceSuite) createServiceItem() (string, models.MTOServiceItem, models.Move) {
 	now := time.Now()
-	move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{ExcessWeightQualifiedAt: &now},
-	})
-
-	serviceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-		Move: move,
-	})
+	move := factory.BuildApprovalsRequestedMove(suite.DB(), []factory.Customization{
+		{
+			Model: models.Move{
+				ExcessWeightQualifiedAt: &now,
+			},
+		},
+	}, nil)
+	serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	eTag := etag.GenerateEtag(serviceItem.UpdatedAt)
 

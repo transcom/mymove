@@ -14,6 +14,7 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testingsuite"
 	"github.com/transcom/mymove/pkg/unit"
+	"github.com/transcom/mymove/pkg/uploader"
 )
 
 type UtilitiesSuite struct {
@@ -75,16 +76,7 @@ func (suite *UtilitiesSuite) TestSoftDestroy_ModelWithoutDeletedAtWithAssociatio
 
 func (suite *UtilitiesSuite) TestSoftDestroy_ModelWithDeletedAtWithHasOneAssociations() {
 	// model with deleted_at with "has one" associations
-	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			ShipmentType: models.MTOShipmentTypePPM,
-		},
-		Stub: true,
-	})
-	ppmShipment := testdatagen.MakePPMShipment(suite.DB(),
-		testdatagen.Assertions{
-			MTOShipment: mtoShipment,
-		})
+	ppmShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
 	suite.Nil(ppmShipment.DeletedAt)
 
 	err := utilities.SoftDestroy(suite.DB(), &ppmShipment)
@@ -104,7 +96,7 @@ func (suite *UtilitiesSuite) TestSoftDestroy_ModelWithDeletedAtWithHasManyAssoci
 	upload := models.Upload{
 		Filename:    "test.pdf",
 		Bytes:       1048576,
-		ContentType: "application/pdf",
+		ContentType: uploader.FileTypePDF,
 		Checksum:    "ImGQ2Ush0bDHsaQthV5BnQ==",
 		UploadType:  models.UploadTypeUSER,
 	}
@@ -119,7 +111,7 @@ func (suite *UtilitiesSuite) TestSoftDestroy_ModelWithDeletedAtWithHasManyAssoci
 	upload2 := models.Upload{
 		Filename:    "test2.pdf",
 		Bytes:       1048576,
-		ContentType: "application/pdf",
+		ContentType: uploader.FileTypePDF,
 		Checksum:    "ImGQ2Ush0bDHsaQthV5BnQ==",
 		UploadType:  models.UploadTypeUSER,
 	}

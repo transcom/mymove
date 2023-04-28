@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
@@ -20,12 +19,11 @@ import (
 	"github.com/transcom/mymove/pkg/models/roles"
 	evaluationreportservice "github.com/transcom/mymove/pkg/services/evaluation_report"
 	"github.com/transcom/mymove/pkg/services/mocks"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *HandlerSuite) TestGetShipmentEvaluationReportsHandler() {
 	setupTestData := func() (models.OfficeUser, models.Move, handlers.HandlerConfig) {
-		move := testdatagen.MakeDefaultMove(suite.DB())
+		move := factory.BuildMove(suite.DB(), nil, nil)
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		handlerConfig := suite.createS3HandlerConfig()
 		return officeUser, move, handlerConfig
@@ -33,14 +31,21 @@ func (suite *HandlerSuite) TestGetShipmentEvaluationReportsHandler() {
 
 	suite.Run("Successful list fetch", func() {
 		officeUser, move, handlerConfig := setupTestData()
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-		})
-		testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{
-			OfficeUser:  officeUser,
-			Move:        move,
-			MTOShipment: shipment,
-		})
+		factory.BuildEvaluationReport(suite.DB(), []factory.Customization{
+			{
+				Model:    officeUser,
+				LinkOnly: true,
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.EvaluationReport{
+					Type: models.EvaluationReportTypeShipment,
+				},
+			},
+		}, nil)
 
 		fetcher := evaluationreportservice.NewEvaluationReportFetcher()
 		handler := GetShipmentEvaluationReportsHandler{
@@ -100,7 +105,7 @@ func (suite *HandlerSuite) TestGetShipmentEvaluationReportsHandler() {
 
 func (suite *HandlerSuite) TestGetCounselingEvaluationReportsHandler() {
 	setupTestData := func() (models.OfficeUser, models.Move, handlers.HandlerConfig) {
-		move := testdatagen.MakeDefaultMove(suite.DB())
+		move := factory.BuildMove(suite.DB(), nil, nil)
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		handlerConfig := suite.HandlerConfig()
 		return officeUser, move, handlerConfig
@@ -108,11 +113,16 @@ func (suite *HandlerSuite) TestGetCounselingEvaluationReportsHandler() {
 
 	suite.Run("Successful list fetch", func() {
 		officeUser, move, handlerConfig := setupTestData()
-		testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{
-			OfficeUser: officeUser,
-			Move:       move,
-		})
-
+		factory.BuildEvaluationReport(suite.DB(), []factory.Customization{
+			{
+				Model:    officeUser,
+				LinkOnly: true,
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 		fetcher := evaluationreportservice.NewEvaluationReportFetcher()
 		handler := GetCounselingEvaluationReportsHandler{
 			HandlerConfig:           handlerConfig,
@@ -173,15 +183,20 @@ func (suite *HandlerSuite) TestGetEvaluationReportByIDHandler() {
 	// 200 response
 	suite.Run("Successful fetch (integration) test", func() {
 		handlerConfig := suite.HandlerConfig()
-		move := testdatagen.MakeDefaultMove(suite.DB())
+		move := factory.BuildMove(suite.DB(), nil, nil)
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		fetcher := evaluationreportservice.NewEvaluationReportFetcher()
 
-		evaluationReport := testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{
-			EvaluationReport: models.EvaluationReport{
-				OfficeUserID: officeUser.ID,
-				MoveID:       move.ID,
-			}})
+		evaluationReport := factory.BuildEvaluationReport(suite.DB(), []factory.Customization{
+			{
+				Model:    officeUser,
+				LinkOnly: true,
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		handler := GetEvaluationReportHandler{
 			HandlerConfig:           handlerConfig,
@@ -285,18 +300,19 @@ func (suite *HandlerSuite) TestCreateEvaluationReportHandler() {
 		handlerConfig := suite.HandlerConfig()
 
 		creator := &mocks.EvaluationReportCreator{}
-		move := testdatagen.MakeDefaultMove(suite.DB())
+		move := factory.BuildMove(suite.DB(), nil, nil)
 
 		handler := CreateEvaluationReportHandler{
 			HandlerConfig:           handlerConfig,
 			EvaluationReportCreator: creator,
 		}
 
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				MoveTaskOrderID: move.ID,
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-		})
+		}, nil)
 
 		body := ghcmessages.CreateEvaluationReport{ShipmentID: strfmt.UUID(shipment.ID.String())}
 		request := httptest.NewRequest("POST", "/moves/shipment-evaluation-reports/", nil)
@@ -343,13 +359,13 @@ func (suite *HandlerSuite) TestCreateEvaluationReportHandler() {
 
 		creator := &mocks.EvaluationReportCreator{}
 		handler := CreateEvaluationReportHandler{handlerConfig, creator}
-
-		move := testdatagen.MakeDefaultMove(suite.DB())
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				MoveTaskOrderID: move.ID,
+		move := factory.BuildMove(suite.DB(), nil, nil)
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-		})
+		}, nil)
 		body := ghcmessages.CreateEvaluationReport{ShipmentID: strfmt.UUID(shipment.ID.String())}
 		request := httptest.NewRequest("POST", "/moves/shipment-evaluation-reports/", nil)
 
@@ -627,7 +643,7 @@ func (suite *HandlerSuite) TestSubmitEvaluationReportHandler() {
 func (suite *HandlerSuite) TestSaveEvaluationReportHandler() {
 
 	suite.Run("Successful save", func() {
-		report := testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{})
+		report := factory.BuildEvaluationReport(suite.DB(), nil, nil)
 		reportID := report.ID
 
 		updater := &mocks.EvaluationReportUpdater{}
@@ -645,11 +661,11 @@ func (suite *HandlerSuite) TestSaveEvaluationReportHandler() {
 				InspectionDate:                     &now,
 				InspectionType:                     ghcmessages.EvaluationReportInspectionTypePHYSICAL.Pointer(),
 				Location:                           ghcmessages.EvaluationReportLocationOTHER.Pointer(),
-				LocationDescription:                swag.String("location description"),
+				LocationDescription:                models.StringPointer("location description"),
 				ObservedShipmentDeliveryDate:       handlers.FmtDate(time.Date(2020, 1, 2, 0, 0, 0, 0, time.UTC)),
-				ObservedShipmentPhysicalPickupDate: handlers.FmtDate(time.Date(2020, 1, 2, 0, 0, 0, 0, time.UTC)), Remarks: swag.String("new remarks"),
+				ObservedShipmentPhysicalPickupDate: handlers.FmtDate(time.Date(2020, 1, 2, 0, 0, 0, 0, time.UTC)), Remarks: models.StringPointer("new remarks"),
 				SeriousIncident:     handlers.FmtBool(true),
-				SeriousIncidentDesc: swag.String("serious incident description"),
+				SeriousIncidentDesc: models.StringPointer("serious incident description"),
 				ViolationsObserved:  handlers.FmtBool(false),
 			},
 			ReportID: *handlers.FmtUUID(reportID),
@@ -686,7 +702,7 @@ func (suite *HandlerSuite) TestSaveEvaluationReportHandler() {
 		params := evaluationReportop.SaveEvaluationReportParams{
 			HTTPRequest: request,
 			Body: &ghcmessages.EvaluationReport{
-				Remarks: swag.String("new remarks"),
+				Remarks: models.StringPointer("new remarks"),
 			},
 			ReportID: *handlers.FmtUUID(reportID),
 		}
@@ -724,7 +740,7 @@ func (suite *HandlerSuite) TestSaveEvaluationReportHandler() {
 		params := evaluationReportop.SaveEvaluationReportParams{
 			HTTPRequest: request,
 			Body: &ghcmessages.EvaluationReport{
-				Remarks: swag.String("new remarks"),
+				Remarks: models.StringPointer("new remarks"),
 			},
 			ReportID: *handlers.FmtUUID(reportID),
 		}
@@ -762,7 +778,7 @@ func (suite *HandlerSuite) TestSaveEvaluationReportHandler() {
 		params := evaluationReportop.SaveEvaluationReportParams{
 			HTTPRequest: request,
 			Body: &ghcmessages.EvaluationReport{
-				Remarks: swag.String("new remarks"),
+				Remarks: models.StringPointer("new remarks"),
 			},
 			ReportID: *handlers.FmtUUID(reportID),
 		}
@@ -800,7 +816,7 @@ func (suite *HandlerSuite) TestSaveEvaluationReportHandler() {
 		params := evaluationReportop.SaveEvaluationReportParams{
 			HTTPRequest: request,
 			Body: &ghcmessages.EvaluationReport{
-				Remarks: swag.String("new remarks"),
+				Remarks: models.StringPointer("new remarks"),
 			},
 			ReportID: *handlers.FmtUUID(reportID),
 		}
@@ -838,7 +854,7 @@ func (suite *HandlerSuite) TestSaveEvaluationReportHandler() {
 		params := evaluationReportop.SaveEvaluationReportParams{
 			HTTPRequest: request,
 			Body: &ghcmessages.EvaluationReport{
-				Remarks: swag.String("new remarks"),
+				Remarks: models.StringPointer("new remarks"),
 			},
 			ReportID: *handlers.FmtUUID(reportID),
 		}
@@ -876,7 +892,7 @@ func (suite *HandlerSuite) TestSaveEvaluationReportHandler() {
 		params := evaluationReportop.SaveEvaluationReportParams{
 			HTTPRequest: request,
 			Body: &ghcmessages.EvaluationReport{
-				Remarks: swag.String("new remarks"),
+				Remarks: models.StringPointer("new remarks"),
 			},
 			ReportID: *handlers.FmtUUID(reportID),
 		}
@@ -904,7 +920,7 @@ func (suite *HandlerSuite) TestSaveEvaluationReportHandler() {
 func (suite *HandlerSuite) TestDownloadEvaluationReportHandler() {
 
 	suite.Run("Successful download", func() {
-		report := testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{})
+		report := factory.BuildEvaluationReport(suite.DB(), nil, nil)
 		reportID := report.ID
 
 		reportFetcher := &mocks.EvaluationReportFetcher{}

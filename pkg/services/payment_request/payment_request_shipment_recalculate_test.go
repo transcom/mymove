@@ -39,11 +39,12 @@ func (suite *PaymentRequestServiceSuite) TestRecalculateShipmentPaymentRequestSu
 
 	// Add a couple of proof of service docs and prime uploads.
 	for i := 0; i < 2; i++ {
-		proofOfServiceDoc := testdatagen.MakeProofOfServiceDoc(suite.DB(), testdatagen.Assertions{
-			ProofOfServiceDoc: models.ProofOfServiceDoc{
-				PaymentRequestID: paymentRequest1.ID,
+		proofOfServiceDoc := factory.BuildProofOfServiceDoc(suite.DB(), []factory.Customization{
+			{
+				Model:    *paymentRequest1,
+				LinkOnly: true,
 			},
-		})
+		}, nil)
 		contractor := factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 		testdatagen.MakePrimeUpload(suite.DB(), testdatagen.Assertions{
 			PrimeUpload: models.PrimeUpload{
@@ -67,11 +68,12 @@ func (suite *PaymentRequestServiceSuite) TestRecalculateShipmentPaymentRequestSu
 
 	// Add a couple of proof of service docs and prime uploads.
 	for i := 0; i < 2; i++ {
-		proofOfServiceDoc := testdatagen.MakeProofOfServiceDoc(suite.DB(), testdatagen.Assertions{
-			ProofOfServiceDoc: models.ProofOfServiceDoc{
-				PaymentRequestID: paymentRequest2.ID,
+		proofOfServiceDoc := factory.BuildProofOfServiceDoc(suite.DB(), []factory.Customization{
+			{
+				Model:    *paymentRequest2,
+				LinkOnly: true,
 			},
-		})
+		}, nil)
 		contractor := factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 		testdatagen.MakePrimeUpload(suite.DB(), testdatagen.Assertions{
 			PrimeUpload: models.PrimeUpload{

@@ -1,8 +1,6 @@
 package webhook
 
 import (
-	"github.com/go-openapi/swag"
-
 	"github.com/transcom/mymove/pkg/gen/supportmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -12,7 +10,7 @@ import (
 func GetWebhookNotificationPayload(model *models.WebhookNotification) *supportmessages.WebhookNotification {
 	payload := supportmessages.WebhookNotification{
 		EventKey:        model.EventKey,
-		Object:          swag.String(model.Payload),
+		Object:          models.StringPointer(model.Payload),
 		ObjectID:        handlers.FmtUUIDPtr(model.ObjectID),
 		MoveTaskOrderID: handlers.FmtUUIDPtr(model.MoveTaskOrderID),
 	}

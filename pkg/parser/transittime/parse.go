@@ -6,13 +6,13 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/go-openapi/swag"
 	"github.com/gocarina/gocsv"
 	"github.com/pkg/errors"
 	"github.com/tealeg/xlsx/v3"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/dbtools"
 )
@@ -101,12 +101,12 @@ func InitDataSheetInfo() []XlsxDataSheetInfo {
 	// Tab Index
 	// 1: 	Domestic Transit Times
 	xlsxDataSheets[1] = XlsxDataSheetInfo{
-		Description:    swag.String("HHG Domestic Transit Times"),
-		outputFilename: swag.String("hhg_domestic_transit_times"),
+		Description:    models.StringPointer("HHG Domestic Transit Times"),
+		outputFilename: models.StringPointer("hhg_domestic_transit_times"),
 		ProcessMethods: []xlsxProcessInfo{
 			{
 				process:    &parseDomesticTransitTime,
-				adtlSuffix: swag.String("domestic"),
+				adtlSuffix: models.StringPointer("domestic"),
 			},
 		},
 		verify: &verifyTransitTime,

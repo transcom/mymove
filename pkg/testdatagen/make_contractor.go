@@ -9,8 +9,8 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-// MakeContractor creates a single Contractor.
-func MakeContractor(db *pop.Connection, assertions Assertions) models.Contractor {
+// FetchOrMakeContractor creates a single Contractor.
+func FetchOrMakeContractor(db *pop.Connection, assertions Assertions) models.Contractor {
 
 	contractor := models.Contractor{
 		Name:           DefaultContractName,
@@ -35,15 +35,18 @@ func MakeContractor(db *pop.Connection, assertions Assertions) models.Contractor
 		return contractor
 	}
 
+	// Don't create multiple contractors of the same type
+	err = db.Q().Where(`type=$1`, contractor.Type).First(&contractor)
+	if err != nil && err != sql.ErrNoRows {
+		log.Panic(err)
+	} else if err == nil {
+		return contractor
+	}
+
 	// Overwrite values with those from assertions
 	mergeModels(&contractor, assertions.Contractor)
 
 	mustCreate(db, &contractor, assertions.Stub)
 
 	return contractor
-}
-
-// MakeDefaultContractor returns a Contractor with default values
-func MakeDefaultContractor(db *pop.Connection) models.Contractor {
-	return MakeContractor(db, Assertions{})
 }

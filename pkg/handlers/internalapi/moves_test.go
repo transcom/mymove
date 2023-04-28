@@ -10,13 +10,11 @@
 package internalapi
 
 import (
-	"bytes"
 	"fmt"
 	"net/http/httptest"
 	"time"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
@@ -29,18 +27,18 @@ import (
 	"github.com/transcom/mymove/pkg/route/mocks"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
-	"github.com/transcom/mymove/pkg/testdatagen"
-	"github.com/transcom/mymove/pkg/unit"
 )
 
 func (suite *HandlerSuite) TestPatchMoveHandler() {
 	// Given: a set of orders, a move, user and servicemember
-	move := testdatagen.MakeDefaultMove(suite.DB())
-	transportationOffice := testdatagen.MakeTransportationOffice(suite.DB(), testdatagen.Assertions{
-		TransportationOffice: models.TransportationOffice{
-			ProvidesCloseout: true,
+	move := factory.BuildMove(suite.DB(), nil, nil)
+	transportationOffice := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+		{
+			Model: models.TransportationOffice{
+				ProvidesCloseout: true,
+			},
 		},
-	})
+	}, nil)
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("PATCH", "/moves/some_id", nil)
@@ -75,7 +73,7 @@ func (suite *HandlerSuite) TestPatchMoveHandler() {
 
 func (suite *HandlerSuite) TestPatchMoveHandlerWrongUser() {
 	// Given: a set of orders, a move, user and servicemember
-	move := testdatagen.MakeDefaultMove(suite.DB())
+	move := factory.BuildMove(suite.DB(), nil, nil)
 	// And: another logged in user
 	anotherUser := factory.BuildServiceMember(suite.DB(), nil, nil)
 
@@ -133,9 +131,9 @@ func (suite *HandlerSuite) TestPatchMoveHandlerNoMove() {
 
 func (suite *HandlerSuite) TestPatchMoveHandlerCloseoutOfficeNotFound() {
 	// Given: a set of orders, a move, user and servicemember
-	move := testdatagen.MakeDefaultMove(suite.DB())
+	move := factory.BuildMove(suite.DB(), nil, nil)
 	// TransportationOffice doesn't provide PPM closeout so should not be found
-	transportationOffice := testdatagen.MakeDefaultTransportationOffice(suite.DB())
+	transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("PATCH", "/moves/some_id", nil)
@@ -163,12 +161,14 @@ func (suite *HandlerSuite) TestPatchMoveHandlerCloseoutOfficeNotFound() {
 
 func (suite *HandlerSuite) TestPatchMoveHandlerETagPreconditionFailure() {
 	// Given: a set of orders, a move, user and servicemember
-	move := testdatagen.MakeDefaultMove(suite.DB())
-	transportationOffice := testdatagen.MakeTransportationOffice(suite.DB(), testdatagen.Assertions{
-		TransportationOffice: models.TransportationOffice{
-			ProvidesCloseout: true,
+	move := factory.BuildMove(suite.DB(), nil, nil)
+	transportationOffice := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+		{
+			Model: models.TransportationOffice{
+				ProvidesCloseout: true,
+			},
 		},
-	})
+	}, nil)
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("PATCH", "/moves/some_id", nil)
@@ -196,7 +196,7 @@ func (suite *HandlerSuite) TestPatchMoveHandlerETagPreconditionFailure() {
 func (suite *HandlerSuite) TestShowMoveHandler() {
 
 	// Given: a set of orders, a move, user and servicemember
-	move := testdatagen.MakeDefaultMove(suite.DB())
+	move := factory.BuildMove(suite.DB(), nil, nil)
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("GET", "/moves/some_id", nil)
@@ -221,7 +221,7 @@ func (suite *HandlerSuite) TestShowMoveHandler() {
 
 func (suite *HandlerSuite) TestShowMoveWrongUser() {
 	// Given: a set of orders, a move, user and servicemember
-	move := testdatagen.MakeDefaultMove(suite.DB())
+	move := factory.BuildMove(suite.DB(), nil, nil)
 	// And: another logged in user
 	anotherUser := factory.BuildServiceMember(suite.DB(), nil, nil)
 
@@ -244,22 +244,18 @@ func (suite *HandlerSuite) TestShowMoveWrongUser() {
 func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
 	suite.Run("Submits ppm success", func() {
 		// Given: a set of orders, a move, user and servicemember
-		move := testdatagen.MakeDefaultMove(suite.DB())
-
-		hhgShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status:       models.MTOShipmentStatusDraft,
-				ShipmentType: models.MTOShipmentTypePPM,
+		move := factory.BuildMove(suite.DB(), nil, nil)
+		factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-			Stub: true,
-		})
-		testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
-			Move:        move,
-			MTOShipment: hhgShipment,
-			PPMShipment: models.PPMShipment{
-				Status: models.PPMShipmentStatusDraft,
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusDraft,
+				},
 			},
-		})
+		}, nil)
 
 		// And: the context contains the auth values
 		req := httptest.NewRequest("POST", "/moves/some_id/submit", nil)
@@ -267,10 +263,10 @@ func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
 		certType := internalmessages.SignedCertificationTypeCreateSHIPMENT
 		signingDate := strfmt.DateTime(time.Now())
 		certificate := internalmessages.CreateSignedCertificationPayload{
-			CertificationText: swag.String("This is your legal message"),
+			CertificationText: models.StringPointer("This is your legal message"),
 			CertificationType: &certType,
 			Date:              &signingDate,
-			Signature:         swag.String("Jane Doe"),
+			Signature:         models.StringPointer("Jane Doe"),
 		}
 		newSubmitMoveForApprovalPayload := internalmessages.SubmitMoveForApprovalPayload{Certificate: &certificate}
 
@@ -309,7 +305,7 @@ func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
 	})
 	suite.Run("Submits hhg shipment success", func() {
 		// Given: a set of orders, a move, user and servicemember
-		hhg := testdatagen.MakeDefaultMTOShipment(suite.DB())
+		hhg := factory.BuildMTOShipment(suite.DB(), nil, nil)
 		move := hhg.MoveTaskOrder
 
 		// And: the context contains the auth values
@@ -318,10 +314,10 @@ func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
 		certType := internalmessages.SignedCertificationTypeCreateSHIPMENT
 		signingDate := strfmt.DateTime(time.Now())
 		certificate := internalmessages.CreateSignedCertificationPayload{
-			CertificationText: swag.String("This is your legal message"),
+			CertificationText: models.StringPointer("This is your legal message"),
 			CertificationType: &certType,
 			Date:              &signingDate,
-			Signature:         swag.String("Jane Doe"),
+			Signature:         models.StringPointer("Jane Doe"),
 		}
 		newSubmitMoveForApprovalPayload := internalmessages.SubmitMoveForApprovalPayload{Certificate: &certificate}
 
@@ -356,19 +352,14 @@ func (suite *HandlerSuite) TestSubmitMoveForServiceCounselingHandler() {
 	suite.Run("Routes to service counseling when feature flag is true", func() {
 		// Given: a set of orders with an origin duty location that provides services counseling,
 		// a move, user and servicemember
-		dutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+		move := factory.BuildMove(suite.DB(), []factory.Customization{
 			{
 				Model: models.DutyLocation{
 					ProvidesServicesCounseling: true,
 				},
+				Type: &factory.DutyLocations.OriginDutyLocation,
 			},
 		}, nil)
-		assertions := testdatagen.Assertions{
-			Order: models.Order{
-				OriginDutyLocation: &dutyLocation,
-			},
-		}
-		move := testdatagen.MakeMove(suite.DB(), assertions)
 
 		// And: the context contains the auth values
 		req := httptest.NewRequest("POST", "/moves/some_id/submit", nil)
@@ -376,10 +367,10 @@ func (suite *HandlerSuite) TestSubmitMoveForServiceCounselingHandler() {
 		certType := internalmessages.SignedCertificationTypeCreateSHIPMENT
 		signingDate := strfmt.DateTime(time.Now())
 		certificate := internalmessages.CreateSignedCertificationPayload{
-			CertificationText: swag.String("This is your legal message"),
+			CertificationText: models.StringPointer("This is your legal message"),
 			CertificationType: &certType,
 			Date:              &signingDate,
-			Signature:         swag.String("Jane Doe"),
+			Signature:         models.StringPointer("Jane Doe"),
 		}
 		newSubmitMoveForApprovalPayload := internalmessages.SubmitMoveForApprovalPayload{Certificate: &certificate}
 
@@ -483,17 +474,29 @@ func (suite *HandlerSuite) TestShowMoveDatesSummaryHandler() {
 		},
 	}, nil)
 
-	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-		Order: models.Order{
-			ServiceMemberID:   serviceMember.ID,
-			ServiceMember:     serviceMember,
-			ReportByDate:      time.Date(2018, 10, 31, 0, 0, 0, 0, time.UTC),
-			NewDutyLocationID: newDutyLocation.ID,
-			NewDutyLocation:   newDutyLocation,
-			HasDependents:     true,
-			SpouseHasProGear:  true,
+	move := factory.BuildMove(suite.DB(), []factory.Customization{
+		{
+			Model: models.Order{
+				ReportByDate:     time.Date(2018, 10, 31, 0, 0, 0, 0, time.UTC),
+				HasDependents:    true,
+				SpouseHasProGear: true,
+			},
 		},
-	})
+		{
+			Model:    serviceMember,
+			LinkOnly: true,
+		},
+		{
+			Model:    dutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.OriginDutyLocation,
+		},
+		{
+			Model:    newDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.NewDutyLocation,
+		},
+	}, nil)
 
 	path := fmt.Sprintf("/moves/%s/move_dates", move.ID.String())
 	req := httptest.NewRequest("GET", path, nil)
@@ -564,7 +567,7 @@ func (suite *HandlerSuite) TestShowMoveDatesSummaryHandler() {
 
 func (suite *HandlerSuite) TestShowMoveDatesSummaryForbiddenUser() {
 	// Given: a set of orders, a move, user and servicemember
-	move := testdatagen.MakeDefaultMove(suite.DB())
+	move := factory.BuildMove(suite.DB(), nil, nil)
 	// And: another logged in user
 	anotherUser := factory.BuildServiceMember(suite.DB(), nil, nil)
 
@@ -596,144 +599,15 @@ func (suite *HandlerSuite) TestShowMoveDatesSummaryForbiddenUser() {
 
 }
 
-func (suite *HandlerSuite) TestShowShipmentSummaryWorksheet() {
-	testdatagen.MakeTariff400ngItemRate(suite.DB(), testdatagen.Assertions{
-		Tariff400ngItemRate: models.Tariff400ngItemRate{
-			Code:     "210A",
-			Schedule: models.IntPointer(1),
-		},
-	})
-	testdatagen.MakeTariff400ngItemRate(suite.DB(), testdatagen.Assertions{
-		Tariff400ngItemRate: models.Tariff400ngItemRate{
-			Code:     "225A",
-			Schedule: models.IntPointer(1),
-		},
-	})
-	testdatagen.MakeDefaultTariff400ngItem(suite.DB())
-	testdatagen.MakeTariff400ngServiceArea(suite.DB(), testdatagen.Assertions{
-		Tariff400ngServiceArea: models.Tariff400ngServiceArea{
-			ServiceArea: "296",
-		},
-	})
-	testdatagen.MakeTariff400ngServiceArea(suite.DB(), testdatagen.Assertions{
-		Tariff400ngServiceArea: models.Tariff400ngServiceArea{
-			ServiceArea: "208",
-		},
-	})
-	lhr := models.Tariff400ngLinehaulRate{
-		DistanceMilesLower: 1,
-		DistanceMilesUpper: 10000,
-		WeightLbsLower:     1,
-		WeightLbsUpper:     10000,
-		RateCents:          20000,
-		Type:               "ConusLinehaul",
-		EffectiveDateLower: testdatagen.PeakRateCycleStart,
-		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
-	}
-	suite.MustSave(&lhr)
-	fpr := models.Tariff400ngFullPackRate{
-		Schedule:           1,
-		WeightLbsLower:     1,
-		WeightLbsUpper:     10000,
-		RateCents:          100,
-		EffectiveDateLower: testdatagen.PeakRateCycleStart,
-		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
-	}
-	suite.MustSave(&fpr)
-	fupr := models.Tariff400ngFullUnpackRate{
-		Schedule:           1,
-		EffectiveDateLower: testdatagen.PeakRateCycleStart,
-		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
-	}
-	suite.MustSave(&fupr)
-	tdl := testdatagen.MakeTDL(suite.DB(), testdatagen.Assertions{
-		TrafficDistributionList: models.TrafficDistributionList{
-			SourceRateArea:    "US53",
-			DestinationRegion: "12",
-		},
-	})
-	testdatagen.MakeTSPPerformance(suite.DB(),
-		testdatagen.Assertions{
-			TransportationServiceProviderPerformance: models.TransportationServiceProviderPerformance{
-				TrafficDistributionListID: tdl.ID,
-			},
-		})
-
-	move := testdatagen.MakeDefaultMove(suite.DB())
-	netWeight := unit.Pound(1000)
-	ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
-		PersonallyProcuredMove: models.PersonallyProcuredMove{
-			MoveID:                move.ID,
-			ActualMoveDate:        &testdatagen.DateInsidePerformancePeriod,
-			NetWeight:             &netWeight,
-			PickupPostalCode:      models.StringPointer("50303"),
-			DestinationPostalCode: models.StringPointer("30814"),
-		},
-	})
-	certificationType := models.SignedCertificationTypePPMPAYMENT
-	testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
-		SignedCertification: models.SignedCertification{
-			SubmittingUserID:         move.Orders.ServiceMember.UserID,
-			MoveID:                   move.ID,
-			PersonallyProcuredMoveID: &ppm.ID,
-			CertificationType:        &certificationType,
-		},
-	})
-
-	req := httptest.NewRequest("GET", "/moves/some_id/shipment_summary_worksheet", nil)
-	req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
-
-	preparationDate := strfmt.Date(time.Date(2019, time.January, 1, 1, 1, 1, 1, time.UTC))
-	params := moveop.ShowShipmentSummaryWorksheetParams{
-		HTTPRequest:     req,
-		MoveID:          strfmt.UUID(move.ID.String()),
-		PreparationDate: preparationDate,
-	}
-
-	handlerConfig := suite.HandlerConfig()
-	planner := &mocks.Planner{}
-	planner.On("Zip5TransitDistanceLineHaul",
-		mock.AnythingOfType("*appcontext.appContext"),
-		mock.Anything,
-		mock.Anything,
-	).Return(1044, nil)
-	handlerConfig.SetPlanner(planner)
-
-	handler := ShowShipmentSummaryWorksheetHandler{handlerConfig}
-	response := handler.Handle(params)
-
-	suite.Assertions.IsType(&moveop.ShowShipmentSummaryWorksheetOK{}, response)
-	okResponse := response.(*moveop.ShowShipmentSummaryWorksheetOK)
-
-	// check that the payload wasn't empty
-	buf := new(bytes.Buffer)
-	bytesRead, err := buf.ReadFrom(okResponse.Payload)
-	suite.NoError(err)
-	suite.NotZero(bytesRead)
-}
-
 func (suite *HandlerSuite) TestSubmitAmendedOrdersHandler() {
 	suite.Run("Submits move with amended orders for review", func() {
 		// Given: a set of orders, a move, user and service member
-		document := factory.BuildDocument(suite.DB(), nil, nil)
-		order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
-			Order: models.Order{
-				UploadedAmendedOrders:   &document,
-				UploadedAmendedOrdersID: &document.ID,
+		move := factory.BuildSubmittedMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Document{},
+				Type:  &factory.Documents.UploadedAmendedOrders,
 			},
-		})
-
-		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				Status: models.MoveStatusSUBMITTED,
-			},
-			Order: order,
-		})
-
-		testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-		})
-
+		}, nil)
 		// And: the context contains the auth values
 		req := httptest.NewRequest("POST", "/moves/some_id/submit_amended_orders", nil)
 		req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)

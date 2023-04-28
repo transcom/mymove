@@ -18,7 +18,9 @@
     margin-bottom: 0;
   }
 }
-
+.submitSITEXtensionLink {
+  @include u-margin-right(2);
+}
 .ShipmentDetailsSidebar {
   flex-grow: 1;
 

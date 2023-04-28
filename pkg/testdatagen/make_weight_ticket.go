@@ -9,7 +9,7 @@ import (
 
 // MakeMinimalWeightTicket creates a single WeightTicket and associated relationships with a minimal set of data
 func MakeMinimalWeightTicket(db *pop.Connection, assertions Assertions) models.WeightTicket {
-	assertions = ensureServiceMemberIsSetUpInAssertions(db, assertions)
+	assertions = EnsureServiceMemberIsSetUpInAssertionsForDocumentCreation(db, assertions)
 
 	ppmShipment := checkOrCreatePPMShipment(db, assertions)
 
@@ -45,11 +45,25 @@ func MakeMinimalDefaultWeightTicket(db *pop.Connection) models.WeightTicket {
 
 // MakeWeightTicket creates a single WeightTicket and associated relationships with weights and documents
 func MakeWeightTicket(db *pop.Connection, assertions Assertions) models.WeightTicket {
-	assertions = ensureServiceMemberIsSetUpInAssertions(db, assertions)
+	assertions = EnsureServiceMemberIsSetUpInAssertionsForDocumentCreation(db, assertions)
+
+	assertionsHasFileToUse := false
+	if assertions.File != nil {
+		assertionsHasFileToUse = true
+	}
 
 	// Because this model points at multiple documents, it's not really good to point at the base assertions.Document,
 	// so we'll look at assertions.WeightTicket.<Document>
+	if !assertionsHasFileToUse {
+		assertions.File = Fixture("empty-weight-ticket.png")
+	}
+
 	emptyDocument := GetOrCreateDocumentWithUploads(db, assertions.WeightTicket.EmptyDocument, assertions)
+
+	if !assertionsHasFileToUse {
+		assertions.File = Fixture("full-weight-ticket.png")
+	}
+
 	fullDocument := GetOrCreateDocumentWithUploads(db, assertions.WeightTicket.FullDocument, assertions)
 
 	emptyWeight := unit.Pound(14500)
@@ -82,25 +96,26 @@ func MakeDefaultWeightTicket(db *pop.Connection) models.WeightTicket {
 	return MakeWeightTicket(db, Assertions{})
 }
 
-// ensureServiceMemberIsSetUpInAssertions checks for ServiceMember in assertions, or creates one if none exists. Several
-// of the downstream functions need a service member, but they don't always share assertions, look at the same
-// assertion, or create the service members in the same ways. We'll check now to see if we already have one created,
-// and if not, create one that we can place in the assertions for all the rest.
-func ensureServiceMemberIsSetUpInAssertions(db *pop.Connection, assertions Assertions) Assertions {
-	if !assertions.Stub && assertions.ServiceMember.CreatedAt.IsZero() || assertions.ServiceMember.ID.IsNil() {
-		serviceMember := MakeExtendedServiceMember(db, assertions)
+// MakeWeightTicketWithConstructedWeight creates a single WeightTicket and associated relationships with weights and documents
+func MakeWeightTicketWithConstructedWeight(db *pop.Connection, assertions Assertions) models.WeightTicket {
+	assertions = EnsureServiceMemberIsSetUpInAssertionsForDocumentCreation(db, assertions)
 
-		assertions.ServiceMember = serviceMember
-		assertions.Order.ServiceMemberID = serviceMember.ID
-		assertions.Order.ServiceMember = serviceMember
-		assertions.Document.ServiceMemberID = serviceMember.ID
-		assertions.Document.ServiceMember = serviceMember
-	} else {
-		assertions.Order.ServiceMemberID = assertions.ServiceMember.ID
-		assertions.Order.ServiceMember = assertions.ServiceMember
-		assertions.Document.ServiceMemberID = assertions.ServiceMember.ID
-		assertions.Document.ServiceMember = assertions.ServiceMember
-	}
+	// If they don't have weight tickets, they'll be uploading a vehicle registration or a rental agreement
+	assertions.File = Fixture("wa-vehicle-registration.pdf")
 
-	return assertions
+	// Because this model points at multiple documents, it's not really good to point at the base assertions.Document,
+	// so we'll look at assertions.WeightTicket.<Document>
+	assertions.WeightTicket.EmptyDocument = GetOrCreateDocumentWithUploads(db, assertions.WeightTicket.EmptyDocument, assertions)
+
+	assertions.WeightTicket.MissingEmptyWeightTicket = models.BoolPointer(true)
+
+	// If they don't have weight tickets, they'll be uploading a constructed weight spreadsheet for the
+	// full document upload.
+	assertions.File = Fixture("Weight Estimator.xls")
+
+	assertions.WeightTicket.FullDocument = GetOrCreateDocumentWithUploads(db, assertions.WeightTicket.FullDocument, assertions)
+
+	assertions.WeightTicket.MissingFullWeightTicket = models.BoolPointer(true)
+
+	return MakeWeightTicket(db, assertions)
 }

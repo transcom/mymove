@@ -3,11 +3,9 @@ package testdatagen
 import (
 	"fmt"
 	"log"
-	"time"
 
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gobuffalo/validate/v3"
-	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -42,7 +40,7 @@ func MakeUpload(db *pop.Connection, assertions Assertions) models.Upload {
 		upload = &models.Upload{
 			Filename:    "testFile.pdf",
 			Bytes:       int64(2202009),
-			ContentType: "application/pdf",
+			ContentType: uploader.FileTypePDF,
 			Checksum:    "ImGQ2Ush0bDHsaQthV5BnQ==",
 			UploadType:  models.UploadTypeUSER,
 		}
@@ -53,18 +51,4 @@ func MakeUpload(db *pop.Connection, assertions Assertions) models.Upload {
 	}
 
 	return *upload
-}
-
-// MakeDefaultUpload makes an Upload with default values
-func MakeDefaultUpload(db *pop.Connection) models.Upload {
-	return MakeUpload(db, Assertions{})
-}
-
-// MakeStubbedUpload makes a fake Upload that is not saved to the DB
-func MakeStubbedUpload(db *pop.Connection, assertions Assertions) models.Upload {
-	assertions.Stub = true
-	assertions.Upload.ID = uuid.Must(uuid.NewV4())
-	assertions.Upload.CreatedAt = time.Now()
-	assertions.Upload.UpdatedAt = time.Now()
-	return MakeUpload(db, assertions)
 }

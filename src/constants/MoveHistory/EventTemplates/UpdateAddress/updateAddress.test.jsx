@@ -7,10 +7,10 @@ import { shipmentTypes } from 'constants/shipments';
 import { formatMoveHistoryFullAddress } from 'utils/formatters';
 
 const LABEL = {
-  backupMailingAddress: 'Backup mailing address',
+  backupMailingAddress: 'Backup address',
   destinationAddress: 'Destination address',
   pickupAddress: 'Origin address',
-  residentialAddress: 'Current mailing address',
+  residentialAddress: 'Current pickup address',
   secondaryDestinationAddress: 'Secondary destination address',
   secondaryPickupAddress: 'Secondary origin address',
 };
@@ -112,7 +112,7 @@ describe('when given a Update basic service item address history record', () => 
     };
     const updatedTemplate = getTemplate(updatedHistoryRecord);
 
-    it.each([['Current mailing address', ': 1234 New Ave, los angeles, CA 90210']])(
+    it.each([['Current pickup address', ': 1234 New Ave, los angeles, CA 90210']])(
       'Label `%s` should have the full address `%s`',
       async (label, value) => {
         render(updatedTemplate.getDetails(updatedHistoryRecord));

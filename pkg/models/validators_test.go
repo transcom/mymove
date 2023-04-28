@@ -14,6 +14,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
+	"github.com/transcom/mymove/pkg/uploader"
 )
 
 type stringList []string
@@ -32,7 +33,7 @@ func (sl stringList) Contents() []string {
 }
 
 func TestStringInList_IsValid(t *testing.T) {
-	validTypes := stringList{"image/png", "image/jpeg", "application/pdf"}
+	validTypes := stringList{uploader.FileTypePNG, uploader.FileTypeJPEG, uploader.FileTypePDF}
 	for _, validType := range validTypes {
 		t.Run(validType, func(t *testing.T) {
 			validator := models.NewStringInList(validType, "fieldName", validTypes)
@@ -380,6 +381,56 @@ func Test_OptionalUUIDIsPresent(t *testing.T) {
 	if errors.Get("name")[0] != "Name can not be blank." {
 		t.Errorf("wrong error; expected %s, got %s", "Name can not be blank.", errors.Get("name")[0])
 	}
+}
+
+func (suite *ModelSuite) TestOptionalCentIsPositive() {
+	suite.Run("Success", func() {
+		successTestCases := map[string]*unit.Cents{
+			"positive": models.CentPointer(unit.Cents(100)),
+			"nil":      nil,
+		}
+
+		for name, testCase := range successTestCases {
+			name, testCase := name, testCase
+
+			suite.Run(fmt.Sprintf("Cents is %s", name), func() {
+				validator := models.OptionalCentIsPositive{
+					Name:  "cents",
+					Field: testCase,
+				}
+				errs := validate.NewErrors()
+				validator.IsValid(errs)
+				suite.Equal(0, errs.Count(), "Expected no errors, got %s", errs.String())
+			})
+		}
+	})
+
+	suite.Run("Failure", func() {
+		failureTestCases := map[string]*unit.Cents{
+			"negative": models.CentPointer(unit.Cents(-100)),
+			"zero":     models.CentPointer(unit.Cents(0)),
+		}
+
+		for name, testCase := range failureTestCases {
+			name, testCase := name, testCase
+
+			suite.Run(fmt.Sprintf("Cents is %s", name), func() {
+				validator := models.OptionalCentIsPositive{
+					Name:  "cents",
+					Field: testCase,
+				}
+				errs := validate.NewErrors()
+				validator.IsValid(errs)
+				suite.Equal(1, errs.Count(), "Expected one error, got %s", errs.String())
+
+				testErrors := errs.Get("cents")
+
+				expected := fmt.Sprintf("%s must be greater than zero, got: %d.", validator.Name, *testCase)
+
+				suite.Equal(expected, testErrors[0], "Wrong validation message; expected %s, got %s", expected, testErrors[0])
+			})
+		}
+	})
 }
 
 func Test_OptionalPoundIsNonNegative_isValid(t *testing.T) {

@@ -621,8 +621,6 @@ definitions:
       locator:
         type: string
         example: '12432'
-      selected_move_type:
-        $ref: '#/definitions/SelectedMoveType'
       status:
         $ref: '#/definitions/MoveStatus'
       created_at:
@@ -672,26 +670,6 @@ definitions:
         description: The transportation office that will handle the PPM shipment's closeout approvals for Army and Air Force service members
     required:
       - closeoutOfficeId
-  SelectedMoveType:
-    type: string
-    title: Selected Move Type
-    enum:
-      - HHG
-      - PPM
-      - UB
-      - POV
-      - HHG_INTO_NTS_DOMESTIC
-      - HHG_OUTOF_NTS_DOMESTIC
-      - HHG_PPM
-    x-nullable: true
-    x-display-value:
-      HHG: Household Goods Move
-      PPM: Personal Procured Move
-      UB: Unaccompanied Baggage
-      POV: Privately-Owned Vehicle
-      HHG_INTO_NTS_DOMESTIC: Non-Temporary Storage
-      HHG_OUTOF_NTS_DOMESTIC: Non-Temporary Storage Release
-      HHG_PPM: Both HHG and PPM
   IndexMovesPayload:
     type: array
     items:
@@ -1755,17 +1733,6 @@ definitions:
       SUBMITTED: Submitted
       APPROVED: Approved
       CANCELED: Canceled
-  OrdersType:
-    type: string
-    title: Orders type
-    enum:
-      - PERMANENT_CHANGE_OF_STATION
-      - RETIREMENT
-      - SEPARATION
-    x-display-value:
-      PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station (PCS)
-      RETIREMENT: Retirement
-      SEPARATION: Separation
   OrdersTypeDetail:
     type: string
     title: Orders type detail
@@ -1816,7 +1783,7 @@ definitions:
       status:
         $ref: '#/definitions/OrdersStatus'
       orders_type:
-        $ref: '#/definitions/OrdersType'
+        $ref: 'definitions/OrdersType.yaml'
       orders_type_detail:
         $ref: '#/definitions/OrdersTypeDetail'
       has_dependents:
@@ -1920,7 +1887,7 @@ definitions:
         example: '2018-04-26'
         title: Report-by date
       orders_type:
-        $ref: '#/definitions/OrdersType'
+        $ref: 'definitions/OrdersType.yaml'
       orders_type_detail:
         $ref: '#/definitions/OrdersTypeDetail'
       has_dependents:

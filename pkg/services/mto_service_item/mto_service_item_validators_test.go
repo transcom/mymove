@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
@@ -77,9 +77,12 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 
 	// Test successful check for Prime availability
 	suite.Run("checkPrimeAvailability - success", func() {
-		oldServiceItemPrime := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			Move: testdatagen.MakeAvailableMove(suite.DB()),
-		})
+		oldServiceItemPrime := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil),
+				LinkOnly: true,
+			},
+		}, nil)
 		newServiceItemPrime := oldServiceItemPrime // Shallow copy model
 
 		serviceItemData := updateMTOServiceItemData{
@@ -173,12 +176,13 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		// 			    SITDepartureDate
 		// Set up:      Create an old and new DDDSIT, with a new date and try to update.
 		// Expected outcome: Success if both are DDDSIT
-		oldDDDSIT := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDDDSIT,
+		oldDDDSIT := factory.BuildMTOServiceItem(nil, []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDDSIT,
+				},
 			},
-			Stub: true,
-		})
+		}, nil)
 		newDDDSIT := oldDDDSIT
 		newDDDSIT.SITDepartureDate = &now
 
@@ -200,12 +204,13 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		// 			    SITDepartureDate
 		// Set up:      Create any non DDDSIT service item
 		// Expected outcome: Conflict Error
-		oldDOFSIT := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDOFSIT,
+		oldDOFSIT := factory.BuildMTOServiceItem(nil, []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDOFSIT,
+				},
 			},
-			Stub: true,
-		})
+		}, nil)
 		newDOFSIT := oldDOFSIT
 		newDOFSIT.SITDepartureDate = &now
 		serviceItemData := updateMTOServiceItemData{
@@ -247,13 +252,18 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		// Set up:      Create any service item with associated payment requests
 		// Expected outcome: ConflictError
 		oldServiceItem, newServiceItem := setupTestData() // These
-		newServiceItem.Description = swag.String("1234")
+		newServiceItem.Description = models.StringPointer("1234")
 
-		paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
-		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: paymentRequest,
-			MTOServiceItem: oldServiceItem,
-		})
+		paymentRequest := factory.BuildPaymentRequest(suite.DB(), nil, nil)
+		factory.BuildPaymentServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    paymentRequest,
+				LinkOnly: true,
+			}, {
+				Model:    oldServiceItem,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		serviceItemData := updateMTOServiceItemData{
 			updatedServiceItem: newServiceItem,

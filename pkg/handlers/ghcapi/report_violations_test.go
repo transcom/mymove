@@ -9,6 +9,7 @@ import (
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/factory"
 	reportViolationop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/report_violations"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/services/mocks"
@@ -92,7 +93,7 @@ func (suite *HandlerSuite) TestAssociateReportViolationsHandler() {
 			ReportViolationsCreator: creator,
 		}
 
-		report := testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{})
+		report := factory.BuildEvaluationReport(suite.DB(), nil, nil)
 		violation := testdatagen.MakePWSViolation(suite.DB(), testdatagen.Assertions{})
 
 		body := ghcmessages.AssociateReportViolations{Violations: []strfmt.UUID{strfmt.UUID(violation.ID.String())}}
@@ -129,7 +130,7 @@ func (suite *HandlerSuite) TestAssociateReportViolationsHandler() {
 			ReportViolationsCreator: creator,
 		}
 
-		report := testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{})
+		report := factory.BuildEvaluationReport(suite.DB(), nil, nil)
 		violation := testdatagen.MakePWSViolation(suite.DB(), testdatagen.Assertions{})
 
 		body := ghcmessages.AssociateReportViolations{Violations: []strfmt.UUID{strfmt.UUID(violation.ID.String())}}

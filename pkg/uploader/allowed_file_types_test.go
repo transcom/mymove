@@ -15,53 +15,53 @@ var fileTypeTestCasesAny = []fileTypeTestCase{
 	{"image/pdf", true},
 	{"image/painting", true},
 	{"application/zip", true},
-	{"text/plain", true},
+	{uploader.FileTypeText, true},
 	{"image/gif", true},
 }
 
 var fileTypeTestCasesServiceMember = []fileTypeTestCase{
-	{"image/jpeg", true},
-	{"image/png", true},
+	{uploader.FileTypeJPEG, true},
+	{uploader.FileTypePNG, true},
 	{"image/gif", false},
-	{"application/pdf", true},
+	{uploader.FileTypePDF, true},
 	{"application/zip", false},
-	{"text/plain", false},
+	{uploader.FileTypeText, false},
 }
 
 var fileTypeTestCasesPPM = []fileTypeTestCase{
-	{"image/jpeg", true},
-	{"image/png", true},
+	{uploader.FileTypeJPEG, true},
+	{uploader.FileTypePNG, true},
 	{"image/gif", false},
-	{"application/pdf", true},
-	{"application/vnd.ms-excel", true},
-	{"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", true},
+	{uploader.FileTypePDF, true},
+	{uploader.FileTypeExcel, true},
+	{uploader.FileTypeExcelXLSX, true},
 	{"application/zip", false},
-	{"text/plain", false},
+	{uploader.FileTypeText, false},
 }
 
 var fileTypeTestCasesPaymentRequest = []fileTypeTestCase{
-	{"image/jpeg", true},
-	{"image/png", true},
+	{uploader.FileTypeJPEG, true},
+	{uploader.FileTypePNG, true},
 	{"image/gif", false},
-	{"application/pdf", true},
+	{uploader.FileTypePDF, true},
 	{"application/zip", false},
-	{"text/plain", false},
+	{uploader.FileTypeText, false},
 }
 
 var fileTypeTestCasesText = []fileTypeTestCase{
-	{"image/jpeg", false},
-	{"image/png", false},
-	{"application/pdf", false},
+	{uploader.FileTypeJPEG, false},
+	{uploader.FileTypePNG, false},
+	{uploader.FileTypePDF, false},
 	{"application/zip", false},
-	{"text/plain", true},
+	{uploader.FileTypeText, true},
 }
 
 var fileTypeTestCasesPDF = []fileTypeTestCase{
-	{"image/jpeg", false},
-	{"image/png", false},
-	{"application/pdf", true},
+	{uploader.FileTypeJPEG, false},
+	{uploader.FileTypePNG, false},
+	{uploader.FileTypePDF, true},
 	{"application/zip", false},
-	{"text/plain", false},
+	{uploader.FileTypeText, false},
 }
 
 func (suite *UploaderSuite) verifyFileTypes(name string, allowedFileTypes uploader.AllowedFileTypes, cases []fileTypeTestCase) {

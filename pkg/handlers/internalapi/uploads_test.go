@@ -46,7 +46,7 @@ func createPrereqs(suite *HandlerSuite, fixtureFile string) (models.Document, up
 }
 
 func createPPMPrereqs(suite *HandlerSuite, fixtureFile string) (models.Document, ppmop.CreatePPMUploadParams) {
-	ppmShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{})
+	ppmShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
 
 	weightTicket := testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{
 		PPMShipment: ppmShipment,
@@ -61,7 +61,7 @@ func createPPMPrereqs(suite *HandlerSuite, fixtureFile string) (models.Document,
 }
 
 func createPPMProgearPrereqs(suite *HandlerSuite, fixtureFile string) (models.Document, ppmop.CreatePPMUploadParams) {
-	ppmShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{})
+	ppmShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
 
 	proGear := testdatagen.MakeProgearWeightTicket(suite.DB(), testdatagen.Assertions{
 		PPMShipment: ppmShipment,
@@ -76,7 +76,7 @@ func createPPMProgearPrereqs(suite *HandlerSuite, fixtureFile string) (models.Do
 }
 
 func createPPMExpensePrereqs(suite *HandlerSuite, fixtureFile string) (models.Document, ppmop.CreatePPMUploadParams) {
-	ppmShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{})
+	ppmShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
 
 	movingExpense := testdatagen.MakeMovingExpense(suite.DB(), testdatagen.Assertions{
 		PPMShipment: ppmShipment,
@@ -361,10 +361,10 @@ func (suite *HandlerSuite) TestCreatePPMUploadsHandlerSuccess() {
 
 		suite.NotEmpty(createdResponse.Payload.ID)
 		suite.Equal(FixtureXLS, createdResponse.Payload.Filename)
-		suite.Equal("application/vnd.ms-excel", createdResponse.Payload.ContentType)
+		suite.Equal(uploader.FileTypeExcel, createdResponse.Payload.ContentType)
 		suite.Contains(createdResponse.Payload.URL, document.ServiceMember.UserID.String())
 		suite.Contains(createdResponse.Payload.URL, upload.ID.String())
-		suite.Contains(createdResponse.Payload.URL, "application/vnd.ms-excel")
+		suite.Contains(createdResponse.Payload.URL, uploader.FileTypeExcel)
 	})
 
 	suite.Run("uploads .xlsx file", func() {
@@ -385,10 +385,10 @@ func (suite *HandlerSuite) TestCreatePPMUploadsHandlerSuccess() {
 
 		suite.NotEmpty(createdResponse.Payload.ID)
 		suite.Equal(FixtureXLSX, createdResponse.Payload.Filename)
-		suite.Equal("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", createdResponse.Payload.ContentType)
+		suite.Equal(uploader.FileTypeExcelXLSX, createdResponse.Payload.ContentType)
 		suite.Contains(createdResponse.Payload.URL, document.ServiceMember.UserID.String())
 		suite.Contains(createdResponse.Payload.URL, upload.ID.String())
-		suite.Contains(createdResponse.Payload.URL, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+		suite.Contains(createdResponse.Payload.URL, uploader.FileTypeExcelXLSX)
 	})
 
 	suite.Run("uploads file for a progear document", func() {
@@ -409,10 +409,10 @@ func (suite *HandlerSuite) TestCreatePPMUploadsHandlerSuccess() {
 
 		suite.NotEmpty(createdResponse.Payload.ID)
 		suite.Equal(FixturePNG, createdResponse.Payload.Filename)
-		suite.Equal("image/png", createdResponse.Payload.ContentType)
+		suite.Equal(uploader.FileTypePNG, createdResponse.Payload.ContentType)
 		suite.Contains(createdResponse.Payload.URL, document.ServiceMember.UserID.String())
 		suite.Contains(createdResponse.Payload.URL, upload.ID.String())
-		suite.Contains(createdResponse.Payload.URL, "image/png")
+		suite.Contains(createdResponse.Payload.URL, uploader.FileTypePNG)
 	})
 
 	suite.Run("uploads file for an expense document", func() {
@@ -433,10 +433,10 @@ func (suite *HandlerSuite) TestCreatePPMUploadsHandlerSuccess() {
 
 		suite.NotEmpty(createdResponse.Payload.ID)
 		suite.Equal(FixtureJPG, createdResponse.Payload.Filename)
-		suite.Equal("image/jpeg", createdResponse.Payload.ContentType)
+		suite.Equal(uploader.FileTypeJPEG, createdResponse.Payload.ContentType)
 		suite.Contains(createdResponse.Payload.URL, document.ServiceMember.UserID.String())
 		suite.Contains(createdResponse.Payload.URL, upload.ID.String())
-		suite.Contains(createdResponse.Payload.URL, "image/jpeg")
+		suite.Contains(createdResponse.Payload.URL, uploader.FileTypeJPEG)
 	})
 }
 
@@ -506,7 +506,7 @@ func (suite *HandlerSuite) TestCreatePPMUploadsHandlerFailure() {
 		suite.IsType(&ppmop.CreatePPMUploadUnprocessableEntity{}, response)
 		invalidContentTypeResponse, _ := response.(*ppmop.CreatePPMUploadUnprocessableEntity)
 
-		unsupportedErr := uploader.NewErrUnsupportedContentType("text/plain; charset=utf-8", uploader.AllowedTypesPPMDocuments)
+		unsupportedErr := uploader.NewErrUnsupportedContentType(uploader.FileTypeTextUTF8, uploader.AllowedTypesPPMDocuments)
 		suite.Equal(unsupportedErr.Error(), *invalidContentTypeResponse.Payload.Detail)
 	})
 

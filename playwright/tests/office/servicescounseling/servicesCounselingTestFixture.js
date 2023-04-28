@@ -13,13 +13,6 @@ export class ServiceCounselorPage extends OfficePage {
    */
   constructor(officePage) {
     super(officePage.page, officePage.request);
-    Object.entries(this.waitForPage).forEach(([key, value]) => {
-      // eslint-disable-next-line security/detect-object-injection
-      this.waitForPage[key] = async () => {
-        await value();
-        await this.runAccessibilityAudit();
-      };
-    });
   }
 
   waitForPage = {
@@ -51,8 +44,14 @@ export class ServiceCounselorPage extends OfficePage {
     moveOrders: async () => {
       await expect(this.page.getByRole('heading', { level: 2, name: 'View orders' })).toBeVisible();
     },
-    reviewDocuments: async () => {
+    reviewWeightTicket: async () => {
       await expect(this.page.getByRole('heading', { name: 'Review trip 1', level: 3 })).toBeVisible();
+    },
+    reviewProGear: async () => {
+      await expect(this.page.getByRole('heading', { name: 'Review pro-gear 1', level: 3 })).toBeVisible();
+    },
+    reviewReceipt: async () => {
+      await expect(this.page.getByRole('heading', { name: 'Review receipt 1', level: 3 })).toBeVisible();
     },
     reviewDocumentsConfirmation: async () => {
       await expect(this.page.getByRole('heading', { name: 'Send to customer?', level: 3 })).toBeVisible();

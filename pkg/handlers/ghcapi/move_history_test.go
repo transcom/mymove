@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
@@ -17,7 +16,6 @@ import (
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	movehistory "github.com/transcom/mymove/pkg/services/move_history"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func getMoveHistoryForTest() models.MoveHistory {
@@ -65,8 +63,8 @@ func (suite *HandlerSuite) TestMockGetMoveHistoryHandler() {
 		params := moveops.GetMoveHistoryParams{
 			HTTPRequest: req,
 			Locator:     "ABCD1234",
-			Page:        swag.Int64(1),
-			PerPage:     swag.Int64(20),
+			Page:        models.Int64Pointer(1),
+			PerPage:     models.Int64Pointer(20),
 		}
 
 		handler := GetMoveHistoryHandler{
@@ -127,8 +125,8 @@ func (suite *HandlerSuite) TestMockGetMoveHistoryHandler() {
 		badParams := moveops.GetMoveHistoryParams{
 			HTTPRequest: req,
 			Locator:     "",
-			Page:        swag.Int64(1),
-			PerPage:     swag.Int64(20),
+			Page:        models.Int64Pointer(1),
+			PerPage:     models.Int64Pointer(20),
 		}
 
 		// Validate incoming payload: no body to validate
@@ -149,8 +147,8 @@ func (suite *HandlerSuite) TestMockGetMoveHistoryHandler() {
 		params := moveops.GetMoveHistoryParams{
 			HTTPRequest: req,
 			Locator:     "ABCD1234",
-			Page:        swag.Int64(1),
-			PerPage:     swag.Int64(20),
+			Page:        models.Int64Pointer(1),
+			PerPage:     models.Int64Pointer(20),
 		}
 
 		handler := GetMoveHistoryHandler{
@@ -181,8 +179,8 @@ func (suite *HandlerSuite) TestMockGetMoveHistoryHandler() {
 		params := moveops.GetMoveHistoryParams{
 			HTTPRequest: req,
 			Locator:     "ABCD1234",
-			Page:        swag.Int64(1),
-			PerPage:     swag.Int64(20),
+			Page:        models.Int64Pointer(1),
+			PerPage:     models.Int64Pointer(20),
 		}
 
 		handler := GetMoveHistoryHandler{
@@ -207,14 +205,19 @@ func (suite *HandlerSuite) TestMockGetMoveHistoryHandler() {
 
 	suite.Run("Paginated move history fetch results", func() {
 		// Create a move
-		move := testdatagen.MakeDefaultMove(suite.DB())
+		move := factory.BuildMove(suite.DB(), nil, nil)
 
 		// Add shipment to the move, giving the move some "history"
 		shipment := models.MTOShipment{Status: models.MTOShipmentStatusSubmitted}
-		testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move:        move,
-			MTOShipment: shipment,
-		})
+		factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: shipment,
+			},
+		}, nil)
 
 		// Build history request for a TIO user
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTIO})
@@ -224,8 +227,8 @@ func (suite *HandlerSuite) TestMockGetMoveHistoryHandler() {
 		pagedParams := moveops.GetMoveHistoryParams{
 			HTTPRequest: request,
 			Locator:     move.Locator,
-			Page:        swag.Int64(1),
-			PerPage:     swag.Int64(2), // This should limit results to only the first 2 records of the possible 4
+			Page:        models.Int64Pointer(1),
+			PerPage:     models.Int64Pointer(2), // This should limit results to only the first 2 records of the possible 4
 		}
 
 		handlerConfig := suite.HandlerConfig()

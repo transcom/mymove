@@ -1,10 +1,15 @@
 package ppmshipment
 
 import (
+	"io"
 	"testing"
 
+	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/suite"
 
+	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services/mocks"
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
@@ -18,4 +23,80 @@ func TestPPMShipmentServiceSuite(t *testing.T) {
 	}
 	suite.Run(t, ts)
 	ts.PopTestSuite.TearDown()
+}
+
+// setUpMockPPMShipmentUpdater sets up the input mock PPMShipmentUpdater to return the given return values once. It is
+// meant as a helper to not have to remember the exact mocking syntax each time, and to cut a tiny bit of boilerplate.
+func setUpMockPPMShipmentUpdater(
+	mockPPMShipmentUpdater *mocks.PPMShipmentUpdater,
+	appCtx appcontext.AppContext,
+	ppmShipment *models.PPMShipment,
+	returnValue ...interface{},
+) {
+	mockPPMShipmentUpdater.
+		On(
+			"UpdatePPMShipmentWithDefaultCheck",
+			appCtx,
+			ppmShipment,
+			ppmShipment.Shipment.ID,
+		).
+		Return(returnValue...).
+		Once()
+}
+
+// setUpMockPPMShipmentFetcher sets up the input mock PPMShipmentFetcher to return the given return values once. It is
+// meant as a helper to not have to remember the exact mocking syntax each time, and to cut a tiny bit of boilerplate.
+func setUpMockPPMShipmentFetcher(
+	mockPPMShipmentFetcher *mocks.PPMShipmentFetcher,
+	appCtx appcontext.AppContext,
+	ppmShipmentID uuid.UUID,
+	eagerPreloadAssociations []string,
+	postloadAssociations []string,
+	returnValue ...interface{},
+) {
+	mockPPMShipmentFetcher.
+		On(
+			"GetPPMShipment",
+			appCtx,
+			ppmShipmentID,
+			eagerPreloadAssociations,
+			postloadAssociations,
+		).
+		Return(returnValue...).
+		Once()
+}
+
+// setUpMockUserUploadToPDFConverter sets up the input mock UserUploadToPDFConverter to return the given return values
+// once. It is meant as a helper to not have to remember the exact mocking syntax each time, and to cut a tiny bit of
+// boilerplate.
+func setUpMockUserUploadToPDFConverter(
+	mockUserUploadToPDFConverter *mocks.UserUploadToPDFConverter,
+	appCtx appcontext.AppContext,
+	userUploads models.UserUploads,
+	returnValue ...interface{},
+) {
+	mockUserUploadToPDFConverter.
+		On(
+			"ConvertUserUploadsToPDF",
+			appCtx,
+			userUploads,
+		).
+		Return(returnValue...).
+		Once()
+}
+
+func setUpMockPDFMerger(
+	mockPDFMerger *mocks.PDFMerger,
+	appCtx appcontext.AppContext,
+	pdfsToMerge []io.ReadCloser,
+	returnValue ...interface{},
+) {
+	mockPDFMerger.
+		On(
+			"MergePDFs",
+			appCtx,
+			pdfsToMerge,
+		).
+		Return(returnValue...).
+		Once()
 }

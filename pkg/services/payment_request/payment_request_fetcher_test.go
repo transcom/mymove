@@ -16,7 +16,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequest() {
 
 		fetcher := NewPaymentRequestFetcher()
 
-		pr := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
+		pr := factory.BuildPaymentRequest(suite.DB(), nil, nil)
 		paymentRequest, err := fetcher.FetchPaymentRequest(suite.AppContextForTest(), pr.ID)
 
 		suite.NoError(err)
@@ -27,12 +27,13 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequest() {
 
 		fetcher := NewPaymentRequestFetcher()
 
-		pr := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
-		posd := testdatagen.MakeProofOfServiceDoc(suite.DB(), testdatagen.Assertions{
-			ProofOfServiceDoc: models.ProofOfServiceDoc{
-				PaymentRequestID: pr.ID,
+		pr := factory.BuildPaymentRequest(suite.DB(), nil, nil)
+		posd := factory.BuildProofOfServiceDoc(suite.DB(), []factory.Customization{
+			{
+				Model:    pr,
+				LinkOnly: true,
 			},
-		})
+		}, nil)
 		u := factory.BuildUpload(suite.DB(), nil, nil)
 		pu := testdatagen.MakePrimeUpload(suite.DB(), testdatagen.Assertions{
 			PrimeUpload: models.PrimeUpload{
@@ -59,12 +60,13 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequest() {
 
 		fetcher := NewPaymentRequestFetcher()
 
-		pr := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
-		posd := testdatagen.MakeProofOfServiceDoc(suite.DB(), testdatagen.Assertions{
-			ProofOfServiceDoc: models.ProofOfServiceDoc{
-				PaymentRequestID: pr.ID,
+		pr := factory.BuildPaymentRequest(suite.DB(), nil, nil)
+		posd := factory.BuildProofOfServiceDoc(suite.DB(), []factory.Customization{
+			{
+				Model:    pr,
+				LinkOnly: true,
 			},
-		})
+		}, nil)
 		deletedAt := time.Now()
 
 		u := factory.BuildUpload(suite.DB(), []factory.Customization{
