@@ -342,25 +342,9 @@ func (o *mtoServiceItemCreator) makeExtraSITServiceItem(appCtx appcontext.AppCon
 		}
 	}
 
-	//When a DDFSIT is created, this is where we auto create the accompanying DDASIT and DDDSIT
-	var contacts []models.MTOServiceItemCustomerContact
+	//When a DDFSIT is created, this is where we auto create the accompanying DDASIT and DDDSIT with copied contact data
+	contacts := copyCustomerContacts(firstSIT.CustomerContacts)
 
-	if firstSIT.CustomerContacts != nil {
-		contacts = []models.MTOServiceItemCustomerContact{
-			{
-				Type:                       firstSIT.CustomerContacts[0].Type,
-				TimeMilitary:               firstSIT.CustomerContacts[0].TimeMilitary,
-				FirstAvailableDeliveryDate: firstSIT.CustomerContacts[0].FirstAvailableDeliveryDate,
-			},
-			{
-				Type:                       firstSIT.CustomerContacts[1].Type,
-				TimeMilitary:               firstSIT.CustomerContacts[1].TimeMilitary,
-				FirstAvailableDeliveryDate: firstSIT.CustomerContacts[1].FirstAvailableDeliveryDate,
-			},
-		}
-	}
-
-	//If customer contacts exist we copy them over to the DDASIT and DDDSIT items
 	extraServiceItem := models.MTOServiceItem{
 		MTOShipmentID:    firstSIT.MTOShipmentID,
 		MoveTaskOrderID:  firstSIT.MoveTaskOrderID,
@@ -374,6 +358,25 @@ func (o *mtoServiceItemCreator) makeExtraSITServiceItem(appCtx appcontext.AppCon
 	}
 
 	return &extraServiceItem, nil
+}
+
+// Helper function for copying DDFSIT customer contacts to DDASIT and DDDSIT service items
+func copyCustomerContacts(customerContacts models.MTOServiceItemCustomerContacts) models.MTOServiceItemCustomerContacts {
+	var newContacts []models.MTOServiceItemCustomerContact
+
+	//If we have contacts copy them over, otherwise we will return an empty slice
+	for _, contact := range customerContacts {
+
+		newContact := models.MTOServiceItemCustomerContact{
+			Type:                       contact.Type,
+			TimeMilitary:               contact.TimeMilitary,
+			FirstAvailableDeliveryDate: contact.FirstAvailableDeliveryDate,
+		}
+
+		newContacts = append(newContacts, newContact)
+	}
+
+	return newContacts
 }
 
 // NewMTOServiceItemCreator returns a new MTO service item creator
