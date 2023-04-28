@@ -11,8 +11,10 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-// MakeBaseMTOShipment creates a single MTOShipment with the base set of data required for a shipment.
-func MakeBaseMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipment {
+// makeBaseMTOShipment creates a single MTOShipment with the base set
+// of data required for a shipment.
+// Deprecated: use factory.BuildMTOShipment
+func makeBaseMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipment {
 	moveTaskOrder := assertions.Move
 
 	if isZeroUUID(moveTaskOrder.ID) {
@@ -40,12 +42,15 @@ func MakeBaseMTOShipment(db *pop.Connection, assertions Assertions) models.MTOSh
 	return newMTOShipment
 }
 
-// MakeMTOShipment creates a single MTOShipment and associated set relationships
+// makeMTOShipment creates a single MTOShipment and associated set relationships
 // It will make a move record, if one is not provided.
 // It will make pickup addresses if the shipment type is not one of (HHGOutOfNTSDom, PPM)
 // It will make delivery addresses if the shipment type is not one of (HHGOutOfNTSDom, PPM)
-// It will make a storage facility if the shipment type is HHGOutOfNTSDom
-func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipment {
+// It will make a storage facility if the shipment type is
+// HHGOutOfNTSDom
+//
+// Deprecated: use factory.BuildMTOShipment
+func makeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipment {
 	shipmentType := models.MTOShipmentTypeHHG
 	shipmentStatus := models.MTOShipmentStatusDraft
 	mtoShipment := assertions.MTOShipment
@@ -220,7 +225,7 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 
 // MakeDefaultMTOShipment makes an MTOShipment with default values
 func MakeDefaultMTOShipment(db *pop.Connection) models.MTOShipment {
-	return MakeMTOShipment(db, Assertions{})
+	return makeMTOShipment(db, Assertions{})
 }
 
 // MakeMTOShipmentWithMove makes a shipment connected to a given move and updates the move's MTOShipments array
@@ -230,7 +235,7 @@ func MakeMTOShipmentWithMove(db *pop.Connection, move *models.Move, assertions A
 		assertions.MTOShipment.MoveTaskOrder = *move
 		assertions.MTOShipment.MoveTaskOrderID = move.ID
 	}
-	shipment := MakeMTOShipment(db, assertions)
+	shipment := makeMTOShipment(db, assertions)
 	if move != nil {
 		// This will allow someone to easily create multiple test shipments for one move
 		move.MTOShipments = append(move.MTOShipments, shipment)

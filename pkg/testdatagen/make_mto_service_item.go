@@ -18,7 +18,7 @@ func makeServiceItem(db *pop.Connection, assertions Assertions, isBasicServiceIt
 	var mtoShipment models.MTOShipment
 	if !isBasicServiceItem {
 		if isZeroUUID(assertions.MTOShipment.ID) {
-			mtoShipment = MakeMTOShipment(db, assertions)
+			mtoShipment = makeMTOShipment(db, assertions)
 			mtoShipmentID = &mtoShipment.ID
 		} else {
 			mtoShipment = assertions.MTOShipment

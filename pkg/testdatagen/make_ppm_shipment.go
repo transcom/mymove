@@ -25,7 +25,7 @@ func checkOrCreateMTOShipment(db *pop.Connection, assertions Assertions) models.
 			assertions.MTOShipment.Status = models.MTOShipmentStatusSubmitted
 		}
 
-		shipment = MakeBaseMTOShipment(db, assertions)
+		shipment = makeBaseMTOShipment(db, assertions)
 	}
 
 	return shipment
@@ -66,8 +66,10 @@ func getDefaultValuesForRequiredFields(db *pop.Connection, shipment models.MTOSh
 	return requiredFields
 }
 
-// MakePPMShipment creates a single PPMShipment and associated relationships
-func MakePPMShipment(db *pop.Connection, assertions Assertions) models.PPMShipment {
+// makePPMShipment creates a single PPMShipment and associated
+// relationships
+// Deprecated: use BuildPPMShipment
+func makePPMShipment(db *pop.Connection, assertions Assertions) models.PPMShipment {
 	fullAssertions := Assertions{
 		PPMShipment: models.PPMShipment{
 			Status:                         models.PPMShipmentStatusSubmitted,
@@ -147,7 +149,7 @@ func MakeApprovedPPMShipment(db *pop.Connection, assertions Assertions) models.P
 	// Overwrite values with those from assertions
 	mergeModels(&fullAssertions, assertions)
 
-	return MakePPMShipment(db, fullAssertions)
+	return makePPMShipment(db, fullAssertions)
 }
 
 // MakeApprovedPPMShipmentWaitingOnCustomer creates a single PPMShipment that has been approved by a counselor and is

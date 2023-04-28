@@ -392,10 +392,12 @@ func (suite *HandlerSuite) TestDeleteWeightTicketHandler() {
 	suite.Run("DELETE failure - 404 - not found - ppm shipment ID and weight ticket ID don't match", func() {
 		subtestData := makeDeleteSubtestData(false)
 		serviceMember := subtestData.ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
-		// Replace this once MakeWeightTicket has been replaced
-		otherPPMShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
-			Order: subtestData.ppmShipment.Shipment.MoveTaskOrder.Orders,
-		})
+		otherPPMShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    subtestData.ppmShipment.Shipment.MoveTaskOrder.Orders,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		subtestData.params.PpmShipmentID = *handlers.FmtUUID(otherPPMShipment.ID)
 		req := subtestData.params.HTTPRequest
