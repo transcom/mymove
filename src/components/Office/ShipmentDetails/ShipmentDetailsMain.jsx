@@ -84,7 +84,7 @@ const ShipmentDetailsMain = ({
     <OpenModalButton
       permission={permissionTypes.createSITExtension}
       onClick={setIsReviewSITExtensionModalVisible}
-      title="View request"
+      title="Review request"
     />
   ) : (
     <OpenModalButton

@@ -25,13 +25,15 @@
       }
       font-weight: bold;
       //@include u-margin-left(1);
+
     }
 
     button {
       padding-right: 0px;
     }
     span {
-      margin-left: 0.5rem !important;
+      margin-left: 2rem !important;
+      font-size: 13px !important;
     }
     .submitSITEXtensionLink {
       @include u-margin-right(2);

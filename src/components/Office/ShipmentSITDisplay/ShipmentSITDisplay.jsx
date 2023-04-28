@@ -69,7 +69,7 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton }
   return (
     <>
       <div className={styles.title}>
-        <p>SIT (STORAGE IN TRANSIT){pendingSITExtension && <Tag>Extension requested</Tag>}</p>
+        <p>SIT (STORAGE IN TRANSIT){pendingSITExtension && <Tag>Additional Days Requested</Tag>}</p>
         {openModalButton}
       </div>
       <div className={styles.tableContainer} data-testid="sitStatusTable">
