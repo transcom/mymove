@@ -223,24 +223,6 @@ func MakeDefaultMTOShipment(db *pop.Connection) models.MTOShipment {
 	return MakeMTOShipment(db, Assertions{})
 }
 
-// MakeMTOShipmentMinimal creates a single MTOShipment with a minimal set of data as could be possible through the UI
-// for any shipment that doesn't have a child table associated with the MTOShipment model. It does not create associated
-// addresses.
-func MakeMTOShipmentMinimal(db *pop.Connection, assertions Assertions) models.MTOShipment {
-	if assertions.MTOShipment.RequestedPickupDate == nil {
-		requestedPickupDate := time.Date(GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC)
-
-		assertions.MTOShipment.RequestedPickupDate = &requestedPickupDate
-	}
-
-	return MakeBaseMTOShipment(db, assertions)
-}
-
-// MakeDefaultMTOShipmentMinimal makes a minimal MTOShipment with default values
-func MakeDefaultMTOShipmentMinimal(db *pop.Connection) models.MTOShipment {
-	return MakeMTOShipmentMinimal(db, Assertions{})
-}
-
 // MakeMTOShipmentWithMove makes a shipment connected to a given move and updates the move's MTOShipments array
 func MakeMTOShipmentWithMove(db *pop.Connection, move *models.Move, assertions Assertions) models.MTOShipment {
 	if move != nil {
@@ -260,14 +242,4 @@ func MakeMTOShipmentWithMove(db *pop.Connection, move *models.Move, assertions A
 func MakeSubmittedMTOShipmentWithMove(db *pop.Connection, move *models.Move, assertions Assertions) models.MTOShipment {
 	assertions.MTOShipment.Status = models.MTOShipmentStatusSubmitted
 	return MakeMTOShipmentWithMove(db, move, assertions)
-}
-
-// MakeStubbedShipment makes a stubbed shipment
-func MakeStubbedShipment(db *pop.Connection) models.MTOShipment {
-	return MakeMTOShipmentMinimal(db, Assertions{
-		MTOShipment: models.MTOShipment{
-			ID: uuid.Must(uuid.NewV4()),
-		},
-		Stub: true,
-	})
 }
