@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gobuffalo/validate/v3/validators"
@@ -249,7 +248,7 @@ func createNewMove(db *pop.Connection,
 	orders Order,
 	moveOptions MoveOptions) (*Move, *validate.Errors, error) {
 
-	show := swag.Bool(true)
+	show := BoolPointer(true)
 	if moveOptions.Show != nil {
 		show = moveOptions.Show
 	}
@@ -414,9 +413,9 @@ func FetchMoveByMoveID(db *pop.Connection, moveID uuid.UUID) (Move, error) {
 // IsCanceled returns true if the Move's status is `CANCELED`, false otherwise
 func (m Move) IsCanceled() *bool {
 	if m.Status == MoveStatusCANCELED {
-		return swag.Bool(true)
+		return BoolPointer(true)
 	}
-	return swag.Bool(false)
+	return BoolPointer(false)
 }
 
 // IsPPMOnly returns true of the only type of shipment associate with the move is "PPM", false otherwise

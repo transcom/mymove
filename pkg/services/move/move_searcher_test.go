@@ -3,8 +3,6 @@ package move
 import (
 	"fmt"
 
-	"github.com/go-openapi/swag"
-
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -339,7 +337,7 @@ func (suite *MoveServiceSuite) TestMoveSearchOrdering() {
 			{column: "Status", value: fmt.Sprintf("[%s]", string(secondMove.Status)), SearchMovesParams: services.SearchMovesParams{CustomerName: &nameToSearch, Status: []string{string(secondMove.Status)}}},
 			{column: "OriginPostalCode", value: secondMove.Orders.OriginDutyLocation.Address.PostalCode, SearchMovesParams: services.SearchMovesParams{CustomerName: &nameToSearch, OriginPostalCode: &secondMove.Orders.OriginDutyLocation.Address.PostalCode}},
 			{column: "Branch", value: string(*secondMove.Orders.ServiceMember.Affiliation), SearchMovesParams: services.SearchMovesParams{CustomerName: &nameToSearch, Branch: models.StringPointer(secondMove.Orders.ServiceMember.Affiliation.String())}},
-			{column: "ShipmentsCount", value: "2", SearchMovesParams: services.SearchMovesParams{CustomerName: &nameToSearch, ShipmentsCount: swag.Int64(2)}},
+			{column: "ShipmentsCount", value: "2", SearchMovesParams: services.SearchMovesParams{CustomerName: &nameToSearch, ShipmentsCount: models.Int64Pointer(2)}},
 			{column: "DestinationPostalCode", value: secondMove.Orders.NewDutyLocation.Address.PostalCode, SearchMovesParams: services.SearchMovesParams{CustomerName: &nameToSearch, DestinationPostalCode: &secondMove.Orders.NewDutyLocation.Address.PostalCode}},
 		}
 		for _, testCase := range cases {

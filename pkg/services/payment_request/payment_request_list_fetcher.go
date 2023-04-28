@@ -5,7 +5,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
 
@@ -62,14 +61,14 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.Ap
 		// If a customer puts in an invalid ZIP for their pickup address, it won't show up in this view,
 		// and we don't want it to get hidden from services counselors.
 		LeftJoin("move_to_gbloc", "move_to_gbloc.move_id = moves.id").
-		Where("moves.show = ?", swag.Bool(true))
+		Where("moves.show = ?", models.BoolPointer(true))
 
 	branchQuery := branchFilter(params.Branch)
 	// If the user is associated with the USMC GBLOC we want to show them ALL the USMC moves, so let's override here.
 	// We also only want to do the gbloc filtering thing if we aren't a USMC user, which we cover with the else.
 	var gblocQuery QueryOption
 	if gbloc == "USMC" {
-		branchQuery = branchFilter(swag.String(string(models.AffiliationMARINES)))
+		branchQuery = branchFilter(models.StringPointer(string(models.AffiliationMARINES)))
 		gblocQuery = nil
 	} else {
 		gblocQuery = shipmentGBLOCFilter(&gbloc)
@@ -92,11 +91,11 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.Ap
 	}
 
 	if params.Page == nil {
-		params.Page = swag.Int64(1)
+		params.Page = models.Int64Pointer(1)
 	}
 
 	if params.PerPage == nil {
-		params.PerPage = swag.Int64(20)
+		params.PerPage = models.Int64Pointer(20)
 	}
 
 	err := query.GroupBy("payment_requests.id, service_members.id, moves.id, duty_locations.id, duty_locations.name").Paginate(int(*params.Page), int(*params.PerPage)).All(&paymentRequests)
@@ -158,14 +157,14 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestListByMove(appCtx appcont
 		// If a customer puts in an invalid ZIP for their pickup address, it won't show up in this view,
 		// and we don't want it to get hidden from services counselors.
 		LeftJoin("move_to_gbloc", "move_to_gbloc.move_id = moves.id").
-		Where("moves.show = ?", swag.Bool(true))
+		Where("moves.show = ?", models.BoolPointer(true))
 
 	var branchQuery QueryOption
 	// If the user is associated with the USMC GBLOC we want to show them ALL the USMC moves, so let's override here.
 	// We also only want to do the gbloc filtering thing if we aren't a USMC user, which we cover with the else.
 	var gblocQuery QueryOption
 	if gbloc == "USMC" {
-		branchQuery = branchFilter(swag.String(string(models.AffiliationMARINES)))
+		branchQuery = branchFilter(models.StringPointer(string(models.AffiliationMARINES)))
 	} else {
 		gblocQuery = shipmentGBLOCFilter(&gbloc)
 	}

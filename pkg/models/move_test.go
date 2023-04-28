@@ -15,7 +15,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -40,7 +39,7 @@ func (suite *ModelSuite) TestCreateNewMoveValidLocatorString() {
 	factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 
 	moveOptions := MoveOptions{
-		Show: swag.Bool(true),
+		Show: BoolPointer(true),
 	}
 	move, verrs, err := orders.CreateNewMove(suite.DB(), moveOptions)
 	suite.NoError(err)
@@ -91,7 +90,7 @@ func (suite *ModelSuite) TestFetchMove() {
 
 		// Create HHG Move
 		moveOptions := MoveOptions{
-			Show: swag.Bool(true),
+			Show: BoolPointer(true),
 		}
 		move, verrs, err := order.CreateNewMove(suite.DB(), moveOptions)
 		suite.NoError(err)
@@ -140,7 +139,7 @@ func (suite *ModelSuite) TestFetchMove() {
 		// Create a second sm and a move only on that sm
 		order2 := factory.BuildOrder(suite.DB(), nil, nil)
 		moveOptions := MoveOptions{
-			Show: swag.Bool(true),
+			Show: BoolPointer(true),
 		}
 		move2, verrs, err := order2.CreateNewMove(suite.DB(), moveOptions)
 		suite.NoError(err)
@@ -216,7 +215,7 @@ func (suite *ModelSuite) TestSaveMoveDependenciesFail() {
 	factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 
 	moveOptions := MoveOptions{
-		Show: swag.Bool(true),
+		Show: BoolPointer(true),
 	}
 	move, verrs, err := orders.CreateNewMove(suite.DB(), moveOptions)
 	suite.NoError(err)
@@ -235,7 +234,7 @@ func (suite *ModelSuite) TestSaveMoveDependenciesSuccess() {
 	factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 
 	moveOptions := MoveOptions{
-		Show: swag.Bool(true),
+		Show: BoolPointer(true),
 	}
 	move, verrs, err := orders.CreateNewMove(suite.DB(), moveOptions)
 	suite.NoError(err)

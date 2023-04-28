@@ -1,7 +1,6 @@
 package testdatagen
 
 import (
-	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
 
@@ -57,7 +56,7 @@ func MakeMove(db *pop.Connection, assertions Assertions) models.Move {
 }
 
 func setShow(assertionShow *bool) *bool {
-	show := swag.Bool(true)
+	show := models.BoolPointer(true)
 	if assertionShow != nil {
 		show = assertionShow
 	}

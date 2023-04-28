@@ -2,7 +2,6 @@ package supportapi
 
 import (
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/go-openapi/swag"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -10,6 +9,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/supportmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/supportapi/internal/payloads"
+	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/event"
 )
 
@@ -62,7 +62,7 @@ func (h CreateWebhookNotificationHandler) Handle(params webhookops.CreateWebhook
 				payload = &supportmessages.WebhookNotification{
 					EventKey: string(event.TestCreateEventKey),
 					TraceID:  *handlers.FmtUUID(h.GetTraceIDFromRequest(params.HTTPRequest)),
-					Object:   swag.String(message),
+					Object:   models.StringPointer(message),
 					Status:   supportmessages.WebhookNotificationStatusPENDING,
 				}
 			}
@@ -80,7 +80,7 @@ func (h CreateWebhookNotificationHandler) Handle(params webhookops.CreateWebhook
 			if err != nil {
 				appCtx.Logger().Error("Error creating WebhookNotification: ", zap.Error(err))
 				return webhookops.NewCreateWebhookNotificationInternalServerError().WithPayload(
-					payloads.InternalServerError(swag.String(err.Error()), h.GetTraceIDFromRequest(params.HTTPRequest))), err
+					payloads.InternalServerError(models.StringPointer(err.Error()), h.GetTraceIDFromRequest(params.HTTPRequest))), err
 			}
 
 			payload = payloads.WebhookNotification(notification)

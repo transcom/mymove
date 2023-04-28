@@ -2,7 +2,6 @@ package internalapi
 
 import (
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
@@ -25,7 +24,7 @@ func payloadForDutyLocationModel(location models.DutyLocation) *internalmessages
 		ID:                     handlers.FmtUUID(location.ID),
 		CreatedAt:              handlers.FmtDateTime(location.CreatedAt),
 		UpdatedAt:              handlers.FmtDateTime(location.UpdatedAt),
-		Name:                   swag.String(location.Name),
+		Name:                   models.StringPointer(location.Name),
 		Affiliation:            location.Affiliation,
 		AddressID:              handlers.FmtUUID(location.AddressID),
 		Address:                payloads.Address(&location.Address),

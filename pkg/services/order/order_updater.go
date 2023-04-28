@@ -6,7 +6,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
@@ -377,7 +376,7 @@ func allowanceFromTOOPayload(existingOrder models.Order, payload ghcmessages.Upd
 	}
 
 	if payload.AuthorizedWeight != nil {
-		dbAuthorizedWeight := swag.Int(int(*payload.AuthorizedWeight))
+		dbAuthorizedWeight := models.IntPointer(int(*payload.AuthorizedWeight))
 		order.Entitlement.DBAuthorizedWeight = dbAuthorizedWeight
 	}
 

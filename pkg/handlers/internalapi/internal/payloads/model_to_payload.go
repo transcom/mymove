@@ -4,7 +4,6 @@ import (
 	"errors"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
@@ -170,7 +169,7 @@ func TransportationOffice(office models.TransportationOffice) *internalmessages.
 		ID:         handlers.FmtUUID(office.ID),
 		CreatedAt:  handlers.FmtDateTime(office.CreatedAt),
 		UpdatedAt:  handlers.FmtDateTime(office.UpdatedAt),
-		Name:       swag.String(office.Name),
+		Name:       models.StringPointer(office.Name),
 		Gbloc:      office.Gbloc,
 		Address:    Address(&office.Address),
 		PhoneLines: phoneLines,

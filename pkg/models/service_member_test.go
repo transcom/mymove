@@ -3,7 +3,6 @@ package models_test
 import (
 	"time"
 
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -203,7 +202,7 @@ func (suite *ModelSuite) TestFetchLatestOrders() {
 			TAC:                  &TAC,
 			SAC:                  &SAC,
 			DepartmentIndicator:  &deptIndicator,
-			Grade:                swag.String("E-1"),
+			Grade:                StringPointer("E-1"),
 		}
 		suite.MustSave(&order)
 
