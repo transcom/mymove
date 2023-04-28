@@ -8,7 +8,6 @@ import (
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/query"
-	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -29,20 +28,28 @@ func (suite *PaymentRequestServiceSuite) TestUpdatePaymentRequestStatus() {
 		paymentRequest := factory.BuildPaymentRequest(suite.DB(), nil, nil)
 
 		psiCost := unit.Cents(10000)
-		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
-			PaymentServiceItem: models.PaymentServiceItem{
-				PriceCents: &psiCost,
-				Status:     models.PaymentServiceItemStatusRequested,
+		factory.BuildPaymentServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &psiCost,
+					Status:     models.PaymentServiceItemStatusRequested,
+				},
+			}, {
+				Model:    paymentRequest,
+				LinkOnly: true,
 			},
-			PaymentRequest: paymentRequest,
-		})
-		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
-			PaymentServiceItem: models.PaymentServiceItem{
-				PriceCents: &psiCost,
-				Status:     models.PaymentServiceItemStatusApproved,
+		}, nil)
+		factory.BuildPaymentServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &psiCost,
+					Status:     models.PaymentServiceItemStatusApproved,
+				},
+			}, {
+				Model:    paymentRequest,
+				LinkOnly: true,
 			},
-			PaymentRequest: paymentRequest,
-		})
+		}, nil)
 
 		paymentRequest.Status = models.PaymentRequestStatusReviewed
 		updater := NewPaymentRequestStatusUpdater(builder)
@@ -56,20 +63,28 @@ func (suite *PaymentRequestServiceSuite) TestUpdatePaymentRequestStatus() {
 		paymentRequest := factory.BuildPaymentRequest(suite.DB(), nil, nil)
 
 		psiCost := unit.Cents(10000)
-		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
-			PaymentServiceItem: models.PaymentServiceItem{
-				PriceCents: &psiCost,
-				Status:     models.PaymentServiceItemStatusApproved,
+		factory.BuildPaymentServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &psiCost,
+					Status:     models.PaymentServiceItemStatusApproved,
+				},
+			}, {
+				Model:    paymentRequest,
+				LinkOnly: true,
 			},
-			PaymentRequest: paymentRequest,
-		})
-		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
-			PaymentServiceItem: models.PaymentServiceItem{
-				PriceCents: &psiCost,
-				Status:     models.PaymentServiceItemStatusDenied,
+		}, nil)
+		factory.BuildPaymentServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &psiCost,
+					Status:     models.PaymentServiceItemStatusDenied,
+				},
+			}, {
+				Model:    paymentRequest,
+				LinkOnly: true,
 			},
-			PaymentRequest: paymentRequest,
-		})
+		}, nil)
 
 		paymentRequest.Status = models.PaymentRequestStatusReviewed
 		updater := NewPaymentRequestStatusUpdater(builder)

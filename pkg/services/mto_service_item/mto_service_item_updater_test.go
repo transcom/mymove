@@ -265,10 +265,13 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 
 		// Create payment requests for service item:
 		paymentRequest := factory.BuildPaymentRequest(suite.DB(), nil, nil)
-		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: paymentRequest,
-			MTOServiceItem: oldServiceItemPrime,
-		})
+		factory.BuildPaymentServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: paymentRequest, LinkOnly: true,
+			}, {
+				Model: oldServiceItemPrime, LinkOnly: true,
+			},
+		}, nil)
 
 		serviceItemData := updateMTOServiceItemData{
 			updatedServiceItem:  newServiceItemPrime,

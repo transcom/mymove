@@ -1,6 +1,7 @@
 package factory
 
 import (
+	"log"
 	"time"
 
 	"github.com/gobuffalo/pop/v6"
@@ -38,12 +39,26 @@ func buildPPMShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 	traits = append(traits, GetTraitPPMShipment)
 	shipment := BuildMTOShipment(db, customs, traits)
 
+	serviceMember := shipment.MoveTaskOrder.Orders.ServiceMember
+	if serviceMember.ResidentialAddressID == nil {
+		log.Panic("Created shipment has service member without ResidentialAddressID")
+	}
+	if serviceMember.ResidentialAddress == nil {
+		var address models.Address
+		err := db.Find(&address, serviceMember.ResidentialAddressID)
+		if err != nil {
+			log.Panicf("Cannot find address with ID %s: %s",
+				serviceMember.ResidentialAddressID, err)
+		}
+		serviceMember.ResidentialAddress = &address
+	}
+
 	ppmShipment := models.PPMShipment{
 		ShipmentID:            shipment.ID,
 		Shipment:              shipment,
 		Status:                models.PPMShipmentStatusDraft,
 		ExpectedDepartureDate: time.Date(GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC),
-		PickupPostalCode:      shipment.MoveTaskOrder.Orders.ServiceMember.ResidentialAddress.PostalCode,
+		PickupPostalCode:      serviceMember.ResidentialAddress.PostalCode,
 		DestinationPostalCode: shipment.MoveTaskOrder.Orders.NewDutyLocation.Address.PostalCode,
 		SITExpected:           models.BoolPointer(false),
 	}

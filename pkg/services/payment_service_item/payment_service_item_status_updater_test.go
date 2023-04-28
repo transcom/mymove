@@ -5,13 +5,14 @@ import (
 
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *PaymentServiceItemSuite) TestUpdatePaymentServiceItemStatus() {
 	suite.Run("Successfully approves a payment service item", func() {
-		paymentServiceItem := testdatagen.MakeDefaultPaymentServiceItem(suite.DB())
+		paymentServiceItem := factory.BuildPaymentServiceItem(suite.DB(), nil, nil)
 		eTag := etag.GenerateEtag(paymentServiceItem.UpdatedAt)
 		updater := NewPaymentServiceItemStatusUpdater()
 
@@ -29,7 +30,7 @@ func (suite *PaymentServiceItemSuite) TestUpdatePaymentServiceItemStatus() {
 	})
 
 	suite.Run("Successfully rejects a payment service item", func() {
-		paymentServiceItem := testdatagen.MakeDefaultPaymentServiceItem(suite.DB())
+		paymentServiceItem := factory.BuildPaymentServiceItem(suite.DB(), nil, nil)
 		eTag := etag.GenerateEtag(paymentServiceItem.UpdatedAt)
 		updater := NewPaymentServiceItemStatusUpdater()
 
@@ -47,7 +48,7 @@ func (suite *PaymentServiceItemSuite) TestUpdatePaymentServiceItemStatus() {
 	})
 
 	suite.Run("Fails if we can't find an existing paymentServiceItem", func() {
-		paymentServiceItem := testdatagen.MakeDefaultPaymentServiceItem(suite.DB())
+		paymentServiceItem := factory.BuildPaymentServiceItem(suite.DB(), nil, nil)
 		eTag := etag.GenerateEtag(paymentServiceItem.UpdatedAt)
 		updater := NewPaymentServiceItemStatusUpdater()
 		wrongUUID, _ := uuid.NewV4()
@@ -60,7 +61,7 @@ func (suite *PaymentServiceItemSuite) TestUpdatePaymentServiceItemStatus() {
 	})
 
 	suite.Run("Fails if we have a stale eTag", func() {
-		paymentServiceItem := testdatagen.MakeDefaultPaymentServiceItem(suite.DB())
+		paymentServiceItem := factory.BuildPaymentServiceItem(suite.DB(), nil, nil)
 		// Arbitrary date time that isn't the record updatedAt used here
 		badETag := etag.GenerateEtag(testdatagen.DateInsidePerformancePeriod)
 		updater := NewPaymentServiceItemStatusUpdater()
@@ -73,7 +74,7 @@ func (suite *PaymentServiceItemSuite) TestUpdatePaymentServiceItemStatus() {
 	})
 
 	suite.Run("Fails if we attempt to reject without a rejection reason", func() {
-		paymentServiceItem := testdatagen.MakeDefaultPaymentServiceItem(suite.DB())
+		paymentServiceItem := factory.BuildPaymentServiceItem(suite.DB(), nil, nil)
 		eTag := etag.GenerateEtag(paymentServiceItem.UpdatedAt)
 		updater := NewPaymentServiceItemStatusUpdater()
 

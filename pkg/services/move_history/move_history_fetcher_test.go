@@ -421,17 +421,24 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 			},
 		}, nil)
 
-		paymentServiceItem := testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
-			ReService: models.ReService{
-				Name: "Test",
+		paymentServiceItem := factory.BuildPaymentServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.ReService{
+					Name: "Test",
+				},
+			}, {
+				Model: models.PaymentServiceItem{
+					Status:     models.PaymentServiceItemStatusRequested,
+					PriceCents: &cents,
+				},
+			}, {
+				Model:    approvedPaymentRequest,
+				LinkOnly: true,
+			}, {
+				Model:    testServiceItem,
+				LinkOnly: true,
 			},
-			PaymentServiceItem: models.PaymentServiceItem{
-				Status:     models.PaymentServiceItemStatusRequested,
-				PriceCents: &cents,
-			},
-			PaymentRequest: approvedPaymentRequest,
-			MTOServiceItem: testServiceItem,
-		})
+		}, nil)
 		shipmentIDAbbr := paymentServiceItem.MTOServiceItem.MTOShipment.ID.String()[0:5]
 
 		approvedPaymentRequest.Status = models.PaymentRequestStatusReviewed
@@ -914,21 +921,28 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 			},
 		}, nil)
 
-		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
-			PaymentServiceItem: models.PaymentServiceItem{
-				Status:     models.PaymentServiceItemStatusRequested,
-				PriceCents: &priceCents,
+		factory.BuildPaymentServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					Status:     models.PaymentServiceItemStatusRequested,
+					PriceCents: &priceCents,
+				},
+			}, {
+				Model:    paymentRequest,
+				LinkOnly: true,
+			}, {
+				Model:    testServiceItem,
+				LinkOnly: true,
 			},
-			PaymentRequest: paymentRequest,
-			MTOServiceItem: testServiceItem,
-		})
+		}, nil)
 
 		// Create proof of service doc
-		proofOfServiceDoc := testdatagen.MakeProofOfServiceDoc(suite.DB(), testdatagen.Assertions{
-			ProofOfServiceDoc: models.ProofOfServiceDoc{
-				PaymentRequestID: paymentRequest.ID,
+		proofOfServiceDoc := factory.BuildProofOfServiceDoc(suite.DB(), []factory.Customization{
+			{
+				Model:    paymentRequest,
+				LinkOnly: true,
 			},
-		})
+		}, nil)
 
 		parameters := services.FetchMoveHistoryParams{
 			Locator: move.Locator,

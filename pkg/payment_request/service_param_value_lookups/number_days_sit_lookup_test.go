@@ -1248,23 +1248,35 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 				LinkOnly: true,
 			},
 		}, nil)
-		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
-			PaymentServiceItem: models.PaymentServiceItem{
-				PriceCents: &cost,
-				Status:     models.PaymentServiceItemStatusPaid,
+		factory.BuildPaymentServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &cost,
+					Status:     models.PaymentServiceItemStatusPaid,
+				},
+			}, {
+				Model:    paymentRequestOne,
+				LinkOnly: true,
+			}, {
+				Model:    serviceItemDOFSITOne,
+				LinkOnly: true,
 			},
-			PaymentRequest: paymentRequestOne,
-			MTOServiceItem: serviceItemDOFSITOne,
-		})
+		}, nil)
 
-		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
-			PaymentServiceItem: models.PaymentServiceItem{
-				PriceCents: &cost,
-				Status:     models.PaymentServiceItemStatusPaid,
+		factory.BuildPaymentServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &cost,
+					Status:     models.PaymentServiceItemStatusPaid,
+				},
+			}, {
+				Model:    paymentRequestOne,
+				LinkOnly: true,
+			}, {
+				Model:    serviceItemDOASITOne,
+				LinkOnly: true,
 			},
-			PaymentRequest: paymentRequestOne,
-			MTOServiceItem: serviceItemDOASITOne,
-		})
+		}, nil)
 
 		paymentRequestTwo := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
 			{
@@ -1280,23 +1292,35 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 				LinkOnly: true,
 			},
 		}, nil)
-		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
-			PaymentServiceItem: models.PaymentServiceItem{
-				PriceCents: &cost,
-				Status:     models.PaymentServiceItemStatusPaid,
+		factory.BuildPaymentServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &cost,
+					Status:     models.PaymentServiceItemStatusPaid,
+				},
+			}, {
+				Model:    paymentRequestTwo,
+				LinkOnly: true,
+			}, {
+				Model:    serviceItemDDFSITOne,
+				LinkOnly: true,
 			},
-			PaymentRequest: paymentRequestTwo,
-			MTOServiceItem: serviceItemDDFSITOne,
-		})
+		}, nil)
 
-		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
-			PaymentServiceItem: models.PaymentServiceItem{
-				PriceCents: &cost,
-				Status:     models.PaymentServiceItemStatusPaid,
+		factory.BuildPaymentServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &cost,
+					Status:     models.PaymentServiceItemStatusPaid,
+				},
+			}, {
+				Model:    paymentRequestTwo,
+				LinkOnly: true,
+			}, {
+				Model:    serviceItemDDASITOne,
+				LinkOnly: true,
 			},
-			PaymentRequest: paymentRequestTwo,
-			MTOServiceItem: serviceItemDDASITOne,
-		})
+		}, nil)
 
 		paymentRequestThree := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
 			{
@@ -1332,14 +1356,20 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 				LinkOnly: true,
 			},
 		}, nil)
-		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
-			PaymentServiceItem: models.PaymentServiceItem{
-				PriceCents: &cost,
-				Status:     models.PaymentServiceItemStatusPaid,
+		factory.BuildPaymentServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &cost,
+					Status:     models.PaymentServiceItemStatusPaid,
+				},
+			}, {
+				Model:    paymentRequestFour,
+				LinkOnly: true,
+			}, {
+				Model:    serviceItemDOFSITThree,
+				LinkOnly: true,
 			},
-			PaymentRequest: paymentRequestFour,
-			MTOServiceItem: serviceItemDOFSITThree,
-		})
+		}, nil)
 
 		paymentRequestFive := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
 			{
@@ -1355,14 +1385,20 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 				LinkOnly: true,
 			},
 		}, nil)
-		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
-			PaymentServiceItem: models.PaymentServiceItem{
-				PriceCents: &cost,
-				Status:     models.PaymentServiceItemStatusPaid,
+		factory.BuildPaymentServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &cost,
+					Status:     models.PaymentServiceItemStatusPaid,
+				},
+			}, {
+				Model:    paymentRequestFive,
+				LinkOnly: true,
+			}, {
+				Model:    serviceItemDDFSITThree,
+				LinkOnly: true,
 			},
-			PaymentRequest: paymentRequestFive,
-			MTOServiceItem: serviceItemDDFSITThree,
-		})
+		}, nil)
 
 		paymentRequestSix := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
 			{
@@ -1378,23 +1414,35 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 				LinkOnly: true,
 			},
 		}, nil)
-		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
-			PaymentServiceItem: models.PaymentServiceItem{
-				PriceCents: &cost,
-				Status:     models.PaymentServiceItemStatusPaid,
+		factory.BuildPaymentServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &cost,
+					Status:     models.PaymentServiceItemStatusPaid,
+				},
+			}, {
+				Model:    paymentRequestSix,
+				LinkOnly: true,
+			}, {
+				Model:    serviceItemDOFSITFour,
+				LinkOnly: true,
 			},
-			PaymentRequest: paymentRequestSix,
-			MTOServiceItem: serviceItemDOFSITFour,
-		})
+		}, nil)
 
-		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
-			PaymentServiceItem: models.PaymentServiceItem{
-				PriceCents: &cost,
-				Status:     models.PaymentServiceItemStatusPaid,
+		factory.BuildPaymentServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &cost,
+					Status:     models.PaymentServiceItemStatusPaid,
+				},
+			}, {
+				Model:    paymentRequestSix,
+				LinkOnly: true,
+			}, {
+				Model:    serviceItemDDFSITFour,
+				LinkOnly: true,
 			},
-			PaymentRequest: paymentRequestSix,
-			MTOServiceItem: serviceItemDDFSITFour,
-		})
+		}, nil)
 
 		paymentRequestSeven = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
 			{
@@ -1410,23 +1458,35 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 				LinkOnly: true,
 			},
 		}, nil)
-		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
-			PaymentServiceItem: models.PaymentServiceItem{
-				PriceCents: &cost,
-				Status:     models.PaymentServiceItemStatusPaid,
+		factory.BuildPaymentServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &cost,
+					Status:     models.PaymentServiceItemStatusPaid,
+				},
+			}, {
+				Model:    paymentRequestSeven,
+				LinkOnly: true,
+			}, {
+				Model:    serviceItemDOFSITFive,
+				LinkOnly: true,
 			},
-			PaymentRequest: paymentRequestSeven,
-			MTOServiceItem: serviceItemDOFSITFive,
-		})
+		}, nil)
 
-		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
-			PaymentServiceItem: models.PaymentServiceItem{
-				PriceCents: &cost,
-				Status:     models.PaymentServiceItemStatusPaid,
+		factory.BuildPaymentServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &cost,
+					Status:     models.PaymentServiceItemStatusPaid,
+				},
+			}, {
+				Model:    paymentRequestSeven,
+				LinkOnly: true,
+			}, {
+				Model:    serviceItemDDFSITFive,
+				LinkOnly: true,
 			},
-			PaymentRequest: paymentRequestSeven,
-			MTOServiceItem: serviceItemDDFSITFive,
-		})
+		}, nil)
 
 		paymentRequestEight := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
 			{
@@ -1442,23 +1502,35 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 				LinkOnly: true,
 			},
 		}, nil)
-		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
-			PaymentServiceItem: models.PaymentServiceItem{
-				PriceCents: &cost,
-				Status:     models.PaymentServiceItemStatusPaid,
+		factory.BuildPaymentServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &cost,
+					Status:     models.PaymentServiceItemStatusPaid,
+				},
+			}, {
+				Model:    paymentRequestEight,
+				LinkOnly: true,
+			}, {
+				Model:    serviceItemDOFSITSix,
+				LinkOnly: true,
 			},
-			PaymentRequest: paymentRequestEight,
-			MTOServiceItem: serviceItemDOFSITSix,
-		})
+		}, nil)
 
-		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
-			PaymentServiceItem: models.PaymentServiceItem{
-				PriceCents: &cost,
-				Status:     models.PaymentServiceItemStatusPaid,
+		factory.BuildPaymentServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &cost,
+					Status:     models.PaymentServiceItemStatusPaid,
+				},
+			}, {
+				Model:    paymentRequestEight,
+				LinkOnly: true,
+			}, {
+				Model:    serviceItemDOASITEight,
+				LinkOnly: true,
 			},
-			PaymentRequest: paymentRequestEight,
-			MTOServiceItem: serviceItemDOASITEight,
-		})
+		}, nil)
 
 		paymentRequestNine := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
 			{
@@ -1474,23 +1546,35 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 				LinkOnly: true,
 			},
 		}, nil)
-		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
-			PaymentServiceItem: models.PaymentServiceItem{
-				PriceCents: &cost,
-				Status:     models.PaymentServiceItemStatusPaid,
+		factory.BuildPaymentServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &cost,
+					Status:     models.PaymentServiceItemStatusPaid,
+				},
+			}, {
+				Model:    paymentRequestNine,
+				LinkOnly: true,
+			}, {
+				Model:    serviceItemDDFSITSix,
+				LinkOnly: true,
 			},
-			PaymentRequest: paymentRequestNine,
-			MTOServiceItem: serviceItemDDFSITSix,
-		})
+		}, nil)
 
-		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
-			PaymentServiceItem: models.PaymentServiceItem{
-				PriceCents: &cost,
-				Status:     models.PaymentServiceItemStatusPaid,
+		factory.BuildPaymentServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &cost,
+					Status:     models.PaymentServiceItemStatusPaid,
+				},
+			}, {
+				Model:    paymentRequestNine,
+				LinkOnly: true,
+			}, {
+				Model:    serviceItemDDASITEight,
+				LinkOnly: true,
 			},
-			PaymentRequest: paymentRequestNine,
-			MTOServiceItem: serviceItemDDASITEight,
-		})
+		}, nil)
 
 		paymentRequestTen := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
 			{
@@ -1506,14 +1590,20 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 				LinkOnly: true,
 			},
 		}, nil)
-		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
-			PaymentServiceItem: models.PaymentServiceItem{
-				PriceCents: &cost,
-				Status:     models.PaymentServiceItemStatusPaid,
+		factory.BuildPaymentServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &cost,
+					Status:     models.PaymentServiceItemStatusPaid,
+				},
+			}, {
+				Model:    paymentRequestTen,
+				LinkOnly: true,
+			}, {
+				Model:    serviceItemDOFSITNine,
+				LinkOnly: true,
 			},
-			PaymentRequest: paymentRequestTen,
-			MTOServiceItem: serviceItemDOFSITNine,
-		})
+		}, nil)
 
 		suite.makeAdditionalDaysSITPaymentServiceItem(paymentRequestTen, serviceItemDOASITTen, "2021-11-11", "2021-11-20")
 
@@ -1531,14 +1621,20 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 				LinkOnly: true,
 			},
 		}, nil)
-		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
-			PaymentServiceItem: models.PaymentServiceItem{
-				PriceCents: &cost,
-				Status:     models.PaymentServiceItemStatusPaid,
+		factory.BuildPaymentServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &cost,
+					Status:     models.PaymentServiceItemStatusPaid,
+				},
+			}, {
+				Model:    paymentRequestEleven,
+				LinkOnly: true,
+			}, {
+				Model:    serviceItemDDFSITEight,
+				LinkOnly: true,
 			},
-			PaymentRequest: paymentRequestEleven,
-			MTOServiceItem: serviceItemDDFSITEight,
-		})
+		}, nil)
 
 		paymentRequestTwelve := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
 			{
@@ -1554,14 +1650,20 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 				LinkOnly: true,
 			},
 		}, nil)
-		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
-			PaymentServiceItem: models.PaymentServiceItem{
-				PriceCents: &cost,
-				Status:     models.PaymentServiceItemStatusPaid,
+		factory.BuildPaymentServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &cost,
+					Status:     models.PaymentServiceItemStatusPaid,
+				},
+			}, {
+				Model:    paymentRequestTwelve,
+				LinkOnly: true,
+			}, {
+				Model:    serviceItemDOFSITTen,
+				LinkOnly: true,
 			},
-			PaymentRequest: paymentRequestTwelve,
-			MTOServiceItem: serviceItemDOFSITTen,
-		})
+		}, nil)
 
 		paymentServiceItemParamTwo := []testdatagen.CreatePaymentServiceItemParams{
 			{
@@ -1617,14 +1719,20 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 				LinkOnly: true,
 			},
 		}, nil)
-		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
-			PaymentServiceItem: models.PaymentServiceItem{
-				PriceCents: &cost,
-				Status:     models.PaymentServiceItemStatusPaid,
+		factory.BuildPaymentServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &cost,
+					Status:     models.PaymentServiceItemStatusPaid,
+				},
+			}, {
+				Model:    paymentRequestThirteen,
+				LinkOnly: true,
+			}, {
+				Model:    serviceItemDDFSITNine,
+				LinkOnly: true,
 			},
-			PaymentRequest: paymentRequestThirteen,
-			MTOServiceItem: serviceItemDDFSITNine,
-		})
+		}, nil)
 
 		paymentRequestFourteen := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
 			{
@@ -2266,14 +2374,20 @@ func (suite *ServiceParamValueLookupsSuite) setupMoveWithAddlDaysSITAndPaymentRe
 		},
 	}, nil)
 	cost := unit.Cents(20000)
-	testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
-		PaymentServiceItem: models.PaymentServiceItem{
-			PriceCents: &cost,
-			Status:     models.PaymentServiceItemStatusPaid,
+	factory.BuildPaymentServiceItem(suite.DB(), []factory.Customization{
+		{
+			Model: models.PaymentServiceItem{
+				PriceCents: &cost,
+				Status:     models.PaymentServiceItemStatusPaid,
+			},
+		}, {
+			Model:    paymentRequest,
+			LinkOnly: true,
+		}, {
+			Model:    serviceItemFirstDaySIT,
+			LinkOnly: true,
 		},
-		PaymentRequest: paymentRequest,
-		MTOServiceItem: serviceItemFirstDaySIT,
-	})
+	}, nil)
 	suite.makeAdditionalDaysSITPaymentServiceItem(paymentRequest, serviceItem, sitAdditionalDaysStartDate, sitAdditionalDaysEndDate)
 	return move, serviceItem, paymentRequest
 }
