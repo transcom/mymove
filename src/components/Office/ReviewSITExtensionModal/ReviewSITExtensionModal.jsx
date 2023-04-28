@@ -35,7 +35,7 @@ const ReviewSITExtensionsModal = ({ onClose, onSubmit, sitExtension, summarySITC
         <Modal className={styles.ReviewSITExtensionModal}>
           <ModalClose handleClick={() => onClose()} />
           <ModalTitle>
-            <h2>Review request for extension</h2>
+            <h2>Review addtional days requested</h2>
           </ModalTitle>
           <div className={styles.summarySITComponent}>{summarySITComponent}</div>
           <div className={styles.ModalPanel}>
