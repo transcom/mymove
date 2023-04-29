@@ -37,13 +37,13 @@ const adminContext = { ...defaultAdminContext, flags };
 const officeQueryConfig = new QueryClient({
   defaultOptions: {
     queries: {
-      retry: false, // default to no retries for now
-      // do not re-query on window refocus
+      retry: false, // default to retries for now
       refetchOnWindowFocus: false,
       // onError: noop, // TODO - log errors?
       networkMode: 'offlineFirst', // restoring previous-behavior. Without this, it will be paused without a network
     },
     mutations: {
+      retry: false, // default to retries for now
       // onError: noop, // TODO - log errors?
       networkMode: 'offlineFirst', // restoring previous-behavior. Without this, it will be paused without a network
     },

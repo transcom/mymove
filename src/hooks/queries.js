@@ -94,6 +94,13 @@ const useAddWeightTicketsToPPMShipments = (mtoShipments, moveCode) => {
       };
     }),
   });
+  // RA Summary: eslint: no-console - System Information Leak: External
+  // RA: The linter flags any use of console.
+  // RA: This console displays an error message.
+  // RA Developer Status: Known Issue
+  // RA Validator Status: Known Issue
+  // eslint-disable-next-line no-console
+  console.log('ppmDocsQueriesResults from origin', ppmDocsQueriesResults);
   return ppmDocsQueriesResults;
 };
 
@@ -698,6 +705,13 @@ export const useMoveDetailsQueries = (moveCode) => {
     queryKey: [MOVES, moveCode],
     queryFn: ({ queryKey }) => getMove(...queryKey),
   });
+  // RA Summary: eslint: no-console - System Information Leak: External
+  // RA: The linter flags any use of console.
+  // RA: This console displays an error message.
+  // RA Developer Status: Known Issue
+  // RA Validator Status: Known Issue
+  // eslint-disable-next-line no-console
+  console.log('getMove', move, moveQuery);
 
   const moveId = move?.id;
   const orderId = move?.ordersId;
@@ -709,6 +723,13 @@ export const useMoveDetailsQueries = (moveCode) => {
       enabled: !!orderId,
     },
   });
+  // RA Summary: eslint: no-console - System Information Leak: External
+  // RA: The linter flags any use of console.
+  // RA: This console displays an error message.
+  // RA Developer Status: Known Issue
+  // RA Validator Status: Known Issue
+  // eslint-disable-next-line no-console
+  console.log('getorder', orders, orderQuery);
 
   const order = Object.values(orders || {})?.[0];
 
@@ -719,9 +740,23 @@ export const useMoveDetailsQueries = (moveCode) => {
       enabled: !!moveId,
     },
   });
+  // RA Summary: eslint: no-console - System Information Leak: External
+  // RA: The linter flags any use of console.
+  // RA: This console displays an error message.
+  // RA Developer Status: Known Issue
+  // RA Validator Status: Known Issue
+  // eslint-disable-next-line no-console
+  console.log('getMto', mtoShipments, mtoShipmentQuery);
 
   // attach ppm documents to their respective ppm shipments
   const ppmDocsQueriesResults = useAddWeightTicketsToPPMShipments(mtoShipments, moveCode);
+  // RA Summary: eslint: no-console - System Information Leak: External
+  // RA: The linter flags any use of console.
+  // RA: This console displays an error message.
+  // RA Developer Status: Known Issue
+  // RA Validator Status: Known Issue
+  // eslint-disable-next-line no-console
+  console.log('ppmDocsQueriesResults', ppmDocsQueriesResults);
 
   const customerId = order?.customerID;
   const { data: { customer } = {}, ...customerQuery } = useQuery({
@@ -731,6 +766,14 @@ export const useMoveDetailsQueries = (moveCode) => {
       enabled: !!customerId,
     },
   });
+  // RA Summary: eslint: no-console - System Information Leak: External
+  // RA: The linter flags any use of console.
+  // RA: This console displays an error message.
+  // RA Developer Status: Known Issue
+  // RA Validator Status: Known Issue
+  // eslint-disable-next-line no-console
+  console.log('getCustomer', customer, customerQuery);
+
   const customerData = customer && Object.values(customer)[0];
   const closeoutOffice = move.closeoutOffice && move.closeoutOffice.name;
 
@@ -740,6 +783,13 @@ export const useMoveDetailsQueries = (moveCode) => {
     queryFn: ({ queryKey }) => getMTOServiceItems(...queryKey),
     options: { enabled: !!moveId },
   });
+  // RA Summary: eslint: no-console - System Information Leak: External
+  // RA: The linter flags any use of console.
+  // RA: This console displays an error message.
+  // RA Developer Status: Known Issue
+  // RA Validator Status: Known Issue
+  // eslint-disable-next-line no-console
+  console.log('getMTOServiceItems', mtoServiceItems, mtoServiceItemQuery);
 
   const { isLoading, isError, isSuccess } = getQueriesStatus([
     moveQuery,
@@ -749,6 +799,13 @@ export const useMoveDetailsQueries = (moveCode) => {
     mtoServiceItemQuery,
     ...ppmDocsQueriesResults,
   ]);
+  // RA Summary: eslint: no-console - System Information Leak: External
+  // RA: The linter flags any use of console.
+  // RA: This console displays an error message.
+  // RA Developer Status: Known Issue
+  // RA Validator Status: Known Issue
+  // eslint-disable-next-line no-console
+  console.log(isLoading, isError, isSuccess, ppmDocsQueriesResults);
 
   return {
     move,

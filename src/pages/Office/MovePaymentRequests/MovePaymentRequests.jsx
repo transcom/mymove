@@ -46,7 +46,15 @@ const MovePaymentRequests = ({
   const { moveCode } = useParams();
   const history = useHistory();
 
-  const { move, paymentRequests, order, mtoShipments, isLoading, isError } = useMovePaymentRequestsQueries(moveCode);
+  const queryResults = useMovePaymentRequestsQueries(moveCode);
+  // RA Summary: eslint: no-console - System Information Leak: External
+  // RA: The linter flags any use of console.
+  // RA: This console displays an error message.
+  // RA Developer Status: Known Issue
+  // RA Validator Status: Known Issue
+  // eslint-disable-next-line no-console
+  console.log('queryResults: ', queryResults);
+  const { move, paymentRequests, order, mtoShipments, isLoading, isError } = queryResults;
   const [alertMessage, setAlertMessage] = useState(null);
   const [alertType, setAlertType] = useState('success');
   const sections = useMemo(() => {
@@ -89,6 +97,13 @@ const MovePaymentRequests = ({
 
   const { mutate: mutateMTOhipment } = useMutation(updateMTOShipment, {
     onSuccess(_, variables) {
+      // RA Summary: eslint: no-console - System Information Leak: External
+      // RA: The linter flags any use of console.
+      // RA: This console displays an error message.
+      // RA Developer Status: Known Issue
+      // RA Validator Status: Known Issue
+      // eslint-disable-next-line no-console
+      console.log('in on success of mutate, going to set mtoShipments to ', mtoShipments);
       queryClient.setQueryData([MTO_SHIPMENTS, variables.moveTaskOrderID, false], mtoShipments);
       queryClient.invalidateQueries([MTO_SHIPMENTS, variables.moveTaskOrderID]);
     },
@@ -148,7 +163,13 @@ const MovePaymentRequests = ({
   if (isError) return <SomethingWentWrong />;
 
   const shipmentsInfo = [];
-
+  // RA Summary: eslint: no-console - System Information Leak: External
+  // RA: The linter flags any use of console.
+  // RA: This console displays an error message.
+  // RA Developer Status: Known Issue
+  // RA Validator Status: Known Issue
+  // eslint-disable-next-line no-console
+  console.log('about to hit the part that fails, I have query results: ', queryResults);
   if (paymentRequests.length) {
     mtoShipments.forEach((shipment) => {
       const tacType = shipment.shipmentType === SHIPMENT_OPTIONS.HHG ? LOA_TYPE.HHG : shipment.tacType;
