@@ -18,6 +18,11 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
+// CONSTANTS
+
+// DefaultContractCode is the default contract code for testing
+const DefaultContractCode = "TRUSS_TEST"
+
 // Customization type is the building block for passing in customizations and traits
 type Customization struct {
 	Model interface{} // The model that the factory will build

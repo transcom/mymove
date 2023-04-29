@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -201,14 +202,14 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticLinehaul() {
 }
 
 func (suite *GHCRateEngineServiceSuite) setupDomesticLinehaulServiceItem() models.PaymentServiceItem {
-	return testdatagen.MakeDefaultPaymentServiceItemWithParams(
+	return factory.BuildPaymentServiceItemWithParams(
 		suite.DB(),
 		models.ReServiceCodeDLH,
-		[]testdatagen.CreatePaymentServiceItemParams{
+		[]factory.CreatePaymentServiceItemParams{
 			{
 				Key:     models.ServiceItemParamNameContractCode,
 				KeyType: models.ServiceItemParamTypeString,
-				Value:   testdatagen.DefaultContractCode,
+				Value:   factory.DefaultContractCode,
 			},
 			{
 				Key:     models.ServiceItemParamNameDistanceZip,
@@ -230,6 +231,6 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticLinehaulServiceItem() model
 				KeyType: models.ServiceItemParamTypeInteger,
 				Value:   fmt.Sprintf("%d", int(dlhTestWeight)),
 			},
-		},
+		}, nil, nil,
 	)
 }

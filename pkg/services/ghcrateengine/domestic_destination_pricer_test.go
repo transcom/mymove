@@ -21,14 +21,14 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticDestinationWithServiceI
 
 	suite.Run("failure during pricing bubbles up", func() {
 		suite.setUpDomesticDestinationData()
-		paymentServiceItem := testdatagen.MakeDefaultPaymentServiceItemWithParams(
+		paymentServiceItem := factory.BuildPaymentServiceItemWithParams(
 			suite.DB(),
 			models.ReServiceCodeDDP,
-			[]testdatagen.CreatePaymentServiceItemParams{
+			[]factory.CreatePaymentServiceItemParams{
 				{
 					Key:     models.ServiceItemParamNameContractCode,
 					KeyType: models.ServiceItemParamTypeString,
-					Value:   testdatagen.DefaultContractCode,
+					Value:   factory.DefaultContractCode,
 				},
 				{
 					Key:     models.ServiceItemParamNameReferenceDate,
@@ -45,7 +45,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticDestinationWithServiceI
 					KeyType: models.ServiceItemParamTypeInteger,
 					Value:   "0",
 				},
-			},
+			}, nil, nil,
 		)
 
 		_, _, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
@@ -273,14 +273,14 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticDestination() {
 }
 
 func (suite *GHCRateEngineServiceSuite) setupDomesticDestinationServiceItems() models.PaymentServiceItem {
-	return testdatagen.MakeDefaultPaymentServiceItemWithParams(
+	return factory.BuildPaymentServiceItemWithParams(
 		suite.DB(),
 		models.ReServiceCodeDDP,
-		[]testdatagen.CreatePaymentServiceItemParams{
+		[]factory.CreatePaymentServiceItemParams{
 			{
 				Key:     models.ServiceItemParamNameContractCode,
 				KeyType: models.ServiceItemParamTypeString,
-				Value:   testdatagen.DefaultContractCode,
+				Value:   factory.DefaultContractCode,
 			},
 			{
 				Key:     models.ServiceItemParamNameReferenceDate,
@@ -297,7 +297,7 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticDestinationServiceItems() m
 				KeyType: models.ServiceItemParamTypeInteger,
 				Value:   strconv.Itoa(ddpTestWeight),
 			},
-		},
+		}, nil, nil,
 	)
 }
 

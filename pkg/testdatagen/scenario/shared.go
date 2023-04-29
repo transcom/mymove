@@ -9254,20 +9254,29 @@ func createMoveWithServiceItems(appCtx appcontext.AppContext, userUploader *uplo
 		},
 	}, nil)
 
-	assertions9 := testdatagen.Assertions{
-		Move:           move9,
-		MTOShipment:    mtoShipment9,
-		PaymentRequest: paymentRequest9,
+	customizations9 := []factory.Customization{
+		{
+			Model:    move9,
+			LinkOnly: true,
+		},
+		{
+			Model:    mtoShipment9,
+			LinkOnly: true,
+		},
+		{
+			Model:    paymentRequest9,
+			LinkOnly: true,
+		},
 	}
 
 	currentTime := time.Now()
 	const testDateFormat = "060102"
 
-	basicPaymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
+	basicPaymentServiceItemParams := []factory.CreatePaymentServiceItemParams{
 		{
 			Key:     models.ServiceItemParamNameContractCode,
 			KeyType: models.ServiceItemParamTypeString,
-			Value:   testdatagen.DefaultContractCode,
+			Value:   factory.DefaultContractCode,
 		},
 		{
 			Key:     models.ServiceItemParamNameReferenceDate,
@@ -9286,11 +9295,11 @@ func createMoveWithServiceItems(appCtx appcontext.AppContext, userUploader *uplo
 		},
 	}
 
-	testdatagen.MakePaymentServiceItemWithParams(
+	factory.BuildPaymentServiceItemWithParams(
 		db,
 		models.ReServiceCodeDLH,
 		basicPaymentServiceItemParams,
-		assertions9,
+		customizations9, nil,
 	)
 }
 
