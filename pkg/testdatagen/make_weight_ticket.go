@@ -43,8 +43,8 @@ func MakeMinimalDefaultWeightTicket(db *pop.Connection) models.WeightTicket {
 	return MakeMinimalWeightTicket(db, Assertions{})
 }
 
-// MakeWeightTicket creates a single WeightTicket and associated relationships with weights and documents
-func MakeWeightTicket(db *pop.Connection, assertions Assertions) models.WeightTicket {
+// makeWeightTicket creates a single WeightTicket and associated relationships with weights and documents
+func makeWeightTicket(db *pop.Connection, assertions Assertions) models.WeightTicket {
 	assertions = EnsureServiceMemberIsSetUpInAssertionsForDocumentCreation(db, assertions)
 
 	assertionsHasFileToUse := false
@@ -93,7 +93,7 @@ func MakeWeightTicket(db *pop.Connection, assertions Assertions) models.WeightTi
 
 // MakeDefaultWeightTicket makes a WeightTicket with default values
 func MakeDefaultWeightTicket(db *pop.Connection) models.WeightTicket {
-	return MakeWeightTicket(db, Assertions{})
+	return makeWeightTicket(db, Assertions{})
 }
 
 // MakeWeightTicketWithConstructedWeight creates a single WeightTicket and associated relationships with weights and documents
@@ -117,5 +117,5 @@ func MakeWeightTicketWithConstructedWeight(db *pop.Connection, assertions Assert
 
 	assertions.WeightTicket.MissingFullWeightTicket = models.BoolPointer(true)
 
-	return MakeWeightTicket(db, assertions)
+	return makeWeightTicket(db, assertions)
 }
