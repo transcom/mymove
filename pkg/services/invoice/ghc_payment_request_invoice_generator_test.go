@@ -776,6 +776,15 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 					suite.Equal("D", l5.CommodityCodeQualifier)
 				})
 
+				suite.Run("adds l1 service item segment", func() {
+					charge := result.ServiceItems[segmentOffset].L1.Charge
+					l1 := result.ServiceItems[segmentOffset].L1
+					suite.Equal(hierarchicalNumberInt, l1.LadingLineItemNumber)
+					suite.Equal(int(charge), l1.Charge)
+					suite.Equal(nil, l1.FreightRate)
+					suite.Equal("", l1.RateValueQualifier)
+				})
+
 				suite.Run("adds l0 service item segment", func() {
 					l0 := result.ServiceItems[segmentOffset].L0
 					suite.Equal(hierarchicalNumberInt, l0.LadingLineItemNumber)
