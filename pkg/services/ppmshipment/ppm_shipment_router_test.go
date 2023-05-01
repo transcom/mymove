@@ -444,11 +444,13 @@ func (suite *PPMShipmentSuite) TestSubmitReviewPPMDocuments() {
 		ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(nil, nil)
 		ppmShipment.Status = models.PPMShipmentStatusNeedsPaymentApproval
 		rejected := models.PPMDocumentStatusRejected
-		movingExpense := testdatagen.MakeMovingExpense(suite.DB(), testdatagen.Assertions{
-			MovingExpense: models.MovingExpense{
-				Status: &rejected,
+		movingExpense := factory.BuildMovingExpense(suite.DB(), []factory.Customization{
+			{
+				Model: models.MovingExpense{
+					Status: &rejected,
+				},
 			},
-		})
+		}, nil)
 		progear := factory.BuildProgearWeightTicket(suite.DB(), nil, nil)
 		weightTicket := factory.BuildWeightTicket(suite.DB(), nil, nil)
 
