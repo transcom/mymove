@@ -4,6 +4,7 @@ import (
 	"database/sql"
 
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
@@ -41,8 +42,21 @@ func (h GetOrdersHandler) Handle(params orderop.GetOrderParams) middleware.Respo
 					return orderop.NewGetOrderInternalServerError(), err
 				}
 			}
+			// TODO This logging is temporary
+			if order == nil {
+				appCtx.Logger().Warn("GetOrdersHandler returning nil order")
+			}
 			orderPayload := payloads.Order(order)
-			return orderop.NewGetOrderOK().WithPayload(orderPayload), nil
+			if orderPayload == nil {
+				appCtx.Logger().Warn("GetOrdersHandler returning nil orderPayload")
+			}
+			responder := orderop.NewGetOrderOK().WithPayload(orderPayload)
+			// Note that Validate will panic if orderPayload is nil
+			err = responder.Payload.Validate(strfmt.Default)
+			if err != nil {
+				appCtx.Logger().Warn("GetOrdersHandler payload validate error", zap.Error(err))
+			}
+			return responder, nil
 		})
 }
 
