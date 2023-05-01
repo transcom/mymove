@@ -10,7 +10,14 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-func BuildWeightTicket(db *pop.Connection, customs []Customization, traits []Trait) models.WeightTicket {
+type weightTicketBuildType byte
+
+const (
+	weightTicketBuildBasic weightTicketBuildType = iota
+	weightTicketBuildConstructedWeight
+)
+
+func buildWeightTicketWithBuildType(db *pop.Connection, customs []Customization, traits []Trait, buildType weightTicketBuildType) models.WeightTicket {
 	customs = setupCustomizations(customs, traits)
 
 	// Find upload assertion and convert to models upload
@@ -64,22 +71,30 @@ func BuildWeightTicket(db *pop.Connection, customs []Customization, traits []Tra
 		// support defaults for now
 		if cUserUploadParams != nil {
 			// need to build our own params to override the File
+			emptyFile := testdatagen.Fixture("empty-weight-ticket.png")
+			if buildType == weightTicketBuildConstructedWeight {
+				emptyFile = testdatagen.Fixture("wa-vehicle-registration.pdf")
+			}
 			emptyUploadCustoms = append(emptyUploadCustoms,
 				Customization{
 					Model: models.UserUpload{},
 					ExtendedParams: &UserUploadExtendedParams{
 						UserUploader: cUserUploadParams.UserUploader,
 						AppContext:   cUserUploadParams.AppContext,
-						File:         testdatagen.Fixture("empty-weight-ticket.png"),
+						File:         emptyFile,
 					},
 				})
+			fullFile := testdatagen.Fixture("full-weight-ticket.png")
+			if buildType == weightTicketBuildConstructedWeight {
+				fullFile = testdatagen.Fixture("Weight Estimator.xls")
+			}
 			fullUploadCustoms = append(fullUploadCustoms,
 				Customization{
 					Model: models.UserUpload{},
 					ExtendedParams: &UserUploadExtendedParams{
 						UserUploader: cUserUploadParams.UserUploader,
 						AppContext:   cUserUploadParams.AppContext,
-						File:         testdatagen.Fixture("full-weight-ticket.png"),
+						File:         fullFile,
 					},
 				})
 
@@ -102,12 +117,19 @@ func BuildWeightTicket(db *pop.Connection, customs []Customization, traits []Tra
 	emptyWeight := unit.Pound(14500)
 	fullWeight := emptyWeight + unit.Pound(4000)
 
+	missingEmptyWeightTicket := false
+	missingFullWeightTicket := false
+	if buildType == weightTicketBuildConstructedWeight {
+		missingEmptyWeightTicket = true
+		missingFullWeightTicket = true
+	}
+
 	weightTicket := models.WeightTicket{
 		VehicleDescription:                models.StringPointer("2022 Honda CR-V Hybrid"),
 		EmptyWeight:                       &emptyWeight,
-		MissingEmptyWeightTicket:          models.BoolPointer(false),
+		MissingEmptyWeightTicket:          models.BoolPointer(missingEmptyWeightTicket),
 		FullWeight:                        &fullWeight,
-		MissingFullWeightTicket:           models.BoolPointer(false),
+		MissingFullWeightTicket:           models.BoolPointer(missingFullWeightTicket),
 		OwnsTrailer:                       models.BoolPointer(false),
 		TrailerMeetsCriteria:              models.BoolPointer(false),
 		PPMShipmentID:                     ppmShipment.ID,
@@ -129,4 +151,12 @@ func BuildWeightTicket(db *pop.Connection, customs []Customization, traits []Tra
 
 	return weightTicket
 
+}
+
+func BuildWeightTicket(db *pop.Connection, customs []Customization, traits []Trait) models.WeightTicket {
+	return buildWeightTicketWithBuildType(db, customs, traits, weightTicketBuildBasic)
+}
+
+func BuildWeightTicketWithConstructedWeight(db *pop.Connection, customs []Customization, traits []Trait) models.WeightTicket {
+	return buildWeightTicketWithBuildType(db, customs, traits, weightTicketBuildConstructedWeight)
 }

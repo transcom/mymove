@@ -162,5 +162,31 @@ func (suite *FactorySuite) TestBuildWeightTicket() {
 
 		suite.Equal(customWeightTicket.EmptyWeight, weightTicket.EmptyWeight)
 	})
+	suite.Run("Successful creation of weight ticket with constructed weight ", func() {
+		// Under test:      BuildWeightTicketWithConstructedWeight
+		// Mocked:          None
+		// Set up:          Create a weight ticket with constructed weight with no customizations or traits
+		// Expected outcome:weightTicket should be created with default values
 
+		// SETUP
+		// CALL FUNCTION UNDER TEST
+		weightTicket := BuildWeightTicketWithConstructedWeight(suite.DB(), nil, nil)
+
+		// VALIDATE RESULTS
+		suite.NotNil(weightTicket.MissingEmptyWeightTicket)
+		suite.True(*weightTicket.MissingEmptyWeightTicket)
+
+		suite.NotNil(weightTicket.MissingFullWeightTicket)
+		suite.True(*weightTicket.MissingFullWeightTicket)
+
+		suite.False(weightTicket.ProofOfTrailerOwnershipDocumentID.IsNil())
+		suite.False(weightTicket.ProofOfTrailerOwnershipDocument.ID.IsNil())
+		suite.NotEmpty(weightTicket.ProofOfTrailerOwnershipDocument.UserUploads)
+
+		serviceMemberID := weightTicket.PPMShipment.Shipment.MoveTaskOrder.Orders.ServiceMember.ID
+		suite.False(serviceMemberID.IsNil())
+		suite.Equal(serviceMemberID, weightTicket.EmptyDocument.ServiceMemberID)
+		suite.Equal(serviceMemberID, weightTicket.FullDocument.ServiceMemberID)
+		suite.Equal(serviceMemberID, weightTicket.ProofOfTrailerOwnershipDocument.ServiceMemberID)
+	})
 }

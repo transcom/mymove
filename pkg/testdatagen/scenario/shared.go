@@ -1314,13 +1314,23 @@ func createApprovedMoveWithPPMCloseoutCompleteMultipleWeightTickets(appCtx appco
 		},
 	}, nil)
 
-	weightTicketAssertions := testdatagen.Assertions{
-		PPMShipment:   shipment,
-		ServiceMember: move.Orders.ServiceMember,
-		UserUploader:  userUploader,
-	}
-
-	testdatagen.MakeWeightTicketWithConstructedWeight(appCtx.DB(), weightTicketAssertions)
+	factory.BuildWeightTicketWithConstructedWeight(appCtx.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    move.Orders.ServiceMember,
+			LinkOnly: true,
+		},
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
 }
 
 func createApprovedMoveWithPPMCloseoutCompleteWithExpenses(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -1426,13 +1436,23 @@ func createApprovedMoveWithPPMCloseoutCompleteWithAllDocTypes(appCtx appcontext.
 
 	move, shipment := CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
 
-	weightTicketAssertions := testdatagen.Assertions{
-		PPMShipment:   shipment,
-		ServiceMember: move.Orders.ServiceMember,
-		UserUploader:  userUploader,
-	}
-
-	testdatagen.MakeWeightTicketWithConstructedWeight(appCtx.DB(), weightTicketAssertions)
+	factory.BuildWeightTicketWithConstructedWeight(appCtx.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    move.Orders.ServiceMember,
+			LinkOnly: true,
+		},
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
 
 	testdatagen.MakeMovingExpense(appCtx.DB(), testdatagen.Assertions{
 		ServiceMember: shipment.Shipment.MoveTaskOrder.Orders.ServiceMember,
