@@ -274,7 +274,7 @@ func AddProgearWeightTicketToPPMShipment(db *pop.Connection, ppmShipment *models
 
 	mergeModels(&fullProgearWeightTicketSetAssertions, assertions)
 
-	progearWeightTicket := MakeProgearWeightTicket(db, fullProgearWeightTicketSetAssertions)
+	progearWeightTicket := makeProgearWeightTicket(db, fullProgearWeightTicketSetAssertions)
 
 	ppmShipment.ProgearWeightTickets = append(ppmShipment.ProgearWeightTickets, progearWeightTicket)
 }
