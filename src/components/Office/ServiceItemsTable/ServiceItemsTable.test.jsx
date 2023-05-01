@@ -88,14 +88,14 @@ describe('ServiceItemsTable', () => {
     );
 
     expect(wrapper.find('table').exists()).toBe(true);
-    expect(wrapper.find('dt').at(0).text()).toBe('First Customer Contact:');
+    expect(wrapper.find('dt').at(0).text()).toBe('Customer contact 1:');
     expect(wrapper.find('dd').at(0).text()).toBe('0400Z');
-    expect(wrapper.find('dt').at(1).text()).toBe('First Available Delivery Date:');
+    expect(wrapper.find('dt').at(1).text()).toBe('Available delivery date 1:');
     expect(wrapper.find('dd').at(1).text()).toBe('31 Dec 2020');
 
-    expect(wrapper.find('dt').at(2).text()).toBe('Second Customer Contact:');
+    expect(wrapper.find('dt').at(2).text()).toBe('Customer contact 2:');
     expect(wrapper.find('dd').at(2).text()).toBe('0800Z');
-    expect(wrapper.find('dt').at(3).text()).toBe('Second Available Delivery Date:');
+    expect(wrapper.find('dt').at(3).text()).toBe('Available delivery date 2:');
     expect(wrapper.find('dd').at(3).text()).toBe('01 Jan 2021');
   });
 
