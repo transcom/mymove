@@ -29,12 +29,8 @@ import (
 
 func (suite *HandlerSuite) TestSubmitPPMShipmentDocumentationHandlerUnit() {
 	setUpPPMShipment := func() models.PPMShipment {
-		ppmShipment := testdatagen.MakePPMShipmentReadyForFinalCustomerCloseOut(
-			suite.DB(),
-			testdatagen.Assertions{
-				Stub: true,
-			},
-		)
+
+		ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(nil, nil)
 
 		ppmShipment.ID = uuid.Must(uuid.NewV4())
 		ppmShipment.CreatedAt = time.Now()
