@@ -527,10 +527,7 @@ const ShipmentForm = (props) => {
                           {fields}
                           <h4>Second pickup location</h4>
                           <FormGroup>
-                            <p>
-                              Do you want movers to pick up any belongings from a second address? (Must be near your
-                              pickup address. Subject to approval.)
-                            </p>
+                            <p>Do you want movers to pick up any belongings from a second address?</p>
                             <div className={formStyles.radioGroup}>
                               <Field
                                 as={Radio}
@@ -653,10 +650,7 @@ const ShipmentForm = (props) => {
                                 )}
                                 <h4>Second delivery location</h4>
                                 <FormGroup>
-                                  <p>
-                                    Do you want the movers to deliver any belongings to a second address? (Must be near
-                                    your delivery address. Subject to approval.)
-                                  </p>
+                                  <p>Do you want the movers to deliver any belongings to a second address?</p>
                                   <div className={formStyles.radioGroup}>
                                     <Field
                                       as={Radio}
