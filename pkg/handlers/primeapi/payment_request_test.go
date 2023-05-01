@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/assert"
@@ -125,7 +124,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 		params := paymentrequestop.CreatePaymentRequestParams{
 			HTTPRequest: req,
 			Body: &primemessages.CreatePaymentRequest{
-				IsFinal:         swag.Bool(false),
+				IsFinal:         models.BoolPointer(false),
 				MoveTaskOrderID: handlers.FmtUUID(subtestData.moveTaskOrderID),
 				ServiceItems: []*primemessages.ServiceItem{
 					{
@@ -191,7 +190,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 		params := paymentrequestop.CreatePaymentRequestParams{
 			HTTPRequest: req,
 			Body: &primemessages.CreatePaymentRequest{
-				IsFinal:         swag.Bool(false),
+				IsFinal:         models.BoolPointer(false),
 				MoveTaskOrderID: handlers.FmtUUID(subtestData.moveTaskOrderID),
 				ServiceItems: []*primemessages.ServiceItem{
 					{
@@ -248,7 +247,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 		params := paymentrequestop.CreatePaymentRequestParams{
 			HTTPRequest: req,
 			Body: &primemessages.CreatePaymentRequest{
-				IsFinal:         swag.Bool(false),
+				IsFinal:         models.BoolPointer(false),
 				MoveTaskOrderID: handlers.FmtUUID(subtestData.moveTaskOrderID),
 				ServiceItems: []*primemessages.ServiceItem{
 					{
@@ -325,7 +324,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 		params := paymentrequestop.CreatePaymentRequestParams{
 			HTTPRequest: req,
 			Body: &primemessages.CreatePaymentRequest{
-				IsFinal:         swag.Bool(false),
+				IsFinal:         models.BoolPointer(false),
 				MoveTaskOrderID: handlers.FmtUUID(subtestData.moveTaskOrderID),
 				PointOfContact:  "user@prime.com",
 			},
@@ -363,7 +362,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 		params := paymentrequestop.CreatePaymentRequestParams{
 			HTTPRequest: req,
 			Body: &primemessages.CreatePaymentRequest{
-				IsFinal:         swag.Bool(false),
+				IsFinal:         models.BoolPointer(false),
 				MoveTaskOrderID: &badFormatID,
 			},
 		}
@@ -398,7 +397,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 		params := paymentrequestop.CreatePaymentRequestParams{
 			HTTPRequest: req,
 			Body: &primemessages.CreatePaymentRequest{
-				IsFinal:         swag.Bool(false),
+				IsFinal:         models.BoolPointer(false),
 				MoveTaskOrderID: handlers.FmtUUID(subtestData.moveTaskOrderID),
 				PointOfContact:  "user@prime.com",
 				ServiceItems: []*primemessages.ServiceItem{
@@ -445,7 +444,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 		params := paymentrequestop.CreatePaymentRequestParams{
 			HTTPRequest: req,
 			Body: &primemessages.CreatePaymentRequest{
-				IsFinal:         swag.Bool(false),
+				IsFinal:         models.BoolPointer(false),
 				MoveTaskOrderID: handlers.FmtUUID(subtestData.moveTaskOrderID),
 				ServiceItems: []*primemessages.ServiceItem{
 					{
@@ -492,7 +491,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 		params := paymentrequestop.CreatePaymentRequestParams{
 			HTTPRequest: req,
 			Body: &primemessages.CreatePaymentRequest{
-				IsFinal:         swag.Bool(false),
+				IsFinal:         models.BoolPointer(false),
 				MoveTaskOrderID: handlers.FmtUUID(subtestData.moveTaskOrderID),
 				ServiceItems: []*primemessages.ServiceItem{
 					{
@@ -538,7 +537,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 		params := paymentrequestop.CreatePaymentRequestParams{
 			HTTPRequest: req,
 			Body: &primemessages.CreatePaymentRequest{
-				IsFinal:         swag.Bool(false),
+				IsFinal:         models.BoolPointer(false),
 				MoveTaskOrderID: handlers.FmtUUID(subtestData.moveTaskOrderID),
 				ServiceItems: []*primemessages.ServiceItem{
 					{
@@ -573,7 +572,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 		params := paymentrequestop.CreatePaymentRequestParams{
 			HTTPRequest: req,
 			Body: &primemessages.CreatePaymentRequest{
-				IsFinal:         swag.Bool(false),
+				IsFinal:         models.BoolPointer(false),
 				MoveTaskOrderID: handlers.FmtUUID(subtestData.moveTaskOrderID),
 				PointOfContact:  "user@prime.com",
 				ServiceItems: []*primemessages.ServiceItem{
@@ -687,20 +686,31 @@ func (suite *HandlerSuite) setupDomesticLinehaulData() (models.Move, models.MTOS
 	suite.MustSave(&msTaskOrderFee)
 
 	availableToPrimeAt := time.Date(testdatagen.GHCTestYear, time.July, 1, 0, 0, 0, 0, time.UTC)
-	moveTaskOrder, mtoServiceItems := testdatagen.MakeFullDLHMTOServiceItem(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			Status:             models.MoveStatusAPPROVED,
-			AvailableToPrimeAt: &availableToPrimeAt,
+	moveTaskOrder, mtoServiceItems := factory.BuildFullDLHMTOServiceItems(suite.DB(), []factory.Customization{
+		{
+			Model: models.Move{
+				Status:             models.MoveStatusAPPROVED,
+				AvailableToPrimeAt: &availableToPrimeAt,
+			},
 		},
-		MTOShipment: models.MTOShipment{
-			PrimeEstimatedWeight: &testEstWeight,
-			PrimeActualWeight:    &testActualWeight,
-			PickupAddressID:      &pickupAddress.ID,
-			PickupAddress:        &pickupAddress,
-			DestinationAddressID: &destinationAddress.ID,
-			DestinationAddress:   &destinationAddress,
+		{
+			Model:    pickupAddress,
+			LinkOnly: true,
+			Type:     &factory.Addresses.PickupAddress,
 		},
-	})
+		{
+			Model:    destinationAddress,
+			LinkOnly: true,
+			Type:     &factory.Addresses.DeliveryAddress,
+		},
+		{
+			Model: models.MTOShipment{
+				Status:               models.MTOShipmentStatusSubmitted,
+				PrimeEstimatedWeight: &testEstWeight,
+				PrimeActualWeight:    &testActualWeight,
+			},
+		},
+	}, nil)
 
 	publicationDate := moveTaskOrder.MTOShipments[0].ActualPickupDate.AddDate(0, 0, -3) // 3 days earlier
 	ghcDieselFuelPrice := models.GHCDieselFuelPrice{
@@ -751,7 +761,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandlerNewPaymentRequestCreat
 		params := paymentrequestop.CreatePaymentRequestParams{
 			HTTPRequest: req,
 			Body: &primemessages.CreatePaymentRequest{
-				IsFinal:         swag.Bool(false),
+				IsFinal:         models.BoolPointer(false),
 				MoveTaskOrderID: handlers.FmtUUID(moveTaskOrderID),
 				ServiceItems: []*primemessages.ServiceItem{
 					{
@@ -812,7 +822,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandlerNewPaymentRequestCreat
 		params := paymentrequestop.CreatePaymentRequestParams{
 			HTTPRequest: req,
 			Body: &primemessages.CreatePaymentRequest{
-				IsFinal:         swag.Bool(false),
+				IsFinal:         models.BoolPointer(false),
 				MoveTaskOrderID: handlers.FmtUUID(moveTaskOrderID),
 				ServiceItems: []*primemessages.ServiceItem{
 					{
@@ -859,7 +869,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandlerNewPaymentRequestCreat
 		params := paymentrequestop.CreatePaymentRequestParams{
 			HTTPRequest: req,
 			Body: &primemessages.CreatePaymentRequest{
-				IsFinal:         swag.Bool(false),
+				IsFinal:         models.BoolPointer(false),
 				MoveTaskOrderID: handlers.FmtUUID(moveTaskOrderID),
 				ServiceItems: []*primemessages.ServiceItem{
 					{
@@ -919,7 +929,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandlerInvalidMTOReferenceID(
 		params := paymentrequestop.CreatePaymentRequestParams{
 			HTTPRequest: req,
 			Body: &primemessages.CreatePaymentRequest{
-				IsFinal:         swag.Bool(false),
+				IsFinal:         models.BoolPointer(false),
 				MoveTaskOrderID: handlers.FmtUUID(moveTaskOrderID),
 				ServiceItems: []*primemessages.ServiceItem{
 					{
@@ -987,7 +997,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandlerInvalidMTOReferenceID(
 		params := paymentrequestop.CreatePaymentRequestParams{
 			HTTPRequest: req,
 			Body: &primemessages.CreatePaymentRequest{
-				IsFinal:         swag.Bool(false),
+				IsFinal:         models.BoolPointer(false),
 				MoveTaskOrderID: handlers.FmtUUID(moveTaskOrderID),
 				ServiceItems: []*primemessages.ServiceItem{
 					{

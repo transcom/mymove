@@ -285,7 +285,7 @@ func (suite *MoveServiceSuite) TestExcessWeight() {
 		// The default weight allotment for this move is 8000 and the threshold is 90% of that
 		approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		//Default estimatedWeight for ppm is 4000
-		ppmShipment := testdatagen.MakeDefaultPPMShipment(suite.DB())
+		ppmShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
 		now := time.Now()
 		pickupDate := now.AddDate(0, 0, 10)
 		approvedShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
@@ -323,7 +323,7 @@ func (suite *MoveServiceSuite) TestExcessWeight() {
 		// The default weight allotment for this move is 8000 and the threshold is 90% of that
 		approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		//Default estimatedWeight for ppm is 4000
-		ppmShipment := testdatagen.MakeDefaultPPMShipment(suite.DB())
+		ppmShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
 		now := time.Now()
 		pickupDate := now.AddDate(0, 0, 10)
 		approvedShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{

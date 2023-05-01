@@ -4,7 +4,6 @@ import (
 	"database/sql"
 
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
@@ -15,6 +14,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
+	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/event"
@@ -292,7 +292,7 @@ func (h UpdateBillableWeightHandler) Handle(
 			}
 
 			orderID := uuid.FromStringOrNil(params.OrderID.String())
-			dbAuthorizedWeight := swag.Int(int(*params.Body.AuthorizedWeight))
+			dbAuthorizedWeight := models.IntPointer(int(*params.Body.AuthorizedWeight))
 			updatedOrder, moveID, err := h.excessWeightRiskManager.UpdateBillableWeightAsTOO(
 				appCtx,
 				orderID,
@@ -344,7 +344,7 @@ func (h UpdateMaxBillableWeightAsTIOHandler) Handle(
 			}
 
 			orderID := uuid.FromStringOrNil(params.OrderID.String())
-			dbAuthorizedWeight := swag.Int(int(*params.Body.AuthorizedWeight))
+			dbAuthorizedWeight := models.IntPointer(int(*params.Body.AuthorizedWeight))
 			remarks := params.Body.TioRemarks
 			updatedOrder, moveID, err := h.excessWeightRiskManager.UpdateMaxBillableWeightAsTIO(
 				appCtx,

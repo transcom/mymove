@@ -1,11 +1,3 @@
-// RA Summary: gosec - errcheck - Unchecked return value
-// RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
-// RA: Functions with unchecked return values in the file are used set up environment variables
-// RA: Given the functions causing the lint errors are used to set environment variables for testing purposes, it does not present a risk
-// RA Developer Status: Mitigated
-// RA Validator Status: Mitigated
-// RA Modified Severity: N/A
-// nolint:errcheck
 package supportapi
 
 import (
@@ -41,7 +33,7 @@ import (
 
 func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 	suite.Run("successful status update of payment request", func() {
-		paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
+		paymentRequest := factory.BuildPaymentRequest(suite.DB(), nil, nil)
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/payment_request/%s/status", paymentRequest.ID), nil)
 		eTag := etag.GenerateEtag(paymentRequest.UpdatedAt)
 
@@ -70,9 +62,12 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 
 	suite.Run("successful status update of prime-available payment request", func() {
 		availableMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-		availablePaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			Move: availableMove,
-		})
+		availablePaymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    availableMove,
+				LinkOnly: true,
+			},
+		}, nil)
 		availablePaymentRequestID := availablePaymentRequest.ID
 
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/payment_request/%s/status", availablePaymentRequestID), nil)
@@ -108,7 +103,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 	})
 
 	suite.Run("unsuccessful status update of payment request (500)", func() {
-		paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
+		paymentRequest := factory.BuildPaymentRequest(suite.DB(), nil, nil)
 		paymentRequestStatusUpdater := &mocks.PaymentRequestStatusUpdater{}
 		paymentRequestStatusUpdater.On("UpdatePaymentRequestStatus", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(nil, errors.New("Something bad happened")).Once()
 
@@ -141,7 +136,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 	})
 
 	suite.Run("unsuccessful status update of payment request, not found (404)", func() {
-		paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
+		paymentRequest := factory.BuildPaymentRequest(suite.DB(), nil, nil)
 		paymentRequestStatusUpdater := &mocks.PaymentRequestStatusUpdater{}
 		paymentRequestStatusUpdater.On("UpdatePaymentRequestStatus", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(nil, apperror.NewNotFoundError(paymentRequest.ID, "")).Once()
 
@@ -171,7 +166,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 	})
 
 	suite.Run("unsuccessful status update of payment request, precondition failed (412)", func() {
-		paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
+		paymentRequest := factory.BuildPaymentRequest(suite.DB(), nil, nil)
 		paymentRequestStatusUpdater := &mocks.PaymentRequestStatusUpdater{}
 		paymentRequestStatusUpdater.On("UpdatePaymentRequestStatus", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(nil, apperror.PreconditionFailedError{}).Once()
 
@@ -200,7 +195,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 
 	})
 	suite.Run("unsuccessful status update of payment request, conflict error (409)", func() {
-		paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
+		paymentRequest := factory.BuildPaymentRequest(suite.DB(), nil, nil)
 		paymentRequestStatusUpdater := &mocks.PaymentRequestStatusUpdater{}
 		paymentRequestStatusUpdater.On("UpdatePaymentRequestStatus", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(nil, apperror.ConflictError{}).Once()
 
@@ -231,7 +226,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 
 func (suite *HandlerSuite) TestListMTOPaymentRequestHandler() {
 	suite.Run("successful get an MTO with payment requests", func() {
-		paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
+		paymentRequest := factory.BuildPaymentRequest(suite.DB(), nil, nil)
 		mtoID := paymentRequest.MoveTaskOrderID
 		req := httptest.NewRequest("GET", fmt.Sprintf("/move-task-orders/%s/payment-requests", mtoID), nil)
 
@@ -322,6 +317,10 @@ func (suite *HandlerSuite) TestGetPaymentRequestEDIHandler() {
 		paymentServiceItem.PriceCents = &priceCents
 		suite.MustSave(&paymentServiceItem)
 
+		// Make sure that there is a Postal Code to GBLOC for the duty location postal code
+
+		factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), paymentServiceItem.PaymentRequest.MoveTaskOrder.Orders.NewDutyLocation.Address.PostalCode, "KKFA")
+
 		return paymentServiceItem.PaymentRequest
 	}
 
@@ -338,6 +337,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestEDIHandler() {
 
 	suite.Run("successful get of EDI for payment request", func() {
 		paymentRequest := setupTestData()
+
 		req := httptest.NewRequest("GET", fmt.Sprintf(urlFormat, paymentRequest.ID), nil)
 
 		params := paymentrequestop.GetPaymentRequestEDIParams{
@@ -497,14 +497,19 @@ func (suite *HandlerSuite) createPaymentRequest(num int) models.PaymentRequests 
 		}
 
 		mto := factory.BuildMove(suite.DB(), nil, nil)
-		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			Move: mto,
-			PaymentRequest: models.PaymentRequest{
-				IsFinal:         false,
-				Status:          models.PaymentRequestStatusReviewed,
-				RejectionReason: nil,
+		paymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    mto,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.PaymentRequest{
+					IsFinal:         false,
+					Status:          models.PaymentRequestStatusReviewed,
+					RejectionReason: nil,
+				},
+			},
+		}, nil)
 		prs = append(prs, paymentRequest)
 		requestedPickupDate := time.Date(testdatagen.GHCTestYear, time.September, 15, 0, 0, 0, 0, time.UTC)
 		scheduledPickupDate := time.Date(testdatagen.GHCTestYear, time.September, 20, 0, 0, 0, 0, time.UTC)

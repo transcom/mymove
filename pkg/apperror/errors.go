@@ -115,6 +115,30 @@ func (b *BadDataError) Error() string {
 	return fmt.Sprintf("Data received from requester is bad: %s: %s", b.baseError.code, b.badDataMsg)
 }
 
+// UnsupportedPostalCode happens when we don't have the data to support a given postal code.
+const UnsupportedPostalCode ErrorCode = "UNSUPPORTED_POSTAL_CODE"
+
+// UnsupportedPostalCodeError is the custom error type (exported for type checking)
+type UnsupportedPostalCodeError struct {
+	baseError
+	postalCode string
+	reason     string
+}
+
+// NewUnsupportedPostalCodeError creates an error for when we don't have the data to support a given
+// postal code.
+func NewUnsupportedPostalCodeError(postalCode string, reason string) *UnsupportedPostalCodeError {
+	return &UnsupportedPostalCodeError{
+		baseError{UnsupportedPostalCode},
+		postalCode,
+		reason,
+	}
+}
+
+func (e *UnsupportedPostalCodeError) Error() string {
+	return fmt.Sprintf("Unsupported postal code (%s): %s", e.postalCode, e.reason)
+}
+
 // InvalidInputError is returned when an update fails a validation rule
 type InvalidInputError struct {
 	id               uuid.UUID

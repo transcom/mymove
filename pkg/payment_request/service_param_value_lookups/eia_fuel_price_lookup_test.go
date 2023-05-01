@@ -5,7 +5,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -60,12 +59,12 @@ func (suite *ServiceParamValueLookupsSuite) TestEIAFuelPriceLookup() {
 			},
 		}, nil)
 
-		paymentRequest = testdatagen.MakePaymentRequest(suite.DB(),
-			testdatagen.Assertions{
-				PaymentRequest: models.PaymentRequest{
-					MoveTaskOrderID: mtoServiceItem.MoveTaskOrderID,
-				},
-			})
+		paymentRequest = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    mtoServiceItem.MoveTaskOrder,
+				LinkOnly: true,
+			},
+		}, nil)
 	}
 
 	suite.Run("lookup GHC diesel fuel price successfully", func() {
@@ -111,13 +110,16 @@ func (suite *ServiceParamValueLookupsSuite) TestEIAFuelPriceLookup() {
 			},
 		}, nil)
 
-		_ = testdatagen.FetchOrMakeServiceParam(suite.DB(), testdatagen.Assertions{
-			ServiceParam: models.ServiceParam{
-				ServiceID:             mtoServiceItemFSC.ReServiceID,
-				ServiceItemParamKeyID: serviceItemParamKey1.ID,
-				ServiceItemParamKey:   serviceItemParamKey1,
+		factory.FetchOrBuildServiceParam(suite.DB(), []factory.Customization{
+			{
+				Model:    mtoServiceItemFSC.ReService,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model:    serviceItemParamKey1,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		paramCache := NewServiceParamsCache()
 
@@ -143,12 +145,12 @@ func (suite *ServiceParamValueLookupsSuite) TestEIAFuelPriceLookup() {
 			},
 		}, nil)
 
-		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
-			testdatagen.Assertions{
-				PaymentRequest: models.PaymentRequest{
-					MoveTaskOrderID: mtoServiceItem.MoveTaskOrderID,
-				},
-			})
+		paymentRequest = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    mtoServiceItem.MoveTaskOrder,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		_, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.Error(err)

@@ -86,7 +86,7 @@ All property included in all my shipment consists of household goods and persona
 my dependents on the effective date of change of station orders.  All pro-gear included in my shipments, including, \
 but not limited to, professional books, papers, and equipment, are necessary for me to perform my official duties.  \
 Once my move is approved, I will review and abide by the moving information provided to me through official channels, \
-including MilMove, Move.mil, and communications from the transportation office.  I understand I risk loss, damage, \
+including MilMove, Military OneSource, and communications from the transportation office.  I understand I risk loss, damage, \
 delays, and/or excess costs if I do not follow that information.
 
 **Storage Liability:**

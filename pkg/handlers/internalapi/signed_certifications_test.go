@@ -14,7 +14,6 @@ import (
 	"time"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/factory"
@@ -31,9 +30,9 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandler() {
 
 	date := time.Now()
 	certPayload := internalmessages.CreateSignedCertificationPayload{
-		CertificationText: swag.String("lorem ipsum"),
+		CertificationText: models.StringPointer("lorem ipsum"),
 		Date:              (*strfmt.DateTime)(&date),
-		Signature:         swag.String("Scruff McGruff"),
+		Signature:         models.StringPointer("Scruff McGruff"),
 	}
 	params := certop.CreateSignedCertificationParams{
 		CreateSignedCertificationPayload: &certPayload,
@@ -76,9 +75,9 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerMismatchedUser() 
 
 	date := time.Now()
 	certPayload := internalmessages.CreateSignedCertificationPayload{
-		CertificationText: swag.String("lorem ipsum"),
+		CertificationText: models.StringPointer("lorem ipsum"),
 		Date:              (*strfmt.DateTime)(&date),
-		Signature:         swag.String("Scruff McGruff"),
+		Signature:         models.StringPointer("Scruff McGruff"),
 	}
 	params := certop.CreateSignedCertificationParams{
 		CreateSignedCertificationPayload: &certPayload,
@@ -110,9 +109,9 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerBadMoveID() {
 	move := factory.BuildMove(suite.DB(), nil, nil)
 	date := time.Now()
 	certPayload := internalmessages.CreateSignedCertificationPayload{
-		CertificationText: swag.String("lorem ipsum"),
+		CertificationText: models.StringPointer("lorem ipsum"),
 		Date:              (*strfmt.DateTime)(&date),
-		Signature:         swag.String("Scruff McGruff"),
+		Signature:         models.StringPointer("Scruff McGruff"),
 	}
 
 	badMoveID := strfmt.UUID("3511d4d6-019d-4031-9c27-8a553e055543")

@@ -11,7 +11,7 @@ func MakeMTOAgent(db *pop.Connection, assertions Assertions) models.MTOAgent {
 
 	mtoShipment := assertions.MTOShipment
 	if isZeroUUID(mtoShipment.ID) {
-		mtoShipment = MakeMTOShipment(db, assertions)
+		mtoShipment = makeMTOShipment(db, assertions)
 	}
 
 	firstName := "Jason"
@@ -34,15 +34,4 @@ func MakeMTOAgent(db *pop.Connection, assertions Assertions) models.MTOAgent {
 	mustCreate(db, &MTOAgent, assertions.Stub)
 
 	return MTOAgent
-}
-
-// MakeDefaultMTOAgent returns a MTOAgent with default values
-func MakeDefaultMTOAgent(db *pop.Connection) models.MTOAgent {
-	return MakeMTOAgent(db, Assertions{})
-}
-
-func MakeStubbedAgent(db *pop.Connection, assertions Assertions) models.MTOAgent {
-	return MakeMTOAgent(db, Assertions{
-		Stub: true,
-	})
 }

@@ -1,12 +1,3 @@
-// RA Summary: gosec - errcheck - Unchecked return value
-// RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
-// RA: Functions with unchecked return values in the file are used to clean up file created for unit test
-// RA: Given the functions causing the lint errors are used to clean up local storage space after a unit test, it does not present a risk
-// RA Developer Status: Mitigated
-// RA Validator Status: Mitigated
-// RA Modified Severity: N/A
-// nolint:errcheck
-// #nosec G307
 package migrate
 
 import (
@@ -51,9 +42,9 @@ func (suite *MigrateSuite) TestSplitStatementsCopyFromStdin() {
 		"SET check_function_bodies = false;",
 		"SET client_min_messages = warning;",
 		"SET row_security = off;",
-		"COPY public.transportation_service_provider_performances (id, performance_period_start, performance_period_end, traffic_distribution_list_id, quality_band, offer_count, best_value_score, transportation_service_provider_id, created_at, updated_at, rate_cycle_start, rate_cycle_end, linehaul_rate, sit_rate) FROM stdin;",
-		"fbfb095e-6ea3-4c1e-bd3d-7f131d73e295\t2019-01-01\t2019-05-14\t27f1fbeb-090c-4a91-955c-67899de4d6d6\t\\N\t0\t89\t231a7b21-346c-4e94-b6bc-672413733f77\t2018-12-28 18:35:37.147546\t2018-12-28 18:35:37.147546\t2018-10-01\t2019-05-14\t0.55000000000000000000\t0.55000000000000000000",
-		"5147b246-19c4-487a-b3fd-a503f889daf7\t2019-01-01\t2019-05-14\t27f1fbeb-090c-4a91-955c-67899de4d6d6\t\\N\t0\t92\t231a7b21-346c-4e94-b6bc-672413733f77\t2018-12-28 18:35:37.147546\t2018-12-28 18:35:37.147546\t2018-10-01\t2019-05-14\t0.67000000000000000000\t0.60000000000000000000",
+		"COPY public.re_services (id, code, name, created_at, updated_at, priority) FROM stdin;",
+		"10000012-2c32-4529-ad8a-131df722cb17\t12\tTwelve\t2020-03-23 16:31:50.313853\t2020-03-23 16:31:50.313853\t1",
+		"10000013-ef6e-45b1-9d3d-8a89e46af743\t13\tThirteen\t2020-03-23 16:31:50.313853\t2020-03-23 16:31:50.313853\t2",
 		"\\.",
 	}
 
@@ -258,14 +249,14 @@ func (suite *MigrateSuite) TestSplitStatementsCopyFromStdinMultiple() {
 	go SplitStatements(lines, statements, wait, suite.Logger())
 
 	expectedStmt := []string{
-		"COPY public.tariff400ng_full_unpack_rates (id, schedule, rate_millicents, effective_date_lower, effective_date_upper, created_at, updated_at) FROM stdin;",
-		"759fc749-2c32-4529-ad8a-131df722cb17\t1\t629370\t2020-05-15\t2021-05-15\t2020-03-23 16:31:50.313853\t2020-03-23 16:31:50.313853",
-		"8bd34c5c-ef6e-45b1-9d3d-8a89e46af743\t2\t696150\t2020-05-15\t2021-05-15\t2020-03-23 16:31:50.313853\t2020-03-23 16:31:50.313853",
+		"COPY public.re_services (id, code, name, created_at, updated_at, priority) FROM stdin;",
+		"759fc749-2c32-4529-ad8a-131df722cb17\t1\tCat\t2020-03-23 16:31:50.313853\t2020-03-23 16:31:50.313853\t1",
+		"8bd34c5c-ef6e-45b1-9d3d-8a89e46af743\t2\tBob\t2020-03-23 16:31:50.313853\t2020-03-23 16:31:50.313853\t2",
 		"\\.",
-		"COPY public.tariff400ng_shorthaul_rates (id, cwt_miles_lower, cwt_miles_upper, rate_cents, effective_date_lower, effective_date_upper, created_at, updated_at) FROM stdin;",
-		"55c74996-f208-414d-b8de-022938dbfe1e\t0\t16001\t35511\t2020-05-15\t2021-05-15\t2020-03-23 16:31:50.324166\t2020-03-23 16:31:50.324166",
-		"b8e87afb-6287-4837-8b49-a6cf3aad0d1a\t16001\t32001\t31567\t2020-05-15\t2021-05-15\t2020-03-23 16:31:50.324166\t2020-03-23 16:31:50.324166",
-		"b36e9835-9794-4465-8c43-b63088c5ebe1\t32001\t64001\t27620\t2020-05-15\t2021-05-15\t2020-03-23 16:31:50.324166\t2020-03-23 16:31:50.324166",
+		"COPY public.re_contracts (id, code, name, created_at, updated_at) FROM stdin;",
+		"55c74996-f208-414d-b8de-022938dbfe1e\t1\tMary\t2020-03-23 16:31:50.324166\t2020-03-23 16:31:50.324166",
+		"b8e87afb-6287-4837-8b49-a6cf3aad0d1a\t2\tFrank\t2020-03-23 16:31:50.324166\t2020-03-23 16:31:50.324166",
+		"b36e9835-9794-4465-8c43-b63088c5ebe1\t3\tSam\t2020-03-23 16:31:50.324166\t2020-03-23 16:31:50.324166",
 		"\\.",
 	}
 
@@ -335,9 +326,9 @@ to_char(s.created_at, 'YY')
 INTO scac, shipment_year, shipment_two_digit_year
 FROM shipments s
 INNER JOIN shipment_offers so ON s.id = so.shipment_id
-INNER JOIN transportation_service_provider_performances tspp
-ON so.transportation_service_provider_performance_id = tspp.id
-INNER JOIN transportation_service_providers tsp ON tspp.transportation_service_provider_id = tsp.id
+INNER JOIN some_service_provider_performances sspp
+ON so.some_service_provider_performance_id = sspp.id
+INNER JOIN some_service_providers tsp ON sspp.some_service_provider_id = tsp.id
 WHERE s.id = current_shipment_id
 AND so.accepted = TRUE
 ORDER BY so.created_at

@@ -90,15 +90,16 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 
 		subtestData := setUpForTests(nil, nil, nil)
 
-		originalPPM := testdatagen.MakeMinimalPPMShipment(appCtx.DB(), testdatagen.Assertions{
-			PPMShipment: models.PPMShipment{
-				ExpectedDepartureDate: testdatagen.NextValidMoveDate,
-				PickupPostalCode:      "79912",
-				DestinationPostalCode: "90909",
-				SITExpected:           models.BoolPointer(false),
+		originalPPM := factory.BuildMinimalPPMShipment(appCtx.DB(), []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					ExpectedDepartureDate: testdatagen.NextValidMoveDate,
+					PickupPostalCode:      "79912",
+					DestinationPostalCode: "90909",
+					SITExpected:           models.BoolPointer(false),
+				},
 			},
-		})
-
+		}, nil)
 		newPPM := models.PPMShipment{
 			ExpectedDepartureDate: testdatagen.NextValidMoveDate.Add(testdatagen.OneWeek),
 			PickupPostalCode:      "79906",
@@ -127,17 +128,19 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 
 		subtestData := setUpForTests(newFakeEstimatedIncentive, nil, nil)
 
-		originalPPM := testdatagen.MakeMinimalPPMShipment(appCtx.DB(), testdatagen.Assertions{
-			PPMShipment: models.PPMShipment{
-				ExpectedDepartureDate: testdatagen.NextValidMoveDate,
-				PickupPostalCode:      "79912",
-				DestinationPostalCode: "90909",
-				SITExpected:           models.BoolPointer(false),
-				EstimatedWeight:       models.PoundPointer(4000),
-				HasProGear:            models.BoolPointer(false),
-				EstimatedIncentive:    fakeEstimatedIncentive,
+		originalPPM := factory.BuildMinimalPPMShipment(appCtx.DB(), []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					ExpectedDepartureDate: testdatagen.NextValidMoveDate,
+					PickupPostalCode:      "79912",
+					DestinationPostalCode: "90909",
+					SITExpected:           models.BoolPointer(false),
+					EstimatedWeight:       models.PoundPointer(4000),
+					HasProGear:            models.BoolPointer(false),
+					EstimatedIncentive:    fakeEstimatedIncentive,
+				},
 			},
-		})
+		}, nil)
 
 		newPPM := models.PPMShipment{
 			ExpectedDepartureDate: testdatagen.NextValidMoveDate.Add(testdatagen.OneWeek),
@@ -167,7 +170,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 
 		subtestData := setUpForTests(nil, nil, nil)
 
-		originalPPM := testdatagen.MakeMinimalDefaultPPMShipment(appCtx.DB())
+		originalPPM := factory.BuildMinimalPPMShipment(appCtx.DB(), nil, nil)
 
 		newPPM := models.PPMShipment{
 			SecondaryPickupPostalCode:      models.StringPointer("79906"),
@@ -197,13 +200,14 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 
 		subtestData := setUpForTests(nil, nil, nil)
 
-		originalPPM := testdatagen.MakeMinimalPPMShipment(appCtx.DB(), testdatagen.Assertions{
-			PPMShipment: models.PPMShipment{
-				SecondaryPickupPostalCode:      models.StringPointer("79906"),
-				SecondaryDestinationPostalCode: models.StringPointer("94303"),
+		originalPPM := factory.BuildMinimalPPMShipment(appCtx.DB(), []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					SecondaryPickupPostalCode:      models.StringPointer("79906"),
+					SecondaryDestinationPostalCode: models.StringPointer("94303"),
+				},
 			},
-		})
-
+		}, nil)
 		newPPM := models.PPMShipment{
 			SecondaryPickupPostalCode:      models.StringPointer(""),
 			SecondaryDestinationPostalCode: models.StringPointer(""),
@@ -232,7 +236,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 
 		subtestData := setUpForTests(fakeEstimatedIncentive, nil, nil)
 
-		originalPPM := testdatagen.MakeMinimalDefaultPPMShipment(appCtx.DB())
+		originalPPM := factory.BuildMinimalPPMShipment(appCtx.DB(), nil, nil)
 
 		newPPM := models.PPMShipment{
 			EstimatedWeight: models.PoundPointer(4000),
@@ -265,7 +269,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 
 		subtestData := setUpForTests(fakeEstimatedIncentive, nil, nil)
 
-		originalPPM := testdatagen.MakeMinimalDefaultPPMShipment(appCtx.DB())
+		originalPPM := factory.BuildMinimalPPMShipment(appCtx.DB(), nil, nil)
 
 		newPPM := models.PPMShipment{
 			EstimatedWeight:     models.PoundPointer(4000),
@@ -302,14 +306,15 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 
 		subtestData := setUpForTests(newFakeEstimatedIncentive, nil, nil)
 
-		originalPPM := testdatagen.MakeMinimalPPMShipment(appCtx.DB(), testdatagen.Assertions{
-			PPMShipment: models.PPMShipment{
-				EstimatedWeight:    models.PoundPointer(4000),
-				HasProGear:         models.BoolPointer(false),
-				EstimatedIncentive: fakeEstimatedIncentive,
+		originalPPM := factory.BuildMinimalPPMShipment(appCtx.DB(), []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					EstimatedWeight:    models.PoundPointer(4000),
+					HasProGear:         models.BoolPointer(false),
+					EstimatedIncentive: fakeEstimatedIncentive,
+				},
 			},
-		})
-
+		}, nil)
 		newPPM := models.PPMShipment{
 			EstimatedWeight:     models.PoundPointer(4500),
 			HasProGear:          models.BoolPointer(true),
@@ -342,15 +347,17 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 
 		subtestData := setUpForTests(newFakeEstimatedIncentive, nil, nil)
 
-		originalPPM := testdatagen.MakeMinimalPPMShipment(appCtx.DB(), testdatagen.Assertions{
-			PPMShipment: models.PPMShipment{
-				EstimatedWeight:     models.PoundPointer(4000),
-				HasProGear:          models.BoolPointer(true),
-				ProGearWeight:       models.PoundPointer(1000),
-				SpouseProGearWeight: models.PoundPointer(0),
-				EstimatedIncentive:  fakeEstimatedIncentive,
+		originalPPM := factory.BuildMinimalPPMShipment(appCtx.DB(), []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					EstimatedWeight:     models.PoundPointer(4000),
+					HasProGear:          models.BoolPointer(true),
+					ProGearWeight:       models.PoundPointer(1000),
+					SpouseProGearWeight: models.PoundPointer(0),
+					EstimatedIncentive:  fakeEstimatedIncentive,
+				},
 			},
-		})
+		}, nil)
 
 		newPPM := models.PPMShipment{
 			EstimatedWeight: models.PoundPointer(4500),
@@ -378,14 +385,15 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 	suite.Run("Can successfully update a PPMShipment - add advance info - no advance", func() {
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
 
-		originalPPM := testdatagen.MakeMinimalPPMShipment(appCtx.DB(), testdatagen.Assertions{
-			PPMShipment: models.PPMShipment{
-				EstimatedWeight:    models.PoundPointer(4000),
-				HasProGear:         models.BoolPointer(false),
-				EstimatedIncentive: fakeEstimatedIncentive,
+		originalPPM := factory.BuildMinimalPPMShipment(appCtx.DB(), []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					EstimatedWeight:    models.PoundPointer(4000),
+					HasProGear:         models.BoolPointer(false),
+					EstimatedIncentive: fakeEstimatedIncentive,
+				},
 			},
-		})
-
+		}, nil)
 		newPPM := models.PPMShipment{
 			HasRequestedAdvance: models.BoolPointer(false),
 		}
@@ -415,14 +423,15 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 	suite.Run("Can successfully update a PPMShipment - add advance info - yes advance", func() {
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
 
-		originalPPM := testdatagen.MakeMinimalPPMShipment(appCtx.DB(), testdatagen.Assertions{
-			PPMShipment: models.PPMShipment{
-				EstimatedWeight:    models.PoundPointer(4000),
-				HasProGear:         models.BoolPointer(false),
-				EstimatedIncentive: fakeEstimatedIncentive,
+		originalPPM := factory.BuildMinimalPPMShipment(appCtx.DB(), []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					EstimatedWeight:    models.PoundPointer(4000),
+					HasProGear:         models.BoolPointer(false),
+					EstimatedIncentive: fakeEstimatedIncentive,
+				},
 			},
-		})
-
+		}, nil)
 		newPPM := models.PPMShipment{
 			HasRequestedAdvance:    models.BoolPointer(true),
 			AdvanceAmountRequested: models.CentPointer(unit.Cents(300000)),
@@ -454,14 +463,15 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 			OfficeUserID: uuid.Must(uuid.NewV4()),
 		})
-		originalPPM := testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
-			PPMShipment: models.PPMShipment{
-				EstimatedIncentive:     fakeEstimatedIncentive,
-				HasRequestedAdvance:    models.BoolPointer(true),
-				AdvanceAmountRequested: models.CentPointer(unit.Cents(400000)),
+		originalPPM := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					EstimatedIncentive:     fakeEstimatedIncentive,
+					HasRequestedAdvance:    models.BoolPointer(true),
+					AdvanceAmountRequested: models.CentPointer(unit.Cents(400000)),
+				},
 			},
-		})
-
+		}, nil)
 		newPPM := models.PPMShipment{
 			HasRequestedAdvance:    models.BoolPointer(true),
 			AdvanceAmountRequested: models.CentPointer(unit.Cents(200000)),
@@ -495,13 +505,15 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 			OfficeUserID: uuid.Must(uuid.NewV4()),
 		})
-		originalPPM := testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
-			PPMShipment: models.PPMShipment{
-				EstimatedIncentive:     fakeEstimatedIncentive,
-				HasRequestedAdvance:    models.BoolPointer(true),
-				AdvanceAmountRequested: models.CentPointer(unit.Cents(400000)),
+		originalPPM := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					EstimatedIncentive:     fakeEstimatedIncentive,
+					HasRequestedAdvance:    models.BoolPointer(true),
+					AdvanceAmountRequested: models.CentPointer(unit.Cents(400000)),
+				},
 			},
-		})
+		}, nil)
 
 		approved := models.PPMAdvanceStatusApproved
 
@@ -538,14 +550,15 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 			OfficeUserID: uuid.Must(uuid.NewV4()),
 		})
-		originalPPM := testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
-			PPMShipment: models.PPMShipment{
-				EstimatedIncentive:     fakeEstimatedIncentive,
-				HasRequestedAdvance:    models.BoolPointer(true),
-				AdvanceAmountRequested: models.CentPointer(unit.Cents(400000)),
+		originalPPM := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					EstimatedIncentive:     fakeEstimatedIncentive,
+					HasRequestedAdvance:    models.BoolPointer(true),
+					AdvanceAmountRequested: models.CentPointer(unit.Cents(400000)),
+				},
 			},
-		})
-
+		}, nil)
 		rejected := models.PPMAdvanceStatusRejected
 
 		newPPM := models.PPMShipment{
@@ -582,14 +595,14 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 			OfficeUserID: uuid.Must(uuid.NewV4()),
 		})
 
-		originalPPM := testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
-			PPMShipment: models.PPMShipment{
-				EstimatedIncentive:     fakeEstimatedIncentive,
-				HasRequestedAdvance:    models.BoolPointer(false),
-				AdvanceAmountRequested: nil,
+		originalPPM := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					EstimatedIncentive:  fakeEstimatedIncentive,
+					HasRequestedAdvance: models.BoolPointer(false),
+				},
 			},
-		})
-
+		}, nil)
 		approved := models.PPMAdvanceStatusApproved
 
 		newPPM := models.PPMShipment{
@@ -627,14 +640,15 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 			OfficeUserID: uuid.Must(uuid.NewV4()),
 		})
 
-		originalPPM := testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
-			PPMShipment: models.PPMShipment{
-				EstimatedIncentive:     fakeEstimatedIncentive,
-				HasRequestedAdvance:    models.BoolPointer(true),
-				AdvanceAmountRequested: models.CentPointer(unit.Cents(300000)),
+		originalPPM := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					EstimatedIncentive:     fakeEstimatedIncentive,
+					HasRequestedAdvance:    models.BoolPointer(true),
+					AdvanceAmountRequested: models.CentPointer(unit.Cents(300000)),
+				},
 			},
-		})
-
+		}, nil)
 		newPPM := models.PPMShipment{
 			HasRequestedAdvance: models.BoolPointer(false),
 		}
@@ -671,17 +685,18 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		subtestData := setUpForTests(newFakeEstimatedIncentive, nil, nil)
 		sitLocation := models.SITLocationTypeOrigin
 
-		originalPPM := testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
-			PPMShipment: models.PPMShipment{
-				SITExpected:               models.BoolPointer(true),
-				SITLocation:               &sitLocation,
-				SITEstimatedEntryDate:     models.TimePointer(testdatagen.NextValidMoveDate),
-				SITEstimatedDepartureDate: models.TimePointer(testdatagen.NextValidMoveDate.Add(testdatagen.OneWeek)),
-				SITEstimatedWeight:        models.PoundPointer(1000),
-				SITEstimatedCost:          models.CentPointer(unit.Cents(69900)),
+		originalPPM := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					SITExpected:               models.BoolPointer(true),
+					SITLocation:               &sitLocation,
+					SITEstimatedEntryDate:     models.TimePointer(testdatagen.NextValidMoveDate),
+					SITEstimatedDepartureDate: models.TimePointer(testdatagen.NextValidMoveDate.Add(testdatagen.OneWeek)),
+					SITEstimatedWeight:        models.PoundPointer(1000),
+					SITEstimatedCost:          models.CentPointer(unit.Cents(69900)),
+				},
 			},
-		})
-
+		}, nil)
 		newPPM := models.PPMShipment{
 			SITExpected: models.BoolPointer(false),
 		}
@@ -721,12 +736,13 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		subtestData := setUpForTests(newFakeEstimatedIncentive, newFakeSITEstimatedCost, nil)
 		sitLocation := models.SITLocationTypeOrigin
 
-		originalPPM := testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
-			PPMShipment: models.PPMShipment{
-				SITExpected: models.BoolPointer(false),
+		originalPPM := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					SITExpected: models.BoolPointer(false),
+				},
 			},
-		})
-
+		}, nil)
 		newPPM := models.PPMShipment{
 			SITExpected:               models.BoolPointer(true),
 			SITLocation:               &sitLocation,
@@ -766,14 +782,16 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 
 		subtestData := setUpForFinalIncentiveTests(nil, nil, nil, nil, nil)
 
-		originalPPM := testdatagen.MakeMinimalPPMShipment(appCtx.DB(), testdatagen.Assertions{
-			PPMShipment: models.PPMShipment{
-				ActualMoveDate:              models.TimePointer(testdatagen.NextValidMoveDate),
-				ActualPickupPostalCode:      models.StringPointer("79912"),
-				ActualDestinationPostalCode: models.StringPointer("90909"),
-				EstimatedWeight:             models.PoundPointer(unit.Pound(5000)),
+		originalPPM := factory.BuildMinimalPPMShipment(appCtx.DB(), []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					ActualMoveDate:              models.TimePointer(testdatagen.NextValidMoveDate),
+					ActualPickupPostalCode:      models.StringPointer("79912"),
+					ActualDestinationPostalCode: models.StringPointer("90909"),
+					EstimatedWeight:             models.PoundPointer(unit.Pound(5000)),
+				},
 			},
-		})
+		}, nil)
 
 		newPPM := originalPPM
 
@@ -806,7 +824,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 
 		subtestData := setUpForTests(nil, nil, nil)
 
-		originalPPMShipment := testdatagen.MakeDefaultPPMShipment(appCtx.DB())
+		originalPPMShipment := factory.BuildPPMShipment(appCtx.DB(), nil, nil)
 
 		// Easiest invalid input to trigger is to set an invalid AdvanceAmountRequested value. The rest are harder to
 		// trigger based on how the service object is set up.
@@ -829,7 +847,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		fakeEstimatedIncentiveError := errors.New("failed to calculate incentive")
 		subtestData := setUpForTests(nil, nil, fakeEstimatedIncentiveError)
 
-		originalPPMShipment := testdatagen.MakeDefaultPPMShipment(appCtx.DB())
+		originalPPMShipment := factory.BuildPPMShipment(appCtx.DB(), nil, nil)
 
 		newPPMShipment := models.PPMShipment{
 			HasRequestedAdvance: models.BoolPointer(false),
@@ -848,7 +866,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 
 		subtestData := setUpForTests(fakeEstimatedIncentive, nil, nil)
 
-		originalPPM := testdatagen.MakeMinimalDefaultPPMShipment(appCtx.DB())
+		originalPPM := factory.BuildMinimalPPMShipment(appCtx.DB(), nil, nil)
 
 		streetAddress1 := "10642 N Second Ave"
 		streetAddress2 := "Apt. 308"
@@ -883,7 +901,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 
 		subtestData := setUpForTests(fakeEstimatedIncentive, nil, nil)
 
-		originalPPM := testdatagen.MakeMinimalDefaultPPMShipment(appCtx.DB())
+		originalPPM := factory.BuildMinimalPPMShipment(appCtx.DB(), nil, nil)
 
 		streetAddress1 := "1819 S Cedar Street"
 		city := "Fayetteville"
@@ -921,13 +939,13 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		subtestData := setUpForTests(fakeEstimatedIncentive, nil, nil)
 
 		address := factory.BuildAddress(appCtx.DB(), nil, nil)
-		originalPPM := testdatagen.MakeMinimalPPMShipment(appCtx.DB(), testdatagen.Assertions{
-			PPMShipment: models.PPMShipment{
-				W2Address:   &address,
-				W2AddressID: &address.ID,
+		originalPPM := factory.BuildMinimalPPMShipment(appCtx.DB(), []factory.Customization{
+			{
+				Model:    address,
+				LinkOnly: true,
+				Type:     &factory.Addresses.W2Address,
 			},
-		})
-
+		}, nil)
 		streetAddress1 := "10642 N Second Ave"
 		streetAddress2 := "Apt. 308"
 		city := "Cookstown"

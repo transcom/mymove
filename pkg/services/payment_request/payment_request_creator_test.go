@@ -207,58 +207,87 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			},
 		}, nil)
 
-		_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
-			ServiceParam: models.ServiceParam{
-				ServiceID:             mtoServiceItem1.ReServiceID,
-				ServiceItemParamKeyID: serviceItemParamKey1.ID,
-				ServiceItemParamKey:   serviceItemParamKey1,
-				IsOptional:            true,
+		factory.BuildServiceParam(suite.DB(), []factory.Customization{
+			{
+				Model:    mtoServiceItem1.ReService,
+				LinkOnly: true,
 			},
-		})
-		_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
-			ServiceParam: models.ServiceParam{
-				ServiceID:             mtoServiceItem1.ReServiceID,
-				ServiceItemParamKeyID: serviceItemParamKey2.ID,
-				ServiceItemParamKey:   serviceItemParamKey2,
+			{
+				Model:    serviceItemParamKey1,
+				LinkOnly: true,
 			},
-		})
-		_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
-			ServiceParam: models.ServiceParam{
-				ServiceID:             mtoServiceItem1.ReServiceID,
-				ServiceItemParamKeyID: serviceItemParamKey4.ID,
-				ServiceItemParamKey:   serviceItemParamKey4,
+			{
+				Model: models.ServiceParam{
+					IsOptional: true,
+				},
 			},
-		})
-		_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
-			ServiceParam: models.ServiceParam{
-				ServiceID:             mtoServiceItem1.ReServiceID,
-				ServiceItemParamKeyID: serviceItemParamKey5.ID,
-				ServiceItemParamKey:   serviceItemParamKey5,
+		}, nil)
+		factory.BuildServiceParam(suite.DB(), []factory.Customization{
+			{
+				Model:    mtoServiceItem1.ReService,
+				LinkOnly: true,
 			},
-		})
-		_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
-			ServiceParam: models.ServiceParam{
-				ServiceID:             mtoServiceItem1.ReServiceID,
-				ServiceItemParamKeyID: serviceItemParamKey6.ID,
-				ServiceItemParamKey:   serviceItemParamKey6,
+			{
+				Model:    serviceItemParamKey2,
+				LinkOnly: true,
 			},
-		})
-		_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
-			ServiceParam: models.ServiceParam{
-				ServiceID:             mtoServiceItem1.ReServiceID,
-				ServiceItemParamKeyID: serviceItemParamKey7.ID,
-				ServiceItemParamKey:   serviceItemParamKey7,
+		}, nil)
+		factory.BuildServiceParam(suite.DB(), []factory.Customization{
+			{
+				Model:    mtoServiceItem1.ReService,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model:    serviceItemParamKey4,
+				LinkOnly: true,
+			},
+		}, nil)
+		factory.BuildServiceParam(suite.DB(), []factory.Customization{
+			{
+				Model:    mtoServiceItem1.ReService,
+				LinkOnly: true,
+			},
+			{
+				Model:    serviceItemParamKey5,
+				LinkOnly: true,
+			},
+		}, nil)
+		factory.BuildServiceParam(suite.DB(), []factory.Customization{
+			{
+				Model:    mtoServiceItem1.ReService,
+				LinkOnly: true,
+			},
+			{
+				Model:    serviceItemParamKey6,
+				LinkOnly: true,
+			},
+		}, nil)
+		factory.BuildServiceParam(suite.DB(), []factory.Customization{
+			{
+				Model:    mtoServiceItem1.ReService,
+				LinkOnly: true,
+			},
+			{
+				Model:    serviceItemParamKey7,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
-			ServiceParam: models.ServiceParam{
-				ServiceID:             mtoServiceItem2.ReServiceID,
-				ServiceItemParamKeyID: serviceItemParamKey1.ID,
-				ServiceItemParamKey:   serviceItemParamKey1,
-				IsOptional:            true,
+		factory.BuildServiceParam(suite.DB(), []factory.Customization{
+			{
+				Model:    mtoServiceItem2.ReService,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model:    serviceItemParamKey1,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ServiceParam{
+					IsOptional: true,
+				},
+			},
+		}, nil)
 
 		displayParams = models.PaymentServiceItemParams{
 			{
@@ -1275,7 +1304,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequestCheckOnNTSRelea
 		},
 	}, nil)
 
-	mtoServiceItemDLH := testdatagen.MakeRealMTOServiceItemWithAllDeps(suite.DB(), models.ReServiceCodeDLH, move, shipment)
+	mtoServiceItemDLH := factory.BuildRealMTOServiceItemWithAllDeps(suite.DB(), models.ReServiceCodeDLH, move, shipment)
 
 	// Build up a payment request for the DLH.
 	paymentRequestArg := models.PaymentRequest{

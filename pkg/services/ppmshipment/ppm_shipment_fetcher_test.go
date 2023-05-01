@@ -28,7 +28,10 @@ func (suite *PPMShipmentSuite) TestPPMShipmentFetcher() {
 		suite.Equal(len(expected.WeightTickets), len(actual.WeightTickets))
 		suite.Greater(len(actual.WeightTickets), 0)
 		for i := range expected.WeightTickets {
-			if suite.False(actual.WeightTickets[i].EmptyDocument.ID.IsNil()) {
+			if suite.False(
+				actual.WeightTickets[i].EmptyDocument.ID.IsNil(),
+				"EmptyDocument ID should not be nil",
+			) {
 				suite.Equal(expected.WeightTickets[i].EmptyDocument.ID, actual.WeightTickets[i].EmptyDocument.ID)
 
 				suite.Equal(
@@ -36,14 +39,21 @@ func (suite *PPMShipmentSuite) TestPPMShipmentFetcher() {
 					len(actual.WeightTickets[i].EmptyDocument.UserUploads),
 				)
 
-				suite.False(actual.WeightTickets[i].EmptyDocument.UserUploads[0].Upload.ID.IsNil())
-				suite.Equal(
-					expected.WeightTickets[i].EmptyDocument.UserUploads[0].Upload.ID,
-					actual.WeightTickets[i].EmptyDocument.UserUploads[0].Upload.ID,
-				)
+				if suite.False(
+					actual.WeightTickets[i].EmptyDocument.UserUploads[0].Upload.ID.IsNil(),
+					"EmptyDocument UserUploads[0] ID should not be nil",
+				) {
+					suite.Equal(
+						expected.WeightTickets[i].EmptyDocument.UserUploads[0].Upload.ID,
+						actual.WeightTickets[i].EmptyDocument.UserUploads[0].Upload.ID,
+					)
+				}
 			}
 
-			if suite.False(actual.WeightTickets[i].FullDocument.ID.IsNil()) {
+			if suite.False(
+				actual.WeightTickets[i].FullDocument.ID.IsNil(),
+				"FullDocument ID should not be nil",
+			) {
 				suite.Equal(expected.WeightTickets[i].FullDocument.ID, actual.WeightTickets[i].FullDocument.ID)
 
 				suite.Equal(
@@ -51,18 +61,22 @@ func (suite *PPMShipmentSuite) TestPPMShipmentFetcher() {
 					len(actual.WeightTickets[i].FullDocument.UserUploads),
 				)
 
-				suite.False(actual.WeightTickets[i].FullDocument.UserUploads[0].Upload.ID.IsNil())
-				suite.Equal(
-					expected.WeightTickets[i].FullDocument.UserUploads[0].Upload.ID,
-					actual.WeightTickets[i].FullDocument.UserUploads[0].Upload.ID,
-				)
+				if suite.False(
+					actual.WeightTickets[i].FullDocument.UserUploads[0].Upload.ID.IsNil(),
+					"FullDocument UserUploads[0] ID should not be nil",
+				) {
+					suite.Equal(
+						expected.WeightTickets[i].FullDocument.UserUploads[0].Upload.ID,
+						actual.WeightTickets[i].FullDocument.UserUploads[0].Upload.ID,
+					)
+				}
 			}
 		}
 	}
 
 	suite.Run("GetPPMShipment", func() {
 		suite.Run("Can fetch a PPM Shipment", func() {
-			ppmShipment := testdatagen.MakeDefaultPPMShipment(suite.DB())
+			ppmShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
 
 			ppmShipmentReturned, err := fetcher.GetPPMShipment(
 				suite.AppContextForTest(),
@@ -95,8 +109,12 @@ func (suite *PPMShipmentSuite) TestPPMShipmentFetcher() {
 			"Shipment only": {
 				eagerPreloadAssociations: []string{EagerPreloadAssociationShipment},
 				successAssertionFunc: func(expected *models.PPMShipment, actual *models.PPMShipment) {
-					suite.False(actual.Shipment.ID.IsNil())
-					suite.Equal(expected.Shipment.ID, actual.Shipment.ID)
+					if suite.False(
+						actual.Shipment.ID.IsNil(),
+						"Shipment ID should not be nil",
+					) {
+						suite.Equal(expected.Shipment.ID, actual.Shipment.ID)
+					}
 
 					suite.Nil(actual.WeightTickets)
 					suite.Nil(actual.ProgearWeightTickets)
@@ -109,7 +127,10 @@ func (suite *PPMShipmentSuite) TestPPMShipmentFetcher() {
 			"Weight tickets only": {
 				eagerPreloadAssociations: []string{EagerPreloadAssociationWeightTickets},
 				successAssertionFunc: func(expected *models.PPMShipment, actual *models.PPMShipment) {
-					suite.True(actual.Shipment.ID.IsNil())
+					suite.True(
+						actual.Shipment.ID.IsNil(),
+						"Shipment ID should be nil",
+					)
 
 					suite.NotNil(actual.WeightTickets)
 					suite.Equal(len(expected.WeightTickets), len(actual.WeightTickets))
@@ -125,8 +146,21 @@ func (suite *PPMShipmentSuite) TestPPMShipmentFetcher() {
 			"All eager preload associations": {
 				eagerPreloadAssociations: GetListOfAllPreloadAssociations(),
 				successAssertionFunc: func(expected *models.PPMShipment, actual *models.PPMShipment) {
-					suite.False(actual.Shipment.ID.IsNil())
-					suite.Equal(expected.Shipment.ID, actual.Shipment.ID)
+					if suite.False(
+						actual.Shipment.ID.IsNil(),
+						"Shipment ID should not be nil",
+					) {
+						suite.Equal(expected.Shipment.ID, actual.Shipment.ID)
+					}
+
+					if suite.False(actual.Shipment.MoveTaskOrder.ID.IsNil(), "MoveTaskOrder ID should not be nil") &&
+						suite.False(actual.Shipment.MoveTaskOrder.Orders.ID.IsNil(), "Orders ID should not be nil") &&
+						suite.False(
+							actual.Shipment.MoveTaskOrder.Orders.ServiceMember.ID.IsNil(),
+							"ServiceMember ID should not be nil",
+						) {
+						suite.Equal(expected.Shipment.MoveTaskOrder.Orders.ServiceMember.ID, actual.Shipment.MoveTaskOrder.Orders.ServiceMember.ID)
+					}
 
 					if suite.NotNil(actual.WeightTickets) {
 						suite.Equal(len(expected.WeightTickets), len(actual.WeightTickets))
@@ -142,7 +176,6 @@ func (suite *PPMShipmentSuite) TestPPMShipmentFetcher() {
 					if suite.NotNil(actual.MovingExpenses) {
 						suite.Equal(len(expected.MovingExpenses), len(actual.MovingExpenses))
 						suite.Equal(expected.MovingExpenses[0].ID, actual.MovingExpenses[0].ID)
-
 					}
 
 					if suite.NotNil(actual.W2Address) {
@@ -205,7 +238,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentFetcher() {
 		})
 
 		suite.Run("Returns an error if an invalid association is requested", func() {
-			ppmShipment := testdatagen.MakeDefaultPPMShipment(suite.DB())
+			ppmShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
 
 			invalidAssociation := "invalid"
 			ppmShipmentReturned, err := fetcher.GetPPMShipment(
@@ -226,7 +259,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentFetcher() {
 		})
 
 		suite.Run("Returns an error if the shipment has been deleted", func() {
-			ppmShipment := testdatagen.MakeDefaultPPMShipment(suite.DB())
+			ppmShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
 
 			err := utilities.SoftDestroy(suite.DB(), &ppmShipment)
 			suite.FatalNoError(err)
@@ -330,7 +363,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentFetcher() {
 			}
 		})
 
-		suite.Run("Doesn't return postload association if a necessary higehr level association isn't eagerly preloaded", func() {
+		suite.Run("Doesn't return postload association if a necessary higher level association isn't eagerly preloaded", func() {
 			appCtx := suite.AppContextForTest()
 
 			ppmShipment := testdatagen.MakePPMShipmentReadyForFinalCustomerCloseOut(
@@ -357,7 +390,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentFetcher() {
 		})
 
 		suite.Run("Returns an error if an invalid postload association is passed in", func() {
-			ppmShipment := testdatagen.MakeDefaultPPMShipment(suite.DB())
+			ppmShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
 
 			invalidAssociation := "invalid"
 			ppmShipmentReturned, err := fetcher.GetPPMShipment(
@@ -435,25 +468,74 @@ func (suite *PPMShipmentSuite) TestPPMShipmentFetcher() {
 					suite.Equal(len(expected.ProgearWeightTickets), len(actual.ProgearWeightTickets))
 					suite.Greater(len(actual.ProgearWeightTickets), 0)
 					for i := range expected.ProgearWeightTickets {
-						suite.False(actual.ProgearWeightTickets[i].Document.ID.IsNil())
-						suite.Equal(expected.ProgearWeightTickets[i].Document.ID, actual.ProgearWeightTickets[i].Document.ID)
+						if suite.False(
+							actual.ProgearWeightTickets[i].Document.ID.IsNil(),
+							fmt.Sprintf("Expected ProgearWeightTicket %d document ID to not be nil", i),
+						) {
+							suite.Equal(
+								expected.ProgearWeightTickets[i].Document.ID,
+								actual.ProgearWeightTickets[i].Document.ID,
+							)
 
-						suite.Equal(len(expected.ProgearWeightTickets[i].Document.UserUploads), len(actual.ProgearWeightTickets[i].Document.UserUploads))
+							suite.Equal(
+								len(expected.ProgearWeightTickets[i].Document.UserUploads),
+								len(actual.ProgearWeightTickets[i].Document.UserUploads),
+							)
 
-						suite.False(actual.ProgearWeightTickets[i].Document.UserUploads[0].Upload.ID.IsNil())
-						suite.Equal(expected.ProgearWeightTickets[i].Document.UserUploads[0].Upload.ID, actual.ProgearWeightTickets[i].Document.UserUploads[0].Upload.ID)
+							if suite.False(actual.ProgearWeightTickets[i].Document.UserUploads[0].Upload.ID.IsNil(),
+								fmt.Sprintf("Expected ProgearWeightTicket %d document user upload ID to not be nil", i),
+							) {
+								suite.Equal(
+									expected.ProgearWeightTickets[i].Document.UserUploads[0].Upload.ID,
+									actual.ProgearWeightTickets[i].Document.UserUploads[0].Upload.ID,
+								)
+							}
+						}
 					}
 
 					suite.Equal(len(expected.MovingExpenses), len(actual.MovingExpenses))
 					suite.Greater(len(actual.MovingExpenses), 0)
 					for i := range expected.MovingExpenses {
-						suite.False(actual.MovingExpenses[i].Document.ID.IsNil())
-						suite.Equal(expected.MovingExpenses[i].Document.ID, actual.MovingExpenses[i].Document.ID)
+						if suite.False(
+							actual.MovingExpenses[i].Document.ID.IsNil(),
+							fmt.Sprintf("Expected MovingExpense %d document ID to not be nil", i),
+						) {
+							suite.Equal(expected.MovingExpenses[i].Document.ID, actual.MovingExpenses[i].Document.ID)
 
-						suite.Equal(len(expected.MovingExpenses[i].Document.UserUploads), len(actual.MovingExpenses[i].Document.UserUploads))
+							suite.Equal(
+								len(expected.MovingExpenses[i].Document.UserUploads),
+								len(actual.MovingExpenses[i].Document.UserUploads),
+							)
 
-						suite.False(actual.MovingExpenses[i].Document.UserUploads[0].Upload.ID.IsNil())
-						suite.Equal(expected.MovingExpenses[i].Document.UserUploads[0].Upload.ID, actual.MovingExpenses[i].Document.UserUploads[0].Upload.ID)
+							if suite.False(actual.MovingExpenses[i].Document.UserUploads[0].Upload.ID.IsNil(),
+								fmt.Sprintf("Expected MovingExpense %d document user upload ID to not be nil", i),
+							) {
+								suite.Equal(
+									expected.MovingExpenses[i].Document.UserUploads[0].Upload.ID,
+									actual.MovingExpenses[i].Document.UserUploads[0].Upload.ID,
+								)
+							}
+						}
+					}
+
+					if suite.False(actual.Shipment.MoveTaskOrder.ID.IsNil(), "MoveTaskOrder ID should not be nil") &&
+						suite.False(actual.Shipment.MoveTaskOrder.Orders.ID.IsNil(), "Orders ID should not be nil") &&
+						suite.False(
+							actual.Shipment.MoveTaskOrder.Orders.UploadedOrders.ID.IsNil(),
+							"UploadedOrders ID should not be nil",
+						) &&
+						suite.False(
+							actual.Shipment.MoveTaskOrder.Orders.UploadedOrders.UserUploads[0].ID.IsNil(),
+							"Expected uploaded orders user uploads to be loaded",
+						) &&
+						suite.False(
+							actual.Shipment.MoveTaskOrder.Orders.UploadedOrders.UserUploads[0].Upload.ID.IsNil(),
+							"Expected uploaded orders to be loaded",
+						) {
+						suite.Equal(
+							expected.Shipment.MoveTaskOrder.Orders.UploadedOrders.UserUploads[0].Upload.ID,
+							actual.Shipment.MoveTaskOrder.Orders.UploadedOrders.UserUploads[0].Upload.ID,
+						)
 					}
 				},
 			},
@@ -644,7 +726,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentFetcher() {
 		suite.Run("Returns an error if an invalid association is passed in", func() {
 			appCtx := suite.AppContextForTest()
 
-			ppmShipment := testdatagen.MakeDefaultPPMShipment(appCtx.DB())
+			ppmShipment := factory.BuildPPMShipment(appCtx.DB(), nil, nil)
 
 			invalidAssociation := "invalid_association"
 
@@ -773,7 +855,7 @@ func (suite *PPMShipmentSuite) TestFetchPPMShipment() {
 	})
 
 	suite.Run("FindPPMShipment - returns not found for deleted shipment", func() {
-		ppmShipment := testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{})
+		ppmShipment := factory.BuildMinimalPPMShipment(suite.DB(), nil, nil)
 
 		err := utilities.SoftDestroy(suite.DB(), &ppmShipment)
 		suite.NoError(err)
@@ -835,7 +917,7 @@ func (suite *PPMShipmentSuite) TestFetchPPMShipment() {
 	})
 
 	suite.Run("FetchPPMShipmentFromMTOShipmentID - finds records", func() {
-		ppm := testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{})
+		ppm := factory.BuildMinimalPPMShipment(suite.DB(), nil, nil)
 
 		retrievedPPM, _ := FetchPPMShipmentFromMTOShipmentID(suite.AppContextForTest(), ppm.ShipmentID)
 
@@ -854,7 +936,7 @@ func (suite *PPMShipmentSuite) TestFetchPPMShipment() {
 	})
 
 	suite.Run("FetchPPMShipmentFromMTOShipmentID  - returns not found for deleted shipment", func() {
-		ppmShipment := testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{})
+		ppmShipment := factory.BuildMinimalPPMShipment(suite.DB(), nil, nil)
 
 		err := utilities.SoftDestroy(suite.DB(), &ppmShipment)
 		suite.NoError(err)
@@ -879,7 +961,7 @@ func (suite *PPMShipmentSuite) TestFetchPPMShipment() {
 	})
 
 	suite.Run("FindPPMShipmentAndWeightTickets - still returns if weightTicket does not exist", func() {
-		ppmShipment := testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{})
+		ppmShipment := factory.BuildMinimalPPMShipment(suite.DB(), nil, nil)
 		foundPPMShipment, err := FindPPMShipmentAndWeightTickets(suite.AppContextForTest(), ppmShipment.ID)
 
 		suite.Nil(err)

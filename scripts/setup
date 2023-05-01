@@ -2,7 +2,7 @@
 
 set -e
 
-curl --remote-name https://raw.githubusercontent.com/trussworks/fresh-brew/main/pour.sh
-curl --remote-name https://raw.githubusercontent.com/trussworks/fresh-brew/main/Brewfile
+curl --remote-name https://raw.githubusercontent.com/monfresh/fresh-brew/main/pour.sh
+curl --remote-name https://raw.githubusercontent.com/monfresh/fresh-brew/main/Brewfile
 # shellcheck disable=SC1091
 source pour.sh 2>&1 | tee ~/fresh-brew.log

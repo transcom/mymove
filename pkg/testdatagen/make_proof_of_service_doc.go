@@ -32,8 +32,3 @@ func MakeProofOfServiceDoc(db *pop.Connection, assertions Assertions) models.Pro
 
 	return posDoc
 }
-
-// MakeDefaultProofOfServiceDoc returns a ProofOfServiceDoc with default values
-func MakeDefaultProofOfServiceDoc(db *pop.Connection) models.ProofOfServiceDoc {
-	return MakeProofOfServiceDoc(db, Assertions{})
-}

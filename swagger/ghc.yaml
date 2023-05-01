@@ -4720,7 +4720,6 @@ definitions:
           days saved to the SIT extension model.
         type: integer
         example: 21
-        minimum: 1
       officeRemarks:
         description: Remarks from TOO about SIT Duration Update creation
         type: string

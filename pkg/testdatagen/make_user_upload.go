@@ -76,8 +76,3 @@ func MakeUserUpload(db *pop.Connection, assertions Assertions) models.UserUpload
 
 	return *userUpload
 }
-
-// MakeDefaultUserUpload makes an UserUpload with default values
-func MakeDefaultUserUpload(db *pop.Connection) models.UserUpload {
-	return MakeUserUpload(db, Assertions{})
-}

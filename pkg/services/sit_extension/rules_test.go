@@ -189,4 +189,60 @@ func (suite *SitExtensionServiceSuite) TestValidationRules() {
 		err := checkPrimeAvailability(checker).Validate(suite.AppContextForTest(), models.SITDurationUpdate{}, &shipment)
 		suite.NoError(err)
 	})
+
+	suite.Run("checkMinimumSITDuration - Success", func() {
+		// Testing: There is a SIT duration of 5 days that can be reduced to 1 day
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil),
+				LinkOnly: true,
+			}, // Move status is automatically set to APPROVED
+		}, nil)
+
+		sitDaysAllowance := 5
+		shipment.SITDaysAllowance = &sitDaysAllowance
+
+		// New SIT Duration Update that decreases the SIT duration to 1 day
+		approvedDays := -4
+		sit := models.SITDurationUpdate{
+			MTOShipmentID: shipment.ID,
+			RequestReason: models.SITExtensionRequestReasonSeriousIllnessMember,
+			Status:        models.SITExtensionStatusApproved,
+			RequestedDays: approvedDays,
+			ApprovedDays:  &approvedDays,
+		}
+
+		err := checkMinimumSITDuration().Validate(suite.AppContextForTest(), sit, &shipment)
+
+		suite.NoError(err)
+	})
+
+	suite.Run("checkMinimumSITDuration - Failure", func() {
+		// Testing: There is a SIT duration of 5 days that cannot be reduced to 0 days
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil),
+				LinkOnly: true,
+			}, // Move status is automatically set to APPROVED
+		}, nil)
+
+		sitDaysAllowance := 5
+		shipment.SITDaysAllowance = &sitDaysAllowance
+
+		// New SIT Duration Update that decreases the SIT duration to 0 days
+		approvedDays := -5
+		sit := models.SITDurationUpdate{
+			MTOShipmentID: shipment.ID,
+			RequestReason: models.SITExtensionRequestReasonSeriousIllnessMember,
+			Status:        models.SITExtensionStatusApproved,
+			RequestedDays: approvedDays,
+			ApprovedDays:  &approvedDays,
+		}
+
+		err := checkMinimumSITDuration().Validate(suite.AppContextForTest(), sit, &shipment)
+
+		suite.NotNil(err)
+		suite.IsType(apperror.InvalidInputError{}, err)
+		suite.Equal("can't reduce a SIT duration to less than one day", err.Error())
+	})
 }

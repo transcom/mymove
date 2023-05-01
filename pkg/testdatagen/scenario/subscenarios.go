@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -268,28 +267,45 @@ func subScenarioCustomerSupportRemarks(appCtx appcontext.AppContext) func() {
 		}, nil)
 
 		officeUser := factory.BuildOfficeUserWithRoles(appCtx.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
-		testdatagen.MakeCustomerSupportRemark(appCtx.DB(), testdatagen.Assertions{
-			CustomerSupportRemark: models.CustomerSupportRemark{
-				Content: "This is a customer support remark. It can have text content like this." +
-					"This comment has some length to it because sometimes people type a lot of thoughts." +
-					"For example during this move the customer perhaps called and explained a unique situation" +
-					"that they have to me, leading me to leave this note. Hopefully that could turn into " +
-					"some sort of helpful action that leads to a resolution that makes things swell for them." +
-					"Here's some more text just to make sure I've gotten all my thoughts out, though I do realize" +
-					"how meta this whole thing sounds." +
-					"Also Grace Griffin told me to write this.",
-				OfficeUserID: officeUser.ID,
-				MoveID:       remarkMove.ID,
+		factory.BuildCustomerSupportRemark(appCtx.DB(), []factory.Customization{
+			{
+				Model:    remarkMove,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model:    officeUser,
+				LinkOnly: true,
+			},
+			{
+				Model: models.CustomerSupportRemark{
+					Content: "This is a customer support remark. It can have text content like this." +
+						"This comment has some length to it because sometimes people type a lot of thoughts." +
+						"For example during this move the customer perhaps called and explained a unique situation" +
+						"that they have to me, leading me to leave this note. Hopefully that could turn into " +
+						"some sort of helpful action that leads to a resolution that makes things swell for them." +
+						"Here's some more text just to make sure I've gotten all my thoughts out, though I do realize" +
+						"how meta this whole thing sounds." +
+						"Also Grace Griffin told me to write this.",
+				},
+			},
+		}, nil)
 		officeUser2 := factory.BuildOfficeUserWithRoles(appCtx.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
-		testdatagen.MakeCustomerSupportRemark(appCtx.DB(), testdatagen.Assertions{
-			CustomerSupportRemark: models.CustomerSupportRemark{
-				Content:      "The customer mentioned that there was some damage done to their grandfather clock.",
-				OfficeUserID: officeUser2.ID,
-				MoveID:       remarkMove.ID,
+
+		factory.BuildCustomerSupportRemark(appCtx.DB(), []factory.Customization{
+			{
+				Model:    remarkMove,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model:    officeUser2,
+				LinkOnly: true,
+			},
+			{
+				Model: models.CustomerSupportRemark{
+					Content: "The customer mentioned that there was some damage done to their grandfather clock.",
+				},
+			},
+		}, nil)
 	}
 }
 
@@ -336,23 +352,43 @@ func subScenarioEvaluationReport(appCtx appcontext.AppContext) func() {
 				LinkOnly: true,
 			},
 		}, nil)
-		testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{Move: move})
-
+		factory.BuildPPMShipment(appCtx.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 		storageFacility := factory.BuildStorageFacility(appCtx.DB(), nil, nil)
-		ntsShipment := testdatagen.MakeNTSShipment(appCtx.DB(), testdatagen.Assertions{
-			Move: move,
-			MTOShipment: models.MTOShipment{
-				StorageFacility:       &storageFacility,
-				ScheduledDeliveryDate: swag.Time(time.Now()),
+		ntsShipment := factory.BuildNTSShipment(appCtx.DB(), []factory.Customization{
+			{
+				Model:    storageFacility,
+				LinkOnly: true,
 			},
-		})
-		testdatagen.MakeNTSRShipment(appCtx.DB(), testdatagen.Assertions{
-			Move: move,
-			MTOShipment: models.MTOShipment{
-				StorageFacility:       &storageFacility,
-				ScheduledDeliveryDate: swag.Time(time.Now()),
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					ScheduledDeliveryDate: models.TimePointer(time.Now()),
+				},
+			},
+		}, nil)
+		factory.BuildNTSRShipment(appCtx.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    storageFacility,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					ScheduledDeliveryDate: models.TimePointer(time.Now()),
+				},
+			},
+		}, nil)
 
 		submittedTime := time.Now()
 		dataReviewInspection := models.EvaluationReportInspectionTypeDataReview
@@ -365,91 +401,159 @@ func subScenarioEvaluationReport(appCtx appcontext.AppContext) func() {
 
 		remark := "this is a submitted counseling report"
 		location := models.EvaluationReportLocationTypeOrigin
-		testdatagen.MakeEvaluationReport(appCtx.DB(), testdatagen.Assertions{
-			EvaluationReport: models.EvaluationReport{
-				SubmittedAt:        &submittedTime,
-				InspectionDate:     &submittedTime,
-				InspectionType:     &dataReviewInspection,
-				Location:           &location,
-				ViolationsObserved: swag.Bool(false),
-				Remarks:            &remark,
+
+		factory.BuildEvaluationReport(appCtx.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-			Move:       move,
-			OfficeUser: officeUser,
-		})
+			{
+				Model:    officeUser,
+				LinkOnly: true,
+			},
+			{
+				Model: models.EvaluationReport{
+					SubmittedAt:        &submittedTime,
+					InspectionDate:     &submittedTime,
+					InspectionType:     &dataReviewInspection,
+					Location:           &location,
+					ViolationsObserved: models.BoolPointer(false),
+					Remarks:            &remark,
+				},
+			},
+		}, nil)
 
 		remark1 := "this is a draft counseling report"
-		testdatagen.MakeEvaluationReport(appCtx.DB(), testdatagen.Assertions{
-			EvaluationReport: models.EvaluationReport{
-				Remarks: &remark1,
+		factory.BuildEvaluationReport(appCtx.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-			Move:       move,
-			OfficeUser: officeUser,
-		})
+			{
+				Model:    officeUser,
+				LinkOnly: true,
+			},
+			{
+				Model: models.EvaluationReport{
+					Remarks: &remark1,
+				},
+			},
+		}, nil)
 
 		location = models.EvaluationReportLocationTypeDestination
 		remark2 := "this is a submitted shipment report"
-		testdatagen.MakeEvaluationReport(appCtx.DB(), testdatagen.Assertions{
-			EvaluationReport: models.EvaluationReport{
-				SubmittedAt:        &submittedTime,
-				InspectionDate:     &submittedTime,
-				InspectionType:     &virtualInspection,
-				Location:           &location,
-				ViolationsObserved: swag.Bool(true),
-				Remarks:            &remark2,
-			},
-			Move:        move,
-			OfficeUser:  officeUser,
-			MTOShipment: shipment,
-		})
-		remark3 := "this is a draft shipment report"
-		testdatagen.MakeEvaluationReport(appCtx.DB(), testdatagen.Assertions{
-			EvaluationReport: models.EvaluationReport{
-				Remarks: &remark3,
-			},
-			Move:        move,
-			OfficeUser:  officeUser,
-			MTOShipment: shipment,
-		})
 
+		factory.BuildEvaluationReport(appCtx.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    officeUser,
+				LinkOnly: true,
+			},
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.EvaluationReport{
+					Type:               models.EvaluationReportTypeShipment,
+					SubmittedAt:        &submittedTime,
+					InspectionDate:     &submittedTime,
+					InspectionType:     &virtualInspection,
+					Location:           &location,
+					ViolationsObserved: models.BoolPointer(true),
+					Remarks:            &remark2,
+				},
+			},
+		}, nil)
+
+		remark3 := "this is a draft shipment report"
+		factory.BuildEvaluationReport(appCtx.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    officeUser,
+				LinkOnly: true,
+			},
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.EvaluationReport{
+					Type:    models.EvaluationReportTypeShipment,
+					Remarks: &remark3,
+				},
+			},
+		}, nil)
 		location = models.EvaluationReportLocationTypeOrigin
 		remark4 := "this is a report with eval times recorded"
-		testdatagen.MakeEvaluationReport(appCtx.DB(), testdatagen.Assertions{
-			EvaluationReport: models.EvaluationReport{
-				Remarks:            &remark4,
-				InspectionDate:     &submittedTime,
-				InspectionType:     &physicalInspection,
-				TimeDepart:         &timeDepart,
-				EvalStart:          &evalStart,
-				EvalEnd:            &evalEnd,
-				Location:           &location,
-				ViolationsObserved: swag.Bool(true),
+
+		factory.BuildEvaluationReport(appCtx.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-			Move:        move,
-			OfficeUser:  officeUser,
-			MTOShipment: shipment,
-		})
+			{
+				Model:    officeUser,
+				LinkOnly: true,
+			},
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.EvaluationReport{
+					Type:               models.EvaluationReportTypeShipment,
+					Remarks:            &remark4,
+					InspectionDate:     &submittedTime,
+					InspectionType:     &physicalInspection,
+					TimeDepart:         &timeDepart,
+					EvalStart:          &evalStart,
+					EvalEnd:            &evalEnd,
+					Location:           &location,
+					ViolationsObserved: models.BoolPointer(true),
+				},
+			},
+		}, nil)
 
 		location = models.EvaluationReportLocationTypeOther
 		locationDescription := "Route 66 at crash inspection site 3"
 		remark = "this is a submitted NTS shipment report"
-		testdatagen.MakeEvaluationReport(appCtx.DB(), testdatagen.Assertions{
-			EvaluationReport: models.EvaluationReport{
-				SubmittedAt:         &submittedTime,
-				InspectionDate:      &submittedTime,
-				InspectionType:      &physicalInspection,
-				TimeDepart:          &timeDepart,
-				EvalStart:           &evalStart,
-				EvalEnd:             &evalEnd,
-				Location:            &location,
-				LocationDescription: &locationDescription,
-				ViolationsObserved:  swag.Bool(true),
-				Remarks:             &remark,
+
+		factory.BuildEvaluationReport(appCtx.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-			Move:        move,
-			OfficeUser:  officeUser,
-			MTOShipment: ntsShipment,
-		})
+			{
+				Model:    officeUser,
+				LinkOnly: true,
+			},
+			{
+				Model:    ntsShipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.EvaluationReport{
+					Type:                models.EvaluationReportTypeShipment,
+					SubmittedAt:         &submittedTime,
+					InspectionDate:      &submittedTime,
+					InspectionType:      &physicalInspection,
+					TimeDepart:          &timeDepart,
+					EvalStart:           &evalStart,
+					EvalEnd:             &evalEnd,
+					Location:            &location,
+					LocationDescription: &locationDescription,
+					ViolationsObserved:  models.BoolPointer(true),
+					Remarks:             &remark,
+				},
+			},
+		}, nil)
 	}
 }
 
@@ -618,13 +722,13 @@ func subScenarioDivertedShipments(appCtx appcontext.AppContext, userUploader *up
 			Move: models.Move{
 				Status:             models.MoveStatusAPPROVED,
 				Locator:            "APRDVS",
-				AvailableToPrimeAt: swag.Time(time.Now()),
+				AvailableToPrimeAt: models.TimePointer(time.Now()),
 			},
 			MTOShipment: models.MTOShipment{
 				Diversion:           true,
 				Status:              models.MTOShipmentStatusApproved,
-				ApprovedDate:        swag.Time(time.Now()),
-				ScheduledPickupDate: swag.Time(time.Now().AddDate(0, 3, 0)),
+				ApprovedDate:        models.TimePointer(time.Now()),
+				ScheduledPickupDate: models.TimePointer(time.Now().AddDate(0, 3, 0)),
 			},
 		})
 	}
@@ -647,6 +751,7 @@ func subScenarioSITExtensions(appCtx appcontext.AppContext, userUploader *upload
 	return func() {
 		createTOO(appCtx)
 		createMoveWithSITExtensionHistory(appCtx, userUploader)
+		createMoveWithFutureSIT(appCtx, userUploader)
 		createMoveWithAllPendingTOOActions(appCtx, userUploader, primeUploader)
 	}
 }

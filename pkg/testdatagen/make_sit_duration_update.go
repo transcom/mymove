@@ -3,7 +3,6 @@ package testdatagen
 import (
 	"time"
 
-	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop/v6"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -14,14 +13,14 @@ func MakePendingSITDurationUpdate(db *pop.Connection, assertions Assertions) mod
 	mtoShipment := assertions.MTOShipment
 	// make mtoshipment if it was not provided
 	if isZeroUUID(mtoShipment.ID) {
-		mtoShipment = MakeMTOShipment(db, assertions)
+		mtoShipment = makeMTOShipment(db, assertions)
 	}
 
 	SITDurationUpdate := models.SITDurationUpdate{
 		MTOShipment:   mtoShipment,
 		MTOShipmentID: mtoShipment.ID,
 		RequestReason: models.SITExtensionRequestReasonAwaitingCompletionOfResidence,
-		RequestedDays: *swag.Int(45),
+		RequestedDays: *models.IntPointer(45),
 		Status:        models.SITExtensionStatusPending,
 	}
 	// Overwrite values with those from assertions
@@ -36,7 +35,7 @@ func MakePendingSITDurationUpdate(db *pop.Connection, assertions Assertions) mod
 func MakeSITDurationUpdate(db *pop.Connection, assertions Assertions) models.SITDurationUpdate {
 	shipment := assertions.MTOShipment
 	if isZeroUUID(assertions.MTOShipment.ID) {
-		shipment = MakeMTOShipment(db, assertions)
+		shipment = makeMTOShipment(db, assertions)
 	}
 
 	approvedDays := 100

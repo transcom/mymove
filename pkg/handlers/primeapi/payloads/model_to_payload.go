@@ -336,7 +336,7 @@ func PaymentServiceItem(paymentServiceItem *models.PaymentServiceItem) *primemes
 	}
 
 	if paymentServiceItem.PriceCents != nil {
-		payload.PriceCents = swag.Int64(int64(*paymentServiceItem.PriceCents))
+		payload.PriceCents = models.Int64Pointer(int64(*paymentServiceItem.PriceCents))
 	}
 
 	return payload
@@ -446,6 +446,7 @@ func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
 		FirstAvailableDeliveryDate:       handlers.FmtDatePtr(mtoShipment.FirstAvailableDeliveryDate),
 		PrimeEstimatedWeightRecordedDate: handlers.FmtDatePtr(mtoShipment.PrimeEstimatedWeightRecordedDate),
 		RequestedPickupDate:              handlers.FmtDatePtr(mtoShipment.RequestedPickupDate),
+		RequestedDeliveryDate:            handlers.FmtDatePtr(mtoShipment.RequestedDeliveryDate),
 		RequiredDeliveryDate:             handlers.FmtDatePtr(mtoShipment.RequiredDeliveryDate),
 		ScheduledPickupDate:              handlers.FmtDatePtr(mtoShipment.ScheduledPickupDate),
 		ScheduledDeliveryDate:            handlers.FmtDatePtr(mtoShipment.ScheduledDeliveryDate),
