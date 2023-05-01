@@ -364,7 +364,7 @@ func (o *mtoServiceItemCreator) makeExtraSITServiceItem(appCtx appcontext.AppCon
 func copyCustomerContacts(customerContacts models.MTOServiceItemCustomerContacts) models.MTOServiceItemCustomerContacts {
 	var newContacts []models.MTOServiceItemCustomerContact
 
-	//If we have contacts copy them over, otherwise we will return an empty slice
+	//If we have contacts copy them over, otherwise we will return nil
 	for _, contact := range customerContacts {
 
 		newContact := models.MTOServiceItemCustomerContact{
