@@ -464,14 +464,18 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		// Add another PPM for the same move submitted on April 1st
 		closeoutInitiatedDate2 := time.Date(2022, 04, 02, 0, 0, 0, 0, time.UTC)
 
-		// Replace this after replacing MakePPMShipmentThatNeedsPaymentApproval
-		testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{
-			PPMShipment: models.PPMShipment{
-				SubmittedAt: &closeoutInitiatedDate2,
-				Status:      models.PPMShipmentStatusNeedsPaymentApproval,
+		factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					SubmittedAt: &closeoutInitiatedDate2,
+					Status:      models.PPMShipmentStatusNeedsPaymentApproval,
+				},
 			},
-			Move: createdPPM.Shipment.MoveTaskOrder,
-		})
+			{
+				Model:    createdPPM.Shipment.MoveTaskOrder,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		// Search for PPMs submitted on April 1st
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &services.ListOrderParams{

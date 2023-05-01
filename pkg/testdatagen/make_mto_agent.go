@@ -11,7 +11,7 @@ func MakeMTOAgent(db *pop.Connection, assertions Assertions) models.MTOAgent {
 
 	mtoShipment := assertions.MTOShipment
 	if isZeroUUID(mtoShipment.ID) {
-		mtoShipment = MakeMTOShipment(db, assertions)
+		mtoShipment = makeMTOShipment(db, assertions)
 	}
 
 	firstName := "Jason"
