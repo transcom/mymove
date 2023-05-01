@@ -50,6 +50,15 @@ func (h GetOrdersHandler) Handle(params orderop.GetOrderParams) middleware.Respo
 			if orderPayload == nil {
 				appCtx.Logger().Warn("GetOrdersHandler returning nil orderPayload")
 			}
+			bytes, err := swag.WriteJSON(order)
+			if err != nil {
+				appCtx.Logger().Warn("GetOrdersHandler: Error writing payload for logging", zap.Error(err))
+			} else {
+				// Truncating output because it will generally be VERY long and i think we're mostly
+				// curious about cases where it's short.
+				appCtx.Logger().Debug("GetOrdersHandler payload bytes", zap.ByteString("payload", bytes[:500]))
+			}
+
 			responder := orderop.NewGetOrderOK().WithPayload(orderPayload)
 			// Note that Validate will panic if orderPayload is nil
 			err = responder.Payload.Validate(strfmt.Default)
