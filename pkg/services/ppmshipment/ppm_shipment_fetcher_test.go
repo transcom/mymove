@@ -759,7 +759,7 @@ func (suite *PPMShipmentSuite) TestFetchPPMShipment() {
 	})
 
 	suite.Run("FindPPMShipmentWithDocument - document belongs to moving expenses", func() {
-		movingExpense := testdatagen.MakeDefaultMovingExpense(suite.DB())
+		movingExpense := factory.BuildMovingExpense(suite.DB(), nil, nil)
 
 		err := FindPPMShipmentWithDocument(suite.AppContextForTest(), movingExpense.PPMShipmentID, movingExpense.DocumentID)
 		suite.NoError(err, "expected to find PPM Shipment for moving expense document")

@@ -52,7 +52,3 @@ func MakeMovingExpense(db *pop.Connection, assertions Assertions) models.MovingE
 
 	return MakeMinimalMovingExpense(db, fullAssertions)
 }
-
-func MakeDefaultMovingExpense(db *pop.Connection) models.MovingExpense {
-	return MakeMovingExpense(db, Assertions{})
-}
