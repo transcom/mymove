@@ -1,4 +1,4 @@
-package mtoshipment
+package sitextension
 
 import (
 	"github.com/gofrs/uuid"
@@ -11,17 +11,16 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *MTOShipmentServiceSuite) TestApproveSITExtension() {
+func (suite *SitExtensionServiceSuite) TestDenySITExtension() {
 	moveRouter := moverouter.NewMoveRouter()
-	sitExtensionApprover := NewSITExtensionApprover(moveRouter)
+	sitExtensionDenier := NewSITExtensionDenier(moveRouter)
 
 	suite.Run("Returns an error when shipment is not found", func() {
 		nonexistentUUID := uuid.Must(uuid.NewV4())
-		approvedDays := int(20)
 		officeRemarks := "office remarks"
 		eTag := ""
 
-		_, err := sitExtensionApprover.ApproveSITExtension(suite.AppContextForTest(), nonexistentUUID, nonexistentUUID, approvedDays, &officeRemarks, eTag)
+		_, err := sitExtensionDenier.DenySITExtension(suite.AppContextForTest(), nonexistentUUID, nonexistentUUID, &officeRemarks, eTag)
 
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
@@ -30,11 +29,10 @@ func (suite *MTOShipmentServiceSuite) TestApproveSITExtension() {
 	suite.Run("Returns an error when SIT extension is not found", func() {
 		nonexistentUUID := uuid.Must(uuid.NewV4())
 		mtoShipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
-		approvedDays := int(20)
 		officeRemarks := "office remarks"
 		eTag := ""
 
-		_, err := sitExtensionApprover.ApproveSITExtension(suite.AppContextForTest(), mtoShipment.ID, nonexistentUUID, approvedDays, &officeRemarks, eTag)
+		_, err := sitExtensionDenier.DenySITExtension(suite.AppContextForTest(), mtoShipment.ID, nonexistentUUID, &officeRemarks, eTag)
 
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
@@ -45,11 +43,10 @@ func (suite *MTOShipmentServiceSuite) TestApproveSITExtension() {
 		sitExtension := testdatagen.MakePendingSITDurationUpdate(suite.DB(), testdatagen.Assertions{
 			MTOShipment: mtoShipment,
 		})
-		approvedDays := int(20)
 		officeRemarks := "office remarks"
 		eTag := ""
 
-		_, err := sitExtensionApprover.ApproveSITExtension(suite.AppContextForTest(), mtoShipment.ID, sitExtension.ID, approvedDays, &officeRemarks, eTag)
+		_, err := sitExtensionDenier.DenySITExtension(suite.AppContextForTest(), mtoShipment.ID, sitExtension.ID, &officeRemarks, eTag)
 
 		suite.Error(err)
 		suite.IsType(apperror.PreconditionFailedError{}, err)
@@ -62,18 +59,17 @@ func (suite *MTOShipmentServiceSuite) TestApproveSITExtension() {
 		sitExtension := testdatagen.MakePendingSITDurationUpdate(suite.DB(), testdatagen.Assertions{
 			MTOShipment: mtoShipment,
 		})
-		approvedDays := int(20)
 		officeRemarks := "office remarks"
 		eTag := ""
 
-		_, err := sitExtensionApprover.ApproveSITExtension(suite.AppContextForTest(), otherMtoShipment.ID, sitExtension.ID, approvedDays, &officeRemarks, eTag)
+		_, err := sitExtensionDenier.DenySITExtension(suite.AppContextForTest(), otherMtoShipment.ID, sitExtension.ID, &officeRemarks, eTag)
 
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
 		suite.Contains(err.Error(), otherMtoShipment.ID.String())
 	})
 
-	suite.Run("Updates the shipment's SIT days allowance and the SIT extension's status and approved days if all fields are valid", func() {
+	suite.Run("Updates the SIT extension's status to DENIED and approves move when all fields are valid", func() {
 		move := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
 		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
@@ -89,13 +85,10 @@ func (suite *MTOShipmentServiceSuite) TestApproveSITExtension() {
 		sitExtension := testdatagen.MakePendingSITDurationUpdate(suite.DB(), testdatagen.Assertions{
 			MTOShipment: mtoShipment,
 		})
-		approvedDays := int(20)
-		// existing SITDaysAllowance plus new approved days
-		newSITDaysAllowance := int(40)
 		officeRemarks := "office remarks"
 		eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
 
-		updatedShipment, err := sitExtensionApprover.ApproveSITExtension(suite.AppContextForTest(), mtoShipment.ID, sitExtension.ID, approvedDays, &officeRemarks, eTag)
+		updatedShipment, err := sitExtensionDenier.DenySITExtension(suite.AppContextForTest(), mtoShipment.ID, sitExtension.ID, &officeRemarks, eTag)
 		suite.NoError(err)
 
 		var shipmentInDB models.MTOShipment
@@ -106,10 +99,8 @@ func (suite *MTOShipmentServiceSuite) TestApproveSITExtension() {
 		suite.NoError(err)
 
 		suite.Equal(mtoShipment.ID.String(), updatedShipment.ID.String())
-		suite.Equal(newSITDaysAllowance, *updatedShipment.SITDaysAllowance)
-		suite.Equal(approvedDays, *sitExtensionInDB.ApprovedDays)
 		suite.Equal(officeRemarks, *sitExtensionInDB.OfficeRemarks)
-		suite.Equal(models.SITExtensionStatusApproved, sitExtensionInDB.Status)
+		suite.Equal(models.SITExtensionStatusDenied, sitExtensionInDB.Status)
 		suite.Equal(models.MoveStatusAPPROVED, shipmentInDB.MoveTaskOrder.Status)
 	})
 
@@ -126,18 +117,17 @@ func (suite *MTOShipmentServiceSuite) TestApproveSITExtension() {
 				LinkOnly: true,
 			},
 		}, nil)
-		sitExtensionToBeApproved := testdatagen.MakePendingSITDurationUpdate(suite.DB(), testdatagen.Assertions{
+		sitExtensionToBeDenied := testdatagen.MakePendingSITDurationUpdate(suite.DB(), testdatagen.Assertions{
 			MTOShipment: mtoShipment,
 		})
 		// Pending SIT Extension that won't be approved or denied
 		testdatagen.MakePendingSITDurationUpdate(suite.DB(), testdatagen.Assertions{
 			MTOShipment: mtoShipment,
 		})
-		approvedDays := int(20)
 		officeRemarks := "office remarks"
 		eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
 
-		_, err := sitExtensionApprover.ApproveSITExtension(suite.AppContextForTest(), mtoShipment.ID, sitExtensionToBeApproved.ID, approvedDays, &officeRemarks, eTag)
+		_, err := sitExtensionDenier.DenySITExtension(suite.AppContextForTest(), mtoShipment.ID, sitExtensionToBeDenied.ID, &officeRemarks, eTag)
 		suite.NoError(err)
 
 		var shipmentInDB models.MTOShipment
