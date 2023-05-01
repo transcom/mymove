@@ -554,23 +554,12 @@ func MakeHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO(appCtx appconte
 		},
 	}, nil)
 
-	proofOfService := factory.BuildProofOfServiceDoc(appCtx.DB(), []factory.Customization{
+	factory.BuildPrimeUpload(appCtx.DB(), []factory.Customization{
 		{
 			Model:    paymentRequest,
 			LinkOnly: true,
 		},
 	}, nil)
-	testdatagen.MakePrimeUpload(appCtx.DB(), testdatagen.Assertions{
-		PrimeUpload: models.PrimeUpload{
-			ProofOfServiceDoc:   proofOfService,
-			ProofOfServiceDocID: proofOfService.ID,
-			Contractor: models.Contractor{
-				ID: uuid.FromStringOrNil("5db13bb4-6d29-4bdb-bc81-262f4513ecf6"), // Prime
-			},
-			ContractorID: uuid.FromStringOrNil("5db13bb4-6d29-4bdb-bc81-262f4513ecf6"),
-		},
-	})
-
 	posImage := factory.BuildProofOfServiceDoc(appCtx.DB(), []factory.Customization{
 		{
 			Model:    paymentRequest,
@@ -1140,25 +1129,12 @@ func MakeHHGMoveWithServiceItemsandPaymentRequestsForTIO(appCtx appcontext.AppCo
 	}, nil)
 
 	// for soft deleted proof of service docs
-	proofOfService := factory.BuildProofOfServiceDoc(appCtx.DB(), []factory.Customization{
+	factory.BuildPrimeUpload(appCtx.DB(), []factory.Customization{
 		{
 			Model:    paymentRequestHHG,
 			LinkOnly: true,
 		},
-	}, nil)
-
-	deletedAt := time.Now()
-	testdatagen.MakePrimeUpload(appCtx.DB(), testdatagen.Assertions{
-		PrimeUpload: models.PrimeUpload{
-			ProofOfServiceDoc:   proofOfService,
-			ProofOfServiceDocID: proofOfService.ID,
-			Contractor: models.Contractor{
-				ID: uuid.FromStringOrNil("5db13bb4-6d29-4bdb-bc81-262f4513ecf6"), // Prime
-			},
-			ContractorID: uuid.FromStringOrNil("5db13bb4-6d29-4bdb-bc81-262f4513ecf6"),
-			DeletedAt:    &deletedAt,
-		},
-	})
+	}, []factory.Trait{factory.GetTraitPrimeUploadDeleted})
 
 	serviceItemMS := factory.BuildMTOServiceItemBasic(appCtx.DB(), []factory.Customization{
 		{

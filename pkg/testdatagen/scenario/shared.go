@@ -3688,6 +3688,15 @@ func matchedByPostalCode(postalCode string) func(addr *models.Address) bool {
 // address is not changing. 30 days of additional days in SIT are invoiced.
 func createHHGWithOriginSITServiceItems(appCtx appcontext.AppContext, primeUploader *uploader.PrimeUploader, moveRouter services.MoveRouter) {
 	db := appCtx.DB()
+	// Since we want to customize the Contractor ID for prime uploads, create the contractor here first
+	// BuildMove and BuildPrimeUpload both use FetchOrBuildDefaultContractor
+	factory.FetchOrBuildDefaultContractor(db, []factory.Customization{
+		{
+			Model: models.Contractor{
+				ID: primeContractorUUID, // Prime
+			},
+		},
+	}, nil)
 	logger := appCtx.Logger()
 
 	issueDate := time.Date(testdatagen.GHCTestYear, 3, 15, 0, 0, 0, 0, time.UTC)
@@ -3881,25 +3890,19 @@ func createHHGWithOriginSITServiceItems(appCtx appcontext.AppContext, primeUploa
 		logger.Fatal("Error creating payment request", zap.Error(createErr))
 	}
 
-	proofOfService := factory.BuildProofOfServiceDoc(db, []factory.Customization{
+	factory.BuildPrimeUpload(db, []factory.Customization{
 		{
 			Model:    *newPaymentRequest,
 			LinkOnly: true,
 		},
-	}, nil)
-	primeContractor := uuid.FromStringOrNil("5db13bb4-6d29-4bdb-bc81-262f4513ecf6")
-	testdatagen.MakePrimeUpload(db, testdatagen.Assertions{
-		PrimeUpload: models.PrimeUpload{
-			ProofOfServiceDoc:   proofOfService,
-			ProofOfServiceDocID: proofOfService.ID,
-			Contractor: models.Contractor{
-				ID: primeContractor,
+		{
+			Model: models.PrimeUpload{},
+			ExtendedParams: &factory.PrimeUploadExtendedParams{
+				PrimeUploader: primeUploader,
+				AppContext:    appCtx,
 			},
-			ContractorID: primeContractor,
 		},
-		PrimeUploader: primeUploader,
-	})
-
+	}, nil)
 	posImage := factory.BuildProofOfServiceDoc(db, []factory.Customization{
 		{
 			Model:    *newPaymentRequest,
@@ -3908,14 +3911,14 @@ func createHHGWithOriginSITServiceItems(appCtx appcontext.AppContext, primeUploa
 	}, nil)
 	// Creates custom test.jpg prime upload
 	file := testdatagen.Fixture("test.jpg")
-	_, verrs, err = primeUploader.CreatePrimeUploadForDocument(appCtx, &posImage.ID, primeContractor, uploader.File{File: file}, uploader.AllowedTypesPaymentRequest)
+	_, verrs, err = primeUploader.CreatePrimeUploadForDocument(appCtx, &posImage.ID, primeContractorUUID, uploader.File{File: file}, uploader.AllowedTypesPaymentRequest)
 	if verrs.HasAny() || err != nil {
 		logger.Error("errors encountered saving test.jpg prime upload", zap.Error(err))
 	}
 
 	// Creates custom test.png prime upload
 	file = testdatagen.Fixture("test.png")
-	_, verrs, err = primeUploader.CreatePrimeUploadForDocument(appCtx, &posImage.ID, primeContractor, uploader.File{File: file}, uploader.AllowedTypesPaymentRequest)
+	_, verrs, err = primeUploader.CreatePrimeUploadForDocument(appCtx, &posImage.ID, primeContractorUUID, uploader.File{File: file}, uploader.AllowedTypesPaymentRequest)
 	if verrs.HasAny() || err != nil {
 		logger.Error("errors encountered saving test.png prime upload", zap.Error(err))
 	}
@@ -3928,6 +3931,17 @@ func createHHGWithOriginSITServiceItems(appCtx appcontext.AppContext, primeUploa
 // address is not changing. 30 days of additional days in SIT are invoiced.
 func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, primeUploader *uploader.PrimeUploader, moveRouter services.MoveRouter) {
 	db := appCtx.DB()
+
+	// Since we want to customize the Contractor ID for prime uploads, create the contractor here first
+	// BuildMove and BuildPrimeUpload both use FetchOrBuildDefaultContractor
+	factory.FetchOrBuildDefaultContractor(db, []factory.Customization{
+		{
+			Model: models.Contractor{
+				ID: primeContractorUUID, // Prime
+			},
+		},
+	}, nil)
+
 	logger := appCtx.Logger()
 
 	issueDate := time.Date(testdatagen.GHCTestYear, 3, 15, 0, 0, 0, 0, time.UTC)
@@ -4116,25 +4130,19 @@ func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, prime
 		logger.Fatal("Error creating payment request", zap.Error(createErr))
 	}
 
-	proofOfService := factory.BuildProofOfServiceDoc(db, []factory.Customization{
+	factory.BuildPrimeUpload(db, []factory.Customization{
 		{
 			Model:    *newPaymentRequest,
 			LinkOnly: true,
 		},
-	}, nil)
-
-	primeContractor := uuid.FromStringOrNil("5db13bb4-6d29-4bdb-bc81-262f4513ecf6")
-	testdatagen.MakePrimeUpload(db, testdatagen.Assertions{
-		PrimeUpload: models.PrimeUpload{
-			ProofOfServiceDoc:   proofOfService,
-			ProofOfServiceDocID: proofOfService.ID,
-			Contractor: models.Contractor{
-				ID: primeContractor,
+		{
+			Model: models.PrimeUpload{},
+			ExtendedParams: &factory.PrimeUploadExtendedParams{
+				PrimeUploader: primeUploader,
+				AppContext:    appCtx,
 			},
-			ContractorID: primeContractor,
 		},
-		PrimeUploader: primeUploader,
-	})
+	}, nil)
 
 	posImage := factory.BuildProofOfServiceDoc(db, []factory.Customization{
 		{
@@ -4144,14 +4152,14 @@ func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, prime
 	}, nil)
 	// Creates custom test.jpg prime upload
 	file := testdatagen.Fixture("test.jpg")
-	_, verrs, err = primeUploader.CreatePrimeUploadForDocument(appCtx, &posImage.ID, primeContractor, uploader.File{File: file}, uploader.AllowedTypesPaymentRequest)
+	_, verrs, err = primeUploader.CreatePrimeUploadForDocument(appCtx, &posImage.ID, primeContractorUUID, uploader.File{File: file}, uploader.AllowedTypesPaymentRequest)
 	if verrs.HasAny() || err != nil {
 		logger.Error("errors encountered saving test.jpg prime upload", zap.Error(err))
 	}
 
 	// Creates custom test.png prime upload
 	file = testdatagen.Fixture("test.png")
-	_, verrs, err = primeUploader.CreatePrimeUploadForDocument(appCtx, &posImage.ID, primeContractor, uploader.File{File: file}, uploader.AllowedTypesPaymentRequest)
+	_, verrs, err = primeUploader.CreatePrimeUploadForDocument(appCtx, &posImage.ID, primeContractorUUID, uploader.File{File: file}, uploader.AllowedTypesPaymentRequest)
 	if verrs.HasAny() || err != nil {
 		logger.Error("errors encountered saving test.png prime upload", zap.Error(err))
 	}
@@ -4163,6 +4171,15 @@ func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, prime
 // service item pricing params for displaying cost calculations
 func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploader *uploader.PrimeUploader, moveRouter services.MoveRouter) {
 	db := appCtx.DB()
+	// Since we want to customize the Contractor ID for prime uploads, create the contractor here first
+	// BuildMove and BuildPrimeUpload both use FetchOrBuildDefaultContractor
+	factory.FetchOrBuildDefaultContractor(db, []factory.Customization{
+		{
+			Model: models.Contractor{
+				ID: primeContractorUUID, // Prime
+			},
+		},
+	}, nil)
 	logger := appCtx.Logger()
 
 	issueDate := time.Date(testdatagen.GHCTestYear, 3, 15, 0, 0, 0, 0, time.UTC)
@@ -4752,26 +4769,19 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 		logger.Fatal("Error creating payment request", zap.Error(createErr))
 	}
 
-	proofOfService := factory.BuildProofOfServiceDoc(db, []factory.Customization{
+	factory.BuildPrimeUpload(db, []factory.Customization{
 		{
 			Model:    *newPaymentRequest,
 			LinkOnly: true,
 		},
-	}, nil)
-
-	primeContractor := uuid.FromStringOrNil("5db13bb4-6d29-4bdb-bc81-262f4513ecf6")
-	testdatagen.MakePrimeUpload(db, testdatagen.Assertions{
-		PrimeUpload: models.PrimeUpload{
-			ProofOfServiceDoc:   proofOfService,
-			ProofOfServiceDocID: proofOfService.ID,
-			Contractor: models.Contractor{
-				ID: primeContractor,
+		{
+			Model: models.PrimeUpload{},
+			ExtendedParams: &factory.PrimeUploadExtendedParams{
+				PrimeUploader: primeUploader,
+				AppContext:    appCtx,
 			},
-			ContractorID: primeContractor,
 		},
-		PrimeUploader: primeUploader,
-	})
-
+	}, nil)
 	posImage := factory.BuildProofOfServiceDoc(db, []factory.Customization{
 		{
 			Model:    *newPaymentRequest,
@@ -4781,14 +4791,14 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 
 	// Creates custom test.jpg prime upload
 	file := testdatagen.Fixture("test.jpg")
-	_, verrs, err = primeUploader.CreatePrimeUploadForDocument(appCtx, &posImage.ID, primeContractor, uploader.File{File: file}, uploader.AllowedTypesPaymentRequest)
+	_, verrs, err = primeUploader.CreatePrimeUploadForDocument(appCtx, &posImage.ID, primeContractorUUID, uploader.File{File: file}, uploader.AllowedTypesPaymentRequest)
 	if verrs.HasAny() || err != nil {
 		logger.Error("errors encountered saving test.jpg prime upload", zap.Error(err))
 	}
 
 	// Creates custom test.png prime upload
 	file = testdatagen.Fixture("test.png")
-	_, verrs, err = primeUploader.CreatePrimeUploadForDocument(appCtx, &posImage.ID, primeContractor, uploader.File{File: file}, uploader.AllowedTypesPaymentRequest)
+	_, verrs, err = primeUploader.CreatePrimeUploadForDocument(appCtx, &posImage.ID, primeContractorUUID, uploader.File{File: file}, uploader.AllowedTypesPaymentRequest)
 	if verrs.HasAny() || err != nil {
 		logger.Error("errors encountered saving test.png prime upload", zap.Error(err))
 	}
@@ -5551,6 +5561,17 @@ func createHHGMoveWith10ServiceItems(appCtx appcontext.AppContext, userUploader 
 
 func createHHGMoveWith2PaymentRequests(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	db := appCtx.DB()
+
+	// Since we want to customize the Contractor ID for prime uploads, create the contractor here first
+	// BuildMove and BuildPrimeUpload both use FetchOrBuildDefaultContractor
+	factory.FetchOrBuildDefaultContractor(db, []factory.Customization{
+		{
+			Model: models.Contractor{
+				ID: primeContractorUUID, // Prime
+			},
+		},
+	}, nil)
+
 	/* Customer with two payment requests */
 	orders7 := factory.BuildOrder(db, []factory.Customization{
 		{
@@ -5634,25 +5655,17 @@ func createHHGMoveWith2PaymentRequests(appCtx appcontext.AppContext, userUploade
 	}, nil)
 
 	// for soft deleted proof of service docs
-	proofOfService := factory.BuildProofOfServiceDoc(db, []factory.Customization{
+	factory.BuildPrimeUpload(db, []factory.Customization{
 		{
 			Model:    paymentRequest7,
 			LinkOnly: true,
 		},
-	}, nil)
-	deletedAt := time.Now()
-	testdatagen.MakePrimeUpload(db, testdatagen.Assertions{
-		PrimeUpload: models.PrimeUpload{
-			ID:                  uuid.FromStringOrNil("18413213-0aaf-4eb1-8d7f-1b557a4e425b"),
-			ProofOfServiceDoc:   proofOfService,
-			ProofOfServiceDocID: proofOfService.ID,
-			Contractor: models.Contractor{
-				ID: uuid.FromStringOrNil("5db13bb4-6d29-4bdb-bc81-262f4513ecf6"), // Prime
+		{
+			Model: models.PrimeUpload{
+				ID: uuid.FromStringOrNil("18413213-0aaf-4eb1-8d7f-1b557a4e425b"),
 			},
-			ContractorID: uuid.FromStringOrNil("5db13bb4-6d29-4bdb-bc81-262f4513ecf6"),
-			DeletedAt:    &deletedAt,
 		},
-	})
+	}, []factory.Trait{factory.GetTraitPrimeUploadDeleted})
 
 	serviceItemMS7 := factory.BuildMTOServiceItemBasic(db, []factory.Customization{
 		{
@@ -7652,6 +7665,15 @@ func createMoveWith2ShipmentsAndPaymentRequest(appCtx appcontext.AppContext, use
 
 func createHHGMoveWith2PaymentRequestsReviewedAllRejectedServiceItems(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	db := appCtx.DB()
+	// Since we want to customize the Contractor ID for prime uploads, create the contractor here first
+	// BuildMove and BuildPrimeUpload both use FetchOrBuildDefaultContractor
+	factory.FetchOrBuildDefaultContractor(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Contractor{
+				ID: primeContractorUUID, // Prime
+			},
+		},
+	}, nil)
 	/* Customer with two payment requests */
 	orders7 := factory.BuildOrder(db, []factory.Customization{
 		{
@@ -7737,26 +7759,17 @@ func createHHGMoveWith2PaymentRequestsReviewedAllRejectedServiceItems(appCtx app
 	}, nil)
 
 	// for soft deleted proof of service docs
-	proofOfService := factory.BuildProofOfServiceDoc(db, []factory.Customization{
+	factory.BuildPrimeUpload(appCtx.DB(), []factory.Customization{
 		{
 			Model:    paymentRequest7,
 			LinkOnly: true,
 		},
-	}, nil)
-
-	deletedAt := time.Now()
-	testdatagen.MakePrimeUpload(db, testdatagen.Assertions{
-		PrimeUpload: models.PrimeUpload{
-			ID:                  uuid.FromStringOrNil("18413213-0aaf-4eb1-8d7f-ffffffffffff"),
-			ProofOfServiceDoc:   proofOfService,
-			ProofOfServiceDocID: proofOfService.ID,
-			Contractor: models.Contractor{
-				ID: uuid.FromStringOrNil("5db13bb4-6d29-4bdb-bc81-262f4513ecf6"), // Prime
+		{
+			Model: models.PrimeUpload{
+				ID: uuid.FromStringOrNil("18413213-0aaf-4eb1-8d7f-ffffffffffff"),
 			},
-			ContractorID: uuid.FromStringOrNil("5db13bb4-6d29-4bdb-bc81-262f4513ecf6"),
-			DeletedAt:    &deletedAt,
 		},
-	})
+	}, []factory.Trait{factory.GetTraitPrimeUploadDeleted})
 
 	serviceItemMS7 := factory.BuildMTOServiceItemBasic(db, []factory.Customization{
 		{
@@ -10493,6 +10506,16 @@ func createMoveWithOriginAndDestinationSIT(appCtx appcontext.AppContext, userUpl
 }
 
 func createPaymentRequestsWithPartialSITInvoice(appCtx appcontext.AppContext, primeUploader *uploader.PrimeUploader) {
+	// Since we want to customize the Contractor ID for prime uploads, create the contractor here first
+	// BuildMove and BuildPrimeUpload both use FetchOrBuildDefaultContractor
+	factory.FetchOrBuildDefaultContractor(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Contractor{
+				ID: primeContractorUUID, // Prime
+			},
+		},
+	}, nil)
+
 	// Move available to the prime with 3 shipments (control, 2 w/ SITS)
 	availableToPrimeAt := time.Now()
 	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
@@ -10518,23 +10541,45 @@ func createPaymentRequestsWithPartialSITInvoice(appCtx appcontext.AppContext, pr
 		},
 	}, nil)
 
-	firstPrimeUpload := testdatagen.MakePrimeUpload(appCtx.DB(), testdatagen.Assertions{
-		PrimeUploader: primeUploader,
-		Move:          move,
-		PaymentRequest: models.PaymentRequest{
-			Status: models.PaymentRequestStatusReviewed,
+	firstPrimeUpload := factory.BuildPrimeUpload(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.PaymentRequest{
+				Status: models.PaymentRequestStatusReviewed,
+			},
+		},
+		{
+			Model: models.PrimeUpload{},
+			ExtendedParams: &factory.PrimeUploadExtendedParams{
+				PrimeUploader: primeUploader,
+				AppContext:    appCtx,
+			},
+		},
+	}, nil)
 
 	firstPaymentRequest := firstPrimeUpload.ProofOfServiceDoc.PaymentRequest
 
-	secondPrimeUpload := testdatagen.MakePrimeUpload(appCtx.DB(), testdatagen.Assertions{
-		PaymentRequest: models.PaymentRequest{
-			SequenceNumber: 2,
+	secondPrimeUpload := factory.BuildPrimeUpload(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-		PrimeUploader: primeUploader,
-		Move:          move,
-	})
+		{
+			Model: models.PaymentRequest{
+				SequenceNumber: 2,
+			},
+		},
+		{
+			Model: models.PrimeUpload{},
+			ExtendedParams: &factory.PrimeUploadExtendedParams{
+				PrimeUploader: primeUploader,
+				AppContext:    appCtx,
+			},
+		},
+	}, nil)
 
 	secondPaymentRequest := secondPrimeUpload.ProofOfServiceDoc.PaymentRequest
 
