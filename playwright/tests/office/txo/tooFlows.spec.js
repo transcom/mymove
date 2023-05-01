@@ -323,7 +323,7 @@ test.describe('TOO user', () => {
       await page.locator('[data-testid="submitForm"]').click();
       await expect(page.locator('[data-testid="submitForm"]')).not.toBeEnabled();
 
-      await tooFlowPage.waitForMoveDetailsPage();
+      await tooFlowPage.waitForPage.moveDetails();
     });
     /**
      * This test is being temporarily skipped until flakiness issues
@@ -414,7 +414,7 @@ test.describe('TOO user', () => {
 
       await page.locator('[data-testid="submitForm"]').click();
 
-      await tooFlowPage.waitForMoveDetailsPage();
+      await tooFlowPage.waitForPage.moveDetails();
     });
   });
 });
