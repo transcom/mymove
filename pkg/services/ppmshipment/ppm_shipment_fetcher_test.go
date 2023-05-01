@@ -987,9 +987,12 @@ func (suite *PPMShipmentSuite) TestFetchPPMShipment() {
 	suite.Run("FindPPMShipmentByMTOID - Success deleted line items are excluded", func() {
 		ppmShipment := testdatagen.MakePPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), testdatagen.Assertions{})
 
-		weightTicketToDelete := testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{
-			PPMShipment: ppmShipment,
-		})
+		weightTicketToDelete := factory.BuildWeightTicket(suite.DB(), []factory.Customization{
+			{
+				Model:    ppmShipment,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		err := utilities.SoftDestroy(suite.DB(), &weightTicketToDelete)
 		suite.NoError(err)
