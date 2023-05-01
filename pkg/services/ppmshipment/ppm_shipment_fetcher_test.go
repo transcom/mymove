@@ -747,7 +747,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentFetcher() {
 
 func (suite *PPMShipmentSuite) TestFetchPPMShipment() {
 	suite.Run("FindPPMShipmentWithDocument - document belongs to weight ticket", func() {
-		weightTicket := testdatagen.MakeDefaultWeightTicket(suite.DB())
+		weightTicket := factory.BuildWeightTicket(suite.DB(), nil, nil)
 
 		err := FindPPMShipmentWithDocument(suite.AppContextForTest(), weightTicket.PPMShipmentID, weightTicket.EmptyDocumentID)
 		suite.NoError(err, "expected to find PPM Shipment for empty weight document")
@@ -774,7 +774,7 @@ func (suite *PPMShipmentSuite) TestFetchPPMShipment() {
 	})
 
 	suite.Run("FindPPMShipmentWithDocument - document not found", func() {
-		weightTicket := testdatagen.MakeDefaultWeightTicket(suite.DB())
+		weightTicket := factory.BuildWeightTicket(suite.DB(), nil, nil)
 		testdatagen.MakeProgearWeightTicket(suite.DB(), testdatagen.Assertions{PPMShipment: weightTicket.PPMShipment})
 		testdatagen.MakeMovingExpense(suite.DB(), testdatagen.Assertions{PPMShipment: weightTicket.PPMShipment})
 
@@ -949,7 +949,7 @@ func (suite *PPMShipmentSuite) TestFetchPPMShipment() {
 	})
 
 	suite.Run("FindPPMShipmentAndWeightTickets - Success", func() {
-		weightTicket := testdatagen.MakeDefaultWeightTicket(suite.DB())
+		weightTicket := factory.BuildWeightTicket(suite.DB(), nil, nil)
 		foundPPMShipment, err := FindPPMShipmentAndWeightTickets(suite.AppContextForTest(), weightTicket.PPMShipmentID)
 
 		suite.Nil(err)

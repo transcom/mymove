@@ -661,7 +661,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			}, []factory.Trait{factory.GetTraitApprovedPPMWithActualInfo})
 
 			oldPPMShipment.WeightTickets = models.WeightTickets{
-				testdatagen.MakeDefaultWeightTicket(suite.DB()),
+				factory.BuildWeightTicket(suite.DB(), nil, nil),
 			}
 
 			newPPM := oldPPMShipment
@@ -781,7 +781,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 
 			oldPPMShipment.WeightTickets = models.WeightTickets{
 				oldPPMShipment.WeightTickets[0],
-				testdatagen.MakeDefaultWeightTicket(suite.DB()),
+				factory.BuildWeightTicket(suite.DB(), nil, nil),
 			}
 
 			newPPM := oldPPMShipment
@@ -844,7 +844,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 
 			oldPPMShipment.WeightTickets = models.WeightTickets{
 				oldPPMShipment.WeightTickets[0],
-				testdatagen.MakeDefaultWeightTicket(suite.DB()),
+				factory.BuildWeightTicket(suite.DB(), nil, nil),
 			}
 
 			newPPM := oldPPMShipment
@@ -1264,7 +1264,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 				},
 			}, nil)
 			oldPPMShipment.WeightTickets = models.WeightTickets{
-				testdatagen.MakeDefaultWeightTicket(suite.DB()),
+				factory.BuildWeightTicket(suite.DB(), nil, nil),
 			}
 			newPPM := oldPPMShipment
 			address := factory.BuildAddress(suite.DB(), nil, nil)
@@ -1312,7 +1312,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 				},
 			}, nil)
 			oldPPMShipment.WeightTickets = models.WeightTickets{
-				testdatagen.MakeDefaultWeightTicket(suite.DB()),
+				factory.BuildWeightTicket(suite.DB(), nil, nil),
 			}
 
 			newPPM := oldPPMShipment

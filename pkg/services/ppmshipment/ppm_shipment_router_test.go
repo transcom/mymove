@@ -425,7 +425,7 @@ func (suite *PPMShipmentSuite) TestSubmitReviewPPMDocuments() {
 			},
 		})
 		movingExpense := testdatagen.MakeDefaultMovingExpense(suite.DB())
-		weightTicket := testdatagen.MakeDefaultWeightTicket(suite.DB())
+		weightTicket := factory.BuildWeightTicket(suite.DB(), nil, nil)
 
 		ppmShipmentRouter := setUpPPMShipmentRouter(mtoShipmentRouterMethodToMock, nil)
 		ppmShipment.WeightTickets = models.WeightTickets{weightTicket}
@@ -448,7 +448,7 @@ func (suite *PPMShipmentSuite) TestSubmitReviewPPMDocuments() {
 			},
 		})
 		progear := testdatagen.MakeDefaultProgearWeightTicket(suite.DB())
-		weightTicket := testdatagen.MakeDefaultWeightTicket(suite.DB())
+		weightTicket := factory.BuildWeightTicket(suite.DB(), nil, nil)
 
 		ppmShipmentRouter := setUpPPMShipmentRouter(mtoShipmentRouterMethodToMock, nil)
 		ppmShipment.WeightTickets = models.WeightTickets{weightTicket}
@@ -466,7 +466,7 @@ func (suite *PPMShipmentSuite) TestSubmitReviewPPMDocuments() {
 		ppmShipment.Status = models.PPMShipmentStatusNeedsPaymentApproval
 		movingExpense := testdatagen.MakeDefaultMovingExpense(suite.DB())
 		progear := testdatagen.MakeDefaultProgearWeightTicket(suite.DB())
-		weightTicket := testdatagen.MakeDefaultWeightTicket(suite.DB())
+		weightTicket := factory.BuildWeightTicket(suite.DB(), nil, nil)
 
 		ppmShipmentRouter := setUpPPMShipmentRouter(mtoShipmentRouterMethodToMock, nil)
 		ppmShipment.WeightTickets = models.WeightTickets{weightTicket}
