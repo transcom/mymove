@@ -34,7 +34,7 @@ describe('ShipmentSITDisplay', () => {
     expect(within(sitStatusTable).getByText('Total days used')).toBeInTheDocument();
     expect(within(sitStatusTable).getByText('45')).toBeInTheDocument();
     expect(within(sitStatusTable).getByText('Total days remaining')).toBeInTheDocument();
-    expect(within(sitStatusTable).getByText('60')).toBeInTheDocument();
+    expect(within(sitStatusTable).getByText('59')).toBeInTheDocument();
 
     expect(screen.getByText('Current location: origin SIT')).toBeInTheDocument();
 
@@ -85,7 +85,7 @@ describe('ShipmentSITDisplay', () => {
       </MockProviders>,
     );
     expect(screen.getByText('SIT history')).toBeInTheDocument();
-    expect(screen.getByText('Total days of SIT approved: 30')).toBeInTheDocument();
+    expect(screen.getByText('Total days of SIT approved: 270')).toBeInTheDocument();
     expect(screen.getByText('updated on 13 Sep 2021')).toBeInTheDocument();
     expect(screen.getByText('Serious illness of the member')).toBeInTheDocument();
   });
@@ -111,7 +111,6 @@ describe('ShipmentSITDisplay', () => {
     ).toBeInTheDocument();
   });
 
-  // To-do: Update this test once negative approved days is functional
   it('renders the denied Shipment SIT Extensions', async () => {
     render(
       <MockProviders>
@@ -123,7 +122,7 @@ describe('ShipmentSITDisplay', () => {
       </MockProviders>,
     );
     expect(screen.getByText('SIT history')).toBeInTheDocument();
-    expect(screen.getByText('Total days of SIT approved: 0')).toBeInTheDocument();
+    expect(screen.getByText('Total days of SIT approved: 270')).toBeInTheDocument();
     expect(screen.getByText('updated on 13 Sep 2021')).toBeInTheDocument();
     expect(screen.getByText('Serious illness of the member')).toBeInTheDocument();
   });
@@ -236,5 +235,18 @@ describe('ShipmentSITDisplay', () => {
     );
 
     expect(await screen.queryByRole('button', { name: 'Edit' })).not.toBeInTheDocument();
+  });
+  it('shows Expired when the remaining days is less that the approved days', async () => {
+    render(
+      <MockProviders>
+        <ShipmentSITDisplay
+          sitExtensions={SITExtensions}
+          sitStatus={{ ...SITStatusDestination, totalDaysRemaining: -1 }}
+          shipment={SITShipment}
+        />
+      </MockProviders>,
+    );
+
+    expect(screen.getByText('Expired')).toBeInTheDocument();
   });
 });

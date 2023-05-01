@@ -40,7 +40,7 @@ const SitEndDateForm = ({ onChange }) => (
   <DatePickerInput name="sitEndDate" label="" id="sitEndDate" onChange={onChange} />
 );
 
-const SitStatusTables = ({ sitStatus }) => {
+const SitStatusTables = ({ sitStatus, shipment }) => {
   const { sitEntryDate, totalSITDaysUsed, daysInSIT } = sitStatus;
   const daysInPreviousSIT = totalSITDaysUsed - daysInSIT;
 
@@ -51,7 +51,20 @@ const SitStatusTables = ({ sitStatus }) => {
 
   const currentDaysInSit = <p>{sitStatus.totalSITDaysUsed}</p>;
   const currentDateEnteredSit = <p>{formatDate(sitStatus.sitEntryDate, utcDateFormat, 'DD MMM YYYY')}</p>;
-  const totalDaysRemaining = Number(sitStatus.totalDaysRemaining) < 0 ? 'Expired' : sitStatus.totalDaysRemaining;
+  const totalDaysRemaining = () => {
+    const now = new Date();
+    const startDate = Date.parse(sitStatus.sitEntryDate);
+    const sitNotStarted = Boolean(startDate > now);
+    const daysRemaining = sitStatus?.totalDaysRemaining || shipment.sitDaysAllowance;
+    if (daysRemaining > 0 && sitNotStarted) {
+      return daysRemaining;
+    }
+    // Subract one day to account for the current day
+    if (daysRemaining > 0) {
+      return daysRemaining - 1;
+    }
+    return 'Expired';
+  };
 
   /**
    * @function
@@ -106,7 +119,7 @@ const SitStatusTables = ({ sitStatus }) => {
           dataRow={[
             <SitDaysAllowanceForm onChange={(e) => handleDaysAllowanceChange(e.target.value)} />,
             sitStatus.totalSITDaysUsed,
-            totalDaysRemaining,
+            totalDaysRemaining(),
           ]}
         />
       </div>
@@ -139,7 +152,10 @@ const SubmitSITExtensionModal = ({ shipment, sitStatus, onClose, onSubmit }) => 
     requestReason: '',
     officeRemarks: '',
     daysApproved: String(shipment.sitDaysAllowance),
-    sitEndDate: moment().add(sitStatus.totalDaysRemaining, 'days').format('DD MMM YYYY'),
+    // Subract one day from total days remaining to account for the current day
+    sitEndDate: moment()
+      .add(sitStatus.totalDaysRemaining - 1, 'days')
+      .format('DD MMM YYYY'),
   };
   const minimumDaysAllowed = sitStatus.totalSITDaysUsed - sitStatus.daysInSIT + 1;
   const reviewSITExtensionSchema = Yup.object().shape({
