@@ -31,7 +31,6 @@ func (suite *ModelSuite) TestReDomesticLinehaulPriceValidations() {
 			"weight_upper":             {"WeightUpper can not be blank.", "0 is not greater than 0."},
 			"miles_upper":              {"MilesUpper can not be blank.", "0 is not greater than 0."},
 			"domestic_service_area_id": {"DomesticServiceAreaID can not be blank."},
-			"price_millicents":         {"PriceMillicents can not be blank.", "0 is not greater than -1."},
 		}
 		suite.verifyValidationErrors(&emptyReDomesticLinehaulPrice, expErrors)
 	})

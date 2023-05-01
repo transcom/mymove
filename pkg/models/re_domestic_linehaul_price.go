@@ -49,7 +49,6 @@ func (r *ReDomesticLinehaulPrice) Validate(tx *pop.Connection) (*validate.Errors
 		&validators.IntIsPresent{Field: r.MilesUpper, Name: "MilesUpper"},
 		&validators.IntIsGreaterThan{Field: r.MilesUpper, Name: "MilesUpper", Compared: r.MilesLower},
 		&validators.UUIDIsPresent{Field: r.DomesticServiceAreaID, Name: "DomesticServiceAreaID"},
-		&validators.IntIsPresent{Field: r.PriceMillicents.Int(), Name: "PriceMillicents"},
 		&validators.IntIsGreaterThan{Field: r.PriceMillicents.Int(), Name: "PriceMillicents", Compared: -1},
 	), nil
 }
