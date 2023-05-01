@@ -73,6 +73,7 @@ var UserUpload CustomType = "UserUpload"
 var User CustomType = "User"
 var UsersRoles CustomType = "UsersRoles"
 var WebhookNotification CustomType = "WebhookNotification"
+var WeightTicket CustomType = "WeightTicket"
 
 // defaultTypesMap allows us to assign CustomTypes for most default types
 var defaultTypesMap = map[string]CustomType{
@@ -114,6 +115,7 @@ var defaultTypesMap = map[string]CustomType{
 	"models.User":                    User,
 	"models.UsersRoles":              UsersRoles,
 	"models.WebhookNotification":     WebhookNotification,
+	"models.WeightTicket":            WeightTicket,
 	"roles.Role":                     Role,
 }
 
