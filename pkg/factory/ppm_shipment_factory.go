@@ -122,7 +122,7 @@ func buildApprovedPPMShipmentWaitingOnCustomer(db *pop.Connection, userUploader 
 	}
 
 	serviceMember := ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
-	if db == nil {
+	if db == nil && serviceMember.ID.IsNil() {
 		// this is a stubbed ppm shipment and a stubbed service member
 		// we want to fake out the id in this case
 		serviceMember.ID = uuid.Must(uuid.NewV4())
@@ -168,12 +168,16 @@ func buildApprovedPPMShipmentWithActualInfo(db *pop.Connection, userUploader *up
 
 	newDutyLocationAddress := ppmShipment.Shipment.MoveTaskOrder.Orders.NewDutyLocation.Address
 
-	w2Address := models.Address{
-		StreetAddress1: "987 New Street",
-		City:           newDutyLocationAddress.City,
-		State:          newDutyLocationAddress.State,
-		PostalCode:     newDutyLocationAddress.PostalCode,
-	}
+	w2Address := BuildAddress(db, []Customization{
+		{
+			Model: models.Address{
+				StreetAddress1: "987 New Street",
+				City:           newDutyLocationAddress.City,
+				State:          newDutyLocationAddress.State,
+				PostalCode:     newDutyLocationAddress.PostalCode,
+			},
+		},
+	}, nil)
 
 	ppmShipment.W2AddressID = &w2Address.ID
 	ppmShipment.W2Address = &w2Address
@@ -198,7 +202,20 @@ func buildApprovedPPMShipmentWithActualInfo(db *pop.Connection, userUploader *up
 }
 
 func addWeightTicketToPPMShipment(db *pop.Connection, ppmShipment *models.PPMShipment, userUploader *uploader.UserUploader) {
-	customs := []Customization{}
+	if ppmShipment == nil {
+		log.Panic("ppmShipment is required")
+	}
+	if db == nil && ppmShipment.ID.IsNil() {
+		// need to create an ID so we can use the ppmShipment as
+		// LinkOnly
+		ppmShipment.ID = uuid.Must(uuid.NewV4())
+	}
+	customs := []Customization{
+		{
+			Model:    *ppmShipment,
+			LinkOnly: true,
+		},
+	}
 	if db != nil && userUploader != nil {
 		customs = append(customs, Customization{
 			Model: models.UserUpload{},

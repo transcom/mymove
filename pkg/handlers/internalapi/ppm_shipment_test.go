@@ -344,7 +344,7 @@ func (suite *HandlerSuite) TestSubmitPPMShipmentDocumentationHandlerIntegration(
 	}
 
 	suite.Run("Returns an error if the PPM shipment is not found", func() {
-		ppmShipment := testdatagen.MakePPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), testdatagen.Assertions{})
+		ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), nil)
 
 		ppmShipment.ID = uuid.Must(uuid.NewV4())
 
@@ -367,7 +367,7 @@ func (suite *HandlerSuite) TestSubmitPPMShipmentDocumentationHandlerIntegration(
 	})
 
 	suite.Run("Returns an error if the SignedCertification has any errors", func() {
-		ppmShipment := testdatagen.MakePPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), testdatagen.Assertions{})
+		ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), nil)
 
 		params, handler := setUpParamsAndHandler(ppmShipment, &internalmessages.SavePPMShipmentSignedCertification{
 			CertificationText: handlers.FmtString("certification text"),
@@ -417,7 +417,7 @@ func (suite *HandlerSuite) TestSubmitPPMShipmentDocumentationHandlerIntegration(
 	})
 
 	suite.Run("Can successfully submit a PPM shipment for close out", func() {
-		ppmShipment := testdatagen.MakePPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), testdatagen.Assertions{})
+		ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), nil)
 
 		certText := "certification text"
 		signature := "signature"
