@@ -71,6 +71,7 @@ var ServiceItemParamKey CustomType = "ServiceItemParamKey"
 var ServiceParam CustomType = "ServiceParam"
 var ServiceMember CustomType = "ServiceMember"
 var SignedCertification CustomType = "SignedCertification"
+var SITDurationUpdate CustomType = "SITDurationUpdate"
 var StorageFacility CustomType = "StorageFacility"
 var TransportationOffice CustomType = "TransportationOffice"
 var Upload CustomType = "Upload"
@@ -113,6 +114,7 @@ var defaultTypesMap = map[string]CustomType{
 	"models.ServiceMember":           ServiceMember,
 	"models.ServiceParam":            ServiceParam,
 	"models.SignedCertification":     SignedCertification,
+	"models.SITDurationUpdate":       SITDurationUpdate,
 	"models.StorageFacility":         StorageFacility,
 	"models.TransportationOffice":    TransportationOffice,
 	"models.Upload":                  Upload,
