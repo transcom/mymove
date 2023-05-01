@@ -15,7 +15,6 @@ import (
 	"time"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
@@ -28,17 +27,18 @@ import (
 	"github.com/transcom/mymove/pkg/route/mocks"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *HandlerSuite) TestPatchMoveHandler() {
 	// Given: a set of orders, a move, user and servicemember
 	move := factory.BuildMove(suite.DB(), nil, nil)
-	transportationOffice := testdatagen.MakeTransportationOffice(suite.DB(), testdatagen.Assertions{
-		TransportationOffice: models.TransportationOffice{
-			ProvidesCloseout: true,
+	transportationOffice := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+		{
+			Model: models.TransportationOffice{
+				ProvidesCloseout: true,
+			},
 		},
-	})
+	}, nil)
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("PATCH", "/moves/some_id", nil)
@@ -133,7 +133,7 @@ func (suite *HandlerSuite) TestPatchMoveHandlerCloseoutOfficeNotFound() {
 	// Given: a set of orders, a move, user and servicemember
 	move := factory.BuildMove(suite.DB(), nil, nil)
 	// TransportationOffice doesn't provide PPM closeout so should not be found
-	transportationOffice := testdatagen.MakeDefaultTransportationOffice(suite.DB())
+	transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("PATCH", "/moves/some_id", nil)
@@ -162,11 +162,13 @@ func (suite *HandlerSuite) TestPatchMoveHandlerCloseoutOfficeNotFound() {
 func (suite *HandlerSuite) TestPatchMoveHandlerETagPreconditionFailure() {
 	// Given: a set of orders, a move, user and servicemember
 	move := factory.BuildMove(suite.DB(), nil, nil)
-	transportationOffice := testdatagen.MakeTransportationOffice(suite.DB(), testdatagen.Assertions{
-		TransportationOffice: models.TransportationOffice{
-			ProvidesCloseout: true,
+	transportationOffice := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+		{
+			Model: models.TransportationOffice{
+				ProvidesCloseout: true,
+			},
 		},
-	})
+	}, nil)
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("PATCH", "/moves/some_id", nil)
@@ -243,22 +245,17 @@ func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
 	suite.Run("Submits ppm success", func() {
 		// Given: a set of orders, a move, user and servicemember
 		move := factory.BuildMove(suite.DB(), nil, nil)
-
-		hhgShipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
+		factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
 			{
 				Model: models.MTOShipment{
-					Status:       models.MTOShipmentStatusDraft,
-					ShipmentType: models.MTOShipmentTypePPM,
+					Status: models.MTOShipmentStatusDraft,
 				},
 			},
 		}, nil)
-		testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
-			Move:        move,
-			MTOShipment: hhgShipment,
-			PPMShipment: models.PPMShipment{
-				Status: models.PPMShipmentStatusDraft,
-			},
-		})
 
 		// And: the context contains the auth values
 		req := httptest.NewRequest("POST", "/moves/some_id/submit", nil)
@@ -266,10 +263,10 @@ func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
 		certType := internalmessages.SignedCertificationTypeCreateSHIPMENT
 		signingDate := strfmt.DateTime(time.Now())
 		certificate := internalmessages.CreateSignedCertificationPayload{
-			CertificationText: swag.String("This is your legal message"),
+			CertificationText: models.StringPointer("This is your legal message"),
 			CertificationType: &certType,
 			Date:              &signingDate,
-			Signature:         swag.String("Jane Doe"),
+			Signature:         models.StringPointer("Jane Doe"),
 		}
 		newSubmitMoveForApprovalPayload := internalmessages.SubmitMoveForApprovalPayload{Certificate: &certificate}
 
@@ -317,10 +314,10 @@ func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
 		certType := internalmessages.SignedCertificationTypeCreateSHIPMENT
 		signingDate := strfmt.DateTime(time.Now())
 		certificate := internalmessages.CreateSignedCertificationPayload{
-			CertificationText: swag.String("This is your legal message"),
+			CertificationText: models.StringPointer("This is your legal message"),
 			CertificationType: &certType,
 			Date:              &signingDate,
-			Signature:         swag.String("Jane Doe"),
+			Signature:         models.StringPointer("Jane Doe"),
 		}
 		newSubmitMoveForApprovalPayload := internalmessages.SubmitMoveForApprovalPayload{Certificate: &certificate}
 
@@ -370,10 +367,10 @@ func (suite *HandlerSuite) TestSubmitMoveForServiceCounselingHandler() {
 		certType := internalmessages.SignedCertificationTypeCreateSHIPMENT
 		signingDate := strfmt.DateTime(time.Now())
 		certificate := internalmessages.CreateSignedCertificationPayload{
-			CertificationText: swag.String("This is your legal message"),
+			CertificationText: models.StringPointer("This is your legal message"),
 			CertificationType: &certType,
 			Date:              &signingDate,
-			Signature:         swag.String("Jane Doe"),
+			Signature:         models.StringPointer("Jane Doe"),
 		}
 		newSubmitMoveForApprovalPayload := internalmessages.SubmitMoveForApprovalPayload{Certificate: &certificate}
 

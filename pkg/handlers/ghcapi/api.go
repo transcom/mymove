@@ -30,6 +30,7 @@ import (
 	pwsviolation "github.com/transcom/mymove/pkg/services/pws_violation"
 	"github.com/transcom/mymove/pkg/services/query"
 	reportviolation "github.com/transcom/mymove/pkg/services/report_violation"
+	sitextension "github.com/transcom/mymove/pkg/services/sit_extension"
 	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 	weightticket "github.com/transcom/mymove/pkg/services/weight_ticket"
 )
@@ -360,19 +361,19 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 
 	ghcAPI.ShipmentApproveSITExtensionHandler = ApproveSITExtensionHandler{
 		handlerConfig,
-		mtoshipment.NewSITExtensionApprover(moveRouter),
+		sitextension.NewSITExtensionApprover(moveRouter),
 		shipmentSITStatus,
 	}
 
 	ghcAPI.ShipmentDenySITExtensionHandler = DenySITExtensionHandler{
 		handlerConfig,
-		mtoshipment.NewSITExtensionDenier(moveRouter),
+		sitextension.NewSITExtensionDenier(moveRouter),
 		shipmentSITStatus,
 	}
 
 	ghcAPI.ShipmentCreateApprovedSITDurationUpdateHandler = CreateApprovedSITDurationUpdateHandler{
 		handlerConfig,
-		mtoshipment.NewApprovedSITDurationUpdateCreator(),
+		sitextension.NewApprovedSITDurationUpdateCreator(),
 		shipmentSITStatus,
 	}
 

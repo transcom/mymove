@@ -87,13 +87,17 @@ func (suite *ServiceParamValueLookupsSuite) setupTestMTOServiceItemWithAllWeight
 		_ = testdatagen.MakeReweighForShipment(suite.DB(), testdatagen.Assertions{}, shipment, *reweighWeight)
 	}
 
-	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
-		testdatagen.Assertions{
-			Move: move,
-			PaymentRequest: models.PaymentRequest{
+	paymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+		{
+			Model: models.PaymentRequest{
 				MoveTaskOrderID: mtoServiceItem.MoveTaskOrderID,
 			},
-		})
+		},
+	}, nil)
 
 	paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 	suite.FatalNoError(err)
@@ -197,13 +201,17 @@ func (suite *ServiceParamValueLookupsSuite) setupTestMTOServiceItemWithShuttleWe
 		},
 	}, nil)
 
-	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
-		testdatagen.Assertions{
-			Move: move,
-			PaymentRequest: models.PaymentRequest{
+	paymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+		{
+			Model: models.PaymentRequest{
 				MoveTaskOrderID: mtoServiceItem.MoveTaskOrderID,
 			},
-		})
+		},
+	}, nil)
 
 	paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 	suite.FatalNoError(err)

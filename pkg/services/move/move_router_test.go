@@ -69,7 +69,7 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 		// Set up: Submit a move without an OrdersID
 		// Expected outcome: Error on ordersID
 		var move models.Move
-		newSignedCertification := testdatagen.MakeDefaultSignedCertification(suite.DB())
+		newSignedCertification := factory.BuildSignedCertification(suite.DB(), nil, nil)
 		err := moveRouter.Submit(suite.AppContextForTest(), &move, &newSignedCertification)
 		suite.Error(err)
 		suite.Contains(err.Error(), "Not found looking for move.OrdersID")
@@ -296,12 +296,13 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 					},
 				}, nil)
 
-				ppmShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
-					PPMShipment: models.PPMShipment{
-						Status: models.PPMShipmentStatusDraft,
+				ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+					{
+						Model: models.PPMShipment{
+							Status: models.PPMShipmentStatusDraft,
+						},
 					},
-				})
-
+				}, nil)
 				move.MTOShipments = models.MTOShipments{shipment}
 				move.MTOShipments[0].PPMShipment = &ppmShipment
 
@@ -373,12 +374,13 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 			},
 		}, nil)
 
-		ppmShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
-			PPMShipment: models.PPMShipment{
-				Status: models.PPMShipmentStatusDraft,
+		ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					Status: models.PPMShipmentStatusDraft,
+				},
 			},
-		})
-
+		}, nil)
 		move.MTOShipments = models.MTOShipments{hhgShipment}
 		move.MTOShipments[0].PPMShipment = &ppmShipment
 
@@ -698,7 +700,7 @@ func (suite *MoveServiceSuite) TestCompleteServiceCounseling() {
 
 	suite.Run("status changed to approved", func() {
 		move := factory.BuildStubbedMoveWithStatus(models.MoveStatusNeedsServiceCounseling)
-		ppmShipment := testdatagen.MakeStubbedPPMShipment(suite.DB())
+		ppmShipment := factory.BuildPPMShipment(nil, nil, nil)
 		move.MTOShipments = models.MTOShipments{ppmShipment.Shipment}
 
 		err := moveRouter.CompleteServiceCounseling(suite.AppContextForTest(), &move)
@@ -719,7 +721,7 @@ func (suite *MoveServiceSuite) TestCompleteServiceCounseling() {
 
 	suite.Run("move has unexpected existing status", func() {
 		move := factory.BuildStubbedMoveWithStatus(models.MoveStatusDRAFT)
-		ppmShipment := testdatagen.MakeStubbedPPMShipment(suite.DB())
+		ppmShipment := factory.BuildPPMShipment(nil, nil, nil)
 		move.MTOShipments = models.MTOShipments{ppmShipment.Shipment}
 
 		err := moveRouter.CompleteServiceCounseling(suite.AppContextForTest(), &move)

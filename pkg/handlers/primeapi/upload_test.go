@@ -12,7 +12,6 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *HandlerSuite) TestCreateUploadHandler() {
@@ -26,7 +25,7 @@ func (suite *HandlerSuite) TestCreateUploadHandler() {
 			handlerConfig,
 			paymentrequest.NewPaymentRequestUploadCreator(handlerConfig.FileStorer()),
 		}
-		paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
+		paymentRequest := factory.BuildPaymentRequest(suite.DB(), nil, nil)
 		factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 		return handler, paymentRequest
 	}

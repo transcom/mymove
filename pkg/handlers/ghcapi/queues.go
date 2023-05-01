@@ -2,7 +2,6 @@ package ghcapi
 
 import (
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop/v6"
 	"go.uber.org/zap"
 
@@ -58,11 +57,11 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 			// Let's set default values for page and perPage if we don't get arguments for them. We'll use 1 for page and 20
 			// for perPage.
 			if params.Page == nil {
-				ListOrderParams.Page = swag.Int64(1)
+				ListOrderParams.Page = models.Int64Pointer(1)
 			}
 			// Same for perPage
 			if params.PerPage == nil {
-				ListOrderParams.PerPage = swag.Int64(20)
+				ListOrderParams.PerPage = models.Int64Pointer(20)
 			}
 
 			moves, count, err := h.OrderFetcher.ListOrders(
@@ -127,11 +126,11 @@ func (h GetPaymentRequestsQueueHandler) Handle(
 			// Let's set default values for page and perPage if we don't get arguments for them. We'll use 1 for page and 20
 			// for perPage.
 			if params.Page == nil {
-				listPaymentRequestParams.Page = swag.Int64(1)
+				listPaymentRequestParams.Page = models.Int64Pointer(1)
 			}
 			// Same for perPage
 			if params.PerPage == nil {
-				listPaymentRequestParams.PerPage = swag.Int64(20)
+				listPaymentRequestParams.PerPage = models.Int64Pointer(20)
 			}
 
 			paymentRequests, count, err := h.FetchPaymentRequestList(
@@ -210,11 +209,11 @@ func (h GetServicesCounselingQueueHandler) Handle(
 			// Let's set default values for page and perPage if we don't get arguments for them. We'll use 1 for page and 20
 			// for perPage.
 			if params.Page == nil {
-				ListOrderParams.Page = swag.Int64(1)
+				ListOrderParams.Page = models.Int64Pointer(1)
 			}
 			// Same for perPage
 			if params.PerPage == nil {
-				ListOrderParams.PerPage = swag.Int64(20)
+				ListOrderParams.PerPage = models.Int64Pointer(20)
 			}
 
 			moves, count, err := h.OrderFetcher.ListOrders(

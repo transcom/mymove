@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
@@ -192,11 +191,11 @@ func MTOShipmentModelFromCreate(mtoShipment *ghcmessages.CreateMTOShipment) *mod
 	}
 
 	if mtoShipment.RequestedPickupDate != nil {
-		model.RequestedPickupDate = swag.Time(time.Time(*mtoShipment.RequestedPickupDate))
+		model.RequestedPickupDate = models.TimePointer(time.Time(*mtoShipment.RequestedPickupDate))
 	}
 
 	if mtoShipment.RequestedDeliveryDate != nil {
-		model.RequestedDeliveryDate = swag.Time(time.Time(*mtoShipment.RequestedDeliveryDate))
+		model.RequestedDeliveryDate = models.TimePointer(time.Time(*mtoShipment.RequestedDeliveryDate))
 	}
 
 	// Set up address models

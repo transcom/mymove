@@ -20,6 +20,14 @@ import ShipmentRemarks from 'components/Office/ShipmentRemarks/ShipmentRemarks';
 import Restricted from 'components/Restricted/Restricted';
 import { permissionTypes } from 'constants/permissions';
 
+/** @function OpenModalButton
+ * The button that opens the modal in SIT Display component
+ * @param {string} permission
+ * @param {function} onClick
+ * @param {string} className
+ * @param {string} title
+ * @returns {React.ReactElement}
+ */
 const OpenModalButton = ({ permission, onClick, className, title }) => (
   <Restricted to={permission}>
     <Button type="button" onClick={onClick} unstyled className={className}>
@@ -68,6 +76,10 @@ const ShipmentDetailsMain = ({
   };
 
   const pendingSITExtension = sitExtensions?.find((se) => se.status === SIT_EXTENSION_STATUS.PENDING);
+
+  /**
+   * Displays correct button to open the modal on the SIT Display component to open with either Sumbit or Review SIT modal.
+   */
   const openModalButton = pendingSITExtension ? (
     <OpenModalButton
       permission={permissionTypes.createSITExtension}
@@ -110,7 +122,7 @@ const ShipmentDetailsMain = ({
   switch (shipmentType) {
     case SHIPMENT_OPTIONS.HHG:
       displayedPickupAddress = pickupAddress;
-      displayedDeliveryAddress = destinationAddress || destinationDutyLocationAddress?.postalCode;
+      displayedDeliveryAddress = destinationAddress || destinationDutyLocationAddress;
       break;
     case SHIPMENT_OPTIONS.NTS:
       displayedPickupAddress = pickupAddress;
@@ -122,7 +134,7 @@ const ShipmentDetailsMain = ({
       break;
     default:
       displayedPickupAddress = pickupAddress;
-      displayedDeliveryAddress = destinationAddress || destinationDutyLocationAddress?.postalCode;
+      displayedDeliveryAddress = destinationAddress || destinationDutyLocationAddress;
   }
 
   return (
@@ -139,19 +151,19 @@ const ShipmentDetailsMain = ({
         <SubmitSITExtensionModal
           onClose={() => setIsSubmitITExtensionModalVisible(false)}
           onSubmit={submitSITExtension}
-          summarySITComponent={summarySITComponent}
-        />
-      )}
-      {sitStatus && (
-        <ShipmentSITDisplay
+          shipment={shipment}
           sitExtensions={sitExtensions}
           sitStatus={sitStatus}
-          storageInTransit={storageInTransit}
-          shipment={shipment}
-          className={styles.shipmentSITSummary}
-          openModalButton={openModalButton}
         />
       )}
+      <ShipmentSITDisplay
+        sitExtensions={sitExtensions}
+        sitStatus={sitStatus}
+        storageInTransit={storageInTransit}
+        shipment={shipment}
+        className={styles.shipmentSITSummary}
+        openModalButton={openModalButton}
+      />
       <ImportantShipmentDates
         requestedPickupDate={formatDate(requestedPickupDate)}
         scheduledPickupDate={scheduledPickupDate ? formatDate(scheduledPickupDate) : null}

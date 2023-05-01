@@ -50,8 +50,3 @@ func FetchOrMakeContractor(db *pop.Connection, assertions Assertions) models.Con
 
 	return contractor
 }
-
-// FetchOrMakeDefaultContractor returns a Contractor with default values
-func FetchOrMakeDefaultContractor(db *pop.Connection) models.Contractor {
-	return FetchOrMakeContractor(db, Assertions{})
-}

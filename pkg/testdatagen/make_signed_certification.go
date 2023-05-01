@@ -11,7 +11,7 @@ func MakeSignedCertification(db *pop.Connection, assertions Assertions) models.S
 	moveID := assertions.SignedCertification.MoveID
 	// ID is required because it must be populated for Eager saving to work.
 	if isZeroUUID(assertions.SignedCertification.MoveID) {
-		moveID = MakeMove(db, assertions).ID
+		moveID = makeMove(db, assertions).ID
 	}
 	userID := assertions.SignedCertification.SubmittingUserID
 	if isZeroUUID(assertions.SignedCertification.SubmittingUserID) {
@@ -43,7 +43,7 @@ func MakeSignedCertificationForPPM(db *pop.Connection, assertions Assertions) mo
 	moveID := assertions.SignedCertification.MoveID
 	// ID is required because it must be populated for Eager saving to work.
 	if isZeroUUID(assertions.SignedCertification.MoveID) {
-		moveID = MakeMove(db, assertions).ID
+		moveID = makeMove(db, assertions).ID
 	}
 	userID := assertions.SignedCertification.SubmittingUserID
 	if isZeroUUID(assertions.SignedCertification.SubmittingUserID) {
@@ -74,9 +74,4 @@ func MakeSignedCertificationForPPM(db *pop.Connection, assertions Assertions) mo
 	mustCreate(db, &signedCertification, assertions.Stub)
 
 	return signedCertification
-}
-
-// MakeDefaultSignedCertification returns a MoveDocument with default values
-func MakeDefaultSignedCertification(db *pop.Connection) models.SignedCertification {
-	return MakeSignedCertification(db, Assertions{})
 }

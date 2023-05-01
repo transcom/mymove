@@ -276,7 +276,7 @@ func TransportationOffice(office *models.TransportationOffice) *ghcmessages.Tran
 		ID:         handlers.FmtUUID(office.ID),
 		CreatedAt:  handlers.FmtDateTime(office.CreatedAt),
 		UpdatedAt:  handlers.FmtDateTime(office.UpdatedAt),
-		Name:       swag.String(office.Name),
+		Name:       models.StringPointer(office.Name),
 		Gbloc:      office.Gbloc,
 		Address:    Address(&office.Address),
 		PhoneLines: phoneLines,

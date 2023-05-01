@@ -32,7 +32,7 @@ func (suite *HandlerSuite) TestCreateMovingExpenseHandler() {
 
 	makeCreateSubtestData := func(authenticateRequest bool) (subtestData movingExpenseCreateSubtestData) {
 
-		subtestData.ppmShipment = testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{})
+		subtestData.ppmShipment = factory.BuildPPMShipment(suite.DB(), nil, nil)
 		endpoint := fmt.Sprintf("/ppm-shipments/%s/moving-expense", subtestData.ppmShipment.ID.String())
 		req := httptest.NewRequest("POST", endpoint, nil)
 		serviceMember := subtestData.ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
@@ -346,7 +346,7 @@ func (suite *HandlerSuite) TestDeleteMovingExpenseHandler() {
 	suite.Run("DELETE failure - 403 - permission denied - wrong application / user", func() {
 		subtestData := makeDeleteSubtestData(false)
 
-		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+		officeUser := factory.BuildOfficeUser(suite.DB(), nil, nil)
 
 		req := subtestData.params.HTTPRequest
 		unauthorizedReq := suite.AuthenticateOfficeRequest(req, officeUser)
@@ -376,9 +376,12 @@ func (suite *HandlerSuite) TestDeleteMovingExpenseHandler() {
 		subtestData := makeDeleteSubtestData(false)
 		serviceMember := subtestData.ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
 
-		otherPPMShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
-			Order: subtestData.ppmShipment.Shipment.MoveTaskOrder.Orders,
-		})
+		otherPPMShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    subtestData.ppmShipment.Shipment.MoveTaskOrder.Orders,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		subtestData.params.PpmShipmentID = *handlers.FmtUUID(otherPPMShipment.ID)
 		req := subtestData.params.HTTPRequest
