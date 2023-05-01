@@ -55,7 +55,7 @@ const SitStatusTables = ({ sitStatus, shipment }) => {
     const now = new Date();
     const startDate = Date.parse(sitStatus.sitEntryDate);
     const sitNotStarted = Boolean(startDate > now);
-    const daysRemaining = sitStatus?.totalDaysRemaining || shipment.sitDaysAllowance;
+    const daysRemaining = shipment.sitDaysAllowance - totalSITDaysUsed;
     if (daysRemaining > 0 && sitNotStarted) {
       return daysRemaining;
     }

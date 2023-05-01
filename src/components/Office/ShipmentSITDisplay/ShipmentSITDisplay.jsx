@@ -46,16 +46,11 @@ const SITHistoryItemHeader = ({ sitItem }) => (
 );
 
 const SitHistoryList = ({ sitHistory, dayAllowance }) => {
-  let first = true;
-  let approvedDays;
+  let approvedDays = dayAllowance;
   return (
     <div className={styles.tableContainer}>
       <p className={styles.sitHeader}>SIT history</p>
       {sitHistory.map((currentItem) => {
-        if (first === true) {
-          approvedDays = dayAllowance;
-          first = false;
-        }
         const sitItem = {
           ...currentItem,
           approvedDays,
@@ -97,21 +92,6 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton }
         .format('DD MMM YYYY')
     : moment(sitStartDate).add(shipment.sitDaysAllowance, 'days').format('DD MMM YYYY');
 
-  const totalDaysRemaining = () => {
-    const now = new Date();
-    const startDate = Date.parse(sitStartDate);
-    const sitNotStarted = Boolean(startDate > now);
-    const daysRemaining = sitStatus?.totalDaysRemaining || shipment.sitDaysAllowance;
-    if (daysRemaining > 0 && sitNotStarted) {
-      return daysRemaining;
-    }
-    // Subract one day to account for the current day
-    if (daysRemaining > 0) {
-      return daysRemaining - 1;
-    }
-    return 'Expired';
-  };
-
   // Previous SIT calculations and date ranges
   const previousDaysUsed = sitStatus?.pastSITServiceItems?.map((pastSITItem) => {
     const sitDaysUsed = moment(pastSITItem.sitDepartureDate).diff(pastSITItem.sitEntryDate, 'days');
@@ -128,6 +108,20 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton }
   const currentLocation = sitStatus?.location === LOCATION_TYPES.DESTINATION ? 'destination SIT' : 'origin SIT';
 
   const totalSITDaysUsed = sitStatus?.totalSITDaysUsed || 0;
+  const totalDaysRemaining = () => {
+    const now = new Date();
+    const startDate = Date.parse(sitStartDate);
+    const sitNotStarted = Boolean(startDate > now);
+    const daysRemaining = shipment.sitDaysAllowance - totalSITDaysUsed;
+    if (daysRemaining > 0 && sitNotStarted) {
+      return daysRemaining;
+    }
+    // Subract one day to account for the current day
+    if (daysRemaining > 0) {
+      return daysRemaining - 1;
+    }
+    return 'Expired';
+  };
 
   return (
     <>
