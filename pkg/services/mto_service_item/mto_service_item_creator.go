@@ -201,7 +201,18 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 					extraServiceItem.SITOriginHHGOriginalAddress = serviceItem.SITOriginHHGOriginalAddress
 					extraServiceItem.SITOriginHHGOriginalAddressID = serviceItem.SITOriginHHGOriginalAddressID
 				}
+			}
+		}
 
+		// make sure SITDestinationFinalAddress is the same for all destination SIT related service item
+		if serviceItem.ReService.Code == models.ReServiceCodeDDFSIT && serviceItem.SITDestinationFinalAddress != nil {
+			for itemIndex := range *extraServiceItems {
+				extraServiceItem := &(*extraServiceItems)[itemIndex]
+				if extraServiceItem.ReService.Code == models.ReServiceCodeDDDSIT ||
+					extraServiceItem.ReService.Code == models.ReServiceCodeDDASIT {
+					extraServiceItem.SITDestinationFinalAddress = serviceItem.SITDestinationFinalAddress
+					extraServiceItem.SITDestinationFinalAddressID = serviceItem.SITDestinationFinalAddressID
+				}
 			}
 		}
 
