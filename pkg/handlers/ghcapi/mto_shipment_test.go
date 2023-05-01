@@ -32,6 +32,7 @@ import (
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 	"github.com/transcom/mymove/pkg/services/ppmshipment"
 	"github.com/transcom/mymove/pkg/services/query"
+	sitextension "github.com/transcom/mymove/pkg/services/sit_extension"
 	"github.com/transcom/mymove/pkg/swagger/nullable"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/trace"
@@ -2463,7 +2464,7 @@ func (suite *HandlerSuite) TestApproveSITExtensionHandler() {
 		eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		moveRouter := moveservices.NewMoveRouter()
-		sitExtensionApprover := mtoshipment.NewSITExtensionApprover(moveRouter)
+		sitExtensionApprover := sitextension.NewSITExtensionApprover(moveRouter)
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/shipments/%s/sit-extension/%s/approve", mtoShipment.ID.String(), sitExtension.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerConfig := suite.HandlerConfig()
@@ -2526,7 +2527,7 @@ func (suite *HandlerSuite) TestDenySITExtensionHandler() {
 		eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		moveRouter := moveservices.NewMoveRouter()
-		sitExtensionDenier := mtoshipment.NewSITExtensionDenier(moveRouter)
+		sitExtensionDenier := sitextension.NewSITExtensionDenier(moveRouter)
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/shipments/%s/sit-extension/%s/deny", mtoShipment.ID.String(), sitExtension.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerConfig := suite.HandlerConfig()
@@ -2568,14 +2569,14 @@ func (suite *HandlerSuite) CreateApprovedSITDurationUpdate() {
 
 		eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
-		sitExtensionCreatorAsTOO := mtoshipment.NewApprovedSITDurationUpdateCreator()
+		approvedSITDurationUpdateCreator := sitextension.NewApprovedSITDurationUpdateCreator()
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/sit-extension/", mtoShipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerConfig := suite.HandlerConfig()
 
 		handler := CreateApprovedSITDurationUpdateHandler{
 			handlerConfig,
-			sitExtensionCreatorAsTOO,
+			approvedSITDurationUpdateCreator,
 			mtoshipment.NewShipmentSITStatus(),
 		}
 		approvedDays := int64(10)
@@ -2621,14 +2622,14 @@ func (suite *HandlerSuite) CreateApprovedSITDurationUpdate() {
 
 		eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
-		sitExtensionCreatorAsTOO := mtoshipment.NewApprovedSITDurationUpdateCreator()
+		approvedSITDurationUpdateCreator := sitextension.NewApprovedSITDurationUpdateCreator()
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/sit-extension/", mtoShipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerConfig := suite.HandlerConfig()
 
 		handler := CreateApprovedSITDurationUpdateHandler{
 			handlerConfig,
-			sitExtensionCreatorAsTOO,
+			approvedSITDurationUpdateCreator,
 			mtoshipment.NewShipmentSITStatus(),
 		}
 		approvedDays := int64(10)
@@ -3186,7 +3187,7 @@ func (suite *HandlerSuite) getUpdateShipmentParams(originalShipment models.MTOSh
 	counselorRemarks := "counselor approved"
 	billableWeightCap := int64(8000)
 	billableWeightJustification := "Unable to perform reweigh because shipment was already unloaded."
-	mtoAgent := testdatagen.MakeDefaultMTOAgent(suite.DB())
+	mtoAgent := factory.BuildMTOAgent(suite.DB(), nil, nil)
 	agents := ghcmessages.MTOAgents{&ghcmessages.MTOAgent{
 		FirstName: mtoAgent.FirstName,
 		LastName:  mtoAgent.LastName,

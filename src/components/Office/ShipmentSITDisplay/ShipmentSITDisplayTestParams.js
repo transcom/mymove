@@ -194,3 +194,12 @@ export const SITShipment = {
   status: 'APPROVED',
   updatedAt: '2021-09-22T14:48:37.546Z',
 };
+
+export const futureSITShipment = {
+  ...SITShipment,
+  mtoServiceItems: [
+    {
+      sitEntryDate: '2025-02-25',
+    },
+  ],
+};

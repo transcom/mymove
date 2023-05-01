@@ -1,4 +1,4 @@
-package mtoshipment
+package sitextension
 
 import (
 	"database/sql"
@@ -12,21 +12,28 @@ import (
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
 type sitExtensionApprover struct {
+	checks     []sitExtensionValidator
 	moveRouter services.MoveRouter
 }
 
 // NewSITExtensionApprover creates a new struct with the service dependencies
 func NewSITExtensionApprover(moveRouter services.MoveRouter) services.SITExtensionApprover {
-	return &sitExtensionApprover{moveRouter}
+	return &sitExtensionApprover{
+		[]sitExtensionValidator{
+			checkShipmentID(),
+			checkRequiredFields(),
+			checkMinimumSITDuration(),
+		}, moveRouter}
 }
 
 // ApproveSITExtension approves the SIT Extension and also updates the shipment's SIT days allowance
 func (f *sitExtensionApprover) ApproveSITExtension(appCtx appcontext.AppContext, shipmentID uuid.UUID, sitExtensionID uuid.UUID, approvedDays int, officeRemarks *string, eTag string) (*models.MTOShipment, error) {
-	shipment, err := FindShipment(appCtx, shipmentID, "MoveTaskOrder")
+	shipment, err := mtoshipment.FindShipment(appCtx, shipmentID, "MoveTaskOrder")
 	if err != nil {
 		return nil, err
 	}
@@ -45,7 +52,7 @@ func (f *sitExtensionApprover) ApproveSITExtension(appCtx appcontext.AppContext,
 		return nil, apperror.NewPreconditionFailedError(shipmentID, query.StaleIdentifierError{StaleIdentifier: eTag})
 	}
 
-	return f.approveSITExtension(appCtx, *shipment, *sitExtension, approvedDays, officeRemarks)
+	return f.approveSITExtension(appCtx, shipment, *sitExtension, approvedDays, officeRemarks)
 }
 
 func (f *sitExtensionApprover) findSITExtension(appCtx appcontext.AppContext, sitExtensionID uuid.UUID) (*models.SITDurationUpdate, error) {
@@ -64,15 +71,15 @@ func (f *sitExtensionApprover) findSITExtension(appCtx appcontext.AppContext, si
 	return &sitExtension, nil
 }
 
-func (f *sitExtensionApprover) approveSITExtension(appCtx appcontext.AppContext, shipment models.MTOShipment, sitExtension models.SITDurationUpdate, approvedDays int, officeRemarks *string) (*models.MTOShipment, error) {
+func (f *sitExtensionApprover) approveSITExtension(appCtx appcontext.AppContext, shipment *models.MTOShipment, sitExtension models.SITDurationUpdate, approvedDays int, officeRemarks *string) (*models.MTOShipment, error) {
 	var returnedShipment models.MTOShipment
 
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-		if err := f.updateSITExtension(txnAppCtx, sitExtension, approvedDays, officeRemarks); err != nil {
+		if err := f.updateSITExtension(txnAppCtx, sitExtension, approvedDays, officeRemarks, shipment); err != nil {
 			return err
 		}
 
-		updatedShipment, err := f.updateSitDaysAllowance(txnAppCtx, shipment, approvedDays)
+		updatedShipment, err := f.updateSitDaysAllowance(txnAppCtx, *shipment, approvedDays)
 		if err != nil {
 			return err
 		}
@@ -93,12 +100,17 @@ func (f *sitExtensionApprover) approveSITExtension(appCtx appcontext.AppContext,
 	return &returnedShipment, nil
 }
 
-func (f *sitExtensionApprover) updateSITExtension(appCtx appcontext.AppContext, sitExtension models.SITDurationUpdate, approvedDays int, officeRemarks *string) error {
+func (f *sitExtensionApprover) updateSITExtension(appCtx appcontext.AppContext, sitExtension models.SITDurationUpdate, approvedDays int, officeRemarks *string, shipment *models.MTOShipment) error {
 	sitExtension.ApprovedDays = &approvedDays
 	sitExtension.OfficeRemarks = officeRemarks
 	sitExtension.Status = models.SITExtensionStatusApproved
 	now := time.Now()
 	sitExtension.DecisionDate = &now
+
+	err := validateSITExtension(appCtx, sitExtension, shipment, f.checks...)
+	if err != nil {
+		return err
+	}
 
 	verrs, err := appCtx.DB().ValidateAndUpdate(&sitExtension)
 	if e := f.handleError(sitExtension.ID, verrs, err); e != nil {

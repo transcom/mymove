@@ -65,26 +65,25 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestSuccess() 
 	// Add a few proof of service docs and prime uploads.
 	var oldProofOfServiceDocIDs []string
 	for i := 0; i < recalculateNumProofOfServiceDocs; i++ {
-		proofOfServiceDoc := testdatagen.MakeProofOfServiceDoc(suite.DB(), testdatagen.Assertions{
-			ProofOfServiceDoc: models.ProofOfServiceDoc{
-				PaymentRequestID: paymentRequest.ID,
+		proofOfServiceDoc := factory.BuildProofOfServiceDoc(suite.DB(), []factory.Customization{
+			{
+				Model:    *paymentRequest,
+				LinkOnly: true,
 			},
-		})
+		}, nil)
 		oldProofOfServiceDocIDs = append(oldProofOfServiceDocIDs, proofOfServiceDoc.ID.String())
-		contractor := factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
-		testdatagen.MakePrimeUpload(suite.DB(), testdatagen.Assertions{
-			PrimeUpload: models.PrimeUpload{
-				ProofOfServiceDocID: proofOfServiceDoc.ID,
-				ContractorID:        contractor.ID,
+		factory.BuildPrimeUpload(suite.DB(), []factory.Customization{
+			{
+				Model:    proofOfServiceDoc,
+				LinkOnly: true,
 			},
-		})
-		testdatagen.MakePrimeUpload(suite.DB(), testdatagen.Assertions{
-			PrimeUpload: models.PrimeUpload{
-				ProofOfServiceDocID: proofOfServiceDoc.ID,
-				ContractorID:        contractor.ID,
-				DeletedAt:           models.TimePointer(time.Now()),
+		}, nil)
+		factory.BuildPrimeUpload(suite.DB(), []factory.Customization{
+			{
+				Model:    proofOfServiceDoc,
+				LinkOnly: true,
 			},
-		})
+		}, []factory.Trait{factory.GetTraitPrimeUploadDeleted})
 	}
 	sort.Strings(oldProofOfServiceDocIDs)
 

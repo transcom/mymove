@@ -40,6 +40,7 @@ var nextValidMoveDate = dates.NextValidMoveDate(time.Now(), cal)
 
 var nextValidMoveDatePlusTen = dates.NextValidMoveDate(nextValidMoveDate.AddDate(0, 0, 10), cal)
 var nextValidMoveDateMinusTen = dates.NextValidMoveDate(nextValidMoveDate.AddDate(0, 0, -10), cal)
+var primeContractorUUID = uuid.FromStringOrNil("5db13bb4-6d29-4bdb-bc81-262f4513ecf6")
 
 /*
  * Users
@@ -2254,6 +2255,15 @@ func createMoveWithServiceItemsandPaymentRequests01(appCtx appcontext.AppContext
 	csCost := unit.Cents(25000)
 	fscCost := unit.Cents(55555)
 
+	// Since we want to customize the Contractor ID for prime uploads, create the contractor here first
+	// BuildMove and BuildPrimeUpload both use FetchOrBuildDefaultContractor
+	factory.FetchOrBuildDefaultContractor(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Contractor{
+				ID: primeContractorUUID, // Prime
+			},
+		},
+	}, nil)
 	orders := factory.BuildOrder(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.ServiceMember{
@@ -2349,23 +2359,17 @@ func createMoveWithServiceItemsandPaymentRequests01(appCtx appcontext.AppContext
 	}, nil)
 
 	// for soft deleted proof of service docs
-	proofOfService := testdatagen.MakeProofOfServiceDoc(appCtx.DB(), testdatagen.Assertions{
-		PaymentRequest: paymentRequestHHG,
-	})
-
-	deletedAt := time.Now()
-	testdatagen.MakePrimeUpload(appCtx.DB(), testdatagen.Assertions{
-		PrimeUpload: models.PrimeUpload{
-			ID:                  uuid.FromStringOrNil("18413213-0aaf-4eb1-8d7f-1b557a4e425b"),
-			ProofOfServiceDoc:   proofOfService,
-			ProofOfServiceDocID: proofOfService.ID,
-			Contractor: models.Contractor{
-				ID: uuid.FromStringOrNil("5db13bb4-6d29-4bdb-bc81-262f4513ecf6"), // Prime
-			},
-			ContractorID: uuid.FromStringOrNil("5db13bb4-6d29-4bdb-bc81-262f4513ecf6"),
-			DeletedAt:    &deletedAt,
+	factory.BuildPrimeUpload(appCtx.DB(), []factory.Customization{
+		{
+			Model:    paymentRequestHHG,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.PrimeUpload{
+				ID: uuid.FromStringOrNil("18413213-0aaf-4eb1-8d7f-1b557a4e425b"),
+			},
+		},
+	}, []factory.Trait{factory.GetTraitPrimeUploadDeleted})
 
 	serviceItemMS := factory.BuildMTOServiceItemBasic(appCtx.DB(), []factory.Customization{
 		{
@@ -3213,7 +3217,15 @@ func createMoveWithServiceItemsandPaymentRequests02(appCtx appcontext.AppContext
 func createHHGMoveWithServiceItemsAndPaymentRequestsAndFiles(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader) {
 	logger := appCtx.Logger()
 	dependentsAuthorized := true
-
+	// Since we want to customize the Contractor ID for prime uploads, create the contractor here first
+	// BuildMove and BuildPrimeUpload both use FetchOrBuildDefaultContractor
+	factory.FetchOrBuildDefaultContractor(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Contractor{
+				ID: primeContractorUUID, // Prime
+			},
+		},
+	}, nil)
 	orders := factory.BuildOrder(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.ServiceMember{
@@ -3511,39 +3523,38 @@ func createHHGMoveWithServiceItemsAndPaymentRequestsAndFiles(appCtx appcontext.A
 		},
 	}, nil)
 
-	proofOfService := testdatagen.MakeProofOfServiceDoc(appCtx.DB(), testdatagen.Assertions{
-		PaymentRequest: paymentRequest,
-	})
-
-	testdatagen.MakePrimeUpload(appCtx.DB(), testdatagen.Assertions{
-		PrimeUpload: models.PrimeUpload{
-			ID:                  uuid.FromStringOrNil("18413213-0aaf-4eb1-8d7f-1b557a4e425b"),
-			ProofOfServiceDoc:   proofOfService,
-			ProofOfServiceDocID: proofOfService.ID,
-			Contractor: models.Contractor{
-				ID: uuid.FromStringOrNil("5db13bb4-6d29-4bdb-bc81-262f4513ecf6"), // Prime
-			},
-			ContractorID: uuid.FromStringOrNil("5db13bb4-6d29-4bdb-bc81-262f4513ecf6"),
+	factory.BuildPrimeUpload(appCtx.DB(), []factory.Customization{
+		{
+			Model:    paymentRequest,
+			LinkOnly: true,
 		},
-		PrimeUploader: primeUploader,
-	})
-
-	posImage := testdatagen.MakeProofOfServiceDoc(appCtx.DB(), testdatagen.Assertions{
-		PaymentRequest: paymentRequest,
-	})
-
-	primeContractor := uuid.FromStringOrNil("5db13bb4-6d29-4bdb-bc81-262f4513ecf6")
+		{
+			Model: models.PrimeUpload{
+				ID: uuid.FromStringOrNil("18413213-0aaf-4eb1-8d7f-1b557a4e425b"),
+			},
+			ExtendedParams: &factory.PrimeUploadExtendedParams{
+				PrimeUploader: primeUploader,
+				AppContext:    appCtx,
+			},
+		},
+	}, nil)
+	posImage := factory.BuildProofOfServiceDoc(appCtx.DB(), []factory.Customization{
+		{
+			Model:    paymentRequest,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	// Creates custom test.jpg prime upload
 	file := testdatagen.Fixture("test.jpg")
-	_, verrs, err := primeUploader.CreatePrimeUploadForDocument(appCtx, &posImage.ID, primeContractor, uploader.File{File: file}, uploader.AllowedTypesPaymentRequest)
+	_, verrs, err := primeUploader.CreatePrimeUploadForDocument(appCtx, &posImage.ID, primeContractorUUID, uploader.File{File: file}, uploader.AllowedTypesPaymentRequest)
 	if verrs.HasAny() || err != nil {
 		logger.Error("errors encountered saving test.jpg prime upload", zap.Error(err))
 	}
 
 	// Creates custom test.png prime upload
 	file = testdatagen.Fixture("test.png")
-	_, verrs, err = primeUploader.CreatePrimeUploadForDocument(appCtx, &posImage.ID, primeContractor, uploader.File{File: file}, uploader.AllowedTypesPaymentRequest)
+	_, verrs, err = primeUploader.CreatePrimeUploadForDocument(appCtx, &posImage.ID, primeContractorUUID, uploader.File{File: file}, uploader.AllowedTypesPaymentRequest)
 	if verrs.HasAny() || err != nil {
 		logger.Error("errors encountered saving test.png prime upload", zap.Error(err))
 	}
@@ -4821,6 +4832,15 @@ func createNTSMoveWithServiceItemsandPaymentRequests(appCtx appcontext.AppContex
 	msCost := unit.Cents(10000)
 	dlhCost := unit.Cents(99999)
 
+	// Since we want to customize the Contractor ID for prime uploads, create the contractor here first
+	// BuildMove and BuildPrimeUpload both use FetchOrBuildDefaultContractor
+	factory.FetchOrBuildDefaultContractor(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Contractor{
+				ID: primeContractorUUID, // Prime
+			},
+		},
+	}, nil)
 	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.ServiceMember{
@@ -4883,23 +4903,17 @@ func createNTSMoveWithServiceItemsandPaymentRequests(appCtx appcontext.AppContex
 	}, nil)
 
 	// for soft deleted proof of service docs
-	proofOfService := testdatagen.MakeProofOfServiceDoc(appCtx.DB(), testdatagen.Assertions{
-		PaymentRequest: paymentRequestNTS,
-	})
-
-	deletedAt := time.Now()
-	testdatagen.MakePrimeUpload(appCtx.DB(), testdatagen.Assertions{
-		PrimeUpload: models.PrimeUpload{
-			ID:                  uuid.FromStringOrNil("301d8cb8-5bae-4e37-83e3-62c215a504b2"),
-			ProofOfServiceDoc:   proofOfService,
-			ProofOfServiceDocID: proofOfService.ID,
-			Contractor: models.Contractor{
-				ID: uuid.FromStringOrNil("5db13bb4-6d29-4bdb-bc81-262f4513ecf6"), // Prime
-			},
-			ContractorID: uuid.FromStringOrNil("5db13bb4-6d29-4bdb-bc81-262f4513ecf6"),
-			DeletedAt:    &deletedAt,
+	factory.BuildPrimeUpload(appCtx.DB(), []factory.Customization{
+		{
+			Model:    paymentRequestNTS,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.PrimeUpload{
+				ID: uuid.FromStringOrNil("301d8cb8-5bae-4e37-83e3-62c215a504b2"),
+			},
+		},
+	}, []factory.Trait{factory.GetTraitPrimeUploadDeleted})
 
 	serviceItemMS := factory.BuildMTOServiceItemBasic(appCtx.DB(), []factory.Customization{
 		{

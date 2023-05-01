@@ -57,6 +57,8 @@ var PPMShipment CustomType = "PPMShipment"
 var PaymentRequest CustomType = "PaymentRequest"
 var PaymentServiceItem CustomType = "PaymentServiceItem"
 var PostalCodeToGBLOC CustomType = "PostalCodeToGBLOC"
+var PrimeUpload CustomType = "PrimeUpload"
+var ProofOfServiceDoc CustomType = "ProofOfServiceDoc"
 var ReService CustomType = "ReService"
 var Role CustomType = "Role"
 var ServiceItemParamKey CustomType = "ServiceItemParamKey"
@@ -98,6 +100,8 @@ var defaultTypesMap = map[string]CustomType{
 	"models.PaymentServiceItem":      PaymentServiceItem,
 	"models.PPMShipment":             PPMShipment,
 	"models.PostalCodeToGBLOC":       PostalCodeToGBLOC,
+	"models.PrimeUpload":             PrimeUpload,
+	"models.ProofOfServiceDoc":       ProofOfServiceDoc,
 	"models.ReService":               ReService,
 	"models.ServiceItemParamKey":     ServiceItemParamKey,
 	"models.ServiceMember":           ServiceMember,
@@ -199,6 +203,18 @@ var TransportationOffices = transportationOfficeGroup{
 	OriginDutyLocation: "OriginDutyLocationTransportationOffice",
 	NewDutyLocation:    "NewDutyLocationTransportationOffice",
 	CloseoutOffice:     "CloseoutOffice",
+}
+
+// uploadGroup is a grouping of all the upload related fields
+type uploadGroup struct {
+	UploadTypePrime CustomType
+	UploadTypeUser  CustomType
+}
+
+// Uploads is the struct to access the fields externally
+var Uploads = uploadGroup{
+	UploadTypePrime: "UploadTypePrime",
+	UploadTypeUser:  "UploadTypeUser",
 }
 
 // Below are errors returned by various functions
