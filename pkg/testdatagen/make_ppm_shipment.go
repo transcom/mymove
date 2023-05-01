@@ -261,7 +261,7 @@ func AddWeightTicketToPPMShipment(db *pop.Connection, ppmShipment *models.PPMShi
 
 	mergeModels(&fullWeightTicketSetAssertions, assertions)
 
-	weightTicket := MakeWeightTicket(db, fullWeightTicketSetAssertions)
+	weightTicket := makeWeightTicket(db, fullWeightTicketSetAssertions)
 
 	ppmShipment.WeightTickets = append(ppmShipment.WeightTickets, weightTicket)
 }
@@ -561,7 +561,7 @@ func MakePPMShipmentThatNeedsToBeResubmitted(db *pop.Connection, assertions Asse
 
 	mergeModels(&fullWeightTicketSetAssertions, assertions)
 
-	weightTicket := MakeWeightTicket(db, fullWeightTicketSetAssertions)
+	weightTicket := makeWeightTicket(db, fullWeightTicketSetAssertions)
 	ppmShipment.WeightTickets = append(ppmShipment.WeightTickets, weightTicket)
 
 	ppmShipment.Status = models.PPMShipmentStatusWaitingOnCustomer
