@@ -9,8 +9,8 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-// FetchOrMakeContractor creates a single Contractor.
-func FetchOrMakeContractor(db *pop.Connection, assertions Assertions) models.Contractor {
+// fetchOrMakeContractor creates a single Contractor.
+func fetchOrMakeContractor(db *pop.Connection, assertions Assertions) models.Contractor {
 
 	contractor := models.Contractor{
 		Name:           DefaultContractName,

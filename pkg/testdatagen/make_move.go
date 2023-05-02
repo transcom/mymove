@@ -28,7 +28,7 @@ func makeMove(db *pop.Connection, assertions Assertions) models.Move {
 	var contractorID uuid.UUID
 	moveContractorID := assertions.Move.ContractorID
 	if moveContractorID == nil {
-		contractor := FetchOrMakeContractor(db, assertions)
+		contractor := fetchOrMakeContractor(db, assertions)
 		contractorID = contractor.ID
 	}
 
