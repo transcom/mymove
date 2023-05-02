@@ -366,12 +366,7 @@ func (suite *HandlerSuite) TestFinishPPMDocumentsReviewHandlerUnit() {
 	var ppmShipment models.PPMShipment
 
 	setUpPPMShipment := func() models.PPMShipment {
-		ppmShipment = testdatagen.MakePPMShipmentWithApprovedDocuments(
-			suite.DB(),
-			testdatagen.Assertions{
-				Stub: true,
-			},
-		)
+		ppmShipment = factory.BuildPPMShipmentWithApprovedDocuments(nil)
 
 		ppmShipment.ID = uuid.Must(uuid.NewV4())
 		ppmShipment.CreatedAt = time.Now()

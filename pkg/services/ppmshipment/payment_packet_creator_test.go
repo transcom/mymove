@@ -13,7 +13,6 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
-	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
@@ -181,15 +180,15 @@ func (suite *PPMShipmentSuite) TestCreatePaymentPacket() {
 	// TODO: add test case(s) for the SSW gen call
 
 	suite.Run("returns an error if we get an error trying to convert uploaded files to PDFs", func() {
-		appCtx := suite.AppContextForTest()
-
-		ppmShipment := testdatagen.MakePPMShipmentWithAllDocTypesApprovedMissingPaymentPacket(
-			appCtx.DB(),
-			testdatagen.Assertions{
-				PPMShipment: models.PPMShipment{
-					ID: uuid.Must(uuid.NewV4()),
+		ppmShipment := factory.BuildPPMShipmentWithAllDocTypesApprovedMissingPaymentPacket(
+			nil,
+			nil,
+			[]factory.Customization{
+				{
+					Model: models.PPMShipment{
+						ID: uuid.Must(uuid.NewV4()),
+					},
 				},
-				Stub: true,
 			},
 		)
 
@@ -197,7 +196,7 @@ func (suite *PPMShipmentSuite) TestCreatePaymentPacket() {
 
 		defer cleanUpFunc()
 
-		setUpMockPPMShipmentFetcherForPayment(appCtx, ppmShipment.ID, &ppmShipment, nil)
+		setUpMockPPMShipmentFetcherForPayment(suite.AppContextForTest(), ppmShipment.ID, &ppmShipment, nil)
 
 		uploadedOrdersUserUpload := ppmShipment.Shipment.MoveTaskOrder.Orders.UploadedOrders.UserUploads[0]
 
@@ -209,13 +208,13 @@ func (suite *PPMShipmentSuite) TestCreatePaymentPacket() {
 
 		setUpMockUserUploadToPDFConverter(
 			mockUserUploadToPDFConverter,
-			appCtx,
+			suite.AppContextForTest(),
 			userUploads,
 			nil,
 			fakeErr,
 		)
 
-		err := paymentPacketCreator.CreatePaymentPacket(appCtx, ppmShipment.ID)
+		err := paymentPacketCreator.CreatePaymentPacket(suite.AppContextForTest(), ppmShipment.ID)
 
 		if suite.Error(err) {
 			suite.ErrorIs(err, fakeErr)
@@ -225,15 +224,15 @@ func (suite *PPMShipmentSuite) TestCreatePaymentPacket() {
 	})
 
 	suite.Run("returns an error if we get an error trying to merge the PDFs", func() {
-		appCtx := suite.AppContextForTest()
-
-		ppmShipment := testdatagen.MakePPMShipmentWithAllDocTypesApprovedMissingPaymentPacket(
-			appCtx.DB(),
-			testdatagen.Assertions{
-				PPMShipment: models.PPMShipment{
-					ID: uuid.Must(uuid.NewV4()),
+		ppmShipment := factory.BuildPPMShipmentWithAllDocTypesApprovedMissingPaymentPacket(
+			nil,
+			nil,
+			[]factory.Customization{
+				{
+					Model: models.PPMShipment{
+						ID: uuid.Must(uuid.NewV4()),
+					},
 				},
-				Stub: true,
 			},
 		)
 
@@ -241,11 +240,11 @@ func (suite *PPMShipmentSuite) TestCreatePaymentPacket() {
 
 		defer cleanUpFunc()
 
-		setUpMockPPMShipmentFetcherForPayment(appCtx, ppmShipment.ID, &ppmShipment, nil)
+		setUpMockPPMShipmentFetcherForPayment(suite.AppContextForTest(), ppmShipment.ID, &ppmShipment, nil)
 
 		setUpMockUserUploadToPDFConverter(
 			mockUserUploadToPDFConverter,
-			appCtx,
+			suite.AppContextForTest(),
 			userUploads,
 			fileInfoSet,
 			nil,
@@ -253,9 +252,9 @@ func (suite *PPMShipmentSuite) TestCreatePaymentPacket() {
 
 		fakeErr := fmt.Errorf("failed to merge PDFs")
 
-		setUpMockPDFMerger(mockPDFMerger, appCtx, pdfStreams, nil, fakeErr)
+		setUpMockPDFMerger(mockPDFMerger, suite.AppContextForTest(), pdfStreams, nil, fakeErr)
 
-		err := paymentPacketCreator.CreatePaymentPacket(appCtx, ppmShipment.ID)
+		err := paymentPacketCreator.CreatePaymentPacket(suite.AppContextForTest(), ppmShipment.ID)
 
 		if suite.Error(err) {
 			suite.ErrorIs(err, fakeErr)

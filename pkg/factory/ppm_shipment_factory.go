@@ -337,6 +337,50 @@ func AddMovingExpenseToPPMShipment(db *pop.Connection, ppmShipment *models.PPMSh
 		movingExpense)
 }
 
+// AddPaymentPacketToPPMShipment adds a payment packet to a
+// PPMShipment. It is to the caller to save the shipment changes.
+func AddPaymentPacketToPPMShipment(db *pop.Connection, ppmShipment *models.PPMShipment, userUploader *uploader.UserUploader) {
+	if ppmShipment == nil {
+		log.Panic("ppmShipment is required")
+	}
+
+	if ppmShipment.HasReceivedAdvance == nil || !*ppmShipment.HasReceivedAdvance {
+		return
+	}
+
+	if db == nil && ppmShipment.ID.IsNil() {
+		// need to create an ID so we can use the ppmShipment as
+		// LinkOnly
+		ppmShipment.ID = uuid.Must(uuid.NewV4())
+	}
+
+	customs := []Customization{
+		{
+			Model:    *ppmShipment,
+			LinkOnly: true,
+		},
+	}
+	if db != nil && userUploader != nil {
+		customs = append(customs, Customization{
+			Model: models.UserUpload{},
+			ExtendedParams: &UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   uploaderAppContext(db),
+				File:         testdatagen.Fixture("payment-packet.pdf"),
+			},
+		})
+	}
+
+	// payment packet is a generic user upload
+	paymentPacket := BuildUserUpload(db, customs, nil)
+
+	ppmShipment.PaymentPacket = &paymentPacket.Document
+	ppmShipment.PaymentPacketID = paymentPacket.DocumentID
+	if db != nil {
+		mustSave(db, ppmShipment)
+	}
+}
+
 // buildPPMShipmentReadyForFinalCustomerCloseOutWithCustoms
 func buildPPMShipmentReadyForFinalCustomerCloseOutWithCustoms(db *pop.Connection, userUploader *uploader.UserUploader, customs []Customization) models.PPMShipment {
 	// It's easier to use some of the data from other downstream functions if we have them go first and then make our
@@ -504,6 +548,88 @@ func BuildPPMShipmentWithApprovedDocumentsMissingPaymentPacket(db *pop.Connectio
 			mustSave(db, &ppmShipment.MovingExpenses[i])
 		}
 	}
+
+	if db != nil {
+		mustSave(db, &ppmShipment)
+	}
+
+	// Because of the way we're working with the PPMShipment, the
+	// changes we've made to it aren't reflected in the pointer
+	// reference that the MTOShipment has, so we'll need to update it
+	// to point at the latest version.
+	ppmShipment.Shipment.PPMShipment = &ppmShipment
+
+	return ppmShipment
+}
+
+// BuildPPMShipmentWithApprovedDocuments creates a PPMShipment that has
+// all the documents approved and has had a payment packet generated &
+// saved.
+//
+// The only caller of this function provides no customization, so keep
+// this simple for now
+func BuildPPMShipmentWithApprovedDocuments(db *pop.Connection) models.PPMShipment {
+	// It's easier to use some of the data from other downstream
+	// functions if we have them go first and then make our changes on
+	// top of those changes.
+	ppmShipment := BuildPPMShipmentWithApprovedDocumentsMissingPaymentPacket(db, nil, nil)
+
+	AddPaymentPacketToPPMShipment(db, &ppmShipment, nil)
+
+	if db != nil {
+		mustSave(db, &ppmShipment)
+	}
+
+	// Because of the way we're working with the PPMShipment, the
+	// changes we've made to it aren't reflected in the pointer
+	// reference that the MTOShipment has, so we'll need to update it
+	// to point at the latest version.
+	ppmShipment.Shipment.PPMShipment = &ppmShipment
+
+	return ppmShipment
+}
+
+// BuildPPMShipmentWithAllDocTypesApprovedMissingPaymentPacket creates
+// a PPMShipment that has at least one of each doc type, all approved,
+// but missing the payment packet.
+func BuildPPMShipmentWithAllDocTypesApprovedMissingPaymentPacket(db *pop.Connection, userUploader *uploader.UserUploader, customs []Customization) models.PPMShipment {
+	// It's easier to use some of the data from other downstream
+	// functions if we have them go first and then make our changes on
+	// top of those changes.
+	ppmShipment := BuildPPMShipmentWithApprovedDocumentsMissingPaymentPacket(db, userUploader, customs)
+
+	approvedStatus := models.PPMDocumentStatusApproved
+
+	AddProgearWeightTicketToPPMShipment(db, &ppmShipment, userUploader,
+		&models.ProgearWeightTicket{
+			Status: &approvedStatus,
+		},
+	)
+	AddMovingExpenseToPPMShipment(db, &ppmShipment, userUploader,
+		&models.MovingExpense{
+			Status: &approvedStatus,
+		},
+	)
+
+	// Because of the way we're working with the PPMShipment, the
+	// changes we've made to it aren't reflected in the pointer
+	// reference that the MTOShipment has, so we'll need to update it
+	// to point at the latest version.
+	ppmShipment.Shipment.PPMShipment = &ppmShipment
+
+	return ppmShipment
+}
+
+// BuildPPMShipmentWithAllDocTypesApproved creates a PPMShipment that
+// has at least one of each doc type, all approved, and has had a
+// payment packet generated & saved.
+func BuildPPMShipmentWithAllDocTypesApproved(db *pop.Connection, userUploader *uploader.UserUploader) models.PPMShipment {
+	// It's easier to use some of the data from other downstream
+	// functions if we have them go first and then make our changes on
+	// top of those changes.
+	ppmShipment := BuildPPMShipmentWithAllDocTypesApprovedMissingPaymentPacket(db, userUploader, nil)
+
+	AddPaymentPacketToPPMShipment(db, &ppmShipment, userUploader)
 
 	if db != nil {
 		mustSave(db, &ppmShipment)
