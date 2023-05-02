@@ -1845,11 +1845,6 @@ definitions:
               in military format.
             pattern: \d{4}Z
             x-nullable: true
-          firstAvailableDeliveryDate1:
-            format: date
-            type: string
-            description: First available date that Prime can deliver SIT service item.
-            x-nullable: true
           timeMilitary2:
             type: string
             example: 1400Z
@@ -1857,6 +1852,11 @@ definitions:
               Time of delivery corresponding to `firstAvailableDeliveryDate2`,
               in military format.
             pattern: \d{4}Z
+            x-nullable: true
+          firstAvailableDeliveryDate1:
+            format: date
+            type: string
+            description: First available date that Prime can deliver SIT service item.
             x-nullable: true
           firstAvailableDeliveryDate2:
             format: date
@@ -2949,6 +2949,32 @@ definitions:
               origin or destination.
           sitDestinationFinalAddress:
             $ref: '#/definitions/Address'
+          timeMilitary1:
+            type: string
+            example: 1400Z
+            description: >-
+              Time of delivery corresponding to `firstAvailableDeliveryDate1`,
+              in military format.
+            pattern: \d{4}Z
+            x-nullable: true
+          firstAvailableDeliveryDate1:
+            format: date
+            type: string
+            description: First available date that Prime can deliver SIT service item.
+            x-nullable: true
+          timeMilitary2:
+            type: string
+            example: 1400Z
+            description: >-
+              Time of delivery corresponding to `firstAvailableDeliveryDate2`,
+              in military format.
+            pattern: \d{4}Z
+            x-nullable: true
+          firstAvailableDeliveryDate2:
+            format: date
+            type: string
+            description: Second available date that Prime can deliver SIT service item.
+            x-nullable: true
   UpdateMTOShipment:
     properties:
       scheduledPickupDate:
