@@ -36,6 +36,7 @@ type CustomType string
 // where this address will get created and nested
 var Address CustomType = "Address"
 var AdminUser CustomType = "AdminUser"
+var AuditHistory CustomType = "AuditHistory"
 var BackupContact CustomType = "BackupContact"
 var Contractor CustomType = "Contractor"
 var CustomerSupportRemark CustomType = "CustomerSupportRemark"
@@ -79,6 +80,7 @@ var WeightTicket CustomType = "WeightTicket"
 var defaultTypesMap = map[string]CustomType{
 	"models.Address":                 Address,
 	"models.AdminUser":               AdminUser,
+	"factory.TestDataAuditHistory":   AuditHistory,
 	"models.BackupContact":           BackupContact,
 	"models.Contractor":              Contractor,
 	"models.CustomerSupportRemark":   CustomerSupportRemark,
