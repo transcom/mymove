@@ -11,37 +11,6 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-// makeBaseMTOShipment creates a single MTOShipment with the base set
-// of data required for a shipment.
-// Deprecated: use factory.BuildMTOShipment
-func makeBaseMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipment {
-	moveTaskOrder := assertions.Move
-
-	if isZeroUUID(moveTaskOrder.ID) {
-		moveTaskOrder = makeMove(db, assertions)
-	}
-
-	newMTOShipment := models.MTOShipment{
-		MoveTaskOrder:   moveTaskOrder,
-		MoveTaskOrderID: moveTaskOrder.ID,
-		ShipmentType:    models.MTOShipmentTypeHHG,
-		Status:          models.MTOShipmentStatusSubmitted,
-	}
-
-	if assertions.MTOShipment.Status == models.MTOShipmentStatusApproved {
-		approvedDate := time.Date(GHCTestYear, time.March, 20, 0, 0, 0, 0, time.UTC)
-
-		newMTOShipment.ApprovedDate = &approvedDate
-	}
-
-	// Overwrite values with those from assertions
-	mergeModels(&newMTOShipment, assertions.MTOShipment)
-
-	mustCreate(db, &newMTOShipment, assertions.Stub)
-
-	return newMTOShipment
-}
-
 // makeMTOShipment creates a single MTOShipment and associated set relationships
 // It will make a move record, if one is not provided.
 // It will make pickup addresses if the shipment type is not one of (HHGOutOfNTSDom, PPM)
