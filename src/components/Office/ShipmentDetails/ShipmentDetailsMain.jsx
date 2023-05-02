@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import * as PropTypes from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 
@@ -95,27 +95,6 @@ const ShipmentDetailsMain = ({
     />
   );
 
-  const summarySITComponent = useMemo(
-    () => (
-      <ShipmentSITDisplay
-        sitExtensions={sitExtensions}
-        sitStatus={sitStatus}
-        storageInTransit={storageInTransit}
-        shipment={shipment}
-        showReviewSITExtension={setIsReviewSITExtensionModalVisible}
-        showSubmitSITExtension={setIsSubmitITExtensionModalVisible}
-      />
-    ),
-    [
-      sitExtensions,
-      sitStatus,
-      storageInTransit,
-      shipment,
-      setIsReviewSITExtensionModalVisible,
-      setIsSubmitITExtensionModalVisible,
-    ],
-  );
-
   let displayedPickupAddress;
   let displayedDeliveryAddress;
 
@@ -143,8 +122,9 @@ const ShipmentDetailsMain = ({
         <ReviewSITExtensionsModal
           onClose={() => setIsReviewSITExtensionModalVisible(false)}
           onSubmit={reviewSITExtension}
+          shipment={shipment}
           sitExtension={pendingSITExtension}
-          summarySITComponent={summarySITComponent}
+          sitStatus={sitStatus}
         />
       )}
       {isSubmitITExtensionModalVisible && (
