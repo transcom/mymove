@@ -62,7 +62,7 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton }
   const sitStartDateElement = <p>{formatDate(sitStartDate, utcDateFormat, 'DD MMM YYYY')}</p>;
 
   const sitEndDate = sitStatus
-    ? moment().utc().add(sitStatus?.totalDaysRemaining, 'days')
+    ? moment(sitStartDate).utc().add(sitStatus.totalDaysRemaining, 'days')
     : moment(sitStartDate).utc().add(shipment.sitDaysAllowance, 'days');
   const sitEndDateElement = formatDate(sitEndDate, utcDateFormat, 'DD MMM YYYY');
 
@@ -82,7 +82,7 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton }
   const currentLocation = sitStatus?.location === LOCATION_TYPES.DESTINATION ? 'destination SIT' : 'origin SIT';
 
   const totalSITDaysUsed = sitStatus?.totalSITDaysUsed || 0;
-  const totalDaysRemaining = sitStatus?.totalDaysRemaining || shipment.sitDaysAllowance;
+  const totalDaysRemaining = sitStatus ? sitStatus.totalDaysRemaining : shipment.sitDaysAllowance;
 
   return (
     <>

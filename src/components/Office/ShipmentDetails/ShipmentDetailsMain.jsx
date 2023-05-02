@@ -156,14 +156,16 @@ const ShipmentDetailsMain = ({
           sitStatus={sitStatus}
         />
       )}
-      <ShipmentSITDisplay
-        sitExtensions={sitExtensions}
-        sitStatus={sitStatus}
-        storageInTransit={storageInTransit}
-        shipment={shipment}
-        className={styles.shipmentSITSummary}
-        openModalButton={openModalButton}
-      />
+      {(sitStatus || shipment.sitDaysAllowance) && (
+        <ShipmentSITDisplay
+          sitExtensions={sitExtensions}
+          sitStatus={sitStatus}
+          storageInTransit={storageInTransit}
+          shipment={shipment}
+          className={styles.shipmentSITSummary}
+          openModalButton={openModalButton}
+        />
+      )}
       <ImportantShipmentDates
         requestedPickupDate={formatDate(requestedPickupDate)}
         scheduledPickupDate={scheduledPickupDate ? formatDate(scheduledPickupDate) : null}

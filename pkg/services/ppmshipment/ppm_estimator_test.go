@@ -609,11 +609,13 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			}, []factory.Trait{factory.GetTraitApprovedPPMWithActualInfo})
 
 			oldPPMShipment.WeightTickets = models.WeightTickets{
-				testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{
-					WeightTicket: models.WeightTicket{
-						FullWeight: &weightOverride,
+				factory.BuildWeightTicket(suite.DB(), []factory.Customization{
+					{
+						Model: models.WeightTicket{
+							FullWeight: &weightOverride,
+						},
 					},
-				}),
+				}, nil),
 			}
 
 			newPPM := oldPPMShipment
@@ -659,17 +661,19 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			}, []factory.Trait{factory.GetTraitApprovedPPMWithActualInfo})
 
 			oldPPMShipment.WeightTickets = models.WeightTickets{
-				testdatagen.MakeDefaultWeightTicket(suite.DB()),
+				factory.BuildWeightTicket(suite.DB(), nil, nil),
 			}
 
 			newPPM := oldPPMShipment
 			weightOverride := unit.Pound(19500)
 			newPPM.WeightTickets = models.WeightTickets{
-				testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{
-					WeightTicket: models.WeightTicket{
-						FullWeight: &weightOverride,
+				factory.BuildWeightTicket(suite.DB(), []factory.Customization{
+					{
+						Model: models.WeightTicket{
+							FullWeight: &weightOverride,
+						},
 					},
-				}),
+				}, nil),
 			}
 
 			mockedPaymentRequestHelper.On(
@@ -708,12 +712,14 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 					ActualMoveDate:              models.TimePointer(moveDate),
 					Status:                      models.PPMShipmentStatusWaitingOnCustomer,
 					WeightTickets: models.WeightTickets{
-						testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{
-							WeightTicket: models.WeightTicket{
-								FullWeight:  &oldFullWeight,
-								EmptyWeight: &oldEmptyWeight,
+						factory.BuildWeightTicket(suite.DB(), []factory.Customization{
+							{
+								Model: models.WeightTicket{
+									FullWeight:  &oldFullWeight,
+									EmptyWeight: &oldEmptyWeight,
+								},
 							},
-						}),
+						}, nil),
 					},
 				},
 			})
@@ -761,19 +767,21 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 					FinalIncentive:              models.CentPointer(unit.Cents(500000)),
 					Status:                      models.PPMShipmentStatusWaitingOnCustomer,
 					WeightTickets: models.WeightTickets{
-						testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{
-							WeightTicket: models.WeightTicket{
-								FullWeight:  &oldFullWeight,
-								EmptyWeight: &oldEmptyWeight,
+						factory.BuildWeightTicket(suite.DB(), []factory.Customization{
+							{
+								Model: models.WeightTicket{
+									FullWeight:  &oldFullWeight,
+									EmptyWeight: &oldEmptyWeight,
+								},
 							},
-						}),
+						}, nil),
 					},
 				},
 			})
 
 			oldPPMShipment.WeightTickets = models.WeightTickets{
 				oldPPMShipment.WeightTickets[0],
-				testdatagen.MakeDefaultWeightTicket(suite.DB()),
+				factory.BuildWeightTicket(suite.DB(), nil, nil),
 			}
 
 			newPPM := oldPPMShipment
@@ -822,19 +830,21 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 					FinalIncentive:              models.CentPointer(unit.Cents(500000)),
 					Status:                      models.PPMShipmentStatusWaitingOnCustomer,
 					WeightTickets: models.WeightTickets{
-						testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{
-							WeightTicket: models.WeightTicket{
-								FullWeight:  &oldFullWeight,
-								EmptyWeight: &oldEmptyWeight,
+						factory.BuildWeightTicket(suite.DB(), []factory.Customization{
+							{
+								Model: models.WeightTicket{
+									FullWeight:  &oldFullWeight,
+									EmptyWeight: &oldEmptyWeight,
+								},
 							},
-						}),
+						}, nil),
 					},
 				},
 			})
 
 			oldPPMShipment.WeightTickets = models.WeightTickets{
 				oldPPMShipment.WeightTickets[0],
-				testdatagen.MakeDefaultWeightTicket(suite.DB()),
+				factory.BuildWeightTicket(suite.DB(), nil, nil),
 			}
 
 			newPPM := oldPPMShipment
@@ -889,12 +899,14 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 					FinalIncentive:              models.CentPointer(unit.Cents(500000)),
 					Status:                      models.PPMShipmentStatusWaitingOnCustomer,
 					WeightTickets: models.WeightTickets{
-						testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{
-							WeightTicket: models.WeightTicket{
-								FullWeight:  &oldFullWeight,
-								EmptyWeight: &oldEmptyWeight,
+						factory.BuildWeightTicket(suite.DB(), []factory.Customization{
+							{
+								Model: models.WeightTicket{
+									FullWeight:  &oldFullWeight,
+									EmptyWeight: &oldEmptyWeight,
+								},
 							},
-						}),
+						}, nil),
 					},
 				},
 			})
@@ -925,12 +937,14 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 					FinalIncentive:              models.CentPointer(unit.Cents(500000)),
 					Status:                      models.PPMShipmentStatusWaitingOnCustomer,
 					WeightTickets: models.WeightTickets{
-						testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{
-							WeightTicket: models.WeightTicket{
-								FullWeight:  &oldFullWeight,
-								EmptyWeight: &oldEmptyWeight,
+						factory.BuildWeightTicket(suite.DB(), []factory.Customization{
+							{
+								Model: models.WeightTicket{
+									FullWeight:  &oldFullWeight,
+									EmptyWeight: &oldEmptyWeight,
+								},
 							},
-						}),
+						}, nil),
 					},
 				},
 			})
@@ -971,13 +985,15 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 					FinalIncentive:              models.CentPointer(unit.Cents(500000)),
 					Status:                      models.PPMShipmentStatusWaitingOnCustomer,
 					WeightTickets: models.WeightTickets{
-						testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{
-							WeightTicket: models.WeightTicket{
-								FullWeight:  &oldFullWeight,
-								EmptyWeight: &oldEmptyWeight,
-								Status:      &rejected,
+						factory.BuildWeightTicket(suite.DB(), []factory.Customization{
+							{
+								Model: models.WeightTicket{
+									FullWeight:  &oldFullWeight,
+									EmptyWeight: &oldEmptyWeight,
+									Status:      &rejected,
+								},
 							},
-						}),
+						}, nil),
 					},
 				},
 			})
@@ -1018,12 +1034,14 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 					FinalIncentive:              models.CentPointer(unit.Cents(500000)),
 					Status:                      models.PPMShipmentStatusWaitingOnCustomer,
 					WeightTickets: models.WeightTickets{
-						testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{
-							WeightTicket: models.WeightTicket{
-								FullWeight:  &oldFullWeight,
-								EmptyWeight: &oldEmptyWeight,
+						factory.BuildWeightTicket(suite.DB(), []factory.Customization{
+							{
+								Model: models.WeightTicket{
+									FullWeight:  &oldFullWeight,
+									EmptyWeight: &oldEmptyWeight,
+								},
 							},
-						}),
+						}, nil),
 					},
 				},
 			})
@@ -1070,12 +1088,14 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 					FinalIncentive:              models.CentPointer(unit.Cents(500000)),
 					Status:                      models.PPMShipmentStatusWaitingOnCustomer,
 					WeightTickets: models.WeightTickets{
-						testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{
-							WeightTicket: models.WeightTicket{
-								FullWeight:  &oldFullWeight,
-								EmptyWeight: &oldEmptyWeight,
+						factory.BuildWeightTicket(suite.DB(), []factory.Customization{
+							{
+								Model: models.WeightTicket{
+									FullWeight:  &oldFullWeight,
+									EmptyWeight: &oldEmptyWeight,
+								},
 							},
-						}),
+						}, nil),
 					},
 				},
 			})
@@ -1123,12 +1143,14 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 					FinalIncentive:              models.CentPointer(unit.Cents(500000)),
 					Status:                      models.PPMShipmentStatusWaitingOnCustomer,
 					WeightTickets: models.WeightTickets{
-						testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{
-							WeightTicket: models.WeightTicket{
-								FullWeight:  &oldFullWeight,
-								EmptyWeight: &oldEmptyWeight,
+						factory.BuildWeightTicket(suite.DB(), []factory.Customization{
+							{
+								Model: models.WeightTicket{
+									FullWeight:  &oldFullWeight,
+									EmptyWeight: &oldEmptyWeight,
+								},
 							},
-						}),
+						}, nil),
 					},
 				},
 			})
@@ -1154,12 +1176,14 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 					FinalIncentive:              models.CentPointer(unit.Cents(500000)),
 					Status:                      models.PPMShipmentStatusWaitingOnCustomer,
 					WeightTickets: models.WeightTickets{
-						testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{
-							WeightTicket: models.WeightTicket{
-								FullWeight:  &oldFullWeight,
-								EmptyWeight: &oldEmptyWeight,
+						factory.BuildWeightTicket(suite.DB(), []factory.Customization{
+							{
+								Model: models.WeightTicket{
+									FullWeight:  &oldFullWeight,
+									EmptyWeight: &oldEmptyWeight,
+								},
 							},
-						}),
+						}, nil),
 					},
 				},
 			})
@@ -1193,12 +1217,14 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 					FinalIncentive:              models.CentPointer(unit.Cents(500000)),
 					Status:                      models.PPMShipmentStatusWaitingOnCustomer,
 					WeightTickets: models.WeightTickets{
-						testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{
-							WeightTicket: models.WeightTicket{
-								FullWeight:  &oldFullWeight,
-								EmptyWeight: &oldEmptyWeight,
+						factory.BuildWeightTicket(suite.DB(), []factory.Customization{
+							{
+								Model: models.WeightTicket{
+									FullWeight:  &oldFullWeight,
+									EmptyWeight: &oldEmptyWeight,
+								},
 							},
-						}),
+						}, nil),
 					},
 				},
 			})
@@ -1238,7 +1264,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 				},
 			}, nil)
 			oldPPMShipment.WeightTickets = models.WeightTickets{
-				testdatagen.MakeDefaultWeightTicket(suite.DB()),
+				factory.BuildWeightTicket(suite.DB(), nil, nil),
 			}
 			newPPM := oldPPMShipment
 			address := factory.BuildAddress(suite.DB(), nil, nil)
@@ -1286,7 +1312,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 				},
 			}, nil)
 			oldPPMShipment.WeightTickets = models.WeightTickets{
-				testdatagen.MakeDefaultWeightTicket(suite.DB()),
+				factory.BuildWeightTicket(suite.DB(), nil, nil),
 			}
 
 			newPPM := oldPPMShipment

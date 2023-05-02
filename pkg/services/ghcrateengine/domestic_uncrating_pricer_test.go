@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -79,14 +80,14 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticUncratingPricer() {
 }
 
 func (suite *GHCRateEngineServiceSuite) setupDomesticUncratingServiceItem() models.PaymentServiceItem {
-	return testdatagen.MakeDefaultPaymentServiceItemWithParams(
+	return factory.BuildPaymentServiceItemWithParams(
 		suite.DB(),
 		models.ReServiceCodeDUCRT,
-		[]testdatagen.CreatePaymentServiceItemParams{
+		[]factory.CreatePaymentServiceItemParams{
 			{
 				Key:     models.ServiceItemParamNameContractCode,
 				KeyType: models.ServiceItemParamTypeString,
-				Value:   testdatagen.DefaultContractCode,
+				Value:   factory.DefaultContractCode,
 			},
 			{
 				Key:     models.ServiceItemParamNameCubicFeetBilled,
@@ -103,6 +104,6 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticUncratingServiceItem() mode
 				KeyType: models.ServiceItemParamTypeInteger,
 				Value:   strconv.Itoa(ducrtTestServiceSchedule),
 			},
-		},
+		}, nil, nil,
 	)
 }

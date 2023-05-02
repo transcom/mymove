@@ -258,11 +258,20 @@ func makePaymentRequestForShipment(appCtx appcontext.AppContext, move models.Mov
 	for _, file := range files {
 		filePath := fmt.Sprintf("bandwidth_test_docs/%s", file)
 		fixture := testdatagen.Fixture(filePath)
-		testdatagen.MakePrimeUpload(appCtx.DB(), testdatagen.Assertions{
-			File:           fixture,
-			PaymentRequest: paymentRequest,
-			PrimeUploader:  primeUploader,
-		})
+		factory.BuildPrimeUpload(appCtx.DB(), []factory.Customization{
+			{
+				Model:    paymentRequest,
+				LinkOnly: true,
+			},
+			{
+				Model: models.PrimeUpload{},
+				ExtendedParams: &factory.PrimeUploadExtendedParams{
+					PrimeUploader: primeUploader,
+					AppContext:    appCtx,
+					File:          fixture,
+				},
+			},
+		}, nil)
 	}
 }
 
