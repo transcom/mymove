@@ -532,13 +532,18 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 			{Model: customAddress, Type: &factory.Addresses.DutyLocationAddress},
 		}, nil)
 
-		mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Order: models.Order{
-				NewDutyLocation:   destDutyLocation,
-				NewDutyLocationID: destDutyLocation.ID,
+		mto := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model:    destDutyLocation,
+				LinkOnly: true,
+				Type:     &factory.DutyLocations.NewDutyLocation,
 			},
-			OriginDutyLocation: originDutyLocation,
-		})
+			{
+				Model:    originDutyLocation,
+				LinkOnly: true,
+				Type:     &factory.DutyLocations.OriginDutyLocation,
+			},
+		}, nil)
 
 		paymentRequest = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
 			{
@@ -554,14 +559,19 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 			},
 		}, nil)
 
-		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: mto,
-			MTOShipment: models.MTOShipment{
-				RequestedPickupDate: &requestedPickupDate,
-				ScheduledPickupDate: &scheduledPickupDate,
-				ActualPickupDate:    &actualPickupDate,
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    mto,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: &requestedPickupDate,
+					ScheduledPickupDate: &scheduledPickupDate,
+					ActualPickupDate:    &actualPickupDate,
+				},
+			},
+		}, nil)
 
 		priceCents := unit.Cents(888)
 		customizations := []factory.Customization{

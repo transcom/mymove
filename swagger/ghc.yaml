@@ -796,6 +796,8 @@ paths:
         * Customer requested pick-up date
         * Pick-up Address
         * Delivery Address
+        * Secondary Pick-up Address
+        * SecondaryDelivery Address
         * Delivery Address Type
         * Customer Remarks
         * Counselor Remarks
@@ -4294,7 +4296,20 @@ definitions:
       destinationAddress:
         allOf:
           - $ref: '#/definitions/Address'
+      secondaryDeliveryAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+      secondaryPickupAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+      hasSecondaryPickupAddress:
+        type: boolean
         x-nullable: true
+        x-omitempty: false
+      hasSecondaryDeliveryAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
       destinationType:
         $ref: '#/definitions/DestinationType'
       agents:
@@ -6849,6 +6864,14 @@ definitions:
       secondaryDeliveryAddress:
         x-nullable: true
         $ref: '#/definitions/Address'
+      hasSecondaryPickupAddress:
+        type: boolean
+        x-omitempty: false
+        x-nullable: true
+      hasSecondaryDeliveryAddress:
+        type: boolean
+        x-omitempty: false
+        x-nullable: true
       customerRemarks:
         type: string
         example: handle with care

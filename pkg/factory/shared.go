@@ -63,6 +63,7 @@ var PaymentRequest CustomType = "PaymentRequest"
 var PaymentServiceItem CustomType = "PaymentServiceItem"
 var PaymentServiceItemParam CustomType = "PaymentServiceItemParam"
 var PostalCodeToGBLOC CustomType = "PostalCodeToGBLOC"
+var PrimeUpload CustomType = "PrimeUpload"
 var ProofOfServiceDoc CustomType = "ProofOfServiceDoc"
 var ReService CustomType = "ReService"
 var Role CustomType = "Role"
@@ -78,6 +79,7 @@ var UserUpload CustomType = "UserUpload"
 var User CustomType = "User"
 var UsersRoles CustomType = "UsersRoles"
 var WebhookNotification CustomType = "WebhookNotification"
+var WeightTicket CustomType = "WeightTicket"
 
 // defaultTypesMap allows us to assign CustomTypes for most default types
 var defaultTypesMap = map[string]CustomType{
@@ -105,6 +107,7 @@ var defaultTypesMap = map[string]CustomType{
 	"models.PaymentServiceItemParam": PaymentServiceItemParam,
 	"models.PPMShipment":             PPMShipment,
 	"models.PostalCodeToGBLOC":       PostalCodeToGBLOC,
+	"models.PrimeUpload":             PrimeUpload,
 	"models.ProofOfServiceDoc":       ProofOfServiceDoc,
 	"models.ReService":               ReService,
 	"models.ServiceItemParamKey":     ServiceItemParamKey,
@@ -119,6 +122,7 @@ var defaultTypesMap = map[string]CustomType{
 	"models.User":                    User,
 	"models.UsersRoles":              UsersRoles,
 	"models.WebhookNotification":     WebhookNotification,
+	"models.WeightTicket":            WeightTicket,
 	"roles.Role":                     Role,
 }
 
@@ -206,6 +210,18 @@ var TransportationOffices = transportationOfficeGroup{
 	OriginDutyLocation: "OriginDutyLocationTransportationOffice",
 	NewDutyLocation:    "NewDutyLocationTransportationOffice",
 	CloseoutOffice:     "CloseoutOffice",
+}
+
+// uploadGroup is a grouping of all the upload related fields
+type uploadGroup struct {
+	UploadTypePrime CustomType
+	UploadTypeUser  CustomType
+}
+
+// Uploads is the struct to access the fields externally
+var Uploads = uploadGroup{
+	UploadTypePrime: "UploadTypePrime",
+	UploadTypeUser:  "UploadTypeUser",
 }
 
 // Below are errors returned by various functions

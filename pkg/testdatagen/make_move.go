@@ -7,8 +7,10 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-// MakeMove creates a single Move and associated set of Orders
-func MakeMove(db *pop.Connection, assertions Assertions) models.Move {
+// makeMove creates a single Move and associated set of Orders
+//
+// Deprecated: use factory.BuildMove for all new code
+func makeMove(db *pop.Connection, assertions Assertions) models.Move {
 
 	// Create new Orders if not provided
 	orders := assertions.Order

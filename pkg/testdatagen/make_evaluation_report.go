@@ -15,7 +15,7 @@ func MakeEvaluationReport(db *pop.Connection, assertions Assertions) models.Eval
 
 	move := assertions.Move
 	if isZeroUUID(assertions.Move.ID) {
-		move = MakeMove(db, assertions)
+		move = makeMove(db, assertions)
 	}
 
 	reportType := assertions.EvaluationReport.Type
