@@ -292,9 +292,9 @@ func AddMovingExpenseToPPMShipment(db *pop.Connection, ppmShipment *models.PPMSh
 	ppmShipment.MovingExpenses = append(ppmShipment.MovingExpenses, movingExpense)
 }
 
-// MakePPMShipmentReadyForFinalCustomerCloseOut creates a single PPMShipment that has customer documents and is ready
+// makePPMShipmentReadyForFinalCustomerCloseOut creates a single PPMShipment that has customer documents and is ready
 // for the customer to sign and submit.
-func MakePPMShipmentReadyForFinalCustomerCloseOut(db *pop.Connection, assertions Assertions) models.PPMShipment {
+func makePPMShipmentReadyForFinalCustomerCloseOut(db *pop.Connection, assertions Assertions) models.PPMShipment {
 	// It's easier to use some of the data from other downstream functions if we have them go first and then make our
 	// changes on top of those changes.
 	ppmShipment := makeApprovedPPMShipmentWithActualInfo(db, assertions)
@@ -322,7 +322,7 @@ func MakePPMShipmentReadyForFinalCustomerCloseOut(db *pop.Connection, assertions
 func MakePPMShipmentReadyForFinalCustomerCloseOutWithAllDocTypes(db *pop.Connection, assertions Assertions) models.PPMShipment {
 	// It's easier to use some of the data from other downstream functions if we have them go first and then make our
 	// changes on top of those changes.
-	ppmShipment := MakePPMShipmentReadyForFinalCustomerCloseOut(db, assertions)
+	ppmShipment := makePPMShipmentReadyForFinalCustomerCloseOut(db, assertions)
 
 	AddProgearWeightTicketToPPMShipment(db, &ppmShipment, assertions)
 	AddMovingExpenseToPPMShipment(db, &ppmShipment, assertions)
@@ -339,7 +339,7 @@ func MakePPMShipmentReadyForFinalCustomerCloseOutWithAllDocTypes(db *pop.Connect
 func MakePPMShipmentThatNeedsPaymentApproval(db *pop.Connection, assertions Assertions) models.PPMShipment {
 	// It's easier to use some of the data from other downstream functions if we have them go first and then make our
 	// changes on top of those changes.
-	ppmShipment := MakePPMShipmentReadyForFinalCustomerCloseOut(db, assertions)
+	ppmShipment := makePPMShipmentReadyForFinalCustomerCloseOut(db, assertions)
 
 	move := ppmShipment.Shipment.MoveTaskOrder
 	certType := models.SignedCertificationTypePPMPAYMENT
