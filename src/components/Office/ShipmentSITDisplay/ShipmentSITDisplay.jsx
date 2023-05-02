@@ -123,7 +123,7 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton }
 
 const ShipmentSITDisplay = ({ sitExtensions, sitStatus, shipment, className, openModalButton }) => {
   const sitHistory = React.useMemo(
-    () => sitExtensions.reverse().filter((sitItem) => sitItem.status !== SIT_EXTENSION_STATUS.PENDING),
+    () => sitExtensions.filter((sitItem) => sitItem.status !== SIT_EXTENSION_STATUS.PENDING),
     [sitExtensions],
   );
 
@@ -142,16 +142,14 @@ const ShipmentSITDisplay = ({ sitExtensions, sitStatus, shipment, className, ope
       {sitExtensions && sitHistory.length > 0 && (
         <div className={styles.tableContainer}>
           <p className={styles.sitHeader}>SIT history</p>
-          {sitHistory
-            .map((sitItem) => (
-              <DataTable
-                key={sitItem.id}
-                columnHeaders={[<SITHistoryItemHeader sitItem={sitItem} />]}
-                dataRow={[<SITHistoryItem sitItem={sitItem} />]}
-                custClass={styles.sitHistoryItem}
-              />
-            ))
-            .reverse()}
+          {sitHistory.map((sitItem) => (
+            <DataTable
+              key={sitItem.id}
+              columnHeaders={[<SITHistoryItemHeader sitItem={sitItem} />]}
+              dataRow={[<SITHistoryItem sitItem={sitItem} />]}
+              custClass={styles.sitHistoryItem}
+            />
+          ))}
         </div>
       )}
     </DataTableWrapper>
