@@ -39,8 +39,3 @@ func MakePaymentServiceItem(db *pop.Connection, assertions Assertions) models.Pa
 
 	return paymentServiceItem
 }
-
-// MakeDefaultPaymentServiceItem makes a PaymentServiceItem with default values
-func MakeDefaultPaymentServiceItem(db *pop.Connection) models.PaymentServiceItem {
-	return MakePaymentServiceItem(db, Assertions{})
-}

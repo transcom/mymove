@@ -232,12 +232,12 @@ const ShipmentInfoList = ({
     >
       {requestedPickupDateElement}
       {pickupAddressElement}
-      {showElement(secondaryPickupAddressElementFlags) && secondaryPickupAddressElement}
+      {secondaryPickupAddressElement}
       {showElement(agentsElementFlags) && releasingAgentElement}
       {showElement(requestedDeliveryDateElementFlags) && requestedDeliveryDateElement}
       {destinationAddressElement}
       {showElement(destinationTypeFlags) && displayDestinationType && destinationTypeElement}
-      {showElement(secondaryDeliveryAddressElementFlags) && secondaryDeliveryAddressElement}
+      {secondaryDeliveryAddressElement}
       {showElement(agentsElementFlags) && receivingAgentElement}
       {counselorRemarksElement}
       {customerRemarksElement}

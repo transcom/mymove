@@ -122,7 +122,7 @@ const ShipmentDetailsMain = ({
   switch (shipmentType) {
     case SHIPMENT_OPTIONS.HHG:
       displayedPickupAddress = pickupAddress;
-      displayedDeliveryAddress = destinationAddress || destinationDutyLocationAddress?.postalCode;
+      displayedDeliveryAddress = destinationAddress || destinationDutyLocationAddress;
       break;
     case SHIPMENT_OPTIONS.NTS:
       displayedPickupAddress = pickupAddress;
@@ -134,7 +134,7 @@ const ShipmentDetailsMain = ({
       break;
     default:
       displayedPickupAddress = pickupAddress;
-      displayedDeliveryAddress = destinationAddress || destinationDutyLocationAddress?.postalCode;
+      displayedDeliveryAddress = destinationAddress || destinationDutyLocationAddress;
   }
 
   return (
@@ -156,7 +156,7 @@ const ShipmentDetailsMain = ({
           sitStatus={sitStatus}
         />
       )}
-      {sitStatus && (
+      {(sitStatus || shipment.sitDaysAllowance) && (
         <ShipmentSITDisplay
           sitExtensions={sitExtensions}
           sitStatus={sitStatus}

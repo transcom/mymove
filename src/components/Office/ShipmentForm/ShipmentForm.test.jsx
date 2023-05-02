@@ -60,6 +60,8 @@ const mockMtoShipment = {
   counselorRemarks: 'mock counselor remarks',
   requestedPickupDate: '2020-03-01',
   requestedDeliveryDate: '2020-03-30',
+  hasSecondaryDeliveryAddress: false,
+  hasSecondaryPickupAddress: false,
   pickupAddress: {
     streetAddress1: '812 S 129th St',
     city: 'San Antonio',
@@ -187,8 +189,10 @@ describe('ShipmentForm component', () => {
       expect(screen.getByLabelText('Requested delivery date')).toBeInstanceOf(HTMLInputElement);
 
       expect(screen.getByText('Delivery location')).toBeInstanceOf(HTMLLegendElement);
-      expect(screen.getByLabelText('Yes')).toBeInstanceOf(HTMLInputElement);
-      expect(screen.getByLabelText('No')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getAllByLabelText('Yes')[0]).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getAllByLabelText('Yes')[1]).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getAllByLabelText('No')[0]).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getAllByLabelText('No')[1]).toBeInstanceOf(HTMLInputElement);
 
       expect(screen.getByText(/Receiving agent/).parentElement).toBeInstanceOf(HTMLLegendElement);
       expect(screen.getAllByLabelText('First name')[1]).toHaveAttribute('name', 'delivery.agent.firstName');
@@ -228,7 +232,7 @@ describe('ShipmentForm component', () => {
         </MockProviders>,
       );
 
-      await userEvent.click(screen.getByLabelText('Yes'));
+      await userEvent.click(screen.getAllByLabelText('Yes')[1]);
 
       expect((await screen.findAllByLabelText('Address 1'))[0]).toHaveAttribute(
         'name',
@@ -255,7 +259,7 @@ describe('ShipmentForm component', () => {
           <ShipmentForm {...defaultPropsRetirement} shipmentType={SHIPMENT_OPTIONS.HHG} />
         </MockProviders>,
       );
-      await userEvent.click(screen.getByLabelText('Yes'));
+      await userEvent.click(screen.getAllByLabelText('Yes')[1]);
 
       expect(await screen.findByText('HHG')).toHaveClass('usa-tag');
       expect(screen.getAllByLabelText('Destination type')[0]).toHaveAttribute('name', 'destinationType');
@@ -267,7 +271,7 @@ describe('ShipmentForm component', () => {
           <ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.HHG} />
         </MockProviders>,
       );
-      await userEvent.click(screen.getByLabelText('Yes'));
+      await userEvent.click(screen.getAllByLabelText('Yes')[1]);
 
       expect(await screen.findByText('HHG')).toHaveClass('usa-tag');
       expect(screen.queryByLabelText('Destination type')).toBeNull();
@@ -279,7 +283,7 @@ describe('ShipmentForm component', () => {
           <ShipmentForm {...defaultPropsSeparation} shipmentType={SHIPMENT_OPTIONS.HHG} />
         </MockProviders>,
       );
-      await userEvent.click(screen.getByLabelText('Yes'));
+      await userEvent.click(screen.getAllByLabelText('Yes')[1]);
 
       expect(await screen.findByText('HHG')).toHaveClass('usa-tag');
       expect(screen.getAllByLabelText('Destination type')[0]).toHaveAttribute('name', 'destinationType');
@@ -336,7 +340,8 @@ describe('ShipmentForm component', () => {
       expect(screen.getAllByLabelText('Phone')[0]).toHaveValue('999-999-9999');
       expect(screen.getAllByLabelText('Email')[0]).toHaveValue('jasn@email.com');
       expect(screen.getByLabelText('Requested delivery date')).toHaveValue('30 Mar 2020');
-      expect(screen.getByLabelText('Yes')).toBeChecked();
+      expect(screen.getAllByLabelText('Yes')[0]).not.toBeChecked();
+      expect(screen.getAllByLabelText('Yes')[1]).toBeChecked();
       expect(screen.getAllByLabelText('Address 1')[1]).toHaveValue('441 SW Rio de la Plata Drive');
       expect(screen.getAllByLabelText(/Address 2/)[1]).toHaveValue('');
       expect(screen.getAllByLabelText('City')[1]).toHaveValue('Tacoma');
@@ -378,7 +383,7 @@ describe('ShipmentForm component', () => {
       expect(screen.getAllByLabelText('Phone')[0]).toHaveValue('999-999-9999');
       expect(screen.getAllByLabelText('Email')[0]).toHaveValue('jasn@email.com');
       expect(screen.getByLabelText('Requested delivery date')).toHaveValue('30 Mar 2020');
-      expect(screen.getByLabelText('Yes')).toBeChecked();
+      expect(screen.getAllByLabelText('Yes')[0]).not.toBeChecked();
       expect(screen.getAllByLabelText('Address 1')[1]).toHaveValue('441 SW Rio de la Plata Drive');
       expect(screen.getAllByLabelText(/Address 2/)[1]).toHaveValue('');
       expect(screen.getAllByLabelText('City')[1]).toHaveValue('Tacoma');
@@ -776,6 +781,8 @@ describe('ShipmentForm component', () => {
         body: {
           customerRemarks: 'mock customer remarks',
           counselorRemarks: newCounselorRemarks,
+          hasSecondaryDeliveryAddress: false,
+          hasSecondaryPickupAddress: false,
           destinationAddress: {
             streetAddress1: '441 SW Rio de la Plata Drive',
             city: 'Tacoma',

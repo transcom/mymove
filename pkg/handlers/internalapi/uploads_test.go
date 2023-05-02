@@ -48,9 +48,12 @@ func createPrereqs(suite *HandlerSuite, fixtureFile string) (models.Document, up
 func createPPMPrereqs(suite *HandlerSuite, fixtureFile string) (models.Document, ppmop.CreatePPMUploadParams) {
 	ppmShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
 
-	weightTicket := testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{
-		PPMShipment: ppmShipment,
-	})
+	weightTicket := factory.BuildWeightTicket(suite.DB(), []factory.Customization{
+		{
+			Model:    ppmShipment,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	params := ppmop.NewCreatePPMUploadParams()
 	params.DocumentID = strfmt.UUID(weightTicket.EmptyDocumentID.String())

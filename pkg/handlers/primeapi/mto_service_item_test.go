@@ -24,7 +24,6 @@ import (
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	"github.com/transcom/mymove/pkg/services/query"
-	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -1362,13 +1361,19 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 		// Make a payment request and link to the dddsit service item
 		paymentRequest := factory.BuildPaymentRequest(suite.DB(), nil, nil)
 		cost := unit.Cents(20000)
-		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
-			PaymentServiceItem: models.PaymentServiceItem{
-				PriceCents: &cost,
+		factory.BuildPaymentServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &cost,
+				},
+			}, {
+				Model:    paymentRequest,
+				LinkOnly: true,
+			}, {
+				Model:    subtestData.dddsit,
+				LinkOnly: true,
 			},
-			PaymentRequest: paymentRequest,
-			MTOServiceItem: subtestData.dddsit,
-		})
+		}, nil)
 
 		// CALL FUNCTION UNDER TEST
 
@@ -1556,13 +1561,19 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDOPSIT() {
 		// Make a payment request and link to the DOPSIT service item
 		paymentRequest := factory.BuildPaymentRequest(suite.DB(), nil, nil)
 		cost := unit.Cents(20000)
-		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
-			PaymentServiceItem: models.PaymentServiceItem{
-				PriceCents: &cost,
+		factory.BuildPaymentServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &cost,
+				},
+			}, {
+				Model:    paymentRequest,
+				LinkOnly: true,
+			}, {
+				Model:    subtestData.dopsit,
+				LinkOnly: true,
 			},
-			PaymentRequest: paymentRequest,
-			MTOServiceItem: subtestData.dopsit,
-		})
+		}, nil)
 
 		// CALL FUNCTION UNDER TEST
 

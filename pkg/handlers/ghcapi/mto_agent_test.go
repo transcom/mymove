@@ -13,7 +13,6 @@ import (
 	mtoagentop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_agent"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/mocks"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *HandlerSuite) TestListMTOAgentsHandler() {
@@ -21,7 +20,7 @@ func (suite *HandlerSuite) TestListMTOAgentsHandler() {
 	var testMTOAgent models.MTOAgent
 	setupTestData := func() *http.Request {
 		requestUser = factory.BuildUser(nil, nil, nil)
-		testMTOAgent = testdatagen.MakeDefaultMTOAgent(suite.DB())
+		testMTOAgent = factory.BuildMTOAgent(suite.DB(), nil, nil)
 		req := httptest.NewRequest("GET", fmt.Sprintf("/move-task-orders/%s/mto-agents", testMTOAgent.ID.String()), nil)
 		req = suite.AuthenticateAdminRequest(req, requestUser)
 		return req

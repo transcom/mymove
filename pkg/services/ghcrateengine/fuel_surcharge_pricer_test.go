@@ -16,6 +16,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -189,10 +190,10 @@ func (suite *GHCRateEngineServiceSuite) TestPriceFuelSurcharge() {
 }
 
 func (suite *GHCRateEngineServiceSuite) setupFuelSurchargeServiceItem() models.PaymentServiceItem {
-	model := testdatagen.MakeDefaultPaymentServiceItemWithParams(
+	model := factory.BuildPaymentServiceItemWithParams(
 		suite.DB(),
 		models.ReServiceCodeFSC,
-		[]testdatagen.CreatePaymentServiceItemParams{
+		[]factory.CreatePaymentServiceItemParams{
 			{
 				Key:     models.ServiceItemParamNameActualPickupDate,
 				KeyType: models.ServiceItemParamTypeDate,
@@ -218,7 +219,7 @@ func (suite *GHCRateEngineServiceSuite) setupFuelSurchargeServiceItem() models.P
 				KeyType: models.ServiceItemParamTypeInteger,
 				Value:   fmt.Sprintf("%d", int(fscFuelPrice)),
 			},
-		},
+		}, nil, nil,
 	)
 
 	var mtoServiceItem models.MTOServiceItem

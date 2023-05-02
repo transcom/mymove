@@ -1,10 +1,9 @@
-@import '../../../shared/styles/colors';
-@import '../../../shared/styles/_basics';
+@import 'shared/styles/colors';
+@import 'shared/styles/_basics';
 
 .EditMaxBillableWeightModal {
-
   h4 {
-    @include u-font-weight(bold)
+    @include u-font-weight(bold);
   }
 
   dl {
@@ -27,12 +26,6 @@
   :global .usa-label {
     @include u-margin-top(2);
     color: $base-darker;
-  }
-
-  /* there seems to be an issue with the base .usa-button background being set to primary and the .usa-button--outline
-    transparent background color being superseded */
-  .backButton {
-    @include u-bg('transparent');
   }
 
   button.weightModalClose {

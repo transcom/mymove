@@ -9,7 +9,6 @@ import (
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
-	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
@@ -18,7 +17,7 @@ func (suite *WeightTicketSuite) TestGetWeightTicketFetcher() {
 	var existingWeightTicket models.WeightTicket
 
 	suite.PreloadData(func() {
-		existingWeightTicket = testdatagen.MakeDefaultWeightTicket(suite.DB())
+		existingWeightTicket = factory.BuildWeightTicket(suite.DB(), nil, nil)
 	})
 
 	suite.Run("Can fetch a weight ticket with associated uploads for the service member that they belong to", func() {
