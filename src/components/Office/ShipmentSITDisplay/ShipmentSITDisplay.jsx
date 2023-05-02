@@ -142,14 +142,16 @@ const ShipmentSITDisplay = ({ sitExtensions, sitStatus, shipment, className, ope
       {sitExtensions && sitHistory.length > 0 && (
         <div className={styles.tableContainer}>
           <p className={styles.sitHeader}>SIT history</p>
-          {sitHistory.map((sitItem) => (
-            <DataTable
-              key={sitItem.id}
-              columnHeaders={[<SITHistoryItemHeader sitItem={sitItem} />]}
-              dataRow={[<SITHistoryItem sitItem={sitItem} />]}
-              custClass={styles.sitHistoryItem}
-            />
-          ))}
+          {sitHistory
+            .map((sitItem) => (
+              <DataTable
+                key={sitItem.id}
+                columnHeaders={[<SITHistoryItemHeader sitItem={sitItem} />]}
+                dataRow={[<SITHistoryItem sitItem={sitItem} />]}
+                custClass={styles.sitHistoryItem}
+              />
+            ))
+            .reverse()}
         </div>
       )}
     </DataTableWrapper>
