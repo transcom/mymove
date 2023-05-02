@@ -56,7 +56,7 @@ func (h GetOrdersHandler) Handle(params orderop.GetOrderParams) middleware.Respo
 			} else {
 				// Truncating output because it will generally be VERY long and i think we're mostly
 				// curious about cases where it's short.
-				appCtx.Logger().Debug("GetOrdersHandler payload bytes", zap.ByteString("payload", bytes[:500]))
+				appCtx.Logger().Info("GetOrdersHandler payload bytes", zap.ByteString("payload", bytes[:500]))
 			}
 
 			responder := orderop.NewGetOrderOK().WithPayload(orderPayload)
