@@ -9446,20 +9446,29 @@ func createMoveWithServiceItems(appCtx appcontext.AppContext, userUploader *uplo
 		},
 	}, nil)
 
-	assertions9 := testdatagen.Assertions{
-		Move:           move9,
-		MTOShipment:    mtoShipment9,
-		PaymentRequest: paymentRequest9,
+	customizations9 := []factory.Customization{
+		{
+			Model:    move9,
+			LinkOnly: true,
+		},
+		{
+			Model:    mtoShipment9,
+			LinkOnly: true,
+		},
+		{
+			Model:    paymentRequest9,
+			LinkOnly: true,
+		},
 	}
 
 	currentTime := time.Now()
 	const testDateFormat = "060102"
 
-	basicPaymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
+	basicPaymentServiceItemParams := []factory.CreatePaymentServiceItemParams{
 		{
 			Key:     models.ServiceItemParamNameContractCode,
 			KeyType: models.ServiceItemParamTypeString,
-			Value:   testdatagen.DefaultContractCode,
+			Value:   factory.DefaultContractCode,
 		},
 		{
 			Key:     models.ServiceItemParamNameReferenceDate,
@@ -9478,11 +9487,11 @@ func createMoveWithServiceItems(appCtx appcontext.AppContext, userUploader *uplo
 		},
 	}
 
-	testdatagen.MakePaymentServiceItemWithParams(
+	factory.BuildPaymentServiceItemWithParams(
 		db,
 		models.ReServiceCodeDLH,
 		basicPaymentServiceItemParams,
-		assertions9,
+		customizations9, nil,
 	)
 }
 
@@ -10771,46 +10780,87 @@ func createPaymentRequestsWithPartialSITInvoice(appCtx appcontext.AppContext, pr
 	}, nil)
 
 	// Creates the approved payment service item for DOASIT w/ SIT start date param
-	doasitParam := testdatagen.MakePaymentServiceItemParam(appCtx.DB(), testdatagen.Assertions{
-		PaymentServiceItemParam: models.PaymentServiceItemParam{
-			Value: originEntryDate.Format("2006-01-02"),
+	doasitParam := factory.BuildPaymentServiceItemParam(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentServiceItemParam{
+				Value: originEntryDate.Format("2006-01-02"),
+			},
 		},
-		PaymentServiceItem: models.PaymentServiceItem{
-			Status: models.PaymentServiceItemStatusApproved,
+		{
+			Model: models.PaymentServiceItem{
+				Status: models.PaymentServiceItemStatusApproved,
+			},
 		},
-		ServiceItemParamKey: models.ServiceItemParamKey{
-			Key: models.ServiceItemParamNameSITPaymentRequestStart,
+		{
+			Model: models.ServiceItemParamKey{
+				Key: models.ServiceItemParamNameSITPaymentRequestStart,
+			},
 		},
-		PaymentRequest: firstPaymentRequest,
-		MTOServiceItem: doasit,
-		Move:           move,
-	})
+		{
+			Model:    firstPaymentRequest,
+			LinkOnly: true,
+		},
+		{
+			Model:    doasit,
+			LinkOnly: true,
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	// Creates the SIT end date param for existing DOASIT payment request service item
-	testdatagen.MakePaymentServiceItemParam(appCtx.DB(), testdatagen.Assertions{
-		PaymentServiceItemParam: models.PaymentServiceItemParam{
-			Value: originDepartureDate.Format("2006-01-02"),
+	factory.BuildPaymentServiceItemParam(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentServiceItemParam{
+				Value: originDepartureDate.Format("2006-01-02"),
+			},
 		},
-		ServiceItemParamKey: models.ServiceItemParamKey{
-			Key: models.ServiceItemParamNameSITPaymentRequestEnd,
+		{
+			Model: models.ServiceItemParamKey{
+				Key: models.ServiceItemParamNameSITPaymentRequestEnd,
+			},
 		},
-		PaymentServiceItem: doasitParam.PaymentServiceItem,
-		PaymentRequest:     firstPaymentRequest,
-		MTOServiceItem:     doasit,
-	})
+		{
+			Model:    doasitParam.PaymentServiceItem,
+			LinkOnly: true,
+		},
+		{
+			Model:    firstPaymentRequest,
+			LinkOnly: true,
+		},
+		{
+			Model:    doasit,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	// Creates the NumberDaysSIT param for existing DOASIT payment request service item
-	testdatagen.MakePaymentServiceItemParam(appCtx.DB(), testdatagen.Assertions{
-		PaymentServiceItemParam: models.PaymentServiceItemParam{
-			Value: "30",
+	factory.BuildPaymentServiceItemParam(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentServiceItemParam{
+				Value: "30",
+			},
 		},
-		ServiceItemParamKey: models.ServiceItemParamKey{
-			Key: models.ServiceItemParamNameNumberDaysSIT,
+		{
+			Model: models.ServiceItemParamKey{
+				Key: models.ServiceItemParamNameNumberDaysSIT,
+			},
 		},
-		PaymentServiceItem: doasitParam.PaymentServiceItem,
-		PaymentRequest:     firstPaymentRequest,
-		MTOServiceItem:     doasit,
-	})
+		{
+			Model:    doasitParam.PaymentServiceItem,
+			LinkOnly: true,
+		},
+		{
+			Model:    firstPaymentRequest,
+			LinkOnly: true,
+		},
+		{
+			Model:    doasit,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	dopsit := factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
 		{
@@ -10905,41 +10955,77 @@ func createPaymentRequestsWithPartialSITInvoice(appCtx appcontext.AppContext, pr
 		},
 	}, nil)
 
-	ddasitParam := testdatagen.MakePaymentServiceItemParam(appCtx.DB(), testdatagen.Assertions{
-		PaymentServiceItemParam: models.PaymentServiceItemParam{
-			Value: destinationEntryDate.Format("2006-01-02"),
+	ddasitParam := factory.BuildPaymentServiceItemParam(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentServiceItemParam{
+				Value: destinationEntryDate.Format("2006-01-02"),
+			},
 		},
-		ServiceItemParamKey: models.ServiceItemParamKey{
-			Key: models.ServiceItemParamNameSITPaymentRequestStart,
+		{
+			Model: models.ServiceItemParamKey{
+				Key: models.ServiceItemParamNameSITPaymentRequestStart,
+			},
 		},
-		PaymentRequest: secondPaymentRequest,
-		MTOServiceItem: ddasit,
-	})
+		{
+			Model:    secondPaymentRequest,
+			LinkOnly: true,
+		},
+		{
+			Model:    ddasit,
+			LinkOnly: true,
+		},
+	}, nil)
 
-	testdatagen.MakePaymentServiceItemParam(appCtx.DB(), testdatagen.Assertions{
-		PaymentServiceItemParam: models.PaymentServiceItemParam{
-			Value: destinationDepartureDate.Format("2006-01-02"),
+	factory.BuildPaymentServiceItemParam(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentServiceItemParam{
+				Value: destinationDepartureDate.Format("2006-01-02"),
+			},
 		},
-		ServiceItemParamKey: models.ServiceItemParamKey{
-			Key: models.ServiceItemParamNameSITPaymentRequestEnd,
+		{
+			Model: models.ServiceItemParamKey{
+				Key: models.ServiceItemParamNameSITPaymentRequestEnd,
+			},
 		},
-		PaymentServiceItem: ddasitParam.PaymentServiceItem,
-		PaymentRequest:     secondPaymentRequest,
-		MTOServiceItem:     ddasit,
-	})
+		{
+			Model:    ddasitParam.PaymentServiceItem,
+			LinkOnly: true,
+		},
+		{
+			Model:    secondPaymentRequest,
+			LinkOnly: true,
+		},
+		{
+			Model:    ddasit,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	// Creates the NumberDaysSIT param for existing DOASIT payment request service item
-	testdatagen.MakePaymentServiceItemParam(appCtx.DB(), testdatagen.Assertions{
-		PaymentServiceItemParam: models.PaymentServiceItemParam{
-			Value: "60",
+	factory.BuildPaymentServiceItemParam(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentServiceItemParam{
+				Value: "60",
+			},
 		},
-		ServiceItemParamKey: models.ServiceItemParamKey{
-			Key: models.ServiceItemParamNameNumberDaysSIT,
+		{
+			Model: models.ServiceItemParamKey{
+				Key: models.ServiceItemParamNameNumberDaysSIT,
+			},
 		},
-		PaymentServiceItem: ddasitParam.PaymentServiceItem,
-		PaymentRequest:     secondPaymentRequest,
-		MTOServiceItem:     ddasit,
-	})
+		{
+			Model:    ddasitParam.PaymentServiceItem,
+			LinkOnly: true,
+		},
+		{
+			Model:    secondPaymentRequest,
+			LinkOnly: true,
+		},
+		{
+			Model:    ddasit,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	// Will leave the departure date blank with 30 days left in SIT Days authorized
 	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
@@ -11005,9 +11091,12 @@ func makePendingSITExtensionsForShipment(appCtx appcontext.AppContext, shipment 
 	}, nil)
 
 	for i := 0; i < 2; i++ {
-		testdatagen.MakePendingSITDurationUpdate(db, testdatagen.Assertions{
-			MTOShipment: shipment,
-		})
+		factory.BuildSITDurationUpdate(db, []factory.Customization{
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+		}, nil)
 	}
 }
 
@@ -11018,21 +11107,31 @@ func MakeSITExtensionsForShipment(appCtx appcontext.AppContext, shipment models.
 	sitOfficeRemarks1 := "The service member is unable to move into their new home at the expected time."
 	approvedDays := 90
 
-	testdatagen.MakeSITDurationUpdate(db, testdatagen.Assertions{
-		SITDurationUpdate: models.SITDurationUpdate{
-			ContractorRemarks: &sitContractorRemarks1,
-			OfficeRemarks:     &sitOfficeRemarks1,
-			ApprovedDays:      &approvedDays,
+	factory.BuildSITDurationUpdate(db, []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
 		},
-		MTOShipment: shipment,
-	})
+		{
+			Model: models.SITDurationUpdate{
+				ContractorRemarks: &sitContractorRemarks1,
+				OfficeRemarks:     &sitOfficeRemarks1,
+				ApprovedDays:      &approvedDays,
+			},
+		},
+	}, []factory.Trait{factory.GetTraitApprovedSITDurationUpdate})
 
-	testdatagen.MakeSITDurationUpdate(db, testdatagen.Assertions{
-		SITDurationUpdate: models.SITDurationUpdate{
-			ApprovedDays: &approvedDays,
+	factory.BuildSITDurationUpdate(db, []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
 		},
-		MTOShipment: shipment,
-	})
+		{
+			Model: models.SITDurationUpdate{
+				ApprovedDays: &approvedDays,
+			},
+		},
+	}, []factory.Trait{factory.GetTraitApprovedSITDurationUpdate})
 }
 
 func CreateMoveWithHHGAndNTSShipments(appCtx appcontext.AppContext, locator string, usesExternalVendor bool) models.Move {

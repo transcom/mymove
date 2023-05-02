@@ -54,7 +54,7 @@ func MakeSignedCertificationForPPM(db *pop.Connection, assertions Assertions) mo
 	ppmID := assertions.PPMShipment.ID
 	// ID is required because it must be populated for Eager saving to work.
 	if isZeroUUID(assertions.PersonallyProcuredMove.ID) {
-		ppmID = MakePPMShipmentReadyForFinalCustomerCloseOut(db, assertions).ID
+		ppmID = makePPMShipmentReadyForFinalCustomerCloseOut(db, assertions).ID
 	}
 
 	certificationType := models.SignedCertificationTypeSHIPMENT

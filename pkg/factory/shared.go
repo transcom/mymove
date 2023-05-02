@@ -18,6 +18,11 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
+// CONSTANTS
+
+// DefaultContractCode is the default contract code for testing
+const DefaultContractCode = "TRUSS_TEST"
+
 // Customization type is the building block for passing in customizations and traits
 type Customization struct {
 	Model interface{} // The model that the factory will build
@@ -57,6 +62,7 @@ var Organization CustomType = "Organization"
 var PPMShipment CustomType = "PPMShipment"
 var PaymentRequest CustomType = "PaymentRequest"
 var PaymentServiceItem CustomType = "PaymentServiceItem"
+var PaymentServiceItemParam CustomType = "PaymentServiceItemParam"
 var PostalCodeToGBLOC CustomType = "PostalCodeToGBLOC"
 var PrimeUpload CustomType = "PrimeUpload"
 var ProofOfServiceDoc CustomType = "ProofOfServiceDoc"
@@ -66,8 +72,8 @@ var ServiceItemParamKey CustomType = "ServiceItemParamKey"
 var ServiceParam CustomType = "ServiceParam"
 var ServiceMember CustomType = "ServiceMember"
 var SignedCertification CustomType = "SignedCertification"
+var SITDurationUpdate CustomType = "SITDurationUpdate"
 var StorageFacility CustomType = "StorageFacility"
-var Tariff400ngZip3 CustomType = "Tariff400ngZip3"
 var TransportationOffice CustomType = "TransportationOffice"
 var Upload CustomType = "Upload"
 var UserUpload CustomType = "UserUpload"
@@ -100,6 +106,7 @@ var defaultTypesMap = map[string]CustomType{
 	"models.Organization":            Organization,
 	"models.PaymentRequest":          PaymentRequest,
 	"models.PaymentServiceItem":      PaymentServiceItem,
+	"models.PaymentServiceItemParam": PaymentServiceItemParam,
 	"models.PPMShipment":             PPMShipment,
 	"models.PostalCodeToGBLOC":       PostalCodeToGBLOC,
 	"models.PrimeUpload":             PrimeUpload,
@@ -109,8 +116,8 @@ var defaultTypesMap = map[string]CustomType{
 	"models.ServiceMember":           ServiceMember,
 	"models.ServiceParam":            ServiceParam,
 	"models.SignedCertification":     SignedCertification,
+	"models.SITDurationUpdate":       SITDurationUpdate,
 	"models.StorageFacility":         StorageFacility,
-	"models.Tariff400ngZip3":         Tariff400ngZip3,
 	"models.TransportationOffice":    TransportationOffice,
 	"models.Upload":                  Upload,
 	"models.UserUpload":              UserUpload,
