@@ -25,7 +25,6 @@
       }
       font-weight: bold;
       //@include u-margin-left(1);
-
     }
 
     button {
@@ -44,9 +43,9 @@
     margin-top: 10px;
   }
 
-  .currentLocation{
+  .currentLocation {
     th {
-      padding: 4px
+      padding: 4px;
     }
     table.table--data-point {
       @include u-margin-top(0);
@@ -95,7 +94,7 @@
 }
 .sitHistoryItem {
   th {
-    padding: 0
+    padding: 0;
   }
   .sitHistoryItemHeader {
     color: $base-darker;
@@ -113,6 +112,6 @@ p.sitHeader {
   }
   font-weight: bold;
 }
-.tableContainer{
-  margin-top:16px
+.tableContainer {
+  margin-top: 16px;
 }
