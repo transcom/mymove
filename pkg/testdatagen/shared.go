@@ -98,7 +98,6 @@ type Assertions struct {
 	Tariff400ngItemRate                      models.Tariff400ngItemRate
 	Tariff400ngServiceArea                   models.Tariff400ngServiceArea
 	Tariff400ngZip3                          models.Tariff400ngZip3
-	TestDataAuditHistory                     TestDataAuditHistory
 	TransportationAccountingCode             models.TransportationAccountingCode
 	TransportationOffice                     models.TransportationOffice
 	Upload                                   models.Upload
