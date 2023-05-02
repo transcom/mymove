@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -94,17 +95,17 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticOriginAdditionalDaysSITPrice
 	pricer := NewDomesticOriginAdditionalDaysSITPricer()
 	testData := []struct {
 		testDescription string
-		psiParams       []testdatagen.CreatePaymentServiceItemParams
+		psiParams       []factory.CreatePaymentServiceItemParams
 		expectedError   string
 	}{
 		{
 			testDescription: "not finding weight billed",
 			expectedError:   "could not find param with key WeightBilled",
-			psiParams: []testdatagen.CreatePaymentServiceItemParams{
+			psiParams: []factory.CreatePaymentServiceItemParams{
 				{
 					Key:     models.ServiceItemParamNameContractCode,
 					KeyType: models.ServiceItemParamTypeString,
-					Value:   testdatagen.DefaultContractCode,
+					Value:   factory.DefaultContractCode,
 				},
 				{
 					Key:     models.ServiceItemParamNameNumberDaysSIT,
@@ -126,11 +127,11 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticOriginAdditionalDaysSITPrice
 		{
 			testDescription: "not finding service area origin",
 			expectedError:   "could not find param with key ServiceAreaOrigin",
-			psiParams: []testdatagen.CreatePaymentServiceItemParams{
+			psiParams: []factory.CreatePaymentServiceItemParams{
 				{
 					Key:     models.ServiceItemParamNameContractCode,
 					KeyType: models.ServiceItemParamTypeString,
-					Value:   testdatagen.DefaultContractCode,
+					Value:   factory.DefaultContractCode,
 				},
 				{
 					Key:     models.ServiceItemParamNameNumberDaysSIT,
@@ -147,11 +148,11 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticOriginAdditionalDaysSITPrice
 		{
 			testDescription: "not finding reference date",
 			expectedError:   "could not find param with key ReferenceDate",
-			psiParams: []testdatagen.CreatePaymentServiceItemParams{
+			psiParams: []factory.CreatePaymentServiceItemParams{
 				{
 					Key:     models.ServiceItemParamNameContractCode,
 					KeyType: models.ServiceItemParamTypeString,
-					Value:   testdatagen.DefaultContractCode,
+					Value:   factory.DefaultContractCode,
 				},
 				{
 					Key:     models.ServiceItemParamNameNumberDaysSIT,
@@ -163,27 +164,28 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticOriginAdditionalDaysSITPrice
 		{
 			testDescription: "not finding number of days in SIT",
 			expectedError:   "could not find param with key NumberDaysSIT",
-			psiParams: []testdatagen.CreatePaymentServiceItemParams{
+			psiParams: []factory.CreatePaymentServiceItemParams{
 				{
 					Key:     models.ServiceItemParamNameContractCode,
 					KeyType: models.ServiceItemParamTypeString,
-					Value:   testdatagen.DefaultContractCode,
+					Value:   factory.DefaultContractCode,
 				},
 			},
 		},
 		{
 			testDescription: "not finding contract code",
 			expectedError:   "could not find param with key ContractCode",
-			psiParams:       []testdatagen.CreatePaymentServiceItemParams{},
+			psiParams:       []factory.CreatePaymentServiceItemParams{},
 		},
 	}
 
 	for _, data := range testData {
 		suite.Run(data.testDescription, func() {
-			paymentServiceItem := testdatagen.MakeDefaultPaymentServiceItemWithParams(
+			paymentServiceItem := factory.BuildPaymentServiceItemWithParams(
 				suite.DB(),
 				models.ReServiceCodeDOASIT,
 				data.psiParams,
+				nil, nil,
 			)
 
 			_, _, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
@@ -194,14 +196,14 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticOriginAdditionalDaysSITPrice
 }
 
 func (suite *GHCRateEngineServiceSuite) setupDomesticOriginAdditionalDaysSITServiceItem() models.PaymentServiceItem {
-	return testdatagen.MakeDefaultPaymentServiceItemWithParams(
+	return factory.BuildPaymentServiceItemWithParams(
 		suite.DB(),
 		models.ReServiceCodeDOASIT,
-		[]testdatagen.CreatePaymentServiceItemParams{
+		[]factory.CreatePaymentServiceItemParams{
 			{
 				Key:     models.ServiceItemParamNameContractCode,
 				KeyType: models.ServiceItemParamTypeString,
-				Value:   testdatagen.DefaultContractCode,
+				Value:   factory.DefaultContractCode,
 			},
 			{
 				Key:     models.ServiceItemParamNameNumberDaysSIT,
@@ -223,6 +225,6 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticOriginAdditionalDaysSITServ
 				KeyType: models.ServiceItemParamTypeInteger,
 				Value:   fmt.Sprintf("%d", int(doasitTestWeight)),
 			},
-		},
+		}, nil, nil,
 	)
 }

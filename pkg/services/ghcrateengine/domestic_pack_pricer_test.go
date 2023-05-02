@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -75,14 +76,14 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticPackPricer() {
 }
 
 func (suite *GHCRateEngineServiceSuite) setupDomesticPackServiceItem() models.PaymentServiceItem {
-	return testdatagen.MakeDefaultPaymentServiceItemWithParams(
+	return factory.BuildPaymentServiceItemWithParams(
 		suite.DB(),
 		models.ReServiceCodeDPK,
-		[]testdatagen.CreatePaymentServiceItemParams{
+		[]factory.CreatePaymentServiceItemParams{
 			{
 				Key:     models.ServiceItemParamNameContractCode,
 				KeyType: models.ServiceItemParamTypeString,
-				Value:   testdatagen.DefaultContractCode,
+				Value:   factory.DefaultContractCode,
 			},
 			{
 				Key:     models.ServiceItemParamNameReferenceDate,
@@ -99,6 +100,6 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticPackServiceItem() models.Pa
 				KeyType: models.ServiceItemParamTypeInteger,
 				Value:   strconv.Itoa(dpkTestWeight.Int()),
 			},
-		},
+		}, nil, nil,
 	)
 }

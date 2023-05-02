@@ -128,7 +128,6 @@ export const Default = () => {
       serviceOrderNumber: values.serviceOrderNumber,
     });
   };
-
   return (
     <div className="officeApp">
       <MockProviders initialEntries={['/moves/HGNTSR/mto']} permissions={[permissionTypes.updateShipment]}>

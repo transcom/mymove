@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -198,14 +199,14 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticOriginSITPickupPricer50Miles
 }
 
 func (suite *GHCRateEngineServiceSuite) setupDomesticOriginSITPickupServiceItem(zipOriginal string, zipActual string, distance unit.Miles) models.PaymentServiceItem {
-	return testdatagen.MakeDefaultPaymentServiceItemWithParams(
+	return factory.BuildPaymentServiceItemWithParams(
 		suite.DB(),
 		models.ReServiceCodeDOPSIT,
-		[]testdatagen.CreatePaymentServiceItemParams{
+		[]factory.CreatePaymentServiceItemParams{
 			{
 				Key:     models.ServiceItemParamNameContractCode,
 				KeyType: models.ServiceItemParamTypeString,
-				Value:   testdatagen.DefaultContractCode,
+				Value:   factory.DefaultContractCode,
 			},
 			{
 				Key:     models.ServiceItemParamNameDistanceZipSITOrigin,
@@ -242,6 +243,6 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticOriginSITPickupServiceItem(
 				KeyType: models.ServiceItemParamTypeString,
 				Value:   zipOriginal,
 			},
-		},
+		}, nil, nil,
 	)
 }
