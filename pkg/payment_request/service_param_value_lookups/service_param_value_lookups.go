@@ -511,7 +511,7 @@ func FetchContract(appCtx appcontext.AppContext, date time.Time) (models.ReContr
 		First(&contractYear)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return models.ReContract{}, apperror.NewNotFoundError(uuid.Nil, "no contract year found for "+date.String())
+			return models.ReContract{}, apperror.NewNotFoundError(uuid.Nil, fmt.Sprintf("no contract year found for %s", date.String()))
 		}
 		return models.ReContract{}, err
 	}
