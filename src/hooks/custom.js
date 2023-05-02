@@ -24,7 +24,9 @@ export const useCalculatedTotalBillableWeight = (mtoShipments) => {
   return useMemo(() => {
     return (
       mtoShipments
-        ?.filter((s) => includedStatusesForCalculatingWeights(s.status) && s.calculatedBillableWeight)
+        ?.filter((s) => {
+          return includedStatusesForCalculatingWeights(s.status) && s.calculatedBillableWeight;
+        })
         .reduce((prev, current) => {
           return prev + current.calculatedBillableWeight;
         }, 0) || null
