@@ -252,7 +252,7 @@ const NTSShipmentInfoList = ({
       {showElement(usesExternalVendorElementFlags) && usesExternalVendorElement}
       {requestedPickupDateElement}
       {pickupAddressElement}
-      {showElement(secondaryPickupAddressElementFlags) && secondaryPickupAddressElement}
+      {secondaryPickupAddressElement}
       {showElement(releasingAgentFlags) && releasingAgentElement}
       {showElement(storageFacilityInfoElementFlags) && storageFacilityInfoElement}
       {showElement(serviceOrderNumberElementFlags) && serviceOrderNumberElement}

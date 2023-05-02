@@ -39,7 +39,6 @@ describe('ShipmentSITDisplay', () => {
     expect(screen.getByText('Current location: origin SIT')).toBeInTheDocument();
 
     expect(screen.getByText('Total days in origin SIT')).toBeInTheDocument();
-    // expect(screen.getByText('45')).toBeInTheDocument();
     expect(screen.getByText(`13 Aug 2021`)).toBeInTheDocument();
 
     expect(await screen.queryByText('Office remarks:')).toBeFalsy();
@@ -241,12 +240,11 @@ describe('ShipmentSITDisplay', () => {
       <MockProviders>
         <ShipmentSITDisplay
           sitExtensions={SITExtensions}
-          sitStatus={{ ...SITStatusDestination, totalDaysRemaining: -1 }}
+          sitStatus={{ ...SITStatusDestination, totalSITDaysUsed: 270 }}
           shipment={SITShipment}
         />
       </MockProviders>,
     );
-
     expect(screen.getByText('Expired')).toBeInTheDocument();
   });
 });

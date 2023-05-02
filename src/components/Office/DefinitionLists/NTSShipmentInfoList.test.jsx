@@ -109,7 +109,6 @@ describe.each([
   ['storageFacility', 'storageFacilityName'],
   ['serviceOrderNumber', 'serviceOrderNumber'],
   ['storageFacility', 'storageFacilityAddress'],
-  ['secondaryPickupAddress', 'secondaryPickupAddress'],
   ['counselorRemarks', 'counselorRemarks'],
   ['customerRemarks', 'customerRemarks'],
   ['tacType', 'tacType'],

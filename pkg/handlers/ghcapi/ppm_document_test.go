@@ -39,11 +39,23 @@ func (suite *HandlerSuite) TestGetPPMDocumentsHandlerUnit() {
 
 		ppmShipment.WeightTickets = append(
 			ppmShipment.WeightTickets,
-			testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{
-				ServiceMember: ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember,
-				PPMShipment:   ppmShipment,
-				UserUploader:  userUploader,
-			}),
+			factory.BuildWeightTicket(suite.DB(), []factory.Customization{
+				{
+					Model:    ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember,
+					LinkOnly: true,
+				},
+				{
+					Model:    ppmShipment,
+					LinkOnly: true,
+				},
+				{
+					Model: models.UserUpload{},
+					ExtendedParams: &factory.UserUploadExtendedParams{
+						UserUploader: userUploader,
+						AppContext:   suite.AppContextForTest(),
+					},
+				},
+			}, nil),
 		)
 
 		for i := 1; i < 3; i++ {
@@ -210,11 +222,23 @@ func (suite *HandlerSuite) TestGetPPMDocumentsHandlerIntegration() {
 
 		ppmShipment.WeightTickets = append(
 			ppmShipment.WeightTickets,
-			testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{
-				ServiceMember: ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember,
-				PPMShipment:   ppmShipment,
-				UserUploader:  userUploader,
-			}),
+			factory.BuildWeightTicket(suite.DB(), []factory.Customization{
+				{
+					Model:    ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember,
+					LinkOnly: true,
+				},
+				{
+					Model:    ppmShipment,
+					LinkOnly: true,
+				},
+				{
+					Model: models.UserUpload{},
+					ExtendedParams: &factory.UserUploadExtendedParams{
+						UserUploader: userUploader,
+						AppContext:   suite.AppContextForTest(),
+					},
+				},
+			}, nil),
 		)
 
 		for i := 1; i < 3; i++ {
