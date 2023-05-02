@@ -10642,15 +10642,19 @@ func createMoveWithFutureSIT(appCtx appcontext.AppContext, userUploader *uploade
 		},
 	}, nil)
 
-	testdatagen.MakePaymentRequest(db, testdatagen.Assertions{
-		PaymentRequest: models.PaymentRequest{
-			ID:            uuid.Must(uuid.NewV4()),
-			Status:        models.PaymentRequestStatusReviewed,
-			ReviewedAt:    models.TimePointer(time.Now()),
-			MoveTaskOrder: move,
+	factory.BuildPaymentRequest(db, []factory.Customization{
+		{
+			Model: models.PaymentRequest{
+				ID:         uuid.Must(uuid.NewV4()),
+				Status:     models.PaymentRequestStatusReviewed,
+				ReviewedAt: models.TimePointer(time.Now()),
+			},
 		},
-		Move: move,
-	})
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 
 }
 

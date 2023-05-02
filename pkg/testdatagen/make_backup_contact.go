@@ -6,12 +6,15 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-// MakeBackupContact creates a single BackupContact and associated service member.
-func MakeBackupContact(db *pop.Connection, assertions Assertions) models.BackupContact {
+// makeBackupContact creates a single BackupContact and associated
+// service member.
+//
+// Deprecated: use factory.BuildBackupContact
+func makeBackupContact(db *pop.Connection, assertions Assertions) models.BackupContact {
 	serviceMember := assertions.BackupContact.ServiceMember
 	// ID is required because it must be populated for Eager saving to work.
 	if isZeroUUID(assertions.BackupContact.ServiceMemberID) {
-		serviceMember = MakeServiceMember(db, assertions)
+		serviceMember = makeServiceMember(db, assertions)
 	}
 
 	backupContact := models.BackupContact{
