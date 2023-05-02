@@ -56,9 +56,11 @@ func (t TestDataAuditHistory) TableName() string {
 }
 
 // BuildAuditHistory creates an AuditHistory
-// It builds
-//   - Move and associated set relationships
-//   - User if a user customization of type Users.SessionUser is passed in
+// Notes:
+//   - SessionUserID and ObjectID are only set if they're passed in via customizations
+//   - This follows a slightly different pattern than other factories.
+//   - If necessary caller should create Objects/Users and set ObjectID/SessionUserID in customizations,
+//     rather than creating LinkOnly models
 //
 // Params:
 // - customs is a slice that will be modified by the factory
