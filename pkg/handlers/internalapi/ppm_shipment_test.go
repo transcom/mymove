@@ -23,7 +23,6 @@ import (
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	"github.com/transcom/mymove/pkg/services/ppmshipment"
 	signedcertification "github.com/transcom/mymove/pkg/services/signed_certification"
-	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
@@ -478,12 +477,7 @@ func (suite *HandlerSuite) TestSubmitPPMShipmentDocumentationHandlerIntegration(
 
 func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerUnit() {
 	setUpPPMShipment := func() models.PPMShipment {
-		ppmShipment := testdatagen.MakePPMShipmentThatNeedsToBeResubmitted(
-			suite.DB(),
-			testdatagen.Assertions{
-				Stub: true,
-			},
-		)
+		ppmShipment := factory.BuildPPMShipmentThatNeedsToBeResubmitted(nil, nil)
 
 		ppmShipment.ID = uuid.Must(uuid.NewV4())
 		ppmShipment.CreatedAt = time.Now()
@@ -787,12 +781,9 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerIntegratio
 	var needsPaymentApprovalSM models.ServiceMember
 
 	suite.PreloadData(func() {
-		shipmentNeedsResubmitted = testdatagen.MakePPMShipmentThatNeedsToBeResubmitted(suite.DB(), testdatagen.Assertions{
-			PPMShipment: models.PPMShipment{
-				SubmittedAt: &submissionTime,
-			},
-			UserUploader: userUploader,
-		})
+		shipmentNeedsResubmitted = factory.BuildPPMShipmentThatNeedsToBeResubmitted(suite.DB(), userUploader)
+		shipmentNeedsResubmitted.SubmittedAt = &submissionTime
+		suite.NoError(suite.DB().Save(&shipmentNeedsResubmitted))
 		needsResubmittedSM = shipmentNeedsResubmitted.Shipment.MoveTaskOrder.Orders.ServiceMember
 
 		shipmentNeedsPaymentApproval = factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, nil)

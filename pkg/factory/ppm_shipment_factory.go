@@ -644,6 +644,49 @@ func BuildPPMShipmentWithAllDocTypesApproved(db *pop.Connection, userUploader *u
 	return ppmShipment
 }
 
+// BuildPPMShipmentThatNeedsToBeResubmitted creates a PPMShipment that
+// a counselor has sent back to the customer
+func BuildPPMShipmentThatNeedsToBeResubmitted(db *pop.Connection, userUploader *uploader.UserUploader) models.PPMShipment {
+	// It's easier to use some of the data from other downstream
+	// functions if we have them go first and then make our changes on
+	// top of those changes.
+	ppmShipment := BuildPPMShipmentThatNeedsPaymentApproval(db, userUploader, nil)
+
+	// Document that got rejected. This would normally already exist
+	// and would just need to be updated to change the status, but for
+	// simplicity here, we'll just create it here and set it up with
+	// the appropriate status.
+	rejectedStatus := models.PPMDocumentStatusRejected
+
+	weightTicket := BuildWeightTicket(db, []Customization{
+		{
+			Model:    ppmShipment,
+			LinkOnly: true,
+		},
+		{
+			Model: models.WeightTicket{
+				Status: &rejectedStatus,
+				Reason: models.StringPointer("Rejected because xyz"),
+			},
+		},
+	}, nil)
+	ppmShipment.WeightTickets = append(ppmShipment.WeightTickets, weightTicket)
+
+	ppmShipment.Status = models.PPMShipmentStatusWaitingOnCustomer
+
+	if db != nil {
+		mustSave(db, &ppmShipment)
+	}
+
+	// Because of the way we're working with the PPMShipment, the
+	// changes we've made to it aren't reflected in the pointer
+	// reference that the MTOShipment has, so we'll need to update it
+	// to point at the latest version.
+	ppmShipment.Shipment.PPMShipment = &ppmShipment
+
+	return ppmShipment
+}
+
 // ------------------------
 //        TRAITS
 // ------------------------

@@ -12,7 +12,6 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/mocks"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func setUpPPMShipmentRouter(mtoShipmentRouterMethod string, mtoShipmentRouterReturnValue ...interface{}) services.PPMShipmentRouter {
@@ -317,7 +316,7 @@ func (suite *PPMShipmentSuite) TestSubmitCloseOutDocumentation() {
 	})
 
 	suite.Run("Does not set the SubmittedAt time if it is already set", func() {
-		ppmShipment := testdatagen.MakePPMShipmentThatNeedsToBeResubmitted(suite.DB(), testdatagen.Assertions{Stub: true})
+		ppmShipment := factory.BuildPPMShipmentThatNeedsToBeResubmitted(nil, nil)
 
 		suite.FatalNotNil(ppmShipment.SubmittedAt)
 		originalSubmittedAt := *ppmShipment.SubmittedAt

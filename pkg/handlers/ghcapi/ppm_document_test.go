@@ -21,7 +21,6 @@ import (
 	"github.com/transcom/mymove/pkg/services/mocks"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	"github.com/transcom/mymove/pkg/services/ppmshipment"
-	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
@@ -546,11 +545,9 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerIntegratio
 	})
 
 	suite.Run("Sets PPM to await customer if there are rejected documents", func() {
-		ppmShipment := testdatagen.MakePPMShipmentThatNeedsToBeResubmitted(suite.DB(), testdatagen.Assertions{
-			PPMShipment: models.PPMShipment{
-				Status: models.PPMShipmentStatusNeedsPaymentApproval,
-			},
-		})
+		ppmShipment := factory.BuildPPMShipmentThatNeedsToBeResubmitted(suite.DB(), nil)
+		ppmShipment.Status = models.PPMShipmentStatusNeedsPaymentApproval
+		suite.NoError(suite.DB().Save(&ppmShipment))
 
 		params, handler := setUpParamsAndHandler(ppmShipment, officeUser)
 
