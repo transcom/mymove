@@ -5,7 +5,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -2225,13 +2224,17 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 		// End date is a year in the future in order to make sure we exceed the allowance.
 		move, serviceItemDOASIT, paymentRequest := suite.setupMoveWithAddlDaysSITAndPaymentRequest(reServiceDOFSIT, originSITEntryDateOne, reServiceDOASIT, "2020-07-21", "2021-07-30")
 
-		approvedDays := 400
-		testdatagen.MakeSITDurationUpdate(suite.DB(), testdatagen.Assertions{
-			MTOShipment: serviceItemDOASIT.MTOShipment,
-			SITDurationUpdate: models.SITDurationUpdate{
-				ApprovedDays: &approvedDays,
+		factory.BuildSITDurationUpdate(suite.DB(), []factory.Customization{
+			{
+				Model:    serviceItemDOASIT.MTOShipment,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.SITDurationUpdate{
+					ApprovedDays: models.IntPointer(400),
+				},
+			},
+		}, []factory.Trait{factory.GetTraitApprovedSITDurationUpdate})
 
 		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, serviceItemDOASIT, paymentRequest.ID, move.ID, nil)
 		suite.FatalNoError(err)

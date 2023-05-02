@@ -164,9 +164,12 @@ func (suite *MTOShipmentServiceSuite) TestListMTOShipments() {
 				LinkOnly: true,
 			},
 		}, nil)
-		SITExtension := testdatagen.MakeSITDurationUpdate(suite.DB(), testdatagen.Assertions{
-			MTOShipment: shipment,
-		})
+		SITExtension := factory.BuildSITDurationUpdate(suite.DB(), []factory.Customization{
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+		}, []factory.Trait{factory.GetTraitApprovedSITDurationUpdate})
 
 		reweigh := testdatagen.MakeReweigh(suite.DB(), testdatagen.Assertions{
 			MTOShipment: shipment,

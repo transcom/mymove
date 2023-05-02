@@ -11091,9 +11091,12 @@ func makePendingSITExtensionsForShipment(appCtx appcontext.AppContext, shipment 
 	}, nil)
 
 	for i := 0; i < 2; i++ {
-		testdatagen.MakePendingSITDurationUpdate(db, testdatagen.Assertions{
-			MTOShipment: shipment,
-		})
+		factory.BuildSITDurationUpdate(db, []factory.Customization{
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+		}, nil)
 	}
 }
 
@@ -11104,21 +11107,31 @@ func MakeSITExtensionsForShipment(appCtx appcontext.AppContext, shipment models.
 	sitOfficeRemarks1 := "The service member is unable to move into their new home at the expected time."
 	approvedDays := 90
 
-	testdatagen.MakeSITDurationUpdate(db, testdatagen.Assertions{
-		SITDurationUpdate: models.SITDurationUpdate{
-			ContractorRemarks: &sitContractorRemarks1,
-			OfficeRemarks:     &sitOfficeRemarks1,
-			ApprovedDays:      &approvedDays,
+	factory.BuildSITDurationUpdate(db, []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
 		},
-		MTOShipment: shipment,
-	})
+		{
+			Model: models.SITDurationUpdate{
+				ContractorRemarks: &sitContractorRemarks1,
+				OfficeRemarks:     &sitOfficeRemarks1,
+				ApprovedDays:      &approvedDays,
+			},
+		},
+	}, []factory.Trait{factory.GetTraitApprovedSITDurationUpdate})
 
-	testdatagen.MakeSITDurationUpdate(db, testdatagen.Assertions{
-		SITDurationUpdate: models.SITDurationUpdate{
-			ApprovedDays: &approvedDays,
+	factory.BuildSITDurationUpdate(db, []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
 		},
-		MTOShipment: shipment,
-	})
+		{
+			Model: models.SITDurationUpdate{
+				ApprovedDays: &approvedDays,
+			},
+		},
+	}, []factory.Trait{factory.GetTraitApprovedSITDurationUpdate})
 }
 
 func CreateMoveWithHHGAndNTSShipments(appCtx appcontext.AppContext, locator string, usesExternalVendor bool) models.Move {
