@@ -287,7 +287,7 @@ func AddMovingExpenseToPPMShipment(db *pop.Connection, ppmShipment *models.PPMSh
 
 	mergeModels(&fullMovingExpenseAssertions, assertions)
 
-	movingExpense := MakeMovingExpense(db, fullMovingExpenseAssertions)
+	movingExpense := makeMovingExpense(db, fullMovingExpenseAssertions)
 
 	ppmShipment.MovingExpenses = append(ppmShipment.MovingExpenses, movingExpense)
 }

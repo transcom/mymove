@@ -759,7 +759,7 @@ func (suite *PPMShipmentSuite) TestFetchPPMShipment() {
 	})
 
 	suite.Run("FindPPMShipmentWithDocument - document belongs to moving expenses", func() {
-		movingExpense := testdatagen.MakeDefaultMovingExpense(suite.DB())
+		movingExpense := factory.BuildMovingExpense(suite.DB(), nil, nil)
 
 		err := FindPPMShipmentWithDocument(suite.AppContextForTest(), movingExpense.PPMShipmentID, movingExpense.DocumentID)
 		suite.NoError(err, "expected to find PPM Shipment for moving expense document")
@@ -773,7 +773,12 @@ func (suite *PPMShipmentSuite) TestFetchPPMShipment() {
 				LinkOnly: true,
 			},
 		}, nil)
-		testdatagen.MakeMovingExpense(suite.DB(), testdatagen.Assertions{PPMShipment: weightTicket.PPMShipment})
+		factory.BuildMovingExpense(suite.DB(), []factory.Customization{
+			{
+				Model:    weightTicket.PPMShipment,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		documentID := uuid.Must(uuid.NewV4())
 		err := FindPPMShipmentWithDocument(suite.AppContextForTest(), weightTicket.PPMShipmentID, documentID)
@@ -808,9 +813,12 @@ func (suite *PPMShipmentSuite) TestFetchPPMShipment() {
 			},
 		}, nil)
 
-		testdatagen.MakeMovingExpense(suite.DB(), testdatagen.Assertions{
-			PPMShipment: ppmShipment,
-		})
+		factory.BuildMovingExpense(suite.DB(), []factory.Customization{
+			{
+				Model:    ppmShipment,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		actualShipment, err := FindPPMShipment(suite.AppContextForTest(), ppmShipment.ID)
 		suite.NoError(err)
@@ -881,9 +889,12 @@ func (suite *PPMShipmentSuite) TestFetchPPMShipment() {
 			},
 		}, nil)
 
-		testdatagen.MakeMovingExpense(suite.DB(), testdatagen.Assertions{
-			PPMShipment: ppmShipment,
-		})
+		factory.BuildMovingExpense(suite.DB(), []factory.Customization{
+			{
+				Model:    ppmShipment,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		actualShipment, err := FindPPMShipment(suite.AppContextForTest(), ppmShipment.ID)
 		suite.NoError(err)
@@ -1018,13 +1029,19 @@ func (suite *PPMShipmentSuite) TestFetchPPMShipment() {
 		err = utilities.SoftDestroy(suite.DB(), &proGearToDelete)
 		suite.NoError(err)
 
-		testdatagen.MakeMovingExpense(suite.DB(), testdatagen.Assertions{
-			PPMShipment: ppmShipment,
-		})
+		factory.BuildMovingExpense(suite.DB(), []factory.Customization{
+			{
+				Model:    ppmShipment,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		movingExpenseToDelete := testdatagen.MakeMovingExpense(suite.DB(), testdatagen.Assertions{
-			PPMShipment: ppmShipment,
-		})
+		movingExpenseToDelete := factory.BuildMovingExpense(suite.DB(), []factory.Customization{
+			{
+				Model:    ppmShipment,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		err = utilities.SoftDestroy(suite.DB(), &movingExpenseToDelete)
 		suite.NoError(err)

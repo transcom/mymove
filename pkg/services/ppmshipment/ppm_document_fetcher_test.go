@@ -53,11 +53,23 @@ func (suite *PPMShipmentSuite) TestPPMDocumentFetcher() {
 		// types of documents, so we'll add some more here.
 		ppmShipment.MovingExpenses = append(
 			ppmShipment.MovingExpenses,
-			testdatagen.MakeMovingExpense(suite.DB(), testdatagen.Assertions{
-				ServiceMember: ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember,
-				PPMShipment:   ppmShipment,
-				UserUploader:  userUploader,
-			}),
+			factory.BuildMovingExpense(suite.DB(), []factory.Customization{
+				{
+					Model:    ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember,
+					LinkOnly: true,
+				},
+				{
+					Model:    ppmShipment,
+					LinkOnly: true,
+				},
+				{
+					Model: models.UserUpload{},
+					ExtendedParams: &factory.UserUploadExtendedParams{
+						UserUploader: userUploader,
+						AppContext:   suite.AppContextForTest(),
+					},
+				},
+			}, nil),
 		)
 
 		// Add an extra upload to the moving expense document to verify we get all non-deleted uploads later
