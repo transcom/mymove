@@ -128,6 +128,14 @@ func buildApprovedPPMShipmentWaitingOnCustomer(db *pop.Connection, userUploader 
 		serviceMember.ID = uuid.Must(uuid.NewV4())
 		ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMemberID = serviceMember.ID
 	}
+
+	if db == nil && ppmShipment.Shipment.MoveTaskOrder.ID.IsNil() {
+		// this is a stubbed ppm shipment and a stubbed move
+		// we want to fake out the id in this case
+		ppmShipment.Shipment.MoveTaskOrder.ID = uuid.Must(uuid.NewV4())
+		ppmShipment.Shipment.MoveTaskOrderID = ppmShipment.Shipment.MoveTaskOrder.ID
+	}
+
 	aoaFile := testdatagen.Fixture("aoa-packet.pdf")
 
 	aoaPacket := buildDocumentWithUploads(db, userUploader, serviceMember, aoaFile)
@@ -446,6 +454,60 @@ func BuildPPMShipmentThatNeedsPaymentApprovalWithAllDocTypes(db *pop.Connection,
 
 	AddProgearWeightTicketToPPMShipment(db, &ppmShipment, userUploader, nil)
 	AddMovingExpenseToPPMShipment(db, &ppmShipment, userUploader, nil)
+
+	// Because of the way we're working with the PPMShipment, the
+	// changes we've made to it aren't reflected in the pointer
+	// reference that the MTOShipment has, so we'll need to update it
+	// to point at the latest version.
+	ppmShipment.Shipment.PPMShipment = &ppmShipment
+
+	return ppmShipment
+}
+
+// BuildPPMShipmentWithApprovedDocumentsMissingPaymentPacket creates a
+// PPMShipment that has all the documents approved, but is missing the
+// payment packet.
+func BuildPPMShipmentWithApprovedDocumentsMissingPaymentPacket(db *pop.Connection, userUploader *uploader.UserUploader, customs []Customization) models.PPMShipment {
+	// It's easier to use some of the data from other downstream
+	// functions if we have them go first and then make our changes on
+	// top of those changes.
+	ppmShipment := BuildPPMShipmentThatNeedsPaymentApproval(db, userUploader, customs)
+
+	ppmShipment.Status = models.PPMShipmentStatusPaymentApproved
+	ppmShipment.ReviewedAt = models.TimePointer(time.Now())
+
+	approvedStatus := models.PPMDocumentStatusApproved
+	for i := range ppmShipment.WeightTickets {
+		ppmShipment.WeightTickets[i].Status = &approvedStatus
+
+		if db != nil {
+			mustSave(db, &ppmShipment.WeightTickets[i])
+		}
+	}
+
+	// the ppmShipment would only have ProgearWeightTickets if
+	// customization creates them
+	for i := range ppmShipment.ProgearWeightTickets {
+		ppmShipment.ProgearWeightTickets[i].Status = &approvedStatus
+
+		if db != nil {
+			mustSave(db, &ppmShipment.ProgearWeightTickets[i])
+		}
+	}
+
+	// the ppmShipment would only have MovingExpenses if
+	// customization creates them
+	for i := range ppmShipment.MovingExpenses {
+		ppmShipment.MovingExpenses[i].Status = &approvedStatus
+
+		if db != nil {
+			mustSave(db, &ppmShipment.MovingExpenses[i])
+		}
+	}
+
+	if db != nil {
+		mustSave(db, &ppmShipment)
+	}
 
 	// Because of the way we're working with the PPMShipment, the
 	// changes we've made to it aren't reflected in the pointer

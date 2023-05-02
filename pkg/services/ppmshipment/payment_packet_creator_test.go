@@ -268,21 +268,26 @@ func (suite *PPMShipmentSuite) TestCreatePaymentPacket() {
 		// These tests rely on failures being raised because of bad service member IDs, but the important part is us
 		// getting the error back, so this could change to be anything that triggers an error when saving. Service
 		// member ID is mainly chosen because it's one of the first things we can error on and is easy to set up.
-		appCtx := suite.AppContextForTest()
 
-		ppmShipment := testdatagen.MakePPMShipmentWithApprovedDocumentsMissingPaymentPacket(
-			appCtx.DB(),
-			testdatagen.Assertions{
-				PPMShipment: models.PPMShipment{
-					ID: uuid.Must(uuid.NewV4()),
+		ppmShipment := factory.BuildPPMShipmentWithApprovedDocumentsMissingPaymentPacket(
+			nil,
+			nil,
+			[]factory.Customization{
+				{
+					Model: models.PPMShipment{
+						ID: uuid.Must(uuid.NewV4()),
+					},
 				},
-				ServiceMember: models.ServiceMember{
-					ID: uuid.Nil,
+				{
+					Model: models.ServiceMember{
+						ID: uuid.Nil,
+					},
 				},
-				UserUpload: models.UserUpload{
-					ID: uuid.Must(uuid.NewV4()),
+				{
+					Model: models.UserUpload{
+						ID: uuid.Must(uuid.NewV4()),
+					},
 				},
-				Stub: true,
 			},
 		)
 
@@ -290,11 +295,11 @@ func (suite *PPMShipmentSuite) TestCreatePaymentPacket() {
 
 		defer cleanUpFunc()
 
-		setUpMockPPMShipmentFetcherForPayment(appCtx, ppmShipment.ID, &ppmShipment, nil)
+		setUpMockPPMShipmentFetcherForPayment(suite.AppContextForTest(), ppmShipment.ID, &ppmShipment, nil)
 
 		setUpMockUserUploadToPDFConverter(
 			mockUserUploadToPDFConverter,
-			appCtx,
+			suite.AppContextForTest(),
 			userUploads,
 			fileInfoSet,
 			nil,
@@ -304,9 +309,9 @@ func (suite *PPMShipmentSuite) TestCreatePaymentPacket() {
 
 		defer mockMergedPDF.Close()
 
-		setUpMockPDFMerger(mockPDFMerger, appCtx, pdfStreams, mockMergedPDF, nil)
+		setUpMockPDFMerger(mockPDFMerger, suite.AppContextForTest(), pdfStreams, mockMergedPDF, nil)
 
-		err := paymentPacketCreator.CreatePaymentPacket(appCtx, ppmShipment.ID)
+		err := paymentPacketCreator.CreatePaymentPacket(suite.AppContextForTest(), ppmShipment.ID)
 
 		if suite.Error(err) {
 			suite.ErrorContains(err, "error creating payment packet: failed to save payment packet")
@@ -318,13 +323,11 @@ func (suite *PPMShipmentSuite) TestCreatePaymentPacket() {
 	})
 
 	suite.Run("returns nil if all goes well", func() {
-		appCtx := suite.AppContextForTest()
-
-		ppmShipment := testdatagen.MakePPMShipmentWithApprovedDocumentsMissingPaymentPacket(appCtx.DB(), testdatagen.Assertions{})
+		ppmShipment := factory.BuildPPMShipmentWithApprovedDocumentsMissingPaymentPacket(suite.DB(), nil, nil)
 
 		// need to start a transaction so that our mocks know what the appCtx will actually be pointing to since the
 		// savePaymentPacket function will be using a transaction.
-		suite.NoError(appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+		suite.NoError(suite.AppContextForTest().NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 			userUploads, fileInfoSet, pdfStreams, cleanUpFunc := prepMockInfo(&ppmShipment)
 
 			defer cleanUpFunc()
@@ -401,21 +404,25 @@ func (suite *PPMShipmentSuite) TestSavePaymentPacket() {
 			// document. Service member ID is mainly chosen because it's easy to set up to trigger both validation and
 			// saving errors.
 			suite.Run(fmt.Sprintf("bad service member ID: %s", name), func() {
-				appCtx := suite.AppContextForTest()
-
-				ppmShipment := testdatagen.MakePPMShipmentWithApprovedDocumentsMissingPaymentPacket(
-					appCtx.DB(),
-					testdatagen.Assertions{
-						PPMShipment: models.PPMShipment{
-							ID: uuid.Must(uuid.NewV4()),
+				ppmShipment := factory.BuildPPMShipmentWithApprovedDocumentsMissingPaymentPacket(
+					nil,
+					nil,
+					[]factory.Customization{
+						{
+							Model: models.PPMShipment{
+								ID: uuid.Must(uuid.NewV4()),
+							},
 						},
-						ServiceMember: models.ServiceMember{
-							ID: testCase.serviceMemberID,
+						{
+							Model: models.ServiceMember{
+								ID: testCase.serviceMemberID,
+							},
 						},
-						UserUpload: models.UserUpload{
-							ID: uuid.Must(uuid.NewV4()),
+						{
+							Model: models.UserUpload{
+								ID: uuid.Must(uuid.NewV4()),
+							},
 						},
-						Stub: true,
 					},
 				)
 
@@ -423,7 +430,7 @@ func (suite *PPMShipmentSuite) TestSavePaymentPacket() {
 
 				defer mockMergedPDF.Close()
 
-				err := savePaymentPacket(appCtx, &ppmShipment, mockMergedPDF, mockPPMShipmentUpdater, userUploader)
+				err := savePaymentPacket(suite.AppContextForTest(), &ppmShipment, mockMergedPDF, mockPPMShipmentUpdater, userUploader)
 
 				if suite.Error(err) {
 					suite.ErrorContains(err, "failed to create payment packet document")
@@ -437,7 +444,7 @@ func (suite *PPMShipmentSuite) TestSavePaymentPacket() {
 	suite.Run("returns an error if we fail to update the PPM shipment", func() {
 		appCtx := suite.AppContextForTest()
 
-		ppmShipment := testdatagen.MakePPMShipmentWithApprovedDocumentsMissingPaymentPacket(appCtx.DB(), testdatagen.Assertions{})
+		ppmShipment := factory.BuildPPMShipmentWithApprovedDocumentsMissingPaymentPacket(appCtx.DB(), nil, nil)
 
 		suite.FatalNil(ppmShipment.PaymentPacketID)
 
@@ -473,7 +480,7 @@ func (suite *PPMShipmentSuite) TestSavePaymentPacket() {
 	suite.Run("returns an error if we fail to prepare the file for upload", func() {
 		appCtx := suite.AppContextForTest()
 
-		ppmShipment := testdatagen.MakePPMShipmentWithApprovedDocumentsMissingPaymentPacket(appCtx.DB(), testdatagen.Assertions{})
+		ppmShipment := factory.BuildPPMShipmentWithApprovedDocumentsMissingPaymentPacket(appCtx.DB(), nil, nil)
 
 		suite.FatalNil(ppmShipment.PaymentPacketID)
 
@@ -531,9 +538,7 @@ func (suite *PPMShipmentSuite) TestSavePaymentPacket() {
 			name, testCase := name, testCase
 
 			suite.Run(fmt.Sprintf("UserID error: %s", name), func() {
-				appCtx := suite.AppContextForTest()
-
-				ppmShipment := testdatagen.MakePPMShipmentWithApprovedDocumentsMissingPaymentPacket(appCtx.DB(), testdatagen.Assertions{})
+				ppmShipment := factory.BuildPPMShipmentWithApprovedDocumentsMissingPaymentPacket(suite.DB(), nil, nil)
 
 				suite.FatalNil(ppmShipment.PaymentPacketID)
 
@@ -543,7 +548,7 @@ func (suite *PPMShipmentSuite) TestSavePaymentPacket() {
 
 				// need to start a transaction so that our mocks know what the appCtx will actually be pointing to since
 				// the savePaymentPacket function will be using a transaction.
-				txnErr := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+				txnErr := suite.AppContextForTest().NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 					setUpMockPPMShipmentUpdater(
 						mockPPMShipmentUpdater,
 						txnAppCtx,
@@ -574,7 +579,7 @@ func (suite *PPMShipmentSuite) TestSavePaymentPacket() {
 	suite.Run("returns nil if all goes well", func() {
 		appCtx := suite.AppContextForTest()
 
-		ppmShipment := testdatagen.MakePPMShipmentWithApprovedDocumentsMissingPaymentPacket(appCtx.DB(), testdatagen.Assertions{})
+		ppmShipment := factory.BuildPPMShipmentWithApprovedDocumentsMissingPaymentPacket(appCtx.DB(), nil, nil)
 
 		suite.FatalNil(ppmShipment.PaymentPacketID)
 

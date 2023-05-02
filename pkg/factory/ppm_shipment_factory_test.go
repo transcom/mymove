@@ -337,4 +337,30 @@ func (suite *FactorySuite) TestBuildPPMShipment() {
 		suite.False(ppmShipment.MovingExpenses[0].ID.IsNil())
 		suite.Equal(ppmShipment.ID, ppmShipment.MovingExpenses[0].PPMShipmentID)
 	})
+
+	suite.Run("PPM Shipment that is missing payment packet", func() {
+		// Under test:       BuildPPMShipmentThatNeedsPaymentApprovalWithAllDocTypes
+		// Set up:           build without custom user uploader
+		// Expected outcome: New PPMShipment should be created with
+		// Weight Ticket, Progear Weight Ticket, and Moving Expense
+
+		ppmShipment := BuildPPMShipmentWithApprovedDocumentsMissingPaymentPacket(suite.DB(), nil, nil)
+
+		suite.NotNil(ppmShipment.ActualPickupPostalCode)
+		suite.Equal(ppmShipment.PickupPostalCode, *ppmShipment.ActualPickupPostalCode)
+		suite.NotNil(ppmShipment.ActualDestinationPostalCode)
+		suite.Equal(ppmShipment.DestinationPostalCode,
+			*ppmShipment.ActualDestinationPostalCode)
+		suite.NotNil(ppmShipment.AOAPacket)
+		suite.NotNil(ppmShipment.AOAPacketID)
+		suite.Equal(models.PPMShipmentStatusPaymentApproved, ppmShipment.Status)
+
+		suite.NotEmpty(ppmShipment.WeightTickets)
+		suite.Equal(1, len(ppmShipment.WeightTickets))
+		suite.False(ppmShipment.WeightTickets[0].ID.IsNil())
+		suite.Equal(ppmShipment.ID, ppmShipment.WeightTickets[0].PPMShipmentID)
+
+		suite.Empty(ppmShipment.ProgearWeightTickets)
+		suite.Empty(ppmShipment.MovingExpenses)
+	})
 }
