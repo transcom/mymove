@@ -40,6 +40,7 @@ var nextValidMoveDate = dates.NextValidMoveDate(time.Now(), cal)
 
 var nextValidMoveDatePlusTen = dates.NextValidMoveDate(nextValidMoveDate.AddDate(0, 0, 10), cal)
 var nextValidMoveDateMinusTen = dates.NextValidMoveDate(nextValidMoveDate.AddDate(0, 0, -10), cal)
+var primeContractorUUID = uuid.FromStringOrNil("5db13bb4-6d29-4bdb-bc81-262f4513ecf6")
 
 /*
  * Users
@@ -1963,7 +1964,7 @@ func serviceMemberWithOrdersAndPPMMove05(appCtx appcontext.AppContext, userUploa
 		},
 	}
 
-	CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
+	CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, nil, assertions.PPMShipment)
 }
 
 func serviceMemberWithOrdersAndPPMMove06(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -1994,7 +1995,7 @@ func serviceMemberWithOrdersAndPPMMove06(appCtx appcontext.AppContext, userUploa
 		},
 	}
 
-	CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
+	CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, nil, assertions.PPMShipment)
 }
 
 func serviceMemberWithOrdersAndPPMMove07(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -2254,6 +2255,15 @@ func createMoveWithServiceItemsandPaymentRequests01(appCtx appcontext.AppContext
 	csCost := unit.Cents(25000)
 	fscCost := unit.Cents(55555)
 
+	// Since we want to customize the Contractor ID for prime uploads, create the contractor here first
+	// BuildMove and BuildPrimeUpload both use FetchOrBuildDefaultContractor
+	factory.FetchOrBuildDefaultContractor(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Contractor{
+				ID: primeContractorUUID, // Prime
+			},
+		},
+	}, nil)
 	orders := factory.BuildOrder(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.ServiceMember{
@@ -2349,23 +2359,17 @@ func createMoveWithServiceItemsandPaymentRequests01(appCtx appcontext.AppContext
 	}, nil)
 
 	// for soft deleted proof of service docs
-	proofOfService := testdatagen.MakeProofOfServiceDoc(appCtx.DB(), testdatagen.Assertions{
-		PaymentRequest: paymentRequestHHG,
-	})
-
-	deletedAt := time.Now()
-	testdatagen.MakePrimeUpload(appCtx.DB(), testdatagen.Assertions{
-		PrimeUpload: models.PrimeUpload{
-			ID:                  uuid.FromStringOrNil("18413213-0aaf-4eb1-8d7f-1b557a4e425b"),
-			ProofOfServiceDoc:   proofOfService,
-			ProofOfServiceDocID: proofOfService.ID,
-			Contractor: models.Contractor{
-				ID: uuid.FromStringOrNil("5db13bb4-6d29-4bdb-bc81-262f4513ecf6"), // Prime
-			},
-			ContractorID: uuid.FromStringOrNil("5db13bb4-6d29-4bdb-bc81-262f4513ecf6"),
-			DeletedAt:    &deletedAt,
+	factory.BuildPrimeUpload(appCtx.DB(), []factory.Customization{
+		{
+			Model:    paymentRequestHHG,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.PrimeUpload{
+				ID: uuid.FromStringOrNil("18413213-0aaf-4eb1-8d7f-1b557a4e425b"),
+			},
+		},
+	}, []factory.Trait{factory.GetTraitPrimeUploadDeleted})
 
 	serviceItemMS := factory.BuildMTOServiceItemBasic(appCtx.DB(), []factory.Customization{
 		{
@@ -2385,13 +2389,19 @@ func createMoveWithServiceItemsandPaymentRequests01(appCtx appcontext.AppContext
 		},
 	}, nil)
 
-	testdatagen.MakePaymentServiceItem(appCtx.DB(), testdatagen.Assertions{
-		PaymentServiceItem: models.PaymentServiceItem{
-			PriceCents: &msCost,
+	factory.BuildPaymentServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentServiceItem{
+				PriceCents: &msCost,
+			},
+		}, {
+			Model:    paymentRequestHHG,
+			LinkOnly: true,
+		}, {
+			Model:    serviceItemMS,
+			LinkOnly: true,
 		},
-		PaymentRequest: paymentRequestHHG,
-		MTOServiceItem: serviceItemMS,
-	})
+	}, nil)
 
 	// Shuttling service item
 	doshutCost := unit.Cents(623)
@@ -2421,21 +2431,27 @@ func createMoveWithServiceItemsandPaymentRequests01(appCtx appcontext.AppContext
 		},
 	}, nil)
 
-	testdatagen.MakePaymentServiceItem(appCtx.DB(), testdatagen.Assertions{
-		PaymentServiceItem: models.PaymentServiceItem{
-			PriceCents: &doshutCost,
+	factory.BuildPaymentServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentServiceItem{
+				PriceCents: &doshutCost,
+			},
+		}, {
+			Model:    paymentRequestHHG,
+			LinkOnly: true,
+		}, {
+			Model:    serviceItemDOSHUT,
+			LinkOnly: true,
 		},
-		PaymentRequest: paymentRequestHHG,
-		MTOServiceItem: serviceItemDOSHUT,
-	})
+	}, nil)
 
 	currentTime := time.Now()
 
-	basicPaymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
+	basicPaymentServiceItemParams := []factory.CreatePaymentServiceItemParams{
 		{
 			Key:     models.ServiceItemParamNameContractCode,
 			KeyType: models.ServiceItemParamTypeString,
-			Value:   testdatagen.DefaultContractCode,
+			Value:   factory.DefaultContractCode,
 		},
 		{
 			Key:     models.ServiceItemParamNameRequestedPickupDate,
@@ -2474,15 +2490,24 @@ func createMoveWithServiceItemsandPaymentRequests01(appCtx appcontext.AppContext
 		},
 	}
 
-	testdatagen.MakePaymentServiceItemWithParams(
+	factory.BuildPaymentServiceItemWithParams(
 		appCtx.DB(),
 		models.ReServiceCodeDOSHUT,
 		basicPaymentServiceItemParams,
-		testdatagen.Assertions{
-			Move:           mto,
-			MTOShipment:    mtoShipmentHHG,
-			PaymentRequest: paymentRequestHHG,
-		},
+		[]factory.Customization{
+			{
+				Model:    mto,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentHHG,
+				LinkOnly: true,
+			},
+			{
+				Model:    paymentRequestHHG,
+				LinkOnly: true,
+			},
+		}, nil,
 	)
 
 	// Crating service item
@@ -2513,21 +2538,27 @@ func createMoveWithServiceItemsandPaymentRequests01(appCtx appcontext.AppContext
 		},
 	}, nil)
 
-	testdatagen.MakePaymentServiceItem(appCtx.DB(), testdatagen.Assertions{
-		PaymentServiceItem: models.PaymentServiceItem{
-			PriceCents: &dcrtCost,
+	factory.BuildPaymentServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentServiceItem{
+				PriceCents: &dcrtCost,
+			},
+		}, {
+			Model:    paymentRequestHHG,
+			LinkOnly: true,
+		}, {
+			Model:    serviceItemDCRT,
+			LinkOnly: true,
 		},
-		PaymentRequest: paymentRequestHHG,
-		MTOServiceItem: serviceItemDCRT,
-	})
+	}, nil)
 
 	currentTimeDCRT := time.Now()
 
-	basicPaymentServiceItemParamsDCRT := []testdatagen.CreatePaymentServiceItemParams{
+	basicPaymentServiceItemParamsDCRT := []factory.CreatePaymentServiceItemParams{
 		{
 			Key:     models.ServiceItemParamNameContractYearName,
 			KeyType: models.ServiceItemParamTypeString,
-			Value:   testdatagen.DefaultContractCode,
+			Value:   factory.DefaultContractCode,
 		},
 		{
 			Key:     models.ServiceItemParamNameEscalationCompounded,
@@ -2586,15 +2617,24 @@ func createMoveWithServiceItemsandPaymentRequests01(appCtx appcontext.AppContext
 		},
 	}
 
-	testdatagen.MakePaymentServiceItemWithParams(
+	factory.BuildPaymentServiceItemWithParams(
 		appCtx.DB(),
 		models.ReServiceCodeDCRT,
 		basicPaymentServiceItemParamsDCRT,
-		testdatagen.Assertions{
-			Move:           mto,
-			MTOShipment:    mtoShipmentHHG,
-			PaymentRequest: paymentRequestHHG,
-		},
+		[]factory.Customization{
+			{
+				Model:    mto,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentHHG,
+				LinkOnly: true,
+			},
+			{
+				Model:    paymentRequestHHG,
+				LinkOnly: true,
+			},
+		}, nil,
 	)
 
 	// Domestic line haul service item
@@ -2615,13 +2655,19 @@ func createMoveWithServiceItemsandPaymentRequests01(appCtx appcontext.AppContext
 		},
 	}, nil)
 
-	testdatagen.MakePaymentServiceItem(appCtx.DB(), testdatagen.Assertions{
-		PaymentServiceItem: models.PaymentServiceItem{
-			PriceCents: &dlhCost,
+	factory.BuildPaymentServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentServiceItem{
+				PriceCents: &dlhCost,
+			},
+		}, {
+			Model:    paymentRequestHHG,
+			LinkOnly: true,
+		}, {
+			Model:    serviceItemDLH,
+			LinkOnly: true,
 		},
-		PaymentRequest: paymentRequestHHG,
-		MTOServiceItem: serviceItemDLH,
-	})
+	}, nil)
 
 	createdAtTime := time.Now().Add(time.Duration(time.Hour * -24))
 	additionalPaymentRequest := factory.BuildPaymentRequest(appCtx.DB(), []factory.Customization{
@@ -2659,13 +2705,19 @@ func createMoveWithServiceItemsandPaymentRequests01(appCtx appcontext.AppContext
 		},
 	}, nil)
 
-	testdatagen.MakePaymentServiceItem(appCtx.DB(), testdatagen.Assertions{
-		PaymentServiceItem: models.PaymentServiceItem{
-			PriceCents: &csCost,
+	factory.BuildPaymentServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentServiceItem{
+				PriceCents: &csCost,
+			},
+		}, {
+			Model:    additionalPaymentRequest,
+			LinkOnly: true,
+		}, {
+			Model:    serviceItemCS,
+			LinkOnly: true,
 		},
-		PaymentRequest: additionalPaymentRequest,
-		MTOServiceItem: serviceItemCS,
-	})
+	}, nil)
 
 	MTOShipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
 		{
@@ -2704,13 +2756,19 @@ func createMoveWithServiceItemsandPaymentRequests01(appCtx appcontext.AppContext
 		},
 	}, nil)
 
-	testdatagen.MakePaymentServiceItem(appCtx.DB(), testdatagen.Assertions{
-		PaymentServiceItem: models.PaymentServiceItem{
-			PriceCents: &fscCost,
+	factory.BuildPaymentServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentServiceItem{
+				PriceCents: &fscCost,
+			},
+		}, {
+			Model:    additionalPaymentRequest,
+			LinkOnly: true,
+		}, {
+			Model:    serviceItemFSC,
+			LinkOnly: true,
 		},
-		PaymentRequest: additionalPaymentRequest,
-		MTOServiceItem: serviceItemFSC,
-	})
+	}, nil)
 }
 
 func createMoveWithServiceItemsandPaymentRequests02(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -2796,13 +2854,19 @@ func createMoveWithServiceItemsandPaymentRequests02(appCtx appcontext.AppContext
 		},
 	}, nil)
 
-	testdatagen.MakePaymentServiceItem(appCtx.DB(), testdatagen.Assertions{
-		PaymentServiceItem: models.PaymentServiceItem{
-			PriceCents: &msCost,
+	factory.BuildPaymentServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentServiceItem{
+				PriceCents: &msCost,
+			},
+		}, {
+			Model:    paymentRequest8,
+			LinkOnly: true,
+		}, {
+			Model:    serviceItemMS,
+			LinkOnly: true,
 		},
-		PaymentRequest: paymentRequest8,
-		MTOServiceItem: serviceItemMS,
-	})
+	}, nil)
 
 	csCost := unit.Cents(25000)
 	serviceItemCS := factory.BuildMTOServiceItemBasic(appCtx.DB(), []factory.Customization{
@@ -2823,13 +2887,19 @@ func createMoveWithServiceItemsandPaymentRequests02(appCtx appcontext.AppContext
 		},
 	}, nil)
 
-	testdatagen.MakePaymentServiceItem(appCtx.DB(), testdatagen.Assertions{
-		PaymentServiceItem: models.PaymentServiceItem{
-			PriceCents: &csCost,
+	factory.BuildPaymentServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentServiceItem{
+				PriceCents: &csCost,
+			},
+		}, {
+			Model:    paymentRequest8,
+			LinkOnly: true,
+		}, {
+			Model:    serviceItemCS,
+			LinkOnly: true,
 		},
-		PaymentRequest: paymentRequest8,
-		MTOServiceItem: serviceItemCS,
-	})
+	}, nil)
 
 	dlhCost := unit.Cents(99999)
 	serviceItemDLH := factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
@@ -2853,13 +2923,19 @@ func createMoveWithServiceItemsandPaymentRequests02(appCtx appcontext.AppContext
 		},
 	}, nil)
 
-	testdatagen.MakePaymentServiceItem(appCtx.DB(), testdatagen.Assertions{
-		PaymentServiceItem: models.PaymentServiceItem{
-			PriceCents: &dlhCost,
+	factory.BuildPaymentServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentServiceItem{
+				PriceCents: &dlhCost,
+			},
+		}, {
+			Model:    paymentRequest8,
+			LinkOnly: true,
+		}, {
+			Model:    serviceItemDLH,
+			LinkOnly: true,
 		},
-		PaymentRequest: paymentRequest8,
-		MTOServiceItem: serviceItemDLH,
-	})
+	}, nil)
 
 	fscCost := unit.Cents(55555)
 	serviceItemFSC := factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
@@ -2883,13 +2959,19 @@ func createMoveWithServiceItemsandPaymentRequests02(appCtx appcontext.AppContext
 		},
 	}, nil)
 
-	testdatagen.MakePaymentServiceItem(appCtx.DB(), testdatagen.Assertions{
-		PaymentServiceItem: models.PaymentServiceItem{
-			PriceCents: &fscCost,
+	factory.BuildPaymentServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentServiceItem{
+				PriceCents: &fscCost,
+			},
+		}, {
+			Model:    paymentRequest8,
+			LinkOnly: true,
+		}, {
+			Model:    serviceItemFSC,
+			LinkOnly: true,
 		},
-		PaymentRequest: paymentRequest8,
-		MTOServiceItem: serviceItemFSC,
-	})
+	}, nil)
 
 	dopCost := unit.Cents(3456)
 
@@ -2918,13 +3000,19 @@ func createMoveWithServiceItemsandPaymentRequests02(appCtx appcontext.AppContext
 		},
 	}, nil)
 
-	testdatagen.MakePaymentServiceItem(appCtx.DB(), testdatagen.Assertions{
-		PaymentServiceItem: models.PaymentServiceItem{
-			PriceCents: &dopCost,
+	factory.BuildPaymentServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentServiceItem{
+				PriceCents: &dopCost,
+			},
+		}, {
+			Model:    paymentRequest8,
+			LinkOnly: true,
+		}, {
+			Model:    serviceItemDOP,
+			LinkOnly: true,
 		},
-		PaymentRequest: paymentRequest8,
-		MTOServiceItem: serviceItemDOP,
-	})
+	}, nil)
 
 	ddpCost := unit.Cents(7890)
 	serviceItemDDP := factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
@@ -2948,13 +3036,19 @@ func createMoveWithServiceItemsandPaymentRequests02(appCtx appcontext.AppContext
 		},
 	}, nil)
 
-	testdatagen.MakePaymentServiceItem(appCtx.DB(), testdatagen.Assertions{
-		PaymentServiceItem: models.PaymentServiceItem{
-			PriceCents: &ddpCost,
+	factory.BuildPaymentServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentServiceItem{
+				PriceCents: &ddpCost,
+			},
+		}, {
+			Model:    paymentRequest8,
+			LinkOnly: true,
+		}, {
+			Model:    serviceItemDDP,
+			LinkOnly: true,
 		},
-		PaymentRequest: paymentRequest8,
-		MTOServiceItem: serviceItemDDP,
-	})
+	}, nil)
 
 	// Schedule 1 peak price
 	dpkCost := unit.Cents(6544)
@@ -2979,13 +3073,19 @@ func createMoveWithServiceItemsandPaymentRequests02(appCtx appcontext.AppContext
 		},
 	}, nil)
 
-	testdatagen.MakePaymentServiceItem(appCtx.DB(), testdatagen.Assertions{
-		PaymentServiceItem: models.PaymentServiceItem{
-			PriceCents: &dpkCost,
+	factory.BuildPaymentServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentServiceItem{
+				PriceCents: &dpkCost,
+			},
+		}, {
+			Model:    paymentRequest8,
+			LinkOnly: true,
+		}, {
+			Model:    serviceItemDPK,
+			LinkOnly: true,
 		},
-		PaymentRequest: paymentRequest8,
-		MTOServiceItem: serviceItemDPK,
-	})
+	}, nil)
 
 	// Schedule 1 peak price
 	dupkCost := unit.Cents(8544)
@@ -3010,13 +3110,19 @@ func createMoveWithServiceItemsandPaymentRequests02(appCtx appcontext.AppContext
 		},
 	}, nil)
 
-	testdatagen.MakePaymentServiceItem(appCtx.DB(), testdatagen.Assertions{
-		PaymentServiceItem: models.PaymentServiceItem{
-			PriceCents: &dupkCost,
+	factory.BuildPaymentServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentServiceItem{
+				PriceCents: &dupkCost,
+			},
+		}, {
+			Model:    paymentRequest8,
+			LinkOnly: true,
+		}, {
+			Model:    serviceItemDUPK,
+			LinkOnly: true,
 		},
-		PaymentRequest: paymentRequest8,
-		MTOServiceItem: serviceItemDUPK,
-	})
+	}, nil)
 
 	dofsitPostal := "90210"
 	dofsitReason := "Storage items need to be picked up"
@@ -3044,13 +3150,19 @@ func createMoveWithServiceItemsandPaymentRequests02(appCtx appcontext.AppContext
 	}, nil)
 
 	dofsitCost := unit.Cents(8544)
-	testdatagen.MakePaymentServiceItem(appCtx.DB(), testdatagen.Assertions{
-		PaymentServiceItem: models.PaymentServiceItem{
-			PriceCents: &dofsitCost,
+	factory.BuildPaymentServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentServiceItem{
+				PriceCents: &dofsitCost,
+			},
+		}, {
+			Model:    paymentRequest8,
+			LinkOnly: true,
+		}, {
+			Model:    serviceItemDOFSIT,
+			LinkOnly: true,
 		},
-		PaymentRequest: paymentRequest8,
-		MTOServiceItem: serviceItemDOFSIT,
-	})
+	}, nil)
 
 	serviceItemDDFSIT := factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
 		{
@@ -3097,13 +3209,19 @@ func createMoveWithServiceItemsandPaymentRequests02(appCtx appcontext.AppContext
 	})
 
 	ddfsitCost := unit.Cents(8544)
-	testdatagen.MakePaymentServiceItem(appCtx.DB(), testdatagen.Assertions{
-		PaymentServiceItem: models.PaymentServiceItem{
-			PriceCents: &ddfsitCost,
+	factory.BuildPaymentServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentServiceItem{
+				PriceCents: &ddfsitCost,
+			},
+		}, {
+			Model:    paymentRequest8,
+			LinkOnly: true,
+		}, {
+			Model:    serviceItemDDFSIT,
+			LinkOnly: true,
 		},
-		PaymentRequest: paymentRequest8,
-		MTOServiceItem: serviceItemDDFSIT,
-	})
+	}, nil)
 
 	testdatagen.MakeMTOServiceItemDomesticCrating(appCtx.DB(), testdatagen.Assertions{
 		MTOServiceItem: models.MTOServiceItem{
@@ -3117,7 +3235,15 @@ func createMoveWithServiceItemsandPaymentRequests02(appCtx appcontext.AppContext
 func createHHGMoveWithServiceItemsAndPaymentRequestsAndFiles(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader) {
 	logger := appCtx.Logger()
 	dependentsAuthorized := true
-
+	// Since we want to customize the Contractor ID for prime uploads, create the contractor here first
+	// BuildMove and BuildPrimeUpload both use FetchOrBuildDefaultContractor
+	factory.FetchOrBuildDefaultContractor(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Contractor{
+				ID: primeContractorUUID, // Prime
+			},
+		},
+	}, nil)
 	orders := factory.BuildOrder(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.ServiceMember{
@@ -3365,13 +3491,19 @@ func createHHGMoveWithServiceItemsAndPaymentRequestsAndFiles(appCtx appcontext.A
 		MTOShipment: MTOShipment,
 	})
 
-	testdatagen.MakePaymentServiceItem(appCtx.DB(), testdatagen.Assertions{
-		PaymentServiceItem: models.PaymentServiceItem{
-			PriceCents: &dcrtCost,
+	factory.BuildPaymentServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentServiceItem{
+				PriceCents: &dcrtCost,
+			},
+		}, {
+			Model:    paymentRequest,
+			LinkOnly: true,
+		}, {
+			Model:    mtoServiceItemDCRT,
+			LinkOnly: true,
 		},
-		PaymentRequest: paymentRequest,
-		MTOServiceItem: mtoServiceItemDCRT,
-	})
+	}, nil)
 
 	ducrtCost := unit.Cents(99999)
 	mtoServiceItemDUCRT := factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
@@ -3395,47 +3527,52 @@ func createHHGMoveWithServiceItemsAndPaymentRequestsAndFiles(appCtx appcontext.A
 		},
 	}, nil)
 
-	testdatagen.MakePaymentServiceItem(appCtx.DB(), testdatagen.Assertions{
-		PaymentServiceItem: models.PaymentServiceItem{
-			PriceCents: &ducrtCost,
-		},
-		PaymentRequest: paymentRequest,
-		MTOServiceItem: mtoServiceItemDUCRT,
-	})
-
-	proofOfService := testdatagen.MakeProofOfServiceDoc(appCtx.DB(), testdatagen.Assertions{
-		PaymentRequest: paymentRequest,
-	})
-
-	testdatagen.MakePrimeUpload(appCtx.DB(), testdatagen.Assertions{
-		PrimeUpload: models.PrimeUpload{
-			ID:                  uuid.FromStringOrNil("18413213-0aaf-4eb1-8d7f-1b557a4e425b"),
-			ProofOfServiceDoc:   proofOfService,
-			ProofOfServiceDocID: proofOfService.ID,
-			Contractor: models.Contractor{
-				ID: uuid.FromStringOrNil("5db13bb4-6d29-4bdb-bc81-262f4513ecf6"), // Prime
+	factory.BuildPaymentServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentServiceItem{
+				PriceCents: &ducrtCost,
 			},
-			ContractorID: uuid.FromStringOrNil("5db13bb4-6d29-4bdb-bc81-262f4513ecf6"),
+		}, {
+			Model:    paymentRequest,
+			LinkOnly: true,
+		}, {
+			Model:    mtoServiceItemDUCRT,
+			LinkOnly: true,
 		},
-		PrimeUploader: primeUploader,
-	})
+	}, nil)
 
-	posImage := testdatagen.MakeProofOfServiceDoc(appCtx.DB(), testdatagen.Assertions{
-		PaymentRequest: paymentRequest,
-	})
-
-	primeContractor := uuid.FromStringOrNil("5db13bb4-6d29-4bdb-bc81-262f4513ecf6")
+	factory.BuildPrimeUpload(appCtx.DB(), []factory.Customization{
+		{
+			Model:    paymentRequest,
+			LinkOnly: true,
+		},
+		{
+			Model: models.PrimeUpload{
+				ID: uuid.FromStringOrNil("18413213-0aaf-4eb1-8d7f-1b557a4e425b"),
+			},
+			ExtendedParams: &factory.PrimeUploadExtendedParams{
+				PrimeUploader: primeUploader,
+				AppContext:    appCtx,
+			},
+		},
+	}, nil)
+	posImage := factory.BuildProofOfServiceDoc(appCtx.DB(), []factory.Customization{
+		{
+			Model:    paymentRequest,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	// Creates custom test.jpg prime upload
 	file := testdatagen.Fixture("test.jpg")
-	_, verrs, err := primeUploader.CreatePrimeUploadForDocument(appCtx, &posImage.ID, primeContractor, uploader.File{File: file}, uploader.AllowedTypesPaymentRequest)
+	_, verrs, err := primeUploader.CreatePrimeUploadForDocument(appCtx, &posImage.ID, primeContractorUUID, uploader.File{File: file}, uploader.AllowedTypesPaymentRequest)
 	if verrs.HasAny() || err != nil {
 		logger.Error("errors encountered saving test.jpg prime upload", zap.Error(err))
 	}
 
 	// Creates custom test.png prime upload
 	file = testdatagen.Fixture("test.png")
-	_, verrs, err = primeUploader.CreatePrimeUploadForDocument(appCtx, &posImage.ID, primeContractor, uploader.File{File: file}, uploader.AllowedTypesPaymentRequest)
+	_, verrs, err = primeUploader.CreatePrimeUploadForDocument(appCtx, &posImage.ID, primeContractorUUID, uploader.File{File: file}, uploader.AllowedTypesPaymentRequest)
 	if verrs.HasAny() || err != nil {
 		logger.Error("errors encountered saving test.png prime upload", zap.Error(err))
 	}
@@ -4151,11 +4288,11 @@ func createNTSRMoveWithServiceItemsAndPaymentRequest(appCtx appcontext.AppContex
 
 	// Create Domestic linehaul service item
 	dlCost := unit.Cents(80000)
-	dlItemParams := []testdatagen.CreatePaymentServiceItemParams{
+	dlItemParams := []factory.CreatePaymentServiceItemParams{
 		{
 			Key:     models.ServiceItemParamNameContractCode,
 			KeyType: models.ServiceItemParamTypeString,
-			Value:   testdatagen.DefaultContractCode,
+			Value:   factory.DefaultContractCode,
 		},
 		{
 			Key:     models.ServiceItemParamNameReferenceDate,
@@ -4243,27 +4380,38 @@ func createNTSRMoveWithServiceItemsAndPaymentRequest(appCtx appcontext.AppContex
 			Value:   strconv.Itoa(144),
 		},
 	}
-	testdatagen.MakePaymentServiceItemWithParams(
+	factory.BuildPaymentServiceItemWithParams(
 		appCtx.DB(),
 		models.ReServiceCodeDLH,
 		dlItemParams,
-		testdatagen.Assertions{
-			PaymentServiceItem: models.PaymentServiceItem{
-				PriceCents: &dlCost,
+		[]factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &dlCost,
+				},
 			},
-			Move:           move,
-			MTOShipment:    ntsrShipment,
-			PaymentRequest: paymentRequest,
-		},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    ntsrShipment,
+				LinkOnly: true,
+			},
+			{
+				Model:    paymentRequest,
+				LinkOnly: true,
+			},
+		}, nil,
 	)
 
 	// Create Fuel surcharge service item
 	fsCost := unit.Cents(10700)
-	fsItemParams := []testdatagen.CreatePaymentServiceItemParams{
+	fsItemParams := []factory.CreatePaymentServiceItemParams{
 		{
 			Key:     models.ServiceItemParamNameContractCode,
 			KeyType: models.ServiceItemParamTypeString,
-			Value:   testdatagen.DefaultContractCode,
+			Value:   factory.DefaultContractCode,
 		},
 		{
 			Key:     models.ServiceItemParamNameReferenceDate,
@@ -4346,27 +4494,38 @@ func createNTSRMoveWithServiceItemsAndPaymentRequest(appCtx appcontext.AppContex
 			Value:   "80501",
 		},
 	}
-	testdatagen.MakePaymentServiceItemWithParams(
+	factory.BuildPaymentServiceItemWithParams(
 		appCtx.DB(),
 		models.ReServiceCodeFSC,
 		fsItemParams,
-		testdatagen.Assertions{
-			PaymentServiceItem: models.PaymentServiceItem{
-				PriceCents: &fsCost,
+		[]factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &fsCost,
+				},
 			},
-			Move:           move,
-			MTOShipment:    ntsrShipment,
-			PaymentRequest: paymentRequest,
-		},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    ntsrShipment,
+				LinkOnly: true,
+			},
+			{
+				Model:    paymentRequest,
+				LinkOnly: true,
+			},
+		}, nil,
 	)
 
 	// Create Domestic origin price service item
 	doCost := unit.Cents(15000)
-	doItemParams := []testdatagen.CreatePaymentServiceItemParams{
+	doItemParams := []factory.CreatePaymentServiceItemParams{
 		{
 			Key:     models.ServiceItemParamNameContractCode,
 			KeyType: models.ServiceItemParamTypeString,
-			Value:   testdatagen.DefaultContractCode,
+			Value:   factory.DefaultContractCode,
 		},
 		{
 			Key:     models.ServiceItemParamNameReferenceDate,
@@ -4417,27 +4576,38 @@ func createNTSRMoveWithServiceItemsAndPaymentRequest(appCtx appcontext.AppContex
 			Value:   "1500",
 		},
 	}
-	testdatagen.MakePaymentServiceItemWithParams(
+	factory.BuildPaymentServiceItemWithParams(
 		appCtx.DB(),
 		models.ReServiceCodeDOP,
 		doItemParams,
-		testdatagen.Assertions{
-			PaymentServiceItem: models.PaymentServiceItem{
-				PriceCents: &doCost,
+		[]factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &doCost,
+				},
 			},
-			Move:           move,
-			MTOShipment:    ntsrShipment,
-			PaymentRequest: paymentRequest,
-		},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    ntsrShipment,
+				LinkOnly: true,
+			},
+			{
+				Model:    paymentRequest,
+				LinkOnly: true,
+			},
+		}, nil,
 	)
 
 	// Create Domestic destination price service item
 	ddpCost := unit.Cents(15000)
-	ddpItemParams := []testdatagen.CreatePaymentServiceItemParams{
+	ddpItemParams := []factory.CreatePaymentServiceItemParams{
 		{
 			Key:     models.ServiceItemParamNameContractCode,
 			KeyType: models.ServiceItemParamTypeString,
-			Value:   testdatagen.DefaultContractCode,
+			Value:   factory.DefaultContractCode,
 		},
 		{
 			Key:     models.ServiceItemParamNameReferenceDate,
@@ -4488,27 +4658,38 @@ func createNTSRMoveWithServiceItemsAndPaymentRequest(appCtx appcontext.AppContex
 			Value:   "1500",
 		},
 	}
-	testdatagen.MakePaymentServiceItemWithParams(
+	factory.BuildPaymentServiceItemWithParams(
 		appCtx.DB(),
 		models.ReServiceCodeDDP,
 		ddpItemParams,
-		testdatagen.Assertions{
-			PaymentServiceItem: models.PaymentServiceItem{
-				PriceCents: &ddpCost,
+		[]factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &ddpCost,
+				},
 			},
-			Move:           move,
-			MTOShipment:    ntsrShipment,
-			PaymentRequest: paymentRequest,
-		},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    ntsrShipment,
+				LinkOnly: true,
+			},
+			{
+				Model:    paymentRequest,
+				LinkOnly: true,
+			},
+		}, nil,
 	)
 
 	// Create Domestic unpacking service item
 	duCost := unit.Cents(45900)
-	duItemParams := []testdatagen.CreatePaymentServiceItemParams{
+	duItemParams := []factory.CreatePaymentServiceItemParams{
 		{
 			Key:     models.ServiceItemParamNameContractCode,
 			KeyType: models.ServiceItemParamTypeString,
-			Value:   testdatagen.DefaultContractCode,
+			Value:   factory.DefaultContractCode,
 		},
 		{
 			Key:     models.ServiceItemParamNameReferenceDate,
@@ -4554,18 +4735,29 @@ func createNTSRMoveWithServiceItemsAndPaymentRequest(appCtx appcontext.AppContex
 			Value:   "1500",
 		},
 	}
-	testdatagen.MakePaymentServiceItemWithParams(
+	factory.BuildPaymentServiceItemWithParams(
 		appCtx.DB(),
 		models.ReServiceCodeDUPK,
 		duItemParams,
-		testdatagen.Assertions{
-			PaymentServiceItem: models.PaymentServiceItem{
-				PriceCents: &duCost,
+		[]factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &duCost,
+				},
 			},
-			Move:           move,
-			MTOShipment:    ntsrShipment,
-			PaymentRequest: paymentRequest,
-		},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    ntsrShipment,
+				LinkOnly: true,
+			},
+			{
+				Model:    paymentRequest,
+				LinkOnly: true,
+			},
+		}, nil,
 	)
 
 }
@@ -4686,23 +4878,34 @@ func createNTSRMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader
 
 	// create service item
 	msCostcos := unit.Cents(32400)
-	testdatagen.MakePaymentServiceItemWithParams(
+	factory.BuildPaymentServiceItemWithParams(
 		appCtx.DB(),
 		models.ReServiceCodeCS,
-		[]testdatagen.CreatePaymentServiceItemParams{
+		[]factory.CreatePaymentServiceItemParams{
 			{
 				Key:     models.ServiceItemParamNameContractCode,
 				KeyType: models.ServiceItemParamTypeString,
-				Value:   testdatagen.DefaultContractCode,
+				Value:   factory.DefaultContractCode,
 			}},
-		testdatagen.Assertions{
-			PaymentServiceItem: models.PaymentServiceItem{
-				PriceCents: &msCostcos,
+		[]factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &msCostcos,
+				},
 			},
-			Move:           move,
-			MTOShipment:    ntsrShipment,
-			PaymentRequest: paymentRequest,
-		},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    ntsrShipment,
+				LinkOnly: true,
+			},
+			{
+				Model:    paymentRequest,
+				LinkOnly: true,
+			},
+		}, nil,
 	)
 }
 
@@ -4713,6 +4916,15 @@ func createNTSMoveWithServiceItemsandPaymentRequests(appCtx appcontext.AppContex
 	msCost := unit.Cents(10000)
 	dlhCost := unit.Cents(99999)
 
+	// Since we want to customize the Contractor ID for prime uploads, create the contractor here first
+	// BuildMove and BuildPrimeUpload both use FetchOrBuildDefaultContractor
+	factory.FetchOrBuildDefaultContractor(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Contractor{
+				ID: primeContractorUUID, // Prime
+			},
+		},
+	}, nil)
 	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.ServiceMember{
@@ -4775,23 +4987,17 @@ func createNTSMoveWithServiceItemsandPaymentRequests(appCtx appcontext.AppContex
 	}, nil)
 
 	// for soft deleted proof of service docs
-	proofOfService := testdatagen.MakeProofOfServiceDoc(appCtx.DB(), testdatagen.Assertions{
-		PaymentRequest: paymentRequestNTS,
-	})
-
-	deletedAt := time.Now()
-	testdatagen.MakePrimeUpload(appCtx.DB(), testdatagen.Assertions{
-		PrimeUpload: models.PrimeUpload{
-			ID:                  uuid.FromStringOrNil("301d8cb8-5bae-4e37-83e3-62c215a504b2"),
-			ProofOfServiceDoc:   proofOfService,
-			ProofOfServiceDocID: proofOfService.ID,
-			Contractor: models.Contractor{
-				ID: uuid.FromStringOrNil("5db13bb4-6d29-4bdb-bc81-262f4513ecf6"), // Prime
-			},
-			ContractorID: uuid.FromStringOrNil("5db13bb4-6d29-4bdb-bc81-262f4513ecf6"),
-			DeletedAt:    &deletedAt,
+	factory.BuildPrimeUpload(appCtx.DB(), []factory.Customization{
+		{
+			Model:    paymentRequestNTS,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.PrimeUpload{
+				ID: uuid.FromStringOrNil("301d8cb8-5bae-4e37-83e3-62c215a504b2"),
+			},
+		},
+	}, []factory.Trait{factory.GetTraitPrimeUploadDeleted})
 
 	serviceItemMS := factory.BuildMTOServiceItemBasic(appCtx.DB(), []factory.Customization{
 		{
@@ -4811,13 +5017,19 @@ func createNTSMoveWithServiceItemsandPaymentRequests(appCtx appcontext.AppContex
 		},
 	}, nil)
 
-	testdatagen.MakePaymentServiceItem(appCtx.DB(), testdatagen.Assertions{
-		PaymentServiceItem: models.PaymentServiceItem{
-			PriceCents: &msCost,
+	factory.BuildPaymentServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentServiceItem{
+				PriceCents: &msCost,
+			},
+		}, {
+			Model:    paymentRequestNTS,
+			LinkOnly: true,
+		}, {
+			Model:    serviceItemMS,
+			LinkOnly: true,
 		},
-		PaymentRequest: paymentRequestNTS,
-		MTOServiceItem: serviceItemMS,
-	})
+	}, nil)
 
 	// Shuttling service item
 	doshutCost := unit.Cents(623)
@@ -4847,21 +5059,27 @@ func createNTSMoveWithServiceItemsandPaymentRequests(appCtx appcontext.AppContex
 		},
 	}, nil)
 
-	testdatagen.MakePaymentServiceItem(appCtx.DB(), testdatagen.Assertions{
-		PaymentServiceItem: models.PaymentServiceItem{
-			PriceCents: &doshutCost,
+	factory.BuildPaymentServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentServiceItem{
+				PriceCents: &doshutCost,
+			},
+		}, {
+			Model:    paymentRequestNTS,
+			LinkOnly: true,
+		}, {
+			Model:    serviceItemDOSHUT,
+			LinkOnly: true,
 		},
-		PaymentRequest: paymentRequestNTS,
-		MTOServiceItem: serviceItemDOSHUT,
-	})
+	}, nil)
 
 	currentTime := time.Now()
 
-	basicPaymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
+	basicPaymentServiceItemParams := []factory.CreatePaymentServiceItemParams{
 		{
 			Key:     models.ServiceItemParamNameContractCode,
 			KeyType: models.ServiceItemParamTypeString,
-			Value:   testdatagen.DefaultContractCode,
+			Value:   factory.DefaultContractCode,
 		},
 		{
 			Key:     models.ServiceItemParamNameRequestedPickupDate,
@@ -4900,15 +5118,24 @@ func createNTSMoveWithServiceItemsandPaymentRequests(appCtx appcontext.AppContex
 		},
 	}
 
-	testdatagen.MakePaymentServiceItemWithParams(
+	factory.BuildPaymentServiceItemWithParams(
 		appCtx.DB(),
 		models.ReServiceCodeDOSHUT,
 		basicPaymentServiceItemParams,
-		testdatagen.Assertions{
-			Move:           move,
-			MTOShipment:    ntsShipment,
-			PaymentRequest: paymentRequestNTS,
-		},
+		[]factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    ntsShipment,
+				LinkOnly: true,
+			},
+			{
+				Model:    paymentRequestNTS,
+				LinkOnly: true,
+			},
+		}, nil,
 	)
 
 	// Crating service item
@@ -4939,21 +5166,27 @@ func createNTSMoveWithServiceItemsandPaymentRequests(appCtx appcontext.AppContex
 		},
 	}, nil)
 
-	testdatagen.MakePaymentServiceItem(appCtx.DB(), testdatagen.Assertions{
-		PaymentServiceItem: models.PaymentServiceItem{
-			PriceCents: &dcrtCost,
+	factory.BuildPaymentServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentServiceItem{
+				PriceCents: &dcrtCost,
+			},
+		}, {
+			Model:    paymentRequestNTS,
+			LinkOnly: true,
+		}, {
+			Model:    serviceItemDCRT,
+			LinkOnly: true,
 		},
-		PaymentRequest: paymentRequestNTS,
-		MTOServiceItem: serviceItemDCRT,
-	})
+	}, nil)
 
 	currentTimeDCRT := time.Now()
 
-	basicPaymentServiceItemParamsDCRT := []testdatagen.CreatePaymentServiceItemParams{
+	basicPaymentServiceItemParamsDCRT := []factory.CreatePaymentServiceItemParams{
 		{
 			Key:     models.ServiceItemParamNameContractYearName,
 			KeyType: models.ServiceItemParamTypeString,
-			Value:   testdatagen.DefaultContractCode,
+			Value:   factory.DefaultContractCode,
 		},
 		{
 			Key:     models.ServiceItemParamNameEscalationCompounded,
@@ -5012,15 +5245,24 @@ func createNTSMoveWithServiceItemsandPaymentRequests(appCtx appcontext.AppContex
 		},
 	}
 
-	testdatagen.MakePaymentServiceItemWithParams(
+	factory.BuildPaymentServiceItemWithParams(
 		appCtx.DB(),
 		models.ReServiceCodeDCRT,
 		basicPaymentServiceItemParamsDCRT,
-		testdatagen.Assertions{
-			Move:           move,
-			MTOShipment:    ntsShipment,
-			PaymentRequest: paymentRequestNTS,
-		},
+		[]factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    ntsShipment,
+				LinkOnly: true,
+			},
+			{
+				Model:    paymentRequestNTS,
+				LinkOnly: true,
+			},
+		}, nil,
 	)
 
 	// Domestic line haul service item
@@ -5041,13 +5283,19 @@ func createNTSMoveWithServiceItemsandPaymentRequests(appCtx appcontext.AppContex
 		},
 	}, nil)
 
-	testdatagen.MakePaymentServiceItem(appCtx.DB(), testdatagen.Assertions{
-		PaymentServiceItem: models.PaymentServiceItem{
-			PriceCents: &dlhCost,
+	factory.BuildPaymentServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentServiceItem{
+				PriceCents: &dlhCost,
+			},
+		}, {
+			Model:    paymentRequestNTS,
+			LinkOnly: true,
+		}, {
+			Model:    serviceItemDLH,
+			LinkOnly: true,
 		},
-		PaymentRequest: paymentRequestNTS,
-		MTOServiceItem: serviceItemDLH,
-	})
+	}, nil)
 }
 
 // Run does that data load thing

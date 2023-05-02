@@ -25,7 +25,7 @@ func checkOrCreateMTOShipment(db *pop.Connection, assertions Assertions) models.
 			assertions.MTOShipment.Status = models.MTOShipmentStatusSubmitted
 		}
 
-		shipment = MakeBaseMTOShipment(db, assertions)
+		shipment = makeBaseMTOShipment(db, assertions)
 	}
 
 	return shipment
@@ -66,8 +66,10 @@ func getDefaultValuesForRequiredFields(db *pop.Connection, shipment models.MTOSh
 	return requiredFields
 }
 
-// MakePPMShipment creates a single PPMShipment and associated relationships
-func MakePPMShipment(db *pop.Connection, assertions Assertions) models.PPMShipment {
+// makePPMShipment creates a single PPMShipment and associated
+// relationships
+// Deprecated: use BuildPPMShipment
+func makePPMShipment(db *pop.Connection, assertions Assertions) models.PPMShipment {
 	fullAssertions := Assertions{
 		PPMShipment: models.PPMShipment{
 			Status:                         models.PPMShipmentStatusSubmitted,
@@ -94,11 +96,13 @@ func MakePPMShipment(db *pop.Connection, assertions Assertions) models.PPMShipme
 	// Overwrite values with those from assertions
 	mergeModels(&fullAssertions, assertions)
 
-	return MakeMinimalPPMShipment(db, fullAssertions)
+	return makeMinimalPPMShipment(db, fullAssertions)
 }
 
-// MakeMinimalPPMShipment creates a single PPMShipment and associated relationships with a minimal set of data
-func MakeMinimalPPMShipment(db *pop.Connection, assertions Assertions) models.PPMShipment {
+// makeMinimalPPMShipment creates a single PPMShipment and associated
+// relationships with a minimal set of data
+// Deprecated: use factory.BuildPPMShipment
+func makeMinimalPPMShipment(db *pop.Connection, assertions Assertions) models.PPMShipment {
 	shipment := checkOrCreateMTOShipment(db, assertions)
 
 	requiredFields := getDefaultValuesForRequiredFields(db, shipment)
@@ -123,9 +127,10 @@ func MakeMinimalPPMShipment(db *pop.Connection, assertions Assertions) models.PP
 	return newPPMShipment
 }
 
-// MakeApprovedPPMShipment creates a single PPMShipment that has been approved by a counselor, but hasn't had an AOA
+// makeApprovedPPMShipment creates a single PPMShipment that has been approved by a counselor, but hasn't had an AOA
 // packet generated yet, if even applicable.
-func MakeApprovedPPMShipment(db *pop.Connection, assertions Assertions) models.PPMShipment {
+// Deprecated: Use factory.BuildPPMShipment
+func makeApprovedPPMShipment(db *pop.Connection, assertions Assertions) models.PPMShipment {
 	submittedTime := time.Now()
 	approvedTime := submittedTime.AddDate(0, 0, 3)
 
@@ -147,15 +152,17 @@ func MakeApprovedPPMShipment(db *pop.Connection, assertions Assertions) models.P
 	// Overwrite values with those from assertions
 	mergeModels(&fullAssertions, assertions)
 
-	return MakePPMShipment(db, fullAssertions)
+	return makePPMShipment(db, fullAssertions)
 }
 
-// MakeApprovedPPMShipmentWaitingOnCustomer creates a single PPMShipment that has been approved by a counselor and is
-// waiting on the customer to fill in the info for the actual move and upload necessary documents.
-func MakeApprovedPPMShipmentWaitingOnCustomer(db *pop.Connection, assertions Assertions) models.PPMShipment {
+// makeApprovedPPMShipmentWaitingOnCustomer creates a single PPMShipment that has been approved by a counselor and is
+// waiting on the customer to fill in the info for the actual move and
+// upload necessary documents.
+// Deprecated: use factory.BuildPPMShipment
+func makeApprovedPPMShipmentWaitingOnCustomer(db *pop.Connection, assertions Assertions) models.PPMShipment {
 	// It's easier to use some of the data from other downstream functions if we have them go first and then make our
 	// changes on top of those changes.
-	ppmShipment := MakeApprovedPPMShipment(db, assertions)
+	ppmShipment := makeApprovedPPMShipment(db, assertions)
 
 	if ppmShipment.HasRequestedAdvance == nil || !*ppmShipment.HasRequestedAdvance {
 		return ppmShipment
@@ -194,12 +201,14 @@ func MakeApprovedPPMShipmentWaitingOnCustomer(db *pop.Connection, assertions Ass
 	return ppmShipment
 }
 
-// MakeApprovedPPMShipmentWithActualInfo creates a single PPMShipment that has been approved by a counselor, has some
-// actual move info, and is waiting on the customer to finish filling out info and upload documents.
-func MakeApprovedPPMShipmentWithActualInfo(db *pop.Connection, assertions Assertions) models.PPMShipment {
+// makeApprovedPPMShipmentWithActualInfo creates a single PPMShipment that has been approved by a counselor, has some
+// actual move info, and is waiting on the customer to finish filling
+// out info and upload documents.
+// Deprecated: use factory.BuildPPMShipment
+func makeApprovedPPMShipmentWithActualInfo(db *pop.Connection, assertions Assertions) models.PPMShipment {
 	// It's easier to use some of the data from other downstream functions if we have them go first and then make our
 	// changes on top of those changes.
-	ppmShipment := MakeApprovedPPMShipmentWaitingOnCustomer(db, assertions)
+	ppmShipment := makeApprovedPPMShipmentWaitingOnCustomer(db, assertions)
 
 	ppmShipment.ActualMoveDate = models.TimePointer(ppmShipment.ExpectedDepartureDate.AddDate(0, 0, 1))
 	ppmShipment.ActualPickupPostalCode = &ppmShipment.PickupPostalCode
@@ -252,7 +261,7 @@ func AddWeightTicketToPPMShipment(db *pop.Connection, ppmShipment *models.PPMShi
 
 	mergeModels(&fullWeightTicketSetAssertions, assertions)
 
-	weightTicket := MakeWeightTicket(db, fullWeightTicketSetAssertions)
+	weightTicket := makeWeightTicket(db, fullWeightTicketSetAssertions)
 
 	ppmShipment.WeightTickets = append(ppmShipment.WeightTickets, weightTicket)
 }
@@ -265,7 +274,7 @@ func AddProgearWeightTicketToPPMShipment(db *pop.Connection, ppmShipment *models
 
 	mergeModels(&fullProgearWeightTicketSetAssertions, assertions)
 
-	progearWeightTicket := MakeProgearWeightTicket(db, fullProgearWeightTicketSetAssertions)
+	progearWeightTicket := makeProgearWeightTicket(db, fullProgearWeightTicketSetAssertions)
 
 	ppmShipment.ProgearWeightTickets = append(ppmShipment.ProgearWeightTickets, progearWeightTicket)
 }
@@ -278,17 +287,17 @@ func AddMovingExpenseToPPMShipment(db *pop.Connection, ppmShipment *models.PPMSh
 
 	mergeModels(&fullMovingExpenseAssertions, assertions)
 
-	movingExpense := MakeMovingExpense(db, fullMovingExpenseAssertions)
+	movingExpense := makeMovingExpense(db, fullMovingExpenseAssertions)
 
 	ppmShipment.MovingExpenses = append(ppmShipment.MovingExpenses, movingExpense)
 }
 
-// MakePPMShipmentReadyForFinalCustomerCloseOut creates a single PPMShipment that has customer documents and is ready
+// makePPMShipmentReadyForFinalCustomerCloseOut creates a single PPMShipment that has customer documents and is ready
 // for the customer to sign and submit.
-func MakePPMShipmentReadyForFinalCustomerCloseOut(db *pop.Connection, assertions Assertions) models.PPMShipment {
+func makePPMShipmentReadyForFinalCustomerCloseOut(db *pop.Connection, assertions Assertions) models.PPMShipment {
 	// It's easier to use some of the data from other downstream functions if we have them go first and then make our
 	// changes on top of those changes.
-	ppmShipment := MakeApprovedPPMShipmentWithActualInfo(db, assertions)
+	ppmShipment := makeApprovedPPMShipmentWithActualInfo(db, assertions)
 
 	AddWeightTicketToPPMShipment(db, &ppmShipment, assertions)
 
@@ -313,7 +322,7 @@ func MakePPMShipmentReadyForFinalCustomerCloseOut(db *pop.Connection, assertions
 func MakePPMShipmentReadyForFinalCustomerCloseOutWithAllDocTypes(db *pop.Connection, assertions Assertions) models.PPMShipment {
 	// It's easier to use some of the data from other downstream functions if we have them go first and then make our
 	// changes on top of those changes.
-	ppmShipment := MakePPMShipmentReadyForFinalCustomerCloseOut(db, assertions)
+	ppmShipment := makePPMShipmentReadyForFinalCustomerCloseOut(db, assertions)
 
 	AddProgearWeightTicketToPPMShipment(db, &ppmShipment, assertions)
 	AddMovingExpenseToPPMShipment(db, &ppmShipment, assertions)
@@ -330,7 +339,7 @@ func MakePPMShipmentReadyForFinalCustomerCloseOutWithAllDocTypes(db *pop.Connect
 func MakePPMShipmentThatNeedsPaymentApproval(db *pop.Connection, assertions Assertions) models.PPMShipment {
 	// It's easier to use some of the data from other downstream functions if we have them go first and then make our
 	// changes on top of those changes.
-	ppmShipment := MakePPMShipmentReadyForFinalCustomerCloseOut(db, assertions)
+	ppmShipment := makePPMShipmentReadyForFinalCustomerCloseOut(db, assertions)
 
 	move := ppmShipment.Shipment.MoveTaskOrder
 	certType := models.SignedCertificationTypePPMPAYMENT
@@ -552,7 +561,7 @@ func MakePPMShipmentThatNeedsToBeResubmitted(db *pop.Connection, assertions Asse
 
 	mergeModels(&fullWeightTicketSetAssertions, assertions)
 
-	weightTicket := MakeWeightTicket(db, fullWeightTicketSetAssertions)
+	weightTicket := makeWeightTicket(db, fullWeightTicketSetAssertions)
 	ppmShipment.WeightTickets = append(ppmShipment.WeightTickets, weightTicket)
 
 	ppmShipment.Status = models.PPMShipmentStatusWaitingOnCustomer

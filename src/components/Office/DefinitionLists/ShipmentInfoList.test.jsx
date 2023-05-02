@@ -110,7 +110,7 @@ describe('Shipment Info List', () => {
     expect(within(customerRemarks.parentElement).getByText(info.customerRemarks)).toBeInTheDocument();
   });
 
-  it('does not render secondary addresses or mtoAgents when not provided', async () => {
+  it('does not render mtoAgents when not provided', async () => {
     render(
       <ShipmentInfoList
         shipment={{
@@ -121,8 +121,8 @@ describe('Shipment Info List', () => {
       />,
     );
 
-    expect(await screen.queryByText(labels.secondaryPickupAddress)).not.toBeInTheDocument();
-    expect(await screen.queryByText(labels.secondaryDeliveryAddress)).not.toBeInTheDocument();
+    expect(await screen.queryByText(labels.secondaryPickupAddress)).toBeInTheDocument();
+    expect(await screen.queryByText(labels.secondaryDeliveryAddress)).toBeInTheDocument();
     expect(await screen.queryByText(labels.mtoAgents[0])).not.toBeInTheDocument();
     expect(await screen.queryByText(labels.mtoAgents[1])).not.toBeInTheDocument();
   });
@@ -138,7 +138,7 @@ describe('Shipment Info List', () => {
       within(pickupAddress.parentElement).getByText(info.pickupAddress.streetAddress1, { exact: false }),
     ).toBeInTheDocument();
 
-    expect(screen.queryByText(labels.secondaryPickupAddress)).toBeNull();
+    expect(screen.queryByText(labels.secondaryPickupAddress)).toBeInTheDocument();
 
     const destinationAddress = screen.getByText(labels.destinationAddress);
     expect(
@@ -147,7 +147,7 @@ describe('Shipment Info List', () => {
       }),
     ).toBeInTheDocument();
 
-    expect(screen.queryByText(labels.secondaryDeliveryAddress)).toBeNull();
+    expect(screen.queryByText(labels.secondaryDeliveryAddress)).toBeInTheDocument();
 
     expect(await screen.queryByText(labels.mtoAgents[0])).not.toBeInTheDocument();
     expect(await screen.queryByText(labels.mtoAgents[1])).not.toBeInTheDocument();

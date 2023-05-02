@@ -207,13 +207,19 @@ func makePaymentRequestForShipment(appCtx appcontext.AppContext, move models.Mov
 		MTOShipment: shipment,
 	})
 
-	testdatagen.MakePaymentServiceItem(appCtx.DB(), testdatagen.Assertions{
-		PaymentServiceItem: models.PaymentServiceItem{
-			PriceCents: &dcrtCost,
+	factory.BuildPaymentServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentServiceItem{
+				PriceCents: &dcrtCost,
+			},
+		}, {
+			Model:    paymentRequest,
+			LinkOnly: true,
+		}, {
+			Model:    mtoServiceItemDCRT,
+			LinkOnly: true,
 		},
-		PaymentRequest: paymentRequest,
-		MTOServiceItem: mtoServiceItemDCRT,
-	})
+	}, nil)
 
 	ducrtCost := unit.Cents(99999)
 	mtoServiceItemDUCRT := factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
@@ -232,13 +238,19 @@ func makePaymentRequestForShipment(appCtx appcontext.AppContext, move models.Mov
 		},
 	}, nil)
 
-	testdatagen.MakePaymentServiceItem(appCtx.DB(), testdatagen.Assertions{
-		PaymentServiceItem: models.PaymentServiceItem{
-			PriceCents: &ducrtCost,
+	factory.BuildPaymentServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentServiceItem{
+				PriceCents: &ducrtCost,
+			},
+		}, {
+			Model:    paymentRequest,
+			LinkOnly: true,
+		}, {
+			Model:    mtoServiceItemDUCRT,
+			LinkOnly: true,
 		},
-		PaymentRequest: paymentRequest,
-		MTOServiceItem: mtoServiceItemDUCRT,
-	})
+	}, nil)
 
 	files := filesInBandwidthTestDirectory(fileNames)
 	// Creates prime upload documents from the files in this directory:
@@ -246,11 +258,20 @@ func makePaymentRequestForShipment(appCtx appcontext.AppContext, move models.Mov
 	for _, file := range files {
 		filePath := fmt.Sprintf("bandwidth_test_docs/%s", file)
 		fixture := testdatagen.Fixture(filePath)
-		testdatagen.MakePrimeUpload(appCtx.DB(), testdatagen.Assertions{
-			File:           fixture,
-			PaymentRequest: paymentRequest,
-			PrimeUploader:  primeUploader,
-		})
+		factory.BuildPrimeUpload(appCtx.DB(), []factory.Customization{
+			{
+				Model:    paymentRequest,
+				LinkOnly: true,
+			},
+			{
+				Model: models.PrimeUpload{},
+				ExtendedParams: &factory.PrimeUploadExtendedParams{
+					PrimeUploader: primeUploader,
+					AppContext:    appCtx,
+					File:          fixture,
+				},
+			},
+		}, nil)
 	}
 }
 

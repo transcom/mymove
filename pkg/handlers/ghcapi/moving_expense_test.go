@@ -37,11 +37,23 @@ func (suite *HandlerSuite) TestUpdateMovingExpenseHandlerUnit() {
 
 		ppmShipment.MovingExpenses = append(
 			ppmShipment.MovingExpenses,
-			testdatagen.MakeMovingExpense(suite.DB(), testdatagen.Assertions{
-				ServiceMember: ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember,
-				PPMShipment:   ppmShipment,
-				UserUploader:  userUploader,
-			}),
+			factory.BuildMovingExpense(suite.DB(), []factory.Customization{
+				{
+					Model:    ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember,
+					LinkOnly: true,
+				},
+				{
+					Model:    ppmShipment,
+					LinkOnly: true,
+				},
+				{
+					Model: models.UserUpload{},
+					ExtendedParams: &factory.UserUploadExtendedParams{
+						UserUploader: userUploader,
+						AppContext:   suite.AppContextForTest(),
+					},
+				},
+			}, nil),
 		)
 	})
 
@@ -237,14 +249,28 @@ func (suite *HandlerSuite) TestUpdateMovingExpenseHandlerIntegration() {
 		})
 
 		packingMaterialsType := models.MovingExpenseReceiptTypePackingMaterials
-		movingExpense = testdatagen.MakeMovingExpense(suite.DB(), testdatagen.Assertions{
-			ServiceMember: ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember,
-			PPMShipment:   ppmShipment,
-			UserUploader:  userUploader,
-			MovingExpense: models.MovingExpense{
-				MovingExpenseType: &packingMaterialsType,
+		movingExpense = factory.BuildMovingExpense(suite.DB(), []factory.Customization{
+			{
+				Model:    ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model:    ppmShipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.UserUpload{},
+				ExtendedParams: &factory.UserUploadExtendedParams{
+					UserUploader: userUploader,
+					AppContext:   suite.AppContextForTest(),
+				},
+			},
+			{
+				Model: models.MovingExpense{
+					MovingExpenseType: &packingMaterialsType,
+				},
+			},
+		}, nil)
 
 		ppmShipment.MovingExpenses = append(ppmShipment.MovingExpenses, movingExpense)
 	})
@@ -404,14 +430,28 @@ func (suite *HandlerSuite) TestUpdateMovingExpenseHandlerIntegration() {
 
 		suite.Run("Can update a storage moving expense", func() {
 			storageExpenseType := models.MovingExpenseReceiptTypeStorage
-			storageMovingExpense := testdatagen.MakeMovingExpense(suite.DB(), testdatagen.Assertions{
-				ServiceMember: ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember,
-				PPMShipment:   ppmShipment,
-				UserUploader:  userUploader,
-				MovingExpense: models.MovingExpense{
-					MovingExpenseType: &storageExpenseType,
+			storageMovingExpense := factory.BuildMovingExpense(suite.DB(), []factory.Customization{
+				{
+					Model:    ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember,
+					LinkOnly: true,
 				},
-			})
+				{
+					Model:    ppmShipment,
+					LinkOnly: true,
+				},
+				{
+					Model: models.UserUpload{},
+					ExtendedParams: &factory.UserUploadExtendedParams{
+						UserUploader: userUploader,
+						AppContext:   suite.AppContextForTest(),
+					},
+				},
+				{
+					Model: models.MovingExpense{
+						MovingExpenseType: &storageExpenseType,
+					},
+				},
+			}, nil)
 
 			ppmShipment.MovingExpenses = append(ppmShipment.MovingExpenses, storageMovingExpense)
 

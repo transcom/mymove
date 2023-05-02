@@ -14,7 +14,6 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	paymentServiceItemService "github.com/transcom/mymove/pkg/services/payment_service_item"
-	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/trace"
 )
 
@@ -27,7 +26,7 @@ func (suite *HandlerSuite) makeUpdatePaymentSubtestData() (subtestData *updatePa
 	subtestData = &updatePaymentSubtestData{}
 
 	mto := factory.BuildMove(suite.DB(), nil, nil)
-	paymentServiceItem := testdatagen.MakeDefaultPaymentServiceItem(suite.DB())
+	paymentServiceItem := factory.BuildPaymentServiceItem(suite.DB(), nil, nil)
 	subtestData.paymentServiceItem = paymentServiceItem
 	requestUser := factory.BuildUser(nil, nil, nil)
 
@@ -120,7 +119,7 @@ func (suite *HandlerSuite) TestUpdatePaymentServiceItemHandler() {
 
 	suite.Run("Successful patch - Rejection - Integration Test", func() {
 		subtestData := suite.makeUpdatePaymentSubtestData()
-		paymentServiceItem := testdatagen.MakeDefaultPaymentServiceItem(suite.DB())
+		paymentServiceItem := factory.BuildPaymentServiceItem(suite.DB(), nil, nil)
 
 		handler := UpdatePaymentServiceItemStatusHandler{
 			HandlerConfig:                   suite.HandlerConfig(),
@@ -148,11 +147,13 @@ func (suite *HandlerSuite) TestUpdatePaymentServiceItemHandler() {
 
 	suite.Run("Successful patch - Approval of previously rejected - Integration Test", func() {
 		subtestData := suite.makeUpdatePaymentSubtestData()
-		deniedPaymentServiceItem := testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
-			PaymentServiceItem: models.PaymentServiceItem{
-				Status: models.PaymentServiceItemStatusDenied,
+		deniedPaymentServiceItem := factory.BuildPaymentServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					Status: models.PaymentServiceItemStatusDenied,
+				},
 			},
-		})
+		}, nil)
 
 		handler := UpdatePaymentServiceItemStatusHandler{
 			HandlerConfig:                   suite.HandlerConfig(),
@@ -179,9 +180,12 @@ func (suite *HandlerSuite) TestUpdatePaymentServiceItemHandler() {
 
 	suite.Run("Successful patch - Approval of Prime available paymentServiceItem", func() {
 		availableMTO := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-		availablePaymentServiceItem := testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
-			Move: availableMTO,
-		})
+		availablePaymentServiceItem := factory.BuildPaymentServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    availableMTO,
+				LinkOnly: true,
+			},
+		}, nil)
 		requestUser := factory.BuildUser(nil, nil, nil)
 
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/move-task-orders/%s/payment-service-items/%s/status", availableMTO.ID.String(), availablePaymentServiceItem.ID.String()), nil)

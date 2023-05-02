@@ -52,11 +52,11 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	scheduledPickupDate := time.Date(testdatagen.GHCTestYear, time.September, 20, 0, 0, 0, 0, time.UTC)
 	actualPickupDate := time.Date(testdatagen.GHCTestYear, time.September, 22, 0, 0, 0, 0, time.UTC)
 	generator := NewGHCPaymentRequestInvoiceGenerator(suite.icnSequencer, mockClock)
-	basicPaymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
+	basicPaymentServiceItemParams := []factory.CreatePaymentServiceItemParams{
 		{
 			Key:     models.ServiceItemParamNameContractCode,
 			KeyType: models.ServiceItemParamTypeString,
-			Value:   testdatagen.DefaultContractCode,
+			Value:   factory.DefaultContractCode,
 		},
 		{
 			Key:     models.ServiceItemParamNameReferenceDate,
@@ -112,114 +112,125 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		}, nil)
 
 		priceCents := unit.Cents(888)
-		assertions := testdatagen.Assertions{
-			Move:           mto,
-			MTOShipment:    mtoShipment,
-			PaymentRequest: paymentRequest,
-			PaymentServiceItem: models.PaymentServiceItem{
-				Status:     models.PaymentServiceItemStatusApproved,
-				PriceCents: &priceCents,
+		customizations := []factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					Status:     models.PaymentServiceItemStatusApproved,
+					PriceCents: &priceCents,
+				},
+			},
+			{
+				Model:    mto,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipment,
+				LinkOnly: true,
+			},
+			{
+				Model:    paymentRequest,
+				LinkOnly: true,
 			},
 		}
 
-		dlh := testdatagen.MakePaymentServiceItemWithParams(
+		dlh := factory.BuildPaymentServiceItemWithParams(
 			suite.DB(),
 			models.ReServiceCodeDLH,
 			basicPaymentServiceItemParams,
-			assertions,
+			customizations, nil,
 		)
-		fsc := testdatagen.MakePaymentServiceItemWithParams(
+		fsc := factory.BuildPaymentServiceItemWithParams(
 			suite.DB(),
 			models.ReServiceCodeFSC,
 			basicPaymentServiceItemParams,
-			assertions,
+			customizations, nil,
 		)
-		ms := testdatagen.MakePaymentServiceItemWithParams(
+		ms := factory.BuildPaymentServiceItemWithParams(
 			suite.DB(),
 			models.ReServiceCodeMS,
 			basicPaymentServiceItemParams,
-			assertions,
+			customizations, nil,
 		)
-		cs := testdatagen.MakePaymentServiceItemWithParams(
+		cs := factory.BuildPaymentServiceItemWithParams(
 			suite.DB(),
 			models.ReServiceCodeCS,
 			basicPaymentServiceItemParams,
-			assertions,
+			customizations, nil,
 		)
-		dsh := testdatagen.MakePaymentServiceItemWithParams(
+		dsh := factory.BuildPaymentServiceItemWithParams(
 			suite.DB(),
 			models.ReServiceCodeDSH,
 			basicPaymentServiceItemParams,
-			assertions,
+			customizations, nil,
 		)
-		dop := testdatagen.MakePaymentServiceItemWithParams(
+		dop := factory.BuildPaymentServiceItemWithParams(
 			suite.DB(),
 			models.ReServiceCodeDOP,
 			basicPaymentServiceItemParams,
-			assertions,
+			customizations, nil,
 		)
-		ddp := testdatagen.MakePaymentServiceItemWithParams(
+		ddp := factory.BuildPaymentServiceItemWithParams(
 			suite.DB(),
 			models.ReServiceCodeDDP,
 			basicPaymentServiceItemParams,
-			assertions,
+			customizations, nil,
 		)
-		dpk := testdatagen.MakePaymentServiceItemWithParams(
+		dpk := factory.BuildPaymentServiceItemWithParams(
 			suite.DB(),
 			models.ReServiceCodeDPK,
 			basicPaymentServiceItemParams,
-			assertions,
+			customizations, nil,
 		)
-		dnpk := testdatagen.MakePaymentServiceItemWithParams(
+		dnpk := factory.BuildPaymentServiceItemWithParams(
 			suite.DB(),
 			models.ReServiceCodeDNPK,
 			basicPaymentServiceItemParams,
-			assertions,
+			customizations, nil,
 		)
-		dupk := testdatagen.MakePaymentServiceItemWithParams(
+		dupk := factory.BuildPaymentServiceItemWithParams(
 			suite.DB(),
 			models.ReServiceCodeDUPK,
 			basicPaymentServiceItemParams,
-			assertions,
+			customizations, nil,
 		)
-		ddfsit := testdatagen.MakePaymentServiceItemWithParams(
+		ddfsit := factory.BuildPaymentServiceItemWithParams(
 			suite.DB(),
 			models.ReServiceCodeDDFSIT,
 			basicPaymentServiceItemParams,
-			assertions,
+			customizations, nil,
 		)
-		ddasit := testdatagen.MakePaymentServiceItemWithParams(
+		ddasit := factory.BuildPaymentServiceItemWithParams(
 			suite.DB(),
 			models.ReServiceCodeDDASIT,
 			basicPaymentServiceItemParams,
-			assertions,
+			customizations, nil,
 		)
-		dofsit := testdatagen.MakePaymentServiceItemWithParams(
+		dofsit := factory.BuildPaymentServiceItemWithParams(
 			suite.DB(),
 			models.ReServiceCodeDOFSIT,
 			basicPaymentServiceItemParams,
-			assertions,
+			customizations, nil,
 		)
-		doasit := testdatagen.MakePaymentServiceItemWithParams(
+		doasit := factory.BuildPaymentServiceItemWithParams(
 			suite.DB(),
 			models.ReServiceCodeDOASIT,
 			basicPaymentServiceItemParams,
-			assertions,
+			customizations, nil,
 		)
-		doshut := testdatagen.MakePaymentServiceItemWithParams(
+		doshut := factory.BuildPaymentServiceItemWithParams(
 			suite.DB(),
 			models.ReServiceCodeDOSHUT,
 			basicPaymentServiceItemParams,
-			assertions,
+			customizations, nil,
 		)
-		ddshut := testdatagen.MakePaymentServiceItemWithParams(
+		ddshut := factory.BuildPaymentServiceItemWithParams(
 			suite.DB(),
 			models.ReServiceCodeDDSHUT,
 			basicPaymentServiceItemParams,
-			assertions,
+			customizations, nil,
 		)
 
-		additionalParamsForCrating := []testdatagen.CreatePaymentServiceItemParams{
+		additionalParamsForCrating := []factory.CreatePaymentServiceItemParams{
 			{
 				Key:     models.ServiceItemParamNameCubicFeetBilled,
 				KeyType: models.ServiceItemParamTypeDecimal,
@@ -232,43 +243,43 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 			},
 		}
 		cratingParams := append(basicPaymentServiceItemParams, additionalParamsForCrating...)
-		dcrt := testdatagen.MakePaymentServiceItemWithParams(
+		dcrt := factory.BuildPaymentServiceItemWithParams(
 			suite.DB(),
 			models.ReServiceCodeDCRT,
 			cratingParams,
-			assertions,
+			customizations, nil,
 		)
-		ducrt := testdatagen.MakePaymentServiceItemWithParams(
+		ducrt := factory.BuildPaymentServiceItemWithParams(
 			suite.DB(),
 			models.ReServiceCodeDUCRT,
 			cratingParams,
-			assertions,
+			customizations, nil,
 		)
 
-		distanceZipSITDestParam := testdatagen.CreatePaymentServiceItemParams{
+		distanceZipSITDestParam := factory.CreatePaymentServiceItemParams{
 			Key:     models.ServiceItemParamNameDistanceZipSITDest,
 			KeyType: models.ServiceItemParamTypeInteger,
 			Value:   "44",
 		}
 		dddsitParams := append(basicPaymentServiceItemParams, distanceZipSITDestParam)
-		dddsit := testdatagen.MakePaymentServiceItemWithParams(
+		dddsit := factory.BuildPaymentServiceItemWithParams(
 			suite.DB(),
 			models.ReServiceCodeDDDSIT,
 			dddsitParams,
-			assertions,
+			customizations, nil,
 		)
 
-		distanceZipSITOriginParam := testdatagen.CreatePaymentServiceItemParams{
+		distanceZipSITOriginParam := factory.CreatePaymentServiceItemParams{
 			Key:     models.ServiceItemParamNameDistanceZipSITOrigin,
 			KeyType: models.ServiceItemParamTypeInteger,
 			Value:   "33",
 		}
 		dopsitParams := append(basicPaymentServiceItemParams, distanceZipSITOriginParam)
-		dopsit := testdatagen.MakePaymentServiceItemWithParams(
+		dopsit := factory.BuildPaymentServiceItemWithParams(
 			suite.DB(),
 			models.ReServiceCodeDOPSIT,
 			dopsitParams,
-			assertions,
+			customizations, nil,
 		)
 
 		paymentServiceItems = models.PaymentServiceItems{}
@@ -458,27 +469,38 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		}, nil)
 
 		priceCents := unit.Cents(888)
-		assertions := testdatagen.Assertions{
-			Move:           mto,
-			MTOShipment:    mtoShipment,
-			PaymentRequest: paymentRequest,
-			PaymentServiceItem: models.PaymentServiceItem{
-				Status:     models.PaymentServiceItemStatusApproved,
-				PriceCents: &priceCents,
+		customizations := []factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					Status:     models.PaymentServiceItemStatusApproved,
+					PriceCents: &priceCents,
+				},
+			},
+			{
+				Model:    mto,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipment,
+				LinkOnly: true,
+			},
+			{
+				Model:    paymentRequest,
+				LinkOnly: true,
 			},
 		}
-		distanceZipSITOriginParam := testdatagen.CreatePaymentServiceItemParams{
+		distanceZipSITOriginParam := factory.CreatePaymentServiceItemParams{
 			Key:     models.ServiceItemParamNameDistanceZipSITOrigin,
 			KeyType: models.ServiceItemParamTypeInteger,
 			Value:   "33",
 		}
 
 		dopsitParams := append(basicPaymentServiceItemParams, distanceZipSITOriginParam)
-		dopsit := testdatagen.MakePaymentServiceItemWithParams(
+		dopsit := factory.BuildPaymentServiceItemWithParams(
 			suite.DB(),
 			models.ReServiceCodeDOPSIT,
 			dopsitParams,
-			assertions,
+			customizations, nil,
 		)
 
 		paymentServiceItems = models.PaymentServiceItems{}
@@ -510,13 +532,18 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 			{Model: customAddress, Type: &factory.Addresses.DutyLocationAddress},
 		}, nil)
 
-		mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Order: models.Order{
-				NewDutyLocation:   destDutyLocation,
-				NewDutyLocationID: destDutyLocation.ID,
+		mto := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model:    destDutyLocation,
+				LinkOnly: true,
+				Type:     &factory.DutyLocations.NewDutyLocation,
 			},
-			OriginDutyLocation: originDutyLocation,
-		})
+			{
+				Model:    originDutyLocation,
+				LinkOnly: true,
+				Type:     &factory.DutyLocations.OriginDutyLocation,
+			},
+		}, nil)
 
 		paymentRequest = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
 			{
@@ -532,37 +559,53 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 			},
 		}, nil)
 
-		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: mto,
-			MTOShipment: models.MTOShipment{
-				RequestedPickupDate: &requestedPickupDate,
-				ScheduledPickupDate: &scheduledPickupDate,
-				ActualPickupDate:    &actualPickupDate,
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    mto,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: &requestedPickupDate,
+					ScheduledPickupDate: &scheduledPickupDate,
+					ActualPickupDate:    &actualPickupDate,
+				},
+			},
+		}, nil)
 
 		priceCents := unit.Cents(888)
-		assertions := testdatagen.Assertions{
-			Move:           mto,
-			MTOShipment:    mtoShipment,
-			PaymentRequest: paymentRequest,
-			PaymentServiceItem: models.PaymentServiceItem{
-				Status:     models.PaymentServiceItemStatusApproved,
-				PriceCents: &priceCents,
+		customizations := []factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					Status:     models.PaymentServiceItemStatusApproved,
+					PriceCents: &priceCents,
+				},
+			},
+			{
+				Model:    mto,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipment,
+				LinkOnly: true,
+			},
+			{
+				Model:    paymentRequest,
+				LinkOnly: true,
 			},
 		}
-		distanceZipSITOriginParam := testdatagen.CreatePaymentServiceItemParams{
+		distanceZipSITOriginParam := factory.CreatePaymentServiceItemParams{
 			Key:     models.ServiceItemParamNameDistanceZipSITOrigin,
 			KeyType: models.ServiceItemParamTypeInteger,
 			Value:   "33",
 		}
 
 		dopsitParams := append(basicPaymentServiceItemParams, distanceZipSITOriginParam)
-		dopsit := testdatagen.MakePaymentServiceItemWithParams(
+		dopsit := factory.BuildPaymentServiceItemWithParams(
 			suite.DB(),
 			models.ReServiceCodeDOPSIT,
 			dopsitParams,
-			assertions,
+			customizations, nil,
 		)
 
 		paymentServiceItems = models.PaymentServiceItems{}
@@ -903,11 +946,11 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 
 func (suite *GHCInvoiceSuite) TestOnlyMsandCsGenerateEdi() {
 	generator := NewGHCPaymentRequestInvoiceGenerator(suite.icnSequencer, clock.NewMock())
-	basicPaymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
+	basicPaymentServiceItemParams := []factory.CreatePaymentServiceItemParams{
 		{
 			Key:     models.ServiceItemParamNameContractCode,
 			KeyType: models.ServiceItemParamTypeString,
-			Value:   testdatagen.DefaultContractCode,
+			Value:   factory.DefaultContractCode,
 		},
 	}
 	mto := factory.BuildMove(suite.DB(), nil, nil)
@@ -925,25 +968,33 @@ func (suite *GHCInvoiceSuite) TestOnlyMsandCsGenerateEdi() {
 		},
 	}, nil)
 
-	assertions := testdatagen.Assertions{
-		Move:           mto,
-		PaymentRequest: paymentRequest,
-		PaymentServiceItem: models.PaymentServiceItem{
-			Status: models.PaymentServiceItemStatusApproved,
+	customizations := []factory.Customization{
+		{
+			Model: models.PaymentServiceItem{
+				Status: models.PaymentServiceItemStatusApproved,
+			},
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+		{
+			Model:    paymentRequest,
+			LinkOnly: true,
 		},
 	}
 
-	testdatagen.MakePaymentServiceItemWithParams(
+	factory.BuildPaymentServiceItemWithParams(
 		suite.DB(),
 		models.ReServiceCodeMS,
 		basicPaymentServiceItemParams,
-		assertions,
+		customizations, nil,
 	)
-	testdatagen.MakePaymentServiceItemWithParams(
+	factory.BuildPaymentServiceItemWithParams(
 		suite.DB(),
 		models.ReServiceCodeCS,
 		basicPaymentServiceItemParams,
-		assertions,
+		customizations, nil,
 	)
 
 	_, err := generator.Generate(suite.AppContextForTest(), paymentRequest, false)
@@ -953,11 +1004,11 @@ func (suite *GHCInvoiceSuite) TestOnlyMsandCsGenerateEdi() {
 func (suite *GHCInvoiceSuite) TestNilValues() {
 	mockClock := clock.NewMock()
 	currentTime := mockClock.Now()
-	basicPaymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
+	basicPaymentServiceItemParams := []factory.CreatePaymentServiceItemParams{
 		{
 			Key:     models.ServiceItemParamNameContractCode,
 			KeyType: models.ServiceItemParamTypeString,
-			Value:   testdatagen.DefaultContractCode,
+			Value:   factory.DefaultContractCode,
 		},
 		{
 			Key:     models.ServiceItemParamNameReferenceDate,
@@ -996,19 +1047,28 @@ func (suite *GHCInvoiceSuite) TestNilValues() {
 			},
 		}, nil)
 
-		assertions := testdatagen.Assertions{
-			Move:           nilMove,
-			PaymentRequest: nilPaymentRequest,
-			PaymentServiceItem: models.PaymentServiceItem{
-				Status: models.PaymentServiceItemStatusApproved,
+		customizations := []factory.Customization{
+			{
+				Model:    nilMove,
+				LinkOnly: true,
+			},
+			{
+				Model:    nilPaymentRequest,
+				LinkOnly: true,
+			},
+			{
+				Model: models.PaymentServiceItem{
+					Status: models.PaymentServiceItemStatusApproved,
+				},
 			},
 		}
 
-		testdatagen.MakePaymentServiceItemWithParams(
+		factory.BuildPaymentServiceItemWithParams(
 			suite.DB(),
 			models.ReServiceCodeDLH,
 			basicPaymentServiceItemParams,
-			assertions,
+			customizations,
+			nil,
 		)
 	}
 
@@ -1098,11 +1158,11 @@ func (suite *GHCInvoiceSuite) TestNoApprovedPaymentServiceItems() {
 	var err error
 	setupTestData := func() {
 
-		basicPaymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
+		basicPaymentServiceItemParams := []factory.CreatePaymentServiceItemParams{
 			{
 				Key:     models.ServiceItemParamNameContractCode,
 				KeyType: models.ServiceItemParamTypeString,
-				Value:   testdatagen.DefaultContractCode,
+				Value:   factory.DefaultContractCode,
 			},
 		}
 		mto := factory.BuildMove(suite.DB(), nil, nil)
@@ -1120,42 +1180,51 @@ func (suite *GHCInvoiceSuite) TestNoApprovedPaymentServiceItems() {
 			},
 		}, nil)
 
-		assertions := testdatagen.Assertions{
-			Move:               mto,
-			PaymentRequest:     paymentRequest,
-			PaymentServiceItem: models.PaymentServiceItem{},
+		customizations := []factory.Customization{
+			{
+				Model:    mto,
+				LinkOnly: true,
+			},
+			{
+				Model:    paymentRequest,
+				LinkOnly: true,
+			},
 		}
 
-		assertions.PaymentServiceItem.Status = models.PaymentServiceItemStatusDenied
-		testdatagen.MakePaymentServiceItemWithParams(
+		factory.BuildPaymentServiceItemWithParams(
 			suite.DB(),
 			models.ReServiceCodeMS,
 			basicPaymentServiceItemParams,
-			assertions,
+			append(customizations, factory.Customization{
+				Model: models.PaymentServiceItem{Status: models.PaymentServiceItemStatusDenied},
+			}), nil,
 		)
 
-		assertions.PaymentServiceItem.Status = models.PaymentServiceItemStatusRequested
-		testdatagen.MakePaymentServiceItemWithParams(
+		factory.BuildPaymentServiceItemWithParams(
 			suite.DB(),
 			models.ReServiceCodeCS,
 			basicPaymentServiceItemParams,
-			assertions,
+			append(customizations, factory.Customization{
+				Model: models.PaymentServiceItem{Status: models.PaymentServiceItemStatusRequested},
+			}), nil,
 		)
 
-		assertions.PaymentServiceItem.Status = models.PaymentServiceItemStatusPaid
-		testdatagen.MakePaymentServiceItemWithParams(
+		factory.BuildPaymentServiceItemWithParams(
 			suite.DB(),
 			models.ReServiceCodeCS,
 			basicPaymentServiceItemParams,
-			assertions,
+			append(customizations, factory.Customization{
+				Model: models.PaymentServiceItem{Status: models.PaymentServiceItemStatusPaid},
+			}), nil,
 		)
 
-		assertions.PaymentServiceItem.Status = models.PaymentServiceItemStatusSentToGex
-		testdatagen.MakePaymentServiceItemWithParams(
+		factory.BuildPaymentServiceItemWithParams(
 			suite.DB(),
 			models.ReServiceCodeCS,
 			basicPaymentServiceItemParams,
-			assertions,
+			append(customizations, factory.Customization{
+				Model: models.PaymentServiceItem{Status: models.PaymentServiceItemStatusSentToGex},
+			}), nil,
 		)
 
 		result, err = generator.Generate(suite.AppContextForTest(), paymentRequest, false)
@@ -1176,11 +1245,11 @@ func (suite *GHCInvoiceSuite) TestNoApprovedPaymentServiceItems() {
 func (suite *GHCInvoiceSuite) TestTACs() {
 	mockClock := clock.NewMock()
 	currentTime := mockClock.Now()
-	basicPaymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
+	basicPaymentServiceItemParams := []factory.CreatePaymentServiceItemParams{
 		{
 			Key:     models.ServiceItemParamNameContractCode,
 			KeyType: models.ServiceItemParamTypeString,
-			Value:   testdatagen.DefaultContractCode,
+			Value:   factory.DefaultContractCode,
 		},
 		{
 			Key:     models.ServiceItemParamNameReferenceDate,
@@ -1237,18 +1306,29 @@ func (suite *GHCInvoiceSuite) TestTACs() {
 			},
 		}, nil)
 
-		testdatagen.MakePaymentServiceItemWithParams(
+		factory.BuildPaymentServiceItemWithParams(
 			suite.DB(),
 			models.ReServiceCodeDNPK,
 			basicPaymentServiceItemParams,
-			testdatagen.Assertions{
-				Move:           move,
-				MTOShipment:    mtoShipment,
-				PaymentRequest: paymentRequest,
-				PaymentServiceItem: models.PaymentServiceItem{
-					Status: models.PaymentServiceItemStatusApproved,
+			[]factory.Customization{
+				{
+					Model:    move,
+					LinkOnly: true,
 				},
-			},
+				{
+					Model:    mtoShipment,
+					LinkOnly: true,
+				},
+				{
+					Model:    paymentRequest,
+					LinkOnly: true,
+				},
+				{
+					Model: models.PaymentServiceItem{
+						Status: models.PaymentServiceItemStatusApproved,
+					},
+				},
+			}, nil,
 		)
 	}
 

@@ -141,7 +141,7 @@ func (suite *HandlerSuite) TestUpdateMovingExpenseHandler() {
 	}
 	makeUpdateSubtestData := func(authenticateRequest bool) (subtestData movingExpenseUpdateSubtestData) {
 		// Fake data:
-		subtestData.movingExpense = testdatagen.MakeMovingExpense(suite.DB(), testdatagen.Assertions{})
+		subtestData.movingExpense = factory.BuildMovingExpense(suite.DB(), nil, nil)
 		subtestData.ppmShipment = subtestData.movingExpense.PPMShipment
 		serviceMember := subtestData.ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
 
@@ -302,7 +302,7 @@ func (suite *HandlerSuite) TestDeleteMovingExpenseHandler() {
 	}
 	makeDeleteSubtestData := func(authenticateRequest bool) (subtestData movingExpenseDeleteSubtestData) {
 		// Fake data:
-		subtestData.movingExpense = testdatagen.MakeMovingExpense(suite.DB(), testdatagen.Assertions{})
+		subtestData.movingExpense = factory.BuildMovingExpense(suite.DB(), nil, nil)
 		subtestData.ppmShipment = subtestData.movingExpense.PPMShipment
 		serviceMember := subtestData.ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
 
@@ -375,10 +375,13 @@ func (suite *HandlerSuite) TestDeleteMovingExpenseHandler() {
 	suite.Run("DELETE failure - 404 - not found - ppm shipment ID and moving expense ID don't match", func() {
 		subtestData := makeDeleteSubtestData(false)
 		serviceMember := subtestData.ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
-		// Replace this once MakeMovingExpense has been replaced
-		otherPPMShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
-			Order: subtestData.ppmShipment.Shipment.MoveTaskOrder.Orders,
-		})
+
+		otherPPMShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    subtestData.ppmShipment.Shipment.MoveTaskOrder.Orders,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		subtestData.params.PpmShipmentID = *handlers.FmtUUID(otherPPMShipment.ID)
 		req := subtestData.params.HTTPRequest

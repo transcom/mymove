@@ -1,13 +1,16 @@
 package factory
 
 import (
+	"log"
 	"time"
 
 	"github.com/gobuffalo/pop/v6"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
+	"github.com/transcom/mymove/pkg/uploader"
 )
 
 type ppmBuildType byte
@@ -38,12 +41,26 @@ func buildPPMShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 	traits = append(traits, GetTraitPPMShipment)
 	shipment := BuildMTOShipment(db, customs, traits)
 
+	serviceMember := shipment.MoveTaskOrder.Orders.ServiceMember
+	if serviceMember.ResidentialAddressID == nil {
+		log.Panic("Created shipment has service member without ResidentialAddressID")
+	}
+	if serviceMember.ResidentialAddress == nil {
+		var address models.Address
+		err := db.Find(&address, serviceMember.ResidentialAddressID)
+		if err != nil {
+			log.Panicf("Cannot find address with ID %s: %s",
+				serviceMember.ResidentialAddressID, err)
+		}
+		serviceMember.ResidentialAddress = &address
+	}
+
 	ppmShipment := models.PPMShipment{
 		ShipmentID:            shipment.ID,
 		Shipment:              shipment,
 		Status:                models.PPMShipmentStatusDraft,
 		ExpectedDepartureDate: time.Date(GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC),
-		PickupPostalCode:      shipment.MoveTaskOrder.Orders.ServiceMember.ResidentialAddress.PostalCode,
+		PickupPostalCode:      serviceMember.ResidentialAddress.PostalCode,
 		DestinationPostalCode: shipment.MoveTaskOrder.Orders.NewDutyLocation.Address.PostalCode,
 		SITExpected:           models.BoolPointer(false),
 	}
@@ -91,6 +108,155 @@ func BuildPPMShipment(db *pop.Connection, customs []Customization, traits []Trai
 
 func BuildMinimalPPMShipment(db *pop.Connection, customs []Customization, traits []Trait) models.PPMShipment {
 	return buildPPMShipmentWithBuildType(db, customs, traits, ppmBuildMinimal)
+}
+
+// buildApprovedPPMShipmentWaitingOnCustomer creates a single PPMShipment that has been approved by a counselor and is
+// waiting on the customer to fill in the info for the actual move and
+// upload necessary documents.
+
+func buildApprovedPPMShipmentWaitingOnCustomer(db *pop.Connection, userUploader *uploader.UserUploader) models.PPMShipment {
+	ppmShipment := BuildPPMShipment(db, nil, []Trait{GetTraitApprovedPPMShipment})
+
+	if ppmShipment.HasRequestedAdvance == nil || !*ppmShipment.HasRequestedAdvance {
+		return ppmShipment
+	}
+
+	serviceMember := ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
+	if db == nil && serviceMember.ID.IsNil() {
+		// this is a stubbed ppm shipment and a stubbed service member
+		// we want to fake out the id in this case
+		serviceMember.ID = uuid.Must(uuid.NewV4())
+		ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMemberID = serviceMember.ID
+	}
+	aoaFile := testdatagen.Fixture("aoa-packet.pdf")
+
+	aoaPacket := buildDocumentWithUploads(db, userUploader, serviceMember, aoaFile)
+
+	ppmShipment.AOAPacket = &aoaPacket
+	ppmShipment.AOAPacketID = &aoaPacket.ID
+
+	if db != nil {
+		mustSave(db, &ppmShipment)
+	}
+
+	// Because of the way we're working with the PPMShipment, the changes we've made to it aren't reflected in the
+	// pointer reference that the MTOShipment has, so we'll need to update it to point at the latest version.
+	ppmShipment.Shipment.PPMShipment = &ppmShipment
+
+	return ppmShipment
+}
+
+// buildApprovedPPMShipmentWithActualInfo creates a single PPMShipment that has been approved by a counselor, has some
+// actual move info, and is waiting on the customer to finish filling
+// out info and upload documents.
+func buildApprovedPPMShipmentWithActualInfo(db *pop.Connection, userUploader *uploader.UserUploader) models.PPMShipment {
+	// It's easier to use some of the data from other downstream functions if we have them go first and then make our
+	// changes on top of those changes.
+	ppmShipment := buildApprovedPPMShipmentWaitingOnCustomer(db, userUploader)
+
+	ppmShipment.ActualMoveDate = models.TimePointer(ppmShipment.ExpectedDepartureDate.AddDate(0, 0, 1))
+	ppmShipment.ActualPickupPostalCode = &ppmShipment.PickupPostalCode
+	ppmShipment.ActualDestinationPostalCode = &ppmShipment.DestinationPostalCode
+
+	if ppmShipment.HasRequestedAdvance != nil && *ppmShipment.HasRequestedAdvance {
+		ppmShipment.HasReceivedAdvance = models.BoolPointer(true)
+
+		ppmShipment.AdvanceAmountReceived = ppmShipment.AdvanceAmountRequested
+	} else {
+		ppmShipment.HasReceivedAdvance = models.BoolPointer(false)
+	}
+
+	newDutyLocationAddress := ppmShipment.Shipment.MoveTaskOrder.Orders.NewDutyLocation.Address
+
+	w2Address := BuildAddress(db, []Customization{
+		{
+			Model: models.Address{
+				StreetAddress1: "987 New Street",
+				City:           newDutyLocationAddress.City,
+				State:          newDutyLocationAddress.State,
+				PostalCode:     newDutyLocationAddress.PostalCode,
+			},
+		},
+	}, nil)
+
+	ppmShipment.W2AddressID = &w2Address.ID
+	ppmShipment.W2Address = &w2Address
+
+	if db != nil {
+		mustSave(db, &ppmShipment)
+	} else {
+		// tests expect a stubbed PPM Shipment built with this factory
+		// method to have CreatedAt/UpdatedAt
+		ppmShipment.CreatedAt = time.Now()
+		ppmShipment.UpdatedAt = ppmShipment.CreatedAt
+	}
+
+	// Because of the way we're working with the PPMShipment, the
+	// changes we've made to it aren't reflected in the pointer
+	// reference that the MTOShipment has, so we'll need to update it
+	// to point at the latest version.
+	ppmShipment.Shipment.PPMShipment = &ppmShipment
+
+	return ppmShipment
+
+}
+
+func addWeightTicketToPPMShipment(db *pop.Connection, ppmShipment *models.PPMShipment, userUploader *uploader.UserUploader) {
+	if ppmShipment == nil {
+		log.Panic("ppmShipment is required")
+	}
+	if db == nil && ppmShipment.ID.IsNil() {
+		// need to create an ID so we can use the ppmShipment as
+		// LinkOnly
+		ppmShipment.ID = uuid.Must(uuid.NewV4())
+	}
+	customs := []Customization{
+		{
+			Model:    *ppmShipment,
+			LinkOnly: true,
+		},
+	}
+	if db != nil && userUploader != nil {
+		customs = append(customs, Customization{
+			Model: models.UserUpload{},
+			ExtendedParams: &UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   uploaderAppContext(db),
+			},
+		})
+	}
+	weightTicket := BuildWeightTicket(db, customs, nil)
+	if db == nil {
+		// tests expect a stubbed weight ticket built with this
+		// factory method to have CreatedAt/UpdatedAt
+		weightTicket.CreatedAt = ppmShipment.CreatedAt
+		weightTicket.UpdatedAt = ppmShipment.UpdatedAt
+	}
+	ppmShipment.WeightTickets = append(ppmShipment.WeightTickets, weightTicket)
+}
+
+// BuildPPMShipmentReadyForFinalCustomerCloseOut creates a single PPMShipment that has customer documents and is ready
+// for the customer to sign and submit.
+func BuildPPMShipmentReadyForFinalCustomerCloseOut(db *pop.Connection, userUploader *uploader.UserUploader) models.PPMShipment {
+	// It's easier to use some of the data from other downstream functions if we have them go first and then make our
+	// changes on top of those changes.
+	ppmShipment := buildApprovedPPMShipmentWithActualInfo(db, userUploader)
+
+	addWeightTicketToPPMShipment(db, &ppmShipment, userUploader)
+
+	ppmShipment.FinalIncentive = ppmShipment.EstimatedIncentive
+
+	if db != nil {
+		mustSave(db, &ppmShipment)
+	}
+
+	// Because of the way we're working with the PPMShipment, the
+	// changes we've made to it aren't reflected in the pointer
+	// reference that the MTOShipment has, so we'll need to update it
+	// to point at the latest version.
+	ppmShipment.Shipment.PPMShipment = &ppmShipment
+
+	return ppmShipment
 }
 
 // ------------------------
