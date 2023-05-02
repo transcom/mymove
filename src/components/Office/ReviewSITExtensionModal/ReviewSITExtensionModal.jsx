@@ -136,16 +136,25 @@ const SitStatusTables = ({ sitStatus }) => {
 };
 
 const ReviewSITExtensionsModal = ({ onClose, onSubmit, sitExtension, shipment, sitStatus }) => {
+  const initialValues = {
+    acceptExtension: 'yes',
+    daysApproved: sitExtension.requestedDays.toString(),
+    requestReason: '',
+    officeRemarks: '',
+    sitEndDate: moment().add(sitStatus.totalDaysRemaining, 'days').format('DD MMM YYYY'),
+  };
+  const minimumDaysAllowed = sitStatus.totalSITDaysUsed - sitStatus.daysInSIT + 1;
   const reviewSITExtensionSchema = Yup.object().shape({
     acceptExtension: Yup.mixed().oneOf(['yes', 'no']).required('Required'),
-    daysApproved: Yup.number().when('acceptExtension', {
-      is: 'yes',
-      then: Yup.number()
-        .min(1, 'Days approved must be greater than or equal to 1.')
-        .max(sitExtension.requestedDays, 'Days approved must be equal to or less than the requested days.')
-        .required('Required'),
-    }),
+    requestReason: Yup.string().required('Required'),
     officeRemarks: Yup.string().nullable(),
+    daysApproved: Yup.number()
+      .min(minimumDaysAllowed, `Total days of SIT approved must be ${minimumDaysAllowed} or more.`)
+      .required('Required'),
+    sitEndDate: Yup.date().min(
+      moment(sitStatus.sitEntryDate).add(1, 'days').format('DD MMM YYYY'),
+      'The end date must occur after the start date. Please select a new date.',
+    ),
   });
 
   return (
@@ -161,18 +170,13 @@ const ReviewSITExtensionsModal = ({ onClose, onSubmit, sitExtension, shipment, s
             <Formik
               validationSchema={reviewSITExtensionSchema}
               onSubmit={(e) => onSubmit(sitExtension.id, e)}
-              initialValues={{
-                acceptExtension: 'yes',
-                daysApproved: sitExtension.requestedDays.toString(),
-                officeRemarks: '',
-              }}
+              initialValues={initialValues}
             >
               {({ isValid, values, setValues }) => {
                 const handleNoSelection = (e) => {
                   if (e.target.value === 'no') {
                     setValues({
                       ...values,
-                      daysApproved: '',
                       acceptExtension: 'no',
                     });
                   }
