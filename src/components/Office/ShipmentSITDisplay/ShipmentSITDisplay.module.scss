@@ -57,7 +57,7 @@
     vertical-align: top;
 
     div {
-      display: flex;
+      @include u-line-height('body', 2);
     }
 
     p,
@@ -79,6 +79,7 @@
       @include u-font-size('body', '3xs');
       @include u-line-height('body', 2);
       color: $base-darker;
+      display: inline;
     }
 
     dt {
