@@ -737,3 +737,112 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 		suite.Equal(expected, paramLookup)
 	})
 }
+
+func (suite *ServiceParamValueLookupsSuite) TestFetchContract() {
+	setupTestData := func() {
+		firstContract := testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{
+			ReContract: models.ReContract{
+				Code: "first",
+			},
+		})
+		secondContract := testdatagen.MakeReContract(suite.DB(), testdatagen.Assertions{
+			ReContract: models.ReContract{
+				Code: "second",
+			},
+		})
+		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				StartDate: time.Date(2020, 9, 1, 0, 0, 0, 0, time.UTC),
+				EndDate:   time.Date(2021, 8, 31, 0, 0, 0, 0, time.UTC),
+			},
+			ReContract: firstContract,
+		})
+		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				StartDate: time.Date(2021, 9, 1, 0, 0, 0, 0, time.UTC),
+				EndDate:   time.Date(2022, 8, 31, 0, 0, 0, 0, time.UTC),
+			},
+			ReContract: firstContract,
+		})
+		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				StartDate: time.Date(2022, 9, 1, 0, 0, 0, 0, time.UTC),
+				EndDate:   time.Date(2023, 8, 31, 0, 0, 0, 0, time.UTC),
+			},
+			ReContract: secondContract,
+		})
+	}
+	type testCase struct {
+		date                 time.Time
+		expectedContractCode string
+		expectedError        error
+		description          string
+	}
+	testCases := []testCase{
+		{
+			date:          time.Date(2020, 8, 31, 0, 0, 0, 0, time.UTC),
+			expectedError: apperror.NotFoundError{},
+			description:   "before first contract year",
+		},
+		{
+			date:                 time.Date(2020, 9, 1, 0, 0, 0, 0, time.UTC),
+			expectedContractCode: "first",
+			expectedError:        nil,
+			description:          "first day of first contract year",
+		},
+		{
+			date:                 time.Date(2021, 8, 31, 23, 0, 0, 0, time.UTC),
+			expectedContractCode: "first",
+			expectedError:        nil,
+			description:          "last day of first contract year, after time 0",
+		},
+		{
+			date:                 time.Date(2021, 9, 1, 0, 0, 0, 0, time.UTC),
+			expectedContractCode: "first",
+			expectedError:        nil,
+			description:          "second year of first contract",
+		},
+		{
+			date:          time.Date(2023, 9, 1, 0, 0, 0, 0, time.UTC),
+			expectedError: apperror.NotFoundError{},
+			description:   "after all contract years",
+		},
+	}
+	for _, tc := range testCases {
+		suite.Run(tc.description, func() {
+			setupTestData()
+			contract, err := FetchContract(suite.AppContextForTest(), tc.date)
+			if tc.expectedError != nil {
+				suite.Error(err)
+				suite.IsType(tc.expectedError, err)
+			} else {
+				suite.NoError(err)
+				suite.Equal(tc.expectedContractCode, contract.Code)
+			}
+		})
+	}
+}
+
+func (suite *ServiceParamValueLookupsSuite) TestFetchContractForMove() {
+	suite.Run("should return error for nonexistent move", func() {
+		moveID := uuid.Must(uuid.NewV4())
+		_, err := fetchContractForMove(suite.AppContextForTest(), moveID)
+		suite.IsType(apperror.NotFoundError{}, err)
+	})
+	suite.Run("should return error for move that is not available to prime", func() {
+		move := factory.BuildMove(suite.DB(), nil, nil)
+		_, err := fetchContractForMove(suite.AppContextForTest(), move.ID)
+		suite.IsType(apperror.ConflictError{}, err)
+	})
+	suite.Run("should find contract for move that is available to prime", func() {
+		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				EndDate: time.Now().Add(24 * time.Hour),
+			},
+		})
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		contract, err := fetchContractForMove(suite.AppContextForTest(), move.ID)
+		suite.NoError(err)
+		suite.Equal(testdatagen.DefaultContractCode, contract.Code)
+	})
+}
