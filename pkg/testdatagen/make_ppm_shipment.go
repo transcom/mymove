@@ -334,9 +334,9 @@ func MakePPMShipmentReadyForFinalCustomerCloseOutWithAllDocTypes(db *pop.Connect
 	return ppmShipment
 }
 
-// MakePPMShipmentThatNeedsPaymentApproval creates a PPMShipment that is waiting for a counselor to review after a customer has
+// makePPMShipmentThatNeedsPaymentApproval creates a PPMShipment that is waiting for a counselor to review after a customer has
 // submitted all the necessary documents.
-func MakePPMShipmentThatNeedsPaymentApproval(db *pop.Connection, assertions Assertions) models.PPMShipment {
+func makePPMShipmentThatNeedsPaymentApproval(db *pop.Connection, assertions Assertions) models.PPMShipment {
 	// It's easier to use some of the data from other downstream functions if we have them go first and then make our
 	// changes on top of those changes.
 	ppmShipment := makePPMShipmentReadyForFinalCustomerCloseOut(db, assertions)
@@ -383,7 +383,7 @@ func MakePPMShipmentThatNeedsPaymentApproval(db *pop.Connection, assertions Asse
 func MakePPMShipmentThatNeedsPaymentApprovalWithAllDocTypes(db *pop.Connection, assertions Assertions) models.PPMShipment {
 	// It's easier to use some of the data from other downstream functions if we have them go first and then make our
 	// changes on top of those changes.
-	ppmShipment := MakePPMShipmentThatNeedsPaymentApproval(db, assertions)
+	ppmShipment := makePPMShipmentThatNeedsPaymentApproval(db, assertions)
 
 	AddProgearWeightTicketToPPMShipment(db, &ppmShipment, assertions)
 	AddMovingExpenseToPPMShipment(db, &ppmShipment, assertions)
@@ -400,7 +400,7 @@ func MakePPMShipmentThatNeedsPaymentApprovalWithAllDocTypes(db *pop.Connection, 
 func MakePPMShipmentWithApprovedDocumentsMissingPaymentPacket(db *pop.Connection, assertions Assertions) models.PPMShipment {
 	// It's easier to use some of the data from other downstream functions if we have them go first and then make our
 	// changes on top of those changes.
-	ppmShipment := MakePPMShipmentThatNeedsPaymentApproval(db, assertions)
+	ppmShipment := makePPMShipmentThatNeedsPaymentApproval(db, assertions)
 
 	ppmShipment.Status = models.PPMShipmentStatusPaymentApproved
 	ppmShipment.ReviewedAt = models.TimePointer(time.Now())
@@ -546,7 +546,7 @@ func MakePPMShipmentWithAllDocTypesApproved(db *pop.Connection, assertions Asser
 func MakePPMShipmentThatNeedsToBeResubmitted(db *pop.Connection, assertions Assertions) models.PPMShipment {
 	// It's easier to use some of the data from other downstream functions if we have them go first and then make our
 	// changes on top of those changes.
-	ppmShipment := MakePPMShipmentThatNeedsPaymentApproval(db, assertions)
+	ppmShipment := makePPMShipmentThatNeedsPaymentApproval(db, assertions)
 
 	// Document that got rejected. This would normally already exist and would just need to be updated to change the
 	// status, but for simplicity here, we'll just create it here and set it up with the appropriate status.

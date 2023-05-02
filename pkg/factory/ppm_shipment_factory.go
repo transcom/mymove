@@ -335,7 +335,13 @@ func buildPPMShipmentReadyForFinalCustomerCloseOutWithCustoms(db *pop.Connection
 	// changes on top of those changes.
 	ppmShipment := buildApprovedPPMShipmentWithActualInfo(db, userUploader, customs)
 
-	AddWeightTicketToPPMShipment(db, &ppmShipment, userUploader, nil)
+	var weightTicketTemplate *models.WeightTicket
+	if result := findValidCustomization(customs, WeightTicket); result != nil {
+		cWeightTicket := result.Model.(models.WeightTicket)
+		weightTicketTemplate = &cWeightTicket
+	}
+
+	AddWeightTicketToPPMShipment(db, &ppmShipment, userUploader, weightTicketTemplate)
 
 	ppmShipment.FinalIncentive = ppmShipment.EstimatedIncentive
 
