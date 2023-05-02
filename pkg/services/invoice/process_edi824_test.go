@@ -10,7 +10,6 @@ import (
 	ediResponse824 "github.com/transcom/mymove/pkg/edi/edi824"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
@@ -44,14 +43,18 @@ SE*5*000000001
 GE*1*1
 IEA*1*000000995
 `, paymentRequest.PaymentRequestNumber, *paymentRequest.MoveTaskOrder.ReferenceID)
-		testdatagen.MakePaymentRequestToInterchangeControlNumber(suite.DB(), testdatagen.Assertions{
-			PaymentRequestToInterchangeControlNumber: models.PaymentRequestToInterchangeControlNumber{
-				PaymentRequestID:         paymentRequest.ID,
-				InterchangeControlNumber: 100001251,
-				PaymentRequest:           paymentRequest,
-				EDIType:                  models.EDIType858,
+		factory.BuildPaymentRequestToInterchangeControlNumber(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequestToInterchangeControlNumber{
+					InterchangeControlNumber: 100001251,
+					EDIType:                  models.EDIType858,
+				},
 			},
-		})
+			{
+				Model:    paymentRequest,
+				LinkOnly: true,
+			},
+		}, nil)
 		err := edi824Processor.ProcessFile(suite.AppContextForTest(), "", sample824EDIString)
 		suite.NoError(err)
 	})
@@ -113,14 +116,18 @@ GE*1*1
 IEA*1*000000995
 `
 		paymentRequest := factory.BuildPaymentRequest(suite.DB(), nil, nil)
-		testdatagen.MakePaymentRequestToInterchangeControlNumber(suite.DB(), testdatagen.Assertions{
-			PaymentRequestToInterchangeControlNumber: models.PaymentRequestToInterchangeControlNumber{
-				PaymentRequestID:         paymentRequest.ID,
-				InterchangeControlNumber: 100001253,
-				PaymentRequest:           paymentRequest,
-				EDIType:                  models.EDIType858,
+		factory.BuildPaymentRequestToInterchangeControlNumber(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequestToInterchangeControlNumber{
+					InterchangeControlNumber: 100001253,
+					EDIType:                  models.EDIType858,
+				},
 			},
-		})
+			{
+				Model:    paymentRequest,
+				LinkOnly: true,
+			},
+		}, nil)
 		err := edi824Processor.ProcessFile(suite.AppContextForTest(), "", sample824EDIString)
 		suite.NotNil(err)
 		suite.Contains(err.Error(), fmt.Sprintf("The BGN02 Reference Identification field: 1126-9404-2 doesn't match the PaymentRequestNumber %s of the associated payment request", paymentRequest.PaymentRequestNumber))
@@ -157,14 +164,18 @@ SE*5*000000001
 GE*1*1
 IEA*1*000000996
 `, paymentRequest.PaymentRequestNumber, *paymentRequest.MoveTaskOrder.ReferenceID)
-		testdatagen.MakePaymentRequestToInterchangeControlNumber(suite.DB(), testdatagen.Assertions{
-			PaymentRequestToInterchangeControlNumber: models.PaymentRequestToInterchangeControlNumber{
-				PaymentRequestID:         paymentRequest.ID,
-				InterchangeControlNumber: 100001255,
-				PaymentRequest:           paymentRequest,
-				EDIType:                  models.EDIType858,
+		factory.BuildPaymentRequestToInterchangeControlNumber(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequestToInterchangeControlNumber{
+					InterchangeControlNumber: 100001255,
+					EDIType:                  models.EDIType858,
+				},
 			},
-		})
+			{
+				Model:    paymentRequest,
+				LinkOnly: true,
+			},
+		}, nil)
 		err := edi824Processor.ProcessFile(suite.AppContextForTest(), "", sample824EDIString)
 		suite.NoError(err)
 
@@ -212,14 +223,18 @@ SE*5*000000001
 GE*1*1
 IEA*1*000000997
 `, paymentRequest.PaymentRequestNumber, *paymentRequest.MoveTaskOrder.ReferenceID)
-		testdatagen.MakePaymentRequestToInterchangeControlNumber(suite.DB(), testdatagen.Assertions{
-			PaymentRequestToInterchangeControlNumber: models.PaymentRequestToInterchangeControlNumber{
-				PaymentRequestID:         paymentRequest.ID,
-				InterchangeControlNumber: 100001252,
-				PaymentRequest:           paymentRequest,
-				EDIType:                  models.EDIType858,
+		factory.BuildPaymentRequestToInterchangeControlNumber(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequestToInterchangeControlNumber{
+					InterchangeControlNumber: 100001252,
+					EDIType:                  models.EDIType858,
+				},
 			},
-		})
+			{
+				Model:    paymentRequest,
+				LinkOnly: true,
+			},
+		}, nil)
 		err := edi824Processor.ProcessFile(suite.AppContextForTest(), "", sample824EDIString)
 		suite.NoError(err)
 
@@ -256,14 +271,18 @@ SE*5*000000001
 GE*2*1
 IEA*1*000000001
 `, paymentRequest.PaymentRequestNumber, *paymentRequest.MoveTaskOrder.ReferenceID)
-		testdatagen.MakePaymentRequestToInterchangeControlNumber(suite.DB(), testdatagen.Assertions{
-			PaymentRequestToInterchangeControlNumber: models.PaymentRequestToInterchangeControlNumber{
-				PaymentRequestID:         paymentRequest.ID,
-				InterchangeControlNumber: 100001252,
-				PaymentRequest:           paymentRequest,
-				EDIType:                  models.EDIType858,
+		factory.BuildPaymentRequestToInterchangeControlNumber(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequestToInterchangeControlNumber{
+					InterchangeControlNumber: 100001252,
+					EDIType:                  models.EDIType858,
+				},
 			},
-		})
+			{
+				Model:    paymentRequest,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		err := edi824Processor.ProcessFile(suite.AppContextForTest(), "", sample824EDIString)
 		suite.Error(err, "fail to process 824")
