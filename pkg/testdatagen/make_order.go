@@ -9,8 +9,10 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-// MakeOrder creates a single Order and associated data.
-func MakeOrder(db *pop.Connection, assertions Assertions) models.Order {
+// makeOrder creates a single Order and associated data.
+//
+// Deprecated: use factory.BuildOrder
+func makeOrder(db *pop.Connection, assertions Assertions) models.Order {
 	// Create new relational data if not provided
 	sm := assertions.Order.ServiceMember
 	// ID is required because it must be populated for Eager saving to work.
