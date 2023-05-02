@@ -90,7 +90,7 @@ func (suite *PPMShipmentSuite) TestSubmitCustomerCloseOut() {
 	})
 
 	suite.Run("Returns an error if updating an existing signed certification fails", func() {
-		existingPPMShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil)
+		existingPPMShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, nil)
 
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 			UserID: existingPPMShipment.Shipment.MoveTaskOrder.Orders.ServiceMember.User.ID,
@@ -153,7 +153,7 @@ func (suite *PPMShipmentSuite) TestSubmitCustomerCloseOut() {
 	})
 
 	suite.Run("Can update a signed certification and route the PPMShipment properly", func() {
-		existingPPMShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil)
+		existingPPMShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, nil)
 
 		userID := existingPPMShipment.Shipment.MoveTaskOrder.Orders.ServiceMember.User.ID
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{

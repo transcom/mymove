@@ -110,12 +110,12 @@ func BuildMinimalPPMShipment(db *pop.Connection, customs []Customization, traits
 	return buildPPMShipmentWithBuildType(db, customs, traits, ppmBuildMinimal)
 }
 
-// buildApprovedPPMShipmentWaitingOnCustomer creates a single PPMShipment that has been approved by a counselor and is
-// waiting on the customer to fill in the info for the actual move and
-// upload necessary documents.
-
-func buildApprovedPPMShipmentWaitingOnCustomer(db *pop.Connection, userUploader *uploader.UserUploader) models.PPMShipment {
-	ppmShipment := BuildPPMShipment(db, nil, []Trait{GetTraitApprovedPPMShipment})
+// buildApprovedPPMShipmentWaitingOnCustomer creates a single
+// PPMShipment that has been approved by a counselor and is waiting on
+// the customer to fill in the info for the actual move and upload
+// necessary documents.
+func buildApprovedPPMShipmentWaitingOnCustomer(db *pop.Connection, userUploader *uploader.UserUploader, customs []Customization) models.PPMShipment {
+	ppmShipment := BuildPPMShipment(db, customs, []Trait{GetTraitApprovedPPMShipment})
 
 	if ppmShipment.HasRequestedAdvance == nil || !*ppmShipment.HasRequestedAdvance {
 		return ppmShipment
@@ -139,20 +139,24 @@ func buildApprovedPPMShipmentWaitingOnCustomer(db *pop.Connection, userUploader 
 		mustSave(db, &ppmShipment)
 	}
 
-	// Because of the way we're working with the PPMShipment, the changes we've made to it aren't reflected in the
-	// pointer reference that the MTOShipment has, so we'll need to update it to point at the latest version.
+	// Because of the way we're working with the PPMShipment, the
+	// changes we've made to it aren't reflected in the pointer
+	// reference that the MTOShipment has, so we'll need to update it
+	// to point at the latest version.
 	ppmShipment.Shipment.PPMShipment = &ppmShipment
 
 	return ppmShipment
 }
 
-// buildApprovedPPMShipmentWithActualInfo creates a single PPMShipment that has been approved by a counselor, has some
-// actual move info, and is waiting on the customer to finish filling
-// out info and upload documents.
-func buildApprovedPPMShipmentWithActualInfo(db *pop.Connection, userUploader *uploader.UserUploader) models.PPMShipment {
-	// It's easier to use some of the data from other downstream functions if we have them go first and then make our
-	// changes on top of those changes.
-	ppmShipment := buildApprovedPPMShipmentWaitingOnCustomer(db, userUploader)
+// buildApprovedPPMShipmentWithActualInfo creates a single PPMShipment
+// that has been approved by a counselor, has some actual move info,
+// and is waiting on the customer to finish filling out info and
+// upload documents.
+func buildApprovedPPMShipmentWithActualInfo(db *pop.Connection, userUploader *uploader.UserUploader, customs []Customization) models.PPMShipment {
+	// It's easier to use some of the data from other downstream
+	// functions if we have them go first and then make our changes on
+	// top of those changes.
+	ppmShipment := buildApprovedPPMShipmentWaitingOnCustomer(db, userUploader, customs)
 
 	ppmShipment.ActualMoveDate = models.TimePointer(ppmShipment.ExpectedDepartureDate.AddDate(0, 0, 1))
 	ppmShipment.ActualPickupPostalCode = &ppmShipment.PickupPostalCode
@@ -325,12 +329,11 @@ func AddMovingExpenseToPPMShipment(db *pop.Connection, ppmShipment *models.PPMSh
 		movingExpense)
 }
 
-// BuildPPMShipmentReadyForFinalCustomerCloseOut creates a single PPMShipment that has customer documents and is ready
-// for the customer to sign and submit.
-func BuildPPMShipmentReadyForFinalCustomerCloseOut(db *pop.Connection, userUploader *uploader.UserUploader) models.PPMShipment {
+// buildPPMShipmentReadyForFinalCustomerCloseOutWithCustoms
+func buildPPMShipmentReadyForFinalCustomerCloseOutWithCustoms(db *pop.Connection, userUploader *uploader.UserUploader, customs []Customization) models.PPMShipment {
 	// It's easier to use some of the data from other downstream functions if we have them go first and then make our
 	// changes on top of those changes.
-	ppmShipment := buildApprovedPPMShipmentWithActualInfo(db, userUploader)
+	ppmShipment := buildApprovedPPMShipmentWithActualInfo(db, userUploader, customs)
 
 	AddWeightTicketToPPMShipment(db, &ppmShipment, userUploader, nil)
 
@@ -347,6 +350,14 @@ func BuildPPMShipmentReadyForFinalCustomerCloseOut(db *pop.Connection, userUploa
 	ppmShipment.Shipment.PPMShipment = &ppmShipment
 
 	return ppmShipment
+
+}
+
+// BuildPPMShipmentReadyForFinalCustomerCloseOut creates a single PPMShipment that has customer documents and is ready
+// for the customer to sign and submit.
+func BuildPPMShipmentReadyForFinalCustomerCloseOut(db *pop.Connection, userUploader *uploader.UserUploader) models.PPMShipment {
+	return buildPPMShipmentReadyForFinalCustomerCloseOutWithCustoms(db, userUploader,
+		nil)
 }
 
 // BuildPPMShipmentReadyForFinalCustomerCloseOutWithAllDocTypes
@@ -374,11 +385,11 @@ func BuildPPMShipmentReadyForFinalCustomerCloseOutWithAllDocTypes(db *pop.Connec
 // BuildPPMShipmentThatNeedsPaymentApproval creates a PPMShipment that
 // is waiting for a counselor to review after a customer has submitted
 // all the necessary documents.
-func BuildPPMShipmentThatNeedsPaymentApproval(db *pop.Connection, userUploader *uploader.UserUploader) models.PPMShipment {
+func BuildPPMShipmentThatNeedsPaymentApproval(db *pop.Connection, userUploader *uploader.UserUploader, customs []Customization) models.PPMShipment {
 	// It's easier to use some of the data from other downstream
 	// functions if we have them go first and then make our changes on
 	// top of those changes.
-	ppmShipment := BuildPPMShipmentReadyForFinalCustomerCloseOut(db, userUploader)
+	ppmShipment := buildPPMShipmentReadyForFinalCustomerCloseOutWithCustoms(db, userUploader, customs)
 
 	move := ppmShipment.Shipment.MoveTaskOrder
 	certType := models.SignedCertificationTypePPMPAYMENT

@@ -67,7 +67,7 @@ func (suite *PPMShipmentSuite) TestReviewDocuments() {
 	})
 
 	suite.Run("Returns an error if submitting the close out documentation fails", func() {
-		existingPPMShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil)
+		existingPPMShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, nil)
 
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 			UserID: existingPPMShipment.Shipment.MoveTaskOrder.Orders.ServiceMember.UserID,
@@ -99,7 +99,7 @@ func (suite *PPMShipmentSuite) TestReviewDocuments() {
 	})
 
 	suite.Run("Can route the PPMShipment properly", func() {
-		existingPPMShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil)
+		existingPPMShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, nil)
 
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 			UserID: existingPPMShipment.Shipment.MoveTaskOrder.Orders.ServiceMember.UserID,
