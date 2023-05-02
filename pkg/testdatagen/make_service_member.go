@@ -111,7 +111,7 @@ func makeExtendedServiceMember(db *pop.Connection, assertions Assertions) models
 	// Duty location must have a GBLOC associated to the postal code
 	// Check for an existing GBLOC and make one if it doesn't exist
 	if gbloc.GBLOC == "" || err != nil {
-		MakePostalCodeToGBLOC(db, dutyLocation.Address.PostalCode, "KKFA")
+		makePostalCodeToGBLOC(db, dutyLocation.Address.PostalCode, "KKFA")
 	}
 
 	// Combine extended SM defaults with assertions

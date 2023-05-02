@@ -8,6 +8,7 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testingsuite"
@@ -60,7 +61,7 @@ func (suite *ValidatePostalCodeTestSuite) TestValidatePostalCode() {
 
 	suite.Run("Postal code is not in zip3_distances table", func() {
 		testPostalCode := "30183"
-		testdatagen.MakePostalCodeToGBLOC(suite.DB(), testPostalCode, "CNNQ")
+		factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), testPostalCode, "CNNQ")
 
 		valid, err := postalCodeValidator.ValidatePostalCode(suite.AppContextForTest(), testPostalCode)
 
@@ -72,7 +73,7 @@ func (suite *ValidatePostalCodeTestSuite) TestValidatePostalCode() {
 
 	suite.Run("Contract year cannot be found", func() {
 		testPostalCode := "30183"
-		testdatagen.MakePostalCodeToGBLOC(suite.DB(), testPostalCode, "CNNQ")
+		factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), testPostalCode, "CNNQ")
 
 		testdatagen.MakeZip3Distance(suite.DB(), testdatagen.Assertions{
 			Zip3Distance: models.Zip3Distance{
@@ -93,7 +94,7 @@ func (suite *ValidatePostalCodeTestSuite) TestValidatePostalCode() {
 
 	suite.Run("Postal code is not in re_zip3s table", func() {
 		testPostalCode := "30183"
-		testdatagen.MakePostalCodeToGBLOC(suite.DB(), testPostalCode, "CNNQ")
+		factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), testPostalCode, "CNNQ")
 
 		testdatagen.MakeZip3Distance(suite.DB(), testdatagen.Assertions{
 			Zip3Distance: models.Zip3Distance{
@@ -114,7 +115,7 @@ func (suite *ValidatePostalCodeTestSuite) TestValidatePostalCode() {
 
 	suite.Run("Postal code is not in re_zip5_rate_areas table", func() {
 		testPostalCode := "32102"
-		testdatagen.MakePostalCodeToGBLOC(suite.DB(), testPostalCode, "CNNQ")
+		factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), testPostalCode, "CNNQ")
 
 		testdatagen.MakeZip3Distance(suite.DB(), testdatagen.Assertions{
 			Zip3Distance: models.Zip3Distance{
@@ -144,7 +145,7 @@ func (suite *ValidatePostalCodeTestSuite) TestValidatePostalCode() {
 
 	suite.Run("Valid postal code for zip3 with single rate area", func() {
 		testPostalCode := "30813"
-		testdatagen.MakePostalCodeToGBLOC(suite.DB(), testPostalCode, "CNNQ")
+		factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), testPostalCode, "CNNQ")
 
 		testdatagen.MakeZip3Distance(suite.DB(), testdatagen.Assertions{
 			Zip3Distance: models.Zip3Distance{
@@ -171,7 +172,7 @@ func (suite *ValidatePostalCodeTestSuite) TestValidatePostalCode() {
 
 	suite.Run("Valid postal code for zip3 with multiple rate areas", func() {
 		testPostalCode := "32102"
-		testdatagen.MakePostalCodeToGBLOC(suite.DB(), testPostalCode, "CNNQ")
+		factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), testPostalCode, "CNNQ")
 
 		testdatagen.MakeZip3Distance(suite.DB(), testdatagen.Assertions{
 			Zip3Distance: models.Zip3Distance{

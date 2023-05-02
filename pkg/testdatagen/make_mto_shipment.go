@@ -56,7 +56,7 @@ func makeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 		// Check that a GBLOC exists for pickup address postal code, make one if not
 		gbloc, err := models.FetchGBLOCForPostalCode(db, pickupAddress.PostalCode)
 		if gbloc.GBLOC == "" || err != nil {
-			MakePostalCodeToGBLOC(db, pickupAddress.PostalCode, "KKFA")
+			makePostalCodeToGBLOC(db, pickupAddress.PostalCode, "KKFA")
 		}
 	}
 

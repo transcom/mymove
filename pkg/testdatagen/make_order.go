@@ -90,7 +90,7 @@ func makeOrder(db *pop.Connection, assertions Assertions) models.Order {
 
 	gbloc, err := models.FetchGBLOCForPostalCode(db, originDutyLocation.Address.PostalCode)
 	if gbloc.GBLOC == "" || err != nil {
-		gbloc = MakePostalCodeToGBLOC(db, originDutyLocation.Address.PostalCode, "KKFA")
+		gbloc = makePostalCodeToGBLOC(db, originDutyLocation.Address.PostalCode, "KKFA")
 	}
 
 	orderTypeDetail := assertions.Order.OrdersTypeDetail
