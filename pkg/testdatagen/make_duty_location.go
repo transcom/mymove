@@ -20,19 +20,6 @@ func MakeDutyLocation(db *pop.Connection, assertions Assertions) models.DutyLoca
 	// ID is required because it must be populated for Eager saving to work.
 	if isZeroUUID(assertions.DutyLocation.AddressID) {
 		address = MakeAddress3(db, assertions)
-
-		// Make the required Tariff 400 NG Zip3 to correspond with the duty location address
-		FetchOrMakeDefaultTariff400ngZip3(db)
-		FetchOrMakeTariff400ngZip3(db, Assertions{
-			Tariff400ngZip3: models.Tariff400ngZip3{
-				Zip3:          "503",
-				BasepointCity: "Des Moines",
-				State:         "IA",
-				ServiceArea:   "296",
-				RateArea:      "US53",
-				Region:        "7",
-			},
-		})
 	}
 	affiliation := internalmessages.AffiliationAIRFORCE
 	location := models.DutyLocation{
@@ -121,15 +108,5 @@ func FetchOrMakeDefaultNewOrdersDutyLocation(db *pop.Connection) models.DutyLoca
 			Name: "Fort Gordon",
 		},
 	}
-	FetchOrMakeTariff400ngZip3(db, Assertions{
-		Tariff400ngZip3: models.Tariff400ngZip3{
-			Zip3:          "308",
-			BasepointCity: "Harlem",
-			State:         "GA",
-			ServiceArea:   "208",
-			RateArea:      "US45",
-			Region:        "12",
-		},
-	})
 	return MakeDutyLocation(db, fortGordonAssertions)
 }

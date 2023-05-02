@@ -49,23 +49,6 @@ func buildDutyLocationWithBuildType(db *pop.Connection, customs []Customization,
 		FetchOrBuildPostalCodeToGBLOC(db, dlAddress.PostalCode, "KKFA")
 	}
 
-	tarifCustoms := findValidCustomization(customs, Tariff400ngZip3)
-	if tarifCustoms == nil {
-		// Build the required Tariff 400 NG Zip3 to correspond with the
-		// duty location address
-		tarifCustoms = &Customization{
-			Model: models.Tariff400ngZip3{
-				Zip3:          "503",
-				BasepointCity: "Des Moines",
-				State:         "IA",
-				ServiceArea:   "296",
-				RateArea:      "US53",
-				Region:        "7",
-			},
-		}
-	}
-	FetchOrBuildTariff400ngZip3(db, []Customization{*tarifCustoms}, nil)
-
 	// Create default Duty Location
 	affiliation := internalmessages.AffiliationAIRFORCE
 
@@ -168,7 +151,6 @@ func FetchOrBuildCurrentDutyLocation(db *pop.Connection) models.DutyLocation {
 // FetchOrBuildOrdersDutyLocation returns a default orders duty location
 // It always fetches or builds a Fort Gordon duty location with the specified city/state/postal code
 // Some tests rely on the duty location being in 30813
-// It also creates a GA 208 tariff
 func FetchOrBuildOrdersDutyLocation(db *pop.Connection) models.DutyLocation {
 	if db == nil {
 		return BuildDutyLocation(nil, []Customization{
@@ -211,16 +193,6 @@ func GetTraitDefaultOrdersDutyLocation() []Customization {
 				City:       "Augusta",
 				State:      "GA",
 				PostalCode: "30813",
-			},
-		},
-		{
-			Model: models.Tariff400ngZip3{
-				Zip3:          "308",
-				BasepointCity: "Harlem",
-				State:         "GA",
-				ServiceArea:   "208",
-				RateArea:      "US45",
-				Region:        "12",
 			},
 		},
 	}
