@@ -392,7 +392,7 @@ func (suite *HandlerSuite) TestSubmitPPMShipmentDocumentationHandlerIntegration(
 	})
 
 	suite.Run("Returns an error if the PPM shipment is not in the right status", func() {
-		ppmShipment := testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{})
+		ppmShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, nil)
 
 		params, handler := setUpParamsAndHandler(ppmShipment, &internalmessages.SavePPMShipmentSignedCertification{
 			CertificationText: handlers.FmtString("certification text"),
@@ -795,7 +795,7 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerIntegratio
 		})
 		needsResubmittedSM = shipmentNeedsResubmitted.Shipment.MoveTaskOrder.Orders.ServiceMember
 
-		shipmentNeedsPaymentApproval = testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{})
+		shipmentNeedsPaymentApproval = factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, nil)
 		needsPaymentApprovalSM = shipmentNeedsPaymentApproval.Shipment.MoveTaskOrder.Orders.ServiceMember
 	})
 

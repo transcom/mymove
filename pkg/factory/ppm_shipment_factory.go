@@ -394,14 +394,13 @@ func BuildPPMShipmentThatNeedsPaymentApproval(db *pop.Connection, userUploader *
 	move := ppmShipment.Shipment.MoveTaskOrder
 	certType := models.SignedCertificationTypePPMPAYMENT
 
-	// cannot switch yet to BuildSignedCertification because of import
-	// cycle factory -> testdatagen -> factory MakePPMShipment will
-	// need to be replaced with a factory
 	signedCert := BuildSignedCertification(db, []Customization{
 		{
+			Model:    move,
+			LinkOnly: true,
+		},
+		{
 			Model: models.SignedCertification{
-				MoveID:            move.ID,
-				SubmittingUserID:  move.Orders.ServiceMember.User.ID,
 				PpmID:             &ppmShipment.ID,
 				CertificationType: &certType,
 			},
@@ -411,7 +410,13 @@ func BuildPPMShipmentThatNeedsPaymentApproval(db *pop.Connection, userUploader *
 	ppmShipment.SignedCertification = &signedCert
 
 	ppmShipment.Status = models.PPMShipmentStatusNeedsPaymentApproval
-	ppmShipment.SubmittedAt = models.TimePointer(time.Now())
+	if ppmShipment.SubmittedAt == nil {
+		ppmShipment.SubmittedAt = models.TimePointer(time.Now())
+	}
+
+	if db != nil {
+		mustSave(db, &ppmShipment)
+	}
 
 	// Because of the way we're working with the PPMShipment, the
 	// changes we've made to it aren't reflected in the pointer

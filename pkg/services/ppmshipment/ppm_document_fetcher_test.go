@@ -9,7 +9,6 @@ import (
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
-	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
@@ -187,11 +186,12 @@ func (suite *PPMShipmentSuite) TestPPMDocumentFetcher() {
 		// stage using our `utilities.SoftDestroy` function because of the related SignedCertification missing the
 		// DeletedAt field, so we'll just set the PPMShipment.DeletedAt field directly.
 		now := time.Now()
-		ppmShipmentToDelete := testdatagen.MakePPMShipmentThatNeedsPaymentApproval(appCtx.DB(), testdatagen.Assertions{
-			PPMShipment: models.PPMShipment{
-				DeletedAt: &now,
+		ppmShipmentToDelete := factory.BuildPPMShipmentThatNeedsPaymentApproval(appCtx.DB(), userUploader, []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					DeletedAt: &now,
+				},
 			},
-			UserUploader: userUploader,
 		})
 
 		fetchedDocument, err := ppmDocumentFetcher.GetPPMDocuments(suite.AppContextForTest(), ppmShipmentToDelete.Shipment.ID)

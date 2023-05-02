@@ -33,9 +33,7 @@ func (suite *HandlerSuite) TestGetPPMDocumentsHandlerUnit() {
 
 		suite.FatalNoError(err)
 
-		ppmShipment = testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{
-			UserUploader: userUploader,
-		})
+		ppmShipment = factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), userUploader, nil)
 
 		ppmShipment.WeightTickets = append(
 			ppmShipment.WeightTickets,
@@ -240,9 +238,7 @@ func (suite *HandlerSuite) TestGetPPMDocumentsHandlerIntegration() {
 
 		suite.FatalNoError(err)
 
-		ppmShipment = testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{
-			UserUploader: userUploader,
-		})
+		ppmShipment = factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), userUploader, nil)
 
 		ppmShipment.WeightTickets = append(
 			ppmShipment.WeightTickets,
@@ -525,23 +521,19 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerIntegratio
 	})
 
 	suite.Run("Returns an error if the PPM shipment is not awaiting payment review", func() {
-		draftPpmShipment := testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{
-			PPMShipment: models.PPMShipment{
-				Status: models.PPMShipmentStatusDraft,
-			},
-		})
+		draftPpmShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, nil)
+		draftPpmShipment.Status = models.PPMShipmentStatusDraft
+		suite.NoError(suite.DB().Save(&draftPpmShipment))
 
 		params, handler := setUpParamsAndHandler(draftPpmShipment, officeUser)
 
 		response := handler.Handle(params)
 
-		fmt.Printf("Response type: %T\n", response)
-
 		suite.IsType(&ppmdocumentops.FinishDocumentReviewConflict{}, response)
 	})
 
 	suite.Run("Can successfully submit a PPM shipment for close out", func() {
-		ppmShipment := testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{})
+		ppmShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, nil)
 
 		params, handler := setUpParamsAndHandler(ppmShipment, officeUser)
 
