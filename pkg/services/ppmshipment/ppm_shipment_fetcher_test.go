@@ -561,11 +561,9 @@ func (suite *PPMShipmentSuite) TestPPMShipmentFetcher() {
 		suite.Run("Excludes deleted uploads", func() {
 			appCtx := suite.AppContextForTest()
 
-			ppmShipment := testdatagen.MakePPMShipmentThatNeedsPaymentApprovalWithAllDocTypes(
+			ppmShipment := factory.BuildPPMShipmentThatNeedsPaymentApprovalWithAllDocTypes(
 				appCtx.DB(),
-				testdatagen.Assertions{
-					UserUploader: userUploader,
-				},
+				userUploader,
 			)
 
 			// Create a deleted upload for a weight ticket
@@ -822,10 +820,10 @@ func (suite *PPMShipmentSuite) TestFetchPPMShipment() {
 	})
 
 	suite.Run("FindPPMShipment - loads signed certification", func() {
-		// cannot switch yet to BuildSignedCertification because of import
-		// cycle factory -> testdatagen -> factory MakePPMShipment will
-		// need to be replaced with a factory
-		signedCertification := testdatagen.MakeSignedCertificationForPPM(suite.DB(), testdatagen.Assertions{})
+		signedCertification := factory.BuildSignedCertification(suite.DB(), nil, nil)
+		ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), nil)
+		signedCertification.PpmID = &ppmShipment.ID
+		suite.NoError(suite.DB().Save(&signedCertification))
 
 		actualShipment, err := FindPPMShipment(suite.AppContextForTest(), *signedCertification.PpmID)
 		suite.NoError(err)
