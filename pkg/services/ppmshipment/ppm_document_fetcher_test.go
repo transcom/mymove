@@ -80,11 +80,23 @@ func (suite *PPMShipmentSuite) TestPPMDocumentFetcher() {
 
 		ppmShipment.ProgearWeightTickets = append(
 			ppmShipment.ProgearWeightTickets,
-			testdatagen.MakeProgearWeightTicket(suite.DB(), testdatagen.Assertions{
-				ServiceMember: ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember,
-				PPMShipment:   ppmShipment,
-				UserUploader:  userUploader,
-			}),
+			factory.BuildProgearWeightTicket(suite.DB(), []factory.Customization{
+				{
+					Model:    ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember,
+					LinkOnly: true,
+				},
+				{
+					Model:    ppmShipment,
+					LinkOnly: true,
+				},
+				{
+					Model: models.UserUpload{},
+					ExtendedParams: &factory.UserUploadExtendedParams{
+						UserUploader: userUploader,
+						AppContext:   suite.AppContextForTest(),
+					},
+				},
+			}, nil),
 		)
 
 		// Add an extra upload to the progear weight ticket document to verify we get all non-deleted uploads later

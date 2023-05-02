@@ -129,7 +129,7 @@ func (suite *HandlerSuite) TestUpdateProGearWeightTicketHandler() {
 	}
 	makeUpdateSubtestData := func(authenticateRequest bool) (subtestData progearUpdateSubtestData) {
 		// Use fake data:
-		subtestData.progear = testdatagen.MakeProgearWeightTicket(suite.DB(), testdatagen.Assertions{})
+		subtestData.progear = factory.BuildProgearWeightTicket(suite.DB(), nil, nil)
 		subtestData.ppmShipment = subtestData.progear.PPMShipment
 		serviceMember := subtestData.ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
 
@@ -283,7 +283,7 @@ func (suite *HandlerSuite) TestDeleteProgearWeightTicketHandler() {
 	}
 	makeDeleteSubtestData := func(authenticateRequest bool) (subtestData progearWeightTicketDeleteSubtestData) {
 		// Fake data:
-		subtestData.progearWeightTicket = testdatagen.MakeProgearWeightTicket(suite.DB(), testdatagen.Assertions{})
+		subtestData.progearWeightTicket = factory.BuildProgearWeightTicket(suite.DB(), nil, nil)
 		subtestData.ppmShipment = subtestData.progearWeightTicket.PPMShipment
 		serviceMember := subtestData.ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
 
