@@ -25,9 +25,7 @@ func (suite *PPMShipmentSuite) TestPPMDocumentFetcher() {
 
 	makePPMShipmentWithAllDocuments := func(appCtx appcontext.AppContext) *models.PPMShipment {
 		// Set up PPM shipment that is at the correct stage of processing for when we would typically use this service
-		ppmShipment := testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{
-			UserUploader: userUploader,
-		})
+		ppmShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), userUploader)
 
 		suite.NotNil(ppmShipment)
 

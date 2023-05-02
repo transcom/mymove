@@ -155,7 +155,7 @@ func (suite *PPMShipmentSuite) TestSendToCustomer() {
 			return factory.BuildPPMShipment(nil, nil, nil)
 		},
 		models.PPMShipmentStatusNeedsPaymentApproval: func() models.PPMShipment {
-			return testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{Stub: true})
+			return factory.BuildPPMShipmentThatNeedsPaymentApproval(nil, nil)
 		},
 	}
 
@@ -355,7 +355,7 @@ func (suite *PPMShipmentSuite) TestSubmitCloseOutDocumentation() {
 			return factory.BuildPPMShipment(nil, nil, nil)
 		},
 		models.PPMShipmentStatusNeedsPaymentApproval: func() models.PPMShipment {
-			return testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{Stub: true})
+			return factory.BuildPPMShipmentThatNeedsPaymentApproval(nil, nil)
 		},
 	}
 

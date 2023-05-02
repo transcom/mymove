@@ -279,36 +279,27 @@ func (suite *PPMShipmentSuite) TestPPMShipmentFetcher() {
 		})
 
 		suite.Run("Excludes deleted documents", func() {
-			ppmShipment := testdatagen.MakePPMShipmentReadyForFinalCustomerCloseOutWithAllDocTypes(
+			ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOutWithAllDocTypes(
 				suite.DB(),
-				testdatagen.Assertions{
-					UserUploader: userUploader,
-				},
-			)
+				userUploader)
 
 			// create new ppm documents that are deleted
 			now := time.Now()
 
-			testdatagen.AddWeightTicketToPPMShipment(suite.DB(), &ppmShipment, testdatagen.Assertions{
-				UserUploader: userUploader,
-				WeightTicket: models.WeightTicket{
+			factory.AddWeightTicketToPPMShipment(suite.DB(), &ppmShipment,
+				userUploader, &models.WeightTicket{
 					DeletedAt: &now,
-				},
-			})
+				})
 
-			testdatagen.AddProgearWeightTicketToPPMShipment(suite.DB(), &ppmShipment, testdatagen.Assertions{
-				UserUploader: userUploader,
-				ProgearWeightTicket: models.ProgearWeightTicket{
+			factory.AddProgearWeightTicketToPPMShipment(suite.DB(), &ppmShipment,
+				userUploader, &models.ProgearWeightTicket{
 					DeletedAt: &now,
-				},
-			})
+				})
 
-			testdatagen.AddMovingExpenseToPPMShipment(suite.DB(), &ppmShipment, testdatagen.Assertions{
-				UserUploader: userUploader,
-				MovingExpense: models.MovingExpense{
+			factory.AddMovingExpenseToPPMShipment(suite.DB(), &ppmShipment,
+				userUploader, &models.MovingExpense{
 					DeletedAt: &now,
-				},
-			})
+				})
 
 			ppmShipmentReturned, err := fetcher.GetPPMShipment(
 				suite.AppContextForTest(),

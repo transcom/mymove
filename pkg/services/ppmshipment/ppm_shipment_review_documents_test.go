@@ -9,10 +9,10 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/mocks"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *PPMShipmentSuite) TestReviewDocuments() {
@@ -67,11 +67,9 @@ func (suite *PPMShipmentSuite) TestReviewDocuments() {
 	})
 
 	suite.Run("Returns an error if submitting the close out documentation fails", func() {
-		appCtx := suite.AppContextForTest()
+		existingPPMShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil)
 
-		existingPPMShipment := testdatagen.MakePPMShipmentThatNeedsPaymentApproval(appCtx.DB(), testdatagen.Assertions{})
-
-		appCtx = suite.AppContextWithSessionForTest(&auth.Session{
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 			UserID: existingPPMShipment.Shipment.MoveTaskOrder.Orders.ServiceMember.UserID,
 		})
 
@@ -101,11 +99,9 @@ func (suite *PPMShipmentSuite) TestReviewDocuments() {
 	})
 
 	suite.Run("Can route the PPMShipment properly", func() {
-		appCtx := suite.AppContextForTest()
+		existingPPMShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil)
 
-		existingPPMShipment := testdatagen.MakePPMShipmentThatNeedsPaymentApproval(appCtx.DB(), testdatagen.Assertions{})
-
-		appCtx = suite.AppContextWithSessionForTest(&auth.Session{
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 			UserID: existingPPMShipment.Shipment.MoveTaskOrder.Orders.ServiceMember.UserID,
 		})
 

@@ -201,7 +201,8 @@ func buildApprovedPPMShipmentWithActualInfo(db *pop.Connection, userUploader *up
 
 }
 
-func addWeightTicketToPPMShipment(db *pop.Connection, ppmShipment *models.PPMShipment, userUploader *uploader.UserUploader) {
+// AddWeightTicketToPPMShipment adds a weight ticket to an existing PPMShipment
+func AddWeightTicketToPPMShipment(db *pop.Connection, ppmShipment *models.PPMShipment, userUploader *uploader.UserUploader, weightTicketTemplate *models.WeightTicket) {
 	if ppmShipment == nil {
 		log.Panic("ppmShipment is required")
 	}
@@ -215,6 +216,11 @@ func addWeightTicketToPPMShipment(db *pop.Connection, ppmShipment *models.PPMShi
 			Model:    *ppmShipment,
 			LinkOnly: true,
 		},
+	}
+	if weightTicketTemplate != nil {
+		customs = append(customs, Customization{
+			Model: *weightTicketTemplate,
+		})
 	}
 	if db != nil && userUploader != nil {
 		customs = append(customs, Customization{
@@ -235,6 +241,90 @@ func addWeightTicketToPPMShipment(db *pop.Connection, ppmShipment *models.PPMShi
 	ppmShipment.WeightTickets = append(ppmShipment.WeightTickets, weightTicket)
 }
 
+// AddProgearWeightTicketToPPMShipment adds a progear weight ticket to
+// an existing PPMShipment
+func AddProgearWeightTicketToPPMShipment(db *pop.Connection, ppmShipment *models.PPMShipment, userUploader *uploader.UserUploader, progearWeightTicketTemplate *models.ProgearWeightTicket) {
+	if ppmShipment == nil {
+		log.Panic("ppmShipment is required")
+	}
+	if db == nil && ppmShipment.ID.IsNil() {
+		// need to create an ID so we can use the ppmShipment as
+		// LinkOnly
+		ppmShipment.ID = uuid.Must(uuid.NewV4())
+	}
+	customs := []Customization{
+		{
+			Model:    *ppmShipment,
+			LinkOnly: true,
+		},
+	}
+	if progearWeightTicketTemplate != nil {
+		customs = append(customs, Customization{
+			Model: *progearWeightTicketTemplate,
+		})
+	}
+	if db != nil && userUploader != nil {
+		customs = append(customs, Customization{
+			Model: models.UserUpload{},
+			ExtendedParams: &UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   uploaderAppContext(db),
+			},
+		})
+	}
+	progearWeightTicket := BuildProgearWeightTicket(db, customs, nil)
+	if db == nil {
+		// tests expect a stubbed weight ticket built with this
+		// factory method to have CreatedAt/UpdatedAt
+		progearWeightTicket.CreatedAt = ppmShipment.CreatedAt
+		progearWeightTicket.UpdatedAt = ppmShipment.UpdatedAt
+	}
+	ppmShipment.ProgearWeightTickets = append(ppmShipment.ProgearWeightTickets,
+		progearWeightTicket)
+}
+
+// AddMovingExpenseToPPMShipment adds a progear weight ticket to
+// an existing PPMShipment
+func AddMovingExpenseToPPMShipment(db *pop.Connection, ppmShipment *models.PPMShipment, userUploader *uploader.UserUploader, movingExpenseTemplate *models.MovingExpense) {
+	if ppmShipment == nil {
+		log.Panic("ppmShipment is required")
+	}
+	if db == nil && ppmShipment.ID.IsNil() {
+		// need to create an ID so we can use the ppmShipment as
+		// LinkOnly
+		ppmShipment.ID = uuid.Must(uuid.NewV4())
+	}
+	customs := []Customization{
+		{
+			Model:    *ppmShipment,
+			LinkOnly: true,
+		},
+	}
+	if movingExpenseTemplate != nil {
+		customs = append(customs, Customization{
+			Model: *movingExpenseTemplate,
+		})
+	}
+	if db != nil && userUploader != nil {
+		customs = append(customs, Customization{
+			Model: models.UserUpload{},
+			ExtendedParams: &UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   uploaderAppContext(db),
+			},
+		})
+	}
+	movingExpense := BuildMovingExpense(db, customs, nil)
+	if db == nil {
+		// tests expect a stubbed weight ticket built with this
+		// factory method to have CreatedAt/UpdatedAt
+		movingExpense.CreatedAt = ppmShipment.CreatedAt
+		movingExpense.UpdatedAt = ppmShipment.UpdatedAt
+	}
+	ppmShipment.MovingExpenses = append(ppmShipment.MovingExpenses,
+		movingExpense)
+}
+
 // BuildPPMShipmentReadyForFinalCustomerCloseOut creates a single PPMShipment that has customer documents and is ready
 // for the customer to sign and submit.
 func BuildPPMShipmentReadyForFinalCustomerCloseOut(db *pop.Connection, userUploader *uploader.UserUploader) models.PPMShipment {
@@ -242,13 +332,75 @@ func BuildPPMShipmentReadyForFinalCustomerCloseOut(db *pop.Connection, userUploa
 	// changes on top of those changes.
 	ppmShipment := buildApprovedPPMShipmentWithActualInfo(db, userUploader)
 
-	addWeightTicketToPPMShipment(db, &ppmShipment, userUploader)
+	AddWeightTicketToPPMShipment(db, &ppmShipment, userUploader, nil)
 
 	ppmShipment.FinalIncentive = ppmShipment.EstimatedIncentive
 
 	if db != nil {
 		mustSave(db, &ppmShipment)
 	}
+
+	// Because of the way we're working with the PPMShipment, the
+	// changes we've made to it aren't reflected in the pointer
+	// reference that the MTOShipment has, so we'll need to update it
+	// to point at the latest version.
+	ppmShipment.Shipment.PPMShipment = &ppmShipment
+
+	return ppmShipment
+}
+
+// BuildPPMShipmentReadyForFinalCustomerCloseOutWithAllDocTypes
+// creates a single PPMShipment that has one of each type of customer
+// documents (weight ticket, pro-gear weight ticket, and a moving
+// expense) and is ready for the customer to sign and submit.
+func BuildPPMShipmentReadyForFinalCustomerCloseOutWithAllDocTypes(db *pop.Connection, userUploader *uploader.UserUploader) models.PPMShipment {
+	// It's easier to use some of the data from other downstream
+	// functions if we have them go first and then make our changes on
+	// top of those changes.
+	ppmShipment := BuildPPMShipmentReadyForFinalCustomerCloseOut(db, userUploader)
+
+	AddProgearWeightTicketToPPMShipment(db, &ppmShipment, userUploader, nil)
+	AddMovingExpenseToPPMShipment(db, &ppmShipment, userUploader, nil)
+
+	// Because of the way we're working with the PPMShipment, the
+	// changes we've made to it aren't reflected in the pointer
+	// reference that the MTOShipment has, so we'll need to update it
+	// to point at the latest version.
+	ppmShipment.Shipment.PPMShipment = &ppmShipment
+
+	return ppmShipment
+}
+
+// BuildPPMShipmentThatNeedsPaymentApproval creates a PPMShipment that
+// is waiting for a counselor to review after a customer has submitted
+// all the necessary documents.
+func BuildPPMShipmentThatNeedsPaymentApproval(db *pop.Connection, userUploader *uploader.UserUploader) models.PPMShipment {
+	// It's easier to use some of the data from other downstream
+	// functions if we have them go first and then make our changes on
+	// top of those changes.
+	ppmShipment := BuildPPMShipmentReadyForFinalCustomerCloseOut(db, userUploader)
+
+	move := ppmShipment.Shipment.MoveTaskOrder
+	certType := models.SignedCertificationTypePPMPAYMENT
+
+	// cannot switch yet to BuildSignedCertification because of import
+	// cycle factory -> testdatagen -> factory MakePPMShipment will
+	// need to be replaced with a factory
+	signedCert := BuildSignedCertification(db, []Customization{
+		{
+			Model: models.SignedCertification{
+				MoveID:            move.ID,
+				SubmittingUserID:  move.Orders.ServiceMember.User.ID,
+				PpmID:             &ppmShipment.ID,
+				CertificationType: &certType,
+			},
+		},
+	}, nil)
+
+	ppmShipment.SignedCertification = &signedCert
+
+	ppmShipment.Status = models.PPMShipmentStatusNeedsPaymentApproval
+	ppmShipment.SubmittedAt = models.TimePointer(time.Now())
 
 	// Because of the way we're working with the PPMShipment, the
 	// changes we've made to it aren't reflected in the pointer
