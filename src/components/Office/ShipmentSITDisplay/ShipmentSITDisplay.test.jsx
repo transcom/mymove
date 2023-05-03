@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { debug } from 'jest-preview';
 
 import ShipmentSITDisplay from './ShipmentSITDisplay';
 import {
@@ -14,6 +15,7 @@ import {
   SITExtensionsWithComments,
   SITExtensionPending,
   SITExtensionDenied,
+  SITStatusExpired,
 } from './ShipmentSITDisplayTestParams';
 
 import { MockProviders } from 'testUtils';
@@ -151,6 +153,7 @@ describe('ShipmentSITDisplay', () => {
     expect(within(sitStatusTable).getByText('Total days of SIT approved')).toBeInTheDocument();
     expect(within(sitStatusTable).getByText('Total days remaining')).toBeInTheDocument();
     const daysApprovedAndRemaining = within(sitStatusTable).getAllByText('270');
+    debug();
     expect(daysApprovedAndRemaining).toHaveLength(2);
     const sitStartAndEndTable = await screen.findByTestId('sitStartAndEndTable');
     expect(sitStartAndEndTable).toBeInTheDocument();
@@ -238,11 +241,7 @@ describe('ShipmentSITDisplay', () => {
   it('shows Expired when the remaining days is less that the approved days', async () => {
     render(
       <MockProviders>
-        <ShipmentSITDisplay
-          sitExtensions={SITExtensions}
-          sitStatus={{ ...SITStatusDestination, totalSITDaysUsed: 270 }}
-          shipment={SITShipment}
-        />
+        <ShipmentSITDisplay sitExtensions={SITExtensions} sitStatus={SITStatusExpired} shipment={SITShipment} />
       </MockProviders>,
     );
     expect(screen.getByText('Expired')).toBeInTheDocument();

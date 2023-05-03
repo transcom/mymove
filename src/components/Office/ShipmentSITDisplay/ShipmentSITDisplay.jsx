@@ -109,16 +109,13 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton }
 
   const totalSITDaysUsed = sitStatus?.totalSITDaysUsed || 0;
   const totalDaysRemaining = () => {
-    const now = new Date();
-    const startDate = Date.parse(sitStartDate);
-    const sitPeriodStarted = Boolean(startDate < now);
-    const daysRemaining = sitStatus ? sitStatus.totalDaysRemaining : shipment.dayAllowance;
-    if (!sitPeriodStarted && daysRemaining > 0) {
+    const daysRemaining = sitStatus ? sitStatus.totalDaysRemaining : shipment.sitDaysAllowance;
+    if (!sitStatus && daysRemaining > 0) {
       return daysRemaining;
     }
-    if (sitPeriodStarted && daysRemaining > 0) {
+    if (sitStatus && daysRemaining > 0) {
       // Subract one day from the remaining days on the current sit to account for the current day
-      return sitStatus.totalDaysRemaining - 1;
+      return daysRemaining - 1;
     }
     return 'Expired';
   };
