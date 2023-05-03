@@ -19,6 +19,12 @@ func (suite *ServiceParamValueLookupsSuite) TestReferenceDateLookup() {
 	actualPickupDate := time.Date(testdatagen.TestYear, time.May, 14, 0, 0, 0, 0, time.UTC)
 
 	setupTestData := func(shipmentType models.MTOShipmentType) models.MTOServiceItem {
+		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				StartDate: time.Now().Add(-24 * time.Hour),
+				EndDate:   time.Now().Add(24 * time.Hour),
+			},
+		})
 		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{
@@ -27,7 +33,9 @@ func (suite *ServiceParamValueLookupsSuite) TestReferenceDateLookup() {
 					ShipmentType:        shipmentType,
 				},
 			},
-		}, nil)
+		}, []factory.Trait{
+			factory.GetTraitAvailableToPrimeMove,
+		})
 
 		// Don't need a payment request for this test.
 
