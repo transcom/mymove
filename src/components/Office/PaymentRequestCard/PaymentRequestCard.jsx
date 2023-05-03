@@ -173,12 +173,7 @@ const PaymentRequestCard = ({
           <Restricted to={permissionTypes.updatePaymentServiceItemStatus}>
             {paymentRequest.status === 'PENDING' && (
               <div className={styles.reviewButton}>
-                <Button
-                  style={{ maxWidth: '225px' }}
-                  onClick={handleClick}
-                  disabled={hasBillableWeightIssues}
-                  data-testid="reviewBtn"
-                >
+                <Button style={{ maxWidth: '225px' }} onClick={handleClick} disabled data-testid="reviewBtn">
                   <FontAwesomeIcon icon="copy" className={`${styles['docs-icon']} fas fa-copy`} />
                   Review service items
                 </Button>
