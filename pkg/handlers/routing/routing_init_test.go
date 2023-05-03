@@ -2,6 +2,7 @@ package routing
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -14,9 +15,11 @@ import (
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/authentication"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/telemetry"
 	"github.com/transcom/mymove/pkg/testingsuite"
@@ -129,19 +132,23 @@ func (suite *RoutingSuite) setupOfficeRequestSession(req *http.Request, officeUs
 	fakeAuthContext, err := sessionManager.Load(fakeAuthContext, "")
 	suite.NoError(err)
 
-	fakeSession := &auth.Session{
-		ApplicationName: auth.OfficeApp,
-		Hostname:        appNames.OfficeServername,
-		IDToken:         "notsure",
-		UserID:          *officeUser.UserID,
-		Email:           officeUser.User.LoginGovEmail,
-		OfficeUserID:    officeUser.ID,
-		FirstName:       officeUser.FirstName,
-		LastName:        officeUser.LastName,
-		Roles:           officeUser.User.Roles,
+	fakeSession := auth.Session{
+		ApplicationName: auth.Application(auth.OfficeApp),
+		Hostname:        suite.HandlerConfig().AppNames().OfficeServername,
 	}
+
+	userIdentity, err := models.FetchUserIdentity(suite.DB(), officeUser.User.LoginGovUUID.String())
+	suite.Assert().NoError(err)
+
+	// use AuthorizeKnownUser which also sets up various things in the
+	// Session, including Permissions
+	authentication.AuthorizeKnownUser(fakeAuthContext, suite.AppContextWithSessionForTest(&fakeSession),
+		userIdentity, sessionManager)
+
 	sessionManager.Put(fakeAuthContext, "session", fakeSession)
 	// ignore expiry for this test
+	// need to call commit ourselves to get the session token to put
+	// into the cookie
 	token, _, err := sessionManager.Commit(fakeAuthContext)
 	suite.NoError(err)
 	sessionCookie := sessionManager.SessionCookie()
@@ -164,12 +171,19 @@ func (suite *RoutingSuite) TestOfficeLoggedInEndpoint() {
 	h, err := InitRouting(suite.AppContextForTest(), nil, suite.routingConfig, &telemetry.Config{})
 	suite.NoError(err)
 
+	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitActiveOfficeUser(),
+		[]roles.RoleType{roles.RoleTypeTIO, roles.RoleTypeServicesCounselor})
 	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/internal/users/logged_in", appNames.OfficeServername), nil)
-
-	officeUser := factory.BuildOfficeUser(suite.DB(), nil, nil)
 	suite.setupOfficeRequestSession(req, officeUser)
 
 	rr := httptest.NewRecorder()
 	h.ServeHTTP(rr, req)
 	suite.Equal(http.StatusOK, rr.Code)
+
+	var userPayload internalmessages.LoggedInUserPayload
+	suite.NoError(json.Unmarshal(rr.Body.Bytes(), &userPayload))
+	suite.Equal(officeUser.UserID.String(), userPayload.ID.String())
+	suite.NotNil(userPayload.OfficeUser)
+	suite.Equal(officeUser.ID.String(), userPayload.OfficeUser.ID.String())
+	suite.NotEmpty(userPayload.Permissions)
 }

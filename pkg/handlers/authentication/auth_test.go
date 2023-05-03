@@ -550,7 +550,7 @@ func (suite *AuthSuite) TestAuthorizeDeactivateUser() {
 	}
 	sessionManager := handlerConfig.SessionManagers().Office
 	ctx := suite.SetupSessionContext(context.Background(), &session, sessionManager)
-	result := authorizeKnownUser(ctx, suite.AppContextWithSessionForTest(&session), &userIdentity, sessionManager)
+	result := AuthorizeKnownUser(ctx, suite.AppContextWithSessionForTest(&session), &userIdentity, sessionManager)
 
 	suite.Equal(authorizationResultUnauthorized, result, "authorizer did not recognize deactivated user")
 }
@@ -583,7 +583,7 @@ func (suite *AuthSuite) TestAuthKnownSingleRoleOffice() {
 	}
 	sessionManager := handlerConfig.SessionManagers().Office
 	ctx := suite.SetupSessionContext(context.Background(), &session, sessionManager)
-	result := authorizeKnownUser(ctx, suite.AppContextWithSessionForTest(&session), &userIdentity, sessionManager)
+	result := AuthorizeKnownUser(ctx, suite.AppContextWithSessionForTest(&session), &userIdentity, sessionManager)
 
 	suite.Equal(authorizationResultAuthorized, result)
 	// Office app, so should only have office ID information
@@ -610,7 +610,7 @@ func (suite *AuthSuite) TestAuthorizeDeactivateOfficeUser() {
 	}
 	sessionManager := handlerConfig.SessionManagers().Office
 	ctx := suite.SetupSessionContext(context.Background(), &session, sessionManager)
-	result := authorizeKnownUser(ctx, suite.AppContextWithSessionForTest(&session), &userIdentity,
+	result := AuthorizeKnownUser(ctx, suite.AppContextWithSessionForTest(&session), &userIdentity,
 		sessionManager)
 
 	suite.Equal(authorizationResultUnauthorized, result, "authorizer did not recognize deactivated office user")
@@ -657,7 +657,7 @@ func (suite *AuthSuite) TestRedirectLoginGovErrorMsg() {
 
 	sessionManager := handlerConfig.SessionManagers().Office
 	req = suite.SetupSessionRequest(req, &session, sessionManager)
-	result := authorizeKnownUser(req.Context(), suite.AppContextWithSessionForTest(&session),
+	result := AuthorizeKnownUser(req.Context(), suite.AppContextWithSessionForTest(&session),
 		&userIdentity, sessionManager)
 
 	suite.Equal(authorizationResultAuthorized, result)
@@ -742,18 +742,8 @@ func (s *stubLoginGovProvider) RefreshTokenAvailable() bool {
 // the stubLoginGovProvider from above
 func (suite *AuthSuite) TestRedirectFromLoginGovForValidUser() {
 	// build a real office user
-	tioOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
-		{
-			Model: models.User{
-				Active: true,
-			},
-		},
-		{
-			Model: models.OfficeUser{
-				Active: true,
-			},
-		},
-	}, []roles.RoleType{roles.RoleTypeTIO})
+	tioOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitActiveOfficeUser(),
+		[]roles.RoleType{roles.RoleTypeTIO})
 
 	handlerConfig := suite.HandlerConfig()
 	appnames := handlerConfig.AppNames()
@@ -899,7 +889,7 @@ func (suite *AuthSuite) TestAuthKnownSingleRoleAdmin() {
 
 	sessionManager := handlerConfig.SessionManagers().Admin
 	ctx := suite.SetupSessionContext(context.Background(), &session, sessionManager)
-	result := authorizeKnownUser(ctx, suite.AppContextWithSessionForTest(&session), &userIdentity,
+	result := AuthorizeKnownUser(ctx, suite.AppContextWithSessionForTest(&session), &userIdentity,
 		sessionManager)
 	suite.Equal(authorizationResultAuthorized, result)
 
@@ -933,7 +923,7 @@ func (suite *AuthSuite) TestAuthKnownServiceMember() {
 	}
 	sessionManager := handlerConfig.SessionManagers().Mil
 	ctx := suite.SetupSessionContext(context.Background(), &session, sessionManager)
-	result := authorizeKnownUser(ctx, suite.AppContextWithSessionForTest(&session), &userIdentity,
+	result := AuthorizeKnownUser(ctx, suite.AppContextWithSessionForTest(&session), &userIdentity,
 		sessionManager)
 	suite.Equal(authorizationResultAuthorized, result)
 
@@ -951,7 +941,7 @@ func (suite *AuthSuite) TestAuthKnownServiceMember() {
 		Hostname:        appnames.MilServername,
 	}
 	concurrentCtx := suite.SetupSessionContext(context.Background(), &session, sessionManager)
-	result = authorizeKnownUser(concurrentCtx, suite.AppContextWithSessionForTest(&concurrentSession),
+	result = AuthorizeKnownUser(concurrentCtx, suite.AppContextWithSessionForTest(&concurrentSession),
 		&userIdentity, sessionManager)
 	suite.Equal(authorizationResultAuthorized, result)
 
@@ -1052,7 +1042,7 @@ func (suite *AuthSuite) TestAuthorizeDeactivateAdmin() {
 	}
 	sessionManager := handlerConfig.SessionManagers().Admin
 	ctx := suite.SetupSessionContext(context.Background(), &session, sessionManager)
-	result := authorizeKnownUser(ctx, suite.AppContextWithSessionForTest(&session), &userIdentity,
+	result := AuthorizeKnownUser(ctx, suite.AppContextWithSessionForTest(&session), &userIdentity,
 		sessionManager)
 
 	suite.Equal(authorizationResultUnauthorized, result, "authorizer did not recognize deactivated admin user")
@@ -1341,7 +1331,7 @@ func (suite *AuthSuite) TestAuthorizeKnownUserAdminNotFound() {
 	ctx := suite.SetupSessionContext(context.Background(), &session, sessionManager)
 
 	// Call the function under test
-	result := authorizeKnownUser(ctx, suite.AppContextWithSessionForTest(&session), &userIdentity,
+	result := AuthorizeKnownUser(ctx, suite.AppContextWithSessionForTest(&session), &userIdentity,
 		sessionManager)
 	suite.Equal(authorizationResultUnauthorized, result, "Admin user not found")
 }

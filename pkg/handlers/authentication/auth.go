@@ -33,15 +33,15 @@ import (
 )
 
 // used by authorizeKnownUser and authorizeUnknownUser
-type authorizationResult byte
+type AuthorizationResult byte
 
 const (
-	authorizationResultAuthorized authorizationResult = iota
+	authorizationResultAuthorized AuthorizationResult = iota
 	authorizationResultUnauthorized
 	authorizationResultError
 )
 
-func (ar authorizationResult) String() string {
+func (ar AuthorizationResult) String() string {
 	return []string{
 		"authorizationResultAuthorized",
 		"authorizationResultUnauthorized",
@@ -805,7 +805,7 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func authorizeUser(ctx context.Context, appCtx appcontext.AppContext, openIDUser goth.User, sessionManager auth.SessionManager, notificationSender notifications.NotificationSender) authorizationResult {
+func authorizeUser(ctx context.Context, appCtx appcontext.AppContext, openIDUser goth.User, sessionManager auth.SessionManager, notificationSender notifications.NotificationSender) AuthorizationResult {
 	userIdentity, err := models.FetchUserIdentity(appCtx.DB(), openIDUser.UserID)
 
 	if err == nil {
@@ -813,7 +813,7 @@ func authorizeUser(ctx context.Context, appCtx appcontext.AppContext, openIDUser
 		// unique login.gov UUID (aka OID_User, aka openIDUser.UserID,
 		// aka models.User.login_gov_uuid)
 		appCtx.Logger().Info("Known user: found by login.gov OID_User, checking authorization", zap.String("OID_User", openIDUser.UserID), zap.String("OID_Email", openIDUser.Email), zap.String("user.id", userIdentity.ID.String()), zap.String("user.login_gov_email", userIdentity.Email))
-		result := authorizeKnownUser(ctx, appCtx, userIdentity, sessionManager)
+		result := AuthorizeKnownUser(ctx, appCtx, userIdentity, sessionManager)
 		appCtx.Logger().Info("Known user authorization",
 			zap.Any("authorizedResult", result),
 			zap.String("OID_User", openIDUser.UserID),
@@ -838,7 +838,7 @@ func authorizeUser(ctx context.Context, appCtx appcontext.AppContext, openIDUser
 	return authorizationResultError
 }
 
-func authorizeKnownUser(ctx context.Context, appCtx appcontext.AppContext, userIdentity *models.UserIdentity, sessionManager auth.SessionManager) authorizationResult {
+func AuthorizeKnownUser(ctx context.Context, appCtx appcontext.AppContext, userIdentity *models.UserIdentity, sessionManager auth.SessionManager) AuthorizationResult {
 	if !userIdentity.Active {
 		appCtx.Logger().Error("Inactive user requesting authentication",
 			zap.String("application_name", string(appCtx.Session().ApplicationName)),
@@ -953,7 +953,7 @@ func authorizeKnownUser(ctx context.Context, appCtx appcontext.AppContext, userI
 	return authorizationResultAuthorized
 }
 
-func authorizeUnknownUser(ctx context.Context, appCtx appcontext.AppContext, openIDUser goth.User, sessionManager auth.SessionManager, notificationSender notifications.NotificationSender) authorizationResult {
+func authorizeUnknownUser(ctx context.Context, appCtx appcontext.AppContext, openIDUser goth.User, sessionManager auth.SessionManager, notificationSender notifications.NotificationSender) AuthorizationResult {
 	var officeUser *models.OfficeUser
 	var user *models.User
 	var err error
