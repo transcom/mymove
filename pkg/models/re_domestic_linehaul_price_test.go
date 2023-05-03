@@ -24,14 +24,14 @@ func (suite *ModelSuite) TestReDomesticLinehaulPriceValidations() {
 	})
 
 	suite.Run("test empty ReDomesticLinehaulPrice", func() {
-		emptyReDomesticLinehaulPrice := models.ReDomesticLinehaulPrice{}
+		emptyReDomesticLinehaulPrice := models.ReDomesticLinehaulPrice{PriceMillicents: -1}
 		expErrors := map[string][]string{
 			"contract_id":              {"ContractID can not be blank."},
 			"weight_lower":             {"WeightLower can not be blank.", "0 is not greater than 499."},
 			"weight_upper":             {"WeightUpper can not be blank.", "0 is not greater than 0."},
 			"miles_upper":              {"MilesUpper can not be blank.", "0 is not greater than 0."},
 			"domestic_service_area_id": {"DomesticServiceAreaID can not be blank."},
-			"price_millicents":         {"PriceMillicents can not be blank.", "0 is not greater than 0."},
+			"price_millicents":         {"-1 is not greater than -1."},
 		}
 		suite.verifyValidationErrors(&emptyReDomesticLinehaulPrice, expErrors)
 	})
