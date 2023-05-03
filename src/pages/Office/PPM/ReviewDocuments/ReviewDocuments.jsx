@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Alert, Button, Grid } from '@trussworks/react-uswds';
-import { generatePath, useHistory, withRouter } from 'react-router-dom-old';
+import { generatePath, useNavigate, useParams } from 'react-router-dom';
 
 import { calculateWeightRequested } from '../../../../hooks/custom';
 
@@ -13,7 +13,6 @@ import { servicesCounselingRoutes } from 'constants/routes';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
-import { MatchShape } from 'types/router';
 import DocumentViewer from 'components/DocumentViewer/DocumentViewer';
 import DocumentViewerSidebar from 'pages/Office/DocumentViewerSidebar/DocumentViewerSidebar';
 import { useReviewShipmentWeightsQuery, usePPMShipmentDocsQueries } from 'hooks/queries';
@@ -30,9 +29,10 @@ const DOCUMENT_TYPES = {
   MOVING_EXPENSE: 'MOVING_EXPENSE',
 };
 
-export const ReviewDocuments = ({ match }) => {
-  const { shipmentId, moveCode } = match.params;
+export const ReviewDocuments = () => {
+  const { shipmentId, moveCode } = useParams();
   const { orders, mtoShipments } = useReviewShipmentWeightsQuery(moveCode);
+
   const { mtoShipment, documents, isLoading, isError } = usePPMShipmentDocsQueries(shipmentId);
 
   const order = Object.values(orders)?.[0];
@@ -99,7 +99,7 @@ export const ReviewDocuments = ({ match }) => {
     );
   }
 
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const formRef = useRef();
   const mainRef = useRef();
@@ -113,7 +113,7 @@ export const ReviewDocuments = ({ match }) => {
   if (isError) return <SomethingWentWrong />;
 
   const onClose = () => {
-    history.push(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
+    navigate(generatePath(servicesCounselingRoutes.BASE_MOVE_VIEW_PATH, { moveCode }));
   };
 
   const onBack = () => {
@@ -137,7 +137,7 @@ export const ReviewDocuments = ({ match }) => {
   };
 
   const onConfirmSuccess = () => {
-    history.push(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
+    navigate(generatePath(servicesCounselingRoutes.BASE_MOVE_VIEW_PATH, { moveCode }));
   };
 
   const onError = () => {
@@ -154,7 +154,7 @@ export const ReviewDocuments = ({ match }) => {
   const currentDocumentSet = documentSets[documentSetIndex];
   const disableBackButton = documentSetIndex === 0 && !showOverview;
 
-  const reviewShipmentWeightsURL = generatePath(servicesCounselingRoutes.REVIEW_SHIPMENT_WEIGHTS_PATH, {
+  const reviewShipmentWeightsURL = generatePath(servicesCounselingRoutes.BASE_REVIEW_SHIPMENT_WEIGHTS_PATH, {
     moveCode,
     shipmentId,
   });
@@ -247,8 +247,4 @@ export const ReviewDocuments = ({ match }) => {
   );
 };
 
-ReviewDocuments.propTypes = {
-  match: MatchShape.isRequired,
-};
-
-export default withRouter(ReviewDocuments);
+export default ReviewDocuments;

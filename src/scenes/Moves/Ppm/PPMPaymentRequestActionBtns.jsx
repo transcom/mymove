@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
-import { withRouter } from 'react-router-dom-old';
 // import { get} from 'lodash';
 import './PPMPaymentRequest.css';
 import AlertWithConfirmation from 'shared/AlertWithConfirmation';
+import withRouter from 'utils/routing';
 
 class PPMPaymentRequestActionBtns extends Component {
   state = {
@@ -11,10 +11,13 @@ class PPMPaymentRequestActionBtns extends Component {
   };
 
   showConfirmationOrFinishLater = (formValues) => {
-    const { history, hasConfirmation } = this.props;
+    const {
+      router: { navigate },
+      hasConfirmation,
+    } = this.props;
 
     if (!hasConfirmation) {
-      return history.push('/ppm');
+      return navigate('/ppm');
     }
 
     this.setState({ displayConfirmation: true });
@@ -26,7 +29,10 @@ class PPMPaymentRequestActionBtns extends Component {
   };
 
   confirmFinishLater = () => {
-    this.props.history.push('/ppm');
+    const {
+      router: { navigate },
+    } = this.props;
+    navigate('/ppm');
   };
 
   render() {

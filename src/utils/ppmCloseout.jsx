@@ -1,5 +1,5 @@
 import React from 'react';
-import { generatePath, Link } from 'react-router-dom-old';
+import { generatePath, Link } from 'react-router-dom';
 import moment from 'moment';
 
 import { formatCents, formatCentsTruncateWhole, formatCustomerDate, formatWeight } from 'utils/formatters';

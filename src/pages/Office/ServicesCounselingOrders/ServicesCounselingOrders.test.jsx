@@ -114,7 +114,7 @@ describe('Orders page', () => {
       useOrdersDocumentQueries.mockReturnValue(loadingReturnValue);
 
       render(
-        <MockProviders initialEntries={['moves/FP24I2/orders']}>
+        <MockProviders>
           <ServicesCounselingOrders />
         </MockProviders>,
       );
@@ -127,7 +127,7 @@ describe('Orders page', () => {
       useOrdersDocumentQueries.mockReturnValue(errorReturnValue);
 
       render(
-        <MockProviders initialEntries={['moves/FP24I2/orders']}>
+        <MockProviders>
           <ServicesCounselingOrders />
         </MockProviders>,
       );
@@ -142,7 +142,7 @@ describe('Orders page', () => {
       useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
 
       render(
-        <MockProviders initialEntries={['moves/FP24I2/orders']}>
+        <MockProviders>
           <ServicesCounselingOrders />
         </MockProviders>,
       );
@@ -154,7 +154,7 @@ describe('Orders page', () => {
       useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
 
       render(
-        <MockProviders initialEntries={['moves/FP24I2/orders']}>
+        <MockProviders>
           <ServicesCounselingOrders />
         </MockProviders>,
       );
@@ -167,7 +167,7 @@ describe('Orders page', () => {
       useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
 
       render(
-        <MockProviders initialEntries={['moves/FP24I2/orders']}>
+        <MockProviders>
           <ServicesCounselingOrders />
         </MockProviders>,
       );
@@ -187,7 +187,7 @@ describe('Orders page', () => {
       useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
 
       render(
-        <MockProviders initialEntries={['moves/FP24I2/orders']}>
+        <MockProviders>
           <ServicesCounselingOrders />
         </MockProviders>,
       );
@@ -199,7 +199,7 @@ describe('Orders page', () => {
       useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
 
       render(
-        <MockProviders initialEntries={['moves/FP24I2/orders']}>
+        <MockProviders>
           <ServicesCounselingOrders />
         </MockProviders>,
       );

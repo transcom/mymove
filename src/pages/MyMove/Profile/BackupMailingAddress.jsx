@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
+import { useNavigate } from 'react-router-dom';
 
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import { getResponseError, patchServiceMember } from 'services/internalApi';
@@ -13,7 +14,8 @@ import { customerRoutes } from 'constants/routes';
 import BackupMailingAddressForm from 'components/Customer/BackupMailingAddressForm/BackupMailingAddressForm';
 import { ResidentialAddressShape } from 'types/address';
 
-export const BackupMailingAddress = ({ serviceMember, updateServiceMember, push }) => {
+export const BackupMailingAddress = ({ serviceMember, updateServiceMember }) => {
+  const navigate = useNavigate();
   const [serverError, setServerError] = useState(null);
 
   const formFieldsName = 'backup_mailing_address';
@@ -29,11 +31,11 @@ export const BackupMailingAddress = ({ serviceMember, updateServiceMember, push 
   };
 
   const handleBack = () => {
-    push(customerRoutes.CURRENT_ADDRESS_PATH);
+    navigate(customerRoutes.CURRENT_ADDRESS_PATH);
   };
 
   const handleNext = () => {
-    push(customerRoutes.BACKUP_CONTACTS_PATH);
+    navigate(customerRoutes.BACKUP_CONTACTS_PATH);
   };
 
   const handleSubmit = (values) => {
@@ -89,7 +91,6 @@ BackupMailingAddress.propTypes = {
     id: PropTypes.string.isRequired,
     backup_mailing_address: ResidentialAddressShape,
   }).isRequired,
-  push: PropTypes.func.isRequired,
 };
 
 const mapDispatchToProps = {

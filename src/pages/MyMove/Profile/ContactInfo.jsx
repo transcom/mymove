@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Grid, GridContainer, Alert } from '@trussworks/react-uswds';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import ContactInfoForm from 'components/Customer/ContactInfoForm';
@@ -13,7 +14,8 @@ import requireCustomerState from 'containers/requireCustomerState/requireCustome
 import { profileStates } from 'constants/customerStates';
 import { customerRoutes } from 'constants/routes';
 
-export const ContactInfo = ({ serviceMember, updateServiceMember, userEmail, push }) => {
+export const ContactInfo = ({ serviceMember, updateServiceMember, userEmail }) => {
+  const navigate = useNavigate();
   const initialValues = {
     telephone: serviceMember?.telephone || '',
     secondary_telephone: serviceMember?.secondary_telephone || '',
@@ -28,7 +30,7 @@ export const ContactInfo = ({ serviceMember, updateServiceMember, userEmail, pus
   const [serverError, setServerError] = useState(null);
 
   const handleBack = () => {
-    return push(customerRoutes.NAME_PATH);
+    return navigate(customerRoutes.NAME_PATH);
   };
 
   const handleSubmit = (values) => {
@@ -47,7 +49,7 @@ export const ContactInfo = ({ serviceMember, updateServiceMember, userEmail, pus
     return patchServiceMember(payload)
       .then(updateServiceMember)
       .then(() => {
-        push(customerRoutes.CURRENT_DUTY_LOCATION_PATH);
+        navigate(customerRoutes.CURRENT_DUTY_LOCATION_PATH);
       })
       .catch((e) => {
         // TODO - error handling - below is rudimentary error handling to approximate existing UX
@@ -84,7 +86,6 @@ export const ContactInfo = ({ serviceMember, updateServiceMember, userEmail, pus
 ContactInfo.propTypes = {
   serviceMember: ServiceMemberShape.isRequired,
   updateServiceMember: PropTypes.func.isRequired,
-  push: PropTypes.func.isRequired,
   userEmail: PropTypes.string.isRequired,
 };
 

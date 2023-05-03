@@ -1,24 +1,9 @@
 import React from 'react';
 import { BooleanField, DateField, Show, SimpleShowLayout, TextField, useRecordContext } from 'react-admin';
-import PropTypes from 'prop-types';
 
 const AdminUserShowTitle = () => {
   const record = useRecordContext();
-  return <span>{`${record.firstName} ${record.lastName}`}</span>;
-};
-
-AdminUserShowTitle.propTypes = {
-  record: PropTypes.shape({
-    firstName: PropTypes.string,
-    lastName: PropTypes.string,
-  }),
-};
-
-AdminUserShowTitle.defaultProps = {
-  record: {
-    firstName: '',
-    lastName: '',
-  },
+  return <span>{`${record?.firstName} ${record?.lastName}`}</span>;
 };
 
 const AdminUserShow = () => {

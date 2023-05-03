@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom-old';
+import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { get } from 'lodash';
 import { connect } from 'react-redux';
@@ -16,6 +16,7 @@ import Alert from 'shared/Alert';
 import { getPPMsForMove, patchPPM } from 'services/internalApi';
 import { updatePPMs, updatePPM } from 'store/entities/actions';
 import { selectCurrentPPM } from 'store/entities/selectors';
+import withRouter from 'utils/routing';
 
 class PPMPaymentRequestIntro extends Component {
   state = {
@@ -27,13 +28,17 @@ class PPMPaymentRequestIntro extends Component {
   }
 
   updatePpmDate = (formValues) => {
-    const { history, moveID, currentPPM } = this.props;
+    const {
+      router: { navigate },
+      moveID,
+      currentPPM,
+    } = this.props;
     if (formValues.actual_move_date && currentPPM) {
       const updatedPPM = { ...currentPPM, actual_move_date: formatDateForSwagger(formValues.actual_move_date) };
 
       patchPPM(moveID, updatedPPM)
         .then((response) => this.props.updatePPM(response))
-        .then(() => history.push(`/moves/${moveID}/ppm-weight-ticket`))
+        .then(() => navigate(`/moves/${moveID}/ppm-weight-ticket`))
         .catch(() => {
           this.setState({ ppmUpdateError: true });
         });
@@ -107,8 +112,8 @@ PPMPaymentRequestIntro = reduxForm({
   keepDirtyOnReinitialize: true,
 })(PPMPaymentRequestIntro);
 
-function mapStateToProps(state, ownProps) {
-  const moveID = ownProps.match.params.moveId;
+function mapStateToProps(state, { router: { params } }) {
+  const moveID = params.moveId;
   const currentPPM = selectCurrentPPM(state) || {};
   const actualMoveDate = currentPPM.actual_move_date ? currentPPM.actual_move_date : null;
   return {
@@ -124,4 +129,4 @@ const mapDispatchToProps = {
   updatePPMs,
 };
 
-export default withContext(connect(mapStateToProps, mapDispatchToProps)(PPMPaymentRequestIntro));
+export default withRouter(withContext(connect(mapStateToProps, mapDispatchToProps)(PPMPaymentRequestIntro)));

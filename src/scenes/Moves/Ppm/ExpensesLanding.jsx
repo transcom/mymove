@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom-old';
+import { Link } from 'react-router-dom';
 
 import { ProgressTimeline, ProgressTimelineStep } from 'shared/ProgressTimeline';
 import RadioButton from 'shared/RadioButton';
@@ -10,6 +10,7 @@ import WizardHeader from '../WizardHeader';
 import './Expenses.css';
 import { connect } from 'react-redux';
 import DocumentsUploaded from './PaymentReview/DocumentsUploaded';
+import withRouter from 'utils/routing';
 
 const reviewPagePath = '/ppm-payment-review';
 const nextPagePath = '/ppm-expenses';
@@ -26,17 +27,23 @@ class ExpensesLanding extends Component {
   };
 
   saveAndAddHandler = () => {
-    const { history, moveId } = this.props;
+    const {
+      moveId,
+      router: { navigate },
+    } = this.props;
     const { hasExpenses } = this.state;
     if (hasExpenses === 'No') {
-      return history.push(`/moves/${moveId}${reviewPagePath}`);
+      return navigate(`/moves/${moveId}${reviewPagePath}`);
     }
-    return history.push(`/moves/${moveId}${nextPagePath}`);
+    return navigate(`/moves/${moveId}${nextPagePath}`);
   };
 
   render() {
     const { hasExpenses } = this.state;
-    const { history, moveId } = this.props;
+    const {
+      router: { navigate },
+      moveId,
+    } = this.props;
     return (
       <div className="grid-container usa-prose">
         <WizardHeader
@@ -94,7 +101,7 @@ class ExpensesLanding extends Component {
               cancelHandler={() => {}}
               nextBtnLabel="Continue"
               saveAndAddHandler={this.saveAndAddHandler}
-              finishLaterHandler={() => history.push('/')}
+              finishLaterHandler={() => navigate('/')}
               submitButtonsAreDisabled={!hasExpenses}
             />
           </div>
@@ -104,11 +111,11 @@ class ExpensesLanding extends Component {
   }
 }
 
-function mapStateToProps(state, ownProps) {
-  const moveId = ownProps.match.params.moveId;
+function mapStateToProps(state, { router: { params } }) {
+  const moveId = params.moveId;
   return {
     moveId: moveId,
   };
 }
 
-export default connect(mapStateToProps)(ExpensesLanding);
+export default withRouter(connect(mapStateToProps)(ExpensesLanding));

@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
 import { connect } from 'react-redux';
 import { getFormValues } from 'redux-form';
+import { useNavigate } from 'react-router-dom';
 
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import { patchServiceMember, getResponseError } from 'services/internalApi';
@@ -17,7 +18,8 @@ import { DutyLocationShape } from 'types/dutyLocation';
 
 const dutyLocationFormName = 'duty_location';
 
-export const DutyLocation = ({ serviceMember, existingDutyLocation, newDutyLocation, updateServiceMember, push }) => {
+export const DutyLocation = ({ serviceMember, existingDutyLocation, newDutyLocation, updateServiceMember }) => {
+  const navigate = useNavigate();
   const [serverError, setServerError] = useState(null);
 
   const initialValues = {
@@ -25,7 +27,7 @@ export const DutyLocation = ({ serviceMember, existingDutyLocation, newDutyLocat
   };
 
   const handleBack = () => {
-    push(customerRoutes.CONTACT_INFO_PATH);
+    navigate(customerRoutes.CONTACT_INFO_PATH);
   };
 
   const handleSubmit = (values) => {
@@ -37,7 +39,7 @@ export const DutyLocation = ({ serviceMember, existingDutyLocation, newDutyLocat
     return patchServiceMember(payload)
       .then((response) => {
         updateServiceMember(response);
-        push(customerRoutes.CURRENT_ADDRESS_PATH);
+        navigate(customerRoutes.CURRENT_ADDRESS_PATH);
       })
       .catch((e) => {
         // TODO - error handling - below is rudimentary error handling to approximate existing UX
@@ -79,7 +81,6 @@ export const DutyLocation = ({ serviceMember, existingDutyLocation, newDutyLocat
 DutyLocation.propTypes = {
   updateServiceMember: PropTypes.func.isRequired,
   serviceMember: ServiceMemberShape.isRequired,
-  push: PropTypes.func.isRequired,
   existingDutyLocation: DutyLocationShape,
   newDutyLocation: DutyLocationShape,
 };

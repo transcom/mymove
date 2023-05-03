@@ -2,7 +2,7 @@ import { React, createRef, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
 import { connect } from 'react-redux';
-import { useHistory } from 'react-router-dom-old';
+import { useNavigate } from 'react-router-dom';
 
 import styles from './AmendOrders.module.scss';
 
@@ -33,7 +33,7 @@ import { generalRoutes } from 'constants/routes';
 export const AmendOrders = ({ uploads, updateOrders, serviceMemberId, currentOrders }) => {
   const [isLoading, setLoading] = useState(true);
   const filePondEl = createRef();
-  const history = useHistory();
+  const navigate = useNavigate();
   const [serverError, setServerError] = useState(null);
 
   const handleDelete = (uploadId) => {
@@ -62,7 +62,7 @@ export const AmendOrders = ({ uploads, updateOrders, serviceMemberId, currentOrd
   const handleSave = () => {
     return submitAmendedOrders(currentOrders?.moves[0])
       .then(() => {
-        history.push(generalRoutes.HOME_PATH);
+        navigate(generalRoutes.HOME_PATH);
       })
       .catch((e) => {
         // TODO - error handling - below is rudimentary error handling to approximate existing UX
@@ -76,7 +76,7 @@ export const AmendOrders = ({ uploads, updateOrders, serviceMemberId, currentOrd
   };
   const handleCancel = () => {
     // TODO (After MB-8336 is complete) Delete amended orders files before navigating away
-    history.push(generalRoutes.HOME_PATH);
+    navigate(generalRoutes.HOME_PATH);
   };
 
   useEffect(() => {

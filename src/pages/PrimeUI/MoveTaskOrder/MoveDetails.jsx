@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Alert, Button } from '@trussworks/react-uswds';
-import { Link, useParams, withRouter } from 'react-router-dom-old';
+import { Link, useParams } from 'react-router-dom';
 import classnames from 'classnames';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { func } from 'prop-types';
@@ -110,7 +110,7 @@ const MoveDetails = ({ setFlashMessage }) => {
                 <dl className={descriptionListStyles.descriptionList}>
                   <div className={styles.moveHeader}>
                     <h2>Move</h2>
-                    <Link to="payment-requests/new" className="usa-button usa-button-secondary">
+                    <Link to="../payment-requests/new" relative="path" className="usa-button usa-button-secondary">
                       Create Payment Request
                     </Link>
                     {!moveTaskOrder.primeCounselingCompletedAt && (
@@ -145,10 +145,7 @@ const MoveDetails = ({ setFlashMessage }) => {
                 <dl className={descriptionListStyles.descriptionList}>
                   <div className={styles.mainShipmentHeader}>
                     <h2>Shipments</h2>
-                    <Link
-                      to={`/simulator/moves/${moveTaskOrder.id}/shipments/new`}
-                      className="usa-button usa-button-secondary"
-                    >
+                    <Link to="../shipments/new" relative="path" className="usa-button usa-button-secondary">
                       Create Shipment
                     </Link>
                   </div>
@@ -170,7 +167,8 @@ const MoveDetails = ({ setFlashMessage }) => {
                         <div className={styles.paymentRequestRow} key={paymentRequest.id}>
                           <div data-testid="paymentRequestNumber">{paymentRequest.paymentRequestNumber}</div>
                           <Link
-                            to={`payment-requests/${paymentRequest.id}/upload`}
+                            to={`../payment-requests/${paymentRequest.id}/upload`}
+                            relative="path"
                             className="usa-button usa-button-secondary"
                           >
                             Upload Document
@@ -197,4 +195,4 @@ const mapDispatchToProps = {
   setFlashMessage: setFlashMessageAction,
 };
 
-export default withRouter(connect(() => ({}), mapDispatchToProps)(MoveDetails));
+export default connect(() => ({}), mapDispatchToProps)(MoveDetails);

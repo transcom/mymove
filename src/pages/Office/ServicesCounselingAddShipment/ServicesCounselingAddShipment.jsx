@@ -1,15 +1,13 @@
 import React from 'react';
-import { useHistory, useParams } from 'react-router-dom-old';
+import { useParams } from 'react-router-dom';
 import { GridContainer, Grid } from '@trussworks/react-uswds';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 
 import styles from '../ServicesCounselingMoveInfo/ServicesCounselingTab.module.scss';
 
 import 'styles/office.scss';
-import CustomerHeader from 'components/CustomerHeader';
 import ShipmentForm from 'components/Office/ShipmentForm/ShipmentForm';
 import { MTO_SHIPMENTS } from 'constants/queryKeys';
-import { MatchShape } from 'types/officeShapes';
 import { useEditShipmentQueries } from 'hooks/queries';
 import { createMTOShipment } from 'services/ghcApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -17,7 +15,7 @@ import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { roleTypes } from 'constants/userRoles';
 import { SHIPMENT_OPTIONS, SHIPMENT_OPTIONS_URL } from 'shared/constants';
 
-const ServicesCounselingAddShipment = ({ match }) => {
+const ServicesCounselingAddShipment = () => {
   const params = useParams();
   let { shipmentType } = params;
   const { moveCode } = params;
@@ -28,7 +26,6 @@ const ServicesCounselingAddShipment = ({ match }) => {
     shipmentType = SHIPMENT_OPTIONS[shipmentType];
   }
 
-  const history = useHistory();
   const { move, order, mtoShipments, isLoading, isError } = useEditShipmentQueries(moveCode);
   const queryClient = useQueryClient();
   const { mutate: mutateMTOShipments } = useMutation(createMTOShipment, {
@@ -57,43 +54,34 @@ const ServicesCounselingAddShipment = ({ match }) => {
   };
 
   return (
-    <>
-      <CustomerHeader order={order} customer={customer} moveCode={moveCode} />
-      <div className={styles.tabContent}>
-        <div className={styles.container}>
-          <GridContainer className={styles.gridContainer}>
-            <Grid row>
-              <Grid col desktop={{ col: 8, offset: 2 }}>
-                <ShipmentForm
-                  match={match}
-                  history={history}
-                  submitHandler={mutateMTOShipments}
-                  isCreatePage
-                  ServicesCounselingShipmentForm
-                  currentResidence={customer.current_address}
-                  originDutyLocationAddress={order.originDutyLocation?.address}
-                  newDutyLocationAddress={order.destinationDutyLocation?.address}
-                  shipmentType={shipmentType}
-                  serviceMember={{ weightAllotment, agency: customer.agency }}
-                  moveTaskOrderID={move.id}
-                  mtoShipments={mtoShipments}
-                  TACs={TACs}
-                  SACs={SACs}
-                  userRole={roleTypes.SERVICES_COUNSELOR}
-                  displayDestinationType
-                  move={move}
-                />
-              </Grid>
+    <div className={styles.tabContent}>
+      <div className={styles.container}>
+        <GridContainer className={styles.gridContainer}>
+          <Grid row>
+            <Grid col desktop={{ col: 8, offset: 2 }}>
+              <ShipmentForm
+                submitHandler={mutateMTOShipments}
+                isCreatePage
+                ServicesCounselingShipmentForm
+                currentResidence={customer.current_address}
+                originDutyLocationAddress={order.originDutyLocation?.address}
+                newDutyLocationAddress={order.destinationDutyLocation?.address}
+                shipmentType={shipmentType}
+                serviceMember={{ weightAllotment, agency: customer.agency }}
+                moveTaskOrderID={move.id}
+                mtoShipments={mtoShipments}
+                TACs={TACs}
+                SACs={SACs}
+                userRole={roleTypes.SERVICES_COUNSELOR}
+                displayDestinationType
+                move={move}
+              />
             </Grid>
-          </GridContainer>
-        </div>
+          </Grid>
+        </GridContainer>
       </div>
-    </>
+    </div>
   );
-};
-
-ServicesCounselingAddShipment.propTypes = {
-  match: MatchShape.isRequired,
 };
 
 export default ServicesCounselingAddShipment;

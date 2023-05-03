@@ -1,22 +1,9 @@
 import React from 'react';
 import { BooleanField, DateField, Show, SimpleShowLayout, TextField, useRecordContext } from 'react-admin';
-import PropTypes from 'prop-types';
 
 const MoveShowTitle = () => {
   const record = useRecordContext();
   return <span>{`Move ID: ${record.id}`}</span>;
-};
-
-MoveShowTitle.propTypes = {
-  record: PropTypes.shape({
-    id: PropTypes.string,
-  }),
-};
-
-MoveShowTitle.defaultProps = {
-  record: {
-    id: '',
-  },
 };
 
 const MoveShow = () => {

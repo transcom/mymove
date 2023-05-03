@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { generatePath, useHistory, useParams } from 'react-router-dom-old';
+import { generatePath, useNavigate, useParams } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
 import classnames from 'classnames';
@@ -28,7 +28,7 @@ const Expenses = () => {
   const [errorMessage, setErrorMessage] = useState(null);
 
   const dispatch = useDispatch();
-  const history = useHistory();
+  const navigate = useNavigate();
   const { moveId, mtoShipmentId, expenseId } = useParams();
 
   const mtoShipment = useSelector((state) => selectMTOShipmentById(state, mtoShipmentId));
@@ -45,20 +45,19 @@ const Expenses = () => {
           } else {
             mtoShipment.ppmShipment.movingExpenses = [resp];
           }
-          history.replace(
-            generatePath(customerRoutes.SHIPMENT_PPM_EXPENSES_EDIT_PATH, {
-              moveId,
-              mtoShipmentId,
-              expenseId: resp.id,
-            }),
-          );
+          const path = generatePath(customerRoutes.SHIPMENT_PPM_EXPENSES_EDIT_PATH, {
+            moveId,
+            mtoShipmentId,
+            expenseId: resp.id,
+          });
+          navigate(path, { replace: true });
           dispatch(updateMTOShipment(mtoShipment));
         })
         .catch(() => {
           setErrorMessage('Failed to create trip record');
         });
     }
-  }, [expenseId, moveId, mtoShipmentId, history, dispatch, mtoShipment]);
+  }, [expenseId, moveId, mtoShipmentId, navigate, dispatch, mtoShipment]);
 
   const handleCreateUpload = async (fieldName, file, setFieldTouched) => {
     const documentId = currentExpense[`${fieldName}Id`];
@@ -99,7 +98,7 @@ const Expenses = () => {
   };
 
   const handleBack = () => {
-    history.push(generalRoutes.HOME_PATH);
+    navigate(generalRoutes.HOME_PATH);
   };
 
   const handleSubmit = async (values, { setSubmitting }) => {
@@ -119,7 +118,7 @@ const Expenses = () => {
       .then((resp) => {
         setSubmitting(false);
         mtoShipment.ppmShipment.movingExpenses[currentIndex] = resp;
-        history.push(generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, { moveId, mtoShipmentId }));
+        navigate(generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, { moveId, mtoShipmentId }));
         dispatch(updateMTOShipment(mtoShipment));
       })
       .catch(() => {

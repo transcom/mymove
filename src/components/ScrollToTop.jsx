@@ -3,7 +3,7 @@
 // Should only be used once per-page and can be added at the App or global level if appropriate
 
 import { useEffect } from 'react';
-import { useLocation } from 'react-router-dom-old';
+import { useLocation } from 'react-router-dom';
 
 export default function ScrollToTop() {
   const { pathname } = useLocation();

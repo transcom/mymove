@@ -61,15 +61,14 @@ class AdminPage extends BaseTestPage {
   }
 
   /**
-   * @param {string} locator
    * @param {Array<string>} labels
-   * @param {Object} options
-   * @param {boolean} [options.exact=true]
    * @returns {Promise<void>}
    */
-  async expectLocatorLabelsByText(locator, labels, options = { exact: true }) {
+  async expectLabels(labels) {
     for (const label of labels) {
-      await base.expect(this.page.locator(locator).getByText(label, options)).toBeVisible();
+      await base
+        .expect(this.page.getByRole('paragraph').filter({ has: this.page.locator(`text="${label}"`) }))
+        .toBeVisible();
     }
   }
 }

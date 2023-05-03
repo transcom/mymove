@@ -1,6 +1,5 @@
-import React, { useEffect } from 'react';
-import { generatePath } from 'react-router';
-import { useHistory, Switch, Route } from 'react-router-dom-old';
+import React from 'react';
+import { generatePath, useNavigate, Navigate, useParams } from 'react-router-dom';
 
 import styles from './ServicesCounselingQueue.module.scss';
 
@@ -22,6 +21,7 @@ import { DATE_FORMAT_STRING } from 'shared/constants';
 import { formatDateFromIso, serviceMemberAgencyLabel } from 'utils/formatters';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
+import NotFound from 'components/NotFound/NotFound';
 
 const counselingColumns = () => [
   createHeader('ID', 'id'),
@@ -178,83 +178,72 @@ const closeoutColumns = (ppmCloseoutGBLOC) => [
 ];
 
 const ServicesCounselingQueue = () => {
+  const { queueType } = useParams();
   const { data, isLoading, isError } = useUserQueries();
 
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const handleClick = (values) => {
-    history.push(
-      generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, {
-        moveCode: values.locator,
-      }),
-    );
+    navigate(generatePath(servicesCounselingRoutes.BASE_MOVE_VIEW_PATH, { moveCode: values.locator }));
   };
 
   // If the office user is in a closeout GBLOC and on the closeout tab, then we will want to disable
   // the column filter for the closeout location column because it will have no effect.
   const officeUserGBLOC = data?.office_user?.transportation_office?.gbloc;
   const inPPMCloseoutGBLOC = officeUserGBLOC === 'TVCB' || officeUserGBLOC === 'NAVY' || officeUserGBLOC === 'USCG';
-
-  // Route the default queue path to the appropriate tab.
-  useEffect(() => {
-    if (isLoading || isError) {
-      return;
-    }
-
-    if (history.location.pathname === servicesCounselingRoutes.DEFAULT_QUEUE_PATH) {
-      history.replace(
-        inPPMCloseoutGBLOC
-          ? servicesCounselingRoutes.QUEUE_CLOSEOUT_PATH
-          : servicesCounselingRoutes.QUEUE_COUNSELING_PATH,
-      );
-    }
-  });
-
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
+  if (!queueType) {
+    return inPPMCloseoutGBLOC ? (
+      <Navigate to={servicesCounselingRoutes.BASE_QUEUE_CLOSEOUT_PATH} />
+    ) : (
+      <Navigate to={servicesCounselingRoutes.BASE_QUEUE_COUNSELING_PATH} />
+    );
+  }
 
-  return (
-    // TODO: Pull out header count and add new move button
-    <div className={styles.ServicesCounselingQueue}>
-      <Switch>
-        <Route path={servicesCounselingRoutes.QUEUE_CLOSEOUT_PATH} exact>
-          <TableQueue
-            showTabs
-            showFilters
-            showPagination
-            manualSortBy
-            defaultCanSort
-            defaultSortedColumns={[{ id: 'closeoutInitiated', desc: false }]}
-            disableMultiSort
-            disableSortBy={false}
-            columns={closeoutColumns(inPPMCloseoutGBLOC)}
-            title="Moves"
-            handleClick={handleClick}
-            useQueries={useServicesCounselingQueuePPMQueries}
-          />
-        </Route>
-        <Route path={servicesCounselingRoutes.QUEUE_COUNSELING_PATH} exact>
-          <div>
-            <TableQueue
-              className={styles.ServicesCounseling}
-              showTabs
-              showFilters
-              showPagination
-              manualSortBy
-              defaultCanSort
-              defaultSortedColumns={[{ id: 'submittedAt', desc: false }]}
-              disableMultiSort
-              disableSortBy={false}
-              columns={counselingColumns()}
-              title="Moves"
-              handleClick={handleClick}
-              useQueries={useServicesCounselingQueueQueries}
-            />
-          </div>
-        </Route>
-      </Switch>
-    </div>
-  );
+  if (queueType === 'PPM-closeout') {
+    return (
+      <div className={styles.ServicesCounselingQueue}>
+        <TableQueue
+          showTabs
+          showFilters
+          showPagination
+          manualSortBy
+          defaultCanSort
+          defaultSortedColumns={[{ id: 'closeoutInitiated', desc: false }]}
+          disableMultiSort
+          disableSortBy={false}
+          columns={closeoutColumns(inPPMCloseoutGBLOC)}
+          title="Moves"
+          handleClick={handleClick}
+          useQueries={useServicesCounselingQueuePPMQueries}
+        />
+      </div>
+    );
+  }
+  if (queueType === 'counseling') {
+    return (
+      <div className={styles.ServicesCounselingQueue}>
+        <TableQueue
+          className={styles.ServicesCounseling}
+          showTabs
+          showFilters
+          showPagination
+          manualSortBy
+          defaultCanSort
+          defaultSortedColumns={[{ id: 'submittedAt', desc: false }]}
+          disableMultiSort
+          disableSortBy={false}
+          columns={counselingColumns()}
+          title="Moves"
+          handleClick={handleClick}
+          useQueries={useServicesCounselingQueueQueries}
+        />
+      </div>
+    );
+  }
+
+  return <NotFound />;
 };
 
 export default ServicesCounselingQueue;

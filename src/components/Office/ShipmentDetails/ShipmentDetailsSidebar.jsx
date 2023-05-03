@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { useParams } from 'react-router-dom-old';
-import { generatePath, useHistory } from 'react-router';
+import { useParams, generatePath, useNavigate } from 'react-router-dom';
 import * as PropTypes from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 
@@ -29,7 +28,7 @@ const ShipmentDetailsSidebar = ({
   const tac = retrieveTAC(shipment.tacType, ordersLOA);
   const sac = retrieveSAC(shipment.sacType, ordersLOA);
 
-  const history = useHistory();
+  const navigate = useNavigate();
   const { moveCode } = useParams();
   const editOrdersPath = generatePath(tooRoutes.ORDERS_EDIT_PATH, { moveCode });
 
@@ -83,7 +82,7 @@ const ShipmentDetailsSidebar = ({
         onClose={() => {
           setIsAccountingCodesModalVisible(false);
         }}
-        onEditCodesClick={() => history.push(editOrdersPath)}
+        onEditCodesClick={() => navigate(editOrdersPath)}
         shipmentType={shipment.shipmentType}
         TACs={{
           HHG: ordersLOA.tac,

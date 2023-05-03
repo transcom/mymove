@@ -26,7 +26,7 @@ test('Admin User Create Page', async ({ page, adminPage }) => {
   await adminPage.waitForAdminPageToLoad();
   await expect(page.getByRole('heading', { name: 'Admin Users' })).toBeVisible();
 
-  await page.getByRole('button', { name: 'Create' }).click();
+  await page.getByRole('link', { name: 'Create' }).click();
   await adminPage.waitForAdminPageToLoad();
   await expect(page.getByRole('heading', { name: 'Create Admin Users' })).toBeVisible();
 
@@ -40,8 +40,9 @@ test('Admin User Create Page', async ({ page, adminPage }) => {
 
   // The autocomplete form results in multiple matching elements, so
   // pick the input element
-  await page.getByLabel('Organization').locator('input').click();
+  await page.getByLabel('Organization').click();
   await page.getByRole('option').first().click();
+
   await page.getByRole('button').filter({ hasText: 'Save' }).click();
   await adminPage.waitForAdminPageToLoad();
 
@@ -63,15 +64,16 @@ test('Admin Users Show Page', async ({ page, adminPage }) => {
   await adminPage.waitForAdminPageToLoad();
   await expect(page.getByRole('heading', { name: 'Admin Users' })).toBeVisible();
 
-  // click on first row
-  await page.locator('tr[resource="admin-users"]').first().click();
+  // Click first office user row
+  await page.locator('tbody >> tr').first().click();
   await adminPage.waitForAdminPageToLoad();
 
-  const id = await page.locator('div:has(label :text-is("Id")) > div > span').textContent();
+  // Get first id field and check that it's in the URL
+  const id = await page.locator('.ra-field-id > span').first().textContent();
   expect(page.url()).toContain(id);
 
-  const firstName = await page.locator('label:has-text("First name") + div').textContent();
-  const lastName = await page.locator('label:has-text("Last name") + div').textContent();
+  const firstName = await page.locator('.ra-field-firstName > span').textContent();
+  const lastName = await page.locator('.ra-field-lastName > span').textContent();
 
   await expect(page.getByRole('heading', { name: `${firstName} ${lastName}` })).toBeVisible();
 
@@ -87,7 +89,7 @@ test('Admin Users Show Page', async ({ page, adminPage }) => {
     'Updated at',
   ];
 
-  await adminPage.expectLocatorLabelsByText('label', labels, { exact: true });
+  await adminPage.expectLabels(labels);
 });
 
 test('Admin Users Edit Page', async ({ page, adminPage }) => {
@@ -108,7 +110,7 @@ test('Admin Users Edit Page', async ({ page, adminPage }) => {
   await page.goto(`/system/admin-users/${adminUserId}/show`);
   await adminPage.waitForAdminPageToLoad();
 
-  await page.getByRole('button', { name: 'Edit' }).click();
+  await page.getByRole('link', { name: 'Edit' }).click();
   await adminPage.waitForAdminPageToLoad();
   expect(page.url()).toContain(adminUserId);
 
@@ -129,17 +131,26 @@ test('Admin Users Edit Page', async ({ page, adminPage }) => {
   await page.locator('div:has(label :text-is("Active")) >> #active').click();
   await page.locator(`ul[aria-labelledby="active-label"] >> li[data-value="${newStatus}"]`).click();
 
+  // Save updates
   await page.getByRole('button', { name: 'Save' }).click();
   await adminPage.waitForAdminPageToLoad();
-
-  // back to list of all users
   expect(page.url()).not.toContain(adminUserId);
 
+  // look at admin user's page to ensure changes were saved
+  await page.getByText(adminUserId).click();
+  await adminPage.waitForAdminPageToLoad();
+
+  await expect(page.locator('.ra-field-firstName > span')).toHaveText('NewFirst');
+  await expect(page.locator('.ra-field-lastName > span')).toHaveText('NewLast');
+  await expect(page.getByTestId(newStatus)).toBeVisible();
+
+  // go back to list of all users and ensure updated
+  await page.getByRole('menuitem', { name: 'Admin Users' }).click();
+  await adminPage.waitForAdminPageToLoad();
+  await expect(page.locator(`tr:has(:text("${adminUserId}")) >> td.column-firstName`)).toHaveText('NewFirst');
+  await expect(page.locator(`tr:has(:text("${adminUserId}")) >> td.column-lastName`)).toHaveText('NewLast');
   await expect(page.locator(`tr:has(:text("${adminUserId}")) >> td.column-active >> svg`)).toHaveAttribute(
     'data-testid',
     newStatus,
   );
-
-  await expect(page.locator(`tr:has(:text("${adminUserId}")) >> td.column-firstName`)).toHaveText('NewFirst');
-  await expect(page.locator(`tr:has(:text("${adminUserId}")) >> td.column-lastName`)).toHaveText('NewLast');
 });

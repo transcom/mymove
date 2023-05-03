@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { bool, func, number, shape, string } from 'prop-types';
 import { Field, Formik } from 'formik';
-import { generatePath } from 'react-router';
+import { generatePath } from 'react-router-dom';
 import {
   Alert,
   Checkbox,
@@ -17,6 +17,7 @@ import {
 import getShipmentOptions from './getShipmentOptions';
 import styles from './MtoShipmentForm.module.scss';
 
+import { RouterShape } from 'types';
 import Callout from 'components/Callout';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
@@ -33,11 +34,12 @@ import { createMTOShipment, getResponseError, patchMTOShipment } from 'services/
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import formStyles from 'styles/form.module.scss';
 import { AddressShape, SimpleAddressShape } from 'types/address';
-import { HistoryShape, MatchShape, OrdersShape } from 'types/customerShapes';
+import { OrdersShape } from 'types/customerShapes';
 import { ShipmentShape } from 'types/shipment';
 import { formatMtoShipmentForAPI, formatMtoShipmentForDisplay } from 'utils/formatMtoShipment';
 import { formatWeight } from 'utils/formatters';
 import { validateDate } from 'utils/validation';
+import withRouter from 'utils/routing';
 
 const blankAddress = {
   address: {
@@ -68,8 +70,14 @@ class MtoShipmentForm extends Component {
     hasSecondaryDelivery,
     secondaryDelivery,
   }) => {
-    const { history, match, shipmentType, isCreatePage, mtoShipment, updateMTOShipment } = this.props;
-    const { moveId } = match.params;
+    const {
+      router: { navigate, params },
+      shipmentType,
+      isCreatePage,
+      mtoShipment,
+      updateMTOShipment,
+    } = this.props;
+    const { moveId } = params;
 
     const isNTSR = shipmentType === SHIPMENT_OPTIONS.NTSR;
     const saveDeliveryAddress = hasDeliveryAddress === 'yes' || isNTSR;
@@ -95,7 +103,7 @@ class MtoShipmentForm extends Component {
       createMTOShipment(pendingMtoShipment)
         .then((response) => {
           updateMTOShipment(response);
-          history.push(reviewPath);
+          navigate(reviewPath);
         })
         .catch((e) => {
           const { response } = e;
@@ -107,7 +115,7 @@ class MtoShipmentForm extends Component {
       patchMTOShipment(mtoShipment.id, pendingMtoShipment, mtoShipment.eTag)
         .then((response) => {
           updateMTOShipment(response);
-          history.push(reviewPath);
+          navigate(reviewPath);
         })
         .catch((e) => {
           const { response } = e;
@@ -120,9 +128,12 @@ class MtoShipmentForm extends Component {
 
   // eslint-disable-next-line class-methods-use-this
   getShipmentNumber = () => {
-    // TODO - this is not supported by IE11, shipment number should be calculable from Redux anyways
-    // we should fix this also b/c it doesn't display correctly in storybook
-    const { search } = window.location;
+    const {
+      router: {
+        location: { search },
+      },
+    } = this.props;
+
     const params = new URLSearchParams(search);
     const shipmentNumber = params.get('shipmentNumber');
     return shipmentNumber;
@@ -130,8 +141,6 @@ class MtoShipmentForm extends Component {
 
   render() {
     const {
-      match,
-      history,
       newDutyLocationAddress,
       shipmentType,
       isCreatePage,
@@ -139,8 +148,9 @@ class MtoShipmentForm extends Component {
       serviceMember,
       orders,
       currentResidence,
+      router: { params, navigate },
     } = this.props;
-
+    const { moveId } = params;
     const { errorMessage } = this.state;
 
     const { showDeliveryFields, showPickupFields, schema } = getShipmentOptions(shipmentType, roleTypes.CUSTOMER);
@@ -175,7 +185,7 @@ class MtoShipmentForm extends Component {
                   address: currentResidence,
                 },
               });
-            } else if (match.params.moveId === mtoShipment?.moveTaskOrderId) {
+            } else if (moveId === mtoShipment?.moveTaskOrderId) {
               // TODO - what is the purpose of this check?
               // Revert address
               setValues({
@@ -481,8 +491,12 @@ class MtoShipmentForm extends Component {
                           disableNext={isSubmitting || !isValid}
                           editMode={!isCreatePage}
                           onNextClick={handleSubmit}
-                          onBackClick={history.goBack}
-                          onCancelClick={history.goBack}
+                          onBackClick={() => {
+                            navigate(-1);
+                          }}
+                          onCancelClick={() => {
+                            navigate(-1);
+                          }}
                         />
                       </div>
                     </Form>
@@ -498,8 +512,7 @@ class MtoShipmentForm extends Component {
 }
 
 MtoShipmentForm.propTypes = {
-  match: MatchShape,
-  history: HistoryShape,
+  router: RouterShape.isRequired,
   updateMTOShipment: func.isRequired,
   isCreatePage: bool,
   currentResidence: AddressShape.isRequired,
@@ -516,8 +529,6 @@ MtoShipmentForm.propTypes = {
 
 MtoShipmentForm.defaultProps = {
   isCreatePage: false,
-  match: { isExact: false, params: { moveID: '' } },
-  history: { goBack: () => {}, push: () => {} },
   newDutyLocationAddress: {
     city: '',
     state: '',
@@ -538,4 +549,4 @@ MtoShipmentForm.defaultProps = {
   orders: {},
 };
 
-export default MtoShipmentForm;
+export default withRouter(MtoShipmentForm);

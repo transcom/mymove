@@ -1,48 +1,19 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 
 import { CreateOrEditMtoShipment } from './CreateOrEditMtoShipment';
 
+import { customerRoutes } from 'constants/routes';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
-import { MockProviders } from 'testUtils';
+import { renderWithRouterProp } from 'testUtils';
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useHistory: () => ({
-    push: jest.fn(),
-  }),
-  useParams: () => ({
-    moveCode: 'move123',
-  }),
-}));
-
-function getMockMatchProp(path = '') {
-  return {
-    path,
-    isExact: false,
-    url: '',
-    params: { moveId: 'move123' },
-  };
-}
+const mockParams = { moveId: 'move123', mtoShipmentId: 'shipment123' };
+const mockPath = customerRoutes.SHIPMENT_EDIT_PATH;
 
 const defaultProps = {
-  location: {
-    search: '',
-  },
-  match: {
-    path: '',
-    isExact: false,
-    url: '',
-    params: { moveId: 'move123' },
-  },
   pageList: ['page1', 'anotherPage/:foo/:bar'],
   pageKey: 'page1',
-  history: {
-    goBack: jest.fn(),
-    push: jest.fn(),
-    replace: jest.fn(),
-  },
   fetchCustomerData: jest.fn(),
   updateMTOShipment: jest.fn(),
   mtoShipment: {},
@@ -92,13 +63,17 @@ const mockPPMShipment = {
   shipmentType: 'PPM',
 };
 
-const renderComponent = (props, options) => render(<CreateOrEditMtoShipment {...defaultProps} {...props} />, options);
+const renderComponent = (props, options) =>
+  renderWithRouterProp(<CreateOrEditMtoShipment {...defaultProps} {...props} />, options);
 
 describe('CreateOrEditMtoShipment component', () => {
   it('fetches customer data on mount', () => {
-    renderComponent({
-      mtoShipment: { shipmentType: SHIPMENT_OPTIONS.NTSR },
-    });
+    renderComponent(
+      {
+        mtoShipment: { shipmentType: SHIPMENT_OPTIONS.NTSR },
+      },
+      { path: mockPath, params: mockParams },
+    );
     expect(defaultProps.fetchCustomerData).toHaveBeenCalled();
   });
 
@@ -106,24 +81,21 @@ describe('CreateOrEditMtoShipment component', () => {
     it('renders the PPM date and location page if the shipment type is PPM', async () => {
       renderComponent(
         {
-          mtoShipment: { shipmentType: SHIPMENT_OPTIONS.NTSR },
-          location: {
-            search: `?type=${SHIPMENT_OPTIONS.PPM}`,
-          },
+          mtoShipment: { ...mockPPMShipment, shipmentType: SHIPMENT_OPTIONS.NTSR },
         },
-        { wrapper: MockProviders },
+        { path: mockPath, params: mockParams, search: `?type=${SHIPMENT_OPTIONS.PPM}`, includeProviders: true },
       );
 
       expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('PPM date & location');
     });
 
     it('renders the MtoShipmentForm component right away', async () => {
-      renderComponent({
-        mtoShipment: { shipmentType: SHIPMENT_OPTIONS.HHG },
-        location: {
-          search: `?type=${SHIPMENT_OPTIONS.HHG}`,
+      renderComponent(
+        {
+          mtoShipment: { shipmentType: SHIPMENT_OPTIONS.HHG },
         },
-      });
+        { path: mockPath, params: mockParams, search: `?type=${SHIPMENT_OPTIONS.HHG}` },
+      );
 
       expect(await screen.findByRole('heading', { level: 1 })).toHaveTextContent(
         'Movers pack and transport this shipment',
@@ -134,18 +106,16 @@ describe('CreateOrEditMtoShipment component', () => {
 
   describe('when editing an existing shipment', () => {
     it('renders the loader right away', () => {
-      renderComponent({
-        match: getMockMatchProp('/moves/:moveId/shipments/:mtoShipmentId/edit'),
-      });
+      renderComponent({}, { path: customerRoutes.SHIPMENT_EDIT_PATH, params: mockParams });
 
       expect(screen.getByText('Loading, please wait...')).toBeInTheDocument();
     });
 
     it('renders the MtoShipmentForm after an HHG shipment has loaded', async () => {
-      renderComponent({
-        match: getMockMatchProp('/moves/:moveId/shipments/:mtoShipmentId/edit'),
-        mtoShipment: mockHHGShipment,
-      });
+      renderComponent(
+        { mtoShipment: mockHHGShipment },
+        { path: customerRoutes.SHIPMENT_EDIT_PATH, params: mockParams },
+      );
 
       expect(await screen.findByRole('heading', { level: 1 })).toHaveTextContent(
         'Movers pack and transport this shipment',
@@ -155,11 +125,8 @@ describe('CreateOrEditMtoShipment component', () => {
 
     it('renders the PPM date and location page after a PPM shipment has loaded', async () => {
       renderComponent(
-        {
-          match: getMockMatchProp('/moves/:moveId/shipments/:mtoShipmentId/edit'),
-          mtoShipment: mockPPMShipment,
-        },
-        { wrapper: MockProviders },
+        { mtoShipment: mockPPMShipment },
+        { path: customerRoutes.SHIPMENT_EDIT_PATH, params: mockParams, includeProviders: true },
       );
 
       expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('PPM date & location');

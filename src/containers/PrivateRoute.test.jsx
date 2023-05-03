@@ -6,6 +6,34 @@ import PrivateRoute, { userIsAuthorized } from './PrivateRoute';
 import { MockProviders } from 'testUtils';
 import { roleTypes } from 'constants/userRoles';
 
+const mockNavigate = jest.fn();
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  Navigate: (props) => {
+    mockNavigate(props?.to);
+    return null;
+  },
+}));
+
+afterEach(() => {
+  jest.resetAllMocks();
+});
+
+const tioUserInitialState = {
+  auth: {
+    isLoading: false,
+    isLoggedIn: true,
+  },
+  entities: {
+    user: {
+      userId123: {
+        id: 'userId123',
+        roles: [{ roleType: roleTypes.TIO }],
+      },
+    },
+  },
+};
+
 describe('userIsAuthorized function', () => {
   it('returns true if no roles are required', () => {
     expect(userIsAuthorized()).toEqual(true);
@@ -30,123 +58,53 @@ describe('userIsAuthorized function', () => {
   });
 });
 
-describe('ConnectedPrivateRoute', () => {
-  const MyPrivateComponent = () => <div>My page</div>;
-
-  describe('if the user is still loading', () => {
-    it('renders the loading placeholder', () => {
-      const wrapper = mount(
-        <MockProviders
-          initialState={{
-            auth: {
-              isLoading: true,
-            },
-          }}
-          initialEntries={['/']}
-        >
-          <PrivateRoute />
-        </MockProviders>,
-      );
-      expect(wrapper.find('[data-name="loading-placeholder"]')).toHaveLength(1);
-    });
+const MyPrivateComponent = () => <div>My page</div>;
+describe('PrivateRoute', () => {
+  it('renders the component if user has the requred role', () => {
+    const wrapper = mount(
+      <MockProviders initialState={tioUserInitialState}>
+        <PrivateRoute requiredRoles={[roleTypes.TIO]}>
+          <MyPrivateComponent />
+        </PrivateRoute>
+      </MockProviders>,
+    );
+    expect(wrapper.find(MyPrivateComponent)).toHaveLength(1);
   });
 
-  describe('if the user has loaded', () => {
-    describe('and is not logged in', () => {
-      const wrapper = mount(
-        <MockProviders
-          initialState={{
-            auth: {
-              isLoading: false,
-              isLoggedIn: false,
-            },
-          }}
-          initialEntries={['/']}
-        >
-          <PrivateRoute path="/" component={MyPrivateComponent} />
-        </MockProviders>,
-      );
+  it('renders the component if the user has one of multiple required roles', () => {
+    const wrapper = mount(
+      <MockProviders initialState={tioUserInitialState}>
+        <PrivateRoute requiredRoles={[roleTypes.TIO, roleTypes.TOO]}>
+          <MyPrivateComponent />
+        </PrivateRoute>
+      </MockProviders>,
+    );
 
-      it('does not render the loading placeholder', () => {
-        expect(wrapper.find('[data-name="loading-placeholder"]')).toHaveLength(0);
-      });
-      it('does not render the requested component', () => {
-        expect(wrapper.contains(<div>My page</div>)).toEqual(false);
-      });
+    expect(wrapper.find(MyPrivateComponent)).toHaveLength(1);
+  });
 
-      it('redirects to the sign in URL', () => {
-        const redirect = wrapper.find('Redirect');
-        expect(redirect).toHaveLength(1);
-        expect(redirect.prop('to')).toEqual('/sign-in');
-      });
-    });
+  it('renders the component if no roles are required', () => {
+    const wrapper = mount(
+      <MockProviders>
+        <PrivateRoute>
+          <MyPrivateComponent />
+        </PrivateRoute>
+      </MockProviders>,
+    );
 
-    describe('and is logged in', () => {
-      describe('and is not authorized to view the given route', () => {
-        const wrapper = mount(
-          <MockProviders
-            initialState={{
-              auth: {
-                isLoading: false,
-                isLoggedIn: true,
-              },
-              entities: {
-                user: {
-                  userId123: {
-                    id: 'userId123',
-                    roles: [{ roleType: undefined }],
-                  },
-                },
-              },
-            }}
-            initialEntries={['/']}
-          >
-            <PrivateRoute component={MyPrivateComponent} requiredRoles={[roleTypes.TOO]} />
-          </MockProviders>,
-        );
+    expect(wrapper.find(MyPrivateComponent)).toHaveLength(1);
+  });
 
-        it('does not render the loading placeholder', () => {
-          expect(wrapper.find('[data-name="loading-placeholder"]')).toHaveLength(0);
-        });
-        it('does not render the requested component', () => {
-          expect(wrapper.contains(<div>My page</div>)).toEqual(false);
-        });
-        it('redirects to the invalid permissions URL', () => {
-          const redirect = wrapper.find('Redirect');
-          expect(redirect).toHaveLength(1);
-          expect(redirect.prop('to')).toEqual('/invalid-permissions');
-        });
-      });
+  it('does not render the compoent if the user does not have a required role', () => {
+    const wrapper = mount(
+      <MockProviders initialState={tioUserInitialState}>
+        <PrivateRoute requiredRoles={[roleTypes.TOO]}>
+          <MyPrivateComponent />
+        </PrivateRoute>
+      </MockProviders>,
+    );
 
-      describe('and is authorized to view the given route', () => {
-        const wrapper = mount(
-          <MockProviders
-            initialState={{
-              auth: {
-                isLoading: false,
-                isLoggedIn: true,
-              },
-              entities: {
-                user: {
-                  userId123: {
-                    id: 'userId123',
-                    roles: [{ roleType: roleTypes.TIO }],
-                  },
-                },
-              },
-            }}
-            initialEntries={['/']}
-          >
-            <PrivateRoute component={MyPrivateComponent} requiredRoles={[roleTypes.TIO]} />
-          </MockProviders>,
-        );
-        it('does not render the loading placeholder', () => {
-          expect(wrapper.find('[data-name="loading-placeholder"]')).toHaveLength(0);
-        });
-        it('renders the requested component', () => {
-          expect(wrapper.contains(<div>My page</div>)).toEqual(true);
-        });
-      });
-    });
+    expect(wrapper.find(MyPrivateComponent)).toHaveLength(0);
+    expect(mockNavigate).toHaveBeenCalledWith('/invalid-permissions');
   });
 });

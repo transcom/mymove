@@ -1,5 +1,5 @@
 import React, { Suspense, lazy, useState, useEffect } from 'react';
-import { Switch, useParams, Redirect, Route, useHistory, useLocation, matchPath } from 'react-router-dom-old';
+import { Routes, useParams, Route, Navigate, useLocation, matchPath } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 
 import 'styles/office.scss';
@@ -17,6 +17,9 @@ const ServicesCounselingMoveDocumentWrapper = lazy(() =>
 );
 const ServicesCounselingMoveDetails = lazy(() =>
   import('pages/Office/ServicesCounselingMoveDetails/ServicesCounselingMoveDetails'),
+);
+const ServicesCounselingAddShipment = lazy(() =>
+  import('pages/Office/ServicesCounselingAddShipment/ServicesCounselingAddShipment'),
 );
 const ServicesCounselingEditShipmentDetails = lazy(() =>
   import('pages/Office/ServicesCounselingEditShipmentDetails/ServicesCounselingEditShipmentDetails'),
@@ -50,52 +53,70 @@ const ServicesCounselingMoveInfo = () => {
     }
   };
 
-  const history = useHistory();
+  // Clear the alert when route changes
+  const location = useLocation();
   useEffect(() => {
-    // clear alert when route changes
-    const unlisten = history.listen(() => {
-      if (infoSavedAlert) {
-        setInfoSavedAlert(null);
-      }
-    });
-    return () => {
-      unlisten();
-    };
-  }, [history, infoSavedAlert]);
+    if (
+      infoSavedAlert &&
+      !matchPath(
+        {
+          path: servicesCounselingRoutes.BASE_MOVE_VIEW_PATH,
+          end: true,
+        },
+        location.pathname,
+      )
+    ) {
+      setInfoSavedAlert(null);
+    }
+  }, [infoSavedAlert, location]);
 
   const { moveCode } = useParams();
   const { order, customerData, isLoading, isError } = useTXOMoveInfoQueries(moveCode);
 
   const { pathname } = useLocation();
   const hideNav =
-    matchPath(pathname, {
-      path: servicesCounselingRoutes.SHIPMENT_ADD_PATH,
-      exact: true,
-    }) ||
-    matchPath(pathname, {
-      path: servicesCounselingRoutes.SHIPMENT_EDIT_PATH,
-      exact: true,
-    }) ||
-    matchPath(pathname, {
-      path: servicesCounselingRoutes.ORDERS_EDIT_PATH,
-      exact: true,
-    }) ||
-    matchPath(pathname, {
-      path: servicesCounselingRoutes.ALLOWANCES_EDIT_PATH,
-      exact: true,
-    }) ||
-    matchPath(pathname, {
-      path: servicesCounselingRoutes.SHIPMENT_REVIEW_PATH,
-      exact: true,
-    }) ||
-    matchPath(pathname, {
-      path: servicesCounselingRoutes.CUSTOMER_INFO_EDIT_PATH,
-      exact: true,
-    }) ||
-    matchPath(pathname, {
-      path: servicesCounselingRoutes.SHIPMENT_REVIEW_PATH,
-      exact: true,
-    });
+    matchPath(
+      {
+        path: servicesCounselingRoutes.BASE_SHIPMENT_ADD_PATH,
+        end: true,
+      },
+      pathname,
+    ) ||
+    matchPath(
+      {
+        path: servicesCounselingRoutes.BASE_SHIPMENT_EDIT_PATH,
+        end: true,
+      },
+      pathname,
+    ) ||
+    matchPath(
+      {
+        path: servicesCounselingRoutes.BASE_ORDERS_EDIT_PATH,
+        end: true,
+      },
+      pathname,
+    ) ||
+    matchPath(
+      {
+        path: servicesCounselingRoutes.BASE_ALLOWANCES_EDIT_PATH,
+        end: true,
+      },
+      pathname,
+    ) ||
+    matchPath(
+      {
+        path: servicesCounselingRoutes.BASE_SHIPMENT_REVIEW_PATH,
+        end: true,
+      },
+      pathname,
+    ) ||
+    matchPath(
+      {
+        path: servicesCounselingRoutes.BASE_CUSTOMER_INFO_EDIT_PATH,
+        end: true,
+      },
+      pathname,
+    );
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
@@ -116,78 +137,88 @@ const ServicesCounselingMoveInfo = () => {
       {!hideNav && <ServicesCounselorTabNav unapprovedShipmentCount={unapprovedShipmentCount} moveCode={moveCode} />}
 
       <Suspense fallback={<LoadingPlaceholder />}>
-        <Switch>
+        <Routes>
           {/* TODO - Routes not finalized, revisit */}
-          <Route path={servicesCounselingRoutes.MOVE_VIEW_PATH} exact>
-            <ServicesCounselingMoveDetails
-              infoSavedAlert={infoSavedAlert}
-              setUnapprovedShipmentCount={setUnapprovedShipmentCount}
-            />
-          </Route>
-
-          <Route path={servicesCounselingRoutes.CUSTOMER_SUPPORT_REMARKS_PATH} exact>
-            <ServicesCounselorCustomerSupportRemarks />
-          </Route>
-
-          <Route path={servicesCounselingRoutes.SHIPMENT_REVIEW_PATH} exact>
-            <ReviewDocuments />
-          </Route>
-
-          <Route path={servicesCounselingRoutes.MOVE_HISTORY_PATH} exact>
-            <MoveHistory moveCode={moveCode} />
-          </Route>
+          <Route path={servicesCounselingRoutes.SHIPMENT_REVIEW_PATH} end element={<ReviewDocuments />} />
 
           <Route
-            path={[servicesCounselingRoutes.ALLOWANCES_EDIT_PATH, servicesCounselingRoutes.ORDERS_EDIT_PATH]}
-            exact
-          >
-            <ServicesCounselingMoveDocumentWrapper />
-          </Route>
+            path={servicesCounselingRoutes.MOVE_VIEW_PATH}
+            end
+            element={
+              <ServicesCounselingMoveDetails
+                infoSavedAlert={infoSavedAlert}
+                setUnapprovedShipmentCount={setUnapprovedShipmentCount}
+              />
+            }
+          />
 
-          <Route path={servicesCounselingRoutes.CUSTOMER_INFO_EDIT_PATH} exact>
-            <CustomerInfo
-              ordersId={order.id}
-              customer={customerData}
-              isLoading={isLoading}
-              isError={isError}
-              onUpdate={onInfoSavedUpdate}
-            />
-          </Route>
+          <Route
+            key="servicesCounselingAddShipment"
+            end
+            path={servicesCounselingRoutes.SHIPMENT_ADD_PATH}
+            element={<ServicesCounselingAddShipment />}
+          />
+
+          <Route
+            path={servicesCounselingRoutes.CUSTOMER_SUPPORT_REMARKS_PATH}
+            end
+            element={<ServicesCounselorCustomerSupportRemarks />}
+          />
+
+          <Route path={servicesCounselingRoutes.MOVE_HISTORY_PATH} end element={<MoveHistory moveCode={moveCode} />} />
+
+          <Route
+            path={servicesCounselingRoutes.ALLOWANCES_EDIT_PATH}
+            end
+            element={<ServicesCounselingMoveDocumentWrapper />}
+          />
+          <Route
+            path={servicesCounselingRoutes.ORDERS_EDIT_PATH}
+            end
+            element={<ServicesCounselingMoveDocumentWrapper />}
+          />
+
+          <Route
+            path={servicesCounselingRoutes.CUSTOMER_INFO_EDIT_PATH}
+            end
+            element={
+              <CustomerInfo
+                ordersId={order.id}
+                customer={customerData}
+                isLoading={isLoading}
+                isError={isError}
+                onUpdate={onInfoSavedUpdate}
+              />
+            }
+          />
 
           <Route
             path={servicesCounselingRoutes.SHIPMENT_EDIT_PATH}
-            exact
-            // eslint-disable-next-line react/jsx-props-no-spreading
-            render={(props) => <ServicesCounselingEditShipmentDetails {...props} onUpdate={onInfoSavedUpdate} />}
+            end
+            element={<ServicesCounselingEditShipmentDetails onUpdate={onInfoSavedUpdate} />}
           />
 
           <Route
             path={servicesCounselingRoutes.SHIPMENT_ADVANCE_PATH}
-            exact
-            render={(props) => (
-              // eslint-disable-next-line react/jsx-props-no-spreading
-              <ServicesCounselingEditShipmentDetails {...props} onUpdate={onInfoSavedUpdate} isAdvancePage />
-            )}
+            end
+            element={<ServicesCounselingEditShipmentDetails onUpdate={onInfoSavedUpdate} isAdvancePage />}
           />
 
           <Route
             path={servicesCounselingRoutes.SHIPMENT_REVIEW_PATH}
             exact
-            render={(props) => (
-              // eslint-disable-next-line react/jsx-props-no-spreading
-              <ReviewDocuments {...props} onUpdate={onInfoSavedUpdate} />
-            )}
+            element={<ReviewDocuments onUpdate={onInfoSavedUpdate} />}
           />
 
           <Route
             path={servicesCounselingRoutes.REVIEW_SHIPMENT_WEIGHTS_PATH}
             exact
-            render={() => <ServicesCounselingReviewShipmentWeights moveCode={moveCode} />}
+            element={<ServicesCounselingReviewShipmentWeights moveCode={moveCode} />}
           />
 
           {/* TODO - clarify role/tab access */}
-          <Redirect from={servicesCounselingRoutes.BASE_MOVE_PATH} to={servicesCounselingRoutes.MOVE_VIEW_PATH} />
-        </Switch>
+          <Route path="/" element={<Navigate to={servicesCounselingRoutes.MOVE_VIEW_PATH} replace />} />
+        </Routes>
       </Suspense>
     </>
   );

@@ -1,5 +1,4 @@
 import React from 'react';
-import { withRouter } from 'react-router-dom-old';
 import { get } from 'lodash';
 import PropTypes from 'prop-types';
 
@@ -24,7 +23,7 @@ function ServiceMemberSummary(props) {
     uploads,
   } = props;
 
-  const editProfilePath = '/moves/review/edit-profile';
+  const editProfilePath = 'edit-profile';
 
   const yesNoMap = { true: 'Yes', false: 'No' };
 
@@ -78,4 +77,4 @@ ServiceMemberSummary.propTypes = {
   editOrdersPath: PropTypes.string,
 };
 
-export default withRouter(ServiceMemberSummary);
+export default ServiceMemberSummary;

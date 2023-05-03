@@ -45,7 +45,7 @@ test.describe('Users Details Show Page', () => {
 
     const labels = ['User ID', 'User email', 'Active', 'Created at', 'Updated at'];
     for (const label of labels) {
-      await expect(page.locator('label').getByText(label, { exact: true })).toBeVisible();
+      await expect(page.getByRole('paragraph').filter({ hasText: label })).toBeVisible();
     }
   });
 });
@@ -67,7 +67,7 @@ test.describe('Users Details Edit Page', () => {
     await page.getByText(email).click();
     await adminPage.waitForAdminPageToLoad();
 
-    await page.getByRole('button', { name: 'Edit' }).click();
+    await page.getByRole('link', { name: 'Edit' }).click();
     await adminPage.waitForAdminPageToLoad();
 
     // check page content

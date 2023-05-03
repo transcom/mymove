@@ -13,7 +13,7 @@ const Menu = () => {
         .map((resource) => (
           <MenuItemLink
             key={resource.name}
-            to={`/${resource.name}`}
+            to={`${resource.name}`}
             primaryText={(resource.options && resource.options.label) || resource.name}
           />
         ))}

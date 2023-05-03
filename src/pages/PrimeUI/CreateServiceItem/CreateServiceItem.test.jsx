@@ -6,15 +6,6 @@ import CreateServiceItem from './CreateServiceItem';
 import { usePrimeSimulatorGetMove } from 'hooks/queries';
 import { MockProviders } from 'testUtils';
 
-const mockUseHistoryPush = jest.fn();
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useParams: jest.fn().mockReturnValue({ moveCodeOrID: 'LN4T89', shipmentId: '2' }),
-  useHistory: () => ({
-    push: mockUseHistoryPush,
-  }),
-}));
-
 jest.mock('hooks/queries', () => ({
   usePrimeSimulatorGetMove: jest.fn(),
 }));
