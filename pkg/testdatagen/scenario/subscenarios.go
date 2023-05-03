@@ -31,19 +31,20 @@ func subScenarioShipmentHHGCancelled(appCtx appcontext.AppContext, allDutyLocati
 		ordersTypeDetail := internalmessages.OrdersTypeDetailHHGPERMITTED
 		tac := "1234"
 		// make sure to create moves that does not go to US marines affiliation
-		move := createRandomMove(appCtx, validStatuses, allDutyLocations, originDutyLocationsInGBLOC, true, testdatagen.Assertions{
-			Order: models.Order{
+		move := createRandomMove(appCtx, validStatuses, allDutyLocations, originDutyLocationsInGBLOC, true,
+			nil,
+			models.Move{
+				Locator: "HHGCAN",
+			},
+			cancelledShipment,
+			models.Order{
 				DepartmentIndicator: (*string)(&affiliationAirForce),
 				OrdersNumber:        &ordersNumber,
 				OrdersTypeDetail:    &ordersTypeDetail,
 				TAC:                 &tac,
 			},
-			Move: models.Move{
-				Locator: "HHGCAN",
-			},
-			ServiceMember: models.ServiceMember{Affiliation: &affiliationAirForce},
-			MTOShipment:   cancelledShipment,
-		})
+			models.ServiceMember{Affiliation: &affiliationAirForce},
+		)
 		moveManagementUUID := "1130e612-94eb-49a7-973d-72f33685e551"
 		factory.BuildMTOServiceItemBasic(db, []factory.Customization{
 			{
@@ -236,9 +237,13 @@ func subScenarioHHGServicesCounseling(appCtx appcontext.AppContext, userUploader
 
 		for i := 0; i < 12; i++ {
 			validStatuses := []models.MoveStatus{models.MoveStatusNeedsServiceCounseling, models.MoveStatusServiceCounselingCompleted}
-			createRandomMove(appCtx, validStatuses, allDutyLocations, originDutyLocationsInGBLOC, false, testdatagen.Assertions{
-				UserUploader: userUploader,
-			})
+			createRandomMove(appCtx, validStatuses, allDutyLocations, originDutyLocationsInGBLOC, false,
+				userUploader,
+				models.Move{},
+				models.MTOShipment{},
+				models.Order{},
+				models.ServiceMember{},
+			)
 		}
 	}
 }
@@ -677,18 +682,14 @@ func subScenarioPaymentRequestCalculations(appCtx appcontext.AppContext, userUpl
 		createTXOUSMC(appCtx)
 
 		// For displaying the Domestic Line Haul calculations displayed on the Payment Requests and Service Item review page
-		createHHGMoveWithPaymentRequest(appCtx, userUploader, models.AffiliationAIRFORCE, testdatagen.Assertions{
-			Move: models.Move{
+		createHHGMoveWithPaymentRequest(appCtx, userUploader, models.AffiliationAIRFORCE,
+			models.Move{
 				Locator: "SidDLH",
 			},
-			MTOShipment: models.MTOShipment{
+			models.MTOShipment{
 				Status: models.MTOShipmentStatusApproved,
 			},
-			ReService: models.ReService{
-				// DLH - Domestic line haul
-				ID: uuid.FromStringOrNil("8d600f25-1def-422d-b159-617c7d59156e"),
-			},
-		})
+		)
 		// Locator PARAMS
 		createHHGWithPaymentServiceItems(appCtx, primeUploader, moveRouter)
 		// Locator ORGSIT
@@ -717,20 +718,22 @@ func subScenarioDivertedShipments(appCtx appcontext.AppContext, userUploader *up
 		createMoveWithDivertedShipments(appCtx)
 
 		// Create diverted shipments that are approved and appear on the Move Task Order page
-		createRandomMove(appCtx, nil, allDutyLocations, originDutyLocationsInGBLOC, true, testdatagen.Assertions{
-			UserUploader: userUploader,
-			Move: models.Move{
+		createRandomMove(appCtx, nil, allDutyLocations, originDutyLocationsInGBLOC, true,
+			userUploader,
+			models.Move{
 				Status:             models.MoveStatusAPPROVED,
 				Locator:            "APRDVS",
 				AvailableToPrimeAt: models.TimePointer(time.Now()),
 			},
-			MTOShipment: models.MTOShipment{
+			models.MTOShipment{
 				Diversion:           true,
 				Status:              models.MTOShipmentStatusApproved,
 				ApprovedDate:        models.TimePointer(time.Now()),
 				ScheduledPickupDate: models.TimePointer(time.Now().AddDate(0, 3, 0)),
 			},
-		})
+			models.Order{},
+			models.ServiceMember{},
+		)
 	}
 }
 

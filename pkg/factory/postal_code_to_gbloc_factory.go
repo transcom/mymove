@@ -42,6 +42,9 @@ func BuildPostalCodeToGBLOC(db *pop.Connection, customs []Customization, traits 
 }
 
 func FetchOrBuildPostalCodeToGBLOC(db *pop.Connection, postalCode string, gbloc string) models.PostalCodeToGBLOC {
+	if postalCode == "" {
+		log.Panic("Cannot FetchOrBuildPostalCodeToGBLOC with empty postalCode")
+	}
 	gblocForPostalCode, err := models.FetchGBLOCForPostalCode(db, postalCode)
 	if err != nil && err != models.ErrFetchNotFound {
 		log.Panicf("Cannot fetch gbloc for postal code %s: %s", postalCode, err)
