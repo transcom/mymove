@@ -7,7 +7,8 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func MakeEvaluationReport(db *pop.Connection, assertions Assertions) models.EvaluationReport {
+// Deprecated: use factory.BuildEvaluationReport
+func makeEvaluationReport(db *pop.Connection, assertions Assertions) models.EvaluationReport {
 	officeUser := assertions.OfficeUser
 	if isZeroUUID(assertions.OfficeUser.ID) {
 		officeUser = MakeOfficeUser(db, assertions)

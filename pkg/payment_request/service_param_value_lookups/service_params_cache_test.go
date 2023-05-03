@@ -34,8 +34,13 @@ type paramsCacheSubtestData struct {
 }
 
 func (suite *ServiceParamValueLookupsSuite) makeSubtestData() (subtestData *paramsCacheSubtestData) {
+	testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
+		ReContractYear: models.ReContractYear{
+			EndDate: time.Now().Add(24 * time.Hour),
+		},
+	})
 	subtestData = &paramsCacheSubtestData{}
-	subtestData.move = factory.BuildMove(suite.DB(), nil, nil)
+	subtestData.move = factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
 	subtestData.paymentRequest = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
 		{

@@ -31,9 +31,7 @@ func (suite *HandlerSuite) TestUpdateMovingExpenseHandlerUnit() {
 
 		suite.FatalNoError(err)
 
-		ppmShipment = testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{
-			UserUploader: userUploader,
-		})
+		ppmShipment = factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), userUploader, nil)
 
 		ppmShipment.MovingExpenses = append(
 			ppmShipment.MovingExpenses,
@@ -244,9 +242,7 @@ func (suite *HandlerSuite) TestUpdateMovingExpenseHandlerIntegration() {
 
 		suite.FatalNoError(err)
 
-		ppmShipment = testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{
-			UserUploader: userUploader,
-		})
+		ppmShipment = factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), userUploader, nil)
 
 		packingMaterialsType := models.MovingExpenseReceiptTypePackingMaterials
 		movingExpense = factory.BuildMovingExpense(suite.DB(), []factory.Customization{

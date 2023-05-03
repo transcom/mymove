@@ -8,7 +8,6 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/stretchr/testify/mock"
 
-	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/factory"
 	weightticketops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/ppm"
@@ -32,11 +31,10 @@ func (suite *HandlerSuite) TestUpdateWeightTicketHandler() {
 		params       weightticketops.UpdateWeightTicketParams
 		handler      UpdateWeightTicketHandler
 	}
-	makeUpdateSubtestData := func(appCtx appcontext.AppContext, authenticateRequest bool) (subtestData weightTicketUpdateSubtestData) {
-		db := appCtx.DB()
+	makeUpdateSubtestData := func(authenticateRequest bool) (subtestData weightTicketUpdateSubtestData) {
 
 		// Use fake data:
-		subtestData.ppmShipment = testdatagen.MakePPMShipmentThatNeedsPaymentApproval(db, testdatagen.Assertions{})
+		subtestData.ppmShipment = factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, nil)
 		subtestData.weightTicket = subtestData.ppmShipment.WeightTickets[0]
 		endpoint := fmt.Sprintf("/ppm-shipments/%s/weight-ticket/%s", subtestData.ppmShipment.ID.String(), subtestData.weightTicket.ID.String())
 		officeUser := factory.BuildOfficeUser(nil, nil, nil)
@@ -61,9 +59,7 @@ func (suite *HandlerSuite) TestUpdateWeightTicketHandler() {
 	}
 
 	suite.Run("Successfully Update Weight Ticket - Integration Test", func() {
-		appCtx := suite.AppContextForTest()
-
-		subtestData := makeUpdateSubtestData(appCtx, true)
+		subtestData := makeUpdateSubtestData(true)
 
 		params := subtestData.params
 
@@ -99,9 +95,7 @@ func (suite *HandlerSuite) TestUpdateWeightTicketHandler() {
 	})
 
 	suite.Run("PATCH failure - 404- not found", func() {
-		appCtx := suite.AppContextForTest()
-
-		subtestData := makeUpdateSubtestData(appCtx, true)
+		subtestData := makeUpdateSubtestData(true)
 		params := subtestData.params
 		params.UpdateWeightTicketPayload = &ghcmessages.UpdateWeightTicket{}
 		wrongUUIDString := handlers.FmtUUID(testdatagen.ConvertUUIDStringToUUID("cde78daf-802f-491f-a230-fc1fdcfe6595"))
@@ -113,9 +107,7 @@ func (suite *HandlerSuite) TestUpdateWeightTicketHandler() {
 	})
 
 	suite.Run("PATCH failure - 412 -- etag mismatch", func() {
-		appCtx := suite.AppContextForTest()
-
-		subtestData := makeUpdateSubtestData(appCtx, true)
+		subtestData := makeUpdateSubtestData(true)
 		params := subtestData.params
 		params.UpdateWeightTicketPayload = &ghcmessages.UpdateWeightTicket{}
 		params.IfMatch = "wrong-if-match-header-value"
@@ -127,9 +119,7 @@ func (suite *HandlerSuite) TestUpdateWeightTicketHandler() {
 
 	suite.Run("PATCH failure - 500", func() {
 		mockUpdater := mocks.WeightTicketUpdater{}
-		appCtx := suite.AppContextForTest()
-
-		subtestData := makeUpdateSubtestData(appCtx, true)
+		subtestData := makeUpdateSubtestData(true)
 		params := subtestData.params
 		ownsTrailer := true
 		trailerMeetsCriteria := true

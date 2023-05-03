@@ -5,6 +5,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -15,6 +16,12 @@ func (suite *ServiceParamValueLookupsSuite) TestEIAFuelPriceLookup() {
 	actualPickupDate := time.Date(2020, time.July, 15, 0, 0, 0, 0, time.UTC)
 
 	setupTestData := func() {
+		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				StartDate: time.Now().Add(-24 * time.Hour),
+				EndDate:   time.Now().Add(24 * time.Hour),
+			},
+		})
 		var firstGHCDieselFuelPrice models.GHCDieselFuelPrice
 		var secondGHCDieselFuelPrice models.GHCDieselFuelPrice
 		var thirdGHCDieselFuelPrice models.GHCDieselFuelPrice
@@ -57,7 +64,9 @@ func (suite *ServiceParamValueLookupsSuite) TestEIAFuelPriceLookup() {
 					ActualPickupDate: &actualPickupDate,
 				},
 			},
-		}, nil)
+		}, []factory.Trait{
+			factory.GetTraitAvailableToPrimeMove,
+		})
 
 		paymentRequest = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
 			{
@@ -140,10 +149,12 @@ func (suite *ServiceParamValueLookupsSuite) TestEIAFuelPriceLookup() {
 		// create a service item that has a shipment without an ActualPickupDate
 		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
-				Model:    factory.BuildMTOShipmentMinimal(suite.DB(), nil, nil),
+				Model:    factory.BuildMTOShipmentMinimal(suite.DB(), nil, []factory.Trait{factory.GetTraitAvailableToPrimeMove}),
 				LinkOnly: true,
 			},
 		}, nil)
+
+		suite.NotNil(mtoServiceItem.MoveTaskOrder.AvailableToPrimeAt)
 
 		paymentRequest = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
 			{
