@@ -7,7 +7,7 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-func MakeMinimalProgearWeightTicket(db *pop.Connection, assertions Assertions) models.ProgearWeightTicket {
+func makeMinimalProgearWeightTicket(db *pop.Connection, assertions Assertions) models.ProgearWeightTicket {
 	ppmShipment := checkOrCreatePPMShipment(db, assertions)
 
 	document := GetOrCreateDocument(db, assertions.ProgearWeightTicket.Document, assertions)
@@ -27,11 +27,7 @@ func MakeMinimalProgearWeightTicket(db *pop.Connection, assertions Assertions) m
 	return newProgearWeightTicket
 }
 
-func MakeMinimalDefaultProgearWeightTicket(db *pop.Connection) models.ProgearWeightTicket {
-	return MakeMinimalProgearWeightTicket(db, Assertions{})
-}
-
-func MakeProgearWeightTicket(db *pop.Connection, assertions Assertions) models.ProgearWeightTicket {
+func makeProgearWeightTicket(db *pop.Connection, assertions Assertions) models.ProgearWeightTicket {
 	document := GetOrCreateDocumentWithUploads(db, assertions.ProgearWeightTicket.Document, assertions)
 
 	description := "professional equipment"
@@ -48,9 +44,5 @@ func MakeProgearWeightTicket(db *pop.Connection, assertions Assertions) models.P
 	}
 	mergeModels(&fullAssertions, assertions)
 
-	return MakeMinimalProgearWeightTicket(db, fullAssertions)
-}
-
-func MakeDefaultProgearWeightTicket(db *pop.Connection) models.ProgearWeightTicket {
-	return MakeProgearWeightTicket(db, Assertions{})
+	return makeMinimalProgearWeightTicket(db, fullAssertions)
 }

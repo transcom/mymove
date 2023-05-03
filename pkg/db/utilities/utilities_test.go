@@ -11,7 +11,6 @@ import (
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/mocks"
-	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testingsuite"
 	"github.com/transcom/mymove/pkg/unit"
 	"github.com/transcom/mymove/pkg/uploader"
@@ -51,13 +50,15 @@ func (suite *UtilitiesSuite) TestSoftDestroy_ModelWithDeletedAtWithoutAssociatio
 	paidWithGTCC := false
 	amount := unit.Cents(10000)
 	contractExpense := models.MovingExpenseReceiptTypeContractedExpense
-	expenseModel := testdatagen.MakeMovingExpense(suite.DB(), testdatagen.Assertions{
-		MovingExpense: models.MovingExpense{
-			MovingExpenseType: &contractExpense,
-			PaidWithGTCC:      &paidWithGTCC,
-			Amount:            &amount,
+	expenseModel := factory.BuildMovingExpense(suite.DB(), []factory.Customization{
+		{
+			Model: models.MovingExpense{
+				MovingExpenseType: &contractExpense,
+				PaidWithGTCC:      &paidWithGTCC,
+				Amount:            &amount,
+			},
 		},
-	})
+	}, nil)
 
 	suite.Nil(expenseModel.DeletedAt)
 

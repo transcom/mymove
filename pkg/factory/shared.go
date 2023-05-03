@@ -49,6 +49,7 @@ var DutyLocation CustomType = "DutyLocation"
 var Entitlement CustomType = "Entitlement"
 var EvaluationReport CustomType = "EvaluationReport"
 var Move CustomType = "Move"
+var MovingExpense CustomType = "MovingExpense"
 var MTOAgent CustomType = "MTOAgent"
 var MTOServiceItem CustomType = "MTOServiceItem"
 var MTOServiceItemDimension CustomType = "MTOServiceItemDimension"
@@ -64,6 +65,7 @@ var PaymentServiceItem CustomType = "PaymentServiceItem"
 var PaymentServiceItemParam CustomType = "PaymentServiceItemParam"
 var PostalCodeToGBLOC CustomType = "PostalCodeToGBLOC"
 var PrimeUpload CustomType = "PrimeUpload"
+var ProgearWeightTicket CustomType = "ProgearWeightTicket"
 var ProofOfServiceDoc CustomType = "ProofOfServiceDoc"
 var ReService CustomType = "ReService"
 var Role CustomType = "Role"
@@ -71,8 +73,8 @@ var ServiceItemParamKey CustomType = "ServiceItemParamKey"
 var ServiceParam CustomType = "ServiceParam"
 var ServiceMember CustomType = "ServiceMember"
 var SignedCertification CustomType = "SignedCertification"
+var SITDurationUpdate CustomType = "SITDurationUpdate"
 var StorageFacility CustomType = "StorageFacility"
-var Tariff400ngZip3 CustomType = "Tariff400ngZip3"
 var TransportationOffice CustomType = "TransportationOffice"
 var Upload CustomType = "Upload"
 var UserUpload CustomType = "UserUpload"
@@ -93,6 +95,7 @@ var defaultTypesMap = map[string]CustomType{
 	"models.Entitlement":             Entitlement,
 	"models.EvaluationReport":        EvaluationReport,
 	"models.Move":                    Move,
+	"models.MovingExpense":           MovingExpense,
 	"models.MTOAgent":                MTOAgent,
 	"models.MTOServiceItem":          MTOServiceItem,
 	"models.MTOServiceItemDimension": MTOServiceItemDimension,
@@ -108,14 +111,15 @@ var defaultTypesMap = map[string]CustomType{
 	"models.PPMShipment":             PPMShipment,
 	"models.PostalCodeToGBLOC":       PostalCodeToGBLOC,
 	"models.PrimeUpload":             PrimeUpload,
+	"models.ProgearWeightTicket":     ProgearWeightTicket,
 	"models.ProofOfServiceDoc":       ProofOfServiceDoc,
 	"models.ReService":               ReService,
 	"models.ServiceItemParamKey":     ServiceItemParamKey,
 	"models.ServiceMember":           ServiceMember,
 	"models.ServiceParam":            ServiceParam,
 	"models.SignedCertification":     SignedCertification,
+	"models.SITDurationUpdate":       SITDurationUpdate,
 	"models.StorageFacility":         StorageFacility,
-	"models.Tariff400ngZip3":         Tariff400ngZip3,
 	"models.TransportationOffice":    TransportationOffice,
 	"models.Upload":                  Upload,
 	"models.UserUpload":              UserUpload,
