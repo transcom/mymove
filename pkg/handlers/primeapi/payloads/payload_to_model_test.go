@@ -2,7 +2,9 @@ package payloads
 
 import (
 	"fmt"
+	"time"
 
+	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/gen/primemessages"
@@ -17,12 +19,12 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 	mtoShipmentIDString := handlers.FmtUUID(mtoShipmentIDField)
 
 	// Basic Service Item
-	basicServieItem := &primemessages.MTOServiceItemBasic{
+	basicServiceItem := &primemessages.MTOServiceItemBasic{
 		ReServiceCode: primemessages.NewReServiceCode(primemessages.ReServiceCode(models.ReServiceCodeFSC)),
 	}
 
-	basicServieItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
-	basicServieItem.SetMtoShipmentID(*mtoShipmentIDString)
+	basicServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
+	basicServiceItem.SetMtoShipmentID(*mtoShipmentIDString)
 
 	// DCRT Service Item
 	itemMeasurement := int32(1100)
@@ -54,8 +56,32 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 	DCRTServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
 	DCRTServiceItem.SetMtoShipmentID(*mtoShipmentIDString)
 
+	destServiceCode := models.ReServiceCodeDDFSIT.String()
+	destDate := strfmt.Date(time.Now())
+	destTime := "1400Z"
+	destCity := "Beverly Hills"
+	destPostalCode := "90210"
+	destStreet := "123 Rodeo Dr."
+	sitFinalDestAddress := primemessages.Address{
+		City:           &destCity,
+		PostalCode:     &destPostalCode,
+		StreetAddress1: &destStreet,
+	}
+
+	destServiceItem := &primemessages.MTOServiceItemDestSIT{
+		ReServiceCode:               &destServiceCode,
+		FirstAvailableDeliveryDate1: &destDate,
+		FirstAvailableDeliveryDate2: &destDate,
+		TimeMilitary1:               &destTime,
+		TimeMilitary2:               &destTime,
+		SitDestinationFinalAddress:  &sitFinalDestAddress,
+	}
+
+	destServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
+	destServiceItem.SetMtoShipmentID(*mtoShipmentIDString)
+
 	suite.Run("Success - Returns a basic service item model", func() {
-		returnedModel, verrs := MTOServiceItemModel(basicServieItem)
+		returnedModel, verrs := MTOServiceItemModel(basicServiceItem)
 
 		suite.NoVerrs(verrs)
 		suite.Equal(moveTaskOrderIDField.String(), returnedModel.MoveTaskOrderID.String())
@@ -108,6 +134,18 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 
 		suite.True(verrs.HasAny(), fmt.Sprintf("invalid crate dimensions for %s service item", models.ReServiceCodeDCRT))
 		suite.Nil(returnedModel, "returned a model when erroring")
+
+	})
+
+	suite.Run("Success - Returns SIT destination service item model", func() {
+		returnedModel, verrs := MTOServiceItemModel(destServiceItem)
+
+		suite.NoVerrs(verrs)
+		suite.Equal(moveTaskOrderIDField.String(), returnedModel.MoveTaskOrderID.String())
+		suite.Equal(mtoShipmentIDField.String(), returnedModel.MTOShipmentID.String())
+		suite.Equal(models.ReServiceCodeDDFSIT, returnedModel.ReService.Code)
+		suite.Equal(destPostalCode, returnedModel.SITDestinationFinalAddress.PostalCode)
+		suite.Equal(destStreet, returnedModel.SITDestinationFinalAddress.StreetAddress1)
 
 	})
 }
