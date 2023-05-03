@@ -46,8 +46,6 @@ const initialState = {
   mtoShipments: {},
   reimbursements: {},
   signedCertifications: {},
-  tariff400ngItems: {},
-  transportationServiceProviders: {},
 };
 
 // Actions of either of these types will be merged into the store:

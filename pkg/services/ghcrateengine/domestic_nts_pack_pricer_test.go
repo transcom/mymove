@@ -78,14 +78,14 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticNTSPackPricer() {
 }
 
 func (suite *GHCRateEngineServiceSuite) setupDomesticNTSPackServiceItem() models.PaymentServiceItem {
-	return testdatagen.MakeDefaultPaymentServiceItemWithParams(
+	return factory.BuildPaymentServiceItemWithParams(
 		suite.DB(),
 		models.ReServiceCodeDNPK,
-		[]testdatagen.CreatePaymentServiceItemParams{
+		[]factory.CreatePaymentServiceItemParams{
 			{
 				Key:     models.ServiceItemParamNameContractCode,
 				KeyType: models.ServiceItemParamTypeString,
-				Value:   testdatagen.DefaultContractCode,
+				Value:   factory.DefaultContractCode,
 			},
 			{
 				Key:     models.ServiceItemParamNameReferenceDate,
@@ -102,7 +102,7 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticNTSPackServiceItem() models
 				KeyType: models.ServiceItemParamTypeInteger,
 				Value:   strconv.Itoa(dnpkTestWeight.Int()),
 			},
-		},
+		}, nil, nil,
 	)
 }
 

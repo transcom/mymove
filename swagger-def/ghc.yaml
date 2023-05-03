@@ -768,6 +768,8 @@ paths:
         * Customer requested pick-up date
         * Pick-up Address
         * Delivery Address
+        * Secondary Pick-up Address
+        * SecondaryDelivery Address
         * Delivery Address Type
         * Customer Remarks
         * Counselor Remarks
@@ -4162,7 +4164,20 @@ definitions:
       destinationAddress:
         allOf:
           - $ref: 'definitions/Address.yaml'
+      secondaryDeliveryAddress:
+        allOf:
+          - $ref: 'definitions/Address.yaml'
+      secondaryPickupAddress:
+        allOf:
+          - $ref: 'definitions/Address.yaml'
+      hasSecondaryPickupAddress:
+        type: boolean
         x-nullable: true
+        x-omitempty: false
+      hasSecondaryDeliveryAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
       destinationType:
         $ref: 'definitions/DestinationType.yaml'
       agents:

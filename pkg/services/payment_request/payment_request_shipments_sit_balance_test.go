@@ -5,7 +5,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
@@ -71,45 +70,87 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 		}, nil)
 
 		// Creates the payment service item for DOASIT w/ SIT start date param
-		doasitParam := testdatagen.MakePaymentServiceItemParam(suite.DB(), testdatagen.Assertions{
-			PaymentServiceItemParam: models.PaymentServiceItemParam{
-				Value: originEntryDate.Format("2006-01-02"),
+		doasitParam := factory.BuildPaymentServiceItemParam(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItemParam{
+					Value: originEntryDate.Format("2006-01-02"),
+				},
 			},
-			ServiceItemParamKey: models.ServiceItemParamKey{
-				Key: models.ServiceItemParamNameSITPaymentRequestStart,
+			{
+				Model: models.ServiceItemParamKey{
+					Key: models.ServiceItemParamNameSITPaymentRequestStart,
+				},
 			},
-			PaymentRequest: paymentRequest,
-			MTOServiceItem: doasit,
-			Move:           move,
-		})
+			{
+				Model:    paymentRequest,
+				LinkOnly: true,
+			},
+			{
+				Model:    doasit,
+				LinkOnly: true,
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		paymentEndDate := originEntryDate.Add(time.Hour * 24 * 30)
 		// Creates the SIT end date param for existing DOASIT payment request service item
-		testdatagen.MakePaymentServiceItemParam(suite.DB(), testdatagen.Assertions{
-			PaymentServiceItemParam: models.PaymentServiceItemParam{
-				Value: paymentEndDate.Format("2006-01-02"),
+		factory.BuildPaymentServiceItemParam(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItemParam{
+					Value: paymentEndDate.Format("2006-01-02"),
+				},
 			},
-			ServiceItemParamKey: models.ServiceItemParamKey{
-				Key: models.ServiceItemParamNameSITPaymentRequestEnd,
+			{
+				Model: models.ServiceItemParamKey{
+					Key: models.ServiceItemParamNameSITPaymentRequestEnd,
+				},
 			},
-			PaymentServiceItem: doasitParam.PaymentServiceItem,
-			PaymentRequest:     paymentRequest,
-			MTOServiceItem:     doasit,
-		})
+			{
+				Model:    doasitParam.PaymentServiceItem,
+				LinkOnly: true,
+			},
+			{
+				Model:    paymentRequest,
+				LinkOnly: true,
+			},
+			{
+				Model:    doasit,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		// Creates the NumberDaysSIT param for existing DOASIT payment request service item
-		testdatagen.MakePaymentServiceItemParam(suite.DB(), testdatagen.Assertions{
-			PaymentServiceItemParam: models.PaymentServiceItemParam{
-				Value: "30",
+		factory.BuildPaymentServiceItemParam(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItemParam{
+					Value: "30",
+				},
 			},
-			ServiceItemParamKey: models.ServiceItemParamKey{
-				Key: models.ServiceItemParamNameNumberDaysSIT,
+			{
+				Model: models.ServiceItemParamKey{
+					Key: models.ServiceItemParamNameNumberDaysSIT,
+				},
 			},
-			PaymentServiceItem: doasitParam.PaymentServiceItem,
-			PaymentRequest:     paymentRequest,
-			MTOServiceItem:     doasit,
-			Move:               move,
-		})
+			{
+				Model:    doasitParam.PaymentServiceItem,
+				LinkOnly: true,
+			},
+			{
+				Model:    paymentRequest,
+				LinkOnly: true,
+			},
+			{
+				Model:    doasit,
+				LinkOnly: true,
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		sitBalances, err := service.ListShipmentPaymentSITBalance(suite.AppContextForTest(), paymentRequest.ID)
 		suite.NoError(err)
@@ -179,49 +220,96 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 		}, nil)
 
 		// Creates the payment service item for DOASIT w/ SIT start date param
-		doasitParam := testdatagen.MakePaymentServiceItemParam(suite.DB(), testdatagen.Assertions{
-			PaymentServiceItemParam: models.PaymentServiceItemParam{
-				Value: originEntryDate.Format("2006-01-02"),
+		doasitParam := factory.BuildPaymentServiceItemParam(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItemParam{
+					Value: originEntryDate.Format("2006-01-02"),
+				},
 			},
-			PaymentServiceItem: models.PaymentServiceItem{
-				Status: models.PaymentServiceItemStatusApproved,
+			{
+				Model: models.PaymentServiceItem{
+					Status: models.PaymentServiceItemStatusApproved,
+				},
 			},
-			ServiceItemParamKey: models.ServiceItemParamKey{
-				Key: models.ServiceItemParamNameSITPaymentRequestStart,
+			{
+				Model: models.ServiceItemParamKey{
+					Key: models.ServiceItemParamNameSITPaymentRequestStart,
+				},
 			},
-			PaymentRequest: reviewedPaymentRequest,
-			MTOServiceItem: doasit,
-			Move:           move,
-		})
+			{
+				Model:    reviewedPaymentRequest,
+				LinkOnly: true,
+			},
+			{
+				Model:    doasit,
+				LinkOnly: true,
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		paymentEndDate := originEntryDate.Add(time.Hour * 24 * 30)
 		// Creates the SIT end date param for existing DOASIT payment request service item
-		testdatagen.MakePaymentServiceItemParam(suite.DB(), testdatagen.Assertions{
-			PaymentServiceItemParam: models.PaymentServiceItemParam{
-				Value: paymentEndDate.Format("2006-01-02"),
+		factory.BuildPaymentServiceItemParam(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItemParam{
+					Value: paymentEndDate.Format("2006-01-02"),
+				},
 			},
-			ServiceItemParamKey: models.ServiceItemParamKey{
-				Key: models.ServiceItemParamNameSITPaymentRequestEnd,
+			{
+				Model: models.ServiceItemParamKey{
+					Key: models.ServiceItemParamNameSITPaymentRequestEnd,
+				},
 			},
-			PaymentServiceItem: doasitParam.PaymentServiceItem,
-			PaymentRequest:     reviewedPaymentRequest,
-			MTOServiceItem:     doasit,
-			Move:               move,
-		})
+			{
+				Model:    doasitParam.PaymentServiceItem,
+				LinkOnly: true,
+			},
+			{
+				Model:    reviewedPaymentRequest,
+				LinkOnly: true,
+			},
+			{
+				Model:    doasit,
+				LinkOnly: true,
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		// Creates the NumberDaysSIT param for existing DOASIT payment request service item
-		testdatagen.MakePaymentServiceItemParam(suite.DB(), testdatagen.Assertions{
-			PaymentServiceItemParam: models.PaymentServiceItemParam{
-				Value: "30",
+		factory.BuildPaymentServiceItemParam(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItemParam{
+					Value: "30",
+				},
 			},
-			ServiceItemParamKey: models.ServiceItemParamKey{
-				Key: models.ServiceItemParamNameNumberDaysSIT,
+			{
+				Model: models.ServiceItemParamKey{
+					Key: models.ServiceItemParamNameNumberDaysSIT,
+				},
 			},
-			PaymentServiceItem: doasitParam.PaymentServiceItem,
-			PaymentRequest:     reviewedPaymentRequest,
-			MTOServiceItem:     doasit,
-			Move:               move,
-		})
+			{
+				Model:    doasitParam.PaymentServiceItem,
+				LinkOnly: true,
+			},
+			{
+				Model:    reviewedPaymentRequest,
+				LinkOnly: true,
+			},
+			{
+				Model:    doasit,
+				LinkOnly: true,
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		pendingPaymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
 			{
@@ -260,46 +348,91 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 		}, nil)
 
 		// Creates the payment service item for DOASIT w/ SIT start date param
-		ddasitParam := testdatagen.MakePaymentServiceItemParam(suite.DB(), testdatagen.Assertions{
-			PaymentServiceItemParam: models.PaymentServiceItemParam{
-				Value: destinationEntryDate.Format("2006-01-02"),
+		ddasitParam := factory.BuildPaymentServiceItemParam(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItemParam{
+					Value: destinationEntryDate.Format("2006-01-02"),
+				},
 			},
-			ServiceItemParamKey: models.ServiceItemParamKey{
-				Key: models.ServiceItemParamNameSITPaymentRequestStart,
+			{
+				Model: models.ServiceItemParamKey{
+					Key: models.ServiceItemParamNameSITPaymentRequestStart,
+				},
 			},
-			PaymentRequest: pendingPaymentRequest,
-			MTOServiceItem: ddasit,
-			Move:           move,
-		})
+			{
+				Model:    pendingPaymentRequest,
+				LinkOnly: true,
+			},
+			{
+				Model:    ddasit,
+				LinkOnly: true,
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		destinationPaymentEndDate := destinationEntryDate.Add(time.Hour * 24 * 60)
 		// Creates the SIT end date param for existing DOASIT payment request service item
-		testdatagen.MakePaymentServiceItemParam(suite.DB(), testdatagen.Assertions{
-			PaymentServiceItemParam: models.PaymentServiceItemParam{
-				Value: destinationPaymentEndDate.Format("2006-01-02"),
+		factory.BuildPaymentServiceItemParam(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItemParam{
+					Value: destinationPaymentEndDate.Format("2006-01-02"),
+				},
 			},
-			ServiceItemParamKey: models.ServiceItemParamKey{
-				Key: models.ServiceItemParamNameSITPaymentRequestEnd,
+			{
+				Model: models.ServiceItemParamKey{
+					Key: models.ServiceItemParamNameSITPaymentRequestEnd,
+				},
 			},
-			PaymentServiceItem: ddasitParam.PaymentServiceItem,
-			PaymentRequest:     pendingPaymentRequest,
-			MTOServiceItem:     ddasit,
-			Move:               move,
-		})
+			{
+				Model:    ddasitParam.PaymentServiceItem,
+				LinkOnly: true,
+			},
+			{
+				Model:    pendingPaymentRequest,
+				LinkOnly: true,
+			},
+			{
+				Model:    ddasit,
+				LinkOnly: true,
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		// Creates the NumberDaysSIT param for existing DOASIT payment request service item
-		testdatagen.MakePaymentServiceItemParam(suite.DB(), testdatagen.Assertions{
-			PaymentServiceItemParam: models.PaymentServiceItemParam{
-				Value: "60",
+		factory.BuildPaymentServiceItemParam(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItemParam{
+					Value: "60",
+				},
 			},
-			ServiceItemParamKey: models.ServiceItemParamKey{
-				Key: models.ServiceItemParamNameNumberDaysSIT,
+			{
+				Model: models.ServiceItemParamKey{
+					Key: models.ServiceItemParamNameNumberDaysSIT,
+				},
 			},
-			PaymentServiceItem: ddasitParam.PaymentServiceItem,
-			PaymentRequest:     pendingPaymentRequest,
-			MTOServiceItem:     ddasit,
-			Move:               move,
-		})
+			{
+				Model:    ddasitParam.PaymentServiceItem,
+				LinkOnly: true,
+			},
+			{
+				Model:    pendingPaymentRequest,
+				LinkOnly: true,
+			},
+			{
+				Model:    ddasit,
+				LinkOnly: true,
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		sitBalances, err := service.ListShipmentPaymentSITBalance(suite.AppContextForTest(), pendingPaymentRequest.ID)
 		suite.NoError(err)
@@ -370,49 +503,96 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 		}, nil)
 
 		// Creates the payment service item for DOASIT w/ SIT start date param
-		doasitParam := testdatagen.MakePaymentServiceItemParam(suite.DB(), testdatagen.Assertions{
-			PaymentServiceItemParam: models.PaymentServiceItemParam{
-				Value: originEntryDate.Format("2006-01-02"),
+		doasitParam := factory.BuildPaymentServiceItemParam(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItemParam{
+					Value: originEntryDate.Format("2006-01-02"),
+				},
 			},
-			PaymentServiceItem: models.PaymentServiceItem{
-				Status: models.PaymentServiceItemStatusDenied,
+			{
+				Model: models.PaymentServiceItem{
+					Status: models.PaymentServiceItemStatusDenied,
+				},
 			},
-			ServiceItemParamKey: models.ServiceItemParamKey{
-				Key: models.ServiceItemParamNameSITPaymentRequestStart,
+			{
+				Model: models.ServiceItemParamKey{
+					Key: models.ServiceItemParamNameSITPaymentRequestStart,
+				},
 			},
-			PaymentRequest: reviewedPaymentRequest,
-			MTOServiceItem: doasit,
-			Move:           move,
-		})
+			{
+				Model:    reviewedPaymentRequest,
+				LinkOnly: true,
+			},
+			{
+				Model:    doasit,
+				LinkOnly: true,
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		paymentEndDate := originEntryDate.Add(time.Hour * 24 * 30)
 		// Creates the SIT end date param for existing DOASIT payment request service item
-		testdatagen.MakePaymentServiceItemParam(suite.DB(), testdatagen.Assertions{
-			PaymentServiceItemParam: models.PaymentServiceItemParam{
-				Value: paymentEndDate.Format("2006-01-02"),
+		factory.BuildPaymentServiceItemParam(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItemParam{
+					Value: paymentEndDate.Format("2006-01-02"),
+				},
 			},
-			ServiceItemParamKey: models.ServiceItemParamKey{
-				Key: models.ServiceItemParamNameSITPaymentRequestEnd,
+			{
+				Model: models.ServiceItemParamKey{
+					Key: models.ServiceItemParamNameSITPaymentRequestEnd,
+				},
 			},
-			PaymentServiceItem: doasitParam.PaymentServiceItem,
-			PaymentRequest:     reviewedPaymentRequest,
-			MTOServiceItem:     doasit,
-			Move:               move,
-		})
+			{
+				Model:    doasitParam.PaymentServiceItem,
+				LinkOnly: true,
+			},
+			{
+				Model:    reviewedPaymentRequest,
+				LinkOnly: true,
+			},
+			{
+				Model:    doasit,
+				LinkOnly: true,
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		// Creates the NumberDaysSIT param for existing DOASIT payment request service item
-		testdatagen.MakePaymentServiceItemParam(suite.DB(), testdatagen.Assertions{
-			PaymentServiceItemParam: models.PaymentServiceItemParam{
-				Value: "30",
+		factory.BuildPaymentServiceItemParam(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItemParam{
+					Value: "30",
+				},
 			},
-			ServiceItemParamKey: models.ServiceItemParamKey{
-				Key: models.ServiceItemParamNameNumberDaysSIT,
+			{
+				Model: models.ServiceItemParamKey{
+					Key: models.ServiceItemParamNameNumberDaysSIT,
+				},
 			},
-			PaymentServiceItem: doasitParam.PaymentServiceItem,
-			PaymentRequest:     reviewedPaymentRequest,
-			MTOServiceItem:     doasit,
-			Move:               move,
-		})
+			{
+				Model:    doasitParam.PaymentServiceItem,
+				LinkOnly: true,
+			},
+			{
+				Model:    reviewedPaymentRequest,
+				LinkOnly: true,
+			},
+			{
+				Model:    doasit,
+				LinkOnly: true,
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		pendingPaymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
 			{
@@ -451,46 +631,91 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 		}, nil)
 
 		// Creates the payment service item for DOASIT w/ SIT start date param
-		ddasitParam := testdatagen.MakePaymentServiceItemParam(suite.DB(), testdatagen.Assertions{
-			PaymentServiceItemParam: models.PaymentServiceItemParam{
-				Value: destinationEntryDate.Format("2006-01-02"),
+		ddasitParam := factory.BuildPaymentServiceItemParam(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItemParam{
+					Value: destinationEntryDate.Format("2006-01-02"),
+				},
 			},
-			ServiceItemParamKey: models.ServiceItemParamKey{
-				Key: models.ServiceItemParamNameSITPaymentRequestStart,
+			{
+				Model: models.ServiceItemParamKey{
+					Key: models.ServiceItemParamNameSITPaymentRequestStart,
+				},
 			},
-			PaymentRequest: pendingPaymentRequest,
-			MTOServiceItem: ddasit,
-			Move:           move,
-		})
+			{
+				Model:    pendingPaymentRequest,
+				LinkOnly: true,
+			},
+			{
+				Model:    ddasit,
+				LinkOnly: true,
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		destinationPaymentEndDate := destinationEntryDate.Add(time.Hour * 24 * 60)
 		// Creates the SIT end date param for existing DOASIT payment request service item
-		testdatagen.MakePaymentServiceItemParam(suite.DB(), testdatagen.Assertions{
-			PaymentServiceItemParam: models.PaymentServiceItemParam{
-				Value: destinationPaymentEndDate.Format("2006-01-02"),
+		factory.BuildPaymentServiceItemParam(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItemParam{
+					Value: destinationPaymentEndDate.Format("2006-01-02"),
+				},
 			},
-			ServiceItemParamKey: models.ServiceItemParamKey{
-				Key: models.ServiceItemParamNameSITPaymentRequestEnd,
+			{
+				Model: models.ServiceItemParamKey{
+					Key: models.ServiceItemParamNameSITPaymentRequestEnd,
+				},
 			},
-			PaymentServiceItem: ddasitParam.PaymentServiceItem,
-			PaymentRequest:     pendingPaymentRequest,
-			MTOServiceItem:     ddasit,
-			Move:               move,
-		})
+			{
+				Model:    ddasitParam.PaymentServiceItem,
+				LinkOnly: true,
+			},
+			{
+				Model:    pendingPaymentRequest,
+				LinkOnly: true,
+			},
+			{
+				Model:    ddasit,
+				LinkOnly: true,
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		// Creates the NumberDaysSIT param for existing DOASIT payment request service item
-		testdatagen.MakePaymentServiceItemParam(suite.DB(), testdatagen.Assertions{
-			PaymentServiceItemParam: models.PaymentServiceItemParam{
-				Value: "60",
+		factory.BuildPaymentServiceItemParam(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItemParam{
+					Value: "60",
+				},
 			},
-			ServiceItemParamKey: models.ServiceItemParamKey{
-				Key: models.ServiceItemParamNameNumberDaysSIT,
+			{
+				Model: models.ServiceItemParamKey{
+					Key: models.ServiceItemParamNameNumberDaysSIT,
+				},
 			},
-			PaymentServiceItem: ddasitParam.PaymentServiceItem,
-			PaymentRequest:     pendingPaymentRequest,
-			MTOServiceItem:     ddasit,
-			Move:               move,
-		})
+			{
+				Model:    ddasitParam.PaymentServiceItem,
+				LinkOnly: true,
+			},
+			{
+				Model:    pendingPaymentRequest,
+				LinkOnly: true,
+			},
+			{
+				Model:    ddasit,
+				LinkOnly: true,
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		sitBalances, err := service.ListShipmentPaymentSITBalance(suite.AppContextForTest(), pendingPaymentRequest.ID)
 		suite.NoError(err)
@@ -698,45 +923,87 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 		}, nil)
 
 		// Creates the payment service item for DOASIT w/ SIT start date param
-		doasitParam := testdatagen.MakePaymentServiceItemParam(suite.DB(), testdatagen.Assertions{
-			PaymentServiceItemParam: models.PaymentServiceItemParam{
-				Value: originEntryDate.Format("2006-01-02"),
+		doasitParam := factory.BuildPaymentServiceItemParam(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItemParam{
+					Value: originEntryDate.Format("2006-01-02"),
+				},
 			},
-			ServiceItemParamKey: models.ServiceItemParamKey{
-				Key: models.ServiceItemParamNameSITPaymentRequestStart,
+			{
+				Model: models.ServiceItemParamKey{
+					Key: models.ServiceItemParamNameSITPaymentRequestStart,
+				},
 			},
-			PaymentRequest: pendingPaymentRequest,
-			MTOServiceItem: doasit,
-			Move:           move,
-		})
+			{
+				Model:    pendingPaymentRequest,
+				LinkOnly: true,
+			},
+			{
+				Model:    doasit,
+				LinkOnly: true,
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		paymentEndDate := originEntryDate.Add(time.Hour * 24 * 30)
 		// Creates the SIT end date param for existing DOASIT payment request service item
-		testdatagen.MakePaymentServiceItemParam(suite.DB(), testdatagen.Assertions{
-			PaymentServiceItemParam: models.PaymentServiceItemParam{
-				Value: paymentEndDate.Format("2006-01-02"),
+		factory.BuildPaymentServiceItemParam(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItemParam{
+					Value: paymentEndDate.Format("2006-01-02"),
+				},
 			},
-			ServiceItemParamKey: models.ServiceItemParamKey{
-				Key: models.ServiceItemParamNameSITPaymentRequestEnd,
+			{
+				Model: models.ServiceItemParamKey{
+					Key: models.ServiceItemParamNameSITPaymentRequestEnd,
+				},
 			},
-			PaymentServiceItem: doasitParam.PaymentServiceItem,
-			PaymentRequest:     pendingPaymentRequest,
-			MTOServiceItem:     doasit,
-		})
+			{
+				Model:    doasitParam.PaymentServiceItem,
+				LinkOnly: true,
+			},
+			{
+				Model:    pendingPaymentRequest,
+				LinkOnly: true,
+			},
+			{
+				Model:    doasit,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		// Creates the NumberDaysSIT param for existing DOASIT payment request service item
-		testdatagen.MakePaymentServiceItemParam(suite.DB(), testdatagen.Assertions{
-			PaymentServiceItemParam: models.PaymentServiceItemParam{
-				Value: "30",
+		factory.BuildPaymentServiceItemParam(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItemParam{
+					Value: "30",
+				},
 			},
-			ServiceItemParamKey: models.ServiceItemParamKey{
-				Key: models.ServiceItemParamNameNumberDaysSIT,
+			{
+				Model: models.ServiceItemParamKey{
+					Key: models.ServiceItemParamNameNumberDaysSIT,
+				},
 			},
-			PaymentServiceItem: doasitParam.PaymentServiceItem,
-			PaymentRequest:     pendingPaymentRequest,
-			MTOServiceItem:     doasit,
-			Move:               move,
-		})
+			{
+				Model:    doasitParam.PaymentServiceItem,
+				LinkOnly: true,
+			},
+			{
+				Model:    pendingPaymentRequest,
+				LinkOnly: true,
+			},
+			{
+				Model:    doasit,
+				LinkOnly: true,
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		sitBalances, err := service.ListShipmentPaymentSITBalance(suite.AppContextForTest(), pendingPaymentRequest.ID)
 		suite.NoError(err)
@@ -804,48 +1071,92 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 		}, nil)
 
 		// Creates the payment service item for DOASIT w/ SIT start date param
-		doasitParam := testdatagen.MakePaymentServiceItemParam(suite.DB(), testdatagen.Assertions{
-			PaymentServiceItemParam: models.PaymentServiceItemParam{
-				Value: originEntryDate.Format("2006-01-02"),
+		doasitParam := factory.BuildPaymentServiceItemParam(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItemParam{
+					Value: originEntryDate.Format("2006-01-02"),
+				},
 			},
-			ServiceItemParamKey: models.ServiceItemParamKey{
-				Key: models.ServiceItemParamNameSITPaymentRequestStart,
+			{
+				Model: models.ServiceItemParamKey{
+					Key: models.ServiceItemParamNameSITPaymentRequestStart,
+				},
 			},
-			PaymentServiceItem: models.PaymentServiceItem{
-				Status: models.PaymentServiceItemStatusApproved,
+			{
+				Model: models.PaymentServiceItem{
+					Status: models.PaymentServiceItemStatusApproved,
+				},
 			},
-			PaymentRequest: reviewedPaymentRequest,
-			MTOServiceItem: doasit,
-			Move:           move,
-		})
+			{
+				Model:    reviewedPaymentRequest,
+				LinkOnly: true,
+			},
+			{
+				Model:    doasit,
+				LinkOnly: true,
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		paymentEndDate := originEntryDate.Add(time.Hour * 24 * 30)
 		// Creates the SIT end date param for existing DOASIT payment request service item
-		testdatagen.MakePaymentServiceItemParam(suite.DB(), testdatagen.Assertions{
-			PaymentServiceItemParam: models.PaymentServiceItemParam{
-				Value: paymentEndDate.Format("2006-01-02"),
+		factory.BuildPaymentServiceItemParam(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItemParam{
+					Value: paymentEndDate.Format("2006-01-02"),
+				},
 			},
-			ServiceItemParamKey: models.ServiceItemParamKey{
-				Key: models.ServiceItemParamNameSITPaymentRequestEnd,
+			{
+				Model: models.ServiceItemParamKey{
+					Key: models.ServiceItemParamNameSITPaymentRequestEnd,
+				},
 			},
-			PaymentServiceItem: doasitParam.PaymentServiceItem,
-			PaymentRequest:     reviewedPaymentRequest,
-			MTOServiceItem:     doasit,
-		})
+			{
+				Model:    doasitParam.PaymentServiceItem,
+				LinkOnly: true,
+			},
+			{
+				Model:    reviewedPaymentRequest,
+				LinkOnly: true,
+			},
+			{
+				Model:    doasit,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		// Creates the NumberDaysSIT param for existing DOASIT payment request service item
-		testdatagen.MakePaymentServiceItemParam(suite.DB(), testdatagen.Assertions{
-			PaymentServiceItemParam: models.PaymentServiceItemParam{
-				Value: "30",
+		factory.BuildPaymentServiceItemParam(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItemParam{
+					Value: "30",
+				},
 			},
-			ServiceItemParamKey: models.ServiceItemParamKey{
-				Key: models.ServiceItemParamNameNumberDaysSIT,
+			{
+				Model: models.ServiceItemParamKey{
+					Key: models.ServiceItemParamNameNumberDaysSIT,
+				},
 			},
-			PaymentServiceItem: doasitParam.PaymentServiceItem,
-			PaymentRequest:     reviewedPaymentRequest,
-			MTOServiceItem:     doasit,
-			Move:               move,
-		})
+			{
+				Model:    doasitParam.PaymentServiceItem,
+				LinkOnly: true,
+			},
+			{
+				Model:    reviewedPaymentRequest,
+				LinkOnly: true,
+			},
+			{
+				Model:    doasit,
+				LinkOnly: true,
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		sitBalances, err := service.ListShipmentPaymentSITBalance(suite.AppContextForTest(), reviewedPaymentRequest.ID)
 		suite.NoError(err)

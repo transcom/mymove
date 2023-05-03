@@ -8,7 +8,6 @@ import (
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *SitExtensionServiceSuite) TestApproveSITExtension() {
@@ -41,10 +40,8 @@ func (suite *SitExtensionServiceSuite) TestApproveSITExtension() {
 	})
 
 	suite.Run("Returns an error when etag does not match", func() {
-		mtoShipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
-		sitExtension := testdatagen.MakePendingSITDurationUpdate(suite.DB(), testdatagen.Assertions{
-			MTOShipment: mtoShipment,
-		})
+		sitExtension := factory.BuildSITDurationUpdate(suite.DB(), nil, nil)
+		mtoShipment := sitExtension.MTOShipment
 		approvedDays := int(20)
 		officeRemarks := "office remarks"
 		eTag := ""
@@ -59,9 +56,12 @@ func (suite *SitExtensionServiceSuite) TestApproveSITExtension() {
 	suite.Run("Returns an error when shipment ID from SIT extension and shipment ID found do not match", func() {
 		mtoShipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
 		otherMtoShipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
-		sitExtension := testdatagen.MakePendingSITDurationUpdate(suite.DB(), testdatagen.Assertions{
-			MTOShipment: mtoShipment,
-		})
+		sitExtension := factory.BuildSITDurationUpdate(suite.DB(), []factory.Customization{
+			{
+				Model:    mtoShipment,
+				LinkOnly: true,
+			},
+		}, nil)
 		approvedDays := int(20)
 		officeRemarks := "office remarks"
 		eTag := ""
@@ -81,9 +81,12 @@ func (suite *SitExtensionServiceSuite) TestApproveSITExtension() {
 					SITDaysAllowance: &sitDaysAllowance,
 				},
 			}}, nil)
-		sitExtension := testdatagen.MakePendingSITDurationUpdate(suite.DB(), testdatagen.Assertions{
-			MTOShipment: mtoShipment,
-		})
+		sitExtension := factory.BuildSITDurationUpdate(suite.DB(), []factory.Customization{
+			{
+				Model:    mtoShipment,
+				LinkOnly: true,
+			},
+		}, nil)
 		approvedDays := int(-30)
 		officeRemarks := "office remarks"
 		eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
@@ -108,9 +111,12 @@ func (suite *SitExtensionServiceSuite) TestApproveSITExtension() {
 				LinkOnly: true,
 			},
 		}, nil)
-		sitExtension := testdatagen.MakePendingSITDurationUpdate(suite.DB(), testdatagen.Assertions{
-			MTOShipment: mtoShipment,
-		})
+		sitExtension := factory.BuildSITDurationUpdate(suite.DB(), []factory.Customization{
+			{
+				Model:    mtoShipment,
+				LinkOnly: true,
+			},
+		}, nil)
 		approvedDays := int(20)
 		// existing SITDaysAllowance plus new approved days
 		newSITDaysAllowance := int(40)
@@ -148,13 +154,19 @@ func (suite *SitExtensionServiceSuite) TestApproveSITExtension() {
 				LinkOnly: true,
 			},
 		}, nil)
-		sitExtensionToBeApproved := testdatagen.MakePendingSITDurationUpdate(suite.DB(), testdatagen.Assertions{
-			MTOShipment: mtoShipment,
-		})
+		sitExtensionToBeApproved := factory.BuildSITDurationUpdate(suite.DB(), []factory.Customization{
+			{
+				Model:    mtoShipment,
+				LinkOnly: true,
+			},
+		}, nil)
 		// Pending SIT Extension that won't be approved or denied
-		testdatagen.MakePendingSITDurationUpdate(suite.DB(), testdatagen.Assertions{
-			MTOShipment: mtoShipment,
-		})
+		factory.BuildSITDurationUpdate(suite.DB(), []factory.Customization{
+			{
+				Model:    mtoShipment,
+				LinkOnly: true,
+			},
+		}, nil)
 		approvedDays := int(20)
 		officeRemarks := "office remarks"
 		eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)

@@ -274,11 +274,11 @@ func (suite *HandlerSuite) TestListMTOPaymentRequestHandler() {
 func (suite *HandlerSuite) TestGetPaymentRequestEDIHandler() {
 	setupTestData := func() models.PaymentRequest {
 		currentTimeStr := time.Now().Format("20060102")
-		basicPaymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
+		basicPaymentServiceItemParams := []factory.CreatePaymentServiceItemParams{
 			{
 				Key:     models.ServiceItemParamNameContractCode,
 				KeyType: models.ServiceItemParamTypeString,
-				Value:   testdatagen.DefaultContractCode,
+				Value:   factory.DefaultContractCode,
 			},
 			{
 				Key:     models.ServiceItemParamNameRequestedPickupDate,
@@ -301,15 +301,18 @@ func (suite *HandlerSuite) TestGetPaymentRequestEDIHandler() {
 				Value:   "24246",
 			},
 		}
-		paymentServiceItem := testdatagen.MakePaymentServiceItemWithParams(
+		paymentServiceItem := factory.BuildPaymentServiceItemWithParams(
 			suite.DB(),
 			models.ReServiceCodeDLH,
 			basicPaymentServiceItemParams,
-			testdatagen.Assertions{
-				PaymentServiceItem: models.PaymentServiceItem{
-					Status: models.PaymentServiceItemStatusApproved,
+			[]factory.Customization{
+				{
+					Model: models.PaymentServiceItem{
+						Status: models.PaymentServiceItemStatusApproved,
+					},
 				},
 			},
+			nil,
 		)
 
 		// Add a price to the service item.
@@ -468,11 +471,11 @@ func (suite *HandlerSuite) createPaymentRequest(num int) models.PaymentRequests 
 	var prs models.PaymentRequests
 	for i := 0; i < num; i++ {
 		currentTimeStr := time.Now().Format(testDateFormat)
-		basicPaymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
+		basicPaymentServiceItemParams := []factory.CreatePaymentServiceItemParams{
 			{
 				Key:     models.ServiceItemParamNameContractCode,
 				KeyType: models.ServiceItemParamTypeString,
-				Value:   testdatagen.DefaultContractCode,
+				Value:   factory.DefaultContractCode,
 			},
 			{
 				Key:     models.ServiceItemParamNameRequestedPickupDate,
@@ -529,18 +532,28 @@ func (suite *HandlerSuite) createPaymentRequest(num int) models.PaymentRequests 
 			},
 		}, nil)
 
-		assertions := testdatagen.Assertions{
-			Move:           mto,
-			MTOShipment:    mtoShipment,
-			PaymentRequest: paymentRequest,
+		customizations := []factory.Customization{
+			{
+				Model:    mto,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipment,
+				LinkOnly: true,
+			},
+			{
+				Model:    paymentRequest,
+				LinkOnly: true,
+			},
 		}
 
 		// dlh
-		_ = testdatagen.MakePaymentServiceItemWithParams(
+		_ = factory.BuildPaymentServiceItemWithParams(
 			suite.DB(),
 			models.ReServiceCodeDLH,
 			basicPaymentServiceItemParams,
-			assertions,
+			customizations,
+			nil,
 		)
 	}
 	return prs

@@ -38,10 +38,10 @@ describe('ServiceItemDetails Domestic Destination SIT', () => {
     (code) => {
       render(<ServiceItemDetails id="1" code={code} details={details} />);
 
-      expect(screen.getByText('First Customer Contact:')).toBeInTheDocument();
+      expect(screen.getByText('Customer contact 1:')).toBeInTheDocument();
       expect(screen.getByText('1200Z')).toBeInTheDocument();
       expect(screen.getByText('15 Sep 2020')).toBeInTheDocument();
-      expect(screen.getByText('Second Customer Contact:')).toBeInTheDocument();
+      expect(screen.getByText('Customer contact 2:')).toBeInTheDocument();
       expect(screen.getByText('2300Z')).toBeInTheDocument();
       expect(screen.getByText('21 Sep 2020')).toBeInTheDocument();
     },
