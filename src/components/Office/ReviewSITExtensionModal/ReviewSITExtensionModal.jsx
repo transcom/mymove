@@ -63,9 +63,11 @@ const SITHistoryItemHeader = ({ title, value }) => {
   );
 };
 
-const SitStatusTables = ({ sitStatus }) => {
+const SitStatusTables = ({ sitStatus, sitExtension, shipment }) => {
   const { sitEntryDate, totalSITDaysUsed, daysInSIT } = sitStatus;
   const daysInPreviousSIT = totalSITDaysUsed - daysInSIT;
+
+  const approvedAndRequestedDaysCombined = shipment.sitDaysAllowance + sitExtension.requestedDays;
 
   const sitAllowanceHelper = useField({ name: 'daysApproved', id: 'daysApproved' })[2];
   const endDateHelper = useField({ name: 'sitEndDate', id: 'sitEndDate' })[2];
@@ -125,7 +127,7 @@ const SitStatusTables = ({ sitStatus }) => {
         <DataTable
           custClass={styles.totalDaysTable}
           columnHeaders={[
-            <SITHistoryItemHeader title="Total days of SIT approved" value={130} />,
+            <SITHistoryItemHeader title="Total days of SIT approved" value={approvedAndRequestedDaysCombined} />,
             'Total days used',
             'Total days remaining',
           ]}
@@ -166,7 +168,7 @@ const SitStatusTables = ({ sitStatus }) => {
 const ReviewSITExtensionsModal = ({ onClose, onSubmit, sitExtension, shipment, sitStatus }) => {
   const initialValues = {
     acceptExtension: 'yes',
-    daysApproved: sitExtension.requestedDays.toString(),
+    daysApproved: String(shipment.sitDaysAllowance),
     requestReason: '',
     officeRemarks: '',
     sitEndDate: moment().add(sitStatus.totalDaysRemaining, 'days').format('DD MMM YYYY'),
@@ -215,7 +217,7 @@ const ReviewSITExtensionsModal = ({ onClose, onSubmit, sitExtension, shipment, s
                       className={classnames('maxw-tablet', styles.sitDisplayForm)}
                       testID="sitExtensions"
                     >
-                      <SitStatusTables sitStatus={sitStatus} shipment={shipment} />
+                      <SitStatusTables sitStatus={sitStatus} sitExtension={sitExtension} shipment={shipment} />
                     </DataTableWrapper>
                     <div className={styles.ModalPanel}>
                       <dl className={styles.SITSummary}>
