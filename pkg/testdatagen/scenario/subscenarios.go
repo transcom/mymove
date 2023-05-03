@@ -689,11 +689,6 @@ func subScenarioPaymentRequestCalculations(appCtx appcontext.AppContext, userUpl
 			models.MTOShipment{
 				Status: models.MTOShipmentStatusApproved,
 			},
-			// not actually used
-			// &models.ReService{
-			// 	// DLH - Domestic line haul
-			// 	ID: uuid.FromStringOrNil("8d600f25-1def-422d-b159-617c7d59156e"),
-			// },
 		)
 		// Locator PARAMS
 		createHHGWithPaymentServiceItems(appCtx, primeUploader, moveRouter)

@@ -114,6 +114,9 @@ func BuildMinimalPPMShipment(db *pop.Connection, customs []Customization, traits
 // PPMShipment that has been approved by a counselor and is waiting on
 // the customer to fill in the info for the actual move and upload
 // necessary documents.
+//
+// This is a private function to reduce the supported number of
+// functions used by tests
 func buildApprovedPPMShipmentWaitingOnCustomer(db *pop.Connection, userUploader *uploader.UserUploader, customs []Customization) models.PPMShipment {
 	ppmShipment := BuildPPMShipment(db, customs, []Trait{GetTraitApprovedPPMShipment})
 
@@ -160,6 +163,9 @@ func buildApprovedPPMShipmentWaitingOnCustomer(db *pop.Connection, userUploader 
 // that has been approved by a counselor, has some actual move info,
 // and is waiting on the customer to finish filling out info and
 // upload documents.
+//
+// This is a private function to reduce the supported number of
+// functions used by tests
 func buildApprovedPPMShipmentWithActualInfo(db *pop.Connection, userUploader *uploader.UserUploader, customs []Customization) models.PPMShipment {
 	// It's easier to use some of the data from other downstream
 	// functions if we have them go first and then make our changes on
@@ -382,6 +388,9 @@ func AddPaymentPacketToPPMShipment(db *pop.Connection, ppmShipment *models.PPMSh
 }
 
 // buildPPMShipmentReadyForFinalCustomerCloseOutWithCustoms
+//
+// This is a private function to reduce the supported number of
+// functions used by tests
 func buildPPMShipmentReadyForFinalCustomerCloseOutWithCustoms(db *pop.Connection, userUploader *uploader.UserUploader, customs []Customization) models.PPMShipment {
 	// It's easier to use some of the data from other downstream functions if we have them go first and then make our
 	// changes on top of those changes.
@@ -411,8 +420,12 @@ func buildPPMShipmentReadyForFinalCustomerCloseOutWithCustoms(db *pop.Connection
 
 }
 
-// BuildPPMShipmentReadyForFinalCustomerCloseOut creates a single PPMShipment that has customer documents and is ready
-// for the customer to sign and submit.
+// BuildPPMShipmentReadyForFinalCustomerCloseOut creates a single
+// PPMShipment that has customer documents and is ready for the
+// customer to sign and submit.
+//
+// This function does not accept customizations to reduce the
+// complexity of supporting different variations for tests
 func BuildPPMShipmentReadyForFinalCustomerCloseOut(db *pop.Connection, userUploader *uploader.UserUploader) models.PPMShipment {
 	return buildPPMShipmentReadyForFinalCustomerCloseOutWithCustoms(db, userUploader,
 		nil)
@@ -422,6 +435,9 @@ func BuildPPMShipmentReadyForFinalCustomerCloseOut(db *pop.Connection, userUploa
 // creates a single PPMShipment that has one of each type of customer
 // documents (weight ticket, pro-gear weight ticket, and a moving
 // expense) and is ready for the customer to sign and submit.
+//
+// This function does not accept customizations to reduce the
+// complexity of supporting different variations for tests
 func BuildPPMShipmentReadyForFinalCustomerCloseOutWithAllDocTypes(db *pop.Connection, userUploader *uploader.UserUploader) models.PPMShipment {
 	// It's easier to use some of the data from other downstream
 	// functions if we have them go first and then make our changes on
@@ -443,6 +459,9 @@ func BuildPPMShipmentReadyForFinalCustomerCloseOutWithAllDocTypes(db *pop.Connec
 // BuildPPMShipmentThatNeedsPaymentApproval creates a PPMShipment that
 // is waiting for a counselor to review after a customer has submitted
 // all the necessary documents.
+//
+// This function needs to accept customizations, but that somewhat
+// complicates the private functions above
 func BuildPPMShipmentThatNeedsPaymentApproval(db *pop.Connection, userUploader *uploader.UserUploader, customs []Customization) models.PPMShipment {
 	// It's easier to use some of the data from other downstream
 	// functions if we have them go first and then make our changes on
@@ -490,6 +509,9 @@ func BuildPPMShipmentThatNeedsPaymentApproval(db *pop.Connection, userUploader *
 // (weight ticket, pro-gear weight ticket, and a moving expense) that
 // is waiting for a counselor to review after a customer has submitted
 // their documents.
+//
+// This function does not accept customizations to reduce the
+// complexity of supporting different variations for tests
 func BuildPPMShipmentThatNeedsPaymentApprovalWithAllDocTypes(db *pop.Connection, userUploader *uploader.UserUploader) models.PPMShipment {
 	// It's easier to use some of the data from other downstream
 	// functions if we have them go first and then make our changes on
@@ -511,6 +533,9 @@ func BuildPPMShipmentThatNeedsPaymentApprovalWithAllDocTypes(db *pop.Connection,
 // BuildPPMShipmentWithApprovedDocumentsMissingPaymentPacket creates a
 // PPMShipment that has all the documents approved, but is missing the
 // payment packet.
+//
+// This function needs to accept customizations, but that somewhat
+// complicates the private functions above
 func BuildPPMShipmentWithApprovedDocumentsMissingPaymentPacket(db *pop.Connection, userUploader *uploader.UserUploader, customs []Customization) models.PPMShipment {
 	// It's easier to use some of the data from other downstream
 	// functions if we have them go first and then make our changes on
@@ -592,6 +617,9 @@ func BuildPPMShipmentWithApprovedDocuments(db *pop.Connection) models.PPMShipmen
 // BuildPPMShipmentWithAllDocTypesApprovedMissingPaymentPacket creates
 // a PPMShipment that has at least one of each doc type, all approved,
 // but missing the payment packet.
+//
+// This function needs to accept customizations, but that somewhat
+// complicates the private functions above
 func BuildPPMShipmentWithAllDocTypesApprovedMissingPaymentPacket(db *pop.Connection, userUploader *uploader.UserUploader, customs []Customization) models.PPMShipment {
 	// It's easier to use some of the data from other downstream
 	// functions if we have them go first and then make our changes on
@@ -623,6 +651,9 @@ func BuildPPMShipmentWithAllDocTypesApprovedMissingPaymentPacket(db *pop.Connect
 // BuildPPMShipmentWithAllDocTypesApproved creates a PPMShipment that
 // has at least one of each doc type, all approved, and has had a
 // payment packet generated & saved.
+//
+// This function does not accept customizations to reduce the
+// complexity of supporting different variations for tests
 func BuildPPMShipmentWithAllDocTypesApproved(db *pop.Connection, userUploader *uploader.UserUploader) models.PPMShipment {
 	// It's easier to use some of the data from other downstream
 	// functions if we have them go first and then make our changes on
@@ -646,6 +677,9 @@ func BuildPPMShipmentWithAllDocTypesApproved(db *pop.Connection, userUploader *u
 
 // BuildPPMShipmentThatNeedsToBeResubmitted creates a PPMShipment that
 // a counselor has sent back to the customer
+//
+// This function does not accept customizations to reduce the
+// complexity of supporting different variations for tests
 func BuildPPMShipmentThatNeedsToBeResubmitted(db *pop.Connection, userUploader *uploader.UserUploader) models.PPMShipment {
 	// It's easier to use some of the data from other downstream
 	// functions if we have them go first and then make our changes on
