@@ -20,7 +20,8 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceAreaLookup() {
 	setupTestData := func() {
 		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
-				EndDate: time.Now().Add(24 * time.Hour),
+				StartDate: time.Now().Add(-24 * time.Hour),
+				EndDate:   time.Now().Add(24 * time.Hour),
 			},
 		})
 		originAddress := factory.BuildAddress(suite.DB(), []factory.Customization{

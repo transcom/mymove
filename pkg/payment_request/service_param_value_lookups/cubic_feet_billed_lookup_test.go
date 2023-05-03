@@ -61,7 +61,8 @@ func (suite *ServiceParamValueLookupsSuite) TestCubicFeetBilledLookup() {
 		suite.MustSave(&mtoServiceItem)
 		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
-				EndDate: time.Now().Add(24 * time.Hour),
+				StartDate: time.Now().Add(-24 * time.Hour),
+				EndDate:   time.Now().Add(24 * time.Hour),
 			},
 		})
 		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, uuid.Must(uuid.NewV4()), mtoServiceItem.MoveTaskOrderID, nil)
@@ -76,7 +77,8 @@ func (suite *ServiceParamValueLookupsSuite) TestCubicFeetBilledLookup() {
 	suite.Run("When crate volume is less than minimum, billed volume should be set to minimum", func() {
 		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
-				EndDate: time.Now().Add(24 * time.Hour),
+				StartDate: time.Now().Add(-24 * time.Hour),
+				EndDate:   time.Now().Add(24 * time.Hour),
 			},
 		})
 		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
@@ -135,7 +137,8 @@ func (suite *ServiceParamValueLookupsSuite) TestCubicFeetBilledLookup() {
 	suite.Run("missing dimension should error", func() {
 		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
-				EndDate: time.Now().Add(24 * time.Hour),
+				StartDate: time.Now().Add(-24 * time.Hour),
+				EndDate:   time.Now().Add(24 * time.Hour),
 			},
 		})
 		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), nil, []factory.Trait{factory.GetTraitAvailableToPrimeMove})

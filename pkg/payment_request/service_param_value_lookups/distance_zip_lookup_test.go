@@ -20,7 +20,8 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 	suite.Run("Calculate transit zip distance", func() {
 		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
-				EndDate: time.Now().Add(24 * time.Hour),
+				StartDate: time.Now().Add(-24 * time.Hour),
+				EndDate:   time.Now().Add(24 * time.Hour),
 			},
 		})
 		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
@@ -154,7 +155,8 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 	suite.Run("Sucessfully updates mtoShipment distance when the pickup and destination zips are the same", func() {
 		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
-				EndDate: time.Now().Add(24 * time.Hour),
+				StartDate: time.Now().Add(-24 * time.Hour),
+				EndDate:   time.Now().Add(24 * time.Hour),
 			},
 		})
 		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
@@ -199,7 +201,8 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 	suite.Run("Calculate zip distance with param cache", func() {
 		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
-				EndDate: time.Now().Add(24 * time.Hour),
+				StartDate: time.Now().Add(-24 * time.Hour),
+				EndDate:   time.Now().Add(24 * time.Hour),
 			},
 		})
 		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
@@ -294,7 +297,8 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 	suite.Run("returns error if the pickup zipcode isn't at least 5 digits", func() {
 		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
-				EndDate: time.Now().Add(24 * time.Hour),
+				StartDate: time.Now().Add(-24 * time.Hour),
+				EndDate:   time.Now().Add(24 * time.Hour),
 			},
 		})
 		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
@@ -333,7 +337,8 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 
 		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
-				EndDate: time.Now().Add(24 * time.Hour),
+				StartDate: time.Now().Add(-24 * time.Hour),
+				EndDate:   time.Now().Add(24 * time.Hour),
 			},
 		})
 		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{

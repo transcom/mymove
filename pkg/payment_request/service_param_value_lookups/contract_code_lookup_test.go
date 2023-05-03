@@ -17,7 +17,8 @@ func (suite *ServiceParamValueLookupsSuite) TestContractCodeLookup() {
 		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), nil, []factory.Trait{factory.GetTraitAvailableToPrimeMove})
 		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
-				EndDate: time.Now().Add(24 * time.Hour),
+				StartDate: time.Now().Add(-24 * time.Hour),
+				EndDate:   time.Now().Add(24 * time.Hour),
 			},
 		})
 
@@ -44,7 +45,8 @@ func (suite *ServiceParamValueLookupsSuite) TestContractCodeLookup() {
 		// ContractCode
 		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
-				EndDate: time.Now().Add(24 * time.Hour),
+				StartDate: time.Now().Add(-24 * time.Hour),
+				EndDate:   time.Now().Add(24 * time.Hour),
 			},
 		})
 		serviceItemParamKey1 := factory.FetchOrBuildServiceItemParamKey(suite.DB(), []factory.Customization{

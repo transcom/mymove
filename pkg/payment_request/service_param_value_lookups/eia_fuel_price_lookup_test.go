@@ -18,7 +18,8 @@ func (suite *ServiceParamValueLookupsSuite) TestEIAFuelPriceLookup() {
 	setupTestData := func() {
 		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
-				EndDate: time.Now().Add(24 * time.Hour),
+				StartDate: time.Now().Add(-24 * time.Hour),
+				EndDate:   time.Now().Add(24 * time.Hour),
 			},
 		})
 		var firstGHCDieselFuelPrice models.GHCDieselFuelPrice

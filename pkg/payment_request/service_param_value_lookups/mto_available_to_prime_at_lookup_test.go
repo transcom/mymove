@@ -25,7 +25,8 @@ func (suite *ServiceParamValueLookupsSuite) TestMTOAvailableToPrimeLookup() {
 	setupTestData := func() {
 		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
-				EndDate: time.Now().Add(24 * time.Hour),
+				StartDate: availableToPrimeAt.Add(-24 * time.Hour),
+				EndDate:   availableToPrimeAt.Add(24 * time.Hour),
 			},
 		})
 		mtoServiceItem = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{

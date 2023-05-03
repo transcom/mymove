@@ -21,7 +21,8 @@ func (suite *ServiceParamValueLookupsSuite) TestZipSITOriginHHGOriginalAddressLo
 	setupTestData := func() {
 		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
-				EndDate: time.Now().Add(24 * time.Hour),
+				StartDate: time.Now().Add(-24 * time.Hour),
+				EndDate:   time.Now().Add(24 * time.Hour),
 			},
 		})
 		reService := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
