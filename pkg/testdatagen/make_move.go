@@ -16,7 +16,7 @@ func makeMove(db *pop.Connection, assertions Assertions) models.Move {
 	orders := assertions.Order
 	// ID is required because it must be populated for Eager saving to work.
 	if isZeroUUID(assertions.Order.ID) {
-		orders = MakeOrder(db, assertions)
+		orders = makeOrder(db, assertions)
 	}
 
 	assertedReferenceID := assertions.Move.ReferenceID
@@ -28,7 +28,7 @@ func makeMove(db *pop.Connection, assertions Assertions) models.Move {
 	var contractorID uuid.UUID
 	moveContractorID := assertions.Move.ContractorID
 	if moveContractorID == nil {
-		contractor := FetchOrMakeContractor(db, assertions)
+		contractor := fetchOrMakeContractor(db, assertions)
 		contractorID = contractor.ID
 	}
 

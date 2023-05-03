@@ -91,15 +91,18 @@ func (suite *MTOServiceItemServiceSuite) buildValidDDFSITServiceItemWithValidMov
 			LinkOnly: true,
 		},
 	}, nil)
+	destAddress := factory.BuildDefaultAddress(suite.DB())
 
 	serviceItem := models.MTOServiceItem{
-		MoveTaskOrderID: move.ID,
-		MoveTaskOrder:   move,
-		ReService:       reServiceDDFSIT,
-		MTOShipmentID:   &shipment.ID,
-		MTOShipment:     shipment,
-		Dimensions:      models.MTOServiceItemDimensions{dimension},
-		Status:          models.MTOServiceItemStatusSubmitted,
+		MoveTaskOrderID:              move.ID,
+		MoveTaskOrder:                move,
+		ReService:                    reServiceDDFSIT,
+		MTOShipmentID:                &shipment.ID,
+		MTOShipment:                  shipment,
+		Dimensions:                   models.MTOServiceItemDimensions{dimension},
+		Status:                       models.MTOServiceItemStatusSubmitted,
+		SITDestinationFinalAddressID: &destAddress.ID,
+		SITDestinationFinalAddress:   &destAddress,
 	}
 
 	return serviceItem
@@ -206,7 +209,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 	creator := NewMTOServiceItemCreator(builder, moveRouter)
 
 	// Happy path: If the service item is created successfully it should be returned
-	suite.Run("200 Success - SIT Service Item Creation", func() {
+	suite.Run("200 Success - Destination SIT Service Item Creation", func() {
 
 		// TESTCASE SCENARIO
 		// Under test: CreateMTOServiceItem function
@@ -216,6 +219,8 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 
 		sitServiceItem := suite.buildValidDDFSITServiceItemWithValidMove()
 		sitMove := sitServiceItem.MoveTaskOrder
+		sitDestinationFinalAddress := sitServiceItem.SITDestinationFinalAddress
+		sitDestinationFinalAddressID := sitServiceItem.SITDestinationFinalAddressID
 
 		createdServiceItems, verrs, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &sitServiceItem)
 		suite.NoError(err)
@@ -230,6 +235,11 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		suite.Equal(len(createdServiceItemList), 3)
 		suite.NotEmpty(createdServiceItemList[2].Dimensions)
 		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, foundMove.Status)
+
+		for _, createdServiceItem := range createdServiceItemList {
+			suite.Equal(sitDestinationFinalAddress.StreetAddress1, createdServiceItem.SITDestinationFinalAddress.StreetAddress1)
+			suite.Equal(sitDestinationFinalAddressID, createdServiceItem.SITDestinationFinalAddressID)
+		}
 	})
 
 	// Happy path: If the service item is created successfully it should be returned
