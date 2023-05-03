@@ -303,7 +303,7 @@ func (suite *PPMShipmentSuite) TestSubmitCloseOutDocumentation() {
 	mtoShipmentRouterMethodToMock := ""
 
 	suite.Run(fmt.Sprintf("Can set status to %s if it is currently %s", models.PPMShipmentStatusNeedsPaymentApproval, models.PPMShipmentStatusWaitingOnCustomer), func() {
-		ppmShipment := testdatagen.MakePPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), testdatagen.Assertions{Stub: true})
+		ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(nil, nil)
 
 		ppmShipmentRouter := setUpPPMShipmentRouter(mtoShipmentRouterMethodToMock, nil)
 
@@ -391,7 +391,7 @@ func (suite *PPMShipmentSuite) TestSubmitReviewPPMDocuments() {
 	mtoShipmentRouterMethodToMock := ""
 
 	suite.Run("Update PPMShipment Status to WAITING_ON_CUSTOMER when there are rejected weight tickets", func() {
-		ppmShipment := testdatagen.MakePPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), testdatagen.Assertions{Stub: true})
+		ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(nil, nil)
 		rejected := models.PPMDocumentStatusRejected
 		weightTicket := factory.BuildWeightTicket(suite.DB(), []factory.Customization{
 			{
@@ -401,8 +401,8 @@ func (suite *PPMShipmentSuite) TestSubmitReviewPPMDocuments() {
 			},
 		}, nil)
 		ppmShipment.Status = models.PPMShipmentStatusNeedsPaymentApproval
-		movingExpense := testdatagen.MakeDefaultMovingExpense(suite.DB())
-		progear := testdatagen.MakeDefaultProgearWeightTicket(suite.DB())
+		movingExpense := factory.BuildMovingExpense(suite.DB(), nil, nil)
+		progear := factory.BuildProgearWeightTicket(suite.DB(), nil, nil)
 
 		ppmShipmentRouter := setUpPPMShipmentRouter(mtoShipmentRouterMethodToMock, nil)
 		ppmShipment.WeightTickets = models.WeightTickets{weightTicket}
@@ -416,15 +416,17 @@ func (suite *PPMShipmentSuite) TestSubmitReviewPPMDocuments() {
 	})
 
 	suite.Run("Update PPMShipment Status to WAITING_ON_CUSTOMER when there are rejected  progear weight tickets", func() {
-		ppmShipment := testdatagen.MakePPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), testdatagen.Assertions{Stub: true})
+		ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(nil, nil)
 		ppmShipment.Status = models.PPMShipmentStatusNeedsPaymentApproval
 		rejected := models.PPMDocumentStatusRejected
-		progear := testdatagen.MakeProgearWeightTicket(suite.DB(), testdatagen.Assertions{
-			ProgearWeightTicket: models.ProgearWeightTicket{
-				Status: &rejected,
+		progear := factory.BuildProgearWeightTicket(suite.DB(), []factory.Customization{
+			{
+				Model: models.ProgearWeightTicket{
+					Status: &rejected,
+				},
 			},
-		})
-		movingExpense := testdatagen.MakeDefaultMovingExpense(suite.DB())
+		}, nil)
+		movingExpense := factory.BuildMovingExpense(suite.DB(), nil, nil)
 		weightTicket := factory.BuildWeightTicket(suite.DB(), nil, nil)
 
 		ppmShipmentRouter := setUpPPMShipmentRouter(mtoShipmentRouterMethodToMock, nil)
@@ -439,15 +441,17 @@ func (suite *PPMShipmentSuite) TestSubmitReviewPPMDocuments() {
 	})
 
 	suite.Run("Update PPMShipment Status to WAITING_ON_CUSTOMER when there are rejected  moving expenses", func() {
-		ppmShipment := testdatagen.MakePPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), testdatagen.Assertions{Stub: true})
+		ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(nil, nil)
 		ppmShipment.Status = models.PPMShipmentStatusNeedsPaymentApproval
 		rejected := models.PPMDocumentStatusRejected
-		movingExpense := testdatagen.MakeMovingExpense(suite.DB(), testdatagen.Assertions{
-			MovingExpense: models.MovingExpense{
-				Status: &rejected,
+		movingExpense := factory.BuildMovingExpense(suite.DB(), []factory.Customization{
+			{
+				Model: models.MovingExpense{
+					Status: &rejected,
+				},
 			},
-		})
-		progear := testdatagen.MakeDefaultProgearWeightTicket(suite.DB())
+		}, nil)
+		progear := factory.BuildProgearWeightTicket(suite.DB(), nil, nil)
 		weightTicket := factory.BuildWeightTicket(suite.DB(), nil, nil)
 
 		ppmShipmentRouter := setUpPPMShipmentRouter(mtoShipmentRouterMethodToMock, nil)
@@ -462,10 +466,10 @@ func (suite *PPMShipmentSuite) TestSubmitReviewPPMDocuments() {
 	})
 
 	suite.Run("Update PPMShipment Status to PAYMENT_APPROVED when there are no rejected PPM Documents", func() {
-		ppmShipment := testdatagen.MakePPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), testdatagen.Assertions{Stub: true})
+		ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(nil, nil)
 		ppmShipment.Status = models.PPMShipmentStatusNeedsPaymentApproval
-		movingExpense := testdatagen.MakeDefaultMovingExpense(suite.DB())
-		progear := testdatagen.MakeDefaultProgearWeightTicket(suite.DB())
+		movingExpense := factory.BuildMovingExpense(suite.DB(), nil, nil)
+		progear := factory.BuildProgearWeightTicket(suite.DB(), nil, nil)
 		weightTicket := factory.BuildWeightTicket(suite.DB(), nil, nil)
 
 		ppmShipmentRouter := setUpPPMShipmentRouter(mtoShipmentRouterMethodToMock, nil)

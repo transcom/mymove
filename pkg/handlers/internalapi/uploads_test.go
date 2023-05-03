@@ -23,7 +23,6 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
-	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
@@ -66,9 +65,12 @@ func createPPMPrereqs(suite *HandlerSuite, fixtureFile string) (models.Document,
 func createPPMProgearPrereqs(suite *HandlerSuite, fixtureFile string) (models.Document, ppmop.CreatePPMUploadParams) {
 	ppmShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
 
-	proGear := testdatagen.MakeProgearWeightTicket(suite.DB(), testdatagen.Assertions{
-		PPMShipment: ppmShipment,
-	})
+	proGear := factory.BuildProgearWeightTicket(suite.DB(), []factory.Customization{
+		{
+			Model:    ppmShipment,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	params := ppmop.NewCreatePPMUploadParams()
 	params.DocumentID = strfmt.UUID(proGear.DocumentID.String())
@@ -81,9 +83,12 @@ func createPPMProgearPrereqs(suite *HandlerSuite, fixtureFile string) (models.Do
 func createPPMExpensePrereqs(suite *HandlerSuite, fixtureFile string) (models.Document, ppmop.CreatePPMUploadParams) {
 	ppmShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
 
-	movingExpense := testdatagen.MakeMovingExpense(suite.DB(), testdatagen.Assertions{
-		PPMShipment: ppmShipment,
-	})
+	movingExpense := factory.BuildMovingExpense(suite.DB(), []factory.Customization{
+		{
+			Model:    ppmShipment,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	params := ppmop.NewCreatePPMUploadParams()
 	params.DocumentID = strfmt.UUID(movingExpense.DocumentID.String())

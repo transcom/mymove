@@ -336,10 +336,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentFetcher() {
 		suite.Run("Can fetch a ppm shipment and get both eagerPreloadAssociations and postloadAssociations", func() {
 			appCtx := suite.AppContextForTest()
 
-			ppmShipment := testdatagen.MakePPMShipmentReadyForFinalCustomerCloseOut(
-				appCtx.DB(),
-				testdatagen.Assertions{},
-			)
+			ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), nil)
 
 			ppmShipmentReturned, err := fetcher.GetPPMShipment(
 				appCtx,
@@ -366,12 +363,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentFetcher() {
 		suite.Run("Doesn't return postload association if a necessary higher level association isn't eagerly preloaded", func() {
 			appCtx := suite.AppContextForTest()
 
-			ppmShipment := testdatagen.MakePPMShipmentReadyForFinalCustomerCloseOut(
-				appCtx.DB(),
-				testdatagen.Assertions{
-					UserUploader: userUploader,
-				},
-			)
+			ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), userUploader)
 
 			suite.FatalTrue(len(ppmShipment.WeightTickets) > 0, "Test data that was set up is invalid, no weight tickets found")
 
@@ -760,14 +752,14 @@ func (suite *PPMShipmentSuite) TestFetchPPMShipment() {
 	})
 
 	suite.Run("FindPPMShipmentWithDocument - document belongs to pro gear", func() {
-		proGear := testdatagen.MakeDefaultProgearWeightTicket(suite.DB())
+		proGear := factory.BuildProgearWeightTicket(suite.DB(), nil, nil)
 
 		err := FindPPMShipmentWithDocument(suite.AppContextForTest(), proGear.PPMShipmentID, proGear.DocumentID)
 		suite.NoError(err, "expected to find PPM Shipment for weight document")
 	})
 
 	suite.Run("FindPPMShipmentWithDocument - document belongs to moving expenses", func() {
-		movingExpense := testdatagen.MakeDefaultMovingExpense(suite.DB())
+		movingExpense := factory.BuildMovingExpense(suite.DB(), nil, nil)
 
 		err := FindPPMShipmentWithDocument(suite.AppContextForTest(), movingExpense.PPMShipmentID, movingExpense.DocumentID)
 		suite.NoError(err, "expected to find PPM Shipment for moving expense document")
@@ -775,8 +767,18 @@ func (suite *PPMShipmentSuite) TestFetchPPMShipment() {
 
 	suite.Run("FindPPMShipmentWithDocument - document not found", func() {
 		weightTicket := factory.BuildWeightTicket(suite.DB(), nil, nil)
-		testdatagen.MakeProgearWeightTicket(suite.DB(), testdatagen.Assertions{PPMShipment: weightTicket.PPMShipment})
-		testdatagen.MakeMovingExpense(suite.DB(), testdatagen.Assertions{PPMShipment: weightTicket.PPMShipment})
+		factory.BuildProgearWeightTicket(suite.DB(), []factory.Customization{
+			{
+				Model:    weightTicket.PPMShipment,
+				LinkOnly: true,
+			},
+		}, nil)
+		factory.BuildMovingExpense(suite.DB(), []factory.Customization{
+			{
+				Model:    weightTicket.PPMShipment,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		documentID := uuid.Must(uuid.NewV4())
 		err := FindPPMShipmentWithDocument(suite.AppContextForTest(), weightTicket.PPMShipmentID, documentID)
@@ -785,7 +787,7 @@ func (suite *PPMShipmentSuite) TestFetchPPMShipment() {
 	})
 
 	suite.Run("FindPPMShipment - loads weight tickets association", func() {
-		ppmShipment := testdatagen.MakePPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), testdatagen.Assertions{})
+		ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), nil)
 
 		// No uploads are added by default for the ProofOfTrailerOwnershipDocument to the WeightTicket model
 		testdatagen.GetOrCreateDocumentWithUploads(suite.DB(),
@@ -802,15 +804,21 @@ func (suite *PPMShipmentSuite) TestFetchPPMShipment() {
 	})
 
 	suite.Run("FindPPMShipment - loads ProgearWeightTicket and MovingExpense associations", func() {
-		ppmShipment := testdatagen.MakePPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), testdatagen.Assertions{})
+		ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), nil)
 
-		testdatagen.MakeProgearWeightTicket(suite.DB(), testdatagen.Assertions{
-			PPMShipment: ppmShipment,
-		})
+		factory.BuildProgearWeightTicket(suite.DB(), []factory.Customization{
+			{
+				Model:    ppmShipment,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		testdatagen.MakeMovingExpense(suite.DB(), testdatagen.Assertions{
-			PPMShipment: ppmShipment,
-		})
+		factory.BuildMovingExpense(suite.DB(), []factory.Customization{
+			{
+				Model:    ppmShipment,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		actualShipment, err := FindPPMShipment(suite.AppContextForTest(), ppmShipment.ID)
 		suite.NoError(err)
@@ -868,19 +876,25 @@ func (suite *PPMShipmentSuite) TestFetchPPMShipment() {
 	})
 
 	suite.Run("FindPPMShipment - deleted uploads are removed", func() {
-		ppmShipment := testdatagen.MakePPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), testdatagen.Assertions{})
+		ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), nil)
 
 		testdatagen.GetOrCreateDocumentWithUploads(suite.DB(),
 			ppmShipment.WeightTickets[0].ProofOfTrailerOwnershipDocument,
 			testdatagen.Assertions{ServiceMember: ppmShipment.WeightTickets[0].EmptyDocument.ServiceMember})
 
-		testdatagen.MakeProgearWeightTicket(suite.DB(), testdatagen.Assertions{
-			PPMShipment: ppmShipment,
-		})
+		factory.BuildProgearWeightTicket(suite.DB(), []factory.Customization{
+			{
+				Model:    ppmShipment,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		testdatagen.MakeMovingExpense(suite.DB(), testdatagen.Assertions{
-			PPMShipment: ppmShipment,
-		})
+		factory.BuildMovingExpense(suite.DB(), []factory.Customization{
+			{
+				Model:    ppmShipment,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		actualShipment, err := FindPPMShipment(suite.AppContextForTest(), ppmShipment.ID)
 		suite.NoError(err)
@@ -985,7 +999,7 @@ func (suite *PPMShipmentSuite) TestFetchPPMShipment() {
 	})
 
 	suite.Run("FindPPMShipmentByMTOID - Success deleted line items are excluded", func() {
-		ppmShipment := testdatagen.MakePPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), testdatagen.Assertions{})
+		ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), nil)
 
 		weightTicketToDelete := factory.BuildWeightTicket(suite.DB(), []factory.Customization{
 			{
@@ -997,24 +1011,37 @@ func (suite *PPMShipmentSuite) TestFetchPPMShipment() {
 		err := utilities.SoftDestroy(suite.DB(), &weightTicketToDelete)
 		suite.NoError(err)
 
-		testdatagen.MakeProgearWeightTicket(suite.DB(), testdatagen.Assertions{
-			PPMShipment: ppmShipment,
-		})
+		factory.BuildProgearWeightTicket(suite.DB(), []factory.Customization{
+			{
+				Model:    ppmShipment,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		proGearToDelete := testdatagen.MakeProgearWeightTicket(suite.DB(), testdatagen.Assertions{
-			PPMShipment: ppmShipment,
-		})
+		proGearToDelete := factory.BuildProgearWeightTicket(suite.DB(),
+			[]factory.Customization{
+				{
+					Model:    ppmShipment,
+					LinkOnly: true,
+				},
+			}, nil)
 
 		err = utilities.SoftDestroy(suite.DB(), &proGearToDelete)
 		suite.NoError(err)
 
-		testdatagen.MakeMovingExpense(suite.DB(), testdatagen.Assertions{
-			PPMShipment: ppmShipment,
-		})
+		factory.BuildMovingExpense(suite.DB(), []factory.Customization{
+			{
+				Model:    ppmShipment,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		movingExpenseToDelete := testdatagen.MakeMovingExpense(suite.DB(), testdatagen.Assertions{
-			PPMShipment: ppmShipment,
-		})
+		movingExpenseToDelete := factory.BuildMovingExpense(suite.DB(), []factory.Customization{
+			{
+				Model:    ppmShipment,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		err = utilities.SoftDestroy(suite.DB(), &movingExpenseToDelete)
 		suite.NoError(err)

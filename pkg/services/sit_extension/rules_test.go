@@ -8,7 +8,6 @@ import (
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *SitExtensionServiceSuite) TestValidationRules() {
@@ -42,15 +41,19 @@ func (suite *SitExtensionServiceSuite) TestValidationRules() {
 					LinkOnly: true,
 				}, // Move status is automatically set to APPROVED
 			}, nil)
-			sitExtension := testdatagen.MakeSITDurationUpdate(suite.DB(), testdatagen.Assertions{
-				MTOShipment: shipment,
-				SITDurationUpdate: models.SITDurationUpdate{
-					MTOShipmentID: shipment.ID,
-					RequestReason: models.SITExtensionRequestReasonAwaitingCompletionOfResidence,
-					Status:        models.SITExtensionStatusApproved,
-					RequestedDays: 90,
+			sitExtension := factory.BuildSITDurationUpdate(suite.DB(), []factory.Customization{
+				{
+					Model:    shipment,
+					LinkOnly: true,
 				},
-			})
+				{
+					Model: models.SITDurationUpdate{
+						RequestReason: models.SITExtensionRequestReasonAwaitingCompletionOfResidence,
+						Status:        models.SITExtensionStatusApproved,
+						RequestedDays: 90,
+					},
+				},
+			}, []factory.Trait{factory.GetTraitApprovedSITDurationUpdate})
 
 			err := checkRequiredFields().Validate(suite.AppContextForTest(), sitExtension, nil)
 			switch verr := err.(type) {
@@ -99,15 +102,20 @@ func (suite *SitExtensionServiceSuite) TestValidationRules() {
 
 		// Approved Status SIT Extension
 		// Changed Request Reason from the default
-		testdatagen.MakeSITDurationUpdate(suite.DB(), testdatagen.Assertions{
-			MTOShipment: shipment,
-			SITDurationUpdate: models.SITDurationUpdate{
-				MTOShipmentID: shipment.ID,
-				RequestReason: models.SITExtensionRequestReasonAwaitingCompletionOfResidence,
-				Status:        models.SITExtensionStatusApproved,
-				RequestedDays: 90,
+		factory.BuildSITDurationUpdate(suite.DB(), []factory.Customization{
+			{
+				Model:    shipment,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.SITDurationUpdate{
+					RequestReason: models.SITExtensionRequestReasonAwaitingCompletionOfResidence,
+					Status:        models.SITExtensionStatusApproved,
+					RequestedDays: 90,
+				},
+			},
+		}, []factory.Trait{factory.GetTraitApprovedSITDurationUpdate})
+
 		sit := models.SITDurationUpdate{MTOShipmentID: uuid.Must(uuid.NewV4())}
 
 		err := checkSITExtensionPending().Validate(suite.AppContextForTest(), sit, &shipment)
@@ -125,15 +133,19 @@ func (suite *SitExtensionServiceSuite) TestValidationRules() {
 		}, nil)
 
 		// Denied SIT Extension
-		testdatagen.MakeSITDurationUpdate(suite.DB(), testdatagen.Assertions{
-			MTOShipment: shipment,
-			SITDurationUpdate: models.SITDurationUpdate{
-				MTOShipmentID: shipment.ID,
-				RequestReason: models.SITExtensionRequestReasonSeriousIllnessMember,
-				Status:        models.SITExtensionStatusDenied,
-				RequestedDays: 90,
+		factory.BuildSITDurationUpdate(suite.DB(), []factory.Customization{
+			{
+				Model:    shipment,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.SITDurationUpdate{
+					RequestReason: models.SITExtensionRequestReasonSeriousIllnessMember,
+					Status:        models.SITExtensionStatusDenied,
+					RequestedDays: 90,
+				},
+			},
+		}, nil)
 		sit := models.SITDurationUpdate{MTOShipmentID: uuid.Must(uuid.NewV4())}
 
 		err := checkSITExtensionPending().Validate(suite.AppContextForTest(), sit, &shipment)
@@ -152,15 +164,19 @@ func (suite *SitExtensionServiceSuite) TestValidationRules() {
 
 		// Create SIT Extension #1 in DB
 		// Change default status to Pending:
-		testdatagen.MakeSITDurationUpdate(suite.DB(), testdatagen.Assertions{
-			MTOShipment: shipment,
-			SITDurationUpdate: models.SITDurationUpdate{
-				MTOShipmentID: shipment.ID,
-				RequestReason: models.SITExtensionRequestReasonSeriousIllnessMember,
-				Status:        models.SITExtensionStatusPending,
-				RequestedDays: 90,
+		factory.BuildSITDurationUpdate(suite.DB(), []factory.Customization{
+			{
+				Model:    shipment,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.SITDurationUpdate{
+					RequestReason: models.SITExtensionRequestReasonSeriousIllnessMember,
+					Status:        models.SITExtensionStatusPending,
+					RequestedDays: 90,
+				},
+			},
+		}, nil)
 		// Object we are trying to add to DB
 		newSIT := models.SITDurationUpdate{MTOShipmentID: uuid.Must(uuid.NewV4()), Status: models.SITExtensionStatusPending, RequestedDays: 4}
 

@@ -1374,25 +1374,51 @@ func createApprovedMoveWithPPMCloseoutCompleteWithExpenses(appCtx appcontext.App
 
 	move, shipment := CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
 
-	testdatagen.MakeMovingExpense(appCtx.DB(), testdatagen.Assertions{
-		PPMShipment:   shipment,
-		ServiceMember: move.Orders.ServiceMember,
-		UserUploader:  userUploader,
-	})
+	factory.BuildMovingExpense(appCtx.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    move.Orders.ServiceMember,
+			LinkOnly: true,
+		},
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
 
 	storageType := models.MovingExpenseReceiptTypeStorage
 
-	testdatagen.MakeMovingExpense(appCtx.DB(), testdatagen.Assertions{
-		PPMShipment:   shipment,
-		ServiceMember: move.Orders.ServiceMember,
-		UserUploader:  userUploader,
-		MovingExpense: models.MovingExpense{
-			MovingExpenseType: &storageType,
-			Description:       models.StringPointer("Storage R Us monthly rental unit"),
-			SITStartDate:      models.TimePointer(time.Now()),
-			SITEndDate:        models.TimePointer(time.Now().Add(30 * 24 * time.Hour)),
+	factory.BuildMovingExpense(appCtx.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    move.Orders.ServiceMember,
+			LinkOnly: true,
+		},
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+		{
+			Model: models.MovingExpense{
+				MovingExpenseType: &storageType,
+				Description:       models.StringPointer("Storage R Us monthly rental unit"),
+				SITStartDate:      models.TimePointer(time.Now()),
+				SITEndDate:        models.TimePointer(time.Now().Add(30 * 24 * time.Hour)),
+			},
+		},
+	}, nil)
 }
 
 func createApprovedMoveWithPPMCloseoutCompleteWithAllDocTypes(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -1454,19 +1480,44 @@ func createApprovedMoveWithPPMCloseoutCompleteWithAllDocTypes(appCtx appcontext.
 		},
 	}, nil)
 
-	testdatagen.MakeMovingExpense(appCtx.DB(), testdatagen.Assertions{
-		ServiceMember: shipment.Shipment.MoveTaskOrder.Orders.ServiceMember,
-		PPMShipment:   shipment,
-		UserUploader:  userUploader,
-		File:          factory.FixtureOpen("test.png"),
-	})
+	factory.BuildMovingExpense(appCtx.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    move.Orders.ServiceMember,
+			LinkOnly: true,
+		},
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+				File:         factory.FixtureOpen("test.png"),
+			},
+		},
+	}, nil)
 
-	testdatagen.MakeProgearWeightTicket(appCtx.DB(), testdatagen.Assertions{
-		ServiceMember: shipment.Shipment.MoveTaskOrder.Orders.ServiceMember,
-		PPMShipment:   shipment,
-		UserUploader:  userUploader,
-		File:          factory.FixtureOpen("test.jpg"),
-	})
+	factory.BuildProgearWeightTicket(appCtx.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    shipment.Shipment.MoveTaskOrder.Orders.ServiceMember,
+			LinkOnly: true,
+		},
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+				File:         factory.FixtureOpen("test.jpg"),
+			},
+		},
+	}, nil)
+
 }
 
 func createApprovedMoveWithPPMWithAboutFormComplete(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -1833,24 +1884,36 @@ func createApprovedMoveWithPPMMovingExpense(appCtx appcontext.AppContext, info *
 			LinkOnly: true,
 		},
 	}, nil)
-	ppmCloseoutAssertions := testdatagen.Assertions{
-		PPMShipment:   shipment,
-		ServiceMember: move.Orders.ServiceMember,
-	}
-	testdatagen.MakeMovingExpense(appCtx.DB(), ppmCloseoutAssertions)
+	factory.BuildMovingExpense(appCtx.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    move.Orders.ServiceMember,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	storageExpenseType := models.MovingExpenseReceiptTypeStorage
-	storageExpenseAssertions := testdatagen.Assertions{
-		PPMShipment:   shipment,
-		ServiceMember: move.Orders.ServiceMember,
-		MovingExpense: models.MovingExpense{
-			MovingExpenseType: &storageExpenseType,
-			Description:       models.StringPointer("Storage R Us monthly rental unit"),
-			SITStartDate:      models.TimePointer(time.Now()),
-			SITEndDate:        models.TimePointer(time.Now().Add(30 * 24 * time.Hour)),
+	factory.BuildMovingExpense(appCtx.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
 		},
-	}
-	testdatagen.MakeMovingExpense(appCtx.DB(), storageExpenseAssertions)
+		{
+			Model:    move.Orders.ServiceMember,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MovingExpense{
+				MovingExpenseType: &storageExpenseType,
+				Description:       models.StringPointer("Storage R Us monthly rental unit"),
+				SITStartDate:      models.TimePointer(time.Now()),
+				SITEndDate:        models.TimePointer(time.Now().Add(30 * 24 * time.Hour)),
+			},
+		},
+	}, nil)
 }
 
 func createApprovedMoveWithPPMProgearWeightTicket(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -1891,10 +1954,6 @@ func createApprovedMoveWithPPMProgearWeightTicket(appCtx appcontext.AppContext, 
 
 	move, shipment := CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
 
-	ppmCloseoutAssertions := testdatagen.Assertions{
-		PPMShipment:   shipment,
-		ServiceMember: move.Orders.ServiceMember,
-	}
 	factory.BuildWeightTicket(appCtx.DB(), []factory.Customization{
 		{
 			Model:    shipment,
@@ -1905,8 +1964,26 @@ func createApprovedMoveWithPPMProgearWeightTicket(appCtx appcontext.AppContext, 
 			LinkOnly: true,
 		},
 	}, nil)
-	testdatagen.MakeMovingExpense(appCtx.DB(), ppmCloseoutAssertions)
-	testdatagen.MakeProgearWeightTicket(appCtx.DB(), ppmCloseoutAssertions)
+	factory.BuildMovingExpense(appCtx.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    move.Orders.ServiceMember,
+			LinkOnly: true,
+		},
+	}, nil)
+	factory.BuildProgearWeightTicket(appCtx.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    move.Orders.ServiceMember,
+			LinkOnly: true,
+		},
+	}, nil)
 }
 
 func createApprovedMoveWithPPMProgearWeightTicket2(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -1948,10 +2025,6 @@ func createApprovedMoveWithPPMProgearWeightTicket2(appCtx appcontext.AppContext,
 
 	move, shipment := CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
 
-	ppmCloseoutAssertions := testdatagen.Assertions{
-		PPMShipment:   shipment,
-		ServiceMember: move.Orders.ServiceMember,
-	}
 	factory.BuildWeightTicket(appCtx.DB(), []factory.Customization{
 		{
 			Model:    shipment,
@@ -1962,8 +2035,26 @@ func createApprovedMoveWithPPMProgearWeightTicket2(appCtx appcontext.AppContext,
 			LinkOnly: true,
 		},
 	}, nil)
-	testdatagen.MakeMovingExpense(appCtx.DB(), ppmCloseoutAssertions)
-	testdatagen.MakeProgearWeightTicket(appCtx.DB(), ppmCloseoutAssertions)
+	factory.BuildMovingExpense(appCtx.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    move.Orders.ServiceMember,
+			LinkOnly: true,
+		},
+	}, nil)
+	factory.BuildProgearWeightTicket(appCtx.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    move.Orders.ServiceMember,
+			LinkOnly: true,
+		},
+	}, nil)
 }
 
 func createMoveWithPPMShipmentReadyForFinalCloseout(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -2027,23 +2118,40 @@ func createMoveWithPPMShipmentReadyForFinalCloseout(appCtx appcontext.AppContext
 				EmptyWeight: models.PoundPointer(14000),
 				FullWeight:  models.PoundPointer(18000),
 			},
-		}}, nil)
-
-	testdatagen.MakeMovingExpense(appCtx.DB(), testdatagen.Assertions{
-		PPMShipment:   shipment,
-		ServiceMember: move.Orders.ServiceMember,
-		MovingExpense: models.MovingExpense{
-			Amount: models.CentPointer(45000),
 		},
-	})
+	}, nil)
 
-	testdatagen.MakeProgearWeightTicket(appCtx.DB(), testdatagen.Assertions{
-		PPMShipment:   shipment,
-		ServiceMember: move.Orders.ServiceMember,
-		ProgearWeightTicket: models.ProgearWeightTicket{
-			Weight: models.PoundPointer(1500),
+	factory.BuildMovingExpense(appCtx.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    move.Orders.ServiceMember,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MovingExpense{
+				Amount: models.CentPointer(45000),
+			},
+		},
+	}, nil)
+
+	factory.BuildProgearWeightTicket(appCtx.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    move.Orders.ServiceMember,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ProgearWeightTicket{
+				Weight: models.PoundPointer(1500),
+			},
+		},
+	}, nil)
 }
 
 func createMoveWithPPMShipmentReadyForFinalCloseout2(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -2098,23 +2206,40 @@ func createMoveWithPPMShipmentReadyForFinalCloseout2(appCtx appcontext.AppContex
 				EmptyWeight: models.PoundPointer(14000),
 				FullWeight:  models.PoundPointer(18000),
 			},
-		}}, nil)
-
-	testdatagen.MakeMovingExpense(appCtx.DB(), testdatagen.Assertions{
-		PPMShipment:   shipment,
-		ServiceMember: move.Orders.ServiceMember,
-		MovingExpense: models.MovingExpense{
-			Amount: models.CentPointer(45000),
 		},
-	})
+	}, nil)
 
-	testdatagen.MakeProgearWeightTicket(appCtx.DB(), testdatagen.Assertions{
-		PPMShipment:   shipment,
-		ServiceMember: move.Orders.ServiceMember,
-		ProgearWeightTicket: models.ProgearWeightTicket{
-			Weight: models.PoundPointer(1500),
+	factory.BuildMovingExpense(appCtx.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    move.Orders.ServiceMember,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MovingExpense{
+				Amount: models.CentPointer(45000),
+			},
+		},
+	}, nil)
+
+	factory.BuildProgearWeightTicket(appCtx.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    move.Orders.ServiceMember,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ProgearWeightTicket{
+				Weight: models.PoundPointer(1500),
+			},
+		},
+	}, nil)
 }
 
 func createMoveWithPPMShipmentReadyForFinalCloseout3(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -2169,23 +2294,40 @@ func createMoveWithPPMShipmentReadyForFinalCloseout3(appCtx appcontext.AppContex
 				EmptyWeight: models.PoundPointer(14000),
 				FullWeight:  models.PoundPointer(18000),
 			},
-		}}, nil)
-
-	testdatagen.MakeMovingExpense(appCtx.DB(), testdatagen.Assertions{
-		PPMShipment:   shipment,
-		ServiceMember: move.Orders.ServiceMember,
-		MovingExpense: models.MovingExpense{
-			Amount: models.CentPointer(45000),
 		},
-	})
+	}, nil)
 
-	testdatagen.MakeProgearWeightTicket(appCtx.DB(), testdatagen.Assertions{
-		PPMShipment:   shipment,
-		ServiceMember: move.Orders.ServiceMember,
-		ProgearWeightTicket: models.ProgearWeightTicket{
-			Weight: models.PoundPointer(1500),
+	factory.BuildMovingExpense(appCtx.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    move.Orders.ServiceMember,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MovingExpense{
+				Amount: models.CentPointer(45000),
+			},
+		},
+	}, nil)
+
+	factory.BuildProgearWeightTicket(appCtx.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    move.Orders.ServiceMember,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ProgearWeightTicket{
+				Weight: models.PoundPointer(1500),
+			},
+		},
+	}, nil)
 }
 
 func createSubmittedMoveWithPPMShipment(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
@@ -11091,9 +11233,12 @@ func makePendingSITExtensionsForShipment(appCtx appcontext.AppContext, shipment 
 	}, nil)
 
 	for i := 0; i < 2; i++ {
-		testdatagen.MakePendingSITDurationUpdate(db, testdatagen.Assertions{
-			MTOShipment: shipment,
-		})
+		factory.BuildSITDurationUpdate(db, []factory.Customization{
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+		}, nil)
 	}
 }
 
@@ -11104,21 +11249,31 @@ func MakeSITExtensionsForShipment(appCtx appcontext.AppContext, shipment models.
 	sitOfficeRemarks1 := "The service member is unable to move into their new home at the expected time."
 	approvedDays := 90
 
-	testdatagen.MakeSITDurationUpdate(db, testdatagen.Assertions{
-		SITDurationUpdate: models.SITDurationUpdate{
-			ContractorRemarks: &sitContractorRemarks1,
-			OfficeRemarks:     &sitOfficeRemarks1,
-			ApprovedDays:      &approvedDays,
+	factory.BuildSITDurationUpdate(db, []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
 		},
-		MTOShipment: shipment,
-	})
+		{
+			Model: models.SITDurationUpdate{
+				ContractorRemarks: &sitContractorRemarks1,
+				OfficeRemarks:     &sitOfficeRemarks1,
+				ApprovedDays:      &approvedDays,
+			},
+		},
+	}, []factory.Trait{factory.GetTraitApprovedSITDurationUpdate})
 
-	testdatagen.MakeSITDurationUpdate(db, testdatagen.Assertions{
-		SITDurationUpdate: models.SITDurationUpdate{
-			ApprovedDays: &approvedDays,
+	factory.BuildSITDurationUpdate(db, []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
 		},
-		MTOShipment: shipment,
-	})
+		{
+			Model: models.SITDurationUpdate{
+				ApprovedDays: &approvedDays,
+			},
+		},
+	}, []factory.Trait{factory.GetTraitApprovedSITDurationUpdate})
 }
 
 func CreateMoveWithHHGAndNTSShipments(appCtx appcontext.AppContext, locator string, usesExternalVendor bool) models.Move {

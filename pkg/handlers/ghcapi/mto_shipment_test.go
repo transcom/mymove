@@ -34,7 +34,6 @@ import (
 	"github.com/transcom/mymove/pkg/services/query"
 	sitextension "github.com/transcom/mymove/pkg/services/sit_extension"
 	"github.com/transcom/mymove/pkg/swagger/nullable"
-	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/trace"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -178,12 +177,12 @@ func (suite *HandlerSuite) makeListMTOShipmentsSubtestData() (subtestData *listM
 		},
 	}, nil)
 
-	subtestData.sitExtension = testdatagen.MakeSITDurationUpdate(suite.DB(), testdatagen.Assertions{
-		SITDurationUpdate: models.SITDurationUpdate{
-			MTOShipmentID: mtoShipment.ID,
+	subtestData.sitExtension = factory.BuildSITDurationUpdate(suite.DB(), []factory.Customization{
+		{
+			Model:    mtoShipment,
+			LinkOnly: true,
 		},
-	})
-
+	}, []factory.Trait{factory.GetTraitApprovedSITDurationUpdate})
 	subtestData.shipments = models.MTOShipments{mtoShipment, secondShipment, thirdShipment, ppm.Shipment}
 	requestUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
@@ -2458,9 +2457,12 @@ func (suite *HandlerSuite) TestApproveSITExtensionHandler() {
 				},
 			},
 		}, nil)
-		sitExtension := testdatagen.MakePendingSITDurationUpdate(suite.DB(), testdatagen.Assertions{
-			MTOShipment: mtoShipment,
-		})
+		sitExtension := factory.BuildSITDurationUpdate(suite.DB(), []factory.Customization{
+			{
+				Model:    mtoShipment,
+				LinkOnly: true,
+			},
+		}, nil)
 		eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		moveRouter := moveservices.NewMoveRouter()
@@ -2521,9 +2523,12 @@ func (suite *HandlerSuite) TestDenySITExtensionHandler() {
 				LinkOnly: true,
 			},
 		}, nil)
-		sitExtension := testdatagen.MakePendingSITDurationUpdate(suite.DB(), testdatagen.Assertions{
-			MTOShipment: mtoShipment,
-		})
+		sitExtension := factory.BuildSITDurationUpdate(suite.DB(), []factory.Customization{
+			{
+				Model:    mtoShipment,
+				LinkOnly: true,
+			},
+		}, nil)
 		eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		moveRouter := moveservices.NewMoveRouter()
