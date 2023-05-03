@@ -66,7 +66,7 @@ test.describe('Office User Create Page', () => {
     await page.getByText('Services Counselor').click();
     // The autocomplete form results in multiple matching elements, so
     // pick the input element
-    await page.getByLabel('Transportation Office').locator('input').fill('JPPSO Testy McTest');
+    await page.getByLabel('Transportation Office').fill('JPPSO Testy McTest');
     // the autocomplete might return multiples because of concurrent
     // tests running that are adding offices
     await page.getByRole('option', { name: 'JPPSO Testy McTest' }).first().click();
@@ -157,7 +157,7 @@ test.describe('Office Users Edit Page', () => {
 
     // The autocomplete form results in multiple matching elements, so
     // pick the input element
-    await expect(page.getByLabel('Transportation Office').locator('input')).toBeEditable();
+    await expect(page.getByLabel('Transportation Office')).toBeEditable();
 
     // set the user to the active status they did NOT have before
     const activeStatus = await page.locator('div:has(label :text-is("Active")) >> input[name="active"]').inputValue();
