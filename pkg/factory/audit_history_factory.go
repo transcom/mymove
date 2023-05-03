@@ -1,4 +1,4 @@
-package testdatagen
+package factory
 
 import (
 	"time"
@@ -7,6 +7,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 // TestDataAuditHistory for testing purposes only
@@ -54,10 +55,28 @@ func (t TestDataAuditHistory) TableName() string {
 	return "audit_history"
 }
 
-func MakeAuditHistory(db *pop.Connection, assertions Assertions) TestDataAuditHistory {
+// BuildAuditHistory creates an AuditHistory
+// Notes:
+//   - SessionUserID and ObjectID are only set if they're passed in via customizations
+//   - This follows a slightly different pattern than other factories.
+//   - If necessary caller should create Objects/Users and set ObjectID/SessionUserID in customizations,
+//     rather than creating LinkOnly models
+//
+// Params:
+// - customs is a slice that will be modified by the factory
+// - db can be set to nil to create a stubbed model that is not stored in DB.
+func BuildAuditHistory(db *pop.Connection, customs []Customization, traits []Trait) TestDataAuditHistory {
+	customs = setupCustomizations(customs, traits)
 
-	genericUUID := uuid.Must(uuid.NewV4())
-	movesTableUUID := assertions.Move.ID
+	// Find AuditHistory Customization and extract the custom AuditHistory
+	var cAuditHistory TestDataAuditHistory
+	if result := findValidCustomization(customs, AuditHistory); result != nil {
+		cAuditHistory = result.Model.(TestDataAuditHistory)
+		if result.LinkOnly {
+			return cAuditHistory
+		}
+	}
+
 	fakeEventName := "setFinancialReviewFlag"
 	fakeContext := models.JSONMap{}
 	fakeContextID := "1234567"
@@ -66,15 +85,13 @@ func MakeAuditHistory(db *pop.Connection, assertions Assertions) TestDataAuditHi
 	var fakeTransactionID int64 = 1234
 	fakeClientQuery := "select 1;"
 
-	history := TestDataAuditHistory{
-		ID:              genericUUID,
+	// Create default AuditHistory
+	auditHistory := TestDataAuditHistory{
 		SchemaName:      "public",
 		TableNameDB:     "moves",
 		RelID:           16592,
 		Context:         &fakeContext,
 		ContextID:       &fakeContextID,
-		ObjectID:        &movesTableUUID,
-		SessionUserID:   &assertions.User.ID,
 		TransactionID:   &fakeTransactionID,
 		ClientQuery:     &fakeClientQuery,
 		Action:          "UPDATE",
@@ -86,10 +103,13 @@ func MakeAuditHistory(db *pop.Connection, assertions Assertions) TestDataAuditHi
 		ActionTstampClk: time.Now(),
 	}
 
-	mergeModels(&history, assertions.TestDataAuditHistory)
+	// Overwrite default values with those from custom AuditHistory
+	testdatagen.MergeModels(&auditHistory, cAuditHistory)
 
-	mustCreate(db, &history, assertions.Stub)
+	// If db is false, it's a stub. No need to create in database.
+	if db != nil {
+		mustCreate(db, &auditHistory)
+	}
 
-	return history
-
+	return auditHistory
 }

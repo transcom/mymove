@@ -94,7 +94,6 @@ type Assertions struct {
 	SITDurationUpdate                        models.SITDurationUpdate
 	StorageFacility                          models.StorageFacility
 	Stub                                     bool
-	TestDataAuditHistory                     TestDataAuditHistory
 	TransportationAccountingCode             models.TransportationAccountingCode
 	TransportationOffice                     models.TransportationOffice
 	Upload                                   models.Upload
