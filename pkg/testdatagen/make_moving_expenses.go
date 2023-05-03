@@ -7,7 +7,7 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-func MakeMinimalMovingExpense(db *pop.Connection, assertions Assertions) models.MovingExpense {
+func makeMinimalMovingExpense(db *pop.Connection, assertions Assertions) models.MovingExpense {
 	ppmShipment := checkOrCreatePPMShipment(db, assertions)
 
 	document := GetOrCreateDocument(db, assertions.MovingExpense.Document, assertions)
@@ -27,11 +27,7 @@ func MakeMinimalMovingExpense(db *pop.Connection, assertions Assertions) models.
 	return newMovingExpense
 }
 
-func MakeMinimalDefaultMovingExpense(db *pop.Connection) models.MovingExpense {
-	return MakeMinimalMovingExpense(db, Assertions{})
-}
-
-func MakeMovingExpense(db *pop.Connection, assertions Assertions) models.MovingExpense {
+func makeMovingExpense(db *pop.Connection, assertions Assertions) models.MovingExpense {
 	document := GetOrCreateDocumentWithUploads(db, assertions.MovingExpense.Document, assertions)
 	packingMaterialType := models.MovingExpenseReceiptTypePackingMaterials
 	amountPaid := unit.Cents(2345)
@@ -50,9 +46,5 @@ func MakeMovingExpense(db *pop.Connection, assertions Assertions) models.MovingE
 
 	mergeModels(&fullAssertions, assertions)
 
-	return MakeMinimalMovingExpense(db, fullAssertions)
-}
-
-func MakeDefaultMovingExpense(db *pop.Connection) models.MovingExpense {
-	return MakeMovingExpense(db, Assertions{})
+	return makeMinimalMovingExpense(db, fullAssertions)
 }

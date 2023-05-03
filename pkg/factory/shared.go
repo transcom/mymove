@@ -50,6 +50,7 @@ var DutyLocation CustomType = "DutyLocation"
 var Entitlement CustomType = "Entitlement"
 var EvaluationReport CustomType = "EvaluationReport"
 var Move CustomType = "Move"
+var MovingExpense CustomType = "MovingExpense"
 var MTOAgent CustomType = "MTOAgent"
 var MTOServiceItem CustomType = "MTOServiceItem"
 var MTOServiceItemDimension CustomType = "MTOServiceItemDimension"
@@ -65,6 +66,7 @@ var PaymentServiceItem CustomType = "PaymentServiceItem"
 var PaymentServiceItemParam CustomType = "PaymentServiceItemParam"
 var PostalCodeToGBLOC CustomType = "PostalCodeToGBLOC"
 var PrimeUpload CustomType = "PrimeUpload"
+var ProgearWeightTicket CustomType = "ProgearWeightTicket"
 var ProofOfServiceDoc CustomType = "ProofOfServiceDoc"
 var ReService CustomType = "ReService"
 var Role CustomType = "Role"
@@ -95,6 +97,7 @@ var defaultTypesMap = map[string]CustomType{
 	"models.Entitlement":             Entitlement,
 	"models.EvaluationReport":        EvaluationReport,
 	"models.Move":                    Move,
+	"models.MovingExpense":           MovingExpense,
 	"models.MTOAgent":                MTOAgent,
 	"models.MTOServiceItem":          MTOServiceItem,
 	"models.MTOServiceItemDimension": MTOServiceItemDimension,
@@ -110,6 +113,7 @@ var defaultTypesMap = map[string]CustomType{
 	"models.PPMShipment":             PPMShipment,
 	"models.PostalCodeToGBLOC":       PostalCodeToGBLOC,
 	"models.PrimeUpload":             PrimeUpload,
+	"models.ProgearWeightTicket":     ProgearWeightTicket,
 	"models.ProofOfServiceDoc":       ProofOfServiceDoc,
 	"models.ReService":               ReService,
 	"models.ServiceItemParamKey":     ServiceItemParamKey,
