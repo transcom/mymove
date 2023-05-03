@@ -44,18 +44,19 @@ func (suite *SegmentSuite) TestValidateL1() {
 	})
 
 	suite.Run("validate nil freightRate", func() {
+		//freightRate := nulls.Float64{}
 		l1 := L1{
-			// LadingLineItemNumber:          // required
-			FreightRate:        nil,
-			RateValueQualifier: "", // oneof
-			// Charge:                        // required
+			LadingLineItemNumber: 1000, // max
+			FreightRate:          nil,
+			RateValueQualifier:   "",            // oneof
+			Charge:               1000000000000, // max
 		}
 
 		err := suite.validator.Struct(l1)
-		suite.ValidateError(err, "LadingLineItemNumber", "required")
+		suite.ValidateError(err, "LadingLineItemNumber", "max")
 		suite.ValidateError(err, "FreightRate", "")
 		suite.ValidateError(err, "RateValueQualifier", "")
-		suite.ValidateError(err, "Charge", "required")
+		suite.ValidateError(err, "Charge", "max")
 		suite.ValidateErrorLen(err, 4)
 	})
 
