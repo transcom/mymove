@@ -164,9 +164,12 @@ func (suite *MTOShipmentServiceSuite) TestListMTOShipments() {
 				LinkOnly: true,
 			},
 		}, nil)
-		SITExtension := testdatagen.MakeSITDurationUpdate(suite.DB(), testdatagen.Assertions{
-			MTOShipment: shipment,
-		})
+		SITExtension := factory.BuildSITDurationUpdate(suite.DB(), []factory.Customization{
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+		}, []factory.Trait{factory.GetTraitApprovedSITDurationUpdate})
 
 		reweigh := testdatagen.MakeReweigh(suite.DB(), testdatagen.Assertions{
 			MTOShipment: shipment,
@@ -199,10 +202,16 @@ func (suite *MTOShipmentServiceSuite) TestListMTOShipments() {
 			},
 		}, nil)
 
-		testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{
-			ServiceMember: move.Orders.ServiceMember,
-			PPMShipment:   ppmShipment,
-		})
+		factory.BuildWeightTicket(suite.DB(), []factory.Customization{
+			{
+				Model:    move.Orders.ServiceMember,
+				LinkOnly: true,
+			},
+			{
+				Model:    ppmShipment,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		userUpload := factory.BuildUserUpload(suite.DB(), []factory.Customization{
 			{

@@ -330,12 +330,15 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherFunctionality() {
 				LinkOnly: true,
 			},
 		}, nil)
-		_ = testdatagen.MakeAuditHistory(suite.DB(), testdatagen.Assertions{
-			User: fakeUser,
-			Move: models.Move{
-				ID: approvedMove.ID,
+
+		factory.BuildAuditHistory(suite.DB(), []factory.Customization{
+			{
+				Model: factory.TestDataAuditHistory{
+					ObjectID:      models.UUIDPointer(approvedMove.ID),
+					SessionUserID: models.UUIDPointer(fakeUser.ID),
+				},
 			},
-		})
+		}, nil)
 
 		params := services.FetchMoveHistoryParams{Locator: approvedMove.Locator, Page: models.Int64Pointer(1), PerPage: models.Int64Pointer(100)}
 		moveHistoryData, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
@@ -691,26 +694,24 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 		eventNameToFind := "updateShipment"
 		eventNameToNotFind := "deleteShipment"
 		tableName := "mto_agents"
-		testdatagen.MakeAuditHistory(suite.DB(), testdatagen.Assertions{
-			TestDataAuditHistory: testdatagen.TestDataAuditHistory{
-				EventName:   &eventNameToFind,
-				TableNameDB: tableName,
-				ObjectID:    &mtoAgent.ID,
+		factory.BuildAuditHistory(suite.DB(), []factory.Customization{
+			{
+				Model: factory.TestDataAuditHistory{
+					EventName:   &eventNameToFind,
+					TableNameDB: tableName,
+					ObjectID:    &mtoAgent.ID,
+				},
 			},
-			Move: models.Move{
-				ID: move.ID,
+		}, nil)
+		factory.BuildAuditHistory(suite.DB(), []factory.Customization{
+			{
+				Model: factory.TestDataAuditHistory{
+					EventName:   &eventNameToNotFind,
+					TableNameDB: tableName,
+					ObjectID:    &mtoAgent.ID,
+				},
 			},
-		})
-		testdatagen.MakeAuditHistory(suite.DB(), testdatagen.Assertions{
-			TestDataAuditHistory: testdatagen.TestDataAuditHistory{
-				EventName:   &eventNameToNotFind,
-				TableNameDB: tableName,
-				ObjectID:    &mtoAgent.ID,
-			},
-			Move: models.Move{
-				ID: move.ID,
-			},
-		})
+		}, nil)
 
 		params := services.FetchMoveHistoryParams{Locator: move.Locator, Page: models.Int64Pointer(1), PerPage: models.Int64Pointer(100)}
 		moveHistoryData, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
@@ -1160,12 +1161,14 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherUserInfo() {
 			user = testdatagen.MakeUserWithRoleTypes(suite.DB(), roleTypes, assertions)
 		}
 		approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-		testdatagen.MakeAuditHistory(suite.DB(), testdatagen.Assertions{
-			User: user,
-			Move: models.Move{
-				ID: approvedMove.ID,
+		factory.BuildAuditHistory(suite.DB(), []factory.Customization{
+			{
+				Model: factory.TestDataAuditHistory{
+					ObjectID:      models.UUIDPointer(approvedMove.ID),
+					SessionUserID: models.UUIDPointer(user.ID),
+				},
 			},
-		})
+		}, nil)
 		return approvedMove.Locator
 	}
 
@@ -1179,15 +1182,15 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherUserInfo() {
 			},
 		}, nil)
 		user := move.Orders.ServiceMember.User
-		testdatagen.MakeAuditHistory(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				ID: move.ID,
+		factory.BuildAuditHistory(suite.DB(), []factory.Customization{
+			{
+				Model: factory.TestDataAuditHistory{
+					ObjectID:      models.UUIDPointer(move.ID),
+					SessionUserID: models.UUIDPointer(user.ID),
+					EventName:     &fakeEventName,
+				},
 			},
-			User: user,
-			TestDataAuditHistory: testdatagen.TestDataAuditHistory{
-				EventName: &fakeEventName,
-			},
-		})
+		}, nil)
 		return move.Locator, user
 	}
 	//endregion

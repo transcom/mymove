@@ -23,14 +23,14 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticShorthaulWithServiceIte
 
 	suite.Run("failure during pricing bubbles up", func() {
 		suite.setUpDomesticShorthaulData()
-		paymentServiceItem := testdatagen.MakeDefaultPaymentServiceItemWithParams(
+		paymentServiceItem := factory.BuildPaymentServiceItemWithParams(
 			suite.DB(),
 			models.ReServiceCodeDSH,
-			[]testdatagen.CreatePaymentServiceItemParams{
+			[]factory.CreatePaymentServiceItemParams{
 				{
 					Key:     models.ServiceItemParamNameContractCode,
 					KeyType: models.ServiceItemParamTypeString,
-					Value:   testdatagen.DefaultContractCode,
+					Value:   factory.DefaultContractCode,
 				},
 				{
 					Key:     models.ServiceItemParamNameDistanceZip,
@@ -52,7 +52,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticShorthaulWithServiceIte
 					KeyType: models.ServiceItemParamTypeInteger,
 					Value:   "0",
 				},
-			},
+			}, nil, nil,
 		)
 
 		_, rateEngineParams, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
@@ -258,14 +258,14 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticShorthaul() {
 }
 
 func (suite *GHCRateEngineServiceSuite) setupDomesticShorthaulServiceItems(requestedPickup string) models.PaymentServiceItem {
-	return testdatagen.MakeDefaultPaymentServiceItemWithParams(
+	return factory.BuildPaymentServiceItemWithParams(
 		suite.DB(),
 		models.ReServiceCodeDSH,
-		[]testdatagen.CreatePaymentServiceItemParams{
+		[]factory.CreatePaymentServiceItemParams{
 			{
 				Key:     models.ServiceItemParamNameContractCode,
 				KeyType: models.ServiceItemParamTypeString,
-				Value:   testdatagen.DefaultContractCode,
+				Value:   factory.DefaultContractCode,
 			},
 			{
 				Key:     models.ServiceItemParamNameDistanceZip,
@@ -287,7 +287,7 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticShorthaulServiceItems(reque
 				KeyType: models.ServiceItemParamTypeInteger,
 				Value:   strconv.Itoa(dshTestWeight),
 			},
-		},
+		}, nil, nil,
 	)
 }
 

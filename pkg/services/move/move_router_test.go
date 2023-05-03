@@ -661,9 +661,12 @@ func (suite *MoveServiceSuite) TestApproveOrRequestApproval() {
 
 	suite.Run("does not approve the move if unreviewed SIT extensions exist", func() {
 		move := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
-		testdatagen.MakePendingSITDurationUpdate(suite.DB(), testdatagen.Assertions{
-			Move: move,
-		})
+		factory.BuildSITDurationUpdate(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		updatedMove, err := moveRouter.ApproveOrRequestApproval(suite.AppContextForTest(), move)
 

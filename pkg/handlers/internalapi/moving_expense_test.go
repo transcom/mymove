@@ -141,7 +141,7 @@ func (suite *HandlerSuite) TestUpdateMovingExpenseHandler() {
 	}
 	makeUpdateSubtestData := func(authenticateRequest bool) (subtestData movingExpenseUpdateSubtestData) {
 		// Fake data:
-		subtestData.movingExpense = testdatagen.MakeMovingExpense(suite.DB(), testdatagen.Assertions{})
+		subtestData.movingExpense = factory.BuildMovingExpense(suite.DB(), nil, nil)
 		subtestData.ppmShipment = subtestData.movingExpense.PPMShipment
 		serviceMember := subtestData.ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
 
@@ -302,7 +302,7 @@ func (suite *HandlerSuite) TestDeleteMovingExpenseHandler() {
 	}
 	makeDeleteSubtestData := func(authenticateRequest bool) (subtestData movingExpenseDeleteSubtestData) {
 		// Fake data:
-		subtestData.movingExpense = testdatagen.MakeMovingExpense(suite.DB(), testdatagen.Assertions{})
+		subtestData.movingExpense = factory.BuildMovingExpense(suite.DB(), nil, nil)
 		subtestData.ppmShipment = subtestData.movingExpense.PPMShipment
 		serviceMember := subtestData.ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
 

@@ -1222,11 +1222,14 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 			Country:        destinationAddress.Country,
 		}
 
+		milTime := "1400Z"
 		// Create the payload with the desired update
 		subtestData.reqPayload = &primemessages.UpdateMTOServiceItemSIT{
-			ReServiceCode:              models.ReServiceCodeDDDSIT.String(),
-			SitDepartureDate:           *handlers.FmtDate(time.Now().AddDate(0, 0, 5)),
-			SitDestinationFinalAddress: &addr,
+			ReServiceCode:               models.ReServiceCodeDDDSIT.String(),
+			SitDepartureDate:            *handlers.FmtDate(time.Now().AddDate(0, 0, 5)),
+			SitDestinationFinalAddress:  &addr,
+			TimeMilitary1:               handlers.FmtStringPtrNonEmpty(&milTime),
+			FirstAvailableDeliveryDate1: handlers.FmtDate(time.Date(2020, time.December, 02, 0, 0, 0, 0, time.UTC)),
 		}
 		subtestData.reqPayload.SetID(strfmt.UUID(subtestData.dddsit.ID.String()))
 
@@ -1239,7 +1242,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 		}
 
 		// create the params struct
-		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-service_items/%s", subtestData.dddsit.ID), nil)
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-service-items/%s", subtestData.dddsit.ID), nil)
 		eTag := etag.GenerateEtag(subtestData.dddsit.UpdatedAt)
 		subtestData.params = mtoserviceitemops.UpdateMTOServiceItemParams{
 			HTTPRequest:      req,
@@ -1250,14 +1253,14 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 		return subtestData
 	}
 
-	suite.Run("Successful PATCH - Updated SITDepartureDate on DDDSIT", func() {
+	suite.Run("Successful PATCH - Updated SITDepartureDate and FADD Fields on DDDSIT", func() {
 		subtestData := makeSubtestData()
 		// Under test: updateMTOServiceItemHandler.Handle function
 		//             MTOServiceItemUpdater.Update service object function
 		// Set up:     We create an mto service item using DDDSIT (which was created above)
-		//             And send an update to the sit entry date
+		//             And send an update to the sit entry date and customer contact fields
 		// Expected outcome:
-		//             Receive a success response with the SitDepartureDate updated
+		//             Receive a success response with the SitDepartureDate, TimeMilitary and FirstAvailableDeliveryDate1 updated
 
 		// CALL FUNCTION UNDER TEST
 
@@ -1278,6 +1281,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 		// suite.NoError(resp1.Validate(strfmt.Default))
 
 		respPayload := resp1.(*primemessages.MTOServiceItemDestSIT)
+
 		suite.Equal(subtestData.reqPayload.ID(), respPayload.ID())
 		suite.Equal(subtestData.reqPayload.SitDepartureDate.String(), respPayload.SitDepartureDate.String())
 		suite.Equal(subtestData.reqPayload.SitDestinationFinalAddress.StreetAddress1, respPayload.SitDestinationFinalAddress.StreetAddress1)
@@ -1285,6 +1289,8 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 		suite.Equal(subtestData.reqPayload.SitDestinationFinalAddress.PostalCode, respPayload.SitDestinationFinalAddress.PostalCode)
 		suite.Equal(subtestData.reqPayload.SitDestinationFinalAddress.State, respPayload.SitDestinationFinalAddress.State)
 		suite.Equal(subtestData.reqPayload.SitDestinationFinalAddress.Country, respPayload.SitDestinationFinalAddress.Country)
+		suite.Equal(subtestData.reqPayload.TimeMilitary1, respPayload.TimeMilitary1)
+		suite.Equal(subtestData.reqPayload.FirstAvailableDeliveryDate1, respPayload.FirstAvailableDeliveryDate1)
 	})
 
 	suite.Run("Failed PATCH - No DDDSIT found", func() {

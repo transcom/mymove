@@ -2,7 +2,10 @@
 
 set -eu -o pipefail
 
-db_password="mysecretpassword"
+db_password="${DB_PASSWORD:-mysecretpassword}"
+db_host="${DB_HOST:-localhost}"
+db_user="${DB_USER:-postgres}"
+db_name="${DB_NAME:-postgres}"
 db_port="${DB_PORT:-5432}"
 
 command="${*:-}"
@@ -21,8 +24,9 @@ else
   psql_exe="$(brew --prefix)/bin/psql"
 fi
 
+db_url="postgres://${db_user}:${db_password}@${db_host}:${db_port}/${db_name}"
 if [ -n "${command[*]}" ]; then
-  exec "$psql_exe" --variable "ON_ERROR_STOP=1" postgres://postgres:"${db_password}"@localhost:"${db_port}"/"${DB_NAME}" -c "${command}"
+  exec "$psql_exe" --variable "ON_ERROR_STOP=1" "${db_url}" -c "${command}"
 else
-  exec "$psql_exe"  --variable "ON_ERROR_STOP=1" postgres://postgres:"${db_password}"@localhost:"${db_port}"/"${DB_NAME}"
+  exec "$psql_exe"  --variable "ON_ERROR_STOP=1" "${db_url}"
 fi
