@@ -68,6 +68,11 @@ const SitStatusTables = ({ sitStatus, sitExtension, shipment }) => {
   const daysInPreviousSIT = totalSITDaysUsed - daysInSIT;
 
   const approvedAndRequestedDaysCombined = shipment.sitDaysAllowance + sitExtension.requestedDays;
+  const approvedAndRequestedDatesCombined = moment(
+    moment().add(sitStatus.totalDaysRemaining, 'days').format('DD MMM YYYY'),
+  )
+    .add(sitExtension.requestedDays, 'days')
+    .format('DD MMM YYYY');
 
   const sitAllowanceHelper = useField({ name: 'daysApproved', id: 'daysApproved' })[2];
   const endDateHelper = useField({ name: 'sitEndDate', id: 'sitEndDate' })[2];
@@ -144,7 +149,7 @@ const SitStatusTables = ({ sitStatus, sitExtension, shipment }) => {
         <DataTable
           columnHeaders={[
             `SIT start date`,
-            <SITHistoryItemHeader title="SIT authorized end date" value="29 July 2023" />,
+            <SITHistoryItemHeader title="SIT authorized end date" value={approvedAndRequestedDatesCombined} />,
           ]}
           dataRow={[
             currentDateEnteredSit,
