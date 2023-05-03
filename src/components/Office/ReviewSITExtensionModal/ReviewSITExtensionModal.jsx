@@ -194,7 +194,7 @@ const ReviewSITExtensionsModal = ({ onClose, onSubmit, sitExtension, shipment, s
         <Modal className={styles.ReviewSITExtensionModal}>
           <ModalClose handleClick={() => onClose()} />
           <ModalTitle>
-            <h2>Review addtional days requested</h2>
+            <h2>Review additional days requested</h2>
           </ModalTitle>
           <div>
             <Formik
