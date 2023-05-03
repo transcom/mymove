@@ -1,7 +1,6 @@
 import React from 'react';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { debug } from 'jest-preview';
 
 import ShipmentSITDisplay from './ShipmentSITDisplay';
 import {
@@ -153,7 +152,6 @@ describe('ShipmentSITDisplay', () => {
     expect(within(sitStatusTable).getByText('Total days of SIT approved')).toBeInTheDocument();
     expect(within(sitStatusTable).getByText('Total days remaining')).toBeInTheDocument();
     const daysApprovedAndRemaining = within(sitStatusTable).getAllByText('270');
-    debug();
     expect(daysApprovedAndRemaining).toHaveLength(2);
     const sitStartAndEndTable = await screen.findByTestId('sitStartAndEndTable');
     expect(sitStartAndEndTable).toBeInTheDocument();
