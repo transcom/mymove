@@ -1,11 +1,13 @@
 package routing
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"path"
 	"testing"
+	"time"
 
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/suite"
@@ -14,6 +16,7 @@ import (
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/authentication"
+	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/telemetry"
 	"github.com/transcom/mymove/pkg/testingsuite"
@@ -21,6 +24,7 @@ import (
 
 type RoutingSuite struct {
 	handlers.BaseHandlerTestSuite
+	routingConfig *Config
 }
 
 func TestRoutingSuite(t *testing.T) {
@@ -40,7 +44,7 @@ var appNames = auth.ApplicationServername{
 
 const indexContent = "<html></html>"
 
-func (suite *RoutingSuite) setupRouting() *Config {
+func (suite *RoutingSuite) SetupTest() {
 	// Test that we can initialize routing and serve the index file
 	handlerConfig := suite.HandlerConfig()
 	handlerConfig.SetAppNames(appNames)
@@ -56,7 +60,7 @@ func (suite *RoutingSuite) setupRouting() *Config {
 	_, err = f.Write([]byte(indexContent))
 	suite.NoError(err)
 
-	rConfig := &Config{
+	suite.routingConfig = &Config{
 		FileSystem:    fakeFs,
 		HandlerConfig: handlerConfig,
 		AuthContext:   authContext,
@@ -74,15 +78,11 @@ func (suite *RoutingSuite) setupRouting() *Config {
 		ServeDevlocalAuth:   true,
 		ServeOrders:         true,
 	}
-
-	return rConfig
-
 }
 
 func (suite *RoutingSuite) TestBasicRoutingInit() {
 
-	rConfig := suite.setupRouting()
-	h, err := InitRouting(suite.AppContextForTest(), nil, rConfig, &telemetry.Config{})
+	h, err := InitRouting(suite.AppContextForTest(), nil, suite.routingConfig, &telemetry.Config{})
 	suite.NoError(err)
 
 	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/", appNames.MilServername), nil)
@@ -95,8 +95,7 @@ func (suite *RoutingSuite) TestBasicRoutingInit() {
 
 func (suite *RoutingSuite) TestServeGHC() {
 
-	rConfig := suite.setupRouting()
-	h, err := InitRouting(suite.AppContextForTest(), nil, rConfig, &telemetry.Config{})
+	h, err := InitRouting(suite.AppContextForTest(), nil, suite.routingConfig, &telemetry.Config{})
 	suite.NoError(err)
 
 	user := factory.BuildUser(suite.DB(), nil, nil)
@@ -110,9 +109,8 @@ func (suite *RoutingSuite) TestServeGHC() {
 	suite.Equal(http.StatusUnauthorized, rr.Code)
 
 	// make the request with GHC routing turned off
-	rConfig = suite.setupRouting()
-	rConfig.ServeGHC = false
-	h, err = InitRouting(suite.AppContextForTest(), nil, rConfig, &telemetry.Config{})
+	suite.routingConfig.ServeGHC = false
+	h, err = InitRouting(suite.AppContextForTest(), nil, suite.routingConfig, &telemetry.Config{})
 	suite.NoError(err)
 	req = httptest.NewRequest("GET", fmt.Sprintf("http://%s/ghc/v1/customer/%s", appNames.MilServername, user.ID.String()), nil)
 	rr = httptest.NewRecorder()
@@ -122,4 +120,56 @@ func (suite *RoutingSuite) TestServeGHC() {
 	// javascript SPA routing
 	suite.Equal(http.StatusOK, rr.Code)
 	suite.Equal(indexContent, rr.Body.String())
+}
+
+func (suite *RoutingSuite) setupOfficeRequestSession(req *http.Request, officeUser models.OfficeUser) {
+
+	fakeAuthContext := context.Background()
+	sessionManager := suite.routingConfig.HandlerConfig.SessionManagers().Office
+	fakeAuthContext, err := sessionManager.Load(fakeAuthContext, "")
+	suite.NoError(err)
+
+	fakeSession := &auth.Session{
+		ApplicationName: auth.OfficeApp,
+		Hostname:        appNames.OfficeServername,
+		IDToken:         "notsure",
+		UserID:          *officeUser.UserID,
+		Email:           officeUser.User.LoginGovEmail,
+		OfficeUserID:    officeUser.ID,
+		FirstName:       officeUser.FirstName,
+		LastName:        officeUser.LastName,
+		Roles:           officeUser.User.Roles,
+	}
+	sessionManager.Put(fakeAuthContext, "session", fakeSession)
+	// ignore expiry for this test
+	token, _, err := sessionManager.Commit(fakeAuthContext)
+	suite.NoError(err)
+	sessionCookie := sessionManager.SessionCookie()
+	cookie := &http.Cookie{
+		Name:     sessionCookie.Name,
+		Value:    token,
+		Path:     sessionCookie.Path,
+		Domain:   sessionCookie.Domain,
+		Secure:   sessionCookie.Secure,
+		HttpOnly: sessionCookie.HttpOnly,
+		SameSite: sessionCookie.SameSite,
+	}
+	cookie.Expires = time.Unix(1, 0)
+	cookie.MaxAge = -1
+
+	req.Header.Add("cookie", cookie.String())
+}
+
+func (suite *RoutingSuite) TestOfficeLoggedInEndpoint() {
+	h, err := InitRouting(suite.AppContextForTest(), nil, suite.routingConfig, &telemetry.Config{})
+	suite.NoError(err)
+
+	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/internal/users/logged_in", appNames.OfficeServername), nil)
+
+	officeUser := factory.BuildOfficeUser(suite.DB(), nil, nil)
+	suite.setupOfficeRequestSession(req, officeUser)
+
+	rr := httptest.NewRecorder()
+	h.ServeHTTP(rr, req)
+	suite.Equal(http.StatusOK, rr.Code)
 }
