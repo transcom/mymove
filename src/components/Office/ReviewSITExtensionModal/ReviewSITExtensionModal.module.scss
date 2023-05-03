@@ -4,6 +4,7 @@
 .ReviewSITExtensionModal {
   overflow-y: auto;
   max-height: 90vh;
+  max-width: 700px;
 
   .ApprovedDaysInput {
     max-width: 3rem;
@@ -182,4 +183,18 @@ p.sitHeader {
 
 .tableContainer {
   margin-top: 16px;
+}
+
+.sitHistoryItemHeader {
+  .hintText {
+    display: block;
+    font-size: 13px;
+    line-height: 16px;
+    font-weight: 400;
+    color: $base-darker;
+  }
+}
+
+input.approvedDaysInput {
+  max-width: 108px !important;
 }

@@ -42,6 +42,27 @@ const SitEndDateForm = ({ onChange }) => (
   <DatePickerInput name="sitEndDate" label="" id="sitEndDate" onChange={onChange} />
 );
 
+const SITHistoryItemHeader = ({ title, value }) => {
+  let action = '';
+
+  if (title.includes('approved')) {
+    action = 'Approved';
+  }
+
+  if (title.includes('authorized')) {
+    action = 'Authorized';
+  }
+
+  return (
+    <div className={styles.sitHistoryItemHeader}>
+      {title}
+      <span className={styles.hintText}>
+        {action} + Requested = {value}
+      </span>
+    </div>
+  );
+};
+
 const SitStatusTables = ({ sitStatus }) => {
   const { sitEntryDate, totalSITDaysUsed, daysInSIT } = sitStatus;
   const daysInPreviousSIT = totalSITDaysUsed - daysInSIT;
@@ -103,7 +124,11 @@ const SitStatusTables = ({ sitStatus }) => {
         {/* Sit Total days table */}
         <DataTable
           custClass={styles.totalDaysTable}
-          columnHeaders={['Total days of SIT approved', 'Total days used', 'Total days remaining']}
+          columnHeaders={[
+            <SITHistoryItemHeader title="Total days of SIT approved" value={130} />,
+            'Total days used',
+            'Total days remaining',
+          ]}
           dataRow={[
             <SitDaysAllowanceForm onChange={(e) => handleDaysAllowanceChange(e.target.value)} />,
             sitStatus.totalSITDaysUsed,
@@ -115,7 +140,10 @@ const SitStatusTables = ({ sitStatus }) => {
         {/* Sit Start and End table */}
         <p className={styles.sitHeader}>Current location: {currentLocation}</p>
         <DataTable
-          columnHeaders={[`SIT start date`, 'SIT authorized end date']}
+          columnHeaders={[
+            `SIT start date`,
+            <SITHistoryItemHeader title="SIT authorized end date" value="29 July 2023" />,
+          ]}
           dataRow={[
             currentDateEnteredSit,
             <SitEndDateForm
