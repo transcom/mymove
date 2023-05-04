@@ -556,21 +556,11 @@ func (suite *AuthSuite) TestAuthorizeDeactivateUser() {
 }
 
 func (suite *AuthSuite) TestAuthKnownSingleRoleOffice() {
-	officeUserID := uuid.Must(uuid.NewV4())
-	loginGovUUID, _ := uuid.FromString("2400c3c5-019d-4031-9c27-8a553e022297")
+	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitActiveOfficeUser(),
+		[]roles.RoleType{roles.RoleTypeTIO})
 
-	user := models.User{
-		LoginGovUUID:  &loginGovUUID,
-		LoginGovEmail: "email@example.com",
-		Active:        true,
-	}
-	suite.MustSave(&user)
-
-	userIdentity := models.UserIdentity{
-		ID:           user.ID,
-		Active:       true,
-		OfficeUserID: &officeUserID,
-	}
+	userIdentity, err := models.FetchUserIdentity(suite.DB(), officeUser.User.LoginGovUUID.String())
+	suite.Assert().NoError(err)
 
 	handlerConfig := suite.HandlerConfig()
 	appnames := handlerConfig.AppNames()
@@ -580,14 +570,25 @@ func (suite *AuthSuite) TestAuthKnownSingleRoleOffice() {
 		ApplicationName: auth.OfficeApp,
 		IDToken:         fakeToken,
 		Hostname:        appnames.OfficeServername,
+		UserID:          *officeUser.UserID,
+		Email:           officeUser.Email,
 	}
 	sessionManager := handlerConfig.SessionManagers().Office
 	ctx := suite.SetupSessionContext(context.Background(), &session, sessionManager)
-	result := AuthorizeKnownUser(ctx, suite.AppContextWithSessionForTest(&session), &userIdentity, sessionManager)
+	result := AuthorizeKnownUser(ctx, suite.AppContextWithSessionForTest(&session), userIdentity, sessionManager)
 
 	suite.Equal(authorizationResultAuthorized, result)
 	// Office app, so should only have office ID information
-	suite.Equal(officeUserID, session.OfficeUserID)
+	suite.Equal(officeUser.ID, session.OfficeUserID)
+	// Make sure session contains roles and permissions
+	suite.NotEmpty(session.Roles)
+	userRole, hasRole := officeUser.User.Roles.GetRole(roles.RoleTypeTIO)
+	suite.True(hasRole)
+	sessionRole, hasRole := session.Roles.GetRole(roles.RoleTypeTIO)
+	suite.True(hasRole)
+	suite.Equal(userRole.ID, sessionRole.ID)
+	suite.NotEmpty(session.Permissions)
+	suite.ElementsMatch(TIO.Permissions, session.Permissions)
 }
 
 func (suite *AuthSuite) TestAuthorizeDeactivateOfficeUser() {
@@ -1170,6 +1171,8 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeLogsIn() {
 	suite.Equal(officeUser.ID, session.OfficeUserID)
 	suite.Equal(uuid.Nil, session.AdminUserID)
 	suite.NotEqual("", foundUser.CurrentOfficeSessionID)
+	suite.NotEmpty(session.Roles)
+	suite.NotEmpty(session.Permissions)
 }
 
 func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeLogsInWithPermissions() {
