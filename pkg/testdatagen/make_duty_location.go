@@ -9,8 +9,10 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-// MakeDutyLocation creates a single DutyLocation
-func MakeDutyLocation(db *pop.Connection, assertions Assertions) models.DutyLocation {
+// makeDutyLocation creates a single DutyLocation
+//
+// Deprecated: use factory.BuildDutyLocation
+func makeDutyLocation(db *pop.Connection, assertions Assertions) models.DutyLocation {
 	transportationOffice := assertions.DutyLocation.TransportationOffice
 	if assertions.DutyLocation.TransportationOfficeID == nil {
 		transportationOffice = MakeTransportationOffice(db, assertions)
@@ -20,19 +22,6 @@ func MakeDutyLocation(db *pop.Connection, assertions Assertions) models.DutyLoca
 	// ID is required because it must be populated for Eager saving to work.
 	if isZeroUUID(assertions.DutyLocation.AddressID) {
 		address = MakeAddress3(db, assertions)
-
-		// Make the required Tariff 400 NG Zip3 to correspond with the duty location address
-		FetchOrMakeDefaultTariff400ngZip3(db)
-		FetchOrMakeTariff400ngZip3(db, Assertions{
-			Tariff400ngZip3: models.Tariff400ngZip3{
-				Zip3:          "503",
-				BasepointCity: "Des Moines",
-				State:         "IA",
-				ServiceArea:   "296",
-				RateArea:      "US53",
-				Region:        "7",
-			},
-		})
 	}
 	affiliation := internalmessages.AffiliationAIRFORCE
 	location := models.DutyLocation{
@@ -50,8 +39,11 @@ func MakeDutyLocation(db *pop.Connection, assertions Assertions) models.DutyLoca
 	return location
 }
 
-// FetchOrMakeDefaultCurrentDutyLocation returns a default duty location - Yuma AFB
-func FetchOrMakeDefaultCurrentDutyLocation(db *pop.Connection) models.DutyLocation {
+// fetchOrMakeDefaultCurrentDutyLocation returns a default duty
+// location - Yuma AFB
+//
+// Deprecated: use factory.FetchOrMakeDefaultCurrentDutyLocation
+func fetchOrMakeDefaultCurrentDutyLocation(db *pop.Connection) models.DutyLocation {
 	defaultLocation, err := models.FetchDutyLocationByName(db, "Yuma AFB")
 	if err == nil {
 		return defaultLocation
@@ -87,7 +79,7 @@ func FetchOrMakeDefaultCurrentDutyLocation(db *pop.Connection) models.DutyLocati
 	}
 	defaultLocation, err = models.FetchDutyLocationByName(db, "Yuma AFB")
 	if err != nil {
-		defaultLocation = MakeDutyLocation(db, Assertions{
+		defaultLocation = makeDutyLocation(db, Assertions{
 			DutyLocation: models.DutyLocation{
 				Name: "Yuma AFB",
 			}})
@@ -100,8 +92,11 @@ func FetchOrMakeDefaultCurrentDutyLocation(db *pop.Connection) models.DutyLocati
 	return defaultLocation
 }
 
-// FetchOrMakeDefaultNewOrdersDutyLocation returns a default duty location - Yuma AFB
-func FetchOrMakeDefaultNewOrdersDutyLocation(db *pop.Connection) models.DutyLocation {
+// fetchOrMakeDefaultNewOrdersDutyLocation returns a default duty
+// location - Yuma AFB
+//
+// Deprecated: use factory.fetchOrMakeDefaultNewOrdersDutyLocation
+func fetchOrMakeDefaultNewOrdersDutyLocation(db *pop.Connection) models.DutyLocation {
 	// Check if Fort Gordon exists, if not, create
 	// Move date picker for this test case only works with an address of street name "Fort Gordon"
 	fortGordon, err := models.FetchDutyLocationByName(db, "Fort Gordon")
@@ -121,15 +116,5 @@ func FetchOrMakeDefaultNewOrdersDutyLocation(db *pop.Connection) models.DutyLoca
 			Name: "Fort Gordon",
 		},
 	}
-	FetchOrMakeTariff400ngZip3(db, Assertions{
-		Tariff400ngZip3: models.Tariff400ngZip3{
-			Zip3:          "308",
-			BasepointCity: "Harlem",
-			State:         "GA",
-			ServiceArea:   "208",
-			RateArea:      "US45",
-			Region:        "12",
-		},
-	})
-	return MakeDutyLocation(db, fortGordonAssertions)
+	return makeDutyLocation(db, fortGordonAssertions)
 }

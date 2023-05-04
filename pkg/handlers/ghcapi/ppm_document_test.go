@@ -21,7 +21,6 @@ import (
 	"github.com/transcom/mymove/pkg/services/mocks"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	"github.com/transcom/mymove/pkg/services/ppmshipment"
-	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
@@ -33,27 +32,49 @@ func (suite *HandlerSuite) TestGetPPMDocumentsHandlerUnit() {
 
 		suite.FatalNoError(err)
 
-		ppmShipment = testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{
-			UserUploader: userUploader,
-		})
+		ppmShipment = factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), userUploader, nil)
 
 		ppmShipment.WeightTickets = append(
 			ppmShipment.WeightTickets,
-			testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{
-				ServiceMember: ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember,
-				PPMShipment:   ppmShipment,
-				UserUploader:  userUploader,
-			}),
+			factory.BuildWeightTicket(suite.DB(), []factory.Customization{
+				{
+					Model:    ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember,
+					LinkOnly: true,
+				},
+				{
+					Model:    ppmShipment,
+					LinkOnly: true,
+				},
+				{
+					Model: models.UserUpload{},
+					ExtendedParams: &factory.UserUploadExtendedParams{
+						UserUploader: userUploader,
+						AppContext:   suite.AppContextForTest(),
+					},
+				},
+			}, nil),
 		)
 
 		for i := 1; i < 3; i++ {
 			ppmShipment.MovingExpenses = append(
 				ppmShipment.MovingExpenses,
-				testdatagen.MakeMovingExpense(suite.DB(), testdatagen.Assertions{
-					ServiceMember: ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember,
-					PPMShipment:   ppmShipment,
-					UserUploader:  userUploader,
-				}),
+				factory.BuildMovingExpense(suite.DB(), []factory.Customization{
+					{
+						Model:    ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember,
+						LinkOnly: true,
+					},
+					{
+						Model:    ppmShipment,
+						LinkOnly: true,
+					},
+					{
+						Model: models.UserUpload{},
+						ExtendedParams: &factory.UserUploadExtendedParams{
+							UserUploader: userUploader,
+							AppContext:   suite.AppContextForTest(),
+						},
+					},
+				}, nil),
 			)
 
 		}
@@ -61,11 +82,23 @@ func (suite *HandlerSuite) TestGetPPMDocumentsHandlerUnit() {
 		for i := 1; i < 4; i++ {
 			ppmShipment.ProgearWeightTickets = append(
 				ppmShipment.ProgearWeightTickets,
-				testdatagen.MakeProgearWeightTicket(suite.DB(), testdatagen.Assertions{
-					ServiceMember: ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember,
-					PPMShipment:   ppmShipment,
-					UserUploader:  userUploader,
-				}),
+				factory.BuildProgearWeightTicket(suite.DB(), []factory.Customization{
+					{
+						Model:    ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember,
+						LinkOnly: true,
+					},
+					{
+						Model:    ppmShipment,
+						LinkOnly: true,
+					},
+					{
+						Model: models.UserUpload{},
+						ExtendedParams: &factory.UserUploadExtendedParams{
+							UserUploader: userUploader,
+							AppContext:   suite.AppContextForTest(),
+						},
+					},
+				}, nil),
 			)
 		}
 
@@ -204,27 +237,49 @@ func (suite *HandlerSuite) TestGetPPMDocumentsHandlerIntegration() {
 
 		suite.FatalNoError(err)
 
-		ppmShipment = testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{
-			UserUploader: userUploader,
-		})
+		ppmShipment = factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), userUploader, nil)
 
 		ppmShipment.WeightTickets = append(
 			ppmShipment.WeightTickets,
-			testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{
-				ServiceMember: ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember,
-				PPMShipment:   ppmShipment,
-				UserUploader:  userUploader,
-			}),
+			factory.BuildWeightTicket(suite.DB(), []factory.Customization{
+				{
+					Model:    ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember,
+					LinkOnly: true,
+				},
+				{
+					Model:    ppmShipment,
+					LinkOnly: true,
+				},
+				{
+					Model: models.UserUpload{},
+					ExtendedParams: &factory.UserUploadExtendedParams{
+						UserUploader: userUploader,
+						AppContext:   suite.AppContextForTest(),
+					},
+				},
+			}, nil),
 		)
 
 		for i := 1; i < 3; i++ {
 			ppmShipment.MovingExpenses = append(
 				ppmShipment.MovingExpenses,
-				testdatagen.MakeMovingExpense(suite.DB(), testdatagen.Assertions{
-					ServiceMember: ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember,
-					PPMShipment:   ppmShipment,
-					UserUploader:  userUploader,
-				}),
+				factory.BuildMovingExpense(suite.DB(), []factory.Customization{
+					{
+						Model:    ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember,
+						LinkOnly: true,
+					},
+					{
+						Model:    ppmShipment,
+						LinkOnly: true,
+					},
+					{
+						Model: models.UserUpload{},
+						ExtendedParams: &factory.UserUploadExtendedParams{
+							UserUploader: userUploader,
+							AppContext:   suite.AppContextForTest(),
+						},
+					},
+				}, nil),
 			)
 
 		}
@@ -232,11 +287,23 @@ func (suite *HandlerSuite) TestGetPPMDocumentsHandlerIntegration() {
 		for i := 1; i < 4; i++ {
 			ppmShipment.ProgearWeightTickets = append(
 				ppmShipment.ProgearWeightTickets,
-				testdatagen.MakeProgearWeightTicket(suite.DB(), testdatagen.Assertions{
-					ServiceMember: ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember,
-					PPMShipment:   ppmShipment,
-					UserUploader:  userUploader,
-				}),
+				factory.BuildProgearWeightTicket(suite.DB(), []factory.Customization{
+					{
+						Model:    ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember,
+						LinkOnly: true,
+					},
+					{
+						Model:    ppmShipment,
+						LinkOnly: true,
+					},
+					{
+						Model: models.UserUpload{},
+						ExtendedParams: &factory.UserUploadExtendedParams{
+							UserUploader: userUploader,
+							AppContext:   suite.AppContextForTest(),
+						},
+					},
+				}, nil),
 			)
 		}
 
@@ -298,12 +365,7 @@ func (suite *HandlerSuite) TestFinishPPMDocumentsReviewHandlerUnit() {
 	var ppmShipment models.PPMShipment
 
 	setUpPPMShipment := func() models.PPMShipment {
-		ppmShipment = testdatagen.MakePPMShipmentWithApprovedDocuments(
-			suite.DB(),
-			testdatagen.Assertions{
-				Stub: true,
-			},
-		)
+		ppmShipment = factory.BuildPPMShipmentWithApprovedDocuments(nil)
 
 		ppmShipment.ID = uuid.Must(uuid.NewV4())
 		ppmShipment.CreatedAt = time.Now()
@@ -453,23 +515,19 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerIntegratio
 	})
 
 	suite.Run("Returns an error if the PPM shipment is not awaiting payment review", func() {
-		draftPpmShipment := testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{
-			PPMShipment: models.PPMShipment{
-				Status: models.PPMShipmentStatusDraft,
-			},
-		})
+		draftPpmShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, nil)
+		draftPpmShipment.Status = models.PPMShipmentStatusDraft
+		suite.NoError(suite.DB().Save(&draftPpmShipment))
 
 		params, handler := setUpParamsAndHandler(draftPpmShipment, officeUser)
 
 		response := handler.Handle(params)
 
-		fmt.Printf("Response type: %T\n", response)
-
 		suite.IsType(&ppmdocumentops.FinishDocumentReviewConflict{}, response)
 	})
 
 	suite.Run("Can successfully submit a PPM shipment for close out", func() {
-		ppmShipment := testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{})
+		ppmShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, nil)
 
 		params, handler := setUpParamsAndHandler(ppmShipment, officeUser)
 
@@ -487,11 +545,9 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerIntegratio
 	})
 
 	suite.Run("Sets PPM to await customer if there are rejected documents", func() {
-		ppmShipment := testdatagen.MakePPMShipmentThatNeedsToBeResubmitted(suite.DB(), testdatagen.Assertions{
-			PPMShipment: models.PPMShipment{
-				Status: models.PPMShipmentStatusNeedsPaymentApproval,
-			},
-		})
+		ppmShipment := factory.BuildPPMShipmentThatNeedsToBeResubmitted(suite.DB(), nil)
+		ppmShipment.Status = models.PPMShipmentStatusNeedsPaymentApproval
+		suite.NoError(suite.DB().Save(&ppmShipment))
 
 		params, handler := setUpParamsAndHandler(ppmShipment, officeUser)
 

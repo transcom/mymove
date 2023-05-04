@@ -184,7 +184,7 @@ func (suite *ProgearWeightTicketSuite) TestUpdateProgearWeightTicket() {
 			suite.Run("changes status and reason", func() {
 				appCtx := suite.AppContextForTest()
 
-				originalProgearWeightTicket := testdatagen.MakeProgearWeightTicket(suite.DB(), testdatagen.Assertions{})
+				originalProgearWeightTicket := factory.BuildProgearWeightTicket(suite.DB(), nil, nil)
 
 				updater := NewOfficeProgearWeightTicketUpdater()
 
@@ -208,12 +208,14 @@ func (suite *ProgearWeightTicketSuite) TestUpdateProgearWeightTicket() {
 				appCtx := suite.AppContextForTest()
 
 				status := models.PPMDocumentStatusExcluded
-				originalProgearWeightTicket := testdatagen.MakeProgearWeightTicket(suite.DB(), testdatagen.Assertions{
-					ProgearWeightTicket: models.ProgearWeightTicket{
-						Status: &status,
-						Reason: models.StringPointer("some temporary reason"),
+				originalProgearWeightTicket := factory.BuildProgearWeightTicket(suite.DB(), []factory.Customization{
+					{
+						Model: models.ProgearWeightTicket{
+							Status: &status,
+							Reason: models.StringPointer("some temporary reason"),
+						},
 					},
-				})
+				}, nil)
 
 				updater := NewOfficeProgearWeightTicketUpdater()
 
@@ -234,12 +236,14 @@ func (suite *ProgearWeightTicketSuite) TestUpdateProgearWeightTicket() {
 				appCtx := suite.AppContextForTest()
 
 				status := models.PPMDocumentStatusExcluded
-				originalProgearWeightTicket := testdatagen.MakeProgearWeightTicket(suite.DB(), testdatagen.Assertions{
-					ProgearWeightTicket: models.ProgearWeightTicket{
-						Status: &status,
-						Reason: models.StringPointer("some temporary reason"),
+				originalProgearWeightTicket := factory.BuildProgearWeightTicket(suite.DB(), []factory.Customization{
+					{
+						Model: models.ProgearWeightTicket{
+							Status: &status,
+							Reason: models.StringPointer("some temporary reason"),
+						},
 					},
-				})
+				}, nil)
 
 				updater := NewOfficeProgearWeightTicketUpdater()
 
@@ -291,12 +295,14 @@ func (suite *ProgearWeightTicketSuite) TestUpdateProgearWeightTicket() {
 				appCtx := suite.AppContextForTest()
 
 				status := models.PPMDocumentStatusExcluded
-				originalProgearWeightTicket := testdatagen.MakeProgearWeightTicket(suite.DB(), testdatagen.Assertions{
-					ProgearWeightTicket: models.ProgearWeightTicket{
-						Status: &status,
-						Reason: models.StringPointer("some temporary reason"),
+				originalProgearWeightTicket := factory.BuildProgearWeightTicket(suite.DB(), []factory.Customization{
+					{
+						Model: models.ProgearWeightTicket{
+							Status: &status,
+							Reason: models.StringPointer("some temporary reason"),
+						},
 					},
-				})
+				}, nil)
 
 				updater := NewOfficeProgearWeightTicketUpdater()
 
@@ -318,7 +324,7 @@ func (suite *ProgearWeightTicketSuite) TestUpdateProgearWeightTicket() {
 			suite.Run("to update because of invalid status", func() {
 				appCtx := suite.AppContextForTest()
 
-				originalProgearWeightTicket := testdatagen.MakeProgearWeightTicket(suite.DB(), testdatagen.Assertions{})
+				originalProgearWeightTicket := factory.BuildProgearWeightTicket(suite.DB(), nil, nil)
 
 				updater := NewOfficeProgearWeightTicketUpdater()
 

@@ -32,7 +32,12 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 
 	suite.PreloadData(func() {
 		// Create some records we'll need to link to
-		moveTaskOrder = factory.BuildMove(suite.DB(), nil, nil)
+		moveTaskOrder = factory.BuildMove(suite.DB(), nil, []factory.Trait{factory.GetTraitAvailableToPrimeMove})
+		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				EndDate: time.Now().Add(time.Hour * 24),
+			},
+		})
 		estimatedWeight := unit.Pound(2048)
 		mtoServiceItem1 = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
@@ -1255,6 +1260,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequestCheckOnNTSRelea
 	contractYear, serviceArea, _, _ := testdatagen.SetupServiceAreaRateArea(suite.DB(), testdatagen.Assertions{
 		ReContractYear: models.ReContractYear{
 			EscalationCompounded: testEscalationCompounded,
+			EndDate:              time.Now().Add(time.Hour * 24),
 		},
 		ReRateArea: models.ReRateArea{
 			Name: "Georgia",

@@ -609,11 +609,13 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			}, []factory.Trait{factory.GetTraitApprovedPPMWithActualInfo})
 
 			oldPPMShipment.WeightTickets = models.WeightTickets{
-				testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{
-					WeightTicket: models.WeightTicket{
-						FullWeight: &weightOverride,
+				factory.BuildWeightTicket(suite.DB(), []factory.Customization{
+					{
+						Model: models.WeightTicket{
+							FullWeight: &weightOverride,
+						},
 					},
-				}),
+				}, nil),
 			}
 
 			newPPM := oldPPMShipment
@@ -659,17 +661,19 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			}, []factory.Trait{factory.GetTraitApprovedPPMWithActualInfo})
 
 			oldPPMShipment.WeightTickets = models.WeightTickets{
-				testdatagen.MakeDefaultWeightTicket(suite.DB()),
+				factory.BuildWeightTicket(suite.DB(), nil, nil),
 			}
 
 			newPPM := oldPPMShipment
 			weightOverride := unit.Pound(19500)
 			newPPM.WeightTickets = models.WeightTickets{
-				testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{
-					WeightTicket: models.WeightTicket{
-						FullWeight: &weightOverride,
+				factory.BuildWeightTicket(suite.DB(), []factory.Customization{
+					{
+						Model: models.WeightTicket{
+							FullWeight: &weightOverride,
+						},
 					},
-				}),
+				}, nil),
 			}
 
 			mockedPaymentRequestHelper.On(
@@ -701,22 +705,25 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			oldEmptyWeight := unit.Pound(6000)
 			oldFullWeight := unit.Pound(10000)
 			moveDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
-			oldPPMShipment := testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{
-				PPMShipment: models.PPMShipment{
-					ActualPickupPostalCode:      models.StringPointer("90210"),
-					ActualDestinationPostalCode: models.StringPointer("30813"),
-					ActualMoveDate:              models.TimePointer(moveDate),
-					Status:                      models.PPMShipmentStatusWaitingOnCustomer,
-					WeightTickets: models.WeightTickets{
-						testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{
-							WeightTicket: models.WeightTicket{
-								FullWeight:  &oldFullWeight,
-								EmptyWeight: &oldEmptyWeight,
-							},
-						}),
+			oldPPMShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, []factory.Customization{
+				{
+					Model: models.PPMShipment{
+						ActualPickupPostalCode:      models.StringPointer("90210"),
+						ActualDestinationPostalCode: models.StringPointer("30813"),
+						ActualMoveDate:              models.TimePointer(moveDate),
+					},
+				},
+				{
+					Model: models.WeightTicket{
+						FullWeight:  &oldFullWeight,
+						EmptyWeight: &oldEmptyWeight,
 					},
 				},
 			})
+
+			// tests pass even if status is Needs Payment Approval,
+			// but preserve in case it matters
+			oldPPMShipment.Status = models.PPMShipmentStatusWaitingOnCustomer
 
 			newPPM := oldPPMShipment
 			newWeightTicket := newPPM.WeightTickets[0]
@@ -753,27 +760,29 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			oldFullWeight := unit.Pound(10000)
 			oldEmptyWeight := unit.Pound(6000)
 			moveDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
-			oldPPMShipment := testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{
-				PPMShipment: models.PPMShipment{
-					ActualPickupPostalCode:      models.StringPointer("90210"),
-					ActualDestinationPostalCode: models.StringPointer("30813"),
-					ActualMoveDate:              models.TimePointer(moveDate),
-					FinalIncentive:              models.CentPointer(unit.Cents(500000)),
-					Status:                      models.PPMShipmentStatusWaitingOnCustomer,
-					WeightTickets: models.WeightTickets{
-						testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{
-							WeightTicket: models.WeightTicket{
-								FullWeight:  &oldFullWeight,
-								EmptyWeight: &oldEmptyWeight,
-							},
-						}),
+			oldPPMShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, []factory.Customization{
+				{
+					Model: models.PPMShipment{
+						ActualPickupPostalCode:      models.StringPointer("90210"),
+						ActualDestinationPostalCode: models.StringPointer("30813"),
+						ActualMoveDate:              models.TimePointer(moveDate),
+						FinalIncentive:              models.CentPointer(unit.Cents(500000)),
+					},
+				},
+				{
+					Model: models.WeightTicket{
+						FullWeight:  &oldFullWeight,
+						EmptyWeight: &oldEmptyWeight,
 					},
 				},
 			})
 
+			// tests pass even if status is Needs Payment Approval,
+			// but preserve in case it matters
+			oldPPMShipment.Status = models.PPMShipmentStatusWaitingOnCustomer
 			oldPPMShipment.WeightTickets = models.WeightTickets{
 				oldPPMShipment.WeightTickets[0],
-				testdatagen.MakeDefaultWeightTicket(suite.DB()),
+				factory.BuildWeightTicket(suite.DB(), nil, nil),
 			}
 
 			newPPM := oldPPMShipment
@@ -814,27 +823,29 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			oldFullWeight := unit.Pound(10000)
 			oldEmptyWeight := unit.Pound(6000)
 			moveDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
-			oldPPMShipment := testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{
-				PPMShipment: models.PPMShipment{
-					ActualPickupPostalCode:      models.StringPointer("90210"),
-					ActualDestinationPostalCode: models.StringPointer("30813"),
-					ActualMoveDate:              models.TimePointer(moveDate),
-					FinalIncentive:              models.CentPointer(unit.Cents(500000)),
-					Status:                      models.PPMShipmentStatusWaitingOnCustomer,
-					WeightTickets: models.WeightTickets{
-						testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{
-							WeightTicket: models.WeightTicket{
-								FullWeight:  &oldFullWeight,
-								EmptyWeight: &oldEmptyWeight,
-							},
-						}),
+			oldPPMShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, []factory.Customization{
+				{
+					Model: models.PPMShipment{
+						ActualPickupPostalCode:      models.StringPointer("90210"),
+						ActualDestinationPostalCode: models.StringPointer("30813"),
+						ActualMoveDate:              models.TimePointer(moveDate),
+						FinalIncentive:              models.CentPointer(unit.Cents(500000)),
+					},
+				},
+				{
+					Model: models.WeightTicket{
+						FullWeight:  &oldFullWeight,
+						EmptyWeight: &oldEmptyWeight,
 					},
 				},
 			})
 
+			// tests pass even if status is Needs Payment Approval,
+			// but preserve in case it matters
+			oldPPMShipment.Status = models.PPMShipmentStatusWaitingOnCustomer
 			oldPPMShipment.WeightTickets = models.WeightTickets{
 				oldPPMShipment.WeightTickets[0],
-				testdatagen.MakeDefaultWeightTicket(suite.DB()),
+				factory.BuildWeightTicket(suite.DB(), nil, nil),
 			}
 
 			newPPM := oldPPMShipment
@@ -881,24 +892,26 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			oldFullWeight := unit.Pound(10000)
 			oldEmptyWeight := unit.Pound(6000)
 			moveDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
-			oldPPMShipment := testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{
-				PPMShipment: models.PPMShipment{
-					ActualPickupPostalCode:      models.StringPointer("90210"),
-					ActualDestinationPostalCode: models.StringPointer("30813"),
-					ActualMoveDate:              models.TimePointer(moveDate),
-					FinalIncentive:              models.CentPointer(unit.Cents(500000)),
-					Status:                      models.PPMShipmentStatusWaitingOnCustomer,
-					WeightTickets: models.WeightTickets{
-						testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{
-							WeightTicket: models.WeightTicket{
-								FullWeight:  &oldFullWeight,
-								EmptyWeight: &oldEmptyWeight,
-							},
-						}),
+			oldPPMShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, []factory.Customization{
+				{
+					Model: models.PPMShipment{
+						ActualPickupPostalCode:      models.StringPointer("90210"),
+						ActualDestinationPostalCode: models.StringPointer("30813"),
+						ActualMoveDate:              models.TimePointer(moveDate),
+						FinalIncentive:              models.CentPointer(unit.Cents(500000)),
+					},
+				},
+				{
+					Model: models.WeightTicket{
+						FullWeight:  &oldFullWeight,
+						EmptyWeight: &oldEmptyWeight,
 					},
 				},
 			})
 
+			// tests pass even if status is Needs Payment Approval,
+			// but preserve in case it matters
+			oldPPMShipment.Status = models.PPMShipmentStatusWaitingOnCustomer
 			newPPM := oldPPMShipment
 			newFullWeight := unit.Pound(8000)
 			newEmptyWeight := unit.Pound(3000)
@@ -917,23 +930,26 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			oldFullWeight := unit.Pound(10000)
 			oldEmptyWeight := unit.Pound(6000)
 			moveDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
-			oldPPMShipment := testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{
-				PPMShipment: models.PPMShipment{
-					ActualPickupPostalCode:      models.StringPointer("90210"),
-					ActualDestinationPostalCode: models.StringPointer("30813"),
-					ActualMoveDate:              models.TimePointer(moveDate),
-					FinalIncentive:              models.CentPointer(unit.Cents(500000)),
-					Status:                      models.PPMShipmentStatusWaitingOnCustomer,
-					WeightTickets: models.WeightTickets{
-						testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{
-							WeightTicket: models.WeightTicket{
-								FullWeight:  &oldFullWeight,
-								EmptyWeight: &oldEmptyWeight,
-							},
-						}),
+			oldPPMShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, []factory.Customization{
+				{
+					Model: models.PPMShipment{
+						ActualPickupPostalCode:      models.StringPointer("90210"),
+						ActualDestinationPostalCode: models.StringPointer("30813"),
+						ActualMoveDate:              models.TimePointer(moveDate),
+						FinalIncentive:              models.CentPointer(unit.Cents(500000)),
+					},
+				},
+				{
+					Model: models.WeightTicket{
+						FullWeight:  &oldFullWeight,
+						EmptyWeight: &oldEmptyWeight,
 					},
 				},
 			})
+
+			// tests pass even if status is Needs Payment Approval,
+			// but preserve in case it matters
+			oldPPMShipment.Status = models.PPMShipmentStatusWaitingOnCustomer
 
 			newPPM := oldPPMShipment
 			newFullWeight1 := unit.Pound(8000)
@@ -963,24 +979,27 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			oldEmptyWeight := unit.Pound(6000)
 			rejected := models.PPMDocumentStatusRejected
 			moveDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
-			oldPPMShipment := testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{
-				PPMShipment: models.PPMShipment{
-					ActualPickupPostalCode:      models.StringPointer("90210"),
-					ActualDestinationPostalCode: models.StringPointer("30813"),
-					ActualMoveDate:              models.TimePointer(moveDate),
-					FinalIncentive:              models.CentPointer(unit.Cents(500000)),
-					Status:                      models.PPMShipmentStatusWaitingOnCustomer,
-					WeightTickets: models.WeightTickets{
-						testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{
-							WeightTicket: models.WeightTicket{
-								FullWeight:  &oldFullWeight,
-								EmptyWeight: &oldEmptyWeight,
-								Status:      &rejected,
-							},
-						}),
+			oldPPMShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, []factory.Customization{
+				{
+					Model: models.PPMShipment{
+						ActualPickupPostalCode:      models.StringPointer("90210"),
+						ActualDestinationPostalCode: models.StringPointer("30813"),
+						ActualMoveDate:              models.TimePointer(moveDate),
+						FinalIncentive:              models.CentPointer(unit.Cents(500000)),
+					},
+				},
+				{
+					Model: models.WeightTicket{
+						FullWeight:  &oldFullWeight,
+						EmptyWeight: &oldEmptyWeight,
+						Status:      &rejected,
 					},
 				},
 			})
+
+			// tests pass even if status is Needs Payment Approval,
+			// but preserve in case it matters
+			oldPPMShipment.Status = models.PPMShipmentStatusWaitingOnCustomer
 
 			approved := models.PPMDocumentStatusApproved
 			newPPM := oldPPMShipment
@@ -1010,23 +1029,26 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			oldFullWeight := unit.Pound(10000)
 			oldEmptyWeight := unit.Pound(6000)
 			moveDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
-			oldPPMShipment := testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{
-				PPMShipment: models.PPMShipment{
-					ActualPickupPostalCode:      models.StringPointer("90210"),
-					ActualDestinationPostalCode: models.StringPointer("30813"),
-					ActualMoveDate:              models.TimePointer(moveDate),
-					FinalIncentive:              models.CentPointer(unit.Cents(500000)),
-					Status:                      models.PPMShipmentStatusWaitingOnCustomer,
-					WeightTickets: models.WeightTickets{
-						testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{
-							WeightTicket: models.WeightTicket{
-								FullWeight:  &oldFullWeight,
-								EmptyWeight: &oldEmptyWeight,
-							},
-						}),
+			oldPPMShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, []factory.Customization{
+				{
+					Model: models.PPMShipment{
+						ActualPickupPostalCode:      models.StringPointer("90210"),
+						ActualDestinationPostalCode: models.StringPointer("30813"),
+						ActualMoveDate:              models.TimePointer(moveDate),
+						FinalIncentive:              models.CentPointer(unit.Cents(500000)),
+					},
+				},
+				{
+					Model: models.WeightTicket{
+						FullWeight:  &oldFullWeight,
+						EmptyWeight: &oldEmptyWeight,
 					},
 				},
 			})
+
+			// tests pass even if status is Needs Payment Approval,
+			// but preserve in case it matters
+			oldPPMShipment.Status = models.PPMShipmentStatusWaitingOnCustomer
 
 			approved := models.PPMDocumentStatusApproved
 			newPPM := oldPPMShipment
@@ -1062,23 +1084,26 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			oldFullWeight := unit.Pound(10000)
 			oldEmptyWeight := unit.Pound(6000)
 			moveDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
-			oldPPMShipment := testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{
-				PPMShipment: models.PPMShipment{
-					ActualPickupPostalCode:      models.StringPointer("90210"),
-					ActualDestinationPostalCode: models.StringPointer("30813"),
-					ActualMoveDate:              models.TimePointer(moveDate),
-					FinalIncentive:              models.CentPointer(unit.Cents(500000)),
-					Status:                      models.PPMShipmentStatusWaitingOnCustomer,
-					WeightTickets: models.WeightTickets{
-						testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{
-							WeightTicket: models.WeightTicket{
-								FullWeight:  &oldFullWeight,
-								EmptyWeight: &oldEmptyWeight,
-							},
-						}),
+			oldPPMShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, []factory.Customization{
+				{
+					Model: models.PPMShipment{
+						ActualPickupPostalCode:      models.StringPointer("90210"),
+						ActualDestinationPostalCode: models.StringPointer("30813"),
+						ActualMoveDate:              models.TimePointer(moveDate),
+						FinalIncentive:              models.CentPointer(unit.Cents(500000)),
+					},
+				},
+				{
+					Model: models.WeightTicket{
+						FullWeight:  &oldFullWeight,
+						EmptyWeight: &oldEmptyWeight,
 					},
 				},
 			})
+
+			// tests pass even if status is Needs Payment Approval,
+			// but preserve in case it matters
+			oldPPMShipment.Status = models.PPMShipmentStatusWaitingOnCustomer
 
 			newPPM := oldPPMShipment
 			approved := models.PPMDocumentStatusApproved
@@ -1115,23 +1140,26 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			oldFullWeight := unit.Pound(10000)
 			oldEmptyWeight := unit.Pound(6000)
 			moveDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
-			oldPPMShipment := testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{
-				PPMShipment: models.PPMShipment{
-					ActualPickupPostalCode:      models.StringPointer("90210"),
-					ActualDestinationPostalCode: models.StringPointer("30813"),
-					ActualMoveDate:              models.TimePointer(moveDate),
-					FinalIncentive:              models.CentPointer(unit.Cents(500000)),
-					Status:                      models.PPMShipmentStatusWaitingOnCustomer,
-					WeightTickets: models.WeightTickets{
-						testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{
-							WeightTicket: models.WeightTicket{
-								FullWeight:  &oldFullWeight,
-								EmptyWeight: &oldEmptyWeight,
-							},
-						}),
+			oldPPMShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, []factory.Customization{
+				{
+					Model: models.PPMShipment{
+						ActualPickupPostalCode:      models.StringPointer("90210"),
+						ActualDestinationPostalCode: models.StringPointer("30813"),
+						ActualMoveDate:              models.TimePointer(moveDate),
+						FinalIncentive:              models.CentPointer(unit.Cents(500000)),
+					},
+				},
+				{
+					Model: models.WeightTicket{
+						FullWeight:  &oldFullWeight,
+						EmptyWeight: &oldEmptyWeight,
 					},
 				},
 			})
+
+			// tests pass even if status is Needs Payment Approval,
+			// but preserve in case it matters
+			oldPPMShipment.Status = models.PPMShipmentStatusWaitingOnCustomer
 
 			newPPMShipment := oldPPMShipment
 			updatedMoveDate := time.Date(2020, time.March, 25, 0, 0, 0, 0, time.UTC)
@@ -1146,23 +1174,26 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			oldFullWeight := unit.Pound(10000)
 			oldEmptyWeight := unit.Pound(6000)
 			moveDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
-			oldPPMShipment := testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{
-				PPMShipment: models.PPMShipment{
-					ActualPickupPostalCode:      models.StringPointer("90210"),
-					ActualDestinationPostalCode: models.StringPointer("30813"),
-					ActualMoveDate:              models.TimePointer(moveDate),
-					FinalIncentive:              models.CentPointer(unit.Cents(500000)),
-					Status:                      models.PPMShipmentStatusWaitingOnCustomer,
-					WeightTickets: models.WeightTickets{
-						testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{
-							WeightTicket: models.WeightTicket{
-								FullWeight:  &oldFullWeight,
-								EmptyWeight: &oldEmptyWeight,
-							},
-						}),
+			oldPPMShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, []factory.Customization{
+				{
+					Model: models.PPMShipment{
+						ActualPickupPostalCode:      models.StringPointer("90210"),
+						ActualDestinationPostalCode: models.StringPointer("30813"),
+						ActualMoveDate:              models.TimePointer(moveDate),
+						FinalIncentive:              models.CentPointer(unit.Cents(500000)),
+					},
+				},
+				{
+					Model: models.WeightTicket{
+						FullWeight:  &oldFullWeight,
+						EmptyWeight: &oldEmptyWeight,
 					},
 				},
 			})
+
+			// tests pass even if status is Needs Payment Approval,
+			// but preserve in case it matters
+			oldPPMShipment.Status = models.PPMShipmentStatusWaitingOnCustomer
 
 			//Assert false is returned when the ActualDestinationPostalCode is changed
 			newPPMShipment1 := oldPPMShipment
@@ -1185,23 +1216,26 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			oldFullWeight := unit.Pound(10000)
 			oldEmptyWeight := unit.Pound(6000)
 			moveDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
-			oldPPMShipment := testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{
-				PPMShipment: models.PPMShipment{
-					ActualPickupPostalCode:      models.StringPointer("90210"),
-					ActualDestinationPostalCode: models.StringPointer("30813"),
-					ActualMoveDate:              models.TimePointer(moveDate),
-					FinalIncentive:              models.CentPointer(unit.Cents(500000)),
-					Status:                      models.PPMShipmentStatusWaitingOnCustomer,
-					WeightTickets: models.WeightTickets{
-						testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{
-							WeightTicket: models.WeightTicket{
-								FullWeight:  &oldFullWeight,
-								EmptyWeight: &oldEmptyWeight,
-							},
-						}),
+			oldPPMShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, []factory.Customization{
+				{
+					Model: models.PPMShipment{
+						ActualPickupPostalCode:      models.StringPointer("90210"),
+						ActualDestinationPostalCode: models.StringPointer("30813"),
+						ActualMoveDate:              models.TimePointer(moveDate),
+						FinalIncentive:              models.CentPointer(unit.Cents(500000)),
+					},
+				},
+				{
+					Model: models.WeightTicket{
+						FullWeight:  &oldFullWeight,
+						EmptyWeight: &oldEmptyWeight,
 					},
 				},
 			})
+
+			// tests pass even if status is Needs Payment Approval,
+			// but preserve in case it matters
+			oldPPMShipment.Status = models.PPMShipmentStatusWaitingOnCustomer
 
 			newPPMShipment := oldPPMShipment
 			newFullWeight := unit.Pound(10000)
@@ -1238,7 +1272,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 				},
 			}, nil)
 			oldPPMShipment.WeightTickets = models.WeightTickets{
-				testdatagen.MakeDefaultWeightTicket(suite.DB()),
+				factory.BuildWeightTicket(suite.DB(), nil, nil),
 			}
 			newPPM := oldPPMShipment
 			address := factory.BuildAddress(suite.DB(), nil, nil)
@@ -1286,7 +1320,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 				},
 			}, nil)
 			oldPPMShipment.WeightTickets = models.WeightTickets{
-				testdatagen.MakeDefaultWeightTicket(suite.DB()),
+				factory.BuildWeightTicket(suite.DB(), nil, nil),
 			}
 
 			newPPM := oldPPMShipment

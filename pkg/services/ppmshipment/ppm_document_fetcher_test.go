@@ -9,7 +9,6 @@ import (
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
-	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
@@ -25,9 +24,7 @@ func (suite *PPMShipmentSuite) TestPPMDocumentFetcher() {
 
 	makePPMShipmentWithAllDocuments := func(appCtx appcontext.AppContext) *models.PPMShipment {
 		// Set up PPM shipment that is at the correct stage of processing for when we would typically use this service
-		ppmShipment := testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{
-			UserUploader: userUploader,
-		})
+		ppmShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), userUploader, nil)
 
 		suite.NotNil(ppmShipment)
 
@@ -53,11 +50,23 @@ func (suite *PPMShipmentSuite) TestPPMDocumentFetcher() {
 		// types of documents, so we'll add some more here.
 		ppmShipment.MovingExpenses = append(
 			ppmShipment.MovingExpenses,
-			testdatagen.MakeMovingExpense(suite.DB(), testdatagen.Assertions{
-				ServiceMember: ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember,
-				PPMShipment:   ppmShipment,
-				UserUploader:  userUploader,
-			}),
+			factory.BuildMovingExpense(suite.DB(), []factory.Customization{
+				{
+					Model:    ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember,
+					LinkOnly: true,
+				},
+				{
+					Model:    ppmShipment,
+					LinkOnly: true,
+				},
+				{
+					Model: models.UserUpload{},
+					ExtendedParams: &factory.UserUploadExtendedParams{
+						UserUploader: userUploader,
+						AppContext:   suite.AppContextForTest(),
+					},
+				},
+			}, nil),
 		)
 
 		// Add an extra upload to the moving expense document to verify we get all non-deleted uploads later
@@ -80,11 +89,23 @@ func (suite *PPMShipmentSuite) TestPPMDocumentFetcher() {
 
 		ppmShipment.ProgearWeightTickets = append(
 			ppmShipment.ProgearWeightTickets,
-			testdatagen.MakeProgearWeightTicket(suite.DB(), testdatagen.Assertions{
-				ServiceMember: ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember,
-				PPMShipment:   ppmShipment,
-				UserUploader:  userUploader,
-			}),
+			factory.BuildProgearWeightTicket(suite.DB(), []factory.Customization{
+				{
+					Model:    ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember,
+					LinkOnly: true,
+				},
+				{
+					Model:    ppmShipment,
+					LinkOnly: true,
+				},
+				{
+					Model: models.UserUpload{},
+					ExtendedParams: &factory.UserUploadExtendedParams{
+						UserUploader: userUploader,
+						AppContext:   suite.AppContextForTest(),
+					},
+				},
+			}, nil),
 		)
 
 		// Add an extra upload to the progear weight ticket document to verify we get all non-deleted uploads later
@@ -165,11 +186,12 @@ func (suite *PPMShipmentSuite) TestPPMDocumentFetcher() {
 		// stage using our `utilities.SoftDestroy` function because of the related SignedCertification missing the
 		// DeletedAt field, so we'll just set the PPMShipment.DeletedAt field directly.
 		now := time.Now()
-		ppmShipmentToDelete := testdatagen.MakePPMShipmentThatNeedsPaymentApproval(appCtx.DB(), testdatagen.Assertions{
-			PPMShipment: models.PPMShipment{
-				DeletedAt: &now,
+		ppmShipmentToDelete := factory.BuildPPMShipmentThatNeedsPaymentApproval(appCtx.DB(), userUploader, []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					DeletedAt: &now,
+				},
 			},
-			UserUploader: userUploader,
 		})
 
 		fetchedDocument, err := ppmDocumentFetcher.GetPPMDocuments(suite.AppContextForTest(), ppmShipmentToDelete.Shipment.ID)

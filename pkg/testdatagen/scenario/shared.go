@@ -1011,12 +1011,16 @@ func createApprovedMoveWithPPMWeightTicket(appCtx appcontext.AppContext, userUpl
 
 	move, shipment := CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
 
-	weightTicketAssertions := testdatagen.Assertions{
-		PPMShipment:   shipment,
-		ServiceMember: move.Orders.ServiceMember,
-	}
-
-	testdatagen.MakeWeightTicket(appCtx.DB(), weightTicketAssertions)
+	factory.BuildWeightTicket(appCtx.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    move.Orders.ServiceMember,
+			LinkOnly: true,
+		},
+	}, nil)
 }
 
 func createApprovedMoveWithPPMExcessWeight(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveInfo MoveCreatorInfo) (models.Move, models.PPMShipment) {
@@ -1048,15 +1052,22 @@ func createApprovedMoveWithPPMExcessWeight(appCtx appcontext.AppContext, userUpl
 
 	move, shipment := CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
 
-	weightTicketAssertions := testdatagen.Assertions{
-		PPMShipment:   shipment,
-		ServiceMember: move.Orders.ServiceMember,
-		WeightTicket: models.WeightTicket{
-			EmptyWeight: models.PoundPointer(unit.Pound(1000)),
-			FullWeight:  models.PoundPointer(unit.Pound(20000)),
+	factory.BuildWeightTicket(appCtx.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
 		},
-	}
-	testdatagen.MakeWeightTicket(appCtx.DB(), weightTicketAssertions)
+		{
+			Model:    move.Orders.ServiceMember,
+			LinkOnly: true,
+		},
+		{
+			Model: models.WeightTicket{
+				EmptyWeight: models.PoundPointer(unit.Pound(1000)),
+				FullWeight:  models.PoundPointer(unit.Pound(20000)),
+			},
+		},
+	}, nil)
 
 	return move, shipment
 }
@@ -1072,18 +1083,27 @@ func createApprovedMoveWithPPMExcessWeightsAnd2WeightTickets(appCtx appcontext.A
 			MoveID:      uuid.Must(uuid.NewV4()),
 			MoveLocator: "XSWT02",
 		})
-	secondWeightTicketAssertions := testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			Status: models.MTOShipmentStatusApproved,
+	factory.BuildWeightTicket(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				Status: models.MTOShipmentStatusApproved,
+			},
 		},
-		PPMShipment:   shipment,
-		ServiceMember: move.Orders.ServiceMember,
-		WeightTicket: models.WeightTicket{
-			EmptyWeight: models.PoundPointer(unit.Pound(1000)),
-			FullWeight:  models.PoundPointer(unit.Pound(20000)),
+		{
+			Model:    shipment,
+			LinkOnly: true,
 		},
-	}
-	testdatagen.MakeWeightTicket(appCtx.DB(), secondWeightTicketAssertions)
+		{
+			Model:    move.Orders.ServiceMember,
+			LinkOnly: true,
+		},
+		{
+			Model: models.WeightTicket{
+				EmptyWeight: models.PoundPointer(unit.Pound(1000)),
+				FullWeight:  models.PoundPointer(unit.Pound(20000)),
+			},
+		},
+	}, nil)
 }
 
 func createApprovedMoveWith2PPMShipmentsAndExcessWeights(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -1108,15 +1128,22 @@ func createApprovedMoveWith2PPMShipmentsAndExcessWeights(appCtx appcontext.AppCo
 			},
 		},
 	}, nil)
-	secondWeightTicketAssertions := testdatagen.Assertions{
-		PPMShipment:   secondPPMShipment,
-		ServiceMember: move.Orders.ServiceMember,
-		WeightTicket: models.WeightTicket{
-			EmptyWeight: models.PoundPointer(unit.Pound(1000)),
-			FullWeight:  models.PoundPointer(unit.Pound(20000)),
+	factory.BuildWeightTicket(appCtx.DB(), []factory.Customization{
+		{
+			Model:    secondPPMShipment,
+			LinkOnly: true,
 		},
-	}
-	testdatagen.MakeWeightTicket(appCtx.DB(), secondWeightTicketAssertions)
+		{
+			Model:    move.Orders.ServiceMember,
+			LinkOnly: true,
+		},
+		{
+			Model: models.WeightTicket{
+				EmptyWeight: models.PoundPointer(unit.Pound(1000)),
+				FullWeight:  models.PoundPointer(unit.Pound(20000)),
+			},
+		},
+	}, nil)
 }
 
 func createApprovedMoveWithPPMAndHHGShipmentsAndExcessWeights(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -1209,13 +1236,23 @@ func createApprovedMoveWithPPMCloseoutComplete(appCtx appcontext.AppContext, use
 
 	move, shipment := CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
 
-	weightTicketAssertions := testdatagen.Assertions{
-		PPMShipment:   shipment,
-		ServiceMember: move.Orders.ServiceMember,
-		UserUploader:  userUploader,
-	}
-
-	testdatagen.MakeWeightTicket(appCtx.DB(), weightTicketAssertions)
+	factory.BuildWeightTicket(appCtx.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    move.Orders.ServiceMember,
+			LinkOnly: true,
+		},
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
 }
 
 func createApprovedMoveWithPPMCloseoutCompleteMultipleWeightTickets(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -1259,15 +1296,41 @@ func createApprovedMoveWithPPMCloseoutCompleteMultipleWeightTickets(appCtx appco
 
 	move, shipment := CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
 
-	weightTicketAssertions := testdatagen.Assertions{
-		PPMShipment:   shipment,
-		ServiceMember: move.Orders.ServiceMember,
-		UserUploader:  userUploader,
-	}
+	factory.BuildWeightTicket(appCtx.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    move.Orders.ServiceMember,
+			LinkOnly: true,
+		},
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
 
-	testdatagen.MakeWeightTicket(appCtx.DB(), weightTicketAssertions)
-
-	testdatagen.MakeWeightTicketWithConstructedWeight(appCtx.DB(), weightTicketAssertions)
+	factory.BuildWeightTicketWithConstructedWeight(appCtx.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    move.Orders.ServiceMember,
+			LinkOnly: true,
+		},
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
 }
 
 func createApprovedMoveWithPPMCloseoutCompleteWithExpenses(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -1311,25 +1374,51 @@ func createApprovedMoveWithPPMCloseoutCompleteWithExpenses(appCtx appcontext.App
 
 	move, shipment := CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
 
-	testdatagen.MakeMovingExpense(appCtx.DB(), testdatagen.Assertions{
-		PPMShipment:   shipment,
-		ServiceMember: move.Orders.ServiceMember,
-		UserUploader:  userUploader,
-	})
+	factory.BuildMovingExpense(appCtx.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    move.Orders.ServiceMember,
+			LinkOnly: true,
+		},
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
 
 	storageType := models.MovingExpenseReceiptTypeStorage
 
-	testdatagen.MakeMovingExpense(appCtx.DB(), testdatagen.Assertions{
-		PPMShipment:   shipment,
-		ServiceMember: move.Orders.ServiceMember,
-		UserUploader:  userUploader,
-		MovingExpense: models.MovingExpense{
-			MovingExpenseType: &storageType,
-			Description:       models.StringPointer("Storage R Us monthly rental unit"),
-			SITStartDate:      models.TimePointer(time.Now()),
-			SITEndDate:        models.TimePointer(time.Now().Add(30 * 24 * time.Hour)),
+	factory.BuildMovingExpense(appCtx.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    move.Orders.ServiceMember,
+			LinkOnly: true,
+		},
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+		{
+			Model: models.MovingExpense{
+				MovingExpenseType: &storageType,
+				Description:       models.StringPointer("Storage R Us monthly rental unit"),
+				SITStartDate:      models.TimePointer(time.Now()),
+				SITEndDate:        models.TimePointer(time.Now().Add(30 * 24 * time.Hour)),
+			},
+		},
+	}, nil)
 }
 
 func createApprovedMoveWithPPMCloseoutCompleteWithAllDocTypes(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -1373,27 +1462,62 @@ func createApprovedMoveWithPPMCloseoutCompleteWithAllDocTypes(appCtx appcontext.
 
 	move, shipment := CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
 
-	weightTicketAssertions := testdatagen.Assertions{
-		PPMShipment:   shipment,
-		ServiceMember: move.Orders.ServiceMember,
-		UserUploader:  userUploader,
-	}
+	factory.BuildWeightTicketWithConstructedWeight(appCtx.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    move.Orders.ServiceMember,
+			LinkOnly: true,
+		},
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
 
-	testdatagen.MakeWeightTicketWithConstructedWeight(appCtx.DB(), weightTicketAssertions)
+	factory.BuildMovingExpense(appCtx.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    move.Orders.ServiceMember,
+			LinkOnly: true,
+		},
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+				File:         factory.FixtureOpen("test.png"),
+			},
+		},
+	}, nil)
 
-	testdatagen.MakeMovingExpense(appCtx.DB(), testdatagen.Assertions{
-		ServiceMember: shipment.Shipment.MoveTaskOrder.Orders.ServiceMember,
-		PPMShipment:   shipment,
-		UserUploader:  userUploader,
-		File:          factory.FixtureOpen("test.png"),
-	})
+	factory.BuildProgearWeightTicket(appCtx.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    shipment.Shipment.MoveTaskOrder.Orders.ServiceMember,
+			LinkOnly: true,
+		},
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+				File:         factory.FixtureOpen("test.jpg"),
+			},
+		},
+	}, nil)
 
-	testdatagen.MakeProgearWeightTicket(appCtx.DB(), testdatagen.Assertions{
-		ServiceMember: shipment.Shipment.MoveTaskOrder.Orders.ServiceMember,
-		PPMShipment:   shipment,
-		UserUploader:  userUploader,
-		File:          factory.FixtureOpen("test.jpg"),
-	})
 }
 
 func createApprovedMoveWithPPMWithAboutFormComplete(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -1750,25 +1874,46 @@ func createApprovedMoveWithPPMMovingExpense(appCtx appcontext.AppContext, info *
 
 	move, shipment := CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
 
-	ppmCloseoutAssertions := testdatagen.Assertions{
-		PPMShipment:   shipment,
-		ServiceMember: move.Orders.ServiceMember,
-	}
-	testdatagen.MakeWeightTicket(appCtx.DB(), ppmCloseoutAssertions)
-	testdatagen.MakeMovingExpense(appCtx.DB(), ppmCloseoutAssertions)
+	factory.BuildWeightTicket(appCtx.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    move.Orders.ServiceMember,
+			LinkOnly: true,
+		},
+	}, nil)
+	factory.BuildMovingExpense(appCtx.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    move.Orders.ServiceMember,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	storageExpenseType := models.MovingExpenseReceiptTypeStorage
-	storageExpenseAssertions := testdatagen.Assertions{
-		PPMShipment:   shipment,
-		ServiceMember: move.Orders.ServiceMember,
-		MovingExpense: models.MovingExpense{
-			MovingExpenseType: &storageExpenseType,
-			Description:       models.StringPointer("Storage R Us monthly rental unit"),
-			SITStartDate:      models.TimePointer(time.Now()),
-			SITEndDate:        models.TimePointer(time.Now().Add(30 * 24 * time.Hour)),
+	factory.BuildMovingExpense(appCtx.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
 		},
-	}
-	testdatagen.MakeMovingExpense(appCtx.DB(), storageExpenseAssertions)
+		{
+			Model:    move.Orders.ServiceMember,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MovingExpense{
+				MovingExpenseType: &storageExpenseType,
+				Description:       models.StringPointer("Storage R Us monthly rental unit"),
+				SITStartDate:      models.TimePointer(time.Now()),
+				SITEndDate:        models.TimePointer(time.Now().Add(30 * 24 * time.Hour)),
+			},
+		},
+	}, nil)
 }
 
 func createApprovedMoveWithPPMProgearWeightTicket(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -1809,13 +1954,36 @@ func createApprovedMoveWithPPMProgearWeightTicket(appCtx appcontext.AppContext, 
 
 	move, shipment := CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
 
-	ppmCloseoutAssertions := testdatagen.Assertions{
-		PPMShipment:   shipment,
-		ServiceMember: move.Orders.ServiceMember,
-	}
-	testdatagen.MakeWeightTicket(appCtx.DB(), ppmCloseoutAssertions)
-	testdatagen.MakeMovingExpense(appCtx.DB(), ppmCloseoutAssertions)
-	testdatagen.MakeProgearWeightTicket(appCtx.DB(), ppmCloseoutAssertions)
+	factory.BuildWeightTicket(appCtx.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    move.Orders.ServiceMember,
+			LinkOnly: true,
+		},
+	}, nil)
+	factory.BuildMovingExpense(appCtx.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    move.Orders.ServiceMember,
+			LinkOnly: true,
+		},
+	}, nil)
+	factory.BuildProgearWeightTicket(appCtx.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    move.Orders.ServiceMember,
+			LinkOnly: true,
+		},
+	}, nil)
 }
 
 func createApprovedMoveWithPPMProgearWeightTicket2(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -1857,13 +2025,36 @@ func createApprovedMoveWithPPMProgearWeightTicket2(appCtx appcontext.AppContext,
 
 	move, shipment := CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
 
-	ppmCloseoutAssertions := testdatagen.Assertions{
-		PPMShipment:   shipment,
-		ServiceMember: move.Orders.ServiceMember,
-	}
-	testdatagen.MakeWeightTicket(appCtx.DB(), ppmCloseoutAssertions)
-	testdatagen.MakeMovingExpense(appCtx.DB(), ppmCloseoutAssertions)
-	testdatagen.MakeProgearWeightTicket(appCtx.DB(), ppmCloseoutAssertions)
+	factory.BuildWeightTicket(appCtx.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    move.Orders.ServiceMember,
+			LinkOnly: true,
+		},
+	}, nil)
+	factory.BuildMovingExpense(appCtx.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    move.Orders.ServiceMember,
+			LinkOnly: true,
+		},
+	}, nil)
+	factory.BuildProgearWeightTicket(appCtx.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    move.Orders.ServiceMember,
+			LinkOnly: true,
+		},
+	}, nil)
 }
 
 func createMoveWithPPMShipmentReadyForFinalCloseout(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -1913,30 +2104,54 @@ func createMoveWithPPMShipmentReadyForFinalCloseout(appCtx appcontext.AppContext
 	// CloseoutOffice model
 	move, shipment := CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
 
-	testdatagen.MakeWeightTicket(appCtx.DB(), testdatagen.Assertions{
-		PPMShipment:   shipment,
-		ServiceMember: move.Orders.ServiceMember,
-		WeightTicket: models.WeightTicket{
-			EmptyWeight: models.PoundPointer(14000),
-			FullWeight:  models.PoundPointer(18000),
+	factory.BuildWeightTicket(appCtx.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    move.Orders.ServiceMember,
+			LinkOnly: true,
+		},
+		{
+			Model: models.WeightTicket{
+				EmptyWeight: models.PoundPointer(14000),
+				FullWeight:  models.PoundPointer(18000),
+			},
+		},
+	}, nil)
 
-	testdatagen.MakeMovingExpense(appCtx.DB(), testdatagen.Assertions{
-		PPMShipment:   shipment,
-		ServiceMember: move.Orders.ServiceMember,
-		MovingExpense: models.MovingExpense{
-			Amount: models.CentPointer(45000),
+	factory.BuildMovingExpense(appCtx.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    move.Orders.ServiceMember,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MovingExpense{
+				Amount: models.CentPointer(45000),
+			},
+		},
+	}, nil)
 
-	testdatagen.MakeProgearWeightTicket(appCtx.DB(), testdatagen.Assertions{
-		PPMShipment:   shipment,
-		ServiceMember: move.Orders.ServiceMember,
-		ProgearWeightTicket: models.ProgearWeightTicket{
-			Weight: models.PoundPointer(1500),
+	factory.BuildProgearWeightTicket(appCtx.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    move.Orders.ServiceMember,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ProgearWeightTicket{
+				Weight: models.PoundPointer(1500),
+			},
+		},
+	}, nil)
 }
 
 func createMoveWithPPMShipmentReadyForFinalCloseout2(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -1977,30 +2192,54 @@ func createMoveWithPPMShipmentReadyForFinalCloseout2(appCtx appcontext.AppContex
 
 	move, shipment := CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
 
-	testdatagen.MakeWeightTicket(appCtx.DB(), testdatagen.Assertions{
-		PPMShipment:   shipment,
-		ServiceMember: move.Orders.ServiceMember,
-		WeightTicket: models.WeightTicket{
-			EmptyWeight: models.PoundPointer(14000),
-			FullWeight:  models.PoundPointer(18000),
+	factory.BuildWeightTicket(appCtx.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    move.Orders.ServiceMember,
+			LinkOnly: true,
+		},
+		{
+			Model: models.WeightTicket{
+				EmptyWeight: models.PoundPointer(14000),
+				FullWeight:  models.PoundPointer(18000),
+			},
+		},
+	}, nil)
 
-	testdatagen.MakeMovingExpense(appCtx.DB(), testdatagen.Assertions{
-		PPMShipment:   shipment,
-		ServiceMember: move.Orders.ServiceMember,
-		MovingExpense: models.MovingExpense{
-			Amount: models.CentPointer(45000),
+	factory.BuildMovingExpense(appCtx.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    move.Orders.ServiceMember,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MovingExpense{
+				Amount: models.CentPointer(45000),
+			},
+		},
+	}, nil)
 
-	testdatagen.MakeProgearWeightTicket(appCtx.DB(), testdatagen.Assertions{
-		PPMShipment:   shipment,
-		ServiceMember: move.Orders.ServiceMember,
-		ProgearWeightTicket: models.ProgearWeightTicket{
-			Weight: models.PoundPointer(1500),
+	factory.BuildProgearWeightTicket(appCtx.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    move.Orders.ServiceMember,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ProgearWeightTicket{
+				Weight: models.PoundPointer(1500),
+			},
+		},
+	}, nil)
 }
 
 func createMoveWithPPMShipmentReadyForFinalCloseout3(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -2041,30 +2280,54 @@ func createMoveWithPPMShipmentReadyForFinalCloseout3(appCtx appcontext.AppContex
 
 	move, shipment := CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
 
-	testdatagen.MakeWeightTicket(appCtx.DB(), testdatagen.Assertions{
-		PPMShipment:   shipment,
-		ServiceMember: move.Orders.ServiceMember,
-		WeightTicket: models.WeightTicket{
-			EmptyWeight: models.PoundPointer(14000),
-			FullWeight:  models.PoundPointer(18000),
+	factory.BuildWeightTicket(appCtx.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    move.Orders.ServiceMember,
+			LinkOnly: true,
+		},
+		{
+			Model: models.WeightTicket{
+				EmptyWeight: models.PoundPointer(14000),
+				FullWeight:  models.PoundPointer(18000),
+			},
+		},
+	}, nil)
 
-	testdatagen.MakeMovingExpense(appCtx.DB(), testdatagen.Assertions{
-		PPMShipment:   shipment,
-		ServiceMember: move.Orders.ServiceMember,
-		MovingExpense: models.MovingExpense{
-			Amount: models.CentPointer(45000),
+	factory.BuildMovingExpense(appCtx.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    move.Orders.ServiceMember,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MovingExpense{
+				Amount: models.CentPointer(45000),
+			},
+		},
+	}, nil)
 
-	testdatagen.MakeProgearWeightTicket(appCtx.DB(), testdatagen.Assertions{
-		PPMShipment:   shipment,
-		ServiceMember: move.Orders.ServiceMember,
-		ProgearWeightTicket: models.ProgearWeightTicket{
-			Weight: models.PoundPointer(1500),
+	factory.BuildProgearWeightTicket(appCtx.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    move.Orders.ServiceMember,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ProgearWeightTicket{
+				Weight: models.PoundPointer(1500),
+			},
+		},
+	}, nil)
 }
 
 func createSubmittedMoveWithPPMShipment(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
@@ -3674,7 +3937,8 @@ func createNTSRMove(appCtx appcontext.AppContext) {
 }
 
 func createDefaultHHGMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, affiliation models.ServiceMemberAffiliation) {
-	createHHGMoveWithPaymentRequest(appCtx, userUploader, affiliation, testdatagen.Assertions{})
+	createHHGMoveWithPaymentRequest(appCtx, userUploader, affiliation,
+		models.Move{}, models.MTOShipment{})
 }
 
 func matchedByPostalCode(postalCode string) func(addr *models.Address) bool {
@@ -3688,6 +3952,15 @@ func matchedByPostalCode(postalCode string) func(addr *models.Address) bool {
 // address is not changing. 30 days of additional days in SIT are invoiced.
 func createHHGWithOriginSITServiceItems(appCtx appcontext.AppContext, primeUploader *uploader.PrimeUploader, moveRouter services.MoveRouter) {
 	db := appCtx.DB()
+	// Since we want to customize the Contractor ID for prime uploads, create the contractor here first
+	// BuildMove and BuildPrimeUpload both use FetchOrBuildDefaultContractor
+	factory.FetchOrBuildDefaultContractor(db, []factory.Customization{
+		{
+			Model: models.Contractor{
+				ID: primeContractorUUID, // Prime
+			},
+		},
+	}, nil)
 	logger := appCtx.Logger()
 
 	issueDate := time.Date(testdatagen.GHCTestYear, 3, 15, 0, 0, 0, 0, time.UTC)
@@ -3881,25 +4154,19 @@ func createHHGWithOriginSITServiceItems(appCtx appcontext.AppContext, primeUploa
 		logger.Fatal("Error creating payment request", zap.Error(createErr))
 	}
 
-	proofOfService := factory.BuildProofOfServiceDoc(db, []factory.Customization{
+	factory.BuildPrimeUpload(db, []factory.Customization{
 		{
 			Model:    *newPaymentRequest,
 			LinkOnly: true,
 		},
-	}, nil)
-	primeContractor := uuid.FromStringOrNil("5db13bb4-6d29-4bdb-bc81-262f4513ecf6")
-	testdatagen.MakePrimeUpload(db, testdatagen.Assertions{
-		PrimeUpload: models.PrimeUpload{
-			ProofOfServiceDoc:   proofOfService,
-			ProofOfServiceDocID: proofOfService.ID,
-			Contractor: models.Contractor{
-				ID: primeContractor,
+		{
+			Model: models.PrimeUpload{},
+			ExtendedParams: &factory.PrimeUploadExtendedParams{
+				PrimeUploader: primeUploader,
+				AppContext:    appCtx,
 			},
-			ContractorID: primeContractor,
 		},
-		PrimeUploader: primeUploader,
-	})
-
+	}, nil)
 	posImage := factory.BuildProofOfServiceDoc(db, []factory.Customization{
 		{
 			Model:    *newPaymentRequest,
@@ -3908,14 +4175,14 @@ func createHHGWithOriginSITServiceItems(appCtx appcontext.AppContext, primeUploa
 	}, nil)
 	// Creates custom test.jpg prime upload
 	file := testdatagen.Fixture("test.jpg")
-	_, verrs, err = primeUploader.CreatePrimeUploadForDocument(appCtx, &posImage.ID, primeContractor, uploader.File{File: file}, uploader.AllowedTypesPaymentRequest)
+	_, verrs, err = primeUploader.CreatePrimeUploadForDocument(appCtx, &posImage.ID, primeContractorUUID, uploader.File{File: file}, uploader.AllowedTypesPaymentRequest)
 	if verrs.HasAny() || err != nil {
 		logger.Error("errors encountered saving test.jpg prime upload", zap.Error(err))
 	}
 
 	// Creates custom test.png prime upload
 	file = testdatagen.Fixture("test.png")
-	_, verrs, err = primeUploader.CreatePrimeUploadForDocument(appCtx, &posImage.ID, primeContractor, uploader.File{File: file}, uploader.AllowedTypesPaymentRequest)
+	_, verrs, err = primeUploader.CreatePrimeUploadForDocument(appCtx, &posImage.ID, primeContractorUUID, uploader.File{File: file}, uploader.AllowedTypesPaymentRequest)
 	if verrs.HasAny() || err != nil {
 		logger.Error("errors encountered saving test.png prime upload", zap.Error(err))
 	}
@@ -3928,6 +4195,17 @@ func createHHGWithOriginSITServiceItems(appCtx appcontext.AppContext, primeUploa
 // address is not changing. 30 days of additional days in SIT are invoiced.
 func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, primeUploader *uploader.PrimeUploader, moveRouter services.MoveRouter) {
 	db := appCtx.DB()
+
+	// Since we want to customize the Contractor ID for prime uploads, create the contractor here first
+	// BuildMove and BuildPrimeUpload both use FetchOrBuildDefaultContractor
+	factory.FetchOrBuildDefaultContractor(db, []factory.Customization{
+		{
+			Model: models.Contractor{
+				ID: primeContractorUUID, // Prime
+			},
+		},
+	}, nil)
+
 	logger := appCtx.Logger()
 
 	issueDate := time.Date(testdatagen.GHCTestYear, 3, 15, 0, 0, 0, 0, time.UTC)
@@ -4116,25 +4394,19 @@ func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, prime
 		logger.Fatal("Error creating payment request", zap.Error(createErr))
 	}
 
-	proofOfService := factory.BuildProofOfServiceDoc(db, []factory.Customization{
+	factory.BuildPrimeUpload(db, []factory.Customization{
 		{
 			Model:    *newPaymentRequest,
 			LinkOnly: true,
 		},
-	}, nil)
-
-	primeContractor := uuid.FromStringOrNil("5db13bb4-6d29-4bdb-bc81-262f4513ecf6")
-	testdatagen.MakePrimeUpload(db, testdatagen.Assertions{
-		PrimeUpload: models.PrimeUpload{
-			ProofOfServiceDoc:   proofOfService,
-			ProofOfServiceDocID: proofOfService.ID,
-			Contractor: models.Contractor{
-				ID: primeContractor,
+		{
+			Model: models.PrimeUpload{},
+			ExtendedParams: &factory.PrimeUploadExtendedParams{
+				PrimeUploader: primeUploader,
+				AppContext:    appCtx,
 			},
-			ContractorID: primeContractor,
 		},
-		PrimeUploader: primeUploader,
-	})
+	}, nil)
 
 	posImage := factory.BuildProofOfServiceDoc(db, []factory.Customization{
 		{
@@ -4144,14 +4416,14 @@ func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, prime
 	}, nil)
 	// Creates custom test.jpg prime upload
 	file := testdatagen.Fixture("test.jpg")
-	_, verrs, err = primeUploader.CreatePrimeUploadForDocument(appCtx, &posImage.ID, primeContractor, uploader.File{File: file}, uploader.AllowedTypesPaymentRequest)
+	_, verrs, err = primeUploader.CreatePrimeUploadForDocument(appCtx, &posImage.ID, primeContractorUUID, uploader.File{File: file}, uploader.AllowedTypesPaymentRequest)
 	if verrs.HasAny() || err != nil {
 		logger.Error("errors encountered saving test.jpg prime upload", zap.Error(err))
 	}
 
 	// Creates custom test.png prime upload
 	file = testdatagen.Fixture("test.png")
-	_, verrs, err = primeUploader.CreatePrimeUploadForDocument(appCtx, &posImage.ID, primeContractor, uploader.File{File: file}, uploader.AllowedTypesPaymentRequest)
+	_, verrs, err = primeUploader.CreatePrimeUploadForDocument(appCtx, &posImage.ID, primeContractorUUID, uploader.File{File: file}, uploader.AllowedTypesPaymentRequest)
 	if verrs.HasAny() || err != nil {
 		logger.Error("errors encountered saving test.png prime upload", zap.Error(err))
 	}
@@ -4163,6 +4435,15 @@ func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, prime
 // service item pricing params for displaying cost calculations
 func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploader *uploader.PrimeUploader, moveRouter services.MoveRouter) {
 	db := appCtx.DB()
+	// Since we want to customize the Contractor ID for prime uploads, create the contractor here first
+	// BuildMove and BuildPrimeUpload both use FetchOrBuildDefaultContractor
+	factory.FetchOrBuildDefaultContractor(db, []factory.Customization{
+		{
+			Model: models.Contractor{
+				ID: primeContractorUUID, // Prime
+			},
+		},
+	}, nil)
 	logger := appCtx.Logger()
 
 	issueDate := time.Date(testdatagen.GHCTestYear, 3, 15, 0, 0, 0, 0, time.UTC)
@@ -4752,26 +5033,19 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 		logger.Fatal("Error creating payment request", zap.Error(createErr))
 	}
 
-	proofOfService := factory.BuildProofOfServiceDoc(db, []factory.Customization{
+	factory.BuildPrimeUpload(db, []factory.Customization{
 		{
 			Model:    *newPaymentRequest,
 			LinkOnly: true,
 		},
-	}, nil)
-
-	primeContractor := uuid.FromStringOrNil("5db13bb4-6d29-4bdb-bc81-262f4513ecf6")
-	testdatagen.MakePrimeUpload(db, testdatagen.Assertions{
-		PrimeUpload: models.PrimeUpload{
-			ProofOfServiceDoc:   proofOfService,
-			ProofOfServiceDocID: proofOfService.ID,
-			Contractor: models.Contractor{
-				ID: primeContractor,
+		{
+			Model: models.PrimeUpload{},
+			ExtendedParams: &factory.PrimeUploadExtendedParams{
+				PrimeUploader: primeUploader,
+				AppContext:    appCtx,
 			},
-			ContractorID: primeContractor,
 		},
-		PrimeUploader: primeUploader,
-	})
-
+	}, nil)
 	posImage := factory.BuildProofOfServiceDoc(db, []factory.Customization{
 		{
 			Model:    *newPaymentRequest,
@@ -4781,14 +5055,14 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 
 	// Creates custom test.jpg prime upload
 	file := testdatagen.Fixture("test.jpg")
-	_, verrs, err = primeUploader.CreatePrimeUploadForDocument(appCtx, &posImage.ID, primeContractor, uploader.File{File: file}, uploader.AllowedTypesPaymentRequest)
+	_, verrs, err = primeUploader.CreatePrimeUploadForDocument(appCtx, &posImage.ID, primeContractorUUID, uploader.File{File: file}, uploader.AllowedTypesPaymentRequest)
 	if verrs.HasAny() || err != nil {
 		logger.Error("errors encountered saving test.jpg prime upload", zap.Error(err))
 	}
 
 	// Creates custom test.png prime upload
 	file = testdatagen.Fixture("test.png")
-	_, verrs, err = primeUploader.CreatePrimeUploadForDocument(appCtx, &posImage.ID, primeContractor, uploader.File{File: file}, uploader.AllowedTypesPaymentRequest)
+	_, verrs, err = primeUploader.CreatePrimeUploadForDocument(appCtx, &posImage.ID, primeContractorUUID, uploader.File{File: file}, uploader.AllowedTypesPaymentRequest)
 	if verrs.HasAny() || err != nil {
 		logger.Error("errors encountered saving test.png prime upload", zap.Error(err))
 	}
@@ -4880,39 +5154,37 @@ func CreateMoveWithOptions(appCtx appcontext.AppContext, assertions testdatagen.
 	return move
 }
 
-func createHHGMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, affiliation models.ServiceMemberAffiliation, assertions testdatagen.Assertions) {
+func createHHGMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, affiliation models.ServiceMemberAffiliation, moveTemplate models.Move, mtoShipmentTemplate models.MTOShipment) {
 	db := appCtx.DB()
 	logger := appCtx.Logger()
 	serviceMember := models.ServiceMember{
 		Affiliation: &affiliation,
 	}
-	testdatagen.MergeModels(&serviceMember, assertions.ServiceMember)
 	customer := factory.BuildExtendedServiceMember(db, []factory.Customization{
 		{
 			Model: serviceMember,
 		},
 	}, nil)
 
-	order := models.Order{
-		ServiceMemberID: customer.ID,
-		ServiceMember:   customer,
-	}
-	testdatagen.MergeModels(&order, assertions.Order)
-	// assertions passed in means we cannot yet convert to BuildOrder
-	orders := testdatagen.MakeOrder(db, testdatagen.Assertions{
-		Order:        order,
-		UserUploader: userUploader,
-	})
+	orders := factory.BuildOrder(db, []factory.Customization{
+		{
+			Model:    customer,
+			LinkOnly: true,
+		},
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
 
-	move := models.Move{
-		Status:             models.MoveStatusAPPROVED,
-		AvailableToPrimeAt: models.TimePointer(time.Now()),
-	}
-	testdatagen.MergeModels(&move, assertions.Move)
-
+	moveTemplate.Status = models.MoveStatusAPPROVED
+	moveTemplate.AvailableToPrimeAt = models.TimePointer(time.Now())
 	mto := factory.BuildMove(db, []factory.Customization{
 		{
-			Model: move,
+			Model: moveTemplate,
 		},
 		{
 			Model:    orders,
@@ -4929,17 +5201,14 @@ func createHHGMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader 
 		},
 	}, nil)
 
-	shipment := models.MTOShipment{
-		PrimeEstimatedWeight: &estimatedWeight,
-		PrimeActualWeight:    &actualWeight,
-		ShipmentType:         models.MTOShipmentTypeHHG,
-		ApprovedDate:         models.TimePointer(time.Now()),
-		Status:               models.MTOShipmentStatusSubmitted,
-	}
-	testdatagen.MergeModels(&shipment, assertions.MTOShipment)
+	mtoShipmentTemplate.PrimeEstimatedWeight = &estimatedWeight
+	mtoShipmentTemplate.PrimeActualWeight = &actualWeight
+	mtoShipmentTemplate.ShipmentType = models.MTOShipmentTypeHHG
+	mtoShipmentTemplate.ApprovedDate = models.TimePointer(time.Now())
+	mtoShipmentTemplate.Status = models.MTOShipmentStatusSubmitted
 	MTOShipment := factory.BuildMTOShipment(db, []factory.Customization{
 		{
-			Model: shipment,
+			Model: mtoShipmentTemplate,
 		},
 		{
 			Model:    mto,
@@ -4952,18 +5221,16 @@ func createHHGMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader 
 		},
 	}, nil)
 
-	agent := models.MTOAgent{
-		FirstName:    models.StringPointer("Test"),
-		LastName:     models.StringPointer("Agent"),
-		Email:        models.StringPointer("test@test.email.com"),
-		MTOAgentType: models.MTOAgentReleasing,
-	}
-	testdatagen.MergeModels(&agent, assertions.MTOAgent)
-
-	// assertions passed in means we cannot yet convert to BuildMTOAgent
-	testdatagen.MakeMTOAgent(db, testdatagen.Assertions{
-		MTOAgent: agent,
-	})
+	factory.BuildMTOAgent(db, []factory.Customization{
+		{
+			Model: models.MTOAgent{
+				FirstName:    models.StringPointer("Test"),
+				LastName:     models.StringPointer("Agent"),
+				Email:        models.StringPointer("test@test.email.com"),
+				MTOAgentType: models.MTOAgentReleasing,
+			},
+		},
+	}, nil)
 
 	// setup service item
 	testdatagen.MakeMTOServiceItemDomesticCrating(db, testdatagen.Assertions{
@@ -5551,6 +5818,17 @@ func createHHGMoveWith10ServiceItems(appCtx appcontext.AppContext, userUploader 
 
 func createHHGMoveWith2PaymentRequests(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	db := appCtx.DB()
+
+	// Since we want to customize the Contractor ID for prime uploads, create the contractor here first
+	// BuildMove and BuildPrimeUpload both use FetchOrBuildDefaultContractor
+	factory.FetchOrBuildDefaultContractor(db, []factory.Customization{
+		{
+			Model: models.Contractor{
+				ID: primeContractorUUID, // Prime
+			},
+		},
+	}, nil)
+
 	/* Customer with two payment requests */
 	orders7 := factory.BuildOrder(db, []factory.Customization{
 		{
@@ -5634,25 +5912,17 @@ func createHHGMoveWith2PaymentRequests(appCtx appcontext.AppContext, userUploade
 	}, nil)
 
 	// for soft deleted proof of service docs
-	proofOfService := factory.BuildProofOfServiceDoc(db, []factory.Customization{
+	factory.BuildPrimeUpload(db, []factory.Customization{
 		{
 			Model:    paymentRequest7,
 			LinkOnly: true,
 		},
-	}, nil)
-	deletedAt := time.Now()
-	testdatagen.MakePrimeUpload(db, testdatagen.Assertions{
-		PrimeUpload: models.PrimeUpload{
-			ID:                  uuid.FromStringOrNil("18413213-0aaf-4eb1-8d7f-1b557a4e425b"),
-			ProofOfServiceDoc:   proofOfService,
-			ProofOfServiceDocID: proofOfService.ID,
-			Contractor: models.Contractor{
-				ID: uuid.FromStringOrNil("5db13bb4-6d29-4bdb-bc81-262f4513ecf6"), // Prime
+		{
+			Model: models.PrimeUpload{
+				ID: uuid.FromStringOrNil("18413213-0aaf-4eb1-8d7f-1b557a4e425b"),
 			},
-			ContractorID: uuid.FromStringOrNil("5db13bb4-6d29-4bdb-bc81-262f4513ecf6"),
-			DeletedAt:    &deletedAt,
 		},
-	})
+	}, []factory.Trait{factory.GetTraitPrimeUploadDeleted})
 
 	serviceItemMS7 := factory.BuildMTOServiceItemBasic(db, []factory.Customization{
 		{
@@ -7652,6 +7922,15 @@ func createMoveWith2ShipmentsAndPaymentRequest(appCtx appcontext.AppContext, use
 
 func createHHGMoveWith2PaymentRequestsReviewedAllRejectedServiceItems(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	db := appCtx.DB()
+	// Since we want to customize the Contractor ID for prime uploads, create the contractor here first
+	// BuildMove and BuildPrimeUpload both use FetchOrBuildDefaultContractor
+	factory.FetchOrBuildDefaultContractor(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Contractor{
+				ID: primeContractorUUID, // Prime
+			},
+		},
+	}, nil)
 	/* Customer with two payment requests */
 	orders7 := factory.BuildOrder(db, []factory.Customization{
 		{
@@ -7737,26 +8016,17 @@ func createHHGMoveWith2PaymentRequestsReviewedAllRejectedServiceItems(appCtx app
 	}, nil)
 
 	// for soft deleted proof of service docs
-	proofOfService := factory.BuildProofOfServiceDoc(db, []factory.Customization{
+	factory.BuildPrimeUpload(appCtx.DB(), []factory.Customization{
 		{
 			Model:    paymentRequest7,
 			LinkOnly: true,
 		},
-	}, nil)
-
-	deletedAt := time.Now()
-	testdatagen.MakePrimeUpload(db, testdatagen.Assertions{
-		PrimeUpload: models.PrimeUpload{
-			ID:                  uuid.FromStringOrNil("18413213-0aaf-4eb1-8d7f-ffffffffffff"),
-			ProofOfServiceDoc:   proofOfService,
-			ProofOfServiceDocID: proofOfService.ID,
-			Contractor: models.Contractor{
-				ID: uuid.FromStringOrNil("5db13bb4-6d29-4bdb-bc81-262f4513ecf6"), // Prime
+		{
+			Model: models.PrimeUpload{
+				ID: uuid.FromStringOrNil("18413213-0aaf-4eb1-8d7f-ffffffffffff"),
 			},
-			ContractorID: uuid.FromStringOrNil("5db13bb4-6d29-4bdb-bc81-262f4513ecf6"),
-			DeletedAt:    &deletedAt,
 		},
-	})
+	}, []factory.Trait{factory.GetTraitPrimeUploadDeleted})
 
 	serviceItemMS7 := factory.BuildMTOServiceItemBasic(db, []factory.Customization{
 		{
@@ -9312,20 +9582,29 @@ func createMoveWithServiceItems(appCtx appcontext.AppContext, userUploader *uplo
 		},
 	}, nil)
 
-	assertions9 := testdatagen.Assertions{
-		Move:           move9,
-		MTOShipment:    mtoShipment9,
-		PaymentRequest: paymentRequest9,
+	customizations9 := []factory.Customization{
+		{
+			Model:    move9,
+			LinkOnly: true,
+		},
+		{
+			Model:    mtoShipment9,
+			LinkOnly: true,
+		},
+		{
+			Model:    paymentRequest9,
+			LinkOnly: true,
+		},
 	}
 
 	currentTime := time.Now()
 	const testDateFormat = "060102"
 
-	basicPaymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
+	basicPaymentServiceItemParams := []factory.CreatePaymentServiceItemParams{
 		{
 			Key:     models.ServiceItemParamNameContractCode,
 			KeyType: models.ServiceItemParamTypeString,
-			Value:   testdatagen.DefaultContractCode,
+			Value:   factory.DefaultContractCode,
 		},
 		{
 			Key:     models.ServiceItemParamNameReferenceDate,
@@ -9344,11 +9623,11 @@ func createMoveWithServiceItems(appCtx appcontext.AppContext, userUploader *uplo
 		},
 	}
 
-	testdatagen.MakePaymentServiceItemWithParams(
+	factory.BuildPaymentServiceItemWithParams(
 		db,
 		models.ReServiceCodeDLH,
 		basicPaymentServiceItemParams,
-		assertions9,
+		customizations9, nil,
 	)
 }
 
@@ -10363,15 +10642,19 @@ func createMoveWithFutureSIT(appCtx appcontext.AppContext, userUploader *uploade
 		},
 	}, nil)
 
-	testdatagen.MakePaymentRequest(db, testdatagen.Assertions{
-		PaymentRequest: models.PaymentRequest{
-			ID:            uuid.Must(uuid.NewV4()),
-			Status:        models.PaymentRequestStatusReviewed,
-			ReviewedAt:    models.TimePointer(time.Now()),
-			MoveTaskOrder: move,
+	factory.BuildPaymentRequest(db, []factory.Customization{
+		{
+			Model: models.PaymentRequest{
+				ID:         uuid.Must(uuid.NewV4()),
+				Status:     models.PaymentRequestStatusReviewed,
+				ReviewedAt: models.TimePointer(time.Now()),
+			},
 		},
-		Move: move,
-	})
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 
 }
 
@@ -10493,6 +10776,16 @@ func createMoveWithOriginAndDestinationSIT(appCtx appcontext.AppContext, userUpl
 }
 
 func createPaymentRequestsWithPartialSITInvoice(appCtx appcontext.AppContext, primeUploader *uploader.PrimeUploader) {
+	// Since we want to customize the Contractor ID for prime uploads, create the contractor here first
+	// BuildMove and BuildPrimeUpload both use FetchOrBuildDefaultContractor
+	factory.FetchOrBuildDefaultContractor(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Contractor{
+				ID: primeContractorUUID, // Prime
+			},
+		},
+	}, nil)
+
 	// Move available to the prime with 3 shipments (control, 2 w/ SITS)
 	availableToPrimeAt := time.Now()
 	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
@@ -10518,23 +10811,45 @@ func createPaymentRequestsWithPartialSITInvoice(appCtx appcontext.AppContext, pr
 		},
 	}, nil)
 
-	firstPrimeUpload := testdatagen.MakePrimeUpload(appCtx.DB(), testdatagen.Assertions{
-		PrimeUploader: primeUploader,
-		Move:          move,
-		PaymentRequest: models.PaymentRequest{
-			Status: models.PaymentRequestStatusReviewed,
+	firstPrimeUpload := factory.BuildPrimeUpload(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.PaymentRequest{
+				Status: models.PaymentRequestStatusReviewed,
+			},
+		},
+		{
+			Model: models.PrimeUpload{},
+			ExtendedParams: &factory.PrimeUploadExtendedParams{
+				PrimeUploader: primeUploader,
+				AppContext:    appCtx,
+			},
+		},
+	}, nil)
 
 	firstPaymentRequest := firstPrimeUpload.ProofOfServiceDoc.PaymentRequest
 
-	secondPrimeUpload := testdatagen.MakePrimeUpload(appCtx.DB(), testdatagen.Assertions{
-		PaymentRequest: models.PaymentRequest{
-			SequenceNumber: 2,
+	secondPrimeUpload := factory.BuildPrimeUpload(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-		PrimeUploader: primeUploader,
-		Move:          move,
-	})
+		{
+			Model: models.PaymentRequest{
+				SequenceNumber: 2,
+			},
+		},
+		{
+			Model: models.PrimeUpload{},
+			ExtendedParams: &factory.PrimeUploadExtendedParams{
+				PrimeUploader: primeUploader,
+				AppContext:    appCtx,
+			},
+		},
+	}, nil)
 
 	secondPaymentRequest := secondPrimeUpload.ProofOfServiceDoc.PaymentRequest
 
@@ -10605,46 +10920,87 @@ func createPaymentRequestsWithPartialSITInvoice(appCtx appcontext.AppContext, pr
 	}, nil)
 
 	// Creates the approved payment service item for DOASIT w/ SIT start date param
-	doasitParam := testdatagen.MakePaymentServiceItemParam(appCtx.DB(), testdatagen.Assertions{
-		PaymentServiceItemParam: models.PaymentServiceItemParam{
-			Value: originEntryDate.Format("2006-01-02"),
+	doasitParam := factory.BuildPaymentServiceItemParam(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentServiceItemParam{
+				Value: originEntryDate.Format("2006-01-02"),
+			},
 		},
-		PaymentServiceItem: models.PaymentServiceItem{
-			Status: models.PaymentServiceItemStatusApproved,
+		{
+			Model: models.PaymentServiceItem{
+				Status: models.PaymentServiceItemStatusApproved,
+			},
 		},
-		ServiceItemParamKey: models.ServiceItemParamKey{
-			Key: models.ServiceItemParamNameSITPaymentRequestStart,
+		{
+			Model: models.ServiceItemParamKey{
+				Key: models.ServiceItemParamNameSITPaymentRequestStart,
+			},
 		},
-		PaymentRequest: firstPaymentRequest,
-		MTOServiceItem: doasit,
-		Move:           move,
-	})
+		{
+			Model:    firstPaymentRequest,
+			LinkOnly: true,
+		},
+		{
+			Model:    doasit,
+			LinkOnly: true,
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	// Creates the SIT end date param for existing DOASIT payment request service item
-	testdatagen.MakePaymentServiceItemParam(appCtx.DB(), testdatagen.Assertions{
-		PaymentServiceItemParam: models.PaymentServiceItemParam{
-			Value: originDepartureDate.Format("2006-01-02"),
+	factory.BuildPaymentServiceItemParam(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentServiceItemParam{
+				Value: originDepartureDate.Format("2006-01-02"),
+			},
 		},
-		ServiceItemParamKey: models.ServiceItemParamKey{
-			Key: models.ServiceItemParamNameSITPaymentRequestEnd,
+		{
+			Model: models.ServiceItemParamKey{
+				Key: models.ServiceItemParamNameSITPaymentRequestEnd,
+			},
 		},
-		PaymentServiceItem: doasitParam.PaymentServiceItem,
-		PaymentRequest:     firstPaymentRequest,
-		MTOServiceItem:     doasit,
-	})
+		{
+			Model:    doasitParam.PaymentServiceItem,
+			LinkOnly: true,
+		},
+		{
+			Model:    firstPaymentRequest,
+			LinkOnly: true,
+		},
+		{
+			Model:    doasit,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	// Creates the NumberDaysSIT param for existing DOASIT payment request service item
-	testdatagen.MakePaymentServiceItemParam(appCtx.DB(), testdatagen.Assertions{
-		PaymentServiceItemParam: models.PaymentServiceItemParam{
-			Value: "30",
+	factory.BuildPaymentServiceItemParam(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentServiceItemParam{
+				Value: "30",
+			},
 		},
-		ServiceItemParamKey: models.ServiceItemParamKey{
-			Key: models.ServiceItemParamNameNumberDaysSIT,
+		{
+			Model: models.ServiceItemParamKey{
+				Key: models.ServiceItemParamNameNumberDaysSIT,
+			},
 		},
-		PaymentServiceItem: doasitParam.PaymentServiceItem,
-		PaymentRequest:     firstPaymentRequest,
-		MTOServiceItem:     doasit,
-	})
+		{
+			Model:    doasitParam.PaymentServiceItem,
+			LinkOnly: true,
+		},
+		{
+			Model:    firstPaymentRequest,
+			LinkOnly: true,
+		},
+		{
+			Model:    doasit,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	dopsit := factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
 		{
@@ -10739,41 +11095,77 @@ func createPaymentRequestsWithPartialSITInvoice(appCtx appcontext.AppContext, pr
 		},
 	}, nil)
 
-	ddasitParam := testdatagen.MakePaymentServiceItemParam(appCtx.DB(), testdatagen.Assertions{
-		PaymentServiceItemParam: models.PaymentServiceItemParam{
-			Value: destinationEntryDate.Format("2006-01-02"),
+	ddasitParam := factory.BuildPaymentServiceItemParam(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentServiceItemParam{
+				Value: destinationEntryDate.Format("2006-01-02"),
+			},
 		},
-		ServiceItemParamKey: models.ServiceItemParamKey{
-			Key: models.ServiceItemParamNameSITPaymentRequestStart,
+		{
+			Model: models.ServiceItemParamKey{
+				Key: models.ServiceItemParamNameSITPaymentRequestStart,
+			},
 		},
-		PaymentRequest: secondPaymentRequest,
-		MTOServiceItem: ddasit,
-	})
+		{
+			Model:    secondPaymentRequest,
+			LinkOnly: true,
+		},
+		{
+			Model:    ddasit,
+			LinkOnly: true,
+		},
+	}, nil)
 
-	testdatagen.MakePaymentServiceItemParam(appCtx.DB(), testdatagen.Assertions{
-		PaymentServiceItemParam: models.PaymentServiceItemParam{
-			Value: destinationDepartureDate.Format("2006-01-02"),
+	factory.BuildPaymentServiceItemParam(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentServiceItemParam{
+				Value: destinationDepartureDate.Format("2006-01-02"),
+			},
 		},
-		ServiceItemParamKey: models.ServiceItemParamKey{
-			Key: models.ServiceItemParamNameSITPaymentRequestEnd,
+		{
+			Model: models.ServiceItemParamKey{
+				Key: models.ServiceItemParamNameSITPaymentRequestEnd,
+			},
 		},
-		PaymentServiceItem: ddasitParam.PaymentServiceItem,
-		PaymentRequest:     secondPaymentRequest,
-		MTOServiceItem:     ddasit,
-	})
+		{
+			Model:    ddasitParam.PaymentServiceItem,
+			LinkOnly: true,
+		},
+		{
+			Model:    secondPaymentRequest,
+			LinkOnly: true,
+		},
+		{
+			Model:    ddasit,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	// Creates the NumberDaysSIT param for existing DOASIT payment request service item
-	testdatagen.MakePaymentServiceItemParam(appCtx.DB(), testdatagen.Assertions{
-		PaymentServiceItemParam: models.PaymentServiceItemParam{
-			Value: "60",
+	factory.BuildPaymentServiceItemParam(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentServiceItemParam{
+				Value: "60",
+			},
 		},
-		ServiceItemParamKey: models.ServiceItemParamKey{
-			Key: models.ServiceItemParamNameNumberDaysSIT,
+		{
+			Model: models.ServiceItemParamKey{
+				Key: models.ServiceItemParamNameNumberDaysSIT,
+			},
 		},
-		PaymentServiceItem: ddasitParam.PaymentServiceItem,
-		PaymentRequest:     secondPaymentRequest,
-		MTOServiceItem:     ddasit,
-	})
+		{
+			Model:    ddasitParam.PaymentServiceItem,
+			LinkOnly: true,
+		},
+		{
+			Model:    secondPaymentRequest,
+			LinkOnly: true,
+		},
+		{
+			Model:    ddasit,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	// Will leave the departure date blank with 30 days left in SIT Days authorized
 	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
@@ -10839,9 +11231,12 @@ func makePendingSITExtensionsForShipment(appCtx appcontext.AppContext, shipment 
 	}, nil)
 
 	for i := 0; i < 2; i++ {
-		testdatagen.MakePendingSITDurationUpdate(db, testdatagen.Assertions{
-			MTOShipment: shipment,
-		})
+		factory.BuildSITDurationUpdate(db, []factory.Customization{
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+		}, nil)
 	}
 }
 
@@ -10852,21 +11247,31 @@ func MakeSITExtensionsForShipment(appCtx appcontext.AppContext, shipment models.
 	sitOfficeRemarks1 := "The service member is unable to move into their new home at the expected time."
 	approvedDays := 90
 
-	testdatagen.MakeSITDurationUpdate(db, testdatagen.Assertions{
-		SITDurationUpdate: models.SITDurationUpdate{
-			ContractorRemarks: &sitContractorRemarks1,
-			OfficeRemarks:     &sitOfficeRemarks1,
-			ApprovedDays:      &approvedDays,
+	factory.BuildSITDurationUpdate(db, []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
 		},
-		MTOShipment: shipment,
-	})
+		{
+			Model: models.SITDurationUpdate{
+				ContractorRemarks: &sitContractorRemarks1,
+				OfficeRemarks:     &sitOfficeRemarks1,
+				ApprovedDays:      &approvedDays,
+			},
+		},
+	}, []factory.Trait{factory.GetTraitApprovedSITDurationUpdate})
 
-	testdatagen.MakeSITDurationUpdate(db, testdatagen.Assertions{
-		SITDurationUpdate: models.SITDurationUpdate{
-			ApprovedDays: &approvedDays,
+	factory.BuildSITDurationUpdate(db, []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
 		},
-		MTOShipment: shipment,
-	})
+		{
+			Model: models.SITDurationUpdate{
+				ApprovedDays: &approvedDays,
+			},
+		},
+	}, []factory.Trait{factory.GetTraitApprovedSITDurationUpdate})
 }
 
 func CreateMoveWithHHGAndNTSShipments(appCtx appcontext.AppContext, locator string, usesExternalVendor bool) models.Move {
@@ -11103,7 +11508,12 @@ func createRandomMove(
 	allDutyLocations []models.DutyLocation,
 	dutyLocationsInGBLOC []models.DutyLocation,
 	withFullOrder bool,
-	assertions testdatagen.Assertions) models.Move {
+	userUploader *uploader.UserUploader,
+	moveTemplate models.Move,
+	mtoShipmentTemplate models.MTOShipment,
+	orderTemplate models.Order,
+	serviceMemberTemplate models.ServiceMember,
+) models.Move {
 	db := appCtx.DB()
 	randDays, err := random.GetRandomInt(366)
 	if err != nil {
@@ -11111,12 +11521,12 @@ func createRandomMove(
 	}
 	submittedAt := time.Now().AddDate(0, 0, randDays*-1)
 
-	if assertions.ServiceMember.Affiliation == nil {
+	if serviceMemberTemplate.Affiliation == nil {
 		randomAffiliation, err := random.GetRandomInt(5)
 		if err != nil {
 			log.Panic(fmt.Errorf("Unable to generate random integer for affiliation"), zap.Error(err))
 		}
-		assertions.ServiceMember.Affiliation = &[]models.ServiceMemberAffiliation{
+		serviceMemberTemplate.Affiliation = &[]models.ServiceMemberAffiliation{
 			models.AffiliationARMY,
 			models.AffiliationAIRFORCE,
 			models.AffiliationNAVY,
@@ -11124,67 +11534,85 @@ func createRandomMove(
 			models.AffiliationMARINES}[randomAffiliation]
 	}
 
+	customs := []factory.Customization{
+		{
+			Model: serviceMemberTemplate,
+		},
+		{
+			Model: orderTemplate,
+		},
+	}
+
 	dutyLocationCount := len(allDutyLocations)
-	if assertions.Order.OriginDutyLocationID == nil {
+	if orderTemplate.OriginDutyLocationID == nil {
 		// We can pick any origin duty location not only one in the office user's GBLOC
-		if *assertions.ServiceMember.Affiliation == models.AffiliationMARINES {
-			randDutyStaionIndex, err := random.GetRandomInt(dutyLocationCount)
+		if *serviceMemberTemplate.Affiliation == models.AffiliationMARINES {
+			randDutyStationIndex, err := random.GetRandomInt(dutyLocationCount)
 			if err != nil {
 				log.Panic(fmt.Errorf("Unable to generate random integer for duty location"), zap.Error(err))
 			}
-			assertions.Order.OriginDutyLocation = &allDutyLocations[randDutyStaionIndex]
-			assertions.Order.OriginDutyLocationID = &assertions.Order.OriginDutyLocation.ID
+			customs = append(customs, factory.Customization{
+				Model:    allDutyLocations[randDutyStationIndex],
+				LinkOnly: true,
+				Type:     &factory.DutyLocations.OriginDutyLocation,
+			})
 		} else {
-			randDutyStaionIndex, err := random.GetRandomInt(len(dutyLocationsInGBLOC))
+			randDutyStationIndex, err := random.GetRandomInt(len(dutyLocationsInGBLOC))
 			if err != nil {
 				log.Panic(fmt.Errorf("Unable to generate random integer for duty location"), zap.Error(err))
 			}
-			assertions.Order.OriginDutyLocation = &dutyLocationsInGBLOC[randDutyStaionIndex]
-			assertions.Order.OriginDutyLocationID = &assertions.Order.OriginDutyLocation.ID
+			customs = append(customs, factory.Customization{
+				Model:    dutyLocationsInGBLOC[randDutyStationIndex],
+				LinkOnly: true,
+				Type:     &factory.DutyLocations.OriginDutyLocation,
+			})
 		}
 	}
 
-	if assertions.Order.NewDutyLocationID == uuid.Nil {
-		randDutyStaionIndex, err := random.GetRandomInt(dutyLocationCount)
+	if orderTemplate.NewDutyLocationID == uuid.Nil {
+		randDutyStationIndex, err := random.GetRandomInt(dutyLocationCount)
 		if err != nil {
 			log.Panic(fmt.Errorf("Unable to generate random integer for duty location"), zap.Error(err))
 		}
-		assertions.Order.NewDutyLocation = allDutyLocations[randDutyStaionIndex]
-		assertions.Order.NewDutyLocationID = assertions.Order.NewDutyLocation.ID
+		customs = append(customs, factory.Customization{
+			Model:    allDutyLocations[randDutyStationIndex],
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.NewDutyLocation,
+		})
 	}
 
 	randomFirst, randomLast := fakedata.RandomName()
-	assertions.ServiceMember.FirstName = &randomFirst
-	assertions.ServiceMember.LastName = &randomLast
+	serviceMemberTemplate.FirstName = &randomFirst
+	serviceMemberTemplate.LastName = &randomLast
 
 	// assertions passed in means we cannot yet convert to BuildOrder
 	var order models.Order
 	if withFullOrder {
-		order = testdatagen.MakeOrder(db, assertions)
+		order = factory.BuildOrder(db, customs, nil)
 	} else {
-		order = testdatagen.MakeOrderWithoutDefaults(db, assertions)
+		order = factory.BuildOrderWithoutDefaults(db, customs, nil)
 	}
 
-	if assertions.Move.SubmittedAt == nil {
-		assertions.Move.SubmittedAt = &submittedAt
+	if moveTemplate.SubmittedAt == nil {
+		moveTemplate.SubmittedAt = &submittedAt
 	}
 
-	if assertions.Move.Status == "" {
+	if moveTemplate.Status == "" {
 		randStatusIndex, err := random.GetRandomInt(len(possibleStatuses))
 		if err != nil {
 			log.Panic(fmt.Errorf("Unable to generate random integer for move status"), zap.Error(err))
 		}
-		assertions.Move.Status = possibleStatuses[randStatusIndex]
+		moveTemplate.Status = possibleStatuses[randStatusIndex]
 
-		if assertions.Move.Status == models.MoveStatusServiceCounselingCompleted {
+		if moveTemplate.Status == models.MoveStatusServiceCounselingCompleted {
 			counseledAt := submittedAt.Add(3 * 24 * time.Hour)
-			assertions.Move.ServiceCounselingCompletedAt = &counseledAt
+			moveTemplate.ServiceCounselingCompletedAt = &counseledAt
 		}
 	}
 
 	move := factory.BuildMove(db, []factory.Customization{
 		{
-			Model: assertions.Move,
+			Model: moveTemplate,
 		},
 		{
 			Model:    order,
@@ -11193,8 +11621,8 @@ func createRandomMove(
 	}, nil)
 
 	shipmentStatus := models.MTOShipmentStatusSubmitted
-	if assertions.MTOShipment.Status != "" {
-		shipmentStatus = assertions.MTOShipment.Status
+	if mtoShipmentTemplate.Status != "" {
+		shipmentStatus = mtoShipmentTemplate.Status
 	}
 
 	laterRequestedPickupDate := submittedAt.Add(60 * 24 * time.Hour)
@@ -11210,8 +11638,8 @@ func createRandomMove(
 				Status:                shipmentStatus,
 				RequestedPickupDate:   &laterRequestedPickupDate,
 				RequestedDeliveryDate: &laterRequestedDeliveryDate,
-				ApprovedDate:          assertions.MTOShipment.ApprovedDate,
-				Diversion:             assertions.MTOShipment.Diversion,
+				ApprovedDate:          mtoShipmentTemplate.ApprovedDate,
+				Diversion:             mtoShipmentTemplate.Diversion,
 			},
 		},
 	}, nil)
@@ -11229,8 +11657,8 @@ func createRandomMove(
 				Status:                shipmentStatus,
 				RequestedPickupDate:   &earlierRequestedPickupDate,
 				RequestedDeliveryDate: &earlierRequestedDeliveryDate,
-				ApprovedDate:          assertions.MTOShipment.ApprovedDate,
-				Diversion:             assertions.MTOShipment.Diversion,
+				ApprovedDate:          mtoShipmentTemplate.ApprovedDate,
+				Diversion:             mtoShipmentTemplate.Diversion,
 			},
 		},
 	}, nil)

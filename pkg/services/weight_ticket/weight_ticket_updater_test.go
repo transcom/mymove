@@ -416,11 +416,13 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 		suite.Run("should return true if there's a change in total weight based off adjusted net weight for both tickets", func() {
 			//Default net weight of 4,000 - full weight of 18500 - empty weight of 14500
 			oldAdjustedNetWeight := unit.Pound(3999)
-			originalWeightTicket := testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{
-				WeightTicket: models.WeightTicket{
-					AdjustedNetWeight: &oldAdjustedNetWeight,
+			originalWeightTicket := factory.BuildWeightTicket(suite.DB(), []factory.Customization{
+				{
+					Model: models.WeightTicket{
+						AdjustedNetWeight: &oldAdjustedNetWeight,
+					},
 				},
-			})
+			}, nil)
 
 			newWeightTicket := originalWeightTicket
 			newAdjustedNetWeight := unit.Pound(3000)
@@ -432,7 +434,7 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 
 		suite.Run("should return true if there's a change in total weight when only one ticket has an adjusted net weight value", func() {
 			//Default net weight of 4,000 - full weight of 18500 - empty weight of 14500
-			originalWeightTicket := testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{})
+			originalWeightTicket := factory.BuildWeightTicket(suite.DB(), nil, nil)
 
 			newWeightTicket := originalWeightTicket
 			newAdjustedNetWeight := unit.Pound(3500)
@@ -444,7 +446,7 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 
 		suite.Run("should return true if there's a change in total weight based off full and empty weight", func() {
 			//Default net weight of 4,000 - full weight of 18500 - empty weight of 14500
-			originalWeightTicket := testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{})
+			originalWeightTicket := factory.BuildWeightTicket(suite.DB(), nil, nil)
 
 			newWeightTicket := originalWeightTicket
 			newFullWeight := unit.Pound(15000)
@@ -458,7 +460,7 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 
 		suite.Run("should return false when the total weight is the same", func() {
 			//Default net weight of 4,000 - full weight of 18500 - empty weight of 14500
-			originalWeightTicket := testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{})
+			originalWeightTicket := factory.BuildWeightTicket(suite.DB(), nil, nil)
 
 			newWeightTicket := originalWeightTicket
 			newFullWeight := unit.Pound(16500)
@@ -472,7 +474,7 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 
 		suite.Run("should return false when there's different values but the total weight remains the same", func() {
 			//Default net weight of 4,000 - full weight of 18500 - empty weight of 14500
-			originalWeightTicket := testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{})
+			originalWeightTicket := factory.BuildWeightTicket(suite.DB(), nil, nil)
 
 			newWeightTicket := originalWeightTicket
 			newAdjustedNetWeight := unit.Pound(4000)
@@ -489,7 +491,7 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 			suite.Run("changes status and reason", func() {
 				appCtx := suite.AppContextForTest()
 
-				originalWeightTicket := testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{})
+				originalWeightTicket := factory.BuildWeightTicket(suite.DB(), nil, nil)
 
 				updater := NewOfficeWeightTicketUpdater(setUpFetcher(&originalWeightTicket, nil), &ppmShipmentUpdater)
 
@@ -513,12 +515,14 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 				appCtx := suite.AppContextForTest()
 
 				status := models.PPMDocumentStatusExcluded
-				originalWeightTicket := testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{
-					WeightTicket: models.WeightTicket{
-						Status: &status,
-						Reason: models.StringPointer("some temporary reason"),
+				originalWeightTicket := factory.BuildWeightTicket(suite.DB(), []factory.Customization{
+					{
+						Model: models.WeightTicket{
+							Status: &status,
+							Reason: models.StringPointer("some temporary reason"),
+						},
 					},
-				})
+				}, nil)
 
 				updater := NewOfficeWeightTicketUpdater(setUpFetcher(&originalWeightTicket, nil), &ppmShipmentUpdater)
 
@@ -539,12 +543,14 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 				appCtx := suite.AppContextForTest()
 
 				status := models.PPMDocumentStatusExcluded
-				originalWeightTicket := testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{
-					WeightTicket: models.WeightTicket{
-						Status: &status,
-						Reason: models.StringPointer("some temporary reason"),
+				originalWeightTicket := factory.BuildWeightTicket(suite.DB(), []factory.Customization{
+					{
+						Model: models.WeightTicket{
+							Status: &status,
+							Reason: models.StringPointer("some temporary reason"),
+						},
 					},
-				})
+				}, nil)
 
 				updater := NewOfficeWeightTicketUpdater(setUpFetcher(&originalWeightTicket, nil), &ppmShipmentUpdater)
 
@@ -601,12 +607,14 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 				appCtx := suite.AppContextForTest()
 
 				status := models.PPMDocumentStatusExcluded
-				originalWeightTicket := testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{
-					WeightTicket: models.WeightTicket{
-						Status: &status,
-						Reason: models.StringPointer("some temporary reason"),
+				originalWeightTicket := factory.BuildWeightTicket(suite.DB(), []factory.Customization{
+					{
+						Model: models.WeightTicket{
+							Status: &status,
+							Reason: models.StringPointer("some temporary reason"),
+						},
 					},
-				})
+				}, nil)
 
 				updater := NewOfficeWeightTicketUpdater(setUpFetcher(&originalWeightTicket, nil), &ppmShipmentUpdater)
 
@@ -628,7 +636,7 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 			suite.Run("to update because of invalid status", func() {
 				appCtx := suite.AppContextForTest()
 
-				originalWeightTicket := testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{})
+				originalWeightTicket := factory.BuildWeightTicket(suite.DB(), nil, nil)
 
 				updater := NewOfficeWeightTicketUpdater(setUpFetcher(&originalWeightTicket, nil), &ppmShipmentUpdater)
 

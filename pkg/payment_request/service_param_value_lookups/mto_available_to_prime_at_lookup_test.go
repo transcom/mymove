@@ -23,6 +23,12 @@ func (suite *ServiceParamValueLookupsSuite) TestMTOAvailableToPrimeLookup() {
 	var paramLookup *ServiceItemParamKeyData
 
 	setupTestData := func() {
+		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				StartDate: availableToPrimeAt.Add(-24 * time.Hour),
+				EndDate:   availableToPrimeAt.Add(24 * time.Hour),
+			},
+		})
 		mtoServiceItem = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model: models.Move{
@@ -78,11 +84,7 @@ func (suite *ServiceParamValueLookupsSuite) TestMTOAvailableToPrimeLookup() {
 		// Pass in a non-existent MoveTaskOrderID
 		invalidMoveTaskOrderID := uuid.Must(uuid.NewV4())
 		badParamLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, paymentRequest.ID, invalidMoveTaskOrderID, nil)
-		suite.FatalNoError(err)
-
-		valueStr, err := badParamLookup.ServiceParamValue(suite.AppContextForTest(), key)
-		suite.Error(err)
-		suite.IsType(apperror.NotFoundError{}, errors.Unwrap(err))
-		suite.Equal("", valueStr)
+		suite.IsType(apperror.NotFoundError{}, err)
+		suite.Nil(badParamLookup)
 	})
 }

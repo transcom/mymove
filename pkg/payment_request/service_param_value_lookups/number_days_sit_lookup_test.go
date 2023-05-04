@@ -64,7 +64,12 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 	destinationSITDepartureDateThree := time.Date(2020, time.November, 30, 0, 0, 0, 0, time.UTC)
 
 	setupTestData := func() {
-
+		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				StartDate: time.Now().Add(-24 * time.Hour),
+				EndDate:   time.Now().Add(24 * time.Hour),
+			},
+		})
 		reServiceDOFSIT = factory.BuildReService(suite.DB(), []factory.Customization{
 			{
 				Model: models.ReService{
@@ -101,11 +106,11 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 			},
 		}, nil)
 
-		moveTaskOrderOne = factory.BuildMove(suite.DB(), nil, nil)
-		moveTaskOrderTwo = factory.BuildMove(suite.DB(), nil, nil)
-		moveTaskOrderThree = factory.BuildMove(suite.DB(), nil, nil)
-		moveTaskOrderFour = factory.BuildMove(suite.DB(), nil, nil)
-		moveTaskOrderFive := factory.BuildMove(suite.DB(), nil, nil)
+		moveTaskOrderOne = factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		moveTaskOrderTwo = factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		moveTaskOrderThree = factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		moveTaskOrderFour = factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		moveTaskOrderFive := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
 		factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
@@ -1665,45 +1670,61 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 			},
 		}, nil)
 
-		paymentServiceItemParamTwo := []testdatagen.CreatePaymentServiceItemParams{
+		paymentServiceItemParamTwo := []factory.CreatePaymentServiceItemParams{
 			{
 				Key:     models.ServiceItemParamNameNumberDaysSIT,
 				KeyType: models.ServiceItemParamTypeInteger,
 				Value:   "29",
 			},
 		}
-		testdatagen.MakePaymentServiceItemWithParams(
+		factory.BuildPaymentServiceItemWithParams(
 			suite.DB(),
 			serviceItemDOASITTwelve.ReService.Code,
 			paymentServiceItemParamTwo,
-			testdatagen.Assertions{
-				PaymentServiceItem: models.PaymentServiceItem{
-					PriceCents: &cost,
-					Status:     models.PaymentServiceItemStatusPaid,
+			[]factory.Customization{
+				{
+					Model: models.PaymentServiceItem{
+						PriceCents: &cost,
+						Status:     models.PaymentServiceItemStatusPaid,
+					},
 				},
-				PaymentRequest: paymentRequestTwelve,
-				MTOServiceItem: serviceItemDOASITTwelve,
-			})
+				{
+					Model:    paymentRequestTwelve,
+					LinkOnly: true,
+				},
+				{
+					Model:    serviceItemDOASITTwelve,
+					LinkOnly: true,
+				},
+			}, nil)
 
-		paymentServiceItemParamThree := []testdatagen.CreatePaymentServiceItemParams{
+		paymentServiceItemParamThree := []factory.CreatePaymentServiceItemParams{
 			{
 				Key:     models.ServiceItemParamNameNumberDaysSIT,
 				KeyType: models.ServiceItemParamTypeInteger,
 				Value:   "32",
 			},
 		}
-		testdatagen.MakePaymentServiceItemWithParams(
+		factory.BuildPaymentServiceItemWithParams(
 			suite.DB(),
 			serviceItemDOASITThirteen.ReService.Code,
 			paymentServiceItemParamThree,
-			testdatagen.Assertions{
-				PaymentServiceItem: models.PaymentServiceItem{
-					PriceCents: &cost,
-					Status:     models.PaymentServiceItemStatusPaid,
+			[]factory.Customization{
+				{
+					Model: models.PaymentServiceItem{
+						PriceCents: &cost,
+						Status:     models.PaymentServiceItemStatusPaid,
+					},
 				},
-				PaymentRequest: paymentRequestTwelve,
-				MTOServiceItem: serviceItemDOASITThirteen,
-			})
+				{
+					Model:    paymentRequestTwelve,
+					LinkOnly: true,
+				},
+				{
+					Model:    serviceItemDOASITThirteen,
+					LinkOnly: true,
+				},
+			}, nil)
 
 		paymentRequestThirteen := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
 			{
@@ -1748,25 +1769,33 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 				LinkOnly: true,
 			},
 		}, nil)
-		paymentServiceItemParamFour := []testdatagen.CreatePaymentServiceItemParams{
+		paymentServiceItemParamFour := []factory.CreatePaymentServiceItemParams{
 			{
 				Key:     models.ServiceItemParamNameNumberDaysSIT,
 				KeyType: models.ServiceItemParamTypeInteger,
 				Value:   "27",
 			},
 		}
-		testdatagen.MakePaymentServiceItemWithParams(
+		factory.BuildPaymentServiceItemWithParams(
 			suite.DB(),
 			serviceItemDDASITEleven.ReService.Code,
 			paymentServiceItemParamFour,
-			testdatagen.Assertions{
-				PaymentServiceItem: models.PaymentServiceItem{
-					PriceCents: &cost,
-					Status:     models.PaymentServiceItemStatusDenied,
+			[]factory.Customization{
+				{
+					Model: models.PaymentServiceItem{
+						PriceCents: &cost,
+						Status:     models.PaymentServiceItemStatusDenied,
+					},
 				},
-				PaymentRequest: paymentRequestFourteen,
-				MTOServiceItem: serviceItemDDASITEleven,
-			})
+				{
+					Model:    paymentRequestFourteen,
+					LinkOnly: true,
+				},
+				{
+					Model:    serviceItemDDASITEleven,
+					LinkOnly: true,
+				},
+			}, nil)
 
 		paymentRequestFifteen = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
 			{
@@ -2201,13 +2230,17 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 		// End date is a year in the future in order to make sure we exceed the allowance.
 		move, serviceItemDOASIT, paymentRequest := suite.setupMoveWithAddlDaysSITAndPaymentRequest(reServiceDOFSIT, originSITEntryDateOne, reServiceDOASIT, "2020-07-21", "2021-07-30")
 
-		approvedDays := 400
-		testdatagen.MakeSITDurationUpdate(suite.DB(), testdatagen.Assertions{
-			MTOShipment: serviceItemDOASIT.MTOShipment,
-			SITDurationUpdate: models.SITDurationUpdate{
-				ApprovedDays: &approvedDays,
+		factory.BuildSITDurationUpdate(suite.DB(), []factory.Customization{
+			{
+				Model:    serviceItemDOASIT.MTOShipment,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.SITDurationUpdate{
+					ApprovedDays: models.IntPointer(400),
+				},
+			},
+		}, []factory.Trait{factory.GetTraitApprovedSITDurationUpdate})
 
 		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, serviceItemDOASIT, paymentRequest.ID, move.ID, nil)
 		suite.FatalNoError(err)
@@ -2268,7 +2301,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 
 func (suite *ServiceParamValueLookupsSuite) makeAdditionalDaysSITPaymentServiceItemWithStatus(paymentRequest models.PaymentRequest, serviceItem models.MTOServiceItem, startDate string, endDate string, status models.PaymentServiceItemStatus) {
 	cost := unit.Cents(20000)
-	paymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
+	paymentServiceItemParams := []factory.CreatePaymentServiceItemParams{
 		{
 			Key:     models.ServiceItemParamNameSITPaymentRequestStart,
 			KeyType: models.ServiceItemParamTypeDate,
@@ -2280,18 +2313,26 @@ func (suite *ServiceParamValueLookupsSuite) makeAdditionalDaysSITPaymentServiceI
 			Value:   endDate,
 		},
 	}
-	testdatagen.MakePaymentServiceItemWithParams(
+	factory.BuildPaymentServiceItemWithParams(
 		suite.DB(),
 		serviceItem.ReService.Code,
 		paymentServiceItemParams,
-		testdatagen.Assertions{
-			PaymentServiceItem: models.PaymentServiceItem{
-				PriceCents: &cost,
-				Status:     status,
+		[]factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &cost,
+					Status:     status,
+				},
 			},
-			PaymentRequest: paymentRequest,
-			MTOServiceItem: serviceItem,
-		})
+			{
+				Model:    paymentRequest,
+				LinkOnly: true,
+			},
+			{
+				Model:    serviceItem,
+				LinkOnly: true,
+			},
+		}, nil)
 }
 
 func (suite *ServiceParamValueLookupsSuite) makeAdditionalDaysSITPaymentServiceItem(paymentRequest models.PaymentRequest, serviceItem models.MTOServiceItem, startDate string, endDate string) {
@@ -2302,7 +2343,7 @@ func (suite *ServiceParamValueLookupsSuite) makeAdditionalDaysSITPaymentServiceI
 // SIT service item, and a payment request for that service item.
 func (suite *ServiceParamValueLookupsSuite) setupMoveWithAddlDaysSITAndPaymentRequest(sitFirstDayReService models.ReService, sitEntryDate time.Time, sitAdditionalDaysReService models.ReService, sitAdditionalDaysStartDate string, sitAdditionalDaysEndDate string) (models.Move, models.MTOServiceItem, models.PaymentRequest) {
 	defaultSITDaysAllowance := 90
-	move := factory.BuildMove(suite.DB(), nil, nil)
+	move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 	shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 		{
 			Model:    move,

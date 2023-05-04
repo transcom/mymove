@@ -173,12 +173,17 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 			MoveID:      successMove.Locator,
 		}
 
-		sitExtension := testdatagen.MakeSITDurationUpdate(suite.DB(), testdatagen.Assertions{
-			Move: successMove,
-			MTOShipment: models.MTOShipment{
-				Status: models.MTOShipmentStatusApproved,
+		sitExtension := factory.BuildSITDurationUpdate(suite.DB(), []factory.Customization{
+			{
+				Model:    successMove,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusApproved,
+				},
+			},
+		}, []factory.Trait{factory.GetTraitApprovedSITDurationUpdate})
 
 		// Validate incoming payload: no body to validate
 

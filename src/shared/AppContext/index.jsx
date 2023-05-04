@@ -9,10 +9,6 @@ export const defaultOfficeContext = {
   showLoginWarning: false,
   flags: {},
 };
-export const defaultTspContext = {
-  siteName: 'tsp.move.mil',
-  showLoginWarning: false,
-};
 export const defaultAdminContext = {
   siteName: 'admin.move.mil',
   showLoginWarning: false,

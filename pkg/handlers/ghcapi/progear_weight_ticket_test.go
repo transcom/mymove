@@ -34,7 +34,7 @@ func (suite *HandlerSuite) TestUpdateProGearWeightTicketHandler() {
 		db := appCtx.DB()
 
 		// Use fake data:
-		subtestData.progear = testdatagen.MakeProgearWeightTicket(db, testdatagen.Assertions{})
+		subtestData.progear = factory.BuildProgearWeightTicket(db, nil, nil)
 		subtestData.ppmShipment = subtestData.progear.PPMShipment
 
 		endpoint := fmt.Sprintf("/ppm-shipments/%s/pro-gear-weight-tickets/%s", subtestData.ppmShipment.ID.String(), subtestData.progear.ID.String())

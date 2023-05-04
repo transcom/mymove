@@ -154,7 +154,7 @@ export const SITStatusWithPastSITServiceItems = {
   ],
 };
 
-export const SITShipment = {
+export const noSITShipment = {
   actualPickupDate: '2020-03-16',
   approvedDate: '2020-03-20T00:00:00.000Z',
   calculatedBillableWeight: 980,
@@ -190,9 +190,13 @@ export const SITShipment = {
   requestedPickupDate: '2020-03-15',
   scheduledPickupDate: '2020-03-16',
   shipmentType: 'HHG',
-  sitDaysAllowance: 270,
   status: 'APPROVED',
   updatedAt: '2021-09-22T14:48:37.546Z',
+};
+
+export const SITShipment = {
+  ...noSITShipment,
+  sitDaysAllowance: 270,
 };
 
 export const futureSITShipment = {
@@ -202,4 +206,13 @@ export const futureSITShipment = {
       sitEntryDate: '2025-02-25',
     },
   ],
+};
+
+export const SITStatusExpired = {
+  location: LOCATION_VALUES.DESTINATION,
+  totalSITDaysUsed: 270,
+  totalDaysRemaining: 0,
+  daysInSIT: 15,
+  sitEntryDate: '2021-08-13T15:41:59.373Z',
+  sitDepartureDate: '2021-08-28T15:41:59.373Z',
 };

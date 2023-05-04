@@ -23,6 +23,13 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 	setupTestData := func() (models.MTOServiceItem, models.MTOServiceItem) {
 		// Create a service item to serve as the old object
 		oldServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
+		oldServiceItem.CustomerContacts = models.MTOServiceItemCustomerContacts{
+			models.MTOServiceItemCustomerContact{
+				Type:                       models.CustomerContactTypeFirst,
+				TimeMilitary:               "1300Z",
+				FirstAvailableDeliveryDate: time.Now().AddDate(0, 0, 3),
+			},
+		}
 		// Shallow copy service item to create the "updated" object
 		updatedServiceItem := oldServiceItem
 		return oldServiceItem, updatedServiceItem
@@ -339,7 +346,13 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		estimatedWeight := int64(4200)
 		editServiceItem.ActualWeight = handlers.PoundPtrFromInt64Ptr(&actualWeight)
 		editServiceItem.EstimatedWeight = handlers.PoundPtrFromInt64Ptr(&estimatedWeight)
-
+		editServiceItem.CustomerContacts = models.MTOServiceItemCustomerContacts{
+			models.MTOServiceItemCustomerContact{
+				Type:                       models.CustomerContactTypeFirst,
+				TimeMilitary:               "1400Z",
+				FirstAvailableDeliveryDate: time.Now().AddDate(0, 0, 5),
+			},
+		}
 		serviceItemData := updateMTOServiceItemData{
 			updatedServiceItem: editServiceItem,
 			oldServiceItem:     oldServiceItem,
@@ -354,5 +367,84 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		suite.Equal(newServiceItem.Description, editServiceItem.Description)
 		suite.NotEqual(newServiceItem.Description, oldServiceItem.Description)
 		suite.NotEqual(newServiceItem.Description, serviceItemData.oldServiceItem.Description)
+		suite.NotEqual(newServiceItem.CustomerContacts[0].TimeMilitary, serviceItemData.oldServiceItem.CustomerContacts[0].TimeMilitary)
+		suite.NotEqual(newServiceItem.CustomerContacts[0].FirstAvailableDeliveryDate, serviceItemData.oldServiceItem.CustomerContacts[0].FirstAvailableDeliveryDate)
+	})
+
+	suite.Run("setNewMTOServiceItem - success with updating a service item that already has a sit destination final address", func() {
+		oldServiceItem, editServiceItem := setupTestData()
+
+		// Create the old address that has been saved to the db
+		oldSitDestinationFinalAddress := factory.BuildAddress(suite.DB(), nil, nil)
+		// Create an address that has not yet been saved to the db
+		newSitDestinationFinalAddress := models.Address{
+			StreetAddress1: "123 Any Street",
+			StreetAddress2: models.StringPointer("P.O. Box 12345"),
+			StreetAddress3: models.StringPointer("c/o Some Person"),
+			City:           "Beverly Hills",
+			State:          "CA",
+			PostalCode:     "90210",
+			Country:        models.StringPointer("US"),
+		}
+
+		// Set the old address and id to the old service item
+		oldServiceItem.SITDestinationFinalAddress = &oldSitDestinationFinalAddress
+		oldServiceItem.SITDestinationFinalAddressID = &oldSitDestinationFinalAddress.ID
+
+		// Set the address to the new service item. We don't need to set the ID here because this replicates when
+		// we are updating a sitDestinationFinalAddress for a service item that already has one.
+		editServiceItem.SITDestinationFinalAddress = &newSitDestinationFinalAddress
+
+		serviceItemData := updateMTOServiceItemData{
+			updatedServiceItem: editServiceItem,
+			oldServiceItem:     oldServiceItem,
+			verrs:              validate.NewErrors(),
+		}
+		newServiceItem := serviceItemData.setNewMTOServiceItem()
+
+		// Check that the IDs match the old address since we want to update that one in the DB.
+		suite.Equal(newServiceItem.SITDestinationFinalAddressID, &oldSitDestinationFinalAddress.ID)
+		suite.Equal(newServiceItem.SITDestinationFinalAddress.ID, oldSitDestinationFinalAddress.ID)
+
+		// Check that the address information matches the new address.
+		suite.Equal(newServiceItem.SITDestinationFinalAddress.PostalCode, newSitDestinationFinalAddress.PostalCode)
+		suite.Equal(newServiceItem.SITDestinationFinalAddress.StreetAddress1, newSitDestinationFinalAddress.StreetAddress1)
+		suite.Equal(newServiceItem.SITDestinationFinalAddress.City, newSitDestinationFinalAddress.City)
+	})
+
+	suite.Run("setNewMTOServiceItem - success with updating a service item that does not have a sit destination final address", func() {
+		oldServiceItem, editServiceItem := setupTestData()
+
+		// Create an address that has not yet been saved to the db
+		newSitDestinationFinalAddress := models.Address{
+			StreetAddress1: "123 Any Street",
+			StreetAddress2: models.StringPointer("P.O. Box 12345"),
+			StreetAddress3: models.StringPointer("c/o Some Person"),
+			City:           "Beverly Hills",
+			State:          "CA",
+			PostalCode:     "90210",
+			Country:        models.StringPointer("US"),
+		}
+
+		// Set the address to the new service item. We don't need to set the ID here because this replicates when
+		// we are updating a sitDestinationFinalAddress for a service item that already has one.
+		editServiceItem.SITDestinationFinalAddress = &newSitDestinationFinalAddress
+
+		serviceItemData := updateMTOServiceItemData{
+			updatedServiceItem: editServiceItem,
+			oldServiceItem:     oldServiceItem,
+			verrs:              validate.NewErrors(),
+		}
+		newServiceItem := serviceItemData.setNewMTOServiceItem()
+		nilUUID := uuid.Nil
+
+		// Check that the IDs match the new address and that both are nil.
+		suite.Equal(newServiceItem.SITDestinationFinalAddress.ID, newSitDestinationFinalAddress.ID)
+		suite.Equal(nilUUID, newServiceItem.SITDestinationFinalAddress.ID)
+
+		// Check that the address information matches the new address.
+		suite.Equal(newServiceItem.SITDestinationFinalAddress.PostalCode, newSitDestinationFinalAddress.PostalCode)
+		suite.Equal(newServiceItem.SITDestinationFinalAddress.StreetAddress1, newSitDestinationFinalAddress.StreetAddress1)
+		suite.Equal(newServiceItem.SITDestinationFinalAddress.City, newSitDestinationFinalAddress.City)
 	})
 }
