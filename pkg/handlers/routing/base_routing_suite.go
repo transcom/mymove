@@ -17,6 +17,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/telemetry"
+	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
@@ -82,6 +83,10 @@ func (suite *BaseRoutingSuite) RoutingConfig() *Config {
 		ServeGHC:            true,
 		ServeDevlocalAuth:   true,
 		ServeOrders:         true,
+
+		// note that enabling devlocal auth also enables accessing the
+		// Prime API without requiring mTLS. See
+		// authentication.DevLocalClientCertMiddleware
 	}
 
 	return suite.routingConfig
@@ -187,5 +192,24 @@ func (suite *BaseRoutingSuite) NewOfficeRequest(method string, relativePath stri
 func (suite *BaseRoutingSuite) NewAuthenticatedOfficeRequest(method string, relativePath string, body io.Reader, officeUser models.OfficeUser) *http.Request {
 	req := suite.NewOfficeRequest(method, relativePath, body)
 	suite.SetupOfficeRequestSession(req, officeUser)
+	return req
+}
+
+func (suite *BaseRoutingSuite) NewPrimeRequest(method string, relativePath string, body io.Reader) *http.Request {
+	return httptest.NewRequest(method,
+		fmt.Sprintf("http://%s%s", suite.HandlerConfig().AppNames().PrimeServername, relativePath),
+		body)
+}
+
+// the authentication.DevLocalPrimeMiddleware checks for the existence
+// of a particular hash, so ensure that hash exists in the db and is
+// associated with a user
+func (suite *BaseRoutingSuite) NewAuthenticatedPrimeRequest(method string, relativePath string, body io.Reader, user models.User) *http.Request {
+	testdatagen.MakeDevClientCert(suite.DB(), testdatagen.Assertions{
+		ClientCert: models.ClientCert{
+			UserID: user.ID,
+		},
+	})
+	req := suite.NewMilRequest(method, relativePath, body)
 	return req
 }
