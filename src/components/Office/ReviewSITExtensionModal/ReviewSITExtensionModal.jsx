@@ -70,7 +70,9 @@ const SitStatusTables = ({ sitStatus, sitExtension, shipment }) => {
 
   const approvedAndRequestedDaysCombined = shipment.sitDaysAllowance + sitExtension.requestedDays;
   const approvedAndRequestedDatesCombined = moment(
-    moment().add(sitStatus.totalDaysRemaining, 'days').format('DD MMM YYYY'),
+    moment()
+      .add(sitStatus.totalDaysRemaining - 1, 'days')
+      .format('DD MMM YYYY'),
   )
     .add(sitExtension.requestedDays, 'days')
     .format('DD MMM YYYY');
@@ -177,8 +179,8 @@ const ReviewSITExtensionsModal = ({ onClose, onSubmit, sitExtension, shipment, s
     daysApproved: String(shipment.sitDaysAllowance),
     requestReason: '',
     officeRemarks: '',
-    sitEndDate: moment(sitStatus.sitEntryDate)
-      .add(sitStatus.totalDaysRemaining + 1, 'days')
+    sitEndDate: moment()
+      .add(sitStatus.totalDaysRemaining - 1, 'days')
       .format('DD MMM YYYY'),
   };
   const minimumDaysAllowed = sitStatus.totalSITDaysUsed - sitStatus.daysInSIT + 1;
