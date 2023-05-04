@@ -204,7 +204,7 @@ describe('PaymentRequestCard', () => {
         </MockProviders>,
       );
       const reviewButton = screen.getByRole('button', { name: 'Review service items' });
-      expect(reviewButton).not.toHaveAttribute('disabled', '');
+      expect(reviewButton).toHaveAttribute('disabled', '');
     });
   });
 
