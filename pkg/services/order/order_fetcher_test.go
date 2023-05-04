@@ -356,10 +356,12 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		// Expected outcome: search results should only include the move with the PPM type that was searched for
 		officeUser, partialPPMMove := setupTestData()
 		suite.Equal("PARTIAL", *partialPPMMove.PPMType)
-		ppmShipment := testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				PPMType: models.StringPointer("FULL"),
-				Locator: "FULLLL",
+		ppmShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, []factory.Customization{
+			{
+				Model: models.Move{
+					PPMType: models.StringPointer("FULL"),
+					Locator: "FULLLL",
+				},
 			},
 		})
 		fullPPMMove := ppmShipment.Shipment.MoveTaskOrder
@@ -396,9 +398,11 @@ func (suite *OrderServiceSuite) TestListOrders() {
 				},
 			},
 		}, nil)
-		ppmShipment := testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				CloseoutOfficeID: &ftBragg.ID,
+		ppmShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, []factory.Customization{
+			{
+				Model: models.Move{
+					CloseoutOfficeID: &ftBragg.ID,
+				},
 			},
 		})
 
@@ -422,17 +426,21 @@ func (suite *OrderServiceSuite) TestListOrders() {
 
 		// Create a PPM submitted on April 1st
 		closeoutInitiatedDate := time.Date(2022, 04, 01, 0, 0, 0, 0, time.UTC)
-		createdPPM := testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{
-			PPMShipment: models.PPMShipment{
-				SubmittedAt: &closeoutInitiatedDate,
+		createdPPM := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					SubmittedAt: &closeoutInitiatedDate,
+				},
 			},
 		})
 
 		// Create a PPM submitted on April 2nd
 		closeoutInitiatedDate2 := time.Date(2022, 04, 02, 0, 0, 0, 0, time.UTC)
-		createdPPM2 := testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{
-			PPMShipment: models.PPMShipment{
-				SubmittedAt: &closeoutInitiatedDate2,
+		createdPPM2 := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					SubmittedAt: &closeoutInitiatedDate2,
+				},
 			},
 		})
 
@@ -456,9 +464,11 @@ func (suite *OrderServiceSuite) TestListOrders() {
 
 		// Create a PPM submitted on April 1st
 		closeoutInitiatedDate := time.Date(2022, 04, 01, 0, 0, 0, 0, time.UTC)
-		createdPPM := testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{
-			PPMShipment: models.PPMShipment{
-				SubmittedAt: &closeoutInitiatedDate,
+		createdPPM := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					SubmittedAt: &closeoutInitiatedDate,
+				},
 			},
 		})
 		// Add another PPM for the same move submitted on April 1st
@@ -1310,25 +1320,31 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 			},
 		}, nil)
 
-		ppm1 := testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{
-			PPMShipment: models.PPMShipment{
-				SubmittedAt: &closeoutInitiatedDate1,
+		ppm1 := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					SubmittedAt: &closeoutInitiatedDate1,
+				},
 			},
-			Move: models.Move{
-				CloseoutOffice:   &closeoutOffice,
-				CloseoutOfficeID: &closeoutOffice.ID,
+			{
+				Model:    closeoutOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CloseoutOffice,
 			},
 		})
 
 		// Create a PPM submitted on April 2nd
 		closeoutInitiatedDate2 := time.Date(2022, 04, 02, 0, 0, 0, 0, time.UTC)
-		ppm2 := testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{
-			PPMShipment: models.PPMShipment{
-				SubmittedAt: &closeoutInitiatedDate2,
+		ppm2 := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					SubmittedAt: &closeoutInitiatedDate2,
+				},
 			},
-			Move: models.Move{
-				CloseoutOffice:   &closeoutOffice,
-				CloseoutOfficeID: &closeoutOffice.ID,
+			{
+				Model:    closeoutOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CloseoutOffice,
 			},
 		})
 
@@ -1366,9 +1382,11 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 					Name: "A",
 				},
 			}}, nil)
-		ppmShipmentA := testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				CloseoutOfficeID: &locationA.ID,
+		ppmShipmentA := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, []factory.Customization{
+			{
+				Model:    locationA,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CloseoutOffice,
 			},
 		})
 		locationB := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
@@ -1377,9 +1395,11 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 					Name: "B",
 				},
 			}}, nil)
-		ppmShipmentB := testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				CloseoutOfficeID: &locationB.ID,
+		ppmShipmentB := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, []factory.Customization{
+			{
+				Model:    locationB,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CloseoutOffice,
 			},
 		})
 
@@ -1424,14 +1444,16 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 			},
 		}, nil)
 
-		ppmShipmentA := testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{
-			Order: models.Order{
-				NewDutyLocationID: dutyLocationA.ID,
-				NewDutyLocation:   dutyLocationA,
+		ppmShipmentA := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, []factory.Customization{
+			{
+				Model:    dutyLocationA,
+				LinkOnly: true,
+				Type:     &factory.DutyLocations.NewDutyLocation,
 			},
-			Move: models.Move{
-				CloseoutOffice:   &closeoutOffice,
-				CloseoutOfficeID: &closeoutOffice.ID,
+			{
+				Model:    closeoutOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CloseoutOffice,
 			},
 		})
 		dutyLocationB := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
@@ -1441,14 +1463,16 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 				},
 			},
 		}, nil)
-		ppmShipmentB := testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{
-			Order: models.Order{
-				NewDutyLocationID: dutyLocationB.ID,
-				NewDutyLocation:   dutyLocationB,
+		ppmShipmentB := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, []factory.Customization{
+			{
+				Model:    dutyLocationB,
+				LinkOnly: true,
+				Type:     &factory.DutyLocations.NewDutyLocation,
 			},
-			Move: models.Move{
-				CloseoutOffice:   &closeoutOffice,
-				CloseoutOfficeID: &closeoutOffice.ID,
+			{
+				Model:    closeoutOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CloseoutOffice,
 			},
 		})
 
@@ -1484,18 +1508,28 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 				Model: models.TransportationOffice{Gbloc: "KKFA"},
 			},
 		}, nil)
-		ppmShipmentPartial := testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				PPMType:          models.StringPointer("Partial"),
-				CloseoutOffice:   &closeoutOffice,
-				CloseoutOfficeID: &closeoutOffice.ID,
+		ppmShipmentPartial := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, []factory.Customization{
+			{
+				Model: models.Move{
+					PPMType: models.StringPointer("Partial"),
+				},
+			},
+			{
+				Model:    closeoutOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CloseoutOffice,
 			},
 		})
-		ppmShipmentFull := testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				PPMType:          models.StringPointer("FULL"),
-				CloseoutOffice:   &closeoutOffice,
-				CloseoutOfficeID: &closeoutOffice.ID,
+		ppmShipmentFull := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, []factory.Customization{
+			{
+				Model: models.Move{
+					PPMType: models.StringPointer("FULL"),
+				},
+			},
+			{
+				Model:    closeoutOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CloseoutOffice,
 			},
 		})
 

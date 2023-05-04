@@ -41,6 +41,7 @@ type CustomType string
 // where this address will get created and nested
 var Address CustomType = "Address"
 var AdminUser CustomType = "AdminUser"
+var AuditHistory CustomType = "AuditHistory"
 var BackupContact CustomType = "BackupContact"
 var Contractor CustomType = "Contractor"
 var CustomerSupportRemark CustomType = "CustomerSupportRemark"
@@ -63,6 +64,7 @@ var PPMShipment CustomType = "PPMShipment"
 var PaymentRequest CustomType = "PaymentRequest"
 var PaymentServiceItem CustomType = "PaymentServiceItem"
 var PaymentServiceItemParam CustomType = "PaymentServiceItemParam"
+var PaymentRequestToInterchangeControlNumber CustomType = "PaymentRequestToInterchangeControlNumber"
 var PostalCodeToGBLOC CustomType = "PostalCodeToGBLOC"
 var PrimeUpload CustomType = "PrimeUpload"
 var ProgearWeightTicket CustomType = "ProgearWeightTicket"
@@ -85,49 +87,51 @@ var WeightTicket CustomType = "WeightTicket"
 
 // defaultTypesMap allows us to assign CustomTypes for most default types
 var defaultTypesMap = map[string]CustomType{
-	"models.Address":                 Address,
-	"models.AdminUser":               AdminUser,
-	"models.BackupContact":           BackupContact,
-	"models.Contractor":              Contractor,
-	"models.CustomerSupportRemark":   CustomerSupportRemark,
-	"models.Document":                Document,
-	"models.DutyLocation":            DutyLocation,
-	"models.Entitlement":             Entitlement,
-	"models.EvaluationReport":        EvaluationReport,
-	"models.Move":                    Move,
-	"models.MovingExpense":           MovingExpense,
-	"models.MTOAgent":                MTOAgent,
-	"models.MTOServiceItem":          MTOServiceItem,
-	"models.MTOServiceItemDimension": MTOServiceItemDimension,
-	"models.MTOShipment":             MTOShipment,
-	"models.Notification":            Notification,
-	"models.OfficePhoneLine":         OfficePhoneLine,
-	"models.OfficeUser":              OfficeUser,
-	"models.Order":                   Order,
-	"models.Organization":            Organization,
-	"models.PaymentRequest":          PaymentRequest,
-	"models.PaymentServiceItem":      PaymentServiceItem,
-	"models.PaymentServiceItemParam": PaymentServiceItemParam,
-	"models.PPMShipment":             PPMShipment,
-	"models.PostalCodeToGBLOC":       PostalCodeToGBLOC,
-	"models.PrimeUpload":             PrimeUpload,
-	"models.ProgearWeightTicket":     ProgearWeightTicket,
-	"models.ProofOfServiceDoc":       ProofOfServiceDoc,
-	"models.ReService":               ReService,
-	"models.ServiceItemParamKey":     ServiceItemParamKey,
-	"models.ServiceMember":           ServiceMember,
-	"models.ServiceParam":            ServiceParam,
-	"models.SignedCertification":     SignedCertification,
-	"models.SITDurationUpdate":       SITDurationUpdate,
-	"models.StorageFacility":         StorageFacility,
-	"models.TransportationOffice":    TransportationOffice,
-	"models.Upload":                  Upload,
-	"models.UserUpload":              UserUpload,
-	"models.User":                    User,
-	"models.UsersRoles":              UsersRoles,
-	"models.WebhookNotification":     WebhookNotification,
-	"models.WeightTicket":            WeightTicket,
-	"roles.Role":                     Role,
+	"models.Address":                                  Address,
+	"models.AdminUser":                                AdminUser,
+	"factory.TestDataAuditHistory":                    AuditHistory,
+	"models.BackupContact":                            BackupContact,
+	"models.Contractor":                               Contractor,
+	"models.CustomerSupportRemark":                    CustomerSupportRemark,
+	"models.Document":                                 Document,
+	"models.DutyLocation":                             DutyLocation,
+	"models.Entitlement":                              Entitlement,
+	"models.EvaluationReport":                         EvaluationReport,
+	"models.Move":                                     Move,
+	"models.MovingExpense":                            MovingExpense,
+	"models.MTOAgent":                                 MTOAgent,
+	"models.MTOServiceItem":                           MTOServiceItem,
+	"models.MTOServiceItemDimension":                  MTOServiceItemDimension,
+	"models.MTOShipment":                              MTOShipment,
+	"models.Notification":                             Notification,
+	"models.OfficePhoneLine":                          OfficePhoneLine,
+	"models.OfficeUser":                               OfficeUser,
+	"models.Order":                                    Order,
+	"models.Organization":                             Organization,
+	"models.PaymentRequest":                           PaymentRequest,
+	"models.PaymentServiceItem":                       PaymentServiceItem,
+	"models.PaymentServiceItemParam":                  PaymentServiceItemParam,
+	"models.PaymentRequestToInterchangeControlNumber": PaymentRequestToInterchangeControlNumber,
+	"models.PPMShipment":                              PPMShipment,
+	"models.PostalCodeToGBLOC":                        PostalCodeToGBLOC,
+	"models.PrimeUpload":                              PrimeUpload,
+	"models.ProgearWeightTicket":                      ProgearWeightTicket,
+	"models.ProofOfServiceDoc":                        ProofOfServiceDoc,
+	"models.ReService":                                ReService,
+	"models.ServiceItemParamKey":                      ServiceItemParamKey,
+	"models.ServiceMember":                            ServiceMember,
+	"models.ServiceParam":                             ServiceParam,
+	"models.SignedCertification":                      SignedCertification,
+	"models.SITDurationUpdate":                        SITDurationUpdate,
+	"models.StorageFacility":                          StorageFacility,
+	"models.TransportationOffice":                     TransportationOffice,
+	"models.Upload":                                   Upload,
+	"models.UserUpload":                               UserUpload,
+	"models.User":                                     User,
+	"models.UsersRoles":                               UsersRoles,
+	"models.WebhookNotification":                      WebhookNotification,
+	"models.WeightTicket":                             WeightTicket,
+	"roles.Role":                                      Role,
 }
 
 // Instead of nesting structs, we create specific CustomTypes here to give devs

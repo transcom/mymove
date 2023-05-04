@@ -207,3 +207,12 @@ export const futureSITShipment = {
     },
   ],
 };
+
+export const SITStatusExpired = {
+  location: LOCATION_VALUES.DESTINATION,
+  totalSITDaysUsed: 270,
+  totalDaysRemaining: 0,
+  daysInSIT: 15,
+  sitEntryDate: '2021-08-13T15:41:59.373Z',
+  sitDepartureDate: '2021-08-28T15:41:59.373Z',
+};

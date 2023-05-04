@@ -3937,7 +3937,8 @@ func createNTSRMove(appCtx appcontext.AppContext) {
 }
 
 func createDefaultHHGMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, affiliation models.ServiceMemberAffiliation) {
-	createHHGMoveWithPaymentRequest(appCtx, userUploader, affiliation, testdatagen.Assertions{})
+	createHHGMoveWithPaymentRequest(appCtx, userUploader, affiliation,
+		models.Move{}, models.MTOShipment{})
 }
 
 func matchedByPostalCode(postalCode string) func(addr *models.Address) bool {
@@ -5153,39 +5154,37 @@ func CreateMoveWithOptions(appCtx appcontext.AppContext, assertions testdatagen.
 	return move
 }
 
-func createHHGMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, affiliation models.ServiceMemberAffiliation, assertions testdatagen.Assertions) {
+func createHHGMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, affiliation models.ServiceMemberAffiliation, moveTemplate models.Move, mtoShipmentTemplate models.MTOShipment) {
 	db := appCtx.DB()
 	logger := appCtx.Logger()
 	serviceMember := models.ServiceMember{
 		Affiliation: &affiliation,
 	}
-	testdatagen.MergeModels(&serviceMember, assertions.ServiceMember)
 	customer := factory.BuildExtendedServiceMember(db, []factory.Customization{
 		{
 			Model: serviceMember,
 		},
 	}, nil)
 
-	order := models.Order{
-		ServiceMemberID: customer.ID,
-		ServiceMember:   customer,
-	}
-	testdatagen.MergeModels(&order, assertions.Order)
-	// assertions passed in means we cannot yet convert to BuildOrder
-	orders := testdatagen.MakeOrder(db, testdatagen.Assertions{
-		Order:        order,
-		UserUploader: userUploader,
-	})
+	orders := factory.BuildOrder(db, []factory.Customization{
+		{
+			Model:    customer,
+			LinkOnly: true,
+		},
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
 
-	move := models.Move{
-		Status:             models.MoveStatusAPPROVED,
-		AvailableToPrimeAt: models.TimePointer(time.Now()),
-	}
-	testdatagen.MergeModels(&move, assertions.Move)
-
+	moveTemplate.Status = models.MoveStatusAPPROVED
+	moveTemplate.AvailableToPrimeAt = models.TimePointer(time.Now())
 	mto := factory.BuildMove(db, []factory.Customization{
 		{
-			Model: move,
+			Model: moveTemplate,
 		},
 		{
 			Model:    orders,
@@ -5202,17 +5201,14 @@ func createHHGMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader 
 		},
 	}, nil)
 
-	shipment := models.MTOShipment{
-		PrimeEstimatedWeight: &estimatedWeight,
-		PrimeActualWeight:    &actualWeight,
-		ShipmentType:         models.MTOShipmentTypeHHG,
-		ApprovedDate:         models.TimePointer(time.Now()),
-		Status:               models.MTOShipmentStatusSubmitted,
-	}
-	testdatagen.MergeModels(&shipment, assertions.MTOShipment)
+	mtoShipmentTemplate.PrimeEstimatedWeight = &estimatedWeight
+	mtoShipmentTemplate.PrimeActualWeight = &actualWeight
+	mtoShipmentTemplate.ShipmentType = models.MTOShipmentTypeHHG
+	mtoShipmentTemplate.ApprovedDate = models.TimePointer(time.Now())
+	mtoShipmentTemplate.Status = models.MTOShipmentStatusSubmitted
 	MTOShipment := factory.BuildMTOShipment(db, []factory.Customization{
 		{
-			Model: shipment,
+			Model: mtoShipmentTemplate,
 		},
 		{
 			Model:    mto,
@@ -5225,18 +5221,16 @@ func createHHGMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader 
 		},
 	}, nil)
 
-	agent := models.MTOAgent{
-		FirstName:    models.StringPointer("Test"),
-		LastName:     models.StringPointer("Agent"),
-		Email:        models.StringPointer("test@test.email.com"),
-		MTOAgentType: models.MTOAgentReleasing,
-	}
-	testdatagen.MergeModels(&agent, assertions.MTOAgent)
-
-	// assertions passed in means we cannot yet convert to BuildMTOAgent
-	testdatagen.MakeMTOAgent(db, testdatagen.Assertions{
-		MTOAgent: agent,
-	})
+	factory.BuildMTOAgent(db, []factory.Customization{
+		{
+			Model: models.MTOAgent{
+				FirstName:    models.StringPointer("Test"),
+				LastName:     models.StringPointer("Agent"),
+				Email:        models.StringPointer("test@test.email.com"),
+				MTOAgentType: models.MTOAgentReleasing,
+			},
+		},
+	}, nil)
 
 	// setup service item
 	testdatagen.MakeMTOServiceItemDomesticCrating(db, testdatagen.Assertions{
@@ -10648,15 +10642,19 @@ func createMoveWithFutureSIT(appCtx appcontext.AppContext, userUploader *uploade
 		},
 	}, nil)
 
-	testdatagen.MakePaymentRequest(db, testdatagen.Assertions{
-		PaymentRequest: models.PaymentRequest{
-			ID:            uuid.Must(uuid.NewV4()),
-			Status:        models.PaymentRequestStatusReviewed,
-			ReviewedAt:    models.TimePointer(time.Now()),
-			MoveTaskOrder: move,
+	factory.BuildPaymentRequest(db, []factory.Customization{
+		{
+			Model: models.PaymentRequest{
+				ID:         uuid.Must(uuid.NewV4()),
+				Status:     models.PaymentRequestStatusReviewed,
+				ReviewedAt: models.TimePointer(time.Now()),
+			},
 		},
-		Move: move,
-	})
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 
 }
 
@@ -11510,7 +11508,12 @@ func createRandomMove(
 	allDutyLocations []models.DutyLocation,
 	dutyLocationsInGBLOC []models.DutyLocation,
 	withFullOrder bool,
-	assertions testdatagen.Assertions) models.Move {
+	userUploader *uploader.UserUploader,
+	moveTemplate models.Move,
+	mtoShipmentTemplate models.MTOShipment,
+	orderTemplate models.Order,
+	serviceMemberTemplate models.ServiceMember,
+) models.Move {
 	db := appCtx.DB()
 	randDays, err := random.GetRandomInt(366)
 	if err != nil {
@@ -11518,12 +11521,12 @@ func createRandomMove(
 	}
 	submittedAt := time.Now().AddDate(0, 0, randDays*-1)
 
-	if assertions.ServiceMember.Affiliation == nil {
+	if serviceMemberTemplate.Affiliation == nil {
 		randomAffiliation, err := random.GetRandomInt(5)
 		if err != nil {
 			log.Panic(fmt.Errorf("Unable to generate random integer for affiliation"), zap.Error(err))
 		}
-		assertions.ServiceMember.Affiliation = &[]models.ServiceMemberAffiliation{
+		serviceMemberTemplate.Affiliation = &[]models.ServiceMemberAffiliation{
 			models.AffiliationARMY,
 			models.AffiliationAIRFORCE,
 			models.AffiliationNAVY,
@@ -11531,67 +11534,85 @@ func createRandomMove(
 			models.AffiliationMARINES}[randomAffiliation]
 	}
 
+	customs := []factory.Customization{
+		{
+			Model: serviceMemberTemplate,
+		},
+		{
+			Model: orderTemplate,
+		},
+	}
+
 	dutyLocationCount := len(allDutyLocations)
-	if assertions.Order.OriginDutyLocationID == nil {
+	if orderTemplate.OriginDutyLocationID == nil {
 		// We can pick any origin duty location not only one in the office user's GBLOC
-		if *assertions.ServiceMember.Affiliation == models.AffiliationMARINES {
-			randDutyStaionIndex, err := random.GetRandomInt(dutyLocationCount)
+		if *serviceMemberTemplate.Affiliation == models.AffiliationMARINES {
+			randDutyStationIndex, err := random.GetRandomInt(dutyLocationCount)
 			if err != nil {
 				log.Panic(fmt.Errorf("Unable to generate random integer for duty location"), zap.Error(err))
 			}
-			assertions.Order.OriginDutyLocation = &allDutyLocations[randDutyStaionIndex]
-			assertions.Order.OriginDutyLocationID = &assertions.Order.OriginDutyLocation.ID
+			customs = append(customs, factory.Customization{
+				Model:    allDutyLocations[randDutyStationIndex],
+				LinkOnly: true,
+				Type:     &factory.DutyLocations.OriginDutyLocation,
+			})
 		} else {
-			randDutyStaionIndex, err := random.GetRandomInt(len(dutyLocationsInGBLOC))
+			randDutyStationIndex, err := random.GetRandomInt(len(dutyLocationsInGBLOC))
 			if err != nil {
 				log.Panic(fmt.Errorf("Unable to generate random integer for duty location"), zap.Error(err))
 			}
-			assertions.Order.OriginDutyLocation = &dutyLocationsInGBLOC[randDutyStaionIndex]
-			assertions.Order.OriginDutyLocationID = &assertions.Order.OriginDutyLocation.ID
+			customs = append(customs, factory.Customization{
+				Model:    dutyLocationsInGBLOC[randDutyStationIndex],
+				LinkOnly: true,
+				Type:     &factory.DutyLocations.OriginDutyLocation,
+			})
 		}
 	}
 
-	if assertions.Order.NewDutyLocationID == uuid.Nil {
-		randDutyStaionIndex, err := random.GetRandomInt(dutyLocationCount)
+	if orderTemplate.NewDutyLocationID == uuid.Nil {
+		randDutyStationIndex, err := random.GetRandomInt(dutyLocationCount)
 		if err != nil {
 			log.Panic(fmt.Errorf("Unable to generate random integer for duty location"), zap.Error(err))
 		}
-		assertions.Order.NewDutyLocation = allDutyLocations[randDutyStaionIndex]
-		assertions.Order.NewDutyLocationID = assertions.Order.NewDutyLocation.ID
+		customs = append(customs, factory.Customization{
+			Model:    allDutyLocations[randDutyStationIndex],
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.NewDutyLocation,
+		})
 	}
 
 	randomFirst, randomLast := fakedata.RandomName()
-	assertions.ServiceMember.FirstName = &randomFirst
-	assertions.ServiceMember.LastName = &randomLast
+	serviceMemberTemplate.FirstName = &randomFirst
+	serviceMemberTemplate.LastName = &randomLast
 
 	// assertions passed in means we cannot yet convert to BuildOrder
 	var order models.Order
 	if withFullOrder {
-		order = testdatagen.MakeOrder(db, assertions)
+		order = factory.BuildOrder(db, customs, nil)
 	} else {
-		order = testdatagen.MakeOrderWithoutDefaults(db, assertions)
+		order = factory.BuildOrderWithoutDefaults(db, customs, nil)
 	}
 
-	if assertions.Move.SubmittedAt == nil {
-		assertions.Move.SubmittedAt = &submittedAt
+	if moveTemplate.SubmittedAt == nil {
+		moveTemplate.SubmittedAt = &submittedAt
 	}
 
-	if assertions.Move.Status == "" {
+	if moveTemplate.Status == "" {
 		randStatusIndex, err := random.GetRandomInt(len(possibleStatuses))
 		if err != nil {
 			log.Panic(fmt.Errorf("Unable to generate random integer for move status"), zap.Error(err))
 		}
-		assertions.Move.Status = possibleStatuses[randStatusIndex]
+		moveTemplate.Status = possibleStatuses[randStatusIndex]
 
-		if assertions.Move.Status == models.MoveStatusServiceCounselingCompleted {
+		if moveTemplate.Status == models.MoveStatusServiceCounselingCompleted {
 			counseledAt := submittedAt.Add(3 * 24 * time.Hour)
-			assertions.Move.ServiceCounselingCompletedAt = &counseledAt
+			moveTemplate.ServiceCounselingCompletedAt = &counseledAt
 		}
 	}
 
 	move := factory.BuildMove(db, []factory.Customization{
 		{
-			Model: assertions.Move,
+			Model: moveTemplate,
 		},
 		{
 			Model:    order,
@@ -11600,8 +11621,8 @@ func createRandomMove(
 	}, nil)
 
 	shipmentStatus := models.MTOShipmentStatusSubmitted
-	if assertions.MTOShipment.Status != "" {
-		shipmentStatus = assertions.MTOShipment.Status
+	if mtoShipmentTemplate.Status != "" {
+		shipmentStatus = mtoShipmentTemplate.Status
 	}
 
 	laterRequestedPickupDate := submittedAt.Add(60 * 24 * time.Hour)
@@ -11617,8 +11638,8 @@ func createRandomMove(
 				Status:                shipmentStatus,
 				RequestedPickupDate:   &laterRequestedPickupDate,
 				RequestedDeliveryDate: &laterRequestedDeliveryDate,
-				ApprovedDate:          assertions.MTOShipment.ApprovedDate,
-				Diversion:             assertions.MTOShipment.Diversion,
+				ApprovedDate:          mtoShipmentTemplate.ApprovedDate,
+				Diversion:             mtoShipmentTemplate.Diversion,
 			},
 		},
 	}, nil)
@@ -11636,8 +11657,8 @@ func createRandomMove(
 				Status:                shipmentStatus,
 				RequestedPickupDate:   &earlierRequestedPickupDate,
 				RequestedDeliveryDate: &earlierRequestedDeliveryDate,
-				ApprovedDate:          assertions.MTOShipment.ApprovedDate,
-				Diversion:             assertions.MTOShipment.Diversion,
+				ApprovedDate:          mtoShipmentTemplate.ApprovedDate,
+				Diversion:             mtoShipmentTemplate.Diversion,
 			},
 		},
 	}, nil)
