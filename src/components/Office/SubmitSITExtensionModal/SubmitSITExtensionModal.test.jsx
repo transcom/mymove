@@ -1,14 +1,17 @@
 import React from 'react';
 import { render, waitFor, screen, act, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import moment from 'moment';
 
 import SubmitSITExtensionModal from './SubmitSITExtensionModal';
 
+import { utcDateFormat } from 'shared/dates';
+
 const defaultValues = {
   sitStatus: {
-    daysInSIT: 30,
+    daysInSIT: 60,
     location: 'DESTINATION',
-    sitEntryDate: '2023-03-19T00:00:00.000Z',
+    sitEntryDate: moment().subtract(60, 'days').format(utcDateFormat),
     totalDaysRemaining: 210,
     totalSITDaysUsed: 60,
   },
@@ -31,13 +34,15 @@ describe('SubmitSITExtensionModal', () => {
     await act(() => userEvent.type(daysApprovedInput, '280'));
     await act(() => userEvent.type(officeRemarksInput, 'Approved!'));
     await act(() => userEvent.click(submitBtn));
+
+    const expectedEndDate = moment().add(220, 'days').format('DD MMM YYYY');
     await waitFor(() => {
       expect(mockOnSubmit).toHaveBeenCalled();
       expect(mockOnSubmit).toHaveBeenCalledWith({
         requestReason: 'SERIOUS_ILLNESS_MEMBER',
         daysApproved: '280',
         officeRemarks: 'Approved!',
-        sitEndDate: '24 Nov 2023',
+        sitEndDate: expectedEndDate,
       });
     });
   });
@@ -67,7 +72,9 @@ describe('SubmitSITExtensionModal', () => {
     await act(() => userEvent.selectOptions(reasonInput, ['SERIOUS_ILLNESS_MEMBER']));
     await act(() => userEvent.clear(daysApprovedInput));
     await act(() => userEvent.type(daysApprovedInput, '280'));
-    expect(sitEndDateInput.value).toBe('24 Nov 2023');
+
+    const expectedEndDate = moment().add(220, 'days').format('DD MMM YYYY');
+    expect(sitEndDateInput.value).toBe(expectedEndDate);
   });
 
   it('changes the total days of SIT approved when end date is changed', async () => {
@@ -75,10 +82,11 @@ describe('SubmitSITExtensionModal', () => {
     await render(<SubmitSITExtensionModal onSubmit={mockOnSubmit} onClose={() => {}} {...defaultValues} />);
     const sitEndDateInput = screen.getByPlaceholderText('DD MMM YYYY');
     await act(() => userEvent.clear(sitEndDateInput));
-    await act(() => userEvent.type(sitEndDateInput, '04 Nov 2023'));
+    const newEndDate = moment().add(220, 'days').format('DD MMM YYYY');
+    await act(() => userEvent.type(sitEndDateInput, newEndDate));
     await fireEvent.blur(sitEndDateInput);
     const daysApprovedInput = screen.getByTestId('daysApproved');
-    expect(daysApprovedInput.value).toBe('260');
+    expect(daysApprovedInput.value).toBe('280');
   });
 
   it('calls onclose prop on modal close', async () => {

@@ -69,12 +69,9 @@ const SitStatusTables = ({ sitStatus, sitExtension, shipment }) => {
   const daysInPreviousSIT = totalSITDaysUsed - daysInSIT;
 
   const approvedAndRequestedDaysCombined = shipment.sitDaysAllowance + sitExtension.requestedDays;
-  const approvedAndRequestedDatesCombined = moment(
-    moment()
-      .add(sitStatus.totalDaysRemaining - 1, 'days')
-      .format('DD MMM YYYY'),
-  )
+  const approvedAndRequestedDatesCombined = moment()
     .add(sitExtension.requestedDays, 'days')
+    .add(sitStatus.totalDaysRemaining - 1, 'days')
     .format('DD MMM YYYY');
 
   const sitAllowanceHelper = useField({ name: 'daysApproved', id: 'daysApproved' })[2];
@@ -118,7 +115,7 @@ const SitStatusTables = ({ sitStatus, sitExtension, shipment }) => {
     // Sit days allowance
     sitAllowanceHelper.setValue(daysApproved);
     // // // Sit End date
-    const calculatedSitEndDate = moment(sitEntryDate)
+    const calculatedSitEndDate = moment(sitEntryDate, 'DD MMM YYYY')
       .add(daysApproved - daysInPreviousSIT, 'days')
       .format('DD MMM YYYY');
     endDateHelper.setTouched(true);
@@ -195,7 +192,7 @@ const ReviewSITExtensionsModal = ({ onClose, onSubmit, sitExtension, shipment, s
         .required('Required'),
     }),
     sitEndDate: Yup.date().min(
-      moment(sitStatus.sitEntryDate).add(1, 'days').format('DD MMM YYYY'),
+      moment(sitStatus.sitEntryDate, 'DD MMM YYYY').add(1, 'days').format('DD MMM YYYY'),
       'The end date must occur after the start date. Please select a new date.',
     ),
   });
