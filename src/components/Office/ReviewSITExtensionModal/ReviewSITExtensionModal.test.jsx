@@ -49,11 +49,11 @@ describe('ReviewSITExtensionModal', () => {
         sitStatus={sitStatus}
       />,
     );
-    const daysApprovedInput = screen.getByLabelText('Days approved');
+    const reasonInput = screen.getByLabelText('Reason for edit');
     const officeRemarksInput = screen.getByLabelText('Office remarks');
     const submitBtn = screen.getByRole('button', { name: 'Save' });
 
-    await userEvent.type(daysApprovedInput, '{backspace}{backspace}20');
+    await act(() => userEvent.selectOptions(reasonInput, ['SERIOUS_ILLNESS_MEMBER']));
     await userEvent.type(officeRemarksInput, 'Approved!');
     await userEvent.click(submitBtn);
 
@@ -61,7 +61,7 @@ describe('ReviewSITExtensionModal', () => {
       expect(mockOnSubmit).toHaveBeenCalled();
       expect(mockOnSubmit).toHaveBeenCalledWith(sitExt.id, {
         acceptExtension: 'yes',
-        daysApproved: '20',
+        requestReason: 'SERIOUS_ILLNESS_MEMBER',
         officeRemarks: 'Approved!',
       });
     });
