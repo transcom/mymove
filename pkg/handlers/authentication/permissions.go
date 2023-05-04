@@ -24,6 +24,7 @@ var TOO = RolePermissions{
 		"create.shipmentCancellation",
 		"create.SITExtension",
 		"read.paymentRequest",
+		"read.shipmentsPaymentSITBalance",
 		"update.move",
 		"update.shipment",
 		"update.financialReviewFlag",
