@@ -1,7 +1,7 @@
-import React from 'react';
-import { render, waitFor, screen, act } from '@testing-library/react';
-// import { render, waitFor, screen, act, fireEvent } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import moment from 'moment';
+import React from 'react';
 
 import ReviewSITExtensionModal from './ReviewSITExtensionModal';
 
@@ -14,7 +14,10 @@ describe('ReviewSITExtensionModal', () => {
   };
 
   const sitStatus = {
-    totalDaysRemaining: 300,
+    totalDaysRemaining: 30,
+    sitEntryDate: moment().subtract(15, 'days').format('DD MMM YYYY'),
+    totalSITDaysUsed: 15,
+    daysInSIT: 15,
   };
 
   const shipment = {
@@ -52,18 +55,22 @@ describe('ReviewSITExtensionModal', () => {
     );
 
     const daysApprovedInput = screen.getByTestId('daysApproved');
-    await act(() => userEvent.type(daysApprovedInput, '90'));
+    await userEvent.clear(daysApprovedInput);
+    await userEvent.type(daysApprovedInput, '90');
 
     const acceptExtensionField = screen.getByLabelText('Yes');
     await userEvent.click(acceptExtensionField);
 
-    const reasonInput = screen.getByLabelText('Reason for edit');
+    const reasonDropdown = screen.getByLabelText('Reason for edit');
+    await userEvent.selectOptions(reasonDropdown, ['SERIOUS_ILLNESS_MEMBER']);
+
     const officeRemarksInput = screen.getByLabelText('Office remarks');
     const submitBtn = screen.getByRole('button', { name: 'Save' });
 
-    await act(() => userEvent.selectOptions(reasonInput, ['SERIOUS_ILLNESS_MEMBER']));
     await userEvent.type(officeRemarksInput, 'Approved!');
     await userEvent.click(submitBtn);
+
+    const expectedEndDate = moment().add(75, 'days').format('DD MMM YYYY');
 
     await waitFor(() => {
       expect(mockOnSubmit).toHaveBeenCalled();
@@ -71,6 +78,8 @@ describe('ReviewSITExtensionModal', () => {
         acceptExtension: 'yes',
         requestReason: 'SERIOUS_ILLNESS_MEMBER',
         officeRemarks: 'Approved!',
+        daysApproved: '90',
+        sitEndDate: expectedEndDate,
       });
     });
   });
