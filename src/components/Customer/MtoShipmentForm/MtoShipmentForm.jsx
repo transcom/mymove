@@ -91,8 +91,10 @@ class MtoShipmentForm extends Component {
         ...delivery,
         address: saveDeliveryAddress ? delivery.address : undefined,
       },
-      secondaryPickup: hasSecondaryPickup ? secondaryPickup : {},
-      secondaryDelivery: hasSecondaryDelivery ? secondaryDelivery : {},
+      hasSecondaryPickup: hasSecondaryPickup === 'yes',
+      secondaryPickup: hasSecondaryPickup === 'yes' ? secondaryPickup : {},
+      hasSecondaryDelivery: hasSecondaryDelivery === 'yes',
+      secondaryDelivery: hasSecondaryDelivery === 'yes' ? secondaryDelivery : {},
     };
 
     const pendingMtoShipment = formatMtoShipmentForAPI(preformattedMtoShipment);

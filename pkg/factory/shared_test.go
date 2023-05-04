@@ -4,7 +4,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/suite"
 
@@ -353,8 +352,8 @@ func (suite *FactorySuite) TestNestedModelsCheck() {
 				Telephone:              &phone,
 				SecondaryTelephone:     &phone,
 				PersonalEmail:          &name,
-				PhoneIsPreferred:       swag.Bool(true),
-				EmailIsPreferred:       swag.Bool(false),
+				PhoneIsPreferred:       models.BoolPointer(true),
+				EmailIsPreferred:       models.BoolPointer(false),
 				ResidentialAddressID:   &testid,
 				BackupMailingAddressID: &testid,
 				DutyLocationID:         &testid,
@@ -551,4 +550,124 @@ func (suite *FactorySuite) TestElevateCustomization() {
 		// Old customization list is unchanged
 		suite.Equal(Addresses.ResidentialAddress, *customizationList[1].Type)
 	})
+}
+
+func (suite *FactorySuite) TestReplaceCustomization() {
+	suite.Run("Replace existing customization", func() {
+		// Under test:       replaceCustomization overrides existing customization
+		// Set up:           Create a service member customization,
+		// override it
+		// Expected outcome: No error
+
+		oldEdipi := "1111111111"
+		oldServiceMember := models.ServiceMember{
+			Edipi: &oldEdipi,
+		}
+		newEdipi := "222222222"
+		newServiceMember := models.ServiceMember{
+			Edipi: &newEdipi,
+		}
+		customs := []Customization{
+			{
+				Model: oldServiceMember,
+			},
+		}
+		// replaceCustomizations needs Type to have been set first
+		customs = setupCustomizations(customs, nil)
+		newCustoms := replaceCustomization(customs, Customization{
+			Model: newServiceMember,
+		})
+		suite.Equal(1, len(newCustoms), newCustoms)
+		suite.Equal(newCustoms, []Customization{
+			{
+				Model: newServiceMember,
+				Type:  &ServiceMember,
+			},
+		})
+	})
+
+	suite.Run("Add customization", func() {
+		// Under test:       replaceCustomization adds customization
+		// if one doesn't exist
+		// Set up:           empty customization
+		// Expected outcome: No error
+
+		newEdipi := "222222222"
+		newServiceMember := models.ServiceMember{
+			Edipi: &newEdipi,
+		}
+		customs := []Customization{}
+		newCustoms := replaceCustomization(customs, Customization{
+			Model: newServiceMember,
+		})
+		suite.Equal(1, len(newCustoms), newCustoms)
+		suite.Equal(newCustoms, []Customization{
+			{
+				Model: newServiceMember,
+				Type:  &ServiceMember,
+			},
+		})
+
+	})
+
+}
+
+func (suite *FactorySuite) TestRemoveCustomization() {
+	suite.Run("Remove existing customization", func() {
+		// Under test:       removeCustomization removes existing customization
+		// Set up:           Create customs that include a Move customization
+		// Expected outcome: No error
+		customs := []Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVALSREQUESTED,
+				},
+			},
+			{
+				Model: models.ServiceMember{
+					FirstName: models.StringPointer("Riley"),
+				},
+			},
+			{
+				Model: models.Order{
+					HasDependents: true,
+				},
+			},
+		}
+		customs = setupCustomizations(customs, nil)
+
+		newCustoms := removeCustomization(customs, Move)
+		suite.Equal(len(customs)-1, len(newCustoms))
+
+		ndx, _ := findCustomWithIdx(newCustoms, Move)
+		suite.Equal(-1, ndx)
+	})
+
+	suite.Run("Try to remove non-existant customization", func() {
+		// Under test:       removeCustomization returns unchanged customizations slice
+		// Set up:           Create customs that don't include a Move customization
+		// Expected outcome: No error
+
+		customs := []Customization{
+			{
+				Model: models.ServiceMember{
+					FirstName: models.StringPointer("Riley"),
+				},
+			},
+			{
+				Model: models.Order{
+					HasDependents: true,
+				},
+			},
+		}
+		customs = setupCustomizations(customs, nil)
+
+		newCustoms := removeCustomization(customs, Move)
+		suite.Equal(len(customs), len(newCustoms))
+
+		ndx, _ := findCustomWithIdx(newCustoms, Move)
+		suite.Equal(-1, ndx)
+
+	})
+
 }

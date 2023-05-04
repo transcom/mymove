@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/assert"
@@ -50,36 +49,48 @@ func (suite *HandlerSuite) makeCreatePaymentRequestHandlerSubtestData() (subtest
 	subtestData.requestUser = factory.BuildUser(nil, nil, nil)
 
 	subtestData.serviceItemID1, _ = uuid.FromString("1b7b134a-7c44-45f2-9114-bb0831cc5db3")
-	testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-		ReService: models.ReService{
-			Code:     models.ReServiceCodeDLH,
-			Priority: 1,
+	factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+		{
+			Model: models.ReService{
+				Code:     models.ReServiceCodeDLH,
+				Priority: 1,
+			},
 		},
-		MTOServiceItem: models.MTOServiceItem{
-			ID: subtestData.serviceItemID1,
+		{
+			Model: models.MTOServiceItem{
+				ID: subtestData.serviceItemID1,
+			},
 		},
-	})
+	}, nil)
 	subtestData.serviceItemID2, _ = uuid.FromString("119f0a05-34d7-4d86-9745-009c0707b4c2")
-	testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-		ReService: models.ReService{
-			Code:     models.ReServiceCodeFSC,
-			Priority: 99,
+	factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+		{
+			Model: models.ReService{
+				Code:     models.ReServiceCodeFSC,
+				Priority: 99,
+			},
 		},
-		MTOServiceItem: models.MTOServiceItem{
-			ID: subtestData.serviceItemID2,
+		{
+			Model: models.MTOServiceItem{
+				ID: subtestData.serviceItemID2,
+			},
 		},
-	})
+	}, nil)
 
 	subtestData.serviceItemID3, _ = uuid.FromString("d01a9002-7ce5-4c07-9187-c00de15293ed")
-	testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-		ReService: models.ReService{
-			Code:     models.ReServiceCodeDOASIT,
-			Priority: 99,
+	factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+		{
+			Model: models.ReService{
+				Code:     models.ReServiceCodeDOASIT,
+				Priority: 99,
+			},
 		},
-		MTOServiceItem: models.MTOServiceItem{
-			ID: subtestData.serviceItemID3,
+		{
+			Model: models.MTOServiceItem{
+				ID: subtestData.serviceItemID3,
+			},
 		},
-	})
+	}, nil)
 	return subtestData
 }
 
@@ -113,7 +124,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 		params := paymentrequestop.CreatePaymentRequestParams{
 			HTTPRequest: req,
 			Body: &primemessages.CreatePaymentRequest{
-				IsFinal:         swag.Bool(false),
+				IsFinal:         models.BoolPointer(false),
 				MoveTaskOrderID: handlers.FmtUUID(subtestData.moveTaskOrderID),
 				ServiceItems: []*primemessages.ServiceItem{
 					{
@@ -179,7 +190,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 		params := paymentrequestop.CreatePaymentRequestParams{
 			HTTPRequest: req,
 			Body: &primemessages.CreatePaymentRequest{
-				IsFinal:         swag.Bool(false),
+				IsFinal:         models.BoolPointer(false),
 				MoveTaskOrderID: handlers.FmtUUID(subtestData.moveTaskOrderID),
 				ServiceItems: []*primemessages.ServiceItem{
 					{
@@ -236,7 +247,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 		params := paymentrequestop.CreatePaymentRequestParams{
 			HTTPRequest: req,
 			Body: &primemessages.CreatePaymentRequest{
-				IsFinal:         swag.Bool(false),
+				IsFinal:         models.BoolPointer(false),
 				MoveTaskOrderID: handlers.FmtUUID(subtestData.moveTaskOrderID),
 				ServiceItems: []*primemessages.ServiceItem{
 					{
@@ -313,7 +324,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 		params := paymentrequestop.CreatePaymentRequestParams{
 			HTTPRequest: req,
 			Body: &primemessages.CreatePaymentRequest{
-				IsFinal:         swag.Bool(false),
+				IsFinal:         models.BoolPointer(false),
 				MoveTaskOrderID: handlers.FmtUUID(subtestData.moveTaskOrderID),
 				PointOfContact:  "user@prime.com",
 			},
@@ -351,7 +362,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 		params := paymentrequestop.CreatePaymentRequestParams{
 			HTTPRequest: req,
 			Body: &primemessages.CreatePaymentRequest{
-				IsFinal:         swag.Bool(false),
+				IsFinal:         models.BoolPointer(false),
 				MoveTaskOrderID: &badFormatID,
 			},
 		}
@@ -386,7 +397,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 		params := paymentrequestop.CreatePaymentRequestParams{
 			HTTPRequest: req,
 			Body: &primemessages.CreatePaymentRequest{
-				IsFinal:         swag.Bool(false),
+				IsFinal:         models.BoolPointer(false),
 				MoveTaskOrderID: handlers.FmtUUID(subtestData.moveTaskOrderID),
 				PointOfContact:  "user@prime.com",
 				ServiceItems: []*primemessages.ServiceItem{
@@ -433,7 +444,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 		params := paymentrequestop.CreatePaymentRequestParams{
 			HTTPRequest: req,
 			Body: &primemessages.CreatePaymentRequest{
-				IsFinal:         swag.Bool(false),
+				IsFinal:         models.BoolPointer(false),
 				MoveTaskOrderID: handlers.FmtUUID(subtestData.moveTaskOrderID),
 				ServiceItems: []*primemessages.ServiceItem{
 					{
@@ -480,7 +491,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 		params := paymentrequestop.CreatePaymentRequestParams{
 			HTTPRequest: req,
 			Body: &primemessages.CreatePaymentRequest{
-				IsFinal:         swag.Bool(false),
+				IsFinal:         models.BoolPointer(false),
 				MoveTaskOrderID: handlers.FmtUUID(subtestData.moveTaskOrderID),
 				ServiceItems: []*primemessages.ServiceItem{
 					{
@@ -526,7 +537,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 		params := paymentrequestop.CreatePaymentRequestParams{
 			HTTPRequest: req,
 			Body: &primemessages.CreatePaymentRequest{
-				IsFinal:         swag.Bool(false),
+				IsFinal:         models.BoolPointer(false),
 				MoveTaskOrderID: handlers.FmtUUID(subtestData.moveTaskOrderID),
 				ServiceItems: []*primemessages.ServiceItem{
 					{
@@ -561,7 +572,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 		params := paymentrequestop.CreatePaymentRequestParams{
 			HTTPRequest: req,
 			Body: &primemessages.CreatePaymentRequest{
-				IsFinal:         swag.Bool(false),
+				IsFinal:         models.BoolPointer(false),
 				MoveTaskOrderID: handlers.FmtUUID(subtestData.moveTaskOrderID),
 				PointOfContact:  "user@prime.com",
 				ServiceItems: []*primemessages.ServiceItem{
@@ -675,20 +686,31 @@ func (suite *HandlerSuite) setupDomesticLinehaulData() (models.Move, models.MTOS
 	suite.MustSave(&msTaskOrderFee)
 
 	availableToPrimeAt := time.Date(testdatagen.GHCTestYear, time.July, 1, 0, 0, 0, 0, time.UTC)
-	moveTaskOrder, mtoServiceItems := testdatagen.MakeFullDLHMTOServiceItem(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			Status:             models.MoveStatusAPPROVED,
-			AvailableToPrimeAt: &availableToPrimeAt,
+	moveTaskOrder, mtoServiceItems := factory.BuildFullDLHMTOServiceItems(suite.DB(), []factory.Customization{
+		{
+			Model: models.Move{
+				Status:             models.MoveStatusAPPROVED,
+				AvailableToPrimeAt: &availableToPrimeAt,
+			},
 		},
-		MTOShipment: models.MTOShipment{
-			PrimeEstimatedWeight: &testEstWeight,
-			PrimeActualWeight:    &testActualWeight,
-			PickupAddressID:      &pickupAddress.ID,
-			PickupAddress:        &pickupAddress,
-			DestinationAddressID: &destinationAddress.ID,
-			DestinationAddress:   &destinationAddress,
+		{
+			Model:    pickupAddress,
+			LinkOnly: true,
+			Type:     &factory.Addresses.PickupAddress,
 		},
-	})
+		{
+			Model:    destinationAddress,
+			LinkOnly: true,
+			Type:     &factory.Addresses.DeliveryAddress,
+		},
+		{
+			Model: models.MTOShipment{
+				Status:               models.MTOShipmentStatusSubmitted,
+				PrimeEstimatedWeight: &testEstWeight,
+				PrimeActualWeight:    &testActualWeight,
+			},
+		},
+	}, nil)
 
 	publicationDate := moveTaskOrder.MTOShipments[0].ActualPickupDate.AddDate(0, 0, -3) // 3 days earlier
 	ghcDieselFuelPrice := models.GHCDieselFuelPrice{
@@ -739,7 +761,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandlerNewPaymentRequestCreat
 		params := paymentrequestop.CreatePaymentRequestParams{
 			HTTPRequest: req,
 			Body: &primemessages.CreatePaymentRequest{
-				IsFinal:         swag.Bool(false),
+				IsFinal:         models.BoolPointer(false),
 				MoveTaskOrderID: handlers.FmtUUID(moveTaskOrderID),
 				ServiceItems: []*primemessages.ServiceItem{
 					{
@@ -800,7 +822,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandlerNewPaymentRequestCreat
 		params := paymentrequestop.CreatePaymentRequestParams{
 			HTTPRequest: req,
 			Body: &primemessages.CreatePaymentRequest{
-				IsFinal:         swag.Bool(false),
+				IsFinal:         models.BoolPointer(false),
 				MoveTaskOrderID: handlers.FmtUUID(moveTaskOrderID),
 				ServiceItems: []*primemessages.ServiceItem{
 					{
@@ -847,7 +869,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandlerNewPaymentRequestCreat
 		params := paymentrequestop.CreatePaymentRequestParams{
 			HTTPRequest: req,
 			Body: &primemessages.CreatePaymentRequest{
-				IsFinal:         swag.Bool(false),
+				IsFinal:         models.BoolPointer(false),
 				MoveTaskOrderID: handlers.FmtUUID(moveTaskOrderID),
 				ServiceItems: []*primemessages.ServiceItem{
 					{
@@ -907,7 +929,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandlerInvalidMTOReferenceID(
 		params := paymentrequestop.CreatePaymentRequestParams{
 			HTTPRequest: req,
 			Body: &primemessages.CreatePaymentRequest{
-				IsFinal:         swag.Bool(false),
+				IsFinal:         models.BoolPointer(false),
 				MoveTaskOrderID: handlers.FmtUUID(moveTaskOrderID),
 				ServiceItems: []*primemessages.ServiceItem{
 					{
@@ -975,7 +997,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandlerInvalidMTOReferenceID(
 		params := paymentrequestop.CreatePaymentRequestParams{
 			HTTPRequest: req,
 			Body: &primemessages.CreatePaymentRequest{
-				IsFinal:         swag.Bool(false),
+				IsFinal:         models.BoolPointer(false),
 				MoveTaskOrderID: handlers.FmtUUID(moveTaskOrderID),
 				ServiceItems: []*primemessages.ServiceItem{
 					{

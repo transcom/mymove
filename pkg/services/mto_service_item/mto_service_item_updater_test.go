@@ -12,7 +12,6 @@ package mtoserviceitem
 import (
 	"time"
 
-	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
@@ -120,6 +119,51 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		suite.Equal(newServiceItem.EstimatedWeight, updatedServiceItem.EstimatedWeight)
 		suite.NotEqual(newServiceItem.Status, updatedServiceItem.Status)
 	})
+
+	// Success for DDDSIT
+	suite.Run("Success", func() {
+		serviceItem, eTag := setupServiceItem()
+		serviceItem.ReService.Code = models.ReServiceCodeDDDSIT
+		reason := "because we did this service"
+		sitEntryDate := time.Date(2020, time.December, 02, 0, 0, 0, 0, time.UTC)
+
+		newAddress := factory.BuildAddress(nil, nil, nil)
+		newServiceItem := serviceItem
+		newServiceItem.Reason = &reason
+		newServiceItem.SITEntryDate = &sitEntryDate
+		newServiceItem.Status = "" // should keep the status from the original service item
+		newServiceItem.SITDestinationFinalAddress = &newAddress
+		actualWeight := int64(4000)
+		estimatedWeight := int64(4200)
+		newServiceItem.ActualWeight = handlers.PoundPtrFromInt64Ptr(&actualWeight)
+		newServiceItem.ActualWeight = handlers.PoundPtrFromInt64Ptr(&estimatedWeight)
+		newServiceItem.CustomerContacts = models.MTOServiceItemCustomerContacts{
+			models.MTOServiceItemCustomerContact{
+				TimeMilitary:               "1400Z",
+				FirstAvailableDeliveryDate: time.Date(2020, time.December, 02, 0, 0, 0, 0, time.UTC),
+			},
+		}
+		updatedServiceItem, err := updater.UpdateMTOServiceItemBasic(suite.AppContextForTest(), &newServiceItem, eTag)
+
+		suite.NoError(err)
+		suite.NotNil(updatedServiceItem)
+		suite.Equal(serviceItem.ID, updatedServiceItem.ID)
+		suite.Equal(serviceItem.MTOShipmentID, updatedServiceItem.MTOShipmentID)
+		suite.Equal(serviceItem.MoveTaskOrderID, updatedServiceItem.MoveTaskOrderID)
+		suite.Equal(newServiceItem.Reason, updatedServiceItem.Reason)
+		suite.Equal(newServiceItem.SITEntryDate.Local(), updatedServiceItem.SITEntryDate.Local())
+		suite.Equal(serviceItem.Status, updatedServiceItem.Status) // should not have been updated
+		suite.Equal(newAddress.StreetAddress1, updatedServiceItem.SITDestinationFinalAddress.StreetAddress1)
+		suite.Equal(newAddress.City, updatedServiceItem.SITDestinationFinalAddress.City)
+		suite.Equal(newAddress.State, updatedServiceItem.SITDestinationFinalAddress.State)
+		suite.Equal(newAddress.Country, updatedServiceItem.SITDestinationFinalAddress.Country)
+		suite.Equal(newAddress.PostalCode, updatedServiceItem.SITDestinationFinalAddress.PostalCode)
+		suite.Equal(newServiceItem.ActualWeight, updatedServiceItem.ActualWeight)
+		suite.Equal(newServiceItem.EstimatedWeight, updatedServiceItem.EstimatedWeight)
+		suite.Equal(newServiceItem.CustomerContacts[0].TimeMilitary, updatedServiceItem.CustomerContacts[0].TimeMilitary)
+		suite.Equal(newServiceItem.CustomerContacts[0].FirstAvailableDeliveryDate, updatedServiceItem.CustomerContacts[0].FirstAvailableDeliveryDate)
+		suite.NotEqual(newServiceItem.Status, updatedServiceItem.Status)
+	})
 }
 
 func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
@@ -179,15 +223,23 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 
 	// Test successful Prime validation
 	suite.Run("UpdateMTOServiceItemPrimeValidator - success", func() {
-		oldServiceItemPrime := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			Move: testdatagen.MakeAvailableMove(suite.DB()),
-		})
+		oldServiceItemPrime := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil),
+				LinkOnly: true,
+			},
+		}, nil)
 		newServiceItemPrime := oldServiceItemPrime
 
 		// Change something allowed by Prime:
 		reason := "because"
 		newServiceItemPrime.Reason = &reason
-
+		newServiceItemPrime.CustomerContacts = models.MTOServiceItemCustomerContacts{
+			models.MTOServiceItemCustomerContact{
+				TimeMilitary:               "1300Z",
+				FirstAvailableDeliveryDate: time.Date(2020, time.December, 02, 0, 0, 0, 0, time.UTC),
+			},
+		}
 		serviceItemData := updateMTOServiceItemData{
 			updatedServiceItem:  newServiceItemPrime,
 			oldServiceItem:      oldServiceItemPrime,
@@ -199,6 +251,8 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 		suite.NoError(err)
 		suite.NotNil(updatedServiceItem)
 		suite.IsType(models.MTOServiceItem{}, *updatedServiceItem)
+		suite.Equal(updatedServiceItem.CustomerContacts[0].TimeMilitary, newServiceItemPrime.CustomerContacts[0].TimeMilitary)
+		suite.Equal(updatedServiceItem.CustomerContacts[0].FirstAvailableDeliveryDate, newServiceItemPrime.CustomerContacts[0].FirstAvailableDeliveryDate)
 	})
 
 	// Test unsuccessful Prime validation - Not available to Prime
@@ -221,9 +275,12 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 
 	// Test unsuccessful Prime validation - Invalid input
 	suite.Run("UpdateMTOServiceItemPrimeValidator - invalid input failure", func() {
-		oldServiceItemPrime := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			Move: testdatagen.MakeAvailableMove(suite.DB()),
-		})
+		oldServiceItemPrime := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil),
+				LinkOnly: true,
+			},
+		}, nil)
 		newServiceItemPrime := oldServiceItemPrime
 
 		// Change something unavailable to Prime:
@@ -250,17 +307,23 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 
 	// Test unsuccessful Prime validation - Payment requests
 	suite.Run("UpdateMTOServiceItemPrimeValidator - payment request failure", func() {
-		oldServiceItemPrime := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			Move: testdatagen.MakeAvailableMove(suite.DB()),
-		})
+		oldServiceItemPrime := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil),
+				LinkOnly: true,
+			},
+		}, nil)
 		newServiceItemPrime := oldServiceItemPrime
 
 		// Create payment requests for service item:
-		paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
-		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: paymentRequest,
-			MTOServiceItem: oldServiceItemPrime,
-		})
+		paymentRequest := factory.BuildPaymentRequest(suite.DB(), nil, nil)
+		factory.BuildPaymentServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: paymentRequest, LinkOnly: true,
+			}, {
+				Model: oldServiceItemPrime, LinkOnly: true,
+			},
+		}, nil)
 
 		serviceItemData := updateMTOServiceItemData{
 			updatedServiceItem:  newServiceItemPrime,
@@ -293,11 +356,14 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 }
 
 func (suite *MTOServiceItemServiceSuite) createServiceItem() (string, models.MTOServiceItem, models.Move) {
-	move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{})
+	move := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
 
-	serviceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-		Move: move,
-	})
+	serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	eTag := etag.GenerateEtag(serviceItem.UpdatedAt)
 
@@ -305,11 +371,14 @@ func (suite *MTOServiceItemServiceSuite) createServiceItem() (string, models.MTO
 }
 
 func (suite *MTOServiceItemServiceSuite) createServiceItemForUnapprovedMove() (string, models.MTOServiceItem, models.Move) {
-	move := testdatagen.MakeDefaultMove(suite.DB())
+	move := factory.BuildMove(suite.DB(), nil, nil)
 
-	serviceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-		Move: move,
-	})
+	serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	eTag := etag.GenerateEtag(serviceItem.UpdatedAt)
 
@@ -337,19 +406,29 @@ func (suite *MTOServiceItemServiceSuite) createServiceItemForMoveWithUnacknowled
 
 	amendedDocument.UserUploads = append(amendedDocument.UserUploads, amendedUpload)
 	now := time.Now()
-	move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{
-		Order: models.Order{
-			UploadedAmendedOrders:   &amendedDocument,
-			UploadedAmendedOrdersID: &amendedDocument.ID,
-			ServiceMember:           amendedDocument.ServiceMember,
-			ServiceMemberID:         amendedDocument.ServiceMemberID,
+	move := factory.BuildApprovalsRequestedMove(suite.DB(), []factory.Customization{
+		{
+			Model: models.Move{
+				ExcessWeightQualifiedAt: &now,
+			},
 		},
-		Move: models.Move{ExcessWeightQualifiedAt: &now},
-	})
+		{
+			Model:    amendedDocument,
+			LinkOnly: true,
+			Type:     &factory.Documents.UploadedAmendedOrders,
+		},
+		{
+			Model:    amendedDocument.ServiceMember,
+			LinkOnly: true,
+		},
+	}, nil)
 
-	serviceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-		Move: move,
-	})
+	serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	eTag := etag.GenerateEtag(serviceItem.UpdatedAt)
 
@@ -361,7 +440,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 	moveRouter := moverouter.NewMoveRouter()
 	updater := NewMTOServiceItemUpdater(builder, moveRouter)
 
-	rejectionReason := swag.String("")
+	rejectionReason := models.StringPointer("")
 
 	// Test that the move's status changes to Approved when the service item's
 	// status is no longer SUBMITTED
@@ -414,7 +493,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 	// rejected
 	suite.Run("When TOO reviews move and rejects service item", func() {
 		eTag, serviceItem, move := suite.createServiceItem()
-		rejectionReason = swag.String("incomplete")
+		rejectionReason = models.StringPointer("incomplete")
 
 		updatedServiceItem, err := updater.ApproveOrRejectServiceItem(
 			suite.AppContextForTest(), serviceItem.ID, models.MTOServiceItemStatusRejected, rejectionReason, eTag)
@@ -477,7 +556,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 
 	suite.Run("Returns an error when eTag is stale", func() {
 		_, serviceItem, _ := suite.createServiceItem()
-		rejectionReason = swag.String("incomplete")
+		rejectionReason = models.StringPointer("incomplete")
 
 		_, err := updater.ApproveOrRejectServiceItem(
 			suite.AppContextForTest(), serviceItem.ID, models.MTOServiceItemStatusRejected, rejectionReason, "")

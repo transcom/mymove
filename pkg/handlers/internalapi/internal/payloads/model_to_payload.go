@@ -4,7 +4,6 @@ import (
 	"errors"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
@@ -118,20 +117,28 @@ func PPMShipment(storer storage.FileStorer, ppmShipment *models.PPMShipment) *in
 // MTOShipment payload
 func MTOShipment(storer storage.FileStorer, mtoShipment *models.MTOShipment) *internalmessages.MTOShipment {
 	payload := &internalmessages.MTOShipment{
-		ID:                       strfmt.UUID(mtoShipment.ID.String()),
-		Agents:                   *MTOAgents(&mtoShipment.MTOAgents),
-		MoveTaskOrderID:          strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
-		ShipmentType:             internalmessages.MTOShipmentType(mtoShipment.ShipmentType),
-		CustomerRemarks:          mtoShipment.CustomerRemarks,
-		PickupAddress:            Address(mtoShipment.PickupAddress),
-		SecondaryPickupAddress:   Address(mtoShipment.SecondaryPickupAddress),
-		DestinationAddress:       Address(mtoShipment.DestinationAddress),
-		SecondaryDeliveryAddress: Address(mtoShipment.SecondaryDeliveryAddress),
-		CreatedAt:                strfmt.DateTime(mtoShipment.CreatedAt),
-		UpdatedAt:                strfmt.DateTime(mtoShipment.UpdatedAt),
-		Status:                   internalmessages.MTOShipmentStatus(mtoShipment.Status),
-		PpmShipment:              PPMShipment(storer, mtoShipment.PPMShipment),
-		ETag:                     etag.GenerateEtag(mtoShipment.UpdatedAt),
+		ID:                          strfmt.UUID(mtoShipment.ID.String()),
+		Agents:                      *MTOAgents(&mtoShipment.MTOAgents),
+		MoveTaskOrderID:             strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
+		ShipmentType:                internalmessages.MTOShipmentType(mtoShipment.ShipmentType),
+		CustomerRemarks:             mtoShipment.CustomerRemarks,
+		PickupAddress:               Address(mtoShipment.PickupAddress),
+		SecondaryPickupAddress:      Address(mtoShipment.SecondaryPickupAddress),
+		HasSecondaryPickupAddress:   mtoShipment.HasSecondaryPickupAddress,
+		DestinationAddress:          Address(mtoShipment.DestinationAddress),
+		SecondaryDeliveryAddress:    Address(mtoShipment.SecondaryDeliveryAddress),
+		HasSecondaryDeliveryAddress: mtoShipment.HasSecondaryDeliveryAddress,
+		CreatedAt:                   strfmt.DateTime(mtoShipment.CreatedAt),
+		UpdatedAt:                   strfmt.DateTime(mtoShipment.UpdatedAt),
+		Status:                      internalmessages.MTOShipmentStatus(mtoShipment.Status),
+		PpmShipment:                 PPMShipment(storer, mtoShipment.PPMShipment),
+		ETag:                        etag.GenerateEtag(mtoShipment.UpdatedAt),
+	}
+	if mtoShipment.HasSecondaryPickupAddress != nil && !*mtoShipment.HasSecondaryPickupAddress {
+		payload.SecondaryPickupAddress = nil
+	}
+	if mtoShipment.HasSecondaryDeliveryAddress != nil && !*mtoShipment.HasSecondaryDeliveryAddress {
+		payload.SecondaryDeliveryAddress = nil
 	}
 
 	if mtoShipment.RequestedPickupDate != nil && !mtoShipment.RequestedPickupDate.IsZero() {
@@ -162,7 +169,7 @@ func TransportationOffice(office models.TransportationOffice) *internalmessages.
 		ID:         handlers.FmtUUID(office.ID),
 		CreatedAt:  handlers.FmtDateTime(office.CreatedAt),
 		UpdatedAt:  handlers.FmtDateTime(office.UpdatedAt),
-		Name:       swag.String(office.Name),
+		Name:       models.StringPointer(office.Name),
 		Gbloc:      office.Gbloc,
 		Address:    Address(&office.Address),
 		PhoneLines: phoneLines,

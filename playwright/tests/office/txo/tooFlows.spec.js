@@ -183,8 +183,8 @@ test.describe('TOO user', () => {
       await page.locator('input[name="sac"]').type('4K988AS098F');
 
       // Edit orders page | Save
-      await Promise.all([page.waitForNavigation(), page.getByRole('button', { name: 'Save' }).click()]);
-      await tooFlowPage.waitForLoading();
+      await page.getByRole('button', { name: 'Save' }).click();
+      await page.getByRole('heading', { name: 'Move details' }).waitFor();
 
       // Verify edited values are saved
       expect(page.url()).toContain(`/moves/${tooFlowPage.moveLocator}/details`);

@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
@@ -134,15 +133,15 @@ func StorageFacilityModel(storageFacility *ghcmessages.StorageFacility) *models.
 }
 
 // ApprovedSITExtensionFromCreate model
-func ApprovedSITExtensionFromCreate(sitExtension *ghcmessages.CreateSITExtensionAsTOO, shipmentID strfmt.UUID) *models.SITExtension {
+func ApprovedSITExtensionFromCreate(sitExtension *ghcmessages.CreateApprovedSITDurationUpdate, shipmentID strfmt.UUID) *models.SITDurationUpdate {
 	if sitExtension == nil {
 		return nil
 	}
 	now := time.Now()
 	ad := int(*sitExtension.ApprovedDays)
-	model := &models.SITExtension{
+	model := &models.SITDurationUpdate{
 		MTOShipmentID: uuid.FromStringOrNil(shipmentID.String()),
-		RequestReason: models.SITExtensionRequestReason(*sitExtension.RequestReason),
+		RequestReason: models.SITDurationUpdateRequestReason(*sitExtension.RequestReason),
 		RequestedDays: int(*sitExtension.ApprovedDays),
 		Status:        models.SITExtensionStatusApproved,
 		ApprovedDays:  &ad,
@@ -192,11 +191,11 @@ func MTOShipmentModelFromCreate(mtoShipment *ghcmessages.CreateMTOShipment) *mod
 	}
 
 	if mtoShipment.RequestedPickupDate != nil {
-		model.RequestedPickupDate = swag.Time(time.Time(*mtoShipment.RequestedPickupDate))
+		model.RequestedPickupDate = models.TimePointer(time.Time(*mtoShipment.RequestedPickupDate))
 	}
 
 	if mtoShipment.RequestedDeliveryDate != nil {
-		model.RequestedDeliveryDate = swag.Time(time.Time(*mtoShipment.RequestedDeliveryDate))
+		model.RequestedDeliveryDate = models.TimePointer(time.Time(*mtoShipment.RequestedDeliveryDate))
 	}
 
 	// Set up address models
@@ -356,10 +355,22 @@ func MTOShipmentModelFromUpdate(mtoShipment *ghcmessages.UpdateShipment) *models
 		SACType:                     sacType,
 		UsesExternalVendor:          usesExternalVendor,
 		ServiceOrderNumber:          mtoShipment.ServiceOrderNumber,
+		HasSecondaryPickupAddress:   mtoShipment.HasSecondaryPickupAddress,
+		HasSecondaryDeliveryAddress: mtoShipment.HasSecondaryDeliveryAddress,
 	}
 
 	model.PickupAddress = AddressModel(&mtoShipment.PickupAddress.Address)
 	model.DestinationAddress = AddressModel(&mtoShipment.DestinationAddress.Address)
+	if mtoShipment.HasSecondaryPickupAddress != nil {
+		if *mtoShipment.HasSecondaryPickupAddress {
+			model.SecondaryPickupAddress = AddressModel(&mtoShipment.SecondaryPickupAddress.Address)
+		}
+	}
+	if mtoShipment.HasSecondaryDeliveryAddress != nil {
+		if *mtoShipment.HasSecondaryDeliveryAddress {
+			model.SecondaryDeliveryAddress = AddressModel(&mtoShipment.SecondaryDeliveryAddress.Address)
+		}
+	}
 
 	if mtoShipment.DestinationType != nil {
 		valDestinationType := models.DestinationType(*mtoShipment.DestinationType)

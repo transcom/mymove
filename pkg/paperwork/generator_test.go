@@ -14,7 +14,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
@@ -49,7 +48,7 @@ func (suite *PaperworkSuite) sha256ForPath(path string, fs *afero.Afero) (string
 }
 
 func (suite *PaperworkSuite) setupOrdersDocument() (*Generator, models.Order) {
-	order := testdatagen.MakeDefaultOrder(suite.DB())
+	order := factory.BuildOrder(suite.DB(), nil, nil)
 
 	document := factory.BuildDocument(suite.DB(), nil, nil)
 
@@ -90,8 +89,8 @@ func (suite *PaperworkSuite) TestPDFFromImages() {
 	suite.FatalNil(newGeneratorErr)
 
 	images := []inputFile{
-		{Path: "testdata/orders1.jpg", ContentType: "image/jpeg"},
-		{Path: "testdata/orders2.jpg", ContentType: "image/jpeg"},
+		{Path: "testdata/orders1.jpg", ContentType: uploader.FileTypeJPEG},
+		{Path: "testdata/orders2.jpg", ContentType: uploader.FileTypeJPEG},
 	}
 	for _, image := range images {
 		_, err := suite.openLocalFile(image.Path, generator.fs)
@@ -152,7 +151,7 @@ func (suite *PaperworkSuite) TestPDFFromImages16BitPNG() {
 		// The below image isn't getting extracted by pdfcpu for some reason.
 		// We're adding it because gofpdf can't process 16-bit PNG images, so we
 		// just care that PDFFromImages doesn't error
-		{Path: "testdata/16bitpng.png", ContentType: "image/png"},
+		{Path: "testdata/16bitpng.png", ContentType: uploader.FileTypePNG},
 	}
 	_, err = suite.openLocalFile(images[0].Path, generator.fs)
 	suite.FatalNil(err)
@@ -170,8 +169,8 @@ func (suite *PaperworkSuite) TestPDFFromImagesRotation() {
 		// The below image is best viewed in landscape, but will rotate in
 		// PDFFromImages. Since we can't analyze the final contents, we'll
 		// just ensure it doesn't error.
-		{Path: "testdata/example_landscape.png", ContentType: "image/png"},
-		{Path: "testdata/example_landscape.jpg", ContentType: "image/jpeg"},
+		{Path: "testdata/example_landscape.png", ContentType: uploader.FileTypePNG},
+		{Path: "testdata/example_landscape.jpg", ContentType: uploader.FileTypeJPEG},
 	}
 	_, err = suite.openLocalFile(images[0].Path, generator.fs)
 	suite.FatalNil(err)

@@ -301,6 +301,8 @@ describe('MtoShipmentForm component', () => {
         requestedPickupDate: '2021-06-07',
         pickupAddress: { ...shipmentInfo.pickupAddress },
         requestedDeliveryDate: '2021-06-14',
+        hasSecondaryPickupAddress: false,
+        hasSecondaryDeliveryAddress: false,
       };
 
       const updatedAt = '2021-06-11T18:12:11.918Z';
@@ -631,7 +633,9 @@ describe('MtoShipmentForm component', () => {
         requestedDeliveryDate: mockMtoShipment.requestedDeliveryDate,
         destinationAddress: { ...mockMtoShipment.destinationAddress, streetAddress2: '' },
         secondaryDeliveryAddress: undefined,
+        hasSecondaryDeliveryAddress: false,
         secondaryPickupAddress: undefined,
+        hasSecondaryPickupAddress: false,
         agents: undefined,
         counselorRemarks: undefined,
       };

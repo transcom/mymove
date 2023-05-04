@@ -127,7 +127,6 @@ export const Default = () => {
       serviceOrderNumber: values.serviceOrderNumber,
     });
   };
-
   return (
     <div className="officeApp">
       <MockProviders

@@ -18,7 +18,6 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 	remarksservice "github.com/transcom/mymove/pkg/services/customer_support_remarks"
 	"github.com/transcom/mymove/pkg/services/mocks"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *HandlerSuite) TestListCustomerRemarksForMoveHandler() {
@@ -26,15 +25,23 @@ func (suite *HandlerSuite) TestListCustomerRemarksForMoveHandler() {
 	setupTestData := func() (services.CustomerSupportRemarksFetcher, models.CustomerSupportRemark) {
 
 		fetcher := remarksservice.NewCustomerSupportRemarks()
-		move := testdatagen.MakeDefaultMove(suite.DB())
+		move := factory.BuildMove(suite.DB(), nil, nil)
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
-		expectedCustomerSupportRemark := testdatagen.MakeCustomerSupportRemark(suite.DB(), testdatagen.Assertions{
-			CustomerSupportRemark: models.CustomerSupportRemark{
-				Content:      "This is a customer support remark.",
-				OfficeUserID: officeUser.ID,
-				MoveID:       move.ID,
+		expectedCustomerSupportRemark := factory.BuildCustomerSupportRemark(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model:    officeUser,
+				LinkOnly: true,
+			},
+			{
+				Model: models.CustomerSupportRemark{
+					Content: "This is a customer support remark.",
+				},
+			},
+		}, nil)
 		expectedCustomerSupportRemark.Move = move
 
 		return fetcher, expectedCustomerSupportRemark
@@ -92,7 +99,7 @@ func (suite *HandlerSuite) TestListCustomerRemarksForMoveHandler() {
 
 func (suite *HandlerSuite) TestCreateCustomerSupportRemarksHandler() {
 	suite.Run("Successful POST", func() {
-		move := testdatagen.MakeDefaultMove(suite.DB())
+		move := factory.BuildMove(suite.DB(), nil, nil)
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		handlerConfig := suite.HandlerConfig()
 
@@ -145,7 +152,7 @@ func (suite *HandlerSuite) TestCreateCustomerSupportRemarksHandler() {
 	})
 
 	suite.Run("unsuccessful POST", func() {
-		move := testdatagen.MakeDefaultMove(suite.DB())
+		move := factory.BuildMove(suite.DB(), nil, nil)
 
 		handlerConfig := suite.HandlerConfig()
 
@@ -192,16 +199,23 @@ func (suite *HandlerSuite) TestUpdateCustomerSupportRemarksHandler() {
 	setupTestData := func() (*mocks.CustomerSupportRemarkUpdater, models.CustomerSupportRemark, models.CustomerSupportRemark) {
 
 		updater := mocks.CustomerSupportRemarkUpdater{}
-		move := testdatagen.MakeDefaultMove(suite.DB())
+		move := factory.BuildMove(suite.DB(), nil, nil)
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
-		originalRemark := testdatagen.MakeCustomerSupportRemark(suite.DB(), testdatagen.Assertions{
-			CustomerSupportRemark: models.CustomerSupportRemark{
-				Content:      "This is a customer support remark.",
-				OfficeUserID: officeUser.ID,
-				MoveID:       move.ID,
+		originalRemark := factory.BuildCustomerSupportRemark(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-			Move: move,
-		})
+			{
+				Model:    officeUser,
+				LinkOnly: true,
+			},
+			{
+				Model: models.CustomerSupportRemark{
+					Content: "This is a customer support remark.",
+				},
+			},
+		}, nil)
 
 		updatedRemark := originalRemark
 		updatedRemark.Content = "Changed my mind"

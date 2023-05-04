@@ -5,6 +5,7 @@ import (
 
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
@@ -17,17 +18,22 @@ func (suite *MoveServiceSuite) TestExcessWeight() {
 
 	suite.Run("qualifies move for excess weight when an approved shipment estimated weight is updated within threshold", func() {
 		// The default weight allotment for this move is 8000 and the threshold is 90% of that
-		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
+		approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		now := time.Now()
 		pickupDate := now.AddDate(0, 0, 10)
-		approvedShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status:              models.MTOShipmentStatusApproved,
-				ApprovedDate:        &now,
-				ScheduledPickupDate: &pickupDate,
+		approvedShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:              models.MTOShipmentStatusApproved,
+					ApprovedDate:        &now,
+					ScheduledPickupDate: &pickupDate,
+				},
 			},
-			Move: approvedMove,
-		})
+			{
+				Model:    approvedMove,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		estimatedWeight := unit.Pound(7200)
 		approvedShipment.PrimeEstimatedWeight = &estimatedWeight
@@ -46,17 +52,22 @@ func (suite *MoveServiceSuite) TestExcessWeight() {
 	})
 
 	suite.Run("does not flag move for excess weight when an approved shipment estimated weight is lower than threshold", func() {
-		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
+		approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		now := time.Now()
 		pickupDate := now.AddDate(0, 0, 10)
-		approvedShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status:              models.MTOShipmentStatusApproved,
-				ApprovedDate:        &now,
-				ScheduledPickupDate: &pickupDate,
+		approvedShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:              models.MTOShipmentStatusApproved,
+					ApprovedDate:        &now,
+					ScheduledPickupDate: &pickupDate,
+				},
 			},
-			Move: approvedMove,
-		})
+			{
+				Model:    approvedMove,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		estimatedWeight := unit.Pound(7199)
 		approvedShipment.PrimeEstimatedWeight = &estimatedWeight
@@ -74,28 +85,38 @@ func (suite *MoveServiceSuite) TestExcessWeight() {
 	})
 
 	suite.Run("qualifies move for excess weight when the sum of approved shipments is updated within threshold", func() {
-		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
+		approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		now := time.Now()
 		pickupDate := now.AddDate(0, 0, 10)
 		estimatedWeight := unit.Pound(3600)
 
-		testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status:               models.MTOShipmentStatusApproved,
-				ApprovedDate:         &now,
-				ScheduledPickupDate:  &pickupDate,
-				PrimeEstimatedWeight: &estimatedWeight,
+		factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:               models.MTOShipmentStatusApproved,
+					ApprovedDate:         &now,
+					ScheduledPickupDate:  &pickupDate,
+					PrimeEstimatedWeight: &estimatedWeight,
+				},
 			},
-			Move: approvedMove,
-		})
-		approvedShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status:              models.MTOShipmentStatusApproved,
-				ApprovedDate:        &now,
-				ScheduledPickupDate: &pickupDate,
+			{
+				Model:    approvedMove,
+				LinkOnly: true,
 			},
-			Move: approvedMove,
-		})
+		}, nil)
+		approvedShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:              models.MTOShipmentStatusApproved,
+					ApprovedDate:        &now,
+					ScheduledPickupDate: &pickupDate,
+				},
+			},
+			{
+				Model:    approvedMove,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		approvedShipment.PrimeEstimatedWeight = &estimatedWeight
 		updatedMove, verrs, err := moveWeights.CheckExcessWeight(suite.AppContextForTest(), approvedMove.ID, approvedShipment)
@@ -112,28 +133,38 @@ func (suite *MoveServiceSuite) TestExcessWeight() {
 	})
 
 	suite.Run("does not flag move for excess weight when the sum of non-approved shipments meets the threshold", func() {
-		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
+		approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		now := time.Now()
 		pickupDate := now.AddDate(0, 0, 10)
 		estimatedWeight := unit.Pound(3600)
 
-		testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status:               models.MTOShipmentStatusCanceled,
-				ApprovedDate:         &now,
-				ScheduledPickupDate:  &pickupDate,
-				PrimeEstimatedWeight: &estimatedWeight,
+		factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:               models.MTOShipmentStatusCanceled,
+					ApprovedDate:         &now,
+					ScheduledPickupDate:  &pickupDate,
+					PrimeEstimatedWeight: &estimatedWeight,
+				},
 			},
-			Move: approvedMove,
-		})
-		approvedShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status:              models.MTOShipmentStatusApproved,
-				ApprovedDate:        &now,
-				ScheduledPickupDate: &pickupDate,
+			{
+				Model:    approvedMove,
+				LinkOnly: true,
 			},
-			Move: approvedMove,
-		})
+		}, nil)
+		approvedShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:              models.MTOShipmentStatusApproved,
+					ApprovedDate:        &now,
+					ScheduledPickupDate: &pickupDate,
+				},
+			},
+			{
+				Model:    approvedMove,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		approvedShipment.PrimeEstimatedWeight = &estimatedWeight
 		updatedMove, verrs, err := moveWeights.CheckExcessWeight(suite.AppContextForTest(), approvedMove.ID, approvedShipment)
@@ -150,19 +181,24 @@ func (suite *MoveServiceSuite) TestExcessWeight() {
 	})
 
 	suite.Run("does not flag move for excess weight when updated shipment status is not approved", func() {
-		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
+		approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		now := time.Now()
 		pickupDate := now.AddDate(0, 0, 10)
 
-		unapprovedShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status:              models.MTOShipmentStatusSubmitted,
-				ApprovedDate:        &now,
-				ScheduledPickupDate: &pickupDate,
-				Diversion:           true,
+		unapprovedShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:              models.MTOShipmentStatusSubmitted,
+					ApprovedDate:        &now,
+					ScheduledPickupDate: &pickupDate,
+					Diversion:           true,
+				},
 			},
-			Move: approvedMove,
-		})
+			{
+				Model:    approvedMove,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		estimatedWeight := unit.Pound(7200)
 		unapprovedShipment.PrimeEstimatedWeight = &estimatedWeight
@@ -181,25 +217,30 @@ func (suite *MoveServiceSuite) TestExcessWeight() {
 
 	suite.Run("removes excess weight qualification when estimated weight drops below previously met threshold", func() {
 		now := time.Now()
-		approvedMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				AvailableToPrimeAt:      &now,
-				Status:                  models.MoveStatusAPPROVED,
-				ExcessWeightQualifiedAt: &now,
+		approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					ExcessWeightQualifiedAt: &now,
+				},
 			},
-		})
+		}, nil)
 
 		pickupDate := now.AddDate(0, 0, 10)
 		estimatedWeight := unit.Pound(7200)
-		approvedShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status:               models.MTOShipmentStatusApproved,
-				ApprovedDate:         &now,
-				ScheduledPickupDate:  &pickupDate,
-				PrimeEstimatedWeight: &estimatedWeight,
+		approvedShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:               models.MTOShipmentStatusApproved,
+					ApprovedDate:         &now,
+					ScheduledPickupDate:  &pickupDate,
+					PrimeEstimatedWeight: &estimatedWeight,
+				},
 			},
-			Move: approvedMove,
-		})
+			{
+				Model:    approvedMove,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		updatedEstimatedWeight := unit.Pound(7199)
 		approvedShipment.PrimeEstimatedWeight = &updatedEstimatedWeight
@@ -217,7 +258,7 @@ func (suite *MoveServiceSuite) TestExcessWeight() {
 	})
 
 	suite.Run("returns error if orders grade is unset to lookup weight allowance", func() {
-		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
+		approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		approvedMove.Orders.Grade = nil
 
 		err := suite.DB().Save(&approvedMove.Orders)
@@ -229,7 +270,7 @@ func (suite *MoveServiceSuite) TestExcessWeight() {
 	})
 
 	suite.Run("returns error if dependents authorized is unset to lookup weight allowance", func() {
-		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
+		approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		approvedMove.Orders.Entitlement.DependentsAuthorized = nil
 
 		err := suite.DB().Save(approvedMove.Orders.Entitlement)
@@ -242,23 +283,28 @@ func (suite *MoveServiceSuite) TestExcessWeight() {
 
 	suite.Run("qualifies move for excess weight when an approved shipment with PPM weights is greater than threshold", func() {
 		// The default weight allotment for this move is 8000 and the threshold is 90% of that
-		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
+		approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		//Default estimatedWeight for ppm is 4000
-		ppmShipment := testdatagen.MakeDefaultPPMShipment(suite.DB())
+		ppmShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
 		now := time.Now()
 		pickupDate := now.AddDate(0, 0, 10)
-		approvedShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status:              models.MTOShipmentStatusApproved,
-				ApprovedDate:        &now,
-				ScheduledPickupDate: &pickupDate,
-				PPMShipment:         &ppmShipment,
+		approvedShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:              models.MTOShipmentStatusApproved,
+					ApprovedDate:        &now,
+					ScheduledPickupDate: &pickupDate,
+				},
 			},
-			Move: approvedMove,
-		})
+			{
+				Model:    approvedMove,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		primeEstimatedWeight := unit.Pound(3200)
 		approvedShipment.PrimeEstimatedWeight = &primeEstimatedWeight
+		approvedShipment.PPMShipment = &ppmShipment
 		//When accounting for PPM weight, the sum should exceed the 90% threshold
 		updatedMove, verrs, err := moveWeights.CheckExcessWeight(suite.AppContextForTest(), approvedMove.ID, approvedShipment)
 
@@ -275,20 +321,28 @@ func (suite *MoveServiceSuite) TestExcessWeight() {
 
 	suite.Run("does not flag move for excess weight when an approved shipment with PPM weights is below the threshold", func() {
 		// The default weight allotment for this move is 8000 and the threshold is 90% of that
-		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
+		approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		//Default estimatedWeight for ppm is 4000
-		ppmShipment := testdatagen.MakeDefaultPPMShipment(suite.DB())
+		ppmShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
 		now := time.Now()
 		pickupDate := now.AddDate(0, 0, 10)
-		approvedShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status:              models.MTOShipmentStatusApproved,
-				ApprovedDate:        &now,
-				ScheduledPickupDate: &pickupDate,
-				PPMShipment:         &ppmShipment,
+		approvedShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:              models.MTOShipmentStatusApproved,
+					ApprovedDate:        &now,
+					ScheduledPickupDate: &pickupDate,
+				},
 			},
-			Move: approvedMove,
-		})
+			{
+				Model:    approvedMove,
+				LinkOnly: true,
+			},
+			{
+				Model:    ppmShipment,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		primeEstimatedWeight := unit.Pound(3199)
 		approvedShipment.PrimeEstimatedWeight = &primeEstimatedWeight
@@ -312,17 +366,22 @@ func (suite *MoveServiceSuite) TestAutoReweigh() {
 
 	suite.Run("requests reweigh on shipment if the acutal weight is 90% of the weight allowance", func() {
 		// The default weight allotment for this move is 8000 and the threshold is 90% of that
-		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
+		approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		now := time.Now()
 		pickupDate := now.AddDate(0, 0, 10)
-		approvedShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status:              models.MTOShipmentStatusApproved,
-				ApprovedDate:        &now,
-				ScheduledPickupDate: &pickupDate,
+		approvedShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:              models.MTOShipmentStatusApproved,
+					ApprovedDate:        &now,
+					ScheduledPickupDate: &pickupDate,
+				},
 			},
-			Move: approvedMove,
-		})
+			{
+				Model:    approvedMove,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		actualWeight := unit.Pound(7200)
 		approvedShipment.PrimeActualWeight = &actualWeight
@@ -341,18 +400,23 @@ func (suite *MoveServiceSuite) TestAutoReweigh() {
 		mockedReweighRequestor := mocks.ShipmentReweighRequester{}
 		mockedWeightService := NewMoveWeights(&mockedReweighRequestor)
 
-		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
+		approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
 		now := time.Now()
 		pickupDate := now.AddDate(0, 0, 10)
-		approvedShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status:              models.MTOShipmentStatusApproved,
-				ApprovedDate:        &now,
-				ScheduledPickupDate: &pickupDate,
+		approvedShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:              models.MTOShipmentStatusApproved,
+					ApprovedDate:        &now,
+					ScheduledPickupDate: &pickupDate,
+				},
 			},
-			Move: approvedMove,
-		})
+			{
+				Model:    approvedMove,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		actualWeight := unit.Pound(7199)
 		approvedShipment.PrimeEstimatedWeight = &actualWeight
@@ -364,30 +428,40 @@ func (suite *MoveServiceSuite) TestAutoReweigh() {
 	})
 
 	suite.Run("requests reweigh on existing shipments in addition to the one being updated", func() {
-		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
+		approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
 		now := time.Now()
 		pickupDate := now.AddDate(0, 0, 10)
 		actualWeight := unit.Pound(3600)
 
-		existingShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status:              models.MTOShipmentStatusApproved,
-				ApprovedDate:        &now,
-				ScheduledPickupDate: &pickupDate,
-				PrimeActualWeight:   &actualWeight,
+		existingShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:              models.MTOShipmentStatusApproved,
+					ApprovedDate:        &now,
+					ScheduledPickupDate: &pickupDate,
+					PrimeActualWeight:   &actualWeight,
+				},
 			},
-			Move: approvedMove,
-		})
+			{
+				Model:    approvedMove,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		approvedShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status:              models.MTOShipmentStatusApproved,
-				ApprovedDate:        &now,
-				ScheduledPickupDate: &pickupDate,
+		approvedShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:              models.MTOShipmentStatusApproved,
+					ApprovedDate:        &now,
+					ScheduledPickupDate: &pickupDate,
+				},
 			},
-			Move: approvedMove,
-		})
+			{
+				Model:    approvedMove,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		approvedShipment.PrimeActualWeight = &actualWeight
 		autoReweighShipments, err := moveWeights.CheckAutoReweigh(suite.AppContextForTest(), approvedMove.ID, &approvedShipment)
@@ -413,28 +487,38 @@ func (suite *MoveServiceSuite) TestAutoReweigh() {
 		mockedReweighRequestor := mocks.ShipmentReweighRequester{}
 		mockedWeightService := NewMoveWeights(&mockedReweighRequestor)
 
-		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
+		approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		now := time.Now()
 		pickupDate := now.AddDate(0, 0, 10)
 		actualWeight := unit.Pound(3600)
 
-		existingShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status:              models.MTOShipmentStatusCanceled,
-				ApprovedDate:        &now,
-				ScheduledPickupDate: &pickupDate,
-				PrimeActualWeight:   &actualWeight,
+		existingShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:              models.MTOShipmentStatusCanceled,
+					ApprovedDate:        &now,
+					ScheduledPickupDate: &pickupDate,
+					PrimeActualWeight:   &actualWeight,
+				},
 			},
-			Move: approvedMove,
-		})
-		approvedShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status:              models.MTOShipmentStatusApproved,
-				ApprovedDate:        &now,
-				ScheduledPickupDate: &pickupDate,
+			{
+				Model:    approvedMove,
+				LinkOnly: true,
 			},
-			Move: approvedMove,
-		})
+		}, nil)
+		approvedShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:              models.MTOShipmentStatusApproved,
+					ApprovedDate:        &now,
+					ScheduledPickupDate: &pickupDate,
+				},
+			},
+			{
+				Model:    approvedMove,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		approvedShipment.PrimeActualWeight = &actualWeight
 		_, err := mockedWeightService.CheckAutoReweigh(suite.AppContextForTest(), approvedMove.ID, &approvedShipment)
@@ -451,30 +535,40 @@ func (suite *MoveServiceSuite) TestAutoReweigh() {
 	suite.Run("uses lower reweigh weight on shipments that already have reweighs", func() {
 		mockedReweighRequestor := mocks.ShipmentReweighRequester{}
 		mockedWeightService := NewMoveWeights(&mockedReweighRequestor)
-		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
+		approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
 		now := time.Now()
 		pickupDate := now.AddDate(0, 0, 10)
 		actualWeight := unit.Pound(2400)
-		existingShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status:              models.MTOShipmentStatusApproved,
-				ApprovedDate:        &now,
-				ScheduledPickupDate: &pickupDate,
-				PrimeActualWeight:   &actualWeight,
+		existingShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:              models.MTOShipmentStatusApproved,
+					ApprovedDate:        &now,
+					ScheduledPickupDate: &pickupDate,
+					PrimeActualWeight:   &actualWeight,
+				},
 			},
-			Move: approvedMove,
-		})
+			{
+				Model:    approvedMove,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		reweighedShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status:              models.MTOShipmentStatusApproved,
-				ApprovedDate:        &now,
-				ScheduledPickupDate: &pickupDate,
-				PrimeActualWeight:   &actualWeight,
+		reweighedShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:              models.MTOShipmentStatusApproved,
+					ApprovedDate:        &now,
+					ScheduledPickupDate: &pickupDate,
+					PrimeActualWeight:   &actualWeight,
+				},
 			},
-			Move: approvedMove,
-		})
+			{
+				Model:    approvedMove,
+				LinkOnly: true,
+			},
+		}, nil)
 		reweighWeight := unit.Pound(2399)
 		testdatagen.MakeReweigh(suite.DB(), testdatagen.Assertions{
 			Reweigh: models.Reweigh{
@@ -483,14 +577,19 @@ func (suite *MoveServiceSuite) TestAutoReweigh() {
 			MTOShipment: reweighedShipment,
 		})
 
-		approvedShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status:              models.MTOShipmentStatusApproved,
-				ApprovedDate:        &now,
-				ScheduledPickupDate: &pickupDate,
+		approvedShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:              models.MTOShipmentStatusApproved,
+					ApprovedDate:        &now,
+					ScheduledPickupDate: &pickupDate,
+				},
 			},
-			Move: approvedMove,
-		})
+			{
+				Model:    approvedMove,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		approvedShipment.PrimeActualWeight = &actualWeight
 		_, err := mockedWeightService.CheckAutoReweigh(suite.AppContextForTest(), approvedMove.ID, &approvedShipment)
@@ -505,7 +604,7 @@ func (suite *MoveServiceSuite) TestAutoReweigh() {
 	})
 
 	suite.Run("returns error if orders grade is unset to lookup weight allowance", func() {
-		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
+		approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		approvedMove.Orders.Grade = nil
 
 		err := suite.DB().Save(&approvedMove.Orders)
@@ -516,7 +615,7 @@ func (suite *MoveServiceSuite) TestAutoReweigh() {
 	})
 
 	suite.Run("returns error if dependents authorized is unset to lookup weight allowance", func() {
-		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
+		approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		approvedMove.Orders.Entitlement.DependentsAuthorized = nil
 
 		err := suite.DB().Save(approvedMove.Orders.Entitlement)

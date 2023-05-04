@@ -3,6 +3,7 @@ package ghcrateengine
 import (
 	"time"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -59,20 +60,20 @@ func (suite *GHCRateEngineServiceSuite) TestPriceManagementServices() {
 }
 
 func (suite *GHCRateEngineServiceSuite) setupManagementServicesItem() models.PaymentServiceItem {
-	return testdatagen.MakeDefaultPaymentServiceItemWithParams(
+	return factory.BuildPaymentServiceItemWithParams(
 		suite.DB(),
 		models.ReServiceCodeMS,
-		[]testdatagen.CreatePaymentServiceItemParams{
+		[]factory.CreatePaymentServiceItemParams{
 			{
 				Key:     models.ServiceItemParamNameContractCode,
 				KeyType: models.ServiceItemParamTypeString,
-				Value:   testdatagen.DefaultContractCode,
+				Value:   factory.DefaultContractCode,
 			},
 			{
 				Key:     models.ServiceItemParamNameMTOAvailableToPrimeAt,
 				KeyType: models.ServiceItemParamTypeTimestamp,
 				Value:   msAvailableToPrimeAt.Format(TimestampParamFormat),
 			},
-		},
+		}, nil, nil,
 	)
 }

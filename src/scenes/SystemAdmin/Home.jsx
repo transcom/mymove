@@ -16,8 +16,6 @@ import AdminUserShow from 'pages/Admin/AdminUsers/AdminUserShow';
 import AdminUserCreate from 'pages/Admin/AdminUsers/AdminUserCreate';
 import AdminUserEdit from 'pages/Admin/AdminUsers/AdminUserEdit';
 import OfficeList from 'pages/Admin/Offices/OfficeList';
-import TSPPList from './TSPPs/TSPPList';
-import TSPPShow from './TSPPs/TSPPShow';
 import ElectronicOrderList from './ElectronicOrders/ElectronicOrderList';
 import MoveList from 'pages/Admin/Moves/MoveList';
 import MoveShow from 'pages/Admin/Moves/MoveShow';
@@ -81,12 +79,6 @@ const Home = () => (
       />
       <Resource name="users" options={{ label: 'Users' }} list={UserList} show={UserShow} edit={UserEdit} />
       <Resource name="moves" options={{ label: 'Moves' }} list={MoveList} show={MoveShow} edit={MoveEdit} />
-      <Resource
-        name="transportation-service-provider-performances"
-        options={{ label: 'TSPPs' }}
-        list={TSPPList}
-        show={TSPPShow}
-      />
       <Resource name="electronic-orders" options={{ label: 'Electronic orders' }} list={ElectronicOrderList} />
       <Resource name="uploads" options={{ label: 'Search Upload by ID' }} show={UploadShow} />
       <Resource name="organizations" />

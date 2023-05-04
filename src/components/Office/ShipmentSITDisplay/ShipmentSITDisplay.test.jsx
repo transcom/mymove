@@ -1,9 +1,10 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import ShipmentSITDisplay from './ShipmentSITDisplay';
 import {
+  futureSITShipment,
   SITExtensions,
   SITStatusOrigin,
   SITStatusDestination,
@@ -13,6 +14,7 @@ import {
   SITExtensionsWithComments,
   SITExtensionPending,
   SITExtensionDenied,
+  SITStatusExpired,
 } from './ShipmentSITDisplayTestParams';
 
 import { MockProviders } from 'testUtils';
@@ -26,15 +28,18 @@ describe('ShipmentSITDisplay', () => {
       </MockProviders>,
     );
     expect(screen.getByText('SIT (STORAGE IN TRANSIT)')).toBeTruthy();
+    const sitStatusTable = await screen.findByTestId('sitStatusTable');
+    expect(sitStatusTable).toBeInTheDocument();
+    expect(within(sitStatusTable).getByText('Total days of SIT approved')).toBeInTheDocument();
+    expect(within(sitStatusTable).getByText('270')).toBeInTheDocument();
+    expect(within(sitStatusTable).getByText('Total days used')).toBeInTheDocument();
+    expect(within(sitStatusTable).getByText('45')).toBeInTheDocument();
+    expect(within(sitStatusTable).getByText('Total days remaining')).toBeInTheDocument();
+    expect(within(sitStatusTable).getByText('59')).toBeInTheDocument();
 
-    expect(screen.getByText('270 authorized')).toBeInTheDocument();
-    expect(screen.getByText('45 used')).toBeInTheDocument();
-    expect(screen.getByText('60 remaining')).toBeInTheDocument();
+    expect(screen.getByText('Current location: origin SIT')).toBeInTheDocument();
 
-    expect(screen.getByText('Current location: origin')).toBeInTheDocument();
-
-    expect(screen.getByText('Days in origin SIT')).toBeInTheDocument();
-    expect(screen.getByText('45')).toBeInTheDocument();
+    expect(screen.getByText('Total days in origin SIT')).toBeInTheDocument();
     expect(screen.getByText(`13 Aug 2021`)).toBeInTheDocument();
 
     expect(await screen.queryByText('Office remarks:')).toBeFalsy();
@@ -47,8 +52,8 @@ describe('ShipmentSITDisplay', () => {
       </MockProviders>,
     );
 
-    expect(screen.getByText('Current location: destination')).toBeInTheDocument();
-    expect(screen.getByText('Days in destination SIT')).toBeInTheDocument();
+    expect(screen.getByText('Current location: destination SIT')).toBeInTheDocument();
+    expect(screen.getByText('Total days in destination SIT')).toBeInTheDocument();
   });
 
   it('renders the Shipment SIT at Destination, previous origin SIT', async () => {
@@ -79,9 +84,9 @@ describe('ShipmentSITDisplay', () => {
         <ShipmentSITDisplay sitExtensions={SITExtensions} sitStatus={SITStatusDestination} shipment={SITShipment} />
       </MockProviders>,
     );
-    expect(screen.getByText('SIT extensions')).toBeInTheDocument();
-    expect(screen.getByText('30 days added')).toBeInTheDocument();
-    expect(screen.getByText('on 13 Sep 2021')).toBeInTheDocument();
+    expect(screen.getByText('SIT history')).toBeInTheDocument();
+    expect(screen.getByText('Total days of SIT approved: 270')).toBeInTheDocument();
+    expect(screen.getByText('updated on 13 Sep 2021')).toBeInTheDocument();
     expect(screen.getByText('Serious illness of the member')).toBeInTheDocument();
   });
 
@@ -116,9 +121,9 @@ describe('ShipmentSITDisplay', () => {
         />
       </MockProviders>,
     );
-    expect(screen.getByText('SIT extensions')).toBeInTheDocument();
-    expect(screen.getByText('0 days added')).toBeInTheDocument();
-    expect(screen.getByText('on 13 Sep 2021 — request rejected')).toBeInTheDocument();
+    expect(screen.getByText('SIT history')).toBeInTheDocument();
+    expect(screen.getByText('Total days of SIT approved: 270')).toBeInTheDocument();
+    expect(screen.getByText('updated on 13 Sep 2021')).toBeInTheDocument();
     expect(screen.getByText('Serious illness of the member')).toBeInTheDocument();
   });
 
@@ -136,47 +141,55 @@ describe('ShipmentSITDisplay', () => {
     expect(await screen.queryByText('SIT extensions')).not.toBeInTheDocument();
   });
 
-  it('calls review SIT extension callback when button is clicked', async () => {
-    const showReviewSITExtension = jest.fn();
+  it('renders the future SIT', async () => {
     render(
-      <MockProviders permissions={[permissionTypes.createSITExtension]}>
-        <ShipmentSITDisplay
-          sitExtensions={SITExtensionPending}
-          sitStatus={SITStatusDestination}
-          shipment={SITShipment}
-          showReviewSITExtension={showReviewSITExtension}
-        />
+      <MockProviders>
+        <ShipmentSITDisplay shipment={futureSITShipment} />
       </MockProviders>,
     );
-
-    const reviewButton = screen.getByRole('button', { name: 'View request' });
-
-    await userEvent.click(reviewButton);
-
-    await waitFor(() => {
-      expect(showReviewSITExtension).toHaveBeenCalledWith(true);
-    });
+    const sitStatusTable = await screen.findByTestId('sitStatusTable');
+    expect(sitStatusTable).toBeInTheDocument();
+    expect(within(sitStatusTable).getByText('Total days of SIT approved')).toBeInTheDocument();
+    expect(within(sitStatusTable).getByText('Total days remaining')).toBeInTheDocument();
+    const daysApprovedAndRemaining = within(sitStatusTable).getAllByText('270');
+    expect(daysApprovedAndRemaining).toHaveLength(2);
+    const sitStartAndEndTable = await screen.findByTestId('sitStartAndEndTable');
+    expect(sitStartAndEndTable).toBeInTheDocument();
+    expect(within(sitStartAndEndTable).queryByText('Current location')).not.toBeInTheDocument();
+    expect(within(sitStartAndEndTable).getByText('SIT start date')).toBeInTheDocument();
+    expect(within(sitStartAndEndTable).getByText('25 Feb 2025')).toBeInTheDocument();
+    expect(within(sitStartAndEndTable).getByText('SIT authorized end date')).toBeInTheDocument();
+    expect(within(sitStartAndEndTable).getByText('22 Nov 2025')).toBeInTheDocument();
+    const sitDaysAtCurrentLocation = await screen.findByTestId('sitDaysAtCurrentLocation');
+    expect(sitDaysAtCurrentLocation).toBeInTheDocument();
+    expect(within(sitDaysAtCurrentLocation).getByText('Total days in origin SIT')).toBeInTheDocument();
+    expect(within(sitDaysAtCurrentLocation).getByText('0')).toBeInTheDocument();
   });
 
-  it('calls submit SIT extension callback when button is clicked', async () => {
-    const showSubmitSITExtension = jest.fn();
+  it('calls SIT extension callback when button clicked', async () => {
+    const onClick = jest.fn();
+    const OpenModalButton = (
+      <button type="button" onClick={() => onClick()}>
+        Edit
+      </button>
+    );
     render(
       <MockProviders permissions={[permissionTypes.updateSITExtension]}>
         <ShipmentSITDisplay
           sitExtensions={SITExtensions}
           sitStatus={SITStatusDestination}
           shipment={SITShipment}
-          showSubmitSITExtension={showSubmitSITExtension}
+          openModalButton={OpenModalButton}
         />
       </MockProviders>,
     );
 
-    const reviewButton = screen.getByRole('button', { name: 'Edit' });
+    const editButton = screen.getByRole('button', { name: 'Edit' });
 
-    await userEvent.click(reviewButton);
+    await userEvent.click(editButton);
 
     await waitFor(() => {
-      expect(showSubmitSITExtension).toHaveBeenCalledWith(true);
+      expect(onClick).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -187,7 +200,6 @@ describe('ShipmentSITDisplay', () => {
           sitExtensions={SITExtensionPending}
           sitStatus={SITStatusDestination}
           shipment={SITShipment}
-          hideSITExtensionAction
         />
       </MockProviders>,
     );
@@ -198,12 +210,7 @@ describe('ShipmentSITDisplay', () => {
   it('hides submit new SIT Extension button when hide prop is true', async () => {
     render(
       <MockProviders permissions={[permissionTypes.updateSITExtension]}>
-        <ShipmentSITDisplay
-          sitExtensions={SITExtensions}
-          sitStatus={SITStatusDestination}
-          shipment={SITShipment}
-          hideSITExtensionAction
-        />
+        <ShipmentSITDisplay sitExtensions={SITExtensions} sitStatus={SITStatusDestination} shipment={SITShipment} />
       </MockProviders>,
     );
 
@@ -228,5 +235,13 @@ describe('ShipmentSITDisplay', () => {
     );
 
     expect(await screen.queryByRole('button', { name: 'Edit' })).not.toBeInTheDocument();
+  });
+  it('shows Expired when the remaining days is less that the approved days', async () => {
+    render(
+      <MockProviders>
+        <ShipmentSITDisplay sitExtensions={SITExtensions} sitStatus={SITStatusExpired} shipment={SITShipment} />
+      </MockProviders>,
+    );
+    expect(screen.getByText('Expired')).toBeInTheDocument();
   });
 });

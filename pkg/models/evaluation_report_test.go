@@ -3,13 +3,11 @@ package models_test
 import (
 	"time"
 
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func newUUIDPtr() *uuid.UUID {
@@ -20,13 +18,13 @@ func newUUIDPtr() *uuid.UUID {
 func (suite *ModelSuite) TestReport() {
 	suite.Run("Create and query a report successfully", func() {
 		reports := models.EvaluationReports{}
-		testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{})
+		factory.BuildEvaluationReport(suite.DB(), nil, nil)
 		err := suite.DB().All(&reports)
 		suite.NoError(err)
 	})
 
 	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
-	move := testdatagen.MakeDefaultMove(suite.DB())
+	move := factory.BuildMove(suite.DB(), nil, nil)
 	virtualInspection := models.EvaluationReportInspectionTypeVirtual
 	dataReviewInspection := models.EvaluationReportInspectionTypeDataReview
 	physicalInspection := models.EvaluationReportInspectionTypePhysical
@@ -88,7 +86,7 @@ func (suite *ModelSuite) TestReport() {
 				MoveID:         move.ID,
 				Type:           models.EvaluationReportTypeCounseling,
 				InspectionType: &physicalInspection,
-				TimeDepart:     swag.Time(time.Now()),
+				TimeDepart:     models.TimePointer(time.Now()),
 				Location:       &location,
 			},
 			expectedErrors: map[string][]string{},
@@ -102,7 +100,7 @@ func (suite *ModelSuite) TestReport() {
 				MoveID:                       move.ID,
 				Type:                         models.EvaluationReportTypeCounseling,
 				InspectionType:               &virtualInspection,
-				ObservedShipmentDeliveryDate: swag.Time(time.Now()),
+				ObservedShipmentDeliveryDate: models.TimePointer(time.Now()),
 			},
 			expectedErrors: map[string][]string{
 				"inspection_type": {"VIRTUAL does not equal PHYSICAL."},
@@ -117,7 +115,7 @@ func (suite *ModelSuite) TestReport() {
 				MoveID:                             move.ID,
 				Type:                               models.EvaluationReportTypeCounseling,
 				InspectionType:                     &dataReviewInspection,
-				ObservedShipmentPhysicalPickupDate: swag.Time(time.Now()),
+				ObservedShipmentPhysicalPickupDate: models.TimePointer(time.Now()),
 			},
 			expectedErrors: map[string][]string{
 				"inspection_type": {"DATA_REVIEW does not equal PHYSICAL."},

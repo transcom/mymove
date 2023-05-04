@@ -10,26 +10,26 @@ import {
   TextField,
   TextInput,
   TopToolbar,
+  useListController,
 } from 'react-admin';
-import PropTypes from 'prop-types';
 
 import ImportOfficeUserButton from 'components/Admin/ImportOfficeUserButton';
 import AdminPagination from 'scenes/SystemAdmin/shared/AdminPagination';
 
 // Overriding the default toolbar to add import button
-const ListActions = (props) => {
-  const { total, resource, sort, filterValues, exporter } = props;
+const ListActions = () => {
+  const { total, resource, sort, filterValues, exporter } = useListController();
   return (
     <TopToolbar>
       <CreateButton />
-      <ImportOfficeUserButton resource={resource} {...props} />
+      <ImportOfficeUserButton resource={resource} />
       <ExportButton disabled={total === 0} resource={resource} sort={sort} filter={filterValues} exporter={exporter} />
     </TopToolbar>
   );
 };
 
-const OfficeUserListFilter = (props) => (
-  <Filter {...props}>
+const OfficeUserListFilter = () => (
+  <Filter>
     <TextInput source="search" alwaysOn />
   </Filter>
 );
@@ -57,31 +57,5 @@ const OfficeUserList = () => (
     </Datagrid>
   </List>
 );
-
-ListActions.propTypes = {
-  basePath: PropTypes.string,
-  total: PropTypes.number,
-  resource: PropTypes.string,
-  sort: PropTypes.exact({
-    field: PropTypes.string,
-    order: PropTypes.string,
-  }),
-  filterValues: PropTypes.shape({
-    // This will have to be updated if we have any filters besides search added to this page
-    search: PropTypes.string,
-  }),
-  exporter: PropTypes.func.isRequired,
-};
-
-ListActions.defaultProps = {
-  resource: 'office_users',
-  sort: {
-    field: 'last_name',
-    order: 'ASC',
-  },
-  basePath: undefined,
-  total: null,
-  filterValues: {},
-};
 
 export default OfficeUserList;

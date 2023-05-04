@@ -22,7 +22,6 @@ import (
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	"github.com/transcom/mymove/pkg/services/query"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
@@ -36,14 +35,26 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 		}
 		_, _ = suite.DB().ValidateAndCreate(&ghcDomesticTransitTime)
 
-		mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Move: models.Move{Status: models.MoveStatusAPPROVED}})
-		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: mto,
-			MTOShipment: models.MTOShipment{
-				Status:       models.MTOShipmentStatusSubmitted,
-				ShipmentType: models.MTOShipmentTypeHHGLongHaulDom,
+		mto := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVED,
+				},
 			},
-		})
+		}, nil)
+
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    mto,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					Status:       models.MTOShipmentStatusSubmitted,
+					ShipmentType: models.MTOShipmentTypeHHGLongHaulDom,
+				},
+			},
+		}, nil)
 		// Populate the reServices table with codes needed by the
 		// HHG_LONGHAUL_DOMESTIC shipment type
 		reServiceCodes := []models.ReServiceCode{
@@ -202,14 +213,26 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 		// Setup: We create a new mtoShipment, then try to update the status from Approved to Cancellation_Requested
 		// Expected outcome:
 		//             Successfully updated status to CANCELLATION_REQUESTED
-		mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Move: models.Move{Status: models.MoveStatusAPPROVED}})
-		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: mto,
-			MTOShipment: models.MTOShipment{
-				Status:       models.MTOShipmentStatusApproved,
-				ShipmentType: models.MTOShipmentTypeHHGLongHaulDom,
+		mto := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVED,
+				},
 			},
-		})
+		}, nil)
+
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    mto,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					Status:       models.MTOShipmentStatusApproved,
+					ShipmentType: models.MTOShipmentTypeHHGLongHaulDom,
+				},
+			},
+		}, nil)
 		eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
 
 		baseParams := setupParams(mtoShipment)

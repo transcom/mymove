@@ -1,4 +1,5 @@
 import React from 'react';
+import { useMutation } from '@tanstack/react-query';
 import { Form } from '@trussworks/react-uswds';
 import { Formik } from 'formik';
 import classnames from 'classnames';
@@ -9,6 +10,7 @@ import PPMHeaderSummary from '../PPMHeaderSummary/PPMHeaderSummary';
 
 import styles from './ReviewDocumentsSidePanel.module.scss';
 
+import { patchPPMDocumentsSetStatus } from 'services/ghcApi';
 import { ExpenseShape, PPMShipmentShape, ProGearTicketShape, WeightTicketShape } from 'types/shipment';
 import formStyles from 'styles/form.module.scss';
 import DocumentViewerSidebar from 'pages/Office/DocumentViewerSidebar/DocumentViewerSidebar';
@@ -20,6 +22,7 @@ export default function ReviewDocumentsSidePanel({
   ppmNumber,
   formRef,
   onSuccess,
+  onError,
   expenseTickets,
   proGearTickets,
   weightTickets,
@@ -29,9 +32,16 @@ export default function ReviewDocumentsSidePanel({
   let storageNumber = 0;
   let receiptNumber = 0;
 
+  const { mutate: patchDocumentsSetStatusMutation } = useMutation(patchPPMDocumentsSetStatus, {
+    onSuccess,
+    onError,
+  });
+
   const handleSubmit = () => {
-    // TODO: use a mutation query and then attach onSuccess and an onError handler
-    onSuccess();
+    patchDocumentsSetStatusMutation({
+      ppmShipmentId: ppmShipment.id,
+      eTag: ppmShipment.eTag,
+    });
   };
 
   const statusWithIcon = (ticket) => {
@@ -132,6 +142,7 @@ ReviewDocumentsSidePanel.propTypes = {
   ppmNumber: number,
   formRef: object,
   onSuccess: func,
+  onError: func,
   expenseTickets: arrayOf(ExpenseShape),
   proGearTickets: arrayOf(ProGearTicketShape),
   weightTickets: arrayOf(WeightTicketShape),
@@ -142,6 +153,7 @@ ReviewDocumentsSidePanel.defaultProps = {
   ppmNumber: 1,
   formRef: null,
   onSuccess: () => {},
+  onError: () => {},
   expenseTickets: [],
   proGearTickets: [],
   weightTickets: [],

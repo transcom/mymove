@@ -3,7 +3,6 @@ package models_test
 import (
 	"time"
 
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -203,7 +202,7 @@ func (suite *ModelSuite) TestFetchLatestOrders() {
 			TAC:                  &TAC,
 			SAC:                  &SAC,
 			DepartmentIndicator:  &deptIndicator,
-			Grade:                swag.String("E-1"),
+			Grade:                StringPointer("E-1"),
 		}
 		suite.MustSave(&order)
 
@@ -242,8 +241,14 @@ func (suite *ModelSuite) TestFetchLatestOrders() {
 	})
 
 	suite.Run("successfully returns orders without any existing uploads", func() {
-		expectedOrder := testdatagen.MakeOrderWithoutUpload(suite.DB(), testdatagen.Assertions{})
-
+		document := factory.BuildDocument(suite.DB(), nil, nil)
+		expectedOrder := factory.BuildOrder(suite.DB(), []factory.Customization{
+			{
+				Model:    document,
+				LinkOnly: true, // if LinkOnly is true, order factory won't build UserUploads
+				Type:     &factory.Documents.UploadedOrders,
+			},
+		}, nil)
 		userSession := auth.Session{
 			ApplicationName: auth.MilApp,
 			UserID:          expectedOrder.ServiceMember.ID,
@@ -290,16 +295,22 @@ func (suite *ModelSuite) TestFetchLatestOrders() {
 			},
 		}, nil)
 
-		expectedOrder := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
-			Order: Order{
-				ServiceMember:           nonDeletedOrdersUpload.Document.ServiceMember,
-				ServiceMemberID:         nonDeletedOrdersUpload.Document.ServiceMemberID,
-				UploadedOrders:          nonDeletedOrdersUpload.Document,
-				UploadedOrdersID:        *nonDeletedOrdersUpload.DocumentID,
-				UploadedAmendedOrders:   &nonDeletedAmendedUpload.Document,
-				UploadedAmendedOrdersID: nonDeletedAmendedUpload.DocumentID,
+		expectedOrder := factory.BuildOrder(suite.DB(), []factory.Customization{
+			{
+				Model:    nonDeletedOrdersUpload.Document.ServiceMember,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model:    nonDeletedOrdersUpload.Document,
+				LinkOnly: true,
+				Type:     &factory.Documents.UploadedOrders,
+			},
+			{
+				Model:    nonDeletedAmendedUpload.Document,
+				LinkOnly: true,
+				Type:     &factory.Documents.UploadedAmendedOrders,
+			},
+		}, nil)
 
 		userSession := auth.Session{
 			ApplicationName: auth.MilApp,

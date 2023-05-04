@@ -1,26 +1,19 @@
 package models_test
 
 import (
-	"github.com/go-openapi/swag"
-	"github.com/gofrs/uuid"
-
 	"github.com/transcom/mymove/pkg/factory"
 	. "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *ModelSuite) TestCreateMoveWithPPMShow() {
-	orders := testdatagen.MakeDefaultOrder(suite.DB())
-	factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
-
-	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-		Order: orders,
-		Move: Move{
-			ID:   uuid.FromStringOrNil("7024c8c5-52ca-4639-bf69-dd8238308c98"),
-			Show: swag.Bool(true),
+	move := factory.BuildMove(suite.DB(), []factory.Customization{
+		{
+			Model: Move{
+				Show: BoolPointer(true),
+			},
 		},
-	})
-
+	}, nil)
 	testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
 		ServiceMember: move.Orders.ServiceMember,
 		PersonallyProcuredMove: PersonallyProcuredMove{
@@ -35,16 +28,13 @@ func (suite *ModelSuite) TestCreateMoveWithPPMShow() {
 }
 
 func (suite *ModelSuite) TestCreateMoveWithPPMNoShow() {
-	orders := testdatagen.MakeDefaultOrder(suite.DB())
-	factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
-
-	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-		Order: orders,
-		Move: Move{
-			ID:   uuid.FromStringOrNil("7024c8c5-52ca-4639-bf69-dd8238308c98"),
-			Show: swag.Bool(false),
+	move := factory.BuildMove(suite.DB(), []factory.Customization{
+		{
+			Model: Move{
+				Show: BoolPointer(false),
+			},
 		},
-	})
+	}, nil)
 
 	testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
 		ServiceMember: move.Orders.ServiceMember,
@@ -61,11 +51,11 @@ func (suite *ModelSuite) TestCreateMoveWithPPMNoShow() {
 }
 
 func (suite *ModelSuite) TestCreateNewMoveWithNoPPMShow() {
-	orders := testdatagen.MakeDefaultOrder(suite.DB())
+	orders := factory.BuildOrder(suite.DB(), nil, nil)
 	factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 
 	moveOptions := MoveOptions{
-		Show: swag.Bool(true),
+		Show: BoolPointer(true),
 	}
 	_, verrs, err := orders.CreateNewMove(suite.DB(), moveOptions)
 	suite.NoError(err)

@@ -8,24 +8,24 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-// BuildDutyLocation creates a single DutyLocation
-// Also creates:
-//   - Address of the DL (use Addresses.DutyLocationAddress)
+type dutyLocationBuildType byte
+
+const (
+	dutyLocationBuildStandard dutyLocationBuildType = iota
+	dutyLocationBuildWithoutTransportationOffice
+)
+
+// buildDutyLocationWithBuildType does the actual work
+// if buildType is standard, it builds
+//   - DutyLocation
+//   - Address of the DL
 //   - TransportationOffice
-//   - Address of the TO (use Addresses.DutyLocationTOAddress)
+//   - Address of the TO
 //
-// Params:
-//   - customs is a slice that will be modified by the factory
-//   - db can be set to nil to create a stubbed model that is not stored in DB.
-//
-// Example:
-//
-//	dutyLocation := BuildDutyLocation(suite.DB(), []Customization{
-//	       {Model: customDutyLocation},
-//	       {Model: customDutyLocationAddress, Type: &Addresses.DutyLocationAddress},
-//	       {Model: customTransportationOfficeAddress, Type: &Addresses.DutyLocationTOAddress},
-//	       }, nil)
-func BuildDutyLocation(db *pop.Connection, customs []Customization, traits []Trait) models.DutyLocation {
+// if buildType is withoutTransportationOffice, it builds
+//   - DutyLocation
+//   - Address of the DL
+func buildDutyLocationWithBuildType(db *pop.Connection, customs []Customization, traits []Trait, buildType dutyLocationBuildType) models.DutyLocation {
 	customs = setupCustomizations(customs, traits)
 
 	// Find dutyLocation customization and extract the custom dutyLocation
@@ -45,37 +45,29 @@ func BuildDutyLocation(db *pop.Connection, customs []Customization, traits []Tra
 	}
 	dlAddress := BuildAddress(db, tempAddressCustoms, []Trait{GetTraitAddress3})
 
-	// Find/create the transportationOffice Model
-	tempTOAddressCustoms := customs
-	dltoAddress := findValidCustomization(customs, Addresses.DutyLocationTOAddress)
-	if dltoAddress != nil {
-		tempTOAddressCustoms = convertCustomizationInList(tempTOAddressCustoms, Addresses.DutyLocationTOAddress, Address)
+	if db != nil {
+		FetchOrBuildPostalCodeToGBLOC(db, dlAddress.PostalCode, "KKFA")
 	}
-	transportationOffice := BuildTransportationOfficeWithPhoneLine(db, tempTOAddressCustoms, traits)
-
-	// Build the required Tariff 400 NG Zip3 to correspond with the duty location address
-	FetchOrBuildTariff400ngZip3(db, []Customization{
-		{
-			Model: models.Tariff400ngZip3{
-				Zip3:          "503",
-				BasepointCity: "Des Moines",
-				State:         "IA",
-				ServiceArea:   "296",
-				RateArea:      "US53",
-				Region:        "7",
-			},
-		},
-	}, nil)
 
 	// Create default Duty Location
 	affiliation := internalmessages.AffiliationAIRFORCE
+
 	location := models.DutyLocation{
-		Name:                   makeRandomString(10),
-		Affiliation:            &affiliation,
-		AddressID:              dlAddress.ID,
-		Address:                dlAddress,
-		TransportationOfficeID: &transportationOffice.ID,
-		TransportationOffice:   transportationOffice,
+		Name:        makeRandomString(10),
+		Affiliation: &affiliation,
+		AddressID:   dlAddress.ID,
+		Address:     dlAddress,
+	}
+	if buildType == dutyLocationBuildStandard {
+		// Find/create the transportationOffice Model
+		tempTOAddressCustoms := customs
+		dltoAddress := findValidCustomization(customs, Addresses.DutyLocationTOAddress)
+		if dltoAddress != nil {
+			tempTOAddressCustoms = convertCustomizationInList(tempTOAddressCustoms, Addresses.DutyLocationTOAddress, Address)
+		}
+		transportationOffice := BuildTransportationOfficeWithPhoneLine(db, tempTOAddressCustoms, traits)
+		location.TransportationOffice = transportationOffice
+		location.TransportationOfficeID = &transportationOffice.ID
 	}
 
 	// Overwrite values with those from customizations
@@ -87,12 +79,60 @@ func BuildDutyLocation(db *pop.Connection, customs []Customization, traits []Tra
 	}
 
 	return location
+}
 
+// BuildDutyLocation creates a single DutyLocation
+// Also creates:
+//   - Address of the DL (use Addresses.DutyLocationAddress)
+//   - TransportationOffice
+//   - Address of the TO (use Addresses.DutyLocationTOAddress)
+//
+// Params:
+//   - customs is a slice that will be modified by the factory
+//   - db can be set to nil to create a stubbed model that is not stored in DB.
+//
+// Example:
+//
+//	dutyLocation := BuildDutyLocation(suite.DB(), []Customization{
+//	       {Model: customDutyLocation},
+//	       {Model: customDutyLocationAddress, Type: &Addresses.DutyLocationAddress},
+//	       {Model: customTransportationOfficeAddress, Type: &Addresses.DutyLocationTOAddress},
+//	       }, nil)
+func BuildDutyLocation(db *pop.Connection, customs []Customization, traits []Trait) models.DutyLocation {
+	return buildDutyLocationWithBuildType(db, customs, traits, dutyLocationBuildStandard)
+}
+
+// BuildDutyLocationWithoutTransportationOffice returns a duty location without a transportation office.
+// Also creates:
+//   - Address of the DL (use Addresses.DutyLocationAddress)
+//   - Will not create a Transportation Office even if one is supplied in the customizations or traits
+//
+// Params:
+//   - customs is a slice that will be modified by the factory
+//   - db can be set to nil to create a stubbed model that is not stored in DB.
+//
+// Example:
+//
+//	dutyLocation := BuildDutyLocationWithoutTransportationOffice(suite.DB(), []Customization{
+//	       {Model: customDutyLocation},
+//	       {Model: customDutyLocationAddress, Type: &Addresses.DutyLocationAddress},
+//	       }, nil)
+func BuildDutyLocationWithoutTransportationOffice(db *pop.Connection, customs []Customization, traits []Trait) models.DutyLocation {
+	return buildDutyLocationWithBuildType(db, customs, traits, dutyLocationBuildWithoutTransportationOffice)
 }
 
 // FetchOrBuildCurrentDutyLocation returns a default duty location
 // It always fetches or builds a Yuma AFB Duty Location
 func FetchOrBuildCurrentDutyLocation(db *pop.Connection) models.DutyLocation {
+	if db == nil {
+		return BuildDutyLocation(nil, []Customization{
+			{
+				Model: models.DutyLocation{
+					Name: "Yuma AFB",
+				},
+			},
+		}, nil)
+	}
 	// Check if Yuma Duty Location exists, if not, create it.
 	defaultLocation, err := models.FetchDutyLocationByName(db, "Yuma AFB")
 	if err != nil {
@@ -109,31 +149,38 @@ func FetchOrBuildCurrentDutyLocation(db *pop.Connection) models.DutyLocation {
 }
 
 // FetchOrBuildOrdersDutyLocation returns a default orders duty location
-// It always fetches or builds a Fort Gordon duty location
-// It also creates a GA 208 tariff
+// It always fetches or builds a Fort Gordon duty location with the specified city/state/postal code
+// Some tests rely on the duty location being in 30813
 func FetchOrBuildOrdersDutyLocation(db *pop.Connection) models.DutyLocation {
+	if db == nil {
+		return BuildDutyLocation(nil, []Customization{
+			{
+				Model: models.DutyLocation{
+					Name: "Fort Gordon",
+				},
+			},
+			{
+				Model: models.Address{
+					City:       "Augusta",
+					State:      "GA",
+					PostalCode: "30813",
+				},
+				Type: &Addresses.DutyLocationAddress,
+			},
+		}, nil)
+	}
+
 	// Check if we already have a Fort Gordon Duty Location, return it if so
 	fortGordon, err := models.FetchDutyLocationByName(db, "Fort Gordon")
 	if err == nil {
 		return fortGordon
 	}
 
-	// If not, build the Fort Gordon Duty location with the associated
-	// address and tariff
-	FetchOrBuildTariff400ngZip3(db, []Customization{
-		{
-			Model: models.Tariff400ngZip3{
-				Zip3:          "308",
-				BasepointCity: "Harlem",
-				State:         "GA",
-				ServiceArea:   "208",
-				RateArea:      "US45",
-				Region:        "12",
-			},
-		},
-	}, nil)
+	return BuildDutyLocation(db, nil, []Trait{GetTraitDefaultOrdersDutyLocation})
+}
 
-	return BuildDutyLocation(db, []Customization{
+func GetTraitDefaultOrdersDutyLocation() []Customization {
+	return []Customization{
 		{
 			Model: models.DutyLocation{
 				Name: "Fort Gordon",
@@ -148,5 +195,5 @@ func FetchOrBuildOrdersDutyLocation(db *pop.Connection) models.DutyLocation {
 				PostalCode: "30813",
 			},
 		},
-	}, nil)
+	}
 }

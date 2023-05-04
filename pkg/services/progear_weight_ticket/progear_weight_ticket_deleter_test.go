@@ -17,13 +17,12 @@ func (suite *ProgearWeightTicketSuite) TestDeleteProgearWeightTicket() {
 
 	setupForTest := func(appCtx appcontext.AppContext, overrides *models.ProgearWeightTicket, hasDocumentUploads bool) *models.ProgearWeightTicket {
 		serviceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
-		ppmShipment := testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{
-			Order: models.Order{
-				ServiceMemberID: serviceMember.ID,
-				ServiceMember:   serviceMember,
+		ppmShipment := factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    serviceMember,
+				LinkOnly: true,
 			},
-		})
-
+		}, nil)
 		progearDocument := factory.BuildDocumentLinkServiceMember(suite.DB(), serviceMember)
 
 		if hasDocumentUploads {

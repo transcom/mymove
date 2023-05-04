@@ -10,13 +10,11 @@
 package models_test
 
 import (
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
 	. "github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *ModelSuite) TestPPMValidation() {
@@ -31,7 +29,7 @@ func (suite *ModelSuite) TestPPMValidation() {
 
 func (suite *ModelSuite) TestPPMAdvance() {
 
-	move := testdatagen.MakeDefaultMove(suite.DB())
+	move := factory.BuildMove(suite.DB(), nil, nil)
 	serviceMember := move.Orders.ServiceMember
 
 	advance := BuildDraftReimbursement(1000, MethodOfReceiptMILPAY)
@@ -54,7 +52,7 @@ func (suite *ModelSuite) TestPPMAdvance() {
 
 // TODO: Fix test now that we capture transaction error
 /* func (suite *ModelSuite) TestPPMAdvanceNoGTCC() {
-	move := testdatagen.MakeDefaultMove(suite.DB())
+	move := factory.BuildMove(suite.DB(), nil, nil)
 
 	advance := BuildDraftReimbursement(1000, MethodOfReceiptGTCC)
 
@@ -64,16 +62,13 @@ func (suite *ModelSuite) TestPPMAdvance() {
 } */
 
 func (suite *ModelSuite) TestPPMStateMachine() {
-	orders := testdatagen.MakeDefaultOrder(suite.DB())
+	orders := factory.BuildOrder(suite.DB(), nil, nil)
 	orders.Status = OrderStatusSUBMITTED // NEVER do this outside of a test.
 	suite.MustSave(&orders)
 	factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 
-	selectedMoveType := SelectedMoveTypeHHGPPM
-
 	moveOptions := MoveOptions{
-		SelectedType: &selectedMoveType,
-		Show:         swag.Bool(true),
+		Show: BoolPointer(true),
 	}
 	move, verrs, err := orders.CreateNewMove(suite.DB(), moveOptions)
 	suite.NoError(err)
@@ -99,18 +94,18 @@ func (suite *ModelSuite) TestFetchPersonallyProcuredMoveByOrderID() {
 	moveID, _ := uuid.FromString("7112b18b-7e03-4b28-adde-532b541bba8d")
 	invalidID, _ := uuid.FromString("00000000-0000-0000-0000-000000000000")
 
-	order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
-		Order: Order{
-			ID: orderID,
+	move := factory.BuildMove(suite.DB(), []factory.Customization{
+		{
+			Model: Move{
+				ID: moveID,
+			},
 		},
-	})
-	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-		Move: Move{
-			ID:       moveID,
-			OrdersID: orderID,
-			Orders:   order,
+		{
+			Model: Order{
+				ID: orderID,
+			},
 		},
-	})
+	}, nil)
 
 	advance := BuildDraftReimbursement(1000, MethodOfReceiptMILPAY)
 

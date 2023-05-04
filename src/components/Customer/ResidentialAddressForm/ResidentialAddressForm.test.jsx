@@ -30,8 +30,8 @@ describe('ResidentialAddressForm component', () => {
     postalCode: '79912',
   };
 
-  it('renders the form inputs', async () => {
-    const { getByLabelText } = render(<ResidentialAddressForm {...testProps} />);
+  it('renders the form inputs and help text', async () => {
+    const { getByLabelText, getByText } = render(<ResidentialAddressForm {...testProps} />);
 
     await waitFor(() => {
       expect(getByLabelText('Address 1')).toBeInstanceOf(HTMLInputElement);
@@ -43,6 +43,8 @@ describe('ResidentialAddressForm component', () => {
       expect(getByLabelText('State')).toBeInstanceOf(HTMLSelectElement);
 
       expect(getByLabelText('ZIP')).toBeInstanceOf(HTMLInputElement);
+
+      expect(getByText('Must be a physical address.')).toBeInTheDocument();
     });
   });
 

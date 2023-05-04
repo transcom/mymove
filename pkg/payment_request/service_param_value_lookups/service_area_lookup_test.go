@@ -1,6 +1,8 @@
 package serviceparamvaluelookups
 
 import (
+	"time"
+
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -16,7 +18,12 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceAreaLookup() {
 	var destDomesticServiceArea models.ReDomesticServiceArea
 
 	setupTestData := func() {
-
+		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				StartDate: time.Now().Add(-24 * time.Hour),
+				EndDate:   time.Now().Add(24 * time.Hour),
+			},
+		})
 		originAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
@@ -32,19 +39,28 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceAreaLookup() {
 			},
 		}, nil)
 
-		mtoServiceItem = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				PickupAddressID:      &originAddress.ID,
-				PickupAddress:        &originAddress,
-				DestinationAddressID: &destAddress.ID,
-				DestinationAddress:   &destAddress,
+		mtoServiceItem = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+
+				Model:    originAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.PickupAddress,
 			},
+			{
+				Model:    destAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.DeliveryAddress,
+			},
+		}, []factory.Trait{
+			factory.GetTraitAvailableToPrimeMove,
 		})
 
-		paymentRequest = testdatagen.MakePaymentRequest(suite.DB(),
-			testdatagen.Assertions{
-				Move: mtoServiceItem.MoveTaskOrder,
-			})
+		paymentRequest = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    mtoServiceItem.MoveTaskOrder,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		originDomesticServiceArea = testdatagen.FetchOrMakeReDomesticServiceArea(suite.DB(), testdatagen.Assertions{
 			ReDomesticServiceArea: models.ReDomesticServiceArea{

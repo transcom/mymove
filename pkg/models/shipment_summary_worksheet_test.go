@@ -29,21 +29,29 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheet() {
 	yuma := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
 	fortGordon := factory.FetchOrBuildOrdersDutyLocation(suite.DB())
 	rank := models.ServiceMemberRankE9
-	moveType := models.SelectedMoveTypeHHGPPM
 
-	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			SelectedMoveType: &moveType,
+	move := factory.BuildMove(suite.DB(), []factory.Customization{
+		{
+			Model: models.Order{
+				OrdersType: ordersType,
+			},
 		},
-		Order: models.Order{
-			OrdersType:        ordersType,
-			NewDutyLocationID: fortGordon.ID,
+		{
+			Model:    fortGordon,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.NewDutyLocation,
 		},
-		ServiceMember: models.ServiceMember{
-			DutyLocationID: &yuma.ID,
-			Rank:           &rank,
+		{
+			Model:    yuma,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.OriginDutyLocation,
 		},
-	})
+		{
+			Model: models.ServiceMember{
+				Rank: &rank,
+			},
+		},
+	}, nil)
 
 	moveID := move.ID
 	serviceMemberID := move.Orders.ServiceMemberID
@@ -70,12 +78,12 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheet() {
 		ApplicationName: auth.MilApp,
 	}
 	moveRouter := moverouter.NewMoveRouter()
-	newSignedCertification := testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
-		SignedCertification: models.SignedCertification{
-			MoveID: move.ID,
+	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-		Stub: true,
-	})
+	}, nil)
 	moveRouter.Submit(suite.AppContextForTest(), &ppm.Move, &newSignedCertification)
 	moveRouter.Approve(suite.AppContextForTest(), &ppm.Move)
 	// This is the same PPM model as ppm, but this is the one that will be saved by SaveMoveDependencies
@@ -84,16 +92,21 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheet() {
 	ppm.Move.PersonallyProcuredMoves[0].RequestPayment()
 	models.SaveMoveDependencies(suite.DB(), &ppm.Move)
 	certificationType := models.SignedCertificationTypePPMPAYMENT
-	signedCertification := testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
-		SignedCertification: models.SignedCertification{
-			MoveID:                   moveID,
-			PersonallyProcuredMoveID: &ppm.ID,
-			CertificationType:        &certificationType,
-			CertificationText:        "LEGAL",
-			Signature:                "ACCEPT",
-			Date:                     testdatagen.NextValidMoveDate,
+	signedCertification := factory.BuildSignedCertification(suite.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.SignedCertification{
+				PersonallyProcuredMoveID: &ppm.ID,
+				CertificationType:        &certificationType,
+				CertificationText:        "LEGAL",
+				Signature:                "ACCEPT",
+				Date:                     testdatagen.NextValidMoveDate,
+			},
+		},
+	}, nil)
 	ssd, err := models.FetchDataShipmentSummaryWorksheetFormData(suite.DB(), &session, moveID)
 
 	suite.NoError(err)
@@ -128,21 +141,29 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheetWithErrorNoMove() 
 	yuma := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
 	fortGordon := factory.FetchOrBuildOrdersDutyLocation(suite.DB())
 	rank := models.ServiceMemberRankE9
-	moveType := models.SelectedMoveTypeHHGPPM
 
-	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			SelectedMoveType: &moveType,
+	move := factory.BuildMove(suite.DB(), []factory.Customization{
+		{
+			Model: models.Order{
+				OrdersType: ordersType,
+			},
 		},
-		Order: models.Order{
-			OrdersType:        ordersType,
-			NewDutyLocationID: fortGordon.ID,
+		{
+			Model:    fortGordon,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.NewDutyLocation,
 		},
-		ServiceMember: models.ServiceMember{
-			DutyLocationID: &yuma.ID,
-			Rank:           &rank,
+		{
+			Model:    yuma,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.OriginDutyLocation,
 		},
-	})
+		{
+			Model: models.ServiceMember{
+				Rank: &rank,
+			},
+		},
+	}, nil)
 
 	moveID := uuid.Nil
 	serviceMemberID := move.Orders.ServiceMemberID
@@ -160,16 +181,9 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheetWithErrorNoMove() 
 }
 
 func (suite *ModelSuite) TestFetchMovingExpensesShipmentSummaryWorksheetNoPPM() {
-	moveID, _ := uuid.NewV4()
 	serviceMemberID, _ := uuid.NewV4()
-	moveType := models.SelectedMoveTypeHHG
 
-	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			ID:               moveID,
-			SelectedMoveType: &moveType,
-		},
-	})
+	move := factory.BuildMove(suite.DB(), nil, nil)
 	session := auth.Session{
 		UserID:          move.Orders.ServiceMember.UserID,
 		ServiceMemberID: serviceMemberID,
@@ -187,21 +201,29 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheetOnlyPPM() {
 	yuma := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
 	fortGordon := factory.FetchOrBuildOrdersDutyLocation(suite.DB())
 	rank := models.ServiceMemberRankE9
-	moveType := models.SelectedMoveTypePPM
 
-	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			SelectedMoveType: &moveType,
+	move := factory.BuildMove(suite.DB(), []factory.Customization{
+		{
+			Model: models.Order{
+				OrdersType: ordersType,
+			},
 		},
-		Order: models.Order{
-			OrdersType:        ordersType,
-			NewDutyLocationID: fortGordon.ID,
+		{
+			Model:    fortGordon,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.NewDutyLocation,
 		},
-		ServiceMember: models.ServiceMember{
-			DutyLocationID: &yuma.ID,
-			Rank:           &rank,
+		{
+			Model:    yuma,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.OriginDutyLocation,
 		},
-	})
+		{
+			Model: models.ServiceMember{
+				Rank: &rank,
+			},
+		},
+	}, nil)
 
 	moveID := move.ID
 	serviceMemberID := move.Orders.ServiceMemberID
@@ -228,12 +250,12 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheetOnlyPPM() {
 		ApplicationName: auth.MilApp,
 	}
 	moveRouter := moverouter.NewMoveRouter()
-	newSignedCertification := testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
-		SignedCertification: models.SignedCertification{
-			MoveID: move.ID,
+	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-		Stub: true,
-	})
+	}, nil)
 	moveRouter.Submit(suite.AppContextForTest(), &ppm.Move, &newSignedCertification)
 	moveRouter.Approve(suite.AppContextForTest(), &ppm.Move)
 	// This is the same PPM model as ppm, but this is the one that will be saved by SaveMoveDependencies
@@ -242,16 +264,21 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheetOnlyPPM() {
 	ppm.Move.PersonallyProcuredMoves[0].RequestPayment()
 	models.SaveMoveDependencies(suite.DB(), &ppm.Move)
 	certificationType := models.SignedCertificationTypePPMPAYMENT
-	signedCertification := testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
-		SignedCertification: models.SignedCertification{
-			MoveID:                   moveID,
-			PersonallyProcuredMoveID: &ppm.ID,
-			CertificationType:        &certificationType,
-			CertificationText:        "LEGAL",
-			Signature:                "ACCEPT",
-			Date:                     testdatagen.NextValidMoveDate,
+	signedCertification := factory.BuildSignedCertification(suite.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.SignedCertification{
+				PersonallyProcuredMoveID: &ppm.ID,
+				CertificationType:        &certificationType,
+				CertificationText:        "LEGAL",
+				Signature:                "ACCEPT",
+				Date:                     testdatagen.NextValidMoveDate,
+			},
+		},
+	}, nil)
 	ssd, err := models.FetchDataShipmentSummaryWorksheetFormData(suite.DB(), &session, moveID)
 
 	suite.NoError(err)

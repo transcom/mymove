@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
 
 	"github.com/transcom/mymove/pkg/factory"
 	officeop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/office"
@@ -20,27 +19,28 @@ import (
 func (suite *HandlerSuite) TestApproveMoveHandler() {
 	// Given: a set of complete orders, a move, office user and servicemember user
 	hhgPermitted := internalmessages.OrdersTypeDetailHHGPERMITTED
-	assertions := testdatagen.Assertions{
-		Order: models.Order{
-			OrdersNumber:        handlers.FmtString("1234"),
-			OrdersTypeDetail:    &hhgPermitted,
-			TAC:                 handlers.FmtString("1234"),
-			SAC:                 handlers.FmtString("sac"),
-			DepartmentIndicator: handlers.FmtString("17 Navy and Marine Corps"),
+	move := factory.BuildMove(suite.DB(), []factory.Customization{
+		{
+			Model: models.Order{
+				OrdersNumber:        handlers.FmtString("1234"),
+				OrdersTypeDetail:    &hhgPermitted,
+				TAC:                 handlers.FmtString("1234"),
+				SAC:                 handlers.FmtString("sac"),
+				DepartmentIndicator: handlers.FmtString("17 Navy and Marine Corps"),
+			},
 		},
-	}
-	move := testdatagen.MakeMove(suite.DB(), assertions)
+	}, nil)
 	// Given: an office User
 	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 	moveRouter := moverouter.NewMoveRouter()
 
 	// Move is submitted and saved
-	newSignedCertification := testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
-		SignedCertification: models.SignedCertification{
-			MoveID: move.ID,
+	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-		Stub: true,
-	})
+	}, nil)
 	err := moveRouter.Submit(suite.AppContextForTest(), &move, &newSignedCertification)
 	suite.NoError(err)
 	suite.Equal(models.MoveStatusSUBMITTED, move.Status, "expected Submitted")
@@ -71,18 +71,18 @@ func (suite *HandlerSuite) TestApproveMoveHandler() {
 
 func (suite *HandlerSuite) TestApproveMoveHandlerIncompleteOrders() {
 	// Given: a set of incomplete orders, a move, office user and servicemember user
-	move := testdatagen.MakeDefaultMove(suite.DB())
+	move := factory.BuildMove(suite.DB(), nil, nil)
 	// Given: an office User
 	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 	moveRouter := moverouter.NewMoveRouter()
 
 	// Move is submitted and saved
-	newSignedCertification := testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
-		SignedCertification: models.SignedCertification{
-			MoveID: move.ID,
+	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-		Stub: true,
-	})
+	}, nil)
 	err := moveRouter.Submit(suite.AppContextForTest(), &move, &newSignedCertification)
 	suite.NoError(err)
 	suite.Equal(models.MoveStatusSUBMITTED, move.Status, "expected Submitted")
@@ -114,7 +114,7 @@ func (suite *HandlerSuite) TestApproveMoveHandlerIncompleteOrders() {
 
 func (suite *HandlerSuite) TestApproveMoveHandlerForbidden() {
 	// Given: a set of orders, a move, office user and servicemember user
-	move := testdatagen.MakeDefaultMove(suite.DB())
+	move := factory.BuildMove(suite.DB(), nil, nil)
 	// Given: an non-office User
 	user := factory.BuildServiceMember(suite.DB(), nil, nil)
 	moveRouter := moverouter.NewMoveRouter()
@@ -141,14 +141,12 @@ func (suite *HandlerSuite) TestApproveMoveHandlerForbidden() {
 func (suite *HandlerSuite) TestCancelMoveHandler() {
 	// Given: a set of orders, a move, and office user
 	// Orders has service member with transportation office and phone nums
-	orders := testdatagen.MakeDefaultOrder(suite.DB())
+	orders := factory.BuildOrder(suite.DB(), nil, nil)
 	factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 	moveRouter := moverouter.NewMoveRouter()
 
-	selectedMoveType := models.SelectedMoveTypePPM
 	moveOptions := models.MoveOptions{
-		SelectedType: &selectedMoveType,
-		Show:         swag.Bool(true),
+		Show: models.BoolPointer(true),
 	}
 	move, verrs, err := orders.CreateNewMove(suite.DB(), moveOptions)
 	suite.NoError(err)
@@ -159,12 +157,12 @@ func (suite *HandlerSuite) TestCancelMoveHandler() {
 	suite.NoError(err)
 
 	// Move is submitted
-	newSignedCertification := testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
-		SignedCertification: models.SignedCertification{
-			MoveID: move.ID,
+	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+		{
+			Model:    *move,
+			LinkOnly: true,
 		},
-		Stub: true,
-	})
+	}, nil)
 	err = moveRouter.Submit(suite.AppContextForTest(), move, &newSignedCertification)
 	suite.NoError(err)
 	suite.Equal(models.MoveStatusSUBMITTED, move.Status, "expected Submitted")
@@ -208,7 +206,7 @@ func (suite *HandlerSuite) TestCancelMoveHandler() {
 
 func (suite *HandlerSuite) TestCancelMoveHandlerForbidden() {
 	// Given: a set of orders, a move, office user and servicemember user
-	move := testdatagen.MakeDefaultMove(suite.DB())
+	move := factory.BuildMove(suite.DB(), nil, nil)
 	// Given: an non-office User
 	user := factory.BuildServiceMember(suite.DB(), nil, nil)
 

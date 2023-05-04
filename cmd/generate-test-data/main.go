@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"strconv"
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -42,8 +41,8 @@ func checkConfig(v *viper.Viper, logger *zap.Logger) error {
 	logger.Debug("checking config")
 
 	scenario := v.GetInt(scenarioFlag)
-	if scenario < 0 || scenario > 7 {
-		return errors.Wrap(&errInvalidScenario{Name: strconv.Itoa(scenario)}, fmt.Sprintf("%s is invalid, expected value between 0 and 7 not %d", scenarioFlag, scenario))
+	if scenario > 0 {
+		return errors.Wrap(&errInvalidScenario{Name: "0"}, "Numeric scenarios not supported")
 	}
 
 	namedScenario := v.GetString(namedScenarioFlag)
@@ -170,32 +169,10 @@ func main() {
 	err = appcontext.NewAppContext(dbConnection, logger, nil).NewTransaction(
 		func(appCtx appcontext.AppContext) error {
 
-			scenario := v.GetInt(scenarioFlag)
 			namedScenario := v.GetString(namedScenarioFlag)
 			namedSubScenario := v.GetString(namedSubScenarioFlag)
 
-			if scenario == 4 {
-				return tdgs.RunPPMSITEstimateScenario1(appCtx)
-			} else if scenario == 5 {
-				return tdgs.RunRateEngineScenario1(appCtx)
-			} else if scenario == 6 {
-				query := `DELETE FROM transportation_service_provider_performances;
-				  DELETE FROM transportation_service_providers;
-				  DELETE FROM traffic_distribution_lists;
-				  DELETE FROM tariff400ng_zip3s;
-				  DELETE FROM tariff400ng_zip5_rate_areas;
-				  DELETE FROM tariff400ng_service_areas;
-				  DELETE FROM tariff400ng_linehaul_rates;
-				  DELETE FROM tariff400ng_shorthaul_rates;
-				  DELETE FROM tariff400ng_full_pack_rates;
-				  DELETE FROM tariff400ng_full_unpack_rates;`
-
-				qerr := dbConnection.RawQuery(query).Exec()
-				if qerr != nil {
-					logger.Fatal("Failed to run raw query", zap.Error(qerr))
-				}
-				return tdgs.RunRateEngineScenario2(appCtx)
-			} else if namedScenario != "" {
+			if namedScenario != "" {
 
 				// Initialize storage and uploader
 				var session *awssession.Session

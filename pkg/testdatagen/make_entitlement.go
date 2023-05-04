@@ -1,14 +1,13 @@
 package testdatagen
 
 import (
-	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop/v6"
 
 	"github.com/transcom/mymove/pkg/models"
 )
 
-// MakeEntitlement creates a single Entitlement
-func MakeEntitlement(db *pop.Connection, assertions Assertions) models.Entitlement {
+// makeEntitlement creates a single Entitlement
+func makeEntitlement(db *pop.Connection, assertions Assertions) models.Entitlement {
 	truePtr := true
 	dependents := 1
 	storageInTransit := 90
@@ -46,7 +45,7 @@ func MakeEntitlement(db *pop.Connection, assertions Assertions) models.Entitleme
 }
 
 func setDependentsAuthorized(assertionDependentsAuthorized *bool) *bool {
-	dependentsAuthorized := swag.Bool(true)
+	dependentsAuthorized := models.BoolPointer(true)
 	if assertionDependentsAuthorized != nil {
 		dependentsAuthorized = assertionDependentsAuthorized
 	}

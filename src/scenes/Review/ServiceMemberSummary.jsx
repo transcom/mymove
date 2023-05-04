@@ -38,7 +38,7 @@ function ServiceMemberSummary(props) {
     { label: 'Contact info' },
     { label: 'Best contact phone', value: get(serviceMember, 'telephone') },
     { label: 'Personal email', value: get(serviceMember, 'personal_email') },
-    { label: 'Current mailing address', value: currentResidentialAddress },
+    { label: 'Current pickup address', value: currentResidentialAddress },
   ];
 
   const ordersData = [

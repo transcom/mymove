@@ -9,10 +9,10 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/mocks"
-	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -114,7 +114,7 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 
 		subtestData := makeSubtestData(false, false)
 
-		shipment := testdatagen.MakeDefaultMTOShipment(appCtx.DB())
+		shipment := factory.BuildMTOShipment(appCtx.DB(), nil, nil)
 
 		// Set invalid data, can't pass in blank to the generator above (it'll default to HHG if blank) so we're setting it afterward.
 		shipment.ShipmentType = ""
@@ -151,15 +151,17 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 			isPPMShipment := shipmentType == models.MTOShipmentTypePPM
 
 			if isPPMShipment {
-				ppmShipment := testdatagen.MakeDefaultPPMShipment(appCtx.DB())
+				ppmShipment := factory.BuildPPMShipment(appCtx.DB(), nil, nil)
 
 				shipment = ppmShipment.Shipment
 			} else {
-				shipment = testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
-					MTOShipment: models.MTOShipment{
-						ShipmentType: shipmentType,
+				shipment = factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+					{
+						Model: models.MTOShipment{
+							ShipmentType: shipmentType,
+						},
 					},
-				})
+				}, nil)
 			}
 
 			eTag := etag.GenerateEtag(shipment.UpdatedAt)
@@ -209,14 +211,15 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 
 		subtestData := makeSubtestData(false, false)
 
-		ppmShipment := testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
-			PPMShipment: models.PPMShipment{
-				HasProGear:          models.BoolPointer(true),
-				ProGearWeight:       models.PoundPointer(unit.Pound(1900)),
-				SpouseProGearWeight: models.PoundPointer(unit.Pound(300)),
+		ppmShipment := factory.BuildPPMShipment(appCtx.DB(), []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					HasProGear:          models.BoolPointer(true),
+					ProGearWeight:       models.PoundPointer(unit.Pound(1900)),
+					SpouseProGearWeight: models.PoundPointer(unit.Pound(300)),
+				},
 			},
-		})
-
+		}, nil)
 		shipment := ppmShipment.Shipment
 
 		// set new field to update
@@ -266,15 +269,17 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 			var shipment models.MTOShipment
 
 			if tc.shipmentType == models.MTOShipmentTypePPM {
-				ppmShipment := testdatagen.MakeDefaultPPMShipment(appCtx.DB())
+				ppmShipment := factory.BuildPPMShipment(appCtx.DB(), nil, nil)
 
 				shipment = ppmShipment.Shipment
 			} else {
-				shipment = testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
-					MTOShipment: models.MTOShipment{
-						ShipmentType: tc.shipmentType,
+				shipment = factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+					{
+						Model: models.MTOShipment{
+							ShipmentType: tc.shipmentType,
+						},
 					},
-				})
+				}, nil)
 			}
 
 			mtoShipment, err := subtestData.shipmentUpdaterOrchestrator.UpdateShipment(appCtx, &shipment, etag.GenerateEtag(shipment.UpdatedAt))
@@ -291,11 +296,13 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 
 		subtestData := makeSubtestData(true, false)
 
-		shipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				ShipmentType: models.MTOShipmentTypeHHG,
+		shipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypeHHG,
+				},
 			},
-		})
+		}, nil)
 
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 

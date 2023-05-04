@@ -71,7 +71,7 @@ const SignIn = ({ context, showLocalDevLogin }) => {
               <p>
                 Right now, use of this system is by invitation only. If you haven&apos;t received an invitation, please
                 go to{' '}
-                <a href="https://eta.sddc.army.mil/ETASSOPortal/default.aspx" className="usa-link">
+                <a href="https://dps.move.mil/cust/standard/user/home.xhtml" className="usa-link">
                   DPS
                 </a>{' '}
                 to schedule your move.

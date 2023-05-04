@@ -10,7 +10,6 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
-	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/factory"
@@ -78,32 +77,31 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		handler       CreateMTOShipmentHandler
 	}
 
-	makeCreateSubtestData := func(appCtx appcontext.AppContext) (subtestData mtoCreateSubtestData) {
-		db := appCtx.DB()
+	makeCreateSubtestData := func() (subtestData mtoCreateSubtestData) {
+		subtestData.serviceMember = factory.BuildServiceMember(suite.DB(), nil, nil)
 
-		subtestData.serviceMember = factory.BuildServiceMember(db, nil, nil)
-
-		mto := testdatagen.MakeMove(db, testdatagen.Assertions{
-			Order: models.Order{
-				ServiceMember:   subtestData.serviceMember, // have to set here too because MakeOrder isn't checking the right assertion.
-				ServiceMemberID: subtestData.serviceMember.ID,
+		mto := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model:    subtestData.serviceMember,
+				LinkOnly: true,
 			},
-			ServiceMember: subtestData.serviceMember,
-		})
+		}, nil)
 
-		subtestData.pickupAddress = factory.BuildAddress(db, nil, nil)
-		secondaryPickupAddress := factory.BuildAddress(db, nil, []factory.Trait{factory.GetTraitAddress2})
+		subtestData.pickupAddress = factory.BuildAddress(suite.DB(), nil, nil)
+		secondaryPickupAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
 
-		destinationAddress := factory.BuildAddress(db, nil, []factory.Trait{factory.GetTraitAddress3})
-		secondaryDeliveryAddress := factory.BuildAddress(db, nil, []factory.Trait{factory.GetTraitAddress4})
+		destinationAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress3})
+		secondaryDeliveryAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress4})
 
-		subtestData.mtoShipment = testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-			Move:        mto,
-			MTOShipment: models.MTOShipment{},
-		})
+		subtestData.mtoShipment = factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    mto,
+				LinkOnly: true,
+			},
+		}, nil)
 		subtestData.mtoShipment.MoveTaskOrderID = mto.ID
 
-		mtoAgent := testdatagen.MakeDefaultMTOAgent(db)
+		mtoAgent := factory.BuildMTOAgent(suite.DB(), nil, nil)
 		agents := internalmessages.MTOAgents{&internalmessages.MTOAgent{
 			FirstName: mtoAgent.FirstName,
 			LastName:  mtoAgent.LastName,
@@ -176,9 +174,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	}
 
 	suite.Run("Successful POST - Integration Test - HHG", func() {
-		appCtx := suite.AppContextForTest()
-
-		subtestData := makeCreateSubtestData(appCtx)
+		subtestData := makeCreateSubtestData()
 
 		params := subtestData.params
 
@@ -210,9 +206,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	})
 
 	suite.Run("Successful POST - Integration Test - PPM required fields", func() {
-		appCtx := suite.AppContextForTest()
-
-		subtestData := makeCreateSubtestData(appCtx)
+		subtestData := makeCreateSubtestData()
 
 		params := subtestData.params
 		ppmShipmentType := internalmessages.MTOShipmentTypePPM
@@ -262,9 +256,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	})
 
 	suite.Run("Successful POST - Integration Test - PPM optional fields", func() {
-		appCtx := suite.AppContextForTest()
-
-		subtestData := makeCreateSubtestData(appCtx)
+		subtestData := makeCreateSubtestData()
 
 		params := subtestData.params
 		ppmShipmentType := internalmessages.MTOShipmentTypePPM
@@ -316,9 +308,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	})
 
 	suite.Run("Successful POST - Integration Test - NTS-Release", func() {
-		appCtx := suite.AppContextForTest()
-
-		subtestData := makeCreateSubtestData(appCtx)
+		subtestData := makeCreateSubtestData()
 
 		params := subtestData.params
 
@@ -355,9 +345,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	})
 
 	suite.Run("POST failure - 400 - invalid input, missing pickup address", func() {
-		appCtx := suite.AppContextForTest()
-
-		subtestData := makeCreateSubtestData(appCtx)
+		subtestData := makeCreateSubtestData()
 
 		badParams := subtestData.params
 		badParams.Body.PickupAddress = nil
@@ -368,9 +356,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	})
 
 	suite.Run("POST failure - 401- permission denied - not authenticated", func() {
-		appCtx := suite.AppContextForTest()
-
-		subtestData := makeCreateSubtestData(appCtx)
+		subtestData := makeCreateSubtestData()
 
 		unauthorizedReq := httptest.NewRequest("POST", "/mto_shipments", nil)
 		shipmentType := internalmessages.MTOShipmentTypeHHG
@@ -401,9 +387,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	})
 
 	suite.Run("POST failure - 403- permission denied - wrong application", func() {
-		appCtx := suite.AppContextForTest()
-
-		subtestData := makeCreateSubtestData(appCtx)
+		subtestData := makeCreateSubtestData()
 
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
@@ -418,9 +402,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	})
 
 	suite.Run("POST failure - 404 -- not found", func() {
-		appCtx := suite.AppContextForTest()
-
-		subtestData := makeCreateSubtestData(appCtx)
+		subtestData := makeCreateSubtestData()
 
 		uuidString := "d874d002-5582-4a91-97d3-786e8f66c763"
 		badParams := subtestData.params
@@ -432,9 +414,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	})
 
 	suite.Run("POST failure - 400 -- nil body", func() {
-		appCtx := suite.AppContextForTest()
-
-		subtestData := makeCreateSubtestData(appCtx)
+		subtestData := makeCreateSubtestData()
 
 		otherParams := mtoshipmentops.CreateMTOShipmentParams{
 			HTTPRequest: subtestData.params.HTTPRequest,
@@ -445,9 +425,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	})
 
 	suite.Run("POST failure - 400 -- missing required field to Create PPM", func() {
-		appCtx := suite.AppContextForTest()
-
-		subtestData := makeCreateSubtestData(appCtx)
+		subtestData := makeCreateSubtestData()
 
 		params := subtestData.params
 		ppmShipmentType := internalmessages.MTOShipmentTypePPM
@@ -481,9 +459,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	})
 
 	suite.Run("POST failure - 500", func() {
-		appCtx := suite.AppContextForTest()
-
-		subtestData := makeCreateSubtestData(appCtx)
+		subtestData := makeCreateSubtestData()
 
 		mockShipmentCreator := mocks.ShipmentCreator{}
 
@@ -547,7 +523,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 
 	shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater)
 
-	authRequestAndSetUpHandlerAndParams := func(appCtx appcontext.AppContext, originalShipment models.MTOShipment, mockShipmentUpdater *mocks.ShipmentUpdater) (UpdateMTOShipmentHandler, mtoshipmentops.UpdateMTOShipmentParams) {
+	authRequestAndSetUpHandlerAndParams := func(originalShipment models.MTOShipment, mockShipmentUpdater *mocks.ShipmentUpdater) (UpdateMTOShipmentHandler, mtoshipmentops.UpdateMTOShipmentParams) {
 		endpoint := fmt.Sprintf("/mto-shipments/%s", originalShipment.ID.String())
 
 		req := httptest.NewRequest("PATCH", endpoint, nil)
@@ -582,22 +558,22 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	}
 
 	// getDefaultMTOShipmentAndParams generates a set of default params and an MTOShipment
-	getDefaultMTOShipmentAndParams := func(appCtx appcontext.AppContext, mockShipmentUpdater *mocks.ShipmentUpdater) *mtoUpdateSubtestData {
-		originalShipment := testdatagen.MakeDefaultMTOShipment(appCtx.DB())
+	getDefaultMTOShipmentAndParams := func(mockShipmentUpdater *mocks.ShipmentUpdater) *mtoUpdateSubtestData {
+		originalShipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
 
-		pickupAddress := factory.BuildAddress(appCtx.DB(), nil, nil)
+		pickupAddress := factory.BuildAddress(suite.DB(), nil, nil)
 		pickupAddress.StreetAddress1 = "123 Fake Test St NW"
 
-		secondaryPickupAddress := factory.BuildAddress(appCtx.DB(), nil, nil)
+		secondaryPickupAddress := factory.BuildAddress(suite.DB(), nil, nil)
 		secondaryPickupAddress.StreetAddress1 = "89999 Other Test St NW"
 
-		destinationAddress := factory.BuildAddress(appCtx.DB(), nil, nil)
+		destinationAddress := factory.BuildAddress(suite.DB(), nil, nil)
 		destinationAddress.StreetAddress1 = "54321 Test Fake Rd SE"
 
-		secondaryDeliveryAddress := factory.BuildAddress(appCtx.DB(), nil, nil)
+		secondaryDeliveryAddress := factory.BuildAddress(suite.DB(), nil, nil)
 		secondaryDeliveryAddress.StreetAddress1 = "9999 Test Fake Rd SE"
 
-		mtoAgent := testdatagen.MakeDefaultMTOAgent(appCtx.DB())
+		mtoAgent := factory.BuildMTOAgent(suite.DB(), nil, nil)
 		agents := internalmessages.MTOAgents{&internalmessages.MTOAgent{
 			FirstName: mtoAgent.FirstName,
 			LastName:  mtoAgent.LastName,
@@ -608,7 +584,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 
 		customerRemarks := ""
 
-		handler, params := authRequestAndSetUpHandlerAndParams(appCtx, originalShipment, mockShipmentUpdater)
+		handler, params := authRequestAndSetUpHandlerAndParams(originalShipment, mockShipmentUpdater)
 
 		params.Body = &internalmessages.UpdateShipment{
 			Agents:          agents,
@@ -631,6 +607,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 				StreetAddress2: secondaryDeliveryAddress.StreetAddress2,
 				StreetAddress3: secondaryDeliveryAddress.StreetAddress3,
 			},
+			HasSecondaryDeliveryAddress: handlers.FmtBool(true),
 			PickupAddress: &internalmessages.Address{
 				City:           &pickupAddress.City,
 				Country:        pickupAddress.Country,
@@ -649,9 +626,10 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 				StreetAddress2: secondaryPickupAddress.StreetAddress2,
 				StreetAddress3: secondaryPickupAddress.StreetAddress3,
 			},
-			RequestedPickupDate:   handlers.FmtDatePtr(originalShipment.RequestedPickupDate),
-			RequestedDeliveryDate: handlers.FmtDatePtr(originalShipment.RequestedDeliveryDate),
-			ShipmentType:          internalmessages.MTOShipmentTypeHHG,
+			HasSecondaryPickupAddress: handlers.FmtBool(true),
+			RequestedPickupDate:       handlers.FmtDatePtr(originalShipment.RequestedPickupDate),
+			RequestedDeliveryDate:     handlers.FmtDatePtr(originalShipment.RequestedDeliveryDate),
+			ShipmentType:              internalmessages.MTOShipmentTypeHHG,
 		}
 
 		return &mtoUpdateSubtestData{
@@ -662,7 +640,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	}
 
 	suite.Run("Successful PATCH - Integration Test", func() {
-		subtestData := getDefaultMTOShipmentAndParams(suite.AppContextForTest(), nil)
+		subtestData := getDefaultMTOShipmentAndParams(nil)
 		params := subtestData.params
 
 		response := subtestData.handler.Handle(params)
@@ -713,7 +691,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			suite.EqualCentsPointers(originalShipment.PPMShipment.AdvanceAmountRequested, updatedShipment.PpmShipment.AdvanceAmountRequested)
 		}
 
-		type setUpOriginalPPMFunc func(appCtx appcontext.AppContext) models.PPMShipment
+		type setUpOriginalPPMFunc func() models.PPMShipment
 		type runChecksFunc func(updatedShipment *internalmessages.MTOShipment, originalShipment models.MTOShipment, desiredShipment internalmessages.UpdatePPMShipment)
 
 		// Address fields
@@ -729,15 +707,17 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			runChecks          runChecksFunc
 		}{
 			"Edit estimated dates & locations": {
-				setUpOriginalPPM: func(appCtx appcontext.AppContext) models.PPMShipment {
-					return testdatagen.MakeMinimalPPMShipment(appCtx.DB(), testdatagen.Assertions{
-						PPMShipment: models.PPMShipment{
-							ExpectedDepartureDate: time.Date(testdatagen.GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC),
-							PickupPostalCode:      "90808",
-							DestinationPostalCode: "79912",
-							SITExpected:           models.BoolPointer(true),
+				setUpOriginalPPM: func() models.PPMShipment {
+					return factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
+						{
+							Model: models.PPMShipment{
+								ExpectedDepartureDate: time.Date(testdatagen.GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC),
+								PickupPostalCode:      "90808",
+								DestinationPostalCode: "79912",
+								SITExpected:           models.BoolPointer(true),
+							},
 						},
-					})
+					}, nil)
 				},
 				desiredShipment: internalmessages.UpdatePPMShipment{
 					ExpectedDepartureDate: handlers.FmtDate(time.Date(testdatagen.GHCTestYear, time.April, 27, 0, 0, 0, 0, time.UTC)),
@@ -756,8 +736,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 				},
 			},
 			"Edit estimated dates & locations - add secondary zips": {
-				setUpOriginalPPM: func(appCtx appcontext.AppContext) models.PPMShipment {
-					return testdatagen.MakeMinimalDefaultPPMShipment(appCtx.DB())
+				setUpOriginalPPM: func() models.PPMShipment {
+					return factory.BuildMinimalPPMShipment(suite.DB(), nil, nil)
 				},
 				desiredShipment: internalmessages.UpdatePPMShipment{
 					SecondaryPickupPostalCode:      nullable.NewString("90900"),
@@ -773,13 +753,15 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 				},
 			},
 			"Edit estimated dates & locations - remove secondary zips": {
-				setUpOriginalPPM: func(appCtx appcontext.AppContext) models.PPMShipment {
-					return testdatagen.MakeMinimalPPMShipment(appCtx.DB(), testdatagen.Assertions{
-						PPMShipment: models.PPMShipment{
-							SecondaryPickupPostalCode:      models.StringPointer("90900"),
-							SecondaryDestinationPostalCode: models.StringPointer("79916"),
+				setUpOriginalPPM: func() models.PPMShipment {
+					return factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
+						{
+							Model: models.PPMShipment{
+								SecondaryPickupPostalCode:      models.StringPointer("90900"),
+								SecondaryDestinationPostalCode: models.StringPointer("79916"),
+							},
 						},
-					})
+					}, nil)
 				},
 				desiredShipment: internalmessages.UpdatePPMShipment{
 					SecondaryPickupPostalCode:      nullable.NewNullString(),
@@ -795,8 +777,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 				},
 			},
 			"Add estimated weights - no pro gear": {
-				setUpOriginalPPM: func(appCtx appcontext.AppContext) models.PPMShipment {
-					return testdatagen.MakeMinimalDefaultPPMShipment(appCtx.DB())
+				setUpOriginalPPM: func() models.PPMShipment {
+					return factory.BuildMinimalPPMShipment(suite.DB(), nil, nil)
 				},
 				desiredShipment: internalmessages.UpdatePPMShipment{
 					EstimatedWeight: handlers.FmtInt64(3500),
@@ -815,8 +797,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 				},
 			},
 			"Add estimated weights - yes pro gear": {
-				setUpOriginalPPM: func(appCtx appcontext.AppContext) models.PPMShipment {
-					return testdatagen.MakeMinimalDefaultPPMShipment(appCtx.DB())
+				setUpOriginalPPM: func() models.PPMShipment {
+					return factory.BuildMinimalPPMShipment(suite.DB(), nil, nil)
 				},
 				desiredShipment: internalmessages.UpdatePPMShipment{
 					EstimatedWeight:     handlers.FmtInt64(3500),
@@ -837,16 +819,18 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 				},
 			},
 			"Remove pro gear": {
-				setUpOriginalPPM: func(appCtx appcontext.AppContext) models.PPMShipment {
-					return testdatagen.MakeMinimalPPMShipment(appCtx.DB(), testdatagen.Assertions{
-						PPMShipment: models.PPMShipment{
-							EstimatedWeight:     models.PoundPointer(4000),
-							HasProGear:          models.BoolPointer(true),
-							ProGearWeight:       models.PoundPointer(1250),
-							SpouseProGearWeight: models.PoundPointer(150),
-							EstimatedIncentive:  models.CentPointer(unit.Cents(500000)),
+				setUpOriginalPPM: func() models.PPMShipment {
+					return factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
+						{
+							Model: models.PPMShipment{
+								EstimatedWeight:     models.PoundPointer(4000),
+								HasProGear:          models.BoolPointer(true),
+								ProGearWeight:       models.PoundPointer(1250),
+								SpouseProGearWeight: models.PoundPointer(150),
+								EstimatedIncentive:  models.CentPointer(unit.Cents(500000)),
+							},
 						},
-					})
+					}, nil)
 				},
 				desiredShipment: internalmessages.UpdatePPMShipment{
 					HasProGear: handlers.FmtBool(false),
@@ -865,14 +849,16 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 				},
 			},
 			"Add advance requested info - no advance": {
-				setUpOriginalPPM: func(appCtx appcontext.AppContext) models.PPMShipment {
-					return testdatagen.MakeMinimalPPMShipment(appCtx.DB(), testdatagen.Assertions{
-						PPMShipment: models.PPMShipment{
-							EstimatedWeight:    models.PoundPointer(4000),
-							HasProGear:         models.BoolPointer(false),
-							EstimatedIncentive: models.CentPointer(unit.Cents(500000)),
+				setUpOriginalPPM: func() models.PPMShipment {
+					return factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
+						{
+							Model: models.PPMShipment{
+								EstimatedWeight:    models.PoundPointer(4000),
+								HasProGear:         models.BoolPointer(false),
+								EstimatedIncentive: models.CentPointer(unit.Cents(500000)),
+							},
 						},
-					})
+					}, nil)
 				},
 				desiredShipment: internalmessages.UpdatePPMShipment{
 					HasRequestedAdvance: handlers.FmtBool(false),
@@ -889,14 +875,16 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 				},
 			},
 			"Add advance requested info - yes advance": {
-				setUpOriginalPPM: func(appCtx appcontext.AppContext) models.PPMShipment {
-					return testdatagen.MakeMinimalPPMShipment(appCtx.DB(), testdatagen.Assertions{
-						PPMShipment: models.PPMShipment{
-							EstimatedWeight:    models.PoundPointer(4000),
-							HasProGear:         models.BoolPointer(false),
-							EstimatedIncentive: models.CentPointer(unit.Cents(500000)),
+				setUpOriginalPPM: func() models.PPMShipment {
+					return factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
+						{
+							Model: models.PPMShipment{
+								EstimatedWeight:    models.PoundPointer(4000),
+								HasProGear:         models.BoolPointer(false),
+								EstimatedIncentive: models.CentPointer(unit.Cents(500000)),
+							},
 						},
-					})
+					}, nil)
 				},
 				desiredShipment: internalmessages.UpdatePPMShipment{
 					HasRequestedAdvance:    handlers.FmtBool(true),
@@ -914,16 +902,18 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 				},
 			},
 			"Remove advance requested": {
-				setUpOriginalPPM: func(appCtx appcontext.AppContext) models.PPMShipment {
-					return testdatagen.MakeMinimalPPMShipment(appCtx.DB(), testdatagen.Assertions{
-						PPMShipment: models.PPMShipment{
-							EstimatedWeight:        models.PoundPointer(4000),
-							HasProGear:             models.BoolPointer(false),
-							EstimatedIncentive:     models.CentPointer(unit.Cents(500000)),
-							HasRequestedAdvance:    models.BoolPointer(true),
-							AdvanceAmountRequested: models.CentPointer(unit.Cents(200000)),
+				setUpOriginalPPM: func() models.PPMShipment {
+					return factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
+						{
+							Model: models.PPMShipment{
+								EstimatedWeight:        models.PoundPointer(4000),
+								HasProGear:             models.BoolPointer(false),
+								EstimatedIncentive:     models.CentPointer(unit.Cents(500000)),
+								HasRequestedAdvance:    models.BoolPointer(true),
+								AdvanceAmountRequested: models.CentPointer(unit.Cents(200000)),
+							},
 						},
-					})
+					}, nil)
 				},
 				desiredShipment: internalmessages.UpdatePPMShipment{
 					HasRequestedAdvance: handlers.FmtBool(false),
@@ -940,16 +930,18 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 				},
 			},
 			"Add actual zips and advance info - no advance": {
-				setUpOriginalPPM: func(appCtx appcontext.AppContext) models.PPMShipment {
-					return testdatagen.MakeMinimalPPMShipment(appCtx.DB(), testdatagen.Assertions{
-						PPMShipment: models.PPMShipment{
-							EstimatedWeight:        models.PoundPointer(4000),
-							HasProGear:             models.BoolPointer(false),
-							EstimatedIncentive:     models.CentPointer(unit.Cents(500000)),
-							HasRequestedAdvance:    models.BoolPointer(true),
-							AdvanceAmountRequested: models.CentPointer(unit.Cents(200000)),
+				setUpOriginalPPM: func() models.PPMShipment {
+					return factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
+						{
+							Model: models.PPMShipment{
+								EstimatedWeight:        models.PoundPointer(4000),
+								HasProGear:             models.BoolPointer(false),
+								EstimatedIncentive:     models.CentPointer(unit.Cents(500000)),
+								HasRequestedAdvance:    models.BoolPointer(true),
+								AdvanceAmountRequested: models.CentPointer(unit.Cents(200000)),
+							},
 						},
-					})
+					}, nil)
 				},
 				desiredShipment: internalmessages.UpdatePPMShipment{
 					ActualPickupPostalCode:      handlers.FmtString("90210"),
@@ -971,16 +963,18 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 				},
 			},
 			"Add actual zips and advance info - yes advance": {
-				setUpOriginalPPM: func(appCtx appcontext.AppContext) models.PPMShipment {
-					return testdatagen.MakeMinimalPPMShipment(appCtx.DB(), testdatagen.Assertions{
-						PPMShipment: models.PPMShipment{
-							EstimatedWeight:        models.PoundPointer(4000),
-							HasProGear:             models.BoolPointer(false),
-							EstimatedIncentive:     models.CentPointer(unit.Cents(500000)),
-							HasRequestedAdvance:    models.BoolPointer(true),
-							AdvanceAmountRequested: models.CentPointer(unit.Cents(200000)),
+				setUpOriginalPPM: func() models.PPMShipment {
+					return factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
+						{
+							Model: models.PPMShipment{
+								EstimatedWeight:        models.PoundPointer(4000),
+								HasProGear:             models.BoolPointer(false),
+								EstimatedIncentive:     models.CentPointer(unit.Cents(500000)),
+								HasRequestedAdvance:    models.BoolPointer(true),
+								AdvanceAmountRequested: models.CentPointer(unit.Cents(200000)),
+							},
 						},
-					})
+					}, nil)
 				},
 				desiredShipment: internalmessages.UpdatePPMShipment{
 					ActualPickupPostalCode:      handlers.FmtString("90210"),
@@ -1003,16 +997,18 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 				},
 			},
 			"Add W2 Address": {
-				setUpOriginalPPM: func(appCtx appcontext.AppContext) models.PPMShipment {
-					return testdatagen.MakeMinimalPPMShipment(appCtx.DB(), testdatagen.Assertions{
-						PPMShipment: models.PPMShipment{
-							EstimatedWeight:        models.PoundPointer(4000),
-							HasProGear:             models.BoolPointer(false),
-							EstimatedIncentive:     models.CentPointer(unit.Cents(500000)),
-							HasRequestedAdvance:    models.BoolPointer(true),
-							AdvanceAmountRequested: models.CentPointer(unit.Cents(200000)),
+				setUpOriginalPPM: func() models.PPMShipment {
+					return factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
+						{
+							Model: models.PPMShipment{
+								EstimatedWeight:        models.PoundPointer(4000),
+								HasProGear:             models.BoolPointer(false),
+								EstimatedIncentive:     models.CentPointer(unit.Cents(500000)),
+								HasRequestedAdvance:    models.BoolPointer(true),
+								AdvanceAmountRequested: models.CentPointer(unit.Cents(200000)),
+							},
 						},
-					})
+					}, nil)
 				},
 				desiredShipment: internalmessages.UpdatePPMShipment{
 					W2Address: &internalmessages.Address{
@@ -1037,14 +1033,15 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 				},
 			},
 			"Allows updates to W2 Address": {
-				setUpOriginalPPM: func(appCtx appcontext.AppContext) models.PPMShipment {
-					address := factory.BuildAddress(appCtx.DB(), nil, nil)
-					return testdatagen.MakeMinimalPPMShipment(appCtx.DB(), testdatagen.Assertions{
-						PPMShipment: models.PPMShipment{
-							W2Address:   &address,
-							W2AddressID: &address.ID,
+				setUpOriginalPPM: func() models.PPMShipment {
+					address := factory.BuildAddress(suite.DB(), nil, nil)
+					return factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
+						{
+							Model:    address,
+							LinkOnly: true,
+							Type:     &factory.Addresses.W2Address,
 						},
-					})
+					}, nil)
 				},
 				desiredShipment: internalmessages.UpdatePPMShipment{
 					W2Address: &internalmessages.Address{
@@ -1071,8 +1068,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 				},
 			},
 			"Prevents arbitrary address updates": {
-				setUpOriginalPPM: func(appCtx appcontext.AppContext) models.PPMShipment {
-					return testdatagen.MakeMinimalDefaultPPMShipment(appCtx.DB())
+				setUpOriginalPPM: func() models.PPMShipment {
+					return factory.BuildMinimalPPMShipment(suite.DB(), nil, nil)
 				},
 				desiredShipment: internalmessages.UpdatePPMShipment{
 					W2Address: &internalmessages.Address{
@@ -1099,20 +1096,22 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 				},
 			},
 			"Remove actual advance": {
-				setUpOriginalPPM: func(appCtx appcontext.AppContext) models.PPMShipment {
-					return testdatagen.MakeMinimalPPMShipment(appCtx.DB(), testdatagen.Assertions{
-						PPMShipment: models.PPMShipment{
-							EstimatedWeight:             models.PoundPointer(4000),
-							HasProGear:                  models.BoolPointer(false),
-							EstimatedIncentive:          models.CentPointer(unit.Cents(500000)),
-							HasRequestedAdvance:         models.BoolPointer(true),
-							AdvanceAmountRequested:      models.CentPointer(unit.Cents(200000)),
-							ActualPickupPostalCode:      models.StringPointer("90210"),
-							ActualDestinationPostalCode: models.StringPointer("90210"),
-							HasReceivedAdvance:          models.BoolPointer(true),
-							AdvanceAmountReceived:       models.CentPointer(unit.Cents(250000)),
+				setUpOriginalPPM: func() models.PPMShipment {
+					return factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
+						{
+							Model: models.PPMShipment{
+								EstimatedWeight:             models.PoundPointer(4000),
+								HasProGear:                  models.BoolPointer(false),
+								EstimatedIncentive:          models.CentPointer(unit.Cents(500000)),
+								HasRequestedAdvance:         models.BoolPointer(true),
+								AdvanceAmountRequested:      models.CentPointer(unit.Cents(200000)),
+								ActualPickupPostalCode:      models.StringPointer("90210"),
+								ActualDestinationPostalCode: models.StringPointer("90210"),
+								HasReceivedAdvance:          models.BoolPointer(true),
+								AdvanceAmountReceived:       models.CentPointer(unit.Cents(250000)),
+							},
 						},
-					})
+					}, nil)
 				},
 				desiredShipment: internalmessages.UpdatePPMShipment{
 					HasReceivedAdvance: handlers.FmtBool(false),
@@ -1139,8 +1138,6 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			tc := tc
 
 			suite.Run(name, func() {
-				appCtx := suite.AppContextForTest()
-
 				ppmEstimator.On("EstimateIncentiveWithDefaultChecks",
 					mock.AnythingOfType("*appcontext.appContext"),
 					mock.AnythingOfType("models.PPMShipment"),
@@ -1153,9 +1150,9 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 					mock.AnythingOfType("*models.PPMShipment")).
 					Return(nil, nil)
 
-				originalPPMShipment := tc.setUpOriginalPPM(appCtx)
+				originalPPMShipment := tc.setUpOriginalPPM()
 
-				handler, params := authRequestAndSetUpHandlerAndParams(appCtx, originalPPMShipment.Shipment, nil)
+				handler, params := authRequestAndSetUpHandlerAndParams(originalPPMShipment.Shipment, nil)
 
 				params.Body = &internalmessages.UpdateShipment{
 					ShipmentType: internalmessages.MTOShipmentTypePPM,
@@ -1181,7 +1178,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	})
 
 	suite.Run("Successful PATCH - Can update shipment status", func() {
-		subtestData := getDefaultMTOShipmentAndParams(suite.AppContextForTest(), nil)
+		subtestData := getDefaultMTOShipmentAndParams(nil)
 
 		expectedStatus := internalmessages.MTOShipmentStatusSUBMITTED
 
@@ -1197,7 +1194,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	})
 
 	suite.Run("PATCH failure - 400 -- nil body", func() {
-		subtestData := getDefaultMTOShipmentAndParams(suite.AppContextForTest(), nil)
+		subtestData := getDefaultMTOShipmentAndParams(nil)
 
 		subtestData.params.Body = nil
 
@@ -1207,7 +1204,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	})
 
 	suite.Run("PATCH failure - 400 -- invalid requested status update", func() {
-		subtestData := getDefaultMTOShipmentAndParams(suite.AppContextForTest(), nil)
+		subtestData := getDefaultMTOShipmentAndParams(nil)
 
 		subtestData.params.Body.Status = internalmessages.MTOShipmentStatusREJECTED
 
@@ -1217,7 +1214,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	})
 
 	suite.Run("PATCH failure - 401- permission denied - not authenticated", func() {
-		subtestData := getDefaultMTOShipmentAndParams(suite.AppContextForTest(), nil)
+		subtestData := getDefaultMTOShipmentAndParams(nil)
 
 		updateURI := "/mto-shipments/" + subtestData.mtoShipment.ID.String()
 
@@ -1230,11 +1227,9 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	})
 
 	suite.Run("PATCH failure - 403- permission denied - wrong application / user", func() {
-		appCtx := suite.AppContextForTest()
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
-		officeUser := factory.BuildOfficeUserWithRoles(appCtx.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
-
-		subtestData := getDefaultMTOShipmentAndParams(suite.AppContextForTest(), nil)
+		subtestData := getDefaultMTOShipmentAndParams(nil)
 
 		updateURI := "/mto-shipments/" + subtestData.mtoShipment.ID.String()
 
@@ -1248,7 +1243,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	})
 
 	suite.Run("PATCH failure - 404 -- not found", func() {
-		subtestData := getDefaultMTOShipmentAndParams(suite.AppContextForTest(), nil)
+		subtestData := getDefaultMTOShipmentAndParams(nil)
 
 		uuidString := handlers.FmtUUID(testdatagen.ConvertUUIDStringToUUID("d874d002-5582-4a91-97d3-786e8f66c763"))
 		subtestData.params.MtoShipmentID = *uuidString
@@ -1259,7 +1254,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	})
 
 	suite.Run("PATCH failure - 412 -- etag mismatch", func() {
-		subtestData := getDefaultMTOShipmentAndParams(suite.AppContextForTest(), nil)
+		subtestData := getDefaultMTOShipmentAndParams(nil)
 
 		subtestData.params.IfMatch = "intentionally-bad-if-match-header-value"
 
@@ -1279,7 +1274,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			mock.AnythingOfType("string"),
 		).Return(nil, err)
 
-		subtestData := getDefaultMTOShipmentAndParams(suite.AppContextForTest(), &mockUpdater)
+		subtestData := getDefaultMTOShipmentAndParams(&mockUpdater)
 
 		response := subtestData.handler.Handle(subtestData.params)
 
@@ -1301,10 +1296,13 @@ type mtoListSubtestData struct {
 
 func (suite *HandlerSuite) makeListSubtestData() (subtestData *mtoListSubtestData) {
 	subtestData = &mtoListSubtestData{}
-	mto := testdatagen.MakeDefaultMove(suite.DB())
-	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: mto,
-	})
+	mto := factory.BuildMove(suite.DB(), nil, nil)
+	mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	requestedPickupDate := time.Date(testdatagen.GHCTestYear, time.September, 15, 0, 0, 0, 0, time.UTC)
 
@@ -1338,31 +1336,65 @@ func (suite *HandlerSuite) makeListSubtestData() (subtestData *mtoListSubtestDat
 		},
 	}, nil)
 
-	mtoShipment2 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: mto,
-		MTOShipment: models.MTOShipment{
-			Status:              models.MTOShipmentStatusSubmitted,
-			RequestedPickupDate: &requestedPickupDate,
+	mtoShipment2 := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    mto,
+			LinkOnly: true,
 		},
-		PickupAddress:            pickupAddress,
-		SecondaryPickupAddress:   secondaryPickupAddress,
-		DestinationAddress:       deliveryAddress,
-		SecondaryDeliveryAddress: secondaryDeliveryAddress,
-	})
+		{
+			Model: models.MTOShipment{
+				Status:              models.MTOShipmentStatusSubmitted,
+				RequestedPickupDate: &requestedPickupDate,
+			},
+		},
+		{
+			Model:    pickupAddress,
+			Type:     &factory.Addresses.PickupAddress,
+			LinkOnly: true,
+		},
+		{
+			Model:    secondaryPickupAddress,
+			Type:     &factory.Addresses.SecondaryPickupAddress,
+			LinkOnly: true,
+		},
+		{
+			Model:    deliveryAddress,
+			Type:     &factory.Addresses.DeliveryAddress,
+			LinkOnly: true,
+		},
+		{
+			Model:    secondaryDeliveryAddress,
+			Type:     &factory.Addresses.SecondaryDeliveryAddress,
+			LinkOnly: true,
+		},
+	}, nil)
 
-	ppmShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
-		Move: mto,
-	})
+	ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+	}, nil)
 
-	ppmShipment2 := testdatagen.MakeApprovedPPMShipmentWaitingOnCustomer(suite.DB(), testdatagen.Assertions{
-		Move: mto,
-	})
+	ppmShipment2 := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+	}, []factory.Trait{factory.GetTraitApprovedPPMShipment})
 
 	advanceAmountRequested := unit.Cents(10000)
-	ppmShipment3 := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
-		Move:        mto,
-		PPMShipment: models.PPMShipment{AdvanceAmountRequested: &advanceAmountRequested},
-	})
+	ppmShipment3 := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+		{
+			Model: models.PPMShipment{
+				AdvanceAmountRequested: &advanceAmountRequested,
+			},
+		},
+	}, nil)
 
 	subtestData.shipments = models.MTOShipments{mtoShipment, mtoShipment2, ppmShipment.Shipment, ppmShipment2.Shipment, ppmShipment3.Shipment}
 	requestUser := factory.BuildUser(nil, nil, nil)
@@ -1532,23 +1564,25 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 
 func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 	suite.Run("Returns 204 when all validations pass", func() {
-		order := testdatagen.MakeDefaultOrder(suite.DB())
-		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Order: order,
-		})
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-			MTOShipment: models.MTOShipment{
-				ShipmentType: models.MTOShipmentTypePPM,
+		move := factory.BuildMove(suite.DB(), nil, nil)
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypePPM,
+				},
+			},
+		}, nil)
 
 		deleter := &mocks.ShipmentDeleter{}
 
 		deleter.On("DeleteShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID).Return(shipment.MoveTaskOrderID, nil)
 
 		req := httptest.NewRequest("DELETE", fmt.Sprintf("/mto-shipments/%s", shipment.ID.String()), nil)
-		req = suite.AuthenticateRequest(req, order.ServiceMember)
+		req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
 		handlerConfig := suite.HandlerConfig()
 
 		handler := DeleteShipmentHandler{
@@ -1566,23 +1600,25 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 	})
 
 	suite.Run("Returns 404 when deleter returns NotFoundError", func() {
-		order := testdatagen.MakeDefaultOrder(suite.DB())
-		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Order: order,
-		})
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-			MTOShipment: models.MTOShipment{
-				ShipmentType: models.MTOShipmentTypePPM,
+		move := factory.BuildMove(suite.DB(), nil, nil)
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypePPM,
+				},
+			},
+		}, nil)
 
 		deleter := &mocks.ShipmentDeleter{}
 
 		deleter.On("DeleteShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID).Return(uuid.Nil, apperror.NotFoundError{})
 
 		req := httptest.NewRequest("DELETE", fmt.Sprintf("/mto-shipments/%s", shipment.ID.String()), nil)
-		req = suite.AuthenticateRequest(req, order.ServiceMember)
+		req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
 		handlerConfig := suite.HandlerConfig()
 
 		handler := DeleteShipmentHandler{
@@ -1599,23 +1635,25 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 	})
 
 	suite.Run("Returns 409 - Conflict error", func() {
-		order := testdatagen.MakeDefaultOrder(suite.DB())
-		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Order: order,
-		})
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-			MTOShipment: models.MTOShipment{
-				ShipmentType: models.MTOShipmentTypePPM,
+		move := factory.BuildMove(suite.DB(), nil, nil)
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypePPM,
+				},
+			},
+		}, nil)
 
 		deleter := &mocks.ShipmentDeleter{}
 
 		deleter.On("DeleteShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID).Return(uuid.Nil, apperror.ConflictError{})
 
 		req := httptest.NewRequest("DELETE", fmt.Sprintf("/mto-shipments/%s", shipment.ID.String()), nil)
-		req = suite.AuthenticateRequest(req, order.ServiceMember)
+		req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
 		handlerConfig := suite.HandlerConfig()
 
 		handler := DeleteShipmentHandler{
@@ -1635,17 +1673,22 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 	suite.Run("Returns 403 when servicemember ID doesn't match shipment", func() {
 		sm1 := factory.BuildServiceMember(nil, nil, []factory.Trait{factory.GetTraitServiceMemberSetIDs})
 		sm2 := factory.BuildServiceMember(nil, nil, []factory.Trait{factory.GetTraitServiceMemberSetIDs})
-		order := testdatagen.MakeDefaultOrder(suite.DB())
-		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Order: order,
-		})
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-			MTOShipment: models.MTOShipment{
-				ShipmentType: models.MTOShipmentTypePPM,
+		move := factory.BuildMove(suite.DB(), nil, nil)
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-			ServiceMember: sm2,
-		})
+			{
+				Model: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypePPM,
+				},
+			},
+			{
+				Model:    sm2,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		deleter := &mocks.ShipmentDeleter{}
 
@@ -1670,23 +1713,25 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 	})
 
 	suite.Run("Returns 422 - Unprocessable Enitity error", func() {
-		order := testdatagen.MakeDefaultOrder(suite.DB())
-		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Order: order,
-		})
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-			MTOShipment: models.MTOShipment{
-				ShipmentType: models.MTOShipmentTypePPM,
+		move := factory.BuildMove(suite.DB(), nil, nil)
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypePPM,
+				},
+			},
+		}, nil)
 
 		deleter := &mocks.ShipmentDeleter{}
 
 		deleter.On("DeleteShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID).Return(uuid.Nil, apperror.UnprocessableEntityError{})
 
 		req := httptest.NewRequest("DELETE", fmt.Sprintf("/mto-shipments/%s", shipment.ID.String()), nil)
-		req = suite.AuthenticateRequest(req, order.ServiceMember)
+		req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
 		handlerConfig := suite.HandlerConfig()
 
 		handler := DeleteShipmentHandler{
@@ -1703,23 +1748,25 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 	})
 
 	suite.Run("Returns 500 when deleter returns InternalServerError", func() {
-		order := testdatagen.MakeDefaultOrder(suite.DB())
-		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Order: order,
-		})
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-			MTOShipment: models.MTOShipment{
-				ShipmentType: models.MTOShipmentTypePPM,
+		move := factory.BuildMove(suite.DB(), nil, nil)
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypePPM,
+				},
+			},
+		}, nil)
 
 		deleter := &mocks.ShipmentDeleter{}
 
 		deleter.On("DeleteShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID).Return(uuid.Nil, apperror.InternalServerError{})
 
 		req := httptest.NewRequest("DELETE", fmt.Sprintf("/mto-shipments/%s", shipment.ID.String()), nil)
-		req = suite.AuthenticateRequest(req, order.ServiceMember)
+		req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
 
 		handlerConfig := suite.HandlerConfig()
 

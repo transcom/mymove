@@ -5,14 +5,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListbyMove() {
@@ -21,24 +19,29 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListbyMove() {
 
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
-		expectedMove := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{Locator: "ABC123"},
-		})
-
-		// We need a payment request with a move that has a shipment that's within the GBLOC
-		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				MoveTaskOrderID: expectedMove.ID,
-				MoveTaskOrder:   expectedMove,
+		expectedMove := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Locator: "ABC123",
+				},
 			},
-		})
+		}, nil)
+		// We need a payment request with a move that has a shipment that's within the GBLOC
+		paymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    expectedMove,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		// Hidden move should not be returned
-		testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				Show: swag.Bool(false),
+		factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Show: models.BoolPointer(false),
+				},
 			},
-		})
+		}, nil)
 
 		expectedPaymentRequests, err := paymentRequestListFetcher.FetchPaymentRequestListByMove(suite.AppContextForTest(), officeUser.ID, "ABC123")
 
@@ -58,51 +61,63 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestList() {
 
 	suite.PreloadData(func() {
 		officeUser = factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
-		expectedMove = testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
+		expectedMove = factory.BuildMoveWithShipment(suite.DB(), nil, nil)
 
 		// We need a payment request with a move that has a shipment that's within the GBLOC
-		paymentRequest = testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				MoveTaskOrderID: expectedMove.ID,
-				MoveTaskOrder:   expectedMove,
+		paymentRequest = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    expectedMove,
+				LinkOnly: true,
 			},
-		})
+		}, nil)
 
-		testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			TransportationOffice: models.TransportationOffice{
-				Gbloc: "ABCD",
+		factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationOffice{
+					Gbloc: "ABCD",
+				},
+				Type: &factory.TransportationOffices.OriginDutyLocation,
 			},
-			OriginDutyLocation: models.DutyLocation{
-				Name: "KJKJKJKJKJK",
+			{
+				Model: models.DutyLocation{
+					Name: "KJKJKJKJKJK",
+				},
+				Type: &factory.DutyLocations.OriginDutyLocation,
 			},
-		})
+		}, nil)
 
 		// Hidden move should not be returned
-		testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				Show: swag.Bool(false),
+		factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Show: models.BoolPointer(false),
+				},
 			},
-		})
+		}, nil)
 		// Marine Corps payment requests should be excluded even if in the same GBLOC
 		marines := models.AffiliationMARINES
-		testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status: models.MTOShipmentStatusSubmitted,
+		factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusSUBMITTED,
+				},
 			},
-			Move: models.Move{
-				Status: models.MoveStatusSUBMITTED,
+			{
+				Model: models.TransportationOffice{
+					Gbloc: "LKNQ",
+					ID:    uuid.Must(uuid.NewV4()),
+				},
+				Type: &factory.TransportationOffices.OriginDutyLocation,
 			},
-			TransportationOffice: models.TransportationOffice{
-				Gbloc: "LKNQ",
-				ID:    uuid.Must(uuid.NewV4()),
+			{
+				Model: models.ServiceMember{Affiliation: &marines},
 			},
-			ServiceMember: models.ServiceMember{Affiliation: &marines},
-		})
+		}, nil)
 	})
 
 	suite.Run("Only returns visible (where Move.Show is not false) payment requests matching office user GBLOC", func() {
 		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID,
-			&services.FetchPaymentRequestListParams{Page: swag.Int64(1), PerPage: swag.Int64(2)})
+			&services.FetchPaymentRequestListParams{Page: models.Int64Pointer(1), PerPage: models.Int64Pointer(2)})
 
 		suite.NoError(err)
 		suite.Equal(1, len(*expectedPaymentRequests))
@@ -115,7 +130,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestList() {
 		// Locator
 		locator := paymentRequest.MoveTaskOrder.Locator
 		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID,
-			&services.FetchPaymentRequestListParams{Page: swag.Int64(1), PerPage: swag.Int64(2), Locator: &locator})
+			&services.FetchPaymentRequestListParams{Page: models.Int64Pointer(1), PerPage: models.Int64Pointer(2), Locator: &locator})
 		suite.NoError(err)
 		suite.Equal(1, len(*expectedPaymentRequests))
 		paymentRequests := *expectedPaymentRequests
@@ -130,7 +145,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestList() {
 
 		branch := serviceMember.Affiliation.String()
 		expectedPaymentRequests, _, err = paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID,
-			&services.FetchPaymentRequestListParams{Page: swag.Int64(1), PerPage: swag.Int64(2), Branch: &branch})
+			&services.FetchPaymentRequestListParams{Page: models.Int64Pointer(1), PerPage: models.Int64Pointer(2), Branch: &branch})
 		suite.NoError(err)
 		suite.Equal(1, len(*expectedPaymentRequests))
 		paymentRequests = *expectedPaymentRequests
@@ -141,7 +156,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestList() {
 		locationName := paymentRequest.MoveTaskOrder.Orders.OriginDutyLocation.Name
 
 		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID,
-			&services.FetchPaymentRequestListParams{Page: swag.Int64(1), PerPage: swag.Int64(2), OriginDutyLocation: &locationName})
+			&services.FetchPaymentRequestListParams{Page: models.Int64Pointer(1), PerPage: models.Int64Pointer(2), OriginDutyLocation: &locationName})
 		suite.NoError(err)
 		suite.Equal(1, len(*expectedPaymentRequests))
 		paymentRequests := *expectedPaymentRequests
@@ -159,58 +174,82 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListStatusFilter
 	suite.PreloadData(func() {
 		officeUser = factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
-		expectedMove1 := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
-		expectedMove2 := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
-		expectedMove3 := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
-		expectedMove4 := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
-		expectedMove5 := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
-		expectedMove6 := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
+		expectedMove1 := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
+		expectedMove2 := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
+		expectedMove3 := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
+		expectedMove4 := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
+		expectedMove5 := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
+		expectedMove6 := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
 
-		reviewedPaymentRequest = testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				Status:          models.PaymentRequestStatusReviewed,
-				MoveTaskOrderID: expectedMove1.ID,
-				MoveTaskOrder:   expectedMove1,
+		reviewedPaymentRequest = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    expectedMove1,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.PaymentRequest{
+					Status: models.PaymentRequestStatusReviewed,
+				},
+			},
+		}, nil)
 
-		rejectedPaymentRequest = testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				Status:          models.PaymentRequestStatusReviewedAllRejected,
-				MoveTaskOrderID: expectedMove2.ID,
-				MoveTaskOrder:   expectedMove2,
+		rejectedPaymentRequest = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    expectedMove2,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.PaymentRequest{
+					Status: models.PaymentRequestStatusReviewedAllRejected,
+				},
+			},
+		}, nil)
 
-		sentToGexPaymentRequest = testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				Status:          models.PaymentRequestStatusSentToGex,
-				MoveTaskOrderID: expectedMove3.ID,
-				MoveTaskOrder:   expectedMove3,
+		sentToGexPaymentRequest = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    expectedMove3,
+				LinkOnly: true,
 			},
-		})
-		recByGexPaymentRequest = testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				Status:          models.PaymentRequestStatusReceivedByGex,
-				MoveTaskOrderID: expectedMove4.ID,
-				MoveTaskOrder:   expectedMove4,
+			{
+				Model: models.PaymentRequest{
+					Status: models.PaymentRequestStatusSentToGex,
+				},
 			},
-		})
-		paidPaymentRequest = testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				Status:          models.PaymentRequestStatusPaid,
-				MoveTaskOrderID: expectedMove5.ID,
-				MoveTaskOrder:   expectedMove5,
+		}, nil)
+		recByGexPaymentRequest = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    expectedMove4,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.PaymentRequest{
+					Status: models.PaymentRequestStatusReceivedByGex,
+				},
+			},
+		}, nil)
+		paidPaymentRequest = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    expectedMove5,
+				LinkOnly: true,
+			},
+			{
+				Model: models.PaymentRequest{
+					Status: models.PaymentRequestStatusPaid,
+				},
+			},
+		}, nil)
 
-		pendingPaymentRequest = testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				Status:          models.PaymentRequestStatusPending,
-				MoveTaskOrderID: expectedMove6.ID,
-				MoveTaskOrder:   expectedMove6,
+		pendingPaymentRequest = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    expectedMove6,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.PaymentRequest{
+					Status: models.PaymentRequestStatusPending,
+				},
+			},
+		}, nil)
 
 		allPaymentRequests = []models.PaymentRequest{pendingPaymentRequest, reviewedPaymentRequest, rejectedPaymentRequest, sentToGexPaymentRequest, recByGexPaymentRequest, paidPaymentRequest}
 	})
@@ -274,45 +313,67 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListUSMCGBLOC() 
 		army := models.AffiliationARMY
 		officeUser = factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
-		expectedMoveNotUSMC := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
+		expectedMoveNotUSMC := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
 
-		paymentRequestUSMC = testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status: models.MTOShipmentStatusSubmitted,
+		paymentRequestUSMC = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationOffice{
+					Gbloc: "LKNQ",
+					ID:    officeUUID,
+				},
+				Type: &factory.TransportationOffices.OriginDutyLocation,
 			},
-			TransportationOffice: models.TransportationOffice{
-				Gbloc: "LKNQ",
-				ID:    officeUUID,
+			{
+				Model: models.Move{
+					Status: models.MoveStatusSUBMITTED,
+				},
 			},
-			Move: models.Move{
-				Status: models.MoveStatusSUBMITTED,
+			{
+				Model: models.ServiceMember{Affiliation: &marines},
 			},
-			ServiceMember: models.ServiceMember{Affiliation: &marines},
-		})
+		}, nil)
 
-		paymentRequestUSMC2 = testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				SequenceNumber: 2,
+		paymentRequestUSMC2 = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					SequenceNumber: 2,
+				},
 			},
-			MTOShipment: models.MTOShipment{
-				Status: models.MTOShipmentStatusSubmitted,
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusSubmitted,
+				},
 			},
-			TransportationOffice: models.TransportationOffice{
-				Gbloc: "LKNQ",
-				ID:    officeUUID,
+			{
+				Model: models.TransportationOffice{
+					Gbloc: "LKNQ",
+					ID:    officeUUID,
+				},
+				Type: &factory.TransportationOffices.OriginDutyLocation,
 			},
-			Move:          paymentRequestUSMC.MoveTaskOrder,
-			ServiceMember: models.ServiceMember{Affiliation: &marines},
-		})
+			{
+				Model:    paymentRequestUSMC.MoveTaskOrder,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ServiceMember{Affiliation: &marines},
+			},
+		}, nil)
 
-		testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				Status:          models.PaymentRequestStatusPending,
-				MoveTaskOrderID: expectedMoveNotUSMC.ID,
-				MoveTaskOrder:   expectedMoveNotUSMC,
+		factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    expectedMoveNotUSMC,
+				LinkOnly: true,
 			},
-			ServiceMember: models.ServiceMember{Affiliation: &army},
-		})
+			{
+				Model: models.PaymentRequest{
+					Status: models.PaymentRequestStatusPending,
+				},
+			},
+			{
+				Model: models.ServiceMember{Affiliation: &army},
+			},
+		}, nil)
 
 		tioRole := factory.FetchOrBuildRoleByRoleType(suite.DB(), roles.RoleTypeTIO)
 		tooRole := factory.FetchOrBuildRoleByRoleType(suite.DB(), roles.RoleTypeTOO)
@@ -333,7 +394,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListUSMCGBLOC() 
 	suite.Run("returns USMC payment requests", func() {
 		paymentRequestListFetcher := NewPaymentRequestListFetcher()
 		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUserUSMC.ID,
-			&services.FetchPaymentRequestListParams{Page: swag.Int64(1), PerPage: swag.Int64(2)})
+			&services.FetchPaymentRequestListParams{Page: models.Int64Pointer(1), PerPage: models.Int64Pointer(2)})
 		paymentRequests := *expectedPaymentRequests
 
 		suite.NoError(err)
@@ -341,7 +402,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListUSMCGBLOC() 
 		suite.Equal(models.AffiliationMARINES, *paymentRequests[0].MoveTaskOrder.Orders.ServiceMember.Affiliation)
 		suite.Equal(models.AffiliationMARINES, *paymentRequests[1].MoveTaskOrder.Orders.ServiceMember.Affiliation)
 		expectedPaymentRequests, _, err = paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID,
-			&services.FetchPaymentRequestListParams{Page: swag.Int64(1), PerPage: swag.Int64(2)})
+			&services.FetchPaymentRequestListParams{Page: models.Int64Pointer(1), PerPage: models.Int64Pointer(2)})
 		paymentRequests = *expectedPaymentRequests
 
 		suite.NoError(err)
@@ -367,19 +428,25 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListNoGBLOCMatch
 	suite.Run("No results when GBLOC does not match", func() {
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
-		testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			TransportationOffice: models.TransportationOffice{
-				Gbloc: "EFGH",
+		factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationOffice{
+					Gbloc: "EFGH",
+				},
+				Type: &factory.TransportationOffices.OriginDutyLocation,
 			},
-		})
-		testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			TransportationOffice: models.TransportationOffice{
-				Gbloc: "ABCD",
+		}, nil)
+		factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationOffice{
+					Gbloc: "ABCD",
+				},
+				Type: &factory.TransportationOffices.OriginDutyLocation,
 			},
-		})
+		}, nil)
 
 		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID,
-			&services.FetchPaymentRequestListParams{Page: swag.Int64(1), PerPage: swag.Int64(2)})
+			&services.FetchPaymentRequestListParams{Page: models.Int64Pointer(1), PerPage: models.Int64Pointer(2)})
 
 		suite.NoError(err)
 		suite.Equal(0, len(*expectedPaymentRequests))
@@ -392,7 +459,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListFailure() {
 	suite.Run("Error when office user ID does not exist", func() {
 		nonexistentOfficeUserID := uuid.Must(uuid.NewV4())
 		_, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), nonexistentOfficeUserID,
-			&services.FetchPaymentRequestListParams{Page: swag.Int64(1), PerPage: swag.Int64(2)})
+			&services.FetchPaymentRequestListParams{Page: models.Int64Pointer(1), PerPage: models.Int64Pointer(2)})
 
 		suite.Error(err)
 		suite.Contains(err.Error(), "error fetching transportationOffice for officeUserID")
@@ -404,25 +471,33 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListWithPaginati
 	paymentRequestListFetcher := NewPaymentRequestListFetcher()
 	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
-	expectedMove1 := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
-	expectedMove2 := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
+	expectedMove1 := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
+	expectedMove2 := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
 
-	_ = testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-		PaymentRequest: models.PaymentRequest{
-			Status:          models.PaymentRequestStatusPending,
-			MoveTaskOrderID: expectedMove1.ID,
-			MoveTaskOrder:   expectedMove1,
+	factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+		{
+			Model: models.PaymentRequest{
+				Status: models.PaymentRequestStatusPending,
+			},
 		},
-	})
-	_ = testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-		PaymentRequest: models.PaymentRequest{
-			Status:          models.PaymentRequestStatusPending,
-			MoveTaskOrderID: expectedMove2.ID,
-			MoveTaskOrder:   expectedMove2,
+		{
+			Model:    expectedMove1,
+			LinkOnly: true,
 		},
-	})
+	}, nil)
+	factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+		{
+			Model: models.PaymentRequest{
+				Status: models.PaymentRequestStatusPending,
+			},
+		},
+		{
+			Model:    expectedMove2,
+			LinkOnly: true,
+		},
+	}, nil)
 
-	expectedPaymentRequests, count, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID, &services.FetchPaymentRequestListParams{Page: swag.Int64(1), PerPage: swag.Int64(1)})
+	expectedPaymentRequests, count, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID, &services.FetchPaymentRequestListParams{Page: models.Int64Pointer(1), PerPage: models.Int64Pointer(1)})
 
 	suite.NoError(err)
 	suite.Equal(1, len(*expectedPaymentRequests))
@@ -441,7 +516,6 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 	var expectedOriginDutyLocation []string
 	var officeUser models.OfficeUser
 
-	hhgMoveType := models.SelectedMoveTypeHHG
 	branchNavy := models.AffiliationNAVY
 	paymentRequestListFetcher := NewPaymentRequestListFetcher()
 
@@ -465,66 +539,84 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 			},
 		}, nil)
 
-		expectedMove1 := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
-			ServiceMember: models.ServiceMember{
-				Edipi:       models.StringPointer("EZFG"),
-				LastName:    models.StringPointer("Spacemen"),
-				FirstName:   models.StringPointer("Lena"),
-				Affiliation: &branchNavy,
+		expectedMove1 := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.ServiceMember{
+					Edipi:       models.StringPointer("EZFG"),
+					LastName:    models.StringPointer("Spacemen"),
+					FirstName:   models.StringPointer("Lena"),
+					Affiliation: &branchNavy,
+				},
 			},
-			Move: models.Move{
-				SelectedMoveType: &hhgMoveType,
-				Locator:          "AAAA",
+			{
+				Model: models.Move{
+					Locator: "AAAA",
+				},
 			},
-			PaymentRequest: models.PaymentRequest{
-				Status: models.PaymentRequestStatusPaid,
+			{
+				Model:    originDutyLocation1,
+				LinkOnly: true,
+				Type:     &factory.DutyLocations.OriginDutyLocation,
 			},
-			Order: models.Order{
-				OriginDutyLocationID: &originDutyLocation1.ID,
-				OriginDutyLocation:   &originDutyLocation1,
-			},
-		})
+		}, nil)
 
-		expectedMove2 := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
-			ServiceMember: models.ServiceMember{
-				FirstName: models.StringPointer("Leo"),
-				LastName:  models.StringPointer("Spacemen"),
-				Edipi:     models.StringPointer("AZFG"),
+		expectedMove2 := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.ServiceMember{
+					FirstName: models.StringPointer("Leo"),
+					LastName:  models.StringPointer("Spacemen"),
+					Edipi:     models.StringPointer("AZFG"),
+				},
 			},
-			Move: models.Move{
-				SelectedMoveType: &hhgMoveType,
-				Locator:          "ZZZZ",
+			{
+				Model: models.Move{
+					Locator: "ZZZZ",
+				},
 			},
-			Order: models.Order{
-				OriginDutyLocationID: &originDutyLocation2.ID,
-				OriginDutyLocation:   &originDutyLocation2,
+			{
+				Model:    originDutyLocation2,
+				LinkOnly: true,
+				Type:     &factory.DutyLocations.OriginDutyLocation,
 			},
-		})
+		}, nil)
 
 		// Fake this as a day and a half in the past so floating point age values can be tested
 		prevCreatedAt := time.Now().Add(time.Duration(time.Hour * -36))
-		paymentRequest1 := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				MoveTaskOrderID: expectedMove1.ID,
-				MoveTaskOrder:   expectedMove1,
-				Status:          models.PaymentRequestStatusPending,
-				CreatedAt:       prevCreatedAt,
+		paymentRequest1 := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					Status:    models.PaymentRequestStatusPending,
+					CreatedAt: prevCreatedAt,
+				},
 			},
-		})
-		paymentRequest2 := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				Status:          models.PaymentRequestStatusReviewed,
-				MoveTaskOrderID: expectedMove2.ID,
-				MoveTaskOrder:   expectedMove2,
+			{
+				Model:    expectedMove1,
+				LinkOnly: true,
 			},
-		})
+		}, nil)
+		paymentRequest2 := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					Status: models.PaymentRequestStatusReviewed,
+				},
+			},
+			{
+				Model:    expectedMove2,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: paymentRequest2.MoveTaskOrder,
-			MTOShipment: models.MTOShipment{
-				Status: models.MTOShipmentStatusSubmitted,
+		factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    paymentRequest2.MoveTaskOrder,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusSubmitted,
+				},
+			},
+		}, nil)
 
 		expectedNameOrder = append(expectedNameOrder, *paymentRequest1.MoveTaskOrder.Orders.ServiceMember.FirstName, *paymentRequest2.MoveTaskOrder.Orders.ServiceMember.FirstName)
 		expectedDodIDOrder = append(expectedDodIDOrder, *paymentRequest1.MoveTaskOrder.Orders.ServiceMember.Edipi, *paymentRequest2.MoveTaskOrder.Orders.ServiceMember.Edipi)
@@ -538,7 +630,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 	suite.Run("Sort by service member name ASC", func() {
 		sort.Strings(expectedNameOrder)
 
-		params := services.FetchPaymentRequestListParams{Sort: swag.String("lastName"), Order: swag.String("asc")}
+		params := services.FetchPaymentRequestListParams{Sort: models.StringPointer("lastName"), Order: models.StringPointer("asc")}
 		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID, &params)
 		paymentRequests := *expectedPaymentRequests
 
@@ -552,7 +644,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 		sort.Strings(expectedNameOrder)
 
 		// Sort by service member name
-		params := services.FetchPaymentRequestListParams{Sort: swag.String("lastName"), Order: swag.String("desc")}
+		params := services.FetchPaymentRequestListParams{Sort: models.StringPointer("lastName"), Order: models.StringPointer("desc")}
 		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID, &params)
 		paymentRequests := *expectedPaymentRequests
 
@@ -566,7 +658,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 		sort.Strings(expectedDodIDOrder)
 
 		// Sort by dodID
-		params := services.FetchPaymentRequestListParams{Sort: swag.String("dodID"), Order: swag.String("asc")}
+		params := services.FetchPaymentRequestListParams{Sort: models.StringPointer("dodID"), Order: models.StringPointer("asc")}
 		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID, &params)
 		paymentRequests := *expectedPaymentRequests
 
@@ -579,7 +671,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 	suite.Run("Sort by dodID DESC", func() {
 		sort.Strings(expectedDodIDOrder)
 
-		params := services.FetchPaymentRequestListParams{Sort: swag.String("dodID"), Order: swag.String("desc")}
+		params := services.FetchPaymentRequestListParams{Sort: models.StringPointer("dodID"), Order: models.StringPointer("desc")}
 		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID, &params)
 		paymentRequests := *expectedPaymentRequests
 
@@ -590,7 +682,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 	})
 
 	suite.Run("Sort by status ASC", func() {
-		params := services.FetchPaymentRequestListParams{Sort: swag.String("status"), Order: swag.String("asc")}
+		params := services.FetchPaymentRequestListParams{Sort: models.StringPointer("status"), Order: models.StringPointer("asc")}
 		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID, &params)
 		paymentRequests := *expectedPaymentRequests
 
@@ -601,7 +693,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 	})
 
 	suite.Run("Sort by status DESC", func() {
-		params := services.FetchPaymentRequestListParams{Sort: swag.String("status"), Order: swag.String("desc")}
+		params := services.FetchPaymentRequestListParams{Sort: models.StringPointer("status"), Order: models.StringPointer("desc")}
 		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID, &params)
 		paymentRequests := *expectedPaymentRequests
 
@@ -613,7 +705,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 
 	suite.Run("Sort by age ASC", func() {
 		sort.Slice(expectedCreatedAtOrder, func(i, j int) bool { return expectedCreatedAtOrder[i].Before(expectedCreatedAtOrder[j]) })
-		params := services.FetchPaymentRequestListParams{Sort: swag.String("age"), Order: swag.String("asc")}
+		params := services.FetchPaymentRequestListParams{Sort: models.StringPointer("age"), Order: models.StringPointer("asc")}
 		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID, &params)
 		paymentRequests := *expectedPaymentRequests
 
@@ -625,7 +717,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 
 	suite.Run("Sort by age DESC", func() {
 		sort.Slice(expectedCreatedAtOrder, func(i, j int) bool { return expectedCreatedAtOrder[i].Before(expectedCreatedAtOrder[j]) })
-		params := services.FetchPaymentRequestListParams{Sort: swag.String("age"), Order: swag.String("desc")}
+		params := services.FetchPaymentRequestListParams{Sort: models.StringPointer("age"), Order: models.StringPointer("desc")}
 		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID, &params)
 		paymentRequests := *expectedPaymentRequests
 
@@ -637,7 +729,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 
 	suite.Run("Sort by submittedAt ASC", func() {
 		sort.Slice(expectedCreatedAtOrder, func(i, j int) bool { return expectedCreatedAtOrder[i].Before(expectedCreatedAtOrder[j]) })
-		params := services.FetchPaymentRequestListParams{Sort: swag.String("submittedAt"), Order: swag.String("asc")}
+		params := services.FetchPaymentRequestListParams{Sort: models.StringPointer("submittedAt"), Order: models.StringPointer("asc")}
 		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID, &params)
 		paymentRequests := *expectedPaymentRequests
 
@@ -649,7 +741,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 
 	suite.Run("Sort by submittedAt DESC", func() {
 		sort.Slice(expectedCreatedAtOrder, func(i, j int) bool { return expectedCreatedAtOrder[i].Before(expectedCreatedAtOrder[j]) })
-		params := services.FetchPaymentRequestListParams{Sort: swag.String("submittedAt"), Order: swag.String("desc")}
+		params := services.FetchPaymentRequestListParams{Sort: models.StringPointer("submittedAt"), Order: models.StringPointer("desc")}
 		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID, &params)
 		paymentRequests := *expectedPaymentRequests
 
@@ -661,7 +753,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 
 	suite.Run("Sort by locator ASC", func() {
 		sort.Strings(expectedLocatorOrder)
-		params := services.FetchPaymentRequestListParams{Sort: swag.String("locator"), Order: swag.String("asc")}
+		params := services.FetchPaymentRequestListParams{Sort: models.StringPointer("locator"), Order: models.StringPointer("asc")}
 		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID, &params)
 		paymentRequests := *expectedPaymentRequests
 
@@ -674,7 +766,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 	suite.Run("Sort by locator DESC", func() {
 		sort.Strings(expectedLocatorOrder)
 
-		params := services.FetchPaymentRequestListParams{Sort: swag.String("locator"), Order: swag.String("desc")}
+		params := services.FetchPaymentRequestListParams{Sort: models.StringPointer("locator"), Order: models.StringPointer("desc")}
 		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID, &params)
 		paymentRequests := *expectedPaymentRequests
 
@@ -686,7 +778,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 
 	suite.Run("Sort by branch ASC", func() {
 		sort.Strings(expectedBranchOrder)
-		params := services.FetchPaymentRequestListParams{Sort: swag.String("branch"), Order: swag.String("asc")}
+		params := services.FetchPaymentRequestListParams{Sort: models.StringPointer("branch"), Order: models.StringPointer("asc")}
 		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID, &params)
 		paymentRequests := *expectedPaymentRequests
 
@@ -698,7 +790,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 
 	suite.Run("Sort by branch DESC", func() {
 		sort.Strings(expectedBranchOrder)
-		params := services.FetchPaymentRequestListParams{Sort: swag.String("branch"), Order: swag.String("desc")}
+		params := services.FetchPaymentRequestListParams{Sort: models.StringPointer("branch"), Order: models.StringPointer("desc")}
 		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID, &params)
 		paymentRequests := *expectedPaymentRequests
 
@@ -710,7 +802,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 
 	suite.Run("Sort by originDutyLocation ASC", func() {
 		sort.Strings(expectedOriginDutyLocation)
-		params := services.FetchPaymentRequestListParams{Sort: swag.String("originDutyLocation"), Order: swag.String("asc")}
+		params := services.FetchPaymentRequestListParams{Sort: models.StringPointer("originDutyLocation"), Order: models.StringPointer("asc")}
 		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID, &params)
 		suite.NoError(err)
 
@@ -723,7 +815,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 	suite.Run("Sort by originDutyLocation DESC", func() {
 		sort.Strings(expectedOriginDutyLocation)
 
-		params := services.FetchPaymentRequestListParams{Sort: swag.String("originDutyLocation"), Order: swag.String("desc")}
+		params := services.FetchPaymentRequestListParams{Sort: models.StringPointer("originDutyLocation"), Order: models.StringPointer("desc")}
 		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID, &params)
 		paymentRequests := *expectedPaymentRequests
 

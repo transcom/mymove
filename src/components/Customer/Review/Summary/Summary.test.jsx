@@ -60,7 +60,6 @@ const testProps = {
     service_member_id: '666',
     status: MOVE_STATUSES.DRAFT,
   },
-  selectedMoveType: 'HHG',
   moveIsApproved: false,
   entitlement: {},
   mtoShipment: {

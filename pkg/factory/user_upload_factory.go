@@ -8,6 +8,7 @@ import (
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
 	"github.com/spf13/afero"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
@@ -90,10 +91,14 @@ func BuildUserUpload(db *pop.Connection, customs []Customization, traits []Trait
 		}
 
 		// Create file userUpload
-		userUpload, verrs, err :=
-			cUserUploadParams.UserUploader.CreateUserUploadForDocument(
-				cUserUploadParams.AppContext, &document.ID, uploaderID,
-				uploader.File{File: file}, uploader.AllowedTypesServiceMember)
+		userUpload, verrs, err := cUserUploadParams.UserUploader.CreateUserUploadForDocument(
+			cUserUploadParams.AppContext,
+			&document.ID,
+			uploaderID,
+			uploader.File{File: file},
+			uploader.AllowedTypesPPMDocuments,
+		)
+
 		if verrs.HasAny() || err != nil {
 			log.Panic(fmt.Errorf("errors encountered saving user upload %v, %v", verrs, err))
 		}
@@ -105,7 +110,13 @@ func BuildUserUpload(db *pop.Connection, customs []Customization, traits []Trait
 	}
 
 	// Find/create the Upload model
-	upload := BuildUpload(db, customs, traits)
+	tempUploadCustoms := customs
+	result := findValidCustomization(customs, Uploads.UploadTypeUser)
+	if result != nil {
+		tempUploadCustoms = convertCustomizationInList(tempUploadCustoms, Uploads.UploadTypeUser, Upload)
+	}
+	// Treat any Upload customizations that aren't specified as Uploads.UploadTypePrime as user uploads
+	upload := BuildUpload(db, tempUploadCustoms, traits)
 
 	// Ensure the UserUpload has the correct UploadType
 	if upload.UploadType != models.UploadTypeUSER {
@@ -131,6 +142,46 @@ func BuildUserUpload(db *pop.Connection, customs []Customization, traits []Trait
 	}
 
 	return userUpload
+}
+
+// sometimes have to create one out of nowhere for uploads
+func uploaderAppContext(db *pop.Connection) appcontext.AppContext {
+	// *sigh*, use global zap logger
+	return appcontext.NewAppContext(db, zap.L(), nil)
+}
+
+// buildDocumentWithUploads builds a document and creates an upload associated with the document. Returns the document at the end.
+//
+// Usage example:
+//
+//	emptyDocument := buildDocumentWithUploads(db, userUploader)
+func buildDocumentWithUploads(db *pop.Connection, userUploader *uploader.UserUploader, serviceMember models.ServiceMember, file afero.File) models.Document {
+
+	customs := []Customization{
+		{
+			Model:    serviceMember,
+			LinkOnly: true,
+		},
+	}
+
+	if db != nil {
+		customs = append(customs, Customization{
+			Model: models.UserUpload{},
+			ExtendedParams: &UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   uploaderAppContext(db),
+				File:         file,
+			},
+		})
+	}
+
+	upload := BuildUserUpload(db, customs, nil)
+
+	doc := upload.Document
+
+	doc.UserUploads = append(doc.UserUploads, upload)
+
+	return doc
 }
 
 func GetTraitTimestampedUserUpload() []Customization {

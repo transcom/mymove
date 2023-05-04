@@ -47,7 +47,6 @@ func BuildAddress(db *pop.Connection, customs []Customization, traits []Trait) m
 
 // BuildDefaultAddress makes an Address with default values
 func BuildDefaultAddress(db *pop.Connection) models.Address {
-	FetchOrBuildTariff400ngZip3(db, nil, nil)
 	return BuildAddress(db, nil, nil)
 }
 

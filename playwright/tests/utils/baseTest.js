@@ -7,8 +7,8 @@
 
 import * as path from 'path';
 
+import { injectAxe } from 'axe-playwright';
 import { expect } from '@playwright/test';
-import { injectAxe, checkA11y } from 'axe-playwright';
 
 import { TestHarness } from './testharness';
 
@@ -91,29 +91,6 @@ export class BaseTestPage {
     await actionLink.click();
     const fileChooser = await fileChooserPromise;
     await fileChooser.setFiles(filePath);
-  }
-
-  /**
-   * Run an accessibility audit against the page in its current state
-   *
-   */
-
-  async runAccessibilityAudit() {
-    if (process.env.A11Y_AUDIT) {
-      await checkA11y(
-        this.page,
-        undefined,
-        {
-          detailedReport: true,
-          detailedReportOptions: {
-            html: true,
-          },
-        },
-        // skip failures
-        true,
-        'default',
-      );
-    }
   }
 }
 

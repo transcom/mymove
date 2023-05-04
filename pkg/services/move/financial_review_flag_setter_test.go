@@ -3,12 +3,12 @@ package move
 import (
 	"errors"
 
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
-	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/factory"
+	"github.com/transcom/mymove/pkg/models"
 )
 
 func (suite *MoveServiceSuite) TestFinancialReviewFlagSetter() {
@@ -16,7 +16,7 @@ func (suite *MoveServiceSuite) TestFinancialReviewFlagSetter() {
 	defaultFlagReason := "destination address is far from duty location"
 
 	suite.Run("flag can be set", func() {
-		move := testdatagen.MakeDefaultMove(suite.DB())
+		move := factory.BuildMove(suite.DB(), nil, nil)
 		eTag := etag.GenerateEtag(move.UpdatedAt)
 
 		suite.Require().Equal(false, move.FinancialReviewFlag)
@@ -40,16 +40,16 @@ func (suite *MoveServiceSuite) TestFinancialReviewFlagSetter() {
 	})
 
 	suite.Run("Empty remarks param should result in error", func() {
-		move := testdatagen.MakeDefaultMove(suite.DB())
+		move := factory.BuildMove(suite.DB(), nil, nil)
 		eTag := etag.GenerateEtag(move.UpdatedAt)
 
-		_, err := flagCreator.SetFinancialReviewFlag(suite.AppContextForTest(), move.ID, eTag, true, swag.String(""))
+		_, err := flagCreator.SetFinancialReviewFlag(suite.AppContextForTest(), move.ID, eTag, true, models.StringPointer(""))
 		suite.Error(err)
 		suite.Require().True(errors.As(err, &apperror.InvalidInputError{}))
 	})
 
 	suite.Run("setting flag after it has already been set should have no effect", func() {
-		move := testdatagen.MakeDefaultMove(suite.DB())
+		move := factory.BuildMove(suite.DB(), nil, nil)
 		eTag := etag.GenerateEtag(move.UpdatedAt)
 		// Make sure move starts out as we expect it to
 		suite.Require().False(move.FinancialReviewFlag)
@@ -67,7 +67,7 @@ func (suite *MoveServiceSuite) TestFinancialReviewFlagSetter() {
 	})
 	// If we set the flag to false, the timestamp and remarks fields should be nilled out
 	suite.Run("when flag is set to false we nil out FinancialReviewFlagSetAt and FinancialReviewRemarks", func() {
-		move := testdatagen.MakeDefaultMove(suite.DB())
+		move := factory.BuildMove(suite.DB(), nil, nil)
 		eTag := etag.GenerateEtag(move.UpdatedAt)
 
 		suite.Require().Equal(false, move.FinancialReviewFlag)

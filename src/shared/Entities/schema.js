@@ -100,10 +100,6 @@ moveDocument.define({
 
 export const moveDocumentPayload = moveDocument;
 
-// Tariff400ngItems
-export const tariff400ngItem = new schema.Entity('tariff400ngItems');
-export const tariff400ngItems = new schema.Array(tariff400ngItem);
-
 // Invoice
 export const invoice = new schema.Entity('invoices');
 export const invoices = new schema.Array(invoice);
@@ -127,9 +123,6 @@ export const availableMoveDates = new schema.Entity(
 
 // MoveDatesSummary
 export const moveDatesSummary = new schema.Entity('moveDatesSummaries');
-
-// TransportationServiceProviders
-export const transportationServiceProvider = new schema.Entity('transportationServiceProviders');
 
 // StorageInTransits
 export const storageInTransit = new schema.Entity('storageInTransits');

@@ -4,15 +4,14 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/mocks"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func setUpPPMShipmentRouter(mtoShipmentRouterMethod string, mtoShipmentRouterReturnValue ...interface{}) services.PPMShipmentRouter {
@@ -45,7 +44,7 @@ func (suite *PPMShipmentSuite) TestSetToDraft() {
 	})
 
 	suite.Run(fmt.Sprintf("Can't set status to %s if it's not new", models.PPMShipmentStatusDraft), func() {
-		ppmShipment := testdatagen.MakeStubbedPPMShipment(suite.DB())
+		ppmShipment := factory.BuildPPMShipment(nil, nil, nil)
 		originalPPMShipment := ppmShipment
 
 		ppmShipmentRouter := setUpPPMShipmentRouter(mtoShipmentRouterMethodToMock, nil)
@@ -110,7 +109,7 @@ func (suite *PPMShipmentSuite) TestSubmit() {
 	}
 
 	suite.Run(fmt.Sprintf("Can't set status to %s if the MTOShipment router returns an error", models.PPMShipmentStatusSubmitted), func() {
-		ppmShipment := testdatagen.MakeMinimalStubbedPPMShipment(suite.DB())
+		ppmShipment := factory.BuildMinimalPPMShipment(nil, nil, nil)
 
 		// Not using the real error that gets returned because it's fields are private and we don't export a constructor
 		fakeMTOShipmentRouterErr := apperror.NewConflictError(ppmShipment.Shipment.ID, "can't submit shipment")
@@ -126,10 +125,7 @@ func (suite *PPMShipmentSuite) TestSubmit() {
 	})
 
 	suite.Run(fmt.Sprintf("Can't set status to %s if it's not new or in the %s status", models.PPMShipmentStatusSubmitted, models.PPMShipmentStatusDraft), func() {
-		ppmShipment := testdatagen.MakeApprovedPPMShipmentWaitingOnCustomer(
-			suite.DB(),
-			testdatagen.Assertions{Stub: true},
-		)
+		ppmShipment := factory.BuildPPMShipment(nil, nil, []factory.Trait{factory.GetTraitApprovedPPMShipment})
 		originalPPMShipmentStatus := ppmShipment.Status
 		originalMTOShipmentStatus := ppmShipment.Shipment.Status
 
@@ -155,10 +151,10 @@ func (suite *PPMShipmentSuite) TestSendToCustomer() {
 
 	successTestCases := map[models.PPMShipmentStatus]func() models.PPMShipment{
 		models.PPMShipmentStatusSubmitted: func() models.PPMShipment {
-			return testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{Stub: true})
+			return factory.BuildPPMShipment(nil, nil, nil)
 		},
 		models.PPMShipmentStatusNeedsPaymentApproval: func() models.PPMShipment {
-			return testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{Stub: true})
+			return factory.BuildPPMShipmentThatNeedsPaymentApproval(nil, nil, nil)
 		},
 	}
 
@@ -197,19 +193,16 @@ func (suite *PPMShipmentSuite) TestSendToCustomer() {
 
 	statusFailureTestCases := map[models.PPMShipmentStatus]func() models.PPMShipment{
 		models.PPMShipmentStatusDraft: func() models.PPMShipment {
-			return testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{
-				PPMShipment: models.PPMShipment{
-					ID: uuid.Must(uuid.NewV4()),
+			return factory.BuildMinimalPPMShipment(nil, []factory.Customization{
+				{
+					Model: models.MTOShipment{
+						Status: models.MTOShipmentStatusDraft,
+					},
 				},
-				MTOShipment: models.MTOShipment{
-					ID:     uuid.Must(uuid.NewV4()),
-					Status: models.MTOShipmentStatusDraft,
-				},
-				Stub: true,
-			})
+			}, nil)
 		},
 		models.PPMShipmentStatusWaitingOnCustomer: func() models.PPMShipment {
-			return testdatagen.MakeApprovedPPMShipmentWaitingOnCustomer(suite.DB(), testdatagen.Assertions{Stub: true})
+			return factory.BuildPPMShipment(nil, nil, []factory.Trait{factory.GetTraitApprovedPPMShipment})
 		},
 	}
 
@@ -244,7 +237,7 @@ func (suite *PPMShipmentSuite) TestSendToCustomer() {
 	}
 
 	suite.Run("Can't set status to WaitingOnCustomer if MTOShipment can't be approved", func() {
-		ppmShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{Stub: true})
+		ppmShipment := factory.BuildPPMShipment(nil, nil, nil)
 
 		// Not using the real error that gets returned because it's fields are private and we don't export a constructor
 		fakeMTOShipmentRouterErr := apperror.NewConflictError(ppmShipment.Shipment.ID, "error approving MTOShipment")
@@ -268,7 +261,7 @@ func (suite *PPMShipmentSuite) TestSendToCustomer() {
 	})
 
 	suite.Run("Skips approving MTOShipment if it is already approved", func() {
-		ppmShipment := testdatagen.MakeApprovedPPMShipmentWaitingOnCustomer(suite.DB(), testdatagen.Assertions{Stub: true})
+		ppmShipment := factory.BuildPPMShipment(nil, nil, []factory.Trait{factory.GetTraitApprovedPPMShipment})
 		ppmShipment.Status = models.PPMShipmentStatusSubmitted
 
 		mtoShipmentRouter := &mocks.ShipmentRouter{}
@@ -286,7 +279,7 @@ func (suite *PPMShipmentSuite) TestSendToCustomer() {
 	})
 
 	suite.Run("Doesn't set a new approval time if there is one already.", func() {
-		ppmShipment := testdatagen.MakeApprovedPPMShipmentWaitingOnCustomer(suite.DB(), testdatagen.Assertions{Stub: true})
+		ppmShipment := factory.BuildPPMShipment(nil, nil, []factory.Trait{factory.GetTraitApprovedPPMShipment})
 
 		differentApprovedAt := time.Now().AddDate(0, 0, 1)
 		ppmShipment.ApprovedAt = &differentApprovedAt
@@ -309,7 +302,7 @@ func (suite *PPMShipmentSuite) TestSubmitCloseOutDocumentation() {
 	mtoShipmentRouterMethodToMock := ""
 
 	suite.Run(fmt.Sprintf("Can set status to %s if it is currently %s", models.PPMShipmentStatusNeedsPaymentApproval, models.PPMShipmentStatusWaitingOnCustomer), func() {
-		ppmShipment := testdatagen.MakePPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), testdatagen.Assertions{Stub: true})
+		ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(nil, nil)
 
 		ppmShipmentRouter := setUpPPMShipmentRouter(mtoShipmentRouterMethodToMock, nil)
 
@@ -323,7 +316,7 @@ func (suite *PPMShipmentSuite) TestSubmitCloseOutDocumentation() {
 	})
 
 	suite.Run("Does not set the SubmittedAt time if it is already set", func() {
-		ppmShipment := testdatagen.MakePPMShipmentThatNeedsToBeResubmitted(suite.DB(), testdatagen.Assertions{Stub: true})
+		ppmShipment := factory.BuildPPMShipmentThatNeedsToBeResubmitted(nil, nil)
 
 		suite.FatalNotNil(ppmShipment.SubmittedAt)
 		originalSubmittedAt := *ppmShipment.SubmittedAt
@@ -349,22 +342,19 @@ func (suite *PPMShipmentSuite) TestSubmitCloseOutDocumentation() {
 
 	statusFailureTestCases := map[models.PPMShipmentStatus]func() models.PPMShipment{
 		models.PPMShipmentStatusDraft: func() models.PPMShipment {
-			return testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{
-				PPMShipment: models.PPMShipment{
-					ID: uuid.Must(uuid.NewV4()),
+			return factory.BuildMinimalPPMShipment(nil, []factory.Customization{
+				{
+					Model: models.MTOShipment{
+						Status: models.MTOShipmentStatusDraft,
+					},
 				},
-				MTOShipment: models.MTOShipment{
-					ID:     uuid.Must(uuid.NewV4()),
-					Status: models.MTOShipmentStatusDraft,
-				},
-				Stub: true,
-			})
+			}, nil)
 		},
 		models.PPMShipmentStatusSubmitted: func() models.PPMShipment {
-			return testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{Stub: true})
+			return factory.BuildPPMShipment(nil, nil, nil)
 		},
 		models.PPMShipmentStatusNeedsPaymentApproval: func() models.PPMShipment {
-			return testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{Stub: true})
+			return factory.BuildPPMShipmentThatNeedsPaymentApproval(nil, nil, nil)
 		},
 	}
 
@@ -400,16 +390,18 @@ func (suite *PPMShipmentSuite) TestSubmitReviewPPMDocuments() {
 	mtoShipmentRouterMethodToMock := ""
 
 	suite.Run("Update PPMShipment Status to WAITING_ON_CUSTOMER when there are rejected weight tickets", func() {
-		ppmShipment := testdatagen.MakePPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), testdatagen.Assertions{Stub: true})
+		ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(nil, nil)
 		rejected := models.PPMDocumentStatusRejected
-		weightTicket := testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{
-			WeightTicket: models.WeightTicket{
-				Status: &rejected,
+		weightTicket := factory.BuildWeightTicket(suite.DB(), []factory.Customization{
+			{
+				Model: models.WeightTicket{
+					Status: &rejected,
+				},
 			},
-		})
+		}, nil)
 		ppmShipment.Status = models.PPMShipmentStatusNeedsPaymentApproval
-		movingExpense := testdatagen.MakeDefaultMovingExpense(suite.DB())
-		progear := testdatagen.MakeDefaultProgearWeightTicket(suite.DB())
+		movingExpense := factory.BuildMovingExpense(suite.DB(), nil, nil)
+		progear := factory.BuildProgearWeightTicket(suite.DB(), nil, nil)
 
 		ppmShipmentRouter := setUpPPMShipmentRouter(mtoShipmentRouterMethodToMock, nil)
 		ppmShipment.WeightTickets = models.WeightTickets{weightTicket}
@@ -423,16 +415,18 @@ func (suite *PPMShipmentSuite) TestSubmitReviewPPMDocuments() {
 	})
 
 	suite.Run("Update PPMShipment Status to WAITING_ON_CUSTOMER when there are rejected  progear weight tickets", func() {
-		ppmShipment := testdatagen.MakePPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), testdatagen.Assertions{Stub: true})
+		ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(nil, nil)
 		ppmShipment.Status = models.PPMShipmentStatusNeedsPaymentApproval
 		rejected := models.PPMDocumentStatusRejected
-		progear := testdatagen.MakeProgearWeightTicket(suite.DB(), testdatagen.Assertions{
-			ProgearWeightTicket: models.ProgearWeightTicket{
-				Status: &rejected,
+		progear := factory.BuildProgearWeightTicket(suite.DB(), []factory.Customization{
+			{
+				Model: models.ProgearWeightTicket{
+					Status: &rejected,
+				},
 			},
-		})
-		movingExpense := testdatagen.MakeDefaultMovingExpense(suite.DB())
-		weightTicket := testdatagen.MakeDefaultWeightTicket(suite.DB())
+		}, nil)
+		movingExpense := factory.BuildMovingExpense(suite.DB(), nil, nil)
+		weightTicket := factory.BuildWeightTicket(suite.DB(), nil, nil)
 
 		ppmShipmentRouter := setUpPPMShipmentRouter(mtoShipmentRouterMethodToMock, nil)
 		ppmShipment.WeightTickets = models.WeightTickets{weightTicket}
@@ -446,16 +440,18 @@ func (suite *PPMShipmentSuite) TestSubmitReviewPPMDocuments() {
 	})
 
 	suite.Run("Update PPMShipment Status to WAITING_ON_CUSTOMER when there are rejected  moving expenses", func() {
-		ppmShipment := testdatagen.MakePPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), testdatagen.Assertions{Stub: true})
+		ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(nil, nil)
 		ppmShipment.Status = models.PPMShipmentStatusNeedsPaymentApproval
 		rejected := models.PPMDocumentStatusRejected
-		movingExpense := testdatagen.MakeMovingExpense(suite.DB(), testdatagen.Assertions{
-			MovingExpense: models.MovingExpense{
-				Status: &rejected,
+		movingExpense := factory.BuildMovingExpense(suite.DB(), []factory.Customization{
+			{
+				Model: models.MovingExpense{
+					Status: &rejected,
+				},
 			},
-		})
-		progear := testdatagen.MakeDefaultProgearWeightTicket(suite.DB())
-		weightTicket := testdatagen.MakeDefaultWeightTicket(suite.DB())
+		}, nil)
+		progear := factory.BuildProgearWeightTicket(suite.DB(), nil, nil)
+		weightTicket := factory.BuildWeightTicket(suite.DB(), nil, nil)
 
 		ppmShipmentRouter := setUpPPMShipmentRouter(mtoShipmentRouterMethodToMock, nil)
 		ppmShipment.WeightTickets = models.WeightTickets{weightTicket}
@@ -469,11 +465,11 @@ func (suite *PPMShipmentSuite) TestSubmitReviewPPMDocuments() {
 	})
 
 	suite.Run("Update PPMShipment Status to PAYMENT_APPROVED when there are no rejected PPM Documents", func() {
-		ppmShipment := testdatagen.MakePPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), testdatagen.Assertions{Stub: true})
+		ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(nil, nil)
 		ppmShipment.Status = models.PPMShipmentStatusNeedsPaymentApproval
-		movingExpense := testdatagen.MakeDefaultMovingExpense(suite.DB())
-		progear := testdatagen.MakeDefaultProgearWeightTicket(suite.DB())
-		weightTicket := testdatagen.MakeDefaultWeightTicket(suite.DB())
+		movingExpense := factory.BuildMovingExpense(suite.DB(), nil, nil)
+		progear := factory.BuildProgearWeightTicket(suite.DB(), nil, nil)
+		weightTicket := factory.BuildWeightTicket(suite.DB(), nil, nil)
 
 		ppmShipmentRouter := setUpPPMShipmentRouter(mtoShipmentRouterMethodToMock, nil)
 		ppmShipment.WeightTickets = models.WeightTickets{weightTicket}
@@ -488,44 +484,37 @@ func (suite *PPMShipmentSuite) TestSubmitReviewPPMDocuments() {
 
 	statusFailureTestCases := map[models.PPMShipmentStatus]func() models.PPMShipment{
 		models.PPMShipmentStatusDraft: func() models.PPMShipment {
-			return testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{
-				PPMShipment: models.PPMShipment{
-					ID: uuid.Must(uuid.NewV4()),
+			return factory.BuildMinimalPPMShipment(nil, []factory.Customization{
+				{
+					Model: models.MTOShipment{
+						Status: models.MTOShipmentStatusDraft,
+					},
 				},
-				MTOShipment: models.MTOShipment{
-					ID:     uuid.Must(uuid.NewV4()),
-					Status: models.MTOShipmentStatusDraft,
-				},
-				Stub: true,
-			})
+			}, nil)
 		},
 		models.PPMShipmentStatusSubmitted: func() models.PPMShipment {
-			return testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{Stub: true})
+			return factory.BuildPPMShipment(nil, nil, nil)
 		},
 		models.PPMShipmentStatusWaitingOnCustomer: func() models.PPMShipment {
-			return testdatagen.MakeApprovedPPMShipmentWithActualInfo(suite.DB(), testdatagen.Assertions{Stub: true})
+			return factory.BuildPPMShipment(nil, nil, []factory.Trait{factory.GetTraitApprovedPPMWithActualInfo})
 		},
 		models.PPMShipmentStatusPaymentApproved: func() models.PPMShipment {
-			return testdatagen.MakeApprovedPPMShipmentWithActualInfo(
-				suite.DB(),
-				testdatagen.Assertions{
-					Stub: true,
-					PPMShipment: models.PPMShipment{
+			return factory.BuildPPMShipment(nil, []factory.Customization{
+				{
+					Model: models.PPMShipment{
 						Status: models.PPMShipmentStatusPaymentApproved,
 					},
 				},
-			)
+			}, []factory.Trait{factory.GetTraitApprovedPPMWithActualInfo})
 		},
 		models.PPMShipmentStatusNeedsAdvanceApproval: func() models.PPMShipment {
-			return testdatagen.MakeApprovedPPMShipmentWithActualInfo(
-				suite.DB(),
-				testdatagen.Assertions{
-					Stub: true,
-					PPMShipment: models.PPMShipment{
+			return factory.BuildPPMShipment(nil, []factory.Customization{
+				{
+					Model: models.PPMShipment{
 						Status: models.PPMShipmentStatusNeedsAdvanceApproval,
 					},
 				},
-			)
+			}, []factory.Trait{factory.GetTraitApprovedPPMWithActualInfo})
 		},
 	}
 

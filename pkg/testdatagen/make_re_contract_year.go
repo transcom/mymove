@@ -15,7 +15,7 @@ import (
 func MakeReContractYear(db *pop.Connection, assertions Assertions) models.ReContractYear {
 	reContract := assertions.ReContractYear.Contract
 	if isZeroUUID(reContract.ID) {
-		reContract = MakeReContract(db, assertions)
+		reContract = FetchOrMakeReContract(db, assertions)
 	}
 
 	reContractYear := models.ReContractYear{

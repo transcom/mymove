@@ -11,7 +11,7 @@ import styles from '../TXOMoveInfo/TXOTab.module.scss';
 
 import moveTaskOrderStyles from './MoveTaskOrder.module.scss';
 
-import EditMaxBillableWeightModal from 'components/Office/EditMaxBillableWeightModal/EditMaxBillableWeightModal';
+import ConnectedEditMaxBillableWeightModal from 'components/Office/EditMaxBillableWeightModal/EditMaxBillableWeightModal';
 import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
 import { formatStorageFacilityForAPI, formatAddressForAPI, removeEtag } from 'utils/formatMtoShipment';
 import hasRiskOfExcess from 'utils/hasRiskOfExcess';
@@ -150,16 +150,16 @@ export const MoveTaskOrder = (props) => {
     });
     return serviceItemsForShipment;
   }, [mtoServiceItems]);
+
   const queryClient = useQueryClient();
-  const { mutate: mutateMTOServiceItemStatus } = useMutation(patchMTOServiceItemStatus, {
+  const { mutate: mutateMTOServiceItemStatus } = useMutation({
+    mutationFn: patchMTOServiceItemStatus,
     onSuccess: (data, variables) => {
       const newMTOServiceItem = data.mtoServiceItems[variables.mtoServiceItemID];
       mtoServiceItems[mtoServiceItems.find((serviceItem) => serviceItem.id === newMTOServiceItem.id)] =
         newMTOServiceItem;
       queryClient.setQueryData([MTO_SERVICE_ITEMS, variables.moveId, false], mtoServiceItems);
-      queryClient.invalidateQueries([MTO_SERVICE_ITEMS, variables.moveId]);
-      setIsModalVisible(false);
-      setSelectedServiceItem({});
+      queryClient.invalidateQueries({ queryKey: [MTO_SERVICE_ITEMS, variables.moveId] });
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
@@ -167,14 +167,16 @@ export const MoveTaskOrder = (props) => {
     },
   });
 
-  const { mutate: mutateMTOShipment } = useMutation(updateMTOShipment, {
+  const { mutate: mutateMTOShipment } = useMutation({
+    mutationFn: updateMTOShipment,
     onSuccess: (_, variables) => {
       queryClient.setQueryData([MTO_SHIPMENTS, variables.moveTaskOrderID, false], mtoShipments);
-      queryClient.invalidateQueries([MTO_SHIPMENTS, variables.moveTaskOrderID]);
+      queryClient.invalidateQueries({ queryKey: [MTO_SHIPMENTS, variables.moveTaskOrderID] });
     },
   });
 
-  const { mutate: mutateMTOShipmentStatus } = useMutation(updateMTOShipmentStatus, {
+  const { mutate: mutateMTOShipmentStatus } = useMutation({
+    mutationFn: updateMTOShipmentStatus,
     onSuccess: (data, variables) => {
       const updatedMTOShipment = data.mtoShipments[variables.shipmentID];
       // Update mtoShipments with our updated status and set query data to match
@@ -182,11 +184,7 @@ export const MoveTaskOrder = (props) => {
       queryClient.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
       // InvalidateQuery tells other components using this data that they need to re-fetch
       // This allows the requestCancellation button to update immediately
-      queryClient.invalidateQueries([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID]);
-
-      setIsCancelModalVisible(false);
-      // Must set FlashMesage after hiding the modal, since FlashMessage will disappear when focus changes
-      setMessage(`MSG_CANCEL_SUCCESS_${variables.shipmentID}`, 'success', variables.onSuccessFlashMsg, '', true);
+      queryClient.invalidateQueries({ queryKey: [MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID] });
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
@@ -194,19 +192,15 @@ export const MoveTaskOrder = (props) => {
     },
   });
 
-  const { mutate: mutateMTOShipmentRequestReweigh } = useMutation(updateMTOShipmentRequestReweigh, {
-    onSuccess: (data, variables) => {
+  const { mutate: mutateMTOShipmentRequestReweigh } = useMutation({
+    mutationFn: updateMTOShipmentRequestReweigh,
+    onSuccess: (data) => {
       // Update mtoShipments with our updated status and set query data to match
       mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === data.shipmentID)] = data;
       queryClient.setQueryData([MTO_SHIPMENTS, move.id, false], mtoShipments);
-
       // InvalidateQuery tells other components using this data that they need to re-fetch
       // This allows the requestReweigh button to update immediately
-      queryClient.invalidateQueries([MTO_SHIPMENTS, move.id]);
-
-      setIsReweighModalVisible(false);
-      // Must set FlashMesage after hiding the modal, since FlashMessage will disappear when focus changes
-      setMessage(`MSG_REWEIGH_SUCCESS_${variables.shipmentID}`, 'success', variables.onSuccessFlashMsg, '', true);
+      queryClient.invalidateQueries({ queryKey: [MTO_SHIPMENTS, move.id] });
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
@@ -214,25 +208,17 @@ export const MoveTaskOrder = (props) => {
     },
   });
 
-  const { mutate: mutateOrderBillableWeight } = useMutation(updateBillableWeight, {
+  const { mutate: mutateOrderBillableWeight } = useMutation({
+    mutationFn: updateBillableWeight,
     onSuccess: (data, variables) => {
-      queryClient.invalidateQueries([MOVES, move.locator]);
+      queryClient.invalidateQueries({ queryKey: [MOVES, move.locator] });
       const updatedOrder = data.orders[variables.orderID];
       queryClient.setQueryData([ORDERS, variables.orderID], {
         orders: {
           [`${variables.orderID}`]: updatedOrder,
         },
       });
-      queryClient.invalidateQueries([ORDERS, variables.orderID]);
-      setIsWeightModalVisible(false);
-
-      setMessage(
-        `MSG_MAX_BILLABLE_WEIGHT_SUCCESS_${variables.orderID}`,
-        'success',
-        'The maximum billable weight has been updated.',
-        '',
-        true,
-      );
+      queryClient.invalidateQueries({ queryKey: [ORDERS, variables.orderID] });
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
@@ -240,9 +226,10 @@ export const MoveTaskOrder = (props) => {
     },
   });
 
-  const { mutate: mutateAcknowledgeExcessWeightRisk } = useMutation(acknowledgeExcessWeightRisk, {
+  const { mutate: mutateAcknowledgeExcessWeightRisk } = useMutation({
+    mutationFn: acknowledgeExcessWeightRisk,
     onSuccess: () => {
-      queryClient.invalidateQueries([MOVES, move.locator]);
+      queryClient.invalidateQueries({ queryKey: [MOVES, move.locator] });
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
@@ -260,12 +247,13 @@ export const MoveTaskOrder = (props) => {
     },
   });
 
-  const { mutate: mutateSITExtensionApproval } = useMutation(approveSITExtension, {
+  const { mutate: mutateSITExtensionApproval } = useMutation({
+    mutationFn: approveSITExtension,
     onSuccess: (data, variables) => {
       const updatedMTOShipment = data.mtoShipments[variables.shipmentID];
       mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
       queryClient.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
-      queryClient.invalidateQueries([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID]);
+      queryClient.invalidateQueries({ queryKey: [MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID] });
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
@@ -273,12 +261,13 @@ export const MoveTaskOrder = (props) => {
     },
   });
 
-  const { mutate: mutateSITExtensionDenial } = useMutation(denySITExtension, {
+  const { mutate: mutateSITExtensionDenial } = useMutation({
+    mutationFn: denySITExtension,
     onSuccess: (data, variables) => {
       const updatedMTOShipment = data.mtoShipments[variables.shipmentID];
       mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
       queryClient.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
-      queryClient.invalidateQueries([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID]);
+      queryClient.invalidateQueries({ queryKey: [MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID] });
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
@@ -286,13 +275,13 @@ export const MoveTaskOrder = (props) => {
     },
   });
 
-  const { mutate: mutateSubmitSITExtension } = useMutation(submitSITExtension, {
+  const { mutate: mutateSubmitSITExtension } = useMutation({
+    mutationFn: submitSITExtension,
     onSuccess: (data, variables) => {
-      setIsSuccessAlertVisible(true);
       const updatedMTOShipment = data.mtoShipments[variables.shipmentID];
       mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
       queryClient.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
-      queryClient.invalidateQueries([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID]);
+      queryClient.invalidateQueries({ queryKey: [MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID] });
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
@@ -300,33 +289,39 @@ export const MoveTaskOrder = (props) => {
     },
   });
 
-  const { mutate: mutateFinancialReview } = useMutation(updateFinancialFlag, {
+  const { mutate: mutateFinancialReview } = useMutation({
+    mutationFn: updateFinancialFlag,
     onSuccess: (data) => {
       queryClient.setQueryData([MOVES, data.locator], data);
-      queryClient.invalidateQueries([MOVES, data.locator]);
-      if (data.financialReviewFlag) {
-        setAlertMessage('Move flagged for financial review.');
-        setAlertType('success');
-      } else {
-        setAlertMessage('Move unflagged for financial review.');
-        setAlertType('success');
-      }
-    },
-    onError: () => {
-      setAlertMessage('There was a problem flagging the move for financial review. Please try again later.');
-      setAlertType('error');
+      queryClient.invalidateQueries({ queryKey: [MOVES, data.locator] });
     },
   });
 
   const handleSubmitFinancialReviewModal = (remarks, flagForReview) => {
     // if it's set to yes let's send a true to the backend. If not we'll send false.
     const flagForReviewBool = flagForReview === 'yes';
-    mutateFinancialReview({
-      moveID: move.id,
-      ifMatchETag: move.eTag,
-      body: { remarks, flagForReview: flagForReviewBool },
-    });
-    setIsFinancialModalVisible(false);
+    mutateFinancialReview(
+      {
+        moveID: move.id,
+        ifMatchETag: move.eTag,
+        body: { remarks, flagForReview: flagForReviewBool },
+      },
+      {
+        onSuccess: (data) => {
+          if (data.financialReviewFlag) {
+            setAlertMessage('Move flagged for financial review.');
+          } else {
+            setAlertMessage('Move unflagged for financial review.');
+          }
+          setAlertType('success');
+          setIsFinancialModalVisible(false);
+        },
+        onError: () => {
+          setAlertMessage('There was a problem flagging the move for financial review. Please try again later.');
+          setAlertType('error');
+        },
+      },
+    );
   };
 
   const handleCancelFinancialReviewModal = () => {
@@ -356,32 +351,55 @@ export const MoveTaskOrder = (props) => {
   };
 
   const handleSubmitSITExtension = (formValues, shipment) => {
-    mutateSubmitSITExtension({
-      shipmentID: shipment.id,
-      ifMatchETag: shipment.eTag,
-      body: {
-        requestReason: formValues.requestReason,
-        officeRemarks: formValues.officeRemarks,
-        approvedDays: parseInt(formValues.daysApproved, 10),
+    mutateSubmitSITExtension(
+      {
+        shipmentID: shipment.id,
+        ifMatchETag: shipment.eTag,
+        body: {
+          requestReason: formValues.requestReason,
+          officeRemarks: formValues.officeRemarks,
+          approvedDays: parseInt(formValues.daysApproved, 10) - shipment.sitDaysAllowance,
+        },
       },
-    });
+      {
+        onSuccess: () => setIsSuccessAlertVisible(true),
+      },
+    );
   };
 
   const handleDivertShipment = (mtoShipmentID, eTag) => {
-    mutateMTOShipmentStatus({
-      shipmentID: mtoShipmentID,
-      operationPath: 'shipment.requestShipmentDiversion',
-      ifMatchETag: eTag,
-      onSuccessFlashMsg: `Diversion successfully requested for Shipment #${mtoShipmentID}`,
-    });
+    mutateMTOShipmentStatus(
+      {
+        shipmentID: mtoShipmentID,
+        operationPath: 'shipment.requestShipmentDiversion',
+        ifMatchETag: eTag,
+        onSuccessFlashMsg: `Diversion successfully requested for Shipment #${mtoShipmentID}`,
+      },
+      {
+        onSuccess: (data, variables) => {
+          setIsCancelModalVisible(false);
+          // Must set FlashMesage after hiding the modal, since FlashMessage will disappear when focus changes
+          setMessage(`MSG_CANCEL_SUCCESS_${variables.shipmentID}`, 'success', variables.onSuccessFlashMsg, '', true);
+        },
+      },
+    );
   };
 
   const handleReweighShipment = (mtoShipmentID, eTag) => {
-    mutateMTOShipmentRequestReweigh({
-      shipmentID: mtoShipmentID,
-      ifMatchETag: eTag,
-      onSuccessFlashMsg: `Reweigh successfully requested.`,
-    });
+    mutateMTOShipmentRequestReweigh(
+      {
+        shipmentID: mtoShipmentID,
+        ifMatchETag: eTag,
+        onSuccessFlashMsg: `Reweigh successfully requested.`,
+      },
+      {
+        onSuccess: (data, variables) => {
+          setIsReweighModalVisible(false);
+          // Must set FlashMesage after hiding the modal, since FlashMessage will disappear when focus changes
+          setMessage(`MSG_REWEIGH_SUCCESS_${variables.shipmentID}`, 'success', variables.onSuccessFlashMsg, '', true);
+        },
+      },
+    );
   };
 
   const handleEditAccountingCodes = (fields, shipment) => {
@@ -395,12 +413,21 @@ export const MoveTaskOrder = (props) => {
   };
 
   const handleUpdateMTOShipmentStatus = (moveTaskOrderID, mtoShipmentID, eTag) => {
-    mutateMTOShipmentStatus({
-      shipmentID: mtoShipmentID,
-      operationPath: 'shipment.requestShipmentCancellation',
-      ifMatchETag: eTag,
-      onSuccessFlashMsg: 'The request to cancel that shipment has been sent to the movers.',
-    });
+    mutateMTOShipmentStatus(
+      {
+        shipmentID: mtoShipmentID,
+        operationPath: 'shipment.requestShipmentCancellation',
+        ifMatchETag: eTag,
+        onSuccessFlashMsg: 'The request to cancel that shipment has been sent to the movers.',
+      },
+      {
+        onSuccess: (data, variables) => {
+          setIsCancelModalVisible(false);
+          // Must set FlashMesage after hiding the modal, since FlashMessage will disappear when focus changes
+          setMessage(`MSG_CANCEL_SUCCESS_${variables.shipmentID}`, 'success', variables.onSuccessFlashMsg, '', true);
+        },
+      },
+    );
   };
 
   const handleEditFacilityInfo = (fields, shipment) => {
@@ -430,21 +457,43 @@ export const MoveTaskOrder = (props) => {
   const handleUpdateMTOServiceItemStatus = (mtoServiceItemID, mtoShipmentID, status, rejectionReason) => {
     const mtoServiceItemForRequest = shipmentServiceItems[`${mtoShipmentID}`]?.find((s) => s.id === mtoServiceItemID);
 
-    mutateMTOServiceItemStatus({
-      moveId: move.id,
-      mtoServiceItemID,
-      status,
-      rejectionReason,
-      ifMatchEtag: mtoServiceItemForRequest.eTag,
-    });
+    mutateMTOServiceItemStatus(
+      {
+        moveId: move.id,
+        mtoServiceItemID,
+        status,
+        rejectionReason,
+        ifMatchEtag: mtoServiceItemForRequest.eTag,
+      },
+      {
+        onSuccess: () => {
+          setIsModalVisible(false);
+          setSelectedServiceItem({});
+        },
+      },
+    );
   };
 
   const handleUpdateBillableWeight = (maxBillableWeight) => {
-    mutateOrderBillableWeight({
-      orderID: order.id,
-      ifMatchETag: order.eTag,
-      body: { authorizedWeight: maxBillableWeight },
-    });
+    mutateOrderBillableWeight(
+      {
+        orderID: order.id,
+        ifMatchETag: order.eTag,
+        body: { authorizedWeight: maxBillableWeight },
+      },
+      {
+        onSuccess: (data, variables) => {
+          setIsWeightModalVisible(false);
+          setMessage(
+            `MSG_MAX_BILLABLE_WEIGHT_SUCCESS_${variables.orderID}`,
+            'success',
+            'The maximum billable weight has been updated.',
+            '',
+            true,
+          );
+        },
+      },
+    );
   };
 
   const handleAcknowledgeExcessWeightRisk = () => {
@@ -685,14 +734,15 @@ export const MoveTaskOrder = (props) => {
               onSubmit={handleReweighShipment}
             />
           )}
-          {isWeightModalVisible && (
-            <EditMaxBillableWeightModal
-              defaultWeight={order.entitlement.totalWeight}
-              maxBillableWeight={order.entitlement.authorizedWeight}
-              onSubmit={handleUpdateBillableWeight}
-              onClose={setIsWeightModalVisible}
-            />
-          )}
+
+          <ConnectedEditMaxBillableWeightModal
+            isOpen={isWeightModalVisible}
+            defaultWeight={order.entitlement.totalWeight}
+            maxBillableWeight={order.entitlement.authorizedWeight}
+            onSubmit={handleUpdateBillableWeight}
+            onClose={setIsWeightModalVisible}
+          />
+
           {isFinancialModalVisible && (
             <FinancialReviewModal
               onClose={handleCancelFinancialReviewModal}
@@ -775,9 +825,9 @@ export const MoveTaskOrder = (props) => {
                     shipmentID: mtoShipment.id,
                     shipmentType: mtoShipmentTypes[mtoShipment.shipmentType],
                     isDiversion: mtoShipment.diversion,
-                    originCity: pickupAddress?.city,
-                    originState: pickupAddress?.state,
-                    originPostalCode: pickupAddress?.postalCode,
+                    originCity: pickupAddress?.city || '',
+                    originState: pickupAddress?.state || '',
+                    originPostalCode: pickupAddress?.postalCode || '',
                     destinationAddress: destinationAddress || dutyLocationPostal,
                     scheduledPickupDate: formattedScheduledPickup,
                     shipmentStatus: mtoShipment.status,

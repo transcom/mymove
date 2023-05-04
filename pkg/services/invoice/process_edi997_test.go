@@ -6,8 +6,8 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
@@ -41,19 +41,25 @@ SE*6*0001
 GE*1*220001
 IEA*1*000000022
 `
-		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				Status: models.PaymentRequestStatusSentToGex,
+		paymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					Status: models.PaymentRequestStatusSentToGex,
+				},
 			},
-		})
-		testdatagen.MakePaymentRequestToInterchangeControlNumber(suite.DB(), testdatagen.Assertions{
-			PaymentRequestToInterchangeControlNumber: models.PaymentRequestToInterchangeControlNumber{
-				PaymentRequestID:         paymentRequest.ID,
-				InterchangeControlNumber: 100001251,
-				PaymentRequest:           paymentRequest,
-				EDIType:                  models.EDIType858,
+		}, nil)
+		factory.BuildPaymentRequestToInterchangeControlNumber(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequestToInterchangeControlNumber{
+					InterchangeControlNumber: 100001251,
+					EDIType:                  models.EDIType858,
+				},
 			},
-		})
+			{
+				Model:    paymentRequest,
+				LinkOnly: true,
+			},
+		}, nil)
 		err := edi997Processor.ProcessFile(suite.AppContextForTest(), "", sample997EDIString)
 		suite.NoError(err)
 	})
@@ -88,19 +94,25 @@ SE*6*0001
 GE*1*220001
 IEA*1*000000995
 	`
-		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				Status: models.PaymentRequestStatusSentToGex,
+		paymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					Status: models.PaymentRequestStatusSentToGex,
+				},
 			},
-		})
-		testdatagen.MakePaymentRequestToInterchangeControlNumber(suite.DB(), testdatagen.Assertions{
-			PaymentRequestToInterchangeControlNumber: models.PaymentRequestToInterchangeControlNumber{
-				PaymentRequestID:         paymentRequest.ID,
-				InterchangeControlNumber: 100001252,
-				PaymentRequest:           paymentRequest,
-				EDIType:                  models.EDIType858,
+		}, nil)
+		factory.BuildPaymentRequestToInterchangeControlNumber(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequestToInterchangeControlNumber{
+					InterchangeControlNumber: 100001252,
+					EDIType:                  models.EDIType858,
+				},
 			},
-		})
+			{
+				Model:    paymentRequest,
+				LinkOnly: true,
+			},
+		}, nil)
 		err := edi997Processor.ProcessFile(suite.AppContextForTest(), "", sample997EDIString)
 		suite.NoError(err)
 
@@ -124,27 +136,37 @@ SE*6*0001
 GE*1*220001
 IEA*1*000000995
 	`
-		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				Status: models.PaymentRequestStatusSentToGex,
+		paymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					Status: models.PaymentRequestStatusSentToGex,
+				},
 			},
-		})
-		testdatagen.MakePaymentRequestToInterchangeControlNumber(suite.DB(), testdatagen.Assertions{
-			PaymentRequestToInterchangeControlNumber: models.PaymentRequestToInterchangeControlNumber{
-				PaymentRequestID:         paymentRequest.ID,
-				InterchangeControlNumber: 995,
-				PaymentRequest:           paymentRequest,
-				EDIType:                  models.EDIType858,
+		}, nil)
+		factory.BuildPaymentRequestToInterchangeControlNumber(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequestToInterchangeControlNumber{
+					InterchangeControlNumber: 995,
+					EDIType:                  models.EDIType858,
+				},
 			},
-		})
-		testdatagen.MakePaymentRequestToInterchangeControlNumber(suite.DB(), testdatagen.Assertions{
-			PaymentRequestToInterchangeControlNumber: models.PaymentRequestToInterchangeControlNumber{
-				PaymentRequestID:         paymentRequest.ID,
-				InterchangeControlNumber: 100001253,
-				PaymentRequest:           paymentRequest,
-				EDIType:                  models.EDIType858,
+			{
+				Model:    paymentRequest,
+				LinkOnly: true,
 			},
-		})
+		}, nil)
+		factory.BuildPaymentRequestToInterchangeControlNumber(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequestToInterchangeControlNumber{
+					InterchangeControlNumber: 100001253,
+					EDIType:                  models.EDIType858,
+				},
+			},
+			{
+				Model:    paymentRequest,
+				LinkOnly: true,
+			},
+		}, nil)
 		err := edi997Processor.ProcessFile(suite.AppContextForTest(), "", sample997EDIString)
 		suite.NoError(err)
 
@@ -168,27 +190,37 @@ SE*6*0001
 GE*1*220001
 IEA*1*000000995
 	`
-		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				Status: models.PaymentRequestStatusSentToGex,
+		paymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					Status: models.PaymentRequestStatusSentToGex,
+				},
 			},
-		})
-		testdatagen.MakePaymentRequestToInterchangeControlNumber(suite.DB(), testdatagen.Assertions{
-			PaymentRequestToInterchangeControlNumber: models.PaymentRequestToInterchangeControlNumber{
-				PaymentRequestID:         paymentRequest.ID,
-				InterchangeControlNumber: 995,
-				PaymentRequest:           paymentRequest,
-				EDIType:                  models.EDIType997,
+		}, nil)
+		factory.BuildPaymentRequestToInterchangeControlNumber(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequestToInterchangeControlNumber{
+					InterchangeControlNumber: 995,
+					EDIType:                  models.EDIType997,
+				},
 			},
-		})
-		testdatagen.MakePaymentRequestToInterchangeControlNumber(suite.DB(), testdatagen.Assertions{
-			PaymentRequestToInterchangeControlNumber: models.PaymentRequestToInterchangeControlNumber{
-				PaymentRequestID:         paymentRequest.ID,
-				InterchangeControlNumber: 100001254,
-				PaymentRequest:           paymentRequest,
-				EDIType:                  models.EDIType858,
+			{
+				Model:    paymentRequest,
+				LinkOnly: true,
 			},
-		})
+		}, nil)
+		factory.BuildPaymentRequestToInterchangeControlNumber(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequestToInterchangeControlNumber{
+					InterchangeControlNumber: 100001254,
+					EDIType:                  models.EDIType858,
+				},
+			},
+			{
+				Model:    paymentRequest,
+				LinkOnly: true,
+			},
+		}, nil)
 		err := edi997Processor.ProcessFile(suite.AppContextForTest(), "", sample997EDIString)
 		suite.NoError(err)
 
@@ -212,19 +244,25 @@ SE*6*0001
 GE*1*220001
 IEA*1*000000022
 	`
-		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				Status: models.PaymentRequestStatusSentToGex,
+		paymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					Status: models.PaymentRequestStatusSentToGex,
+				},
 			},
-		})
-		testdatagen.MakePaymentRequestToInterchangeControlNumber(suite.DB(), testdatagen.Assertions{
-			PaymentRequestToInterchangeControlNumber: models.PaymentRequestToInterchangeControlNumber{
-				PaymentRequestID:         paymentRequest.ID,
-				InterchangeControlNumber: 22,
-				PaymentRequest:           paymentRequest,
-				EDIType:                  models.EDIType858,
+		}, nil)
+		factory.BuildPaymentRequestToInterchangeControlNumber(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequestToInterchangeControlNumber{
+					InterchangeControlNumber: 22,
+					EDIType:                  models.EDIType858,
+				},
 			},
-		})
+			{
+				Model:    paymentRequest,
+				LinkOnly: true,
+			},
+		}, nil)
 		err := edi997Processor.ProcessFile(suite.AppContextForTest(), "", sample997EDIString)
 		suite.Error(err)
 		var updatedPR models.PaymentRequest
@@ -321,19 +359,25 @@ SE*6*0001
 GE*1*220001
 IEA*1*000000995
 `
-		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				Status: models.PaymentRequestStatusSentToGex,
+		paymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					Status: models.PaymentRequestStatusSentToGex,
+				},
 			},
-		})
-		testdatagen.MakePaymentRequestToInterchangeControlNumber(suite.DB(), testdatagen.Assertions{
-			PaymentRequestToInterchangeControlNumber: models.PaymentRequestToInterchangeControlNumber{
-				PaymentRequestID:         paymentRequest.ID,
-				InterchangeControlNumber: 100001251,
-				PaymentRequest:           paymentRequest,
-				EDIType:                  models.EDIType858,
+		}, nil)
+		factory.BuildPaymentRequestToInterchangeControlNumber(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequestToInterchangeControlNumber{
+					InterchangeControlNumber: 100001251,
+					EDIType:                  models.EDIType858,
+				},
 			},
-		})
+			{
+				Model:    paymentRequest,
+				LinkOnly: true,
+			},
+		}, nil)
 		err := edi997Processor.ProcessFile(suite.AppContextForTest(), "", sample997EDIString)
 		suite.Error(err, "fail to process 997")
 		errString := err.Error()

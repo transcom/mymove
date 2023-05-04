@@ -158,6 +158,10 @@ paths:
         This endpoint **updates** the MoveTaskOrder to indicate that the Prime has completed Counseling.
         This update uses the moveTaskOrderID provided in the path, updates the move status and marks child elements of the move to indicate the update.
         No body object is expected for this request.
+
+        **For Full/Partial PPMs**: This action is required so that the customer can start uploading their proof of service docs.
+
+        **For other move types**: This action is required for auditing reasons so that we have a record of when the Prime counseled the customer.
       operationId: updateMTOPostCounselingInformation
       consumes:
         - application/json
@@ -1054,7 +1058,7 @@ definitions:
         description: >
           The estimated weight of this shipment, determined by the movers during the pre-move survey.
           This value **can only be updated once.** If there was an issue with estimating the weight and a mistake was made,
-          the Prime contracter will need to contact the TOO to change it.
+          the Prime contractor will need to contact the TOO to change it.
         type: integer
         example: 4500
         minimum: 1
@@ -1234,6 +1238,7 @@ definitions:
       requestedDays:
         type: integer
         example: 30
+        minimum: 1
     required:
       - requestReason
       - contractorRemarks
@@ -1458,8 +1463,8 @@ definitions:
       ppmType:
         type: string
         enum:
-          - FULL
           - PARTIAL
+          - FULL
       ppmEstimatedWeight:
         type: integer
       excessWeightQualifiedAt:
@@ -1615,16 +1620,16 @@ definitions:
             description: Time of delivery corresponding to `firstAvailableDeliveryDate1`, in military format.
             pattern: '\d{4}Z'
             x-nullable: true
-          firstAvailableDeliveryDate1:
-            format: date
-            type: string
-            description: First available date that Prime can deliver SIT service item.
-            x-nullable: true
           timeMilitary2:
             type: string
             example: 1400Z
             description: Time of delivery corresponding to `firstAvailableDeliveryDate2`, in military format.
             pattern: '\d{4}Z'
+            x-nullable: true
+          firstAvailableDeliveryDate1:
+            format: date
+            type: string
+            description: First available date that Prime can deliver SIT service item.
             x-nullable: true
           firstAvailableDeliveryDate2:
             format: date
@@ -1833,6 +1838,13 @@ definitions:
         description: >
           The date the customer selects during onboarding as their preferred pickup date. Other dates, such as
           required delivery date and (outside MilMove) the pack date, are derived from this date.
+        format: date
+        type: string
+        readOnly: true
+        x-omitempty: false
+        x-nullable: true
+      requestedDeliveryDate:
+        description: The customer's preferred delivery date.
         format: date
         type: string
         readOnly: true
@@ -2075,12 +2087,17 @@ definitions:
         $ref: '#/definitions/DutyLocation'
       originDutyLocation:
         $ref: '#/definitions/DutyLocation'
+      originDutyLocationGBLOC:
+        type: string
+        example: 'KKFA'
       rank:
         type: string
         example: 'E_5'
       reportByDate:
         type: string
         format: date
+      ordersType:
+        $ref: 'definitions/OrdersType.yaml'
       orderNumber:
         type: string
       linesOfAccounting:
@@ -2590,6 +2607,28 @@ definitions:
             description: Departure date for SIT. This is the end date of the SIT at either origin or destination.
           sitDestinationFinalAddress:
             $ref: 'definitions/Address.yaml'
+          timeMilitary1:
+            type: string
+            example: 1400Z
+            description: Time of delivery corresponding to `firstAvailableDeliveryDate1`, in military format.
+            pattern: '\d{4}Z'
+            x-nullable: true
+          firstAvailableDeliveryDate1:
+            format: date
+            type: string
+            description: First available date that Prime can deliver SIT service item.
+            x-nullable: true
+          timeMilitary2:
+            type: string
+            example: 1400Z
+            description: Time of delivery corresponding to `firstAvailableDeliveryDate2`, in military format.
+            pattern: '\d{4}Z'
+            x-nullable: true
+          firstAvailableDeliveryDate2:
+            format: date
+            type: string
+            description: Second available date that Prime can deliver SIT service item.
+            x-nullable: true
   UpdateMTOShipment:
     properties:
       scheduledPickupDate:

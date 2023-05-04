@@ -3,27 +3,15 @@ package mtoshipment
 import (
 	"fmt"
 
+	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *MTOShipmentServiceSuite) TestApprove() {
 	shipmentRouter := NewShipmentRouter()
-
-	setUpTestData := func(overrides testdatagen.Assertions) models.MTOShipment {
-		fullAssertions := testdatagen.Assertions{
-			Move: models.Move{
-				Status: models.MoveStatusAPPROVED,
-			},
-			Stub: true,
-		}
-
-		// Merge the overrides into the base assertions
-		testdatagen.MergeModels(&fullAssertions, overrides)
-
-		return testdatagen.MakeMTOShipment(suite.DB(), fullAssertions)
-	}
 
 	validStatuses := []models.MTOShipmentStatus{
 		models.MTOShipmentStatusSubmitted,
@@ -34,18 +22,25 @@ func (suite *MTOShipmentServiceSuite) TestApprove() {
 		validStatus := validStatus
 
 		suite.Run("from valid status: "+string(validStatus), func() {
-			overrides := testdatagen.Assertions{
-				MTOShipment: models.MTOShipment{
-					Status: validStatus,
-				},
+			mtoShipment := models.MTOShipment{
+				Status: validStatus,
 			}
 
 			// special case for diversion requested
 			if validStatus == models.MTOShipmentStatusDiversionRequested {
-				overrides.MTOShipment.Diversion = true
+				mtoShipment.Diversion = true
 			}
 
-			shipment := setUpTestData(overrides)
+			shipment := factory.BuildMTOShipment(nil, []factory.Customization{
+				{
+					Model: models.Move{
+						Status: models.MoveStatusAPPROVED,
+					},
+				},
+				{
+					Model: mtoShipment,
+				},
+			}, nil)
 
 			err := shipmentRouter.Approve(suite.AppContextForTest(), &shipment)
 
@@ -66,11 +61,18 @@ func (suite *MTOShipmentServiceSuite) TestApprove() {
 		invalidStatus := invalidStatus
 
 		suite.Run("from invalid status: "+string(invalidStatus), func() {
-			shipment := setUpTestData(testdatagen.Assertions{
-				MTOShipment: models.MTOShipment{
-					Status: invalidStatus,
+			shipment := factory.BuildMTOShipment(nil, []factory.Customization{
+				{
+					Model: models.Move{
+						Status: models.MoveStatusAPPROVED,
+					},
 				},
-			})
+				{
+					Model: models.MTOShipment{
+						Status: invalidStatus,
+					},
+				},
+			}, nil)
 
 			err := shipmentRouter.Approve(suite.AppContextForTest(), &shipment)
 
@@ -93,16 +95,19 @@ func (suite *MTOShipmentServiceSuite) TestApprove() {
 		invalidMoveStatus := invalidMoveStatus
 
 		suite.Run(fmt.Sprintf("Doesn't approve a shipment if the move status is %s", invalidMoveStatus), func() {
-			move := testdatagen.MakeStubbedMoveWithStatus(suite.DB(), invalidMoveStatus)
+			move := factory.BuildStubbedMoveWithStatus(invalidMoveStatus)
 
-			overrides := testdatagen.Assertions{
-				Move: move,
-				MTOShipment: models.MTOShipment{
-					Status: models.MTOShipmentStatusSubmitted,
+			shipment := factory.BuildMTOShipment(nil, []factory.Customization{
+				{
+					Model:    move,
+					LinkOnly: true,
 				},
-			}
-
-			shipment := setUpTestData(overrides)
+				{
+					Model: models.MTOShipment{
+						Status: models.MTOShipmentStatusSubmitted,
+					},
+				},
+			}, nil)
 
 			err := shipmentRouter.Approve(suite.AppContextForTest(), &shipment)
 
@@ -124,17 +129,19 @@ func (suite *MTOShipmentServiceSuite) TestApprove() {
 	}
 
 	suite.Run(fmt.Sprintf("can approve a shipment if it is a PPM shipment and the move status is %s", models.MoveStatusNeedsServiceCounseling), func() {
-		move := testdatagen.MakeStubbedMoveWithStatus(suite.DB(), models.MoveStatusNeedsServiceCounseling)
+		move := factory.BuildStubbedMoveWithStatus(models.MoveStatusNeedsServiceCounseling)
 
-		overrides := testdatagen.Assertions{
-			Move: move,
-			MTOShipment: models.MTOShipment{
-				Status: models.MTOShipmentStatusSubmitted,
+		ppmShipment := factory.BuildPPMShipment(nil, []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-			Stub: true,
-		}
-
-		ppmShipment := testdatagen.MakePPMShipment(suite.DB(), overrides)
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusSubmitted,
+				},
+			},
+		}, nil)
 
 		err := shipmentRouter.Approve(suite.AppContextForTest(), &ppmShipment.Shipment)
 
@@ -145,13 +152,20 @@ func (suite *MTOShipmentServiceSuite) TestApprove() {
 	})
 
 	suite.Run("does not approve a shipment if the shipment uses an external vendor", func() {
-		shipment := setUpTestData(testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				UsesExternalVendor: true,
-				ShipmentType:       models.MTOShipmentTypeHHGOutOfNTSDom,
-				Status:             models.MTOShipmentStatusSubmitted,
+		shipment := factory.BuildMTOShipment(nil, []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVED,
+				},
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					UsesExternalVendor: true,
+					ShipmentType:       models.MTOShipmentTypeHHGOutOfNTSDom,
+					Status:             models.MTOShipmentStatusSubmitted,
+				},
+			},
+		}, nil)
 
 		err := shipmentRouter.Approve(suite.AppContextForTest(), &shipment)
 
@@ -176,7 +190,13 @@ func (suite *MTOShipmentServiceSuite) TestSubmit() {
 		validStatus := validStatus
 
 		suite.Run("from valid status: "+string(validStatus.desc), func() {
-			shipment := testdatagen.MakeStubbedShipment(suite.DB())
+			shipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
+				{
+					Model: models.MTOShipment{
+						ID: uuid.Must(uuid.NewV4()),
+					},
+				},
+			}, nil)
 			shipment.Status = validStatus.status
 
 			err := shipmentRouter.Submit(suite.AppContextForTest(), &shipment)
@@ -198,7 +218,13 @@ func (suite *MTOShipmentServiceSuite) TestSubmit() {
 		invalidStatus := invalidStatus
 
 		suite.Run("from invalid status: "+string(invalidStatus), func() {
-			shipment := testdatagen.MakeStubbedShipment(suite.DB())
+			shipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
+				{
+					Model: models.MTOShipment{
+						ID: uuid.Must(uuid.NewV4()),
+					},
+				},
+			}, nil)
 			shipment.Status = invalidStatus
 
 			err := shipmentRouter.Submit(suite.AppContextForTest(), &shipment)
@@ -223,7 +249,13 @@ func (suite *MTOShipmentServiceSuite) TestCancel() {
 	}
 	for _, validStatus := range validStatuses {
 		suite.Run("from valid status: "+string(validStatus.status), func() {
-			shipment := testdatagen.MakeStubbedShipment(suite.DB())
+			shipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
+				{
+					Model: models.MTOShipment{
+						ID: uuid.Must(uuid.NewV4()),
+					},
+				},
+			}, nil)
 			shipment.Status = validStatus.status
 
 			err := shipmentRouter.Cancel(suite.AppContextForTest(), &shipment)
@@ -246,7 +278,13 @@ func (suite *MTOShipmentServiceSuite) TestCancel() {
 	}
 	for _, invalidStatus := range invalidStatuses {
 		suite.Run("from invalid status: "+string(invalidStatus.status), func() {
-			shipment := testdatagen.MakeStubbedShipment(suite.DB())
+			shipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
+				{
+					Model: models.MTOShipment{
+						ID: uuid.Must(uuid.NewV4()),
+					},
+				},
+			}, nil)
 			shipment.Status = invalidStatus.status
 
 			err := shipmentRouter.Cancel(suite.AppContextForTest(), &shipment)
@@ -272,7 +310,13 @@ func (suite *MTOShipmentServiceSuite) TestReject() {
 	}
 	for _, validStatus := range validStatuses {
 		suite.Run("from valid status: "+string(validStatus.status), func() {
-			shipment := testdatagen.MakeStubbedShipment(suite.DB())
+			shipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
+				{
+					Model: models.MTOShipment{
+						ID: uuid.Must(uuid.NewV4()),
+					},
+				},
+			}, nil)
 			shipment.Status = validStatus.status
 
 			err := shipmentRouter.Reject(suite.AppContextForTest(), &shipment, &rejectionReason)
@@ -296,7 +340,13 @@ func (suite *MTOShipmentServiceSuite) TestReject() {
 	}
 	for _, invalidStatus := range invalidStatuses {
 		suite.Run("from invalid status: "+string(invalidStatus.status), func() {
-			shipment := testdatagen.MakeStubbedShipment(suite.DB())
+			shipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
+				{
+					Model: models.MTOShipment{
+						ID: uuid.Must(uuid.NewV4()),
+					},
+				},
+			}, nil)
 			shipment.Status = invalidStatus.status
 
 			err := shipmentRouter.Reject(suite.AppContextForTest(), &shipment, &rejectionReason)
@@ -321,7 +371,13 @@ func (suite *MTOShipmentServiceSuite) TestRequestDiversion() {
 	}
 	for _, validStatus := range validStatuses {
 		suite.Run("from valid status: "+string(validStatus.status), func() {
-			shipment := testdatagen.MakeStubbedShipment(suite.DB())
+			shipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
+				{
+					Model: models.MTOShipment{
+						ID: uuid.Must(uuid.NewV4()),
+					},
+				},
+			}, nil)
 			shipment.Status = validStatus.status
 
 			err := shipmentRouter.RequestDiversion(suite.AppContextForTest(), &shipment)
@@ -344,7 +400,13 @@ func (suite *MTOShipmentServiceSuite) TestRequestDiversion() {
 	}
 	for _, invalidStatus := range invalidStatuses {
 		suite.Run("from invalid status: "+string(invalidStatus.status), func() {
-			shipment := testdatagen.MakeStubbedShipment(suite.DB())
+			shipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
+				{
+					Model: models.MTOShipment{
+						ID: uuid.Must(uuid.NewV4()),
+					},
+				},
+			}, nil)
 			shipment.Status = invalidStatus.status
 
 			err := shipmentRouter.RequestDiversion(suite.AppContextForTest(), &shipment)
@@ -362,7 +424,13 @@ func (suite *MTOShipmentServiceSuite) TestApproveDiversion() {
 	shipmentRouter := NewShipmentRouter()
 
 	suite.Run("fails when the Diversion field is false", func() {
-		shipment := testdatagen.MakeStubbedShipment(suite.DB())
+		shipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					ID: uuid.Must(uuid.NewV4()),
+				},
+			},
+		}, nil)
 		err := shipmentRouter.ApproveDiversion(suite.AppContextForTest(), &shipment)
 
 		suite.Error(err)
@@ -378,7 +446,13 @@ func (suite *MTOShipmentServiceSuite) TestApproveDiversion() {
 	}
 	for _, validStatus := range validStatuses {
 		suite.Run("from valid status: "+string(validStatus.status), func() {
-			shipment := testdatagen.MakeStubbedShipment(suite.DB())
+			shipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
+				{
+					Model: models.MTOShipment{
+						ID: uuid.Must(uuid.NewV4()),
+					},
+				},
+			}, nil)
 			shipment.Status = validStatus.status
 			shipment.Diversion = true
 
@@ -402,7 +476,13 @@ func (suite *MTOShipmentServiceSuite) TestApproveDiversion() {
 	}
 	for _, invalidStatus := range invalidStatuses {
 		suite.Run("from invalid status: "+string(invalidStatus.status), func() {
-			shipment := testdatagen.MakeStubbedShipment(suite.DB())
+			shipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
+				{
+					Model: models.MTOShipment{
+						ID: uuid.Must(uuid.NewV4()),
+					},
+				},
+			}, nil)
 			shipment.Status = invalidStatus.status
 			shipment.Diversion = true
 
@@ -422,7 +502,13 @@ func (suite *MTOShipmentServiceSuite) TestApproveDiversionUsesExternal() {
 
 	suite.Run("fails when the UsesExternal field is true", func() {
 
-		shipment := testdatagen.MakeStubbedShipment(suite.DB())
+		shipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					ID: uuid.Must(uuid.NewV4()),
+				},
+			},
+		}, nil)
 		shipment.UsesExternalVendor = true
 		shipment.Diversion = true
 		err := shipmentRouter.ApproveDiversion(suite.AppContextForTest(), &shipment)
@@ -445,7 +531,13 @@ func (suite *MTOShipmentServiceSuite) TestRequestCancellation() {
 	}
 	for _, validStatus := range validStatuses {
 		suite.Run("from valid status: "+string(validStatus.status), func() {
-			shipment := testdatagen.MakeStubbedShipment(suite.DB())
+			shipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
+				{
+					Model: models.MTOShipment{
+						ID: uuid.Must(uuid.NewV4()),
+					},
+				},
+			}, nil)
 			shipment.Status = validStatus.status
 			shipment.UsesExternalVendor = true
 			shipment.Diversion = true
@@ -470,7 +562,13 @@ func (suite *MTOShipmentServiceSuite) TestRequestCancellation() {
 	}
 	for _, invalidStatus := range invalidStatuses {
 		suite.Run("from invalid status: "+string(invalidStatus.status), func() {
-			shipment := testdatagen.MakeStubbedShipment(suite.DB())
+			shipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
+				{
+					Model: models.MTOShipment{
+						ID: uuid.Must(uuid.NewV4()),
+					},
+				},
+			}, nil)
 			shipment.Status = invalidStatus.status
 
 			err := shipmentRouter.RequestCancellation(suite.AppContextForTest(), &shipment)

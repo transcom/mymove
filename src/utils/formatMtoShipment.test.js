@@ -364,6 +364,7 @@ describe('formatMtoShipmentForAPI', () => {
       ...mtoShipmentParams,
       shipmentType: SHIPMENT_OPTIONS.HHG,
       pickup: { ...pickupInfo },
+      hasSecondaryPickup: true,
       secondaryPickup: {
         address: {
           streetAddress1: '142 E Barrel Hoop Circle',
@@ -374,6 +375,7 @@ describe('formatMtoShipmentForAPI', () => {
         },
       },
       delivery: { ...deliveryInfo },
+      hasSecondaryDelivery: true,
       secondaryDelivery: {
         address: {
           streetAddress1: '441 SW Río de la Plata Drive',

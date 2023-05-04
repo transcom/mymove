@@ -195,6 +195,7 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItem(appCtx appcontext.AppContex
 				}
 			}
 		}
+
 		// Make the update and create a InvalidInputError if there were validation issues
 		verrs, updateErr := txnAppCtx.DB().ValidateAndUpdate(validServiceItem)
 
@@ -212,13 +213,7 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItem(appCtx appcontext.AppContex
 		return nil, transactionErr
 	}
 
-	// Get the updated address and return
-	updatedServiceItem := models.MTOServiceItem{}
-	err = p.builder.FetchOne(appCtx, &updatedServiceItem, queryFilters) // using the same queryFilters set at the beginning
-	if err != nil {
-		return nil, apperror.NewQueryError("MTOServiceItem", err, fmt.Sprintf("Unexpected error after saving: %v", err))
-	}
-	return &updatedServiceItem, nil
+	return validServiceItem, nil
 }
 
 // ValidateUpdateMTOServiceItem checks the provided serviceItemData struct against the validator indicated by validatorKey.

@@ -35,7 +35,7 @@ type approveShipmentSubtestData struct {
 func (suite *MTOShipmentServiceSuite) createApproveShipmentSubtestData() (subtestData *approveShipmentSubtestData) {
 	subtestData = &approveShipmentSubtestData{}
 
-	subtestData.move = testdatagen.MakeAvailableMove(suite.DB())
+	subtestData.move = factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
 	ghcDomesticTransitTime := models.GHCDomesticTransitTime{
 		MaxDaysTransitTime: 12,
@@ -99,12 +99,17 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		approver := subtestData.shipmentApprover
 		planner := subtestData.planner
 
-		shipmentForAutoApprove := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
-			Move: move,
-			MTOShipment: models.MTOShipment{
-				Status: models.MTOShipmentStatusSubmitted,
+		shipmentForAutoApprove := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusSubmitted,
+				},
+			},
+		}, nil)
 		shipmentForAutoApproveEtag := etag.GenerateEtag(shipmentForAutoApprove.UpdatedAt)
 		fetchedShipment := models.MTOShipment{}
 		serviceItems := models.MTOServiceItems{}
@@ -148,9 +153,12 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		approver := subtestData.shipmentApprover
 		planner := subtestData.planner
 
-		shipmentForAutoApprove := testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
-			Move: subtestData.move,
-		})
+		shipmentForAutoApprove := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    subtestData.move,
+				LinkOnly: true,
+			},
+		}, nil)
 		shipmentForAutoApproveEtag := etag.GenerateEtag(shipmentForAutoApprove.Shipment.UpdatedAt)
 
 		// Verify that required delivery date is not calculated when it does not need to be
@@ -187,19 +195,30 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		destinationAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
 		pickupAddress := factory.BuildAddress(suite.DB(), nil, nil)
 
-		shipmentHeavy := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			Move: move,
-			MTOShipment: models.MTOShipment{
-				ShipmentType:         models.MTOShipmentTypeHHGLongHaulDom,
-				ScheduledPickupDate:  &testdatagen.DateInsidePeakRateCycle,
-				PrimeEstimatedWeight: &estimatedWeight,
-				Status:               models.MTOShipmentStatusSubmitted,
-				DestinationAddress:   &destinationAddress,
-				DestinationAddressID: &destinationAddress.ID,
-				PickupAddress:        &pickupAddress,
-				PickupAddressID:      &pickupAddress.ID,
+		shipmentHeavy := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					ShipmentType:         models.MTOShipmentTypeHHGLongHaulDom,
+					ScheduledPickupDate:  &testdatagen.DateInsidePeakRateCycle,
+					PrimeEstimatedWeight: &estimatedWeight,
+					Status:               models.MTOShipmentStatusSubmitted,
+				},
+			},
+			{
+				Model:    pickupAddress,
+				Type:     &factory.Addresses.PickupAddress,
+				LinkOnly: true,
+			},
+			{
+				Model:    destinationAddress,
+				Type:     &factory.Addresses.DeliveryAddress,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		createdShipment := models.MTOShipment{}
 		err := suite.DB().Find(&createdShipment, shipmentHeavy.ID)
@@ -231,13 +250,18 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		approver := subtestData.shipmentApprover
 
 		rejectionReason := "a reason"
-		rejectedShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-			MTOShipment: models.MTOShipment{
-				Status:          models.MTOShipmentStatusRejected,
-				RejectionReason: &rejectionReason,
+		rejectedShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					Status:          models.MTOShipmentStatusRejected,
+					RejectionReason: &rejectionReason,
+				},
+			},
+		}, nil)
 		eTag := etag.GenerateEtag(rejectedShipment.UpdatedAt)
 
 		_, err := approver.ApproveShipment(appCtx, rejectedShipment.ID, eTag)
@@ -253,12 +277,17 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		approver := subtestData.shipmentApprover
 
 		staleETag := etag.GenerateEtag(time.Now())
-		staleShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-			MTOShipment: models.MTOShipment{
-				Status: models.MTOShipmentStatusSubmitted,
+		staleShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusSubmitted,
+				},
+			},
+		}, nil)
 
 		_, err := approver.ApproveShipment(appCtx, staleShipment.ID, staleETag)
 
@@ -287,12 +316,17 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		approver := subtestData.mockedShipmentApprover
 		shipmentRouter := subtestData.mockedShipmentRouter
 
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-			MTOShipment: models.MTOShipment{
-				Status: models.MTOShipmentStatusSubmitted,
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusSubmitted,
+				},
+			},
+		}, nil)
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 
 		createdShipment := models.MTOShipment{}
@@ -316,14 +350,19 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		approver := subtestData.shipmentApprover
 		planner := subtestData.planner
 
-		shipmentForAutoApprove := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
-			Move: move,
-			MTOShipment: models.MTOShipment{
-				Status:             models.MTOShipmentStatusSubmitted,
-				UsesExternalVendor: true,
-				ShipmentType:       models.MTOShipmentTypeHHGOutOfNTSDom,
+		shipmentForAutoApprove := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					Status:             models.MTOShipmentStatusSubmitted,
+					UsesExternalVendor: true,
+					ShipmentType:       models.MTOShipmentTypeHHGOutOfNTSDom,
+				},
+			},
+		}, nil)
 		shipmentForAutoApproveEtag := etag.GenerateEtag(shipmentForAutoApprove.UpdatedAt)
 		fetchedShipment := models.MTOShipment{}
 		serviceItems := models.MTOServiceItems{}
@@ -386,47 +425,78 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		pickupAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress3})
 		storageFacility := factory.BuildStorageFacility(suite.DB(), nil, nil)
 
-		hhgShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			Move: move,
-			MTOShipment: models.MTOShipment{
-				ShipmentType:         models.MTOShipmentTypeHHG,
-				ScheduledPickupDate:  &testdatagen.DateInsidePeakRateCycle,
-				PrimeEstimatedWeight: &estimatedWeight,
-				Status:               models.MTOShipmentStatusSubmitted,
-				DestinationAddress:   &destinationAddress,
-				DestinationAddressID: &destinationAddress.ID,
-				PickupAddress:        &pickupAddress,
-				PickupAddressID:      &pickupAddress.ID,
+		hhgShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					ShipmentType:         models.MTOShipmentTypeHHG,
+					ScheduledPickupDate:  &testdatagen.DateInsidePeakRateCycle,
+					PrimeEstimatedWeight: &estimatedWeight,
+					Status:               models.MTOShipmentStatusSubmitted,
+				},
+			},
+			{
+				Model:    pickupAddress,
+				Type:     &factory.Addresses.PickupAddress,
+				LinkOnly: true,
+			},
+			{
+				Model:    destinationAddress,
+				Type:     &factory.Addresses.DeliveryAddress,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		ntsShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			Move: move,
-			MTOShipment: models.MTOShipment{
-				ShipmentType:         models.MTOShipmentTypeHHGIntoNTSDom,
-				ScheduledPickupDate:  &testdatagen.DateInsidePeakRateCycle,
-				PrimeEstimatedWeight: &estimatedWeight,
-				Status:               models.MTOShipmentStatusSubmitted,
-				StorageFacility:      &storageFacility,
-				StorageFacilityID:    &storageFacility.ID,
-				PickupAddress:        &pickupAddress,
-				PickupAddressID:      &pickupAddress.ID,
+		ntsShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					ShipmentType:         models.MTOShipmentTypeHHGIntoNTSDom,
+					ScheduledPickupDate:  &testdatagen.DateInsidePeakRateCycle,
+					PrimeEstimatedWeight: &estimatedWeight,
+					Status:               models.MTOShipmentStatusSubmitted,
+				},
+			},
+			{
+				Model:    storageFacility,
+				LinkOnly: true,
+			},
+			{
+				Model:    pickupAddress,
+				Type:     &factory.Addresses.PickupAddress,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		ntsrShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			Move: move,
-			MTOShipment: models.MTOShipment{
-				ShipmentType:         models.MTOShipmentTypeHHGOutOfNTSDom,
-				ScheduledPickupDate:  &testdatagen.DateInsidePeakRateCycle,
-				NTSRecordedWeight:    &estimatedWeight,
-				Status:               models.MTOShipmentStatusSubmitted,
-				StorageFacility:      &storageFacility,
-				StorageFacilityID:    &storageFacility.ID,
-				DestinationAddress:   &destinationAddress,
-				DestinationAddressID: &destinationAddress.ID,
+		ntsrShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					ShipmentType:        models.MTOShipmentTypeHHGOutOfNTSDom,
+					ScheduledPickupDate: &testdatagen.DateInsidePeakRateCycle,
+					NTSRecordedWeight:   &estimatedWeight,
+					Status:              models.MTOShipmentStatusSubmitted,
+				},
+			},
+			{
+				Model:    storageFacility,
+				LinkOnly: true,
+			},
+			{
+				Model:    destinationAddress,
+				Type:     &factory.Addresses.DeliveryAddress,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		var TransitDistancePickupArg *models.Address
 		var TransitDistanceDestinationArg *models.Address

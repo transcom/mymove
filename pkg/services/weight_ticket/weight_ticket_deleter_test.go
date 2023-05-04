@@ -20,12 +20,12 @@ func (suite *WeightTicketSuite) TestDeleteWeightTicket() {
 
 	setupForTest := func(overrides *models.WeightTicket, hasDocumentUploads bool) *models.WeightTicket {
 		serviceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
-		ppmShipment := testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{
-			Order: models.Order{
-				ServiceMemberID: serviceMember.ID,
-				ServiceMember:   serviceMember,
+		ppmShipment := factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    serviceMember,
+				LinkOnly: true,
 			},
-		})
+		}, nil)
 
 		emptyDocument := factory.BuildDocumentLinkServiceMember(suite.DB(), serviceMember)
 		fullDocument := factory.BuildDocumentLinkServiceMember(suite.DB(), serviceMember)

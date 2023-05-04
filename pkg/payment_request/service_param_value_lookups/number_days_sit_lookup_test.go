@@ -64,7 +64,12 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 	destinationSITDepartureDateThree := time.Date(2020, time.November, 30, 0, 0, 0, 0, time.UTC)
 
 	setupTestData := func() {
-
+		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				StartDate: time.Now().Add(-24 * time.Hour),
+				EndDate:   time.Now().Add(24 * time.Hour),
+			},
+		})
 		reServiceDOFSIT = factory.BuildReService(suite.DB(), []factory.Customization{
 			{
 				Model: models.ReService{
@@ -101,139 +106,232 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 			},
 		}, nil)
 
-		moveTaskOrderOne = testdatagen.MakeDefaultMove(suite.DB())
-		moveTaskOrderTwo = testdatagen.MakeDefaultMove(suite.DB())
-		moveTaskOrderThree = testdatagen.MakeDefaultMove(suite.DB())
-		moveTaskOrderFour = testdatagen.MakeDefaultMove(suite.DB())
-		moveTaskOrderFive := testdatagen.MakeDefaultMove(suite.DB())
+		moveTaskOrderOne = factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		moveTaskOrderTwo = factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		moveTaskOrderThree = factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		moveTaskOrderFour = factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		moveTaskOrderFive := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
-		mtoShipmentOne := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: moveTaskOrderOne,
-			MTOShipment: models.MTOShipment{
-				Status:           models.MTOShipmentStatusSubmitted,
-				SITDaysAllowance: &defaultSITDaysAllowance,
+		factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusSubmitted,
+					SITDaysAllowance: &defaultSITDaysAllowance,
+				},
+			},
+		}, nil)
 
-		mtoShipmentTwo := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: moveTaskOrderOne,
-			MTOShipment: models.MTOShipment{
-				Status:           models.MTOShipmentStatusSubmitted,
-				SITDaysAllowance: &defaultSITDaysAllowance,
+		mtoShipmentOne := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusSubmitted,
+					SITDaysAllowance: &defaultSITDaysAllowance,
+				},
+			},
+		}, nil)
 
-		mtoShipmentThree := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: moveTaskOrderOne,
-			MTOShipment: models.MTOShipment{
-				Status:           models.MTOShipmentStatusSubmitted,
-				SITDaysAllowance: &defaultSITDaysAllowance,
+		mtoShipmentTwo := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusSubmitted,
+					SITDaysAllowance: &defaultSITDaysAllowance,
+				},
+			},
+		}, nil)
 
-		mtoShipmentFour := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: moveTaskOrderOne,
-			MTOShipment: models.MTOShipment{
-				Status:           models.MTOShipmentStatusSubmitted,
-				SITDaysAllowance: &defaultSITDaysAllowance,
+		mtoShipmentThree := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusSubmitted,
+					SITDaysAllowance: &defaultSITDaysAllowance,
+				},
+			},
+		}, nil)
 
-		mtoShipmentFive := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: moveTaskOrderOne,
-			MTOShipment: models.MTOShipment{
-				Status:           models.MTOShipmentStatusSubmitted,
-				SITDaysAllowance: &defaultSITDaysAllowance,
+		mtoShipmentFour := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusSubmitted,
+					SITDaysAllowance: &defaultSITDaysAllowance,
+				},
+			},
+		}, nil)
 
-		mtoShipmentSix := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: moveTaskOrderOne,
-			MTOShipment: models.MTOShipment{
-				Status:           models.MTOShipmentStatusSubmitted,
-				SITDaysAllowance: &defaultSITDaysAllowance,
+		mtoShipmentFive := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusSubmitted,
+					SITDaysAllowance: &defaultSITDaysAllowance,
+				},
+			},
+		}, nil)
 
-		mtoShipmentSeven = testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: moveTaskOrderOne,
-			MTOShipment: models.MTOShipment{
-				Status:           models.MTOShipmentStatusSubmitted,
-				SITDaysAllowance: &defaultSITDaysAllowance,
+		mtoShipmentSix := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusSubmitted,
+					SITDaysAllowance: &defaultSITDaysAllowance,
+				},
+			},
+		}, nil)
 
-		mtoShipmentEight := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: moveTaskOrderOne,
-			MTOShipment: models.MTOShipment{
-				Status:           models.MTOShipmentStatusSubmitted,
-				SITDaysAllowance: &defaultSITDaysAllowance,
+		mtoShipmentSeven = factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusSubmitted,
+					SITDaysAllowance: &defaultSITDaysAllowance,
+				},
+			},
+		}, nil)
 
-		mtoShipmentNine := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: moveTaskOrderOne,
-			MTOShipment: models.MTOShipment{
-				Status:           models.MTOShipmentStatusSubmitted,
-				SITDaysAllowance: &defaultSITDaysAllowance,
+		mtoShipmentEight := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusSubmitted,
+					SITDaysAllowance: &defaultSITDaysAllowance,
+				},
+			},
+		}, nil)
 
-		mtoShipmentTen := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: moveTaskOrderOne,
-			MTOShipment: models.MTOShipment{
-				Status:           models.MTOShipmentStatusSubmitted,
-				SITDaysAllowance: &defaultSITDaysAllowance,
+		mtoShipmentNine := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusSubmitted,
+					SITDaysAllowance: &defaultSITDaysAllowance,
+				},
+			},
+		}, nil)
 
-		mtoShipmentEleven := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: moveTaskOrderTwo,
-			MTOShipment: models.MTOShipment{
-				Status:           models.MTOShipmentStatusSubmitted,
-				SITDaysAllowance: &defaultSITDaysAllowance,
+		mtoShipmentTen := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusSubmitted,
+					SITDaysAllowance: &defaultSITDaysAllowance,
+				},
+			},
+		}, nil)
 
-		mtoShipmentTwelve := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: moveTaskOrderThree,
-			MTOShipment: models.MTOShipment{
-				Status:           models.MTOShipmentStatusSubmitted,
-				SITDaysAllowance: &defaultSITDaysAllowance,
+		mtoShipmentEleven := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    moveTaskOrderTwo,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusSubmitted,
+					SITDaysAllowance: &defaultSITDaysAllowance,
+				},
+			},
+		}, nil)
 
-		mtoShipmentThirteen := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: moveTaskOrderThree,
-			MTOShipment: models.MTOShipment{
-				Status:           models.MTOShipmentStatusSubmitted,
-				SITDaysAllowance: &defaultSITDaysAllowance,
+		mtoShipmentTwelve := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    moveTaskOrderThree,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusSubmitted,
+					SITDaysAllowance: &defaultSITDaysAllowance,
+				},
+			},
+		}, nil)
 
-		mtoShipmentFourteen := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: moveTaskOrderFour,
-			MTOShipment: models.MTOShipment{
-				Status:           models.MTOShipmentStatusSubmitted,
-				SITDaysAllowance: &defaultSITDaysAllowance,
+		mtoShipmentThirteen := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    moveTaskOrderThree,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusSubmitted,
+					SITDaysAllowance: &defaultSITDaysAllowance,
+				},
+			},
+		}, nil)
 
-		mtoShipmentFifteen := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: moveTaskOrderFive,
-			MTOShipment: models.MTOShipment{
-				Status:           models.MTOShipmentStatusSubmitted,
-				SITDaysAllowance: &defaultSITDaysAllowance,
+		mtoShipmentFourteen := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    moveTaskOrderFour,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusSubmitted,
+					SITDaysAllowance: &defaultSITDaysAllowance,
+				},
+			},
+		}, nil)
 
-		mtoShipmentSixteen := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: moveTaskOrderFive,
-			MTOShipment: models.MTOShipment{
-				Status:           models.MTOShipmentStatusSubmitted,
-				SITDaysAllowance: &defaultSITDaysAllowance,
+		mtoShipmentFifteen := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    moveTaskOrderFive,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusSubmitted,
+					SITDaysAllowance: &defaultSITDaysAllowance,
+				},
+			},
+		}, nil)
+
+		mtoShipmentSixteen := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    moveTaskOrderFive,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusSubmitted,
+					SITDaysAllowance: &defaultSITDaysAllowance,
+				},
+			},
+		}, nil)
 
 		moveTaskOrderOne.MTOShipments = models.MTOShipments{
 			mtoShipmentOne,
@@ -266,784 +364,1453 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 			mtoShipmentSixteen,
 		}
 
-		serviceItemDOFSITOne := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				SITEntryDate: &originSITEntryDateOne,
-				Status:       models.MTOServiceItemStatusApproved,
+		serviceItemDOFSITOne := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate: &originSITEntryDateOne,
+					Status:       models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderOne,
-			MTOShipment: mtoShipmentOne,
-			ReService:   reServiceDOFSIT,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentOne,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDOFSIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDOFSITTwo := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				SITEntryDate: &originSITEntryDateOne,
-				Status:       models.MTOServiceItemStatusApproved,
+		serviceItemDOFSITTwo := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate: &originSITEntryDateOne,
+					Status:       models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderOne,
-			MTOShipment: mtoShipmentThree,
-			ReService:   reServiceDOFSIT,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentThree,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDOFSIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDOFSITThree := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				SITEntryDate: &originSITEntryDateOne,
-				Status:       models.MTOServiceItemStatusApproved,
+		serviceItemDOFSITThree := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate: &originSITEntryDateOne,
+					Status:       models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderOne,
-			MTOShipment: mtoShipmentFour,
-			ReService:   reServiceDOFSIT,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentFour,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDOFSIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDOFSITFour := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				SITEntryDate: &originSITEntryDateOne,
-				Status:       models.MTOServiceItemStatusApproved,
+		serviceItemDOFSITFour := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate: &originSITEntryDateOne,
+					Status:       models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderOne,
-			MTOShipment: mtoShipmentSix,
-			ReService:   reServiceDOFSIT,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentSix,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDOFSIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDOFSITFive = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				Status: models.MTOServiceItemStatusApproved,
+		serviceItemDOFSITFive = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderOne,
-			MTOShipment: mtoShipmentSeven,
-			ReService:   reServiceDOFSIT,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentSeven,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDOFSIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDOFSITSix := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				Status: models.MTOServiceItemStatusApproved,
+		serviceItemDOFSITSix := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderOne,
-			MTOShipment: mtoShipmentEight,
-			ReService:   reServiceDOFSIT,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentEight,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDOFSIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDOFSITSeven = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				SITEntryDate:     &originSITEntryDateOne,
-				SITDepartureDate: &originSITDepartureDateTwo,
-				Status:           models.MTOServiceItemStatusApproved,
+		serviceItemDOFSITSeven = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate:     &originSITEntryDateOne,
+					SITDepartureDate: &originSITDepartureDateTwo,
+					Status:           models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderOne,
-			MTOShipment: mtoShipmentTen,
-			ReService:   reServiceDOFSIT,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentTen,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDOFSIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDOFSITEight = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				SITEntryDate:     &originSITEntryDateOne,
-				SITDepartureDate: &originSITDepartureDateTwo,
-				Status:           models.MTOServiceItemStatusApproved,
+		serviceItemDOFSITEight = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate:     &originSITEntryDateOne,
+					SITDepartureDate: &originSITDepartureDateTwo,
+					Status:           models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderTwo,
-			MTOShipment: mtoShipmentEleven,
-			ReService:   reServiceDOFSIT,
-		})
+			{
+				Model:    moveTaskOrderTwo,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentEleven,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDOFSIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDOFSITNine := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				SITEntryDate: &originSITEntryDateOne,
-				Status:       models.MTOServiceItemStatusApproved,
+		serviceItemDOFSITNine := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate: &originSITEntryDateOne,
+					Status:       models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderThree,
-			MTOShipment: mtoShipmentThirteen,
-			ReService:   reServiceDOFSIT,
-		})
+			{
+				Model:    moveTaskOrderThree,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentThirteen,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDOFSIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDOFSITTen := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				SITEntryDate: &originSITEntryDateOne,
-				Status:       models.MTOServiceItemStatusApproved,
+		serviceItemDOFSITTen := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate: &originSITEntryDateOne,
+					Status:       models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderFive,
-			MTOShipment: mtoShipmentFifteen,
-			ReService:   reServiceDOFSIT,
-		})
+			{
+				Model:    moveTaskOrderFive,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentFifteen,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDOFSIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDOASITOne := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				SITEntryDate: &originSITEntryDateTwo,
-				Status:       models.MTOServiceItemStatusApproved,
+		serviceItemDOASITOne := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate: &originSITEntryDateTwo,
+					Status:       models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderOne,
-			MTOShipment: mtoShipmentOne,
-			ReService:   reServiceDOASIT,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentOne,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDOASIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDOASITTwo = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				Status: models.MTOServiceItemStatusApproved,
+		serviceItemDOASITTwo = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderOne,
-			MTOShipment: mtoShipmentOne,
-			ReService:   reServiceDOASIT,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentOne,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDOASIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDOASITThree := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				SITEntryDate: &originSITEntryDateOne,
-				Status:       models.MTOServiceItemStatusApproved,
+		serviceItemDOASITThree := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate: &originSITEntryDateOne,
+					Status:       models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderOne,
-			MTOShipment: mtoShipmentThree,
-			ReService:   reServiceDOASIT,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentThree,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDOASIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDOASITFour = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				SITDepartureDate: &originSITDepartureDateOne,
-				Status:           models.MTOServiceItemStatusApproved,
+		serviceItemDOASITFour = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITDepartureDate: &originSITDepartureDateOne,
+					Status:           models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderOne,
-			MTOShipment: mtoShipmentThree,
-			ReService:   reServiceDOASIT,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentThree,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDOASIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDOASITFive = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				SITEntryDate: &originSITEntryDateTwo,
-				Status:       models.MTOServiceItemStatusApproved,
+		serviceItemDOASITFive = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate: &originSITEntryDateTwo,
+					Status:       models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderOne,
-			MTOShipment: mtoShipmentFour,
-			ReService:   reServiceDOASIT,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentFour,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDOASIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDOASITSix = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				SITEntryDate: &originSITEntryDateOne,
-				Status:       models.MTOServiceItemStatusApproved,
+		serviceItemDOASITSix = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate: &originSITEntryDateOne,
+					Status:       models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderOne,
-			MTOShipment: mtoShipmentSix,
-			ReService:   reServiceDOASIT,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentSix,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDOASIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDOASITEight := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				SITDepartureDate: &originSITDepartureDateOne,
-				Status:           models.MTOServiceItemStatusApproved,
+		serviceItemDOASITEight := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITDepartureDate: &originSITDepartureDateOne,
+					Status:           models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderOne,
-			MTOShipment: mtoShipmentEight,
-			ReService:   reServiceDOASIT,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentEight,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDOASIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDOASITNine = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				Status: models.MTOServiceItemStatusApproved,
+		serviceItemDOASITNine = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderOne,
-			MTOShipment: mtoShipmentEight,
-			ReService:   reServiceDOASIT,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentEight,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDOASIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDOASITTen := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				Status: models.MTOServiceItemStatusApproved,
+		serviceItemDOASITTen := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderThree,
-			MTOShipment: mtoShipmentThirteen,
-			ReService:   reServiceDOASIT,
-		})
+			{
+				Model:    moveTaskOrderThree,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentThirteen,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDOASIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDOASITEleven = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				SITDepartureDate: &originSITDepartureDateThree,
-				Status:           models.MTOServiceItemStatusApproved,
+		serviceItemDOASITEleven = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITDepartureDate: &originSITDepartureDateThree,
+					Status:           models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderThree,
-			MTOShipment: mtoShipmentThirteen,
-			ReService:   reServiceDOASIT,
-		})
+			{
+				Model:    moveTaskOrderThree,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentThirteen,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDOASIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDOASITTwelve := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				Status: models.MTOServiceItemStatusApproved,
+		serviceItemDOASITTwelve := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderFive,
-			MTOShipment: mtoShipmentFifteen,
-			ReService:   reServiceDOASIT,
-		})
+			{
+				Model:    moveTaskOrderFive,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentFifteen,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDOASIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDOASITThirteen := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				SITDepartureDate: &originSITDepartureDateOne,
-				Status:           models.MTOServiceItemStatusApproved,
+		serviceItemDOASITThirteen := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITDepartureDate: &originSITDepartureDateOne,
+					Status:           models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderFive,
-			MTOShipment: mtoShipmentFifteen,
-			ReService:   reServiceDOASIT,
-		})
+			{
+				Model:    moveTaskOrderFive,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentFifteen,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDOASIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDDFSITOne := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				SITEntryDate: &destinationSITEntryDateOne,
-				Status:       models.MTOServiceItemStatusApproved,
+		serviceItemDDFSITOne := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate: &destinationSITEntryDateOne,
+					Status:       models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderOne,
-			MTOShipment: mtoShipmentTwo,
-			ReService:   reServiceDDFSIT,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentTwo,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDDFSIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDDFSITTwo := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				SITEntryDate: &destinationSITEntryDateOne,
-				Status:       models.MTOServiceItemStatusApproved,
+		serviceItemDDFSITTwo := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate: &destinationSITEntryDateOne,
+					Status:       models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderOne,
-			MTOShipment: mtoShipmentThree,
-			ReService:   reServiceDDFSIT,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentThree,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDDFSIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDDFSITThree := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				SITEntryDate: &destinationSITEntryDateOne,
-				Status:       models.MTOServiceItemStatusApproved,
+		serviceItemDDFSITThree := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate: &destinationSITEntryDateOne,
+					Status:       models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderOne,
-			MTOShipment: mtoShipmentFive,
-			ReService:   reServiceDDFSIT,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentFive,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDDFSIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDDFSITFour := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				SITEntryDate: &destinationSITEntryDateOne,
-				Status:       models.MTOServiceItemStatusApproved,
+		serviceItemDDFSITFour := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate: &destinationSITEntryDateOne,
+					Status:       models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderOne,
-			MTOShipment: mtoShipmentSix,
-			ReService:   reServiceDDFSIT,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentSix,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDDFSIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDDFSITFive = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				Status: models.MTOServiceItemStatusApproved,
+		serviceItemDDFSITFive = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderOne,
-			MTOShipment: mtoShipmentSeven,
-			ReService:   reServiceDDFSIT,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentSeven,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDDFSIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDDFSITSix := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				SITEntryDate: &destinationSITEntryDateOne,
-				Status:       models.MTOServiceItemStatusApproved,
+		serviceItemDDFSITSix := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate: &destinationSITEntryDateOne,
+					Status:       models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderOne,
-			MTOShipment: mtoShipmentNine,
-			ReService:   reServiceDDFSIT,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentNine,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDDFSIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDDFSITSeven = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				SITEntryDate:     &destinationSITEntryDateOne,
-				SITDepartureDate: &destinationSITDepartureDateTwo,
-				Status:           models.MTOServiceItemStatusApproved,
+		serviceItemDDFSITSeven = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate:     &destinationSITEntryDateOne,
+					SITDepartureDate: &destinationSITDepartureDateTwo,
+					Status:           models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderOne,
-			MTOShipment: mtoShipmentTen,
-			ReService:   reServiceDDFSIT,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentTen,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDDFSIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDDFSITEight := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				SITEntryDate: &destinationSITEntryDateOne,
-				Status:       models.MTOServiceItemStatusApproved,
+		serviceItemDDFSITEight := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate: &destinationSITEntryDateOne,
+					Status:       models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderFour,
-			MTOShipment: mtoShipmentFourteen,
-			ReService:   reServiceDDFSIT,
-		})
+			{
+				Model:    moveTaskOrderFour,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentFourteen,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDDFSIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDDFSITNine := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				SITEntryDate: &destinationSITEntryDateOne,
-				Status:       models.MTOServiceItemStatusApproved,
+		serviceItemDDFSITNine := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate: &destinationSITEntryDateOne,
+					Status:       models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderFive,
-			MTOShipment: mtoShipmentSixteen,
-			ReService:   reServiceDDFSIT,
-		})
+			{
+				Model:    moveTaskOrderFive,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentSixteen,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDDFSIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDDASITOne := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				SITEntryDate: &destinationSITEntryDateTwo,
-				Status:       models.MTOServiceItemStatusApproved,
+		serviceItemDDASITOne := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate: &destinationSITEntryDateTwo,
+					Status:       models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderOne,
-			MTOShipment: mtoShipmentTwo,
-			ReService:   reServiceDDASIT,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentTwo,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDDASIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDDASITTwo = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				Status: models.MTOServiceItemStatusApproved,
+		serviceItemDDASITTwo = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderOne,
-			MTOShipment: mtoShipmentTwo,
-			ReService:   reServiceDDASIT,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentTwo,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDDASIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDDASITThree := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				SITEntryDate: &destinationSITEntryDateOne,
-				Status:       models.MTOServiceItemStatusApproved,
+		serviceItemDDASITThree := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate: &destinationSITEntryDateOne,
+					Status:       models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderOne,
-			MTOShipment: mtoShipmentThree,
-			ReService:   reServiceDDASIT,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentThree,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDDASIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDDASITFour = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				Status: models.MTOServiceItemStatusApproved,
+		serviceItemDDASITFour = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderOne,
-			MTOShipment: mtoShipmentThree,
-			ReService:   reServiceDDASIT,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentThree,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDDASIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDDASITFive = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				SITEntryDate: &destinationSITEntryDateTwo,
-				Status:       models.MTOServiceItemStatusApproved,
+		serviceItemDDASITFive = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate: &destinationSITEntryDateTwo,
+					Status:       models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderOne,
-			MTOShipment: mtoShipmentFive,
-			ReService:   reServiceDDASIT,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentFive,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDDASIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDDASITSix = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				SITEntryDate: &destinationSITEntryDateOne,
-				Status:       models.MTOServiceItemStatusApproved,
+		serviceItemDDASITSix = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate: &destinationSITEntryDateOne,
+					Status:       models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderOne,
-			MTOShipment: mtoShipmentSix,
-			ReService:   reServiceDDASIT,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentSix,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDDASIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDDASITEight := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				SITDepartureDate: &destinationSITDepartureDateOne,
-				Status:           models.MTOServiceItemStatusApproved,
+		serviceItemDDASITEight := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITDepartureDate: &destinationSITDepartureDateOne,
+					Status:           models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderOne,
-			MTOShipment: mtoShipmentNine,
-			ReService:   reServiceDDASIT,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentNine,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDDASIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDDASITNine = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				Status: models.MTOServiceItemStatusApproved,
+		serviceItemDDASITNine = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderOne,
-			MTOShipment: mtoShipmentNine,
-			ReService:   reServiceDDASIT,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentNine,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDDASIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDDASITTen = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				Status: models.MTOServiceItemStatusApproved,
+		serviceItemDDASITTen = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderFour,
-			MTOShipment: mtoShipmentFourteen,
-			ReService:   reServiceDDASIT,
-		})
+			{
+				Model:    moveTaskOrderFour,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentFourteen,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDDASIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDDASITEleven := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				Status: models.MTOServiceItemStatusApproved,
+		serviceItemDDASITEleven := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderFive,
-			MTOShipment: mtoShipmentSixteen,
-			ReService:   reServiceDDASIT,
-		})
+			{
+				Model:    moveTaskOrderFive,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentSixteen,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDDASIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		serviceItemDDASITTwelve := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				SITDepartureDate: &destinationSITDepartureDateThree,
-				Status:           models.MTOServiceItemStatusApproved,
+		serviceItemDDASITTwelve := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITDepartureDate: &destinationSITDepartureDateThree,
+					Status:           models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderFive,
-			MTOShipment: mtoShipmentSixteen,
-			ReService:   reServiceDDASIT,
-		})
+			{
+				Model:    moveTaskOrderFive,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentSixteen,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDDASIT,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		cost := unit.Cents(20000)
 
-		paymentRequestOne := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				IsFinal:         true,
-				Status:          models.PaymentRequestStatusPaid,
-				RejectionReason: nil,
-				SequenceNumber:  1,
+		paymentRequestOne := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					IsFinal:         true,
+					Status:          models.PaymentRequestStatusPaid,
+					RejectionReason: nil,
+					SequenceNumber:  1,
+				},
 			},
-			Move: moveTaskOrderOne,
-		})
-		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
-			PaymentServiceItem: models.PaymentServiceItem{
-				PriceCents: &cost,
-				Status:     models.PaymentServiceItemStatusPaid,
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
 			},
-			PaymentRequest: paymentRequestOne,
-			MTOServiceItem: serviceItemDOFSITOne,
-		})
+		}, nil)
+		factory.BuildPaymentServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &cost,
+					Status:     models.PaymentServiceItemStatusPaid,
+				},
+			}, {
+				Model:    paymentRequestOne,
+				LinkOnly: true,
+			}, {
+				Model:    serviceItemDOFSITOne,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
-			PaymentServiceItem: models.PaymentServiceItem{
-				PriceCents: &cost,
-				Status:     models.PaymentServiceItemStatusPaid,
+		factory.BuildPaymentServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &cost,
+					Status:     models.PaymentServiceItemStatusPaid,
+				},
+			}, {
+				Model:    paymentRequestOne,
+				LinkOnly: true,
+			}, {
+				Model:    serviceItemDOASITOne,
+				LinkOnly: true,
 			},
-			PaymentRequest: paymentRequestOne,
-			MTOServiceItem: serviceItemDOASITOne,
-		})
+		}, nil)
 
-		paymentRequestTwo := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				IsFinal:         true,
-				Status:          models.PaymentRequestStatusPaid,
-				RejectionReason: nil,
-				SequenceNumber:  2,
+		paymentRequestTwo := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					IsFinal:         true,
+					Status:          models.PaymentRequestStatusPaid,
+					RejectionReason: nil,
+					SequenceNumber:  2,
+				},
 			},
-			Move: moveTaskOrderOne,
-		})
-		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
-			PaymentServiceItem: models.PaymentServiceItem{
-				PriceCents: &cost,
-				Status:     models.PaymentServiceItemStatusPaid,
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
 			},
-			PaymentRequest: paymentRequestTwo,
-			MTOServiceItem: serviceItemDDFSITOne,
-		})
+		}, nil)
+		factory.BuildPaymentServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &cost,
+					Status:     models.PaymentServiceItemStatusPaid,
+				},
+			}, {
+				Model:    paymentRequestTwo,
+				LinkOnly: true,
+			}, {
+				Model:    serviceItemDDFSITOne,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
-			PaymentServiceItem: models.PaymentServiceItem{
-				PriceCents: &cost,
-				Status:     models.PaymentServiceItemStatusPaid,
+		factory.BuildPaymentServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &cost,
+					Status:     models.PaymentServiceItemStatusPaid,
+				},
+			}, {
+				Model:    paymentRequestTwo,
+				LinkOnly: true,
+			}, {
+				Model:    serviceItemDDASITOne,
+				LinkOnly: true,
 			},
-			PaymentRequest: paymentRequestTwo,
-			MTOServiceItem: serviceItemDDASITOne,
-		})
+		}, nil)
 
-		paymentRequestThree := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				IsFinal:         true,
-				Status:          models.PaymentRequestStatusPaid,
-				RejectionReason: nil,
-				SequenceNumber:  3,
+		paymentRequestThree := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					IsFinal:         true,
+					Status:          models.PaymentRequestStatusPaid,
+					RejectionReason: nil,
+					SequenceNumber:  3,
+				},
 			},
-			Move: moveTaskOrderOne,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		suite.makeAdditionalDaysSITPaymentServiceItem(paymentRequestThree, serviceItemDOFSITTwo, "2021-11-11", "2021-11-20")
 		suite.makeAdditionalDaysSITPaymentServiceItem(paymentRequestThree, serviceItemDOASITThree, "2021-11-11", "2021-11-20")
 		suite.makeAdditionalDaysSITPaymentServiceItem(paymentRequestThree, serviceItemDDFSITTwo, "2021-11-11", "2021-11-20")
 		suite.makeAdditionalDaysSITPaymentServiceItem(paymentRequestThree, serviceItemDDASITThree, "2021-11-11", "2021-11-20")
 
-		paymentRequestFour := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				IsFinal:         true,
-				Status:          models.PaymentRequestStatusPaid,
-				RejectionReason: nil,
-				SequenceNumber:  4,
+		paymentRequestFour := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					IsFinal:         true,
+					Status:          models.PaymentRequestStatusPaid,
+					RejectionReason: nil,
+					SequenceNumber:  4,
+				},
 			},
-			Move: moveTaskOrderOne,
-		})
-		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
-			PaymentServiceItem: models.PaymentServiceItem{
-				PriceCents: &cost,
-				Status:     models.PaymentServiceItemStatusPaid,
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
 			},
-			PaymentRequest: paymentRequestFour,
-			MTOServiceItem: serviceItemDOFSITThree,
-		})
+		}, nil)
+		factory.BuildPaymentServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &cost,
+					Status:     models.PaymentServiceItemStatusPaid,
+				},
+			}, {
+				Model:    paymentRequestFour,
+				LinkOnly: true,
+			}, {
+				Model:    serviceItemDOFSITThree,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		paymentRequestFive := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				IsFinal:         true,
-				Status:          models.PaymentRequestStatusPaid,
-				RejectionReason: nil,
-				SequenceNumber:  5,
+		paymentRequestFive := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					IsFinal:         true,
+					Status:          models.PaymentRequestStatusPaid,
+					RejectionReason: nil,
+					SequenceNumber:  5,
+				},
 			},
-			Move: moveTaskOrderOne,
-		})
-		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
-			PaymentServiceItem: models.PaymentServiceItem{
-				PriceCents: &cost,
-				Status:     models.PaymentServiceItemStatusPaid,
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
 			},
-			PaymentRequest: paymentRequestFive,
-			MTOServiceItem: serviceItemDDFSITThree,
-		})
+		}, nil)
+		factory.BuildPaymentServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &cost,
+					Status:     models.PaymentServiceItemStatusPaid,
+				},
+			}, {
+				Model:    paymentRequestFive,
+				LinkOnly: true,
+			}, {
+				Model:    serviceItemDDFSITThree,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		paymentRequestSix := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				IsFinal:         true,
-				Status:          models.PaymentRequestStatusPaid,
-				RejectionReason: nil,
-				SequenceNumber:  6,
+		paymentRequestSix := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					IsFinal:         true,
+					Status:          models.PaymentRequestStatusPaid,
+					RejectionReason: nil,
+					SequenceNumber:  6,
+				},
 			},
-			Move: moveTaskOrderOne,
-		})
-		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
-			PaymentServiceItem: models.PaymentServiceItem{
-				PriceCents: &cost,
-				Status:     models.PaymentServiceItemStatusPaid,
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
 			},
-			PaymentRequest: paymentRequestSix,
-			MTOServiceItem: serviceItemDOFSITFour,
-		})
+		}, nil)
+		factory.BuildPaymentServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &cost,
+					Status:     models.PaymentServiceItemStatusPaid,
+				},
+			}, {
+				Model:    paymentRequestSix,
+				LinkOnly: true,
+			}, {
+				Model:    serviceItemDOFSITFour,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
-			PaymentServiceItem: models.PaymentServiceItem{
-				PriceCents: &cost,
-				Status:     models.PaymentServiceItemStatusPaid,
+		factory.BuildPaymentServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &cost,
+					Status:     models.PaymentServiceItemStatusPaid,
+				},
+			}, {
+				Model:    paymentRequestSix,
+				LinkOnly: true,
+			}, {
+				Model:    serviceItemDDFSITFour,
+				LinkOnly: true,
 			},
-			PaymentRequest: paymentRequestSix,
-			MTOServiceItem: serviceItemDDFSITFour,
-		})
+		}, nil)
 
-		paymentRequestSeven = testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				IsFinal:         true,
-				Status:          models.PaymentRequestStatusPaid,
-				RejectionReason: nil,
-				SequenceNumber:  7,
+		paymentRequestSeven = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					IsFinal:         true,
+					Status:          models.PaymentRequestStatusPaid,
+					RejectionReason: nil,
+					SequenceNumber:  7,
+				},
 			},
-			Move: moveTaskOrderOne,
-		})
-		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
-			PaymentServiceItem: models.PaymentServiceItem{
-				PriceCents: &cost,
-				Status:     models.PaymentServiceItemStatusPaid,
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
 			},
-			PaymentRequest: paymentRequestSeven,
-			MTOServiceItem: serviceItemDOFSITFive,
-		})
+		}, nil)
+		factory.BuildPaymentServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &cost,
+					Status:     models.PaymentServiceItemStatusPaid,
+				},
+			}, {
+				Model:    paymentRequestSeven,
+				LinkOnly: true,
+			}, {
+				Model:    serviceItemDOFSITFive,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
-			PaymentServiceItem: models.PaymentServiceItem{
-				PriceCents: &cost,
-				Status:     models.PaymentServiceItemStatusPaid,
+		factory.BuildPaymentServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &cost,
+					Status:     models.PaymentServiceItemStatusPaid,
+				},
+			}, {
+				Model:    paymentRequestSeven,
+				LinkOnly: true,
+			}, {
+				Model:    serviceItemDDFSITFive,
+				LinkOnly: true,
 			},
-			PaymentRequest: paymentRequestSeven,
-			MTOServiceItem: serviceItemDDFSITFive,
-		})
+		}, nil)
 
-		paymentRequestEight := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				IsFinal:         true,
-				Status:          models.PaymentRequestStatusPaid,
-				RejectionReason: nil,
-				SequenceNumber:  8,
+		paymentRequestEight := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					IsFinal:         true,
+					Status:          models.PaymentRequestStatusPaid,
+					RejectionReason: nil,
+					SequenceNumber:  8,
+				},
 			},
-			Move: moveTaskOrderOne,
-		})
-		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
-			PaymentServiceItem: models.PaymentServiceItem{
-				PriceCents: &cost,
-				Status:     models.PaymentServiceItemStatusPaid,
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
 			},
-			PaymentRequest: paymentRequestEight,
-			MTOServiceItem: serviceItemDOFSITSix,
-		})
+		}, nil)
+		factory.BuildPaymentServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &cost,
+					Status:     models.PaymentServiceItemStatusPaid,
+				},
+			}, {
+				Model:    paymentRequestEight,
+				LinkOnly: true,
+			}, {
+				Model:    serviceItemDOFSITSix,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
-			PaymentServiceItem: models.PaymentServiceItem{
-				PriceCents: &cost,
-				Status:     models.PaymentServiceItemStatusPaid,
+		factory.BuildPaymentServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &cost,
+					Status:     models.PaymentServiceItemStatusPaid,
+				},
+			}, {
+				Model:    paymentRequestEight,
+				LinkOnly: true,
+			}, {
+				Model:    serviceItemDOASITEight,
+				LinkOnly: true,
 			},
-			PaymentRequest: paymentRequestEight,
-			MTOServiceItem: serviceItemDOASITEight,
-		})
+		}, nil)
 
-		paymentRequestNine := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				IsFinal:         true,
-				Status:          models.PaymentRequestStatusPaid,
-				RejectionReason: nil,
-				SequenceNumber:  9,
+		paymentRequestNine := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					IsFinal:         true,
+					Status:          models.PaymentRequestStatusPaid,
+					RejectionReason: nil,
+					SequenceNumber:  9,
+				},
 			},
-			Move: moveTaskOrderOne,
-		})
-		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
-			PaymentServiceItem: models.PaymentServiceItem{
-				PriceCents: &cost,
-				Status:     models.PaymentServiceItemStatusPaid,
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
 			},
-			PaymentRequest: paymentRequestNine,
-			MTOServiceItem: serviceItemDDFSITSix,
-		})
+		}, nil)
+		factory.BuildPaymentServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &cost,
+					Status:     models.PaymentServiceItemStatusPaid,
+				},
+			}, {
+				Model:    paymentRequestNine,
+				LinkOnly: true,
+			}, {
+				Model:    serviceItemDDFSITSix,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
-			PaymentServiceItem: models.PaymentServiceItem{
-				PriceCents: &cost,
-				Status:     models.PaymentServiceItemStatusPaid,
+		factory.BuildPaymentServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &cost,
+					Status:     models.PaymentServiceItemStatusPaid,
+				},
+			}, {
+				Model:    paymentRequestNine,
+				LinkOnly: true,
+			}, {
+				Model:    serviceItemDDASITEight,
+				LinkOnly: true,
 			},
-			PaymentRequest: paymentRequestNine,
-			MTOServiceItem: serviceItemDDASITEight,
-		})
+		}, nil)
 
-		paymentRequestTen := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				IsFinal:         true,
-				Status:          models.PaymentRequestStatusPaid,
-				RejectionReason: nil,
-				SequenceNumber:  1,
+		paymentRequestTen := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					IsFinal:         true,
+					Status:          models.PaymentRequestStatusPaid,
+					RejectionReason: nil,
+					SequenceNumber:  1,
+				},
 			},
-			Move: moveTaskOrderThree,
-		})
-		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
-			PaymentServiceItem: models.PaymentServiceItem{
-				PriceCents: &cost,
-				Status:     models.PaymentServiceItemStatusPaid,
+			{
+				Model:    moveTaskOrderThree,
+				LinkOnly: true,
 			},
-			PaymentRequest: paymentRequestTen,
-			MTOServiceItem: serviceItemDOFSITNine,
-		})
+		}, nil)
+		factory.BuildPaymentServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &cost,
+					Status:     models.PaymentServiceItemStatusPaid,
+				},
+			}, {
+				Model:    paymentRequestTen,
+				LinkOnly: true,
+			}, {
+				Model:    serviceItemDOFSITNine,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		suite.makeAdditionalDaysSITPaymentServiceItem(paymentRequestTen, serviceItemDOASITTen, "2021-11-11", "2021-11-20")
 
-		paymentRequestEleven := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				IsFinal:         true,
-				Status:          models.PaymentRequestStatusPaid,
-				RejectionReason: nil,
-				SequenceNumber:  1,
+		paymentRequestEleven := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					IsFinal:         true,
+					Status:          models.PaymentRequestStatusPaid,
+					RejectionReason: nil,
+					SequenceNumber:  1,
+				},
 			},
-			Move: moveTaskOrderFour,
-		})
-		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
-			PaymentServiceItem: models.PaymentServiceItem{
-				PriceCents: &cost,
-				Status:     models.PaymentServiceItemStatusPaid,
+			{
+				Model:    moveTaskOrderFour,
+				LinkOnly: true,
 			},
-			PaymentRequest: paymentRequestEleven,
-			MTOServiceItem: serviceItemDDFSITEight,
-		})
+		}, nil)
+		factory.BuildPaymentServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &cost,
+					Status:     models.PaymentServiceItemStatusPaid,
+				},
+			}, {
+				Model:    paymentRequestEleven,
+				LinkOnly: true,
+			}, {
+				Model:    serviceItemDDFSITEight,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		paymentRequestTwelve := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				IsFinal:         true,
-				Status:          models.PaymentRequestStatusPaid,
-				RejectionReason: nil,
-				SequenceNumber:  1,
+		paymentRequestTwelve := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					IsFinal:         true,
+					Status:          models.PaymentRequestStatusPaid,
+					RejectionReason: nil,
+					SequenceNumber:  1,
+				},
 			},
-			Move: moveTaskOrderFive,
-		})
-		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
-			PaymentServiceItem: models.PaymentServiceItem{
-				PriceCents: &cost,
-				Status:     models.PaymentServiceItemStatusPaid,
+			{
+				Model:    moveTaskOrderFive,
+				LinkOnly: true,
 			},
-			PaymentRequest: paymentRequestTwelve,
-			MTOServiceItem: serviceItemDOFSITTen,
-		})
+		}, nil)
+		factory.BuildPaymentServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &cost,
+					Status:     models.PaymentServiceItemStatusPaid,
+				},
+			}, {
+				Model:    paymentRequestTwelve,
+				LinkOnly: true,
+			}, {
+				Model:    serviceItemDOFSITTen,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		paymentServiceItemParamTwo := []testdatagen.CreatePaymentServiceItemParams{
+		paymentServiceItemParamTwo := []factory.CreatePaymentServiceItemParams{
 			{
 				Key:     models.ServiceItemParamNameNumberDaysSIT,
 				KeyType: models.ServiceItemParamTypeInteger,
 				Value:   "29",
 			},
 		}
-		testdatagen.MakePaymentServiceItemWithParams(
+		factory.BuildPaymentServiceItemWithParams(
 			suite.DB(),
 			serviceItemDOASITTwelve.ReService.Code,
 			paymentServiceItemParamTwo,
-			testdatagen.Assertions{
-				PaymentServiceItem: models.PaymentServiceItem{
-					PriceCents: &cost,
-					Status:     models.PaymentServiceItemStatusPaid,
+			[]factory.Customization{
+				{
+					Model: models.PaymentServiceItem{
+						PriceCents: &cost,
+						Status:     models.PaymentServiceItemStatusPaid,
+					},
 				},
-				PaymentRequest: paymentRequestTwelve,
-				MTOServiceItem: serviceItemDOASITTwelve,
-			})
+				{
+					Model:    paymentRequestTwelve,
+					LinkOnly: true,
+				},
+				{
+					Model:    serviceItemDOASITTwelve,
+					LinkOnly: true,
+				},
+			}, nil)
 
-		paymentServiceItemParamThree := []testdatagen.CreatePaymentServiceItemParams{
+		paymentServiceItemParamThree := []factory.CreatePaymentServiceItemParams{
 			{
 				Key:     models.ServiceItemParamNameNumberDaysSIT,
 				KeyType: models.ServiceItemParamTypeInteger,
 				Value:   "32",
 			},
 		}
-		testdatagen.MakePaymentServiceItemWithParams(
+		factory.BuildPaymentServiceItemWithParams(
 			suite.DB(),
 			serviceItemDOASITThirteen.ReService.Code,
 			paymentServiceItemParamThree,
-			testdatagen.Assertions{
-				PaymentServiceItem: models.PaymentServiceItem{
+			[]factory.Customization{
+				{
+					Model: models.PaymentServiceItem{
+						PriceCents: &cost,
+						Status:     models.PaymentServiceItemStatusPaid,
+					},
+				},
+				{
+					Model:    paymentRequestTwelve,
+					LinkOnly: true,
+				},
+				{
+					Model:    serviceItemDOASITThirteen,
+					LinkOnly: true,
+				},
+			}, nil)
+
+		paymentRequestThirteen := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					IsFinal:         true,
+					Status:          models.PaymentRequestStatusPaid,
+					RejectionReason: nil,
+					SequenceNumber:  2,
+				},
+			},
+			{
+				Model:    moveTaskOrderFive,
+				LinkOnly: true,
+			},
+		}, nil)
+		factory.BuildPaymentServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
 					PriceCents: &cost,
 					Status:     models.PaymentServiceItemStatusPaid,
 				},
-				PaymentRequest: paymentRequestTwelve,
-				MTOServiceItem: serviceItemDOASITThirteen,
-			})
+			}, {
+				Model:    paymentRequestThirteen,
+				LinkOnly: true,
+			}, {
+				Model:    serviceItemDDFSITNine,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		paymentRequestThirteen := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				IsFinal:         true,
-				Status:          models.PaymentRequestStatusPaid,
-				RejectionReason: nil,
-				SequenceNumber:  2,
+		paymentRequestFourteen := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					IsFinal:         true,
+					Status:          models.PaymentRequestStatusReviewedAllRejected,
+					RejectionReason: nil,
+					SequenceNumber:  3,
+				},
 			},
-			Move: moveTaskOrderFive,
-		})
-		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
-			PaymentServiceItem: models.PaymentServiceItem{
-				PriceCents: &cost,
-				Status:     models.PaymentServiceItemStatusPaid,
+			{
+				Model:    moveTaskOrderFive,
+				LinkOnly: true,
 			},
-			PaymentRequest: paymentRequestThirteen,
-			MTOServiceItem: serviceItemDDFSITNine,
-		})
-
-		paymentRequestFourteen := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				IsFinal:         true,
-				Status:          models.PaymentRequestStatusReviewedAllRejected,
-				RejectionReason: nil,
-				SequenceNumber:  3,
-			},
-			Move: moveTaskOrderFive,
-		})
-		paymentServiceItemParamFour := []testdatagen.CreatePaymentServiceItemParams{
+		}, nil)
+		paymentServiceItemParamFour := []factory.CreatePaymentServiceItemParams{
 			{
 				Key:     models.ServiceItemParamNameNumberDaysSIT,
 				KeyType: models.ServiceItemParamTypeInteger,
 				Value:   "27",
 			},
 		}
-		testdatagen.MakePaymentServiceItemWithParams(
+		factory.BuildPaymentServiceItemWithParams(
 			suite.DB(),
 			serviceItemDDASITEleven.ReService.Code,
 			paymentServiceItemParamFour,
-			testdatagen.Assertions{
-				PaymentServiceItem: models.PaymentServiceItem{
-					PriceCents: &cost,
-					Status:     models.PaymentServiceItemStatusDenied,
+			[]factory.Customization{
+				{
+					Model: models.PaymentServiceItem{
+						PriceCents: &cost,
+						Status:     models.PaymentServiceItemStatusDenied,
+					},
 				},
-				PaymentRequest: paymentRequestFourteen,
-				MTOServiceItem: serviceItemDDASITEleven,
-			})
+				{
+					Model:    paymentRequestFourteen,
+					LinkOnly: true,
+				},
+				{
+					Model:    serviceItemDDASITEleven,
+					LinkOnly: true,
+				},
+			}, nil)
 
-		paymentRequestFifteen = testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				IsFinal:         true,
-				Status:          models.PaymentRequestStatusReviewedAllRejected,
-				RejectionReason: nil,
-				SequenceNumber:  10,
+		paymentRequestFifteen = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					IsFinal:         true,
+					Status:          models.PaymentRequestStatusReviewedAllRejected,
+					RejectionReason: nil,
+					SequenceNumber:  10,
+				},
 			},
-			Move: moveTaskOrderOne,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		suite.makeAdditionalDaysSITPaymentServiceItem(paymentRequestFifteen, serviceItemDOASITTwo, "2021-10-11", "2021-10-20")
 		suite.makeAdditionalDaysSITPaymentServiceItem(paymentRequestFifteen, serviceItemDOASITFour, "2021-10-21", "2021-10-30")
@@ -1052,47 +1819,67 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 		suite.makeAdditionalDaysSITPaymentServiceItem(paymentRequestFifteen, serviceItemDDASITSix, "2021-11-11", "2021-11-20")
 		suite.makeAdditionalDaysSITPaymentServiceItem(paymentRequestFifteen, serviceItemDOASITNine, "2021-11-11", "2021-11-20")
 
-		paymentRequestSixteen = testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				IsFinal:         true,
-				Status:          models.PaymentRequestStatusReviewedAllRejected,
-				RejectionReason: nil,
-				SequenceNumber:  1,
+		paymentRequestSixteen = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					IsFinal:         true,
+					Status:          models.PaymentRequestStatusReviewedAllRejected,
+					RejectionReason: nil,
+					SequenceNumber:  1,
+				},
 			},
-			Move: moveTaskOrderTwo,
-		})
+			{
+				Model:    moveTaskOrderTwo,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		paymentRequestSeventeen = testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				IsFinal:         true,
-				Status:          models.PaymentRequestStatusReviewedAllRejected,
-				RejectionReason: nil,
-				SequenceNumber:  2,
+		paymentRequestSeventeen = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					IsFinal:         true,
+					Status:          models.PaymentRequestStatusReviewedAllRejected,
+					RejectionReason: nil,
+					SequenceNumber:  2,
+				},
 			},
-			Move: moveTaskOrderThree,
-		})
+			{
+				Model:    moveTaskOrderThree,
+				LinkOnly: true,
+			},
+		}, nil)
 		suite.makeAdditionalDaysSITPaymentServiceItem(paymentRequestSeventeen, serviceItemDOASITEleven, "2021-11-21", "2021-11-30")
 
-		paymentRequestEighteen = testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				IsFinal:         true,
-				Status:          models.PaymentRequestStatusReviewedAllRejected,
-				RejectionReason: nil,
-				SequenceNumber:  2,
+		paymentRequestEighteen = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					IsFinal:         true,
+					Status:          models.PaymentRequestStatusReviewedAllRejected,
+					RejectionReason: nil,
+					SequenceNumber:  2,
+				},
 			},
-			Move: moveTaskOrderFour,
-		})
+			{
+				Model:    moveTaskOrderFour,
+				LinkOnly: true,
+			},
+		}, nil)
 		suite.makeAdditionalDaysSITPaymentServiceItem(paymentRequestEighteen, serviceItemDDASITTen, "2021-11-11", "2021-11-20")
 
-		paymentRequestNineteen := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				IsFinal:         true,
-				Status:          models.PaymentRequestStatusReviewedAllRejected,
-				RejectionReason: nil,
-				SequenceNumber:  4,
+		paymentRequestNineteen := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					IsFinal:         true,
+					Status:          models.PaymentRequestStatusReviewedAllRejected,
+					RejectionReason: nil,
+					SequenceNumber:  4,
+				},
 			},
-			Move: moveTaskOrderFive,
-		})
+			{
+				Model:    moveTaskOrderFive,
+				LinkOnly: true,
+			},
+		}, nil)
 		suite.makeAdditionalDaysSITPaymentServiceItem(paymentRequestNineteen, serviceItemDDASITTwelve, "2021-11-11", "2021-11-20")
 	}
 
@@ -1194,15 +1981,26 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 		suite.Contains(err.Error(), "does not have an Origin MTO Service Item with a SIT Entry Date")
 
 		// Now test that it succeeds after we add a service item with entry date
-		serviceItemDOASITSeven := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				SITEntryDate: &originSITEntryDateOne,
-				Status:       models.MTOServiceItemStatusApproved,
+		serviceItemDOASITSeven := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate: &originSITEntryDateOne,
+					Status:       models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderOne,
-			MTOShipment: mtoShipmentSeven,
-			ReService:   reServiceDOASIT,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentSeven,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDOASIT,
+				LinkOnly: true,
+			},
+		}, nil)
 		suite.makeAdditionalDaysSITPaymentServiceItem(paymentRequestFifteen, serviceItemDOASITSeven, "2021-11-21", "2021-11-30")
 
 		paramLookup, err = ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, serviceItemDOASITSeven, paymentRequestFifteen.ID, moveTaskOrderOne.ID, nil)
@@ -1222,15 +2020,26 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 		suite.Error(err)
 		suite.Contains(err.Error(), "does not have a Destination MTO Service Item with a SIT Entry Date")
 
-		serviceItemDDASITSeven := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOServiceItem: models.MTOServiceItem{
-				SITEntryDate: &destinationSITEntryDateOne,
-				Status:       models.MTOServiceItemStatusApproved,
+		serviceItemDDASITSeven := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate: &destinationSITEntryDateOne,
+					Status:       models.MTOServiceItemStatusApproved,
+				},
 			},
-			Move:        moveTaskOrderOne,
-			MTOShipment: mtoShipmentSeven,
-			ReService:   reServiceDDASIT,
-		})
+			{
+				Model:    moveTaskOrderOne,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentSeven,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceDDASIT,
+				LinkOnly: true,
+			},
+		}, nil)
 		suite.makeAdditionalDaysSITPaymentServiceItem(paymentRequestSeven, serviceItemDDASITSeven, "2021-12-01", "2021-12-10")
 
 		paramLookup, err = ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, serviceItemDDASITSeven, paymentRequestSeven.ID, moveTaskOrderOne.ID, nil)
@@ -1354,15 +2163,20 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 		setupTestData()
 
 		move, serviceItemDOASIT, _ := suite.setupMoveWithAddlDaysSITAndPaymentRequest(reServiceDOFSIT, originSITEntryDateOne, reServiceDOASIT, "2020-07-21", "2020-07-30")
-		paymentRequestOverlapping := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				IsFinal:         false,
-				Status:          models.PaymentRequestStatusPending,
-				RejectionReason: nil,
-				SequenceNumber:  2,
+		paymentRequestOverlapping := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					IsFinal:         false,
+					Status:          models.PaymentRequestStatusPending,
+					RejectionReason: nil,
+					SequenceNumber:  2,
+				},
 			},
-			Move: move,
-		})
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 		suite.makeAdditionalDaysSITPaymentServiceItem(paymentRequestOverlapping, serviceItemDOASIT, "2020-07-25", "2020-08-10")
 		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, serviceItemDOASIT, paymentRequestOverlapping.ID, move.ID, nil)
 		suite.FatalNoError(err)
@@ -1375,15 +2189,20 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 
 		move, serviceItemDOASIT, paymentRequest := suite.setupMoveWithAddlDaysSITAndPaymentRequest(reServiceDOFSIT, originSITEntryDateOne, reServiceDOASIT, "2020-07-21", "2020-07-30")
 
-		paymentRequestRejected := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				IsFinal:         false,
-				Status:          models.PaymentRequestStatusReviewedAllRejected,
-				RejectionReason: nil,
-				SequenceNumber:  1 + paymentRequest.SequenceNumber,
+		paymentRequestRejected := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					IsFinal:         false,
+					Status:          models.PaymentRequestStatusReviewedAllRejected,
+					RejectionReason: nil,
+					SequenceNumber:  1 + paymentRequest.SequenceNumber,
+				},
 			},
-			Move: move,
-		})
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 		suite.makeAdditionalDaysSITPaymentServiceItemWithStatus(paymentRequestRejected, serviceItemDOASIT, "2020-07-21", "2020-07-30", models.PaymentServiceItemStatusDenied)
 
 		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, serviceItemDOASIT, paymentRequest.ID, move.ID, nil)
@@ -1411,13 +2230,17 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 		// End date is a year in the future in order to make sure we exceed the allowance.
 		move, serviceItemDOASIT, paymentRequest := suite.setupMoveWithAddlDaysSITAndPaymentRequest(reServiceDOFSIT, originSITEntryDateOne, reServiceDOASIT, "2020-07-21", "2021-07-30")
 
-		approvedDays := 400
-		testdatagen.MakeSITExtension(suite.DB(), testdatagen.Assertions{
-			MTOShipment: serviceItemDOASIT.MTOShipment,
-			SITExtension: models.SITExtension{
-				ApprovedDays: &approvedDays,
+		factory.BuildSITDurationUpdate(suite.DB(), []factory.Customization{
+			{
+				Model:    serviceItemDOASIT.MTOShipment,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.SITDurationUpdate{
+					ApprovedDays: models.IntPointer(400),
+				},
+			},
+		}, []factory.Trait{factory.GetTraitApprovedSITDurationUpdate})
 
 		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, serviceItemDOASIT, paymentRequest.ID, move.ID, nil)
 		suite.FatalNoError(err)
@@ -1448,15 +2271,20 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 			reServiceDOASIT,
 			"2020-07-21", "2020-07-30")
 
-		paymentRequestOverlapping := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				IsFinal:         false,
-				Status:          models.PaymentRequestStatusPending,
-				RejectionReason: nil,
-				SequenceNumber:  2,
+		paymentRequestOverlapping := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					IsFinal:         false,
+					Status:          models.PaymentRequestStatusPending,
+					RejectionReason: nil,
+					SequenceNumber:  2,
+				},
 			},
-			Move: move,
-		})
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 		// Previously billed DOASIT ends on 2020-07-30. This one starts on that same date, so the lookup should fail.
 		suite.makeAdditionalDaysSITPaymentServiceItem(
 			paymentRequestOverlapping,
@@ -1473,7 +2301,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 
 func (suite *ServiceParamValueLookupsSuite) makeAdditionalDaysSITPaymentServiceItemWithStatus(paymentRequest models.PaymentRequest, serviceItem models.MTOServiceItem, startDate string, endDate string, status models.PaymentServiceItemStatus) {
 	cost := unit.Cents(20000)
-	paymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
+	paymentServiceItemParams := []factory.CreatePaymentServiceItemParams{
 		{
 			Key:     models.ServiceItemParamNameSITPaymentRequestStart,
 			KeyType: models.ServiceItemParamTypeDate,
@@ -1485,18 +2313,26 @@ func (suite *ServiceParamValueLookupsSuite) makeAdditionalDaysSITPaymentServiceI
 			Value:   endDate,
 		},
 	}
-	testdatagen.MakePaymentServiceItemWithParams(
+	factory.BuildPaymentServiceItemWithParams(
 		suite.DB(),
 		serviceItem.ReService.Code,
 		paymentServiceItemParams,
-		testdatagen.Assertions{
-			PaymentServiceItem: models.PaymentServiceItem{
-				PriceCents: &cost,
-				Status:     status,
+		[]factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &cost,
+					Status:     status,
+				},
 			},
-			PaymentRequest: paymentRequest,
-			MTOServiceItem: serviceItem,
-		})
+			{
+				Model:    paymentRequest,
+				LinkOnly: true,
+			},
+			{
+				Model:    serviceItem,
+				LinkOnly: true,
+			},
+		}, nil)
 }
 
 func (suite *ServiceParamValueLookupsSuite) makeAdditionalDaysSITPaymentServiceItem(paymentRequest models.PaymentRequest, serviceItem models.MTOServiceItem, startDate string, endDate string) {
@@ -1507,54 +2343,92 @@ func (suite *ServiceParamValueLookupsSuite) makeAdditionalDaysSITPaymentServiceI
 // SIT service item, and a payment request for that service item.
 func (suite *ServiceParamValueLookupsSuite) setupMoveWithAddlDaysSITAndPaymentRequest(sitFirstDayReService models.ReService, sitEntryDate time.Time, sitAdditionalDaysReService models.ReService, sitAdditionalDaysStartDate string, sitAdditionalDaysEndDate string) (models.Move, models.MTOServiceItem, models.PaymentRequest) {
 	defaultSITDaysAllowance := 90
-	move := testdatagen.MakeDefaultMove(suite.DB())
-	shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			Status:           models.MTOShipmentStatusSubmitted,
-			SITDaysAllowance: &defaultSITDaysAllowance,
+	move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+	shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				Status:           models.MTOShipmentStatusSubmitted,
+				SITDaysAllowance: &defaultSITDaysAllowance,
+			},
+		},
+	}, nil)
 	move.MTOShipments = models.MTOShipments{
 		shipment,
 	}
-	serviceItemFirstDaySIT := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			SITEntryDate: &sitEntryDate,
-			Status:       models.MTOServiceItemStatusApproved,
+	serviceItemFirstDaySIT := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				SITEntryDate: &sitEntryDate,
+				Status:       models.MTOServiceItemStatusApproved,
+			},
 		},
-		Move:        move,
-		MTOShipment: shipment,
-		ReService:   sitFirstDayReService,
-	})
-	serviceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			SITEntryDate: &sitEntryDate,
-			Status:       models.MTOServiceItemStatusApproved,
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-		Move:        move,
-		MTOShipment: shipment,
-		ReService:   sitAdditionalDaysReService,
-	})
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    sitFirstDayReService,
+			LinkOnly: true,
+		},
+	}, nil)
+	serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				SITEntryDate: &sitEntryDate,
+				Status:       models.MTOServiceItemStatusApproved,
+			},
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    sitAdditionalDaysReService,
+			LinkOnly: true,
+		},
+	}, nil)
 
-	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-		PaymentRequest: models.PaymentRequest{
-			IsFinal:         false,
-			Status:          models.PaymentRequestStatusPaid,
-			RejectionReason: nil,
-			SequenceNumber:  1,
+	paymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+		{
+			Model: models.PaymentRequest{
+				IsFinal:         false,
+				Status:          models.PaymentRequestStatusPaid,
+				RejectionReason: nil,
+				SequenceNumber:  1,
+			},
 		},
-		Move: move,
-	})
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 	cost := unit.Cents(20000)
-	testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
-		PaymentServiceItem: models.PaymentServiceItem{
-			PriceCents: &cost,
-			Status:     models.PaymentServiceItemStatusPaid,
+	factory.BuildPaymentServiceItem(suite.DB(), []factory.Customization{
+		{
+			Model: models.PaymentServiceItem{
+				PriceCents: &cost,
+				Status:     models.PaymentServiceItemStatusPaid,
+			},
+		}, {
+			Model:    paymentRequest,
+			LinkOnly: true,
+		}, {
+			Model:    serviceItemFirstDaySIT,
+			LinkOnly: true,
 		},
-		PaymentRequest: paymentRequest,
-		MTOServiceItem: serviceItemFirstDaySIT,
-	})
+	}, nil)
 	suite.makeAdditionalDaysSITPaymentServiceItem(paymentRequest, serviceItem, sitAdditionalDaysStartDate, sitAdditionalDaysEndDate)
 	return move, serviceItem, paymentRequest
 }

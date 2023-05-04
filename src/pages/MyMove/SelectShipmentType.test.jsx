@@ -125,17 +125,14 @@ describe('SelectShipmentType', () => {
   describe('when some shipments already exist', () => {
     it('should render the correct value in the eyebrow for shipment number with 1 existing shipment', () => {
       const props = {
-        mtoShipments: [{ selectedMoveType: SHIPMENT_OPTIONS.HHG, id: '2' }],
+        mtoShipments: [{ id: '2' }],
       };
       const wrapper = mount(<SelectShipmentType {...defaultProps} {...props} />);
       expect(wrapper.find('[data-testid="number-eyebrow"]').text()).toContain('Shipment 2');
     });
     it('should render the correct value in the eyebrow for shipment number with 2 existing shipment', () => {
       const props = {
-        mtoShipments: [
-          { selectedMoveType: SHIPMENT_OPTIONS.HHG, id: '6' },
-          { selectedMoveType: SHIPMENT_OPTIONS.NTS, id: '9' },
-        ],
+        mtoShipments: [{ id: '6' }, { id: '9' }],
       };
       const wrapper = mount(<SelectShipmentType {...defaultProps} {...props} />);
       expect(wrapper.find('[data-testid="number-eyebrow"]').text()).toContain('Shipment 3');
@@ -143,7 +140,7 @@ describe('SelectShipmentType', () => {
     it('should render the correct value in the shipment number with existing HHG and PPM', () => {
       const props = {
         move: { personally_procured_moves: [{ id: '1' }] },
-        mtoShipments: [{ selectedMoveType: SHIPMENT_OPTIONS.HHG, id: '2' }],
+        mtoShipments: [{ id: '2' }],
       };
       const wrapper = mount(<SelectShipmentType {...defaultProps} {...props} />);
       expect(wrapper.find('[data-testid="number-eyebrow"]').text()).toContain('Shipment 3');

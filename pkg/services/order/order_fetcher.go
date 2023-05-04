@@ -6,7 +6,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
 
@@ -16,6 +15,10 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
+
+// Since timestamps in a postgres DB are stored with at the microsecond precision, we want to ensure that we are checking all timestamps up until that point to prevent moves from not showing up
+// If we only checked values to the second mark, moves towards the end of the day (post 23:59:59 but before 00:00:00) would be lost and not properly show up in the associated filter
+const RFC3339Micro = "2006-01-02T15:04:05.999999Z07:00"
 
 type orderFetcher struct {
 }
@@ -66,7 +69,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	// var gblocQuery QueryOption
 	var gblocToFilterBy *string
 	if officeUserGbloc == "USMC" && !needsCounseling {
-		branchQuery = branchFilter(swag.String(string(models.AffiliationMARINES)), needsCounseling, ppmCloseoutGblocs)
+		branchQuery = branchFilter(models.StringPointer(string(models.AffiliationMARINES)), needsCounseling, ppmCloseoutGblocs)
 		gblocToFilterBy = params.OriginGBLOC
 	} else {
 		gblocToFilterBy = &officeUserGbloc
@@ -97,13 +100,14 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	destinationDutyLocationQuery := destinationDutyLocationFilter(params.DestinationDutyLocation)
 	moveStatusQuery := moveStatusFilter(params.Status)
 	submittedAtQuery := submittedAtFilter(params.SubmittedAt)
+	appearedInTOOAtQuery := appearedInTOOAtFilter(params.AppearedInTOOAt)
 	requestedMoveDateQuery := requestedMoveDateFilter(params.RequestedMoveDate)
 	closeoutInitiatedQuery := closeoutInitiatedFilter(params.CloseoutInitiated)
 	closeoutLocationQuery := closeoutLocationFilter(params.CloseoutLocation, ppmCloseoutGblocs)
 	ppmTypeQuery := ppmTypeFilter(params.PPMType)
 	sortOrderQuery := sortOrder(params.Sort, params.Order, ppmCloseoutGblocs)
 	// Adding to an array so we can iterate over them and apply the filters after the query structure is set below
-	options := [14]QueryOption{branchQuery, locatorQuery, dodIDQuery, lastNameQuery, originDutyLocationQuery, destinationDutyLocationQuery, moveStatusQuery, gblocQuery, submittedAtQuery, requestedMoveDateQuery, ppmTypeQuery, closeoutInitiatedQuery, closeoutLocationQuery, sortOrderQuery}
+	options := [15]QueryOption{branchQuery, locatorQuery, dodIDQuery, lastNameQuery, originDutyLocationQuery, destinationDutyLocationQuery, moveStatusQuery, gblocQuery, submittedAtQuery, appearedInTOOAtQuery, requestedMoveDateQuery, ppmTypeQuery, closeoutInitiatedQuery, closeoutLocationQuery, sortOrderQuery}
 
 	var query *pop.Query
 	if ppmCloseoutGblocs {
@@ -119,7 +123,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 			InnerJoin("ppm_shipments", "ppm_shipments.shipment_id = mto_shipments.id").
 			InnerJoin("duty_locations as origin_dl", "orders.origin_duty_location_id = origin_dl.id").
 			LeftJoin("duty_locations as dest_dl", "dest_dl.id = orders.new_duty_location_id").
-			Where("show = ?", swag.Bool(true))
+			Where("show = ?", models.BoolPointer(true))
 	} else {
 		query = appCtx.DB().Q().Scope(utilities.ExcludeDeletedScope(models.MTOShipment{})).EagerPreload(
 			"Orders.ServiceMember",
@@ -143,8 +147,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 			// and we don't want it to get hidden from services counselors.
 			LeftJoin("move_to_gbloc", "move_to_gbloc.move_id = moves.id").
 			LeftJoin("duty_locations as dest_dl", "dest_dl.id = orders.new_duty_location_id").
-			Where("show = ?", swag.Bool(true)).
-			Where("moves.selected_move_type NOT IN (?)", models.SelectedMoveTypeUB, models.SelectedMoveTypePOV)
+			Where("show = ?", models.BoolPointer(true))
 		if params.NeedsPPMCloseout != nil {
 			if *params.NeedsPPMCloseout {
 				query.InnerJoin("ppm_shipments", "ppm_shipments.shipment_id = mto_shipments.id").
@@ -169,10 +172,10 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 
 	// Pass zeros into paginate in this case. Which will give us 1 page and 20 per page respectively
 	if params.Page == nil {
-		params.Page = swag.Int64(0)
+		params.Page = models.Int64Pointer(0)
 	}
 	if params.PerPage == nil {
-		params.PerPage = swag.Int64(0)
+		params.PerPage = models.Int64Pointer(0)
 	}
 
 	var groupByColumms []string
@@ -369,6 +372,19 @@ func submittedAtFilter(submittedAt *time.Time) QueryOption {
 		}
 	}
 }
+
+func appearedInTOOAtFilter(appearedInTOOAt *time.Time) QueryOption {
+	return func(query *pop.Query) {
+		if appearedInTOOAt != nil {
+			start := appearedInTOOAt.Format(RFC3339Micro)
+			// Between is inclusive, so the end date is set to 1 microsecond prior to the next day
+			appearedInTOOAtEnd := appearedInTOOAt.AddDate(0, 0, 1).Add(-1 * time.Microsecond)
+			end := appearedInTOOAtEnd.Format(RFC3339Micro)
+			query.Where("(moves.submitted_at between ? AND ? OR moves.service_counseling_completed_at between ? AND ? OR moves.approvals_requested_at between ? AND ?)", start, end, start, end, start, end)
+		}
+	}
+}
+
 func requestedMoveDateFilter(requestedMoveDate *string) QueryOption {
 	return func(query *pop.Query) {
 		if requestedMoveDate != nil {
@@ -380,9 +396,9 @@ func requestedMoveDateFilter(requestedMoveDate *string) QueryOption {
 func closeoutInitiatedFilter(closeoutInitiated *time.Time) QueryOption {
 	return func(query *pop.Query) {
 		if closeoutInitiated != nil {
-			// Between is inclusive, so the end date is set to 1 milsecond prior to the next day
-			closeoutInitiatedEnd := closeoutInitiated.AddDate(0, 0, 1).Add(-1 * time.Millisecond)
-			query.Having("MAX(ppm_shipments.submitted_at) between ? and ?", closeoutInitiated.Format(time.RFC3339), closeoutInitiatedEnd.Format(time.RFC3339))
+			// Between is inclusive, so the end date is set to 1 microsecond prior to the next day
+			closeoutInitiatedEnd := closeoutInitiated.AddDate(0, 0, 1).Add(-1 * time.Microsecond)
+			query.Having("MAX(ppm_shipments.submitted_at) between ? and ?", closeoutInitiated.Format(RFC3339Micro), closeoutInitiatedEnd.Format(RFC3339Micro))
 		}
 	}
 }
@@ -465,6 +481,7 @@ func sortOrder(sort *string, order *string, ppmCloseoutGblocs bool) QueryOption 
 		"locator":                 "moves.locator",
 		"status":                  "moves.status",
 		"submittedAt":             "moves.submitted_at",
+		"appearedInTooAt":         "GREATEST(moves.submitted_at, moves.service_counseling_completed_at, moves.approvals_requested_at)",
 		"originDutyLocation":      "origin_dl.name",
 		"destinationDutyLocation": "dest_dl.name",
 		"requestedMoveDate":       "LEAST(COALESCE(MIN(mto_shipments.requested_pickup_date), 'infinity'), COALESCE(MIN(ppm_shipments.expected_departure_date), 'infinity'), COALESCE(MIN(mto_shipments.requested_delivery_date), 'infinity'))",

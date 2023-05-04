@@ -31,12 +31,14 @@ jest.mock('react-router-dom', () => ({
 const mockPatchWeightTicket = jest.fn();
 const mockPatchProGear = jest.fn();
 const mockPatchExpense = jest.fn();
+const mockPatchPPMDocumentsSetStatus = jest.fn();
 
 jest.mock('services/ghcApi', () => ({
   ...jest.requireActual('services/ghcApi'),
   patchWeightTicket: (options) => mockPatchWeightTicket(options),
   patchProGearWeightTicket: (options) => mockPatchProGear(options),
   patchExpense: (options) => mockPatchExpense(options),
+  patchPPMDocumentsSetStatus: (options) => mockPatchPPMDocumentsSetStatus(options),
 }));
 
 // prevents react-fileviewer from throwing errors without mocking relevant DOM elements
@@ -54,14 +56,33 @@ const mtoShipment = createPPMShipmentWithFinalIncentive({
   ppmShipment: { status: ppmShipmentStatuses.NEEDS_PAYMENT_APPROVAL },
 });
 
+const weightTicketEmptyDocumentCreatedDate = new Date();
 // The factory used above doesn't handle overrides for uploads correctly, so we need to do it manually.
-const weightTicketEmptyDocumentUpload = createUpload({ fileName: 'emptyWeightTicket.pdf' });
+const weightTicketEmptyDocumentUpload = createUpload({
+  fileName: 'emptyWeightTicket.pdf',
+  createdAtDate: weightTicketEmptyDocumentCreatedDate,
+});
+
+const weightTicketFullDocumentCreatedDate = new Date(weightTicketEmptyDocumentCreatedDate);
+weightTicketFullDocumentCreatedDate.setDate(weightTicketFullDocumentCreatedDate.getDate() + 1);
 const weightTicketFullDocumentUpload = createUpload(
-  { fileName: 'fullWeightTicket.xls' },
+  { fileName: 'fullWeightTicket.xls', createdAtDate: weightTicketFullDocumentCreatedDate },
   { contentType: 'application/vnd.ms-excel' },
 );
-const progearWeightTicketDocumentUpload = createUpload({ fileName: 'progearWeightTicket.pdf' });
-const movingExpenseDocumentUpload = createUpload({ fileName: 'movingExpense.jpg' }, { contentType: 'image/jpeg' });
+
+const progearWeightTicketDocumentCreatedDate = new Date(weightTicketFullDocumentCreatedDate);
+progearWeightTicketDocumentCreatedDate.setDate(progearWeightTicketDocumentCreatedDate.getDate() + 1);
+const progearWeightTicketDocumentUpload = createUpload({
+  fileName: 'progearWeightTicket.pdf',
+  createdAtDate: progearWeightTicketDocumentCreatedDate,
+});
+
+const movingExpenseDocumentCreatedDate = new Date(progearWeightTicketDocumentCreatedDate);
+movingExpenseDocumentCreatedDate.setDate(movingExpenseDocumentCreatedDate.getDate() + 1);
+const movingExpenseDocumentUpload = createUpload(
+  { fileName: 'movingExpense.jpg', createdAtDate: movingExpenseDocumentCreatedDate },
+  { contentType: 'image/jpeg' },
+);
 
 mtoShipment.ppmShipment.weightTickets[0].emptyDocument.uploads = [weightTicketEmptyDocumentUpload];
 mtoShipment.ppmShipment.weightTickets[0].fullDocument.uploads = [weightTicketFullDocumentUpload];
@@ -245,6 +266,11 @@ describe('ReviewDocuments', () => {
       expect(await screen.findByRole('heading', { name: 'Send to customer?', level: 3 })).toBeInTheDocument();
 
       await userEvent.click(screen.getByRole('button', { name: 'Confirm' }));
+      const confirmPayload = {
+        ppmShipmentId: mtoShipmentWithOneWeightTicket.ppmShipment.id,
+        eTag: mtoShipmentWithOneWeightTicket.ppmShipment.eTag,
+      };
+      expect(mockPatchPPMDocumentsSetStatus).toHaveBeenCalledWith(confirmPayload);
       expect(mockNavigate).toHaveBeenCalled();
     });
 
@@ -382,6 +408,71 @@ describe('ReviewDocuments', () => {
       expect(screen.getByRole('heading', { level: 2, name: '1 of 3 Document Sets' })).toBeInTheDocument();
     });
 
+    it('shows uploads for all documents on the summary page', async () => {
+      usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueAllDocs);
+      useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
+
+      renderWithProviders(<ReviewDocuments />, mockRoutingOptions);
+
+      expect(await screen.findByRole('heading', { name: 'Trip 1', level: 3 })).toBeInTheDocument();
+      await userEvent.click(screen.getByLabelText('Accept'));
+      await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
+
+      expect(await screen.findByRole('heading', { name: 'Pro-gear 1', level: 3 })).toBeInTheDocument();
+      await userEvent.click(screen.getByLabelText('Accept'));
+      await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
+
+      expect(await screen.findByRole('heading', { name: 'Receipt 1', level: 3 })).toBeInTheDocument();
+      await userEvent.click(screen.getByLabelText('Accept'));
+      await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
+
+      expect(await screen.findByRole('heading', { name: 'Send to customer?', level: 3 })).toBeInTheDocument();
+
+      const docMenuButton = await screen.findByRole('button', { name: /open menu/i });
+      expect(docMenuButton).toBeInTheDocument();
+
+      // We don't really have a great way to grab the list of uploads so we'll grab the parent element and go from there
+      const docViewer = screen.getByTestId('DocViewerMenu');
+
+      await userEvent.click(docMenuButton);
+
+      expect(docViewer).not.toHaveClass('collapsed');
+
+      const uploadList = within(docViewer).getByRole('list');
+      expect(uploadList).toBeInTheDocument();
+
+      const uploadsButtons = within(uploadList).getAllByRole('listitem');
+      expect(uploadsButtons.length).toBe(4);
+
+      const allUploads = [
+        weightTicketEmptyDocumentUpload,
+        weightTicketFullDocumentUpload,
+        progearWeightTicketDocumentUpload,
+        movingExpenseDocumentUpload,
+      ];
+
+      // we expect uploads to be sorted in descending order by updatedAt
+      allUploads.sort((a, b) => {
+        if (a.updatedAt < b.updatedAt) {
+          return 1;
+        }
+
+        if (a.updatedAt > b.updatedAt) {
+          return -1;
+        }
+
+        return 0;
+      });
+
+      for (let i = 0; i < allUploads.length; i += 1) {
+        // checking for text content because otherwise we'd have to form a regex to use the {name:} option of getByRole
+        // and our linters don't like a regex that is formed using a variable because of the
+        // security/detect-non-literal-regexp rule. Not super important to use it here, so we'll do this instead of
+        // doing the IS3 process.
+        expect(within(uploadsButtons[i]).getByRole('button')).toHaveTextContent(allUploads[i].filename);
+      }
+    });
+
     it('handles moving from weight tickets the summary page when there are multiple types of documents', async () => {
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueAllDocs);
       useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
@@ -402,6 +493,8 @@ describe('ReviewDocuments', () => {
 
       expect(await screen.findByRole('heading', { name: 'Send to customer?', level: 3 })).toBeInTheDocument();
       expect(await screen.getByRole('button', { name: 'Back' })).toBeEnabled();
+
+      expect(screen.getByRole('heading', { level: 2, name: /All Document Sets/ })).toBeInTheDocument();
     });
 
     const usePPMShipmentDocsQueriesReturnValueProGearOnly = {

@@ -6,7 +6,6 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
@@ -331,7 +330,7 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 			Return(&officeUser, nil, nil)
 
 		expectedSessionUpdate := &adminmessages.UserUpdate{
-			RevokeOfficeSession: swag.Bool(true),
+			RevokeOfficeSession: models.BoolPointer(true),
 		}
 		mockRevoker := mocks.UserSessionRevocation{}
 		mockRevoker.

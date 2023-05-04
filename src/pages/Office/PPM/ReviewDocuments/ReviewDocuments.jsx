@@ -109,9 +109,6 @@ export const ReviewDocuments = () => {
 
   const queryClient = useQueryClient();
 
-  if (isLoading) return <LoadingPlaceholder />;
-  if (isError) return <SomethingWentWrong />;
-
   const onClose = () => {
     navigate(generatePath(servicesCounselingRoutes.BASE_MOVE_VIEW_PATH, { moveCode }));
   };
@@ -136,12 +133,18 @@ export const ReviewDocuments = () => {
     }
   };
 
-  const onConfirmSuccess = () => {
-    navigate(generatePath(servicesCounselingRoutes.BASE_MOVE_VIEW_PATH, { moveCode }));
+  const getAllUploads = () => {
+    return documentSets.reduce((acc, documentSet) => {
+      return acc.concat(documentSet.uploads);
+    }, []);
   };
 
   const onError = () => {
     setServerError('There was an error submitting the form. Please try again later.');
+  };
+
+  const onConfirmSuccess = () => {
+    navigate(generatePath(servicesCounselingRoutes.BASE_MOVE_VIEW_PATH, { moveCode }));
   };
 
   const onContinue = () => {
@@ -150,6 +153,9 @@ export const ReviewDocuments = () => {
       formRef.current.handleSubmit();
     }
   };
+
+  if (isLoading) return <LoadingPlaceholder />;
+  if (isError) return <SomethingWentWrong />;
 
   const currentDocumentSet = documentSets[documentSetIndex];
   const disableBackButton = documentSetIndex === 0 && !showOverview;
@@ -164,13 +170,15 @@ export const ReviewDocuments = () => {
   return (
     <div data-testid="ReviewDocuments" className={styles.ReviewDocuments}>
       <div className={styles.embed}>
-        <DocumentViewer files={currentDocumentSet.uploads} allowDownload />
+        <DocumentViewer files={showOverview ? getAllUploads() : currentDocumentSet.uploads} allowDownload />
       </div>
       <DocumentViewerSidebar
         title="Review documents"
         onClose={onClose}
         className={styles.sidebar}
-        supertitle={`${documentSetIndex + 1} of ${documentSets.length} Document Sets`}
+        supertitle={
+          showOverview ? 'All Document Sets' : `${documentSetIndex + 1} of ${documentSets.length} Document Sets`
+        }
         defaultH3
         hyperlink={reviewShipmentWeightsLink}
       >
@@ -189,6 +197,7 @@ export const ReviewDocuments = () => {
               <ReviewDocumentsSidePanel
                 ppmShipment={mtoShipment.ppmShipment}
                 weightTickets={weightTickets}
+                proGearTickets={proGearWeightTickets}
                 expenseTickets={movingExpenses}
                 onError={onError}
                 onSuccess={onConfirmSuccess}

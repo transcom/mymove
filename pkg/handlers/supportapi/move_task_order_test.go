@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/mock"
@@ -25,22 +24,27 @@ import (
 	"github.com/transcom/mymove/pkg/services/query"
 	supportMocks "github.com/transcom/mymove/pkg/services/support/mocks"
 	internalmovetaskorder "github.com/transcom/mymove/pkg/services/support/move_task_order"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *HandlerSuite) TestListMTOsHandler() {
 	// unavailable MTO
-	testdatagen.MakeDefaultMove(suite.DB())
+	factory.BuildMove(suite.DB(), nil, nil)
 
-	moveTaskOrder := testdatagen.MakeAvailableMove(suite.DB())
+	moveTaskOrder := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
-	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: moveTaskOrder,
-	})
+	factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    moveTaskOrder,
+			LinkOnly: true,
+		},
+	}, nil)
 
-	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: moveTaskOrder,
-	})
+	factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    moveTaskOrder,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	request := httptest.NewRequest("GET", "/move-task-orders", nil)
 
@@ -74,8 +78,8 @@ func (suite *HandlerSuite) TestHideNonFakeMoveTaskOrdersHandler() {
 		}
 		var moves models.Moves
 
-		mto1 := testdatagen.MakeDefaultMove(suite.DB())
-		mto2 := testdatagen.MakeDefaultMove(suite.DB())
+		mto1 := factory.BuildMove(suite.DB(), nil, nil)
+		mto2 := factory.BuildMove(suite.DB(), nil, nil)
 		moves = append(moves, mto1, mto2)
 
 		response := handler.Handle(params)
@@ -92,7 +96,7 @@ func (suite *HandlerSuite) TestHideNonFakeMoveTaskOrdersHandler() {
 
 	suite.Run("unsuccessfully hide fake moves", func() {
 		var moves models.Moves
-		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+		move := factory.BuildMove(suite.DB(), nil, nil)
 		moves = append(moves, move)
 		var hiddenMoves services.HiddenMoves
 		for _, m := range moves {
@@ -118,7 +122,7 @@ func (suite *HandlerSuite) TestHideNonFakeMoveTaskOrdersHandler() {
 
 	suite.Run("Do not include mto in payload when it's missing a contractor id", func() {
 		var moves models.Moves
-		mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+		mto := factory.BuildMove(suite.DB(), nil, nil)
 		mto.ContractorID = nil
 		moves = append(moves, mto)
 		var hiddenMoves services.HiddenMoves
@@ -152,11 +156,7 @@ func (suite *HandlerSuite) TestHideNonFakeMoveTaskOrdersHandler() {
 }
 
 func (suite *HandlerSuite) TestMakeMoveAvailableHandlerIntegrationSuccess() {
-	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			Status: models.MoveStatusSUBMITTED,
-		},
-	})
+	move := factory.BuildSubmittedMove(suite.DB(), nil, nil)
 	request := httptest.NewRequest("PATCH", "/move-task-orders/{moveTaskOrderID}/available-to-prime", nil)
 	params := movetaskorderops.MakeMoveTaskOrderAvailableParams{
 		HTTPRequest:     request,
@@ -184,7 +184,7 @@ func (suite *HandlerSuite) TestMakeMoveAvailableHandlerIntegrationSuccess() {
 }
 
 func (suite *HandlerSuite) TestGetMoveTaskOrder() {
-	move := testdatagen.MakeDefaultMove(suite.DB())
+	move := factory.BuildMove(suite.DB(), nil, nil)
 	request := httptest.NewRequest("GET", "/move-task-orders/{moveTaskOrderID}", nil)
 	params := movetaskorderops.GetMoveTaskOrderParams{
 		HTTPRequest:     request,
@@ -231,26 +231,24 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		document := factory.BuildDocument(suite.DB(), nil, nil)
 
 		// Create the mto payload we will be requesting to create
-		issueDate := swag.Time(time.Now())
-		reportByDate := swag.Time(time.Now().AddDate(0, 0, -1))
+		issueDate := models.TimePointer(time.Now())
+		reportByDate := models.TimePointer(time.Now().AddDate(0, 0, -1))
 		ordersTypedetail := supportmessages.OrdersTypeDetailHHGPERMITTED
 		deptIndicator := supportmessages.DeptIndicatorAIRFORCE
-		selectedMoveType := supportmessages.SelectedMoveTypeHHG
 
 		rank := (supportmessages.Rank)("E_6")
 		mtoPayload := &supportmessages.MoveTaskOrder{
-			PpmType:          "FULL",
-			SelectedMoveType: &selectedMoveType,
-			ContractorID:     handlers.FmtUUID(contractor.ID),
+			PpmType:      "FULL",
+			ContractorID: handlers.FmtUUID(contractor.ID),
 			Order: &supportmessages.Order{
 				Rank:                      &rank,
-				OrderNumber:               swag.String("4554"),
+				OrderNumber:               models.StringPointer("4554"),
 				DestinationDutyLocationID: handlers.FmtUUID(destinationDutyLocation.ID),
 				OriginDutyLocationID:      handlers.FmtUUID(originDutyLocation.ID),
 				Entitlement: &supportmessages.Entitlement{
-					DependentsAuthorized: swag.Bool(true),
+					DependentsAuthorized: models.BoolPointer(true),
 					TotalDependents:      5,
-					NonTemporaryStorage:  swag.Bool(false),
+					NonTemporaryStorage:  models.BoolPointer(false),
 				},
 				IssueDate:           handlers.FmtDatePtr(issueDate),
 				ReportByDate:        handlers.FmtDatePtr(reportByDate),
@@ -258,7 +256,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 				OrdersTypeDetail:    &ordersTypedetail,
 				UploadedOrdersID:    handlers.FmtUUID(document.ID),
 				Status:              supportmessages.NewOrdersStatus(supportmessages.OrdersStatusDRAFT),
-				Tac:                 swag.String("E19A"),
+				Tac:                 models.StringPointer("E19A"),
 				DepartmentIndicator: &deptIndicator,
 			},
 		}
@@ -309,8 +307,6 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		suite.Equal(customer.FirstName, responsePayload.Order.Customer.FirstName)
 		// Check that status has defaulted to DRAFT
 		suite.Equal(models.MoveStatusDRAFT, (models.MoveStatus)(responsePayload.Status))
-		// Check that SelectedMoveType was set
-		suite.Equal(string(models.SelectedMoveTypeHHG), string(*responsePayload.SelectedMoveType))
 	})
 
 	suite.Run("Successful integration test with createMoveTaskOrder", func() {
@@ -427,9 +423,9 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		newCustomerFirstName := "Grace"
 		mtoPayload.Order.Customer = &supportmessages.Customer{
 			FirstName: &newCustomerFirstName,
-			LastName:  swag.String("Griffin"),
-			Agency:    swag.String("Marines"),
-			DodID:     swag.String("1209457894"),
+			LastName:  models.StringPointer("Griffin"),
+			Agency:    models.StringPointer("Marines"),
+			DodID:     models.StringPointer("1209457894"),
 			Rank:      supportmessages.NewRank("ACADEMY_CADET"),
 		}
 		mtoPayload.Order.CustomerID = nil
