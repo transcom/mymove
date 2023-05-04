@@ -177,7 +177,7 @@ const ReviewSITExtensionsModal = ({ onClose, onSubmit, sitExtension, shipment, s
   const initialValues = {
     acceptExtension: '',
     daysApproved: String(shipment.sitDaysAllowance),
-    requestReason: '',
+    requestReason: sitExtension.requestReason,
     officeRemarks: '',
     sitEndDate: moment()
       .add(sitStatus.totalDaysRemaining - 1, 'days')
