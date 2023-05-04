@@ -177,7 +177,6 @@ const MoveAllowances = () => {
                     entitlements={order.entitlement}
                     rankOptions={rankDropdownOptions}
                     branchOptions={branchDropdownOption}
-                    editableAuthorizedWeight
                   />
                 </Restricted>
               </div>
