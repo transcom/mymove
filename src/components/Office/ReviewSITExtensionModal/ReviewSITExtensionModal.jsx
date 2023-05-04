@@ -175,7 +175,7 @@ const SitStatusTables = ({ sitStatus, sitExtension, shipment }) => {
 
 const ReviewSITExtensionsModal = ({ onClose, onSubmit, sitExtension, shipment, sitStatus }) => {
   const initialValues = {
-    acceptExtension: 'yes',
+    acceptExtension: '',
     daysApproved: String(shipment.sitDaysAllowance),
     requestReason: '',
     officeRemarks: '',
@@ -183,14 +183,17 @@ const ReviewSITExtensionsModal = ({ onClose, onSubmit, sitExtension, shipment, s
       .add(sitStatus.totalDaysRemaining - 1, 'days')
       .format('DD MMM YYYY'),
   };
-  const minimumDaysAllowed = sitStatus.totalSITDaysUsed - sitStatus.daysInSIT + 1;
+  const minimumDaysAllowed = shipment.sitDaysAllowance + 1;
   const reviewSITExtensionSchema = Yup.object().shape({
     acceptExtension: Yup.mixed().oneOf(['yes', 'no']).required('Required'),
     requestReason: Yup.string().required('Required'),
     officeRemarks: Yup.string().nullable(),
-    daysApproved: Yup.number()
-      .min(minimumDaysAllowed, `Total days of SIT approved must be ${minimumDaysAllowed} or more.`)
-      .required('Required'),
+    daysApproved: Yup.number().when('acceptExtension', {
+      is: 'yes',
+      then: Yup.number()
+        .min(minimumDaysAllowed, `Total days of SIT approved must be ${minimumDaysAllowed} or more.`)
+        .required('Required'),
+    }),
     sitEndDate: Yup.date().min(
       moment(sitStatus.sitEntryDate).add(1, 'days').format('DD MMM YYYY'),
       'The end date must occur after the start date. Please select a new date.',
