@@ -1,5 +1,6 @@
 import React from 'react';
-import { render, waitFor, screen } from '@testing-library/react';
+import { render, waitFor, screen, act } from '@testing-library/react';
+// import { render, waitFor, screen, act, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import ReviewSITExtensionModal from './ReviewSITExtensionModal';
@@ -17,7 +18,7 @@ describe('ReviewSITExtensionModal', () => {
   };
 
   const shipment = {
-    sitDaysAllowance: 45,
+    sitDaysAllowance: 46,
   };
 
   it('renders requested days, reason, and contractor remarks', async () => {
@@ -78,11 +79,11 @@ describe('ReviewSITExtensionModal', () => {
         sitStatus={sitStatus}
       />,
     );
-    const denyExtenstionField = screen.getByLabelText('No');
+    const denyExtensionField = screen.getByLabelText('No');
     const officeRemarksInput = screen.getByLabelText('Office remarks');
     const submitBtn = screen.getByRole('button', { name: 'Save' });
 
-    await userEvent.click(denyExtenstionField);
+    await userEvent.click(denyExtensionField);
     await userEvent.type(officeRemarksInput, 'Denied!');
     await userEvent.click(submitBtn);
 
@@ -90,13 +91,12 @@ describe('ReviewSITExtensionModal', () => {
       expect(mockOnSubmit).toHaveBeenCalled();
       expect(mockOnSubmit).toHaveBeenCalledWith(sitExt.id, {
         acceptExtension: 'no',
-        daysApproved: '',
         officeRemarks: 'Denied!',
       });
     });
   });
 
-  it('hides days approved input when no is selected', async () => {
+  it('hides Reason for edit selection when no is selected', async () => {
     const mockOnSubmit = jest.fn();
     render(
       <ReviewSITExtensionModal
@@ -107,14 +107,16 @@ describe('ReviewSITExtensionModal', () => {
         sitStatus={sitStatus}
       />,
     );
-    const daysApprovedInput = screen.getByLabelText('Days approved');
-    const denyExtenstionField = screen.getByLabelText('No');
+    const acceptExtensionField = screen.getByLabelText('Yes');
+    await userEvent.click(acceptExtensionField);
+    const denyExtensionField = screen.getByLabelText('No');
+    const reasonInput = screen.getByLabelText('Reason for edit');
     await waitFor(() => {
-      expect(daysApprovedInput).toBeInTheDocument();
+      expect(reasonInput).toBeInTheDocument();
     });
-    await userEvent.click(denyExtenstionField);
+    await userEvent.click(denyExtensionField);
     await waitFor(() => {
-      expect(daysApprovedInput).not.toBeInTheDocument();
+      expect(reasonInput).not.toBeInTheDocument();
     });
   });
 
