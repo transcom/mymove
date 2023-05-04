@@ -5,6 +5,8 @@ import React from 'react';
 
 import ReviewSITExtensionModal from './ReviewSITExtensionModal';
 
+import { formatDateForDatePicker, utcDateFormat } from 'shared/dates';
+
 describe('ReviewSITExtensionModal', () => {
   const sitExt = {
     requestedDays: 45,
@@ -15,7 +17,7 @@ describe('ReviewSITExtensionModal', () => {
 
   const sitStatus = {
     totalDaysRemaining: 30,
-    sitEntryDate: moment().subtract(15, 'days').format('DD MMM YYYY'),
+    sitEntryDate: moment().subtract(15, 'days').format(utcDateFormat),
     totalSITDaysUsed: 15,
     daysInSIT: 15,
   };
@@ -70,7 +72,7 @@ describe('ReviewSITExtensionModal', () => {
     await userEvent.type(officeRemarksInput, 'Approved!');
     await userEvent.click(submitBtn);
 
-    const expectedEndDate = moment().add(75, 'days').format('DD MMM YYYY');
+    const expectedEndDate = formatDateForDatePicker(moment().add(75, 'days'));
 
     await waitFor(() => {
       expect(mockOnSubmit).toHaveBeenCalled();

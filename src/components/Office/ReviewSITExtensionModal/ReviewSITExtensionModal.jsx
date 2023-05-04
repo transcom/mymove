@@ -14,12 +14,12 @@ import DataTableWrapper from 'components/DataTableWrapper/index';
 import DataTable from 'components/DataTable/index';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import { DropdownInput, DatePickerInput } from 'components/form/fields';
-import { dropdownInputOptions, formatDate } from 'utils/formatters';
+import { dropdownInputOptions } from 'utils/formatters';
 import { Form } from 'components/form';
 import { ModalContainer, Overlay } from 'components/MigratedModal/MigratedModal';
 import Modal, { ModalActions, ModalClose, ModalTitle } from 'components/Modal/Modal';
 import { sitExtensionReasons } from 'constants/sitExtensions';
-import { utcDateFormat } from 'shared/dates';
+import { datePickerFormat, formatDateForDatePicker, utcDateFormat } from 'shared/dates';
 import { SitStatusShape, LOCATION_TYPES } from 'types/sitStatusShape';
 import { ShipmentShape } from 'types';
 
@@ -65,22 +65,24 @@ const SITHistoryItemHeader = ({ title, value }) => {
 };
 
 const SitStatusTables = ({ sitStatus, sitExtension, shipment }) => {
-  const { sitEntryDate, totalSITDaysUsed, daysInSIT } = sitStatus;
+  const { totalSITDaysUsed, totalDaysRemaining, daysInSIT, location } = sitStatus;
+  const sitEntryDate = moment(sitStatus.sitEntryDate, utcDateFormat);
   const daysInPreviousSIT = totalSITDaysUsed - daysInSIT;
 
   const approvedAndRequestedDaysCombined = shipment.sitDaysAllowance + sitExtension.requestedDays;
-  const approvedAndRequestedDatesCombined = moment()
-    .add(sitExtension.requestedDays, 'days')
-    .add(sitStatus.totalDaysRemaining - 1, 'days')
-    .format('DD MMM YYYY');
+  const approvedAndRequestedDatesCombined = formatDateForDatePicker(
+    moment()
+      .add(sitExtension.requestedDays, 'days')
+      .add(totalDaysRemaining - 1, 'days'),
+  );
 
   const sitAllowanceHelper = useField({ name: 'daysApproved', id: 'daysApproved' })[2];
   const endDateHelper = useField({ name: 'sitEndDate', id: 'sitEndDate' })[2];
   // Currently active SIT
-  const currentLocation = sitStatus.location === LOCATION_TYPES.ORIGIN ? 'origin SIT' : 'destination SIT';
+  const currentLocation = location === LOCATION_TYPES.ORIGIN ? 'origin SIT' : 'destination SIT';
 
-  const currentDaysInSit = <p>{sitStatus.totalSITDaysUsed}</p>;
-  const currentDateEnteredSit = <p>{formatDate(sitStatus.sitEntryDate, utcDateFormat, 'DD MMM YYYY')}</p>;
+  const currentDaysInSit = <p>{totalSITDaysUsed}</p>;
+  const currentDateEnteredSit = <p>{formatDateForDatePicker(sitEntryDate)}</p>;
 
   /**
    * @function
@@ -95,7 +97,7 @@ const SitStatusTables = ({ sitStatus, sitExtension, shipment }) => {
     endDateHelper.setValue(endDate);
     // Total days of SIT
     const calculatedSitDaysAllowance = Math.ceil(
-      moment.duration(moment(endDate).diff(moment(sitEntryDate))).asDays() + daysInPreviousSIT,
+      moment.duration(moment(endDate, datePickerFormat).diff(sitEntryDate)).asDays() + daysInPreviousSIT,
     );
     // Update form value
     sitAllowanceHelper.setValue(String(calculatedSitDaysAllowance));
@@ -115,9 +117,7 @@ const SitStatusTables = ({ sitStatus, sitExtension, shipment }) => {
     // Sit days allowance
     sitAllowanceHelper.setValue(daysApproved);
     // // // Sit End date
-    const calculatedSitEndDate = moment(sitEntryDate, 'DD MMM YYYY')
-      .add(daysApproved - daysInPreviousSIT, 'days')
-      .format('DD MMM YYYY');
+    const calculatedSitEndDate = formatDateForDatePicker(sitEntryDate.add(daysApproved - daysInPreviousSIT, 'days'));
     endDateHelper.setTouched(true);
     endDateHelper.setValue(calculatedSitEndDate);
   };
@@ -176,11 +176,10 @@ const ReviewSITExtensionsModal = ({ onClose, onSubmit, sitExtension, shipment, s
     daysApproved: String(shipment.sitDaysAllowance),
     requestReason: sitExtension.requestReason,
     officeRemarks: '',
-    sitEndDate: moment()
-      .add(sitStatus.totalDaysRemaining - 1, 'days')
-      .format('DD MMM YYYY'),
+    sitEndDate: formatDateForDatePicker(moment().add(sitStatus.totalDaysRemaining - 1, 'days')),
   };
   const minimumDaysAllowed = shipment.sitDaysAllowance + 1;
+  const sitEntryDate = moment(sitStatus.sitEntryDate, utcDateFormat);
   const reviewSITExtensionSchema = Yup.object().shape({
     acceptExtension: Yup.mixed().oneOf(['yes', 'no']).required('Required'),
     requestReason: Yup.string().required('Required'),
@@ -192,7 +191,7 @@ const ReviewSITExtensionsModal = ({ onClose, onSubmit, sitExtension, shipment, s
         .required('Required'),
     }),
     sitEndDate: Yup.date().min(
-      moment(sitStatus.sitEntryDate, 'DD MMM YYYY').add(1, 'days').format('DD MMM YYYY'),
+      formatDateForDatePicker(sitEntryDate.add(1, 'days')),
       'The end date must occur after the start date. Please select a new date.',
     ),
   });

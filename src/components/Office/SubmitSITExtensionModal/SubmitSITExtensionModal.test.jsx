@@ -5,7 +5,7 @@ import moment from 'moment';
 
 import SubmitSITExtensionModal from './SubmitSITExtensionModal';
 
-import { utcDateFormat } from 'shared/dates';
+import { formatDateForDatePicker, utcDateFormat } from 'shared/dates';
 
 const defaultValues = {
   sitStatus: {
@@ -35,7 +35,7 @@ describe('SubmitSITExtensionModal', () => {
     await act(() => userEvent.type(officeRemarksInput, 'Approved!'));
     await act(() => userEvent.click(submitBtn));
 
-    const expectedEndDate = moment().add(220, 'days').format('DD MMM YYYY');
+    const expectedEndDate = formatDateForDatePicker(moment().add(220, 'days'));
     await waitFor(() => {
       expect(mockOnSubmit).toHaveBeenCalled();
       expect(mockOnSubmit).toHaveBeenCalledWith({
@@ -73,7 +73,7 @@ describe('SubmitSITExtensionModal', () => {
     await act(() => userEvent.clear(daysApprovedInput));
     await act(() => userEvent.type(daysApprovedInput, '280'));
 
-    const expectedEndDate = moment().add(220, 'days').format('DD MMM YYYY');
+    const expectedEndDate = formatDateForDatePicker(moment().add(220, 'days'));
     expect(sitEndDateInput.value).toBe(expectedEndDate);
   });
 
@@ -82,7 +82,7 @@ describe('SubmitSITExtensionModal', () => {
     await render(<SubmitSITExtensionModal onSubmit={mockOnSubmit} onClose={() => {}} {...defaultValues} />);
     const sitEndDateInput = screen.getByPlaceholderText('DD MMM YYYY');
     await act(() => userEvent.clear(sitEndDateInput));
-    const newEndDate = moment().add(220, 'days').format('DD MMM YYYY');
+    const newEndDate = formatDateForDatePicker(moment().add(220, 'days'));
     await act(() => userEvent.type(sitEndDateInput, newEndDate));
     await fireEvent.blur(sitEndDateInput);
     const daysApprovedInput = screen.getByTestId('daysApproved');
