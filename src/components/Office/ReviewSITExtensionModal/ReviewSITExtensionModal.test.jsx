@@ -2,8 +2,6 @@ import React from 'react';
 import { render, waitFor, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import ShipmentSITDisplay from '../ShipmentSITDisplay/ShipmentSITDisplay';
-
 import ReviewSITExtensionModal from './ReviewSITExtensionModal';
 
 describe('ReviewSITExtensionModal', () => {
@@ -14,9 +12,13 @@ describe('ReviewSITExtensionModal', () => {
     id: '123',
   };
 
-  const summarySITExtension = (
-    <ShipmentSITDisplay {...{ sitExtensions: [], sitStatus: {}, shipment: {}, hideSITExtensionAction: true }} />
-  );
+  const sitStatus = {
+    totalDaysRemaining: 300,
+  };
+
+  const shipment = {
+    sitDaysAllowance: 45,
+  };
 
   it('renders requested days, reason, and contractor remarks', async () => {
     render(
@@ -24,7 +26,8 @@ describe('ReviewSITExtensionModal', () => {
         sitExtension={sitExt}
         onSubmit={() => {}}
         onClose={() => {}}
-        summarySITComponent={summarySITExtension}
+        shipment={shipment}
+        sitStatus={sitStatus}
       />,
     );
 
@@ -42,7 +45,8 @@ describe('ReviewSITExtensionModal', () => {
         sitExtension={sitExt}
         onSubmit={mockOnSubmit}
         onClose={() => {}}
-        summarySITComponent={summarySITExtension}
+        shipment={shipment}
+        sitStatus={sitStatus}
       />,
     );
     const daysApprovedInput = screen.getByLabelText('Days approved');
@@ -70,7 +74,8 @@ describe('ReviewSITExtensionModal', () => {
         sitExtension={sitExt}
         onSubmit={mockOnSubmit}
         onClose={() => {}}
-        summarySITComponent={summarySITExtension}
+        shipment={shipment}
+        sitStatus={sitStatus}
       />,
     );
     const denyExtenstionField = screen.getByLabelText('No');
@@ -98,7 +103,8 @@ describe('ReviewSITExtensionModal', () => {
         sitExtension={sitExt}
         onSubmit={mockOnSubmit}
         onClose={() => {}}
-        summarySITComponent={summarySITExtension}
+        shipment={shipment}
+        sitStatus={sitStatus}
       />,
     );
     const daysApprovedInput = screen.getByLabelText('Days approved');
@@ -119,7 +125,8 @@ describe('ReviewSITExtensionModal', () => {
         sitExtension={sitExt}
         onSubmit={mockOnSubmit}
         onClose={() => {}}
-        summarySITComponent={summarySITExtension}
+        shipment={shipment}
+        sitStatus={sitStatus}
       />,
     );
     const daysApprovedInput = screen.getByLabelText('Days approved');
@@ -137,9 +144,10 @@ describe('ReviewSITExtensionModal', () => {
     render(
       <ReviewSITExtensionModal
         sitExtension={sitExt}
+        shipment={shipment}
+        sitStatus={sitStatus}
         onSubmit={mockOnSubmit}
         onClose={() => {}}
-        summarySITComponent={summarySITExtension}
       />,
     );
     const daysApprovedInput = screen.getByLabelText('Days approved');
@@ -157,9 +165,10 @@ describe('ReviewSITExtensionModal', () => {
     render(
       <ReviewSITExtensionModal
         sitExtension={sitExt}
+        shipment={shipment}
+        sitStatus={sitStatus}
         onSubmit={() => {}}
         onClose={mockClose}
-        summarySITComponent={summarySITExtension}
       />,
     );
     const closeBtn = screen.getByRole('button', { name: 'Cancel' });
@@ -175,9 +184,10 @@ describe('ReviewSITExtensionModal', () => {
     render(
       <ReviewSITExtensionModal
         sitExtension={sitExt}
+        shipment={shipment}
+        sitStatus={sitStatus}
         onSubmit={jest.fn()}
         onClose={jest.fn()}
-        summarySITComponent={summarySITExtension}
       />,
     );
 

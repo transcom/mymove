@@ -20,7 +20,8 @@ import { ModalContainer, Overlay } from 'components/MigratedModal/MigratedModal'
 import Modal, { ModalActions, ModalClose, ModalTitle } from 'components/Modal/Modal';
 import { sitExtensionReasons } from 'constants/sitExtensions';
 import { utcDateFormat } from 'shared/dates';
-import { LOCATION_TYPES } from 'types/sitStatusShape';
+import { SitStatusShape, LOCATION_TYPES } from 'types/sitStatusShape';
+import { ShipmentShape } from 'types';
 
 const SitDaysAllowanceForm = ({ onChange }) => (
   <MaskedTextField
@@ -309,5 +310,7 @@ ReviewSITExtensionsModal.propTypes = {
   onClose: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
   sitExtension: SITExtensionShape.isRequired,
+  sitStatus: SitStatusShape.isRequired,
+  shipment: ShipmentShape.isRequired,
 };
 export default ReviewSITExtensionsModal;
