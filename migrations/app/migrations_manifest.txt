@@ -807,3 +807,4 @@
 20230424173425_add_daycos_and_movehq_prod_certs.up.sql
 20230427142553_drop_400ng_zip_tables.up.sql
 20230504190333_adjust_factor_precision.up.sql
+20230504214413_adjust_contract_years.up.sql
