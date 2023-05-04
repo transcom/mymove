@@ -6,12 +6,14 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-// MakeDocument creates a single Document.
-func MakeDocument(db *pop.Connection, assertions Assertions) models.Document {
+// makeDocument creates a single Document.
+//
+// Deprecated: use factory.BuildDocument
+func makeDocument(db *pop.Connection, assertions Assertions) models.Document {
 	sm := assertions.Document.ServiceMember
 	// ID is required because it must be populated for Eager saving to work.
 	if isZeroUUID(assertions.Document.ServiceMemberID) {
-		sm = MakeServiceMember(db, assertions)
+		sm = makeServiceMember(db, assertions)
 	}
 
 	document := models.Document{

@@ -1,6 +1,8 @@
 package serviceparamvaluelookups
 
 import (
+	"time"
+
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -16,7 +18,12 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceAreaLookup() {
 	var destDomesticServiceArea models.ReDomesticServiceArea
 
 	setupTestData := func() {
-
+		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				StartDate: time.Now().Add(-24 * time.Hour),
+				EndDate:   time.Now().Add(24 * time.Hour),
+			},
+		})
 		originAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
@@ -44,7 +51,9 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceAreaLookup() {
 				LinkOnly: true,
 				Type:     &factory.Addresses.DeliveryAddress,
 			},
-		}, nil)
+		}, []factory.Trait{
+			factory.GetTraitAvailableToPrimeMove,
+		})
 
 		paymentRequest = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
 			{

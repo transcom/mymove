@@ -12,7 +12,6 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/mocks"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func setUpPPMShipmentRouter(mtoShipmentRouterMethod string, mtoShipmentRouterReturnValue ...interface{}) services.PPMShipmentRouter {
@@ -155,7 +154,7 @@ func (suite *PPMShipmentSuite) TestSendToCustomer() {
 			return factory.BuildPPMShipment(nil, nil, nil)
 		},
 		models.PPMShipmentStatusNeedsPaymentApproval: func() models.PPMShipment {
-			return testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{Stub: true})
+			return factory.BuildPPMShipmentThatNeedsPaymentApproval(nil, nil, nil)
 		},
 	}
 
@@ -317,7 +316,7 @@ func (suite *PPMShipmentSuite) TestSubmitCloseOutDocumentation() {
 	})
 
 	suite.Run("Does not set the SubmittedAt time if it is already set", func() {
-		ppmShipment := testdatagen.MakePPMShipmentThatNeedsToBeResubmitted(suite.DB(), testdatagen.Assertions{Stub: true})
+		ppmShipment := factory.BuildPPMShipmentThatNeedsToBeResubmitted(nil, nil)
 
 		suite.FatalNotNil(ppmShipment.SubmittedAt)
 		originalSubmittedAt := *ppmShipment.SubmittedAt
@@ -355,7 +354,7 @@ func (suite *PPMShipmentSuite) TestSubmitCloseOutDocumentation() {
 			return factory.BuildPPMShipment(nil, nil, nil)
 		},
 		models.PPMShipmentStatusNeedsPaymentApproval: func() models.PPMShipment {
-			return testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{Stub: true})
+			return factory.BuildPPMShipmentThatNeedsPaymentApproval(nil, nil, nil)
 		},
 	}
 
