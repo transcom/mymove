@@ -20,7 +20,7 @@ export default {
       MockDate.set(mockedDate);
       addons.getChannel().on('storyRendered', MockDate.reset);
       return (
-        <div style={{ padding: '1em', backgroundColor: '#f9f9f9' }}>
+        <div style={{ padding: '1em' }}>
           <Story />
         </div>
       );
