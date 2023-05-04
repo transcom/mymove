@@ -177,7 +177,9 @@ const ReviewSITExtensionsModal = ({ onClose, onSubmit, sitExtension, shipment, s
     daysApproved: String(shipment.sitDaysAllowance),
     requestReason: '',
     officeRemarks: '',
-    sitEndDate: moment().add(sitStatus.totalDaysRemaining, 'days').format('DD MMM YYYY'),
+    sitEndDate: moment(sitStatus.sitEntryDate)
+      .add(sitStatus.totalDaysRemaining + 1, 'days')
+      .format('DD MMM YYYY'),
   };
   const minimumDaysAllowed = sitStatus.totalSITDaysUsed - sitStatus.daysInSIT + 1;
   const reviewSITExtensionSchema = Yup.object().shape({
