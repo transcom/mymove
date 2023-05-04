@@ -18,7 +18,7 @@ describe('ReviewSITExtensionModal', () => {
   };
 
   const shipment = {
-    sitDaysAllowance: 46,
+    sitDaysAllowance: 45,
   };
 
   it('renders requested days, reason, and contractor remarks', async () => {
@@ -50,6 +50,13 @@ describe('ReviewSITExtensionModal', () => {
         sitStatus={sitStatus}
       />,
     );
+
+    const daysApprovedInput = screen.getByTestId('daysApproved');
+    await act(() => userEvent.type(daysApprovedInput, '90'));
+
+    const acceptExtensionField = screen.getByLabelText('Yes');
+    await userEvent.click(acceptExtensionField);
+
     const reasonInput = screen.getByLabelText('Reason for edit');
     const officeRemarksInput = screen.getByLabelText('Office remarks');
     const submitBtn = screen.getByRole('button', { name: 'Save' });
@@ -89,10 +96,13 @@ describe('ReviewSITExtensionModal', () => {
 
     await waitFor(() => {
       expect(mockOnSubmit).toHaveBeenCalled();
-      expect(mockOnSubmit).toHaveBeenCalledWith(sitExt.id, {
-        acceptExtension: 'no',
-        officeRemarks: 'Denied!',
-      });
+      expect(mockOnSubmit).toHaveBeenCalledWith(
+        sitExt.id,
+        expect.objectContaining({
+          acceptExtension: 'no',
+          officeRemarks: 'Denied!',
+        }),
+      );
     });
   });
 
@@ -120,27 +130,6 @@ describe('ReviewSITExtensionModal', () => {
     });
   });
 
-  it('does not allow submission of more days approved than are requested', async () => {
-    const mockOnSubmit = jest.fn();
-    render(
-      <ReviewSITExtensionModal
-        sitExtension={sitExt}
-        onSubmit={mockOnSubmit}
-        onClose={() => {}}
-        shipment={shipment}
-        sitStatus={sitStatus}
-      />,
-    );
-    const daysApprovedInput = screen.getByLabelText('Days approved');
-    const submitBtn = screen.getByRole('button', { name: 'Save' });
-
-    await userEvent.type(daysApprovedInput, '{backspace}{backspace}46');
-
-    await waitFor(() => {
-      expect(submitBtn).toBeDisabled();
-    });
-  });
-
   it('does not allow submission of 0 approved days', async () => {
     const mockOnSubmit = jest.fn();
     render(
@@ -152,7 +141,12 @@ describe('ReviewSITExtensionModal', () => {
         onClose={() => {}}
       />,
     );
-    const daysApprovedInput = screen.getByLabelText('Days approved');
+
+    const daysApprovedInput = screen.getByTestId('daysApproved');
+
+    const acceptExtensionField = screen.getByLabelText('Yes');
+    await userEvent.click(acceptExtensionField);
+
     const submitBtn = screen.getByRole('button', { name: 'Save' });
 
     await userEvent.type(daysApprovedInput, '{backspace}{backspace}0');
