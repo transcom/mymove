@@ -325,41 +325,6 @@ test.describe('TOO user', () => {
 
       await tooFlowPage.waitForPage.moveDetails();
     });
-    /**
-     * This test is being temporarily skipped until flakiness issues
-     * can be resolved. It was skipped in cypress and is not part of
-     * the initial playwright conversion. - ahobson 2023-01-10
-     */
-    test.skip('is able to view SIT and create and edit SIT extensions', async ({ page }) => {
-      await page.getByTestId('MoveTaskOrder-Tab').click();
-      // cy.url().should('include', `/moves/${moveLocator}/mto`);
-
-      // // View SIT display
-      // await page.locator('[data-testid="sitExtensions"]');
-
-      // // Total SIT
-      // await expect(page.getByText('379 authorized')).toBeVisible();
-      // // await expect(page.getByText('60 used')).toBeVisible();
-      // // await expect(page.getByText('210 remaining')).toBeVisible();
-      // // await expect(page.getByText('Ends 26 Apr 2022')).toBeVisible();
-
-      // // Current SIT
-      // await expect(page.getByText('Current location: destination')).toBeVisible();
-      // await expect(page.getByText('60')).toBeVisible();
-      // // await expect(page.getByText('29 Aug 2021')).toBeVisible();
-      // // await expect(page.getByText('Ends 26 Apr 2022')).toBeVisible();
-
-      // // Previous SIT
-      // // await expect(page.getByText('30 days at origin (30 Jul 2021 - 29 Aug 2021)')).toBeVisible();
-      // await expect(page.getByText('30 days at origin')).toBeVisible();
-
-      // // SIT extensions
-      // await expect(page.getByText('90 days added')).toBeVisible();
-      // // await expect(page.getByText('on 28 Sep 2021')).toBeVisible();
-      // await expect(page.getByText('Serious illness of the member')).toBeVisible();
-      // await expect(page.getByText('The customer requested an extension.')).toBeVisible();
-      // await expect(page.getByText('The service member is unable to move into their new home at the expected time')).toBeVisible();
-    });
 
     // Test that the TOO is blocked from doing QAECSR actions
     test('is unable to see create report buttons', async ({ page }) => {
