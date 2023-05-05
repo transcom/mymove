@@ -15,7 +15,7 @@ WHERE id = 'a6457124-b8d5-4b75-95bd-fd402974a043';
 UPDATE re_contract_years
 SET start_date = '2023-04-04',
 	end_date   = '2023-04-05'
-WHERE id = '2546c4de-25dd-499d-a6da-61e4de247649'
+WHERE id = '2546c4de-25dd-499d-a6da-61e4de247649';
 
 UPDATE re_contract_years
 SET start_date = '2023-04-06',
