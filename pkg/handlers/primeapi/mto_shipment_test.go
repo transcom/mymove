@@ -993,8 +993,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			},
 			{
 				Model: models.MTOShipment{
-					Status:              models.MTOShipmentStatusSubmitted,
-					ScheduledPickupDate: &time.Time{},
+					Status: models.MTOShipmentStatusSubmitted,
 				},
 			},
 		}, nil)
@@ -1043,6 +1042,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		minimalShipment = suite.refreshFromDB(minimalShipment.ID)
 
 	})
+
 	suite.Run("PATCH failure 422 cannot update primeEstimatedWeight again", func() {
 		// Under test: updateMTOShipmentHandler.Handle
 		// Mocked:     Planner
@@ -1059,8 +1059,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			},
 			{
 				Model: models.MTOShipment{
-					Status:              models.MTOShipmentStatusSubmitted,
-					ScheduledPickupDate: &time.Time{},
+					Status: models.MTOShipmentStatusSubmitted,
 				},
 			},
 		}, nil)
@@ -1112,59 +1111,6 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.NoError(errPayload.Validate(strfmt.Default))
 
 		suite.Contains(errPayload.InvalidFields, "primeEstimatedWeight")
-	})
-
-	suite.Run("PATCH failure 422 cannot update estimatedWeight without scheduledPickupDate", func() {
-		// Under test: updateMTOShipmentHandler.Handle
-		// Mocked:     Planner
-		// Set up:     Create a shipment with no scheduledPickupDate
-		//             Attempt to update the primeEstimatedWeight
-		// Expected:   Handler returns Unprocessable entity because the
-		//             primeEstimatedWeight cannot be set if the scheduledPickupDate is not set.
-		handler, ogShipment := setupTestData()
-
-		// Create a shipment with no scheduled pickup date
-		noScheduledPickupShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
-			{
-				Model:    ogShipment.MoveTaskOrder,
-				LinkOnly: true,
-			},
-			{
-				Model: models.MTOShipment{
-					Status:              models.MTOShipmentStatusSubmitted,
-					ScheduledPickupDate: nil,
-				},
-			},
-		}, nil)
-
-		// Create an update with updated weights
-		mtoShipment := primemessages.UpdateMTOShipment{
-			PrimeEstimatedWeight: handlers.FmtPoundPtr(&primeEstimatedWeight),
-			PrimeActualWeight:    handlers.FmtPoundPtr(&primeActualWeight),
-		}
-
-		// Create request to UpdateMTOShipment
-		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", noScheduledPickupShipment.ID.String()), nil)
-		params := mtoshipmentops.UpdateMTOShipmentParams{
-			HTTPRequest:   req,
-			MtoShipmentID: *handlers.FmtUUID(noScheduledPickupShipment.ID),
-			Body:          &mtoShipment,
-			IfMatch:       etag.GenerateEtag(noScheduledPickupShipment.UpdatedAt),
-		}
-
-		// Validate incoming payload
-		suite.NoError(params.Body.Validate(strfmt.Default))
-
-		response := handler.Handle(params)
-		suite.IsType(&mtoshipmentops.UpdateMTOShipmentUnprocessableEntity{}, response)
-		errResponse := response.(*mtoshipmentops.UpdateMTOShipmentUnprocessableEntity)
-
-		// Validate outgoing payload
-		suite.NoError(errResponse.Payload.Validate(strfmt.Default))
-
-		// Expect validation error due to updated weight
-		suite.NotEmpty(errResponse.Payload.InvalidFields)
-		suite.Contains(errResponse.Payload.InvalidFields, "primeEstimatedWeight")
 	})
 
 	suite.Run("PATCH failure 404 unknown shipment", func() {
@@ -1616,12 +1562,11 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 	primeEstimatedWeight := unit.Pound(500)
 	now := time.Now()
 
-	// Prime-specific validations tested below
-	suite.Run("Failed case if not both approved date and estimated weight recorded date is more than ten days prior to scheduled move date", func() {
+	// Date checks for revised functionality without approval dates
+	suite.Run("Successful case if estimated weight added before scheduled pickup date", func() {
 		handler, move := setupTestData()
 
-		eightDaysFromNow := now.AddDate(0, 0, 8)
-		threeDaysBefore := now.AddDate(0, 0, -3)
+		twoDaysFromNow := now.AddDate(0, 0, 2)
 		oldShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model:    move,
@@ -1630,8 +1575,101 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 			{
 				Model: models.MTOShipment{
 					Status:              models.MTOShipmentStatusApproved,
-					ScheduledPickupDate: &eightDaysFromNow,
-					ApprovedDate:        &threeDaysBefore,
+					ScheduledPickupDate: &twoDaysFromNow,
+				},
+			},
+		}, nil)
+
+		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
+		payload := primemessages.UpdateMTOShipment{
+			PrimeEstimatedWeight: handlers.FmtPoundPtr(&primeEstimatedWeight),
+		}
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)
+		params := mtoshipmentops.UpdateMTOShipmentParams{
+			HTTPRequest:   req,
+			MtoShipmentID: *handlers.FmtUUID(oldShipment.ID),
+			Body:          &payload,
+			IfMatch:       eTag,
+		}
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(params)
+
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
+		okResponse := response.(*mtoshipmentops.UpdateMTOShipmentOK)
+
+		// Validate outgoing payload
+		suite.NoError(okResponse.Payload.Validate(strfmt.Default))
+
+		suite.Equal(oldShipment.ID.String(), okResponse.Payload.ID.String())
+
+		// Confirm PATCH working as expected; non-updated value still exists
+		suite.NotNil(okResponse.Payload.RequestedPickupDate)
+		suite.Equal(oldShipment.RequestedPickupDate.Format(time.ANSIC), time.Time(*okResponse.Payload.RequestedPickupDate).Format(time.ANSIC))
+	})
+
+	suite.Run("Successful case if estimated weight added on scheduled pickup date", func() {
+		handler, move := setupTestData()
+
+		twoMinutesAgo := now.Add(time.Duration(time.Duration.Minutes(2)))
+		oldShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					Status:              models.MTOShipmentStatusApproved,
+					ScheduledPickupDate: &twoMinutesAgo,
+				},
+			},
+		}, nil)
+
+		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
+		payload := primemessages.UpdateMTOShipment{
+			PrimeEstimatedWeight: handlers.FmtPoundPtr(&primeEstimatedWeight),
+		}
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)
+		params := mtoshipmentops.UpdateMTOShipmentParams{
+			HTTPRequest:   req,
+			MtoShipmentID: *handlers.FmtUUID(oldShipment.ID),
+			Body:          &payload,
+			IfMatch:       eTag,
+		}
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(params)
+
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
+		okResponse := response.(*mtoshipmentops.UpdateMTOShipmentOK)
+
+		// Validate outgoing payload
+		suite.NoError(okResponse.Payload.Validate(strfmt.Default))
+
+		suite.Equal(oldShipment.ID.String(), okResponse.Payload.ID.String())
+
+		// Confirm PATCH working as expected; non-updated value still exists
+		suite.NotNil(okResponse.Payload.RequestedPickupDate)
+		suite.Equal(oldShipment.RequestedPickupDate.Format(time.ANSIC), time.Time(*okResponse.Payload.RequestedPickupDate).Format(time.ANSIC))
+	})
+
+	suite.Run("Failed case if estimated weight added after scheduled pickup date", func() {
+		handler, move := setupTestData()
+
+		yesterday := now.AddDate(0, 0, -1)
+		oldShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					Status:              models.MTOShipmentStatusApproved,
+					ScheduledPickupDate: &yesterday,
 				},
 			},
 		}, nil)
@@ -1660,55 +1698,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 		suite.Contains(errResponse.Payload.InvalidFields, "primeEstimatedWeight")
 	})
 
-	suite.Run("Successful case if both approved date and estimated weight recorded date is more than ten days prior to scheduled move date", func() {
-		handler, move := setupTestData()
-
-		tenDaysFromNow := now.AddDate(0, 0, 11)
-		oldShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
-			{
-				Model:    move,
-				LinkOnly: true,
-			},
-			{
-				Model: models.MTOShipment{
-					Status:              models.MTOShipmentStatusApproved,
-					ScheduledPickupDate: &tenDaysFromNow,
-					ApprovedDate:        &now,
-				},
-			},
-		}, nil)
-		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
-		payload := primemessages.UpdateMTOShipment{
-			PrimeEstimatedWeight: handlers.FmtPoundPtr(&primeEstimatedWeight),
-		}
-		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)
-
-		params := mtoshipmentops.UpdateMTOShipmentParams{
-			HTTPRequest:   req,
-			MtoShipmentID: *handlers.FmtUUID(oldShipment.ID),
-			Body:          &payload,
-			IfMatch:       eTag,
-		}
-
-		// Validate incoming payload
-		suite.NoError(params.Body.Validate(strfmt.Default))
-
-		response := handler.Handle(params)
-
-		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
-		okResponse := response.(*mtoshipmentops.UpdateMTOShipmentOK)
-
-		// Validate outgoing payload
-		suite.NoError(okResponse.Payload.Validate(strfmt.Default))
-
-		suite.Equal(oldShipment.ID.String(), okResponse.Payload.ID.String())
-
-		// Confirm PATCH working as expected; non-updated value still exists
-		suite.NotNil(okResponse.Payload.RequestedPickupDate)
-		suite.Equal(oldShipment.RequestedPickupDate.Format(time.ANSIC), time.Time(*okResponse.Payload.RequestedPickupDate).Format(time.ANSIC))
-
-	})
-
+	// Prime-specific validations tested below
 	suite.Run("PATCH Success 200 RequiredDeliveryDate updated on scheduledPickupDate update", func() {
 		handler, move := setupTestData()
 
@@ -2055,195 +2045,6 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 		suite.EqualDatePtr(&expectedRDD, responsePayload.RequiredDeliveryDate)
 
 	})
-
-	suite.Run("Failed case if approved date is 3-9 days from scheduled move date but estimated weight recorded date isn't at least 3 days prior to scheduled move date", func() {
-		handler, move := setupTestData()
-
-		twoDaysFromNow := now.AddDate(0, 0, 2)
-		twoDaysBefore := now.AddDate(0, 0, -2)
-		oldShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
-			{
-				Model:    move,
-				LinkOnly: true,
-			},
-			{
-				Model: models.MTOShipment{
-					Status:              models.MTOShipmentStatusApproved,
-					ScheduledPickupDate: &twoDaysFromNow,
-					ApprovedDate:        &twoDaysBefore,
-				},
-			},
-		}, nil)
-		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
-		payload := primemessages.UpdateMTOShipment{
-			PrimeEstimatedWeight: handlers.FmtPoundPtr(&primeEstimatedWeight),
-		}
-
-		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)
-		params := mtoshipmentops.UpdateMTOShipmentParams{
-			HTTPRequest:   req,
-			MtoShipmentID: *handlers.FmtUUID(oldShipment.ID),
-			Body:          &payload,
-			IfMatch:       eTag,
-		}
-
-		// Validate incoming payload
-		suite.NoError(params.Body.Validate(strfmt.Default))
-
-		response := handler.Handle(params)
-		suite.IsType(&mtoshipmentops.UpdateMTOShipmentUnprocessableEntity{}, response)
-		errResponse := response.(*mtoshipmentops.UpdateMTOShipmentUnprocessableEntity)
-
-		// Validate outgoing payload
-		suite.NoError(errResponse.Payload.Validate(strfmt.Default))
-
-		suite.Contains(errResponse.Payload.InvalidFields, "primeEstimatedWeight")
-	})
-
-	suite.Run("Successful case if approved date is 3-9 days from scheduled move date and estimated weight recorded date is at least 3 days prior to scheduled move date", func() {
-		handler, move := setupTestData()
-
-		sixDaysFromNow := now.AddDate(0, 0, 6)
-		twoDaysBefore := now.AddDate(0, 0, -2)
-		oldShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
-			{
-				Model:    move,
-				LinkOnly: true,
-			},
-			{
-				Model: models.MTOShipment{
-					Status:              models.MTOShipmentStatusApproved,
-					ScheduledPickupDate: &sixDaysFromNow,
-					ApprovedDate:        &twoDaysBefore,
-				},
-			},
-		}, nil)
-		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
-		payload := primemessages.UpdateMTOShipment{
-			PrimeEstimatedWeight: handlers.FmtPoundPtr(&primeEstimatedWeight),
-		}
-
-		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)
-
-		params := mtoshipmentops.UpdateMTOShipmentParams{
-			HTTPRequest:   req,
-			MtoShipmentID: *handlers.FmtUUID(oldShipment.ID),
-			Body:          &payload,
-			IfMatch:       eTag,
-		}
-
-		// Validate incoming payload
-		suite.NoError(params.Body.Validate(strfmt.Default))
-
-		response := handler.Handle(params)
-
-		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
-		okResponse := response.(*mtoshipmentops.UpdateMTOShipmentOK)
-		responsePayload := okResponse.Payload
-
-		// Validate outgoing payload
-		suite.NoError(responsePayload.Validate(strfmt.Default))
-
-		suite.Equal(oldShipment.ID.String(), responsePayload.ID.String())
-		suite.NotNil(responsePayload.RequiredDeliveryDate)
-		// Confirm PATCH working as expected; non-updated value still exists
-		suite.NotNil(okResponse.Payload.RequestedPickupDate)
-		suite.Equal(oldShipment.RequestedPickupDate.Format(time.ANSIC), time.Time(*okResponse.Payload.RequestedPickupDate).Format(time.ANSIC))
-	})
-
-	suite.Run("Failed case if approved date is less than 3 days from scheduled move date but estimated weight recorded date isn't at least 1 day prior to scheduled move date", func() {
-		handler, move := setupTestData()
-
-		oneDayFromNow := now.AddDate(0, 0, 1)
-		oneDayBefore := now.AddDate(0, 0, -1)
-		oldShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
-			{
-				Model:    move,
-				LinkOnly: true,
-			},
-			{
-				Model: models.MTOShipment{
-					Status:              models.MTOShipmentStatusApproved,
-					ScheduledPickupDate: &oneDayFromNow,
-					ApprovedDate:        &oneDayBefore,
-				},
-			},
-		}, nil)
-		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
-		payload := primemessages.UpdateMTOShipment{
-			PrimeEstimatedWeight: handlers.FmtPoundPtr(&primeEstimatedWeight),
-		}
-
-		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)
-		params := mtoshipmentops.UpdateMTOShipmentParams{
-			HTTPRequest:   req,
-			MtoShipmentID: *handlers.FmtUUID(oldShipment.ID),
-			Body:          &payload,
-			IfMatch:       eTag,
-		}
-
-		// Validate incoming payload
-		suite.NoError(params.Body.Validate(strfmt.Default))
-
-		response := handler.Handle(params)
-
-		suite.IsType(&mtoshipmentops.UpdateMTOShipmentUnprocessableEntity{}, response)
-		errResponse := response.(*mtoshipmentops.UpdateMTOShipmentUnprocessableEntity)
-
-		// Validate outgoing payload
-		suite.NoError(errResponse.Payload.Validate(strfmt.Default))
-
-		suite.Contains(errResponse.Payload.InvalidFields, "primeEstimatedWeight")
-	})
-
-	suite.Run("Successful case if approved date is less than 3 days from scheduled move date and estimated weight recorded date is at least 1 day prior to scheduled move date", func() {
-		handler, move := setupTestData()
-
-		twoDaysFromNow := now.AddDate(0, 0, 2)
-		oldShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
-			{
-				Model:    move,
-				LinkOnly: true,
-			},
-			{
-				Model: models.MTOShipment{
-					Status:              models.MTOShipmentStatusApproved,
-					ScheduledPickupDate: &twoDaysFromNow,
-					ApprovedDate:        &now,
-				},
-			},
-		}, nil)
-		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
-		payload := primemessages.UpdateMTOShipment{
-			PrimeEstimatedWeight: handlers.FmtPoundPtr(&primeEstimatedWeight),
-		}
-
-		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)
-		params := mtoshipmentops.UpdateMTOShipmentParams{
-			HTTPRequest:   req,
-			MtoShipmentID: *handlers.FmtUUID(oldShipment.ID),
-			Body:          &payload,
-			IfMatch:       eTag,
-		}
-
-		// Validate incoming payload
-		suite.NoError(params.Body.Validate(strfmt.Default))
-
-		response := handler.Handle(params)
-		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
-		okResponse := response.(*mtoshipmentops.UpdateMTOShipmentOK)
-		responsePayload := okResponse.Payload
-
-		// Validate outgoing payload
-		suite.NoError(responsePayload.Validate(strfmt.Default))
-
-		suite.Equal(oldShipment.ID.String(), responsePayload.ID.String())
-		suite.NotNil(responsePayload.RequiredDeliveryDate)
-		// Confirm PATCH working as expected; non-updated value still exists
-		suite.NotNil(okResponse.Payload.RequestedPickupDate)
-		suite.Equal(oldShipment.RequestedPickupDate.Format(time.ANSIC), time.Time(*okResponse.Payload.RequestedPickupDate).Format(time.ANSIC))
-	})
-
 }
 
 func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
