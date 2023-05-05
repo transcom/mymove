@@ -5,11 +5,19 @@ import (
 	"net/http/httptest"
 
 	"github.com/transcom/mymove/pkg/factory"
-	"github.com/transcom/mymove/pkg/models"
 )
 
 func (suite *PrimeAPISuite) TestMoves() {
 	suite.Run("Unauthorized prime /moves", func() {
+		// when running in test with SetupSiteHandler, devlocal auth
+		// is enabled. That means the
+		// handlers.DevlocalClientCertMiddleware is enabled which
+		// means that if the default devlocal client cert exists in
+		// the db, the request will be authorized. Because we are
+		// running this in a test, and the test database is basically
+		// empty, that certificate doesn't exist in the db, and so
+		// this request will be unauthorized
+
 		req := suite.NewPrimeRequest("GET", "/prime/v1/moves", nil)
 		rr := httptest.NewRecorder()
 		suite.SetupSiteHandler().ServeHTTP(rr, req)
@@ -18,14 +26,10 @@ func (suite *PrimeAPISuite) TestMoves() {
 	})
 
 	suite.Run("Authorized prime /moves", func() {
-		user := factory.BuildUser(suite.DB(), []factory.Customization{
-			{
-				Model: models.User{
-					Active: true,
-				},
-			},
-		}, nil)
-		req := suite.NewAuthenticatedPrimeRequest("GET", "/prime/v1/moves", nil, user)
+		// The NewAuthenticatedPrimeRequest method adds a header that,
+		// if provided, is used by handlers.DevlocalClientCertMiddleware
+		clientCert := factory.BuildClientCert(suite.DB(), nil, nil)
+		req := suite.NewAuthenticatedPrimeRequest("GET", "/prime/v1/moves", nil, clientCert)
 		rr := httptest.NewRecorder()
 		suite.SetupSiteHandler().ServeHTTP(rr, req)
 

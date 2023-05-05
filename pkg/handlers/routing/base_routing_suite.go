@@ -17,7 +17,6 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/telemetry"
-	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
@@ -204,12 +203,8 @@ func (suite *BaseRoutingSuite) NewPrimeRequest(method string, relativePath strin
 // the authentication.DevLocalPrimeMiddleware checks for the existence
 // of a particular hash, so ensure that hash exists in the db and is
 // associated with a user
-func (suite *BaseRoutingSuite) NewAuthenticatedPrimeRequest(method string, relativePath string, body io.Reader, user models.User) *http.Request {
-	testdatagen.MakeDevClientCert(suite.DB(), testdatagen.Assertions{
-		ClientCert: models.ClientCert{
-			UserID: user.ID,
-		},
-	})
+func (suite *BaseRoutingSuite) NewAuthenticatedPrimeRequest(method string, relativePath string, body io.Reader, clientCert models.ClientCert) *http.Request {
 	req := suite.NewMilRequest(method, relativePath, body)
+	req.Header.Add("X-Devlocal-Cert-Hash", clientCert.Sha256Digest)
 	return req
 }

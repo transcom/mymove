@@ -29,7 +29,6 @@ import (
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/notifications/mocks"
-	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
@@ -1453,12 +1452,7 @@ func (suite *AuthSuite) TestLoginGovAuthenticatedRedirect() {
 }
 
 func (suite *AuthSuite) TestAuthorizePrime() {
-	user := factory.BuildDefaultUser(suite.DB())
-	clientCert := testdatagen.MakeDevClientCert(suite.DB(), testdatagen.Assertions{
-		ClientCert: models.ClientCert{
-			UserID: user.ID,
-		},
-	})
+	clientCert := factory.FetchOrBuildDevlocalClientCert(suite.DB())
 
 	handlerConfig := suite.HandlerConfig()
 	appnames := handlerConfig.AppNames()
