@@ -9,7 +9,7 @@ test.describe('TOO user', () => {
 
   test.describe('updating a move shipment in SIT', () => {
     test.beforeEach(async ({ officePage }) => {
-      // build move in sit without pending extension requests 270 days
+      // build move in SIT with 200 days authorized and without pending extension requests
       const move = await officePage.testHarness.buildHHGMoveInSIT();
       await officePage.signInAsNewTOOUser();
       tooFlowPage = new TooFlowPage(officePage, move);
@@ -31,7 +31,7 @@ test.describe('TOO user', () => {
       await expect(page.getByTestId('form').getByTestId('button')).toBeEnabled();
       await page.getByTestId('form').getByTestId('button').click();
 
-      // assert that days approved is now 220
+      // assert that days authorization is now 220
       await expect(page.getByTestId('sitStatusTable').getByText('220', { exact: true }).first()).toBeVisible();
     });
 
@@ -49,7 +49,7 @@ test.describe('TOO user', () => {
       await page.getByTestId('officeRemarks').fill('residence under construction');
       await page.getByTestId('form').getByTestId('button').click();
 
-      // assert that days approved is now 190
+      // assert that days authorization is now 190
       await expect(page.getByTestId('sitStatusTable').getByText('190', { exact: true }).first()).toBeVisible();
     });
 
@@ -75,34 +75,38 @@ test.describe('TOO user', () => {
       ).toBeVisible();
     });
   });
+
+  // test.describe('updating a move shipment in SIT with a SIT extension request', () => {
+  //   test.beforeEach(async ({ officePage }) => {
+  //     // build move in SIT with 200 days authorized and with one pending extension request
+  //     const move = await officePage.testHarness.buildHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO();
+  //     await officePage.signInAsNewTOOUser();
+  //     tooFlowPage = new TooFlowPage(officePage, move);
+  //     await officePage.tooNavigateToMove(move.locator);
+  //   });
+
+  //   test('is able to approve the SIT extension request', async ({ page }) => {
+  //     // navigate to MTO tab
+  //     await page.getByTestId('MoveTaskOrder-Tab').click();
+  //     await tooFlowPage.waitForPage.moveTaskOrder();
+
+  //     // approve SIT extension with an adjusted approved days value of 220 days
+  //     await page.getByTestId('sitExtensions').getByTestId('button').click();
+  //     await expect(page.getByRole('heading', { name: 'Edit SIT authorization' })).toBeVisible();
+
+  //     // assert that the extension is approved and the days authorization is now 220
+  //   });
+
+  //   test('is able to deny the SIT extension request', async ({ page }) => {
+  //     // navigate to MTO tab
+  //     await page.getByTestId('MoveTaskOrder-Tab').click();
+  //     await tooFlowPage.waitForPage.moveTaskOrder();
+
+  //     // deny SIT extension
+  //     await page.getByTestId('sitExtensions').getByTestId('button').click();
+  //     await expect(page.getByRole('heading', { name: 'Edit SIT authorization' })).toBeVisible();
+
+  //     // assert that the extension is denied and the days authorization is still 200
+  //   });
+  // });
 });
-
-/**
-  test.describe('updating a move shipment in SIT with a SIT extension request', () => {
-    test.beforeEach(async ({ officePage }) => {
-      // build move in sit with a pending extension request
-      const move = await officePage.testHarness.buildHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO();
-      await officePage.signInAsNewTOOUser();
-      tooFlowPage = new TooFlowPage(officePage, move);
-      await officePage.tooNavigateToMove(move.locator);
-    });
-
-    test('is able to approve the SIT extension request', async ({ page }) => {
-      // navigate to MTO tab
-      // navigate to edit SIT authorization
-      await expect(page.getByRole('heading', { name: 'Edit SIT authorization' })).toBeVisible();
-
-      // approve SIT extension and validate success
-    });
-
-    test('is able to deny the SIT extension request', async ({ page }) => {
-      // navigate to MTO tab
-      // navigate to edit SIT authorization
-      await expect(page.getByRole('heading', { name: 'Edit SIT authorization' })).toBeVisible();
-
-      // deny SIT extension and validate success
-    });
-  });
-});
-
-*/
