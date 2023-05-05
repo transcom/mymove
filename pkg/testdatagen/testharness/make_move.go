@@ -3985,10 +3985,12 @@ func MakeHHGMoveInSITWithPendingExtension(appCtx appcontext.AppContext) models.M
 		},
 	}, nil)
 
-	assertions := testdatagen.Assertions{
-		MTOShipment: MTOShipment,
-	}
-	testdatagen.MakePendingSITDurationUpdate(appCtx.DB(), assertions)
+	factory.BuildSITDurationUpdate(appCtx.DB(), []factory.Customization{
+		{
+			Model:    MTOShipment,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	return mto
 }
