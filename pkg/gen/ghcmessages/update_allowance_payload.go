@@ -22,11 +22,6 @@ type UpdateAllowancePayload struct {
 	// agency
 	Agency *Affiliation `json:"agency,omitempty"`
 
-	// unit is in lbs
-	// Example: 2000
-	// Minimum: 1
-	AuthorizedWeight *int64 `json:"authorizedWeight,omitempty"`
-
 	// dependents authorized
 	DependentsAuthorized *bool `json:"dependentsAuthorized,omitempty"`
 
@@ -63,10 +58,6 @@ func (m *UpdateAllowancePayload) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateAgency(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateAuthorizedWeight(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -110,18 +101,6 @@ func (m *UpdateAllowancePayload) validateAgency(formats strfmt.Registry) error {
 			}
 			return err
 		}
-	}
-
-	return nil
-}
-
-func (m *UpdateAllowancePayload) validateAuthorizedWeight(formats strfmt.Registry) error {
-	if swag.IsZero(m.AuthorizedWeight) { // not required
-		return nil
-	}
-
-	if err := validate.MinimumInt("authorizedWeight", "body", *m.AuthorizedWeight, 1, false); err != nil {
-		return err
 	}
 
 	return nil
