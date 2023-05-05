@@ -3471,3 +3471,524 @@ func MakeApprovedMoveWithPPMShipmentAndExcessWeight(appCtx appcontext.AppContext
 		}}, nil)
 	return move
 }
+
+func MakeHHGMoveInSIT(appCtx appcontext.AppContext) models.Move {
+	userUploader := newUserUploader(appCtx)
+	// primeUploader := newPrimeUploader(appCtx)
+	userInfo := newUserInfo("customer")
+
+	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.User{
+				LoginGovEmail: userInfo.email,
+				Active:        true,
+			},
+		},
+	}, nil)
+	customer := factory.BuildExtendedServiceMember(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				PersonalEmail: &userInfo.email,
+				FirstName:     &userInfo.firstName,
+				LastName:      &userInfo.lastName,
+			},
+		},
+		{
+			Model:    user,
+			LinkOnly: true,
+		},
+	}, nil)
+	dependentsAuthorized := true
+	sitDaysAllowance := 200
+	entitlements := factory.BuildEntitlement(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Entitlement{
+				DependentsAuthorized: &dependentsAuthorized,
+				StorageInTransit:     &sitDaysAllowance,
+			},
+		},
+	}, nil)
+	orders := factory.BuildOrder(appCtx.DB(), []factory.Customization{
+		{
+			Model:    customer,
+			LinkOnly: true,
+		},
+		{
+			Model:    entitlements,
+			LinkOnly: true,
+		},
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
+	now := time.Now()
+	mto := factory.BuildMove(appCtx.DB(), []factory.Customization{
+		{
+			Model:    orders,
+			LinkOnly: true,
+		},
+		{
+			Model: models.Move{
+				Status:             models.MoveStatusAPPROVED,
+				AvailableToPrimeAt: &now,
+			},
+		},
+	}, nil)
+	estimatedWeight := unit.Pound(1400)
+	actualWeight := unit.Pound(2000)
+
+	requestedPickupDate := time.Now().AddDate(0, 3, 0)
+	requestedDeliveryDate := requestedPickupDate.AddDate(0, 1, 0)
+	// pickupAddress := factory.BuildAddress(appCtx.DB(), nil, nil)
+
+	MTOShipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				PrimeEstimatedWeight:  &estimatedWeight,
+				PrimeActualWeight:     &actualWeight,
+				ShipmentType:          models.MTOShipmentTypeHHG,
+				Status:                models.MTOShipmentStatusApproved,
+				RequestedPickupDate:   &requestedPickupDate,
+				RequestedDeliveryDate: &requestedDeliveryDate,
+				SITDaysAllowance:      &sitDaysAllowance,
+			},
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	agentUserInfo := newUserInfo("agent")
+	testdatagen.MakeMTOAgent(appCtx.DB(), testdatagen.Assertions{
+		MTOAgent: models.MTOAgent{
+			MTOShipment:   MTOShipment,
+			MTOShipmentID: MTOShipment.ID,
+			FirstName:     &agentUserInfo.firstName,
+			LastName:      &agentUserInfo.lastName,
+			Email:         &agentUserInfo.email,
+			MTOAgentType:  models.MTOAgentReleasing,
+		},
+	})
+
+	year, month, day := time.Now().Add(time.Hour * 24 * -60).Date()
+	threeMonthsAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
+	twoMonthsAgo := threeMonthsAgo.Add(time.Hour * 24 * 30)
+	postalCode := "90210"
+	reason := "peak season all trucks in use"
+
+	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:        models.MTOServiceItemStatusApproved,
+				SITEntryDate:  &threeMonthsAgo,
+				SITPostalCode: &postalCode,
+				Reason:        &reason,
+			},
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDOFSIT,
+			},
+		},
+		{
+			Model:    MTOShipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:        models.MTOServiceItemStatusApproved,
+				SITEntryDate:  &threeMonthsAgo,
+				SITPostalCode: &postalCode,
+				Reason:        &reason,
+			},
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDOASIT,
+			},
+		},
+		{
+			Model:    MTOShipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:           models.MTOServiceItemStatusApproved,
+				SITEntryDate:     &threeMonthsAgo,
+				SITDepartureDate: &twoMonthsAgo,
+				SITPostalCode:    &postalCode,
+				Reason:           &reason,
+			},
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDOPSIT,
+			},
+		},
+		{
+			Model:    MTOShipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:        models.MTOServiceItemStatusApproved,
+				SITEntryDate:  &twoMonthsAgo,
+				SITPostalCode: &postalCode,
+				Reason:        &reason,
+			},
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDDFSIT,
+			},
+		},
+		{
+			Model:    MTOShipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:        models.MTOServiceItemStatusApproved,
+				SITEntryDate:  &twoMonthsAgo,
+				SITPostalCode: &postalCode,
+				Reason:        &reason,
+			},
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDDASIT,
+			},
+		},
+		{
+			Model:    MTOShipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:        models.MTOServiceItemStatusApproved,
+				SITEntryDate:  &twoMonthsAgo,
+				SITPostalCode: &postalCode,
+				Reason:        &reason,
+			},
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDDDSIT,
+			},
+		},
+		{
+			Model:    MTOShipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	// scenario.MakeSITExtensionsForShipment(appCtx, MTOShipment)
+
+	return mto
+}
+
+func MakeHHGMoveInSITWithPendingExtension(appCtx appcontext.AppContext) models.Move {
+	userUploader := newUserUploader(appCtx)
+	// primeUploader := newPrimeUploader(appCtx)
+	userInfo := newUserInfo("customer")
+
+	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.User{
+				LoginGovEmail: userInfo.email,
+				Active:        true,
+			},
+		},
+	}, nil)
+	customer := factory.BuildExtendedServiceMember(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				PersonalEmail: &userInfo.email,
+				FirstName:     &userInfo.firstName,
+				LastName:      &userInfo.lastName,
+			},
+		},
+		{
+			Model:    user,
+			LinkOnly: true,
+		},
+	}, nil)
+	dependentsAuthorized := true
+	sitDaysAllowance := 200
+	entitlements := factory.BuildEntitlement(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Entitlement{
+				DependentsAuthorized: &dependentsAuthorized,
+				StorageInTransit:     &sitDaysAllowance,
+			},
+		},
+	}, nil)
+	orders := factory.BuildOrder(appCtx.DB(), []factory.Customization{
+		{
+			Model:    customer,
+			LinkOnly: true,
+		},
+		{
+			Model:    entitlements,
+			LinkOnly: true,
+		},
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
+	now := time.Now()
+	mto := factory.BuildMove(appCtx.DB(), []factory.Customization{
+		{
+			Model:    orders,
+			LinkOnly: true,
+		},
+		{
+			Model: models.Move{
+				Status:             models.MoveStatusAPPROVED,
+				AvailableToPrimeAt: &now,
+			},
+		},
+	}, nil)
+	estimatedWeight := unit.Pound(1400)
+	actualWeight := unit.Pound(2000)
+
+	requestedPickupDate := time.Now().AddDate(0, 3, 0)
+	requestedDeliveryDate := requestedPickupDate.AddDate(0, 1, 0)
+	// pickupAddress := factory.BuildAddress(appCtx.DB(), nil, nil)
+
+	MTOShipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				PrimeEstimatedWeight:  &estimatedWeight,
+				PrimeActualWeight:     &actualWeight,
+				ShipmentType:          models.MTOShipmentTypeHHG,
+				Status:                models.MTOShipmentStatusApproved,
+				RequestedPickupDate:   &requestedPickupDate,
+				RequestedDeliveryDate: &requestedDeliveryDate,
+				SITDaysAllowance:      &sitDaysAllowance,
+			},
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	agentUserInfo := newUserInfo("agent")
+	testdatagen.MakeMTOAgent(appCtx.DB(), testdatagen.Assertions{
+		MTOAgent: models.MTOAgent{
+			MTOShipment:   MTOShipment,
+			MTOShipmentID: MTOShipment.ID,
+			FirstName:     &agentUserInfo.firstName,
+			LastName:      &agentUserInfo.lastName,
+			Email:         &agentUserInfo.email,
+			MTOAgentType:  models.MTOAgentReleasing,
+		},
+	})
+
+	year, month, day := time.Now().Add(time.Hour * 24 * -60).Date()
+	threeMonthsAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
+	twoMonthsAgo := threeMonthsAgo.Add(time.Hour * 24 * 30)
+	postalCode := "90210"
+	reason := "peak season all trucks in use"
+
+	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:        models.MTOServiceItemStatusApproved,
+				SITEntryDate:  &threeMonthsAgo,
+				SITPostalCode: &postalCode,
+				Reason:        &reason,
+			},
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDOFSIT,
+			},
+		},
+		{
+			Model:    MTOShipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:        models.MTOServiceItemStatusApproved,
+				SITEntryDate:  &threeMonthsAgo,
+				SITPostalCode: &postalCode,
+				Reason:        &reason,
+			},
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDOASIT,
+			},
+		},
+		{
+			Model:    MTOShipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:           models.MTOServiceItemStatusApproved,
+				SITEntryDate:     &threeMonthsAgo,
+				SITDepartureDate: &twoMonthsAgo,
+				SITPostalCode:    &postalCode,
+				Reason:           &reason,
+			},
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDOPSIT,
+			},
+		},
+		{
+			Model:    MTOShipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:        models.MTOServiceItemStatusApproved,
+				SITEntryDate:  &twoMonthsAgo,
+				SITPostalCode: &postalCode,
+				Reason:        &reason,
+			},
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDDFSIT,
+			},
+		},
+		{
+			Model:    MTOShipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:        models.MTOServiceItemStatusApproved,
+				SITEntryDate:  &twoMonthsAgo,
+				SITPostalCode: &postalCode,
+				Reason:        &reason,
+			},
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDDASIT,
+			},
+		},
+		{
+			Model:    MTOShipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:        models.MTOServiceItemStatusApproved,
+				SITEntryDate:  &twoMonthsAgo,
+				SITPostalCode: &postalCode,
+				Reason:        &reason,
+			},
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDDDSIT,
+			},
+		},
+		{
+			Model:    MTOShipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	assertions := testdatagen.Assertions{
+		MTOShipment: MTOShipment,
+	}
+	testdatagen.MakePendingSITDurationUpdate(appCtx.DB(), assertions)
+
+	return mto
+}

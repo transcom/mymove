@@ -47,6 +47,12 @@ var actionDispatcher = map[string]actionFunc{
 	"HHGMoveForRetireeNeedsSC": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeHHGMoveForRetireeNeedsSC(appCtx)
 	},
+	"HHGMoveInSIT": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeHHGMoveInSIT(appCtx)
+	},
+	"HHGMoveInSITWithPendingExtension": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeHHGMoveInSITWithPendingExtension(appCtx)
+	},
 	"HHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO(appCtx)
 	},

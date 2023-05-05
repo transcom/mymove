@@ -11202,12 +11202,12 @@ func createMoveWithAllPendingTOOActions(appCtx appcontext.AppContext, userUpload
 	move.ExcessWeightQualifiedAt = &now
 	testdatagen.MustSave(db, &move)
 	shipment := makeRiskOfExcessShipmentForMove(appCtx, move, models.MTOShipmentStatusApproved)
-	makePendingSITExtensionsForShipment(appCtx, shipment)
+	MakeSITWithPendingSITExtensionsForShipment(appCtx, shipment)
 	paymentRequestID := uuid.Must(uuid.FromString("70b35add-605a-289d-8dad-056f5d9ef7e1"))
 	makePaymentRequestForShipment(appCtx, move, shipment, primeUploader, filterFile, paymentRequestID, models.PaymentRequestStatusPending)
 }
 
-func makePendingSITExtensionsForShipment(appCtx appcontext.AppContext, shipment models.MTOShipment) {
+func MakeSITWithPendingSITExtensionsForShipment(appCtx appcontext.AppContext, shipment models.MTOShipment) {
 	db := appCtx.DB()
 
 	year, month, day := time.Now().Date()

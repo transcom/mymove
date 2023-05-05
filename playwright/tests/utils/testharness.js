@@ -141,6 +141,20 @@ export class TestHarness {
   }
 
   /**
+   * Use testharness to build a move with an hhg shipment in SIT
+   */
+  async buildHHGMoveInSIT() {
+    return this.buildDefault('HHGMoveInSIT');
+  }
+
+  /**
+   * Use testharness to build a move with an hhg shipment in SIT and a pending SIT extension
+   */
+  async buildHHGMoveInSITWithPendingExtension() {
+    return this.buildDefault('HHGMoveInSITWithPendingExtension');
+  }
+
+  /**
    * Use testharness to build hhg move for TOO
    * @returns {Promise<Move>}
    */
