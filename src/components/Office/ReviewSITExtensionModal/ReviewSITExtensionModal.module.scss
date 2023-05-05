@@ -96,11 +96,13 @@
       @include u-margin-y(0);
       @include u-font-size('body', 'md');
 
-      :global .usa-tag {
-        @include u-font-size('body', 'sm');
-      }
       font-weight: bold;
       //@include u-margin-left(1);
+    }
+    :global .usa-tag {
+      @include u-margin-y(0);
+      font-size: 13px;
+      height: 18px;
     }
 
     button {

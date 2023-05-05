@@ -3,7 +3,7 @@ import classnames from 'classnames';
 import { Formik, Field, useField } from 'formik';
 import PropTypes from 'prop-types';
 import * as Yup from 'yup';
-import { Button, Radio, FormGroup, Label, Textarea, Fieldset } from '@trussworks/react-uswds';
+import { Button, Radio, FormGroup, Label, Tag, Textarea, Fieldset } from '@trussworks/react-uswds';
 import moment from 'moment';
 
 import { SITExtensionShape } from '../../../types/sitExtensions';
@@ -126,6 +126,7 @@ const SitStatusTables = ({ sitStatus, sitExtension, shipment }) => {
     <>
       <div className={styles.title}>
         <p>SIT (STORAGE IN TRANSIT)</p>
+        <Tag>Additional Days Requested</Tag>
       </div>
       <div className={styles.tableContainer} data-testid="sitStatusTable">
         {/* Sit Total days table */}
