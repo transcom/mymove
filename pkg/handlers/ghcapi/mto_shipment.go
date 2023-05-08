@@ -913,8 +913,9 @@ func (h ApproveSITExtensionHandler) Handle(params shipmentops.ApproveSITExtensio
 			shipmentID := uuid.FromStringOrNil(string(params.ShipmentID))
 			sitExtensionID := uuid.FromStringOrNil(string(params.SitExtensionID))
 			approvedDays := int(*params.Body.ApprovedDays)
+			requestReason := models.SITDurationUpdateRequestReason(params.Body.RequestReason)
 			officeRemarks := params.Body.OfficeRemarks
-			updatedShipment, err := h.SITExtensionApprover.ApproveSITExtension(appCtx, shipmentID, sitExtensionID, approvedDays, officeRemarks, params.IfMatch)
+			updatedShipment, err := h.SITExtensionApprover.ApproveSITExtension(appCtx, shipmentID, sitExtensionID, approvedDays, requestReason, officeRemarks, params.IfMatch)
 			if err != nil {
 				return handleError(err)
 			}
