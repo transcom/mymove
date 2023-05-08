@@ -137,7 +137,10 @@ describe('PaymentRequestCard', () => {
   };
   describe('pending payment request', () => {
     const wrapper = mount(
-      <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
+      <MockProviders
+        initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}
+        permissions={[permissionTypes.readPaymentServiceItemStatus]}
+      >
         <PaymentRequestCard
           hasBillableWeightIssues={false}
           paymentRequest={pendingPaymentRequest}
@@ -204,7 +207,7 @@ describe('PaymentRequestCard', () => {
         </MockProviders>,
       );
       const reviewButton = screen.getByRole('button', { name: 'Review service items' });
-      expect(reviewButton).toHaveAttribute('disabled', '');
+      expect(reviewButton).not.toHaveAttribute('disabled', '');
     });
   });
 
@@ -493,7 +496,20 @@ describe('PaymentRequestCard', () => {
   });
 
   describe('permission dependent rendering', () => {
-    it('renders the review service items button when user has permission', () => {
+    it('renders a review service items button when user has TIO permission', () => {
+      render(
+        <MockProviders
+          initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}
+          permissions={[permissionTypes.updatePaymentServiceItemStatus]}
+        >
+          <PaymentRequestCard paymentRequest={pendingPaymentRequest} shipmentInfo={shipmentInfo} />
+        </MockProviders>,
+      );
+      expect(screen.getByRole('button', { name: 'Review service items' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Review service items' })).not.toHaveAttribute('disabled');
+    });
+
+    it('renders the disabled review service items button when user has TIO permission and billable weight issues', () => {
       render(
         <MockProviders
           initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}
@@ -508,6 +524,39 @@ describe('PaymentRequestCard', () => {
       );
 
       expect(screen.getByRole('button', { name: 'Review service items' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Review service items' })).toHaveAttribute('disabled');
+    });
+
+    it('renders the disabled review service items button when user has TOO permission', () => {
+      render(
+        <MockProviders
+          initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}
+          permissions={[permissionTypes.readPaymentServiceItemStatus]}
+        >
+          <PaymentRequestCard paymentRequest={pendingPaymentRequest} shipmentInfo={shipmentInfo} />
+        </MockProviders>,
+      );
+
+      expect(screen.getByRole('button', { name: 'Review service items' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Review service items' })).toHaveAttribute('disabled');
+    });
+
+    it('renders the disabled review service items button when user has TOO permission and billable weight issues', () => {
+      render(
+        <MockProviders
+          initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}
+          permissions={[permissionTypes.readPaymentServiceItemStatus]}
+        >
+          <PaymentRequestCard
+            paymentRequest={pendingPaymentRequest}
+            shipmentInfo={shipmentInfo}
+            hasBillableWeightIssues
+          />
+        </MockProviders>,
+      );
+
+      expect(screen.getByRole('button', { name: 'Review service items' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Review service items' })).toHaveAttribute('disabled');
     });
 
     it('does not render the review service items button when user does not have permission', () => {

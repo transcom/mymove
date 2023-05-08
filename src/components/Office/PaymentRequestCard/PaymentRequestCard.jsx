@@ -170,21 +170,41 @@ const PaymentRequestCard = ({
               )}
             </>
           )}
-          <Restricted to={permissionTypes.updatePaymentServiceItemStatus}>
-            {paymentRequest.status === 'PENDING' && (
-              <div className={styles.reviewButton}>
-                <Button style={{ maxWidth: '225px' }} onClick={handleClick} disabled data-testid="reviewBtn">
-                  <FontAwesomeIcon icon="copy" className={`${styles['docs-icon']} fas fa-copy`} />
-                  Review service items
-                </Button>
-                {hasBillableWeightIssues && (
-                  <span className={styles.errorText} data-testid="errorTxt">
-                    Resolve billable weight before reviewing service items.
-                  </span>
-                )}
-              </div>
-            )}
-          </Restricted>
+          {paymentRequest.status === 'PENDING' && (
+            <>
+              <Restricted to={permissionTypes.readPaymentServiceItemStatus}>
+                <div className={styles.reviewButton}>
+                  <Button style={{ maxWidth: '225px' }} onClick={handleClick} disabled data-testid="reviewBtn">
+                    <FontAwesomeIcon icon="copy" className={`${styles['docs-icon']} fas fa-copy`} />
+                    Review service items
+                  </Button>
+                  {hasBillableWeightIssues && (
+                    <span className={styles.errorText} data-testid="errorTxt">
+                      Resolve billable weight before reviewing service items.
+                    </span>
+                  )}
+                </div>
+              </Restricted>
+              <Restricted to={permissionTypes.updatePaymentServiceItemStatus}>
+                <div className={styles.reviewButton}>
+                  <Button
+                    style={{ maxWidth: '225px' }}
+                    onClick={handleClick}
+                    disabled={hasBillableWeightIssues}
+                    data-testid="reviewBtn"
+                  >
+                    <FontAwesomeIcon icon="copy" className={`${styles['docs-icon']} fas fa-copy`} />
+                    Review service items
+                  </Button>
+                  {hasBillableWeightIssues && (
+                    <span className={styles.errorText} data-testid="errorTxt">
+                      Resolve billable weight before reviewing service items.
+                    </span>
+                  )}
+                </div>
+              </Restricted>
+            </>
+          )}
         </div>
         <div className={styles.footer}>
           <dl>

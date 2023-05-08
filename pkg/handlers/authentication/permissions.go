@@ -25,6 +25,7 @@ var TOO = RolePermissions{
 		"create.SITExtension",
 		"read.paymentRequest",
 		"read.shipmentsPaymentSITBalance",
+		"read.paymentServiceItemStatus",
 		"update.move",
 		"update.shipment",
 		"update.financialReviewFlag",
@@ -33,7 +34,6 @@ var TOO = RolePermissions{
 		"update.billableWeight",
 		"update.SITExtension",
 		"update.MTOServiceItem",
-		"update.paymentServiceItemStatus",
 		"update.excessWeightRisk",
 	},
 }
