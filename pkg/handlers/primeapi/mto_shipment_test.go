@@ -1613,7 +1613,6 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 	suite.Run("Successful case if estimated weight added on scheduled pickup date", func() {
 		handler, move := setupTestData()
 
-		twoMinutesAgo := now.Add(time.Duration(time.Duration.Minutes(2)))
 		oldShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model:    move,
@@ -1622,7 +1621,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 			{
 				Model: models.MTOShipment{
 					Status:              models.MTOShipmentStatusApproved,
-					ScheduledPickupDate: &twoMinutesAgo,
+					ScheduledPickupDate: &now,
 				},
 			},
 		}, nil)
@@ -1677,7 +1676,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 		payload := primemessages.UpdateMTOShipment{
 			PrimeEstimatedWeight: handlers.FmtPoundPtr(&primeEstimatedWeight),
 		}
-		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", oldShipment.ID.String()), nil)
 		params := mtoshipmentops.UpdateMTOShipmentParams{
 			HTTPRequest:   req,
 			MtoShipmentID: *handlers.FmtUUID(oldShipment.ID),
