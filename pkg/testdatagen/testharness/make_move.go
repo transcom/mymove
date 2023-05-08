@@ -3472,7 +3472,7 @@ func MakeApprovedMoveWithPPMShipmentAndExcessWeight(appCtx appcontext.AppContext
 	return move
 }
 
-func MakeHHGMoveInSIT(appCtx appcontext.AppContext) models.Move {
+func MakeHHGMoveIn200DaysSIT(appCtx appcontext.AppContext) models.Move {
 	userUploader := newUserUploader(appCtx)
 	// primeUploader := newPrimeUploader(appCtx)
 	userInfo := newUserInfo("customer")
@@ -3731,7 +3731,7 @@ func MakeHHGMoveInSIT(appCtx appcontext.AppContext) models.Move {
 	return mto
 }
 
-func MakeHHGMoveInSITWithPendingExtension(appCtx appcontext.AppContext) models.Move {
+func MakeHHGMoveIn200DaysSITWithPendingExtension(appCtx appcontext.AppContext) models.Move {
 	userUploader := newUserUploader(appCtx)
 	// primeUploader := newPrimeUploader(appCtx)
 	userInfo := newUserInfo("customer")

@@ -143,15 +143,15 @@ export class TestHarness {
   /**
    * Use testharness to build a move with an hhg shipment in SIT
    */
-  async buildHHGMoveInSIT() {
-    return this.buildDefault('HHGMoveInSIT');
+  async buildHHGMoveIn200DaysSIT() {
+    return this.buildDefault('HHGMoveIn200DaysSIT');
   }
 
   /**
    * Use testharness to build a move with an hhg shipment in SIT and a pending SIT extension
    */
-  async buildHHGMoveInSITWithPendingExtension() {
-    return this.buildDefault('HHGMoveInSITWithPendingExtension');
+  async buildHHGMoveIn200DaysSITWithPendingExtension() {
+    return this.buildDefault('HHGMoveIn200DaysSITWithPendingExtension');
   }
 
   /**

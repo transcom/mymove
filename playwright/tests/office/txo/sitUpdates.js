@@ -10,7 +10,7 @@ test.describe('TOO user', () => {
   test.describe('updating a move shipment in SIT', () => {
     test.beforeEach(async ({ officePage }) => {
       // build move in SIT with 200 days authorized and without pending extension requests
-      const move = await officePage.testHarness.buildHHGMoveInSIT();
+      const move = await officePage.testHarness.buildHHGMoveIn200DaysSIT();
       await officePage.signInAsNewTOOUser();
       tooFlowPage = new TooFlowPage(officePage, move);
       await officePage.tooNavigateToMove(move.locator);
@@ -78,7 +78,7 @@ test.describe('TOO user', () => {
   test.describe('updating a move shipment in SIT with a SIT extension request', () => {
     test.beforeEach(async ({ officePage }) => {
       // build move in SIT with 200 days authorized and with one pending extension request
-      const move = await officePage.testHarness.buildHHGMoveInSITWithPendingExtension();
+      const move = await officePage.testHarness.buildHHGMoveIn200DaysSITWithPendingExtension();
       await officePage.signInAsNewTOOUser();
       tooFlowPage = new TooFlowPage(officePage, move);
       await officePage.tooNavigateToMove(move.locator);
