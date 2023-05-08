@@ -64,49 +64,67 @@ test.describe('TOO user', () => {
       await page.getByTestId('daysApproved').clear();
       await page.getByTestId('daysApproved').fill('1');
       await page.getByTestId('dropdown').selectOption('AWAITING_COMPLETION_OF_RESIDENCE');
-      await page.getByTestId('officeRemarks').click();
       await page.getByTestId('officeRemarks').fill('residence under construction');
 
       // assert that save button is disabled and error messages are present
       await expect(page.getByTestId('form').getByTestId('button')).not.toBeEnabled();
       await expect(page.getByTestId('form').getByTestId('sitStatusTable').getByTestId('errorMessage')).toBeVisible();
       await expect(
-        page.getByText('The end date must occur after the start date. Please select a new date.'),
+        page.getByText('The end date must occur after the start date. Please select a new date.', { exact: true }),
       ).toBeVisible();
     });
   });
 
-  // test.describe('updating a move shipment in SIT with a SIT extension request', () => {
-  //   test.beforeEach(async ({ officePage }) => {
-  //     // build move in SIT with 200 days authorized and with one pending extension request
-  //     const move = await officePage.testHarness.buildHHGMoveInSITWithExtension();
-  //     await officePage.signInAsNewTOOUser();
-  //     tooFlowPage = new TooFlowPage(officePage, move);
-  //     await officePage.tooNavigateToMove(move.locator);
-  //   });
+  test.describe('updating a move shipment in SIT with a SIT extension request', () => {
+    test.beforeEach(async ({ officePage }) => {
+      // build move in SIT with 200 days authorized and with one pending extension request
+      const move = await officePage.testHarness.buildHHGMoveInSITWithPendingExtension();
+      await officePage.signInAsNewTOOUser();
+      tooFlowPage = new TooFlowPage(officePage, move);
+      await officePage.tooNavigateToMove(move.locator);
+    });
 
-  //   test('is able to approve the SIT extension request', async ({ page }) => {
-  //     // navigate to MTO tab
-  //     await page.getByTestId('MoveTaskOrder-Tab').click();
-  //     await tooFlowPage.waitForPage.moveTaskOrder();
+    test('is able to approve the SIT extension request', async ({ page }) => {
+      // navigate to MTO tab
+      await page.getByTestId('MoveTaskOrder-Tab').click();
+      await tooFlowPage.waitForPage.moveTaskOrder();
 
-  //     // approve SIT extension with an adjusted approved days value of 220 days
-  //     await page.getByTestId('sitExtensions').getByTestId('button').click();
-  //     await expect(page.getByRole('heading', { name: 'Edit SIT authorization' })).toBeVisible();
+      // assert that there is a pending SIT extension request
+      await expect(page.getByText('Additional days requested')).toBeVisible();
 
-  //     // assert that the extension is approved and the days authorization is now 220
-  //   });
+      // approve SIT extension with an adjusted approved days value of 220 days and change the extension reason
+      await page.getByTestId('sitExtensions').getByTestId('button').click();
+      await expect(page.getByRole('heading', { name: 'Review additional days requested' })).toBeVisible();
+      await page.getByTestId('daysApproved').clear();
+      await page.getByTestId('daysApproved').fill('220');
+      await page.getByText('Yes', { exact: true }).click();
+      await page.getByTestId('dropdown').selectOption('OTHER');
+      await page.getByTestId('officeRemarks').fill('allowance increased by 20 days instead of the requested 45 days');
+      await page.getByTestId('form').getByTestId('button').click();
 
-  //   test('is able to deny the SIT extension request', async ({ page }) => {
-  //     // navigate to MTO tab
-  //     await page.getByTestId('MoveTaskOrder-Tab').click();
-  //     await tooFlowPage.waitForPage.moveTaskOrder();
+      // assert that there is no pending SIT extension request and the days authorization is now 220
+      await expect(page.getByText('Additional days requested')).toBeHidden();
+      await expect(page.getByTestId('sitStatusTable').getByText('220', { exact: true }).first()).toBeVisible();
+    });
 
-  //     // deny SIT extension
-  //     await page.getByTestId('sitExtensions').getByTestId('button').click();
-  //     await expect(page.getByRole('heading', { name: 'Edit SIT authorization' })).toBeVisible();
+    test('is able to deny the SIT extension request', async ({ page }) => {
+      // navigate to MTO tab
+      await page.getByTestId('MoveTaskOrder-Tab').click();
+      await tooFlowPage.waitForPage.moveTaskOrder();
 
-  //     // assert that the extension is denied and the days authorization is still 200
-  //   });
-  // });
+      // assert that there is a pending SIT extension request
+      await expect(page.getByText('Additional days requested')).toBeVisible();
+
+      // deny SIT extension
+      await page.getByTestId('sitExtensions').getByTestId('button').click();
+      await expect(page.getByRole('heading', { name: 'Review additional days requested' })).toBeVisible();
+      await page.getByText('No', { exact: true }).click();
+      await page.getByTestId('officeRemarks').fill('extension request denied');
+      await page.getByTestId('form').getByTestId('button').click();
+
+      // assert that there is no pending SIT extension request and the days authorization is still 200
+      await expect(page.getByText('Additional days requested')).toBeHidden();
+      await expect(page.getByTestId('sitStatusTable').getByText('200', { exact: true }).first()).toBeVisible();
+    });
+  });
 });
