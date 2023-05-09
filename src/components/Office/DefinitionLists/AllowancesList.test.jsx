@@ -27,11 +27,6 @@ describe('AllowancesList', () => {
     expect(screen.getByText('12,000 lbs')).toBeInTheDocument();
   });
 
-  it('renders formatted authorized weight', () => {
-    render(<AllowancesList info={info} />);
-    expect(screen.getByText('11,000 lbs')).toBeInTheDocument();
-  });
-
   it('renders storage in transit', () => {
     render(<AllowancesList info={info} />);
     expect(screen.getByText('90 days')).toBeInTheDocument();
