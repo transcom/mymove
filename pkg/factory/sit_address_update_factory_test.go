@@ -4,6 +4,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 func (suite *FactorySuite) TestBuildSITAddressUpdate() {
@@ -19,7 +20,7 @@ func (suite *FactorySuite) TestBuildSITAddressUpdate() {
 		// Create a default SITAddressUpdate to compare values
 		defaultSIT := models.SITAddressUpdate{
 			Distance: 40,
-			Status:   models.SITAddressStatusRequested,
+			Status:   models.SITAddressUpdateStatusRequested,
 		}
 
 		// FUNCTION UNDER TEST
@@ -51,11 +52,11 @@ func (suite *FactorySuite) TestBuildSITAddressUpdate() {
 		// SETUP
 		customUpdate := models.SITAddressUpdate{
 			ID:                uuid.Must(uuid.NewV4()),
-			ContractorRemarks: "custom contractor remarks",
+			ContractorRemarks: models.StringPointer("custom contractor remarks"),
 			OfficeRemarks:     models.StringPointer("office remarks"),
 			Distance:          40,
 			Reason:            "new reason",
-			Status:            models.SITAddressStatusRejected,
+			Status:            models.SITAddressUpdateStatusRejected,
 		}
 
 		customServiceItem := models.MTOServiceItem{
@@ -89,7 +90,7 @@ func (suite *FactorySuite) TestBuildSITAddressUpdate() {
 
 		// VALIDATE RESULTS
 		suite.Equal(customUpdate.ID, sitAddressUpdate.ID)
-		suite.Equal(customUpdate.ContractorRemarks, sitAddressUpdate.ContractorRemarks)
+		suite.Equal(*customUpdate.ContractorRemarks, *sitAddressUpdate.ContractorRemarks)
 		suite.Equal(*customUpdate.OfficeRemarks, *sitAddressUpdate.OfficeRemarks)
 		suite.Equal(customUpdate.Distance, sitAddressUpdate.Distance)
 		suite.Equal(customUpdate.Reason, sitAddressUpdate.Reason)
@@ -109,6 +110,49 @@ func (suite *FactorySuite) TestBuildSITAddressUpdate() {
 		suite.False(sitAddressUpdate.NewAddressID.IsNil())
 		suite.Equal(customNewAddress.ID, sitAddressUpdate.NewAddress.ID)
 		suite.Equal(customNewAddress.PostalCode, sitAddressUpdate.NewAddress.PostalCode)
+	})
+
+	suite.Run("Successful creation of customized SITAddressUpdate using trait", func() {
+		// Under test:      BuildSITAddressUpdate with GetTraitSITAddressUpdateOver50MilesWithMoveSetUp
+		// Mocked:          None
+		// Set up:          Create SITAddressUpdate with customization from trait
+		// Expected outcome:SITAddressUpdate should be created with customized values
+
+		// FUNCTION UNDER TEST
+		sitAddressUpdate := BuildSITAddressUpdate(suite.DB(), nil, []Trait{GetTraitSITAddressUpdateOver50MilesWithMoveSetUp})
+
+		// VALIDATE RESULTS
+		originalPostalCode := "90210"
+		suite.Equal(originalPostalCode, sitAddressUpdate.OldAddress.PostalCode)
+		suite.Equal("92114", sitAddressUpdate.NewAddress.PostalCode)
+		suite.Equal(140, sitAddressUpdate.Distance)
+		suite.Equal(models.SITAddressUpdateStatusRequested, sitAddressUpdate.Status)
+
+		dependentsAuthorized := sitAddressUpdate.MTOServiceItem.MoveTaskOrder.Orders.Entitlement.DependentsAuthorized
+		suite.Equal(true, *dependentsAuthorized)
+
+		entitlement := sitAddressUpdate.MTOServiceItem.MoveTaskOrder.Orders.Entitlement
+		sitDaysAllowance := 200
+		suite.Equal(sitDaysAllowance, *entitlement.StorageInTransit)
+
+		suite.Equal(models.MoveStatusAPPROVED, sitAddressUpdate.MTOServiceItem.MoveTaskOrder.Status)
+		suite.NotNil(sitAddressUpdate.MTOServiceItem.MoveTaskOrder.AvailableToPrimeAt)
+
+		shipment := sitAddressUpdate.MTOServiceItem.MTOShipment
+		suite.Equal(unit.Pound(1400), *shipment.PrimeEstimatedWeight)
+		suite.Equal(unit.Pound(2000), *shipment.PrimeActualWeight)
+		suite.Equal(models.MTOShipmentTypeHHG, shipment.ShipmentType)
+		suite.Equal(models.MTOShipmentStatusApproved, shipment.Status)
+		suite.NotNil(shipment.RequestedPickupDate)
+		suite.NotNil(shipment.RequestedDeliveryDate)
+		suite.Equal(sitDaysAllowance, *shipment.SITDaysAllowance)
+
+		reserviceCode := models.ReServiceCodeDDDSIT
+
+		suite.Equal(reserviceCode, sitAddressUpdate.MTOServiceItem.ReService.Code)
+		suite.Equal(models.MTOServiceItemStatusApproved, sitAddressUpdate.MTOServiceItem.Status)
+		suite.NotNil(sitAddressUpdate.MTOServiceItem.SITEntryDate)
+		suite.Equal(originalPostalCode, *sitAddressUpdate.MTOServiceItem.SITPostalCode)
 	})
 
 	suite.Run("Successful return of linkOnly SITAddressUpdate", func() {
