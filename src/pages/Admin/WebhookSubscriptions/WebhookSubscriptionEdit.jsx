@@ -11,7 +11,12 @@ const WebhookSubscriptionEditToolbar = (props) => (
 
 const WebhookSubscriptionEdit = () => (
   <Edit>
-    <SimpleForm toolbar={<WebhookSubscriptionEditToolbar />}>
+    <SimpleForm
+      toolbar={<WebhookSubscriptionEditToolbar />}
+      sx={{ '& .MuiInputBase-input': { width: 232 } }}
+      mode="onBlur"
+      reValidateMode="onBlur"
+    >
       <TextInput source="id" disabled />
       <TextInput label="Subscriber Id" source="subscriberId" validate={required()} />
       <TextInput source="eventKey" validate={required()} />
@@ -25,6 +30,7 @@ const WebhookSubscriptionEdit = () => (
           { id: 3, name: '3' },
           { id: 4, name: '4' },
         ]}
+        sx={{ width: 256 }}
       />
       <SelectInput
         source="status"
@@ -33,6 +39,7 @@ const WebhookSubscriptionEdit = () => (
           { id: WEBHOOK_SUBSCRIPTION_STATUS.DISABLED, name: 'Disabled' },
           { id: WEBHOOK_SUBSCRIPTION_STATUS.FAILING, name: 'Failing' },
         ]}
+        sx={{ width: 256 }}
       />
       <TextInput source="createdAt" disabled />
       <TextInput source="updatedAt" disabled />

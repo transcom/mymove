@@ -9,7 +9,12 @@ const UserEditToolbar = (props) => (
 
 const UserEdit = () => (
   <Edit>
-    <SimpleForm toolbar={<UserEditToolbar />}>
+    <SimpleForm
+      toolbar={<UserEditToolbar />}
+      sx={{ '& .MuiInputBase-input': { width: 232 } }}
+      mode="onBlur"
+      reValidateMode="onBlur"
+    >
       <TextInput source="id" disabled />
       <TextInput source="loginGovEmail" disabled />
       <SelectInput
@@ -18,6 +23,7 @@ const UserEdit = () => (
           { id: true, name: 'Yes' },
           { id: false, name: 'No' },
         ]}
+        sx={{ width: 256 }}
       />
       <SelectInput
         source="revokeAdminSession"
@@ -25,6 +31,7 @@ const UserEdit = () => (
           { id: true, name: 'Yes' },
           { id: false, name: 'No' },
         ]}
+        sx={{ width: 256 }}
       />
       <SelectInput
         source="revokeOfficeSession"
@@ -32,6 +39,7 @@ const UserEdit = () => (
           { id: true, name: 'Yes' },
           { id: false, name: 'No' },
         ]}
+        sx={{ width: 256 }}
       />
       <SelectInput
         source="revokeMilSession"
@@ -39,6 +47,7 @@ const UserEdit = () => (
           { id: true, name: 'Yes' },
           { id: false, name: 'No' },
         ]}
+        sx={{ width: 256 }}
       />
       <TextInput source="createdAt" disabled />
       <TextInput source="updatedAt" disabled />

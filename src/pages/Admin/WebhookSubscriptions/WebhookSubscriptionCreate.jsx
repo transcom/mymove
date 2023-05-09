@@ -5,7 +5,7 @@ import { WEBHOOK_SUBSCRIPTION_STATUS } from 'shared/constants';
 
 const WebhookSubscriptionCreate = () => (
   <Create>
-    <SimpleForm>
+    <SimpleForm sx={{ '& .MuiInputBase-input': { width: 232 } }} mode="onBlur" reValidateMode="onBlur">
       <TextInput label="Subscriber Id" source="subscriberId" validate={required()} />
       <TextInput source="eventKey" validate={required()} />
       <TextInput source="callbackUrl" validate={required()} />
@@ -16,6 +16,7 @@ const WebhookSubscriptionCreate = () => (
           { id: WEBHOOK_SUBSCRIPTION_STATUS.DISABLED, name: 'Disabled' },
           { id: WEBHOOK_SUBSCRIPTION_STATUS.FAILING, name: 'Failing' },
         ]}
+        sx={{ width: 256 }}
       />
     </SimpleForm>
   </Create>

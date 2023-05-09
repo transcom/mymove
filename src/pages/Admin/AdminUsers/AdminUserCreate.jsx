@@ -3,18 +3,12 @@ import { Create, SimpleForm, TextInput, ReferenceInput, AutocompleteInput, requi
 
 const AdminUserCreate = () => (
   <Create>
-    <SimpleForm>
+    <SimpleForm sx={{ '& .MuiInputBase-input': { width: 232 } }} mode="onBlur" reValidateMode="onBlur">
       <TextInput source="email" validate={required()} />
       <TextInput source="firstName" validate={required()} />
       <TextInput source="lastName" validate={required()} />
-      <ReferenceInput
-        label="Organization"
-        reference="organizations"
-        source="organizationId"
-        perPage={500}
-        validate={required()}
-      >
-        <AutocompleteInput optionText="name" />
+      <ReferenceInput label="Organization" reference="organizations" source="organizationId" perPage={500}>
+        <AutocompleteInput optionText="name" validate={required()} sx={{ width: 256 }} />
       </ReferenceInput>
     </SimpleForm>
   </Create>
