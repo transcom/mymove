@@ -91,7 +91,7 @@ const SitStatusTables = ({ sitStatus, sitExtension, shipment }) => {
   const approvedAndRequestedDatesCombined = formatDateForDatePicker(
     moment()
       .add(sitExtension.requestedDays, 'days')
-      .add(totalDaysRemaining() - 1, 'days'),
+      .add(Number.isInteger(totalDaysRemaining()) ? totalDaysRemaining() - 1 : 0, 'days'),
   );
 
   const sitAllowanceHelper = useField({ name: 'daysApproved', id: 'daysApproved' })[2];
