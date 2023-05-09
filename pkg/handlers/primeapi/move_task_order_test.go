@@ -470,8 +470,6 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		suite.Equal(successShipment.ActualPickupDate.Format(time.RFC3339), handlers.FmtDatePtrToPop(shipment.ActualPickupDate).Format(time.RFC3339))
 		suite.Equal(successShipment.ApprovedDate.Format(time.RFC3339), handlers.FmtDatePtrToPop(shipment.ApprovedDate).Format(time.RFC3339))
 
-		// TODO: test agents
-
 		suite.Equal(*successShipment.CounselorRemarks, *shipment.CounselorRemarks)
 		suite.Equal(*successShipment.CustomerRemarks, *shipment.CustomerRemarks)
 
@@ -548,6 +546,57 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 
 		suite.NotNil(movePayload.AvailableToPrimeAt)
 		suite.NotEmpty(movePayload.AvailableToPrimeAt) // checks that the date is not 0001-01-01
+	})
+
+	suite.Run("Success - returns all the fields associated with Agents within MtoShipments", func() {
+		handler := GetMoveTaskOrderHandler{
+			suite.HandlerConfig(),
+			movetaskorder.NewMoveTaskOrderFetcher(),
+		}
+		successMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		params := movetaskorderops.GetMoveTaskOrderParams{
+			HTTPRequest: request,
+			MoveID:      successMove.Locator,
+		}
+
+		agent := factory.BuildMTOAgent(suite.DB(), []factory.Customization{
+			{
+				Model:    successMove,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusApproved,
+				},
+			},
+		}, nil)
+
+		// Validate incoming payload: no body to validate
+
+		response := handler.Handle(params)
+
+		suite.IsNotErrResponse(response)
+		suite.IsType(&movetaskorderops.GetMoveTaskOrderOK{}, response)
+
+		moveResponse := response.(*movetaskorderops.GetMoveTaskOrderOK)
+		movePayload := moveResponse.Payload
+
+		// Validate outgoing payload
+		suite.NoError(movePayload.Validate(strfmt.Default))
+
+		agentPayload := movePayload.MtoShipments[0].Agents[0]
+		suite.Equal(successMove.ID.String(), movePayload.ID.String())
+		suite.Equal(agent.MTOShipmentID.String(), agentPayload.MtoShipmentID.String())
+		suite.Equal(agent.ID.String(), agentPayload.ID.String())
+		suite.Equal(*agent.FirstName, *agentPayload.FirstName)
+		suite.Equal(*agent.LastName, *agentPayload.LastName)
+		suite.Equal(*agent.Email, *agentPayload.Email)
+		suite.Equal(*agent.Phone, *agentPayload.Phone)
+		suite.Equal(string(agent.MTOAgentType), string(agentPayload.AgentType))
+
+		suite.NotNil(agentPayload.ETag)
+		suite.NotNil(agentPayload.CreatedAt)
+		suite.NotNil(agentPayload.UpdatedAt)
 	})
 
 	suite.Run("Failure 'Not Found' for non-available move", func() {
