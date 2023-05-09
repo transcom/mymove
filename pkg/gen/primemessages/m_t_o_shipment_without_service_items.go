@@ -136,11 +136,6 @@ type MTOShipmentWithoutServiceItems struct {
 	// Format: date
 	PrimeEstimatedWeightRecordedDate *strfmt.Date `json:"primeEstimatedWeightRecordedDate"`
 
-	// The reason why this shipment was rejected by the TOO.
-	// Example: MTO Shipment not good enough
-	// Read Only: true
-	RejectionReason *string `json:"rejectionReason,omitempty"`
-
 	// The customer's preferred delivery date.
 	// Read Only: true
 	// Format: date
@@ -783,10 +778,6 @@ func (m *MTOShipmentWithoutServiceItems) ContextValidate(ctx context.Context, fo
 		res = append(res, err)
 	}
 
-	if err := m.contextValidateRejectionReason(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.contextValidateRequestedDeliveryDate(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -959,15 +950,6 @@ func (m *MTOShipmentWithoutServiceItems) contextValidatePpmShipment(ctx context.
 func (m *MTOShipmentWithoutServiceItems) contextValidatePrimeEstimatedWeightRecordedDate(ctx context.Context, formats strfmt.Registry) error {
 
 	if err := validate.ReadOnly(ctx, "primeEstimatedWeightRecordedDate", "body", m.PrimeEstimatedWeightRecordedDate); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *MTOShipmentWithoutServiceItems) contextValidateRejectionReason(ctx context.Context, formats strfmt.Registry) error {
-
-	if err := validate.ReadOnly(ctx, "rejectionReason", "body", m.RejectionReason); err != nil {
 		return err
 	}
 

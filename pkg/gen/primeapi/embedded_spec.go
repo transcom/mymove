@@ -2480,13 +2480,6 @@ func init() {
           "x-omitempty": false,
           "readOnly": true
         },
-        "rejectionReason": {
-          "description": "The reason why this shipment was rejected by the TOO.",
-          "type": "string",
-          "x-nullable": true,
-          "readOnly": true,
-          "example": "MTO Shipment not good enough"
-        },
         "requestedDeliveryDate": {
           "description": "The customer's preferred delivery date.",
           "type": "string",
@@ -6917,13 +6910,6 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false,
           "readOnly": true
-        },
-        "rejectionReason": {
-          "description": "The reason why this shipment was rejected by the TOO.",
-          "type": "string",
-          "x-nullable": true,
-          "readOnly": true,
-          "example": "MTO Shipment not good enough"
         },
         "requestedDeliveryDate": {
           "description": "The customer's preferred delivery date.",

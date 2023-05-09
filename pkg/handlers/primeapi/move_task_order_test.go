@@ -426,7 +426,6 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 					PrimeEstimatedWeightRecordedDate: &aWeekAgo,
 					RequiredDeliveryDate:             &nowDate,
 					ScheduledDeliveryDate:            &nowDate,
-					// RejectionReason:                  models.StringPointer("Reason"),
 				},
 			},
 			{
@@ -505,8 +504,6 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		suite.Equal(*successShipment.PrimeEstimatedWeight, *handlers.PoundPtrFromInt64Ptr(shipment.PrimeEstimatedWeight))
 
 		suite.Equal(successShipment.PrimeEstimatedWeightRecordedDate.Format(time.RFC3339), handlers.FmtDatePtrToPop(shipment.PrimeEstimatedWeightRecordedDate).Format(time.RFC3339))
-		// TODO: Rejection Reason not in model_to_payload
-		// suite.Equal(*successShipment.RejectionReason, *shipment.RejectionReason)
 		suite.Equal(successShipment.RequestedPickupDate.Format(time.RFC3339), handlers.FmtDatePtrToPop(shipment.RequestedPickupDate).Format(time.RFC3339))
 		suite.Equal(successShipment.RequiredDeliveryDate.Format(time.RFC3339), handlers.FmtDatePtrToPop(shipment.RequiredDeliveryDate).Format(time.RFC3339))
 		suite.Equal(successShipment.RequestedDeliveryDate.Format(time.RFC3339), handlers.FmtDatePtrToPop(shipment.RequestedDeliveryDate).Format(time.RFC3339))

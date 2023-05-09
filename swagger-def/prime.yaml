@@ -2001,12 +2001,6 @@ definitions:
           - CANCELLATION_REQUESTED
           - CANCELED
           - DIVERSION_REQUESTED
-      rejectionReason:
-        description: The reason why this shipment was rejected by the TOO.
-        type: string
-        readOnly: true
-        example: MTO Shipment not good enough
-        x-nullable: true
       ppmShipment:
         $ref: '#/definitions/PPMShipment'
       eTag:
