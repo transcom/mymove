@@ -139,8 +139,16 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 			MoveID:      successMove.Locator,
 		}
 
+		now := time.Now()
+		nowDate := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC)
+
 		reweigh := testdatagen.MakeReweigh(suite.DB(), testdatagen.Assertions{
 			Move: successMove,
+			Reweigh: models.Reweigh{
+				VerificationReason:     models.StringPointer("Justification"),
+				VerificationProvidedAt: &nowDate,
+				Weight:                 models.PoundPointer(4000),
+			},
 		})
 
 		// Validate incoming payload: no body to validate
@@ -160,6 +168,16 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		suite.NotNil(movePayload.AvailableToPrimeAt)
 		suite.NotEmpty(movePayload.AvailableToPrimeAt)
 		suite.Equal(strfmt.UUID(reweigh.ID.String()), reweighPayload.ID)
+		suite.Equal(reweigh.RequestedAt.Format(time.RFC3339), handlers.FmtDateTimePtrToPop(&reweighPayload.RequestedAt).Format(time.RFC3339))
+		suite.Equal(string(reweigh.RequestedBy), string(reweighPayload.RequestedBy))
+		suite.Equal(*reweigh.VerificationReason, *reweighPayload.VerificationReason)
+		suite.Equal(reweigh.VerificationProvidedAt.Format(time.RFC3339), handlers.FmtDateTimePtrToPop(reweighPayload.VerificationProvidedAt).Format(time.RFC3339))
+		suite.Equal(*reweigh.Weight, *handlers.PoundPtrFromInt64Ptr(reweighPayload.Weight))
+		suite.Equal(reweigh.ShipmentID.String(), reweighPayload.ShipmentID.String())
+
+		suite.NotNil(reweighPayload.ETag)
+		suite.NotNil(reweighPayload.CreatedAt)
+		suite.NotNil(reweighPayload.UpdatedAt)
 	})
 
 	suite.Run("Success - returns sit extensions on shipments if they exist", func() {
@@ -479,8 +497,6 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		suite.Equal(successShipment.RequestedPickupDate.Format(time.RFC3339), handlers.FmtDatePtrToPop(shipment.RequestedPickupDate).Format(time.RFC3339))
 		suite.Equal(successShipment.RequiredDeliveryDate.Format(time.RFC3339), handlers.FmtDatePtrToPop(shipment.RequiredDeliveryDate).Format(time.RFC3339))
 		suite.Equal(successShipment.RequestedDeliveryDate.Format(time.RFC3339), handlers.FmtDatePtrToPop(shipment.RequestedDeliveryDate).Format(time.RFC3339))
-
-		// TODO: test fields on Reweigh, existing test "Success returns reweighs on shipments if they exist"
 
 		suite.Equal(successShipment.ScheduledDeliveryDate.Format(time.RFC3339), handlers.FmtDatePtrToPop(shipment.ScheduledDeliveryDate).Format(time.RFC3339))
 		suite.Equal(successShipment.ScheduledPickupDate.Format(time.RFC3339), handlers.FmtDatePtrToPop(shipment.ScheduledPickupDate).Format(time.RFC3339))
