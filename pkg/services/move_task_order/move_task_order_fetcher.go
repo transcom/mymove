@@ -85,6 +85,8 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 		"MTOShipments.SecondaryPickupAddress",
 		"MTOShipments.MTOAgents",
 		"MTOShipments.SITDurationUpdates",
+		"MTOShipments.StorageFacility",
+		"MTOShipments.StorageFacility.Address",
 		"Orders.ServiceMember",
 		"Orders.Entitlement",
 		"Orders.NewDutyLocation.Address",

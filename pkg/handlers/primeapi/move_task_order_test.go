@@ -398,8 +398,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 	})
 
 	suite.Run("Success - returns all the fields at the mtoShipment level", func() {
-		// TODO: add comment indicating what fields this actually tests if we decide to break up the tests
-		// right now this tests fields that aren't other structs and Addresses
+		// This tests fields that aren't other structs and Addresses
 		handler := GetMoveTaskOrderHandler{
 			suite.HandlerConfig(),
 			movetaskorder.NewMoveTaskOrderFetcher(),
@@ -538,14 +537,75 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		suite.Equal(string(successShipment.ShipmentType), string(shipment.ShipmentType))
 		suite.Equal(string(successShipment.Status), shipment.Status)
 
-		// TODO: test StorageFacility
-
 		suite.NotNil(shipment.ETag)
 		suite.Equal(successShipment.CreatedAt.Format(time.RFC3339), handlers.FmtDateTimePtrToPop(&shipment.CreatedAt).Format(time.RFC3339))
 		suite.Equal(successShipment.UpdatedAt.Format(time.RFC3339), handlers.FmtDateTimePtrToPop(&shipment.UpdatedAt).Format(time.RFC3339))
 
 		suite.NotNil(movePayload.AvailableToPrimeAt)
 		suite.NotEmpty(movePayload.AvailableToPrimeAt) // checks that the date is not 0001-01-01
+	})
+
+	suite.Run("Success - returns all the fields associated with StorageFacility within MtoShipments", func() {
+		handler := GetMoveTaskOrderHandler{
+			suite.HandlerConfig(),
+			movetaskorder.NewMoveTaskOrderFetcher(),
+		}
+		successMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		params := movetaskorderops.GetMoveTaskOrderParams{
+			HTTPRequest: request,
+			MoveID:      successMove.Locator,
+		}
+
+		storageFacility := factory.BuildStorageFacility(suite.DB(), nil, nil)
+
+		successShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypeHHGOutOfNTSDom,
+					Status:       models.MTOShipmentStatusApproved,
+				},
+			},
+			{
+				Model:    successMove,
+				LinkOnly: true,
+			},
+			{
+				Model:    storageFacility,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		// Validate incoming payload: no body to validate
+
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+		suite.IsType(&movetaskorderops.GetMoveTaskOrderOK{}, response)
+
+		moveResponse := response.(*movetaskorderops.GetMoveTaskOrderOK)
+		movePayload := moveResponse.Payload
+
+		// Validate outgoing payload
+		suite.NoError(movePayload.Validate(strfmt.Default))
+
+		storageFacilityPayload := movePayload.MtoShipments[0].StorageFacility
+		suite.Equal(successMove.ID.String(), movePayload.ID.String())
+		suite.Equal(successShipment.StorageFacilityID.String(), storageFacilityPayload.ID.String())
+		suite.Equal(successShipment.StorageFacility.ID.String(), storageFacilityPayload.ID.String())
+		suite.Equal(successShipment.StorageFacility.FacilityName, storageFacilityPayload.FacilityName)
+		suite.Equal(*successShipment.StorageFacility.LotNumber, *storageFacilityPayload.LotNumber)
+		suite.Equal(*successShipment.StorageFacility.Phone, *storageFacilityPayload.Phone)
+		suite.Equal(*successShipment.StorageFacility.Email, *storageFacilityPayload.Email)
+
+		suite.Equal(successShipment.StorageFacility.Address.ID.String(), storageFacilityPayload.Address.ID.String())
+		suite.Equal(successShipment.StorageFacility.Address.StreetAddress1, *storageFacilityPayload.Address.StreetAddress1)
+		suite.Equal(*successShipment.StorageFacility.Address.StreetAddress2, *storageFacilityPayload.Address.StreetAddress2)
+		suite.Equal(*successShipment.StorageFacility.Address.StreetAddress3, *storageFacilityPayload.Address.StreetAddress3)
+		suite.Equal(successShipment.StorageFacility.Address.City, *storageFacilityPayload.Address.City)
+		suite.Equal(successShipment.StorageFacility.Address.State, *storageFacilityPayload.Address.State)
+		suite.Equal(successShipment.StorageFacility.Address.PostalCode, *storageFacilityPayload.Address.PostalCode)
+		suite.Equal(*successShipment.StorageFacility.Address.Country, *storageFacilityPayload.Address.Country)
+
+		suite.NotNil(storageFacilityPayload.ETag)
 	})
 
 	suite.Run("Success - returns all the fields associated with Agents within MtoShipments", func() {
