@@ -695,12 +695,7 @@ db_test_truncate:
 db_test_load_from_schema: bin/milmove
 	@echo "Loading from schema the ${DB_NAME_TEST} database..."
 	DB_DEBUG=0 DB_NAME=$(DB_NAME_TEST) DB_PORT=$(DB_PORT_TEST) bin/milmove dbload --migration-schema-path "migrations/${APPLICATION}"
-	# the dev data is not needed for server tests, but is needed for e2e
-	# tests, so move the dev data loading to e2e related Makefile targets
-
-db_test_load_from_schema_with_seed: bin/milmove
-	@echo "Loading from schema the ${DB_NAME_TEST} database..."
-	DB_DEBUG=0 DB_NAME=$(DB_NAME_TEST) DB_PORT=$(DB_PORT_TEST) bin/milmove dbload --migration-schema-path "migrations/${APPLICATION}" --migration-load-dev-seed
+	# the dev data is not needed for server tests
 
 .PHONY: db_test_migrate_standalone
 db_test_migrate_standalone: bin/milmove ## Migrate Test DB directly
