@@ -266,6 +266,18 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 				requestedServiceItem.SITDestinationFinalAddressID = &address.ID
 			}
 
+			// create customer contacts if any
+			for index := range requestedServiceItem.CustomerContacts {
+				createCustContacts := &requestedServiceItem.CustomerContacts[index]
+				if createCustContacts.ID == uuid.Nil {
+					// createCustContacts.MTOServiceItemID = requestedServiceItem.ID
+					verrs, err = o.builder.CreateOne(txnAppCtx, createCustContacts)
+					if verrs != nil || err != nil {
+						return fmt.Errorf("%#v %e", verrs, err)
+					}
+				}
+			}
+
 			verrs, err = o.builder.CreateOne(txnAppCtx, requestedServiceItem)
 			if verrs != nil || err != nil {
 				return fmt.Errorf("%#v %e", verrs, err)
@@ -286,15 +298,6 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 				}
 			}
 
-			// create customer contacts if any
-			for index := range requestedServiceItem.CustomerContacts {
-				createCustContacts := &requestedServiceItem.CustomerContacts[index]
-				createCustContacts.MTOServiceItemID = requestedServiceItem.ID
-				verrs, err = o.builder.CreateOne(txnAppCtx, createCustContacts)
-				if verrs != nil || err != nil {
-					return fmt.Errorf("%#v %e", verrs, err)
-				}
-			}
 		}
 
 		// If updates were made to shipment, save update in the database
@@ -366,7 +369,7 @@ func (o *mtoServiceItemCreator) makeExtraSITServiceItem(appCtx appcontext.AppCon
 	}
 
 	//When a DDFSIT is created, this is where we auto create the accompanying DDASIT and DDDSIT with copied contact data
-	contacts := copyCustomerContacts(firstSIT.CustomerContacts)
+	contacts := firstSIT.CustomerContacts
 
 	extraServiceItem := models.MTOServiceItem{
 		MTOShipmentID:    firstSIT.MTOShipmentID,
@@ -381,25 +384,6 @@ func (o *mtoServiceItemCreator) makeExtraSITServiceItem(appCtx appcontext.AppCon
 	}
 
 	return &extraServiceItem, nil
-}
-
-// Helper function for copying DDFSIT customer contacts to DDASIT and DDDSIT service items
-func copyCustomerContacts(customerContacts models.MTOServiceItemCustomerContacts) models.MTOServiceItemCustomerContacts {
-	var newContacts []models.MTOServiceItemCustomerContact
-
-	//If we have contacts copy them over, otherwise we will return nil
-	for _, contact := range customerContacts {
-
-		newContact := models.MTOServiceItemCustomerContact{
-			Type:                       contact.Type,
-			TimeMilitary:               contact.TimeMilitary,
-			FirstAvailableDeliveryDate: contact.FirstAvailableDeliveryDate,
-		}
-
-		newContacts = append(newContacts, newContact)
-	}
-
-	return newContacts
 }
 
 // NewMTOServiceItemCreator returns a new MTO service item creator
