@@ -9,6 +9,7 @@ func (suite *ModelSuite) TestSITAddressUpdateInstantiation() {
 	testMTOServiceItem := factory.BuildMTOServiceItem(suite.DB(), nil, nil)
 	testOldAddress := factory.BuildAddress(suite.DB(), nil, nil)
 	testNewAddress := factory.BuildAddress(suite.DB(), nil, nil)
+	testContractorRemarksString := "test contractor remarks"
 
 	type TestCaseType struct {
 		name             string
@@ -23,7 +24,7 @@ func (suite *ModelSuite) TestSITAddressUpdateInstantiation() {
 				MTOServiceItemID:  testMTOServiceItem.ID,
 				OldAddressID:      testOldAddress.ID,
 				NewAddressID:      testNewAddress.ID,
-				ContractorRemarks: "test contractor remarks",
+				ContractorRemarks: &testContractorRemarksString,
 				Distance:          1323,
 				Reason:            "Not a real reason",
 				Status:            SITAddressStatusRejected,
@@ -37,7 +38,6 @@ func (suite *ModelSuite) TestSITAddressUpdateInstantiation() {
 				"mtoservice_item_id": {"MTOServiceItemID can not be blank."},
 				"old_address_id":     {"OldAddressID can not be blank."},
 				"new_address_id":     {"NewAddressID can not be blank."},
-				"contractor_remarks": {"ContractorRemarks can not be blank."},
 				"distance":           {"Distance can not be blank."},
 				"reason":             {"Reason can not be blank."},
 				"status":             {"Status is not in the list [REQUESTED, REJECTED, APPROVED]."},
@@ -49,14 +49,15 @@ func (suite *ModelSuite) TestSITAddressUpdateInstantiation() {
 				MTOServiceItemID:  testMTOServiceItem.ID,
 				OldAddressID:      testOldAddress.ID,
 				NewAddressID:      testNewAddress.ID,
-				ContractorRemarks: "test contractor remarks",
+				ContractorRemarks: StringPointer(""),
 				Distance:          1323,
 				Reason:            "Not a real reason",
 				Status:            SITAddressStatusRejected,
 				OfficeRemarks:     StringPointer(""),
 			},
 			expectedErrs: map[string][]string{
-				"office_remarks": {"OfficeRemarks can not be blank."},
+				"office_remarks":     {"OfficeRemarks can not be blank."},
+				"contractor_remarks": {"ContractorRemarks can not be blank."},
 			},
 		},
 	}
