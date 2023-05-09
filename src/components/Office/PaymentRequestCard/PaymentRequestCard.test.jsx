@@ -138,7 +138,11 @@ describe('PaymentRequestCard', () => {
   };
   describe('pending payment request', () => {
     const wrapper = mount(
-      <MockProviders path={tioRoutes.BASE_PAYMENT_REQUESTS_PATH} params={{ moveCode }}>
+      <MockProviders
+        path={tioRoutes.BASE_PAYMENT_REQUESTS_PATH}
+        params={{ moveCode }}
+        permissions={[permissionTypes.readPaymentServiceItemStatus]}
+      >
         <PaymentRequestCard
           hasBillableWeightIssues={false}
           paymentRequest={pendingPaymentRequest}
@@ -496,7 +500,21 @@ describe('PaymentRequestCard', () => {
   });
 
   describe('permission dependent rendering', () => {
-    it('renders the review service items button when user has permission', () => {
+    it('renders a review service items button when user has TIO permission', () => {
+      render(
+        <MockProviders
+          path={tioRoutes.BASE_PAYMENT_REQUESTS_PATH}
+          params={{ moveCode }}
+          permissions={[permissionTypes.updatePaymentServiceItemStatus]}
+        >
+          <PaymentRequestCard paymentRequest={pendingPaymentRequest} shipmentInfo={shipmentInfo} />
+        </MockProviders>,
+      );
+      expect(screen.getByRole('button', { name: 'Review service items' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Review service items' })).not.toHaveAttribute('disabled');
+    });
+
+    it('renders the disabled review service items button when user has TIO permission and billable weight issues', () => {
       render(
         <MockProviders
           path={tioRoutes.BASE_PAYMENT_REQUESTS_PATH}
@@ -512,6 +530,41 @@ describe('PaymentRequestCard', () => {
       );
 
       expect(screen.getByRole('button', { name: 'Review service items' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Review service items' })).toHaveAttribute('disabled');
+    });
+
+    it('renders the disabled review service items button when user has TOO permission', () => {
+      render(
+        <MockProviders
+          path={tioRoutes.BASE_PAYMENT_REQUESTS_PATH}
+          params={{ moveCode }}
+          permissions={[permissionTypes.readPaymentServiceItemStatus]}
+        >
+          <PaymentRequestCard paymentRequest={pendingPaymentRequest} shipmentInfo={shipmentInfo} />
+        </MockProviders>,
+      );
+
+      expect(screen.getByRole('button', { name: 'Review service items' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Review service items' })).toHaveAttribute('disabled');
+    });
+
+    it('renders the disabled review service items button when user has TOO permission and billable weight issues', () => {
+      render(
+        <MockProviders
+          path={tioRoutes.BASE_PAYMENT_REQUESTS_PATH}
+          params={{ moveCode }}
+          permissions={[permissionTypes.readPaymentServiceItemStatus]}
+        >
+          <PaymentRequestCard
+            paymentRequest={pendingPaymentRequest}
+            shipmentInfo={shipmentInfo}
+            hasBillableWeightIssues
+          />
+        </MockProviders>,
+      );
+
+      expect(screen.getByRole('button', { name: 'Review service items' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Review service items' })).toHaveAttribute('disabled');
     });
 
     it('does not render the review service items button when user does not have permission', () => {

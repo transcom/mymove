@@ -338,7 +338,11 @@ export const MoveTaskOrder = (props) => {
         shipmentID: shipment.id,
         sitExtensionID,
         ifMatchETag: shipment.eTag,
-        body: { officeRemarks: formValues.officeRemarks, approvedDays: parseInt(formValues.daysApproved, 10) },
+        body: {
+          requestReason: formValues.requestReason,
+          officeRemarks: formValues.officeRemarks,
+          approvedDays: parseInt(formValues.daysApproved, 10) - shipment.sitDaysAllowance,
+        },
       });
     } else if (formValues.acceptExtension === 'no') {
       mutateSITExtensionDenial({

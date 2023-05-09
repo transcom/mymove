@@ -123,7 +123,7 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton }
   return (
     <>
       <div className={styles.title}>
-        <p>SIT (STORAGE IN TRANSIT){pendingSITExtension && <Tag>Extension requested</Tag>}</p>
+        <p>SIT (STORAGE IN TRANSIT){pendingSITExtension && <Tag>Additional Days Requested</Tag>}</p>
         {openModalButton}
       </div>
       <div className={styles.tableContainer} data-testid="sitStatusTable">
@@ -159,7 +159,7 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton }
 
 const ShipmentSITDisplay = ({ sitExtensions, sitStatus, shipment, className, openModalButton }) => {
   const sitHistory = React.useMemo(
-    () => sitExtensions.reverse().filter((sitItem) => sitItem.status !== SIT_EXTENSION_STATUS.PENDING),
+    () => sitExtensions.filter((sitItem) => sitItem.status !== SIT_EXTENSION_STATUS.PENDING),
     [sitExtensions],
   );
 
