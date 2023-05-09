@@ -8506,14 +8506,6 @@ func init() {
         "agency": {
           "$ref": "#/definitions/Affiliation"
         },
-        "authorizedWeight": {
-          "description": "unit is in lbs",
-          "type": "integer",
-          "minimum": 1,
-          "x-formatting": "weight",
-          "x-nullable": true,
-          "example": 2000
-        },
         "dependentsAuthorized": {
           "type": "boolean",
           "x-nullable": true
@@ -19115,14 +19107,6 @@ func init() {
       "properties": {
         "agency": {
           "$ref": "#/definitions/Affiliation"
-        },
-        "authorizedWeight": {
-          "description": "unit is in lbs",
-          "type": "integer",
-          "minimum": 1,
-          "x-formatting": "weight",
-          "x-nullable": true,
-          "example": 2000
         },
         "dependentsAuthorized": {
           "type": "boolean",

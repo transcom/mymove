@@ -4,7 +4,7 @@
 @import '../../shared/styles/_variables';
 
 .footer {
-  color: $base;
+  color: $base-darkest;
   @include u-margin-top(3);
   @include u-margin-bottom(3);
 }

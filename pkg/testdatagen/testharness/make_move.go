@@ -326,16 +326,20 @@ func MakeHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO(appCtx appconte
 	}, nil)
 
 	agentUserInfo := newUserInfo("agent")
-	testdatagen.MakeMTOAgent(appCtx.DB(), testdatagen.Assertions{
-		MTOAgent: models.MTOAgent{
-			MTOShipment:   MTOShipment,
-			MTOShipmentID: MTOShipment.ID,
-			FirstName:     &agentUserInfo.firstName,
-			LastName:      &agentUserInfo.lastName,
-			Email:         &agentUserInfo.email,
-			MTOAgentType:  models.MTOAgentReleasing,
+	factory.BuildMTOAgent(appCtx.DB(), []factory.Customization{
+		{
+			Model:    MTOShipment,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOAgent{
+				FirstName:    &agentUserInfo.firstName,
+				LastName:     &agentUserInfo.lastName,
+				Email:        &agentUserInfo.email,
+				MTOAgentType: models.MTOAgentReleasing,
+			},
+		},
+	}, nil)
 
 	paymentRequest := factory.BuildPaymentRequest(appCtx.DB(), []factory.Customization{
 		{
@@ -953,17 +957,21 @@ func MakeNTSRMoveWithPaymentRequest(appCtx appcontext.AppContext) models.Move {
 
 	// Create Releasing Agent
 	agentUserInfo := newUserInfo("agent")
-	testdatagen.MakeMTOAgent(appCtx.DB(), testdatagen.Assertions{
-		MTOAgent: models.MTOAgent{
-			ID:            uuid.Must(uuid.NewV4()),
-			MTOShipment:   ntsrShipment,
-			MTOShipmentID: ntsrShipment.ID,
-			FirstName:     &agentUserInfo.firstName,
-			LastName:      &agentUserInfo.lastName,
-			Email:         &agentUserInfo.email,
-			MTOAgentType:  models.MTOAgentReleasing,
+	factory.BuildMTOAgent(appCtx.DB(), []factory.Customization{
+		{
+			Model:    ntsrShipment,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOAgent{
+				ID:           uuid.Must(uuid.NewV4()),
+				FirstName:    &agentUserInfo.firstName,
+				LastName:     &agentUserInfo.lastName,
+				Email:        &agentUserInfo.email,
+				MTOAgentType: models.MTOAgentReleasing,
+			},
+		},
+	}, nil)
 
 	// Create Payment Request
 	paymentRequest := factory.BuildPaymentRequest(appCtx.DB(), []factory.Customization{
@@ -1113,17 +1121,21 @@ func MakeHHGMoveWithServiceItemsandPaymentRequestsForTIO(appCtx appcontext.AppCo
 
 	// Create Releasing Agent
 	agentUserInfo := newUserInfo("agent")
-	testdatagen.MakeMTOAgent(appCtx.DB(), testdatagen.Assertions{
-		MTOAgent: models.MTOAgent{
-			ID:            uuid.Must(uuid.NewV4()),
-			MTOShipment:   mtoShipmentHHG,
-			MTOShipmentID: mtoShipmentHHG.ID,
-			FirstName:     &agentUserInfo.firstName,
-			LastName:      &agentUserInfo.lastName,
-			Email:         &agentUserInfo.email,
-			MTOAgentType:  models.MTOAgentReleasing,
+	factory.BuildMTOAgent(appCtx.DB(), []factory.Customization{
+		{
+			Model:    mtoShipmentHHG,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOAgent{
+				ID:           uuid.Must(uuid.NewV4()),
+				FirstName:    &agentUserInfo.firstName,
+				LastName:     &agentUserInfo.lastName,
+				Email:        &agentUserInfo.email,
+				MTOAgentType: models.MTOAgentReleasing,
+			},
+		},
+	}, nil)
 
 	paymentRequestHHG := factory.BuildPaymentRequest(appCtx.DB(), []factory.Customization{
 		{
@@ -1657,17 +1669,21 @@ func MakeNTSRMoveWithServiceItemsAndPaymentRequest(appCtx appcontext.AppContext)
 
 	// Create Releasing Agent
 	agentUserInfo := newUserInfo("agent")
-	testdatagen.MakeMTOAgent(appCtx.DB(), testdatagen.Assertions{
-		MTOAgent: models.MTOAgent{
-			ID:            uuid.Must(uuid.NewV4()),
-			MTOShipment:   ntsrShipment,
-			MTOShipmentID: ntsrShipment.ID,
-			FirstName:     &agentUserInfo.firstName,
-			LastName:      &agentUserInfo.lastName,
-			Email:         &agentUserInfo.email,
-			MTOAgentType:  models.MTOAgentReleasing,
+	factory.BuildMTOAgent(appCtx.DB(), []factory.Customization{
+		{
+			Model:    ntsrShipment,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOAgent{
+				ID:           uuid.Must(uuid.NewV4()),
+				FirstName:    &agentUserInfo.firstName,
+				LastName:     &agentUserInfo.lastName,
+				Email:        &agentUserInfo.email,
+				MTOAgentType: models.MTOAgentReleasing,
+			},
+		},
+	}, nil)
 
 	// Create Payment Request
 	paymentRequest := factory.BuildPaymentRequest(appCtx.DB(), []factory.Customization{
