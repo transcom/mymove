@@ -11,14 +11,37 @@ import {
   TextInput,
   TopToolbar,
   useListController,
+  downloadCSV,
 } from 'react-admin';
+import * as jsonexport from 'jsonexport/dist';
 
 import ImportOfficeUserButton from 'components/Admin/ImportOfficeUserButton';
 import AdminPagination from 'scenes/SystemAdmin/shared/AdminPagination';
 
+// Custom exporter to flatten out role types
+const exporter = (data) => {
+  const usersForExport = data.map((rowData) => {
+    const { roles, ...otherRowData } = rowData;
+
+    const flattenedRoles = roles ? roles.map((role) => role.roleType).join(',') : '';
+
+    return {
+      ...otherRowData,
+      roles: flattenedRoles,
+    };
+  });
+
+  // convert data to csv and download
+  jsonexport(usersForExport, {}, (err, csv) => {
+    if (err) throw err;
+    downloadCSV(csv, 'office-users');
+  });
+};
+
 // Overriding the default toolbar to add import button
 const ListActions = () => {
-  const { total, resource, sort, filterValues, exporter } = useListController();
+  const { total, resource, sort, filterValues } = useListController();
+
   return (
     <TopToolbar>
       <CreateButton />
