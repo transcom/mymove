@@ -2037,11 +2037,6 @@ definitions:
         readOnly: true
     allOf:
       - $ref: '#/definitions/MTOShipmentWithoutServiceItems'
-  MTOShipments:
-    description: A list of shipments.
-    items:
-      $ref: '#/definitions/MTOShipment'
-    type: array
   MTOShipmentsWithoutServiceObjects:
     description: A list of shipments without their associated service items.
     items:

@@ -527,17 +527,6 @@ func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
 	return payload
 }
 
-// MTOShipments converts an array of MTOShipment models to a payload
-func MTOShipments(mtoShipments *models.MTOShipments) *primemessages.MTOShipments {
-	payload := make(primemessages.MTOShipments, len(*mtoShipments))
-
-	for i, m := range *mtoShipments {
-		copyOfM := m // Make copy to avoid implicit memory aliasing of items from a range statement.
-		payload[i] = MTOShipment(&copyOfM)
-	}
-	return &payload
-}
-
 // MTOServiceItem payload
 func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServiceItem {
 	var payload primemessages.MTOServiceItem

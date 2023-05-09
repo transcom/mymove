@@ -2580,13 +2580,6 @@ func init() {
         }
       }
     },
-    "MTOShipments": {
-      "description": "A list of shipments.",
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/MTOShipment"
-      }
-    },
     "MTOShipmentsWithoutServiceObjects": {
       "description": "A list of shipments without their associated service items.",
       "type": "array",
@@ -7023,13 +7016,6 @@ func init() {
           "format": "date-time",
           "readOnly": true
         }
-      }
-    },
-    "MTOShipments": {
-      "description": "A list of shipments.",
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/MTOShipment"
       }
     },
     "MTOShipmentsWithoutServiceObjects": {
