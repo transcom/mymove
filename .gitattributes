@@ -11,4 +11,4 @@ swagger/*.yaml binary
 # the dev_data_seed.sql is a dump from the migrations
 # because we use randomly generated uuids, it changes every time migrations
 #are re-run and is thus effectively a binary file
-migrations/app/dev_data_seed.sql
+migrations/app/dev_data_seed.sql binary
