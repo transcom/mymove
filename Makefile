@@ -536,15 +536,8 @@ db_dev_migrate_standalone: bin/milmove
 # tables needed are the largest tables, so filtering didn't really
 # reduce the time or space
 #
-# However, dumping all the data we exceed github's 100MB file size
-# limit. Excluding the tables below because they are not needed in a
-# world with a single GHC prime. We are now just under the limit
-#
 # audit_history is not needed for the data created in seed
 	pg_dump --format=plain --encoding=UTF8 --data-only \
-		--exclude-table transportation_service_providers \
-		--exclude-table transportation_service_provider_performances \
-		--exclude-table traffic_distribution_list \
 		--exclude-table audit_history \
 		$(DEV_DATABASE_URL) > "migrations/${APPLICATION}/dev_data_seed.sql"
 
