@@ -15,7 +15,7 @@ CREATE TABLE sit_address_updates
 	status sit_address_update_status NOT NULL,
 	distance int4 NOT NULL,
 	reason text NOT NULL,
-	contractor_remarks text NOT NULL,
+	contractor_remarks text NULL,
 	office_remarks text NULL
 );
 
