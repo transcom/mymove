@@ -3580,16 +3580,19 @@ func MakeHHGMoveIn200DaysSIT(appCtx appcontext.AppContext) models.Move {
 	}, nil)
 
 	agentUserInfo := newUserInfo("agent")
-	testdatagen.MakeMTOAgent(appCtx.DB(), testdatagen.Assertions{
-		MTOAgent: models.MTOAgent{
-			MTOShipment:   MTOShipment,
-			MTOShipmentID: MTOShipment.ID,
-			FirstName:     &agentUserInfo.firstName,
-			LastName:      &agentUserInfo.lastName,
-			Email:         &agentUserInfo.email,
-			MTOAgentType:  models.MTOAgentReleasing,
+	factory.BuildMTOAgent(appCtx.DB(), []factory.Customization{
+		{
+			Model:    MTOShipment,
+			LinkOnly: true,
 		},
-	})
+		{Model: models.MTOAgent{
+			FirstName:    &agentUserInfo.firstName,
+			LastName:     &agentUserInfo.lastName,
+			Email:        &agentUserInfo.email,
+			MTOAgentType: models.MTOAgentReleasing,
+		},
+		},
+	}, nil)
 
 	year, month, day := time.Now().Add(time.Hour * 24 * -60).Date()
 	threeMonthsAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
@@ -3742,8 +3745,6 @@ func MakeHHGMoveIn200DaysSIT(appCtx appcontext.AppContext) models.Move {
 		},
 	}, nil)
 
-	// scenario.MakeSITExtensionsForShipment(appCtx, MTOShipment)
-
 	return mto
 }
 
@@ -3839,16 +3840,19 @@ func MakeHHGMoveIn200DaysSITWithPendingExtension(appCtx appcontext.AppContext) m
 	}, nil)
 
 	agentUserInfo := newUserInfo("agent")
-	testdatagen.MakeMTOAgent(appCtx.DB(), testdatagen.Assertions{
-		MTOAgent: models.MTOAgent{
-			MTOShipment:   MTOShipment,
-			MTOShipmentID: MTOShipment.ID,
-			FirstName:     &agentUserInfo.firstName,
-			LastName:      &agentUserInfo.lastName,
-			Email:         &agentUserInfo.email,
-			MTOAgentType:  models.MTOAgentReleasing,
+	factory.BuildMTOAgent(appCtx.DB(), []factory.Customization{
+		{
+			Model:    MTOShipment,
+			LinkOnly: true,
 		},
-	})
+		{Model: models.MTOAgent{
+			FirstName:    &agentUserInfo.firstName,
+			LastName:     &agentUserInfo.lastName,
+			Email:        &agentUserInfo.email,
+			MTOAgentType: models.MTOAgentReleasing,
+		},
+		},
+	}, nil)
 
 	year, month, day := time.Now().Add(time.Hour * 24 * -60).Date()
 	threeMonthsAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
