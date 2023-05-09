@@ -24,7 +24,7 @@ func MoveTaskOrder(moveTaskOrder *models.Move) *primemessages.MoveTaskOrder {
 	}
 	paymentRequests := PaymentRequests(&moveTaskOrder.PaymentRequests)
 	mtoServiceItems := MTOServiceItems(&moveTaskOrder.MTOServiceItems)
-	mtoShipments := MTOShipments(&moveTaskOrder.MTOShipments)
+	mtoShipments := MTOShipmentsWithoutServiceItems(&moveTaskOrder.MTOShipments)
 
 	payload := &primemessages.MoveTaskOrder{
 		ID:                         strfmt.UUID(moveTaskOrder.ID.String()),
@@ -437,9 +437,8 @@ func PPMShipment(ppmShipment *models.PPMShipment) *primemessages.PPMShipment {
 	return payloadPPMShipment
 }
 
-// MTOShipment converts MTOShipment model to payload
-func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
-	payload := &primemessages.MTOShipment{
+func MTOShipmentWithoutServiceItems(mtoShipment *models.MTOShipment) *primemessages.MTOShipmentWithoutServiceItems {
+	payload := &primemessages.MTOShipmentWithoutServiceItems{
 		ID:                               strfmt.UUID(mtoShipment.ID.String()),
 		ActualPickupDate:                 handlers.FmtDatePtr(mtoShipment.ActualPickupDate),
 		ApprovedDate:                     handlers.FmtDatePtr(mtoShipment.ApprovedDate),
@@ -488,12 +487,6 @@ func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
 		payload.StorageFacility = StorageFacility(mtoShipment.StorageFacility)
 	}
 
-	if mtoShipment.MTOServiceItems != nil {
-		payload.SetMtoServiceItems(*MTOServiceItems(&mtoShipment.MTOServiceItems))
-	} else {
-		payload.SetMtoServiceItems([]primemessages.MTOServiceItem{})
-	}
-
 	if mtoShipment.PrimeEstimatedWeight != nil {
 		payload.PrimeEstimatedWeight = handlers.FmtInt64(mtoShipment.PrimeEstimatedWeight.Int64())
 	}
@@ -504,6 +497,31 @@ func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
 
 	if mtoShipment.NTSRecordedWeight != nil {
 		payload.NtsRecordedWeight = handlers.FmtInt64(mtoShipment.NTSRecordedWeight.Int64())
+	}
+
+	return payload
+}
+
+func MTOShipmentsWithoutServiceItems(mtoShipments *models.MTOShipments) *primemessages.MTOShipmentsWithoutServiceObjects {
+	payload := make(primemessages.MTOShipmentsWithoutServiceObjects, len(*mtoShipments))
+
+	for i, m := range *mtoShipments {
+		copyOfM := m // Make copy to avoid implicit memory aliasing of items from a range statement.
+		payload[i] = MTOShipmentWithoutServiceItems(&copyOfM)
+	}
+	return &payload
+}
+
+// MTOShipment converts MTOShipment model to payload
+func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
+	payload := &primemessages.MTOShipment{
+		MTOShipmentWithoutServiceItems: *MTOShipmentWithoutServiceItems(mtoShipment),
+	}
+
+	if mtoShipment.MTOServiceItems != nil {
+		payload.SetMtoServiceItems(*MTOServiceItems(&mtoShipment.MTOServiceItems))
+	} else {
+		payload.SetMtoServiceItems([]primemessages.MTOServiceItem{})
 	}
 
 	return payload

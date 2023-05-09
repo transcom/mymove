@@ -488,8 +488,6 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 
 		suite.Equal(successShipment.MoveTaskOrderID, handlers.FmtUUIDToPop(shipment.MoveTaskOrderID))
 
-		// TODO: test mtoServiceItemsField
-
 		suite.Equal(*successShipment.NTSRecordedWeight, *handlers.PoundPtrFromInt64Ptr(shipment.NtsRecordedWeight))
 
 		suite.Equal(successShipment.PickupAddress.ID, handlers.FmtUUIDToPop(shipment.PickupAddress.ID))

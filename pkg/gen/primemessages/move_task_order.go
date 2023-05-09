@@ -67,7 +67,7 @@ type MoveTaskOrder struct {
 
 	// mto shipments
 	// Required: true
-	MtoShipments MTOShipments `json:"mtoShipments"`
+	MtoShipments MTOShipmentsWithoutServiceObjects `json:"mtoShipments"`
 
 	// order
 	Order *Order `json:"order,omitempty"`
@@ -134,7 +134,7 @@ func (m *MoveTaskOrder) UnmarshalJSON(raw []byte) error {
 
 		MtoServiceItems json.RawMessage `json:"mtoServiceItems"`
 
-		MtoShipments MTOShipments `json:"mtoShipments"`
+		MtoShipments MTOShipmentsWithoutServiceObjects `json:"mtoShipments"`
 
 		Order *Order `json:"order,omitempty"`
 
@@ -247,7 +247,7 @@ func (m MoveTaskOrder) MarshalJSON() ([]byte, error) {
 
 		MoveCode string `json:"moveCode,omitempty"`
 
-		MtoShipments MTOShipments `json:"mtoShipments"`
+		MtoShipments MTOShipmentsWithoutServiceObjects `json:"mtoShipments"`
 
 		Order *Order `json:"order,omitempty"`
 

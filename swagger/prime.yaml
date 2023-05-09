@@ -1675,7 +1675,7 @@ definitions:
         items:
           $ref: '#/definitions/MTOServiceItem'
       mtoShipments:
-        $ref: '#/definitions/MTOShipments'
+        $ref: '#/definitions/MTOShipmentsWithoutServiceObjects'
       ppmType:
         type: string
         enum:
@@ -2062,7 +2062,8 @@ definitions:
       - SUBMITTED
       - APPROVED
       - REJECTED
-  MTOShipment:
+  MTOShipmentWithoutServiceItems:
+    type: object
     properties:
       id:
         description: The ID of the shipment.
@@ -2225,12 +2226,6 @@ definitions:
         $ref: '#/definitions/SITExtensions'
       reweigh:
         $ref: '#/definitions/Reweigh'
-      mtoServiceItems:
-        description: A list of service items connected to this shipment.
-        items:
-          $ref: '#/definitions/MTOServiceItem'
-        type: array
-        readOnly: true
       pickupAddress:
         description: >
           The address where the movers should pick up this shipment, entered by
@@ -2319,10 +2314,26 @@ definitions:
           Email or ID of the person who will be contacted in the event of
           questions or concerns about this update. May be the person performing
           the update, or someone else working with the Prime contractor.
+  MTOShipment:
+    type: object
+    properties:
+      mtoServiceItems:
+        description: A list of service items connected to this shipment.
+        items:
+          $ref: '#/definitions/MTOServiceItem'
+        type: array
+        readOnly: true
+    allOf:
+      - $ref: '#/definitions/MTOShipmentWithoutServiceItems'
   MTOShipments:
     description: A list of shipments.
     items:
       $ref: '#/definitions/MTOShipment'
+    type: array
+  MTOShipmentsWithoutServiceObjects:
+    description: A list of shipments without their associated service items.
+    items:
+      $ref: '#/definitions/MTOShipmentWithoutServiceItems'
     type: array
   MTOShipmentType:
     title: Shipment Type

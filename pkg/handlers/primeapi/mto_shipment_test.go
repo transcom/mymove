@@ -126,7 +126,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		suite.NoError(createMTOShipmentPayload.Validate(strfmt.Default))
 
 		// check that the mto shipment status is Submitted
-		suite.Require().Equal(createMTOShipmentPayload.Status, primemessages.MTOShipmentStatusSUBMITTED, "MTO Shipment should have been submitted")
+		suite.Require().Equal(createMTOShipmentPayload.Status, primemessages.MTOShipmentWithoutServiceItemsStatusSUBMITTED, "MTO Shipment should have been submitted")
 		suite.Require().Equal(createMTOShipmentPayload.PrimeEstimatedWeight, params.Body.PrimeEstimatedWeight)
 	})
 
@@ -201,7 +201,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		suite.Equal(move.ID.String(), createdShipment.MoveTaskOrderID.String())
 		suite.Equal(primemessages.MTOShipmentTypePPM, createdShipment.ShipmentType)
-		suite.Equal(primemessages.MTOShipmentStatusSUBMITTED, createdShipment.Status)
+		suite.Equal(primemessages.MTOShipmentWithoutServiceItemsStatusSUBMITTED, createdShipment.Status)
 		suite.Equal(&counselorRemarks, createdShipment.CounselorRemarks)
 
 		suite.Equal(createdShipment.ID.String(), createdPPM.ShipmentID.String())
