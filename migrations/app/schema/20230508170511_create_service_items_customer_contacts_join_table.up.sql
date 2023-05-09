@@ -3,10 +3,10 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 CREATE TABLE service_items_customer_contacts (
 	id UUID PRIMARY KEY,
-	mto_service_item_id UUID NOT NULL,
-	mto_service_item_customer_contact_id UUID NOT NULL,
-	FOREIGN KEY (mto_service_item_id) REFERENCES mto_service_items (id),
-	FOREIGN KEY (mto_service_item_customer_contact_id) REFERENCES mto_service_item_customer_contacts (id),
+	mtoservice_item_id UUID NOT NULL,
+	mtoservice_item_customer_contact_id UUID NOT NULL,
+	FOREIGN KEY (mtoservice_item_id) REFERENCES mto_service_items (id),
+	FOREIGN KEY (mtoservice_item_customer_contact_id) REFERENCES mto_service_item_customer_contacts (id),
 	created_at TIMESTAMP without time zone NOT NULL DEFAULT NOW(),
 	updated_at TIMESTAMP without time zone NOT NULL DEFAULT NOW(),
 	deleted_at TIMESTAMP without time zone
