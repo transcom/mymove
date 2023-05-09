@@ -484,7 +484,7 @@ class MtoShipmentForm extends Component {
                         </Fieldset>
                       </SectionWrapper>
 
-                      <Hint>
+                      <Hint darkText>
                         <p>You can change details about your move by talking with your counselor or your movers</p>
                       </Hint>
 
