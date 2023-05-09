@@ -191,7 +191,13 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 			MoveID:      successMove.Locator,
 		}
 
-		sitExtension := factory.BuildSITDurationUpdate(suite.DB(), []factory.Customization{
+		sitUpdate := factory.BuildSITDurationUpdate(suite.DB(), []factory.Customization{
+			{
+				Model: models.SITDurationUpdate{
+					ContractorRemarks: models.StringPointer("customer wasn't able to finalize apartment"),
+					OfficeRemarks:     models.StringPointer("customer mentioned they were finalizing an apt"),
+				},
+			},
 			{
 				Model:    successMove,
 				LinkOnly: true,
@@ -215,9 +221,21 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		// Validate outgoing payload
 		suite.NoError(movePayload.Validate(strfmt.Default))
 
-		reweighPayload := movePayload.MtoShipments[0].SitExtensions[0]
+		sitUpdatePayload := movePayload.MtoShipments[0].SitExtensions[0]
 		suite.Equal(successMove.ID.String(), movePayload.ID.String())
-		suite.Equal(strfmt.UUID(sitExtension.ID.String()), reweighPayload.ID)
+		suite.Equal(sitUpdate.ID.String(), sitUpdatePayload.ID.String())
+		suite.Equal(sitUpdate.MTOShipmentID.String(), sitUpdatePayload.MtoShipmentID.String())
+		suite.Equal(string(sitUpdate.RequestReason), string(sitUpdatePayload.RequestReason))
+		suite.Equal(*sitUpdate.ContractorRemarks, *sitUpdatePayload.ContractorRemarks)
+		suite.Equal(string(sitUpdate.Status), fmt.Sprintf("%v", sitUpdatePayload.Status))
+		suite.Equal(int64(sitUpdate.RequestedDays), sitUpdatePayload.RequestedDays)
+		suite.Equal(*handlers.FmtIntPtrToInt64(sitUpdate.ApprovedDays), *sitUpdatePayload.ApprovedDays)
+		suite.Equal(sitUpdate.DecisionDate.Format(time.RFC3339), handlers.FmtDateTimePtrToPop(sitUpdatePayload.DecisionDate).Format(time.RFC3339))
+		suite.Equal(*sitUpdate.OfficeRemarks, *sitUpdatePayload.OfficeRemarks)
+
+		suite.NotNil(sitUpdatePayload.ETag)
+		suite.NotNil(sitUpdatePayload.CreatedAt)
+		suite.NotNil(sitUpdatePayload.UpdatedAt)
 	})
 
 	suite.Run("Success - returns SitDestinationFinalAddress on related MTO service Items if they exist", func() {
@@ -518,8 +536,6 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		suite.Equal(successShipment.SecondaryPickupAddress.State, *shipment.SecondaryPickupAddress.State)
 		suite.Equal(successShipment.SecondaryPickupAddress.PostalCode, *shipment.SecondaryPickupAddress.PostalCode)
 		suite.Equal(*successShipment.SecondaryPickupAddress.Country, *shipment.SecondaryPickupAddress.Country)
-
-		// TODO: test fields on SitExtensions, existing test "Success - returns sit extensions on shipments if they exist"
 
 		suite.Equal(string(successShipment.ShipmentType), string(shipment.ShipmentType))
 		suite.Equal(string(successShipment.Status), shipment.Status)
