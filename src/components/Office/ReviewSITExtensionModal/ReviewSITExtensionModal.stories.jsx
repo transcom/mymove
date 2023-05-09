@@ -1,10 +1,25 @@
 import React from 'react';
+import MockDate from 'mockdate';
+import addons from '@storybook/addons';
 
 import ReviewSITExtensionModal from './ReviewSITExtensionModal';
+
+const mockedDate = '2023-09-06T15:41:59.373Z';
 
 export default {
   title: 'Office Components/ReviewSITExtensionModal',
   component: ReviewSITExtensionModal,
+  decorators: [
+    (Story) => {
+      MockDate.set(mockedDate);
+      addons.getChannel().on('storyRendered', MockDate.reset);
+      return (
+        <div>
+          <Story />
+        </div>
+      );
+    },
+  ],
 };
 
 const sitExtension = {
