@@ -10,14 +10,7 @@ import { EntitlementShape } from 'types/order';
 import { formatWeight } from 'utils/formatters';
 import Hint from 'components/Hint';
 
-const AllowancesDetailForm = ({
-  header,
-  entitlements,
-  rankOptions,
-  branchOptions,
-  editableAuthorizedWeight,
-  formIsDisabled,
-}) => {
+const AllowancesDetailForm = ({ header, entitlements, rankOptions, branchOptions, formIsDisabled }) => {
   return (
     <div className={styles.AllowancesDetailForm}>
       {header && <h3 data-testid="header">{header}</h3>}
@@ -108,30 +101,7 @@ const AllowancesDetailForm = ({
           isDisabled={formIsDisabled}
         />
       </div>
-
-      {editableAuthorizedWeight && (
-        <MaskedTextField
-          data-testid="authorizedWeightInput"
-          defaultValue="0"
-          name="authorizedWeight"
-          label="Authorized weight (lbs)"
-          id="authorizedWeightInput"
-          mask={Number}
-          scale={0} // digits after point, 0 for integers
-          signed={false} // disallow negative
-          thousandsSeparator=","
-          lazy={false} // immediate masking evaluation
-          isDisabled={formIsDisabled}
-        />
-      )}
-
       <dl>
-        {!editableAuthorizedWeight && (
-          <>
-            <dt>Authorized weight</dt>
-            <dd data-testid="authorizedWeight">{formatWeight(entitlements.authorizedWeight)}</dd>
-          </>
-        )}
         <dt>Weight allowance</dt>
         <dd data-testid="weightAllowance">{formatWeight(entitlements.totalWeight)}</dd>
       </dl>
@@ -153,13 +123,11 @@ AllowancesDetailForm.propTypes = {
   rankOptions: DropdownArrayOf.isRequired,
   branchOptions: DropdownArrayOf.isRequired,
   header: PropTypes.string,
-  editableAuthorizedWeight: PropTypes.bool,
   formIsDisabled: PropTypes.bool,
 };
 
 AllowancesDetailForm.defaultProps = {
   header: null,
-  editableAuthorizedWeight: false,
   formIsDisabled: false,
 };
 

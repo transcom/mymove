@@ -162,7 +162,6 @@ test.describe('Customer Support User Flows', () => {
       await expect(page.locator('select[name=agency]')).toBeDisabled();
       await expect(page.locator('select[name="grade"]')).toBeDisabled();
       await expect(page.locator('select[name="grade"]')).toBeDisabled();
-      await expect(page.locator('input[name="authorizedWeight"]')).toBeDisabled();
       await expect(page.locator('input[name="dependentsAuthorized"]')).toBeDisabled();
 
       // no save button should exist
