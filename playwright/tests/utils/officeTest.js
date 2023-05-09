@@ -7,6 +7,7 @@
 import * as base from '@playwright/test';
 
 import { BaseTestPage } from './baseTest';
+import WaitForOfficePage from './waitForOfficePage';
 
 /**
  * devlocal auth user types
@@ -24,6 +25,16 @@ export const PrimeSimulatorUserType = 'Prime Simulator office';
  */
 export class OfficePage extends BaseTestPage {
   /**
+   * Create an OfficePage.
+   * @param {import('@playwright/test').Page} page
+   * @param {import('@playwright/test').APIRequestContext} request
+   */
+  constructor(page, request) {
+    super(page, request);
+    this.waitForPage = new WaitForOfficePage(page);
+  }
+
+  /**
    * Wait for the page to finish loading.
    */
   async waitForLoading() {
@@ -31,57 +42,6 @@ export class OfficePage extends BaseTestPage {
     await base.expect(this.page.locator('button:has-text("Sign out")')).toHaveCount(1, { timeout: 10000 });
     await base.expect(this.page.locator('h2[data-name="loading-placeholder"]')).toHaveCount(0);
   }
-
-  /**
-   * Goto URL and wait for the page to finish loading.
-   *
-   * @param {string} url to visit
-   */
-  async gotoAndWaitForLoading(url) {
-    await this.page.goto(url);
-    await this.waitForLoading();
-  }
-
-  /**
-   * Wait for an office app page to load
-   * Page load waiting should be used any time you navigate to a new page
-   */
-  waitForPage = {
-    moveDetails: async () => {
-      await base.expect(this.page.getByRole('heading', { level: 1 })).toHaveText('Move details');
-    },
-    addNTSShipment: async () => {
-      await base.expect(this.page.getByRole('heading', { level: 1 })).toHaveText('Add shipment details');
-      await base.expect(this.page.getByTestId('tag')).toHaveText('NTS');
-    },
-    addNTSReleaseShipment: async () => {
-      await base.expect(this.page.getByRole('heading', { level: 1 })).toHaveText('Add shipment details');
-      await base.expect(this.page.getByTestId('tag')).toHaveText('NTS-release');
-    },
-    editNTSShipment: async () => {
-      await base.expect(this.page.getByRole('heading', { level: 1 })).toHaveText('Edit shipment details');
-      await base.expect(this.page.getByTestId('tag')).toHaveText('NTS');
-    },
-    editNTSReleaseShipment: async () => {
-      await base.expect(this.page.getByRole('heading', { level: 1 })).toHaveText('Edit shipment details');
-      await base.expect(this.page.getByTestId('tag')).toHaveText('NTS-release');
-    },
-    moveOrders: async () => {
-      await base.expect(this.page.getByRole('heading', { level: 2, name: 'View orders' })).toBeVisible();
-    },
-    reviewWeightTicket: async () => {
-      await base.expect(this.page.getByRole('heading', { name: 'Review trip 1', level: 3 })).toBeVisible();
-    },
-    reviewProGear: async () => {
-      await base.expect(this.page.getByRole('heading', { name: 'Review pro-gear 1', level: 3 })).toBeVisible();
-    },
-    reviewReceipt: async () => {
-      await base.expect(this.page.getByRole('heading', { name: 'Review receipt 1', level: 3 })).toBeVisible();
-    },
-    reviewDocumentsConfirmation: async () => {
-      await base.expect(this.page.getByRole('heading', { name: 'Send to customer?', level: 3 })).toBeVisible();
-    },
-  };
 
   /**
    * Sign in as existing office user with devlocal

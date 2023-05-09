@@ -26,13 +26,6 @@ export class TooFlowPage extends OfficePage {
     this.moveLocator = move.locator;
   }
 
-  waitForPage = {
-    ...this.waitForPage,
-    moveTaskOrder: async () => {
-      await expect(this.page.getByRole('heading', { level: 1 })).toHaveText('Move task order');
-    },
-  };
-
   /**
    * select and approve all service items on the page
    */

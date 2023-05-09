@@ -15,19 +15,6 @@ export class ServiceCounselorPage extends OfficePage {
     super(officePage.page, officePage.request);
   }
 
-  waitForPage = {
-    ...this.waitForPage,
-    counselingQueue: async () => {
-      await expect(this.page.getByRole('link', { name: 'Counseling' })).toHaveClass('usa-current');
-    },
-    closeoutQueue: async () => {
-      await expect(this.page.getByRole('link', { name: 'PPM Closeout' })).toHaveClass('usa-current');
-    },
-    reviewShipmentWeights: async () => {
-      await expect(this.page.getByRole('heading', { name: 'Review shipment weights', level: 1 })).toBeVisible();
-    },
-  };
-
   /**
    * Verify that the user is in the correct move
    * @param {string} moveLocator
