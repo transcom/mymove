@@ -7,31 +7,31 @@ import (
 	"github.com/gofrs/uuid"
 )
 
-// SITAddressStatus represents the possible statuses for a mto shipment
-type SITAddressStatus string
+// SITAddressUpdateStatus represents the possible statuses for a mto shipment
+type SITAddressUpdateStatus string
 
 const (
-	// SITAddressStatusRequested is the requested status type for SIT Address Update Items
-	SITAddressStatusRequested SITAddressStatus = "REQUESTED"
-	// SITAddressStatusRejected is the rejected status type for SIT Address Update Items
-	SITAddressStatusRejected SITAddressStatus = "REJECTED"
-	// SITAddressStatusApproved is the approved status type for SIT Address Update Items
-	SITAddressStatusApproved SITAddressStatus = "APPROVED"
+	// SITAddressUpdateStatusRequested is the requested status type for SIT Address Update Items
+	SITAddressUpdateStatusRequested SITAddressUpdateStatus = "REQUESTED"
+	// SITAddressUpdateStatusRejected is the rejected status type for SIT Address Update Items
+	SITAddressUpdateStatusRejected SITAddressUpdateStatus = "REJECTED"
+	// SITAddressUpdateStatusApproved is the approved status type for SIT Address Update Items
+	SITAddressUpdateStatusApproved SITAddressUpdateStatus = "APPROVED"
 )
 
 var AllowedSITAddressStatuses = []string{
-	string(SITAddressStatusRequested),
-	string(SITAddressStatusRejected),
-	string(SITAddressStatusApproved),
+	string(SITAddressUpdateStatusRequested),
+	string(SITAddressUpdateStatusRejected),
+	string(SITAddressUpdateStatusApproved),
 }
 
 type SITAddressUpdate struct {
-	ID                uuid.UUID        `json:"id" db:"id"`
-	ContractorRemarks *string          `json:"contractor_remarks" db:"contractor_remarks"`
-	Distance          int              `json:"distance" db:"distance"`
-	OfficeRemarks     *string          `json:"office_remarks" db:"office_remarks"`
-	Reason            string           `json:"reason" db:"reason"`
-	Status            SITAddressStatus `json:"status" db:"status"`
+	ID                uuid.UUID              `json:"id" db:"id"`
+	ContractorRemarks *string                `json:"contractor_remarks" db:"contractor_remarks"`
+	Distance          int                    `json:"distance" db:"distance"`
+	OfficeRemarks     *string                `json:"office_remarks" db:"office_remarks"`
+	Reason            string                 `json:"reason" db:"reason"`
+	Status            SITAddressUpdateStatus `json:"status" db:"status"`
 
 	// Associations
 	MTOServiceItem   MTOServiceItem `belongs_to:"mto_service_items" fk_id:"mto_service_item_id"`
