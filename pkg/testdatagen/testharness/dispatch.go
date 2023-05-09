@@ -77,6 +77,10 @@ var actionDispatcher = map[string]actionFunc{
 	"HHGMoveWithServiceItemsandPaymentRequestsForTIO": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeHHGMoveWithServiceItemsandPaymentRequestsForTIO(appCtx)
 	},
+	//subject to change
+	// "HHGMoveInSITWithAddressChangeRequest": func(appCtx appcontext.AppContext) testHarnessResponse {
+	// 	return MakeHHGMoveInSITWithAddressChangeRequest(appCtx)
+	// },
 	"NTSRMoveWithPaymentRequest": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeNTSRMoveWithPaymentRequest(appCtx)
 	},
