@@ -27,7 +27,7 @@ var AllowedSITAddressStatuses = []string{
 
 type SITAddressUpdate struct {
 	ID                uuid.UUID        `json:"id" db:"id"`
-	ContractorRemarks string           `json:"contractor_remarks" db:"contractor_remarks"`
+	ContractorRemarks *string          `json:"contractor_remarks" db:"contractor_remarks"`
 	Distance          int              `json:"distance" db:"distance"`
 	OfficeRemarks     *string          `json:"office_remarks" db:"office_remarks"`
 	Reason            string           `json:"reason" db:"reason"`
@@ -53,7 +53,7 @@ func (s *SITAddressUpdate) Validate(_ *pop.Connection) (*validate.Errors, error)
 		&validators.StringInclusion{Name: "Status", Field: string(s.Status), List: AllowedSITAddressStatuses},
 		&validators.IntIsPresent{Name: "Distance", Field: s.Distance},
 		&validators.StringIsPresent{Name: "Reason", Field: s.Reason},
-		&validators.StringIsPresent{Name: "ContractorRemarks", Field: s.ContractorRemarks},
+		&StringIsNilOrNotBlank{Name: "ContractorRemarks", Field: s.ContractorRemarks},
 		&StringIsNilOrNotBlank{Name: "OfficeRemarks", Field: s.OfficeRemarks},
 	), nil
 }
