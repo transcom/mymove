@@ -15,13 +15,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
 	. "github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *ModelSuite) TestBasicMoveInstantiation() {
@@ -41,7 +39,7 @@ func (suite *ModelSuite) TestCreateNewMoveValidLocatorString() {
 	factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 
 	moveOptions := MoveOptions{
-		Show: swag.Bool(true),
+		Show: BoolPointer(true),
 	}
 	move, verrs, err := orders.CreateNewMove(suite.DB(), moveOptions)
 	suite.NoError(err)
@@ -92,7 +90,7 @@ func (suite *ModelSuite) TestFetchMove() {
 
 		// Create HHG Move
 		moveOptions := MoveOptions{
-			Show: swag.Bool(true),
+			Show: BoolPointer(true),
 		}
 		move, verrs, err := order.CreateNewMove(suite.DB(), moveOptions)
 		suite.NoError(err)
@@ -141,7 +139,7 @@ func (suite *ModelSuite) TestFetchMove() {
 		// Create a second sm and a move only on that sm
 		order2 := factory.BuildOrder(suite.DB(), nil, nil)
 		moveOptions := MoveOptions{
-			Show: swag.Bool(true),
+			Show: BoolPointer(true),
 		}
 		move2, verrs, err := order2.CreateNewMove(suite.DB(), moveOptions)
 		suite.NoError(err)
@@ -161,11 +159,17 @@ func (suite *ModelSuite) TestFetchMove() {
 		// Expected outcome: Move not found, ErrFetchNotFound error
 		session, order := setupTestData()
 		// Create a hidden move
-		hiddenMove := testdatagen.MakeHiddenHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
-			Order: Order{
-				ID: order.ID,
+		hiddenMove := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: Move{
+					Show: BoolPointer(false),
+				},
 			},
-		})
+			{
+				Model:    order,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		// Attempt to fetch this move. We should receive an error.
 		_, err := FetchMove(suite.DB(), session, hiddenMove.ID)
@@ -211,7 +215,7 @@ func (suite *ModelSuite) TestSaveMoveDependenciesFail() {
 	factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 
 	moveOptions := MoveOptions{
-		Show: swag.Bool(true),
+		Show: BoolPointer(true),
 	}
 	move, verrs, err := orders.CreateNewMove(suite.DB(), moveOptions)
 	suite.NoError(err)
@@ -230,7 +234,7 @@ func (suite *ModelSuite) TestSaveMoveDependenciesSuccess() {
 	factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 
 	moveOptions := MoveOptions{
-		Show: swag.Bool(true),
+		Show: BoolPointer(true),
 	}
 	move, verrs, err := orders.CreateNewMove(suite.DB(), moveOptions)
 	suite.NoError(err)

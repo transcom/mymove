@@ -83,6 +83,7 @@ type Assertions struct {
 	ReService                                models.ReService
 	Reweigh                                  models.Reweigh
 	ReZip3                                   models.ReZip3
+	ReZip5RateArea                           models.ReZip5RateArea
 	Role                                     roles.Role
 	SecondaryDeliveryAddress                 models.Address
 	SecondaryPickupAddress                   models.Address
@@ -93,16 +94,8 @@ type Assertions struct {
 	SITDurationUpdate                        models.SITDurationUpdate
 	StorageFacility                          models.StorageFacility
 	Stub                                     bool
-	Tariff400ngItem                          models.Tariff400ngItem
-	Tariff400ngItemRate                      models.Tariff400ngItemRate
-	Tariff400ngServiceArea                   models.Tariff400ngServiceArea
-	Tariff400ngZip3                          models.Tariff400ngZip3
-	TestDataAuditHistory                     TestDataAuditHistory
-	TrafficDistributionList                  models.TrafficDistributionList
 	TransportationAccountingCode             models.TransportationAccountingCode
 	TransportationOffice                     models.TransportationOffice
-	TransportationServiceProvider            models.TransportationServiceProvider
-	TransportationServiceProviderPerformance models.TransportationServiceProviderPerformance
 	Upload                                   models.Upload
 	Uploader                                 *uploader.Uploader
 	UploadUseZeroBytes                       bool
@@ -326,7 +319,7 @@ func CurrentDateWithoutTime() *time.Time {
 // created, and if not, create one that we can place in the assertions for all the rest.
 func EnsureServiceMemberIsSetUpInAssertionsForDocumentCreation(db *pop.Connection, assertions Assertions) Assertions {
 	if !assertions.Stub && assertions.ServiceMember.CreatedAt.IsZero() || assertions.ServiceMember.ID.IsNil() {
-		serviceMember := MakeExtendedServiceMember(db, assertions)
+		serviceMember := makeExtendedServiceMember(db, assertions)
 
 		assertions.ServiceMember = serviceMember
 		assertions.Order.ServiceMemberID = serviceMember.ID
@@ -352,7 +345,7 @@ func GetOrCreateDocument(db *pop.Connection, document models.Document, assertion
 		// Set generic Document to have the specific assertions that were passed in
 		assertions.Document = document
 
-		return MakeDocument(db, assertions)
+		return makeDocument(db, assertions)
 	}
 
 	return document
@@ -364,7 +357,7 @@ func getOrCreateUpload(db *pop.Connection, upload models.UserUpload, assertions 
 		// Set generic UserUpload to have the specific assertions that were passed in
 		assertions.UserUpload = upload
 
-		return MakeUserUpload(db, assertions)
+		return makeUserUpload(db, assertions)
 	}
 
 	return upload
@@ -410,21 +403,10 @@ func GetOrCreateDocumentWithUploads(db *pop.Connection, document models.Document
 		assertions.UserUpload.DocumentID = &doc.ID
 		assertions.UserUpload.Document = doc
 
-		upload := MakeUserUpload(db, assertions)
+		upload := makeUserUpload(db, assertions)
 
 		doc.UserUploads = append(doc.UserUploads, upload)
 	}
 
 	return doc
-}
-
-// checkOrCreatePPMShipment checks PPMShipment in assertions, or creates one if none exists.
-func checkOrCreatePPMShipment(db *pop.Connection, assertions Assertions) models.PPMShipment {
-	ppmShipment := assertions.PPMShipment
-
-	if !assertions.Stub && ppmShipment.CreatedAt.IsZero() || ppmShipment.ID.IsNil() {
-		ppmShipment = MakeApprovedPPMShipmentWithActualInfo(db, assertions)
-	}
-
-	return ppmShipment
 }

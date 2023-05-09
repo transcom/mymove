@@ -158,13 +158,18 @@ func (suite *MTOShipmentServiceSuite) TestListMTOShipments() {
 			Move:        move,
 		})
 
-		agents := testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
-			MTOShipment: shipment,
-		})
-
-		SITExtension := testdatagen.MakeSITDurationUpdate(suite.DB(), testdatagen.Assertions{
-			MTOShipment: shipment,
-		})
+		agents := factory.BuildMTOAgent(suite.DB(), []factory.Customization{
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+		}, nil)
+		SITExtension := factory.BuildSITDurationUpdate(suite.DB(), []factory.Customization{
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+		}, []factory.Trait{factory.GetTraitApprovedSITDurationUpdate})
 
 		reweigh := testdatagen.MakeReweigh(suite.DB(), testdatagen.Assertions{
 			MTOShipment: shipment,
@@ -190,14 +195,23 @@ func (suite *MTOShipmentServiceSuite) TestListMTOShipments() {
 	suite.Run("Loads PPM associations", func() {
 		// not reusing the test above because the fetcher only loads PPM associations if the shipment type is PPM
 		move := factory.BuildMove(suite.DB(), nil, nil)
-		ppmShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-		})
+		ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{
-			ServiceMember: move.Orders.ServiceMember,
-			PPMShipment:   ppmShipment,
-		})
+		factory.BuildWeightTicket(suite.DB(), []factory.Customization{
+			{
+				Model:    move.Orders.ServiceMember,
+				LinkOnly: true,
+			},
+			{
+				Model:    ppmShipment,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		userUpload := factory.BuildUserUpload(suite.DB(), []factory.Customization{
 			{

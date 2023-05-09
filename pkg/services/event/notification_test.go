@@ -3,7 +3,6 @@ package event
 import (
 	"time"
 
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/factory"
@@ -121,29 +120,39 @@ func (suite *EventServiceSuite) Test_MTOServiceItemPayload() {
 			},
 		}, nil)
 
-		itemDimension1 := testdatagen.MakeMTOServiceItemDimension(suite.DB(), testdatagen.Assertions{
-			MTOServiceItemDimension: models.MTOServiceItemDimension{
-				Type:      models.DimensionTypeItem,
-				Length:    900,
-				Height:    900,
-				Width:     900,
-				CreatedAt: time.Time{},
-				UpdatedAt: time.Time{},
+		itemDimension1 := factory.BuildMTOServiceItemDimension(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItemDimension{
+					Type:      models.DimensionTypeItem,
+					Length:    900,
+					Height:    900,
+					Width:     900,
+					CreatedAt: time.Time{},
+					UpdatedAt: time.Time{},
+				},
 			},
-			MTOServiceItem: mtoServiceItemDCRT,
-		})
+			{
+				Model:    mtoServiceItemDCRT,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		crateDimension1 := testdatagen.MakeMTOServiceItemDimension(suite.DB(), testdatagen.Assertions{
-			MTOServiceItemDimension: models.MTOServiceItemDimension{
-				MTOServiceItemID: mtoServiceItemDCRT.ID,
-				Type:             models.DimensionTypeCrate,
-				Length:           2000,
-				Height:           2000,
-				Width:            2000,
-				CreatedAt:        time.Time{},
-				UpdatedAt:        time.Time{},
+		crateDimension1 := factory.BuildMTOServiceItemDimension(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItemDimension{
+					Type:      models.DimensionTypeCrate,
+					Length:    2000,
+					Height:    2000,
+					Width:     2000,
+					CreatedAt: time.Time{},
+					UpdatedAt: time.Time{},
+				},
 			},
-		})
+			{
+				Model:    mtoServiceItemDCRT,
+				LinkOnly: true,
+			},
+		}, nil)
 		data := &primemessages.MTOServiceItemDomesticCrating{}
 
 		payload, assemblePayloadErr := assembleMTOServiceItemPayload(suite.AppContextForTest(), mtoServiceItemDCRT.ID)
@@ -254,15 +263,17 @@ func (suite *EventServiceSuite) TestAssembleMTOShipmentPayload() {
 			},
 			{
 				Model: models.Move{
-					AvailableToPrimeAt: swag.Time(time.Now()),
+					AvailableToPrimeAt: models.TimePointer(time.Now()),
 				},
 			},
 		}, nil)
 
-		agent := testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
-			MTOShipment: shipment,
-		})
-
+		agent := factory.BuildMTOAgent(suite.DB(), []factory.Customization{
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+		}, nil)
 		// Test the assemble function
 		payload, shouldNotify, err := assembleMTOShipmentPayload(suite.AppContextForTest(), shipment.ID)
 		suite.Nil(err)
@@ -290,7 +301,7 @@ func (suite *EventServiceSuite) TestAssembleMTOShipmentPayload() {
 			},
 			{
 				Model: models.Move{
-					AvailableToPrimeAt: swag.Time(time.Now()),
+					AvailableToPrimeAt: models.TimePointer(time.Now()),
 				},
 			},
 		}, nil)

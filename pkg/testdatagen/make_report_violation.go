@@ -11,7 +11,7 @@ func MakeReportViolation(db *pop.Connection, assertions Assertions) models.Repor
 
 	report := assertions.Report
 	if isZeroUUID(assertions.Report.ID) {
-		report = MakeEvaluationReport(db, assertions)
+		report = makeEvaluationReport(db, assertions)
 	}
 
 	violation := assertions.Violation

@@ -6,7 +6,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/go-openapi/swag"
 	"github.com/gocarina/gocsv"
 	"github.com/pkg/errors"
 	"github.com/pterm/pterm"
@@ -14,6 +13,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/dbtools"
 )
@@ -155,18 +155,18 @@ func InitDataSheetInfo() []XlsxDataSheetInfo {
 
 	// 4: 	1b) Domestic & International Service Areas
 	xlsxDataSheets[4] = XlsxDataSheetInfo{
-		Description:    swag.String("1b) Service Areas"),
-		outputFilename: swag.String("1b_service_areas"),
+		Description:    models.StringPointer("1b) Service Areas"),
+		outputFilename: models.StringPointer("1b_service_areas"),
 		ProcessMethods: []xlsxProcessInfo{
 			{
 				process:     &parseDomesticServiceAreas,
-				description: swag.String("domestic service areas"),
-				adtlSuffix:  swag.String("domestic"),
+				description: models.StringPointer("domestic service areas"),
+				adtlSuffix:  models.StringPointer("domestic"),
 			},
 			{
 				process:     &parseInternationalServiceAreas,
-				description: swag.String("international service areas"),
-				adtlSuffix:  swag.String("international"),
+				description: models.StringPointer("international service areas"),
+				adtlSuffix:  models.StringPointer("international"),
 			},
 		},
 		verify: &verifyServiceAreas,
@@ -174,11 +174,11 @@ func InitDataSheetInfo() []XlsxDataSheetInfo {
 
 	// 6: 	2a) Domestic Linehaul Prices
 	xlsxDataSheets[6] = XlsxDataSheetInfo{
-		Description:    swag.String("2a) Domestic Linehaul Prices"),
-		outputFilename: swag.String("2a_domestic_linehaul_prices"),
+		Description:    models.StringPointer("2a) Domestic Linehaul Prices"),
+		outputFilename: models.StringPointer("2a_domestic_linehaul_prices"),
 		ProcessMethods: []xlsxProcessInfo{{
 			process:     &parseDomesticLinehaulPrices,
-			description: swag.String("domestic linehaul prices"),
+			description: models.StringPointer("domestic linehaul prices"),
 		},
 		},
 		verify: &verifyDomesticLinehaulPrices,
@@ -186,11 +186,11 @@ func InitDataSheetInfo() []XlsxDataSheetInfo {
 
 	// 7: 	2b) Dom. Service Area Prices
 	xlsxDataSheets[7] = XlsxDataSheetInfo{
-		Description:    swag.String("2b) Dom. Service Area Prices"),
-		outputFilename: swag.String("2b_domestic_service_area_prices"),
+		Description:    models.StringPointer("2b) Dom. Service Area Prices"),
+		outputFilename: models.StringPointer("2b_domestic_service_area_prices"),
 		ProcessMethods: []xlsxProcessInfo{{
 			process:     &parseDomesticServiceAreaPrices,
-			description: swag.String("domestic service area prices"),
+			description: models.StringPointer("domestic service area prices"),
 		},
 		},
 		verify: &verifyDomesticServiceAreaPrices,
@@ -198,18 +198,18 @@ func InitDataSheetInfo() []XlsxDataSheetInfo {
 
 	// 8: 	2c) Dom. Other Prices
 	xlsxDataSheets[8] = XlsxDataSheetInfo{
-		Description:    swag.String("2c) Dom. Other Prices"),
-		outputFilename: swag.String("2c_domestic_other_prices"),
+		Description:    models.StringPointer("2c) Dom. Other Prices"),
+		outputFilename: models.StringPointer("2c_domestic_other_prices"),
 		ProcessMethods: []xlsxProcessInfo{
 			{
 				process:     &parseDomesticOtherPricesPack,
-				description: swag.String("domestic other (pack/unpack) prices"),
-				adtlSuffix:  swag.String("pack"),
+				description: models.StringPointer("domestic other (pack/unpack) prices"),
+				adtlSuffix:  models.StringPointer("pack"),
 			},
 			{
 				process:     &parseDomesticOtherPricesSit,
-				description: swag.String("domestic other (SIT pickup/delivery) prices"),
-				adtlSuffix:  swag.String("sit"),
+				description: models.StringPointer("domestic other (SIT pickup/delivery) prices"),
+				adtlSuffix:  models.StringPointer("sit"),
 			},
 		},
 		verify: &verifyDomesticOtherPrices,
@@ -217,11 +217,11 @@ func InitDataSheetInfo() []XlsxDataSheetInfo {
 
 	// 10: 	3a) OCONUS TO OCONUS Prices
 	xlsxDataSheets[10] = XlsxDataSheetInfo{
-		Description:    swag.String("3a) OCONUS to OCONUS Prices"),
-		outputFilename: swag.String("3a_oconus_to_oconus_prices"),
+		Description:    models.StringPointer("3a) OCONUS to OCONUS Prices"),
+		outputFilename: models.StringPointer("3a_oconus_to_oconus_prices"),
 		ProcessMethods: []xlsxProcessInfo{{
 			process:     &parseOconusToOconusPrices,
-			description: swag.String("OCONUS to OCONUS prices"),
+			description: models.StringPointer("OCONUS to OCONUS prices"),
 		},
 		},
 		verify: &verifyIntlOconusToOconusPrices,
@@ -229,11 +229,11 @@ func InitDataSheetInfo() []XlsxDataSheetInfo {
 
 	// 11: 	3b) CONUS TO OCONUS Prices
 	xlsxDataSheets[11] = XlsxDataSheetInfo{
-		Description:    swag.String("3b) CONUS to OCONUS Prices"),
-		outputFilename: swag.String("3b_conus_to_oconus_prices"),
+		Description:    models.StringPointer("3b) CONUS to OCONUS Prices"),
+		outputFilename: models.StringPointer("3b_conus_to_oconus_prices"),
 		ProcessMethods: []xlsxProcessInfo{{
 			process:     &parseConusToOconusPrices,
-			description: swag.String("CONUS to OCONUS prices"),
+			description: models.StringPointer("CONUS to OCONUS prices"),
 		},
 		},
 		verify: &verifyIntlConusToOconusPrices,
@@ -241,11 +241,11 @@ func InitDataSheetInfo() []XlsxDataSheetInfo {
 
 	// 12: 	3c) OCONUS TO CONUS Prices
 	xlsxDataSheets[12] = XlsxDataSheetInfo{
-		Description:    swag.String("3c) OCONUS to CONUS Prices"),
-		outputFilename: swag.String("3c_oconus_to_conus_prices"),
+		Description:    models.StringPointer("3c) OCONUS to CONUS Prices"),
+		outputFilename: models.StringPointer("3c_oconus_to_conus_prices"),
 		ProcessMethods: []xlsxProcessInfo{{
 			process:     &parseOconusToConusPrices,
-			description: swag.String("OCONUS to CONUS prices"),
+			description: models.StringPointer("OCONUS to CONUS prices"),
 		},
 		},
 		verify: &verifyIntlOconusToConusPrices,
@@ -253,11 +253,11 @@ func InitDataSheetInfo() []XlsxDataSheetInfo {
 
 	// 14: 	3e) Non-Standard Locn Prices
 	xlsxDataSheets[14] = XlsxDataSheetInfo{
-		Description:    swag.String("3e) Non-Standard Loc'n Prices"),
-		outputFilename: swag.String("3e_non_standard_locn_prices"),
+		Description:    models.StringPointer("3e) Non-Standard Loc'n Prices"),
+		outputFilename: models.StringPointer("3e_non_standard_locn_prices"),
 		ProcessMethods: []xlsxProcessInfo{{
 			process:     &parseNonStandardLocnPrices,
-			description: swag.String("non-standard location prices"),
+			description: models.StringPointer("non-standard location prices"),
 		},
 		},
 		verify: &verifyNonStandardLocnPrices,
@@ -265,11 +265,11 @@ func InitDataSheetInfo() []XlsxDataSheetInfo {
 
 	// 18:	5b) Price Escalation Discount
 	xlsxDataSheets[18] = XlsxDataSheetInfo{
-		Description:    swag.String("5b) Price Escalation Discount"),
-		outputFilename: swag.String("5b_price_escalation_discount"),
+		Description:    models.StringPointer("5b) Price Escalation Discount"),
+		outputFilename: models.StringPointer("5b_price_escalation_discount"),
 		ProcessMethods: []xlsxProcessInfo{{
 			process:     &parsePriceEscalationDiscount,
-			description: swag.String("price escalation discount"),
+			description: models.StringPointer("price escalation discount"),
 		},
 		},
 		verify: &verifyPriceEscalationDiscount,
@@ -277,11 +277,11 @@ func InitDataSheetInfo() []XlsxDataSheetInfo {
 
 	// 13: 	5a) Other International Prices
 	xlsxDataSheets[13] = XlsxDataSheetInfo{
-		Description:    swag.String("3d) Other International Prices"),
-		outputFilename: swag.String("3d_other_international_prices"),
+		Description:    models.StringPointer("3d) Other International Prices"),
+		outputFilename: models.StringPointer("3d_other_international_prices"),
 		ProcessMethods: []xlsxProcessInfo{{
 			process:     &parseOtherIntlPrices,
-			description: swag.String("other international prices"),
+			description: models.StringPointer("other international prices"),
 		},
 		},
 		verify: &verifyOtherIntlPrices,
@@ -289,23 +289,23 @@ func InitDataSheetInfo() []XlsxDataSheetInfo {
 
 	// 16: 	4a) Mgmt., Coun., Trans. Prices
 	xlsxDataSheets[16] = XlsxDataSheetInfo{
-		Description:    swag.String("4a) Mgmt., Coun., Trans. Prices"),
-		outputFilename: swag.String("4a_mgmt_coun_trans_prices"),
+		Description:    models.StringPointer("4a) Mgmt., Coun., Trans. Prices"),
+		outputFilename: models.StringPointer("4a_mgmt_coun_trans_prices"),
 		ProcessMethods: []xlsxProcessInfo{
 			{
 				process:     &parseShipmentManagementServicesPrices,
-				description: swag.String("shipment management services prices"),
-				adtlSuffix:  swag.String("management"),
+				description: models.StringPointer("shipment management services prices"),
+				adtlSuffix:  models.StringPointer("management"),
 			},
 			{
 				process:     &parseCounselingServicesPrices,
-				description: swag.String("counseling services prices"),
-				adtlSuffix:  swag.String("counsel"),
+				description: models.StringPointer("counseling services prices"),
+				adtlSuffix:  models.StringPointer("counsel"),
 			},
 			{
 				process:     &parseTransitionPrices,
-				description: swag.String("transition prices"),
-				adtlSuffix:  swag.String("transition"),
+				description: models.StringPointer("transition prices"),
+				adtlSuffix:  models.StringPointer("transition"),
 			},
 		},
 		verify: &verifyManagementCounselTransitionPrices,
@@ -313,23 +313,23 @@ func InitDataSheetInfo() []XlsxDataSheetInfo {
 
 	// 17: 	5a) Access. and Add. Prices
 	xlsxDataSheets[17] = XlsxDataSheetInfo{
-		Description:    swag.String("5a) Access. and Add. Prices"),
-		outputFilename: swag.String("5a_access_and_add_prices"),
+		Description:    models.StringPointer("5a) Access. and Add. Prices"),
+		outputFilename: models.StringPointer("5a_access_and_add_prices"),
 		ProcessMethods: []xlsxProcessInfo{
 			{
 				process:     &parseDomesticMoveAccessorialPrices,
-				description: swag.String("domestic move accessorial prices"),
-				adtlSuffix:  swag.String("domestic"),
+				description: models.StringPointer("domestic move accessorial prices"),
+				adtlSuffix:  models.StringPointer("domestic"),
 			},
 			{
 				process:     &parseInternationalMoveAccessorialPrices,
-				description: swag.String("international move accessorial prices"),
-				adtlSuffix:  swag.String("international"),
+				description: models.StringPointer("international move accessorial prices"),
+				adtlSuffix:  models.StringPointer("international"),
 			},
 			{
 				process:     &parseDomesticInternationalAdditionalPrices,
-				description: swag.String("domestic/international additional prices"),
-				adtlSuffix:  swag.String("additional"),
+				description: models.StringPointer("domestic/international additional prices"),
+				adtlSuffix:  models.StringPointer("additional"),
 			},
 		},
 		verify: &verifyAccessAndAddPrices,

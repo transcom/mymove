@@ -8,8 +8,8 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	ediResponse824 "github.com/transcom/mymove/pkg/edi/edi824"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
@@ -31,7 +31,7 @@ func (suite *ProcessEDI824Suite) TestParsingEDI824() {
 	edi824Processor := NewEDI824Processor()
 
 	suite.Run("successfully proccesses a valid EDI824", func() {
-		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
+		paymentRequest := factory.BuildPaymentRequest(suite.DB(), nil, nil)
 		sample824EDIString := fmt.Sprintf(`
 ISA*00*0084182369*00*0000000000*ZZ*MILMOVE        *12*8004171844     *201002*1504*U*00401*00000995*0*T*|
 GS*AG*8004171844*MILMOVE*20210217*1544*1*X*004010
@@ -43,20 +43,24 @@ SE*5*000000001
 GE*1*1
 IEA*1*000000995
 `, paymentRequest.PaymentRequestNumber, *paymentRequest.MoveTaskOrder.ReferenceID)
-		testdatagen.MakePaymentRequestToInterchangeControlNumber(suite.DB(), testdatagen.Assertions{
-			PaymentRequestToInterchangeControlNumber: models.PaymentRequestToInterchangeControlNumber{
-				PaymentRequestID:         paymentRequest.ID,
-				InterchangeControlNumber: 100001251,
-				PaymentRequest:           paymentRequest,
-				EDIType:                  models.EDIType858,
+		factory.BuildPaymentRequestToInterchangeControlNumber(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequestToInterchangeControlNumber{
+					InterchangeControlNumber: 100001251,
+					EDIType:                  models.EDIType858,
+				},
 			},
-		})
+			{
+				Model:    paymentRequest,
+				LinkOnly: true,
+			},
+		}, nil)
 		err := edi824Processor.ProcessFile(suite.AppContextForTest(), "", sample824EDIString)
 		suite.NoError(err)
 	})
 
 	suite.Run("throw an error when edi824 is missing an OTI segment", func() {
-		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
+		paymentRequest := factory.BuildPaymentRequest(suite.DB(), nil, nil)
 		sample824EDIString := fmt.Sprintf(`
 ISA*00*0084182369*00*0000000000*ZZ*MILMOVE        *12*8004171844     *201002*1504*U*00401*00000995*0*T*|
 GS*AG*8004171844*MILMOVE*20210217*1544*1*X*004010
@@ -83,7 +87,7 @@ IEA*1*000000995
 	})
 
 	suite.Run("throw an error when a payment request cannot be found with the OTI.GroupControlNumber", func() {
-		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
+		paymentRequest := factory.BuildPaymentRequest(suite.DB(), nil, nil)
 		sample824EDIString := fmt.Sprintf(`
 ISA*00*0084182369*00*0000000000*ZZ*MILMOVE        *12*8004171844     *201002*1504*U*00401*00000995*0*T*|
 GS*AG*8004171844*MILMOVE*20210217*1544*1*X*004010
@@ -111,15 +115,19 @@ SE*5*000000001
 GE*1*1
 IEA*1*000000995
 `
-		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
-		testdatagen.MakePaymentRequestToInterchangeControlNumber(suite.DB(), testdatagen.Assertions{
-			PaymentRequestToInterchangeControlNumber: models.PaymentRequestToInterchangeControlNumber{
-				PaymentRequestID:         paymentRequest.ID,
-				InterchangeControlNumber: 100001253,
-				PaymentRequest:           paymentRequest,
-				EDIType:                  models.EDIType858,
+		paymentRequest := factory.BuildPaymentRequest(suite.DB(), nil, nil)
+		factory.BuildPaymentRequestToInterchangeControlNumber(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequestToInterchangeControlNumber{
+					InterchangeControlNumber: 100001253,
+					EDIType:                  models.EDIType858,
+				},
 			},
-		})
+			{
+				Model:    paymentRequest,
+				LinkOnly: true,
+			},
+		}, nil)
 		err := edi824Processor.ProcessFile(suite.AppContextForTest(), "", sample824EDIString)
 		suite.NotNil(err)
 		suite.Contains(err.Error(), fmt.Sprintf("The BGN02 Reference Identification field: 1126-9404-2 doesn't match the PaymentRequestNumber %s of the associated payment request", paymentRequest.PaymentRequestNumber))
@@ -144,7 +152,7 @@ IEA*1*000000022
 	})
 
 	suite.Run("successfully updates a payment request status after processing a valid EDI824", func() {
-		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
+		paymentRequest := factory.BuildPaymentRequest(suite.DB(), nil, nil)
 		sample824EDIString := fmt.Sprintf(`
 ISA*00*0084182369*00*0000000000*ZZ*MILMOVE        *12*8004171844     *201002*1504*U*00401*00000996*0*T*|
 GS*AG*8004171844*MILMOVE*20210217*1544*1*X*004010
@@ -156,14 +164,18 @@ SE*5*000000001
 GE*1*1
 IEA*1*000000996
 `, paymentRequest.PaymentRequestNumber, *paymentRequest.MoveTaskOrder.ReferenceID)
-		testdatagen.MakePaymentRequestToInterchangeControlNumber(suite.DB(), testdatagen.Assertions{
-			PaymentRequestToInterchangeControlNumber: models.PaymentRequestToInterchangeControlNumber{
-				PaymentRequestID:         paymentRequest.ID,
-				InterchangeControlNumber: 100001255,
-				PaymentRequest:           paymentRequest,
-				EDIType:                  models.EDIType858,
+		factory.BuildPaymentRequestToInterchangeControlNumber(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequestToInterchangeControlNumber{
+					InterchangeControlNumber: 100001255,
+					EDIType:                  models.EDIType858,
+				},
 			},
-		})
+			{
+				Model:    paymentRequest,
+				LinkOnly: true,
+			},
+		}, nil)
 		err := edi824Processor.ProcessFile(suite.AppContextForTest(), "", sample824EDIString)
 		suite.NoError(err)
 
@@ -186,7 +198,7 @@ GE*1*1
 IEA*1*00000005
 `
 
-		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
+		paymentRequest := factory.BuildPaymentRequest(suite.DB(), nil, nil)
 
 		err := edi824Processor.ProcessFile(suite.AppContextForTest(), "", sample824EDIString)
 		suite.NotNil(err)
@@ -198,7 +210,7 @@ IEA*1*00000005
 	})
 
 	suite.Run("Save TED errors to the database", func() {
-		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
+		paymentRequest := factory.BuildPaymentRequest(suite.DB(), nil, nil)
 		sample824EDIString := fmt.Sprintf(`
 ISA*00*0084182369*00*0000000000*ZZ*MILMOVE        *12*8004171844     *201002*1504*U*00401*00000997*0*T*|
 GS*AG*8004171844*MILMOVE*20210217*1544*1*X*004010
@@ -211,14 +223,18 @@ SE*5*000000001
 GE*1*1
 IEA*1*000000997
 `, paymentRequest.PaymentRequestNumber, *paymentRequest.MoveTaskOrder.ReferenceID)
-		testdatagen.MakePaymentRequestToInterchangeControlNumber(suite.DB(), testdatagen.Assertions{
-			PaymentRequestToInterchangeControlNumber: models.PaymentRequestToInterchangeControlNumber{
-				PaymentRequestID:         paymentRequest.ID,
-				InterchangeControlNumber: 100001252,
-				PaymentRequest:           paymentRequest,
-				EDIType:                  models.EDIType858,
+		factory.BuildPaymentRequestToInterchangeControlNumber(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequestToInterchangeControlNumber{
+					InterchangeControlNumber: 100001252,
+					EDIType:                  models.EDIType858,
+				},
 			},
-		})
+			{
+				Model:    paymentRequest,
+				LinkOnly: true,
+			},
+		}, nil)
 		err := edi824Processor.ProcessFile(suite.AppContextForTest(), "", sample824EDIString)
 		suite.NoError(err)
 
@@ -243,7 +259,7 @@ func (suite *ProcessEDI824Suite) TestValidatingEDI824() {
 	edi824Processor := NewEDI824Processor()
 
 	suite.Run("fails when there are validation errors on the EDI", func() {
-		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
+		paymentRequest := factory.BuildPaymentRequest(suite.DB(), nil, nil)
 		sample824EDIString := fmt.Sprintf(`
 ISA*00*0084182369*00*0000000000*ZZ*MILMOVE        *12*8004171844     *210217*1530*U*00401*2000000000*8*A*|
 GS*SA*MILMOVE*8004171844*20190903*1617*2000000000*X*004010
@@ -255,14 +271,18 @@ SE*5*000000001
 GE*2*1
 IEA*1*000000001
 `, paymentRequest.PaymentRequestNumber, *paymentRequest.MoveTaskOrder.ReferenceID)
-		testdatagen.MakePaymentRequestToInterchangeControlNumber(suite.DB(), testdatagen.Assertions{
-			PaymentRequestToInterchangeControlNumber: models.PaymentRequestToInterchangeControlNumber{
-				PaymentRequestID:         paymentRequest.ID,
-				InterchangeControlNumber: 100001252,
-				PaymentRequest:           paymentRequest,
-				EDIType:                  models.EDIType858,
+		factory.BuildPaymentRequestToInterchangeControlNumber(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequestToInterchangeControlNumber{
+					InterchangeControlNumber: 100001252,
+					EDIType:                  models.EDIType858,
+				},
 			},
-		})
+			{
+				Model:    paymentRequest,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		err := edi824Processor.ProcessFile(suite.AppContextForTest(), "", sample824EDIString)
 		suite.Error(err, "fail to process 824")

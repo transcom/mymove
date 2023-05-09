@@ -4,9 +4,7 @@ import (
 	"log"
 	"strconv"
 
-	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop/v6"
-	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/random"
@@ -23,11 +21,13 @@ func RandomEdipi() string {
 	return strconv.Itoa(low + int(randInt))
 }
 
-// MakeServiceMember creates a single ServiceMember
+// makeServiceMember creates a single ServiceMember
 // If not provided, it will also create an associated
 // - User
 // - ResidentialAddress
-func MakeServiceMember(db *pop.Connection, assertions Assertions) models.ServiceMember {
+//
+// Deprecated: use factory.BuildServiceMember
+func makeServiceMember(db *pop.Connection, assertions Assertions) models.ServiceMember {
 	aServiceMember := assertions.ServiceMember
 	user := aServiceMember.User
 	agency := aServiceMember.Affiliation
@@ -63,11 +63,11 @@ func MakeServiceMember(db *pop.Connection, assertions Assertions) models.Service
 	serviceMember := models.ServiceMember{
 		UserID:               user.ID,
 		User:                 user,
-		Edipi:                swag.String(randomEdipi),
+		Edipi:                models.StringPointer(randomEdipi),
 		Affiliation:          agency,
-		FirstName:            swag.String("Leo"),
-		LastName:             swag.String("Spacemen"),
-		Telephone:            swag.String("212-123-4567"),
+		FirstName:            models.StringPointer("Leo"),
+		LastName:             models.StringPointer("Spacemen"),
+		Telephone:            models.StringPointer("212-123-4567"),
 		PersonalEmail:        &email,
 		ResidentialAddressID: currentAddressID,
 		ResidentialAddress:   currentAddress,
@@ -82,22 +82,16 @@ func MakeServiceMember(db *pop.Connection, assertions Assertions) models.Service
 	return serviceMember
 }
 
-// MakeDefaultServiceMember returns a service member with default options
-// It will also create an associated
-//   - User
-//   - ResidentialAddress
-func MakeDefaultServiceMember(db *pop.Connection) models.ServiceMember {
-	return MakeServiceMember(db, Assertions{})
-}
-
-// MakeExtendedServiceMember creates a single ServiceMember
+// makeExtendedServiceMember creates a single ServiceMember
 // If not provided it will also create an associated
 //   - User,
 //   - ResidentialAddress
 //   - BackupMailingAddress
 //   - DutyLocation
 //   - BackupContact
-func MakeExtendedServiceMember(db *pop.Connection, assertions Assertions) models.ServiceMember {
+//
+// Deprecated: use factory.BuildExtendedServiceMember
+func makeExtendedServiceMember(db *pop.Connection, assertions Assertions) models.ServiceMember {
 	affiliation := assertions.ServiceMember.Affiliation
 	if affiliation == nil {
 		army := models.AffiliationARMY
@@ -109,7 +103,7 @@ func MakeExtendedServiceMember(db *pop.Connection, assertions Assertions) models
 
 	dutyLocation := assertions.OriginDutyLocation
 	if isZeroUUID(dutyLocation.ID) {
-		dutyLocation = FetchOrMakeDefaultCurrentDutyLocation(db)
+		dutyLocation = fetchOrMakeDefaultCurrentDutyLocation(db)
 	}
 
 	gbloc, err := models.FetchGBLOCForPostalCode(db, dutyLocation.Address.PostalCode)
@@ -117,27 +111,27 @@ func MakeExtendedServiceMember(db *pop.Connection, assertions Assertions) models
 	// Duty location must have a GBLOC associated to the postal code
 	// Check for an existing GBLOC and make one if it doesn't exist
 	if gbloc.GBLOC == "" || err != nil {
-		MakePostalCodeToGBLOC(db, dutyLocation.Address.PostalCode, "KKFA")
+		makePostalCodeToGBLOC(db, dutyLocation.Address.PostalCode, "KKFA")
 	}
 
 	// Combine extended SM defaults with assertions
 	smDefaults := models.ServiceMember{
-		Edipi:                  swag.String(RandomEdipi()),
+		Edipi:                  models.StringPointer(RandomEdipi()),
 		Rank:                   &e1,
 		Affiliation:            affiliation,
 		ResidentialAddressID:   &residentialAddress.ID,
 		BackupMailingAddressID: &backupMailingAddress.ID,
 		DutyLocationID:         &dutyLocation.ID,
 		DutyLocation:           dutyLocation,
-		EmailIsPreferred:       swag.Bool(true),
-		Telephone:              swag.String("555-555-5555"),
+		EmailIsPreferred:       models.BoolPointer(true),
+		Telephone:              models.StringPointer("555-555-5555"),
 	}
 
 	mergeModels(&smDefaults, assertions.ServiceMember)
 
 	assertions.ServiceMember = smDefaults
 
-	serviceMember := MakeServiceMember(db, assertions)
+	serviceMember := makeServiceMember(db, assertions)
 
 	contactAssertions := Assertions{
 		BackupContact: models.BackupContact{
@@ -145,25 +139,11 @@ func MakeExtendedServiceMember(db *pop.Connection, assertions Assertions) models
 			ServiceMemberID: serviceMember.ID,
 		},
 	}
-	backupContact := MakeBackupContact(db, contactAssertions)
+	backupContact := makeBackupContact(db, contactAssertions)
 	serviceMember.BackupContacts = append(serviceMember.BackupContacts, backupContact)
 	if !assertions.Stub {
 		MustSave(db, &serviceMember)
 	}
 
 	return serviceMember
-}
-
-// MakeStubbedServiceMember returns a stubbed service member that is not stored in the DB
-func MakeStubbedServiceMember(db *pop.Connection) models.ServiceMember {
-	user := MakeStubbedUser(db)
-
-	return MakeServiceMember(db, Assertions{
-		ServiceMember: models.ServiceMember{
-			ID:     uuid.Must(uuid.NewV4()),
-			User:   user,
-			UserID: user.ID,
-		},
-		Stub: true,
-	})
 }

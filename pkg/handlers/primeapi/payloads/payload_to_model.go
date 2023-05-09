@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
@@ -148,7 +147,7 @@ func MTOShipmentModelFromCreate(mtoShipment *primemessages.CreateMTOShipment) *m
 	}
 
 	if mtoShipment.RequestedPickupDate != nil {
-		model.RequestedPickupDate = swag.Time(time.Time(*mtoShipment.RequestedPickupDate))
+		model.RequestedPickupDate = models.TimePointer(time.Time(*mtoShipment.RequestedPickupDate))
 	}
 
 	// Set up address models
@@ -432,6 +431,11 @@ func MTOServiceItemModel(mtoServiceItem primemessages.MTOServiceItem) (*models.M
 			model.SITDepartureDate = handlers.FmtDatePtrToPopPtr(destsit.SitDepartureDate)
 		}
 
+		model.SITDestinationFinalAddress = AddressModel(destsit.SitDestinationFinalAddress)
+		if model.SITDestinationFinalAddress != nil {
+			model.SITDestinationFinalAddressID = &model.SITDestinationFinalAddress.ID
+		}
+
 	case primemessages.MTOServiceItemModelTypeMTOServiceItemShuttle:
 		shuttleService := mtoServiceItem.(*primemessages.MTOServiceItemShuttle)
 		// values to get from payload
@@ -503,16 +507,43 @@ func MTOServiceItemModelFromUpdate(mtoServiceItemID string, mtoServiceItem prime
 	switch mtoServiceItem.ModelType() {
 	case primemessages.UpdateMTOServiceItemModelTypeUpdateMTOServiceItemSIT:
 		sit := mtoServiceItem.(*primemessages.UpdateMTOServiceItemSIT)
-		model.SITDepartureDate = swag.Time(time.Time(sit.SitDepartureDate))
+		model.SITDepartureDate = models.TimePointer(time.Time(sit.SitDepartureDate))
 		model.ReService.Code = models.ReServiceCode(sit.ReServiceCode)
 		model.SITDestinationFinalAddress = AddressModel(sit.SitDestinationFinalAddress)
 		if model.SITDestinationFinalAddress != nil {
 			model.SITDestinationFinalAddressID = &model.SITDestinationFinalAddress.ID
 		}
 
+		if sit.ReServiceCode == string(models.ReServiceCodeDDDSIT) ||
+			sit.ReServiceCode == string(models.ReServiceCodeDDASIT) ||
+			sit.ReServiceCode == string(models.ReServiceCodeDDFSIT) {
+			var customerContacts models.MTOServiceItemCustomerContacts
+			if sit.TimeMilitary1 != nil && sit.FirstAvailableDeliveryDate1 != nil {
+				contact1 := models.MTOServiceItemCustomerContact{
+					Type:                       models.CustomerContactTypeFirst,
+					TimeMilitary:               *sit.TimeMilitary1,
+					FirstAvailableDeliveryDate: time.Time(*sit.FirstAvailableDeliveryDate1),
+				}
+				customerContacts = append(customerContacts, contact1)
+			}
+			if sit.TimeMilitary2 != nil && sit.FirstAvailableDeliveryDate2 != nil {
+				contact2 := models.MTOServiceItemCustomerContact{
+					Type:                       models.CustomerContactTypeSecond,
+					TimeMilitary:               *sit.TimeMilitary2,
+					FirstAvailableDeliveryDate: time.Time(*sit.FirstAvailableDeliveryDate2),
+				}
+				customerContacts = append(customerContacts, contact2)
+			}
+			if len(customerContacts) > 0 {
+				model.CustomerContacts = customerContacts
+			}
+
+		}
+
 		if verrs != nil && verrs.HasAny() {
 			return nil, verrs
 		}
+
 	case primemessages.UpdateMTOServiceItemModelTypeUpdateMTOServiceItemShuttle:
 		shuttle := mtoServiceItem.(*primemessages.UpdateMTOServiceItemShuttle)
 		model.EstimatedWeight = handlers.PoundPtrFromInt64Ptr(shuttle.EstimatedWeight)

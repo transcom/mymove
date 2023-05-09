@@ -3,12 +3,12 @@ package move
 import (
 	"errors"
 
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/factory"
+	"github.com/transcom/mymove/pkg/models"
 )
 
 func (suite *MoveServiceSuite) TestFinancialReviewFlagSetter() {
@@ -43,7 +43,7 @@ func (suite *MoveServiceSuite) TestFinancialReviewFlagSetter() {
 		move := factory.BuildMove(suite.DB(), nil, nil)
 		eTag := etag.GenerateEtag(move.UpdatedAt)
 
-		_, err := flagCreator.SetFinancialReviewFlag(suite.AppContextForTest(), move.ID, eTag, true, swag.String(""))
+		_, err := flagCreator.SetFinancialReviewFlag(suite.AppContextForTest(), move.ID, eTag, true, models.StringPointer(""))
 		suite.Error(err)
 		suite.Require().True(errors.As(err, &apperror.InvalidInputError{}))
 	})

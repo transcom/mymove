@@ -3,6 +3,7 @@ package serviceparamvaluelookups
 import (
 	"errors"
 	"strconv"
+	"time"
 
 	"github.com/stretchr/testify/mock"
 
@@ -26,6 +27,12 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITDestLookup() {
 	var mtoServiceItemDiffZip3 models.MTOServiceItem
 
 	setupTestData := func() {
+		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				StartDate: time.Now().Add(-24 * time.Hour),
+				EndDate:   time.Now().Add(24 * time.Hour),
+			},
+		})
 
 		reService := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDDDSIT)
 
@@ -56,7 +63,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITDestLookup() {
 				},
 			}, nil)
 
-		move := factory.BuildMove(suite.DB(), nil, nil)
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
 		mtoShipment := factory.BuildMTOShipment(suite.DB(),
 			[]factory.Customization{
@@ -66,10 +73,12 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITDestLookup() {
 				},
 			}, nil)
 
-		paymentRequest = testdatagen.MakePaymentRequest(suite.DB(),
-			testdatagen.Assertions{
-				Move: move,
-			})
+		paymentRequest = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		mtoServiceItemSameZip3 = factory.BuildMTOServiceItem(suite.DB(),
 			[]factory.Customization{

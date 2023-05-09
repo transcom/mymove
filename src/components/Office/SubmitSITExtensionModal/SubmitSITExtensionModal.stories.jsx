@@ -1,36 +1,42 @@
 import React from 'react';
-
-import ShipmentSITDisplay from '../ShipmentSITDisplay/ShipmentSITDisplay';
-import { SITStatusOrigin } from '../ShipmentSITDisplay/ShipmentSITDisplayTestParams';
+import MockDate from 'mockdate';
+import addons from '@storybook/addons';
 
 import SubmitSITExtensionModal from './SubmitSITExtensionModal';
 
+// Based on sitStatus below. The date is 31 days after the entry date.
+const mockedDate = '2023-04-19T00:00:00.000Z';
 export default {
   title: 'Office Components/SubmitSITExtensionModal',
   component: SubmitSITExtensionModal,
+  decorators: [
+    (Story) => {
+      MockDate.set(mockedDate);
+      addons.getChannel().on('storyRendered', MockDate.reset);
+      return (
+        <div style={{ padding: '1em', backgroundColor: '#f9f9f9' }}>
+          <Story />
+        </div>
+      );
+    },
+  ],
 };
 
-const sitExtension = {
-  requestedDays: 45,
-  requestReason: 'AWAITING_COMPLETION_OF_RESIDENCE',
-  contractorRemarks: 'The customer requested an extension',
-  status: 'PENDING',
-  id: '123',
+const sitStatus = {
+  daysInSIT: 30,
+  location: 'DESTINATION',
+  sitEntryDate: '2023-03-19T00:00:00.000Z',
+  totalDaysRemaining: 210,
+  totalSITDaysUsed: 60,
 };
-
-const summarySITExtension = (
-  <ShipmentSITDisplay
-    {...{
-      sitExtensions: [sitExtension],
-      sitStatus: SITStatusOrigin,
-      shipment: { sitDaysAllowance: 90 },
-      hideSITExtensionAction: true,
-    }}
-  />
-);
 
 export const Basic = () => (
   <div className="officeApp">
-    <SubmitSITExtensionModal Submit={() => {}} onClose={() => {}} summarySITComponent={summarySITExtension} />
+    <SubmitSITExtensionModal
+      Submit={() => {}}
+      onClose={() => {}}
+      sitStatus={sitStatus}
+      shipment={{ sitDaysAllowance: 270 }}
+    />
   </div>
 );

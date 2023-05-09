@@ -197,7 +197,7 @@ func (p *herePlanner) Zip5TransitDistanceLineHaul(appCtx appcontext.AppContext, 
 	distance, err := zip5TransitDistanceLineHaulHelper(appCtx, p, source, destination)
 	if err != nil {
 		var msg string
-		if err.(Error).Code() == ShortHaulError {
+		if routeError, ok := err.(Error); ok && routeError.Code() == ShortHaulError {
 			msg = "Unsupported short haul move distance"
 		} else {
 			msg = "Failed to calculate HERE route between ZIPs"

@@ -153,9 +153,12 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		approver := subtestData.shipmentApprover
 		planner := subtestData.planner
 
-		shipmentForAutoApprove := testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
-			Move: subtestData.move,
-		})
+		shipmentForAutoApprove := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    subtestData.move,
+				LinkOnly: true,
+			},
+		}, nil)
 		shipmentForAutoApproveEtag := etag.GenerateEtag(shipmentForAutoApprove.Shipment.UpdatedAt)
 
 		// Verify that required delivery date is not calculated when it does not need to be

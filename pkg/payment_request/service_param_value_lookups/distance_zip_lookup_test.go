@@ -3,6 +3,7 @@ package serviceparamvaluelookups
 import (
 	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/gofrs/uuid"
 
@@ -17,6 +18,12 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 	key := models.ServiceItemParamNameDistanceZip
 
 	suite.Run("Calculate transit zip distance", func() {
+		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				StartDate: time.Now().Add(-24 * time.Hour),
+				EndDate:   time.Now().Add(24 * time.Hour),
+			},
+		})
 		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
@@ -30,14 +37,16 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 				},
 				Type: &factory.Addresses.DeliveryAddress,
 			},
-		}, nil)
+		}, []factory.Trait{
+			factory.GetTraitAvailableToPrimeMove,
+		})
 
-		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
-			testdatagen.Assertions{
-				PaymentRequest: models.PaymentRequest{
-					MoveTaskOrderID: mtoServiceItem.MoveTaskOrderID,
-				},
-			})
+		paymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    mtoServiceItem.MoveTaskOrder,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
@@ -55,7 +64,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 	})
 
 	suite.Run("Calculate zip distance lookup without a saved service item", func() {
-		ppmShipment := testdatagen.MakeDefaultPPMShipment(suite.DB())
+		ppmShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
 
 		distanceZipLookup := DistanceZipLookup{
 			PickupAddress:      models.Address{PostalCode: ppmShipment.PickupPostalCode},
@@ -81,13 +90,13 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 
 	suite.Run("Call ZipTransitDistance on PPMs with shipments that have a distance", func() {
 		miles := unit.Miles(defaultZipDistance)
-		ppmShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Distance:     &miles,
-				ShipmentType: models.MTOShipmentTypePPM,
+		ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Distance: &miles,
+				},
 			},
-		})
-
+		}, nil)
 		distanceZipLookup := DistanceZipLookup{
 			PickupAddress:      models.Address{PostalCode: ppmShipment.PickupPostalCode},
 			DestinationAddress: models.Address{PostalCode: ppmShipment.DestinationPostalCode},
@@ -144,6 +153,12 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 	})
 
 	suite.Run("Sucessfully updates mtoShipment distance when the pickup and destination zips are the same", func() {
+		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				StartDate: time.Now().Add(-24 * time.Hour),
+				EndDate:   time.Now().Add(24 * time.Hour),
+			},
+		})
 		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
@@ -157,14 +172,16 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 				},
 				Type: &factory.Addresses.DeliveryAddress,
 			},
-		}, nil)
+		}, []factory.Trait{
+			factory.GetTraitAvailableToPrimeMove,
+		})
 
-		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
-			testdatagen.Assertions{
-				PaymentRequest: models.PaymentRequest{
-					MoveTaskOrderID: mtoServiceItem.MoveTaskOrderID,
-				},
-			})
+		paymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    mtoServiceItem.MoveTaskOrder,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
@@ -182,7 +199,12 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 	})
 
 	suite.Run("Calculate zip distance with param cache", func() {
-
+		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				StartDate: time.Now().Add(-24 * time.Hour),
+				EndDate:   time.Now().Add(24 * time.Hour),
+			},
+		})
 		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
@@ -196,13 +218,16 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 				},
 				Type: &factory.Addresses.DeliveryAddress,
 			},
+		}, []factory.Trait{
+			factory.GetTraitAvailableToPrimeMove,
+		})
+
+		paymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    mtoServiceItem.MoveTaskOrder,
+				LinkOnly: true,
+			},
 		}, nil)
-		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
-			testdatagen.Assertions{
-				PaymentRequest: models.PaymentRequest{
-					MoveTaskOrderID: mtoServiceItem.MoveTaskOrderID,
-				},
-			})
 
 		// DLH
 		reServiceDLH := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDLH)
@@ -237,13 +262,16 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 			},
 		}, nil)
 
-		_ = testdatagen.FetchOrMakeServiceParam(suite.DB(), testdatagen.Assertions{
-			ServiceParam: models.ServiceParam{
-				ServiceID:             mtoServiceItemDLH.ReServiceID,
-				ServiceItemParamKeyID: serviceItemParamKey1.ID,
-				ServiceItemParamKey:   serviceItemParamKey1,
+		factory.FetchOrBuildServiceParam(suite.DB(), []factory.Customization{
+			{
+				Model:    mtoServiceItemDLH.ReService,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model:    serviceItemParamKey1,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		paramCache := NewServiceParamsCache()
 
@@ -267,6 +295,12 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 	})
 
 	suite.Run("returns error if the pickup zipcode isn't at least 5 digits", func() {
+		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				StartDate: time.Now().Add(-24 * time.Hour),
+				EndDate:   time.Now().Add(24 * time.Hour),
+			},
+		})
 		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
@@ -280,12 +314,16 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 				},
 				Type: &factory.Addresses.DeliveryAddress,
 			},
-		}, nil)
+		}, []factory.Trait{
+			factory.GetTraitAvailableToPrimeMove,
+		})
 
-		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
-			testdatagen.Assertions{
-				Move: mtoServiceItem.MoveTaskOrder,
-			})
+		paymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    mtoServiceItem.MoveTaskOrder,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
@@ -297,6 +335,12 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 
 	suite.Run("returns error if the destination zipcode isn't at least 5 digits", func() {
 
+		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				StartDate: time.Now().Add(-24 * time.Hour),
+				EndDate:   time.Now().Add(24 * time.Hour),
+			},
+		})
 		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
@@ -310,12 +354,16 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 				},
 				Type: &factory.Addresses.DeliveryAddress,
 			},
-		}, nil)
+		}, []factory.Trait{
+			factory.GetTraitAvailableToPrimeMove,
+		})
 
-		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
-			testdatagen.Assertions{
-				Move: mtoServiceItem.MoveTaskOrder,
-			})
+		paymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    mtoServiceItem.MoveTaskOrder,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)

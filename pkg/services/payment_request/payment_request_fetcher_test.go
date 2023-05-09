@@ -1,14 +1,11 @@
 package paymentrequest
 
 import (
-	"time"
-
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequest() {
@@ -16,7 +13,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequest() {
 
 		fetcher := NewPaymentRequestFetcher()
 
-		pr := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
+		pr := factory.BuildPaymentRequest(suite.DB(), nil, nil)
 		paymentRequest, err := fetcher.FetchPaymentRequest(suite.AppContextForTest(), pr.ID)
 
 		suite.NoError(err)
@@ -27,64 +24,33 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequest() {
 
 		fetcher := NewPaymentRequestFetcher()
 
-		pr := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
-		posd := testdatagen.MakeProofOfServiceDoc(suite.DB(), testdatagen.Assertions{
-			ProofOfServiceDoc: models.ProofOfServiceDoc{
-				PaymentRequestID: pr.ID,
-			},
-		})
-		u := factory.BuildUpload(suite.DB(), nil, nil)
-		pu := testdatagen.MakePrimeUpload(suite.DB(), testdatagen.Assertions{
-			PrimeUpload: models.PrimeUpload{
-				ProofOfServiceDocID: posd.ID,
-				UploadID:            u.ID,
-			},
-		})
-
-		paymentRequest, err := fetcher.FetchPaymentRequest(suite.AppContextForTest(), pr.ID)
+		primeUpload := factory.BuildPrimeUpload(suite.DB(), nil, nil)
+		paymentRequest, err := fetcher.FetchPaymentRequest(suite.AppContextForTest(), primeUpload.ProofOfServiceDoc.PaymentRequestID)
 
 		suite.NoError(err)
-		suite.Equal(pr.ID, paymentRequest.ID)
+		suite.Equal(primeUpload.ProofOfServiceDoc.PaymentRequest.ID, paymentRequest.ID)
 
 		suite.Len(paymentRequest.ProofOfServiceDocs, 1)
-		suite.Equal(posd.ID, paymentRequest.ProofOfServiceDocs[0].ID)
+		suite.Equal(primeUpload.ProofOfServiceDoc.ID, paymentRequest.ProofOfServiceDocs[0].ID)
 
 		suite.Len(paymentRequest.ProofOfServiceDocs[0].PrimeUploads, 1)
-		suite.Equal(pu.ID, paymentRequest.ProofOfServiceDocs[0].PrimeUploads[0].ID)
+		suite.Equal(primeUpload.ID, paymentRequest.ProofOfServiceDocs[0].PrimeUploads[0].ID)
 
-		suite.Equal(u.ID, paymentRequest.ProofOfServiceDocs[0].PrimeUploads[0].UploadID)
+		suite.Equal(primeUpload.UploadID, paymentRequest.ProofOfServiceDocs[0].PrimeUploads[0].UploadID)
 	})
 
 	suite.Run("returns payment request without soft deleted proof of service docs", func() {
 
 		fetcher := NewPaymentRequestFetcher()
+		primeUpload := factory.BuildPrimeUpload(suite.DB(), nil, []factory.Trait{factory.GetTraitPrimeUploadDeleted})
 
-		pr := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
-		posd := testdatagen.MakeProofOfServiceDoc(suite.DB(), testdatagen.Assertions{
-			ProofOfServiceDoc: models.ProofOfServiceDoc{
-				PaymentRequestID: pr.ID,
-			},
-		})
-		deletedAt := time.Now()
-
-		u := factory.BuildUpload(suite.DB(), []factory.Customization{
-			{Model: models.Upload{DeletedAt: &deletedAt}},
-		}, nil)
-		testdatagen.MakePrimeUpload(suite.DB(), testdatagen.Assertions{
-			PrimeUpload: models.PrimeUpload{
-				ProofOfServiceDocID: posd.ID,
-				UploadID:            u.ID,
-				DeletedAt:           &deletedAt,
-			},
-		})
-
-		paymentRequest, err := fetcher.FetchPaymentRequest(suite.AppContextForTest(), pr.ID)
+		paymentRequest, err := fetcher.FetchPaymentRequest(suite.AppContextForTest(), primeUpload.ProofOfServiceDoc.PaymentRequest.ID)
 
 		suite.NoError(err)
-		suite.Equal(pr.ID, paymentRequest.ID)
+		suite.Equal(primeUpload.ProofOfServiceDoc.PaymentRequest.ID, paymentRequest.ID)
 
 		suite.Len(paymentRequest.ProofOfServiceDocs, 1)
-		suite.Equal(posd.ID, paymentRequest.ProofOfServiceDocs[0].ID)
+		suite.Equal(primeUpload.ProofOfServiceDoc.ID, paymentRequest.ProofOfServiceDocs[0].ID)
 
 		suite.Len(paymentRequest.ProofOfServiceDocs[0].PrimeUploads, 0)
 	})

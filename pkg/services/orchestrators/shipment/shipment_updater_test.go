@@ -13,7 +13,6 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/mocks"
-	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -152,7 +151,7 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 			isPPMShipment := shipmentType == models.MTOShipmentTypePPM
 
 			if isPPMShipment {
-				ppmShipment := testdatagen.MakeDefaultPPMShipment(appCtx.DB())
+				ppmShipment := factory.BuildPPMShipment(appCtx.DB(), nil, nil)
 
 				shipment = ppmShipment.Shipment
 			} else {
@@ -212,14 +211,15 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 
 		subtestData := makeSubtestData(false, false)
 
-		ppmShipment := testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
-			PPMShipment: models.PPMShipment{
-				HasProGear:          models.BoolPointer(true),
-				ProGearWeight:       models.PoundPointer(unit.Pound(1900)),
-				SpouseProGearWeight: models.PoundPointer(unit.Pound(300)),
+		ppmShipment := factory.BuildPPMShipment(appCtx.DB(), []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					HasProGear:          models.BoolPointer(true),
+					ProGearWeight:       models.PoundPointer(unit.Pound(1900)),
+					SpouseProGearWeight: models.PoundPointer(unit.Pound(300)),
+				},
 			},
-		})
-
+		}, nil)
 		shipment := ppmShipment.Shipment
 
 		// set new field to update
@@ -269,7 +269,7 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 			var shipment models.MTOShipment
 
 			if tc.shipmentType == models.MTOShipmentTypePPM {
-				ppmShipment := testdatagen.MakeDefaultPPMShipment(appCtx.DB())
+				ppmShipment := factory.BuildPPMShipment(appCtx.DB(), nil, nil)
 
 				shipment = ppmShipment.Shipment
 			} else {

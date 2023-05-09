@@ -768,6 +768,8 @@ paths:
         * Customer requested pick-up date
         * Pick-up Address
         * Delivery Address
+        * Secondary Pick-up Address
+        * SecondaryDelivery Address
         * Delivery Address Type
         * Customer Remarks
         * Counselor Remarks
@@ -3755,13 +3757,6 @@ definitions:
   UpdateAllowancePayload:
     type: object
     properties:
-      authorizedWeight:
-        description: unit is in lbs
-        example: 2000
-        minimum: 1
-        type: integer
-        x-formatting: weight
-        x-nullable: true
       grade:
         $ref: '#/definitions/Grade'
       dependentsAuthorized:
@@ -4162,7 +4157,20 @@ definitions:
       destinationAddress:
         allOf:
           - $ref: 'definitions/Address.yaml'
+      secondaryDeliveryAddress:
+        allOf:
+          - $ref: 'definitions/Address.yaml'
+      secondaryPickupAddress:
+        allOf:
+          - $ref: 'definitions/Address.yaml'
+      hasSecondaryPickupAddress:
+        type: boolean
         x-nullable: true
+        x-omitempty: false
+      hasSecondaryDeliveryAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
       destinationType:
         $ref: 'definitions/DestinationType.yaml'
       agents:
@@ -4528,6 +4536,18 @@ definitions:
         type: integer
         example: 21
         minimum: 1
+      requestReason:
+        description: Reason from service counselor-provided picklist for SIT Duration Update
+        example: 'AWAITING_COMPLETION_OF_RESIDENCE'
+        type: string
+        enum:
+          - SERIOUS_ILLNESS_MEMBER
+          - SERIOUS_ILLNESS_DEPENDENT
+          - IMPENDING_ASSIGNEMENT
+          - DIRECTED_TEMPORARY_DUTY
+          - NONAVAILABILITY_OF_CIVILIAN_HOUSING
+          - AWAITING_COMPLETION_OF_RESIDENCE
+          - OTHER
       officeRemarks:
         description: Remarks from TOO about SIT approval
         type: string
@@ -4560,7 +4580,6 @@ definitions:
         description: Number of days approved for SIT extension. This will match requested days saved to the SIT extension model.
         type: integer
         example: 21
-        minimum: 1
       officeRemarks:
         description: Remarks from TOO about SIT Duration Update creation
         type: string

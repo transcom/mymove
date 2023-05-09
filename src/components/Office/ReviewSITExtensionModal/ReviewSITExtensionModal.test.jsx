@@ -1,10 +1,11 @@
-import React from 'react';
-import { render, waitFor, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-
-import ShipmentSITDisplay from '../ShipmentSITDisplay/ShipmentSITDisplay';
+import moment from 'moment';
+import React from 'react';
 
 import ReviewSITExtensionModal from './ReviewSITExtensionModal';
+
+import { formatDateForDatePicker, utcDateFormat } from 'shared/dates';
 
 describe('ReviewSITExtensionModal', () => {
   const sitExt = {
@@ -14,9 +15,16 @@ describe('ReviewSITExtensionModal', () => {
     id: '123',
   };
 
-  const summarySITExtension = (
-    <ShipmentSITDisplay {...{ sitExtensions: [], sitStatus: {}, shipment: {}, hideSITExtensionAction: true }} />
-  );
+  const sitStatus = {
+    totalDaysRemaining: 30,
+    sitEntryDate: moment().subtract(15, 'days').format(utcDateFormat),
+    totalSITDaysUsed: 15,
+    daysInSIT: 15,
+  };
+
+  const shipment = {
+    sitDaysAllowance: 45,
+  };
 
   it('renders requested days, reason, and contractor remarks', async () => {
     render(
@@ -24,7 +32,8 @@ describe('ReviewSITExtensionModal', () => {
         sitExtension={sitExt}
         onSubmit={() => {}}
         onClose={() => {}}
-        summarySITComponent={summarySITExtension}
+        shipment={shipment}
+        sitStatus={sitStatus}
       />,
     );
 
@@ -42,23 +51,37 @@ describe('ReviewSITExtensionModal', () => {
         sitExtension={sitExt}
         onSubmit={mockOnSubmit}
         onClose={() => {}}
-        summarySITComponent={summarySITExtension}
+        shipment={shipment}
+        sitStatus={sitStatus}
       />,
     );
-    const daysApprovedInput = screen.getByLabelText('Days approved');
+
+    const daysApprovedInput = screen.getByTestId('daysApproved');
+    await userEvent.clear(daysApprovedInput);
+    await userEvent.type(daysApprovedInput, '90');
+
+    const acceptExtensionField = screen.getByLabelText('Yes');
+    await userEvent.click(acceptExtensionField);
+
+    const reasonDropdown = screen.getByLabelText('Reason for edit');
+    await userEvent.selectOptions(reasonDropdown, ['SERIOUS_ILLNESS_MEMBER']);
+
     const officeRemarksInput = screen.getByLabelText('Office remarks');
     const submitBtn = screen.getByRole('button', { name: 'Save' });
 
-    await userEvent.type(daysApprovedInput, '{backspace}{backspace}20');
     await userEvent.type(officeRemarksInput, 'Approved!');
     await userEvent.click(submitBtn);
+
+    const expectedEndDate = formatDateForDatePicker(moment().add(75, 'days'));
 
     await waitFor(() => {
       expect(mockOnSubmit).toHaveBeenCalled();
       expect(mockOnSubmit).toHaveBeenCalledWith(sitExt.id, {
         acceptExtension: 'yes',
-        daysApproved: '20',
+        requestReason: 'SERIOUS_ILLNESS_MEMBER',
         officeRemarks: 'Approved!',
+        daysApproved: '90',
+        sitEndDate: expectedEndDate,
       });
     });
   });
@@ -70,65 +93,51 @@ describe('ReviewSITExtensionModal', () => {
         sitExtension={sitExt}
         onSubmit={mockOnSubmit}
         onClose={() => {}}
-        summarySITComponent={summarySITExtension}
+        shipment={shipment}
+        sitStatus={sitStatus}
       />,
     );
-    const denyExtenstionField = screen.getByLabelText('No');
+    const denyExtensionField = screen.getByLabelText('No');
     const officeRemarksInput = screen.getByLabelText('Office remarks');
     const submitBtn = screen.getByRole('button', { name: 'Save' });
 
-    await userEvent.click(denyExtenstionField);
+    await userEvent.click(denyExtensionField);
     await userEvent.type(officeRemarksInput, 'Denied!');
     await userEvent.click(submitBtn);
 
     await waitFor(() => {
       expect(mockOnSubmit).toHaveBeenCalled();
-      expect(mockOnSubmit).toHaveBeenCalledWith(sitExt.id, {
-        acceptExtension: 'no',
-        daysApproved: '',
-        officeRemarks: 'Denied!',
-      });
+      expect(mockOnSubmit).toHaveBeenCalledWith(
+        sitExt.id,
+        expect.objectContaining({
+          acceptExtension: 'no',
+          officeRemarks: 'Denied!',
+        }),
+      );
     });
   });
 
-  it('hides days approved input when no is selected', async () => {
+  it('hides Reason for edit selection when no is selected', async () => {
     const mockOnSubmit = jest.fn();
     render(
       <ReviewSITExtensionModal
         sitExtension={sitExt}
         onSubmit={mockOnSubmit}
         onClose={() => {}}
-        summarySITComponent={summarySITExtension}
+        shipment={shipment}
+        sitStatus={sitStatus}
       />,
     );
-    const daysApprovedInput = screen.getByLabelText('Days approved');
-    const denyExtenstionField = screen.getByLabelText('No');
+    const acceptExtensionField = screen.getByLabelText('Yes');
+    await userEvent.click(acceptExtensionField);
+    const denyExtensionField = screen.getByLabelText('No');
+    const reasonInput = screen.getByLabelText('Reason for edit');
     await waitFor(() => {
-      expect(daysApprovedInput).toBeInTheDocument();
+      expect(reasonInput).toBeInTheDocument();
     });
-    await userEvent.click(denyExtenstionField);
+    await userEvent.click(denyExtensionField);
     await waitFor(() => {
-      expect(daysApprovedInput).not.toBeInTheDocument();
-    });
-  });
-
-  it('does not allow submission of more days approved than are requested', async () => {
-    const mockOnSubmit = jest.fn();
-    render(
-      <ReviewSITExtensionModal
-        sitExtension={sitExt}
-        onSubmit={mockOnSubmit}
-        onClose={() => {}}
-        summarySITComponent={summarySITExtension}
-      />,
-    );
-    const daysApprovedInput = screen.getByLabelText('Days approved');
-    const submitBtn = screen.getByRole('button', { name: 'Save' });
-
-    await userEvent.type(daysApprovedInput, '{backspace}{backspace}46');
-
-    await waitFor(() => {
-      expect(submitBtn).toBeDisabled();
+      expect(reasonInput).not.toBeInTheDocument();
     });
   });
 
@@ -137,12 +146,18 @@ describe('ReviewSITExtensionModal', () => {
     render(
       <ReviewSITExtensionModal
         sitExtension={sitExt}
+        shipment={shipment}
+        sitStatus={sitStatus}
         onSubmit={mockOnSubmit}
         onClose={() => {}}
-        summarySITComponent={summarySITExtension}
       />,
     );
-    const daysApprovedInput = screen.getByLabelText('Days approved');
+
+    const daysApprovedInput = screen.getByTestId('daysApproved');
+
+    const acceptExtensionField = screen.getByLabelText('Yes');
+    await userEvent.click(acceptExtensionField);
+
     const submitBtn = screen.getByRole('button', { name: 'Save' });
 
     await userEvent.type(daysApprovedInput, '{backspace}{backspace}0');
@@ -157,9 +172,10 @@ describe('ReviewSITExtensionModal', () => {
     render(
       <ReviewSITExtensionModal
         sitExtension={sitExt}
+        shipment={shipment}
+        sitStatus={sitStatus}
         onSubmit={() => {}}
         onClose={mockClose}
-        summarySITComponent={summarySITExtension}
       />,
     );
     const closeBtn = screen.getByRole('button', { name: 'Cancel' });
@@ -175,9 +191,10 @@ describe('ReviewSITExtensionModal', () => {
     render(
       <ReviewSITExtensionModal
         sitExtension={sitExt}
+        shipment={shipment}
+        sitStatus={sitStatus}
         onSubmit={jest.fn()}
         onClose={jest.fn()}
-        summarySITComponent={summarySITExtension}
       />,
     );
 

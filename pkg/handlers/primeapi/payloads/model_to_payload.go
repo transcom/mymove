@@ -336,7 +336,7 @@ func PaymentServiceItem(paymentServiceItem *models.PaymentServiceItem) *primemes
 	}
 
 	if paymentServiceItem.PriceCents != nil {
-		payload.PriceCents = swag.Int64(int64(*paymentServiceItem.PriceCents))
+		payload.PriceCents = models.Int64Pointer(int64(*paymentServiceItem.PriceCents))
 	}
 
 	return payload

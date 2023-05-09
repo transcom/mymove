@@ -3,6 +3,7 @@ package reportviolation
 import (
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -11,7 +12,7 @@ func (suite *ReportViolationSuite) TestReportViolationCreator() {
 	creator := NewReportViolationCreator()
 
 	suite.Run("Can associate violations to reports successfully", func() {
-		report := testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{})
+		report := factory.BuildEvaluationReport(suite.DB(), nil, nil)
 		violation := testdatagen.MakePWSViolation(suite.DB(), testdatagen.Assertions{})
 
 		rvID := uuid.Must(uuid.NewV4())
@@ -32,7 +33,7 @@ func (suite *ReportViolationSuite) TestReportViolationCreator() {
 		suite.Equal(reportViolation.ReportID, updatedReportViolation.ReportID)
 	})
 	suite.Run("Association requires a valid violation", func() {
-		report := testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{})
+		report := factory.BuildEvaluationReport(suite.DB(), nil, nil)
 		badID := uuid.Must(uuid.NewV4())
 		reportViolation := &models.ReportViolation{ReportID: report.ID, ViolationID: badID}
 		reportViolations := models.ReportViolations{*reportViolation}
@@ -55,7 +56,7 @@ func (suite *ReportViolationSuite) TestReportViolationCreator() {
 		suite.Equal("Could not complete query related to object of type 'reportViolations': pq: insert or update on table \"report_violations\" violates foreign key constraint \"report_violations_report_id_fkey\"", err.Error())
 	})
 	suite.Run("Adding new associations to a report replaces existing associations for the report", func() {
-		report := testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{})
+		report := factory.BuildEvaluationReport(suite.DB(), nil, nil)
 		violation := testdatagen.MakePWSViolation(suite.DB(), testdatagen.Assertions{})
 		violation2 := testdatagen.MakePWSViolation(suite.DB(),
 			testdatagen.Assertions{Violation: models.PWSViolation{

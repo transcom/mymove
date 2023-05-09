@@ -7,7 +7,6 @@ import (
 	"path"
 	"time"
 
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -129,17 +128,20 @@ func makeRiskOfExcessShipmentForMove(appCtx appcontext.AppContext, move models.M
 		},
 	}, nil)
 
-	testdatagen.MakeMTOAgent(appCtx.DB(), testdatagen.Assertions{
-		MTOAgent: models.MTOAgent{
-			MTOShipment:   MTOShipment,
-			MTOShipmentID: MTOShipment.ID,
-			FirstName:     swag.String("Test"),
-			LastName:      swag.String("Agent"),
-			Email:         swag.String("test@test.email.com"),
-			MTOAgentType:  models.MTOAgentReleasing,
+	factory.BuildMTOAgent(appCtx.DB(), []factory.Customization{
+		{
+			Model:    MTOShipment,
+			LinkOnly: true,
 		},
-	})
-
+		{
+			Model: models.MTOAgent{
+				FirstName:    models.StringPointer("Test"),
+				LastName:     models.StringPointer("Agent"),
+				Email:        models.StringPointer("test@test.email.com"),
+				MTOAgentType: models.MTOAgentReleasing,
+			},
+		},
+	}, nil)
 	return MTOShipment
 }
 
@@ -167,30 +169,37 @@ func makeShipmentForMove(appCtx appcontext.AppContext, move models.Move, shipmen
 		},
 	}, nil)
 
-	testdatagen.MakeMTOAgent(appCtx.DB(), testdatagen.Assertions{
-		MTOAgent: models.MTOAgent{
-			MTOShipment:   MTOShipment,
-			MTOShipmentID: MTOShipment.ID,
-			FirstName:     swag.String("Test"),
-			LastName:      swag.String("Agent"),
-			Email:         swag.String("test@test.email.com"),
-			MTOAgentType:  models.MTOAgentReleasing,
+	factory.BuildMTOAgent(appCtx.DB(), []factory.Customization{
+		{
+			Model:    MTOShipment,
+			LinkOnly: true,
 		},
-	})
-
+		{
+			Model: models.MTOAgent{
+				FirstName:    models.StringPointer("Test"),
+				LastName:     models.StringPointer("Agent"),
+				Email:        models.StringPointer("test@test.email.com"),
+				MTOAgentType: models.MTOAgentReleasing,
+			},
+		},
+	}, nil)
 	return MTOShipment
 }
 
 func makePaymentRequestForShipment(appCtx appcontext.AppContext, move models.Move, shipment models.MTOShipment, primeUploader *uploader.PrimeUploader, fileNames *[]string, paymentRequestID uuid.UUID, status models.PaymentRequestStatus) {
-	paymentRequest := testdatagen.MakePaymentRequest(appCtx.DB(), testdatagen.Assertions{
-		PaymentRequest: models.PaymentRequest{
-			ID:            paymentRequestID,
-			MoveTaskOrder: move,
-			IsFinal:       false,
-			Status:        status,
+	paymentRequest := factory.BuildPaymentRequest(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentRequest{
+				ID:      paymentRequestID,
+				IsFinal: false,
+				Status:  status,
+			},
 		},
-		Move: move,
-	})
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	dcrtCost := unit.Cents(99999)
 	mtoServiceItemDCRT := testdatagen.MakeMTOServiceItemDomesticCrating(appCtx.DB(), testdatagen.Assertions{
@@ -198,13 +207,19 @@ func makePaymentRequestForShipment(appCtx appcontext.AppContext, move models.Mov
 		MTOShipment: shipment,
 	})
 
-	testdatagen.MakePaymentServiceItem(appCtx.DB(), testdatagen.Assertions{
-		PaymentServiceItem: models.PaymentServiceItem{
-			PriceCents: &dcrtCost,
+	factory.BuildPaymentServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentServiceItem{
+				PriceCents: &dcrtCost,
+			},
+		}, {
+			Model:    paymentRequest,
+			LinkOnly: true,
+		}, {
+			Model:    mtoServiceItemDCRT,
+			LinkOnly: true,
 		},
-		PaymentRequest: paymentRequest,
-		MTOServiceItem: mtoServiceItemDCRT,
-	})
+	}, nil)
 
 	ducrtCost := unit.Cents(99999)
 	mtoServiceItemDUCRT := factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
@@ -223,13 +238,19 @@ func makePaymentRequestForShipment(appCtx appcontext.AppContext, move models.Mov
 		},
 	}, nil)
 
-	testdatagen.MakePaymentServiceItem(appCtx.DB(), testdatagen.Assertions{
-		PaymentServiceItem: models.PaymentServiceItem{
-			PriceCents: &ducrtCost,
+	factory.BuildPaymentServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentServiceItem{
+				PriceCents: &ducrtCost,
+			},
+		}, {
+			Model:    paymentRequest,
+			LinkOnly: true,
+		}, {
+			Model:    mtoServiceItemDUCRT,
+			LinkOnly: true,
 		},
-		PaymentRequest: paymentRequest,
-		MTOServiceItem: mtoServiceItemDUCRT,
-	})
+	}, nil)
 
 	files := filesInBandwidthTestDirectory(fileNames)
 	// Creates prime upload documents from the files in this directory:
@@ -237,11 +258,20 @@ func makePaymentRequestForShipment(appCtx appcontext.AppContext, move models.Mov
 	for _, file := range files {
 		filePath := fmt.Sprintf("bandwidth_test_docs/%s", file)
 		fixture := testdatagen.Fixture(filePath)
-		testdatagen.MakePrimeUpload(appCtx.DB(), testdatagen.Assertions{
-			File:           fixture,
-			PaymentRequest: paymentRequest,
-			PrimeUploader:  primeUploader,
-		})
+		factory.BuildPrimeUpload(appCtx.DB(), []factory.Customization{
+			{
+				Model:    paymentRequest,
+				LinkOnly: true,
+			},
+			{
+				Model: models.PrimeUpload{},
+				ExtendedParams: &factory.PrimeUploadExtendedParams{
+					PrimeUploader: primeUploader,
+					AppContext:    appCtx,
+					File:          fixture,
+				},
+			},
+		}, nil)
 	}
 }
 

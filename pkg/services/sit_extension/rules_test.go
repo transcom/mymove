@@ -8,7 +8,6 @@ import (
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *SitExtensionServiceSuite) TestValidationRules() {
@@ -42,15 +41,19 @@ func (suite *SitExtensionServiceSuite) TestValidationRules() {
 					LinkOnly: true,
 				}, // Move status is automatically set to APPROVED
 			}, nil)
-			sitExtension := testdatagen.MakeSITDurationUpdate(suite.DB(), testdatagen.Assertions{
-				MTOShipment: shipment,
-				SITDurationUpdate: models.SITDurationUpdate{
-					MTOShipmentID: shipment.ID,
-					RequestReason: models.SITExtensionRequestReasonAwaitingCompletionOfResidence,
-					Status:        models.SITExtensionStatusApproved,
-					RequestedDays: 90,
+			sitExtension := factory.BuildSITDurationUpdate(suite.DB(), []factory.Customization{
+				{
+					Model:    shipment,
+					LinkOnly: true,
 				},
-			})
+				{
+					Model: models.SITDurationUpdate{
+						RequestReason: models.SITExtensionRequestReasonAwaitingCompletionOfResidence,
+						Status:        models.SITExtensionStatusApproved,
+						RequestedDays: 90,
+					},
+				},
+			}, []factory.Trait{factory.GetTraitApprovedSITDurationUpdate})
 
 			err := checkRequiredFields().Validate(suite.AppContextForTest(), sitExtension, nil)
 			switch verr := err.(type) {
@@ -99,15 +102,20 @@ func (suite *SitExtensionServiceSuite) TestValidationRules() {
 
 		// Approved Status SIT Extension
 		// Changed Request Reason from the default
-		testdatagen.MakeSITDurationUpdate(suite.DB(), testdatagen.Assertions{
-			MTOShipment: shipment,
-			SITDurationUpdate: models.SITDurationUpdate{
-				MTOShipmentID: shipment.ID,
-				RequestReason: models.SITExtensionRequestReasonAwaitingCompletionOfResidence,
-				Status:        models.SITExtensionStatusApproved,
-				RequestedDays: 90,
+		factory.BuildSITDurationUpdate(suite.DB(), []factory.Customization{
+			{
+				Model:    shipment,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.SITDurationUpdate{
+					RequestReason: models.SITExtensionRequestReasonAwaitingCompletionOfResidence,
+					Status:        models.SITExtensionStatusApproved,
+					RequestedDays: 90,
+				},
+			},
+		}, []factory.Trait{factory.GetTraitApprovedSITDurationUpdate})
+
 		sit := models.SITDurationUpdate{MTOShipmentID: uuid.Must(uuid.NewV4())}
 
 		err := checkSITExtensionPending().Validate(suite.AppContextForTest(), sit, &shipment)
@@ -125,15 +133,19 @@ func (suite *SitExtensionServiceSuite) TestValidationRules() {
 		}, nil)
 
 		// Denied SIT Extension
-		testdatagen.MakeSITDurationUpdate(suite.DB(), testdatagen.Assertions{
-			MTOShipment: shipment,
-			SITDurationUpdate: models.SITDurationUpdate{
-				MTOShipmentID: shipment.ID,
-				RequestReason: models.SITExtensionRequestReasonSeriousIllnessMember,
-				Status:        models.SITExtensionStatusDenied,
-				RequestedDays: 90,
+		factory.BuildSITDurationUpdate(suite.DB(), []factory.Customization{
+			{
+				Model:    shipment,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.SITDurationUpdate{
+					RequestReason: models.SITExtensionRequestReasonSeriousIllnessMember,
+					Status:        models.SITExtensionStatusDenied,
+					RequestedDays: 90,
+				},
+			},
+		}, nil)
 		sit := models.SITDurationUpdate{MTOShipmentID: uuid.Must(uuid.NewV4())}
 
 		err := checkSITExtensionPending().Validate(suite.AppContextForTest(), sit, &shipment)
@@ -152,15 +164,19 @@ func (suite *SitExtensionServiceSuite) TestValidationRules() {
 
 		// Create SIT Extension #1 in DB
 		// Change default status to Pending:
-		testdatagen.MakeSITDurationUpdate(suite.DB(), testdatagen.Assertions{
-			MTOShipment: shipment,
-			SITDurationUpdate: models.SITDurationUpdate{
-				MTOShipmentID: shipment.ID,
-				RequestReason: models.SITExtensionRequestReasonSeriousIllnessMember,
-				Status:        models.SITExtensionStatusPending,
-				RequestedDays: 90,
+		factory.BuildSITDurationUpdate(suite.DB(), []factory.Customization{
+			{
+				Model:    shipment,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.SITDurationUpdate{
+					RequestReason: models.SITExtensionRequestReasonSeriousIllnessMember,
+					Status:        models.SITExtensionStatusPending,
+					RequestedDays: 90,
+				},
+			},
+		}, nil)
 		// Object we are trying to add to DB
 		newSIT := models.SITDurationUpdate{MTOShipmentID: uuid.Must(uuid.NewV4()), Status: models.SITExtensionStatusPending, RequestedDays: 4}
 
@@ -188,5 +204,61 @@ func (suite *SitExtensionServiceSuite) TestValidationRules() {
 		checker := movetaskorder.NewMoveTaskOrderChecker()
 		err := checkPrimeAvailability(checker).Validate(suite.AppContextForTest(), models.SITDurationUpdate{}, &shipment)
 		suite.NoError(err)
+	})
+
+	suite.Run("checkMinimumSITDuration - Success", func() {
+		// Testing: There is a SIT duration of 5 days that can be reduced to 1 day
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil),
+				LinkOnly: true,
+			}, // Move status is automatically set to APPROVED
+		}, nil)
+
+		sitDaysAllowance := 5
+		shipment.SITDaysAllowance = &sitDaysAllowance
+
+		// New SIT Duration Update that decreases the SIT duration to 1 day
+		approvedDays := -4
+		sit := models.SITDurationUpdate{
+			MTOShipmentID: shipment.ID,
+			RequestReason: models.SITExtensionRequestReasonSeriousIllnessMember,
+			Status:        models.SITExtensionStatusApproved,
+			RequestedDays: approvedDays,
+			ApprovedDays:  &approvedDays,
+		}
+
+		err := checkMinimumSITDuration().Validate(suite.AppContextForTest(), sit, &shipment)
+
+		suite.NoError(err)
+	})
+
+	suite.Run("checkMinimumSITDuration - Failure", func() {
+		// Testing: There is a SIT duration of 5 days that cannot be reduced to 0 days
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil),
+				LinkOnly: true,
+			}, // Move status is automatically set to APPROVED
+		}, nil)
+
+		sitDaysAllowance := 5
+		shipment.SITDaysAllowance = &sitDaysAllowance
+
+		// New SIT Duration Update that decreases the SIT duration to 0 days
+		approvedDays := -5
+		sit := models.SITDurationUpdate{
+			MTOShipmentID: shipment.ID,
+			RequestReason: models.SITExtensionRequestReasonSeriousIllnessMember,
+			Status:        models.SITExtensionStatusApproved,
+			RequestedDays: approvedDays,
+			ApprovedDays:  &approvedDays,
+		}
+
+		err := checkMinimumSITDuration().Validate(suite.AppContextForTest(), sit, &shipment)
+
+		suite.NotNil(err)
+		suite.IsType(apperror.InvalidInputError{}, err)
+		suite.Equal("can't reduce a SIT duration to less than one day", err.Error())
 	})
 }

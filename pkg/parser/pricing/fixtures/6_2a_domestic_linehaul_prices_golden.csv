@@ -8,7 +8,7 @@ service_area_number,origin_service_area,services_schedule,season,weight_lower,we
 4.0,"Birmingham, AL",2,NonPeak,500,4999,2501,3000,0,$5.228
 4.0,"Birmingham, AL",2,NonPeak,500,4999,3001,3500,0,$5.728
 4.0,"Birmingham, AL",2,NonPeak,500,4999,3501,4000,0,$6.228
-4.0,"Birmingham, AL",2,NonPeak,500,4999,4001,999999,0,$27.132
+4.0,"Birmingham, AL",2,NonPeak,500,4999,4001,999999,0,$0.000
 4.0,"Birmingham, AL",2,NonPeak,5000,9999,0,250,0,$4.705
 4.0,"Birmingham, AL",2,NonPeak,5000,9999,251,500,0,$4.955
 4.0,"Birmingham, AL",2,NonPeak,5000,9999,501,1000,0,$5.455
@@ -617,7 +617,7 @@ service_area_number,origin_service_area,services_schedule,season,weight_lower,we
 44.0,"Jonesboro, AR",3,NonPeak,5000,9999,2001,2500,0,$6.956
 44.0,"Jonesboro, AR",3,NonPeak,5000,9999,2501,3000,0,$7.456
 44.0,"Jonesboro, AR",3,NonPeak,5000,9999,3001,3500,0,$7.956
-44.0,"Jonesboro, AR",3,NonPeak,5000,9999,3501,4000,0,$8.456
+44.0,"Jonesboro, AR",3,NonPeak,5000,9999,3501,4000,0,$0.000
 44.0,"Jonesboro, AR",3,NonPeak,5000,9999,4001,999999,0,$29.360
 44.0,"Jonesboro, AR",3,NonPeak,10000,999999,0,250,0,$11.389
 44.0,"Jonesboro, AR",3,NonPeak,10000,999999,251,500,0,$11.639
@@ -1226,7 +1226,7 @@ service_area_number,origin_service_area,services_schedule,season,weight_lower,we
 77.0,"San Diego, CA Metro",3,NonPeak,10000,999999,1501,2000,0,$11.462
 77.0,"San Diego, CA Metro",3,NonPeak,10000,999999,2001,2500,0,$11.898
 77.0,"San Diego, CA Metro",3,NonPeak,10000,999999,2501,3000,0,$12.334
-77.0,"San Diego, CA Metro",3,NonPeak,10000,999999,3001,3500,0,$12.771
+77.0,"San Diego, CA Metro",3,NonPeak,10000,999999,3001,3500,0,$0.000
 77.0,"San Diego, CA Metro",3,NonPeak,10000,999999,3501,4000,0,$13.207
 77.0,"San Diego, CA Metro",3,NonPeak,10000,999999,4001,999999,0,$31.443
 77.0,"San Diego, CA Metro",3,Peak,500,4999,0,250,0,$2.293
@@ -1776,7 +1776,7 @@ service_area_number,origin_service_area,services_schedule,season,weight_lower,we
 156.0,"Gunnison, CO",2,Peak,500,4999,1501,2000,0,$4.408
 156.0,"Gunnison, CO",2,Peak,500,4999,2001,2500,0,$4.929
 156.0,"Gunnison, CO",2,Peak,500,4999,2501,3000,0,$5.450
-156.0,"Gunnison, CO",2,Peak,500,4999,3001,3500,0,$5.972
+156.0,"Gunnison, CO",2,Peak,500,4999,3001,3500,0,$0.000
 156.0,"Gunnison, CO",2,Peak,500,4999,3501,4000,0,$6.493
 156.0,"Gunnison, CO",2,Peak,500,4999,4001,999999,0,$28.287
 156.0,"Gunnison, CO",2,Peak,5000,9999,0,250,0,$4.905
@@ -2385,7 +2385,7 @@ service_area_number,origin_service_area,services_schedule,season,weight_lower,we
 185.0,"Orlando, FL Metro",2,Peak,5000,9999,1001,1500,0,$6.209
 185.0,"Orlando, FL Metro",2,Peak,5000,9999,1501,2000,0,$6.730
 185.0,"Orlando, FL Metro",2,Peak,5000,9999,2001,2500,0,$7.252
-185.0,"Orlando, FL Metro",2,Peak,5000,9999,2501,3000,0,$7.773
+185.0,"Orlando, FL Metro",2,Peak,5000,9999,2501,3000,0,$0.000
 185.0,"Orlando, FL Metro",2,Peak,5000,9999,3001,3500,0,$8.294
 185.0,"Orlando, FL Metro",2,Peak,5000,9999,3501,4000,0,$8.816
 185.0,"Orlando, FL Metro",2,Peak,5000,9999,4001,999999,0,$30.610
@@ -3114,7 +3114,7 @@ service_area_number,origin_service_area,services_schedule,season,weight_lower,we
 240.0,"Pocatello, ID",2,Peak,10000,999999,501,1000,0,$12.656
 240.0,"Pocatello, ID",2,Peak,10000,999999,1001,1500,0,$13.177
 240.0,"Pocatello, ID",2,Peak,10000,999999,1501,2000,0,$13.698
-240.0,"Pocatello, ID",2,Peak,10000,999999,2001,2500,0,$14.220
+240.0,"Pocatello, ID",2,Peak,10000,999999,2001,2500,0,$0.000
 240.0,"Pocatello, ID",2,Peak,10000,999999,2501,3000,0,$14.741
 240.0,"Pocatello, ID",2,Peak,10000,999999,3001,3500,0,$15.263
 240.0,"Pocatello, ID",2,Peak,10000,999999,3501,4000,0,$15.784
@@ -4198,7 +4198,7 @@ service_area_number,origin_service_area,services_schedule,season,weight_lower,we
 308.0,"Dodge City, KS",2,Peak,10000,999999,2501,3000,0,$14.741
 308.0,"Dodge City, KS",2,Peak,10000,999999,3001,3500,0,$15.263
 308.0,"Dodge City, KS",2,Peak,10000,999999,3501,4000,0,$15.784
-308.0,"Dodge City, KS",2,Peak,10000,999999,4001,999999,0,$37.578
+308.0,"Dodge City, KS",2,Peak,10000,999999,4001,999999,0,$0.000
 312.0,"Great Bend, KS",2,NonPeak,500,4999,0,250,0,$2.477
 312.0,"Great Bend, KS",2,NonPeak,500,4999,251,500,0,$2.727
 312.0,"Great Bend, KS",2,NonPeak,500,4999,501,1000,0,$3.228
@@ -10796,7 +10796,7 @@ service_area_number,origin_service_area,services_schedule,season,weight_lower,we
 720.0,"Chattanooga, TN",2,Peak,10000,999999,1501,2000,0,$10.623
 720.0,"Chattanooga, TN",2,Peak,10000,999999,2001,2500,0,$11.028
 720.0,"Chattanooga, TN",2,Peak,10000,999999,2501,3000,0,$11.432
-720.0,"Chattanooga, TN",2,Peak,10000,999999,3001,3500,0,$11.836
+720.0,"Chattanooga, TN",2,Peak,10000,999999,3001,3500,0,$0.000
 720.0,"Chattanooga, TN",2,Peak,10000,999999,3501,4000,0,$12.241
 720.0,"Chattanooga, TN",2,Peak,10000,999999,4001,999999,0,$29.142
 724.0,"Knoxville, TN",3,NonPeak,500,4999,0,250,0,$2.477
@@ -12777,7 +12777,7 @@ service_area_number,origin_service_area,services_schedule,season,weight_lower,we
 840.0,"Seattle, WA",3,Peak,10000,999999,2001,2500,0,$12.624
 840.0,"Seattle, WA",3,Peak,10000,999999,2501,3000,0,$13.087
 840.0,"Seattle, WA",3,Peak,10000,999999,3001,3500,0,$13.549
-840.0,"Seattle, WA",3,Peak,10000,999999,3501,4000,0,$14.012
+840.0,"Seattle, WA",3,Peak,10000,999999,3501,4000,0,$0.000
 840.0,"Seattle, WA",3,Peak,10000,999999,4001,999999,0,$33.360
 841.0,"Seattle, WA Metro",3,NonPeak,500,4999,0,250,0,$2.161
 841.0,"Seattle, WA Metro",3,NonPeak,500,4999,251,500,0,$2.379
@@ -13558,4 +13558,4 @@ service_area_number,origin_service_area,services_schedule,season,weight_lower,we
 888.0,"Rock Springs, WY",3,Peak,10000,999999,2501,3000,0,$13.087
 888.0,"Rock Springs, WY",3,Peak,10000,999999,3001,3500,0,$13.549
 888.0,"Rock Springs, WY",3,Peak,10000,999999,3501,4000,0,$14.012
-888.0,"Rock Springs, WY",3,Peak,10000,999999,4001,999999,0,$33.360
+888.0,"Rock Springs, WY",3,Peak,10000,999999,4001,999999,0,$0.000

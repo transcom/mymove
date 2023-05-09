@@ -313,6 +313,10 @@ const ShipmentForm = (props) => {
       delivery,
       customerRemarks,
       counselorRemarks,
+      hasSecondaryDelivery,
+      hasSecondaryPickup,
+      secondaryPickup,
+      secondaryDelivery,
       ntsRecordedWeight,
       tacType,
       sacType,
@@ -348,6 +352,10 @@ const ShipmentForm = (props) => {
       storageFacility,
       usesExternalVendor,
       destinationType,
+      hasSecondaryPickup: hasSecondaryPickup === 'yes',
+      secondaryPickup: hasSecondaryPickup === 'yes' ? secondaryPickup : {},
+      hasSecondaryDelivery: hasSecondaryDelivery === 'yes',
+      secondaryDelivery: hasSecondaryDelivery === 'yes' ? secondaryDelivery : {},
     });
 
     const updateMTOShipmentPayload = {
@@ -408,8 +416,7 @@ const ShipmentForm = (props) => {
       onSubmit={submitMTOShipment}
     >
       {({ values, isValid, isSubmitting, setValues, handleSubmit, errors }) => {
-        const { hasDeliveryAddress } = values;
-
+        const { hasDeliveryAddress, hasSecondaryPickup, hasSecondaryDelivery } = values;
         const handleUseCurrentResidenceChange = (e) => {
           const { checked } = e.target;
           if (checked) {
@@ -509,6 +516,7 @@ const ShipmentForm = (props) => {
                       legend="Pickup location"
                       render={(fields) => (
                         <>
+                          <p>What address are the movers picking up from?</p>
                           <Checkbox
                             data-testid="useCurrentResidence"
                             label="Use current address"
@@ -517,6 +525,33 @@ const ShipmentForm = (props) => {
                             id="useCurrentResidenceCheckbox"
                           />
                           {fields}
+                          <h4>Second pickup location</h4>
+                          <FormGroup>
+                            <p>Do you want movers to pick up any belongings from a second address?</p>
+                            <div className={formStyles.radioGroup}>
+                              <Field
+                                as={Radio}
+                                id="has-secondary-pickup"
+                                data-testid="has-secondary-pickup"
+                                label="Yes"
+                                name="hasSecondaryPickup"
+                                value="yes"
+                                title="Yes, I have a second pickup location"
+                                checked={hasSecondaryPickup === 'yes'}
+                              />
+                              <Field
+                                as={Radio}
+                                id="no-secondary-pickup"
+                                data-testid="no-secondary-pickup"
+                                label="No"
+                                name="hasSecondaryPickup"
+                                value="no"
+                                title="No, I do not have a second pickup location"
+                                checked={hasSecondaryPickup !== 'yes'}
+                              />
+                            </div>
+                          </FormGroup>
+                          {hasSecondaryPickup === 'yes' && <AddressFields name="secondaryPickup.address" />}
                         </>
                       )}
                     />
@@ -600,22 +635,49 @@ const ShipmentForm = (props) => {
                           </div>
                         </FormGroup>
                         {hasDeliveryAddress === 'yes' ? (
-                          <>
-                            <AddressFields
-                              name="delivery.address"
-                              render={(fields) => {
-                                return fields;
-                              }}
-                            />
-                            {displayDestinationType && (
-                              <DropdownInput
-                                label="Destination type"
-                                name="destinationType"
-                                options={shipmentDestinationAddressOptions}
-                                id="destinationType"
-                              />
+                          <AddressFields
+                            name="delivery.address"
+                            render={(fields) => (
+                              <>
+                                {fields}
+                                {displayDestinationType && (
+                                  <DropdownInput
+                                    label="Destination type"
+                                    name="destinationType"
+                                    options={shipmentDestinationAddressOptions}
+                                    id="destinationType"
+                                  />
+                                )}
+                                <h4>Second delivery location</h4>
+                                <FormGroup>
+                                  <p>Do you want the movers to deliver any belongings to a second address?</p>
+                                  <div className={formStyles.radioGroup}>
+                                    <Field
+                                      as={Radio}
+                                      data-testid="has-secondary-delivery"
+                                      id="has-secondary-delivery"
+                                      label="Yes"
+                                      name="hasSecondaryDelivery"
+                                      value="yes"
+                                      title="Yes, I have a second destination location"
+                                      checked={hasSecondaryDelivery === 'yes'}
+                                    />
+                                    <Field
+                                      as={Radio}
+                                      data-testid="no-secondary-delivery"
+                                      id="no-secondary-delivery"
+                                      label="No"
+                                      name="hasSecondaryDelivery"
+                                      value="no"
+                                      title="No, I do not have a second destination location"
+                                      checked={hasSecondaryDelivery !== 'yes'}
+                                    />
+                                  </div>
+                                </FormGroup>
+                                {hasSecondaryDelivery === 'yes' && <AddressFields name="secondaryDelivery.address" />}
+                              </>
                             )}
-                          </>
+                          />
                         ) : (
                           <p>
                             We can use the zip of their{' '}
@@ -800,19 +862,7 @@ ShipmentForm.defaultProps = {
     state: '',
     postalCode: '',
   },
-  mtoShipment: {
-    id: '',
-    customerRemarks: '',
-    counselorRemarks: '',
-    requestedPickupDate: '',
-    requestedDeliveryDate: '',
-    destinationAddress: {
-      city: '',
-      postalCode: '',
-      state: '',
-      streetAddress1: '',
-    },
-  },
+  mtoShipment: ShipmentShape,
   TACs: {},
   SACs: {},
   displayDestinationType: false,

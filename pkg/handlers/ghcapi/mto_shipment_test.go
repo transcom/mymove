@@ -32,8 +32,8 @@ import (
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 	"github.com/transcom/mymove/pkg/services/ppmshipment"
 	"github.com/transcom/mymove/pkg/services/query"
+	sitextension "github.com/transcom/mymove/pkg/services/sit_extension"
 	"github.com/transcom/mymove/pkg/swagger/nullable"
-	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/trace"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -103,11 +103,12 @@ func (suite *HandlerSuite) makeListMTOShipmentsSubtestData() (subtestData *listM
 		},
 	}, nil)
 
-	subtestData.mtoAgent = testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
-		MTOAgent: models.MTOAgent{
-			MTOShipmentID: mtoShipment.ID,
+	subtestData.mtoAgent = factory.BuildMTOAgent(suite.DB(), []factory.Customization{
+		{
+			Model:    mtoShipment,
+			LinkOnly: true,
 		},
-	})
+	}, nil)
 	subtestData.mtoServiceItem = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 		{
 			Model: models.MTOServiceItem{
@@ -116,9 +117,12 @@ func (suite *HandlerSuite) makeListMTOShipmentsSubtestData() (subtestData *listM
 		},
 	}, nil)
 
-	ppm := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
-		Move: mto,
-	})
+	ppm := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	// testdatagen.MakeDOFSITReService(suite.DB(), testdatagen.Assertions{})
 
@@ -173,12 +177,12 @@ func (suite *HandlerSuite) makeListMTOShipmentsSubtestData() (subtestData *listM
 		},
 	}, nil)
 
-	subtestData.sitExtension = testdatagen.MakeSITDurationUpdate(suite.DB(), testdatagen.Assertions{
-		SITDurationUpdate: models.SITDurationUpdate{
-			MTOShipmentID: mtoShipment.ID,
+	subtestData.sitExtension = factory.BuildSITDurationUpdate(suite.DB(), []factory.Customization{
+		{
+			Model:    mtoShipment,
+			LinkOnly: true,
 		},
-	})
-
+	}, []factory.Trait{factory.GetTraitApprovedSITDurationUpdate})
 	subtestData.shipments = models.MTOShipments{mtoShipment, secondShipment, thirdShipment, ppm.Shipment}
 	requestUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
@@ -2453,13 +2457,16 @@ func (suite *HandlerSuite) TestApproveSITExtensionHandler() {
 				},
 			},
 		}, nil)
-		sitExtension := testdatagen.MakePendingSITDurationUpdate(suite.DB(), testdatagen.Assertions{
-			MTOShipment: mtoShipment,
-		})
+		sitExtension := factory.BuildSITDurationUpdate(suite.DB(), []factory.Customization{
+			{
+				Model:    mtoShipment,
+				LinkOnly: true,
+			},
+		}, nil)
 		eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		moveRouter := moveservices.NewMoveRouter()
-		sitExtensionApprover := mtoshipment.NewSITExtensionApprover(moveRouter)
+		sitExtensionApprover := sitextension.NewSITExtensionApprover(moveRouter)
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/shipments/%s/sit-extension/%s/approve", mtoShipment.ID.String(), sitExtension.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerConfig := suite.HandlerConfig()
@@ -2470,12 +2477,14 @@ func (suite *HandlerSuite) TestApproveSITExtensionHandler() {
 			mtoshipment.NewShipmentSITStatus(),
 		}
 		approvedDays := int64(10)
+		requestReason := "AWAITING_COMPLETION_OF_RESIDENCE"
 		officeRemarks := "new office remarks"
 		approveParams := shipmentops.ApproveSITExtensionParams{
 			HTTPRequest: req,
 			IfMatch:     eTag,
 			Body: &ghcmessages.ApproveSITExtension{
 				ApprovedDays:  &approvedDays,
+				RequestReason: requestReason,
 				OfficeRemarks: &officeRemarks,
 			},
 			ShipmentID:     *handlers.FmtUUID(mtoShipment.ID),
@@ -2516,13 +2525,16 @@ func (suite *HandlerSuite) TestDenySITExtensionHandler() {
 				LinkOnly: true,
 			},
 		}, nil)
-		sitExtension := testdatagen.MakePendingSITDurationUpdate(suite.DB(), testdatagen.Assertions{
-			MTOShipment: mtoShipment,
-		})
+		sitExtension := factory.BuildSITDurationUpdate(suite.DB(), []factory.Customization{
+			{
+				Model:    mtoShipment,
+				LinkOnly: true,
+			},
+		}, nil)
 		eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		moveRouter := moveservices.NewMoveRouter()
-		sitExtensionDenier := mtoshipment.NewSITExtensionDenier(moveRouter)
+		sitExtensionDenier := sitextension.NewSITExtensionDenier(moveRouter)
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/shipments/%s/sit-extension/%s/deny", mtoShipment.ID.String(), sitExtension.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerConfig := suite.HandlerConfig()
@@ -2564,14 +2576,14 @@ func (suite *HandlerSuite) CreateApprovedSITDurationUpdate() {
 
 		eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
-		sitExtensionCreatorAsTOO := mtoshipment.NewApprovedSITDurationUpdateCreator()
+		approvedSITDurationUpdateCreator := sitextension.NewApprovedSITDurationUpdateCreator()
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/sit-extension/", mtoShipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerConfig := suite.HandlerConfig()
 
 		handler := CreateApprovedSITDurationUpdateHandler{
 			handlerConfig,
-			sitExtensionCreatorAsTOO,
+			approvedSITDurationUpdateCreator,
 			mtoshipment.NewShipmentSITStatus(),
 		}
 		approvedDays := int64(10)
@@ -2617,14 +2629,14 @@ func (suite *HandlerSuite) CreateApprovedSITDurationUpdate() {
 
 		eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
-		sitExtensionCreatorAsTOO := mtoshipment.NewApprovedSITDurationUpdateCreator()
+		approvedSITDurationUpdateCreator := sitextension.NewApprovedSITDurationUpdateCreator()
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/sit-extension/", mtoShipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerConfig := suite.HandlerConfig()
 
 		handler := CreateApprovedSITDurationUpdateHandler{
 			handlerConfig,
-			sitExtensionCreatorAsTOO,
+			approvedSITDurationUpdateCreator,
 			mtoshipment.NewShipmentSITStatus(),
 		}
 		approvedDays := int64(10)
@@ -3182,7 +3194,7 @@ func (suite *HandlerSuite) getUpdateShipmentParams(originalShipment models.MTOSh
 	counselorRemarks := "counselor approved"
 	billableWeightCap := int64(8000)
 	billableWeightJustification := "Unable to perform reweigh because shipment was already unloaded."
-	mtoAgent := testdatagen.MakeDefaultMTOAgent(suite.DB())
+	mtoAgent := factory.BuildMTOAgent(suite.DB(), nil, nil)
 	agents := ghcmessages.MTOAgents{&ghcmessages.MTOAgent{
 		FirstName: mtoAgent.FirstName,
 		LastName:  mtoAgent.LastName,
@@ -3335,11 +3347,13 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		}
 
 		hasProGear := true
-		ppmShipment := testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{
-			PPMShipment: models.PPMShipment{
-				HasProGear: &hasProGear,
+		ppmShipment := factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					HasProGear: &hasProGear,
+				},
 			},
-		})
+		}, nil)
 		year, month, day := time.Now().Date()
 		actualMoveDate := time.Date(year, month, day-7, 0, 0, 0, 0, time.UTC)
 		expectedDepartureDate := actualMoveDate.Add(time.Hour * 24 * 2)

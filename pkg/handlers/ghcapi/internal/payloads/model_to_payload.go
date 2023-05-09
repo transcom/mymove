@@ -276,7 +276,7 @@ func TransportationOffice(office *models.TransportationOffice) *ghcmessages.Tran
 		ID:         handlers.FmtUUID(office.ID),
 		CreatedAt:  handlers.FmtDateTime(office.CreatedAt),
 		UpdatedAt:  handlers.FmtDateTime(office.UpdatedAt),
-		Name:       swag.String(office.Name),
+		Name:       models.StringPointer(office.Name),
 		Gbloc:      office.Gbloc,
 		Address:    Address(&office.Address),
 		PhoneLines: phoneLines,
@@ -654,6 +654,12 @@ func SITDurationUpdates(sitDurationUpdates *models.SITDurationUpdates) *ghcmessa
 			copyOfSITDurationUpdate := m // Make copy to avoid implicit memory aliasing of items from a range statement.
 			payload[i] = SITDurationUpdate(&copyOfSITDurationUpdate)
 		}
+		// Reversing the SIT duration updates as they are saved in the order
+		// they are created and we want to always display them in the reverse
+		// order.
+		for i, j := 0, len(payload)-1; i < j; i, j = i+1, j-1 {
+			payload[i], payload[j] = payload[j], payload[i]
+		}
 	}
 	return &payload
 }
@@ -947,6 +953,8 @@ func MTOShipment(storer storage.FileStorer, mtoShipment *models.MTOShipment, sit
 		SecondaryDeliveryAddress:    Address(mtoShipment.SecondaryDeliveryAddress),
 		SecondaryPickupAddress:      Address(mtoShipment.SecondaryPickupAddress),
 		DestinationAddress:          Address(mtoShipment.DestinationAddress),
+		HasSecondaryDeliveryAddress: mtoShipment.HasSecondaryDeliveryAddress,
+		HasSecondaryPickupAddress:   mtoShipment.HasSecondaryPickupAddress,
 		PrimeEstimatedWeight:        handlers.FmtPoundPtr(mtoShipment.PrimeEstimatedWeight),
 		PrimeActualWeight:           handlers.FmtPoundPtr(mtoShipment.PrimeActualWeight),
 		NtsRecordedWeight:           handlers.FmtPoundPtr(mtoShipment.NTSRecordedWeight),

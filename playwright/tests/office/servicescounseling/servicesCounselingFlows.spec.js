@@ -187,7 +187,7 @@ test.describe('Services counselor user', () => {
       await page.locator('#requestedDeliveryDate').clear();
       await page.locator('#requestedDeliveryDate').type('16 Mar 2022');
       await page.locator('#requestedDeliveryDate').blur();
-      await page.getByRole('group', { name: 'Delivery location' }).getByText('Yes').click();
+      await page.getByRole('group', { name: 'Delivery location' }).getByText('Yes').nth(1).click();
       await page.locator('input[name="delivery.address.streetAddress1"]').clear();
       await page.locator('input[name="delivery.address.streetAddress1"]').type('7 q st');
       await page.locator('input[name="delivery.address.city"]').clear();
@@ -217,5 +217,34 @@ test.describe('Services counselor user', () => {
       // Verify that the tag after the update is a 2 since missing information was filled
       await expect(page.locator('[data-testid="requestedShipmentsTag"]')).toContainText('2');
     });
+  });
+
+  test('can complete review of PPM shipment documents', async ({ page, scPage }) => {
+    const move = await scPage.testHarness.buildApprovedMoveWithPPMAllDocTypesOffice();
+    await scPage.navigateToCloseoutMove(move.locator);
+
+    // Navigate to the "Review documents" page
+    await expect(page.getByRole('button', { name: 'Review documents' })).toBeVisible();
+    await page.getByRole('button', { name: 'Review documents' }).click();
+
+    await scPage.waitForPage.reviewWeightTicket();
+    await page.getByText('Accept').click();
+    await page.getByRole('button', { name: 'Continue' }).click();
+
+    await scPage.waitForPage.reviewProGear();
+    await page.getByText('Accept').click();
+    await page.getByRole('button', { name: 'Continue' }).click();
+
+    await scPage.waitForPage.reviewReceipt();
+    await expect(page.getByText('Accept')).toBeVisible();
+    await page.getByText('Accept').click();
+    await page.getByRole('button', { name: 'Continue' }).click();
+
+    await scPage.waitForPage.reviewDocumentsConfirmation();
+
+    await page.getByRole('button', { name: 'Confirm' }).click();
+    await scPage.waitForPage.moveDetails();
+
+    await expect(page.getByTestId('ShipmentContainer').getByTestId('tag')).toContainText('packet ready for download');
   });
 });

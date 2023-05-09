@@ -4,7 +4,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/go-openapi/swag"
+	"github.com/transcom/mymove/pkg/models"
 )
 
 func (suite *PricingParserSuite) Test_verifyServiceAreas() {
@@ -67,7 +67,7 @@ func (suite *PricingParserSuite) Test_parseDomesticServiceAreas() {
 	slice, err := parseDomesticServiceAreas(suite.AppContextForTest(), params, sheetIndex)
 	suite.NoError(err, "parseDomesticServiceAreas function failed")
 
-	outputFilename := dataSheet.generateOutputFilename(sheetIndex, params.RunTime, swag.String("domestic"))
+	outputFilename := dataSheet.generateOutputFilename(sheetIndex, params.RunTime, models.StringPointer("domestic"))
 	err = createCSV(suite.AppContextForTest(), outputFilename, slice)
 	suite.NoError(err, "could not create CSV")
 
@@ -95,7 +95,7 @@ func (suite *PricingParserSuite) Test_parseInternationalServiceAreas() {
 	slice, err := parseInternationalServiceAreas(suite.AppContextForTest(), params, sheetIndex)
 	suite.NoError(err, "parseInternationalServiceAreas function failed")
 
-	outputFilename := dataSheet.generateOutputFilename(sheetIndex, params.RunTime, swag.String("international"))
+	outputFilename := dataSheet.generateOutputFilename(sheetIndex, params.RunTime, models.StringPointer("international"))
 	err = createCSV(suite.AppContextForTest(), outputFilename, slice)
 	suite.NoError(err, "could not create CSV")
 

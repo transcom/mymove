@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
@@ -276,10 +275,10 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			DestinationAddressID:        &newDestinationAddress.ID,
 			PickupAddress:               &newPickupAddress,
 			PickupAddressID:             &newPickupAddress.ID,
-			HasSecondaryPickupAddress:   swag.Bool(true),
+			HasSecondaryPickupAddress:   models.BoolPointer(true),
 			SecondaryPickupAddress:      &secondaryPickupAddress,
 			SecondaryPickupAddressID:    &secondaryDeliveryAddress.ID,
-			HasSecondaryDeliveryAddress: swag.Bool(true),
+			HasSecondaryDeliveryAddress: models.BoolPointer(true),
 			SecondaryDeliveryAddress:    &secondaryDeliveryAddress,
 			SecondaryDeliveryAddressID:  &secondaryDeliveryAddress.ID,
 		}
@@ -468,26 +467,34 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		setupTestData()
 
 		shipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
-		mtoAgent1 := testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
-			MTOAgent: models.MTOAgent{
-				MTOShipment:   shipment,
-				MTOShipmentID: shipment.ID,
-				FirstName:     swag.String("Test"),
-				LastName:      swag.String("Agent"),
-				Email:         swag.String("test@test.email.com"),
-				MTOAgentType:  models.MTOAgentReleasing,
+		mtoAgent1 := factory.BuildMTOAgent(suite.DB(), []factory.Customization{
+			{
+				Model:    shipment,
+				LinkOnly: true,
 			},
-		})
-		mtoAgent2 := testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
-			MTOAgent: models.MTOAgent{
-				MTOShipment:   shipment,
-				MTOShipmentID: shipment.ID,
-				FirstName:     swag.String("Test2"),
-				LastName:      swag.String("Agent2"),
-				Email:         swag.String("test2@test.email.com"),
-				MTOAgentType:  models.MTOAgentReceiving,
+			{
+				Model: models.MTOAgent{
+					FirstName:    models.StringPointer("Test"),
+					LastName:     models.StringPointer("Agent"),
+					Email:        models.StringPointer("test@test.email.com"),
+					MTOAgentType: models.MTOAgentReleasing,
+				},
 			},
-		})
+		}, nil)
+		mtoAgent2 := factory.BuildMTOAgent(suite.DB(), []factory.Customization{
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOAgent{
+					FirstName:    models.StringPointer("Test2"),
+					LastName:     models.StringPointer("Agent2"),
+					Email:        models.StringPointer("test2@test.email.com"),
+					MTOAgentType: models.MTOAgentReceiving,
+				},
+			},
+		}, nil)
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 
 		updatedAgents := make(models.MTOAgents, 2)
@@ -525,23 +532,26 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		setupTestData()
 
 		shipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
-		existingAgent := testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
-			MTOAgent: models.MTOAgent{
-				MTOShipment:   shipment,
-				MTOShipmentID: shipment.ID,
-				FirstName:     swag.String("Test"),
-				LastName:      swag.String("Agent"),
-				Email:         swag.String("test@test.email.com"),
-				MTOAgentType:  models.MTOAgentReleasing,
+		existingAgent := factory.BuildMTOAgent(suite.DB(), []factory.Customization{
+			{
+				Model:    shipment,
+				LinkOnly: true,
 			},
-		})
-
+			{
+				Model: models.MTOAgent{
+					FirstName:    models.StringPointer("Test"),
+					LastName:     models.StringPointer("Agent"),
+					Email:        models.StringPointer("test@test.email.com"),
+					MTOAgentType: models.MTOAgentReleasing,
+				},
+			},
+		}, nil)
 		mtoAgentToCreate := models.MTOAgent{
 			MTOShipment:   shipment,
 			MTOShipmentID: shipment.ID,
-			FirstName:     swag.String("Ima"),
-			LastName:      swag.String("Newagent"),
-			Email:         swag.String("test2@test.email.com"),
+			FirstName:     models.StringPointer("Ima"),
+			LastName:      models.StringPointer("Newagent"),
+			Email:         models.StringPointer("test2@test.email.com"),
 			MTOAgentType:  models.MTOAgentReceiving,
 		}
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
@@ -659,7 +669,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			City:           "Houston",
 			State:          "TX",
 			PostalCode:     "77083",
-			Country:        swag.String("US"),
+			Country:        models.StringPointer("US"),
 		}
 
 		newEmail := "new@email.com"
@@ -1443,7 +1453,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 	suite.Run("When move is not yet approved, cannot approve shipment", func() {
 		setupTestData()
 
-		submittedMTO := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
+		submittedMTO := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
 		mtoShipment := submittedMTO.MTOShipments[0]
 		eTag = etag.GenerateEtag(mtoShipment.UpdatedAt)
 
@@ -1964,12 +1974,15 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentNullableFields() {
 		mockedUpdater := NewOfficeMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, &mockShipmentRecalculator)
 
 		ntsLOAType := models.LOATypeNTS
-		ntsMove := testdatagen.MakeNTSMoveWithShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				TACType: &ntsLOAType,
-				SACType: &ntsLOAType,
+		ntsMove := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypeHHGIntoNTSDom,
+					TACType:      &ntsLOAType,
+					SACType:      &ntsLOAType,
+				},
 			},
-		})
+		}, nil)
 
 		nullLOAType := models.LOAType("")
 		requestedUpdate := &models.MTOShipment{
@@ -1999,12 +2012,15 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentNullableFields() {
 		ntsLOAType := models.LOATypeNTS
 		hhgLOAType := models.LOATypeHHG
 
-		ntsMove := testdatagen.MakeNTSMoveWithShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				TACType: &ntsLOAType,
-				SACType: &ntsLOAType,
+		ntsMove := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypeHHGIntoNTSDom,
+					TACType:      &ntsLOAType,
+					SACType:      &ntsLOAType,
+				},
 			},
-		})
+		}, nil)
 		shipment := ntsMove.MTOShipments[0]
 
 		requestedUpdate := &models.MTOShipment{

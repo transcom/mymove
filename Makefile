@@ -568,7 +568,7 @@ db_dev_fresh: check_app db_dev_reset db_dev_load_from_schema ## Recreate dev db 
 .PHONY: db_dev_truncate
 db_dev_truncate: ## Truncate dev db
 	@echo "Truncate the ${DB_NAME_DEV} database..."
-	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_DEV)/$(DB_NAME_DEV)?sslmode=disable -c 'TRUNCATE users, uploads, webhook_subscriptions, traffic_distribution_lists, storage_facilities CASCADE'
+	psql postgres://postgres:$(PGPASSWORD)@${DB_HOST}:$(DB_PORT_DEV)/$(DB_NAME_DEV)?sslmode=disable -c 'TRUNCATE users, uploads, webhook_subscriptions, storage_facilities CASCADE'
 
 .PHONY: db_dev_e2e_populate
 db_dev_e2e_populate: check_app db_dev_migrate db_dev_truncate ## Migrate dev db and populate with devseed data
@@ -621,7 +621,7 @@ endif
 db_deployed_migrations_create: ## Create Deployed Migrations DB
 	@echo "Create the ${DB_NAME_DEPLOYED_MIGRATIONS} database..."
 	DB_NAME=postgres DB_PORT=$(DB_PORT_DEPLOYED_MIGRATIONS) scripts/wait-for-db && \
-		createdb -p $(DB_PORT_DEPLOYED_MIGRATIONS) -h localhost -U postgres $(DB_NAME_DEPLOYED_MIGRATIONS) || true
+		createdb -p $(DB_PORT_DEPLOYED_MIGRATIONS) -h $(DB_HOST) -U postgres $(DB_NAME_DEPLOYED_MIGRATIONS) || true
 
 .PHONY: db_deployed_migrations_run
 db_deployed_migrations_run: db_deployed_migrations_start db_deployed_migrations_create ## Run Deployed Migrations DB (start and create)
@@ -682,7 +682,7 @@ db_test_create: ## Create Test DB
 ifndef CIRCLECI
 	@echo "Create the ${DB_NAME_TEST} database..."
 	DB_NAME=postgres DB_PORT=$(DB_PORT_TEST) scripts/wait-for-db && \
-		createdb -p $(DB_PORT_TEST) -h localhost -U postgres $(DB_NAME_TEST) || true
+		createdb -p $(DB_PORT_TEST) -h $(DB_HOST) -U postgres $(DB_NAME_TEST) || true
 else
 	@echo "Relying on CircleCI's database setup to create the DB."
 	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_TEST)?sslmode=disable -c 'CREATE DATABASE $(DB_NAME_TEST);'
@@ -1083,7 +1083,7 @@ pretty: gofmt ## Run code through JS and Golang formatters
 
 .PHONY: docker_circleci
 docker_circleci: ## Run CircleCI container locally with project mounted
-	docker run -it --pull=always --rm=true -v $(PWD):$(PWD) -w $(PWD) -e CIRCLECI=1 milmove/circleci-docker:milmove-app-c56dd82c1274f5550bf26c828712cbc33f37047c bash
+	docker run -it --pull=always --rm=true -v $(PWD):$(PWD) -w $(PWD) -e CIRCLECI=1 milmove/circleci-docker:milmove-app-59d1b5d814b190c7c5a8c460ca97ed193d518350 bash
 
 .PHONY: prune_images
 prune_images:  ## Prune docker images

@@ -1,6 +1,8 @@
 package serviceparamvaluelookups
 
 import (
+	"time"
+
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -17,6 +19,12 @@ func (suite *ServiceParamValueLookupsSuite) TestZipSITOriginHHGOriginalAddressLo
 	var mtoServiceItemNoSITOriginZips models.MTOServiceItem
 
 	setupTestData := func() {
+		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				StartDate: time.Now().Add(-24 * time.Hour),
+				EndDate:   time.Now().Add(24 * time.Hour),
+			},
+		})
 		reService := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
 
 		originAddress := factory.BuildAddress(suite.DB(),
@@ -37,12 +45,14 @@ func (suite *ServiceParamValueLookupsSuite) TestZipSITOriginHHGOriginalAddressLo
 				},
 			}, nil)
 
-		move := factory.BuildMove(suite.DB(), nil, nil)
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
-		paymentRequest = testdatagen.MakePaymentRequest(suite.DB(),
-			testdatagen.Assertions{
-				Move: move,
-			})
+		paymentRequest = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		mtoServiceItemWithSITOriginZips = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{

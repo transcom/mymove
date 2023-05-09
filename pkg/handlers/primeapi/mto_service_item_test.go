@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
@@ -25,7 +24,6 @@ import (
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	"github.com/transcom/mymove/pkg/services/query"
-	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -644,9 +642,9 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandler() {
 			// These get copied over to the DOASIT as part of creation and are needed for the response to validate
 			{
 				Model: models.MTOServiceItem{
-					Reason:        swag.String("lorem ipsum"),
-					SITEntryDate:  swag.Time(time.Now()),
-					SITPostalCode: swag.String("00000"),
+					Reason:        models.StringPointer("lorem ipsum"),
+					SITEntryDate:  models.TimePointer(time.Now()),
+					SITPostalCode: models.StringPointer("00000"),
 				},
 			},
 		}, nil)
@@ -1205,7 +1203,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 			},
 			{
 				Model: models.MTOServiceItem{
-					SITEntryDate: swag.Time(time.Now()),
+					SITEntryDate: models.TimePointer(time.Now()),
 				},
 			},
 			{
@@ -1224,11 +1222,14 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 			Country:        destinationAddress.Country,
 		}
 
+		milTime := "1400Z"
 		// Create the payload with the desired update
 		subtestData.reqPayload = &primemessages.UpdateMTOServiceItemSIT{
-			ReServiceCode:              models.ReServiceCodeDDDSIT.String(),
-			SitDepartureDate:           *handlers.FmtDate(time.Now().AddDate(0, 0, 5)),
-			SitDestinationFinalAddress: &addr,
+			ReServiceCode:               models.ReServiceCodeDDDSIT.String(),
+			SitDepartureDate:            *handlers.FmtDate(time.Now().AddDate(0, 0, 5)),
+			SitDestinationFinalAddress:  &addr,
+			TimeMilitary1:               handlers.FmtStringPtrNonEmpty(&milTime),
+			FirstAvailableDeliveryDate1: handlers.FmtDate(time.Date(2020, time.December, 02, 0, 0, 0, 0, time.UTC)),
 		}
 		subtestData.reqPayload.SetID(strfmt.UUID(subtestData.dddsit.ID.String()))
 
@@ -1241,7 +1242,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 		}
 
 		// create the params struct
-		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-service_items/%s", subtestData.dddsit.ID), nil)
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-service-items/%s", subtestData.dddsit.ID), nil)
 		eTag := etag.GenerateEtag(subtestData.dddsit.UpdatedAt)
 		subtestData.params = mtoserviceitemops.UpdateMTOServiceItemParams{
 			HTTPRequest:      req,
@@ -1252,14 +1253,14 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 		return subtestData
 	}
 
-	suite.Run("Successful PATCH - Updated SITDepartureDate on DDDSIT", func() {
+	suite.Run("Successful PATCH - Updated SITDepartureDate and FADD Fields on DDDSIT", func() {
 		subtestData := makeSubtestData()
 		// Under test: updateMTOServiceItemHandler.Handle function
 		//             MTOServiceItemUpdater.Update service object function
 		// Set up:     We create an mto service item using DDDSIT (which was created above)
-		//             And send an update to the sit entry date
+		//             And send an update to the sit entry date and customer contact fields
 		// Expected outcome:
-		//             Receive a success response with the SitDepartureDate updated
+		//             Receive a success response with the SitDepartureDate, TimeMilitary and FirstAvailableDeliveryDate1 updated
 
 		// CALL FUNCTION UNDER TEST
 
@@ -1280,6 +1281,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 		// suite.NoError(resp1.Validate(strfmt.Default))
 
 		respPayload := resp1.(*primemessages.MTOServiceItemDestSIT)
+
 		suite.Equal(subtestData.reqPayload.ID(), respPayload.ID())
 		suite.Equal(subtestData.reqPayload.SitDepartureDate.String(), respPayload.SitDepartureDate.String())
 		suite.Equal(subtestData.reqPayload.SitDestinationFinalAddress.StreetAddress1, respPayload.SitDestinationFinalAddress.StreetAddress1)
@@ -1287,6 +1289,8 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 		suite.Equal(subtestData.reqPayload.SitDestinationFinalAddress.PostalCode, respPayload.SitDestinationFinalAddress.PostalCode)
 		suite.Equal(subtestData.reqPayload.SitDestinationFinalAddress.State, respPayload.SitDestinationFinalAddress.State)
 		suite.Equal(subtestData.reqPayload.SitDestinationFinalAddress.Country, respPayload.SitDestinationFinalAddress.Country)
+		suite.Equal(subtestData.reqPayload.TimeMilitary1, respPayload.TimeMilitary1)
+		suite.Equal(subtestData.reqPayload.FirstAvailableDeliveryDate1, respPayload.FirstAvailableDeliveryDate1)
 	})
 
 	suite.Run("Failed PATCH - No DDDSIT found", func() {
@@ -1361,15 +1365,21 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 
 		// SETUP
 		// Make a payment request and link to the dddsit service item
-		paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
+		paymentRequest := factory.BuildPaymentRequest(suite.DB(), nil, nil)
 		cost := unit.Cents(20000)
-		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
-			PaymentServiceItem: models.PaymentServiceItem{
-				PriceCents: &cost,
+		factory.BuildPaymentServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &cost,
+				},
+			}, {
+				Model:    paymentRequest,
+				LinkOnly: true,
+			}, {
+				Model:    subtestData.dddsit,
+				LinkOnly: true,
 			},
-			PaymentRequest: paymentRequest,
-			MTOServiceItem: subtestData.dddsit,
-		})
+		}, nil)
 
 		// CALL FUNCTION UNDER TEST
 
@@ -1415,7 +1425,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDOPSIT() {
 			},
 			{
 				Model: models.MTOServiceItem{
-					SITEntryDate: swag.Time(time.Now()),
+					SITEntryDate: models.TimePointer(time.Now()),
 				},
 			},
 			{
@@ -1555,15 +1565,21 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDOPSIT() {
 
 		// SETUP
 		// Make a payment request and link to the DOPSIT service item
-		paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
+		paymentRequest := factory.BuildPaymentRequest(suite.DB(), nil, nil)
 		cost := unit.Cents(20000)
-		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
-			PaymentServiceItem: models.PaymentServiceItem{
-				PriceCents: &cost,
+		factory.BuildPaymentServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &cost,
+				},
+			}, {
+				Model:    paymentRequest,
+				LinkOnly: true,
+			}, {
+				Model:    subtestData.dopsit,
+				LinkOnly: true,
 			},
-			PaymentRequest: paymentRequest,
-			MTOServiceItem: subtestData.dopsit,
-		})
+		}, nil)
 
 		// CALL FUNCTION UNDER TEST
 

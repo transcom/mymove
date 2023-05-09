@@ -1477,7 +1477,7 @@ func init() {
     },
     "/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}": {
       "patch": {
-        "description": "Updates a specified MTO shipment.\nRequired fields include:\n* MTO Shipment ID required in path\n* If-Match required in headers\n* No fields required in body\nOptional fields include:\n* New shipment status type\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Delivery Address Type\n* Customer Remarks\n* Counselor Remarks\n* Releasing / Receiving agents\n",
+        "description": "Updates a specified MTO shipment.\nRequired fields include:\n* MTO Shipment ID required in path\n* If-Match required in headers\n* No fields required in body\nOptional fields include:\n* New shipment status type\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Secondary Pick-up Address\n* SecondaryDelivery Address\n* Delivery Address Type\n* Customer Remarks\n* Counselor Remarks\n* Releasing / Receiving agents\n",
         "consumes": [
           "application/json"
         ],
@@ -4585,6 +4585,20 @@ func init() {
           "type": "string",
           "x-nullable": true,
           "example": "Approved for three weeks rather than requested 45 days"
+        },
+        "requestReason": {
+          "description": "Reason from service counselor-provided picklist for SIT Duration Update",
+          "type": "string",
+          "enum": [
+            "SERIOUS_ILLNESS_MEMBER",
+            "SERIOUS_ILLNESS_DEPENDENT",
+            "IMPENDING_ASSIGNEMENT",
+            "DIRECTED_TEMPORARY_DUTY",
+            "NONAVAILABILITY_OF_CIVILIAN_HOUSING",
+            "AWAITING_COMPLETION_OF_RESIDENCE",
+            "OTHER"
+          ],
+          "example": "AWAITING_COMPLETION_OF_RESIDENCE"
         }
       }
     },
@@ -4793,7 +4807,6 @@ func init() {
         "approvedDays": {
           "description": "Number of days approved for SIT extension. This will match requested days saved to the SIT extension model.",
           "type": "integer",
-          "minimum": 1,
           "example": 21
         },
         "officeRemarks": {
@@ -6043,6 +6056,16 @@ func init() {
         },
         "eTag": {
           "type": "string"
+        },
+        "hasSecondaryDeliveryAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasSecondaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "id": {
           "type": "string",
@@ -8483,14 +8506,6 @@ func init() {
         "agency": {
           "$ref": "#/definitions/Affiliation"
         },
-        "authorizedWeight": {
-          "description": "unit is in lbs",
-          "type": "integer",
-          "minimum": 1,
-          "x-formatting": "weight",
-          "x-nullable": true,
-          "example": 2000
-        },
         "dependentsAuthorized": {
           "type": "boolean",
           "x-nullable": true
@@ -8923,11 +8938,20 @@ func init() {
             {
               "$ref": "#/definitions/Address"
             }
-          ],
-          "x-nullable": true
+          ]
         },
         "destinationType": {
           "$ref": "#/definitions/DestinationType"
+        },
+        "hasSecondaryDeliveryAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasSecondaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "ntsRecordedWeight": {
           "description": "The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.",
@@ -8958,6 +8982,20 @@ func init() {
         },
         "sacType": {
           "$ref": "#/definitions/LOATypeNullable"
+        },
+        "secondaryDeliveryAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "secondaryPickupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "serviceOrderNumber": {
           "type": "string",
@@ -11295,7 +11333,7 @@ func init() {
     },
     "/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}": {
       "patch": {
-        "description": "Updates a specified MTO shipment.\nRequired fields include:\n* MTO Shipment ID required in path\n* If-Match required in headers\n* No fields required in body\nOptional fields include:\n* New shipment status type\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Delivery Address Type\n* Customer Remarks\n* Counselor Remarks\n* Releasing / Receiving agents\n",
+        "description": "Updates a specified MTO shipment.\nRequired fields include:\n* MTO Shipment ID required in path\n* If-Match required in headers\n* No fields required in body\nOptional fields include:\n* New shipment status type\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Secondary Pick-up Address\n* SecondaryDelivery Address\n* Delivery Address Type\n* Customer Remarks\n* Counselor Remarks\n* Releasing / Receiving agents\n",
         "consumes": [
           "application/json"
         ],
@@ -15141,6 +15179,20 @@ func init() {
           "type": "string",
           "x-nullable": true,
           "example": "Approved for three weeks rather than requested 45 days"
+        },
+        "requestReason": {
+          "description": "Reason from service counselor-provided picklist for SIT Duration Update",
+          "type": "string",
+          "enum": [
+            "SERIOUS_ILLNESS_MEMBER",
+            "SERIOUS_ILLNESS_DEPENDENT",
+            "IMPENDING_ASSIGNEMENT",
+            "DIRECTED_TEMPORARY_DUTY",
+            "NONAVAILABILITY_OF_CIVILIAN_HOUSING",
+            "AWAITING_COMPLETION_OF_RESIDENCE",
+            "OTHER"
+          ],
+          "example": "AWAITING_COMPLETION_OF_RESIDENCE"
         }
       }
     },
@@ -15353,7 +15405,6 @@ func init() {
         "approvedDays": {
           "description": "Number of days approved for SIT extension. This will match requested days saved to the SIT extension model.",
           "type": "integer",
-          "minimum": 1,
           "example": 21
         },
         "officeRemarks": {
@@ -16603,6 +16654,16 @@ func init() {
         },
         "eTag": {
           "type": "string"
+        },
+        "hasSecondaryDeliveryAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasSecondaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "id": {
           "type": "string",
@@ -19047,14 +19108,6 @@ func init() {
         "agency": {
           "$ref": "#/definitions/Affiliation"
         },
-        "authorizedWeight": {
-          "description": "unit is in lbs",
-          "type": "integer",
-          "minimum": 1,
-          "x-formatting": "weight",
-          "x-nullable": true,
-          "example": 2000
-        },
         "dependentsAuthorized": {
           "type": "boolean",
           "x-nullable": true
@@ -19492,11 +19545,20 @@ func init() {
             {
               "$ref": "#/definitions/Address"
             }
-          ],
-          "x-nullable": true
+          ]
         },
         "destinationType": {
           "$ref": "#/definitions/DestinationType"
+        },
+        "hasSecondaryDeliveryAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasSecondaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "ntsRecordedWeight": {
           "description": "The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.",
@@ -19527,6 +19589,20 @@ func init() {
         },
         "sacType": {
           "$ref": "#/definitions/LOATypeNullable"
+        },
+        "secondaryDeliveryAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "secondaryPickupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "serviceOrderNumber": {
           "type": "string",

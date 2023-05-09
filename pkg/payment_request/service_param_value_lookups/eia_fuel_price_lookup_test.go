@@ -16,6 +16,12 @@ func (suite *ServiceParamValueLookupsSuite) TestEIAFuelPriceLookup() {
 	actualPickupDate := time.Date(2020, time.July, 15, 0, 0, 0, 0, time.UTC)
 
 	setupTestData := func() {
+		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				StartDate: time.Now().Add(-24 * time.Hour),
+				EndDate:   time.Now().Add(24 * time.Hour),
+			},
+		})
 		var firstGHCDieselFuelPrice models.GHCDieselFuelPrice
 		var secondGHCDieselFuelPrice models.GHCDieselFuelPrice
 		var thirdGHCDieselFuelPrice models.GHCDieselFuelPrice
@@ -58,14 +64,16 @@ func (suite *ServiceParamValueLookupsSuite) TestEIAFuelPriceLookup() {
 					ActualPickupDate: &actualPickupDate,
 				},
 			},
-		}, nil)
+		}, []factory.Trait{
+			factory.GetTraitAvailableToPrimeMove,
+		})
 
-		paymentRequest = testdatagen.MakePaymentRequest(suite.DB(),
-			testdatagen.Assertions{
-				PaymentRequest: models.PaymentRequest{
-					MoveTaskOrderID: mtoServiceItem.MoveTaskOrderID,
-				},
-			})
+		paymentRequest = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    mtoServiceItem.MoveTaskOrder,
+				LinkOnly: true,
+			},
+		}, nil)
 	}
 
 	suite.Run("lookup GHC diesel fuel price successfully", func() {
@@ -111,13 +119,16 @@ func (suite *ServiceParamValueLookupsSuite) TestEIAFuelPriceLookup() {
 			},
 		}, nil)
 
-		_ = testdatagen.FetchOrMakeServiceParam(suite.DB(), testdatagen.Assertions{
-			ServiceParam: models.ServiceParam{
-				ServiceID:             mtoServiceItemFSC.ReServiceID,
-				ServiceItemParamKeyID: serviceItemParamKey1.ID,
-				ServiceItemParamKey:   serviceItemParamKey1,
+		factory.FetchOrBuildServiceParam(suite.DB(), []factory.Customization{
+			{
+				Model:    mtoServiceItemFSC.ReService,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model:    serviceItemParamKey1,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		paramCache := NewServiceParamsCache()
 
@@ -138,17 +149,19 @@ func (suite *ServiceParamValueLookupsSuite) TestEIAFuelPriceLookup() {
 		// create a service item that has a shipment without an ActualPickupDate
 		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
-				Model:    factory.BuildMTOShipmentMinimal(suite.DB(), nil, nil),
+				Model:    factory.BuildMTOShipmentMinimal(suite.DB(), nil, []factory.Trait{factory.GetTraitAvailableToPrimeMove}),
 				LinkOnly: true,
 			},
 		}, nil)
 
-		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
-			testdatagen.Assertions{
-				PaymentRequest: models.PaymentRequest{
-					MoveTaskOrderID: mtoServiceItem.MoveTaskOrderID,
-				},
-			})
+		suite.NotNil(mtoServiceItem.MoveTaskOrder.AvailableToPrimeAt)
+
+		paymentRequest = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    mtoServiceItem.MoveTaskOrder,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		_, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.Error(err)

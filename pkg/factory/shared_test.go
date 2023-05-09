@@ -4,7 +4,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/suite"
 
@@ -353,8 +352,8 @@ func (suite *FactorySuite) TestNestedModelsCheck() {
 				Telephone:              &phone,
 				SecondaryTelephone:     &phone,
 				PersonalEmail:          &name,
-				PhoneIsPreferred:       swag.Bool(true),
-				EmailIsPreferred:       swag.Bool(false),
+				PhoneIsPreferred:       models.BoolPointer(true),
+				EmailIsPreferred:       models.BoolPointer(false),
 				ResidentialAddressID:   &testid,
 				BackupMailingAddressID: &testid,
 				DutyLocationID:         &testid,
@@ -608,6 +607,66 @@ func (suite *FactorySuite) TestReplaceCustomization() {
 				Type:  &ServiceMember,
 			},
 		})
+
+	})
+
+}
+
+func (suite *FactorySuite) TestRemoveCustomization() {
+	suite.Run("Remove existing customization", func() {
+		// Under test:       removeCustomization removes existing customization
+		// Set up:           Create customs that include a Move customization
+		// Expected outcome: No error
+		customs := []Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVALSREQUESTED,
+				},
+			},
+			{
+				Model: models.ServiceMember{
+					FirstName: models.StringPointer("Riley"),
+				},
+			},
+			{
+				Model: models.Order{
+					HasDependents: true,
+				},
+			},
+		}
+		customs = setupCustomizations(customs, nil)
+
+		newCustoms := removeCustomization(customs, Move)
+		suite.Equal(len(customs)-1, len(newCustoms))
+
+		ndx, _ := findCustomWithIdx(newCustoms, Move)
+		suite.Equal(-1, ndx)
+	})
+
+	suite.Run("Try to remove non-existant customization", func() {
+		// Under test:       removeCustomization returns unchanged customizations slice
+		// Set up:           Create customs that don't include a Move customization
+		// Expected outcome: No error
+
+		customs := []Customization{
+			{
+				Model: models.ServiceMember{
+					FirstName: models.StringPointer("Riley"),
+				},
+			},
+			{
+				Model: models.Order{
+					HasDependents: true,
+				},
+			},
+		}
+		customs = setupCustomizations(customs, nil)
+
+		newCustoms := removeCustomization(customs, Move)
+		suite.Equal(len(customs), len(newCustoms))
+
+		ndx, _ := findCustomWithIdx(newCustoms, Move)
+		suite.Equal(-1, ndx)
 
 	})
 

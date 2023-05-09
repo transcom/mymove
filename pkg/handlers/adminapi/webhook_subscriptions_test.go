@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
@@ -225,9 +224,9 @@ func (suite *HandlerSuite) TestUpdateWebhookSubscriptionHandler() {
 			HTTPRequest:           suite.setupAuthenticatedRequest("PATCH", fmt.Sprintf("/webhook-subscriptions/%s", webhookSubscription.ID)),
 			WebhookSubscriptionID: strfmt.UUID(webhookSubscription.ID.String()),
 			WebhookSubscription: &adminmessages.WebhookSubscription{
-				CallbackURL:  swag.String("something.com"),
+				CallbackURL:  models.StringPointer("something.com"),
 				Status:       &status,
-				EventKey:     swag.String("WebhookSubscription.Update"),
+				EventKey:     models.StringPointer("WebhookSubscription.Update"),
 				SubscriberID: &subscriberID,
 			},
 			IfMatch: etag.GenerateEtag(webhookSubscription.UpdatedAt),
@@ -264,8 +263,8 @@ func (suite *HandlerSuite) TestUpdateWebhookSubscriptionHandler() {
 			HTTPRequest:           suite.setupAuthenticatedRequest("PATCH", fmt.Sprintf("/webhook-subscriptions/%s", webhookSubscription.ID)),
 			WebhookSubscriptionID: strfmt.UUID(webhookSubscription.ID.String()),
 			WebhookSubscription: &adminmessages.WebhookSubscription{
-				CallbackURL: swag.String("somethingelse.com"),
-				EventKey:    swag.String("WebhookSubscription.Delete"),
+				CallbackURL: models.StringPointer("somethingelse.com"),
+				EventKey:    models.StringPointer("WebhookSubscription.Delete"),
 			},
 			IfMatch: etag.GenerateEtag(webhookSubscription.UpdatedAt),
 		}
@@ -306,9 +305,9 @@ func (suite *HandlerSuite) TestUpdateWebhookSubscriptionHandler() {
 			HTTPRequest:           suite.setupAuthenticatedRequest("PATCH", fmt.Sprintf("/webhook-subscriptions/%s", webhookSubscription.ID)),
 			WebhookSubscriptionID: strfmt.UUID(fakeID.String()),
 			WebhookSubscription: &adminmessages.WebhookSubscription{
-				CallbackURL:  swag.String("something.com"),
+				CallbackURL:  models.StringPointer("something.com"),
 				Status:       &status,
-				EventKey:     swag.String("WebhookSubscription.Update"),
+				EventKey:     models.StringPointer("WebhookSubscription.Update"),
 				SubscriberID: &subscriberID,
 			},
 			IfMatch: etag.GenerateEtag(webhookSubscription.UpdatedAt),
@@ -336,7 +335,7 @@ func (suite *HandlerSuite) TestUpdateWebhookSubscriptionHandler() {
 			HTTPRequest:           suite.setupAuthenticatedRequest("PATCH", fmt.Sprintf("/webhook-subscriptions/%s", webhookSubscription.ID)),
 			WebhookSubscriptionID: strfmt.UUID(webhookSubscription.ID.String()),
 			WebhookSubscription: &adminmessages.WebhookSubscription{
-				CallbackURL: swag.String("stale.etag.com"),
+				CallbackURL: models.StringPointer("stale.etag.com"),
 			},
 			IfMatch: etag.GenerateEtag(time.Now()),
 		}

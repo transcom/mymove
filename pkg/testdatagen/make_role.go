@@ -44,56 +44,6 @@ func MakeUsersRoles(db *pop.Connection, assertions Assertions) models.UsersRoles
 	return usersRoles
 }
 
-// MakeServicesCounselorRole creates a single services counselor role.
-func MakeServicesCounselorRole(db *pop.Connection) roles.Role {
-	return MakeRole(db, Assertions{
-		Role: roles.Role{
-			RoleType: roles.RoleTypeServicesCounselor,
-			RoleName: "Services Counselor",
-		},
-	})
-}
-
-// MakeTOORole creates a single transportation ordering officer role.
-func MakeTOORole(db *pop.Connection) roles.Role {
-	return MakeRole(db, Assertions{
-		Role: roles.Role{
-			RoleType: roles.RoleTypeTOO,
-			RoleName: "Transportation Ordering Officer",
-		},
-	})
-}
-
-// MakeTIORole creates a single transportation inovicing officer role.
-func MakeTIORole(db *pop.Connection) roles.Role {
-	return MakeRole(db, Assertions{
-		Role: roles.Role{
-			RoleType: roles.RoleTypeTIO,
-			RoleName: "Transportation Invoicing Officer",
-		},
-	})
-}
-
-// MakeQaeCsrRole creates a single quality assurance and customer service role.
-func MakeQaeCsrRole(db *pop.Connection) roles.Role {
-	return MakeRole(db, Assertions{
-		Role: roles.Role{
-			RoleType: roles.RoleTypeQaeCsr,
-			RoleName: "Quality Assurance and Customer Service",
-		},
-	})
-}
-
-// MakeContractingOfficerRole creates a single contracting officer role.
-func MakeContractingOfficerRole(db *pop.Connection) roles.Role {
-	return MakeRole(db, Assertions{
-		Role: roles.Role{
-			RoleType: roles.RoleTypeContractingOfficer,
-			RoleName: "Contracting Officer",
-		},
-	})
-}
-
 // lookup a role by role type, if it doesn't exist make it
 func LookupOrMakeRole(db *pop.Connection, roleType roles.RoleType, roleName roles.RoleName) (roles.Role, error) {
 

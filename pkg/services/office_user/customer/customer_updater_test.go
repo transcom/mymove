@@ -3,8 +3,6 @@ package customer
 import (
 	"time"
 
-	"github.com/go-openapi/swag"
-
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/factory"
@@ -35,15 +33,15 @@ func (suite *CustomerServiceSuite) TestCustomerUpdater() {
 		backupContact := models.BackupContact{
 			Email: "newbackup@mail.com",
 			Name:  "New Backup Contact",
-			Phone: swag.String("445-345-1212"),
+			Phone: models.StringPointer("445-345-1212"),
 		}
 		backupContacts = append(backupContacts, backupContact)
 
 		updatedCustomer := models.ServiceMember{
 			ID:        defaultCustomer.ID,
-			LastName:  swag.String("Newlastname"),
-			FirstName: swag.String("Newfirstname"),
-			Telephone: swag.String("123-455-3399"),
+			LastName:  models.StringPointer("Newlastname"),
+			FirstName: models.StringPointer("Newfirstname"),
+			Telephone: models.StringPointer("123-455-3399"),
 			ResidentialAddress: &models.Address{
 				StreetAddress1: "123 New Street",
 				City:           "Newcity",

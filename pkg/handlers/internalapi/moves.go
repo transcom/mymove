@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
@@ -57,7 +56,7 @@ func payloadForMoveModel(storer storage.FileStorer, order models.Order, move mod
 	movePayload := &internalmessages.MovePayload{
 		CreatedAt:               handlers.FmtDateTime(move.CreatedAt),
 		SubmittedAt:             handlers.FmtDateTime(SubmittedAt),
-		Locator:                 swag.String(move.Locator),
+		Locator:                 models.StringPointer(move.Locator),
 		ID:                      handlers.FmtUUID(move.ID),
 		UpdatedAt:               handlers.FmtDateTime(move.UpdatedAt),
 		PersonallyProcuredMoves: ppmPayloads,
@@ -334,7 +333,7 @@ func (h ShowMoveDatesSummaryHandler) Handle(params moveop.ShowMoveDatesSummaryPa
 			}
 
 			moveDatesSummary := &internalmessages.MoveDatesSummary{
-				ID:       swag.String(params.MoveID.String() + ":" + params.MoveDate.String()),
+				ID:       models.StringPointer(params.MoveID.String() + ":" + params.MoveDate.String()),
 				MoveID:   &params.MoveID,
 				MoveDate: &params.MoveDate,
 				Pack:     handlers.FmtDateSlice(summary.PackDays),

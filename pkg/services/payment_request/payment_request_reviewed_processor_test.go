@@ -29,11 +29,11 @@ func (suite *PaymentRequestServiceSuite) createPaymentRequest(num int) models.Pa
 	var paymentRequests models.PaymentRequests
 	for i := 0; i < num; i++ {
 		currentTime := time.Now()
-		basicPaymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
+		basicPaymentServiceItemParams := []factory.CreatePaymentServiceItemParams{
 			{
 				Key:     models.ServiceItemParamNameContractCode,
 				KeyType: models.ServiceItemParamTypeString,
-				Value:   testdatagen.DefaultContractCode,
+				Value:   factory.DefaultContractCode,
 			},
 			{
 				Key:     models.ServiceItemParamNameReferenceDate,
@@ -53,14 +53,19 @@ func (suite *PaymentRequestServiceSuite) createPaymentRequest(num int) models.Pa
 		}
 
 		mto := factory.BuildMove(suite.DB(), nil, nil)
-		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			Move: mto,
-			PaymentRequest: models.PaymentRequest{
-				IsFinal:         false,
-				Status:          models.PaymentRequestStatusReviewed,
-				RejectionReason: nil,
+		paymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    mto,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.PaymentRequest{
+					IsFinal:         false,
+					Status:          models.PaymentRequestStatusReviewed,
+					RejectionReason: nil,
+				},
+			},
+		}, nil)
 
 		requestedPickupDate := time.Date(testdatagen.GHCTestYear, time.September, 15, 0, 0, 0, 0, time.UTC)
 		scheduledPickupDate := time.Date(testdatagen.GHCTestYear, time.September, 20, 0, 0, 0, 0, time.UTC)
@@ -80,77 +85,88 @@ func (suite *PaymentRequestServiceSuite) createPaymentRequest(num int) models.Pa
 			},
 		}, nil)
 
-		assertions := testdatagen.Assertions{
-			Move:           mto,
-			MTOShipment:    mtoShipment,
-			PaymentRequest: paymentRequest,
-			PaymentServiceItem: models.PaymentServiceItem{
-				Status: models.PaymentServiceItemStatusApproved,
+		customizations := []factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					Status: models.PaymentServiceItemStatusApproved,
+				},
+			},
+			{
+				Model:    mto,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipment,
+				LinkOnly: true,
+			},
+			{
+				Model:    paymentRequest,
+				LinkOnly: true,
 			},
 		}
 
 		// dlh
-		_ = testdatagen.MakePaymentServiceItemWithParams(
+		_ = factory.BuildPaymentServiceItemWithParams(
 			suite.DB(),
 			models.ReServiceCodeDLH,
 			basicPaymentServiceItemParams,
-			assertions,
+			customizations, nil,
 		)
 		// fsc
-		_ = testdatagen.MakePaymentServiceItemWithParams(
+		_ = factory.BuildPaymentServiceItemWithParams(
 			suite.DB(),
 			models.ReServiceCodeFSC,
 			basicPaymentServiceItemParams,
-			assertions,
+			customizations, nil,
 		)
 		// ms
-		_ = testdatagen.MakePaymentServiceItemWithParams(
+		_ = factory.BuildPaymentServiceItemWithParams(
 			suite.DB(),
 			models.ReServiceCodeMS,
 			basicPaymentServiceItemParams,
-			assertions,
+			customizations, nil,
 		)
 		// cs
-		_ = testdatagen.MakePaymentServiceItemWithParams(
+		_ = factory.BuildPaymentServiceItemWithParams(
 			suite.DB(),
 			models.ReServiceCodeCS,
 			basicPaymentServiceItemParams,
-			assertions,
+			customizations, nil,
 		)
 		// dsh
-		_ = testdatagen.MakePaymentServiceItemWithParams(
+		_ = factory.BuildPaymentServiceItemWithParams(
 			suite.DB(),
 			models.ReServiceCodeDSH,
 			basicPaymentServiceItemParams,
-			assertions,
+			customizations, nil,
 		)
 		// dop
-		_ = testdatagen.MakePaymentServiceItemWithParams(
+		_ = factory.BuildPaymentServiceItemWithParams(
 			suite.DB(),
 			models.ReServiceCodeDOP,
 			basicPaymentServiceItemParams,
-			assertions,
+			customizations, nil,
 		)
 		// ddp
-		_ = testdatagen.MakePaymentServiceItemWithParams(
+		_ = factory.BuildPaymentServiceItemWithParams(
 			suite.DB(),
 			models.ReServiceCodeDDP,
 			basicPaymentServiceItemParams,
-			assertions,
+			customizations, nil,
 		)
 		// dpk
-		_ = testdatagen.MakePaymentServiceItemWithParams(
+		_ = factory.BuildPaymentServiceItemWithParams(
 			suite.DB(),
 			models.ReServiceCodeDPK,
 			basicPaymentServiceItemParams,
-			assertions,
+			customizations, nil,
 		)
 		// dupk
-		_ = testdatagen.MakePaymentServiceItemWithParams(
+		_ = factory.BuildPaymentServiceItemWithParams(
 			suite.DB(),
 			models.ReServiceCodeDUPK,
 			basicPaymentServiceItemParams,
-			assertions,
+			customizations, nil,
 		)
 		paymentRequests = append(paymentRequests, paymentRequest)
 	}
@@ -218,13 +234,15 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		suite.NoError(err, "Get count of EDIProcessing")
 
 		rejectionReason := "Voided"
-		rejectedPaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				IsFinal:         false,
-				Status:          models.PaymentRequestStatusReviewedAllRejected,
-				RejectionReason: &rejectionReason,
+		rejectedPaymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					IsFinal:         false,
+					Status:          models.PaymentRequestStatusReviewedAllRejected,
+					RejectionReason: &rejectionReason,
+				},
 			},
-		})
+		}, nil)
 
 		reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher()
 		icnSequencer := sequence.NewDatabaseSequencer(ediinvoice.ICNSequenceName)

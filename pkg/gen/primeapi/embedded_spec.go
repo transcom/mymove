@@ -136,7 +136,7 @@ func init() {
     },
     "/move-task-orders/{moveTaskOrderID}/post-counseling-info": {
       "patch": {
-        "description": "### Functionality\nThis endpoint **updates** the MoveTaskOrder to indicate that the Prime has completed Counseling.\nThis update uses the moveTaskOrderID provided in the path, updates the move status and marks child elements of the move to indicate the update.\nNo body object is expected for this request.\n",
+        "description": "### Functionality\nThis endpoint **updates** the MoveTaskOrder to indicate that the Prime has completed Counseling.\nThis update uses the moveTaskOrderID provided in the path, updates the move status and marks child elements of the move to indicate the update.\nNo body object is expected for this request.\n\n**For Full/Partial PPMs**: This action is required so that the customer can start uploading their proof of service docs.\n\n**For other move types**: This action is required for auditing reasons so that we have a record of when the Prime counseled the customer.\n",
         "consumes": [
           "application/json"
         ],
@@ -1611,6 +1611,7 @@ func init() {
         },
         "requestedDays": {
           "type": "integer",
+          "minimum": 1,
           "example": 30
         }
       }
@@ -2655,8 +2656,8 @@ func init() {
         "ppmType": {
           "type": "string",
           "enum": [
-            "FULL",
-            "PARTIAL"
+            "PARTIAL",
+            "FULL"
           ]
         },
         "primeCounselingCompletedAt": {
@@ -3587,6 +3588,18 @@ func init() {
         {
           "type": "object",
           "properties": {
+            "firstAvailableDeliveryDate1": {
+              "description": "First available date that Prime can deliver SIT service item.",
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
+            "firstAvailableDeliveryDate2": {
+              "description": "Second available date that Prime can deliver SIT service item.",
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
             "reServiceCode": {
               "description": "Service code allowed for this model type.",
               "type": "string",
@@ -3602,6 +3615,20 @@ func init() {
             },
             "sitDestinationFinalAddress": {
               "$ref": "#/definitions/Address"
+            },
+            "timeMilitary1": {
+              "description": "Time of delivery corresponding to ` + "`" + `firstAvailableDeliveryDate1` + "`" + `, in military format.",
+              "type": "string",
+              "pattern": "\\d{4}Z",
+              "x-nullable": true,
+              "example": "1400Z"
+            },
+            "timeMilitary2": {
+              "description": "Time of delivery corresponding to ` + "`" + `firstAvailableDeliveryDate2` + "`" + `, in military format.",
+              "type": "string",
+              "pattern": "\\d{4}Z",
+              "x-nullable": true,
+              "example": "1400Z"
             }
           }
         }
@@ -4211,7 +4238,7 @@ func init() {
     },
     "/move-task-orders/{moveTaskOrderID}/post-counseling-info": {
       "patch": {
-        "description": "### Functionality\nThis endpoint **updates** the MoveTaskOrder to indicate that the Prime has completed Counseling.\nThis update uses the moveTaskOrderID provided in the path, updates the move status and marks child elements of the move to indicate the update.\nNo body object is expected for this request.\n",
+        "description": "### Functionality\nThis endpoint **updates** the MoveTaskOrder to indicate that the Prime has completed Counseling.\nThis update uses the moveTaskOrderID provided in the path, updates the move status and marks child elements of the move to indicate the update.\nNo body object is expected for this request.\n\n**For Full/Partial PPMs**: This action is required so that the customer can start uploading their proof of service docs.\n\n**For other move types**: This action is required for auditing reasons so that we have a record of when the Prime counseled the customer.\n",
         "consumes": [
           "application/json"
         ],
@@ -6011,6 +6038,7 @@ func init() {
         },
         "requestedDays": {
           "type": "integer",
+          "minimum": 1,
           "example": 30
         }
       }
@@ -7055,8 +7083,8 @@ func init() {
         "ppmType": {
           "type": "string",
           "enum": [
-            "FULL",
-            "PARTIAL"
+            "PARTIAL",
+            "FULL"
           ]
         },
         "primeCounselingCompletedAt": {
@@ -7990,6 +8018,18 @@ func init() {
         {
           "type": "object",
           "properties": {
+            "firstAvailableDeliveryDate1": {
+              "description": "First available date that Prime can deliver SIT service item.",
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
+            "firstAvailableDeliveryDate2": {
+              "description": "Second available date that Prime can deliver SIT service item.",
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
             "reServiceCode": {
               "description": "Service code allowed for this model type.",
               "type": "string",
@@ -8005,6 +8045,20 @@ func init() {
             },
             "sitDestinationFinalAddress": {
               "$ref": "#/definitions/Address"
+            },
+            "timeMilitary1": {
+              "description": "Time of delivery corresponding to ` + "`" + `firstAvailableDeliveryDate1` + "`" + `, in military format.",
+              "type": "string",
+              "pattern": "\\d{4}Z",
+              "x-nullable": true,
+              "example": "1400Z"
+            },
+            "timeMilitary2": {
+              "description": "Time of delivery corresponding to ` + "`" + `firstAvailableDeliveryDate2` + "`" + `, in military format.",
+              "type": "string",
+              "pattern": "\\d{4}Z",
+              "x-nullable": true,
+              "example": "1400Z"
             }
           }
         }

@@ -458,6 +458,19 @@ CREATE TYPE public.service_item_status AS ENUM (
 ALTER TYPE public.service_item_status OWNER TO postgres;
 
 --
+-- Name: sit_address_update_status; Type: TYPE; Schema: public; Owner: postgres
+--
+
+CREATE TYPE public.sit_address_update_status AS ENUM (
+    'REQUESTED',
+    'REJECTED',
+    'APPROVED'
+);
+
+
+ALTER TYPE public.sit_address_update_status OWNER TO postgres;
+
+--
 -- Name: sit_extension_request_reason; Type: TYPE; Schema: public; Owner: postgres
 --
 
@@ -4638,7 +4651,8 @@ CREATE TABLE public.mto_service_items (
     sit_origin_hhg_original_address_id uuid,
     sit_origin_hhg_actual_address_id uuid,
     estimated_weight integer,
-    actual_weight integer
+    actual_weight integer,
+    sit_destination_original_address_id uuid
 );
 
 
@@ -4792,6 +4806,13 @@ COMMENT ON COLUMN public.mto_service_items.estimated_weight IS 'An estimate of h
 --
 
 COMMENT ON COLUMN public.mto_service_items.actual_weight IS 'Provided by the movers, based on weight tickets. Relevant for shuttling (DDSHUT & DOSHUT) service items.';
+
+
+--
+-- Name: COLUMN mto_service_items.sit_destination_original_address_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.mto_service_items.sit_destination_original_address_id IS 'This is to capture the first sit destination address. Once this is captured, the initial address cannot be changed. Any subsequent updates to the sit destination address should be set by the sit_destination_final_address_id';
 
 
 --
@@ -8093,6 +8114,95 @@ COMMENT ON COLUMN public.signed_certifications.ppm_id IS 'PPM Shipment ID to ass
 
 
 --
+-- Name: sit_address_updates; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.sit_address_updates (
+    id uuid NOT NULL,
+    mto_service_item_id uuid NOT NULL,
+    old_address_id uuid NOT NULL,
+    new_address_id uuid NOT NULL,
+    status public.sit_address_update_status NOT NULL,
+    distance integer NOT NULL,
+    reason text NOT NULL,
+    contractor_remarks text,
+    office_remarks text
+);
+
+
+ALTER TABLE public.sit_address_updates OWNER TO postgres;
+
+--
+-- Name: TABLE sit_address_updates; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON TABLE public.sit_address_updates IS 'Stores SIT destination address change requests for approval/rejection.';
+
+
+--
+-- Name: COLUMN sit_address_updates.id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.sit_address_updates.id IS 'uuid that represents this entity';
+
+
+--
+-- Name: COLUMN sit_address_updates.mto_service_item_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.sit_address_updates.mto_service_item_id IS 'Foreign key of the mto_service_items table';
+
+
+--
+-- Name: COLUMN sit_address_updates.old_address_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.sit_address_updates.old_address_id IS 'Foreign key of addresses. Old address that will be replaced.';
+
+
+--
+-- Name: COLUMN sit_address_updates.new_address_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.sit_address_updates.new_address_id IS 'Foreign key of addresses. New address that will replace the old address';
+
+
+--
+-- Name: COLUMN sit_address_updates.status; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.sit_address_updates.status IS 'Current status of this request. Possible enum status(es): REQUESTED - Prime made this request and distance is greater than 50 miles, REJECTED - TXO rejected this request, APPROVED - TXO approved this request';
+
+
+--
+-- Name: COLUMN sit_address_updates.distance; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.sit_address_updates.distance IS 'The distance in miles between the old address and the new address. This is calculated and stored using the address zip codes.';
+
+
+--
+-- Name: COLUMN sit_address_updates.reason; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.sit_address_updates.reason IS 'A reason why this particular SIT address change is justified. TXOs would use the information here to accept or reject this SIT address change. Eg: Customer moving closer to family.';
+
+
+--
+-- Name: COLUMN sit_address_updates.contractor_remarks; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.sit_address_updates.contractor_remarks IS 'Contractor remarks for the SIT address change. Eg: "Customer reached out to me this week & let me know they want to move closer to family."';
+
+
+--
+-- Name: COLUMN sit_address_updates.office_remarks; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.sit_address_updates.office_remarks IS 'TXO remarks for the SIT address change.';
+
+
+--
 -- Name: sit_extensions; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -8259,217 +8369,6 @@ COMMENT ON COLUMN public.storage_facilities.deleted_at IS 'Indicates whether the
 
 
 --
--- Name: tariff400ng_zip3s; Type: TABLE; Schema: public; Owner: postgres
---
-
-CREATE TABLE public.tariff400ng_zip3s (
-    id uuid NOT NULL,
-    zip3 character varying(3) NOT NULL,
-    basepoint_city text NOT NULL,
-    state text NOT NULL,
-    service_area text NOT NULL,
-    rate_area text NOT NULL,
-    region text NOT NULL,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
-);
-
-
-ALTER TABLE public.tariff400ng_zip3s OWNER TO postgres;
-
---
--- Name: TABLE tariff400ng_zip3s; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON TABLE public.tariff400ng_zip3s IS 'Represents the zip3s defined in the 400NG tariff along with their associated service areas, rate areas, and regions.';
-
-
---
--- Name: COLUMN tariff400ng_zip3s.id; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN public.tariff400ng_zip3s.id IS 'UUID that uniquely identifies the record.';
-
-
---
--- Name: COLUMN tariff400ng_zip3s.zip3; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN public.tariff400ng_zip3s.zip3 IS 'The first three digits of a zip code.';
-
-
---
--- Name: COLUMN tariff400ng_zip3s.basepoint_city; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN public.tariff400ng_zip3s.basepoint_city IS 'The name of the base point (primary) city associated with this zip3.';
-
-
---
--- Name: COLUMN tariff400ng_zip3s.state; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN public.tariff400ng_zip3s.state IS 'The state for the base point city.';
-
-
---
--- Name: COLUMN tariff400ng_zip3s.service_area; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN public.tariff400ng_zip3s.service_area IS 'The associated service area (e.g., 56, 184) for this zip3.';
-
-
---
--- Name: COLUMN tariff400ng_zip3s.rate_area; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN public.tariff400ng_zip3s.rate_area IS 'The associated rate area (e.g., US20, US47) for this zip3. If the rate area is ZIP, then the zip3 is not sufficient to determine the rate area. In that case, use the zip5 along with the tariff400ng_zip5_rate_areas table to determine the rate area.';
-
-
---
--- Name: COLUMN tariff400ng_zip3s.region; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN public.tariff400ng_zip3s.region IS 'The associated region (e.g., 13, 6) for this zip3.';
-
-
---
--- Name: COLUMN tariff400ng_zip3s.created_at; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN public.tariff400ng_zip3s.created_at IS 'Timestamp when the record was first created.';
-
-
---
--- Name: COLUMN tariff400ng_zip3s.updated_at; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN public.tariff400ng_zip3s.updated_at IS 'Timestamp when the record was last updated.';
-
-
---
--- Name: tariff400ng_zip5_rate_areas; Type: TABLE; Schema: public; Owner: postgres
---
-
-CREATE TABLE public.tariff400ng_zip5_rate_areas (
-    id uuid NOT NULL,
-    zip5 character varying(5) NOT NULL,
-    rate_area text NOT NULL,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
-);
-
-
-ALTER TABLE public.tariff400ng_zip5_rate_areas OWNER TO postgres;
-
---
--- Name: TABLE tariff400ng_zip5_rate_areas; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON TABLE public.tariff400ng_zip5_rate_areas IS 'Given a zip3 that has multiple rate areas, this table will associate the more-specific zip5 in that zip3 with a rate area.';
-
-
---
--- Name: COLUMN tariff400ng_zip5_rate_areas.id; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN public.tariff400ng_zip5_rate_areas.id IS 'UUID that uniquely identifies the record.';
-
-
---
--- Name: COLUMN tariff400ng_zip5_rate_areas.zip5; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN public.tariff400ng_zip5_rate_areas.zip5 IS 'The full five-digit zip code.';
-
-
---
--- Name: COLUMN tariff400ng_zip5_rate_areas.rate_area; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN public.tariff400ng_zip5_rate_areas.rate_area IS 'The associated rate area for this zip5.';
-
-
---
--- Name: COLUMN tariff400ng_zip5_rate_areas.created_at; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN public.tariff400ng_zip5_rate_areas.created_at IS 'Timestamp when the record was first created.';
-
-
---
--- Name: COLUMN tariff400ng_zip5_rate_areas.updated_at; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN public.tariff400ng_zip5_rate_areas.updated_at IS 'Timestamp when the record was last updated.';
-
-
---
--- Name: traffic_distribution_lists; Type: TABLE; Schema: public; Owner: postgres
---
-
-CREATE TABLE public.traffic_distribution_lists (
-    id uuid NOT NULL,
-    source_rate_area character varying(255) NOT NULL,
-    destination_region character varying(255) NOT NULL,
-    code_of_service character varying(255) NOT NULL,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
-);
-
-
-ALTER TABLE public.traffic_distribution_lists OWNER TO postgres;
-
---
--- Name: TABLE traffic_distribution_lists; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON TABLE public.traffic_distribution_lists IS 'Represents the possible channels (rate area to region for a code of service) for a move.';
-
-
---
--- Name: COLUMN traffic_distribution_lists.id; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN public.traffic_distribution_lists.id IS 'UUID that uniquely identifies the record.';
-
-
---
--- Name: COLUMN traffic_distribution_lists.source_rate_area; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN public.traffic_distribution_lists.source_rate_area IS 'The rate area for the origin.';
-
-
---
--- Name: COLUMN traffic_distribution_lists.destination_region; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN public.traffic_distribution_lists.destination_region IS 'The region for the destination.';
-
-
---
--- Name: COLUMN traffic_distribution_lists.code_of_service; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN public.traffic_distribution_lists.code_of_service IS 'The code of service for this channel; options are D and 2. See 400NG tariff for details.';
-
-
---
--- Name: COLUMN traffic_distribution_lists.created_at; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN public.traffic_distribution_lists.created_at IS 'Timestamp when the record was first created.';
-
-
---
--- Name: COLUMN traffic_distribution_lists.updated_at; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN public.traffic_distribution_lists.updated_at IS 'Timestamp when the record was last updated.';
-
-
---
 -- Name: transportation_accounting_codes; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -8602,256 +8501,6 @@ COMMENT ON COLUMN public.transportation_offices.gbloc IS 'A 4-character code rep
 --
 
 COMMENT ON COLUMN public.transportation_offices.provides_ppm_closeout IS 'Indicates whether a transportation office provides ppm closeout or not. It is used by Army and Air Force service members';
-
-
---
--- Name: transportation_service_provider_performances; Type: TABLE; Schema: public; Owner: postgres
---
-
-CREATE TABLE public.transportation_service_provider_performances (
-    id uuid NOT NULL,
-    performance_period_start date NOT NULL,
-    performance_period_end date NOT NULL,
-    traffic_distribution_list_id uuid NOT NULL,
-    quality_band integer,
-    offer_count integer NOT NULL,
-    best_value_score double precision NOT NULL,
-    transportation_service_provider_id uuid NOT NULL,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    rate_cycle_start date NOT NULL,
-    rate_cycle_end date NOT NULL,
-    linehaul_rate numeric NOT NULL,
-    sit_rate numeric NOT NULL
-);
-
-
-ALTER TABLE public.transportation_service_provider_performances OWNER TO postgres;
-
---
--- Name: TABLE transportation_service_provider_performances; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON TABLE public.transportation_service_provider_performances IS 'Stores scores/rates for transportation service providers (TSPs) on a given channel.';
-
-
---
--- Name: COLUMN transportation_service_provider_performances.id; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN public.transportation_service_provider_performances.id IS 'UUID that uniquely identifies the record.';
-
-
---
--- Name: COLUMN transportation_service_provider_performances.performance_period_start; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN public.transportation_service_provider_performances.performance_period_start IS 'The start date of the performance period (inclusive).';
-
-
---
--- Name: COLUMN transportation_service_provider_performances.performance_period_end; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN public.transportation_service_provider_performances.performance_period_end IS 'The end date of the performance period (inclusive).';
-
-
---
--- Name: COLUMN transportation_service_provider_performances.traffic_distribution_list_id; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN public.transportation_service_provider_performances.traffic_distribution_list_id IS 'The associated traffic distribution list (or channel) for this performance.';
-
-
---
--- Name: COLUMN transportation_service_provider_performances.quality_band; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN public.transportation_service_provider_performances.quality_band IS 'The quality band (1 through 4) that this performance falls within; previously used by the HHG award queue.';
-
-
---
--- Name: COLUMN transportation_service_provider_performances.offer_count; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN public.transportation_service_provider_performances.offer_count IS 'How many offers have been made for this performance; previously used by the HHG award queue.';
-
-
---
--- Name: COLUMN transportation_service_provider_performances.best_value_score; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN public.transportation_service_provider_performances.best_value_score IS 'The best value score (BVS) for this performance; a ranking that was previously used by the HHG award queue.';
-
-
---
--- Name: COLUMN transportation_service_provider_performances.transportation_service_provider_id; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN public.transportation_service_provider_performances.transportation_service_provider_id IS 'The associated provider (moving company) for this performance.';
-
-
---
--- Name: COLUMN transportation_service_provider_performances.created_at; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN public.transportation_service_provider_performances.created_at IS 'Timestamp when the record was first created.';
-
-
---
--- Name: COLUMN transportation_service_provider_performances.updated_at; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN public.transportation_service_provider_performances.updated_at IS 'Timestamp when the record was last updated.';
-
-
---
--- Name: COLUMN transportation_service_provider_performances.rate_cycle_start; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN public.transportation_service_provider_performances.rate_cycle_start IS 'The start date of the rate cycle (inclusive).';
-
-
---
--- Name: COLUMN transportation_service_provider_performances.rate_cycle_end; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN public.transportation_service_provider_performances.rate_cycle_end IS 'The end date of the rate cycle (inclusive).';
-
-
---
--- Name: COLUMN transportation_service_provider_performances.linehaul_rate; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN public.transportation_service_provider_performances.linehaul_rate IS 'The discount rate (taken off of the regular rate) for linehaul offered by the provider of this performance.';
-
-
---
--- Name: COLUMN transportation_service_provider_performances.sit_rate; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN public.transportation_service_provider_performances.sit_rate IS 'The discount rate (taken off of the regular rate) for storage-in-transit (SIT) offered by the provider of this performance.';
-
-
---
--- Name: transportation_service_providers; Type: TABLE; Schema: public; Owner: postgres
---
-
-CREATE TABLE public.transportation_service_providers (
-    id uuid NOT NULL,
-    standard_carrier_alpha_code text NOT NULL,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    enrolled boolean DEFAULT false NOT NULL,
-    name text,
-    supplier_id text,
-    poc_general_name text,
-    poc_general_email text,
-    poc_general_phone text,
-    poc_claims_name text,
-    poc_claims_email text,
-    poc_claims_phone text
-);
-
-
-ALTER TABLE public.transportation_service_providers OWNER TO postgres;
-
---
--- Name: TABLE transportation_service_providers; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON TABLE public.transportation_service_providers IS 'Represents the transportation service providers (TSPs, or moving companies) used in pre-GHC HHG moves.';
-
-
---
--- Name: COLUMN transportation_service_providers.id; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN public.transportation_service_providers.id IS 'UUID that uniquely identifies the record.';
-
-
---
--- Name: COLUMN transportation_service_providers.standard_carrier_alpha_code; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN public.transportation_service_providers.standard_carrier_alpha_code IS 'A unique two-to-four letter identifier (usually four-letter) for the TSP.';
-
-
---
--- Name: COLUMN transportation_service_providers.created_at; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN public.transportation_service_providers.created_at IS 'Timestamp when the record was first created.';
-
-
---
--- Name: COLUMN transportation_service_providers.updated_at; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN public.transportation_service_providers.updated_at IS 'Timestamp when the record was last updated.';
-
-
---
--- Name: COLUMN transportation_service_providers.enrolled; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN public.transportation_service_providers.enrolled IS 'True if this TSP is able to accept offers for HHG moves.';
-
-
---
--- Name: COLUMN transportation_service_providers.name; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN public.transportation_service_providers.name IS 'A descriptive name for this TSP.';
-
-
---
--- Name: COLUMN transportation_service_providers.supplier_id; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN public.transportation_service_providers.supplier_id IS 'The supplier ID for this TSP.';
-
-
---
--- Name: COLUMN transportation_service_providers.poc_general_name; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN public.transportation_service_providers.poc_general_name IS 'A point-of-contact name for general inquiries.';
-
-
---
--- Name: COLUMN transportation_service_providers.poc_general_email; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN public.transportation_service_providers.poc_general_email IS 'A point-of-contact email for general inquiries.';
-
-
---
--- Name: COLUMN transportation_service_providers.poc_general_phone; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN public.transportation_service_providers.poc_general_phone IS 'A point-of-contact phone number for general inquiries.';
-
-
---
--- Name: COLUMN transportation_service_providers.poc_claims_name; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN public.transportation_service_providers.poc_claims_name IS 'A point-of-contact name for claims inquiries.';
-
-
---
--- Name: COLUMN transportation_service_providers.poc_claims_email; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN public.transportation_service_providers.poc_claims_email IS 'A point-of-contact email for claims inquiries.';
-
-
---
--- Name: COLUMN transportation_service_providers.poc_claims_phone; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN public.transportation_service_providers.poc_claims_phone IS 'A point-of-contact phone number for claims inquiries.';
 
 
 --
@@ -10425,6 +10074,14 @@ ALTER TABLE ONLY public.signed_certifications
 
 
 --
+-- Name: sit_address_updates sit_address_updates_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.sit_address_updates
+    ADD CONSTRAINT sit_address_updates_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: sit_extensions sit_extensions_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -10441,30 +10098,6 @@ ALTER TABLE ONLY public.storage_facilities
 
 
 --
--- Name: tariff400ng_zip3s tariff400ng_zip3s_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.tariff400ng_zip3s
-    ADD CONSTRAINT tariff400ng_zip3s_pkey PRIMARY KEY (id);
-
-
---
--- Name: tariff400ng_zip5_rate_areas tariff400ng_zip5_rate_areas_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.tariff400ng_zip5_rate_areas
-    ADD CONSTRAINT tariff400ng_zip5_rate_areas_pkey PRIMARY KEY (id);
-
-
---
--- Name: traffic_distribution_lists traffic_distribution_lists_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.traffic_distribution_lists
-    ADD CONSTRAINT traffic_distribution_lists_pkey PRIMARY KEY (id);
-
-
---
 -- Name: transportation_accounting_codes transportation_accounting_codes_tac_key; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -10478,30 +10111,6 @@ ALTER TABLE ONLY public.transportation_accounting_codes
 
 ALTER TABLE ONLY public.transportation_offices
     ADD CONSTRAINT transportation_offices_pkey PRIMARY KEY (id);
-
-
---
--- Name: transportation_service_provider_performances transportation_service_provider_performances_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.transportation_service_provider_performances
-    ADD CONSTRAINT transportation_service_provider_performances_pkey PRIMARY KEY (id);
-
-
---
--- Name: transportation_service_providers transportation_service_providers_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.transportation_service_providers
-    ADD CONSTRAINT transportation_service_providers_pkey PRIMARY KEY (id);
-
-
---
--- Name: traffic_distribution_lists unique_channel_cos; Type: CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.traffic_distribution_lists
-    ADD CONSTRAINT unique_channel_cos UNIQUE (source_rate_area, destination_region, code_of_service);
 
 
 --
@@ -11483,34 +11092,6 @@ CREATE INDEX transportation_offices_name_trgm_idx ON public.transportation_offic
 
 
 --
--- Name: transportation_service_provider_performances_performance_period; Type: INDEX; Schema: public; Owner: postgres
---
-
-CREATE INDEX transportation_service_provider_performances_performance_period ON public.transportation_service_provider_performances USING btree (performance_period_start, performance_period_end, quality_band, offer_count);
-
-
---
--- Name: transportation_service_provider_performances_traffic_distributi; Type: INDEX; Schema: public; Owner: postgres
---
-
-CREATE INDEX transportation_service_provider_performances_traffic_distributi ON public.transportation_service_provider_performances USING btree (traffic_distribution_list_id);
-
-
---
--- Name: transportation_service_provider_performances_transportation_ser; Type: INDEX; Schema: public; Owner: postgres
---
-
-CREATE INDEX transportation_service_provider_performances_transportation_ser ON public.transportation_service_provider_performances USING btree (transportation_service_provider_id);
-
-
---
--- Name: transportation_service_providers_poc_general_email_idx; Type: INDEX; Schema: public; Owner: postgres
---
-
-CREATE INDEX transportation_service_providers_poc_general_email_idx ON public.transportation_service_providers USING btree (poc_general_email);
-
-
---
 -- Name: uploads_deleted_at_idx; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -12213,6 +11794,14 @@ ALTER TABLE ONLY public.mto_service_items
 
 
 --
+-- Name: mto_service_items mto_service_items_sit_destination_original_address_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.mto_service_items
+    ADD CONSTRAINT mto_service_items_sit_destination_original_address_id_fkey FOREIGN KEY (sit_destination_original_address_id) REFERENCES public.addresses(id);
+
+
+--
 -- Name: mto_service_items mto_service_items_sit_origin_hhg_actual_address_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -12861,6 +12450,30 @@ ALTER TABLE ONLY public.signed_certifications
 
 
 --
+-- Name: sit_address_updates sit_address_updates_mto_service_item_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.sit_address_updates
+    ADD CONSTRAINT sit_address_updates_mto_service_item_id_fkey FOREIGN KEY (mto_service_item_id) REFERENCES public.mto_service_items(id);
+
+
+--
+-- Name: sit_address_updates sit_address_updates_new_address_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.sit_address_updates
+    ADD CONSTRAINT sit_address_updates_new_address_id_fkey FOREIGN KEY (new_address_id) REFERENCES public.addresses(id);
+
+
+--
+-- Name: sit_address_updates sit_address_updates_old_address_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.sit_address_updates
+    ADD CONSTRAINT sit_address_updates_old_address_id_fkey FOREIGN KEY (old_address_id) REFERENCES public.addresses(id);
+
+
+--
 -- Name: sit_extensions sit_extensions_mto_shipment_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -12890,22 +12503,6 @@ ALTER TABLE ONLY public.transportation_offices
 
 ALTER TABLE ONLY public.transportation_offices
     ADD CONSTRAINT transportation_offices_shipping_office_id_fkey FOREIGN KEY (shipping_office_id) REFERENCES public.transportation_offices(id);
-
-
---
--- Name: transportation_service_provider_performances transportation_service_provid_traffic_distribution_list_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.transportation_service_provider_performances
-    ADD CONSTRAINT transportation_service_provid_traffic_distribution_list_id_fkey FOREIGN KEY (traffic_distribution_list_id) REFERENCES public.traffic_distribution_lists(id);
-
-
---
--- Name: transportation_service_provider_performances transportation_service_provid_transportation_service_provi_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.transportation_service_provider_performances
-    ADD CONSTRAINT transportation_service_provid_transportation_service_provi_fkey FOREIGN KEY (transportation_service_provider_id) REFERENCES public.transportation_service_providers(id);
 
 
 --
@@ -15567,6 +15164,15 @@ GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.signed_certifications TO crud;
 
 
 --
+-- Name: TABLE sit_address_updates; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT ALL ON TABLE public.sit_address_updates TO master;
+GRANT ALL ON TABLE public.sit_address_updates TO ecs_user;
+GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.sit_address_updates TO crud;
+
+
+--
 -- Name: TABLE sit_extensions; Type: ACL; Schema: public; Owner: postgres
 --
 
@@ -15585,33 +15191,6 @@ GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.storage_facilities TO crud;
 
 
 --
--- Name: TABLE tariff400ng_zip3s; Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT ALL ON TABLE public.tariff400ng_zip3s TO master;
-GRANT ALL ON TABLE public.tariff400ng_zip3s TO ecs_user;
-GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.tariff400ng_zip3s TO crud;
-
-
---
--- Name: TABLE tariff400ng_zip5_rate_areas; Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT ALL ON TABLE public.tariff400ng_zip5_rate_areas TO master;
-GRANT ALL ON TABLE public.tariff400ng_zip5_rate_areas TO ecs_user;
-GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.tariff400ng_zip5_rate_areas TO crud;
-
-
---
--- Name: TABLE traffic_distribution_lists; Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT ALL ON TABLE public.traffic_distribution_lists TO master;
-GRANT ALL ON TABLE public.traffic_distribution_lists TO ecs_user;
-GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.traffic_distribution_lists TO crud;
-
-
---
 -- Name: TABLE transportation_accounting_codes; Type: ACL; Schema: public; Owner: postgres
 --
 
@@ -15627,24 +15206,6 @@ GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.transportation_accounting_code
 GRANT ALL ON TABLE public.transportation_offices TO master;
 GRANT ALL ON TABLE public.transportation_offices TO ecs_user;
 GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.transportation_offices TO crud;
-
-
---
--- Name: TABLE transportation_service_provider_performances; Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT ALL ON TABLE public.transportation_service_provider_performances TO master;
-GRANT ALL ON TABLE public.transportation_service_provider_performances TO ecs_user;
-GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.transportation_service_provider_performances TO crud;
-
-
---
--- Name: TABLE transportation_service_providers; Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT ALL ON TABLE public.transportation_service_providers TO master;
-GRANT ALL ON TABLE public.transportation_service_providers TO ecs_user;
-GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.transportation_service_providers TO crud;
 
 
 --

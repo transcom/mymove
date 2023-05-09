@@ -7,7 +7,7 @@ test('A service counselor can approve/reject pro-gear weight tickets', async ({ 
 
   // Navigate to the "Review documents" page
   await page.getByRole('button', { name: 'Review documents' }).click();
-  await scPage.waitForPage.reviewDocuments();
+  await scPage.waitForPage.reviewWeightTicket();
 
   // Weight ticket is first in the order of docs. Click "Accept" on the weight ticket, then proceed
   await page.getByText('Accept').click();
@@ -28,7 +28,7 @@ test('A service counselor can approve/reject pro-gear weight tickets', async ({ 
 
   // Return to the pro-gear ticket and verify that it's approved
   // await page.getByRole('button', { name: 'Review documents' }).click();
-  // await scPage.waitForPage.reviewDocuments();
+  // await scPage.waitForPage.reviewWeightTicket();
 
   // // Weight ticket is first. Need to skip over to Pro-gear ticket
   // await page.getByRole('button', { name: 'Continue' }).click();
@@ -45,7 +45,7 @@ test('A service counselor can approve/reject pro-gear weight tickets', async ({ 
 
   // // Return to the pro-gear ticket and verify that it's been edited
   // await page.getByRole('button', { name: 'Review documents' }).click();
-  // await scPage.waitForPage.reviewDocuments();
+  // await scPage.waitForPage.reviewWeightTicket();
   // await page.getByRole('button', { name: 'Continue' }).click();
 
   // await expect(page.getByRole('radio', { name: 'Reject' })).toBeChecked();

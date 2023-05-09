@@ -31,7 +31,7 @@ func (suite *HandlerSuite) TestCreateWeightTicketHandler() {
 		handler     CreateWeightTicketHandler
 	}
 	makeCreateSubtestData := func(authenticateRequest bool) (subtestData weightTicketCreateSubtestData) {
-		subtestData.ppmShipment = testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{})
+		subtestData.ppmShipment = factory.BuildPPMShipment(suite.DB(), nil, nil)
 		endpoint := fmt.Sprintf("/ppm-shipments/%s/weight_ticket", subtestData.ppmShipment.ID.String())
 		req := httptest.NewRequest("POST", endpoint, nil)
 		serviceMember := subtestData.ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
@@ -142,10 +142,9 @@ func (suite *HandlerSuite) TestUpdateWeightTicketHandler() {
 	}
 	makeUpdateSubtestData := func(authenticateRequest bool) (subtestData weightTicketUpdateSubtestData) {
 		// Use fake data:
-		subtestData.weightTicket = testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{})
+		subtestData.weightTicket = factory.BuildWeightTicket(suite.DB(), nil, nil)
 		subtestData.ppmShipment = subtestData.weightTicket.PPMShipment
 		serviceMember := subtestData.ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
-
 		endpoint := fmt.Sprintf("/ppm-shipments/%s/weight-ticket/%s", subtestData.ppmShipment.ID.String(), subtestData.weightTicket.ID.String())
 		req := httptest.NewRequest("PATCH", endpoint, nil)
 		if authenticateRequest {
@@ -178,14 +177,6 @@ func (suite *HandlerSuite) TestUpdateWeightTicketHandler() {
 		).Return(nil, nil)
 
 		params := subtestData.params
-
-		// An upload must exist if trailer is owned and qualifies to be claimed
-		factory.BuildUserUpload(suite.DB(), []factory.Customization{
-			{
-				Model:    subtestData.weightTicket.ProofOfTrailerOwnershipDocument,
-				LinkOnly: true,
-			},
-		}, nil)
 
 		// Add vehicleDescription
 		params.UpdateWeightTicketPayload = &internalmessages.UpdateWeightTicket{
@@ -316,7 +307,7 @@ func (suite *HandlerSuite) TestDeleteWeightTicketHandler() {
 	}
 	makeDeleteSubtestData := func(authenticateRequest bool) (subtestData weightTicketDeleteSubtestData) {
 		// Fake data:
-		subtestData.weightTicket = testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{})
+		subtestData.weightTicket = factory.BuildWeightTicket(suite.DB(), nil, nil)
 		subtestData.ppmShipment = subtestData.weightTicket.PPMShipment
 		serviceMember := subtestData.ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
 
@@ -363,7 +354,7 @@ func (suite *HandlerSuite) TestDeleteWeightTicketHandler() {
 	suite.Run("DELETE failure - 403 - permission denied - wrong application / user", func() {
 		subtestData := makeDeleteSubtestData(false)
 
-		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+		officeUser := factory.BuildOfficeUser(suite.DB(), nil, nil)
 
 		req := subtestData.params.HTTPRequest
 		unauthorizedReq := suite.AuthenticateOfficeRequest(req, officeUser)
@@ -392,10 +383,12 @@ func (suite *HandlerSuite) TestDeleteWeightTicketHandler() {
 	suite.Run("DELETE failure - 404 - not found - ppm shipment ID and weight ticket ID don't match", func() {
 		subtestData := makeDeleteSubtestData(false)
 		serviceMember := subtestData.ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
-
-		otherPPMShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
-			Order: subtestData.ppmShipment.Shipment.MoveTaskOrder.Orders,
-		})
+		otherPPMShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    subtestData.ppmShipment.Shipment.MoveTaskOrder.Orders,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		subtestData.params.PpmShipmentID = *handlers.FmtUUID(otherPPMShipment.ID)
 		req := subtestData.params.HTTPRequest

@@ -14,7 +14,6 @@ import (
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	"github.com/transcom/mymove/pkg/services/query"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *PaymentRequestServiceSuite) TestRecalculateShipmentPaymentRequestSuccess() {
@@ -39,18 +38,18 @@ func (suite *PaymentRequestServiceSuite) TestRecalculateShipmentPaymentRequestSu
 
 	// Add a couple of proof of service docs and prime uploads.
 	for i := 0; i < 2; i++ {
-		proofOfServiceDoc := testdatagen.MakeProofOfServiceDoc(suite.DB(), testdatagen.Assertions{
-			ProofOfServiceDoc: models.ProofOfServiceDoc{
-				PaymentRequestID: paymentRequest1.ID,
+		proofOfServiceDoc := factory.BuildProofOfServiceDoc(suite.DB(), []factory.Customization{
+			{
+				Model:    *paymentRequest1,
+				LinkOnly: true,
 			},
-		})
-		contractor := factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
-		testdatagen.MakePrimeUpload(suite.DB(), testdatagen.Assertions{
-			PrimeUpload: models.PrimeUpload{
-				ProofOfServiceDocID: proofOfServiceDoc.ID,
-				ContractorID:        contractor.ID,
+		}, nil)
+		factory.BuildPrimeUpload(suite.DB(), []factory.Customization{
+			{
+				Model:    proofOfServiceDoc,
+				LinkOnly: true,
 			},
-		})
+		}, nil)
 	}
 
 	// Adjust shipment's original weight to force different pricing on a recalculation.
@@ -67,18 +66,19 @@ func (suite *PaymentRequestServiceSuite) TestRecalculateShipmentPaymentRequestSu
 
 	// Add a couple of proof of service docs and prime uploads.
 	for i := 0; i < 2; i++ {
-		proofOfServiceDoc := testdatagen.MakeProofOfServiceDoc(suite.DB(), testdatagen.Assertions{
-			ProofOfServiceDoc: models.ProofOfServiceDoc{
-				PaymentRequestID: paymentRequest2.ID,
+		proofOfServiceDoc := factory.BuildProofOfServiceDoc(suite.DB(), []factory.Customization{
+			{
+				Model:    *paymentRequest2,
+				LinkOnly: true,
 			},
-		})
-		contractor := factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
-		testdatagen.MakePrimeUpload(suite.DB(), testdatagen.Assertions{
-			PrimeUpload: models.PrimeUpload{
-				ProofOfServiceDocID: proofOfServiceDoc.ID,
-				ContractorID:        contractor.ID,
+		}, nil)
+
+		factory.BuildPrimeUpload(suite.DB(), []factory.Customization{
+			{
+				Model:    proofOfServiceDoc,
+				LinkOnly: true,
 			},
-		})
+		}, nil)
 	}
 
 	// Recalculate the payment request for shipment

@@ -3,10 +3,10 @@ package serviceparamvaluelookups
 import (
 	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -20,7 +20,12 @@ func (suite *ServiceParamValueLookupsSuite) TestSITSchedule() {
 	var destDomesticServiceArea models.ReDomesticServiceArea
 
 	setupTestData := func() {
-
+		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				StartDate: time.Now().Add(-24 * time.Hour),
+				EndDate:   time.Now().Add(24 * time.Hour),
+			},
+		})
 		originAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
@@ -47,12 +52,16 @@ func (suite *ServiceParamValueLookupsSuite) TestSITSchedule() {
 				LinkOnly: true,
 				Type:     &factory.Addresses.DeliveryAddress,
 			},
-		}, nil)
+		}, []factory.Trait{
+			factory.GetTraitAvailableToPrimeMove,
+		})
 
-		paymentRequest = testdatagen.MakePaymentRequest(suite.DB(),
-			testdatagen.Assertions{
-				Move: mtoServiceItem.MoveTaskOrder,
-			})
+		paymentRequest = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    mtoServiceItem.MoveTaskOrder,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		originDomesticServiceArea = testdatagen.FetchOrMakeReDomesticServiceArea(suite.DB(), testdatagen.Assertions{
 			ReDomesticServiceArea: models.ReDomesticServiceArea{
@@ -125,19 +134,23 @@ func (suite *ServiceParamValueLookupsSuite) TestSITSchedule() {
 				LinkOnly: true,
 				Type:     &factory.Addresses.PickupAddress,
 			},
-		}, nil)
+		}, []factory.Trait{
+			factory.GetTraitAvailableToPrimeMove,
+		})
 
-		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
-			testdatagen.Assertions{
-				Move: mtoServiceItem.MoveTaskOrder,
-			})
+		paymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    mtoServiceItem.MoveTaskOrder,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 		valueStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), originKey)
 		suite.Equal("", valueStr)
 		suite.Error(err)
-		expected := fmt.Sprintf(" with error unable to find domestic service area for 000 under contract code %s", ghcrateengine.DefaultContractCode)
+		expected := fmt.Sprintf(" with error unable to find domestic service area for 000 under contract code %s", testdatagen.DefaultContractCode)
 		suite.Contains(err.Error(), expected)
 	})
 
@@ -156,19 +169,23 @@ func (suite *ServiceParamValueLookupsSuite) TestSITSchedule() {
 				LinkOnly: true,
 				Type:     &factory.Addresses.DeliveryAddress,
 			},
-		}, nil)
+		}, []factory.Trait{
+			factory.GetTraitAvailableToPrimeMove,
+		})
 
-		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
-			testdatagen.Assertions{
-				Move: mtoServiceItem.MoveTaskOrder,
-			})
+		paymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    mtoServiceItem.MoveTaskOrder,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 		valueStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), destKey)
 		suite.Equal("", valueStr)
 		suite.Error(err)
-		expected := fmt.Sprintf(" with error unable to find domestic service area for 001 under contract code %s", ghcrateengine.DefaultContractCode)
+		expected := fmt.Sprintf(" with error unable to find domestic service area for 001 under contract code %s", testdatagen.DefaultContractCode)
 		suite.Contains(err.Error(), expected)
 	})
 }
