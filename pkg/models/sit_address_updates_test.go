@@ -27,7 +27,7 @@ func (suite *ModelSuite) TestSITAddressUpdateInstantiation() {
 				ContractorRemarks: &testContractorRemarksString,
 				Distance:          1323,
 				Reason:            "Not a real reason",
-				Status:            SITAddressStatusRejected,
+				Status:            SITAddressUpdateStatusRejected,
 			},
 			expectedErrs: nil,
 		},
@@ -52,7 +52,7 @@ func (suite *ModelSuite) TestSITAddressUpdateInstantiation() {
 				ContractorRemarks: StringPointer(""),
 				Distance:          1323,
 				Reason:            "Not a real reason",
-				Status:            SITAddressStatusRejected,
+				Status:            SITAddressUpdateStatusRejected,
 				OfficeRemarks:     StringPointer(""),
 			},
 			expectedErrs: map[string][]string{
