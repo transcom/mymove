@@ -1,6 +1,6 @@
 /* eslint-disable import/prefer-default-export */
 import { useQueries, useQuery } from '@tanstack/react-query';
-import { generatePath } from 'react-router';
+import { generatePath } from 'react-router-dom';
 
 import { servicesCounselingRoutes } from '../constants/routes';
 
