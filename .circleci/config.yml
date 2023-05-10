@@ -693,7 +693,10 @@ commands:
             export DB_DEBUG=false
 
             make db_dev_create
-            bin/milmove migrate
+            # cannot use Makefile target because of missing source files
+            DB_DEBUG=0 bin/milmove dbload \
+            --migration-schema-path "migrations/app" \
+            --migration-load-dev-seed
             # playwright tests DO NOT NEED SEED DATA
             bin/milmove serve 2>&1 | fmt
       - run:
@@ -788,7 +791,10 @@ commands:
             export SERVE_API_PRIME=1
 
             make db_dev_create
-            bin/milmove migrate
+            # cannot use Makefile target because of missing source files
+            DB_DEBUG=0 bin/milmove dbload \
+            --migration-schema-path "migrations/app" \
+            --migration-load-dev-seed
             # mtls tests DO NOT NEED SEED DATA
             bin/milmove serve 2>&1 | fmt
       - run:
