@@ -201,3 +201,75 @@ func GetTraitSITAddressUpdateOver50MilesWithMoveSetUp() []Customization {
 		},
 	}
 }
+
+func GetTraitSITAddressUpdateUnder50MilesWithMoveSetUp() []Customization {
+	requestedPickupDate := time.Now().AddDate(0, 3, 0)
+	requestedDeliveryDate := requestedPickupDate.AddDate(0, 1, 0)
+	sitDaysAllowance := 200
+	year, month, day := time.Now().Add(time.Hour * 24 * -60).Date()
+	threeMonthsAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
+	twoMonthsAgo := threeMonthsAgo.Add(time.Hour * 24 * 30)
+	originalPostalCode := "90210"
+	reason := "peak season all trucks in use"
+
+	return []Customization{
+		{
+			Model: models.Address{
+				City:       "Beverly Hills",
+				State:      "CA",
+				PostalCode: originalPostalCode,
+			},
+			Type: &Addresses.SITAddressUpdateOldAddress,
+		},
+		{
+			Model: models.Address{
+				City:       "Long Beach",
+				State:      "CA",
+				PostalCode: "90802",
+			},
+			Type: &Addresses.SITAddressUpdateNewAddress,
+		},
+		{
+			Model: models.SITAddressUpdate{
+				Distance: 16,
+				Status:   models.SITAddressUpdateStatusApproved,
+			},
+		},
+		{
+			Model: models.Entitlement{
+				DependentsAuthorized: models.BoolPointer(true),
+				StorageInTransit:     &sitDaysAllowance,
+			},
+		},
+		{
+			Model: models.Move{
+				Status:             models.MoveStatusAPPROVED,
+				AvailableToPrimeAt: models.TimePointer(time.Now()),
+			},
+		},
+		{
+			Model: models.MTOShipment{
+				PrimeEstimatedWeight:  models.PoundPointer(unit.Pound(1400)),
+				PrimeActualWeight:     models.PoundPointer(unit.Pound(2000)),
+				ShipmentType:          models.MTOShipmentTypeHHG,
+				Status:                models.MTOShipmentStatusApproved,
+				RequestedPickupDate:   &requestedPickupDate,
+				RequestedDeliveryDate: &requestedDeliveryDate,
+				SITDaysAllowance:      &sitDaysAllowance,
+			},
+		},
+		{
+			Model: models.MTOServiceItem{
+				Status:        models.MTOServiceItemStatusApproved,
+				SITEntryDate:  &twoMonthsAgo,
+				SITPostalCode: &originalPostalCode,
+				Reason:        &reason,
+			},
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDDDSIT,
+			},
+		},
+	}
+}
