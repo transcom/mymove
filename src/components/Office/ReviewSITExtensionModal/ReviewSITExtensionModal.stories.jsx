@@ -1,10 +1,6 @@
 import React from 'react';
 
-import ShipmentSITDisplay from '../ShipmentSITDisplay/ShipmentSITDisplay';
-
 import ReviewSITExtensionModal from './ReviewSITExtensionModal';
-
-import { SITStatusOrigin } from 'components/Office/ShipmentSITDisplay/ShipmentSITDisplayTestParams';
 
 export default {
   title: 'Office Components/ReviewSITExtensionModal',
@@ -19,18 +15,16 @@ const sitExtension = {
   id: '123',
 };
 
-const summarySITExtension = (
-  <div className="officeApp">
-    <ShipmentSITDisplay
-      {...{
-        sitExtensions: [sitExtension],
-        sitStatus: SITStatusOrigin,
-        shipment: { sitDaysAllowance: 90 },
-        hideSITExtensionAction: true,
-      }}
-    />
-  </div>
-);
+const sitStatus = {
+  totalDaysRemaining: 30,
+  sitEntryDate: new Date('22 Aug 2023'),
+  totalSITDaysUsed: 15,
+  daysInSIT: 15,
+};
+
+const shipment = {
+  sitDaysAllowance: 45,
+};
 
 export const Basic = () => (
   <div className="officeApp">
@@ -38,7 +32,8 @@ export const Basic = () => (
       sitExtension={sitExtension}
       onSubmit={() => {}}
       onClose={() => {}}
-      summarySITComponent={summarySITExtension}
+      shipment={shipment}
+      sitStatus={sitStatus}
     />
   </div>
 );

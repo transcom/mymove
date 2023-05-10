@@ -995,7 +995,6 @@ func (suite *HandlerSuite) makeUpdateAllowanceHandlerSubtestData() (subtestData 
 	subtestData.move = factory.BuildServiceCounselingCompletedMove(suite.DB(), nil, nil)
 	subtestData.order = subtestData.move.Orders
 
-	newAuthorizedWeight := int64(10000)
 	grade := ghcmessages.GradeO5
 	affiliation := ghcmessages.AffiliationAIRFORCE
 	ocie := false
@@ -1005,7 +1004,6 @@ func (suite *HandlerSuite) makeUpdateAllowanceHandlerSubtestData() (subtestData 
 
 	subtestData.body = &ghcmessages.UpdateAllowancePayload{
 		Agency:               &affiliation,
-		AuthorizedWeight:     &newAuthorizedWeight,
 		DependentsAuthorized: models.BoolPointer(true),
 		Grade:                &grade,
 		OrganizationalClothingAndIndividualEquipment: &ocie,
@@ -1098,7 +1096,6 @@ func (suite *HandlerSuite) TestUpdateAllowanceHandler() {
 		suite.NoError(ordersPayload.Validate(strfmt.Default))
 
 		suite.Equal(order.ID.String(), ordersPayload.ID.String())
-		suite.Equal(body.AuthorizedWeight, ordersPayload.Entitlement.AuthorizedWeight)
 		suite.Equal(body.Grade, ordersPayload.Grade)
 		suite.Equal(body.Agency, ordersPayload.Agency)
 		suite.Equal(body.DependentsAuthorized, ordersPayload.Entitlement.DependentsAuthorized)

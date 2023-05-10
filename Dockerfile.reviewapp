@@ -110,6 +110,9 @@ COPY --from=server_builder /build/bin/rds-ca-2019-root.pem /bin/rds-ca-2019-root
 COPY --from=server_builder /build/bin/milmove /bin/milmove
 COPY --from=server_builder /build/swagger /swagger
 
+# test data for testharness
+COPY --from=server_builder /build/pkg/testdatagen/testdata /pkg/testdatagen/testdata
+
 COPY --from=client_builder /build/build /build
 
 COPY config/tls/milmove-cert-bundle.p7b /config/tls/milmove-cert-bundle.p7b

@@ -20,6 +20,10 @@
   p + p {
     @include u-margin-top('105');
   }
+
+  &.DarkText p {
+    color: $base-darkest;
+  }
 }
 
 :global(.grid-row) + .Hint {

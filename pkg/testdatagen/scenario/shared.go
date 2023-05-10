@@ -10658,14 +10658,14 @@ func createMoveWithFutureSIT(appCtx appcontext.AppContext, userUploader *uploade
 
 }
 
-func createMoveWithOriginAndDestinationSIT(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+func createMoveWithOriginAndDestinationSIT(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveLocator string) models.MTOServiceItem {
 	db := appCtx.DB()
 
 	move := factory.BuildMove(db, []factory.Customization{
 		{
 			Model: models.Move{
 				ID:                 uuid.Must(uuid.NewV4()),
-				Locator:            "S1TT3R",
+				Locator:            moveLocator,
 				Status:             models.MoveStatusAPPROVED,
 				AvailableToPrimeAt: models.TimePointer(time.Now()),
 			},
@@ -10773,6 +10773,7 @@ func createMoveWithOriginAndDestinationSIT(appCtx appcontext.AppContext, userUpl
 		MTOServiceItem: dddsit,
 	})
 
+	return dddsit
 }
 
 func createPaymentRequestsWithPartialSITInvoice(appCtx appcontext.AppContext, primeUploader *uploader.PrimeUploader) {

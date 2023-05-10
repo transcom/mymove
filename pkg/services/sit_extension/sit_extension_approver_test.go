@@ -17,10 +17,11 @@ func (suite *SitExtensionServiceSuite) TestApproveSITExtension() {
 	suite.Run("Returns an error when shipment is not found", func() {
 		nonexistentUUID := uuid.Must(uuid.NewV4())
 		approvedDays := int(20)
+		requestReason := models.SITExtensionRequestReasonAwaitingCompletionOfResidence
 		officeRemarks := "office remarks"
 		eTag := ""
 
-		_, err := sitExtensionApprover.ApproveSITExtension(suite.AppContextForTest(), nonexistentUUID, nonexistentUUID, approvedDays, &officeRemarks, eTag)
+		_, err := sitExtensionApprover.ApproveSITExtension(suite.AppContextForTest(), nonexistentUUID, nonexistentUUID, approvedDays, requestReason, &officeRemarks, eTag)
 
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
@@ -30,10 +31,11 @@ func (suite *SitExtensionServiceSuite) TestApproveSITExtension() {
 		nonexistentUUID := uuid.Must(uuid.NewV4())
 		mtoShipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
 		approvedDays := int(20)
+		requestReason := models.SITExtensionRequestReasonAwaitingCompletionOfResidence
 		officeRemarks := "office remarks"
 		eTag := ""
 
-		_, err := sitExtensionApprover.ApproveSITExtension(suite.AppContextForTest(), mtoShipment.ID, nonexistentUUID, approvedDays, &officeRemarks, eTag)
+		_, err := sitExtensionApprover.ApproveSITExtension(suite.AppContextForTest(), mtoShipment.ID, nonexistentUUID, approvedDays, requestReason, &officeRemarks, eTag)
 
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
@@ -43,10 +45,11 @@ func (suite *SitExtensionServiceSuite) TestApproveSITExtension() {
 		sitExtension := factory.BuildSITDurationUpdate(suite.DB(), nil, nil)
 		mtoShipment := sitExtension.MTOShipment
 		approvedDays := int(20)
+		requestReason := models.SITExtensionRequestReasonAwaitingCompletionOfResidence
 		officeRemarks := "office remarks"
 		eTag := ""
 
-		_, err := sitExtensionApprover.ApproveSITExtension(suite.AppContextForTest(), mtoShipment.ID, sitExtension.ID, approvedDays, &officeRemarks, eTag)
+		_, err := sitExtensionApprover.ApproveSITExtension(suite.AppContextForTest(), mtoShipment.ID, sitExtension.ID, approvedDays, requestReason, &officeRemarks, eTag)
 
 		suite.Error(err)
 		suite.IsType(apperror.PreconditionFailedError{}, err)
@@ -63,10 +66,11 @@ func (suite *SitExtensionServiceSuite) TestApproveSITExtension() {
 			},
 		}, nil)
 		approvedDays := int(20)
+		requestReason := models.SITExtensionRequestReasonAwaitingCompletionOfResidence
 		officeRemarks := "office remarks"
 		eTag := ""
 
-		_, err := sitExtensionApprover.ApproveSITExtension(suite.AppContextForTest(), otherMtoShipment.ID, sitExtension.ID, approvedDays, &officeRemarks, eTag)
+		_, err := sitExtensionApprover.ApproveSITExtension(suite.AppContextForTest(), otherMtoShipment.ID, sitExtension.ID, approvedDays, requestReason, &officeRemarks, eTag)
 
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
@@ -88,10 +92,11 @@ func (suite *SitExtensionServiceSuite) TestApproveSITExtension() {
 			},
 		}, nil)
 		approvedDays := int(-30)
+		requestReason := models.SITExtensionRequestReasonAwaitingCompletionOfResidence
 		officeRemarks := "office remarks"
 		eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
 
-		_, err := sitExtensionApprover.ApproveSITExtension(suite.AppContextForTest(), mtoShipment.ID, sitExtension.ID, approvedDays, &officeRemarks, eTag)
+		_, err := sitExtensionApprover.ApproveSITExtension(suite.AppContextForTest(), mtoShipment.ID, sitExtension.ID, approvedDays, requestReason, &officeRemarks, eTag)
 
 		suite.NotNil(err)
 		suite.IsType(apperror.InvalidInputError{}, err)
@@ -120,10 +125,11 @@ func (suite *SitExtensionServiceSuite) TestApproveSITExtension() {
 		approvedDays := int(20)
 		// existing SITDaysAllowance plus new approved days
 		newSITDaysAllowance := int(40)
+		requestReason := models.SITExtensionRequestReasonAwaitingCompletionOfResidence
 		officeRemarks := "office remarks"
 		eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
 
-		updatedShipment, err := sitExtensionApprover.ApproveSITExtension(suite.AppContextForTest(), mtoShipment.ID, sitExtension.ID, approvedDays, &officeRemarks, eTag)
+		updatedShipment, err := sitExtensionApprover.ApproveSITExtension(suite.AppContextForTest(), mtoShipment.ID, sitExtension.ID, approvedDays, requestReason, &officeRemarks, eTag)
 		suite.NoError(err)
 
 		var shipmentInDB models.MTOShipment
@@ -136,6 +142,7 @@ func (suite *SitExtensionServiceSuite) TestApproveSITExtension() {
 		suite.Equal(mtoShipment.ID.String(), updatedShipment.ID.String())
 		suite.Equal(newSITDaysAllowance, *updatedShipment.SITDaysAllowance)
 		suite.Equal(approvedDays, *sitExtensionInDB.ApprovedDays)
+		suite.Equal(sitExtension.RequestReason, sitExtensionInDB.RequestReason)
 		suite.Equal(officeRemarks, *sitExtensionInDB.OfficeRemarks)
 		suite.Equal(models.SITExtensionStatusApproved, sitExtensionInDB.Status)
 		suite.Equal(models.MoveStatusAPPROVED, shipmentInDB.MoveTaskOrder.Status)
@@ -168,10 +175,11 @@ func (suite *SitExtensionServiceSuite) TestApproveSITExtension() {
 			},
 		}, nil)
 		approvedDays := int(20)
+		requestReason := models.SITExtensionRequestReasonAwaitingCompletionOfResidence
 		officeRemarks := "office remarks"
 		eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
 
-		_, err := sitExtensionApprover.ApproveSITExtension(suite.AppContextForTest(), mtoShipment.ID, sitExtensionToBeApproved.ID, approvedDays, &officeRemarks, eTag)
+		_, err := sitExtensionApprover.ApproveSITExtension(suite.AppContextForTest(), mtoShipment.ID, sitExtensionToBeApproved.ID, approvedDays, requestReason, &officeRemarks, eTag)
 		suite.NoError(err)
 
 		var shipmentInDB models.MTOShipment
