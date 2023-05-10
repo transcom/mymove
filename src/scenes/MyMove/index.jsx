@@ -54,11 +54,7 @@ import PaymentReview from 'scenes/Moves/Ppm/PaymentReview/index';
 import CustomerAgreementLegalese from 'scenes/Moves/Ppm/CustomerAgreementLegalese';
 import ConnectedCreateOrEditMtoShipment from 'pages/MyMove/CreateOrEditMtoShipment';
 import Home from 'pages/MyMove/Home';
-<<<<<<< HEAD
-
-=======
 import TitleAnnouncer from 'components/TitleAnnouncer/TitleAnnouncer';
->>>>>>> d7ffdf85f5 (Add TitleAnnouncer component globally.)
 // Pages should be lazy-loaded (they correspond to unique routes & only need to be loaded when that URL is accessed)
 const SignIn = lazy(() => import('pages/SignIn/SignIn'));
 const InvalidPermissions = lazy(() => import('pages/InvalidPermissions/InvalidPermissions'));
@@ -110,13 +106,12 @@ export class CustomerApp extends Component {
     const { hasError } = this.state;
 
     return (
-
-        <>
-          <div className="my-move site" id="app-root">
-            <TitleAnnouncer />
-            <CUIHeader />
-            <BypassBlock />
-            <GovBanner />
+      <>
+        <div className="my-move site" id="app-root">
+          <TitleAnnouncer />
+          <CUIHeader />
+          <BypassBlock />
+          <GovBanner />
 
           {userIsLoggedIn ? <CustomerLoggedInHeader /> : <LoggedOutHeader />}
 

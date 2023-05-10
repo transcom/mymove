@@ -150,6 +150,9 @@ export function useTitle(string) {
   useEffect(() => {
     const title = generatePageTitle(subtitle);
     document.title = title;
-    document.getElementById('title-announcer').textContent = title;
-  });
+    const titleAnnouncer = document.getElementById('title-announcer');
+    if (titleAnnouncer) {
+      titleAnnouncer.textContent = title;
+    }
+  }, [subtitle]);
 }

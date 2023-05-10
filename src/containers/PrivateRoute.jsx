@@ -19,7 +19,7 @@ export function userIsAuthorized(userRoles, requiredRoles) {
   return !!userRoles?.find((r) => requiredRoles.indexOf(r) > -1);
 }
 
-function PrivateRoute({ requiredRoles, userRoles, children, ...routeProps }) {
+function PrivateRoute({ requiredRoles, userRoles, children }) {
   useTitle();
   const userRoleTypes = getRoleTypesFromRoles(userRoles);
 

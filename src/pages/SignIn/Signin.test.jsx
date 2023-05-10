@@ -1,6 +1,7 @@
 import React from 'react';
 import { cleanup, render, screen } from '@testing-library/react';
 import routeData from 'react-router-dom';
+import { shallow } from 'enzyme';
 
 import SignIn from './SignIn';
 
