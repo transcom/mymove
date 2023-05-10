@@ -6,8 +6,6 @@ import ServicesCounselorCustomerSupportRemarks from './ServicesCounselorCustomer
 import { MockProviders } from 'testUtils';
 import { useCustomerSupportRemarksQueries } from 'hooks/queries';
 
-const mockMoveLocator = 'SPTRMK';
-
 jest.mock('hooks/queries', () => ({
   useCustomerSupportRemarksQueries: jest.fn(),
 }));
@@ -33,7 +31,7 @@ describe('Customer support remarks page', () => {
   it('renders the page successfully', async () => {
     useCustomerSupportRemarksQueries.mockReturnValue(remarkData);
     render(
-      <MockProviders initialEntries={[`moves/${mockMoveLocator}/customer-support-remarks`]}>
+      <MockProviders>
         <ServicesCounselorCustomerSupportRemarks />
       </MockProviders>,
     );

@@ -46,10 +46,7 @@ const setUnapprovedServiceItemCount = jest.fn();
 const setExcessWeightRiskCount = jest.fn();
 const setUnapprovedSITExtensionCount = jest.fn();
 
-const moveCode = 'WE31AZ';
 const requiredProps = {
-  match: { params: { moveCode } },
-  history: { push: jest.fn() },
   setMessage: jest.fn(),
 };
 
@@ -69,7 +66,7 @@ describe('MoveTaskOrder', () => {
   describe('weight display', () => {
     it('displays the weight allowance', async () => {
       render(
-        <MockProviders initialEntries={['moves/1000/allowances']}>
+        <MockProviders>
           <MoveTaskOrder
             {...requiredProps}
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
@@ -95,7 +92,7 @@ describe('MoveTaskOrder', () => {
 
     it('displays the max billable weight', async () => {
       render(
-        <MockProviders initialEntries={['moves/1000/allowances']}>
+        <MockProviders>
           <MoveTaskOrder
             {...requiredProps}
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
@@ -114,7 +111,7 @@ describe('MoveTaskOrder', () => {
       useMoveTaskOrderQueries.mockReturnValue(missingWeightQuery);
 
       render(
-        <MockProviders initialEntries={['moves/1000/allowances']}>
+        <MockProviders>
           <MoveTaskOrder
             {...requiredProps}
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
@@ -133,7 +130,7 @@ describe('MoveTaskOrder', () => {
       useMoveTaskOrderQueries.mockReturnValue(missingWeightQuery);
 
       render(
-        <MockProviders initialEntries={['moves/1000/allowances']}>
+        <MockProviders>
           <MoveTaskOrder
             {...requiredProps}
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
@@ -152,7 +149,7 @@ describe('MoveTaskOrder', () => {
       useMoveTaskOrderQueries.mockReturnValue(missingSomeWeightQuery);
 
       render(
-        <MockProviders initialEntries={['moves/1000/allowances']}>
+        <MockProviders>
           <MoveTaskOrder
             {...requiredProps}
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
@@ -171,7 +168,7 @@ describe('MoveTaskOrder', () => {
       useMoveTaskOrderQueries.mockReturnValue(missingSomeWeightQuery);
 
       render(
-        <MockProviders initialEntries={['moves/1000/allowances']}>
+        <MockProviders>
           <MoveTaskOrder
             {...requiredProps}
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
@@ -190,7 +187,7 @@ describe('MoveTaskOrder', () => {
       useMoveTaskOrderQueries.mockReturnValue(noWeightQuery);
 
       render(
-        <MockProviders initialEntries={['moves/1000/allowances']}>
+        <MockProviders>
           <MoveTaskOrder
             {...requiredProps}
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
@@ -209,7 +206,7 @@ describe('MoveTaskOrder', () => {
       useMoveTaskOrderQueries.mockReturnValue(noWeightQuery);
 
       render(
-        <MockProviders initialEntries={['moves/1000/allowances']}>
+        <MockProviders>
           <MoveTaskOrder
             {...requiredProps}
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
@@ -228,7 +225,7 @@ describe('MoveTaskOrder', () => {
       useMoveTaskOrderQueries.mockReturnValue(someWeightNotReturned);
 
       render(
-        <MockProviders initialEntries={['moves/1000/allowances']}>
+        <MockProviders>
           <MoveTaskOrder
             {...requiredProps}
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
@@ -247,7 +244,7 @@ describe('MoveTaskOrder', () => {
       useMoveTaskOrderQueries.mockReturnValue(someWeightNotReturned);
 
       render(
-        <MockProviders initialEntries={['moves/1000/allowances']}>
+        <MockProviders>
           <MoveTaskOrder
             {...requiredProps}
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
@@ -266,7 +263,7 @@ describe('MoveTaskOrder', () => {
       useMoveTaskOrderQueries.mockReturnValue(riskOfExcessWeightQuery);
 
       render(
-        <MockProviders initialEntries={['moves/1000/allowances']}>
+        <MockProviders>
           <MoveTaskOrder
             {...requiredProps}
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
@@ -285,7 +282,7 @@ describe('MoveTaskOrder', () => {
       useMoveTaskOrderQueries.mockReturnValue(riskOfExcessWeightQuery);
 
       render(
-        <MockProviders initialEntries={['moves/1000/allowances']}>
+        <MockProviders>
           <MoveTaskOrder
             {...requiredProps}
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
@@ -306,7 +303,7 @@ describe('MoveTaskOrder', () => {
       useMoveTaskOrderQueries.mockReturnValue(allApprovedMTOQuery);
 
       render(
-        <MockProviders initialEntries={['moves/1000/allowances']}>
+        <MockProviders>
           <MoveTaskOrder
             {...requiredProps}
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
@@ -325,7 +322,7 @@ describe('MoveTaskOrder', () => {
       useMoveTaskOrderQueries.mockReturnValue(allApprovedMTOQuery);
 
       render(
-        <MockProviders initialEntries={['moves/1000/allowances']}>
+        <MockProviders>
           <MoveTaskOrder
             {...requiredProps}
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
@@ -344,7 +341,7 @@ describe('MoveTaskOrder', () => {
       useMoveTaskOrderQueries.mockReturnValue(lowerReweighsMTOQuery);
 
       render(
-        <MockProviders initialEntries={['moves/1000/allowances']}>
+        <MockProviders>
           <MoveTaskOrder
             {...requiredProps}
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
@@ -363,7 +360,7 @@ describe('MoveTaskOrder', () => {
       useMoveTaskOrderQueries.mockReturnValue(lowerActualsMTOQuery);
 
       render(
-        <MockProviders initialEntries={['moves/1000/allowances']}>
+        <MockProviders>
           <MoveTaskOrder
             {...requiredProps}
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
@@ -382,7 +379,7 @@ describe('MoveTaskOrder', () => {
       useMoveTaskOrderQueries.mockReturnValue(allApprovedExternalVendorMTOQuery);
 
       render(
-        <MockProviders initialEntries={['moves/1000/allowances']}>
+        <MockProviders>
           <MoveTaskOrder
             {...requiredProps}
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
@@ -401,7 +398,7 @@ describe('MoveTaskOrder', () => {
       useMoveTaskOrderQueries.mockReturnValue(riskOfExcessWeightQueryExternalShipment);
 
       render(
-        <MockProviders initialEntries={['moves/1000/allowances']}>
+        <MockProviders>
           <MoveTaskOrder
             {...requiredProps}
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
@@ -424,7 +421,7 @@ describe('MoveTaskOrder', () => {
       useMoveTaskOrderQueries.mockReturnValue(loadingReturnValue);
 
       render(
-        <MockProviders initialEntries={['moves/1000/allowances']}>
+        <MockProviders>
           <MoveTaskOrder
             {...requiredProps}
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
@@ -443,7 +440,7 @@ describe('MoveTaskOrder', () => {
       useMoveTaskOrderQueries.mockReturnValue(errorReturnValue);
 
       render(
-        <MockProviders initialEntries={['moves/1000/allowances']}>
+        <MockProviders>
           <MoveTaskOrder
             {...requiredProps}
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
@@ -784,10 +781,7 @@ describe('MoveTaskOrder', () => {
 
     it('renders the financial review flag button when user has permission', async () => {
       render(
-        <MockProviders
-          initialEntries={['moves/1000/allowances']}
-          permissions={[permissionTypes.updateFinancialReviewFlag]}
-        >
+        <MockProviders permissions={[permissionTypes.updateFinancialReviewFlag]}>
           <MoveTaskOrder {...testProps} />
         </MockProviders>,
       );
@@ -797,7 +791,7 @@ describe('MoveTaskOrder', () => {
 
     it('does not show the financial review flag button if user does not have permission', () => {
       render(
-        <MockProviders initialEntries={['moves/1000/allowances']}>
+        <MockProviders>
           <MoveTaskOrder {...testProps} />
         </MockProviders>,
       );

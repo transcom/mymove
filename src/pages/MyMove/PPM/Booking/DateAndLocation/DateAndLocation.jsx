@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { generatePath, useHistory, useParams } from 'react-router-dom';
+import { generatePath, useNavigate, useParams } from 'react-router-dom';
 import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
 
 import DateAndLocationForm from 'components/Customer/PPM/Booking/DateAndLocationForm/DateAndLocationForm';
@@ -21,7 +21,7 @@ import { validatePostalCode } from 'utils/validation';
 
 const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, move }) => {
   const [errorMessage, setErrorMessage] = useState(null);
-  const history = useHistory();
+  const navigate = useNavigate();
   const { moveId, shipmentNumber } = useParams();
   const dispatch = useDispatch();
 
@@ -31,9 +31,9 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, 
   const isNewShipment = !mtoShipment?.id;
   const handleBack = () => {
     if (isNewShipment) {
-      history.push(generatePath(customerRoutes.SHIPMENT_SELECT_TYPE_PATH, { moveId }));
+      navigate(generatePath(customerRoutes.SHIPMENT_SELECT_TYPE_PATH, { moveId }));
     } else {
-      history.push(generalRoutes.HOME_PATH);
+      navigate(generalRoutes.HOME_PATH);
     }
   };
 
@@ -45,7 +45,7 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, 
     dispatch(updateMTOShipment(response));
 
     // navigate to the next page
-    history.push(
+    navigate(
       generatePath(customerRoutes.SHIPMENT_PPM_ESTIMATED_WEIGHT_PATH, {
         moveId,
         mtoShipmentId: response.id,

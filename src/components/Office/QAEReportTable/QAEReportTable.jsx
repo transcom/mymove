@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button, Tag } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 import PropTypes from 'prop-types';
-import { useLocation } from 'react-router';
+import { useLocation } from 'react-router-dom';
 
 import styles from './QAEReportTable.module.scss';
 

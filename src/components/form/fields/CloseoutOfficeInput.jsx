@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 
 import './DropdownInput.module.scss';
 import LocationSearchBox from 'components/LocationSearchBox/LocationSearchBox';
-import { SearchTransportationOffices } from 'services/ghcApi';
+import { searchTransportationOffices } from 'services/ghcApi';
 
 export const CloseoutOfficeInput = (props) => {
   const { label, name, displayAddress, hint, placeholder, isDisabled } = props;
@@ -25,7 +25,7 @@ export const CloseoutOfficeInput = (props) => {
       hint={hint}
       placeholder={placeholder}
       isDisabled={isDisabled}
-      searchLocations={SearchTransportationOffices}
+      searchLocations={searchTransportationOffices}
     />
   );
 };

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useFormik } from 'formik';
 import * as PropTypes from 'prop-types';
 import { Button, Checkbox, Fieldset } from '@trussworks/react-uswds';
-import { generatePath } from 'react-router';
+import { generatePath } from 'react-router-dom';
 
 import styles from './RequestedShipments.module.scss';
 
@@ -44,7 +44,6 @@ const SubmittedRequestedShipments = ({
   approveMTOShipment,
   handleAfterSuccess,
   missingRequiredOrdersInfo,
-  moveCode,
   errorIfMissing,
   displayDestinationType,
   mtoServiceItems,
@@ -124,7 +123,7 @@ const SubmittedRequestedShipments = ({
                   );
                 }),
               );
-              handleAfterSuccess('mto', { showMTOpostedMessage: true });
+              handleAfterSuccess('../mto', { showMTOpostedMessage: true });
             } catch {
               setSubmitting(false);
             }
@@ -193,10 +192,9 @@ const SubmittedRequestedShipments = ({
         <div className={shipmentCardsStyles.shipmentCards}>
           {mtoShipments &&
             mtoShipments.map((shipment) => {
-              const editUrl = generatePath(tooRoutes.SHIPMENT_EDIT_PATH, {
-                moveCode,
+              const editUrl = `../${generatePath(tooRoutes.SHIPMENT_EDIT_PATH, {
                 shipmentId: shipment.id,
-              });
+              })}`;
 
               return (
                 <ShipmentDisplay
@@ -299,7 +297,6 @@ SubmittedRequestedShipments.propTypes = {
   approveMTOShipment: PropTypes.func,
   moveTaskOrder: MoveTaskOrderShape,
   missingRequiredOrdersInfo: PropTypes.bool,
-  moveCode: PropTypes.string.isRequired,
   handleAfterSuccess: PropTypes.func,
   errorIfMissing: PropTypes.objectOf(PropTypes.arrayOf(fieldValidationShape)),
   displayDestinationType: PropTypes.bool,

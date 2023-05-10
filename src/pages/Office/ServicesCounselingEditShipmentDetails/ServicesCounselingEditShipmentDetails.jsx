@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { useHistory, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { GridContainer, Grid } from '@trussworks/react-uswds';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 
@@ -9,16 +9,14 @@ import styles from '../ServicesCounselingMoveInfo/ServicesCounselingTab.module.s
 import 'styles/office.scss';
 import ShipmentForm from 'components/Office/ShipmentForm/ShipmentForm';
 import { MTO_SHIPMENTS } from 'constants/queryKeys';
-import { MatchShape } from 'types/officeShapes';
 import { useEditShipmentQueries } from 'hooks/queries';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { updateMTOShipment } from 'services/ghcApi';
 import { roleTypes } from 'constants/userRoles';
 
-const ServicesCounselingEditShipmentDetails = ({ match, onUpdate, isAdvancePage }) => {
+const ServicesCounselingEditShipmentDetails = ({ onUpdate, isAdvancePage }) => {
   const { moveCode, shipmentId } = useParams();
-  const history = useHistory();
   const queryClient = useQueryClient();
   const { move, order, mtoShipments, isLoading, isError } = useEditShipmentQueries(moveCode);
   const { mutate: mutateMTOShipment } = useMutation(updateMTOShipment, {
@@ -54,8 +52,6 @@ const ServicesCounselingEditShipmentDetails = ({ match, onUpdate, isAdvancePage 
           <Grid row>
             <Grid col desktop={{ col: 8, offset: 2 }}>
               <ShipmentForm
-                match={match}
-                history={history}
                 submitHandler={mutateMTOShipment}
                 onUpdate={onUpdate}
                 isCreatePage={false}
@@ -84,7 +80,6 @@ const ServicesCounselingEditShipmentDetails = ({ match, onUpdate, isAdvancePage 
 };
 
 ServicesCounselingEditShipmentDetails.propTypes = {
-  match: MatchShape.isRequired,
   onUpdate: PropTypes.func.isRequired,
   isAdvancePage: PropTypes.bool,
 };

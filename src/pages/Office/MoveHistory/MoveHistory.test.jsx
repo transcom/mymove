@@ -5,7 +5,7 @@ import MoveHistory from './MoveHistory';
 
 import { MockProviders } from 'testUtils';
 
-const testMoveLocator = 'DVRS0N';
+const mockMoveCode = 'DVRS0N';
 
 jest.mock('hooks/queries', () => ({
   useGHCGetMoveHistory: () => {
@@ -123,12 +123,12 @@ jest.mock('hooks/queries', () => ({
 }));
 
 describe('MoveHistory', () => {
-  it.each([['/moves'], ['/counseling/moves']])(
+  it.each(['/moves', '/counseling/moves'])(
     'render the different elements of the Move history tab at path %s',
     async (basePath) => {
       render(
-        <MockProviders initialEntries={[`${basePath}/${testMoveLocator}/history`]}>
-          <MoveHistory moveCode={testMoveLocator} />,
+        <MockProviders path={`${basePath}/:moveCode/history`} params={{ moveCode: mockMoveCode }}>
+          <MoveHistory moveCode={mockMoveCode} />,
         </MockProviders>,
       );
 

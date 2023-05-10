@@ -1,78 +1,55 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import { queryByTestId, render, screen, waitFor } from '@testing-library/react';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { Provider } from 'react-redux';
 
 import TXOMoveInfo from './TXOMoveInfo';
 
-import { permissionTypes } from 'constants/permissions';
-import { MockProviders } from 'testUtils';
-import { useEvaluationReportShipmentListQueries, useTXOMoveInfoQueries } from 'hooks/queries';
+import { mockPage, MockProviders } from 'testUtils';
+import { useTXOMoveInfoQueries } from 'hooks/queries';
+import { tooRoutes } from 'constants/routes';
+import { roleTypes } from 'constants/userRoles';
+import { configureStore } from 'shared/store';
+
+mockPage('pages/Office/MoveDetails/MoveDetails');
+mockPage('pages/Office/MoveDocumentWrapper/MoveDocumentWrapper');
+mockPage('pages/Office/MoveTaskOrder/MoveTaskOrder');
+mockPage('pages/Office/PaymentRequestReview/PaymentRequestReview');
+mockPage('pages/Office/ReviewBillableWeight/ReviewBillableWeight');
+mockPage('pages/Office/CustomerSupportRemarks/CustomerSupportRemarks');
+mockPage('pages/Office/EvaluationReports/EvaluationReports');
+mockPage('pages/Office/EvaluationReport/EvaluationReport');
+mockPage('pages/Office/EvaluationViolations/EvaluationViolations');
+mockPage('pages/Office/MoveHistory/MoveHistory');
+mockPage('pages/Office/MovePaymentRequests/MovePaymentRequests');
+mockPage('pages/Office/Forbidden/Forbidden');
 
 const testMoveCode = '1A5PM3';
-const mockReportId = 'db30c135-1d6d-4a0d-a6d5-f408474f6ee2';
-const mockMtoRefId = '6789-1234';
-const testEvaluationReport = {
-  isLoading: false,
-  isError: false,
-  evaluationReport: {
-    id: mockReportId,
-    type: 'SHIPMENT',
-    moveReferenceID: mockMtoRefId,
+const loggedInTIOState = {
+  auth: {
+    activeRole: roleTypes.TIO,
+    isLoading: false,
+    isLoggedIn: true,
   },
-  mtoShipments: [
-    {
-      actualPickupDate: '2020-03-16',
-      approvedDate: '2022-08-16T00:00:00.000Z',
-      billableWeightCap: 4000,
-      billableWeightJustification: 'heavy',
-      createdAt: '2022-08-16T00:00:22.316Z',
-      customerRemarks: 'Please treat gently',
-      destinationAddress: {
-        city: 'Fairfield',
-        country: 'US',
-        eTag: 'MjAyMi0wOC0xNlQwMDowMDoyMi4zMTQ0MDha',
-        id: '1cf638df-1c1e-4c03-916a-bd20f7ec58ce',
-        postalCode: '94535',
-        state: 'CA',
-        streetAddress1: '987 Any Avenue',
-        streetAddress2: 'P.O. Box 9876',
-        streetAddress3: 'c/o Some Person',
+  entities: {
+    user: {
+      userId234: {
+        id: 'userId234',
+        roles: [{ roleType: roleTypes.TIO }],
       },
-      eTag: 'MjAyMi0wOC0xNlQwMDowMDoyMi4zMTY2N1o=',
-      id: 'c37ccf04-637c-4afc-9ef6-dee1555e16ef',
-      moveTaskOrderID: '35eb1c36-8916-46f4-a72a-32267c9cb070',
-      pickupAddress: {
-        city: 'Beverly Hills',
-        country: 'US',
-        eTag: 'MjAyMi0wOC0xNlQwMDowMDoyMi4zMTIzOTZa',
-        id: 'c0cf15bb-96ee-443a-982e-0e9ef2b9a80d',
-        postalCode: '90210',
-        state: 'CA',
-        streetAddress1: '123 Any Street',
-        streetAddress2: 'P.O. Box 12345',
-        streetAddress3: 'c/o Some Person',
-      },
-      primeActualWeight: 2000,
-      primeEstimatedWeight: 1400,
-      requestedDeliveryDate: '2020-03-15',
-      requestedPickupDate: '2020-03-15',
-      scheduledPickupDate: '2020-03-16',
-      shipmentType: 'HHG',
-      status: 'APPROVED',
-      updatedAt: '2022-08-16T00:00:22.316Z',
     },
-  ],
+  },
 };
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useParams: jest.fn().mockReturnValue({ moveCode: '1A5PM3' }),
+  useNavigate: jest.fn(),
 }));
 
 jest.mock('hooks/queries', () => ({
   ...jest.requireActual('hooks/queries'),
   useTXOMoveInfoQueries: jest.fn(),
-  useEvaluationReportShipmentListQueries: jest.fn(),
 }));
 
 const basicUseTXOMoveInfoQueriesValue = {
@@ -112,13 +89,36 @@ const errorReturnValue = {
   isSuccess: false,
 };
 
+// Render the TXO Move Info page with redux and routing setup.
+// Nestes the TXOMoveInfo under /moves/:moveCode/* as done in the app since the TXOMoveInfo component uses nested pathing.
+const renderTXOMoveInfo = (nestedPath = 'details', state = {}) => {
+  const mockStore = configureStore({
+    ...loggedInTIOState,
+    ...state,
+  });
+
+  return render(
+    <MemoryRouter initialEntries={[`/moves/${testMoveCode}/${nestedPath}`]}>
+      <Provider store={mockStore.store}>
+        <Routes>
+          <Route key="txoMoveInfoRoute" path="/moves/:moveCode/*" element={<TXOMoveInfo />} />
+        </Routes>
+      </Provider>
+    </MemoryRouter>,
+  );
+};
+
+beforeEach(() => {
+  useTXOMoveInfoQueries.mockReturnValue(basicUseTXOMoveInfoQueriesValue);
+});
+
 describe('TXO Move Info Container', () => {
   describe('check loading and error component states', () => {
     it('renders the Loading Placeholder when the query is still loading', async () => {
       useTXOMoveInfoQueries.mockReturnValue(loadingReturnValue);
 
       render(
-        <MockProviders initialEntries={[`/moves/${testMoveCode}/details`]}>
+        <MockProviders path={tooRoutes.BASE_MOVE_VIEW_PATH} params={{ moveCode: testMoveCode }}>
           <TXOMoveInfo />
         </MockProviders>,
       );
@@ -131,7 +131,7 @@ describe('TXO Move Info Container', () => {
       useTXOMoveInfoQueries.mockReturnValue(errorReturnValue);
 
       render(
-        <MockProviders initialEntries={[`/moves/${testMoveCode}/details`]}>
+        <MockProviders path={tooRoutes.BASE_MOVE_VIEW_PATH} params={{ moveCode: testMoveCode }}>
           <TXOMoveInfo />
         </MockProviders>,
       );
@@ -143,11 +143,15 @@ describe('TXO Move Info Container', () => {
 
   describe('Basic rendering', () => {
     it('should render the move tab container', () => {
-      useTXOMoveInfoQueries.mockReturnValueOnce(basicUseTXOMoveInfoQueriesValue);
+      const mockStore = configureStore(loggedInTIOState);
       const wrapper = mount(
-        <MockProviders initialEntries={[`/moves/${testMoveCode}/details`]}>
-          <TXOMoveInfo />
-        </MockProviders>,
+        <MemoryRouter initialEntries={[`/moves/${testMoveCode}/details`]}>
+          <Provider store={mockStore.store}>
+            <Routes>
+              <Route key="txoMoveInfoRoute" path="/moves/:moveCode/*" element={<TXOMoveInfo />} />
+            </Routes>
+          </Provider>
+        </MemoryRouter>,
       );
 
       expect(wrapper.find('CustomerHeader').exists()).toBe(true);
@@ -174,17 +178,10 @@ describe('TXO Move Info Container', () => {
       expect(wrapper.find('li.tabItem a').at(4).prop('href')).toEqual(`/moves/${testMoveCode}/evaluation-reports`);
       expect(wrapper.find('li.tabItem a').at(5).prop('href')).toEqual(`/moves/${testMoveCode}/history`);
     });
-    it('should render the system error when there is an error', () => {
-      useTXOMoveInfoQueries.mockReturnValueOnce(basicUseTXOMoveInfoQueriesValue);
 
-      render(
-        <MockProviders
-          initialState={{ interceptor: { hasRecentError: true, traceId: 'some-trace-id' } }}
-          initialEntries={[`/moves/${testMoveCode}/details`]}
-        >
-          <TXOMoveInfo />
-        </MockProviders>,
-      );
+    it('should render the system error when there is an error', () => {
+      renderTXOMoveInfo('', { interceptor: { hasRecentError: true, traceId: 'some-trace-id' } });
+
       expect(screen.getByText('Technical Help Desk').closest('a')).toHaveAttribute(
         'href',
         'https://move.mil/customer-service#technical-help-desk',
@@ -193,147 +190,37 @@ describe('TXO Move Info Container', () => {
         "Something isn't working, but we're not sure what. Wait a minute and try again.If that doesn't fix it, contact the Technical Help Desk and give them this code: some-trace-id",
       );
     });
+
     it('should not render system error when there is not an error', () => {
-      useTXOMoveInfoQueries.mockReturnValueOnce(basicUseTXOMoveInfoQueriesValue);
-      render(
-        <MockProviders
-          initialState={{ interceptor: { hasRecentError: false, traceId: '' } }}
-          initialEntries={[`/moves/${testMoveCode}/details`]}
-        >
-          <TXOMoveInfo />
-        </MockProviders>,
-      );
+      renderTXOMoveInfo('', { interceptor: { hasRecentError: false, traceId: '' } });
+
       expect(queryByTestId(document.documentElement, 'system-error')).not.toBeInTheDocument();
     });
   });
 
   describe('routing', () => {
-    beforeAll(() => {
-      useTXOMoveInfoQueries.mockReturnValue(basicUseTXOMoveInfoQueriesValue);
-    });
+    it.each([
+      ['Move Details', '/'],
+      ['Move Details', 'details'],
+      ['Move Document Wrapper', 'allowances'],
+      ['Move Document Wrapper', 'orders'],
+      ['Move Task Order', 'mto'],
+      ['Payment Request Review', 'payment-requests/REQ123'],
+      ['Move Payment Requests', 'payment-requests'],
+      ['Review Billable Weight', 'billable-weight'],
+      ['Customer Support Remarks', 'customer-support-remarks'],
+      ['Evaluation Reports', 'evaluation-reports'],
+      ['Move History', 'history'],
+      ['Forbidden', 'evaluation-reports/123'], // Permission restricted
+      ['Forbidden', 'evaluation-reports/report123/violations'], // Permission restricted
+    ])('should render the %s component when at the route: /moves/:moveCode/%s', async (componentName, nestedPath) => {
+      renderTXOMoveInfo(nestedPath);
 
-    it('should handle the Move Details route', () => {
-      const wrapper = mount(
-        <MockProviders initialEntries={[`/moves/${testMoveCode}/details`]}>
-          <TXOMoveInfo />
-        </MockProviders>,
-      );
+      // Wait for loading to finish
+      await waitFor(() => expect(screen.queryByText('Loading, please wait...')).not.toBeInTheDocument());
 
-      expect(wrapper.find('MoveDetails')).toHaveLength(1);
-    });
-
-    it('should redirect from move info root to the Move Details route', () => {
-      const wrapper = mount(
-        <MockProviders initialEntries={[`/moves/${testMoveCode}`]}>
-          <TXOMoveInfo />
-        </MockProviders>,
-      );
-
-      const renderedRoute = wrapper.find('MoveDetails');
-      expect(renderedRoute).toHaveLength(1);
-    });
-
-    it('should handle the Move Orders route', () => {
-      const wrapper = mount(
-        <MockProviders initialEntries={[`/moves/${testMoveCode}/orders`]}>
-          <TXOMoveInfo />
-        </MockProviders>,
-      );
-
-      const renderedRoute = wrapper.find('Route');
-      expect(renderedRoute).toHaveLength(1);
-      expect(renderedRoute.prop('path')).toEqual(['/moves/:moveCode/allowances', '/moves/:moveCode/orders']);
-    });
-
-    it('should handle the Allowances route', () => {
-      const wrapper = mount(
-        <MockProviders initialEntries={[`/moves/${testMoveCode}/allowances`]}>
-          <TXOMoveInfo />
-        </MockProviders>,
-      );
-
-      const renderedRoute = wrapper.find('Route');
-      expect(renderedRoute).toHaveLength(1);
-      expect(renderedRoute.prop('path')).toEqual(['/moves/:moveCode/allowances', '/moves/:moveCode/orders']);
-    });
-
-    it('should handle the Move Task Order route', () => {
-      const wrapper = mount(
-        <MockProviders initialEntries={[`/moves/${testMoveCode}/mto`]}>
-          <TXOMoveInfo />
-        </MockProviders>,
-      );
-
-      const renderedRoute = wrapper.find('Route');
-      expect(renderedRoute).toHaveLength(1);
-      expect(renderedRoute.prop('path')).toEqual('/moves/:moveCode/mto');
-    });
-
-    it('should handle the Move Payment Requests route', () => {
-      const wrapper = mount(
-        <MockProviders initialEntries={[`/moves/${testMoveCode}/payment-requests`]}>
-          <TXOMoveInfo />
-        </MockProviders>,
-      );
-
-      const renderedRoute = wrapper.find('Route');
-      expect(renderedRoute).toHaveLength(1);
-      expect(renderedRoute.prop('path')).toEqual('/moves/:moveCode/payment-requests');
-    });
-
-    it('should handle the Billable Weight route', () => {
-      const wrapper = mount(
-        <MockProviders initialEntries={[`/moves/${testMoveCode}/billable-weight`]}>
-          <TXOMoveInfo />
-        </MockProviders>,
-      );
-
-      const renderedRoute = wrapper.find('Route');
-      expect(renderedRoute).toHaveLength(1);
-      expect(renderedRoute.prop('path')).toEqual('/moves/:moveCode/billable-weight');
-    });
-
-    it('should handle the Move History route', () => {
-      const wrapper = mount(
-        <MockProviders initialEntries={[`/moves/${testMoveCode}/history`]}>
-          <TXOMoveInfo />
-        </MockProviders>,
-      );
-
-      const renderedRoute = wrapper.find('Route');
-      expect(renderedRoute).toHaveLength(1);
-      expect(renderedRoute.prop('path')).toEqual('/moves/:moveCode/history');
-    });
-
-    it('should handle the Evaluation Report route', async () => {
-      useEvaluationReportShipmentListQueries.mockReturnValueOnce(testEvaluationReport);
-      render(
-        <MockProviders
-          permissions={[permissionTypes.updateEvaluationReport]}
-          initialEntries={[`/moves/${testMoveCode}/evaluation-reports/11111111-1111-1111-1111-111111111111`]}
-        >
-          <TXOMoveInfo />
-        </MockProviders>,
-      );
-
-      await waitFor(() => {
-        expect(screen.getByText('Evaluation form')).toBeInTheDocument();
-        expect(screen.queryByRole('button', { name: 'Go to move details' })).not.toBeInTheDocument();
-      });
-    });
-    it('should not render Evaluation Report form when we do not have permission', async () => {
-      render(
-        <MockProviders
-          initialEntries={[`/moves/${testMoveCode}/evaluation-reports/11111111-1111-1111-1111-111111111111`]}
-        >
-          <TXOMoveInfo />
-        </MockProviders>,
-      );
-
-      await waitFor(() => {
-        expect(screen.getByText("Sorry, you can't access this page.")).toBeInTheDocument();
-        expect(screen.getByRole('button', { name: 'Go to move details' })).toBeInTheDocument();
-      });
+      // Assert that the mock component is rendered
+      await expect(screen.getByText(`Mock ${componentName} Component`)).toBeInTheDocument();
     });
   });
 });
