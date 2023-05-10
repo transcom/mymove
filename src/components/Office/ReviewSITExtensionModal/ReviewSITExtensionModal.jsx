@@ -65,15 +65,33 @@ const SITHistoryItemHeader = ({ title, value }) => {
 };
 
 const SitStatusTables = ({ sitStatus, sitExtension, shipment }) => {
-  const { totalSITDaysUsed, totalDaysRemaining, daysInSIT, location } = sitStatus;
+  const { totalSITDaysUsed, daysInSIT, location } = sitStatus;
   const sitEntryDate = moment(sitStatus.sitEntryDate, utcDateFormat);
   const daysInPreviousSIT = totalSITDaysUsed - daysInSIT;
+
+  /**
+   * @function
+   * @description This function calculates the total remaining days. If the SIT entry date has started, a day is subtracted from the days remaining to account for the current day.
+   * @returns {number|string} - The number of days remaming or 'expired' if there are no more days left.
+   */
+  const totalDaysRemaining = () => {
+    const daysRemaining = sitStatus ? sitStatus.totalDaysRemaining : shipment.sitDaysAllowance;
+    // SIT not started
+    if (!sitStatus && daysRemaining > 0) {
+      return daysRemaining;
+    }
+    // SIT in has started
+    if (sitStatus && daysRemaining > 0) {
+      return daysRemaining - 1;
+    }
+    return 'Expired';
+  };
 
   const approvedAndRequestedDaysCombined = shipment.sitDaysAllowance + sitExtension.requestedDays;
   const approvedAndRequestedDatesCombined = formatDateForDatePicker(
     moment()
       .add(sitExtension.requestedDays, 'days')
-      .add(totalDaysRemaining - 1, 'days'),
+      .add(Number.isInteger(totalDaysRemaining()) ? totalDaysRemaining() - 1 : 0, 'days'),
   );
 
   const sitAllowanceHelper = useField({ name: 'daysApproved', id: 'daysApproved' })[2];
@@ -81,7 +99,7 @@ const SitStatusTables = ({ sitStatus, sitExtension, shipment }) => {
   // Currently active SIT
   const currentLocation = location === LOCATION_TYPES.ORIGIN ? 'origin SIT' : 'destination SIT';
 
-  const currentDaysInSit = <p>{totalSITDaysUsed}</p>;
+  const currentDaysInSit = <p>{daysInSIT}</p>;
   const currentDateEnteredSit = <p>{formatDateForDatePicker(sitEntryDate)}</p>;
 
   /**
@@ -140,7 +158,7 @@ const SitStatusTables = ({ sitStatus, sitExtension, shipment }) => {
           dataRow={[
             <SitDaysAllowanceForm onChange={(e) => handleDaysAllowanceChange(e.target.value)} />,
             sitStatus.totalSITDaysUsed,
-            sitStatus.totalDaysRemaining,
+            totalDaysRemaining(),
           ]}
         />
       </div>
