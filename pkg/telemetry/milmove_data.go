@@ -7,15 +7,14 @@ import (
 
 	"go.opentelemetry.io/otel/metric"
 	"go.opentelemetry.io/otel/metric/global"
-	"go.opentelemetry.io/otel/metric/instrument"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 )
 
 type tableStatMetrics struct {
-	liveTuples instrument.Int64ObservableGauge
-	deadTuples instrument.Int64ObservableGauge
+	liveTuples metric.Int64ObservableGauge
+	deadTuples metric.Int64ObservableGauge
 }
 
 type pgStatLiveDead struct {
@@ -64,7 +63,7 @@ func registerTableLiveDeadCallback(appCtx appcontext.AppContext, meter metric.Me
 		return err
 	}
 	tableNameMetricMap := make(map[string]tableStatMetrics)
-	tableAllInstruments := []instrument.Asynchronous{}
+	tableAllInstruments := []metric.Observable{}
 
 	for i := range allStats {
 		tableName := allStats[i].TableName
@@ -75,7 +74,7 @@ func registerTableLiveDeadCallback(appCtx appcontext.AppContext, meter metric.Me
 		deadMetricDesc := "The total number of dead tuples in the " + tableName + " table"
 		liveTuples, lerr := meter.Int64ObservableGauge(
 			liveMetricName,
-			instrument.WithDescription(liveMetricDesc),
+			metric.WithDescription(liveMetricDesc),
 		)
 		if lerr != nil {
 			appCtx.Logger().Error("Error creating live gauge", zap.Any("liveGauge", liveMetricName), zap.Error(lerr))
@@ -83,7 +82,7 @@ func registerTableLiveDeadCallback(appCtx appcontext.AppContext, meter metric.Me
 		}
 		deadTuples, derr := meter.Int64ObservableGauge(
 			deadMetricName,
-			instrument.WithDescription(deadMetricDesc),
+			metric.WithDescription(deadMetricDesc),
 		)
 		if derr != nil {
 			appCtx.Logger().Error("Error creating dead gauge", zap.Any("deadGauge", deadMetricName), zap.Error(derr))

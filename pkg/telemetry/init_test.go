@@ -11,6 +11,7 @@ import (
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric"
 	"go.opentelemetry.io/otel/metric/global"
+	"go.opentelemetry.io/otel/metric/noop"
 	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/metric/metricdata"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
@@ -24,7 +25,7 @@ func (suite *TelemetrySuite) TestInitConfigDisabled() {
 	Init(suite.Logger(), config)
 
 	suite.Equal(trace.NewNoopTracerProvider(), otel.GetTracerProvider())
-	suite.Equal(metric.NewNoopMeterProvider(), global.MeterProvider())
+	suite.Equal(noop.NewMeterProvider(), global.MeterProvider())
 }
 
 func (suite *TelemetrySuite) TestInitConfigStdoutTrace() {

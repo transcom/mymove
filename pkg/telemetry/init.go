@@ -15,8 +15,8 @@ import (
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
 	"go.opentelemetry.io/otel/exporters/stdout/stdoutmetric"
 	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
-	"go.opentelemetry.io/otel/metric"
 	"go.opentelemetry.io/otel/metric/global"
+	"go.opentelemetry.io/otel/metric/noop"
 	"go.opentelemetry.io/otel/propagation"
 	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/resource"
@@ -53,7 +53,7 @@ func Init(logger *zap.Logger, config *Config) (shutdown func()) {
 	if !config.Enabled {
 		tp := trace.NewNoopTracerProvider()
 		otel.SetTracerProvider(tp)
-		global.SetMeterProvider(metric.NewNoopMeterProvider())
+		global.SetMeterProvider(noop.NewMeterProvider())
 		logger.Info("opentelemetry not enabled")
 		return shutdown
 	}

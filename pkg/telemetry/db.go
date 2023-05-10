@@ -7,7 +7,6 @@ import (
 
 	"go.opentelemetry.io/otel/metric"
 	"go.opentelemetry.io/otel/metric/global"
-	"go.opentelemetry.io/otel/metric/instrument"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/db/stats"
@@ -42,7 +41,7 @@ func RegisterDBStatsObserver(appCtx appcontext.AppContext, config *Config) error
 	// https://pkg.go.dev/database/sql#DB.Stats
 	poolInUse, err := dbMeter.Int64ObservableUpDownCounter(
 		"db.pool.inuse",
-		instrument.WithDescription("The number of connections currently in use"))
+		metric.WithDescription("The number of connections currently in use"))
 	if err != nil {
 		return err
 	}
@@ -50,7 +49,7 @@ func RegisterDBStatsObserver(appCtx appcontext.AppContext, config *Config) error
 	// https://pkg.go.dev/database/sql#DB.Stats
 	poolIdle, err := dbMeter.Int64ObservableUpDownCounter(
 		"db.pool.idle",
-		instrument.WithDescription("The number of idle connections"))
+		metric.WithDescription("The number of idle connections"))
 	if err != nil {
 		return err
 	}
@@ -58,15 +57,15 @@ func RegisterDBStatsObserver(appCtx appcontext.AppContext, config *Config) error
 	// https://pkg.go.dev/database/sql#DB.Stats
 	dbWait, err := dbMeter.Int64ObservableUpDownCounter(
 		"db.waitduration",
-		instrument.WithUnit("ms"),
-		instrument.WithDescription("Milliseconds blocked waiting for a new connection"))
+		metric.WithUnit("ms"),
+		metric.WithDescription("Milliseconds blocked waiting for a new connection"))
 	if err != nil {
 		return err
 	}
 
 	maxIdleClosed, err := dbMeter.Int64ObservableUpDownCounter(
 		"db.maxidleclosed",
-		instrument.WithDescription("The total number of connections closed due to SetMaxIdleConns"),
+		metric.WithDescription("The total number of connections closed due to SetMaxIdleConns"),
 	)
 	if err != nil {
 		return err
@@ -74,7 +73,7 @@ func RegisterDBStatsObserver(appCtx appcontext.AppContext, config *Config) error
 
 	maxIdleTimeClosed, err := dbMeter.Int64ObservableUpDownCounter(
 		"db.maxidletimeclosed",
-		instrument.WithDescription("The total number of connections closed due to SetConnMaxIdleTime"),
+		metric.WithDescription("The total number of connections closed due to SetConnMaxIdleTime"),
 	)
 	if err != nil {
 		return err
@@ -82,7 +81,7 @@ func RegisterDBStatsObserver(appCtx appcontext.AppContext, config *Config) error
 
 	maxLifetimeClosed, err := dbMeter.Int64ObservableUpDownCounter(
 		"db.maxlifetimeclosed",
-		instrument.WithDescription("The total number of connections closed due to SetConnMaxLifetime"),
+		metric.WithDescription("The total number of connections closed due to SetConnMaxLifetime"),
 	)
 	if err != nil {
 		return err
