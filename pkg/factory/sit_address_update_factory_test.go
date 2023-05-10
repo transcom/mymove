@@ -153,6 +153,7 @@ func (suite *FactorySuite) TestBuildSITAddressUpdate() {
 		suite.Equal(models.MTOServiceItemStatusApproved, sitAddressUpdate.MTOServiceItem.Status)
 		suite.NotNil(sitAddressUpdate.MTOServiceItem.SITEntryDate)
 		suite.Equal(originalPostalCode, *sitAddressUpdate.MTOServiceItem.SITPostalCode)
+		suite.NotNil(sitAddressUpdate.MTOServiceItem.Reason)
 	})
 
 	suite.Run("Successful return of linkOnly SITAddressUpdate", func() {
