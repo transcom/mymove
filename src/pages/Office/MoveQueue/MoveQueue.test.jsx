@@ -69,7 +69,7 @@ jest.mock('hooks/queries', () => ({
 
 describe('MoveQueue', () => {
   const wrapper = mount(
-    <MockProviders initialEntries={['moves/queue']}>
+    <MockProviders>
       <MoveQueue />
     </MockProviders>,
   );

@@ -18,10 +18,13 @@ const MoveDocumentWrapper = () => {
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
-  const showOrders = matchPath(pathname, {
-    path: '/moves/:moveCode/orders',
-    exact: true,
-  });
+  const showOrders = matchPath(
+    {
+      path: '/moves/:moveCode/orders',
+      end: true,
+    },
+    pathname,
+  );
 
   const documentsForViewer = Object.values(upload || {}).concat(Object.values(amendedUpload || {}));
 

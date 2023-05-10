@@ -810,3 +810,4 @@
 20230503233423_adding_sit_destination_initial_address_column.up.sql
 20230504204015_creating_SIT_destination_address_update_table.up.sql
 20230509180256_fix_demo_certificate.up.sql
+20230510153921_all_dutylocations_government_counseling_true.up.sql

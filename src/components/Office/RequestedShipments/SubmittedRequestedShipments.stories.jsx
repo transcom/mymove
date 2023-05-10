@@ -10,7 +10,7 @@ import {
 } from './RequestedShipmentsTestData';
 import SubmittedRequestedShipments from './SubmittedRequestedShipments';
 
-import { MockProviders } from 'testUtils';
+import { MockProviders, MockRouterProvider } from 'testUtils';
 import { permissionTypes } from 'constants/permissions';
 
 export default {
@@ -20,7 +20,11 @@ export default {
     (Story, context) => {
       // Don't wrap with permissions for the read only tests
       if (context.name.includes('Read Only')) {
-        return <Story />;
+        return (
+          <MockRouterProvider>
+            <Story />
+          </MockRouterProvider>
+        );
       }
 
       // By default, show component with permissions

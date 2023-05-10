@@ -9,16 +9,10 @@ import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { roleTypes } from 'constants/userRoles';
 import styles from 'pages/Office/ServicesCounselingMoveInfo/ServicesCounselingTab.module.scss';
 import { MockProviders } from 'testUtils';
+import { servicesCounselingRoutes } from 'constants/routes';
 
 const defaultProps = {
-  match: {
-    isExact: false,
-    path: '/counseling/moves/:moveId/shipments/:mtoShipmentId/',
-    url: '',
-    params: { moveCode: 'move123' },
-  },
   moveTaskOrderID: 'task123',
-  history: { push: () => {} },
   originDutyLocationAddress: {
     city: 'Washington',
     state: 'DC',
@@ -114,7 +108,10 @@ export default {
   component: ShipmentForm,
   decorators: [
     (Story) => (
-      <MockProviders>
+      <MockProviders
+        path={servicesCounselingRoutes.BASE_SHIPMENT_EDIT_PATH}
+        params={{ moveCode: 'move123', shipmentId: 'shipment123' }}
+      >
         <div className="officeApp">
           <GridContainer className={styles.gridContainer}>
             <Grid row>

@@ -1,12 +1,13 @@
 import React from 'react';
 import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { generatePath } from 'react-router-dom';
 
 import EvaluationForm from './EvaluationForm';
 
 import { MockProviders } from 'testUtils';
+import { qaeCSRRoutes } from 'constants/routes';
 
-const mockMoveCode = 'LR4T8V';
 const mockReportId = '58350bae-8e87-4e83-bd75-74027fb4333a';
 
 const mockSaveEvaluationReport = jest.fn();
@@ -78,15 +79,13 @@ const customerInfo = {
 
 const grade = 'E_4';
 const moveCode = 'FAKEIT';
+const reportId = '58350bae-8e87-4e83-bd75-74027fb4333a';
 const destinationDutyLocationPostalCode = '90210';
 
-const mockPush = jest.fn();
-jest.mock('react-router', () => ({
-  ...jest.requireActual('react-router'),
-  useHistory: () => ({
-    push: mockPush,
-  }),
-  useParams: () => ({ moveCode: 'LR4T8V', reportId: '58350bae-8e87-4e83-bd75-74027fb4333a' }),
+const mockNavigate = jest.fn();
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: () => mockNavigate,
 }));
 
 afterEach(() => {
@@ -104,7 +103,7 @@ const renderForm = (props) => {
   };
 
   return render(
-    <MockProviders initialEntries={[`/moves/${mockMoveCode}/evaluation-reports/${mockReportId}`]}>
+    <MockProviders path={qaeCSRRoutes.BASE_EVALUATION_REPORT_PATH} params={{ moveCode, reportId }}>
       <EvaluationForm {...defaultProps} {...props} />
     </MockProviders>,
   );
@@ -254,7 +253,7 @@ describe('EvaluationForm', () => {
 
     // Verify that report was saved and page rerouted
     await waitFor(() => {
-      expect(mockPush).toHaveBeenCalledTimes(1);
+      expect(mockNavigate).toHaveBeenCalledTimes(1);
       expect(mockSaveEvaluationReport).toHaveBeenCalledTimes(1);
       expect(mockSaveEvaluationReport).toHaveBeenCalledWith({
         body: {
@@ -273,8 +272,12 @@ describe('EvaluationForm', () => {
         ifMatchETag: 'MjAyMi0wOS0wN1QxODowNjozNy44NjQxNDJa',
         reportID: mockReportId,
       });
-      expect(mockPush).toHaveBeenCalledWith(`/moves/${mockMoveCode}/evaluation-reports`, {
-        showSaveDraftSuccess: true,
+
+      const expectedPath = generatePath(qaeCSRRoutes.BASE_EVALUATION_REPORTS_PATH, { moveCode });
+      expect(mockNavigate).toHaveBeenCalledWith(expectedPath, {
+        state: {
+          showSaveDraftSuccess: true,
+        },
       });
     });
   });

@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
+import { useNavigate } from 'react-router-dom';
 
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import { getResponseError, patchServiceMember } from 'services/internalApi';
@@ -32,7 +33,8 @@ const validatePostalCode = async (value) => {
   return responseBody.valid ? undefined : UnsupportedZipCodeErrorMsg;
 };
 
-export const ResidentialAddress = ({ serviceMember, updateServiceMember, push }) => {
+export const ResidentialAddress = ({ serviceMember, updateServiceMember }) => {
+  const navigate = useNavigate();
   const [serverError, setServerError] = useState(null);
 
   const formFieldsName = 'current_residence';
@@ -48,11 +50,11 @@ export const ResidentialAddress = ({ serviceMember, updateServiceMember, push })
   };
 
   const handleBack = () => {
-    push(customerRoutes.CURRENT_DUTY_LOCATION_PATH);
+    navigate(customerRoutes.CURRENT_DUTY_LOCATION_PATH);
   };
 
   const handleNext = () => {
-    push(customerRoutes.BACKUP_ADDRESS_PATH);
+    navigate(customerRoutes.BACKUP_ADDRESS_PATH);
   };
 
   const handleSubmit = (values) => {
@@ -108,7 +110,6 @@ ResidentialAddress.propTypes = {
     id: PropTypes.string.isRequired,
     residential_address: ResidentialAddressShape,
   }).isRequired,
-  push: PropTypes.func.isRequired,
 };
 
 const mapDispatchToProps = {
