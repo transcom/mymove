@@ -7,6 +7,7 @@
 import * as base from '@playwright/test';
 
 import { BaseTestPage } from './baseTest';
+import WaitForAdminPage from './waitForAdminPage';
 
 /**
  * devlocal auth user types
@@ -19,23 +20,13 @@ export const AdminUserType = 'admin';
  */
 class AdminPage extends BaseTestPage {
   /**
-   * Wait for the loading placeholder to go away
-   * @returns {Promise<void>}
+   * Create an AdminPage.
+   * @param {import('@playwright/test').Page} page
+   * @param {import('@playwright/test').APIRequestContext} request
    */
-  async waitForLoading() {
-    await base.expect(this.page.locator('h2[data-name="loading-placeholder"]')).toHaveCount(0);
-    await base.expect(this.page.locator('svg.MuiCircularProgress-svg')).toHaveCount(0);
-  }
-
-  /**
-   * wait for the admin page to finish loading
-   * @returns {Promise<void>}
-   */
-  async waitForAdminPageToLoad() {
-    // ensure the admin page has fully loaded before moving on
-    await base.expect(this.page.locator('a:has-text("Logout")')).toHaveCount(1, { timeout: 10000 });
-    await this.waitForLoading();
-    await base.expect(this.page.locator('.ReactTable').locator('.-loading.-active')).toHaveCount(0);
+  constructor(page, request) {
+    super(page, request);
+    this.waitForPage = new WaitForAdminPage(page);
   }
 
   /**
@@ -44,7 +35,7 @@ class AdminPage extends BaseTestPage {
    */
   async signInAsNewAdminUser() {
     await this.signInAsNewUser(AdminUserType);
-    await this.waitForAdminPageToLoad();
+    await this.waitForPage.adminPage();
   }
 
   /**

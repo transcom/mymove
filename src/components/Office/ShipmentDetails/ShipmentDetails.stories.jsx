@@ -1,5 +1,7 @@
 import React from 'react';
 import { Route } from 'react-router';
+import MockDate from 'mockdate';
+import addons from '@storybook/addons';
 
 import { SITStatusOrigin } from '../ShipmentSITDisplay/ShipmentSITDisplayTestParams';
 
@@ -9,8 +11,21 @@ import { LOA_TYPE } from 'shared/constants';
 import { permissionTypes } from 'constants/permissions';
 import { MockProviders } from 'testUtils';
 
+// Based on SITStatusOrigin. The date is 15 days after the entry date.
+const mockedDate = '2021-08-28T15:41:59.373Z';
 export default {
   title: 'Office Components/Shipment Details',
+  decorators: [
+    (Story) => {
+      MockDate.set(mockedDate);
+      addons.getChannel().on('storyRendered', MockDate.reset);
+      return (
+        <div>
+          <Story />
+        </div>
+      );
+    },
+  ],
 };
 
 const shipment = {

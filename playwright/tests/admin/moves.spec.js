@@ -28,9 +28,9 @@ test('Moves Details Show Page', async ({ page, adminPage }) => {
   await adminPage.testHarness.buildDefaultMove();
 
   await page.getByRole('menuitem', { name: 'Moves' }).click();
-  await adminPage.waitForAdminPageToLoad();
+  await adminPage.waitForPage.adminPage();
   await page.locator('span[reference="moves"]').first().click();
-  await adminPage.waitForAdminPageToLoad();
+  await adminPage.waitForPage.adminPage();
 
   const id = await page.locator('div:has(label :text-is("Id")) > div > span').textContent();
   expect(page.url()).toContain(id);
@@ -62,7 +62,7 @@ test('Moves Details Edit Page', async ({ page, adminPage }) => {
   const moveLocator = move.locator;
 
   await page.getByRole('menuitem', { name: 'Moves' }).click();
-  await adminPage.waitForAdminPageToLoad();
+  await adminPage.waitForPage.adminPage();
 
   // use locator search to find move in case move is not on first page
   // entering the move locator should auto search without a click
@@ -72,11 +72,11 @@ test('Moves Details Edit Page', async ({ page, adminPage }) => {
   // if this test has been run many times locally, this might fail
   // because the new move is not on the first page of results
   await page.locator(`tr:has(:text("${moveId}"))`).click();
-  await adminPage.waitForAdminPageToLoad();
+  await adminPage.waitForPage.adminPage();
   expect(page.url()).toContain(moveId);
 
   await page.getByRole('button', { name: 'Edit' }).click();
-  await adminPage.waitForAdminPageToLoad();
+  await adminPage.waitForPage.adminPage();
   expect(page.url()).toContain(moveId);
 
   const disabledFields = [

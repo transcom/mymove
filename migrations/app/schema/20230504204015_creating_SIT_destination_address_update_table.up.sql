@@ -1,5 +1,5 @@
 -- New enum for status
-CREATE TYPE sit_address_status AS enum (
+CREATE TYPE sit_address_update_status AS enum (
     'REQUESTED',
 	'REJECTED',
     'APPROVED'
@@ -12,10 +12,10 @@ CREATE TABLE sit_address_updates
 	mto_service_item_id uuid NOT NULL CONSTRAINT sit_address_updates_mto_service_item_id_fkey REFERENCES mto_service_items (id),
 	old_address_id uuid NOT NULL CONSTRAINT sit_address_updates_old_address_id_fkey REFERENCES addresses (id),
 	new_address_id uuid NOT NULL CONSTRAINT sit_address_updates_new_address_id_fkey REFERENCES addresses (id),
-	status sit_address_status NOT NULL,
+	status sit_address_update_status NOT NULL,
 	distance int4 NOT NULL,
 	reason text NOT NULL,
-	contractor_remarks text NOT NULL,
+	contractor_remarks text NULL,
 	office_remarks text NULL
 );
 
