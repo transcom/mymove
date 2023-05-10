@@ -11,7 +11,7 @@ test('Admin Users List Page', async ({ page, adminPage }) => {
   await adminPage.signInAsNewAdminUser();
 
   await page.getByRole('menuitem', { name: 'Admin Users' }).click();
-  await adminPage.waitForAdminPageToLoad();
+  await adminPage.waitForPage.adminPage();
   await expect(page.getByRole('heading', { name: 'Admin Users' })).toBeVisible();
 
   const columnLabels = ['Id', 'Email', 'First name', 'Last name', 'User Id', 'Active'];
@@ -23,11 +23,11 @@ test('Admin User Create Page', async ({ page, adminPage }) => {
   await adminPage.signInAsNewAdminUser();
 
   await page.getByRole('menuitem', { name: 'Admin Users' }).click();
-  await adminPage.waitForAdminPageToLoad();
+  await adminPage.waitForPage.adminPage();
   await expect(page.getByRole('heading', { name: 'Admin Users' })).toBeVisible();
 
   await page.getByRole('button', { name: 'Create' }).click();
-  await adminPage.waitForAdminPageToLoad();
+  await adminPage.waitForPage.adminPage();
   await expect(page.getByRole('heading', { name: 'Create Admin Users' })).toBeVisible();
 
   // we need to add the date to the email so that it is unique every time (only one record per email allowed in db)
@@ -43,7 +43,7 @@ test('Admin User Create Page', async ({ page, adminPage }) => {
   await page.getByLabel('Organization').locator('input').click();
   await page.getByRole('option').first().click();
   await page.getByRole('button').filter({ hasText: 'Save' }).click();
-  await adminPage.waitForAdminPageToLoad();
+  await adminPage.waitForPage.adminPage();
 
   // redirected to edit details page
   const adminUserID = await page.locator('#id').inputValue();
@@ -60,12 +60,12 @@ test('Admin Users Show Page', async ({ page, adminPage }) => {
   await adminPage.signInAsNewAdminUser();
 
   await page.getByRole('menuitem', { name: 'Admin Users' }).click();
-  await adminPage.waitForAdminPageToLoad();
+  await adminPage.waitForPage.adminPage();
   await expect(page.getByRole('heading', { name: 'Admin Users' })).toBeVisible();
 
   // click on first row
   await page.locator('tr[resource="admin-users"]').first().click();
-  await adminPage.waitForAdminPageToLoad();
+  await adminPage.waitForPage.adminPage();
 
   const id = await page.locator('div:has(label :text-is("Id")) > div > span').textContent();
   expect(page.url()).toContain(id);
@@ -99,17 +99,17 @@ test('Admin Users Edit Page', async ({ page, adminPage }) => {
   const adminUserId = adminUser.id;
 
   await page.getByRole('menuitem', { name: 'Admin Users' }).click();
-  await adminPage.waitForAdminPageToLoad();
+  await adminPage.waitForPage.adminPage();
   await expect(page.getByRole('heading', { name: 'Admin Users' })).toBeVisible();
 
   // go directly to the show page for the admin user because if we
   // have created more than 25 admin users, the user may not be on the
   // first page and we don't have a search functionality for admin users
   await page.goto(`/system/admin-users/${adminUserId}/show`);
-  await adminPage.waitForAdminPageToLoad();
+  await adminPage.waitForPage.adminPage();
 
   await page.getByRole('button', { name: 'Edit' }).click();
-  await adminPage.waitForAdminPageToLoad();
+  await adminPage.waitForPage.adminPage();
   expect(page.url()).toContain(adminUserId);
 
   const disabledFields = ['id', 'email', 'userId', 'createdAt', 'updatedAt'];
@@ -130,7 +130,7 @@ test('Admin Users Edit Page', async ({ page, adminPage }) => {
   await page.locator(`ul[aria-labelledby="active-label"] >> li[data-value="${newStatus}"]`).click();
 
   await page.getByRole('button', { name: 'Save' }).click();
-  await adminPage.waitForAdminPageToLoad();
+  await adminPage.waitForPage.adminPage();
 
   // back to list of all users
   expect(page.url()).not.toContain(adminUserId);
