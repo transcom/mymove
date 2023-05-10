@@ -7,7 +7,7 @@
 import * as base from '@playwright/test';
 
 import { BaseTestPage } from './baseTest';
-import { WaitForPage } from './waitForPage';
+import WaitForCustomerPage from './waitForCustomerPage';
 
 /**
  * devlocal auth user types
@@ -26,7 +26,7 @@ export class CustomerPage extends BaseTestPage {
    */
   constructor(page, request) {
     super(page, request);
-    this.waitForPage = new WaitForPage(page);
+    this.waitForPage = new WaitForCustomerPage(page);
   }
 
   /**

@@ -13,7 +13,7 @@ test.describe('Webhook Subscriptions', () => {
     await adminPage.signInAsNewAdminUser();
 
     await page.getByRole('menuitem', { name: 'Webhook Subscriptions' }).click();
-    await adminPage.waitForAdminPageToLoad();
+    await adminPage.waitForPage.adminPage();
     await expect(page.getByRole('heading', { name: 'Webhook Subscriptions' })).toBeVisible();
 
     const columnLabels = ['Id', 'Event key', 'Severity', 'Callback url', 'Status', 'Updated at'];
@@ -28,10 +28,10 @@ test.describe('WebhookSubscriptions Details Show Page', () => {
     await adminPage.signInAsNewAdminUser();
 
     await page.getByRole('menuitem', { name: 'Webhook Subscriptions' }).click();
-    await adminPage.waitForAdminPageToLoad();
+    await adminPage.waitForPage.adminPage();
     await expect(page.getByRole('heading', { name: 'Webhook Subscriptions' })).toBeVisible();
     await page.getByText(id).click();
-    await adminPage.waitForAdminPageToLoad();
+    await adminPage.waitForPage.adminPage();
 
     // check that the webhookSubscription's ID is shown in the page title
     expect(page.url()).toContain(id);
@@ -58,10 +58,10 @@ test.describe('WebhookSubscriptions Details Edit Page', () => {
     await adminPage.signInAsNewAdminUser();
 
     await page.getByRole('menuitem', { name: 'Webhook Subscriptions' }).click();
-    await adminPage.waitForAdminPageToLoad();
+    await adminPage.waitForPage.adminPage();
     await expect(page.getByRole('heading', { name: 'Webhook Subscriptions' })).toBeVisible();
     await page.getByText(id).click();
-    await adminPage.waitForAdminPageToLoad();
+    await adminPage.waitForPage.adminPage();
 
     // check labels on edit page
     const labels = [
@@ -77,7 +77,7 @@ test.describe('WebhookSubscriptions Details Edit Page', () => {
     await adminPage.expectLabels(labels);
 
     await page.getByRole('link', { name: 'Edit' }).click();
-    await adminPage.waitForAdminPageToLoad();
+    await adminPage.waitForPage.adminPage();
 
     // Change webhook subscription status
     // await page.locator('label', { hasText: 'Status' }).click();
@@ -86,7 +86,7 @@ test.describe('WebhookSubscriptions Details Edit Page', () => {
     await page.getByRole('option', { name: 'Disabled' }).click();
 
     await page.getByRole('button', { name: 'Save' }).click();
-    await adminPage.waitForAdminPageToLoad();
+    await adminPage.waitForPage.adminPage();
 
     // Check that the webhook subscription status was changed
     await expect(page.locator(`tr:has(:text("${id}")) >> td.column-status`)).toHaveText('DISABLED');
@@ -100,7 +100,7 @@ test.describe('Webhook Subscription Create Page', () => {
     await adminPage.signInAsNewAdminUser();
 
     await page.getByRole('menuitem', { name: 'Webhook Subscriptions' }).click();
-    await adminPage.waitForAdminPageToLoad();
+    await adminPage.waitForPage.adminPage();
     await expect(page.getByRole('heading', { name: 'Webhook Subscriptions' })).toBeVisible();
     await page.getByRole('link', { name: 'Create' }).click();
 
@@ -110,7 +110,7 @@ test.describe('Webhook Subscription Create Page', () => {
     await page.locator('div[id="status"]').click();
     await page.locator('li[data-value="ACTIVE"]').click();
     await page.getByRole('button').filter({ hasText: 'Save' }).click();
-    await adminPage.waitForAdminPageToLoad();
+    await adminPage.waitForPage.adminPage();
 
     const id = await page.locator('#id').inputValue();
     expect(page.url()).toContain(id);

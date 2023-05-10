@@ -11,7 +11,7 @@ test('Admin Users List Page', async ({ page, adminPage }) => {
   await adminPage.signInAsNewAdminUser();
 
   await page.getByRole('menuitem', { name: 'Admin Users' }).click();
-  await adminPage.waitForAdminPageToLoad();
+  await adminPage.waitForPage.adminPage();
   await expect(page.getByRole('heading', { name: 'Admin Users' })).toBeVisible();
 
   const columnLabels = ['Id', 'Email', 'First name', 'Last name', 'User Id', 'Active'];
@@ -23,11 +23,12 @@ test('Admin User Create Page', async ({ page, adminPage }) => {
   await adminPage.signInAsNewAdminUser();
 
   await page.getByRole('menuitem', { name: 'Admin Users' }).click();
-  await adminPage.waitForAdminPageToLoad();
+  await adminPage.waitForPage.adminPage();
   await expect(page.getByRole('heading', { name: 'Admin Users' })).toBeVisible();
 
   await page.getByRole('link', { name: 'Create' }).click();
-  await adminPage.waitForAdminPageToLoad();
+  await adminPage.waitForPage.adminPage();
+
   await expect(page.getByRole('heading', { name: 'Create Admin Users' })).toBeVisible();
 
   // we need to add the date to the email so that it is unique every time (only one record per email allowed in db)
@@ -44,7 +45,7 @@ test('Admin User Create Page', async ({ page, adminPage }) => {
   await page.getByRole('option').first().click();
 
   await page.getByRole('button').filter({ hasText: 'Save' }).click();
-  await adminPage.waitForAdminPageToLoad();
+  await adminPage.waitForPage.adminPage();
 
   // redirected to edit details page
   const adminUserID = await page.locator('#id').inputValue();
@@ -61,12 +62,12 @@ test('Admin Users Show Page', async ({ page, adminPage }) => {
   await adminPage.signInAsNewAdminUser();
 
   await page.getByRole('menuitem', { name: 'Admin Users' }).click();
-  await adminPage.waitForAdminPageToLoad();
+  await adminPage.waitForPage.adminPage();
   await expect(page.getByRole('heading', { name: 'Admin Users' })).toBeVisible();
 
   // Click first office user row
   await page.locator('tbody >> tr').first().click();
-  await adminPage.waitForAdminPageToLoad();
+  await adminPage.waitForPage.adminPage();
 
   // Get first id field and check that it's in the URL
   const id = await page.locator('.ra-field-id > span').first().textContent();
@@ -101,17 +102,18 @@ test('Admin Users Edit Page', async ({ page, adminPage }) => {
   const adminUserId = adminUser.id;
 
   await page.getByRole('menuitem', { name: 'Admin Users' }).click();
-  await adminPage.waitForAdminPageToLoad();
+  await adminPage.waitForPage.adminPage();
   await expect(page.getByRole('heading', { name: 'Admin Users' })).toBeVisible();
 
   // go directly to the show page for the admin user because if we
   // have created more than 25 admin users, the user may not be on the
   // first page and we don't have a search functionality for admin users
   await page.goto(`/system/admin-users/${adminUserId}/show`);
-  await adminPage.waitForAdminPageToLoad();
+  await adminPage.waitForPage.adminPage();
 
   await page.getByRole('link', { name: 'Edit' }).click();
-  await adminPage.waitForAdminPageToLoad();
+  await adminPage.waitForPage.adminPage();
+
   expect(page.url()).toContain(adminUserId);
 
   const disabledFields = ['id', 'email', 'userId', 'createdAt', 'updatedAt'];
@@ -133,12 +135,15 @@ test('Admin Users Edit Page', async ({ page, adminPage }) => {
 
   // Save updates
   await page.getByRole('button', { name: 'Save' }).click();
-  await adminPage.waitForAdminPageToLoad();
+
+  await adminPage.waitForPage.adminPage();
+
+  // back to list of all users
   expect(page.url()).not.toContain(adminUserId);
 
   // look at admin user's page to ensure changes were saved
   await page.getByText(adminUserId).click();
-  await adminPage.waitForAdminPageToLoad();
+  await adminPage.waitForPage.adminPage();
 
   await expect(page.locator('.ra-field-firstName > span')).toHaveText('NewFirst');
   await expect(page.locator('.ra-field-lastName > span')).toHaveText('NewLast');
@@ -146,7 +151,7 @@ test('Admin Users Edit Page', async ({ page, adminPage }) => {
 
   // go back to list of all users and ensure updated
   await page.getByRole('menuitem', { name: 'Admin Users' }).click();
-  await adminPage.waitForAdminPageToLoad();
+  await adminPage.waitForPage.adminPage();
   await expect(page.locator(`tr:has(:text("${adminUserId}")) >> td.column-firstName`)).toHaveText('NewFirst');
   await expect(page.locator(`tr:has(:text("${adminUserId}")) >> td.column-lastName`)).toHaveText('NewLast');
   await expect(page.locator(`tr:has(:text("${adminUserId}")) >> td.column-active >> svg`)).toHaveAttribute(
