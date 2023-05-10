@@ -10661,6 +10661,7 @@ func createMoveWithFutureSIT(appCtx appcontext.AppContext, userUploader *uploade
 func createMoveWithOriginAndDestinationSIT(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveLocator string) models.MTOServiceItem {
 	db := appCtx.DB()
 
+	sitDaysAllowance := 90
 	move := factory.BuildMove(db, []factory.Customization{
 		{
 			Model: models.Move{
@@ -10668,6 +10669,11 @@ func createMoveWithOriginAndDestinationSIT(appCtx appcontext.AppContext, userUpl
 				Locator:            moveLocator,
 				Status:             models.MoveStatusAPPROVED,
 				AvailableToPrimeAt: models.TimePointer(time.Now()),
+			},
+		},
+		{
+			Model: models.Entitlement{
+				StorageInTransit: &sitDaysAllowance,
 			},
 		},
 		{
@@ -10693,7 +10699,6 @@ func createMoveWithOriginAndDestinationSIT(appCtx appcontext.AppContext, userUpl
 		},
 	}, nil)
 
-	sitDaysAllowance := 90
 	mtoShipment := factory.BuildMTOShipment(db, []factory.Customization{
 		{
 			Model:    move,
