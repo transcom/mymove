@@ -3,17 +3,17 @@ package models_test
 import (
 	"time"
 
-	"github.com/gofrs/uuid"
-
 	"github.com/transcom/mymove/pkg/models"
 )
 
 func (suite *ModelSuite) TestMTOServiceItemCustomerContactValidation() {
 	suite.Run("test valid MTOServiceItemCustomerContact", func() {
-		mtoServiceItemDimensionID := uuid.Must(uuid.NewV4())
+		// TODO fix customer contact test data creation
+		//mtoServiceItemDimensionID := uuid.Must(uuid.NewV4())
 
 		validMTOServiceItemDimension := models.MTOServiceItemCustomerContact{
-			MTOServiceItemID:           mtoServiceItemDimensionID,
+			// TODO fix customer contact test data creation
+			//MTOServiceItemID:           mtoServiceItemDimensionID,
 			Type:                       models.CustomerContactTypeFirst,
 			TimeMilitary:               "0400Z",
 			FirstAvailableDeliveryDate: time.Now(),
@@ -24,7 +24,8 @@ func (suite *ModelSuite) TestMTOServiceItemCustomerContactValidation() {
 
 	suite.Run("test invalid MTOServiceItemCustomerContact", func() {
 		validMTOServiceItemDimension := models.MTOServiceItemCustomerContact{
-			MTOServiceItemID:           uuid.Nil,
+			// TODO fix customer contact test data creation
+			//MTOServiceItemID:           uuid.Nil,
 			Type:                       "NOT VALID",
 			TimeMilitary:               "",
 			FirstAvailableDeliveryDate: time.Time{},

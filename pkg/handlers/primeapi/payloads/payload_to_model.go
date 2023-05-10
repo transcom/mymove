@@ -419,7 +419,7 @@ func MTOServiceItemModel(mtoServiceItem primemessages.MTOServiceItem) (*models.M
 		}
 		if destsit.TimeMilitary2 != nil && destsit.FirstAvailableDeliveryDate2 != nil {
 			customerContacts = append(customerContacts, models.MTOServiceItemCustomerContact{
-				Type:                       models.CustomerContactTypeFirst,
+				Type:                       models.CustomerContactTypeSecond,
 				TimeMilitary:               *destsit.TimeMilitary2,
 				FirstAvailableDeliveryDate: time.Time(*destsit.FirstAvailableDeliveryDate2),
 			})

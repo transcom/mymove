@@ -5694,8 +5694,9 @@ func createHHGMoveWith10ServiceItems(appCtx appcontext.AppContext, userUploader 
 	testdatagen.MakeMTOServiceItemCustomerContact(db, testdatagen.Assertions{
 		MTOServiceItem: serviceItemDDFSIT,
 		MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
-			ID:                         uuid.FromStringOrNil("f0f38ee0-0148-4892-9b5b-a091a8c5a645"),
-			MTOServiceItemID:           serviceItemDDFSIT.ID,
+			ID: uuid.FromStringOrNil("f0f38ee0-0148-4892-9b5b-a091a8c5a645"),
+			// TODO fix customer contact test data creation
+			//MTOServiceItemID:           serviceItemDDFSIT.ID,
 			Type:                       models.CustomerContactTypeFirst,
 			TimeMilitary:               "0400Z",
 			FirstAvailableDeliveryDate: *firstDeliveryDate,
@@ -5705,8 +5706,9 @@ func createHHGMoveWith10ServiceItems(appCtx appcontext.AppContext, userUploader 
 	testdatagen.MakeMTOServiceItemCustomerContact(db, testdatagen.Assertions{
 		MTOServiceItem: serviceItemDDFSIT,
 		MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
-			ID:                         uuid.FromStringOrNil("1398aea3-d09b-485d-81c7-3bb72c21fb38"),
-			MTOServiceItemID:           serviceItemDDFSIT.ID,
+			ID: uuid.FromStringOrNil("1398aea3-d09b-485d-81c7-3bb72c21fb38"),
+			// TODO fix customer contact test data creation
+			//MTOServiceItemID:           serviceItemDDFSIT.ID,
 			Type:                       models.CustomerContactTypeSecond,
 			TimeMilitary:               "1200Z",
 			FirstAvailableDeliveryDate: firstDeliveryDate.Add(time.Hour * 24),
@@ -6635,8 +6637,9 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 	testdatagen.MakeMTOServiceItemCustomerContact(db, testdatagen.Assertions{
 		MTOServiceItem: serviceItemDDFSIT,
 		MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
-			ID:                         uuid.Must(uuid.NewV4()),
-			MTOServiceItemID:           serviceItemDDFSIT.ID,
+			ID: uuid.Must(uuid.NewV4()),
+			// TODO fix customer contact test data creation
+			//MTOServiceItemID:           serviceItemDDFSIT.ID,
 			Type:                       models.CustomerContactTypeFirst,
 			TimeMilitary:               "0400Z",
 			FirstAvailableDeliveryDate: time.Now(),
@@ -6646,8 +6649,9 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 	testdatagen.MakeMTOServiceItemCustomerContact(db, testdatagen.Assertions{
 		MTOServiceItem: serviceItemDDFSIT,
 		MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
-			ID:                         uuid.Must(uuid.NewV4()),
-			MTOServiceItemID:           serviceItemDDFSIT.ID,
+			ID: uuid.Must(uuid.NewV4()),
+			// TODO fix customer contact test data creation
+			//MTOServiceItemID:           serviceItemDDFSIT.ID,
 			Type:                       models.CustomerContactTypeSecond,
 			TimeMilitary:               "1200Z",
 			FirstAvailableDeliveryDate: time.Now().Add(time.Hour * 24),
@@ -7710,8 +7714,9 @@ func createMoveWith2ShipmentsAndPaymentRequest(appCtx appcontext.AppContext, use
 	testdatagen.MakeMTOServiceItemCustomerContact(db, testdatagen.Assertions{
 		MTOServiceItem: serviceItemDDFSIT,
 		MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
-			ID:                         uuid.Must(uuid.NewV4()),
-			MTOServiceItemID:           serviceItemDDFSIT.ID,
+			ID: uuid.Must(uuid.NewV4()),
+			// TODO fix customer contact test data creation
+			//MTOServiceItemID:           serviceItemDDFSIT.ID,
 			Type:                       models.CustomerContactTypeFirst,
 			TimeMilitary:               "0400Z",
 			FirstAvailableDeliveryDate: time.Now(),
@@ -7721,8 +7726,9 @@ func createMoveWith2ShipmentsAndPaymentRequest(appCtx appcontext.AppContext, use
 	testdatagen.MakeMTOServiceItemCustomerContact(db, testdatagen.Assertions{
 		MTOServiceItem: serviceItemDDFSIT,
 		MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
-			ID:                         uuid.Must(uuid.NewV4()),
-			MTOServiceItemID:           serviceItemDDFSIT.ID,
+			ID: uuid.Must(uuid.NewV4()),
+			// TODO fix customer contact test data creation
+			//MTOServiceItemID:           serviceItemDDFSIT.ID,
 			Type:                       models.CustomerContactTypeSecond,
 			TimeMilitary:               "1200Z",
 			FirstAvailableDeliveryDate: time.Now().Add(time.Hour * 24),

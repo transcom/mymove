@@ -268,10 +268,9 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 
 			// create customer contacts if any
 			for index := range requestedServiceItem.CustomerContacts {
-				createCustContacts := &requestedServiceItem.CustomerContacts[index]
-				if createCustContacts.ID == uuid.Nil {
-					// createCustContacts.MTOServiceItemID = requestedServiceItem.ID
-					verrs, err = o.builder.CreateOne(txnAppCtx, createCustContacts)
+				createCustContact := &requestedServiceItem.CustomerContacts[index]
+				if createCustContact.ID == uuid.Nil {
+					verrs, err = o.builder.CreateOne(txnAppCtx, createCustContact)
 					if verrs != nil || err != nil {
 						return fmt.Errorf("%#v %e", verrs, err)
 					}

@@ -22,9 +22,9 @@ const (
 
 // MTOServiceItemCustomerContact is an object representing customer contact for a service item.
 type MTOServiceItemCustomerContact struct {
-	ID                         uuid.UUID           `db:"id"`
-	MTOServiceItem             MTOServiceItem      `belongs_to:"mto_service_items" fk_id:"mto_service_item_id"`
-	MTOServiceItemID           uuid.UUID           `db:"mto_service_item_id"`
+	ID uuid.UUID `db:"id"`
+	//MTOServiceItem             MTOServiceItem      `belongs_to:"mto_service_items" fk_id:"mto_service_item_id"`
+	//MTOServiceItemID           uuid.UUID           `db:"mto_service_item_id"`
 	MTOServiceItems            MTOServiceItems     `many_to_many:"service_items_customer_contacts" db:"-"`
 	Type                       CustomerContactType `db:"type"`
 	TimeMilitary               string              `db:"time_military"`

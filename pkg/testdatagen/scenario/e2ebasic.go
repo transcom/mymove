@@ -3189,8 +3189,9 @@ func createMoveWithServiceItemsandPaymentRequests02(appCtx appcontext.AppContext
 	testdatagen.MakeMTOServiceItemCustomerContact(appCtx.DB(), testdatagen.Assertions{
 		MTOServiceItem: serviceItemDDFSIT,
 		MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
-			ID:                         uuid.FromStringOrNil("f0f38ee0-0148-4892-9b5b-a091a8c5a645"),
-			MTOServiceItemID:           serviceItemDDFSIT.ID,
+			ID: uuid.FromStringOrNil("f0f38ee0-0148-4892-9b5b-a091a8c5a645"),
+			// TODO fix customer contact test data creation
+			//MTOServiceItemID:           serviceItemDDFSIT.ID,
 			Type:                       models.CustomerContactTypeFirst,
 			TimeMilitary:               "0400Z",
 			FirstAvailableDeliveryDate: *firstDeliveryDate,
@@ -3200,8 +3201,9 @@ func createMoveWithServiceItemsandPaymentRequests02(appCtx appcontext.AppContext
 	testdatagen.MakeMTOServiceItemCustomerContact(appCtx.DB(), testdatagen.Assertions{
 		MTOServiceItem: serviceItemDDFSIT,
 		MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
-			ID:                         uuid.FromStringOrNil("1398aea3-d09b-485d-81c7-3bb72c21fb38"),
-			MTOServiceItemID:           serviceItemDDFSIT.ID,
+			ID: uuid.FromStringOrNil("1398aea3-d09b-485d-81c7-3bb72c21fb38"),
+			// TODO fix customer contact test data creation
+			//MTOServiceItemID:           serviceItemDDFSIT.ID,
 			Type:                       models.CustomerContactTypeSecond,
 			TimeMilitary:               "1200Z",
 			FirstAvailableDeliveryDate: firstDeliveryDate.Add(time.Hour * 24),

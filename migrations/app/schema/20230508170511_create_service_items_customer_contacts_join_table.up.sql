@@ -12,7 +12,7 @@ CREATE TABLE service_items_customer_contacts (
 	deleted_at TIMESTAMP without time zone
 );
 
-INSERT INTO service_items_customer_contacts (id, mto_service_item_id, mto_service_item_customer_contact_id)
+INSERT INTO service_items_customer_contacts (id, mtoservice_item_id, mtoservice_item_customer_contact_id)
 SELECT uuid_generate_v4(), msicc.mto_service_item_id, msicc.id FROM mto_service_item_customer_contacts msicc;
 
 ALTER TABLE mto_service_item_customer_contacts
