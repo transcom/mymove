@@ -5,7 +5,7 @@
  */
 
 // @ts-check
-import { test, expect } from '../utils/officeTest';
+import { test, expect } from '../utils/office/officeTest';
 
 const csrfForbiddenMsg = 'Forbidden - CSRF token invalid\n';
 const csrfForbiddenRespCode = 403;
