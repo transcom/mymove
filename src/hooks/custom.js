@@ -132,6 +132,8 @@ export function useTitle(string) {
   const { pathname } = useLocation();
   const subtitle = string || convertPathToSubtitle(pathname);
   useEffect(() => {
-    document.title = generatePageTitle(subtitle);
+    const title = generatePageTitle(subtitle);
+    document.title = title;
+    document.getElementById('title-announcer').textContent = title;
   });
 }
