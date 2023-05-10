@@ -72,7 +72,7 @@ test.describe('Office User Create Page', () => {
     await page.getByRole('option', { name: 'JPPSOTestyMcTest' }).first().click();
 
     await page.getByRole('button', { name: 'Save' }).click();
-    await adminPage.waitForAdminPageToLoad();
+    await adminPage.waitForPage.adminPage();
 
     // redirected to edit details page
     const officeUserID = await page.locator('#id').inputValue();
@@ -136,10 +136,10 @@ test.describe('Office Users Edit Page', () => {
     expect(page.url()).toContain('/system/office-users');
     await searchForOfficeUser(page, email);
     await page.getByText(email).click();
-    await adminPage.waitForAdminPageToLoad();
+    await adminPage.waitForPage.adminPage();
 
     await page.getByRole('button', { name: 'Edit' }).click();
-    await adminPage.waitForAdminPageToLoad();
+    await adminPage.waitForPage.adminPage();
 
     const disabledFields = ['id', 'email', 'userId', 'createdAt', 'updatedAt'];
     for (const field of disabledFields) {
@@ -164,7 +164,7 @@ test.describe('Office Users Edit Page', () => {
     await page.locator(`ul[aria-labelledby="active-label"] >> li[data-value="${newStatus}"]`).click();
 
     await page.getByRole('button', { name: 'Save' }).click();
-    await adminPage.waitForAdminPageToLoad();
+    await adminPage.waitForPage.adminPage();
 
     await searchForOfficeUser(page, email);
     await expect(page.locator(`tr:has(:text("${email}")) >> td.column-active >> svg`)).toHaveAttribute(
