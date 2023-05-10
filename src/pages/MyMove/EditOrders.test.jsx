@@ -6,18 +6,11 @@ import { EditOrders } from './EditOrders';
 
 import { patchOrders } from 'services/internalApi';
 
-const mockPush = jest.fn();
-const mockGoBack = jest.fn();
+const mockNavigate = jest.fn();
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useLocation: () => ({
-    pathname: 'localhost:3000/',
-  }),
-  useHistory: () => ({
-    push: mockPush,
-    goBack: mockGoBack,
-  }),
+  useNavigate: () => mockNavigate,
 }));
 
 jest.mock('services/internalApi', () => ({
@@ -118,7 +111,7 @@ describe('EditOrders Page', () => {
     await userEvent.click(cancel);
 
     await waitFor(() => {
-      expect(mockGoBack).toHaveBeenCalled();
+      expect(mockNavigate).toHaveBeenCalled();
     });
   });
 
@@ -148,7 +141,7 @@ describe('EditOrders Page', () => {
     });
 
     expect(screen.queryByText('A server error occurred saving the orders')).toBeInTheDocument();
-    expect(mockPush).not.toHaveBeenCalled();
+    expect(mockNavigate).not.toHaveBeenCalled();
   });
 
   it('next button patches the orders and goes to the previous page', async () => {
@@ -165,7 +158,8 @@ describe('EditOrders Page', () => {
       expect(patchOrders).toHaveBeenCalledTimes(1);
     });
 
-    expect(mockGoBack).toHaveBeenCalledTimes(1);
+    expect(mockNavigate).toHaveBeenCalledTimes(1);
+    expect(mockNavigate).toHaveBeenCalledWith(-1);
   });
 
   it('displays a flash message with the entitlement when the dependents value is updated', async () => {
@@ -194,7 +188,8 @@ describe('EditOrders Page', () => {
       );
     });
 
-    expect(mockGoBack).toHaveBeenCalledTimes(1);
+    expect(mockNavigate).toHaveBeenCalledTimes(1);
+    expect(mockNavigate).toHaveBeenCalledWith(-1);
   });
 
   afterEach(jest.clearAllMocks);

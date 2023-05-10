@@ -101,7 +101,7 @@ describe('MoveAllowances page', () => {
       useOrdersDocumentQueries.mockReturnValue(loadingReturnValue);
 
       render(
-        <MockProviders initialEntries={['moves/1000/allowances']}>
+        <MockProviders>
           <MoveAllowances />
         </MockProviders>,
       );
@@ -114,7 +114,7 @@ describe('MoveAllowances page', () => {
       useOrdersDocumentQueries.mockReturnValue(errorReturnValue);
 
       render(
-        <MockProviders initialEntries={['moves/1000/allowances']}>
+        <MockProviders>
           <MoveAllowances />
         </MockProviders>,
       );
@@ -129,7 +129,7 @@ describe('MoveAllowances page', () => {
 
     it('renders the sidebar elements', async () => {
       render(
-        <MockProviders initialEntries={['moves/1000/allowances']}>
+        <MockProviders>
           <MoveAllowances />
         </MockProviders>,
       );
@@ -141,7 +141,7 @@ describe('MoveAllowances page', () => {
 
     it('renders displays the allowances in the sidebar form', async () => {
       render(
-        <MockProviders initialEntries={['moves/1000/allowances']}>
+        <MockProviders>
           <MoveAllowances />
         </MockProviders>,
       );
