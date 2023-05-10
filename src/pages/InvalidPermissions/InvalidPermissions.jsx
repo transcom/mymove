@@ -2,7 +2,7 @@ import React from 'react';
 import qs from 'query-string';
 import { bool, shape, string } from 'prop-types';
 import { Button, ButtonGroup } from '@trussworks/react-uswds';
-import { useHistory } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import '../../styles/office.scss';
 import styles from './InvalidPermissions.module.scss';
@@ -13,10 +13,11 @@ import { LogoutUser } from 'utils/api';
 import { logOut } from 'store/auth/actions';
 import { withContext } from 'shared/AppContext';
 import Alert from 'shared/Alert';
-import { LocationShape } from 'types/index';
 
-const InvalidPermissions = ({ context, location }) => {
-  const history = useHistory();
+const InvalidPermissions = ({ context }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const { siteName } = context;
   const { traceId } = qs.parse(location.search);
   const signoutClass = siteName === 'my.move.mil' ? styles.signInButton : 'usa-button';
@@ -28,8 +29,7 @@ const InvalidPermissions = ({ context, location }) => {
       if (redirectURL) {
         window.location.href = redirectURL;
       } else {
-        history.push({
-          pathname: '/sign-in',
+        navigate('/sign-in', {
           state: { hasLoggedOut: true },
         });
       }
@@ -79,7 +79,6 @@ InvalidPermissions.propTypes = {
     siteName: string,
     showLoginWarning: bool,
   }).isRequired,
-  location: LocationShape.isRequired,
 };
 
 InvalidPermissions.defaultProps = {};

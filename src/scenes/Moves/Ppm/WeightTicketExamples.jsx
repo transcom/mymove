@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import weightTixExample from 'shared/images/weight_tix_example.png';
 import weightScenario1 from 'shared/images/weight_scenario1.png';
 import weightScenario2 from 'shared/images/weight_scenario2.png';
@@ -7,8 +8,9 @@ import weightScenario4 from 'shared/images/weight_scenario4.png';
 import weightScenario5 from 'shared/images/weight_scenario5.png';
 
 function WeightTicketExamples(props) {
+  const navigate = useNavigate();
   function goBack() {
-    props.history.goBack();
+    navigate(-1);
   }
   return (
     <div className="usa-grid weight-ticket-example-container">

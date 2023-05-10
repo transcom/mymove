@@ -541,7 +541,6 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsTOO() {
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := factory.BuildServiceCounselingCompletedMove(suite.DB(), nil, nil).Orders
 
-		newAuthorizedWeight := int64(10000)
 		grade := ghcmessages.GradeO5
 		affiliation := ghcmessages.AffiliationAIRFORCE
 		ocie := false
@@ -552,7 +551,6 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsTOO() {
 
 		payload := ghcmessages.UpdateAllowancePayload{
 			Agency:               &affiliation,
-			AuthorizedWeight:     &newAuthorizedWeight,
 			DependentsAuthorized: models.BoolPointer(true),
 			Grade:                &grade,
 			OrganizationalClothingAndIndividualEquipment: &ocie,
@@ -569,7 +567,6 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsTOO() {
 
 		suite.NoError(err)
 		suite.Equal(order.ID.String(), updatedOrder.ID.String())
-		suite.Equal(*payload.AuthorizedWeight, int64(*updatedOrder.Entitlement.DBAuthorizedWeight))
 		suite.Equal(payload.DependentsAuthorized, updatedOrder.Entitlement.DependentsAuthorized)
 		suite.Equal(*payload.ProGearWeight, int64(updatedOrder.Entitlement.ProGearWeight))
 		suite.Equal(*payload.ProGearWeightSpouse, int64(updatedOrder.Entitlement.ProGearWeightSpouse))

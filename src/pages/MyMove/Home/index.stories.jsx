@@ -28,7 +28,7 @@ const uploadOrdersProps = {
   },
   showLoggedInUser() {},
   loadMTOShipments() {},
-  history: { push: () => {}, goBack: () => {} },
+  router: { navigate: () => {} },
   getSignedCertification() {},
   updateShipmentList() {},
   mtoShipments: [],

@@ -5,8 +5,9 @@ import CustomerSupportRemarks from './CustomerSupportRemarks';
 
 import { MockProviders } from 'testUtils';
 import { useCustomerSupportRemarksQueries } from 'hooks/queries';
+import { qaeCSRRoutes } from 'constants/routes';
 
-const mockMoveLocator = 'SPTRMK';
+const moveCode = 'SPTRMK';
 
 jest.mock('hooks/queries', () => ({
   useCustomerSupportRemarksQueries: jest.fn(),
@@ -33,7 +34,7 @@ describe('Customer support remarks page', () => {
   it('renders the page successfully', async () => {
     useCustomerSupportRemarksQueries.mockReturnValue(remarkData);
     render(
-      <MockProviders initialEntries={[`moves/${mockMoveLocator}/customer-support-remarks`]}>
+      <MockProviders path={qaeCSRRoutes.BASE_CUSTOMER_SUPPORT_REMARKS_PATH} params={{ moveCode }}>
         <CustomerSupportRemarks />
       </MockProviders>,
     );

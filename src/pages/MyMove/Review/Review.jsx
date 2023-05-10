@@ -1,8 +1,8 @@
 import React from 'react';
-import { func, arrayOf } from 'prop-types';
+import { arrayOf } from 'prop-types';
 import { connect } from 'react-redux';
 import { GridContainer, Grid } from '@trussworks/react-uswds';
-import { generatePath } from 'react-router';
+import { generatePath, useNavigate, useParams } from 'react-router-dom';
 
 import styles from './Review.module.scss';
 
@@ -16,20 +16,21 @@ import { selectCurrentMove, selectMTOShipmentsForCurrentMove } from 'store/entit
 import formStyles from 'styles/form.module.scss';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { MoveShape } from 'types/customerShapes';
-import { MatchShape } from 'types/router';
 import { ShipmentShape } from 'types/shipment';
 import { isPPMShipmentComplete } from 'utils/shipments';
 
-const Review = ({ currentMove, mtoShipments, push, match }) => {
+const Review = ({ currentMove, mtoShipments }) => {
+  const navigate = useNavigate();
+  const { moveId } = useParams();
   const handleCancel = () => {
-    push(generalRoutes.HOME_PATH);
+    navigate(generalRoutes.HOME_PATH);
   };
 
   const handleNext = () => {
     const nextPath = generatePath(customerRoutes.MOVE_AGREEMENT_PATH, {
-      moveId: match.params.moveId,
+      moveId,
     });
-    push(nextPath);
+    navigate(nextPath);
   };
 
   const inDraftStatus = currentMove.status === MOVE_STATUSES.DRAFT;
@@ -78,8 +79,6 @@ const Review = ({ currentMove, mtoShipments, push, match }) => {
 Review.propTypes = {
   currentMove: MoveShape.isRequired,
   mtoShipments: arrayOf(ShipmentShape).isRequired,
-  push: func.isRequired,
-  match: MatchShape.isRequired,
 };
 
 const mapStateToProps = (state, ownProps) => {
