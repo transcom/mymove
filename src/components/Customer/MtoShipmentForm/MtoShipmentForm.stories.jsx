@@ -1,23 +1,16 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import { Provider } from 'react-redux';
-import { ConnectedRouter } from 'connected-react-router';
 
 import MtoShipmentForm from './MtoShipmentForm';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
-import { history, store } from 'shared/store';
+import { store } from 'shared/store';
+import { MockRouterProvider } from 'testUtils';
 
 const defaultProps = {
   pageList: ['page1', 'anotherPage/:foo/:bar'],
   pageKey: 'page1',
-  match: {
-    isExact: false,
-    path: 'moves/:moveId/shipments/:mtoShipmentId/edit?shipmentNumber=2',
-    url: '',
-    params: { moveId: 'move123' },
-  },
-  history: { push: () => {}, goBack: () => {} },
   showLoggedInUser: () => {},
   newDutyLocationAddress: {
     city: 'Fort Benning',
@@ -89,9 +82,9 @@ export default {
 function renderStory(props) {
   return (
     <Provider store={store}>
-      <ConnectedRouter history={history}>
+      <MockRouterProvider>
         <MtoShipmentForm {...defaultProps} {...props} />
-      </ConnectedRouter>
+      </MockRouterProvider>
     </Provider>
   );
 }

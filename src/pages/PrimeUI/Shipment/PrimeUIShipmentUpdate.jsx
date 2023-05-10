@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
-import { useHistory, useParams, withRouter } from 'react-router-dom';
-import { generatePath } from 'react-router';
+import { useNavigate, useParams, generatePath } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 import { Alert, Button, Grid, GridContainer } from '@trussworks/react-uswds';
 import { connect } from 'react-redux';
@@ -33,10 +32,10 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
   const { moveTaskOrder, isLoading, isError } = usePrimeSimulatorGetMove(moveCodeOrID);
   const mtoShipments = moveTaskOrder?.mtoShipments;
   const shipment = mtoShipments?.find((mtoShipment) => mtoShipment?.id === shipmentId);
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const handleClose = () => {
-    history.push(generatePath(primeSimulatorRoutes.VIEW_MOVE_PATH, { moveCodeOrID }));
+    navigate(generatePath(primeSimulatorRoutes.VIEW_MOVE_PATH, { moveCodeOrID }));
   };
 
   const { mutateAsync: mutateMTOShipmentStatus } = useMutation(updatePrimeMTOShipmentStatus, {
@@ -391,4 +390,4 @@ const mapDispatchToProps = {
   setFlashMessage: setFlashMessageAction,
 };
 
-export default withRouter(connect(() => ({}), mapDispatchToProps)(PrimeUIShipmentUpdate));
+export default connect(() => ({}), mapDispatchToProps)(PrimeUIShipmentUpdate);

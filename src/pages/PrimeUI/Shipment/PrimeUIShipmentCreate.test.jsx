@@ -1,27 +1,26 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { generatePath } from 'react-router';
+import { generatePath } from 'react-router-dom';
 
 import { primeSimulatorRoutes } from 'constants/routes';
 import { MockProviders } from 'testUtils';
 import { createPrimeMTOShipment } from 'services/primeApi';
 import PrimeUIShipmentCreate from 'pages/PrimeUI/Shipment/PrimeUIShipmentCreate';
 
+const moveCode = 'LR4T8V';
 const moveId = '9c7b255c-2981-4bf8-839f-61c7458e2b4d';
+const shipmentId = 'ce01a5b8-9b44-4511-8a8d-edb60f2a4aee';
+const routingParams = {
+  moveCode,
+  moveCodeOrID: moveId,
+  shipmentId,
+};
 
-const mockPush = jest.fn();
-
+const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useParams: jest.fn().mockReturnValue({
-    moveCode: 'LR4T8V',
-    moveCodeOrID: '9c7b255c-2981-4bf8-839f-61c7458e2b4d',
-    shipmentId: 'ce01a5b8-9b44-4511-8a8d-edb60f2a4aee',
-  }),
-  useHistory: () => ({
-    push: mockPush,
-  }),
+  useNavigate: () => mockNavigate,
 }));
 
 jest.mock('services/primeApi', () => ({
@@ -29,13 +28,10 @@ jest.mock('services/primeApi', () => ({
   createPrimeMTOShipment: jest.fn().mockImplementation(() => Promise.resolve()),
 }));
 
-const createShipmentURL = generatePath(primeSimulatorRoutes.CREATE_SHIPMENT_PATH, {
-  moveCodeOrID: moveId,
-});
 const moveDetailsURL = generatePath(primeSimulatorRoutes.VIEW_MOVE_PATH, { moveCodeOrID: moveId });
 
 const mockedComponent = (
-  <MockProviders initialEntries={[createShipmentURL]}>
+  <MockProviders path={primeSimulatorRoutes.CREATE_SHIPMENT_PATH} params={routingParams}>
     <PrimeUIShipmentCreate setFlashMessage={jest.fn()} />
   </MockProviders>
 );
@@ -48,17 +44,15 @@ describe('Create Shipment Page', () => {
   });
 
   it('navigates the user to the home page when the cancel button is clicked', async () => {
-    render(
-      <MockProviders>
-        <PrimeUIShipmentCreate setFlashMessage={jest.fn()} />
-      </MockProviders>,
-    );
+    render(mockedComponent);
+
+    expect(await screen.findByText('Shipment Type')).toBeInTheDocument();
 
     const cancel = screen.getByRole('button', { name: 'Cancel' });
     await userEvent.click(cancel);
 
     await waitFor(() => {
-      expect(mockPush).toHaveBeenCalledWith(moveDetailsURL);
+      expect(mockNavigate).toHaveBeenCalledWith(moveDetailsURL);
     });
   });
 });
@@ -67,11 +61,7 @@ describe('successful submission of form', () => {
   it('calls history router back to move details', async () => {
     createPrimeMTOShipment.mockReturnValue({});
 
-    render(
-      <MockProviders>
-        <PrimeUIShipmentCreate setFlashMessage={jest.fn()} />
-      </MockProviders>,
-    );
+    render(mockedComponent);
 
     await userEvent.selectOptions(screen.getByLabelText('Shipment type'), 'HHG');
 
@@ -81,7 +71,7 @@ describe('successful submission of form', () => {
     await userEvent.click(saveButton);
 
     await waitFor(() => {
-      expect(mockPush).toHaveBeenCalledWith(moveDetailsURL);
+      expect(mockNavigate).toHaveBeenCalledWith(moveDetailsURL);
     });
   });
 });

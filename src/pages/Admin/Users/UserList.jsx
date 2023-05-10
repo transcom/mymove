@@ -12,17 +12,15 @@ const UserFilter = (props) => (
 
 const defaultSort = { field: 'loginGovEmail', order: 'ASC' };
 
-const UserList = (props) => (
+const UserList = () => (
   <List
-    /* eslint-disable-next-line react/jsx-props-no-spreading */
-    {...props}
     filters={<UserFilter />}
     pagination={<AdminPagination />}
     perPage={25}
     sort={defaultSort}
     bulkActionButtons={false}
   >
-    <Datagrid data-testid="user-data-grid" rowClick="show">
+    <Datagrid bulkActionButtons={false} data-testid="user-data-grid" rowClick="show">
       <TextField data-testid="user-id" source="id" />
       <TextField source="loginGovEmail" label="Email" />
       <BooleanField source="active" />

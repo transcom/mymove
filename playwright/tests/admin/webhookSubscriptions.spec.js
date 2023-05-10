@@ -47,7 +47,7 @@ test.describe('WebhookSubscriptions Details Show Page', () => {
       'Updated at',
       'Severity',
     ];
-    await adminPage.expectLocatorLabelsByText('label', labels);
+    await adminPage.expectLabels(labels);
   });
 });
 
@@ -74,9 +74,9 @@ test.describe('WebhookSubscriptions Details Edit Page', () => {
       'Updated at',
       'Severity',
     ];
-    await adminPage.expectLocatorLabelsByText('label', labels);
+    await adminPage.expectLabels(labels);
 
-    await page.getByRole('button', { name: 'Edit' }).click();
+    await page.getByRole('link', { name: 'Edit' }).click();
     await adminPage.waitForPage.adminPage();
 
     // Change webhook subscription status
@@ -102,7 +102,7 @@ test.describe('Webhook Subscription Create Page', () => {
     await page.getByRole('menuitem', { name: 'Webhook Subscriptions' }).click();
     await adminPage.waitForPage.adminPage();
     await expect(page.getByRole('heading', { name: 'Webhook Subscriptions' })).toBeVisible();
-    await page.getByRole('button', { name: 'Create' }).click();
+    await page.getByRole('link', { name: 'Create' }).click();
 
     await page.getByLabel('Subscriber Id').fill(subId);
     await page.getByLabel('Event key').fill('PaymentRequest.Update');

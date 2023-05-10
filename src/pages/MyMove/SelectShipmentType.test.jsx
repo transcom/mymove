@@ -9,7 +9,8 @@ import { SelectShipmentType } from 'pages/MyMove/SelectShipmentType';
 describe('SelectShipmentType', () => {
   const defaultProps = {
     updateMove: jest.fn(),
-    push: jest.fn(),
+    router: { navigate: jest.fn() },
+
     loadMTOShipments: jest.fn(),
     move: { id: 'mockId', status: MOVE_STATUSES.DRAFT },
     mtoShipments: [],

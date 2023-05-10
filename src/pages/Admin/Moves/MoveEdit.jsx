@@ -8,9 +8,14 @@ const MoveEditToolbar = (props) => (
   </Toolbar>
 );
 
-const MoveEdit = (props) => (
-  <Edit {...props}>
-    <SimpleForm toolbar={<MoveEditToolbar />}>
+const MoveEdit = () => (
+  <Edit>
+    <SimpleForm
+      toolbar={<MoveEditToolbar />}
+      sx={{ '& .MuiInputBase-input': { width: 232 } }}
+      mode="onBlur"
+      reValidateMode="onBlur"
+    >
       <TextInput source="id" disabled />
       <TextInput source="locator" disabled />
       <TextInput source="status" disabled />
@@ -20,6 +25,7 @@ const MoveEdit = (props) => (
           { id: true, name: 'Yes' },
           { id: false, name: 'No' },
         ]}
+        sx={{ width: 256 }}
       />
       <TextInput source="ordersId" reference="moves" label="Order Id" disabled />
       <TextInput source="serviceMember.userId" label="User Id" disabled />

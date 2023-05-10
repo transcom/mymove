@@ -1,23 +1,25 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 
 import { MovingInfo } from './MovingInfo';
+
+import { renderWithRouterProp } from 'testUtils';
+import { customerRoutes } from 'constants/routes';
 
 describe('MovingInfo component', () => {
   const testProps = {
     entitlementWeight: 7000,
     fetchLatestOrders: jest.fn(),
     serviceMemberId: '1234567890',
-    match: {
-      params: { moveId: 'testMove123' },
-    },
-    location: {},
-    history: { push: jest.fn() },
+  };
+  const routingOptions = {
+    path: customerRoutes.SHIPMENT_MOVING_INFO_PATH,
+    params: { moveId: 'testMove123' },
   };
 
   it('renders the expected content', () => {
-    render(<MovingInfo {...testProps} />);
+    renderWithRouterProp(<MovingInfo {...testProps} />, routingOptions);
 
     expect(
       screen.getByRole('heading', { level: 1, name: 'Things to know about selecting shipments' }),
@@ -27,7 +29,7 @@ describe('MovingInfo component', () => {
   });
 
   it('renders with no errors when entitlement weight is 0', () => {
-    render(<MovingInfo {...testProps} entitlementWeight={0} />);
+    renderWithRouterProp(<MovingInfo {...testProps} entitlementWeight={0} />, routingOptions);
 
     expect(
       screen.getByRole('heading', { level: 1, name: 'Things to know about selecting shipments' }),

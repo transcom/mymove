@@ -32,7 +32,8 @@ test('Moves Details Show Page', async ({ page, adminPage }) => {
   await page.locator('span[reference="moves"]').first().click();
   await adminPage.waitForPage.adminPage();
 
-  const id = await page.locator('div:has(label :text-is("Id")) > div > span').textContent();
+  // Get first id field and check that it's in the URL
+  const id = await page.locator('.ra-field-id > span').first().textContent();
   expect(page.url()).toContain(id);
   await expect(page.getByRole('heading', { name: `Move ID: ${id}` })).toBeVisible();
 
@@ -51,7 +52,7 @@ test('Moves Details Show Page', async ({ page, adminPage }) => {
     'Service member last name',
   ];
 
-  await adminPage.expectLocatorLabelsByText('label', labels, { exact: true });
+  await adminPage.expectLabels(labels);
 });
 
 test('Moves Details Edit Page', async ({ page, adminPage }) => {
@@ -75,8 +76,9 @@ test('Moves Details Edit Page', async ({ page, adminPage }) => {
   await adminPage.waitForPage.adminPage();
   expect(page.url()).toContain(moveId);
 
-  await page.getByRole('button', { name: 'Edit' }).click();
+  await page.getByRole('link', { name: 'Edit' }).click();
   await adminPage.waitForPage.adminPage();
+
   expect(page.url()).toContain(moveId);
 
   const disabledFields = [

@@ -1,59 +1,134 @@
 import React from 'react';
-import { mount, shallow } from 'enzyme';
+import { cleanup, render, screen } from '@testing-library/react';
+import routeData from 'react-router-dom';
 
 import SignIn from './SignIn';
 
-import Alert from 'shared/Alert';
+import { MockRouterProvider } from 'testUtils';
+
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: () => jest.fn(),
+}));
+
+afterEach(() => {
+  jest.resetAllMocks();
+  cleanup();
+  jest.spyOn(routeData, 'useLocation').mockReturnValue({
+    pathname: '/',
+    search: '',
+    state: null,
+  });
+});
 
 describe('SignIn tests', () => {
   it('renders without crashing', () => {
-    const div = document.createElement('div');
-    shallow(<SignIn />, div);
+    render(
+      <MockRouterProvider>
+        <SignIn />
+      </MockRouterProvider>,
+    );
   });
+
   it('does not render content of error parameter', () => {
+    jest.spyOn(routeData, 'useLocation').mockReturnValue({
+      pathname: '/sign-in',
+      search: '?error=SOME_ERROR',
+      state: null,
+    });
+
     const context = { siteName: 'TestMove' };
-    const location = { search: '?error=SOME_ERROR' };
-    const wrapper = mount(<SignIn location={location} />, { context });
-    expect(wrapper.find(Alert).text()).not.toContain('SOME_ERROR');
+    render(
+      <MockRouterProvider>
+        <SignIn context={context} />
+      </MockRouterProvider>,
+    );
+
+    expect(screen.getByText('An error occurred')).toBeInTheDocument();
+    expect(
+      screen.getByText('There was an error during your last sign in attempt. Please try again.'),
+    ).toBeInTheDocument();
+    expect(screen.queryByText('SOME_ERROR')).not.toBeInTheDocument();
   });
 
   it('shows the EULA when the signin button is clicked and hides the EULA when cancel is clicked', () => {
     const context = { siteName: 'TestMove' };
-    const location = { search: '' };
-    const wrapper = mount(<SignIn location={location} />, { context });
-    expect(wrapper.find('[data-testid="modal"]').length).toEqual(0);
-    wrapper.find('button[data-testid="signin"]').simulate('click');
-    expect(wrapper.find('[data-testid="modal"]').length).toEqual(1);
-    const CancelButton = wrapper.find('button[aria-label="Cancel"]');
-    CancelButton.simulate('click');
-    expect(wrapper.find('[data-testid="modal"]').length).toEqual(0);
+    render(
+      <MockRouterProvider>
+        <SignIn context={context} />
+      </MockRouterProvider>,
+    );
+
+    expect(screen.queryByTestId('modal')).not.toBeInTheDocument();
+    screen.getByTestId('signin').click();
+    expect(screen.getByTestId('modal')).toBeInTheDocument();
+    screen.getByLabelText('Cancel').click();
+    expect(screen.queryByTestId('modal')).not.toBeInTheDocument();
   });
 
   it('show logout message when hasLoggedOut state is true', () => {
+    jest.spyOn(routeData, 'useLocation').mockReturnValue({
+      pathname: '/sign-in',
+      search: '',
+      state: { hasLoggedOut: true },
+    });
+
     const context = { siteName: 'TestMove' };
-    const location = { state: { hasLoggedOut: true } };
-    const wrapper = mount(<SignIn location={location} />, { context });
-    expect(wrapper.find(Alert).text()).toContain('You have signed out of MilMove');
+    render(
+      <MockRouterProvider>
+        <SignIn context={context} />
+      </MockRouterProvider>,
+    );
+
+    expect(screen.getByText('You have signed out of MilMove')).toBeInTheDocument();
   });
 
   it('does not show logout message when hasLoggedOut state is false', () => {
+    jest.spyOn(routeData, 'useLocation').mockReturnValue({
+      pathname: '/sign-in',
+      search: '',
+      state: { hasLoggedOut: false },
+    });
+
     const context = { siteName: 'TestMove' };
-    const location = { state: { hasLoggedOut: false } };
-    const wrapper = mount(<SignIn location={location} />, { context });
-    expect(wrapper.find(Alert).length).toEqual(0);
+    render(
+      <MockRouterProvider>
+        <SignIn context={context} />
+      </MockRouterProvider>,
+    );
+
+    expect(screen.queryByText('You have signed out of MilMove')).not.toBeInTheDocument();
   });
 
   it('show logout message when timedout state is true', () => {
+    jest.spyOn(routeData, 'useLocation').mockReturnValue({
+      pathname: '/sign-in',
+      search: '',
+      state: { timedout: true },
+    });
+
     const context = { siteName: 'TestMove' };
-    const location = { state: { timedout: true } };
-    const wrapper = mount(<SignIn location={location} />, { context });
-    expect(wrapper.find(Alert).text()).toContain('You have been logged out due to inactivity');
+    render(
+      <MockRouterProvider>
+        <SignIn context={context} />
+      </MockRouterProvider>,
+    );
+    expect(screen.getByText('You have been logged out due to inactivity.')).toBeInTheDocument();
   });
 
   it('does not show logout message when timedout state is false', () => {
+    jest.spyOn(routeData, 'useLocation').mockReturnValue({
+      pathname: '/sign-in',
+      search: '',
+      state: { timedout: false },
+    });
+
     const context = { siteName: 'TestMove' };
-    const location = { state: { timedout: false } };
-    const wrapper = mount(<SignIn location={location} />, { context });
-    expect(wrapper.find(Alert).length).toEqual(0);
+    render(
+      <MockRouterProvider>
+        <SignIn context={context} />
+      </MockRouterProvider>,
+    );
+    expect(screen.queryByText('You have been logged out due to inactivity.')).not.toBeInTheDocument();
   });
 });
