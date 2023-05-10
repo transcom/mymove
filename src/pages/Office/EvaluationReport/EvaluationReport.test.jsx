@@ -1,12 +1,12 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
-import ReactRouter from 'react-router';
+import { screen, waitFor } from '@testing-library/react';
 
 import EvaluationReport from './EvaluationReport';
 
-import { MockProviders } from 'testUtils';
+import { renderWithProviders } from 'testUtils';
 import { useEvaluationReportShipmentListQueries } from 'hooks/queries';
+import { qaeCSRRoutes } from 'constants/routes';
 
 const mockReportId = 'db30c135-1d6d-4a0d-a6d5-f408474f6ee2';
 const mockMtoRefId = '6789-1234';
@@ -20,6 +20,7 @@ const mockOrders = {
   agency: 'COAST_GUARD',
 };
 const destinationDutyLocationPostalCode = '90210';
+const routingParams = { moveCode: 'LR4T8V', reportId: mockReportId };
 
 jest.mock('hooks/queries', () => ({
   useEvaluationReportShipmentListQueries: jest.fn(),
@@ -134,17 +135,15 @@ const mockCounselingData = {
 describe('EvaluationReport', () => {
   it('renders the page components for shipment report', async () => {
     useEvaluationReportShipmentListQueries.mockReturnValue(mockShipmentData);
-    jest.spyOn(ReactRouter, 'useParams').mockReturnValue({ reportId: mockReportId });
 
-    render(
-      <MockProviders initialEntries={[`/moves/LR4T8V/evaluation-reports/${mockReportId}`]}>
-        <EvaluationReport
-          customerInfo={mockCustomer}
-          orders={mockOrders}
-          grade={mockOrders.grade}
-          destinationDutyLocationPostalCode={destinationDutyLocationPostalCode}
-        />
-      </MockProviders>,
+    renderWithProviders(
+      <EvaluationReport
+        customerInfo={mockCustomer}
+        orders={mockOrders}
+        grade={mockOrders.grade}
+        destinationDutyLocationPostalCode={destinationDutyLocationPostalCode}
+      />,
+      { path: qaeCSRRoutes.BASE_EVALUATION_REPORT_PATH, params: routingParams },
     );
 
     await waitFor(() => {
@@ -165,15 +164,13 @@ describe('EvaluationReport', () => {
 
   it('renders the page components for counseling report', async () => {
     useEvaluationReportShipmentListQueries.mockReturnValue(mockCounselingData);
-    jest.spyOn(ReactRouter, 'useParams').mockReturnValue({ reportId: mockReportId });
-    render(
-      <MockProviders initialEntries={[`/moves/LR4T8V/evaluation-reports/${mockReportId}`]}>
-        <EvaluationReport
-          grade={mockOrders.grade}
-          customerInfo={mockCustomer}
-          destinationDutyLocationPostalCode={destinationDutyLocationPostalCode}
-        />
-      </MockProviders>,
+    renderWithProviders(
+      <EvaluationReport
+        grade={mockOrders.grade}
+        customerInfo={mockCustomer}
+        destinationDutyLocationPostalCode={destinationDutyLocationPostalCode}
+      />,
+      { path: qaeCSRRoutes.BASE_EVALUATION_REPORT_PATH, params: routingParams },
     );
 
     await waitFor(() => {

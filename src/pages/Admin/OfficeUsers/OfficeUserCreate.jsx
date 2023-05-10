@@ -4,9 +4,9 @@ import { Create, SimpleForm, TextInput, ReferenceInput, AutocompleteInput, requi
 import { RolesCheckboxInput } from 'scenes/SystemAdmin/shared/RolesCheckboxes';
 import { phoneValidators } from 'scenes/SystemAdmin/shared/form_validators';
 
-const OfficeUserCreate = (props) => (
-  <Create {...props}>
-    <SimpleForm>
+const OfficeUserCreate = () => (
+  <Create>
+    <SimpleForm sx={{ '& .MuiInputBase-input': { width: 232 } }} mode="onBlur" reValidateMode="onBlur">
       <TextInput source="firstName" validate={required()} />
       <TextInput source="middleInitials" />
       <TextInput source="lastName" validate={required()} />
@@ -20,7 +20,7 @@ const OfficeUserCreate = (props) => (
         perPage={500}
         validate={required()}
       >
-        <AutocompleteInput optionText="name" />
+        <AutocompleteInput optionText="name" validate={required()} sx={{ width: 256 }} />
       </ReferenceInput>
     </SimpleForm>
   </Create>

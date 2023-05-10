@@ -7,6 +7,7 @@ package ghcmessages
 
 import (
 	"context"
+	"encoding/json"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
@@ -28,6 +29,11 @@ type ApproveSITExtension struct {
 	// Remarks from TOO about SIT approval
 	// Example: Approved for three weeks rather than requested 45 days
 	OfficeRemarks *string `json:"officeRemarks,omitempty"`
+
+	// Reason from service counselor-provided picklist for SIT Duration Update
+	// Example: AWAITING_COMPLETION_OF_RESIDENCE
+	// Enum: [SERIOUS_ILLNESS_MEMBER SERIOUS_ILLNESS_DEPENDENT IMPENDING_ASSIGNEMENT DIRECTED_TEMPORARY_DUTY NONAVAILABILITY_OF_CIVILIAN_HOUSING AWAITING_COMPLETION_OF_RESIDENCE OTHER]
+	RequestReason string `json:"requestReason,omitempty"`
 }
 
 // Validate validates this approve s i t extension
@@ -35,6 +41,10 @@ func (m *ApproveSITExtension) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateApprovedDays(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateRequestReason(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -51,6 +61,63 @@ func (m *ApproveSITExtension) validateApprovedDays(formats strfmt.Registry) erro
 	}
 
 	if err := validate.MinimumInt("approvedDays", "body", *m.ApprovedDays, 1, false); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var approveSITExtensionTypeRequestReasonPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["SERIOUS_ILLNESS_MEMBER","SERIOUS_ILLNESS_DEPENDENT","IMPENDING_ASSIGNEMENT","DIRECTED_TEMPORARY_DUTY","NONAVAILABILITY_OF_CIVILIAN_HOUSING","AWAITING_COMPLETION_OF_RESIDENCE","OTHER"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		approveSITExtensionTypeRequestReasonPropEnum = append(approveSITExtensionTypeRequestReasonPropEnum, v)
+	}
+}
+
+const (
+
+	// ApproveSITExtensionRequestReasonSERIOUSILLNESSMEMBER captures enum value "SERIOUS_ILLNESS_MEMBER"
+	ApproveSITExtensionRequestReasonSERIOUSILLNESSMEMBER string = "SERIOUS_ILLNESS_MEMBER"
+
+	// ApproveSITExtensionRequestReasonSERIOUSILLNESSDEPENDENT captures enum value "SERIOUS_ILLNESS_DEPENDENT"
+	ApproveSITExtensionRequestReasonSERIOUSILLNESSDEPENDENT string = "SERIOUS_ILLNESS_DEPENDENT"
+
+	// ApproveSITExtensionRequestReasonIMPENDINGASSIGNEMENT captures enum value "IMPENDING_ASSIGNEMENT"
+	ApproveSITExtensionRequestReasonIMPENDINGASSIGNEMENT string = "IMPENDING_ASSIGNEMENT"
+
+	// ApproveSITExtensionRequestReasonDIRECTEDTEMPORARYDUTY captures enum value "DIRECTED_TEMPORARY_DUTY"
+	ApproveSITExtensionRequestReasonDIRECTEDTEMPORARYDUTY string = "DIRECTED_TEMPORARY_DUTY"
+
+	// ApproveSITExtensionRequestReasonNONAVAILABILITYOFCIVILIANHOUSING captures enum value "NONAVAILABILITY_OF_CIVILIAN_HOUSING"
+	ApproveSITExtensionRequestReasonNONAVAILABILITYOFCIVILIANHOUSING string = "NONAVAILABILITY_OF_CIVILIAN_HOUSING"
+
+	// ApproveSITExtensionRequestReasonAWAITINGCOMPLETIONOFRESIDENCE captures enum value "AWAITING_COMPLETION_OF_RESIDENCE"
+	ApproveSITExtensionRequestReasonAWAITINGCOMPLETIONOFRESIDENCE string = "AWAITING_COMPLETION_OF_RESIDENCE"
+
+	// ApproveSITExtensionRequestReasonOTHER captures enum value "OTHER"
+	ApproveSITExtensionRequestReasonOTHER string = "OTHER"
+)
+
+// prop value enum
+func (m *ApproveSITExtension) validateRequestReasonEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, approveSITExtensionTypeRequestReasonPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *ApproveSITExtension) validateRequestReason(formats strfmt.Registry) error {
+	if swag.IsZero(m.RequestReason) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := m.validateRequestReasonEnum("requestReason", "body", m.RequestReason); err != nil {
 		return err
 	}
 

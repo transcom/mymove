@@ -12,15 +12,8 @@ const NotificationFilter = (props) => (
 );
 
 const NotificationList = (props) => (
-  <List
-    {...props}
-    pagination={<AdminPagination />}
-    perPage={25}
-    bulkActionButtons={false}
-    sort={defaultSort}
-    filters={<NotificationFilter />}
-  >
-    <Datagrid rowClick="show">
+  <List {...props} pagination={<AdminPagination />} perPage={25} sort={defaultSort} filters={<NotificationFilter />}>
+    <Datagrid bulkActionButtons={false} rowClick="show">
       <TextField source="id" />
       <TextField source="email" />
       <TextField source="serviceMemberId" />

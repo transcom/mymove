@@ -1,26 +1,23 @@
 import React from 'react';
-import { MemoryRouter, Route } from 'react-router';
 
 import QAEViolationsForm from './QAEViolationsForm';
 
 import { MockProviders } from 'testUtils';
+import { qaeCSRRoutes } from 'constants/routes';
 
 export default {
   title: 'Office Components/QAEViolationsForm',
   component: QAEViolationsForm,
   decorators: [
     (Story) => (
-      <MemoryRouter
-        initialEntries={['/moves/REWAYD/evaluation-reports/09132c3b-3ffe-41ec-9393-16e6f074adf7/violations']}
+      <MockProviders
+        path={qaeCSRRoutes.BASE_EVALUATION_VIOLATIONS_PATH}
+        params={{ moveCode: 'REWAYD', reportId: '09132c3b-3ffe-41ec-9393-16e6f074adf7' }}
       >
-        <Route path="/moves/:moveCode/evaluation-reports/:reportId/violations">
-          <MockProviders>
-            <div style={{ padding: '40px', width: '950px', minWidth: '950px' }}>
-              <Story />
-            </div>
-          </MockProviders>
-        </Route>
-      </MemoryRouter>
+        <div style={{ padding: '40px', width: '950px', minWidth: '950px' }}>
+          <Story />
+        </div>
+      </MockProviders>
     ),
   ],
 };

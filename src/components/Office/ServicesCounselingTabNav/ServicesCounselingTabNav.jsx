@@ -13,20 +13,24 @@ const ServicesCounselingTabNav = ({ unapprovedShipmentCount = 0, moveCode }) => 
         <TabNav
           items={[
             <NavLink
-              exact
-              activeClassName="usa-current"
+              end
+              className={({ isActive }) => (isActive ? 'usa-current' : '')}
               to={`/counseling/moves/${moveCode}/details`}
               data-testid="MoveDetails-Tab"
             >
               <span className="tab-title">Move details</span>
               {unapprovedShipmentCount > 0 && <Tag>{unapprovedShipmentCount}</Tag>}
             </NavLink>,
-            <NavLink exact activeClassName="usa-current" to={`/counseling/moves/${moveCode}/customer-support-remarks`}>
+            <NavLink
+              end
+              className={({ isActive }) => (isActive ? 'usa-current' : '')}
+              to={`/counseling/moves/${moveCode}/customer-support-remarks`}
+            >
               <span className="tab-title">Customer support remarks</span>
             </NavLink>,
             <NavLink
-              exact
-              activeClassName="usa-current"
+              end
+              className={({ isActive }) => (isActive ? 'usa-current' : '')}
               to={`/counseling/moves/${moveCode}/history`}
               data-testid="MoveHistory-Tab"
             >

@@ -1,10 +1,10 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { render, screen, within, waitFor } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { mount } from 'enzyme';
 import moment from 'moment';
-import { generatePath } from 'react-router';
+import { generatePath } from 'react-router-dom';
 import { v4 } from 'uuid';
 
 import { Home } from './index';
@@ -15,7 +15,7 @@ import { customerRoutes } from 'constants/routes';
 import { shipmentStatuses, ppmShipmentStatuses } from 'constants/shipments';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { formatCustomerDate } from 'utils/formatters';
-import { MockProviders, setUpProvidersWithHistory } from 'testUtils';
+import { MockProviders, renderWithRouterProp } from 'testUtils';
 import createUpload from 'utils/test/factories/upload';
 import { createBaseWeightTicket, createCompleteWeightTicket } from 'utils/test/factories/weightTicket';
 import { createApprovedPPMShipment, createPPMShipmentWithFinalIncentive } from 'utils/test/factories/ppmShipment';
@@ -25,6 +25,12 @@ jest.mock('containers/FlashMessage/FlashMessage', () => {
   MockFlash.displayName = 'ConnectedFlashMessage';
   return MockFlash;
 });
+
+const mockNavigate = jest.fn();
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: () => mockNavigate,
+}));
 
 const defaultProps = {
   serviceMember: {
@@ -51,11 +57,6 @@ const defaultProps = {
   isProfileComplete: true,
   loadMTOShipments: jest.fn(),
   updateShipmentList: jest.fn(),
-  history: {
-    goBack: jest.fn(),
-    push: jest.fn(),
-  },
-  location: {},
   move: {
     id: v4(),
     status: MOVE_STATUSES.DRAFT,
@@ -197,6 +198,10 @@ const mountHomeWithProviders = (props = {}) => {
   );
 };
 
+afterEach(() => {
+  jest.resetAllMocks();
+});
+
 describe('Home component', () => {
   describe('with default props', () => {
     const wrapper = mountHomeWithProviders();
@@ -249,11 +254,7 @@ describe('Home component', () => {
     };
 
     it('contains ppm and hhg cards if those shipments exist', async () => {
-      render(
-        <MockProviders>
-          <Home {...defaultProps} {...props} />
-        </MockProviders>,
-      );
+      renderWithRouterProp(<Home {...defaultProps} {...props} />);
 
       const shipmentListItems = screen.getAllByTestId('shipment-list-item-container');
       expect(shipmentListItems.length).toEqual(6);
@@ -266,11 +267,7 @@ describe('Home component', () => {
     });
 
     it('handles edit click to edit hhg shipment route', async () => {
-      render(
-        <MockProviders>
-          <Home {...defaultProps} {...props} />
-        </MockProviders>,
-      );
+      renderWithRouterProp(<Home {...defaultProps} {...props} />, { navigate: mockNavigate });
 
       const editHHGShipmentPath = generatePath(customerRoutes.SHIPMENT_EDIT_PATH, {
         moveId: defaultProps.move.id,
@@ -282,15 +279,11 @@ describe('Home component', () => {
       expect(editButton).toBeInTheDocument();
       await userEvent.click(editButton);
 
-      expect(defaultProps.history.push).toHaveBeenCalledWith(`${editHHGShipmentPath}?shipmentNumber=1`);
+      expect(mockNavigate).toHaveBeenCalledWith(`${editHHGShipmentPath}?shipmentNumber=1`);
     });
 
     it('handles edit click to edit ppm shipment route', async () => {
-      render(
-        <MockProviders>
-          <Home {...defaultProps} {...props} />
-        </MockProviders>,
-      );
+      renderWithRouterProp(<Home {...defaultProps} {...props} />, { navigate: mockNavigate });
 
       const editPPMShipmentPath = generatePath(customerRoutes.SHIPMENT_EDIT_PATH, {
         moveId: defaultProps.move.id,
@@ -302,15 +295,11 @@ describe('Home component', () => {
       expect(editButton).toBeInTheDocument();
       await userEvent.click(editButton);
 
-      expect(defaultProps.history.push).toHaveBeenCalledWith(`${editPPMShipmentPath}?shipmentNumber=1`);
+      expect(mockNavigate).toHaveBeenCalledWith(`${editPPMShipmentPath}?shipmentNumber=1`);
     });
 
     it('handles edit click to edit nts shipment route', async () => {
-      render(
-        <MockProviders>
-          <Home {...defaultProps} {...props} />
-        </MockProviders>,
-      );
+      renderWithRouterProp(<Home {...defaultProps} {...props} />, { navigate: mockNavigate });
 
       const editNTSShipmentPath = generatePath(customerRoutes.SHIPMENT_EDIT_PATH, {
         moveId: defaultProps.move.id,
@@ -322,15 +311,11 @@ describe('Home component', () => {
       expect(editButton).toBeInTheDocument();
       await userEvent.click(editButton);
 
-      expect(defaultProps.history.push).toHaveBeenCalledWith(editNTSShipmentPath);
+      expect(mockNavigate).toHaveBeenCalledWith(editNTSShipmentPath);
     });
 
     it('handles edit click to edit ntsr shipment route', async () => {
-      render(
-        <MockProviders>
-          <Home {...defaultProps} {...props} />
-        </MockProviders>,
-      );
+      renderWithRouterProp(<Home {...defaultProps} {...props} />, { navigate: mockNavigate });
 
       const editNTSRShipmentPath = generatePath(customerRoutes.SHIPMENT_EDIT_PATH, {
         moveId: defaultProps.move.id,
@@ -342,7 +327,7 @@ describe('Home component', () => {
       expect(editButton).toBeInTheDocument();
       await userEvent.click(editButton);
 
-      expect(defaultProps.history.push).toHaveBeenCalledWith(editNTSRShipmentPath);
+      expect(mockNavigate).toHaveBeenCalledWith(editNTSRShipmentPath);
     });
   });
 
@@ -763,17 +748,12 @@ describe('Home component', () => {
           }),
         ],
       ])('will route the user to the %s', async (scenarioDescription, mtoShipments, expectedRoute) => {
-        const { memoryHistory, mockProviderWithHistory } = setUpProvidersWithHistory();
-
-        render(<Home {...props} mtoShipments={mtoShipments} history={memoryHistory} />, {
-          wrapper: mockProviderWithHistory,
-        });
+        renderWithRouterProp(<Home {...props} mtoShipments={mtoShipments} />, { navigate: mockNavigate });
 
         await userEvent.click(screen.getByRole('button', { name: 'Upload PPM Documents' }));
 
-        await waitFor(() => {
-          expect(memoryHistory.location.pathname).toEqual(expectedRoute);
-        });
+        expect(mockNavigate).toHaveBeenCalledTimes(1);
+        expect(mockNavigate).toHaveBeenCalledWith(expectedRoute);
       });
     });
   });

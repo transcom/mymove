@@ -1,35 +1,48 @@
 import React from 'react';
-import { ShowController, ShowView, SimpleShowLayout, TextField, DateField } from 'react-admin';
+import { ShowController, Show, SimpleShowLayout, TextField, DateField } from 'react-admin';
 
-const UploadShow = (props) => (
-  <ShowController {...props}>
-    {(controllerProps) => (
-      <ShowView {...props} {...controllerProps}>
-        <SimpleShowLayout>
-          {controllerProps.record && controllerProps.record.serviceMemberId
-            ? [
-                <TextField source="serviceMemberId" label="Service Member ID" />,
-                <TextField source="serviceMemberFirstName" label="Service Member First Name" />,
-                <TextField source="serviceMemberLastName" label="Service Member Last Name" />,
-                <TextField source="serviceMemberPhone" label="Service Member Phone" />,
-                <TextField source="serviceMemberEmail" label="Service Member Email" />,
-              ]
-            : [
-                <TextField source="officeUserId" label="Office User ID" />,
-                <TextField source="officeUserFirstName" label="Office User First Name" />,
-                <TextField source="officeUserLastName" label="Office User Last Name" />,
-                <TextField source="officeUserPhone" label="Office User Phone" />,
-                <TextField source="officeUserEmail" label="Office User Email" />,
-              ]}
-          <TextField source="moveLocator" label="Move Locator" />
-          <TextField source="upload.filename" label="Upload Filename" />
-          <TextField source="upload.size" label="Upload Size" />
-          <TextField source="upload.contentType" label="Upload Content Type" />
-          <DateField source="upload.createdAt" showTime label="Created At" />
-        </SimpleShowLayout>
-      </ShowView>
-    )}
-  </ShowController>
-);
+const UploadShow = (props) => {
+  return (
+    <ShowController {...props}>
+      {(controllerProps) => {
+        const record = controllerProps.record;
+        return (
+          <Show {...controllerProps} {...record}>
+            <SimpleShowLayout>
+              {record && record.serviceMemberId
+                ? [
+                    <TextField key="serviceMemberId" source="serviceMemberId" label="Service Member ID" />,
+                    <TextField
+                      key="serviceMemberFirstName"
+                      source="serviceMemberFirstName"
+                      label="Service Member First Name"
+                    />,
+                    <TextField
+                      key="serviceMemberLastName"
+                      source="serviceMemberLastName"
+                      label="Service Member Last Name"
+                    />,
+                    <TextField key="serviceMemberPhone" source="serviceMemberPhone" label="Service Member Phone" />,
+                    <TextField key="serviceMemberEmail" source="serviceMemberEmail" label="Service Member Email" />,
+                  ]
+                : [
+                    <TextField key="officeUserId" source="officeUserId" label="Office User ID" />,
+                    <TextField key="officeUserFirstName" source="officeUserFirstName" label="Office User First Name" />,
+                    <TextField key="officeUserLastName" source="officeUserLastName" label="Office User Last Name" />,
+                    <TextField key="officeUserPhone" source="officeUserPhone" label="Office User Phone" />,
+                    <TextField key="officeUserEmail" source="officeUserEmail" label="Office User Email" />,
+                  ]}
+              <TextField key="moveLocator" source="moveLocator" label="Move Locator" />
+              <TextField key="upload.filename" source="upload.filename" label="Upload Filename" />
+              <TextField key="upload.size" source="upload.size" label="Upload Size" />
+              <TextField key="upload.contentType" source="upload.contentType" label="Upload Content Type" />
+              <DateField key="upload.createdAt" source="upload.createdAt" showTime label="Created At" />
+            </SimpleShowLayout>
+          </Show>
+        );
+      }}
+    </ShowController>
+  );
+};
 
 export default UploadShow;

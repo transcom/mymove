@@ -1,27 +1,14 @@
 import React from 'react';
-import { DateField, NumberField, Show, SimpleShowLayout, TextField } from 'react-admin';
-import PropTypes from 'prop-types';
+import { DateField, NumberField, Show, SimpleShowLayout, TextField, useRecordContext } from 'react-admin';
 
-const WebhookSubscriptionShowTitle = ({ record }) => {
+const WebhookSubscriptionShowTitle = () => {
+  const record = useRecordContext();
   return <span>{`Webhook Subscription ID: ${record.id}`}</span>;
 };
 
-WebhookSubscriptionShowTitle.propTypes = {
-  record: PropTypes.shape({
-    id: PropTypes.string,
-  }),
-};
-
-WebhookSubscriptionShowTitle.defaultProps = {
-  record: {
-    id: '',
-  },
-};
-
-const WebhookSubscriptionShow = (props) => {
+const WebhookSubscriptionShow = () => {
   return (
-    /* eslint-disable-next-line react/jsx-props-no-spreading */
-    <Show {...props} title={<WebhookSubscriptionShowTitle />}>
+    <Show title={<WebhookSubscriptionShowTitle />}>
       <SimpleShowLayout>
         <TextField source="id" />
         <TextField label="Subscriber Id" source="subscriberId" />
@@ -29,8 +16,8 @@ const WebhookSubscriptionShow = (props) => {
         <TextField source="callbackUrl" />
         <NumberField source="severity" />
         <TextField source="status" />
-        <DateField source="updatedAt" showTime addLabel />
-        <DateField source="createdAt" showTime addLabel />
+        <DateField source="updatedAt" showTime />
+        <DateField source="createdAt" showTime />
       </SimpleShowLayout>
     </Show>
   );

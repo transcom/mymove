@@ -12,11 +12,11 @@ jest.mock('services/internalApi', () => ({
   createUploadForDocument: jest.fn().mockImplementation(() => Promise.resolve()),
   deleteUpload: jest.fn().mockImplementation(() => Promise.resolve()),
 }));
-
+const mockNavigate = jest.fn();
 describe('Orders Upload page', () => {
   const testProps = {
     serviceMemberId: '123',
-    push: jest.fn(),
+    router: { navigate: mockNavigate },
     updateOrders: jest.fn(),
   };
 
@@ -72,7 +72,7 @@ describe('Orders Upload page', () => {
     });
     await userEvent.click(getByRole('button', { name: 'Back' }));
 
-    expect(testProps.push).toHaveBeenCalledWith('/orders/info');
+    expect(mockNavigate).toHaveBeenCalledWith('/orders/info');
   });
 
   it('next button is disabled without any uploads', async () => {
@@ -129,7 +129,7 @@ describe('Orders Upload page', () => {
       });
       await userEvent.click(getByRole('button', { name: 'Next' }));
 
-      expect(testProps.push).toHaveBeenCalledWith('/');
+      expect(mockNavigate).toHaveBeenCalledWith('/');
     });
   });
 

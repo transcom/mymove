@@ -116,7 +116,7 @@ describe('Orders page', () => {
       useOrdersDocumentQueries.mockReturnValueOnce(loadingReturnValue);
 
       render(
-        <MockProviders initialEntries={['moves/FP24I2/orders']}>
+        <MockProviders>
           <Orders />
         </MockProviders>,
       );
@@ -129,7 +129,7 @@ describe('Orders page', () => {
       useOrdersDocumentQueries.mockReturnValueOnce(errorReturnValue);
 
       render(
-        <MockProviders initialEntries={['moves/FP24I2/orders']}>
+        <MockProviders>
           <Orders />
         </MockProviders>,
       );
@@ -144,7 +144,7 @@ describe('Orders page', () => {
       useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
 
       render(
-        <MockProviders initialEntries={['moves/FP24I2/orders']}>
+        <MockProviders>
           <Orders />
         </MockProviders>,
       );
@@ -160,7 +160,7 @@ describe('Orders page', () => {
       useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
 
       render(
-        <MockProviders initialEntries={['moves/FP24I2/orders']}>
+        <MockProviders>
           <Orders />
         </MockProviders>,
       );
@@ -172,7 +172,7 @@ describe('Orders page', () => {
       useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
 
       render(
-        <MockProviders initialEntries={['moves/FP24I2/orders']} permissions={[permissionTypes.updateOrders]}>
+        <MockProviders permissions={[permissionTypes.updateOrders]}>
           <Orders />
         </MockProviders>,
       );

@@ -8,11 +8,10 @@ import styles from './DatePickerInput.module.scss';
 
 import { ErrorMessage } from 'components/form/ErrorMessage';
 import SingleDatePicker from 'shared/JsonSchemaForm/SingleDatePicker';
-import { formatDate } from 'shared/dates';
+import { datePickerFormat, formatDate } from 'shared/dates';
 import Hint from 'components/Hint';
 
 export const DatePickerInput = (props) => {
-  const dateFormat = 'DD MMM YYYY';
   const {
     label,
     showOptional,
@@ -48,9 +47,9 @@ export const DatePickerInput = (props) => {
             name={name}
             id={inputId.current}
             inputClassName={className}
-            placeholder={dateFormat}
-            format={dateFormat}
-            onChange={onChange || ((value) => helpers.setValue(formatDate(value, dateFormat)))}
+            placeholder={datePickerFormat}
+            format={datePickerFormat}
+            onChange={onChange || ((value) => helpers.setValue(formatDate(value, datePickerFormat)))}
             onBlur={() => helpers.setTouched(true)}
             value={field.value}
             required={required}
