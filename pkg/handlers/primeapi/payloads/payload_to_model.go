@@ -401,7 +401,7 @@ func MTOServiceItemModel(mtoServiceItem primemessages.MTOServiceItem) (*models.M
 
 		// Check for required fields on a DDFSIT
 		if model.ReService.Code == models.ReServiceCodeDDFSIT {
-			verrs := validateDDFSIT(*destsit)
+			verrs := validateDDFSITForCreate(*destsit)
 
 			if verrs.HasAny() {
 				return nil, verrs
@@ -523,6 +523,11 @@ func MTOServiceItemModelFromUpdate(mtoServiceItemID string, mtoServiceItem prime
 		if sit.ReServiceCode == string(models.ReServiceCodeDDDSIT) ||
 			sit.ReServiceCode == string(models.ReServiceCodeDDASIT) ||
 			sit.ReServiceCode == string(models.ReServiceCodeDDFSIT) {
+			destSitVerrs := validateDestSITForUpdate(*sit)
+
+			if destSitVerrs.HasAny() {
+				return nil, destSitVerrs
+			}
 			var customerContacts models.MTOServiceItemCustomerContacts
 			if sit.TimeMilitary1 != nil && sit.FirstAvailableDeliveryDate1 != nil {
 				contact1 := models.MTOServiceItemCustomerContact{
@@ -596,8 +601,27 @@ func validateDomesticCrating(m primemessages.MTOServiceItemDomesticCrating) *val
 	)
 }
 
-// validateDDFSIT validates that the DDFSIT all required fields are provided to create optional Customer Contacts
-func validateDDFSIT(m primemessages.MTOServiceItemDestSIT) *validate.Errors {
+// validateDDFSITForCreate validates DDFSIT service item has all required fields
+func validateDDFSITForCreate(m primemessages.MTOServiceItemDestSIT) *validate.Errors {
+	verrs := validate.NewErrors()
+
+	if m.FirstAvailableDeliveryDate1 == nil && m.TimeMilitary1 != nil {
+		verrs.Add("firstAvailableDeliveryDate1", "firstAvailableDeliveryDate1 and timeMilitary1 must be provided together in body.")
+	}
+	if m.TimeMilitary1 == nil && m.FirstAvailableDeliveryDate1 != nil {
+		verrs.Add("timeMilitary1", "firstAvailableDeliveryDate1 and timeMilitary1 must be provided together in body.")
+	}
+	if m.FirstAvailableDeliveryDate2 == nil && m.TimeMilitary2 != nil {
+		verrs.Add("firstAvailableDeliveryDate2", "firstAvailableDeliveryDate2 and timeMilitary2 must be provided together in body.")
+	}
+	if m.TimeMilitary2 == nil && m.FirstAvailableDeliveryDate2 != nil {
+		verrs.Add("timeMilitary2", "firstAvailableDeliveryDate2 and timeMilitary2 must be provided together in body.")
+	}
+	return verrs
+}
+
+// validateDestSITForUpdate validates DDDSIT service item has all required fields
+func validateDestSITForUpdate(m primemessages.UpdateMTOServiceItemSIT) *validate.Errors {
 	verrs := validate.NewErrors()
 
 	if m.FirstAvailableDeliveryDate1 == nil && m.TimeMilitary1 != nil {
