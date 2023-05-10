@@ -201,6 +201,16 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(appCtx appcontext.AppContext
 		return ediinvoice.Invoice858C{}, err
 	}
 
+	// moveCode
+	var moveCode = "hi"
+	// if rank == nil {
+	// 	return apperror.NewConflictError(serviceMember.ID, fmt.Sprintf("no rank found for ServiceMember ID: %s Payment Request ID: %s", serviceMember.ID, paymentRequestID))
+	// }
+	edi858.Header.MoveCode = edisegment.N9{
+		ReferenceIdentificationQualifier: "CMN",
+		ReferenceIdentification:          moveCode,
+	}
+
 	var paymentServiceItems models.PaymentServiceItems
 	err = appCtx.DB().Q().
 		Eager("MTOServiceItem.ReService", "MTOServiceItem.MTOShipment").
@@ -297,7 +307,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createServiceMemberDetailSegments(pay
 		ReferenceIdentificationQualifier: "ML",
 		ReferenceIdentification:          string(*rank),
 	}
-
+	println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
 	// branch
 	branch := serviceMember.Affiliation
 	if branch == nil {

@@ -42,6 +42,7 @@ type InvoiceHeader struct {
 	ServiceMemberName        edisegment.N9
 	ServiceMemberRank        edisegment.N9
 	ServiceMemberBranch      edisegment.N9
+	MoveCode                 edisegment.N9
 	Currency                 edisegment.C3
 	RequestedPickupDate      *edisegment.G62
 	ScheduledPickupDate      *edisegment.G62
