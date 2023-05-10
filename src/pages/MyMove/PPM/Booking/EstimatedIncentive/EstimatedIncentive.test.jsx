@@ -1,27 +1,29 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { generatePath } from 'react-router';
+import { generatePath } from 'react-router-dom';
 
 import { selectMTOShipmentById } from 'store/entities/selectors';
 import EstimatedIncentive from 'pages/MyMove/PPM/Booking/EstimatedIncentive/EstimatedIncentive';
 import { MockProviders } from 'testUtils';
 import { customerRoutes } from 'constants/routes';
 
-const mockPush = jest.fn();
 const mockMoveId = 'move123';
 const mockShipmentId = 'shipment123';
 
+const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useHistory: () => ({
-    push: mockPush,
-  }),
-  useParams: () => ({
-    moveId: mockMoveId,
-    mtoShipmentId: mockShipmentId,
-  }),
+  useNavigate: () => mockNavigate,
 }));
+const mockRoutingParams = {
+  moveId: mockMoveId,
+  mtoShipmentId: mockShipmentId,
+};
+const mockRoutingConfig = {
+  path: customerRoutes.SHIPMENT_PPM_ESTIMATED_INCENTIVE_PATH,
+  params: mockRoutingParams,
+};
 
 jest.mock('store/entities/selectors', () => ({
   selectMTOShipmentById: jest.fn(),
@@ -47,7 +49,7 @@ describe('EstimatedIncentive component', () => {
     selectMTOShipmentById.mockReturnValue(shipmentEntity);
 
     render(
-      <MockProviders>
+      <MockProviders {...mockRoutingConfig}>
         <EstimatedIncentive />
       </MockProviders>,
     );
@@ -56,7 +58,7 @@ describe('EstimatedIncentive component', () => {
 
   it('renders the shipment tag and page title', () => {
     render(
-      <MockProviders>
+      <MockProviders {...mockRoutingConfig}>
         <EstimatedIncentive />
       </MockProviders>,
     );
@@ -67,7 +69,7 @@ describe('EstimatedIncentive component', () => {
 
   it('renders the buttons and navigates to previous and next routes', async () => {
     render(
-      <MockProviders>
+      <MockProviders {...mockRoutingConfig}>
         <EstimatedIncentive />
       </MockProviders>,
     );
@@ -78,11 +80,11 @@ describe('EstimatedIncentive component', () => {
     };
 
     await userEvent.click(screen.getByRole('button', { name: 'Back' }));
-    expect(mockPush).toHaveBeenCalledWith(
+    expect(mockNavigate).toHaveBeenCalledWith(
       generatePath(customerRoutes.SHIPMENT_PPM_ESTIMATED_WEIGHT_PATH, shipmentInfo),
     );
 
     await userEvent.click(screen.getByRole('button', { name: 'Next' }));
-    expect(mockPush).toHaveBeenCalledWith(generatePath(customerRoutes.SHIPMENT_PPM_ADVANCES_PATH, shipmentInfo));
+    expect(mockNavigate).toHaveBeenCalledWith(generatePath(customerRoutes.SHIPMENT_PPM_ADVANCES_PATH, shipmentInfo));
   });
 });

@@ -23,18 +23,13 @@ import (
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	"github.com/transcom/mymove/pkg/services/ppmshipment"
 	signedcertification "github.com/transcom/mymove/pkg/services/signed_certification"
-	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
 func (suite *HandlerSuite) TestSubmitPPMShipmentDocumentationHandlerUnit() {
 	setUpPPMShipment := func() models.PPMShipment {
-		ppmShipment := testdatagen.MakePPMShipmentReadyForFinalCustomerCloseOut(
-			suite.DB(),
-			testdatagen.Assertions{
-				Stub: true,
-			},
-		)
+
+		ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(nil, nil)
 
 		ppmShipment.ID = uuid.Must(uuid.NewV4())
 		ppmShipment.CreatedAt = time.Now()
@@ -348,7 +343,7 @@ func (suite *HandlerSuite) TestSubmitPPMShipmentDocumentationHandlerIntegration(
 	}
 
 	suite.Run("Returns an error if the PPM shipment is not found", func() {
-		ppmShipment := testdatagen.MakePPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), testdatagen.Assertions{})
+		ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), nil)
 
 		ppmShipment.ID = uuid.Must(uuid.NewV4())
 
@@ -371,7 +366,7 @@ func (suite *HandlerSuite) TestSubmitPPMShipmentDocumentationHandlerIntegration(
 	})
 
 	suite.Run("Returns an error if the SignedCertification has any errors", func() {
-		ppmShipment := testdatagen.MakePPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), testdatagen.Assertions{})
+		ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), nil)
 
 		params, handler := setUpParamsAndHandler(ppmShipment, &internalmessages.SavePPMShipmentSignedCertification{
 			CertificationText: handlers.FmtString("certification text"),
@@ -396,7 +391,7 @@ func (suite *HandlerSuite) TestSubmitPPMShipmentDocumentationHandlerIntegration(
 	})
 
 	suite.Run("Returns an error if the PPM shipment is not in the right status", func() {
-		ppmShipment := testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{})
+		ppmShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, nil)
 
 		params, handler := setUpParamsAndHandler(ppmShipment, &internalmessages.SavePPMShipmentSignedCertification{
 			CertificationText: handlers.FmtString("certification text"),
@@ -421,7 +416,7 @@ func (suite *HandlerSuite) TestSubmitPPMShipmentDocumentationHandlerIntegration(
 	})
 
 	suite.Run("Can successfully submit a PPM shipment for close out", func() {
-		ppmShipment := testdatagen.MakePPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), testdatagen.Assertions{})
+		ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), nil)
 
 		certText := "certification text"
 		signature := "signature"
@@ -482,12 +477,7 @@ func (suite *HandlerSuite) TestSubmitPPMShipmentDocumentationHandlerIntegration(
 
 func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerUnit() {
 	setUpPPMShipment := func() models.PPMShipment {
-		ppmShipment := testdatagen.MakePPMShipmentThatNeedsToBeResubmitted(
-			suite.DB(),
-			testdatagen.Assertions{
-				Stub: true,
-			},
-		)
+		ppmShipment := factory.BuildPPMShipmentThatNeedsToBeResubmitted(nil, nil)
 
 		ppmShipment.ID = uuid.Must(uuid.NewV4())
 		ppmShipment.CreatedAt = time.Now()
@@ -791,15 +781,12 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerIntegratio
 	var needsPaymentApprovalSM models.ServiceMember
 
 	suite.PreloadData(func() {
-		shipmentNeedsResubmitted = testdatagen.MakePPMShipmentThatNeedsToBeResubmitted(suite.DB(), testdatagen.Assertions{
-			PPMShipment: models.PPMShipment{
-				SubmittedAt: &submissionTime,
-			},
-			UserUploader: userUploader,
-		})
+		shipmentNeedsResubmitted = factory.BuildPPMShipmentThatNeedsToBeResubmitted(suite.DB(), userUploader)
+		shipmentNeedsResubmitted.SubmittedAt = &submissionTime
+		suite.NoError(suite.DB().Save(&shipmentNeedsResubmitted))
 		needsResubmittedSM = shipmentNeedsResubmitted.Shipment.MoveTaskOrder.Orders.ServiceMember
 
-		shipmentNeedsPaymentApproval = testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{})
+		shipmentNeedsPaymentApproval = factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, nil)
 		needsPaymentApprovalSM = shipmentNeedsPaymentApproval.Shipment.MoveTaskOrder.Orders.ServiceMember
 	})
 

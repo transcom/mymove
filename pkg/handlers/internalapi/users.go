@@ -37,6 +37,7 @@ func decoratePayloadWithRoles(s *auth.Session, p *internalmessages.LoggedInUserP
 
 // decoratePayloadWithPermissions will add session permissions to the logged in user payload and return it
 func decoratePayloadWithPermissions(s *auth.Session, p *internalmessages.LoggedInUserPayload) {
+	p.Permissions = []string{}
 	p.Permissions = append(p.Permissions, s.Permissions...)
 }
 

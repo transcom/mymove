@@ -55,6 +55,12 @@ func FetchOrBuildDefaultContractor(db *pop.Connection, customs []Customization, 
 		return contractor
 	}
 
+	err = db.Q().Where(`type=$1`, DefaultContractType).First(&contractor)
+	if err != nil && err != sql.ErrNoRows {
+		log.Panic(err)
+	} else if err == nil {
+		return contractor
+	}
 	return BuildContractor(db, customs, traits)
 
 }

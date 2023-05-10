@@ -121,7 +121,6 @@ application testing
 | `check-docker-size`             | Script to check the available disk space Docker has used                                          |
 | `ds-for-gbloc`                  | Helper script to find duty stations with the same GBLOC as the given transportation office        |
 | `ensure-application`            | Ensure APPLICATION is set to `app` or `orders` and matches input value                            |
-| `export-obfuscated-tspp-sample` | Export a subset of rows from the `transportation_service_provider_performances` table             |
 | `find-invoices`                 | This script will use available API endpoints to find invoices in whatever environment you specify |
 | `generate-devlocal-cert`        | Convenience script for creating a new certificate signed by the DevLocal CA.                      |
 | `go-find-pattern`               | searches over all our go source code files for a regex pattern                                    |

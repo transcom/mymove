@@ -10,7 +10,7 @@ import (
 func MakeWebhookSubscription(db *pop.Connection, assertions Assertions) models.WebhookSubscription {
 	subscriber := assertions.Contractor
 	if isZeroUUID(subscriber.ID) {
-		subscriber = MakeContractor(db, assertions)
+		subscriber = fetchOrMakeContractor(db, assertions)
 	}
 
 	webhookSubscription := models.WebhookSubscription{

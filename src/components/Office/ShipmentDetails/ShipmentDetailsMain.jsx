@@ -1,5 +1,6 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import * as PropTypes from 'prop-types';
+import { Button } from '@trussworks/react-uswds';
 
 import { SIT_EXTENSION_STATUS } from '../../../constants/sitExtensions';
 
@@ -16,6 +17,24 @@ import ImportantShipmentDates from 'components/Office/ImportantShipmentDates/Imp
 import ShipmentAddresses from 'components/Office/ShipmentAddresses/ShipmentAddresses';
 import ShipmentWeightDetails from 'components/Office/ShipmentWeightDetails/ShipmentWeightDetails';
 import ShipmentRemarks from 'components/Office/ShipmentRemarks/ShipmentRemarks';
+import Restricted from 'components/Restricted/Restricted';
+import { permissionTypes } from 'constants/permissions';
+
+/** @function OpenModalButton
+ * The button that opens the modal in SIT Display component
+ * @param {string} permission
+ * @param {function} onClick
+ * @param {string} className
+ * @param {string} title
+ * @returns {React.ReactElement}
+ */
+const OpenModalButton = ({ permission, onClick, className, title }) => (
+  <Restricted to={permission}>
+    <Button type="button" onClick={onClick} unstyled className={className}>
+      {title}
+    </Button>
+  </Restricted>
+);
 
 const ShipmentDetailsMain = ({
   className,
@@ -58,26 +77,22 @@ const ShipmentDetailsMain = ({
 
   const pendingSITExtension = sitExtensions?.find((se) => se.status === SIT_EXTENSION_STATUS.PENDING);
 
-  const summarySITComponent = useMemo(
-    () => (
-      <ShipmentSITDisplay
-        sitExtensions={sitExtensions}
-        sitStatus={sitStatus}
-        storageInTransit={storageInTransit}
-        shipment={shipment}
-        showReviewSITExtension={setIsReviewSITExtensionModalVisible}
-        showSubmitSITExtension={setIsSubmitITExtensionModalVisible}
-        hideSITExtensionAction
-      />
-    ),
-    [
-      sitExtensions,
-      sitStatus,
-      storageInTransit,
-      shipment,
-      setIsReviewSITExtensionModalVisible,
-      setIsSubmitITExtensionModalVisible,
-    ],
+  /**
+   * Displays correct button to open the modal on the SIT Display component to open with either Sumbit or Review SIT modal.
+   */
+  const openModalButton = pendingSITExtension ? (
+    <OpenModalButton
+      permission={permissionTypes.createSITExtension}
+      onClick={setIsReviewSITExtensionModalVisible}
+      title="Review request"
+    />
+  ) : (
+    <OpenModalButton
+      permission={permissionTypes.updateSITExtension}
+      onClick={setIsSubmitITExtensionModalVisible}
+      title="Edit"
+      className={styles.submitSITEXtensionLink}
+    />
   );
 
   let displayedPickupAddress;
@@ -86,7 +101,7 @@ const ShipmentDetailsMain = ({
   switch (shipmentType) {
     case SHIPMENT_OPTIONS.HHG:
       displayedPickupAddress = pickupAddress;
-      displayedDeliveryAddress = destinationAddress || destinationDutyLocationAddress?.postalCode;
+      displayedDeliveryAddress = destinationAddress || destinationDutyLocationAddress;
       break;
     case SHIPMENT_OPTIONS.NTS:
       displayedPickupAddress = pickupAddress;
@@ -98,7 +113,7 @@ const ShipmentDetailsMain = ({
       break;
     default:
       displayedPickupAddress = pickupAddress;
-      displayedDeliveryAddress = destinationAddress || destinationDutyLocationAddress?.postalCode;
+      displayedDeliveryAddress = destinationAddress || destinationDutyLocationAddress;
   }
 
   return (
@@ -107,26 +122,28 @@ const ShipmentDetailsMain = ({
         <ReviewSITExtensionsModal
           onClose={() => setIsReviewSITExtensionModalVisible(false)}
           onSubmit={reviewSITExtension}
+          shipment={shipment}
           sitExtension={pendingSITExtension}
-          summarySITComponent={summarySITComponent}
+          sitStatus={sitStatus}
         />
       )}
       {isSubmitITExtensionModalVisible && (
         <SubmitSITExtensionModal
           onClose={() => setIsSubmitITExtensionModalVisible(false)}
           onSubmit={submitSITExtension}
-          summarySITComponent={summarySITComponent}
+          shipment={shipment}
+          sitExtensions={sitExtensions}
+          sitStatus={sitStatus}
         />
       )}
-      {sitStatus && (
+      {(sitStatus || shipment.sitDaysAllowance) && (
         <ShipmentSITDisplay
           sitExtensions={sitExtensions}
           sitStatus={sitStatus}
           storageInTransit={storageInTransit}
           shipment={shipment}
-          showReviewSITExtension={setIsReviewSITExtensionModalVisible}
-          showSubmitSITExtension={setIsSubmitITExtensionModalVisible}
           className={styles.shipmentSITSummary}
+          openModalButton={openModalButton}
         />
       )}
       <ImportantShipmentDates

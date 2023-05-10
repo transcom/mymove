@@ -6,7 +6,6 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
@@ -54,6 +53,7 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 		okResponse := response.(*officeuserop.IndexOfficeUsersOK)
 		suite.Len(okResponse.Payload, 2)
 		suite.Equal(officeUsers[0].ID.String(), okResponse.Payload[0].ID.String())
+		suite.Equal(string(officeUsers[0].User.Roles[0].RoleType), *okResponse.Payload[0].Roles[0].RoleType)
 	})
 
 	suite.Run("fetch return an empty list", func() {
@@ -330,7 +330,7 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 			Return(&officeUser, nil, nil)
 
 		expectedSessionUpdate := &adminmessages.UserUpdate{
-			RevokeOfficeSession: swag.Bool(true),
+			RevokeOfficeSession: models.BoolPointer(true),
 		}
 		mockRevoker := mocks.UserSessionRevocation{}
 		mockRevoker.

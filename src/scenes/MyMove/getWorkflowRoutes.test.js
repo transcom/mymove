@@ -93,7 +93,6 @@ describe('when getting the routes for the current workflow', () => {
     describe('given an incomplete service member', () => {
       describe('given no move and behind GHC flag', () => {
         const props = {
-          selectedMoveType: null,
           context: ghcContext,
         };
         const pages = getPagesInFlow(props);
@@ -144,7 +143,6 @@ describe('when getting the routes for the current workflow', () => {
     });
     describe('given hhgFlow flag is true', () => {
       const props = {
-        selectedMoveType: SHIPMENT_OPTIONS.HHG,
         context: hhgContext,
       };
       const pages = getPagesInFlow(props);
@@ -167,7 +165,6 @@ describe('when getting the routes for the current workflow', () => {
     });
     describe('given hhgFlow + selected shipment NTS is true', () => {
       const props = {
-        selectedMoveType: SHIPMENT_OPTIONS.NTS,
         context: hhgContext,
       };
       const pages = getPagesInFlow(props);
@@ -190,7 +187,6 @@ describe('when getting the routes for the current workflow', () => {
     });
     describe('given hhgFlow + selected shipment NTSR is true', () => {
       const props = {
-        selectedMoveType: SHIPMENT_OPTIONS.NTSR,
         context: hhgContext,
       };
       const pages = getPagesInFlow(props);
@@ -219,7 +215,6 @@ describe('when getting the next incomplete page', () => {
   describe('when the profile is incomplete', () => {
     it('returns the first page of the user profile', () => {
       const result = getNextIncompletePage({
-        selectedMoveType: 'HHG',
         serviceMember,
         context: ppmContext,
       });

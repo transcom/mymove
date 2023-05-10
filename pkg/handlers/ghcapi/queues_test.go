@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/factory"
@@ -18,7 +18,6 @@ import (
 	"github.com/transcom/mymove/pkg/services/mocks"
 	order "github.com/transcom/mymove/pkg/services/order"
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *HandlerSuite) TestGetMoveQueuesHandler() {
@@ -27,22 +26,20 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandler() {
 		RoleType: roles.RoleTypeTOO,
 	})
 
-	hhgMoveType := models.SelectedMoveTypeHHG
 	// Default Origin Duty Location GBLOC is KKFA
-	hhgMove := factory.BuildSubmittedMove(suite.DB(), []factory.Customization{
+	hhgMove := factory.BuildSubmittedMove(suite.DB(), nil, nil)
+
+	factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 		{
-			Model: models.Move{
-				SelectedMoveType: &hhgMoveType,
+			Model:    hhgMove,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOShipment{
+				Status: models.MTOShipmentStatusSubmitted,
 			},
 		},
 	}, nil)
-
-	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: hhgMove,
-		MTOShipment: models.MTOShipment{
-			Status: models.MTOShipmentStatusSubmitted,
-		},
-	})
 
 	// Create a move with an origin duty location outside of office user GBLOC
 	excludedMove := factory.BuildMove(suite.DB(), []factory.Customization{
@@ -52,19 +49,19 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandler() {
 			},
 			Type: &factory.TransportationOffices.CloseoutOffice,
 		},
+	}, nil)
+
+	factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 		{
-			Model: models.Move{
-				SelectedMoveType: &hhgMoveType,
+			Model:    excludedMove,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOShipment{
+				Status: models.MTOShipmentStatusSubmitted,
 			},
 		},
 	}, nil)
-
-	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: excludedMove,
-		MTOShipment: models.MTOShipment{
-			Status: models.MTOShipmentStatusSubmitted,
-		},
-	})
 
 	request := httptest.NewRequest("GET", "/queues/moves", nil)
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
@@ -103,22 +100,55 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandler() {
 func (suite *HandlerSuite) TestGetMoveQueuesHandlerMoveInfo() {
 	suite.Run("displays move attributes for all move types returned by ListOrders", func() {
 		gbloc := "LKNQ"
-		stub := testdatagen.Assertions{Stub: true}
 
 		// Stub HHG move
-		hhgMove := testdatagen.MakeHHGMoveWithShipment(suite.DB(), stub)
+		hhgMove := factory.BuildMoveWithShipment(nil, []factory.Customization{
+			{
+				Model: models.Move{
+					ID: uuid.Must(uuid.NewV4()),
+				},
+			},
+		}, nil)
 		hhgMove.ShipmentGBLOC = append(hhgMove.ShipmentGBLOC, models.MoveToGBLOC{GBLOC: &gbloc})
 
 		// Stub HHG_PPM move
-		hhgPPMMove := testdatagen.MakeHHGPPMMoveWithShipment(suite.DB(), stub)
+		hhgPPMMove := factory.BuildMoveWithShipment(nil, []factory.Customization{
+			{
+				Model: models.Move{
+					ID: uuid.Must(uuid.NewV4()),
+				},
+			},
+		}, nil)
 		hhgPPMMove.ShipmentGBLOC = append(hhgPPMMove.ShipmentGBLOC, models.MoveToGBLOC{GBLOC: &gbloc})
 
 		// Stub NTS move
-		ntsMove := testdatagen.MakeNTSMoveWithShipment(suite.DB(), stub)
+		ntsMove := factory.BuildMoveWithShipment(nil, []factory.Customization{
+			{
+				Model: models.Move{
+					ID: uuid.Must(uuid.NewV4()),
+				},
+			},
+			{
+				Model: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypeHHGIntoNTSDom,
+				},
+			},
+		}, nil)
 		ntsMove.ShipmentGBLOC = append(ntsMove.ShipmentGBLOC, models.MoveToGBLOC{GBLOC: &gbloc})
 
 		// Stub NTSR move
-		ntsrMove := testdatagen.MakeNTSRMoveWithShipment(suite.DB(), stub)
+		ntsrMove := factory.BuildMoveWithShipment(nil, []factory.Customization{
+			{
+				Model: models.Move{
+					ID: uuid.Must(uuid.NewV4()),
+				},
+			},
+			{
+				Model: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypeHHGOutOfNTSDom,
+				},
+			},
+		}, nil)
 		ntsrMove.ShipmentGBLOC = append(ntsrMove.ShipmentGBLOC, models.MoveToGBLOC{GBLOC: &gbloc})
 
 		var expectedMoves []models.Move
@@ -166,11 +196,8 @@ func (suite *HandlerSuite) TestGetMoveQueuesBranchFilter() {
 		RoleType: roles.RoleTypeTOO,
 	})
 
-	hhgMoveType := models.SelectedMoveTypeHHG
-
 	move := models.Move{
-		SelectedMoveType: &hhgMoveType,
-		Status:           models.MoveStatusSUBMITTED,
+		Status: models.MoveStatusSUBMITTED,
 	}
 
 	shipment := models.MTOShipment{
@@ -178,20 +205,30 @@ func (suite *HandlerSuite) TestGetMoveQueuesBranchFilter() {
 	}
 
 	// Create an order where the service member has an ARMY affiliation (default)
-	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move:        move,
-		MTOShipment: shipment,
-	})
+	factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model: move,
+		},
+		{
+			Model: shipment,
+		},
+	}, nil)
 
 	// Create an order where the service member has an AIR_FORCE affiliation
 	airForce := models.AffiliationAIRFORCE
-	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		MTOShipment: shipment,
-		Move:        move,
-		ServiceMember: models.ServiceMember{
-			Affiliation: &airForce,
+	factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model: shipment,
 		},
-	})
+		{
+			Model: move,
+		},
+		{
+			Model: models.ServiceMember{
+				Affiliation: &airForce,
+			},
+		},
+	}, nil)
 
 	request := httptest.NewRequest("GET", "/queues/moves", nil)
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
@@ -227,50 +264,57 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerStatuses() {
 		RoleType: roles.RoleTypeTOO,
 	})
 
-	hhgMoveType := models.SelectedMoveTypeHHG
 	// Default Origin Duty Location GBLOC is KKFA
-	hhgMove := factory.BuildSubmittedMove(suite.DB(), []factory.Customization{
+	hhgMove := factory.BuildSubmittedMove(suite.DB(), nil, nil)
+
+	factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 		{
-			Model: models.Move{
-				SelectedMoveType: &hhgMoveType,
+			Model:    hhgMove,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOShipment{
+				Status: models.MTOShipmentStatusSubmitted,
 			},
 		},
 	}, nil)
 
-	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: hhgMove,
-		MTOShipment: models.MTOShipment{
-			Status: models.MTOShipmentStatusSubmitted,
-		},
-	})
-
 	// Create a shipment on hhgMove that has Rejected status
 	rejectionReason := "unnecessary"
-	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: hhgMove,
-		MTOShipment: models.MTOShipment{
-			Status:          models.MTOShipmentStatusRejected,
-			RejectionReason: &rejectionReason,
+	factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    hhgMove,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				Status:          models.MTOShipmentStatusRejected,
+				RejectionReason: &rejectionReason,
+			},
+		},
+	}, nil)
 	factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), "06001", "AGFM")
 
 	// Create an order with an origin duty location outside of office user GBLOC
-	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		TransportationOffice: models.TransportationOffice{
-			Name:  "Fort Punxsutawney",
-			Gbloc: "AGFM",
-		},
-		MTOShipment: models.MTOShipment{
-			Status: models.MTOShipmentStatusSubmitted,
-			PickupAddress: &models.Address{
-				PostalCode: "06001",
+	factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model: models.TransportationOffice{
+				Name:  "Fort Punxsutawney",
+				Gbloc: "AGFM",
 			},
 		},
-		Move: models.Move{
-			SelectedMoveType: &hhgMoveType,
+		{
+			Model: models.MTOShipment{
+				Status: models.MTOShipmentStatusSubmitted,
+			},
 		},
-	})
+		{
+			Model: models.Address{
+				PostalCode: "06001",
+			},
+			Type: &factory.Addresses.PickupAddress,
+		},
+	}, nil)
 
 	request := httptest.NewRequest("GET", "/move-task-orders/{moveTaskOrderID}", nil)
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
@@ -341,10 +385,8 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 		RoleType: roles.RoleTypeTOO,
 	})
 
-	hhgMoveType := models.SelectedMoveTypeHHG
 	submittedMove := models.Move{
-		SelectedMoveType: &hhgMoveType,
-		Status:           models.MoveStatusSUBMITTED,
+		Status: models.MoveStatusSUBMITTED,
 	}
 	submittedShipment := models.MTOShipment{
 		Status: models.MTOShipmentStatusSubmitted,
@@ -352,58 +394,75 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 	airForce := models.AffiliationAIRFORCE
 
 	// New move with AIR_FORCE service member affiliation to test branch filter
-	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move:        submittedMove,
-		MTOShipment: submittedShipment,
-		ServiceMember: models.ServiceMember{
-			Affiliation: &airForce,
-		},
-	})
-
-	// Approvals requested
-	approvedMove := factory.BuildApprovalsRequestedMove(suite.DB(), []factory.Customization{
+	factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 		{
-			Model: models.Move{
-				SelectedMoveType: &hhgMoveType,
+			Model: submittedMove,
+		},
+		{
+			Model: submittedShipment,
+		},
+		{
+			Model: models.ServiceMember{
+				Affiliation: &airForce,
 			},
 		},
 	}, nil)
-	testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-		Move: approvedMove,
-		MTOShipment: models.MTOShipment{
-			Status: models.MTOShipmentStatusApproved,
+
+	// Approvals requested
+	approvedMove := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
+
+	factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+		{
+			Model:    approvedMove,
+			LinkOnly: true,
 		},
-		MTOServiceItem: models.MTOServiceItem{
-			Status: models.MTOServiceItemStatusSubmitted,
+		{
+			Model: models.MTOShipment{
+				Status: models.MTOShipmentStatusApproved,
+			},
 		},
-	})
+		{
+			Model: models.MTOServiceItem{
+				Status: models.MTOServiceItemStatusSubmitted,
+			},
+		},
+	}, nil)
 
 	// Move approved
-	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			SelectedMoveType: &hhgMoveType,
-			Status:           models.MoveStatusAPPROVED,
+	factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model: models.Move{
+				Status: models.MoveStatusAPPROVED,
+			},
 		},
-		MTOShipment: models.MTOShipment{
-			Status: models.MTOShipmentStatusApproved,
+		{
+			Model: models.MTOShipment{
+				Status: models.MTOShipmentStatusApproved,
+			},
 		},
-	})
+	}, nil)
 
 	// Move DRAFT and CANCELLED should not be included
-	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			SelectedMoveType: &hhgMoveType,
-			Status:           models.MoveStatusDRAFT,
+	factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model: models.Move{
+				Status: models.MoveStatusDRAFT,
+			},
 		},
-		MTOShipment: submittedShipment,
-	})
-	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			SelectedMoveType: &hhgMoveType,
-			Status:           models.MoveStatusCANCELED,
+		{
+			Model: submittedShipment,
 		},
-		MTOShipment: submittedShipment,
-	})
+	}, nil)
+	factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model: models.Move{
+				Status: models.MoveStatusCANCELED,
+			},
+		},
+		{
+			Model: submittedShipment,
+		},
+	}, nil)
 
 	request := httptest.NewRequest("GET", "/queues/moves", nil)
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
@@ -447,8 +506,8 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 				string(models.MoveStatusAPPROVED),
 				string(models.MoveStatusAPPROVALSREQUESTED),
 			},
-			PerPage: swag.Int64(1),
-			Page:    swag.Int64(1),
+			PerPage: models.Int64Pointer(1),
+			Page:    models.Int64Pointer(1),
 		}
 
 		// Validate incoming payload: no body to validate
@@ -471,8 +530,8 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 			Status: []string{
 				string(models.MoveStatusSUBMITTED),
 			},
-			Page:    swag.Int64(1),
-			PerPage: swag.Int64(1),
+			Page:    models.Int64Pointer(1),
+			PerPage: models.Int64Pointer(1),
 		}
 
 		// Validate incoming payload: no body to validate
@@ -579,7 +638,6 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 		RoleType: roles.RoleTypeTOO,
 	})
 
-	hhgMoveType := models.SelectedMoveTypeHHG
 	// Default Origin Duty Location GBLOC is KKFA
 
 	serviceMember1 := factory.BuildServiceMember(suite.DB(), []factory.Customization{
@@ -604,11 +662,6 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 
 	move1 := factory.BuildSubmittedMove(suite.DB(), []factory.Customization{
 		{
-			Model: models.Move{
-				SelectedMoveType: &hhgMoveType,
-			},
-		},
-		{
 			Model:    dutyLocation1,
 			LinkOnly: true,
 			Type:     &factory.DutyLocations.OriginDutyLocation,
@@ -625,11 +678,6 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 	}, nil)
 
 	move2 := factory.BuildSubmittedMove(suite.DB(), []factory.Customization{
-		{
-			Model: models.Move{
-				SelectedMoveType: &hhgMoveType,
-			},
-		},
 		{
 			Model:    dutyLocation2,
 			LinkOnly: true,
@@ -650,15 +698,25 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 		Status: models.MTOShipmentStatusSubmitted,
 	}
 
-	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move:        move1,
-		MTOShipment: shipment,
-	})
+	factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    move1,
+			LinkOnly: true,
+		},
+		{
+			Model: shipment,
+		},
+	}, nil)
 
-	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move:        move2,
-		MTOShipment: shipment,
-	})
+	factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    move2,
+			LinkOnly: true,
+		},
+		{
+			Model: shipment,
+		},
+	}, nil)
 
 	request := httptest.NewRequest("GET", "/queues/moves", nil)
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
@@ -854,7 +912,6 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerEmptyResults() {
 	})
 
 	// Create an order with an origin duty location outside of office user GBLOC
-	hhgMoveType := models.SelectedMoveTypeHHG
 	excludedMove := factory.BuildMove(suite.DB(), []factory.Customization{
 		{
 			Model: models.TransportationOffice{
@@ -862,18 +919,18 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerEmptyResults() {
 			},
 			Type: &factory.TransportationOffices.CloseoutOffice,
 		},
+	}, nil)
+	factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 		{
-			Model: models.Move{
-				SelectedMoveType: &hhgMoveType,
+			Model:    excludedMove,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOShipment{
+				Status: models.MTOShipmentStatusSubmitted,
 			},
 		},
 	}, nil)
-	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: excludedMove,
-		MTOShipment: models.MTOShipment{
-			Status: models.MTOShipmentStatusSubmitted,
-		},
-	})
 
 	request := httptest.NewRequest("GET", "/queues/moves", nil)
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
@@ -903,19 +960,23 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandler() {
 	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTIO})
 
 	// Default Origin Duty Location GBLOC is KKFA
-	hhgMove := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
-
+	hhgMove := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
 	// Fake this as a day and a half in the past so floating point age values can be tested
 	prevCreatedAt := time.Now().Add(time.Duration(time.Hour * -36))
 
-	actualPaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-		Move: hhgMove,
-		PaymentRequest: models.PaymentRequest{
-			CreatedAt: prevCreatedAt,
+	actualPaymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+		{
+			Model:    hhgMove,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.PaymentRequest{
+				CreatedAt: prevCreatedAt,
+			},
+		},
+	}, nil)
 
-	testdatagen.MakeDefaultPaymentRequest(suite.DB())
+	factory.BuildPaymentRequest(suite.DB(), nil, nil)
 
 	request := httptest.NewRequest("GET", "/queues/payment-requests", nil)
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
@@ -965,25 +1026,33 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueSubmittedAtFilter() {
 
 	outOfRangeDate, _ := time.Parse("2006-01-02", "2020-10-10")
 
-	hhgMove1 := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
-	hhgMove2 := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
+	hhgMove1 := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
+	hhgMove2 := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
 
-	testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-		PaymentRequest: models.PaymentRequest{
-			CreatedAt:       outOfRangeDate,
-			MoveTaskOrderID: hhgMove1.ID,
-			MoveTaskOrder:   hhgMove1,
+	factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+		{
+			Model: models.PaymentRequest{
+				CreatedAt: outOfRangeDate,
+			},
 		},
-	})
+		{
+			Model:    hhgMove1,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	createdAtTime := time.Date(2020, 10, 29, 0, 0, 0, 0, time.UTC)
-	testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-		PaymentRequest: models.PaymentRequest{
-			CreatedAt:       createdAtTime,
-			MoveTaskOrderID: hhgMove2.ID,
-			MoveTaskOrder:   hhgMove2,
+	factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+		{
+			Model: models.PaymentRequest{
+				CreatedAt: createdAtTime,
+			},
 		},
-	})
+		{
+			Model:    hhgMove2,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	request := httptest.NewRequest("GET", "/queues/payment-requests", nil)
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
@@ -1014,8 +1083,8 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueSubmittedAtFilter() {
 	suite.Run("returns unfiltered paginated results", func() {
 		params := queues.GetPaymentRequestsQueueParams{
 			HTTPRequest: request,
-			Page:        swag.Int64(1),
-			PerPage:     swag.Int64(1),
+			Page:        models.Int64Pointer(1),
+			PerPage:     models.Int64Pointer(1),
 		}
 
 		// Validate incoming payload: no body to validate
@@ -1062,8 +1131,8 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerUnauthorizedRole() 
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
 	params := queues.GetPaymentRequestsQueueParams{
 		HTTPRequest: request,
-		Page:        swag.Int64(1),
-		PerPage:     swag.Int64(1),
+		Page:        models.Int64Pointer(1),
+		PerPage:     models.Int64Pointer(1),
 	}
 	handlerConfig := suite.HandlerConfig()
 	handler := GetPaymentRequestsQueueHandler{
@@ -1095,8 +1164,8 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerServerError() {
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
 	params := queues.GetPaymentRequestsQueueParams{
 		HTTPRequest: request,
-		Page:        swag.Int64(1),
-		PerPage:     swag.Int64(1),
+		Page:        models.Int64Pointer(1),
+		PerPage:     models.Int64Pointer(1),
 	}
 	handlerConfig := suite.HandlerConfig()
 	handler := GetPaymentRequestsQueueHandler{
@@ -1129,8 +1198,8 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerEmptyResults() {
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
 	params := queues.GetPaymentRequestsQueueParams{
 		HTTPRequest: request,
-		Page:        swag.Int64(1),
-		PerPage:     swag.Int64(1),
+		Page:        models.Int64Pointer(1),
+		PerPage:     models.Int64Pointer(1),
 	}
 	handlerConfig := suite.HandlerConfig()
 	handler := GetPaymentRequestsQueueHandler{
@@ -1166,54 +1235,66 @@ func (suite *HandlerSuite) makeServicesCounselingSubtestData() (subtestData *ser
 	subtestData = &servicesCounselingSubtestData{}
 	subtestData.officeUser = factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 
-	hhgMoveType := models.SelectedMoveTypeHHG
 	submittedAt := time.Date(2021, 03, 15, 0, 0, 0, 0, time.UTC)
 	// Default Origin Duty Location GBLOC is KKFA
 	subtestData.needsCounselingMove = factory.BuildNeedsServiceCounselingMove(suite.DB(), []factory.Customization{
 		{
 			Model: models.Move{
-				SelectedMoveType: &hhgMoveType,
-				SubmittedAt:      &submittedAt,
+				SubmittedAt: &submittedAt,
 			},
 		},
 	}, nil)
 
 	requestedPickupDate := time.Date(2021, 04, 01, 0, 0, 0, 0, time.UTC)
-	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: subtestData.needsCounselingMove,
-		MTOShipment: models.MTOShipment{
-			RequestedPickupDate:   &requestedPickupDate,
-			RequestedDeliveryDate: &requestedPickupDate,
-			Status:                models.MTOShipmentStatusSubmitted,
+	factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    subtestData.needsCounselingMove,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				RequestedPickupDate:   &requestedPickupDate,
+				RequestedDeliveryDate: &requestedPickupDate,
+				Status:                models.MTOShipmentStatusSubmitted,
+			},
+		},
+	}, nil)
 
 	earlierRequestedPickup := requestedPickupDate.Add(-7 * 24 * time.Hour)
-	subtestData.needsCounselingEarliestShipment = testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: subtestData.needsCounselingMove,
-		MTOShipment: models.MTOShipment{
-			RequestedPickupDate:   &earlierRequestedPickup,
-			RequestedDeliveryDate: &requestedPickupDate,
-			Status:                models.MTOShipmentStatusSubmitted,
+	subtestData.needsCounselingEarliestShipment = factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    subtestData.needsCounselingMove,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				RequestedPickupDate:   &earlierRequestedPickup,
+				RequestedDeliveryDate: &requestedPickupDate,
+				Status:                models.MTOShipmentStatusSubmitted,
+			},
+		},
+	}, nil)
 
 	earlierSubmittedAt := submittedAt.Add(-1 * 24 * time.Hour)
 	subtestData.counselingCompletedMove = factory.BuildServiceCounselingCompletedMove(suite.DB(), []factory.Customization{
 		{
 			Model: models.Move{
-				SelectedMoveType: &hhgMoveType,
-				SubmittedAt:      &earlierSubmittedAt,
+				SubmittedAt: &earlierSubmittedAt,
 			},
 		},
 	}, nil)
 
-	subtestData.counselingCompletedShipment = testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: subtestData.counselingCompletedMove,
-		MTOShipment: models.MTOShipment{
-			Status: models.MTOShipmentStatusSubmitted,
+	subtestData.counselingCompletedShipment = factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    subtestData.counselingCompletedMove,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				Status: models.MTOShipmentStatusSubmitted,
+			},
+		},
+	}, nil)
 
 	// Create a move with an origin duty location outside of office user GBLOC
 	dutyLocationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
@@ -1249,21 +1330,23 @@ func (suite *HandlerSuite) makeServicesCounselingSubtestData() (subtestData *ser
 			LinkOnly: true,
 			Type:     &factory.DutyLocations.OriginDutyLocation,
 		},
+	}, nil)
+	factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 		{
-			Model: models.Move{
-				SelectedMoveType: &hhgMoveType,
+			Model:    excludedGBLOCMove,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOShipment{
+				Status: models.MTOShipmentStatusSubmitted,
+			},
+		},
+		{
+			Model: models.Address{
+				PostalCode: "06001",
 			},
 		},
 	}, nil)
-	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: excludedGBLOCMove,
-		MTOShipment: models.MTOShipment{
-			Status: models.MTOShipmentStatusSubmitted,
-		},
-		PickupAddress: models.Address{
-			PostalCode: "06001",
-		},
-	})
 
 	excludedStatusMove := factory.BuildSubmittedMove(suite.DB(), []factory.Customization{
 		{
@@ -1271,22 +1354,25 @@ func (suite *HandlerSuite) makeServicesCounselingSubtestData() (subtestData *ser
 			LinkOnly: true,
 			Type:     &factory.DutyLocations.OriginDutyLocation,
 		},
-		{
-			Model: models.Move{
-				SelectedMoveType: &hhgMoveType,
-			},
-		},
 	}, nil)
 
-	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: excludedStatusMove,
-		MTOShipment: models.MTOShipment{
-			Status: models.MTOShipmentStatusSubmitted,
-			PickupAddress: &models.Address{
-				PostalCode: "06001",
+	factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    excludedStatusMove,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOShipment{
+				Status: models.MTOShipmentStatusSubmitted,
 			},
 		},
-	})
+		{
+			Model: models.Address{
+				PostalCode: "06001",
+			},
+			Type: &factory.Addresses.PickupAddress,
+		},
+	}, nil)
 
 	marineCorpsAffiliation := models.AffiliationMARINES
 
@@ -1298,19 +1384,23 @@ func (suite *HandlerSuite) makeServicesCounselingSubtestData() (subtestData *ser
 		},
 		{
 			Model: models.Move{
-				SelectedMoveType: &hhgMoveType,
-				SubmittedAt:      &submittedAt,
+				SubmittedAt: &submittedAt,
 			},
 		},
 	}, nil)
 
-	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: subtestData.marineCorpsMove,
-		MTOShipment: models.MTOShipment{
-			RequestedPickupDate: &requestedPickupDate,
-			Status:              models.MTOShipmentStatusSubmitted,
+	factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    subtestData.marineCorpsMove,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				RequestedPickupDate: &requestedPickupDate,
+				Status:              models.MTOShipmentStatusSubmitted,
+			},
+		},
+	}, nil)
 
 	request := httptest.NewRequest("GET", "/queues/counseling", nil)
 	subtestData.request = suite.AuthenticateOfficeRequest(request, subtestData.officeUser)
@@ -1329,8 +1419,8 @@ func (suite *HandlerSuite) TestGetServicesCounselingQueueHandler() {
 
 		params := queues.GetServicesCounselingQueueParams{
 			HTTPRequest: subtestData.request,
-			Sort:        swag.String("branch"),
-			Order:       swag.String("asc"),
+			Sort:        models.StringPointer("branch"),
+			Order:       models.StringPointer("asc"),
 		}
 
 		// Validate incoming payload: no body to validate

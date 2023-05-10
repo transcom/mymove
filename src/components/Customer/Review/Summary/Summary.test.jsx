@@ -4,7 +4,8 @@ import userEvent from '@testing-library/user-event';
 
 import { Summary } from 'components/Customer/Review/Summary/Summary';
 import { MOVE_STATUSES } from 'shared/constants';
-import { renderWithRouter } from 'testUtils';
+import { renderWithRouterProp } from 'testUtils';
+import { customerRoutes } from 'constants/routes';
 
 const testProps = {
   serviceMember: {
@@ -52,11 +53,6 @@ const testProps = {
       uploads: [],
     },
   },
-  match: { path: '', isExact: true, url: '/moves/123/review', params: { moveId: '123' } },
-  history: {
-    goBack: jest.fn(),
-    push: jest.fn(),
-  },
   currentMove: {
     id: '123',
     locator: 'CXVV3F',
@@ -64,7 +60,6 @@ const testProps = {
     service_member_id: '666',
     status: MOVE_STATUSES.DRAFT,
   },
-  selectedMoveType: 'HHG',
   moveIsApproved: false,
   entitlement: {},
   mtoShipment: {
@@ -106,7 +101,10 @@ const testProps = {
 describe('Summary page', () => {
   describe('if the user can add another shipment', () => {
     it('displays the Add Another Shipment section', () => {
-      renderWithRouter(<Summary {...testProps} />);
+      renderWithRouterProp(<Summary {...testProps} />, {
+        path: customerRoutes.MOVE_REVIEW_PATH,
+        params: { moveId: '123' },
+      });
 
       expect(screen.getByRole('link', { name: 'Add another shipment' })).toHaveAttribute(
         'href',
@@ -115,7 +113,10 @@ describe('Summary page', () => {
     });
 
     it('displays a button that opens a modal', async () => {
-      renderWithRouter(<Summary {...testProps} />);
+      renderWithRouterProp(<Summary {...testProps} />, {
+        path: customerRoutes.MOVE_REVIEW_PATH,
+        params: { moveId: '123' },
+      });
 
       expect(
         screen.queryByRole('heading', { level: 3, name: 'Reasons you might need another shipment' }),

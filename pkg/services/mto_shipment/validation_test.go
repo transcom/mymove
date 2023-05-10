@@ -11,7 +11,6 @@ import (
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
@@ -49,23 +48,33 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 		now := time.Now()
 		hide := false
 		availableToPrimeMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-		primeShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
-			Move: availableToPrimeMove,
-		})
-		nonPrimeShipment := testdatagen.MakeDefaultMTOShipmentMinimal(appCtx.DB())
-		externalShipment := testdatagen.MakeMTOShipmentMinimal(appCtx.DB(), testdatagen.Assertions{
-			Move: availableToPrimeMove,
-			MTOShipment: models.MTOShipment{
-				ShipmentType:       models.MTOShipmentTypeHHGOutOfNTSDom,
-				UsesExternalVendor: true,
+		primeShipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+			{
+				Model:    availableToPrimeMove,
+				LinkOnly: true,
 			},
-		})
-		hiddenPrimeShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				AvailableToPrimeAt: &now,
-				Show:               &hide,
+		}, nil)
+		nonPrimeShipment := factory.BuildMTOShipmentMinimal(appCtx.DB(), nil, nil)
+		externalShipment := factory.BuildMTOShipmentMinimal(appCtx.DB(), []factory.Customization{
+			{
+				Model:    availableToPrimeMove,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.MTOShipment{
+					ShipmentType:       models.MTOShipmentTypeHHGOutOfNTSDom,
+					UsesExternalVendor: true,
+				},
+			},
+		}, nil)
+		hiddenPrimeShipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					AvailableToPrimeAt: &now,
+					Show:               &hide,
+				},
+			},
+		}, nil)
 		badUUID := uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001")
 
 		testCases := map[string]struct {
@@ -221,11 +230,13 @@ func (suite *MTOShipmentServiceSuite) TestDeleteValidations() {
 
 		for status, allowed := range testCases {
 			suite.Run("Move status "+string(status), func() {
-				shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-					Move: models.Move{
-						Status: status,
+				shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+					{
+						Model: models.Move{
+							Status: status,
+						},
 					},
-				})
+				}, nil)
 
 				err := checkDeleteAllowed().Validate(
 					suite.AppContextForTest(),
@@ -259,15 +270,18 @@ func (suite *MTOShipmentServiceSuite) TestDeleteValidations() {
 		for shipmentType, allowed := range testCases {
 			suite.Run("Shipment type "+string(shipmentType), func() {
 				now := time.Now()
-				shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-					MTOShipment: models.MTOShipment{
-						ShipmentType: shipmentType,
+				shipment := factory.BuildMTOShipment(nil, []factory.Customization{
+					{
+						Model: models.MTOShipment{
+							ShipmentType: shipmentType,
+						},
 					},
-					Move: models.Move{
-						AvailableToPrimeAt: &now,
+					{
+						Model: models.Move{
+							AvailableToPrimeAt: &now,
+						},
 					},
-					Stub: true,
-				})
+				}, nil)
 
 				err := checkPrimeDeleteAllowed().Validate(
 					suite.AppContextForTest(),
@@ -298,15 +312,18 @@ func (suite *MTOShipmentServiceSuite) TestDeleteValidations() {
 		for status, allowed := range testCases {
 			now := time.Now()
 			suite.Run("PPM status "+string(status), func() {
-				ppmShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
-					PPMShipment: models.PPMShipment{
-						Status: status,
+				ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+					{
+						Model: models.PPMShipment{
+							Status: status,
+						},
 					},
-					Move: models.Move{
-						AvailableToPrimeAt: &now,
+					{
+						Model: models.Move{
+							AvailableToPrimeAt: &now,
+						},
 					},
-				})
-
+				}, nil)
 				err := checkPrimeDeleteAllowed().Validate(
 					suite.AppContextForTest(),
 					nil,
@@ -324,14 +341,18 @@ func (suite *MTOShipmentServiceSuite) TestDeleteValidations() {
 	})
 
 	suite.Run("checkPrimeDeleteAllowed for move not available to prime", func() {
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				ShipmentType: models.MTOShipmentTypePPM,
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypePPM,
+				},
 			},
-			Move: models.Move{
-				AvailableToPrimeAt: nil,
+			{
+				Model: models.Move{
+					AvailableToPrimeAt: nil,
+				},
 			},
-		})
+		}, nil)
 
 		err := checkPrimeDeleteAllowed().Validate(
 			suite.AppContextForTest(),

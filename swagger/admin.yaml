@@ -55,10 +55,6 @@ tags:
     description: Information about organizations
     externalDocs:
       url: https://transcom.github.io/mymove-docs/docs/api
-  - name: Transportation service provider performances (TSPPs)
-    description: Information about Transportation Service Provider performances
-    externalDocs:
-      url: https://transcom.github.io/mymove-docs/docs/api
   - name: Uploads
     description: Information about uploads
     externalDocs:
@@ -899,75 +895,6 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/TransportationOffice'
-  TransportationServiceProviderPerformance:
-    type: object
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      trafficDistributionListId:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      transportationServiceProviderId:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      performancePeriodStart:
-        type: string
-        format: date-time
-      performancePeriodEnd:
-        type: string
-        format: date-time
-      rateCycleStart:
-        type: string
-        format: date-time
-      rateCycleEnd:
-        type: string
-        format: date-time
-      qualityBand:
-        type: integer
-        x-nullable: true
-        example: 29
-      bestValueScore:
-        type: number
-        example: 98.01
-      linehaulRate:
-        type: number
-        example: 0.26085695149376986
-      sitRate:
-        type: number
-        example: 0.26085695149376986
-      offerCount:
-        type: integer
-        example: 1
-      createdAt:
-        type: string
-        format: date-time
-        readOnly: true
-      updatedAt:
-        type: string
-        format: date-time
-        readOnly: true
-    required:
-      - id
-      - trafficDistributionListId
-      - transportationServiceProviderId
-      - performancePeriodStart
-      - performancePeriodEnd
-      - rateCycleStart
-      - rateCycleEnd
-      - bestValueScore
-      - linehaulRate
-      - sitRate
-      - offerCount
-      - createdAt
-      - updatedAt
-  TransportationServiceProviderPerformances:
-    type: array
-    items:
-      $ref: '#/definitions/TransportationServiceProviderPerformance'
   Upload:
     type: object
     properties:
@@ -1322,90 +1249,6 @@ paths:
           description: Not authorized to update an Office User
         '500':
           description: Server error
-  /transportation-service-provider-performances:
-    get:
-      produces:
-        - application/json
-      summary: List Transportation Service Provider Performances (TSPPs)
-      description: >
-        This endpoint returns a list of Transportation Service Provider
-        Performances
-
-        (TSPPs). Do not use this endpoint directly as it is meant to be used
-        with the
-
-        Admin UI exclusively.
-      operationId: indexTSPPs
-      tags:
-        - Transportation service provider performances (TSPPs)
-      parameters:
-        - in: query
-          name: filter
-          type: string
-        - in: query
-          name: page
-          type: integer
-        - in: query
-          name: perPage
-          type: integer
-        - in: query
-          name: sort
-          type: string
-        - in: query
-          name: order
-          type: boolean
-      responses:
-        '200':
-          description: success
-          headers:
-            Content-Range:
-              type: string
-              description: Used for pagination
-          schema:
-            $ref: '#/definitions/TransportationServiceProviderPerformances'
-        '400':
-          description: invalid request
-        '401':
-          description: request requires user authentication
-        '404':
-          description: Transportation Service Provider Performances (TSPPs) not found
-        '500':
-          description: server error
-  /transportation-service-provider-performances/{tsppId}:
-    get:
-      produces:
-        - application/json
-      summary: Fetch a specific TSPP
-      description: >
-        This endpoint returns a single Transportation Service Provider
-        Performances
-
-        (TSPPs) record by ID. Do not use this endpoint directly as it is meant
-        to be
-
-        used with the Admin UI exclusively.
-      operationId: getTSPP
-      tags:
-        - Transportation service provider performances (TSPPs)
-      parameters:
-        - in: path
-          name: tsppId
-          type: string
-          format: uuid
-          required: true
-      responses:
-        '200':
-          description: success
-          schema:
-            $ref: '#/definitions/TransportationServiceProviderPerformance'
-        '400':
-          description: invalid request
-        '401':
-          description: request requires user authentication
-        '404':
-          description: Transportation Service Provider Performances (TSPPs) not found
-        '500':
-          description: server error
   /admin-users:
     get:
       produces:

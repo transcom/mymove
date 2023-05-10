@@ -488,7 +488,7 @@ test.describe('TIO user', () => {
       await expect(page.locator(prSection)).not.toContainText('Rejected');
 
       await expect(page.locator(prSection)).toContainText('$324.00');
-      await expect(page.locator(prSection)).toContainText('HTC111-11-1-1111');
+      await expect(page.locator(prSection)).toContainText('HTC111-11-1-1112');
       await expect(page.locator(prSection)).toContainText('Non-temp storage release');
       await expect(page.getByTestId('pickup-to-destination')).toBeVisible();
       await expect(page.locator(prSection)).toContainText('1111 (HHG)');

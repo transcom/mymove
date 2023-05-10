@@ -9,17 +9,18 @@ import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { ORDERS_TYPE } from 'constants/orders';
 import { roleTypes } from 'constants/userRoles';
 import { ppmShipmentStatuses } from 'constants/shipments';
+import { tooRoutes } from 'constants/routes';
 import { MockProviders } from 'testUtils';
 import { validatePostalCode } from 'utils/validation';
 
-const mockPush = jest.fn();
+const mockNavigate = jest.fn();
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: () => mockNavigate,
+}));
 
 const defaultProps = {
   isCreatePage: true,
-  match: { isExact: false, path: '', url: '', params: { moveCode: 'move123', shipmentId: 'shipment123' } },
-  history: {
-    push: mockPush,
-  },
   submitHandler: jest.fn(),
   newDutyLocationAddress: {
     city: 'Fort Benning',
@@ -60,6 +61,8 @@ const mockMtoShipment = {
   counselorRemarks: 'mock counselor remarks',
   requestedPickupDate: '2020-03-01',
   requestedDeliveryDate: '2020-03-30',
+  hasSecondaryDeliveryAddress: false,
+  hasSecondaryPickupAddress: false,
   pickupAddress: {
     streetAddress1: '812 S 129th St',
     city: 'San Antonio',
@@ -133,23 +136,23 @@ jest.mock('utils/validation', () => ({
   ...jest.requireActual('utils/validation'),
   validatePostalCode: jest.fn(),
 }));
+const mockRoutingOptions = {
+  path: tooRoutes.BASE_SHIPMENT_EDIT_PATH,
+  params: { moveCode: 'move123', shipmentId: 'shipment123' },
+};
 
 beforeEach(() => {
   jest.clearAllMocks();
 });
 
-describe('ShipmentForm component', () => {
-  beforeEach(() => {
-    defaultProps.history.push.mockReset();
-  });
+const renderWithRouter = (ui) => {
+  render(<MockProviders {...mockRoutingOptions}>{ui}</MockProviders>);
+};
 
+describe('ShipmentForm component', () => {
   describe('when creating a new shipment', () => {
     it('does not show the delete shipment button', async () => {
-      render(
-        <MockProviders>
-          <ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.HHG} />;
-        </MockProviders>,
-      );
+      renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.HHG} />);
 
       const deleteButton = screen.queryByRole('button', { name: 'Delete shipment' });
       await waitFor(() => {
@@ -160,11 +163,7 @@ describe('ShipmentForm component', () => {
 
   describe('when creating a new HHG shipment', () => {
     it('renders the HHG shipment form', async () => {
-      render(
-        <MockProviders>
-          <ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.HHG} />
-        </MockProviders>,
-      );
+      renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.HHG} />);
 
       expect(await screen.findByText('HHG')).toHaveClass('usa-tag');
 
@@ -187,8 +186,10 @@ describe('ShipmentForm component', () => {
       expect(screen.getByLabelText('Requested delivery date')).toBeInstanceOf(HTMLInputElement);
 
       expect(screen.getByText('Delivery location')).toBeInstanceOf(HTMLLegendElement);
-      expect(screen.getByLabelText('Yes')).toBeInstanceOf(HTMLInputElement);
-      expect(screen.getByLabelText('No')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getAllByLabelText('Yes')[0]).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getAllByLabelText('Yes')[1]).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getAllByLabelText('No')[0]).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getAllByLabelText('No')[1]).toBeInstanceOf(HTMLInputElement);
 
       expect(screen.getByText(/Receiving agent/).parentElement).toBeInstanceOf(HTMLLegendElement);
       expect(screen.getAllByLabelText('First name')[1]).toHaveAttribute('name', 'delivery.agent.firstName');
@@ -203,11 +204,7 @@ describe('ShipmentForm component', () => {
 
     it('uses the current residence address for pickup address when checked', async () => {
       const user = userEvent.setup();
-      render(
-        <MockProviders>
-          <ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.HHG} />
-        </MockProviders>,
-      );
+      renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.HHG} />);
 
       await user.click(screen.getByLabelText('Use current address'));
 
@@ -222,13 +219,9 @@ describe('ShipmentForm component', () => {
     });
 
     it('renders a second address fieldset when the user has a delivery address', async () => {
-      render(
-        <MockProviders>
-          <ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.HHG} />
-        </MockProviders>,
-      );
+      renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.HHG} />);
 
-      await userEvent.click(screen.getByLabelText('Yes'));
+      await userEvent.click(screen.getAllByLabelText('Yes')[1]);
 
       expect((await screen.findAllByLabelText('Address 1'))[0]).toHaveAttribute(
         'name',
@@ -250,58 +243,39 @@ describe('ShipmentForm component', () => {
     });
 
     it('renders a delivery address type for retirement orders type', async () => {
-      render(
-        <MockProviders>
-          <ShipmentForm {...defaultPropsRetirement} shipmentType={SHIPMENT_OPTIONS.HHG} />
-        </MockProviders>,
-      );
-      await userEvent.click(screen.getByLabelText('Yes'));
+      renderWithRouter(<ShipmentForm {...defaultPropsRetirement} shipmentType={SHIPMENT_OPTIONS.HHG} />);
+
+      await userEvent.click(screen.getAllByLabelText('Yes')[1]);
 
       expect(await screen.findByText('HHG')).toHaveClass('usa-tag');
       expect(screen.getAllByLabelText('Destination type')[0]).toHaveAttribute('name', 'destinationType');
     });
 
     it('does not render delivery address type for PCS order type', async () => {
-      render(
-        <MockProviders>
-          <ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.HHG} />
-        </MockProviders>,
-      );
-      await userEvent.click(screen.getByLabelText('Yes'));
+      renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.HHG} />);
+      await userEvent.click(screen.getAllByLabelText('Yes')[1]);
 
       expect(await screen.findByText('HHG')).toHaveClass('usa-tag');
       expect(screen.queryByLabelText('Destination type')).toBeNull();
     });
 
     it('renders a delivery address type for separation orders type', async () => {
-      render(
-        <MockProviders>
-          <ShipmentForm {...defaultPropsSeparation} shipmentType={SHIPMENT_OPTIONS.HHG} />
-        </MockProviders>,
-      );
-      await userEvent.click(screen.getByLabelText('Yes'));
+      renderWithRouter(<ShipmentForm {...defaultPropsSeparation} shipmentType={SHIPMENT_OPTIONS.HHG} />);
+      await userEvent.click(screen.getAllByLabelText('Yes')[1]);
 
       expect(await screen.findByText('HHG')).toHaveClass('usa-tag');
       expect(screen.getAllByLabelText('Destination type')[0]).toHaveAttribute('name', 'destinationType');
     });
 
     it('does not render an Accounting Codes section', async () => {
-      render(
-        <MockProviders>
-          <ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.HHG} />
-        </MockProviders>,
-      );
+      renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.HHG} />);
 
       expect(await screen.findByText('HHG')).toHaveClass('usa-tag');
       expect(screen.queryByRole('heading', { name: 'Accounting codes' })).not.toBeInTheDocument();
     });
 
     it('does not render NTS release-only sections', async () => {
-      render(
-        <MockProviders>
-          <ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.HHG} />
-        </MockProviders>,
-      );
+      renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.HHG} />);
 
       expect(await screen.findByText('HHG')).toHaveClass('usa-tag');
       expect(screen.queryByText(/Shipment weight (lbs)/)).not.toBeInTheDocument();
@@ -312,16 +286,14 @@ describe('ShipmentForm component', () => {
 
   describe('editing an already existing HHG shipment', () => {
     it('renders the HHG shipment form with pre-filled values', async () => {
-      render(
-        <MockProviders>
-          <ShipmentForm
-            {...defaultProps}
-            isCreatePage={false}
-            shipmentType={SHIPMENT_OPTIONS.HHG}
-            mtoShipment={mockMtoShipment}
-            displayDestinationType
-          />
-        </MockProviders>,
+      renderWithRouter(
+        <ShipmentForm
+          {...defaultProps}
+          isCreatePage={false}
+          shipmentType={SHIPMENT_OPTIONS.HHG}
+          mtoShipment={mockMtoShipment}
+          displayDestinationType
+        />,
       );
 
       expect(await screen.findByLabelText('Requested pickup date')).toHaveValue('01 Mar 2020');
@@ -336,7 +308,8 @@ describe('ShipmentForm component', () => {
       expect(screen.getAllByLabelText('Phone')[0]).toHaveValue('999-999-9999');
       expect(screen.getAllByLabelText('Email')[0]).toHaveValue('jasn@email.com');
       expect(screen.getByLabelText('Requested delivery date')).toHaveValue('30 Mar 2020');
-      expect(screen.getByLabelText('Yes')).toBeChecked();
+      expect(screen.getAllByLabelText('Yes')[0]).not.toBeChecked();
+      expect(screen.getAllByLabelText('Yes')[1]).toBeChecked();
       expect(screen.getAllByLabelText('Address 1')[1]).toHaveValue('441 SW Rio de la Plata Drive');
       expect(screen.getAllByLabelText(/Address 2/)[1]).toHaveValue('');
       expect(screen.getAllByLabelText('City')[1]).toHaveValue('Tacoma');
@@ -354,16 +327,14 @@ describe('ShipmentForm component', () => {
 
   describe('editing an already existing HHG shipment for retiree/separatee', () => {
     it('renders the HHG shipment form with pre-filled values', async () => {
-      render(
-        <MockProviders>
-          <ShipmentForm
-            {...defaultPropsRetirement}
-            isCreatePage={false}
-            shipmentType={SHIPMENT_OPTIONS.HHG}
-            mtoShipment={mockShipmentWithDestinationType}
-            displayDestinationType
-          />
-        </MockProviders>,
+      renderWithRouter(
+        <ShipmentForm
+          {...defaultPropsRetirement}
+          isCreatePage={false}
+          shipmentType={SHIPMENT_OPTIONS.HHG}
+          mtoShipment={mockShipmentWithDestinationType}
+          displayDestinationType
+        />,
       );
 
       expect(await screen.findByLabelText('Requested pickup date')).toHaveValue('01 Mar 2020');
@@ -378,7 +349,7 @@ describe('ShipmentForm component', () => {
       expect(screen.getAllByLabelText('Phone')[0]).toHaveValue('999-999-9999');
       expect(screen.getAllByLabelText('Email')[0]).toHaveValue('jasn@email.com');
       expect(screen.getByLabelText('Requested delivery date')).toHaveValue('30 Mar 2020');
-      expect(screen.getByLabelText('Yes')).toBeChecked();
+      expect(screen.getAllByLabelText('Yes')[0]).not.toBeChecked();
       expect(screen.getAllByLabelText('Address 1')[1]).toHaveValue('441 SW Rio de la Plata Drive');
       expect(screen.getAllByLabelText(/Address 2/)[1]).toHaveValue('');
       expect(screen.getAllByLabelText('City')[1]).toHaveValue('Tacoma');
@@ -397,11 +368,7 @@ describe('ShipmentForm component', () => {
 
   describe('creating a new NTS shipment', () => {
     it('renders the NTS shipment form', async () => {
-      render(
-        <MockProviders>
-          <ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.NTS} />
-        </MockProviders>,
-      );
+      renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.NTS} />);
 
       expect(await screen.findByText('NTS')).toHaveClass('usa-tag');
 
@@ -432,15 +399,13 @@ describe('ShipmentForm component', () => {
     });
 
     it('renders an Accounting Codes section', async () => {
-      render(
-        <MockProviders>
-          <ShipmentForm
-            {...defaultProps}
-            TACs={{ HHG: '1234', NTS: '5678' }}
-            shipmentType={SHIPMENT_OPTIONS.NTS}
-            mtoShipment={mockMtoShipment}
-          />
-        </MockProviders>,
+      renderWithRouter(
+        <ShipmentForm
+          {...defaultProps}
+          TACs={{ HHG: '1234', NTS: '5678' }}
+          shipmentType={SHIPMENT_OPTIONS.NTS}
+          mtoShipment={mockMtoShipment}
+        />,
       );
 
       expect(await screen.findByText(/Accounting codes/)).toBeInTheDocument();
@@ -449,11 +414,7 @@ describe('ShipmentForm component', () => {
     });
 
     it('does not render NTS release-only sections', async () => {
-      render(
-        <MockProviders>
-          <ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.NTS} />
-        </MockProviders>,
-      );
+      renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.NTS} />);
 
       expect(await screen.findByText('NTS')).toHaveClass('usa-tag');
       expect(screen.queryByText(/Shipment weight (lbs)/)).not.toBeInTheDocument();
@@ -464,21 +425,19 @@ describe('ShipmentForm component', () => {
 
   describe('editing an already existing NTS shipment', () => {
     it('pre-fills the Accounting Codes section', async () => {
-      render(
-        <MockProviders>
-          <ShipmentForm
-            {...defaultProps}
-            isCreatePage={false}
-            mtoShipment={{
-              ...mockMtoShipment,
-              tacType: 'NTS',
-              sacType: 'HHG',
-            }}
-            TACs={{ HHG: '1234', NTS: '5678' }}
-            SACs={{ HHG: '000012345' }}
-            shipmentType={SHIPMENT_OPTIONS.NTS}
-          />
-        </MockProviders>,
+      renderWithRouter(
+        <ShipmentForm
+          {...defaultProps}
+          isCreatePage={false}
+          mtoShipment={{
+            ...mockMtoShipment,
+            tacType: 'NTS',
+            sacType: 'HHG',
+          }}
+          TACs={{ HHG: '1234', NTS: '5678' }}
+          SACs={{ HHG: '000012345' }}
+          shipmentType={SHIPMENT_OPTIONS.NTS}
+        />,
       );
 
       expect(await screen.findByText(/Accounting codes/)).toBeInTheDocument();
@@ -490,22 +449,20 @@ describe('ShipmentForm component', () => {
     it('sends an empty string when clearing LOA types when updating a shipment', async () => {
       const mockSubmitHandler = jest.fn().mockResolvedValue(null);
 
-      render(
-        <MockProviders>
-          <ShipmentForm
-            {...defaultProps}
-            mtoShipment={{
-              ...mockMtoShipment,
-              tacType: 'NTS',
-              sacType: 'HHG',
-            }}
-            TACs={{ HHG: '1234', NTS: '5678' }}
-            SACs={{ HHG: '000012345', NTS: '2222' }}
-            shipmentType={SHIPMENT_OPTIONS.NTS}
-            submitHandler={mockSubmitHandler}
-            isCreatePage={false}
-          />
-        </MockProviders>,
+      renderWithRouter(
+        <ShipmentForm
+          {...defaultProps}
+          mtoShipment={{
+            ...mockMtoShipment,
+            tacType: 'NTS',
+            sacType: 'HHG',
+          }}
+          TACs={{ HHG: '1234', NTS: '5678' }}
+          SACs={{ HHG: '000012345', NTS: '2222' }}
+          shipmentType={SHIPMENT_OPTIONS.NTS}
+          submitHandler={mockSubmitHandler}
+          isCreatePage={false}
+        />,
       );
 
       await userEvent.click(screen.getByTestId('clearSelection-sacType'));
@@ -529,18 +486,16 @@ describe('ShipmentForm component', () => {
     it('does not send undefined LOA types when creating shipment', async () => {
       const mockSubmitHandler = jest.fn().mockResolvedValue(null);
 
-      render(
-        <MockProviders>
-          <ShipmentForm
-            {...defaultProps}
-            mtoShipment={{
-              ...mockMtoShipment,
-            }}
-            shipmentType={SHIPMENT_OPTIONS.NTS}
-            submitHandler={mockSubmitHandler}
-            isCreatePage
-          />
-        </MockProviders>,
+      renderWithRouter(
+        <ShipmentForm
+          {...defaultProps}
+          mtoShipment={{
+            ...mockMtoShipment,
+          }}
+          shipmentType={SHIPMENT_OPTIONS.NTS}
+          submitHandler={mockSubmitHandler}
+          isCreatePage
+        />,
       );
 
       await userEvent.type(screen.getByLabelText('Requested pickup date'), '26 Mar 2022');
@@ -566,11 +521,7 @@ describe('ShipmentForm component', () => {
 
   describe('creating a new NTS-release shipment', () => {
     it('renders the NTS-release shipment form', async () => {
-      render(
-        <MockProviders>
-          <ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.NTSR} />
-        </MockProviders>,
-      );
+      renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.NTSR} />);
 
       expect(await screen.findByText('NTS-release')).toHaveClass('usa-tag');
 
@@ -594,21 +545,13 @@ describe('ShipmentForm component', () => {
     });
 
     it('renders an Accounting Codes section', async () => {
-      render(
-        <MockProviders>
-          <ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.NTSR} />
-        </MockProviders>,
-      );
+      renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.NTSR} />);
 
       expect(await screen.findByText(/Accounting codes/)).toBeInTheDocument();
     });
 
     it('renders the NTS release-only sections', async () => {
-      render(
-        <MockProviders>
-          <ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.NTSR} />
-        </MockProviders>,
-      );
+      renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.NTSR} />);
 
       expect(await screen.findByText('NTS-release')).toHaveClass('usa-tag');
       expect(screen.getByText(/Previously recorded weight \(lbs\)/)).toBeInTheDocument();
@@ -619,11 +562,7 @@ describe('ShipmentForm component', () => {
 
   describe('as a TOO', () => {
     it('renders the HHG shipment form', async () => {
-      render(
-        <MockProviders>
-          <ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.HHG} userRole={roleTypes.TOO} />
-        </MockProviders>,
-      );
+      renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.HHG} userRole={roleTypes.TOO} />);
 
       expect(await screen.findByText('HHG')).toHaveClass('usa-tag');
 
@@ -637,11 +576,7 @@ describe('ShipmentForm component', () => {
     });
 
     it('renders the NTS shipment form', async () => {
-      render(
-        <MockProviders>
-          <ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.NTS} userRole={roleTypes.TOO} />
-        </MockProviders>,
-      );
+      renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.NTS} userRole={roleTypes.TOO} />);
 
       expect(await screen.findByText('NTS')).toHaveClass('usa-tag');
 
@@ -651,10 +586,8 @@ describe('ShipmentForm component', () => {
     });
 
     it('renders the NTS release shipment form', async () => {
-      render(
-        <MockProviders>
-          <ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.NTSR} userRole={roleTypes.TOO} />
-        </MockProviders>,
+      renderWithRouter(
+        <ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.NTSR} userRole={roleTypes.TOO} />,
       );
 
       expect(await screen.findByText('NTS-release')).toHaveClass('usa-tag');
@@ -670,16 +603,14 @@ describe('ShipmentForm component', () => {
         onError();
       });
 
-      render(
-        <MockProviders>
-          <ShipmentForm
-            {...defaultProps}
-            shipmentType={SHIPMENT_OPTIONS.HHG}
-            mtoShipment={mockMtoShipment}
-            submitHandler={mockSubmitHandler}
-            isCreatePage={false}
-          />
-        </MockProviders>,
+      renderWithRouter(
+        <ShipmentForm
+          {...defaultProps}
+          shipmentType={SHIPMENT_OPTIONS.HHG}
+          mtoShipment={mockMtoShipment}
+          submitHandler={mockSubmitHandler}
+          isCreatePage={false}
+        />,
       );
 
       const saveButton = screen.getByRole('button', { name: 'Save' });
@@ -695,7 +626,7 @@ describe('ShipmentForm component', () => {
       expect(
         await screen.findByText('Something went wrong, and your changes were not saved. Please try again.'),
       ).toBeInTheDocument();
-      expect(defaultProps.history.push).not.toHaveBeenCalled();
+      expect(mockNavigate).not.toHaveBeenCalled();
     });
 
     it('shows an error if the submitHandler returns an error when editing a PPM', async () => {
@@ -705,16 +636,14 @@ describe('ShipmentForm component', () => {
       });
       validatePostalCode.mockImplementation(() => Promise.resolve(false));
 
-      render(
-        <MockProviders>
-          <ShipmentForm
-            {...defaultProps}
-            shipmentType={SHIPMENT_OPTIONS.PPM}
-            mtoShipment={mockPPMShipment}
-            submitHandler={mockSubmitHandler}
-            isCreatePage={false}
-          />
-        </MockProviders>,
+      renderWithRouter(
+        <ShipmentForm
+          {...defaultProps}
+          shipmentType={SHIPMENT_OPTIONS.PPM}
+          mtoShipment={mockPPMShipment}
+          submitHandler={mockSubmitHandler}
+          isCreatePage={false}
+        />,
       );
 
       const saveButton = screen.getByRole('button', { name: 'Save and Continue' });
@@ -728,7 +657,7 @@ describe('ShipmentForm component', () => {
       expect(
         await screen.findByText('Something went wrong, and your changes were not saved. Please try again.'),
       ).toBeInTheDocument();
-      expect(defaultProps.history.push).not.toHaveBeenCalled();
+      expect(mockNavigate).not.toHaveBeenCalled();
     });
 
     it('shows an error if the submitHandler returns an error when creating a PPM', async () => {
@@ -738,16 +667,14 @@ describe('ShipmentForm component', () => {
       });
       validatePostalCode.mockImplementation(() => Promise.resolve(false));
 
-      render(
-        <MockProviders>
-          <ShipmentForm
-            {...defaultProps}
-            shipmentType={SHIPMENT_OPTIONS.PPM}
-            mtoShipment={mockPPMShipment}
-            submitHandler={mockSubmitHandler}
-            isCreatePage
-          />
-        </MockProviders>,
+      renderWithRouter(
+        <ShipmentForm
+          {...defaultProps}
+          shipmentType={SHIPMENT_OPTIONS.PPM}
+          mtoShipment={mockPPMShipment}
+          submitHandler={mockSubmitHandler}
+          isCreatePage
+        />,
       );
 
       await userEvent.type(screen.getByLabelText('Planned departure date'), '26 Mar 2022');
@@ -766,7 +693,7 @@ describe('ShipmentForm component', () => {
       expect(
         await screen.findByText('Something went wrong, and your changes were not saved. Please try again.'),
       ).toBeInTheDocument();
-      expect(defaultProps.history.push).not.toHaveBeenCalled();
+      expect(mockNavigate).not.toHaveBeenCalled();
     });
 
     it('saves the update to the counselor remarks when the save button is clicked', async () => {
@@ -776,6 +703,8 @@ describe('ShipmentForm component', () => {
         body: {
           customerRemarks: 'mock customer remarks',
           counselorRemarks: newCounselorRemarks,
+          hasSecondaryDeliveryAddress: false,
+          hasSecondaryPickupAddress: false,
           destinationAddress: {
             streetAddress1: '441 SW Rio de la Plata Drive',
             city: 'Tacoma',
@@ -823,16 +752,14 @@ describe('ShipmentForm component', () => {
 
       const mockSubmitHandler = jest.fn(() => Promise.resolve(patchResponse));
 
-      render(
-        <MockProviders>
-          <ShipmentForm
-            {...defaultProps}
-            shipmentType={SHIPMENT_OPTIONS.HHG}
-            mtoShipment={mockMtoShipment}
-            submitHandler={mockSubmitHandler}
-            isCreatePage={false}
-          />
-        </MockProviders>,
+      renderWithRouter(
+        <ShipmentForm
+          {...defaultProps}
+          shipmentType={SHIPMENT_OPTIONS.HHG}
+          mtoShipment={mockMtoShipment}
+          submitHandler={mockSubmitHandler}
+          isCreatePage={false}
+        />,
       );
       const counselorRemarks = await screen.findByLabelText('Counselor remarks');
 
@@ -856,16 +783,14 @@ describe('ShipmentForm component', () => {
 
   describe('external vendor shipment', () => {
     it('shows the TOO an alert', async () => {
-      render(
-        <MockProviders>
-          <ShipmentForm
-            {...defaultProps}
-            shipmentType={SHIPMENT_OPTIONS.NTSR}
-            mtoShipment={{ ...mockMtoShipment, usesExternalVendor: true }}
-            isCreatePage={false}
-            userRole={roleTypes.TOO}
-          />
-        </MockProviders>,
+      renderWithRouter(
+        <ShipmentForm
+          {...defaultProps}
+          shipmentType={SHIPMENT_OPTIONS.NTSR}
+          mtoShipment={{ ...mockMtoShipment, usesExternalVendor: true }}
+          isCreatePage={false}
+          userRole={roleTypes.TOO}
+        />,
       );
 
       expect(
@@ -876,16 +801,14 @@ describe('ShipmentForm component', () => {
     });
 
     it('does not show the SC an alert', async () => {
-      render(
-        <MockProviders>
-          <ShipmentForm
-            // SC is default role from test props
-            {...defaultProps}
-            shipmentType={SHIPMENT_OPTIONS.NTSR}
-            mtoShipment={{ ...mockMtoShipment, usesExternalVendor: true }}
-            isCreatePage={false}
-          />
-        </MockProviders>,
+      renderWithRouter(
+        <ShipmentForm
+          // SC is default role from test props
+          {...defaultProps}
+          shipmentType={SHIPMENT_OPTIONS.NTSR}
+          mtoShipment={{ ...mockMtoShipment, usesExternalVendor: true }}
+          isCreatePage={false}
+        />,
       );
 
       await waitFor(() => {
@@ -900,16 +823,14 @@ describe('ShipmentForm component', () => {
 
   describe('creating a new PPM shipment', () => {
     it('displays PPM content', async () => {
-      render(
-        <MockProviders>
-          <ShipmentForm
-            {...defaultProps}
-            shipmentType={SHIPMENT_OPTIONS.PPM}
-            isCreatePage
-            userRole={roleTypes.SERVICES_COUNSELOR}
-            mtoShipment={mockMtoShipment}
-          />
-        </MockProviders>,
+      renderWithRouter(
+        <ShipmentForm
+          {...defaultProps}
+          shipmentType={SHIPMENT_OPTIONS.PPM}
+          isCreatePage
+          userRole={roleTypes.SERVICES_COUNSELOR}
+          mtoShipment={mockMtoShipment}
+        />,
       );
 
       expect(await screen.findByTestId('tag')).toHaveTextContent('PPM');
@@ -918,15 +839,13 @@ describe('ShipmentForm component', () => {
 
   describe('editing an already existing PPM shipment', () => {
     it('renders the PPM shipment form with pre-filled values', async () => {
-      render(
-        <MockProviders>
-          <ShipmentForm
-            {...defaultProps}
-            isCreatePage={false}
-            shipmentType={SHIPMENT_OPTIONS.PPM}
-            mtoShipment={mockPPMShipment}
-          />
-        </MockProviders>,
+      renderWithRouter(
+        <ShipmentForm
+          {...defaultProps}
+          isCreatePage={false}
+          shipmentType={SHIPMENT_OPTIONS.PPM}
+          mtoShipment={mockPPMShipment}
+        />,
       );
 
       expect(await screen.getByLabelText('Planned departure date')).toHaveValue('01 Apr 2022');
@@ -945,16 +864,14 @@ describe('ShipmentForm component', () => {
     });
 
     it('renders the PPM shipment form with pre-filled requested values for Advance Page', async () => {
-      render(
-        <MockProviders>
-          <ShipmentForm
-            {...defaultProps}
-            isCreatePage={false}
-            isAdvancePage
-            shipmentType={SHIPMENT_OPTIONS.PPM}
-            mtoShipment={mockPPMShipment}
-          />
-        </MockProviders>,
+      renderWithRouter(
+        <ShipmentForm
+          {...defaultProps}
+          isCreatePage={false}
+          isAdvancePage
+          shipmentType={SHIPMENT_OPTIONS.PPM}
+          mtoShipment={mockPPMShipment}
+        />,
       );
 
       expect(screen.getAllByRole('heading', { level: 2 })[0]).toHaveTextContent('Incentive & advance');
@@ -993,16 +910,14 @@ describe('ShipmentForm component', () => {
         counselorRemarks: '',
       };
 
-      render(
-        <MockProviders>
-          <ShipmentForm
-            {...defaultProps}
-            isCreatePage={false}
-            isAdvancePage
-            shipmentType={SHIPMENT_OPTIONS.PPM}
-            mtoShipment={ppmShipmentWithoutRemarks}
-          />
-        </MockProviders>,
+      renderWithRouter(
+        <ShipmentForm
+          {...defaultProps}
+          isCreatePage={false}
+          isAdvancePage
+          shipmentType={SHIPMENT_OPTIONS.PPM}
+          mtoShipment={ppmShipmentWithoutRemarks}
+        />,
       );
 
       expect(screen.getAllByRole('heading', { level: 2 })[0]).toHaveTextContent('Incentive & advance');
@@ -1049,17 +964,14 @@ describe('ShipmentForm component', () => {
         counselorRemarks: '',
       };
 
-      render(
-        <MockProviders>
-          <ShipmentForm
-            {...defaultProps}
-            isCreatePage={false}
-            isAdvancePage
-            shipmentType={SHIPMENT_OPTIONS.PPM}
-            mtoShipment={ppmShipmentWithoutRemarks}
-          />
-          ,
-        </MockProviders>,
+      renderWithRouter(
+        <ShipmentForm
+          {...defaultProps}
+          isCreatePage={false}
+          isAdvancePage
+          shipmentType={SHIPMENT_OPTIONS.PPM}
+          mtoShipment={ppmShipmentWithoutRemarks}
+        />,
       );
 
       expect(screen.getAllByRole('heading', { level: 2 })[0]).toHaveTextContent('Incentive & advance');
@@ -1080,10 +992,8 @@ describe('ShipmentForm component', () => {
     });
 
     it('marks amount requested input as min of $1 expected when conditionally displayed', async () => {
-      render(
-        <MockProviders>
-          <ShipmentForm {...defaultProps} isCreatePage={false} isAdvancePage shipmentType={SHIPMENT_OPTIONS.PPM} />
-        </MockProviders>,
+      renderWithRouter(
+        <ShipmentForm {...defaultProps} isCreatePage={false} isAdvancePage shipmentType={SHIPMENT_OPTIONS.PPM} />,
       );
 
       const inputHasRequestedAdvance = screen.getByLabelText('Yes');
@@ -1108,7 +1018,7 @@ describe('ShipmentForm component', () => {
         counselorRemarks: '',
       };
 
-      render(
+      renderWithRouter(
         <ShipmentForm
           {...defaultProps}
           isCreatePage={false}
@@ -1161,16 +1071,14 @@ describe('ShipmentForm component', () => {
 
   describe('creating a new PPM shipment', () => {
     it('displays PPM content', async () => {
-      render(
-        <MockProviders>
-          <ShipmentForm
-            {...defaultProps}
-            shipmentType={SHIPMENT_OPTIONS.PPM}
-            isCreatePage
-            userRole={roleTypes.SERVICES_COUNSELOR}
-            mtoShipment={mockMtoShipment}
-          />
-        </MockProviders>,
+      renderWithRouter(
+        <ShipmentForm
+          {...defaultProps}
+          shipmentType={SHIPMENT_OPTIONS.PPM}
+          isCreatePage
+          userRole={roleTypes.SERVICES_COUNSELOR}
+          mtoShipment={mockMtoShipment}
+        />,
       );
 
       expect(await screen.findByTestId('tag')).toHaveTextContent('PPM');
@@ -1201,36 +1109,26 @@ describe('ShipmentForm component', () => {
 
   describe('as a SC, the SIT details block', () => {
     it('displays when SIT is expected', () => {
-      render(
-        <MockProviders>
-          <ShipmentForm {...defaultSITProps} />
-        </MockProviders>,
-      );
+      renderWithRouter(<ShipmentForm {...defaultSITProps} />);
       expect(screen.getByRole('heading', { level: 2, name: /Storage in transit \(SIT\)/ })).toBeInTheDocument();
     });
     it('does not display when SIT is not expected', () => {
-      render(
-        <MockProviders>
-          <ShipmentForm
-            {...defaultSITProps}
-            mtoShipment={{
-              ...mockMtoShipment,
-              ppmShipment: {
-                ...mockPPMShipmentWithSIT,
-                sitExpected: false,
-              },
-            }}
-          />
-        </MockProviders>,
+      renderWithRouter(
+        <ShipmentForm
+          {...defaultSITProps}
+          mtoShipment={{
+            ...mockMtoShipment,
+            ppmShipment: {
+              ...mockPPMShipmentWithSIT,
+              sitExpected: false,
+            },
+          }}
+        />,
       );
       expect(screen.queryByRole('heading', { level: 2, name: /Storage in transit \(SIT\)/ })).not.toBeInTheDocument();
     });
     it('does not display for TOO', () => {
-      render(
-        <MockProviders>
-          <ShipmentForm {...defaultSITProps} userRole={roleTypes.TOO} />
-        </MockProviders>,
-      );
+      renderWithRouter(<ShipmentForm {...defaultSITProps} userRole={roleTypes.TOO} />);
       expect(screen.queryByRole('heading', { level: 2, name: /Storage in transit \(SIT\)/ })).not.toBeInTheDocument();
     });
   });

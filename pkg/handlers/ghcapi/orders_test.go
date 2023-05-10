@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/assert"
@@ -996,24 +995,22 @@ func (suite *HandlerSuite) makeUpdateAllowanceHandlerSubtestData() (subtestData 
 	subtestData.move = factory.BuildServiceCounselingCompletedMove(suite.DB(), nil, nil)
 	subtestData.order = subtestData.move.Orders
 
-	newAuthorizedWeight := int64(10000)
 	grade := ghcmessages.GradeO5
 	affiliation := ghcmessages.AffiliationAIRFORCE
 	ocie := false
-	proGearWeight := swag.Int64(100)
-	proGearWeightSpouse := swag.Int64(10)
-	rmeWeight := swag.Int64(10000)
+	proGearWeight := models.Int64Pointer(100)
+	proGearWeightSpouse := models.Int64Pointer(10)
+	rmeWeight := models.Int64Pointer(10000)
 
 	subtestData.body = &ghcmessages.UpdateAllowancePayload{
 		Agency:               &affiliation,
-		AuthorizedWeight:     &newAuthorizedWeight,
-		DependentsAuthorized: swag.Bool(true),
+		DependentsAuthorized: models.BoolPointer(true),
 		Grade:                &grade,
 		OrganizationalClothingAndIndividualEquipment: &ocie,
 		ProGearWeight:                  proGearWeight,
 		ProGearWeightSpouse:            proGearWeightSpouse,
 		RequiredMedicalEquipmentWeight: rmeWeight,
-		StorageInTransit:               swag.Int64(60),
+		StorageInTransit:               models.Int64Pointer(60),
 	}
 	return subtestData
 }
@@ -1099,7 +1096,6 @@ func (suite *HandlerSuite) TestUpdateAllowanceHandler() {
 		suite.NoError(ordersPayload.Validate(strfmt.Default))
 
 		suite.Equal(order.ID.String(), ordersPayload.ID.String())
-		suite.Equal(body.AuthorizedWeight, ordersPayload.Entitlement.AuthorizedWeight)
 		suite.Equal(body.Grade, ordersPayload.Grade)
 		suite.Equal(body.Agency, ordersPayload.Agency)
 		suite.Equal(body.DependentsAuthorized, ordersPayload.Entitlement.DependentsAuthorized)
@@ -1276,19 +1272,19 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 	grade := ghcmessages.GradeO5
 	affiliation := ghcmessages.AffiliationAIRFORCE
 	ocie := false
-	proGearWeight := swag.Int64(100)
-	proGearWeightSpouse := swag.Int64(10)
-	rmeWeight := swag.Int64(10000)
+	proGearWeight := models.Int64Pointer(100)
+	proGearWeightSpouse := models.Int64Pointer(10)
+	rmeWeight := models.Int64Pointer(10000)
 
 	body := &ghcmessages.CounselingUpdateAllowancePayload{
 		Agency:               &affiliation,
-		DependentsAuthorized: swag.Bool(true),
+		DependentsAuthorized: models.BoolPointer(true),
 		Grade:                &grade,
 		OrganizationalClothingAndIndividualEquipment: &ocie,
 		ProGearWeight:                  proGearWeight,
 		ProGearWeightSpouse:            proGearWeightSpouse,
 		RequiredMedicalEquipmentWeight: rmeWeight,
-		StorageInTransit:               swag.Int64(80),
+		StorageInTransit:               models.Int64Pointer(80),
 	}
 
 	request := httptest.NewRequest("PATCH", "/counseling/orders/{orderID}/allowances", nil)
@@ -1510,7 +1506,7 @@ func (suite *HandlerSuite) TestUpdateMaxBillableWeightAsTIOHandler() {
 			handlerConfig,
 			updater,
 		}
-		dbAuthorizedWeight := swag.Int(int(*params.Body.AuthorizedWeight))
+		dbAuthorizedWeight := models.IntPointer(int(*params.Body.AuthorizedWeight))
 		tioRemarks := params.Body.TioRemarks
 
 		updater.On("UpdateMaxBillableWeightAsTIO", mock.AnythingOfType("*appcontext.appContext"),
@@ -1549,7 +1545,7 @@ func (suite *HandlerSuite) TestUpdateMaxBillableWeightAsTIOHandler() {
 			handlerConfig,
 			updater,
 		}
-		dbAuthorizedWeight := swag.Int(int(*params.Body.AuthorizedWeight))
+		dbAuthorizedWeight := models.IntPointer(int(*params.Body.AuthorizedWeight))
 		tioRemarks := params.Body.TioRemarks
 
 		updater.On("UpdateMaxBillableWeightAsTIO", mock.AnythingOfType("*appcontext.appContext"),
@@ -1588,7 +1584,7 @@ func (suite *HandlerSuite) TestUpdateMaxBillableWeightAsTIOHandler() {
 			handlerConfig,
 			updater,
 		}
-		dbAuthorizedWeight := swag.Int(int(*params.Body.AuthorizedWeight))
+		dbAuthorizedWeight := models.IntPointer(int(*params.Body.AuthorizedWeight))
 		tioRemarks := params.Body.TioRemarks
 
 		verrs := validate.NewErrors()
@@ -1673,7 +1669,7 @@ func (suite *HandlerSuite) TestUpdateBillableWeightHandler() {
 			handlerConfig,
 			updater,
 		}
-		dbAuthorizedWeight := swag.Int(int(*params.Body.AuthorizedWeight))
+		dbAuthorizedWeight := models.IntPointer(int(*params.Body.AuthorizedWeight))
 
 		updater.On("UpdateBillableWeightAsTOO", mock.AnythingOfType("*appcontext.appContext"),
 			order.ID, dbAuthorizedWeight, params.IfMatch).Return(nil, nil, apperror.NotFoundError{})
@@ -1711,7 +1707,7 @@ func (suite *HandlerSuite) TestUpdateBillableWeightHandler() {
 			handlerConfig,
 			updater,
 		}
-		dbAuthorizedWeight := swag.Int(int(*params.Body.AuthorizedWeight))
+		dbAuthorizedWeight := models.IntPointer(int(*params.Body.AuthorizedWeight))
 
 		updater.On("UpdateBillableWeightAsTOO", mock.AnythingOfType("*appcontext.appContext"),
 			order.ID, dbAuthorizedWeight, params.IfMatch).Return(nil, nil, apperror.PreconditionFailedError{})
@@ -1749,7 +1745,7 @@ func (suite *HandlerSuite) TestUpdateBillableWeightHandler() {
 			handlerConfig,
 			updater,
 		}
-		dbAuthorizedWeight := swag.Int(int(*params.Body.AuthorizedWeight))
+		dbAuthorizedWeight := models.IntPointer(int(*params.Body.AuthorizedWeight))
 
 		verrs := validate.NewErrors()
 		verrs.Add("some key", "some validation error")
@@ -1791,7 +1787,7 @@ func (suite *HandlerSuite) TestUpdateBillableWeightEventTrigger() {
 		IfMatch:     etag.GenerateEtag(order.UpdatedAt), // This is broken if you get a preconditioned failed error
 		Body:        body,
 	}
-	dbAuthorizedWeight := swag.Int(int(*params.Body.AuthorizedWeight))
+	dbAuthorizedWeight := models.IntPointer(int(*params.Body.AuthorizedWeight))
 
 	updater := &mocks.ExcessWeightRiskManager{}
 	updater.On("UpdateBillableWeightAsTOO", mock.AnythingOfType("*appcontext.appContext"),

@@ -16,6 +16,7 @@ import { stringifyName } from 'shared/utils/serviceMember';
 import { selectOrdersById } from 'store/entities/selectors';
 
 import './office.scss';
+import withRouter from 'utils/routing';
 
 class OrdersInfo extends Component {
   componentDidMount() {
@@ -65,7 +66,7 @@ class OrdersInfo extends Component {
             ))}
           </div>
           <div className="grid-col-4 orders-page-fields">
-            <OrdersViewerPanel title={name} className="document-viewer" moveId={this.props.match.params.moveId} />
+            <OrdersViewerPanel title={name} className="document-viewer" moveId={this.props.router.params.moveId} />
           </div>
         </div>
       </div>
@@ -77,8 +78,8 @@ OrdersInfo.propTypes = {
   loadMove: PropTypes.func.isRequired,
 };
 
-const mapStateToProps = (state, ownProps) => {
-  const moveId = ownProps.match.params.moveId;
+const mapStateToProps = (state, { router: { params } }) => {
+  const moveId = params.moveId;
   const move = selectMove(state, moveId);
   const ordersId = move.orders_id;
   const orders = selectOrdersById(state, ordersId);
@@ -102,4 +103,4 @@ const mapStateToProps = (state, ownProps) => {
 
 const mapDispatchToProps = (dispatch) => bindActionCreators({ loadMove, loadOrders, loadServiceMember }, dispatch);
 
-export default connect(mapStateToProps, mapDispatchToProps)(OrdersInfo);
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(OrdersInfo));

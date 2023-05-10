@@ -11,24 +11,20 @@ import (
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *EvaluationReportSuite) TestEvaluationReportDeleter() {
 	setupTestData := func() (services.EvaluationReportDeleter, models.EvaluationReport, appcontext.AppContext) {
 		deleter := NewEvaluationReportDeleter()
-		move := factory.BuildMove(suite.DB(), nil, nil)
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-		})
-		officeUser := factory.BuildOfficeUser(suite.DB(), nil, nil)
-		report := testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{
-			OfficeUser:  officeUser,
-			MTOShipment: shipment,
-			Move:        move,
-		})
+		report := factory.BuildEvaluationReport(suite.DB(), []factory.Customization{
+			{
+				Model: models.EvaluationReport{
+					Type: models.EvaluationReportTypeShipment,
+				},
+			},
+		}, nil)
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
-			OfficeUserID: officeUser.ID,
+			OfficeUserID: report.OfficeUserID,
 		})
 
 		return deleter, report, appCtx

@@ -201,7 +201,18 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 					extraServiceItem.SITOriginHHGOriginalAddress = serviceItem.SITOriginHHGOriginalAddress
 					extraServiceItem.SITOriginHHGOriginalAddressID = serviceItem.SITOriginHHGOriginalAddressID
 				}
+			}
+		}
 
+		// make sure SITDestinationFinalAddress is the same for all destination SIT related service item
+		if serviceItem.ReService.Code == models.ReServiceCodeDDFSIT && serviceItem.SITDestinationFinalAddress != nil {
+			for itemIndex := range *extraServiceItems {
+				extraServiceItem := &(*extraServiceItems)[itemIndex]
+				if extraServiceItem.ReService.Code == models.ReServiceCodeDDDSIT ||
+					extraServiceItem.ReService.Code == models.ReServiceCodeDDASIT {
+					extraServiceItem.SITDestinationFinalAddress = serviceItem.SITDestinationFinalAddress
+					extraServiceItem.SITDestinationFinalAddressID = serviceItem.SITDestinationFinalAddressID
+				}
 			}
 		}
 
@@ -241,6 +252,18 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 					}
 				}
 				requestedServiceItem.SITOriginHHGOriginalAddressID = &address.ID
+			}
+
+			// create SITDestinationFinalAddress address if ID (UUID) is Nil
+			if requestedServiceItem.SITDestinationFinalAddress != nil {
+				address := requestedServiceItem.SITDestinationFinalAddress
+				if address.ID == uuid.Nil {
+					verrs, err = o.builder.CreateOne(txnAppCtx, address)
+					if verrs != nil || err != nil {
+						return fmt.Errorf("failed to save SITOriginHHGOriginalAddress: %#v %e", verrs, err)
+					}
+				}
+				requestedServiceItem.SITDestinationFinalAddressID = &address.ID
 			}
 
 			verrs, err = o.builder.CreateOne(txnAppCtx, requestedServiceItem)
@@ -342,18 +365,41 @@ func (o *mtoServiceItemCreator) makeExtraSITServiceItem(appCtx appcontext.AppCon
 		}
 	}
 
+	//When a DDFSIT is created, this is where we auto create the accompanying DDASIT and DDDSIT with copied contact data
+	contacts := copyCustomerContacts(firstSIT.CustomerContacts)
+
 	extraServiceItem := models.MTOServiceItem{
-		MTOShipmentID:   firstSIT.MTOShipmentID,
-		MoveTaskOrderID: firstSIT.MoveTaskOrderID,
-		ReServiceID:     reService.ID,
-		ReService:       reService,
-		SITEntryDate:    firstSIT.SITEntryDate,
-		SITPostalCode:   firstSIT.SITPostalCode,
-		Reason:          firstSIT.Reason,
-		Status:          models.MTOServiceItemStatusSubmitted,
+		MTOShipmentID:    firstSIT.MTOShipmentID,
+		MoveTaskOrderID:  firstSIT.MoveTaskOrderID,
+		ReServiceID:      reService.ID,
+		ReService:        reService,
+		SITEntryDate:     firstSIT.SITEntryDate,
+		SITPostalCode:    firstSIT.SITPostalCode,
+		Reason:           firstSIT.Reason,
+		Status:           models.MTOServiceItemStatusSubmitted,
+		CustomerContacts: contacts,
 	}
 
 	return &extraServiceItem, nil
+}
+
+// Helper function for copying DDFSIT customer contacts to DDASIT and DDDSIT service items
+func copyCustomerContacts(customerContacts models.MTOServiceItemCustomerContacts) models.MTOServiceItemCustomerContacts {
+	var newContacts []models.MTOServiceItemCustomerContact
+
+	//If we have contacts copy them over, otherwise we will return nil
+	for _, contact := range customerContacts {
+
+		newContact := models.MTOServiceItemCustomerContact{
+			Type:                       contact.Type,
+			TimeMilitary:               contact.TimeMilitary,
+			FirstAvailableDeliveryDate: contact.FirstAvailableDeliveryDate,
+		}
+
+		newContacts = append(newContacts, newContact)
+	}
+
+	return newContacts
 }
 
 // NewMTOServiceItemCreator returns a new MTO service item creator

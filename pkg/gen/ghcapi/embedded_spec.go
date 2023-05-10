@@ -1477,7 +1477,7 @@ func init() {
     },
     "/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}": {
       "patch": {
-        "description": "Updates a specified MTO shipment.\nRequired fields include:\n* MTO Shipment ID required in path\n* If-Match required in headers\n* No fields required in body\nOptional fields include:\n* New shipment status type\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Delivery Address Type\n* Customer Remarks\n* Counselor Remarks\n* Releasing / Receiving agents\n",
+        "description": "Updates a specified MTO shipment.\nRequired fields include:\n* MTO Shipment ID required in path\n* If-Match required in headers\n* No fields required in body\nOptional fields include:\n* New shipment status type\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Secondary Pick-up Address\n* SecondaryDelivery Address\n* Delivery Address Type\n* Customer Remarks\n* Counselor Remarks\n* Releasing / Receiving agents\n",
         "consumes": [
           "application/json"
         ],
@@ -2742,6 +2742,70 @@ func init() {
         ]
       }
     },
+    "/ppm-shipments/{ppmShipmentId}/finish-document-review": {
+      "patch": {
+        "description": "Updates a PPM shipment's status once documents have been reviewed. Status is updated depending on whether any documents have been rejected.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Updates a PPM shipment's status after document review",
+        "operationId": "finishDocumentReview",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully finished document review",
+            "schema": {
+              "$ref": "#/definitions/PPMShipment"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        },
+        "x-permissions": [
+          "update.shipment"
+        ]
+      },
+      "parameters": [
+        {
+          "$ref": "#/parameters/ppmShipmentId"
+        }
+      ]
+    },
     "/ppm-shipments/{ppmShipmentId}/moving-expenses/{movingExpenseId}": {
       "patch": {
         "description": "Updates a PPM shipment's moving expense with new information. Only some of the moving expense's fields are\neditable because some have to be set by the customer, e.g. the description and the moving expense type.\n",
@@ -3998,7 +4062,7 @@ func init() {
     },
     "/shipments/{shipmentID}/sit-extensions/": {
       "post": {
-        "description": "TOO can creates an already-approved SIT extension on behalf of a customer",
+        "description": "TOO can creates an already-approved SIT Duration Update on behalf of a customer",
         "consumes": [
           "application/json"
         ],
@@ -4009,8 +4073,8 @@ func init() {
           "shipment",
           "sitExtension"
         ],
-        "summary": "Create an approved SIT extension",
-        "operationId": "createSITExtensionAsTOO",
+        "summary": "Create an approved SIT Duration Update",
+        "operationId": "createApprovedSITDurationUpdate",
         "parameters": [
           {
             "type": "string",
@@ -4025,12 +4089,12 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/CreateSITExtensionAsTOO"
+              "$ref": "#/definitions/CreateApprovedSITDurationUpdate"
             }
           },
           {
             "type": "string",
-            "description": "We want the shipment's eTag rather than the SIT extension eTag as the SIT extension is always associated with a shipment",
+            "description": "We want the shipment's eTag rather than the SIT Duration Update eTag as the SIT Duration Update is always associated with a shipment",
             "name": "If-Match",
             "in": "header",
             "required": true
@@ -4521,6 +4585,20 @@ func init() {
           "type": "string",
           "x-nullable": true,
           "example": "Approved for three weeks rather than requested 45 days"
+        },
+        "requestReason": {
+          "description": "Reason from service counselor-provided picklist for SIT Duration Update",
+          "type": "string",
+          "enum": [
+            "SERIOUS_ILLNESS_MEMBER",
+            "SERIOUS_ILLNESS_DEPENDENT",
+            "IMPENDING_ASSIGNEMENT",
+            "DIRECTED_TEMPORARY_DUTY",
+            "NONAVAILABILITY_OF_CIVILIAN_HOUSING",
+            "AWAITING_COMPLETION_OF_RESIDENCE",
+            "OTHER"
+          ],
+          "example": "AWAITING_COMPLETION_OF_RESIDENCE"
         }
       }
     },
@@ -4717,6 +4795,39 @@ func init() {
           "minLength": 4,
           "x-nullable": true,
           "example": "F8J1"
+        }
+      }
+    },
+    "CreateApprovedSITDurationUpdate": {
+      "required": [
+        "requestReason",
+        "approvedDays"
+      ],
+      "properties": {
+        "approvedDays": {
+          "description": "Number of days approved for SIT extension. This will match requested days saved to the SIT extension model.",
+          "type": "integer",
+          "example": 21
+        },
+        "officeRemarks": {
+          "description": "Remarks from TOO about SIT Duration Update creation",
+          "type": "string",
+          "x-nullable": true,
+          "example": "Customer needs additional storage time as their new place of residence is not yet ready"
+        },
+        "requestReason": {
+          "description": "Reason from service counselor-provided picklist for SIT Duration Update",
+          "type": "string",
+          "enum": [
+            "SERIOUS_ILLNESS_MEMBER",
+            "SERIOUS_ILLNESS_DEPENDENT",
+            "IMPENDING_ASSIGNEMENT",
+            "DIRECTED_TEMPORARY_DUTY",
+            "NONAVAILABILITY_OF_CIVILIAN_HOUSING",
+            "AWAITING_COMPLETION_OF_RESIDENCE",
+            "OTHER"
+          ],
+          "example": "AWAITING_COMPLETION_OF_RESIDENCE"
         }
       }
     },
@@ -4951,40 +5062,6 @@ func init() {
         "spouseProGearWeight": {
           "type": "integer",
           "x-nullable": true
-        }
-      }
-    },
-    "CreateSITExtensionAsTOO": {
-      "required": [
-        "requestReason",
-        "approvedDays"
-      ],
-      "properties": {
-        "approvedDays": {
-          "description": "Number of days approved for SIT extension. This will match requested days saved to the SIT extension model.",
-          "type": "integer",
-          "minimum": 1,
-          "example": 21
-        },
-        "officeRemarks": {
-          "description": "Remarks from TOO about SIT extension creation",
-          "type": "string",
-          "x-nullable": true,
-          "example": "Customer needs additional storage time as their new place of residence is not yet ready"
-        },
-        "requestReason": {
-          "description": "Reason from service counselor-provided picklist for SIT extension",
-          "type": "string",
-          "enum": [
-            "SERIOUS_ILLNESS_MEMBER",
-            "SERIOUS_ILLNESS_DEPENDENT",
-            "IMPENDING_ASSIGNEMENT",
-            "DIRECTED_TEMPORARY_DUTY",
-            "NONAVAILABILITY_OF_CIVILIAN_HOUSING",
-            "AWAITING_COMPLETION_OF_RESIDENCE",
-            "OTHER"
-          ],
-          "example": "AWAITING_COMPLETION_OF_RESIDENCE"
         }
       }
     },
@@ -5979,6 +6056,16 @@ func init() {
         },
         "eTag": {
           "type": "string"
+        },
+        "hasSecondaryDeliveryAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasSecondaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "id": {
           "type": "string",
@@ -8419,14 +8506,6 @@ func init() {
         "agency": {
           "$ref": "#/definitions/Affiliation"
         },
-        "authorizedWeight": {
-          "description": "unit is in lbs",
-          "type": "integer",
-          "minimum": 1,
-          "x-formatting": "weight",
-          "x-nullable": true,
-          "example": 2000
-        },
         "dependentsAuthorized": {
           "type": "boolean",
           "x-nullable": true
@@ -8859,11 +8938,20 @@ func init() {
             {
               "$ref": "#/definitions/Address"
             }
-          ],
-          "x-nullable": true
+          ]
         },
         "destinationType": {
           "$ref": "#/definitions/DestinationType"
+        },
+        "hasSecondaryDeliveryAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasSecondaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "ntsRecordedWeight": {
           "description": "The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.",
@@ -8894,6 +8982,20 @@ func init() {
         },
         "sacType": {
           "$ref": "#/definitions/LOATypeNullable"
+        },
+        "secondaryDeliveryAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "secondaryPickupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "serviceOrderNumber": {
           "type": "string",
@@ -11231,7 +11333,7 @@ func init() {
     },
     "/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}": {
       "patch": {
-        "description": "Updates a specified MTO shipment.\nRequired fields include:\n* MTO Shipment ID required in path\n* If-Match required in headers\n* No fields required in body\nOptional fields include:\n* New shipment status type\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Delivery Address Type\n* Customer Remarks\n* Counselor Remarks\n* Releasing / Receiving agents\n",
+        "description": "Updates a specified MTO shipment.\nRequired fields include:\n* MTO Shipment ID required in path\n* If-Match required in headers\n* No fields required in body\nOptional fields include:\n* New shipment status type\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Secondary Pick-up Address\n* SecondaryDelivery Address\n* Delivery Address Type\n* Customer Remarks\n* Counselor Remarks\n* Releasing / Receiving agents\n",
         "consumes": [
           "application/json"
         ],
@@ -12805,6 +12907,99 @@ func init() {
           "update.paymentRequest"
         ]
       }
+    },
+    "/ppm-shipments/{ppmShipmentId}/finish-document-review": {
+      "patch": {
+        "description": "Updates a PPM shipment's status once documents have been reviewed. Status is updated depending on whether any documents have been rejected.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Updates a PPM shipment's status after document review",
+        "operationId": "finishDocumentReview",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully finished document review",
+            "schema": {
+              "$ref": "#/definitions/PPMShipment"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "409": {
+            "description": "Conflict error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "x-permissions": [
+          "update.shipment"
+        ]
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "UUID of the PPM shipment",
+          "name": "ppmShipmentId",
+          "in": "path",
+          "required": true
+        }
+      ]
     },
     "/ppm-shipments/{ppmShipmentId}/moving-expenses/{movingExpenseId}": {
       "patch": {
@@ -14380,7 +14575,7 @@ func init() {
     },
     "/shipments/{shipmentID}/sit-extensions/": {
       "post": {
-        "description": "TOO can creates an already-approved SIT extension on behalf of a customer",
+        "description": "TOO can creates an already-approved SIT Duration Update on behalf of a customer",
         "consumes": [
           "application/json"
         ],
@@ -14391,8 +14586,8 @@ func init() {
           "shipment",
           "sitExtension"
         ],
-        "summary": "Create an approved SIT extension",
-        "operationId": "createSITExtensionAsTOO",
+        "summary": "Create an approved SIT Duration Update",
+        "operationId": "createApprovedSITDurationUpdate",
         "parameters": [
           {
             "type": "string",
@@ -14407,12 +14602,12 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/CreateSITExtensionAsTOO"
+              "$ref": "#/definitions/CreateApprovedSITDurationUpdate"
             }
           },
           {
             "type": "string",
-            "description": "We want the shipment's eTag rather than the SIT extension eTag as the SIT extension is always associated with a shipment",
+            "description": "We want the shipment's eTag rather than the SIT Duration Update eTag as the SIT Duration Update is always associated with a shipment",
             "name": "If-Match",
             "in": "header",
             "required": true
@@ -14984,6 +15179,20 @@ func init() {
           "type": "string",
           "x-nullable": true,
           "example": "Approved for three weeks rather than requested 45 days"
+        },
+        "requestReason": {
+          "description": "Reason from service counselor-provided picklist for SIT Duration Update",
+          "type": "string",
+          "enum": [
+            "SERIOUS_ILLNESS_MEMBER",
+            "SERIOUS_ILLNESS_DEPENDENT",
+            "IMPENDING_ASSIGNEMENT",
+            "DIRECTED_TEMPORARY_DUTY",
+            "NONAVAILABILITY_OF_CIVILIAN_HOUSING",
+            "AWAITING_COMPLETION_OF_RESIDENCE",
+            "OTHER"
+          ],
+          "example": "AWAITING_COMPLETION_OF_RESIDENCE"
         }
       }
     },
@@ -15184,6 +15393,39 @@ func init() {
           "minLength": 4,
           "x-nullable": true,
           "example": "F8J1"
+        }
+      }
+    },
+    "CreateApprovedSITDurationUpdate": {
+      "required": [
+        "requestReason",
+        "approvedDays"
+      ],
+      "properties": {
+        "approvedDays": {
+          "description": "Number of days approved for SIT extension. This will match requested days saved to the SIT extension model.",
+          "type": "integer",
+          "example": 21
+        },
+        "officeRemarks": {
+          "description": "Remarks from TOO about SIT Duration Update creation",
+          "type": "string",
+          "x-nullable": true,
+          "example": "Customer needs additional storage time as their new place of residence is not yet ready"
+        },
+        "requestReason": {
+          "description": "Reason from service counselor-provided picklist for SIT Duration Update",
+          "type": "string",
+          "enum": [
+            "SERIOUS_ILLNESS_MEMBER",
+            "SERIOUS_ILLNESS_DEPENDENT",
+            "IMPENDING_ASSIGNEMENT",
+            "DIRECTED_TEMPORARY_DUTY",
+            "NONAVAILABILITY_OF_CIVILIAN_HOUSING",
+            "AWAITING_COMPLETION_OF_RESIDENCE",
+            "OTHER"
+          ],
+          "example": "AWAITING_COMPLETION_OF_RESIDENCE"
         }
       }
     },
@@ -15418,40 +15660,6 @@ func init() {
         "spouseProGearWeight": {
           "type": "integer",
           "x-nullable": true
-        }
-      }
-    },
-    "CreateSITExtensionAsTOO": {
-      "required": [
-        "requestReason",
-        "approvedDays"
-      ],
-      "properties": {
-        "approvedDays": {
-          "description": "Number of days approved for SIT extension. This will match requested days saved to the SIT extension model.",
-          "type": "integer",
-          "minimum": 1,
-          "example": 21
-        },
-        "officeRemarks": {
-          "description": "Remarks from TOO about SIT extension creation",
-          "type": "string",
-          "x-nullable": true,
-          "example": "Customer needs additional storage time as their new place of residence is not yet ready"
-        },
-        "requestReason": {
-          "description": "Reason from service counselor-provided picklist for SIT extension",
-          "type": "string",
-          "enum": [
-            "SERIOUS_ILLNESS_MEMBER",
-            "SERIOUS_ILLNESS_DEPENDENT",
-            "IMPENDING_ASSIGNEMENT",
-            "DIRECTED_TEMPORARY_DUTY",
-            "NONAVAILABILITY_OF_CIVILIAN_HOUSING",
-            "AWAITING_COMPLETION_OF_RESIDENCE",
-            "OTHER"
-          ],
-          "example": "AWAITING_COMPLETION_OF_RESIDENCE"
         }
       }
     },
@@ -16446,6 +16654,16 @@ func init() {
         },
         "eTag": {
           "type": "string"
+        },
+        "hasSecondaryDeliveryAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasSecondaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "id": {
           "type": "string",
@@ -18890,14 +19108,6 @@ func init() {
         "agency": {
           "$ref": "#/definitions/Affiliation"
         },
-        "authorizedWeight": {
-          "description": "unit is in lbs",
-          "type": "integer",
-          "minimum": 1,
-          "x-formatting": "weight",
-          "x-nullable": true,
-          "example": 2000
-        },
         "dependentsAuthorized": {
           "type": "boolean",
           "x-nullable": true
@@ -19335,11 +19545,20 @@ func init() {
             {
               "$ref": "#/definitions/Address"
             }
-          ],
-          "x-nullable": true
+          ]
         },
         "destinationType": {
           "$ref": "#/definitions/DestinationType"
+        },
+        "hasSecondaryDeliveryAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasSecondaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "ntsRecordedWeight": {
           "description": "The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.",
@@ -19370,6 +19589,20 @@ func init() {
         },
         "sacType": {
           "$ref": "#/definitions/LOATypeNullable"
+        },
+        "secondaryDeliveryAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "secondaryPickupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "serviceOrderNumber": {
           "type": "string",

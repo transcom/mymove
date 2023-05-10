@@ -5,7 +5,6 @@ import (
 	"net/http/httptest"
 	"time"
 
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/factory"
@@ -73,7 +72,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 	suite.Assertions.Equal(&deptIndicator, okResponse.Payload.DepartmentIndicator)
 	suite.Equal(sm.DutyLocationID, createdOrder.OriginDutyLocationID)
 	suite.Equal((*string)(sm.Rank), createdOrder.Grade)
-	suite.Assertions.Equal(*swag.Int64(8000), *okResponse.Payload.AuthorizedWeight)
+	suite.Assertions.Equal(*models.Int64Pointer(8000), *okResponse.Payload.AuthorizedWeight)
 	suite.NotNil(&createdOrder.Entitlement)
 }
 

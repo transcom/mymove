@@ -14,7 +14,7 @@ import (
 
 // checkShipmentID checks that a shipmentID is not nil and returns a verification error if it is
 func checkShipmentID() sitExtensionValidator {
-	return sitExtensionValidatorFunc(func(_ appcontext.AppContext, sitExtension models.SITExtension, _ *models.MTOShipment) error {
+	return sitExtensionValidatorFunc(func(_ appcontext.AppContext, sitExtension models.SITDurationUpdate, _ *models.MTOShipment) error {
 		verrs := validate.NewErrors()
 
 		if sitExtension.MTOShipmentID == uuid.Nil {
@@ -26,7 +26,7 @@ func checkShipmentID() sitExtensionValidator {
 
 // checkRequiredFields checks that the required fields are included
 func checkRequiredFields() sitExtensionValidator {
-	return sitExtensionValidatorFunc(func(_ appcontext.AppContext, sitExtension models.SITExtension, _ *models.MTOShipment) error {
+	return sitExtensionValidatorFunc(func(_ appcontext.AppContext, sitExtension models.SITDurationUpdate, _ *models.MTOShipment) error {
 		verrs := validate.NewErrors()
 
 		sitStatus := sitExtension.Status
@@ -53,11 +53,11 @@ func checkRequiredFields() sitExtensionValidator {
 }
 
 func checkSITExtensionPending() sitExtensionValidator {
-	return sitExtensionValidatorFunc(func(appCtx appcontext.AppContext, sitExtension models.SITExtension, shipment *models.MTOShipment) error {
+	return sitExtensionValidatorFunc(func(appCtx appcontext.AppContext, sitExtension models.SITDurationUpdate, shipment *models.MTOShipment) error {
 		id := sitExtension.ID
 		shipmentID := shipment.ID
 		//status := sitExtension.Status
-		var emptySITExtensionArray []models.SITExtension
+		var emptySITExtensionArray []models.SITDurationUpdate
 		err := appCtx.DB().Where("status = ?", models.SITExtensionStatusPending).Where("mto_shipment_id = ?", shipmentID).All(&emptySITExtensionArray)
 		// Prevent a new SIT extension request if a sit extension is pending
 		if err != nil {
@@ -71,9 +71,9 @@ func checkSITExtensionPending() sitExtensionValidator {
 	})
 }
 
-// checks that the shipment associated with the reweigh is available to Prime
+// checks that the shipment associated with the sit extension is available to Prime
 func checkPrimeAvailability(checker services.MoveTaskOrderChecker) sitExtensionValidator {
-	return sitExtensionValidatorFunc(func(appCtx appcontext.AppContext, sitExtension models.SITExtension, shipment *models.MTOShipment) error {
+	return sitExtensionValidatorFunc(func(appCtx appcontext.AppContext, sitExtension models.SITDurationUpdate, shipment *models.MTOShipment) error {
 		if shipment == nil {
 			return apperror.NewNotFoundError(sitExtension.ID, "while looking for Prime-available Shipment")
 		}
@@ -85,4 +85,17 @@ func checkPrimeAvailability(checker services.MoveTaskOrderChecker) sitExtensionV
 		}
 		return nil
 	})
+}
+
+// checks that the total SIT duration for a shipment is not reduced below 1 day by a newly-approved SITDurationUpdate
+// since SITDurationUpdate.approvedDays can be negative
+func checkMinimumSITDuration() sitExtensionValidator {
+	return sitExtensionValidatorFunc(func(appCtx appcontext.AppContext, sitDurationUpdate models.SITDurationUpdate, shipment *models.MTOShipment) error {
+		newSITDuration := int(*sitDurationUpdate.ApprovedDays) + int(*shipment.SITDaysAllowance)
+		if newSITDuration < 1 {
+			return apperror.NewInvalidInputError(sitDurationUpdate.ID, nil, nil, "can't reduce a SIT duration to less than one day")
+		}
+		return nil
+	},
+	)
 }

@@ -32,61 +32,111 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 
 	suite.PreloadData(func() {
 		// Create some records we'll need to link to
-		moveTaskOrder = factory.BuildMove(suite.DB(), nil, nil)
+		moveTaskOrder = factory.BuildMove(suite.DB(), nil, []factory.Trait{factory.GetTraitAvailableToPrimeMove})
+		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				EndDate: time.Now().Add(time.Hour * 24),
+			},
+		})
 		estimatedWeight := unit.Pound(2048)
-		mtoServiceItem1 = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			Move: moveTaskOrder,
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDLH,
+		mtoServiceItem1 = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    moveTaskOrder,
+				LinkOnly: true,
 			},
-			MTOShipment: models.MTOShipment{
-				PrimeEstimatedWeight: &estimatedWeight,
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDLH,
+				},
 			},
-			MTOServiceItem: models.MTOServiceItem{Status: models.MTOServiceItemStatusApproved},
-		})
-		mtoServiceItem2 = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			Move: moveTaskOrder,
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDOP,
+			{
+				Model: models.MTOShipment{
+					PrimeEstimatedWeight: &estimatedWeight,
+				},
 			},
-			MTOShipment: models.MTOShipment{
-				PrimeEstimatedWeight: &estimatedWeight,
+			{
+				Model: models.MTOServiceItem{Status: models.MTOServiceItemStatusApproved},
 			},
-			MTOServiceItem: models.MTOServiceItem{Status: models.MTOServiceItemStatusApproved},
-		})
-		mtoServiceItem3 = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			Move: moveTaskOrder,
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDOP,
+		}, nil)
+		mtoServiceItem2 = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    moveTaskOrder,
+				LinkOnly: true,
 			},
-			MTOShipment: models.MTOShipment{
-				PrimeEstimatedWeight: &estimatedWeight,
-				UsesExternalVendor:   true,
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDOP,
+				},
 			},
-			MTOServiceItem: models.MTOServiceItem{Status: models.MTOServiceItemStatusApproved},
-		})
-		mtoServiceItemSubmitted = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			Move: moveTaskOrder,
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDOP,
+			{
+				Model: models.MTOShipment{
+					PrimeEstimatedWeight: &estimatedWeight,
+				},
 			},
-			MTOShipment: models.MTOShipment{
-				PrimeEstimatedWeight: &estimatedWeight,
-				UsesExternalVendor:   true,
+			{
+				Model: models.MTOServiceItem{Status: models.MTOServiceItemStatusApproved},
 			},
-			MTOServiceItem: models.MTOServiceItem{Status: models.MTOServiceItemStatusSubmitted},
-		})
-		mtoServiceItemRejected = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			Move: moveTaskOrder,
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDOP,
+		}, nil)
+		mtoServiceItem3 = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    moveTaskOrder,
+				LinkOnly: true,
 			},
-			MTOShipment: models.MTOShipment{
-				PrimeEstimatedWeight: &estimatedWeight,
-				UsesExternalVendor:   true,
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDOP,
+				},
 			},
-			MTOServiceItem: models.MTOServiceItem{Status: models.MTOServiceItemStatusRejected},
-		})
+			{
+				Model: models.MTOShipment{
+					PrimeEstimatedWeight: &estimatedWeight,
+					UsesExternalVendor:   true,
+				},
+			},
+			{
+				Model: models.MTOServiceItem{Status: models.MTOServiceItemStatusApproved},
+			},
+		}, nil)
+		mtoServiceItemSubmitted = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    moveTaskOrder,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDOP,
+				},
+			},
+			{
+				Model: models.MTOShipment{
+					PrimeEstimatedWeight: &estimatedWeight,
+					UsesExternalVendor:   true,
+				},
+			},
+			{
+				Model: models.MTOServiceItem{Status: models.MTOServiceItemStatusSubmitted},
+			},
+		}, nil)
+		mtoServiceItemRejected = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    moveTaskOrder,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDOP,
+				},
+			},
+			{
+				Model: models.MTOShipment{
+					PrimeEstimatedWeight: &estimatedWeight,
+					UsesExternalVendor:   true,
+				},
+			},
+			{
+				Model: models.MTOServiceItem{Status: models.MTOServiceItemStatusRejected},
+			},
+		}, nil)
 		serviceItemParamKey1 = factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{
 			{
 				Model: models.ServiceItemParamKey{
@@ -162,58 +212,87 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			},
 		}, nil)
 
-		_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
-			ServiceParam: models.ServiceParam{
-				ServiceID:             mtoServiceItem1.ReServiceID,
-				ServiceItemParamKeyID: serviceItemParamKey1.ID,
-				ServiceItemParamKey:   serviceItemParamKey1,
-				IsOptional:            true,
+		factory.BuildServiceParam(suite.DB(), []factory.Customization{
+			{
+				Model:    mtoServiceItem1.ReService,
+				LinkOnly: true,
 			},
-		})
-		_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
-			ServiceParam: models.ServiceParam{
-				ServiceID:             mtoServiceItem1.ReServiceID,
-				ServiceItemParamKeyID: serviceItemParamKey2.ID,
-				ServiceItemParamKey:   serviceItemParamKey2,
+			{
+				Model:    serviceItemParamKey1,
+				LinkOnly: true,
 			},
-		})
-		_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
-			ServiceParam: models.ServiceParam{
-				ServiceID:             mtoServiceItem1.ReServiceID,
-				ServiceItemParamKeyID: serviceItemParamKey4.ID,
-				ServiceItemParamKey:   serviceItemParamKey4,
+			{
+				Model: models.ServiceParam{
+					IsOptional: true,
+				},
 			},
-		})
-		_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
-			ServiceParam: models.ServiceParam{
-				ServiceID:             mtoServiceItem1.ReServiceID,
-				ServiceItemParamKeyID: serviceItemParamKey5.ID,
-				ServiceItemParamKey:   serviceItemParamKey5,
+		}, nil)
+		factory.BuildServiceParam(suite.DB(), []factory.Customization{
+			{
+				Model:    mtoServiceItem1.ReService,
+				LinkOnly: true,
 			},
-		})
-		_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
-			ServiceParam: models.ServiceParam{
-				ServiceID:             mtoServiceItem1.ReServiceID,
-				ServiceItemParamKeyID: serviceItemParamKey6.ID,
-				ServiceItemParamKey:   serviceItemParamKey6,
+			{
+				Model:    serviceItemParamKey2,
+				LinkOnly: true,
 			},
-		})
-		_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
-			ServiceParam: models.ServiceParam{
-				ServiceID:             mtoServiceItem1.ReServiceID,
-				ServiceItemParamKeyID: serviceItemParamKey7.ID,
-				ServiceItemParamKey:   serviceItemParamKey7,
+		}, nil)
+		factory.BuildServiceParam(suite.DB(), []factory.Customization{
+			{
+				Model:    mtoServiceItem1.ReService,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model:    serviceItemParamKey4,
+				LinkOnly: true,
+			},
+		}, nil)
+		factory.BuildServiceParam(suite.DB(), []factory.Customization{
+			{
+				Model:    mtoServiceItem1.ReService,
+				LinkOnly: true,
+			},
+			{
+				Model:    serviceItemParamKey5,
+				LinkOnly: true,
+			},
+		}, nil)
+		factory.BuildServiceParam(suite.DB(), []factory.Customization{
+			{
+				Model:    mtoServiceItem1.ReService,
+				LinkOnly: true,
+			},
+			{
+				Model:    serviceItemParamKey6,
+				LinkOnly: true,
+			},
+		}, nil)
+		factory.BuildServiceParam(suite.DB(), []factory.Customization{
+			{
+				Model:    mtoServiceItem1.ReService,
+				LinkOnly: true,
+			},
+			{
+				Model:    serviceItemParamKey7,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
-			ServiceParam: models.ServiceParam{
-				ServiceID:             mtoServiceItem2.ReServiceID,
-				ServiceItemParamKeyID: serviceItemParamKey1.ID,
-				ServiceItemParamKey:   serviceItemParamKey1,
-				IsOptional:            true,
+		factory.BuildServiceParam(suite.DB(), []factory.Customization{
+			{
+				Model:    mtoServiceItem2.ReService,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model:    serviceItemParamKey1,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ServiceParam{
+					IsOptional: true,
+				},
+			},
+		}, nil)
 
 		displayParams = models.PaymentServiceItemParams{
 			{
@@ -1181,6 +1260,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequestCheckOnNTSRelea
 	contractYear, serviceArea, _, _ := testdatagen.SetupServiceAreaRateArea(suite.DB(), testdatagen.Assertions{
 		ReContractYear: models.ReContractYear{
 			EscalationCompounded: testEscalationCompounded,
+			EndDate:              time.Now().Add(time.Hour * 24),
 		},
 		ReRateArea: models.ReRateArea{
 			Name: "Georgia",
@@ -1207,20 +1287,30 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequestCheckOnNTSRelea
 	// Make move and shipment
 	move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 	actualPickupDate := time.Date(testdatagen.GHCTestYear, time.January, 15, 0, 0, 0, 0, time.UTC)
-	shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			ShipmentType:         models.MTOShipmentTypeHHGOutOfNTSDom,
-			PrimeActualWeight:    &testOriginalWeight,
-			StorageFacilityID:    &storageFacility.ID,
-			StorageFacility:      &storageFacility,
-			DestinationAddressID: &destinationAddress.ID,
-			DestinationAddress:   &destinationAddress,
-			ActualPickupDate:     &actualPickupDate,
+	shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				ShipmentType:      models.MTOShipmentTypeHHGOutOfNTSDom,
+				PrimeActualWeight: &testOriginalWeight,
+				ActualPickupDate:  &actualPickupDate,
+			},
+		},
+		{
+			Model:    storageFacility,
+			LinkOnly: true,
+		},
+		{
+			Model:    destinationAddress,
+			LinkOnly: true,
+			Type:     &factory.Addresses.DeliveryAddress,
+		},
+	}, nil)
 
-	mtoServiceItemDLH := testdatagen.MakeRealMTOServiceItemWithAllDeps(suite.DB(), models.ReServiceCodeDLH, move, shipment)
+	mtoServiceItemDLH := factory.BuildRealMTOServiceItemWithAllDeps(suite.DB(), models.ReServiceCodeDLH, move, shipment)
 
 	// Build up a payment request for the DLH.
 	paymentRequestArg := models.PaymentRequest{

@@ -21,7 +21,7 @@ var actionDispatcher = map[string]actionFunc{
 		return factory.BuildDefaultAdminUser(appCtx.DB())
 	},
 	"DefaultMove": func(appCtx appcontext.AppContext) testHarnessResponse {
-		return testdatagen.MakeDefaultMove(appCtx.DB())
+		return factory.BuildMove(appCtx.DB(), nil, nil)
 	},
 	"MoveWithOrders": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeMoveWithOrders(appCtx.DB())
@@ -46,6 +46,12 @@ var actionDispatcher = map[string]actionFunc{
 	},
 	"HHGMoveForRetireeNeedsSC": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeHHGMoveForRetireeNeedsSC(appCtx)
+	},
+	"HHGMoveIn200DaysSIT": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeHHGMoveIn200DaysSIT(appCtx)
+	},
+	"HHGMoveIn200DaysSITWithPendingExtension": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeHHGMoveIn200DaysSITWithPendingExtension(appCtx)
 	},
 	"HHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO(appCtx)
@@ -130,6 +136,9 @@ var actionDispatcher = map[string]actionFunc{
 	},
 	"ApprovedMoveWithPPMMovingExpenseOffice": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeApprovedMoveWithPPMMovingExpenseOffice(appCtx)
+	},
+	"ApprovedMoveWithPPMAllDocTypesOffice": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeApprovedMoveWithPPMAllDocTypesOffice(appCtx)
 	},
 	"DraftMoveWithPPMWithDepartureDate": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeDraftMoveWithPPMWithDepartureDate(appCtx)

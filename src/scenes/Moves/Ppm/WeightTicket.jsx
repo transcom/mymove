@@ -4,7 +4,6 @@ import { connect } from 'react-redux';
 import { get, map } from 'lodash';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
-import { withLastLocation } from 'react-router-last-location';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { ProgressTimeline, ProgressTimelineStep } from 'shared/ProgressTimeline';
@@ -31,6 +30,8 @@ import WizardHeader from '../WizardHeader';
 import { formatToOrdinal } from 'utils/formatters';
 
 import './PPMPaymentRequest.css';
+import withRouter from 'utils/routing';
+import { RouterShape } from 'types';
 
 const nextBtnLabels = {
   SaveAndAddAnother: 'Save & Add Another',
@@ -146,8 +147,11 @@ class WeightTicket extends Component {
   };
 
   skipHandler = () => {
-    const { moveId, history } = this.props;
-    history.push(`/moves/${moveId}${nextPagePath}`);
+    const {
+      moveId,
+      router: { navigate },
+    } = this.props;
+    navigate(`/moves/${moveId}${nextPagePath}`);
   };
 
   nonEmptyUploaderKeys() {
@@ -156,12 +160,15 @@ class WeightTicket extends Component {
   }
 
   saveAndAddHandler = (formValues) => {
-    const { moveId, currentPpm, history } = this.props;
+    const {
+      moveId,
+      currentPpm,
+      router: { navigate },
+    } = this.props;
     const { additionalWeightTickets } = this.state;
 
     const uploaderKeys = this.nonEmptyUploaderKeys();
     const uploadIds = [];
-    // eslint-disable-next-line no-unused-vars
     for (const key of uploaderKeys) {
       let files = this.uploaders[key].uploaderRef.getFiles();
       const documentUploadIds = map(files, 'id');
@@ -189,7 +196,7 @@ class WeightTicket extends Component {
         this.cleanup();
         if (additionalWeightTickets === 'No') {
           const nextPage = getNextPage(`/moves/${moveId}${nextPagePath}`, this.props.lastLocation, reviewPagePath);
-          history.push(nextPage);
+          navigate(nextPage);
         }
       })
       .catch((e) => {
@@ -201,7 +208,6 @@ class WeightTicket extends Component {
     const { reset } = this.props;
     const uploaders = this.uploaders;
     const uploaderKeys = this.nonEmptyUploaderKeys();
-    // eslint-disable-next-line no-unused-vars
     for (const key of uploaderKeys) {
       uploaders[key].uploaderRef.clearFiles();
     }
@@ -535,10 +541,15 @@ WeightTicket = reduxForm({
 
 WeightTicket.propTypes = {
   schema: PropTypes.object.isRequired,
+  router: RouterShape,
 };
 
 function mapStateToProps(state, ownProps) {
-  const moveId = ownProps.match.params.moveId;
+  const {
+    router: {
+      params: { moveId },
+    },
+  } = ownProps;
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
   const dutyLocationId = serviceMember?.current_location?.id;
   const transportationOffice = serviceMember?.current_location.transportation_office;
@@ -561,4 +572,4 @@ const mapDispatchToProps = {
   createWeightTicketSetDocument,
 };
 
-export default withContext(withLastLocation(connect(mapStateToProps, mapDispatchToProps)(WeightTicket)));
+export default withContext(withRouter(connect(mapStateToProps, mapDispatchToProps)(WeightTicket)));

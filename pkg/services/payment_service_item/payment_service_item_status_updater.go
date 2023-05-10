@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
@@ -74,7 +73,7 @@ func (p *paymentServiceItemUpdater) updatePaymentServiceItem(appCtx appcontext.A
 	// If we're denying this thing we want to make sure to update the DeniedAt field and nil out ApprovedAt.
 	if desiredStatus == models.PaymentServiceItemStatusDenied {
 		paymentServiceItem.RejectionReason = rejectionReason
-		paymentServiceItem.DeniedAt = swag.Time(time.Now())
+		paymentServiceItem.DeniedAt = models.TimePointer(time.Now())
 		paymentServiceItem.ApprovedAt = nil
 		paymentServiceItem.Status = desiredStatus
 	}
@@ -83,7 +82,7 @@ func (p *paymentServiceItemUpdater) updatePaymentServiceItem(appCtx appcontext.A
 	if desiredStatus == models.PaymentServiceItemStatusApproved {
 		paymentServiceItem.RejectionReason = nil
 		paymentServiceItem.DeniedAt = nil
-		paymentServiceItem.ApprovedAt = swag.Time(time.Now())
+		paymentServiceItem.ApprovedAt = models.TimePointer(time.Now())
 		paymentServiceItem.Status = desiredStatus
 	}
 

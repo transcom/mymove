@@ -14,11 +14,13 @@ import (
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
-// MakeUserUpload creates a single UserUpload.
-func MakeUserUpload(db *pop.Connection, assertions Assertions) models.UserUpload {
+// makeUserUpload creates a single UserUpload.
+//
+// Deprecated: use factory.BuildUserUpload
+func makeUserUpload(db *pop.Connection, assertions Assertions) models.UserUpload {
 	document := assertions.UserUpload.Document
 	if assertions.UserUpload.DocumentID == nil || isZeroUUID(*assertions.UserUpload.DocumentID) {
-		document = MakeDocument(db, assertions)
+		document = makeDocument(db, assertions)
 	}
 
 	uploaderID := assertions.UserUpload.UploaderID
@@ -75,9 +77,4 @@ func MakeUserUpload(db *pop.Connection, assertions Assertions) models.UserUpload
 	}
 
 	return *userUpload
-}
-
-// MakeDefaultUserUpload makes an UserUpload with default values
-func MakeDefaultUserUpload(db *pop.Connection) models.UserUpload {
-	return MakeUserUpload(db, Assertions{})
 }

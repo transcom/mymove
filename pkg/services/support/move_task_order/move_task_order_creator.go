@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
@@ -60,7 +59,7 @@ func (f moveTaskOrderCreator) InternalCreateMoveTaskOrder(appCtx appcontext.AppC
 		if moveTaskOrder.Status == "" {
 			moveTaskOrder.Status = models.MoveStatusDRAFT
 		}
-		moveTaskOrder.Show = swag.Bool(true)
+		moveTaskOrder.Show = models.BoolPointer(true)
 		moveTaskOrder.Orders = *order
 		moveTaskOrder.OrdersID = order.ID
 
@@ -278,7 +277,7 @@ func OrderModel(orderPayload *supportmessages.Order) *models.Order {
 	}
 
 	if orderPayload.Rank != nil {
-		model.Grade = swag.String((string)(*orderPayload.Rank))
+		model.Grade = models.StringPointer((string)(*orderPayload.Rank))
 	}
 
 	if orderPayload.Status != nil {
@@ -343,7 +342,7 @@ func EntitlementModel(entitlementPayload *supportmessages.Entitlement) *models.E
 	}
 
 	if entitlementPayload.AuthorizedWeight != nil {
-		model.DBAuthorizedWeight = swag.Int(int(*entitlementPayload.AuthorizedWeight))
+		model.DBAuthorizedWeight = models.IntPointer(int(*entitlementPayload.AuthorizedWeight))
 	}
 
 	totalDependents := int(entitlementPayload.TotalDependents)
@@ -375,10 +374,6 @@ func MoveTaskOrderModel(mtoPayload *supportmessages.MoveTaskOrder) *models.Move 
 	if mtoPayload.AvailableToPrimeAt != nil {
 		availableToPrimeAt := time.Time(*mtoPayload.AvailableToPrimeAt)
 		model.AvailableToPrimeAt = &availableToPrimeAt
-	}
-
-	if mtoPayload.SelectedMoveType != nil {
-		model.SelectedMoveType = (*models.SelectedMoveType)(mtoPayload.SelectedMoveType)
 	}
 
 	return model

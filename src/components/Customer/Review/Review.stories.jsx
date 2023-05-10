@@ -62,17 +62,13 @@ const defaultProps = {
       uploads: [],
     },
   },
-  history: {
-    goBack: noop,
-    push: noop,
-  },
-  match: {
-    url: `/moves/${mtoUuid}/review`,
-    params: {
-      moveId: mtoUuid,
+  router: {
+    location: {
+      pathname: `/moves/${mtoUuid}/review`,
+      search: '',
     },
-    isExact: true,
-    path: '/moves/:moveId/review',
+    navigate: noop,
+    params: { moveId: mtoUuid },
   },
   onDidMount: noop,
   setMsg: noop,
@@ -136,11 +132,7 @@ const PPMShipment = {
 };
 
 export const WithNoShipments = () => {
-  return (
-    <MockProviders>
-      <Summary {...defaultProps} />
-    </MockProviders>
-  );
+  return <Summary {...defaultProps} />;
 };
 
 export const WithHHGShipment = () => {
@@ -149,11 +141,7 @@ export const WithHHGShipment = () => {
     mtoShipments: [HHGShipment],
   };
 
-  return (
-    <MockProviders>
-      <Summary {...props} />
-    </MockProviders>
-  );
+  return <Summary {...props} />;
 };
 
 export const WithPPM = () => {
@@ -161,11 +149,7 @@ export const WithPPM = () => {
     ...defaultProps,
     mtoShipments: [PPMShipment],
   };
-  return (
-    <MockProviders>
-      <Summary {...props} />
-    </MockProviders>
-  );
+  return <Summary {...props} />;
 };
 
 export const AsSubmitted = () => {
@@ -178,11 +162,7 @@ export const AsSubmitted = () => {
     },
   };
 
-  return (
-    <MockProviders>
-      <Summary {...props} />
-    </MockProviders>
-  );
+  return <Summary {...props} />;
 };
 
 export const AsApproved = () => {
@@ -206,9 +186,5 @@ export const AsApproved = () => {
     },
   };
 
-  return (
-    <MockProviders>
-      <Summary {...props} />
-    </MockProviders>
-  );
+  return <Summary {...props} />;
 };

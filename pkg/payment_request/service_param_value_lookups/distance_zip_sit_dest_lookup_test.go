@@ -3,6 +3,7 @@ package serviceparamvaluelookups
 import (
 	"errors"
 	"strconv"
+	"time"
 
 	"github.com/stretchr/testify/mock"
 
@@ -26,6 +27,12 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITDestLookup() {
 	var mtoServiceItemDiffZip3 models.MTOServiceItem
 
 	setupTestData := func() {
+		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				StartDate: time.Now().Add(-24 * time.Hour),
+				EndDate:   time.Now().Add(24 * time.Hour),
+			},
+		})
 
 		reService := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDDDSIT)
 
@@ -56,43 +63,74 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITDestLookup() {
 				},
 			}, nil)
 
-		move := factory.BuildMove(suite.DB(), nil, nil)
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
-		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(),
-			testdatagen.Assertions{
-				DestinationAddress: destAddress,
-			})
-
-		paymentRequest = testdatagen.MakePaymentRequest(suite.DB(),
-			testdatagen.Assertions{
-				Move: move,
-			})
-
-		mtoServiceItemSameZip3 = testdatagen.MakeMTOServiceItem(suite.DB(),
-			testdatagen.Assertions{
-				DestinationAddress: destAddress,
-				ReService:          reService,
-				Move:               move,
-				MTOShipment:        mtoShipment,
-				MTOServiceItem: models.MTOServiceItem{
-					SITDestinationFinalAddressID: &finalDestSameZip3Address.ID,
-					SITDestinationFinalAddress:   &finalDestSameZip3Address,
+		mtoShipment := factory.BuildMTOShipment(suite.DB(),
+			[]factory.Customization{
+				{
+					Model:    destAddress,
+					LinkOnly: true,
 				},
-			},
-		)
+			}, nil)
 
-		mtoServiceItemDiffZip3 = testdatagen.MakeMTOServiceItem(suite.DB(),
-			testdatagen.Assertions{
-				DestinationAddress: destAddress,
-				ReService:          reService,
-				Move:               move,
-				MTOShipment:        mtoShipment,
-				MTOServiceItem: models.MTOServiceItem{
-					SITDestinationFinalAddressID: &finalDestDiffZip3Address.ID,
-					SITDestinationFinalAddress:   &finalDestDiffZip3Address,
-				},
+		paymentRequest = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-		)
+		}, nil)
+
+		mtoServiceItemSameZip3 = factory.BuildMTOServiceItem(suite.DB(),
+			[]factory.Customization{
+				{
+					Model:    destAddress,
+					LinkOnly: true,
+					Type:     &factory.Addresses.DeliveryAddress,
+				},
+				{
+					Model:    reService,
+					LinkOnly: true,
+				},
+				{
+					Model:    move,
+					LinkOnly: true,
+				},
+				{
+					Model:    mtoShipment,
+					LinkOnly: true,
+				},
+				{
+					Model:    finalDestSameZip3Address,
+					LinkOnly: true,
+					Type:     &factory.Addresses.SITDestinationFinalAddress,
+				},
+			}, nil)
+
+		mtoServiceItemDiffZip3 = factory.BuildMTOServiceItem(suite.DB(),
+			[]factory.Customization{
+				{
+					Model:    destAddress,
+					LinkOnly: true,
+					Type:     &factory.Addresses.DeliveryAddress,
+				},
+				{
+					Model:    reService,
+					LinkOnly: true,
+				},
+				{
+					Model:    move,
+					LinkOnly: true,
+				},
+				{
+					Model:    mtoShipment,
+					LinkOnly: true,
+				},
+				{
+					Model:    finalDestDiffZip3Address,
+					LinkOnly: true,
+					Type:     &factory.Addresses.SITDestinationFinalAddress,
+				},
+			}, nil)
 	}
 
 	suite.Run("distance when zip3s are identical", func() {
@@ -173,9 +211,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITDestLookup() {
 	})
 
 	suite.Run("sets distance to one when origin and destination postal codes are the same", func() {
-		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			MTOShipment: testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{}),
-		})
+		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), nil, nil)
 
 		distanceZipLookup := DistanceZipSITDestLookup{
 			FinalDestinationAddress: models.Address{PostalCode: mtoServiceItem.MTOShipment.DestinationAddress.PostalCode},

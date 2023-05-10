@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { push } from 'connected-react-router';
-import { withLastLocation } from 'react-router-last-location';
 
 import { withContext } from 'shared/AppContext';
 import { PpmSummary } from './PpmSummary';
@@ -22,6 +20,7 @@ import { loadMTOShipments } from 'shared/Entities/modules/mtoShipments';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import requireCustomerState from 'containers/requireCustomerState/requireCustomerState';
 import { profileStates } from 'constants/customerStates';
+import withRouter from 'utils/routing';
 
 export class PpmLanding extends Component {
   componentDidUpdate(prevProps) {
@@ -32,23 +31,31 @@ export class PpmLanding extends Component {
   }
 
   editMove = (move) => {
-    this.props.push(`moves/${move.id}/edit`);
+    const {
+      router: { navigate },
+    } = this.props;
+    navigate(`moves/${move.id}/edit`);
   };
 
   resumeMove = () => {
+    const {
+      router: { navigate },
+    } = this.props;
+
     const excludeHomePage = true;
-    this.props.push(this.getNextIncompletePage(excludeHomePage));
+    navigate(this.getNextIncompletePage(excludeHomePage));
   };
 
   reviewProfile = () => {
-    this.props.push('profile-review');
+    const {
+      router: { navigate },
+    } = this.props;
+    navigate('profile-review');
   };
 
   getNextIncompletePage = (excludeHomePage) => {
-    const { selectedMoveType, lastMoveIsCanceled, serviceMember, orders, move, ppm, backupContacts, context } =
-      this.props;
+    const { lastMoveIsCanceled, serviceMember, orders, move, ppm, backupContacts, context } = this.props;
     return getNextIncompletePageInternal({
-      selectedMoveType,
       lastMoveIsCanceled,
       serviceMember,
       orders,
@@ -91,6 +98,7 @@ PpmLanding.propTypes = {
       ghcFlow: PropTypes.bool,
     }),
   }).isRequired,
+  router: PropTypes.shape({}),
 };
 
 PpmLanding.defaultProps = {
@@ -120,13 +128,12 @@ const mapStateToProps = (state) => {
 };
 
 const mapDispatchToProps = {
-  push,
   loadMTOShipments,
   updatePPMs,
 };
 
 export default withContext(
-  withLastLocation(
+  withRouter(
     connect(
       mapStateToProps,
       mapDispatchToProps,

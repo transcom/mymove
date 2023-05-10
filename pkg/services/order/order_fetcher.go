@@ -6,7 +6,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
 
@@ -70,7 +69,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	// var gblocQuery QueryOption
 	var gblocToFilterBy *string
 	if officeUserGbloc == "USMC" && !needsCounseling {
-		branchQuery = branchFilter(swag.String(string(models.AffiliationMARINES)), needsCounseling, ppmCloseoutGblocs)
+		branchQuery = branchFilter(models.StringPointer(string(models.AffiliationMARINES)), needsCounseling, ppmCloseoutGblocs)
 		gblocToFilterBy = params.OriginGBLOC
 	} else {
 		gblocToFilterBy = &officeUserGbloc
@@ -124,7 +123,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 			InnerJoin("ppm_shipments", "ppm_shipments.shipment_id = mto_shipments.id").
 			InnerJoin("duty_locations as origin_dl", "orders.origin_duty_location_id = origin_dl.id").
 			LeftJoin("duty_locations as dest_dl", "dest_dl.id = orders.new_duty_location_id").
-			Where("show = ?", swag.Bool(true))
+			Where("show = ?", models.BoolPointer(true))
 	} else {
 		query = appCtx.DB().Q().Scope(utilities.ExcludeDeletedScope(models.MTOShipment{})).EagerPreload(
 			"Orders.ServiceMember",
@@ -148,8 +147,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 			// and we don't want it to get hidden from services counselors.
 			LeftJoin("move_to_gbloc", "move_to_gbloc.move_id = moves.id").
 			LeftJoin("duty_locations as dest_dl", "dest_dl.id = orders.new_duty_location_id").
-			Where("show = ?", swag.Bool(true)).
-			Where("moves.selected_move_type NOT IN (?)", models.SelectedMoveTypeUB, models.SelectedMoveTypePOV)
+			Where("show = ?", models.BoolPointer(true))
 		if params.NeedsPPMCloseout != nil {
 			if *params.NeedsPPMCloseout {
 				query.InnerJoin("ppm_shipments", "ppm_shipments.shipment_id = mto_shipments.id").
@@ -174,10 +172,10 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 
 	// Pass zeros into paginate in this case. Which will give us 1 page and 20 per page respectively
 	if params.Page == nil {
-		params.Page = swag.Int64(0)
+		params.Page = models.Int64Pointer(0)
 	}
 	if params.PerPage == nil {
-		params.PerPage = swag.Int64(0)
+		params.PerPage = models.Int64Pointer(0)
 	}
 
 	var groupByColumms []string

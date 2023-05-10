@@ -18,6 +18,11 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
+// CONSTANTS
+
+// DefaultContractCode is the default contract code for testing
+const DefaultContractCode = "TRUSS_TEST"
+
 // Customization type is the building block for passing in customizations and traits
 type Customization struct {
 	Model interface{} // The model that the factory will build
@@ -36,59 +41,99 @@ type CustomType string
 // where this address will get created and nested
 var Address CustomType = "Address"
 var AdminUser CustomType = "AdminUser"
+var AuditHistory CustomType = "AuditHistory"
 var BackupContact CustomType = "BackupContact"
 var ClientCert CustomType = "ClientCert"
 var Contractor CustomType = "Contractor"
+var CustomerSupportRemark CustomType = "CustomerSupportRemark"
 var Document CustomType = "Document"
 var DutyLocation CustomType = "DutyLocation"
 var Entitlement CustomType = "Entitlement"
+var EvaluationReport CustomType = "EvaluationReport"
 var Move CustomType = "Move"
+var MovingExpense CustomType = "MovingExpense"
+var MTOAgent CustomType = "MTOAgent"
+var MTOServiceItem CustomType = "MTOServiceItem"
+var MTOServiceItemDimension CustomType = "MTOServiceItemDimension"
 var MTOShipment CustomType = "MTOShipment"
+var Notification CustomType = "Notification"
 var OfficePhoneLine CustomType = "OfficePhoneLine"
 var OfficeUser CustomType = "OfficeUser"
 var Order CustomType = "Order"
 var Organization CustomType = "Organization"
+var PPMShipment CustomType = "PPMShipment"
+var PaymentRequest CustomType = "PaymentRequest"
+var PaymentServiceItem CustomType = "PaymentServiceItem"
+var PaymentServiceItemParam CustomType = "PaymentServiceItemParam"
+var PaymentRequestToInterchangeControlNumber CustomType = "PaymentRequestToInterchangeControlNumber"
 var PostalCodeToGBLOC CustomType = "PostalCodeToGBLOC"
+var PrimeUpload CustomType = "PrimeUpload"
+var ProgearWeightTicket CustomType = "ProgearWeightTicket"
+var ProofOfServiceDoc CustomType = "ProofOfServiceDoc"
 var ReService CustomType = "ReService"
-var ServiceItemParamKey CustomType = "ServiceItemParamKey"
-var ServiceMember CustomType = "ServiceMember"
-var StorageFacility CustomType = "StorageFacility"
 var Role CustomType = "Role"
-var Tariff400ngZip3 CustomType = "Tariff400ngZip3"
+var ServiceItemParamKey CustomType = "ServiceItemParamKey"
+var ServiceParam CustomType = "ServiceParam"
+var ServiceMember CustomType = "ServiceMember"
+var SignedCertification CustomType = "SignedCertification"
+var SITDurationUpdate CustomType = "SITDurationUpdate"
+var StorageFacility CustomType = "StorageFacility"
 var TransportationOffice CustomType = "TransportationOffice"
 var Upload CustomType = "Upload"
 var UserUpload CustomType = "UserUpload"
 var User CustomType = "User"
 var UsersRoles CustomType = "UsersRoles"
+var WebhookNotification CustomType = "WebhookNotification"
+var WeightTicket CustomType = "WeightTicket"
 
 // defaultTypesMap allows us to assign CustomTypes for most default types
 var defaultTypesMap = map[string]CustomType{
-	"models.Address":              Address,
-	"models.AdminUser":            AdminUser,
-	"models.BackupContact":        BackupContact,
-	"models.ClientCert":           ClientCert,
-	"models.Contractor":           Contractor,
-	"models.Document":             Document,
-	"models.DutyLocation":         DutyLocation,
-	"models.Entitlement":          Entitlement,
-	"models.Move":                 Move,
-	"models.MTOShipment":          MTOShipment,
-	"models.OfficePhoneLine":      OfficePhoneLine,
-	"models.OfficeUser":           OfficeUser,
-	"models.Order":                Order,
-	"models.Organization":         Organization,
-	"models.PostalCodeToGBLOC":    PostalCodeToGBLOC,
-	"models.ReService":            ReService,
-	"models.ServiceItemParamKey":  ServiceItemParamKey,
-	"models.ServiceMember":        ServiceMember,
-	"models.StorageFacility":      StorageFacility,
-	"models.Tariff400ngZip3":      Tariff400ngZip3,
-	"models.TransportationOffice": TransportationOffice,
-	"models.Upload":               Upload,
-	"models.UserUpload":           UserUpload,
-	"models.User":                 User,
-	"models.UsersRoles":           UsersRoles,
-	"roles.Role":                  Role,
+	"models.Address":                                  Address,
+	"models.AdminUser":                                AdminUser,
+	"factory.TestDataAuditHistory":                    AuditHistory,
+	"models.BackupContact":                            BackupContact,
+	"models.ClientCert":                               ClientCert,
+	"models.Contractor":                               Contractor,
+	"models.CustomerSupportRemark":                    CustomerSupportRemark,
+	"models.Document":                                 Document,
+	"models.DutyLocation":                             DutyLocation,
+	"models.Entitlement":                              Entitlement,
+	"models.EvaluationReport":                         EvaluationReport,
+	"models.Move":                                     Move,
+	"models.MovingExpense":                            MovingExpense,
+	"models.MTOAgent":                                 MTOAgent,
+	"models.MTOServiceItem":                           MTOServiceItem,
+	"models.MTOServiceItemDimension":                  MTOServiceItemDimension,
+	"models.MTOShipment":                              MTOShipment,
+	"models.Notification":                             Notification,
+	"models.OfficePhoneLine":                          OfficePhoneLine,
+	"models.OfficeUser":                               OfficeUser,
+	"models.Order":                                    Order,
+	"models.Organization":                             Organization,
+	"models.PaymentRequest":                           PaymentRequest,
+	"models.PaymentServiceItem":                       PaymentServiceItem,
+	"models.PaymentServiceItemParam":                  PaymentServiceItemParam,
+	"models.PaymentRequestToInterchangeControlNumber": PaymentRequestToInterchangeControlNumber,
+	"models.PPMShipment":                              PPMShipment,
+	"models.PostalCodeToGBLOC":                        PostalCodeToGBLOC,
+	"models.PrimeUpload":                              PrimeUpload,
+	"models.ProgearWeightTicket":                      ProgearWeightTicket,
+	"models.ProofOfServiceDoc":                        ProofOfServiceDoc,
+	"models.ReService":                                ReService,
+	"models.ServiceItemParamKey":                      ServiceItemParamKey,
+	"models.ServiceMember":                            ServiceMember,
+	"models.ServiceParam":                             ServiceParam,
+	"models.SignedCertification":                      SignedCertification,
+	"models.SITDurationUpdate":                        SITDurationUpdate,
+	"models.StorageFacility":                          StorageFacility,
+	"models.TransportationOffice":                     TransportationOffice,
+	"models.Upload":                                   Upload,
+	"models.UserUpload":                               UserUpload,
+	"models.User":                                     User,
+	"models.UsersRoles":                               UsersRoles,
+	"models.WebhookNotification":                      WebhookNotification,
+	"models.WeightTicket":                             WeightTicket,
+	"roles.Role":                                      Role,
 }
 
 // Instead of nesting structs, we create specific CustomTypes here to give devs
@@ -96,26 +141,34 @@ var defaultTypesMap = map[string]CustomType{
 
 // addressGroup is a grouping of all address related fields
 type addressGroup struct {
-	PickupAddress            CustomType
-	DeliveryAddress          CustomType
-	SecondaryPickupAddress   CustomType
-	SecondaryDeliveryAddress CustomType
-	ResidentialAddress       CustomType
-	BackupMailingAddress     CustomType
-	DutyLocationAddress      CustomType
-	DutyLocationTOAddress    CustomType
+	PickupAddress               CustomType
+	DeliveryAddress             CustomType
+	SecondaryPickupAddress      CustomType
+	SecondaryDeliveryAddress    CustomType
+	ResidentialAddress          CustomType
+	BackupMailingAddress        CustomType
+	DutyLocationAddress         CustomType
+	DutyLocationTOAddress       CustomType
+	SITOriginHHGOriginalAddress CustomType
+	SITOriginHHGActualAddress   CustomType
+	SITDestinationFinalAddress  CustomType
+	W2Address                   CustomType
 }
 
 // Addresses is the struct to access the various fields externally
 var Addresses = addressGroup{
-	PickupAddress:            "PickupAddress",
-	DeliveryAddress:          "DeliveryAddress",
-	SecondaryPickupAddress:   "SecondaryPickupAddress",
-	SecondaryDeliveryAddress: "SecondaryDeliveryAddress",
-	ResidentialAddress:       "ResidentialAddress",
-	BackupMailingAddress:     "BackupMailingAddress",
-	DutyLocationAddress:      "DutyLocationAddress",
-	DutyLocationTOAddress:    "DutyLocationTOAddress",
+	PickupAddress:               "PickupAddress",
+	DeliveryAddress:             "DeliveryAddress",
+	SecondaryPickupAddress:      "SecondaryPickupAddress",
+	SecondaryDeliveryAddress:    "SecondaryDeliveryAddress",
+	ResidentialAddress:          "ResidentialAddress",
+	BackupMailingAddress:        "BackupMailingAddress",
+	DutyLocationAddress:         "DutyLocationAddress",
+	DutyLocationTOAddress:       "DutyLocationTOAddress",
+	SITOriginHHGOriginalAddress: "SITOriginHHGOriginalAddress",
+	SITOriginHHGActualAddress:   "SITOriginHHGActualAddress",
+	SITDestinationFinalAddress:  "SITDestinationFinalAddress",
+	W2Address:                   "W2Address",
 }
 
 // dimensionGroup is a grouping of all the Dimension related fields
@@ -167,6 +220,18 @@ var TransportationOffices = transportationOfficeGroup{
 	OriginDutyLocation: "OriginDutyLocationTransportationOffice",
 	NewDutyLocation:    "NewDutyLocationTransportationOffice",
 	CloseoutOffice:     "CloseoutOffice",
+}
+
+// uploadGroup is a grouping of all the upload related fields
+type uploadGroup struct {
+	UploadTypePrime CustomType
+	UploadTypeUser  CustomType
+}
+
+// Uploads is the struct to access the fields externally
+var Uploads = uploadGroup{
+	UploadTypePrime: "UploadTypePrime",
+	UploadTypeUser:  "UploadTypeUser",
 }
 
 // Below are errors returned by various functions
@@ -425,6 +490,22 @@ func replaceCustomization(customs []Customization, newCustom Customization) []Cu
 	} else {
 		// Did not find an existing customization, append it
 		customs = append(customs, newCustom)
+	}
+
+	return customs
+}
+
+// Caller should have already setup Customizations using setupCustomizations
+func removeCustomization(customs []Customization, customType CustomType) []Customization {
+	// See if an existing customization exists with the type
+	ndx, _ := findCustomWithIdx(customs, customType)
+	if ndx >= 0 {
+		// Found a customization for the provided model and we need to remove it
+		// Order shouldn't matter because the setupCustomizations should have already merged customizations and traits
+		// and ensured that there's only one customization per type
+		// Replace the customization we want to remove with the last customization in the slice
+		customs[ndx] = customs[len(customs)-1]
+		customs = customs[:len(customs)-1]
 	}
 
 	return customs

@@ -288,7 +288,7 @@ func (suite *HandlerSuite) TestUpdateClientCertificateHandler() {
 		}
 
 		response := handler.Handle(params)
-		suite.IsType(&clientcertop.UpdateClientCertificateInternalServerError{}, response)
+		suite.IsType(&clientcertop.UpdateClientCertificateBadRequest{}, response)
 	})
 }
 

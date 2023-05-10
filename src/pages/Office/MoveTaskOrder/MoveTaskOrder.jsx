@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { withRouter, Link, generatePath } from 'react-router-dom';
+import { Link, useParams, generatePath } from 'react-router-dom';
 import { Alert, Button, Grid, GridContainer, Tag } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
@@ -11,7 +11,7 @@ import styles from '../TXOMoveInfo/TXOTab.module.scss';
 
 import moveTaskOrderStyles from './MoveTaskOrder.module.scss';
 
-import EditMaxBillableWeightModal from 'components/Office/EditMaxBillableWeightModal/EditMaxBillableWeightModal';
+import ConnectedEditMaxBillableWeightModal from 'components/Office/EditMaxBillableWeightModal/EditMaxBillableWeightModal';
 import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
 import { formatStorageFacilityForAPI, formatAddressForAPI, removeEtag } from 'utils/formatMtoShipment';
 import hasRiskOfExcess from 'utils/hasRiskOfExcess';
@@ -46,7 +46,6 @@ import { MOVE_STATUSES } from 'shared/constants';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { setFlashMessage } from 'store/flash/actions';
-import { MatchShape } from 'types/router';
 import WeightDisplay from 'components/Office/WeightDisplay/WeightDisplay';
 import { calculateEstimatedWeight, calculateWeightRequested } from 'hooks/custom';
 import { SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
@@ -84,7 +83,7 @@ function showShipmentFilter(shipment) {
   );
 }
 
-export const MoveTaskOrder = ({ match, ...props }) => {
+export const MoveTaskOrder = (props) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isCancelModalVisible, setIsCancelModalVisible] = useState(false);
   const [isReweighModalVisible, setIsReweighModalVisible] = useState(false);
@@ -108,7 +107,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     return ['move-weights'];
   }, []);
 
-  const { moveCode } = match.params;
+  const { moveCode } = useParams();
   const {
     setUnapprovedShipmentCount,
     setUnapprovedServiceItemCount,
@@ -339,7 +338,11 @@ export const MoveTaskOrder = ({ match, ...props }) => {
         shipmentID: shipment.id,
         sitExtensionID,
         ifMatchETag: shipment.eTag,
-        body: { officeRemarks: formValues.officeRemarks, approvedDays: parseInt(formValues.daysApproved, 10) },
+        body: {
+          requestReason: formValues.requestReason,
+          officeRemarks: formValues.officeRemarks,
+          approvedDays: parseInt(formValues.daysApproved, 10) - shipment.sitDaysAllowance,
+        },
       });
     } else if (formValues.acceptExtension === 'no') {
       mutateSITExtensionDenial({
@@ -359,7 +362,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
         body: {
           requestReason: formValues.requestReason,
           officeRemarks: formValues.officeRemarks,
-          approvedDays: parseInt(formValues.daysApproved, 10),
+          approvedDays: parseInt(formValues.daysApproved, 10) - shipment.sitDaysAllowance,
         },
       },
       {
@@ -735,14 +738,15 @@ export const MoveTaskOrder = ({ match, ...props }) => {
               onSubmit={handleReweighShipment}
             />
           )}
-          {isWeightModalVisible && (
-            <EditMaxBillableWeightModal
-              defaultWeight={order.entitlement.totalWeight}
-              maxBillableWeight={order.entitlement.authorizedWeight}
-              onSubmit={handleUpdateBillableWeight}
-              onClose={setIsWeightModalVisible}
-            />
-          )}
+
+          <ConnectedEditMaxBillableWeightModal
+            isOpen={isWeightModalVisible}
+            defaultWeight={order.entitlement.totalWeight}
+            maxBillableWeight={order.entitlement.authorizedWeight}
+            onSubmit={handleUpdateBillableWeight}
+            onClose={setIsWeightModalVisible}
+          />
+
           {isFinancialModalVisible && (
             <FinancialReviewModal
               onClose={handleCancelFinancialReviewModal}
@@ -825,9 +829,9 @@ export const MoveTaskOrder = ({ match, ...props }) => {
                     shipmentID: mtoShipment.id,
                     shipmentType: mtoShipmentTypes[mtoShipment.shipmentType],
                     isDiversion: mtoShipment.diversion,
-                    originCity: pickupAddress?.city,
-                    originState: pickupAddress?.state,
-                    originPostalCode: pickupAddress?.postalCode,
+                    originCity: pickupAddress?.city || '',
+                    originState: pickupAddress?.state || '',
+                    originPostalCode: pickupAddress?.postalCode || '',
                     destinationAddress: destinationAddress || dutyLocationPostal,
                     scheduledPickupDate: formattedScheduledPickup,
                     shipmentStatus: mtoShipment.status,
@@ -881,7 +885,6 @@ export const MoveTaskOrder = ({ match, ...props }) => {
 };
 
 MoveTaskOrder.propTypes = {
-  match: MatchShape.isRequired,
   setUnapprovedShipmentCount: func.isRequired,
   setUnapprovedServiceItemCount: func.isRequired,
   setExcessWeightRiskCount: func.isRequired,
@@ -893,4 +896,4 @@ const mapDispatchToProps = {
   setMessage: setFlashMessage,
 };
 
-export default withRouter(connect(() => ({}), mapDispatchToProps)(MoveTaskOrder));
+export default connect(() => ({}), mapDispatchToProps)(MoveTaskOrder);

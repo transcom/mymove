@@ -3,7 +3,6 @@ package paymentrequest
 import (
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 type serviceParamSubtestData struct {
@@ -18,20 +17,32 @@ func (suite *PaymentRequestHelperSuite) makeServiceParamTestData() (subtestData 
 	subtestData = &serviceParamSubtestData{}
 	// Create some records we'll need to link to
 	subtestData.move = factory.BuildMove(suite.DB(), nil, nil)
-	subtestData.mtoServiceItem1 = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-		Move: subtestData.move,
-		ReService: models.ReService{
-			Code: models.ReServiceCodeDLH,
-			Name: "Domestic Linehaul",
+	subtestData.mtoServiceItem1 = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+		{
+			Model:    subtestData.move,
+			LinkOnly: true,
 		},
-	})
-	subtestData.mtoServiceItem2 = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-		Move: subtestData.move,
-		ReService: models.ReService{
-			Code: models.ReServiceCodeDOP,
-			Name: "Domestic Origin Pickup",
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDLH,
+				Name: "Domestic Linehaul",
+			},
 		},
-	})
+	}, nil)
+
+	subtestData.mtoServiceItem2 = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+		{
+			Model:    subtestData.move,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDOP,
+				Name: "Domestic Origin Pickup",
+			},
+		},
+	}, nil)
+
 	serviceItemParamKey1 := factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{
 		{
 			Model: models.ServiceItemParamKey{
@@ -74,47 +85,70 @@ func (suite *PaymentRequestHelperSuite) makeServiceParamTestData() (subtestData 
 		},
 	}, nil)
 
-	mtoServiceItem1Param1 := testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
-		ServiceParam: models.ServiceParam{
-			ServiceID:             subtestData.mtoServiceItem1.ReServiceID,
-			ServiceItemParamKeyID: serviceItemParamKey1.ID,
-			ServiceItemParamKey:   serviceItemParamKey1,
-			IsOptional:            true,
+	mtoServiceItem1Param1 := factory.BuildServiceParam(suite.DB(), []factory.Customization{
+		{
+			Model:    subtestData.mtoServiceItem1.ReService,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    serviceItemParamKey1,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ServiceParam{
+				IsOptional: true,
+			},
+		},
+	}, nil)
 
-	mtoServiceItem1Param2 := testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
-		ServiceParam: models.ServiceParam{
-			ServiceID:             subtestData.mtoServiceItem1.ReServiceID,
-			ServiceItemParamKeyID: serviceItemParamKey2.ID,
-			ServiceItemParamKey:   serviceItemParamKey2,
+	mtoServiceItem1Param2 := factory.BuildServiceParam(suite.DB(), []factory.Customization{
+		{
+			Model:    subtestData.mtoServiceItem1.ReService,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    serviceItemParamKey2,
+			LinkOnly: true,
+		},
+	}, nil)
 
-	mtoServiceItem1Param3 := testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
-		ServiceParam: models.ServiceParam{
-			ServiceID:             subtestData.mtoServiceItem1.ReServiceID,
-			ServiceItemParamKeyID: serviceItemParamKey3.ID,
-			ServiceItemParamKey:   serviceItemParamKey3,
+	mtoServiceItem1Param3 := factory.BuildServiceParam(suite.DB(), []factory.Customization{
+		{
+			Model:    subtestData.mtoServiceItem1.ReService,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    serviceItemParamKey3,
+			LinkOnly: true,
+		},
+	}, nil)
 
-	mtoServiceItem1Param4 := testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
-		ServiceParam: models.ServiceParam{
-			ServiceID:             subtestData.mtoServiceItem1.ReServiceID,
-			ServiceItemParamKeyID: serviceItemParamKey4.ID,
-			ServiceItemParamKey:   serviceItemParamKey4,
+	mtoServiceItem1Param4 := factory.BuildServiceParam(suite.DB(), []factory.Customization{
+		{
+			Model:    subtestData.mtoServiceItem1.ReService,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    serviceItemParamKey4,
+			LinkOnly: true,
+		},
+	}, nil)
 
-	mtoServiceItem2Param1 := testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
-		ServiceParam: models.ServiceParam{
-			ServiceID:             subtestData.mtoServiceItem2.ReServiceID,
-			ServiceItemParamKeyID: serviceItemParamKey1.ID,
-			ServiceItemParamKey:   serviceItemParamKey1,
-			IsOptional:            true,
+	mtoServiceItem2Param1 := factory.BuildServiceParam(suite.DB(), []factory.Customization{
+		{
+			Model:    subtestData.mtoServiceItem2.ReService,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model:    serviceItemParamKey1,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ServiceParam{
+				IsOptional: true,
+			},
+		},
+	}, nil)
 
 	subtestData.mtoService1ServiceParams = models.ServiceParams{
 		mtoServiceItem1Param1,

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Alert, Button, Grid } from '@trussworks/react-uswds';
-import { generatePath, useHistory, withRouter } from 'react-router-dom';
+import { generatePath, useNavigate, useParams } from 'react-router-dom';
 
 import { calculateWeightRequested } from '../../../../hooks/custom';
 
@@ -13,7 +13,6 @@ import { servicesCounselingRoutes } from 'constants/routes';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
-import { MatchShape } from 'types/router';
 import DocumentViewer from 'components/DocumentViewer/DocumentViewer';
 import DocumentViewerSidebar from 'pages/Office/DocumentViewerSidebar/DocumentViewerSidebar';
 import { useReviewShipmentWeightsQuery, usePPMShipmentDocsQueries } from 'hooks/queries';
@@ -30,9 +29,10 @@ const DOCUMENT_TYPES = {
   MOVING_EXPENSE: 'MOVING_EXPENSE',
 };
 
-export const ReviewDocuments = ({ match }) => {
-  const { shipmentId, moveCode } = match.params;
+export const ReviewDocuments = () => {
+  const { shipmentId, moveCode } = useParams();
   const { orders, mtoShipments } = useReviewShipmentWeightsQuery(moveCode);
+
   const { mtoShipment, documents, isLoading, isError } = usePPMShipmentDocsQueries(shipmentId);
 
   const order = Object.values(orders)?.[0];
@@ -99,7 +99,7 @@ export const ReviewDocuments = ({ match }) => {
     );
   }
 
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const formRef = useRef();
   const mainRef = useRef();
@@ -109,11 +109,8 @@ export const ReviewDocuments = ({ match }) => {
 
   const queryClient = useQueryClient();
 
-  if (isLoading) return <LoadingPlaceholder />;
-  if (isError) return <SomethingWentWrong />;
-
   const onClose = () => {
-    history.push(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
+    navigate(generatePath(servicesCounselingRoutes.BASE_MOVE_VIEW_PATH, { moveCode }));
   };
 
   const onBack = () => {
@@ -136,12 +133,18 @@ export const ReviewDocuments = ({ match }) => {
     }
   };
 
-  const onConfirmSuccess = () => {
-    history.push(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
+  const getAllUploads = () => {
+    return documentSets.reduce((acc, documentSet) => {
+      return acc.concat(documentSet.uploads);
+    }, []);
   };
 
   const onError = () => {
     setServerError('There was an error submitting the form. Please try again later.');
+  };
+
+  const onConfirmSuccess = () => {
+    navigate(generatePath(servicesCounselingRoutes.BASE_MOVE_VIEW_PATH, { moveCode }));
   };
 
   const onContinue = () => {
@@ -151,10 +154,13 @@ export const ReviewDocuments = ({ match }) => {
     }
   };
 
+  if (isLoading) return <LoadingPlaceholder />;
+  if (isError) return <SomethingWentWrong />;
+
   const currentDocumentSet = documentSets[documentSetIndex];
   const disableBackButton = documentSetIndex === 0 && !showOverview;
 
-  const reviewShipmentWeightsURL = generatePath(servicesCounselingRoutes.REVIEW_SHIPMENT_WEIGHTS_PATH, {
+  const reviewShipmentWeightsURL = generatePath(servicesCounselingRoutes.BASE_REVIEW_SHIPMENT_WEIGHTS_PATH, {
     moveCode,
     shipmentId,
   });
@@ -164,13 +170,15 @@ export const ReviewDocuments = ({ match }) => {
   return (
     <div data-testid="ReviewDocuments" className={styles.ReviewDocuments}>
       <div className={styles.embed}>
-        <DocumentViewer files={currentDocumentSet.uploads} allowDownload />
+        <DocumentViewer files={showOverview ? getAllUploads() : currentDocumentSet.uploads} allowDownload />
       </div>
       <DocumentViewerSidebar
         title="Review documents"
         onClose={onClose}
         className={styles.sidebar}
-        supertitle={`${documentSetIndex + 1} of ${documentSets.length} Document Sets`}
+        supertitle={
+          showOverview ? 'All Document Sets' : `${documentSetIndex + 1} of ${documentSets.length} Document Sets`
+        }
         defaultH3
         hyperlink={reviewShipmentWeightsLink}
       >
@@ -189,6 +197,7 @@ export const ReviewDocuments = ({ match }) => {
               <ReviewDocumentsSidePanel
                 ppmShipment={mtoShipment.ppmShipment}
                 weightTickets={weightTickets}
+                proGearTickets={proGearWeightTickets}
                 expenseTickets={movingExpenses}
                 onError={onError}
                 onSuccess={onConfirmSuccess}
@@ -247,8 +256,4 @@ export const ReviewDocuments = ({ match }) => {
   );
 };
 
-ReviewDocuments.propTypes = {
-  match: MatchShape.isRequired,
-};
-
-export default withRouter(ReviewDocuments);
+export default ReviewDocuments;

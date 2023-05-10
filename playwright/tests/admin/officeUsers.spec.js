@@ -45,7 +45,7 @@ test.describe('Office User Create Page', () => {
     // so let's work with the assumption that we were already redirected to this page:
     expect(page.url()).toContain('/system/office-users');
 
-    await page.getByRole('button', { name: 'Create' }).click();
+    await page.getByRole('link', { name: 'Create' }).click();
     await expect(page.getByRole('heading', { name: 'Create Office Users' })).toBeVisible();
 
     expect(page.url()).toContain('/system/office-users/create');
@@ -66,13 +66,13 @@ test.describe('Office User Create Page', () => {
     await page.getByText('Services Counselor').click();
     // The autocomplete form results in multiple matching elements, so
     // pick the input element
-    await page.getByLabel('Transportation Office').locator('input').fill('JPPSO Testy McTest');
+    await page.getByLabel('Transportation Office').fill('JPPSO Testy McTest');
     // the autocomplete might return multiples because of concurrent
     // tests running that are adding offices
-    await page.getByRole('option', { name: 'JPPSOTestyMcTest' }).first().click();
+    await page.getByRole('option', { name: 'JPPSO Testy McTest' }).first().click();
 
     await page.getByRole('button', { name: 'Save' }).click();
-    await adminPage.waitForAdminPageToLoad();
+    await adminPage.waitForPage.adminPage();
 
     // redirected to edit details page
     const officeUserID = await page.locator('#id').inputValue();
@@ -96,15 +96,18 @@ test.describe('Office Users Show Page', () => {
     await adminPage.signInAsNewAdminUser();
 
     expect(page.url()).toContain('/system/office-users');
+    await adminPage.waitForPage.adminPage();
 
-    await page.locator('tr[resource="office-users"]').first().click();
+    // Click first office user row
+    await page.locator('tbody >> tr').first().click();
 
-    // check that the office user's name is shown in the page title
-    const id = await page.locator('div:has(label :text-is("Id")) > div > span').textContent();
+    // Get first id field and check that it's in the URL
+    const id = await page.locator('.ra-field-id > span').first().textContent();
     expect(page.url()).toContain(id);
 
-    const firstName = await page.locator('label:has-text("First name") + div').textContent();
-    const lastName = await page.locator('label:has-text("Last name") + div').textContent();
+    // check that the office user's name is shown in the page title
+    const firstName = await page.locator('.ra-field-firstName > span').textContent();
+    const lastName = await page.locator('.ra-field-lastName > span').textContent();
 
     await expect(page.getByRole('heading', { name: `${firstName} ${lastName}` })).toBeVisible();
 
@@ -122,7 +125,7 @@ test.describe('Office Users Show Page', () => {
       'Created at',
       'Updated at',
     ];
-    await adminPage.expectLocatorLabelsByText('label', labels, { exact: true });
+    await adminPage.expectLabels(labels);
   });
 });
 
@@ -136,10 +139,10 @@ test.describe('Office Users Edit Page', () => {
     expect(page.url()).toContain('/system/office-users');
     await searchForOfficeUser(page, email);
     await page.getByText(email).click();
-    await adminPage.waitForAdminPageToLoad();
+    await adminPage.waitForPage.adminPage();
 
-    await page.getByRole('button', { name: 'Edit' }).click();
-    await adminPage.waitForAdminPageToLoad();
+    await page.getByRole('link', { name: 'Edit' }).click();
+    await adminPage.waitForPage.adminPage();
 
     const disabledFields = ['id', 'email', 'userId', 'createdAt', 'updatedAt'];
     for (const field of disabledFields) {
@@ -154,7 +157,7 @@ test.describe('Office Users Edit Page', () => {
 
     // The autocomplete form results in multiple matching elements, so
     // pick the input element
-    await expect(page.getByLabel('Transportation Office').locator('input')).toBeEditable();
+    await expect(page.getByLabel('Transportation Office')).toBeEditable();
 
     // set the user to the active status they did NOT have before
     const activeStatus = await page.locator('div:has(label :text-is("Active")) >> input[name="active"]').inputValue();
@@ -164,7 +167,7 @@ test.describe('Office Users Edit Page', () => {
     await page.locator(`ul[aria-labelledby="active-label"] >> li[data-value="${newStatus}"]`).click();
 
     await page.getByRole('button', { name: 'Save' }).click();
-    await adminPage.waitForAdminPageToLoad();
+    await adminPage.waitForPage.adminPage();
 
     await searchForOfficeUser(page, email);
     await expect(page.locator(`tr:has(:text("${email}")) >> td.column-active >> svg`)).toHaveAttribute(

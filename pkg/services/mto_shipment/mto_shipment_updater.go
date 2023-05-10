@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 	"github.com/jinzhu/copier"
@@ -166,7 +165,7 @@ func setNewShipmentFields(appCtx appcontext.AppContext, dbShipment *models.MTOSh
 		dbShipment.SecondaryPickupAddressID = nil
 	} else if requestedUpdatedShipment.SecondaryPickupAddress != nil {
 		dbShipment.SecondaryPickupAddress = requestedUpdatedShipment.SecondaryPickupAddress
-		dbShipment.HasSecondaryPickupAddress = swag.Bool(true)
+		dbShipment.HasSecondaryPickupAddress = models.BoolPointer(true)
 	}
 
 	// If HasSecondaryDeliveryAddress is false, we want to remove the address
@@ -177,7 +176,7 @@ func setNewShipmentFields(appCtx appcontext.AppContext, dbShipment *models.MTOSh
 		dbShipment.SecondaryDeliveryAddressID = nil
 	} else if requestedUpdatedShipment.SecondaryDeliveryAddress != nil {
 		dbShipment.SecondaryDeliveryAddress = requestedUpdatedShipment.SecondaryDeliveryAddress
-		dbShipment.HasSecondaryDeliveryAddress = swag.Bool(true)
+		dbShipment.HasSecondaryDeliveryAddress = models.BoolPointer(true)
 	}
 
 	if requestedUpdatedShipment.ShipmentType != "" {
@@ -290,7 +289,7 @@ func (f *mtoShipmentUpdater) UpdateMTOShipment(appCtx appcontext.AppContext, mto
 		"SecondaryPickupAddress",
 		"SecondaryDeliveryAddress",
 		"MTOAgents",
-		"SITExtensions",
+		"SITDurationUpdates",
 		"MTOServiceItems.ReService",
 		"MTOServiceItems.Dimensions",
 		"MTOServiceItems.CustomerContacts",
@@ -909,7 +908,7 @@ func CalculateRequiredDeliveryDate(appCtx appcontext.AppContext, planner route.P
 // This private function is used to generically construct service items when shipments are approved.
 func constructMTOServiceItemModels(shipmentID uuid.UUID, mtoID uuid.UUID, reServiceCodes []models.ReServiceCode) models.MTOServiceItems {
 	serviceItems := make(models.MTOServiceItems, len(reServiceCodes))
-	currentTime := swag.Time(time.Now())
+	currentTime := models.TimePointer(time.Now())
 	for i, reServiceCode := range reServiceCodes {
 		serviceItem := models.MTOServiceItem{
 			MoveTaskOrderID: mtoID,

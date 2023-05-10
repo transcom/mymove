@@ -11,7 +11,7 @@ import (
 //
 //go:generate mockery --name SITExtensionApprover
 type SITExtensionApprover interface {
-	ApproveSITExtension(appCtx appcontext.AppContext, shipmentID uuid.UUID, sitExtensionID uuid.UUID, approvedDays int, officeRemarks *string, eTag string) (*models.MTOShipment, error)
+	ApproveSITExtension(appCtx appcontext.AppContext, shipmentID uuid.UUID, sitExtensionID uuid.UUID, approvedDays int, requestReason models.SITDurationUpdateRequestReason, officeRemarks *string, eTag string) (*models.MTOShipment, error)
 }
 
 // SITExtensionDenier is the service object interface for denying a SIT extension
@@ -23,12 +23,12 @@ type SITExtensionDenier interface {
 
 // SITExtensionCreator creates a SIT extension
 type SITExtensionCreator interface {
-	CreateSITExtension(appCtx appcontext.AppContext, sitExtension *models.SITExtension) (*models.SITExtension, error)
+	CreateSITExtension(appCtx appcontext.AppContext, sitExtension *models.SITDurationUpdate) (*models.SITDurationUpdate, error)
 }
 
-// SITExtensionCreatorAsTOO is the service object interface to create an approved SIT extension
+// ApprovedSITDurationUpdateCreator is the service object interface to create an approved SIT Duration Update
 //
-//go:generate mockery --name SITExtensionCreatorAsTOO
-type SITExtensionCreatorAsTOO interface {
-	CreateSITExtensionAsTOO(appCtx appcontext.AppContext, sitExtension *models.SITExtension, shipmentID uuid.UUID, eTag string) (*models.MTOShipment, error)
+//go:generate mockery --name ApprovedSITDurationUpdateCreator
+type ApprovedSITDurationUpdateCreator interface {
+	CreateApprovedSITDurationUpdate(appCtx appcontext.AppContext, sitDurationUpdate *models.SITDurationUpdate, shipmentID uuid.UUID, eTag string) (*models.MTOShipment, error)
 }

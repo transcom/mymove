@@ -1,9 +1,8 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { generatePath } from 'react-router';
+import { generatePath } from 'react-router-dom';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { QueryClient } from '@tanstack/react-query';
 
 import ServicesCounselingMoveDetails from './ServicesCounselingMoveDetails';
 
@@ -14,14 +13,17 @@ import { permissionTypes } from 'constants/permissions';
 import { SHIPMENT_OPTIONS_URL } from 'shared/constants';
 import { useMoveDetailsQueries } from 'hooks/queries';
 import { formatDate } from 'shared/dates';
-import { MockProviders, renderWithRouter } from 'testUtils';
+import { MockProviders } from 'testUtils';
 import { updateMoveStatusServiceCounselingCompleted } from 'services/ghcApi';
 
 const mockRequestedMoveCode = 'LR4T8V';
+const mockRoutingParams = { moveCode: mockRequestedMoveCode };
+const mockRoutingOptions = { path: servicesCounselingRoutes.BASE_MOVE_VIEW_PATH, params: mockRoutingParams };
 
+const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useParams: jest.fn().mockReturnValue({ moveCode: 'LR4T8V' }),
+  useNavigate: () => mockNavigate,
 }));
 
 jest.mock('hooks/queries', () => ({
@@ -393,26 +395,13 @@ const ppmShipmentQuery = {
   ],
 };
 
-const detailsURL = generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode: mockRequestedMoveCode });
-
-const renderMockedComponent = (props) => {
-  const client = new QueryClient();
+const renderComponent = (props, permissions = [permissionTypes.updateShipment]) => {
   return render(
-    <MockProviders client={client} initialEntries={[detailsURL]}>
-      <ServicesCounselingMoveDetails {...props} />
+    <MockProviders permissions={permissions} {...mockRoutingOptions}>
+      <ServicesCounselingMoveDetails setUnapprovedShipmentCount={jest.fn()} {...props} />
     </MockProviders>,
   );
 };
-
-const mockedComponent = (
-  <MockProviders
-    client={new QueryClient()}
-    initialEntries={[detailsURL]}
-    permissions={[permissionTypes.updateShipment]}
-  >
-    <ServicesCounselingMoveDetails setUnapprovedShipmentCount={jest.fn()} />
-  </MockProviders>
-);
 
 const loadingReturnValue = {
   ...newMoveDetailsQuery,
@@ -433,7 +422,7 @@ describe('MoveDetails page', () => {
     it('renders the Loading Placeholder when the query is still loading', async () => {
       useMoveDetailsQueries.mockReturnValue(loadingReturnValue);
 
-      render(mockedComponent);
+      renderComponent();
 
       const h2 = await screen.getByRole('heading', { name: 'Loading, please wait...', level: 2 });
       expect(h2).toBeInTheDocument();
@@ -442,7 +431,7 @@ describe('MoveDetails page', () => {
     it('renders the Something Went Wrong component when the query errors', async () => {
       useMoveDetailsQueries.mockReturnValue(errorReturnValue);
 
-      render(mockedComponent);
+      renderComponent();
 
       const errorMessage = await screen.getByText(/Something went wrong./);
       expect(errorMessage).toBeInTheDocument();
@@ -453,7 +442,7 @@ describe('MoveDetails page', () => {
     it('renders the h1', async () => {
       useMoveDetailsQueries.mockReturnValue(newMoveDetailsQuery);
 
-      render(mockedComponent);
+      renderComponent();
 
       expect(await screen.findByRole('heading', { name: 'Move details', level: 1 })).toBeInTheDocument();
     });
@@ -463,7 +452,7 @@ describe('MoveDetails page', () => {
       async (sectionName) => {
         useMoveDetailsQueries.mockReturnValue(newMoveDetailsQuery);
 
-        render(mockedComponent);
+        renderComponent();
 
         expect(await screen.findByRole('link', { name: sectionName })).toBeInTheDocument();
       },
@@ -477,7 +466,7 @@ describe('MoveDetails page', () => {
 
       useMoveDetailsQueries.mockReturnValue(moveDetailsQuery);
 
-      render(mockedComponent);
+      renderComponent();
 
       // In this case, we would expect 3 since this shipment is missing the storage facility
       // and tac type.
@@ -493,7 +482,7 @@ describe('MoveDetails page', () => {
       useMoveDetailsQueries.mockReturnValue(moveDetailsQuery);
 
       const mockSetUpapprovedShipmentCount = jest.fn();
-      renderMockedComponent({ setUnapprovedShipmentCount: mockSetUpapprovedShipmentCount });
+      renderComponent({ setUnapprovedShipmentCount: mockSetUpapprovedShipmentCount });
 
       // Should have called `setUnapprovedShipmentCount` with 3 missing shipping info
       expect(mockSetUpapprovedShipmentCount).toHaveBeenCalledTimes(1);
@@ -504,7 +493,7 @@ describe('MoveDetails page', () => {
     it('renders shipments info', async () => {
       useMoveDetailsQueries.mockReturnValue(newMoveDetailsQuery);
 
-      render(mockedComponent);
+      renderComponent();
 
       expect(await screen.findByRole('heading', { name: 'Shipments', level: 2 })).toBeInTheDocument();
 
@@ -563,16 +552,16 @@ describe('MoveDetails page', () => {
 
     it('renders review documents button', async () => {
       useMoveDetailsQueries.mockReturnValue(ppmShipmentQuery);
-      render(mockedComponent);
+      renderComponent();
       expect(screen.getAllByRole('button', { name: 'Review documents' }).length).toBe(2);
     });
 
     it('renders review shipment weights button with correct path', async () => {
       useMoveDetailsQueries.mockReturnValue(ppmShipmentQuery);
-      const path = generatePath(servicesCounselingRoutes.REVIEW_SHIPMENT_WEIGHTS_PATH, {
+      const path = generatePath(servicesCounselingRoutes.BASE_REVIEW_SHIPMENT_WEIGHTS_PATH, {
         moveCode: mockRequestedMoveCode,
       });
-      render(mockedComponent);
+      renderComponent();
 
       const reviewShipmentWeightsBtn = screen.getByRole('button', { name: 'Review shipment weights' });
 
@@ -582,7 +571,7 @@ describe('MoveDetails page', () => {
 
     it('shows an error if there is an advance requested and no advance status for a PPM shipment', async () => {
       useMoveDetailsQueries.mockReturnValue(ppmShipmentQuery);
-      render(mockedComponent);
+      renderComponent();
 
       const advanceStatusElement = screen.getAllByTestId('advanceRequestStatus')[0];
       expect(advanceStatusElement.parentElement).toHaveClass('missingInfoError');
@@ -590,7 +579,7 @@ describe('MoveDetails page', () => {
 
     it('renders the excess weight alert and additional shipment concern if there is excess weight', async () => {
       useMoveDetailsQueries.mockReturnValue(ppmShipmentQuery);
-      render(mockedComponent);
+      renderComponent();
       const excessWeightAlert = screen.getByText(
         'This move has excess weight. Review PPM weight ticket documents to resolve.',
       );
@@ -615,7 +604,7 @@ describe('MoveDetails page', () => {
 
       useMoveDetailsQueries.mockReturnValue(moveDetailsQuery);
 
-      render(mockedComponent);
+      renderComponent();
 
       const destinationAddressTerms = screen.getAllByText('Destination address');
 
@@ -639,13 +628,13 @@ describe('MoveDetails page', () => {
     it('renders customer info', async () => {
       useMoveDetailsQueries.mockReturnValue(newMoveDetailsQuery);
 
-      render(mockedComponent);
+      renderComponent();
 
       expect(await screen.findByRole('heading', { name: 'Customer info', level: 2 })).toBeInTheDocument();
     });
 
     it('renders info saved alert', () => {
-      renderMockedComponent({
+      renderComponent({
         infoSavedAlert: { alertType: 'success', message: 'great success!' },
         setUnapprovedShipmentCount: jest.fn(),
       });
@@ -656,7 +645,7 @@ describe('MoveDetails page', () => {
       it('submit move details button is on page', async () => {
         useMoveDetailsQueries.mockReturnValue(newMoveDetailsQuery);
 
-        render(mockedComponent);
+        renderComponent();
 
         expect(await screen.findByRole('button', { name: 'Submit move details' })).toBeInTheDocument();
       });
@@ -664,7 +653,7 @@ describe('MoveDetails page', () => {
       it('submit move details button is disabled when there are no shipments', async () => {
         useMoveDetailsQueries.mockReturnValue({ ...newMoveDetailsQuery, mtoShipments: [] });
 
-        render(mockedComponent);
+        renderComponent();
 
         expect(await screen.findByRole('button', { name: 'Submit move details' })).toBeInTheDocument();
         expect(await screen.findByRole('button', { name: 'Submit move details' })).toBeDisabled();
@@ -677,7 +666,7 @@ describe('MoveDetails page', () => {
           mtoShipments: deletedMtoShipments,
         });
 
-        render(mockedComponent);
+        renderComponent();
 
         expect(await screen.findByRole('button', { name: 'Submit move details' })).toBeInTheDocument();
         expect(await screen.findByRole('button', { name: 'Submit move details' })).toBeDisabled();
@@ -692,7 +681,7 @@ describe('MoveDetails page', () => {
           },
         });
 
-        render(mockedComponent);
+        renderComponent();
 
         expect(await screen.findByRole('button', { name: 'Submit move details' })).toBeInTheDocument();
         expect(await screen.findByRole('button', { name: 'Submit move details' })).toBeDisabled();
@@ -710,7 +699,7 @@ describe('MoveDetails page', () => {
           mtoShipments: deletedMtoShipments,
         });
 
-        render(mockedComponent);
+        renderComponent();
 
         expect(await screen.findByRole('button', { name: 'Submit move details' })).toBeInTheDocument();
         expect(await screen.findByRole('button', { name: 'Submit move details' })).not.toBeDisabled();
@@ -723,7 +712,7 @@ describe('MoveDetails page', () => {
         };
         useMoveDetailsQueries.mockReturnValue(moveDetailsQuery);
 
-        render(mockedComponent);
+        renderComponent();
 
         expect(await screen.findByRole('button', { name: 'Submit move details' })).toBeInTheDocument();
         expect(await screen.findByRole('button', { name: 'Submit move details' })).toBeDisabled();
@@ -732,7 +721,7 @@ describe('MoveDetails page', () => {
       it('renders the Orders Definition List', async () => {
         useMoveDetailsQueries.mockReturnValue(newMoveDetailsQuery);
 
-        render(mockedComponent);
+        renderComponent();
 
         expect(await screen.findByRole('heading', { name: 'Orders', level: 2 })).toBeInTheDocument();
         expect(screen.getByText('Current duty location')).toBeInTheDocument();
@@ -741,7 +730,7 @@ describe('MoveDetails page', () => {
       it('renders the Allowances Table', async () => {
         useMoveDetailsQueries.mockReturnValue(newMoveDetailsQuery);
 
-        render(mockedComponent);
+        renderComponent();
 
         expect(await screen.findByRole('heading', { name: 'Allowances', level: 2 })).toBeInTheDocument();
         expect(screen.getByText('Branch, rank')).toBeInTheDocument();
@@ -751,7 +740,7 @@ describe('MoveDetails page', () => {
         useMoveDetailsQueries.mockReturnValue(newMoveDetailsQuery);
         updateMoveStatusServiceCounselingCompleted.mockImplementation(() => Promise.resolve({}));
 
-        render(mockedComponent);
+        renderComponent();
 
         const submitButton = await screen.findByRole('button', { name: 'Submit move details' });
 
@@ -775,38 +764,34 @@ describe('MoveDetails page', () => {
       ])('shows the "%s" link as expected: %s', async (linkText, route) => {
         useMoveDetailsQueries.mockReturnValue(newMoveDetailsQuery);
 
-        const { history } = renderWithRouter(<ServicesCounselingMoveDetails setUnapprovedShipmentCount={jest.fn()} />, {
-          route: detailsURL,
-        });
+        renderComponent();
 
         const link = await screen.findByRole('link', { name: linkText });
-
         expect(link).toBeInTheDocument();
 
-        await userEvent.click(link);
-
-        const path = generatePath(route, {
+        const path = `/${generatePath(route, {
           moveCode: mockRequestedMoveCode,
-        });
-
-        await waitFor(() => {
-          expect(history.location.pathname).toEqual(path);
-        });
+        })}`;
+        expect(link).toHaveAttribute('href', path);
       });
 
       describe('shows the dropdown and navigates to each option', () => {
         it.each([[SHIPMENT_OPTIONS_URL.HHG], [SHIPMENT_OPTIONS_URL.NTS], [SHIPMENT_OPTIONS_URL.NTSrelease]])(
           'selects the %s option and navigates to the matching form for that shipment type',
           async (shipmentType) => {
-            const { history } = renderWithRouter(
-              <ServicesCounselingMoveDetails setUnapprovedShipmentCount={jest.fn()} />,
-              { route: detailsURL },
+            render(
+              <MockProviders
+                path={servicesCounselingRoutes.BASE_SHIPMENT_ADD_PATH}
+                params={{ moveCode: mockRequestedMoveCode, shipmentType }}
+              >
+                <ServicesCounselingMoveDetails setUnapprovedShipmentCount={jest.fn()} />,
+              </MockProviders>,
             );
 
-            const path = generatePath(servicesCounselingRoutes.SHIPMENT_ADD_PATH, {
+            const path = `../${generatePath(servicesCounselingRoutes.SHIPMENT_ADD_PATH, {
               moveCode: mockRequestedMoveCode,
               shipmentType,
-            });
+            })}`;
 
             const buttonDropdown = await screen.findByRole('combobox');
 
@@ -815,7 +800,7 @@ describe('MoveDetails page', () => {
             await userEvent.selectOptions(buttonDropdown, shipmentType);
 
             await waitFor(() => {
-              expect(history.location.pathname).toEqual(path);
+              expect(mockNavigate).toHaveBeenCalledWith(path);
             });
           },
         );
@@ -824,7 +809,7 @@ describe('MoveDetails page', () => {
       it('shows the edit shipment buttons', async () => {
         useMoveDetailsQueries.mockReturnValue(newMoveDetailsQuery);
 
-        render(mockedComponent);
+        renderComponent();
 
         const shipmentEditButtons = await screen.findAllByRole('button', { name: 'Edit shipment' });
 
@@ -832,10 +817,10 @@ describe('MoveDetails page', () => {
 
         for (let i = 0; i < shipmentEditButtons.length; i += 1) {
           expect(shipmentEditButtons[i].getAttribute('data-testid')).toBe(
-            generatePath(servicesCounselingRoutes.SHIPMENT_EDIT_PATH, {
+            `../${generatePath(servicesCounselingRoutes.SHIPMENT_EDIT_PATH, {
               moveCode: mockRequestedMoveCode,
               shipmentId: newMoveDetailsQuery.mtoShipments[i].id,
-            }),
+            })}`,
           );
         }
       });
@@ -843,7 +828,7 @@ describe('MoveDetails page', () => {
       it('shows the customer and counselor remarks', async () => {
         useMoveDetailsQueries.mockReturnValue(newMoveDetailsQuery);
 
-        render(mockedComponent);
+        renderComponent();
 
         const customerRemarks1 = await screen.findByText('please treat gently');
         const customerRemarks2 = await screen.findByText('do not drop!');
@@ -864,7 +849,7 @@ describe('MoveDetails page', () => {
         };
         useMoveDetailsQueries.mockReturnValue(moveDetailsQuery);
 
-        render(mockedComponent);
+        renderComponent();
 
         const counselorRemarksElement = screen.getByTestId('counselorRemarks');
         expect(counselorRemarksElement.parentElement).toHaveClass('warning');
@@ -875,7 +860,7 @@ describe('MoveDetails page', () => {
       it('hides submit and view/edit buttons/links', async () => {
         useMoveDetailsQueries.mockReturnValue(counselingCompletedMoveDetailsQuery);
 
-        render(mockedComponent);
+        renderComponent();
 
         expect(screen.queryByRole('button', { name: 'Submit move details' })).not.toBeInTheDocument();
         expect(screen.queryByRole('combobox')).not.toBeInTheDocument(); // Add a new shipment ButtonDropdown
@@ -891,7 +876,7 @@ describe('MoveDetails page', () => {
 
       it('renders the financial review flag button when user has permission', async () => {
         render(
-          <MockProviders initialEntries={[detailsURL]} permissions={[permissionTypes.updateFinancialReviewFlag]}>
+          <MockProviders permissions={[permissionTypes.updateFinancialReviewFlag]} {...mockRoutingOptions}>
             <ServicesCounselingMoveDetails setUnapprovedShipmentCount={jest.fn()} />
           </MockProviders>,
         );
@@ -901,7 +886,7 @@ describe('MoveDetails page', () => {
 
       it('does not show the financial review flag button if user does not have permission', () => {
         render(
-          <MockProviders initialEntries={[detailsURL]}>
+          <MockProviders {...mockRoutingOptions}>
             <ServicesCounselingMoveDetails setUnapprovedShipmentCount={jest.fn()} />
           </MockProviders>,
         );

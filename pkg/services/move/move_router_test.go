@@ -69,7 +69,7 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 		// Set up: Submit a move without an OrdersID
 		// Expected outcome: Error on ordersID
 		var move models.Move
-		newSignedCertification := testdatagen.MakeDefaultSignedCertification(suite.DB())
+		newSignedCertification := factory.BuildSignedCertification(suite.DB(), nil, nil)
 		err := moveRouter.Submit(suite.AppContextForTest(), &move, &newSignedCertification)
 		suite.Error(err)
 		suite.Contains(err.Error(), "Not found looking for move.OrdersID")
@@ -84,12 +84,12 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 		order.OriginDutyLocation = nil
 		order.OriginDutyLocationID = nil
 		suite.NoError(suite.DB().Update(&order))
-		newSignedCertification := testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
-			SignedCertification: models.SignedCertification{
-				MoveID: move.ID,
+		newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-			Stub: true,
-		})
+		}, nil)
 		err := moveRouter.Submit(suite.AppContextForTest(), &move, &newSignedCertification)
 		suite.Error(err)
 		suite.Contains(err.Error(), "orders missing OriginDutyLocation")
@@ -204,12 +204,12 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 		}
 		for _, tt := range invalidStatuses {
 			move.Status = tt.status
-			newSignedCertification := testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
-				SignedCertification: models.SignedCertification{
-					MoveID: move.ID,
+			newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+				{
+					Model:    move,
+					LinkOnly: true,
 				},
-				Stub: true,
-			})
+			}, nil)
 			err := moveRouter.Submit(suite.AppContextForTest(), &move, &newSignedCertification)
 			suite.Error(err)
 			suite.Contains(err.Error(), "Cannot move to Submitted state for TOO review when the Move is not in Draft status")
@@ -242,10 +242,12 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 		}
 		for _, tt := range invalidStatuses {
 			move.Status = tt.status
-			newSignedCertification := testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
-				Move: move,
-				Stub: true,
-			})
+			newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+				{
+					Model:    move,
+					LinkOnly: true,
+				},
+			}, nil)
 			err := moveRouter.Submit(suite.AppContextForTest(), &move, &newSignedCertification)
 			suite.Error(err)
 			suite.Contains(err.Error(), "Cannot move to NeedsServiceCounseling state when the Move is not in Draft status")
@@ -281,30 +283,35 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 					},
 				}, nil)
 
-				shipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-					MTOShipment: models.MTOShipment{
-						Status:          models.MTOShipmentStatusDraft,
-						ShipmentType:    models.MTOShipmentTypePPM,
-						MoveTaskOrder:   move,
-						MoveTaskOrderID: move.ID,
+				shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+					{
+						Model: models.MTOShipment{
+							Status:       models.MTOShipmentStatusDraft,
+							ShipmentType: models.MTOShipmentTypePPM,
+						},
 					},
-				})
-
-				ppmShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
-					PPMShipment: models.PPMShipment{
-						Status: models.PPMShipmentStatusDraft,
+					{
+						Model:    move,
+						LinkOnly: true,
 					},
-				})
+				}, nil)
 
+				ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+					{
+						Model: models.PPMShipment{
+							Status: models.PPMShipmentStatusDraft,
+						},
+					},
+				}, nil)
 				move.MTOShipments = models.MTOShipments{shipment}
 				move.MTOShipments[0].PPMShipment = &ppmShipment
 
-				newSignedCertification := testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
-					SignedCertification: models.SignedCertification{
-						MoveID: move.ID,
+				newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+					{
+						Model:    move,
+						LinkOnly: true,
 					},
-					Stub: true,
-				})
+				}, nil)
 				err := moveRouter.Submit(suite.AppContextForTest(), &move, &newSignedCertification)
 				suite.NoError(err)
 				err = suite.DB().Where("move_id = $1", move.ID).First(&newSignedCertification)
@@ -354,30 +361,35 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 	suite.Run("PPM status changes to Submitted", func() {
 		move := factory.BuildMove(suite.DB(), nil, nil)
 
-		hhgShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status:          models.MTOShipmentStatusDraft,
-				ShipmentType:    models.MTOShipmentTypePPM,
-				MoveTaskOrder:   move,
-				MoveTaskOrderID: move.ID,
+		hhgShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:       models.MTOShipmentStatusDraft,
+					ShipmentType: models.MTOShipmentTypePPM,
+				},
 			},
-		})
-
-		ppmShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
-			PPMShipment: models.PPMShipment{
-				Status: models.PPMShipmentStatusDraft,
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-		})
+		}, nil)
 
+		ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					Status: models.PPMShipmentStatusDraft,
+				},
+			},
+		}, nil)
 		move.MTOShipments = models.MTOShipments{hhgShipment}
 		move.MTOShipments[0].PPMShipment = &ppmShipment
 
-		newSignedCertification := testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
-			SignedCertification: models.SignedCertification{
-				MoveID: move.ID,
+		newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-			Stub: true,
-		})
+		}, nil)
 		err := moveRouter.Submit(suite.AppContextForTest(), &move, &newSignedCertification)
 
 		suite.NoError(err)
@@ -531,7 +543,7 @@ func (suite *MoveServiceSuite) TestSendToOfficeUser() {
 	})
 
 	suite.Run("from APPROVALS REQUESTED status", func() {
-		move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{})
+		move := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
 		err := moveRouter.SendToOfficeUser(suite.AppContextForTest(), &move)
 		suite.NoError(err)
 		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, move.Status)
@@ -649,9 +661,12 @@ func (suite *MoveServiceSuite) TestApproveOrRequestApproval() {
 
 	suite.Run("does not approve the move if unreviewed SIT extensions exist", func() {
 		move := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
-		testdatagen.MakePendingSITExtension(suite.DB(), testdatagen.Assertions{
-			Move: move,
-		})
+		factory.BuildSITDurationUpdate(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		updatedMove, err := moveRouter.ApproveOrRequestApproval(suite.AppContextForTest(), move)
 
@@ -671,7 +686,13 @@ func (suite *MoveServiceSuite) TestCompleteServiceCounseling() {
 
 	suite.Run("status changed to service counseling completed", func() {
 		move := factory.BuildStubbedMoveWithStatus(models.MoveStatusNeedsServiceCounseling)
-		hhgShipment := testdatagen.MakeStubbedShipment(suite.DB())
+		hhgShipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					ID: uuid.Must(uuid.NewV4()),
+				},
+			},
+		}, nil)
 		move.MTOShipments = models.MTOShipments{hhgShipment}
 
 		err := moveRouter.CompleteServiceCounseling(suite.AppContextForTest(), &move)
@@ -682,7 +703,7 @@ func (suite *MoveServiceSuite) TestCompleteServiceCounseling() {
 
 	suite.Run("status changed to approved", func() {
 		move := factory.BuildStubbedMoveWithStatus(models.MoveStatusNeedsServiceCounseling)
-		ppmShipment := testdatagen.MakeStubbedPPMShipment(suite.DB())
+		ppmShipment := factory.BuildPPMShipment(nil, nil, nil)
 		move.MTOShipments = models.MTOShipments{ppmShipment.Shipment}
 
 		err := moveRouter.CompleteServiceCounseling(suite.AppContextForTest(), &move)
@@ -703,7 +724,7 @@ func (suite *MoveServiceSuite) TestCompleteServiceCounseling() {
 
 	suite.Run("move has unexpected existing status", func() {
 		move := factory.BuildStubbedMoveWithStatus(models.MoveStatusDRAFT)
-		ppmShipment := testdatagen.MakeStubbedPPMShipment(suite.DB())
+		ppmShipment := factory.BuildPPMShipment(nil, nil, nil)
 		move.MTOShipments = models.MTOShipments{ppmShipment.Shipment}
 
 		err := moveRouter.CompleteServiceCounseling(suite.AppContextForTest(), &move)
@@ -715,14 +736,18 @@ func (suite *MoveServiceSuite) TestCompleteServiceCounseling() {
 
 	suite.Run("NTS-release with no facility info", func() {
 		move := factory.BuildStubbedMoveWithStatus(models.MoveStatusNeedsServiceCounseling)
-		ntsrShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				ID:           uuid.Must(uuid.NewV4()),
-				ShipmentType: models.MTOShipmentTypeHHGOutOfNTSDom,
+		ntsrShipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					ID:           uuid.Must(uuid.NewV4()),
+					ShipmentType: models.MTOShipmentTypeHHGOutOfNTSDom,
+				},
 			},
-			Move: move,
-			Stub: true,
-		})
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 		move.MTOShipments = models.MTOShipments{ntsrShipment}
 
 		err := moveRouter.CompleteServiceCounseling(suite.AppContextForTest(), &move)
@@ -736,9 +761,12 @@ func (suite *MoveServiceSuite) TestCompleteServiceCounseling() {
 func (suite *MoveServiceSuite) createServiceItem() (models.MTOServiceItem, models.Move) {
 	move := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
 
-	serviceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-		Move: move,
-	})
+	serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	return serviceItem, move
 }

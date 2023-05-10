@@ -6,7 +6,6 @@ import (
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *WeightTicketSuite) TestWeightTicketCreator() {
@@ -16,7 +15,7 @@ func (suite *WeightTicketSuite) TestWeightTicketCreator() {
 			ServiceMemberID: serviceMember.ID,
 		}
 
-		ppmShipment := testdatagen.MakeMinimalDefaultPPMShipment(suite.DB())
+		ppmShipment := factory.BuildMinimalPPMShipment(suite.DB(), nil, nil)
 		weightTicketCreator := NewCustomerWeightTicketCreator()
 		weightTicket, err := weightTicketCreator.CreateWeightTicket(suite.AppContextWithSessionForTest(session), ppmShipment.ID)
 
@@ -48,7 +47,7 @@ func (suite *WeightTicketSuite) TestWeightTicketCreator() {
 		session := &auth.Session{
 			ServiceMemberID: uuid.Nil,
 		}
-		ppmShipment := testdatagen.MakeMinimalDefaultPPMShipment(suite.DB())
+		ppmShipment := factory.BuildMinimalPPMShipment(suite.DB(), nil, nil)
 
 		weightTicketCreator := NewCustomerWeightTicketCreator()
 		weightTicket, err := weightTicketCreator.CreateWeightTicket(suite.AppContextWithSessionForTest(session), ppmShipment.ID)

@@ -18,7 +18,7 @@ import (
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/storage/test"
-	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/uploader"
 )
 
 func (suite *PaymentRequestServiceSuite) TestCreateUploadSuccess() {
@@ -45,12 +45,17 @@ func (suite *PaymentRequestServiceSuite) TestCreateUploadSuccess() {
 			},
 		}, nil)
 
-		paymentRequest = testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			Move: moveTaskOrder,
-			PaymentRequest: models.PaymentRequest{
-				ID: paymentRequestID,
+		paymentRequest = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    moveTaskOrder,
+				LinkOnly: true,
 			},
-		})
+			{
+				Model: models.PaymentRequest{
+					ID: paymentRequestID,
+				},
+			},
+		}, nil)
 
 		testFile, err = os.Open("../../testdatagen/testdata/test.pdf")
 		suite.NoError(err)
@@ -65,7 +70,7 @@ func (suite *PaymentRequestServiceSuite) TestCreateUploadSuccess() {
 		suite.NoError(err)
 		suite.Contains(upload.Filename, expectedFilename)
 		suite.Equal(int64(10596), upload.Bytes)
-		suite.Equal("application/pdf", upload.ContentType)
+		suite.Equal(uploader.FileTypePDF, upload.ContentType)
 
 		var proofOfServiceDoc models.ProofOfServiceDoc
 		proofOfServiceDocExists, err := suite.DB().Q().
@@ -89,7 +94,7 @@ func (suite *PaymentRequestServiceSuite) TestCreateUploadFailure() {
 
 	setupTestData := func() {
 		contractor = factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
-		testdatagen.MakeDefaultPaymentRequest(suite.DB())
+		factory.BuildPaymentRequest(suite.DB(), nil, nil)
 	}
 
 	suite.Run("invalid payment request ID", func() {
@@ -117,7 +122,7 @@ func (suite *PaymentRequestServiceSuite) TestCreateUploadFailure() {
 			}
 		}()
 
-		paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
+		paymentRequest := factory.BuildPaymentRequest(suite.DB(), nil, nil)
 		uploadCreator := NewPaymentRequestUploadCreator(fakeS3)
 		_, err = uploadCreator.CreateUpload(suite.AppContextForTest(), testFile, paymentRequest.ID, uuid.FromStringOrNil("806e2f96-f9f9-4cbb-9a3d-d2f488539a1f"), "unit-test-file.pdf")
 		suite.Error(err)
@@ -125,7 +130,7 @@ func (suite *PaymentRequestServiceSuite) TestCreateUploadFailure() {
 
 	suite.Run("invalid file type", func() {
 		setupTestData()
-		paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
+		paymentRequest := factory.BuildPaymentRequest(suite.DB(), nil, nil)
 		uploadCreator := NewPaymentRequestUploadCreator(fakeS3)
 		wrongTypeFile, err := os.Open("../../testdatagen/testdata/test.txt")
 		suite.NoError(err)

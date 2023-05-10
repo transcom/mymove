@@ -13,6 +13,7 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 	defaultShipmentType := models.MTOShipmentTypeHHG
 	defaultStatus := models.MTOShipmentStatusDraft
 	defaultBaseStatus := models.MTOShipmentStatusSubmitted
+
 	suite.Run("Successful creation of basic MTOShipment", func() {
 		// Under test:      BuildBaseMTOShipment
 		// Set up:          Create a basic mtoShipment
@@ -50,14 +51,12 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 		// Expected outcome: Create a move, and mtoShipment
 
 		// SETUP
-		moveType := models.SelectedMoveTypeHHG
 		locator := "ABC123"
 		ppmType := "FULL"
 
 		move := models.Move{
-			SelectedMoveType: &moveType,
-			PPMType:          &ppmType,
-			Locator:          locator,
+			PPMType: &ppmType,
+			Locator: locator,
 		}
 
 		mtoShipment := BuildBaseMTOShipment(suite.DB(), []Customization{
@@ -75,7 +74,6 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 		suite.Equal(mtoShipment.ShipmentType, models.MTOShipmentTypeBoatHaulAway)
 		suite.Equal(mtoShipment.Status, models.MTOShipmentStatusApproved)
 
-		suite.Equal(mtoShipment.MoveTaskOrder.SelectedMoveType, &moveType)
 		suite.Equal(mtoShipment.MoveTaskOrder.PPMType, &ppmType)
 		suite.Equal(mtoShipment.MoveTaskOrder.Locator, locator)
 	})
@@ -99,12 +97,15 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 			StreetAddress3: models.StringPointer("c/o Some Person"),
 		}
 
-		moveType := models.SelectedMoveTypePPM
 		partialType := "PARTIAL"
 		defaultMove := models.Move{
-			PPMType:          &partialType,
-			SelectedMoveType: &moveType,
+			PPMType: &partialType,
 		}
+
+		defaultRequestedPickupDate := time.Date(GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC)
+		defaultScheduledPickupDate := time.Date(GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)
+		defaultActualPickupDate := time.Date(GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)
+		defaultRequestedDeliveryDate := time.Date(GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC)
 
 		mtoShipment := BuildMTOShipment(suite.DB(), nil, nil)
 
@@ -124,7 +125,18 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 
 		// Check move
 		suite.Equal(defaultMove.PPMType, mtoShipment.MoveTaskOrder.PPMType)
-		suite.Equal(defaultMove.SelectedMoveType, mtoShipment.MoveTaskOrder.SelectedMoveType)
+
+		suite.Nil(mtoShipment.StorageFacility)
+
+		// Check dates
+		suite.NotNil(mtoShipment.RequestedPickupDate)
+		suite.Equal(defaultRequestedPickupDate, *mtoShipment.RequestedPickupDate)
+		suite.NotNil(mtoShipment.ScheduledPickupDate)
+		suite.Equal(defaultScheduledPickupDate, *mtoShipment.ScheduledPickupDate)
+		suite.NotNil(mtoShipment.ActualPickupDate)
+		suite.Equal(defaultActualPickupDate, *mtoShipment.ActualPickupDate)
+		suite.NotNil(mtoShipment.RequestedDeliveryDate)
+		suite.Equal(defaultRequestedDeliveryDate, *mtoShipment.RequestedDeliveryDate)
 	})
 
 	suite.Run("Successful creation of custom MTOShipment with pickup details and other associated set relationships", func() {
@@ -135,7 +147,6 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 		// SETUP
 		var estimatedWeight = unit.Pound(1400)
 		var actualWeight = unit.Pound(2000)
-		var hhgMoveType = models.SelectedMoveTypeHHG
 
 		customMTOShipment := models.MTOShipment{
 			ID:                   uuid.FromStringOrNil("acf7b357-5cad-40e2-baa7-dedc1d4cf04c"),
@@ -149,7 +160,6 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 		customMove := models.Move{
 			ID:                 uuid.FromStringOrNil("d4d95b22-2d9d-428b-9a11-284455aa87ba"),
 			Status:             models.MoveStatusAPPROVALSREQUESTED,
-			SelectedMoveType:   &hhgMoveType,
 			AvailableToPrimeAt: models.TimePointer(time.Now()),
 		}
 
@@ -219,7 +229,6 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 
 		// Check move
 		suite.Equal(customMove.Status, mtoShipment.MoveTaskOrder.Status)
-		suite.Equal(customMove.SelectedMoveType, mtoShipment.MoveTaskOrder.SelectedMoveType)
 		suite.Equal(customMove.AvailableToPrimeAt, mtoShipment.MoveTaskOrder.AvailableToPrimeAt)
 	})
 
@@ -231,7 +240,6 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 		// SETUP
 		var estimatedWeight = unit.Pound(1400)
 		var actualWeight = unit.Pound(2000)
-		var hhgMoveType = models.SelectedMoveTypeHHG
 
 		customMTOShipment := models.MTOShipment{
 			ID:                   uuid.FromStringOrNil("acf7b357-5cad-40e2-baa7-dedc1d4cf04c"),
@@ -245,7 +253,6 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 		customMove := models.Move{
 			ID:                 uuid.FromStringOrNil("d4d95b22-2d9d-428b-9a11-284455aa87ba"),
 			Status:             models.MoveStatusAPPROVALSREQUESTED,
-			SelectedMoveType:   &hhgMoveType,
 			AvailableToPrimeAt: models.TimePointer(time.Now()),
 		}
 
@@ -299,7 +306,6 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 
 		// Check move
 		suite.Equal(customMove.Status, mtoShipment.MoveTaskOrder.Status)
-		suite.Equal(customMove.SelectedMoveType, mtoShipment.MoveTaskOrder.SelectedMoveType)
 		suite.Equal(customMove.AvailableToPrimeAt, mtoShipment.MoveTaskOrder.AvailableToPrimeAt)
 	})
 
@@ -329,4 +335,110 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 		suite.NoError(err)
 		suite.Equal(customMTOShipment.Status, mtoShipment.Status)
 	})
+
+	suite.Run("Successful creation of stubbed MTOShipment", func() {
+		move := BuildMove(suite.DB(), nil, nil)
+		mtoShipment := BuildMTOShipment(nil, []Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		// the stubbed shipment still needs non nil ids for the pickup
+		// and delivery addresses
+		suite.NotNil(mtoShipment.PickupAddressID)
+		suite.NotNil(mtoShipment.DestinationAddressID)
+	})
+
+	suite.Run("Successful creation of NTSShipment", func() {
+		ntsShipment := BuildNTSShipment(suite.DB(), nil, nil)
+
+		suite.Equal(models.MTOShipmentTypeHHGIntoNTSDom, ntsShipment.ShipmentType)
+		suite.False(ntsShipment.MoveTaskOrderID.IsNil())
+		suite.False(ntsShipment.MoveTaskOrder.ID.IsNil())
+		suite.NotNil(ntsShipment.PickupAddressID)
+		suite.NotNil(ntsShipment.PickupAddress)
+		suite.False(ntsShipment.PickupAddressID.IsNil())
+		suite.False(ntsShipment.PickupAddress.ID.IsNil())
+		suite.NotNil(ntsShipment.SecondaryPickupAddressID)
+		suite.NotNil(ntsShipment.SecondaryPickupAddress)
+		suite.False(ntsShipment.SecondaryPickupAddressID.IsNil())
+		suite.False(ntsShipment.SecondaryPickupAddress.ID.IsNil())
+		suite.NotNil(ntsShipment.HasSecondaryPickupAddress)
+		suite.True(*ntsShipment.HasSecondaryPickupAddress)
+		suite.NotNil(ntsShipment.CustomerRemarks)
+		suite.Equal("Please treat gently", *ntsShipment.CustomerRemarks)
+		suite.Equal(models.MTOShipmentStatusDraft, ntsShipment.Status)
+		suite.NotNil(ntsShipment.PrimeActualWeight)
+		suite.Nil(ntsShipment.StorageFacility)
+		suite.NotNil(ntsShipment.ScheduledPickupDate)
+		suite.Nil(ntsShipment.RequestedDeliveryDate)
+		suite.Nil(ntsShipment.ActualDeliveryDate)
+
+	})
+
+	suite.Run("Successful creation of NTSShipment with storage facility", func() {
+		storageFacility := BuildStorageFacility(suite.DB(), nil, nil)
+		ntsShipment := BuildNTSShipment(suite.DB(), []Customization{
+			{
+				Model:    storageFacility,
+				LinkOnly: true,
+			},
+		}, nil)
+		suite.NotNil(ntsShipment.StorageFacilityID)
+		suite.Equal(storageFacility.ID, *ntsShipment.StorageFacilityID)
+	})
+
+	suite.Run("Successful creation of NTSRShipment", func() {
+		ntsrShipment := BuildNTSRShipment(suite.DB(), nil, nil)
+
+		suite.Equal(models.MTOShipmentTypeHHGOutOfNTSDom, ntsrShipment.ShipmentType)
+		suite.False(ntsrShipment.MoveTaskOrderID.IsNil())
+		suite.False(ntsrShipment.MoveTaskOrder.ID.IsNil())
+		suite.NotNil(ntsrShipment.DestinationAddressID)
+		suite.NotNil(ntsrShipment.DestinationAddress)
+		suite.False(ntsrShipment.DestinationAddressID.IsNil())
+		suite.False(ntsrShipment.DestinationAddress.ID.IsNil())
+		suite.NotNil(ntsrShipment.SecondaryDeliveryAddressID)
+		suite.NotNil(ntsrShipment.SecondaryDeliveryAddress)
+		suite.False(ntsrShipment.SecondaryDeliveryAddressID.IsNil())
+		suite.False(ntsrShipment.SecondaryDeliveryAddress.ID.IsNil())
+		suite.NotNil(ntsrShipment.HasSecondaryDeliveryAddress)
+		suite.True(*ntsrShipment.HasSecondaryDeliveryAddress)
+		suite.NotNil(ntsrShipment.CustomerRemarks)
+		suite.Equal("Please treat gently", *ntsrShipment.CustomerRemarks)
+		suite.Equal(models.MTOShipmentStatusDraft, ntsrShipment.Status)
+		suite.Nil(ntsrShipment.PrimeActualWeight)
+		suite.Nil(ntsrShipment.StorageFacility)
+		suite.Nil(ntsrShipment.ScheduledPickupDate)
+		suite.NotNil(ntsrShipment.RequestedDeliveryDate)
+		suite.Nil(ntsrShipment.ActualDeliveryDate)
+	})
+
+	suite.Run("Successful creation of NTSRShipment with storage facility", func() {
+		storageFacility := BuildStorageFacility(suite.DB(), nil, nil)
+		ntsrShipment := BuildNTSRShipment(suite.DB(), []Customization{
+			{
+				Model:    storageFacility,
+				LinkOnly: true,
+			},
+		}, nil)
+		suite.NotNil(ntsrShipment.StorageFacilityID)
+		suite.Equal(storageFacility.ID, *ntsrShipment.StorageFacilityID)
+	})
+	suite.Run("Successful creation of NTSRShipment with pickup address", func() {
+		address := BuildAddress(suite.DB(), nil, nil)
+		ntsrShipment := BuildNTSRShipment(suite.DB(), []Customization{
+			{
+				Model:    address,
+				LinkOnly: true,
+				Type:     &Addresses.PickupAddress,
+			},
+		}, nil)
+		suite.NotNil(ntsrShipment.PickupAddress)
+		suite.NotNil(ntsrShipment.PickupAddressID)
+		suite.Equal(address.ID, *ntsrShipment.PickupAddressID)
+	})
+
 }

@@ -8,7 +8,6 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	officeuser "github.com/transcom/mymove/pkg/services/office_user"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *HandlerSuite) TestUnknownLoggedInUserHandler() {
@@ -28,6 +27,7 @@ func (suite *HandlerSuite) TestUnknownLoggedInUserHandler() {
 
 	okResponse, ok := response.(*userop.ShowLoggedInUserOK)
 	suite.True(ok)
+	suite.NotNil(okResponse.Payload.Permissions)
 	suite.Equal(okResponse.Payload.ID.String(), unknownUser.ID.String())
 }
 
@@ -53,6 +53,7 @@ func (suite *HandlerSuite) TestServiceMemberNoTransportationOfficeLoggedInUserHa
 
 		okResponse, ok := response.(*userop.ShowLoggedInUserOK)
 		suite.True(ok)
+		suite.NotNil(okResponse.Payload.Permissions)
 		suite.Equal(sm.UserID.String(), okResponse.Payload.ID.String())
 	})
 
@@ -85,6 +86,7 @@ func (suite *HandlerSuite) TestServiceMemberNoTransportationOfficeLoggedInUserHa
 		okResponse, ok := response.(*userop.ShowLoggedInUserOK)
 		suite.True(ok, "Response should be ok")
 		suite.NotNil(okResponse, "Response should not be nil")
+		suite.NotNil(okResponse.Payload.Permissions)
 		suite.Equal(sm.UserID.String(), okResponse.Payload.ID.String())
 	})
 }
@@ -118,7 +120,7 @@ func (suite *HandlerSuite) TestServiceMemberNoMovesLoggedInUserHandler() {
 }
 
 func (suite *HandlerSuite) TestServiceMemberWithCloseoutOfficeHandler() {
-	closeoutOffice := testdatagen.MakeTransportationOffice(suite.DB(), testdatagen.Assertions{})
+	closeoutOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
 	move := factory.BuildMove(suite.DB(), []factory.Customization{
 		{
 			Model:    closeoutOffice,
@@ -147,6 +149,7 @@ func (suite *HandlerSuite) TestServiceMemberWithCloseoutOfficeHandler() {
 	okResponse, ok := response.(*userop.ShowLoggedInUserOK)
 
 	suite.True(ok)
+	suite.NotNil(okResponse.Payload.Permissions)
 	suite.Equal(move.CloseoutOffice.ID.String(), okResponse.Payload.ServiceMember.Orders[0].Moves[0].CloseoutOffice.ID.String())
 	suite.Equal(move.CloseoutOffice.Name, *okResponse.Payload.ServiceMember.Orders[0].Moves[0].CloseoutOffice.Name)
 	suite.Equal(move.CloseoutOffice.Address.ID.String(), okResponse.Payload.ServiceMember.Orders[0].Moves[0].CloseoutOffice.Address.ID.String())
@@ -180,5 +183,6 @@ func (suite *HandlerSuite) TestServiceMemberWithNoCloseoutOfficeHandler() {
 
 	suite.True(ok, "Response should be ok")
 	suite.NotNil(okResponse, "Response should not be nil")
+	suite.NotNil(okResponse.Payload.Permissions)
 	suite.Equal(move.ID.String(), okResponse.Payload.ServiceMember.Orders[0].Moves[0].ID.String())
 }

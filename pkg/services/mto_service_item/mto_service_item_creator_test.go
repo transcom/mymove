@@ -24,7 +24,6 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	"github.com/transcom/mymove/pkg/services/query"
-	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -57,9 +56,12 @@ func (suite *MTOServiceItemServiceSuite) buildValidServiceItemWithInvalidMove() 
 	// Approvals Requested
 	move := factory.BuildMove(suite.DB(), nil, nil)
 	reServiceDDFSIT := factory.BuildDDFSITReService(suite.DB())
-	shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: move,
-	})
+	shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	serviceItemForUnapprovedMove := models.MTOServiceItem{
 		MoveTaskOrderID: move.ID,
@@ -83,18 +85,24 @@ func (suite *MTOServiceItemServiceSuite) buildValidDDFSITServiceItemWithValidMov
 		UpdatedAt: time.Now(),
 	}
 	reServiceDDFSIT := factory.BuildDDFSITReService(suite.DB())
-	shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: move,
-	})
+	shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
+	destAddress := factory.BuildDefaultAddress(suite.DB())
 
 	serviceItem := models.MTOServiceItem{
-		MoveTaskOrderID: move.ID,
-		MoveTaskOrder:   move,
-		ReService:       reServiceDDFSIT,
-		MTOShipmentID:   &shipment.ID,
-		MTOShipment:     shipment,
-		Dimensions:      models.MTOServiceItemDimensions{dimension},
-		Status:          models.MTOServiceItemStatusSubmitted,
+		MoveTaskOrderID:              move.ID,
+		MoveTaskOrder:                move,
+		ReService:                    reServiceDDFSIT,
+		MTOShipmentID:                &shipment.ID,
+		MTOShipment:                  shipment,
+		Dimensions:                   models.MTOServiceItemDimensions{dimension},
+		Status:                       models.MTOServiceItemStatusSubmitted,
+		SITDestinationFinalAddressID: &destAddress.ID,
+		SITDestinationFinalAddress:   &destAddress,
 	}
 
 	return serviceItem
@@ -105,12 +113,17 @@ func (suite *MTOServiceItemServiceSuite) buildValidDOSHUTServiceItemWithValidMov
 	reServiceDOSHUT := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDOSHUT)
 
 	estimatedPrimeWeight := unit.Pound(6000)
-	shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			PrimeEstimatedWeight: &estimatedPrimeWeight,
+	shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
 		},
-	})
+		{
+			Model: models.MTOShipment{
+				PrimeEstimatedWeight: &estimatedPrimeWeight,
+			},
+		},
+	}, nil)
 
 	estimatedWeight := unit.Pound(4200)
 	actualWeight := unit.Pound(4000)
@@ -140,9 +153,12 @@ func (suite *MTOServiceItemServiceSuite) buildValidServiceItemWithNoStatusAndVal
 		UpdatedAt: time.Now(),
 	}
 	reService := factory.BuildReService(suite.DB(), nil, nil)
-	shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: move,
-	})
+	shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	serviceItem := models.MTOServiceItem{
 		MoveTaskOrderID: move.ID,
@@ -193,7 +209,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 	creator := NewMTOServiceItemCreator(builder, moveRouter)
 
 	// Happy path: If the service item is created successfully it should be returned
-	suite.Run("200 Success - SIT Service Item Creation", func() {
+	suite.Run("200 Success - Destination SIT Service Item Creation", func() {
 
 		// TESTCASE SCENARIO
 		// Under test: CreateMTOServiceItem function
@@ -203,6 +219,8 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 
 		sitServiceItem := suite.buildValidDDFSITServiceItemWithValidMove()
 		sitMove := sitServiceItem.MoveTaskOrder
+		sitDestinationFinalAddress := sitServiceItem.SITDestinationFinalAddress
+		sitDestinationFinalAddressID := sitServiceItem.SITDestinationFinalAddressID
 
 		createdServiceItems, verrs, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &sitServiceItem)
 		suite.NoError(err)
@@ -217,6 +235,11 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		suite.Equal(len(createdServiceItemList), 3)
 		suite.NotEmpty(createdServiceItemList[2].Dimensions)
 		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, foundMove.Status)
+
+		for _, createdServiceItem := range createdServiceItemList {
+			suite.Equal(sitDestinationFinalAddress.StreetAddress1, createdServiceItem.SITDestinationFinalAddress.StreetAddress1)
+			suite.Equal(sitDestinationFinalAddressID, createdServiceItem.SITDestinationFinalAddressID)
+		}
 	})
 
 	// Happy path: If the service item is created successfully it should be returned
@@ -403,7 +426,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		//             Not found error returned, no new service items created
 
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-		shipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
+		shipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
 		reService := factory.BuildReServiceByCode(suite.DB(), "ANY")
 		serviceItemBadShip := models.MTOServiceItem{
 			MoveTaskOrderID: move.ID,
@@ -430,9 +453,12 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		//             Conflict error returned, no new service items created
 
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-		})
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		reService := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDDSHUT)
 
@@ -451,17 +477,26 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		suite.IsType(apperror.ConflictError{}, err)
 	})
 
-	setupDDFSITData := func() (models.MTOServiceItemCustomerContact, models.MTOServiceItem) {
+	setupDDFSITData := func() (models.MTOServiceItemCustomerContact, models.MTOServiceItemCustomerContact, models.MTOServiceItem) {
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-		})
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 		reServiceDDFSIT := factory.BuildDDFSITReService(suite.DB())
 
-		contact := models.MTOServiceItemCustomerContact{
+		contactOne := models.MTOServiceItemCustomerContact{
 			Type:                       models.CustomerContactTypeFirst,
 			FirstAvailableDeliveryDate: time.Now(),
 		}
+
+		contactTwo := models.MTOServiceItemCustomerContact{
+			Type:                       models.CustomerContactTypeSecond,
+			FirstAvailableDeliveryDate: time.Now(),
+		}
+
 		serviceItemDDFSIT := models.MTOServiceItem{
 			MoveTaskOrderID: move.ID,
 			MoveTaskOrder:   move,
@@ -472,7 +507,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 				Code: reServiceDDFSIT.Code,
 			},
 		}
-		return contact, serviceItemDDFSIT
+		return contactOne, contactTwo, serviceItemDDFSIT
 	}
 	// The timeMilitary fields need to be in the correct format.
 	suite.Run("Check DDFSIT timeMilitary=HH:MMZ", func() {
@@ -480,9 +515,10 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		// Under test: CreateMTOServiceItem function
 		// Set up:     Create DDFSIT service item with a bad time "10:30Z"
 		// Expected outcome: InvalidInput error returned, no new service items created
-		contact, serviceItemDDFSIT := setupDDFSITData()
-		contact.TimeMilitary = "10:30Z"
-		serviceItemDDFSIT.CustomerContacts = models.MTOServiceItemCustomerContacts{contact}
+		contactOne, contactTwo, serviceItemDDFSIT := setupDDFSITData()
+		contactOne.TimeMilitary = "10:30Z"
+		contactTwo.TimeMilitary = "14:00Z"
+		serviceItemDDFSIT.CustomerContacts = models.MTOServiceItemCustomerContacts{contactOne, contactTwo}
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDFSIT)
 
 		suite.Nil(createdServiceItems)
@@ -496,9 +532,10 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		// Under test: CreateMTOServiceItem function
 		// Set up:     Create DDFSIT service item with a bad time "2645Z"
 		// Expected outcome: InvalidInput error returned, no new service items created
-		contact, serviceItemDDFSIT := setupDDFSITData()
-		contact.TimeMilitary = "2645Z"
-		serviceItemDDFSIT.CustomerContacts = models.MTOServiceItemCustomerContacts{contact}
+		contactOne, contactTwo, serviceItemDDFSIT := setupDDFSITData()
+		contactOne.TimeMilitary = "2645Z"
+		contactTwo.TimeMilitary = "3625Z"
+		serviceItemDDFSIT.CustomerContacts = models.MTOServiceItemCustomerContacts{contactOne, contactTwo}
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDFSIT)
 
 		suite.Nil(createdServiceItems)
@@ -513,9 +550,10 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		// Under test: CreateMTOServiceItem function
 		// Set up:     Create DDFSIT service item with a bad time "2167Z"
 		// Expected outcome: InvalidInput error returned, no new service items created
-		contact, serviceItemDDFSIT := setupDDFSITData()
-		contact.TimeMilitary = "2167Z"
-		serviceItemDDFSIT.CustomerContacts = models.MTOServiceItemCustomerContacts{contact}
+		contactOne, contactTwo, serviceItemDDFSIT := setupDDFSITData()
+		contactOne.TimeMilitary = "2167Z"
+		contactTwo.TimeMilitary = "1253Z"
+		serviceItemDDFSIT.CustomerContacts = models.MTOServiceItemCustomerContacts{contactOne, contactTwo}
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDFSIT)
 
 		suite.Nil(createdServiceItems)
@@ -530,9 +568,10 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		// Under test: CreateMTOServiceItem function
 		// Set up:     Create DDFSIT service item with a bad time "2050M"
 		// Expected outcome: InvalidInput error returned, no new service items created
-		contact, serviceItemDDFSIT := setupDDFSITData()
-		contact.TimeMilitary = "2050M"
-		serviceItemDDFSIT.CustomerContacts = models.MTOServiceItemCustomerContacts{contact}
+		contactOne, contactTwo, serviceItemDDFSIT := setupDDFSITData()
+		contactOne.TimeMilitary = "2050M"
+		contactTwo.TimeMilitary = "1224M"
+		serviceItemDDFSIT.CustomerContacts = models.MTOServiceItemCustomerContacts{contactOne, contactTwo}
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDFSIT)
 
 		suite.Nil(createdServiceItems)
@@ -547,9 +586,10 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		// Under test: CreateMTOServiceItem function
 		// Set up:     Create DDFSIT service item with a correctly formatted time"
 		// Expected outcome: Success, service items created.
-		contact, serviceItemDDFSIT := setupDDFSITData()
-		contact.TimeMilitary = "1405Z"
-		serviceItemDDFSIT.CustomerContacts = models.MTOServiceItemCustomerContacts{contact}
+		contactOne, contactTwo, serviceItemDDFSIT := setupDDFSITData()
+		contactOne.TimeMilitary = "1405Z"
+		contactTwo.TimeMilitary = "2013Z"
+		serviceItemDDFSIT.CustomerContacts = models.MTOServiceItemCustomerContacts{contactOne, contactTwo}
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDFSIT)
 
 		suite.NotNil(createdServiceItems)
@@ -566,9 +606,12 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 
 	setupTestData := func() models.MTOShipment {
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-		})
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		reServiceDOASIT = factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDOASIT)
 		reServiceDOFSIT = factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
@@ -897,9 +940,12 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItemFailToCre
 		// Set up data to use for all Origin SIT Service Item tests
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		move.Status = models.MoveStatusAPPROVED
-		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-		})
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		reServiceDOFSIT := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
 
@@ -935,9 +981,12 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 				},
 			},
 		}, nil)
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-		})
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 		builder := query.NewQueryBuilder()
 		moveRouter := moverouter.NewMoveRouter()
 		creator := NewMTOServiceItemCreator(builder, moveRouter)
@@ -1075,6 +1124,22 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 		suite.Equal(numDDASITFound, 1)
 		suite.Equal(numDDDSITFound, 1)
 		suite.Equal(numDDFSITFound, 1)
+
+		//We currently copy the data from the submitted DDFSIT to the generated DDASIT and DDDSIT items, this portion checks said data is properly copied
+		suite.Equal(createdServiceItemList[1].CustomerContacts[0].Type, serviceItemDDFSIT.CustomerContacts[0].Type)
+		suite.Equal(createdServiceItemList[1].CustomerContacts[1].Type, serviceItemDDFSIT.CustomerContacts[1].Type)
+		suite.Equal(createdServiceItemList[2].CustomerContacts[0].Type, serviceItemDDFSIT.CustomerContacts[0].Type)
+		suite.Equal(createdServiceItemList[2].CustomerContacts[1].Type, serviceItemDDFSIT.CustomerContacts[1].Type)
+
+		suite.Equal(createdServiceItemList[1].CustomerContacts[0].FirstAvailableDeliveryDate, serviceItemDDFSIT.CustomerContacts[0].FirstAvailableDeliveryDate)
+		suite.Equal(createdServiceItemList[1].CustomerContacts[1].FirstAvailableDeliveryDate, serviceItemDDFSIT.CustomerContacts[1].FirstAvailableDeliveryDate)
+		suite.Equal(createdServiceItemList[2].CustomerContacts[0].FirstAvailableDeliveryDate, serviceItemDDFSIT.CustomerContacts[0].FirstAvailableDeliveryDate)
+		suite.Equal(createdServiceItemList[2].CustomerContacts[1].FirstAvailableDeliveryDate, serviceItemDDFSIT.CustomerContacts[1].FirstAvailableDeliveryDate)
+
+		suite.Equal(createdServiceItemList[1].CustomerContacts[0].TimeMilitary, serviceItemDDFSIT.CustomerContacts[0].TimeMilitary)
+		suite.Equal(createdServiceItemList[1].CustomerContacts[1].TimeMilitary, serviceItemDDFSIT.CustomerContacts[1].TimeMilitary)
+		suite.Equal(createdServiceItemList[2].CustomerContacts[0].TimeMilitary, serviceItemDDFSIT.CustomerContacts[0].TimeMilitary)
+		suite.Equal(createdServiceItemList[2].CustomerContacts[1].TimeMilitary, serviceItemDDFSIT.CustomerContacts[1].TimeMilitary)
 	})
 
 	// Failed creation of DDFSIT because of duplicate service for shipment
@@ -1158,12 +1223,14 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 
 		// Make a shipment with no DDFSIT
 		now := time.Now()
-		shipmentNoDDFSIT := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				AvailableToPrimeAt: &now,
-				Status:             models.MoveStatusAPPROVED,
+		shipmentNoDDFSIT := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					AvailableToPrimeAt: &now,
+					Status:             models.MoveStatusAPPROVED,
+				},
 			},
-		})
+		}, nil)
 		serviceItemDDASIT := models.MTOServiceItem{
 			MoveTaskOrderID: shipmentNoDDFSIT.MoveTaskOrderID,
 			MoveTaskOrder:   shipmentNoDDFSIT.MoveTaskOrder,

@@ -18,7 +18,7 @@ const BackupInfoDisplay = (props) => {
   return (
     <React.Fragment>
       <div className="editable-panel-column">
-        <AddressElementDisplay address={backupAddress} title="Backup mailing address" />
+        <AddressElementDisplay address={backupAddress} title="Backup address" />
       </div>
       <div className="editable-panel-column">
         <PanelField title="Backup contact">
@@ -63,11 +63,7 @@ const BackupInfoEdit = (props) => {
       </div>
 
       <div className="editable-panel-column">
-        <AddressElementEdit
-          fieldName="backupMailingAddress"
-          schema={props.addressSchema}
-          title="Backup mailing address"
-        />
+        <AddressElementEdit fieldName="backupMailingAddress" schema={props.addressSchema} title="Backup address" />
       </div>
     </React.Fragment>
   );

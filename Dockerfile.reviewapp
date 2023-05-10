@@ -3,7 +3,7 @@
 ###########
 
 # Base builder so the ci build image hash is referenced once
-FROM milmove/circleci-docker:milmove-app-bc1b345eabd5f3607948f78455aa8257183345c5 as builder
+FROM milmove/circleci-docker:milmove-app-59d1b5d814b190c7c5a8c460ca97ed193d518350 as builder
 
 ENV CIRCLECI=docker
 ENV REACT_APP_NODE_ENV=development
@@ -109,6 +109,9 @@ FROM gcr.io/distroless/base:latest as milmove
 COPY --from=server_builder /build/bin/rds-ca-2019-root.pem /bin/rds-ca-2019-root.pem
 COPY --from=server_builder /build/bin/milmove /bin/milmove
 COPY --from=server_builder /build/swagger /swagger
+
+# test data for testharness
+COPY --from=server_builder /build/pkg/testdatagen/testdata /pkg/testdatagen/testdata
 
 COPY --from=client_builder /build/build /build
 

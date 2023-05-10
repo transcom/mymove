@@ -13,54 +13,7 @@ export class ServiceCounselorPage extends OfficePage {
    */
   constructor(officePage) {
     super(officePage.page, officePage.request);
-    Object.entries(this.waitForPage).forEach(([key, value]) => {
-      // eslint-disable-next-line security/detect-object-injection
-      this.waitForPage[key] = async () => {
-        await value();
-        await this.runAccessibilityAudit();
-      };
-    });
   }
-
-  waitForPage = {
-    counselingQueue: async () => {
-      await expect(this.page.getByRole('link', { name: 'Counseling' })).toHaveClass('usa-current');
-    },
-    closeoutQueue: async () => {
-      await expect(this.page.getByRole('link', { name: 'PPM Closeout' })).toHaveClass('usa-current');
-    },
-    moveDetails: async () => {
-      await expect(this.page.getByRole('heading', { level: 1 })).toHaveText('Move details');
-    },
-    addNTSShipment: async () => {
-      await expect(this.page.getByRole('heading', { level: 1 })).toHaveText('Add shipment details');
-      await expect(this.page.getByTestId('tag')).toHaveText('NTS');
-    },
-    addNTSReleaseShipment: async () => {
-      await expect(this.page.getByRole('heading', { level: 1 })).toHaveText('Add shipment details');
-      await expect(this.page.getByTestId('tag')).toHaveText('NTS-release');
-    },
-    editNTSShipment: async () => {
-      await expect(this.page.getByRole('heading', { level: 1 })).toHaveText('Edit shipment details');
-      await expect(this.page.getByTestId('tag')).toHaveText('NTS');
-    },
-    editNTSReleaseShipment: async () => {
-      await expect(this.page.getByRole('heading', { level: 1 })).toHaveText('Edit shipment details');
-      await expect(this.page.getByTestId('tag')).toHaveText('NTS-release');
-    },
-    moveOrders: async () => {
-      await expect(this.page.getByRole('heading', { level: 2, name: 'View orders' })).toBeVisible();
-    },
-    reviewDocuments: async () => {
-      await expect(this.page.getByRole('heading', { name: 'Review trip 1', level: 3 })).toBeVisible();
-    },
-    reviewDocumentsConfirmation: async () => {
-      await expect(this.page.getByRole('heading', { name: 'Send to customer?', level: 3 })).toBeVisible();
-    },
-    reviewShipmentWeights: async () => {
-      await expect(this.page.getByRole('heading', { name: 'Review shipment weights', level: 1 })).toBeVisible();
-    },
-  };
 
   /**
    * Verify that the user is in the correct move

@@ -5,17 +5,20 @@ import (
 
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *ModelSuite) TestWebhookNotification() {
 	now := time.Now()
-	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			AvailableToPrimeAt: &now,
+	paymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+		{
+			Model: models.Move{
+				AvailableToPrimeAt: &now,
+			},
 		},
-	})
+	}, nil)
+
 	paymentRequestID := paymentRequest.ID
 	mtoID := paymentRequest.MoveTaskOrderID
 

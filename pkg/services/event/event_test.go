@@ -5,7 +5,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/suite"
 
@@ -13,7 +12,6 @@ import (
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testingsuite"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -40,11 +38,13 @@ func (suite *EventServiceSuite) Test_EventTrigger() {
 
 	now := time.Now()
 	setupTestData := func() models.PaymentRequest {
-		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				AvailableToPrimeAt: &now,
+		paymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					AvailableToPrimeAt: &now,
+				},
 			},
-		})
+		}, nil)
 
 		return paymentRequest
 	}
@@ -90,7 +90,7 @@ func (suite *EventServiceSuite) Test_EventTrigger() {
 	// This test verifies that if the object updated is not on an MTO that
 	// is available to prime, no notification is created.
 	suite.Run("Fail with no notification - unavailable mto", func() {
-		unavailablePaymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
+		unavailablePaymentRequest := factory.BuildPaymentRequest(suite.DB(), nil, nil)
 		count, _ := suite.DB().Count(&models.WebhookNotification{})
 
 		unavailablePRID := unavailablePaymentRequest.ID
@@ -215,11 +215,13 @@ func (suite *EventServiceSuite) Test_MTOEventTrigger() {
 func (suite *EventServiceSuite) Test_MTOShipmentEventTrigger() {
 	// Test successful event passing with Support API
 	suite.Run("Success with GHC MTOShipment endpoint", func() {
-		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				AvailableToPrimeAt: swag.Time(time.Now()),
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					AvailableToPrimeAt: models.TimePointer(time.Now()),
+				},
 			},
-		})
+		}, nil)
 
 		mtoShipmentID := mtoShipment.ID
 		mtoID := mtoShipment.MoveTaskOrderID
@@ -261,14 +263,18 @@ func (suite *EventServiceSuite) Test_MTOShipmentEventTrigger() {
 	})
 
 	suite.Run("No notification for GHC MTOShipment endpoint when shipment uses external vendor", func() {
-		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				UsesExternalVendor: true,
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					UsesExternalVendor: true,
+				},
 			},
-			Move: models.Move{
-				AvailableToPrimeAt: swag.Time(time.Now()),
+			{
+				Model: models.Move{
+					AvailableToPrimeAt: models.TimePointer(time.Now()),
+				},
 			},
-		})
+		}, nil)
 
 		mtoShipmentID := mtoShipment.ID
 		mtoID := mtoShipment.MoveTaskOrderID
@@ -296,15 +302,19 @@ func (suite *EventServiceSuite) Test_MTOShipmentEventTrigger() {
 	// Test successful event passing with Support API
 	suite.Run("Success with GHC MTOShipment endpoint for NTS Shipment", func() {
 		ntsRecordedWeight := unit.Pound(6989)
-		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				AvailableToPrimeAt: swag.Time(time.Now()),
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					AvailableToPrimeAt: models.TimePointer(time.Now()),
+				},
 			},
-			MTOShipment: models.MTOShipment{
-				ShipmentType:      models.MTOShipmentTypeHHGIntoNTSDom,
-				NTSRecordedWeight: &ntsRecordedWeight,
+			{
+				Model: models.MTOShipment{
+					ShipmentType:      models.MTOShipmentTypeHHGIntoNTSDom,
+					NTSRecordedWeight: &ntsRecordedWeight,
+				},
 			},
-		})
+		}, nil)
 
 		mtoShipmentID := mtoShipment.ID
 		mtoID := mtoShipment.MoveTaskOrderID
@@ -349,15 +359,19 @@ func (suite *EventServiceSuite) Test_MTOShipmentEventTrigger() {
 	// Test successful no event passing with Support API when shipment is assigned to external vendor
 	suite.Run("Error with GHC MTOShipment endpoint for NTS Shipment using external vendor", func() {
 
-		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				AvailableToPrimeAt: swag.Time(time.Now()),
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					AvailableToPrimeAt: models.TimePointer(time.Now()),
+				},
 			},
-			MTOShipment: models.MTOShipment{
-				ShipmentType:       models.MTOShipmentTypeHHGIntoNTSDom,
-				UsesExternalVendor: true,
+			{
+				Model: models.MTOShipment{
+					ShipmentType:       models.MTOShipmentTypeHHGIntoNTSDom,
+					UsesExternalVendor: true,
+				},
 			},
-		})
+		}, nil)
 
 		mtoShipmentID := mtoShipment.ID
 		mtoID := mtoShipment.MoveTaskOrderID
@@ -389,11 +403,13 @@ func (suite *EventServiceSuite) Test_MTOServiceItemEventTrigger() {
 	// Test successful event passing with Support API
 	suite.Run("Success with GHC ServiceItem endpoint", func() {
 		now := time.Now()
-		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				AvailableToPrimeAt: &now,
+		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					AvailableToPrimeAt: &now,
+				},
 			},
-		})
+		}, nil)
 
 		mtoServiceItemID := mtoServiceItem.ID
 		mtoID := mtoServiceItem.MoveTaskOrderID

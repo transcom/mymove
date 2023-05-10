@@ -3,7 +3,6 @@ package internalapi
 import (
 	"net/http/httptest"
 
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/factory"
@@ -15,12 +14,12 @@ import (
 
 func fakeAddressPayload() *internalmessages.Address {
 	return &internalmessages.Address{
-		StreetAddress1: swag.String("An address"),
-		StreetAddress2: swag.String("Apt. 2"),
-		StreetAddress3: swag.String("address line 3"),
-		City:           swag.String("Happytown"),
-		State:          swag.String("AL"),
-		PostalCode:     swag.String("01234"),
+		StreetAddress1: models.StringPointer("An address"),
+		StreetAddress2: models.StringPointer("Apt. 2"),
+		StreetAddress3: models.StringPointer("address line 3"),
+		City:           models.StringPointer("Happytown"),
+		State:          models.StringPointer("AL"),
+		PostalCode:     models.StringPointer("01234"),
 	}
 }
 

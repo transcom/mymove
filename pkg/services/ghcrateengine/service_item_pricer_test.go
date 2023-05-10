@@ -25,11 +25,13 @@ func (suite *GHCRateEngineServiceSuite) TestPriceServiceItem() {
 		suite.setupPriceServiceItemData()
 		serviceItemPricer := NewServiceItemPricer()
 
-		badPaymentServiceItem := testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
-			ReService: models.ReService{
-				Code: "BOGUS",
+		badPaymentServiceItem := factory.BuildPaymentServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: "BOGUS",
+				},
 			},
-		})
+		}, nil)
 
 		_, _, err := serviceItemPricer.PriceServiceItem(suite.AppContextForTest(), badPaymentServiceItem)
 		suite.Error(err)
@@ -108,20 +110,20 @@ func (suite *GHCRateEngineServiceSuite) setupPriceServiceItem() models.PaymentSe
 			},
 		},
 	}, nil)
-	return testdatagen.MakeDefaultPaymentServiceItemWithParams(
+	return factory.BuildPaymentServiceItemWithParams(
 		suite.DB(),
 		models.ReServiceCodeMS,
-		[]testdatagen.CreatePaymentServiceItemParams{
+		[]factory.CreatePaymentServiceItemParams{
 			{
 				Key:     models.ServiceItemParamNameContractCode,
 				KeyType: models.ServiceItemParamTypeString,
-				Value:   testdatagen.DefaultContractCode,
+				Value:   factory.DefaultContractCode,
 			},
 			{
 				Key:     models.ServiceItemParamNameMTOAvailableToPrimeAt,
 				KeyType: models.ServiceItemParamTypeTimestamp,
 				Value:   msAvailableToPrimeAt.Format(TimestampParamFormat),
 			},
-		},
+		}, nil, nil,
 	)
 }

@@ -4,12 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/go-openapi/swag"
-
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	. "github.com/transcom/mymove/pkg/services/move_task_order"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_Hide() {
@@ -87,20 +84,23 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_Hide() {
 
 		// Make a whole move with an invalid MTO agent name
 		serviceMember := setupTestData()
-		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			ServiceMember: serviceMember,
-			Order: models.Order{
-				ServiceMemberID: serviceMember.ID,
-				ServiceMember:   serviceMember,
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    serviceMember,
+				LinkOnly: true,
 			},
-		})
-		testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
-			MTOShipment: mtoShipment,
-			MTOAgent: models.MTOAgent{
-				FirstName: swag.String("Beyonce"),
+		}, nil)
+		factory.BuildMTOAgent(suite.DB(), []factory.Customization{
+			{
+				Model:    mtoShipment,
+				LinkOnly: true,
 			},
-		})
-
+			{
+				Model: models.MTOAgent{
+					FirstName: models.StringPointer("Beyonce"),
+				},
+			},
+		}, nil)
 		result, err := mtoHider.Hide(suite.AppContextForTest())
 		suite.NoError(err)
 
@@ -112,7 +112,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_Hide() {
 		var savedMove models.Move
 		findErr := suite.DB().Find(&savedMove, mtoShipment.MoveTaskOrder.ID)
 		suite.NoError(findErr)
-		suite.Equal(savedMove.Show, swag.Bool(false))
+		suite.Equal(savedMove.Show, models.BoolPointer(false))
 	})
 }
 
@@ -273,11 +273,11 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeServic
 
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeModelMTOAgent() {
 
-	badFakeData := []testdatagen.Assertions{
-		{MTOAgent: models.MTOAgent{FirstName: swag.String("Billy")}},
-		{MTOAgent: models.MTOAgent{LastName: swag.String("Smith")}},
-		{MTOAgent: models.MTOAgent{Phone: swag.String("111-111-1111")}},
-		{MTOAgent: models.MTOAgent{Email: swag.String("billy@move.mil")}},
+	badFakeData := []factory.Customization{
+		{Model: models.MTOAgent{FirstName: models.StringPointer("Billy")}},
+		{Model: models.MTOAgent{LastName: models.StringPointer("Smith")}},
+		{Model: models.MTOAgent{Phone: models.StringPointer("111-111-1111")}},
+		{Model: models.MTOAgent{Email: models.StringPointer("billy@move.mil")}},
 	}
 
 	suite.Run("valid MTOAgent data", func() {
@@ -285,14 +285,16 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeModelM
 		//                   Returns true/false, and err if there was a failure
 		// Set up:           Create an agent with valid data
 		// Expected outcome: Returns true, no error
-		agent := testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
-			MTOAgent: models.MTOAgent{
-				FirstName: swag.String("Peyton"),
-				LastName:  swag.String("Wing"),
-				Phone:     swag.String("999-999-9999"),
-				Email:     swag.String("peyton@example.com"),
+		agent := factory.BuildMTOAgent(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOAgent{
+					FirstName: models.StringPointer("Peyton"),
+					LastName:  models.StringPointer("Wing"),
+					Phone:     models.StringPointer("999-999-9999"),
+					Email:     models.StringPointer("peyton@example.com"),
+				},
 			},
-		})
+		}, nil)
 		result, err := IsValidFakeModelMTOAgent(agent)
 		suite.NoError(err)
 		suite.Equal(true, result)
@@ -305,7 +307,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeModelM
 	// Expected outcome: Returns false
 	for idx, badData := range badFakeData {
 		suite.Run(fmt.Sprintf("invalid fake MTOAgent data %d", idx), func() {
-			agent := testdatagen.MakeMTOAgent(suite.DB(), badData)
+			agent := factory.BuildMTOAgent(suite.DB(), []factory.Customization{badData}, nil)
 			result, err := IsValidFakeModelMTOAgent(agent)
 			suite.NoError(err)
 			suite.Equal(false, result)
@@ -320,7 +322,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeModelB
 	invalidFakeData := []models.BackupContact{
 		{Name: "Britney"},
 		{Email: "Spears"},
-		{Phone: swag.String("415-275-9467")},
+		{Phone: models.StringPointer("415-275-9467")},
 	}
 
 	suite.Run("valid backup contact", func() {
@@ -434,15 +436,33 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeModelM
 				},
 			},
 		}, nil)
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				ShipmentType: models.MTOShipmentTypeHHG,
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypeHHG,
+				},
 			},
-			PickupAddress:            validPickupAddress,
-			SecondaryPickupAddress:   validSecondaryPickupAddress,
-			DestinationAddress:       validDestinationAddress,
-			SecondaryDeliveryAddress: validSecondaryDeliveryAddress,
-		})
+			{
+				Model:    validPickupAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.PickupAddress,
+			},
+			{
+				Model:    validSecondaryPickupAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.SecondaryPickupAddress,
+			},
+			{
+				Model:    validDestinationAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.DeliveryAddress,
+			},
+			{
+				Model:    validSecondaryDeliveryAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.SecondaryDeliveryAddress,
+			},
+		}, nil)
 		return shipment
 	}
 	suite.Run("valid shipment data", func() {
@@ -470,63 +490,89 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeModelM
 		// Create valid shipment only to have valid addresses
 		validShipment := setupTestData()
 
-		// Create a valid set of assertions
-		validMTOShipmentAssertion := testdatagen.Assertions{
-			PickupAddress:            *validShipment.PickupAddress,
-			SecondaryPickupAddress:   *validShipment.SecondaryPickupAddress,
-			DestinationAddress:       *validShipment.DestinationAddress,
-			SecondaryDeliveryAddress: *validShipment.SecondaryDeliveryAddress,
+		// Create a valid set of customizations
+		validCustomizations := []factory.Customization{
+			{
+				Model:    *validShipment.PickupAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.PickupAddress,
+			},
+			{
+				Model:    *validShipment.SecondaryPickupAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.SecondaryPickupAddress,
+			},
+			{
+				Model:    *validShipment.DestinationAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.DeliveryAddress,
+			},
+			{
+				Model:    *validShipment.SecondaryDeliveryAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.SecondaryDeliveryAddress,
+			},
 		}
 
-		// Based on test index, swap out a valid assertion with an invalid one
+		// Based on test index, swap out a valid customization with an invalid one
 		var shipment models.MTOShipment
-		invalidAssertion := validMTOShipmentAssertion
+		invalidCustomization := validCustomizations
 		if index == 0 {
-			invalidPickupAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
-				{
-					Model: models.Address{
-						StreetAddress1: "1600 pennsylvania ave",
+			// Copy the valid customizations then overwrite the pickup address
+			invalidCustomization[0] = factory.Customization{
+				Model: factory.BuildAddress(suite.DB(), []factory.Customization{
+					{
+						Model: models.Address{
+							StreetAddress1: "1600 pennsylvania ave",
+						},
 					},
-				},
-			}, nil)
-			// Copy the valid assertions then overwrite the pickup address
-			invalidAssertion.PickupAddress = invalidPickupAddress
-			shipment = testdatagen.MakeMTOShipment(suite.DB(), invalidAssertion)
+				}, nil),
+				LinkOnly: true,
+				Type:     &factory.Addresses.PickupAddress,
+			}
+			shipment = factory.BuildMTOShipment(suite.DB(), invalidCustomization, nil)
 
 		} else if index == 1 {
-			invalidSecondaryPickupAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
-				{
-					Model: models.Address{
-						StreetAddress1: "20 W 34th St",
+			invalidCustomization[1] = factory.Customization{
+				Model: factory.BuildAddress(suite.DB(), []factory.Customization{
+					{
+						Model: models.Address{
+							StreetAddress1: "20 W 34th St",
+						},
 					},
-				},
-			}, nil)
-			invalidAssertion.SecondaryPickupAddress = invalidSecondaryPickupAddress
-			shipment = testdatagen.MakeMTOShipment(suite.DB(), invalidAssertion)
+				}, nil),
+				LinkOnly: true,
+				Type:     &factory.Addresses.SecondaryPickupAddress,
+			}
+			shipment = factory.BuildMTOShipment(suite.DB(), invalidCustomization, nil)
 
 		} else if index == 2 {
-
-			invalidDestinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
-				{
-					Model: models.Address{
-						StreetAddress1: "86 Pike Pl",
+			invalidCustomization[2] = factory.Customization{
+				Model: factory.BuildAddress(suite.DB(), []factory.Customization{
+					{
+						Model: models.Address{
+							StreetAddress1: "86 Pike Pl",
+						},
 					},
-				},
-			}, nil)
-			invalidAssertion.DestinationAddress = invalidDestinationAddress
-			shipment = testdatagen.MakeMTOShipment(suite.DB(), invalidAssertion)
+				}, nil),
+				LinkOnly: true,
+				Type:     &factory.Addresses.DeliveryAddress,
+			}
+			shipment = factory.BuildMTOShipment(suite.DB(), invalidCustomization, nil)
 
 		} else if index == 3 {
-
-			invalidSecondaryDeliveryAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
-				{
-					Model: models.Address{
-						StreetAddress1: "4000 Central Florida Blvd",
+			invalidCustomization[3] = factory.Customization{
+				Model: factory.BuildAddress(suite.DB(), []factory.Customization{
+					{
+						Model: models.Address{
+							StreetAddress1: "4000 Central Florida Blvd",
+						},
 					},
-				},
-			}, nil)
-			invalidAssertion.SecondaryDeliveryAddress = invalidSecondaryDeliveryAddress
-			shipment = testdatagen.MakeMTOShipment(suite.DB(), invalidAssertion)
+				}, nil),
+				LinkOnly: true,
+				Type:     &factory.Addresses.SecondaryDeliveryAddress,
+			}
+			shipment = factory.BuildMTOShipment(suite.DB(), invalidCustomization, nil)
 		}
 		return shipment, hideReasons[index]
 	}

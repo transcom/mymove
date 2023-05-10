@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import * as PropTypes from 'prop-types';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Checkbox, Tag } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classnames from 'classnames';
@@ -13,8 +13,7 @@ import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { AddressShape } from 'types/address';
 import { AgentShape } from 'types/agent';
 import { OrdersLOAShape } from 'types/order';
-import { shipmentStatuses } from 'constants/shipments';
-import ppmDocumentStatus from 'constants/ppms';
+import { shipmentStatuses, ppmShipmentStatuses } from 'constants/shipments';
 import { ShipmentStatusesOneOf } from 'types/shipment';
 import { retrieveSAC, retrieveTAC } from 'utils/shipmentDisplay';
 import Restricted from 'components/Restricted/Restricted';
@@ -37,7 +36,7 @@ const ShipmentDisplay = ({
   showWhenCollapsed,
   neverShow,
 }) => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const containerClasses = classnames(styles.container, { [styles.noIcon]: !allowApproval });
   const [isExpanded, setIsExpanded] = useState(false);
   const tac = retrieveTAC(displayInfo.tacType, ordersLOA);
@@ -88,11 +87,8 @@ const ShipmentDisplay = ({
               <Tag>cancellation requested</Tag>
             )}
             {displayInfo.usesExternalVendor && <Tag>external vendor</Tag>}
-            {displayInfo.ppmDocumentStatus === ppmDocumentStatus.REJECTED && (
-              <Tag className={styles.ppmStatus}>sent to customer</Tag>
-            )}
-            {(displayInfo.ppmDocumentStatus === ppmDocumentStatus.APPROVED ||
-              displayInfo.ppmDocumentStatus === ppmDocumentStatus.EXCLUDED) && (
+            {(displayInfo.ppmShipment?.status === ppmShipmentStatuses.PAYMENT_APPROVED ||
+              displayInfo.ppmShipment?.status === ppmShipmentStatuses.WAITING_ON_CUSTOMER) && (
               <Tag className={styles.ppmStatus}>packet ready for download</Tag>
             )}
           </div>
@@ -113,7 +109,7 @@ const ShipmentDisplay = ({
           {editURL && (
             <EditButton
               onClick={() => {
-                history.push(editURL);
+                navigate(editURL);
               }}
               className={styles.editButton}
               data-testid={editURL}
@@ -124,7 +120,7 @@ const ShipmentDisplay = ({
           {reviewURL && (
             <ReviewButton
               onClick={() => {
-                history.push(reviewURL);
+                navigate(reviewURL);
               }}
               className={styles.editButton}
               data-testid={reviewURL}

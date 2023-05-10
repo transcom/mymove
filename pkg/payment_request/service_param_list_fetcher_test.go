@@ -3,7 +3,6 @@ package paymentrequest
 import (
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *PaymentRequestHelperSuite) TestFetchServiceParamList() {
@@ -48,20 +47,26 @@ func (suite *PaymentRequestHelperSuite) TestFetchServiceParamList() {
 
 	for _, serviceKey := range serviceKeysAssociation {
 		for _, key := range serviceKey.keys {
-			testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
-				ServiceParam: models.ServiceParam{
-					ServiceID:             serviceKey.service.ID,
-					ServiceItemParamKeyID: key.ID,
+			factory.BuildServiceParam(suite.DB(), []factory.Customization{
+				{
+					Model:    serviceKey.service,
+					LinkOnly: true,
 				},
-			})
+				{
+					Model:    key,
+					LinkOnly: true,
+				},
+			}, nil)
 		}
 	}
 
 	// Make an MTO service item for DLH
-	dlhServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-		ReService: dlhService,
-		Stub:      true,
-	})
+	dlhServiceItem := factory.BuildMTOServiceItem(nil, []factory.Customization{
+		{
+			Model:    dlhService,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	helper := RequestPaymentHelper{}
 	serviceParams, err := helper.FetchServiceParamList(suite.AppContextForTest(), dlhServiceItem)

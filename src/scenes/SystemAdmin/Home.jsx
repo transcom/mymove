@@ -1,7 +1,8 @@
 import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
 import restProvider from './shared/rest_provider';
-import { Admin, AppBar, fetchUtils, Layout, Resource } from 'react-admin';
-import { createBrowserHistory } from 'history';
+import { Admin, AppBar, fetchUtils, Layout, Resource, CustomRoutes } from 'react-admin';
+import { Route } from 'react-router-dom';
+
 import React from 'react';
 import Menu from './shared/Menu';
 import CUIHeader from 'components/CUIHeader/CUIHeader';
@@ -19,8 +20,6 @@ import AdminUserShow from 'pages/Admin/AdminUsers/AdminUserShow';
 import AdminUserCreate from 'pages/Admin/AdminUsers/AdminUserCreate';
 import AdminUserEdit from 'pages/Admin/AdminUsers/AdminUserEdit';
 import OfficeList from 'pages/Admin/Offices/OfficeList';
-import TSPPList from './TSPPs/TSPPList';
-import TSPPShow from './TSPPs/TSPPShow';
 import ElectronicOrderList from './ElectronicOrders/ElectronicOrderList';
 import MoveList from 'pages/Admin/Moves/MoveList';
 import MoveShow from 'pages/Admin/Moves/MoveShow';
@@ -35,8 +34,8 @@ import WebhookSubscriptionEdit from '../../pages/Admin/WebhookSubscriptions/Webh
 
 import styles from './Home.module.scss';
 import Cookies from 'js-cookie';
-import customRoutes from './CustomRoutes';
 import NotificationList from './Notifications/NotificationList';
+import UploadSearch from './Uploads/UploadSearch';
 
 const httpClient = (url, options = {}) => {
   if (!options.headers) {
@@ -61,17 +60,10 @@ const CUIWrapper = () => (
 
 const dataProvider = restProvider('/admin/v1', httpClient);
 const AdminLayout = (props) => <Layout {...props} menu={Menu} appBar={CUIWrapper} />;
-const history = createBrowserHistory({ basename: '/system' });
 
 const Home = () => (
   <div className={styles['admin-system-wrapper']}>
-    <Admin
-      dataProvider={dataProvider}
-      history={history}
-      appLayout={AdminLayout}
-      customRoutes={customRoutes}
-      disableTelemetry
-    >
+    <Admin dataProvider={dataProvider} basename="/system" layout={AdminLayout} disableTelemetry>
       <Resource
         name="office-users"
         options={{ label: 'Office Users' }}
@@ -91,12 +83,6 @@ const Home = () => (
       />
       <Resource name="users" options={{ label: 'Users' }} list={UserList} show={UserShow} edit={UserEdit} />
       <Resource name="moves" options={{ label: 'Moves' }} list={MoveList} show={MoveShow} edit={MoveEdit} />
-      <Resource
-        name="transportation-service-provider-performances"
-        options={{ label: 'TSPPs' }}
-        list={TSPPList}
-        show={TSPPShow}
-      />
       <Resource name="electronic-orders" options={{ label: 'Electronic orders' }} list={ElectronicOrderList} />
       <Resource name="uploads" options={{ label: 'Search Upload by ID' }} show={UploadShow} />
       <Resource name="organizations" />
@@ -117,6 +103,10 @@ const Home = () => (
         list={WebhookSubscriptionList}
         edit={WebhookSubscriptionEdit}
       />
+      <CustomRoutes>
+        {/* Custom route for search by id for uploads */}
+        <Route end path="/uploads" element={<UploadSearch />} />
+      </CustomRoutes>
     </Admin>
   </div>
 );

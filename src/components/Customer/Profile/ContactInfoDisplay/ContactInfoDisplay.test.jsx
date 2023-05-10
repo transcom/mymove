@@ -1,10 +1,15 @@
 import React from 'react';
-import { screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { screen } from '@testing-library/react';
 
 import ContactInfoDisplay from './ContactInfoDisplay';
 
 import { renderWithRouter } from 'testUtils';
+
+const mockNavigate = jest.fn();
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: () => mockNavigate,
+}));
 
 describe('ContactInfoDisplay component', () => {
   const testProps = {
@@ -52,7 +57,7 @@ describe('ContactInfoDisplay component', () => {
 
     expect(emailTerm.nextElementSibling.textContent).toBe(testProps.personalEmail);
 
-    const addressTerm = screen.getByText('Current mailing address');
+    const addressTerm = screen.getByText('Current pickup address');
 
     expect(addressTerm).toBeInTheDocument();
 
@@ -60,7 +65,7 @@ describe('ContactInfoDisplay component', () => {
       expect(addressTerm.nextElementSibling.textContent).toContain(value);
     });
 
-    const backupAddressTerm = screen.getByText('Backup mailing address');
+    const backupAddressTerm = screen.getByText('Backup address');
 
     expect(backupAddressTerm).toBeInTheDocument();
 
@@ -126,16 +131,12 @@ describe('ContactInfoDisplay component', () => {
   );
 
   it('Goes to editURL when Edit link is clicked', async () => {
-    const { history } = renderWithRouter(<ContactInfoDisplay {...testProps} />);
+    renderWithRouter(<ContactInfoDisplay {...testProps} />, { path: '/moves/review/edit-profile' });
 
     const editLink = await screen.findByRole('link');
 
     expect(editLink).toBeInTheDocument();
 
-    await userEvent.click(editLink);
-
-    await waitFor(() => {
-      expect(history.location.pathname).toEqual(testProps.editURL);
-    });
+    expect(editLink.href).toContain(testProps.editURL);
   });
 });

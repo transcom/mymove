@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
@@ -55,10 +54,6 @@ func MoveTaskOrder(moveTaskOrder *models.Move) *supportmessages.MoveTaskOrder {
 
 	if moveTaskOrder.PPMType != nil {
 		payload.PpmType = *moveTaskOrder.PPMType
-	}
-
-	if moveTaskOrder.SelectedMoveType != nil {
-		payload.SelectedMoveType = (*supportmessages.SelectedMoveType)(moveTaskOrder.SelectedMoveType)
 	}
 
 	payload.SetMtoServiceItems(*mtoServiceItems)
@@ -479,7 +474,7 @@ func WebhookNotification(model *models.WebhookNotification) *supportmessages.Web
 	payload := supportmessages.WebhookNotification{
 		ID:               *handlers.FmtUUID(model.ID),
 		EventKey:         model.EventKey,
-		Object:           swag.String(model.Payload),
+		Object:           models.StringPointer(model.Payload),
 		CreatedAt:        *handlers.FmtDateTime(model.CreatedAt),
 		UpdatedAt:        *handlers.FmtDateTime(model.UpdatedAt),
 		FirstAttemptedAt: handlers.FmtDateTimePtr(model.FirstAttemptedAt),

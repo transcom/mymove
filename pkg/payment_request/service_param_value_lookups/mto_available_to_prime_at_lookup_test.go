@@ -8,6 +8,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -22,17 +23,26 @@ func (suite *ServiceParamValueLookupsSuite) TestMTOAvailableToPrimeLookup() {
 	var paramLookup *ServiceItemParamKeyData
 
 	setupTestData := func() {
-		mtoServiceItem = testdatagen.MakeMTOServiceItem(suite.DB(),
-			testdatagen.Assertions{
-				Move: models.Move{
+		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				StartDate: availableToPrimeAt.Add(-24 * time.Hour),
+				EndDate:   availableToPrimeAt.Add(24 * time.Hour),
+			},
+		})
+		mtoServiceItem = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
 					AvailableToPrimeAt: &availableToPrimeAt,
 				},
-			})
+			},
+		}, nil)
 
-		paymentRequest = testdatagen.MakePaymentRequest(suite.DB(),
-			testdatagen.Assertions{
-				Move: mtoServiceItem.MoveTaskOrder,
-			})
+		paymentRequest = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    mtoServiceItem.MoveTaskOrder,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		var err error
 		paramLookup, err = ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
@@ -74,11 +84,7 @@ func (suite *ServiceParamValueLookupsSuite) TestMTOAvailableToPrimeLookup() {
 		// Pass in a non-existent MoveTaskOrderID
 		invalidMoveTaskOrderID := uuid.Must(uuid.NewV4())
 		badParamLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, paymentRequest.ID, invalidMoveTaskOrderID, nil)
-		suite.FatalNoError(err)
-
-		valueStr, err := badParamLookup.ServiceParamValue(suite.AppContextForTest(), key)
-		suite.Error(err)
-		suite.IsType(apperror.NotFoundError{}, errors.Unwrap(err))
-		suite.Equal("", valueStr)
+		suite.IsType(apperror.NotFoundError{}, err)
+		suite.Nil(badParamLookup)
 	})
 }

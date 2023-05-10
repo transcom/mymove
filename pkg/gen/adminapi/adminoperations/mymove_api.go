@@ -27,7 +27,6 @@ import (
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office_users"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/organizations"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/transportation_offices"
-	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/transportation_service_provider_performances_t_s_p_ps"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/uploads"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/users"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/webhook_subscriptions"
@@ -82,9 +81,6 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		OfficeUsersGetOfficeUserHandler: office_users.GetOfficeUserHandlerFunc(func(params office_users.GetOfficeUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation office_users.GetOfficeUser has not yet been implemented")
 		}),
-		TransportationServiceProviderPerformancestspPsGetTSPPHandler: transportation_service_provider_performances_t_s_p_ps.GetTSPPHandlerFunc(func(params transportation_service_provider_performances_t_s_p_ps.GetTSPPParams) middleware.Responder {
-			return middleware.NotImplemented("operation transportation_service_provider_performances_t_s_p_ps.GetTSPP has not yet been implemented")
-		}),
 		UploadsGetUploadHandler: uploads.GetUploadHandlerFunc(func(params uploads.GetUploadParams) middleware.Responder {
 			return middleware.NotImplemented("operation uploads.GetUpload has not yet been implemented")
 		}),
@@ -117,9 +113,6 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		OrganizationsIndexOrganizationsHandler: organizations.IndexOrganizationsHandlerFunc(func(params organizations.IndexOrganizationsParams) middleware.Responder {
 			return middleware.NotImplemented("operation organizations.IndexOrganizations has not yet been implemented")
-		}),
-		TransportationServiceProviderPerformancestspPsIndexTSPPsHandler: transportation_service_provider_performances_t_s_p_ps.IndexTSPPsHandlerFunc(func(params transportation_service_provider_performances_t_s_p_ps.IndexTSPPsParams) middleware.Responder {
-			return middleware.NotImplemented("operation transportation_service_provider_performances_t_s_p_ps.IndexTSPPs has not yet been implemented")
 		}),
 		UsersIndexUsersHandler: users.IndexUsersHandlerFunc(func(params users.IndexUsersParams) middleware.Responder {
 			return middleware.NotImplemented("operation users.IndexUsers has not yet been implemented")
@@ -206,8 +199,6 @@ type MymoveAPI struct {
 	MovesGetMoveHandler moves.GetMoveHandler
 	// OfficeUsersGetOfficeUserHandler sets the operation handler for the get office user operation
 	OfficeUsersGetOfficeUserHandler office_users.GetOfficeUserHandler
-	// TransportationServiceProviderPerformancestspPsGetTSPPHandler sets the operation handler for the get t s p p operation
-	TransportationServiceProviderPerformancestspPsGetTSPPHandler transportation_service_provider_performances_t_s_p_ps.GetTSPPHandler
 	// UploadsGetUploadHandler sets the operation handler for the get upload operation
 	UploadsGetUploadHandler uploads.GetUploadHandler
 	// UsersGetUserHandler sets the operation handler for the get user operation
@@ -230,8 +221,6 @@ type MymoveAPI struct {
 	TransportationOfficesIndexOfficesHandler transportation_offices.IndexOfficesHandler
 	// OrganizationsIndexOrganizationsHandler sets the operation handler for the index organizations operation
 	OrganizationsIndexOrganizationsHandler organizations.IndexOrganizationsHandler
-	// TransportationServiceProviderPerformancestspPsIndexTSPPsHandler sets the operation handler for the index t s p ps operation
-	TransportationServiceProviderPerformancestspPsIndexTSPPsHandler transportation_service_provider_performances_t_s_p_ps.IndexTSPPsHandler
 	// UsersIndexUsersHandler sets the operation handler for the index users operation
 	UsersIndexUsersHandler users.IndexUsersHandler
 	// WebhookSubscriptionsIndexWebhookSubscriptionsHandler sets the operation handler for the index webhook subscriptions operation
@@ -354,9 +343,6 @@ func (o *MymoveAPI) Validate() error {
 	if o.OfficeUsersGetOfficeUserHandler == nil {
 		unregistered = append(unregistered, "office_users.GetOfficeUserHandler")
 	}
-	if o.TransportationServiceProviderPerformancestspPsGetTSPPHandler == nil {
-		unregistered = append(unregistered, "transportation_service_provider_performances_t_s_p_ps.GetTSPPHandler")
-	}
 	if o.UploadsGetUploadHandler == nil {
 		unregistered = append(unregistered, "uploads.GetUploadHandler")
 	}
@@ -389,9 +375,6 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.OrganizationsIndexOrganizationsHandler == nil {
 		unregistered = append(unregistered, "organizations.IndexOrganizationsHandler")
-	}
-	if o.TransportationServiceProviderPerformancestspPsIndexTSPPsHandler == nil {
-		unregistered = append(unregistered, "transportation_service_provider_performances_t_s_p_ps.IndexTSPPsHandler")
 	}
 	if o.UsersIndexUsersHandler == nil {
 		unregistered = append(unregistered, "users.IndexUsersHandler")
@@ -547,10 +530,6 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/transportation-service-provider-performances/{tsppId}"] = transportation_service_provider_performances_t_s_p_ps.NewGetTSPP(o.context, o.TransportationServiceProviderPerformancestspPsGetTSPPHandler)
-	if o.handlers["GET"] == nil {
-		o.handlers["GET"] = make(map[string]http.Handler)
-	}
 	o.handlers["GET"]["/uploads/{uploadId}"] = uploads.NewGetUpload(o.context, o.UploadsGetUploadHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
@@ -592,10 +571,6 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/organizations"] = organizations.NewIndexOrganizations(o.context, o.OrganizationsIndexOrganizationsHandler)
-	if o.handlers["GET"] == nil {
-		o.handlers["GET"] = make(map[string]http.Handler)
-	}
-	o.handlers["GET"]["/transportation-service-provider-performances"] = transportation_service_provider_performances_t_s_p_ps.NewIndexTSPPs(o.context, o.TransportationServiceProviderPerformancestspPsIndexTSPPsHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

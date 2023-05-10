@@ -1,28 +1,14 @@
 import React from 'react';
-import { BooleanField, DateField, Show, SimpleShowLayout, TextField } from 'react-admin';
-import PropTypes from 'prop-types';
+import { BooleanField, DateField, Show, SimpleShowLayout, TextField, useRecordContext } from 'react-admin';
 
-const AdminUserShowTitle = ({ record }) => {
-  return <span>{`${record.firstName} ${record.lastName}`}</span>;
+const AdminUserShowTitle = () => {
+  const record = useRecordContext();
+  return <span>{`${record?.firstName} ${record?.lastName}`}</span>;
 };
 
-AdminUserShowTitle.propTypes = {
-  record: PropTypes.shape({
-    firstName: PropTypes.string,
-    lastName: PropTypes.string,
-  }),
-};
-
-AdminUserShowTitle.defaultProps = {
-  record: {
-    firstName: '',
-    lastName: '',
-  },
-};
-
-const AdminUserShow = (props) => {
+const AdminUserShow = () => {
   return (
-    <Show {...props} title={<AdminUserShowTitle />}>
+    <Show title={<AdminUserShowTitle />}>
       <SimpleShowLayout>
         <TextField source="id" />
         <TextField source="userId" label="User Id" />
@@ -30,9 +16,9 @@ const AdminUserShow = (props) => {
         <TextField source="firstName" />
         <TextField source="lastName" />
         <TextField source="organizationId" label="Organization Id" />
-        <BooleanField source="active" addLabel label="Active" />
-        <DateField source="createdAt" showTime addLabel />
-        <DateField source="updatedAt" showTime addLabel />
+        <BooleanField source="active" label="Active" />
+        <DateField source="createdAt" showTime />
+        <DateField source="updatedAt" showTime />
       </SimpleShowLayout>
     </Show>
   );

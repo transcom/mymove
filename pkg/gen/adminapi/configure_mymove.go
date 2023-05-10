@@ -19,7 +19,6 @@ import (
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office_users"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/organizations"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/transportation_offices"
-	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/transportation_service_provider_performances_t_s_p_ps"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/uploads"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/users"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/webhook_subscriptions"
@@ -94,11 +93,6 @@ func configureAPI(api *adminoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation office_users.GetOfficeUser has not yet been implemented")
 		})
 	}
-	if api.TransportationServiceProviderPerformancestspPsGetTSPPHandler == nil {
-		api.TransportationServiceProviderPerformancestspPsGetTSPPHandler = transportation_service_provider_performances_t_s_p_ps.GetTSPPHandlerFunc(func(params transportation_service_provider_performances_t_s_p_ps.GetTSPPParams) middleware.Responder {
-			return middleware.NotImplemented("operation transportation_service_provider_performances_t_s_p_ps.GetTSPP has not yet been implemented")
-		})
-	}
 	if api.UploadsGetUploadHandler == nil {
 		api.UploadsGetUploadHandler = uploads.GetUploadHandlerFunc(func(params uploads.GetUploadParams) middleware.Responder {
 			return middleware.NotImplemented("operation uploads.GetUpload has not yet been implemented")
@@ -152,11 +146,6 @@ func configureAPI(api *adminoperations.MymoveAPI) http.Handler {
 	if api.OrganizationsIndexOrganizationsHandler == nil {
 		api.OrganizationsIndexOrganizationsHandler = organizations.IndexOrganizationsHandlerFunc(func(params organizations.IndexOrganizationsParams) middleware.Responder {
 			return middleware.NotImplemented("operation organizations.IndexOrganizations has not yet been implemented")
-		})
-	}
-	if api.TransportationServiceProviderPerformancestspPsIndexTSPPsHandler == nil {
-		api.TransportationServiceProviderPerformancestspPsIndexTSPPsHandler = transportation_service_provider_performances_t_s_p_ps.IndexTSPPsHandlerFunc(func(params transportation_service_provider_performances_t_s_p_ps.IndexTSPPsParams) middleware.Responder {
-			return middleware.NotImplemented("operation transportation_service_provider_performances_t_s_p_ps.IndexTSPPs has not yet been implemented")
 		})
 	}
 	if api.UsersIndexUsersHandler == nil {
