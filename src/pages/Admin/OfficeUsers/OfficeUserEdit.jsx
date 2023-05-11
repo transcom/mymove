@@ -20,9 +20,14 @@ const OfficeUserEditToolbar = (props) => (
   </Toolbar>
 );
 
-const OfficeUserEdit = (props) => (
-  <Edit {...props}>
-    <SimpleForm toolbar={<OfficeUserEditToolbar />}>
+const OfficeUserEdit = () => (
+  <Edit>
+    <SimpleForm
+      toolbar={<OfficeUserEditToolbar />}
+      sx={{ '& .MuiInputBase-input': { width: 232 } }}
+      mode="onBlur"
+      reValidateMode="onBlur"
+    >
       <TextInput source="id" disabled />
       <TextInput source="userId" label="User Id" disabled />
       <TextInput source="email" disabled />
@@ -36,6 +41,7 @@ const OfficeUserEdit = (props) => (
           { id: true, name: 'Yes' },
           { id: false, name: 'No' },
         ]}
+        sx={{ width: 256 }}
       />
       <RolesCheckboxInput source="roles" />
       <ReferenceInput
@@ -45,7 +51,7 @@ const OfficeUserEdit = (props) => (
         perPage={500}
         validate={required()}
       >
-        <AutocompleteInput optionText="name" />
+        <AutocompleteInput optionText="name" sx={{ width: 256 }} />
       </ReferenceInput>
       <TextInput source="createdAt" disabled />
       <TextInput source="updatedAt" disabled />

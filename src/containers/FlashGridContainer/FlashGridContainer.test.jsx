@@ -6,7 +6,7 @@ import { Provider } from 'react-redux';
 import FlashGridContainer from 'containers/FlashGridContainer/FlashGridContainer';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
-import { configureStore, history } from 'shared/store';
+import { configureStore } from 'shared/store';
 import { setFlashMessage } from 'store/flash/actions';
 import { MockProviders } from 'testUtils';
 
@@ -74,7 +74,7 @@ describe('FlashGridContainer component', () => {
   });
 
   it('scrolls up to the alert if a new message is set', () => {
-    const mockStore = configureStore(history, {});
+    const mockStore = configureStore({});
     const wrapper = mount(
       <Provider store={mockStore.store}>
         <FlashGridContainer data-testid="test-store">

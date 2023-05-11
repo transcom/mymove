@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
 import { connect } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import DodInfoForm from 'components/Customer/DodInfoForm/DodInfoForm';
@@ -13,7 +14,8 @@ import { profileStates } from 'constants/customerStates';
 import { customerRoutes } from 'constants/routes';
 import { ServiceMemberShape } from 'types/customerShapes';
 
-export const DodInfo = ({ updateServiceMember, serviceMember, push }) => {
+export const DodInfo = ({ updateServiceMember, serviceMember }) => {
+  const navigate = useNavigate();
   const [serverError, setServerError] = useState(null);
 
   const initialValues = {
@@ -23,11 +25,11 @@ export const DodInfo = ({ updateServiceMember, serviceMember, push }) => {
   };
 
   const handleBack = () => {
-    push(customerRoutes.CONUS_OCONUS_PATH);
+    navigate(customerRoutes.CONUS_OCONUS_PATH);
   };
 
   const handleNext = () => {
-    push(customerRoutes.NAME_PATH);
+    navigate(customerRoutes.NAME_PATH);
   };
 
   const handleSubmit = (values) => {
@@ -75,7 +77,6 @@ export const DodInfo = ({ updateServiceMember, serviceMember, push }) => {
 
 DodInfo.propTypes = {
   updateServiceMember: PropTypes.func.isRequired,
-  push: PropTypes.func.isRequired,
   serviceMember: ServiceMemberShape.isRequired,
 };
 

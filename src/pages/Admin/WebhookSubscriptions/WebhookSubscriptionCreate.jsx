@@ -3,10 +3,9 @@ import { Create, SimpleForm, TextInput, SelectInput, required } from 'react-admi
 
 import { WEBHOOK_SUBSCRIPTION_STATUS } from 'shared/constants';
 
-const WebhookSubscriptionCreate = (props) => (
-  /* eslint-disable-next-line react/jsx-props-no-spreading */
-  <Create {...props}>
-    <SimpleForm>
+const WebhookSubscriptionCreate = () => (
+  <Create>
+    <SimpleForm sx={{ '& .MuiInputBase-input': { width: 232 } }} mode="onBlur" reValidateMode="onBlur">
       <TextInput label="Subscriber Id" source="subscriberId" validate={required()} />
       <TextInput source="eventKey" validate={required()} />
       <TextInput source="callbackUrl" validate={required()} />
@@ -17,6 +16,7 @@ const WebhookSubscriptionCreate = (props) => (
           { id: WEBHOOK_SUBSCRIPTION_STATUS.DISABLED, name: 'Disabled' },
           { id: WEBHOOK_SUBSCRIPTION_STATUS.FAILING, name: 'Failing' },
         ]}
+        sx={{ width: 256 }}
       />
     </SimpleForm>
   </Create>
