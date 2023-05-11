@@ -303,6 +303,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createServiceMemberDetailSegments(pay
 		ReferenceIdentificationQualifier: "ML",
 		ReferenceIdentification:          string(*rank),
 	}
+
 	// branch
 	branch := serviceMember.Affiliation
 	if branch == nil {
