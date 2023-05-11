@@ -36,10 +36,9 @@ jobs:
       - name: Install dependencies
         run: yarn install
 
-      - name: Build app
-        run: yarn build --stats
-        env:
-          NODE_OPTIONS: "--max_old_space_size=4096"
+      - name: Build head with options
+        run: |
+          NODE_OPTIONS="--max-old-space-size=8192" yarn build --stats
 
       - name: Upload stats.json
         uses: actions/upload-artifact@v3
@@ -66,10 +65,9 @@ jobs:
       - name: Install dependencies
         run: yarn install
 
-      - name: Build app
-        run: yarn build --stats
-        env:
-          NODE_OPTIONS: "--max_old_space_size=4096"
+      - name: Build base with options
+        run: |
+          NODE_OPTIONS="--max-old-space-size=8192" yarn build --stats
 
       - name: Upload stats.json
         uses: actions/upload-artifact@v3
