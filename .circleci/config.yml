@@ -898,6 +898,8 @@ commands:
           command: |
             mkdir -p tmp && cd tmp
             git clone https://github.com/transcom/milmove_load_testing.git
+            # print out last git commit sha
+            (cd milmove_load_testing && git rev-list -1 HEAD)
       - restore_cache:
           keys:
             # need milmove_load_testing repo checked out before cache check
