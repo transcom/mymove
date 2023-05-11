@@ -759,6 +759,113 @@ func subScenarioSITExtensions(appCtx appcontext.AppContext, userUploader *upload
 	}
 }
 
+func subScenarioSITAddressUpdates(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) func() {
+	return func() {
+		createTOO(appCtx)
+		// SITUP1 has no SITAddressUpdate
+		createMoveWithOriginAndDestinationSIT(appCtx, userUploader, "SITUP1")
+
+		// SITUP2 has an prime-initiated SITAddressUpdate under 50 miles
+		serviceItem := createMoveWithOriginAndDestinationSIT(appCtx, userUploader, "SITUP2")
+		factory.BuildSITAddressUpdate(appCtx.DB(), []factory.Customization{
+			{
+				Model:    serviceItem,
+				LinkOnly: true,
+			},
+			{
+				Model: models.SITAddressUpdate{
+					Status:            models.SITAddressUpdateStatusApproved,
+					Reason:            "customer is moving",
+					ContractorRemarks: models.StringPointer("test contractor remarks"),
+				},
+			},
+		}, []factory.Trait{factory.GetTraitSITAddressUpdateUnder50Miles})
+
+		// SITUP3 has a prime-initiated REQUESTED SITAddressUpdate update over 50 miles
+		serviceItem = createMoveWithOriginAndDestinationSIT(appCtx, userUploader, "SITUP3")
+		factory.BuildSITAddressUpdate(appCtx.DB(), []factory.Customization{
+			{
+				Model:    serviceItem,
+				LinkOnly: true,
+			},
+			{
+				Model: models.SITAddressUpdate{
+					Status:            models.SITAddressUpdateStatusRequested,
+					Reason:            "customer is moving",
+					ContractorRemarks: models.StringPointer("test contractor remarks"),
+				},
+			},
+		}, []factory.Trait{factory.GetTraitSITAddressUpdateOver50Miles})
+
+		// SITUP4 has an prime-initiated APPROVED SITAddressUpdate over 50 miles
+		serviceItem = createMoveWithOriginAndDestinationSIT(appCtx, userUploader, "SITUP4")
+		factory.BuildSITAddressUpdate(appCtx.DB(), []factory.Customization{
+			{
+				Model:    serviceItem,
+				LinkOnly: true,
+			},
+			{
+				Model: models.SITAddressUpdate{
+					Status:            models.SITAddressUpdateStatusApproved,
+					Reason:            "customer is moving",
+					ContractorRemarks: models.StringPointer("test contractor remarks"),
+					OfficeRemarks:     models.StringPointer("TOO approved"),
+				},
+			},
+		}, []factory.Trait{factory.GetTraitSITAddressUpdateOver50Miles})
+
+		// SITUP5 has an TOO-initiated APPROVED SITAddressUpdate under 50 miles
+		serviceItem = createMoveWithOriginAndDestinationSIT(appCtx, userUploader, "SITUP5")
+		factory.BuildSITAddressUpdate(appCtx.DB(), []factory.Customization{
+			{
+				Model:    serviceItem,
+				LinkOnly: true,
+			},
+			{
+				Model: models.SITAddressUpdate{
+					Status:        models.SITAddressUpdateStatusApproved,
+					Reason:        "customer is moving",
+					OfficeRemarks: models.StringPointer("updated destination address"),
+				},
+			},
+		}, []factory.Trait{factory.GetTraitSITAddressUpdateUnder50Miles})
+
+		// SITUP6 has a TOO-initiated SITAddressUpdate over 50 miles
+		serviceItem = createMoveWithOriginAndDestinationSIT(appCtx, userUploader, "SITUP6")
+		factory.BuildSITAddressUpdate(appCtx.DB(), []factory.Customization{
+			{
+				Model:    serviceItem,
+				LinkOnly: true,
+			},
+			{
+				Model: models.SITAddressUpdate{
+					Status:        models.SITAddressUpdateStatusApproved,
+					Reason:        "customer is moving",
+					OfficeRemarks: models.StringPointer("updated destination address"),
+				},
+			},
+		}, []factory.Trait{factory.GetTraitSITAddressUpdateOver50Miles})
+
+		// SITUP7 has a rejected SITAddressUpdate over 50 miles
+		serviceItem = createMoveWithOriginAndDestinationSIT(appCtx, userUploader, "SITUP7")
+		factory.BuildSITAddressUpdate(appCtx.DB(), []factory.Customization{
+			{
+				Model:    serviceItem,
+				LinkOnly: true,
+			},
+			{
+				Model: models.SITAddressUpdate{
+					Status:            models.SITAddressUpdateStatusRejected,
+					Reason:            "customer is moving",
+					ContractorRemarks: models.StringPointer("test contractor remarks"),
+					OfficeRemarks:     models.StringPointer("TOO rejected"),
+				},
+			},
+		}, []factory.Trait{factory.GetTraitSITAddressUpdateOver50Miles})
+
+	}
+}
+
 func subScenarioNTSandNTSR(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) func() {
 	return func() {
 		pcos := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
@@ -869,7 +976,7 @@ func subScenarioMisc(appCtx appcontext.AppContext, userUploader *uploader.UserUp
 		createHHGMoveWithAmendedOrders(appCtx, userUploader, primeUploader)
 		createHHGMoveWithRiskOfExcess(appCtx, userUploader, primeUploader)
 
-		createMoveWithOriginAndDestinationSIT(appCtx, userUploader)
+		createMoveWithOriginAndDestinationSIT(appCtx, userUploader, "S1TT3R")
 		createPaymentRequestsWithPartialSITInvoice(appCtx, primeUploader)
 	}
 }
