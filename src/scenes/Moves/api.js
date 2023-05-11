@@ -9,7 +9,7 @@ export async function GetMove(moveId) {
   return response.body;
 }
 
-export async function UpdateMove(moveId, payload /*shape: { selected_move_type }*/) {
+export async function UpdateMove(moveId, payload /* shape: { selected_move_type } */) {
   const client = await getClient();
   const response = await client.apis.moves.patchMove({
     moveId,

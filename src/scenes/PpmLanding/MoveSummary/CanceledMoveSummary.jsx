@@ -1,5 +1,6 @@
 import React from 'react';
 import { get } from 'lodash';
+
 import truck from 'shared/icon/truck-gray.svg';
 
 const CanceledMoveSummary = (props) => {

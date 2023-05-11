@@ -1,8 +1,9 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 
-import { PpmLanding } from './index';
 import { PpmSummary } from './PpmSummary';
+
+import { PpmLanding } from './index';
 
 describe('PPM landing page tests', () => {
   let wrapper;
@@ -25,10 +26,10 @@ describe('PPM landing page tests', () => {
   });
 
   describe('When loggedIn', () => {
-    let service_member = { id: 'foo' };
+    const service_member = { id: 'foo' };
     it('renders without crashing', () => {
       const div = document.createElement('div');
-      wrapper = shallow(<PpmLanding isLoggedIn={true} {...minProps} />, div);
+      wrapper = shallow(<PpmLanding isLoggedIn {...minProps} />, div);
       expect(wrapper.find('.grid-container').length).toEqual(1);
     });
 
@@ -38,8 +39,8 @@ describe('PPM landing page tests', () => {
         wrapper = shallow(
           <PpmLanding
             serviceMember={service_member}
-            isLoggedIn={true}
-            loggedInUserSuccess={true}
+            isLoggedIn
+            loggedInUserSuccess
             isProfileComplete={false}
             push={jest.fn()}
             {...minProps}

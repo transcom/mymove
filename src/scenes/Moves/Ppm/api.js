@@ -11,7 +11,7 @@ export async function GetPpm(moveId) {
   return response.body;
 }
 
-export async function CreatePpm(moveId, payload /*shape: {size, weightEstimate, estimatedIncentive}*/) {
+export async function CreatePpm(moveId, payload /* shape: {size, weightEstimate, estimatedIncentive} */) {
   const client = await getClient();
   const payloadDef = client.spec.definitions.CreatePersonallyProcuredMovePayload;
   const response = await client.apis.ppm.createPersonallyProcuredMove({
@@ -25,7 +25,7 @@ export async function CreatePpm(moveId, payload /*shape: {size, weightEstimate, 
 export async function UpdatePpm(
   moveId,
   personallyProcuredMoveId,
-  payload /*shape: {size, weightEstimate, estimatedIncentive}*/,
+  payload /* shape: {size, weightEstimate, estimatedIncentive} */,
 ) {
   const client = await getClient();
   const payloadDef = client.spec.definitions.PatchPersonallyProcuredMovePayload;

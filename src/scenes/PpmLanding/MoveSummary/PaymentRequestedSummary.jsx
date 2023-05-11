@@ -1,6 +1,7 @@
 import React from 'react';
-import { ppmInfoPacket } from 'shared/constants';
 import moment from 'moment';
+
+import { ppmInfoPacket } from 'shared/constants';
 import ppmCar from 'scenes/PpmLanding/images/ppm-car.svg';
 import PPMStatusTimeline from 'scenes/PpmLanding/PPMStatusTimeline';
 import FindWeightScales from 'scenes/PpmLanding/MoveSummary/FindWeightScales';

@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { ProfileStatusTimeline } from 'scenes/PpmLanding/StatusTimeline';
 import truck from 'shared/icon/truck-gray.svg';
 
