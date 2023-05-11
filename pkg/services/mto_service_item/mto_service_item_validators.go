@@ -249,7 +249,7 @@ func (v *updateMTOServiceItemData) setNewMTOServiceItem() *models.MTOServiceItem
 
 	// Set customer contact fields
 	if len(v.updatedServiceItem.CustomerContacts) > 0 {
-		newMTOServiceItem.CustomerContacts = v.updatedServiceItem.CustomerContacts
+		newMTOServiceItem.CustomerContacts = v.setNewCustomerContacts()
 	}
 
 	// Set weight fields:
@@ -260,4 +260,31 @@ func (v *updateMTOServiceItemData) setNewMTOServiceItem() *models.MTOServiceItem
 		v.updatedServiceItem.ActualWeight, newMTOServiceItem.ActualWeight)
 
 	return &newMTOServiceItem
+}
+
+func (v *updateMTOServiceItemData) setNewCustomerContacts() models.MTOServiceItemCustomerContacts {
+	// We only set the new customer contact fields if there are updated customer contacts.
+	// If there are no old customer contacts we will just use the updated ones.
+	if len(v.oldServiceItem.CustomerContacts) == 0 {
+		return v.updatedServiceItem.CustomerContacts
+	}
+
+	// Set the new customer contacts to the old customer contacts
+	newCustomerContacts := v.oldServiceItem.CustomerContacts
+
+	for _, updatedCustomerContact := range v.updatedServiceItem.CustomerContacts {
+		foundCorrespondingOldContact := false
+		for i := range newCustomerContacts {
+			// We use the type field to determine if the customer contacts correspond to each other
+			if updatedCustomerContact.Type == newCustomerContacts[i].Type {
+				newCustomerContacts[i].TimeMilitary = updatedCustomerContact.TimeMilitary
+				newCustomerContacts[i].FirstAvailableDeliveryDate = updatedCustomerContact.FirstAvailableDeliveryDate
+				foundCorrespondingOldContact = true
+			}
+		}
+		if !foundCorrespondingOldContact {
+			newCustomerContacts = append(newCustomerContacts, updatedCustomerContact)
+		}
+	}
+	return newCustomerContacts
 }

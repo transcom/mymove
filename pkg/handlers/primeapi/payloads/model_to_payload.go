@@ -556,7 +556,7 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 		}
 
 		if !secondContact.FirstAvailableDeliveryDate.IsZero() {
-			firstAvailableDeliveryDate2 = firstContact.FirstAvailableDeliveryDate
+			firstAvailableDeliveryDate2 = secondContact.FirstAvailableDeliveryDate
 		}
 
 		payload = &primemessages.MTOServiceItemDestSIT{

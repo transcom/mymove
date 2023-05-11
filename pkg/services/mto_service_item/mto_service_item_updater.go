@@ -195,6 +195,27 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItem(appCtx appcontext.AppContex
 				}
 			}
 		}
+		for index := range validServiceItem.CustomerContacts {
+			validCustomerContact := &validServiceItem.CustomerContacts[index]
+			if validCustomerContact.ID == uuid.Nil {
+				verrs, createErr := p.builder.CreateOne(txnAppCtx, validCustomerContact)
+				if verrs != nil && verrs.HasAny() {
+					return apperror.NewInvalidInputError(
+						validServiceItem.ID, createErr, verrs, "Invalid input found while creating a Customer Contact for service item.")
+				} else if createErr != nil {
+					// If the error is something else (this is unexpected), we create a QueryError
+					return apperror.NewQueryError("MTOServiceItem", createErr, "")
+				}
+			} else {
+				verrs, updateErr := txnAppCtx.DB().ValidateAndUpdate(validCustomerContact)
+				if verrs != nil && verrs.HasAny() {
+					return apperror.NewInvalidInputError(validServiceItem.ID, updateErr, verrs, "Invalid input found while updating customer contact for the service item.")
+				} else if updateErr != nil {
+					// If the error is something else (this is unexpected), we create a QueryError
+					return apperror.NewQueryError("MTOServiceItem", updateErr, "")
+				}
+			}
+		}
 
 		// Make the update and create a InvalidInputError if there were validation issues
 		verrs, updateErr := txnAppCtx.DB().ValidateAndUpdate(validServiceItem)
