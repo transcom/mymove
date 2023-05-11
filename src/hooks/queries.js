@@ -1,6 +1,6 @@
 /* eslint-disable import/prefer-default-export */
 import { useQueries, useQuery } from '@tanstack/react-query';
-import { generatePath } from 'react-router';
+import { generatePath } from 'react-router-dom';
 
 import { servicesCounselingRoutes } from '../constants/routes';
 
@@ -86,10 +86,13 @@ const useAddWeightTicketsToPPMShipments = (mtoShipments, moveCode) => {
           const shipment = mtoShipments.find((s) => s.id === shipmentID);
           shipment.ppmShipment.weightTickets = data.WeightTickets;
           // Attach the review url to each ppm shipment
-          shipment.ppmShipment.reviewShipmentWeightsURL = generatePath(servicesCounselingRoutes.SHIPMENT_REVIEW_PATH, {
-            moveCode,
-            shipmentId: shipment.id,
-          });
+          shipment.ppmShipment.reviewShipmentWeightsURL = generatePath(
+            servicesCounselingRoutes.BASE_SHIPMENT_REVIEW_PATH,
+            {
+              moveCode,
+              shipmentId: shipment.id,
+            },
+          );
         },
       };
     }),

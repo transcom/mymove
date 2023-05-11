@@ -11,7 +11,7 @@ import (
 //
 //go:generate mockery --name SITExtensionApprover
 type SITExtensionApprover interface {
-	ApproveSITExtension(appCtx appcontext.AppContext, shipmentID uuid.UUID, sitExtensionID uuid.UUID, approvedDays int, officeRemarks *string, eTag string) (*models.MTOShipment, error)
+	ApproveSITExtension(appCtx appcontext.AppContext, shipmentID uuid.UUID, sitExtensionID uuid.UUID, approvedDays int, requestReason models.SITDurationUpdateRequestReason, officeRemarks *string, eTag string) (*models.MTOShipment, error)
 }
 
 // SITExtensionDenier is the service object interface for denying a SIT extension

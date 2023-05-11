@@ -1,7 +1,7 @@
 import React from 'react';
-import { render, waitFor, screen, fireEvent } from '@testing-library/react';
+import { waitFor, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { generatePath, MemoryRouter } from 'react-router';
+import { generatePath } from 'react-router';
 import selectEvent from 'react-select-event';
 import { act } from 'react-dom/test-utils';
 
@@ -10,10 +10,14 @@ import { customerRoutes, generalRoutes } from 'constants/routes';
 import { createMTOShipment, patchMTOShipment, patchMove, searchTransportationOffices } from 'services/internalApi';
 import { updateMTOShipment, updateMove } from 'store/entities/actions';
 import SERVICE_MEMBER_AGENCIES from 'content/serviceMemberAgencies';
+import { renderWithRouter } from 'testUtils';
 
-const mockPush = jest.fn();
+const mockNavigate = jest.fn();
 
 const mockMoveId = 'move123';
+const mockRoutingParams = { moveId: mockMoveId };
+const mockNewShipmentId = 'newShipment123';
+
 const mockMove = {
   id: mockMoveId,
   eTag: 'dGVzdGluZzIzNDQzMjQ',
@@ -55,15 +59,8 @@ jest.mock('components/LocationSearchBox/api', () => ({
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useHistory: () => ({
-    push: mockPush,
-  }),
-  useParams: () => ({
-    moveId: mockMoveId,
-  }),
+  useNavigate: () => mockNavigate,
 }));
-
-const mockNewShipmentId = 'newShipment123';
 
 jest.mock('services/internalApi', () => ({
   ...jest.requireActual('services/internalApi'),
@@ -79,10 +76,9 @@ jest.mock('utils/validation', () => ({
 }));
 
 const mockDispatch = jest.fn();
-
 jest.mock('react-redux', () => ({
   ...jest.requireActual('react-redux'),
-  useDispatch: jest.fn().mockImplementation(() => mockDispatch),
+  useDispatch: () => mockDispatch,
 }));
 
 const serviceMember = {
@@ -136,17 +132,23 @@ beforeEach(() => {
   jest.clearAllMocks();
 });
 
+const renderDateAndLocation = (props) => {
+  renderWithRouter(<DateAndLocation {...defaultProps} {...props} />, {
+    path: customerRoutes.SHIPMENT_SELECT_TYPE_PATH,
+    params: mockRoutingParams,
+  });
+};
+
 describe('DateAndLocation component', () => {
   describe('creating a new PPM shipment', () => {
     it('renders the heading and empty form', () => {
-      render(<DateAndLocation {...defaultProps} />, { wrapper: MemoryRouter });
+      renderDateAndLocation();
 
       expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('PPM date & location');
     });
 
     it('routes back to the new shipment type screen when back is clicked', async () => {
-      render(<DateAndLocation {...defaultProps} />, { wrapper: MemoryRouter });
-
+      renderDateAndLocation();
       const selectShipmentType = generatePath(customerRoutes.SHIPMENT_SELECT_TYPE_PATH, {
         moveId: mockMoveId,
       });
@@ -154,13 +156,13 @@ describe('DateAndLocation component', () => {
       const backButton = await screen.getByRole('button', { name: 'Back' });
       await userEvent.click(backButton);
 
-      expect(mockPush).toHaveBeenCalledWith(selectShipmentType);
+      expect(mockNavigate).toHaveBeenCalledWith(selectShipmentType);
     });
 
     it('calls create shipment endpoint and formats required payload values', async () => {
       createMTOShipment.mockResolvedValueOnce({ id: mockNewShipmentId });
 
-      render(<DateAndLocation {...defaultProps} />, { wrapper: MemoryRouter });
+      renderDateAndLocation();
 
       const primaryPostalCodes = screen.getAllByLabelText('ZIP');
       await userEvent.type(primaryPostalCodes[0], '10001');
@@ -187,7 +189,7 @@ describe('DateAndLocation component', () => {
         });
 
         expect(mockDispatch).toHaveBeenCalledWith(updateMTOShipment({ id: mockNewShipmentId }));
-        expect(mockPush).toHaveBeenCalledWith(
+        expect(mockNavigate).toHaveBeenCalledWith(
           generatePath(customerRoutes.SHIPMENT_PPM_ESTIMATED_WEIGHT_PATH, {
             moveId: mockMoveId,
             mtoShipmentId: mockNewShipmentId,
@@ -199,7 +201,7 @@ describe('DateAndLocation component', () => {
     it('displays an error alert when the create shipment fails', async () => {
       createMTOShipment.mockRejectedValueOnce('fatal error');
 
-      render(<DateAndLocation {...defaultProps} />, { wrapper: MemoryRouter });
+      renderDateAndLocation();
 
       const primaryPostalCodes = screen.getAllByLabelText('ZIP');
       await userEvent.type(primaryPostalCodes[0], '10001');
@@ -232,7 +234,7 @@ describe('DateAndLocation component', () => {
     it('calls create shipment endpoint and formats optional payload values', async () => {
       createMTOShipment.mockResolvedValueOnce({ id: mockNewShipmentId });
 
-      render(<DateAndLocation {...defaultProps} />, { wrapper: MemoryRouter });
+      renderDateAndLocation();
 
       const primaryPostalCodes = screen.getAllByLabelText('ZIP');
       await userEvent.type(primaryPostalCodes[0], '10001');
@@ -269,7 +271,7 @@ describe('DateAndLocation component', () => {
         });
 
         expect(mockDispatch).toHaveBeenCalledWith(updateMTOShipment({ id: mockNewShipmentId }));
-        expect(mockPush).toHaveBeenCalledWith(
+        expect(mockNavigate).toHaveBeenCalledWith(
           generatePath(customerRoutes.SHIPMENT_PPM_ESTIMATED_WEIGHT_PATH, {
             moveId: mockMoveId,
             mtoShipmentId: mockNewShipmentId,
@@ -283,9 +285,7 @@ describe('DateAndLocation component', () => {
       patchMove.mockResolvedValueOnce(mockMove);
       searchTransportationOffices.mockImplementation(mockSearchTransportationOffices);
 
-      render(<DateAndLocation {...defaultProps} serviceMember={armyServiceMember} move={mockMove} />, {
-        wrapper: MemoryRouter,
-      });
+      renderDateAndLocation({ serviceMember: armyServiceMember, move: mockMove });
 
       // Fill in form
       const primaryPostalCodes = screen.getAllByLabelText('ZIP');
@@ -315,7 +315,7 @@ describe('DateAndLocation component', () => {
         expect(mockDispatch).toHaveBeenCalledWith(updateMove(mockMove));
 
         // Finally, should get redirected to the estimated weight page
-        expect(mockPush).toHaveBeenCalledWith(
+        expect(mockNavigate).toHaveBeenCalledWith(
           generatePath(customerRoutes.SHIPMENT_PPM_ESTIMATED_WEIGHT_PATH, {
             moveId: mockMoveId,
             mtoShipmentId: mockNewShipmentId,
@@ -327,9 +327,7 @@ describe('DateAndLocation component', () => {
     it('does not call patch move when there is not a closeout office (not Army/Air Force)', async () => {
       createMTOShipment.mockResolvedValueOnce({ id: mockNewShipmentId });
 
-      render(<DateAndLocation {...defaultProps} serviceMember={navyServiceMember} />, {
-        wrapper: MemoryRouter,
-      });
+      renderDateAndLocation({ serviceMember: navyServiceMember });
 
       // Fill in form
       const primaryPostalCodes = screen.getAllByLabelText('ZIP');
@@ -355,7 +353,7 @@ describe('DateAndLocation component', () => {
         expect(mockDispatch).toHaveBeenCalledWith(updateMTOShipment({ id: mockNewShipmentId }));
 
         // Finally, should get redirected to the estimated weight page
-        expect(mockPush).toHaveBeenCalledWith(
+        expect(mockNavigate).toHaveBeenCalledWith(
           generatePath(customerRoutes.SHIPMENT_PPM_ESTIMATED_WEIGHT_PATH, {
             moveId: mockMoveId,
             mtoShipmentId: mockNewShipmentId,
@@ -368,9 +366,7 @@ describe('DateAndLocation component', () => {
       createMTOShipment.mockRejectedValueOnce('fatal error');
       searchTransportationOffices.mockImplementation(mockSearchTransportationOffices);
 
-      render(<DateAndLocation {...defaultProps} serviceMember={armyServiceMember} move={mockMove} />, {
-        wrapper: MemoryRouter,
-      });
+      renderDateAndLocation({ serviceMember: armyServiceMember, move: mockMove });
 
       // Fill in form
       const primaryPostalCodes = screen.getAllByLabelText('ZIP');
@@ -397,7 +393,7 @@ describe('DateAndLocation component', () => {
         expect(mockDispatch).not.toHaveBeenCalled();
 
         // No redirect should have happened
-        expect(mockPush).not.toHaveBeenCalled();
+        expect(mockNavigate).not.toHaveBeenCalled();
 
         // Should show appropriate error message
         expect(screen.getByText('There was an error attempting to create your shipment.')).toBeInTheDocument();
@@ -409,9 +405,7 @@ describe('DateAndLocation component', () => {
       patchMove.mockRejectedValueOnce('fatal error');
       searchTransportationOffices.mockImplementation(mockSearchTransportationOffices);
 
-      render(<DateAndLocation {...defaultProps} serviceMember={armyServiceMember} move={mockMove} />, {
-        wrapper: MemoryRouter,
-      });
+      renderDateAndLocation({ serviceMember: armyServiceMember, move: mockMove });
 
       // Fill in form
       const primaryPostalCodes = screen.getAllByLabelText('ZIP');
@@ -436,7 +430,7 @@ describe('DateAndLocation component', () => {
         expect(mockDispatch).toHaveBeenCalledWith(updateMTOShipment({ id: mockNewShipmentId }));
 
         // No redirect should have happened
-        expect(mockPush).not.toHaveBeenCalled();
+        expect(mockNavigate).not.toHaveBeenCalled();
 
         // Should show appropriate error message
         expect(
@@ -448,8 +442,7 @@ describe('DateAndLocation component', () => {
 
   describe('editing an existing PPM shipment', () => {
     it('renders the heading and form with shipment values', async () => {
-      render(<DateAndLocation {...fullShipmentProps} />, { wrapper: MemoryRouter });
-
+      renderDateAndLocation(fullShipmentProps);
       expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('PPM date & location');
 
       const postalCodes = screen.getAllByLabelText('ZIP');
@@ -467,19 +460,19 @@ describe('DateAndLocation component', () => {
     });
 
     it('routes back to the home page screen when back is clicked', async () => {
-      render(<DateAndLocation {...defaultProps} {...fullShipmentProps} />, { wrapper: MemoryRouter });
+      renderDateAndLocation(fullShipmentProps);
 
       const selectShipmentType = generatePath(generalRoutes.HOME_PATH);
 
       await userEvent.click(screen.getByRole('button', { name: 'Back' }));
 
-      expect(mockPush).toHaveBeenCalledWith(selectShipmentType);
+      expect(mockNavigate).toHaveBeenCalledWith(selectShipmentType);
     });
 
     it('displays an error alert when the update shipment fails', async () => {
       patchMTOShipment.mockRejectedValueOnce('fatal error');
 
-      render(<DateAndLocation {...fullShipmentProps} />, { wrapper: MemoryRouter });
+      renderDateAndLocation(fullShipmentProps);
 
       await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
 
@@ -512,7 +505,7 @@ describe('DateAndLocation component', () => {
     it('calls update shipment endpoint and formats optional payload values', async () => {
       patchMTOShipment.mockResolvedValueOnce({ id: fullShipmentProps.mtoShipment.id });
 
-      render(<DateAndLocation {...fullShipmentProps} />, { wrapper: MemoryRouter });
+      renderDateAndLocation(fullShipmentProps);
 
       const primaryPostalCodes = screen.getAllByLabelText('ZIP');
       await userEvent.clear(primaryPostalCodes[0]);
@@ -555,7 +548,7 @@ describe('DateAndLocation component', () => {
         );
 
         expect(mockDispatch).toHaveBeenCalledWith(updateMTOShipment({ id: fullShipmentProps.mtoShipment.id }));
-        expect(mockPush).toHaveBeenCalledWith(
+        expect(mockNavigate).toHaveBeenCalledWith(
           generatePath(customerRoutes.SHIPMENT_PPM_ESTIMATED_WEIGHT_PATH, {
             moveId: mockMoveId,
             mtoShipmentId: fullShipmentProps.mtoShipment.id,
@@ -569,17 +562,14 @@ describe('DateAndLocation component', () => {
       patchMove.mockResolvedValueOnce(mockMove);
       searchTransportationOffices.mockImplementation(mockSearchTransportationOffices);
 
-      render(
-        <DateAndLocation
-          {...fullShipmentProps}
-          serviceMember={armyServiceMember}
-          move={{
-            ...mockMove,
-            closeout_office: mockCloseoutOffice,
-          }}
-        />,
-        { wrapper: MemoryRouter },
-      );
+      renderDateAndLocation({
+        ...fullShipmentProps,
+        serviceMember: armyServiceMember,
+        move: {
+          ...mockMove,
+          closeout_office: mockCloseoutOffice,
+        },
+      });
 
       // Submit form
       await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
@@ -596,7 +586,7 @@ describe('DateAndLocation component', () => {
         expect(mockDispatch).toHaveBeenCalledTimes(2);
 
         // Finally, should get redirected to the estimated weight page
-        expect(mockPush).toHaveBeenCalledWith(
+        expect(mockNavigate).toHaveBeenCalledWith(
           generatePath(customerRoutes.SHIPMENT_PPM_ESTIMATED_WEIGHT_PATH, {
             moveId: mockMoveId,
             mtoShipmentId: fullShipmentProps.mtoShipment.id,
@@ -608,9 +598,7 @@ describe('DateAndLocation component', () => {
     it('does not call patch move when there is not a closeout office (not Army/Air Force)', async () => {
       patchMTOShipment.mockResolvedValueOnce({ id: fullShipmentProps.mtoShipment.id });
 
-      render(<DateAndLocation {...fullShipmentProps} serviceMember={navyServiceMember} move={mockMove} />, {
-        wrapper: MemoryRouter,
-      });
+      renderDateAndLocation({ ...fullShipmentProps, serviceMember: navyServiceMember, move: mockMove });
 
       // Submit form
       await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
@@ -627,7 +615,7 @@ describe('DateAndLocation component', () => {
         expect(mockDispatch).toHaveBeenCalledWith(updateMTOShipment({ id: fullShipmentProps.mtoShipment.id }));
 
         // Finally, should get redirected to the estimated weight page
-        expect(mockPush).toHaveBeenCalledWith(
+        expect(mockNavigate).toHaveBeenCalledWith(
           generatePath(customerRoutes.SHIPMENT_PPM_ESTIMATED_WEIGHT_PATH, {
             moveId: mockMoveId,
             mtoShipmentId: fullShipmentProps.mtoShipment.id,
@@ -639,17 +627,14 @@ describe('DateAndLocation component', () => {
     it('does not patch the move when patch shipment fails', async () => {
       patchMTOShipment.mockRejectedValueOnce('fatal error');
 
-      render(
-        <DateAndLocation
-          {...fullShipmentProps}
-          serviceMember={armyServiceMember}
-          move={{
-            ...mockMove,
-            closeout_office: mockCloseoutOffice,
-          }}
-        />,
-        { wrapper: MemoryRouter },
-      );
+      renderDateAndLocation({
+        ...fullShipmentProps,
+        serviceMember: armyServiceMember,
+        move: {
+          ...mockMove,
+          closeout_office: mockCloseoutOffice,
+        },
+      });
 
       // Submit form
       await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
@@ -665,7 +650,7 @@ describe('DateAndLocation component', () => {
         expect(mockDispatch).not.toHaveBeenCalled();
 
         // No redirect should have happened
-        expect(mockPush).not.toHaveBeenCalled();
+        expect(mockNavigate).not.toHaveBeenCalled();
 
         // Should show appropriate error message
         expect(screen.getByText('There was an error attempting to update your shipment.')).toBeInTheDocument();
@@ -677,17 +662,14 @@ describe('DateAndLocation component', () => {
       patchMove.mockRejectedValueOnce('fatal error');
       searchTransportationOffices.mockImplementation(mockSearchTransportationOffices);
 
-      render(
-        <DateAndLocation
-          {...fullShipmentProps}
-          serviceMember={armyServiceMember}
-          move={{
-            ...mockMove,
-            closeout_office: mockCloseoutOffice,
-          }}
-        />,
-        { wrapper: MemoryRouter },
-      );
+      renderDateAndLocation({
+        ...fullShipmentProps,
+        serviceMember: armyServiceMember,
+        move: {
+          ...mockMove,
+          closeout_office: mockCloseoutOffice,
+        },
+      });
 
       await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
 
@@ -701,7 +683,7 @@ describe('DateAndLocation component', () => {
         expect(mockDispatch).toHaveBeenCalledWith(updateMTOShipment({ id: mockNewShipmentId }));
 
         // No redirect should have happened
-        expect(mockPush).not.toHaveBeenCalled();
+        expect(mockNavigate).not.toHaveBeenCalled();
 
         // Should show appropriate error message
         expect(

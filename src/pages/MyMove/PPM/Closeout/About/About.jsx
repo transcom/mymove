@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { generatePath, useHistory, useParams } from 'react-router-dom';
+import { generatePath, useNavigate, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
 import classnames from 'classnames';
@@ -23,7 +23,7 @@ const About = () => {
   const [errorMessage, setErrorMessage] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const history = useHistory();
+  const navigate = useNavigate();
   const { moveId, mtoShipmentId } = useParams();
   const dispatch = useDispatch();
 
@@ -47,7 +47,7 @@ const About = () => {
   }
 
   const handleBack = () => {
-    history.push(generalRoutes.HOME_PATH);
+    navigate(generalRoutes.HOME_PATH);
   };
 
   const handleSubmit = async (values, { setSubmitting }) => {
@@ -90,7 +90,7 @@ const About = () => {
           });
         }
 
-        history.push(path);
+        navigate(path);
       })
       .catch((err) => {
         setSubmitting(false);

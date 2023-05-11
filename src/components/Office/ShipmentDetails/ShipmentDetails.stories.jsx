@@ -1,5 +1,4 @@
 import React from 'react';
-import { Route } from 'react-router';
 import MockDate from 'mockdate';
 import addons from '@storybook/addons';
 
@@ -145,10 +144,12 @@ export const Default = () => {
   };
   return (
     <div className="officeApp">
-      <MockProviders initialEntries={['/moves/HGNTSR/mto']} permissions={[permissionTypes.updateShipment]}>
-        <Route path="/moves/:moveCode/mto">
-          <ShipmentDetails shipment={modifiedShipment} order={order} handleEditServiceOrderNumber={handleEditSon} />
-        </Route>
+      <MockProviders
+        path="/moves/:moveCode/mto"
+        params={{ moveCode: 'HGNTSR' }}
+        permissions={[permissionTypes.updateShipment]}
+      >
+        <ShipmentDetails shipment={modifiedShipment} order={order} handleEditServiceOrderNumber={handleEditSon} />
       </MockProviders>
     </div>
   );
@@ -165,10 +166,8 @@ export const WithoutPermissions = () => {
 
   return (
     <div className="officeApp">
-      <MockProviders initialEntries={['/moves/HGNTSR/mto']}>
-        <Route path="/moves/:moveCode/mto">
-          <ShipmentDetails shipment={modifiedShipment} order={order} handleEditServiceOrderNumber={handleEditSon} />
-        </Route>
+      <MockProviders path="/moves/:moveCode/mto" params={{ moveCode: 'HGNTSR' }}>
+        <ShipmentDetails shipment={modifiedShipment} order={order} handleEditServiceOrderNumber={handleEditSon} />
       </MockProviders>
     </div>
   );

@@ -10,54 +10,69 @@ import {
   TextField,
   TextInput,
   TopToolbar,
+  useListController,
+  downloadCSV,
 } from 'react-admin';
-import PropTypes from 'prop-types';
+import * as jsonexport from 'jsonexport/dist';
 
 import ImportOfficeUserButton from 'components/Admin/ImportOfficeUserButton';
 import AdminPagination from 'scenes/SystemAdmin/shared/AdminPagination';
 
+// Custom exporter to flatten out role types
+const exporter = (data) => {
+  const usersForExport = data.map((rowData) => {
+    const { roles, ...otherRowData } = rowData;
+
+    const flattenedRoles = roles ? roles.map((role) => role.roleType).join(',') : '';
+
+    return {
+      ...otherRowData,
+      roles: flattenedRoles,
+    };
+  });
+
+  // convert data to csv and download
+  jsonexport(usersForExport, {}, (err, csv) => {
+    if (err) throw err;
+    downloadCSV(csv, 'office-users');
+  });
+};
+
 // Overriding the default toolbar to add import button
-const ListActions = (props) => {
-  const { basePath, total, resource, currentSort, filterValues, exporter } = props;
+const ListActions = () => {
+  const { total, resource, sort, filterValues } = useListController();
+
   return (
     <TopToolbar>
-      <CreateButton basePath={basePath} />
-      <ImportOfficeUserButton resource={resource} {...props} />
-      <ExportButton
-        disabled={total === 0}
-        resource={resource}
-        sort={currentSort}
-        filter={filterValues}
-        exporter={exporter}
-      />
+      <CreateButton />
+      <ImportOfficeUserButton resource={resource} />
+      <ExportButton disabled={total === 0} resource={resource} sort={sort} filter={filterValues} exporter={exporter} />
     </TopToolbar>
   );
 };
 
-const OfficeUserListFilter = (props) => (
-  <Filter {...props}>
+const OfficeUserListFilter = () => (
+  <Filter>
     <TextInput source="search" alwaysOn />
   </Filter>
 );
 
 const defaultSort = { field: 'last_name', order: 'ASC' };
 
-const OfficeUserList = (props) => (
+const OfficeUserList = () => (
   <List
-    {...props}
     pagination={<AdminPagination />}
     perPage={25}
-    bulkActionButtons={false}
     sort={defaultSort}
     filters={<OfficeUserListFilter />}
-    actions={<ListActions {...props} />}
+    actions={<ListActions />}
   >
-    <Datagrid rowClick="show">
+    <Datagrid bulkActionButtons={false} rowClick="show">
       <TextField source="id" />
       <TextField source="email" />
       <TextField source="firstName" />
       <TextField source="lastName" />
-      <ReferenceField label="Transportation Office" source="transportationOfficeId" reference="offices">
+      <ReferenceField label="Transportation Office" source="transportationOfficeId" reference="offices" link={false}>
         <TextField source="name" />
       </ReferenceField>
       <TextField source="userId" label="User Id" />
@@ -65,31 +80,5 @@ const OfficeUserList = (props) => (
     </Datagrid>
   </List>
 );
-
-ListActions.propTypes = {
-  basePath: PropTypes.string,
-  total: PropTypes.number,
-  resource: PropTypes.string,
-  currentSort: PropTypes.exact({
-    field: PropTypes.string,
-    order: PropTypes.string,
-  }),
-  filterValues: PropTypes.shape({
-    // This will have to be updated if we have any filters besides search added to this page
-    search: PropTypes.string,
-  }),
-  exporter: PropTypes.func.isRequired,
-};
-
-ListActions.defaultProps = {
-  resource: 'office-users',
-  currentSort: {
-    field: 'last_name',
-    order: 'ASC',
-  },
-  basePath: undefined,
-  total: null,
-  filterValues: {},
-};
 
 export default OfficeUserList;

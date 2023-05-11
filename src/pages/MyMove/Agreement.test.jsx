@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import moment from 'moment';
-import { generatePath } from 'react-router';
+import { generatePath } from 'react-router-dom';
 
 import { Agreement } from './Agreement';
 
@@ -11,6 +11,12 @@ import { completeCertificationText } from 'scenes/Legalese/legaleseText';
 import { SIGNED_CERT_OPTIONS } from 'shared/constants';
 import MOVE_STATUSES from 'constants/moves';
 import { customerRoutes } from 'constants/routes';
+
+const mockNavigate = jest.fn();
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: () => mockNavigate,
+}));
 
 jest.mock('services/internalApi', () => ({
   submitMoveForApproval: jest.fn(),
@@ -22,7 +28,6 @@ describe('Agreement page', () => {
   const testProps = {
     moveId: 'testMove123',
     setFlashMessage: jest.fn(),
-    push: jest.fn(),
     updateMove: jest.fn(),
   };
 
@@ -75,7 +80,7 @@ describe('Agreement page', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Back' }));
 
     await waitFor(() => {
-      expect(testProps.push).toHaveBeenCalledWith(reviewPath);
+      expect(mockNavigate).toHaveBeenCalledWith(reviewPath);
     });
   });
 });

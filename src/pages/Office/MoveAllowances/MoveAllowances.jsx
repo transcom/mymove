@@ -1,6 +1,6 @@
 /* eslint-disable camelcase */
 import React from 'react';
-import { Link, useHistory, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@trussworks/react-uswds';
 import { Formik } from 'formik';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
@@ -26,7 +26,6 @@ const rankDropdownOptions = dropdownInputOptions(ORDERS_RANK_OPTIONS);
 const branchDropdownOption = dropdownInputOptions(ORDERS_BRANCH_OPTIONS);
 
 const validationSchema = Yup.object({
-  authorizedWeight: Yup.number().min(1, 'Authorized weight must be greater than or equal to 1').required('Required'),
   proGearWeight: Yup.number()
     .min(0, 'Pro-gear weight must be greater than or equal to 0')
     .max(2000, "Enter a weight that does not go over the customer's maximum allowance")
@@ -49,13 +48,13 @@ const validationSchema = Yup.object({
 
 const MoveAllowances = () => {
   const { moveCode } = useParams();
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const { move, orders, isLoading, isError } = useOrdersDocumentQueries(moveCode);
   const orderId = move?.ordersId;
 
   const handleClose = () => {
-    history.push(`/moves/${moveCode}/details`);
+    navigate(`/moves/${moveCode}/details`);
   };
   const queryClient = useQueryClient();
 
@@ -83,7 +82,6 @@ const MoveAllowances = () => {
   const onSubmit = (values) => {
     const {
       grade,
-      authorizedWeight,
       agency,
       dependentsAuthorized,
       proGearWeight,
@@ -100,7 +98,6 @@ const MoveAllowances = () => {
       originDutyLocationId: order.originDutyLocation.id,
       reportByDate: order.report_by_date,
       grade,
-      authorizedWeight: Number(authorizedWeight),
       agency,
       dependentsAuthorized,
       proGearWeight: Number(proGearWeight),
@@ -114,7 +111,6 @@ const MoveAllowances = () => {
 
   const { entitlement, grade, agency } = order;
   const {
-    authorizedWeight,
     dependentsAuthorized,
     proGearWeight,
     proGearWeightSpouse,
@@ -124,7 +120,6 @@ const MoveAllowances = () => {
   } = entitlement;
 
   const initialValues = {
-    authorizedWeight: `${authorizedWeight}`,
     grade,
     agency,
     dependentsAuthorized,
@@ -155,7 +150,7 @@ const MoveAllowances = () => {
                   View Allowances
                 </h2>
                 <div>
-                  <Link className={styles.viewAllowances} data-testid="view-orders" to="orders">
+                  <Link className={styles.viewAllowances} data-testid="view-orders" to="../orders">
                     View Orders
                   </Link>
                 </div>
@@ -177,7 +172,6 @@ const MoveAllowances = () => {
                     entitlements={order.entitlement}
                     rankOptions={rankDropdownOptions}
                     branchOptions={branchDropdownOption}
-                    editableAuthorizedWeight
                   />
                 </Restricted>
               </div>

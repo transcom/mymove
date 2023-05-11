@@ -1,7 +1,6 @@
 import { get, isEmpty } from 'lodash';
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
-import { push } from 'connected-react-router';
 import { bindActionCreators } from 'redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
@@ -26,6 +25,7 @@ import { formatDate, formatCents } from 'utils/formatters';
 import './PaymentsPanel.css';
 import Alert from 'shared/Alert';
 import ToolTip from 'shared/ToolTip';
+import withRouter from 'utils/routing';
 
 const attachmentsErrorMessages = {
   422: 'Encountered an error while trying to create attachments bundle: Document is in the wrong format',
@@ -102,8 +102,11 @@ class PaymentsTable extends Component {
   };
 
   documentUpload = () => {
-    const { moveId } = this.props;
-    this.props.push(`/moves/${moveId}/documents/new?move_document_type=SHIPMENT_SUMMARY`);
+    const {
+      moveId,
+      router: { navigate },
+    } = this.props;
+    navigate(`/moves/${moveId}/documents/new?move_document_type=SHIPMENT_SUMMARY`);
   };
 
   downloadShipmentSummary = () => {
@@ -340,9 +343,8 @@ const mapDispatchToProps = (dispatch) =>
       approveReimbursement,
       update: no_op,
       downloadPPMAttachments,
-      push,
     },
     dispatch,
   );
 
-export default connect(mapStateToProps, mapDispatchToProps)(PaymentsTable);
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(PaymentsTable));
