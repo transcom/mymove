@@ -54,6 +54,7 @@ describe('ShipmentSITDisplay', () => {
 
     expect(screen.getByText('Current location: destination SIT')).toBeInTheDocument();
     expect(screen.getByText('Total days in destination SIT')).toBeInTheDocument();
+    expect(screen.getByText('15')).toBeInTheDocument();
   });
 
   it('renders the Shipment SIT at Destination, previous origin SIT', async () => {

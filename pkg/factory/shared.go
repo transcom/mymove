@@ -76,6 +76,7 @@ var ServiceItemParamKey CustomType = "ServiceItemParamKey"
 var ServiceParam CustomType = "ServiceParam"
 var ServiceMember CustomType = "ServiceMember"
 var SignedCertification CustomType = "SignedCertification"
+var SITAddressUpdate CustomType = "SITAddressUpdate"
 var SITDurationUpdate CustomType = "SITDurationUpdate"
 var StorageFacility CustomType = "StorageFacility"
 var TransportationOffice CustomType = "TransportationOffice"
@@ -124,6 +125,7 @@ var defaultTypesMap = map[string]CustomType{
 	"models.ServiceMember":                            ServiceMember,
 	"models.ServiceParam":                             ServiceParam,
 	"models.SignedCertification":                      SignedCertification,
+	"models.SITAddressUpdate":                         SITAddressUpdate,
 	"models.SITDurationUpdate":                        SITDurationUpdate,
 	"models.StorageFacility":                          StorageFacility,
 	"models.TransportationOffice":                     TransportationOffice,
@@ -141,34 +143,40 @@ var defaultTypesMap = map[string]CustomType{
 
 // addressGroup is a grouping of all address related fields
 type addressGroup struct {
-	PickupAddress               CustomType
-	DeliveryAddress             CustomType
-	SecondaryPickupAddress      CustomType
-	SecondaryDeliveryAddress    CustomType
-	ResidentialAddress          CustomType
-	BackupMailingAddress        CustomType
-	DutyLocationAddress         CustomType
-	DutyLocationTOAddress       CustomType
-	SITOriginHHGOriginalAddress CustomType
-	SITOriginHHGActualAddress   CustomType
-	SITDestinationFinalAddress  CustomType
-	W2Address                   CustomType
+	PickupAddress                 CustomType
+	DeliveryAddress               CustomType
+	SecondaryPickupAddress        CustomType
+	SecondaryDeliveryAddress      CustomType
+	ResidentialAddress            CustomType
+	BackupMailingAddress          CustomType
+	DutyLocationAddress           CustomType
+	DutyLocationTOAddress         CustomType
+	SITAddressUpdateNewAddress    CustomType
+	SITAddressUpdateOldAddress    CustomType
+	SITOriginHHGOriginalAddress   CustomType
+	SITOriginHHGActualAddress     CustomType
+	SITDestinationFinalAddress    CustomType
+	SITDestinationOriginalAddress CustomType
+	W2Address                     CustomType
 }
 
 // Addresses is the struct to access the various fields externally
 var Addresses = addressGroup{
-	PickupAddress:               "PickupAddress",
-	DeliveryAddress:             "DeliveryAddress",
-	SecondaryPickupAddress:      "SecondaryPickupAddress",
-	SecondaryDeliveryAddress:    "SecondaryDeliveryAddress",
-	ResidentialAddress:          "ResidentialAddress",
-	BackupMailingAddress:        "BackupMailingAddress",
-	DutyLocationAddress:         "DutyLocationAddress",
-	DutyLocationTOAddress:       "DutyLocationTOAddress",
-	SITOriginHHGOriginalAddress: "SITOriginHHGOriginalAddress",
-	SITOriginHHGActualAddress:   "SITOriginHHGActualAddress",
-	SITDestinationFinalAddress:  "SITDestinationFinalAddress",
-	W2Address:                   "W2Address",
+	PickupAddress:                 "PickupAddress",
+	DeliveryAddress:               "DeliveryAddress",
+	SecondaryPickupAddress:        "SecondaryPickupAddress",
+	SecondaryDeliveryAddress:      "SecondaryDeliveryAddress",
+	ResidentialAddress:            "ResidentialAddress",
+	BackupMailingAddress:          "BackupMailingAddress",
+	DutyLocationAddress:           "DutyLocationAddress",
+	DutyLocationTOAddress:         "DutyLocationTOAddress",
+	SITAddressUpdateNewAddress:    "SITAddressUpdateNewAddress",
+	SITAddressUpdateOldAddress:    "SITAddressUpdateOldAddress",
+	SITOriginHHGOriginalAddress:   "SITOriginHHGOriginalAddress",
+	SITOriginHHGActualAddress:     "SITOriginHHGActualAddress",
+	SITDestinationFinalAddress:    "SITDestinationFinalAddress",
+	SITDestinationOriginalAddress: "SITDestinationOriginalAddress",
+	W2Address:                     "W2Address",
 }
 
 // dimensionGroup is a grouping of all the Dimension related fields
