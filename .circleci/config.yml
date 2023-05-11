@@ -798,7 +798,6 @@ commands:
             export HERE_MAPS_ROUTING_ENDPOINT=https://route.api.here.com/routing/7.2/calculateroute.json
             export LOGIN_GOV_CALLBACK_PORT=4000
             export LOGIN_GOV_CALLBACK_PROTOCOL=http
-            export SERVE_API_PRIME=false
             export SERVE_API_SUPPORT=true
             export SERVE_PRIME_SIMULATOR=true
             export DEVLOCAL_CA=$PWD/config/tls/devlocal-ca.pem
@@ -809,9 +808,9 @@ commands:
             export HTTP_ORDERS_SERVER_NAME=orderslocal
             export HTTP_PRIME_SERVER_NAME=primelocal
             export ENVIRONMENT=test
-            export MUTUAL_TLS_ENABLED=1
+            export MUTUAL_TLS_ENABLED=true
             export MUTUAL_TLS_PORT=9443
-            export SERVE_API_PRIME=1
+            export SERVE_API_PRIME=true
 
             make db_dev_create
             bin/milmove migrate
@@ -873,8 +872,8 @@ commands:
             export HERE_MAPS_ROUTING_ENDPOINT=https://route.api.here.com/routing/7.2/calculateroute.json
             export LOGIN_GOV_CALLBACK_PORT=4000
             export LOGIN_GOV_CALLBACK_PROTOCOL=http
-            export SERVE_API_PRIME=false
             export SERVE_API_SUPPORT=true
+            export MUTUAL_TLS_ENABLED=true
             export SERVE_PRIME_SIMULATOR=true
             export DEVLOCAL_CA=$PWD/config/tls/devlocal-ca.pem
             export DOD_CA_PACKAGE=$PWD/config/tls/milmove-cert-bundle.p7b
@@ -886,6 +885,9 @@ commands:
             export ENVIRONMENT=test
             # disable for speed, playwright tests can fail otherwise
             export DB_DEBUG=false
+            export MUTUAL_TLS_ENABLED=true
+            export MUTUAL_TLS_PORT=9443
+            export SERVE_API_PRIME=true
 
             make db_dev_create
             bin/milmove migrate
