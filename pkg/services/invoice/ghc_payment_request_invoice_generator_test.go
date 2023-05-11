@@ -384,7 +384,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		suite.Equal("J", bx.TransactionMethodTypeCode)
 		suite.Equal("PP", bx.ShipmentMethodOfPayment)
 		suite.Equal(paymentRequest.PaymentRequestNumber, bx.ShipmentIdentificationNumber)
-		suite.Equal("BLKW", bx.StandardCarrierAlphaCode)
+		suite.Equal("HSFR", bx.StandardCarrierAlphaCode)
 		suite.Equal("4", bx.ShipmentQualifier)
 	})
 
