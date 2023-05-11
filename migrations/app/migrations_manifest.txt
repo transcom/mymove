@@ -809,3 +809,4 @@
 20230503233423_adding_sit_destination_initial_address_column.up.sql
 20230504190333_adjust_factor_precision.up.sql
 20230504214413_adjust_contract_years.up.sql
+20230511233216_import_pricing_data.up.sql
