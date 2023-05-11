@@ -1,5 +1,6 @@
 import React from 'react';
 import { shallow } from 'enzyme';
+
 import DocumentList from './DocumentList';
 
 describe('DocumentList tests', () => {
@@ -13,7 +14,7 @@ describe('DocumentList tests', () => {
       title: '',
       type: '',
     };
-    let wrapper = shallow(
+    const wrapper = shallow(
       <DocumentList
         currentMoveDocumentId=""
         detailUrlPrefix="/moves/1/documents"

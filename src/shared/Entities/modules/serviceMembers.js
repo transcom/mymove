@@ -1,6 +1,7 @@
+import { get } from 'lodash';
+
 import { swaggerRequest } from 'shared/Swagger/request';
 import { getClient } from 'shared/Swagger/api';
-import { get } from 'lodash';
 
 /** REMAINING EXPORTS ARE USED BY PPM OFFICE */
 

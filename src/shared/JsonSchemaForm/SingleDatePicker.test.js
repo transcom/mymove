@@ -1,13 +1,13 @@
 import React from 'react';
 import { shallow } from 'enzyme/build';
+import DayPickerInput from 'react-day-picker/DayPickerInput';
 
 import SingleDatePicker from 'shared/JsonSchemaForm/SingleDatePicker';
-import DayPickerInput from 'react-day-picker/DayPickerInput';
 
 describe('given a SingleDatePicker input', () => {
   describe('with empty props', () => {
     it('should render without crashing', () => {
-      let wrapper = shallow(<SingleDatePicker />);
+      const wrapper = shallow(<SingleDatePicker />);
       expect(wrapper.find(DayPickerInput).length).toBe(1);
     });
   });
@@ -19,7 +19,7 @@ describe('given a SingleDatePicker input', () => {
       inputClassName: 'singledatepicker-inputclassname-test',
       format: 'DD-MMM-YY',
     };
-    let wrapper = shallow(<SingleDatePicker {...props} />);
+    const wrapper = shallow(<SingleDatePicker {...props} />);
 
     it('should render with value', () => {
       expect(wrapper.props().value).toStrictEqual(new Date('11/11/2019'));
