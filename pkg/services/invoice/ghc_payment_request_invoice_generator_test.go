@@ -77,11 +77,12 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 
 	var serviceMember models.ServiceMember
 	var paymentRequest models.PaymentRequest
+	var mto models.Move
 	var paymentServiceItems models.PaymentServiceItems
 	var result ediinvoice.Invoice858C
 
 	setupTestData := func() {
-		mto := factory.BuildMove(suite.DB(), nil, nil)
+		mto = factory.BuildMove(suite.DB(), nil, nil)
 
 		paymentRequest = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
 			{
@@ -359,7 +360,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	suite.Run("se segment has correct value", func() {
 		setupTestData()
 		// Will need to be updated as more service items are supported
-		suite.Equal(163, result.SE.NumberOfIncludedSegments)
+		suite.Equal(164, result.SE.NumberOfIncludedSegments)
 		suite.Equal("0001", result.SE.TransactionSetControlNumber)
 	})
 
@@ -407,8 +408,8 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 			{TestName: "service member name", Qualifier: "1W", ExpectedValue: serviceMember.ReverseNameLineFormat(), ActualValue: &result.Header.ServiceMemberName},
 			{TestName: "service member rank", Qualifier: "ML", ExpectedValue: string(*serviceMember.Rank), ActualValue: &result.Header.ServiceMemberRank},
 			{TestName: "service member branch", Qualifier: "3L", ExpectedValue: string(*serviceMember.Affiliation), ActualValue: &result.Header.ServiceMemberBranch},
+			{TestName: "move code", Qualifier: "CMN", ExpectedValue: mto.Locator, ActualValue: &result.Header.MoveCode},
 		}
-
 		for _, data := range testData {
 			suite.Run(fmt.Sprintf("adds %s to header", data.TestName), func() {
 				suite.IsType(&edisegment.N9{}, data.ActualValue)

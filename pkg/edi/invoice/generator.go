@@ -93,6 +93,7 @@ func (ih *InvoiceHeader) NonEmptySegments() []edisegment.Segment {
 		&ih.ServiceMemberName,
 		&ih.ServiceMemberRank,
 		&ih.ServiceMemberBranch,
+		&ih.MoveCode,
 		&ih.Currency,
 		ih.RequestedPickupDate,
 		ih.ScheduledPickupDate,
