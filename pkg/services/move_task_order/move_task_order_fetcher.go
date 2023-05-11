@@ -77,7 +77,6 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 		"PaymentRequests.PaymentServiceItems.PaymentServiceItemParams.ServiceItemParamKey",
 		"MTOServiceItems.ReService",
 		"MTOServiceItems.Dimensions",
-		"MTOServiceItems.CustomerContacts",
 		"MTOServiceItems.SITDestinationFinalAddress",
 		"MTOShipments.DestinationAddress",
 		"MTOShipments.PickupAddress",
@@ -132,20 +131,40 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 
 		reweigh, reweighErr := fetchReweigh(appCtx, shipment.ID)
 		if reweighErr != nil {
-			return &models.Move{}, err
+			return &models.Move{}, reweighErr
 		}
 		mto.MTOShipments[i].Reweigh = reweigh
 
 		if mto.MTOShipments[i].ShipmentType == models.MTOShipmentTypePPM {
 			loadErr := appCtx.DB().Load(&mto.MTOShipments[i], "PPMShipment")
 			if loadErr != nil {
-				return &models.Move{}, apperror.NewQueryError("PPMShipment", err, "")
+				return &models.Move{}, apperror.NewQueryError("PPMShipment", loadErr, "")
 			}
 		}
 
 		filteredShipments = append(filteredShipments, mto.MTOShipments[i])
 	}
 	mto.MTOShipments = filteredShipments
+
+	// Due to a Pop bug, we cannot fetch Customer Contacts with EagerPreload, this is due to a difference between what Pop expects
+	// the column names to be when creating the rows on the Many-to-Many table and with what it expects when fetching with EagerPreload
+	var loadedServiceItems models.MTOServiceItems
+	if mto.MTOServiceItems != nil {
+		loadedServiceItems = models.MTOServiceItems{}
+	}
+	for i, serviceItem := range mto.MTOServiceItems {
+		if serviceItem.ReService.Code == models.ReServiceCodeDDASIT ||
+			serviceItem.ReService.Code == models.ReServiceCodeDDDSIT ||
+			serviceItem.ReService.Code == models.ReServiceCodeDDFSIT {
+			loadErr := appCtx.DB().Load(&mto.MTOServiceItems[i], "CustomerContacts")
+			if loadErr != nil {
+				return &models.Move{}, apperror.NewQueryError("CustomerContacts", loadErr, "")
+			}
+		}
+
+		loadedServiceItems = append(loadedServiceItems, mto.MTOServiceItems[i])
+	}
+	mto.MTOServiceItems = loadedServiceItems
 
 	return mto, nil
 }
