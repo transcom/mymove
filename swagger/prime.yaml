@@ -2975,6 +2975,17 @@ definitions:
             type: string
             description: Second available date that Prime can deliver SIT service item.
             x-nullable: true
+          sitDestinationUpdatedAddress:
+            $ref: '#/definitions/Address'
+          updatedDistanceFromOriginalAddress:
+            description: >-
+              The distance between the orignal SIT delivery address and the
+              sitDestinationUpdatedAddress. In order for the Prime to make this
+              update the distance must be <= 50 miles.
+            type: integer
+            example: 25
+            maximum: 50
+            x-nullable: true
   UpdateMTOShipment:
     properties:
       scheduledPickupDate:

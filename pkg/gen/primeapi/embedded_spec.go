@@ -3616,6 +3616,9 @@ func init() {
             "sitDestinationFinalAddress": {
               "$ref": "#/definitions/Address"
             },
+            "sitDestinationUpdatedAddress": {
+              "$ref": "#/definitions/Address"
+            },
             "timeMilitary1": {
               "description": "Time of delivery corresponding to ` + "`" + `firstAvailableDeliveryDate1` + "`" + `, in military format.",
               "type": "string",
@@ -3629,6 +3632,13 @@ func init() {
               "pattern": "\\d{4}Z",
               "x-nullable": true,
               "example": "1400Z"
+            },
+            "updatedDistanceFromOriginalAddress": {
+              "description": "The distance between the orignal SIT delivery address and the sitDestinationUpdatedAddress. In order for the Prime to make this update the distance must be \u003c= 50 miles.",
+              "type": "integer",
+              "maximum": 50,
+              "x-nullable": true,
+              "example": 25
             }
           }
         }
@@ -8046,6 +8056,9 @@ func init() {
             "sitDestinationFinalAddress": {
               "$ref": "#/definitions/Address"
             },
+            "sitDestinationUpdatedAddress": {
+              "$ref": "#/definitions/Address"
+            },
             "timeMilitary1": {
               "description": "Time of delivery corresponding to ` + "`" + `firstAvailableDeliveryDate1` + "`" + `, in military format.",
               "type": "string",
@@ -8059,6 +8072,13 @@ func init() {
               "pattern": "\\d{4}Z",
               "x-nullable": true,
               "example": "1400Z"
+            },
+            "updatedDistanceFromOriginalAddress": {
+              "description": "The distance between the orignal SIT delivery address and the sitDestinationUpdatedAddress. In order for the Prime to make this update the distance must be \u003c= 50 miles.",
+              "type": "integer",
+              "maximum": 50,
+              "x-nullable": true,
+              "example": 25
             }
           }
         }

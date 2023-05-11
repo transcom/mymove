@@ -41,6 +41,9 @@ type UpdateMTOServiceItemSIT struct {
 	// sit destination final address
 	SitDestinationFinalAddress *Address `json:"sitDestinationFinalAddress,omitempty"`
 
+	// sit destination updated address
+	SitDestinationUpdatedAddress *Address `json:"sitDestinationUpdatedAddress,omitempty"`
+
 	// Time of delivery corresponding to `firstAvailableDeliveryDate1`, in military format.
 	// Example: 1400Z
 	// Pattern: \d{4}Z
@@ -50,6 +53,11 @@ type UpdateMTOServiceItemSIT struct {
 	// Example: 1400Z
 	// Pattern: \d{4}Z
 	TimeMilitary2 *string `json:"timeMilitary2,omitempty"`
+
+	// The distance between the orignal SIT delivery address and the sitDestinationUpdatedAddress. In order for the Prime to make this update the distance must be <= 50 miles.
+	// Example: 25
+	// Maximum: 50
+	UpdatedDistanceFromOriginalAddress *int64 `json:"updatedDistanceFromOriginalAddress,omitempty"`
 }
 
 // ID gets the id of this subtype
@@ -94,6 +102,9 @@ func (m *UpdateMTOServiceItemSIT) UnmarshalJSON(raw []byte) error {
 		// sit destination final address
 		SitDestinationFinalAddress *Address `json:"sitDestinationFinalAddress,omitempty"`
 
+		// sit destination updated address
+		SitDestinationUpdatedAddress *Address `json:"sitDestinationUpdatedAddress,omitempty"`
+
 		// Time of delivery corresponding to `firstAvailableDeliveryDate1`, in military format.
 		// Example: 1400Z
 		// Pattern: \d{4}Z
@@ -103,6 +114,11 @@ func (m *UpdateMTOServiceItemSIT) UnmarshalJSON(raw []byte) error {
 		// Example: 1400Z
 		// Pattern: \d{4}Z
 		TimeMilitary2 *string `json:"timeMilitary2,omitempty"`
+
+		// The distance between the orignal SIT delivery address and the sitDestinationUpdatedAddress. In order for the Prime to make this update the distance must be <= 50 miles.
+		// Example: 25
+		// Maximum: 50
+		UpdatedDistanceFromOriginalAddress *int64 `json:"updatedDistanceFromOriginalAddress,omitempty"`
 	}
 	buf := bytes.NewBuffer(raw)
 	dec := json.NewDecoder(buf)
@@ -141,8 +157,10 @@ func (m *UpdateMTOServiceItemSIT) UnmarshalJSON(raw []byte) error {
 	result.ReServiceCode = data.ReServiceCode
 	result.SitDepartureDate = data.SitDepartureDate
 	result.SitDestinationFinalAddress = data.SitDestinationFinalAddress
+	result.SitDestinationUpdatedAddress = data.SitDestinationUpdatedAddress
 	result.TimeMilitary1 = data.TimeMilitary1
 	result.TimeMilitary2 = data.TimeMilitary2
+	result.UpdatedDistanceFromOriginalAddress = data.UpdatedDistanceFromOriginalAddress
 
 	*m = result
 
@@ -174,6 +192,9 @@ func (m UpdateMTOServiceItemSIT) MarshalJSON() ([]byte, error) {
 		// sit destination final address
 		SitDestinationFinalAddress *Address `json:"sitDestinationFinalAddress,omitempty"`
 
+		// sit destination updated address
+		SitDestinationUpdatedAddress *Address `json:"sitDestinationUpdatedAddress,omitempty"`
+
 		// Time of delivery corresponding to `firstAvailableDeliveryDate1`, in military format.
 		// Example: 1400Z
 		// Pattern: \d{4}Z
@@ -183,6 +204,11 @@ func (m UpdateMTOServiceItemSIT) MarshalJSON() ([]byte, error) {
 		// Example: 1400Z
 		// Pattern: \d{4}Z
 		TimeMilitary2 *string `json:"timeMilitary2,omitempty"`
+
+		// The distance between the orignal SIT delivery address and the sitDestinationUpdatedAddress. In order for the Prime to make this update the distance must be <= 50 miles.
+		// Example: 25
+		// Maximum: 50
+		UpdatedDistanceFromOriginalAddress *int64 `json:"updatedDistanceFromOriginalAddress,omitempty"`
 	}{
 
 		FirstAvailableDeliveryDate1: m.FirstAvailableDeliveryDate1,
@@ -195,9 +221,13 @@ func (m UpdateMTOServiceItemSIT) MarshalJSON() ([]byte, error) {
 
 		SitDestinationFinalAddress: m.SitDestinationFinalAddress,
 
+		SitDestinationUpdatedAddress: m.SitDestinationUpdatedAddress,
+
 		TimeMilitary1: m.TimeMilitary1,
 
 		TimeMilitary2: m.TimeMilitary2,
+
+		UpdatedDistanceFromOriginalAddress: m.UpdatedDistanceFromOriginalAddress,
 	})
 	if err != nil {
 		return nil, err
@@ -247,11 +277,19 @@ func (m *UpdateMTOServiceItemSIT) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateSitDestinationUpdatedAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateTimeMilitary1(formats); err != nil {
 		res = append(res, err)
 	}
 
 	if err := m.validateTimeMilitary2(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateUpdatedDistanceFromOriginalAddress(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -367,6 +405,26 @@ func (m *UpdateMTOServiceItemSIT) validateSitDestinationFinalAddress(formats str
 	return nil
 }
 
+func (m *UpdateMTOServiceItemSIT) validateSitDestinationUpdatedAddress(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.SitDestinationUpdatedAddress) { // not required
+		return nil
+	}
+
+	if m.SitDestinationUpdatedAddress != nil {
+		if err := m.SitDestinationUpdatedAddress.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("sitDestinationUpdatedAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("sitDestinationUpdatedAddress")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *UpdateMTOServiceItemSIT) validateTimeMilitary1(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.TimeMilitary1) { // not required
@@ -393,11 +451,28 @@ func (m *UpdateMTOServiceItemSIT) validateTimeMilitary2(formats strfmt.Registry)
 	return nil
 }
 
+func (m *UpdateMTOServiceItemSIT) validateUpdatedDistanceFromOriginalAddress(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.UpdatedDistanceFromOriginalAddress) { // not required
+		return nil
+	}
+
+	if err := validate.MaximumInt("updatedDistanceFromOriginalAddress", "body", *m.UpdatedDistanceFromOriginalAddress, 50, false); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // ContextValidate validate this update m t o service item s i t based on the context it is used
 func (m *UpdateMTOServiceItemSIT) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.contextValidateSitDestinationFinalAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateSitDestinationUpdatedAddress(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -429,6 +504,22 @@ func (m *UpdateMTOServiceItemSIT) contextValidateSitDestinationFinalAddress(ctx 
 				return ve.ValidateName("sitDestinationFinalAddress")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("sitDestinationFinalAddress")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *UpdateMTOServiceItemSIT) contextValidateSitDestinationUpdatedAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.SitDestinationUpdatedAddress != nil {
+		if err := m.SitDestinationUpdatedAddress.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("sitDestinationUpdatedAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("sitDestinationUpdatedAddress")
 			}
 			return err
 		}

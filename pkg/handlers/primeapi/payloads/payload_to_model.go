@@ -509,9 +509,23 @@ func MTOServiceItemModelFromUpdate(mtoServiceItemID string, mtoServiceItem prime
 		sit := mtoServiceItem.(*primemessages.UpdateMTOServiceItemSIT)
 		model.SITDepartureDate = models.TimePointer(time.Time(sit.SitDepartureDate))
 		model.ReService.Code = models.ReServiceCode(sit.ReServiceCode)
-		model.SITDestinationFinalAddress = AddressModel(sit.SitDestinationFinalAddress)
-		if model.SITDestinationFinalAddress != nil {
-			model.SITDestinationFinalAddressID = &model.SITDestinationFinalAddress.ID
+
+		if sit.SitDestinationUpdatedAddress == nil && sit.UpdatedDistanceFromOriginalAddress == nil {
+			model.SITDestinationFinalAddress = AddressModel(sit.SitDestinationFinalAddress)
+			if model.SITDestinationFinalAddress != nil {
+				model.SITDestinationFinalAddressID = &model.SITDestinationFinalAddress.ID
+			}
+		}
+
+		if sit.SitDestinationUpdatedAddress != nil && sit.UpdatedDistanceFromOriginalAddress != nil {
+			if *sit.UpdatedDistanceFromOriginalAddress <= 50 {
+				model.SITDestinationFinalAddress = AddressModel(sit.SitDestinationUpdatedAddress)
+				if model.SITDestinationFinalAddress != nil {
+					model.SITDestinationFinalAddressID = &model.SITDestinationFinalAddress.ID
+				}
+			} else {
+				verrs.Add("Distance exceeds 50 miles", "please submit address change request using new endpoint")
+			}
 		}
 
 		if sit.ReServiceCode == string(models.ReServiceCodeDDDSIT) ||
