@@ -707,7 +707,7 @@ const ShipmentForm = (props) => {
 
                 {isPPM && !isAdvancePage && (
                   <>
-                    <div>hello, world -- this is part of front-end build pipeline testing</div>
+                    <div>one more try</div>
                     <OriginZIPInfo
                       postalCodeValidator={validatePostalCode}
                       currentZip={originDutyLocationAddress.postalCode}
