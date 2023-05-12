@@ -195,12 +195,21 @@ const SitStatusTables = ({ sitStatus, sitExtension, shipment }) => {
  * the TOO.
  */
 const ReviewSITExtensionsModal = ({ onClose, onSubmit, sitExtension, shipment, sitStatus }) => {
+  let sitStartDate = sitStatus?.sitEntryDate;
+  if (!sitStartDate) {
+    sitStartDate = shipment.mtoServiceItems?.reduce((item, acc) => {
+      if (item.sitEntryDate < acc.sitEntryDate) {
+        return item;
+      }
+      return acc;
+    }).sitEntryDate;
+  }
   const initialValues = {
     acceptExtension: '',
     daysApproved: String(shipment.sitDaysAllowance),
     requestReason: sitExtension.requestReason,
     officeRemarks: '',
-    sitEndDate: formatDateForDatePicker(moment().add(sitStatus.totalDaysRemaining - 1, 'days')),
+    sitEndDate: formatDateForDatePicker(moment(sitStartDate).add(sitStatus.totalDaysRemaining - 1, 'days')),
   };
   const minimumDaysAllowed = shipment.sitDaysAllowance + 1;
   const sitEntryDate = moment(sitStatus.sitEntryDate, utcDateFormat);

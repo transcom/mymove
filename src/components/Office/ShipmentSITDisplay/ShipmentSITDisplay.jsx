@@ -87,7 +87,7 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton }
 
   // Subract one day from total days remaining to account for the current day
   const sitEndDate = sitStatus
-    ? moment()
+    ? moment(sitStartDate)
         .add(sitStatus.totalDaysRemaining - 1, 'days')
         .format('DD MMM YYYY')
     : moment(sitStartDate).add(shipment.sitDaysAllowance, 'days').format('DD MMM YYYY');

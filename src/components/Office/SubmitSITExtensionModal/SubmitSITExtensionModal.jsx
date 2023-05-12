@@ -144,12 +144,22 @@ const SitStatusTables = ({ sitStatus, shipment }) => {
 };
 
 const SubmitSITExtensionModal = ({ shipment, sitStatus, onClose, onSubmit }) => {
+  let sitStartDate = sitStatus?.sitEntryDate;
+  if (!sitStartDate) {
+    sitStartDate = shipment.mtoServiceItems?.reduce((item, acc) => {
+      if (item.sitEntryDate < acc.sitEntryDate) {
+        return item;
+      }
+      return acc;
+    }).sitEntryDate;
+  }
+
   const initialValues = {
     requestReason: '',
     officeRemarks: '',
     daysApproved: String(shipment.sitDaysAllowance),
     // Subract one day from total days remaining to account for the current day
-    sitEndDate: formatDateForDatePicker(moment().add(sitStatus.totalDaysRemaining - 1, 'days')),
+    sitEndDate: formatDateForDatePicker(moment(sitStartDate).add(sitStatus.totalDaysRemaining - 1, 'days')),
   };
   const minimumDaysAllowed = sitStatus.totalSITDaysUsed - sitStatus.daysInSIT + 1;
   const sitEntryDate = moment(sitStatus.sitEntryDate, utcDateFormat);
