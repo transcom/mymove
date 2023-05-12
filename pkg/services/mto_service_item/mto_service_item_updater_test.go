@@ -84,7 +84,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 	})
 
 	// Test successful update
-	suite.Run("Success", func() {
+	suite.Run("Successfiul update of service item ", func() {
 		serviceItem, eTag := setupServiceItem()
 		reason := "because we did this service"
 		sitEntryDate := time.Date(2020, time.December, 02, 0, 0, 0, 0, time.UTC)
@@ -121,7 +121,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 	})
 
 	// Success for DDDSIT
-	suite.Run("Success", func() {
+	suite.Run("Successful update of DDDSIT service item", func() {
 		serviceItem, eTag := setupServiceItem()
 		serviceItem.ReService.Code = models.ReServiceCodeDDDSIT
 		reason := "because we did this service"
@@ -141,6 +141,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 			models.MTOServiceItemCustomerContact{
 				TimeMilitary:               "1400Z",
 				FirstAvailableDeliveryDate: time.Date(2020, time.December, 02, 0, 0, 0, 0, time.UTC),
+				Type:                       models.CustomerContactTypeFirst,
 			},
 		}
 		updatedServiceItem, err := updater.UpdateMTOServiceItemBasic(suite.AppContextForTest(), &newServiceItem, eTag)
