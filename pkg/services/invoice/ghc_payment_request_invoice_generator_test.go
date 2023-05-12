@@ -815,7 +815,6 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 					suite.Equal(hierarchicalNumberInt, l1.LadingLineItemNumber)
 					suite.Equal(serviceItemPrice, l1.Charge)
 					suite.Equal((*float64)(nil), freightRate)
-					//suite.Equal(nil, nulls.NewFloat64(*freightRate))
 					suite.Equal("", l1.RateValueQualifier)
 				})
 
