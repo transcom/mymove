@@ -1,7 +1,22 @@
 name: F/E bundle diff
 
+# For Truss and how we use this repo, pull_request and
+# pull_request_target have no differences
+#
+# https://securitylab.github.com/research/github-actions-preventing-pwn-requests/
+#
+#    Workflows triggered via pull_request_target have write permission
+#    to the target repository. They also have access to target
+#    repository secrets. The same is true for workflows triggered on
+#    pull_request from a branch in the same repository, but not from
+#    external forks.
+#
+# Truss always uses branches in the same repository
+#
+# Using pull_request means changes to the workflow file are used in
+# the PR, which is incredibly helpful when testing out changes
 on:
-  pull_request_target:
+  pull_request:
     branches:
       - main
 
