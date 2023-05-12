@@ -189,6 +189,11 @@ const SitStatusTables = ({ sitStatus, sitExtension, shipment }) => {
   );
 };
 
+/**
+ * @description This component contains a form that can be viewed from the SIT
+ * Display on the MTO page when the Prime submits a SIT Extension for review of
+ * the TOO.
+ */
 const ReviewSITExtensionsModal = ({ onClose, onSubmit, sitExtension, shipment, sitStatus }) => {
   const initialValues = {
     acceptExtension: '',

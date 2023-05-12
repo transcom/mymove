@@ -23,6 +23,8 @@ func NewShipmentSITStatus() services.ShipmentSITStatus {
 	return &shipmentSITStatus{}
 }
 
+// CalculateShipmentSITStatus creates a SIT Status for payload to be used in
+// multiple handlers in the `mto_shipment` package.
 func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppContext, shipment models.MTOShipment) (*services.SITStatus, error) {
 	if shipment.MTOServiceItems == nil || len(shipment.MTOServiceItems) == 0 {
 		return nil, nil
