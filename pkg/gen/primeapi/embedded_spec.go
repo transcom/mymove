@@ -1961,7 +1961,7 @@ func init() {
       }
     },
     "MTOServiceItem": {
-      "description": "MTOServiceItem describes a base type of a service item. Polymorphic type. Both Move Task Orders and MTO Shipments will have MTO Service Items.",
+      "description": "MTOServiceItem describes a base type of a service item. Polymorphic type.",
       "type": "object",
       "required": [
         "modelType",
@@ -6392,7 +6392,7 @@ func init() {
       }
     },
     "MTOServiceItem": {
-      "description": "MTOServiceItem describes a base type of a service item. Polymorphic type. Both Move Task Orders and MTO Shipments will have MTO Service Items.",
+      "description": "MTOServiceItem describes a base type of a service item. Polymorphic type.",
       "type": "object",
       "required": [
         "modelType",
