@@ -1003,21 +1003,24 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 		return reServiceDDASIT, reServiceDDDSIT
 	}
 
-	sitEntryDate := time.Now()
-	contact1 := models.MTOServiceItemCustomerContact{
-		Type:                       models.CustomerContactTypeFirst,
-		FirstAvailableDeliveryDate: sitEntryDate,
-		TimeMilitary:               "0815Z",
+	getCustomerContacts := func() models.MTOServiceItemCustomerContacts {
+		deliveryDate := time.Now()
+		contact1 := models.MTOServiceItemCustomerContact{
+			Type:                       models.CustomerContactTypeFirst,
+			FirstAvailableDeliveryDate: deliveryDate,
+			TimeMilitary:               "0815Z",
+		}
+		contact2 := models.MTOServiceItemCustomerContact{
+			Type:                       models.CustomerContactTypeSecond,
+			FirstAvailableDeliveryDate: deliveryDate,
+			TimeMilitary:               "1430Z",
+		}
+		var contacts models.MTOServiceItemCustomerContacts
+		contacts = append(contacts, contact1, contact2)
+		return contacts
 	}
-	contact2 := models.MTOServiceItemCustomerContact{
-		Type:                       models.CustomerContactTypeSecond,
-		FirstAvailableDeliveryDate: sitEntryDate,
-		TimeMilitary:               "1430Z",
-	}
-	var contacts models.MTOServiceItemCustomerContacts
-	contacts = append(contacts, contact1, contact2)
 
-	var successfulDDFSIT models.MTOServiceItem // set in the success test for DDFSIT and used in other tests
+	sitEntryDate := time.Now()
 
 	// Failed creation of DDFSIT because DDASIT/DDDSIT codes are not found in DB
 	suite.Run("Failure - no DDASIT/DDDSIT codes", func() {
@@ -1030,7 +1033,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 			MTOShipment:      shipment,
 			ReService:        reServiceDDFSIT,
 			SITEntryDate:     &sitEntryDate,
-			CustomerContacts: contacts,
+			CustomerContacts: getCustomerContacts(),
 			Status:           models.MTOServiceItemStatusSubmitted,
 		}
 
@@ -1089,7 +1092,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 			MTOShipment:      shipment,
 			ReService:        reServiceDDFSIT,
 			SITEntryDate:     &sitEntryDate,
-			CustomerContacts: contacts,
+			CustomerContacts: getCustomerContacts(),
 			Status:           models.MTOServiceItemStatusSubmitted,
 		}
 
@@ -1117,7 +1120,6 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 			}
 			if item.ReService.Code == models.ReServiceCodeDDFSIT {
 				numDDFSITFound++
-				successfulDDFSIT = item
 				suite.Equal(len(item.CustomerContacts), len(serviceItemDDFSIT.CustomerContacts))
 			}
 		}
@@ -1125,21 +1127,12 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 		suite.Equal(numDDDSITFound, 1)
 		suite.Equal(numDDFSITFound, 1)
 
-		//We currently copy the data from the submitted DDFSIT to the generated DDASIT and DDDSIT items, this portion checks said data is properly copied
-		suite.Equal(createdServiceItemList[1].CustomerContacts[0].Type, serviceItemDDFSIT.CustomerContacts[0].Type)
-		suite.Equal(createdServiceItemList[1].CustomerContacts[1].Type, serviceItemDDFSIT.CustomerContacts[1].Type)
-		suite.Equal(createdServiceItemList[2].CustomerContacts[0].Type, serviceItemDDFSIT.CustomerContacts[0].Type)
-		suite.Equal(createdServiceItemList[2].CustomerContacts[1].Type, serviceItemDDFSIT.CustomerContacts[1].Type)
-
-		suite.Equal(createdServiceItemList[1].CustomerContacts[0].FirstAvailableDeliveryDate, serviceItemDDFSIT.CustomerContacts[0].FirstAvailableDeliveryDate)
-		suite.Equal(createdServiceItemList[1].CustomerContacts[1].FirstAvailableDeliveryDate, serviceItemDDFSIT.CustomerContacts[1].FirstAvailableDeliveryDate)
-		suite.Equal(createdServiceItemList[2].CustomerContacts[0].FirstAvailableDeliveryDate, serviceItemDDFSIT.CustomerContacts[0].FirstAvailableDeliveryDate)
-		suite.Equal(createdServiceItemList[2].CustomerContacts[1].FirstAvailableDeliveryDate, serviceItemDDFSIT.CustomerContacts[1].FirstAvailableDeliveryDate)
-
-		suite.Equal(createdServiceItemList[1].CustomerContacts[0].TimeMilitary, serviceItemDDFSIT.CustomerContacts[0].TimeMilitary)
-		suite.Equal(createdServiceItemList[1].CustomerContacts[1].TimeMilitary, serviceItemDDFSIT.CustomerContacts[1].TimeMilitary)
-		suite.Equal(createdServiceItemList[2].CustomerContacts[0].TimeMilitary, serviceItemDDFSIT.CustomerContacts[0].TimeMilitary)
-		suite.Equal(createdServiceItemList[2].CustomerContacts[1].TimeMilitary, serviceItemDDFSIT.CustomerContacts[1].TimeMilitary)
+		// We create one set of customer contacts and attach them to each destination service item.
+		// This portion verifies that.
+		suite.Equal(createdServiceItemList[1].CustomerContacts[0], serviceItemDDFSIT.CustomerContacts[0])
+		suite.Equal(createdServiceItemList[1].CustomerContacts[1], serviceItemDDFSIT.CustomerContacts[1])
+		suite.Equal(createdServiceItemList[2].CustomerContacts[0], serviceItemDDFSIT.CustomerContacts[0])
+		suite.Equal(createdServiceItemList[2].CustomerContacts[1], serviceItemDDFSIT.CustomerContacts[1])
 	})
 
 	// Failed creation of DDFSIT because of duplicate service for shipment
@@ -1154,7 +1147,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 			MTOShipment:      shipment,
 			ReService:        reServiceDDFSIT,
 			SITEntryDate:     &sitEntryDate,
-			CustomerContacts: contacts,
+			CustomerContacts: getCustomerContacts(),
 			Status:           models.MTOServiceItemStatusSubmitted,
 		}
 
@@ -1183,7 +1176,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 			MTOShipment:      shipment,
 			ReService:        reServiceDDFSIT,
 			SITEntryDate:     &sitEntryDate,
-			CustomerContacts: contacts,
+			CustomerContacts: getCustomerContacts(),
 			Status:           models.MTOServiceItemStatusSubmitted,
 		}
 
@@ -1209,9 +1202,9 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 		createdServiceItemsList := *createdServiceItems
 		suite.Equal(createdServiceItemsList[0].ReService.Code, models.ReServiceCodeDDASIT)
 		// The time on the date doesn't matter, so let's just check the date:
-		suite.Equal(createdServiceItemsList[0].SITEntryDate.Day(), successfulDDFSIT.SITEntryDate.Day())
-		suite.Equal(createdServiceItemsList[0].SITEntryDate.Month(), successfulDDFSIT.SITEntryDate.Month())
-		suite.Equal(createdServiceItemsList[0].SITEntryDate.Year(), successfulDDFSIT.SITEntryDate.Year())
+		suite.Equal(createdServiceItemsList[0].SITEntryDate.Day(), sitEntryDate.Day())
+		suite.Equal(createdServiceItemsList[0].SITEntryDate.Month(), sitEntryDate.Month())
+		suite.Equal(createdServiceItemsList[0].SITEntryDate.Year(), sitEntryDate.Year())
 	})
 
 	// Failed creation of DDASIT service item due to no DDFSIT on shipment
@@ -1264,7 +1257,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 			MTOShipmentID:    &shipment.ID,
 			ReService:        reServiceDDDSIT,
 			SITEntryDate:     &sitEntryDate,
-			CustomerContacts: contacts,
+			CustomerContacts: getCustomerContacts(),
 		}
 
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDDSIT)
