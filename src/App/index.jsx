@@ -51,6 +51,7 @@ const officeQueryConfig = new QueryClient({
 });
 
 const App = () => {
+  <pre>Deleteme, bundle testing</pre>;
   if (isOfficeSite)
     return (
       <QueryClientProvider client={officeQueryConfig}>
