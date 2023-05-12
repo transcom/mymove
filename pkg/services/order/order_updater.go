@@ -375,11 +375,6 @@ func allowanceFromTOOPayload(existingOrder models.Order, payload ghcmessages.Upd
 		order.Entitlement.OrganizationalClothingAndIndividualEquipment = *payload.OrganizationalClothingAndIndividualEquipment
 	}
 
-	if payload.AuthorizedWeight != nil {
-		dbAuthorizedWeight := models.IntPointer(int(*payload.AuthorizedWeight))
-		order.Entitlement.DBAuthorizedWeight = dbAuthorizedWeight
-	}
-
 	if payload.DependentsAuthorized != nil {
 		order.Entitlement.DependentsAuthorized = payload.DependentsAuthorized
 	}

@@ -90,8 +90,12 @@ func (h IndexOfficeUsersHandler) Handle(params officeuserop.IndexOfficeUsersPara
 			pagination := h.NewPagination(params.Page, params.PerPage)
 			ordering := query.NewQueryOrder(params.Sort, params.Order)
 
+			queryAssociations := query.NewQueryAssociationsPreload([]services.QueryAssociation{
+				query.NewQueryAssociation("User.Roles"),
+			})
+
 			var officeUsers models.OfficeUsers
-			err := h.ListFetcher.FetchRecordList(appCtx, &officeUsers, queryFilters, nil, pagination, ordering)
+			err := h.ListFetcher.FetchRecordList(appCtx, &officeUsers, queryFilters, queryAssociations, pagination, ordering)
 			if err != nil {
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}

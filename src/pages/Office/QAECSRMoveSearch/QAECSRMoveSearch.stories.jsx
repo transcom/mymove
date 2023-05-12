@@ -1,5 +1,5 @@
 import React from 'react';
-import { MemoryRouter } from 'react-router';
+import { MemoryRouter } from 'react-router-dom';
 
 import QAECSRMoveSearch from './QAECSRMoveSearch';
 
@@ -12,7 +12,7 @@ const defaultProps = {};
 
 export const MoveSearch = () => (
   <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-    <MemoryRouter initialEntries={['/']}>
+    <MemoryRouter>
       <QAECSRMoveSearch {...defaultProps} />
     </MemoryRouter>
   </div>

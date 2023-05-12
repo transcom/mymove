@@ -13,7 +13,7 @@ export default {
 const noop = () => {};
 
 const defaultProps = {
-  push: noop,
+  router: { navigate: noop },
   updateMove: noop,
   loadMTOShipments: noop,
   move: {

@@ -6,22 +6,20 @@ import { EditServiceInfo } from './EditServiceInfo';
 
 import { patchServiceMember } from 'services/internalApi';
 
-const mockPush = jest.fn();
-
+const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useLocation: () => ({
-    pathname: 'localhost:3000/',
-  }),
-  useHistory: () => ({
-    push: mockPush,
-  }),
+  useNavigate: () => mockNavigate,
 }));
 
 jest.mock('services/internalApi', () => ({
   ...jest.requireActual('services/internalApi'),
   patchServiceMember: jest.fn(),
 }));
+
+beforeEach(() => {
+  jest.resetAllMocks();
+});
 
 describe('EditServiceInfo page', () => {
   const testProps = {
@@ -49,7 +47,7 @@ describe('EditServiceInfo page', () => {
     });
 
     await userEvent.click(cancelButton);
-    expect(mockPush).toHaveBeenCalledWith('/service-member/profile');
+    expect(mockNavigate).toHaveBeenCalledWith('/service-member/profile');
   });
 
   it('save button submits the form and goes to the profile page', async () => {
@@ -108,7 +106,7 @@ describe('EditServiceInfo page', () => {
       'Your changes have been saved.',
     );
 
-    expect(mockPush).toHaveBeenCalledWith('/service-member/profile');
+    expect(mockNavigate).toHaveBeenCalledWith('/service-member/profile');
   });
 
   it('displays a flash message about entitlement when the rank changes', async () => {
@@ -206,7 +204,7 @@ describe('EditServiceInfo page', () => {
       'Your changes have been saved. Note that the entitlement has also changed.',
     );
 
-    expect(mockPush).toHaveBeenCalledWith('/service-member/profile');
+    expect(mockNavigate).toHaveBeenCalledWith('/service-member/profile');
   });
 
   it('shows an error if the API returns an error', async () => {
@@ -276,7 +274,7 @@ describe('EditServiceInfo page', () => {
     expect(await screen.findByText('A server error occurred saving the service member')).toBeInTheDocument();
     expect(testProps.updateServiceMember).not.toHaveBeenCalled();
     expect(testProps.setFlashMessage).not.toHaveBeenCalled();
-    expect(mockPush).not.toHaveBeenCalled();
+    expect(mockNavigate).not.toHaveBeenCalled();
   });
 
   describe('if the current move has been submitted', () => {
@@ -284,7 +282,7 @@ describe('EditServiceInfo page', () => {
       render(<EditServiceInfo {...testProps} moveIsInDraft={false} />);
 
       await waitFor(() => {
-        expect(mockPush).toHaveBeenCalledWith('/');
+        expect(mockNavigate).toHaveBeenCalledWith('/');
       });
     });
   });

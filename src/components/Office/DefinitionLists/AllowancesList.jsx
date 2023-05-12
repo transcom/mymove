@@ -25,10 +25,6 @@ const AllowancesList = ({ info, showVisualCues }) => {
           <dd data-testid="weightAllowance">{formatWeight(info.weightAllowance)}</dd>
         </div>
         <div className={descriptionListStyles.row}>
-          <dt>Authorized weight</dt>
-          <dd data-testid="authorizedWeight">{formatWeight(info.authorizedWeight)}</dd>
-        </div>
-        <div className={descriptionListStyles.row}>
           <dt>Storage in transit (SIT)</dt>
           <dd data-testid="storageInTransit">{info.storageInTransit} days</dd>
         </div>

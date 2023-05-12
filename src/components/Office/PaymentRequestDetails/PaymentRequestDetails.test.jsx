@@ -189,12 +189,10 @@ const ntsShipment = {
   sacType: 'HHG',
 };
 
-const testMoveLocator = 'AF7K1P';
-
 describe('PaymentRequestDetails', () => {
   describe('When given basic service items', () => {
     const wrapper = mount(
-      <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
+      <MockProviders>
         <PaymentRequestDetails
           serviceItems={basicServiceItems}
           shipment={basicShipment}
@@ -237,7 +235,7 @@ describe('PaymentRequestDetails', () => {
 
   describe('When given a single basic service item', () => {
     const wrapper = mount(
-      <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
+      <MockProviders>
         <PaymentRequestDetails
           serviceItems={oneBasicServiceItem}
           paymentRequestStatus={PAYMENT_REQUEST_STATUSES.PENDING}
@@ -257,7 +255,7 @@ describe('PaymentRequestDetails', () => {
 
   describe('When given a hhg shipment service items', () => {
     const wrapper = mount(
-      <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
+      <MockProviders>
         <PaymentRequestDetails
           serviceItems={hhgServiceItems}
           shipment={hhgShipment}
@@ -310,7 +308,7 @@ describe('PaymentRequestDetails', () => {
 
     it('renders the TAC/SAC codes', () => {
       render(
-        <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
+        <MockProviders>
           <PaymentRequestDetails
             serviceItems={hhgServiceItems}
             shipment={hhgShipment}
@@ -329,7 +327,7 @@ describe('PaymentRequestDetails', () => {
 
   describe('When given a ntsr shipment service items', () => {
     const wrapper = mount(
-      <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
+      <MockProviders>
         <PaymentRequestDetails
           serviceItems={ntsrServiceItems}
           shipment={ntsShipment}
@@ -379,7 +377,7 @@ describe('PaymentRequestDetails', () => {
 
     it('renders the TAC/SAC codes', () => {
       render(
-        <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
+        <MockProviders>
           <PaymentRequestDetails
             serviceItems={ntsrServiceItems}
             shipment={ntsShipment}
@@ -398,7 +396,7 @@ describe('PaymentRequestDetails', () => {
 
   describe('When a payment request is in the pending status', () => {
     const wrapper = mount(
-      <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
+      <MockProviders>
         <PaymentRequestDetails
           serviceItems={hhgServiceItems}
           shipment={hhgShipment}
@@ -413,7 +411,7 @@ describe('PaymentRequestDetails', () => {
 
   describe('When a payment request is in a reviewed status', () => {
     const wrapper = mount(
-      <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
+      <MockProviders>
         <PaymentRequestDetails
           serviceItems={hhgServiceItems}
           shipment={hhgShipment}
@@ -428,7 +426,7 @@ describe('PaymentRequestDetails', () => {
 
   describe('When a payment request has a shipment that was canceled ', () => {
     const wrapper = mount(
-      <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
+      <MockProviders>
         <PaymentRequestDetails
           serviceItems={hhgServiceItems}
           shipment={hhgShipmentCanceled}
@@ -443,7 +441,7 @@ describe('PaymentRequestDetails', () => {
 
   describe('When a payment request has a shipment that was diverted ', () => {
     const wrapper = mount(
-      <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
+      <MockProviders>
         <PaymentRequestDetails
           serviceItems={hhgServiceItems}
           shipment={hhgShipmentDiversion}

@@ -12,10 +12,11 @@ const props = {
   fetchLatestOrders: () => {},
   serviceMemberId: 1231231231,
   location: {},
-  match: {
+  router: {
     params: {
       moveId: 'A1B2C3',
     },
+    navigate: () => {},
   },
 };
 

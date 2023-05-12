@@ -3,6 +3,7 @@ import moment from 'moment';
 export const swaggerDateFormat = 'YYYY-MM-DD';
 export const defaultDateFormat = 'M/D/YYYY';
 export const utcDateFormat = 'YYYY-MM-DDTHH:mm:ssZ';
+export const datePickerFormat = 'DD MMM YYYY';
 
 // First date format is take to be the default
 const allowedDateFormats = [
@@ -42,6 +43,20 @@ export function formatDateTime(dateString) {
   if (dateString) {
     const startOfDay = moment(new Date(dateString)).hour(0);
     return moment.utc(startOfDay).format(utcDateFormat);
+  }
+  return undefined;
+}
+
+/**
+ * @function
+ * @description This function is to convert dates to strings in the format used
+ * by the DatePickerInput
+ * @param {moment.input} date A Moment.input representing a date
+ * @returns {String} A String representing the date in the string format used by the DatePickerInput
+ */
+export function formatDateForDatePicker(date) {
+  if (date) {
+    return date.format(datePickerFormat);
   }
   return undefined;
 }

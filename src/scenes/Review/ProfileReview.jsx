@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
-import { push } from 'connected-react-router';
 
 import ServiceMemberSummary from './ServiceMemberSummary';
 
@@ -12,14 +10,17 @@ import { getInternalSwaggerDefinition } from 'shared/Swagger/selectors';
 import { getNextIncompletePage as getNextIncompletePageInternal } from 'scenes/MyMove/getWorkflowRoutes';
 import scrollToTop from 'shared/scrollToTop';
 import { selectConusStatus } from 'store/onboarding/selectors';
+
 import { selectServiceMemberFromLoggedInUser, selectHasCanceledMove } from 'store/entities/selectors';
+import withRouter from 'utils/routing';
 
 class ProfileReview extends Component {
   componentDidMount() {
     scrollToTop();
   }
   resumeMove = () => {
-    this.props.push(this.getNextIncompletePage());
+    const { router } = this.props;
+    router.navigate(this.getNextIncompletePage());
   };
   getNextIncompletePage = () => {
     const {
@@ -102,8 +103,4 @@ function mapStateToProps(state) {
   };
 }
 
-function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ push }, dispatch);
-}
-
-export default withContext(connect(mapStateToProps, mapDispatchToProps)(ProfileReview));
+export default withContext(withRouter(connect(mapStateToProps)(ProfileReview)));
