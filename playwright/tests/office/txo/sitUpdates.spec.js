@@ -1,5 +1,5 @@
 // @ts-check
-import { test, expect } from '../../utils/officeTest';
+import { test, expect } from '../../utils/office/officeTest';
 
 import { TooFlowPage } from './tooTestFixture';
 
