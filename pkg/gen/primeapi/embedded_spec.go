@@ -1965,7 +1965,8 @@ func init() {
       "type": "object",
       "required": [
         "modelType",
-        "moveTaskOrderID"
+        "moveTaskOrderID",
+        "rejectionReason"
       ],
       "properties": {
         "eTag": {
@@ -2022,7 +2023,8 @@ func init() {
         {
           "type": "object",
           "required": [
-            "reServiceCode"
+            "reServiceCode",
+            "rejectionReason"
           ],
           "properties": {
             "reServiceCode": {
@@ -6392,7 +6394,8 @@ func init() {
       "type": "object",
       "required": [
         "modelType",
-        "moveTaskOrderID"
+        "moveTaskOrderID",
+        "rejectionReason"
       ],
       "properties": {
         "eTag": {
@@ -6449,7 +6452,8 @@ func init() {
         {
           "type": "object",
           "required": [
-            "reServiceCode"
+            "reServiceCode",
+            "rejectionReason"
           ],
           "properties": {
             "reServiceCode": {

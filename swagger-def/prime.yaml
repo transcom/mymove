@@ -1592,6 +1592,7 @@ definitions:
     required:
       - modelType
       - moveTaskOrderID
+      - rejectionReason
   MTOServiceItemBasic: # spectral oas2-unused-definition is OK here due to polymorphism
     description: Describes a basic service item subtype of a MTOServiceItem.
     allOf:
@@ -1602,6 +1603,7 @@ definitions:
             $ref: 'definitions/ReServiceCode.yaml'
         required:
           - reServiceCode
+          - rejectionReason
   MTOServiceItemDestSIT: # spectral oas2-unused-definition is OK here due to polymorphism
     description: Describes a domestic destination SIT service item. Subtype of a MTOServiceItem.
     allOf:

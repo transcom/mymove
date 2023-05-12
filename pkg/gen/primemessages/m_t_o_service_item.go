@@ -62,6 +62,7 @@ type MTOServiceItem interface {
 
 	// The reason why this service item was rejected by the TOO.
 	// Example: item was too heavy
+	// Required: true
 	// Read Only: true
 	RejectionReason() *string
 	SetRejectionReason(*string)
@@ -273,6 +274,10 @@ func (m *mTOServiceItem) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateRejectionReason(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateStatus(formats); err != nil {
 		res = append(res, err)
 	}
@@ -314,6 +319,15 @@ func (m *mTOServiceItem) validateMtoShipmentID(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("mtoShipmentID", "body", "uuid", m.MtoShipmentID().String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *mTOServiceItem) validateRejectionReason(formats strfmt.Registry) error {
+
+	if err := validate.Required("rejectionReason", "body", m.RejectionReason()); err != nil {
 		return err
 	}
 

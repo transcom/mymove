@@ -1813,6 +1813,7 @@ definitions:
     required:
       - modelType
       - moveTaskOrderID
+      - rejectionReason
   MTOServiceItemBasic:
     description: Describes a basic service item subtype of a MTOServiceItem.
     allOf:
@@ -1823,6 +1824,7 @@ definitions:
             $ref: '#/definitions/ReServiceCode'
         required:
           - reServiceCode
+          - rejectionReason
   MTOServiceItemDestSIT:
     description: >-
       Describes a domestic destination SIT service item. Subtype of a

@@ -211,7 +211,7 @@ func (m *MTOServiceItemDestSIT) UnmarshalJSON(raw []byte) error {
 
 		ReServiceName string `json:"reServiceName,omitempty"`
 
-		RejectionReason *string `json:"rejectionReason,omitempty"`
+		RejectionReason *string `json:"rejectionReason"`
 
 		Status MTOServiceItemStatus `json:"status,omitempty"`
 	}
@@ -331,7 +331,7 @@ func (m MTOServiceItemDestSIT) MarshalJSON() ([]byte, error) {
 
 		ReServiceName string `json:"reServiceName,omitempty"`
 
-		RejectionReason *string `json:"rejectionReason,omitempty"`
+		RejectionReason *string `json:"rejectionReason"`
 
 		Status MTOServiceItemStatus `json:"status,omitempty"`
 	}{
@@ -372,6 +372,10 @@ func (m *MTOServiceItemDestSIT) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateMtoShipmentID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateRejectionReason(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -450,6 +454,15 @@ func (m *MTOServiceItemDestSIT) validateMtoShipmentID(formats strfmt.Registry) e
 	}
 
 	if err := validate.FormatOf("mtoShipmentID", "body", "uuid", m.MtoShipmentID().String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItemDestSIT) validateRejectionReason(formats strfmt.Registry) error {
+
+	if err := validate.Required("rejectionReason", "body", m.RejectionReason()); err != nil {
 		return err
 	}
 
