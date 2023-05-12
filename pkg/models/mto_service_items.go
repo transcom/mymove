@@ -52,6 +52,7 @@ type MTOServiceItem struct {
 	ActualWeight                    *unit.Pound                    `db:"actual_weight"`
 	Dimensions                      MTOServiceItemDimensions       `has_many:"mto_service_item_dimensions" fk_id:"mto_service_item_id"`
 	CustomerContacts                MTOServiceItemCustomerContacts `has_many:"mto_service_item_customer_contacts" fk_id:"mto_service_item_id"`
+	SITAddressUpdates               *SITAddressUpdate              `has_many:"sit_address_updates" fk_id:"mto_service_item_id"`
 	CreatedAt                       time.Time                      `db:"created_at"`
 	UpdatedAt                       time.Time                      `db:"updated_at"`
 	ApprovedAt                      *time.Time                     `db:"approved_at"`
