@@ -50,6 +50,27 @@ func (suite *EventServiceSuite) Test_MTOServiceItemPayload() {
 		// Under test: assembleMTOServiceItemPayload
 		// Set up:     Create a DDFSIT in the db, assemble the webhook notification payload
 		// Expected outcome: Payload should contain the DDFSIT details
+		customerContact1 := testdatagen.MakeMTOServiceItemCustomerContact(suite.DB(), testdatagen.Assertions{
+			MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
+				Type:                       models.CustomerContactTypeFirst,
+				TimeMilitary:               "0800Z",
+				FirstAvailableDeliveryDate: time.Now(),
+			},
+			ReService: models.ReService{
+				Code: models.ReServiceCodeDDFSIT,
+				Name: "Destination 1st Day SIT",
+			},
+		})
+		customerContact2 := testdatagen.MakeMTOServiceItemCustomerContact(suite.DB(), testdatagen.Assertions{
+			MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
+				Type:                       models.CustomerContactTypeSecond,
+				TimeMilitary:               "0400Z",
+				FirstAvailableDeliveryDate: time.Now(),
+			},
+			ReService: models.ReService{
+				Code: models.ReServiceCodeDDFSIT,
+			},
+		})
 		mtoServiceItemDDFSIT := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model: models.Move{
@@ -62,32 +83,13 @@ func (suite *EventServiceSuite) Test_MTOServiceItemPayload() {
 					Name: "Destination 1st Day SIT",
 				},
 			},
+			{
+				Model: models.MTOServiceItem{
+					CustomerContacts: models.MTOServiceItemCustomerContacts{customerContact1, customerContact2},
+				},
+			},
 		}, nil)
-		customerContact1 := testdatagen.MakeMTOServiceItemCustomerContact(suite.DB(), testdatagen.Assertions{
-			MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
-				// TODO fix customer contact test data creation
-				//MTOServiceItemID:           mtoServiceItemDDFSIT.ID,
-				Type:                       models.CustomerContactTypeFirst,
-				TimeMilitary:               "0800Z",
-				FirstAvailableDeliveryDate: time.Now(),
-			},
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDDFSIT,
-				Name: "Destination 1st Day SIT",
-			},
-		})
-		customerContact2 := testdatagen.MakeMTOServiceItemCustomerContact(suite.DB(), testdatagen.Assertions{
-			MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
-				// TODO fix customer contact test data creation
-				//MTOServiceItemID:           mtoServiceItemDDFSIT.ID,
-				Type:                       models.CustomerContactTypeSecond,
-				TimeMilitary:               "0400Z",
-				FirstAvailableDeliveryDate: time.Now(),
-			},
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDDFSIT,
-			},
-		})
+
 		data := &primemessages.MTOServiceItemDestSIT{}
 
 		payload, assemblePayloadErr := assembleMTOServiceItemPayload(suite.AppContextForTest(), mtoServiceItemDDFSIT.ID)
