@@ -143,7 +143,7 @@ export class PpmPage extends ServiceCounselorPage {
  * @property {PpmPage} ppmPage    -  ppm page
  */
 
-/** @type {import('@playwright/test').Fixtures<PpmPageTestArgs, {}, import('../../utils/officeTest').OfficePageTestArgs, import('@playwright/test').PlaywrightWorkerArgs>} */
+/** @type {import('@playwright/test').Fixtures<PpmPageTestArgs, {}, import('../../utils/office/officeTest').OfficePageTestArgs, import('@playwright/test').PlaywrightWorkerArgs>} */
 const ppmFixtures = {
   ppmPage: async ({ officePage }, use) => {
     const ppmPage = new PpmPage(officePage);

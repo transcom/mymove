@@ -1,5 +1,5 @@
 // @ts-check
-import { test } from '../../utils/customerTest';
+import { test } from '../../utils/my/customerTest';
 
 test('A customer can go through onboarding', async ({ page, customerPage }) => {
   // Create new customer user

@@ -6,7 +6,8 @@
 // @ts-check
 import * as base from '@playwright/test';
 
-import { BaseTestPage } from './baseTest';
+import { BaseTestPage } from '../baseTest';
+
 import WaitForOfficePage from './waitForOfficePage';
 
 /**
