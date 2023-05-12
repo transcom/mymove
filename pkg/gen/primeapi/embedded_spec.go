@@ -1183,6 +1183,60 @@ func init() {
           }
         }
       }
+    },
+    "/sit-address-updates": {
+      "post": {
+        "description": "**Functionality:**\nCreates an update request for a SIT service item's final delivery address.\nA newly created update request is assigned the status 'REQUESTED'.\n\n**Limitations:**\nThe update can be requested for APPROVED service items only.\nThis endpoint is only for updates that exceed a 50 mile distance from the\noriginal delivery address of the service item being updated. If the distance\nis less than 50 miles, the prime can make the update themselves via UpdateMTOServiceItemSIT.\nOnly ONE request allowed per SIT service item.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoServiceItem"
+        ],
+        "summary": "requestSITAddressUpdate",
+        "operationId": "requestSITAddressUpdate",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/RequestSITAddressUpdate"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Succesfully created a SIT address update request.",
+            "schema": {
+              "$ref": "#/definitions/SitAddressUpdate"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -3241,6 +3295,22 @@ func init() {
         "NSTUB"
       ]
     },
+    "RequestSITAddressUpdate": {
+      "type": "object",
+      "properties": {
+        "address": {
+          "$ref": "#/definitions/Address"
+        },
+        "contractorRemarks": {
+          "type": "string",
+          "example": "Customer reached out to me this week \u0026 let me know they want to move closer to family."
+        },
+        "reason": {
+          "type": "string",
+          "example": "Customer moving closer to family."
+        }
+      }
+    },
     "Reweigh": {
       "description": "A reweigh  is when a shipment is weighed for a second time due to the request of a customer, the contractor, system or TOO.",
       "properties": {
@@ -3514,6 +3584,60 @@ func init() {
         "PaymentServiceItemUUID",
         "BOOLEAN"
       ]
+    },
+    "SitAddressUpdate": {
+      "properties": {
+        "contractorRemarks": {
+          "type": "string",
+          "example": "Customer reached out to me this week \u0026 let me know they want to move closer to family."
+        },
+        "distance": {
+          "type": "integer",
+          "maximum": 50,
+          "readOnly": true,
+          "example": 25
+        },
+        "eTag": {
+          "description": "A hash unique to this shipment that should be used as the \"If-Match\" header for any updates.",
+          "type": "string",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "ddd7bb48-4730-47c4-9781-6500384f4941"
+        },
+        "mtoServiceItemId": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "12d9e103-5a56-4636-906d-6e993b97ef51"
+        },
+        "newAddressId": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "31a2ad3c-1682-4d5b-8423-ff40053a056b"
+        },
+        "reason": {
+          "type": "string",
+          "example": "Customer moving closer to family."
+        },
+        "status": {
+          "$ref": "#/definitions/SitAddressUpdateStatus"
+        }
+      }
+    },
+    "SitAddressUpdateStatus": {
+      "description": "The status of a SIT address update, indicating where it is in the TOO's approval process.",
+      "type": "string",
+      "enum": [
+        "REQUESTED",
+        "APPROVED",
+        "REJECTED"
+      ],
+      "readOnly": true
     },
     "StorageFacility": {
       "description": "The Storage Facility information for the shipment",
@@ -5610,6 +5734,81 @@ func init() {
           }
         }
       }
+    },
+    "/sit-address-updates": {
+      "post": {
+        "description": "**Functionality:**\nCreates an update request for a SIT service item's final delivery address.\nA newly created update request is assigned the status 'REQUESTED'.\n\n**Limitations:**\nThe update can be requested for APPROVED service items only.\nThis endpoint is only for updates that exceed a 50 mile distance from the\noriginal delivery address of the service item being updated. If the distance\nis less than 50 miles, the prime can make the update themselves via UpdateMTOServiceItemSIT.\nOnly ONE request allowed per SIT service item.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoServiceItem"
+        ],
+        "summary": "requestSITAddressUpdate",
+        "operationId": "requestSITAddressUpdate",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/RequestSITAddressUpdate"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Succesfully created a SIT address update request.",
+            "schema": {
+              "$ref": "#/definitions/SitAddressUpdate"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "401": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "409": {
+            "description": "The request could not be processed because of conflict in the current state of the resource.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "422": {
+            "description": "The request was unprocessable, likely due to bad input from the requester.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -7668,6 +7867,22 @@ func init() {
         "NSTUB"
       ]
     },
+    "RequestSITAddressUpdate": {
+      "type": "object",
+      "properties": {
+        "address": {
+          "$ref": "#/definitions/Address"
+        },
+        "contractorRemarks": {
+          "type": "string",
+          "example": "Customer reached out to me this week \u0026 let me know they want to move closer to family."
+        },
+        "reason": {
+          "type": "string",
+          "example": "Customer moving closer to family."
+        }
+      }
+    },
     "Reweigh": {
       "description": "A reweigh  is when a shipment is weighed for a second time due to the request of a customer, the contractor, system or TOO.",
       "properties": {
@@ -7944,6 +8159,60 @@ func init() {
           "example": "Service Item Parameter Value"
         }
       }
+    },
+    "SitAddressUpdate": {
+      "properties": {
+        "contractorRemarks": {
+          "type": "string",
+          "example": "Customer reached out to me this week \u0026 let me know they want to move closer to family."
+        },
+        "distance": {
+          "type": "integer",
+          "maximum": 50,
+          "readOnly": true,
+          "example": 25
+        },
+        "eTag": {
+          "description": "A hash unique to this shipment that should be used as the \"If-Match\" header for any updates.",
+          "type": "string",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "ddd7bb48-4730-47c4-9781-6500384f4941"
+        },
+        "mtoServiceItemId": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "12d9e103-5a56-4636-906d-6e993b97ef51"
+        },
+        "newAddressId": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "31a2ad3c-1682-4d5b-8423-ff40053a056b"
+        },
+        "reason": {
+          "type": "string",
+          "example": "Customer moving closer to family."
+        },
+        "status": {
+          "$ref": "#/definitions/SitAddressUpdateStatus"
+        }
+      }
+    },
+    "SitAddressUpdateStatus": {
+      "description": "The status of a SIT address update, indicating where it is in the TOO's approval process.",
+      "type": "string",
+      "enum": [
+        "REQUESTED",
+        "APPROVED",
+        "REJECTED"
+      ],
+      "readOnly": true
     },
     "StorageFacility": {
       "description": "The Storage Facility information for the shipment",
