@@ -984,12 +984,41 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 		return subtestData
 	}
 
-	suite.Run("POST failure - 422 Cannot create DDFSIT with missing fields", func() {
+	suite.Run("Successful POST - Integration Test", func() {
+		subtestData := makeSubtestData()
+		moveRouter := moverouter.NewMoveRouter()
+		creator := mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter)
+		handler := CreateMTOServiceItemHandler{
+			suite.HandlerConfig(),
+			creator,
+			mtoChecker,
+		}
+
+		// Validate incoming payload
+		suite.NoError(subtestData.params.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(subtestData.params)
+		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemOK{}, response)
+		okResponse := response.(*mtoserviceitemops.CreateMTOServiceItemOK)
+
+		// TODO: This is failing because DOPSIT and DDDSIT are being sent back in the response
+		//   but those are not listed in the enum in the swagger file.  They aren't allowed for
+		//   incoming payloads, but are allowed for outgoing payloads, but the same payload spec
+		//   is used for both.  Need to figure out best way to resolve.
+		// Validate outgoing payload (each element of slice)
+		// for _, mtoServiceItem := range okResponse.Payload {
+		// 	suite.NoError(mtoServiceItem.Validate(strfmt.Default))
+		// }
+
+		suite.NotZero(okResponse.Payload[0].ID())
+	})
+
+	suite.Run("Successful POST - create DDFSIT without customer contact fields", func() {
 		subtestData := makeSubtestData()
 		// Under test: createMTOServiceItemHandler function
 		// Set up:     We hit the endpoint with a DDFSIT MTOServiceItem missing Customer Contact fields
 		// Expected outcome:
-		//             Receive a 422 - Unprocessable Entity
+		//             Successful creation of Destination SIT service items
 		// SETUP
 		// Create the payload
 
@@ -1020,40 +1049,9 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 
 		// CHECK RESULTS
 		response := handler.Handle(paramsDDFSIT)
-		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemUnprocessableEntity{}, response)
-		responsePayload := response.(*mtoserviceitemops.CreateMTOServiceItemUnprocessableEntity).Payload
-
-		// Validate outgoing payload
-		suite.NoError(responsePayload.Validate(strfmt.Default))
-	})
-
-	suite.Run("Successful POST - Integration Test", func() {
-		subtestData := makeSubtestData()
-		moveRouter := moverouter.NewMoveRouter()
-		creator := mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter)
-		handler := CreateMTOServiceItemHandler{
-			suite.HandlerConfig(),
-			creator,
-			mtoChecker,
-		}
-
-		// Validate incoming payload
-		suite.NoError(subtestData.params.Body.Validate(strfmt.Default))
-
-		response := handler.Handle(subtestData.params)
 		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemOK{}, response)
-		okResponse := response.(*mtoserviceitemops.CreateMTOServiceItemOK)
-
-		// TODO: This is failing because DOPSIT and DDDSIT are being sent back in the response
-		//   but those are not listed in the enum in the swagger file.  They aren't allowed for
-		//   incoming payloads, but are allowed for outgoing payloads, but the same payload spec
-		//   is used for both.  Need to figure out best way to resolve.
-		// Validate outgoing payload (each element of slice)
-		// for _, mtoServiceItem := range okResponse.Payload {
-		// 	suite.NoError(mtoServiceItem.Validate(strfmt.Default))
-		// }
-
-		suite.NotZero(okResponse.Payload[0].ID())
+		responsePayload := response.(*mtoserviceitemops.CreateMTOServiceItemOK).Payload
+		suite.NotZero(responsePayload[0].ID())
 	})
 
 	suite.Run("Successful POST - Create DDASIT standalone", func() {
