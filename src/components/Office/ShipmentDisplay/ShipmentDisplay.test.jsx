@@ -22,12 +22,10 @@ import { MockProviders } from 'testUtils';
 import { permissionTypes } from 'constants/permissions';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 
-const mockPush = jest.fn();
+const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useHistory: () => ({
-    push: mockPush,
-  }),
+  useNavigate: () => mockNavigate,
 }));
 
 const errorIfMissingStorageFacility = ['storageFacility'];
@@ -68,7 +66,7 @@ describe('Shipment Container', () => {
       expect(button).toBeInTheDocument();
       await userEvent.click(button);
       await waitFor(() => {
-        expect(mockPush).toHaveBeenCalledWith('/');
+        expect(mockNavigate).toHaveBeenCalledWith('/');
       });
     });
     it('renders without edit button when user does not have permissions', () => {

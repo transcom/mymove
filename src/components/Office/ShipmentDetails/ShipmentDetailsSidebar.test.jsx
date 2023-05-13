@@ -10,14 +10,11 @@ import { LOA_TYPE } from 'shared/constants';
 import { formatAccountingCode } from 'utils/shipmentDisplay';
 import { permissionTypes } from 'constants/permissions';
 
-const mockPush = jest.fn();
+const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useHistory: () => ({
-    push: mockPush,
-  }),
-  useParams: () => ({
-    moveCode: 'TestCode',
+  useNavigate: () => ({
+    navigate: mockNavigate,
   }),
 }));
 

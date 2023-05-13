@@ -87,6 +87,14 @@ func buildMTOServiceItemWithBuildType(db *pop.Connection, customs []Customizatio
 		mtoServiceItem.SITDestinationFinalAddressID = &address.ID
 	}
 
+	// only set SITDestinationOriginalAddress if a customization is provided
+	if result := findValidCustomization(customs, Addresses.SITDestinationOriginalAddress); result != nil {
+		addressCustoms := convertCustomizationInList(customs, Addresses.SITDestinationOriginalAddress, Address)
+		address := BuildAddress(db, addressCustoms, traits)
+		mtoServiceItem.SITDestinationOriginalAddress = &address
+		mtoServiceItem.SITDestinationOriginalAddressID = &address.ID
+	}
+
 	// Overwrite values with those from customizations
 	testdatagen.MergeModels(&mtoServiceItem, cMTOServiceItem)
 

@@ -7,9 +7,14 @@ const AdminUserEditToolbar = (props) => (
   </Toolbar>
 );
 
-const AdminUserEdit = (props) => (
-  <Edit {...props}>
-    <SimpleForm toolbar={<AdminUserEditToolbar />}>
+const AdminUserEdit = () => (
+  <Edit>
+    <SimpleForm
+      toolbar={<AdminUserEditToolbar />}
+      sx={{ '& .MuiInputBase-input': { width: 232 } }}
+      mode="onBlur"
+      reValidateMode="onBlur"
+    >
       <TextInput source="id" disabled />
       <TextInput source="userId" label="User Id" disabled />
       <TextInput source="email" disabled />
@@ -21,6 +26,7 @@ const AdminUserEdit = (props) => (
           { id: true, name: 'Yes' },
           { id: false, name: 'No' },
         ]}
+        sx={{ width: 256 }}
       />
       <TextInput source="createdAt" disabled />
       <TextInput source="updatedAt" disabled />

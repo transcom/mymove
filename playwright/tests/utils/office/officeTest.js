@@ -6,7 +6,9 @@
 // @ts-check
 import * as base from '@playwright/test';
 
-import { BaseTestPage } from './baseTest';
+import { BaseTestPage } from '../baseTest';
+
+import WaitForOfficePage from './waitForOfficePage';
 
 /**
  * devlocal auth user types
@@ -24,30 +26,22 @@ export const PrimeSimulatorUserType = 'Prime Simulator office';
  */
 export class OfficePage extends BaseTestPage {
   /**
+   * Create an OfficePage.
+   * @param {import('@playwright/test').Page} page
+   * @param {import('@playwright/test').APIRequestContext} request
+   */
+  constructor(page, request) {
+    super(page, request);
+    this.waitForPage = new WaitForOfficePage(page);
+  }
+
+  /**
    * Wait for the page to finish loading.
    */
   async waitForLoading() {
     // make sure we have signed in
     await base.expect(this.page.locator('button:has-text("Sign out")')).toHaveCount(1, { timeout: 10000 });
     await base.expect(this.page.locator('h2[data-name="loading-placeholder"]')).toHaveCount(0);
-  }
-
-  /**
-   * Wait for office user Move details page
-   */
-  async waitForMoveDetailsPage() {
-    await this.waitForLoading();
-    await base.expect(this.page.getByRole('heading', { name: 'Move details' })).toBeVisible();
-  }
-
-  /**
-   * Goto URL and wait for the page to finish loading.
-   *
-   * @param {string} url to visit
-   */
-  async gotoAndWaitForLoading(url) {
-    await this.page.goto(url);
-    await this.waitForLoading();
   }
 
   /**

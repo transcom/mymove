@@ -2477,12 +2477,14 @@ func (suite *HandlerSuite) TestApproveSITExtensionHandler() {
 			mtoshipment.NewShipmentSITStatus(),
 		}
 		approvedDays := int64(10)
+		requestReason := "AWAITING_COMPLETION_OF_RESIDENCE"
 		officeRemarks := "new office remarks"
 		approveParams := shipmentops.ApproveSITExtensionParams{
 			HTTPRequest: req,
 			IfMatch:     eTag,
 			Body: &ghcmessages.ApproveSITExtension{
 				ApprovedDays:  &approvedDays,
+				RequestReason: requestReason,
 				OfficeRemarks: &officeRemarks,
 			},
 			ShipmentID:     *handlers.FmtUUID(mtoShipment.ID),

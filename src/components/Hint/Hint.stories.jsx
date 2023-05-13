@@ -19,3 +19,9 @@ export const MultipleParagraphs = () => (
     <p>Here is another paragraph hint text.</p>
   </Hint>
 );
+
+export const DarkerText = () => (
+  <Hint darkerText>
+    <p>Here is some hint text.</p>
+  </Hint>
+);

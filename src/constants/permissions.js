@@ -5,6 +5,7 @@ export const permissionTypes = {
   updateMaxBillableWeight: 'update.maxBillableWeight',
   updateOrders: 'update.orders',
   updatePaymentServiceItemStatus: 'update.paymentServiceItemStatus',
+  readPaymentServiceItemStatus: 'read.paymentServiceItemStatus',
   updateShipment: 'update.shipment',
   updateBillableWeight: 'update.billableWeight',
   createShipmentCancellation: 'create.shipmentCancellation',

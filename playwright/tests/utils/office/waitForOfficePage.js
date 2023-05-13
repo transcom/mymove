@@ -1,0 +1,114 @@
+// @ts-check
+import * as base from '@playwright/test';
+
+import WaitForPage from '../waitForPage';
+
+/**
+ * extension of WaitForPage that provides functions to wait for pages in the office app
+ * @extends WaitForPage
+ */
+export class WaitForOfficePage extends WaitForPage {
+  /**
+   * @returns {Promise<void>}
+   */
+  async addNTSShipment() {
+    await base.expect(this.page.getByRole('heading', { level: 1 })).toHaveText('Add shipment details');
+    await base.expect(this.page.getByTestId('tag')).toHaveText('NTS');
+  }
+
+  /**
+   * @returns {Promise<void>}
+   */
+  async addNTSReleaseShipment() {
+    await base.expect(this.page.getByRole('heading', { level: 1 })).toHaveText('Add shipment details');
+    await base.expect(this.page.getByTestId('tag')).toHaveText('NTS-release');
+  }
+
+  /**
+   * @returns {Promise<void>}
+   */
+  async counselingQueue() {
+    await base.expect(this.page.getByRole('link', { name: 'Counseling' })).toHaveClass('usa-current');
+  }
+
+  /**
+   * @returns {Promise<void>}
+   */
+  async closeoutQueue() {
+    await base.expect(this.page.getByRole('link', { name: 'PPM Closeout' })).toHaveClass('usa-current');
+  }
+
+  /**
+   * @returns {Promise<void>}
+   */
+  async editNTSShipment() {
+    await base.expect(this.page.getByRole('heading', { level: 1 })).toHaveText('Edit shipment details');
+    await base.expect(this.page.getByTestId('tag')).toHaveText('NTS');
+  }
+
+  /**
+   * @returns {Promise<void>}
+   */
+  async editNTSReleaseShipment() {
+    await base.expect(this.page.getByRole('heading', { level: 1 })).toHaveText('Edit shipment details');
+    await base.expect(this.page.getByTestId('tag')).toHaveText('NTS-release');
+  }
+
+  /**
+   * @returns {Promise<void>}
+   */
+  async moveDetails() {
+    await base.expect(this.page.getByRole('heading', { level: 1 })).toHaveText('Move details');
+  }
+
+  /**
+   * @returns {Promise<void>}
+   */
+  async moveOrders() {
+    await base.expect(this.page.getByRole('heading', { level: 2, name: 'View orders' })).toBeVisible();
+  }
+
+  /**
+   * @returns {Promise<void>}
+   */
+  async moveTaskOrder() {
+    await base.expect(this.page.getByRole('heading', { level: 1 })).toHaveText('Move task order');
+  }
+
+  /**
+   * @returns {Promise<void>}
+   */
+  async reviewDocumentsConfirmation() {
+    await base.expect(this.page.getByRole('heading', { name: 'Send to customer?', level: 3 })).toBeVisible();
+  }
+
+  /**
+   * @returns {Promise<void>}
+   */
+  async reviewProGear() {
+    await base.expect(this.page.getByRole('heading', { name: 'Review pro-gear 1', level: 3 })).toBeVisible();
+  }
+
+  /**
+   * @returns {Promise<void>}
+   */
+  async reviewReceipt() {
+    await base.expect(this.page.getByRole('heading', { name: 'Review receipt 1', level: 3 })).toBeVisible();
+  }
+
+  /**
+   * @returns {Promise<void>}
+   */
+  async reviewShipmentWeights() {
+    await base.expect(this.page.getByRole('heading', { name: 'Review shipment weights', level: 1 })).toBeVisible();
+  }
+
+  /**
+   * @returns {Promise<void>}
+   */
+  async reviewWeightTicket() {
+    await base.expect(this.page.getByRole('heading', { name: 'Review trip 1', level: 3 })).toBeVisible();
+  }
+}
+
+export default WaitForOfficePage;

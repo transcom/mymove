@@ -1,5 +1,5 @@
 // @ts-check
-import { test, expect } from '../../utils/customerTest';
+import { test, expect } from '../../utils/my/customerTest';
 
 test('Users can upload orders', async ({ page, customerPage }) => {
   // Generate a new onboarded user and log in
