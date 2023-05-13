@@ -269,21 +269,41 @@ func (v *updateMTOServiceItemData) setNewCustomerContacts() models.MTOServiceIte
 		return v.updatedServiceItem.CustomerContacts
 	}
 
-	// Set the new customer contacts to the old customer contacts
-	newCustomerContacts := v.oldServiceItem.CustomerContacts
+	var newCustomerContacts models.MTOServiceItemCustomerContacts
 
+	// Iterate through the updated customer contacts
 	for _, updatedCustomerContact := range v.updatedServiceItem.CustomerContacts {
 		foundCorrespondingOldContact := false
-		for i := range newCustomerContacts {
-			// We use the type field to determine if the customer contacts correspond to each other
-			if updatedCustomerContact.Type == newCustomerContacts[i].Type {
-				newCustomerContacts[i].TimeMilitary = updatedCustomerContact.TimeMilitary
-				newCustomerContacts[i].FirstAvailableDeliveryDate = updatedCustomerContact.FirstAvailableDeliveryDate
+		var newCustomerContact models.MTOServiceItemCustomerContact
+		for _, oldCustomerContact := range v.oldServiceItem.CustomerContacts {
+			// We use the type field to determine if the CustomerContacts correspond to each other
+			// If they correspond we update the information on the old CustomerContact
+			if updatedCustomerContact.Type == oldCustomerContact.Type {
+				newCustomerContact = oldCustomerContact
+				newCustomerContact.TimeMilitary = updatedCustomerContact.TimeMilitary
+				newCustomerContact.FirstAvailableDeliveryDate = updatedCustomerContact.FirstAvailableDeliveryDate
 				foundCorrespondingOldContact = true
 			}
 		}
+		// If there is no corresponding old CustomerContact we use the updated CustomerContact
 		if !foundCorrespondingOldContact {
-			newCustomerContacts = append(newCustomerContacts, updatedCustomerContact)
+			newCustomerContact = updatedCustomerContact
+		}
+		newCustomerContacts = append(newCustomerContacts, newCustomerContact)
+	}
+
+	// We need to iterate once more through the old CustomerContacts
+	// to find any that don't have a corresponding updated CustomerContact
+	for _, oldCustomerContact := range v.oldServiceItem.CustomerContacts {
+		foundCorrespondingUpdatedContact := false
+		for _, updatedCustomerContact := range v.updatedServiceItem.CustomerContacts {
+			if updatedCustomerContact.Type == oldCustomerContact.Type {
+				foundCorrespondingUpdatedContact = true
+			}
+		}
+		if !foundCorrespondingUpdatedContact {
+			newCustomerContact := oldCustomerContact
+			newCustomerContacts = append(newCustomerContacts, newCustomerContact)
 		}
 	}
 	return newCustomerContacts
