@@ -18,8 +18,7 @@ func (s *L1) StringArray() []string {
 	freightRate := ""
 	if s.FreightRate != nil {
 		freightRate = strconv.FormatFloat(*s.FreightRate, 'f', 2, 64)
-	}
-	if s.FreightRate == nil {
+	} else {
 		s.RateValueQualifier = ""
 	}
 	return []string{
