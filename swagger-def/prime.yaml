@@ -2555,9 +2555,6 @@ definitions:
     properties:
       address:
         $ref: 'definitions/Address.yaml'
-      reason:
-        type: string
-        example: Customer moving closer to family.
       contractorRemarks:
         type: string
         example: Customer reached out to me this week & let me know they want to move closer to family.
@@ -2616,9 +2613,6 @@ definitions:
         type: integer
         readOnly: true
         maximum: 50
-      reason:
-        example: Customer moving closer to family.
-        type: string
       contractorRemarks:
         type: string
         example: Customer reached out to me this week & let me know they want to move closer to family.

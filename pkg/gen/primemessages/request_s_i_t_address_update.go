@@ -24,10 +24,6 @@ type RequestSITAddressUpdate struct {
 	// contractor remarks
 	// Example: Customer reached out to me this week \u0026 let me know they want to move closer to family.
 	ContractorRemarks string `json:"contractorRemarks,omitempty"`
-
-	// reason
-	// Example: Customer moving closer to family.
-	Reason string `json:"reason,omitempty"`
 }
 
 // Validate validates this request s i t address update

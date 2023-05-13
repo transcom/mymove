@@ -51,10 +51,6 @@ type SitAddressUpdate struct {
 	// Format: uuid
 	NewAddressID strfmt.UUID `json:"newAddressId,omitempty"`
 
-	// reason
-	// Example: Customer moving closer to family.
-	Reason string `json:"reason,omitempty"`
-
 	// status
 	Status SitAddressUpdateStatus `json:"status,omitempty"`
 }

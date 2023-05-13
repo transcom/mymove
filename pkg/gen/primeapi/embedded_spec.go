@@ -3304,10 +3304,6 @@ func init() {
         "contractorRemarks": {
           "type": "string",
           "example": "Customer reached out to me this week \u0026 let me know they want to move closer to family."
-        },
-        "reason": {
-          "type": "string",
-          "example": "Customer moving closer to family."
         }
       }
     },
@@ -3619,10 +3615,6 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "31a2ad3c-1682-4d5b-8423-ff40053a056b"
-        },
-        "reason": {
-          "type": "string",
-          "example": "Customer moving closer to family."
         },
         "status": {
           "$ref": "#/definitions/SitAddressUpdateStatus"
@@ -7876,10 +7868,6 @@ func init() {
         "contractorRemarks": {
           "type": "string",
           "example": "Customer reached out to me this week \u0026 let me know they want to move closer to family."
-        },
-        "reason": {
-          "type": "string",
-          "example": "Customer moving closer to family."
         }
       }
     },
@@ -8194,10 +8182,6 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "31a2ad3c-1682-4d5b-8423-ff40053a056b"
-        },
-        "reason": {
-          "type": "string",
-          "example": "Customer moving closer to family."
         },
         "status": {
           "$ref": "#/definitions/SitAddressUpdateStatus"

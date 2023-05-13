@@ -2895,9 +2895,6 @@ definitions:
     properties:
       address:
         $ref: '#/definitions/Address'
-      reason:
-        type: string
-        example: Customer moving closer to family.
       contractorRemarks:
         type: string
         example: >-
@@ -2959,9 +2956,6 @@ definitions:
         type: integer
         readOnly: true
         maximum: 50
-      reason:
-        example: Customer moving closer to family.
-        type: string
       contractorRemarks:
         type: string
         example: >-
