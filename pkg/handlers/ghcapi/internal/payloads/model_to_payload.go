@@ -1282,6 +1282,7 @@ func MTOServiceItemCustomerContacts(c models.MTOServiceItemCustomerContacts) ghc
 	return payload
 }
 
+// SITAddressUpdate payload
 func SITAddressUpdate(u models.SITAddressUpdate) *ghcmessages.SITAddressUpdate {
 	return &ghcmessages.SITAddressUpdate{
 		ID:                *handlers.FmtUUID(u.ID),
@@ -1297,11 +1298,11 @@ func SITAddressUpdate(u models.SITAddressUpdate) *ghcmessages.SITAddressUpdate {
 	}
 }
 
+// SITAddressUpdates payload
 func SITAddressUpdates(u models.SITAddressUpdates) ghcmessages.SITAddressUpdates {
 	payload := make(ghcmessages.SITAddressUpdates, len(u))
 	for i, item := range u {
-		copyOfAddressUpdate := item // Make copy to avoid implicit memory aliasing of items from a range statement.
-		payload[i] = SITAddressUpdate(copyOfAddressUpdate)
+		payload[i] = SITAddressUpdate(item)
 	}
 	return payload
 }
