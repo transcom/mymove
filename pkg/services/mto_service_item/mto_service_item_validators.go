@@ -248,9 +248,7 @@ func (v *updateMTOServiceItemData) setNewMTOServiceItem() *models.MTOServiceItem
 	}
 
 	// Set customer contact fields
-	if len(v.updatedServiceItem.CustomerContacts) > 0 {
-		newMTOServiceItem.CustomerContacts = v.setNewCustomerContacts()
-	}
+	newMTOServiceItem.CustomerContacts = v.setNewCustomerContacts()
 
 	// Set weight fields:
 	newMTOServiceItem.EstimatedWeight = services.SetOptionalPoundField(
@@ -263,9 +261,15 @@ func (v *updateMTOServiceItemData) setNewMTOServiceItem() *models.MTOServiceItem
 }
 
 func (v *updateMTOServiceItemData) setNewCustomerContacts() models.MTOServiceItemCustomerContacts {
-	// We only set the new customer contact fields if there are updated customer contacts.
+	updatedCustomerContactLength := len(v.updatedServiceItem.CustomerContacts)
+	oldCustomerContactLength := len(v.oldServiceItem.CustomerContacts)
+	// If there are no updated customer contacts we will just use the old ones, it doesn't matter if there are no old ones.
+	if updatedCustomerContactLength == 0 {
+		return v.oldServiceItem.CustomerContacts
+	}
+
 	// If there are no old customer contacts we will just use the updated ones.
-	if len(v.oldServiceItem.CustomerContacts) == 0 {
+	if oldCustomerContactLength == 0 {
 		return v.updatedServiceItem.CustomerContacts
 	}
 
