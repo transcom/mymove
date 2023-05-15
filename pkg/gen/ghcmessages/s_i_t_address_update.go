@@ -23,8 +23,17 @@ type SITAddressUpdate struct {
 	// Example: We need SIT additional days. The customer has not found a house yet.
 	ContractorRemarks *string `json:"contractorRemarks"`
 
+	// created at
+	// Read Only: true
+	// Format: date-time
+	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
+
 	// distance
 	Distance int64 `json:"distance,omitempty"`
+
+	// e tag
+	// Read Only: true
+	ETag string `json:"eTag,omitempty"`
 
 	// id
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
@@ -46,17 +55,23 @@ type SITAddressUpdate struct {
 	// old address
 	OldAddress *Address `json:"oldAddress,omitempty"`
 
-	// reason
-	Reason string `json:"reason,omitempty"`
-
 	// status
 	// Enum: [REQUESTED APPROVED REJECTED]
 	Status interface{} `json:"status,omitempty"`
+
+	// updated at
+	// Read Only: true
+	// Format: date-time
+	UpdatedAt strfmt.DateTime `json:"updatedAt,omitempty"`
 }
 
 // Validate validates this s i t address update
 func (m *SITAddressUpdate) Validate(formats strfmt.Registry) error {
 	var res []error
+
+	if err := m.validateCreatedAt(formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := m.validateID(formats); err != nil {
 		res = append(res, err)
@@ -74,9 +89,25 @@ func (m *SITAddressUpdate) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateUpdatedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *SITAddressUpdate) validateCreatedAt(formats strfmt.Registry) error {
+	if swag.IsZero(m.CreatedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("createdAt", "body", "date-time", m.CreatedAt.String(), formats); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -142,9 +173,29 @@ func (m *SITAddressUpdate) validateOldAddress(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *SITAddressUpdate) validateUpdatedAt(formats strfmt.Registry) error {
+	if swag.IsZero(m.UpdatedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("updatedAt", "body", "date-time", m.UpdatedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // ContextValidate validate this s i t address update based on the context it is used
 func (m *SITAddressUpdate) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
+
+	if err := m.contextValidateCreatedAt(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateETag(ctx, formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := m.contextValidateNewAddress(ctx, formats); err != nil {
 		res = append(res, err)
@@ -154,9 +205,31 @@ func (m *SITAddressUpdate) ContextValidate(ctx context.Context, formats strfmt.R
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateUpdatedAt(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *SITAddressUpdate) contextValidateCreatedAt(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "createdAt", "body", strfmt.DateTime(m.CreatedAt)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *SITAddressUpdate) contextValidateETag(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "eTag", "body", string(m.ETag)); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -187,6 +260,15 @@ func (m *SITAddressUpdate) contextValidateOldAddress(ctx context.Context, format
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *SITAddressUpdate) contextValidateUpdatedAt(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "updatedAt", "body", strfmt.DateTime(m.UpdatedAt)); err != nil {
+		return err
 	}
 
 	return nil

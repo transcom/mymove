@@ -7984,8 +7984,17 @@ func init() {
           "x-omitempty": false,
           "example": "We need SIT additional days. The customer has not found a house yet."
         },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
         "distance": {
           "type": "integer"
+        },
+        "eTag": {
+          "type": "string",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -8009,15 +8018,17 @@ func init() {
         "oldAddress": {
           "$ref": "#/definitions/Address"
         },
-        "reason": {
-          "type": "string"
-        },
         "status": {
           "enum": [
             "REQUESTED",
             "APPROVED",
             "REJECTED"
           ]
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
         }
       }
     },
@@ -18640,8 +18651,17 @@ func init() {
           "x-omitempty": false,
           "example": "We need SIT additional days. The customer has not found a house yet."
         },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
         "distance": {
           "type": "integer"
+        },
+        "eTag": {
+          "type": "string",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -18665,15 +18685,17 @@ func init() {
         "oldAddress": {
           "$ref": "#/definitions/Address"
         },
-        "reason": {
-          "type": "string"
-        },
         "status": {
           "enum": [
             "REQUESTED",
             "APPROVED",
             "REJECTED"
           ]
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
         }
       }
     },

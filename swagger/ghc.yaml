@@ -5591,8 +5591,6 @@ definitions:
         type: string
       distance:
         type: integer
-      reason:
-        type: string
       contractorRemarks:
         example: We need SIT additional days. The customer has not found a house yet.
         type: string
@@ -5612,6 +5610,17 @@ definitions:
         $ref: '#/definitions/Address'
       newAddress:
         $ref: '#/definitions/Address'
+      createdAt:
+        format: date-time
+        type: string
+        readOnly: true
+      updatedAt:
+        format: date-time
+        type: string
+        readOnly: true
+      eTag:
+        type: string
+        readOnly: true
   SITAddressUpdates:
     description: A list of updates to a SIT service item address.
     type: array
