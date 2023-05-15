@@ -5,7 +5,7 @@
  */
 
 // @ts-check
-import { test, expect } from '../utils/adminTest';
+import { test, expect } from '../utils/admin/adminTest';
 
 test.describe('Offices Page', () => {
   test('successfully navigates to offices page', async ({ page, adminPage }) => {
