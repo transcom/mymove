@@ -42,6 +42,9 @@ func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppConte
 		if code := serviceItem.ReService.Code; (code == models.ReServiceCodeDOPSIT || code == models.ReServiceCodeDDDSIT) &&
 			serviceItem.Status == models.MTOServiceItemStatusApproved {
 			if serviceItem.SITEntryDate.After(today) {
+				// NOTE: We're treating future SIT as if it's current SIT in
+				// order to allow for SIT to be editable even if it hasn't entered SIT.
+				// This was introduced in MB-14973
 				currentSIT = &shipment.MTOServiceItems[i]
 			} else if serviceItem.SITDepartureDate != nil && serviceItem.SITDepartureDate.Before(today) {
 				// SIT is in the past
