@@ -5,7 +5,7 @@ import AccessibilityStatement from './AccessibilityStatement';
 
 describe('Accessibility Statement page', () => {
   it('has the correct title', () => {
-    render(<AccessibilityStatement></AccessibilityStatement>);
+    render(<AccessibilityStatement />);
     expect(document.title).toContain('508 Compliance');
   });
 });

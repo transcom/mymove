@@ -5,7 +5,7 @@ import PrivacyPolicy from './PrivacyAndPolicyStatement';
 
 describe('Privacy Policy page', () => {
   it('has the correct title', () => {
-    render(<PrivacyPolicy></PrivacyPolicy>);
+    render(<PrivacyPolicy />);
     expect(document.title).toContain('Privacy & Security Policy');
   });
 });
