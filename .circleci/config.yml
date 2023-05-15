@@ -811,6 +811,8 @@ commands:
             export MUTUAL_TLS_ENABLED=true
             export MUTUAL_TLS_PORT=9443
             export SERVE_API_PRIME=true
+            # disable for speed, tests can fail otherwise
+            export DB_DEBUG=false
 
             make db_dev_create
             bin/milmove migrate
@@ -883,7 +885,7 @@ commands:
             export HTTP_ORDERS_SERVER_NAME=orderslocal
             export HTTP_PRIME_SERVER_NAME=primelocal
             export ENVIRONMENT=test
-            # disable for speed, playwright tests can fail otherwise
+            # disable for speed, tests can fail otherwise
             export DB_DEBUG=false
             export MUTUAL_TLS_ENABLED=true
             export MUTUAL_TLS_PORT=9443
