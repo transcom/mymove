@@ -1,23 +1,15 @@
 import React from 'react';
-import { screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import MoveDetails from './MoveDetails';
 
 import { usePrimeSimulatorGetMove } from 'hooks/queries';
-import { MockProviders, renderWithRouter } from 'testUtils';
+import { MockProviders } from 'testUtils';
 import { completeCounseling, deleteShipment } from 'services/primeApi';
+import { primeSimulatorRoutes } from 'constants/routes';
 
-const mockUseHistoryPush = jest.fn();
 const mockRequestedMoveCode = 'LN4T89';
-
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useParams: jest.fn().mockReturnValue({ moveCodeOrID: 'LN4T89' }),
-  useHistory: () => ({
-    push: mockUseHistoryPush,
-  }),
-}));
 
 jest.mock('hooks/queries', () => ({
   usePrimeSimulatorGetMove: jest.fn(),
@@ -111,15 +103,18 @@ const moveCounselingCompletedReturnValue = {
   isError: false,
 };
 
+const renderWithProviders = (component) => {
+  render(
+    <MockProviders path={primeSimulatorRoutes.VIEW_MOVE_PATH} params={{ moveCodeOrID: mockRequestedMoveCode }}>
+      {component}
+    </MockProviders>,
+  );
+};
 describe('PrimeUI MoveDetails page', () => {
   describe('check move details page load', () => {
     it('displays payment requests information', async () => {
       usePrimeSimulatorGetMove.mockReturnValue(moveReturnValue);
-      renderWithRouter(
-        <MockProviders>
-          <MoveDetails />
-        </MockProviders>,
-      );
+      renderWithProviders(<MoveDetails />);
 
       const paymentRequestsHeading = screen.getByRole('heading', { name: 'Payment Requests', level: 2 });
       expect(paymentRequestsHeading).toBeInTheDocument();
@@ -130,11 +125,7 @@ describe('PrimeUI MoveDetails page', () => {
 
     it('counseling ready to be completed', async () => {
       usePrimeSimulatorGetMove.mockReturnValue(moveReturnValue);
-      renderWithRouter(
-        <MockProviders>
-          <MoveDetails />
-        </MockProviders>,
-      );
+      renderWithProviders(<MoveDetails />);
 
       const completeCounselingButton = screen.getByText(/Complete Counseling/, { selector: 'button' });
       expect(completeCounselingButton).toBeInTheDocument();
@@ -145,11 +136,7 @@ describe('PrimeUI MoveDetails page', () => {
 
     it('counseling already completed', async () => {
       usePrimeSimulatorGetMove.mockReturnValue(moveCounselingCompletedReturnValue);
-      renderWithRouter(
-        <MockProviders>
-          <MoveDetails />
-        </MockProviders>,
-      );
+      renderWithProviders(<MoveDetails />);
 
       const completeCounselingButton = screen.queryByText(/Complete Counseling/, { selector: 'button' });
       expect(completeCounselingButton).not.toBeInTheDocument();
@@ -161,11 +148,7 @@ describe('PrimeUI MoveDetails page', () => {
 
     it('success when completing counseling', async () => {
       usePrimeSimulatorGetMove.mockReturnValue(moveReturnValue);
-      renderWithRouter(
-        <MockProviders>
-          <MoveDetails />
-        </MockProviders>,
-      );
+      renderWithProviders(<MoveDetails />);
 
       const completeCounselingButton = screen.getByText(/Complete Counseling/, { selector: 'button' });
       expect(completeCounselingButton).toBeInTheDocument();
@@ -182,11 +165,7 @@ describe('PrimeUI MoveDetails page', () => {
         response: { body: { title: 'Error title', detail: 'Error detail' } },
       });
 
-      renderWithRouter(
-        <MockProviders>
-          <MoveDetails />
-        </MockProviders>,
-      );
+      renderWithProviders(<MoveDetails />);
 
       const completeCounselingButton = screen.getByText(/Complete Counseling/, { selector: 'button' });
       await userEvent.click(completeCounselingButton);
@@ -199,11 +178,7 @@ describe('PrimeUI MoveDetails page', () => {
 
     it('success when deleting PPM', async () => {
       usePrimeSimulatorGetMove.mockReturnValue(moveReturnValue);
-      renderWithRouter(
-        <MockProviders>
-          <MoveDetails />
-        </MockProviders>,
-      );
+      renderWithProviders(<MoveDetails />);
 
       const deleteShipmentButton = screen.getByText(/Delete Shipment/, { selector: 'button' });
       expect(deleteShipmentButton).toBeInTheDocument();
@@ -223,11 +198,7 @@ describe('PrimeUI MoveDetails page', () => {
         response: { body: { title: 'Error title', detail: 'Error detail' } },
       });
 
-      renderWithRouter(
-        <MockProviders>
-          <MoveDetails />
-        </MockProviders>,
-      );
+      renderWithProviders(<MoveDetails />);
 
       const deleteShipmentButton = screen.getByText(/Delete Shipment/, { selector: 'button' });
       expect(deleteShipmentButton).toBeInTheDocument();

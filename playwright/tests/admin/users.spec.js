@@ -5,14 +5,14 @@
  */
 
 // @ts-check
-import { test, expect } from '../utils/adminTest';
+import { test, expect } from '../utils/admin/adminTest';
 
 test.describe('Users Page', () => {
   test('successfully navigates to users page', async ({ page, adminPage }) => {
     await adminPage.signInAsNewAdminUser();
 
     await page.getByRole('menuitem', { name: 'Users', exact: true }).click();
-    await adminPage.waitForAdminPageToLoad();
+    await adminPage.waitForPage.adminPage();
     expect(page.url()).toContain('/system/users');
     await expect(page.locator('header')).toContainText('Users');
 
@@ -30,7 +30,7 @@ test.describe('Users Details Show Page', () => {
     await adminPage.signInAsNewAdminUser();
 
     await page.getByRole('menuitem', { name: 'Users', exact: true }).click();
-    await adminPage.waitForAdminPageToLoad();
+    await adminPage.waitForPage.adminPage();
     expect(page.url()).toContain('/system/users');
 
     await page.getByLabel('Search by User Id or Email').click();
@@ -38,14 +38,14 @@ test.describe('Users Details Show Page', () => {
     await page.getByLabel('Search by User Id or Email').press('Enter');
     await expect(page.getByRole('cell', { name: email })).toHaveCount(1);
     await page.getByText(email).click();
-    await adminPage.waitForAdminPageToLoad();
+    await adminPage.waitForPage.adminPage();
 
     // check that the user's login.gov email is shown in the page title
     await expect(page.getByRole('heading', { name: email })).toBeVisible();
 
     const labels = ['User ID', 'User email', 'Active', 'Created at', 'Updated at'];
     for (const label of labels) {
-      await expect(page.locator('label').getByText(label, { exact: true })).toBeVisible();
+      await expect(page.getByRole('paragraph').filter({ hasText: label })).toBeVisible();
     }
   });
 });
@@ -57,7 +57,7 @@ test.describe('Users Details Edit Page', () => {
     await adminPage.signInAsNewAdminUser();
 
     await page.getByRole('menuitem', { name: 'Users', exact: true }).click();
-    await adminPage.waitForAdminPageToLoad();
+    await adminPage.waitForPage.adminPage();
     expect(page.url()).toContain('/system/users');
 
     await page.getByLabel('Search by User Id or Email').click();
@@ -65,10 +65,10 @@ test.describe('Users Details Edit Page', () => {
     await page.getByLabel('Search by User Id or Email').press('Enter');
     await expect(page.getByRole('cell', { name: email })).toHaveCount(1);
     await page.getByText(email).click();
-    await adminPage.waitForAdminPageToLoad();
+    await adminPage.waitForPage.adminPage();
 
-    await page.getByRole('button', { name: 'Edit' }).click();
-    await adminPage.waitForAdminPageToLoad();
+    await page.getByRole('link', { name: 'Edit' }).click();
+    await adminPage.waitForPage.adminPage();
 
     // check page content
     const pageContent = [
@@ -91,7 +91,7 @@ test.describe('Users Details Edit Page', () => {
     await page.locator(`ul[aria-labelledby="active-label"] >> li[data-value="${newStatus}"]`).click();
 
     await page.getByRole('button', { name: 'Save' }).click();
-    await adminPage.waitForAdminPageToLoad();
+    await adminPage.waitForPage.adminPage();
 
     // check that user was deactivated
     await expect(page.locator(`tr:has(:text("${email}")) >> td.column-active >> svg`)).toHaveAttribute(

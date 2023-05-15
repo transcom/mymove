@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import 'styles/office.scss';
 import { GridContainer } from '@trussworks/react-uswds';
 import classnames from 'classnames';
-import { useParams } from 'react-router';
+import { useParams } from 'react-router-dom';
 
 import styles from '../TXOMoveInfo/TXOTab.module.scss';
 

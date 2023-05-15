@@ -12,16 +12,9 @@ const MoveFilter = (props) => (
   </Filter>
 );
 
-const MoveList = (props) => (
-  <List
-    {...props}
-    pagination={<AdminPagination />}
-    perPage={25}
-    filters={<MoveFilter />}
-    sort={defaultSort}
-    bulkActionButtons={false}
-  >
-    <Datagrid rowClick="show">
+const MoveList = () => (
+  <List pagination={<AdminPagination />} perPage={25} filters={<MoveFilter />} sort={defaultSort}>
+    <Datagrid bulkActionButtons={false} rowClick="show">
       <TextField source="id" reference="moves" />
       <TextField source="ordersId" reference="moves" label="Order Id" />
       <TextField source="serviceMember.id" label="Service Member Id" sortable={false} />

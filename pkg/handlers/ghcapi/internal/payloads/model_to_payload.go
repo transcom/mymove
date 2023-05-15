@@ -654,6 +654,12 @@ func SITDurationUpdates(sitDurationUpdates *models.SITDurationUpdates) *ghcmessa
 			copyOfSITDurationUpdate := m // Make copy to avoid implicit memory aliasing of items from a range statement.
 			payload[i] = SITDurationUpdate(&copyOfSITDurationUpdate)
 		}
+		// Reversing the SIT duration updates as they are saved in the order
+		// they are created and we want to always display them in the reverse
+		// order.
+		for i, j := 0, len(payload)-1; i < j; i, j = i+1, j-1 {
+			payload[i], payload[j] = payload[j], payload[i]
+		}
 	}
 	return &payload
 }

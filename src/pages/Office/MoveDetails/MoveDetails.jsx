@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Link, useHistory, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
@@ -58,7 +58,7 @@ const MoveDetails = ({
   const [shipmentMissingRequiredInformation, setShipmentMissingRequiredInformation] = useState(false);
   const [alertMessage, setAlertMessage] = useState(null);
   const [alertType, setAlertType] = useState('success');
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const { move, order, mtoShipments, mtoServiceItems, isLoading, isError } = useMoveDetailsQueries(moveCode);
 
@@ -343,7 +343,7 @@ const MoveDetails = ({
                 approveMTOShipment={mutateMTOShipmentStatus}
                 moveTaskOrder={move}
                 missingRequiredOrdersInfo={hasMissingOrdersRequiredInfo}
-                handleAfterSuccess={history.push}
+                handleAfterSuccess={navigate}
                 moveCode={moveCode}
                 errorIfMissing={errorIfMissing}
                 displayDestinationType={isRetirementOrSeparation}
@@ -370,12 +370,12 @@ const MoveDetails = ({
                 <Restricted
                   to={permissionTypes.updateOrders}
                   fallback={
-                    <Link className="usa-button usa-button--secondary" data-testid="view-orders" to="orders">
+                    <Link className="usa-button usa-button--secondary" data-testid="view-orders" to="../orders">
                       View orders
                     </Link>
                   }
                 >
-                  <Link className="usa-button usa-button--secondary" data-testid="edit-orders" to="orders">
+                  <Link className="usa-button usa-button--secondary" data-testid="edit-orders" to="../orders">
                     Edit orders
                   </Link>
                 </Restricted>
@@ -392,12 +392,12 @@ const MoveDetails = ({
                 <Restricted
                   to={permissionTypes.updateAllowances}
                   fallback={
-                    <Link className="usa-button usa-button--secondary" data-testid="view-allowances" to="allowances">
+                    <Link className="usa-button usa-button--secondary" data-testid="view-allowances" to="../allowances">
                       View allowances
                     </Link>
                   }
                 >
-                  <Link className="usa-button usa-button--secondary" data-testid="edit-allowances" to="allowances">
+                  <Link className="usa-button usa-button--secondary" data-testid="edit-allowances" to="../allowances">
                     Edit allowances
                   </Link>
                 </Restricted>

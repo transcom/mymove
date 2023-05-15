@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { generatePath } from 'react-router';
+import { generatePath } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 
 import Advance from './Advance';
@@ -15,10 +15,14 @@ import { selectCurrentOrders, selectMTOShipmentById } from 'store/entities/selec
 import { MockProviders } from 'testUtils';
 import { ORDERS_TYPE } from 'constants/orders';
 
-const mockPush = jest.fn();
-
+const mockNavigate = jest.fn();
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: () => mockNavigate,
+}));
 const mockMoveId = uuidv4();
 const mockMTOShipmentId = uuidv4();
+const mockRoutingParams = { moveId: mockMoveId, mtoShipmentId: mockMTOShipmentId };
 
 const reviewPath = generatePath(customerRoutes.MOVE_REVIEW_PATH, {
   moveId: mockMoveId,
@@ -82,17 +86,6 @@ const mockDispatch = jest.fn();
 jest.mock('react-redux', () => ({
   ...jest.requireActual('react-redux'),
   useDispatch: jest.fn().mockImplementation(() => mockDispatch),
-}));
-
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useHistory: () => ({
-    push: mockPush,
-  }),
-  useParams: () => ({
-    moveId: mockMoveId,
-    mtoShipmentId: mockMTOShipmentId,
-  }),
 }));
 
 jest.mock('services/internalApi', () => ({
@@ -209,13 +202,17 @@ describe('Advance page', () => {
   });
 
   it('routes back to the previous page when the back button is clicked', async () => {
-    render(<Advance />, { wrapper: MockProviders });
+    render(
+      <MockProviders path={customerRoutes.SHIPMENT_PPM_ADVANCES_PATH} params={mockRoutingParams}>
+        <Advance />
+      </MockProviders>,
+    );
 
     const backButton = screen.getByRole('button', { name: /back/i });
 
     await userEvent.click(backButton);
 
-    expect(mockPush).toHaveBeenCalledWith(estimatedIncentivePath);
+    expect(mockNavigate).toHaveBeenCalledWith(estimatedIncentivePath);
   });
 
   it('calls the patch shipment endpoint when save & continue is clicked', async () => {
@@ -307,7 +304,11 @@ describe('Advance page', () => {
   it('routes to the review page when the user clicks save & continue', async () => {
     patchMTOShipment.mockResolvedValue({});
 
-    render(<Advance />, { wrapper: MockProviders });
+    render(
+      <MockProviders path={customerRoutes.SHIPMENT_PPM_ADVANCES_PATH} params={mockRoutingParams}>
+        <Advance />
+      </MockProviders>,
+    );
     const hasRequestedAdvanceYesInput = screen.getByRole('radio', { name: /yes/i });
     await userEvent.click(hasRequestedAdvanceYesInput);
 
@@ -320,7 +321,7 @@ describe('Advance page', () => {
     const saveButton = screen.getByRole('button', { name: /save & continue/i });
     await userEvent.click(saveButton);
 
-    await waitFor(() => expect(mockPush).toHaveBeenCalledWith(reviewPath));
+    await waitFor(() => expect(mockNavigate).toHaveBeenCalledWith(reviewPath));
     expect(mockDispatch).toHaveBeenCalledWith(
       setFlashMessage(
         'PPM_ONBOARDING_SUBMIT_SUCCESS',

@@ -27,7 +27,7 @@ export default {
       const permissions = context.name.includes('Read Only') ? [] : [permissionTypes.updatePaymentServiceItemStatus];
       return (
         <div style={{ padding: '1em', backgroundColor: '#f9f9f9', minWidth: '1200px' }}>
-          <MockProviders initialEntries={['/moves/L0CATR/payment-requests']} permissions={permissions}>
+          <MockProviders permissions={permissions}>
             <Story />
           </MockProviders>
         </div>

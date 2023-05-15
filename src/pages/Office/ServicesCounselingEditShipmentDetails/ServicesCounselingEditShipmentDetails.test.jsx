@@ -1,52 +1,47 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { render, screen, waitFor, within } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import ServicesCounselingEditShipmentDetails from './ServicesCounselingEditShipmentDetails';
 
-import { updateMTOShipment, updateMoveCloseoutOffice } from 'services/ghcApi';
+import { updateMTOShipment, updateMoveCloseoutOffice, searchTransportationOffices } from 'services/ghcApi';
 import { validatePostalCode } from 'utils/validation';
 import { useEditShipmentQueries } from 'hooks/queries';
 import { MOVE_STATUSES, SHIPMENT_OPTIONS } from 'shared/constants';
-import { MockProviders } from 'testUtils';
+import { servicesCounselingRoutes } from 'constants/routes';
+import { renderWithProviders } from 'testUtils';
 
-const mockPush = jest.fn();
-
+const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useLocation: () => ({
-    pathname: 'localhost:3000/',
-  }),
-  useHistory: () => ({
-    push: mockPush,
-  }),
-  useParams: jest.fn().mockReturnValue({ moveCode: 'move123', shipmentId: 'shipment123' }),
+  useNavigate: () => mockNavigate,
 }));
+const mockRoutingParams = { moveCode: 'move123', shipmentId: 'shipment123' };
+const mockRoutingConfig = { path: servicesCounselingRoutes.BASE_SHIPMENT_EDIT_PATH, params: mockRoutingParams };
+const mockTransportationOffice = [
+  {
+    address: {
+      city: '',
+      id: '00000000-0000-0000-0000-000000000000',
+      postalCode: '',
+      state: '',
+      streetAddress1: '',
+    },
+    address_id: '46c4640b-c35e-4293-a2f1-36c7b629f903',
+    affiliation: 'AIR_FORCE',
+    created_at: '2021-02-11T16:48:04.117Z',
+    id: '93f0755f-6f35-478b-9a75-35a69211da1c',
+    name: 'Altus AFB',
+    updated_at: '2021-02-11T16:48:04.117Z',
+  },
+];
 
 jest.mock('services/ghcApi', () => ({
   ...jest.requireActual('services/ghcApi'),
   updateMTOShipment: jest.fn(),
   updateMoveCloseoutOffice: jest.fn(),
-  SearchTransportationOffices: jest.fn().mockImplementation(() =>
-    Promise.resolve([
-      {
-        address: {
-          city: '',
-          id: '00000000-0000-0000-0000-000000000000',
-          postalCode: '',
-          state: '',
-          streetAddress1: '',
-        },
-        address_id: '46c4640b-c35e-4293-a2f1-36c7b629f903',
-        affiliation: 'AIR_FORCE',
-        created_at: '2021-02-11T16:48:04.117Z',
-        id: '93f0755f-6f35-478b-9a75-35a69211da1c',
-        name: 'Altus AFB',
-        updated_at: '2021-02-11T16:48:04.117Z',
-      },
-    ]),
-  ),
+  searchTransportationOffices: jest.fn().mockImplementation(() => Promise.resolve(mockTransportationOffice)),
 }));
 
 jest.mock('hooks/queries', () => ({
@@ -215,25 +210,18 @@ const errorReturnValue = {
 
 const props = {
   onUpdate: () => {},
-  match: {
-    path: '',
-    isExact: false,
-    url: '',
-    params: { moveCode: 'move123', shipmentId: 'shipment123' },
-    onUpdate: () => {},
-  },
 };
+
+afterEach(() => {
+  jest.resetAllMocks();
+});
 
 describe('ServicesCounselingEditShipmentDetails component', () => {
   describe('check different component states', () => {
     it('renders the Loading Placeholder when the query is still loading', async () => {
       useEditShipmentQueries.mockReturnValue(loadingReturnValue);
 
-      render(
-        <MockProviders>
-          <ServicesCounselingEditShipmentDetails {...props} />
-        </MockProviders>,
-      );
+      renderWithProviders(<ServicesCounselingEditShipmentDetails {...props} />, mockRoutingConfig);
 
       const h2 = await screen.getByRole('heading', { name: 'Loading, please wait...', level: 2 });
       expect(h2).toBeInTheDocument();
@@ -242,11 +230,7 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
     it('renders the Something Went Wrong component when the query errors', async () => {
       useEditShipmentQueries.mockReturnValue(errorReturnValue);
 
-      render(
-        <MockProviders>
-          <ServicesCounselingEditShipmentDetails {...props} />
-        </MockProviders>,
-      );
+      renderWithProviders(<ServicesCounselingEditShipmentDetails {...props} />, mockRoutingConfig);
 
       const errorMessage = await screen.getByText(/Something went wrong./);
       expect(errorMessage).toBeInTheDocument();
@@ -255,11 +239,8 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
 
   it('renders the Services Counseling Shipment Form', async () => {
     useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
-    render(
-      <MockProviders>
-        <ServicesCounselingEditShipmentDetails {...props} />
-      </MockProviders>,
-    );
+
+    renderWithProviders(<ServicesCounselingEditShipmentDetails {...props} />, mockRoutingConfig);
 
     const h1 = await screen.getByRole('heading', { name: 'Edit shipment details', level: 1 });
     await waitFor(() => {
@@ -269,12 +250,12 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
 
   it('calls props.onUpdate with success and routes to move details when the save button is clicked and the shipment update is successful', async () => {
     updateMTOShipment.mockImplementation(() => Promise.resolve({}));
+    useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
     const onUpdateMock = jest.fn();
 
-    render(
-      <MockProviders>
-        <ServicesCounselingEditShipmentDetails {...props} onUpdate={onUpdateMock} />
-      </MockProviders>,
+    renderWithProviders(
+      <ServicesCounselingEditShipmentDetails {...props} onUpdate={onUpdateMock} />,
+      mockRoutingConfig,
     );
 
     const saveButton = screen.getByRole('button', { name: 'Save' });
@@ -284,7 +265,7 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
     await userEvent.click(saveButton);
 
     await waitFor(() => {
-      expect(mockPush).toHaveBeenCalledWith('/counseling/moves/move123/details');
+      expect(mockNavigate).toHaveBeenCalledWith('/counseling/moves/move123/details');
       expect(onUpdateMock).toHaveBeenCalledWith('success');
     });
   });
@@ -294,11 +275,7 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
     updateMTOShipment.mockImplementation(() => Promise.reject(new Error('something went wrong')));
     useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
 
-    render(
-      <MockProviders>
-        <ServicesCounselingEditShipmentDetails {...props} />)
-      </MockProviders>,
-    );
+    renderWithProviders(<ServicesCounselingEditShipmentDetails {...props} />, mockRoutingConfig);
 
     const saveButton = screen.getByRole('button', { name: 'Save' });
 
@@ -315,11 +292,7 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
 
   it('routes to the move details page when the cancel button is clicked', async () => {
     useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
-    render(
-      <MockProviders>
-        <ServicesCounselingEditShipmentDetails {...props} />
-      </MockProviders>,
-    );
+    renderWithProviders(<ServicesCounselingEditShipmentDetails {...props} />, mockRoutingConfig);
 
     const cancelButton = screen.getByRole('button', { name: 'Cancel' });
 
@@ -328,7 +301,7 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
     await userEvent.click(cancelButton);
 
     await waitFor(() => {
-      expect(mockPush).toHaveBeenCalledWith('/counseling/moves/move123/details');
+      expect(mockNavigate).toHaveBeenCalledWith('/counseling/moves/move123/details');
     });
   });
 
@@ -340,11 +313,7 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
 
     it('renders the first page of the edit ppm Shipment Form with prefilled values', async () => {
       useEditShipmentQueries.mockReturnValue(ppmUseEditShipmentQueriesReturnValue);
-      render(
-        <MockProviders>
-          <ServicesCounselingEditShipmentDetails {...props} />
-        </MockProviders>,
-      );
+      renderWithProviders(<ServicesCounselingEditShipmentDetails {...props} />, mockRoutingConfig);
 
       expect(await screen.findByTestId('tag')).toHaveTextContent('PPM');
       expect(await screen.getByRole('textbox', { name: 'Planned departure date' })).toHaveValue('28 Jun 2022');
@@ -392,11 +361,7 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
         ],
       ])('Verify invalid %s field shows validation error', async (field, data, expectedError) => {
         useEditShipmentQueries.mockReturnValue(ppmUseEditShipmentQueriesReturnValue);
-        render(
-          <MockProviders>
-            <ServicesCounselingEditShipmentDetails {...props} />
-          </MockProviders>,
-        );
+        renderWithProviders(<ServicesCounselingEditShipmentDetails {...props} />, mockRoutingConfig);
 
         const sitExpected = document.getElementById('sitExpectedYes').parentElement;
         const sitExpectedYes = within(sitExpected).getByRole('radio', { name: 'Yes' });
@@ -423,11 +388,8 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
 
     it('Enables Save and Continue button when sit required fields are filled in', async () => {
       useEditShipmentQueries.mockReturnValue(ppmUseEditShipmentQueriesReturnValue);
-      render(
-        <MockProviders>
-          <ServicesCounselingEditShipmentDetails {...props} />
-        </MockProviders>,
-      );
+      searchTransportationOffices.mockImplementation(() => Promise.resolve(mockTransportationOffice));
+      renderWithProviders(<ServicesCounselingEditShipmentDetails {...props} />, mockRoutingConfig);
 
       const sitExpected = document.getElementById('sitExpectedYes').parentElement;
       const sitExpectedYes = within(sitExpected).getByRole('radio', { name: 'Yes' });
@@ -449,12 +411,13 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
       useEditShipmentQueries.mockReturnValue(ppmUseEditShipmentQueriesReturnValue);
       updateMTOShipment.mockImplementation(() => Promise.resolve({}));
       updateMoveCloseoutOffice.mockImplementation(() => Promise.resolve({}));
+      searchTransportationOffices.mockImplementation(() => Promise.resolve(mockTransportationOffice));
       validatePostalCode.mockImplementation(() => Promise.resolve(false));
       const onUpdateMock = jest.fn();
-      render(
-        <MockProviders>
-          <ServicesCounselingEditShipmentDetails {...props} onUpdate={onUpdateMock} />
-        </MockProviders>,
+
+      renderWithProviders(
+        <ServicesCounselingEditShipmentDetails {...props} onUpdate={onUpdateMock} />,
+        mockRoutingConfig,
       );
 
       await waitFor(() => {
@@ -468,7 +431,7 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
 
       await userEvent.click(saveButton);
       await waitFor(() => {
-        expect(mockPush).toHaveBeenCalledWith('/counseling/moves/move123/shipments/shipment123/advance');
+        expect(mockNavigate).toHaveBeenCalledWith('/counseling/moves/move123/shipments/shipment123/advance');
         expect(onUpdateMock).toHaveBeenCalledWith('success');
       });
     });
@@ -479,13 +442,13 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
 
       useEditShipmentQueries.mockReturnValue(ppmUseEditShipmentQueriesReturnValue);
       updateMTOShipment.mockImplementation(() => Promise.resolve({}));
+      searchTransportationOffices.mockImplementation(() => Promise.resolve(mockTransportationOffice));
       updateMoveCloseoutOffice.mockImplementation(() => Promise.reject(new Error('something went wrong')));
       validatePostalCode.mockImplementation(() => Promise.resolve(false));
       const onUpdateMock = jest.fn();
-      render(
-        <MockProviders>
-          <ServicesCounselingEditShipmentDetails {...props} onUpdate={onUpdateMock} />
-        </MockProviders>,
+      renderWithProviders(
+        <ServicesCounselingEditShipmentDetails {...props} onUpdate={onUpdateMock} />,
+        mockRoutingConfig,
       );
 
       await waitFor(() => {

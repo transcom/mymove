@@ -13,7 +13,6 @@ import { loadMove, loadMoveLabel } from 'shared/Entities/modules/moves';
 import { getRequestStatus } from 'shared/Swagger/selectors';
 import { loadServiceMember, selectServiceMember } from 'shared/Entities/modules/serviceMembers';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
-
 import DocumentList from 'shared/DocumentViewer/DocumentList';
 import { selectActivePPMForMove } from 'shared/Entities/modules/ppms';
 
@@ -28,6 +27,8 @@ import { convertDollarsToCents } from 'shared/utils';
 import DocumentDetailPanel from './DocumentDetailPanel';
 
 import './index.css';
+import { RouterShape } from 'types';
+import withRouter from 'utils/routing';
 
 class DocumentViewer extends Component {
   componentDidMount() {
@@ -44,7 +45,12 @@ class DocumentViewer extends Component {
   }
 
   get getDocumentUploaderProps() {
-    const { docTypes, location, genericMoveDocSchema, moveDocSchema } = this.props;
+    const {
+      docTypes,
+      router: { location },
+      genericMoveDocSchema,
+      moveDocSchema,
+    } = this.props;
     // Parse query string parameters
     const moveDocumentType = qs.parse(location.search).moveDocumentType;
 
@@ -60,7 +66,6 @@ class DocumentViewer extends Component {
       onSubmit: this.handleSubmit,
       genericMoveDocSchema,
       initialValues,
-      location,
       moveDocSchema,
     };
   }
@@ -108,7 +113,8 @@ class DocumentViewer extends Component {
     // urls: has full url with IDs
     const newUrl = `/moves/${moveId}/documents/new`;
 
-    const defaultTabIndex = this.props.match.params.moveDocumentId !== 'new' ? 1 : 0;
+    const defaultTabIndex = moveDocumentId !== 'new' ? 1 : 0;
+
     if (!this.props.loadDependenciesHasSuccess && !this.props.loadDependenciesHasError) return <LoadingPlaceholder />;
     if (this.props.loadDependenciesHasError)
       return (
@@ -176,11 +182,11 @@ DocumentViewer.propTypes = {
   genericMoveDocSchema: PropTypes.object.isRequired,
   moveDocSchema: PropTypes.object.isRequired,
   moveDocuments: PropTypes.arrayOf(PropTypes.object),
-  location: PropTypes.object.isRequired,
+  router: RouterShape.isRequired(),
 };
 
-const mapStateToProps = (state, ownProps) => {
-  const { moveId, moveDocumentId } = ownProps.match.params;
+const mapStateToProps = (state, { router: { params } }) => {
+  const { moveId, moveDocumentId } = params;
   const move = selectMove(state, moveId);
   const moveLocator = move.locator;
   const serviceMemberId = move.service_member_id;
@@ -211,4 +217,4 @@ const mapDispatchToProps = {
   getMoveDocumentsForMove,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(DocumentViewer);
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(DocumentViewer));

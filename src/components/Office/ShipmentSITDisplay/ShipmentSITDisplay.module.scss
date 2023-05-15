@@ -31,7 +31,8 @@
       padding-right: 0px;
     }
     span {
-      margin-left: 0.5rem !important;
+      margin-left: 2rem !important;
+      font-size: 13px !important;
     }
     .submitSITEXtensionLink {
       @include u-margin-right(2);
@@ -42,9 +43,9 @@
     margin-top: 10px;
   }
 
-  .currentLocation{
+  .currentLocation {
     th {
-      padding: 4px
+      padding: 4px;
     }
     table.table--data-point {
       @include u-margin-top(0);
@@ -55,7 +56,7 @@
     vertical-align: top;
 
     div {
-      display: flex;
+      @include u-line-height('body', 2);
     }
 
     p,
@@ -77,6 +78,7 @@
       @include u-font-size('body', '3xs');
       @include u-line-height('body', 2);
       color: $base-darker;
+      display: inline;
     }
 
     dt {
@@ -92,7 +94,7 @@
 }
 .sitHistoryItem {
   th {
-    padding: 0
+    padding: 0;
   }
   .sitHistoryItemHeader {
     color: $base-darker;
@@ -110,6 +112,6 @@ p.sitHeader {
   }
   font-weight: bold;
 }
-.tableContainer{
-  margin-top:16px
+.tableContainer {
+  margin-top: 16px;
 }

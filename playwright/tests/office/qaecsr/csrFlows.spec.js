@@ -5,7 +5,7 @@
  */
 
 // @ts-check
-import { test, expect } from '../../utils/officeTest';
+import { test, expect } from '../../utils/office/officeTest';
 
 test.describe('Customer Support User Flows', () => {
   test.describe('Customer support remarks', () => {
@@ -162,7 +162,6 @@ test.describe('Customer Support User Flows', () => {
       await expect(page.locator('select[name=agency]')).toBeDisabled();
       await expect(page.locator('select[name="grade"]')).toBeDisabled();
       await expect(page.locator('select[name="grade"]')).toBeDisabled();
-      await expect(page.locator('input[name="authorizedWeight"]')).toBeDisabled();
       await expect(page.locator('input[name="dependentsAuthorized"]')).toBeDisabled();
 
       // no save button should exist
