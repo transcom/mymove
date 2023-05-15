@@ -2,18 +2,21 @@ package telemetry
 
 import (
 	"context"
+	"os"
 	"time"
 
+	"github.com/go-logr/zapr"
 	"go.opentelemetry.io/contrib/detectors/aws/ecs"
 	"go.opentelemetry.io/contrib/propagators/aws/xray"
 	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
 	"go.opentelemetry.io/otel/exporters/stdout/stdoutmetric"
 	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
-	"go.opentelemetry.io/otel/metric"
 	"go.opentelemetry.io/otel/metric/global"
+	"go.opentelemetry.io/otel/metric/noop"
 	"go.opentelemetry.io/otel/propagation"
 	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/resource"
@@ -32,6 +35,7 @@ type Config struct {
 	CollectSeconds   int
 	ReadEvents       bool
 	WriteEvents      bool
+	EnvironmentName  string
 }
 
 const (
@@ -49,10 +53,19 @@ func Init(logger *zap.Logger, config *Config) (shutdown func()) {
 	if !config.Enabled {
 		tp := trace.NewNoopTracerProvider()
 		otel.SetTracerProvider(tp)
-		global.SetMeterProvider(metric.NewNoopMeterProvider())
+		global.SetMeterProvider(noop.NewMeterProvider())
 		logger.Info("opentelemetry not enabled")
 		return shutdown
 	}
+
+	// convert our zap logger to the go-logr interface expected by
+	// otel, but only log otel errors
+	otel.SetLogger(zapr.NewLogger(logger.WithOptions(zap.IncreaseLevel(zap.ErrorLevel))))
+
+	// explicitly set error handler
+	otel.SetErrorHandler(otel.ErrorHandlerFunc(func(err error) {
+		logger.Error("opentelemetry error", zap.Error(err))
+	}))
 
 	var spanExporter sdktrace.SpanExporter
 	var metricExporter sdkmetric.Exporter
@@ -61,7 +74,9 @@ func Init(logger *zap.Logger, config *Config) (shutdown func()) {
 
 	switch config.Endpoint {
 	case "stdout":
-		spanExporter, err = stdouttrace.New(stdouttrace.WithPrettyPrint())
+		// explictly call WithWriter so we can override os.Stdout in tests
+		spanExporter, err = stdouttrace.New(stdouttrace.WithPrettyPrint(),
+			stdouttrace.WithWriter(os.Stdout))
 		if err != nil {
 			logger.Error("unable to create otel stdout span exporter", zap.Error(err))
 			break
@@ -94,25 +109,41 @@ func Init(logger *zap.Logger, config *Config) (shutdown func()) {
 	}
 	// Create a tracer provider that processes spans using a
 	// batch-span-processor.
-	bsp := sdktrace.NewBatchSpanProcessor(spanExporter)
+	bsp := sdktrace.NewBatchSpanProcessor(spanExporter, sdktrace.WithBatchTimeout(time.Duration(config.CollectSeconds*int(time.Second))))
 
 	sampler := sdktrace.TraceIDRatioBased(config.SamplingFraction)
-	var idGenerator sdktrace.IDGenerator
-	if config.UseXrayID {
-		idGenerator = xray.NewIDGenerator()
-	}
-	tp := sdktrace.NewTracerProvider(
-		sdktrace.WithResource(resource.NewWithAttributes(semconv.SchemaURL, semconv.ServiceNameKey.String("milmove"))),
-		sdktrace.WithSampler(sampler),
-		sdktrace.WithIDGenerator(idGenerator),
-		sdktrace.WithSpanProcessor(bsp),
-	)
+	resourceAttrs := []attribute.KeyValue{
+		semconv.ServiceNameKey.String("milmove"),
+		semconv.DeploymentEnvironmentKey.String(config.EnvironmentName)}
+
 	// Instantiate a new ECS resource detector
 	ecsResourceDetector := ecs.NewResourceDetector()
 	ecsResource, err := ecsResourceDetector.Detect(ctx)
 	if err != nil {
 		logger.Error("failed to create ECS resource detector", zap.Error(err))
 	}
+
+	var idGenerator sdktrace.IDGenerator
+
+	// we could consider automatically using xray if running in ECS,
+	// but they are technically orthogonal
+	if config.UseXrayID {
+		idGenerator = xray.NewIDGenerator()
+	}
+	if ecsResource.Attributes() != nil {
+		resourceAttrs = append(resourceAttrs, ecsResource.Attributes()...)
+	}
+
+	// only add a single sdktrace.WithResource option, as adding more
+	// than one just overwrites earlier resources
+	milmoveResource := resource.NewWithAttributes(semconv.SchemaURL, resourceAttrs...)
+
+	tp := sdktrace.NewTracerProvider(
+		sdktrace.WithResource(milmoveResource),
+		sdktrace.WithSampler(sampler),
+		sdktrace.WithIDGenerator(idGenerator),
+		sdktrace.WithSpanProcessor(bsp),
+	)
 
 	// Create pusher for metrics that runs in the background and pushes
 	// metrics periodically.
@@ -124,7 +155,7 @@ func Init(logger *zap.Logger, config *Config) (shutdown func()) {
 		sdkmetric.WithInterval(time.Duration(collectSeconds)*time.Second),
 	)
 	mp := sdkmetric.NewMeterProvider(
-		sdkmetric.WithResource(ecsResource),
+		sdkmetric.WithResource(milmoveResource),
 		sdkmetric.WithReader(pr),
 	)
 
@@ -136,15 +167,18 @@ func Init(logger *zap.Logger, config *Config) (shutdown func()) {
 		if err = metricExporter.Shutdown(ctx); err != nil {
 			logger.Error("shutdown problems with metrics pusher", zap.Error(err))
 		}
+		logger.Info("Shutting down telemetry")
 	}
 
 	otel.SetTracerProvider(tp)
 	global.SetMeterProvider(mp)
 	if config.UseXrayID {
-		propagation.NewCompositeTextMapPropagator(
-			xray.Propagator{},
-			propagation.Baggage{},
-			propagation.TraceContext{},
+		otel.SetTextMapPropagator(
+			propagation.NewCompositeTextMapPropagator(
+				xray.Propagator{},
+				propagation.Baggage{},
+				propagation.TraceContext{},
+			),
 		)
 	} else {
 		otel.SetTextMapPropagator(

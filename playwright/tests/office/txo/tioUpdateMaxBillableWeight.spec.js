@@ -5,7 +5,7 @@
  */
 
 // @ts-check
-import { test, expect } from '../../utils/officeTest';
+import { test, expect } from '../../utils/office/officeTest';
 
 test.describe('TIO user', () => {
   // This test performs a mutation so it can only succeed on a fresh DB.

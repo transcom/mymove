@@ -775,7 +775,6 @@ func subScenarioSITAddressUpdates(appCtx appcontext.AppContext, userUploader *up
 			{
 				Model: models.SITAddressUpdate{
 					Status:            models.SITAddressUpdateStatusApproved,
-					Reason:            "customer is moving",
 					ContractorRemarks: models.StringPointer("test contractor remarks"),
 				},
 			},
@@ -791,7 +790,6 @@ func subScenarioSITAddressUpdates(appCtx appcontext.AppContext, userUploader *up
 			{
 				Model: models.SITAddressUpdate{
 					Status:            models.SITAddressUpdateStatusRequested,
-					Reason:            "customer is moving",
 					ContractorRemarks: models.StringPointer("test contractor remarks"),
 				},
 			},
@@ -807,7 +805,6 @@ func subScenarioSITAddressUpdates(appCtx appcontext.AppContext, userUploader *up
 			{
 				Model: models.SITAddressUpdate{
 					Status:            models.SITAddressUpdateStatusApproved,
-					Reason:            "customer is moving",
 					ContractorRemarks: models.StringPointer("test contractor remarks"),
 					OfficeRemarks:     models.StringPointer("TOO approved"),
 				},
@@ -824,7 +821,6 @@ func subScenarioSITAddressUpdates(appCtx appcontext.AppContext, userUploader *up
 			{
 				Model: models.SITAddressUpdate{
 					Status:        models.SITAddressUpdateStatusApproved,
-					Reason:        "customer is moving",
 					OfficeRemarks: models.StringPointer("updated destination address"),
 				},
 			},
@@ -840,7 +836,6 @@ func subScenarioSITAddressUpdates(appCtx appcontext.AppContext, userUploader *up
 			{
 				Model: models.SITAddressUpdate{
 					Status:        models.SITAddressUpdateStatusApproved,
-					Reason:        "customer is moving",
 					OfficeRemarks: models.StringPointer("updated destination address"),
 				},
 			},
@@ -856,7 +851,6 @@ func subScenarioSITAddressUpdates(appCtx appcontext.AppContext, userUploader *up
 			{
 				Model: models.SITAddressUpdate{
 					Status:            models.SITAddressUpdateStatusRejected,
-					Reason:            "customer is moving",
 					ContractorRemarks: models.StringPointer("test contractor remarks"),
 					OfficeRemarks:     models.StringPointer("TOO rejected"),
 				},

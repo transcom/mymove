@@ -1,7 +1,9 @@
 import { shallow } from 'enzyme';
-import DocumentDetailEdit from './DocumentDetailEdit';
 import React from 'react';
+
 import { MOVE_DOC_TYPE, WEIGHT_TICKET_SET_TYPE } from '../../../shared/constants';
+
+import DocumentDetailEdit from './DocumentDetailEdit';
 
 describe('DocumentDetailEdit', () => {
   const renderDocumentDetailEdit = ({ moveDocSchema = {}, formValues = { moveDocument: {} } }) =>

@@ -1,5 +1,7 @@
-import { parseDate, formatDate, formatDateForSwagger, formatDateTime } from './dates';
 import moment from 'moment';
+
+import { parseDate, formatDate, formatDateForSwagger, formatDateTime } from './dates';
+
 describe('dates', () => {
   describe('parseDate', () => {
     describe('when parsing a date that does not match the allowed date formats', () => {

@@ -33,7 +33,7 @@ let EditDateAndLocationForm = (props) => {
   const { handleSubmit, currentOrders, getSitEstimate, sitEstimate, schema, valid, sitReimbursement, submitting } =
     props;
 
-  const displayedSitReimbursement = sitEstimate ? '$' + formatCents(sitEstimate) : sitReimbursement;
+  const displayedSitReimbursement = sitEstimate ? `$${formatCents(sitEstimate)}` : sitReimbursement;
 
   return (
     <div className="grid-container usa-prose">
@@ -51,10 +51,10 @@ let EditDateAndLocationForm = (props) => {
               <SwaggerField fieldName="pickup_postal_code" onChange={getSitEstimate} swagger={schema} required />
               <SwaggerField fieldName="has_additional_postal_code" swagger={schema} component={YesNoBoolean} />
               {get(props, 'formValues.has_additional_postal_code', false) && (
-                <Fragment>
+                <>
                   <SwaggerField fieldName="additional_pickup_postal_code" swagger={schema} required />
                   <span className="grey">Making additional stops may decrease your PPM incentive.</span>
-                </Fragment>
+                </>
               )}
             </SectionWrapper>
             <SectionWrapper>
@@ -70,7 +70,7 @@ let EditDateAndLocationForm = (props) => {
               </span>
               <SwaggerField fieldName="has_sit" swagger={schema} component={YesNoBoolean} />
               {get(props, 'formValues.has_sit', false) && (
-                <Fragment>
+                <>
                   <SwaggerField
                     className="days-in-storage"
                     fieldName="days_in_storage"
@@ -85,7 +85,7 @@ let EditDateAndLocationForm = (props) => {
                       with your PPM paperwork.
                     </div>
                   )}
-                </Fragment>
+                </>
               )}
             </SectionWrapper>
             <SaveCancelButtons valid={valid} submitting={submitting} />
@@ -175,7 +175,7 @@ class EditDateAndLocation extends Component {
 
   componentDidUpdate(prevProps) {
     if (prevProps.currentPPM !== this.props.currentPPM && prevProps.currentOrders !== this.props.currentOrders) {
-      const currentPPM = this.props.currentPPM;
+      const { currentPPM } = this.props;
       calculatePPMSITEstimate(
         currentPPM.id,
         formatDateForSwagger(currentPPM.original_move_date),

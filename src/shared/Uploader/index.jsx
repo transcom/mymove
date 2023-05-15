@@ -5,7 +5,6 @@ import { FilePond, registerPlugin } from 'react-filepond';
 import { FileStatus } from 'filepond';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
-import { CreateUpload, DeleteUpload } from 'shared/api.js';
 import isMobile from 'is-mobile';
 import { concat, every, includes, isEqual, reject } from 'lodash';
 
@@ -16,6 +15,8 @@ import FilepondPluginFileValidateType from 'filepond-plugin-file-validate-type';
 import FilePondPluginFileValidateSize from 'filepond-plugin-file-validate-size';
 import FilepondPluginImageExifOrientation from 'filepond-plugin-image-exif-orientation';
 import FilePondImagePreview from 'filepond-plugin-image-preview';
+
+import { CreateUpload, DeleteUpload } from 'shared/api.js';
 import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css';
 
 registerPlugin(FilepondPluginFileValidateType);

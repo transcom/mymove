@@ -27,15 +27,9 @@ export function officeFlashMessagesReducer(state = initialState, action) {
   switch (action.type) {
     // SINGLE-RESOURCE ACTION TYPES
     case SHOW_BANNER:
-      return Object.assign({}, state, {
-        display: true,
-        messageLines: action.payload.messageLines,
-      });
+      return { ...state, display: true, messageLines: action.payload.messageLines };
     case REMOVE_BANNER:
-      return Object.assign({}, state, {
-        display: false,
-        messageLines: [],
-      });
+      return { ...state, display: false, messageLines: [] };
 
     default:
       return state;

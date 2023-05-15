@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { FormSection } from 'redux-form';
 import PropTypes from 'prop-types';
+
 import style from './index.module.scss';
 
 import { PanelField } from 'shared/EditablePanel';

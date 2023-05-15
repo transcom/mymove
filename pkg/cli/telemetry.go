@@ -55,5 +55,7 @@ func CheckTelemetry(v *viper.Viper) (*telemetry.Config, error) {
 	config.CollectSeconds = v.GetInt(TelemetryCollectSecondsFlag)
 	config.ReadEvents = v.GetBool(TelemetryReadEventsEnabledFlag)
 	config.WriteEvents = v.GetBool(TelemetryWriteEventsEnabledFlag)
+
+	config.EnvironmentName = v.GetString(EnvironmentFlag)
 	return config, nil
 }

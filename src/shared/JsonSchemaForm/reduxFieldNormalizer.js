@@ -86,13 +86,10 @@ const createDecimalNormalizer = (decimalDigits) => {
     value = value.replace(/[^\d.]/g, '');
 
     if (value.indexOf('.') >= 0) {
-      value =
-        value.substr(0, value.indexOf('.')) +
-        '.' +
-        value
-          .substr(value.indexOf('.') + 1)
-          .replace(/[^\d]/g, '')
-          .substr(0, decimalDigits);
+      value = `${value.substr(0, value.indexOf('.'))}.${value
+        .substr(value.indexOf('.') + 1)
+        .replace(/[^\d]/g, '')
+        .substr(0, decimalDigits)}`;
     }
     return value;
   };
