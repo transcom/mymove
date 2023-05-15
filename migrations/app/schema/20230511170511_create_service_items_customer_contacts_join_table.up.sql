@@ -16,5 +16,6 @@ INSERT INTO service_items_customer_contacts (id, mtoservice_item_id, mtoservice_
 SELECT uuid_generate_v4(), msicc.mto_service_item_id, msicc.id FROM mto_service_item_customer_contacts msicc;
 
 ALTER TABLE mto_service_item_customer_contacts
-	DROP COLUMN mto_service_item_id,
-	ADD COLUMN mto_service_item_id UUID
+	DROP COLUMN mto_service_item_id;
+
+COMMENT ON COLUMN mto_service_item_customer_contacts.time_military IS 'The time of delivery corresponding to to first_available_delivery_date, in military format (HHMMZ).';
