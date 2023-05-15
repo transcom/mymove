@@ -112,8 +112,8 @@ export function humanReadableError(errors) {
 }
 
 export function detectIE11() {
-  let sAgent = window.navigator.userAgent;
-  let Idx = sAgent.indexOf('Trident');
+  const sAgent = window.navigator.userAgent;
+  const Idx = sAgent.indexOf('Trident');
   if (Idx > -1) {
     return true;
   }
@@ -146,11 +146,10 @@ export function dateSort(field, direction) {
     return (a, b) => {
       return Date.parse(b[`${field}`]) - Date.parse(a[`${field}`]);
     };
-  } else {
-    return (a, b) => {
-      return Date.parse(a[`${field}`]) - Date.parse(b[`${field}`]);
-    };
   }
+  return (a, b) => {
+    return Date.parse(a[`${field}`]) - Date.parse(b[`${field}`]);
+  };
 }
 
 export function isValidWeight(weight) {

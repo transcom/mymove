@@ -1,7 +1,8 @@
+import { filter } from 'lodash';
+
 import { swaggerRequest } from 'shared/Swagger/request';
 import { getGHCClient, getClient } from 'shared/Swagger/api';
 import { selectMoveTaskOrders } from 'shared/Entities/modules/moveTaskOrders';
-import { filter } from 'lodash';
 
 const mtoShipmentsSchemaKey = 'mtoShipments';
 const getMTOShipmentsOperation = 'mtoShipment.listMTOShipments';

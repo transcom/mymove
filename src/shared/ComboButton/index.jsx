@@ -7,6 +7,7 @@ import './index.css';
 
 class ComboButton extends Component {
   container = React.createRef();
+
   state = {
     displayDropDown: false,
   };
