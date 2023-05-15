@@ -27,11 +27,6 @@ const (
 	UpdateFlag string = "update"
 	// ClientCertIDFlag is the ID flag for Client Cert
 	ClientCertIDFlag string = "certid"
-	// UserIDFlag is the User ID associated for Client Certificates flag
-	UserIDFlag string = "userid"
-
-	// The default UserID if a value for `userid` is not passed in
-	UserIDFlagDefault string = "Replace me with a User.ID (UUID) for a User from the Users table. This User.ID will be different across environments."
 
 	// template for adding client certificates
 	createCertsMigration string = `
@@ -41,44 +36,68 @@ const (
 -- Using a person's CAC as the certificate is a convenient way to permit a
 -- single trusted individual to interact with the Orders API and the Prime API. Eventually
 -- this CAC certificate should be removed.
-INSERT INTO public.client_certs (
-	id,
-	sha256_digest,
-	subject,
-	user_id,
-	allow_orders_api,
-	allow_prime,
-	created_at,
-	updated_at,
-	allow_air_force_orders_read,
-	allow_air_force_orders_write,
-	allow_army_orders_read,
-	allow_army_orders_write,
-	allow_coast_guard_orders_read,
-	allow_coast_guard_orders_write,
-	allow_marine_corps_orders_read,
-	allow_marine_corps_orders_write,
-	allow_navy_orders_read,
-	allow_navy_orders_write)
+INSERT INTO users (
+    id,
+    login_gov_email,
+    created_at,
+    updated_at)
 VALUES (
-	'{{.ID}}',
-	'{{.Fingerprint}}',
-	'{{.Subject}}',
-	'{{.UserID}}',
-	true,
-	true,
-	now(),
-	now(),
-	true,
-	true,
-	true,
-	true,
-	true,
-	true,
-	true,
-	true,
-	true,
-	true);
+    '{{.UserID}}',
+    '{{.Fingerprint}}' || '@api.move.mil',
+    now(),
+    now());
+
+INSERT INTO users_roles (
+    id,
+    role_id,
+    user_id,
+    created_at,
+    updated_at)
+VALUES (
+    uuid_generate_v4(),
+    (SELECT id FROM roles WHERE role_type = 'prime'),
+    '{{.UserID}}',
+    now(),
+    now());
+
+INSERT INTO public.client_certs (
+    id,
+    sha256_digest,
+    subject,
+    user_id,
+    allow_orders_api,
+    allow_prime,
+    created_at,
+    updated_at,
+    allow_air_force_orders_read,
+    allow_air_force_orders_write,
+    allow_army_orders_read,
+    allow_army_orders_write,
+    allow_coast_guard_orders_read,
+    allow_coast_guard_orders_write,
+    allow_marine_corps_orders_read,
+    allow_marine_corps_orders_write,
+    allow_navy_orders_read,
+    allow_navy_orders_write)
+VALUES (
+    '{{.ID}}',
+    '{{.Fingerprint}}',
+    '{{.Subject}}',
+    '{{.UserID}}',
+    true,
+    true,
+    now(),
+    now(),
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true);
 `
 	// template for updating client certificates
 	updateCertsMigration string = `
@@ -109,10 +128,8 @@ type CertsTemplate struct {
 func InitCertsMigrationFlags(flag *pflag.FlagSet) {
 	flag.StringP(FingerprintFlag, "f", "", "Certificate fingerprint in SHA 256 form")
 	flag.StringP(SubjectFlag, "s", "", "Certificate subject")
-	flag.StringP(UserIDFlag, "u", UserIDFlagDefault, "User ID to associate with the Certificate")
 	flag.Bool(UpdateFlag, false, "Create an update migration")
 	flag.String(ClientCertIDFlag, "", "Previous ID of client cert entry")
-
 }
 
 // CheckCertsMigration validates command line flags
@@ -144,24 +161,6 @@ func CheckCertsMigration(v *viper.Viper) error {
 		if len(subject) == 0 {
 			return errors.Errorf("%s is missing", SubjectFlag)
 		}
-	}
-
-	// Check if the User ID was passed in as a flag & validate if it's a valid
-	// UUID. Ultimately, the responsibility for this to be correct falls on the
-	// operator of the CLI without having this CLI check values from the RDS
-	// instance that this migration will be running on.
-	if v.GetString(UserIDFlag) != UserIDFlagDefault {
-		userID := v.GetString(UserIDFlag)
-
-		// Check if userID is a valid GUID
-		if uuid.FromStringOrNil(userID) == uuid.Nil {
-			return errors.Errorf(
-				"%s is not a valid UUID (value given: %s). Please copy the User ID from the Admin UI to ensure the User ID is a valid UUID",
-				UserIDFlag,
-				userID,
-			)
-		}
-
 	}
 
 	if v.GetBool(UpdateFlag) {
@@ -250,12 +249,9 @@ func genCertsMigration(cmd *cobra.Command, args []string) error {
 		subject = v.GetString(SubjectFlag)
 	}
 
-	userID := v.GetString(UserIDFlag)
-
 	certsTemplate := CertsTemplate{
 		Fingerprint: fingerprint,
 		Subject:     subject,
-		UserID:      userID,
 	}
 
 	var t1 *template.Template
@@ -266,6 +262,7 @@ func genCertsMigration(cmd *cobra.Command, args []string) error {
 		t1 = template.Must(template.New("certs_migration").Parse(updateCertsMigration))
 	} else {
 		certsTemplate.ID = uuid.Must(uuid.NewV4()).String()
+		certsTemplate.UserID = uuid.Must(uuid.NewV4()).String()
 		t1 = template.Must(template.New("certs_migration").Parse(createCertsMigration))
 	}
 
