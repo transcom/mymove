@@ -6867,7 +6867,7 @@ CREATE TABLE public.re_intl_accessorial_prices (
     per_unit_cents integer NOT NULL,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    CONSTRAINT re_intl_accessorial_prices_market_check CHECK (((market)::text = ANY ((ARRAY['C'::character varying, 'O'::character varying])::text[])))
+    CONSTRAINT re_intl_accessorial_prices_market_check CHECK (((market)::text = ANY (ARRAY[('C'::character varying)::text, ('O'::character varying)::text])))
 );
 
 
@@ -7249,7 +7249,7 @@ CREATE TABLE public.re_shipment_type_prices (
     factor numeric(3,2) NOT NULL,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    CONSTRAINT re_shipment_type_prices_market_check CHECK (((market)::text = ANY ((ARRAY['C'::character varying, 'O'::character varying])::text[])))
+    CONSTRAINT re_shipment_type_prices_market_check CHECK (((market)::text = ANY (ARRAY[('C'::character varying)::text, ('O'::character varying)::text])))
 );
 
 
@@ -8124,9 +8124,10 @@ CREATE TABLE public.sit_address_updates (
     new_address_id uuid NOT NULL,
     status public.sit_address_update_status NOT NULL,
     distance integer NOT NULL,
-    reason text NOT NULL,
     contractor_remarks text,
-    office_remarks text
+    office_remarks text,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
 );
 
 
@@ -8179,13 +8180,6 @@ COMMENT ON COLUMN public.sit_address_updates.status IS 'Current status of this r
 --
 
 COMMENT ON COLUMN public.sit_address_updates.distance IS 'The distance in miles between the old address and the new address. This is calculated and stored using the address zip codes.';
-
-
---
--- Name: COLUMN sit_address_updates.reason; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN public.sit_address_updates.reason IS 'A reason why this particular SIT address change is justified. TXOs would use the information here to accept or reject this SIT address change. Eg: Customer moving closer to family.';
 
 
 --
