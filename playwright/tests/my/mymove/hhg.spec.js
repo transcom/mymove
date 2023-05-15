@@ -1,5 +1,5 @@
 // @ts-check
-import { test, expect } from '../../utils/customerTest';
+import { test, expect } from '../../utils/my/customerTest';
 
 test('A customer can create, edit, and delete an HHG shipment', async ({ page, customerPage }) => {
   // Generate a new onboarded user with orders and log in

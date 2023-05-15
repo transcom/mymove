@@ -68,7 +68,7 @@ func BuildSITAddressUpdate(db *pop.Connection, customs []Customization, traits [
 		NewAddressID:      newAddress.ID,
 		ContractorRemarks: models.StringPointer("contractor remarks"),
 		Distance:          40,
-		Reason:            "new reason",
+		Status:            models.SITAddressUpdateStatusRequested,
 	}
 
 	// Overwrite default values with those from custom SITAddressUpdate

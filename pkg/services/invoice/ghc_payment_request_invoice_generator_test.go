@@ -384,7 +384,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		suite.Equal("J", bx.TransactionMethodTypeCode)
 		suite.Equal("PP", bx.ShipmentMethodOfPayment)
 		suite.Equal(paymentRequest.PaymentRequestNumber, bx.ShipmentIdentificationNumber)
-		suite.Equal("BLKW", bx.StandardCarrierAlphaCode)
+		suite.Equal("HSFR", bx.StandardCarrierAlphaCode)
 		suite.Equal("4", bx.ShipmentQualifier)
 	})
 
@@ -663,7 +663,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		suite.Equal("SE", sellerOrg.EntityIdentifierCode)
 		suite.Equal("Prime", sellerOrg.Name)
 		suite.Equal("2", sellerOrg.IdentificationCodeQualifier)
-		suite.Equal("BLKW", sellerOrg.IdentificationCode)
+		suite.Equal("HSFR", sellerOrg.IdentificationCode)
 	})
 
 	suite.Run("adds orders destination address", func() {
@@ -807,6 +807,15 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 					suite.Equal(string(serviceCode), l5.LadingDescription)
 					suite.Equal("TBD", l5.CommodityCode)
 					suite.Equal("D", l5.CommodityCodeQualifier)
+				})
+
+				suite.Run("adds l1 service item segment", func() {
+					l1 := result.ServiceItems[segmentOffset].L1
+					freightRate := l1.FreightRate
+					suite.Equal(hierarchicalNumberInt, l1.LadingLineItemNumber)
+					suite.Equal(serviceItemPrice, l1.Charge)
+					suite.Equal((*float64)(nil), freightRate)
+					suite.Equal("", l1.RateValueQualifier)
 				})
 
 				suite.Run("adds l0 service item segment", func() {
