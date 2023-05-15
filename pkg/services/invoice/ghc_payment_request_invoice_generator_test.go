@@ -48,6 +48,7 @@ const testTimeFormat = "1504"
 func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	mockClock := clock.NewMock()
 	currentTime := mockClock.Now()
+	referenceID := "3342-9189"
 	requestedPickupDate := time.Date(testdatagen.GHCTestYear, time.September, 15, 0, 0, 0, 0, time.UTC)
 	scheduledPickupDate := time.Date(testdatagen.GHCTestYear, time.September, 20, 0, 0, 0, 0, time.UTC)
 	actualPickupDate := time.Date(testdatagen.GHCTestYear, time.September, 22, 0, 0, 0, 0, time.UTC)
@@ -81,7 +82,14 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	var result ediinvoice.Invoice858C
 
 	setupTestData := func() {
-		mto := factory.BuildMove(suite.DB(), nil, nil)
+		mto := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					ReferenceID: &referenceID,
+					Status:      models.MoveStatusAPPROVED,
+				},
+			},
+		}, nil)
 
 		paymentRequest = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
 			{
@@ -383,8 +391,9 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		suite.Equal("00", bx.TransactionSetPurposeCode)
 		suite.Equal("J", bx.TransactionMethodTypeCode)
 		suite.Equal("PP", bx.ShipmentMethodOfPayment)
-		suite.Equal(paymentRequest.PaymentRequestNumber, bx.ShipmentIdentificationNumber)
-		suite.Equal("BLKW", bx.StandardCarrierAlphaCode)
+		suite.Equal(*paymentRequest.MoveTaskOrder.ReferenceID, bx.ShipmentIdentificationNumber)
+
+		suite.Equal("HSFR", bx.StandardCarrierAlphaCode)
 		suite.Equal("4", bx.ShipmentQualifier)
 	})
 
@@ -663,7 +672,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		suite.Equal("SE", sellerOrg.EntityIdentifierCode)
 		suite.Equal("Prime", sellerOrg.Name)
 		suite.Equal("2", sellerOrg.IdentificationCodeQualifier)
-		suite.Equal("BLKW", sellerOrg.IdentificationCode)
+		suite.Equal("HSFR", sellerOrg.IdentificationCode)
 	})
 
 	suite.Run("adds orders destination address", func() {
@@ -807,6 +816,15 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 					suite.Equal(string(serviceCode), l5.LadingDescription)
 					suite.Equal("TBD", l5.CommodityCode)
 					suite.Equal("D", l5.CommodityCodeQualifier)
+				})
+
+				suite.Run("adds l1 service item segment", func() {
+					l1 := result.ServiceItems[segmentOffset].L1
+					freightRate := l1.FreightRate
+					suite.Equal(hierarchicalNumberInt, l1.LadingLineItemNumber)
+					suite.Equal(serviceItemPrice, l1.Charge)
+					suite.Equal((*float64)(nil), freightRate)
+					suite.Equal("", l1.RateValueQualifier)
 				})
 
 				suite.Run("adds l0 service item segment", func() {
