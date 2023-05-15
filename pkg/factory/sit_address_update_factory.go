@@ -31,21 +31,32 @@ func BuildSITAddressUpdate(db *pop.Connection, customs []Customization, traits [
 		}
 	}
 
-	serviceItem := BuildMTOServiceItem(db, customs, traits)
-
 	tempOldAddressCustoms := customs
 	if result := findValidCustomization(customs, Addresses.SITAddressUpdateOldAddress); result != nil {
 		tempOldAddressCustoms = convertCustomizationInList(tempOldAddressCustoms, Addresses.SITAddressUpdateOldAddress, Address)
 	}
 	oldAddress := BuildAddress(db, tempOldAddressCustoms, traits)
 
+	if db != nil {
+		// Now we need a LinkOnly customization for the created address
+		// can only do LinkOnly if we have an ID, which we won't have
+		// for a stubbed address
+		customs = replaceCustomization(customs, Customization{
+			Model:    oldAddress,
+			LinkOnly: true,
+			Type:     &Addresses.SITDestinationOriginalAddress,
+		})
+	}
+
 	//Make sure new address is different from old if no customizations/traits were passed in
-	traits = append(traits, GetTraitAddress2)
+	tempTraits := append(traits, GetTraitAddress2)
 	tempNewAddressCustoms := customs
 	if result := findValidCustomization(customs, Addresses.SITAddressUpdateNewAddress); result != nil {
 		tempNewAddressCustoms = convertCustomizationInList(tempNewAddressCustoms, Addresses.SITAddressUpdateNewAddress, Address)
 	}
-	newAddress := BuildAddress(db, tempNewAddressCustoms, traits)
+	newAddress := BuildAddress(db, tempNewAddressCustoms, tempTraits)
+
+	serviceItem := BuildMTOServiceItem(db, customs, traits)
 
 	// Create default SITAddressUpdate
 	SITAddressUpdate := models.SITAddressUpdate{
@@ -58,7 +69,6 @@ func BuildSITAddressUpdate(db *pop.Connection, customs []Customization, traits [
 		ContractorRemarks: models.StringPointer("contractor remarks"),
 		Distance:          40,
 		Reason:            "new reason",
-		Status:            models.SITAddressUpdateStatusRequested,
 	}
 
 	// Overwrite default values with those from custom SITAddressUpdate
