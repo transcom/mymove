@@ -714,6 +714,8 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(ap
 			newSegment.L1 = edisegment.L1{
 				LadingLineItemNumber: hierarchicalIDNumber,
 				Charge:               serviceItem.PriceCents.Int64(),
+				FreightRate:          nil,
+				RateValueQualifier:   "",
 			}
 
 		// following service items have weight and no distance
