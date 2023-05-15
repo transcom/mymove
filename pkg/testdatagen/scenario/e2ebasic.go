@@ -3164,10 +3164,30 @@ func createMoveWithServiceItemsandPaymentRequests02(appCtx appcontext.AppContext
 		},
 	}, nil)
 
+	firstDeliveryDate := models.TimePointer(time.Now())
+	customerContact1 := testdatagen.MakeMTOServiceItemCustomerContact(appCtx.DB(), testdatagen.Assertions{
+		MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
+			ID:                         uuid.FromStringOrNil("f0f38ee0-0148-4892-9b5b-a091a8c5a645"),
+			Type:                       models.CustomerContactTypeFirst,
+			TimeMilitary:               "0400Z",
+			FirstAvailableDeliveryDate: *firstDeliveryDate,
+		},
+	})
+
+	customerContact2 := testdatagen.MakeMTOServiceItemCustomerContact(appCtx.DB(), testdatagen.Assertions{
+		MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
+			ID:                         uuid.FromStringOrNil("1398aea3-d09b-485d-81c7-3bb72c21fb38"),
+			Type:                       models.CustomerContactTypeSecond,
+			TimeMilitary:               "1200Z",
+			FirstAvailableDeliveryDate: firstDeliveryDate.Add(time.Hour * 24),
+		},
+	})
+
 	serviceItemDDFSIT := factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.MTOServiceItem{
-				ID: uuid.FromStringOrNil("b2c770ab-db6f-465c-87f1-164ecd2f36a4"),
+				ID:               uuid.FromStringOrNil("b2c770ab-db6f-465c-87f1-164ecd2f36a4"),
+				CustomerContacts: models.MTOServiceItemCustomerContacts{customerContact1, customerContact2},
 			},
 		},
 		{
@@ -3184,31 +3204,6 @@ func createMoveWithServiceItemsandPaymentRequests02(appCtx appcontext.AppContext
 			},
 		},
 	}, nil)
-
-	firstDeliveryDate := models.TimePointer(time.Now())
-	testdatagen.MakeMTOServiceItemCustomerContact(appCtx.DB(), testdatagen.Assertions{
-		MTOServiceItem: serviceItemDDFSIT,
-		MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
-			ID: uuid.FromStringOrNil("f0f38ee0-0148-4892-9b5b-a091a8c5a645"),
-			// TODO fix customer contact test data creation
-			//MTOServiceItemID:           serviceItemDDFSIT.ID,
-			Type:                       models.CustomerContactTypeFirst,
-			TimeMilitary:               "0400Z",
-			FirstAvailableDeliveryDate: *firstDeliveryDate,
-		},
-	})
-
-	testdatagen.MakeMTOServiceItemCustomerContact(appCtx.DB(), testdatagen.Assertions{
-		MTOServiceItem: serviceItemDDFSIT,
-		MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
-			ID: uuid.FromStringOrNil("1398aea3-d09b-485d-81c7-3bb72c21fb38"),
-			// TODO fix customer contact test data creation
-			//MTOServiceItemID:           serviceItemDDFSIT.ID,
-			Type:                       models.CustomerContactTypeSecond,
-			TimeMilitary:               "1200Z",
-			FirstAvailableDeliveryDate: firstDeliveryDate.Add(time.Hour * 24),
-		},
-	})
 
 	ddfsitCost := unit.Cents(8544)
 	factory.BuildPaymentServiceItem(appCtx.DB(), []factory.Customization{
