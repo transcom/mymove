@@ -812,3 +812,4 @@
 20230509180256_fix_demo_certificate.up.sql
 20230510153921_all_dutylocations_government_counseling_true.up.sql
 20230510170842_repair_client_certs_records.up.sql
+20230511201651_remove_daycos_movehq_prod.up.sql

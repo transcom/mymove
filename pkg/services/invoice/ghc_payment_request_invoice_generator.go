@@ -163,7 +163,7 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(appCtx appcontext.AppContext
 		TransactionMethodTypeCode:    "J",
 		ShipmentMethodOfPayment:      "PP",
 		ShipmentIdentificationNumber: paymentRequest.PaymentRequestNumber,
-		StandardCarrierAlphaCode:     "BLKW",
+		StandardCarrierAlphaCode:     "HSFR",
 		ShipmentQualifier:            "4",
 	}
 
@@ -397,7 +397,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createBuyerAndSellerOrganizationNames
 		EntityIdentifierCode:        "SE",
 		Name:                        "Prime",
 		IdentificationCodeQualifier: "2",
-		IdentificationCode:          "BLKW",
+		IdentificationCode:          "HSFR",
 	}
 
 	return nil

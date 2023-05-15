@@ -5,7 +5,7 @@
  */
 
 // @ts-check
-import { test, expect } from '../utils/adminTest';
+import { test, expect } from '../utils/admin/adminTest';
 
 test.describe('Webhook Subscriptions', () => {
   test('successfully navigates to the webhook subscriptions list page', async ({ page, adminPage }) => {

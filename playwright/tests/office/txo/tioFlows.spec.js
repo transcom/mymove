@@ -5,7 +5,7 @@
  */
 
 // @ts-check
-import { test, expect, OfficePage } from '../../utils/officeTest';
+import { test, expect, OfficePage } from '../../utils/office/officeTest';
 
 /**
  * TioFlowPage test fixture
