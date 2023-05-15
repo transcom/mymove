@@ -7982,7 +7982,7 @@ func init() {
           "type": "string",
           "x-nullable": true,
           "x-omitempty": false,
-          "example": "We need SIT additional days. The customer has not found a house yet."
+          "example": "The customer has found a new house closer to base."
         },
         "createdAt": {
           "type": "string",
@@ -7990,7 +7990,9 @@ func init() {
           "readOnly": true
         },
         "distance": {
-          "type": "integer"
+          "description": "The distance between the old address and the new address in miles.",
+          "type": "integer",
+          "example": 54
         },
         "eTag": {
           "type": "string",
@@ -8013,7 +8015,7 @@ func init() {
           "type": "string",
           "x-nullable": true,
           "x-omitempty": false,
-          "example": "We need SIT additional days. The customer has not found a house yet."
+          "example": "The customer has found a new house closer to base."
         },
         "oldAddress": {
           "$ref": "#/definitions/Address"
@@ -18649,7 +18651,7 @@ func init() {
           "type": "string",
           "x-nullable": true,
           "x-omitempty": false,
-          "example": "We need SIT additional days. The customer has not found a house yet."
+          "example": "The customer has found a new house closer to base."
         },
         "createdAt": {
           "type": "string",
@@ -18657,7 +18659,10 @@ func init() {
           "readOnly": true
         },
         "distance": {
-          "type": "integer"
+          "description": "The distance between the old address and the new address in miles.",
+          "type": "integer",
+          "minimum": 0,
+          "example": 54
         },
         "eTag": {
           "type": "string",
@@ -18680,7 +18685,7 @@ func init() {
           "type": "string",
           "x-nullable": true,
           "x-omitempty": false,
-          "example": "We need SIT additional days. The customer has not found a house yet."
+          "example": "The customer has found a new house closer to base."
         },
         "oldAddress": {
           "$ref": "#/definitions/Address"

@@ -1287,7 +1287,7 @@ func SITAddressUpdate(u models.SITAddressUpdate) *ghcmessages.SITAddressUpdate {
 	return &ghcmessages.SITAddressUpdate{
 		ID:                *handlers.FmtUUID(u.ID),
 		MtoServiceItemID:  *handlers.FmtUUID(u.MTOServiceItemID),
-		Distance:          int64(u.Distance),
+		Distance:          handlers.FmtInt64(int64(u.Distance)),
 		ContractorRemarks: u.ContractorRemarks,
 		OfficeRemarks:     u.OfficeRemarks,
 		Status:            u.Status,
