@@ -5,7 +5,7 @@
  */
 
 // @ts-check
-import { test, expect } from '../../utils/officeTest';
+import { test, expect } from '../../utils/office/officeTest';
 
 test.describe('Customer Support User Flows', () => {
   test.describe('Customer support remarks', () => {

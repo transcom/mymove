@@ -5,7 +5,7 @@
  */
 
 // @ts-check
-import { expect, OfficePage } from '../../utils/officeTest';
+import { expect, OfficePage } from '../../utils/office/officeTest';
 
 /**
  * TooFlowPage test fixture

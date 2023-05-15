@@ -5,7 +5,7 @@
  */
 
 // @ts-check
-import { test, expect } from '../utils/officeTest';
+import { test, expect } from '../utils/office/officeTest';
 
 test.describe('Office Home Page', () => {
   test('successfully loads when not logged in', async ({ page }) => {
