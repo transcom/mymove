@@ -50,7 +50,7 @@ const SitStatusTables = ({ sitStatus, shipment }) => {
   // Currently active SIT
   const currentLocation = sitStatus.location === LOCATION_TYPES.ORIGIN ? 'origin SIT' : 'destination SIT';
 
-  const currentDaysInSit = <p>{totalSITDaysUsed}</p>;
+  const currentDaysInSit = <p>{daysInSIT}</p>;
   const currentDateEnteredSit = <p>{formatDateForDatePicker(sitEntryDate)}</p>;
   const totalDaysRemaining = () => {
     const daysRemaining = sitStatus ? sitStatus.totalDaysRemaining : shipment.sitDaysAllowance;
