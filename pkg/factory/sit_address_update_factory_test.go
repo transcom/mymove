@@ -55,7 +55,6 @@ func (suite *FactorySuite) TestBuildSITAddressUpdate() {
 			ContractorRemarks: models.StringPointer("custom contractor remarks"),
 			OfficeRemarks:     models.StringPointer("office remarks"),
 			Distance:          40,
-			Reason:            "new reason",
 			Status:            models.SITAddressUpdateStatusRejected,
 		}
 
@@ -93,7 +92,6 @@ func (suite *FactorySuite) TestBuildSITAddressUpdate() {
 		suite.Equal(*customUpdate.ContractorRemarks, *sitAddressUpdate.ContractorRemarks)
 		suite.Equal(*customUpdate.OfficeRemarks, *sitAddressUpdate.OfficeRemarks)
 		suite.Equal(customUpdate.Distance, sitAddressUpdate.Distance)
-		suite.Equal(customUpdate.Reason, sitAddressUpdate.Reason)
 		suite.Equal(customUpdate.Status, sitAddressUpdate.Status)
 		suite.NotNil(sitAddressUpdate.MTOServiceItem)
 		suite.False(sitAddressUpdate.MTOServiceItem.ID.IsNil())
