@@ -30,6 +30,8 @@ type MTOServiceItemBasic struct {
 
 	reServiceNameField string
 
+	reasonField string
+
 	rejectionReasonField *string
 
 	statusField MTOServiceItemStatus
@@ -98,6 +100,16 @@ func (m *MTOServiceItemBasic) SetReServiceName(val string) {
 	m.reServiceNameField = val
 }
 
+// Reason gets the reason of this subtype
+func (m *MTOServiceItemBasic) Reason() string {
+	return m.reasonField
+}
+
+// SetReason sets the reason of this subtype
+func (m *MTOServiceItemBasic) SetReason(val string) {
+	m.reasonField = val
+}
+
 // RejectionReason gets the rejection reason of this subtype
 func (m *MTOServiceItemBasic) RejectionReason() *string {
 	return m.rejectionReasonField
@@ -149,7 +161,9 @@ func (m *MTOServiceItemBasic) UnmarshalJSON(raw []byte) error {
 
 		ReServiceName string `json:"reServiceName,omitempty"`
 
-		RejectionReason *string `json:"rejectionReason"`
+		Reason string `json:"reason"`
+
+		RejectionReason *string `json:"rejectionReason,omitempty"`
 
 		Status MTOServiceItemStatus `json:"status,omitempty"`
 	}
@@ -176,6 +190,8 @@ func (m *MTOServiceItemBasic) UnmarshalJSON(raw []byte) error {
 	result.mtoShipmentIdField = base.MtoShipmentID
 
 	result.reServiceNameField = base.ReServiceName
+
+	result.reasonField = base.Reason
 
 	result.rejectionReasonField = base.RejectionReason
 
@@ -217,7 +233,9 @@ func (m MTOServiceItemBasic) MarshalJSON() ([]byte, error) {
 
 		ReServiceName string `json:"reServiceName,omitempty"`
 
-		RejectionReason *string `json:"rejectionReason"`
+		Reason string `json:"reason"`
+
+		RejectionReason *string `json:"rejectionReason,omitempty"`
 
 		Status MTOServiceItemStatus `json:"status,omitempty"`
 	}{
@@ -233,6 +251,8 @@ func (m MTOServiceItemBasic) MarshalJSON() ([]byte, error) {
 		MtoShipmentID: m.MtoShipmentID(),
 
 		ReServiceName: m.ReServiceName(),
+
+		Reason: m.Reason(),
 
 		RejectionReason: m.RejectionReason(),
 
@@ -261,7 +281,7 @@ func (m *MTOServiceItemBasic) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateRejectionReason(formats); err != nil {
+	if err := m.validateReason(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -318,9 +338,9 @@ func (m *MTOServiceItemBasic) validateMtoShipmentID(formats strfmt.Registry) err
 	return nil
 }
 
-func (m *MTOServiceItemBasic) validateRejectionReason(formats strfmt.Registry) error {
+func (m *MTOServiceItemBasic) validateReason(formats strfmt.Registry) error {
 
-	if err := validate.Required("rejectionReason", "body", m.RejectionReason()); err != nil {
+	if err := validate.RequiredString("reason", "body", m.Reason()); err != nil {
 		return err
 	}
 
@@ -385,6 +405,10 @@ func (m *MTOServiceItemBasic) ContextValidate(ctx context.Context, formats strfm
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateReason(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateRejectionReason(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -438,6 +462,15 @@ func (m *MTOServiceItemBasic) contextValidateModelType(ctx context.Context, form
 func (m *MTOServiceItemBasic) contextValidateReServiceName(ctx context.Context, formats strfmt.Registry) error {
 
 	if err := validate.ReadOnly(ctx, "reServiceName", "body", string(m.ReServiceName())); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItemBasic) contextValidateReason(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "reason", "body", string(m.Reason())); err != nil {
 		return err
 	}
 

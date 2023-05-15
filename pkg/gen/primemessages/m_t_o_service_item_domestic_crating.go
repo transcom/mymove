@@ -30,6 +30,8 @@ type MTOServiceItemDomesticCrating struct {
 
 	reServiceNameField string
 
+	reasonField string
+
 	rejectionReasonField *string
 
 	statusField MTOServiceItemStatus
@@ -55,11 +57,6 @@ type MTOServiceItemDomesticCrating struct {
 	// Required: true
 	// Enum: [DCRT DUCRT]
 	ReServiceCode *string `json:"reServiceCode"`
-
-	// The contractor's explanation for why an item needed to be crated or uncrated. Used by the TOO while deciding to approve or reject the service item.
-	//
-	// Example: Storage items need to be picked up
-	Reason *string `json:"reason"`
 }
 
 // ETag gets the e tag of this subtype
@@ -121,6 +118,16 @@ func (m *MTOServiceItemDomesticCrating) SetReServiceName(val string) {
 	m.reServiceNameField = val
 }
 
+// Reason gets the reason of this subtype
+func (m *MTOServiceItemDomesticCrating) Reason() string {
+	return m.reasonField
+}
+
+// SetReason sets the reason of this subtype
+func (m *MTOServiceItemDomesticCrating) SetReason(val string) {
+	m.reasonField = val
+}
+
 // RejectionReason gets the rejection reason of this subtype
 func (m *MTOServiceItemDomesticCrating) RejectionReason() *string {
 	return m.rejectionReasonField
@@ -166,11 +173,6 @@ func (m *MTOServiceItemDomesticCrating) UnmarshalJSON(raw []byte) error {
 		// Required: true
 		// Enum: [DCRT DUCRT]
 		ReServiceCode *string `json:"reServiceCode"`
-
-		// The contractor's explanation for why an item needed to be crated or uncrated. Used by the TOO while deciding to approve or reject the service item.
-		//
-		// Example: Storage items need to be picked up
-		Reason *string `json:"reason"`
 	}
 	buf := bytes.NewBuffer(raw)
 	dec := json.NewDecoder(buf)
@@ -195,7 +197,9 @@ func (m *MTOServiceItemDomesticCrating) UnmarshalJSON(raw []byte) error {
 
 		ReServiceName string `json:"reServiceName,omitempty"`
 
-		RejectionReason *string `json:"rejectionReason"`
+		Reason string `json:"reason"`
+
+		RejectionReason *string `json:"rejectionReason,omitempty"`
 
 		Status MTOServiceItemStatus `json:"status,omitempty"`
 	}
@@ -223,6 +227,8 @@ func (m *MTOServiceItemDomesticCrating) UnmarshalJSON(raw []byte) error {
 
 	result.reServiceNameField = base.ReServiceName
 
+	result.reasonField = base.Reason
+
 	result.rejectionReasonField = base.RejectionReason
 
 	result.statusField = base.Status
@@ -231,7 +237,6 @@ func (m *MTOServiceItemDomesticCrating) UnmarshalJSON(raw []byte) error {
 	result.Description = data.Description
 	result.Item = data.Item
 	result.ReServiceCode = data.ReServiceCode
-	result.Reason = data.Reason
 
 	*m = result
 
@@ -265,11 +270,6 @@ func (m MTOServiceItemDomesticCrating) MarshalJSON() ([]byte, error) {
 		// Required: true
 		// Enum: [DCRT DUCRT]
 		ReServiceCode *string `json:"reServiceCode"`
-
-		// The contractor's explanation for why an item needed to be crated or uncrated. Used by the TOO while deciding to approve or reject the service item.
-		//
-		// Example: Storage items need to be picked up
-		Reason *string `json:"reason"`
 	}{
 
 		Crate: m.Crate,
@@ -279,8 +279,6 @@ func (m MTOServiceItemDomesticCrating) MarshalJSON() ([]byte, error) {
 		Item: m.Item,
 
 		ReServiceCode: m.ReServiceCode,
-
-		Reason: m.Reason,
 	})
 	if err != nil {
 		return nil, err
@@ -298,7 +296,9 @@ func (m MTOServiceItemDomesticCrating) MarshalJSON() ([]byte, error) {
 
 		ReServiceName string `json:"reServiceName,omitempty"`
 
-		RejectionReason *string `json:"rejectionReason"`
+		Reason string `json:"reason"`
+
+		RejectionReason *string `json:"rejectionReason,omitempty"`
 
 		Status MTOServiceItemStatus `json:"status,omitempty"`
 	}{
@@ -314,6 +314,8 @@ func (m MTOServiceItemDomesticCrating) MarshalJSON() ([]byte, error) {
 		MtoShipmentID: m.MtoShipmentID(),
 
 		ReServiceName: m.ReServiceName(),
+
+		Reason: m.Reason(),
 
 		RejectionReason: m.RejectionReason(),
 
@@ -342,7 +344,7 @@ func (m *MTOServiceItemDomesticCrating) Validate(formats strfmt.Registry) error 
 		res = append(res, err)
 	}
 
-	if err := m.validateRejectionReason(formats); err != nil {
+	if err := m.validateReason(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -411,9 +413,9 @@ func (m *MTOServiceItemDomesticCrating) validateMtoShipmentID(formats strfmt.Reg
 	return nil
 }
 
-func (m *MTOServiceItemDomesticCrating) validateRejectionReason(formats strfmt.Registry) error {
+func (m *MTOServiceItemDomesticCrating) validateReason(formats strfmt.Registry) error {
 
-	if err := validate.Required("rejectionReason", "body", m.RejectionReason()); err != nil {
+	if err := validate.RequiredString("reason", "body", m.Reason()); err != nil {
 		return err
 	}
 
@@ -507,6 +509,10 @@ func (m *MTOServiceItemDomesticCrating) ContextValidate(ctx context.Context, for
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateReason(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateRejectionReason(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -564,6 +570,15 @@ func (m *MTOServiceItemDomesticCrating) contextValidateModelType(ctx context.Con
 func (m *MTOServiceItemDomesticCrating) contextValidateReServiceName(ctx context.Context, formats strfmt.Registry) error {
 
 	if err := validate.ReadOnly(ctx, "reServiceName", "body", string(m.ReServiceName())); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItemDomesticCrating) contextValidateReason(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "reason", "body", string(m.Reason())); err != nil {
 		return err
 	}
 

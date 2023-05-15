@@ -532,7 +532,6 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 		}
 		payload = &primemessages.MTOServiceItemOriginSIT{
 			ReServiceCode:      handlers.FmtString(string(mtoServiceItem.ReService.Code)),
-			Reason:             mtoServiceItem.Reason,
 			SitDepartureDate:   handlers.FmtDate(sitDepartureDate),
 			SitEntryDate:       handlers.FmtDatePtr(mtoServiceItem.SITEntryDate),
 			SitPostalCode:      mtoServiceItem.SITPostalCode,
@@ -576,7 +575,6 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 		cratingSI := primemessages.MTOServiceItemDomesticCrating{
 			ReServiceCode: handlers.FmtString(string(mtoServiceItem.ReService.Code)),
 			Description:   mtoServiceItem.Description,
-			Reason:        mtoServiceItem.Reason,
 		}
 		cratingSI.Item.MTOServiceItemDimension = primemessages.MTOServiceItemDimension{
 			ID:     strfmt.UUID(item.ID.String()),
@@ -594,7 +592,6 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 	case models.ReServiceCodeDDSHUT, models.ReServiceCodeDOSHUT:
 		payload = &primemessages.MTOServiceItemShuttle{
 			ReServiceCode:   handlers.FmtString(string(mtoServiceItem.ReService.Code)),
-			Reason:          mtoServiceItem.Reason,
 			EstimatedWeight: handlers.FmtPoundPtr(mtoServiceItem.EstimatedWeight),
 			ActualWeight:    handlers.FmtPoundPtr(mtoServiceItem.ActualWeight),
 		}

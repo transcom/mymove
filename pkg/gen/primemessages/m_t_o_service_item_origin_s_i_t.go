@@ -30,6 +30,8 @@ type MTOServiceItemOriginSIT struct {
 
 	reServiceNameField string
 
+	reasonField string
+
 	rejectionReasonField *string
 
 	statusField MTOServiceItemStatus
@@ -38,11 +40,6 @@ type MTOServiceItemOriginSIT struct {
 	// Required: true
 	// Enum: [DOFSIT DOASIT]
 	ReServiceCode *string `json:"reServiceCode"`
-
-	// Explanation of why Prime is picking up SIT item.
-	// Example: Storage items need to be picked up
-	// Required: true
-	Reason *string `json:"reason"`
 
 	// Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.
 	// Format: date
@@ -122,6 +119,16 @@ func (m *MTOServiceItemOriginSIT) SetReServiceName(val string) {
 	m.reServiceNameField = val
 }
 
+// Reason gets the reason of this subtype
+func (m *MTOServiceItemOriginSIT) Reason() string {
+	return m.reasonField
+}
+
+// SetReason sets the reason of this subtype
+func (m *MTOServiceItemOriginSIT) SetReason(val string) {
+	m.reasonField = val
+}
+
 // RejectionReason gets the rejection reason of this subtype
 func (m *MTOServiceItemOriginSIT) RejectionReason() *string {
 	return m.rejectionReasonField
@@ -150,11 +157,6 @@ func (m *MTOServiceItemOriginSIT) UnmarshalJSON(raw []byte) error {
 		// Required: true
 		// Enum: [DOFSIT DOASIT]
 		ReServiceCode *string `json:"reServiceCode"`
-
-		// Explanation of why Prime is picking up SIT item.
-		// Example: Storage items need to be picked up
-		// Required: true
-		Reason *string `json:"reason"`
 
 		// Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.
 		// Format: date
@@ -197,7 +199,9 @@ func (m *MTOServiceItemOriginSIT) UnmarshalJSON(raw []byte) error {
 
 		ReServiceName string `json:"reServiceName,omitempty"`
 
-		RejectionReason *string `json:"rejectionReason"`
+		Reason string `json:"reason"`
+
+		RejectionReason *string `json:"rejectionReason,omitempty"`
 
 		Status MTOServiceItemStatus `json:"status,omitempty"`
 	}
@@ -225,12 +229,13 @@ func (m *MTOServiceItemOriginSIT) UnmarshalJSON(raw []byte) error {
 
 	result.reServiceNameField = base.ReServiceName
 
+	result.reasonField = base.Reason
+
 	result.rejectionReasonField = base.RejectionReason
 
 	result.statusField = base.Status
 
 	result.ReServiceCode = data.ReServiceCode
-	result.Reason = data.Reason
 	result.SitDepartureDate = data.SitDepartureDate
 	result.SitEntryDate = data.SitEntryDate
 	result.SitHHGActualOrigin = data.SitHHGActualOrigin
@@ -252,11 +257,6 @@ func (m MTOServiceItemOriginSIT) MarshalJSON() ([]byte, error) {
 		// Enum: [DOFSIT DOASIT]
 		ReServiceCode *string `json:"reServiceCode"`
 
-		// Explanation of why Prime is picking up SIT item.
-		// Example: Storage items need to be picked up
-		// Required: true
-		Reason *string `json:"reason"`
-
 		// Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.
 		// Format: date
 		SitDepartureDate *strfmt.Date `json:"sitDepartureDate,omitempty"`
@@ -277,8 +277,6 @@ func (m MTOServiceItemOriginSIT) MarshalJSON() ([]byte, error) {
 	}{
 
 		ReServiceCode: m.ReServiceCode,
-
-		Reason: m.Reason,
 
 		SitDepartureDate: m.SitDepartureDate,
 
@@ -304,7 +302,9 @@ func (m MTOServiceItemOriginSIT) MarshalJSON() ([]byte, error) {
 
 		ReServiceName string `json:"reServiceName,omitempty"`
 
-		RejectionReason *string `json:"rejectionReason"`
+		Reason string `json:"reason"`
+
+		RejectionReason *string `json:"rejectionReason,omitempty"`
 
 		Status MTOServiceItemStatus `json:"status,omitempty"`
 	}{
@@ -320,6 +320,8 @@ func (m MTOServiceItemOriginSIT) MarshalJSON() ([]byte, error) {
 		MtoShipmentID: m.MtoShipmentID(),
 
 		ReServiceName: m.ReServiceName(),
+
+		Reason: m.Reason(),
 
 		RejectionReason: m.RejectionReason(),
 
@@ -348,7 +350,7 @@ func (m *MTOServiceItemOriginSIT) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateRejectionReason(formats); err != nil {
+	if err := m.validateReason(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -357,10 +359,6 @@ func (m *MTOServiceItemOriginSIT) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateReServiceCode(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateReason(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -425,9 +423,9 @@ func (m *MTOServiceItemOriginSIT) validateMtoShipmentID(formats strfmt.Registry)
 	return nil
 }
 
-func (m *MTOServiceItemOriginSIT) validateRejectionReason(formats strfmt.Registry) error {
+func (m *MTOServiceItemOriginSIT) validateReason(formats strfmt.Registry) error {
 
-	if err := validate.Required("rejectionReason", "body", m.RejectionReason()); err != nil {
+	if err := validate.RequiredString("reason", "body", m.Reason()); err != nil {
 		return err
 	}
 
@@ -480,15 +478,6 @@ func (m *MTOServiceItemOriginSIT) validateReServiceCode(formats strfmt.Registry)
 
 	// value enum
 	if err := m.validateReServiceCodeEnum("reServiceCode", "body", *m.ReServiceCode); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *MTOServiceItemOriginSIT) validateReason(formats strfmt.Registry) error {
-
-	if err := validate.Required("reason", "body", m.Reason); err != nil {
 		return err
 	}
 
@@ -570,6 +559,10 @@ func (m *MTOServiceItemOriginSIT) ContextValidate(ctx context.Context, formats s
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateReason(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateRejectionReason(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -623,6 +616,15 @@ func (m *MTOServiceItemOriginSIT) contextValidateModelType(ctx context.Context, 
 func (m *MTOServiceItemOriginSIT) contextValidateReServiceName(ctx context.Context, formats strfmt.Registry) error {
 
 	if err := validate.ReadOnly(ctx, "reServiceName", "body", string(m.ReServiceName())); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItemOriginSIT) contextValidateReason(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "reason", "body", string(m.Reason())); err != nil {
 		return err
 	}
 

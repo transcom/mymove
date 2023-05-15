@@ -1794,6 +1794,12 @@ definitions:
         type: string
         readOnly: true
         description: The full descriptive name of the service.
+      reason:
+        type: string
+        readOnly: true
+        description: A reason why this particular service item is justified.
+        x-nullable: false
+        x-omitempty: false
       status:
         $ref: '#/definitions/MTOServiceItemStatus'
       rejectionReason:
@@ -1813,7 +1819,7 @@ definitions:
     required:
       - modelType
       - moveTaskOrderID
-      - rejectionReason
+      - reason
   MTOServiceItemBasic:
     description: Describes a basic service item subtype of a MTOServiceItem.
     allOf:
@@ -1824,7 +1830,6 @@ definitions:
             $ref: '#/definitions/ReServiceCode'
         required:
           - reServiceCode
-          - rejectionReason
   MTOServiceItemDestSIT:
     description: >-
       Describes a domestic destination SIT service item. Subtype of a
@@ -1939,15 +1944,6 @@ definitions:
             type: string
             example: Decorated horse head to be crated.
             description: A description of the item being crated.
-          reason:
-            type: string
-            example: Storage items need to be picked up
-            description: >
-              The contractor's explanation for why an item needed to be crated
-              or uncrated. Used by the TOO while deciding to approve or reject
-              the service item.
-            x-nullable: true
-            x-omitempty: false
         required:
           - reServiceCode
           - item
@@ -1985,10 +1981,6 @@ definitions:
             enum:
               - DOFSIT
               - DOASIT
-          reason:
-            type: string
-            example: Storage items need to be picked up
-            description: Explanation of why Prime is picking up SIT item.
           sitPostalCode:
             type: string
             format: zip
@@ -2028,13 +2020,6 @@ definitions:
             enum:
               - DOSHUT
               - DDSHUT
-          reason:
-            type: string
-            example: Storage items need to be picked up.
-            description: >
-              The contractor's explanation for why a shuttle service is
-              requested. Used by the TOO while deciding to approve or reject the
-              service item.
           estimatedWeight:
             type: integer
             example: 4200

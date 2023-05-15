@@ -1966,7 +1966,7 @@ func init() {
       "required": [
         "modelType",
         "moveTaskOrderID",
-        "rejectionReason"
+        "reason"
       ],
       "properties": {
         "eTag": {
@@ -2001,6 +2001,13 @@ func init() {
           "type": "string",
           "readOnly": true
         },
+        "reason": {
+          "description": "A reason why this particular service item is justified.",
+          "type": "string",
+          "x-nullable": false,
+          "x-omitempty": false,
+          "readOnly": true
+        },
         "rejectionReason": {
           "description": "The reason why this service item was rejected by the TOO.",
           "type": "string",
@@ -2023,8 +2030,7 @@ func init() {
         {
           "type": "object",
           "required": [
-            "reServiceCode",
-            "rejectionReason"
+            "reServiceCode"
           ],
           "properties": {
             "reServiceCode": {
@@ -2176,13 +2182,6 @@ func init() {
                 "DCRT",
                 "DUCRT"
               ]
-            },
-            "reason": {
-              "description": "The contractor's explanation for why an item needed to be crated or uncrated. Used by the TOO while deciding to approve or reject the service item.\n",
-              "type": "string",
-              "x-nullable": true,
-              "x-omitempty": false,
-              "example": "Storage items need to be picked up"
             }
           }
         }
@@ -2221,11 +2220,6 @@ func init() {
                 "DOFSIT",
                 "DOASIT"
               ]
-            },
-            "reason": {
-              "description": "Explanation of why Prime is picking up SIT item.",
-              "type": "string",
-              "example": "Storage items need to be picked up"
             },
             "sitDepartureDate": {
               "description": "Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.",
@@ -2285,11 +2279,6 @@ func init() {
                 "DOSHUT",
                 "DDSHUT"
               ]
-            },
-            "reason": {
-              "description": "The contractor's explanation for why a shuttle service is requested. Used by the TOO while deciding to approve or reject the service item.\n",
-              "type": "string",
-              "example": "Storage items need to be picked up."
             }
           }
         }
@@ -6395,7 +6384,7 @@ func init() {
       "required": [
         "modelType",
         "moveTaskOrderID",
-        "rejectionReason"
+        "reason"
       ],
       "properties": {
         "eTag": {
@@ -6430,6 +6419,13 @@ func init() {
           "type": "string",
           "readOnly": true
         },
+        "reason": {
+          "description": "A reason why this particular service item is justified.",
+          "type": "string",
+          "x-nullable": false,
+          "x-omitempty": false,
+          "readOnly": true
+        },
         "rejectionReason": {
           "description": "The reason why this service item was rejected by the TOO.",
           "type": "string",
@@ -6452,8 +6448,7 @@ func init() {
         {
           "type": "object",
           "required": [
-            "reServiceCode",
-            "rejectionReason"
+            "reServiceCode"
           ],
           "properties": {
             "reServiceCode": {
@@ -6605,13 +6600,6 @@ func init() {
                 "DCRT",
                 "DUCRT"
               ]
-            },
-            "reason": {
-              "description": "The contractor's explanation for why an item needed to be crated or uncrated. Used by the TOO while deciding to approve or reject the service item.\n",
-              "type": "string",
-              "x-nullable": true,
-              "x-omitempty": false,
-              "example": "Storage items need to be picked up"
             }
           }
         }
@@ -6650,11 +6638,6 @@ func init() {
                 "DOFSIT",
                 "DOASIT"
               ]
-            },
-            "reason": {
-              "description": "Explanation of why Prime is picking up SIT item.",
-              "type": "string",
-              "example": "Storage items need to be picked up"
             },
             "sitDepartureDate": {
               "description": "Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.",
@@ -6714,11 +6697,6 @@ func init() {
                 "DOSHUT",
                 "DDSHUT"
               ]
-            },
-            "reason": {
-              "description": "The contractor's explanation for why a shuttle service is requested. Used by the TOO while deciding to approve or reject the service item.\n",
-              "type": "string",
-              "example": "Storage items need to be picked up."
             }
           }
         }

@@ -30,7 +30,7 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 	itemMeasurement := int32(1100)
 	crateMeasurement := int32(1200)
 	dcrtCode := models.ReServiceCodeDCRT.String()
-	reason := "Reason"
+	//reason := "Reason"
 	description := "Description"
 
 	item := &primemessages.MTOServiceItemDimension{
@@ -47,8 +47,8 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 
 	DCRTServiceItem := &primemessages.MTOServiceItemDomesticCrating{
 		ReServiceCode: &dcrtCode,
-		Reason:        &reason,
-		Description:   &description,
+		//Reason:        &reason,
+		Description: &description,
 	}
 	DCRTServiceItem.Item.MTOServiceItemDimension = *item
 	DCRTServiceItem.Crate.MTOServiceItemDimension = *crate
@@ -121,8 +121,8 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 
 		badDCRTServiceItem := &primemessages.MTOServiceItemDomesticCrating{
 			ReServiceCode: &dcrtCode,
-			Reason:        &reason,
-			Description:   &description,
+			//Reason:        &reason,
+			Description: &description,
 		}
 		badDCRTServiceItem.Item.MTOServiceItemDimension = *item
 		badDCRTServiceItem.Crate.MTOServiceItemDimension = *badCrate

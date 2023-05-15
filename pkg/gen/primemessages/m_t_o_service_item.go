@@ -60,9 +60,14 @@ type MTOServiceItem interface {
 	ReServiceName() string
 	SetReServiceName(string)
 
+	// A reason why this particular service item is justified.
+	// Required: true
+	// Read Only: true
+	Reason() string
+	SetReason(string)
+
 	// The reason why this service item was rejected by the TOO.
 	// Example: item was too heavy
-	// Required: true
 	// Read Only: true
 	RejectionReason() *string
 	SetRejectionReason(*string)
@@ -87,6 +92,8 @@ type mTOServiceItem struct {
 	mtoShipmentIdField strfmt.UUID
 
 	reServiceNameField string
+
+	reasonField string
 
 	rejectionReasonField *string
 
@@ -150,6 +157,16 @@ func (m *mTOServiceItem) ReServiceName() string {
 // SetReServiceName sets the re service name of this polymorphic type
 func (m *mTOServiceItem) SetReServiceName(val string) {
 	m.reServiceNameField = val
+}
+
+// Reason gets the reason of this polymorphic type
+func (m *mTOServiceItem) Reason() string {
+	return m.reasonField
+}
+
+// SetReason sets the reason of this polymorphic type
+func (m *mTOServiceItem) SetReason(val string) {
+	m.reasonField = val
 }
 
 // RejectionReason gets the rejection reason of this polymorphic type
@@ -274,7 +291,7 @@ func (m *mTOServiceItem) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateRejectionReason(formats); err != nil {
+	if err := m.validateReason(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -325,9 +342,9 @@ func (m *mTOServiceItem) validateMtoShipmentID(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *mTOServiceItem) validateRejectionReason(formats strfmt.Registry) error {
+func (m *mTOServiceItem) validateReason(formats strfmt.Registry) error {
 
-	if err := validate.Required("rejectionReason", "body", m.RejectionReason()); err != nil {
+	if err := validate.RequiredString("reason", "body", m.Reason()); err != nil {
 		return err
 	}
 
@@ -368,6 +385,10 @@ func (m *mTOServiceItem) ContextValidate(ctx context.Context, formats strfmt.Reg
 	}
 
 	if err := m.contextValidateReServiceName(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateReason(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -420,6 +441,15 @@ func (m *mTOServiceItem) contextValidateModelType(ctx context.Context, formats s
 func (m *mTOServiceItem) contextValidateReServiceName(ctx context.Context, formats strfmt.Registry) error {
 
 	if err := validate.ReadOnly(ctx, "reServiceName", "body", string(m.ReServiceName())); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *mTOServiceItem) contextValidateReason(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "reason", "body", string(m.Reason())); err != nil {
 		return err
 	}
 

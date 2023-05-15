@@ -30,6 +30,8 @@ type MTOServiceItemShuttle struct {
 
 	reServiceNameField string
 
+	reasonField string
+
 	rejectionReasonField *string
 
 	statusField MTOServiceItemStatus
@@ -47,12 +49,6 @@ type MTOServiceItemShuttle struct {
 	// Required: true
 	// Enum: [DOSHUT DDSHUT]
 	ReServiceCode *string `json:"reServiceCode"`
-
-	// The contractor's explanation for why a shuttle service is requested. Used by the TOO while deciding to approve or reject the service item.
-	//
-	// Example: Storage items need to be picked up.
-	// Required: true
-	Reason *string `json:"reason"`
 }
 
 // ETag gets the e tag of this subtype
@@ -114,6 +110,16 @@ func (m *MTOServiceItemShuttle) SetReServiceName(val string) {
 	m.reServiceNameField = val
 }
 
+// Reason gets the reason of this subtype
+func (m *MTOServiceItemShuttle) Reason() string {
+	return m.reasonField
+}
+
+// SetReason sets the reason of this subtype
+func (m *MTOServiceItemShuttle) SetReason(val string) {
+	m.reasonField = val
+}
+
 // RejectionReason gets the rejection reason of this subtype
 func (m *MTOServiceItemShuttle) RejectionReason() *string {
 	return m.rejectionReasonField
@@ -151,12 +157,6 @@ func (m *MTOServiceItemShuttle) UnmarshalJSON(raw []byte) error {
 		// Required: true
 		// Enum: [DOSHUT DDSHUT]
 		ReServiceCode *string `json:"reServiceCode"`
-
-		// The contractor's explanation for why a shuttle service is requested. Used by the TOO while deciding to approve or reject the service item.
-		//
-		// Example: Storage items need to be picked up.
-		// Required: true
-		Reason *string `json:"reason"`
 	}
 	buf := bytes.NewBuffer(raw)
 	dec := json.NewDecoder(buf)
@@ -181,7 +181,9 @@ func (m *MTOServiceItemShuttle) UnmarshalJSON(raw []byte) error {
 
 		ReServiceName string `json:"reServiceName,omitempty"`
 
-		RejectionReason *string `json:"rejectionReason"`
+		Reason string `json:"reason"`
+
+		RejectionReason *string `json:"rejectionReason,omitempty"`
 
 		Status MTOServiceItemStatus `json:"status,omitempty"`
 	}
@@ -209,6 +211,8 @@ func (m *MTOServiceItemShuttle) UnmarshalJSON(raw []byte) error {
 
 	result.reServiceNameField = base.ReServiceName
 
+	result.reasonField = base.Reason
+
 	result.rejectionReasonField = base.RejectionReason
 
 	result.statusField = base.Status
@@ -216,7 +220,6 @@ func (m *MTOServiceItemShuttle) UnmarshalJSON(raw []byte) error {
 	result.ActualWeight = data.ActualWeight
 	result.EstimatedWeight = data.EstimatedWeight
 	result.ReServiceCode = data.ReServiceCode
-	result.Reason = data.Reason
 
 	*m = result
 
@@ -242,12 +245,6 @@ func (m MTOServiceItemShuttle) MarshalJSON() ([]byte, error) {
 		// Required: true
 		// Enum: [DOSHUT DDSHUT]
 		ReServiceCode *string `json:"reServiceCode"`
-
-		// The contractor's explanation for why a shuttle service is requested. Used by the TOO while deciding to approve or reject the service item.
-		//
-		// Example: Storage items need to be picked up.
-		// Required: true
-		Reason *string `json:"reason"`
 	}{
 
 		ActualWeight: m.ActualWeight,
@@ -255,8 +252,6 @@ func (m MTOServiceItemShuttle) MarshalJSON() ([]byte, error) {
 		EstimatedWeight: m.EstimatedWeight,
 
 		ReServiceCode: m.ReServiceCode,
-
-		Reason: m.Reason,
 	})
 	if err != nil {
 		return nil, err
@@ -274,7 +269,9 @@ func (m MTOServiceItemShuttle) MarshalJSON() ([]byte, error) {
 
 		ReServiceName string `json:"reServiceName,omitempty"`
 
-		RejectionReason *string `json:"rejectionReason"`
+		Reason string `json:"reason"`
+
+		RejectionReason *string `json:"rejectionReason,omitempty"`
 
 		Status MTOServiceItemStatus `json:"status,omitempty"`
 	}{
@@ -290,6 +287,8 @@ func (m MTOServiceItemShuttle) MarshalJSON() ([]byte, error) {
 		MtoShipmentID: m.MtoShipmentID(),
 
 		ReServiceName: m.ReServiceName(),
+
+		Reason: m.Reason(),
 
 		RejectionReason: m.RejectionReason(),
 
@@ -318,7 +317,7 @@ func (m *MTOServiceItemShuttle) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateRejectionReason(formats); err != nil {
+	if err := m.validateReason(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -327,10 +326,6 @@ func (m *MTOServiceItemShuttle) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateReServiceCode(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateReason(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -379,9 +374,9 @@ func (m *MTOServiceItemShuttle) validateMtoShipmentID(formats strfmt.Registry) e
 	return nil
 }
 
-func (m *MTOServiceItemShuttle) validateRejectionReason(formats strfmt.Registry) error {
+func (m *MTOServiceItemShuttle) validateReason(formats strfmt.Registry) error {
 
-	if err := validate.Required("rejectionReason", "body", m.RejectionReason()); err != nil {
+	if err := validate.RequiredString("reason", "body", m.Reason()); err != nil {
 		return err
 	}
 
@@ -440,15 +435,6 @@ func (m *MTOServiceItemShuttle) validateReServiceCode(formats strfmt.Registry) e
 	return nil
 }
 
-func (m *MTOServiceItemShuttle) validateReason(formats strfmt.Registry) error {
-
-	if err := validate.Required("reason", "body", m.Reason); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 // ContextValidate validate this m t o service item shuttle based on the context it is used
 func (m *MTOServiceItemShuttle) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
@@ -462,6 +448,10 @@ func (m *MTOServiceItemShuttle) ContextValidate(ctx context.Context, formats str
 	}
 
 	if err := m.contextValidateReServiceName(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateReason(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -514,6 +504,15 @@ func (m *MTOServiceItemShuttle) contextValidateModelType(ctx context.Context, fo
 func (m *MTOServiceItemShuttle) contextValidateReServiceName(ctx context.Context, formats strfmt.Registry) error {
 
 	if err := validate.ReadOnly(ctx, "reServiceName", "body", string(m.ReServiceName())); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItemShuttle) contextValidateReason(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "reason", "body", string(m.Reason())); err != nil {
 		return err
 	}
 
