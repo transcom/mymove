@@ -52,14 +52,21 @@ func NewHealthHandler(appCtx appcontext.AppContext, redisPool *redis.Pool, gitBr
 		// two seconds. https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/dns-failover-determining-health-of-endpoints.html
 		showDB, ok := r.URL.Query()["database"]
 
+		var dbID string
+		var dbURL string
 		// Always show DB unless key set to "false"
 		if !ok || (ok && showDB[0] != "false") {
 			appCtx.Logger().Info("Health check connecting to the DB")
 			// include the request context for helpful tracing
 			db := appCtx.DB().WithContext(r.Context())
+			dbID = db.ID
+			dbURL = db.Dialect.Details().URL
 			dbErr := db.RawQuery("SELECT 1;").Exec()
 			if dbErr != nil {
-				appCtx.Logger().Error("Failed database health check", zap.Error(dbErr))
+				appCtx.Logger().Error("Failed database health check",
+					zap.String("dbID", dbID),
+					zap.String("dbURL", dbURL),
+					zap.Error(dbErr))
 				data["database"] = false
 				healthCheckError(appCtx, w, data)
 				return
@@ -82,6 +89,8 @@ func NewHealthHandler(appCtx appcontext.AppContext, redisPool *redis.Pool, gitBr
 			return
 		}
 
-		appCtx.Logger().Info("Request health ok")
+		appCtx.Logger().Info("Request health ok",
+			zap.String("dbID", dbID),
+			zap.String("dbURL", dbURL))
 	}
 }
