@@ -68,18 +68,6 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 		StreetAddress1: &destStreet,
 	}
 
-	destServiceItem := &primemessages.MTOServiceItemDestSIT{
-		ReServiceCode:               &destServiceCode,
-		FirstAvailableDeliveryDate1: &destDate,
-		FirstAvailableDeliveryDate2: &destDate,
-		TimeMilitary1:               &destTime,
-		TimeMilitary2:               &destTime,
-		SitDestinationFinalAddress:  &sitFinalDestAddress,
-	}
-
-	destServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
-	destServiceItem.SetMtoShipmentID(*mtoShipmentIDString)
-
 	suite.Run("Success - Returns a basic service item model", func() {
 		returnedModel, verrs := MTOServiceItemModel(basicServiceItem)
 
@@ -138,6 +126,35 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 	})
 
 	suite.Run("Success - Returns SIT destination service item model", func() {
+		destServiceItem := &primemessages.MTOServiceItemDestSIT{
+			ReServiceCode:               &destServiceCode,
+			FirstAvailableDeliveryDate1: &destDate,
+			FirstAvailableDeliveryDate2: &destDate,
+			TimeMilitary1:               &destTime,
+			TimeMilitary2:               &destTime,
+			SitDestinationFinalAddress:  &sitFinalDestAddress,
+		}
+
+		destServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
+		destServiceItem.SetMtoShipmentID(*mtoShipmentIDString)
+		returnedModel, verrs := MTOServiceItemModel(destServiceItem)
+
+		suite.NoVerrs(verrs)
+		suite.Equal(moveTaskOrderIDField.String(), returnedModel.MoveTaskOrderID.String())
+		suite.Equal(mtoShipmentIDField.String(), returnedModel.MTOShipmentID.String())
+		suite.Equal(models.ReServiceCodeDDFSIT, returnedModel.ReService.Code)
+		suite.Equal(destPostalCode, returnedModel.SITDestinationFinalAddress.PostalCode)
+		suite.Equal(destStreet, returnedModel.SITDestinationFinalAddress.StreetAddress1)
+
+	})
+	suite.Run("Success - Returns SIT destination service item model without customer contact fields", func() {
+		destServiceItem := &primemessages.MTOServiceItemDestSIT{
+			ReServiceCode:              &destServiceCode,
+			SitDestinationFinalAddress: &sitFinalDestAddress,
+		}
+
+		destServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
+		destServiceItem.SetMtoShipmentID(*mtoShipmentIDString)
 		returnedModel, verrs := MTOServiceItemModel(destServiceItem)
 
 		suite.NoVerrs(verrs)
