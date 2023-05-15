@@ -504,10 +504,6 @@ func buildRoutingConfig(appCtx appcontext.AppContext, v *viper.Viper, redisPool 
 	// Storage
 	fileStorer := storage.InitStorage(v, awsSession, appCtx.Logger())
 
-	// Get route planner for handlers to calculate transit distances
-	// routePlanner := route.NewBingPlanner(logger, bingMapsEndpoint, bingMapsKey)
-	routePlanner := route.InitRoutePlanner(v)
-
 	// Create a secondary planner specifically for HHG.
 	hhgRoutePlanner, err := route.InitHHGRoutePlanner(appCtx, v, tlsConfig)
 	if err != nil {
@@ -582,7 +578,6 @@ func buildRoutingConfig(appCtx appcontext.AppContext, v *viper.Viper, redisPool 
 		appCtx.DB(),
 		appCtx.Logger(),
 		clientAuthSecretKey,
-		routePlanner,
 		hhgRoutePlanner,
 		dtodRoutePlanner,
 		fileStorer,

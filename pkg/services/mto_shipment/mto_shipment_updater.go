@@ -869,7 +869,7 @@ func CalculateRequiredDeliveryDate(appCtx appcontext.AppContext, planner route.P
 		"99950", "99824", "99850", "99901", "99928", "99950", "99835"}
 
 	// Get a distance calculation between pickup and destination addresses.
-	distance, err := planner.TransitDistance(appCtx, &pickupAddress, &destinationAddress)
+	distance, err := planner.ZipTransitDistance(appCtx, pickupAddress.PostalCode, destinationAddress.PostalCode)
 	if err != nil {
 		return nil, err
 	}
