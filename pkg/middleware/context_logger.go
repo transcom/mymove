@@ -24,6 +24,9 @@ func ContextLogger(field string, original *zap.Logger) func(next http.Handler) h
 			if sessionID := auth.SessionIDFromContext(ctx); sessionID != "" {
 				logs = logs.With(zap.String("session_id", sessionID))
 			}
+			if xrayID := trace.AwsXrayFromContext(ctx); xrayID != "" {
+				logs = logs.With(zap.String("xray_trace_id", xrayID))
+			}
 			ctx = logging.NewContext(ctx, logs)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})

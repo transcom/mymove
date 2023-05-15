@@ -33,16 +33,6 @@ buildEnv {
     (import
       (builtins.fetchGit {
         # Descriptive name to make the store path easier to identify
-        name = "yarn-1.22.11";
-        url = "https://github.com/NixOS/nixpkgs/";
-        ref = "refs/heads/nixpkgs-unstable";
-        rev = "253aecf69ed7595aaefabde779aa6449195bebb7";
-      })
-      { }).yarn
-
-    (import
-      (builtins.fetchGit {
-        # Descriptive name to make the store path easier to identify
         name = "go-1.20.3";
         url = "https://github.com/NixOS/nixpkgs/";
         ref = "refs/heads/nixpkgs-unstable";

@@ -2,39 +2,25 @@ package telemetry
 
 import (
 	"context"
+	"sync"
+	"time"
 
 	"go.opentelemetry.io/otel/metric"
 	"go.opentelemetry.io/otel/metric/global"
-	"go.opentelemetry.io/otel/metric/instrument"
-	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/db/stats"
 )
 
-// Ideally the "go.opentelemetry.io/otel/semconv" package would
-// provide standard names for the stats below, but they don't seem to
-// See https://github.com/open-telemetry/opentelemetry-go/blob/main/semconv/v1.7.0/trace.go
-
-// https://pkg.go.dev/database/sql#DB.Stats InUse
-const dbPoolInUseName = "db.pool.inuse"
-const dbPoolInUseDesc = "The number of connections currently in use"
-
-// https://pkg.go.dev/database/sql#DB.Stats Idle
-const dbPoolIdleName = "db.pool.idle"
-const dbPoolIdleDesc = "The number of connections currently in use"
-
-// https://pkg.go.dev/database/sql#DB.Stats WaitDuration
-const dbWaitDurationName = "db.waitduration"
-const dbWaitDurationDesc = "The total time blocked waiting for a new connection"
-
 const dbTelemetryVersion = "0.1"
 
 // RegisterDBStatsObserver creates a custom metric that is updated
 // automatically using an observer
-func RegisterDBStatsObserver(appCtx appcontext.AppContext, config *Config) {
+func RegisterDBStatsObserver(appCtx appcontext.AppContext, config *Config) error {
+	minDuration := time.Duration(config.CollectSeconds * int(time.Second))
+
 	if !config.Enabled {
-		return
+		return nil
 	}
 
 	meterProvider := global.MeterProvider()
@@ -42,49 +28,95 @@ func RegisterDBStatsObserver(appCtx appcontext.AppContext, config *Config) {
 	dbMeter := meterProvider.Meter("github.com/transcom/mymove/db",
 		metric.WithInstrumentationVersion(dbTelemetryVersion))
 
-	poolInUse, _ := dbMeter.Int64ObservableUpDownCounter(dbPoolInUseName, instrument.WithDescription(dbPoolInUseDesc))
+	// lock prevents a race between batch observer and instrument registration.
+	var lock sync.Mutex
 
-	_, err := dbMeter.RegisterCallback(
+	lock.Lock()
+	defer lock.Unlock()
+
+	// Ideally the "go.opentelemetry.io/otel/semconv" package would
+	// provide standard names for the stats below, but they don't seem to
+	// See https://github.com/open-telemetry/opentelemetry-go/blob/main/semconv/v1.7.0/trace.go
+
+	// https://pkg.go.dev/database/sql#DB.Stats
+	poolInUse, err := dbMeter.Int64ObservableUpDownCounter(
+		"db.pool.inuse",
+		metric.WithDescription("The number of connections currently in use"))
+	if err != nil {
+		return err
+	}
+
+	// https://pkg.go.dev/database/sql#DB.Stats
+	poolIdle, err := dbMeter.Int64ObservableUpDownCounter(
+		"db.pool.idle",
+		metric.WithDescription("The number of idle connections"))
+	if err != nil {
+		return err
+	}
+
+	// https://pkg.go.dev/database/sql#DB.Stats
+	dbWait, err := dbMeter.Int64ObservableUpDownCounter(
+		"db.waitduration",
+		metric.WithUnit("ms"),
+		metric.WithDescription("Milliseconds blocked waiting for a new connection"))
+	if err != nil {
+		return err
+	}
+
+	maxIdleClosed, err := dbMeter.Int64ObservableUpDownCounter(
+		"db.maxidleclosed",
+		metric.WithDescription("The total number of connections closed due to SetMaxIdleConns"),
+	)
+	if err != nil {
+		return err
+	}
+
+	maxIdleTimeClosed, err := dbMeter.Int64ObservableUpDownCounter(
+		"db.maxidletimeclosed",
+		metric.WithDescription("The total number of connections closed due to SetConnMaxIdleTime"),
+	)
+	if err != nil {
+		return err
+	}
+
+	maxLifetimeClosed, err := dbMeter.Int64ObservableUpDownCounter(
+		"db.maxlifetimeclosed",
+		metric.WithDescription("The total number of connections closed due to SetConnMaxLifetime"),
+	)
+	if err != nil {
+		return err
+	}
+
+	lastStats := time.Now()
+	_, err = dbMeter.RegisterCallback(
 		func(ctx context.Context, observer metric.Observer) error {
+			lock.Lock()
+			defer lock.Unlock()
+
+			now := time.Now()
+
+			// round to nearest second
+			diff := now.Sub(lastStats).Round(time.Second)
+			if diff < minDuration {
+				appCtx.Logger().Warn("Skipping db telemetry update")
+				return nil
+			}
 			dbStats, dberr := stats.DBStats(appCtx)
 			if dberr == nil {
 				observer.ObserveInt64(poolInUse, int64(dbStats.InUse))
-			}
-			return dberr
-		}, poolInUse)
-
-	if err != nil {
-		appCtx.Logger().Fatal("Failed to start db instrumentation", zap.Error(err))
-	}
-
-	poolIdle, _ := dbMeter.Int64ObservableUpDownCounter(dbPoolIdleName, instrument.WithDescription(dbPoolIdleDesc))
-
-	_, err = dbMeter.RegisterCallback(
-		func(ctx context.Context, observer metric.Observer) error {
-			dbStats, dberr := stats.DBStats(appCtx)
-			if dberr == nil {
 				observer.ObserveInt64(poolIdle, int64(dbStats.Idle))
+				observer.ObserveInt64(dbWait, int64(dbStats.WaitDuration.Milliseconds()))
+				observer.ObserveInt64(maxIdleClosed, dbStats.MaxIdleClosed)
+				observer.ObserveInt64(maxIdleTimeClosed, dbStats.MaxIdleTimeClosed)
+				observer.ObserveInt64(maxLifetimeClosed, dbStats.MaxLifetimeClosed)
+				lastStats = now
 			}
 			return dberr
-		}, poolIdle)
+		}, poolInUse, poolIdle, dbWait, maxIdleClosed, maxIdleTimeClosed, maxLifetimeClosed)
 
 	if err != nil {
-		appCtx.Logger().Fatal("Failed to start db instrumentation", zap.Error(err))
+		return err
 	}
 
-	dbWait, _ := dbMeter.Int64ObservableUpDownCounter(dbWaitDurationName, instrument.WithDescription(dbWaitDurationDesc))
-
-	_, err = dbMeter.RegisterCallback(
-		func(ctx context.Context, observer metric.Observer) error {
-			dbStats, dberr := stats.DBStats(appCtx)
-			if dberr == nil {
-				observer.ObserveInt64(dbWait, int64(dbStats.WaitDuration))
-			}
-			return dberr
-		}, dbWait)
-
-	if err != nil {
-		appCtx.Logger().Fatal("Failed to start db instrumentation", zap.Error(err))
-	}
-
+	return nil
 }

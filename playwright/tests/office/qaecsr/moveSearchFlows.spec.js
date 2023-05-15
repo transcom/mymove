@@ -5,7 +5,7 @@
  */
 
 // @ts-check
-import { test, expect } from '../../utils/officeTest';
+import { test, expect } from '../../utils/office/officeTest';
 
 test.describe('QAE/CSR Move Search', () => {
   test('is able to search by move code', async ({ page, officePage }) => {
