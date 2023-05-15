@@ -183,6 +183,7 @@ func (h ListMTOServiceItemsHandler) Handle(params mtoserviceitemop.ListMTOServic
 				query.NewQueryAssociation("ReService"),
 				query.NewQueryAssociation("CustomerContacts"),
 				query.NewQueryAssociation("Dimensions"),
+				query.NewQueryAssociation("SITAddressUpdates"),
 			})
 
 			var serviceItems models.MTOServiceItems

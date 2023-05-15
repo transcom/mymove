@@ -1222,11 +1222,12 @@ func MTOServiceItemModel(s *models.MTOServiceItem) *ghcmessages.MTOServiceItem {
 		Description:      handlers.FmtStringPtr(s.Description),
 		Dimensions:       MTOServiceItemDimensions(s.Dimensions),
 		CustomerContacts: MTOServiceItemCustomerContacts(s.CustomerContacts),
-		EstimatedWeight:  handlers.FmtPoundPtr(s.EstimatedWeight),
-		CreatedAt:        strfmt.DateTime(s.CreatedAt),
-		ApprovedAt:       handlers.FmtDateTimePtr(s.ApprovedAt),
-		RejectedAt:       handlers.FmtDateTimePtr(s.RejectedAt),
-		ETag:             etag.GenerateEtag(s.UpdatedAt),
+		// SitAddressUpdates: SITAddressUpdates(s.SITAddressUpdates),
+		EstimatedWeight: handlers.FmtPoundPtr(s.EstimatedWeight),
+		CreatedAt:       strfmt.DateTime(s.CreatedAt),
+		ApprovedAt:      handlers.FmtDateTimePtr(s.ApprovedAt),
+		RejectedAt:      handlers.FmtDateTimePtr(s.RejectedAt),
+		ETag:            etag.GenerateEtag(s.UpdatedAt),
 	}
 }
 
@@ -1277,6 +1278,29 @@ func MTOServiceItemCustomerContacts(c models.MTOServiceItemCustomerContacts) ghc
 	for i, item := range c {
 		copyOfServiceItem := item // Make copy to avoid implicit memory aliasing of items from a range statement.
 		payload[i] = MTOServiceItemCustomerContact(&copyOfServiceItem)
+	}
+	return payload
+}
+
+func SITAddressUpdate(u models.SITAddressUpdate) *ghcmessages.SITAddressUpdate {
+	return &ghcmessages.SITAddressUpdate{
+		ID:                *handlers.FmtUUID(u.ID),
+		MtoServiceItemID:  *handlers.FmtUUID(u.MTOServiceItemID),
+		Distance:          int64(u.Distance),
+		Reason:            u.Reason,
+		ContractorRemarks: u.ContractorRemarks,
+		OfficeRemarks:     u.OfficeRemarks,
+		Status:            u.Status,
+		OldAddress:        Address(&u.OldAddress),
+		NewAddress:        Address(&u.NewAddress),
+	}
+}
+
+func SITAddressUpdates(u models.SITAddressUpdates) ghcmessages.SITAddressUpdates {
+	payload := make(ghcmessages.SITAddressUpdates, len(u))
+	for i, item := range u {
+		copyOfAddressUpdate := item // Make copy to avoid implicit memory aliasing of items from a range statement.
+		payload[i] = SITAddressUpdate(copyOfAddressUpdate)
 	}
 	return payload
 }
