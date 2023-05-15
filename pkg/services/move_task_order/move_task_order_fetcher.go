@@ -29,7 +29,6 @@ func (f moveTaskOrderFetcher) ListAllMoveTaskOrders(appCtx appcontext.AppContext
 		"PaymentRequests.PaymentServiceItems.PaymentServiceItemParams.ServiceItemParamKey",
 		"MTOServiceItems.ReService",
 		"MTOServiceItems.Dimensions",
-		"MTOServiceItems.CustomerContacts",
 		"MTOShipments.DestinationAddress",
 		"MTOShipments.PickupAddress",
 		"MTOShipments.SecondaryDeliveryAddress",
@@ -64,6 +63,28 @@ func (f moveTaskOrderFetcher) ListAllMoveTaskOrders(appCtx appcontext.AppContext
 			}
 			moveTaskOrders[i].MTOShipments = filteredShipments
 		}
+	}
+
+	// Due to a Pop bug, we cannot fetch Customer Contacts with EagerPreload, this is due to a difference between what Pop expects
+	// the column names to be when creating the rows on the Many-to-Many table and with what it expects when fetching with EagerPreload
+	for _, move := range moveTaskOrders {
+		var loadedServiceItems models.MTOServiceItems
+		if move.MTOServiceItems != nil {
+			loadedServiceItems = models.MTOServiceItems{}
+		}
+		for i, serviceItem := range move.MTOServiceItems {
+			if serviceItem.ReService.Code == models.ReServiceCodeDDASIT ||
+				serviceItem.ReService.Code == models.ReServiceCodeDDDSIT ||
+				serviceItem.ReService.Code == models.ReServiceCodeDDFSIT {
+				loadErr := appCtx.DB().Load(&move.MTOServiceItems[i], "CustomerContacts")
+				if loadErr != nil {
+					return models.Moves{}, apperror.NewQueryError("CustomerContacts", loadErr, "")
+				}
+			}
+
+			loadedServiceItems = append(loadedServiceItems, move.MTOServiceItems[i])
+		}
+		move.MTOServiceItems = loadedServiceItems
 	}
 
 	return moveTaskOrders, nil
