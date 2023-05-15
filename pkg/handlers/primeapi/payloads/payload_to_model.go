@@ -356,6 +356,8 @@ func MTOServiceItemModel(mtoServiceItem primemessages.MTOServiceItem) (*models.M
 		return nil, nil
 	}
 
+	reason := models.MTOServiceItem{}.Reason
+
 	shipmentID := uuid.FromStringOrNil(mtoServiceItem.MtoShipmentID().String())
 
 	// basic service item
@@ -363,6 +365,7 @@ func MTOServiceItemModel(mtoServiceItem primemessages.MTOServiceItem) (*models.M
 		ID:              uuid.FromStringOrNil(mtoServiceItem.ID().String()),
 		MoveTaskOrderID: uuid.FromStringOrNil(mtoServiceItem.MoveTaskOrderID().String()),
 		MTOShipmentID:   &shipmentID,
+		Reason:          reason,
 		CreatedAt:       time.Now(),
 		UpdatedAt:       time.Now(),
 	}
@@ -377,7 +380,7 @@ func MTOServiceItemModel(mtoServiceItem primemessages.MTOServiceItem) (*models.M
 			model.ReService.Code = models.ReServiceCode(*originsit.ReServiceCode)
 		}
 
-		model.Reason = originsit.Reason
+		//model.Reason = originsit.Reason
 		sitEntryDate := handlers.FmtDatePtrToPopPtr(originsit.SitEntryDate)
 
 		if sitEntryDate != nil {
@@ -440,7 +443,7 @@ func MTOServiceItemModel(mtoServiceItem primemessages.MTOServiceItem) (*models.M
 		shuttleService := mtoServiceItem.(*primemessages.MTOServiceItemShuttle)
 		// values to get from payload
 		model.ReService.Code = models.ReServiceCode(*shuttleService.ReServiceCode)
-		model.Reason = shuttleService.Reason
+		//model.Reason = shuttleService.Reason
 		model.EstimatedWeight = handlers.PoundPtrFromInt64Ptr(shuttleService.EstimatedWeight)
 		model.ActualWeight = handlers.PoundPtrFromInt64Ptr(shuttleService.ActualWeight)
 
@@ -456,7 +459,7 @@ func MTOServiceItemModel(mtoServiceItem primemessages.MTOServiceItem) (*models.M
 		// have to get code from payload
 		model.ReService.Code = models.ReServiceCode(*domesticCrating.ReServiceCode)
 		model.Description = domesticCrating.Description
-		model.Reason = domesticCrating.Reason
+		//model.Reason = domesticCrating.Reason
 		model.Dimensions = models.MTOServiceItemDimensions{
 			models.MTOServiceItemDimension{
 				Type:   models.DimensionTypeItem,
