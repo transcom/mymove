@@ -12,98 +12,32 @@ CREATE TABLE IF NOT EXISTS service_items_customer_contacts (
 	deleted_at TIMESTAMP without time zone
 );
 
--- Get all destination SIT service items and any corresponding customer contact ids
--- Some of these will have no customer contacts,
--- but they might have a corresponding destination SIT service item that does have customer contacts
-WITH all_dest_sits as (
-	SELECT
-		si.mto_shipment_id,
-		si.id,
-		re.code,
-		cc.id as cc_id,
-		cc.type	as cc_type
+-- Get one pair of shipments and Customer Contacts per contact type
+WITH shipment_contact_pairs AS (
+	select distinct on ((msi.mto_shipment_id, msicc.type))
+		msi.mto_shipment_id,
+		msicc.type,
+		msicc.id AS contact_id
 	FROM
-		mto_service_items si
-			INNER JOIN re_services re ON si.re_service_id = re.id
-			LEFT join mto_service_item_customer_contacts cc ON si.id = cc.mto_service_item_id
-	WHERE re.code IN ('DDASIT', 'DDDSIT', 'DDFSIT')
-),
--- In this CTE each row has all destination SIT service items associated with their corresponding shipment
--- and with the first corresponding FIRST and SECOND typed customer contacts
-corresponding_contacts_and_service_items as (
- 	SELECT
-		DISTINCT msi.mto_shipment_id,
-		(SELECT all_dest_sits.id FROM all_dest_sits WHERE all_dest_sits.mto_shipment_id = msi.mto_shipment_id AND all_dest_sits.code = 'DDFSIT' LIMIT 1) as ddfsit_id,
-		(SELECT all_dest_sits.id FROM all_dest_sits WHERE all_dest_sits.mto_shipment_id = msi.mto_shipment_id AND all_dest_sits.code = 'DDASIT' LIMIT 1) as ddasit_id,
-		(SELECT all_dest_sits.id FROM all_dest_sits WHERE all_dest_sits.mto_shipment_id = msi.mto_shipment_id AND all_dest_sits.code = 'DDDSIT' LIMIT 1) as dddsit_id,
-		(SELECT all_dest_sits.cc_id FROM all_dest_sits WHERE all_dest_sits.mto_shipment_id = msi.mto_shipment_id AND all_dest_sits.cc_type = 'FIRST' LIMIT 1) as first_cc_id,
-		(SELECT all_dest_sits.cc_id FROM all_dest_sits WHERE all_dest_sits.mto_shipment_id = msi.mto_shipment_id AND all_dest_sits.cc_type = 'SECOND' LIMIT 1) as second_cc_id
-FROM
-    mto_service_items msi
-		INNER JOIN re_services re ON msi.re_service_id = re.id
-		INNER join mto_service_item_customer_contacts cc ON msi.id = cc.mto_service_item_id
- 	WHERE re.code IN ('DDASIT', 'DDDSIT', 'DDFSIT') AND cc.id IS NOT NULL
+		mto_service_items msi
+			INNER JOIN re_services res ON msi.re_service_id = res.id
+			left JOIN mto_service_item_customer_contacts msicc ON msi.id = msicc.mto_service_item_id
+	WHERE res.code IN ('DDASIT', 'DDDSIT', 'DDFSIT') AND msicc.id IS NOT null
+	order by (msi.mto_shipment_id, msicc.type)
 )
 INSERT INTO service_items_customer_contacts (id, mtoservice_item_id, mtoservice_item_customer_contact_id, created_at, updated_at)
--- The FIRST customer contact paired with the DDFSIT
 SELECT
 	uuid_generate_v4(),
-	corresponding_contacts_and_service_items.ddfsit_id   as mtoservice_item_id,
-	corresponding_contacts_and_service_items.first_cc_id as mtoservice_item_customer_contact_id,
+	msi.id,
+	shipment_contact_pairs.contact_id,
 	NOW(),
 	NOW()
-FROM corresponding_contacts_and_service_items
-WHERE ddfsit_id IS NOT NULL
-UNION
--- The SECOND customer contact paired with the DDFSIT
-SELECT
-	uuid_generate_v4(),
-	corresponding_contacts_and_service_items.ddfsit_id    as mtoservice_item_id,
-	corresponding_contacts_and_service_items.second_cc_id as mtoservice_item_customer_contact_id,
-	NOW(),
-	NOW()
-FROM corresponding_contacts_and_service_items
-WHERE ddfsit_id IS NOT NULL
-UNION
--- The FIRST customer contact paired with the DDASIT
-SELECT
-	uuid_generate_v4(),
-	corresponding_contacts_and_service_items.ddasit_id   as mtoservice_item_id,
-	corresponding_contacts_and_service_items.first_cc_id as mtoservice_item_customer_contact_id,
-	NOW(),
-	NOW()
-FROM corresponding_contacts_and_service_items
-WHERE ddasit_id IS NOT NULL
-UNION
--- The SECOND customer contact paired with the DDASIT
-SELECT
-	uuid_generate_v4(),
-	corresponding_contacts_and_service_items.ddasit_id    as mtoservice_item_id,
-	corresponding_contacts_and_service_items.second_cc_id as mtoservice_item_customer_contact_id,
-	NOW(),
-	NOW()
-FROM corresponding_contacts_and_service_items
-WHERE ddasit_id IS NOT NULL
-UNION
--- The FIRST customer contact paired with the DDDSIT
-SELECT
-	uuid_generate_v4(),
-	corresponding_contacts_and_service_items.dddsit_id   as mtoservice_item_id,
-	corresponding_contacts_and_service_items.first_cc_id as mtoservice_item_customer_contact_id,
-	NOW(),
-	NOW()
-FROM corresponding_contacts_and_service_items
-WHERE dddsit_id IS NOT NULL
-UNION
--- The SECOND customer contact paired with the DDDSIT
-SELECT
-	uuid_generate_v4(),
-	corresponding_contacts_and_service_items.dddsit_id    as mtoservice_item_id,
-	corresponding_contacts_and_service_items.second_cc_id as mtoservice_item_customer_contact_id,
-	NOW(),
-	NOW()
-FROM corresponding_contacts_and_service_items
-WHERE dddsit_id IS NOT NULL;
+-- Get each destination service item associated with the shipments from our CTE and create a record with the corresponding customer contacts
+FROM
+	mto_service_items msi
+		INNER JOIN re_services res ON msi.re_service_id = res.id
+		INNER JOIN shipment_contact_pairs on msi.mto_shipment_id = shipment_contact_pairs.mto_shipment_id
+WHERE res.code IN ('DDASIT', 'DDDSIT', 'DDFSIT');
 
 -- Delete any orphaned records.
 DELETE FROM mto_service_item_customer_contacts
