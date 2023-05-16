@@ -5014,7 +5014,7 @@
     semver "^7.3.7"
     webpack "5"
 
-"@storybook/preview-api@7.0.12":
+"@storybook/preview-api@7.0.12", "@storybook/preview-api@^7.0.12":
   version "7.0.12"
   resolved "https://registry.yarnpkg.com/@storybook/preview-api/-/preview-api-7.0.12.tgz#bbbf75c8f94f5aac2fdbe1caf7d1e5a7b8dd09a5"
   integrity sha512-YI/AfHszIOYt967fsRlc7j6I0zZB+RSsBwD/nMA8y9vszdpQ0MgRhxHgQxFf6cgqbuQcdCsnTIpT0iQ4GHjDXg==
