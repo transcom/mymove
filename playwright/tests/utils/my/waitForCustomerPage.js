@@ -1,7 +1,7 @@
 // @ts-check
 import * as base from '@playwright/test';
 
-import WaitForPage from './waitForPage';
+import WaitForPage from '../waitForPage';
 
 /**
  * extension of WaitForPage that provides functions to wait for pages in the customer app

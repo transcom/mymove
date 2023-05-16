@@ -5,11 +5,10 @@ import { moves } from '../schema';
 import { ADD_ENTITIES } from '../actions';
 
 import { swaggerRequest } from 'shared/Swagger/request';
-import { getClient } from 'shared/Swagger/api';
+import { getClient, getGHCClient } from 'shared/Swagger/api';
 import { selectEntitlements } from 'shared/entitlements.js';
 import { selectOrdersForMove } from 'shared/Entities/modules/orders';
 import { selectServiceMemberForMove } from 'shared/Entities/modules/serviceMembers';
-import { getGHCClient } from 'shared/Swagger/api';
 
 /** REMAINING EXPORTS ARE USED BY PPM OFFICE */
 

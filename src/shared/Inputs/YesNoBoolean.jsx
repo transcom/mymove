@@ -3,7 +3,8 @@ import React from 'react';
 import { uniqueId } from 'lodash';
 
 const YesNoBoolean = (props) => {
-  let value, onChange;
+  let value;
+  let onChange;
   if (props.input) {
     value = Boolean(props.input.value);
     onChange = props.input.onChange;

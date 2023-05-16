@@ -1,9 +1,26 @@
 name: F/E bundle diff
 
+# For Truss and how we use this repo, pull_request and
+# pull_request_target have no differences
+#
+# https://securitylab.github.com/research/github-actions-preventing-pwn-requests/
+#
+#    Workflows triggered via pull_request_target have write permission
+#    to the target repository. They also have access to target
+#    repository secrets. The same is true for workflows triggered on
+#    pull_request from a branch in the same repository, but not from
+#    external forks.
+#
+# Truss always uses branches in the same repository
+#
+# Using pull_request means changes to the workflow file are used in
+# the PR, which is incredibly helpful when testing out changes
 on:
+  pull_request:
   pull_request_target:
     branches:
       - main
+
 
 jobs:
   changes:
@@ -20,6 +37,9 @@ jobs:
               - 'yarn.lock'
 
   build-head:
+    concurrency:
+      group: bundle-build-head-${{ github.event.pull_request.number || github.ref }}
+      cancel-in-progress: true
     needs: changes
     if: ${{ needs.changes.outputs.frontend == 'true' }}
     name: 'Build head'
@@ -36,8 +56,11 @@ jobs:
       - name: Install dependencies
         run: yarn install
 
-      - name: Build app
-        run: yarn build --stats
+      - name: Build head with options
+        run: |
+          export NODE_OPTIONS="--max-old-space-size=4096"
+          echo "Using NODE_OPTIONS:${NODE_OPTIONS}"
+          yarn build --stats
 
       - name: Upload stats.json
         uses: actions/upload-artifact@v3
@@ -46,6 +69,9 @@ jobs:
           path: ./build/bundle-stats.json
 
   build-base:
+    concurrency:
+      group: bundle-build-base-${{ github.event.pull_request.number || github.ref }}
+      cancel-in-progress: true
     needs: changes
     if: ${{ needs.changes.outputs.frontend == 'true' }}
     name: 'Build base'
@@ -64,8 +90,11 @@ jobs:
       - name: Install dependencies
         run: yarn install
 
-      - name: Build app
-        run: yarn build --stats
+      - name: Build base with options
+        run: |
+          export NODE_OPTIONS="--max-old-space-size=4096"
+          echo "Using NODE_OPTIONS:${NODE_OPTIONS}"
+          yarn build --stats
 
       - name: Upload stats.json
         uses: actions/upload-artifact@v3
@@ -73,17 +102,27 @@ jobs:
           name: base-stats
           path: ./build/bundle-stats.json
 
+  # run the action against the stats.json files
   compare:
-    name: 'Compare base & head bundle size'
+    if: ${{ needs.changes.outputs.frontend == 'true' }}
+    concurrency:
+      group: bundle-compare-${{ github.event.pull_request.number || github.ref }}
+      cancel-in-progress: true
+    name: 'Compare base & head bundle sizes'
     runs-on: ubuntu-latest
-    needs: [build-head, build-base]
+    needs: [build-base, build-head]
+    permissions:
+      pull-requests: write
     steps:
-      - name: Download artifacts
-        uses: actions/download-artifact@v3
-      - name: Diff between base & head
-        uses: chronotruck/webpack-stats-diff-action@1.3.0
+      - uses: actions/download-artifact@v3
+      - uses: github/webpack-bundlesize-compare-action@v1.7.0
         with:
-          base_stats_path: ./base-stats/bundle-stats.json
-          head_stats_path: ./head-stats/bundle-stats.json
-          token: ${{ secrets.GITHUB_TOKEN }}
-          announcement_percentage_threshold_increase: 0
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          current-stats-json-path: ./head-stats/bundle-stats.json
+          base-stats-json-path: ./base-stats/bundle-stats.json
+
+  noop:
+    name: 'Noop job to prevent notification'
+    runs-on: ubuntu-latest
+    steps:
+      - run: 'echo "No build required" '

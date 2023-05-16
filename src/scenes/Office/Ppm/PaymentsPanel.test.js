@@ -1,4 +1,5 @@
 import { sswIsDisabled } from './PaymentsPanel';
+
 import { SIGNED_CERT_OPTIONS } from 'shared/constants';
 
 describe('Download Shipment Summary button', () => {

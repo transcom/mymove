@@ -1,5 +1,6 @@
 import React from 'react';
 import { shallow } from 'enzyme';
+
 import Alert from '.';
 
 describe('basic alert component', () => {
