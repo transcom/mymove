@@ -2,7 +2,6 @@ package sitaddressupdate
 
 import (
 	"github.com/gobuffalo/validate/v3"
-	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
@@ -17,16 +16,13 @@ func checkRequiredFields() sitAddressUpdateValidator {
 		// Distance should be calcualted
 		// Status should be updated with using approve/reject service objects
 
-		if sitAddressUpdate.OldAddress.PostalCode == "" {
-			verrs.Add("OldAddress", "OldAddress is required")
-		}
-		if sitAddressUpdate.NewAddress.ID != uuid.Nil {
+		if !sitAddressUpdate.NewAddressID.IsNil() {
 			verrs.Add("NewAddress:id", "NewAddress:id cannot be set for new addresses")
 		}
 		if sitAddressUpdate.NewAddress.PostalCode == "" {
 			verrs.Add("NewAddress", "NewAddress is required")
 		}
-		if sitAddressUpdate.MTOServiceItem.ID.IsNil() {
+		if sitAddressUpdate.MTOServiceItemID.IsNil() {
 			verrs.Add("serviceItem", "MTOServiceItem is required")
 		}
 
@@ -38,6 +34,10 @@ func checkRequiredFields() sitAddressUpdateValidator {
 
 		if serviceItem.Status != models.MTOServiceItemStatusApproved {
 			verrs.Add("MTOServiceItemID", "MTOServiceItem must be approved")
+		}
+
+		if serviceItem.SITDestinationOriginalAddressID.IsNil() {
+			verrs.Add("SITDestinationOriginalAddressID", "SITDestinationOriginalAddressID is required")
 		}
 
 		return verrs

@@ -106,6 +106,9 @@ type MTOServiceItem struct {
 	// rejection reason
 	RejectionReason *string `json:"rejectionReason,omitempty"`
 
+	// sit address updates
+	SitAddressUpdates SITAddressUpdates `json:"sitAddressUpdates,omitempty"`
+
 	// sit departure date
 	// Format: date-time
 	SitDepartureDate *strfmt.DateTime `json:"sitDepartureDate,omitempty"`
@@ -182,6 +185,10 @@ func (m *MTOServiceItem) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateRejectedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSitAddressUpdates(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -410,6 +417,23 @@ func (m *MTOServiceItem) validateRejectedAt(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *MTOServiceItem) validateSitAddressUpdates(formats strfmt.Registry) error {
+	if swag.IsZero(m.SitAddressUpdates) { // not required
+		return nil
+	}
+
+	if err := m.SitAddressUpdates.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("sitAddressUpdates")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("sitAddressUpdates")
+		}
+		return err
+	}
+
+	return nil
+}
+
 func (m *MTOServiceItem) validateSitDepartureDate(formats strfmt.Registry) error {
 	if swag.IsZero(m.SitDepartureDate) { // not required
 		return nil
@@ -491,6 +515,10 @@ func (m *MTOServiceItem) ContextValidate(ctx context.Context, formats strfmt.Reg
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateSitAddressUpdates(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateStatus(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -531,6 +559,20 @@ func (m *MTOServiceItem) contextValidateDimensions(ctx context.Context, formats 
 			return ve.ValidateName("dimensions")
 		} else if ce, ok := err.(*errors.CompositeError); ok {
 			return ce.ValidateName("dimensions")
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItem) contextValidateSitAddressUpdates(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.SitAddressUpdates.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("sitAddressUpdates")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("sitAddressUpdates")
 		}
 		return err
 	}
