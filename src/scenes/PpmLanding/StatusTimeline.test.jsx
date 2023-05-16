@@ -1,5 +1,6 @@
 import React from 'react';
 import { shallow, mount } from 'enzyme';
+
 import { StatusBlock, ProfileStatusTimeline } from './StatusTimeline';
 import { PPMStatusTimeline } from './PPMStatusTimeline';
 
@@ -60,7 +61,7 @@ describe('StatusTimeline', () => {
 describe('StatusBlock', () => {
   test('complete but not current status block', () => {
     const wrapper = shallow(
-      <StatusBlock name="Approved" completed={true} current={false} code="PPM_APPROVED" key="PPM_APPROVED" />,
+      <StatusBlock name="Approved" completed current={false} code="PPM_APPROVED" key="PPM_APPROVED" />,
     );
 
     expect(wrapper.hasClass('ppm_approved')).toEqual(true);
@@ -69,9 +70,7 @@ describe('StatusBlock', () => {
   });
 
   test('complete and current status block', () => {
-    const wrapper = shallow(
-      <StatusBlock name="In Progress" completed={true} current={true} code="IN_PROGRESS" key="IN_PROGRESS" />,
-    );
+    const wrapper = shallow(<StatusBlock name="In Progress" completed current code="IN_PROGRESS" key="IN_PROGRESS" />);
 
     expect(wrapper.hasClass('in_progress')).toEqual(true);
     expect(wrapper.hasClass('status_completed')).toEqual(true);

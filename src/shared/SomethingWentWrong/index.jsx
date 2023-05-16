@@ -1,4 +1,5 @@
 import React from 'react';
+
 import sadComputer from 'shared/images/sad-computer.png';
 
 const SomethingWentWrong = ({ error, info }) => (

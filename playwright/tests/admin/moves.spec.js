@@ -5,7 +5,7 @@
  */
 
 // @ts-check
-import { test, expect } from '../utils/adminTest';
+import { test, expect } from '../utils/admin/adminTest';
 
 test('Moves Page', async ({ page, adminPage }) => {
   await adminPage.signInAsNewAdminUser();

@@ -45,9 +45,9 @@ const restProvider = (apiUrl, httpClient = fetchUtils.fetchJson) => {
         const { field, order } = params.sort;
         const query = {
           sort: snakeCase(field),
-          order: order === 'ASC' ? true : false,
-          page: page,
-          perPage: perPage,
+          order: order === 'ASC',
+          page,
+          perPage,
           filter: JSON.stringify(params.filter),
         };
         url = `${apiUrl}/${resource}?${stringify(query)}`;
@@ -81,9 +81,9 @@ const restProvider = (apiUrl, httpClient = fetchUtils.fetchJson) => {
         const { field, order } = params.sort;
         const query = {
           sort: snakeCase(field),
-          order: order === 'ASC' ? true : false,
-          page: page,
-          perPage: perPage,
+          order: order === 'ASC',
+          page,
+          perPage,
           filter: JSON.stringify({
             ...params.filter,
             [params.target]: params.id,

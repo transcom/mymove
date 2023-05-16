@@ -1,5 +1,6 @@
 import { getClient } from 'shared/Swagger/api';
 import { swaggerRequest } from 'shared/Swagger/request';
+
 export const createWeightTicketSetDocumentLabel = 'weightTicketDocumentSet.createWeightTicketDocument';
 // payload shape
 // {

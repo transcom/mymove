@@ -5,7 +5,7 @@
  */
 
 // @ts-check
-import { test, expect } from '../../utils/officeTest';
+import { test, expect } from '../../utils/office/officeTest';
 
 // I was trying to avoid importing moment.js, these can definitely be
 // improved

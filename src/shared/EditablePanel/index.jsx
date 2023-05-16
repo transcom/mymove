@@ -48,7 +48,7 @@ export const PanelField = (props) => {
 
   if (required && !(value || props.children)) {
     component = (
-      <div className={'missing ' + classes}>
+      <div className={`missing ${classes}`}>
         <span className="field-title">{title}</span>
         <span className="field-value">missing</span>
       </div>
@@ -82,9 +82,9 @@ export const SwaggerValue = (props) => {
     value = formatDate(value);
   }
   if (value && swaggerProps['x-formatting'] === 'weight') {
-    value = value.toLocaleString() + ' lbs';
+    value = `${value.toLocaleString()} lbs`;
   }
-  return <React.Fragment>{value || null}</React.Fragment>;
+  return <>{value || null}</>;
 };
 SwaggerValue.propTypes = {
   fieldName: PropTypes.string.isRequired,
@@ -197,9 +197,9 @@ export function editablePanelify(DisplayComponent, EditComponent, editEnabled = 
     };
 
     save = () => {
-      let isValid = this.props.valid;
+      const isValid = this.props.valid;
       if (isValid) {
-        let args = this.props.getUpdateArgs();
+        const args = this.props.getUpdateArgs();
         this.props.update(...args);
         this.toggleEdit();
       }
@@ -219,7 +219,7 @@ export function editablePanelify(DisplayComponent, EditComponent, editEnabled = 
       const Content = isEditable ? EditComponent : DisplayComponent;
 
       return (
-        <React.Fragment>
+        <>
           {this.props.hasError && (
             <Alert type="error" heading="An error occurred">
               <em>{this.props.errorMessage}</em>
@@ -238,7 +238,7 @@ export function editablePanelify(DisplayComponent, EditComponent, editEnabled = 
           >
             <Content {...this.props} />
           </EditablePanel>
-        </React.Fragment>
+        </>
       );
     }
   };

@@ -3,11 +3,11 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { reduxForm, getFormValues, FormSection } from 'redux-form';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { AddressElementDisplay, AddressElementEdit } from 'shared/Address';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { validateRequiredFields } from 'shared/JsonSchemaForm';
-
 import {
   updateServiceMember,
   loadServiceMemberLabel,
@@ -16,8 +16,6 @@ import {
 import { PanelSwaggerField, PanelField, SwaggerValue, editablePanelify } from 'shared/EditablePanel';
 import { stringifyName } from 'shared/utils/serviceMember';
 import { getRequestStatus } from 'shared/Swagger/selectors';
-
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 const CustomerInfoDisplay = (props) => {
   const fieldProps = {
@@ -29,7 +27,7 @@ const CustomerInfoDisplay = (props) => {
   const address = get(values, 'residential_address', {});
 
   return (
-    <React.Fragment>
+    <>
       <div className="editable-panel-column">
         <PanelField title="Name" value={name} />
         <PanelSwaggerField title="DoD ID" fieldName="edipi" {...fieldProps} />
@@ -57,7 +55,7 @@ const CustomerInfoDisplay = (props) => {
         </PanelField>
         <AddressElementDisplay address={address} title="Current Address" />
       </div>
-    </React.Fragment>
+    </>
   );
 };
 
@@ -65,7 +63,7 @@ const CustomerInfoEdit = (props) => {
   const schema = props.serviceMemberSchema;
 
   return (
-    <React.Fragment>
+    <>
       <div>
         <FormSection name="serviceMember">
           <div className="editable-panel-column">
@@ -105,7 +103,7 @@ const CustomerInfoEdit = (props) => {
           <AddressElementEdit fieldName="address" schema={props.addressSchema} title="Current Residence Address" />
         </div>
       </div>
-    </React.Fragment>
+    </>
   );
 };
 
@@ -154,9 +152,9 @@ function mapStateToProps(state, ownProps) {
     isUpdating: false,
 
     // editablePanelify
-    getUpdateArgs: function () {
-      let values = getFormValues(formName)(state);
-      let serviceMember = values.serviceMember;
+    getUpdateArgs() {
+      const values = getFormValues(formName)(state);
+      const { serviceMember } = values;
       serviceMember.residential_address = values.address;
       return [ownProps.serviceMember.id, serviceMember];
     },

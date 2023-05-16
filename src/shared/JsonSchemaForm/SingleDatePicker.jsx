@@ -1,5 +1,6 @@
 import React from 'react';
 import DayPickerInput from 'react-day-picker/DayPickerInput';
+
 import { parseDate, formatDate, defaultDateFormat } from 'shared/dates';
 
 import 'react-day-picker/lib/style.css';

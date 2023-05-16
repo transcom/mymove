@@ -1,7 +1,8 @@
 import React from 'react';
-import { PpmWeight } from './Weight';
 import { shallow } from 'enzyme';
 import moment from 'moment';
+
+import { PpmWeight } from './Weight';
 
 describe('Weight', () => {
   const moveDate = moment().add(7, 'day');

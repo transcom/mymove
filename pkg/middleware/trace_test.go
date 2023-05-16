@@ -28,3 +28,10 @@ func (suite *testSuite) TestTrace() {
 	suite.Nil(err, "failed to parse UUID")
 	suite.logger.Debug(fmt.Sprintf("Trace ID: %s", id))
 }
+
+func (suite *testSuite) TestXRayIDFromBytes() {
+	data := []byte{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}
+	id, err := awsXrayIDFromBytes(data)
+	suite.NoError(err)
+	suite.Equal("1-00010203-0405060708090a0b0c0d0e0f", id)
+}
