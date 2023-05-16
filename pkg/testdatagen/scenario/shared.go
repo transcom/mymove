@@ -10753,6 +10753,10 @@ func createMoveWithOriginAndDestinationSIT(appCtx appcontext.AppContext, userUpl
 			},
 		},
 		{
+			Model: models.Address{},
+			Type:  &factory.Addresses.SITDestinationOriginalAddress,
+		},
+		{
 			Model: models.ReService{
 				Code: models.ReServiceCodeDDDSIT,
 			},
