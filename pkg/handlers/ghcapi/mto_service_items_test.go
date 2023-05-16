@@ -22,6 +22,7 @@ import (
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	"github.com/transcom/mymove/pkg/services/query"
+	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/trace"
 )
 
@@ -48,7 +49,7 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 			},
 		}, nil)
 		requestUser := factory.BuildUser(nil, nil, nil)
-		serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+		serviceItem1 := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOServiceItem{
 					ID: serviceItemID,
@@ -67,7 +68,29 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 				LinkOnly: true,
 			},
 		}, nil)
-		serviceItems := models.MTOServiceItems{serviceItem}
+		customerContact := testdatagen.MakeMTOServiceItemCustomerContact(suite.DB(), testdatagen.Assertions{})
+		serviceItem2 := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					CustomerContacts: models.MTOServiceItemCustomerContacts{customerContact},
+				},
+			},
+			{
+				Model:    mto,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDFSIT,
+					Name: "Destination 1st Day SIT",
+				},
+			},
+		}, nil)
+		serviceItems := models.MTOServiceItems{serviceItem1, serviceItem2}
 
 		return requestUser, serviceItems
 	}
@@ -100,8 +123,9 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 		// Validate outgoing payload
 		suite.NoError(okResponse.Payload.Validate(strfmt.Default))
 
-		suite.Len(okResponse.Payload, 1)
+		suite.Len(okResponse.Payload, 2)
 		suite.Equal(serviceItems[0].ID.String(), okResponse.Payload[0].ID.String())
+		suite.Len(serviceItems[1].CustomerContacts, 1)
 	})
 
 	suite.Run("Failure list fetch - Internal Server Error", func() {
