@@ -38,18 +38,28 @@ func (f *approvedSITAddressUpdateCreator) CreateApprovedSITAddressUpdate(appCtx 
 	}
 
 	sitAddressUpdate.Status = models.SITAddressUpdateStatusApproved
-	sitAddressUpdate.Distance, err = f.planner.TransitDistance(appCtx, &sitAddressUpdate.OldAddress, &sitAddressUpdate.NewAddress)
-	if err != nil {
-		return nil, err
-	}
 
 	txErr := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) (err error) {
+		var serviceItem models.MTOServiceItem
+		err = txnAppCtx.DB().Eager("SITDestinationOriginalAddress").Where("id = ?", sitAddressUpdate.MTOServiceItemID).First(&serviceItem)
+		if err != nil {
+			return err
+		}
+
+		sitAddressUpdate.OldAddressID = *serviceItem.SITDestinationOriginalAddressID
+		sitAddressUpdate.OldAddress = *serviceItem.SITDestinationOriginalAddress
+
 		newAddress, err := f.addressCreator.CreateAddress(txnAppCtx, &sitAddressUpdate.NewAddress)
 		if err != nil {
 			return err
 		}
 		sitAddressUpdate.NewAddressID = newAddress.ID
 		sitAddressUpdate.NewAddress = *newAddress
+
+		sitAddressUpdate.Distance, err = f.planner.TransitDistance(appCtx, &sitAddressUpdate.OldAddress, &sitAddressUpdate.NewAddress)
+		if err != nil {
+			return err
+		}
 
 		verrs, err := txnAppCtx.DB().ValidateAndCreate(sitAddressUpdate)
 
@@ -59,15 +69,10 @@ func (f *approvedSITAddressUpdateCreator) CreateApprovedSITAddressUpdate(appCtx 
 			return apperror.NewQueryError("SITAddressUpdate", err, "Unable to create SIT Address Update")
 		}
 
-		var oldServiceItem models.MTOServiceItem
-		err = txnAppCtx.DB().Where("id = ?", sitAddressUpdate.MTOServiceItemID).First(&oldServiceItem)
-		if err != nil {
-			return err
-		}
+		serviceItem.SITDestinationFinalAddressID = &newAddress.ID
+		serviceItem.SITDestinationFinalAddress = newAddress
 
-		oldServiceItem.SITDestinationFinalAddressID = &newAddress.ID
-		oldServiceItem.SITDestinationFinalAddress = newAddress
-		updatedServiceItem, err := f.serviceItemUpdater.UpdateMTOServiceItemBasic(txnAppCtx, &oldServiceItem, etag.GenerateEtag(oldServiceItem.UpdatedAt))
+		updatedServiceItem, err := f.serviceItemUpdater.UpdateMTOServiceItemBasic(txnAppCtx, &serviceItem, etag.GenerateEtag(serviceItem.UpdatedAt))
 		if err != nil {
 			return err
 		}
