@@ -1,6 +1,8 @@
 package models
 
 import (
+	"time"
+
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gobuffalo/validate/v3/validators"
@@ -30,8 +32,9 @@ type SITAddressUpdate struct {
 	ContractorRemarks *string                `json:"contractor_remarks" db:"contractor_remarks"`
 	Distance          int                    `json:"distance" db:"distance"`
 	OfficeRemarks     *string                `json:"office_remarks" db:"office_remarks"`
-	Reason            string                 `json:"reason" db:"reason"`
 	Status            SITAddressUpdateStatus `json:"status" db:"status"`
+	CreatedAt         time.Time              `db:"created_at"`
+	UpdatedAt         time.Time              `db:"updated_at"`
 
 	// Associations
 	MTOServiceItem   MTOServiceItem `belongs_to:"mto_service_items" fk_id:"mto_service_item_id"`
@@ -52,7 +55,6 @@ func (s *SITAddressUpdate) Validate(_ *pop.Connection) (*validate.Errors, error)
 		&validators.UUIDIsPresent{Name: "NewAddressID", Field: s.NewAddressID},
 		&validators.StringInclusion{Name: "Status", Field: string(s.Status), List: AllowedSITAddressStatuses},
 		&validators.IntIsPresent{Name: "Distance", Field: s.Distance},
-		&validators.StringIsPresent{Name: "Reason", Field: s.Reason},
 		&StringIsNilOrNotBlank{Name: "ContractorRemarks", Field: s.ContractorRemarks},
 		&StringIsNilOrNotBlank{Name: "OfficeRemarks", Field: s.OfficeRemarks},
 	), nil

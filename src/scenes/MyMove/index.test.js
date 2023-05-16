@@ -3,11 +3,11 @@ import { shallow } from 'enzyme';
 import { Provider } from 'react-redux';
 import { render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
+
 import { CustomerApp } from './index';
 
 import Footer from 'components/Customer/Footer';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
-
 import { configureStore } from 'shared/store';
 import { roleTypes } from 'constants/userRoles';
 import { mockPage } from 'testUtils';

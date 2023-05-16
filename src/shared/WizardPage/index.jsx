@@ -1,12 +1,14 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
+import generatePath from './generatePath';
+
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import Alert from 'shared/Alert';
-import generatePath from './generatePath';
 import './index.css';
 
 import { getNextPagePath, getPreviousPagePath, isFirstPage, isLastPage, beforeTransition } from './utils';
+
 import withRouter from 'utils/routing';
 import { RouterShape } from 'types';
 
@@ -102,7 +104,7 @@ WizardPage.propTypes = {
   pageIsValid: PropTypes.bool,
   canMoveNext: PropTypes.bool,
   dirty: PropTypes.bool,
-  router: RouterShape, //from withRouter
+  router: RouterShape, // from withRouter
   additionalParams: PropTypes.object,
   footerText: PropTypes.node,
 };
