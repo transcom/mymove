@@ -924,8 +924,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 			{
 				Model: models.MTOServiceItem{
 					RejectionReason: models.StringPointer("not applicable"),
-
-					MTOShipmentID: &successShipment.ID,
+					MTOShipmentID:   &successShipment.ID,
 					// Reason:           models.StringPointer("there was a delay in getting the apartment"),
 					SITEntryDate:     &nowDate,
 					SITDepartureDate: &later,
@@ -957,9 +956,6 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 				FirstAvailableDeliveryDate: time.Date(2023, time.December, 02, 0, 0, 0, 0, time.UTC),
 				Type:                       models.CustomerContactTypeFirst,
 			},
-			// ReService: models.ReService{
-			// 	Code: models.ReServiceCodeDDFSIT,
-			// },
 			MTOServiceItem: models.MTOServiceItem{
 				ID: serviceItem.ID,
 			},
