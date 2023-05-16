@@ -114,16 +114,27 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 				},
 			},
 		}, nil)
+		factory.BuildMTOServiceItemBasic(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusApproved,
+				},
+			},
+			{
+				Model:    expectedMTO,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		actualMTO, err := mtoFetcher.FetchMoveTaskOrder(suite.AppContextForTest(), &searchParams)
 		suite.NoError(err)
-		if suite.Len(actualMTO.MTOServiceItems, 1) {
-			serviceItem := actualMTO.MTOServiceItems[0]
-			suite.Equal(models.ReServiceCodeDDFSIT, serviceItem.ReService.Code)
-			suite.Equal(address.StreetAddress1, serviceItem.SITDestinationFinalAddress.StreetAddress1)
-			suite.Equal(address.State, serviceItem.SITDestinationFinalAddress.State)
-			suite.Equal(address.City, serviceItem.SITDestinationFinalAddress.City)
-			suite.Equal(1, len(serviceItem.CustomerContacts))
+		if suite.Len(actualMTO.MTOServiceItems, 2) {
+			serviceItem1 := actualMTO.MTOServiceItems[0]
+			suite.Equal(models.ReServiceCodeDDFSIT, serviceItem1.ReService.Code)
+			suite.Equal(address.StreetAddress1, serviceItem1.SITDestinationFinalAddress.StreetAddress1)
+			suite.Equal(address.State, serviceItem1.SITDestinationFinalAddress.State)
+			suite.Equal(address.City, serviceItem1.SITDestinationFinalAddress.City)
+			suite.Equal(1, len(serviceItem1.CustomerContacts))
 		}
 	})
 
