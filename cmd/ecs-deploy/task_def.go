@@ -657,14 +657,14 @@ receivers:
   otlp:
     protocols:
       grpc:
-        endpoint: 0.0.0.0:4317
+        endpoint: 127.0.0.1:4317
       http:
-        endpoint: 0.0.0.0:4318
+        endpoint: 127.0.0.1:4318
   awsxray:
-    endpoint: 0.0.0.0:2000
+    endpoint: 127.0.0.1:2000
     transport: udp
   statsd:
-    endpoint: 0.0.0.0:8125
+    endpoint: 127.0.0.1:8125
     aggregation_interval: 60s
   awsecscontainermetrics:
 
