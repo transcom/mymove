@@ -874,7 +874,7 @@ service:
 		containerDefinitions = append(containerDefinitions,
 			&ecs.ContainerDefinition{
 				Name:      aws.String("otel-" + containerDefName),
-				Image:     aws.String("public.ecr.aws/aws-observability/aws-otel-collector:v0.26.1"),
+				Image:     aws.String("public.ecr.aws/aws-observability/aws-otel-collector:v0.29.0"),
 				Essential: aws.Bool(true),
 				Environment: []*ecs.KeyValuePair{
 					{
