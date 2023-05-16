@@ -162,7 +162,7 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(appCtx appcontext.AppContext
 		TransactionSetPurposeCode:    "00",
 		TransactionMethodTypeCode:    "J",
 		ShipmentMethodOfPayment:      "PP",
-		ShipmentIdentificationNumber: paymentRequest.PaymentRequestNumber,
+		ShipmentIdentificationNumber: *moveTaskOrder.ReferenceID,
 		StandardCarrierAlphaCode:     "HSFR",
 		ShipmentQualifier:            "4",
 	}

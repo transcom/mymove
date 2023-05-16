@@ -1,10 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-
-import MoveInfo from './MoveInfo';
 import { useLocation } from 'react-router-dom';
 import { mount } from 'enzyme/build';
-import { ReferrerQueueLink } from './MoveInfo';
+
+import MoveInfo, { ReferrerQueueLink } from './MoveInfo';
+
 import { MockProviders } from 'testUtils';
 
 const dummyFunc = () => {};
@@ -43,7 +43,7 @@ describe('Loads MoveInfo', () => {
     // TODO: apply loadDependenciesHasError and loadDependenciesHasSuccess values through store (currently renders Loader only)
     wrapper = mount(
       <MockProviders params={params} path="/moveIt/moveIt">
-        <MoveInfo loadDependenciesHasError={false} loadDependenciesHasSuccess={true} loadMoveDependencies={dummyFunc} />
+        <MoveInfo loadDependenciesHasError={false} loadDependenciesHasSuccess loadMoveDependencies={dummyFunc} />
       </MockProviders>,
     );
     expect(wrapper.find('[data-testid="basics-tab"]').length).toBe(1);

@@ -1,6 +1,7 @@
 import React from 'react';
-import { DocumentsUploaded } from './DocumentsUploaded';
 import { mount } from 'enzyme';
+
+import { DocumentsUploaded } from './DocumentsUploaded';
 
 const initialProps = {
   moveId: 0,

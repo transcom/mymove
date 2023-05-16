@@ -1,24 +1,26 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import styles from './RangeSlider.module.scss';
+
 import { detectIE11 } from '../utils';
+
+import styles from './RangeSlider.module.scss';
 
 const toolTipEOLBufferPercentageModifier = 0.01;
 
 const calculateSliderPositions = (sliderOffset, tooltipWidth, numValue, min, max, step) => {
-  let ticks = numValue / step;
-  let possibleTicks = max / step - 1;
-  let pxPerTick = sliderOffset / possibleTicks;
-  let leftMarginInPx = pxPerTick * ticks;
-  let halfToolTipWidth = tooltipWidth / 2;
-  let tooltipLeftMargin = leftMarginInPx - halfToolTipWidth + 'px';
+  const ticks = numValue / step;
+  const possibleTicks = max / step - 1;
+  const pxPerTick = sliderOffset / possibleTicks;
+  const leftMarginInPx = pxPerTick * ticks;
+  const halfToolTipWidth = tooltipWidth / 2;
+  const tooltipLeftMargin = `${leftMarginInPx - halfToolTipWidth}px`;
 
   // This if calculation is in place to ensure that the tooltip as it moves does not go onto a new line in mobile.
   // toolTipEOLBufferPercentageModifier is used to create a percentage chunk of the total width of the slider
   // that is used to shorten the possible 'track' for the tooltip just enough to keep this from happening.
   // The other half of the and ensures that the tooltip does not move until the slider thumb has traveled more than
   // half of the tooltip's own width.
-  let isTooltipWithinBufferSpaceBoundary =
+  const isTooltipWithinBufferSpaceBoundary =
     leftMarginInPx + tooltipWidth <
       sliderOffset + halfToolTipWidth - sliderOffset * toolTipEOLBufferPercentageModifier &&
     leftMarginInPx > halfToolTipWidth;
@@ -28,7 +30,7 @@ const calculateSliderPositions = (sliderOffset, tooltipWidth, numValue, min, max
 
 class RangeSlider extends Component {
   onInput = (event) => {
-    const output = document.getElementById('output-' + this.props.id);
+    const output = document.getElementById(`output-${this.props.id}`);
     const slider = document.getElementById(this.props.id);
 
     const calculations = calculateSliderPositions(
@@ -64,7 +66,7 @@ class RangeSlider extends Component {
       <div className="rangeslider-container">
         <span
           className={`${styles['rangeslider-output']} border-1px radius-lg padding-left-1 padding-right-1`}
-          id={'output-' + id}
+          id={`output-${id}`}
           htmlFor={id}
         >
           {`${prependTooltipText} ${defaultValue} ${appendTooltipText}`.trim()}

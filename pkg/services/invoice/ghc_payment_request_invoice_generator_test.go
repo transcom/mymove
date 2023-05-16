@@ -48,6 +48,7 @@ const testTimeFormat = "1504"
 func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	mockClock := clock.NewMock()
 	currentTime := mockClock.Now()
+	referenceID := "3342-9189"
 	requestedPickupDate := time.Date(testdatagen.GHCTestYear, time.September, 15, 0, 0, 0, 0, time.UTC)
 	scheduledPickupDate := time.Date(testdatagen.GHCTestYear, time.September, 20, 0, 0, 0, 0, time.UTC)
 	actualPickupDate := time.Date(testdatagen.GHCTestYear, time.September, 22, 0, 0, 0, 0, time.UTC)
@@ -81,7 +82,14 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	var result ediinvoice.Invoice858C
 
 	setupTestData := func() {
-		mto := factory.BuildMove(suite.DB(), nil, nil)
+		mto := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					ReferenceID: &referenceID,
+					Status:      models.MoveStatusAPPROVED,
+				},
+			},
+		}, nil)
 
 		paymentRequest = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
 			{
@@ -383,7 +391,8 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		suite.Equal("00", bx.TransactionSetPurposeCode)
 		suite.Equal("J", bx.TransactionMethodTypeCode)
 		suite.Equal("PP", bx.ShipmentMethodOfPayment)
-		suite.Equal(paymentRequest.PaymentRequestNumber, bx.ShipmentIdentificationNumber)
+		suite.Equal(*paymentRequest.MoveTaskOrder.ReferenceID, bx.ShipmentIdentificationNumber)
+
 		suite.Equal("HSFR", bx.StandardCarrierAlphaCode)
 		suite.Equal("4", bx.ShipmentQualifier)
 	})

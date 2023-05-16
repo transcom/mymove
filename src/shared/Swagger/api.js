@@ -1,5 +1,6 @@
 import Swagger from 'swagger-client';
 import Cookies from 'js-cookie';
+
 import { getInternalClient } from 'services/internalApi';
 import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
 
@@ -26,7 +27,7 @@ export async function getPublicClient() {
   if (!publicClient) {
     publicClient = await Swagger({
       url: '/api/v1/swagger.yaml',
-      requestInterceptor: requestInterceptor,
+      requestInterceptor,
     });
   }
   return publicClient;
@@ -36,7 +37,7 @@ export async function getGHCClient() {
   if (!ghcClient) {
     ghcClient = await Swagger({
       url: '/ghc/v1/swagger.yaml',
-      requestInterceptor: requestInterceptor,
+      requestInterceptor,
     });
   }
   return ghcClient;
@@ -55,7 +56,7 @@ export async function getPublicSpec() {
 // Used by pre-swaggerRequest code to verify responses
 export function checkResponse(response, errorMessage) {
   if (!response.ok) {
-    let err = new Error(`${errorMessage}: ${response.url}: ${response.statusText}`);
+    const err = new Error(`${errorMessage}: ${response.url}: ${response.statusText}`);
     err.status = response.status;
     throw err;
   }

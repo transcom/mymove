@@ -1,16 +1,15 @@
 import { createStore, applyMiddleware } from 'redux';
 import { persistStore, persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
-import { appReducer } from 'appReducer';
 import thunk from 'redux-thunk';
 import createSagaMiddleware from 'redux-saga';
-
 import { composeWithDevTools } from 'redux-devtools-extension/logOnlyInProduction';
 
-import { isAdminSite, isDevelopment, isMilmoveSite } from 'shared/constants';
 import logger from './reduxLogger';
-import * as schema from 'shared/Entities/schema';
 
+import { isAdminSite, isDevelopment, isMilmoveSite } from 'shared/constants';
+import { appReducer } from 'appReducer';
+import * as schema from 'shared/Entities/schema';
 import rootSaga, { rootCustomerSaga } from 'sagas/index';
 import { interceptorInjectionMiddleware } from 'store/interceptor/injectionMiddleware';
 
