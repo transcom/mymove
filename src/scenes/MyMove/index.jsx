@@ -7,6 +7,8 @@ import { GovBanner } from '@trussworks/react-uswds';
 import 'styles/full_uswds.scss';
 import 'styles/customer.scss';
 
+import { getWorkflowRoutes } from './getWorkflowRoutes';
+
 import BypassBlock from 'components/BypassBlock';
 import CUIHeader from 'components/CUIHeader/CUIHeader';
 import LoggedOutHeader from 'containers/Headers/LoggedOutHeader';
@@ -16,7 +18,6 @@ import Footer from 'components/Customer/Footer';
 import ConnectedLogoutOnInactivity from 'layout/LogoutOnInactivity';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
-import { getWorkflowRoutes } from './getWorkflowRoutes';
 import { loadInternalSchema } from 'shared/Swagger/ducks';
 import { withContext } from 'shared/AppContext';
 import { no_op } from 'shared/utils';
@@ -98,7 +99,7 @@ export class CustomerApp extends Component {
   }
 
   render() {
-    const props = this.props;
+    const { props } = this;
     const { userIsLoggedIn, loginIsLoading } = props;
     const { hasError } = this.state;
 
@@ -162,7 +163,7 @@ export class CustomerApp extends Component {
               </Routes>
             )}
 
-            {/* Auth Required Routes (no error and user logged in)*/}
+            {/* Auth Required Routes (no error and user logged in) */}
             {!hasError && !props.swaggerError && userIsLoggedIn && (
               <Routes>
                 {/* no auth routes should still exist */}
@@ -246,7 +247,7 @@ export class CustomerApp extends Component {
           </main>
           <Footer />
         </div>
-        <div id="modal-root"></div>
+        <div id="modal-root" />
       </>
     );
   }

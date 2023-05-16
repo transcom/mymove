@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import './index.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-//this is taken from https://designsystem.digital.gov/components/alerts/
+// this is taken from https://designsystem.digital.gov/components/alerts/
 const Alert = (props) => (
   <div className={`usa-alert usa-alert--${props.type}`}>
     <div className="usa-alert__body">

@@ -1,28 +1,29 @@
 import React from 'react';
 import { capitalize, memoize } from 'lodash';
+import moment from 'moment';
+import Select from 'react-select';
+
 import { formatDate } from 'utils/formatters';
 import SingleDatePicker from 'shared/JsonSchemaForm/SingleDatePicker';
-import moment from 'moment';
 
 // testing
-import Select from 'react-select';
 
 // Abstracting react table column creation
 const createReactTableColumn = (header, accessor, options = {}) => ({
   Header: header,
-  accessor: accessor,
+  accessor,
   ...options,
 });
 
 const getReactSelectFilterSettings = (data = []) => ({
   Filter: ({ filter, onChange }) => {
-    const options = data.map((value) => ({ label: value, value: value }));
+    const options = data.map((value) => ({ label: value, value }));
     return (
       <Select
         options={options}
         onChange={(value) => {
           // value example: {label: "Fort Gordon", value: "Fort Gordon"}
-          return onChange(value ? value : undefined);
+          return onChange(value || undefined);
         }}
         defaultValue={filter ? filter.value : undefined}
         styles={{
@@ -63,7 +64,8 @@ const getReactSelectFilterSettings = (data = []) => ({
   filterMethod: (filter, row) => {
     if (filter.value === undefined) {
       return true;
-    } else if (row[filter.id] === undefined) {
+    }
+    if (row[filter.id] === undefined) {
       return false;
     }
 
@@ -128,7 +130,8 @@ const moveDate = createReactTableColumn('PPM start', 'move_date', {
     // Filter dates that are same or before the filtered value
     if (filter.value === undefined) {
       return true;
-    } else if (row[filter.id] === undefined) {
+    }
+    if (row[filter.id] === undefined) {
       return false;
     }
 

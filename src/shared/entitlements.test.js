@@ -1,4 +1,5 @@
 import { selectEntitlements } from './entitlements';
+
 describe('entitlements', () => {
   describe('when I have dependents', () => {
     describe('when my spouse has pro gear', () => {

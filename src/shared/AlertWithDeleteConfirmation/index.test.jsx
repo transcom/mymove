@@ -1,8 +1,10 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import store from 'shared/store';
 import { mount } from 'enzyme';
+
 import AlertWithDeleteConfirmation from '.';
+
+import store from 'shared/store';
 
 describe('basic alert with delete confirmation component', () => {
   const text = 'some text';

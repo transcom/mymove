@@ -5,7 +5,7 @@ import classNames from 'classnames';
 import './index.css';
 
 export const ProgressTimelineStep = function (props) {
-  let classes = classNames({
+  const classes = classNames({
     step: true,
     completed: props.completed,
     current: props.current,

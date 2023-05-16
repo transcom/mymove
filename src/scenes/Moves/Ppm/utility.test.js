@@ -1,5 +1,6 @@
-import { MOVE_DOC_TYPE } from 'shared/constants';
 import { getNextPage, calcNetWeight } from './utility';
+
+import { MOVE_DOC_TYPE } from 'shared/constants';
 
 describe('PPM Utility functions', () => {
   describe('getNextPage', () => {
