@@ -1,11 +1,14 @@
 import React, { Fragment } from 'react';
 import classNames from 'classnames';
+import { Field } from 'redux-form';
+import { isNil } from 'lodash';
+
 import * as normalizer from './reduxFieldNormalizer';
 import validator from './validator';
-import { Field } from 'redux-form';
 import SingleDatePicker from './SingleDatePicker';
-import { isNil } from 'lodash';
+
 import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
+
 export const ALWAYS_REQUIRED_KEY = 'x-always-required';
 
 // ---- Parsers -----
@@ -14,11 +17,11 @@ const parseNumberField = (value) => {
   // Empty string will fail Swagger validation, so return null
   if (value === '') {
     return null;
-  } else if (!value || validator.isNumber(value)) {
-    return value;
-  } else {
-    return parseFloat(value);
   }
+  if (!value || validator.isNumber(value)) {
+    return value;
+  }
+  return parseFloat(value);
 };
 
 // ----- Field configuration -----
@@ -45,14 +48,14 @@ const configureDropDown = (swaggerField, props) => {
 const dropDownChildren = (swaggerField, filteredEnumListOverride, props) => {
   /* eslint-disable security/detect-object-injection */
   return (
-    <Fragment>
+    <>
       <option />
-      {(filteredEnumListOverride ? filteredEnumListOverride : swaggerField.enum).map((e) => (
+      {(filteredEnumListOverride || swaggerField.enum).map((e) => (
         <option key={e} value={e}>
           {swaggerField['x-display-value'][e]}
         </option>
       ))}
-    </Fragment>
+    </>
   );
   /* eslint-enable security/detect-object-injection */
 };
@@ -225,9 +228,9 @@ const renderInputField = ({
     component,
     {
       ...input,
-      type: type,
-      step: step,
-      'aria-describedby': input.name + '-error',
+      type,
+      step,
+      'aria-describedby': `${input.name}-error`,
       className: inputClasses,
       ...inputProps,
     },
@@ -245,7 +248,7 @@ const renderInputField = ({
         </label>
       )}
       {touched && error && (
-        <span className="usa-error-message" id={input.name + '-error'} role="alert">
+        <span className="usa-error-message" id={`${input.name}-error`} role="alert">
           {error}
         </span>
       )}
@@ -353,8 +356,8 @@ const createSchemaField = (
   // eslint-disable-next-line security/detect-object-injection
   fieldProps.always_required = swaggerField[ALWAYS_REQUIRED_KEY];
 
-  let inputProps = {
-    disabled: disabled,
+  const inputProps = {
+    disabled,
   };
 
   if (validate) {
@@ -391,7 +394,7 @@ const createSchemaField = (
   } else if (swaggerField.type === 'string') {
     const fieldFormat = swaggerField.format;
     if (fieldFormat === 'date' && (!isNil(minDate) || !isNil(maxDate))) {
-      inputProps.disabledDays = disabledDays ? disabledDays : undefined;
+      inputProps.disabledDays = disabledDays || undefined;
       fieldProps = configureRestrictedDateField(swaggerField, fieldProps, minDate, maxDate);
     } else if (fieldFormat === 'date') {
       fieldProps = configureDateField(swaggerField, fieldProps);
@@ -441,7 +444,7 @@ const createSchemaField = (
 };
 
 const schemaFieldExports = {
-  createSchemaField: createSchemaField,
+  createSchemaField,
 };
 
 export default schemaFieldExports;

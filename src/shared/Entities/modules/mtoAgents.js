@@ -1,6 +1,7 @@
+import { get } from 'lodash';
+
 import { getGHCClient } from 'shared/Swagger/api';
 import { swaggerRequest } from 'shared/Swagger/request';
-import { get } from 'lodash';
 
 const getMTOAgentListOperation = 'mtoAgent.fetchMTOAgentList';
 const mtoAgentsSchemaKey = 'mtoAgent';

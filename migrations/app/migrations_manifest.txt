@@ -815,3 +815,4 @@
 20230510170842_repair_client_certs_records.up.sql
 20230511201651_remove_daycos_movehq_prod.up.sql
 20230512200539_add_created_and_updated_at_columns_to_sit_address_update_table.up.sql
+20230515145532_fix_searchable_full_name.up.sql

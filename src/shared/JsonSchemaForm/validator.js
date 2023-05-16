@@ -1,6 +1,7 @@
 import { isFinite, isInteger as rawIsInteger, memoize } from 'lodash';
-import { defaultDateFormat } from 'shared/dates';
 import moment from 'moment';
+
+import { defaultDateFormat } from 'shared/dates';
 
 const isRequired = (value) => (value ? undefined : 'Required');
 // Why Memoize? Please see https://github.com/erikras/redux-form/issues/3288
@@ -53,7 +54,7 @@ const isInteger = (value) => {
 
 const isDate = (value) => {
   if (value) {
-    let parsed = moment(value, defaultDateFormat);
+    const parsed = moment(value, defaultDateFormat);
     if (!parsed.isValid()) {
       return 'Must be a valid date';
     }

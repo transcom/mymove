@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+
 import weightTixExample from 'shared/images/weight_tix_example.png';
 import weightScenario1 from 'shared/images/weight_scenario1.png';
 import weightScenario2 from 'shared/images/weight_scenario2.png';

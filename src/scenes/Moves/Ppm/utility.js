@@ -10,7 +10,7 @@ export const getNextPage = (nextPage, lastPage, pageToRevisit) => {
 
 export const formatExpenseType = (expenseType) => {
   if (typeof expenseType !== 'string') return '';
-  let type = expenseType.toLowerCase().replace('_', ' ');
+  const type = expenseType.toLowerCase().replace('_', ' ');
   return type.charAt(0).toUpperCase() + type.slice(1);
 };
 

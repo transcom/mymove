@@ -1,8 +1,9 @@
-import { get } from 'lodash';
-import { GetPpmIncentive, GetExpenseSummary } from './api.js';
-import * as ReduxHelpers from 'shared/ReduxHelpers';
+import { get, filter } from 'lodash';
 import reduceReducers from 'reduce-reducers';
-import { filter } from 'lodash';
+
+import { GetPpmIncentive, GetExpenseSummary } from './api.js';
+
+import * as ReduxHelpers from 'shared/ReduxHelpers';
 import { MOVE_DOC_STATUS } from 'shared/constants';
 
 const GET_PPM_INCENTIVE = 'GET_PPM_INCENTIVE';
