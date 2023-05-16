@@ -1,8 +1,9 @@
 import React from 'react';
-import { shallow } from 'enzyme';
+import { shallow, mount } from 'enzyme';
+
 import DocumentContent, { NonPDFImage, PDFImage } from './DocumentContent';
+
 import Alert from 'shared/Alert';
-import { mount } from 'enzyme';
 import { UPLOAD_SCAN_STATUS } from 'shared/constants';
 
 describe('DocumentContent', () => {
@@ -37,7 +38,7 @@ describe('NonPDFImage', () => {
     });
     it('clicking rotate right rotates 90 degrees', () => {
       const wrapper = mount(<NonPDFImage src="url" />);
-      let nonPdfImage = wrapper.find(NonPDFImage);
+      const nonPdfImage = wrapper.find(NonPDFImage);
       nonPdfImage.instance().rotateRight();
       nonPdfImage.update();
 
@@ -46,7 +47,7 @@ describe('NonPDFImage', () => {
 
     it('clicking rotate left rotates 90 degrees to the left', () => {
       const wrapper = mount(<NonPDFImage src="url" />);
-      let nonPdfImage = wrapper.find(NonPDFImage);
+      const nonPdfImage = wrapper.find(NonPDFImage);
       nonPdfImage.instance().rotateLeft();
       nonPdfImage.update();
 
@@ -55,7 +56,7 @@ describe('NonPDFImage', () => {
 
     it('clicking rotate left twice rotates 180 degrees to the left', () => {
       const wrapper = mount(<NonPDFImage src="url" />);
-      let nonPdfImage = wrapper.find(NonPDFImage);
+      const nonPdfImage = wrapper.find(NonPDFImage);
       nonPdfImage.instance().rotateLeft();
       nonPdfImage.instance().rotateLeft();
       nonPdfImage.update();

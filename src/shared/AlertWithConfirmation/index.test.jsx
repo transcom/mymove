@@ -1,8 +1,10 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import store from 'shared/store';
 import { mount } from 'enzyme';
+
 import AlertWithConfirmation from '.';
+
+import store from 'shared/store';
 
 describe('basic alert with confirmation component', () => {
   const text = 'some text';

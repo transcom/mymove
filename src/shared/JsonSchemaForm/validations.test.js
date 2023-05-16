@@ -1,13 +1,12 @@
 import React from 'react';
-
 import { Provider } from 'react-redux';
 import { reducer as formReducer, reduxForm } from 'redux-form';
 import { createStore, combineReducers } from 'redux';
+import { mount } from 'enzyme';
 
 import JsonSchemaField from './JsonSchemaField';
-import { recursivelyValidateRequiredFields } from './index';
 
-import { mount } from 'enzyme';
+import { recursivelyValidateRequiredFields } from './index';
 
 describe('SchemaField tests', () => {
   const formHolster = (field) => {
@@ -21,8 +20,8 @@ describe('SchemaField tests', () => {
   };
 
   const mountField = (store, field) => {
-    let Holster = reduxHolster(field);
-    let subject = mount(
+    const Holster = reduxHolster(field);
+    const subject = mount(
       <Provider store={store}>
         <Holster />
       </Provider>,
@@ -33,7 +32,7 @@ describe('SchemaField tests', () => {
   const testField = (field, tests) => {
     const store = createStore(combineReducers({ form: formReducer }));
     const testField = JsonSchemaField.createSchemaField('test_field', field, '');
-    let subject = mountField(store, testField);
+    const subject = mountField(store, testField);
 
     tests.forEach((testCase) => {
       const [testValue, expectedValue, expectedError] = testCase;
@@ -45,9 +44,9 @@ describe('SchemaField tests', () => {
         }
         input.simulate('change', { target: { value: testValue } });
 
-        let storeData = store.getState().form.holster;
-        let values = storeData.values;
-        let errors = storeData.syncErrors;
+        const storeData = store.getState().form.holster;
+        const { values } = storeData;
+        const errors = storeData.syncErrors;
 
         if (expectedValue === undefined) {
           expect(values).toBeUndefined();
@@ -150,7 +149,7 @@ describe('SchemaField tests', () => {
   });
 
   ['string', 'textarea'].forEach((fieldType) => {
-    describe(fieldType + ' text field', () => {
+    describe(`${fieldType} text field`, () => {
       describe('with limits', () => {
         const textFieldWithLimits = {
           type: 'string',
@@ -162,7 +161,7 @@ describe('SchemaField tests', () => {
         };
 
         if (fieldType === 'textarea') {
-          textFieldWithLimits['format'] = 'textarea';
+          textFieldWithLimits.format = 'textarea';
         }
 
         const stringTests = [
@@ -188,7 +187,7 @@ describe('SchemaField tests', () => {
         };
 
         if (fieldType === 'textarea') {
-          textField['format'] = 'textarea';
+          textField.format = 'textarea';
         }
 
         const stringTests = [

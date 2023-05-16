@@ -2,12 +2,13 @@ import React from 'react';
 import { get } from 'lodash';
 import PropTypes from 'prop-types';
 
-import { formatDateSM } from 'utils/formatters';
-import { getFullSMName } from 'utils/moveSetupFlow';
-import Address from './Address';
-
 import ReviewSection from '../../components/Customer/ReviewSection';
 import SectionWrapper from '../../components/Customer/SectionWrapper';
+
+import Address from './Address';
+
+import { formatDateSM } from 'utils/formatters';
+import { getFullSMName } from 'utils/moveSetupFlow';
 
 import './Review.css';
 

@@ -1,9 +1,10 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import store from 'shared/store';
 import { mount } from 'enzyme';
 
 import StoragePanel from './StoragePanel';
+
+import store from 'shared/store';
 import Alert from 'shared/Alert';
 import { PanelSwaggerField } from 'shared/EditablePanel';
 

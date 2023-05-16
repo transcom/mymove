@@ -72,7 +72,7 @@ const validateDifferentZip = (value, formValues) => {
 
 export class DateAndLocation extends Component {
   componentDidMount() {
-    const moveId = this.props.router.params.moveId;
+    const { moveId } = this.props.router.params;
 
     getPPMsForMove(moveId).then((response) => this.props.updatePPMs(response));
 
@@ -84,6 +84,7 @@ export class DateAndLocation extends Component {
   openInfo = () => {
     this.setState({ showInfo: true });
   };
+
   closeInfo = () => {
     this.setState({ showInfo: false });
   };
@@ -101,7 +102,7 @@ export class DateAndLocation extends Component {
       pendingValues.original_move_date = formatDateForSwagger(pendingValues.original_move_date);
       pendingValues.actual_move_date = formatDateForSwagger(pendingValues.actual_move_date);
 
-      const moveId = this.props.router.params.moveId;
+      const { moveId } = this.props.router.params;
 
       if (isEmpty(this.props.currentPPM)) {
         return createPPMForMove(moveId, pendingValues)
@@ -112,18 +113,17 @@ export class DateAndLocation extends Component {
           .then((response) => persistPPMEstimate(moveId, response.id))
           .then((response) => this.props.updatePPM(response))
           .catch((err) => err);
-      } else {
-        pendingValues.id = this.props.currentPPM.id;
-
-        return patchPPM(moveId, pendingValues)
-          .then((response) => {
-            this.props.updatePPM(response);
-            return response;
-          })
-          .then((response) => persistPPMEstimate(moveId, response.id))
-          .then((response) => this.props.updatePPM(response))
-          .catch((err) => err);
       }
+      pendingValues.id = this.props.currentPPM.id;
+
+      return patchPPM(moveId, pendingValues)
+        .then((response) => {
+          this.props.updatePPM(response);
+          return response;
+        })
+        .then((response) => persistPPMEstimate(moveId, response.id))
+        .then((response) => this.props.updatePPM(response))
+        .catch((err) => err);
     }
     return undefined;
   };
@@ -139,7 +139,7 @@ export class DateAndLocation extends Component {
           pageKey={pageKey}
           serverError={error}
           initialValues={initialValues}
-          enableReinitialize={true} //this is needed as the pickup_postal_code value needs to be initialized to the users residential address
+          enableReinitialize // this is needed as the pickup_postal_code value needs to be initialized to the users residential address
         >
           <h1 data-testid="location-page-title">PPM dates & locations</h1>
           <SectionWrapper>
@@ -151,7 +151,7 @@ export class DateAndLocation extends Component {
             <SwaggerField fieldName="pickup_postal_code" swagger={this.props.schema} required />
             <SwaggerField fieldName="has_additional_postal_code" swagger={this.props.schema} component={YesNoBoolean} />
             {get(this.props, 'formValues.has_additional_postal_code', false) && (
-              <Fragment>
+              <>
                 <SwaggerField fieldName="additional_pickup_postal_code" swagger={this.props.schema} required />
                 <span className="grey">
                   Making additional stops may decrease your PPM incentive.{' '}
@@ -171,7 +171,7 @@ export class DateAndLocation extends Component {
                     </a>
                   </Alert>
                 )}
-              </Fragment>
+              </>
             )}
           </SectionWrapper>
           <SectionWrapper>
@@ -194,7 +194,7 @@ export class DateAndLocation extends Component {
             </div>
             <SwaggerField fieldName="has_sit" swagger={this.props.schema} component={YesNoBoolean} />
             {get(this.props, 'formValues.has_sit', false) && (
-              <Fragment>
+              <>
                 <SwaggerField
                   className="days-in-storage"
                   fieldName="days_in_storage"
@@ -202,7 +202,7 @@ export class DateAndLocation extends Component {
                   required
                 />{' '}
                 <span className="grey">You can choose up to 90 days.</span>
-              </Fragment>
+              </>
             )}
           </SectionWrapper>
         </DateAndLocationWizardForm>

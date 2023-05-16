@@ -1,17 +1,18 @@
-import { get } from 'lodash';
+import { get, filter } from 'lodash';
 import React from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { reduxForm, getFormValues } from 'redux-form';
-import { filter } from 'lodash';
+
+import { convertDollarsToCents } from '../../../shared/utils';
+
+import { getDocsByStatusAndType } from './ducks';
 
 import Alert from 'shared/Alert';
 import { editablePanelify, PanelSwaggerField } from 'shared/EditablePanel';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { selectActivePPMForMove, updatePPM } from 'shared/Entities/modules/ppms';
 import { formatCents } from 'utils/formatters';
-import { convertDollarsToCents } from '../../../shared/utils';
-import { getDocsByStatusAndType } from './ducks';
 
 const StorageDisplay = (props) => {
   const cost = props.ppm && props.ppm.total_sit_cost ? formatCents(props.ppm.total_sit_cost) : 0;
@@ -102,7 +103,7 @@ function mapStateToProps(state, props) {
     awaitingStorageExpenses: getDocsByStatusAndType(storageExpenses, 'OK'),
 
     // editablePanelify
-    getUpdateArgs: function () {
+    getUpdateArgs() {
       const values = getFormValues(formName)(state);
       const adjustedValues = {
         total_sit_cost: convertDollarsToCents(values.total_sit_cost),

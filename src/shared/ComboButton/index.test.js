@@ -1,5 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
+
 import ComboButton from './index';
 
 describe('ComboButton tests', () => {

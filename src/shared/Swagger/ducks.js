@@ -1,5 +1,6 @@
-import * as helpers from 'shared/ReduxHelpers';
 import { getSpec, getPublicSpec } from './api';
+
+import * as helpers from 'shared/ReduxHelpers';
 
 const resourceInternal = 'SWAGGER_INTERNAL';
 

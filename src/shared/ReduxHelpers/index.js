@@ -8,7 +8,7 @@ function actionName(resource, actionType) {
 function generateActionTypes(resourceName, actionTypes) {
   resourceName = (resourceName || '').trim();
   if (!resourceName) throw new Error('No resource name provided');
-  let actions = {};
+  const actions = {};
   actionTypes.forEach((actionType) => {
     actions[actionType] = actionName(resourceName, actionType);
   });
@@ -76,38 +76,28 @@ export function generateAsyncActionCreator(resourceName, asyncAction) {
  */
 export function generateAsyncReducer(resourceName, onSuccess, initialState) {
   const actions = generateAsyncActionTypes(resourceName);
-  const combinedInitialState = Object.assign(
-    {
-      isLoading: false,
-      hasErrored: false,
-      hasSucceeded: false,
-    },
-    initialState,
-  );
+  const combinedInitialState = {
+    isLoading: false,
+    hasErrored: false,
+    hasSucceeded: false,
+    ...initialState,
+  };
   return function (state = combinedInitialState, action) {
     switch (action.type) {
       case actions.start:
-        return Object.assign({}, state, {
-          isLoading: true,
-          hasErrored: false,
-          hasSucceeded: false,
-        });
+        return { ...state, isLoading: true, hasErrored: false, hasSucceeded: false };
       case actions.success: {
-        const result = Object.assign({}, state, {
+        const result = {
+          ...state,
           isLoading: false,
           hasErrored: false,
           hasSucceeded: true,
           ...onSuccess(action.payload),
-        });
+        };
         return result;
       }
       case actions.failure: {
-        const result = Object.assign({}, state, {
-          isLoading: false,
-          hasErrored: true,
-          hasSucceeded: false,
-          error: action.error,
-        });
+        const result = { ...state, isLoading: false, hasErrored: true, hasSucceeded: false, error: action.error };
         return result;
       }
       default: {
