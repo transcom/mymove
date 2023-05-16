@@ -250,75 +250,6 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		suite.NotNil(sitUpdatePayload.UpdatedAt)
 	})
 
-	suite.Run("Success - returns SitDestinationFinalAddress on related MTO service Items if they exist", func() {
-		handler := GetMoveTaskOrderHandler{
-			suite.HandlerConfig(),
-			movetaskorder.NewMoveTaskOrderFetcher(),
-		}
-		successMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-		params := movetaskorderops.GetMoveTaskOrderParams{
-			HTTPRequest: request,
-			MoveID:      successMove.Locator,
-		}
-
-		address := factory.BuildAddress(suite.DB(), nil, nil)
-		sitEntryDate := time.Now()
-
-		factory.BuildMTOServiceItemBasic(suite.DB(), []factory.Customization{
-			{
-				Model: models.MTOServiceItem{
-					Status:       models.MTOServiceItemStatusApproved,
-					SITEntryDate: &sitEntryDate,
-				},
-			},
-			{
-				Model:    address,
-				LinkOnly: true,
-				Type:     &factory.Addresses.SITDestinationFinalAddress,
-			},
-			{
-				Model:    successMove,
-				LinkOnly: true,
-			},
-			{
-				Model: models.ReService{
-					Code: models.ReServiceCodeDDFSIT, // DDFSIT - Domestic destination 1st day SIT
-				},
-			},
-		}, nil)
-
-		// Validate incoming payload: no body to validate
-
-		response := handler.Handle(params)
-		suite.IsNotErrResponse(response)
-		suite.IsType(&movetaskorderops.GetMoveTaskOrderOK{}, response)
-
-		moveResponse := response.(*movetaskorderops.GetMoveTaskOrderOK)
-		movePayload := moveResponse.Payload
-
-		// Validate outgoing payload
-		suite.NoError(movePayload.Validate(strfmt.Default))
-
-		suite.Equal(successMove.ID.String(), movePayload.ID.String())
-		if suite.Len(movePayload.MtoServiceItems(), 1) {
-			serviceItem := movePayload.MtoServiceItems()[0]
-
-			// Take the service item and marshal it into json
-			raw, err := json.Marshal(serviceItem)
-			suite.NoError(err)
-
-			// Take that raw json and unmarshal it into a MTOServiceItemDestSIT
-			ddfsitServiceItem := primemessages.MTOServiceItemDestSIT{}
-			err = ddfsitServiceItem.UnmarshalJSON(raw)
-			suite.NoError(err)
-
-			suite.Equal(address.StreetAddress1, *ddfsitServiceItem.SitDestinationFinalAddress.StreetAddress1)
-			suite.Equal(address.State, *ddfsitServiceItem.SitDestinationFinalAddress.State)
-			suite.Equal(address.City, *ddfsitServiceItem.SitDestinationFinalAddress.City)
-		}
-
-	})
-
 	suite.Run("Success - filters shipments handled by an external vendor", func() {
 		handler := GetMoveTaskOrderHandler{
 			suite.HandlerConfig(),
@@ -962,6 +893,133 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		suite.Equal(*serviceItem.SITPostalCode, *payload.SitPostalCode)
 		verifyAddressFields(serviceItem.SITOriginHHGActualAddress, payload.SitHHGActualOrigin)
 		verifyAddressFields(serviceItem.SITOriginHHGOriginalAddress, payload.SitHHGOriginalOrigin)
+
+		suite.NotNil(payload.ETag())
+	})
+
+	suite.Run("Success - return all MTOServiceItemDestSIT fields assoicated with the getMoveTaskOrder", func() {
+		handler := GetMoveTaskOrderHandler{
+			suite.HandlerConfig(),
+			movetaskorder.NewMoveTaskOrderFetcher(),
+		}
+
+		successMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		successShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusApproved,
+				},
+			},
+			{
+				Model:    successMove,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		now := time.Now()
+		nowDate := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC)
+		later := nowDate.AddDate(0, 0, 3) // this is an arbitrary amount
+		finalAddress := factory.BuildAddress(suite.DB(), nil, nil)
+		serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					RejectionReason: models.StringPointer("not applicable"),
+
+					MTOShipmentID: &successShipment.ID,
+					// Reason:           models.StringPointer("there was a delay in getting the apartment"),
+					SITEntryDate:     &nowDate,
+					SITDepartureDate: &later,
+				},
+			},
+			{
+				Model:    successMove,
+				LinkOnly: true,
+			},
+			{
+				Model:    successShipment,
+				LinkOnly: true,
+			},
+			{
+				Model:    finalAddress,
+				Type:     &factory.Addresses.SITDestinationFinalAddress,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDFSIT,
+				},
+			},
+		}, nil)
+
+		contact1 := testdatagen.MakeMTOServiceItemCustomerContact(suite.DB(), testdatagen.Assertions{
+			MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
+				TimeMilitary:               "1400Z",
+				FirstAvailableDeliveryDate: time.Date(2023, time.December, 02, 0, 0, 0, 0, time.UTC),
+				Type:                       models.CustomerContactTypeFirst,
+			},
+			// ReService: models.ReService{
+			// 	Code: models.ReServiceCodeDDFSIT,
+			// },
+			MTOServiceItem: models.MTOServiceItem{
+				ID: serviceItem.ID,
+			},
+		})
+
+		contact2 := testdatagen.MakeMTOServiceItemCustomerContact(suite.DB(), testdatagen.Assertions{
+			MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
+				TimeMilitary:               "1600Z",
+				FirstAvailableDeliveryDate: time.Date(2023, time.December, 07, 0, 0, 0, 0, time.UTC),
+				Type:                       models.CustomerContactTypeSecond,
+			},
+			MTOServiceItem: models.MTOServiceItem{
+				ID: serviceItem.ID,
+			},
+		})
+		serviceItem.CustomerContacts = models.MTOServiceItemCustomerContacts{contact1, contact2}
+
+		// Validate incoming payload: no body to validate
+
+		params := movetaskorderops.GetMoveTaskOrderParams{
+			HTTPRequest: request,
+			MoveID:      successMove.Locator,
+		}
+
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+		suite.IsType(&movetaskorderops.GetMoveTaskOrderOK{}, response)
+
+		moveResponse := response.(*movetaskorderops.GetMoveTaskOrderOK)
+		movePayload := moveResponse.Payload
+
+		// Validate outgoing payload
+		suite.NoError(movePayload.Validate(strfmt.Default))
+
+		suite.Len(movePayload.MtoServiceItems(), 1)
+
+		serviceItemPayload := movePayload.MtoServiceItems()[0]
+
+		json, err := json.Marshal(serviceItemPayload)
+		suite.NoError(err)
+		payload := primemessages.MTOServiceItemDestSIT{}
+		err = payload.UnmarshalJSON(json)
+		suite.NoError(err)
+
+		suite.Equal(serviceItem.MoveTaskOrderID.String(), payload.MoveTaskOrderID().String())
+		suite.Equal(serviceItem.MTOShipmentID.String(), payload.MtoShipmentID().String())
+		suite.Equal(serviceItem.ID.String(), payload.ID().String())
+		suite.Equal("MTOServiceItemDestSIT", string(payload.ModelType()))
+		suite.Equal(string(serviceItem.ReService.Code), string(*payload.ReServiceCode))
+		suite.Equal(serviceItem.ReService.Name, payload.ReServiceName())
+		suite.Equal(string(serviceItem.Status), string(payload.Status()))
+		suite.Equal(*serviceItem.RejectionReason, *payload.RejectionReason())
+		// suite.Equal(*serviceItem.Reason, *payload.Reason)
+		suite.Equal(serviceItem.SITEntryDate.Format(time.RFC3339), handlers.FmtDatePtrToPop(payload.SitEntryDate).Format(time.RFC3339))
+		suite.Equal(serviceItem.SITDepartureDate.Format(time.RFC3339), handlers.FmtDatePtrToPop(payload.SitDepartureDate).Format(time.RFC3339))
+		suite.Equal(serviceItem.CustomerContacts[0].TimeMilitary, *payload.TimeMilitary1)
+		suite.Equal(serviceItem.CustomerContacts[0].FirstAvailableDeliveryDate.Format(time.RFC3339), handlers.FmtDatePtrToPop(payload.FirstAvailableDeliveryDate1).Format(time.RFC3339))
+		suite.Equal(serviceItem.CustomerContacts[1].TimeMilitary, *payload.TimeMilitary2)
+		suite.Equal(serviceItem.CustomerContacts[1].FirstAvailableDeliveryDate.Format(time.RFC3339), handlers.FmtDatePtrToPop(payload.FirstAvailableDeliveryDate2).Format(time.RFC3339))
+		verifyAddressFields(serviceItem.SITDestinationFinalAddress, payload.SitDestinationFinalAddress)
 
 		suite.NotNil(payload.ETag())
 	})
