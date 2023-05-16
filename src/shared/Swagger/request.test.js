@@ -1,4 +1,5 @@
 import * as request from './request';
+
 import * as schema from 'shared/Entities/schema';
 
 function mockGetClient(operationMock) {

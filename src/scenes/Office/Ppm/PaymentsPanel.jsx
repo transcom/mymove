@@ -17,7 +17,6 @@ import {
 } from 'shared/Entities/modules/signed_certifications';
 import { getLastError } from 'shared/Swagger/selectors';
 import { selectReimbursementById } from 'store/entities/selectors';
-
 import { no_op } from 'shared/utils';
 import { SIGNED_CERT_OPTIONS } from 'shared/constants';
 import { formatDate, formatCents } from 'utils/formatters';
@@ -54,7 +53,7 @@ function getUserDate() {
 // below is a safer way to open content in a new tab
 function safeOpenInNewTab(url) {
   if (url) {
-    let win = window.open();
+    const win = window.open();
     // win can be null if a pop-up blocker is used
     if (win) {
       win.opener = null;
@@ -119,37 +118,35 @@ class PaymentsTable extends Component {
   renderAdvanceAction = () => {
     if (this.props.ppm.status === 'APPROVED') {
       if (this.props.advance.status === 'APPROVED') {
-        return <div>{/* Further actions to come*/}</div>;
-      } else {
-        return (
-          <div onClick={this.approveReimbursement}>
-            <ToolTip disabled={false} text="Approve" textStyle="tooltiptext-small">
-              <FontAwesomeIcon aria-hidden className="icon approval-ready" icon="check" title="Approve" />
-            </ToolTip>
-          </div>
-        );
+        return <div>{/* Further actions to come */}</div>;
       }
-    } else {
       return (
-        <ToolTip
-          disabled={false}
-          text={"Can't approve payment until shipment is approved"}
-          textStyle="tooltiptext-medium"
-        >
-          <FontAwesomeIcon
-            aria-hidden
-            className="icon approval-blocked"
-            icon="check"
-            title="Can't approve payment until shipment is approved."
-          />
-        </ToolTip>
+        <div onClick={this.approveReimbursement}>
+          <ToolTip disabled={false} text="Approve" textStyle="tooltiptext-small">
+            <FontAwesomeIcon aria-hidden className="icon approval-ready" icon="check" title="Approve" />
+          </ToolTip>
+        </div>
       );
     }
+    return (
+      <ToolTip
+        disabled={false}
+        text={"Can't approve payment until shipment is approved"}
+        textStyle="tooltiptext-medium"
+      >
+        <FontAwesomeIcon
+          aria-hidden
+          className="icon approval-blocked"
+          icon="check"
+          title="Can't approve payment until shipment is approved."
+        />
+      </ToolTip>
+    );
   };
 
   render() {
-    const attachmentsError = this.props.attachmentsError;
-    const advance = this.props.advance;
+    const { attachmentsError } = this.props;
+    const { advance } = this.props;
     const paperworkIcon = this.state.showPaperwork ? 'minus-square' : 'plus-square';
 
     return (
@@ -166,7 +163,7 @@ class PaymentsTable extends Component {
               <th className="payment-table-column-title">Actions</th>
             </tr>
             {!isEmpty(advance) ? (
-              <React.Fragment>
+              <>
                 <tr>
                   <th className="payment-table-subheader" colSpan="6">
                     Payments against PPM Incentive
@@ -199,7 +196,7 @@ class PaymentsTable extends Component {
                   </td>
                   <td className="payment-table-column-content">{this.renderAdvanceAction()}</td>
                 </tr>
-              </React.Fragment>
+              </>
             ) : (
               <tr>
                 <th className="payment-table-subheader">No payments requested</th>
@@ -214,7 +211,7 @@ class PaymentsTable extends Component {
             Create payment paperwork
           </a>
           {this.state.showPaperwork && (
-            <Fragment>
+            <>
               {attachmentsError && (
                 <Alert type="error" heading="An error occurred">
                   {attachmentsErrorMessages[attachmentsError.statusCode] ||
@@ -311,7 +308,7 @@ class PaymentsTable extends Component {
                   </button>
                 </div>
               </div>
-            </Fragment>
+            </>
           )}
         </div>
       </div>

@@ -1,5 +1,6 @@
 import { get, some, uniqueId } from 'lodash';
 import { normalize } from 'normalizr';
+
 import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
 
 // Given a schema path (e.g. shipments.getShipment), return the
@@ -33,7 +34,7 @@ const toCamelCase = (str) => str[0].toLowerCase() + str.slice(1);
 // definition in within our normalizr schema.
 function successfulReturnType(routeDefinition, status) {
   const response = routeDefinition.responses[status];
-  const schemaKey = response.schema['$$ref'].split('/').pop();
+  const schemaKey = response.schema.$$ref.split('/').pop();
   if (!response) {
     milmoveLog(
       MILMOVE_LOG_LEVEL.ERROR,
@@ -50,7 +51,7 @@ export function swaggerRequest(getClient, operationPath, params, options = {}) {
   return async function (dispatch, getState, { schema }) {
     const client = await getClient();
     const state = await getState();
-    const operation = get(client, 'apis.' + operationPath);
+    const operation = get(client, `apis.${operationPath}`);
 
     if (!operation) {
       throw new Error(`Operation '${operationPath}' does not exist!`);
@@ -78,12 +79,7 @@ export function swaggerRequest(getClient, operationPath, params, options = {}) {
       request = operation(params);
     } catch (error) {
       milmoveLog(MILMOVE_LOG_LEVEL.ERROR, `Operation ${operationPath} failed: ${error}`);
-      const updatedRequestLog = Object.assign({}, requestLog, {
-        ok: false,
-        end: new Date(),
-        isLoading: false,
-        error,
-      });
+      const updatedRequestLog = { ...requestLog, ok: false, end: new Date(), isLoading: false, error };
       dispatch({
         type: `@@swagger/${operationPath}/ERROR`,
         request: updatedRequestLog,
@@ -95,11 +91,7 @@ export function swaggerRequest(getClient, operationPath, params, options = {}) {
 
     return request
       .then((response) => {
-        const updatedRequestLog = Object.assign({}, requestLog, {
-          ok: response.ok,
-          end: new Date(),
-          isLoading: false,
-        });
+        const updatedRequestLog = { ...requestLog, ok: response.ok, end: new Date(), isLoading: false };
         const routeDefinition = findMatchingRoute(client.spec.paths, operationPath);
         if (!routeDefinition) {
           throw new Error(`Could not find routeDefinition for ${operationPath}`);
@@ -113,7 +105,7 @@ export function swaggerRequest(getClient, operationPath, params, options = {}) {
           label,
         };
 
-        let schemaKey = options.schemaKey;
+        let { schemaKey } = options;
         if (!schemaKey) {
           schemaKey = successfulReturnType(routeDefinition, response.status);
         }
@@ -135,7 +127,7 @@ export function swaggerRequest(getClient, operationPath, params, options = {}) {
           throw new Error(`Could not find a schema for ${schemaKey}`);
         }
         if (options.deleteId) {
-          var oldEntity = state.entities[schemaKey][options.deleteId];
+          const oldEntity = state.entities[schemaKey][options.deleteId];
           action.entities = normalize([oldEntity], payloadSchema).entities;
         } else {
           action.entities = normalize(response.body, payloadSchema).entities;
@@ -145,12 +137,7 @@ export function swaggerRequest(getClient, operationPath, params, options = {}) {
       })
       .catch((response) => {
         milmoveLog(MILMOVE_LOG_LEVEL.ERROR, `Operation ${operationPath} failed: ${response} (${response.status})`);
-        const updatedRequestLog = Object.assign({}, requestLog, {
-          ok: false,
-          end: new Date(),
-          response,
-          isLoading: false,
-        });
+        const updatedRequestLog = { ...requestLog, ok: false, end: new Date(), response, isLoading: false };
         const action = {
           type: `@@swagger/${operationPath}/FAILURE`,
           request: updatedRequestLog,

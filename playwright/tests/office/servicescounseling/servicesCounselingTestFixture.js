@@ -1,5 +1,5 @@
 // @ts-check
-import { expect, test as officeTest, OfficePage } from '../../utils/officeTest';
+import { expect, test as officeTest, OfficePage } from '../../utils/office/officeTest';
 
 /**
  * ServiceCounselorPage test fixture
@@ -139,7 +139,7 @@ export class ServiceCounselorPage extends OfficePage {
  * @property {ServiceCounselorPage} scPage    - services counselor page
  */
 
-/** @type {import('@playwright/test').Fixtures<ServiceCounselorPageTestArgs, {}, import('../../utils/officeTest').OfficePageTestArgs, import('@playwright/test').PlaywrightWorkerArgs>} */
+/** @type {import('@playwright/test').Fixtures<ServiceCounselorPageTestArgs, {}, import('../../utils/office/officeTest').OfficePageTestArgs, import('@playwright/test').PlaywrightWorkerArgs>} */
 const scFixtures = {
   scPage: async ({ officePage }, use) => {
     const scPage = new ServiceCounselorPage(officePage);

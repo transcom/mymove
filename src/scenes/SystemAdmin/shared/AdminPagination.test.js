@@ -1,9 +1,8 @@
 import React from 'react';
 import { shallow } from 'enzyme';
+import { useListContext } from 'react-admin';
 
 import AdminPagination from './AdminPagination';
-
-import { useListContext } from 'react-admin';
 
 jest.mock('react-admin', () => ({
   ...jest.requireActual('react-admin'),

@@ -4,7 +4,7 @@ import './index.css';
 
 class ToolTip extends Component {
   render() {
-    let { children, toolTipText, disabled, textStyle } = this.props;
+    const { children, toolTipText, disabled, textStyle } = this.props;
     return (
       <span className="tooltip">
         {!disabled && toolTipText && <span className={`tooltiptext ${textStyle}`}>{toolTipText}</span>}

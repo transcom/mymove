@@ -1,13 +1,17 @@
 import { shallow } from 'enzyme';
 import React from 'react';
+
 import CustomerAgreement from './CustomerAgreement';
 
 describe('Customer Agreement', () => {
-  let wrapper, props, onChange, agreementText;
+  let wrapper;
+  let props;
+  let onChange;
+  let agreementText;
   beforeEach(() => {
     onChange = jest.fn();
     agreementText = 'Text';
-    props = { onChange: onChange, checked: false, agreementText: agreementText };
+    props = { onChange, checked: false, agreementText };
     wrapper = shallow(<CustomerAgreement {...props} />);
     window.alert = jest.fn();
   });
@@ -24,7 +28,7 @@ describe('Customer Agreement', () => {
     });
 
     it('is checked when checked prop is true', () => {
-      const wrapper = shallow(<CustomerAgreement {...props} checked={true} />);
+      const wrapper = shallow(<CustomerAgreement {...props} checked />);
       const checkbox = wrapper.find({ type: 'checkbox' });
 
       expect(checkbox.props().checked).toBe(true);
