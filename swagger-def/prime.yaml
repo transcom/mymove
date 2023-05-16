@@ -1765,6 +1765,8 @@ definitions:
             description: Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.
           sitHHGActualOrigin:
             $ref: 'definitions/Address.yaml'
+          sitHHGOriginalOrigin:
+            $ref: 'definitions/Address.yaml'
         required:
           - reServiceCode
           - reason

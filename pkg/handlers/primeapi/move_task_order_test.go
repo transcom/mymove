@@ -852,6 +852,120 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		suite.NotNil(payload.ETag())
 	})
 
+	suite.Run("Success - return all MTOServiceItemOriginSIT fields assoicated with the getMoveTaskOrder", func() {
+		handler := GetMoveTaskOrderHandler{
+			suite.HandlerConfig(),
+			movetaskorder.NewMoveTaskOrderFetcher(),
+		}
+
+		successMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		successShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusApproved,
+				},
+			},
+			{
+				Model:    successMove,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		now := time.Now()
+		nowDate := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC)
+		later := nowDate.AddDate(0, 0, 3) // this is an arbitrary amount
+		originalAddress := factory.BuildAddress(suite.DB(), nil, nil)
+		actualAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "177 Q st",
+					City:           "Solomons",
+					State:          "MD",
+					PostalCode:     "20688",
+				},
+			},
+		}, nil)
+		serviceItem := factory.BuildMTOServiceItemBasic(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					RejectionReason:  models.StringPointer("not applicable"),
+					MTOShipmentID:    &successShipment.ID,
+					Reason:           models.StringPointer("there was a delay in getting the apartment"),
+					SITEntryDate:     &nowDate,
+					SITDepartureDate: &later,
+					SITPostalCode:    models.StringPointer("90210"),
+				},
+			},
+			{
+				Model:    successMove,
+				LinkOnly: true,
+			},
+			{
+				Model:    successShipment,
+				LinkOnly: true,
+			},
+			{
+				Model:    actualAddress,
+				Type:     &factory.Addresses.SITOriginHHGActualAddress,
+				LinkOnly: true,
+			},
+			{
+				Model:    originalAddress,
+				Type:     &factory.Addresses.SITOriginHHGOriginalAddress,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDOFSIT,
+				},
+			},
+		}, nil)
+
+		// Validate incoming payload: no body to validate
+
+		params := movetaskorderops.GetMoveTaskOrderParams{
+			HTTPRequest: request,
+			MoveID:      successMove.Locator,
+		}
+
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+		suite.IsType(&movetaskorderops.GetMoveTaskOrderOK{}, response)
+
+		moveResponse := response.(*movetaskorderops.GetMoveTaskOrderOK)
+		movePayload := moveResponse.Payload
+
+		// Validate outgoing payload
+		suite.NoError(movePayload.Validate(strfmt.Default))
+
+		suite.Len(movePayload.MtoServiceItems(), 1)
+
+		serviceItemPayload := movePayload.MtoServiceItems()[0]
+
+		json, err := json.Marshal(serviceItemPayload)
+		suite.NoError(err)
+		payload := primemessages.MTOServiceItemOriginSIT{}
+		err = payload.UnmarshalJSON(json)
+		suite.NoError(err)
+
+		suite.Equal(serviceItem.MoveTaskOrderID.String(), payload.MoveTaskOrderID().String())
+		suite.Equal(serviceItem.MTOShipmentID.String(), payload.MtoShipmentID().String())
+		suite.Equal(serviceItem.ID.String(), payload.ID().String())
+		suite.Equal("MTOServiceItemOriginSIT", string(payload.ModelType()))
+		suite.Equal(string(serviceItem.ReService.Code), string(*payload.ReServiceCode))
+		suite.Equal(serviceItem.ReService.Name, payload.ReServiceName())
+		suite.Equal(string(serviceItem.Status), string(payload.Status()))
+		suite.Equal(*serviceItem.RejectionReason, *payload.RejectionReason())
+		suite.Equal(*serviceItem.Reason, *payload.Reason)
+		suite.Equal(serviceItem.SITEntryDate.Format(time.RFC3339), handlers.FmtDatePtrToPop(payload.SitEntryDate).Format(time.RFC3339))
+		suite.Equal(serviceItem.SITDepartureDate.Format(time.RFC3339), handlers.FmtDatePtrToPop(payload.SitDepartureDate).Format(time.RFC3339))
+		suite.Equal(*serviceItem.SITPostalCode, *payload.SitPostalCode)
+		verifyAddressFields(serviceItem.SITOriginHHGActualAddress, payload.SitHHGActualOrigin)
+		verifyAddressFields(serviceItem.SITOriginHHGOriginalAddress, payload.SitHHGOriginalOrigin)
+
+		suite.NotNil(payload.ETag())
+	})
+
 	suite.Run("Failure 'Not Found' for non-available move", func() {
 		handler := GetMoveTaskOrderHandler{
 			suite.HandlerConfig(),

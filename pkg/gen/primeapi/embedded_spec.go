@@ -2239,6 +2239,9 @@ func init() {
             "sitHHGActualOrigin": {
               "$ref": "#/definitions/Address"
             },
+            "sitHHGOriginalOrigin": {
+              "$ref": "#/definitions/Address"
+            },
             "sitPostalCode": {
               "type": "string",
               "format": "zip",
@@ -6668,6 +6671,9 @@ func init() {
               "format": "date"
             },
             "sitHHGActualOrigin": {
+              "$ref": "#/definitions/Address"
+            },
+            "sitHHGOriginalOrigin": {
               "$ref": "#/definitions/Address"
             },
             "sitPostalCode": {

@@ -2004,6 +2004,8 @@ definitions:
               the UpdateMTOServiceItemSIT modelType at a later date.
           sitHHGActualOrigin:
             $ref: '#/definitions/Address'
+          sitHHGOriginalOrigin:
+            $ref: '#/definitions/Address'
         required:
           - reServiceCode
           - reason
