@@ -654,6 +654,174 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		suite.NotNil(agentPayload.UpdatedAt)
 	})
 
+	suite.Run("Success - return all base fields assoicated with the getMoveTaskOrder", func() {
+		handler := GetMoveTaskOrderHandler{
+			suite.HandlerConfig(),
+			movetaskorder.NewMoveTaskOrderFetcher(),
+		}
+		now := time.Now()
+		aWeekAgo := now.AddDate(0, 0, -7)
+		upload := factory.BuildUpload(suite.DB(), nil, nil)
+		successMove := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					PrimeCounselingCompletedAt: &aWeekAgo,
+					PPMEstimatedWeight:         models.PoundPointer(1000),
+					ExcessWeightQualifiedAt:    &aWeekAgo,
+					ExcessWeightAcknowledgedAt: &now,
+					ExcessWeightUploadID:       &upload.ID,
+				},
+			},
+		}, nil)
+		params := movetaskorderops.GetMoveTaskOrderParams{
+			HTTPRequest: request,
+			MoveID:      successMove.Locator,
+		}
+
+		// Validate incoming payload: no body to validate
+
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+		suite.IsType(&movetaskorderops.GetMoveTaskOrderOK{}, response)
+
+		moveResponse := response.(*movetaskorderops.GetMoveTaskOrderOK)
+		movePayload := moveResponse.Payload
+
+		// Validate outgoing payload
+		suite.NoError(movePayload.Validate(strfmt.Default))
+
+		suite.Equal(successMove.ID.String(), movePayload.ID.String())
+		suite.Equal(successMove.Locator, movePayload.MoveCode)
+		suite.Equal(successMove.OrdersID.String(), movePayload.OrderID.String())
+		suite.Equal(*successMove.ReferenceID, movePayload.ReferenceID)
+		suite.Equal(successMove.AvailableToPrimeAt.Format(time.RFC3339), handlers.FmtDateTimePtrToPop(movePayload.AvailableToPrimeAt).Format(time.RFC3339))
+		suite.Equal(successMove.PrimeCounselingCompletedAt.Format(time.RFC3339), handlers.FmtDateTimePtrToPop(movePayload.PrimeCounselingCompletedAt).Format(time.RFC3339))
+		suite.Equal(*successMove.PPMType, movePayload.PpmType)
+		suite.Equal(*handlers.FmtPoundPtr(successMove.PPMEstimatedWeight), movePayload.PpmEstimatedWeight)
+		suite.Equal(successMove.ExcessWeightQualifiedAt.Format(time.RFC3339), handlers.FmtDateTimePtrToPop(movePayload.ExcessWeightQualifiedAt).Format(time.RFC3339))
+		suite.Equal(successMove.ExcessWeightAcknowledgedAt.Format(time.RFC3339), handlers.FmtDateTimePtrToPop(movePayload.ExcessWeightAcknowledgedAt).Format(time.RFC3339))
+		suite.Equal(successMove.ExcessWeightUploadID.String(), movePayload.ExcessWeightUploadID.String())
+
+		suite.NotNil(movePayload.CreatedAt)
+		suite.NotNil(movePayload.UpdatedAt)
+		suite.NotNil(movePayload.ETag)
+	})
+
+	suite.Run("Success - return all Order fields assoicated with the getMoveTaskOrder", func() {
+		handler := GetMoveTaskOrderHandler{
+			suite.HandlerConfig(),
+			movetaskorder.NewMoveTaskOrderFetcher(),
+		}
+		currentAddress := factory.BuildAddress(suite.DB(), nil, nil)
+		successMove := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
+			{
+				Model:    currentAddress,
+				Type:     &factory.Addresses.ResidentialAddress,
+				LinkOnly: true,
+			},
+		}, nil)
+		params := movetaskorderops.GetMoveTaskOrderParams{
+			HTTPRequest: request,
+			MoveID:      successMove.Locator,
+		}
+
+		// Validate incoming payload: no body to validate
+
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+		suite.IsType(&movetaskorderops.GetMoveTaskOrderOK{}, response)
+
+		moveResponse := response.(*movetaskorderops.GetMoveTaskOrderOK)
+		movePayload := moveResponse.Payload
+
+		// Validate outgoing payload
+		suite.NoError(movePayload.Validate(strfmt.Default))
+
+		ordersPayload := movePayload.Order
+		orders := successMove.Orders
+		suite.Equal(orders.ID.String(), ordersPayload.ID.String())
+		suite.Equal(orders.ServiceMemberID.String(), ordersPayload.CustomerID.String())
+		suite.Equal(*orders.OriginDutyLocationGBLOC, ordersPayload.OriginDutyLocationGBLOC)
+		suite.Equal(*orders.Grade, *ordersPayload.Rank)
+		suite.Equal(orders.ReportByDate.Format(time.RFC3339), time.Time(ordersPayload.ReportByDate).Format(time.RFC3339))
+		suite.Equal(string(orders.OrdersType), string(ordersPayload.OrdersType))
+		suite.Equal(*orders.OrdersNumber, *ordersPayload.OrderNumber)
+		suite.Equal(*orders.TAC, *ordersPayload.LinesOfAccounting)
+
+		suite.NotNil(ordersPayload.ETag)
+
+		// verify customer object aka service member
+		suite.Equal(orders.ServiceMember.ID.String(), ordersPayload.Customer.ID.String())
+		suite.Equal(*orders.ServiceMember.Edipi, ordersPayload.Customer.DodID)
+		suite.Equal(orders.ServiceMember.UserID.String(), ordersPayload.Customer.UserID.String())
+
+		suite.Equal(orders.ServiceMember.ResidentialAddress.ID.String(), ordersPayload.Customer.CurrentAddress.ID.String())
+		suite.Equal(orders.ServiceMember.ResidentialAddress.StreetAddress1, *ordersPayload.Customer.CurrentAddress.StreetAddress1)
+		suite.Equal(*orders.ServiceMember.ResidentialAddress.StreetAddress2, *ordersPayload.Customer.CurrentAddress.StreetAddress2)
+		suite.Equal(*orders.ServiceMember.ResidentialAddress.StreetAddress3, *ordersPayload.Customer.CurrentAddress.StreetAddress3)
+		suite.Equal(orders.ServiceMember.ResidentialAddress.City, *ordersPayload.Customer.CurrentAddress.City)
+		suite.Equal(orders.ServiceMember.ResidentialAddress.State, *ordersPayload.Customer.CurrentAddress.State)
+		suite.Equal(orders.ServiceMember.ResidentialAddress.PostalCode, *ordersPayload.Customer.CurrentAddress.PostalCode)
+		suite.Equal(*orders.ServiceMember.ResidentialAddress.Country, *ordersPayload.Customer.CurrentAddress.Country)
+		suite.NotNil(ordersPayload.Customer.CurrentAddress.ETag)
+
+		suite.Equal(*orders.ServiceMember.FirstName, ordersPayload.Customer.FirstName)
+		suite.Equal(*orders.ServiceMember.LastName, ordersPayload.Customer.LastName)
+		suite.Equal(string(*orders.ServiceMember.Affiliation), ordersPayload.Customer.Branch)
+		suite.Equal(*orders.ServiceMember.Telephone, ordersPayload.Customer.Phone)
+		suite.Equal(*orders.ServiceMember.PersonalEmail, ordersPayload.Customer.Email)
+		suite.NotNil(ordersPayload.Customer.ETag)
+
+		// verify entitlement object
+		suite.Equal(orders.Entitlement.ID.String(), ordersPayload.Entitlement.ID.String())
+		suite.Equal(int64(*orders.Entitlement.DBAuthorizedWeight), *ordersPayload.Entitlement.AuthorizedWeight)
+		suite.Equal(*orders.Entitlement.DependentsAuthorized, *ordersPayload.Entitlement.DependentsAuthorized)
+		suite.Equal(*orders.Entitlement.NonTemporaryStorage, *ordersPayload.Entitlement.NonTemporaryStorage)
+		suite.Equal(*orders.Entitlement.PrivatelyOwnedVehicle, *ordersPayload.Entitlement.PrivatelyOwnedVehicle)
+		suite.Equal(int64(orders.Entitlement.ProGearWeight), ordersPayload.Entitlement.ProGearWeight)
+		suite.Equal(int64(orders.Entitlement.ProGearWeightSpouse), ordersPayload.Entitlement.ProGearWeightSpouse)
+		suite.Equal(int64(orders.Entitlement.RequiredMedicalEquipmentWeight), ordersPayload.Entitlement.RequiredMedicalEquipmentWeight)
+		suite.Equal(orders.Entitlement.OrganizationalClothingAndIndividualEquipment, ordersPayload.Entitlement.OrganizationalClothingAndIndividualEquipment)
+		suite.Equal(int64(*orders.Entitlement.StorageInTransit), ordersPayload.Entitlement.StorageInTransit)
+		suite.Equal(int64(*orders.Entitlement.WeightAllowance()), ordersPayload.Entitlement.TotalWeight)
+		suite.Equal(int64(*orders.Entitlement.TotalDependents), ordersPayload.Entitlement.TotalDependents)
+		suite.NotNil(ordersPayload.Entitlement.ETag)
+
+		// verify destinationDutyLocation object
+		suite.Equal(orders.NewDutyLocation.ID.String(), ordersPayload.DestinationDutyLocation.ID.String())
+		suite.Equal(orders.NewDutyLocation.Name, ordersPayload.DestinationDutyLocation.Name)
+		suite.Equal(orders.NewDutyLocation.AddressID.String(), ordersPayload.DestinationDutyLocation.AddressID.String())
+
+		suite.Equal(orders.NewDutyLocation.Address.ID.String(), ordersPayload.DestinationDutyLocation.Address.ID.String())
+		suite.Equal(orders.NewDutyLocation.Address.StreetAddress1, *ordersPayload.DestinationDutyLocation.Address.StreetAddress1)
+		suite.Equal(*orders.NewDutyLocation.Address.StreetAddress2, *ordersPayload.DestinationDutyLocation.Address.StreetAddress2)
+		suite.Equal(*orders.NewDutyLocation.Address.StreetAddress3, *ordersPayload.DestinationDutyLocation.Address.StreetAddress3)
+		suite.Equal(orders.NewDutyLocation.Address.City, *ordersPayload.DestinationDutyLocation.Address.City)
+		suite.Equal(orders.NewDutyLocation.Address.State, *ordersPayload.DestinationDutyLocation.Address.State)
+		suite.Equal(orders.NewDutyLocation.Address.PostalCode, *ordersPayload.DestinationDutyLocation.Address.PostalCode)
+		suite.Equal(*orders.NewDutyLocation.Address.Country, *ordersPayload.DestinationDutyLocation.Address.Country)
+		suite.NotNil(ordersPayload.DestinationDutyLocation.Address.ETag)
+
+		suite.NotNil(ordersPayload.DestinationDutyLocation.ETag)
+
+		// verify originDutyLocation object
+		suite.Equal(orders.OriginDutyLocation.ID.String(), ordersPayload.OriginDutyLocation.ID.String())
+		suite.Equal(orders.OriginDutyLocation.Name, ordersPayload.OriginDutyLocation.Name)
+		suite.Equal(orders.OriginDutyLocation.AddressID.String(), ordersPayload.OriginDutyLocation.AddressID.String())
+
+		suite.Equal(orders.OriginDutyLocation.Address.ID.String(), ordersPayload.OriginDutyLocation.Address.ID.String())
+		suite.Equal(orders.OriginDutyLocation.Address.StreetAddress1, *ordersPayload.OriginDutyLocation.Address.StreetAddress1)
+		suite.Equal(*orders.OriginDutyLocation.Address.StreetAddress2, *ordersPayload.OriginDutyLocation.Address.StreetAddress2)
+		suite.Equal(*orders.OriginDutyLocation.Address.StreetAddress3, *ordersPayload.OriginDutyLocation.Address.StreetAddress3)
+		suite.Equal(orders.OriginDutyLocation.Address.City, *ordersPayload.OriginDutyLocation.Address.City)
+		suite.Equal(orders.OriginDutyLocation.Address.State, *ordersPayload.OriginDutyLocation.Address.State)
+		suite.Equal(orders.OriginDutyLocation.Address.PostalCode, *ordersPayload.OriginDutyLocation.Address.PostalCode)
+		suite.Equal(*orders.OriginDutyLocation.Address.Country, *ordersPayload.OriginDutyLocation.Address.Country)
+		suite.NotNil(ordersPayload.OriginDutyLocation.Address.ETag)
+
+		suite.NotNil(ordersPayload.OriginDutyLocation.ETag)
+	})
+
 	suite.Run("Failure 'Not Found' for non-available move", func() {
 		handler := GetMoveTaskOrderHandler{
 			suite.HandlerConfig(),
