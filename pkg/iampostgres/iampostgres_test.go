@@ -1,6 +1,8 @@
 package iampostgres
 
 import (
+	"context"
+	"database/sql/driver"
 	"errors"
 	"fmt"
 	"sync"
@@ -221,7 +223,7 @@ func TestEnableIAMNormal(t *testing.T) {
 	// The sleep time should be greater than how often the password will cycle
 	// so that the next time the password is fetched, it will have changed.
 	// use Millisecond so the tests run faster
-	time.Sleep(2 * time.Millisecond)
+	time.Sleep(3 * tickerDuration)
 
 	// Confirm that the password has changed (it's no longer the initial
 	// password) to the 1 password being cycled through.
@@ -273,4 +275,43 @@ func TestUpdateDSN(t *testing.T) {
 		assert.Equal(dsn, tt.expectedDSN)
 		assert.Nil(err)
 	}
+}
+
+type FakeDriver struct {
+}
+
+func (fd FakeDriver) Ping(ctx context.Context) error {
+	return errors.New("FakePing Error")
+}
+
+func (fd FakeDriver) Prepare(query string) (driver.Stmt, error) {
+	return nil, errors.New("FakePrepare Error")
+}
+
+func (fd FakeDriver) Begin() (driver.Tx, error) {
+	return nil, errors.New("FakeBegin Error")
+}
+
+func (fd FakeDriver) Close() error {
+	return errors.New("FakeClose Error")
+}
+
+func (fd FakeDriver) ResetSession(ctx context.Context) error {
+	return errors.New("FakeResetSession Error")
+}
+
+func TestDriverConnWrapper(t *testing.T) {
+	assert := assert.New(t)
+
+	fakeDriver := FakeDriver{}
+	wrapper := DriverConnWrapper{
+		Pinger:          fakeDriver,
+		Conn:            fakeDriver,
+		SessionResetter: fakeDriver,
+	}
+
+	ctx := context.Background()
+	assert.Error(wrapper.Ping(ctx))
+	assert.Error(wrapper.Close())
+	assert.Error(wrapper.ResetSession(ctx))
 }

@@ -146,7 +146,7 @@ func EnableIAM(host string, port string, region string, user string, passTemplat
 	minWaitDuration := 15 * time.Minute
 
 	if waitDuration > minWaitDuration {
-		return errors.New("waitDuration too short")
+		return errors.New("waitDuration too long")
 	}
 
 	ticker := time.NewTicker(waitDuration)
