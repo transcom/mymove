@@ -856,7 +856,7 @@ of the audit trigger its self.
 CREATE FUNCTION public.searchable_full_name(first_name text, last_name text) RETURNS text
     LANGUAGE sql IMMUTABLE STRICT
     AS $$
-	-- CONCAT_WS is immutable when given only text arguments
+        -- CONCAT_WS is immutable when given only text arguments
 SELECT public.f_unaccent(LOWER(CONCAT_WS(' ', first_name, last_name)));
 $$;
 
