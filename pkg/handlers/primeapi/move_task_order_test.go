@@ -773,6 +773,85 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		suite.NotNil(ordersPayload.OriginDutyLocation.ETag)
 	})
 
+	suite.Run("Success - return all MTOServiceItemBasic fields assoicated with the getMoveTaskOrder", func() {
+		handler := GetMoveTaskOrderHandler{
+			suite.HandlerConfig(),
+			movetaskorder.NewMoveTaskOrderFetcher(),
+		}
+
+		successMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		successShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusApproved,
+				},
+			},
+			{
+				Model:    successMove,
+				LinkOnly: true,
+			},
+		}, nil)
+		serviceItem := factory.BuildMTOServiceItemBasic(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					RejectionReason: models.StringPointer("not applicable"),
+					MTOShipmentID:   &successShipment.ID,
+				},
+			},
+			{
+				Model:    successMove,
+				LinkOnly: true,
+			},
+			{
+				Model:    successShipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeCS,
+				},
+			},
+		}, nil)
+
+		// Validate incoming payload: no body to validate
+
+		params := movetaskorderops.GetMoveTaskOrderParams{
+			HTTPRequest: request,
+			MoveID:      successMove.Locator,
+		}
+
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+		suite.IsType(&movetaskorderops.GetMoveTaskOrderOK{}, response)
+
+		moveResponse := response.(*movetaskorderops.GetMoveTaskOrderOK)
+		movePayload := moveResponse.Payload
+
+		// Validate outgoing payload
+		suite.NoError(movePayload.Validate(strfmt.Default))
+
+		suite.Len(movePayload.MtoServiceItems(), 1)
+
+		serviceItemPayload := movePayload.MtoServiceItems()[0]
+
+		json, err := json.Marshal(serviceItemPayload)
+		suite.NoError(err)
+		payload := primemessages.MTOServiceItemBasic{}
+		err = payload.UnmarshalJSON(json)
+		suite.NoError(err)
+
+		suite.Equal(serviceItem.MoveTaskOrderID.String(), payload.MoveTaskOrderID().String())
+		suite.Equal(serviceItem.MTOShipmentID.String(), payload.MtoShipmentID().String())
+		suite.Equal(serviceItem.ID.String(), payload.ID().String())
+		suite.Equal("MTOServiceItemBasic", string(payload.ModelType()))
+		suite.Equal(string(serviceItem.ReService.Code), string(*payload.ReServiceCode))
+		suite.Equal(serviceItem.ReService.Name, payload.ReServiceName())
+		suite.Equal(string(serviceItem.Status), string(payload.Status()))
+		suite.Equal(*serviceItem.RejectionReason, *payload.RejectionReason())
+
+		suite.NotNil(payload.ETag())
+	})
+
 	suite.Run("Failure 'Not Found' for non-available move", func() {
 		handler := GetMoveTaskOrderHandler{
 			suite.HandlerConfig(),
