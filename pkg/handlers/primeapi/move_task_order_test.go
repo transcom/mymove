@@ -71,6 +71,18 @@ func (suite *HandlerSuite) TestListMovesHandlerReturnsUpdated() {
 func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 	request := httptest.NewRequest("GET", "/move-task-orders/{moveTaskOrderID}", nil)
 
+	verifyAddressFields := func(address *models.Address, payload *primemessages.Address) {
+		suite.Equal(address.ID.String(), payload.ID.String())
+		suite.Equal(address.StreetAddress1, *payload.StreetAddress1)
+		suite.Equal(*address.StreetAddress2, *payload.StreetAddress2)
+		suite.Equal(*address.StreetAddress3, *payload.StreetAddress3)
+		suite.Equal(address.City, *payload.City)
+		suite.Equal(address.State, *payload.State)
+		suite.Equal(address.PostalCode, *payload.PostalCode)
+		suite.Equal(*address.Country, *payload.Country)
+		suite.NotNil(payload.ETag)
+	}
+
 	suite.Run("Success with Prime-available move by ID", func() {
 		handler := GetMoveTaskOrderHandler{
 			suite.HandlerConfig(),
@@ -472,13 +484,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		suite.Equal(*successShipment.CustomerRemarks, *shipment.CustomerRemarks)
 
 		suite.Equal(destinationAddress.ID, handlers.FmtUUIDToPop(shipment.DestinationAddress.ID))
-		suite.Equal(destinationAddress.StreetAddress1, *shipment.DestinationAddress.StreetAddress1)
-		suite.Equal(*destinationAddress.StreetAddress2, *shipment.DestinationAddress.StreetAddress2)
-		suite.Equal(*destinationAddress.StreetAddress3, *shipment.DestinationAddress.StreetAddress3)
-		suite.Equal(destinationAddress.City, *shipment.DestinationAddress.City)
-		suite.Equal(destinationAddress.State, *shipment.DestinationAddress.State)
-		suite.Equal(destinationAddress.PostalCode, *shipment.DestinationAddress.PostalCode)
-		suite.Equal(*destinationAddress.Country, *shipment.DestinationAddress.Country)
+		verifyAddressFields(&destinationAddress, &shipment.DestinationAddress.Address)
 
 		suite.Equal(string(*successShipment.DestinationType), string(*shipment.DestinationType))
 
@@ -488,15 +494,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		suite.Equal(successShipment.MoveTaskOrderID, handlers.FmtUUIDToPop(shipment.MoveTaskOrderID))
 
 		suite.Equal(*successShipment.NTSRecordedWeight, *handlers.PoundPtrFromInt64Ptr(shipment.NtsRecordedWeight))
-
-		suite.Equal(successShipment.PickupAddress.ID, handlers.FmtUUIDToPop(shipment.PickupAddress.ID))
-		suite.Equal(successShipment.PickupAddress.StreetAddress1, *shipment.PickupAddress.StreetAddress1)
-		suite.Equal(*successShipment.PickupAddress.StreetAddress2, *shipment.PickupAddress.StreetAddress2)
-		suite.Equal(*successShipment.PickupAddress.StreetAddress3, *shipment.PickupAddress.StreetAddress3)
-		suite.Equal(successShipment.PickupAddress.City, *shipment.PickupAddress.City)
-		suite.Equal(successShipment.PickupAddress.State, *shipment.PickupAddress.State)
-		suite.Equal(successShipment.PickupAddress.PostalCode, *shipment.PickupAddress.PostalCode)
-		suite.Equal(*successShipment.PickupAddress.Country, *shipment.PickupAddress.Country)
+		verifyAddressFields(successShipment.PickupAddress, &shipment.PickupAddress.Address)
 
 		// TODO: test fields on PpmShipment, existing test "Success - returns shipment with attached PpmShipment"
 
@@ -510,24 +508,9 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 
 		suite.Equal(successShipment.ScheduledDeliveryDate.Format(time.RFC3339), handlers.FmtDatePtrToPop(shipment.ScheduledDeliveryDate).Format(time.RFC3339))
 		suite.Equal(successShipment.ScheduledPickupDate.Format(time.RFC3339), handlers.FmtDatePtrToPop(shipment.ScheduledPickupDate).Format(time.RFC3339))
+		verifyAddressFields(successShipment.SecondaryDeliveryAddress, &shipment.SecondaryDeliveryAddress.Address)
 
-		suite.Equal(successShipment.SecondaryDeliveryAddress.ID, handlers.FmtUUIDToPop(shipment.SecondaryDeliveryAddress.ID))
-		suite.Equal(successShipment.SecondaryDeliveryAddress.StreetAddress1, *shipment.SecondaryDeliveryAddress.StreetAddress1)
-		suite.Equal(*successShipment.SecondaryDeliveryAddress.StreetAddress2, *shipment.SecondaryDeliveryAddress.StreetAddress2)
-		suite.Equal(*successShipment.SecondaryDeliveryAddress.StreetAddress3, *shipment.SecondaryDeliveryAddress.StreetAddress3)
-		suite.Equal(successShipment.SecondaryDeliveryAddress.City, *shipment.SecondaryDeliveryAddress.City)
-		suite.Equal(successShipment.SecondaryDeliveryAddress.State, *shipment.SecondaryDeliveryAddress.State)
-		suite.Equal(successShipment.SecondaryDeliveryAddress.PostalCode, *shipment.SecondaryDeliveryAddress.PostalCode)
-		suite.Equal(*successShipment.SecondaryDeliveryAddress.Country, *shipment.SecondaryDeliveryAddress.Country)
-
-		suite.Equal(successShipment.SecondaryPickupAddress.ID, handlers.FmtUUIDToPop(shipment.SecondaryPickupAddress.ID))
-		suite.Equal(successShipment.SecondaryPickupAddress.StreetAddress1, *shipment.SecondaryPickupAddress.StreetAddress1)
-		suite.Equal(*successShipment.SecondaryPickupAddress.StreetAddress2, *shipment.SecondaryPickupAddress.StreetAddress2)
-		suite.Equal(*successShipment.SecondaryPickupAddress.StreetAddress3, *shipment.SecondaryPickupAddress.StreetAddress3)
-		suite.Equal(successShipment.SecondaryPickupAddress.City, *shipment.SecondaryPickupAddress.City)
-		suite.Equal(successShipment.SecondaryPickupAddress.State, *shipment.SecondaryPickupAddress.State)
-		suite.Equal(successShipment.SecondaryPickupAddress.PostalCode, *shipment.SecondaryPickupAddress.PostalCode)
-		suite.Equal(*successShipment.SecondaryPickupAddress.Country, *shipment.SecondaryPickupAddress.Country)
+		verifyAddressFields(successShipment.SecondaryPickupAddress, &shipment.SecondaryPickupAddress.Address)
 
 		suite.Equal(string(successShipment.ShipmentType), string(shipment.ShipmentType))
 		suite.Equal(string(successShipment.Status), shipment.Status)
@@ -591,14 +574,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		suite.Equal(*successShipment.StorageFacility.Phone, *storageFacilityPayload.Phone)
 		suite.Equal(*successShipment.StorageFacility.Email, *storageFacilityPayload.Email)
 
-		suite.Equal(successShipment.StorageFacility.Address.ID.String(), storageFacilityPayload.Address.ID.String())
-		suite.Equal(successShipment.StorageFacility.Address.StreetAddress1, *storageFacilityPayload.Address.StreetAddress1)
-		suite.Equal(*successShipment.StorageFacility.Address.StreetAddress2, *storageFacilityPayload.Address.StreetAddress2)
-		suite.Equal(*successShipment.StorageFacility.Address.StreetAddress3, *storageFacilityPayload.Address.StreetAddress3)
-		suite.Equal(successShipment.StorageFacility.Address.City, *storageFacilityPayload.Address.City)
-		suite.Equal(successShipment.StorageFacility.Address.State, *storageFacilityPayload.Address.State)
-		suite.Equal(successShipment.StorageFacility.Address.PostalCode, *storageFacilityPayload.Address.PostalCode)
-		suite.Equal(*successShipment.StorageFacility.Address.Country, *storageFacilityPayload.Address.Country)
+		verifyAddressFields(&successShipment.StorageFacility.Address, storageFacilityPayload.Address)
 
 		suite.NotNil(storageFacilityPayload.ETag)
 	})
@@ -755,15 +731,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		suite.Equal(*orders.ServiceMember.Edipi, ordersPayload.Customer.DodID)
 		suite.Equal(orders.ServiceMember.UserID.String(), ordersPayload.Customer.UserID.String())
 
-		suite.Equal(orders.ServiceMember.ResidentialAddress.ID.String(), ordersPayload.Customer.CurrentAddress.ID.String())
-		suite.Equal(orders.ServiceMember.ResidentialAddress.StreetAddress1, *ordersPayload.Customer.CurrentAddress.StreetAddress1)
-		suite.Equal(*orders.ServiceMember.ResidentialAddress.StreetAddress2, *ordersPayload.Customer.CurrentAddress.StreetAddress2)
-		suite.Equal(*orders.ServiceMember.ResidentialAddress.StreetAddress3, *ordersPayload.Customer.CurrentAddress.StreetAddress3)
-		suite.Equal(orders.ServiceMember.ResidentialAddress.City, *ordersPayload.Customer.CurrentAddress.City)
-		suite.Equal(orders.ServiceMember.ResidentialAddress.State, *ordersPayload.Customer.CurrentAddress.State)
-		suite.Equal(orders.ServiceMember.ResidentialAddress.PostalCode, *ordersPayload.Customer.CurrentAddress.PostalCode)
-		suite.Equal(*orders.ServiceMember.ResidentialAddress.Country, *ordersPayload.Customer.CurrentAddress.Country)
-		suite.NotNil(ordersPayload.Customer.CurrentAddress.ETag)
+		verifyAddressFields(orders.ServiceMember.ResidentialAddress, ordersPayload.Customer.CurrentAddress)
 
 		suite.Equal(*orders.ServiceMember.FirstName, ordersPayload.Customer.FirstName)
 		suite.Equal(*orders.ServiceMember.LastName, ordersPayload.Customer.LastName)
@@ -792,15 +760,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		suite.Equal(orders.NewDutyLocation.Name, ordersPayload.DestinationDutyLocation.Name)
 		suite.Equal(orders.NewDutyLocation.AddressID.String(), ordersPayload.DestinationDutyLocation.AddressID.String())
 
-		suite.Equal(orders.NewDutyLocation.Address.ID.String(), ordersPayload.DestinationDutyLocation.Address.ID.String())
-		suite.Equal(orders.NewDutyLocation.Address.StreetAddress1, *ordersPayload.DestinationDutyLocation.Address.StreetAddress1)
-		suite.Equal(*orders.NewDutyLocation.Address.StreetAddress2, *ordersPayload.DestinationDutyLocation.Address.StreetAddress2)
-		suite.Equal(*orders.NewDutyLocation.Address.StreetAddress3, *ordersPayload.DestinationDutyLocation.Address.StreetAddress3)
-		suite.Equal(orders.NewDutyLocation.Address.City, *ordersPayload.DestinationDutyLocation.Address.City)
-		suite.Equal(orders.NewDutyLocation.Address.State, *ordersPayload.DestinationDutyLocation.Address.State)
-		suite.Equal(orders.NewDutyLocation.Address.PostalCode, *ordersPayload.DestinationDutyLocation.Address.PostalCode)
-		suite.Equal(*orders.NewDutyLocation.Address.Country, *ordersPayload.DestinationDutyLocation.Address.Country)
-		suite.NotNil(ordersPayload.DestinationDutyLocation.Address.ETag)
+		verifyAddressFields(&orders.NewDutyLocation.Address, ordersPayload.DestinationDutyLocation.Address)
 
 		suite.NotNil(ordersPayload.DestinationDutyLocation.ETag)
 
@@ -809,16 +769,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		suite.Equal(orders.OriginDutyLocation.Name, ordersPayload.OriginDutyLocation.Name)
 		suite.Equal(orders.OriginDutyLocation.AddressID.String(), ordersPayload.OriginDutyLocation.AddressID.String())
 
-		suite.Equal(orders.OriginDutyLocation.Address.ID.String(), ordersPayload.OriginDutyLocation.Address.ID.String())
-		suite.Equal(orders.OriginDutyLocation.Address.StreetAddress1, *ordersPayload.OriginDutyLocation.Address.StreetAddress1)
-		suite.Equal(*orders.OriginDutyLocation.Address.StreetAddress2, *ordersPayload.OriginDutyLocation.Address.StreetAddress2)
-		suite.Equal(*orders.OriginDutyLocation.Address.StreetAddress3, *ordersPayload.OriginDutyLocation.Address.StreetAddress3)
-		suite.Equal(orders.OriginDutyLocation.Address.City, *ordersPayload.OriginDutyLocation.Address.City)
-		suite.Equal(orders.OriginDutyLocation.Address.State, *ordersPayload.OriginDutyLocation.Address.State)
-		suite.Equal(orders.OriginDutyLocation.Address.PostalCode, *ordersPayload.OriginDutyLocation.Address.PostalCode)
-		suite.Equal(*orders.OriginDutyLocation.Address.Country, *ordersPayload.OriginDutyLocation.Address.Country)
-		suite.NotNil(ordersPayload.OriginDutyLocation.Address.ETag)
-
+		verifyAddressFields(&orders.OriginDutyLocation.Address, ordersPayload.OriginDutyLocation.Address)
 		suite.NotNil(ordersPayload.OriginDutyLocation.ETag)
 	})
 
