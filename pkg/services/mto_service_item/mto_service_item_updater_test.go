@@ -84,7 +84,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 	})
 
 	// Test successful update
-	suite.Run("Successfiul update of service item ", func() {
+	suite.Run("Successful update of service item ", func() {
 		serviceItem, eTag := setupServiceItem()
 		reason := "because we did this service"
 		sitEntryDate := time.Date(2020, time.December, 02, 0, 0, 0, 0, time.UTC)
@@ -164,6 +164,54 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		suite.Equal(newServiceItem.CustomerContacts[0].TimeMilitary, updatedServiceItem.CustomerContacts[0].TimeMilitary)
 		suite.Equal(newServiceItem.CustomerContacts[0].FirstAvailableDeliveryDate, updatedServiceItem.CustomerContacts[0].FirstAvailableDeliveryDate)
 		suite.NotEqual(newServiceItem.Status, updatedServiceItem.Status)
+	})
+
+	// Success for DDDSIT with an existing customer contact
+	suite.Run("Successful update of DDDSIT service item that already has Customer Contacts", func() {
+		customerContact := testdatagen.MakeMTOServiceItemCustomerContact(suite.DB(), testdatagen.Assertions{
+			MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
+				Type:                       models.CustomerContactTypeFirst,
+				TimeMilitary:               "0400Z",
+				FirstAvailableDeliveryDate: time.Date(1984, time.March, 20, 0, 0, 0, 0, time.UTC),
+			},
+		})
+		serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					CustomerContacts: models.MTOServiceItemCustomerContacts{customerContact},
+				},
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDDSIT,
+				},
+			},
+		}, nil)
+		eTag := etag.GenerateEtag(serviceItem.UpdatedAt)
+		newServiceItem := serviceItem
+		newServiceItem.CustomerContacts = models.MTOServiceItemCustomerContacts{
+			models.MTOServiceItemCustomerContact{
+				TimeMilitary:               "1400Z",
+				FirstAvailableDeliveryDate: time.Date(2020, time.December, 02, 0, 0, 0, 0, time.UTC),
+				Type:                       models.CustomerContactTypeFirst,
+			},
+		}
+		updatedServiceItem, err := updater.UpdateMTOServiceItemBasic(suite.AppContextForTest(), &newServiceItem, eTag)
+
+		suite.NoError(err)
+		suite.NotNil(updatedServiceItem)
+		suite.Equal(serviceItem.ID, updatedServiceItem.ID)
+		suite.Equal(serviceItem.MTOShipmentID, updatedServiceItem.MTOShipmentID)
+		suite.Equal(serviceItem.MoveTaskOrderID, updatedServiceItem.MoveTaskOrderID)
+
+		// We updated the old customer contact, so the ID should be the same
+		suite.Equal(customerContact.ID, updatedServiceItem.CustomerContacts[0].ID)
+
+		// And the new values should be reflected in the updated customer contact
+		suite.NotEqual(customerContact.TimeMilitary, updatedServiceItem.CustomerContacts[0].TimeMilitary)
+		suite.NotEqual(customerContact.FirstAvailableDeliveryDate, updatedServiceItem.CustomerContacts[0].FirstAvailableDeliveryDate)
+		suite.Equal(newServiceItem.CustomerContacts[0].TimeMilitary, updatedServiceItem.CustomerContacts[0].TimeMilitary)
+		suite.Equal(newServiceItem.CustomerContacts[0].FirstAvailableDeliveryDate, updatedServiceItem.CustomerContacts[0].FirstAvailableDeliveryDate)
 	})
 }
 
