@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { mapValues } from 'lodash';
+
 import Alert from 'shared/Alert';
 
 import './index.css';
@@ -17,7 +18,7 @@ class EntitlementBar extends Component {
   };
 
   render() {
-    const props = this.props;
+    const { props } = this;
 
     const entitlementText = mapValues(props.entitlement, (i) => i.toLocaleString());
     const ppmSummaryHtml = () => {

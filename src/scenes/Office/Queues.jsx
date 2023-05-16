@@ -1,9 +1,11 @@
 import React, { Suspense } from 'react';
 import { useParams } from 'react-router-dom';
+
+import LoadingPlaceholder from '../../shared/LoadingPlaceholder';
+
 import { RetrieveMovesForOffice } from './api';
 import QueueList from './QueueList';
 import QueueTable from './QueueTable';
-import LoadingPlaceholder from '../../shared/LoadingPlaceholder';
 
 const Queues = (props) => {
   const params = useParams();

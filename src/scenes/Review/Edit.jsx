@@ -1,4 +1,5 @@
 import React from 'react';
+
 import Summary from 'components/Customer/Review/Summary/Summary';
 import scrollToTop from 'shared/scrollToTop';
 import withRouter from 'utils/routing';

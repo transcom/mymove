@@ -1,4 +1,5 @@
 import React from 'react';
+
 export const defaultMyMoveContext = {
   siteName: 'my.move.mil',
   showLoginWarning: true,

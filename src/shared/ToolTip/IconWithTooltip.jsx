@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+
 import styles from './IconWithTooltip.module.scss';
 
 class IconWithTooltip extends Component {
@@ -20,14 +21,14 @@ class IconWithTooltip extends Component {
       <div style={{ display: 'inline-block' }}>
         <FontAwesomeIcon
           aria-hidden
-          className={`${styles['color_blue_link']} ${iconClassName}`}
-          icon={icon ? icon : 'circle-question'}
+          className={`${styles.color_blue_link} ${iconClassName}`}
+          icon={icon || 'circle-question'}
           onClick={this.toggleTooltip}
         />
         {showTooltip && (
-          <div data-testid="tooltip" className={styles['tooltip']} style={{ ...toolTipStyles }}>
-            <div className={styles['arrow']} onClick={this.toggleTooltip} />
-            <div className={`${styles['tooltiptext']} ${toolTipTextClassName}`}>{toolTipText}</div>
+          <div data-testid="tooltip" className={styles.tooltip} style={{ ...toolTipStyles }}>
+            <div className={styles.arrow} onClick={this.toggleTooltip} />
+            <div className={`${styles.tooltiptext} ${toolTipTextClassName}`}>{toolTipText}</div>
           </div>
         )}
       </div>

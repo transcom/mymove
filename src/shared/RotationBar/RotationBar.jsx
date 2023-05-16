@@ -1,8 +1,10 @@
 import React from 'react';
+import PropTypes from 'prop-types';
+
+import styles from './RotationBar.module.scss';
+
 import leftRotation from 'shared/images/left-rotation.png';
 import rightRotation from 'shared/images/right-rotation.png';
-import PropTypes from 'prop-types';
-import styles from './RotationBar.module.scss';
 
 export const RotationBar = (props) => (
   <div className={styles['rotation-bar']}>

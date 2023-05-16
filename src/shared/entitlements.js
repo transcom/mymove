@@ -18,7 +18,7 @@ export function selectEntitlements(rankEntitlement, hasDependents = false, spous
 
 export function loadEntitlementsFromState(state) {
   // Temp fix until redux refactor finished - get orders from either entities or orders.currentOrders
-  let orders = selectCurrentOrders(state);
+  const orders = selectCurrentOrders(state);
   if (isEmpty(orders)) {
     return {};
   }
