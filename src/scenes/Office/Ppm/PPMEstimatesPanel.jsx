@@ -9,7 +9,6 @@ import { formatCentsRange } from 'utils/formatters';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
 import { selectActivePPMForMove, updatePPM } from 'shared/Entities/modules/ppms';
-
 import { calculateEntitlementsForMove } from 'shared/Entities/modules/moves';
 
 const validateWeight = (value, formValues, props, fieldName) => {
@@ -27,7 +26,7 @@ const EstimatesDisplay = (props) => {
   };
 
   return (
-    <React.Fragment>
+    <>
       <div className="editable-panel-column">
         <PanelField title="Incentive estimate">
           {formatCentsRange(ppm.incentive_estimate_min, ppm.incentive_estimate_max)}
@@ -56,7 +55,7 @@ const EstimatesDisplay = (props) => {
         <PanelSwaggerField title="Additional stop zip code" fieldName="additional_pickup_postal_code" {...fieldProps} />
         <PanelSwaggerField title="Destination zip code" fieldName="destination_postal_code" {...fieldProps} />
       </div>
-    </React.Fragment>
+    </>
   );
 };
 
@@ -65,40 +64,38 @@ const EstimatesEdit = (props) => {
   const schema = props.ppmSchema;
 
   return (
-    <React.Fragment>
-      <FormSection name="PPMEstimate">
-        <div className="editable-panel-column">
-          <PanelField title="Incentive estimate">
-            {formatCentsRange(ppm.incentive_estimate_min, ppm.incentive_estimate_max)}
-          </PanelField>
-          <SwaggerField
-            className="short-field"
-            fieldName="weight_estimate"
-            swagger={schema}
-            validate={validateWeight}
-            required
-          />{' '}
-          lbs
-          <SwaggerField title="Is there pro-gear?" fieldName="has_pro_gear" swagger={schema} />
-          <SwaggerField
-            title="Does the pro-gear weigh more then 1,000 lbs?"
-            fieldName="has_pro_gear_over_thousand"
-            swagger={schema}
-          />
-          <SwaggerField title="Planned departure date" fieldName="original_move_date" swagger={schema} required />
-          <div className="panel-subhead">Storage</div>
-          <SwaggerField title="Storage planned?" fieldName="has_sit" swagger={schema} component={YesNoBoolean} />
-          {get(props, 'formValues.PPMEstimate.has_sit', false) && (
-            <SwaggerField title="Planned days in storage" fieldName="days_in_storage" swagger={schema} />
-          )}
-        </div>
-        <div className="editable-panel-column">
-          <SwaggerField title="Origin zip code" fieldName="pickup_postal_code" swagger={schema} required />
-          <SwaggerField title="Additional stop zip code" fieldName="additional_pickup_postal_code" swagger={schema} />
-          <SwaggerField title="Destination zip code" fieldName="destination_postal_code" swagger={schema} required />
-        </div>
-      </FormSection>
-    </React.Fragment>
+    <FormSection name="PPMEstimate">
+      <div className="editable-panel-column">
+        <PanelField title="Incentive estimate">
+          {formatCentsRange(ppm.incentive_estimate_min, ppm.incentive_estimate_max)}
+        </PanelField>
+        <SwaggerField
+          className="short-field"
+          fieldName="weight_estimate"
+          swagger={schema}
+          validate={validateWeight}
+          required
+        />{' '}
+        lbs
+        <SwaggerField title="Is there pro-gear?" fieldName="has_pro_gear" swagger={schema} />
+        <SwaggerField
+          title="Does the pro-gear weigh more then 1,000 lbs?"
+          fieldName="has_pro_gear_over_thousand"
+          swagger={schema}
+        />
+        <SwaggerField title="Planned departure date" fieldName="original_move_date" swagger={schema} required />
+        <div className="panel-subhead">Storage</div>
+        <SwaggerField title="Storage planned?" fieldName="has_sit" swagger={schema} component={YesNoBoolean} />
+        {get(props, 'formValues.PPMEstimate.has_sit', false) && (
+          <SwaggerField title="Planned days in storage" fieldName="days_in_storage" swagger={schema} />
+        )}
+      </div>
+      <div className="editable-panel-column">
+        <SwaggerField title="Origin zip code" fieldName="pickup_postal_code" swagger={schema} required />
+        <SwaggerField title="Additional stop zip code" fieldName="additional_pickup_postal_code" swagger={schema} />
+        <SwaggerField title="Destination zip code" fieldName="destination_postal_code" swagger={schema} required />
+      </div>
+    </FormSection>
   );
 };
 
@@ -113,19 +110,19 @@ function mapStateToProps(state, ownProps) {
 
   return {
     // reduxForm
-    formValues: formValues,
-    initialValues: { PPMEstimate: PPMEstimate },
+    formValues,
+    initialValues: { PPMEstimate },
 
     // Wrapper
     ppmSchema: get(state, 'swaggerInternal.spec.definitions.PersonallyProcuredMovePayload'),
     hasError: false,
     errorMessage: get(state, 'office.error'),
-    PPMEstimate: PPMEstimate,
+    PPMEstimate,
     isUpdating: false,
     entitlement: calculateEntitlementsForMove(state, ownProps.moveId),
 
     // editablePanelify
-    getUpdateArgs: function () {
+    getUpdateArgs() {
       if (
         formValues.PPMEstimate.additional_pickup_postal_code !== '' &&
         formValues.PPMEstimate.additional_pickup_postal_code !== undefined

@@ -1,6 +1,7 @@
 import React from 'react';
 import { useResourceDefinitions, MenuItemLink } from 'react-admin';
 import ExitIcon from '@material-ui/icons/PowerSettingsNew';
+
 import { LogoutUser } from 'utils/api';
 
 const Menu = () => {

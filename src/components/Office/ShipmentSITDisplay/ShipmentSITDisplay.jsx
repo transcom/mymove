@@ -72,7 +72,7 @@ const SitHistoryList = ({ sitHistory, dayAllowance }) => {
 const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton }) => {
   const pendingSITExtension = sitExtensions.find((se) => se.status === SIT_EXTENSION_STATUS.PENDING);
 
-  const currentDaysInSIT = sitStatus?.totalSITDaysUsed || 0;
+  const currentDaysInSIT = sitStatus?.daysInSIT || 0;
   const currentDaysInSITElement = <p>{currentDaysInSIT}</p>;
   let sitStartDate = sitStatus?.sitEntryDate;
   if (!sitStartDate) {

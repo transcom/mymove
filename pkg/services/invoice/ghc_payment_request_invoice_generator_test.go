@@ -48,6 +48,7 @@ const testTimeFormat = "1504"
 func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	mockClock := clock.NewMock()
 	currentTime := mockClock.Now()
+	referenceID := "3342-9189"
 	requestedPickupDate := time.Date(testdatagen.GHCTestYear, time.September, 15, 0, 0, 0, 0, time.UTC)
 	scheduledPickupDate := time.Date(testdatagen.GHCTestYear, time.September, 20, 0, 0, 0, 0, time.UTC)
 	actualPickupDate := time.Date(testdatagen.GHCTestYear, time.September, 22, 0, 0, 0, 0, time.UTC)
@@ -77,11 +78,19 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 
 	var serviceMember models.ServiceMember
 	var paymentRequest models.PaymentRequest
+	var mto models.Move
 	var paymentServiceItems models.PaymentServiceItems
 	var result ediinvoice.Invoice858C
 
 	setupTestData := func() {
-		mto := factory.BuildMove(suite.DB(), nil, nil)
+		mto = factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					ReferenceID: &referenceID,
+					Status:      models.MoveStatusAPPROVED,
+				},
+			},
+		}, nil)
 
 		paymentRequest = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
 			{
@@ -359,7 +368,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	suite.Run("se segment has correct value", func() {
 		setupTestData()
 		// Will need to be updated as more service items are supported
-		suite.Equal(163, result.SE.NumberOfIncludedSegments)
+		suite.Equal(164, result.SE.NumberOfIncludedSegments)
 		suite.Equal("0001", result.SE.TransactionSetControlNumber)
 	})
 
@@ -383,8 +392,9 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		suite.Equal("00", bx.TransactionSetPurposeCode)
 		suite.Equal("J", bx.TransactionMethodTypeCode)
 		suite.Equal("PP", bx.ShipmentMethodOfPayment)
-		suite.Equal(paymentRequest.PaymentRequestNumber, bx.ShipmentIdentificationNumber)
-		suite.Equal("BLKW", bx.StandardCarrierAlphaCode)
+		suite.Equal(*paymentRequest.MoveTaskOrder.ReferenceID, bx.ShipmentIdentificationNumber)
+
+		suite.Equal("HSFR", bx.StandardCarrierAlphaCode)
 		suite.Equal("4", bx.ShipmentQualifier)
 	})
 
@@ -407,8 +417,8 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 			{TestName: "service member name", Qualifier: "1W", ExpectedValue: serviceMember.ReverseNameLineFormat(), ActualValue: &result.Header.ServiceMemberName},
 			{TestName: "service member rank", Qualifier: "ML", ExpectedValue: string(*serviceMember.Rank), ActualValue: &result.Header.ServiceMemberRank},
 			{TestName: "service member branch", Qualifier: "3L", ExpectedValue: string(*serviceMember.Affiliation), ActualValue: &result.Header.ServiceMemberBranch},
+			{TestName: "move code", Qualifier: "CMN", ExpectedValue: mto.Locator, ActualValue: &result.Header.MoveCode},
 		}
-
 		for _, data := range testData {
 			suite.Run(fmt.Sprintf("adds %s to header", data.TestName), func() {
 				suite.IsType(&edisegment.N9{}, data.ActualValue)
@@ -663,7 +673,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		suite.Equal("SE", sellerOrg.EntityIdentifierCode)
 		suite.Equal("Prime", sellerOrg.Name)
 		suite.Equal("2", sellerOrg.IdentificationCodeQualifier)
-		suite.Equal("BLKW", sellerOrg.IdentificationCode)
+		suite.Equal("HSFR", sellerOrg.IdentificationCode)
 	})
 
 	suite.Run("adds orders destination address", func() {
@@ -807,6 +817,15 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 					suite.Equal(string(serviceCode), l5.LadingDescription)
 					suite.Equal("TBD", l5.CommodityCode)
 					suite.Equal("D", l5.CommodityCodeQualifier)
+				})
+
+				suite.Run("adds l1 service item segment", func() {
+					l1 := result.ServiceItems[segmentOffset].L1
+					freightRate := l1.FreightRate
+					suite.Equal(hierarchicalNumberInt, l1.LadingLineItemNumber)
+					suite.Equal(serviceItemPrice, l1.Charge)
+					suite.Equal((*float64)(nil), freightRate)
+					suite.Equal("", l1.RateValueQualifier)
 				})
 
 				suite.Run("adds l0 service item segment", func() {
