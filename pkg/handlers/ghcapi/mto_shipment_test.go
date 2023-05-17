@@ -2084,7 +2084,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 		handlerConfig := suite.HandlerConfig()
 		handlerConfig.SetNotificationSender(suite.TestNotificationSender())
 		planner := &routemocks.Planner{}
-		planner.On("TransitDistance",
+		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
@@ -2142,7 +2142,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerConfig := suite.HandlerConfig()
 		planner := &routemocks.Planner{}
-		planner.On("TransitDistance",
+		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
@@ -2197,7 +2197,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerConfig := suite.HandlerConfig()
 		planner := &routemocks.Planner{}
-		planner.On("TransitDistance",
+		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
@@ -2253,7 +2253,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerConfig := suite.HandlerConfig()
 		planner := &routemocks.Planner{}
-		planner.On("TransitDistance",
+		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
@@ -2310,7 +2310,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerConfig := suite.HandlerConfig()
 		planner := &routemocks.Planner{}
-		planner.On("TransitDistance",
+		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
@@ -2366,7 +2366,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerConfig := suite.HandlerConfig()
 		planner := &routemocks.Planner{}
-		planner.On("TransitDistance",
+		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
@@ -3250,7 +3250,7 @@ func (suite *HandlerSuite) getUpdateShipmentParams(originalShipment models.MTOSh
 
 func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 	planner := &routemocks.Planner{}
-	planner.On("TransitDistance",
+	planner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,

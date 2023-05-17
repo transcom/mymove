@@ -42,7 +42,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 	builder := query.NewQueryBuilder()
 	fetcher := fetch.NewFetcher(builder)
 	planner := &mocks.Planner{}
-	planner.On("TransitDistance",
+	planner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
@@ -1023,16 +1023,16 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 	builder := query.NewQueryBuilder()
 	moveRouter := moveservices.NewMoveRouter()
 	siCreator := mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter)
-	var TransitDistancePickupArg *models.Address
-	var TransitDistanceDestinationArg *models.Address
+	var TransitDistancePickupArg string
+	var TransitDistanceDestinationArg string
 	planner := &mocks.Planner{}
-	planner.On("TransitDistance",
+	planner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
-		mock.AnythingOfType("*models.Address"),
-		mock.AnythingOfType("*models.Address"),
+		mock.AnythingOfType("string"),
+		mock.AnythingOfType("string"),
 	).Return(500, nil).Run(func(args mock.Arguments) {
-		TransitDistancePickupArg = args.Get(1).(*models.Address)
-		TransitDistanceDestinationArg = args.Get(2).(*models.Address)
+		TransitDistancePickupArg = args.Get(1).(string)
+		TransitDistanceDestinationArg = args.Get(2).(string)
 	})
 
 	updater := NewMTOShipmentStatusUpdater(builder, siCreator, planner)
@@ -1292,8 +1292,8 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 			// We also should have a required delivery date
 			suite.NotNil(fetchedShipment.RequiredDeliveryDate)
 			// Check that TransitDistance was called with the correct addresses
-			suite.Equal(testCase.pickupLocation.PostalCode, TransitDistancePickupArg.PostalCode)
-			suite.Equal(testCase.destinationLocation.PostalCode, TransitDistanceDestinationArg.PostalCode)
+			suite.Equal(testCase.pickupLocation.PostalCode, TransitDistancePickupArg)
+			suite.Equal(testCase.destinationLocation.PostalCode, TransitDistanceDestinationArg)
 		}
 	})
 
