@@ -55,3 +55,15 @@ func checkTOORequiredFields() sitAddressUpdateValidator {
 		return verrs
 	})
 }
+
+func checkPrimeRequiredFields() sitAddressUpdateValidator {
+	return sitAddressUpdateValidatorFunc(func(_ appcontext.AppContext, sitAddressUpdate *models.SITAddressUpdate) error {
+		verrs := validate.NewErrors()
+
+		if sitAddressUpdate.ContractorRemarks == nil {
+			verrs.Add("ContractorRemarks", "ContractorRemarks are required")
+		}
+
+		return verrs
+	})
+}
