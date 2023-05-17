@@ -115,18 +115,12 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			mtoShipment := payloads.MTOShipmentModelFromUpdate(params.Body, params.MtoShipmentID)
 
-			// Get the associated shipment from the database.  Make sure it doesn't use an external vendor.
-			var dbShipment models.MTOShipment
-			err := appCtx.DB().EagerPreload("PickupAddress",
-				"DestinationAddress",
+			dbShipment, err := mtoshipment.FindShipment(appCtx, mtoShipment.ID, "DestinationAddress",
 				"SecondaryPickupAddress",
 				"SecondaryDeliveryAddress",
 				"MTOAgents",
 				"StorageFacility",
-				"PPMShipment").
-				Where("uses_external_vendor = FALSE").
-				Find(&dbShipment, params.MtoShipmentID)
-
+				"PPMShipment")
 			if err != nil {
 				return mtoshipmentops.NewUpdateMTOShipmentNotFound().WithPayload(
 					payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
