@@ -14,7 +14,7 @@ type sitAddressUpdateRequestCreator struct {
 	checks         []sitAddressUpdateValidator
 }
 
-func NewsitAddressUpdateRequestCreator(planner route.Planner, addressCreator services.AddressCreator) services.SITAddressUpdateRequestCreator {
+func NewSITAddressUpdateRequestCreator(planner route.Planner, addressCreator services.AddressCreator) services.SITAddressUpdateRequestCreator {
 	return &sitAddressUpdateRequestCreator{
 		planner:        planner,
 		addressCreator: addressCreator,
