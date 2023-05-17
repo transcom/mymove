@@ -24,7 +24,7 @@ func NewShipmentSITStatus() services.ShipmentSITStatus {
 }
 
 // CalculateShipmentSITStatus creates a SIT Status for payload to be used in
-// multiple handlers in the `mto_shipment` package.
+// multiple handlers in the `ghcapi` package for the MTOShipment handlers.
 func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppContext, shipment models.MTOShipment) (*services.SITStatus, error) {
 	if shipment.MTOServiceItems == nil || len(shipment.MTOServiceItems) == 0 {
 		return nil, nil
@@ -87,6 +87,14 @@ func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppConte
 	return &shipmentSITStatus, nil
 }
 
+// Private function daysInSIT is used to calculate the number of days an item
+// is in SIT using a serviceItem and the current day.
+//
+// If the service item has a departure date and SIT entry date is in the past,
+// then the return value is the SITDepartureDate - SITEntryDate.
+//
+// If there is no departure date and the SIT entry date in the past, then the
+// return value is Today - SITEntryDate.
 func daysInSIT(serviceItem models.MTOServiceItem, today time.Time) int {
 	if serviceItem.SITDepartureDate != nil && serviceItem.SITDepartureDate.Before(today) {
 		return int(serviceItem.SITDepartureDate.Sub(*serviceItem.SITEntryDate).Hours()) / 24
