@@ -5,12 +5,13 @@ import (
 	"time"
 
 	"github.com/gobuffalo/validate/v3"
-	"github.com/transcom/mymove/pkg/route"
+
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
+	"github.com/transcom/mymove/pkg/route"
 )
 
 func checkStatus() validator {

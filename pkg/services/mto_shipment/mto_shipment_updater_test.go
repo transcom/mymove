@@ -86,8 +86,8 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		}, nil)
 
 		requestedPickupDate := *oldMTOShipment.RequestedPickupDate
-		secondaryPickupAddress = factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress3})
 		secondaryDeliveryAddress = factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress4})
+		secondaryPickupAddress = factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress3})
 		newDestinationAddress = factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
