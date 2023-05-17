@@ -47,7 +47,9 @@ Modal.defaultProps = {
 
 export default Modal;
 
-export const ModalTitle = ({ children }) => <div className={styles.ModalTitle}>{children}</div>;
+export const ModalTitle = ({ children, className }) => (
+  <div className={classnames(styles.ModalTitle, className)}>{children}</div>
+);
 
 ModalTitle.propTypes = {
   children: PropTypes.node.isRequired,
