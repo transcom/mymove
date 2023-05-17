@@ -164,6 +164,18 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItem(appCtx appcontext.AppContex
 		return nil, err
 	}
 
+	// If we have any Customer Contacts we need to make sure that they are associated with
+	// all related destination SIT service items. This is especially important if we are creating new Customer Contacts.
+	if len(validServiceItem.CustomerContacts) > 0 {
+		relatedServiceItems, fetchErr := models.FetchRelatedDestinationSITServiceItems(appCtx.DB(), validServiceItem.ID)
+		if fetchErr != nil {
+			return nil, fetchErr
+		}
+		for i := range validServiceItem.CustomerContacts {
+			validServiceItem.CustomerContacts[i].MTOServiceItems = relatedServiceItems
+		}
+	}
+
 	// Check the If-Match header against existing eTag before updating
 	encodedUpdatedAt := etag.GenerateEtag(oldServiceItem.UpdatedAt)
 	if encodedUpdatedAt != eTag {

@@ -84,3 +84,17 @@ func (m *MTOServiceItem) Validate(tx *pop.Connection) (*validate.Errors, error) 
 
 	return validate.Validate(vs...), nil
 }
+
+// FetchRelatedDestinationSITServiceItems returns all service items with destination SIT ReService codes
+// that are associated with the same shipment as the provided service item.
+func FetchRelatedDestinationSITServiceItems(tx *pop.Connection, mtoServiceItemID uuid.UUID) (MTOServiceItems, error) {
+	var relatedDestinationSITServiceItems MTOServiceItems
+	err := tx.RawQuery(
+		`SELECT msi.id
+			FROM mto_service_items msi
+			INNER JOIN re_services res ON msi.re_service_id = res.id
+			WHERE res.code IN (?, ?, ?) AND mto_shipment_id IN (
+				SELECT mto_shipment_id FROM mto_service_items WHERE id = ?)`, ReServiceCodeDDFSIT, ReServiceCodeDDASIT, ReServiceCodeDDDSIT, mtoServiceItemID).
+		All(&relatedDestinationSITServiceItems)
+	return relatedDestinationSITServiceItems, err
+}
