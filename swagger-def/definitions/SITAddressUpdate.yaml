@@ -10,14 +10,17 @@ properties:
     format: uuid
     type: string
   distance:
+    description: The distance between the old address and the new address in miles.
+    example: 54
+    minimum: 0
     type: integer
   contractorRemarks:
-    example: We need SIT additional days. The customer has not found a house yet.
+    example: The customer has found a new house closer to base.
     type: string
     x-nullable: true
     x-omitempty: false
   officeRemarks:
-    example: We need SIT additional days. The customer has not found a house yet.
+    example: The customer has found a new house closer to base.
     type: string
     x-nullable: true
     x-omitempty: false
