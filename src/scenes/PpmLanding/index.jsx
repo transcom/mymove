@@ -2,8 +2,9 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
-import { withContext } from 'shared/AppContext';
 import { PpmSummary } from './PpmSummary';
+
+import { withContext } from 'shared/AppContext';
 import {
   selectServiceMemberFromLoggedInUser,
   selectIsProfileComplete,
@@ -120,7 +121,7 @@ const mapStateToProps = (state) => {
     serviceMember,
     backupContacts: serviceMember?.backup_contacts || [],
     orders: selectCurrentOrders(state) || {},
-    move: move,
+    move,
     ppm: selectCurrentPPM(state) || {},
     entitlement: loadEntitlementsFromState(state),
   };

@@ -75,7 +75,7 @@ function mapStateToProps(state, props) {
     isUpdating: false,
 
     // editablePanelify
-    getUpdateArgs: function () {
+    getUpdateArgs() {
       const values = getFormValues(formName)(state);
       return [props.moveId, ppm.id, values];
     },

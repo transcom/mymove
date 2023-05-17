@@ -5,7 +5,7 @@ const UploadShow = (props) => {
   return (
     <ShowController {...props}>
       {(controllerProps) => {
-        const record = controllerProps.record;
+        const { record } = controllerProps;
         return (
           <Show {...controllerProps} {...record}>
             <SimpleShowLayout>

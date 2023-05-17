@@ -31,7 +31,7 @@ describe('utils', () => {
   describe('fetch Active', () => {
     describe('when there are no foos', () => {
       const foos = null;
-      let res = utils.fetchActive(foos);
+      const res = utils.fetchActive(foos);
       it('should return null', () => {
         expect(res).toBeNull();
       });
@@ -42,7 +42,7 @@ describe('utils', () => {
         { status: 'DRAFT', id: 'foo1' },
         { status: 'SUBMITTED', id: 'foo2' },
       ];
-      let res = utils.fetchActive(foos);
+      const res = utils.fetchActive(foos);
       it('should return the first active foo', () => {
         expect(res.id).toEqual('foo1');
       });
@@ -52,7 +52,7 @@ describe('utils', () => {
         { status: 'CANCELED', id: 'foo' },
         { status: 'COMPLETED', id: 'foo' },
       ];
-      let res = utils.fetchActive(foos);
+      const res = utils.fetchActive(foos);
       it('should return null', () => {
         expect(res).toBeNull();
       });
@@ -62,7 +62,7 @@ describe('utils', () => {
   describe('fetch Active Shipment', () => {
     describe('when there are no foos', () => {
       const foos = null;
-      let res = utils.fetchActiveShipment(foos);
+      const res = utils.fetchActiveShipment(foos);
       it('should return null', () => {
         expect(res).toBeNull();
       });
@@ -73,14 +73,14 @@ describe('utils', () => {
         { status: 'DRAFT', id: 'foo1' },
         { status: 'SUBMITTED', id: 'foo2' },
       ];
-      let res = utils.fetchActiveShipment(foos);
+      const res = utils.fetchActiveShipment(foos);
       it('should return the first active foo', () => {
         expect(res.id).toEqual('foo1');
       });
     });
     describe('when there are only inactive foos', () => {
       const foos = [{ status: 'CANCELED', id: 'foo' }];
-      let res = utils.fetchActiveShipment(foos);
+      const res = utils.fetchActiveShipment(foos);
       it('should return null', () => {
         expect(res).toBeNull();
       });

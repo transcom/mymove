@@ -1,23 +1,25 @@
 import { filter, get } from 'lodash';
 import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
-import { formatCents } from 'utils/formatters';
-import { selectActivePPMForMove } from 'shared/Entities/modules/ppms';
-import { getTabularExpenses, getPpmExpenseSummary } from 'scenes/Office/Ppm/ducks';
 import { connect } from 'react-redux';
 
-import Alert from 'shared/Alert';
-import { getDocsByStatusAndType } from './ducks';
+import { getDocsByStatusAndType, getTabularExpenses, getPpmExpenseSummary } from './ducks';
 
-const dollar = (cents) => (cents ? '$' + formatCents(cents) : null);
+import { formatCents } from 'utils/formatters';
+import { selectActivePPMForMove } from 'shared/Entities/modules/ppms';
+import Alert from 'shared/Alert';
+
+const dollar = (cents) => (cents ? `$${formatCents(cents)}` : null);
 
 class ExpensesPanel extends Component {
   componentDidMount() {
     if (this.props.ppmId) this.props.getPpmExpenseSummary(this.props.ppmId);
   }
+
   componentDidUpdate(prevProps) {
     if (this.props.ppmId && this.props.ppmId !== prevProps.ppmId) this.props.getPpmExpenseSummary(this.props.ppmId);
   }
+
   render() {
     const { schemaMovingExpenseType, expenseData, awaitingStorageExpenses } = this.props;
 

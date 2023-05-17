@@ -24,9 +24,8 @@ export function getLastRequestIsLoading(state, label) {
   const last = getLastRequest(state, label);
   if (last) {
     return last.isLoading;
-  } else {
-    return false;
   }
+  return false;
 }
 
 // Return if the last request for a given label was a success
@@ -34,11 +33,11 @@ export function getLastRequestIsSuccess(state, label) {
   const last = getLastRequest(state, label);
   if (last && last.ok) {
     return true;
-  } else if (last) {
-    return false;
-  } else {
-    return undefined;
   }
+  if (last) {
+    return false;
+  }
+  return undefined;
 }
 
 // Return the last error for a given label

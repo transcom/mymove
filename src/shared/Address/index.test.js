@@ -1,7 +1,9 @@
 import React from 'react';
 import { shallow } from 'enzyme';
-import { PanelField } from 'shared/EditablePanel';
+
 import { AddressElementDisplay } from '.';
+
+import { PanelField } from 'shared/EditablePanel';
 
 describe('Address component test', () => {
   describe('when address has required data', () => {
