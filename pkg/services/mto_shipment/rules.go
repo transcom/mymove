@@ -167,9 +167,9 @@ func checkPrimeValidationsOnModel(planner route.Planner) validator {
 		// If it's expired, they can no longer update it.
 		latestEstimatedWeight := older.PrimeEstimatedWeight
 		if newer.PrimeEstimatedWeight != nil {
-			// if older.PrimeEstimatedWeight != nil {
-			// 	verrs.Add("primeEstimatedWeight", "cannot be updated after initial estimation")
-			// }
+			if older.PrimeEstimatedWeight != nil {
+				verrs.Add("primeEstimatedWeight", "cannot be updated after initial estimation")
+			}
 			// Validate if we are in the allowed period of time
 			now := time.Now()
 			if latestSchedPickupDate != nil {
