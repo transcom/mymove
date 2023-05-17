@@ -561,6 +561,7 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 
 		payload = &primemessages.MTOServiceItemDestSIT{
 			ReServiceCode:               handlers.FmtString(string(mtoServiceItem.ReService.Code)),
+			Reason:                      mtoServiceItem.Reason,
 			TimeMilitary1:               handlers.FmtStringPtrNonEmpty(timeMilitary1),
 			FirstAvailableDeliveryDate1: handlers.FmtDate(firstAvailableDeliveryDate1),
 			TimeMilitary2:               handlers.FmtStringPtrNonEmpty(timeMilitary2),
