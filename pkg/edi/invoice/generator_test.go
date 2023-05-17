@@ -65,6 +65,7 @@ N9*1W*Leo, Spacemen**
 N9*ML*E_1**
 N9*3L*ARMY**
 N9*4A*7562672421**
+N9*CMN*RDY4PY**
 C3*USD***
 G62*10*20200909**
 N1*BY*BuyerOrganizationName*92*LKNQ
@@ -134,6 +135,10 @@ func MakeValidEdi() Invoice858C {
 		ServiceMemberDodID: edisegment.N9{
 			ReferenceIdentificationQualifier: "4A",
 			ReferenceIdentification:          "7562672421",
+		},
+		MoveCode: edisegment.N9{
+			ReferenceIdentificationQualifier: "CMN",
+			ReferenceIdentification:          "RDY4PY",
 		},
 
 		Currency: edisegment.C3{

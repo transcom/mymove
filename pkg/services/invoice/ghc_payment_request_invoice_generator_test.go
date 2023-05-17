@@ -78,11 +78,12 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 
 	var serviceMember models.ServiceMember
 	var paymentRequest models.PaymentRequest
+	var mto models.Move
 	var paymentServiceItems models.PaymentServiceItems
 	var result ediinvoice.Invoice858C
 
 	setupTestData := func() {
-		mto := factory.BuildMove(suite.DB(), []factory.Customization{
+		mto = factory.BuildMove(suite.DB(), []factory.Customization{
 			{
 				Model: models.Move{
 					ReferenceID: &referenceID,
@@ -418,8 +419,8 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 			{TestName: "service member rank", Qualifier: "ML", ExpectedValue: string(*serviceMember.Rank), ActualValue: &result.Header.ServiceMemberRank},
 			{TestName: "service member branch", Qualifier: "3L", ExpectedValue: string(*serviceMember.Affiliation), ActualValue: &result.Header.ServiceMemberBranch},
 			{TestName: "service member dod id", Qualifier: "4A", ExpectedValue: string(*serviceMember.Edipi), ActualValue: &result.Header.ServiceMemberDodID},
+			{TestName: "move code", Qualifier: "CMN", ExpectedValue: mto.Locator, ActualValue: &result.Header.MoveCode},
 		}
-
 		for _, data := range testData {
 			suite.Run(fmt.Sprintf("adds %s to header", data.TestName), func() {
 				suite.IsType(&edisegment.N9{}, data.ActualValue)

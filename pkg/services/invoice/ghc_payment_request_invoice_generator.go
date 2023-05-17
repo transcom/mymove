@@ -172,6 +172,12 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(appCtx appcontext.AppContext
 		ReferenceIdentification:          paymentRequest.PaymentRequestNumber,
 	}
 
+	// Add moveCode to header
+	edi858.Header.MoveCode = edisegment.N9{
+		ReferenceIdentificationQualifier: "CMN",
+		ReferenceIdentification:          moveTaskOrder.Locator,
+	}
+
 	// contract code to header
 	var contractCodeServiceItemParam models.PaymentServiceItemParam
 	err = appCtx.DB().Q().

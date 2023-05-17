@@ -43,6 +43,7 @@ type InvoiceHeader struct {
 	ServiceMemberRank        edisegment.N9
 	ServiceMemberBranch      edisegment.N9
 	ServiceMemberDodID       edisegment.N9
+	MoveCode                 edisegment.N9
 	Currency                 edisegment.C3
 	RequestedPickupDate      *edisegment.G62
 	ScheduledPickupDate      *edisegment.G62
@@ -94,6 +95,7 @@ func (ih *InvoiceHeader) NonEmptySegments() []edisegment.Segment {
 		&ih.ServiceMemberRank,
 		&ih.ServiceMemberBranch,
 		&ih.ServiceMemberDodID,
+		&ih.MoveCode,
 		&ih.Currency,
 		ih.RequestedPickupDate,
 		ih.ScheduledPickupDate,
