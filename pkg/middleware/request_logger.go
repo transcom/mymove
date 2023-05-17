@@ -82,7 +82,7 @@ func RequestLogger(globalLogger *zap.Logger) func(inner http.Handler) http.Handl
 
 			logger.Info("Request", fields...)
 			if requestTelemetry != nil {
-				requestTelemetry.CountRequest(r, metrics)
+				requestTelemetry.HandleRequest(r, metrics)
 			}
 		})
 	}

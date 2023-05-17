@@ -13,7 +13,7 @@ import (
 	"go.opentelemetry.io/otel/sdk/metric/metricdata"
 )
 
-func (suite *TelemetrySuite) TestRequestCounter() {
+func (suite *TelemetrySuite) TestRequestStats() {
 	// use stdout metric to see what is reported
 
 	config := &Config{
@@ -42,7 +42,7 @@ func (suite *TelemetrySuite) TestRequestCounter() {
 	metrics := httpsnoop.Metrics{
 		Code: 200,
 	}
-	rt.CountRequest(req, metrics)
+	rt.HandleRequest(req, metrics)
 
 	mp := global.MeterProvider()
 	ctx := context.Background()
@@ -63,8 +63,8 @@ func (suite *TelemetrySuite) TestRequestCounter() {
 	// interfaces for aggregations
 	suite.NotNil(err)
 	suite.Equal(1, len(metricData.ScopeMetrics))
-	// currently recording 1 request metrics
-	suite.Equal(1, len(metricData.ScopeMetrics[0].Metrics))
+	// currently recording 2 request metrics: request count and duration
+	suite.Equal(2, len(metricData.ScopeMetrics[0].Metrics))
 	suite.Equal("github.com/transcom/mymove/request",
 		metricData.ScopeMetrics[0].Scope.Name)
 }
