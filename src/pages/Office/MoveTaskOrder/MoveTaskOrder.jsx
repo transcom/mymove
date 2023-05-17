@@ -1,10 +1,11 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Link, useParams, generatePath } from 'react-router-dom';
+import { generatePath, Link, useParams } from 'react-router-dom';
 import { Alert, Button, Grid, GridContainer, Tag } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useQueryClient, useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { connect } from 'react-redux';
 import { func } from 'prop-types';
+import { isEmpty } from 'lodash';
 import classnames from 'classnames';
 
 import styles from '../TXOMoveInfo/TXOTab.module.scss';
@@ -12,12 +13,12 @@ import styles from '../TXOMoveInfo/TXOTab.module.scss';
 import moveTaskOrderStyles from './MoveTaskOrder.module.scss';
 
 import ConnectedEditMaxBillableWeightModal from 'components/Office/EditMaxBillableWeightModal/EditMaxBillableWeightModal';
-import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
-import { formatStorageFacilityForAPI, formatAddressForAPI, removeEtag } from 'utils/formatMtoShipment';
+import { MILMOVE_LOG_LEVEL, milmoveLog } from 'utils/milmoveLog';
+import { formatAddressForAPI, formatStorageFacilityForAPI, removeEtag } from 'utils/formatMtoShipment';
 import hasRiskOfExcess from 'utils/hasRiskOfExcess';
 import customerContactTypes from 'constants/customerContactTypes';
 import dimensionTypes from 'constants/dimensionTypes';
-import { MTO_SERVICE_ITEMS, MOVES, MTO_SHIPMENTS, ORDERS } from 'constants/queryKeys';
+import { MOVES, MTO_SERVICE_ITEMS, MTO_SHIPMENTS, ORDERS } from 'constants/queryKeys';
 import SERVICE_ITEM_STATUSES from 'constants/serviceItems';
 import { mtoShipmentTypes, shipmentStatuses } from 'constants/shipments';
 import FlashGridContainer from 'containers/FlashGridContainer/FlashGridContainer';
@@ -32,17 +33,17 @@ import ShipmentDetails from 'components/Office/ShipmentDetails/ShipmentDetails';
 import { useMoveTaskOrderQueries } from 'hooks/queries';
 import {
   acknowledgeExcessWeightRisk,
-  patchMTOServiceItemStatus,
-  updateBillableWeight,
-  updateMTOShipmentRequestReweigh,
-  updateMTOShipmentStatus,
-  updateMTOShipment,
   approveSITExtension,
   denySITExtension,
+  patchMTOServiceItemStatus,
   submitSITExtension,
+  updateBillableWeight,
   updateFinancialFlag,
+  updateMTOShipment,
+  updateMTOShipmentRequestReweigh,
+  updateMTOShipmentStatus,
 } from 'services/ghcApi';
-import { MOVE_STATUSES } from 'shared/constants';
+import { MOVE_STATUSES, SIT_ADDRESS_UPDATE_STATUS } from 'shared/constants';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { setFlashMessage } from 'store/flash/actions';
@@ -100,6 +101,7 @@ export const MoveTaskOrder = (props) => {
   const [activeSection, setActiveSection] = useState('');
   const [unapprovedServiceItemsForShipment, setUnapprovedServiceItemsForShipment] = useState({});
   const [unapprovedSITExtensionForShipment, setUnApprovedSITExtensionForShipment] = useState({});
+  const [unapprovedSITAddressUpdatesForServiceItems, setUnapprovedSITAddressUpdatesForServiceItems] = useState({});
   const [estimatedWeightTotal, setEstimatedWeightTotal] = useState(null);
   const [externalVendorShipmentCount, setExternalVendorShipmentCount] = useState(0);
 
@@ -118,6 +120,21 @@ export const MoveTaskOrder = (props) => {
 
   const { orders = {}, move, mtoShipments, mtoServiceItems, isLoading, isError } = useMoveTaskOrderQueries(moveCode);
   const order = Object.values(orders)?.[0];
+
+  const renderSITAddressUpdateAlert = useMemo(() => {
+    if (mtoServiceItems) {
+      const hasRequestedSitAddressUpdates = mtoServiceItems.filter((mto) => {
+        if (mto?.sitAddressUpdates) {
+          return mto.sitAddressUpdates.filter((s) => s.status === SIT_ADDRESS_UPDATE_STATUS.REQUESTED);
+        }
+        return false;
+      });
+      if (!isEmpty(hasRequestedSitAddressUpdates)) {
+        return true;
+      }
+    }
+    return false;
+  }, [mtoServiceItems]);
 
   const shipmentServiceItems = useMemo(() => {
     const serviceItemsForShipment = {};
@@ -507,6 +524,7 @@ export const MoveTaskOrder = (props) => {
   useEffect(() => {
     let serviceItemCount = 0;
     const serviceItemsCountForShipment = {};
+    const sitAddressUpdateServiceItems = {};
     mtoShipments?.forEach((mtoShipment) => {
       if (
         mtoShipment.status === shipmentStatuses.APPROVED ||
@@ -517,10 +535,20 @@ export const MoveTaskOrder = (props) => {
         )?.length;
         serviceItemCount += requestedServiceItemCount || 0;
         serviceItemsCountForShipment[`${mtoShipment.id}`] = requestedServiceItemCount;
+
+        sitAddressUpdateServiceItems[`${mtoShipment.id}`] = shipmentServiceItems[`${mtoShipment.id}`]?.filter(
+          (serviceItem) => {
+            if (serviceItem?.sitAddressUpdates) {
+              return serviceItem.sitAddressUpdates.filter((s) => s.status === SIT_ADDRESS_UPDATE_STATUS.REQUESTED);
+            }
+            return false;
+          },
+        )?.length;
       }
     });
     setUnapprovedServiceItemCount(serviceItemCount);
     setUnapprovedServiceItemsForShipment(serviceItemsCountForShipment);
+    setUnapprovedSITAddressUpdatesForServiceItems(sitAddressUpdateServiceItems);
   }, [mtoShipments, shipmentServiceItems, setUnapprovedServiceItemCount]);
 
   useEffect(() => {
@@ -671,11 +699,14 @@ export const MoveTaskOrder = (props) => {
                 {s.label}{' '}
                 <LeftNavTag
                   showTag={Boolean(
-                    unapprovedServiceItemsForShipment[`${s.id}`] || unapprovedSITExtensionForShipment[`${s.id}`],
+                    unapprovedServiceItemsForShipment[`${s.id}`] ||
+                      unapprovedSITExtensionForShipment[`${s.id}`] ||
+                      unapprovedSITAddressUpdatesForServiceItems[`${s.id}`],
                   )}
                 >
                   {(unapprovedServiceItemsForShipment[`${s.id}`] || 0) +
-                    (unapprovedSITExtensionForShipment[`${s.id}`] || 0)}
+                    (unapprovedSITExtensionForShipment[`${s.id}`] || 0) +
+                    (unapprovedSITAddressUpdatesForServiceItems[`${s.id}`] || 0)}
                 </LeftNavTag>
               </LeftNavSection>
             );
@@ -714,6 +745,11 @@ export const MoveTaskOrder = (props) => {
           {isSuccessAlertVisible && (
             <Alert headingLevel="h4" slim type="success">
               Your changes were saved
+            </Alert>
+          )}
+          {renderSITAddressUpdateAlert && (
+            <Alert type="warning" headingLevel="h4" className={styles.alertWithButton}>
+              Service item update requested. Review request below.
             </Alert>
           )}
 
