@@ -1,8 +1,9 @@
 package mtoshipment
 
 import (
-	"github.com/gobuffalo/validate/v3"
+	"fmt"
 
+	"github.com/gobuffalo/validate/v3"
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
@@ -34,7 +35,7 @@ func validateShipment(appCtx appcontext.AppContext, newer *models.MTOShipment, o
 		}
 	}
 	if verrs.HasAny() {
-		result = apperror.NewInvalidInputError(newer.ID, nil, verrs, "Invalid input found while updating the shipment.")
+		result = apperror.NewInvalidInputError(newer.ID, nil, verrs, fmt.Sprintf("Invalid input found while updating the shipment. %v", verrs))
 	}
 	return result
 }

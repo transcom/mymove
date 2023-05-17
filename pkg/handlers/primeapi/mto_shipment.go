@@ -133,16 +133,7 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 			}
 
 			// Validate further prime restrictions on model
-			mtoShipment, validationErrs := h.checkPrimeValidationsOnModel(appCtx, mtoShipment, &dbShipment)
 			mtoShipment.ShipmentType = dbShipment.ShipmentType
-			if validationErrs != nil && validationErrs.HasAny() {
-				appCtx.Logger().Error("primeapi.UpdateMTOShipmentHandler error - extra fields in request", zap.Error(validationErrs))
-
-				errPayload := payloads.ValidationError("Invalid data found in input",
-					h.GetTraceIDFromRequest(params.HTTPRequest), validationErrs)
-
-				return mtoshipmentops.NewUpdateMTOShipmentUnprocessableEntity().WithPayload(errPayload), validationErrs
-			}
 
 			appCtx.Logger().Info("primeapi.UpdateMTOShipmentHandler info", zap.String("pointOfContact", params.Body.PointOfContact))
 			mtoShipment, err = h.ShipmentUpdater.UpdateShipment(appCtx, mtoShipment, params.IfMatch)

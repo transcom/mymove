@@ -39,6 +39,7 @@ func setUpMockNotificationSender() notifications.NotificationSender {
 }
 
 func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
+	now := time.Now().UTC().Truncate(time.Hour * 24)
 	builder := query.NewQueryBuilder()
 	fetcher := fetch.NewFetcher(builder)
 	planner := &mocks.Planner{}
@@ -46,7 +47,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
-	).Return(500, nil)
+	).Return(1000, nil)
 	moveRouter := moveservices.NewMoveRouter()
 	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester())
 	mockShipmentRecalculator := mockservices.PaymentRequestShipmentRecalculator{}
@@ -58,11 +59,11 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 	mtoShipmentUpdaterOffice := NewOfficeMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, &mockShipmentRecalculator)
 	mtoShipmentUpdaterCustomer := NewCustomerMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, &mockShipmentRecalculator)
 	mtoShipmentUpdaterPrime := NewPrimeMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, &mockShipmentRecalculator)
-	scheduledPickupDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
-	firstAvailableDeliveryDate := time.Date(2019, time.March, 10, 0, 0, 0, 0, time.UTC)
-	actualPickupDate := time.Date(2020, time.June, 8, 0, 0, 0, 0, time.UTC)
-	scheduledDeliveryDate := time.Date(2018, time.April, 10, 0, 0, 0, 0, time.UTC)
-	actualDeliveryDate := time.Date(2020, time.May, 8, 0, 0, 0, 0, time.UTC)
+	scheduledPickupDate := now.Add(time.Hour * 24 * 3)
+	firstAvailableDeliveryDate := now.Add(time.Hour * 24 * 4)
+	actualPickupDate := now.Add(time.Hour * 24 * 3)
+	scheduledDeliveryDate := now.Add(time.Hour * 24 * 4)
+	actualDeliveryDate := now.Add(time.Hour * 24 * 4)
 	primeActualWeight := unit.Pound(1234)
 	primeEstimatedWeight := unit.Pound(1234)
 
@@ -74,7 +75,16 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 	var newPickupAddress models.Address
 
 	setupTestData := func() {
-		oldMTOShipment = factory.BuildMTOShipment(suite.DB(), nil, nil)
+		oldMTOShipment = factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					FirstAvailableDeliveryDate: &firstAvailableDeliveryDate,
+					ScheduledPickupDate:        &scheduledPickupDate,
+					ApprovedDate:               &firstAvailableDeliveryDate,
+					// ActualPickupDate:           &actualPickupDate,
+				},
+			},
+		}, nil)
 
 		requestedPickupDate := *oldMTOShipment.RequestedPickupDate
 		secondaryPickupAddress = factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress3})
@@ -125,8 +135,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			ApprovedDate:               &firstAvailableDeliveryDate,
 		}
 
-		//now := time.Now()
-		primeEstimatedWeight = unit.Pound(4500)
+		primeEstimatedWeight = unit.Pound(9000)
 	}
 
 	suite.Run("Etag is stale", func() {
@@ -160,7 +169,6 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.Equal(updatedMTOShipment.PrimeActualWeight, &primeActualWeight)
 		suite.True(actualPickupDate.Equal(*updatedMTOShipment.ActualPickupDate))
 		suite.True(firstAvailableDeliveryDate.Equal(*updatedMTOShipment.FirstAvailableDeliveryDate))
-
 		// Verify that shipment recalculate was handled correctly
 		mockShipmentRecalculator.AssertNotCalled(suite.T(), "ShipmentRecalculatePaymentRequest", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID"))
 	})
@@ -845,7 +853,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
 
 		requestedPickupDate := time.Date(2019, time.March, 15, 0, 0, 0, 0, time.UTC)
-		scheduledPickupDate := time.Date(2019, time.March, 17, 0, 0, 0, 0, time.UTC)
+		scheduledPickupDate := now.Add(time.Hour * 24 * 7)
 		requestedDeliveryDate := time.Date(2019, time.March, 30, 0, 0, 0, 0, time.UTC)
 		updatedShipment := models.MTOShipment{
 			ID:                          oldShipment.ID,
@@ -865,6 +873,17 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			PrimeEstimatedWeight:        &primeEstimatedWeight,
 			FirstAvailableDeliveryDate:  &firstAvailableDeliveryDate,
 		}
+
+		ghcDomesticTransitTime := models.GHCDomesticTransitTime{
+			MaxDaysTransitTime: 12,
+			WeightLbsLower:     0,
+			WeightLbsUpper:     10000,
+			DistanceMilesLower: 0,
+			DistanceMilesUpper: 10000,
+		}
+		verrs, err := suite.DB().ValidateAndCreate(&ghcDomesticTransitTime)
+		suite.False(verrs.HasAny())
+		suite.FatalNoError(err)
 
 		session := auth.Session{}
 		newShipment, err := mtoShipmentUpdaterPrime.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag)

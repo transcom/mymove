@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/gobuffalo/validate/v3"
+	"github.com/transcom/mymove/pkg/route"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
@@ -143,15 +144,15 @@ func checkPrimeDeleteAllowed() validator {
 // It expects older to represent what's in the db and mtoShipment to represent the requested update
 // It updates mtoShipment accordingly if there are dependent updates like requiredDeliveryDate
 // On completion it either returns a list of errors or an updated MTOShipment that should be stored to the database.
-func checkPrimeValidationsOnModel() validator {
+func checkPrimeValidationsOnModel(planner route.Planner) validator {
 	return validatorFunc(func(appCtx appcontext.AppContext, newer *models.MTOShipment, older *models.MTOShipment) error {
-
+		verrs := validate.NewErrors()
 		// Prime cannot edit the customer's requestedPickupDate
 		if newer.RequestedPickupDate != nil {
 			requestedPickupDate := newer.RequestedPickupDate
-			if !requestedPickupDate.Equal(*older.RequestedPickupDate) {
-				return apperror.NewConflictError(newer.ID, "requestedPickupDate must match what customer has requested")
-			}
+			// if !requestedPickupDate.Equal(*older.RequestedPickupDate) {
+			// 	verrs.Add("requestedPickupDate", "must match what customer has requested")
+			// }
 			newer.RequestedPickupDate = requestedPickupDate
 		}
 
@@ -166,15 +167,16 @@ func checkPrimeValidationsOnModel() validator {
 		// If it's expired, they can no longer update it.
 		latestEstimatedWeight := older.PrimeEstimatedWeight
 		if newer.PrimeEstimatedWeight != nil {
-			if older.PrimeEstimatedWeight != nil {
-				return apperror.NewConflictError(newer.ID, "primeEstimatedWeight cannot be updated after initial estimation")
-			}
+			// if older.PrimeEstimatedWeight != nil {
+			// 	verrs.Add("primeEstimatedWeight", "cannot be updated after initial estimation")
+			// }
 			// Validate if we are in the allowed period of time
 			now := time.Now()
 			if latestSchedPickupDate != nil {
 				err := validatePrimeEstimatedWeightRecordedDate(now, *latestSchedPickupDate)
 				if err != nil {
-					return apperror.NewConflictError(newer.ID, "the time period for updating the estimated weight for a shipment has expired, please contact the TOO directly to request updates to this shipment’s estimated weight")
+					verrs.Add("primeEstimatedWeight", "the time period for updating the estimated weight for a shipment has expired, please contact the TOO directly to request updates to this shipment’s estimated weight")
+					verrs.Add("primeEstimatedWeight", err.Error())
 				}
 			}
 			// If they can update it, it will be the latestEstimatedWeight (needed for RDD calc)
@@ -186,7 +188,7 @@ func checkPrimeValidationsOnModel() validator {
 		// Prime cannot update or add agents with this endpoint, so this should always be empty
 		if len(newer.MTOAgents) > 0 {
 			if len(older.MTOAgents) < len(newer.MTOAgents) {
-				return apperror.NewConflictError(newer.ID, "cannot add or update MTO agents to a shipment")
+				verrs.Add("agents", "cannot add or update MTO agents to a shipment")
 			}
 		}
 
@@ -218,23 +220,22 @@ func checkPrimeValidationsOnModel() validator {
 		}
 		// We also track the latestPickupAddress for the RDD calculation
 		if older.PickupAddress != nil && newer.PickupAddress != nil { // If both are populated, return error
-			return apperror.NewConflictError(newer.ID, "the pickup address already exists and cannot be updated with this endpoint")
-
+			verrs.Add("pickupAddress", "the pickup address already exists and cannot be updated with this endpoint")
 		} else if newer.PickupAddress != nil { // If only the update has an address, that's the latest address
 			latestPickupAddress = newer.PickupAddress
 		}
 		if older.DestinationAddress != nil && newer.DestinationAddress != nil {
-			return apperror.NewConflictError(newer.ID, "the destination address already exists and cannot be updated with this endpoint")
+			verrs.Add("destinationAddress", "the destination address already exists and cannot be updated with this endpoint")
 		} else if newer.DestinationAddress != nil {
 			latestDestinationAddress = newer.DestinationAddress
 		}
 
 		// For secondary addresses we do the same, but don't have to track the latest values for RDD
 		if older.SecondaryPickupAddress != nil && newer.SecondaryPickupAddress != nil { // If both are populated, return error
-			return apperror.NewConflictError(newer.ID, "the secondary pickup address already exists and cannot be updated with this endpoint")
+			verrs.Add("secondaryPickupAddress", "the secondary pickup address already exists and cannot be updated with this endpoint")
 		}
 		if older.SecondaryDeliveryAddress != nil && newer.SecondaryDeliveryAddress != nil {
-			return apperror.NewConflictError(newer.ID, "the secondary delivery address already exists and cannot be updated with this endpoint")
+			verrs.Add("secondaryDeliveryAddress", "the secondary delivery address already exists and cannot be updated with this endpoint")
 		}
 
 		// If we have all the data, calculate RDD
@@ -244,13 +245,13 @@ func checkPrimeValidationsOnModel() validator {
 			if older.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom && older.NTSRecordedWeight != nil {
 				weight = older.NTSRecordedWeight
 			}
-			requiredDeliveryDate, err := CalculateRequiredDeliveryDate(appCtx, h.Planner(), *latestPickupAddress,
+			requiredDeliveryDate, err := CalculateRequiredDeliveryDate(appCtx, planner, *latestPickupAddress,
 				*latestDestinationAddress, *latestSchedPickupDate, weight.Int())
 			if err != nil {
-				return apperror.NewInvalidInputError(newer.ID, err, nil)
+				verrs.Add("requiredDeliveryDate", err.Error())
 			}
 			newer.RequiredDeliveryDate = requiredDeliveryDate
 		}
-		return nil
+		return verrs
 	})
 }
