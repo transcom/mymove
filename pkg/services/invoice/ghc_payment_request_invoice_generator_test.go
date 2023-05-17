@@ -293,12 +293,13 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		paymentServiceItems = models.PaymentServiceItems{}
 		paymentServiceItems = append(paymentServiceItems, dlh, fsc, ms, cs, dsh, dop, ddp, dpk, dnpk, dupk, ddfsit, ddasit, dofsit, doasit, doshut, ddshut, dcrt, ducrt, dddsit, dopsit)
 
+		customServiceMember := models.ServiceMember{
+			ID:    uuid.FromStringOrNil("d66d2f35-218c-4b85-b9d1-631949b9d984"),
+			Edipi: models.StringPointer("1000011111"),
+		}
+
 		serviceMember = factory.BuildExtendedServiceMember(suite.DB(), []factory.Customization{
-			{
-				Model: models.ServiceMember{
-					ID: uuid.FromStringOrNil("d66d2f35-218c-4b85-b9d1-631949b9d984"),
-				},
-			},
+			{Model: customServiceMember},
 		}, nil)
 
 		// setup known next value
@@ -367,7 +368,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	suite.Run("se segment has correct value", func() {
 		setupTestData()
 		// Will need to be updated as more service items are supported
-		suite.Equal(163, result.SE.NumberOfIncludedSegments)
+		suite.Equal(164, result.SE.NumberOfIncludedSegments)
 		suite.Equal("0001", result.SE.TransactionSetControlNumber)
 	})
 
@@ -416,6 +417,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 			{TestName: "service member name", Qualifier: "1W", ExpectedValue: serviceMember.ReverseNameLineFormat(), ActualValue: &result.Header.ServiceMemberName},
 			{TestName: "service member rank", Qualifier: "ML", ExpectedValue: string(*serviceMember.Rank), ActualValue: &result.Header.ServiceMemberRank},
 			{TestName: "service member branch", Qualifier: "3L", ExpectedValue: string(*serviceMember.Affiliation), ActualValue: &result.Header.ServiceMemberBranch},
+			{TestName: "service member dod id", Qualifier: "4A", ExpectedValue: string(*serviceMember.Edipi), ActualValue: &result.Header.ServiceMemberDodID},
 		}
 
 		for _, data := range testData {
