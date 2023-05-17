@@ -8,12 +8,6 @@ import { NavLink, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import moment from 'moment';
 
-import LoadingPlaceholder from 'shared/LoadingPlaceholder';
-import Alert from 'shared/Alert';
-import ToolTip from 'shared/ToolTip';
-import ComboButton from 'shared/ComboButton';
-import { DropDown, DropDownItem } from 'shared/ComboButton/dropdown';
-import DocumentList from 'shared/DocumentViewer/DocumentList';
 import AccountingPanel from './AccountingPanel';
 import BackupInfoPanel from './BackupInfoPanel';
 import CustomerInfoPanel from './CustomerInfoPanel';
@@ -24,9 +18,16 @@ import PPMEstimatesPanel from './Ppm/PPMEstimatesPanel';
 import StoragePanel from './Ppm/StoragePanel';
 import ExpensesPanel from './Ppm/ExpensesPanel';
 import WeightsPanel from './Ppm/WeightsPanel';
+import { showBanner, removeBanner } from './ducks';
+
+import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import Alert from 'shared/Alert';
+import ToolTip from 'shared/ToolTip';
+import ComboButton from 'shared/ComboButton';
+import { DropDown, DropDownItem } from 'shared/ComboButton/dropdown';
+import DocumentList from 'shared/DocumentViewer/DocumentList';
 import { withContext } from 'shared/AppContext';
 import ConfirmWithReasonButton from 'shared/ConfirmWithReasonButton';
-
 import { getRequestStatus } from 'shared/Swagger/selectors';
 import { resetRequests } from 'shared/Swagger/request';
 import { approvePPM, loadPPMs, selectActivePPMForMove } from 'shared/Entities/modules/ppms';
@@ -35,10 +36,7 @@ import { loadOrders, loadOrdersLabel, selectOrders } from 'shared/Entities/modul
 import { selectReimbursementById } from 'store/entities/selectors';
 import { openLinkInNewWindow } from 'shared/utils';
 import { defaultRelativeWindowSize } from 'shared/constants';
-
 import { roleTypes } from 'constants/userRoles';
-
-import { showBanner, removeBanner } from './ducks';
 import {
   loadMove,
   loadMoveLabel,
@@ -177,22 +175,20 @@ class MoveInfo extends Component {
             Move pending
           </span>
         );
-      } else {
-        return (
-          <span className="status">
-            <FontAwesomeIcon className="icon approval-waiting" icon="clock" />
-            Payment Requested
-          </span>
-        );
       }
-    } else {
       return (
         <span className="status">
           <FontAwesomeIcon className="icon approval-waiting" icon="clock" />
-          In review
+          Payment Requested
         </span>
       );
     }
+    return (
+      <span className="status">
+        <FontAwesomeIcon className="icon approval-waiting" icon="clock" />
+        In review
+      </span>
+    );
   };
 
   handleToolTipHover = () => {
@@ -203,7 +199,7 @@ class MoveInfo extends Component {
   render() {
     const { move, moveId, moveDocuments, moveStatus, orders, ppm, serviceMember, upload } = this.props;
     const showDocumentViewer = this.props.context.flags.documentViewer;
-    const moveInfoComboButton = this.props.context.flags.moveInfoComboButton;
+    const { moveInfoComboButton } = this.props.context.flags;
     const ordersComplete = Boolean(
       orders.orders_number && orders.orders_type_detail && orders.department_indicator && orders.tac && orders.sac,
     );
@@ -293,7 +289,7 @@ class MoveInfo extends Component {
                     <PrivateRoute requiredRoles={[roleTypes.PPM]}>
                       <Navigate
                         to={`${this.props.match.url}/basics`}
-                        replace={true}
+                        replace
                         state={this.props.router.location.state}
                       />
                     </PrivateRoute>
@@ -444,7 +440,7 @@ MoveInfo.propTypes = {
 };
 
 const mapStateToProps = (state, { router: { params } }) => {
-  const moveId = params.moveId;
+  const { moveId } = params;
   const move = selectMove(state, moveId);
   const ppm = selectActivePPMForMove(state, moveId);
   const ordersId = move.orders_id;

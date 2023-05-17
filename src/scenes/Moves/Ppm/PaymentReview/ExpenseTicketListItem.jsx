@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { forEach } from 'lodash';
 import { string } from 'prop-types';
+
 import deleteButtonImg from 'shared/images/delete-doc-button.png';
 import AlertWithDeleteConfirmation from 'shared/AlertWithDeleteConfirmation';
 import { UPLOAD_SCAN_STATUS } from 'shared/constants';
@@ -46,11 +47,9 @@ class ExpenseTicketListItem extends Component {
             )}
           </div>
           {isInfected && (
-            <>
-              <div className="infected-indicator">
-                <strong>Delete this file, take a photo of the document, then upload that</strong>
-              </div>
-            </>
+            <div className="infected-indicator">
+              <strong>Delete this file, take a photo of the document, then upload that</strong>
+            </div>
           )}
           <div>
             {type} ({paymentMethod === 'OTHER' ? 'Not GTCC' : paymentMethod})

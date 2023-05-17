@@ -2,6 +2,8 @@ import { get } from 'lodash';
 import React from 'react';
 import { connect } from 'react-redux';
 import { Field, FormSection, getFormValues, reduxForm } from 'redux-form';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import PropTypes from 'prop-types';
 
 import { withContext } from 'shared/AppContext';
 import { calculateEntitlementsForMove } from 'shared/Entities/modules/moves';
@@ -12,16 +14,12 @@ import { PanelSwaggerField, PanelField, SwaggerValue, editablePanelify } from 's
 import { createModifiedSchemaForOrdersTypesFlag } from 'utils/featureFlags';
 import { openLinkInNewWindow } from 'shared/utils';
 import { defaultRelativeWindowSize } from 'shared/constants';
-
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import LocationSearchBox from 'components/LocationSearchBox/LocationSearchBox';
 
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import PropTypes from 'prop-types';
-
 function renderEntitlements(entitlements, orders) {
   return (
-    <React.Fragment>
+    <>
       <span className="panel-subhead">Entitlements</span>
       <PanelField title="Household Goods">{get(entitlements, 'weight', '').toLocaleString()} lbs</PanelField>
       <PanelField title="Pro-gear">{get(entitlements, 'pro_gear', '').toLocaleString()} lbs</PanelField>
@@ -29,7 +27,7 @@ function renderEntitlements(entitlements, orders) {
         <PanelField title="Spouse pro-gear">{get(entitlements, 'pro_gear_spouse', '').toLocaleString()} lbs</PanelField>
       )}
       <PanelField title="Storage in transit">90 days</PanelField>
-    </React.Fragment>
+    </>
   );
 }
 
@@ -42,7 +40,7 @@ const OrdersDisplay = (props) => {
   };
 
   return (
-    <React.Fragment>
+    <>
       <div className="editable-panel-column">
         {orders.orders_number ? (
           <PanelField title="Orders Number" className="orders_number">
@@ -95,7 +93,7 @@ const OrdersDisplay = (props) => {
         {renderEntitlements(entitlements, orders)}
         {orders.has_dependents && <PanelField title="Dependents" value="Authorized" />}
       </div>
-    </React.Fragment>
+    </>
   );
 };
 
@@ -105,7 +103,7 @@ const OrdersEdit = (props) => {
   const schema = showAllOrdersTypes ? props.ordersSchema : modifiedSchemaForOrdersTypesFlag;
 
   return (
-    <React.Fragment>
+    <>
       <div className="editable-panel-column">
         <FormSection name="orders">
           <SwaggerField fieldName="orders_number" swagger={schema} className="half-width" required />
@@ -137,7 +135,7 @@ const OrdersEdit = (props) => {
           )}
         </FormSection>
       </div>
-    </React.Fragment>
+    </>
   );
 };
 
@@ -160,14 +158,14 @@ OrdersPanel = withContext(
 );
 
 function mapStateToProps(state, ownProps) {
-  let formValues = getFormValues(formName)(state);
+  const formValues = getFormValues(formName)(state);
   const { moveId } = ownProps;
   const orders = selectOrdersForMove(state, moveId);
   const serviceMember = selectServiceMemberForOrders(state, orders.id);
 
   return {
     // reduxForm
-    formValues: formValues,
+    formValues,
     initialValues: { orders, serviceMember },
     ordersSchema: get(state, 'swaggerInternal.spec.definitions.Orders', {}),
     entitlements: calculateEntitlementsForMove(state, moveId),

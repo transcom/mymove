@@ -20,7 +20,7 @@ import (
 type SITAddressUpdate struct {
 
 	// contractor remarks
-	// Example: We need SIT additional days. The customer has not found a house yet.
+	// Example: The customer has found a new house closer to base.
 	ContractorRemarks *string `json:"contractorRemarks"`
 
 	// created at
@@ -28,8 +28,10 @@ type SITAddressUpdate struct {
 	// Format: date-time
 	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
-	// distance
-	Distance int64 `json:"distance,omitempty"`
+	// The distance between the old address and the new address in miles.
+	// Example: 54
+	// Minimum: 0
+	Distance *int64 `json:"distance,omitempty"`
 
 	// e tag
 	// Read Only: true
@@ -49,7 +51,7 @@ type SITAddressUpdate struct {
 	NewAddress *Address `json:"newAddress,omitempty"`
 
 	// office remarks
-	// Example: We need SIT additional days. The customer has not found a house yet.
+	// Example: The customer has found a new house closer to base.
 	OfficeRemarks *string `json:"officeRemarks"`
 
 	// old address
@@ -70,6 +72,10 @@ func (m *SITAddressUpdate) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateCreatedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateDistance(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -105,6 +111,18 @@ func (m *SITAddressUpdate) validateCreatedAt(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("createdAt", "body", "date-time", m.CreatedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *SITAddressUpdate) validateDistance(formats strfmt.Registry) error {
+	if swag.IsZero(m.Distance) { // not required
+		return nil
+	}
+
+	if err := validate.MinimumInt("distance", "body", *m.Distance, 0, false); err != nil {
 		return err
 	}
 

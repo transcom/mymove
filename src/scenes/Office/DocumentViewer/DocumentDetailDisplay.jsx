@@ -1,6 +1,5 @@
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
-
 import { get } from 'lodash';
 
 import { renderStatusIcon } from 'shared/utils';
@@ -29,126 +28,124 @@ const DocumentDetailDisplay = ({
   const isWeightTicketTypeProGear =
     isWeightTicketDocument && moveDocument.weight_ticket_set_type === WEIGHT_TICKET_SET_TYPE.PRO_GEAR;
   return (
-    <Fragment>
-      <div>
-        <h3 data-testid="panel-subhead">
-          {renderStatusIcon(moveDocument.status)}
-          {moveDocument.title}
-        </h3>
-        <p className="uploaded-at" data-testid="uploaded-at">
-          Uploaded {formatDate(get(moveDocument, 'document.uploads.0.createdAt'))}
-        </p>
+    <div>
+      <h3 data-testid="panel-subhead">
+        {renderStatusIcon(moveDocument.status)}
+        {moveDocument.title}
+      </h3>
+      <p className="uploaded-at" data-testid="uploaded-at">
+        Uploaded {formatDate(get(moveDocument, 'document.uploads.0.createdAt'))}
+      </p>
+      <PanelSwaggerField
+        data-testid="document-title"
+        title="Document title"
+        fieldName="title"
+        required
+        {...moveDocFieldProps}
+      />
+      <PanelSwaggerField
+        data-testid="move-document-type"
+        title="move-document-type"
+        fieldName="move_document_type"
+        required
+        {...moveDocFieldProps}
+      />
+      {isExpenseDocument && moveDocument.moving_expense_type && (
+        <PanelSwaggerField data-testid="moving-expense-type" fieldName="moving_expense_type" {...moveDocFieldProps} />
+      )}
+      {isExpenseDocument && get(moveDocument, 'requested_amount_cents') && (
         <PanelSwaggerField
-          data-testid="document-title"
-          title="Document title"
-          fieldName="title"
-          required
+          data-testid="requested-amount-cents"
+          fieldName="requested_amount_cents"
           {...moveDocFieldProps}
         />
-        <PanelSwaggerField
-          data-testid="move-document-type"
-          title="move-document-type"
-          fieldName="move_document_type"
-          required
-          {...moveDocFieldProps}
-        />
-        {isExpenseDocument && moveDocument.moving_expense_type && (
-          <PanelSwaggerField data-testid="moving-expense-type" fieldName="moving_expense_type" {...moveDocFieldProps} />
-        )}
-        {isExpenseDocument && get(moveDocument, 'requested_amount_cents') && (
+      )}
+      {isExpenseDocument && get(moveDocument, 'payment_method') && (
+        <PanelSwaggerField data-testid="payment-method" fieldName="payment_method" {...moveDocFieldProps} />
+      )}
+      {isWeightTicketDocument && (
+        <>
           <PanelSwaggerField
-            data-testid="requested-amount-cents"
-            fieldName="requested_amount_cents"
+            data-testid="weight-ticket-set-type"
+            title="Weight ticket set type"
+            fieldName="weight_ticket_set_type"
+            required
             {...moveDocFieldProps}
           />
-        )}
-        {isExpenseDocument && get(moveDocument, 'payment_method') && (
-          <PanelSwaggerField data-testid="payment-method" fieldName="payment_method" {...moveDocFieldProps} />
-        )}
-        {isWeightTicketDocument && (
-          <>
+
+          {isWeightTicketTypeBoxTruck && (
             <PanelSwaggerField
-              data-testid="weight-ticket-set-type"
-              title="Weight ticket set type"
-              fieldName="weight_ticket_set_type"
+              data-testid="vehicle-nickname"
+              title="Vehicle nickname"
+              fieldName="vehicle_nickname"
               required
               {...moveDocFieldProps}
             />
-
-            {isWeightTicketTypeBoxTruck && (
+          )}
+          {isWeightTicketTypeProGear && (
+            <PanelSwaggerField title="Pro-gear type" fieldName="vehicle_nickname" required {...moveDocFieldProps} />
+          )}
+          {isWeightTicketTypeCarOrTrailer && (
+            <>
               <PanelSwaggerField
-                data-testid="vehicle-nickname"
-                title="Vehicle nickname"
-                fieldName="vehicle_nickname"
+                data-testid="vehicle-make"
+                title="Vehicle make"
+                fieldName="vehicle_make"
                 required
                 {...moveDocFieldProps}
               />
-            )}
-            {isWeightTicketTypeProGear && (
-              <PanelSwaggerField title="Pro-gear type" fieldName="vehicle_nickname" required {...moveDocFieldProps} />
-            )}
-            {isWeightTicketTypeCarOrTrailer && (
-              <>
-                <PanelSwaggerField
-                  data-testid="vehicle-make"
-                  title="Vehicle make"
-                  fieldName="vehicle_make"
-                  required
-                  {...moveDocFieldProps}
-                />
-                <PanelSwaggerField
-                  data-testid="vehicle-model"
-                  title="Vehicle model"
-                  fieldName="vehicle_model"
-                  required
-                  {...moveDocFieldProps}
-                />
-              </>
-            )}
-            <PanelSwaggerField
-              data-testid="empty-weight"
-              title="Empty weight"
-              fieldName="empty_weight"
-              required
-              {...moveDocFieldProps}
-            />
-            <PanelSwaggerField
-              data-testid="full-weight"
-              title="Full weight"
-              fieldName="full_weight"
-              required
-              {...moveDocFieldProps}
-            />
-          </>
-        )}
-        {isStorageExpenseDocument && (
-          <>
-            <PanelSwaggerField
-              data-testid="storage-start-date"
-              title="Start date"
-              fieldName="storage_start_date"
-              required
-              {...moveDocFieldProps}
-            />
-            <PanelSwaggerField
-              data-testid="storage-end-date"
-              title="End date"
-              fieldName="storage_end_date"
-              required
-              {...moveDocFieldProps}
-            />
-          </>
-        )}
-        <PanelSwaggerField
-          data-testid="status"
-          title="Document status"
-          fieldName="status"
-          required
-          {...moveDocFieldProps}
-        />
-        <PanelSwaggerField data-testid="notes" title="Notes" fieldName="notes" {...moveDocFieldProps} />
-      </div>
-    </Fragment>
+              <PanelSwaggerField
+                data-testid="vehicle-model"
+                title="Vehicle model"
+                fieldName="vehicle_model"
+                required
+                {...moveDocFieldProps}
+              />
+            </>
+          )}
+          <PanelSwaggerField
+            data-testid="empty-weight"
+            title="Empty weight"
+            fieldName="empty_weight"
+            required
+            {...moveDocFieldProps}
+          />
+          <PanelSwaggerField
+            data-testid="full-weight"
+            title="Full weight"
+            fieldName="full_weight"
+            required
+            {...moveDocFieldProps}
+          />
+        </>
+      )}
+      {isStorageExpenseDocument && (
+        <>
+          <PanelSwaggerField
+            data-testid="storage-start-date"
+            title="Start date"
+            fieldName="storage_start_date"
+            required
+            {...moveDocFieldProps}
+          />
+          <PanelSwaggerField
+            data-testid="storage-end-date"
+            title="End date"
+            fieldName="storage_end_date"
+            required
+            {...moveDocFieldProps}
+          />
+        </>
+      )}
+      <PanelSwaggerField
+        data-testid="status"
+        title="Document status"
+        fieldName="status"
+        required
+        {...moveDocFieldProps}
+      />
+      <PanelSwaggerField data-testid="notes" title="Notes" fieldName="notes" {...moveDocFieldProps} />
+    </div>
   );
 };
 

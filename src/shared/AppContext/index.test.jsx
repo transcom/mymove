@@ -1,6 +1,8 @@
-import { withContext } from '.';
 import React from 'react';
 import { shallow } from 'enzyme';
+
+import { withContext } from '.';
+
 const Dummy = withContext(({ context }) => {
   return <div>{context.name}</div>;
 });

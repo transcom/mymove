@@ -1,5 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
+
 import {
   selectAllDocumentsForMove,
   findOKedVehicleWeightTickets,
@@ -7,9 +8,7 @@ import {
   findPendingWeightTickets,
 } from 'shared/Entities/modules/moveDocuments';
 import Alert from 'shared/Alert';
-
-import { PanelField } from 'shared/EditablePanel';
-import { editablePanelify } from 'shared/EditablePanel';
+import { PanelField, editablePanelify } from 'shared/EditablePanel';
 import { formatWeight } from 'utils/formatters';
 
 function sumWeights(moveDocs) {

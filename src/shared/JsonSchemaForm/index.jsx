@@ -1,14 +1,15 @@
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
-import SchemaField, { ALWAYS_REQUIRED_KEY } from './JsonSchemaField';
-
 import { isEmpty, uniq } from 'lodash';
 import { Field, reduxForm } from 'redux-form';
+
+import SchemaField, { ALWAYS_REQUIRED_KEY } from './JsonSchemaField';
+
 import 'shared/JsonSchemaForm/index.css';
 import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
 
 const renderGroupOrField = (fieldName, fields, uiSchema, nameSpace) => {
-  /*TODO:
+  /* TODO:
    dates look wonky in chrome
    styling in accordance with USWDS
    validate group names don't colide with field names
@@ -24,14 +25,16 @@ const renderGroupOrField = (fieldName, fields, uiSchema, nameSpace) => {
         {keys.map((f) => renderGroupOrField(f, fields, uiSchema, nameSpace))}
       </fieldset>
     );
-  } else if (isCustom) {
+  }
+  if (isCustom) {
     return (
       <Fragment key={fieldName}>
         <p>{fields[fieldName].title}</p>
         <Field name={fieldName} component={uiSchema.custom_components[fieldName]} />
       </Fragment>
     );
-  } else if (isRef) {
+  }
+  if (isRef) {
     const refName = fields[fieldName].$$ref.split('/').pop();
     const refSchema = uiSchema.definitions[refName];
     return renderSchema(fields[fieldName], refSchema, fieldName);
@@ -58,16 +61,16 @@ export const renderField = (fieldName, fields, nameSpace) => {
 // 3. If it is an object and some value in it has been set, then all it's required fields must be set too
 // This is a recusive definition.
 export const recursivelyValidateRequiredFields = (values, spec) => {
-  let requiredErrors = {};
+  const requiredErrors = {};
   // first, check that all required fields are present
   if (spec.required) {
     spec.required.forEach((requiredFieldName) => {
       if (values[requiredFieldName] === undefined || values[requiredFieldName] === '') {
         // check if the required thing is a object, in that case put it on its required fields. Otherwise recurse.
-        let schemaForKey = spec.properties[requiredFieldName];
+        const schemaForKey = spec.properties[requiredFieldName];
         if (schemaForKey) {
           if (schemaForKey.type === 'object') {
-            let subErrors = recursivelyValidateRequiredFields({}, schemaForKey);
+            const subErrors = recursivelyValidateRequiredFields({}, schemaForKey);
             if (!isEmpty(subErrors)) {
               requiredErrors[requiredFieldName] = subErrors;
             }
@@ -83,10 +86,10 @@ export const recursivelyValidateRequiredFields = (values, spec) => {
 
   // now go through every existing value, if its an object, we must recurse to see if its required properties are there.
   Object.keys(values).forEach(function (key) {
-    let schemaForKey = spec.properties[key];
+    const schemaForKey = spec.properties[key];
     if (schemaForKey) {
       if (schemaForKey.type === 'object') {
-        let subErrors = recursivelyValidateRequiredFields(values[key], schemaForKey);
+        const subErrors = recursivelyValidateRequiredFields(values[key], schemaForKey);
         if (!isEmpty(subErrors)) {
           requiredErrors[key] = subErrors;
         }
@@ -112,7 +115,7 @@ export const validateRequiredFields = (values, form) => {
 
 export const validateAdditionalFields = (additionalFields) => {
   return (values, form) => {
-    let errors = {};
+    const errors = {};
     additionalFields.forEach((fieldName) => {
       if (values[fieldName] === undefined || values[fieldName] === '' || values[fieldName] === null) {
         errors[fieldName] = 'Required.';
@@ -129,7 +132,7 @@ export const recursivelyAnnotateRequiredFields = (schema) => {
   if (schema.required) {
     schema.required.forEach((requiredFieldName) => {
       // check if the required thing is a object, in that case put it on its required fields. Otherwise recurse.
-      let schemaForKey = schema.properties[requiredFieldName];
+      const schemaForKey = schema.properties[requiredFieldName];
       if (schemaForKey) {
         if (schemaForKey.type === 'object') {
           recursivelyAnnotateRequiredFields(schemaForKey);
@@ -165,11 +168,11 @@ export const JsonSchemaFormBody = (props) => {
 
   addUiSchemaRequiredFields(schema, uiSchema);
   const title = uiSchema.title || (schema ? schema.title : '');
-  const description = uiSchema.description;
-  const todos = uiSchema.todos;
+  const { description } = uiSchema;
+  const { todos } = uiSchema;
 
   return (
-    <Fragment>
+    <>
       <h1>{title}</h1>
       {description && <p>{description}</p>}
       {renderSchema(schema, uiSchema)}
@@ -179,7 +182,7 @@ export const JsonSchemaFormBody = (props) => {
           {todos}
         </div>
       )}
-    </Fragment>
+    </>
   );
 };
 

@@ -1,7 +1,9 @@
 import React from 'react';
-import WeightTicket from './WeightTicket';
 import { mount } from 'enzyme';
+
+import WeightTicket from './WeightTicket';
 import PPMPaymentRequestActionBtns from './PPMPaymentRequestActionBtns';
+
 import { MockProviders } from 'testUtils';
 
 function mountComponents(
@@ -13,7 +15,7 @@ function mountComponents(
   const initialState = {
     emptyWeight: 1100,
     fullWeight: 2000,
-    weightTicketSetType: weightTicketSetType,
+    weightTicketSetType,
     weightTicketDate: '2019-05-22',
   };
   const params = { moveId: 'someID' };
