@@ -47,21 +47,24 @@ func (suite *MTOShipmentServiceSuite) TestvalidateShipment() {
 		suite.NoError(err)
 	})
 
-	// suite.Run("Runs validation and returns input errors", func() {
-	// 	checkAlwaysReturnValidationErr := validatorFunc(func(_ appcontext.AppContext, _ *models.MTOShipment, _ *models.MTOShipment) error {
-	// 		verrs := validate.NewErrors()
+	suite.Run("Runs validation and returns input errors", func() {
+		checkAlwaysReturnValidationErr := validatorFunc(func(_ appcontext.AppContext, _ *models.MTOShipment, _ *models.MTOShipment) error {
+			verrs := validate.NewErrors()
 
-	// 		verrs.Add("ID", "fake error")
+			verrs.Add("ID", "fake error")
 
-	// 		return verrs
-	// 	})
+			return verrs
+		})
 
-	// 	err := validateShipment(suite.AppContextForTest(), nil, nil, []validator{checkAlwaysReturnValidationErr}...)
+		mtoShipment := models.MTOShipment{}
 
-	// 	suite.Error(err)
-	// 	suite.IsType(apperror.InvalidInputError{}, err)
-	// 	suite.Contains(err.Error(), "Invalid input found while validating the weight ticket.")
-	// })
+		err := validateShipment(suite.AppContextForTest(), &mtoShipment, &mtoShipment, []validator{checkAlwaysReturnValidationErr}...)
+
+		suite.Error(err)
+		suite.IsType(apperror.InvalidInputError{}, err)
+		suite.Contains(err.Error(), "Invalid input found")
+		suite.Contains(err.Error(), "fake error")
+	})
 
 	suite.Run("Runs validation and returns other errors", func() {
 		checkAlwaysReturnOtherError := validatorFunc(func(_ appcontext.AppContext, _ *models.MTOShipment, _ *models.MTOShipment) error {
