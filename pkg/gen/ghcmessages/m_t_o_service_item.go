@@ -113,6 +113,12 @@ type MTOServiceItem struct {
 	// Format: date-time
 	SitDepartureDate *strfmt.DateTime `json:"sitDepartureDate,omitempty"`
 
+	// sit destination final address
+	SitDestinationFinalAddress *Address `json:"sitDestinationFinalAddress,omitempty"`
+
+	// sit destination original address
+	SitDestinationOriginalAddress *Address `json:"sitDestinationOriginalAddress,omitempty"`
+
 	// sit entry date
 	// Format: date-time
 	SitEntryDate *strfmt.DateTime `json:"sitEntryDate,omitempty"`
@@ -193,6 +199,14 @@ func (m *MTOServiceItem) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateSitDepartureDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSitDestinationFinalAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSitDestinationOriginalAddress(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -446,6 +460,44 @@ func (m *MTOServiceItem) validateSitDepartureDate(formats strfmt.Registry) error
 	return nil
 }
 
+func (m *MTOServiceItem) validateSitDestinationFinalAddress(formats strfmt.Registry) error {
+	if swag.IsZero(m.SitDestinationFinalAddress) { // not required
+		return nil
+	}
+
+	if m.SitDestinationFinalAddress != nil {
+		if err := m.SitDestinationFinalAddress.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("sitDestinationFinalAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("sitDestinationFinalAddress")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItem) validateSitDestinationOriginalAddress(formats strfmt.Registry) error {
+	if swag.IsZero(m.SitDestinationOriginalAddress) { // not required
+		return nil
+	}
+
+	if m.SitDestinationOriginalAddress != nil {
+		if err := m.SitDestinationOriginalAddress.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("sitDestinationOriginalAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("sitDestinationOriginalAddress")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *MTOServiceItem) validateSitEntryDate(formats strfmt.Registry) error {
 	if swag.IsZero(m.SitEntryDate) { // not required
 		return nil
@@ -519,6 +571,14 @@ func (m *MTOServiceItem) ContextValidate(ctx context.Context, formats strfmt.Reg
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateSitDestinationFinalAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateSitDestinationOriginalAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateStatus(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -575,6 +635,38 @@ func (m *MTOServiceItem) contextValidateSitAddressUpdates(ctx context.Context, f
 			return ce.ValidateName("sitAddressUpdates")
 		}
 		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItem) contextValidateSitDestinationFinalAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.SitDestinationFinalAddress != nil {
+		if err := m.SitDestinationFinalAddress.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("sitDestinationFinalAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("sitDestinationFinalAddress")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItem) contextValidateSitDestinationOriginalAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.SitDestinationOriginalAddress != nil {
+		if err := m.SitDestinationOriginalAddress.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("sitDestinationOriginalAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("sitDestinationOriginalAddress")
+			}
+			return err
+		}
 	}
 
 	return nil

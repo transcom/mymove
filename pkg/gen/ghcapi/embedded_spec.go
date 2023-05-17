@@ -5883,6 +5883,12 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
+        "sitDestinationFinalAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "sitDestinationOriginalAddress": {
+          "$ref": "#/definitions/Address"
+        },
         "sitEntryDate": {
           "type": "string",
           "format": "date-time",
@@ -16550,6 +16556,12 @@ func init() {
           "type": "string",
           "format": "date-time",
           "x-nullable": true
+        },
+        "sitDestinationFinalAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "sitDestinationOriginalAddress": {
+          "$ref": "#/definitions/Address"
         },
         "sitEntryDate": {
           "type": "string",

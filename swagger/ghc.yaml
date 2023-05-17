@@ -5696,6 +5696,10 @@ definitions:
         type: string
         format: date-time
         x-nullable: true
+      sitDestinationOriginalAddress:
+        $ref: '#/definitions/Address'
+      sitDestinationFinalAddress:
+        $ref: '#/definitions/Address'
       sitAddressUpdates:
         $ref: '#/definitions/SITAddressUpdates'
       feeType:
