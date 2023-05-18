@@ -1,6 +1,6 @@
 /* eslint-disable camelcase */
 import React from 'react';
-import { Link, useHistory, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@trussworks/react-uswds';
 import { Formik } from 'formik';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
@@ -48,13 +48,13 @@ const validationSchema = Yup.object({
 
 const MoveAllowances = () => {
   const { moveCode } = useParams();
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const { move, orders, isLoading, isError } = useOrdersDocumentQueries(moveCode);
   const orderId = move?.ordersId;
 
   const handleClose = () => {
-    history.push(`/moves/${moveCode}/details`);
+    navigate(`/moves/${moveCode}/details`);
   };
   const queryClient = useQueryClient();
 
@@ -150,7 +150,7 @@ const MoveAllowances = () => {
                   View Allowances
                 </h2>
                 <div>
-                  <Link className={styles.viewAllowances} data-testid="view-orders" to="orders">
+                  <Link className={styles.viewAllowances} data-testid="view-orders" to="../orders">
                     View Orders
                   </Link>
                 </div>

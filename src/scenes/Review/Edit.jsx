@@ -1,7 +1,8 @@
 import React from 'react';
+
 import Summary from 'components/Customer/Review/Summary/Summary';
-import { withRouter } from 'react-router-dom';
 import scrollToTop from 'shared/scrollToTop';
+import withRouter from 'utils/routing';
 
 export class Edit extends React.Component {
   componentDidMount() {
@@ -9,7 +10,10 @@ export class Edit extends React.Component {
   }
 
   goHome = () => {
-    this.props.history.push('/');
+    const {
+      router: { navigate },
+    } = this.props;
+    navigate('/');
   };
 
   render() {

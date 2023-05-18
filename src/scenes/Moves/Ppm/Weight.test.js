@@ -1,7 +1,8 @@
 import React from 'react';
-import { PpmWeight } from './Weight';
 import { shallow } from 'enzyme';
 import moment from 'moment';
+
+import { PpmWeight } from './Weight';
 
 describe('Weight', () => {
   const moveDate = moment().add(7, 'day');
@@ -21,9 +22,10 @@ describe('Weight', () => {
       pickup_postal_code: '00000',
     },
     orders: { id: 1 },
-    match: { params: { moveId: 'some id' } },
+    router: { params: { moveId: 'some id' } },
     fetchLatestOrders: jest.fn(),
   };
+
   it('Component renders', () => {
     expect(shallow(<PpmWeight {...minProps} />).length).toEqual(1);
   });

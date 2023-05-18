@@ -1,7 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import { bind, cloneDeep, debounce, get } from 'lodash';
 import { connect } from 'react-redux';
-import { push } from 'connected-react-router';
 import PropTypes from 'prop-types';
 import { getFormValues, reduxForm } from 'redux-form';
 
@@ -26,6 +25,7 @@ import {
   selectServiceMemberFromLoggedInUser,
 } from 'store/entities/selectors';
 import 'scenes/Moves/Ppm/DateAndLocation.css';
+import withRouter from 'utils/routing';
 
 const sitEstimateDebounceTime = 300;
 
@@ -33,7 +33,7 @@ let EditDateAndLocationForm = (props) => {
   const { handleSubmit, currentOrders, getSitEstimate, sitEstimate, schema, valid, sitReimbursement, submitting } =
     props;
 
-  const displayedSitReimbursement = sitEstimate ? '$' + formatCents(sitEstimate) : sitReimbursement;
+  const displayedSitReimbursement = sitEstimate ? `$${formatCents(sitEstimate)}` : sitReimbursement;
 
   return (
     <div className="grid-container usa-prose">
@@ -51,10 +51,10 @@ let EditDateAndLocationForm = (props) => {
               <SwaggerField fieldName="pickup_postal_code" onChange={getSitEstimate} swagger={schema} required />
               <SwaggerField fieldName="has_additional_postal_code" swagger={schema} component={YesNoBoolean} />
               {get(props, 'formValues.has_additional_postal_code', false) && (
-                <Fragment>
+                <>
                   <SwaggerField fieldName="additional_pickup_postal_code" swagger={schema} required />
                   <span className="grey">Making additional stops may decrease your PPM incentive.</span>
-                </Fragment>
+                </>
               )}
             </SectionWrapper>
             <SectionWrapper>
@@ -70,7 +70,7 @@ let EditDateAndLocationForm = (props) => {
               </span>
               <SwaggerField fieldName="has_sit" swagger={schema} component={YesNoBoolean} />
               {get(props, 'formValues.has_sit', false) && (
-                <Fragment>
+                <>
                   <SwaggerField
                     className="days-in-storage"
                     fieldName="days_in_storage"
@@ -85,7 +85,7 @@ let EditDateAndLocationForm = (props) => {
                       with your PPM paperwork.
                     </div>
                   )}
-                </Fragment>
+                </>
               )}
             </SectionWrapper>
             <SaveCancelButtons valid={valid} submitting={submitting} />
@@ -117,7 +117,9 @@ class EditDateAndLocation extends Component {
       pendingValues.original_move_date = formatDateForSwagger(pendingValues.original_move_date);
       pendingValues.actual_move_date = formatDateForSwagger(pendingValues.actual_move_date);
 
-      const moveId = this.props.match.params.moveId;
+      const {
+        router: { params: moveId, navigate },
+      } = this.props;
 
       return patchPPM(moveId, pendingValues)
         .then((response) => {
@@ -128,7 +130,7 @@ class EditDateAndLocation extends Component {
         .then((response) => this.props.updatePPM(response))
         .then(() => {
           setFlashMessage('EDIT_PPM_DATE_LOCATION_SUCCESS', 'success', '', 'Your changes have been saved.');
-          this.props.history.goBack();
+          navigate(-1);
         })
         .catch((err) => {
           scrollToTop();
@@ -164,13 +166,16 @@ class EditDateAndLocation extends Component {
   };
 
   componentDidMount() {
-    getPPMsForMove(this.props.match.params.moveId).then((response) => this.props.updatePPMs(response));
+    const {
+      router: { params: moveId },
+    } = this.props;
+    getPPMsForMove(moveId).then((response) => this.props.updatePPMs(response));
     scrollToTop();
   }
 
   componentDidUpdate(prevProps) {
     if (prevProps.currentPPM !== this.props.currentPPM && prevProps.currentOrders !== this.props.currentOrders) {
-      const currentPPM = this.props.currentPPM;
+      const { currentPPM } = this.props;
       calculatePPMSITEstimate(
         currentPPM.id,
         formatDateForSwagger(currentPPM.original_move_date),
@@ -245,11 +250,10 @@ function mapStateToProps(state) {
 }
 
 const mapDispatchToProps = {
-  push,
   updatePPM,
   updatePPMs,
   updatePPMSitEstimate,
   setFlashMessage: setFlashMessageAction,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(EditDateAndLocation);
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(EditDateAndLocation));

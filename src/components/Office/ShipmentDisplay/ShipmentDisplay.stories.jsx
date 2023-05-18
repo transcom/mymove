@@ -19,7 +19,7 @@ import {
 
 import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
-import { MockProviders } from 'testUtils';
+import { MockProviders, MockRouterProvider } from 'testUtils';
 import { permissionTypes } from 'constants/permissions';
 
 export default {
@@ -29,7 +29,11 @@ export default {
     (Story, context) => {
       // Dont wrap with permissions for the read only tests
       if (context.name.includes('Read Only')) {
-        return <Story />;
+        return (
+          <MockRouterProvider>
+            <Story />
+          </MockRouterProvider>
+        );
       }
 
       // By default, show component with permissions

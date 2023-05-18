@@ -45,10 +45,34 @@ const SITHistoryItemHeader = ({ sitItem }) => (
   </div>
 );
 
+const SitHistoryList = ({ sitHistory, dayAllowance }) => {
+  let approvedDays = dayAllowance;
+  return (
+    <div className={styles.tableContainer}>
+      <p className={styles.sitHeader}>SIT history</p>
+      {sitHistory.map((currentItem) => {
+        const sitItem = {
+          ...currentItem,
+          approvedDays,
+        };
+        approvedDays -= currentItem.approvedDays;
+        return (
+          <DataTable
+            key={sitItem.id}
+            columnHeaders={[<SITHistoryItemHeader sitItem={sitItem} />]}
+            dataRow={[<SITHistoryItem sitItem={sitItem} />]}
+            custClass={styles.sitHistoryItem}
+          />
+        );
+      })}
+    </div>
+  );
+};
+
 const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton }) => {
   const pendingSITExtension = sitExtensions.find((se) => se.status === SIT_EXTENSION_STATUS.PENDING);
 
-  const currentDaysInSIT = sitStatus?.totalSITDaysUsed || 0;
+  const currentDaysInSIT = sitStatus?.daysInSIT || 0;
   const currentDaysInSITElement = <p>{currentDaysInSIT}</p>;
   let sitStartDate = sitStatus?.sitEntryDate;
   if (!sitStartDate) {
@@ -61,10 +85,12 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton }
   }
   const sitStartDateElement = <p>{formatDate(sitStartDate, utcDateFormat, 'DD MMM YYYY')}</p>;
 
+  // Subract one day from total days remaining to account for the current day
   const sitEndDate = sitStatus
-    ? moment(sitStartDate).utc().add(sitStatus.totalDaysRemaining, 'days')
-    : moment(sitStartDate).utc().add(shipment.sitDaysAllowance, 'days');
-  const sitEndDateElement = formatDate(sitEndDate, utcDateFormat, 'DD MMM YYYY');
+    ? moment()
+        .add(sitStatus.totalDaysRemaining - 1, 'days')
+        .format('DD MMM YYYY')
+    : moment(sitStartDate).add(shipment.sitDaysAllowance, 'days').format('DD MMM YYYY');
 
   // Previous SIT calculations and date ranges
   const previousDaysUsed = sitStatus?.pastSITServiceItems?.map((pastSITItem) => {
@@ -82,19 +108,29 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton }
   const currentLocation = sitStatus?.location === LOCATION_TYPES.DESTINATION ? 'destination SIT' : 'origin SIT';
 
   const totalSITDaysUsed = sitStatus?.totalSITDaysUsed || 0;
-  const totalDaysRemaining = sitStatus ? sitStatus.totalDaysRemaining : shipment.sitDaysAllowance;
+  const totalDaysRemaining = () => {
+    const daysRemaining = sitStatus ? sitStatus.totalDaysRemaining : shipment.sitDaysAllowance;
+    if (!sitStatus && daysRemaining > 0) {
+      return daysRemaining;
+    }
+    if (sitStatus && daysRemaining > 0) {
+      // Subract one day from the remaining days on the current sit to account for the current day
+      return daysRemaining - 1;
+    }
+    return 'Expired';
+  };
 
   return (
     <>
       <div className={styles.title}>
-        <p>SIT (STORAGE IN TRANSIT){pendingSITExtension && <Tag>Extension requested</Tag>}</p>
+        <p>SIT (STORAGE IN TRANSIT){pendingSITExtension && <Tag>Additional Days Requested</Tag>}</p>
         {openModalButton}
       </div>
       <div className={styles.tableContainer} data-testid="sitStatusTable">
         {/* Sit Total days table */}
         <DataTable
           columnHeaders={['Total days of SIT approved', 'Total days used', 'Total days remaining']}
-          dataRow={[shipment.sitDaysAllowance, totalSITDaysUsed, totalDaysRemaining]}
+          dataRow={[shipment.sitDaysAllowance, totalSITDaysUsed, totalDaysRemaining()]}
         />
       </div>
 
@@ -103,8 +139,8 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton }
         {currentDaysInSIT > 0 && <p className={styles.sitHeader}>Current location: {currentLocation}</p>}
         <DataTable
           columnHeaders={[`SIT start date`, 'SIT authorized end date']}
-          dataRow={[sitStartDateElement, sitEndDateElement]}
-          custClass={styles.currentLoca}
+          dataRow={[sitStartDateElement, sitEndDate]}
+          custClass={styles.currentLocation}
         />
       </div>
       <div className={styles.tableContainer} data-testid="sitDaysAtCurrentLocation">
@@ -123,7 +159,7 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton }
 
 const ShipmentSITDisplay = ({ sitExtensions, sitStatus, shipment, className, openModalButton }) => {
   const sitHistory = React.useMemo(
-    () => sitExtensions.reverse().filter((sitItem) => sitItem.status !== SIT_EXTENSION_STATUS.PENDING),
+    () => sitExtensions.filter((sitItem) => sitItem.status !== SIT_EXTENSION_STATUS.PENDING),
     [sitExtensions],
   );
 
@@ -140,17 +176,7 @@ const ShipmentSITDisplay = ({ sitExtensions, sitStatus, shipment, className, ope
       />
       {/* Sit History */}
       {sitExtensions && sitHistory.length > 0 && (
-        <div className={styles.tableContainer}>
-          <p className={styles.sitHeader}>SIT history</p>
-          {sitHistory.map((sitItem) => (
-            <DataTable
-              key={sitItem.id}
-              columnHeaders={[<SITHistoryItemHeader sitItem={sitItem} />]}
-              dataRow={[<SITHistoryItem sitItem={sitItem} />]}
-              custClass={styles.sitHistoryItem}
-            />
-          ))}
-        </div>
+        <SitHistoryList sitHistory={sitHistory} dayAllowance={shipment.sitDaysAllowance} />
       )}
     </DataTableWrapper>
   );

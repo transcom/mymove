@@ -4,17 +4,10 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { capitalize, get, includes } from 'lodash';
 import { NavTab, RoutedTabs } from 'react-router-tabs';
-import { NavLink, Redirect, Switch } from 'react-router-dom';
+import { NavLink, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import moment from 'moment';
 
-import LoadingPlaceholder from 'shared/LoadingPlaceholder';
-import PrivateRoute from 'containers/PrivateRoute';
-import Alert from 'shared/Alert';
-import ToolTip from 'shared/ToolTip';
-import ComboButton from 'shared/ComboButton';
-import { DropDown, DropDownItem } from 'shared/ComboButton/dropdown';
-import DocumentList from 'shared/DocumentViewer/DocumentList';
 import AccountingPanel from './AccountingPanel';
 import BackupInfoPanel from './BackupInfoPanel';
 import CustomerInfoPanel from './CustomerInfoPanel';
@@ -25,9 +18,16 @@ import PPMEstimatesPanel from './Ppm/PPMEstimatesPanel';
 import StoragePanel from './Ppm/StoragePanel';
 import ExpensesPanel from './Ppm/ExpensesPanel';
 import WeightsPanel from './Ppm/WeightsPanel';
+import { showBanner, removeBanner } from './ducks';
+
+import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import Alert from 'shared/Alert';
+import ToolTip from 'shared/ToolTip';
+import ComboButton from 'shared/ComboButton';
+import { DropDown, DropDownItem } from 'shared/ComboButton/dropdown';
+import DocumentList from 'shared/DocumentViewer/DocumentList';
 import { withContext } from 'shared/AppContext';
 import ConfirmWithReasonButton from 'shared/ConfirmWithReasonButton';
-
 import { getRequestStatus } from 'shared/Swagger/selectors';
 import { resetRequests } from 'shared/Swagger/request';
 import { approvePPM, loadPPMs, selectActivePPMForMove } from 'shared/Entities/modules/ppms';
@@ -36,10 +36,7 @@ import { loadOrders, loadOrdersLabel, selectOrders } from 'shared/Entities/modul
 import { selectReimbursementById } from 'store/entities/selectors';
 import { openLinkInNewWindow } from 'shared/utils';
 import { defaultRelativeWindowSize } from 'shared/constants';
-
 import { roleTypes } from 'constants/userRoles';
-
-import { showBanner, removeBanner } from './ducks';
 import {
   loadMove,
   loadMoveLabel,
@@ -50,6 +47,9 @@ import {
 } from 'shared/Entities/modules/moves';
 import { formatDate } from 'utils/formatters';
 import { getMoveDocumentsForMove, selectAllDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
+import PrivateRoute from 'containers/PrivateRoute';
+import withRouter from 'utils/routing';
+import { RouterShape } from 'types';
 
 const BasicsTabContent = (props) => {
   return (
@@ -80,30 +80,31 @@ const PPMTabContent = (props) => {
   );
 };
 
-const ReferrerQueueLink = (props) => {
-  const pathname = props.history.location.state ? props.history.location.state.referrerPathname : '';
+const ReferrerQueueLink = () => {
+  const location = useLocation();
+  const pathname = location.state ? location.state.referrerPathname : '';
   switch (pathname) {
     case '/queues/ppm':
       return (
-        <NavLink to="/queues/ppm" activeClassName="usa-current">
+        <NavLink to="/queues/ppm" className={({ isActive }) => (isActive ? 'usa-current' : '')}>
           <span>All PPMs Queue</span>
         </NavLink>
       );
     case '/queues/ppm_payment_requested':
       return (
-        <NavLink to="/queues/ppm_payment_requested" activeClassName="usa-current">
+        <NavLink to="/queues/ppm_payment_requested" className={({ isActive }) => (isActive ? 'usa-current' : '')}>
           <span>Payment requested</span>
         </NavLink>
       );
     case '/queues/all':
       return (
-        <NavLink to="/queues/all" activeClassName="usa-current">
+        <NavLink to="/queues/all" className={({ isActive }) => (isActive ? 'usa-current' : '')}>
           <span>All moves</span>
         </NavLink>
       );
     default:
       return (
-        <NavLink to="/queues/new" activeClassName="usa-current">
+        <NavLink to="/queues/new" className={({ isActive }) => (isActive ? 'usa-current' : '')}>
           <span>New moves</span>
         </NavLink>
       );
@@ -174,22 +175,20 @@ class MoveInfo extends Component {
             Move pending
           </span>
         );
-      } else {
-        return (
-          <span className="status">
-            <FontAwesomeIcon className="icon approval-waiting" icon="clock" />
-            Payment Requested
-          </span>
-        );
       }
-    } else {
       return (
         <span className="status">
           <FontAwesomeIcon className="icon approval-waiting" icon="clock" />
-          In review
+          Payment Requested
         </span>
       );
     }
+    return (
+      <span className="status">
+        <FontAwesomeIcon className="icon approval-waiting" icon="clock" />
+        In review
+      </span>
+    );
   };
 
   handleToolTipHover = () => {
@@ -200,7 +199,7 @@ class MoveInfo extends Component {
   render() {
     const { move, moveId, moveDocuments, moveStatus, orders, ppm, serviceMember, upload } = this.props;
     const showDocumentViewer = this.props.context.flags.documentViewer;
-    const moveInfoComboButton = this.props.context.flags.moveInfoComboButton;
+    const { moveInfoComboButton } = this.props.context.flags;
     const ordersComplete = Boolean(
       orders.orders_number && orders.orders_type_detail && orders.department_indicator && orders.tac && orders.sac,
     );
@@ -214,7 +213,7 @@ class MoveInfo extends Component {
     const ordersUrl = `/moves/${move.id}/orders`;
 
     if (this.state.redirectToHome) {
-      return <Redirect to="/" />;
+      return <Navigate to="/" />;
     }
 
     if (!this.props.loadDependenciesHasSuccess && !this.props.loadDependenciesHasError) return <LoadingPlaceholder />;
@@ -240,7 +239,7 @@ class MoveInfo extends Component {
             </h1>
           </div>
           <div className="grid-col-4 nav-controls">
-            <ReferrerQueueLink history={this.props.history} />
+            <ReferrerQueueLink />
           </div>
         </div>
         <div className="grid-row">
@@ -282,30 +281,43 @@ class MoveInfo extends Component {
             </RoutedTabs>
 
             <div className="tab-content">
-              <Switch>
-                <PrivateRoute
-                  exact
+              <Routes>
+                <Route
+                  end
                   path={`${this.props.match.url}`}
-                  render={() => (
-                    <Redirect
-                      replace
-                      to={{ pathname: `${this.props.match.url}/basics`, state: this.props.history.location.state }}
-                    />
-                  )}
+                  element={
+                    <PrivateRoute requiredRoles={[roleTypes.PPM]}>
+                      <Navigate
+                        to={`${this.props.match.url}/basics`}
+                        replace
+                        state={this.props.router.location.state}
+                      />
+                    </PrivateRoute>
+                  }
                   requiredRoles={[roleTypes.PPM]}
                 />
-                <PrivateRoute path={`${this.props.match.path}/basics`} requiredRoles={[roleTypes.PPM]}>
-                  <BasicsTabContent moveId={moveId} serviceMember={this.props.serviceMember} />
-                </PrivateRoute>
-                <PrivateRoute path={`${this.props.match.path}/ppm`} requiredRoles={[roleTypes.PPM]}>
-                  <PPMTabContent
-                    ppmPaymentRequestedFlag={this.props.context.flags.ppmPaymentRequest}
-                    moveId={moveId}
-                    ppmPaymentRequested={ppmPaymentRequested}
-                    moveDocuments={moveDocuments}
-                  />
-                </PrivateRoute>
-              </Switch>
+                <Route
+                  path={`${this.props.match.path}/basics`}
+                  element={
+                    <PrivateRoute requiredRoles={[roleTypes.PPM]}>
+                      <BasicsTabContent moveId={moveId} serviceMember={this.props.serviceMember} />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path={`${this.props.match.path}/ppm`}
+                  element={
+                    <PrivateRoute requiredRoles={[roleTypes.PPM]}>
+                      <PPMTabContent
+                        ppmPaymentRequestedFlag={this.props.context.flags.ppmPaymentRequest}
+                        moveId={moveId}
+                        ppmPaymentRequested={ppmPaymentRequested}
+                        moveDocuments={moveDocuments}
+                      />
+                    </PrivateRoute>
+                  }
+                />
+              </Routes>
             </div>
           </div>
           <div className="grid-col-3">
@@ -424,10 +436,11 @@ MoveInfo.propTypes = {
       sitPanel: PropTypes.bool,
     }).isRequired,
   }).isRequired,
+  router: RouterShape,
 };
 
-const mapStateToProps = (state, ownProps) => {
-  const moveId = ownProps.match.params.moveId;
+const mapStateToProps = (state, { router: { params } }) => {
+  const { moveId } = params;
   const move = selectMove(state, moveId);
   const ppm = selectActivePPMForMove(state, moveId);
   const ordersId = move.orders_id;
@@ -477,5 +490,5 @@ const mapDispatchToProps = (dispatch) =>
     dispatch,
   );
 
-const connectedMoveInfo = withContext(connect(mapStateToProps, mapDispatchToProps)(MoveInfo));
+const connectedMoveInfo = withContext(withRouter(connect(mapStateToProps, mapDispatchToProps)(MoveInfo)));
 export { connectedMoveInfo as default, ReferrerQueueLink };

@@ -319,7 +319,7 @@ func CurrentDateWithoutTime() *time.Time {
 // created, and if not, create one that we can place in the assertions for all the rest.
 func EnsureServiceMemberIsSetUpInAssertionsForDocumentCreation(db *pop.Connection, assertions Assertions) Assertions {
 	if !assertions.Stub && assertions.ServiceMember.CreatedAt.IsZero() || assertions.ServiceMember.ID.IsNil() {
-		serviceMember := MakeExtendedServiceMember(db, assertions)
+		serviceMember := makeExtendedServiceMember(db, assertions)
 
 		assertions.ServiceMember = serviceMember
 		assertions.Order.ServiceMemberID = serviceMember.ID
@@ -345,7 +345,7 @@ func GetOrCreateDocument(db *pop.Connection, document models.Document, assertion
 		// Set generic Document to have the specific assertions that were passed in
 		assertions.Document = document
 
-		return MakeDocument(db, assertions)
+		return makeDocument(db, assertions)
 	}
 
 	return document
@@ -357,7 +357,7 @@ func getOrCreateUpload(db *pop.Connection, upload models.UserUpload, assertions 
 		// Set generic UserUpload to have the specific assertions that were passed in
 		assertions.UserUpload = upload
 
-		return MakeUserUpload(db, assertions)
+		return makeUserUpload(db, assertions)
 	}
 
 	return upload
@@ -403,22 +403,10 @@ func GetOrCreateDocumentWithUploads(db *pop.Connection, document models.Document
 		assertions.UserUpload.DocumentID = &doc.ID
 		assertions.UserUpload.Document = doc
 
-		upload := MakeUserUpload(db, assertions)
+		upload := makeUserUpload(db, assertions)
 
 		doc.UserUploads = append(doc.UserUploads, upload)
 	}
 
 	return doc
-}
-
-// checkOrCreatePPMShipment checks PPMShipment in assertions, or creates one if none exists.
-func checkOrCreatePPMShipment(db *pop.Connection, assertions Assertions) models.PPMShipment {
-	ppmShipment := assertions.PPMShipment
-
-	if !assertions.Stub && ppmShipment.CreatedAt.IsZero() || ppmShipment.ID.IsNil() {
-		// assertions passed in means we cannot yet convert to BuildPPMShipment
-		ppmShipment = makeApprovedPPMShipmentWithActualInfo(db, assertions)
-	}
-
-	return ppmShipment
 }

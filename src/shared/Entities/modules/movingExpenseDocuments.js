@@ -1,7 +1,8 @@
 import { includes, get, filter, map } from 'lodash';
+import { denormalize, normalize } from 'normalizr';
+
 import { moveDocuments } from '../schema';
 import { addEntities } from '../actions';
-import { denormalize, normalize } from 'normalizr';
 
 import { getClient, checkResponse } from 'shared/Swagger/api';
 
@@ -33,12 +34,12 @@ export function createMovingExpenseDocument({
       createMovingExpenseDocumentPayload: {
         personally_procured_move_id: personallyProcuredMoveId,
         upload_ids: uploadIds,
-        title: title,
+        title,
         moving_expense_type: movingExpenseType,
         move_document_type: moveDocumentType,
         requested_amount_cents: requestedAmountCents,
         payment_method: paymentMethod,
-        notes: notes,
+        notes,
         receipt_missing: missingReceipt,
         storage_start_date,
         storage_end_date,

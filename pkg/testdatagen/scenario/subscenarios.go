@@ -31,19 +31,20 @@ func subScenarioShipmentHHGCancelled(appCtx appcontext.AppContext, allDutyLocati
 		ordersTypeDetail := internalmessages.OrdersTypeDetailHHGPERMITTED
 		tac := "1234"
 		// make sure to create moves that does not go to US marines affiliation
-		move := createRandomMove(appCtx, validStatuses, allDutyLocations, originDutyLocationsInGBLOC, true, testdatagen.Assertions{
-			Order: models.Order{
+		move := createRandomMove(appCtx, validStatuses, allDutyLocations, originDutyLocationsInGBLOC, true,
+			nil,
+			models.Move{
+				Locator: "HHGCAN",
+			},
+			cancelledShipment,
+			models.Order{
 				DepartmentIndicator: (*string)(&affiliationAirForce),
 				OrdersNumber:        &ordersNumber,
 				OrdersTypeDetail:    &ordersTypeDetail,
 				TAC:                 &tac,
 			},
-			Move: models.Move{
-				Locator: "HHGCAN",
-			},
-			ServiceMember: models.ServiceMember{Affiliation: &affiliationAirForce},
-			MTOShipment:   cancelledShipment,
-		})
+			models.ServiceMember{Affiliation: &affiliationAirForce},
+		)
 		moveManagementUUID := "1130e612-94eb-49a7-973d-72f33685e551"
 		factory.BuildMTOServiceItemBasic(db, []factory.Customization{
 			{
@@ -236,9 +237,13 @@ func subScenarioHHGServicesCounseling(appCtx appcontext.AppContext, userUploader
 
 		for i := 0; i < 12; i++ {
 			validStatuses := []models.MoveStatus{models.MoveStatusNeedsServiceCounseling, models.MoveStatusServiceCounselingCompleted}
-			createRandomMove(appCtx, validStatuses, allDutyLocations, originDutyLocationsInGBLOC, false, testdatagen.Assertions{
-				UserUploader: userUploader,
-			})
+			createRandomMove(appCtx, validStatuses, allDutyLocations, originDutyLocationsInGBLOC, false,
+				userUploader,
+				models.Move{},
+				models.MTOShipment{},
+				models.Order{},
+				models.ServiceMember{},
+			)
 		}
 	}
 }
@@ -677,18 +682,14 @@ func subScenarioPaymentRequestCalculations(appCtx appcontext.AppContext, userUpl
 		createTXOUSMC(appCtx)
 
 		// For displaying the Domestic Line Haul calculations displayed on the Payment Requests and Service Item review page
-		createHHGMoveWithPaymentRequest(appCtx, userUploader, models.AffiliationAIRFORCE, testdatagen.Assertions{
-			Move: models.Move{
+		createHHGMoveWithPaymentRequest(appCtx, userUploader, models.AffiliationAIRFORCE,
+			models.Move{
 				Locator: "SidDLH",
 			},
-			MTOShipment: models.MTOShipment{
+			models.MTOShipment{
 				Status: models.MTOShipmentStatusApproved,
 			},
-			ReService: models.ReService{
-				// DLH - Domestic line haul
-				ID: uuid.FromStringOrNil("8d600f25-1def-422d-b159-617c7d59156e"),
-			},
-		})
+		)
 		// Locator PARAMS
 		createHHGWithPaymentServiceItems(appCtx, primeUploader, moveRouter)
 		// Locator ORGSIT
@@ -717,20 +718,22 @@ func subScenarioDivertedShipments(appCtx appcontext.AppContext, userUploader *up
 		createMoveWithDivertedShipments(appCtx)
 
 		// Create diverted shipments that are approved and appear on the Move Task Order page
-		createRandomMove(appCtx, nil, allDutyLocations, originDutyLocationsInGBLOC, true, testdatagen.Assertions{
-			UserUploader: userUploader,
-			Move: models.Move{
+		createRandomMove(appCtx, nil, allDutyLocations, originDutyLocationsInGBLOC, true,
+			userUploader,
+			models.Move{
 				Status:             models.MoveStatusAPPROVED,
 				Locator:            "APRDVS",
 				AvailableToPrimeAt: models.TimePointer(time.Now()),
 			},
-			MTOShipment: models.MTOShipment{
+			models.MTOShipment{
 				Diversion:           true,
 				Status:              models.MTOShipmentStatusApproved,
 				ApprovedDate:        models.TimePointer(time.Now()),
 				ScheduledPickupDate: models.TimePointer(time.Now().AddDate(0, 3, 0)),
 			},
-		})
+			models.Order{},
+			models.ServiceMember{},
+		)
 	}
 }
 
@@ -753,6 +756,107 @@ func subScenarioSITExtensions(appCtx appcontext.AppContext, userUploader *upload
 		createMoveWithSITExtensionHistory(appCtx, userUploader)
 		createMoveWithFutureSIT(appCtx, userUploader)
 		createMoveWithAllPendingTOOActions(appCtx, userUploader, primeUploader)
+	}
+}
+
+func subScenarioSITAddressUpdates(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) func() {
+	return func() {
+		createTOO(appCtx)
+		// SITUP1 has no SITAddressUpdate
+		createMoveWithOriginAndDestinationSIT(appCtx, userUploader, "SITUP1")
+
+		// SITUP2 has an prime-initiated SITAddressUpdate under 50 miles
+		serviceItem := createMoveWithOriginAndDestinationSIT(appCtx, userUploader, "SITUP2")
+		factory.BuildSITAddressUpdate(appCtx.DB(), []factory.Customization{
+			{
+				Model:    serviceItem,
+				LinkOnly: true,
+			},
+			{
+				Model: models.SITAddressUpdate{
+					Status:            models.SITAddressUpdateStatusApproved,
+					ContractorRemarks: models.StringPointer("test contractor remarks"),
+				},
+			},
+		}, []factory.Trait{factory.GetTraitSITAddressUpdateUnder50Miles})
+
+		// SITUP3 has a prime-initiated REQUESTED SITAddressUpdate update over 50 miles
+		serviceItem = createMoveWithOriginAndDestinationSIT(appCtx, userUploader, "SITUP3")
+		factory.BuildSITAddressUpdate(appCtx.DB(), []factory.Customization{
+			{
+				Model:    serviceItem,
+				LinkOnly: true,
+			},
+			{
+				Model: models.SITAddressUpdate{
+					Status:            models.SITAddressUpdateStatusRequested,
+					ContractorRemarks: models.StringPointer("test contractor remarks"),
+				},
+			},
+		}, []factory.Trait{factory.GetTraitSITAddressUpdateOver50Miles})
+
+		// SITUP4 has an prime-initiated APPROVED SITAddressUpdate over 50 miles
+		serviceItem = createMoveWithOriginAndDestinationSIT(appCtx, userUploader, "SITUP4")
+		factory.BuildSITAddressUpdate(appCtx.DB(), []factory.Customization{
+			{
+				Model:    serviceItem,
+				LinkOnly: true,
+			},
+			{
+				Model: models.SITAddressUpdate{
+					Status:            models.SITAddressUpdateStatusApproved,
+					ContractorRemarks: models.StringPointer("test contractor remarks"),
+					OfficeRemarks:     models.StringPointer("TOO approved"),
+				},
+			},
+		}, []factory.Trait{factory.GetTraitSITAddressUpdateOver50Miles})
+
+		// SITUP5 has an TOO-initiated APPROVED SITAddressUpdate under 50 miles
+		serviceItem = createMoveWithOriginAndDestinationSIT(appCtx, userUploader, "SITUP5")
+		factory.BuildSITAddressUpdate(appCtx.DB(), []factory.Customization{
+			{
+				Model:    serviceItem,
+				LinkOnly: true,
+			},
+			{
+				Model: models.SITAddressUpdate{
+					Status:        models.SITAddressUpdateStatusApproved,
+					OfficeRemarks: models.StringPointer("updated destination address"),
+				},
+			},
+		}, []factory.Trait{factory.GetTraitSITAddressUpdateUnder50Miles})
+
+		// SITUP6 has a TOO-initiated SITAddressUpdate over 50 miles
+		serviceItem = createMoveWithOriginAndDestinationSIT(appCtx, userUploader, "SITUP6")
+		factory.BuildSITAddressUpdate(appCtx.DB(), []factory.Customization{
+			{
+				Model:    serviceItem,
+				LinkOnly: true,
+			},
+			{
+				Model: models.SITAddressUpdate{
+					Status:        models.SITAddressUpdateStatusApproved,
+					OfficeRemarks: models.StringPointer("updated destination address"),
+				},
+			},
+		}, []factory.Trait{factory.GetTraitSITAddressUpdateOver50Miles})
+
+		// SITUP7 has a rejected SITAddressUpdate over 50 miles
+		serviceItem = createMoveWithOriginAndDestinationSIT(appCtx, userUploader, "SITUP7")
+		factory.BuildSITAddressUpdate(appCtx.DB(), []factory.Customization{
+			{
+				Model:    serviceItem,
+				LinkOnly: true,
+			},
+			{
+				Model: models.SITAddressUpdate{
+					Status:            models.SITAddressUpdateStatusRejected,
+					ContractorRemarks: models.StringPointer("test contractor remarks"),
+					OfficeRemarks:     models.StringPointer("TOO rejected"),
+				},
+			},
+		}, []factory.Trait{factory.GetTraitSITAddressUpdateOver50Miles})
+
 	}
 }
 
@@ -866,7 +970,7 @@ func subScenarioMisc(appCtx appcontext.AppContext, userUploader *uploader.UserUp
 		createHHGMoveWithAmendedOrders(appCtx, userUploader, primeUploader)
 		createHHGMoveWithRiskOfExcess(appCtx, userUploader, primeUploader)
 
-		createMoveWithOriginAndDestinationSIT(appCtx, userUploader)
+		createMoveWithOriginAndDestinationSIT(appCtx, userUploader, "S1TT3R")
 		createPaymentRequestsWithPartialSITInvoice(appCtx, primeUploader)
 	}
 }

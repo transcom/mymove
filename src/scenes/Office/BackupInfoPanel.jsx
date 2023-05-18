@@ -3,20 +3,22 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { reduxForm, getFormValues, FormSection } from 'redux-form';
 
-import { updateServiceMember, updateBackupContact } from 'shared/Entities/modules/serviceMembers';
-
+import {
+  updateServiceMember,
+  updateBackupContact,
+  selectBackupContactForServiceMember,
+} from 'shared/Entities/modules/serviceMembers';
 import { AddressElementDisplay, AddressElementEdit } from 'shared/Address';
 import { validateRequiredFields } from 'shared/JsonSchemaForm';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { PanelField, editablePanelify } from 'shared/EditablePanel';
-import { selectBackupContactForServiceMember } from 'shared/Entities/modules/serviceMembers';
 
 const BackupInfoDisplay = (props) => {
   const backupAddress = props.backupMailingAddress;
-  const backupContact = props.backupContact;
+  const { backupContact } = props;
 
   return (
-    <React.Fragment>
+    <>
       <div className="editable-panel-column">
         <AddressElementDisplay address={backupAddress} title="Backup address" />
       </div>
@@ -38,17 +40,17 @@ const BackupInfoDisplay = (props) => {
           )}
         </PanelField>
       </div>
-    </React.Fragment>
+    </>
   );
 };
 
 const BackupInfoEdit = (props) => {
-  let backupContactProps = {
+  const backupContactProps = {
     swagger: props.backupContactSchema,
     values: props.backupContact,
   };
   return (
-    <React.Fragment>
+    <>
       <div className="editable-panel-column">
         <div className="panel-subhead">Backup Contact 1</div>
 
@@ -65,7 +67,7 @@ const BackupInfoEdit = (props) => {
       <div className="editable-panel-column">
         <AddressElementEdit fieldName="backupMailingAddress" schema={props.addressSchema} title="Backup address" />
       </div>
-    </React.Fragment>
+    </>
   );
 };
 
@@ -80,24 +82,24 @@ BackupInfoPanel = reduxForm({
 })(BackupInfoPanel);
 
 function mapStateToProps(state, ownProps) {
-  let serviceMember = ownProps.serviceMember;
-  let backupContact = selectBackupContactForServiceMember(state, serviceMember.id);
+  const { serviceMember } = ownProps;
+  const backupContact = selectBackupContactForServiceMember(state, serviceMember.id);
 
   return {
     // reduxForm
     initialValues: {
-      backupContact: backupContact,
+      backupContact,
       backupMailingAddress: get(serviceMember, 'backup_mailing_address', {}),
     },
 
     addressSchema: get(state, 'swaggerInternal.spec.definitions.Address', {}),
     backupContactSchema: get(state, 'swaggerInternal.spec.definitions.ServiceMemberBackupContactPayload', {}),
     backupMailingAddress: get(serviceMember, 'backup_mailing_address', {}),
-    backupContact: backupContact,
+    backupContact,
 
     // editablePanelify
-    getUpdateArgs: function () {
-      let values = getFormValues(formName)(state);
+    getUpdateArgs() {
+      const values = getFormValues(formName)(state);
       return [
         serviceMember.id,
         { backup_mailing_address: values.backupMailingAddress },

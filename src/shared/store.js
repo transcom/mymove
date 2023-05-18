@@ -1,39 +1,26 @@
 import { createStore, applyMiddleware } from 'redux';
 import { persistStore, persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
-import { appReducer, adminAppReducer } from 'appReducer';
-import { createBrowserHistory } from 'history';
-import { routerMiddleware } from 'connected-react-router';
 import thunk from 'redux-thunk';
 import createSagaMiddleware from 'redux-saga';
-
 import { composeWithDevTools } from 'redux-devtools-extension/logOnlyInProduction';
 
-import { isDevelopment, isAdminSite, isMilmoveSite } from 'shared/constants';
 import logger from './reduxLogger';
-import * as schema from 'shared/Entities/schema';
 
+import { isAdminSite, isDevelopment, isMilmoveSite } from 'shared/constants';
+import { appReducer } from 'appReducer';
+import * as schema from 'shared/Entities/schema';
 import rootSaga, { rootCustomerSaga } from 'sagas/index';
 import { interceptorInjectionMiddleware } from 'store/interceptor/injectionMiddleware';
 
-export const history = createBrowserHistory();
-
 function appSelector() {
-  if (isAdminSite) {
-    return adminAppReducer(history);
-  } else {
-    return appReducer(history);
-  }
+  if (!isAdminSite) return appReducer();
+  return () => {};
 }
 
-export const configureStore = (history, initialState = {}) => {
+export const configureStore = (initialState = {}) => {
   const sagaMiddleware = createSagaMiddleware();
-  const middlewares = [
-    thunk.withExtraArgument({ schema }),
-    routerMiddleware(history),
-    sagaMiddleware,
-    interceptorInjectionMiddleware,
-  ];
+  const middlewares = [thunk.withExtraArgument({ schema }), sagaMiddleware, interceptorInjectionMiddleware];
 
   if (isDevelopment && !window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) {
     middlewares.push(logger);
@@ -63,6 +50,6 @@ export const configureStore = (history, initialState = {}) => {
   return { store, persistor };
 };
 
-export const { store, persistor } = configureStore(history);
+export const { store, persistor } = configureStore();
 
 export default store;

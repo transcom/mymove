@@ -237,14 +237,12 @@ func (h UpdateMTOShipmentHandler) checkPrimeValidationsOnModel(appCtx appcontext
 		}
 		// Validate if we are in the allowed period of time
 		now := time.Now()
-		if dbShipment.ApprovedDate != nil && latestSchedPickupDate != nil {
-			err := validatePrimeEstimatedWeightRecordedDate(now, *latestSchedPickupDate, *dbShipment.ApprovedDate)
+		if latestSchedPickupDate != nil {
+			err := validatePrimeEstimatedWeightRecordedDate(now, *latestSchedPickupDate)
 			if err != nil {
 				verrs.Add("primeEstimatedWeight", "the time period for updating the estimated weight for a shipment has expired, please contact the TOO directly to request updates to this shipment’s estimated weight")
 				verrs.Add("primeEstimatedWeight", err.Error())
 			}
-		} else if latestSchedPickupDate == nil {
-			verrs.Add("primeEstimatedWeight", "the scheduled pickup date must be set before estimating the weight")
 		}
 		// If they can update it, it will be the latestEstimatedWeight (needed for RDD calc)
 		// And we also record the date at which it happened
@@ -323,18 +321,15 @@ func (h UpdateMTOShipmentHandler) checkPrimeValidationsOnModel(appCtx appcontext
 	return mtoShipment, verrs
 }
 
-func validatePrimeEstimatedWeightRecordedDate(estimatedWeightRecordedDate time.Time, scheduledPickupDate time.Time, approvedDate time.Time) error {
-	approvedDaysFromScheduled := scheduledPickupDate.Sub(approvedDate).Hours() / 24
-	daysFromScheduled := scheduledPickupDate.Sub(estimatedWeightRecordedDate).Hours() / 24
-	if approvedDaysFromScheduled >= 10 && daysFromScheduled >= 10 {
+func validatePrimeEstimatedWeightRecordedDate(estimatedWeightRecordedDate time.Time, scheduledPickupDate time.Time) error {
+	recordedYear, recordedMonth, recordedDate := estimatedWeightRecordedDate.Date()
+	scheduledYear, scheduledMonth, scheduledDate := scheduledPickupDate.Date()
+
+	if estimatedWeightRecordedDate.Before(scheduledPickupDate) {
 		return nil
 	}
 
-	if (approvedDaysFromScheduled >= 3 && approvedDaysFromScheduled <= 9) && daysFromScheduled >= 3 {
-		return nil
-	}
-
-	if approvedDaysFromScheduled < 3 && daysFromScheduled >= 1 {
+	if recordedYear == scheduledYear && recordedMonth == scheduledMonth && recordedDate == scheduledDate {
 		return nil
 	}
 

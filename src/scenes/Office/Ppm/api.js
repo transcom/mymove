@@ -8,7 +8,7 @@ export async function GetPpmIncentive(moveDate, originZip, originDutyLocationZip
     origin_zip: originZip,
     origin_duty_location_zip: originDutyLocationZip,
     orders_id: ordersID,
-    weight: weight,
+    weight,
   });
   checkResponse(response, 'failed to update ppm due to server error');
   return response.body;

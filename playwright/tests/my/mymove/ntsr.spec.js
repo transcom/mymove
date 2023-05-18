@@ -1,5 +1,5 @@
 // @ts-check
-import { test, expect } from '../../utils/customerTest';
+import { test, expect } from '../../utils/my/customerTest';
 
 test('A customer can create, edit, and delete an NTS-release shipment', async ({ page, customerPage }) => {
   const move = await customerPage.testHarness.buildMoveWithOrders();

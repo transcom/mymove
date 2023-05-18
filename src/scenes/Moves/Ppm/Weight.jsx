@@ -3,6 +3,8 @@ import { connect } from 'react-redux';
 import { get, isNull, toUpper } from 'lodash';
 import PropTypes from 'prop-types';
 
+import styles from './Weight.module.scss';
+
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import Alert from 'shared/Alert';
 import { formatCentsRange } from 'utils/formatters';
@@ -11,7 +13,6 @@ import { fetchLatestOrders } from 'shared/Entities/modules/orders';
 import IconWithTooltip from 'shared/ToolTip/IconWithTooltip';
 import RadioButton from 'shared/RadioButton';
 import 'react-rangeslider/lib/index.css';
-import styles from './Weight.module.scss';
 import { withContext } from 'shared/AppContext';
 import RangeSlider from 'shared/RangeSlider';
 import { hasShortHaulError } from 'utils/incentives';
@@ -29,6 +30,8 @@ import {
   selectPPMEstimateRange,
   selectServiceMemberFromLoggedInUser,
 } from 'store/entities/selectors';
+import withRouter from 'utils/routing';
+import { RouterShape } from 'types';
 
 const WeightWizardForm = reduxifyWizardForm('weight-wizard-form');
 
@@ -61,8 +64,8 @@ export class PpmWeight extends Component {
   }
 
   componentDidMount() {
-    const { currentPPM } = this.props;
-    const moveId = this.props.match.params.moveId;
+    const { currentPPM, router } = this.props;
+    const { moveId } = router.params;
     getPPMsForMove(moveId).then((response) => this.props.updatePPMs(response));
     this.props.fetchLatestOrders(this.props.serviceMemberId);
 
@@ -211,13 +214,12 @@ export class PpmWeight extends Component {
           <IconWithTooltip toolTipText="We expect to receive rate data covering your move dates by the end of this month. Check back then to see your estimated incentive." />
         </div>
       );
-    } else {
-      return (
-        <div data-testid="incentive-range-values" className="incentive">
-          {formatCentsRange(incentiveEstimateMin, incentiveEstimateMax)}
-        </div>
-      );
     }
+    return (
+      <div data-testid="incentive-range-values" className="incentive">
+        {formatCentsRange(incentiveEstimateMin, incentiveEstimateMax)}
+      </div>
+    );
   }
 
   handleChange = (event, type) => {
@@ -227,29 +229,25 @@ export class PpmWeight extends Component {
   chooseEstimateErrorText(hasEstimateError, rateEngineError) {
     if (hasShortHaulError(rateEngineError)) {
       return (
-        <Fragment>
-          <div className="error-message">
-            <Alert type="warning" heading="Could not retrieve estimate">
-              MilMove does not presently support short-haul PPM moves. Please contact your PPPO.
-            </Alert>
-          </div>
-        </Fragment>
+        <div className="error-message">
+          <Alert type="warning" heading="Could not retrieve estimate">
+            MilMove does not presently support short-haul PPM moves. Please contact your PPPO.
+          </Alert>
+        </div>
       );
     }
 
     if (rateEngineError || hasEstimateError) {
       return (
-        <Fragment>
-          <div className="error-message">
-            <Alert type="warning" heading="Could not retrieve estimate">
-              There was an issue retrieving an estimate for your incentive. You still qualify, but need to talk with
-              your local transportation office which you can look up on{' '}
-              <a href="move.mil" className="usa-link">
-                move.mil
-              </a>
-            </Alert>
-          </div>
-        </Fragment>
+        <div className="error-message">
+          <Alert type="warning" heading="Could not retrieve estimate">
+            There was an issue retrieving an estimate for your incentive. You still qualify, but need to talk with your
+            local transportation office which you can look up on{' '}
+            <a href="move.mil" className="usa-link">
+              move.mil
+            </a>
+          </Alert>
+        </div>
       );
     }
 
@@ -373,11 +371,9 @@ export class PpmWeight extends Component {
             </>
           )}
           {(isProgearMoreThan1000 === 'Yes' || isProgearMoreThan1000 === 'Not Sure') && (
-            <>
-              <div className={`${styles['incentive-estimate-box']} border radius-lg border-base`}>
-                Pack your pro-gear separately. It might need to be weighed and verified.
-              </div>
-            </>
+            <div className={`${styles['incentive-estimate-box']} border radius-lg border-base`}>
+              Pack your pro-gear separately. It might need to be weighed and verified.
+            </div>
           )}
         </SectionWrapper>
       </WeightWizardForm>
@@ -392,6 +388,7 @@ PpmWeight.propTypes = {
     incentive: PropTypes.string,
   }),
   currentPPM: PropTypes.object.isRequired,
+  router: RouterShape.isRequired,
 };
 
 function mapStateToProps(state) {
@@ -407,7 +404,7 @@ function mapStateToProps(state) {
     incentiveEstimateMax: selectPPMEstimateRange(state)?.range_max,
     currentPPM: selectCurrentPPM(state) || {},
     entitlement: loadEntitlementsFromState(state),
-    schema: schema,
+    schema,
     originDutyLocationZip,
     orders: selectCurrentOrders(state) || {},
   };
@@ -423,4 +420,4 @@ const mapDispatchToProps = {
   setPPMEstimateError,
 };
 
-export default withContext(connect(mapStateToProps, mapDispatchToProps)(PpmWeight));
+export default withRouter(withContext(connect(mapStateToProps, mapDispatchToProps)(PpmWeight)));

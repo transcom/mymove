@@ -11,7 +11,7 @@ import {
   forEachViewport,
   useMobileViewport,
   CustomerPage,
-} from '../../../utils/customerTest';
+} from '../../../utils/my/customerTest';
 
 /**
  * CustomerPpmPage test fixture
@@ -932,7 +932,7 @@ export class CustomerPpmPage extends CustomerPage {
  * @property {CustomerPpmPage} customerPpmPage    - customer ppm page
  */
 
-/** @type {import('@playwright/test').Fixtures<CustomerPpmPageTestArgs, {}, import('../../../utils/customerTest').CustomerPageTestArgs, import('@playwright/test').PlaywrightWorkerArgs>} */
+/** @type {import('@playwright/test').Fixtures<CustomerPpmPageTestArgs, {}, import('../../../utils/my/customerTest').CustomerPageTestArgs, import('@playwright/test').PlaywrightWorkerArgs>} */
 const customerPpmFixtures = {
   customerPpmPage: async ({ customerPage }, use) => {
     const customerPpmPage = new CustomerPpmPage(customerPage);

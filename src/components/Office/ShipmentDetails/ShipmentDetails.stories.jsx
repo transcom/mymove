@@ -1,5 +1,6 @@
 import React from 'react';
-import { Route } from 'react-router';
+import MockDate from 'mockdate';
+import { addons } from '@storybook/preview-api';
 
 import { SITStatusOrigin } from '../ShipmentSITDisplay/ShipmentSITDisplayTestParams';
 
@@ -9,8 +10,21 @@ import { LOA_TYPE } from 'shared/constants';
 import { permissionTypes } from 'constants/permissions';
 import { MockProviders } from 'testUtils';
 
+// Based on SITStatusOrigin. The date is 15 days after the entry date.
+const mockedDate = '2021-08-28T15:41:59.373Z';
 export default {
   title: 'Office Components/Shipment Details',
+  decorators: [
+    (Story) => {
+      MockDate.set(mockedDate);
+      addons.getChannel().on('storyRendered', MockDate.reset);
+      return (
+        <div>
+          <Story />
+        </div>
+      );
+    },
+  ],
 };
 
 const shipment = {
@@ -130,10 +144,12 @@ export const Default = () => {
   };
   return (
     <div className="officeApp">
-      <MockProviders initialEntries={['/moves/HGNTSR/mto']} permissions={[permissionTypes.updateShipment]}>
-        <Route path="/moves/:moveCode/mto">
-          <ShipmentDetails shipment={modifiedShipment} order={order} handleEditServiceOrderNumber={handleEditSon} />
-        </Route>
+      <MockProviders
+        path="/moves/:moveCode/mto"
+        params={{ moveCode: 'HGNTSR' }}
+        permissions={[permissionTypes.updateShipment]}
+      >
+        <ShipmentDetails shipment={modifiedShipment} order={order} handleEditServiceOrderNumber={handleEditSon} />
       </MockProviders>
     </div>
   );
@@ -150,10 +166,8 @@ export const WithoutPermissions = () => {
 
   return (
     <div className="officeApp">
-      <MockProviders initialEntries={['/moves/HGNTSR/mto']}>
-        <Route path="/moves/:moveCode/mto">
-          <ShipmentDetails shipment={modifiedShipment} order={order} handleEditServiceOrderNumber={handleEditSon} />
-        </Route>
+      <MockProviders path="/moves/:moveCode/mto" params={{ moveCode: 'HGNTSR' }}>
+        <ShipmentDetails shipment={modifiedShipment} order={order} handleEditServiceOrderNumber={handleEditSon} />
       </MockProviders>
     </div>
   );

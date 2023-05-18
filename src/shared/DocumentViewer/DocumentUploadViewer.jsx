@@ -3,9 +3,11 @@ import PropTypes from 'prop-types';
 import { get } from 'lodash';
 import { connect } from 'react-redux';
 
-import { selectMoveDocument } from 'shared/Entities/modules/moveDocuments';
 import DocumentContent from './DocumentContent';
+
+import { selectMoveDocument } from 'shared/Entities/modules/moveDocuments';
 import { ExistingUploadsShape } from 'types/uploads';
+import withRouter from 'utils/routing';
 
 export const DocumentUploadViewer = ({ moveDocument }) => {
   const uploadModels = get(moveDocument, 'document.uploads', []);
@@ -33,10 +35,10 @@ DocumentUploadViewer.propTypes = {
   }).isRequired,
 };
 
-function mapStateToProps(state, props) {
-  const moveDocumentId = props.match.params.moveDocumentId;
+function mapStateToProps(state, { router: { params } }) {
+  const { moveDocumentId } = params;
   return {
     moveDocument: selectMoveDocument(state, moveDocumentId),
   };
 }
-export default connect(mapStateToProps)(DocumentUploadViewer);
+export default withRouter(connect(mapStateToProps)(DocumentUploadViewer));

@@ -14,6 +14,7 @@ import {
   SITExtensionsWithComments,
   SITExtensionPending,
   SITExtensionDenied,
+  SITStatusExpired,
 } from './ShipmentSITDisplayTestParams';
 
 import { MockProviders } from 'testUtils';
@@ -34,12 +35,11 @@ describe('ShipmentSITDisplay', () => {
     expect(within(sitStatusTable).getByText('Total days used')).toBeInTheDocument();
     expect(within(sitStatusTable).getByText('45')).toBeInTheDocument();
     expect(within(sitStatusTable).getByText('Total days remaining')).toBeInTheDocument();
-    expect(within(sitStatusTable).getByText('60')).toBeInTheDocument();
+    expect(within(sitStatusTable).getByText('59')).toBeInTheDocument();
 
     expect(screen.getByText('Current location: origin SIT')).toBeInTheDocument();
 
     expect(screen.getByText('Total days in origin SIT')).toBeInTheDocument();
-    // expect(screen.getByText('45')).toBeInTheDocument();
     expect(screen.getByText(`13 Aug 2021`)).toBeInTheDocument();
 
     expect(await screen.queryByText('Office remarks:')).toBeFalsy();
@@ -54,6 +54,7 @@ describe('ShipmentSITDisplay', () => {
 
     expect(screen.getByText('Current location: destination SIT')).toBeInTheDocument();
     expect(screen.getByText('Total days in destination SIT')).toBeInTheDocument();
+    expect(screen.getByText('15')).toBeInTheDocument();
   });
 
   it('renders the Shipment SIT at Destination, previous origin SIT', async () => {
@@ -85,7 +86,7 @@ describe('ShipmentSITDisplay', () => {
       </MockProviders>,
     );
     expect(screen.getByText('SIT history')).toBeInTheDocument();
-    expect(screen.getByText('Total days of SIT approved: 30')).toBeInTheDocument();
+    expect(screen.getByText('Total days of SIT approved: 270')).toBeInTheDocument();
     expect(screen.getByText('updated on 13 Sep 2021')).toBeInTheDocument();
     expect(screen.getByText('Serious illness of the member')).toBeInTheDocument();
   });
@@ -111,7 +112,6 @@ describe('ShipmentSITDisplay', () => {
     ).toBeInTheDocument();
   });
 
-  // To-do: Update this test once negative approved days is functional
   it('renders the denied Shipment SIT Extensions', async () => {
     render(
       <MockProviders>
@@ -123,7 +123,7 @@ describe('ShipmentSITDisplay', () => {
       </MockProviders>,
     );
     expect(screen.getByText('SIT history')).toBeInTheDocument();
-    expect(screen.getByText('Total days of SIT approved: 0')).toBeInTheDocument();
+    expect(screen.getByText('Total days of SIT approved: 270')).toBeInTheDocument();
     expect(screen.getByText('updated on 13 Sep 2021')).toBeInTheDocument();
     expect(screen.getByText('Serious illness of the member')).toBeInTheDocument();
   });
@@ -236,5 +236,13 @@ describe('ShipmentSITDisplay', () => {
     );
 
     expect(await screen.queryByRole('button', { name: 'Edit' })).not.toBeInTheDocument();
+  });
+  it('shows Expired when the remaining days is less that the approved days', async () => {
+    render(
+      <MockProviders>
+        <ShipmentSITDisplay sitExtensions={SITExtensions} sitStatus={SITStatusExpired} shipment={SITShipment} />
+      </MockProviders>,
+    );
+    expect(screen.getByText('Expired')).toBeInTheDocument();
   });
 });

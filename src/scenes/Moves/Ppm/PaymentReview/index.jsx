@@ -4,6 +4,11 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { isEmpty } from 'lodash';
 import moment from 'moment';
 
+import { calcNetWeight } from '../utility';
+import WizardHeader from '../../WizardHeader';
+
+import DocumentsUploaded from './DocumentsUploaded';
+
 import Alert from 'shared/Alert';
 import { formatCents } from 'utils/formatters';
 import { SIGNED_CERT_OPTIONS } from 'shared/constants';
@@ -27,10 +32,8 @@ import { updatePPMs, updatePPM, updatePPMEstimate } from 'store/entities/actions
 import { setPPMEstimateError } from 'store/onboarding/actions';
 import { getPPMsForMove, calculatePPMEstimate, requestPayment } from 'services/internalApi';
 
-import DocumentsUploaded from './DocumentsUploaded';
-import { calcNetWeight } from '../utility';
-import WizardHeader from '../../WizardHeader';
 import './PaymentReview.css';
+import withRouter from 'utils/routing';
 
 const nextBtnLabel = 'Submit Request';
 
@@ -124,7 +127,7 @@ class PaymentReview extends Component {
           this.props.setFlashMessage('REQUEST_PAYMENT_SUCCESS', 'success', '', 'Payment request submitted');
 
           // TODO: path may change to home after ppm integration with new home page
-          this.props.history.push('/ppm');
+          this.props.router.navigate('/ppm');
         })
         .catch(() => {
           this.setState({ moveSubmissionError: true });
@@ -134,8 +137,14 @@ class PaymentReview extends Component {
   };
 
   render() {
-    const { moveId, moveDocuments, submitting, history, incentiveEstimateMin } = this.props;
-    const weightTickets = moveDocuments.weightTickets;
+    const {
+      moveId,
+      moveDocuments,
+      submitting,
+      router: { navigate },
+      incentiveEstimateMin,
+    } = this.props;
+    const { weightTickets } = moveDocuments;
     const missingSomeWeightTicket = weightTickets.some(
       ({ empty_weight_ticket_missing, full_weight_ticket_missing }) =>
         empty_weight_ticket_missing || full_weight_ticket_missing,
@@ -204,7 +213,7 @@ class PaymentReview extends Component {
           </div>
           <PPMPaymentRequestActionBtns
             nextBtnLabel={nextBtnLabel}
-            finishLaterHandler={() => history.push('/')}
+            finishLaterHandler={() => navigate('/')}
             submitButtonsAreDisabled={!this.state.acceptTerms}
             saveAndAddHandler={this.applyClickHandlers}
             submitting={submitting}
@@ -215,8 +224,7 @@ class PaymentReview extends Component {
   }
 }
 
-const mapStateToProps = (state, props) => {
-  const { moveId } = props.match.params;
+const mapStateToProps = (state, { router: { params: moveId } }) => {
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
 
   return {
@@ -244,4 +252,4 @@ const mapDispatchToProps = {
   setPPMEstimateError,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(PaymentReview);
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(PaymentReview));

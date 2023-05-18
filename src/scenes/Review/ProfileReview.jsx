@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
-import { push } from 'connected-react-router';
 
 import ServiceMemberSummary from './ServiceMemberSummary';
 
@@ -13,14 +11,18 @@ import { getNextIncompletePage as getNextIncompletePageInternal } from 'scenes/M
 import scrollToTop from 'shared/scrollToTop';
 import { selectConusStatus } from 'store/onboarding/selectors';
 import { selectServiceMemberFromLoggedInUser, selectHasCanceledMove } from 'store/entities/selectors';
+import withRouter from 'utils/routing';
 
 class ProfileReview extends Component {
   componentDidMount() {
     scrollToTop();
   }
+
   resumeMove = () => {
-    this.props.push(this.getNextIncompletePage());
+    const { router } = this.props;
+    router.navigate(this.getNextIncompletePage());
   };
+
   getNextIncompletePage = () => {
     const {
       conusStatus,
@@ -47,15 +49,11 @@ class ProfileReview extends Component {
       context,
     });
   };
+
   render() {
     const { serviceMember, schemaRank, schemaAffiliation, schemaOrdersType } = this.props;
     return (
-      <WizardPage
-        handleSubmit={this.resumeMove}
-        pageList={this.props.pages}
-        pageKey={this.props.pageKey}
-        pageIsValid={true}
-      >
+      <WizardPage handleSubmit={this.resumeMove} pageList={this.props.pages} pageKey={this.props.pageKey} pageIsValid>
         <h1>Review your Profile</h1>
         <p>Has anything changed since your last move? Please check your info below, especially your Rank.</p>
         <ServiceMemberSummary
@@ -102,8 +100,4 @@ function mapStateToProps(state) {
   };
 }
 
-function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ push }, dispatch);
-}
-
-export default withContext(connect(mapStateToProps, mapDispatchToProps)(ProfileReview));
+export default withContext(withRouter(connect(mapStateToProps)(ProfileReview)));

@@ -162,14 +162,20 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(appCtx appcontext.AppContext
 		TransactionSetPurposeCode:    "00",
 		TransactionMethodTypeCode:    "J",
 		ShipmentMethodOfPayment:      "PP",
-		ShipmentIdentificationNumber: paymentRequest.PaymentRequestNumber,
-		StandardCarrierAlphaCode:     "BLKW",
+		ShipmentIdentificationNumber: *moveTaskOrder.ReferenceID,
+		StandardCarrierAlphaCode:     "HSFR",
 		ShipmentQualifier:            "4",
 	}
 
 	edi858.Header.PaymentRequestNumber = edisegment.N9{
 		ReferenceIdentificationQualifier: "CN",
 		ReferenceIdentification:          paymentRequest.PaymentRequestNumber,
+	}
+
+	// Add moveCode to header
+	edi858.Header.MoveCode = edisegment.N9{
+		ReferenceIdentificationQualifier: "CMN",
+		ReferenceIdentification:          moveTaskOrder.Locator,
 	}
 
 	// contract code to header
@@ -397,7 +403,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createBuyerAndSellerOrganizationNames
 		EntityIdentifierCode:        "SE",
 		Name:                        "Prime",
 		IdentificationCodeQualifier: "2",
-		IdentificationCode:          "BLKW",
+		IdentificationCode:          "HSFR",
 	}
 
 	return nil
@@ -714,6 +720,8 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(ap
 			newSegment.L1 = edisegment.L1{
 				LadingLineItemNumber: hierarchicalIDNumber,
 				Charge:               serviceItem.PriceCents.Int64(),
+				FreightRate:          nil,
+				RateValueQualifier:   "",
 			}
 
 		// following service items have weight and no distance

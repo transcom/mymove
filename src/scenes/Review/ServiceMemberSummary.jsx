@@ -1,14 +1,14 @@
 import React from 'react';
-import { withRouter } from 'react-router-dom';
 import { get } from 'lodash';
 import PropTypes from 'prop-types';
 
-import { formatDateSM } from 'utils/formatters';
-import { getFullSMName } from 'utils/moveSetupFlow';
-import Address from './Address';
-
 import ReviewSection from '../../components/Customer/ReviewSection';
 import SectionWrapper from '../../components/Customer/SectionWrapper';
+
+import Address from './Address';
+
+import { formatDateSM } from 'utils/formatters';
+import { getFullSMName } from 'utils/moveSetupFlow';
 
 import './Review.css';
 
@@ -24,7 +24,7 @@ function ServiceMemberSummary(props) {
     uploads,
   } = props;
 
-  const editProfilePath = '/moves/review/edit-profile';
+  const editProfilePath = 'edit-profile';
 
   const yesNoMap = { true: 'Yes', false: 'No' };
 
@@ -78,4 +78,4 @@ ServiceMemberSummary.propTypes = {
   editOrdersPath: PropTypes.string,
 };
 
-export default withRouter(ServiceMemberSummary);
+export default ServiceMemberSummary;

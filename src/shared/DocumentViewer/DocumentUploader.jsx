@@ -1,7 +1,6 @@
 import { get, map } from 'lodash';
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
-import { replace } from 'connected-react-router';
 import { getFormValues, reduxForm } from 'redux-form';
 import PropTypes from 'prop-types';
 
@@ -12,6 +11,7 @@ import { documentSizeLimitMsg } from 'shared/constants';
 import ExpenseDocumentForm from 'scenes/Office/DocumentViewer/ExpenseDocumentForm';
 
 import './DocumentUploader.css';
+import withRouter from 'utils/routing';
 
 export class DocumentUploader extends Component {
   static propTypes = {
@@ -30,10 +30,13 @@ export class DocumentUploader extends Component {
   };
 
   componentDidUpdate() {
-    const { initialValues, location } = this.props;
+    const {
+      initialValues,
+      router: { location, navigate },
+    } = this.props;
     // Clear query string after initial values are set
     if (initialValues && get(location, 'search', false)) {
-      this.props.replace(this.props.location.pathname);
+      navigate(location.pathname, { replace: true });
     }
   }
 
@@ -85,7 +88,7 @@ export class DocumentUploader extends Component {
     const hasFiles = this.state.newUploads.length;
     const isValid = hasFormFilled && hasFiles && this.state.uploaderIsIdle;
     return (
-      <Fragment>
+      <>
         {this.state.moveDocumentCreateError && (
           <div className="grid-row">
             <div className="grid-col-12 error-message">
@@ -119,7 +122,7 @@ export class DocumentUploader extends Component {
             Save
           </button>
         </form>
-      </Fragment>
+      </>
     );
   }
 }
@@ -131,4 +134,4 @@ const mapStateToProps = (state, props) => ({
   formValues: getFormValues(props.form)(state),
 });
 
-export default connect(mapStateToProps, { replace })(DocumentUploader);
+export default withRouter(connect(mapStateToProps)(DocumentUploader));

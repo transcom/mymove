@@ -1,12 +1,12 @@
 import React from 'react';
-import { connect } from 'react-redux';
-import { getResources, MenuItemLink } from 'react-admin';
-import { withRouter } from 'react-router-dom';
+import { useResourceDefinitions, MenuItemLink } from 'react-admin';
 import ExitIcon from '@material-ui/icons/PowerSettingsNew';
+
 import { LogoutUser } from 'utils/api';
 
-const Menu = (props) => {
-  const resources = props.resources;
+const Menu = () => {
+  const resourcesDefinitions = useResourceDefinitions();
+  const resources = Object.keys(resourcesDefinitions).map((name) => resourcesDefinitions[name]);
   return (
     <div>
       {resources
@@ -14,7 +14,7 @@ const Menu = (props) => {
         .map((resource) => (
           <MenuItemLink
             key={resource.name}
-            to={`/${resource.name}`}
+            to={`${resource.name}`}
             primaryText={(resource.options && resource.options.label) || resource.name}
           />
         ))}
@@ -39,8 +39,4 @@ const Menu = (props) => {
   );
 };
 
-const mapStateToProps = (state) => ({
-  resources: getResources(state),
-});
-
-export default withRouter(connect(mapStateToProps)(Menu));
+export default Menu;

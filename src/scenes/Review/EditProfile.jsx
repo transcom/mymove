@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { get } from 'lodash';
-
-import { push } from 'connected-react-router';
 import { Field, reduxForm } from 'redux-form';
+
+import SaveCancelButtons from './SaveCancelButtons';
+import profileImage from './images/profile.png';
 
 import { getResponseError, patchServiceMember } from 'services/internalApi';
 import { updateServiceMember as updateServiceMemberAction } from 'store/entities/actions';
@@ -11,7 +12,6 @@ import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 import Alert from 'shared/Alert';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { validateAdditionalFields } from 'shared/JsonSchemaForm';
-import SaveCancelButtons from './SaveCancelButtons';
 import LocationSearchBox from 'components/LocationSearchBox/LocationSearchBox';
 import scrollToTop from 'shared/scrollToTop';
 import {
@@ -24,7 +24,7 @@ import {
 } from 'store/entities/selectors';
 
 import './Review.css';
-import profileImage from './images/profile.png';
+
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import ServiceInfoDisplay from 'components/Customer/Review/ServiceInfoDisplay/ServiceInfoDisplay';
 
@@ -129,7 +129,8 @@ class EditProfile extends Component {
           setFlashMessage('EDIT_PROFILE_SUCCESS', 'success', '', 'Your changes have been saved.');
         }
 
-        this.props.history.goBack();
+        const { router: navigate } = this.props;
+        navigate(-1);
       })
       .catch((e) => {
         // TODO - error handling - below is rudimentary error handling to approximate existing UX
@@ -196,7 +197,6 @@ function mapStateToProps(state) {
 }
 
 const mapDispatchToProps = {
-  push,
   updateServiceMember: updateServiceMemberAction,
   setFlashMessage: setFlashMessageAction,
 };

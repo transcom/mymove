@@ -1,5 +1,6 @@
 import React from 'react';
 import { List, Datagrid, TextField, Filter, TextInput, DateField } from 'react-admin';
+
 import AdminPagination from 'scenes/SystemAdmin/shared/AdminPagination';
 import styles from 'scenes/SystemAdmin/Home.module.scss';
 
@@ -12,15 +13,8 @@ const NotificationFilter = (props) => (
 );
 
 const NotificationList = (props) => (
-  <List
-    {...props}
-    pagination={<AdminPagination />}
-    perPage={25}
-    bulkActionButtons={false}
-    sort={defaultSort}
-    filters={<NotificationFilter />}
-  >
-    <Datagrid rowClick="show">
+  <List {...props} pagination={<AdminPagination />} perPage={25} sort={defaultSort} filters={<NotificationFilter />}>
+    <Datagrid bulkActionButtons={false} rowClick="show">
       <TextField source="id" />
       <TextField source="email" />
       <TextField source="serviceMemberId" />

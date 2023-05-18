@@ -1,6 +1,4 @@
 import React from 'react';
-import * as reactRedux from 'react-redux';
-import { push } from 'connected-react-router';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
@@ -9,15 +7,24 @@ import ConnectedContactInfo, { ContactInfo } from './ContactInfo';
 import { MockProviders } from 'testUtils';
 import { patchServiceMember } from 'services/internalApi';
 
+const mockNavigate = jest.fn();
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: () => mockNavigate,
+}));
+
 jest.mock('services/internalApi', () => ({
   ...jest.requireActual('services/internalApi'),
   patchServiceMember: jest.fn(),
 }));
 
+beforeEach(() => {
+  jest.resetAllMocks();
+});
+
 describe('ContactInfo page', () => {
   const testProps = {
     updateServiceMember: jest.fn(),
-    push: jest.fn(),
     serviceMember: {
       id: 'testServiceMemberId',
     },
@@ -45,7 +52,7 @@ describe('ContactInfo page', () => {
     await userEvent.click(backButton);
 
     await waitFor(async () => {
-      expect(testProps.push).toHaveBeenCalledWith('/service-member/name');
+      expect(mockNavigate).toHaveBeenCalledWith('/service-member/name');
     });
   });
 
@@ -64,7 +71,7 @@ describe('ContactInfo page', () => {
     });
 
     expect(testProps.updateServiceMember).toHaveBeenCalledWith(testServiceMemberValues);
-    expect(testProps.push).toHaveBeenCalledWith('/service-member/current-duty');
+    expect(mockNavigate).toHaveBeenCalledWith('/service-member/current-duty');
   });
 
   it('shows an error if the API returns an error', async () => {
@@ -94,25 +101,15 @@ describe('ContactInfo page', () => {
 
     expect(screen.queryByText('A server error occurred saving the service member')).toBeInTheDocument();
     expect(testProps.updateServiceMember).not.toHaveBeenCalled();
-    expect(testProps.push).not.toHaveBeenCalled();
+    expect(mockNavigate).not.toHaveBeenCalled();
   });
 
   afterEach(jest.resetAllMocks);
 });
 
 describe('requireCustomerState ContactInfo', () => {
-  const useDispatchMock = jest.spyOn(reactRedux, 'useDispatch');
-  const mockDispatch = jest.fn();
-
-  beforeEach(() => {
-    useDispatchMock.mockClear();
-    mockDispatch.mockClear();
-    useDispatchMock.mockReturnValue(mockDispatch);
-  });
-
   const props = {
     updateServiceMember: jest.fn(),
-    push: jest.fn(),
     serviceMember: {
       id: 'testServiceMemberId',
     },
@@ -150,7 +147,7 @@ describe('requireCustomerState ContactInfo', () => {
     expect(h1).toBeInTheDocument();
 
     await waitFor(async () => {
-      expect(mockDispatch).toHaveBeenCalledWith(push('/service-member/name'));
+      expect(mockNavigate).toHaveBeenCalledWith('/service-member/name');
     });
   });
 
@@ -186,7 +183,7 @@ describe('requireCustomerState ContactInfo', () => {
     expect(h1).toBeInTheDocument();
 
     await waitFor(async () => {
-      expect(mockDispatch).not.toHaveBeenCalled();
+      expect(mockNavigate).not.toHaveBeenCalled();
     });
   });
   it('does not redirect if the current state is after the "NAME COMPLETE" state and profile is not complete', async () => {
@@ -234,7 +231,7 @@ describe('requireCustomerState ContactInfo', () => {
     expect(h1).toBeInTheDocument();
 
     await waitFor(async () => {
-      expect(mockDispatch).not.toHaveBeenCalled();
+      expect(mockNavigate).not.toHaveBeenCalled();
     });
   });
 
@@ -288,7 +285,7 @@ describe('requireCustomerState ContactInfo', () => {
     expect(h1).toBeInTheDocument();
 
     await waitFor(async () => {
-      expect(mockDispatch).toHaveBeenCalledWith(push('/'));
+      expect(mockNavigate).toHaveBeenCalledWith('/');
     });
   });
 });

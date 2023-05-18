@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { debounce, get } from 'lodash';
-import SaveCancelButtons from './SaveCancelButtons';
-import { push } from 'connected-react-router';
 import { reduxForm } from 'redux-form';
+
+import SaveCancelButtons from './SaveCancelButtons';
+import profileImage from './images/profile.png';
 
 import Alert from 'shared/Alert';
 import { formatCentsRange, formatCents } from 'utils/formatters';
@@ -22,11 +23,10 @@ import { updatePPM, updatePPMEstimate, updatePPMs } from 'store/entities/actions
 import { setPPMEstimateError } from 'store/onboarding/actions';
 import { selectPPMEstimateError } from 'store/onboarding/selectors';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
-
 import EntitlementBar from 'scenes/EntitlementBar';
 import './Review.css';
 import './EditWeight.css';
-import profileImage from './images/profile.png';
+import withRouter from 'utils/routing';
 
 const editWeightFormName = 'edit_weight';
 const weightEstimateDebounce = 300;
@@ -202,7 +202,10 @@ class EditWeight extends Component {
   }
 
   componentDidMount() {
-    getPPMsForMove(this.props.match.params.moveId).then((response) => this.props.updatePPMs(response));
+    const {
+      router: { params: moveId },
+    } = this.props;
+    getPPMsForMove(moveId).then((response) => this.props.updatePPMs(response));
     this.props.fetchLatestOrders(this.props.serviceMemberId);
     const { currentPPM, originDutyLocationZip, orders } = this.props;
     this.handleWeightChange(
@@ -244,8 +247,8 @@ class EditWeight extends Component {
   };
 
   updatePpm = (values, dispatch, props) => {
-    const { setFlashMessage } = this.props;
-    const moveId = this.props.match.params.moveId;
+    const { setFlashMessage, router } = this.props;
+    const { params: moveId, navigate } = router;
     return patchPPM(moveId, {
       id: this.props.currentPPM.id,
       weight_estimate: values.weight_estimate,
@@ -259,7 +262,7 @@ class EditWeight extends Component {
       .then(() => {
         setFlashMessage('EDIT_PPM_WEIGHT_SUCCESS', 'success', '', 'Your changes have been saved.');
 
-        this.props.history.goBack();
+        navigate(-1);
       })
       .catch(() => {
         scrollToTop();
@@ -361,7 +364,6 @@ function mapStateToProps(state) {
 }
 
 const mapDispatchToProps = {
-  push,
   fetchLatestOrders,
   updatePPM,
   updatePPMs,
@@ -370,4 +372,4 @@ const mapDispatchToProps = {
   setFlashMessage: setFlashMessageAction,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(EditWeight);
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(EditWeight));

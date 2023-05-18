@@ -1,7 +1,5 @@
-import React from 'react';
-
-import { Component, Fragment } from 'react';
-import { Redirect } from 'react-router-dom';
+import React, { Component, Fragment } from 'react';
+import { Navigate } from 'react-router-dom';
 
 export class UploadSearch extends Component {
   state = { ...this.initialState };
@@ -23,17 +21,16 @@ export class UploadSearch extends Component {
   render() {
     if (!this.state.showUpload) {
       return (
-        <Fragment>
+        <>
           <span>Search by upload ID</span>
           <form onSubmit={this.redirectToShowUpload}>
             <input onChange={this.setUploadIDinState} name="uploadID" component="input" type="text" />
             <button type="submit">Search</button>
           </form>
-        </Fragment>
+        </>
       );
-    } else {
-      return <Redirect to={`/uploads/${this.state.uploadID}/show`} />;
     }
+    return <Navigate to={`/system/uploads/${this.state.uploadID}/show`} replace />;
   }
 }
 

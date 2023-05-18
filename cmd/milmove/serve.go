@@ -30,7 +30,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
-	"github.com/trussworks/otelhttp"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -683,8 +683,18 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	appCtx := appcontext.NewAppContext(dbConnection, logger, nil)
 
 	// now that we have the appcontext, register telemetry observers
-	telemetry.RegisterDBStatsObserver(appCtx, telemetryConfig)
-	telemetry.RegisterRuntimeObserver(appCtx, telemetryConfig)
+	err = telemetry.RegisterDBStatsObserver(appCtx, telemetryConfig)
+	if err != nil {
+		logger.Fatal("Failed to register db stats observer", zap.Error(err))
+	}
+	err = telemetry.RegisterRuntimeObserver(appCtx, telemetryConfig)
+	if err != nil {
+		logger.Fatal("Failed to register runtime observer", zap.Error(err))
+	}
+	err = telemetry.RegisterMilmoveDataObserver(appCtx, telemetryConfig)
+	if err != nil {
+		logger.Fatal("Failed to register runtime observer", zap.Error(err))
+	}
 
 	// Create a connection to Redis
 	redisPool, errRedisConnection := cli.InitRedis(appCtx, v)

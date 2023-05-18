@@ -1,7 +1,7 @@
 import React from 'react';
 import moment from 'moment';
 import MockDate from 'mockdate';
-import addons from '@storybook/addons';
+import { addons } from '@storybook/preview-api';
 import { isHappoRun } from 'happo-plugin-storybook/register';
 
 import { SHIPMENT_OPTIONS } from '../../../shared/constants';
@@ -27,7 +27,7 @@ export default {
       const permissions = context.name.includes('Read Only') ? [] : [permissionTypes.updatePaymentServiceItemStatus];
       return (
         <div style={{ padding: '1em', backgroundColor: '#f9f9f9', minWidth: '1200px' }}>
-          <MockProviders initialEntries={['/moves/L0CATR/payment-requests']} permissions={permissions}>
+          <MockProviders permissions={permissions}>
             <Story />
           </MockProviders>
         </div>
