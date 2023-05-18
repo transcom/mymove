@@ -49,7 +49,6 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		}, nil)
 		factory.BuildDOFSITReService(suite.DB())
 		req := httptest.NewRequest("POST", "/mto-service-items", nil)
-		reason := "lorem ipsum"
 		sitEntryDate := time.Now()
 		sitPostalCode := "00000"
 
@@ -65,7 +64,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 			MoveTaskOrderID:           mto.ID,
 			MTOShipmentID:             &subtestData.mtoShipment.ID,
 			ReService:                 models.ReService{Code: models.ReServiceCodeDOFSIT},
-			Reason:                    &reason,
+			Reason:                    models.StringPointer("lorem ipsum"),
 			SITEntryDate:              &sitEntryDate,
 			SITPostalCode:             &sitPostalCode,
 			SITOriginHHGActualAddress: &actualPickupAddress,
@@ -527,7 +526,6 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandler() {
 		}, nil)
 		factory.BuildDOFSITReService(suite.DB())
 
-		reason := "lorem ipsum"
 		sitEntryDate := time.Now()
 		sitPostalCode := "00000"
 
@@ -535,7 +533,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandler() {
 			MoveTaskOrderID: subtestData.mto.ID,
 			MTOShipmentID:   &subtestData.mtoShipment.ID,
 			ReService:       models.ReService{},
-			Reason:          &reason,
+			Reason:          models.StringPointer("lorem ipsum"),
 			SITEntryDate:    &sitEntryDate,
 			SITPostalCode:   &sitPostalCode,
 		}
@@ -702,7 +700,6 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandlerWithDOFSITNoA
 			},
 		}, nil)
 		factory.BuildDOFSITReService(suite.DB())
-		reason := "lorem ipsum"
 		sitEntryDate := time.Now()
 		sitPostalCode := "00000"
 
@@ -710,7 +707,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandlerWithDOFSITNoA
 			MoveTaskOrderID: mto.ID,
 			MTOShipmentID:   &mtoShipment.ID,
 			ReService:       models.ReService{},
-			Reason:          &reason,
+			Reason:          models.StringPointer("lorem ipsum"),
 			SITEntryDate:    &sitEntryDate,
 			SITPostalCode:   &sitPostalCode,
 		}
@@ -782,7 +779,6 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandlerWithDOFSITWit
 			},
 		}, nil)
 		factory.BuildDOFSITReService(suite.DB())
-		reason := "lorem ipsum"
 		sitEntryDate := time.Now()
 		sitPostalCode := "00000"
 
@@ -801,7 +797,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandlerWithDOFSITWit
 			MoveTaskOrderID:           mto.ID,
 			MTOShipmentID:             &subtestData.mtoShipment.ID,
 			ReService:                 models.ReService{},
-			Reason:                    &reason,
+			Reason:                    models.StringPointer("lorem ipsum"),
 			SITEntryDate:              &sitEntryDate,
 			SITPostalCode:             &sitPostalCode,
 			SITOriginHHGActualAddress: &subtestData.actualPickupAddress,
@@ -956,12 +952,11 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 		factory.BuildDDFSITReService(suite.DB())
 
 		req := httptest.NewRequest("POST", "/mto-service-items", nil)
-		reason := "lorem ipsum"
 		subtestData.mtoServiceItem = models.MTOServiceItem{
 			MoveTaskOrderID: subtestData.mto.ID,
 			MTOShipmentID:   &subtestData.mtoShipment.ID,
 			ReService:       models.ReService{Code: models.ReServiceCodeDDFSIT},
-			Reason:          &reason,
+			Reason:          models.StringPointer("lorem ipsum"),
 			Description:     handlers.FmtString("description"),
 			CustomerContacts: models.MTOServiceItemCustomerContacts{
 				models.MTOServiceItemCustomerContact{
@@ -994,14 +989,13 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 		//             Receive a 422 - Unprocessable Entity
 		// SETUP
 		// Create the payload
-		reason := "lorem ipsum"
 		mtoServiceItemDDFSIT := models.MTOServiceItem{
 			MoveTaskOrderID: subtestData.mto.ID,
 			MTOShipmentID:   &subtestData.mtoShipment.ID,
 			ReService:       models.ReService{Code: models.ReServiceCodeDDFSIT},
 			Description:     handlers.FmtString("description"),
 			SITEntryDate:    &sitEntryDate,
-			Reason:          &reason,
+			Reason:          models.StringPointer("lorem ipsum"),
 		}
 		moveRouter := moverouter.NewMoveRouter()
 		creator := mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter)
@@ -1039,14 +1033,14 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 			creator,
 			mtoChecker,
 		}
-		reason := "lorem ipsum"
+
 		mtoServiceItemDDFSIT := models.MTOServiceItem{
 			MoveTaskOrderID: subtestData.mto.ID,
 			MTOShipmentID:   &subtestData.mtoShipment.ID,
 			ReService:       models.ReService{Code: models.ReServiceCodeDDFSIT},
 			Description:     handlers.FmtString("description"),
 			SITEntryDate:    &sitEntryDate,
-			Reason:          &reason,
+			Reason:          models.StringPointer("lorem ipsum"),
 			CustomerContacts: models.MTOServiceItemCustomerContacts{
 				models.MTOServiceItemCustomerContact{
 					Type:                       models.CustomerContactTypeFirst,
