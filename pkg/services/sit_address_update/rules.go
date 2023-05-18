@@ -36,8 +36,8 @@ func checkRequiredFields() sitAddressUpdateValidator {
 			verrs.Add("MTOServiceItemID", "MTOServiceItem must be approved")
 		}
 
-		if serviceItem.SITDestinationOriginalAddressID.IsNil() {
-			verrs.Add("SITDestinationOriginalAddressID", "SITDestinationOriginalAddressID is required")
+		if serviceItem.SITDestinationFinalAddressID == nil || serviceItem.SITDestinationFinalAddressID.IsNil() {
+			verrs.Add("SITDestinationFinalAddressID", "SITDestinationFinalAddressID is required")
 		}
 
 		return verrs
