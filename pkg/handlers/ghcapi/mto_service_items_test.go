@@ -49,7 +49,7 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 			},
 		}, nil)
 		requestUser := factory.BuildUser(nil, nil, nil)
-		serviceItem1 := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+		serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOServiceItem{
 					ID: serviceItemID,
@@ -68,8 +68,39 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 				LinkOnly: true,
 			},
 		}, nil)
+
+		year, month, day := time.Now().Date()
+		aWeekAgo := time.Date(year, month, day-7, 0, 0, 0, 0, time.UTC)
+		departureDate := aWeekAgo.Add(time.Hour * 24 * 30)
+		originSit := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate:     &aWeekAgo,
+					SITDepartureDate: &departureDate,
+					Status:           models.MTOServiceItemStatusApproved,
+				},
+			},
+			{
+				Model:    mto,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDOPSIT,
+				},
+			},
+		}, nil)
+
+		sitAddressUpdate := factory.BuildSITAddressUpdate(suite.DB(), []factory.Customization{{Model: originSit,
+			LinkOnly: true}}, nil)
+		originSit.SITAddressUpdates = []models.SITAddressUpdate{sitAddressUpdate}
+
 		customerContact := testdatagen.MakeMTOServiceItemCustomerContact(suite.DB(), testdatagen.Assertions{})
-		serviceItem2 := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+		destinationSit := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOServiceItem{
 					CustomerContacts: models.MTOServiceItemCustomerContacts{customerContact},
@@ -90,7 +121,8 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 				},
 			},
 		}, nil)
-		serviceItems := models.MTOServiceItems{serviceItem1, serviceItem2}
+
+		serviceItems := models.MTOServiceItems{serviceItem, originSit, destinationSit}
 
 		return requestUser, serviceItems
 	}
@@ -123,9 +155,17 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 		// Validate outgoing payload
 		suite.NoError(okResponse.Payload.Validate(strfmt.Default))
 
-		suite.Len(okResponse.Payload, 2)
+		suite.Len(okResponse.Payload, 3)
 		suite.Equal(serviceItems[0].ID.String(), okResponse.Payload[0].ID.String())
-		suite.Len(serviceItems[1].CustomerContacts, 1)
+		suite.Equal(serviceItems[1].ID.String(), okResponse.Payload[1].ID.String())
+
+		// Validate that SITAddressUpdates are included in payload
+		suite.Len(okResponse.Payload[1].SitAddressUpdates, 1)
+		suite.Equal(serviceItems[1].SITAddressUpdates[0].ID.String(), okResponse.Payload[1].SitAddressUpdates[0].ID.String())
+
+		// Validate that the Customer Contacts were included in the payload
+		suite.Len(okResponse.Payload[2].CustomerContacts, 1)
+		suite.Equal(serviceItems[2].CustomerContacts[0].TimeMilitary, okResponse.Payload[2].CustomerContacts[0].TimeMilitary)
 	})
 
 	suite.Run("Failure list fetch - Internal Server Error", func() {
