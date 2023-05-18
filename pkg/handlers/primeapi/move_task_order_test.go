@@ -221,6 +221,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 				Model: models.MTOServiceItem{
 					Status:       models.MTOServiceItemStatusApproved,
 					SITEntryDate: &sitEntryDate,
+					Reason:       models.StringPointer("lorem epsum"),
 				},
 			},
 			{

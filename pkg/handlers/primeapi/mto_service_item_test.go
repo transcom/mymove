@@ -1074,9 +1074,8 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 		// CHECK RESULTS
 		response := handler.Handle(paramsDDFSIT)
 
-		// REMOVE COMMENT WHEN TEST PASSES
-		// Validate incoming payload
-		//suite.NoError(subtestData.params.Body.Validate(strfmt.Default))
+		//Validate incoming payload
+		suite.NoError(paramsDDFSIT.Body.Validate(strfmt.Default))
 
 		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemOK{}, response)
 		okResponse := response.(*mtoserviceitemops.CreateMTOServiceItemOK)
