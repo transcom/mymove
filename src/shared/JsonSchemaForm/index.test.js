@@ -1,9 +1,10 @@
 import React from 'react';
 import { Provider } from 'react-redux';
 import { Field } from 'redux-form';
-import { reduxifyForm } from '.';
 import configureStore from 'redux-mock-store';
 import { mount } from 'enzyme';
+
+import { reduxifyForm } from '.';
 
 const simpleSchema = {
   title: 'A registration form',
@@ -72,7 +73,7 @@ let store;
 let wrapper;
 beforeEach(() => {
   store = mockStore({});
-  //mount appears to be necessary to get inner components to load (i.e. tests fail with shallow)
+  // mount appears to be necessary to get inner components to load (i.e. tests fail with shallow)
   wrapper = mount(
     <Provider store={store}>
       <TestForm schema={simpleSchema} uiSchema={uiSchema} />

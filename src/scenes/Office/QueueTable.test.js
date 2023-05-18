@@ -1,14 +1,15 @@
 import React from 'react';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
+import ReactTable from 'react-table-6';
+import { mount } from 'enzyme/build';
+import { render, screen } from '@testing-library/react';
 
 import QueueTable from './QueueTable';
-import ReactTable from 'react-table-6';
+
 import store from 'shared/store';
-import { mount } from 'enzyme/build';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { MockRouterProvider } from 'testUtils';
-import { render, screen } from '@testing-library/react';
 
 const mockLogOut = jest.fn();
 jest.mock('store/auth/actions', () => ({
@@ -94,7 +95,7 @@ describe('on 401 unauthorized error', () => {
 
     // Mock the retrieve moves function to throw a 401 error
     mockRetrieveMoves.mockImplementation(() => {
-      let error = new Error('Unauthorized');
+      const error = new Error('Unauthorized');
       error.status = 401;
       throw error;
     });

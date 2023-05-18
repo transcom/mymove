@@ -4,12 +4,14 @@ import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
+import { formatExpenseDocs } from '../utility';
+
+import WeightTicketListItem from './WeightTicketListItem';
+import ExpenseTicketListItem from './ExpenseTicketListItem';
+
 import { selectPPMCloseoutDocumentsForMove } from 'shared/Entities/modules/movingExpenseDocuments';
 import { deleteMoveDocument, getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
 import docsAddedCheckmarkImg from 'shared/images/docs_added_checkmark.png';
-import WeightTicketListItem from './WeightTicketListItem';
-import ExpenseTicketListItem from './ExpenseTicketListItem';
-import { formatExpenseDocs } from '../utility';
 
 import './PaymentReview.css';
 
@@ -110,7 +112,7 @@ export class DocumentsUploaded extends Component {
                   num={index}
                   showDelete={inReviewPage}
                   deleteDocumentListItem={deleteMoveDocument}
-                  isWeightTicketSet={true}
+                  isWeightTicketSet
                   uploads={ticket.document.uploads}
                   {...ticket}
                 />

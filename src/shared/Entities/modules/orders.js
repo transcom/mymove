@@ -50,7 +50,6 @@ export function selectOrdersForMove(state, moveId) {
   const ordersId = get(state, `entities.moves.${moveId}.orders_id`);
   if (ordersId) {
     return selectOrders(state, ordersId);
-  } else {
-    return {};
   }
+  return {};
 }

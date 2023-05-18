@@ -1,7 +1,9 @@
 import React from 'react';
 import { shallow } from 'enzyme';
-import { PpmSummaryComponent } from './PpmSummary';
 import moment from 'moment';
+
+import { PpmSummaryComponent } from './PpmSummary';
+
 import CanceledMoveSummary from 'scenes/PpmLanding/MoveSummary/CanceledMoveSummary';
 import DraftMoveSummary from 'scenes/PpmLanding/MoveSummary/DraftMoveSummary';
 import SubmittedPpmMoveSummary from 'scenes/PpmLanding/MoveSummary/SubmittedPpmMoveSummary';

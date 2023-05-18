@@ -1,6 +1,7 @@
+import { filter } from 'lodash';
+
 import { swaggerRequest } from 'shared/Swagger/request';
 import { getClient } from 'shared/Swagger/api';
-import { filter } from 'lodash';
 import { SIGNED_CERT_OPTIONS } from 'shared/constants';
 
 export const createSignedCertificationLabel = 'SignedCertifications.createSignedCertification';
@@ -8,14 +9,14 @@ export const getSignedCertificationsLabel = 'SignedCertifications.indexSignedCer
 
 export function createSignedCertification(
   moveId,
-  payload /*shape: {personally_procured_move_id, certification_text, signature, date, certification_type}*/,
+  payload /* shape: {personally_procured_move_id, certification_text, signature, date, certification_type} */,
   label = createSignedCertificationLabel,
 ) {
   return swaggerRequest(
     getClient,
     'certification.createSignedCertification',
     {
-      moveId: moveId,
+      moveId,
       createSignedCertificationPayload: {
         ...payload,
       },

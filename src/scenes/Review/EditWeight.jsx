@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { debounce, get } from 'lodash';
-import SaveCancelButtons from './SaveCancelButtons';
 import { reduxForm } from 'redux-form';
+
+import SaveCancelButtons from './SaveCancelButtons';
+import profileImage from './images/profile.png';
 
 import Alert from 'shared/Alert';
 import { formatCentsRange, formatCents } from 'utils/formatters';
@@ -21,11 +23,9 @@ import { updatePPM, updatePPMEstimate, updatePPMs } from 'store/entities/actions
 import { setPPMEstimateError } from 'store/onboarding/actions';
 import { selectPPMEstimateError } from 'store/onboarding/selectors';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
-
 import EntitlementBar from 'scenes/EntitlementBar';
 import './Review.css';
 import './EditWeight.css';
-import profileImage from './images/profile.png';
 import withRouter from 'utils/routing';
 
 const editWeightFormName = 'edit_weight';

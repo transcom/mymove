@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+
 import {
   loadDutyLocationTransportationOffice,
   selectDutyLocationTransportationOffice,
@@ -13,6 +14,7 @@ export class TransportationOfficeContactInfo extends Component {
     const { dutyLocation } = this.props;
     this.props.loadDutyLocationTransportationOffice(dutyLocation.id);
   }
+
   render() {
     const { isOrigin, dutyLocation, transportationOffice } = this.props;
     const transportationOfficeName = get(transportationOffice, 'name');
