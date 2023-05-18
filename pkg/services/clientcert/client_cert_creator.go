@@ -1,6 +1,7 @@
 package clientcert
 
 import (
+	"database/sql"
 	"strings"
 
 	"github.com/gobuffalo/validate/v3"
@@ -37,10 +38,14 @@ func (o *clientCertCreator) CreateClientCert(
 		userEmailFilter := query.NewQueryFilter("login_gov_email", "=", email)
 		err := o.builder.FetchOne(txnAppCtx, &user, []services.QueryFilter{userEmailFilter})
 
+		if err != nil && err != sql.ErrNoRows {
+			return err
+		}
+
 		// if the fetch failed, the user doesn't exist, so we will
 		// need to create one
 		// This logic is similar to what is used when creating office users
-		if err != nil {
+		if err == sql.ErrNoRows {
 			user = models.User{
 				LoginGovEmail: strings.ToLower(email),
 				Active:        true,
