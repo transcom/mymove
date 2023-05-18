@@ -5875,10 +5875,19 @@ func init() {
           "type": "string",
           "x-nullable": true
         },
+        "sitAddressUpdates": {
+          "$ref": "#/definitions/SITAddressUpdates"
+        },
         "sitDepartureDate": {
           "type": "string",
           "format": "date-time",
           "x-nullable": true
+        },
+        "sitDestinationFinalAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "sitDestinationOriginalAddress": {
+          "$ref": "#/definitions/Address"
         },
         "sitEntryDate": {
           "type": "string",
@@ -7970,6 +7979,73 @@ func init() {
         "SYSTEM",
         "TOO"
       ]
+    },
+    "SITAddressUpdate": {
+      "description": "An update to a SIT service item address.",
+      "type": "object",
+      "properties": {
+        "contractorRemarks": {
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "The customer has found a new house closer to base."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "distance": {
+          "description": "The distance between the old address and the new address in miles.",
+          "type": "integer",
+          "example": 54
+        },
+        "eTag": {
+          "type": "string",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "mtoServiceItemID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "newAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "officeRemarks": {
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "The customer has found a new house closer to base."
+        },
+        "oldAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "status": {
+          "enum": [
+            "REQUESTED",
+            "APPROVED",
+            "REJECTED"
+          ]
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
+    "SITAddressUpdates": {
+      "description": "A list of updates to a SIT service item address.",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/SITAddressUpdate"
+      }
     },
     "SITExtension": {
       "description": "A storage in transit (SIT) Extension is a request for an increase in the billable number of days a shipment is allowed to be in SIT.",
@@ -16473,10 +16549,19 @@ func init() {
           "type": "string",
           "x-nullable": true
         },
+        "sitAddressUpdates": {
+          "$ref": "#/definitions/SITAddressUpdates"
+        },
         "sitDepartureDate": {
           "type": "string",
           "format": "date-time",
           "x-nullable": true
+        },
+        "sitDestinationFinalAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "sitDestinationOriginalAddress": {
+          "$ref": "#/definitions/Address"
         },
         "sitEntryDate": {
           "type": "string",
@@ -18569,6 +18654,74 @@ func init() {
         "SYSTEM",
         "TOO"
       ]
+    },
+    "SITAddressUpdate": {
+      "description": "An update to a SIT service item address.",
+      "type": "object",
+      "properties": {
+        "contractorRemarks": {
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "The customer has found a new house closer to base."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "distance": {
+          "description": "The distance between the old address and the new address in miles.",
+          "type": "integer",
+          "minimum": 0,
+          "example": 54
+        },
+        "eTag": {
+          "type": "string",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "mtoServiceItemID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "newAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "officeRemarks": {
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "The customer has found a new house closer to base."
+        },
+        "oldAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "status": {
+          "enum": [
+            "REQUESTED",
+            "APPROVED",
+            "REJECTED"
+          ]
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
+    "SITAddressUpdates": {
+      "description": "A list of updates to a SIT service item address.",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/SITAddressUpdate"
+      }
     },
     "SITExtension": {
       "description": "A storage in transit (SIT) Extension is a request for an increase in the billable number of days a shipment is allowed to be in SIT.",
