@@ -855,6 +855,9 @@ exporters:
         metric_name_selectors: [container.*]
 
 service:
+  telemetry:
+    logs:
+      level: ERROR
   pipelines:
     traces:
       receivers: [otlp,awsxray]
