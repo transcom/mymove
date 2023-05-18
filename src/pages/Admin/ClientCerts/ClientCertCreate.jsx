@@ -16,7 +16,7 @@ const ClientCertCreate = (props) => (
   <Create {...props}>
     <SimpleForm>
       <Typography variant="h5" gutterBottom>
-        Indentity
+        Identity
       </Typography>
       <Typography paragraph>{IDENTITY_DESCRIPTION}</Typography>
       <TextInput source="email" validate={required()} multiline />
