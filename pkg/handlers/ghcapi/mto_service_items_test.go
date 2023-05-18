@@ -67,7 +67,38 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 				LinkOnly: true,
 			},
 		}, nil)
-		serviceItems := models.MTOServiceItems{serviceItem}
+
+		year, month, day := time.Now().Date()
+		aWeekAgo := time.Date(year, month, day-7, 0, 0, 0, 0, time.UTC)
+		departureDate := aWeekAgo.Add(time.Hour * 24 * 30)
+		sit := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate:     &aWeekAgo,
+					SITDepartureDate: &departureDate,
+					Status:           models.MTOServiceItemStatusApproved,
+				},
+			},
+			{
+				Model:    mto,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDOPSIT,
+				},
+			},
+		}, nil)
+
+		sitAddressUpdate := factory.BuildSITAddressUpdate(suite.DB(), []factory.Customization{{Model: sit,
+			LinkOnly: true}}, nil)
+		sit.SITAddressUpdates = []models.SITAddressUpdate{sitAddressUpdate}
+
+		serviceItems := models.MTOServiceItems{serviceItem, sit}
 
 		return requestUser, serviceItems
 	}
@@ -100,8 +131,13 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 		// Validate outgoing payload
 		suite.NoError(okResponse.Payload.Validate(strfmt.Default))
 
-		suite.Len(okResponse.Payload, 1)
+		suite.Len(okResponse.Payload, 2)
 		suite.Equal(serviceItems[0].ID.String(), okResponse.Payload[0].ID.String())
+		suite.Equal(serviceItems[1].ID.String(), okResponse.Payload[1].ID.String())
+
+		// Validate that SITAddressUpdates are included in payload
+		suite.Len(okResponse.Payload[1].SitAddressUpdates, 1)
+		suite.Equal(serviceItems[1].SITAddressUpdates[0].ID.String(), okResponse.Payload[1].SitAddressUpdates[0].ID.String())
 	})
 
 	suite.Run("Failure list fetch - Internal Server Error", func() {
