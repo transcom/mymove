@@ -254,6 +254,16 @@ func (c *Config) SetPlanner(planner route.Planner) {
 	c.planner = planner
 }
 
+// SetDTODPlanner is a simple setter for the route.Planner private field
+func (c *Config) SetDTODPlanner(planner route.Planner) {
+	c.dtodPlanner = planner
+}
+
+// SetHHGPlanner is a simple setter for the route.Planner private field
+func (c *Config) SetHHGPlanner(planner route.Planner) {
+	c.hhgPlanner = planner
+}
+
 // HHGPlanner returns the HHG planner for the current context
 func (c *Config) HHGPlanner() route.Planner {
 	return c.hhgPlanner
