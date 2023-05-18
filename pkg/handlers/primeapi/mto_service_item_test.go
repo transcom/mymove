@@ -956,10 +956,12 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 		factory.BuildDDFSITReService(suite.DB())
 
 		req := httptest.NewRequest("POST", "/mto-service-items", nil)
+		reason := "lorem ipsum"
 		subtestData.mtoServiceItem = models.MTOServiceItem{
 			MoveTaskOrderID: subtestData.mto.ID,
 			MTOShipmentID:   &subtestData.mtoShipment.ID,
 			ReService:       models.ReService{Code: models.ReServiceCodeDDFSIT},
+			Reason:          &reason,
 			Description:     handlers.FmtString("description"),
 			CustomerContacts: models.MTOServiceItemCustomerContacts{
 				models.MTOServiceItemCustomerContact{
@@ -992,13 +994,14 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 		//             Receive a 422 - Unprocessable Entity
 		// SETUP
 		// Create the payload
-
+		reason := "lorem ipsum"
 		mtoServiceItemDDFSIT := models.MTOServiceItem{
 			MoveTaskOrderID: subtestData.mto.ID,
 			MTOShipmentID:   &subtestData.mtoShipment.ID,
 			ReService:       models.ReService{Code: models.ReServiceCodeDDFSIT},
 			Description:     handlers.FmtString("description"),
 			SITEntryDate:    &sitEntryDate,
+			Reason:          &reason,
 		}
 		moveRouter := moverouter.NewMoveRouter()
 		creator := mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter)
@@ -1036,11 +1039,45 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 			creator,
 			mtoChecker,
 		}
+		reason := "lorem ipsum"
+		mtoServiceItemDDFSIT := models.MTOServiceItem{
+			MoveTaskOrderID: subtestData.mto.ID,
+			MTOShipmentID:   &subtestData.mtoShipment.ID,
+			ReService:       models.ReService{Code: models.ReServiceCodeDDFSIT},
+			Description:     handlers.FmtString("description"),
+			SITEntryDate:    &sitEntryDate,
+			Reason:          &reason,
+			CustomerContacts: models.MTOServiceItemCustomerContacts{
+				models.MTOServiceItemCustomerContact{
+					Type:                       models.CustomerContactTypeFirst,
+					TimeMilitary:               "0400Z",
+					FirstAvailableDeliveryDate: time.Now(),
+				},
+				models.MTOServiceItemCustomerContact{
+					Type:                       models.CustomerContactTypeSecond,
+					TimeMilitary:               "0400Z",
+					FirstAvailableDeliveryDate: time.Now(),
+				},
+			},
+		}
+
+		// CALL FUNCTION UNDER TEST
+		req := httptest.NewRequest("POST", "/mto-service-items", nil)
+		paramsDDFSIT := mtoserviceitemops.CreateMTOServiceItemParams{
+			HTTPRequest: req,
+			Body:        payloads.MTOServiceItem(&mtoServiceItemDDFSIT),
+		}
 
 		// Validate incoming payload
-		suite.NoError(subtestData.params.Body.Validate(strfmt.Default))
+		suite.NoError(paramsDDFSIT.Body.Validate(strfmt.Default))
 
-		response := handler.Handle(subtestData.params)
+		// CHECK RESULTS
+		response := handler.Handle(paramsDDFSIT)
+
+		// REMOVE COMMENT WHEN TEST PASSES
+		// Validate incoming payload
+		//suite.NoError(subtestData.params.Body.Validate(strfmt.Default))
+
 		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemOK{}, response)
 		okResponse := response.(*mtoserviceitemops.CreateMTOServiceItemOK)
 
