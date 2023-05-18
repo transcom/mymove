@@ -2753,6 +2753,7 @@ func (suite *HandlerSuite) TestCreateSITAddressUpdate() {
 		suite.Equal(*createParams.Body.NewAddress.StreetAddress1, *payload.SitAddressUpdates[0].NewAddress.StreetAddress1)
 		suite.Equal(*createParams.Body.NewAddress.StreetAddress2, *payload.SitAddressUpdates[0].NewAddress.StreetAddress2)
 		suite.Equal(*createParams.Body.NewAddress.StreetAddress3, *payload.SitAddressUpdates[0].NewAddress.StreetAddress3)
+
 		suite.Equal(*createParams.Body.NewAddress.City, *payload.SitDestinationFinalAddress.City)
 		suite.Equal(*createParams.Body.NewAddress.Country, *payload.SitDestinationFinalAddress.Country)
 		suite.Equal(*createParams.Body.NewAddress.PostalCode, *payload.SitDestinationFinalAddress.PostalCode)
@@ -2760,6 +2761,8 @@ func (suite *HandlerSuite) TestCreateSITAddressUpdate() {
 		suite.Equal(*createParams.Body.NewAddress.StreetAddress1, *payload.SitDestinationFinalAddress.StreetAddress1)
 		suite.Equal(*createParams.Body.NewAddress.StreetAddress2, *payload.SitDestinationFinalAddress.StreetAddress2)
 		suite.Equal(*createParams.Body.NewAddress.StreetAddress3, *payload.SitDestinationFinalAddress.StreetAddress3)
+
+		suite.Equal(serviceItem.SITDestinationFinalAddress.ID.String(), payload.SitAddressUpdates[0].OldAddress.ID.String())
 		suite.Equal(serviceItem.SITDestinationFinalAddress.City, *payload.SitAddressUpdates[0].OldAddress.City)
 		suite.Equal(*serviceItem.SITDestinationFinalAddress.Country, *payload.SitAddressUpdates[0].OldAddress.Country)
 		suite.Equal(serviceItem.SITDestinationFinalAddress.PostalCode, *payload.SitAddressUpdates[0].OldAddress.PostalCode)
@@ -2767,6 +2770,7 @@ func (suite *HandlerSuite) TestCreateSITAddressUpdate() {
 		suite.Equal(serviceItem.SITDestinationFinalAddress.StreetAddress1, *payload.SitAddressUpdates[0].OldAddress.StreetAddress1)
 		suite.Equal(*serviceItem.SITDestinationFinalAddress.StreetAddress2, *payload.SitAddressUpdates[0].OldAddress.StreetAddress2)
 		suite.Equal(*serviceItem.SITDestinationFinalAddress.StreetAddress3, *payload.SitAddressUpdates[0].OldAddress.StreetAddress3)
+
 		suite.Require().NotNil(*payload.SitAddressUpdates[0].OfficeRemarks)
 		suite.Equal(officeRemarks, *payload.SitAddressUpdates[0].OfficeRemarks)
 	})

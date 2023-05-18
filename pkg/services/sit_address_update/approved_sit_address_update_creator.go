@@ -69,6 +69,7 @@ func (f *approvedSITAddressUpdateCreator) CreateApprovedSITAddressUpdate(appCtx 
 			return apperror.NewQueryError("SITAddressUpdate", err, "Unable to create SIT Address Update")
 		}
 
+		serviceItem.SITDestinationFinalAddressID = &newAddress.ID
 		serviceItem.SITDestinationFinalAddress = newAddress
 
 		_, err = f.serviceItemUpdater.UpdateMTOServiceItemBasic(txnAppCtx, &serviceItem, etag.GenerateEtag(serviceItem.UpdatedAt))
@@ -76,7 +77,14 @@ func (f *approvedSITAddressUpdateCreator) CreateApprovedSITAddressUpdate(appCtx 
 			return err
 		}
 
-		err = appCtx.DB().Eager("SITDestinationFinalAddress", "SITAddressUpdates", "SITAddressUpdates.NewAddress", "SITAddressUpdates.OldAddress").Where("id = ?", sitAddressUpdate.MTOServiceItemID).First(&sitAddressUpdate.MTOServiceItem)
+		// The serviceItemUpdater doesn't eager load all address associations,
+		// so load them here and attach them to created SitAddressUpdate
+		err = appCtx.DB().Eager(
+			"SITDestinationOriginalAddress",
+			"SITDestinationFinalAddress",
+			"SITAddressUpdates.NewAddress",
+			"SITAddressUpdates.OldAddress").
+			Where("id = ?", sitAddressUpdate.MTOServiceItemID).First(&sitAddressUpdate.MTOServiceItem)
 		if err != nil {
 			return err
 		}

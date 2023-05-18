@@ -70,18 +70,23 @@ func (suite *SITAddressUpdateServiceSuite) TestCreateApprovedSITAddressUpdate() 
 		suite.NotNil(createdAddressUpdate)
 		suite.Equal(mockedDistance, createdAddressUpdate.Distance)
 		suite.Equal(models.SITAddressUpdateStatusApproved, createdAddressUpdate.Status)
+
 		suite.Equal(*sitAddressUpdate.OfficeRemarks, *createdAddressUpdate.OfficeRemarks)
 		suite.Equal(*sitAddressUpdate.OfficeRemarks, *createdAddressUpdate.OfficeRemarks)
+
 		suite.Equal(*serviceItem.SITDestinationFinalAddressID, createdAddressUpdate.OldAddressID)
 		suite.Equal(serviceItem.SITDestinationFinalAddress.ID, createdAddressUpdate.OldAddress.ID)
 		suite.Equal(serviceItem.SITDestinationFinalAddress.StreetAddress1, createdAddressUpdate.OldAddress.StreetAddress1)
 		suite.Equal(serviceItem.SITDestinationFinalAddress.PostalCode, createdAddressUpdate.OldAddress.PostalCode)
+
 		suite.Equal(sitAddressUpdate.NewAddress.StreetAddress1, createdAddressUpdate.NewAddress.StreetAddress1)
 		suite.Equal(sitAddressUpdate.NewAddress.PostalCode, createdAddressUpdate.NewAddress.PostalCode)
+
 		suite.Equal(sitAddressUpdate.MTOServiceItemID, createdAddressUpdate.MTOServiceItemID)
 		suite.Equal(sitAddressUpdate.MTOServiceItem.ID, createdAddressUpdate.MTOServiceItem.ID)
 		suite.Equal(sitAddressUpdate.MTOServiceItem.ReServiceID, createdAddressUpdate.MTOServiceItem.ReServiceID)
 		suite.Equal(sitAddressUpdate.MTOServiceItem.ReService.Code, createdAddressUpdate.MTOServiceItem.ReService.Code)
+
 		sitDestinationFinalAddress := *createdAddressUpdate.MTOServiceItem.SITDestinationFinalAddress
 		suite.Equal(createdAddressUpdate.NewAddress.StreetAddress1, sitDestinationFinalAddress.StreetAddress1)
 		suite.Equal(createdAddressUpdate.NewAddress.PostalCode, sitDestinationFinalAddress.PostalCode)
