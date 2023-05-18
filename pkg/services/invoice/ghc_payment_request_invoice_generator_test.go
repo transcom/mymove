@@ -83,12 +83,25 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	var result ediinvoice.Invoice858C
 
 	setupTestData := func() {
+		customServiceMember := models.ServiceMember{
+			ID:    uuid.FromStringOrNil("d66d2f35-218c-4b85-b9d1-631949b9d984"),
+			Edipi: models.StringPointer("1000011111"),
+		}
+
+		serviceMember = factory.BuildExtendedServiceMember(suite.DB(), []factory.Customization{
+			{Model: customServiceMember},
+		}, nil)
+
 		mto = factory.BuildMove(suite.DB(), []factory.Customization{
 			{
 				Model: models.Move{
 					ReferenceID: &referenceID,
 					Status:      models.MoveStatusAPPROVED,
 				},
+			},
+			{
+				Model:    serviceMember,
+				LinkOnly: true,
 			},
 		}, nil)
 
@@ -294,15 +307,6 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		paymentServiceItems = models.PaymentServiceItems{}
 		paymentServiceItems = append(paymentServiceItems, dlh, fsc, ms, cs, dsh, dop, ddp, dpk, dnpk, dupk, ddfsit, ddasit, dofsit, doasit, doshut, ddshut, dcrt, ducrt, dddsit, dopsit)
 
-		customServiceMember := models.ServiceMember{
-			ID:    uuid.FromStringOrNil("d66d2f35-218c-4b85-b9d1-631949b9d984"),
-			Edipi: models.StringPointer("1000011111"),
-		}
-
-		serviceMember = factory.BuildExtendedServiceMember(suite.DB(), []factory.Customization{
-			{Model: customServiceMember},
-		}, nil)
-
 		// setup known next value
 		icnErr := suite.icnSequencer.SetVal(suite.AppContextForTest(), 122)
 		suite.NoError(icnErr)
@@ -368,7 +372,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 
 	suite.Run("se segment has correct value", func() {
 		setupTestData()
-		// Will need to be updated as more service items are supported
+		// Will need to be updated as more service items are supportedx
 		suite.Equal(164, result.SE.NumberOfIncludedSegments)
 		suite.Equal("0001", result.SE.TransactionSetControlNumber)
 	})
