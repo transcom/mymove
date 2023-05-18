@@ -1,6 +1,7 @@
 package query
 
 import (
+	"database/sql"
 	"errors"
 	"fmt"
 	"testing"
@@ -771,5 +772,26 @@ func (suite *QueryBuilderSuite) TestFetchCategoricalCountsFromOneModel() {
 		_, err := builder.FetchCategoricalCountsFromOneModel(suite.AppContextForTest(), electronicOrder, unsuccessfulFilter, nil)
 		suite.NotNil(err)
 
+	})
+}
+
+func (suite *QueryBuilderSuite) TestDeleteOne() {
+	builder := NewQueryBuilder()
+
+	suite.Run("Successfully deletes a record", func() {
+		clientCert := factory.BuildClientCert(suite.DB(), nil, nil)
+
+		suite.NoError(builder.DeleteOne(suite.AppContextForTest(), &clientCert))
+
+		var filters []services.QueryFilter
+		queryFilters := append(filters, NewQueryFilter("id", "=", clientCert.ID.String()))
+		var record models.ClientCert
+		suite.Equal(sql.ErrNoRows,
+			builder.FetchOne(suite.AppContextForTest(), &record, queryFilters))
+	})
+
+	suite.Run("Rejects input that isn't a pointer to a struct", func() {
+		err := builder.DeleteOne(suite.AppContextForTest(), models.OfficeUser{})
+		suite.Error(err, "Model should be a pointer to a struct")
 	})
 }
