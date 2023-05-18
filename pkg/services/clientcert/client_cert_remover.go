@@ -14,7 +14,8 @@ import (
 
 type clientCertRemover struct {
 	builder clientCertQueryBuilder
-	sender  notifications.NotificationSender
+	services.UserRoleAssociator
+	sender notifications.NotificationSender
 }
 
 func (o *clientCertRemover) RemoveClientCert(appCtx appcontext.AppContext, id uuid.UUID) (*models.ClientCert, *validate.Errors, error) {
@@ -27,6 +28,14 @@ func (o *clientCertRemover) RemoveClientCert(appCtx appcontext.AppContext, id uu
 	}
 
 	err = o.builder.DeleteOne(appCtx, &foundClientCert)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	// add/remove the prime role as necessary, passing nil as the
+	// client cert
+	err = updatePrimeRoleForUser(appCtx, foundClientCert.UserID, nil,
+		o.builder, o.UserRoleAssociator)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -50,6 +59,6 @@ func (o *clientCertRemover) RemoveClientCert(appCtx appcontext.AppContext, id uu
 }
 
 // NewClientCertRemover returns a new admin user updater builder
-func NewClientCertRemover(builder clientCertQueryBuilder, sender notifications.NotificationSender) services.ClientCertRemover {
-	return &clientCertRemover{builder, sender}
+func NewClientCertRemover(builder clientCertQueryBuilder, userRoleAssociator services.UserRoleAssociator, sender notifications.NotificationSender) services.ClientCertRemover {
+	return &clientCertRemover{builder, userRoleAssociator, sender}
 }

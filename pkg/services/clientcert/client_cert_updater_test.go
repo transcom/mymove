@@ -68,6 +68,7 @@ func (suite *ClientCertServiceSuite) TestUpdateClientCert() {
 		suite.Equal(payload.Subject, updatedClientCert.Subject)
 		suite.Equal(payload.Sha256Digest, updatedClientCert.Sha256Digest)
 		suite.Equal(*payload.AllowPrime, updatedClientCert.AllowPrime)
+
 		userRoles, err = roles.FetchRolesForUser(suite.DB(), clientCert.UserID)
 		suite.NoError(err)
 		suite.False(userRoles.HasRole(roles.RoleTypePrime))

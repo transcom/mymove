@@ -68,6 +68,7 @@ func (suite *ClientCertServiceSuite) TestCreateClientCert() {
 		suite.Equal(clientCert.Subject, clientCertInfo.Subject)
 		suite.Equal(clientCert.Sha256Digest, clientCertInfo.Sha256Digest)
 		suite.Equal(clientCert.UserID, user.ID)
+
 		userRoles, err := roles.FetchRolesForUser(suite.DB(), user.ID)
 		suite.NoError(err)
 		suite.True(userRoles.HasRole(roles.RoleTypePrime))
@@ -102,6 +103,7 @@ func (suite *ClientCertServiceSuite) TestCreateClientCert() {
 		suite.NotNil(clientCert.ID)
 		suite.Equal(clientCert.Subject, clientCertInfo.Subject)
 		suite.Equal(clientCert.Sha256Digest, clientCertInfo.Sha256Digest)
+
 		userRoles, err := roles.FetchRolesForUser(suite.DB(), clientCert.UserID)
 		suite.NoError(err)
 		suite.True(userRoles.HasRole(roles.RoleTypePrime))

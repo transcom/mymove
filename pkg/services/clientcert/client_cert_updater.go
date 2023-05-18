@@ -8,7 +8,6 @@ import (
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/query"
@@ -77,23 +76,11 @@ func (o *clientCertUpdater) UpdateClientCert(appCtx appcontext.AppContext, id uu
 		return nil, verrs, err
 	}
 
-	userRoles, err := roles.FetchRolesForUser(appCtx.DB(), foundClientCert.UserID)
+	// add/remove the prime role as necessary
+	err = updatePrimeRoleForUser(appCtx, foundClientCert.UserID, &foundClientCert,
+		o.builder, o.UserRoleAssociator)
 	if err != nil {
 		return nil, nil, err
-	}
-
-	// ensure this user does not has the prime role if necessary
-	if !foundClientCert.AllowPrime && userRoles.HasRole(roles.RoleTypePrime) {
-		newRoles := []roles.RoleType{}
-		for _, role := range userRoles {
-			if role.RoleType != roles.RoleTypePrime {
-				newRoles = append(newRoles, role.RoleType)
-			}
-			_, err = o.UpdateUserRoles(appCtx, foundClientCert.UserID, newRoles)
-			if err != nil {
-				return nil, nil, err
-			}
-		}
 	}
 
 	session := appCtx.Session()

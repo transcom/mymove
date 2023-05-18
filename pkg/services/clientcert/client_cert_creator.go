@@ -9,7 +9,6 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/query"
@@ -60,22 +59,11 @@ func (o *clientCertCreator) CreateClientCert(
 			}
 		}
 
-		userRoles, err := roles.FetchRolesForUser(txnAppCtx.DB(), user.ID)
+		// ensure this user has the prime role if necessary
+		err = updatePrimeRoleForUser(appCtx, user.ID, cert, o.builder,
+			o.UserRoleAssociator)
 		if err != nil {
 			return err
-		}
-
-		// ensure this user has the prime role if necessary
-		if cert.AllowPrime && !userRoles.HasRole(roles.RoleTypePrime) {
-			newRoles := []roles.RoleType{}
-			for _, role := range userRoles {
-				newRoles = append(newRoles, role.RoleType)
-			}
-			newRoles = append(newRoles, roles.RoleTypePrime)
-			_, err = o.UpdateUserRoles(txnAppCtx, user.ID, newRoles)
-			if err != nil {
-				return err
-			}
 		}
 
 		// assign the userID to the cert

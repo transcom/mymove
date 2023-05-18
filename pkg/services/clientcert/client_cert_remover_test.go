@@ -14,11 +14,13 @@ import (
 	"github.com/transcom/mymove/pkg/notifications/mocks"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/query"
+	usersroles "github.com/transcom/mymove/pkg/services/users_roles"
 )
 
 func (suite *ClientCertServiceSuite) TestRemoveClientCert() {
 	mockSender := setUpMockNotificationSender()
 	queryBuilder := query.NewQueryBuilder()
+	associator := usersroles.NewUsersRolesCreator()
 
 	// Happy path
 	suite.Run("Remove client cert", func() {
@@ -42,7 +44,7 @@ func (suite *ClientCertServiceSuite) TestRemoveClientCert() {
 		userRoles, err := roles.FetchRolesForUser(suite.DB(), clientCert.UserID)
 		suite.NoError(err)
 		suite.True(userRoles.HasRole(roles.RoleTypePrime))
-		updater := NewClientCertRemover(queryBuilder, mockSender)
+		updater := NewClientCertRemover(queryBuilder, associator, mockSender)
 
 		payload := &adminmessages.ClientCertificate{
 			Subject:      clientCert.Subject,
@@ -63,6 +65,10 @@ func (suite *ClientCertServiceSuite) TestRemoveClientCert() {
 		findErr := suite.DB().Find(&missingClientCert, clientCert.ID)
 		suite.Equal(sql.ErrNoRows, findErr)
 
+		userRoles, err = roles.FetchRolesForUser(suite.DB(), clientCert.UserID)
+		suite.NoError(err)
+		suite.False(userRoles.HasRole(roles.RoleTypePrime))
+
 		mockSender.(*mocks.NotificationSender).AssertNumberOfCalls(suite.T(), "SendNotification", 1)
 	})
 
@@ -78,7 +84,7 @@ func (suite *ClientCertServiceSuite) TestRemoveClientCert() {
 			fakeFetchOne: fakeFetchOne,
 		}
 
-		updater := NewClientCertRemover(builder, mockSender)
+		updater := NewClientCertRemover(builder, associator, mockSender)
 		_, _, err := updater.RemoveClientCert(suite.AppContextWithSessionForTest(&auth.Session{}), missingUUID)
 		suite.Error(err)
 		suite.Equal(models.ErrFetchNotFound.Error(), err.Error())

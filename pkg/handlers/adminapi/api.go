@@ -202,7 +202,7 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 
 	adminAPI.ClientCertificatesRemoveClientCertificateHandler = RemoveClientCertHandler{
 		handlerConfig,
-		clientcert.NewClientCertRemover(queryBuilder, handlerConfig.NotificationSender()),
+		clientcert.NewClientCertRemover(queryBuilder, userRolesCreator, handlerConfig.NotificationSender()),
 		query.NewQueryFilter,
 	}
 
