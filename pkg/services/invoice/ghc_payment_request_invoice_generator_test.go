@@ -373,7 +373,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	suite.Run("se segment has correct value", func() {
 		setupTestData()
 		// Will need to be updated as more service items are supported
-		suite.Equal(164, result.SE.NumberOfIncludedSegments)
+		suite.Equal(165, result.SE.NumberOfIncludedSegments)
 		suite.Equal("0001", result.SE.TransactionSetControlNumber)
 	})
 
