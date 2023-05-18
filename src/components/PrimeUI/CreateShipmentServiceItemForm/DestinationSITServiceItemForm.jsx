@@ -14,18 +14,10 @@ import { DatePickerInput } from 'components/form/fields';
 import { ShipmentShape } from 'types/shipment';
 
 const destinationSITValidationSchema = Yup.object().shape({
-  firstAvailableDeliveryDate1: Yup.date()
-    .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
-    .required('Required'),
-  timeMilitary1: Yup.string()
-    .matches(/^(\d{4}Z)$/, 'Must be a valid military time (e.g. 1400Z)')
-    .required('Required'),
-  firstAvailableDeliveryDate2: Yup.date()
-    .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
-    .required('Required'),
-  timeMilitary2: Yup.string()
-    .matches(/^(\d{4}Z)$/, 'Must be a valid military time (e.g. 1400Z)')
-    .required('Required'),
+  firstAvailableDeliveryDate1: Yup.date().typeError('Enter a complete date in DD MMM YYYY format (day, month, year).'),
+  timeMilitary1: Yup.string().matches(/^(\d{4}Z)$/, 'Must be a valid military time (e.g. 1400Z)'),
+  firstAvailableDeliveryDate2: Yup.date().typeError('Enter a complete date in DD MMM YYYY format (day, month, year).'),
+  timeMilitary2: Yup.string().matches(/^(\d{4}Z)$/, 'Must be a valid military time (e.g. 1400Z)'),
   sitEntryDate: Yup.date()
     .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
     .required('Required'),
@@ -55,6 +47,8 @@ const DestinationSITServiceItemForm = ({ shipment, submission }) => {
       sitEntryDate,
       sitDepartureDate,
       sitDestinationFinalAddress,
+      timeMilitary1,
+      timeMilitary2,
       ...serviceItemValues
     } = values;
     const body = {
@@ -65,6 +59,8 @@ const DestinationSITServiceItemForm = ({ shipment, submission }) => {
       sitDestinationFinalAddress: sitDestinationFinalAddress.streetAddress1
         ? formatAddressForPrimeAPI(sitDestinationFinalAddress)
         : null,
+      timeMilitary1: timeMilitary1 || null,
+      timeMilitary2: timeMilitary2 || null,
       ...serviceItemValues,
     };
     submission({ body });
