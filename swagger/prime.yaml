@@ -74,6 +74,15 @@ tags:
 
       Proof of service documentation may be uploaded for each **mtoServiceItem**
       in a **paymentRequest**.
+  - name: sitAddressUpdate
+    description: >
+      The contractor submits a **sitAddressUpdate** to the TOO for approval in
+      order
+
+      to update the SITFinalAddress for a service item. This only applies to
+      address
+
+      updates that exceed a 50 mile distance.
 x-tagGroups:
   - name: Endpoints
     tags:
@@ -81,6 +90,7 @@ x-tagGroups:
       - mtoShipment
       - mtoServiceItem
       - paymentRequest
+      - sitAddressUpdate
 paths:
   /moves:
     get:
@@ -1227,7 +1237,7 @@ paths:
           $ref: '#/responses/ServerError'
   /sit-address-updates:
     post:
-      summary: requestSITAddressUpdate
+      summary: createSITAddressUpdateRequest
       description: >
         **Functionality:**
 
@@ -1251,9 +1261,9 @@ paths:
         UpdateMTOServiceItemSIT.
 
         Only ONE request allowed per SIT service item.
-      operationId: requestSITAddressUpdate
+      operationId: createSITAddressUpdateRequest
       tags:
-        - mtoServiceItem
+        - sitAddressUpdate
       consumes:
         - application/json
       produces:
@@ -1262,7 +1272,7 @@ paths:
         - in: body
           name: body
           schema:
-            $ref: '#/definitions/RequestSITAddressUpdate'
+            $ref: '#/definitions/createSITAddressUpdateRequest'
       responses:
         '200':
           description: Succesfully created a SIT address update request.
@@ -2890,7 +2900,7 @@ definitions:
       - PRIME
       - SYSTEM
       - TOO
-  RequestSITAddressUpdate:
+  createSITAddressUpdateRequest:
     type: object
     properties:
       address:

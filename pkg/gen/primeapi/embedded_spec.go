@@ -1194,16 +1194,16 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "mtoServiceItem"
+          "sitAddressUpdate"
         ],
-        "summary": "requestSITAddressUpdate",
-        "operationId": "requestSITAddressUpdate",
+        "summary": "createSITAddressUpdateRequest",
+        "operationId": "createSITAddressUpdateRequest",
         "parameters": [
           {
             "name": "body",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/RequestSITAddressUpdate"
+              "$ref": "#/definitions/createSITAddressUpdateRequest"
             }
           }
         ],
@@ -3295,18 +3295,6 @@ func init() {
         "NSTUB"
       ]
     },
-    "RequestSITAddressUpdate": {
-      "type": "object",
-      "properties": {
-        "address": {
-          "$ref": "#/definitions/Address"
-        },
-        "contractorRemarks": {
-          "type": "string",
-          "example": "Customer reached out to me this week \u0026 let me know they want to move closer to family."
-        }
-      }
-    },
     "Reweigh": {
       "description": "A reweigh  is when a shipment is weighed for a second time due to the request of a customer, the contractor, system or TOO.",
       "properties": {
@@ -4117,6 +4105,18 @@ func init() {
           }
         }
       ]
+    },
+    "createSITAddressUpdateRequest": {
+      "type": "object",
+      "properties": {
+        "address": {
+          "$ref": "#/definitions/Address"
+        },
+        "contractorRemarks": {
+          "type": "string",
+          "example": "Customer reached out to me this week \u0026 let me know they want to move closer to family."
+        }
+      }
     }
   },
   "parameters": {
@@ -4194,6 +4194,10 @@ func init() {
     {
       "description": "The contractor submits a **paymentRequest** to the TIO for approval in order to be reimbursed for 1 or more\n**mtoServiceItems** on a **moveTaskOrder**.\n\nProof of service documentation may be uploaded for each **mtoServiceItem** in a **paymentRequest**.\n",
       "name": "paymentRequest"
+    },
+    {
+      "description": "The contractor submits a **sitAddressUpdate** to the TOO for approval in order\nto update the SITFinalAddress for a service item. This only applies to address\nupdates that exceed a 50 mile distance.\n",
+      "name": "sitAddressUpdate"
     }
   ],
   "x-tagGroups": [
@@ -4203,7 +4207,8 @@ func init() {
         "moveTaskOrder",
         "mtoShipment",
         "mtoServiceItem",
-        "paymentRequest"
+        "paymentRequest",
+        "sitAddressUpdate"
       ]
     }
   ]
@@ -5737,16 +5742,16 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "mtoServiceItem"
+          "sitAddressUpdate"
         ],
-        "summary": "requestSITAddressUpdate",
-        "operationId": "requestSITAddressUpdate",
+        "summary": "createSITAddressUpdateRequest",
+        "operationId": "createSITAddressUpdateRequest",
         "parameters": [
           {
             "name": "body",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/RequestSITAddressUpdate"
+              "$ref": "#/definitions/createSITAddressUpdateRequest"
             }
           }
         ],
@@ -7859,18 +7864,6 @@ func init() {
         "NSTUB"
       ]
     },
-    "RequestSITAddressUpdate": {
-      "type": "object",
-      "properties": {
-        "address": {
-          "$ref": "#/definitions/Address"
-        },
-        "contractorRemarks": {
-          "type": "string",
-          "example": "Customer reached out to me this week \u0026 let me know they want to move closer to family."
-        }
-      }
-    },
     "Reweigh": {
       "description": "A reweigh  is when a shipment is weighed for a second time due to the request of a customer, the contractor, system or TOO.",
       "properties": {
@@ -8684,6 +8677,18 @@ func init() {
           }
         }
       ]
+    },
+    "createSITAddressUpdateRequest": {
+      "type": "object",
+      "properties": {
+        "address": {
+          "$ref": "#/definitions/Address"
+        },
+        "contractorRemarks": {
+          "type": "string",
+          "example": "Customer reached out to me this week \u0026 let me know they want to move closer to family."
+        }
+      }
     }
   },
   "parameters": {
@@ -8761,6 +8766,10 @@ func init() {
     {
       "description": "The contractor submits a **paymentRequest** to the TIO for approval in order to be reimbursed for 1 or more\n**mtoServiceItems** on a **moveTaskOrder**.\n\nProof of service documentation may be uploaded for each **mtoServiceItem** in a **paymentRequest**.\n",
       "name": "paymentRequest"
+    },
+    {
+      "description": "The contractor submits a **sitAddressUpdate** to the TOO for approval in order\nto update the SITFinalAddress for a service item. This only applies to address\nupdates that exceed a 50 mile distance.\n",
+      "name": "sitAddressUpdate"
     }
   ],
   "x-tagGroups": [
@@ -8770,7 +8779,8 @@ func init() {
         "moveTaskOrder",
         "mtoShipment",
         "mtoServiceItem",
-        "paymentRequest"
+        "paymentRequest",
+        "sitAddressUpdate"
       ]
     }
   ]

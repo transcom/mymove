@@ -23,6 +23,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_service_item"
 	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/payment_request"
+	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/sit_address_update"
 )
 
 // NewMymoveAPI creates a new Mymove instance
@@ -63,6 +64,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		PaymentRequestCreatePaymentRequestHandler: payment_request.CreatePaymentRequestHandlerFunc(func(params payment_request.CreatePaymentRequestParams) middleware.Responder {
 			return middleware.NotImplemented("operation payment_request.CreatePaymentRequest has not yet been implemented")
 		}),
+		SitAddressUpdateCreateSITAddressUpdateRequestHandler: sit_address_update.CreateSITAddressUpdateRequestHandlerFunc(func(params sit_address_update.CreateSITAddressUpdateRequestParams) middleware.Responder {
+			return middleware.NotImplemented("operation sit_address_update.CreateSITAddressUpdateRequest has not yet been implemented")
+		}),
 		MtoShipmentCreateSITExtensionHandler: mto_shipment.CreateSITExtensionHandlerFunc(func(params mto_shipment.CreateSITExtensionParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_shipment.CreateSITExtension has not yet been implemented")
 		}),
@@ -77,9 +81,6 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		MoveTaskOrderListMovesHandler: move_task_order.ListMovesHandlerFunc(func(params move_task_order.ListMovesParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_task_order.ListMoves has not yet been implemented")
-		}),
-		MtoServiceItemRequestSITAddressUpdateHandler: mto_service_item.RequestSITAddressUpdateHandlerFunc(func(params mto_service_item.RequestSITAddressUpdateParams) middleware.Responder {
-			return middleware.NotImplemented("operation mto_service_item.RequestSITAddressUpdate has not yet been implemented")
 		}),
 		MtoShipmentUpdateMTOAgentHandler: mto_shipment.UpdateMTOAgentHandlerFunc(func(params mto_shipment.UpdateMTOAgentParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_shipment.UpdateMTOAgent has not yet been implemented")
@@ -157,6 +158,8 @@ type MymoveAPI struct {
 	MtoShipmentCreateMTOShipmentHandler mto_shipment.CreateMTOShipmentHandler
 	// PaymentRequestCreatePaymentRequestHandler sets the operation handler for the create payment request operation
 	PaymentRequestCreatePaymentRequestHandler payment_request.CreatePaymentRequestHandler
+	// SitAddressUpdateCreateSITAddressUpdateRequestHandler sets the operation handler for the create s i t address update request operation
+	SitAddressUpdateCreateSITAddressUpdateRequestHandler sit_address_update.CreateSITAddressUpdateRequestHandler
 	// MtoShipmentCreateSITExtensionHandler sets the operation handler for the create s i t extension operation
 	MtoShipmentCreateSITExtensionHandler mto_shipment.CreateSITExtensionHandler
 	// PaymentRequestCreateUploadHandler sets the operation handler for the create upload operation
@@ -167,8 +170,6 @@ type MymoveAPI struct {
 	MoveTaskOrderGetMoveTaskOrderHandler move_task_order.GetMoveTaskOrderHandler
 	// MoveTaskOrderListMovesHandler sets the operation handler for the list moves operation
 	MoveTaskOrderListMovesHandler move_task_order.ListMovesHandler
-	// MtoServiceItemRequestSITAddressUpdateHandler sets the operation handler for the request s i t address update operation
-	MtoServiceItemRequestSITAddressUpdateHandler mto_service_item.RequestSITAddressUpdateHandler
 	// MtoShipmentUpdateMTOAgentHandler sets the operation handler for the update m t o agent operation
 	MtoShipmentUpdateMTOAgentHandler mto_shipment.UpdateMTOAgentHandler
 	// MoveTaskOrderUpdateMTOPostCounselingInformationHandler sets the operation handler for the update m t o post counseling information operation
@@ -278,6 +279,9 @@ func (o *MymoveAPI) Validate() error {
 	if o.PaymentRequestCreatePaymentRequestHandler == nil {
 		unregistered = append(unregistered, "payment_request.CreatePaymentRequestHandler")
 	}
+	if o.SitAddressUpdateCreateSITAddressUpdateRequestHandler == nil {
+		unregistered = append(unregistered, "sit_address_update.CreateSITAddressUpdateRequestHandler")
+	}
 	if o.MtoShipmentCreateSITExtensionHandler == nil {
 		unregistered = append(unregistered, "mto_shipment.CreateSITExtensionHandler")
 	}
@@ -292,9 +296,6 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.MoveTaskOrderListMovesHandler == nil {
 		unregistered = append(unregistered, "move_task_order.ListMovesHandler")
-	}
-	if o.MtoServiceItemRequestSITAddressUpdateHandler == nil {
-		unregistered = append(unregistered, "mto_service_item.RequestSITAddressUpdateHandler")
 	}
 	if o.MtoShipmentUpdateMTOAgentHandler == nil {
 		unregistered = append(unregistered, "mto_shipment.UpdateMTOAgentHandler")
@@ -430,6 +431,10 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
+	o.handlers["POST"]["/sit-address-updates"] = sit_address_update.NewCreateSITAddressUpdateRequest(o.context, o.SitAddressUpdateCreateSITAddressUpdateRequestHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
 	o.handlers["POST"]["/mto-shipments/{mtoShipmentID}/sit-extensions"] = mto_shipment.NewCreateSITExtension(o.context, o.MtoShipmentCreateSITExtensionHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
@@ -447,10 +452,6 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/moves"] = move_task_order.NewListMoves(o.context, o.MoveTaskOrderListMovesHandler)
-	if o.handlers["POST"] == nil {
-		o.handlers["POST"] = make(map[string]http.Handler)
-	}
-	o.handlers["POST"]["/sit-address-updates"] = mto_service_item.NewRequestSITAddressUpdate(o.context, o.MtoServiceItemRequestSITAddressUpdateHandler)
 	if o.handlers["PUT"] == nil {
 		o.handlers["PUT"] = make(map[string]http.Handler)
 	}

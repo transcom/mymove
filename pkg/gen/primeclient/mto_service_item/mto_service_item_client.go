@@ -32,8 +32,6 @@ type ClientOption func(*runtime.ClientOperation)
 type ClientService interface {
 	CreateMTOServiceItem(params *CreateMTOServiceItemParams, opts ...ClientOption) (*CreateMTOServiceItemOK, error)
 
-	RequestSITAddressUpdate(params *RequestSITAddressUpdateParams, opts ...ClientOption) (*RequestSITAddressUpdateOK, error)
-
 	UpdateMTOServiceItem(params *UpdateMTOServiceItemParams, opts ...ClientOption) (*UpdateMTOServiceItemOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
@@ -143,56 +141,6 @@ func (a *Client) CreateMTOServiceItem(params *CreateMTOServiceItemParams, opts .
 	// unexpected success response
 	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
 	msg := fmt.Sprintf("unexpected success response for createMTOServiceItem: API contract not enforced by server. Client expected to get an error, but got: %T", result)
-	panic(msg)
-}
-
-/*
-	RequestSITAddressUpdate requests s i t address update
-
-	**Functionality:**
-
-Creates an update request for a SIT service item's final delivery address.
-A newly created update request is assigned the status 'REQUESTED'.
-
-**Limitations:**
-The update can be requested for APPROVED service items only.
-This endpoint is only for updates that exceed a 50 mile distance from the
-original delivery address of the service item being updated. If the distance
-is less than 50 miles, the prime can make the update themselves via UpdateMTOServiceItemSIT.
-Only ONE request allowed per SIT service item.
-*/
-func (a *Client) RequestSITAddressUpdate(params *RequestSITAddressUpdateParams, opts ...ClientOption) (*RequestSITAddressUpdateOK, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewRequestSITAddressUpdateParams()
-	}
-	op := &runtime.ClientOperation{
-		ID:                 "requestSITAddressUpdate",
-		Method:             "POST",
-		PathPattern:        "/sit-address-updates",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
-		Schemes:            []string{"http"},
-		Params:             params,
-		Reader:             &RequestSITAddressUpdateReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	}
-	for _, opt := range opts {
-		opt(op)
-	}
-
-	result, err := a.transport.Submit(op)
-	if err != nil {
-		return nil, err
-	}
-	success, ok := result.(*RequestSITAddressUpdateOK)
-	if ok {
-		return success, nil
-	}
-	// unexpected success response
-	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
-	msg := fmt.Sprintf("unexpected success response for requestSITAddressUpdate: API contract not enforced by server. Client expected to get an error, but got: %T", result)
 	panic(msg)
 }
 

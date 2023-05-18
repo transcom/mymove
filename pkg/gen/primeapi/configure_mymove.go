@@ -15,6 +15,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_service_item"
 	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/payment_request"
+	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/sit_address_update"
 )
 
 //go:generate swagger generate server --target ../../gen --name Mymove --spec ../../../swagger/prime.yaml --api-package primeoperations --model-package primemessages --server-package primeapi --principal interface{} --exclude-main
@@ -72,6 +73,11 @@ func configureAPI(api *primeoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation payment_request.CreatePaymentRequest has not yet been implemented")
 		})
 	}
+	if api.SitAddressUpdateCreateSITAddressUpdateRequestHandler == nil {
+		api.SitAddressUpdateCreateSITAddressUpdateRequestHandler = sit_address_update.CreateSITAddressUpdateRequestHandlerFunc(func(params sit_address_update.CreateSITAddressUpdateRequestParams) middleware.Responder {
+			return middleware.NotImplemented("operation sit_address_update.CreateSITAddressUpdateRequest has not yet been implemented")
+		})
+	}
 	if api.MtoShipmentCreateSITExtensionHandler == nil {
 		api.MtoShipmentCreateSITExtensionHandler = mto_shipment.CreateSITExtensionHandlerFunc(func(params mto_shipment.CreateSITExtensionParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_shipment.CreateSITExtension has not yet been implemented")
@@ -95,11 +101,6 @@ func configureAPI(api *primeoperations.MymoveAPI) http.Handler {
 	if api.MoveTaskOrderListMovesHandler == nil {
 		api.MoveTaskOrderListMovesHandler = move_task_order.ListMovesHandlerFunc(func(params move_task_order.ListMovesParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_task_order.ListMoves has not yet been implemented")
-		})
-	}
-	if api.MtoServiceItemRequestSITAddressUpdateHandler == nil {
-		api.MtoServiceItemRequestSITAddressUpdateHandler = mto_service_item.RequestSITAddressUpdateHandlerFunc(func(params mto_service_item.RequestSITAddressUpdateParams) middleware.Responder {
-			return middleware.NotImplemented("operation mto_service_item.RequestSITAddressUpdate has not yet been implemented")
 		})
 	}
 	if api.MtoShipmentUpdateMTOAgentHandler == nil {
