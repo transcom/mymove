@@ -1,11 +1,3 @@
-// RA Summary: gosec - errcheck - Unchecked return value
-// RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
-// RA: Functions with unchecked return values in the file are used to generate test data for use in the unit test
-// RA: Creation of test data generation for unit test consumption does not present any unexpected states and conditions
-// RA Developer Status: Mitigated
-// RA Validator Status: Mitigated
-// RA Modified Severity: N/A
-// nolint:errcheck
 package query
 
 import (
@@ -612,14 +604,15 @@ func (suite *QueryBuilderSuite) TestUpdateOne() {
 			TransportationOffice:   transportationOffice,
 		}
 
-		builder.CreateOne(suite.AppContextForTest(), &userInfo)
+		_, err := builder.CreateOne(suite.AppContextForTest(), &userInfo)
+		suite.NoError(err)
 		return transportationOffice
 	}
 
 	suite.Run("Successfully updates a record", func() {
 		transportationOffice := setupTestData()
 		officeUser := models.OfficeUser{}
-		suite.DB().Last(&officeUser)
+		suite.NoError(suite.DB().Last(&officeUser))
 
 		updatedOfficeUserInfo := models.OfficeUser{
 			ID:                     officeUser.ID,
@@ -638,14 +631,14 @@ func (suite *QueryBuilderSuite) TestUpdateOne() {
 		var filters []services.QueryFilter
 		queryFilters := append(filters, NewQueryFilter("id", "=", updatedOfficeUserInfo.ID.String()))
 		var record models.OfficeUser
-		builder.FetchOne(suite.AppContextForTest(), &record, queryFilters)
+		suite.NoError(builder.FetchOne(suite.AppContextForTest(), &record, queryFilters))
 		suite.Equal("leo@spaceman.org", record.Email)
 	})
 
 	suite.Run("Successfully updates a record with an eTag for optimistic locking", func() {
 		transportationOffice := setupTestData()
 		officeUser := models.OfficeUser{}
-		suite.DB().Last(&officeUser)
+		suite.NoError(suite.DB().Last(&officeUser))
 
 		updatedOfficeUserInfo := models.OfficeUser{
 			ID:                     officeUser.ID,
@@ -665,14 +658,14 @@ func (suite *QueryBuilderSuite) TestUpdateOne() {
 		var filters []services.QueryFilter
 		queryFilters := append(filters, NewQueryFilter("id", "=", updatedOfficeUserInfo.ID.String()))
 		var record models.OfficeUser
-		builder.FetchOne(suite.AppContextForTest(), &record, queryFilters)
+		suite.NoError(builder.FetchOne(suite.AppContextForTest(), &record, queryFilters))
 		suite.Equal("leo@spaceman.org", record.Email)
 	})
 
 	suite.Run("Reject the update when a stale eTag is used", func() {
 		transportationOffice := setupTestData()
 		officeUser := models.OfficeUser{}
-		suite.DB().Last(&officeUser)
+		suite.NoError(suite.DB().Last(&officeUser))
 
 		updatedOfficeUserInfo := models.OfficeUser{
 			ID:                     officeUser.ID,
