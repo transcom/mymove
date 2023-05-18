@@ -60,9 +60,7 @@ func buildServiceMemberWithBuildType(db *pop.Connection, customs []Customization
 	agency := models.AffiliationARMY
 	rank := models.ServiceMemberRankE1
 
-	// cEdipi = nil then generate random
-	// Find/create the Edipi
-	// cEdipi := findValidCustomization(customs, ServiceMember.Edipi)
+	// Create random edipi
 	randomEdipi := RandomEdipi()
 
 	serviceMember := models.ServiceMember{
