@@ -13,15 +13,15 @@ import (
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 )
 
-// CreateSITAddressUpdateRequestOKCode is the HTTP code returned for type CreateSITAddressUpdateRequestOK
-const CreateSITAddressUpdateRequestOKCode int = 200
+// CreateSITAddressUpdateRequestCreatedCode is the HTTP code returned for type CreateSITAddressUpdateRequestCreated
+const CreateSITAddressUpdateRequestCreatedCode int = 201
 
 /*
-CreateSITAddressUpdateRequestOK Succesfully created a SIT address update request.
+CreateSITAddressUpdateRequestCreated Succesfully created a SIT address update request.
 
-swagger:response createSITAddressUpdateRequestOK
+swagger:response createSITAddressUpdateRequestCreated
 */
-type CreateSITAddressUpdateRequestOK struct {
+type CreateSITAddressUpdateRequestCreated struct {
 
 	/*
 	  In: Body
@@ -29,27 +29,27 @@ type CreateSITAddressUpdateRequestOK struct {
 	Payload *primemessages.SitAddressUpdate `json:"body,omitempty"`
 }
 
-// NewCreateSITAddressUpdateRequestOK creates CreateSITAddressUpdateRequestOK with default headers values
-func NewCreateSITAddressUpdateRequestOK() *CreateSITAddressUpdateRequestOK {
+// NewCreateSITAddressUpdateRequestCreated creates CreateSITAddressUpdateRequestCreated with default headers values
+func NewCreateSITAddressUpdateRequestCreated() *CreateSITAddressUpdateRequestCreated {
 
-	return &CreateSITAddressUpdateRequestOK{}
+	return &CreateSITAddressUpdateRequestCreated{}
 }
 
-// WithPayload adds the payload to the create s i t address update request o k response
-func (o *CreateSITAddressUpdateRequestOK) WithPayload(payload *primemessages.SitAddressUpdate) *CreateSITAddressUpdateRequestOK {
+// WithPayload adds the payload to the create s i t address update request created response
+func (o *CreateSITAddressUpdateRequestCreated) WithPayload(payload *primemessages.SitAddressUpdate) *CreateSITAddressUpdateRequestCreated {
 	o.Payload = payload
 	return o
 }
 
-// SetPayload sets the payload to the create s i t address update request o k response
-func (o *CreateSITAddressUpdateRequestOK) SetPayload(payload *primemessages.SitAddressUpdate) {
+// SetPayload sets the payload to the create s i t address update request created response
+func (o *CreateSITAddressUpdateRequestCreated) SetPayload(payload *primemessages.SitAddressUpdate) {
 	o.Payload = payload
 }
 
 // WriteResponse to the client
-func (o *CreateSITAddressUpdateRequestOK) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+func (o *CreateSITAddressUpdateRequestCreated) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
-	rw.WriteHeader(200)
+	rw.WriteHeader(201)
 	if o.Payload != nil {
 		payload := o.Payload
 		if err := producer.Produce(rw, payload); err != nil {

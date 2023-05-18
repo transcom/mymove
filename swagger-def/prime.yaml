@@ -1069,9 +1069,9 @@ paths:
         - in: body
           name: body
           schema:
-            $ref: '#/definitions/createSITAddressUpdateRequest'
+            $ref: '#/definitions/CreateSITAddressUpdateRequest'
       responses:
-        '200':
+        '201':
           description: Succesfully created a SIT address update request.
           schema:
             $ref: '#/definitions/SitAddressUpdate'
@@ -2556,7 +2556,8 @@ definitions:
       - PRIME
       - SYSTEM
       - TOO
-  createSITAddressUpdateRequest:
+  CreateSITAddressUpdateRequest:
+    description: CreateSITAddressUpdateRequest contains the fields required for the prime to create a SIT address update request.
     type: object
     properties:
       address:
@@ -2622,14 +2623,22 @@ definitions:
       contractorRemarks:
         type: string
         example: Customer reached out to me this week & let me know they want to move closer to family.
+        x-nullable: true
+        x-omitempty: false
+      createdAt:
+        format: date-time
+        type: string
+        readOnly: true
+      updatedAt:
+        format: date-time
+        type: string
+        readOnly: true
       eTag:
         description: A hash unique to this shipment that should be used as the "If-Match" header for any updates.
         type: string
         readOnly: true
   SitAddressUpdateStatus:
     description: The status of a SIT address update, indicating where it is in the TOO's approval process.
-    type: string
-    readOnly: true
     enum:
       - REQUESTED
       - APPROVED

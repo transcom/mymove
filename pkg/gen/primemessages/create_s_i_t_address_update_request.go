@@ -13,9 +13,9 @@ import (
 	"github.com/go-openapi/swag"
 )
 
-// CreateSITAddressUpdateRequest create s i t address update request
+// CreateSITAddressUpdateRequest CreateSITAddressUpdateRequest contains the fields required for the prime to create a SIT address update request.
 //
-// swagger:model createSITAddressUpdateRequest
+// swagger:model CreateSITAddressUpdateRequest
 type CreateSITAddressUpdateRequest struct {
 
 	// address

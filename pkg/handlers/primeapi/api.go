@@ -22,6 +22,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/ppmshipment"
 	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/services/reweigh"
+	sitaddressupdate "github.com/transcom/mymove/pkg/services/sit_address_update"
 	sitextension "github.com/transcom/mymove/pkg/services/sit_extension"
 	"github.com/transcom/mymove/pkg/services/upload"
 )
@@ -171,5 +172,9 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primeoperations.MymoveAP
 		sitextension.NewSitExtensionCreator(moveRouter),
 	}
 
+	primeAPI.SitAddressUpdateCreateSITAddressUpdateRequestHandler = CreateSITAddressUpdateRequestHandler{
+		handlerConfig,
+		sitaddressupdate.NewSITAddressUpdateRequestCreator(handlerConfig.Planner(), addressCreator),
+	}
 	return primeAPI
 }

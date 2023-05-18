@@ -21,7 +21,12 @@ type SitAddressUpdate struct {
 
 	// contractor remarks
 	// Example: Customer reached out to me this week \u0026 let me know they want to move closer to family.
-	ContractorRemarks string `json:"contractorRemarks,omitempty"`
+	ContractorRemarks *string `json:"contractorRemarks"`
+
+	// created at
+	// Read Only: true
+	// Format: date-time
+	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
 	// distance
 	// Example: 25
@@ -53,11 +58,20 @@ type SitAddressUpdate struct {
 
 	// status
 	Status SitAddressUpdateStatus `json:"status,omitempty"`
+
+	// updated at
+	// Read Only: true
+	// Format: date-time
+	UpdatedAt strfmt.DateTime `json:"updatedAt,omitempty"`
 }
 
 // Validate validates this sit address update
 func (m *SitAddressUpdate) Validate(formats strfmt.Registry) error {
 	var res []error
+
+	if err := m.validateCreatedAt(formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := m.validateDistance(formats); err != nil {
 		res = append(res, err)
@@ -75,13 +89,25 @@ func (m *SitAddressUpdate) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateStatus(formats); err != nil {
+	if err := m.validateUpdatedAt(formats); err != nil {
 		res = append(res, err)
 	}
 
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *SitAddressUpdate) validateCreatedAt(formats strfmt.Registry) error {
+	if swag.IsZero(m.CreatedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("createdAt", "body", "date-time", m.CreatedAt.String(), formats); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -133,17 +159,12 @@ func (m *SitAddressUpdate) validateNewAddressID(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *SitAddressUpdate) validateStatus(formats strfmt.Registry) error {
-	if swag.IsZero(m.Status) { // not required
+func (m *SitAddressUpdate) validateUpdatedAt(formats strfmt.Registry) error {
+	if swag.IsZero(m.UpdatedAt) { // not required
 		return nil
 	}
 
-	if err := m.Status.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("status")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("status")
-		}
+	if err := validate.FormatOf("updatedAt", "body", "date-time", m.UpdatedAt.String(), formats); err != nil {
 		return err
 	}
 
@@ -153,6 +174,10 @@ func (m *SitAddressUpdate) validateStatus(formats strfmt.Registry) error {
 // ContextValidate validate this sit address update based on the context it is used
 func (m *SitAddressUpdate) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
+
+	if err := m.contextValidateCreatedAt(ctx, formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := m.contextValidateDistance(ctx, formats); err != nil {
 		res = append(res, err)
@@ -174,13 +199,22 @@ func (m *SitAddressUpdate) ContextValidate(ctx context.Context, formats strfmt.R
 		res = append(res, err)
 	}
 
-	if err := m.contextValidateStatus(ctx, formats); err != nil {
+	if err := m.contextValidateUpdatedAt(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *SitAddressUpdate) contextValidateCreatedAt(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "createdAt", "body", strfmt.DateTime(m.CreatedAt)); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -229,14 +263,9 @@ func (m *SitAddressUpdate) contextValidateNewAddressID(ctx context.Context, form
 	return nil
 }
 
-func (m *SitAddressUpdate) contextValidateStatus(ctx context.Context, formats strfmt.Registry) error {
+func (m *SitAddressUpdate) contextValidateUpdatedAt(ctx context.Context, formats strfmt.Registry) error {
 
-	if err := m.Status.ContextValidate(ctx, formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("status")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("status")
-		}
+	if err := validate.ReadOnly(ctx, "updatedAt", "body", strfmt.DateTime(m.UpdatedAt)); err != nil {
 		return err
 	}
 

@@ -1203,12 +1203,12 @@ func init() {
             "name": "body",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/createSITAddressUpdateRequest"
+              "$ref": "#/definitions/CreateSITAddressUpdateRequest"
             }
           }
         ],
         "responses": {
-          "200": {
+          "201": {
             "description": "Succesfully created a SIT address update request.",
             "schema": {
               "$ref": "#/definitions/SitAddressUpdate"
@@ -1635,6 +1635,19 @@ func init() {
           "items": {
             "$ref": "#/definitions/ServiceItem"
           }
+        }
+      }
+    },
+    "CreateSITAddressUpdateRequest": {
+      "description": "CreateSITAddressUpdateRequest contains the fields required for the prime to create a SIT address update request.",
+      "type": "object",
+      "properties": {
+        "address": {
+          "$ref": "#/definitions/Address"
+        },
+        "contractorRemarks": {
+          "type": "string",
+          "example": "Customer reached out to me this week \u0026 let me know they want to move closer to family."
         }
       }
     },
@@ -3573,7 +3586,14 @@ func init() {
       "properties": {
         "contractorRemarks": {
           "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false,
           "example": "Customer reached out to me this week \u0026 let me know they want to move closer to family."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
         },
         "distance": {
           "type": "integer",
@@ -3606,18 +3626,21 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/SitAddressUpdateStatus"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
         }
       }
     },
     "SitAddressUpdateStatus": {
       "description": "The status of a SIT address update, indicating where it is in the TOO's approval process.",
-      "type": "string",
       "enum": [
         "REQUESTED",
         "APPROVED",
         "REJECTED"
-      ],
-      "readOnly": true
+      ]
     },
     "StorageFacility": {
       "description": "The Storage Facility information for the shipment",
@@ -4105,18 +4128,6 @@ func init() {
           }
         }
       ]
-    },
-    "createSITAddressUpdateRequest": {
-      "type": "object",
-      "properties": {
-        "address": {
-          "$ref": "#/definitions/Address"
-        },
-        "contractorRemarks": {
-          "type": "string",
-          "example": "Customer reached out to me this week \u0026 let me know they want to move closer to family."
-        }
-      }
     }
   },
   "parameters": {
@@ -5751,12 +5762,12 @@ func init() {
             "name": "body",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/createSITAddressUpdateRequest"
+              "$ref": "#/definitions/CreateSITAddressUpdateRequest"
             }
           }
         ],
         "responses": {
-          "200": {
+          "201": {
             "description": "Succesfully created a SIT address update request.",
             "schema": {
               "$ref": "#/definitions/SitAddressUpdate"
@@ -6204,6 +6215,19 @@ func init() {
           "items": {
             "$ref": "#/definitions/ServiceItem"
           }
+        }
+      }
+    },
+    "CreateSITAddressUpdateRequest": {
+      "description": "CreateSITAddressUpdateRequest contains the fields required for the prime to create a SIT address update request.",
+      "type": "object",
+      "properties": {
+        "address": {
+          "$ref": "#/definitions/Address"
+        },
+        "contractorRemarks": {
+          "type": "string",
+          "example": "Customer reached out to me this week \u0026 let me know they want to move closer to family."
         }
       }
     },
@@ -8145,7 +8169,14 @@ func init() {
       "properties": {
         "contractorRemarks": {
           "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false,
           "example": "Customer reached out to me this week \u0026 let me know they want to move closer to family."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
         },
         "distance": {
           "type": "integer",
@@ -8178,18 +8209,21 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/SitAddressUpdateStatus"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
         }
       }
     },
     "SitAddressUpdateStatus": {
       "description": "The status of a SIT address update, indicating where it is in the TOO's approval process.",
-      "type": "string",
       "enum": [
         "REQUESTED",
         "APPROVED",
         "REJECTED"
-      ],
-      "readOnly": true
+      ]
     },
     "StorageFacility": {
       "description": "The Storage Facility information for the shipment",
@@ -8677,18 +8711,6 @@ func init() {
           }
         }
       ]
-    },
-    "createSITAddressUpdateRequest": {
-      "type": "object",
-      "properties": {
-        "address": {
-          "$ref": "#/definitions/Address"
-        },
-        "contractorRemarks": {
-          "type": "string",
-          "example": "Customer reached out to me this week \u0026 let me know they want to move closer to family."
-        }
-      }
     }
   },
   "parameters": {

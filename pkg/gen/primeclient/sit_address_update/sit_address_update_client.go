@@ -30,7 +30,7 @@ type ClientOption func(*runtime.ClientOperation)
 
 // ClientService is the interface for Client methods
 type ClientService interface {
-	CreateSITAddressUpdateRequest(params *CreateSITAddressUpdateRequestParams, opts ...ClientOption) (*CreateSITAddressUpdateRequestOK, error)
+	CreateSITAddressUpdateRequest(params *CreateSITAddressUpdateRequestParams, opts ...ClientOption) (*CreateSITAddressUpdateRequestCreated, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
@@ -50,7 +50,7 @@ original delivery address of the service item being updated. If the distance
 is less than 50 miles, the prime can make the update themselves via UpdateMTOServiceItemSIT.
 Only ONE request allowed per SIT service item.
 */
-func (a *Client) CreateSITAddressUpdateRequest(params *CreateSITAddressUpdateRequestParams, opts ...ClientOption) (*CreateSITAddressUpdateRequestOK, error) {
+func (a *Client) CreateSITAddressUpdateRequest(params *CreateSITAddressUpdateRequestParams, opts ...ClientOption) (*CreateSITAddressUpdateRequestCreated, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewCreateSITAddressUpdateRequestParams()
@@ -75,7 +75,7 @@ func (a *Client) CreateSITAddressUpdateRequest(params *CreateSITAddressUpdateReq
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*CreateSITAddressUpdateRequestOK)
+	success, ok := result.(*CreateSITAddressUpdateRequestCreated)
 	if ok {
 		return success, nil
 	}

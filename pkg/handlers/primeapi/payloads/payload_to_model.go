@@ -578,6 +578,26 @@ func SITExtensionModel(sitExtension *primemessages.CreateSITExtension, mtoShipme
 	return model
 }
 
+// SITAddressUpdateModel
+func SITAddressUpdateModel(sitAddressUpdate *primemessages.CreateSITAddressUpdateRequest) *models.SITAddressUpdate {
+	if sitAddressUpdate == nil {
+		return nil
+	}
+
+	model := &models.SITAddressUpdate{
+		ContractorRemarks: &sitAddressUpdate.ContractorRemarks,
+	}
+
+	addressModel := AddressModel(sitAddressUpdate.Address)
+	if addressModel != nil {
+		model.NewAddress = *addressModel
+		newAddressID := uuid.FromStringOrNil(addressModel.ID.String())
+		model.NewAddressID = newAddressID
+	}
+
+	return model
+}
+
 // validateDomesticCrating validates this mto service item domestic crating
 func validateDomesticCrating(m primemessages.MTOServiceItemDomesticCrating) *validate.Errors {
 	return validate.Validate(
