@@ -71,7 +71,7 @@
     "redux-saga": "^1.2.3",
     "redux-thunk": "^2.4.2",
     "regenerator-runtime": "^0.13.11",
-    "reselect": "^4.1.7",
+    "reselect": "^4.1.8",
     "sass": "^1.62.1",
     "swagger-client": "^3.18.5",
     "swagger-ui-dist": "^4.18.2",
