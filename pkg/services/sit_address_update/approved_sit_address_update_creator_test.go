@@ -26,9 +26,9 @@ func (suite *SITAddressUpdateServiceSuite) TestCreateApprovedSITAddressUpdate() 
 	suite.Run("Successfully create SITAddressUpdate", func() {
 		// TESTCASE SCENARIO
 		// Under test: CreateApprovedSITAddressUpdate function
-		// Set up:     We create an unapproved service item and attempt to create a SITAddressUpdate
+		// Set up:     We create an approved service item and attempt to create a SITAddressUpdate
 		// Expected outcome:
-		//             Error because we cannot create a SITAddressUpdate before service item is approved
+		//             SITAddressUpdate is created and SITDestinationFinalAddress on the service item is updated
 
 		serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
@@ -41,18 +41,20 @@ func (suite *SITAddressUpdateServiceSuite) TestCreateApprovedSITAddressUpdate() 
 					Code: models.ReServiceCodeDDDSIT,
 				},
 			},
+			{
+				Model: models.Address{},
+				Type:  &factory.Addresses.SITDestinationOriginalAddress,
+			},
+			{
+				Model: models.Address{},
+				Type:  &factory.Addresses.SITDestinationFinalAddress,
+			},
 		}, nil)
 
-		oldAddress := factory.BuildAddress(suite.DB(), nil, nil)
 		sitAddressUpdate := factory.BuildSITAddressUpdate(nil, []factory.Customization{
 			{
 				Model:    serviceItem,
 				LinkOnly: true,
-			},
-			{
-				Model:    oldAddress,
-				LinkOnly: true,
-				Type:     &factory.Addresses.SITAddressUpdateOldAddress,
 			},
 			{
 				Model: models.SITAddressUpdate{
@@ -70,18 +72,19 @@ func (suite *SITAddressUpdateServiceSuite) TestCreateApprovedSITAddressUpdate() 
 		suite.Equal(models.SITAddressUpdateStatusApproved, createdAddressUpdate.Status)
 		suite.Equal(*sitAddressUpdate.OfficeRemarks, *createdAddressUpdate.OfficeRemarks)
 		suite.Equal(*sitAddressUpdate.OfficeRemarks, *createdAddressUpdate.OfficeRemarks)
-		suite.Equal(sitAddressUpdate.OldAddressID, createdAddressUpdate.OldAddressID)
-		suite.Equal(sitAddressUpdate.OldAddress.ID, createdAddressUpdate.OldAddress.ID)
-		suite.Equal(sitAddressUpdate.OldAddress.StreetAddress1, createdAddressUpdate.OldAddress.StreetAddress1)
-		suite.Equal(sitAddressUpdate.OldAddress.PostalCode, createdAddressUpdate.OldAddress.PostalCode)
+		suite.Equal(*serviceItem.SITDestinationFinalAddressID, createdAddressUpdate.OldAddressID)
+		suite.Equal(serviceItem.SITDestinationFinalAddress.ID, createdAddressUpdate.OldAddress.ID)
+		suite.Equal(serviceItem.SITDestinationFinalAddress.StreetAddress1, createdAddressUpdate.OldAddress.StreetAddress1)
+		suite.Equal(serviceItem.SITDestinationFinalAddress.PostalCode, createdAddressUpdate.OldAddress.PostalCode)
 		suite.Equal(sitAddressUpdate.NewAddress.StreetAddress1, createdAddressUpdate.NewAddress.StreetAddress1)
 		suite.Equal(sitAddressUpdate.NewAddress.PostalCode, createdAddressUpdate.NewAddress.PostalCode)
 		suite.Equal(sitAddressUpdate.MTOServiceItemID, createdAddressUpdate.MTOServiceItemID)
 		suite.Equal(sitAddressUpdate.MTOServiceItem.ID, createdAddressUpdate.MTOServiceItem.ID)
 		suite.Equal(sitAddressUpdate.MTOServiceItem.ReServiceID, createdAddressUpdate.MTOServiceItem.ReServiceID)
 		suite.Equal(sitAddressUpdate.MTOServiceItem.ReService.Code, createdAddressUpdate.MTOServiceItem.ReService.Code)
-		suite.Equal(createdAddressUpdate.NewAddressID, *createdAddressUpdate.MTOServiceItem.SITDestinationFinalAddressID)
-		suite.Equal(createdAddressUpdate.NewAddressID, createdAddressUpdate.MTOServiceItem.SITDestinationFinalAddress.ID)
+		sitDestinationFinalAddress := *createdAddressUpdate.MTOServiceItem.SITDestinationFinalAddress
+		suite.Equal(createdAddressUpdate.NewAddress.StreetAddress1, sitDestinationFinalAddress.StreetAddress1)
+		suite.Equal(createdAddressUpdate.NewAddress.PostalCode, sitDestinationFinalAddress.PostalCode)
 	})
 
 	suite.Run("Error creating SITAddressUpdate", func() {
@@ -94,13 +97,21 @@ func (suite *SITAddressUpdateServiceSuite) TestCreateApprovedSITAddressUpdate() 
 		serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOServiceItem{
-					Status: models.MTOServiceItemStatusRejected,
+					Status: models.MTOServiceItemStatusSubmitted,
 				},
 			},
 			{
 				Model: models.ReService{
 					Code: models.ReServiceCodeDDDSIT,
 				},
+			},
+			{
+				Model: models.Address{},
+				Type:  &factory.Addresses.SITDestinationOriginalAddress,
+			},
+			{
+				Model: models.Address{},
+				Type:  &factory.Addresses.SITDestinationFinalAddress,
 			},
 		}, nil)
 

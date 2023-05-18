@@ -7,8 +7,8 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-// checkRequiredFields checks that the required fields are included
-func checkRequiredFields() sitAddressUpdateValidator {
+// checkAndValidateRequiredFields checks that the required fields are included
+func checkAndValidateRequiredFields() sitAddressUpdateValidator {
 	return sitAddressUpdateValidatorFunc(func(appCtx appcontext.AppContext, sitAddressUpdate *models.SITAddressUpdate) error {
 		verrs := validate.NewErrors()
 
@@ -36,8 +36,8 @@ func checkRequiredFields() sitAddressUpdateValidator {
 			verrs.Add("MTOServiceItemID", "MTOServiceItem must be approved")
 		}
 
-		if serviceItem.SITDestinationOriginalAddressID.IsNil() {
-			verrs.Add("SITDestinationOriginalAddressID", "SITDestinationOriginalAddressID is required")
+		if serviceItem.SITDestinationFinalAddressID == nil || serviceItem.SITDestinationFinalAddressID.IsNil() {
+			verrs.Add("SITDestinationFinalAddressID", "SITDestinationFinalAddressID is required")
 		}
 
 		return verrs

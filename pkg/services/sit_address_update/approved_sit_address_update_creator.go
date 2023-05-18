@@ -24,7 +24,7 @@ func NewApprovedOfficeSITAddressUpdateCreator(planner route.Planner, addressCrea
 		addressCreator:     addressCreator,
 		serviceItemUpdater: serviceItemUpdater,
 		checks: []sitAddressUpdateValidator{
-			checkRequiredFields(),
+			checkAndValidateRequiredFields(),
 			checkTOORequiredFields(),
 		},
 	}
@@ -41,13 +41,13 @@ func (f *approvedSITAddressUpdateCreator) CreateApprovedSITAddressUpdate(appCtx 
 
 	txErr := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) (err error) {
 		var serviceItem models.MTOServiceItem
-		err = txnAppCtx.DB().Eager("SITDestinationOriginalAddress").Where("id = ?", sitAddressUpdate.MTOServiceItemID).First(&serviceItem)
+		err = txnAppCtx.DB().Eager("SITDestinationFinalAddress").Where("id = ?", sitAddressUpdate.MTOServiceItemID).First(&serviceItem)
 		if err != nil {
 			return err
 		}
 
-		sitAddressUpdate.OldAddressID = *serviceItem.SITDestinationOriginalAddressID
-		sitAddressUpdate.OldAddress = *serviceItem.SITDestinationOriginalAddress
+		sitAddressUpdate.OldAddressID = *serviceItem.SITDestinationFinalAddressID
+		sitAddressUpdate.OldAddress = *serviceItem.SITDestinationFinalAddress
 
 		newAddress, err := f.addressCreator.CreateAddress(txnAppCtx, &sitAddressUpdate.NewAddress)
 		if err != nil {
@@ -69,15 +69,17 @@ func (f *approvedSITAddressUpdateCreator) CreateApprovedSITAddressUpdate(appCtx 
 			return apperror.NewQueryError("SITAddressUpdate", err, "Unable to create SIT Address Update")
 		}
 
-		serviceItem.SITDestinationFinalAddressID = &newAddress.ID
 		serviceItem.SITDestinationFinalAddress = newAddress
 
-		updatedServiceItem, err := f.serviceItemUpdater.UpdateMTOServiceItemBasic(txnAppCtx, &serviceItem, etag.GenerateEtag(serviceItem.UpdatedAt))
+		_, err = f.serviceItemUpdater.UpdateMTOServiceItemBasic(txnAppCtx, &serviceItem, etag.GenerateEtag(serviceItem.UpdatedAt))
 		if err != nil {
 			return err
 		}
 
-		sitAddressUpdate.MTOServiceItem = *updatedServiceItem
+		err = appCtx.DB().Eager("SITDestinationFinalAddress", "SITAddressUpdates", "SITAddressUpdates.NewAddress", "SITAddressUpdates.OldAddress").Where("id = ?", sitAddressUpdate.MTOServiceItemID).First(&sitAddressUpdate.MTOServiceItem)
+		if err != nil {
+			return err
+		}
 
 		return nil
 	})

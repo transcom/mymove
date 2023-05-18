@@ -7,7 +7,7 @@ import (
 
 // ApprovedSITAddressUpdateCreator Interface for the service object that creates a SIT Address Update
 //
-//go:generate mockery --name SITAddressUpdateCreator
+//go:generate mockery --name ApprovedSITAddressUpdateCreator
 type ApprovedSITAddressUpdateCreator interface {
 	CreateApprovedSITAddressUpdate(appCtx appcontext.AppContext, sitAddressUpdate *models.SITAddressUpdate) (*models.SITAddressUpdate, error)
 }
