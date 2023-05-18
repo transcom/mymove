@@ -139,4 +139,47 @@ func (suite *ClientCertServiceSuite) TestClientCertRoleUpdater() {
 		suite.True(userRoles.HasRole(roles.RoleTypePrime))
 	})
 
+	suite.Run("Cert removed, user with prime role and another cert without prime", func() {
+		// make sure the prime role exists
+		factory.BuildRole(suite.DB(), []factory.Customization{
+			{
+				Model: roles.Role{
+					RoleType: roles.RoleTypePrime,
+				},
+			},
+		}, nil)
+
+		clientCert := factory.BuildClientCert(suite.DB(), []factory.Customization{
+			{
+				Model: models.User{
+					Roles: []roles.Role{
+						{
+							RoleType: roles.RoleTypePrime,
+						},
+					},
+				},
+			},
+			{
+				Model: models.ClientCert{
+					AllowPrime: false,
+				},
+			},
+		}, nil)
+
+		userRoles, err := roles.FetchRolesForUser(suite.DB(), clientCert.UserID)
+		suite.NoError(err)
+		suite.True(userRoles.HasRole(roles.RoleTypePrime))
+
+		// we pass nil as if another cert was deleted. Since the
+		// factory cert that was created above still exists *BUT* it
+		// does not have allow_prime set as true, the user should
+		// not have the prime role
+		suite.NoError(updatePrimeRoleForUser(suite.AppContextForTest(),
+			clientCert.UserID, nil, queryBuilder, associator))
+
+		userRoles, err = roles.FetchRolesForUser(suite.DB(), clientCert.UserID)
+		suite.NoError(err)
+		suite.False(userRoles.HasRole(roles.RoleTypePrime))
+	})
+
 }

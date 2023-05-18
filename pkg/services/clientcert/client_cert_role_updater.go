@@ -29,17 +29,18 @@ func updatePrimeRoleForUser(appCtx appcontext.AppContext, userID uuid.UUID, clie
 	}
 	if clientCert == nil {
 		var clientCertCount int
-		err = appCtx.DB().RawQuery("SELECT count(*) FROM client_certs WHERE user_id = ?",
+		err = appCtx.DB().RawQuery("SELECT count(*) FROM client_certs WHERE allow_prime AND user_id = ?",
 			userID.String()).First(&clientCertCount)
 		if err != nil {
 			return err
 		}
-		if clientCertCount == 0 {
-			allowPrime = false
-		} else {
+		if clientCertCount > 0 {
 			// if the number of client certs associated with this user
-			// is greater than 0, the user should have the prime role
+			// that have prime access is greater than 0, the user
+			// should have the prime role
 			allowPrime = true
+		} else {
+			allowPrime = false
 		}
 	}
 
