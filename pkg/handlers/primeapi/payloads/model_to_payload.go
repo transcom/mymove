@@ -281,24 +281,15 @@ func MTOAgents(mtoAgents *models.MTOAgents) *primemessages.MTOAgents {
 	return &agents
 }
 
-func ProofOfServiceDocs(proofOfServiceDocs models.ProofOfServiceDocs) *primemessages.ProofOfServiceDocs {
-	docLength := 0
-	for _, doc := range proofOfServiceDocs {
-		docLength += len(doc.PrimeUploads)
-	}
-	uploads := make([]*primemessages.UploadWithOmissions, docLength)
-
-	uploadIndex := 0
-	for _, doc := range proofOfServiceDocs {
-		if doc.PrimeUploads != nil && len(doc.PrimeUploads) > 0 {
-			for _, primeUpload := range doc.PrimeUploads {
-				uploads[uploadIndex] = uploadForProofOfService(&primeUpload.Upload)
-				uploadIndex++
-			}
+func ProofOfServiceDoc(proofOfServiceDoc models.ProofOfServiceDoc) *primemessages.ProofOfServiceDoc {
+	uploads := make([]*primemessages.UploadWithOmissions, len(proofOfServiceDoc.PrimeUploads))
+	if proofOfServiceDoc.PrimeUploads != nil && len(proofOfServiceDoc.PrimeUploads) > 0 {
+		for i, primeUpload := range proofOfServiceDoc.PrimeUploads {
+			uploads[i] = basicUpload(&primeUpload.Upload)
 		}
 	}
 
-	return &primemessages.ProofOfServiceDocs{
+	return &primemessages.ProofOfServiceDoc{
 		Uploads: uploads,
 	}
 }
@@ -309,9 +300,12 @@ func PaymentRequest(paymentRequest *models.PaymentRequest) *primemessages.Paymen
 		return nil
 	}
 
-	var serviceDocs *primemessages.ProofOfServiceDocs
+	serviceDocs := make(primemessages.ProofOfServiceDocs, len(paymentRequest.ProofOfServiceDocs))
+
 	if paymentRequest.ProofOfServiceDocs != nil && len(paymentRequest.ProofOfServiceDocs) > 0 {
-		serviceDocs = ProofOfServiceDocs(paymentRequest.ProofOfServiceDocs)
+		for i, proofOfService := range paymentRequest.ProofOfServiceDocs {
+			serviceDocs[i] = ProofOfServiceDoc(proofOfService)
+		}
 	}
 
 	paymentServiceItems := PaymentServiceItems(&paymentRequest.PaymentServiceItems)
@@ -749,7 +743,7 @@ func Upload(appCtx appcontext.AppContext, storer storage.FileStorer, upload *mod
 	return payload
 }
 
-func uploadForProofOfService(upload *models.Upload) *primemessages.UploadWithOmissions {
+func basicUpload(upload *models.Upload) *primemessages.UploadWithOmissions {
 	if upload == nil || upload.ID == uuid.Nil {
 		return nil
 	}

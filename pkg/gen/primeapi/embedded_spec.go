@@ -3182,7 +3182,7 @@ func init() {
         "$ref": "#/definitions/PaymentServiceItem"
       }
     },
-    "ProofOfServiceDocs": {
+    "ProofOfServiceDoc": {
       "type": "object",
       "properties": {
         "uploads": {
@@ -3191,6 +3191,12 @@ func init() {
             "$ref": "#/definitions/UploadWithOmissions"
           }
         }
+      }
+    },
+    "ProofOfServiceDocs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ProofOfServiceDoc"
       }
     },
     "ReServiceCode": {
@@ -7616,7 +7622,7 @@ func init() {
         "$ref": "#/definitions/PaymentServiceItem"
       }
     },
-    "ProofOfServiceDocs": {
+    "ProofOfServiceDoc": {
       "type": "object",
       "properties": {
         "uploads": {
@@ -7625,6 +7631,12 @@ func init() {
             "$ref": "#/definitions/UploadWithOmissions"
           }
         }
+      }
+    },
+    "ProofOfServiceDocs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ProofOfServiceDoc"
       }
     },
     "ReServiceCode": {
