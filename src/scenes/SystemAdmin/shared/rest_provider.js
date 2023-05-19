@@ -1,4 +1,4 @@
-import { stringify } from 'query-string';
+import qs from 'query-string';
 import { diff } from 'deep-object-diff';
 import { snakeCase } from 'lodash';
 import {
@@ -50,7 +50,7 @@ const restProvider = (apiUrl, httpClient = fetchUtils.fetchJson) => {
           perPage,
           filter: JSON.stringify(params.filter),
         };
-        url = `${apiUrl}/${resource}?${stringify(query)}`;
+        url = `${apiUrl}/${resource}?${qs.stringify(query)}`;
         break;
       }
       case GET_ONE:
@@ -62,7 +62,7 @@ const restProvider = (apiUrl, httpClient = fetchUtils.fetchJson) => {
             page: 1,
             perPage: 10000,
           };
-          url = `${apiUrl}/${resource}?${stringify(query)}`;
+          url = `${apiUrl}/${resource}?${qs.stringify(query)}`;
           break;
         }
         if (params.ids !== undefined) {
@@ -73,7 +73,7 @@ const restProvider = (apiUrl, httpClient = fetchUtils.fetchJson) => {
             id: params.id,
           }),
         };
-        url = `${apiUrl}/${resource}?${stringify(query)}`;
+        url = `${apiUrl}/${resource}?${qs.stringify(query)}`;
         break;
       }
       case GET_MANY_REFERENCE: {
@@ -89,7 +89,7 @@ const restProvider = (apiUrl, httpClient = fetchUtils.fetchJson) => {
             [params.target]: params.id,
           }),
         };
-        url = `${apiUrl}/${resource}?${stringify(query)}`;
+        url = `${apiUrl}/${resource}?${qs.stringify(query)}`;
         break;
       }
       case UPDATE: {
