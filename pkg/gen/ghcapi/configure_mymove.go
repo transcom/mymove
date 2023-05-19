@@ -28,7 +28,6 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/queues"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/report_violations"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/shipment"
-	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/sit_address_update"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/tac"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/transportation_office"
 )
@@ -113,9 +112,9 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation mto_shipment.CreateMTOShipment has not yet been implemented")
 		})
 	}
-	if api.SitAddressUpdateCreateSITAddressUpdateHandler == nil {
-		api.SitAddressUpdateCreateSITAddressUpdateHandler = sit_address_update.CreateSITAddressUpdateHandlerFunc(func(params sit_address_update.CreateSITAddressUpdateParams) middleware.Responder {
-			return middleware.NotImplemented("operation sit_address_update.CreateSITAddressUpdate has not yet been implemented")
+	if api.MtoServiceItemCreateSITAddressUpdateHandler == nil {
+		api.MtoServiceItemCreateSITAddressUpdateHandler = mto_service_item.CreateSITAddressUpdateHandlerFunc(func(params mto_service_item.CreateSITAddressUpdateParams) middleware.Responder {
+			return middleware.NotImplemented("operation mto_service_item.CreateSITAddressUpdate has not yet been implemented")
 		})
 	}
 	if api.CustomerSupportRemarksDeleteCustomerSupportRemarkHandler == nil {

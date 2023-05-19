@@ -270,7 +270,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		mtoshipment.NewShipmentApprover(
 			mtoshipment.NewShipmentRouter(),
 			mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter),
-			handlerConfig.HHGPlanner(),
+			handlerConfig.Planner(),
 		),
 		shipmentSITStatus,
 	}
@@ -378,7 +378,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		shipmentSITStatus,
 	}
 
-	ghcAPI.SitAddressUpdateCreateSITAddressUpdateHandler = CreateSITAddressUpdateHandler{
+	ghcAPI.MtoServiceItemCreateSITAddressUpdateHandler = CreateSITAddressUpdateHandler{
 		handlerConfig,
 		sitaddressupdate.NewApprovedOfficeSITAddressUpdateCreator(
 			handlerConfig.Planner(),

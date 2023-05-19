@@ -3548,7 +3548,7 @@ func init() {
         }
       ]
     },
-    "/service-items/{mtoServiceItemID}/sit-address-update/": {
+    "/service-items/{mtoServiceItemID}/sit-address-update": {
       "post": {
         "description": "TOO can create an already-approved SIT Address Update on behalf of a customer",
         "consumes": [
@@ -3558,7 +3558,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "sitAddressUpdate"
+          "mtoServiceItem"
         ],
         "summary": "Create an approved SIT Address Update",
         "operationId": "createSITAddressUpdate",
@@ -4120,7 +4120,7 @@ func init() {
         }
       ]
     },
-    "/shipments/{shipmentID}/sit-extensions/": {
+    "/shipments/{shipmentID}/sit-extensions": {
       "post": {
         "description": "TOO can creates an already-approved SIT Duration Update on behalf of a customer",
         "consumes": [
@@ -14059,7 +14059,7 @@ func init() {
         }
       ]
     },
-    "/service-items/{mtoServiceItemID}/sit-address-update/": {
+    "/service-items/{mtoServiceItemID}/sit-address-update": {
       "post": {
         "description": "TOO can create an already-approved SIT Address Update on behalf of a customer",
         "consumes": [
@@ -14069,7 +14069,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "sitAddressUpdate"
+          "mtoServiceItem"
         ],
         "summary": "Create an approved SIT Address Update",
         "operationId": "createSITAddressUpdate",
@@ -14799,7 +14799,7 @@ func init() {
         }
       ]
     },
-    "/shipments/{shipmentID}/sit-extensions/": {
+    "/shipments/{shipmentID}/sit-extensions": {
       "post": {
         "description": "TOO can creates an already-approved SIT Duration Update on behalf of a customer",
         "consumes": [

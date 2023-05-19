@@ -1075,7 +1075,7 @@ paths:
       summary: Requests a shipment reweigh
       x-permissions:
         - create.reweighRequest
-  '/service-items/{mtoServiceItemID}/sit-address-update/':
+  '/service-items/{mtoServiceItemID}/sit-address-update':
     post:
       summary: Create an approved SIT Address Update
       description: >-
@@ -1087,7 +1087,7 @@ paths:
         - application/json
       operationId: createSITAddressUpdate
       tags:
-        - sitAddressUpdate
+        - mtoServiceItem
       parameters:
         - description: ID of line item to use
           in: path
@@ -1117,7 +1117,7 @@ paths:
           $ref: '#/responses/ServerError'
       x-permissions:
         - create.SITAddressUpdate
-  '/shipments/{shipmentID}/sit-extensions/':
+  '/shipments/{shipmentID}/sit-extensions':
     post:
       summary: Create an approved SIT Duration Update
       description: TOO can creates an already-approved SIT Duration Update on behalf of a customer

@@ -14,9 +14,9 @@ import (
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/factory"
+	mtoserviceitemop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_service_item"
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_shipment"
 	shipmentops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/shipment"
-	sitaddressupdateops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/sit_address_update"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -2718,7 +2718,7 @@ func (suite *HandlerSuite) TestCreateSITAddressUpdate() {
 
 		officeRemarks := "new office remarks"
 		newAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress3})
-		createParams := sitaddressupdateops.CreateSITAddressUpdateParams{
+		createParams := mtoserviceitemop.CreateSITAddressUpdateParams{
 			HTTPRequest: req,
 			Body: &ghcmessages.CreateSITAddressUpdate{
 				NewAddress: &ghcmessages.Address{
@@ -2739,8 +2739,8 @@ func (suite *HandlerSuite) TestCreateSITAddressUpdate() {
 		suite.NoError(createParams.Body.Validate(strfmt.Default))
 
 		response := handler.Handle(createParams)
-		suite.IsType(&sitaddressupdateops.CreateSITAddressUpdateOK{}, response)
-		payload := response.(*sitaddressupdateops.CreateSITAddressUpdateOK).Payload
+		suite.IsType(&mtoserviceitemop.CreateSITAddressUpdateOK{}, response)
+		payload := response.(*mtoserviceitemop.CreateSITAddressUpdateOK).Payload
 
 		// Validate outgoing payload
 		suite.NoError(payload.Validate(strfmt.Default))
@@ -2808,7 +2808,7 @@ func (suite *HandlerSuite) TestCreateSITAddressUpdate() {
 
 		officeRemarks := "new office remarks"
 		newAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress3})
-		createParams := sitaddressupdateops.CreateSITAddressUpdateParams{
+		createParams := mtoserviceitemop.CreateSITAddressUpdateParams{
 			HTTPRequest: req,
 			Body: &ghcmessages.CreateSITAddressUpdate{
 				NewAddress: &ghcmessages.Address{
@@ -2829,8 +2829,8 @@ func (suite *HandlerSuite) TestCreateSITAddressUpdate() {
 		suite.NoError(createParams.Body.Validate(strfmt.Default))
 
 		response := handler.Handle(createParams)
-		suite.IsType(&sitaddressupdateops.CreateSITAddressUpdateForbidden{}, response)
-		payload := response.(*sitaddressupdateops.CreateSITAddressUpdateForbidden).Payload
+		suite.IsType(&mtoserviceitemop.CreateSITAddressUpdateForbidden{}, response)
+		payload := response.(*mtoserviceitemop.CreateSITAddressUpdateForbidden).Payload
 
 		// Validate outgoing payload
 		suite.NoError(payload.Validate(strfmt.Default))
@@ -2860,7 +2860,7 @@ func (suite *HandlerSuite) TestCreateSITAddressUpdate() {
 
 		officeRemarks := "new office remarks"
 		newAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress3})
-		createParams := sitaddressupdateops.CreateSITAddressUpdateParams{
+		createParams := mtoserviceitemop.CreateSITAddressUpdateParams{
 			HTTPRequest: req,
 			Body: &ghcmessages.CreateSITAddressUpdate{
 				NewAddress: &ghcmessages.Address{
@@ -2881,8 +2881,8 @@ func (suite *HandlerSuite) TestCreateSITAddressUpdate() {
 		suite.NoError(createParams.Body.Validate(strfmt.Default))
 
 		response := handler.Handle(createParams)
-		suite.IsType(&sitaddressupdateops.CreateSITAddressUpdateNotFound{}, response)
-		payload := response.(*sitaddressupdateops.CreateSITAddressUpdateNotFound).Payload
+		suite.IsType(&mtoserviceitemop.CreateSITAddressUpdateNotFound{}, response)
+		payload := response.(*mtoserviceitemop.CreateSITAddressUpdateNotFound).Payload
 
 		// Validate outgoing payload
 		suite.NoError(payload.Validate(strfmt.Default))
@@ -2923,7 +2923,7 @@ func (suite *HandlerSuite) TestCreateSITAddressUpdate() {
 
 		officeRemarks := "new office remarks"
 		newAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress3})
-		createParams := sitaddressupdateops.CreateSITAddressUpdateParams{
+		createParams := mtoserviceitemop.CreateSITAddressUpdateParams{
 			HTTPRequest: req,
 			Body: &ghcmessages.CreateSITAddressUpdate{
 				NewAddress: &ghcmessages.Address{
@@ -2944,8 +2944,8 @@ func (suite *HandlerSuite) TestCreateSITAddressUpdate() {
 		suite.NoError(createParams.Body.Validate(strfmt.Default))
 
 		response := handler.Handle(createParams)
-		suite.IsType(&sitaddressupdateops.CreateSITAddressUpdateUnprocessableEntity{}, response)
-		payload := response.(*sitaddressupdateops.CreateSITAddressUpdateUnprocessableEntity).Payload
+		suite.IsType(&mtoserviceitemop.CreateSITAddressUpdateUnprocessableEntity{}, response)
+		payload := response.(*mtoserviceitemop.CreateSITAddressUpdateUnprocessableEntity).Payload
 
 		// Validate outgoing payload
 		suite.NoError(payload.Validate(strfmt.Default))
@@ -2973,7 +2973,7 @@ func (suite *HandlerSuite) TestCreateSITAddressUpdate() {
 
 		officeRemarks := "new office remarks"
 		newAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress3})
-		createParams := sitaddressupdateops.CreateSITAddressUpdateParams{
+		createParams := mtoserviceitemop.CreateSITAddressUpdateParams{
 			HTTPRequest: req,
 			Body: &ghcmessages.CreateSITAddressUpdate{
 				NewAddress: &ghcmessages.Address{
@@ -2994,8 +2994,8 @@ func (suite *HandlerSuite) TestCreateSITAddressUpdate() {
 		suite.NoError(createParams.Body.Validate(strfmt.Default))
 
 		response := handler.Handle(createParams)
-		suite.IsType(&sitaddressupdateops.CreateSITAddressUpdateInternalServerError{}, response)
-		payload := response.(*sitaddressupdateops.CreateSITAddressUpdateInternalServerError).Payload
+		suite.IsType(&mtoserviceitemop.CreateSITAddressUpdateInternalServerError{}, response)
+		payload := response.(*mtoserviceitemop.CreateSITAddressUpdateInternalServerError).Payload
 
 		// Validate outgoing payload
 		suite.Nil(payload)

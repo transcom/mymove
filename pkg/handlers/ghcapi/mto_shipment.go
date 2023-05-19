@@ -10,9 +10,9 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
+	mtoserviceitemop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_service_item"
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_shipment"
 	shipmentops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/shipment"
-	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/sit_address_update"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
@@ -1107,7 +1107,7 @@ type CreateSITAddressUpdateHandler struct {
 }
 
 // Handle creates the approved SIT Address Update
-func (h CreateSITAddressUpdateHandler) Handle(params sit_address_update.CreateSITAddressUpdateParams) middleware.Responder {
+func (h CreateSITAddressUpdateHandler) Handle(params mtoserviceitemop.CreateSITAddressUpdateParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
@@ -1121,25 +1121,25 @@ func (h CreateSITAddressUpdateHandler) Handle(params sit_address_update.CreateSI
 					payload := ghcmessages.Error{
 						Message: handlers.FmtString(err.Error()),
 					}
-					return sit_address_update.NewCreateSITAddressUpdateNotFound().WithPayload(&payload), err
+					return mtoserviceitemop.NewCreateSITAddressUpdateNotFound().WithPayload(&payload), err
 				case apperror.InvalidInputError:
 					payload := payloadForValidationError(
 						"Validation errors",
 						"CreateSITAddressUpdate",
 						h.GetTraceIDFromRequest(params.HTTPRequest),
 						e.ValidationErrors)
-					return sit_address_update.NewCreateSITAddressUpdateUnprocessableEntity().WithPayload(payload), err
+					return mtoserviceitemop.NewCreateSITAddressUpdateUnprocessableEntity().WithPayload(payload), err
 				case apperror.QueryError:
 					if e.Unwrap() != nil {
 						// If you can unwrap, log the internal error (usually a pq error) for better debugging
 						appCtx.Logger().Error("ghcapi.CreateSITAddressUpdate query error", zap.Error(e.Unwrap()))
 					}
-					return sit_address_update.NewCreateSITAddressUpdateInternalServerError(), err
+					return mtoserviceitemop.NewCreateSITAddressUpdateInternalServerError(), err
 				case apperror.ForbiddenError:
-					return sit_address_update.NewCreateSITAddressUpdateForbidden().
+					return mtoserviceitemop.NewCreateSITAddressUpdateForbidden().
 						WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())}), err
 				default:
-					return sit_address_update.NewCreateSITAddressUpdateInternalServerError(), err
+					return mtoserviceitemop.NewCreateSITAddressUpdateInternalServerError(), err
 				}
 			}
 
@@ -1154,6 +1154,6 @@ func (h CreateSITAddressUpdateHandler) Handle(params sit_address_update.CreateSI
 			}
 
 			returnPayload := payloads.MTOServiceItemModel(&createdSITAddressUpdate.MTOServiceItem)
-			return sit_address_update.NewCreateSITAddressUpdateOK().WithPayload(returnPayload), nil
+			return mtoserviceitemop.NewCreateSITAddressUpdateOK().WithPayload(returnPayload), nil
 		})
 }
