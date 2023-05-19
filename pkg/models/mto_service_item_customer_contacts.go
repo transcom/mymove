@@ -42,8 +42,6 @@ type MTOServiceItemCustomerContacts []MTOServiceItemCustomerContact
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (m *MTOServiceItemCustomerContact) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	var vs []validate.Validator
-	// TODO: replace uuid validator with one for the slice of service items
-	//vs = append(vs, &validators.UUIDIsPresent{Field: m.MTOServiceItemID, Name: "MTOServiceItemID"})
 	vs = append(vs, &validators.StringInclusion{Field: string(m.Type), Name: "Type", List: []string{
 		string(CustomerContactTypeFirst),
 		string(CustomerContactTypeSecond),
