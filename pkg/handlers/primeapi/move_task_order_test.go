@@ -880,7 +880,16 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		suite.NotNil(PSIP1Payload.ETag)
 
 		// verify proofOfServiceDocs
-		// suite.Equal(paymentRequest.ProofOfServiceDocs[0].ID.String(), paymentRequestPayload.ProofOfServiceDocs.Uploads[0].ID.String())
+		upload := paymentRequest.ProofOfServiceDocs[0].PrimeUploads[0].Upload
+		uploadPayload := paymentRequestPayload.ProofOfServiceDocs[0].Uploads[0]
+		suite.Equal(upload.ID.String(), uploadPayload.ID.String())
+		suite.Equal(upload.Filename, *uploadPayload.Filename)
+		suite.Equal(upload.Bytes, *uploadPayload.Bytes)
+		suite.Equal(upload.ContentType, *uploadPayload.ContentType)
+		suite.Empty(uploadPayload.URL)
+		suite.Empty(uploadPayload.Status)
+		suite.NotNil(uploadPayload.CreatedAt)
+		suite.NotNil(uploadPayload.UpdatedAt)
 
 		suite.NotNil(paymentRequestPayload.ETag)
 	})
