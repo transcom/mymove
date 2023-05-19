@@ -71,13 +71,13 @@ const ServiceItemSegmentsSize int = 7
 
 // ServiceItemSegments holds segments that are required for every service item
 type ServiceItemSegments struct {
-	HL  edisegment.HL
-	N9  edisegment.N9
-	L5  edisegment.L5
-	L0  edisegment.L0
-	L1  edisegment.L1
-	FA1 edisegment.FA1
-	FA2 edisegment.FA2
+	HL   edisegment.HL
+	N9   edisegment.N9
+	L5   edisegment.L5
+	L0   edisegment.L0
+	L1   edisegment.L1
+	FA1  edisegment.FA1
+	FA2s []edisegment.FA2
 }
 
 // NonEmptySegments produces an array of all of the fields
@@ -153,13 +153,17 @@ func (invoice Invoice858C) Segments() [][]string {
 			line.L0.StringArray(),
 			line.L1.StringArray(),
 			line.FA1.StringArray(),
-			line.FA2.StringArray(),
 		)
+
+		for _, fa2 := range line.FA2s {
+			records = append(records, fa2.StringArray())
+		}
 	}
 	records = append(records, invoice.L3.StringArray())
 	records = append(records, invoice.SE.StringArray())
 	records = append(records, invoice.GE.StringArray())
 	records = append(records, invoice.IEA.StringArray())
+
 	return records
 }
 
