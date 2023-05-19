@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+
 import Alert from 'shared/Alert';
 import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
 
@@ -54,7 +55,8 @@ export default class ConfirmWithReasonButton extends Component {
           </div>
         </div>
       );
-    } else if (this.state.displayState === 'CONFIRM') {
+    }
+    if (this.state.displayState === 'CONFIRM') {
       return (
         <div className="cancel-panel">
           <h2 className="extras usa-heading">{buttonTitle}</h2>
@@ -74,16 +76,16 @@ export default class ConfirmWithReasonButton extends Component {
           </div>
         </div>
       );
-    } else if (this.state.displayState === 'BUTTON') {
+    }
+    if (this.state.displayState === 'BUTTON') {
       return (
         <button className="usa-button usa-button--secondary" onClick={this.setConfirmState} disabled={buttonDisabled}>
           {buttonTitle}
         </button>
       );
-    } else {
-      milmoveLog(MILMOVE_LOG_LEVEL.ERROR, this.state.displayState);
-      // TODO I think we can do better here
-      return undefined;
     }
+    milmoveLog(MILMOVE_LOG_LEVEL.ERROR, this.state.displayState);
+    // TODO I think we can do better here
+    return undefined;
   }
 }

@@ -1,6 +1,7 @@
+import { get } from 'lodash';
+
 import { swaggerRequest } from 'shared/Swagger/request';
 import { getGHCClient } from 'shared/Swagger/api';
-import { get } from 'lodash';
 
 const getPaymentRequestLabel = 'PaymentRequests.getPaymentRequest';
 const getPaymentRequestListLabel = 'PaymentRequests.getPaymentRequestList';

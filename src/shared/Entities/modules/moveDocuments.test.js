@@ -1,6 +1,6 @@
-import { MOVE_DOC_TYPE, MOVE_DOC_STATUS } from 'shared/constants';
+import { WEIGHT_TICKET_SET_TYPE, MOVE_DOC_TYPE, MOVE_DOC_STATUS } from '../../constants';
+
 import { findPendingWeightTickets, findOKedVehicleWeightTickets, findOKedProgearWeightTickets } from './moveDocuments';
-import { WEIGHT_TICKET_SET_TYPE } from '../../constants';
 
 describe('Move Document utility functions', () => {
   const assortedMoveDocuments = [

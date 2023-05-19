@@ -1,14 +1,17 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+
 import { detectFirefox } from 'shared/utils';
+
 import './index.css';
 import styles from './DocumentContent.module.scss';
+
 import { RotationBar } from 'shared/RotationBar/RotationBar';
 import Alert from 'shared/Alert';
 import { UPLOAD_SCAN_STATUS } from 'shared/constants';
 
 const DocumentContent = (props) => {
-  let { contentType, filename, url, status } = props;
+  const { contentType, filename, url, status } = props;
 
   if (status === UPLOAD_SCAN_STATUS.INFECTED) {
     return (
@@ -71,6 +74,7 @@ PDFImage.propTypes = {
 
 export class NonPDFImage extends Component {
   imgEl = React.createRef();
+
   state = {
     rotation: 0,
     delta: 0,
@@ -112,7 +116,7 @@ export class NonPDFImage extends Component {
 
   // delta between height + width. used for calculating the image + container translations
   get delta() {
-    let { delta } = this.state;
+    const { delta } = this.state;
     return this.state.ImgWidth > this.state.ImgHeight ? -delta : delta;
   }
 
@@ -125,7 +129,7 @@ export class NonPDFImage extends Component {
 
   translateContainer = (sign) => {
     const { divHeight, divWidth } = this.state;
-    //switch divWidth and divHeight
+    // switch divWidth and divHeight
     return {
       divHeight: divWidth,
       divWidth: divHeight,
@@ -142,7 +146,7 @@ export class NonPDFImage extends Component {
   calcImgMaxHeight = () => {
     const { ImgWidth, ImgHeight, rotation } = this.state;
     const { maxHeight, maxWidth } = this.state;
-    let maxHeightWidth = { maxHeight: maxHeight, maxWidth: maxWidth };
+    let maxHeightWidth = { maxHeight, maxWidth };
     if (ImgWidth !== 'auto') {
       maxHeightWidth =
         rotation === 90 || rotation === 180
@@ -153,7 +157,7 @@ export class NonPDFImage extends Component {
   };
 
   formatMaxes = (max) => {
-    return max === 'none' ? 'none' : max + 'px';
+    return max === 'none' ? 'none' : `${max}px`;
   };
 
   render() {

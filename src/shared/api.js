@@ -25,7 +25,7 @@ export async function CreateDocument(name, serviceMemberId) {
   const client = await getInternalClient();
   const response = await client.apis.documents.createDocument({
     documentPayload: {
-      name: name,
+      name,
       service_member_id: serviceMemberId,
     },
   });

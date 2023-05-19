@@ -1,6 +1,7 @@
+import { get, filter } from 'lodash';
+
 import { swaggerRequest } from 'shared/Swagger/request';
 import { getGHCClient } from 'shared/Swagger/api';
-import { get, filter } from 'lodash';
 
 const updateMoveTaskOrders = 'moveTaskOrder.updateMoveTaskOrderStatus';
 export function updateMoveTaskOrderStatus(moveTaskOrderID, ifMatchETag, mtoApprovalServiceItemCodes) {

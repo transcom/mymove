@@ -1,8 +1,10 @@
 import { filter } from 'lodash';
+
+import { fetchActivePPM } from '../../utils';
+
 import { swaggerRequest } from 'shared/Swagger/request';
 import { getClient } from 'shared/Swagger/api';
 import { formatDateForSwagger } from 'shared/dates';
-import { fetchActivePPM } from '../../utils';
 
 const approvePpmLabel = 'PPMs.approvePPM';
 export const downloadPPMAttachmentsLabel = 'PPMs.downloadAttachments';
@@ -33,7 +35,7 @@ export function loadPPMs(moveId, label = loadPPMsLabel) {
 export function updatePPM(
   moveId,
   personallyProcuredMoveId,
-  payload /*shape: {size, weightEstimate, estimatedIncentive}*/,
+  payload /* shape: {size, weightEstimate, estimatedIncentive} */,
   label = updatePPMLabel,
 ) {
   const swaggerTag = 'ppm.patchPersonallyProcuredMove';

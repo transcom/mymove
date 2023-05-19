@@ -3,14 +3,14 @@ import PropTypes from 'prop-types';
 import { reduxForm } from 'redux-form';
 import { Button } from '@trussworks/react-uswds';
 
-import Alert from 'shared/Alert';
 import generatePath from './generatePath';
+import { beforeTransition, getNextPagePath, getPreviousPagePath, isFirstPage, isLastPage } from './utils';
+
+import Alert from 'shared/Alert';
 import './index.css';
 import { validateRequiredFields } from 'shared/JsonSchemaForm';
 import styles from 'components/Customer/WizardNavigation/WizardNavigation.module.scss';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
-
-import { beforeTransition, getNextPagePath, getPreviousPagePath, isFirstPage, isLastPage } from './utils';
 import withRouter from 'utils/routing';
 import { RouterShape } from 'types';
 
@@ -151,7 +151,7 @@ WizardFormPage.propTypes = {
   pageKey: PropTypes.string.isRequired,
   valid: PropTypes.bool,
   dirty: PropTypes.bool,
-  router: RouterShape, //from withRouter
+  router: RouterShape, // from withRouter
   additionalParams: PropTypes.object,
   additionalValues: PropTypes.object, // These values are passed into the form with change()
   discardOnBack: PropTypes.bool,

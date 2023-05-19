@@ -39,7 +39,17 @@ export default {
   },
 };
 
-const Template = (args) => <DaysInSITAllowance shipmentPaymentSITBalance={{ ...args }} />;
+const defaultArgs = {
+  previouslyBilledDays: 30,
+  previouslyBilledEndDate: '2021-06-08',
+  pendingSITDaysInvoiced: 60,
+  pendingBilledEndDate: '2021-08-08',
+  totalSITDaysAuthorized: 120,
+  totalSITDaysRemaining: 30,
+  totalSITEndDate: '2021-09-08',
+};
+
+const Template = (args) => <DaysInSITAllowance shipmentPaymentSITBalance={{ ...defaultArgs, ...args }} />;
 
 export const PastPendingRemaining = Template.bind({});
 
