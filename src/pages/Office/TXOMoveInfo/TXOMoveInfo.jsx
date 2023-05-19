@@ -30,6 +30,7 @@ const Forbidden = lazy(() => import('pages/Office/Forbidden/Forbidden'));
 const TXOMoveInfo = () => {
   const [unapprovedShipmentCount, setUnapprovedShipmentCount] = React.useState(0);
   const [unapprovedServiceItemCount, setUnapprovedServiceItemCount] = React.useState(0);
+  const [unapprovedSITAddressUpdateCount, setUnapprovedSITAddressUpdateCount] = React.useState(0);
   const [excessWeightRiskCount, setExcessWeightRiskCount] = React.useState(0);
   const [pendingPaymentRequestCount, setPendingPaymentRequestCount] = React.useState(0);
   const [unapprovedSITExtensionCount, setUnApprovedSITExtensionCount] = React.useState(0);
@@ -88,6 +89,7 @@ const TXOMoveInfo = () => {
         <TXOTabNav
           unapprovedShipmentCount={unapprovedShipmentCount}
           unapprovedServiceItemCount={unapprovedServiceItemCount}
+          unapprovedSITAddressUpdateCount={unapprovedSITAddressUpdateCount}
           excessWeightRiskCount={excessWeightRiskCount}
           pendingPaymentRequestCount={pendingPaymentRequestCount}
           unapprovedSITExtensionCount={unapprovedSITExtensionCount}
@@ -120,6 +122,7 @@ const TXOMoveInfo = () => {
               <MoveTaskOrder
                 setUnapprovedShipmentCount={setUnapprovedShipmentCount}
                 setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+                setUnapprovedSITAddressUpdateCount={setUnapprovedSITAddressUpdateCount}
                 setExcessWeightRiskCount={setExcessWeightRiskCount}
                 setUnapprovedSITExtensionCount={setUnApprovedSITExtensionCount}
               />

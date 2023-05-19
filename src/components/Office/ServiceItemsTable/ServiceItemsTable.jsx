@@ -8,7 +8,8 @@ import { ServiceItemDetailsShape } from '../../../types/serviceItems';
 
 import styles from './ServiceItemsTable.module.scss';
 
-import { SERVICE_ITEM_STATUS, SIT_ADDRESS_UPDATE_STATUS } from 'shared/constants';
+import { SERVICE_ITEM_STATUS } from 'shared/constants';
+import { ALLOWED_SIT_ADDRESS_UPDATE_SI_CODES, SIT_ADDRESS_UPDATE_STATUS } from 'constants/sitUpdates';
 import { formatDateFromIso } from 'utils/formatters';
 import ServiceItemDetails from 'components/Office/ServiceItemDetails/ServiceItemDetails';
 import Restricted from 'components/Restricted/Restricted';
@@ -96,12 +97,14 @@ const ServiceItemsTable = ({
                     </span>{' '}
                     Reject
                   </Button>
-                  <Button type="button" className="text-blue usa-button--unstyled margin-left-1">
-                    <span>
-                      <FontAwesomeIcon icon="pencil" style={{ marginRight: '5px' }} />
-                    </span>{' '}
-                    {sitAddressUpdates && hasSITAddressUpdate(sitAddressUpdates) ? 'Review Request' : 'Edit'}
-                  </Button>
+                  {ALLOWED_SIT_ADDRESS_UPDATE_SI_CODES.includes(code) && (
+                    <Button type="button" className="text-blue usa-button--unstyled margin-left-1">
+                      <span>
+                        <FontAwesomeIcon icon="pencil" style={{ marginRight: '5px' }} />
+                      </span>{' '}
+                      {sitAddressUpdates && hasSITAddressUpdate(sitAddressUpdates) ? 'Review Request' : 'Edit'}
+                    </Button>
+                  )}
                 </div>
               </Restricted>
             )}

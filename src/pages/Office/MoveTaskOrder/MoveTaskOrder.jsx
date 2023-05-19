@@ -20,6 +20,7 @@ import customerContactTypes from 'constants/customerContactTypes';
 import dimensionTypes from 'constants/dimensionTypes';
 import { MOVES, MTO_SERVICE_ITEMS, MTO_SHIPMENTS, ORDERS } from 'constants/queryKeys';
 import SERVICE_ITEM_STATUSES from 'constants/serviceItems';
+import { ALLOWED_SIT_ADDRESS_UPDATE_SI_CODES, SIT_ADDRESS_UPDATE_STATUS } from 'constants/sitUpdates';
 import { mtoShipmentTypes, shipmentStatuses } from 'constants/shipments';
 import FlashGridContainer from 'containers/FlashGridContainer/FlashGridContainer';
 import { shipmentSectionLabels } from 'content/shipments';
@@ -43,7 +44,7 @@ import {
   updateMTOShipmentRequestReweigh,
   updateMTOShipmentStatus,
 } from 'services/ghcApi';
-import { MOVE_STATUSES, SIT_ADDRESS_UPDATE_STATUS } from 'shared/constants';
+import { MOVE_STATUSES } from 'shared/constants';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { setFlashMessage } from 'store/flash/actions';
@@ -113,6 +114,7 @@ export const MoveTaskOrder = (props) => {
   const {
     setUnapprovedShipmentCount,
     setUnapprovedServiceItemCount,
+    setUnapprovedSITAddressUpdateCount,
     setExcessWeightRiskCount,
     setMessage,
     setUnapprovedSITExtensionCount,
@@ -124,7 +126,7 @@ export const MoveTaskOrder = (props) => {
   const renderSITAddressUpdateAlert = useMemo(() => {
     if (mtoServiceItems) {
       const hasRequestedSitAddressUpdates = mtoServiceItems.filter((mto) => {
-        if (mto?.sitAddressUpdates) {
+        if (ALLOWED_SIT_ADDRESS_UPDATE_SI_CODES.includes(mto.reServiceCode) && mto?.sitAddressUpdates) {
           return mto.sitAddressUpdates.filter((s) => s.status === SIT_ADDRESS_UPDATE_STATUS.REQUESTED);
         }
         return false;
@@ -523,6 +525,7 @@ export const MoveTaskOrder = (props) => {
 
   useEffect(() => {
     let serviceItemCount = 0;
+    let sitAddressUpdateServiceItemCount = 0;
     const serviceItemsCountForShipment = {};
     const sitAddressUpdateServiceItems = {};
     mtoShipments?.forEach((mtoShipment) => {
@@ -536,20 +539,24 @@ export const MoveTaskOrder = (props) => {
         serviceItemCount += requestedServiceItemCount || 0;
         serviceItemsCountForShipment[`${mtoShipment.id}`] = requestedServiceItemCount;
 
-        sitAddressUpdateServiceItems[`${mtoShipment.id}`] = shipmentServiceItems[`${mtoShipment.id}`]?.filter(
-          (serviceItem) => {
-            if (serviceItem?.sitAddressUpdates) {
-              return serviceItem.sitAddressUpdates.filter((s) => s.status === SIT_ADDRESS_UPDATE_STATUS.REQUESTED);
-            }
-            return false;
-          },
-        )?.length;
+        const requestedSITAddressUpdateCount = shipmentServiceItems[`${mtoShipment.id}`]?.filter((serviceItem) => {
+          if (
+            ALLOWED_SIT_ADDRESS_UPDATE_SI_CODES.includes(serviceItem.reServiceCode) &&
+            serviceItem?.sitAddressUpdates
+          ) {
+            return serviceItem.sitAddressUpdates.filter((s) => s.status === SIT_ADDRESS_UPDATE_STATUS.REQUESTED);
+          }
+          return false;
+        })?.length;
+        sitAddressUpdateServiceItemCount += requestedSITAddressUpdateCount || 0;
+        sitAddressUpdateServiceItems[`${mtoShipment.id}`] = requestedSITAddressUpdateCount;
       }
     });
     setUnapprovedServiceItemCount(serviceItemCount);
     setUnapprovedServiceItemsForShipment(serviceItemsCountForShipment);
+    setUnapprovedSITAddressUpdateCount(sitAddressUpdateServiceItemCount);
     setUnapprovedSITAddressUpdatesForServiceItems(sitAddressUpdateServiceItems);
-  }, [mtoShipments, shipmentServiceItems, setUnapprovedServiceItemCount]);
+  }, [mtoShipments, shipmentServiceItems, setUnapprovedServiceItemCount, setUnapprovedSITAddressUpdateCount]);
 
   useEffect(() => {
     if (mtoShipments) {
@@ -923,6 +930,7 @@ export const MoveTaskOrder = (props) => {
 MoveTaskOrder.propTypes = {
   setUnapprovedShipmentCount: func.isRequired,
   setUnapprovedServiceItemCount: func.isRequired,
+  setUnapprovedSITAddressUpdateCount: func.isRequired,
   setExcessWeightRiskCount: func.isRequired,
   setMessage: func.isRequired,
   setUnapprovedSITExtensionCount: func.isRequired,
