@@ -275,7 +275,7 @@ func (v *updateMTOServiceItemData) setNewCustomerContacts() models.MTOServiceIte
 
 	var newCustomerContacts models.MTOServiceItemCustomerContacts
 
-	// Iterate through the updated customer contacts
+	// Iterate through the updated and the old customer contacts to see if they correspond to one another.
 	for _, updatedCustomerContact := range v.updatedServiceItem.CustomerContacts {
 		foundCorrespondingOldContact := false
 		var newCustomerContact models.MTOServiceItemCustomerContact

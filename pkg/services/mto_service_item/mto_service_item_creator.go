@@ -367,7 +367,8 @@ func (o *mtoServiceItemCreator) makeExtraSITServiceItem(appCtx appcontext.AppCon
 		}
 	}
 
-	//When a DDFSIT is created, this is where we auto create the accompanying DDASIT and DDDSIT with copied contact data
+	// When a DDFSIT is created, this is where we auto create the accompanying DDASIT and DDDSIT.
+	// These service items will be associated with the same customer contacts as the DDFSIT.
 	contacts := firstSIT.CustomerContacts
 
 	extraServiceItem := models.MTOServiceItem{
