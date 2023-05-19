@@ -19,7 +19,9 @@ const EditSitAddressChangeForm = ({ initialAddress }) => {
       </DataTableWrapper>
       <h3>Final SIT delivery</h3>
       <Alert type="warning">Approvals over 50 miles will result in updated pricing for this shipment.</Alert>
-      <AddressFields name="initialAddress" />
+      <div data-testid="editAddressForm">
+        <AddressFields name="newAddress" />
+      </div>
     </div>
   );
 };

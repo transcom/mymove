@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Button, Label, Textarea } from '@trussworks/react-uswds';
 import { Formik, Field } from 'formik';
+import * as Yup from 'yup';
 
 import { ServiceItemDetailsShape } from '../../../types/serviceItems';
 import ServiceItemDetails from '../ServiceItemDetails/ServiceItemDetails';
@@ -16,34 +17,45 @@ import { formatDateFromIso } from 'utils/formatters';
 const ServiceItemDetail = ({ serviceItem }) => {
   const { id, code, submittedAt, details } = serviceItem;
   return (
-    <table className={styles.serviceItemDetails}>
-      <tr key={id}>
-        <td className={styles.nameDateContainer}>
-          <p className={styles.serviceItemName}>{serviceItem.serviceItem}</p>
-          <p>{formatDateFromIso(submittedAt, 'DD MMM YYYY')}</p>
-        </td>
-        <td className={styles.detailsContainer}>
-          <ServiceItemDetails code={code} details={details} />
-        </td>
-      </tr>
+    <table data-testid="sitAddressUpdateDetailTable" className={styles.serviceItemDetails}>
+      <tbody>
+        <tr key={id}>
+          <td className={styles.nameDateContainer}>
+            <p className={styles.serviceItemName}>{serviceItem.serviceItem}</p>
+            <p>{formatDateFromIso(submittedAt, 'DD MMM YYYY')}</p>
+          </td>
+          <td className={styles.detailsContainer}>
+            <ServiceItemDetails code={code} details={details} />
+          </td>
+        </tr>
+      </tbody>
     </table>
   );
 };
 /**
  * @description This componment is the modal used for when a TOO edits the address for a Service item
  * or reviews a service item request from a the prime.
+ * @param {function} onSave saves the form values
+ * @param {function} closeModal closes the modal without saving changes
+ * @param {string} title title of the modal
+ * @param {ServiceItemDetailsShape} serviceItem
+ * @param {element} content the form specific to either Edit or Reviewing address updates
+ * @param {object} initialValues the initialValues for the form
+ * @param {object} validations Form validaitons specific to the modal.
  */
-export const ServiceItemUpdateModal = ({ onSave, closeModal, title, serviceItem, content }) => {
-  const initialValues = {
-    officeRemarks: '',
-    newAddress: {
-      streetAddress1: '',
-      streetAddress2: '',
-      city: '',
-      state: '',
-      postalCode: '',
-    },
-  };
+export const ServiceItemUpdateModal = ({
+  onSave,
+  closeModal,
+  title,
+  serviceItem,
+  children: content,
+  initialValues,
+  validations,
+}) => {
+  const serviceItemUpdateModalSchema = Yup.object().shape({
+    officeRemarks: Yup.string().nullable(),
+    ...validations,
+  });
   return (
     <Modal className={styles.serviceItemUpdateModal}>
       <div>
@@ -54,7 +66,7 @@ export const ServiceItemUpdateModal = ({ onSave, closeModal, title, serviceItem,
         <h2>{title}</h2>
       </ModalTitle>
       <ServiceItemDetail serviceItem={serviceItem} />
-      <Formik onSubmit={(e) => onSave(e)} initialValues={initialValues}>
+      <Formik onSubmit={(e) => onSave(e)} initialValues={initialValues} validationSchema={serviceItemUpdateModalSchema}>
         {({ isValid }) => {
           return (
             <Form>
@@ -81,11 +93,6 @@ ServiceItemUpdateModal.propTypes = {
   onSave: PropTypes.func.isRequired,
   title: PropTypes.string.isRequired,
   serviceItem: ServiceItemDetailsShape.isRequired,
-  content: PropTypes.element,
-};
-
-ServiceItemUpdateModal.defaultProps = {
-  content: <div />,
 };
 
 ServiceItemUpdateModal.displayName = 'ServiceItemUpdateModal';
