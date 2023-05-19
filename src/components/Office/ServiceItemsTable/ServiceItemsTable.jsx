@@ -37,8 +37,16 @@ const ServiceItemsTable = ({
   }
 
   const hasSITAddressUpdate = (sitAddressUpdates) => {
-    const requestedAddressUpdates = sitAddressUpdates.map((s) => s.status === SIT_ADDRESS_UPDATE_STATUS.REQUESTED);
+    const requestedAddressUpdates = sitAddressUpdates.filter((s) => s.status === SIT_ADDRESS_UPDATE_STATUS.REQUESTED);
     return requestedAddressUpdates.length > 0;
+  };
+
+  const showSITAddressUpdateRequestedTag = (code, sitAddressUpdates) => {
+    return (
+      statusForTableType === SERVICE_ITEM_STATUS.APPROVED &&
+      ALLOWED_SIT_ADDRESS_UPDATE_SI_CODES.includes(code) &&
+      hasSITAddressUpdate(sitAddressUpdates)
+    );
   };
 
   const tableRows = serviceItems.map(
@@ -46,7 +54,9 @@ const ServiceItemsTable = ({
       return (
         <tr key={id}>
           <td className={styles.nameAndDate}>
-            {sitAddressUpdates && hasSITAddressUpdate(sitAddressUpdates) && <Tag>UPDATE REQUESTED</Tag>}
+            {sitAddressUpdates && showSITAddressUpdateRequestedTag(code, sitAddressUpdates) && (
+              <Tag data-testid="sitAddressUpdateTag">UPDATE REQUESTED</Tag>
+            )}
             <p className={styles.codeName}>{serviceItem}</p>
             <p>{formatDateFromIso(item[`${dateField}`], 'DD MMM YYYY')}</p>
           </td>
@@ -98,7 +108,11 @@ const ServiceItemsTable = ({
                     Reject
                   </Button>
                   {ALLOWED_SIT_ADDRESS_UPDATE_SI_CODES.includes(code) && (
-                    <Button type="button" className="text-blue usa-button--unstyled margin-left-1">
+                    <Button
+                      type="button"
+                      data-testid="editTextButton"
+                      className="text-blue usa-button--unstyled margin-left-1"
+                    >
                       <span>
                         <FontAwesomeIcon icon="pencil" style={{ marginRight: '5px' }} />
                       </span>{' '}
