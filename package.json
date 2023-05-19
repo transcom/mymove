@@ -28,7 +28,7 @@
     "http-proxy-middleware": "^2.0.6",
     "https-browserify": "^1.0.0",
     "is-mobile": "4.0.0",
-    "jest-canvas-mock": "^2.5.0",
+    "jest-canvas-mock": "^2.5.1",
     "js-cookie": "^3.0.1",
     "js-yaml": "^4.1.0",
     "jsonexport": "^3.2.0",
