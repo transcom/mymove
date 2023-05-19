@@ -103,7 +103,6 @@ func (suite *PaymentRequestServiceSuite) TestValidationRules() {
 		suite.Run("failure", func() {
 
 			move := factory.BuildMove(suite.DB(), nil, []factory.Trait{factory.GetTraitAvailableToPrimeMove})
-			// differentMove := factory.BuildMove(suite.DB(), nil, []factory.Trait{factory.GetTraitAvailableToPrimeMove})
 
 			testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
 				ReContractYear: models.ReContractYear{
