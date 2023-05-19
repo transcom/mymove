@@ -20,6 +20,11 @@ export default {
       );
     },
   ],
+  parameters: {
+    docs: {
+      inlineStories: false,
+    },
+  },
 };
 
 const sitStatus = {

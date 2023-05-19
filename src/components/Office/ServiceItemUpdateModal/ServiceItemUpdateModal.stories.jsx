@@ -1,59 +1,47 @@
 import React from 'react';
 
-import ConnectedServiceItemUpdateModal, { ServiceItemUpdateModal } from './ServiceItemUpdateModal';
+import { ServiceItemUpdateModal } from './ServiceItemUpdateModal';
 import EditSitAddressChangeForm from './EditSitAddressChangeForm';
+import { dddSitWithAddressUpdate } from './ServiceItemUpdateModalTestParams';
 
-const destinationSIT = {
-  id: 'abc123',
-  code: 'DDDSIT',
-  submittedAt: '2020-11-20',
-  serviceItem: 'Domestic destination SIT',
-  details: {
-    reason: "Customer's housing at base is not ready",
-    firstCustomerContact: { timeMilitary: '1200Z', firstAvailableDeliveryDate: '2020-09-15' },
-    secondCustomerContact: { timeMilitary: '2300Z', firstAvailableDeliveryDate: '2020-09-21' },
-    serviceItem: 'Domestic Destination SIT',
-  },
-};
+import { requiredAddressSchema } from 'utils/validation';
 
-const initialAddress = {
-  city: 'Fairfax',
+const address1 = {
+  city: 'Alexandria',
   state: 'VA',
-  postalCode: '12345',
-  streetAddress1: '123 Fake Street',
+  postalCode: '12867',
+  streetAddress1: '333 Most Fake Blvd',
   streetAddress2: '',
   streetAddress3: '',
   country: 'USA',
 };
-
+const defaultValues = {
+  closeModal: () => {},
+  onSave: () => {},
+  isOpen: true,
+  serviceItem: dddSitWithAddressUpdate,
+};
 export default {
   title: 'Office Components/ServiceItemUpdateModal',
   component: ServiceItemUpdateModal,
-  args: {
-    closeModal: () => {},
-    onSave: () => {},
-    isOpen: true,
-    serviceItem: destinationSIT,
-  },
-  argTypes: {
-    onClose: { action: 'close button clicked' },
-    onSubmit: { action: 'submit button clicked' },
-  },
 };
 
-const Template = (args) => <ServiceItemUpdateModal {...args} />;
-export const ServiceItemUpdateModalStory = Template.bind({});
-ServiceItemUpdateModalStory.args = {
-  title: 'Title',
+// Story for base component of the Modal
+export const ServiceItemUpdateModalStory = {
+  render: () => <ServiceItemUpdateModal title="Base modal" {...defaultValues} />,
 };
-
-// Creates template of the modal
-const ConnectedTemplate = (args) => <ConnectedServiceItemUpdateModal {...args} />;
 // Story for Editing service item address
-export const EditServiceItemAddress = ConnectedTemplate.bind({});
-EditServiceItemAddress.args = {
-  title: 'Edit Service Item',
-  content: <EditSitAddressChangeForm initialAddress={initialAddress} />,
+export const EditServiceItemAddress = {
+  render: () => (
+    <ServiceItemUpdateModal
+      initialValues={{ officeRemarks: '', newAddress: address1 }}
+      validations={{ newAddress: requiredAddressSchema }}
+      title="Edit service item"
+      {...defaultValues}
+    >
+      <EditSitAddressChangeForm initialAddress={address1} />
+    </ServiceItemUpdateModal>
+  ),
 };
 
 // To-do: Setup story for Reviewing Service Item requests
