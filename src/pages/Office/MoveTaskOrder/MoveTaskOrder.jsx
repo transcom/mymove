@@ -5,7 +5,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { connect } from 'react-redux';
 import { func } from 'prop-types';
-import { isEmpty } from 'lodash';
 import classnames from 'classnames';
 
 import styles from '../TXOMoveInfo/TXOTab.module.scss';
@@ -91,6 +90,7 @@ export const MoveTaskOrder = (props) => {
   const [isReweighModalVisible, setIsReweighModalVisible] = useState(false);
   const [isWeightModalVisible, setIsWeightModalVisible] = useState(false);
   const [isWeightAlertVisible, setIsWeightAlertVisible] = useState(false);
+  const [isSITAddressUpdateAlertVisible, setIsSITAddressUpdateAlertVisible] = useState(false);
   const [isSuccessAlertVisible, setIsSuccessAlertVisible] = useState(false);
   const [isFinancialModalVisible, setIsFinancialModalVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState(null);
@@ -122,21 +122,6 @@ export const MoveTaskOrder = (props) => {
 
   const { orders = {}, move, mtoShipments, mtoServiceItems, isLoading, isError } = useMoveTaskOrderQueries(moveCode);
   const order = Object.values(orders)?.[0];
-
-  const renderSITAddressUpdateAlert = useMemo(() => {
-    if (mtoServiceItems) {
-      const hasRequestedSitAddressUpdates = mtoServiceItems.filter((mto) => {
-        if (ALLOWED_SIT_ADDRESS_UPDATE_SI_CODES.includes(mto.reServiceCode) && mto?.sitAddressUpdates) {
-          return mto.sitAddressUpdates.filter((s) => s.status === SIT_ADDRESS_UPDATE_STATUS.REQUESTED);
-        }
-        return false;
-      });
-      if (!isEmpty(hasRequestedSitAddressUpdates)) {
-        return true;
-      }
-    }
-    return false;
-  }, [mtoServiceItems]);
 
   const shipmentServiceItems = useMemo(() => {
     const serviceItemsForShipment = {};
@@ -554,6 +539,8 @@ export const MoveTaskOrder = (props) => {
     });
     setUnapprovedServiceItemCount(serviceItemCount);
     setUnapprovedServiceItemsForShipment(serviceItemsCountForShipment);
+
+    setIsSITAddressUpdateAlertVisible(Boolean(sitAddressUpdateServiceItemCount > 0));
     setUnapprovedSITAddressUpdateCount(sitAddressUpdateServiceItemCount);
     setUnapprovedSITAddressUpdatesForServiceItems(sitAddressUpdateServiceItems);
   }, [mtoShipments, shipmentServiceItems, setUnapprovedServiceItemCount, setUnapprovedSITAddressUpdateCount]);
@@ -654,6 +641,10 @@ export const MoveTaskOrder = (props) => {
     setIsWeightAlertVisible(false);
   };
 
+  const handleSITAddressUpdateAlert = () => {
+    setIsSITAddressUpdateAlertVisible(false);
+  };
+
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
@@ -674,6 +665,12 @@ export const MoveTaskOrder = (props) => {
 
   const excessWeightAlertControl = (
     <Button type="button" onClick={handleHideWeightAlert} unstyled>
+      <FontAwesomeIcon icon="times" />
+    </Button>
+  );
+
+  const sitAddressUpdateRequestAlertControl = (
+    <Button type="button" onClick={handleSITAddressUpdateAlert} unstyled>
       <FontAwesomeIcon icon="times" />
     </Button>
   );
@@ -754,8 +751,14 @@ export const MoveTaskOrder = (props) => {
               Your changes were saved
             </Alert>
           )}
-          {renderSITAddressUpdateAlert && (
-            <Alert type="warning" headingLevel="h4" className={styles.alertWithButton}>
+          {isSITAddressUpdateAlertVisible && (
+            <Alert
+              type="warning"
+              headingLevel="h4"
+              slim
+              cta={sitAddressUpdateRequestAlertControl}
+              className={styles.alertWithButton}
+            >
               Service item update requested. Review request below.
             </Alert>
           )}
