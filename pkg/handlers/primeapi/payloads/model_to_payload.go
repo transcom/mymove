@@ -288,10 +288,12 @@ func ProofOfServiceDocs(proofOfServiceDocs models.ProofOfServiceDocs) *primemess
 	}
 	uploads := make([]*primemessages.UploadWithOmissions, docLength)
 
+	uploadIndex := 0
 	for _, doc := range proofOfServiceDocs {
-		if doc.PrimeUploads != nil && len(doc.PrimeUploads) > 1 {
-			for j, primeUpload := range doc.PrimeUploads {
-				uploads[j] = uploadForProofOfService(&primeUpload.Upload)
+		if doc.PrimeUploads != nil && len(doc.PrimeUploads) > 0 {
+			for _, primeUpload := range doc.PrimeUploads {
+				uploads[uploadIndex] = uploadForProofOfService(&primeUpload.Upload)
+				uploadIndex++
 			}
 		}
 	}
