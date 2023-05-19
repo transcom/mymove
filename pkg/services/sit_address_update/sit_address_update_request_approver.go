@@ -24,7 +24,7 @@ func NewSITAddressUpdateRequestApprover(serviceItemUpdater services.MTOServiceIt
 	return &sitAddressUpdateRequestApprover{
 		serviceItemUpdater: serviceItemUpdater,
 		checks: []sitAddressUpdateValidator{
-			checkRequiredFields(),
+			checkAndValidateRequiredFields(),
 			checkTOORequiredFields(),
 		},
 	}

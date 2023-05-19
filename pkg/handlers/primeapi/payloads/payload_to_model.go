@@ -588,7 +588,7 @@ func SITAddressUpdateModel(sitAddressUpdate *primemessages.CreateSITAddressUpdat
 		ContractorRemarks: &sitAddressUpdate.ContractorRemarks,
 	}
 
-	addressModel := AddressModel(sitAddressUpdate.Address)
+	addressModel := AddressModel(sitAddressUpdate.NewAddress)
 	if addressModel != nil {
 		model.NewAddress = *addressModel
 		newAddressID := uuid.FromStringOrNil(addressModel.ID.String())

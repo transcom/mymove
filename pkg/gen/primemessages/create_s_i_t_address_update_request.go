@@ -11,6 +11,7 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 )
 
 // CreateSITAddressUpdateRequest CreateSITAddressUpdateRequest contains the fields required for the prime to create a SIT address update request.
@@ -18,19 +19,28 @@ import (
 // swagger:model CreateSITAddressUpdateRequest
 type CreateSITAddressUpdateRequest struct {
 
-	// address
-	Address *Address `json:"address,omitempty"`
-
 	// contractor remarks
 	// Example: Customer reached out to me this week \u0026 let me know they want to move closer to family.
 	ContractorRemarks string `json:"contractorRemarks,omitempty"`
+
+	// mto service item ID
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
+	// Format: uuid
+	MtoServiceItemID strfmt.UUID `json:"mtoServiceItemID,omitempty"`
+
+	// new address
+	NewAddress *Address `json:"newAddress,omitempty"`
 }
 
 // Validate validates this create s i t address update request
 func (m *CreateSITAddressUpdateRequest) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validateAddress(formats); err != nil {
+	if err := m.validateMtoServiceItemID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateNewAddress(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -40,17 +50,29 @@ func (m *CreateSITAddressUpdateRequest) Validate(formats strfmt.Registry) error 
 	return nil
 }
 
-func (m *CreateSITAddressUpdateRequest) validateAddress(formats strfmt.Registry) error {
-	if swag.IsZero(m.Address) { // not required
+func (m *CreateSITAddressUpdateRequest) validateMtoServiceItemID(formats strfmt.Registry) error {
+	if swag.IsZero(m.MtoServiceItemID) { // not required
 		return nil
 	}
 
-	if m.Address != nil {
-		if err := m.Address.Validate(formats); err != nil {
+	if err := validate.FormatOf("mtoServiceItemID", "body", "uuid", m.MtoServiceItemID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *CreateSITAddressUpdateRequest) validateNewAddress(formats strfmt.Registry) error {
+	if swag.IsZero(m.NewAddress) { // not required
+		return nil
+	}
+
+	if m.NewAddress != nil {
+		if err := m.NewAddress.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("address")
+				return ve.ValidateName("newAddress")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("address")
+				return ce.ValidateName("newAddress")
 			}
 			return err
 		}
@@ -63,7 +85,7 @@ func (m *CreateSITAddressUpdateRequest) validateAddress(formats strfmt.Registry)
 func (m *CreateSITAddressUpdateRequest) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.contextValidateAddress(ctx, formats); err != nil {
+	if err := m.contextValidateNewAddress(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -73,14 +95,14 @@ func (m *CreateSITAddressUpdateRequest) ContextValidate(ctx context.Context, for
 	return nil
 }
 
-func (m *CreateSITAddressUpdateRequest) contextValidateAddress(ctx context.Context, formats strfmt.Registry) error {
+func (m *CreateSITAddressUpdateRequest) contextValidateNewAddress(ctx context.Context, formats strfmt.Registry) error {
 
-	if m.Address != nil {
-		if err := m.Address.ContextValidate(ctx, formats); err != nil {
+	if m.NewAddress != nil {
+		if err := m.NewAddress.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("address")
+				return ve.ValidateName("newAddress")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("address")
+				return ce.ValidateName("newAddress")
 			}
 			return err
 		}

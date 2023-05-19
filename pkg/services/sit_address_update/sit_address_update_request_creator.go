@@ -19,7 +19,7 @@ func NewSITAddressUpdateRequestCreator(planner route.Planner, addressCreator ser
 		planner:        planner,
 		addressCreator: addressCreator,
 		checks: []sitAddressUpdateValidator{
-			checkRequiredFields(),
+			checkAndValidateRequiredFields(),
 			checkPrimeRequiredFields(),
 		},
 	}
@@ -37,7 +37,7 @@ func (f *sitAddressUpdateRequestCreator) CreateSITAddressUpdateRequest(appCtx ap
 	txErr := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) (err error) {
 		// Grabbing the service item in question - must be an approved service item
 		var serviceItem models.MTOServiceItem
-		err = txnAppCtx.DB().Eager("SITDestinationFinalAddress").Where("id = ?", sitAddressUpdateRequest.MTOServiceItemID).Where("status = ?", models.MTOServiceItemStatusApproved).First(&serviceItem)
+		err = txnAppCtx.DB().Eager("SITDestinationFinalAddress").Where("id = ?", sitAddressUpdateRequest.MTOServiceItemID).First(&serviceItem)
 		if err != nil {
 			return err
 		}
@@ -60,8 +60,6 @@ func (f *sitAddressUpdateRequestCreator) CreateSITAddressUpdateRequest(appCtx ap
 		sitAddressUpdateRequest.Distance, err = f.planner.TransitDistance(appCtx, &sitAddressUpdateRequest.OldAddress, &sitAddressUpdateRequest.NewAddress)
 		if err != nil {
 			return err
-		} else if sitAddressUpdateRequest.Distance > 50 {
-			return apperror.NewInvalidInputError(sitAddressUpdateRequest.ID, nil, nil, "Distance exceeds 50 miles from final address, should be 50 miles or less.")
 		}
 
 		verrs, err := appCtx.DB().ValidateAndCreate(sitAddressUpdateRequest)

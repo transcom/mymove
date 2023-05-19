@@ -1642,12 +1642,17 @@ func init() {
       "description": "CreateSITAddressUpdateRequest contains the fields required for the prime to create a SIT address update request.",
       "type": "object",
       "properties": {
-        "address": {
-          "$ref": "#/definitions/Address"
-        },
         "contractorRemarks": {
           "type": "string",
           "example": "Customer reached out to me this week \u0026 let me know they want to move closer to family."
+        },
+        "mtoServiceItemID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "newAddress": {
+          "$ref": "#/definitions/Address"
         }
       }
     },
@@ -6222,12 +6227,17 @@ func init() {
       "description": "CreateSITAddressUpdateRequest contains the fields required for the prime to create a SIT address update request.",
       "type": "object",
       "properties": {
-        "address": {
-          "$ref": "#/definitions/Address"
-        },
         "contractorRemarks": {
           "type": "string",
           "example": "Customer reached out to me this week \u0026 let me know they want to move closer to family."
+        },
+        "mtoServiceItemID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "newAddress": {
+          "$ref": "#/definitions/Address"
         }
       }
     },

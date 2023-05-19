@@ -1,0 +1,100 @@
+package primeapi
+
+import (
+	"net/http/httptest"
+
+	"github.com/go-openapi/strfmt"
+	"github.com/stretchr/testify/mock"
+
+	"github.com/transcom/mymove/pkg/factory"
+	sitaddressupdateops "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/sit_address_update"
+	"github.com/transcom/mymove/pkg/gen/primemessages"
+	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/models"
+	routemocks "github.com/transcom/mymove/pkg/route/mocks"
+	"github.com/transcom/mymove/pkg/services/address"
+	sitaddressupdate "github.com/transcom/mymove/pkg/services/sit_address_update"
+)
+
+func (suite *HandlerSuite) TestCreateSITAddressUpdateRequest() {
+	mockPlanner := &routemocks.Planner{}
+	mockedDistance := 55
+	mockPlanner.On("TransitDistance",
+		mock.AnythingOfType("*appcontext.appcontext"),
+		mock.AnythingOfType("*models.Address"),
+		mock.AnythingOfType("*models.Address"),
+	).Return(mockedDistance, nil)
+	sitAddressUpdateCreator := sitaddressupdate.NewSITAddressUpdateRequestCreator(mockPlanner, address.NewAddressCreator())
+
+	suite.Run("Success 201 - Create SIT address update request", func() {
+		// Testcase:   sitExtension is created
+		// Expected:   Success response 201
+		handlerConfig := suite.HandlerConfig()
+		handler := CreateSITAddressUpdateRequestHandler{
+			handlerConfig,
+			sitAddressUpdateCreator,
+		}
+
+		serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusApproved,
+				},
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDDSIT,
+				},
+			},
+			{
+				Model: models.Address{},
+				Type:  &factory.Addresses.SITDestinationOriginalAddress,
+			},
+			{
+				Model: models.Address{},
+				Type:  &factory.Addresses.SITDestinationFinalAddress,
+			},
+		}, nil)
+
+		req := httptest.NewRequest("POST", "/sit-address-updates", nil)
+
+		contractorRemarks := "This is a contractor remark"
+		newAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress3})
+		createParams := sitaddressupdateops.CreateSITAddressUpdateRequestParams{
+			HTTPRequest: req,
+			Body: &primemessages.CreateSITAddressUpdateRequest{
+				ContractorRemarks: contractorRemarks,
+				MtoServiceItemID:  *handlers.FmtUUID(serviceItem.ID),
+				NewAddress: &primemessages.Address{
+					City:           &newAddress.City,
+					Country:        newAddress.Country,
+					PostalCode:     &newAddress.PostalCode,
+					State:          &newAddress.State,
+					StreetAddress1: &newAddress.StreetAddress1,
+					StreetAddress2: newAddress.StreetAddress2,
+					StreetAddress3: newAddress.StreetAddress3,
+				},
+			},
+		}
+
+		//Validate incoming payload
+		suite.NoError(createParams.Body.Validate(strfmt.Default))
+
+		//Run handler
+		response := handler.Handle(createParams)
+
+		//Check response type
+		suite.IsType(&sitaddressupdateops.CreateSITAddressUpdateRequestCreated{}, response)
+		sitAddressUpdateResponse := response.(*sitaddressupdateops.CreateSITAddressUpdateRequestCreated).Payload
+
+		//validate outgoing payload
+		suite.NoError(sitAddressUpdateResponse.Validate(strfmt.Default))
+
+		//Check values
+		suite.Equal(sitAddressUpdateResponse.Distance, mockedDistance)
+		suite.Equal(sitAddressUpdateResponse.ContractorRemarks, contractorRemarks)
+		suite.Equal(sitAddressUpdateResponse.MtoServiceItemID, *handlers.FmtUUID(serviceItem.ID))
+		suite.Equal(sitAddressUpdateResponse.NewAddressID, newAddress.ID)
+		suite.Equal(sitAddressUpdateResponse.Status, models.SITAddressUpdateStatusRequested)
+	})
+}

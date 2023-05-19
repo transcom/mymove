@@ -22,7 +22,7 @@ type sitAddressUpdateRequestRejector struct {
 func NewSITAddressUpdateRequestRejector() services.SITAddressUpdateRequestRejector {
 	return &sitAddressUpdateRequestRejector{
 		checks: []sitAddressUpdateValidator{
-			checkRequiredFields(),
+			checkAndValidateRequiredFields(),
 			checkTOORequiredFields(),
 		},
 	}
