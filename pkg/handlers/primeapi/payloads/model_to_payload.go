@@ -747,7 +747,7 @@ func SITAddressUpdate(sitAddressUpdate *models.SITAddressUpdate) *primemessages.
 		MtoServiceItemID:  strfmt.UUID(sitAddressUpdate.MTOServiceItemID.String()),
 		NewAddressID:      strfmt.UUID(sitAddressUpdate.NewAddressID.String()),
 		ContractorRemarks: handlers.FmtStringPtr(sitAddressUpdate.ContractorRemarks),
-		Status:            string(sitAddressUpdate.Status),
+		Status:            primemessages.SitAddressUpdateStatus(sitAddressUpdate.Status),
 		CreatedAt:         strfmt.DateTime(sitAddressUpdate.CreatedAt),
 		UpdatedAt:         strfmt.DateTime(sitAddressUpdate.UpdatedAt),
 	}

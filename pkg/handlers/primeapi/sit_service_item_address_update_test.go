@@ -13,6 +13,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services/address"
+	moverouter "github.com/transcom/mymove/pkg/services/move"
 	sitaddressupdate "github.com/transcom/mymove/pkg/services/sit_address_update"
 )
 
@@ -20,11 +21,13 @@ func (suite *HandlerSuite) TestCreateSITAddressUpdateRequest() {
 	mockPlanner := &routemocks.Planner{}
 	mockedDistance := 55
 	mockPlanner.On("TransitDistance",
-		mock.AnythingOfType("*appcontext.appcontext"),
+		mock.AnythingOfType("*appcontext.appContext"),
 		mock.AnythingOfType("*models.Address"),
 		mock.AnythingOfType("*models.Address"),
 	).Return(mockedDistance, nil)
-	sitAddressUpdateCreator := sitaddressupdate.NewSITAddressUpdateRequestCreator(mockPlanner, address.NewAddressCreator())
+
+	moveRouter := moverouter.NewMoveRouter()
+	sitAddressUpdateCreator := sitaddressupdate.NewSITAddressUpdateRequestCreator(mockPlanner, address.NewAddressCreator(), moveRouter)
 
 	suite.Run("Success 201 - Create SIT address update request", func() {
 		// Testcase:   sitExtension is created
@@ -81,20 +84,87 @@ func (suite *HandlerSuite) TestCreateSITAddressUpdateRequest() {
 		suite.NoError(createParams.Body.Validate(strfmt.Default))
 
 		//Run handler
-		response := handler.Handle(createParams)
+		handlerResponse := handler.Handle(createParams)
 
 		//Check response type
-		suite.IsType(&sitaddressupdateops.CreateSITAddressUpdateRequestCreated{}, response)
-		sitAddressUpdateResponse := response.(*sitaddressupdateops.CreateSITAddressUpdateRequestCreated).Payload
+		suite.IsType(&sitaddressupdateops.CreateSITAddressUpdateRequestCreated{}, handlerResponse)
+		successResponse := handlerResponse.(*sitaddressupdateops.CreateSITAddressUpdateRequestCreated).Payload
 
 		//validate outgoing payload
-		suite.NoError(sitAddressUpdateResponse.Validate(strfmt.Default))
+		suite.NoError(successResponse.Validate(strfmt.Default))
 
-		//Check values
-		suite.Equal(sitAddressUpdateResponse.Distance, mockedDistance)
-		suite.Equal(sitAddressUpdateResponse.ContractorRemarks, contractorRemarks)
-		suite.Equal(sitAddressUpdateResponse.MtoServiceItemID, *handlers.FmtUUID(serviceItem.ID))
-		suite.Equal(sitAddressUpdateResponse.NewAddressID, newAddress.ID)
-		suite.Equal(sitAddressUpdateResponse.Status, models.SITAddressUpdateStatusRequested)
+		//Check returned values
+		suite.Equal(createParams.Body.ContractorRemarks, *successResponse.ContractorRemarks)
+		suite.Equal(serviceItem.ID.String(), successResponse.MtoServiceItemID.String())
+		suite.Equal(models.SITAddressUpdateStatusRequested, successResponse.Status)
+		suite.Equal(successResponse.Distance, successResponse.Distance)
+
+		suite.NotNil(successResponse.ID)
+		suite.NotNil(successResponse.NewAddressID)
+		suite.NotNil(successResponse.UpdatedAt)
+		suite.NotNil(successResponse.CreatedAt)
+		suite.NotNil(successResponse.ETag)
+	})
+
+	suite.Run("Returns 422 when attempting to update an unapproved service item", func() {
+		handlerConfig := suite.HandlerConfig()
+		handler := CreateSITAddressUpdateRequestHandler{
+			handlerConfig,
+			sitAddressUpdateCreator,
+		}
+
+		serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					// Not allowed to update on an unapproved service item
+					Status: models.MTOServiceItemStatusRejected,
+				},
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDDSIT,
+				},
+			},
+			{
+				Model: models.Address{},
+				Type:  &factory.Addresses.SITDestinationOriginalAddress,
+			},
+			{
+				Model: models.Address{},
+				Type:  &factory.Addresses.SITDestinationFinalAddress,
+			},
+		}, nil)
+
+		req := httptest.NewRequest("POST", "/sit-address-updates", nil)
+
+		contractorRemarks := "This is a contractor remark"
+		newAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress3})
+		createParams := sitaddressupdateops.CreateSITAddressUpdateRequestParams{
+			HTTPRequest: req,
+			Body: &primemessages.CreateSITAddressUpdateRequest{
+				ContractorRemarks: contractorRemarks,
+				MtoServiceItemID:  *handlers.FmtUUID(serviceItem.ID),
+				NewAddress: &primemessages.Address{
+					City:           &newAddress.City,
+					Country:        newAddress.Country,
+					PostalCode:     &newAddress.PostalCode,
+					State:          &newAddress.State,
+					StreetAddress1: &newAddress.StreetAddress1,
+					StreetAddress2: newAddress.StreetAddress2,
+					StreetAddress3: newAddress.StreetAddress3,
+				},
+			},
+		}
+
+		//Validate incoming payload
+		suite.NoError(createParams.Body.Validate(strfmt.Default))
+
+		//Run handler
+		handlerResponse := handler.Handle(createParams)
+
+		suite.IsType(&sitaddressupdateops.CreateSITAddressUpdateRequestUnprocessableEntity{}, handlerResponse)
+		failureResponse := handlerResponse.(*sitaddressupdateops.CreateSITAddressUpdateRequestUnprocessableEntity).Payload
+
+		suite.NoError(failureResponse.Validate(strfmt.Default))
 	})
 }
