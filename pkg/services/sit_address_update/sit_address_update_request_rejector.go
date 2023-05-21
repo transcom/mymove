@@ -15,16 +15,18 @@ import (
 )
 
 type sitAddressUpdateRequestRejector struct {
-	checks []sitAddressUpdateValidator
+	checks     []sitAddressUpdateValidator
+	moveRouter services.MoveRouter
 }
 
 // NewSITAddressUpdateRequestRejector creates a new struct with the service dependencies
-func NewSITAddressUpdateRequestRejector() services.SITAddressUpdateRequestRejector {
+func NewSITAddressUpdateRequestRejector(moveRouter services.MoveRouter) services.SITAddressUpdateRequestRejector {
 	return &sitAddressUpdateRequestRejector{
 		checks: []sitAddressUpdateValidator{
 			checkAndValidateRequiredFields(),
 			checkTOORequiredFields(),
 		},
+		moveRouter: moveRouter,
 	}
 }
 
@@ -45,13 +47,13 @@ func (f *sitAddressUpdateRequestRejector) RejectSITAddressUpdateRequest(appCtx a
 		return nil, apperror.NewPreconditionFailedError(serviceItemID, query.StaleIdentifierError{StaleIdentifier: eTag})
 	}
 
-	return f.rejectSITAddressUpdateRequest(appCtx, *sitAddressUpdateRequest, officeRemarks)
+	return f.rejectSITAddressUpdateRequest(appCtx, *sitAddressUpdateRequest, officeRemarks, serviceItem.MoveTaskOrderID)
 }
 
 // Find the service item the prime is requesting to update
 func (f *sitAddressUpdateRequestRejector) findServiceItem(appCtx appcontext.AppContext, serviceItemID uuid.UUID) (*models.MTOServiceItem, error) {
 	var serviceItem models.MTOServiceItem
-	err := appCtx.DB().Eager("SITDestinationFinalAddress").Where("id = ?", serviceItemID).Where("status = ?", models.MTOServiceItemStatusApproved).First(&serviceItem)
+	err := appCtx.DB().Eager("SITDestinationFinalAddress").Where("id = ?", serviceItemID).First(&serviceItem)
 
 	if err != nil {
 		switch err {
@@ -65,7 +67,7 @@ func (f *sitAddressUpdateRequestRejector) findServiceItem(appCtx appcontext.AppC
 	return &serviceItem, nil
 }
 
-// Find SIT address update request being rejected
+// Find SIT address update request that we are rejecting
 func (f *sitAddressUpdateRequestRejector) findSITAddressUpdateRequest(appCtx appcontext.AppContext, sitAddressUpdateRequestID uuid.UUID) (*models.SITAddressUpdate, error) {
 	var SITAddressUpdateRequest models.SITAddressUpdate
 	err := appCtx.DB().Q().Find(&SITAddressUpdateRequest, sitAddressUpdateRequestID)
@@ -75,18 +77,36 @@ func (f *sitAddressUpdateRequestRejector) findSITAddressUpdateRequest(appCtx app
 		case sql.ErrNoRows:
 			return nil, apperror.NewNotFoundError(sitAddressUpdateRequestID, "while looking for SIT address update request")
 		default:
-			return nil, apperror.NewQueryError("SITAddressUpdate", err, "Unable to create SIT address update request.")
+			return nil, apperror.NewQueryError("SITAddressUpdate", err, "unable to retrieve SIT address update")
 		}
 	}
 
 	return &SITAddressUpdateRequest, nil
 }
 
-func (f *sitAddressUpdateRequestRejector) rejectSITAddressUpdateRequest(appCtx appcontext.AppContext, sitAddressUpdateRequest models.SITAddressUpdate, officeRemarks *string) (*models.SITAddressUpdate, error) {
+func (f *sitAddressUpdateRequestRejector) rejectSITAddressUpdateRequest(appCtx appcontext.AppContext, sitAddressUpdateRequest models.SITAddressUpdate, officeRemarks *string, moveTaskOrderID uuid.UUID) (*models.SITAddressUpdate, error) {
 	var updatedSITAddressUpdateRequest models.SITAddressUpdate
 
 	txErr := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+		//Grabbing the associated move to update its status
+		var move models.Move
+		err := txnAppCtx.DB().Find(&move, moveTaskOrderID)
+		if err != nil {
+			switch err {
+			case sql.ErrNoRows:
+				return apperror.NewNotFoundError(moveTaskOrderID, "looking for Move")
+			default:
+				return apperror.NewQueryError("Move", err, "unable to retrieve move")
+			}
+		}
+
+		// Updating the status of the request as well as office remarks
 		returnedSITAddressUpdateRequest, err := f.updateSITAddressUpdateRequest(txnAppCtx, sitAddressUpdateRequest, officeRemarks)
+		if err != nil {
+			return err
+		}
+
+		_, err = f.moveRouter.ApproveOrRequestApproval(txnAppCtx, move)
 		if err != nil {
 			return err
 		}
@@ -107,12 +127,7 @@ func (f *sitAddressUpdateRequestRejector) updateSITAddressUpdateRequest(appCtx a
 	sitAddressUpdateRequest.OfficeRemarks = officeRemarks
 	sitAddressUpdateRequest.Status = models.SITAddressUpdateStatusRejected
 
-	err := validateSITAddressUpdate(appCtx, &sitAddressUpdateRequest, f.checks...)
-	if err != nil {
-		return nil, err
-	}
-
-	verrs, err := appCtx.DB().ValidateAndUpdate(sitAddressUpdateRequest)
+	verrs, err := appCtx.DB().ValidateAndUpdate(&sitAddressUpdateRequest)
 	if error := f.handleError(sitAddressUpdateRequest.ID, verrs, err); error != nil {
 		return nil, error
 	}

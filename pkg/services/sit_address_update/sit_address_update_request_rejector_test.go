@@ -4,12 +4,19 @@ import (
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
+	moverouter "github.com/transcom/mymove/pkg/services/move"
+	movefetcher "github.com/transcom/mymove/pkg/services/move_task_order"
 )
 
 func (suite *SITAddressUpdateServiceSuite) TestRejectSITAddressUpdateRequest() {
-	officeRemarks := "I have chosen to reject this address request"
+	officeRemarks := "I have chosen to reject this address update request"
+	blankOfficeRemarks := ""
+	moveRouter := moverouter.NewMoveRouter()
+	reject := NewSITAddressUpdateRequestRejector(moveRouter)
 
-	suite.Run("Successfully reject SIT address update request and update it's status", func() {
+	suite.Run("Successfully Updates the sit address update status to REJECTED", func() {
+		move := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
 		serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOServiceItem{
@@ -17,9 +24,21 @@ func (suite *SITAddressUpdateServiceSuite) TestRejectSITAddressUpdateRequest() {
 				},
 			},
 			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
 				Model: models.ReService{
 					Code: models.ReServiceCodeDDDSIT,
 				},
+			},
+			{
+				Model: models.Address{},
+				Type:  &factory.Addresses.SITDestinationOriginalAddress,
+			},
+			{
+				Model: models.Address{},
+				Type:  &factory.Addresses.SITDestinationFinalAddress,
 			},
 		}, nil)
 
@@ -28,16 +47,84 @@ func (suite *SITAddressUpdateServiceSuite) TestRejectSITAddressUpdateRequest() {
 				Model:    serviceItem,
 				LinkOnly: true,
 			},
-		}, nil)
-
-		rejector := NewSITAddressUpdateRequestRejector()
+			{
+				Model: models.SITAddressUpdate{
+					ContractorRemarks: models.StringPointer("Moving closer to family"),
+					Status:            models.SITAddressUpdateStatusRequested,
+				},
+			},
+		}, []factory.Trait{factory.GetTraitSITAddressUpdateWithMoveSetUp})
 
 		eTag := etag.GenerateEtag(serviceItem.UpdatedAt)
-		updatedSITAddressUpdateRequestPostRejection, err := rejector.RejectSITAddressUpdateRequest(suite.AppContextForTest(), serviceItem.ID, sitAddressUpdate.ID, &officeRemarks, eTag)
+		updatedSITAddressUpdateRequestPostRejection, err := reject.RejectSITAddressUpdateRequest(suite.AppContextForTest(), serviceItem.ID, sitAddressUpdate.ID, &officeRemarks, eTag)
 
+		// Checking fields were updated as expected
 		suite.NoError(err)
 		suite.NotNil(updatedSITAddressUpdateRequestPostRejection)
 		suite.Equal(updatedSITAddressUpdateRequestPostRejection.Status, models.SITAddressUpdateStatusRejected)
-		suite.Equal(updatedSITAddressUpdateRequestPostRejection.OfficeRemarks, officeRemarks)
+		suite.Equal(updatedSITAddressUpdateRequestPostRejection.OfficeRemarks, &officeRemarks)
+
+		// Timestamp should differ after update
+		suite.NotEqual(sitAddressUpdate.UpdatedAt, updatedSITAddressUpdateRequestPostRejection.UpdatedAt)
+
+		// Grab the associated move and check its status was properly updated
+		movefetcher := movefetcher.NewMoveTaskOrderFetcher()
+		searchParams := services.MoveTaskOrderFetcherParams{
+			IncludeHidden:   false,
+			MoveTaskOrderID: serviceItem.MoveTaskOrderID,
+		}
+		updatedMove, moveErr := movefetcher.FetchMoveTaskOrder(suite.AppContextForTest(), &searchParams)
+
+		suite.Nil(moveErr)
+		suite.Equal(updatedMove.Status, models.MoveStatusAPPROVED)
+	})
+
+	suite.Run("Fails to REJECT SIT address update due to missing remarks", func() {
+		move := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
+		serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusApproved,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDDSIT,
+				},
+			},
+			{
+				Model: models.Address{},
+				Type:  &factory.Addresses.SITDestinationOriginalAddress,
+			},
+			{
+				Model: models.Address{},
+				Type:  &factory.Addresses.SITDestinationFinalAddress,
+			},
+		}, nil)
+
+		sitAddressUpdate := factory.BuildSITAddressUpdate(suite.DB(), []factory.Customization{
+			{
+				Model:    serviceItem,
+				LinkOnly: true,
+			},
+			{
+				Model: models.SITAddressUpdate{
+					ContractorRemarks: models.StringPointer("Moving closer to family"),
+					Status:            models.SITAddressUpdateStatusRequested,
+				},
+			},
+		}, []factory.Trait{factory.GetTraitSITAddressUpdateWithMoveSetUp})
+
+		eTag := etag.GenerateEtag(serviceItem.UpdatedAt)
+		updatedSITAddressUpdateRequestPostRejection, err := reject.RejectSITAddressUpdateRequest(suite.AppContextForTest(), serviceItem.ID, sitAddressUpdate.ID, &blankOfficeRemarks, eTag)
+
+		// Checking fields were updated as expected
+		suite.Error(err)
+		suite.Nil(updatedSITAddressUpdateRequestPostRejection)
+		suite.ErrorContains(err, "OfficeRemarks can not be blank.")
 	})
 }
