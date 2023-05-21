@@ -13,7 +13,7 @@ func checkAndValidateRequiredFields() sitAddressUpdateValidator {
 		verrs := validate.NewErrors()
 
 		// Distance and Status are required fields but aren't validated here
-		// Distance should be calcualted
+		// Distance should be calculated
 		// Status should be updated with using approve/reject service objects
 
 		if !sitAddressUpdate.NewAddressID.IsNil() {

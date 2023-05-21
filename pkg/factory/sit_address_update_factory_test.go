@@ -33,7 +33,7 @@ func (suite *FactorySuite) TestBuildSITAddressUpdate() {
 		suite.NotNil(sitAddressUpdate.MTOServiceItem)
 		suite.False(sitAddressUpdate.MTOServiceItem.ID.IsNil())
 		suite.False(sitAddressUpdate.MTOServiceItemID.IsNil())
-		suite.Equal(sitAddressUpdate.OldAddressID, *sitAddressUpdate.MTOServiceItem.SITDestinationOriginalAddressID)
+		suite.Equal(sitAddressUpdate.OldAddressID, *sitAddressUpdate.MTOServiceItem.SITDestinationFinalAddressID)
 		suite.NotNil(sitAddressUpdate.OldAddress)
 		suite.False(sitAddressUpdate.OldAddress.ID.IsNil())
 		suite.False(sitAddressUpdate.OldAddressID.IsNil())

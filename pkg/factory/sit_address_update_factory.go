@@ -44,7 +44,7 @@ func BuildSITAddressUpdate(db *pop.Connection, customs []Customization, traits [
 		customs = replaceCustomization(customs, Customization{
 			Model:    oldAddress,
 			LinkOnly: true,
-			Type:     &Addresses.SITDestinationOriginalAddress,
+			Type:     &Addresses.SITDestinationFinalAddress,
 		})
 	}
 

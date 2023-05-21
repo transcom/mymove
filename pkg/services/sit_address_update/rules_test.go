@@ -102,6 +102,36 @@ func (suite *SITAddressUpdateServiceSuite) TestCheckRequiredFields() {
 			suite.IsType(&validate.Errors{}, err)
 			suite.Contains(err.Error(), "MTOServiceItem was not found")
 		})
+
+		suite.Run("Create SITAddressUpdate with missing SITDestinationFinalAddressID", func() {
+			oldAddress := factory.BuildAddress(suite.DB(), nil, nil)
+			mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+				{
+					Model: models.MTOServiceItem{
+						Status: models.MTOServiceItemStatusApproved,
+					},
+				}}, nil)
+			sitAddressUpdate := factory.BuildSITAddressUpdate(nil, []factory.Customization{
+				{
+					Model:    oldAddress,
+					LinkOnly: true,
+					Type:     &factory.Addresses.SITAddressUpdateOldAddress,
+				},
+				{
+					Model:    mtoServiceItem,
+					LinkOnly: true,
+				},
+			}, nil)
+
+			err := checkAndValidateRequiredFields().Validate(
+				suite.AppContextForTest(),
+				&sitAddressUpdate,
+			)
+
+			suite.Error(err)
+			suite.IsType(&validate.Errors{}, err)
+			suite.Contains(err.Error(), "SITDestinationFinalAddressID is required")
+		})
 	})
 }
 
