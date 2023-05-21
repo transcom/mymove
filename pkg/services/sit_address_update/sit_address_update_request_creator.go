@@ -99,7 +99,7 @@ func (f *sitAddressUpdateRequestCreator) CreateSITAddressUpdateRequest(appCtx ap
 				return err
 			}
 
-			// Only uppdate if the move status has actually changed
+			// Only update if the move status has actually changed
 			if existingMoveStatus != move.Status {
 				err = txnAppCtx.DB().Update(&move)
 				if err != nil {
