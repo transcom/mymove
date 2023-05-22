@@ -35,11 +35,11 @@ describe('ServiceItemUpdateModal', () => {
       expect(screen.getByText('Title for the modal')).toBeInTheDocument();
       expect(within(sitDetailsTable).getByText('Customer contact 1:')).toBeInTheDocument();
       expect(within(sitDetailsTable).getByText('1200Z')).toBeInTheDocument();
-      expect(within(sitDetailsTable).getByText('First available delivery date 1:')).toBeInTheDocument();
+      expect(within(sitDetailsTable).getByText('Available delivery date 1:')).toBeInTheDocument();
       expect(within(sitDetailsTable).getByText('15 Sep 2020')).toBeInTheDocument();
       expect(within(sitDetailsTable).getByText('Customer contact 2:')).toBeInTheDocument();
       expect(within(sitDetailsTable).getByText('2300Z')).toBeInTheDocument();
-      expect(within(sitDetailsTable).getByText('First available delivery date 2:')).toBeInTheDocument();
+      expect(within(sitDetailsTable).getByText('Available delivery date 2:')).toBeInTheDocument();
       expect(within(sitDetailsTable).getByText('21 Sep 2020')).toBeInTheDocument();
       expect(within(sitDetailsTable).getByText('Reason:')).toBeInTheDocument();
       expect(screen.getByText("Customer's housing at base is not ready")).toBeInTheDocument();

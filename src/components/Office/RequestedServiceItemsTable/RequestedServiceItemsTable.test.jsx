@@ -60,12 +60,12 @@ const testDetails = (wrapper) => {
 
   expect(detailTypes.at(3).text()).toBe('Customer contact 1:');
   expect(detailDefinitions.at(3).text().includes('1200Z')).toBe(true);
-  expect(detailTypes.at(4).text()).toBe('First available delivery date 1:');
+  expect(detailTypes.at(4).text()).toBe('Available delivery date 1:');
   expect(detailDefinitions.at(4).text().includes('15 Sep 2020')).toBe(true);
 
   expect(detailTypes.at(5).text()).toBe('Customer contact 2:');
   expect(detailDefinitions.at(5).text().includes('2300Z')).toBe(true);
-  expect(detailTypes.at(6).text()).toBe('First available delivery date 2:');
+  expect(detailTypes.at(6).text()).toBe('Available delivery date 2:');
   expect(detailDefinitions.at(6).text().includes('21 Sep 2020')).toBe(true);
 
   expect(detailTypes.at(8).text()).toBe('ZIP:');
