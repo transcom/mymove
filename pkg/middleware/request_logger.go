@@ -12,10 +12,14 @@ import (
 	"github.com/transcom/mymove/pkg/handlers/authentication"
 	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/server"
+	"github.com/transcom/mymove/pkg/telemetry"
 )
 
 // RequestLogger returns a middleware that logs requests.
 func RequestLogger(globalLogger *zap.Logger) func(inner http.Handler) http.Handler {
+
+	requestTelemetry := telemetry.NewRequestTelemetry(globalLogger)
+
 	return func(inner http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
@@ -77,7 +81,9 @@ func RequestLogger(globalLogger *zap.Logger) func(inner http.Handler) http.Handl
 			}...)
 
 			logger.Info("Request", fields...)
-
+			if requestTelemetry != nil {
+				requestTelemetry.HandleRequest(r, metrics)
+			}
 		})
 	}
 }
