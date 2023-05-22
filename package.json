@@ -169,7 +169,7 @@
     "react-app-rewired": "^2.2.1",
     "react-scripts": "5.0.1",
     "react-select-event": "^5.5.1",
-    "react-test-renderer": "^17.0.1",
+    "react-test-renderer": "^18.2.0",
     "source-map-explorer": "^2.5.3",
     "storybook": "^7.0.12",
     "stream-http": "^3.2.0",
