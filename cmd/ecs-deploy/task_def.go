@@ -119,6 +119,7 @@ const (
 	memFlag                  string = "memory"
 	registerFlag             string = "register"
 	openTelemetrySidecarFlag string = "open-telemetry-sidecar"
+	otelCollectorImageFlag   string = "otel-collector-image"
 	healthCheckFlag          string = "health-check"
 )
 
@@ -231,6 +232,10 @@ func initTaskDefFlags(flag *pflag.FlagSet) {
 
 	// Open Telemetry SideCar
 	flag.Bool(openTelemetrySidecarFlag, false, "Include open telemetry sidecar container")
+	const defaultOtelImage = "public.ecr.aws/aws-observability/aws-otel-collector:v0.29.0"
+	flag.String(otelCollectorImageFlag, defaultOtelImage,
+		"Image to use for open telemetry sidecar")
+
 	// Health Check
 	flag.Bool(healthCheckFlag, false, "Include health check in the task definition")
 
@@ -874,10 +879,12 @@ service:
 
   extensions: [health_check]
 `
+
+		otelCollectorImage := v.GetString(otelCollectorImageFlag)
 		containerDefinitions = append(containerDefinitions,
 			&ecs.ContainerDefinition{
 				Name:      aws.String("otel-" + containerDefName),
-				Image:     aws.String("public.ecr.aws/aws-observability/aws-otel-collector:v0.29.0"),
+				Image:     aws.String(otelCollectorImage),
 				Essential: aws.Bool(true),
 				Environment: []*ecs.KeyValuePair{
 					{
