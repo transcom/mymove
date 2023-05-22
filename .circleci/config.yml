@@ -1394,53 +1394,6 @@ jobs:
                   - ~/transcom/mymove/coverage
       - announce_failure
 
-  # `webhook_client_test` runs the webhook client Go tests
-  webhook_client_test:
-    executor: mymove_tester
-    steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - go-mod-sources-v5-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
-      - run: make db_test_reset
-      - run:
-          command: make db_test_migrate
-          environment:
-            APPLICATION: app
-            DB_HOST: localhost
-            DB_NAME: test_db
-            DB_NAME_TEST: test_db
-            DB_PASSWORD: mysecretpassword
-            DB_PORT: 5432
-            DB_PORT_TEST: 5432
-            DB_USER: postgres
-            MIGRATION_MANIFEST: '/home/circleci/transcom/mymove/migrations/app/migrations_manifest.txt'
-            MIGRATION_PATH: 'file:///home/circleci/transcom/mymove/migrations/app/schema;file:///home/circleci/transcom/mymove/migrations/app/secure'
-      - run:
-          command: make db_e2e_up
-          environment:
-            APPLICATION: app
-            DB_HOST: localhost
-            DB_NAME: test_db
-            DB_NAME_TEST: test_db
-            DB_PASSWORD: mysecretpassword
-            DB_PORT: 5432
-            DB_PORT_TEST: 5432
-            DB_USER: postgres
-      - run:
-          command: make webhook_client_test_standalone
-          environment:
-            DB_HOST: localhost
-            DB_NAME: test_db
-            DB_NAME_TEST: test_db
-            DB_PASSWORD: mysecretpassword
-            DB_PASSWORD_LOW_PRIV: mysecretpassword
-            DB_PORT: 5432
-            DB_PORT_TEST: 5432
-            DB_USER: postgres
-            DB_USER_LOW_PRIV: crud
-      - announce_failure
-
   # Compile the server side of the app once and persist the relevant
   # build artifacts to the workspace.
   # This way we don't have to re-run the build and since all necessary
@@ -1778,28 +1731,6 @@ jobs:
           working_dir: /mnt/ramdisk
       - announce_failure
 
-  # `build_dp3_webhook_client`builds the webhookd container, replacing DoD chain/certs with non-ato version
-  build_dp3_webhook_client:
-    executor: mymove_builder
-    steps:
-      - build_image:
-          dockerfile: Dockerfile.webhook_client_dp3
-          image_name: webhook_client
-          tag: dev
-          working_dir: /mnt/ramdisk
-      - announce_failure
-
-  # `push_webhook_client_dp3` pushes the webhook client container to the dp3 container repository
-  push_webhook_client_dp3:
-    executor: mymove_pusher
-    steps:
-      - aws_vars_dp3
-      - push_image:
-          ecr_env: *dp3-env
-          image_name: webhook_client
-          tag: dev
-          repo: app-webhook-client
-      - announce_failure
 
   # `push_webhook_client_stg` pushes the webhook client container to the stg container repository
   push_webhook_client_stg:
@@ -1879,17 +1810,6 @@ jobs:
           health_check_hosts: api.<< parameters.dp3-env >>.dp3.us
           ecr_env: *dp3-env
 
-  # `deploy_dp3_webhook_client` deploys the webhook client to dp3
-  deploy_dp3_webhook_client:
-    executor: mymove_pusher
-    environment:
-      APP_ENVIRONMENT: *dp3-env
-      OPEN_TELEMETRY_SIDECAR: 'true'
-    steps:
-      - checkout
-      - aws_vars_dp3
-      - deploy_webhook_client_steps:
-          ecr_env: *dp3-env
 
   check_circle_against_stg_sha:
     executor: mymove_pusher
@@ -2232,14 +2152,6 @@ workflows:
             branches:
               only: *dp3-branch
 
-      - build_dp3_webhook_client:
-          requires:
-            - compile_app_server
-            - compile_app_client
-          filters:
-            branches:
-              only: *dp3-branch
-
       - push_app_dp3:
           requires:
             - build_dp3_app
@@ -2261,13 +2173,6 @@ workflows:
             branches:
               only: *dp3-branch
 
-      - push_webhook_client_dp3:
-          requires:
-            - build_dp3_webhook_client
-          filters:
-            branches:
-              only: *dp3-branch
-
       - deploy_dp3_migrations:
           requires:
             - pre_deps_golang
@@ -2279,7 +2184,6 @@ workflows:
             - compile_app_client
             - push_tasks_dp3
             - push_migrations_dp3
-            - push_webhook_client_dp3
           filters:
             branches:
               only: *dp3-branch
@@ -2299,13 +2203,6 @@ workflows:
               only: *dp3-branch
 
       - deploy_dp3_app_client_tls:
-          requires:
-            - deploy_dp3_migrations
-          filters:
-            branches:
-              only: *dp3-branch
-
-      - deploy_dp3_webhook_client:
           requires:
             - deploy_dp3_migrations
           filters:
