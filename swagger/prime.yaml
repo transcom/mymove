@@ -2773,6 +2773,10 @@ definitions:
       - sitExpected
       - eTag
   ProofOfServiceDocs:
+    items:
+      $ref: '#/definitions/ProofOfServiceDoc'
+    type: array
+  ProofOfServiceDoc:
     properties:
       uploads:
         items:

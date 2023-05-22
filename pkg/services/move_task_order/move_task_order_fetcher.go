@@ -75,6 +75,7 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 
 	query := appCtx.DB().EagerPreload(
 		"PaymentRequests.PaymentServiceItems.PaymentServiceItemParams.ServiceItemParamKey",
+		"PaymentRequests.ProofOfServiceDocs.PrimeUploads.Upload",
 		"MTOServiceItems.ReService",
 		"MTOServiceItems.Dimensions",
 		"MTOServiceItems.CustomerContacts",

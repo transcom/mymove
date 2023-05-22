@@ -281,10 +281,31 @@ func MTOAgents(mtoAgents *models.MTOAgents) *primemessages.MTOAgents {
 	return &agents
 }
 
+func ProofOfServiceDoc(proofOfServiceDoc models.ProofOfServiceDoc) *primemessages.ProofOfServiceDoc {
+	uploads := make([]*primemessages.UploadWithOmissions, len(proofOfServiceDoc.PrimeUploads))
+	if proofOfServiceDoc.PrimeUploads != nil && len(proofOfServiceDoc.PrimeUploads) > 0 {
+		for i, primeUpload := range proofOfServiceDoc.PrimeUploads {
+			uploads[i] = basicUpload(&primeUpload.Upload)
+		}
+	}
+
+	return &primemessages.ProofOfServiceDoc{
+		Uploads: uploads,
+	}
+}
+
 // PaymentRequest payload
 func PaymentRequest(paymentRequest *models.PaymentRequest) *primemessages.PaymentRequest {
 	if paymentRequest == nil {
 		return nil
+	}
+
+	serviceDocs := make(primemessages.ProofOfServiceDocs, len(paymentRequest.ProofOfServiceDocs))
+
+	if paymentRequest.ProofOfServiceDocs != nil && len(paymentRequest.ProofOfServiceDocs) > 0 {
+		for i, proofOfService := range paymentRequest.ProofOfServiceDocs {
+			serviceDocs[i] = ProofOfServiceDoc(proofOfService)
+		}
 	}
 
 	paymentServiceItems := PaymentServiceItems(&paymentRequest.PaymentServiceItems)
@@ -297,6 +318,7 @@ func PaymentRequest(paymentRequest *models.PaymentRequest) *primemessages.Paymen
 		RejectionReason:                 paymentRequest.RejectionReason,
 		Status:                          primemessages.PaymentRequestStatus(paymentRequest.Status),
 		PaymentServiceItems:             *paymentServiceItems,
+		ProofOfServiceDocs:              serviceDocs,
 		ETag:                            etag.GenerateEtag(paymentRequest.UpdatedAt),
 	}
 }
@@ -716,6 +738,23 @@ func Upload(appCtx appcontext.AppContext, storer storage.FileStorer, upload *mod
 			status = "PROCESSING"
 		}
 		payload.Status = status
+	}
+
+	return payload
+}
+
+func basicUpload(upload *models.Upload) *primemessages.UploadWithOmissions {
+	if upload == nil || upload.ID == uuid.Nil {
+		return nil
+	}
+
+	payload := &primemessages.UploadWithOmissions{
+		ID:          strfmt.UUID(upload.ID.String()),
+		Bytes:       &upload.Bytes,
+		ContentType: &upload.ContentType,
+		Filename:    &upload.Filename,
+		CreatedAt:   strfmt.DateTime(upload.CreatedAt),
+		UpdatedAt:   strfmt.DateTime(upload.UpdatedAt),
 	}
 
 	return payload
