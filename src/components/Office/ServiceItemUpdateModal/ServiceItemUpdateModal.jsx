@@ -20,7 +20,7 @@ const ServiceItemDetail = ({ serviceItem }) => {
   return (
     <table data-testid="sitAddressUpdateDetailTable" className={styles.serviceItemDetails}>
       <tbody>
-        <tr key={id}>
+        <tr key={`sid-${id}`}>
           <td className={styles.nameDateContainer}>
             <p className={styles.serviceItemName}>{serviceItem.serviceItem}</p>
             <p>{formatDateFromIso(submittedAt, 'DD MMM YYYY')}</p>
@@ -67,7 +67,11 @@ export const ServiceItemUpdateModal = ({
         <h2>{title}</h2>
       </ModalTitle>
       <ServiceItemDetail serviceItem={serviceItem} />
-      <Formik onSubmit={(e) => onSave(e)} initialValues={initialValues} validationSchema={serviceItemUpdateModalSchema}>
+      <Formik
+        onSubmit={(formValues) => onSave(serviceItem.id, formValues)}
+        initialValues={initialValues}
+        validationSchema={serviceItemUpdateModalSchema}
+      >
         {({ isValid }) => {
           return (
             <Form className={formStyles.form}>

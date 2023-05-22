@@ -595,6 +595,18 @@ export function updateMoveCloseoutOffice({ locator, ifMatchETag, body }) {
   );
 }
 
+export function createSitAddressUpdate({ mtoServiceItemID, body }) {
+  const operationPath = 'mtoServiceItem.createSITAddressUpdate';
+  makeGHCRequest(
+    operationPath,
+    {
+      mtoServiceItemID,
+      body,
+    },
+    { schemaKey: 'createSITAddressUpdate' },
+  );
+}
+
 export async function searchTransportationOffices(search) {
   const operationPath = 'transportationOffice.getTransportationOffices';
   return makeGHCRequest(operationPath, { search }, { normalize: false });

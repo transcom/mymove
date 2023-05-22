@@ -12,6 +12,7 @@ import styles from '../TXOMoveInfo/TXOTab.module.scss';
 import moveTaskOrderStyles from './MoveTaskOrder.module.scss';
 
 import ConnectedEditMaxBillableWeightModal from 'components/Office/EditMaxBillableWeightModal/EditMaxBillableWeightModal';
+import ConnectedServiceItemUpdateModal from 'components/Office/ServiceItemUpdateModal/ServiceItemUpdateModal';
 import { MILMOVE_LOG_LEVEL, milmoveLog } from 'utils/milmoveLog';
 import { formatAddressForAPI, formatStorageFacilityForAPI, removeEtag } from 'utils/formatMtoShipment';
 import hasRiskOfExcess from 'utils/hasRiskOfExcess';
@@ -42,6 +43,7 @@ import {
   updateMTOShipment,
   updateMTOShipmentRequestReweigh,
   updateMTOShipmentStatus,
+  createSitAddressUpdate,
 } from 'services/ghcApi';
 import { MOVE_STATUSES } from 'shared/constants';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -58,6 +60,8 @@ import LeftNavTag from 'components/LeftNavTag/LeftNavTag';
 import Restricted from 'components/Restricted/Restricted';
 import { permissionTypes } from 'constants/permissions';
 import { tooRoutes } from 'constants/routes';
+import EditSitAddressChangeForm from 'components/Office/ServiceItemUpdateModal/EditSitAddressChangeForm';
+import { requiredAddressSchema } from 'utils/validation';
 
 const nonShipmentSectionLabels = {
   'move-weights': 'Move weights',
@@ -95,6 +99,7 @@ export const MoveTaskOrder = (props) => {
   const [isFinancialModalVisible, setIsFinancialModalVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState(null);
   const [alertType, setAlertType] = useState('success');
+  const [isEditSitAddressModalVisible, setIsEditSitAddressModalVisible] = useState(false);
 
   const [selectedShipment, setSelectedShipment] = useState(undefined);
   const [selectedServiceItem, setSelectedServiceItem] = useState(undefined);
@@ -298,6 +303,14 @@ export const MoveTaskOrder = (props) => {
     onSuccess: (data) => {
       queryClient.setQueryData([MOVES, data.locator], data);
       queryClient.invalidateQueries({ queryKey: [MOVES, data.locator] });
+    },
+  });
+
+  const { mutate: mutateSitAddressUpdate } = useMutation({
+    mutationFn: createSitAddressUpdate,
+    onSuccess: () => {
+      // queryClient.setQueryData([MOVES, data.locator], data);
+      // queryClient.invalidateQueries({ queryKey: [MOVES, data.locator] });
     },
   });
 
@@ -508,6 +521,39 @@ export const MoveTaskOrder = (props) => {
     mutateAcknowledgeExcessWeightRisk({ orderID: order.id, ifMatchETag: move.eTag });
   };
 
+  const handleSumbitSitAddressChange = (mtoServiceItemID, { newAddress, officeRemarks }) => {
+    mutateSitAddressUpdate(
+      {
+        mtoServiceItemID,
+        body: { newAddress, officeRemarks },
+      },
+      {
+        onSuccess: () => {
+          setIsEditSitAddressModalVisible(false);
+        },
+      },
+    );
+  };
+
+  // Fix-me: ETag and Id need to be removed from response from backend or address fields needs to be in their own object
+  const getSitAddressInitialValues = (address) => {
+    const blankAddress = {
+      city: '',
+      state: '',
+      postalCode: '',
+      streetAddress1: '',
+      streetAddress2: '',
+      streetAddress3: '',
+      country: '',
+    };
+    const initialValues = {};
+    Object.keys(blankAddress).forEach((field) => {
+      const value = address[field] || '';
+      initialValues[field] = value;
+    });
+    return initialValues;
+  };
+
   useEffect(() => {
     let serviceItemCount = 0;
     let sitAddressUpdateServiceItemCount = 0;
@@ -620,6 +666,16 @@ export const MoveTaskOrder = (props) => {
     const serviceItem = shipmentServiceItems[`${mtoShipmentID}`]?.find((item) => item.id === mtoServiceItemID);
     setSelectedServiceItem(serviceItem);
     setIsModalVisible(true);
+  };
+
+  const handleShowEditSitAddressModal = (mtoServiceItemID, mtoShipmentID) => {
+    const serviceItem = shipmentServiceItems[`${mtoShipmentID}`]?.find((item) => item.id === mtoServiceItemID);
+    setSelectedServiceItem(serviceItem);
+    setIsEditSitAddressModalVisible(true);
+  };
+
+  const handleCancelEditAddressModal = () => {
+    setIsEditSitAddressModalVisible(false);
   };
 
   const handleShowCancellationModal = (mtoShipment) => {
@@ -801,6 +857,24 @@ export const MoveTaskOrder = (props) => {
               initialSelection={move?.financialReviewFlag}
             />
           )}
+          {isEditSitAddressModalVisible && (
+            <ConnectedServiceItemUpdateModal
+              closeModal={handleCancelEditAddressModal}
+              onSave={handleSumbitSitAddressChange}
+              isOpen={isEditSitAddressModalVisible}
+              serviceItem={selectedServiceItem}
+              initialValues={{
+                officeRemarks: '',
+                newAddress: getSitAddressInitialValues(selectedServiceItem.sitDestinationFinalAddress),
+              }}
+              validations={{ newAddress: requiredAddressSchema }}
+              title="Edit service item"
+            >
+              <EditSitAddressChangeForm
+                initialAddress={getSitAddressInitialValues(selectedServiceItem.sitDestinationFinalAddress)}
+              />
+            </ConnectedServiceItemUpdateModal>
+          )}
           <div className={styles.pageHeader}>
             <h1>Move task order</h1>
             <div className={styles.pageHeaderDetails}>
@@ -902,6 +976,7 @@ export const MoveTaskOrder = (props) => {
                     serviceItems={requestedServiceItems}
                     handleUpdateMTOServiceItemStatus={handleUpdateMTOServiceItemStatus}
                     handleShowRejectionDialog={handleShowRejectionDialog}
+                    handleShowEditSitAddressModal={handleShowEditSitAddressModal}
                     statusForTableType={SERVICE_ITEM_STATUSES.SUBMITTED}
                   />
                 )}
@@ -910,6 +985,7 @@ export const MoveTaskOrder = (props) => {
                     serviceItems={approvedServiceItems}
                     handleUpdateMTOServiceItemStatus={handleUpdateMTOServiceItemStatus}
                     handleShowRejectionDialog={handleShowRejectionDialog}
+                    handleShowEditSitAddressModal={handleShowEditSitAddressModal}
                     statusForTableType={SERVICE_ITEM_STATUSES.APPROVED}
                   />
                 )}
@@ -918,6 +994,7 @@ export const MoveTaskOrder = (props) => {
                     serviceItems={rejectedServiceItems}
                     handleUpdateMTOServiceItemStatus={handleUpdateMTOServiceItemStatus}
                     handleShowRejectionDialog={handleShowRejectionDialog}
+                    handleShowEditSitAddressModal={handleShowEditSitAddressModal}
                     statusForTableType={SERVICE_ITEM_STATUSES.REJECTED}
                   />
                 )}
