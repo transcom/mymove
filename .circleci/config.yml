@@ -1913,7 +1913,7 @@ jobs:
     # right certs for pulling from public.ecr.aws
     environment:
       - APP_ENVIRONMENT: 'stg'
-      - OPEN_TELEMETRY_SIDECAR: 'true'
+      - OPEN_TELEMETRY_SIDECAR: 'false'
       - OTEL_COLLECTOR_IMAGE: 'amazon/aws-otel-collector:v0.29.0'
       - HEALTH_CHECK: 'true'
     steps:
@@ -1931,7 +1931,7 @@ jobs:
     # right certs for pulling from public.ecr.aws
     environment:
       - APP_ENVIRONMENT: 'stg'
-      - OPEN_TELEMETRY_SIDECAR: 'true'
+      - OPEN_TELEMETRY_SIDECAR: 'false'
       - OTEL_COLLECTOR_IMAGE: 'amazon/aws-otel-collector:v0.29.0'
       - HEALTH_CHECK: 'true'
     steps:
