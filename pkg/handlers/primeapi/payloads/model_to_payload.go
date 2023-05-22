@@ -538,12 +538,13 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 			sitDepartureDate = *mtoServiceItem.SITDepartureDate
 		}
 		payload = &primemessages.MTOServiceItemOriginSIT{
-			ReServiceCode:      handlers.FmtString(string(mtoServiceItem.ReService.Code)),
-			Reason:             mtoServiceItem.Reason,
-			SitDepartureDate:   handlers.FmtDate(sitDepartureDate),
-			SitEntryDate:       handlers.FmtDatePtr(mtoServiceItem.SITEntryDate),
-			SitPostalCode:      mtoServiceItem.SITPostalCode,
-			SitHHGActualOrigin: Address(mtoServiceItem.SITOriginHHGActualAddress),
+			ReServiceCode:        handlers.FmtString(string(mtoServiceItem.ReService.Code)),
+			Reason:               mtoServiceItem.Reason,
+			SitDepartureDate:     handlers.FmtDate(sitDepartureDate),
+			SitEntryDate:         handlers.FmtDatePtr(mtoServiceItem.SITEntryDate),
+			SitPostalCode:        mtoServiceItem.SITPostalCode,
+			SitHHGActualOrigin:   Address(mtoServiceItem.SITOriginHHGActualAddress),
+			SitHHGOriginalOrigin: Address(mtoServiceItem.SITOriginHHGOriginalAddress),
 		}
 	case models.ReServiceCodeDDFSIT, models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT:
 		var sitDepartureDate, firstAvailableDeliveryDate1, firstAvailableDeliveryDate2 time.Time
@@ -563,7 +564,7 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 		}
 
 		if !secondContact.FirstAvailableDeliveryDate.IsZero() {
-			firstAvailableDeliveryDate2 = firstContact.FirstAvailableDeliveryDate
+			firstAvailableDeliveryDate2 = secondContact.FirstAvailableDeliveryDate
 		}
 
 		payload = &primemessages.MTOServiceItemDestSIT{
@@ -625,6 +626,7 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 	payload.SetMtoShipmentID(strfmt.UUID(shipmentIDStr))
 	payload.SetReServiceName(mtoServiceItem.ReService.Name)
 	payload.SetStatus(primemessages.MTOServiceItemStatus(mtoServiceItem.Status))
+	payload.SetRejectionReason(mtoServiceItem.RejectionReason)
 	payload.SetETag(etag.GenerateEtag(mtoServiceItem.UpdatedAt))
 	return payload
 }
