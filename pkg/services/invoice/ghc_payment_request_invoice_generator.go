@@ -609,15 +609,15 @@ func (g ghcPaymentRequestInvoiceGenerator) createLoaSegments(orders models.Order
 		FinancialInformationCode:     tac,
 	}
 
-	fa2sac := edisegment.FA2{
-		BreakdownStructureDetailCode: "ZZ",
-		FinancialInformationCode:     sac,
-	}
-
 	if sac == "" {
 
 		return fa1, []edisegment.FA2{fa2}, nil
 
+	}
+
+	fa2sac := edisegment.FA2{
+		BreakdownStructureDetailCode: "ZZ",
+		FinancialInformationCode:     sac,
 	}
 
 	return fa1, []edisegment.FA2{fa2, fa2sac}, nil
