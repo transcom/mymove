@@ -4819,8 +4819,6 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 
 	destDepartureDate := destEntryDate.Add(15 * 24 * time.Hour)
 	serviceItemDDDSIT.SITDepartureDate = &destDepartureDate
-	serviceItemDDDSIT.SITDestinationFinalAddress = &destSITAddress
-	serviceItemDDDSIT.SITDestinationFinalAddressID = &destSITAddress.ID
 
 	updatedDDDSIT, updateDestErr := serviceItemUpdator.UpdateMTOServiceItemPrime(appCtx, &serviceItemDDDSIT, etag.GenerateEtag(serviceItemDDDSIT.UpdatedAt))
 
