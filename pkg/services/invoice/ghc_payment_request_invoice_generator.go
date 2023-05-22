@@ -314,6 +314,16 @@ func (g ghcPaymentRequestInvoiceGenerator) createServiceMemberDetailSegments(pay
 		ReferenceIdentification:          string(*branch),
 	}
 
+	// dod id
+	dodID := serviceMember.Edipi
+	if dodID == nil {
+		return apperror.NewConflictError(serviceMember.ID, fmt.Sprintf("no dod id found for ServiceMember ID: %s Payment Request ID: %s", serviceMember.ID, paymentRequestID))
+	}
+	header.ServiceMemberDodID = edisegment.N9{
+		ReferenceIdentificationQualifier: "4A",
+		ReferenceIdentification:          string(*dodID),
+	}
+
 	return nil
 }
 
