@@ -1,7 +1,7 @@
 import React from 'react';
 import moment from 'moment';
 import MockDate from 'mockdate';
-import addons from '@storybook/addons';
+import { addons } from '@storybook/preview-api';
 import { isHappoRun } from 'happo-plugin-storybook/register';
 
 import { SHIPMENT_OPTIONS } from '../../../shared/constants';

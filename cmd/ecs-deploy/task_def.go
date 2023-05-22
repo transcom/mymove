@@ -638,22 +638,265 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	if v.GetBool(openTelemetrySidecarFlag) {
+	// do not enable otel sidecar for the webhook service
+	isOtelEnabledService := !strings.Contains(containerDefName, "webhook")
+	if v.GetBool(openTelemetrySidecarFlag) && isOtelEnabledService {
+		// put our custom config file in the AOT_CONFIG_CONTENT
+		// environment variable
+		//
+		// ideas from the suggested
+		// https://github.com/aws-observability/aws-otel-collector/blob/main/config/ecs/container-insights/otel-task-metrics-config.yaml
+		// and then container specific info from
+		// https://aws-otel.github.io/docs/components/ecs-metrics-receiver#full-configuration-for-task--and-container-level-metrics
+		//
+		aotConfigContent := `
+extensions:
+  health_check:
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 127.0.0.1:4317
+      http:
+        endpoint: 127.0.0.1:4318
+  awsxray:
+    endpoint: 127.0.0.1:2000
+    transport: udp
+  statsd:
+    endpoint: 127.0.0.1:8125
+    aggregation_interval: 60s
+  awsecscontainermetrics:
+
+processors:
+  batch/traces:
+    timeout: 1s
+    send_batch_size: 50
+  batch/metrics:
+    timeout: 60s
+  filter:
+    metrics:
+      include:
+        match_type: strict
+        metric_names:
+          - .*memory.reserved
+          - .*memory.utilized
+          - .*cpu.reserved
+          - .*cpu.utilized
+          - .*network.rate.rx
+          - .*network.rate.tx
+          - .*storage.read_bytes
+          - .*storage.write_bytes
+          - container.duration
+  metricstransform:
+    transforms:
+      - include: ecs.task.memory.utilized
+        action: update
+        new_name: MemoryUtilized
+      - include: ecs.task.memory.reserved
+        action: update
+        new_name: MemoryReserved
+      - include: ecs.task.cpu.utilized
+        action: update
+        new_name: CpuUtilized
+      - include: ecs.task.cpu.reserved
+        action: update
+        new_name: CpuReserved
+      - include: ecs.task.network.rate.rx
+        action: update
+        new_name: NetworkRxBytes
+      - include: ecs.task.network.rate.tx
+        action: update
+        new_name: NetworkTxBytes
+      - include: ecs.task.storage.read_bytes
+        action: update
+        new_name: StorageReadBytes
+      - include: ecs.task.storage.write_bytes
+        action: update
+        new_name: StorageWriteBytes
+
+  resource:
+    attributes:
+      - key: ClusterName
+        from_attribute: aws.ecs.cluster.name
+        action: insert
+      - key: aws.ecs.cluster.name
+        action: delete
+      - key: ServiceName
+        from_attribute: aws.ecs.service.name
+        action: insert
+      - key: aws.ecs.service.name
+        action: delete
+      - key: TaskId
+        from_attribute: aws.ecs.task.id
+        action: insert
+      - key: aws.ecs.task.id
+        action: delete
+      - key: TaskDefinitionFamily
+        from_attribute: aws.ecs.task.family
+        action: insert
+      - key: aws.ecs.task.family
+        action: delete
+      - key: TaskARN
+        from_attribute: aws.ecs.task.arn
+        action: insert
+      - key: aws.ecs.task.arn
+        action: delete
+      - key: DockerName
+        from_attribute: aws.ecs.docker.name
+        action: insert
+      - key: aws.ecs.docker.name
+        action: delete
+      - key: TaskDefinitionRevision
+        from_attribute: aws.ecs.task.version
+        action: insert
+      - key: aws.ecs.task.version
+        action: delete
+      - key: PullStartedAt
+        from_attribute: aws.ecs.task.pull_started_at
+        action: insert
+      - key: aws.ecs.task.pull_started_at
+        action: delete
+      - key: PullStoppedAt
+        from_attribute: aws.ecs.task.pull_stopped_at
+        action: insert
+      - key: aws.ecs.task.pull_stopped_at
+        action: delete
+      - key: AvailabilityZone
+        from_attribute: cloud.zone
+        action: insert
+      - key: cloud.zone
+        action: delete
+      - key: LaunchType
+        from_attribute: aws.ecs.task.launch_type
+        action: insert
+      - key: aws.ecs.task.launch_type
+        action: delete
+      - key: Region
+        from_attribute: cloud.region
+        action: insert
+      - key: cloud.region
+        action: delete
+      - key: AccountId
+        from_attribute: cloud.account.id
+        action: insert
+      - key: cloud.account.id
+        action: delete
+      - key: DockerId
+        from_attribute: container.id
+        action: insert
+      - key: container.id
+        action: delete
+      - key: ContainerName
+        from_attribute: container.name
+        action: insert
+      - key: container.name
+        action: delete
+      - key: Image
+        from_attribute: container.image.name
+        action: insert
+      - key: container.image.name
+        action: delete
+      - key: ImageId
+        from_attribute: aws.ecs.container.image.id
+        action: insert
+      - key: aws.ecs.container.image.id
+        action: delete
+      - key: ExitCode
+        from_attribute: aws.ecs.container.exit_code
+        action: insert
+      - key: aws.ecs.container.exit_code
+        action: delete
+      - key: CreatedAt
+        from_attribute: aws.ecs.container.created_at
+        action: insert
+      - key: aws.ecs.container.created_at
+        action: delete
+      - key: StartedAt
+        from_attribute: aws.ecs.container.started_at
+        action: insert
+      - key: aws.ecs.container.started_at
+        action: delete
+      - key: FinishedAt
+        from_attribute: aws.ecs.container.finished_at
+        action: insert
+      - key: aws.ecs.container.finished_at
+        action: delete
+      - key: ImageTag
+        from_attribute: container.image.tag
+        action: insert
+      - key: container.image.tag
+        action: delete
+
+exporters:
+  awsxray:
+  awsemf/application:
+    namespace: ECS/AWSOTel/Application
+    log_group_name: '/aws/ecs/application/metrics'
+  awsemf/performance:
+    namespace: ECS/ContainerInsights
+    log_group_name: '/aws/ecs/containerinsights/{ClusterName}/performance'
+    log_stream_name: '{TaskId}'
+    resource_to_telemetry_conversion:
+      enabled: true
+    dimension_rollup_option: NoDimensionRollup
+    metric_declarations:
+      - dimensions: [ [ ClusterName ], [ ClusterName, TaskDefinitionFamily ] ]
+        metric_name_selectors:
+          - MemoryUtilized
+          - MemoryReserved
+          - CpuUtilized
+          - CpuReserved
+          - NetworkRxBytes
+          - NetworkTxBytes
+          - StorageReadBytes
+          - StorageWriteBytes
+      - dimensions: [[ClusterName], [ClusterName, TaskDefinitionFamily, ContainerName]]
+        metric_name_selectors: [container.*]
+
+service:
+  telemetry:
+    logs:
+      level: ERROR
+  pipelines:
+    traces:
+      receivers: [otlp,awsxray]
+      processors: [batch/traces]
+      exporters: [awsxray]
+    metrics/application:
+      receivers: [otlp, statsd]
+      processors: [batch/metrics]
+      exporters: [awsemf/application]
+    metrics/performance:
+      receivers: [awsecscontainermetrics ]
+      processors: [filter, metricstransform, resource]
+      exporters: [ awsemf/performance ]
+
+  extensions: [health_check]
+`
 		containerDefinitions = append(containerDefinitions,
 			&ecs.ContainerDefinition{
 				Name:      aws.String("otel-" + containerDefName),
-				Image:     aws.String("public.ecr.aws/aws-observability/aws-otel-collector:v0.26.1"),
+				Image:     aws.String("public.ecr.aws/aws-observability/aws-otel-collector:v0.29.0"),
 				Essential: aws.Bool(true),
-				Command: aws.StringSlice([]string{
-					"--config=/etc/ecs/container-insights/otel-task-metrics-config.yaml",
-					"--set=service.telemetry.logs.level=ERROR",
-				}),
+				Environment: []*ecs.KeyValuePair{
+					{
+						Name:  aws.String("AOT_CONFIG_CONTENT"),
+						Value: aws.String(aotConfigContent),
+					},
+				},
 				LogConfiguration: &ecs.LogConfiguration{
 					LogDriver: aws.String("awslogs"),
 					Options: map[string]*string{
 						"awslogs-group":         aws.String(awsLogsGroup),
 						"awslogs-region":        aws.String(awsRegion),
 						"awslogs-stream-prefix": aws.String("otel-" + awsLogsStreamPrefix),
+					},
+				},
+				HealthCheck: &ecs.HealthCheck{
+					Command: []*string{
+						aws.String("CMD"),
+						aws.String("/healthcheck"),
 					},
 				},
 			},

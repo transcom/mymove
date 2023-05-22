@@ -120,7 +120,6 @@ test.describe('Office Users Show Page', () => {
       'Last name',
       'Telephone',
       'Active',
-      'Roles',
       'Transportation Office',
       'Created at',
       'Updated at',
