@@ -23,6 +23,7 @@ var TOO = RolePermissions{
 		"create.reweighRequest",
 		"create.shipmentCancellation",
 		"create.SITExtension",
+		"create.SITAddressUpdate",
 		"read.paymentRequest",
 		"read.shipmentsPaymentSITBalance",
 		"read.paymentServiceItemStatus",
