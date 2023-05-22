@@ -1834,6 +1834,7 @@ jobs:
       - APP_ENVIRONMENT: *dp3-env
       - OPEN_TELEMETRY_SIDECAR: 'true'
       - HEALTH_CHECK: 'true'
+      - OTEL_COLLECTOR_IMAGE: 'amazon/aws-otel-collector:v0.29.0'
     steps:
       - checkout
       - aws_vars_dp3
@@ -1853,6 +1854,7 @@ jobs:
       - APP_ENVIRONMENT: *dp3-env
       - OPEN_TELEMETRY_SIDECAR: 'true'
       - HEALTH_CHECK: 'true'
+      - OTEL_COLLECTOR_IMAGE: 'amazon/aws-otel-collector:v0.29.0'
     steps:
       - checkout
       - aws_vars_dp3
