@@ -1909,6 +1909,8 @@ jobs:
     executor: mymove_pusher
     environment:
       - APP_ENVIRONMENT: 'stg'
+      - OPEN_TELEMETRY_SIDECAR: 'true'
+      - HEALTH_CHECK: 'true'
     steps:
       - checkout
       - aws_vars_stg
@@ -1922,6 +1924,8 @@ jobs:
     executor: mymove_pusher
     environment:
       - APP_ENVIRONMENT: 'stg'
+      - OPEN_TELEMETRY_SIDECAR: 'true'
+      - HEALTH_CHECK: 'true'
     steps:
       - checkout
       - aws_vars_stg
