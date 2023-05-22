@@ -57,7 +57,7 @@ const ServiceItemsTable = ({
             sitAddressUpdates &&
             showSITAddressUpdateRequestedTag(code, sitAddressUpdates) && (
               <tr key={index}>
-                <td colSpan={3} style={{ borderBottom: 'none', paddingBottom: '0', paddingTop: '3px' }}>
+                <td colSpan={3} style={{ borderBottom: 'none', paddingBottom: '0', paddingTop: '8px' }}>
                   <Tag data-testid="sitAddressUpdateTag">UPDATE REQUESTED</Tag>
                 </td>
               </tr>
