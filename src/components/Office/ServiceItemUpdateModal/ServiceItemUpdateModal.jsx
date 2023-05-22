@@ -77,7 +77,7 @@ export const ServiceItemUpdateModal = ({
               <Field as={Textarea} data-testid="officeRemarks" label="No" name="officeRemarks" id="officeRemarks" />
               <ModalActions>
                 <Button type="submit">Save</Button>
-                <Button type="button" secondary onClick={closeModal} disabled={!isValid}>
+                <Button type="button" secondary onClick={() => closeModal()} disabled={!isValid}>
                   Cancel
                 </Button>
               </ModalActions>

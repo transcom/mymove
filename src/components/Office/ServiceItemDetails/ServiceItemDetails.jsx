@@ -52,7 +52,7 @@ const ServiceItemDetails = ({ id, code, details }) => {
               {
                 'Customer contact 1':
                   firstCustomerContact && firstCustomerContact.timeMilitary ? firstCustomerContact.timeMilitary : '-',
-                'First available delivery date 1':
+                'Available delivery date 1':
                   firstCustomerContact && firstCustomerContact.firstAvailableDeliveryDate
                     ? formatDate(firstCustomerContact.firstAvailableDeliveryDate, 'DD MMM YYYY')
                     : '-',
@@ -66,7 +66,7 @@ const ServiceItemDetails = ({ id, code, details }) => {
                     secondCustomerContact && secondCustomerContact.timeMilitary
                       ? secondCustomerContact.timeMilitary
                       : '-',
-                  'First available delivery date 2':
+                  'Available delivery date 2':
                     secondCustomerContact && secondCustomerContact.firstAvailableDeliveryDate
                       ? formatDate(secondCustomerContact.firstAvailableDeliveryDate, 'DD MMM YYYY')
                       : '-',

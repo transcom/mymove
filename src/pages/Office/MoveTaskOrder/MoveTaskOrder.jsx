@@ -27,6 +27,7 @@ import RejectServiceItemModal from 'components/Office/RejectServiceItemModal/Rej
 import RequestedServiceItemsTable from 'components/Office/RequestedServiceItemsTable/RequestedServiceItemsTable';
 import RequestShipmentCancellationModal from 'components/Office/RequestShipmentCancellationModal/RequestShipmentCancellationModal';
 import RequestReweighModal from 'components/Office/RequestReweighModal/RequestReweighModal';
+import ServiceItemUpdateModal from 'components/Office/ServiceItemUpdateModal/ServiceItemUpdateModal';
 import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
 import ShipmentHeading from 'components/Office/ShipmentHeading/ShipmentHeading';
 import ShipmentDetails from 'components/Office/ShipmentDetails/ShipmentDetails';
@@ -91,6 +92,7 @@ export const MoveTaskOrder = (props) => {
   const [isWeightModalVisible, setIsWeightModalVisible] = useState(false);
   const [isWeightAlertVisible, setIsWeightAlertVisible] = useState(false);
   const [isSITAddressUpdateAlertVisible, setIsSITAddressUpdateAlertVisible] = useState(false);
+  const [isSITAddressModalVisible, setIsSITAddressModalVisible] = useState(false);
   const [isSuccessAlertVisible, setIsSuccessAlertVisible] = useState(false);
   const [isFinancialModalVisible, setIsFinancialModalVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState(null);
@@ -98,6 +100,7 @@ export const MoveTaskOrder = (props) => {
 
   const [selectedShipment, setSelectedShipment] = useState(undefined);
   const [selectedServiceItem, setSelectedServiceItem] = useState(undefined);
+  const [selectedSITAddressUpdateServiceItem, setSelectedSITAddressUpdateServiceItem] = useState(undefined);
   const [sections, setSections] = useState([]);
   const [activeSection, setActiveSection] = useState('');
   const [unapprovedServiceItemsForShipment, setUnapprovedServiceItemsForShipment] = useState({});
@@ -632,6 +635,11 @@ export const MoveTaskOrder = (props) => {
     setIsReweighModalVisible(true);
   };
 
+  const handleRequestSITAddressUpdateModal = (serviceItem) => {
+    setSelectedSITAddressUpdateServiceItem(serviceItem);
+    setIsSITAddressModalVisible(true);
+  };
+
   const handleShowWeightModal = () => {
     setIsWeightModalVisible(true);
   };
@@ -785,6 +793,14 @@ export const MoveTaskOrder = (props) => {
             />
           )}
 
+          <ServiceItemUpdateModal
+            isOpen={isSITAddressModalVisible}
+            closeModal={setIsSITAddressModalVisible}
+            title="Review request: service item update"
+            onSave={() => {}}
+            serviceItem={selectedSITAddressUpdateServiceItem}
+          />
+
           <ConnectedEditMaxBillableWeightModal
             isOpen={isWeightModalVisible}
             defaultWeight={order.entitlement.totalWeight}
@@ -910,6 +926,7 @@ export const MoveTaskOrder = (props) => {
                     serviceItems={approvedServiceItems}
                     handleUpdateMTOServiceItemStatus={handleUpdateMTOServiceItemStatus}
                     handleShowRejectionDialog={handleShowRejectionDialog}
+                    handleRequestSITAddressUpdateModal={handleRequestSITAddressUpdateModal}
                     statusForTableType={SERVICE_ITEM_STATUSES.APPROVED}
                   />
                 )}

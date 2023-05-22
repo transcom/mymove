@@ -19,6 +19,7 @@ const ServiceItemsTable = ({
   serviceItems,
   statusForTableType,
   handleUpdateMTOServiceItemStatus,
+  handleRequestSITAddressUpdateModal,
   handleShowRejectionDialog,
 }) => {
   let dateField;
@@ -119,6 +120,15 @@ const ServiceItemsTable = ({
                         type="button"
                         data-testid="editTextButton"
                         className="text-blue usa-button--unstyled margin-left-1"
+                        onClick={() =>
+                          handleRequestSITAddressUpdateModal({
+                            id,
+                            code,
+                            details,
+                            serviceItem,
+                            submittedAt: item.submittedAt,
+                          })
+                        }
                       >
                         <span>
                           <FontAwesomeIcon icon="pencil" style={{ marginRight: '5px' }} />
@@ -169,10 +179,15 @@ const ServiceItemsTable = ({
   );
 };
 
+ServiceItemsTable.defaultProps = {
+  handleRequestSITAddressUpdateModal: () => {},
+};
+
 ServiceItemsTable.propTypes = {
   handleUpdateMTOServiceItemStatus: PropTypes.func.isRequired,
   handleShowRejectionDialog: PropTypes.func.isRequired,
   statusForTableType: PropTypes.string.isRequired,
+  handleRequestSITAddressUpdateModal: PropTypes.func,
   serviceItems: PropTypes.arrayOf(ServiceItemDetailsShape).isRequired,
 };
 
