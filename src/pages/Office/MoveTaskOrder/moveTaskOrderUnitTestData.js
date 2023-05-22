@@ -3,6 +3,7 @@ import MOVE_STATUSES from 'constants/moves';
 import { shipmentStatuses } from 'constants/shipments';
 import SERVICE_ITEM_STATUS from 'constants/serviceItems';
 import { SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
+import { SIT_ADDRESS_UPDATE_STATUS } from 'constants/sitUpdates';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { SITStatusOrigin } from 'components/Office/ShipmentSITDisplay/ShipmentSITDisplayTestParams';
 
@@ -2615,4 +2616,25 @@ export const reviewWeightsNoProGearQuery = {
   ],
   isLoading: false,
   isError: false,
+};
+
+export const unapprovedSITAddressUpdates = {
+  ...allApprovedMTOQuery,
+  mtoServiceItems: [
+    {
+      id: '8',
+      mtoShipmentID: '3',
+      reServiceName: 'Domestic destination SIT delivery',
+      status: SERVICE_ITEM_STATUS.APPROVED,
+      reServiceCode: 'DDDSIT',
+      sitAddressUpdates: [
+        {
+          contractorRemarks: 'contractor remarks',
+          distance: 140,
+          status: SIT_ADDRESS_UPDATE_STATUS.REQUESTED,
+          officeRemarks: null,
+        },
+      ],
+    },
+  ],
 };

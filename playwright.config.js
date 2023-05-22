@@ -52,7 +52,7 @@ const config = {
     {
       // ahobson 2022-12-08: for now, only test desktop chrome for admin
       name: 'admin',
-      testMatch: 'admin/**/*',
+      testMatch: 'admin/**/*.spec.js',
       use: {
         baseURL: process.env.PLAYWRIGHT_ADMIN_URL || 'http://adminlocal:3000',
         ...devices['Desktop Chrome'],
@@ -62,7 +62,7 @@ const config = {
     {
       // ahobson 2022-12-08: for now, only test desktop chrome for my
       name: 'my',
-      testMatch: 'my/**/*',
+      testMatch: 'my/**/*.spec.js',
       use: {
         baseURL: process.env.PLAYWRIGHT_MY_URL || 'http://milmovelocal:3000',
         ...devices['Desktop Chrome'],
@@ -71,7 +71,7 @@ const config = {
     {
       // ahobson 2022-12-14: for now, only test desktop chrome for office
       name: 'office',
-      testMatch: 'office/**/*',
+      testMatch: 'office/**/*.spec.js',
       use: {
         baseURL: process.env.PLAYWRIGHT_OFFICE_URL || 'http://officelocal:3000',
         ...devices['Desktop Chrome'],

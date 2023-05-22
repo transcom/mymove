@@ -17,6 +17,7 @@ jest.mock('hooks/queries', () => ({
 
 const setUnapprovedShipmentCount = jest.fn();
 const setUnapprovedServiceItemCount = jest.fn();
+const setUnapprovedSITAddressUpdateCount = jest.fn();
 const setExcessWeightRiskCount = jest.fn();
 const setUnapprovedSITExtensionCount = jest.fn();
 
@@ -728,6 +729,7 @@ describe('MoveDetails page', () => {
           <MoveDetails
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setUnapprovedSITAddressUpdateCount={setUnapprovedSITAddressUpdateCount}
             setExcessWeightRiskCount={setExcessWeightRiskCount}
             setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
           />
@@ -746,6 +748,7 @@ describe('MoveDetails page', () => {
           <MoveDetails
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setUnapprovedSITAddressUpdateCount={setUnapprovedSITAddressUpdateCount}
             setExcessWeightRiskCount={setExcessWeightRiskCount}
             setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
           />
@@ -764,6 +767,7 @@ describe('MoveDetails page', () => {
         <MoveDetails
           setUnapprovedShipmentCount={setUnapprovedShipmentCount}
           setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+          setUnapprovedSITAddressUpdateCount={setUnapprovedSITAddressUpdateCount}
           setExcessWeightRiskCount={setExcessWeightRiskCount}
           setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
         />
@@ -830,6 +834,7 @@ describe('MoveDetails page', () => {
         <MoveDetails
           setUnapprovedShipmentCount={setUnapprovedShipmentCount}
           setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+          setUnapprovedSITAddressUpdateCount={setUnapprovedSITAddressUpdateCount}
           setExcessWeightRiskCount={setExcessWeightRiskCount}
           setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
         />
@@ -850,6 +855,7 @@ describe('MoveDetails page', () => {
         <MoveDetails
           setUnapprovedShipmentCount={setUnapprovedShipmentCount}
           setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+          setUnapprovedSITAddressUpdateCount={setUnapprovedSITAddressUpdateCount}
           setExcessWeightRiskCount={setExcessWeightRiskCount}
           setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
         />
@@ -873,6 +879,7 @@ describe('MoveDetails page', () => {
         <MoveDetails
           setUnapprovedShipmentCount={setUnapprovedShipmentCount}
           setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+          setUnapprovedSITAddressUpdateCount={setUnapprovedSITAddressUpdateCount}
           setExcessWeightRiskCount={setExcessWeightRiskCount}
           setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
         />
@@ -912,6 +919,7 @@ describe('MoveDetails page', () => {
             <MoveDetails
               setUnapprovedShipmentCount={setUnapprovedShipmentCount}
               setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+              setUnapprovedSITAddressUpdateCount={setUnapprovedSITAddressUpdateCount}
               setExcessWeightRiskCount={setExcessWeightRiskCount}
               setUnapprovedSITExtensionCount={setUnapprovedServiceItemCount}
             />
@@ -931,6 +939,7 @@ describe('MoveDetails page', () => {
         <MoveDetails
           setUnapprovedShipmentCount={setUnapprovedShipmentCount}
           setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+          setUnapprovedSITAddressUpdateCount={setUnapprovedSITAddressUpdateCount}
           setExcessWeightRiskCount={setExcessWeightRiskCount}
           setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
         />
@@ -951,6 +960,7 @@ describe('MoveDetails page', () => {
           <MoveDetails
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setUnapprovedSITAddressUpdateCount={setUnapprovedSITAddressUpdateCount}
             setExcessWeightRiskCount={setExcessWeightRiskCount}
             setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
           />
@@ -965,6 +975,7 @@ describe('MoveDetails page', () => {
     const testProps = {
       setUnapprovedShipmentCount,
       setUnapprovedServiceItemCount,
+      setUnapprovedSITAddressUpdateCount,
       setExcessWeightRiskCount,
       setUnapprovedSITExtensionCount,
     };
@@ -1043,6 +1054,7 @@ describe('MoveDetails page', () => {
           <MoveDetails
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setUnapprovedSITAddressUpdateCount={setUnapprovedSITAddressUpdateCount}
             setExcessWeightRiskCount={setExcessWeightRiskCount}
             setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
           />
