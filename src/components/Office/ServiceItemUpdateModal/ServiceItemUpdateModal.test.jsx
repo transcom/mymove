@@ -1,6 +1,5 @@
 import React from 'react';
 import { render, screen, within } from '@testing-library/react';
-import { debug } from 'jest-preview';
 
 import { ServiceItemUpdateModal } from './ServiceItemUpdateModal';
 import {
@@ -64,7 +63,6 @@ describe('ServiceItemUpdateModal', () => {
           <EditSitAddressChangeForm initialAddress={newAddress} />
         </ServiceItemUpdateModal>,
       );
-      debug();
       expect(screen.getByText('Edit service item')).toBeInTheDocument();
       expect(screen.getByText('Final SIT delivery')).toBeInTheDocument();
       expect(screen.getByText('Initial SIT delivery address')).toBeInTheDocument();
