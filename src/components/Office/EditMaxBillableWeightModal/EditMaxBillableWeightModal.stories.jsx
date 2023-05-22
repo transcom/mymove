@@ -13,4 +13,6 @@ export default {
   },
 };
 
-export const Basic = (args) => <EditMaxBillableWeightModal {...args} />;
+export const Basic = (args) => {
+  return <EditMaxBillableWeightModal defaultWeight={10000} maxBillableWeight={10999} {...args} />;
+};

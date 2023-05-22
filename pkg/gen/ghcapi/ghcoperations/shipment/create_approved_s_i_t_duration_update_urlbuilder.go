@@ -42,7 +42,7 @@ func (o *CreateApprovedSITDurationUpdateURL) SetBasePath(bp string) {
 func (o *CreateApprovedSITDurationUpdateURL) Build() (*url.URL, error) {
 	var _result url.URL
 
-	var _path = "/shipments/{shipmentID}/sit-extensions/"
+	var _path = "/shipments/{shipmentID}/sit-extensions"
 
 	shipmentID := o.ShipmentID.String()
 	if shipmentID != "" {

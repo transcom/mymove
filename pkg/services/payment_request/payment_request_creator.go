@@ -33,6 +33,7 @@ func NewPaymentRequestCreator(planner route.Planner, pricer services.ServiceItem
 		pricer:  pricer,
 		checks: []paymentRequestValidator{
 			checkMTOIDField(),
+			checkMTOIDMatchesServiceItemMTOID(),
 		},
 	}
 }

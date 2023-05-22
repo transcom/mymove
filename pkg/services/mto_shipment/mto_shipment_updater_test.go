@@ -972,6 +972,38 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		mockShipmentRecalculator.AssertNotCalled(suite.T(), "ShipmentRecalculatePaymentRequest", mock.Anything, mock.Anything)
 	})
 
+	suite.Run("Updating a shipment with a Reweigh returns the Reweigh", func() {
+		setupTestData()
+
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		oldShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusApproved,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+		reweigh := testdatagen.MakeReweighForShipment(suite.DB(), testdatagen.Assertions{}, oldShipment, unit.Pound(3000))
+
+		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
+
+		updatedShipment := models.MTOShipment{
+			ID:                oldShipment.ID,
+			PrimeActualWeight: &primeActualWeight,
+		}
+
+		session := auth.Session{}
+		newShipment, err := mtoShipmentUpdaterPrime.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag)
+
+		suite.Require().NoError(err)
+		suite.NotEmpty(newShipment.Reweigh)
+		suite.Equal(newShipment.Reweigh.ID, reweigh.ID)
+	})
+
 	suite.Run("Prime cannot update estimated weights outside of required timeframe", func() {
 		setupTestData()
 

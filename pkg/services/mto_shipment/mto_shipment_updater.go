@@ -293,7 +293,9 @@ func (f *mtoShipmentUpdater) UpdateMTOShipment(appCtx appcontext.AppContext, mto
 		"MTOServiceItems.ReService",
 		"MTOServiceItems.Dimensions",
 		"MTOServiceItems.CustomerContacts",
-		"StorageFacility.Address"}
+		"StorageFacility.Address",
+		"Reweigh",
+	}
 
 	oldShipment, err := FindShipment(appCtx, mtoShipment.ID, eagerAssociations...)
 	if err != nil {

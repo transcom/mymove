@@ -24,7 +24,7 @@ const ExternalVendorShipmentMessage = () => (
 
 const Template = (args) => (
   <MockProviders permissions={[permissionTypes.updateBillableWeight]}>
-    <WeightDisplay {...args} />
+    <WeightDisplay weightValue={10000} heading="weight allowance" {...args} />
   </MockProviders>
 );
 
