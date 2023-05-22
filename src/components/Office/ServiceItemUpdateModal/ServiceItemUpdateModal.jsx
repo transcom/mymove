@@ -10,9 +10,10 @@ import ServiceItemDetails from '../ServiceItemDetails/ServiceItemDetails';
 import styles from './ServiceItemUpdateModal.module.scss';
 
 import Modal, { ModalActions, ModalClose, ModalTitle, connectModal } from 'components/Modal/Modal';
-import { Form } from 'components/form';
+import { Form } from 'components/form/Form';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { formatDateFromIso } from 'utils/formatters';
+import formStyles from 'styles/form.module.scss';
 
 const ServiceItemDetail = ({ serviceItem }) => {
   const { id, code, submittedAt, details } = serviceItem;
@@ -69,7 +70,7 @@ export const ServiceItemUpdateModal = ({
       <Formik onSubmit={(e) => onSave(e)} initialValues={initialValues} validationSchema={serviceItemUpdateModalSchema}>
         {({ isValid }) => {
           return (
-            <Form>
+            <Form className={formStyles.form}>
               <h3>SIT delivery address</h3>
               {content}
               <Label htmlFor="officeRemarks">Office remarks</Label>
