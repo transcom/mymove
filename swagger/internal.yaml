@@ -2631,10 +2631,12 @@ definitions:
     title: Orders type
     enum:
       - PERMANENT_CHANGE_OF_STATION
+      - LOCAL_MOVE
       - RETIREMENT
       - SEPARATION
     x-display-value:
       PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
+      LOCAL_MOVE: Local Move
       RETIREMENT: Retirement
       SEPARATION: Separation
   Address:

@@ -2739,10 +2739,12 @@ func init() {
       "title": "Orders type",
       "enum": [
         "PERMANENT_CHANGE_OF_STATION",
+        "LOCAL_MOVE",
         "RETIREMENT",
         "SEPARATION"
       ],
       "x-display-value": {
+        "LOCAL_MOVE": "Local Move",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station",
         "RETIREMENT": "Retirement",
         "SEPARATION": "Separation"
@@ -7166,10 +7168,12 @@ func init() {
       "title": "Orders type",
       "enum": [
         "PERMANENT_CHANGE_OF_STATION",
+        "LOCAL_MOVE",
         "RETIREMENT",
         "SEPARATION"
       ],
       "x-display-value": {
+        "LOCAL_MOVE": "Local Move",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station",
         "RETIREMENT": "Retirement",
         "SEPARATION": "Separation"
