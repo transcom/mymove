@@ -15691,10 +15691,10 @@ react-hook-form@^7.40.0:
   resolved "https://registry.yarnpkg.com/react-hook-form/-/react-hook-form-7.43.1.tgz#0d0d7822f3f7fc05ffc41d5f012b49b90fcfa0f0"
   integrity sha512-+s3+s8LLytRMriwwuSqeLStVjRXFGxgjjx2jED7Z+wz1J/88vpxieRQGvJVvzrzVxshZ0BRuocFERb779m2kNg==
 
-react-idle-timer@^5.5.3:
-  version "5.5.3"
-  resolved "https://registry.yarnpkg.com/react-idle-timer/-/react-idle-timer-5.5.3.tgz#e1428095e124dea9277f45b68fa4f856a448a6d9"
-  integrity sha512-fn2kNPz4BVEN/U05IzBQGPIfFlkjk0ekj8uKQaHAH/uBbATJDFmyxK0k36hv4kmzN8oFr8pe+C4zU5NJDBnfBQ==
+react-idle-timer@^5.6.2:
+  version "5.6.2"
+  resolved "https://registry.yarnpkg.com/react-idle-timer/-/react-idle-timer-5.6.2.tgz#0342b381ca26ea46e8232dbdc7f2b948bc4ddb0d"
+  integrity sha512-X7zjDv7duCopQ4v3X2Gun8QunvYplPWkvW2y7suDSREu1vQRQ0mr1ESv325QoJuvSIE5QCSbLaJlrbbooNaUNg==
 
 react-imask@^6.4.3:
   version "6.4.3"
