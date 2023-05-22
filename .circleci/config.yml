@@ -1907,8 +1907,13 @@ jobs:
   # `deploy_stg_app` updates the server-TLS app service in stg environment
   deploy_stg_app:
     executor: mymove_pusher
+    # use dockerhub otel collector image as govcloud does not have the
+    # right certs for pulling from public.ecr.aws
     environment:
       - APP_ENVIRONMENT: 'stg'
+      - OPEN_TELEMETRY_SIDECAR: 'true'
+      - OTEL_COLLECTOR_IMAGE: 'amazon/aws-otel-collector:v0.29.0'
+      - HEALTH_CHECK: 'true'
     steps:
       - checkout
       - aws_vars_stg
@@ -1920,8 +1925,13 @@ jobs:
   # `deploy_stg_app_client_tls` updates the mutual-TLS service in the stg environment
   deploy_stg_app_client_tls:
     executor: mymove_pusher
+    # use dockerhub otel collector image as govcloud does not have the
+    # right certs for pulling from public.ecr.aws
     environment:
       - APP_ENVIRONMENT: 'stg'
+      - OPEN_TELEMETRY_SIDECAR: 'true'
+      - OTEL_COLLECTOR_IMAGE: 'amazon/aws-otel-collector:v0.29.0'
+      - HEALTH_CHECK: 'true'
     steps:
       - checkout
       - aws_vars_stg
