@@ -41,7 +41,7 @@
     "playwright": "^1.33.0",
     "prop-types": "^15.8.1",
     "query-string": "7",
-    "ra-language-english": "^4.9.2",
+    "ra-language-english": "^4.10.5",
     "react": "^17.0.1",
     "react-admin": "^4.5.3",
     "react-admin-import-csv": "^4.0.0",
