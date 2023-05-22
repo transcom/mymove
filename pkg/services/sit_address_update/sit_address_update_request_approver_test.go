@@ -4,15 +4,16 @@ import (
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
-	// movefetcher "github.com/transcom/mymove/pkg/services/move_task_order"
+	movefetcher "github.com/transcom/mymove/pkg/services/move_task_order"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
-	"github.com/transcom/mymove/pkg/services/query"
+	query "github.com/transcom/mymove/pkg/services/query"
 )
 
 func (suite *SITAddressUpdateServiceSuite) TestApproveSITAddressUpdateRequest() {
 	serviceItemUpdater := mtoserviceitem.NewMTOServiceItemUpdater(query.NewQueryBuilder(), moverouter.NewMoveRouter())
-	officeRemarks := "I have chosen to reject this address update request"
+	officeRemarks := "I have chosen to approve this address update request"
 	moveRouter := moverouter.NewMoveRouter()
 
 	suite.Run("Successfully Updates the sit address update status to APPROVED", func() {
@@ -65,15 +66,34 @@ func (suite *SITAddressUpdateServiceSuite) TestApproveSITAddressUpdateRequest() 
 		suite.NoError(err)
 		suite.NotNil(updatedServiceItemPostApproval)
 
-		// Grab the associated move and check its status was properly updated
-		// movefetcher := movefetcher.NewMoveTaskOrderFetcher()
-		// searchParams := services.MoveTaskOrderFetcherParams{
-		// 	IncludeHidden:   false,
-		// 	MoveTaskOrderID: serviceItem.MoveTaskOrderID,
-		// }
-		// updatedMove, moveErr := movefetcher.FetchMoveTaskOrder(suite.AppContextForTest(), &searchParams)
+		// Make sure fields were updated
+		suite.NotEqual(serviceItem.SITDestinationFinalAddressID, updatedServiceItemPostApproval.SITDestinationFinalAddressID)
+		suite.NotEqual(serviceItem.SITDestinationFinalAddress, updatedServiceItemPostApproval.SITDestinationFinalAddress)
+		suite.NotEqual(serviceItem.UpdatedAt, updatedServiceItemPostApproval.UpdatedAt)
 
-		// suite.Nil(moveErr)
-		// suite.Equal(updatedMove.Status, models.MoveStatusAPPROVED)
+		// Ensure updated field values are correct
+		suite.Equal(sitAddressUpdate.NewAddressID.String(), updatedServiceItemPostApproval.SITDestinationFinalAddressID.String())
+		suite.Equal(sitAddressUpdate.NewAddress.StreetAddress1, updatedServiceItemPostApproval.SITDestinationFinalAddress.StreetAddress1)
+		suite.Equal(sitAddressUpdate.NewAddress.PostalCode, updatedServiceItemPostApproval.SITDestinationFinalAddress.PostalCode)
+
+		// Grab the associated sit address update request and check it was properly updated
+		updatedSitAddressUpdate, addressUpdateErr := models.FetchSITAddressUpdate(suite.AppContextForTest().DB(), sitAddressUpdate.ID)
+
+		suite.Nil(addressUpdateErr)
+		suite.NotNil(updatedSitAddressUpdate)
+		suite.Equal(models.SITAddressUpdateStatusApproved, updatedSitAddressUpdate.Status)
+		suite.Equal(officeRemarks, *updatedSitAddressUpdate.OfficeRemarks)
+		suite.NotEqual(updatedSitAddressUpdate.UpdatedAt, sitAddressUpdate.UpdatedAt)
+
+		// Grab the associated move and check its status was properly updated
+		movefetcher := movefetcher.NewMoveTaskOrderFetcher()
+		searchParams := services.MoveTaskOrderFetcherParams{
+			IncludeHidden:   false,
+			MoveTaskOrderID: serviceItem.MoveTaskOrderID,
+		}
+		updatedMove, moveErr := movefetcher.FetchMoveTaskOrder(suite.AppContextForTest(), &searchParams)
+
+		suite.Nil(moveErr)
+		suite.Equal(updatedMove.Status, models.MoveStatusAPPROVED)
 	})
 }

@@ -54,8 +54,7 @@ func (f *sitAddressUpdateRequestApprover) ApproveSITAddressUpdateRequest(appCtx 
 
 // Find the service item the prime is requesting to update
 func (f *sitAddressUpdateRequestApprover) findServiceItem(appCtx appcontext.AppContext, serviceItemID uuid.UUID) (*models.MTOServiceItem, error) {
-	var serviceItem models.MTOServiceItem
-	err := appCtx.DB().Eager("SITDestinationFinalAddress").Where("id = ?", serviceItemID).First(&serviceItem)
+	serviceItem, err := models.FetchServiceItem(appCtx.DB(), serviceItemID)
 
 	if err != nil {
 		switch err {
@@ -71,8 +70,7 @@ func (f *sitAddressUpdateRequestApprover) findServiceItem(appCtx appcontext.AppC
 
 // Find SIT address update request being approved
 func (f *sitAddressUpdateRequestApprover) findSITAddressUpdateRequest(appCtx appcontext.AppContext, sitAddressUpdateRequestID uuid.UUID) (*models.SITAddressUpdate, error) {
-	var SITAddressUpdateRequest models.SITAddressUpdate
-	err := appCtx.DB().Q().Find(&SITAddressUpdateRequest, sitAddressUpdateRequestID)
+	SITAddressUpdateRequest, err := models.FetchSITAddressUpdate(appCtx.DB(), sitAddressUpdateRequestID)
 
 	if err != nil {
 		switch err {

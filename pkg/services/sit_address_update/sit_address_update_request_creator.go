@@ -38,8 +38,7 @@ func (f *sitAddressUpdateRequestCreator) CreateSITAddressUpdateRequest(appCtx ap
 
 	txErr := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) (err error) {
 		// Grabbing the service item in question - must be an approved service item
-		var serviceItem models.MTOServiceItem
-		err = txnAppCtx.DB().Eager("SITDestinationFinalAddress").Where("id = ?", sitAddressUpdateRequest.MTOServiceItemID).First(&serviceItem)
+		serviceItem, err := models.FetchServiceItem(appCtx.DB(), sitAddressUpdateRequest.MTOServiceItemID)
 		if err != nil {
 			return err
 		}

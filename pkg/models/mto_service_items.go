@@ -7,6 +7,7 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gobuffalo/validate/v3/validators"
 	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -83,4 +84,18 @@ func (m *MTOServiceItem) Validate(tx *pop.Connection) (*validate.Errors, error) 
 	vs = append(vs, &StringIsNilOrNotBlank{Field: m.Description, Name: "Description"})
 
 	return validate.Validate(vs...), nil
+}
+
+func FetchServiceItem(db *pop.Connection, serviceItemID uuid.UUID) (MTOServiceItem, error) {
+	var serviceItem MTOServiceItem
+	err := db.Eager("SITDestinationFinalAddress").Where("id = ?", serviceItemID).First(&serviceItem)
+
+	if err != nil {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
+			return MTOServiceItem{}, ErrFetchNotFound
+		}
+		return MTOServiceItem{}, err
+	}
+
+	return serviceItem, nil
 }
