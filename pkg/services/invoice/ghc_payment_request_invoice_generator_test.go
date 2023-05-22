@@ -1458,7 +1458,7 @@ func (suite *GHCInvoiceSuite) TestTACs() {
 		suite.Equal(ntsTAC, result.ServiceItems[0].FA2s[0].FinancialInformationCode)
 	})
 
-	suite.Run("shipment with HHG TAC set up and TAC, but no SAC/SDN will display TAC only", func() {
+	suite.Run("shipment with HHG TAC set up and TAC, but no SAC/SDN will display, TAC only", func() {
 		setupTestData()
 		tacType := models.LOATypeHHG
 		mtoShipment.TACType = &tacType
@@ -1470,6 +1470,7 @@ func (suite *GHCInvoiceSuite) TestTACs() {
 		suite.NoError(err)
 		suite.Equal(hhgTAC, result.ServiceItems[0].FA2s[0].FinancialInformationCode)
 	})
+
 }
 
 func (suite *GHCInvoiceSuite) TestDetermineDutyLocationPhoneLinesFunc() {

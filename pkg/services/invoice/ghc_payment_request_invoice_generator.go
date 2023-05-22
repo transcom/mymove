@@ -565,7 +565,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createLoaSegments(orders models.Order
 		tac = *orders.NtsTAC
 	}
 
-	// Get SAC or SDN from orders, using HHG one by default if it exists and NTS if not.
+	// Get SAC or SDN from orders. Use the HHG one by default (blank or SACType HHG), use the NTS if SACType is NTS.
 	useHHGSac := true
 	if shipment.ID != uuid.Nil {
 		// We do have a shipment, so see if the shipment prefers the NTS SAC or SDN.
