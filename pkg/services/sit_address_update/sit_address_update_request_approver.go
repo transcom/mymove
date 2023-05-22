@@ -17,16 +17,18 @@ import (
 type sitAddressUpdateRequestApprover struct {
 	serviceItemUpdater services.MTOServiceItemUpdater
 	checks             []sitAddressUpdateValidator
+	moveRouter         services.MoveRouter
 }
 
 // NewSITAddressUpdateRequestApprover creates a new struct with the service dependencies
-func NewSITAddressUpdateRequestApprover(serviceItemUpdater services.MTOServiceItemUpdater) services.SITAddressUpdateRequestApprover {
+func NewSITAddressUpdateRequestApprover(serviceItemUpdater services.MTOServiceItemUpdater, moveRouter services.MoveRouter) services.SITAddressUpdateRequestApprover {
 	return &sitAddressUpdateRequestApprover{
 		serviceItemUpdater: serviceItemUpdater,
 		checks: []sitAddressUpdateValidator{
 			checkAndValidateRequiredFields(),
 			checkTOORequiredFields(),
 		},
+		moveRouter: moveRouter,
 	}
 }
 
@@ -47,13 +49,13 @@ func (f *sitAddressUpdateRequestApprover) ApproveSITAddressUpdateRequest(appCtx 
 		return nil, apperror.NewPreconditionFailedError(serviceItemID, query.StaleIdentifierError{StaleIdentifier: eTag})
 	}
 
-	return f.approveSITAddressUpdateRequest(appCtx, serviceItem, *sitAddressUpdateRequest, officeRemarks)
+	return f.approveSITAddressUpdateRequest(appCtx, *serviceItem, *sitAddressUpdateRequest, officeRemarks)
 }
 
 // Find the service item the prime is requesting to update
 func (f *sitAddressUpdateRequestApprover) findServiceItem(appCtx appcontext.AppContext, serviceItemID uuid.UUID) (*models.MTOServiceItem, error) {
 	var serviceItem models.MTOServiceItem
-	err := appCtx.DB().Eager("SITDestinationFinalAddress").Where("id = ?", serviceItemID).Where("status = ?", models.MTOServiceItemStatusApproved).First(&serviceItem)
+	err := appCtx.DB().Eager("SITDestinationFinalAddress").Where("id = ?", serviceItemID).First(&serviceItem)
 
 	if err != nil {
 		switch err {
@@ -77,7 +79,7 @@ func (f *sitAddressUpdateRequestApprover) findSITAddressUpdateRequest(appCtx app
 		case sql.ErrNoRows:
 			return nil, apperror.NewNotFoundError(sitAddressUpdateRequestID, "while looking for SIT address update request")
 		default:
-			return nil, apperror.NewQueryError("SITAddressUpdate", err, "Unable to create SIT address update request.")
+			return nil, apperror.NewQueryError("SITAddressUpdate", err, "unable to create SIT address update request.")
 		}
 	}
 
@@ -85,15 +87,36 @@ func (f *sitAddressUpdateRequestApprover) findSITAddressUpdateRequest(appCtx app
 }
 
 // Final approval for SIT address update request
-func (f *sitAddressUpdateRequestApprover) approveSITAddressUpdateRequest(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, sitAddressUpdateRequest models.SITAddressUpdate, officeRemarks *string) (*models.MTOServiceItem, error) {
+func (f *sitAddressUpdateRequestApprover) approveSITAddressUpdateRequest(appCtx appcontext.AppContext, serviceItem models.MTOServiceItem, sitAddressUpdateRequest models.SITAddressUpdate, officeRemarks *string) (*models.MTOServiceItem, error) {
 	var returnedServiceItem models.MTOServiceItem
 
 	txErr := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-		if err := f.updateSITAddressUpdateRequest(txnAppCtx, sitAddressUpdateRequest, officeRemarks); err != nil {
+		//Grabbing the associated move to update its status
+		var move models.Move
+		err := txnAppCtx.DB().Find(&move, serviceItem.MoveTaskOrderID)
+		if err != nil {
+			switch err {
+			case sql.ErrNoRows:
+				return apperror.NewNotFoundError(serviceItem.MoveTaskOrderID, "looking for Move")
+			default:
+				return apperror.NewQueryError("Move", err, "unable to retrieve move")
+			}
+		}
+
+		// Updating the status of the request as well as office remarks
+		err = f.updateSITAddressUpdateRequest(txnAppCtx, sitAddressUpdateRequest, officeRemarks)
+		if err != nil {
 			return err
 		}
 
-		updatedServiceItem, err := f.updateServiceItemFinalAddress(txnAppCtx, *serviceItem, &sitAddressUpdateRequest.NewAddressID, sitAddressUpdateRequest.NewAddress)
+		//Update the final address on the service item
+		updatedServiceItem, err := f.updateServiceItemFinalAddress(txnAppCtx, serviceItem, sitAddressUpdateRequest)
+		if err != nil {
+			return err
+		}
+
+		// Clear APPROVALS_REQUESTED status on move
+		_, err = f.moveRouter.ApproveOrRequestApproval(txnAppCtx, move)
 		if err != nil {
 			return err
 		}
@@ -114,12 +137,7 @@ func (f *sitAddressUpdateRequestApprover) updateSITAddressUpdateRequest(appCtx a
 	sitAddressUpdateRequest.OfficeRemarks = officeRemarks
 	sitAddressUpdateRequest.Status = models.SITAddressUpdateStatusApproved
 
-	err := validateSITAddressUpdate(appCtx, &sitAddressUpdateRequest, f.checks...)
-	if err != nil {
-		return err
-	}
-
-	verrs, err := appCtx.DB().ValidateAndUpdate(sitAddressUpdateRequest)
+	verrs, err := appCtx.DB().ValidateAndUpdate(&sitAddressUpdateRequest)
 	if error := f.handleError(sitAddressUpdateRequest.ID, verrs, err); error != nil {
 		return error
 	}
@@ -127,11 +145,11 @@ func (f *sitAddressUpdateRequestApprover) updateSITAddressUpdateRequest(appCtx a
 	return nil
 }
 
-func (f *sitAddressUpdateRequestApprover) updateServiceItemFinalAddress(appCtx appcontext.AppContext, serviceItem models.MTOServiceItem, newAddressID *uuid.UUID, newAddress models.Address) (*models.MTOServiceItem, error) {
-	serviceItem.SITDestinationFinalAddressID = newAddressID
-	serviceItem.SITDestinationFinalAddress = &newAddress
+func (f *sitAddressUpdateRequestApprover) updateServiceItemFinalAddress(appCtx appcontext.AppContext, serviceItem models.MTOServiceItem, sitAddressUpdateRequest models.SITAddressUpdate) (*models.MTOServiceItem, error) {
+	serviceItem.SITDestinationFinalAddressID = &sitAddressUpdateRequest.NewAddressID
+	serviceItem.SITDestinationFinalAddress = &sitAddressUpdateRequest.NewAddress
 
-	updatedServiceItem, err := f.serviceItemUpdater.UpdateMTOServiceItemPrime(appCtx, &serviceItem, etag.GenerateEtag(serviceItem.UpdatedAt))
+	updatedServiceItem, err := f.serviceItemUpdater.UpdateMTOServiceItemBasic(appCtx, &serviceItem, etag.GenerateEtag(serviceItem.UpdatedAt))
 	if err != nil {
 		return nil, err
 	}
