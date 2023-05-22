@@ -100,7 +100,7 @@ check_arn "$green_task_def_arn"
 
 if update_service "$green_task_def_arn"; then
     echo "Success."
-    put_metric DeployCount "${cluster}"
+    put_metric "${name}.DeployCount" "${cluster}"
     exit 0
 fi
 echo "Service failed to stabilize!"
