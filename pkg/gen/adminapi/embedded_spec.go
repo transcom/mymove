@@ -251,6 +251,253 @@ func init() {
         }
       }
     },
+    "/client-certificates": {
+      "get": {
+        "description": "This endpoint returns a list of Client Certificates. Do not use this\nendpoint directly as it is meant to be used with the Admin UI\nexclusively.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Client certificates"
+        ],
+        "summary": "List client certificates",
+        "operationId": "indexClientCertificates",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "filter",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "perPage",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "name": "order",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/ClientCertificates"
+            },
+            "headers": {
+              "Content-Range": {
+                "type": "string",
+                "description": "Used for pagination"
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "office not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      },
+      "post": {
+        "description": "This endpoint creates a Client Certificate record and returns the\ncreated record in the ` + "`" + `201` + "`" + ` response. Do not use this endpoint\ndirectly as it is meant to be used with the Admin UI exclusively.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Client certificates"
+        ],
+        "summary": "create a client cert",
+        "operationId": "createClientCertificate",
+        "parameters": [
+          {
+            "description": "client cert information",
+            "name": "clientCertificate",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/ClientCertificateCreate"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successfully created client certificate",
+            "schema": {
+              "$ref": "#/definitions/ClientCertificate"
+            }
+          },
+          "400": {
+            "description": "Invalid Request"
+          },
+          "401": {
+            "description": "Must be authenticated to use this end point"
+          },
+          "403": {
+            "description": "Not authorized to create a client certificate"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/client-certificates/{clientCertificateId}": {
+      "get": {
+        "description": "This endpoint returns a single Client Certificate by ID. Do not use\nthis endpoint directly as it is meant to be used with the Admin UI\nexclusively.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Client certificates"
+        ],
+        "summary": "Get a client certificate",
+        "operationId": "getClientCertificate",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "clientCertificateId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/ClientCertificate"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "id not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      },
+      "delete": {
+        "description": "This endpoint removes a single Client Certificate by ID. Do not use\nthis endpoint directly as it is meant to be used with the Admin UI\nexclusively.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Client certificates"
+        ],
+        "summary": "removes a client certificate",
+        "operationId": "removeClientCertificate",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "clientCertificateId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully removed Client Certificate",
+            "schema": {
+              "$ref": "#/definitions/ClientCertificate"
+            }
+          },
+          "400": {
+            "description": "Invalid Request"
+          },
+          "401": {
+            "description": "Must be authenticated to use this end point"
+          },
+          "403": {
+            "description": "Not authorized to remove a client certificate"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      },
+      "patch": {
+        "description": "This endpoint updates a single Client Certificate by ID. Do not use\nthis endpoint directly as it is meant to be used with the Admin UI\nexclusively.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Client certificates"
+        ],
+        "summary": "Updates a client certificate",
+        "operationId": "updateClientCertificate",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "clientCertificateId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "client cert information",
+            "name": "clientCertificate",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ClientCertificateUpdate"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated Client Certificate",
+            "schema": {
+              "$ref": "#/definitions/ClientCertificate"
+            }
+          },
+          "400": {
+            "description": "Invalid Request"
+          },
+          "401": {
+            "description": "Must be authenticated to use this end point"
+          },
+          "403": {
+            "description": "Not authorized to update a client certificate"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
     "/electronic-orders": {
       "get": {
         "description": "This endpoint returns a list of Electronic Orders. Do not use this endpoint\ndirectly as it is meant to be used with the Admin UI exclusively.\n",
@@ -1631,6 +1878,207 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/AdminUser"
+      }
+    },
+    "ClientCertificate": {
+      "type": "object",
+      "properties": {
+        "allowAirForceOrdersRead": {
+          "type": "boolean"
+        },
+        "allowAirForceOrdersWrite": {
+          "type": "boolean"
+        },
+        "allowArmyOrdersRead": {
+          "type": "boolean"
+        },
+        "allowArmyOrdersWrite": {
+          "type": "boolean"
+        },
+        "allowCoastGuardOrdersRead": {
+          "type": "boolean"
+        },
+        "allowCoastGuardOrdersWrite": {
+          "type": "boolean"
+        },
+        "allowDpsAuthAPI": {
+          "type": "boolean"
+        },
+        "allowMarineCorpsOrdersRead": {
+          "type": "boolean"
+        },
+        "allowMarineCorpsOrdersWrite": {
+          "type": "boolean"
+        },
+        "allowNavyOrdersRead": {
+          "type": "boolean"
+        },
+        "allowNavyOrdersWrite": {
+          "type": "boolean"
+        },
+        "allowOrdersAPI": {
+          "type": "boolean"
+        },
+        "allowPrime": {
+          "type": "boolean"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "sha256Digest": {
+          "type": "string",
+          "example": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+        },
+        "subject": {
+          "type": "string",
+          "example": "CN=example-user,OU=DoD+OU=PKI+OU=CONTRACTOR,O=U.S. Government,C=US"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "userId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
+      }
+    },
+    "ClientCertificateCreate": {
+      "type": "object",
+      "required": [
+        "sha256Digest",
+        "subject",
+        "email"
+      ],
+      "properties": {
+        "allowAirForceOrdersRead": {
+          "type": "boolean"
+        },
+        "allowAirForceOrdersWrite": {
+          "type": "boolean"
+        },
+        "allowArmyOrdersRead": {
+          "type": "boolean"
+        },
+        "allowArmyOrdersWrite": {
+          "type": "boolean"
+        },
+        "allowCoastGuardOrdersRead": {
+          "type": "boolean"
+        },
+        "allowCoastGuardOrdersWrite": {
+          "type": "boolean"
+        },
+        "allowMarineCorpsOrdersRead": {
+          "type": "boolean"
+        },
+        "allowMarineCorpsOrdersWrite": {
+          "type": "boolean"
+        },
+        "allowNavyOrdersRead": {
+          "type": "boolean"
+        },
+        "allowNavyOrdersWrite": {
+          "type": "boolean"
+        },
+        "allowOrdersAPI": {
+          "type": "boolean"
+        },
+        "allowPrime": {
+          "type": "boolean"
+        },
+        "email": {
+          "type": "string",
+          "example": "user@example.com"
+        },
+        "sha256Digest": {
+          "type": "string",
+          "example": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+        },
+        "subject": {
+          "type": "string",
+          "example": "CN=example-user,OU=DoD+OU=PKI+OU=CONTRACTOR,O=U.S. Government,C=US"
+        }
+      }
+    },
+    "ClientCertificateUpdate": {
+      "type": "object",
+      "properties": {
+        "allowAirForceOrdersRead": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "allowAirForceOrdersWrite": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "allowArmyOrdersRead": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "allowArmyOrdersWrite": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "allowCoastGuardOrdersRead": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "allowCoastGuardOrdersWrite": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "allowDpsAuthAPI": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "allowMarineCorpsOrdersRead": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "allowMarineCorpsOrdersWrite": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "allowNavyOrdersRead": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "allowNavyOrdersWrite": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "allowOrdersAPI": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "allowPrime": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "sha256Digest": {
+          "type": "string",
+          "example": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+        },
+        "subject": {
+          "type": "string",
+          "example": "CN=example-user,OU=DoD+OU=PKI+OU=CONTRACTOR,O=U.S. Government,C=US"
+        }
+      }
+    },
+    "ClientCertificates": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ClientCertificate"
       }
     },
     "ClientError": {
@@ -2499,6 +2947,13 @@ func init() {
       }
     },
     {
+      "description": "Information about Client Certificates",
+      "name": "Client certificates",
+      "externalDocs": {
+        "url": "https://transcom.github.io/mymove-docs/docs/api"
+      }
+    },
+    {
       "description": "Information about electronic orders",
       "name": "Electronic orders",
       "externalDocs": {
@@ -2790,6 +3245,253 @@ func init() {
           },
           "403": {
             "description": "Not authorized to update an Admin User"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/client-certificates": {
+      "get": {
+        "description": "This endpoint returns a list of Client Certificates. Do not use this\nendpoint directly as it is meant to be used with the Admin UI\nexclusively.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Client certificates"
+        ],
+        "summary": "List client certificates",
+        "operationId": "indexClientCertificates",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "filter",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "perPage",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "name": "order",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/ClientCertificates"
+            },
+            "headers": {
+              "Content-Range": {
+                "type": "string",
+                "description": "Used for pagination"
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "office not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      },
+      "post": {
+        "description": "This endpoint creates a Client Certificate record and returns the\ncreated record in the ` + "`" + `201` + "`" + ` response. Do not use this endpoint\ndirectly as it is meant to be used with the Admin UI exclusively.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Client certificates"
+        ],
+        "summary": "create a client cert",
+        "operationId": "createClientCertificate",
+        "parameters": [
+          {
+            "description": "client cert information",
+            "name": "clientCertificate",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/ClientCertificateCreate"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successfully created client certificate",
+            "schema": {
+              "$ref": "#/definitions/ClientCertificate"
+            }
+          },
+          "400": {
+            "description": "Invalid Request"
+          },
+          "401": {
+            "description": "Must be authenticated to use this end point"
+          },
+          "403": {
+            "description": "Not authorized to create a client certificate"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/client-certificates/{clientCertificateId}": {
+      "get": {
+        "description": "This endpoint returns a single Client Certificate by ID. Do not use\nthis endpoint directly as it is meant to be used with the Admin UI\nexclusively.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Client certificates"
+        ],
+        "summary": "Get a client certificate",
+        "operationId": "getClientCertificate",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "clientCertificateId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/ClientCertificate"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "id not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      },
+      "delete": {
+        "description": "This endpoint removes a single Client Certificate by ID. Do not use\nthis endpoint directly as it is meant to be used with the Admin UI\nexclusively.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Client certificates"
+        ],
+        "summary": "removes a client certificate",
+        "operationId": "removeClientCertificate",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "clientCertificateId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully removed Client Certificate",
+            "schema": {
+              "$ref": "#/definitions/ClientCertificate"
+            }
+          },
+          "400": {
+            "description": "Invalid Request"
+          },
+          "401": {
+            "description": "Must be authenticated to use this end point"
+          },
+          "403": {
+            "description": "Not authorized to remove a client certificate"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      },
+      "patch": {
+        "description": "This endpoint updates a single Client Certificate by ID. Do not use\nthis endpoint directly as it is meant to be used with the Admin UI\nexclusively.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Client certificates"
+        ],
+        "summary": "Updates a client certificate",
+        "operationId": "updateClientCertificate",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "clientCertificateId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "client cert information",
+            "name": "clientCertificate",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ClientCertificateUpdate"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated Client Certificate",
+            "schema": {
+              "$ref": "#/definitions/ClientCertificate"
+            }
+          },
+          "400": {
+            "description": "Invalid Request"
+          },
+          "401": {
+            "description": "Must be authenticated to use this end point"
+          },
+          "403": {
+            "description": "Not authorized to update a client certificate"
           },
           "500": {
             "description": "Server error"
@@ -4179,6 +4881,207 @@ func init() {
         "$ref": "#/definitions/AdminUser"
       }
     },
+    "ClientCertificate": {
+      "type": "object",
+      "properties": {
+        "allowAirForceOrdersRead": {
+          "type": "boolean"
+        },
+        "allowAirForceOrdersWrite": {
+          "type": "boolean"
+        },
+        "allowArmyOrdersRead": {
+          "type": "boolean"
+        },
+        "allowArmyOrdersWrite": {
+          "type": "boolean"
+        },
+        "allowCoastGuardOrdersRead": {
+          "type": "boolean"
+        },
+        "allowCoastGuardOrdersWrite": {
+          "type": "boolean"
+        },
+        "allowDpsAuthAPI": {
+          "type": "boolean"
+        },
+        "allowMarineCorpsOrdersRead": {
+          "type": "boolean"
+        },
+        "allowMarineCorpsOrdersWrite": {
+          "type": "boolean"
+        },
+        "allowNavyOrdersRead": {
+          "type": "boolean"
+        },
+        "allowNavyOrdersWrite": {
+          "type": "boolean"
+        },
+        "allowOrdersAPI": {
+          "type": "boolean"
+        },
+        "allowPrime": {
+          "type": "boolean"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "sha256Digest": {
+          "type": "string",
+          "example": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+        },
+        "subject": {
+          "type": "string",
+          "example": "CN=example-user,OU=DoD+OU=PKI+OU=CONTRACTOR,O=U.S. Government,C=US"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "userId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
+      }
+    },
+    "ClientCertificateCreate": {
+      "type": "object",
+      "required": [
+        "sha256Digest",
+        "subject",
+        "email"
+      ],
+      "properties": {
+        "allowAirForceOrdersRead": {
+          "type": "boolean"
+        },
+        "allowAirForceOrdersWrite": {
+          "type": "boolean"
+        },
+        "allowArmyOrdersRead": {
+          "type": "boolean"
+        },
+        "allowArmyOrdersWrite": {
+          "type": "boolean"
+        },
+        "allowCoastGuardOrdersRead": {
+          "type": "boolean"
+        },
+        "allowCoastGuardOrdersWrite": {
+          "type": "boolean"
+        },
+        "allowMarineCorpsOrdersRead": {
+          "type": "boolean"
+        },
+        "allowMarineCorpsOrdersWrite": {
+          "type": "boolean"
+        },
+        "allowNavyOrdersRead": {
+          "type": "boolean"
+        },
+        "allowNavyOrdersWrite": {
+          "type": "boolean"
+        },
+        "allowOrdersAPI": {
+          "type": "boolean"
+        },
+        "allowPrime": {
+          "type": "boolean"
+        },
+        "email": {
+          "type": "string",
+          "example": "user@example.com"
+        },
+        "sha256Digest": {
+          "type": "string",
+          "example": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+        },
+        "subject": {
+          "type": "string",
+          "example": "CN=example-user,OU=DoD+OU=PKI+OU=CONTRACTOR,O=U.S. Government,C=US"
+        }
+      }
+    },
+    "ClientCertificateUpdate": {
+      "type": "object",
+      "properties": {
+        "allowAirForceOrdersRead": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "allowAirForceOrdersWrite": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "allowArmyOrdersRead": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "allowArmyOrdersWrite": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "allowCoastGuardOrdersRead": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "allowCoastGuardOrdersWrite": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "allowDpsAuthAPI": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "allowMarineCorpsOrdersRead": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "allowMarineCorpsOrdersWrite": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "allowNavyOrdersRead": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "allowNavyOrdersWrite": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "allowOrdersAPI": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "allowPrime": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "sha256Digest": {
+          "type": "string",
+          "example": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+        },
+        "subject": {
+          "type": "string",
+          "example": "CN=example-user,OU=DoD+OU=PKI+OU=CONTRACTOR,O=U.S. Government,C=US"
+        }
+      }
+    },
+    "ClientCertificates": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ClientCertificate"
+      }
+    },
     "ClientError": {
       "type": "object",
       "required": [
@@ -5045,6 +5948,13 @@ func init() {
     {
       "description": "Information about Admin UI users",
       "name": "Admin users",
+      "externalDocs": {
+        "url": "https://transcom.github.io/mymove-docs/docs/api"
+      }
+    },
+    {
+      "description": "Information about Client Certificates",
+      "name": "Client certificates",
       "externalDocs": {
         "url": "https://transcom.github.io/mymove-docs/docs/api"
       }

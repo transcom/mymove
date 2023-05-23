@@ -330,16 +330,10 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			},
 		}
 
-		weight := unit.Pound(2) // for DDSHUT service item type
 		mtoShipment := factory.BuildMTOShipment(nil, []factory.Customization{
 			{
 				Model:    subtestData.move,
 				LinkOnly: true,
-			},
-			{
-				Model: models.MTOShipment{
-					PrimeEstimatedWeight: &weight,
-				},
 			},
 		}, nil)
 

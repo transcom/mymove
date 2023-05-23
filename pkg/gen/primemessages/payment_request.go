@@ -46,7 +46,7 @@ type PaymentRequest struct {
 	PaymentServiceItems PaymentServiceItems `json:"paymentServiceItems,omitempty"`
 
 	// proof of service docs
-	ProofOfServiceDocs *ProofOfServiceDocs `json:"proofOfServiceDocs,omitempty"`
+	ProofOfServiceDocs ProofOfServiceDocs `json:"proofOfServiceDocs,omitempty"`
 
 	// recalculation of payment request ID
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
@@ -142,15 +142,13 @@ func (m *PaymentRequest) validateProofOfServiceDocs(formats strfmt.Registry) err
 		return nil
 	}
 
-	if m.ProofOfServiceDocs != nil {
-		if err := m.ProofOfServiceDocs.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("proofOfServiceDocs")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("proofOfServiceDocs")
-			}
-			return err
+	if err := m.ProofOfServiceDocs.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("proofOfServiceDocs")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("proofOfServiceDocs")
 		}
+		return err
 	}
 
 	return nil
@@ -266,15 +264,13 @@ func (m *PaymentRequest) contextValidatePaymentServiceItems(ctx context.Context,
 
 func (m *PaymentRequest) contextValidateProofOfServiceDocs(ctx context.Context, formats strfmt.Registry) error {
 
-	if m.ProofOfServiceDocs != nil {
-		if err := m.ProofOfServiceDocs.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("proofOfServiceDocs")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("proofOfServiceDocs")
-			}
-			return err
+	if err := m.ProofOfServiceDocs.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("proofOfServiceDocs")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("proofOfServiceDocs")
 		}
+		return err
 	}
 
 	return nil
