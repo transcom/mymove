@@ -1,0 +1,10 @@
+You are receiving this notification because you are listed as a System Administrator of the MilMove app. A MilMove client cert has been {{.Action}}.
+
+Activity details:
+* Modified client cert ID: {{.ModifiedClientCertID}}
+* Responsible user ID: {{.ResponsibleUserID}}
+* Action: Account {{.Action}}
+* Action source: {{.ActionSource}}
+* Timestamp: {{.Timestamp}}
+
+Please visit the AWS Console ([instructions](https://dp3.atlassian.net/wiki/spaces/MT/pages/1250066433/0029+AWS+Organization+Authentication)) or the [MilMove Admin Interface](https://admin.move.mil) to see more details about the above activity.

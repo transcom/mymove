@@ -56,6 +56,8 @@ var Dec31TestYear = time.Date(testdatagen.TestYear, time.December, 31, 0, 0, 0, 
 // May14FollowingYear is May 14 of the year AFTER TestYear
 var May14FollowingYear = time.Date(testdatagen.TestYear+1, time.May, 14, 0, 0, 0, 0, time.UTC)
 
+var May14GHCTestYear = time.Date(testdatagen.GHCTestYear, time.May, 14, 0, 0, 0, 0, time.UTC)
+
 var estimatedWeight = unit.Pound(1400)
 var actualWeight = unit.Pound(2000)
 var tioRemarks = "New billable weight set"
@@ -4032,6 +4034,15 @@ func createHHGWithOriginSITServiceItems(appCtx appcontext.AppContext, primeUploa
 		logger.Fatal("Error approving move")
 	}
 
+	// AvailableToPrimeAt is set to the current time when a move is approved, we need to update it to fall within the
+	// same contract as the rest of the timestamps on our move for pricing to work.
+	err = appCtx.DB().Find(&move, move.ID)
+	if err != nil {
+		logger.Fatal(fmt.Sprintf("Failed to fetch move: %s", err))
+	}
+	move.AvailableToPrimeAt = &May14GHCTestYear
+	testdatagen.MustSave(appCtx.DB(), &move)
+
 	planner := &routemocks.Planner{}
 
 	// called using the addresses with origin zip of 90210 and destination zip of 30813
@@ -4271,6 +4282,15 @@ func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, prime
 
 	mtoUpdater := movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, serviceItemCreator, moveRouter)
 	_, approveErr := mtoUpdater.MakeAvailableToPrime(appCtx, move.ID, etag.GenerateEtag(move.UpdatedAt), true, true)
+
+	// AvailableToPrimeAt is set to the current time when a move is approved, we need to update it to fall within the
+	// same contract as the rest of the timestamps on our move for pricing to work.
+	err = appCtx.DB().Find(&move, move.ID)
+	if err != nil {
+		logger.Fatal(fmt.Sprintf("Failed to fetch move: %s", err))
+	}
+	move.AvailableToPrimeAt = &May14GHCTestYear
+	testdatagen.MustSave(appCtx.DB(), &move)
 
 	if approveErr != nil {
 		logger.Fatal("Error approving move")
@@ -4655,6 +4675,15 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 	mtoUpdater := movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, serviceItemCreator, moveRouter)
 	_, approveErr := mtoUpdater.MakeAvailableToPrime(appCtx, move.ID, etag.GenerateEtag(move.UpdatedAt), true, true)
 
+	// AvailableToPrimeAt is set to the current time when a move is approved, we need to update it to fall within the
+	// same contract as the rest of the timestamps on our move for pricing to work.
+	err = appCtx.DB().Find(&move, move.ID)
+	if err != nil {
+		logger.Fatal(fmt.Sprintf("Failed to fetch move: %s", err))
+	}
+	move.AvailableToPrimeAt = &May14GHCTestYear
+	testdatagen.MustSave(appCtx.DB(), &move)
+
 	if approveErr != nil {
 		logger.Fatal("Error approving move")
 	}
@@ -4819,8 +4848,6 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 
 	destDepartureDate := destEntryDate.Add(15 * 24 * time.Hour)
 	serviceItemDDDSIT.SITDepartureDate = &destDepartureDate
-	serviceItemDDDSIT.SITDestinationFinalAddress = &destSITAddress
-	serviceItemDDDSIT.SITDestinationFinalAddressID = &destSITAddress.ID
 
 	updatedDDDSIT, updateDestErr := serviceItemUpdator.UpdateMTOServiceItemPrime(appCtx, &serviceItemDDDSIT, etag.GenerateEtag(serviceItemDDDSIT.UpdatedAt))
 
