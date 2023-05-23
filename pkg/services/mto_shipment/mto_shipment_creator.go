@@ -106,15 +106,6 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 			serviceItem.ReServiceID = reService.ID
 			serviceItem.Status = models.MTOServiceItemStatusSubmitted
 
-			if serviceItem.ReService.Code == models.ReServiceCodeDOSHUT || serviceItem.ReService.Code == models.ReServiceCodeDDSHUT {
-				if shipment.PrimeEstimatedWeight == nil {
-					return nil, apperror.NewConflictError(
-						serviceItem.ReService.ID,
-						"for creating a service item. MTOShipment associated with this service item must have a valid PrimeEstimatedWeight.",
-					)
-				}
-			}
-
 			serviceItemsList = append(serviceItemsList, serviceItem)
 		}
 		shipment.MTOServiceItems = serviceItemsList
