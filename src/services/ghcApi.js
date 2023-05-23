@@ -597,7 +597,7 @@ export function updateMoveCloseoutOffice({ locator, ifMatchETag, body }) {
 
 export function createSitAddressUpdate({ mtoServiceItemID, body }) {
   const operationPath = 'mtoServiceItem.createSITAddressUpdate';
-  makeGHCRequest(
+  return makeGHCRequest(
     operationPath,
     {
       mtoServiceItemID,

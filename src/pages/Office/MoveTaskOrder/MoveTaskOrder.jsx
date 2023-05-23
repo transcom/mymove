@@ -308,9 +308,15 @@ export const MoveTaskOrder = (props) => {
 
   const { mutate: mutateSitAddressUpdate } = useMutation({
     mutationFn: createSitAddressUpdate,
-    onSuccess: () => {
-      // queryClient.setQueryData([MOVES, data.locator], data);
-      // queryClient.invalidateQueries({ queryKey: [MOVES, data.locator] });
+    onSuccess: (data) => {
+      const updatedServiceItems = mtoServiceItems;
+      updatedServiceItems[updatedServiceItems.findIndex((serviceItem) => serviceItem.id === data.id)] = data;
+      queryClient.setQueryData([MTO_SERVICE_ITEMS, move.moveId, false], updatedServiceItems);
+      queryClient.invalidateQueries({ queryKey: [MTO_SERVICE_ITEMS, move.moveId] });
+    },
+    onError: (error) => {
+      const errorMsg = error?.response?.body;
+      milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
     },
   });
 
@@ -526,10 +532,10 @@ export const MoveTaskOrder = (props) => {
       {
         mtoServiceItemID,
         body: { newAddress, officeRemarks },
-        ifMatchETag: selectedServiceItem.eTag,
       },
       {
         onSuccess: () => {
+          setSelectedServiceItem({});
           setIsEditSitAddressModalVisible(false);
         },
       },
