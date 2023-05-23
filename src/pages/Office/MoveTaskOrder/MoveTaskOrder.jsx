@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Link, useParams, generatePath } from 'react-router-dom';
+import { generatePath, Link, useParams } from 'react-router-dom';
 import { Alert, Button, Grid, GridContainer, Tag } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useQueryClient, useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { connect } from 'react-redux';
 import { func } from 'prop-types';
 import classnames from 'classnames';
@@ -12,13 +12,14 @@ import styles from '../TXOMoveInfo/TXOTab.module.scss';
 import moveTaskOrderStyles from './MoveTaskOrder.module.scss';
 
 import ConnectedEditMaxBillableWeightModal from 'components/Office/EditMaxBillableWeightModal/EditMaxBillableWeightModal';
-import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
-import { formatStorageFacilityForAPI, formatAddressForAPI, removeEtag } from 'utils/formatMtoShipment';
+import { MILMOVE_LOG_LEVEL, milmoveLog } from 'utils/milmoveLog';
+import { formatAddressForAPI, formatStorageFacilityForAPI, removeEtag } from 'utils/formatMtoShipment';
 import hasRiskOfExcess from 'utils/hasRiskOfExcess';
 import customerContactTypes from 'constants/customerContactTypes';
 import dimensionTypes from 'constants/dimensionTypes';
-import { MTO_SERVICE_ITEMS, MOVES, MTO_SHIPMENTS, ORDERS } from 'constants/queryKeys';
+import { MOVES, MTO_SERVICE_ITEMS, MTO_SHIPMENTS, ORDERS } from 'constants/queryKeys';
 import SERVICE_ITEM_STATUSES from 'constants/serviceItems';
+import { ALLOWED_SIT_ADDRESS_UPDATE_SI_CODES, SIT_ADDRESS_UPDATE_STATUS } from 'constants/sitUpdates';
 import { mtoShipmentTypes, shipmentStatuses } from 'constants/shipments';
 import FlashGridContainer from 'containers/FlashGridContainer/FlashGridContainer';
 import { shipmentSectionLabels } from 'content/shipments';
@@ -32,15 +33,15 @@ import ShipmentDetails from 'components/Office/ShipmentDetails/ShipmentDetails';
 import { useMoveTaskOrderQueries } from 'hooks/queries';
 import {
   acknowledgeExcessWeightRisk,
-  patchMTOServiceItemStatus,
-  updateBillableWeight,
-  updateMTOShipmentRequestReweigh,
-  updateMTOShipmentStatus,
-  updateMTOShipment,
   approveSITExtension,
   denySITExtension,
+  patchMTOServiceItemStatus,
   submitSITExtension,
+  updateBillableWeight,
   updateFinancialFlag,
+  updateMTOShipment,
+  updateMTOShipmentRequestReweigh,
+  updateMTOShipmentStatus,
 } from 'services/ghcApi';
 import { MOVE_STATUSES } from 'shared/constants';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -89,6 +90,7 @@ export const MoveTaskOrder = (props) => {
   const [isReweighModalVisible, setIsReweighModalVisible] = useState(false);
   const [isWeightModalVisible, setIsWeightModalVisible] = useState(false);
   const [isWeightAlertVisible, setIsWeightAlertVisible] = useState(false);
+  const [isSITAddressUpdateAlertVisible, setIsSITAddressUpdateAlertVisible] = useState(false);
   const [isSuccessAlertVisible, setIsSuccessAlertVisible] = useState(false);
   const [isFinancialModalVisible, setIsFinancialModalVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState(null);
@@ -100,6 +102,7 @@ export const MoveTaskOrder = (props) => {
   const [activeSection, setActiveSection] = useState('');
   const [unapprovedServiceItemsForShipment, setUnapprovedServiceItemsForShipment] = useState({});
   const [unapprovedSITExtensionForShipment, setUnApprovedSITExtensionForShipment] = useState({});
+  const [unapprovedSITAddressUpdatesForServiceItems, setUnapprovedSITAddressUpdatesForServiceItems] = useState({});
   const [estimatedWeightTotal, setEstimatedWeightTotal] = useState(null);
   const [externalVendorShipmentCount, setExternalVendorShipmentCount] = useState(0);
 
@@ -111,6 +114,7 @@ export const MoveTaskOrder = (props) => {
   const {
     setUnapprovedShipmentCount,
     setUnapprovedServiceItemCount,
+    setUnapprovedSITAddressUpdateCount,
     setExcessWeightRiskCount,
     setMessage,
     setUnapprovedSITExtensionCount,
@@ -506,7 +510,9 @@ export const MoveTaskOrder = (props) => {
 
   useEffect(() => {
     let serviceItemCount = 0;
+    let sitAddressUpdateServiceItemCount = 0;
     const serviceItemsCountForShipment = {};
+    const sitAddressUpdateServiceItems = {};
     mtoShipments?.forEach((mtoShipment) => {
       if (
         mtoShipment.status === shipmentStatuses.APPROVED ||
@@ -517,11 +523,27 @@ export const MoveTaskOrder = (props) => {
         )?.length;
         serviceItemCount += requestedServiceItemCount || 0;
         serviceItemsCountForShipment[`${mtoShipment.id}`] = requestedServiceItemCount;
+
+        const requestedSITAddressUpdateCount = shipmentServiceItems[`${mtoShipment.id}`]?.filter((serviceItem) => {
+          if (
+            ALLOWED_SIT_ADDRESS_UPDATE_SI_CODES.includes(serviceItem.reServiceCode) &&
+            serviceItem?.sitAddressUpdates
+          ) {
+            return serviceItem.sitAddressUpdates.filter((s) => s.status === SIT_ADDRESS_UPDATE_STATUS.REQUESTED);
+          }
+          return false;
+        })?.length;
+        sitAddressUpdateServiceItemCount += requestedSITAddressUpdateCount || 0;
+        sitAddressUpdateServiceItems[`${mtoShipment.id}`] = requestedSITAddressUpdateCount;
       }
     });
     setUnapprovedServiceItemCount(serviceItemCount);
     setUnapprovedServiceItemsForShipment(serviceItemsCountForShipment);
-  }, [mtoShipments, shipmentServiceItems, setUnapprovedServiceItemCount]);
+
+    setIsSITAddressUpdateAlertVisible(Boolean(sitAddressUpdateServiceItemCount > 0));
+    setUnapprovedSITAddressUpdateCount(sitAddressUpdateServiceItemCount);
+    setUnapprovedSITAddressUpdatesForServiceItems(sitAddressUpdateServiceItems);
+  }, [mtoShipments, shipmentServiceItems, setUnapprovedServiceItemCount, setUnapprovedSITAddressUpdateCount]);
 
   useEffect(() => {
     if (mtoShipments) {
@@ -619,6 +641,10 @@ export const MoveTaskOrder = (props) => {
     setIsWeightAlertVisible(false);
   };
 
+  const handleSITAddressUpdateAlert = () => {
+    setIsSITAddressUpdateAlertVisible(false);
+  };
+
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
@@ -639,6 +665,12 @@ export const MoveTaskOrder = (props) => {
 
   const excessWeightAlertControl = (
     <Button type="button" onClick={handleHideWeightAlert} unstyled>
+      <FontAwesomeIcon icon="times" />
+    </Button>
+  );
+
+  const sitAddressUpdateRequestAlertControl = (
+    <Button type="button" onClick={handleSITAddressUpdateAlert} unstyled>
       <FontAwesomeIcon icon="times" />
     </Button>
   );
@@ -671,11 +703,14 @@ export const MoveTaskOrder = (props) => {
                 {s.label}{' '}
                 <LeftNavTag
                   showTag={Boolean(
-                    unapprovedServiceItemsForShipment[`${s.id}`] || unapprovedSITExtensionForShipment[`${s.id}`],
+                    unapprovedServiceItemsForShipment[`${s.id}`] ||
+                      unapprovedSITExtensionForShipment[`${s.id}`] ||
+                      unapprovedSITAddressUpdatesForServiceItems[`${s.id}`],
                   )}
                 >
                   {(unapprovedServiceItemsForShipment[`${s.id}`] || 0) +
-                    (unapprovedSITExtensionForShipment[`${s.id}`] || 0)}
+                    (unapprovedSITExtensionForShipment[`${s.id}`] || 0) +
+                    (unapprovedSITAddressUpdatesForServiceItems[`${s.id}`] || 0)}
                 </LeftNavTag>
               </LeftNavSection>
             );
@@ -714,6 +749,17 @@ export const MoveTaskOrder = (props) => {
           {isSuccessAlertVisible && (
             <Alert headingLevel="h4" slim type="success">
               Your changes were saved
+            </Alert>
+          )}
+          {isSITAddressUpdateAlertVisible && (
+            <Alert
+              type="warning"
+              headingLevel="h4"
+              slim
+              cta={sitAddressUpdateRequestAlertControl}
+              className={styles.alertWithButton}
+            >
+              Service item update requested. Review request below.
             </Alert>
           )}
 
@@ -887,6 +933,7 @@ export const MoveTaskOrder = (props) => {
 MoveTaskOrder.propTypes = {
   setUnapprovedShipmentCount: func.isRequired,
   setUnapprovedServiceItemCount: func.isRequired,
+  setUnapprovedSITAddressUpdateCount: func.isRequired,
   setExcessWeightRiskCount: func.isRequired,
   setMessage: func.isRequired,
   setUnapprovedSITExtensionCount: func.isRequired,

@@ -1105,7 +1105,49 @@ paths:
       summary: Requests a shipment reweigh
       x-permissions:
         - create.reweighRequest
-  /shipments/{shipmentID}/sit-extensions/:
+  /service-items/{mtoServiceItemID}/sit-address-update:
+    post:
+      summary: Create an approved SIT Address Update
+      description: >-
+        TOO can create an already-approved SIT Address Update on behalf of a
+        customer
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      operationId: createSITAddressUpdate
+      tags:
+        - mtoServiceItem
+      parameters:
+        - description: ID of line item to use
+          in: path
+          name: mtoServiceItemID
+          required: true
+          format: uuid
+          type: string
+        - in: body
+          name: body
+          schema:
+            $ref: '#/definitions/CreateSITAddressUpdate'
+          required: true
+      responses:
+        '200':
+          description: Successfully created a SIT Address Update.
+          schema:
+            $ref: '#/definitions/MTOServiceItem'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+      x-permissions:
+        - create.SITAddressUpdate
+  /shipments/{shipmentID}/sit-extensions:
     post:
       summary: Create an approved SIT Duration Update
       description: >-
@@ -4752,6 +4794,16 @@ definitions:
     required:
       - requestReason
       - approvedDays
+  CreateSITAddressUpdate:
+    properties:
+      newAddress:
+        $ref: '#/definitions/Address'
+      officeRemarks:
+        description: Remarks from TOO about SIT Address Update creation
+        type: string
+    required:
+      - newAddress
+      - officeRemarks
   PatchMTOServiceItemStatusPayload:
     properties:
       status:

@@ -3548,6 +3548,66 @@ func init() {
         }
       ]
     },
+    "/service-items/{mtoServiceItemID}/sit-address-update": {
+      "post": {
+        "description": "TOO can create an already-approved SIT Address Update on behalf of a customer",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoServiceItem"
+        ],
+        "summary": "Create an approved SIT Address Update",
+        "operationId": "createSITAddressUpdate",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of line item to use",
+            "name": "mtoServiceItemID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateSITAddressUpdate"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully created a SIT Address Update.",
+            "schema": {
+              "$ref": "#/definitions/MTOServiceItem"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        },
+        "x-permissions": [
+          "create.SITAddressUpdate"
+        ]
+      }
+    },
     "/shipments/{shipmentID}": {
       "get": {
         "description": "fetches a shipment by ID",
@@ -4060,7 +4120,7 @@ func init() {
         }
       ]
     },
-    "/shipments/{shipmentID}/sit-extensions/": {
+    "/shipments/{shipmentID}/sit-extensions": {
       "post": {
         "description": "TOO can creates an already-approved SIT Duration Update on behalf of a customer",
         "consumes": [
@@ -5062,6 +5122,21 @@ func init() {
         "spouseProGearWeight": {
           "type": "integer",
           "x-nullable": true
+        }
+      }
+    },
+    "CreateSITAddressUpdate": {
+      "required": [
+        "newAddress",
+        "officeRemarks"
+      ],
+      "properties": {
+        "newAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "officeRemarks": {
+          "description": "Remarks from TOO about SIT Address Update creation",
+          "type": "string"
         }
       }
     },
@@ -13986,6 +14061,81 @@ func init() {
         }
       ]
     },
+    "/service-items/{mtoServiceItemID}/sit-address-update": {
+      "post": {
+        "description": "TOO can create an already-approved SIT Address Update on behalf of a customer",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoServiceItem"
+        ],
+        "summary": "Create an approved SIT Address Update",
+        "operationId": "createSITAddressUpdate",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of line item to use",
+            "name": "mtoServiceItemID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateSITAddressUpdate"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully created a SIT Address Update.",
+            "schema": {
+              "$ref": "#/definitions/MTOServiceItem"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "x-permissions": [
+          "create.SITAddressUpdate"
+        ]
+      }
+    },
     "/shipments/{shipmentID}": {
       "get": {
         "description": "fetches a shipment by ID",
@@ -14651,7 +14801,7 @@ func init() {
         }
       ]
     },
-    "/shipments/{shipmentID}/sit-extensions/": {
+    "/shipments/{shipmentID}/sit-extensions": {
       "post": {
         "description": "TOO can creates an already-approved SIT Duration Update on behalf of a customer",
         "consumes": [
@@ -15738,6 +15888,21 @@ func init() {
         "spouseProGearWeight": {
           "type": "integer",
           "x-nullable": true
+        }
+      }
+    },
+    "CreateSITAddressUpdate": {
+      "required": [
+        "newAddress",
+        "officeRemarks"
+      ],
+      "properties": {
+        "newAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "officeRemarks": {
+          "description": "Remarks from TOO about SIT Address Update creation",
+          "type": "string"
         }
       }
     },
