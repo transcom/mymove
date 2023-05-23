@@ -122,7 +122,6 @@ func (suite *SITAddressUpdateServiceSuite) TestRejectSITAddressUpdateRequest() {
 		eTag := etag.GenerateEtag(serviceItem.UpdatedAt)
 		updatedSITAddressUpdateRequestPostRejection, err := reject.RejectSITAddressUpdateRequest(suite.AppContextForTest(), serviceItem.ID, sitAddressUpdate.ID, &blankOfficeRemarks, eTag)
 
-		// Checking fields were updated as expected
 		suite.Error(err)
 		suite.Nil(updatedSITAddressUpdateRequestPostRejection)
 		suite.ErrorContains(err, "OfficeRemarks can not be blank.")

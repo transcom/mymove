@@ -104,6 +104,7 @@ func (f *sitAddressUpdateRequestRejector) rejectSITAddressUpdateRequest(appCtx a
 			return err
 		}
 
+		// Clear APPROVALS_REQUESTED status on move
 		_, err = f.moveRouter.ApproveOrRequestApproval(txnAppCtx, move)
 		if err != nil {
 			return err

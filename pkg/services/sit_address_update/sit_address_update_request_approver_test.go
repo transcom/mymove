@@ -13,8 +13,10 @@ import (
 
 func (suite *SITAddressUpdateServiceSuite) TestApproveSITAddressUpdateRequest() {
 	serviceItemUpdater := mtoserviceitem.NewMTOServiceItemUpdater(query.NewQueryBuilder(), moverouter.NewMoveRouter())
-	officeRemarks := "I have chosen to approve this address update request"
 	moveRouter := moverouter.NewMoveRouter()
+	approve := NewSITAddressUpdateRequestApprover(serviceItemUpdater, moveRouter)
+	officeRemarks := "I have chosen to approve this address update request"
+	blankOfficeRemarks := ""
 
 	suite.Run("Successfully Updates the sit address update status to APPROVED", func() {
 		move := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
@@ -57,8 +59,6 @@ func (suite *SITAddressUpdateServiceSuite) TestApproveSITAddressUpdateRequest() 
 			},
 		}, []factory.Trait{factory.GetTraitSITAddressUpdateWithMoveSetUp})
 
-		approve := NewSITAddressUpdateRequestApprover(serviceItemUpdater, moveRouter)
-
 		eTag := etag.GenerateEtag(serviceItem.UpdatedAt)
 		updatedServiceItemPostApproval, err := approve.ApproveSITAddressUpdateRequest(suite.AppContextForTest(), serviceItem.ID, sitAddressUpdate.ID, &officeRemarks, eTag)
 
@@ -95,5 +95,53 @@ func (suite *SITAddressUpdateServiceSuite) TestApproveSITAddressUpdateRequest() 
 
 		suite.Nil(moveErr)
 		suite.Equal(updatedMove.Status, models.MoveStatusAPPROVED)
+	})
+
+	suite.Run("Fails to approve SIT address update request due to missing remarks", func() {
+		move := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
+		serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusApproved,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDDSIT,
+				},
+			},
+			{
+				Model: models.Address{},
+				Type:  &factory.Addresses.SITDestinationOriginalAddress,
+			},
+			{
+				Model: models.Address{},
+				Type:  &factory.Addresses.SITDestinationFinalAddress,
+			},
+		}, nil)
+
+		sitAddressUpdate := factory.BuildSITAddressUpdate(suite.DB(), []factory.Customization{
+			{
+				Model:    serviceItem,
+				LinkOnly: true,
+			},
+			{
+				Model: models.SITAddressUpdate{
+					ContractorRemarks: models.StringPointer("Moving closer to family"),
+					Status:            models.SITAddressUpdateStatusRequested,
+				},
+			},
+		}, []factory.Trait{factory.GetTraitSITAddressUpdateWithMoveSetUp})
+
+		eTag := etag.GenerateEtag(serviceItem.UpdatedAt)
+		updatedServiceItemPostApproval, err := approve.ApproveSITAddressUpdateRequest(suite.AppContextForTest(), serviceItem.ID, sitAddressUpdate.ID, &blankOfficeRemarks, eTag)
+
+		suite.Error(err)
+		suite.Nil(updatedServiceItemPostApproval)
+		suite.ErrorContains(err, "OfficeRemarks can not be blank.")
 	})
 }
