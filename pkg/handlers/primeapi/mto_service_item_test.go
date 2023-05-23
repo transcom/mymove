@@ -1086,6 +1086,50 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 		suite.NotZero(okResponse.Payload[0].ID())
 	})
 
+	suite.Run("Failure POST - Integration Test - Missing reason", func() {
+		subtestData := makeSubtestData()
+		moveRouter := moverouter.NewMoveRouter()
+		creator := mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter)
+		handler := CreateMTOServiceItemHandler{
+			suite.HandlerConfig(),
+			creator,
+			mtoChecker,
+		}
+
+		mtoServiceItemDDFSIT := models.MTOServiceItem{
+			MoveTaskOrderID: subtestData.mto.ID,
+			MTOShipmentID:   &subtestData.mtoShipment.ID,
+			ReService:       models.ReService{Code: models.ReServiceCodeDDFSIT},
+			Description:     handlers.FmtString("description"),
+			SITEntryDate:    &sitEntryDate,
+			Reason:          nil,
+			CustomerContacts: models.MTOServiceItemCustomerContacts{
+				models.MTOServiceItemCustomerContact{
+					Type:                       models.CustomerContactTypeFirst,
+					TimeMilitary:               "0400Z",
+					FirstAvailableDeliveryDate: time.Now(),
+				},
+				models.MTOServiceItemCustomerContact{
+					Type:                       models.CustomerContactTypeSecond,
+					TimeMilitary:               "0400Z",
+					FirstAvailableDeliveryDate: time.Now(),
+				},
+			},
+		}
+
+		// CALL FUNCTION UNDER TEST
+		req := httptest.NewRequest("POST", "/mto-service-items", nil)
+		paramsDDFSIT := mtoserviceitemops.CreateMTOServiceItemParams{
+			HTTPRequest: req,
+			Body:        payloads.MTOServiceItem(&mtoServiceItemDDFSIT),
+		}
+
+		// CHECK RESULTS
+		response := handler.Handle(paramsDDFSIT)
+
+		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemUnprocessableEntity{}, response)
+	})
+
 	suite.Run("Successful POST - Create DDASIT standalone", func() {
 		subtestData := makeSubtestData()
 		params := mtoserviceitemops.CreateMTOServiceItemParams{
