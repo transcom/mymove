@@ -642,7 +642,7 @@ func validateReasonDestSIT(m primemessages.MTOServiceItemDestSIT) *validate.Erro
 	return verrs
 }
 
-// validateReasonOriginSIT validates that Destination SIT service items have required Reason field
+// validateReasonOriginSIT validates that Origin SIT service items have required Reason field
 func validateReasonOriginSIT(m primemessages.MTOServiceItemOriginSIT) *validate.Errors {
 	verrs := validate.NewErrors()
 
