@@ -56,6 +56,9 @@ type MTOServiceItemOriginSIT struct {
 	// sit h h g actual origin
 	SitHHGActualOrigin *Address `json:"sitHHGActualOrigin,omitempty"`
 
+	// sit h h g original origin
+	SitHHGOriginalOrigin *Address `json:"sitHHGOriginalOrigin,omitempty"`
+
 	// sit postal code
 	// Example: 90210
 	// Required: true
@@ -168,6 +171,9 @@ func (m *MTOServiceItemOriginSIT) UnmarshalJSON(raw []byte) error {
 		// sit h h g actual origin
 		SitHHGActualOrigin *Address `json:"sitHHGActualOrigin,omitempty"`
 
+		// sit h h g original origin
+		SitHHGOriginalOrigin *Address `json:"sitHHGOriginalOrigin,omitempty"`
+
 		// sit postal code
 		// Example: 90210
 		// Required: true
@@ -234,6 +240,7 @@ func (m *MTOServiceItemOriginSIT) UnmarshalJSON(raw []byte) error {
 	result.SitDepartureDate = data.SitDepartureDate
 	result.SitEntryDate = data.SitEntryDate
 	result.SitHHGActualOrigin = data.SitHHGActualOrigin
+	result.SitHHGOriginalOrigin = data.SitHHGOriginalOrigin
 	result.SitPostalCode = data.SitPostalCode
 
 	*m = result
@@ -269,6 +276,9 @@ func (m MTOServiceItemOriginSIT) MarshalJSON() ([]byte, error) {
 		// sit h h g actual origin
 		SitHHGActualOrigin *Address `json:"sitHHGActualOrigin,omitempty"`
 
+		// sit h h g original origin
+		SitHHGOriginalOrigin *Address `json:"sitHHGOriginalOrigin,omitempty"`
+
 		// sit postal code
 		// Example: 90210
 		// Required: true
@@ -285,6 +295,8 @@ func (m MTOServiceItemOriginSIT) MarshalJSON() ([]byte, error) {
 		SitEntryDate: m.SitEntryDate,
 
 		SitHHGActualOrigin: m.SitHHGActualOrigin,
+
+		SitHHGOriginalOrigin: m.SitHHGOriginalOrigin,
 
 		SitPostalCode: m.SitPostalCode,
 	})
@@ -369,6 +381,10 @@ func (m *MTOServiceItemOriginSIT) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateSitHHGActualOrigin(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSitHHGOriginalOrigin(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -528,6 +544,26 @@ func (m *MTOServiceItemOriginSIT) validateSitHHGActualOrigin(formats strfmt.Regi
 	return nil
 }
 
+func (m *MTOServiceItemOriginSIT) validateSitHHGOriginalOrigin(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.SitHHGOriginalOrigin) { // not required
+		return nil
+	}
+
+	if m.SitHHGOriginalOrigin != nil {
+		if err := m.SitHHGOriginalOrigin.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("sitHHGOriginalOrigin")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("sitHHGOriginalOrigin")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *MTOServiceItemOriginSIT) validateSitPostalCode(formats strfmt.Registry) error {
 
 	if err := validate.Required("sitPostalCode", "body", m.SitPostalCode); err != nil {
@@ -566,6 +602,10 @@ func (m *MTOServiceItemOriginSIT) ContextValidate(ctx context.Context, formats s
 	}
 
 	if err := m.contextValidateSitHHGActualOrigin(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateSitHHGOriginalOrigin(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -647,6 +687,22 @@ func (m *MTOServiceItemOriginSIT) contextValidateSitHHGActualOrigin(ctx context.
 				return ve.ValidateName("sitHHGActualOrigin")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("sitHHGActualOrigin")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItemOriginSIT) contextValidateSitHHGOriginalOrigin(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.SitHHGOriginalOrigin != nil {
+		if err := m.SitHHGOriginalOrigin.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("sitHHGOriginalOrigin")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("sitHHGOriginalOrigin")
 			}
 			return err
 		}

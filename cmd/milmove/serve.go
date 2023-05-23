@@ -29,7 +29,6 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
-	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -721,14 +720,16 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	// disable otelhttp for now, as it causes a server memory leak
+	// ahobson - 2023-05-17
 	// set up telemetry options for the server
-	otelHTTPOptions := []otelhttp.Option{}
-	if telemetryConfig.ReadEvents {
-		otelHTTPOptions = append(otelHTTPOptions, otelhttp.WithMessageEvents(otelhttp.ReadEvents))
-	}
-	if telemetryConfig.WriteEvents {
-		otelHTTPOptions = append(otelHTTPOptions, otelhttp.WithMessageEvents(otelhttp.WriteEvents))
-	}
+	// otelHTTPOptions := []otelhttp.Option{}
+	// if telemetryConfig.ReadEvents {
+	// 	otelHTTPOptions = append(otelHTTPOptions, otelhttp.WithMessageEvents(otelhttp.ReadEvents))
+	// }
+	// if telemetryConfig.WriteEvents {
+	// 	otelHTTPOptions = append(otelHTTPOptions, otelhttp.WithMessageEvents(otelhttp.WriteEvents))
+	// }
 	listenInterface := v.GetString(cli.InterfaceFlag)
 
 	// start each server:
@@ -758,11 +759,15 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 			return herr
 		}
 		healthServer, err = server.CreateNamedServer(&server.CreateNamedServerInput{
-			Name:        "health",
-			Host:        "127.0.0.1", // health server is always localhost only
-			Port:        v.GetInt(cli.HealthPortFlag),
-			Logger:      logger,
-			HTTPHandler: otelhttp.NewHandler(healthSite, "health", otelHTTPOptions...),
+			Name:   "health",
+			Host:   "127.0.0.1", // health server is always localhost only
+			Port:   v.GetInt(cli.HealthPortFlag),
+			Logger: logger,
+			// disable otelhttp for now, as it causes a server memory leak
+			// ahobson - 2023-05-17
+			// HTTPHandler: otelhttp.NewHandler(healthSite, "health",
+			// otelHTTPOptions...),
+			HTTPHandler: healthSite,
 		})
 		if err != nil {
 			logger.Fatal("error creating health server", zap.Error(err))
@@ -774,11 +779,15 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	var noTLSServer *server.NamedServer
 	if noTLSEnabled {
 		noTLSServer, err = server.CreateNamedServer(&server.CreateNamedServerInput{
-			Name:        "no-tls",
-			Host:        listenInterface,
-			Port:        v.GetInt(cli.NoTLSPortFlag),
-			Logger:      logger,
-			HTTPHandler: otelhttp.NewHandler(site, "server-no-tls", otelHTTPOptions...),
+			Name:   "no-tls",
+			Host:   listenInterface,
+			Port:   v.GetInt(cli.NoTLSPortFlag),
+			Logger: logger,
+			// disable otelhttp for now, as it causes a server memory leak
+			// ahobson - 2023-05-17
+			// HTTPHandler: otelhttp.NewHandler(site, "server-no-tls",
+			// otelHTTPOptions...),
+			HTTPHandler: site,
 		})
 		if err != nil {
 			logger.Fatal("error creating no-tls server", zap.Error(err))
@@ -790,11 +799,15 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	var tlsServer *server.NamedServer
 	if tlsEnabled {
 		tlsServer, err = server.CreateNamedServer(&server.CreateNamedServerInput{
-			Name:         "tls",
-			Host:         listenInterface,
-			Port:         v.GetInt(cli.TLSPortFlag),
-			Logger:       logger,
-			HTTPHandler:  otelhttp.NewHandler(site, "server-tls", otelHTTPOptions...),
+			Name:   "tls",
+			Host:   listenInterface,
+			Port:   v.GetInt(cli.TLSPortFlag),
+			Logger: logger,
+			// disable otelhttp for now, as it causes a server memory leak
+			// ahobson - 2023-05-17
+			// HTTPHandler:  otelhttp.NewHandler(site, "server-tls",
+			// otelHTTPOptions...),
+			HTTPHandler:  site,
 			ClientAuth:   tls.NoClientCert,
 			Certificates: tlsConfig.Certificates,
 		})
@@ -808,11 +821,15 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	var mutualTLSServer *server.NamedServer
 	if mutualTLSEnabled {
 		mutualTLSServer, err = server.CreateNamedServer(&server.CreateNamedServerInput{
-			Name:         "mutual-tls",
-			Host:         listenInterface,
-			Port:         v.GetInt(cli.MutualTLSPortFlag),
-			Logger:       logger,
-			HTTPHandler:  otelhttp.NewHandler(site, "server-mtls", otelHTTPOptions...),
+			Name:   "mutual-tls",
+			Host:   listenInterface,
+			Port:   v.GetInt(cli.MutualTLSPortFlag),
+			Logger: logger,
+			// disable otelhttp for now, as it causes a server memory leak
+			// ahobson - 2023-05-17
+			// HTTPHandler:  otelhttp.NewHandler(site, "server-mtls",
+			// otelHTTPOptions...),
+			HTTPHandler:  site,
 			ClientAuth:   tls.RequireAndVerifyClientCert,
 			Certificates: tlsConfig.Certificates,
 			ClientCAs:    tlsConfig.RootCAs,
