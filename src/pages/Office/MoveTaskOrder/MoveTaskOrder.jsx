@@ -532,7 +532,10 @@ export const MoveTaskOrder = (props) => {
             ALLOWED_SIT_ADDRESS_UPDATE_SI_CODES.includes(serviceItem.reServiceCode) &&
             serviceItem?.sitAddressUpdates
           ) {
-            return serviceItem.sitAddressUpdates.filter((s) => s.status === SIT_ADDRESS_UPDATE_STATUS.REQUESTED);
+            const requestedSITAddressUpdates = serviceItem.sitAddressUpdates.filter(
+              (s) => s.status === SIT_ADDRESS_UPDATE_STATUS.REQUESTED,
+            );
+            return requestedSITAddressUpdates.length > 0;
           }
           return false;
         })?.length;
