@@ -48,7 +48,8 @@ const defaultProps = {
   ordersTypeDetailOptions,
   showOrdersAcknowledgement: true,
   validateTac: jest.fn,
-  ordersType: 'PERMANENT_CHANGE_OF_STATION',
+  // ordersType: 'PERMANENT_CHANGE_OF_STATION',
+  ordersType: '',
   setFieldValue: jest.fn,
 };
 

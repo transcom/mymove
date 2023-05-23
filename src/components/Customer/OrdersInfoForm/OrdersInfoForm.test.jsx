@@ -133,6 +133,7 @@ const testProps = {
   onBack: jest.fn(),
   ordersTypeOptions: [
     { key: 'PERMANENT_CHANGE_OF_STATION', value: 'Permanent Change Of Station (PCS)' },
+    { key: 'LOCAL_MOVE', value: 'Local Move' },
     { key: 'RETIREMENT', value: 'Retirement' },
     { key: 'SEPARATION', value: 'Separation' },
   ],
@@ -164,6 +165,9 @@ describe('OrdersInfoForm component', () => {
 
     await userEvent.selectOptions(ordersTypeDropdown, 'PERMANENT_CHANGE_OF_STATION');
     expect(ordersTypeDropdown).toHaveValue('PERMANENT_CHANGE_OF_STATION');
+
+    await userEvent.selectOptions(ordersTypeDropdown, 'LOCAL_MOVE');
+    expect(ordersTypeDropdown).toHaveValue('LOCAL_MOVE');
 
     await userEvent.selectOptions(ordersTypeDropdown, 'RETIREMENT');
     expect(ordersTypeDropdown).toHaveValue('RETIREMENT');
