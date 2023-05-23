@@ -1650,9 +1650,16 @@ definitions:
             x-nullable: true
           sitDestinationFinalAddress:
             $ref: 'definitions/Address.yaml'
+          reason:
+            type: string
+            description: >
+              The reason item has been placed in SIT.
+            x-nullable: true
+            x-omitempty: false
         required:
           - reServiceCode
           - sitEntryDate
+          - reason
   MTOServiceItemDimension:
     description: The dimensions for either the item or the crate associated with a crating service item.
     type: object

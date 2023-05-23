@@ -56,6 +56,7 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 	DCRTServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
 	DCRTServiceItem.SetMtoShipmentID(*mtoShipmentIDString)
 
+	destReason := "service member will pick up from storage at destination"
 	destServiceCode := models.ReServiceCodeDDFSIT.String()
 	destDate := strfmt.Date(time.Now())
 	destTime := "1400Z"
@@ -75,6 +76,7 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 		TimeMilitary1:               &destTime,
 		TimeMilitary2:               &destTime,
 		SitDestinationFinalAddress:  &sitFinalDestAddress,
+		Reason:                      &destReason,
 	}
 
 	destServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
@@ -146,7 +148,7 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 		suite.Equal(models.ReServiceCodeDDFSIT, returnedModel.ReService.Code)
 		suite.Equal(destPostalCode, returnedModel.SITDestinationFinalAddress.PostalCode)
 		suite.Equal(destStreet, returnedModel.SITDestinationFinalAddress.StreetAddress1)
-
+		suite.Equal(destReason, *returnedModel.Reason)
 	})
 }
 

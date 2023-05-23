@@ -47,6 +47,11 @@ type MTOServiceItemDestSIT struct {
 	// Enum: [DDFSIT DDASIT]
 	ReServiceCode *string `json:"reServiceCode"`
 
+	// The reason item has been placed in SIT.
+	//
+	// Required: true
+	Reason *string `json:"reason"`
+
 	// Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.
 	// Format: date
 	SitDepartureDate *strfmt.Date `json:"sitDepartureDate,omitempty"`
@@ -166,6 +171,11 @@ func (m *MTOServiceItemDestSIT) UnmarshalJSON(raw []byte) error {
 		// Enum: [DDFSIT DDASIT]
 		ReServiceCode *string `json:"reServiceCode"`
 
+		// The reason item has been placed in SIT.
+		//
+		// Required: true
+		Reason *string `json:"reason"`
+
 		// Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.
 		// Format: date
 		SitDepartureDate *strfmt.Date `json:"sitDepartureDate,omitempty"`
@@ -246,6 +256,7 @@ func (m *MTOServiceItemDestSIT) UnmarshalJSON(raw []byte) error {
 	result.FirstAvailableDeliveryDate1 = data.FirstAvailableDeliveryDate1
 	result.FirstAvailableDeliveryDate2 = data.FirstAvailableDeliveryDate2
 	result.ReServiceCode = data.ReServiceCode
+	result.Reason = data.Reason
 	result.SitDepartureDate = data.SitDepartureDate
 	result.SitDestinationFinalAddress = data.SitDestinationFinalAddress
 	result.SitEntryDate = data.SitEntryDate
@@ -276,6 +287,11 @@ func (m MTOServiceItemDestSIT) MarshalJSON() ([]byte, error) {
 		// Enum: [DDFSIT DDASIT]
 		ReServiceCode *string `json:"reServiceCode"`
 
+		// The reason item has been placed in SIT.
+		//
+		// Required: true
+		Reason *string `json:"reason"`
+
 		// Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.
 		// Format: date
 		SitDepartureDate *strfmt.Date `json:"sitDepartureDate,omitempty"`
@@ -304,6 +320,8 @@ func (m MTOServiceItemDestSIT) MarshalJSON() ([]byte, error) {
 		FirstAvailableDeliveryDate2: m.FirstAvailableDeliveryDate2,
 
 		ReServiceCode: m.ReServiceCode,
+
+		Reason: m.Reason,
 
 		SitDepartureDate: m.SitDepartureDate,
 
@@ -388,6 +406,10 @@ func (m *MTOServiceItemDestSIT) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateReServiceCode(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateReason(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -528,6 +550,15 @@ func (m *MTOServiceItemDestSIT) validateReServiceCode(formats strfmt.Registry) e
 
 	// value enum
 	if err := m.validateReServiceCodeEnum("reServiceCode", "body", *m.ReServiceCode); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItemDestSIT) validateReason(formats strfmt.Registry) error {
+
+	if err := validate.Required("reason", "body", m.Reason); err != nil {
 		return err
 	}
 
