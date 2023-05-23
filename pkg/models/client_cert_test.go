@@ -45,7 +45,7 @@ func (suite *ModelSuite) Test_ClientCertValidations() {
 	cert := &models.ClientCert{}
 
 	var expErrors = map[string][]string{
-		"sha256_digest": {"Sha256Digest can not be blank."},
+		"sha256_digest": {"Sha256Digest not in range(64, 64)"},
 		"subject":       {"Subject can not be blank."},
 		"user_id":       {"UserID can not be blank."},
 	}
