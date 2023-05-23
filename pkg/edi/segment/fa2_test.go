@@ -18,7 +18,7 @@ func (suite *SegmentSuite) TestValidateFA2() {
 		}
 
 		err := suite.validator.Struct(fa2)
-		suite.ValidateError(err, "BreakdownStructureDetailCode", "eq")
+		suite.ValidateError(err, "BreakdownStructureDetailCode", "oneof")
 		suite.ValidateError(err, "FinancialInformationCode", "min")
 		suite.ValidateErrorLen(err, 2)
 	})
