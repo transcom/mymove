@@ -24,7 +24,6 @@ func (suite *ModelSuite) TestReShipmentTypePriceValidation() {
 			"contract_id": {"ContractID can not be blank."},
 			"service_id":  {"ServiceID can not be blank."},
 			"market":      {"Market can not be blank.", "Market is not in the list [C, O]."},
-			"factor":      {"0.000000 is not greater than 0.000000.", "Factor can not be blank."},
 		}
 		suite.verifyValidationErrors(&invalidReShipmentTypePrice, expErrors)
 	})
@@ -50,7 +49,7 @@ func (suite *ModelSuite) TestReShipmentTypePriceValidation() {
 			Factor:     -3,
 		}
 		expErrors := map[string][]string{
-			"factor": {"-3.000000 is not greater than 0.000000."},
+			"factor": {"-3.000000 is not greater than -0.010000."},
 		}
 		suite.verifyValidationErrors(&invalidShipmentTypePrice, expErrors)
 	})
