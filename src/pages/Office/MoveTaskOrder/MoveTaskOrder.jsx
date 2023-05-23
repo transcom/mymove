@@ -526,6 +526,7 @@ export const MoveTaskOrder = (props) => {
       {
         mtoServiceItemID,
         body: { newAddress, officeRemarks },
+        ifMatchETag: selectedServiceItem.eTag,
       },
       {
         onSuccess: () => {
@@ -536,17 +537,23 @@ export const MoveTaskOrder = (props) => {
   };
 
   // Fix-me: ETag and Id need to be removed from response from backend or address fields needs to be in their own object
-  const getSitAddressInitialValues = (address) => {
+  const getSitAddressInitialValues = () => {
+    const address = selectedServiceItem.sitDestinationFinalAddress || selectedServiceItem.destinationAddress;
     const blankAddress = {
       city: '',
       state: '',
-      postalCode: '',
+      // Some moves already have a postal code so we will autofill that if available.
+      postalCode: selectedServiceItem.SITPostalCode || '',
       streetAddress1: '',
       streetAddress2: '',
       streetAddress3: '',
       country: '',
     };
+    if (!address || Object.keys(address).length === 0) {
+      return blankAddress;
+    }
     const initialValues = {};
+    // Fill in the known address values
     Object.keys(blankAddress).forEach((field) => {
       const value = address[field] || '';
       initialValues[field] = value;
@@ -865,14 +872,12 @@ export const MoveTaskOrder = (props) => {
               serviceItem={selectedServiceItem}
               initialValues={{
                 officeRemarks: '',
-                newAddress: getSitAddressInitialValues(selectedServiceItem.sitDestinationFinalAddress),
+                newAddress: getSitAddressInitialValues(),
               }}
               validations={{ newAddress: requiredAddressSchema }}
               title="Edit service item"
             >
-              <EditSitAddressChangeForm
-                initialAddress={getSitAddressInitialValues(selectedServiceItem.sitDestinationFinalAddress)}
-              />
+              <EditSitAddressChangeForm initialAddress={getSitAddressInitialValues()} />
             </ConnectedServiceItemUpdateModal>
           )}
           <div className={styles.pageHeader}>

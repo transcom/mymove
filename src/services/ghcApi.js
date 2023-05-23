@@ -603,7 +603,7 @@ export function createSitAddressUpdate({ mtoServiceItemID, body }) {
       mtoServiceItemID,
       body,
     },
-    { schemaKey: 'createSITAddressUpdate' },
+    { normalize: false },
   );
 }
 

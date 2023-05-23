@@ -54,7 +54,7 @@ export const ServiceItemUpdateModal = ({
   validations,
 }) => {
   const serviceItemUpdateModalSchema = Yup.object().shape({
-    officeRemarks: Yup.string().nullable(),
+    officeRemarks: Yup.string().required('Required'),
     ...validations,
   });
   return (
