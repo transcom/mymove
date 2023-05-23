@@ -38,7 +38,7 @@ func (f *sitAddressUpdateRequestCreator) CreateSITAddressUpdateRequest(appCtx ap
 
 	txErr := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) (err error) {
 		// Grabbing the service item in question - must be an approved service item
-		serviceItem, err := models.FetchServiceItem(appCtx.DB(), sitAddressUpdateRequest.MTOServiceItemID)
+		serviceItem, err := models.FetchServiceItem(txnAppCtx.DB(), sitAddressUpdateRequest.MTOServiceItemID)
 		if err != nil {
 			return err
 		}
@@ -58,7 +58,7 @@ func (f *sitAddressUpdateRequestCreator) CreateSITAddressUpdateRequest(appCtx ap
 		sitAddressUpdateRequest.NewAddress = *newAddress
 
 		//We calculate and set the distance between the old and new address
-		sitAddressUpdateRequest.Distance, err = f.planner.TransitDistance(appCtx, &sitAddressUpdateRequest.OldAddress, &sitAddressUpdateRequest.NewAddress)
+		sitAddressUpdateRequest.Distance, err = f.planner.TransitDistance(txnAppCtx, &sitAddressUpdateRequest.OldAddress, &sitAddressUpdateRequest.NewAddress)
 		if err != nil {
 			return err
 		}
@@ -88,7 +88,7 @@ func (f *sitAddressUpdateRequestCreator) CreateSITAddressUpdateRequest(appCtx ap
 				case sql.ErrNoRows:
 					return apperror.NewNotFoundError(serviceItem.MoveTaskOrderID, "looking for Move")
 				default:
-					return apperror.NewQueryError("Move", err, "")
+					return apperror.NewQueryError("Move", err, "unable to retrieve move")
 				}
 			}
 
