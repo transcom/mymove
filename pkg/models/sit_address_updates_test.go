@@ -37,7 +37,6 @@ func (suite *ModelSuite) TestSITAddressUpdateInstantiation() {
 				"mtoservice_item_id": {"MTOServiceItemID can not be blank."},
 				"old_address_id":     {"OldAddressID can not be blank."},
 				"new_address_id":     {"NewAddressID can not be blank."},
-				"distance":           {"Distance can not be blank."},
 				"status":             {"Status is not in the list [REQUESTED, REJECTED, APPROVED]."},
 			},
 		},
