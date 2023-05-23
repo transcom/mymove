@@ -1110,6 +1110,22 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		nowDate := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC)
 		later := nowDate.AddDate(0, 0, 3) // this is an arbitrary amount
 		finalAddress := factory.BuildAddress(suite.DB(), nil, nil)
+
+		contact1 := testdatagen.MakeMTOServiceItemCustomerContact(suite.DB(), testdatagen.Assertions{
+			MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
+				TimeMilitary:               "1400Z",
+				FirstAvailableDeliveryDate: time.Date(2023, time.December, 02, 0, 0, 0, 0, time.UTC),
+				Type:                       models.CustomerContactTypeFirst,
+			},
+		})
+
+		contact2 := testdatagen.MakeMTOServiceItemCustomerContact(suite.DB(), testdatagen.Assertions{
+			MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
+				TimeMilitary:               "1600Z",
+				FirstAvailableDeliveryDate: time.Date(2023, time.December, 07, 0, 0, 0, 0, time.UTC),
+				Type:                       models.CustomerContactTypeSecond,
+			},
+		})
 		serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOServiceItem{
@@ -1118,6 +1134,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 					// Reason:           models.StringPointer("there was a delay in getting the apartment"),
 					SITEntryDate:     &nowDate,
 					SITDepartureDate: &later,
+					CustomerContacts: models.MTOServiceItemCustomerContacts{contact1, contact2},
 				},
 			},
 			{
@@ -1139,29 +1156,6 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 				},
 			},
 		}, nil)
-
-		contact1 := testdatagen.MakeMTOServiceItemCustomerContact(suite.DB(), testdatagen.Assertions{
-			MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
-				TimeMilitary:               "1400Z",
-				FirstAvailableDeliveryDate: time.Date(2023, time.December, 02, 0, 0, 0, 0, time.UTC),
-				Type:                       models.CustomerContactTypeFirst,
-			},
-			MTOServiceItem: models.MTOServiceItem{
-				ID: serviceItem.ID,
-			},
-		})
-
-		contact2 := testdatagen.MakeMTOServiceItemCustomerContact(suite.DB(), testdatagen.Assertions{
-			MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
-				TimeMilitary:               "1600Z",
-				FirstAvailableDeliveryDate: time.Date(2023, time.December, 07, 0, 0, 0, 0, time.UTC),
-				Type:                       models.CustomerContactTypeSecond,
-			},
-			MTOServiceItem: models.MTOServiceItem{
-				ID: serviceItem.ID,
-			},
-		})
-		serviceItem.CustomerContacts = models.MTOServiceItemCustomerContacts{contact1, contact2}
 
 		// Validate incoming payload: no body to validate
 
