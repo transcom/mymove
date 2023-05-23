@@ -29,7 +29,7 @@ const PrimeUIShipmentCreateForm = () => {
       <DropdownInput
         label="Shipment type"
         name="shipmentType"
-        options={dropdownInputOptions(SHIPMENT_OPTIONS)}
+        options={Object.values(SHIPMENT_OPTIONS).map((value) => ({ key: value, value }))}
         id="shipmentType"
       />
 
