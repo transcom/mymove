@@ -5,7 +5,7 @@ import { Button } from '@trussworks/react-uswds';
 import styles from './ShipmentDetails.module.scss';
 
 import { SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
-import { SERVICE_ITEM_CODES } from 'constants/serviceItems';
+import { SIT_SERVICE_ITEM_CODES } from 'constants/serviceItems';
 import { formatDate } from 'shared/dates';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { AddressShape } from 'types';
@@ -81,23 +81,18 @@ const ShipmentDetailsMain = ({
   /**
    * @description This variable is used to store the existence of service items
    * codes that contain SIT and are ar part of the constants
-   * SERVICE_ITEM_CODES. It is false by default unless there are MTO service
-   * items to iterate over.
+   * SERVICE_ITEM_CODES.
    *
-   * When there are MTO service items present, we filter through all the
-   * service items and check the length of the new array against whether or not
-   * there are SIT suffixes in the service items codes and whether it matches
-   * the service items codes we have defined as constants.
+   * It is undefined by default unless there are SIT service
+   * items found in the MTO service items Array.
+   *
+   * When there are any SIT service items present, it is set to a value of the
+   * first found SIT service item. We treat this value as a boolean later on
+   * when calling the ShipmentSITDisplay component.
    */
-  let serviceItemsContainSIT = false;
-  if (mtoServiceItems) {
-    serviceItemsContainSIT = !!(
-      mtoServiceItems.filter((serviceItem) => {
-        const rgSIT = /SIT$/;
-        return rgSIT.test(serviceItem.reServiceCode) && !!SERVICE_ITEM_CODES[serviceItem.reServiceCode];
-      }).length > 0
-    );
-  }
+  const serviceItemsContainSIT = mtoServiceItems?.find(
+    (serviceItem) => SIT_SERVICE_ITEM_CODES[serviceItem.reServiceCode],
+  );
 
   /**
    * Displays correct button to open the modal on the SIT Display component to open with either Sumbit or Review SIT modal.
