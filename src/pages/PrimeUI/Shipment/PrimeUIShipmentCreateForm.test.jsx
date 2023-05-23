@@ -120,14 +120,20 @@ describe('PrimeUIShipmentCreateForm', () => {
     );
   });
 
-  it('renders the initial form, selecting HHG', async () => {
+  it.each([
+    'HHG',
+    'HHG_SHORTHAUL_DOMESTIC',
+    'HHG_LONGHAUL_DOMESTIC',
+    'HHG_INTO_NTS_DOMESTIC',
+    'HHG_OUTOF_NTS_DOMESTIC',
+  ])('renders the initial form, selecting %s', async (shipmentType) => {
     renderShipmentCreateForm();
 
     const shipmentTypeInput = await screen.findByLabelText('Shipment type');
     expect(shipmentTypeInput).toBeInTheDocument();
 
-    // Make it an HHG.
-    await userEvent.selectOptions(shipmentTypeInput, ['HHG']);
+    // Select the shipment type
+    await userEvent.selectOptions(shipmentTypeInput, [shipmentType]);
 
     // Make sure than a PPM-specific field is not visible.
     expect(await screen.queryByLabelText('Expected Departure Date')).not.toBeInTheDocument();

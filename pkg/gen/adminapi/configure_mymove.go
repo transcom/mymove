@@ -12,6 +12,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/admin_users"
+	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/client_certificates"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/electronic_orders"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/moves"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/notifications"
@@ -52,6 +53,11 @@ func configureAPI(api *adminoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation admin_users.CreateAdminUser has not yet been implemented")
 		})
 	}
+	if api.ClientCertificatesCreateClientCertificateHandler == nil {
+		api.ClientCertificatesCreateClientCertificateHandler = client_certificates.CreateClientCertificateHandlerFunc(func(params client_certificates.CreateClientCertificateParams) middleware.Responder {
+			return middleware.NotImplemented("operation client_certificates.CreateClientCertificate has not yet been implemented")
+		})
+	}
 	if api.OfficeUsersCreateOfficeUserHandler == nil {
 		api.OfficeUsersCreateOfficeUserHandler = office_users.CreateOfficeUserHandlerFunc(func(params office_users.CreateOfficeUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation office_users.CreateOfficeUser has not yet been implemented")
@@ -65,6 +71,11 @@ func configureAPI(api *adminoperations.MymoveAPI) http.Handler {
 	if api.AdminUsersGetAdminUserHandler == nil {
 		api.AdminUsersGetAdminUserHandler = admin_users.GetAdminUserHandlerFunc(func(params admin_users.GetAdminUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation admin_users.GetAdminUser has not yet been implemented")
+		})
+	}
+	if api.ClientCertificatesGetClientCertificateHandler == nil {
+		api.ClientCertificatesGetClientCertificateHandler = client_certificates.GetClientCertificateHandlerFunc(func(params client_certificates.GetClientCertificateParams) middleware.Responder {
+			return middleware.NotImplemented("operation client_certificates.GetClientCertificate has not yet been implemented")
 		})
 	}
 	if api.ElectronicOrdersGetElectronicOrdersTotalsHandler == nil {
@@ -100,6 +111,11 @@ func configureAPI(api *adminoperations.MymoveAPI) http.Handler {
 	if api.AdminUsersIndexAdminUsersHandler == nil {
 		api.AdminUsersIndexAdminUsersHandler = admin_users.IndexAdminUsersHandlerFunc(func(params admin_users.IndexAdminUsersParams) middleware.Responder {
 			return middleware.NotImplemented("operation admin_users.IndexAdminUsers has not yet been implemented")
+		})
+	}
+	if api.ClientCertificatesIndexClientCertificatesHandler == nil {
+		api.ClientCertificatesIndexClientCertificatesHandler = client_certificates.IndexClientCertificatesHandlerFunc(func(params client_certificates.IndexClientCertificatesParams) middleware.Responder {
+			return middleware.NotImplemented("operation client_certificates.IndexClientCertificates has not yet been implemented")
 		})
 	}
 	if api.ElectronicOrdersIndexElectronicOrdersHandler == nil {
@@ -142,9 +158,19 @@ func configureAPI(api *adminoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation webhook_subscriptions.IndexWebhookSubscriptions has not yet been implemented")
 		})
 	}
+	if api.ClientCertificatesRemoveClientCertificateHandler == nil {
+		api.ClientCertificatesRemoveClientCertificateHandler = client_certificates.RemoveClientCertificateHandlerFunc(func(params client_certificates.RemoveClientCertificateParams) middleware.Responder {
+			return middleware.NotImplemented("operation client_certificates.RemoveClientCertificate has not yet been implemented")
+		})
+	}
 	if api.AdminUsersUpdateAdminUserHandler == nil {
 		api.AdminUsersUpdateAdminUserHandler = admin_users.UpdateAdminUserHandlerFunc(func(params admin_users.UpdateAdminUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation admin_users.UpdateAdminUser has not yet been implemented")
+		})
+	}
+	if api.ClientCertificatesUpdateClientCertificateHandler == nil {
+		api.ClientCertificatesUpdateClientCertificateHandler = client_certificates.UpdateClientCertificateHandlerFunc(func(params client_certificates.UpdateClientCertificateParams) middleware.Responder {
+			return middleware.NotImplemented("operation client_certificates.UpdateClientCertificate has not yet been implemented")
 		})
 	}
 	if api.MovesUpdateMoveHandler == nil {
