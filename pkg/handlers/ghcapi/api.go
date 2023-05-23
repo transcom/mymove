@@ -381,7 +381,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	ghcAPI.MtoServiceItemCreateSITAddressUpdateHandler = CreateSITAddressUpdateHandler{
 		handlerConfig,
 		sitaddressupdate.NewApprovedOfficeSITAddressUpdateCreator(
-			handlerConfig.Planner(),
+			handlerConfig.HHGPlanner(),
 			addressCreator,
 			mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter),
 		),
