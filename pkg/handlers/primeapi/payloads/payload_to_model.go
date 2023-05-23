@@ -636,7 +636,7 @@ func validateDDFSIT(m primemessages.MTOServiceItemDestSIT) *validate.Errors {
 func validateReasonDestSIT(m primemessages.MTOServiceItemDestSIT) *validate.Errors {
 	verrs := validate.NewErrors()
 
-	if m.Reason == nil {
+	if m.Reason == nil || m.Reason == models.StringPointer("") {
 		verrs.Add("reason", "reason is required in body.")
 	}
 	return verrs
@@ -646,7 +646,7 @@ func validateReasonDestSIT(m primemessages.MTOServiceItemDestSIT) *validate.Erro
 func validateReasonOriginSIT(m primemessages.MTOServiceItemOriginSIT) *validate.Errors {
 	verrs := validate.NewErrors()
 
-	if m.Reason == nil {
+	if m.Reason == nil || m.Reason == models.StringPointer("") {
 		verrs.Add("reason", "reason is required in body.")
 	}
 	return verrs
