@@ -11,6 +11,7 @@ import (
 func checkAndValidateRequiredFields() sitAddressUpdateValidator {
 	return sitAddressUpdateValidatorFunc(func(appCtx appcontext.AppContext, sitAddressUpdate *models.SITAddressUpdate) error {
 		verrs := validate.NewErrors()
+		var err error
 
 		// Distance and Status are required fields but aren't validated here
 		// Distance should be calculated
@@ -26,8 +27,14 @@ func checkAndValidateRequiredFields() sitAddressUpdateValidator {
 			verrs.Add("serviceItem", "MTOServiceItem is required")
 		}
 
+		var existingSITAddressUpdate models.SITAddressUpdate
+		err = appCtx.DB().Where("mto_service_item_id = ?", sitAddressUpdate.MTOServiceItemID).First(&existingSITAddressUpdate)
+		if err == nil && existingSITAddressUpdate.Status == models.SITAddressUpdateStatusRequested {
+			verrs.Add("MTOServiceItem", "A SIT address update already exists for this service item")
+		}
+
 		var serviceItem models.MTOServiceItem
-		err := appCtx.DB().Where("id = ?", sitAddressUpdate.MTOServiceItemID).First(&serviceItem)
+		err = appCtx.DB().Where("id = ?", sitAddressUpdate.MTOServiceItemID).First(&serviceItem)
 		if err != nil {
 			verrs.Add("MTOServiceItem", "MTOServiceItem was not found")
 		}
