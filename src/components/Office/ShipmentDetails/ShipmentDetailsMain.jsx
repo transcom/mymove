@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import * as PropTypes from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 
-import { SIT_EXTENSION_STATUS } from '../../../constants/sitExtensions';
-
 import styles from './ShipmentDetails.module.scss';
 
+import { SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
+import { SERVICE_ITEM_CODES } from 'constants/serviceItems';
 import { formatDate } from 'shared/dates';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { AddressShape } from 'types';
@@ -55,6 +55,7 @@ const ShipmentDetailsMain = ({
     primeActualWeight,
     counselorRemarks,
     customerRemarks,
+    mtoServiceItems,
     sitExtensions,
     sitStatus,
     storageInTransit,
@@ -76,6 +77,27 @@ const ShipmentDetailsMain = ({
   };
 
   const pendingSITExtension = sitExtensions?.find((se) => se.status === SIT_EXTENSION_STATUS.PENDING);
+
+  /**
+   * @description This variable is used to store the existence of service items
+   * codes that contain SIT and are ar part of the constants
+   * SERVICE_ITEM_CODES. It is false by default unless there are MTO service
+   * items to iterate over.
+   *
+   * When there are MTO service items present, we filter through all the
+   * service items and check the length of the new array against whether or not
+   * there are SIT suffixes in the service items codes and whether it matches
+   * the service items codes we have defined as constants.
+   */
+  let serviceItemsContainSIT = false;
+  if (mtoServiceItems) {
+    serviceItemsContainSIT = !!(
+      mtoServiceItems.filter((serviceItem) => {
+        const rgSIT = /SIT$/;
+        return rgSIT.test(serviceItem.reServiceCode) && !!SERVICE_ITEM_CODES[serviceItem.reServiceCode];
+      }).length > 0
+    );
+  }
 
   /**
    * Displays correct button to open the modal on the SIT Display component to open with either Sumbit or Review SIT modal.
@@ -136,7 +158,7 @@ const ShipmentDetailsMain = ({
           sitStatus={sitStatus}
         />
       )}
-      {(sitStatus || shipment.sitDaysAllowance) && (
+      {serviceItemsContainSIT && (
         <ShipmentSITDisplay
           sitExtensions={sitExtensions}
           sitStatus={sitStatus}
