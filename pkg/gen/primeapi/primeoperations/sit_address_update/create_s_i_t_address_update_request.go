@@ -36,14 +36,12 @@ createSITAddressUpdateRequest
 
 **Functionality:**
 Creates an update request for a SIT service item's final delivery address.
-A newly created update request is assigned the status 'REQUESTED'.
+A newly created update request is assigned the status 'REQUESTED'  if the change in address
+is > 50 miles and automatically approved otherwise.
 
 **Limitations:**
-The update can be requested for APPROVED service items only.
-This endpoint is only for updates that exceed a 50 mile distance from the
-original delivery address of the service item being updated. If the distance
-is less than 50 miles, the prime can make the update themselves via UpdateMTOServiceItemSIT.
-Only ONE request allowed per SIT service item.
+The update can be requested for APPROVED SIT service items only.
+Only ONE request is allowed per approved SIT service item.
 */
 type CreateSITAddressUpdateRequest struct {
 	Context *middleware.Context

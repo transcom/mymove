@@ -1186,7 +1186,7 @@ func init() {
     },
     "/sit-address-updates": {
       "post": {
-        "description": "**Functionality:**\nCreates an update request for a SIT service item's final delivery address.\nA newly created update request is assigned the status 'REQUESTED'.\n\n**Limitations:**\nThe update can be requested for APPROVED service items only.\nThis endpoint is only for updates that exceed a 50 mile distance from the\noriginal delivery address of the service item being updated. If the distance\nis less than 50 miles, the prime can make the update themselves via UpdateMTOServiceItemSIT.\nOnly ONE request allowed per SIT service item.\n",
+        "description": "**Functionality:**\nCreates an update request for a SIT service item's final delivery address.\nA newly created update request is assigned the status 'REQUESTED'  if the change in address\nis \u003e 50 miles and automatically approved otherwise.\n\n**Limitations:**\nThe update can be requested for APPROVED SIT service items only.\nOnly ONE request is allowed per approved SIT service item.\n",
         "consumes": [
           "application/json"
         ],
@@ -4212,7 +4212,7 @@ func init() {
       "name": "paymentRequest"
     },
     {
-      "description": "The contractor submits a **sitAddressUpdate** to the TOO for approval in order\nto update the SITFinalAddress for a service item. This only applies to address\nupdates that exceed a 50 mile distance.\n",
+      "description": "A **sitAddressUpdate** is submitted when the prime or office user wishes to update the final address for an\napproved service item. sitAddressUpdates with a distance greater than 50 miles will be automatically approved while\na distance greater than 50 miles will typically require office user approval.\n",
       "name": "sitAddressUpdate"
     }
   ],
@@ -5750,7 +5750,7 @@ func init() {
     },
     "/sit-address-updates": {
       "post": {
-        "description": "**Functionality:**\nCreates an update request for a SIT service item's final delivery address.\nA newly created update request is assigned the status 'REQUESTED'.\n\n**Limitations:**\nThe update can be requested for APPROVED service items only.\nThis endpoint is only for updates that exceed a 50 mile distance from the\noriginal delivery address of the service item being updated. If the distance\nis less than 50 miles, the prime can make the update themselves via UpdateMTOServiceItemSIT.\nOnly ONE request allowed per SIT service item.\n",
+        "description": "**Functionality:**\nCreates an update request for a SIT service item's final delivery address.\nA newly created update request is assigned the status 'REQUESTED'  if the change in address\nis \u003e 50 miles and automatically approved otherwise.\n\n**Limitations:**\nThe update can be requested for APPROVED SIT service items only.\nOnly ONE request is allowed per approved SIT service item.\n",
         "consumes": [
           "application/json"
         ],
@@ -8800,7 +8800,7 @@ func init() {
       "name": "paymentRequest"
     },
     {
-      "description": "The contractor submits a **sitAddressUpdate** to the TOO for approval in order\nto update the SITFinalAddress for a service item. This only applies to address\nupdates that exceed a 50 mile distance.\n",
+      "description": "A **sitAddressUpdate** is submitted when the prime or office user wishes to update the final address for an\napproved service item. sitAddressUpdates with a distance greater than 50 miles will be automatically approved while\na distance greater than 50 miles will typically require office user approval.\n",
       "name": "sitAddressUpdate"
     }
   ],
