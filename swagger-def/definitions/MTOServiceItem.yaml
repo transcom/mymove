@@ -57,6 +57,12 @@ properties:
     type: string
     format: date-time
     x-nullable: true
+  sitDestinationOriginalAddress:
+    $ref: 'Address.yaml'
+  sitDestinationFinalAddress:
+    $ref: 'Address.yaml'
+  sitAddressUpdates:
+    $ref: 'SITAddressUpdates.yaml'
   feeType:
     enum:
       - COUNSELING

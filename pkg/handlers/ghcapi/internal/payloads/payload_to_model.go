@@ -152,6 +152,24 @@ func ApprovedSITExtensionFromCreate(sitExtension *ghcmessages.CreateApprovedSITD
 	return model
 }
 
+// ApprovedSITAddressUpdateFromCreate model
+func ApprovedSITAddressUpdateFromCreate(sitAddressUpdate *ghcmessages.CreateSITAddressUpdate, serviceItemID strfmt.UUID) *models.SITAddressUpdate {
+	if sitAddressUpdate == nil {
+		return nil
+	}
+	model := &models.SITAddressUpdate{
+		MTOServiceItemID: uuid.FromStringOrNil(serviceItemID.String()),
+		OfficeRemarks:    sitAddressUpdate.OfficeRemarks,
+	}
+
+	addressModel := AddressModel(sitAddressUpdate.NewAddress)
+	if addressModel != nil {
+		model.NewAddress = *addressModel
+	}
+
+	return model
+}
+
 // MTOShipmentModelFromCreate model
 func MTOShipmentModelFromCreate(mtoShipment *ghcmessages.CreateMTOShipment) *models.MTOShipment {
 	if mtoShipment == nil {

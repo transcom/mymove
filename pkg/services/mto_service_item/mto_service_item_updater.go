@@ -182,18 +182,8 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItem(appCtx appcontext.AppContex
 					// If the error is something else (this is unexpected), we create a QueryError
 					return apperror.NewQueryError("MTOServiceItem", createErr, "")
 				}
-				validServiceItem.SITDestinationFinalAddressID = &validServiceItem.SITDestinationFinalAddress.ID
-			} else {
-				// If this service item already had a SITDestinationFinalAddress, update that record instead
-				// of creating a new one.
-				verrs, updateErr := txnAppCtx.DB().ValidateAndUpdate(validServiceItem.SITDestinationFinalAddress)
-				if verrs != nil && verrs.HasAny() {
-					return apperror.NewInvalidInputError(validServiceItem.ID, updateErr, verrs, "Invalid input found while updating final Destination SIT address for the service item.")
-				} else if updateErr != nil {
-					// If the error is something else (this is unexpected), we create a QueryError
-					return apperror.NewQueryError("MTOServiceItem", updateErr, "")
-				}
 			}
+			validServiceItem.SITDestinationFinalAddressID = &validServiceItem.SITDestinationFinalAddress.ID
 		}
 
 		// Make the update and create a InvalidInputError if there were validation issues
