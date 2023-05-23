@@ -96,16 +96,22 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 
 	query := appCtx.DB().EagerPreload(
 		"PaymentRequests.PaymentServiceItems.PaymentServiceItemParams.ServiceItemParamKey",
+		"PaymentRequests.ProofOfServiceDocs.PrimeUploads.Upload",
 		"MTOServiceItems.ReService",
 		"MTOServiceItems.Dimensions",
 		"MTOServiceItems.SITDestinationFinalAddress",
+		"MTOServiceItems.SITOriginHHGOriginalAddress",
+		"MTOServiceItems.SITOriginHHGActualAddress",
 		"MTOShipments.DestinationAddress",
 		"MTOShipments.PickupAddress",
 		"MTOShipments.SecondaryDeliveryAddress",
 		"MTOShipments.SecondaryPickupAddress",
 		"MTOShipments.MTOAgents",
 		"MTOShipments.SITDurationUpdates",
+		"MTOShipments.StorageFacility",
+		"MTOShipments.StorageFacility.Address",
 		"Orders.ServiceMember",
+		"Orders.ServiceMember.ResidentialAddress",
 		"Orders.Entitlement",
 		"Orders.NewDutyLocation.Address",
 		"Orders.OriginDutyLocation.Address", // this line breaks Eager, but works with EagerPreload

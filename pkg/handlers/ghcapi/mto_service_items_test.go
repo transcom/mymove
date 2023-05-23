@@ -17,11 +17,15 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
+	routemocks "github.com/transcom/mymove/pkg/route/mocks"
+	"github.com/transcom/mymove/pkg/services/address"
 	"github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	"github.com/transcom/mymove/pkg/services/query"
+	sitaddressupdate "github.com/transcom/mymove/pkg/services/sit_address_update"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/trace"
 )
@@ -544,5 +548,334 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 		impactedMove := models.Move{}
 		_ = suite.DB().Find(&impactedMove, okResponse.Payload.MoveTaskOrderID)
 		suite.Equal(models.MoveStatusAPPROVED, impactedMove.Status)
+	})
+}
+
+func (suite *HandlerSuite) TestCreateSITAddressUpdate() {
+	mockPlanner := &routemocks.Planner{}
+	mockedDistance := 55
+	mockPlanner.On("TransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.AnythingOfType("*models.Address"),
+		mock.AnythingOfType("*models.Address"),
+	).Return(mockedDistance, nil)
+	serviceItemUpdater := mtoserviceitem.NewMTOServiceItemUpdater(query.NewQueryBuilder(), moverouter.NewMoveRouter())
+	sitAddressUpdateCreator := sitaddressupdate.NewApprovedOfficeSITAddressUpdateCreator(mockPlanner, address.NewAddressCreator(), serviceItemUpdater)
+
+	suite.Run("Returns 200, creates new SIT extension, and updates SIT days allowance on shipment without an allowance when validations pass", func() {
+		handlerConfig := suite.HandlerConfig()
+		handler := CreateSITAddressUpdateHandler{
+			handlerConfig,
+			sitAddressUpdateCreator,
+		}
+
+		serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusApproved,
+				},
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDDSIT,
+				},
+			},
+			{
+				Model: models.Address{},
+				Type:  &factory.Addresses.SITDestinationOriginalAddress,
+			},
+			{
+				Model: models.Address{},
+				Type:  &factory.Addresses.SITDestinationFinalAddress,
+			},
+		}, nil)
+
+		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
+		req := httptest.NewRequest("POST", fmt.Sprintf("/service-items/%s/sit-address-update/", serviceItem.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+
+		officeRemarks := "new office remarks"
+		newAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress3})
+		createParams := mtoserviceitemop.CreateSITAddressUpdateParams{
+			HTTPRequest: req,
+			Body: &ghcmessages.CreateSITAddressUpdate{
+				NewAddress: &ghcmessages.Address{
+					City:           &newAddress.City,
+					Country:        newAddress.Country,
+					PostalCode:     &newAddress.PostalCode,
+					State:          &newAddress.State,
+					StreetAddress1: &newAddress.StreetAddress1,
+					StreetAddress2: newAddress.StreetAddress2,
+					StreetAddress3: newAddress.StreetAddress3,
+				},
+				OfficeRemarks: &officeRemarks,
+			},
+			MtoServiceItemID: *handlers.FmtUUID(serviceItem.ID),
+		}
+
+		// Validate incoming payload
+		suite.NoError(createParams.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(createParams)
+		suite.IsType(&mtoserviceitemop.CreateSITAddressUpdateOK{}, response)
+		payload := response.(*mtoserviceitemop.CreateSITAddressUpdateOK).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
+
+		suite.Len(payload.SitAddressUpdates, 1)
+		suite.Equal(*createParams.Body.NewAddress.City, *payload.SitAddressUpdates[0].NewAddress.City)
+		suite.Equal(*createParams.Body.NewAddress.Country, *payload.SitAddressUpdates[0].NewAddress.Country)
+		suite.Equal(*createParams.Body.NewAddress.PostalCode, *payload.SitAddressUpdates[0].NewAddress.PostalCode)
+		suite.Equal(*createParams.Body.NewAddress.State, *payload.SitAddressUpdates[0].NewAddress.State)
+		suite.Equal(*createParams.Body.NewAddress.StreetAddress1, *payload.SitAddressUpdates[0].NewAddress.StreetAddress1)
+		suite.Equal(*createParams.Body.NewAddress.StreetAddress2, *payload.SitAddressUpdates[0].NewAddress.StreetAddress2)
+		suite.Equal(*createParams.Body.NewAddress.StreetAddress3, *payload.SitAddressUpdates[0].NewAddress.StreetAddress3)
+
+		suite.Equal(*createParams.Body.NewAddress.City, *payload.SitDestinationFinalAddress.City)
+		suite.Equal(*createParams.Body.NewAddress.Country, *payload.SitDestinationFinalAddress.Country)
+		suite.Equal(*createParams.Body.NewAddress.PostalCode, *payload.SitDestinationFinalAddress.PostalCode)
+		suite.Equal(*createParams.Body.NewAddress.State, *payload.SitDestinationFinalAddress.State)
+		suite.Equal(*createParams.Body.NewAddress.StreetAddress1, *payload.SitDestinationFinalAddress.StreetAddress1)
+		suite.Equal(*createParams.Body.NewAddress.StreetAddress2, *payload.SitDestinationFinalAddress.StreetAddress2)
+		suite.Equal(*createParams.Body.NewAddress.StreetAddress3, *payload.SitDestinationFinalAddress.StreetAddress3)
+
+		suite.Equal(serviceItem.SITDestinationFinalAddress.ID.String(), payload.SitAddressUpdates[0].OldAddress.ID.String())
+		suite.Equal(serviceItem.SITDestinationFinalAddress.City, *payload.SitAddressUpdates[0].OldAddress.City)
+		suite.Equal(*serviceItem.SITDestinationFinalAddress.Country, *payload.SitAddressUpdates[0].OldAddress.Country)
+		suite.Equal(serviceItem.SITDestinationFinalAddress.PostalCode, *payload.SitAddressUpdates[0].OldAddress.PostalCode)
+		suite.Equal(serviceItem.SITDestinationFinalAddress.State, *payload.SitAddressUpdates[0].OldAddress.State)
+		suite.Equal(serviceItem.SITDestinationFinalAddress.StreetAddress1, *payload.SitAddressUpdates[0].OldAddress.StreetAddress1)
+		suite.Equal(*serviceItem.SITDestinationFinalAddress.StreetAddress2, *payload.SitAddressUpdates[0].OldAddress.StreetAddress2)
+		suite.Equal(*serviceItem.SITDestinationFinalAddress.StreetAddress3, *payload.SitAddressUpdates[0].OldAddress.StreetAddress3)
+
+		suite.Require().NotNil(*payload.SitAddressUpdates[0].OfficeRemarks)
+		suite.Equal(officeRemarks, *payload.SitAddressUpdates[0].OfficeRemarks)
+	})
+
+	suite.Run("Returns a 403 when the office user is not a TOO", func() {
+		handlerConfig := suite.HandlerConfig()
+		handler := CreateSITAddressUpdateHandler{
+			handlerConfig,
+			sitAddressUpdateCreator,
+		}
+		serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusApproved,
+				},
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDDSIT,
+				},
+			},
+			{
+				Model: models.Address{},
+				Type:  &factory.Addresses.SITDestinationOriginalAddress,
+			},
+			{
+				Model: models.Address{},
+				Type:  &factory.Addresses.SITDestinationFinalAddress,
+			},
+		}, nil)
+
+		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
+		req := httptest.NewRequest("POST", fmt.Sprintf("/service-items/%s/sit-address-update/", serviceItem.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+
+		officeRemarks := "new office remarks"
+		newAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress3})
+		createParams := mtoserviceitemop.CreateSITAddressUpdateParams{
+			HTTPRequest: req,
+			Body: &ghcmessages.CreateSITAddressUpdate{
+				NewAddress: &ghcmessages.Address{
+					City:           &newAddress.City,
+					Country:        newAddress.Country,
+					PostalCode:     &newAddress.PostalCode,
+					State:          &newAddress.State,
+					StreetAddress1: &newAddress.StreetAddress1,
+					StreetAddress2: newAddress.StreetAddress2,
+					StreetAddress3: newAddress.StreetAddress3,
+				},
+				OfficeRemarks: &officeRemarks,
+			},
+			MtoServiceItemID: *handlers.FmtUUID(serviceItem.ID),
+		}
+
+		// Validate incoming payload
+		suite.NoError(createParams.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(createParams)
+		suite.IsType(&mtoserviceitemop.CreateSITAddressUpdateForbidden{}, response)
+		payload := response.(*mtoserviceitemop.CreateSITAddressUpdateForbidden).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
+
+		suite.IsType(&ghcmessages.Error{}, payload)
+	})
+
+	suite.Run("Returns 404 when creator returns NotFoundError", func() {
+		creator := &mocks.ApprovedSITAddressUpdateCreator{}
+		creator.On(
+			"CreateApprovedSITAddressUpdate",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("*models.SITAddressUpdate")).
+			Return(nil, apperror.NotFoundError{})
+
+		handlerConfig := suite.HandlerConfig()
+		handler := CreateSITAddressUpdateHandler{
+			handlerConfig,
+			creator,
+		}
+
+		fakeID := uuid.Must(uuid.NewV4())
+
+		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
+		req := httptest.NewRequest("POST", fmt.Sprintf("/service-items/%s/sit-address-update/", fakeID), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+
+		officeRemarks := "new office remarks"
+		newAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress3})
+		createParams := mtoserviceitemop.CreateSITAddressUpdateParams{
+			HTTPRequest: req,
+			Body: &ghcmessages.CreateSITAddressUpdate{
+				NewAddress: &ghcmessages.Address{
+					City:           &newAddress.City,
+					Country:        newAddress.Country,
+					PostalCode:     &newAddress.PostalCode,
+					State:          &newAddress.State,
+					StreetAddress1: &newAddress.StreetAddress1,
+					StreetAddress2: newAddress.StreetAddress2,
+					StreetAddress3: newAddress.StreetAddress3,
+				},
+				OfficeRemarks: &officeRemarks,
+			},
+			MtoServiceItemID: *handlers.FmtUUID(fakeID),
+		}
+
+		// Validate incoming payload
+		suite.NoError(createParams.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(createParams)
+		suite.IsType(&mtoserviceitemop.CreateSITAddressUpdateNotFound{}, response)
+		payload := response.(*mtoserviceitemop.CreateSITAddressUpdateNotFound).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
+		suite.IsType(&ghcmessages.Error{}, payload)
+	})
+
+	suite.Run("Returns 422 when creator returns validation errors", func() {
+		handlerConfig := suite.HandlerConfig()
+		handler := CreateSITAddressUpdateHandler{
+			handlerConfig,
+			sitAddressUpdateCreator,
+		}
+
+		serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusRejected,
+				},
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDDSIT,
+				},
+			},
+			{
+				Model: models.Address{},
+				Type:  &factory.Addresses.SITDestinationOriginalAddress,
+			},
+			{
+				Model: models.Address{},
+				Type:  &factory.Addresses.SITDestinationFinalAddress,
+			},
+		}, nil)
+
+		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
+		req := httptest.NewRequest("POST", fmt.Sprintf("/service-items/%s/sit-address-update/", serviceItem.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+
+		officeRemarks := "new office remarks"
+		newAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress3})
+		createParams := mtoserviceitemop.CreateSITAddressUpdateParams{
+			HTTPRequest: req,
+			Body: &ghcmessages.CreateSITAddressUpdate{
+				NewAddress: &ghcmessages.Address{
+					City:           &newAddress.City,
+					Country:        newAddress.Country,
+					PostalCode:     &newAddress.PostalCode,
+					State:          &newAddress.State,
+					StreetAddress1: &newAddress.StreetAddress1,
+					StreetAddress2: newAddress.StreetAddress2,
+					StreetAddress3: newAddress.StreetAddress3,
+				},
+				OfficeRemarks: &officeRemarks,
+			},
+			MtoServiceItemID: *handlers.FmtUUID(serviceItem.ID),
+		}
+
+		// Validate incoming payload
+		suite.NoError(createParams.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(createParams)
+		suite.IsType(&mtoserviceitemop.CreateSITAddressUpdateUnprocessableEntity{}, response)
+		payload := response.(*mtoserviceitemop.CreateSITAddressUpdateUnprocessableEntity).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
+	})
+
+	suite.Run("Returns 500 when approver returns unexpected error", func() {
+		creator := &mocks.ApprovedSITAddressUpdateCreator{}
+		creator.On(
+			"CreateApprovedSITAddressUpdate",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("*models.SITAddressUpdate")).
+			Return(nil, apperror.InternalServerError{})
+
+		handlerConfig := suite.HandlerConfig()
+		handler := CreateSITAddressUpdateHandler{
+			handlerConfig,
+			creator,
+		}
+
+		fakeID := uuid.Must(uuid.NewV4())
+
+		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
+		req := httptest.NewRequest("POST", fmt.Sprintf("/service-items/%s/sit-address-update/", fakeID), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+
+		officeRemarks := "new office remarks"
+		newAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress3})
+		createParams := mtoserviceitemop.CreateSITAddressUpdateParams{
+			HTTPRequest: req,
+			Body: &ghcmessages.CreateSITAddressUpdate{
+				NewAddress: &ghcmessages.Address{
+					City:           &newAddress.City,
+					Country:        newAddress.Country,
+					PostalCode:     &newAddress.PostalCode,
+					State:          &newAddress.State,
+					StreetAddress1: &newAddress.StreetAddress1,
+					StreetAddress2: newAddress.StreetAddress2,
+					StreetAddress3: newAddress.StreetAddress3,
+				},
+				OfficeRemarks: &officeRemarks,
+			},
+			MtoServiceItemID: *handlers.FmtUUID(fakeID),
+		}
+
+		// Validate incoming payload
+		suite.NoError(createParams.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(createParams)
+		suite.IsType(&mtoserviceitemop.CreateSITAddressUpdateInternalServerError{}, response)
+		payload := response.(*mtoserviceitemop.CreateSITAddressUpdateInternalServerError).Payload
+
+		// Validate outgoing payload
+		suite.Nil(payload)
 	})
 }

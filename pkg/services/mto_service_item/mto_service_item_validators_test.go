@@ -402,9 +402,9 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		}
 		newServiceItem := serviceItemData.setNewMTOServiceItem()
 
-		// Check that the IDs match the old address since we want to update that one in the DB.
-		suite.Equal(newServiceItem.SITDestinationFinalAddressID, &oldSitDestinationFinalAddress.ID)
-		suite.Equal(newServiceItem.SITDestinationFinalAddress.ID, oldSitDestinationFinalAddress.ID)
+		// Check that the IDs do not match the old address since we want to replace the record.
+		suite.NotEqual(newServiceItem.SITDestinationFinalAddressID, &oldSitDestinationFinalAddress.ID)
+		suite.NotEqual(newServiceItem.SITDestinationFinalAddress.ID, oldSitDestinationFinalAddress.ID)
 
 		// Check that the address information matches the new address.
 		suite.Equal(newServiceItem.SITDestinationFinalAddress.PostalCode, newSitDestinationFinalAddress.PostalCode)
