@@ -123,12 +123,6 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 		}
 	}
 
-	if serviceItem.ReService.Code == models.ReServiceCodeDOSHUT || serviceItem.ReService.Code == models.ReServiceCodeDDSHUT {
-		if mtoShipment.PrimeEstimatedWeight == nil {
-			return nil, verrs, apperror.NewConflictError(mtoShipmentID, fmt.Sprintf("The associated MTOShipment (%s) must have a valid PrimeEstimatedWeight to create this service item.", mtoShipmentID))
-		}
-	}
-
 	if serviceItem.ReService.Code == models.ReServiceCodeDOASIT {
 		// DOASIT must be associated with shipment that has DOFSIT
 		serviceItem, err = o.validateSITStandaloneServiceItem(appCtx, serviceItem, models.ReServiceCodeDOFSIT)
