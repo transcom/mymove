@@ -80,11 +80,11 @@ const ShipmentDetailsMain = ({
 
   /**
    * @description This variable is used to store the existence of service items
-   * codes that contain SIT and are ar part of the constants
-   * SERVICE_ITEM_CODES.
+   * codes that contain SIT and are a part of the constants
+   * SIT_SERVICE_ITEM_CODES.
    *
-   * It is undefined by default unless there are SIT service
-   * items found in the MTO service items Array.
+   * It is `undefined` by default unless there are SIT service items found in
+   * the `mtoServiceItems` Array.
    *
    * When there are any SIT service items present, it is set to a value of the
    * first found SIT service item. We treat this value as a boolean later on
