@@ -65,6 +65,17 @@ export default {
   },
 };
 
+const defaultArgs = {
+  showDepartmentIndicator: false,
+  showOrdersNumber: false,
+  showOrdersTypeDetail: false,
+  showHHGTac: false,
+  showHHGSac: false,
+  showNTSTac: false,
+  showNTSSac: false,
+  showOrdersAcknowledgement: false,
+};
+
 export const EmptyValues = () => (
   <div style={{ width: '400px' }}>
     <Formik>
@@ -170,6 +181,7 @@ export const FieldsHidden = (args) => {
           return (
             <form>
               <OrdersDetailForm
+                {...defaultArgs}
                 deptIndicatorOptions={deptIndicatorOptions}
                 ordersTypeOptions={ordersTypeOptions}
                 ordersTypeDetailOptions={ordersTypeDetailOptions}

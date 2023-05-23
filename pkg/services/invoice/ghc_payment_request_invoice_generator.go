@@ -172,6 +172,12 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(appCtx appcontext.AppContext
 		ReferenceIdentification:          paymentRequest.PaymentRequestNumber,
 	}
 
+	// Add moveCode to header
+	edi858.Header.MoveCode = edisegment.N9{
+		ReferenceIdentificationQualifier: "CMN",
+		ReferenceIdentification:          moveTaskOrder.Locator,
+	}
+
 	// contract code to header
 	var contractCodeServiceItemParam models.PaymentServiceItemParam
 	err = appCtx.DB().Q().
@@ -306,6 +312,16 @@ func (g ghcPaymentRequestInvoiceGenerator) createServiceMemberDetailSegments(pay
 	header.ServiceMemberBranch = edisegment.N9{
 		ReferenceIdentificationQualifier: "3L",
 		ReferenceIdentification:          string(*branch),
+	}
+
+	// dod id
+	dodID := serviceMember.Edipi
+	if dodID == nil {
+		return apperror.NewConflictError(serviceMember.ID, fmt.Sprintf("no dod id found for ServiceMember ID: %s Payment Request ID: %s", serviceMember.ID, paymentRequestID))
+	}
+	header.ServiceMemberDodID = edisegment.N9{
+		ReferenceIdentificationQualifier: "4A",
+		ReferenceIdentification:          string(*dodID),
 	}
 
 	return nil
