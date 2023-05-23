@@ -3548,6 +3548,66 @@ func init() {
         }
       ]
     },
+    "/service-items/{mtoServiceItemID}/sit-address-update": {
+      "post": {
+        "description": "TOO can create an already-approved SIT Address Update on behalf of a customer",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoServiceItem"
+        ],
+        "summary": "Create an approved SIT Address Update",
+        "operationId": "createSITAddressUpdate",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of line item to use",
+            "name": "mtoServiceItemID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateSITAddressUpdate"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully created a SIT Address Update.",
+            "schema": {
+              "$ref": "#/definitions/MTOServiceItem"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        },
+        "x-permissions": [
+          "create.SITAddressUpdate"
+        ]
+      }
+    },
     "/shipments/{shipmentID}": {
       "get": {
         "description": "fetches a shipment by ID",
@@ -4060,7 +4120,7 @@ func init() {
         }
       ]
     },
-    "/shipments/{shipmentID}/sit-extensions/": {
+    "/shipments/{shipmentID}/sit-extensions": {
       "post": {
         "description": "TOO can creates an already-approved SIT Duration Update on behalf of a customer",
         "consumes": [
@@ -5065,6 +5125,21 @@ func init() {
         }
       }
     },
+    "CreateSITAddressUpdate": {
+      "required": [
+        "newAddress",
+        "officeRemarks"
+      ],
+      "properties": {
+        "newAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "officeRemarks": {
+          "description": "Remarks from TOO about SIT Address Update creation",
+          "type": "string"
+        }
+      }
+    },
     "Customer": {
       "type": "object",
       "properties": {
@@ -5875,10 +5950,19 @@ func init() {
           "type": "string",
           "x-nullable": true
         },
+        "sitAddressUpdates": {
+          "$ref": "#/definitions/SITAddressUpdates"
+        },
         "sitDepartureDate": {
           "type": "string",
           "format": "date-time",
           "x-nullable": true
+        },
+        "sitDestinationFinalAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "sitDestinationOriginalAddress": {
+          "$ref": "#/definitions/Address"
         },
         "sitEntryDate": {
           "type": "string",
@@ -7970,6 +8054,73 @@ func init() {
         "SYSTEM",
         "TOO"
       ]
+    },
+    "SITAddressUpdate": {
+      "description": "An update to a SIT service item address.",
+      "type": "object",
+      "properties": {
+        "contractorRemarks": {
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "The customer has found a new house closer to base."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "distance": {
+          "description": "The distance between the old address and the new address in miles.",
+          "type": "integer",
+          "example": 54
+        },
+        "eTag": {
+          "type": "string",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "mtoServiceItemID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "newAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "officeRemarks": {
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "The customer has found a new house closer to base."
+        },
+        "oldAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "status": {
+          "enum": [
+            "REQUESTED",
+            "APPROVED",
+            "REJECTED"
+          ]
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
+    "SITAddressUpdates": {
+      "description": "A list of updates to a SIT service item address.",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/SITAddressUpdate"
+      }
     },
     "SITExtension": {
       "description": "A storage in transit (SIT) Extension is a request for an increase in the billable number of days a shipment is allowed to be in SIT.",
@@ -13908,6 +14059,81 @@ func init() {
         }
       ]
     },
+    "/service-items/{mtoServiceItemID}/sit-address-update": {
+      "post": {
+        "description": "TOO can create an already-approved SIT Address Update on behalf of a customer",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoServiceItem"
+        ],
+        "summary": "Create an approved SIT Address Update",
+        "operationId": "createSITAddressUpdate",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of line item to use",
+            "name": "mtoServiceItemID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateSITAddressUpdate"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully created a SIT Address Update.",
+            "schema": {
+              "$ref": "#/definitions/MTOServiceItem"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "x-permissions": [
+          "create.SITAddressUpdate"
+        ]
+      }
+    },
     "/shipments/{shipmentID}": {
       "get": {
         "description": "fetches a shipment by ID",
@@ -14573,7 +14799,7 @@ func init() {
         }
       ]
     },
-    "/shipments/{shipmentID}/sit-extensions/": {
+    "/shipments/{shipmentID}/sit-extensions": {
       "post": {
         "description": "TOO can creates an already-approved SIT Duration Update on behalf of a customer",
         "consumes": [
@@ -15663,6 +15889,21 @@ func init() {
         }
       }
     },
+    "CreateSITAddressUpdate": {
+      "required": [
+        "newAddress",
+        "officeRemarks"
+      ],
+      "properties": {
+        "newAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "officeRemarks": {
+          "description": "Remarks from TOO about SIT Address Update creation",
+          "type": "string"
+        }
+      }
+    },
     "Customer": {
       "type": "object",
       "properties": {
@@ -16473,10 +16714,19 @@ func init() {
           "type": "string",
           "x-nullable": true
         },
+        "sitAddressUpdates": {
+          "$ref": "#/definitions/SITAddressUpdates"
+        },
         "sitDepartureDate": {
           "type": "string",
           "format": "date-time",
           "x-nullable": true
+        },
+        "sitDestinationFinalAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "sitDestinationOriginalAddress": {
+          "$ref": "#/definitions/Address"
         },
         "sitEntryDate": {
           "type": "string",
@@ -18569,6 +18819,74 @@ func init() {
         "SYSTEM",
         "TOO"
       ]
+    },
+    "SITAddressUpdate": {
+      "description": "An update to a SIT service item address.",
+      "type": "object",
+      "properties": {
+        "contractorRemarks": {
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "The customer has found a new house closer to base."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "distance": {
+          "description": "The distance between the old address and the new address in miles.",
+          "type": "integer",
+          "minimum": 0,
+          "example": 54
+        },
+        "eTag": {
+          "type": "string",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "mtoServiceItemID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "newAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "officeRemarks": {
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "The customer has found a new house closer to base."
+        },
+        "oldAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "status": {
+          "enum": [
+            "REQUESTED",
+            "APPROVED",
+            "REJECTED"
+          ]
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
+    "SITAddressUpdates": {
+      "description": "A list of updates to a SIT service item address.",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/SITAddressUpdate"
+      }
     },
     "SITExtension": {
       "description": "A storage in transit (SIT) Extension is a request for an increase in the billable number of days a shipment is allowed to be in SIT.",

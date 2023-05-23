@@ -64,6 +64,7 @@ N9*CT*TRUSS_TEST**
 N9*1W*Leo, Spacemen**
 N9*ML*E_1**
 N9*3L*ARMY**
+N9*4A*7562672421**
 N9*CMN*RDY4PY**
 C3*USD***
 G62*10*20200909**
@@ -130,6 +131,10 @@ func MakeValidEdi() Invoice858C {
 		ServiceMemberBranch: edisegment.N9{
 			ReferenceIdentificationQualifier: "3L",
 			ReferenceIdentification:          "ARMY",
+		},
+		ServiceMemberDodID: edisegment.N9{
+			ReferenceIdentificationQualifier: "4A",
+			ReferenceIdentification:          "7562672421",
 		},
 		MoveCode: edisegment.N9{
 			ReferenceIdentificationQualifier: "CMN",
@@ -204,9 +209,11 @@ func MakeValidEdi() Invoice858C {
 		FA1: edisegment.FA1{
 			AgencyQualifierCode: "DF",
 		},
-		FA2: edisegment.FA2{
-			BreakdownStructureDetailCode: "TA",
-			FinancialInformationCode:     "1234",
+		FA2s: []edisegment.FA2{
+			{
+				BreakdownStructureDetailCode: "TA",
+				FinancialInformationCode:     "1234",
+			},
 		},
 	}
 	l3total := edisegment.L3{

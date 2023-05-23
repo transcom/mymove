@@ -291,7 +291,7 @@ func init() {
     },
     "/mto-service-items/{mtoServiceItemID}": {
       "patch": {
-        "description": "Updates MTOServiceItems after creation. Not all service items or fields may be updated, please see details below.\n\nThis endpoint supports different body definitions. In the modelType field below, select the modelType corresponding\n to the service item you wish to update and the documentation will update with the new definition.\n\nTo create a service item, please use [createMTOServiceItem](#operation/createMTOServiceItem)) endpoint.\n",
+        "description": "Updates MTOServiceItems after creation. Not all service items or fields may be updated, please see details below.\n\nThis endpoint supports different body definitions. In the modelType field below, select the modelType corresponding\n to the service item you wish to update and the documentation will update with the new definition.\n\n* Addresses: You can add a new SIT Destination final address using this endpoint (and must use this endpoint to do so), but you cannot update an existing one.\nPlease use [createSITAddressUpdateRequest](#operation/createSITAddressUpdateRequest) instead.\n\nTo create a service item, please use [createMTOServiceItem](#operation/createMTOServiceItem)) endpoint.\n",
         "consumes": [
           "application/json"
         ],
@@ -1961,7 +1961,7 @@ func init() {
       }
     },
     "MTOServiceItem": {
-      "description": "MTOServiceItem describes a base type of a service item. Polymorphic type. Both Move Task Orders and MTO Shipments will have MTO Service Items.",
+      "description": "MTOServiceItem describes a base type of a service item. Polymorphic type.",
       "type": "object",
       "required": [
         "modelType",
@@ -2239,6 +2239,9 @@ func init() {
             "sitHHGActualOrigin": {
               "$ref": "#/definitions/Address"
             },
+            "sitHHGOriginalOrigin": {
+              "$ref": "#/definitions/Address"
+            },
             "sitPostalCode": {
               "type": "string",
               "format": "zip",
@@ -2304,6 +2307,52 @@ func init() {
       "readOnly": true
     },
     "MTOShipment": {
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/definitions/MTOShipmentWithoutServiceItems"
+        }
+      ],
+      "properties": {
+        "mtoServiceItems": {
+          "description": "A list of service items connected to this shipment.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MTOServiceItem"
+          },
+          "readOnly": true
+        }
+      }
+    },
+    "MTOShipmentType": {
+      "description": "The type of shipment.\n  * ` + "`" + `HHG` + "`" + ` = Household goods move\n  * ` + "`" + `HHG_INTO_NTS_DOMESTIC` + "`" + ` = HHG into Non-temporary storage (NTS)\n  * ` + "`" + `HHG_OUTOF_NTS_DOMESTIC` + "`" + ` = HHG out of Non-temporary storage (NTS Release)\n  * ` + "`" + `PPM` + "`" + ` = Personally Procured Move also known as Do It Yourself (DITY)\n",
+      "type": "string",
+      "title": "Shipment Type",
+      "enum": [
+        "BOAT_HAUL_AWAY",
+        "BOAT_TOW_AWAY",
+        "HHG",
+        "HHG_LONGHAUL_DOMESTIC",
+        "HHG_INTO_NTS_DOMESTIC",
+        "HHG_OUTOF_NTS_DOMESTIC",
+        "HHG_SHORTHAUL_DOMESTIC",
+        "INTERNATIONAL_HHG",
+        "INTERNATIONAL_UB",
+        "MOTORHOME",
+        "PPM"
+      ],
+      "x-display-value": {
+        "HHG": "Household goods move (HHG)",
+        "HHG_INTO_NTS_DOMESTIC": "HHG into Non-temporary storage (NTS)",
+        "HHG_LONGHAUL_DOMESTIC": "Domestic Longhaul HHG",
+        "HHG_OUTOF_NTS_DOMESTIC": "HHG out of Non-temporary storage (NTS Release)",
+        "HHG_SHORTHAUL_DOMESTIC": "Domestic Shorthaul HHG",
+        "PPM": "Personally Procured Move also known as Do It Yourself (DITY)"
+      },
+      "example": "HHG"
+    },
+    "MTOShipmentWithoutServiceItems": {
+      "type": "object",
       "properties": {
         "actualDeliveryDate": {
           "description": "The date when the Prime contractor actually delivered the shipment. Updated after-the-fact.",
@@ -2390,14 +2439,6 @@ func init() {
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
-        "mtoServiceItems": {
-          "description": "A list of service items connected to this shipment.",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/MTOServiceItem"
-          },
-          "readOnly": true
-        },
         "ntsRecordedWeight": {
           "description": "The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.",
           "type": "integer",
@@ -2441,13 +2482,6 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false,
           "readOnly": true
-        },
-        "rejectionReason": {
-          "description": "The reason why this shipment was rejected by the TOO.",
-          "type": "string",
-          "x-nullable": true,
-          "readOnly": true,
-          "example": "MTO Shipment not good enough"
         },
         "requestedDeliveryDate": {
           "description": "The customer's preferred delivery date.",
@@ -2542,38 +2576,11 @@ func init() {
         }
       }
     },
-    "MTOShipmentType": {
-      "description": "The type of shipment.\n  * ` + "`" + `HHG` + "`" + ` = Household goods move\n  * ` + "`" + `HHG_INTO_NTS_DOMESTIC` + "`" + ` = HHG into Non-temporary storage (NTS)\n  * ` + "`" + `HHG_OUTOF_NTS_DOMESTIC` + "`" + ` = HHG out of Non-temporary storage (NTS Release)\n  * ` + "`" + `PPM` + "`" + ` = Personally Procured Move also known as Do It Yourself (DITY)\n",
-      "type": "string",
-      "title": "Shipment Type",
-      "enum": [
-        "BOAT_HAUL_AWAY",
-        "BOAT_TOW_AWAY",
-        "HHG",
-        "HHG_LONGHAUL_DOMESTIC",
-        "HHG_INTO_NTS_DOMESTIC",
-        "HHG_OUTOF_NTS_DOMESTIC",
-        "HHG_SHORTHAUL_DOMESTIC",
-        "INTERNATIONAL_HHG",
-        "INTERNATIONAL_UB",
-        "MOTORHOME",
-        "PPM"
-      ],
-      "x-display-value": {
-        "HHG": "Household goods move (HHG)",
-        "HHG_INTO_NTS_DOMESTIC": "HHG into Non-temporary storage (NTS)",
-        "HHG_LONGHAUL_DOMESTIC": "Domestic Longhaul HHG",
-        "HHG_OUTOF_NTS_DOMESTIC": "HHG out of Non-temporary storage (NTS Release)",
-        "HHG_SHORTHAUL_DOMESTIC": "Domestic Shorthaul HHG",
-        "PPM": "Personally Procured Move also known as Do It Yourself (DITY)"
-      },
-      "example": "HHG"
-    },
-    "MTOShipments": {
-      "description": "A list of shipments.",
+    "MTOShipmentsWithoutServiceObjects": {
+      "description": "A list of shipments without their associated service items.",
       "type": "array",
       "items": {
-        "$ref": "#/definitions/MTOShipment"
+        "$ref": "#/definitions/MTOShipmentWithoutServiceItems"
       }
     },
     "MoveTaskOrder": {
@@ -2637,7 +2644,7 @@ func init() {
           }
         },
         "mtoShipments": {
-          "$ref": "#/definitions/MTOShipments"
+          "$ref": "#/definitions/MTOShipmentsWithoutServiceObjects"
         },
         "order": {
           "$ref": "#/definitions/Order"
@@ -3175,7 +3182,7 @@ func init() {
         "$ref": "#/definitions/PaymentServiceItem"
       }
     },
-    "ProofOfServiceDocs": {
+    "ProofOfServiceDoc": {
       "type": "object",
       "properties": {
         "uploads": {
@@ -3184,6 +3191,12 @@ func init() {
             "$ref": "#/definitions/UploadWithOmissions"
           }
         }
+      }
+    },
+    "ProofOfServiceDocs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ProofOfServiceDoc"
       }
     },
     "ReServiceCode": {
@@ -4448,7 +4461,7 @@ func init() {
     },
     "/mto-service-items/{mtoServiceItemID}": {
       "patch": {
-        "description": "Updates MTOServiceItems after creation. Not all service items or fields may be updated, please see details below.\n\nThis endpoint supports different body definitions. In the modelType field below, select the modelType corresponding\n to the service item you wish to update and the documentation will update with the new definition.\n\nTo create a service item, please use [createMTOServiceItem](#operation/createMTOServiceItem)) endpoint.\n",
+        "description": "Updates MTOServiceItems after creation. Not all service items or fields may be updated, please see details below.\n\nThis endpoint supports different body definitions. In the modelType field below, select the modelType corresponding\n to the service item you wish to update and the documentation will update with the new definition.\n\n* Addresses: You can add a new SIT Destination final address using this endpoint (and must use this endpoint to do so), but you cannot update an existing one.\nPlease use [createSITAddressUpdateRequest](#operation/createSITAddressUpdateRequest) instead.\n\nTo create a service item, please use [createMTOServiceItem](#operation/createMTOServiceItem)) endpoint.\n",
         "consumes": [
           "application/json"
         ],
@@ -6388,7 +6401,7 @@ func init() {
       }
     },
     "MTOServiceItem": {
-      "description": "MTOServiceItem describes a base type of a service item. Polymorphic type. Both Move Task Orders and MTO Shipments will have MTO Service Items.",
+      "description": "MTOServiceItem describes a base type of a service item. Polymorphic type.",
       "type": "object",
       "required": [
         "modelType",
@@ -6666,6 +6679,9 @@ func init() {
             "sitHHGActualOrigin": {
               "$ref": "#/definitions/Address"
             },
+            "sitHHGOriginalOrigin": {
+              "$ref": "#/definitions/Address"
+            },
             "sitPostalCode": {
               "type": "string",
               "format": "zip",
@@ -6731,6 +6747,52 @@ func init() {
       "readOnly": true
     },
     "MTOShipment": {
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/definitions/MTOShipmentWithoutServiceItems"
+        }
+      ],
+      "properties": {
+        "mtoServiceItems": {
+          "description": "A list of service items connected to this shipment.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MTOServiceItem"
+          },
+          "readOnly": true
+        }
+      }
+    },
+    "MTOShipmentType": {
+      "description": "The type of shipment.\n  * ` + "`" + `HHG` + "`" + ` = Household goods move\n  * ` + "`" + `HHG_INTO_NTS_DOMESTIC` + "`" + ` = HHG into Non-temporary storage (NTS)\n  * ` + "`" + `HHG_OUTOF_NTS_DOMESTIC` + "`" + ` = HHG out of Non-temporary storage (NTS Release)\n  * ` + "`" + `PPM` + "`" + ` = Personally Procured Move also known as Do It Yourself (DITY)\n",
+      "type": "string",
+      "title": "Shipment Type",
+      "enum": [
+        "BOAT_HAUL_AWAY",
+        "BOAT_TOW_AWAY",
+        "HHG",
+        "HHG_LONGHAUL_DOMESTIC",
+        "HHG_INTO_NTS_DOMESTIC",
+        "HHG_OUTOF_NTS_DOMESTIC",
+        "HHG_SHORTHAUL_DOMESTIC",
+        "INTERNATIONAL_HHG",
+        "INTERNATIONAL_UB",
+        "MOTORHOME",
+        "PPM"
+      ],
+      "x-display-value": {
+        "HHG": "Household goods move (HHG)",
+        "HHG_INTO_NTS_DOMESTIC": "HHG into Non-temporary storage (NTS)",
+        "HHG_LONGHAUL_DOMESTIC": "Domestic Longhaul HHG",
+        "HHG_OUTOF_NTS_DOMESTIC": "HHG out of Non-temporary storage (NTS Release)",
+        "HHG_SHORTHAUL_DOMESTIC": "Domestic Shorthaul HHG",
+        "PPM": "Personally Procured Move also known as Do It Yourself (DITY)"
+      },
+      "example": "HHG"
+    },
+    "MTOShipmentWithoutServiceItems": {
+      "type": "object",
       "properties": {
         "actualDeliveryDate": {
           "description": "The date when the Prime contractor actually delivered the shipment. Updated after-the-fact.",
@@ -6817,14 +6879,6 @@ func init() {
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
-        "mtoServiceItems": {
-          "description": "A list of service items connected to this shipment.",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/MTOServiceItem"
-          },
-          "readOnly": true
-        },
         "ntsRecordedWeight": {
           "description": "The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.",
           "type": "integer",
@@ -6868,13 +6922,6 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false,
           "readOnly": true
-        },
-        "rejectionReason": {
-          "description": "The reason why this shipment was rejected by the TOO.",
-          "type": "string",
-          "x-nullable": true,
-          "readOnly": true,
-          "example": "MTO Shipment not good enough"
         },
         "requestedDeliveryDate": {
           "description": "The customer's preferred delivery date.",
@@ -6969,38 +7016,11 @@ func init() {
         }
       }
     },
-    "MTOShipmentType": {
-      "description": "The type of shipment.\n  * ` + "`" + `HHG` + "`" + ` = Household goods move\n  * ` + "`" + `HHG_INTO_NTS_DOMESTIC` + "`" + ` = HHG into Non-temporary storage (NTS)\n  * ` + "`" + `HHG_OUTOF_NTS_DOMESTIC` + "`" + ` = HHG out of Non-temporary storage (NTS Release)\n  * ` + "`" + `PPM` + "`" + ` = Personally Procured Move also known as Do It Yourself (DITY)\n",
-      "type": "string",
-      "title": "Shipment Type",
-      "enum": [
-        "BOAT_HAUL_AWAY",
-        "BOAT_TOW_AWAY",
-        "HHG",
-        "HHG_LONGHAUL_DOMESTIC",
-        "HHG_INTO_NTS_DOMESTIC",
-        "HHG_OUTOF_NTS_DOMESTIC",
-        "HHG_SHORTHAUL_DOMESTIC",
-        "INTERNATIONAL_HHG",
-        "INTERNATIONAL_UB",
-        "MOTORHOME",
-        "PPM"
-      ],
-      "x-display-value": {
-        "HHG": "Household goods move (HHG)",
-        "HHG_INTO_NTS_DOMESTIC": "HHG into Non-temporary storage (NTS)",
-        "HHG_LONGHAUL_DOMESTIC": "Domestic Longhaul HHG",
-        "HHG_OUTOF_NTS_DOMESTIC": "HHG out of Non-temporary storage (NTS Release)",
-        "HHG_SHORTHAUL_DOMESTIC": "Domestic Shorthaul HHG",
-        "PPM": "Personally Procured Move also known as Do It Yourself (DITY)"
-      },
-      "example": "HHG"
-    },
-    "MTOShipments": {
-      "description": "A list of shipments.",
+    "MTOShipmentsWithoutServiceObjects": {
+      "description": "A list of shipments without their associated service items.",
       "type": "array",
       "items": {
-        "$ref": "#/definitions/MTOShipment"
+        "$ref": "#/definitions/MTOShipmentWithoutServiceItems"
       }
     },
     "MoveTaskOrder": {
@@ -7064,7 +7084,7 @@ func init() {
           }
         },
         "mtoShipments": {
-          "$ref": "#/definitions/MTOShipments"
+          "$ref": "#/definitions/MTOShipmentsWithoutServiceObjects"
         },
         "order": {
           "$ref": "#/definitions/Order"
@@ -7602,7 +7622,7 @@ func init() {
         "$ref": "#/definitions/PaymentServiceItem"
       }
     },
-    "ProofOfServiceDocs": {
+    "ProofOfServiceDoc": {
       "type": "object",
       "properties": {
         "uploads": {
@@ -7611,6 +7631,12 @@ func init() {
             "$ref": "#/definitions/UploadWithOmissions"
           }
         }
+      }
+    },
+    "ProofOfServiceDocs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ProofOfServiceDoc"
       }
     },
     "ReServiceCode": {

@@ -314,6 +314,16 @@ func (g ghcPaymentRequestInvoiceGenerator) createServiceMemberDetailSegments(pay
 		ReferenceIdentification:          string(*branch),
 	}
 
+	// dod id
+	dodID := serviceMember.Edipi
+	if dodID == nil {
+		return apperror.NewConflictError(serviceMember.ID, fmt.Sprintf("no dod id found for ServiceMember ID: %s Payment Request ID: %s", serviceMember.ID, paymentRequestID))
+	}
+	header.ServiceMemberDodID = edisegment.N9{
+		ReferenceIdentificationQualifier: "4A",
+		ReferenceIdentification:          string(*dodID),
+	}
+
 	return nil
 }
 
@@ -539,7 +549,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(ap
 	return nil
 }
 
-func (g ghcPaymentRequestInvoiceGenerator) createLoaSegments(orders models.Order, shipment models.MTOShipment) (edisegment.FA1, edisegment.FA2, error) {
+func (g ghcPaymentRequestInvoiceGenerator) createLoaSegments(orders models.Order, shipment models.MTOShipment) (edisegment.FA1, []edisegment.FA2, error) {
 	// We need to determine which TAC to use. We'll default to using the HHG TAC as that's what we've been doing
 	// up to this point. But now we need to look at the service item's MTOShipment (if there is one -- some
 	// service items like MS/CS aren't associated with a shipment) and see if it prefers the NTS TAC instead.
@@ -555,14 +565,42 @@ func (g ghcPaymentRequestInvoiceGenerator) createLoaSegments(orders models.Order
 	var tac string
 	if useHHGTac {
 		if orders.TAC == nil || *orders.TAC == "" {
-			return edisegment.FA1{}, edisegment.FA2{}, apperror.NewConflictError(orders.ID, "Invalid order. Must have an HHG TAC value")
+			return edisegment.FA1{}, nil, apperror.NewConflictError(orders.ID, "Invalid order. Must have an HHG TAC value")
 		}
 		tac = *orders.TAC
 	} else {
 		if orders.NtsTAC == nil || *orders.NtsTAC == "" {
-			return edisegment.FA1{}, edisegment.FA2{}, apperror.NewConflictError(orders.ID, "Invalid order. Must have an NTS TAC value")
+			return edisegment.FA1{}, nil, apperror.NewConflictError(orders.ID, "Invalid order. Must have an NTS TAC value")
 		}
 		tac = *orders.NtsTAC
+	}
+
+	// Get SAC or SDN from orders. Use the HHG one by default (blank or SACType HHG), use the NTS if SACType is NTS.
+	useHHGSac := true
+	if shipment.ID != uuid.Nil {
+		// We do have a shipment, so see if the shipment prefers the NTS SAC or SDN.
+		if shipment.SACType != nil && *shipment.SACType == models.LOATypeNTS {
+			useHHGSac = false
+		}
+	}
+
+	// Now grab the preferred SAC or SDN, making sure that it actually exists on the orders record.
+	var sac string
+	if useHHGSac {
+		if orders.SAC != nil && *orders.SAC != "" {
+			sac = *orders.SAC
+			if len(sac) > 80 {
+				return edisegment.FA1{}, nil, apperror.NewConflictError(orders.ID, "Invalid order. HHG SAC/SDN must be 80 characters or less")
+			}
+		}
+
+	} else {
+		if orders.NtsSAC != nil && *orders.NtsSAC != "" {
+			sac = *orders.NtsSAC
+			if len(sac) > 80 {
+				return edisegment.FA1{}, nil, apperror.NewConflictError(orders.ID, "Invalid order. NTS SAC/SDN must be 80 characters or less")
+			}
+		}
 	}
 
 	affiliation := models.ServiceMemberAffiliation(*orders.DepartmentIndicator)
@@ -581,7 +619,19 @@ func (g ghcPaymentRequestInvoiceGenerator) createLoaSegments(orders models.Order
 		FinancialInformationCode:     tac,
 	}
 
-	return fa1, fa2, nil
+	if sac == "" {
+
+		return fa1, []edisegment.FA2{fa2}, nil
+
+	}
+
+	fa2sac := edisegment.FA2{
+		BreakdownStructureDetailCode: "ZZ",
+		FinancialInformationCode:     sac,
+	}
+
+	return fa1, []edisegment.FA2{fa2, fa2sac}, nil
+
 }
 
 func (g ghcPaymentRequestInvoiceGenerator) fetchPaymentServiceItemParam(appCtx appcontext.AppContext, serviceItemID uuid.UUID, key models.ServiceItemParamName) (models.PaymentServiceItemParam, error) {
@@ -822,12 +872,12 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(ap
 
 		}
 
-		fa1, fa2, err := g.createLoaSegments(orders, serviceItem.MTOServiceItem.MTOShipment)
+		fa1, fa2s, err := g.createLoaSegments(orders, serviceItem.MTOServiceItem.MTOShipment)
 		if err != nil {
 			return segments, l3, err
 		}
 		newSegment.FA1 = fa1
-		newSegment.FA2 = fa2
+		newSegment.FA2s = fa2s
 		segments = append(segments, newSegment)
 	}
 

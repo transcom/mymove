@@ -38,6 +38,13 @@ func (v *basicUpdateMTOServiceItemValidator) validate(appCtx appcontext.AppConte
 		return err
 	}
 
+	// Checks that SITDestinationOriginalAddress isn't added/or updated using the updater
+	// Should only be set when approving a service item
+	err = serviceItemData.checkSITDestinationOriginalAddress(appCtx)
+	if err != nil {
+		return err
+	}
+
 	err = serviceItemData.getVerrs()
 	if err != nil {
 		return err
@@ -86,6 +93,20 @@ func (v *primeUpdateMTOServiceItemValidator) validate(appCtx appcontext.AppConte
 
 	// Checks that only SITDepartureDate is only updated for DDDSIT and DOPSIT objects
 	err = serviceItemData.checkSITDeparture(appCtx)
+	if err != nil {
+		return err
+	}
+
+	// Checks that SITDestinationOriginalAddress isn't added/or updated using the updater
+	// Should only be set when approving a service item
+	err = serviceItemData.checkSITDestinationOriginalAddress(appCtx)
+	if err != nil {
+		return err
+	}
+
+	// Checks that SITDestinationFinalAddress isn't updated through this endpoint
+	// Should use the createSITAddressUpdate endpoint
+	err = serviceItemData.checkSITDestinationFinalAddress(appCtx)
 	if err != nil {
 		return err
 	}
@@ -169,6 +190,39 @@ func (v *updateMTOServiceItemData) checkSITDeparture(appCtx appcontext.AppContex
 		fmt.Sprintf("- SIT Departure Date may only be manually updated for %s and %s service items.", models.ReServiceCodeDDDSIT, models.ReServiceCodeDOPSIT))
 }
 
+// checkSITDestinationOriginalAddress checks that SITDestinationOriginalAddress isn't being changed
+func (v *updateMTOServiceItemData) checkSITDestinationOriginalAddress(appCtx appcontext.AppContext) error {
+	if v.updatedServiceItem.SITDestinationOriginalAddress != nil {
+		v.verrs.Add("SITDestinationOriginalAddress", "cannot be manually set")
+	}
+
+	return nil
+}
+
+// checkSITDestinationFinalAddress checks that SITDestinationFinalAddress isn't being changed
+func (v *updateMTOServiceItemData) checkSITDestinationFinalAddress(appCtx appcontext.AppContext) error {
+	if v.updatedServiceItem.SITDestinationFinalAddress == nil {
+		return nil // SITDestinationFinalAddress isn't being updated, so we're fine here
+	}
+
+	if v.oldServiceItem.SITDestinationFinalAddressID == nil {
+		return nil // the SITDestinationFinalAddress is being created, so we're fine here
+	}
+
+	if v.oldServiceItem.ReService.Code != models.ReServiceCodeDDDSIT {
+		return apperror.NewConflictError(v.updatedServiceItem.ID,
+			fmt.Sprintf("- SIT Destination Final Address may only be manually created for %s service items.", models.ReServiceCodeDDDSIT))
+	}
+
+	if *v.oldServiceItem.SITDestinationFinalAddressID != uuid.Nil &&
+		v.updatedServiceItem.SITDestinationFinalAddress != nil &&
+		v.updatedServiceItem.SITDestinationFinalAddress.ID != *v.oldServiceItem.SITDestinationFinalAddressID {
+		v.verrs.Add("SITDestinationFinalAddress", "cannot be updated")
+	}
+
+	return nil
+}
+
 // checkPaymentRequests looks for any existing payment requests connected to this service item and returns a
 // Conflict Error if any are found
 func (v *updateMTOServiceItemData) checkPaymentRequests(appCtx appcontext.AppContext) error {
@@ -236,15 +290,7 @@ func (v *updateMTOServiceItemData) setNewMTOServiceItem() *models.MTOServiceItem
 
 	if v.updatedServiceItem.SITDestinationFinalAddress != nil {
 		newMTOServiceItem.SITDestinationFinalAddress = v.updatedServiceItem.SITDestinationFinalAddress
-
-		// If the old service item had an address, we need to save its ID on both the service item object
-		// and the address object, so we can update the existing record instead of making a new one.
-		if v.oldServiceItem.SITDestinationFinalAddressID != nil {
-			newMTOServiceItem.SITDestinationFinalAddressID = v.oldServiceItem.SITDestinationFinalAddressID
-			newMTOServiceItem.SITDestinationFinalAddress.ID = *v.oldServiceItem.SITDestinationFinalAddressID
-		} else {
-			newMTOServiceItem.SITDestinationFinalAddressID = v.updatedServiceItem.SITDestinationFinalAddressID
-		}
+		newMTOServiceItem.SITDestinationFinalAddressID = &v.updatedServiceItem.SITDestinationFinalAddress.ID
 	}
 
 	// Set customer contact fields

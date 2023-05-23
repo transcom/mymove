@@ -402,9 +402,9 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		}
 		newServiceItem := serviceItemData.setNewMTOServiceItem()
 
-		// Check that the IDs match the old address since we want to update that one in the DB.
-		suite.Equal(newServiceItem.SITDestinationFinalAddressID, &oldSitDestinationFinalAddress.ID)
-		suite.Equal(newServiceItem.SITDestinationFinalAddress.ID, oldSitDestinationFinalAddress.ID)
+		// Check that the IDs do not match the old address since we want to replace the record.
+		suite.NotEqual(newServiceItem.SITDestinationFinalAddressID, &oldSitDestinationFinalAddress.ID)
+		suite.NotEqual(newServiceItem.SITDestinationFinalAddress.ID, oldSitDestinationFinalAddress.ID)
 
 		// Check that the address information matches the new address.
 		suite.Equal(newServiceItem.SITDestinationFinalAddress.PostalCode, newSitDestinationFinalAddress.PostalCode)
@@ -446,5 +446,135 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		suite.Equal(newServiceItem.SITDestinationFinalAddress.PostalCode, newSitDestinationFinalAddress.PostalCode)
 		suite.Equal(newServiceItem.SITDestinationFinalAddress.StreetAddress1, newSitDestinationFinalAddress.StreetAddress1)
 		suite.Equal(newServiceItem.SITDestinationFinalAddress.City, newSitDestinationFinalAddress.City)
+	})
+
+	suite.Run("checkSITDestinationFinalAddress - adding SITDestinationFinalAddress", func() {
+		oldServiceItemPrime := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil),
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDDSIT,
+				},
+			},
+		}, nil)
+		newServiceItemPrime := oldServiceItemPrime
+
+		// Try to update SITDestinationFinalAddress
+		newAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress3})
+		newServiceItemPrime.SITDestinationFinalAddress = &newAddress
+
+		serviceItemData := updateMTOServiceItemData{
+			updatedServiceItem:  newServiceItemPrime,
+			oldServiceItem:      oldServiceItemPrime,
+			verrs:               validate.NewErrors(),
+			availabilityChecker: checker,
+		}
+		err := serviceItemData.checkSITDestinationFinalAddress(suite.AppContextForTest())
+
+		suite.NoError(err)
+	})
+
+	suite.Run("checkSITDestinationFinalAddress - invalid input failure: SITDestinationFinalAddress", func() {
+		oldServiceItemPrime := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil),
+				LinkOnly: true,
+			},
+			{
+				Model: models.Address{},
+				Type:  &factory.Addresses.SITDestinationFinalAddress,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDASIT,
+				},
+			},
+		}, nil)
+		newServiceItemPrime := oldServiceItemPrime
+
+		// Try to update SITDestinationFinalAddress
+		newAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress3})
+		newServiceItemPrime.SITDestinationFinalAddress = &newAddress
+
+		serviceItemData := updateMTOServiceItemData{
+			updatedServiceItem:  newServiceItemPrime,
+			oldServiceItem:      oldServiceItemPrime,
+			verrs:               validate.NewErrors(),
+			availabilityChecker: checker,
+		}
+		err := serviceItemData.checkSITDestinationFinalAddress(suite.AppContextForTest())
+
+		suite.Error(err)
+		conflictError := apperror.ConflictError{}
+		suite.IsType(conflictError, err)
+	})
+
+	suite.Run("checkSITDestinationFinalAddress - invalid input failure: SITDestinationFinalAddress", func() {
+		oldServiceItemPrime := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil),
+				LinkOnly: true,
+			},
+			{
+				Model: models.Address{},
+				Type:  &factory.Addresses.SITDestinationFinalAddress,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDDSIT,
+				},
+			},
+		}, nil)
+		newServiceItemPrime := oldServiceItemPrime
+
+		// Try to update SITDestinationFinalAddress
+		newAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress3})
+		newServiceItemPrime.SITDestinationFinalAddress = &newAddress
+
+		serviceItemData := updateMTOServiceItemData{
+			updatedServiceItem:  newServiceItemPrime,
+			oldServiceItem:      oldServiceItemPrime,
+			verrs:               validate.NewErrors(),
+			availabilityChecker: checker,
+		}
+		err := serviceItemData.checkSITDestinationFinalAddress(suite.AppContextForTest())
+
+		suite.NoError(err)
+		suite.True(serviceItemData.verrs.HasAny())
+		suite.Contains(serviceItemData.verrs.Keys(), "SITDestinationFinalAddress")
+	})
+
+	suite.Run("checkSITDestinationOriginalAddress - invalid input failure: SITDestinationOriginalAddress", func() {
+		oldServiceItemPrime := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil),
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDDSIT,
+				},
+			},
+		}, nil)
+		newServiceItemPrime := oldServiceItemPrime
+
+		// Try to update SITDestinationFinalAddress
+		newAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress3})
+		newServiceItemPrime.SITDestinationOriginalAddress = &newAddress
+
+		serviceItemData := updateMTOServiceItemData{
+			updatedServiceItem:  newServiceItemPrime,
+			oldServiceItem:      oldServiceItemPrime,
+			verrs:               validate.NewErrors(),
+			availabilityChecker: checker,
+		}
+		err := serviceItemData.checkSITDestinationOriginalAddress(suite.AppContextForTest())
+
+		suite.NoError(err)
+		suite.True(serviceItemData.verrs.HasAny())
+		suite.Contains(serviceItemData.verrs.Keys(), "SITDestinationOriginalAddress")
 	})
 }
