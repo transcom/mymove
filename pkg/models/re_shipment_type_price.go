@@ -38,7 +38,6 @@ func (r *ReShipmentTypePrice) Validate(tx *pop.Connection) (*validate.Errors, er
 		&validators.UUIDIsPresent{Field: r.ServiceID, Name: "ServiceID"},
 		&validators.StringIsPresent{Field: r.Market.String(), Name: "Market"},
 		&validators.StringInclusion{Field: r.Market.String(), Name: "Market", List: validMarkets},
-		&Float64IsPresent{Field: r.Factor, Name: "Factor"},
-		&Float64IsGreaterThan{Field: r.Factor, Name: "Factor", Compared: 0},
+		&Float64IsGreaterThan{Field: r.Factor, Name: "Factor", Compared: -0.01},
 	), nil
 }

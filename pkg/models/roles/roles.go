@@ -78,3 +78,13 @@ func (r *Role) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		&validators.StringIsPresent{Field: string(r.RoleType), Name: "RoleType"},
 	), nil
 }
+
+// FetchRolesForUser gets the active RoleTypes for the user
+func FetchRolesForUser(db *pop.Connection, userID uuid.UUID) (Roles, error) {
+	var roles Roles
+
+	err := db.Q().Join("users_roles", "users_roles.role_id = roles.id").
+		Where("users_roles.deleted_at IS NULL AND users_roles.user_id = ?", (userID)).
+		All(&roles)
+	return roles, err
+}
