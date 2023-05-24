@@ -224,6 +224,63 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		suite.Equal(int64(sitEstimatedCost), *createdPPM.SitEstimatedCost)
 	})
 
+	suite.Run("Successful POST with Shuttle service items without primeEstimatedWeight - Integration Test", func() {
+		// Under Test: CreateMTOShipment handler code
+		// Setup:   Create an mto shipment on an available move
+		// Expected:   Successful submission, status should be SUBMITTED
+		handler, move := setupTestData()
+		req := httptest.NewRequest("POST", "/mto-shipments", nil)
+
+		serviceItem := factory.BuildMTOServiceItemBasic(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					Reason: models.StringPointer("not applicable"),
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDSHUT,
+				},
+			},
+		}, nil)
+		serviceItem.ID = uuid.Nil
+
+		params := mtoshipmentops.CreateMTOShipmentParams{
+			HTTPRequest: req,
+			Body: &primemessages.CreateMTOShipment{
+				MoveTaskOrderID:     handlers.FmtUUID(move.ID),
+				Agents:              nil,
+				CustomerRemarks:     nil,
+				PointOfContact:      "John Doe",
+				RequestedPickupDate: handlers.FmtDatePtr(models.TimePointer(time.Now())),
+				ShipmentType:        primemessages.NewMTOShipmentType(primemessages.MTOShipmentTypeHHG),
+				PickupAddress:       struct{ primemessages.Address }{pickupAddress},
+				DestinationAddress:  struct{ primemessages.Address }{destinationAddress},
+			},
+		}
+
+		mtoServiceItems := models.MTOServiceItems{serviceItem}
+		params.Body.SetMtoServiceItems(*payloads.MTOServiceItems(&mtoServiceItems))
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.CreateMTOShipmentOK{}, response)
+		okResponse := response.(*mtoshipmentops.CreateMTOShipmentOK)
+		createMTOShipmentPayload := okResponse.Payload
+
+		// Validate outgoing payload
+		suite.NoError(createMTOShipmentPayload.Validate(strfmt.Default))
+
+		// check that the mto shipment status is Submitted
+		suite.Require().Equal(createMTOShipmentPayload.Status, primemessages.MTOShipmentWithoutServiceItemsStatusSUBMITTED, "MTO Shipment should have been submitted")
+	})
+
 	suite.Run("POST failure - 500", func() {
 		// Under Test: CreateMTOShipmentHandler
 		// Mocked:     CreateMTOShipment creator
@@ -524,7 +581,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 
 	// Mock planner to always return a distance of 400 mi
 	planner := &routemocks.Planner{}
-	planner.On("TransitDistance",
+	planner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
@@ -556,7 +613,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		}
 		_, _ = suite.DB().ValidateAndCreate(&ghcDomesticTransitTime)
 		handlerConfig := suite.HandlerConfig()
-		handlerConfig.SetPlanner(planner)
+		handlerConfig.SetHHGPlanner(planner)
 		handler := UpdateMTOShipmentHandler{
 			handlerConfig,
 			shipmentUpdater,
@@ -1312,7 +1369,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressLogic() {
 	builder := query.NewQueryBuilder()
 	fetcher := fetch.NewFetcher(builder)
 	planner := &routemocks.Planner{}
-	planner.On("TransitDistance",
+	planner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
@@ -1333,7 +1390,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressLogic() {
 
 	setupTestData := func() (UpdateMTOShipmentHandler, models.MTOShipment) {
 		handlerConfig := suite.HandlerConfig()
-		handlerConfig.SetPlanner(planner)
+		handlerConfig.SetHHGPlanner(planner)
 		handler := UpdateMTOShipmentHandler{
 			handlerConfig,
 			shipmentUpdater,
@@ -1514,7 +1571,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 
 	// Mock planner to always return a distance of 400 mi
 	planner := &routemocks.Planner{}
-	planner.On("TransitDistance",
+	planner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
@@ -1548,7 +1605,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 
 	setupTestData := func() (UpdateMTOShipmentHandler, models.Move) {
 		handlerConfig := suite.HandlerConfig()
-		handlerConfig.SetPlanner(planner)
+		handlerConfig.SetHHGPlanner(planner)
 		handler := UpdateMTOShipmentHandler{
 			handlerConfig,
 			shipmentUpdater,
@@ -2051,7 +2108,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 	builder := query.NewQueryBuilder()
 	fetcher := fetch.NewFetcher(builder)
 	planner := &routemocks.Planner{}
-	planner.On("TransitDistance",
+	planner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
@@ -2067,7 +2124,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 
 	setupTestData := func() (UpdateMTOShipmentStatusHandler, models.MTOShipment) {
 		handlerConfig := suite.HandlerConfig()
-		handlerConfig.SetPlanner(planner)
+		handlerConfig.SetHHGPlanner(planner)
 		handler := UpdateMTOShipmentStatusHandler{
 			handlerConfig,
 			mtoshipment.NewPrimeMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, suite.TestNotificationSender(), paymentRequestShipmentRecalculator),
