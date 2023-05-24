@@ -9,8 +9,8 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
-// approvedSITAddressUpdateCreator is the concrete struct implementing the services.ApprovedSITAddressUpdateCreator interface
-type approvedSITAddressUpdateCreator struct {
+// approvedSITAddressUpdateRequestCreator is the concrete struct implementing the services.ApprovedSITAddressUpdateRequestCreator interface
+type approvedSITAddressUpdateRequestCreator struct {
 	planner            route.Planner
 	addressCreator     services.AddressCreator
 	serviceItemUpdater services.MTOServiceItemUpdater
@@ -18,8 +18,8 @@ type approvedSITAddressUpdateCreator struct {
 }
 
 // NewApprovedOfficeSITAddressUpdateCreator creates a new struct with the service dependencies
-func NewApprovedOfficeSITAddressUpdateCreator(planner route.Planner, addressCreator services.AddressCreator, serviceItemUpdater services.MTOServiceItemUpdater) services.ApprovedSITAddressUpdateCreator {
-	return &approvedSITAddressUpdateCreator{
+func NewApprovedOfficeSITAddressUpdateCreator(planner route.Planner, addressCreator services.AddressCreator, serviceItemUpdater services.MTOServiceItemUpdater) services.ApprovedSITAddressUpdateRequestCreator {
+	return &approvedSITAddressUpdateRequestCreator{
 		planner:            planner,
 		addressCreator:     addressCreator,
 		serviceItemUpdater: serviceItemUpdater,
@@ -31,7 +31,7 @@ func NewApprovedOfficeSITAddressUpdateCreator(planner route.Planner, addressCrea
 }
 
 // CreateSITAddressUpdate creates a SIT Address Update
-func (f *approvedSITAddressUpdateCreator) CreateApprovedSITAddressUpdate(appCtx appcontext.AppContext, sitAddressUpdate *models.SITAddressUpdate) (*models.SITAddressUpdate, error) {
+func (f *approvedSITAddressUpdateRequestCreator) CreateApprovedSITAddressUpdate(appCtx appcontext.AppContext, sitAddressUpdate *models.SITAddressUpdate) (*models.SITAddressUpdate, error) {
 	var err error
 	if err = validateSITAddressUpdate(appCtx, sitAddressUpdate, f.checks...); err != nil {
 		return nil, err

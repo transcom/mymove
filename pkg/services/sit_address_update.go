@@ -7,10 +7,10 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-// ApprovedSITAddressUpdateCreator Interface for the service object that creates an approved SIT Address Update
+// ApprovedSITAddressUpdateRequestCreator Interface for the service object that creates an approved SIT Address Update
 //
-//go:generate mockery --name ApprovedSITAddressUpdateCreator
-type ApprovedSITAddressUpdateCreator interface {
+//go:generate mockery --name ApprovedSITAddressUpdateRequestCreator
+type ApprovedSITAddressUpdateRequestCreator interface {
 	CreateApprovedSITAddressUpdate(appCtx appcontext.AppContext, sitAddressUpdate *models.SITAddressUpdate) (*models.SITAddressUpdate, error)
 }
 

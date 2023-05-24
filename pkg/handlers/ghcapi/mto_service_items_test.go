@@ -689,7 +689,7 @@ func (suite *HandlerSuite) TestCreateSITAddressUpdate() {
 	})
 
 	suite.Run("Returns 404 when creator returns NotFoundError", func() {
-		creator := &mocks.ApprovedSITAddressUpdateCreator{}
+		creator := &mocks.ApprovedSITAddressUpdateRequestCreator{}
 		creator.On(
 			"CreateApprovedSITAddressUpdate",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -802,7 +802,7 @@ func (suite *HandlerSuite) TestCreateSITAddressUpdate() {
 	})
 
 	suite.Run("Returns 500 when approver returns unexpected error", func() {
-		creator := &mocks.ApprovedSITAddressUpdateCreator{}
+		creator := &mocks.ApprovedSITAddressUpdateRequestCreator{}
 		creator.On(
 			"CreateApprovedSITAddressUpdate",
 			mock.AnythingOfType("*appcontext.appContext"),
