@@ -24,6 +24,7 @@ func NewSITAddressUpdateRequestCreator(planner route.Planner, addressCreator ser
 		checks: []sitAddressUpdateValidator{
 			checkAndValidateRequiredFields(),
 			checkPrimeRequiredFields(),
+			checkForExistingSITAddressUpdate(),
 		},
 		moveRouter: moveRouter,
 	}

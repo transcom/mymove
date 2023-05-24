@@ -27,12 +27,6 @@ func checkAndValidateRequiredFields() sitAddressUpdateValidator {
 			verrs.Add("serviceItem", "MTOServiceItem is required")
 		}
 
-		var existingSITAddressUpdate models.SITAddressUpdate
-		err = appCtx.DB().Where("mto_service_item_id = ?", sitAddressUpdate.MTOServiceItemID).First(&existingSITAddressUpdate)
-		if err == nil && existingSITAddressUpdate.Status == models.SITAddressUpdateStatusRequested {
-			verrs.Add("MTOServiceItem", "A SIT address update already exists for this service item")
-		}
-
 		var serviceItem models.MTOServiceItem
 		err = appCtx.DB().Where("id = ?", sitAddressUpdate.MTOServiceItemID).First(&serviceItem)
 		if err != nil {
@@ -69,6 +63,20 @@ func checkPrimeRequiredFields() sitAddressUpdateValidator {
 
 		if sitAddressUpdate.ContractorRemarks == nil {
 			verrs.Add("ContractorRemarks", "ContractorRemarks are required")
+		}
+
+		return verrs
+	})
+}
+
+func checkForExistingSITAddressUpdate() sitAddressUpdateValidator {
+	return sitAddressUpdateValidatorFunc(func(appCtx appcontext.AppContext, sitAddressUpdate *models.SITAddressUpdate) error {
+		verrs := validate.NewErrors()
+
+		var existingSITAddressUpdate models.SITAddressUpdate
+		err := appCtx.DB().Where("mto_service_item_id = ?", sitAddressUpdate.MTOServiceItemID).First(&existingSITAddressUpdate)
+		if err == nil && existingSITAddressUpdate.Status == models.SITAddressUpdateStatusRequested {
+			verrs.Add("MTOServiceItem", "A pending SIT address update request already exists for this service item")
 		}
 
 		return verrs
