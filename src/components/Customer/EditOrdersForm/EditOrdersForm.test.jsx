@@ -232,7 +232,7 @@ describe('EditOrdersForm component', () => {
     });
   });
 
-  it('validates the new duty location against the current duty location', async () => {
+  it('allows new and current duty location to be the same', async () => {
     // Not testing the upload interaction, so give uploaded orders to the props.
     render(
       <EditOrdersForm
@@ -274,13 +274,7 @@ describe('EditOrdersForm component', () => {
       });
     });
 
-    expect(submitButton).toBeDisabled();
-
-    expect(
-      screen.getByText(
-        'You entered the same duty location for your origin and destination. Please change one of them.',
-      ),
-    ).toBeInTheDocument();
+    expect(submitButton).not.toHaveAttribute('disabled');
   });
 
   it('shows an error message if the form is invalid', async () => {
