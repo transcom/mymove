@@ -88,7 +88,7 @@ func (m *MTOServiceItem) Validate(tx *pop.Connection) (*validate.Errors, error) 
 
 func FetchServiceItem(db *pop.Connection, serviceItemID uuid.UUID) (MTOServiceItem, error) {
 	var serviceItem MTOServiceItem
-	err := db.Eager("SITDestinationFinalAddress").Where("id = ?", serviceItemID).First(&serviceItem)
+	err := db.Eager("SITDestinationFinalAddress", "SITDestinationOriginalAddress").Where("id = ?", serviceItemID).First(&serviceItem)
 
 	if err != nil {
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {
