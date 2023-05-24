@@ -2042,7 +2042,8 @@ func init() {
           "type": "object",
           "required": [
             "reServiceCode",
-            "sitEntryDate"
+            "sitEntryDate",
+            "reason"
           ],
           "properties": {
             "firstAvailableDeliveryDate1": {
@@ -2064,6 +2065,12 @@ func init() {
                 "DDFSIT",
                 "DDASIT"
               ]
+            },
+            "reason": {
+              "description": "The reason item has been placed in SIT.\n",
+              "type": "string",
+              "x-nullable": true,
+              "x-omitempty": false
             },
             "sitDepartureDate": {
               "description": "Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.",
@@ -6482,7 +6489,8 @@ func init() {
           "type": "object",
           "required": [
             "reServiceCode",
-            "sitEntryDate"
+            "sitEntryDate",
+            "reason"
           ],
           "properties": {
             "firstAvailableDeliveryDate1": {
@@ -6504,6 +6512,12 @@ func init() {
                 "DDFSIT",
                 "DDASIT"
               ]
+            },
+            "reason": {
+              "description": "The reason item has been placed in SIT.\n",
+              "type": "string",
+              "x-nullable": true,
+              "x-omitempty": false
             },
             "sitDepartureDate": {
               "description": "Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.",

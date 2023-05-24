@@ -1207,6 +1207,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 					ReServiceID:     reService.ID,
 					MTOShipmentID:   &shipment.ID,
 					SITEntryDate:    models.TimePointer(time.Now()),
+					Reason:          models.StringPointer("lorem epsum"),
 				},
 			},
 		}, nil)
