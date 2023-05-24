@@ -2,11 +2,9 @@ package dutystations
 
 import (
 	"encoding/csv"
-	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
 
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
@@ -16,8 +14,6 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/route"
 )
-
-const hereRequestTimeout = time.Duration(15) * time.Second
 
 const (
 	// InsertTemplate is the query insert template for duty stations
@@ -104,14 +100,7 @@ func (b *MigrationBuilder) findDutyStations(appCtx appcontext.AppContext, s Stat
 }
 
 func (b *MigrationBuilder) addressLatLong(appCtx appcontext.AppContext, address models.Address) (route.LatLong, error) {
-	geocodeEndpoint := os.Getenv("HERE_MAPS_GEOCODE_ENDPOINT")
-	routingEndpoint := os.Getenv("HERE_MAPS_ROUTING_ENDPOINT")
-	testAppID := os.Getenv("HERE_MAPS_APP_ID")
-	testAppCode := os.Getenv("HERE_MAPS_APP_CODE")
-	hereClient := &http.Client{Timeout: hereRequestTimeout}
-	p := route.NewHEREPlannerHP(hereClient, geocodeEndpoint, routingEndpoint, testAppID, testAppCode)
-
-	return p.GetAddressLatLong(appCtx, &address)
+	return route.Zip5ToLatLong(address.PostalCode)
 }
 
 func getCityState(appCtx appcontext.AppContext, unit string) (string, string) {
