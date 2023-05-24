@@ -95,7 +95,7 @@ export const MoveTaskOrder = (props) => {
   const [isWeightModalVisible, setIsWeightModalVisible] = useState(false);
   const [isWeightAlertVisible, setIsWeightAlertVisible] = useState(false);
   const [isSITAddressUpdateAlertVisible, setIsSITAddressUpdateAlertVisible] = useState(false);
-  const [isSITAddressModalVisible, setIsSITAddressModalVisible] = useState(false);
+  const [isRequestSITAddressModalVisible, setIsRequestSITAddressModalVisible] = useState(false);
   const [isSuccessAlertVisible, setIsSuccessAlertVisible] = useState(false);
   const [isFinancialModalVisible, setIsFinancialModalVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState(null);
@@ -720,6 +720,15 @@ export const MoveTaskOrder = (props) => {
     setIsEditSitAddressModalVisible(false);
   };
 
+  /**
+   * @description This is the handler function for cancelling or closeing the
+   * Request SIT Address Modal. This is used by the ConnectedServiceItemUpdateModal
+   * component to close the Request SIT Address modal.
+   * */
+  const handleCancelRequestAddressModal = () => {
+    setIsEditSitAddressModalVisible(false);
+  };
+
   const handleShowCancellationModal = (mtoShipment) => {
     setSelectedShipment(mtoShipment);
     setIsCancelModalVisible(true);
@@ -730,9 +739,17 @@ export const MoveTaskOrder = (props) => {
     setIsReweighModalVisible(true);
   };
 
-  const handleRequestSITAddressUpdateModal = (serviceItem) => {
+  /**
+   * @description This shows the request modal on a service item for SIT
+   * address updates. This is used by the RequestedServiceItemsTable to open
+   * the ConnectedServiceItemUpdateModal as a Review SIT Address modal.
+   * @param {string} mtoServiceItemID The service item's ID
+   * @param {string} mtoShipmentID The shipments's ID
+   * */
+  const handleRequestSITAddressUpdateModal = (mtoServiceItemID, mtoShipmentID) => {
+    const serviceItem = shipmentServiceItems[`${mtoShipmentID}`]?.find((item) => item.id === mtoServiceItemID);
     setSelectedSITAddressUpdateServiceItem(serviceItem);
-    setIsSITAddressModalVisible(true);
+    setIsRequestSITAddressModalVisible(true);
   };
 
   const handleShowWeightModal = () => {
@@ -889,11 +906,11 @@ export const MoveTaskOrder = (props) => {
           )}
 
           <ConnectedServiceItemUpdateModal
-            isOpen={isSITAddressModalVisible}
-            closeModal={setIsSITAddressModalVisible}
+            isOpen={isRequestSITAddressModalVisible}
+            closeModal={handleCancelRequestAddressModal}
             title="Review request: service item update"
             onSave={() => {}}
-            serviceItem={selectedSITAddressUpdateServiceItem}
+            serviceItem={selectedServiceItem}
           />
 
           <ConnectedEditMaxBillableWeightModal
