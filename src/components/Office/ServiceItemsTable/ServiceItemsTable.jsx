@@ -120,7 +120,7 @@ const ServiceItemsTable = ({
                       {sitAddressUpdates && hasSITAddressUpdate(sitAddressUpdates) ? (
                         <Button
                           type="button"
-                          data-testid="editTextButton"
+                          data-testid="TextButton"
                           className="text-blue usa-button--unstyled margin-left-1"
                         >
                           <span>

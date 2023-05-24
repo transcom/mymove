@@ -344,7 +344,7 @@ describe('ServiceItemsTable', () => {
       </MockProviders>,
     );
 
-    const editButton = wrapper.find('button[data-testid="editTextButton"]');
+    const editButton = wrapper.find('button[data-testid="requestTextButton"]');
 
     expect(editButton.length).toBeTruthy();
 
