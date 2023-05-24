@@ -991,25 +991,20 @@ paths:
         **DDFSIT**
 
 
-        **1st day destination SIT service item**. The additional fields are
-
-        optional for creating a DDFSIT:
+        **1st day origin SIT service item**. The additional fields are required
+        for creating a DDFSIT:
           * `firstAvailableDeliveryDate1`
             * string <date>
             * First available date that Prime can deliver SIT service item.
-            * If provided, `timeMilitary1` is required.
-          * `timeMilitary1`
-            * string\d{4}Z
-            * Time of delivery corresponding to `firstAvailableDeliveryDate1`, in military format.
-            * If provided, `firstAvailableDeliveryDate1` is required.
           * `firstAvailableDeliveryDate2`
             * string <date>
             * Second available date that Prime can deliver SIT service item.
-            * If provided, `timeMilitary2` is required.
+          * `timeMilitary1`
+            * string\d{4}Z
+            * Time of delivery corresponding to `firstAvailableDeliveryDate1`, in military format.
           * `timeMilitary2`
             * string\d{4}Z
             * Time of delivery corresponding to `firstAvailableDeliveryDate2`, in military format.
-            * If provided, `firstAvailableDeliveryDate2` is required.
 
         When a DDFSIT is requested, the API will auto-create the following group
         of service items:
@@ -1889,9 +1884,16 @@ definitions:
             x-nullable: true
           sitDestinationFinalAddress:
             $ref: '#/definitions/Address'
+          reason:
+            type: string
+            description: |
+              The reason item has been placed in SIT.
+            x-nullable: true
+            x-omitempty: false
         required:
           - reServiceCode
           - sitEntryDate
+          - reason
   MTOServiceItemDimension:
     description: >-
       The dimensions for either the item or the crate associated with a crating

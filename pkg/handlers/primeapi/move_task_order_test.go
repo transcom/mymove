@@ -1129,9 +1129,9 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOServiceItem{
-					RejectionReason: models.StringPointer("not applicable"),
-					MTOShipmentID:   &successShipment.ID,
-					// Reason:           models.StringPointer("there was a delay in getting the apartment"),
+					RejectionReason:  models.StringPointer("not applicable"),
+					MTOShipmentID:    &successShipment.ID,
+					Reason:           models.StringPointer("there was a delay in getting the apartment"),
 					SITEntryDate:     &nowDate,
 					SITDepartureDate: &later,
 					CustomerContacts: models.MTOServiceItemCustomerContacts{contact1, contact2},

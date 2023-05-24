@@ -56,6 +56,7 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 	DCRTServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
 	DCRTServiceItem.SetMtoShipmentID(*mtoShipmentIDString)
 
+	destReason := "service member will pick up from storage at destination"
 	destServiceCode := models.ReServiceCodeDDFSIT.String()
 	destDate := strfmt.Date(time.Now())
 	destTime := "1400Z"
@@ -67,6 +68,19 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 		PostalCode:     &destPostalCode,
 		StreetAddress1: &destStreet,
 	}
+
+	destServiceItem := &primemessages.MTOServiceItemDestSIT{
+		ReServiceCode:               &destServiceCode,
+		FirstAvailableDeliveryDate1: &destDate,
+		FirstAvailableDeliveryDate2: &destDate,
+		TimeMilitary1:               &destTime,
+		TimeMilitary2:               &destTime,
+		SitDestinationFinalAddress:  &sitFinalDestAddress,
+		Reason:                      &destReason,
+	}
+
+	destServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
+	destServiceItem.SetMtoShipmentID(*mtoShipmentIDString)
 
 	suite.Run("Success - Returns a basic service item model", func() {
 		returnedModel, verrs := MTOServiceItemModel(basicServiceItem)
@@ -126,7 +140,7 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 	})
 
 	suite.Run("Success - Returns SIT destination service item model", func() {
-		destServiceItem := &primemessages.MTOServiceItemDestSIT{
+		destSITServiceItem := &primemessages.MTOServiceItemDestSIT{
 			ReServiceCode:               &destServiceCode,
 			FirstAvailableDeliveryDate1: &destDate,
 			FirstAvailableDeliveryDate2: &destDate,
@@ -135,9 +149,9 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 			SitDestinationFinalAddress:  &sitFinalDestAddress,
 		}
 
-		destServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
-		destServiceItem.SetMtoShipmentID(*mtoShipmentIDString)
-		returnedModel, verrs := MTOServiceItemModel(destServiceItem)
+		destSITServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
+		destSITServiceItem.SetMtoShipmentID(*mtoShipmentIDString)
+		returnedModel, verrs := MTOServiceItemModel(destSITServiceItem)
 
 		suite.NoVerrs(verrs)
 		suite.Equal(moveTaskOrderIDField.String(), returnedModel.MoveTaskOrderID.String())
@@ -148,14 +162,14 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 
 	})
 	suite.Run("Success - Returns SIT destination service item model without customer contact fields", func() {
-		destServiceItem := &primemessages.MTOServiceItemDestSIT{
+		destSITServiceItem := &primemessages.MTOServiceItemDestSIT{
 			ReServiceCode:              &destServiceCode,
 			SitDestinationFinalAddress: &sitFinalDestAddress,
 		}
 
-		destServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
-		destServiceItem.SetMtoShipmentID(*mtoShipmentIDString)
-		returnedModel, verrs := MTOServiceItemModel(destServiceItem)
+		destSITServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
+		destSITServiceItem.SetMtoShipmentID(*mtoShipmentIDString)
+		returnedModel, verrs := MTOServiceItemModel(destSITServiceItem)
 
 		suite.NoVerrs(verrs)
 		suite.Equal(moveTaskOrderIDField.String(), returnedModel.MoveTaskOrderID.String())
@@ -163,7 +177,7 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 		suite.Equal(models.ReServiceCodeDDFSIT, returnedModel.ReService.Code)
 		suite.Equal(destPostalCode, returnedModel.SITDestinationFinalAddress.PostalCode)
 		suite.Equal(destStreet, returnedModel.SITDestinationFinalAddress.StreetAddress1)
-
+		suite.Equal(destReason, *returnedModel.Reason)
 	})
 }
 
