@@ -85,8 +85,9 @@ model type with the following codes:
 
 **DDFSIT**
 
-**1st day destination SIT service item**. The additional fields are
-optional for creating a DDFSIT:
+**1st day destination SIT service item**.
+
+These additional fields are optional for creating a DDFSIT:
   - `firstAvailableDeliveryDate1`
   - string <date>
   - First available date that Prime can deliver SIT service item.

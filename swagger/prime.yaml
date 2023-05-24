@@ -991,9 +991,10 @@ paths:
         **DDFSIT**
 
 
-        **1st day destination SIT service item**. The additional fields are
+        **1st day destination SIT service item**.
 
-        optional for creating a DDFSIT:
+
+        These additional fields are optional for creating a DDFSIT:
           * `firstAvailableDeliveryDate1`
             * string <date>
             * First available date that Prime can deliver SIT service item.
