@@ -525,7 +525,26 @@ export const MoveTaskOrder = (props) => {
   const handleAcknowledgeExcessWeightRisk = () => {
     mutateAcknowledgeExcessWeightRisk({ orderID: order.id, ifMatchETag: move.eTag });
   };
+  /**
+   * @typedef AddressShape
+   * @prop {string} city
+   * @prop {string} state
+   * @prop {string} postalCode
+   * @prop {string} streetAddress1
+   * @prop {string} streetAddress2
+   * @prop {string} streetAddress3
+   * @prop {string} country
+   */
 
+  /**
+   * @function
+   * @param {string} mtoServiceItemID
+   * @param {Object} formValues
+   * @param {AddressShape} formValues.newAddress
+   * @param {string} formValues.officeRemarks
+   * @description Updates the sitAddressUpdate logs and final SIT address with the new address submitted.
+   * OnSuccess, it closes the modal and sets a success message.
+   */
   const handleSumbitSitAddressChange = (mtoServiceItemID, { newAddress, officeRemarks }) => {
     mutateSitAddressUpdate(
       {
@@ -543,7 +562,11 @@ export const MoveTaskOrder = (props) => {
     );
   };
 
-  // Fix-me: ETag and Id need to be removed from response from backend or address fields needs to be in their own object
+  /**
+   * @function getSitAddressInitialValues
+   * @todo ETag and Id need to be removed from response from backend or address fields needs to be in their own object
+   * @returns {AddressShape}
+   */
   const getSitAddressInitialValues = () => {
     const address = selectedServiceItem.sitDestinationFinalAddress || selectedServiceItem.destinationAddress;
     const blankAddress = {

@@ -1,7 +1,6 @@
 import React from 'react';
 import classnames from 'classnames';
 import { Alert } from '@trussworks/react-uswds';
-// import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { formatAddress } from '../../../utils/shipmentDisplay';
 import DataTableWrapper from '../../DataTableWrapper/index';
@@ -9,8 +8,15 @@ import DataTable from '../../DataTable/index';
 
 import styles from './ServiceItemUpdateModal.module.scss';
 
+import { AddressShape } from 'types/address';
 import AddressFields from 'components/form/AddressFields/AddressFields';
 
+/**
+ * @component
+ * @description This is the form specific to for when a TOO edits a SIT destination address. It inluded the Initial address box, a distance alert, and a form to edit the address.
+ * @param {EditSitAddressFormProps}
+ * @returns {React.ReactElement}
+ */
 const EditSitAddressChangeForm = ({ initialAddress }) => {
   return (
     <div className={styles.editSitAddressChangeForm}>
@@ -26,4 +32,11 @@ const EditSitAddressChangeForm = ({ initialAddress }) => {
   );
 };
 
+/**
+ * @typedef EditSitAddressFormProps
+ * @prop{AddressShape} initialAddress
+ */
+EditSitAddressChangeForm.propTypes = {
+  initialAddress: AddressShape.isRequired,
+};
 export default EditSitAddressChangeForm;
