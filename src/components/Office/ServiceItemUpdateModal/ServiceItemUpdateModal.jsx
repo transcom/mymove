@@ -1,4 +1,5 @@
 import React from 'react';
+import classnames from 'classnames';
 import PropTypes from 'prop-types';
 import { Button, Label, Textarea } from '@trussworks/react-uswds';
 import { Formik, Field } from 'formik';
@@ -75,7 +76,7 @@ export const ServiceItemUpdateModal = ({
       >
         {({ isValid }) => {
           return (
-            <Form className={formStyles.form}>
+            <Form className={classnames(styles.sitPanelForm, formStyles.form)}>
               <h3>SIT delivery address</h3>
               {content}
               <Label htmlFor="officeRemarks">Office remarks</Label>

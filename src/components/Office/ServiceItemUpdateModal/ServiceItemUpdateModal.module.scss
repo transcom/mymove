@@ -9,6 +9,18 @@
   .titleSection {
     @include u-margin-top(1);
   }
+
+  .sitPanelForm {
+    @include u-border('base-lighter');
+    @include u-border('1px');
+    @include u-radius('05');
+    @include u-padding(3);
+    margin-top: 24px;
+
+    h3 {
+      margin: 0;
+    }
+  }
 }
 
 .serviceItemDetails {
@@ -51,12 +63,12 @@
 }
 .editSitAddressChangeForm {
   @include u-margin-top(2);
-  .initialAddress{
+  .initialAddress {
     @include u-padding-left(0);
     td {
-    vertical-align: top;
-  }
-  border: none;
-  background-color: white;
+      vertical-align: top;
+    }
+    border: none;
+    background-color: white;
   }
 }
