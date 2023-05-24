@@ -28,6 +28,7 @@ func MakeDevClientCert(db *pop.Connection, assertions Assertions) models.ClientC
 		UserID:                      uuid.UUID{},
 	}
 
+	// Overwrite values with those from assertions
 	mergeModels(&clientCert, assertions.ClientCert)
 
 	existingCert, err := models.FetchClientCert(db, clientCert.Sha256Digest)

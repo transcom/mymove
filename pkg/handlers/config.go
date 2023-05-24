@@ -35,7 +35,6 @@ type HandlerConfig interface {
 	) http.Handler
 	FileStorer() storage.FileStorer
 	NotificationSender() notifications.NotificationSender
-	Planner() route.Planner
 	HHGPlanner() route.Planner
 	DTODPlanner() route.Planner
 	CookieSecret() string
@@ -84,7 +83,6 @@ func NewHandlerConfig(
 	db *pop.Connection,
 	logger *zap.Logger,
 	cookieSecret string,
-	planner route.Planner,
 	hhgPlanner route.Planner,
 	dtodPlanner route.Planner,
 	storage storage.FileStorer,
@@ -106,7 +104,6 @@ func NewHandlerConfig(
 		db:                    db,
 		logger:                logger,
 		cookieSecret:          cookieSecret,
-		planner:               planner,
 		hhgPlanner:            hhgPlanner,
 		dtodPlanner:           dtodPlanner,
 		storage:               storage,
@@ -252,14 +249,19 @@ func (c *Config) SetNotificationSender(sender notifications.NotificationSender) 
 	c.notificationSender = sender
 }
 
-// Planner returns the planner for the current context
-func (c *Config) Planner() route.Planner {
-	return c.planner
-}
-
 // SetPlanner is a simple setter for the route.Planner private field
 func (c *Config) SetPlanner(planner route.Planner) {
 	c.planner = planner
+}
+
+// SetDTODPlanner is a simple setter for the route.Planner private field
+func (c *Config) SetDTODPlanner(planner route.Planner) {
+	c.dtodPlanner = planner
+}
+
+// SetHHGPlanner is a simple setter for the route.Planner private field
+func (c *Config) SetHHGPlanner(planner route.Planner) {
+	c.hhgPlanner = planner
 }
 
 // HHGPlanner returns the HHG planner for the current context

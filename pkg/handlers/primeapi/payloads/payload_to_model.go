@@ -378,6 +378,23 @@ func MTOServiceItemModel(mtoServiceItem primemessages.MTOServiceItem) (*models.M
 		}
 
 		model.Reason = originsit.Reason
+		// Check for reason required field on a DDFSIT
+		if model.ReService.Code == models.ReServiceCodeDOASIT {
+			reasonVerrs := validateReasonOriginSIT(*originsit)
+
+			if reasonVerrs.HasAny() {
+				return nil, reasonVerrs
+			}
+		}
+
+		if model.ReService.Code == models.ReServiceCodeDOFSIT {
+			reasonVerrs := validateReasonOriginSIT(*originsit)
+
+			if reasonVerrs.HasAny() {
+				return nil, reasonVerrs
+			}
+		}
+
 		sitEntryDate := handlers.FmtDatePtrToPopPtr(originsit.SitEntryDate)
 
 		if sitEntryDate != nil {
@@ -399,12 +416,20 @@ func MTOServiceItemModel(mtoServiceItem primemessages.MTOServiceItem) (*models.M
 
 		}
 
+		model.Reason = destsit.Reason
+		sitEntryDate := handlers.FmtDatePtrToPopPtr(destsit.SitEntryDate)
+
 		// Check for required fields on a DDFSIT
 		if model.ReService.Code == models.ReServiceCodeDDFSIT {
 			verrs := validateDDFSIT(*destsit)
+			reasonVerrs := validateReasonDestSIT(*destsit)
 
 			if verrs.HasAny() {
 				return nil, verrs
+			}
+
+			if reasonVerrs.HasAny() {
+				return nil, reasonVerrs
 			}
 		}
 
@@ -420,8 +445,6 @@ func MTOServiceItemModel(mtoServiceItem primemessages.MTOServiceItem) (*models.M
 				FirstAvailableDeliveryDate: time.Time(*destsit.FirstAvailableDeliveryDate2),
 			},
 		}
-
-		sitEntryDate := handlers.FmtDatePtrToPopPtr(destsit.SitEntryDate)
 
 		if sitEntryDate != nil {
 			model.SITEntryDate = sitEntryDate
@@ -605,6 +628,26 @@ func validateDDFSIT(m primemessages.MTOServiceItemDestSIT) *validate.Errors {
 	}
 	if m.TimeMilitary2 == nil {
 		verrs.Add("timeMilitary2", "timeMilitary2 is required in body.")
+	}
+	return verrs
+}
+
+// validateReasonDestSIT validates that Destination SIT service items have required Reason field
+func validateReasonDestSIT(m primemessages.MTOServiceItemDestSIT) *validate.Errors {
+	verrs := validate.NewErrors()
+
+	if m.Reason == nil || m.Reason == models.StringPointer("") {
+		verrs.Add("reason", "reason is required in body.")
+	}
+	return verrs
+}
+
+// validateReasonOriginSIT validates that Origin SIT service items have required Reason field
+func validateReasonOriginSIT(m primemessages.MTOServiceItemOriginSIT) *validate.Errors {
+	verrs := validate.NewErrors()
+
+	if m.Reason == nil || m.Reason == models.StringPointer("") {
+		verrs.Add("reason", "reason is required in body.")
 	}
 	return verrs
 }

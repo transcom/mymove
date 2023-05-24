@@ -1,3 +1,4 @@
+    @include u-margin-top(2);
 @import 'shared/styles/_basics';
 @import 'shared/styles/colors';
 
@@ -8,6 +9,27 @@
   width: 100%;
   .titleSection {
     @include u-margin-top(2);
+  }
+
+  address {
+    span {
+      display: block;
+    }
+  }
+  .sitPanelForm {
+    @include u-border('base-lighter');
+    @include u-border('1px');
+    @include u-radius('05');
+    @include u-padding(3);
+    margin-top: 24px;
+
+    .modalReviewHeader {
+      font-size: 22px;
+      margin: 0;
+    }
+    .officeRemarks {
+      max-height: 136px;
+    }
   }
 }
 
@@ -51,12 +73,16 @@
 }
 .editSitAddressChangeForm {
   @include u-margin-top(2);
-  .initialAddress{
+  .initialAddress {
     @include u-padding-left(0);
     td {
-    vertical-align: top;
+      vertical-align: top;
+    }
+    border: none;
+    background-color: white;
   }
-  border: none;
-  background-color: white;
+
+  .destinationAddressTitle {
+    font-size: 17px;
   }
 }

@@ -34,10 +34,10 @@ func calculateMoveDatesFromMove(appCtx appcontext.AppContext, planner route.Plan
 	//	return summary, errors.New("NewDutyLocation must not have the same zip code as the original DutyLocation")
 	//}
 
-	var source = move.Orders.ServiceMember.DutyLocation.Address
-	var destination = move.Orders.NewDutyLocation.Address
+	var source = move.Orders.ServiceMember.DutyLocation.Address.PostalCode
+	var destination = move.Orders.NewDutyLocation.Address.PostalCode
 
-	transitDistance, err := planner.TransitDistance(appCtx, &source, &destination)
+	transitDistance, err := planner.ZipTransitDistance(appCtx, source, destination)
 	if err != nil {
 		return summary, err
 	}

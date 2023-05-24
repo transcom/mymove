@@ -83,6 +83,7 @@ func (f *approvedSITAddressUpdateCreator) CreateApprovedSITAddressUpdate(appCtx 
 			"SITDestinationOriginalAddress",
 			"SITDestinationFinalAddress",
 			"SITAddressUpdates.NewAddress",
+			"ReService",
 			"SITAddressUpdates.OldAddress").
 			Where("id = ?", sitAddressUpdate.MTOServiceItemID).First(&sitAddressUpdate.MTOServiceItem)
 		if err != nil {

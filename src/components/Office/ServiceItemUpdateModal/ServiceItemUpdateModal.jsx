@@ -15,34 +15,39 @@ import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { formatDateFromIso } from 'utils/formatters';
 import formStyles from 'styles/form.module.scss';
 
+/**
+ * @function
+ * @description Return the details component that has the service item name, date, and additonal information specific to the service item type.
+ * @param {Object} Props
+ * @param {ServiceItemDetailsShape} Props.serviceItem
+ * @returns {React.ReactElement}
+ */
 const ServiceItemDetail = ({ serviceItem }) => {
   const { id, code, submittedAt, details } = serviceItem;
   return (
     <table data-testid="sitAddressUpdateDetailTable" className={styles.serviceItemDetails}>
       <tbody>
-        <tr key={id}>
+        <tr key={`sid-${id}`}>
           <td className={styles.nameDateContainer}>
             <p className={styles.serviceItemName}>{serviceItem.serviceItem}</p>
             <p>{formatDateFromIso(submittedAt, 'DD MMM YYYY')}</p>
           </td>
           <td className={styles.detailsContainer}>
-            <ServiceItemDetails code={code} details={details} />
+            <ServiceItemDetails id={`sid-${id}`} code={code} details={details} />
           </td>
         </tr>
       </tbody>
     </table>
   );
 };
+
 /**
+ * @component
  * @description This componment is the modal used for when a TOO edits the address for a Service item
  * or reviews a service item request from a the prime.
- * @param {function} onSave saves the form values
- * @param {function} closeModal closes the modal without saving changes
- * @param {string} title title of the modal
- * @param {ServiceItemDetailsShape} serviceItem
- * @param {element} content the form specific to either Edit or Reviewing address updates
- * @param {object} initialValues the initialValues for the form
- * @param {object} validations Form validaitons specific to the modal.
+ * @param {ServiceItemUpdateModalProps}
+ *
+ * @returns {React.ReactElement}
  */
 export const ServiceItemUpdateModal = ({
   onSave,
@@ -53,8 +58,12 @@ export const ServiceItemUpdateModal = ({
   initialValues,
   validations,
 }) => {
+  /**
+   * @description The validation schema takes in the validations specific to the modal.
+   * Since office remarks is shared is already declared in the schema.
+   */
   const serviceItemUpdateModalSchema = Yup.object().shape({
-    officeRemarks: Yup.string().nullable(),
+    officeRemarks: Yup.string().required('Required'),
     ...validations,
   });
   return (
@@ -67,17 +76,34 @@ export const ServiceItemUpdateModal = ({
         <h2>{title}</h2>
       </ModalTitle>
       <ServiceItemDetail serviceItem={serviceItem} />
-      <Formik onSubmit={(e) => onSave(e)} initialValues={initialValues} validationSchema={serviceItemUpdateModalSchema}>
+      <Formik
+        validationSchema={serviceItemUpdateModalSchema}
+        onSubmit={(formValues) => onSave(serviceItem.id, formValues)}
+        // add Office remarks to the initial values as it's shared by all modals
+        initialValues={{ ...initialValues, officeRemarks: '' }}
+        validateOnMount
+      >
         {({ isValid }) => {
           return (
             <Form className={formStyles.form}>
-              <h3>SIT delivery address</h3>
-              {content}
-              <Label htmlFor="officeRemarks">Office remarks</Label>
-              <Field as={Textarea} data-testid="officeRemarks" label="No" name="officeRemarks" id="officeRemarks" />
+              <div className={styles.sitPanelForm}>
+                <h3 className={styles.modalReviewHeader}>SIT delivery address</h3>
+                {content}
+                <Label htmlFor="officeRemarks">Office remarks</Label>
+                <Field
+                  as={Textarea}
+                  data-testid="officeRemarks"
+                  label="No"
+                  name="officeRemarks"
+                  id="officeRemarks"
+                  className={styles.officeRemarks}
+                />
+              </div>
               <ModalActions>
-                <Button type="submit">Save</Button>
-                <Button type="button" secondary onClick={() => closeModal()} disabled={!isValid}>
+                <Button type="submit" disabled={!isValid}>
+                  Save
+                </Button>
+                <Button type="button" secondary onClick={closeModal}>
                   Cancel
                 </Button>
               </ModalActions>
@@ -89,11 +115,30 @@ export const ServiceItemUpdateModal = ({
   );
 };
 
+/**
+ * @typedef {object} ServiceItemUpdateModalProps
+ * @prop {function} onSave saves the form values
+ * @prop {function} closeModal closes the modal without saving changes
+ * @prop {string} title title of the modal
+ * @prop {ServiceItemDetailsShape} serviceItem the current service item selected
+ * @prop {element} content additional form contents specific to either Edit or Reviewing address updates
+ * @prop {object} initialValues the initialValues for the form
+ * @prop {object} validations Form validaitons specific to the modal.
+ * @extends {ServiceItemUpdateModal<ServiceItemUpdateModalProps>}
+ */
+
 ServiceItemUpdateModal.propTypes = {
   closeModal: PropTypes.func.isRequired,
   onSave: PropTypes.func.isRequired,
   title: PropTypes.string.isRequired,
   serviceItem: ServiceItemDetailsShape.isRequired,
+  initialValues: PropTypes.object,
+  validations: PropTypes.object,
+};
+
+ServiceItemUpdateModal.defaultProps = {
+  initialValues: {},
+  validations: {},
 };
 
 ServiceItemUpdateModal.displayName = 'ServiceItemUpdateModal';

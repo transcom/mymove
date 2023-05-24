@@ -39,14 +39,15 @@ func setUpMockNotificationSender() notifications.NotificationSender {
 }
 
 func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
+	now := time.Now().UTC().Truncate(time.Hour * 24)
 	builder := query.NewQueryBuilder()
 	fetcher := fetch.NewFetcher(builder)
 	planner := &mocks.Planner{}
-	planner.On("TransitDistance",
+	planner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
-	).Return(500, nil)
+	).Return(1000, nil)
 	moveRouter := moveservices.NewMoveRouter()
 	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester())
 	mockShipmentRecalculator := mockservices.PaymentRequestShipmentRecalculator{}
@@ -58,11 +59,11 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 	mtoShipmentUpdaterOffice := NewOfficeMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, &mockShipmentRecalculator)
 	mtoShipmentUpdaterCustomer := NewCustomerMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, &mockShipmentRecalculator)
 	mtoShipmentUpdaterPrime := NewPrimeMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, &mockShipmentRecalculator)
-	scheduledPickupDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
-	firstAvailableDeliveryDate := time.Date(2019, time.March, 10, 0, 0, 0, 0, time.UTC)
-	actualPickupDate := time.Date(2020, time.June, 8, 0, 0, 0, 0, time.UTC)
-	scheduledDeliveryDate := time.Date(2018, time.April, 10, 0, 0, 0, 0, time.UTC)
-	actualDeliveryDate := time.Date(2020, time.May, 8, 0, 0, 0, 0, time.UTC)
+	scheduledPickupDate := now.Add(time.Hour * 24 * 3)
+	firstAvailableDeliveryDate := now.Add(time.Hour * 24 * 4)
+	actualPickupDate := now.Add(time.Hour * 24 * 3)
+	scheduledDeliveryDate := now.Add(time.Hour * 24 * 4)
+	actualDeliveryDate := now.Add(time.Hour * 24 * 4)
 	primeActualWeight := unit.Pound(1234)
 	primeEstimatedWeight := unit.Pound(1234)
 
@@ -74,11 +75,19 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 	var newPickupAddress models.Address
 
 	setupTestData := func() {
-		oldMTOShipment = factory.BuildMTOShipment(suite.DB(), nil, nil)
+		oldMTOShipment = factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					FirstAvailableDeliveryDate: &firstAvailableDeliveryDate,
+					ScheduledPickupDate:        &scheduledPickupDate,
+					ApprovedDate:               &firstAvailableDeliveryDate,
+				},
+			},
+		}, nil)
 
 		requestedPickupDate := *oldMTOShipment.RequestedPickupDate
-		secondaryPickupAddress = factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress3})
 		secondaryDeliveryAddress = factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress4})
+		secondaryPickupAddress = factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress3})
 		newDestinationAddress = factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
@@ -125,8 +134,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			ApprovedDate:               &firstAvailableDeliveryDate,
 		}
 
-		//now := time.Now()
-		primeEstimatedWeight = unit.Pound(4500)
+		primeEstimatedWeight = unit.Pound(9000)
 	}
 
 	suite.Run("Etag is stale", func() {
@@ -160,7 +168,6 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.Equal(updatedMTOShipment.PrimeActualWeight, &primeActualWeight)
 		suite.True(actualPickupDate.Equal(*updatedMTOShipment.ActualPickupDate))
 		suite.True(firstAvailableDeliveryDate.Equal(*updatedMTOShipment.FirstAvailableDeliveryDate))
-
 		// Verify that shipment recalculate was handled correctly
 		mockShipmentRecalculator.AssertNotCalled(suite.T(), "ShipmentRecalculatePaymentRequest", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID"))
 	})
@@ -309,10 +316,10 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 
 		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
 
-		requestedPickupDate := time.Date(2019, time.March, 15, 0, 0, 0, 0, time.UTC)
-		scheduledPickupDate := time.Date(2019, time.March, 17, 0, 0, 0, 0, time.UTC)
-		requestedDeliveryDate := time.Date(2019, time.March, 30, 0, 0, 0, 0, time.UTC)
-		primeEstimatedWeightRecordedDate := time.Date(2019, time.March, 12, 0, 0, 0, 0, time.UTC)
+		requestedPickupDate := now.Add(time.Hour * 24 * 3)
+		scheduledPickupDate := now.Add(time.Hour * 24 * 3)
+		requestedDeliveryDate := now.Add(time.Hour * 24 * 4)
+		primeEstimatedWeightRecordedDate := now.Add(time.Hour * 24 * 3)
 		customerRemarks := "I have a grandfather clock"
 		counselorRemarks := "Counselor approved"
 		updatedShipment := models.MTOShipment{
@@ -385,8 +392,8 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 
 		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
 
-		requestedPickupDate := time.Date(2019, time.March, 15, 0, 0, 0, 0, time.UTC)
-		requestedDeliveryDate := time.Date(2019, time.March, 30, 0, 0, 0, 0, time.UTC)
+		requestedPickupDate := now.Add(time.Hour * 24 * 3)
+		requestedDeliveryDate := now.Add(time.Hour * 24 * 4)
 		customerRemarks := "I have a grandfather clock"
 		counselorRemarks := "Counselor approved"
 		updatedShipment := models.MTOShipment{
@@ -431,8 +438,8 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 
 		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
 
-		requestedPickupDate := time.Date(2019, time.March, 15, 0, 0, 0, 0, time.UTC)
-		requestedDeliveryDate := time.Date(2019, time.March, 30, 0, 0, 0, 0, time.UTC)
+		requestedPickupDate := now.Add(time.Hour * 24 * 3)
+		requestedDeliveryDate := now.Add(time.Hour * 24 * 4)
 		customerRemarks := "I have a grandfather clock"
 		counselorRemarks := "Counselor approved"
 		destinationType := models.DestinationTypeHomeOfRecord
@@ -844,9 +851,9 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 
 		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
 
-		requestedPickupDate := time.Date(2019, time.March, 15, 0, 0, 0, 0, time.UTC)
-		scheduledPickupDate := time.Date(2019, time.March, 17, 0, 0, 0, 0, time.UTC)
-		requestedDeliveryDate := time.Date(2019, time.March, 30, 0, 0, 0, 0, time.UTC)
+		requestedPickupDate := now.Add(time.Hour * 24 * 3)
+		scheduledPickupDate := now.Add(time.Hour * 24 * 3)
+		requestedDeliveryDate := now.Add(time.Hour * 24 * 4)
 		updatedShipment := models.MTOShipment{
 			ID:                          oldShipment.ID,
 			DestinationAddress:          &newDestinationAddress,
@@ -866,6 +873,17 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			FirstAvailableDeliveryDate:  &firstAvailableDeliveryDate,
 		}
 
+		ghcDomesticTransitTime := models.GHCDomesticTransitTime{
+			MaxDaysTransitTime: 12,
+			WeightLbsLower:     0,
+			WeightLbsUpper:     10000,
+			DistanceMilesLower: 0,
+			DistanceMilesUpper: 10000,
+		}
+		verrs, err := suite.DB().ValidateAndCreate(&ghcDomesticTransitTime)
+		suite.False(verrs.HasAny())
+		suite.FatalNoError(err)
+
 		session := auth.Session{}
 		newShipment, err := mtoShipmentUpdaterPrime.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag)
 
@@ -883,6 +901,73 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.Equal(secondaryPickupAddress.ID, *newShipment.SecondaryPickupAddressID)
 		suite.Equal(secondaryDeliveryAddress.ID, *newShipment.SecondaryDeliveryAddressID)
 
+		// Verify that shipment recalculate was handled correctly
+		mockShipmentRecalculator.AssertNotCalled(suite.T(), "ShipmentRecalculatePaymentRequest", mock.Anything, mock.Anything)
+	})
+
+	suite.Run("Prime not able to update an existing prime estimated weight", func() {
+		setupTestData()
+
+		// This test was added because of a bug that nullified the ApprovedDate
+		// when ScheduledPickupDate was included in the payload. See PR #6919.
+		// ApprovedDate affects shipment diversions, so we want to make sure it
+		// never gets nullified, regardless of which fields are being updated.
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		oldShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:               models.MTOShipmentStatusApproved,
+					PrimeEstimatedWeight: &primeEstimatedWeight,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		suite.NotNil(oldShipment.ApprovedDate)
+
+		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
+
+		requestedPickupDate := now.Add(time.Hour * 24 * 3)
+		scheduledPickupDate := now.Add(time.Hour * 24 * 3)
+		requestedDeliveryDate := now.Add(time.Hour * 24 * 4)
+		updatedShipment := models.MTOShipment{
+			ID:                          oldShipment.ID,
+			DestinationAddress:          &newDestinationAddress,
+			DestinationAddressID:        &newDestinationAddress.ID,
+			PickupAddress:               &newPickupAddress,
+			PickupAddressID:             &newPickupAddress.ID,
+			SecondaryPickupAddress:      &secondaryPickupAddress,
+			HasSecondaryPickupAddress:   handlers.FmtBool(true),
+			SecondaryDeliveryAddress:    &secondaryDeliveryAddress,
+			HasSecondaryDeliveryAddress: handlers.FmtBool(true),
+			RequestedPickupDate:         &requestedPickupDate,
+			ScheduledPickupDate:         &scheduledPickupDate,
+			RequestedDeliveryDate:       &requestedDeliveryDate,
+			ActualPickupDate:            &actualPickupDate,
+			PrimeActualWeight:           &primeActualWeight,
+			PrimeEstimatedWeight:        &primeEstimatedWeight,
+			FirstAvailableDeliveryDate:  &firstAvailableDeliveryDate,
+		}
+
+		ghcDomesticTransitTime := models.GHCDomesticTransitTime{
+			MaxDaysTransitTime: 12,
+			WeightLbsLower:     0,
+			WeightLbsUpper:     10000,
+			DistanceMilesLower: 0,
+			DistanceMilesUpper: 10000,
+		}
+		verrs, err := suite.DB().ValidateAndCreate(&ghcDomesticTransitTime)
+		suite.False(verrs.HasAny())
+		suite.FatalNoError(err)
+
+		session := auth.Session{}
+		_, err = mtoShipmentUpdaterPrime.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag)
+
+		suite.Error(err)
+		suite.Contains(err.Error(), "cannot be updated after initial estimation")
 		// Verify that shipment recalculate was handled correctly
 		mockShipmentRecalculator.AssertNotCalled(suite.T(), "ShipmentRecalculatePaymentRequest", mock.Anything, mock.Anything)
 	})
@@ -917,6 +1002,408 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.Require().NoError(err)
 		suite.NotEmpty(newShipment.Reweigh)
 		suite.Equal(newShipment.Reweigh.ID, reweigh.ID)
+	})
+
+	suite.Run("Prime cannot update estimated weights outside of required timeframe", func() {
+		setupTestData()
+
+		// This test was added because of a bug that nullified the ApprovedDate
+		// when ScheduledPickupDate was included in the payload. See PR #6919.
+		// ApprovedDate affects shipment diversions, so we want to make sure it
+		// never gets nullified, regardless of which fields are being updated.
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		oldShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusApproved,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		suite.NotNil(oldShipment.ApprovedDate)
+
+		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
+
+		requestedPickupDate := now.Add(time.Hour * 24 * 3)
+		scheduledPickupDate := now.Add(-time.Hour * 24 * 3)
+		requestedDeliveryDate := now.Add(time.Hour * 24 * 4)
+		updatedShipment := models.MTOShipment{
+			ID:                          oldShipment.ID,
+			DestinationAddress:          &newDestinationAddress,
+			DestinationAddressID:        &newDestinationAddress.ID,
+			PickupAddress:               &newPickupAddress,
+			PickupAddressID:             &newPickupAddress.ID,
+			SecondaryPickupAddress:      &secondaryPickupAddress,
+			HasSecondaryPickupAddress:   handlers.FmtBool(true),
+			SecondaryDeliveryAddress:    &secondaryDeliveryAddress,
+			HasSecondaryDeliveryAddress: handlers.FmtBool(true),
+			RequestedPickupDate:         &requestedPickupDate,
+			ScheduledPickupDate:         &scheduledPickupDate,
+			RequestedDeliveryDate:       &requestedDeliveryDate,
+			ActualPickupDate:            &actualPickupDate,
+			PrimeActualWeight:           &primeActualWeight,
+			PrimeEstimatedWeight:        &primeEstimatedWeight,
+			FirstAvailableDeliveryDate:  &firstAvailableDeliveryDate,
+		}
+
+		ghcDomesticTransitTime := models.GHCDomesticTransitTime{
+			MaxDaysTransitTime: 12,
+			WeightLbsLower:     0,
+			WeightLbsUpper:     10000,
+			DistanceMilesLower: 0,
+			DistanceMilesUpper: 10000,
+		}
+		verrs, err := suite.DB().ValidateAndCreate(&ghcDomesticTransitTime)
+		suite.False(verrs.HasAny())
+		suite.FatalNoError(err)
+
+		session := auth.Session{}
+		_, err = mtoShipmentUpdaterPrime.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag)
+
+		suite.Error(err)
+		suite.Contains(err.Error(), "the time period for updating the estimated weight for a shipment has expired, please contact the TOO directly to request updates to this shipment’s estimated weight")
+		// Verify that shipment recalculate was handled correctly
+		mockShipmentRecalculator.AssertNotCalled(suite.T(), "ShipmentRecalculatePaymentRequest", mock.Anything, mock.Anything)
+	})
+
+	suite.Run("Prime cannot add MTO agents", func() {
+		setupTestData()
+
+		// This test was added because of a bug that nullified the ApprovedDate
+		// when ScheduledPickupDate was included in the payload. See PR #6919.
+		// ApprovedDate affects shipment diversions, so we want to make sure it
+		// never gets nullified, regardless of which fields are being updated.
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		oldShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusApproved,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		suite.NotNil(oldShipment.ApprovedDate)
+
+		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
+
+		requestedPickupDate := now.Add(time.Hour * 24 * 3)
+		scheduledPickupDate := now.Add(time.Hour * 24 * 3)
+		requestedDeliveryDate := now.Add(time.Hour * 24 * 4)
+		firstName := "John"
+		lastName := "Ash"
+		updatedShipment := models.MTOShipment{
+			ID:                          oldShipment.ID,
+			DestinationAddress:          &newDestinationAddress,
+			DestinationAddressID:        &newDestinationAddress.ID,
+			PickupAddress:               &newPickupAddress,
+			PickupAddressID:             &newPickupAddress.ID,
+			SecondaryPickupAddress:      &secondaryPickupAddress,
+			HasSecondaryPickupAddress:   handlers.FmtBool(true),
+			SecondaryDeliveryAddress:    &secondaryDeliveryAddress,
+			HasSecondaryDeliveryAddress: handlers.FmtBool(true),
+			RequestedPickupDate:         &requestedPickupDate,
+			ScheduledPickupDate:         &scheduledPickupDate,
+			RequestedDeliveryDate:       &requestedDeliveryDate,
+			ActualPickupDate:            &actualPickupDate,
+			PrimeActualWeight:           &primeActualWeight,
+			PrimeEstimatedWeight:        &primeEstimatedWeight,
+			FirstAvailableDeliveryDate:  &firstAvailableDeliveryDate,
+			MTOAgents: models.MTOAgents{
+				models.MTOAgent{
+					FirstName: &firstName,
+					LastName:  &lastName,
+				},
+			},
+		}
+
+		ghcDomesticTransitTime := models.GHCDomesticTransitTime{
+			MaxDaysTransitTime: 12,
+			WeightLbsLower:     0,
+			WeightLbsUpper:     10000,
+			DistanceMilesLower: 0,
+			DistanceMilesUpper: 10000,
+		}
+		verrs, err := suite.DB().ValidateAndCreate(&ghcDomesticTransitTime)
+		suite.False(verrs.HasAny())
+		suite.FatalNoError(err)
+
+		session := auth.Session{}
+		_, err = mtoShipmentUpdaterPrime.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag)
+
+		suite.Error(err)
+		suite.Contains(err.Error(), "cannot add or update MTO agents to a shipment")
+	})
+
+	suite.Run("Prime cannot update existing pickup or destination address", func() {
+		setupTestData()
+
+		// This test was added because of a bug that nullified the ApprovedDate
+		// when ScheduledPickupDate was included in the payload. See PR #6919.
+		// ApprovedDate affects shipment diversions, so we want to make sure it
+		// never gets nullified, regardless of which fields are being updated.
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		oldShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusApproved,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		suite.NotNil(oldShipment.ApprovedDate)
+
+		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
+
+		requestedPickupDate := now.Add(time.Hour * 24 * 3)
+		scheduledPickupDate := now.Add(time.Hour * 24 * 7)
+		requestedDeliveryDate := now.Add(time.Hour * 24 * 4)
+		updatedShipment := models.MTOShipment{
+			ID:                          oldShipment.ID,
+			DestinationAddress:          &newDestinationAddress,
+			DestinationAddressID:        &newDestinationAddress.ID,
+			PickupAddress:               &newPickupAddress,
+			PickupAddressID:             &newPickupAddress.ID,
+			SecondaryPickupAddress:      &secondaryPickupAddress,
+			HasSecondaryPickupAddress:   handlers.FmtBool(true),
+			SecondaryDeliveryAddress:    &secondaryDeliveryAddress,
+			HasSecondaryDeliveryAddress: handlers.FmtBool(true),
+			RequestedPickupDate:         &requestedPickupDate,
+			ScheduledPickupDate:         &scheduledPickupDate,
+			RequestedDeliveryDate:       &requestedDeliveryDate,
+			ActualPickupDate:            &actualPickupDate,
+			PrimeActualWeight:           &primeActualWeight,
+			PrimeEstimatedWeight:        &primeEstimatedWeight,
+			FirstAvailableDeliveryDate:  &firstAvailableDeliveryDate,
+		}
+
+		ghcDomesticTransitTime := models.GHCDomesticTransitTime{
+			MaxDaysTransitTime: 12,
+			WeightLbsLower:     0,
+			WeightLbsUpper:     10000,
+			DistanceMilesLower: 0,
+			DistanceMilesUpper: 10000,
+		}
+		verrs, err := suite.DB().ValidateAndCreate(&ghcDomesticTransitTime)
+		suite.False(verrs.HasAny())
+		suite.FatalNoError(err)
+
+		session := auth.Session{}
+		_, err = mtoShipmentUpdaterPrime.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag)
+
+		suite.Error(err)
+		suite.Contains(err.Error(), "the pickup address already exists and cannot be updated with this endpoint")
+		suite.Contains(err.Error(), "the destination address already exists and cannot be updated with this endpoint")
+	})
+
+	suite.Run("Prime cannot update shipment if parameters are outside of transit data", func() {
+		setupTestData()
+
+		// This test was added because of a bug that nullified the ApprovedDate
+		// when ScheduledPickupDate was included in the payload. See PR #6919.
+		// ApprovedDate affects shipment diversions, so we want to make sure it
+		// never gets nullified, regardless of which fields are being updated.
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		oldShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusApproved,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		suite.NotNil(oldShipment.ApprovedDate)
+
+		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
+
+		requestedPickupDate := now.Add(time.Hour * 24 * 3)
+		scheduledPickupDate := now.Add(time.Hour * 24 * 7)
+		requestedDeliveryDate := now.Add(time.Hour * 24 * 4)
+		updatedShipment := models.MTOShipment{
+			ID:                          oldShipment.ID,
+			DestinationAddress:          &newDestinationAddress,
+			DestinationAddressID:        &newDestinationAddress.ID,
+			PickupAddress:               &newPickupAddress,
+			PickupAddressID:             &newPickupAddress.ID,
+			SecondaryPickupAddress:      &secondaryPickupAddress,
+			HasSecondaryPickupAddress:   handlers.FmtBool(true),
+			SecondaryDeliveryAddress:    &secondaryDeliveryAddress,
+			HasSecondaryDeliveryAddress: handlers.FmtBool(true),
+			RequestedPickupDate:         &requestedPickupDate,
+			ScheduledPickupDate:         &scheduledPickupDate,
+			RequestedDeliveryDate:       &requestedDeliveryDate,
+			ActualPickupDate:            &actualPickupDate,
+			PrimeActualWeight:           &primeActualWeight,
+			PrimeEstimatedWeight:        &primeEstimatedWeight,
+			FirstAvailableDeliveryDate:  &firstAvailableDeliveryDate,
+		}
+
+		session := auth.Session{}
+		_, err := mtoShipmentUpdaterPrime.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag)
+
+		suite.Error(err)
+		suite.Contains(err.Error(), "failed to find transit time for shipment of 9000 lbs weight and 1000 mile distance")
+	})
+
+	suite.Run("Prime can add an estimated weight up to the same date as the scheduled pickup", func() {
+		setupTestData()
+
+		// This test was added because of a bug that nullified the ApprovedDate
+		// when ScheduledPickupDate was included in the payload. See PR #6919.
+		// ApprovedDate affects shipment diversions, so we want to make sure it
+		// never gets nullified, regardless of which fields are being updated.
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		oldShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusApproved,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		suite.NotNil(oldShipment.ApprovedDate)
+
+		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
+
+		requestedPickupDate := now.Add(time.Hour * 24 * 3)
+		scheduledPickupDate := now.Add(time.Hour * 24 * 3)
+		requestedDeliveryDate := now.Add(time.Hour * 24 * 4)
+		updatedShipment := models.MTOShipment{
+			ID:                          oldShipment.ID,
+			DestinationAddress:          &newDestinationAddress,
+			DestinationAddressID:        &newDestinationAddress.ID,
+			PickupAddress:               &newPickupAddress,
+			PickupAddressID:             &newPickupAddress.ID,
+			SecondaryPickupAddress:      &secondaryPickupAddress,
+			HasSecondaryPickupAddress:   handlers.FmtBool(true),
+			SecondaryDeliveryAddress:    &secondaryDeliveryAddress,
+			ScheduledPickupDate:         &scheduledPickupDate,
+			HasSecondaryDeliveryAddress: handlers.FmtBool(true),
+			RequestedPickupDate:         &requestedPickupDate,
+			RequestedDeliveryDate:       &requestedDeliveryDate,
+			ActualPickupDate:            &actualPickupDate,
+			PrimeActualWeight:           &primeActualWeight,
+			PrimeEstimatedWeight:        &primeEstimatedWeight,
+			FirstAvailableDeliveryDate:  &firstAvailableDeliveryDate,
+		}
+
+		ghcDomesticTransitTime := models.GHCDomesticTransitTime{
+			MaxDaysTransitTime: 12,
+			WeightLbsLower:     0,
+			WeightLbsUpper:     10000,
+			DistanceMilesLower: 0,
+			DistanceMilesUpper: 10000,
+		}
+		verrs, err := suite.DB().ValidateAndCreate(&ghcDomesticTransitTime)
+		suite.False(verrs.HasAny())
+		suite.FatalNoError(err)
+
+		session := auth.Session{}
+		newShipment, err := mtoShipmentUpdaterPrime.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag)
+
+		suite.Require().NoError(err)
+		suite.NotEmpty(newShipment.ApprovedDate)
+		suite.True(requestedPickupDate.Equal(*newShipment.RequestedPickupDate))
+		suite.True(scheduledPickupDate.Equal(*newShipment.ScheduledPickupDate))
+		suite.True(requestedDeliveryDate.Equal(*newShipment.RequestedDeliveryDate))
+		suite.True(actualPickupDate.Equal(*newShipment.ActualPickupDate))
+		suite.True(firstAvailableDeliveryDate.Equal(*newShipment.FirstAvailableDeliveryDate))
+		suite.Equal(primeEstimatedWeight, *newShipment.PrimeEstimatedWeight)
+		suite.Equal(primeActualWeight, *newShipment.PrimeActualWeight)
+		suite.Equal(newDestinationAddress.ID, *newShipment.DestinationAddressID)
+		suite.Equal(newPickupAddress.ID, *newShipment.PickupAddressID)
+		suite.Equal(secondaryPickupAddress.ID, *newShipment.SecondaryPickupAddressID)
+		suite.Equal(secondaryDeliveryAddress.ID, *newShipment.SecondaryDeliveryAddressID)
+	})
+
+	suite.Run("Prime can update the weight estimate if scheduled pickup date in nil", func() {
+		setupTestData()
+
+		// This test was added because of a bug that nullified the ApprovedDate
+		// when ScheduledPickupDate was included in the payload. See PR #6919.
+		// ApprovedDate affects shipment diversions, so we want to make sure it
+		// never gets nullified, regardless of which fields are being updated.
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		oldShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:              models.MTOShipmentStatusApproved,
+					ScheduledPickupDate: nil,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		suite.NotNil(oldShipment.ApprovedDate)
+
+		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
+
+		requestedPickupDate := now.Add(time.Hour * 24 * 3)
+		requestedDeliveryDate := now.Add(time.Hour * 24 * 4)
+		updatedShipment := models.MTOShipment{
+			ID:                          oldShipment.ID,
+			DestinationAddress:          &newDestinationAddress,
+			DestinationAddressID:        &newDestinationAddress.ID,
+			PickupAddress:               &newPickupAddress,
+			PickupAddressID:             &newPickupAddress.ID,
+			SecondaryPickupAddress:      &secondaryPickupAddress,
+			HasSecondaryPickupAddress:   handlers.FmtBool(true),
+			SecondaryDeliveryAddress:    &secondaryDeliveryAddress,
+			HasSecondaryDeliveryAddress: handlers.FmtBool(true),
+			RequestedPickupDate:         &requestedPickupDate,
+			RequestedDeliveryDate:       &requestedDeliveryDate,
+			ActualPickupDate:            &actualPickupDate,
+			PrimeActualWeight:           &primeActualWeight,
+			PrimeEstimatedWeight:        &primeEstimatedWeight,
+			FirstAvailableDeliveryDate:  &firstAvailableDeliveryDate,
+		}
+		ghcDomesticTransitTime := models.GHCDomesticTransitTime{
+			MaxDaysTransitTime: 12,
+			WeightLbsLower:     0,
+			WeightLbsUpper:     10000,
+			DistanceMilesLower: 0,
+			DistanceMilesUpper: 10000,
+		}
+		verrs, err := suite.DB().ValidateAndCreate(&ghcDomesticTransitTime)
+		suite.False(verrs.HasAny())
+		suite.FatalNoError(err)
+
+		session := auth.Session{}
+		newShipment, err := mtoShipmentUpdaterPrime.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag)
+		suite.Require().NoError(err)
+		suite.NotEmpty(newShipment.ApprovedDate)
+		suite.True(requestedPickupDate.Equal(*newShipment.RequestedPickupDate))
+		suite.True(requestedDeliveryDate.Equal(*newShipment.RequestedDeliveryDate))
+		suite.True(actualPickupDate.Equal(*newShipment.ActualPickupDate))
+		suite.True(firstAvailableDeliveryDate.Equal(*newShipment.FirstAvailableDeliveryDate))
+		suite.Equal(primeEstimatedWeight, *newShipment.PrimeEstimatedWeight)
+		suite.Equal(primeActualWeight, *newShipment.PrimeActualWeight)
+		suite.Equal(newDestinationAddress.ID, *newShipment.DestinationAddressID)
+		suite.Equal(newPickupAddress.ID, *newShipment.PickupAddressID)
+		suite.Equal(secondaryPickupAddress.ID, *newShipment.SecondaryPickupAddressID)
+		suite.Equal(secondaryDeliveryAddress.ID, *newShipment.SecondaryDeliveryAddressID)
 	})
 }
 
@@ -1055,16 +1542,16 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 	builder := query.NewQueryBuilder()
 	moveRouter := moveservices.NewMoveRouter()
 	siCreator := mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter)
-	var TransitDistancePickupArg *models.Address
-	var TransitDistanceDestinationArg *models.Address
+	var TransitDistancePickupArg string
+	var TransitDistanceDestinationArg string
 	planner := &mocks.Planner{}
-	planner.On("TransitDistance",
+	planner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
-		mock.AnythingOfType("*models.Address"),
-		mock.AnythingOfType("*models.Address"),
+		mock.AnythingOfType("string"),
+		mock.AnythingOfType("string"),
 	).Return(500, nil).Run(func(args mock.Arguments) {
-		TransitDistancePickupArg = args.Get(1).(*models.Address)
-		TransitDistanceDestinationArg = args.Get(2).(*models.Address)
+		TransitDistancePickupArg = args.Get(1).(string)
+		TransitDistanceDestinationArg = args.Get(2).(string)
 	})
 
 	updater := NewMTOShipmentStatusUpdater(builder, siCreator, planner)
@@ -1324,8 +1811,8 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 			// We also should have a required delivery date
 			suite.NotNil(fetchedShipment.RequiredDeliveryDate)
 			// Check that TransitDistance was called with the correct addresses
-			suite.Equal(testCase.pickupLocation.PostalCode, TransitDistancePickupArg.PostalCode)
-			suite.Equal(testCase.destinationLocation.PostalCode, TransitDistanceDestinationArg.PostalCode)
+			suite.Equal(testCase.pickupLocation.PostalCode, TransitDistancePickupArg)
+			suite.Equal(testCase.destinationLocation.PostalCode, TransitDistanceDestinationArg)
 		}
 	})
 
@@ -1850,7 +2337,8 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentEstimatedWeightMoveExces
 
 		session := auth.Session{}
 		_, err := mockedUpdater.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &primeShipment, etag.GenerateEtag(primeShipment.UpdatedAt))
-		suite.NoError(err)
+		suite.Error(err)
+		suite.Contains(err.Error(), "cannot be updated after initial estimation")
 
 		moveWeights.AssertNotCalled(suite.T(), "CheckExcessWeight")
 

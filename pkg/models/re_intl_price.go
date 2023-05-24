@@ -45,6 +45,6 @@ func (r *ReIntlPrice) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		&validators.UUIDIsPresent{Field: r.ServiceID, Name: "ServiceID"},
 		&validators.UUIDIsPresent{Field: r.OriginRateAreaID, Name: "OriginRateAreaID"},
 		&validators.UUIDIsPresent{Field: r.DestinationRateAreaID, Name: "DestinationRateAreaID"},
-		&validators.IntIsGreaterThan{Field: r.PerUnitCents.Int(), Name: "PerUnitCents", Compared: 0},
+		&validators.IntIsGreaterThan{Field: r.PerUnitCents.Int(), Name: "PerUnitCents", Compared: -1},
 	), nil
 }

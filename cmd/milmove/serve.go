@@ -5,7 +5,6 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
-	"io"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -291,29 +290,31 @@ func initializeLogger(v *viper.Viper) (*zap.Logger, func()) {
 	logger = logger.With(fields...)
 
 	if v.GetBool(cli.LogTaskMetadataFlag) {
-		resp, httpGetErr := http.Get("http://169.254.170.2/v2/metadata")
-		if httpGetErr != nil {
-			logger.Error(errors.Wrap(httpGetErr, "could not fetch task metadata").Error())
-		} else {
-			body, readAllErr := io.ReadAll(resp.Body)
-			if readAllErr != nil {
-				logger.Error(errors.Wrap(readAllErr, "could not read task metadata").Error())
+		// according to
+		// https://docs.aws.amazon.com/AmazonECS/latest/userguide/task-metadata-endpoint-v4-fargate.html
+		//
+		//     Beginning with Fargate platform version 1.4.0, an
+		//     environment variable named
+		//     ECS_CONTAINER_METADATA_URI_V4 is injected into each
+		//     container in a task
+		metadataURL := os.Getenv("ECS_CONTAINER_METADATA_URI_V4")
+		if metadataURL != "" {
+			var ecsTaskMetadataV4 ecs.TaskMetadataV4
+			r, gerr := http.Get(metadataURL + "/task")
+			if gerr != nil {
+				logger.Error("Cannot fetch v4 task metadata", zap.Error(gerr))
 			} else {
-				taskMetadata := &ecs.TaskMetadata{}
-				unmarshallErr := json.Unmarshal(body, taskMetadata)
-				if unmarshallErr != nil {
-					logger.Error(errors.Wrap(unmarshallErr, "could not parse task metadata").Error())
+				derr := json.NewDecoder(r.Body).Decode(&ecsTaskMetadataV4)
+				if derr != nil {
+					logger.Error("Cannot decode v4 task metadata", zap.Error(derr))
 				} else {
+					logger.Info("V4 Task", zap.Any("metadata", ecsTaskMetadataV4))
 					logger = logger.With(
-						zap.String("ecs_cluster", taskMetadata.Cluster),
-						zap.String("ecs_task_def_family", taskMetadata.Family),
-						zap.String("ecs_task_def_revision", taskMetadata.Revision),
+						zap.String("ecs_cluster", ecsTaskMetadataV4.Cluster),
+						zap.String("ecs_task_def_family", ecsTaskMetadataV4.Family),
+						zap.String("ecs_task_def_revision", ecsTaskMetadataV4.Revision),
 					)
 				}
-			}
-			err = resp.Body.Close()
-			if err != nil {
-				logger.Error(errors.Wrap(err, "could not close task metadata response").Error())
 			}
 		}
 	}
@@ -503,10 +504,6 @@ func buildRoutingConfig(appCtx appcontext.AppContext, v *viper.Viper, redisPool 
 	// Storage
 	fileStorer := storage.InitStorage(v, awsSession, appCtx.Logger())
 
-	// Get route planner for handlers to calculate transit distances
-	// routePlanner := route.NewBingPlanner(logger, bingMapsEndpoint, bingMapsKey)
-	routePlanner := route.InitRoutePlanner(v)
-
 	// Create a secondary planner specifically for HHG.
 	hhgRoutePlanner, err := route.InitHHGRoutePlanner(appCtx, v, tlsConfig)
 	if err != nil {
@@ -581,7 +578,6 @@ func buildRoutingConfig(appCtx appcontext.AppContext, v *viper.Viper, redisPool 
 		appCtx.DB(),
 		appCtx.Logger(),
 		clientAuthSecretKey,
-		routePlanner,
 		hhgRoutePlanner,
 		dtodRoutePlanner,
 		fileStorer,
