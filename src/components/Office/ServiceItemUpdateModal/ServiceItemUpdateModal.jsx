@@ -17,7 +17,7 @@ import formStyles from 'styles/form.module.scss';
 
 /**
  * @function
- * @description Return the details component that has the service item name, date, and additonal information specific to teh service item type.
+ * @description Return the details component that has the service item name, date, and additonal information specific to the service item type.
  * @param {Object} Props
  * @param {ServiceItemDetailsShape} Props.serviceItem
  * @returns {React.ReactElement}

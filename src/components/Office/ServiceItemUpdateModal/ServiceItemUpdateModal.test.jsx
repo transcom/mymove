@@ -64,7 +64,9 @@ describe('ServiceItemUpdateModal', () => {
       expect(screen.getByText('Edit service item')).toBeInTheDocument();
       expect(screen.getByText('Final SIT delivery')).toBeInTheDocument();
       expect(screen.getByText('Initial SIT delivery address')).toBeInTheDocument();
-      expect(screen.queryByText('555 Fakest Dr, Unit 133, Alexandria, VA 12867')).toBeInTheDocument();
+      expect(screen.queryByText('555 Fakest Dr,')).toBeInTheDocument();
+      expect(screen.queryByText('Unit 133,')).toBeInTheDocument();
+      expect(screen.queryByText('Alexandria, VA 12867')).toBeInTheDocument();
       const form = screen.getByTestId('editAddressForm');
       expect(form).toBeInTheDocument();
     });
