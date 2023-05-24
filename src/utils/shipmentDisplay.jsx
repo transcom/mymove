@@ -9,6 +9,24 @@ import affiliations from 'content/serviceMemberAgencies';
 export function formatAddress(address) {
   const { streetAddress1, streetAddress2, city, state, postalCode } = address;
   return (
+    <>
+      {streetAddress1 && <>{streetAddress1},&nbsp;</>}
+      {streetAddress2 && <>{streetAddress2},&nbsp;</>}
+      {city ? `${city}, ${state} ${postalCode}` : postalCode}
+    </>
+  );
+}
+
+/**
+ * @description This function is used to format the address in the
+ * EditSitAddressChangeForm component. It specifically uses the `<span>`
+ * elements to be able to make each line of an address be set to `display:
+ * block;` in the CSS to match the design.
+ * @see ServiceItemUpdateModal / EditSITAddressChangeForm
+ * */
+export function formatAddressForSitAddressChangeForm(address) {
+  const { streetAddress1, streetAddress2, city, state, postalCode } = address;
+  return (
     <address>
       <span>{streetAddress1 && <>{streetAddress1},&nbsp;</>}</span>
       <span>{streetAddress2 && <>{streetAddress2},&nbsp;</>}</span>

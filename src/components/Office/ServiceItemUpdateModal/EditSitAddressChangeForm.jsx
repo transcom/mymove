@@ -2,7 +2,7 @@ import React from 'react';
 import classnames from 'classnames';
 import { Alert } from '@trussworks/react-uswds';
 
-import { formatAddress } from '../../../utils/shipmentDisplay';
+import { formatAddressForSitAddressChangeForm } from '../../../utils/shipmentDisplay';
 import DataTableWrapper from '../../DataTableWrapper/index';
 import DataTable from '../../DataTable/index';
 
@@ -21,7 +21,10 @@ const EditSitAddressChangeForm = ({ initialAddress }) => {
   return (
     <div className={styles.editSitAddressChangeForm}>
       <DataTableWrapper className={classnames('maxw-tablet', 'table--data-point-group', styles.initialAddress)}>
-        <DataTable columnHeaders={['Initial SIT delivery address']} dataRow={[formatAddress(initialAddress)]} />
+        <DataTable
+          columnHeaders={['Initial SIT delivery address']}
+          dataRow={[formatAddressForSitAddressChangeForm(initialAddress)]}
+        />
       </DataTableWrapper>
       <h3 className={styles.destinationAddressTitle}>Final SIT delivery</h3>
       <Alert type="warning">Approvals over 50 miles will result in updated pricing for this shipment.</Alert>
