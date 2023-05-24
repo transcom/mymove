@@ -581,7 +581,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 
 	// Mock planner to always return a distance of 400 mi
 	planner := &routemocks.Planner{}
-	planner.On("TransitDistance",
+	planner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
@@ -613,7 +613,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		}
 		_, _ = suite.DB().ValidateAndCreate(&ghcDomesticTransitTime)
 		handlerConfig := suite.HandlerConfig()
-		handlerConfig.SetPlanner(planner)
+		handlerConfig.SetHHGPlanner(planner)
 		handler := UpdateMTOShipmentHandler{
 			handlerConfig,
 			shipmentUpdater,
@@ -1369,7 +1369,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressLogic() {
 	builder := query.NewQueryBuilder()
 	fetcher := fetch.NewFetcher(builder)
 	planner := &routemocks.Planner{}
-	planner.On("TransitDistance",
+	planner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
@@ -1390,7 +1390,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressLogic() {
 
 	setupTestData := func() (UpdateMTOShipmentHandler, models.MTOShipment) {
 		handlerConfig := suite.HandlerConfig()
-		handlerConfig.SetPlanner(planner)
+		handlerConfig.SetHHGPlanner(planner)
 		handler := UpdateMTOShipmentHandler{
 			handlerConfig,
 			shipmentUpdater,
@@ -1571,7 +1571,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 
 	// Mock planner to always return a distance of 400 mi
 	planner := &routemocks.Planner{}
-	planner.On("TransitDistance",
+	planner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
@@ -1605,7 +1605,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 
 	setupTestData := func() (UpdateMTOShipmentHandler, models.Move) {
 		handlerConfig := suite.HandlerConfig()
-		handlerConfig.SetPlanner(planner)
+		handlerConfig.SetHHGPlanner(planner)
 		handler := UpdateMTOShipmentHandler{
 			handlerConfig,
 			shipmentUpdater,
@@ -2108,7 +2108,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 	builder := query.NewQueryBuilder()
 	fetcher := fetch.NewFetcher(builder)
 	planner := &routemocks.Planner{}
-	planner.On("TransitDistance",
+	planner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
@@ -2124,7 +2124,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 
 	setupTestData := func() (UpdateMTOShipmentStatusHandler, models.MTOShipment) {
 		handlerConfig := suite.HandlerConfig()
-		handlerConfig.SetPlanner(planner)
+		handlerConfig.SetHHGPlanner(planner)
 		handler := UpdateMTOShipmentStatusHandler{
 			handlerConfig,
 			mtoshipment.NewPrimeMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, suite.TestNotificationSender(), paymentRequestShipmentRecalculator),

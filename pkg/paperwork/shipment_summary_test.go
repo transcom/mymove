@@ -63,7 +63,7 @@ func (suite *PaperworkSuite) TestComputeObligationsParams() {
 	missingActualMoveDate := models.ShipmentSummaryFormData{PersonallyProcuredMoves: models.PersonallyProcuredMoves{ppm}}
 
 	planner := &mocks.Planner{}
-	planner.On("Zip5TransitDistanceLineHaul",
+	planner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
@@ -87,7 +87,7 @@ func (suite *PaperworkSuite) TestComputeObligations() {
 	totalWeightEntitlement := unit.Pound(1000)
 	ppmRemainingEntitlement := unit.Pound(2000)
 	planner := &mocks.Planner{}
-	planner.On("Zip5TransitDistanceLineHaul",
+	planner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
