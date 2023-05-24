@@ -6,7 +6,7 @@ import (
 
 // FA2 represents the FA2 EDI segment
 type FA2 struct {
-	BreakdownStructureDetailCode string `validate:"eq=TA"`
+	BreakdownStructureDetailCode string `validate:"oneof=ZZ TA"`
 	FinancialInformationCode     string `validate:"min=1,max=80"`
 }
 
