@@ -1,4 +1,4 @@
-import { faker } from '@faker-js/faker';
+import { fakerEN_US as faker } from '@faker-js/faker';
 
 import { idHelper, stateHelper } from './helpers';
 
