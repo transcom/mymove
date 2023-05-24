@@ -746,6 +746,7 @@ func SITAddressUpdate(sitAddressUpdate *models.SITAddressUpdate) *primemessages.
 		ETag:              etag.GenerateEtag(sitAddressUpdate.UpdatedAt),
 		MtoServiceItemID:  strfmt.UUID(sitAddressUpdate.MTOServiceItemID.String()),
 		NewAddressID:      strfmt.UUID(sitAddressUpdate.NewAddressID.String()),
+		NewAddress:        Address(&sitAddressUpdate.NewAddress),
 		ContractorRemarks: handlers.FmtStringPtr(sitAddressUpdate.ContractorRemarks),
 		Status:            primemessages.SitAddressUpdateStatus(sitAddressUpdate.Status),
 		CreatedAt:         strfmt.DateTime(sitAddressUpdate.CreatedAt),
@@ -755,7 +756,7 @@ func SITAddressUpdate(sitAddressUpdate *models.SITAddressUpdate) *primemessages.
 	return payload
 }
 
-// SITDurationUpdates payload\
+// SITDurationUpdates payload
 func SITDurationUpdates(sitDurationUpdates *models.SITDurationUpdates) *primemessages.SITExtensions {
 	if sitDurationUpdates == nil {
 		return nil

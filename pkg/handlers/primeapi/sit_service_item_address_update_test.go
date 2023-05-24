@@ -101,6 +101,7 @@ func (suite *HandlerSuite) TestCreateSITAddressUpdateRequest() {
 
 		suite.NotNil(successResponse.ID)
 		suite.NotNil(successResponse.NewAddressID)
+		suite.NotNil(successResponse.NewAddress)
 		suite.NotNil(successResponse.UpdatedAt)
 		suite.NotNil(successResponse.CreatedAt)
 		suite.NotNil(successResponse.ETag)

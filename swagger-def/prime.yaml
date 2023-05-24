@@ -2616,6 +2616,8 @@ definitions:
         format: uuid
         readOnly: true
         type: string
+      newAddress:
+        $ref: 'definitions/Address.yaml'
       status:
         $ref: '#/definitions/SitAddressUpdateStatus'
       distance:

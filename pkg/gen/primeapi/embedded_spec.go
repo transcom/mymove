@@ -3623,6 +3623,9 @@ func init() {
           "readOnly": true,
           "example": "12d9e103-5a56-4636-906d-6e993b97ef51"
         },
+        "newAddress": {
+          "$ref": "#/definitions/Address"
+        },
         "newAddressId": {
           "type": "string",
           "format": "uuid",
@@ -8210,6 +8213,9 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "12d9e103-5a56-4636-906d-6e993b97ef51"
+        },
+        "newAddress": {
+          "$ref": "#/definitions/Address"
         },
         "newAddressId": {
           "type": "string",

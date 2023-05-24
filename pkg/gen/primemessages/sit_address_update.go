@@ -50,6 +50,9 @@ type SitAddressUpdate struct {
 	// Format: uuid
 	MtoServiceItemID strfmt.UUID `json:"mtoServiceItemId,omitempty"`
 
+	// new address
+	NewAddress *Address `json:"newAddress,omitempty"`
+
 	// new address Id
 	// Example: 31a2ad3c-1682-4d5b-8423-ff40053a056b
 	// Read Only: true
@@ -82,6 +85,10 @@ func (m *SitAddressUpdate) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateMtoServiceItemID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateNewAddress(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -147,6 +154,25 @@ func (m *SitAddressUpdate) validateMtoServiceItemID(formats strfmt.Registry) err
 	return nil
 }
 
+func (m *SitAddressUpdate) validateNewAddress(formats strfmt.Registry) error {
+	if swag.IsZero(m.NewAddress) { // not required
+		return nil
+	}
+
+	if m.NewAddress != nil {
+		if err := m.NewAddress.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("newAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("newAddress")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *SitAddressUpdate) validateNewAddressID(formats strfmt.Registry) error {
 	if swag.IsZero(m.NewAddressID) { // not required
 		return nil
@@ -192,6 +218,10 @@ func (m *SitAddressUpdate) ContextValidate(ctx context.Context, formats strfmt.R
 	}
 
 	if err := m.contextValidateMtoServiceItemID(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateNewAddress(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -249,6 +279,22 @@ func (m *SitAddressUpdate) contextValidateMtoServiceItemID(ctx context.Context, 
 
 	if err := validate.ReadOnly(ctx, "mtoServiceItemId", "body", strfmt.UUID(m.MtoServiceItemID)); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (m *SitAddressUpdate) contextValidateNewAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.NewAddress != nil {
+		if err := m.NewAddress.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("newAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("newAddress")
+			}
+			return err
+		}
 	}
 
 	return nil
