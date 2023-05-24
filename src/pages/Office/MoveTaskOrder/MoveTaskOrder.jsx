@@ -159,7 +159,6 @@ export const MoveTaskOrder = (props) => {
     });
     return serviceItemsForShipment;
   }, [mtoServiceItems]);
-
   const queryClient = useQueryClient();
   const { mutate: mutateMTOServiceItemStatus } = useMutation({
     mutationFn: patchMTOServiceItemStatus,
@@ -309,10 +308,10 @@ export const MoveTaskOrder = (props) => {
   const { mutate: mutateSitAddressUpdate } = useMutation({
     mutationFn: createSitAddressUpdate,
     onSuccess: (data) => {
-      const updatedServiceItems = mtoServiceItems;
+      const updatedServiceItems = [...mtoServiceItems];
       updatedServiceItems[updatedServiceItems.findIndex((serviceItem) => serviceItem.id === data.id)] = data;
       queryClient.setQueryData([MTO_SERVICE_ITEMS, move.moveId, false], updatedServiceItems);
-      queryClient.invalidateQueries({ queryKey: [MTO_SERVICE_ITEMS, move.moveId] });
+      queryClient.invalidateQueries({ queryKey: [MTO_SERVICE_ITEMS, move.id] });
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
