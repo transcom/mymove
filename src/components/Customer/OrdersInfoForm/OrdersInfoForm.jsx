@@ -11,13 +11,12 @@ import Hint from 'components/Hint/index';
 import { Form } from 'components/form/Form';
 import { DropdownArrayOf } from 'types';
 import formStyles from 'styles/form.module.scss';
-import { DutyLocationShape } from 'types/dutyLocation';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import Callout from 'components/Callout';
 import { formatLabelReportByDate } from 'utils/formatters';
 
-const OrdersInfoForm = ({ currentDutyLocation, ordersTypeOptions, initialValues, onSubmit, onBack }) => {
+const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) => {
   const validationSchema = Yup.object().shape({
     orders_type: Yup.mixed()
       .oneOf(ordersTypeOptions.map((i) => i.key))
@@ -29,15 +28,7 @@ const OrdersInfoForm = ({ currentDutyLocation, ordersTypeOptions, initialValues,
       .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
       .required('Required'),
     has_dependents: Yup.mixed().oneOf(['yes', 'no']).required('Required'),
-    new_duty_location: Yup.object()
-      .shape({
-        name: Yup.string().notOneOf(
-          [currentDutyLocation?.name],
-          'You entered the same duty location for your origin and destination. Please change one of them.',
-        ),
-      })
-      .nullable()
-      .required('Required'),
+    new_duty_location: Yup.object().nullable().required('Required'),
   });
 
   return (
@@ -149,7 +140,6 @@ OrdersInfoForm.propTypes = {
   }).isRequired,
   onSubmit: PropTypes.func.isRequired,
   onBack: PropTypes.func.isRequired,
-  currentDutyLocation: DutyLocationShape.isRequired,
 };
 
 export default OrdersInfoForm;

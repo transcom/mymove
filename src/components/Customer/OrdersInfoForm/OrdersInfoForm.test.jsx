@@ -172,7 +172,7 @@ describe('OrdersInfoForm component', () => {
     expect(ordersTypeDropdown).toHaveValue('SEPARATION');
   });
 
-  it('validates the new duty location against the current duty location', async () => {
+  it('allows new and current duty location to be the same', async () => {
     render(<OrdersInfoForm {...testProps} currentDutyLocation={{ name: 'Luke AFB' }} />);
 
     await userEvent.selectOptions(screen.getByLabelText('Orders type'), 'PERMANENT_CHANGE_OF_STATION');
@@ -191,12 +191,7 @@ describe('OrdersInfoForm component', () => {
       });
     });
 
-    expect(screen.getByRole('button', { name: 'Next' })).toHaveAttribute('disabled');
-    expect(
-      screen.getByText(
-        'You entered the same duty location for your origin and destination. Please change one of them.',
-      ),
-    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Next' })).not.toHaveAttribute('disabled');
   });
 
   it('shows an error message if trying to submit an invalid form', async () => {
