@@ -310,8 +310,8 @@ export const MoveTaskOrder = (props) => {
     onSuccess: (data) => {
       const updatedServiceItems = [...mtoServiceItems];
       updatedServiceItems[updatedServiceItems.findIndex((serviceItem) => serviceItem.id === data.id)] = data;
-      queryClient.setQueryData([MTO_SERVICE_ITEMS, move.moveId, false], updatedServiceItems);
-      queryClient.invalidateQueries({ queryKey: [MTO_SERVICE_ITEMS, move.id] });
+      queryClient.setQueryData([MTO_SERVICE_ITEMS, move.id, false], updatedServiceItems);
+      queryClient.invalidateQueries({ queryKey: [MTO_SERVICE_ITEMS, move.id, false] });
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
