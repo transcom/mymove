@@ -163,6 +163,29 @@ describe('Orders page', () => {
       expect(screen.getByTestId('view-allowances')).toHaveTextContent('View allowances');
     });
 
+    it('renders each option for orders type dropdown', async () => {
+      render(
+        <MockProviders>
+          <ServicesCounselingOrders />
+        </MockProviders>,
+      );
+
+      const ordersTypeDropdown = screen.getByLabelText('Orders type');
+      expect(ordersTypeDropdown).toBeInstanceOf(HTMLSelectElement);
+
+      await userEvent.selectOptions(ordersTypeDropdown, 'PERMANENT_CHANGE_OF_STATION');
+      expect(ordersTypeDropdown).toHaveValue('PERMANENT_CHANGE_OF_STATION');
+
+      await userEvent.selectOptions(ordersTypeDropdown, 'LOCAL_MOVE');
+      expect(ordersTypeDropdown).toHaveValue('LOCAL_MOVE');
+
+      await userEvent.selectOptions(ordersTypeDropdown, 'RETIREMENT');
+      expect(ordersTypeDropdown).toHaveValue('RETIREMENT');
+
+      await userEvent.selectOptions(ordersTypeDropdown, 'SEPARATION');
+      expect(ordersTypeDropdown).toHaveValue('SEPARATION');
+    });
+
     it('populates initial field values', async () => {
       useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
 

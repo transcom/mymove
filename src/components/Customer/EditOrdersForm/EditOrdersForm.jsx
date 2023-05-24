@@ -15,7 +15,6 @@ import profileImage from 'scenes/Review/images/profile.png';
 import Hint from 'components/Hint/index';
 import { DropdownArrayOf } from 'types';
 import { ExistingUploadsShape } from 'types/uploads';
-import { DutyLocationShape } from 'types/dutyLocation';
 import { DropdownInput, DatePickerInput, DutyLocationInput } from 'components/form/fields';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import Callout from 'components/Callout';
@@ -30,7 +29,6 @@ const EditOrdersForm = ({
   filePondEl,
   onSubmit,
   ordersTypeOptions,
-  currentDutyLocation,
   onCancel,
 }) => {
   const validationSchema = Yup.object().shape({
@@ -44,15 +42,7 @@ const EditOrdersForm = ({
       .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
       .required('Required'),
     has_dependents: Yup.mixed().oneOf(['yes', 'no']).required('Required'),
-    new_duty_location: Yup.object()
-      .shape({
-        name: Yup.string().notOneOf(
-          [currentDutyLocation?.name],
-          'You entered the same duty location for your origin and destination. Please change one of them.',
-        ),
-      })
-      .nullable()
-      .required('Required'),
+    new_duty_location: Yup.object().nullable().required('Required'),
     uploaded_orders: Yup.array()
       .of(
         Yup.object().shape({
@@ -205,7 +195,6 @@ EditOrdersForm.propTypes = {
     }),
     uploaded_orders: ExistingUploadsShape,
   }).isRequired,
-  currentDutyLocation: DutyLocationShape.isRequired,
   onCancel: PropTypes.func.isRequired,
 };
 

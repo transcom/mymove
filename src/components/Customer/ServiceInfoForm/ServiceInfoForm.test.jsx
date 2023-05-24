@@ -185,31 +185,6 @@ describe('ServiceInfoForm', () => {
     expect(await screen.findByText('Enter a 10-digit DOD ID number')).toBeInTheDocument();
   });
 
-  it('validates the new duty location against the current duty location', async () => {
-    render(
-      <ServiceInfoForm
-        {...testProps}
-        newDutyLocation={{ name: 'Luke AFB', id: 'a8d6b33c-8370-4e92-8df2-356b8c9d0c1a' }}
-      />,
-    );
-
-    // Test Duty Location Search Box interaction
-    const dutyLocationInput = await screen.getByLabelText('Current duty location');
-    fireEvent.change(dutyLocationInput, { target: { value: 'AFB' } });
-    await act(() => selectEvent.select(dutyLocationInput, /Luke/));
-
-    expect(await screen.findByRole('form')).toHaveFormValues({
-      current_location: 'Luke AFB',
-    });
-
-    expect(await screen.findByRole('button', { name: 'Save' })).toHaveAttribute('disabled');
-    expect(
-      await screen.findByText(
-        'You entered the same duty location for your origin and destination. Please change one of them.',
-      ),
-    ).toBeInTheDocument();
-  });
-
   it('shows an error message if trying to submit an invalid form', async () => {
     render(<ServiceInfoForm {...testProps} />);
 
@@ -230,7 +205,12 @@ describe('ServiceInfoForm', () => {
   });
 
   it('submits the form when its valid', async () => {
-    render(<ServiceInfoForm {...testProps} />);
+    render(
+      <ServiceInfoForm
+        {...testProps}
+        newDutyLocation={{ name: 'Luke AFB', id: 'a8d6b33c-8370-4e92-8df2-356b8c9d0c1a' }}
+      />,
+    );
     const submitBtn = screen.getByRole('button', { name: 'Save' });
 
     await userEvent.type(screen.getByLabelText('First name'), 'Leo');

@@ -1989,6 +1989,7 @@ func init() {
       "title": "Orders type",
       "enum": [
         "PERMANENT_CHANGE_OF_STATION",
+        "LOCAL_MOVE",
         "RETIREMENT",
         "SEPARATION",
         "GHC",
@@ -1996,6 +1997,7 @@ func init() {
       ],
       "x-display-value": {
         "GHC": "GHC",
+        "LOCAL_MOVE": "Local Move",
         "NTS": "NTS",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station (PCS)",
         "RETIREMENT": "Retirement",
@@ -4764,6 +4766,7 @@ func init() {
       "title": "Orders type",
       "enum": [
         "PERMANENT_CHANGE_OF_STATION",
+        "LOCAL_MOVE",
         "RETIREMENT",
         "SEPARATION",
         "GHC",
@@ -4771,6 +4774,7 @@ func init() {
       ],
       "x-display-value": {
         "GHC": "GHC",
+        "LOCAL_MOVE": "Local Move",
         "NTS": "NTS",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station (PCS)",
         "RETIREMENT": "Retirement",

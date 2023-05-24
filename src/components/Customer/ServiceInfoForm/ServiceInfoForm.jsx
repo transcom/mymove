@@ -16,7 +16,7 @@ import { dropdownInputOptions } from 'utils/formatters';
 import formStyles from 'styles/form.module.scss';
 import { DutyLocationShape } from 'types/dutyLocation';
 
-const ServiceInfoForm = ({ initialValues, onSubmit, onCancel, newDutyLocation }) => {
+const ServiceInfoForm = ({ initialValues, onSubmit, onCancel }) => {
   const branchOptions = dropdownInputOptions(SERVICE_MEMBER_AGENCY_LABELS);
   const rankOptions = dropdownInputOptions(ORDERS_RANK_OPTIONS);
 
@@ -30,13 +30,7 @@ const ServiceInfoForm = ({ initialValues, onSubmit, onCancel, newDutyLocation })
       .matches(/[0-9]{10}/, 'Enter a 10-digit DOD ID number')
       .required('Required'),
     rank: Yup.mixed().oneOf(Object.keys(ORDERS_RANK_OPTIONS)).required('Required'),
-    current_location: Yup.object()
-      .required('Required')
-      .test(
-        'existing and new duty location should not match',
-        'You entered the same duty location for your origin and destination. Please change one of them.',
-        (value) => value?.id !== newDutyLocation?.id,
-      ),
+    current_location: Yup.object().required('Required'),
   });
 
   return (
@@ -120,11 +114,6 @@ ServiceInfoForm.propTypes = {
   }).isRequired,
   onCancel: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
-  newDutyLocation: DutyLocationShape,
-};
-
-ServiceInfoForm.defaultProps = {
-  newDutyLocation: {},
 };
 
 export default ServiceInfoForm;
