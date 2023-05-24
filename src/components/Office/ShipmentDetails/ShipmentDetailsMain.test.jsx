@@ -23,7 +23,7 @@ const shipmentDetailsMainParams = {
 };
 
 describe('Shipment Details Main', () => {
-  it('displays SIT when there is a sitStatus', () => {
+  it('displays SIT when there are service items which contain SIT', () => {
     render(
       <MockProviders>
         <ShipmentDetailsMain {...shipmentDetailsMainParams} shipment={SITShipment} />
@@ -32,7 +32,7 @@ describe('Shipment Details Main', () => {
 
     expect(screen.getByText('SIT (STORAGE IN TRANSIT)')).toBeInTheDocument();
   });
-  it('displays SIT when the shipment has sitDaysAllowance', () => {
+  it('displays SIT when there are service items which contain SIT in the future', () => {
     render(
       <MockProviders>
         <ShipmentDetailsMain {...shipmentDetailsMainParams} shipment={futureSITShipment} />
@@ -41,7 +41,7 @@ describe('Shipment Details Main', () => {
 
     expect(screen.getByText('SIT (STORAGE IN TRANSIT)')).toBeInTheDocument();
   });
-  it('does not display SIT when there is no sitStatus and no sit days allowance', () => {
+  it('does not display SIT when there are no service items which contain SIT', () => {
     render(
       <MockProviders>
         <ShipmentDetailsMain {...shipmentDetailsMainParams} shipment={noSITShipment} />

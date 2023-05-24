@@ -2,11 +2,9 @@ import fs from 'fs';
 import path from 'path';
 import process from 'process';
 
-import { faker } from '@faker-js/faker';
+import { fakerEN_US as faker } from '@faker-js/faker';
 import { build, perBuild } from '@jackfranklin/test-data-bot';
 import yaml from 'js-yaml';
-
-faker.setLocale('en_US');
 
 const fake = (callback) => {
   return perBuild(() => callback(faker));

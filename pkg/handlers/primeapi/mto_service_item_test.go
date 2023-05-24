@@ -107,6 +107,49 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		suite.NotZero(okResponse.Payload[0].ID())
 	})
 
+	suite.Run("Successful POST for Creating Shuttling without PrimeEstimatedWeight set - Integration Test", func() {
+		mto := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    mto,
+				LinkOnly: true,
+			},
+		}, nil)
+		mtoShipment.PrimeEstimatedWeight = nil
+		factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDOSHUT)
+		req := httptest.NewRequest("POST", "/mto-service-items", nil)
+		reason := "lorem ipsum"
+
+		mtoServiceItem := models.MTOServiceItem{
+			MoveTaskOrderID: mto.ID,
+			MTOShipmentID:   &mtoShipment.ID,
+			ReService:       models.ReService{Code: models.ReServiceCodeDOSHUT},
+			Reason:          &reason,
+		}
+
+		params := mtoserviceitemops.CreateMTOServiceItemParams{
+			HTTPRequest: req,
+			Body:        payloads.MTOServiceItem(&mtoServiceItem),
+		}
+
+		moveRouter := moverouter.NewMoveRouter()
+		creator := mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter)
+		handler := CreateMTOServiceItemHandler{
+			suite.HandlerConfig(),
+			creator,
+			mtoChecker,
+		}
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemOK{}, response)
+		okResponse := response.(*mtoserviceitemops.CreateMTOServiceItemOK)
+
+		suite.NotZero(okResponse.Payload[0].ID())
+	})
+
 	suite.Run("POST failure - 500", func() {
 		subtestData := makeSubtestData()
 		mockCreator := mocks.MTOServiceItemCreator{}
