@@ -344,10 +344,10 @@ describe('ServiceItemsTable', () => {
       </MockProviders>,
     );
 
-    const editButton = wrapper.find('button[data-testid="requestTextButton"]');
+    const reviewRequestButton = wrapper.find('button[data-testid="reviewRequestTextButton"]');
 
-    expect(editButton.length).toBeTruthy();
+    expect(reviewRequestButton.length).toBeTruthy();
 
-    expect(editButton.at(0).contains('Review Request')).toBe(true);
+    expect(reviewRequestButton.at(0).contains('Review Request')).toBe(true);
   });
 });
