@@ -526,10 +526,10 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 func (suite *HandlerSuite) TestCreateSITAddressUpdate() {
 	mockPlanner := &routemocks.Planner{}
 	mockedDistance := 55
-	mockPlanner.On("TransitDistance",
+	mockPlanner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
-		mock.AnythingOfType("*models.Address"),
-		mock.AnythingOfType("*models.Address"),
+		mock.AnythingOfType("string"),
+		mock.AnythingOfType("string"),
 	).Return(mockedDistance, nil)
 	serviceItemUpdater := mtoserviceitem.NewMTOServiceItemUpdater(query.NewQueryBuilder(), moverouter.NewMoveRouter())
 	sitAddressUpdateCreator := sitaddressupdate.NewApprovedOfficeSITAddressUpdateCreator(mockPlanner, address.NewAddressCreator(), serviceItemUpdater)

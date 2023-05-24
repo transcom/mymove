@@ -26,8 +26,8 @@ func (suite *SITAddressUpdateServiceSuite) TestCreateSITAddressUpdateRequest() {
 		mockPlanner := &routemocks.Planner{}
 		mockPlanner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
-			mock.AnythingOfType("*models.Address"),
-			mock.AnythingOfType("*models.Address"),
+			mock.AnythingOfType("string"),
+			mock.AnythingOfType("string"),
 		).Return(requestedMockedDistance, nil)
 
 		serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
@@ -105,8 +105,8 @@ func (suite *SITAddressUpdateServiceSuite) TestCreateSITAddressUpdateRequest() {
 		mockPlanner := &routemocks.Planner{}
 		mockPlanner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
-			mock.AnythingOfType("*models.Address"),
-			mock.AnythingOfType("*models.Address"),
+			mock.AnythingOfType("string"),
+			mock.AnythingOfType("string"),
 		).Return(approvedMockedDistance, nil)
 
 		serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
@@ -173,8 +173,8 @@ func (suite *SITAddressUpdateServiceSuite) TestCreateSITAddressUpdateRequest() {
 		mockPlanner := &routemocks.Planner{}
 		mockPlanner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
-			mock.AnythingOfType("*models.Address"),
-			mock.AnythingOfType("*models.Address"),
+			mock.AnythingOfType("string"),
+			mock.AnythingOfType("string"),
 		).Return(requestedMockedDistance, nil)
 
 		serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{

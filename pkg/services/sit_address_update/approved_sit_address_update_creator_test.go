@@ -19,8 +19,8 @@ func (suite *SITAddressUpdateServiceSuite) TestCreateApprovedSITAddressUpdate() 
 	mockedDistance := 55
 	mockPlanner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
-		mock.AnythingOfType("*models.Address"),
-		mock.AnythingOfType("*models.Address"),
+		mock.AnythingOfType("string"),
+		mock.AnythingOfType("string"),
 	).Return(mockedDistance, nil)
 
 	suite.Run("Successfully create SITAddressUpdate", func() {
