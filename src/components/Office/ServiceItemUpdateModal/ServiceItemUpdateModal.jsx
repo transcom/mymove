@@ -77,10 +77,17 @@ export const ServiceItemUpdateModal = ({
         {({ isValid }) => {
           return (
             <Form className={classnames(styles.sitPanelForm, formStyles.form)}>
-              <h3>SIT delivery address</h3>
+              <h3 className={styles.modalReviewHeader}>SIT delivery address</h3>
               {content}
               <Label htmlFor="officeRemarks">Office remarks</Label>
-              <Field as={Textarea} data-testid="officeRemarks" label="No" name="officeRemarks" id="officeRemarks" />
+              <Field
+                as={Textarea}
+                data-testid="officeRemarks"
+                label="No"
+                name="officeRemarks"
+                id="officeRemarks"
+                className={styles.officeRemarks}
+              />
               <ModalActions>
                 <Button type="submit" disabled={!isValid}>
                   Save

@@ -17,7 +17,7 @@ const EditSitAddressChangeForm = ({ initialAddress }) => {
       <DataTableWrapper className={classnames('maxw-tablet', 'table--data-point-group', styles.initialAddress)}>
         <DataTable columnHeaders={['Initial SIT delivery address']} dataRow={[formatAddress(initialAddress)]} />
       </DataTableWrapper>
-      <h3>Final SIT delivery</h3>
+      <h3 className={styles.destinationAddressTitle}>Final SIT delivery</h3>
       <Alert type="warning">Approvals over 50 miles will result in updated pricing for this shipment.</Alert>
       <div data-testid="editAddressForm">
         <AddressFields name="newAddress" />

@@ -9,11 +9,11 @@ import affiliations from 'content/serviceMemberAgencies';
 export function formatAddress(address) {
   const { streetAddress1, streetAddress2, city, state, postalCode } = address;
   return (
-    <>
-      {streetAddress1 && <>{streetAddress1},&nbsp;</>}
-      {streetAddress2 && <>{streetAddress2},&nbsp;</>}
-      {city ? `${city}, ${state} ${postalCode}` : postalCode}
-    </>
+    <address>
+      <span>{streetAddress1 && <>{streetAddress1},&nbsp;</>}</span>
+      <span>{streetAddress2 && <>{streetAddress2},&nbsp;</>}</span>
+      <span>{city ? `${city}, ${state} ${postalCode}` : postalCode}</span>
+    </address>
   );
 }
 
