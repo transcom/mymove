@@ -24,7 +24,7 @@ readonly image=$2
 readonly environment=$3
 readonly entrypoint=$4
 
-readonly RESERVATION_CPU=512
+readonly RESERVATION_CPU=1024
 readonly RESERVATION_MEM=2048
 
 # The cluster name is always `app-ENV`
