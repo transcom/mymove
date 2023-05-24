@@ -448,6 +448,102 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		suite.Equal(newServiceItem.SITDestinationFinalAddress.City, newSitDestinationFinalAddress.City)
 	})
 
+	suite.Run("setNewCustomerContacts - success with one old and one updated", func() {
+		oldServiceItem, editServiceItem := setupTestData()
+
+		editServiceItem.CustomerContacts = models.MTOServiceItemCustomerContacts{
+			models.MTOServiceItemCustomerContact{
+				Type:                       models.CustomerContactTypeFirst,
+				TimeMilitary:               "1400Z",
+				FirstAvailableDeliveryDate: time.Now().AddDate(0, 0, 5),
+			},
+		}
+		serviceItemData := updateMTOServiceItemData{
+			updatedServiceItem: editServiceItem,
+			oldServiceItem:     oldServiceItem,
+			verrs:              validate.NewErrors(),
+		}
+		newCustomerContacts := serviceItemData.setNewCustomerContacts()
+
+		suite.Equal(1, len(newCustomerContacts))
+		suite.NotEqual(newCustomerContacts[0].TimeMilitary, serviceItemData.oldServiceItem.CustomerContacts[0].TimeMilitary)
+		suite.NotEqual(newCustomerContacts[0].FirstAvailableDeliveryDate, serviceItemData.oldServiceItem.CustomerContacts[0].FirstAvailableDeliveryDate)
+
+		suite.Equal(newCustomerContacts[0].TimeMilitary, serviceItemData.updatedServiceItem.CustomerContacts[0].TimeMilitary)
+		suite.Equal(newCustomerContacts[0].FirstAvailableDeliveryDate, serviceItemData.updatedServiceItem.CustomerContacts[0].FirstAvailableDeliveryDate)
+	})
+
+	suite.Run("setNewCustomerContacts - success with one old and zero updated", func() {
+		oldServiceItem, editServiceItem := setupTestData()
+
+		editServiceItem.CustomerContacts = models.MTOServiceItemCustomerContacts{}
+		serviceItemData := updateMTOServiceItemData{
+			updatedServiceItem: editServiceItem,
+			oldServiceItem:     oldServiceItem,
+			verrs:              validate.NewErrors(),
+		}
+		newCustomerContacts := serviceItemData.setNewCustomerContacts()
+
+		suite.Equal(1, len(newCustomerContacts))
+		suite.Equal(newCustomerContacts, serviceItemData.oldServiceItem.CustomerContacts)
+	})
+
+	suite.Run("setNewCustomerContacts - success with zero old and one updated", func() {
+		oldServiceItem, editServiceItem := setupTestData()
+		oldServiceItem.CustomerContacts = models.MTOServiceItemCustomerContacts{}
+
+		editServiceItem.CustomerContacts = models.MTOServiceItemCustomerContacts{
+			models.MTOServiceItemCustomerContact{
+				Type:                       models.CustomerContactTypeFirst,
+				TimeMilitary:               "1400Z",
+				FirstAvailableDeliveryDate: time.Now().AddDate(0, 0, 5),
+			},
+		}
+		serviceItemData := updateMTOServiceItemData{
+			updatedServiceItem: editServiceItem,
+			oldServiceItem:     oldServiceItem,
+			verrs:              validate.NewErrors(),
+		}
+		newCustomerContacts := serviceItemData.setNewCustomerContacts()
+
+		suite.Equal(1, len(newCustomerContacts))
+		suite.Equal(newCustomerContacts, serviceItemData.updatedServiceItem.CustomerContacts)
+	})
+	suite.Run("setNewCustomerContacts - success with updated having different type than old", func() {
+		oldServiceItem, editServiceItem := setupTestData()
+
+		editServiceItem.CustomerContacts = models.MTOServiceItemCustomerContacts{
+			models.MTOServiceItemCustomerContact{
+				Type:                       models.CustomerContactTypeSecond,
+				TimeMilitary:               "1400Z",
+				FirstAvailableDeliveryDate: time.Now().AddDate(0, 0, 5),
+			},
+		}
+		serviceItemData := updateMTOServiceItemData{
+			updatedServiceItem: editServiceItem,
+			oldServiceItem:     oldServiceItem,
+			verrs:              validate.NewErrors(),
+		}
+		newCustomerContacts := serviceItemData.setNewCustomerContacts()
+
+		// There should be two customer contacts
+		suite.Equal(2, len(newCustomerContacts))
+		for _, newContact := range newCustomerContacts {
+			if newContact.Type == models.CustomerContactTypeFirst {
+				suite.Equal(newContact.TimeMilitary, serviceItemData.oldServiceItem.CustomerContacts[0].TimeMilitary)
+				suite.Equal(newContact.FirstAvailableDeliveryDate, serviceItemData.oldServiceItem.CustomerContacts[0].FirstAvailableDeliveryDate)
+				suite.NotEqual(newContact.TimeMilitary, serviceItemData.updatedServiceItem.CustomerContacts[0].TimeMilitary)
+				suite.NotEqual(newContact.FirstAvailableDeliveryDate, serviceItemData.updatedServiceItem.CustomerContacts[0].FirstAvailableDeliveryDate)
+			}
+			if newContact.Type == models.CustomerContactTypeSecond {
+				suite.NotEqual(newContact.TimeMilitary, serviceItemData.oldServiceItem.CustomerContacts[0].TimeMilitary)
+				suite.NotEqual(newContact.FirstAvailableDeliveryDate, serviceItemData.oldServiceItem.CustomerContacts[0].FirstAvailableDeliveryDate)
+				suite.Equal(newContact.TimeMilitary, serviceItemData.updatedServiceItem.CustomerContacts[0].TimeMilitary)
+				suite.Equal(newContact.FirstAvailableDeliveryDate, serviceItemData.updatedServiceItem.CustomerContacts[0].FirstAvailableDeliveryDate)
+			}
+		}
+	})
+
 	suite.Run("checkSITDestinationFinalAddress - adding SITDestinationFinalAddress", func() {
 		oldServiceItemPrime := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{

@@ -23,8 +23,7 @@ const (
 // MTOServiceItemCustomerContact is an object representing customer contact for a service item.
 type MTOServiceItemCustomerContact struct {
 	ID                         uuid.UUID           `db:"id"`
-	MTOServiceItem             MTOServiceItem      `belongs_to:"mto_service_items" fk_id:"mto_service_item_id"`
-	MTOServiceItemID           uuid.UUID           `db:"mto_service_item_id"`
+	MTOServiceItems            MTOServiceItems     `many_to_many:"service_items_customer_contacts" db:"-"`
 	Type                       CustomerContactType `db:"type"`
 	TimeMilitary               string              `db:"time_military"`
 	FirstAvailableDeliveryDate time.Time           `db:"first_available_delivery_date"`
@@ -43,7 +42,6 @@ type MTOServiceItemCustomerContacts []MTOServiceItemCustomerContact
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (m *MTOServiceItemCustomerContact) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	var vs []validate.Validator
-	vs = append(vs, &validators.UUIDIsPresent{Field: m.MTOServiceItemID, Name: "MTOServiceItemID"})
 	vs = append(vs, &validators.StringInclusion{Field: string(m.Type), Name: "Type", List: []string{
 		string(CustomerContactTypeFirst),
 		string(CustomerContactTypeSecond),

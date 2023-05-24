@@ -164,6 +164,18 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItem(appCtx appcontext.AppContex
 		return nil, err
 	}
 
+	// If we have any Customer Contacts we need to make sure that they are associated with
+	// all related destination SIT service items. This is especially important if we are creating new Customer Contacts.
+	if len(validServiceItem.CustomerContacts) > 0 {
+		relatedServiceItems, fetchErr := models.FetchRelatedDestinationSITServiceItems(appCtx.DB(), validServiceItem.ID)
+		if fetchErr != nil {
+			return nil, fetchErr
+		}
+		for i := range validServiceItem.CustomerContacts {
+			validServiceItem.CustomerContacts[i].MTOServiceItems = relatedServiceItems
+		}
+	}
+
 	// Check the If-Match header against existing eTag before updating
 	encodedUpdatedAt := etag.GenerateEtag(oldServiceItem.UpdatedAt)
 	if encodedUpdatedAt != eTag {
@@ -184,6 +196,27 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItem(appCtx appcontext.AppContex
 				}
 			}
 			validServiceItem.SITDestinationFinalAddressID = &validServiceItem.SITDestinationFinalAddress.ID
+		}
+		for index := range validServiceItem.CustomerContacts {
+			validCustomerContact := &validServiceItem.CustomerContacts[index]
+			if validCustomerContact.ID == uuid.Nil {
+				verrs, createErr := p.builder.CreateOne(txnAppCtx, validCustomerContact)
+				if verrs != nil && verrs.HasAny() {
+					return apperror.NewInvalidInputError(
+						validServiceItem.ID, createErr, verrs, "Invalid input found while creating a Customer Contact for service item.")
+				} else if createErr != nil {
+					// If the error is something else (this is unexpected), we create a QueryError
+					return apperror.NewQueryError("MTOServiceItem", createErr, "")
+				}
+			} else {
+				verrs, updateErr := txnAppCtx.DB().ValidateAndUpdate(validCustomerContact)
+				if verrs != nil && verrs.HasAny() {
+					return apperror.NewInvalidInputError(validServiceItem.ID, updateErr, verrs, "Invalid input found while updating customer contact for the service item.")
+				} else if updateErr != nil {
+					// If the error is something else (this is unexpected), we create a QueryError
+					return apperror.NewQueryError("MTOServiceItem", updateErr, "")
+				}
+			}
 		}
 
 		// Make the update and create a InvalidInputError if there were validation issues

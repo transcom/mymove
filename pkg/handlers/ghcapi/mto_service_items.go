@@ -182,7 +182,6 @@ func (h ListMTOServiceItemsHandler) Handle(params mtoserviceitemop.ListMTOServic
 			}
 			queryAssociations := query.NewQueryAssociationsPreload([]services.QueryAssociation{
 				query.NewQueryAssociation("ReService"),
-				query.NewQueryAssociation("CustomerContacts"),
 				query.NewQueryAssociation("Dimensions"),
 				query.NewQueryAssociation("SITDestinationOriginalAddress"),
 				query.NewQueryAssociation("SITDestinationFinalAddress"),
@@ -197,6 +196,18 @@ func (h ListMTOServiceItemsHandler) Handle(params mtoserviceitemop.ListMTOServic
 				appCtx.Logger().Error("Error fetching mto service items: ", zap.Error(err))
 
 				return mtoserviceitemop.NewListMTOServiceItemsInternalServerError(), err
+			}
+
+			// Due to a Pop bug we are unable to use EagerPreload to fetch customer contacts, so we need to load them here.
+			for i, serviceItem := range serviceItems {
+				if serviceItem.ReService.Code == models.ReServiceCodeDDASIT ||
+					serviceItem.ReService.Code == models.ReServiceCodeDDDSIT ||
+					serviceItem.ReService.Code == models.ReServiceCodeDDFSIT {
+					loadErr := appCtx.DB().Load(&serviceItems[i], "CustomerContacts")
+					if loadErr != nil {
+						return mtoserviceitemop.NewListMTOServiceItemsInternalServerError(), loadErr
+					}
+				}
 			}
 
 			returnPayload := payloads.MTOServiceItemModels(serviceItems)
