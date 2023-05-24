@@ -59,7 +59,7 @@ func (f *sitAddressUpdateRequestCreator) CreateSITAddressUpdateRequest(appCtx ap
 		sitAddressUpdateRequest.NewAddress = *newAddress
 
 		//We calculate and set the distance between the old and new address
-		sitAddressUpdateRequest.Distance, err = f.planner.TransitDistance(txnAppCtx, &sitAddressUpdateRequest.OldAddress, &sitAddressUpdateRequest.NewAddress)
+		sitAddressUpdateRequest.Distance, err = f.planner.TransitDistance(txnAppCtx, serviceItem.SITDestinationOriginalAddress, &sitAddressUpdateRequest.NewAddress)
 		if err != nil {
 			return err
 		}
