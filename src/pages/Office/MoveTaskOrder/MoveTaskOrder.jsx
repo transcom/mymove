@@ -536,6 +536,8 @@ export const MoveTaskOrder = (props) => {
         onSuccess: () => {
           setSelectedServiceItem({});
           setIsEditSitAddressModalVisible(false);
+          setAlertMessage('Changes saved');
+          setAlertType('success');
         },
       },
     );
