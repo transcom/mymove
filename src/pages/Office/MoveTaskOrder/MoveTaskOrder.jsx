@@ -104,7 +104,7 @@ export const MoveTaskOrder = (props) => {
 
   const [selectedShipment, setSelectedShipment] = useState(undefined);
   const [selectedServiceItem, setSelectedServiceItem] = useState(undefined);
-  const [selectedSITAddressUpdateServiceItem, setSelectedSITAddressUpdateServiceItem] = useState(undefined);
+  const [setSelectedSITAddressUpdateServiceItem] = useState(undefined);
   const [sections, setSections] = useState([]);
   const [activeSection, setActiveSection] = useState('');
   const [unapprovedServiceItemsForShipment, setUnapprovedServiceItemsForShipment] = useState({});
