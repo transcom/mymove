@@ -56,7 +56,7 @@ func (f *approvedSITAddressUpdateRequestCreator) CreateApprovedSITAddressUpdate(
 		sitAddressUpdate.NewAddressID = newAddress.ID
 		sitAddressUpdate.NewAddress = *newAddress
 
-		sitAddressUpdate.Distance, err = f.planner.TransitDistance(appCtx, serviceItem.SITDestinationOriginalAddress, &sitAddressUpdate.NewAddress)
+		sitAddressUpdate.Distance, err = f.planner.ZipTransitDistance(appCtx, serviceItem.SITDestinationOriginalAddress.PostalCode, sitAddressUpdate.NewAddress.PostalCode)
 		if err != nil {
 			return err
 		}

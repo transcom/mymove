@@ -17,7 +17,7 @@ func (suite *SITAddressUpdateServiceSuite) TestCreateApprovedSITAddressUpdate() 
 	serviceItemUpdater := mtoserviceitem.NewMTOServiceItemUpdater(query.NewQueryBuilder(), moverouter.NewMoveRouter())
 	mockPlanner := &routemocks.Planner{}
 	mockedDistance := 55
-	mockPlanner.On("TransitDistance",
+	mockPlanner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.AnythingOfType("*models.Address"),
 		mock.AnythingOfType("*models.Address"),

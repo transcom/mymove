@@ -24,7 +24,7 @@ func (suite *SITAddressUpdateServiceSuite) TestCreateSITAddressUpdateRequest() {
 		// Set up:     We create an approved service item and successfully attempt to create a SITAddressUpdate REQUEST
 		// Expected outcome: A SITAddressUpdate should be created with a REQUESTED status
 		mockPlanner := &routemocks.Planner{}
-		mockPlanner.On("TransitDistance",
+		mockPlanner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("*models.Address"),
 			mock.AnythingOfType("*models.Address"),
@@ -103,7 +103,7 @@ func (suite *SITAddressUpdateServiceSuite) TestCreateSITAddressUpdateRequest() {
 		// Set up:     We create an approved service item and successfully attempt to create a SITAddressUpdate REQUEST
 		// Expected outcome: A SITAddressUpdate should be created with a REQUESTED status
 		mockPlanner := &routemocks.Planner{}
-		mockPlanner.On("TransitDistance",
+		mockPlanner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("*models.Address"),
 			mock.AnythingOfType("*models.Address"),
@@ -171,7 +171,7 @@ func (suite *SITAddressUpdateServiceSuite) TestCreateSITAddressUpdateRequest() {
 		// Set up:     We create an unapproved service item and fail to create a SITAddressUpdate REQUEST
 		// Expected outcome: Failure due to unapproved service item
 		mockPlanner := &routemocks.Planner{}
-		mockPlanner.On("TransitDistance",
+		mockPlanner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("*models.Address"),
 			mock.AnythingOfType("*models.Address"),
