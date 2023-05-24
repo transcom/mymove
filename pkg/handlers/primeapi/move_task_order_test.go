@@ -1192,7 +1192,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		suite.Equal(serviceItem.ReService.Name, payload.ReServiceName())
 		suite.Equal(string(serviceItem.Status), string(payload.Status()))
 		suite.Equal(*serviceItem.RejectionReason, *payload.RejectionReason())
-		// suite.Equal(*serviceItem.Reason, *payload.Reason)
+		suite.Equal(*serviceItem.Reason, *payload.Reason)
 		suite.Equal(serviceItem.SITEntryDate.Format(time.RFC3339), handlers.FmtDatePtrToPop(payload.SitEntryDate).Format(time.RFC3339))
 		suite.Equal(serviceItem.SITDepartureDate.Format(time.RFC3339), handlers.FmtDatePtrToPop(payload.SitDepartureDate).Format(time.RFC3339))
 		suite.Equal(serviceItem.CustomerContacts[0].TimeMilitary, *payload.TimeMilitary1)
