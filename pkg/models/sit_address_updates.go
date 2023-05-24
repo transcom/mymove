@@ -55,7 +55,6 @@ func (s *SITAddressUpdate) Validate(_ *pop.Connection) (*validate.Errors, error)
 		&validators.UUIDIsPresent{Name: "OldAddressID", Field: s.OldAddressID},
 		&validators.UUIDIsPresent{Name: "NewAddressID", Field: s.NewAddressID},
 		&validators.StringInclusion{Name: "Status", Field: string(s.Status), List: AllowedSITAddressStatuses},
-		&validators.IntIsPresent{Name: "Distance", Field: s.Distance},
 		&StringIsNilOrNotBlank{Name: "ContractorRemarks", Field: s.ContractorRemarks},
 		&StringIsNilOrNotBlank{Name: "OfficeRemarks", Field: s.OfficeRemarks},
 	), nil

@@ -32,6 +32,9 @@ type ClientCert struct {
 	UserID                      uuid.UUID `db:"user_id"`
 }
 
+// ClientCerts is not required by pop and may be deleted
+type ClientCerts []ClientCert
+
 // TableName overrides the table name used by Pop.
 func (c ClientCert) TableName() string {
 	return "client_certs"
@@ -40,7 +43,10 @@ func (c ClientCert) TableName() string {
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (c *ClientCert) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
-		&validators.StringIsPresent{Field: c.Sha256Digest, Name: "Sha256Digest"},
+		// a hex encoded sha256 digest is exactly 64 characters long.
+		// Allowing any other length would almost certainly be a
+		// mistake
+		&validators.StringLengthInRange{Field: c.Sha256Digest, Name: "Sha256Digest", Min: 64, Max: 64},
 		&validators.StringIsPresent{Field: c.Subject, Name: "Subject"},
 		&validators.UUIDIsPresent{Field: c.UserID, Name: "UserID"},
 	), nil

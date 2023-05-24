@@ -9,6 +9,7 @@ import (
 	adminops "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations"
 	"github.com/transcom/mymove/pkg/handlers"
 	adminuser "github.com/transcom/mymove/pkg/services/admin_user"
+	"github.com/transcom/mymove/pkg/services/clientcert"
 	electronicorder "github.com/transcom/mymove/pkg/services/electronic_order"
 	fetch "github.com/transcom/mymove/pkg/services/fetch"
 	move "github.com/transcom/mymove/pkg/services/move"
@@ -172,6 +173,37 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 
 	adminAPI.MovesGetMoveHandler = GetMoveHandler{
 		handlerConfig,
+	}
+
+	adminAPI.ClientCertificatesIndexClientCertificatesHandler = IndexClientCertsHandler{
+		handlerConfig,
+		clientcert.NewClientCertListFetcher(queryBuilder),
+		query.NewQueryFilter,
+		pagination.NewPagination,
+	}
+
+	adminAPI.ClientCertificatesGetClientCertificateHandler = GetClientCertHandler{
+		handlerConfig,
+		clientcert.NewClientCertFetcher(queryBuilder),
+		query.NewQueryFilter,
+	}
+
+	adminAPI.ClientCertificatesCreateClientCertificateHandler = CreateClientCertHandler{
+		handlerConfig,
+		clientcert.NewClientCertCreator(queryBuilder,
+			userRolesCreator, handlerConfig.NotificationSender()),
+	}
+
+	adminAPI.ClientCertificatesUpdateClientCertificateHandler = UpdateClientCertHandler{
+		handlerConfig,
+		clientcert.NewClientCertUpdater(queryBuilder, userRolesCreator, handlerConfig.NotificationSender()),
+		query.NewQueryFilter,
+	}
+
+	adminAPI.ClientCertificatesRemoveClientCertificateHandler = RemoveClientCertHandler{
+		handlerConfig,
+		clientcert.NewClientCertRemover(queryBuilder, userRolesCreator, handlerConfig.NotificationSender()),
+		query.NewQueryFilter,
 	}
 
 	adminAPI.WebhookSubscriptionsIndexWebhookSubscriptionsHandler = IndexWebhookSubscriptionsHandler{

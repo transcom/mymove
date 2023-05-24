@@ -43,6 +43,7 @@ var Address CustomType = "Address"
 var AdminUser CustomType = "AdminUser"
 var AuditHistory CustomType = "AuditHistory"
 var BackupContact CustomType = "BackupContact"
+var ClientCert CustomType = "ClientCert"
 var Contractor CustomType = "Contractor"
 var CustomerSupportRemark CustomType = "CustomerSupportRemark"
 var Document CustomType = "Document"
@@ -92,6 +93,7 @@ var defaultTypesMap = map[string]CustomType{
 	"models.AdminUser":                                AdminUser,
 	"factory.TestDataAuditHistory":                    AuditHistory,
 	"models.BackupContact":                            BackupContact,
+	"models.ClientCert":                               ClientCert,
 	"models.Contractor":                               Contractor,
 	"models.CustomerSupportRemark":                    CustomerSupportRemark,
 	"models.Document":                                 Document,

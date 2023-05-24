@@ -209,9 +209,11 @@ func MakeValidEdi() Invoice858C {
 		FA1: edisegment.FA1{
 			AgencyQualifierCode: "DF",
 		},
-		FA2: edisegment.FA2{
-			BreakdownStructureDetailCode: "TA",
-			FinancialInformationCode:     "1234",
+		FA2s: []edisegment.FA2{
+			{
+				BreakdownStructureDetailCode: "TA",
+				FinancialInformationCode:     "1234",
+			},
 		},
 	}
 	l3total := edisegment.L3{

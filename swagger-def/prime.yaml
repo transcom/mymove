@@ -905,6 +905,9 @@ paths:
         This endpoint supports different body definitions. In the modelType field below, select the modelType corresponding
          to the service item you wish to update and the documentation will update with the new definition.
 
+        * Addresses: You can add a new SIT Destination final address using this endpoint (and must use this endpoint to do so), but you cannot update an existing one.
+        Please use [createSITAddressUpdateRequest](#operation/createSITAddressUpdateRequest) instead.
+
         To create a service item, please use [createMTOServiceItem](#operation/createMTOServiceItem)) endpoint.
       operationId: updateMTOServiceItem
       tags:
@@ -1509,7 +1512,7 @@ definitions:
         items:
           $ref: '#/definitions/MTOServiceItem'
       mtoShipments:
-        $ref: '#/definitions/MTOShipments'
+        $ref: '#/definitions/MTOShipmentsWithoutServiceObjects'
       ppmType:
         type: string
         enum:
@@ -1601,7 +1604,7 @@ definitions:
       - RELEASING_AGENT
       - RECEIVING_AGENT
   MTOServiceItem:
-    description: MTOServiceItem describes a base type of a service item. Polymorphic type. Both Move Task Orders and MTO Shipments will have MTO Service Items.
+    description: MTOServiceItem describes a base type of a service item. Polymorphic type.
     type: object
     discriminator: modelType
     properties:
@@ -1697,9 +1700,16 @@ definitions:
             x-nullable: true
           sitDestinationFinalAddress:
             $ref: 'definitions/Address.yaml'
+          reason:
+            type: string
+            description: >
+              The reason item has been placed in SIT.
+            x-nullable: true
+            x-omitempty: false
         required:
           - reServiceCode
           - sitEntryDate
+          - reason
   MTOServiceItemDimension:
     description: The dimensions for either the item or the crate associated with a crating service item.
     type: object
@@ -1815,6 +1825,8 @@ definitions:
             description: Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.
           sitHHGActualOrigin:
             $ref: 'definitions/Address.yaml'
+          sitHHGOriginalOrigin:
+            $ref: 'definitions/Address.yaml'
         required:
           - reServiceCode
           - reason
@@ -1863,7 +1875,8 @@ definitions:
       - SUBMITTED
       - APPROVED
       - REJECTED
-  MTOShipment:
+  MTOShipmentWithoutServiceItems:
+    type: object
     properties:
       id:
         description: The ID of the shipment.
@@ -2001,12 +2014,6 @@ definitions:
         $ref: 'definitions/SITExtensions.yaml'
       reweigh:
         $ref: '#/definitions/Reweigh'
-      mtoServiceItems:
-        description: A list of service items connected to this shipment.
-        items:
-          $ref: '#/definitions/MTOServiceItem'
-        type: array
-        readOnly: true
       pickupAddress:
         description: >
           The address where the movers should pick up this shipment, entered by the customer during onboarding
@@ -2056,12 +2063,6 @@ definitions:
           - CANCELLATION_REQUESTED
           - CANCELED
           - DIVERSION_REQUESTED
-      rejectionReason:
-        description: The reason why this shipment was rejected by the TOO.
-        type: string
-        readOnly: true
-        example: MTO Shipment not good enough
-        x-nullable: true
       ppmShipment:
         $ref: '#/definitions/PPMShipment'
       eTag:
@@ -2081,10 +2082,21 @@ definitions:
         description: >
           Email or ID of the person who will be contacted in the event of questions or concerns about this update.
           May be the person performing the update, or someone else working with the Prime contractor.
-  MTOShipments:
-    description: A list of shipments.
+  MTOShipment:
+    type: object
+    properties:
+      mtoServiceItems:
+        description: A list of service items connected to this shipment.
+        items:
+          $ref: '#/definitions/MTOServiceItem'
+        type: array
+        readOnly: true
+    allOf:
+      - $ref: '#/definitions/MTOShipmentWithoutServiceItems'
+  MTOShipmentsWithoutServiceObjects:
+    description: A list of shipments without their associated service items.
     items:
-      $ref: '#/definitions/MTOShipment'
+      $ref: '#/definitions/MTOShipmentWithoutServiceItems'
     type: array
   MTOShipmentType:
     title: Shipment Type
@@ -2498,6 +2510,10 @@ definitions:
       - sitExpected
       - eTag
   ProofOfServiceDocs:
+    items:
+      $ref: '#/definitions/ProofOfServiceDoc'
+    type: array
+  ProofOfServiceDoc:
     properties:
       uploads:
         items:

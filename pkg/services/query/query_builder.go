@@ -431,6 +431,22 @@ func (p *Builder) UpdateOne(appCtx appcontext.AppContext, model interface{}, eTa
 	return nil, nil
 }
 
+// DeleteOne updates exactly one model
+func (p *Builder) DeleteOne(appCtx appcontext.AppContext, model interface{}) error {
+	t := reflect.TypeOf(model)
+	if t.Kind() != reflect.Ptr {
+		return errors.New(FetchOneReflectionMessage)
+	}
+
+	err := appCtx.DB().Destroy(model)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // FetchCategoricalCountsFromOneModel returns categorical counts from exactly one model
 func (p *Builder) FetchCategoricalCountsFromOneModel(appCtx appcontext.AppContext, model interface{}, filters []services.QueryFilter, andFilters *[]services.QueryFilter) (map[interface{}]int, error) {
 	t := reflect.TypeOf(model)
