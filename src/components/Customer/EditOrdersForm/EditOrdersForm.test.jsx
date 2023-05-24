@@ -146,6 +146,7 @@ const testProps = {
   filePond: {},
   ordersTypeOptions: [
     { key: 'PERMANENT_CHANGE_OF_STATION', value: 'Permanent Change Of Station (PCS)' },
+    { key: 'LOCAL_MOVE', value: 'Local Move' },
     { key: 'RETIREMENT', value: 'Retirement' },
     { key: 'SEPARATION', value: 'Separation' },
   ],
@@ -215,6 +216,7 @@ describe('EditOrdersForm component', () => {
   describe('renders each option for the orders type dropdown', () => {
     it.each([
       ['PERMANENT_CHANGE_OF_STATION', 'PERMANENT_CHANGE_OF_STATION'],
+      ['LOCAL_MOVE', 'LOCAL_MOVE'],
       ['RETIREMENT', 'RETIREMENT'],
       ['SEPARATION', 'SEPARATION'],
     ])('rendering the %s option', async (selectionOption, expectedValue) => {
@@ -486,6 +488,7 @@ describe('EditOrdersForm component', () => {
         filePond: {},
         ordersTypeOptions: [
           { key: 'PERMANENT_CHANGE_OF_STATION', value: 'Permanent Change Of Station (PCS)' },
+          { key: 'LOCAL_MOVE', value: 'Local Move' },
           { key: 'RETIREMENT', value: 'Retirement' },
           { key: 'SEPARATION', value: 'Separation' },
         ],
