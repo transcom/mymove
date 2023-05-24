@@ -147,6 +147,8 @@ func main() {
 	testAppID := os.Getenv("HERE_MAPS_APP_ID")
 	testAppCode := os.Getenv("HERE_MAPS_APP_CODE")
 	hereClient := &http.Client{Timeout: hereRequestTimeout}
+
+	// TODO: Future cleanup will need to remap to a different planner, or this command should be removed if it is consider deprecated
 	planner := route.NewHEREPlanner(hereClient, geocodeEndpoint, routingEndpoint, testAppID, testAppCode)
 	ppmComputer := paperwork.NewSSWPPMComputer(rateengine.NewRateEngine(move))
 

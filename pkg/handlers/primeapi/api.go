@@ -82,7 +82,7 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primeoperations.MymoveAP
 	mtoShipmentUpdater := mtoshipment.NewPrimeMTOShipmentUpdater(
 		builder,
 		fetcher,
-		handlerConfig.Planner(),
+		handlerConfig.HHGPlanner(),
 		moveRouter,
 		moveWeights,
 		handlerConfig.NotificationSender(),
@@ -157,9 +157,9 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primeoperations.MymoveAP
 
 	primeAPI.MtoShipmentUpdateMTOShipmentStatusHandler = UpdateMTOShipmentStatusHandler{
 		handlerConfig,
-		mtoshipment.NewPrimeMTOShipmentUpdater(builder, fetcher, handlerConfig.Planner(), moveRouter, moveWeights, handlerConfig.NotificationSender(), paymentRequestShipmentRecalculator),
+		mtoshipment.NewPrimeMTOShipmentUpdater(builder, fetcher, handlerConfig.HHGPlanner(), moveRouter, moveWeights, handlerConfig.NotificationSender(), paymentRequestShipmentRecalculator),
 		mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder,
-			mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter), handlerConfig.Planner()),
+			mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter), handlerConfig.HHGPlanner()),
 	}
 
 	primeAPI.MtoShipmentUpdateReweighHandler = UpdateReweighHandler{

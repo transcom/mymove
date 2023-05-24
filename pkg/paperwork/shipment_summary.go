@@ -38,12 +38,12 @@ func (sswPpmComputer *SSWPPMComputer) ComputeObligations(appCtx appcontext.AppCo
 	originDutyLocationZip := ssfd.CurrentDutyLocation.Address.PostalCode
 	destDutyLocationZip := ssfd.Order.NewDutyLocation.Address.PostalCode
 
-	distanceMilesFromPickupZip, err := planner.Zip5TransitDistanceLineHaul(appCtx, *firstPPM.PickupPostalCode, destDutyLocationZip)
+	distanceMilesFromPickupZip, err := planner.ZipTransitDistance(appCtx, *firstPPM.PickupPostalCode, destDutyLocationZip)
 	if err != nil {
 		return models.Obligations{}, errors.New("error calculating distance")
 	}
 
-	distanceMilesFromDutyLocationZip, err := planner.Zip5TransitDistanceLineHaul(appCtx, originDutyLocationZip, destDutyLocationZip)
+	distanceMilesFromDutyLocationZip, err := planner.ZipTransitDistance(appCtx, originDutyLocationZip, destDutyLocationZip)
 	if err != nil {
 		return models.Obligations{}, errors.New("error calculating distance")
 	}
