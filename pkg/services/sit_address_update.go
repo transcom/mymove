@@ -7,7 +7,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-// ApprovedSITAddressUpdateCreator Interface for the service object that creates a approved SIT Address Update with a distance < 50 miles
+// ApprovedSITAddressUpdateCreator Interface for the service object that creates an approved SIT Address Update
 //
 //go:generate mockery --name ApprovedSITAddressUpdateCreator
 type ApprovedSITAddressUpdateCreator interface {
