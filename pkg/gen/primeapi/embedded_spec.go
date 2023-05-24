@@ -291,7 +291,7 @@ func init() {
     },
     "/mto-service-items/{mtoServiceItemID}": {
       "patch": {
-        "description": "Updates MTOServiceItems after creation. Not all service items or fields may be updated, please see details below.\n\nThis endpoint supports different body definitions. In the modelType field below, select the modelType corresponding\n to the service item you wish to update and the documentation will update with the new definition.\n\nTo create a service item, please use [createMTOServiceItem](#operation/createMTOServiceItem)) endpoint.\n",
+        "description": "Updates MTOServiceItems after creation. Not all service items or fields may be updated, please see details below.\n\nThis endpoint supports different body definitions. In the modelType field below, select the modelType corresponding\n to the service item you wish to update and the documentation will update with the new definition.\n\n* Addresses: You can add a new SIT Destination final address using this endpoint (and must use this endpoint to do so), but you cannot update an existing one.\nPlease use [createSITAddressUpdateRequest](#operation/createSITAddressUpdateRequest) instead.\n\nTo create a service item, please use [createMTOServiceItem](#operation/createMTOServiceItem)) endpoint.\n",
         "consumes": [
           "application/json"
         ],
@@ -2042,7 +2042,8 @@ func init() {
           "type": "object",
           "required": [
             "reServiceCode",
-            "sitEntryDate"
+            "sitEntryDate",
+            "reason"
           ],
           "properties": {
             "firstAvailableDeliveryDate1": {
@@ -2064,6 +2065,12 @@ func init() {
                 "DDFSIT",
                 "DDASIT"
               ]
+            },
+            "reason": {
+              "description": "The reason item has been placed in SIT.\n",
+              "type": "string",
+              "x-nullable": true,
+              "x-omitempty": false
             },
             "sitDepartureDate": {
               "description": "Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.",
@@ -4463,7 +4470,7 @@ func init() {
     },
     "/mto-service-items/{mtoServiceItemID}": {
       "patch": {
-        "description": "Updates MTOServiceItems after creation. Not all service items or fields may be updated, please see details below.\n\nThis endpoint supports different body definitions. In the modelType field below, select the modelType corresponding\n to the service item you wish to update and the documentation will update with the new definition.\n\nTo create a service item, please use [createMTOServiceItem](#operation/createMTOServiceItem)) endpoint.\n",
+        "description": "Updates MTOServiceItems after creation. Not all service items or fields may be updated, please see details below.\n\nThis endpoint supports different body definitions. In the modelType field below, select the modelType corresponding\n to the service item you wish to update and the documentation will update with the new definition.\n\n* Addresses: You can add a new SIT Destination final address using this endpoint (and must use this endpoint to do so), but you cannot update an existing one.\nPlease use [createSITAddressUpdateRequest](#operation/createSITAddressUpdateRequest) instead.\n\nTo create a service item, please use [createMTOServiceItem](#operation/createMTOServiceItem)) endpoint.\n",
         "consumes": [
           "application/json"
         ],
@@ -6484,7 +6491,8 @@ func init() {
           "type": "object",
           "required": [
             "reServiceCode",
-            "sitEntryDate"
+            "sitEntryDate",
+            "reason"
           ],
           "properties": {
             "firstAvailableDeliveryDate1": {
@@ -6506,6 +6514,12 @@ func init() {
                 "DDFSIT",
                 "DDASIT"
               ]
+            },
+            "reason": {
+              "description": "The reason item has been placed in SIT.\n",
+              "type": "string",
+              "x-nullable": true,
+              "x-omitempty": false
             },
             "sitDepartureDate": {
               "description": "Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.",
