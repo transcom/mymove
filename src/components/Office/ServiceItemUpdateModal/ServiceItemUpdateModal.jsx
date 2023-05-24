@@ -26,7 +26,7 @@ const ServiceItemDetail = ({ serviceItem }) => {
             <p>{formatDateFromIso(submittedAt, 'DD MMM YYYY')}</p>
           </td>
           <td className={styles.detailsContainer}>
-            <ServiceItemDetails code={code} details={details} />
+            <ServiceItemDetails id={`sid-${id}`} code={code} details={details} />
           </td>
         </tr>
       </tbody>
@@ -68,9 +68,10 @@ export const ServiceItemUpdateModal = ({
       </ModalTitle>
       <ServiceItemDetail serviceItem={serviceItem} />
       <Formik
-        onSubmit={(formValues) => onSave(serviceItem.id, formValues)}
-        initialValues={initialValues}
         validationSchema={serviceItemUpdateModalSchema}
+        onSubmit={(formValues) => onSave(serviceItem.id, formValues)}
+        initialValues={{ ...initialValues, officeRemarks: '' }}
+        validateOnMount
       >
         {({ isValid }) => {
           return (

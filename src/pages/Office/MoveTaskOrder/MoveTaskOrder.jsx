@@ -876,7 +876,6 @@ export const MoveTaskOrder = (props) => {
               isOpen={isEditSitAddressModalVisible}
               serviceItem={selectedServiceItem}
               initialValues={{
-                officeRemarks: '',
                 newAddress: getSitAddressInitialValues(),
               }}
               validations={{ newAddress: requiredAddressSchema }}
