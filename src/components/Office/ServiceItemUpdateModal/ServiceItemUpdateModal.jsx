@@ -1,5 +1,4 @@
 import React from 'react';
-import classnames from 'classnames';
 import PropTypes from 'prop-types';
 import { Button, Label, Textarea } from '@trussworks/react-uswds';
 import { Formik, Field } from 'formik';
@@ -76,18 +75,20 @@ export const ServiceItemUpdateModal = ({
       >
         {({ isValid }) => {
           return (
-            <Form className={classnames(styles.sitPanelForm, formStyles.form)}>
-              <h3 className={styles.modalReviewHeader}>SIT delivery address</h3>
-              {content}
-              <Label htmlFor="officeRemarks">Office remarks</Label>
-              <Field
-                as={Textarea}
-                data-testid="officeRemarks"
-                label="No"
-                name="officeRemarks"
-                id="officeRemarks"
-                className={styles.officeRemarks}
-              />
+            <Form className={formStyles.form}>
+              <div className={styles.sitPanelForm}>
+                <h3 className={styles.modalReviewHeader}>SIT delivery address</h3>
+                {content}
+                <Label htmlFor="officeRemarks">Office remarks</Label>
+                <Field
+                  as={Textarea}
+                  data-testid="officeRemarks"
+                  label="No"
+                  name="officeRemarks"
+                  id="officeRemarks"
+                  className={styles.officeRemarks}
+                />
+              </div>
               <ModalActions>
                 <Button type="submit" disabled={!isValid}>
                   Save
