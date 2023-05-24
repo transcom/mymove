@@ -174,7 +174,7 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primeoperations.MymoveAP
 
 	primeAPI.SitAddressUpdateCreateSITAddressUpdateRequestHandler = CreateSITAddressUpdateRequestHandler{
 		handlerConfig,
-		sitaddressupdate.NewSITAddressUpdateRequestCreator(handlerConfig.Planner(), addressCreator, moveRouter),
+		sitaddressupdate.NewSITAddressUpdateRequestCreator(handlerConfig.DTODPlanner(), addressCreator, moveRouter),
 	}
 	return primeAPI
 }
