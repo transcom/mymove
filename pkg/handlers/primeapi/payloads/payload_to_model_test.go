@@ -234,3 +234,36 @@ func (suite *PayloadsSuite) TestSITExtensionModel() {
 	})
 
 }
+
+func (suite *PayloadsSuite) TestSITAddressUpdateModel() {
+	// newAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress3})
+	contractorRemark := "I must update the final address please"
+	city := "Beverly Hills"
+	state := "CA"
+	postalCode := "90210"
+	street := "123 Rodeo Dr."
+	newAddress := primemessages.Address{
+		City:           &city,
+		State:          &state,
+		PostalCode:     &postalCode,
+		StreetAddress1: &street,
+	}
+
+	suite.Run("Success - Returns a SITAddressUpdate model as expected", func() {
+		sitAddressUpdate := primemessages.CreateSITAddressUpdateRequest{
+			MtoServiceItemID:  strfmt.UUID(uuid.Must(uuid.NewV4()).String()),
+			NewAddress:        &newAddress,
+			ContractorRemarks: contractorRemark,
+		}
+
+		model := SITAddressUpdateModel(&sitAddressUpdate)
+
+		suite.Equal(model.MTOServiceItemID.String(), sitAddressUpdate.MtoServiceItemID.String())
+		suite.NotNil(model.NewAddressID.String())
+		suite.Equal(model.NewAddress.City, *sitAddressUpdate.NewAddress.City)
+		suite.Equal(model.NewAddress.State, *sitAddressUpdate.NewAddress.State)
+		suite.Equal(model.NewAddress.PostalCode, *sitAddressUpdate.NewAddress.PostalCode)
+		suite.Equal(model.NewAddress.StreetAddress1, *sitAddressUpdate.NewAddress.StreetAddress1)
+		suite.Equal(*model.ContractorRemarks, sitAddressUpdate.ContractorRemarks)
+	})
+}
