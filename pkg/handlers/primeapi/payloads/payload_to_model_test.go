@@ -140,7 +140,39 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 	})
 
 	suite.Run("Success - Returns SIT destination service item model", func() {
-		returnedModel, verrs := MTOServiceItemModel(destServiceItem)
+		destSITServiceItem := &primemessages.MTOServiceItemDestSIT{
+			ReServiceCode:               &destServiceCode,
+			FirstAvailableDeliveryDate1: &destDate,
+			FirstAvailableDeliveryDate2: &destDate,
+			TimeMilitary1:               &destTime,
+			TimeMilitary2:               &destTime,
+			SitDestinationFinalAddress:  &sitFinalDestAddress,
+			Reason:                      &destReason,
+		}
+
+		destSITServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
+		destSITServiceItem.SetMtoShipmentID(*mtoShipmentIDString)
+		returnedModel, verrs := MTOServiceItemModel(destSITServiceItem)
+
+		suite.NoVerrs(verrs)
+		suite.Equal(moveTaskOrderIDField.String(), returnedModel.MoveTaskOrderID.String())
+		suite.Equal(mtoShipmentIDField.String(), returnedModel.MTOShipmentID.String())
+		suite.Equal(models.ReServiceCodeDDFSIT, returnedModel.ReService.Code)
+		suite.Equal(destPostalCode, returnedModel.SITDestinationFinalAddress.PostalCode)
+		suite.Equal(destStreet, returnedModel.SITDestinationFinalAddress.StreetAddress1)
+
+	})
+
+	suite.Run("Success - Returns SIT destination service item model without customer contact fields", func() {
+		destSITServiceItem := &primemessages.MTOServiceItemDestSIT{
+			ReServiceCode:              &destServiceCode,
+			SitDestinationFinalAddress: &sitFinalDestAddress,
+			Reason:                     &destReason,
+		}
+
+		destSITServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
+		destSITServiceItem.SetMtoShipmentID(*mtoShipmentIDString)
+		returnedModel, verrs := MTOServiceItemModel(destSITServiceItem)
 
 		suite.NoVerrs(verrs)
 		suite.Equal(moveTaskOrderIDField.String(), returnedModel.MoveTaskOrderID.String())

@@ -29,7 +29,7 @@ describe('CurrentDutyLocationForm component', () => {
       <CurrentDutyLocationForm
         onSubmit={jest.fn()}
         onBack={jest.fn()}
-        initialValues={{ current_location: {} }}
+        initialValues={{ current_location: null }}
         newDutyLocation={{}}
       />,
     );
@@ -40,9 +40,9 @@ describe('CurrentDutyLocationForm component', () => {
     });
   });
 
-  it('shows an error message if trying to submit an invalid form', async () => {
+  it('does not disable submit if current and new duty locations are the same', async () => {
     const onSubmit = jest.fn();
-    const { getByRole, getAllByText } = render(
+    const { getByRole } = render(
       <CurrentDutyLocationForm
         onSubmit={onSubmit}
         onBack={jest.fn()}
@@ -55,11 +55,7 @@ describe('CurrentDutyLocationForm component', () => {
     const submitBtn = getByRole('button', { name: 'Next' });
 
     await waitFor(() => {
-      expect(submitBtn).toHaveAttribute('disabled');
-      expect(
-        getAllByText('You entered the same duty location for your origin and destination. Please change one of them.')
-          .length,
-      ).toBe(1);
+      expect(submitBtn).not.toHaveAttribute('disabled');
     });
   });
 
