@@ -15,9 +15,6 @@ version: '2.1'
 references:
   circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-59d1b5d814b190c7c5a8c460ca97ed193d518350
 
-  # the cypress image to use
-  cypress: &cypress milmove/circleci-docker:milmove-cypress-bc1b345eabd5f3607948f78455aa8257183345c5
-
   # the playwright image to use
   playwright: &playwright cimg/node:18.13.0-browsers
 
@@ -28,6 +25,9 @@ references:
   postgres: &postgres cimg/postgres:12.11
 
   redis: &redis redis:5.0.6
+
+  # base image that spins up quickly
+  cimg_base: &cimg_base cimg/base:2022.12-22.04
 
   # To deploy to loadtest, demo or exp:
   # set dp3-branch to the branch you want to deploy to the env specifed
@@ -63,6 +63,13 @@ references:
   server-ignore-branch: &server-ignore-branch placeholder_branch_name
 
 executors:
+  base_small:
+    resource_class: small
+    docker:
+      - image: *cimg_base
+        auth:
+          username: $DOCKERHUB_USERNAME
+          password: $DOCKERHUB_PASSWORD
   tls_small:
     resource_class: small
     working_directory: ~/transcom/mymove
@@ -149,7 +156,7 @@ executors:
           GOPATH: /home/circleci/go
 
   mymove_tester:
-    resource_class: large
+    resource_class: xlarge
     working_directory: ~/transcom/mymove
     docker:
       - image: *circleci-docker
@@ -627,7 +634,8 @@ commands:
             make server_test
           environment:
             APPLICATION: '<< parameters.application >>'
-            GOFLAGS: '-p=4'
+            # 8 since this runs on xlarge with 8 CPUs
+            GOTEST_PARALLEL: 8
             DB_PASSWORD: mysecretpassword
             DB_USER_LOW_PRIV: crud
             DB_PASSWORD_LOW_PRIV: mysecretpassword
@@ -947,6 +955,11 @@ commands:
             mv tmp/milmove_load_testing/local_load_tests* reports
 
 jobs:
+  base_noop:
+    executor: base_small
+    steps:
+      - run: echo "noop"
+
   # `pre_deps_golang` is used for caching Go module sources
   pre_deps_golang:
     executor: mymove_compiler
@@ -1104,8 +1117,9 @@ jobs:
       # The output of golangci-lint is an artifact towards STIG compliance
       - run:
           name: Run pre-commit tests with golangci-lint only
+          # CONCURRENCY=4 as this runs on a large instance with 4 CPUs
           command: |
-            echo 'export GOLANGCI_LINT_CONCURRENCY=1' >> $BASH_ENV
+            echo 'export GOLANGCI_LINT_CONCURRENCY=4' >> $BASH_ENV
             echo 'export GOLANGCI_LINT_VERBOSE=-v' >> $BASH_ENV
             source $BASH_ENV
             mkdir -p tmp/test-results/pretest
@@ -1163,7 +1177,7 @@ jobs:
 
   integration_tests_office:
     executor: milmove_playwright_tester
-    parallelism: 6
+    parallelism: 10
     steps:
       - e2e_tests_playwright:
           path: playwright/tests/office
@@ -1172,7 +1186,7 @@ jobs:
   # reads integration tests in mymove dir, should eventually be removed when tests are in milmove dir
   integration_tests_my:
     executor: milmove_playwright_tester
-    parallelism: 6
+    parallelism: 10
     steps:
       - e2e_tests_playwright:
           path: playwright/tests/my
@@ -1216,7 +1230,7 @@ jobs:
   # keep track of the manual splitting of the integration_tests when
   # specifying dependencies
   integration_tests:
-    executor: mymove_pusher
+    executor: base_small
     steps:
       - run: echo "integration_tests done"
 
@@ -1316,7 +1330,7 @@ jobs:
 
   # `client_test` runs the client side Javascript tests
   client_test:
-    executor: mymove_compiler
+    executor: mymove_compiler_xlarge
     steps:
       - checkout
       - restore_cache:
@@ -1513,13 +1527,11 @@ jobs:
       - persist_to_workspace:
           root: .
           # Need build for integration tests
-          # Need cypress for, uh, cypress tests
           # Need playwright, playwright.config.js, package.json, and
           # yarn.lock for playwright
           # Need eslint-plugin-ato as referenced by package.json/yarn.lock
           paths:
             - build
-            - cypress
             - playwright
             - playwright.config.js
             - package.json
@@ -2022,17 +2034,35 @@ workflows:
 
       - check_tls_certificate_prd
 
-      - pre_deps_golang:
-          requires:
-            - check_tls_certificate_dp3
-            - check_tls_certificate_stg
-            - check_tls_certificate_prd
+      - pre_deps_golang
 
-      - pre_deps_yarn:
+      - pre_deps_yarn
+
+      - base_noop
+
+      - anti_virus:
+          filters:
+            branches:
+              only: main
+
+      # compile_app_client does not rely on pre_deps_yarn
+      # anymore so that it can start sooner. This helps the
+      # overall build time since the compile is so slow. It does
+      # the same steps as pre_deps_yarn, it just doesn't cache
+      # the yarn downloads, so compile_app_client and
+      # pre_deps_yarn might both wind up downloading packages,
+      # but the speedup is worth the duplicate work
+      #
+      # CircleCI has a "feature" where if all dependencies are
+      # filtered, the job is not run, so add a base_noop step that
+      # should complete very quickly
+      # See workflows -> jobs -> requires at
+      #
+      # https://circleci.com/docs/configuration-reference/
+      - compile_app_client:
           requires:
-            - check_tls_certificate_dp3
-            - check_tls_certificate_stg
-            - check_tls_certificate_prd
+            - base_noop
+            - anti_virus
 
       - check_generated_code:
           requires:
@@ -2041,14 +2071,13 @@ workflows:
             branches:
               ignore: [*integration-mtls-ignore-branch, *integration-ignore-branch]
 
-      - anti_virus:
-          filters:
-            branches:
-              only: main
       - pre_test:
           requires:
             - pre_deps_golang
             - pre_deps_yarn
+            - check_tls_certificate_dp3
+            - check_tls_certificate_stg
+            - check_tls_certificate_prd
 
       - integration_tests_admin:
           requires:
@@ -2103,6 +2132,8 @@ workflows:
               ignore: *integration-ignore-branch
 
       - integration_tests_mtls:
+          # mtls integration tests use the same server image as the
+          # e2e playwright tests and so needs the client build
           requires:
             - compile_app_server
           # See comments at the top of this file for configuring/using
@@ -2138,11 +2169,6 @@ workflows:
           requires:
             - anti_virus
             - pre_deps_golang
-
-      - compile_app_client:
-          requires:
-            - anti_virus
-            - pre_deps_yarn
 
       - build_app:
           requires:

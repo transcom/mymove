@@ -29,14 +29,7 @@ test('Users can upload orders', async ({ page, customerPage }) => {
   //
   await page.locator('div:has(label:has-text("Are dependents")) >> div.usa-radio').getByText('No').click();
 
-  // Verify that a user can't use the same duty location
   await customerPage.selectDutyLocation('Yuma AFB', 'new_duty_location');
-  await expect(
-    page.getByText('You entered the same duty location for your origin and destination. Please change one of them.'),
-  ).toBeVisible();
-
-  // Change to a different destination duty location, then proceed to next page
-  await customerPage.selectDutyLocation('NAS Fort Worth JRB', 'new_duty_location');
   await customerPage.navigateForward();
   await customerPage.waitForPage.ordersUpload();
 

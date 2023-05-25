@@ -40,6 +40,7 @@ const testProps = {
   initialValues: { orders_type: '', issue_date: '', report_by_date: '', has_dependents: '', new_duty_location: {} },
   ordersTypeOptions: [
     { key: 'PERMANENT_CHANGE_OF_STATION', value: 'Permanent Change Of Station (PCS)' },
+    { key: 'LOCAL_MOVE', value: 'Local Move' },
     { key: 'RETIREMENT', value: 'Retirement' },
     { key: 'SEPARATION', value: 'Separation' },
   ],

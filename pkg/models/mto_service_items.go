@@ -52,7 +52,7 @@ type MTOServiceItem struct {
 	EstimatedWeight                 *unit.Pound                    `db:"estimated_weight"`
 	ActualWeight                    *unit.Pound                    `db:"actual_weight"`
 	Dimensions                      MTOServiceItemDimensions       `has_many:"mto_service_item_dimensions" fk_id:"mto_service_item_id"`
-	CustomerContacts                MTOServiceItemCustomerContacts `has_many:"mto_service_item_customer_contacts" fk_id:"mto_service_item_id"`
+	CustomerContacts                MTOServiceItemCustomerContacts `many_to_many:"service_items_customer_contacts"`
 	SITAddressUpdates               SITAddressUpdates              `has_many:"sit_address_updates" fk_id:"mto_service_item_id"`
 	CreatedAt                       time.Time                      `db:"created_at"`
 	UpdatedAt                       time.Time                      `db:"updated_at"`
@@ -84,6 +84,20 @@ func (m *MTOServiceItem) Validate(tx *pop.Connection) (*validate.Errors, error) 
 	vs = append(vs, &StringIsNilOrNotBlank{Field: m.Description, Name: "Description"})
 
 	return validate.Validate(vs...), nil
+}
+
+// FetchRelatedDestinationSITServiceItems returns all service items with destination SIT ReService codes
+// that are associated with the same shipment as the provided service item.
+func FetchRelatedDestinationSITServiceItems(tx *pop.Connection, mtoServiceItemID uuid.UUID) (MTOServiceItems, error) {
+	var relatedDestinationSITServiceItems MTOServiceItems
+	err := tx.RawQuery(
+		`SELECT msi.id
+			FROM mto_service_items msi
+			INNER JOIN re_services res ON msi.re_service_id = res.id
+			WHERE res.code IN (?, ?, ?) AND mto_shipment_id IN (
+				SELECT mto_shipment_id FROM mto_service_items WHERE id = ?)`, ReServiceCodeDDFSIT, ReServiceCodeDDASIT, ReServiceCodeDDDSIT, mtoServiceItemID).
+		All(&relatedDestinationSITServiceItems)
+	return relatedDestinationSITServiceItems, err
 }
 
 func FetchServiceItem(db *pop.Connection, serviceItemID uuid.UUID) (MTOServiceItem, error) {

@@ -192,8 +192,18 @@ func (v *updateMTOServiceItemData) checkSITDeparture(appCtx appcontext.AppContex
 
 // checkSITDestinationOriginalAddress checks that SITDestinationOriginalAddress isn't being changed
 func (v *updateMTOServiceItemData) checkSITDestinationOriginalAddress(appCtx appcontext.AppContext) error {
-	if v.updatedServiceItem.SITDestinationOriginalAddress != nil &&
-		v.updatedServiceItem.SITDestinationOriginalAddressID != nil {
+	if v.updatedServiceItem.SITDestinationOriginalAddress == nil {
+		return nil // SITDestinationOriginalAddress isn't being updated, so we're fine here
+	}
+
+	if v.oldServiceItem.SITDestinationOriginalAddressID == nil {
+		v.verrs.Add("SITDestinationOriginalAddress", "cannot be manually set")
+		return nil // returning here to avoid nil pointer dereference error
+	}
+
+	if *v.oldServiceItem.SITDestinationOriginalAddressID != uuid.Nil &&
+		v.updatedServiceItem.SITDestinationOriginalAddress != nil &&
+		v.updatedServiceItem.SITDestinationOriginalAddress.ID != *v.oldServiceItem.SITDestinationOriginalAddressID {
 		v.verrs.Add("SITDestinationOriginalAddress", "cannot be updated")
 	}
 
@@ -295,9 +305,7 @@ func (v *updateMTOServiceItemData) setNewMTOServiceItem() *models.MTOServiceItem
 	}
 
 	// Set customer contact fields
-	if len(v.updatedServiceItem.CustomerContacts) > 0 {
-		newMTOServiceItem.CustomerContacts = v.updatedServiceItem.CustomerContacts
-	}
+	newMTOServiceItem.CustomerContacts = v.setNewCustomerContacts()
 
 	// Set weight fields:
 	newMTOServiceItem.EstimatedWeight = services.SetOptionalPoundField(
@@ -307,4 +315,55 @@ func (v *updateMTOServiceItemData) setNewMTOServiceItem() *models.MTOServiceItem
 		v.updatedServiceItem.ActualWeight, newMTOServiceItem.ActualWeight)
 
 	return &newMTOServiceItem
+}
+
+func (v *updateMTOServiceItemData) setNewCustomerContacts() models.MTOServiceItemCustomerContacts {
+	// If there are no updated customer contacts we will just use the old ones, it doesn't matter if there are no old ones.
+	if len(v.updatedServiceItem.CustomerContacts) == 0 {
+		return v.oldServiceItem.CustomerContacts
+	}
+
+	// If there are no old customer contacts we will just use the updated ones.
+	if len(v.oldServiceItem.CustomerContacts) == 0 {
+		return v.updatedServiceItem.CustomerContacts
+	}
+
+	var newCustomerContacts models.MTOServiceItemCustomerContacts
+
+	// Iterate through the updated and the old customer contacts to see if they correspond to one another.
+	for _, updatedCustomerContact := range v.updatedServiceItem.CustomerContacts {
+		foundCorrespondingOldContact := false
+		var newCustomerContact models.MTOServiceItemCustomerContact
+		for _, oldCustomerContact := range v.oldServiceItem.CustomerContacts {
+			// We use the type field to determine if the CustomerContacts correspond to each other
+			// If they correspond we update the information on the old CustomerContact
+			if updatedCustomerContact.Type == oldCustomerContact.Type {
+				newCustomerContact = oldCustomerContact
+				newCustomerContact.TimeMilitary = updatedCustomerContact.TimeMilitary
+				newCustomerContact.FirstAvailableDeliveryDate = updatedCustomerContact.FirstAvailableDeliveryDate
+				foundCorrespondingOldContact = true
+			}
+		}
+		// If there is no corresponding old CustomerContact we use the updated CustomerContact
+		if !foundCorrespondingOldContact {
+			newCustomerContact = updatedCustomerContact
+		}
+		newCustomerContacts = append(newCustomerContacts, newCustomerContact)
+	}
+
+	// We need to iterate once more through the old CustomerContacts
+	// to find any that don't have a corresponding updated CustomerContact
+	for _, oldCustomerContact := range v.oldServiceItem.CustomerContacts {
+		foundCorrespondingUpdatedContact := false
+		for _, updatedCustomerContact := range v.updatedServiceItem.CustomerContacts {
+			if updatedCustomerContact.Type == oldCustomerContact.Type {
+				foundCorrespondingUpdatedContact = true
+			}
+		}
+		if !foundCorrespondingUpdatedContact {
+			newCustomerContact := oldCustomerContact
+			newCustomerContacts = append(newCustomerContacts, newCustomerContact)
+		}
+	}
+	return newCustomerContacts
 }
