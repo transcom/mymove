@@ -622,7 +622,8 @@ commands:
           command: scripts/ecr-describe-image-scan-findings << parameters.repo >> ${CIRCLE_SHA1}
       - persist_to_workspace:
           root: .
-          paths: images/sha/ECR_DIGEST_<< parameters.repo >>_<< parameters.ecr_env >>
+          paths:
+            - images/sha/ECR_DIGEST_<< parameters.repo >>_<< parameters.ecr_env >>
 
   server_tests_step:
     parameters:
@@ -1159,10 +1160,10 @@ jobs:
             #
             # Use the BuildNum to update the cache key so that the
             # coverage cache is always updated
-            save_cache:
-              key: v1-spectral-lint-{{ .BuildNum }}
-              paths:
-                - ~/transcom/mymove/spectral
+            - save_cache:
+                key: v1-spectral-lint-{{ .BuildNum }}
+                paths:
+                  - ~/transcom/mymove/spectral
       - store_artifacts:
           path: ~/transcom/mymove/spectral
       - announce_failure
@@ -1324,10 +1325,10 @@ jobs:
             #
             # Use the BuildNum to update the cache key so that the
             # coverage cache is always updated
-            save_cache:
-              key: v4-server-tests-coverage-{{ .BuildNum }}
-              paths:
-                - ~/transcom/mymove/tmp/test-results
+            - save_cache:
+                key: v4-server-tests-coverage-{{ .BuildNum }}
+                paths:
+                  - ~/transcom/mymove/tmp/test-results
       - announce_failure
 
   # `client_test` runs the client side Javascript tests
@@ -1387,10 +1388,10 @@ jobs:
             #
             # Use the BuildNum to update the cache key so that the
             # coverage cache is always updated
-            save_cache:
-              key: v3-client-tests-coverage-{{ .BuildNum }}
-              paths:
-                - ~/transcom/mymove/coverage
+            - save_cache:
+                key: v3-client-tests-coverage-{{ .BuildNum }}
+                paths:
+                  - ~/transcom/mymove/coverage
       - announce_failure
 
   # `webhook_client_test` runs the webhook client Go tests
@@ -1522,10 +1523,10 @@ jobs:
           condition:
             equal: [main, << pipeline.git.branch >>]
           steps:
-            save_cache:
-              key: v2-node-modules-cache-{{ checksum "yarn.lock" }}
-              paths:
-                - ./node_modules/.cache
+            - save_cache:
+                key: v2-node-modules-cache-{{ checksum "yarn.lock" }}
+                paths:
+                  - ./node_modules/.cache
       - persist_to_workspace:
           root: .
           # Need build for integration tests
