@@ -192,8 +192,19 @@ func (v *updateMTOServiceItemData) checkSITDeparture(appCtx appcontext.AppContex
 
 // checkSITDestinationOriginalAddress checks that SITDestinationOriginalAddress isn't being changed
 func (v *updateMTOServiceItemData) checkSITDestinationOriginalAddress(appCtx appcontext.AppContext) error {
-	if v.updatedServiceItem.SITDestinationOriginalAddress != nil {
+	if v.updatedServiceItem.SITDestinationOriginalAddress == nil {
+		return nil // SITDestinationOriginalAddress isn't being updated, so we're fine here
+	}
+
+	if v.oldServiceItem.SITDestinationOriginalAddressID == nil {
 		v.verrs.Add("SITDestinationOriginalAddress", "cannot be manually set")
+		return nil // returning here to avoid nil pointer dereference error
+	}
+
+	if *v.oldServiceItem.SITDestinationOriginalAddressID != uuid.Nil &&
+		v.updatedServiceItem.SITDestinationOriginalAddress != nil &&
+		v.updatedServiceItem.SITDestinationOriginalAddress.ID != *v.oldServiceItem.SITDestinationOriginalAddressID {
+		v.verrs.Add("SITDestinationOriginalAddress", "cannot be updated")
 	}
 
 	return nil
