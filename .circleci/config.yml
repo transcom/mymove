@@ -11,7 +11,7 @@
 #
 ############
 
-version: '2.1'
+version: 2.1
 
 # References for variables shared across the file
 references:
