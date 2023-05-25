@@ -1,3 +1,5 @@
+# yaml-language-server: $schema=https://json.schemastore.org/circleciconfig.json
+
 ############
 #
 # Caches
@@ -9,7 +11,7 @@
 #
 ############
 
-version: '2.1'
+version: 2.1
 
 # References for variables shared across the file
 references:
@@ -352,7 +354,7 @@ commands:
             source $BASH_ENV
 
   announce_failure:
-    parameters:
+    # parameters:
     steps:
       - run:
           name: Announce failure
@@ -620,7 +622,8 @@ commands:
           command: scripts/ecr-describe-image-scan-findings << parameters.repo >> ${CIRCLE_SHA1}
       - persist_to_workspace:
           root: .
-          paths: images/sha/ECR_DIGEST_<< parameters.repo >>_<< parameters.ecr_env >>
+          paths:
+            - images/sha/ECR_DIGEST_<< parameters.repo >>_<< parameters.ecr_env >>
 
   server_tests_step:
     parameters:
@@ -645,7 +648,7 @@ commands:
             DB_PORT: 5432
             DB_NAME: test_db
             DB_NAME_TEST: test_db
-            DTOD_USE_MOCK: true
+            DTOD_USE_MOCK: 'true'
             MIGRATION_MANIFEST: '/home/circleci/transcom/mymove/migrations/<< parameters.application >>/migrations_manifest.txt'
             MIGRATION_PATH: 'file:///home/circleci/transcom/mymove/migrations/<< parameters.application >>/schema;file:///home/circleci/transcom/mymove/migrations/<< parameters.application >>/secure'
             EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
@@ -653,7 +656,7 @@ commands:
             ENVIRONMENT: test
             SERVER_REPORT: 1
             COVERAGE: 1
-            SERVE_API_INTERNAL: true
+            SERVE_API_INTERNAL: 'true'
 
   # run playwright tests without using setup_remote_docker
   # the remote docker resources are not configurable and thus are
@@ -944,7 +947,7 @@ commands:
       - save_cache:
           key: v2-pipenv-{{ checksum "Pipfile.lock" }}-{{ .Environment.PYTHON_VERSION }}
           paths:
-            - "~/transcom/mymove/tmp/milmove_load_testing/.venv"
+            - '~/transcom/mymove/tmp/milmove_load_testing/.venv'
       - run:
           name: extract results
           # always try to extract the artifacts so it can help us
@@ -1157,10 +1160,10 @@ jobs:
             #
             # Use the BuildNum to update the cache key so that the
             # coverage cache is always updated
-            save_cache:
-              key: v1-spectral-lint-{{ .BuildNum }}
-              paths:
-                - ~/transcom/mymove/spectral
+            - save_cache:
+                key: v1-spectral-lint-{{ .BuildNum }}
+                paths:
+                  - ~/transcom/mymove/spectral
       - store_artifacts:
           path: ~/transcom/mymove/spectral
       - announce_failure
@@ -1322,10 +1325,10 @@ jobs:
             #
             # Use the BuildNum to update the cache key so that the
             # coverage cache is always updated
-            save_cache:
-              key: v4-server-tests-coverage-{{ .BuildNum }}
-              paths:
-                - ~/transcom/mymove/tmp/test-results
+            - save_cache:
+                key: v4-server-tests-coverage-{{ .BuildNum }}
+                paths:
+                  - ~/transcom/mymove/tmp/test-results
       - announce_failure
 
   # `client_test` runs the client side Javascript tests
@@ -1385,10 +1388,10 @@ jobs:
             #
             # Use the BuildNum to update the cache key so that the
             # coverage cache is always updated
-            save_cache:
-              key: v3-client-tests-coverage-{{ .BuildNum }}
-              paths:
-                - ~/transcom/mymove/coverage
+            - save_cache:
+                key: v3-client-tests-coverage-{{ .BuildNum }}
+                paths:
+                  - ~/transcom/mymove/coverage
       - announce_failure
 
   # `webhook_client_test` runs the webhook client Go tests
@@ -1520,10 +1523,10 @@ jobs:
           condition:
             equal: [main, << pipeline.git.branch >>]
           steps:
-            save_cache:
-              key: v2-node-modules-cache-{{ checksum "yarn.lock" }}
-              paths:
-                - ./node_modules/.cache
+            - save_cache:
+                key: v2-node-modules-cache-{{ checksum "yarn.lock" }}
+                paths:
+                  - ./node_modules/.cache
       - persist_to_workspace:
           root: .
           # Need build for integration tests
@@ -1816,7 +1819,7 @@ jobs:
   deploy_dp3_migrations:
     executor: mymove_pusher
     environment:
-      - APP_ENVIRONMENT: *dp3-env
+      APP_ENVIRONMENT: *dp3-env
     steps:
       - checkout
       - aws_vars_dp3
@@ -1827,7 +1830,7 @@ jobs:
   deploy_dp3_tasks:
     executor: mymove_pusher
     environment:
-      - APP_ENVIRONMENT: *dp3-env
+      APP_ENVIRONMENT: *dp3-env
     steps:
       - checkout
       - aws_vars_dp3
@@ -1843,10 +1846,10 @@ jobs:
         default: *dp3-env
 
     environment:
-      - APP_ENVIRONMENT: *dp3-env
-      - OPEN_TELEMETRY_SIDECAR: 'true'
-      - HEALTH_CHECK: 'true'
-      - OTEL_COLLECTOR_IMAGE: 'amazon/aws-otel-collector:v0.29.0'
+      APP_ENVIRONMENT: *dp3-env
+      OPEN_TELEMETRY_SIDECAR: 'true'
+      HEALTH_CHECK: 'true'
+      OTEL_COLLECTOR_IMAGE: 'amazon/aws-otel-collector:v0.29.0'
     steps:
       - checkout
       - aws_vars_dp3
@@ -1863,10 +1866,10 @@ jobs:
         type: string
         default: *dp3-env
     environment:
-      - APP_ENVIRONMENT: *dp3-env
-      - OPEN_TELEMETRY_SIDECAR: 'true'
-      - HEALTH_CHECK: 'true'
-      - OTEL_COLLECTOR_IMAGE: 'amazon/aws-otel-collector:v0.29.0'
+      APP_ENVIRONMENT: *dp3-env
+      OPEN_TELEMETRY_SIDECAR: 'true'
+      HEALTH_CHECK: 'true'
+      OTEL_COLLECTOR_IMAGE: 'amazon/aws-otel-collector:v0.29.0'
     steps:
       - checkout
       - aws_vars_dp3
@@ -1900,7 +1903,7 @@ jobs:
   deploy_stg_migrations:
     executor: mymove_pusher
     environment:
-      - APP_ENVIRONMENT: 'stg'
+      APP_ENVIRONMENT: 'stg'
     steps:
       - checkout
       - aws_vars_stg
@@ -1911,7 +1914,7 @@ jobs:
   deploy_stg_tasks:
     executor: mymove_pusher
     environment:
-      - APP_ENVIRONMENT: 'stg'
+      APP_ENVIRONMENT: 'stg'
     steps:
       - checkout
       - aws_vars_stg
@@ -1924,10 +1927,10 @@ jobs:
     # use dockerhub otel collector image as govcloud does not have the
     # right certs for pulling from public.ecr.aws
     environment:
-      - APP_ENVIRONMENT: 'stg'
-      - OPEN_TELEMETRY_SIDECAR: 'false'
-      - OTEL_COLLECTOR_IMAGE: 'amazon/aws-otel-collector:v0.29.0'
-      - HEALTH_CHECK: 'true'
+      APP_ENVIRONMENT: 'stg'
+      OPEN_TELEMETRY_SIDECAR: 'false'
+      OTEL_COLLECTOR_IMAGE: 'amazon/aws-otel-collector:v0.29.0'
+      HEALTH_CHECK: 'true'
     steps:
       - checkout
       - aws_vars_stg
@@ -1942,10 +1945,10 @@ jobs:
     # use dockerhub otel collector image as govcloud does not have the
     # right certs for pulling from public.ecr.aws
     environment:
-      - APP_ENVIRONMENT: 'stg'
-      - OPEN_TELEMETRY_SIDECAR: 'false'
-      - OTEL_COLLECTOR_IMAGE: 'amazon/aws-otel-collector:v0.29.0'
-      - HEALTH_CHECK: 'true'
+      APP_ENVIRONMENT: 'stg'
+      OPEN_TELEMETRY_SIDECAR: 'false'
+      OTEL_COLLECTOR_IMAGE: 'amazon/aws-otel-collector:v0.29.0'
+      HEALTH_CHECK: 'true'
     steps:
       - checkout
       - aws_vars_stg
@@ -1978,7 +1981,7 @@ jobs:
   deploy_prd_migrations:
     executor: mymove_pusher
     environment:
-      - APP_ENVIRONMENT: 'prd'
+      APP_ENVIRONMENT: 'prd'
     steps:
       - checkout
       - aws_vars_prd
@@ -1989,7 +1992,7 @@ jobs:
   deploy_prd_tasks:
     executor: mymove_pusher
     environment:
-      - APP_ENVIRONMENT: 'prd'
+      APP_ENVIRONMENT: 'prd'
     steps:
       - checkout
       - aws_vars_prd
@@ -2000,7 +2003,7 @@ jobs:
   deploy_prd_app:
     executor: mymove_pusher
     environment:
-      - APP_ENVIRONMENT: 'prd'
+      APP_ENVIRONMENT: 'prd'
     steps:
       - checkout
       - aws_vars_prd
@@ -2013,7 +2016,7 @@ jobs:
   deploy_prd_app_client_tls:
     executor: mymove_pusher
     environment:
-      - APP_ENVIRONMENT: 'prd'
+      APP_ENVIRONMENT: 'prd'
     steps:
       - checkout
       - aws_vars_prd
@@ -2141,7 +2144,6 @@ workflows:
           filters:
             branches:
               ignore: *integration-mtls-ignore-branch
-
 
       - integration_tests_load:
           requires:
