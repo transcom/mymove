@@ -127,7 +127,7 @@
     "@jackfranklin/test-data-bot": "^2.1.0",
     "@playwright/test": "^1.34.1",
     "@stoplight/spectral-cli": "^6.6.0",
-    "@storybook/addon-a11y": "^7.0.14",
+    "@storybook/addon-a11y": "^7.0.17",
     "@storybook/addon-actions": "7.0.12",
     "@storybook/addon-essentials": "^7.0.12",
     "@storybook/addon-knobs": "^7.0.2",
