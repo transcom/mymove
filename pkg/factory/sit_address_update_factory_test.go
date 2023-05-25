@@ -213,4 +213,43 @@ func (suite *FactorySuite) TestBuildSITAddressUpdate() {
 		suite.Equal(precount, count)
 	})
 
+	suite.Run("Successful creation of SITAddressUpdate with trait over 50 Miles", func() {
+		// Under test:      BuildSITAddressUpdate
+		// Mocked:          None
+		// Set up:          Create a SITAddressUpdate but pass in a trait that sets
+		//                  old & new address that is over 50 miles
+		// Expected outcome:SITAddressUpdate should have the old address, new address,
+		//    distance and status filled out
+
+		fiftyMiles := 50
+		sitAddressUpdate := BuildSITAddressUpdate(suite.DB(), nil, []Trait{
+			GetTraitSITAddressUpdateOver50Miles,
+		})
+		suite.NotNil(sitAddressUpdate.NewAddressID)
+		suite.NotNil(sitAddressUpdate.NewAddress)
+		suite.NotNil(sitAddressUpdate.OldAddressID)
+		suite.NotNil(sitAddressUpdate.OldAddress)
+		suite.Greater(sitAddressUpdate.Distance, fiftyMiles)
+		suite.Equal(models.SITAddressUpdateStatusRequested, sitAddressUpdate.Status)
+	})
+
+	suite.Run("Successful creation of SITAddressUpdate with trait under 50 Miles", func() {
+		// Under test:      BuildSITAddressUpdate
+		// Mocked:          None
+		// Set up:          Create a SITAddressUpdate but pass in a trait that sets
+		//                  old & new address that is under 50 miles
+		// Expected outcome:SITAddressUpdate should have the old address, new address,
+		//    distance and status filled out
+
+		fiftyMiles := 50
+		sitAddressUpdate := BuildSITAddressUpdate(suite.DB(), nil, []Trait{
+			GetTraitSITAddressUpdateUnder50Miles,
+		})
+		suite.NotNil(sitAddressUpdate.NewAddressID)
+		suite.NotNil(sitAddressUpdate.NewAddress)
+		suite.NotNil(sitAddressUpdate.OldAddressID)
+		suite.NotNil(sitAddressUpdate.OldAddress)
+		suite.LessOrEqual(sitAddressUpdate.Distance, fiftyMiles)
+		suite.Equal(models.SITAddressUpdateStatusApproved, sitAddressUpdate.Status)
+	})
 }
