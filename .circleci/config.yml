@@ -1819,7 +1819,7 @@ jobs:
   deploy_dp3_migrations:
     executor: mymove_pusher
     environment:
-      - APP_ENVIRONMENT: *dp3-env
+      APP_ENVIRONMENT: *dp3-env
     steps:
       - checkout
       - aws_vars_dp3
@@ -1830,7 +1830,7 @@ jobs:
   deploy_dp3_tasks:
     executor: mymove_pusher
     environment:
-      - APP_ENVIRONMENT: *dp3-env
+      APP_ENVIRONMENT: *dp3-env
     steps:
       - checkout
       - aws_vars_dp3
@@ -1846,10 +1846,10 @@ jobs:
         default: *dp3-env
 
     environment:
-      - APP_ENVIRONMENT: *dp3-env
-      - OPEN_TELEMETRY_SIDECAR: 'true'
-      - HEALTH_CHECK: 'true'
-      - OTEL_COLLECTOR_IMAGE: 'amazon/aws-otel-collector:v0.29.0'
+      APP_ENVIRONMENT: *dp3-env
+      OPEN_TELEMETRY_SIDECAR: 'true'
+      HEALTH_CHECK: 'true'
+      OTEL_COLLECTOR_IMAGE: 'amazon/aws-otel-collector:v0.29.0'
     steps:
       - checkout
       - aws_vars_dp3
@@ -1866,10 +1866,10 @@ jobs:
         type: string
         default: *dp3-env
     environment:
-      - APP_ENVIRONMENT: *dp3-env
-      - OPEN_TELEMETRY_SIDECAR: 'true'
-      - HEALTH_CHECK: 'true'
-      - OTEL_COLLECTOR_IMAGE: 'amazon/aws-otel-collector:v0.29.0'
+      APP_ENVIRONMENT: *dp3-env
+      OPEN_TELEMETRY_SIDECAR: 'true'
+      HEALTH_CHECK: 'true'
+      OTEL_COLLECTOR_IMAGE: 'amazon/aws-otel-collector:v0.29.0'
     steps:
       - checkout
       - aws_vars_dp3
@@ -1903,7 +1903,7 @@ jobs:
   deploy_stg_migrations:
     executor: mymove_pusher
     environment:
-      - APP_ENVIRONMENT: 'stg'
+      APP_ENVIRONMENT: 'stg'
     steps:
       - checkout
       - aws_vars_stg
@@ -1914,7 +1914,7 @@ jobs:
   deploy_stg_tasks:
     executor: mymove_pusher
     environment:
-      - APP_ENVIRONMENT: 'stg'
+      APP_ENVIRONMENT: 'stg'
     steps:
       - checkout
       - aws_vars_stg
@@ -1927,10 +1927,10 @@ jobs:
     # use dockerhub otel collector image as govcloud does not have the
     # right certs for pulling from public.ecr.aws
     environment:
-      - APP_ENVIRONMENT: 'stg'
-      - OPEN_TELEMETRY_SIDECAR: 'false'
-      - OTEL_COLLECTOR_IMAGE: 'amazon/aws-otel-collector:v0.29.0'
-      - HEALTH_CHECK: 'true'
+      APP_ENVIRONMENT: 'stg'
+      OPEN_TELEMETRY_SIDECAR: 'false'
+      OTEL_COLLECTOR_IMAGE: 'amazon/aws-otel-collector:v0.29.0'
+      HEALTH_CHECK: 'true'
     steps:
       - checkout
       - aws_vars_stg
@@ -1945,10 +1945,10 @@ jobs:
     # use dockerhub otel collector image as govcloud does not have the
     # right certs for pulling from public.ecr.aws
     environment:
-      - APP_ENVIRONMENT: 'stg'
-      - OPEN_TELEMETRY_SIDECAR: 'false'
-      - OTEL_COLLECTOR_IMAGE: 'amazon/aws-otel-collector:v0.29.0'
-      - HEALTH_CHECK: 'true'
+      APP_ENVIRONMENT: 'stg'
+      OPEN_TELEMETRY_SIDECAR: 'false'
+      OTEL_COLLECTOR_IMAGE: 'amazon/aws-otel-collector:v0.29.0'
+      HEALTH_CHECK: 'true'
     steps:
       - checkout
       - aws_vars_stg
@@ -1981,7 +1981,7 @@ jobs:
   deploy_prd_migrations:
     executor: mymove_pusher
     environment:
-      - APP_ENVIRONMENT: 'prd'
+      APP_ENVIRONMENT: 'prd'
     steps:
       - checkout
       - aws_vars_prd
@@ -1992,7 +1992,7 @@ jobs:
   deploy_prd_tasks:
     executor: mymove_pusher
     environment:
-      - APP_ENVIRONMENT: 'prd'
+      APP_ENVIRONMENT: 'prd'
     steps:
       - checkout
       - aws_vars_prd
@@ -2003,7 +2003,7 @@ jobs:
   deploy_prd_app:
     executor: mymove_pusher
     environment:
-      - APP_ENVIRONMENT: 'prd'
+      APP_ENVIRONMENT: 'prd'
     steps:
       - checkout
       - aws_vars_prd
@@ -2016,7 +2016,7 @@ jobs:
   deploy_prd_app_client_tls:
     executor: mymove_pusher
     environment:
-      - APP_ENVIRONMENT: 'prd'
+      APP_ENVIRONMENT: 'prd'
     steps:
       - checkout
       - aws_vars_prd
