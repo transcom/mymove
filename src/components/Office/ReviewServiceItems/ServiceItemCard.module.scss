@@ -41,18 +41,18 @@
     @include u-margin-bottom(3);
   }
 
-  dd:last-child{
+  dd:last-child {
     @include u-margin-bottom(1);
   }
 
   .daysInSITDetails {
-    @include u-margin-bottom(3)
+    @include u-margin-bottom(3);
   }
 
   :global(.usa-button.usa-button--unstyled).toggleCalculations {
-      @include u-padding-x(0);
-      @include u-margin-bottom(1);
-      @include u-font-size(body, '3xs');
+    @include u-padding-x(0);
+    @include u-margin-bottom(1);
+    @include u-font-size(body, '3xs');
   }
 
   .calculationsContainer {
@@ -98,19 +98,13 @@
     border-radius: units(2px);
 
     :global {
-      .usa-radio__label {
-        @include u-padding-y(2);
-        @include u-padding-left(6);
-        margin: 0;
-      }
-
-      .usa-radio__input:checked+.usa-radio__label {
+      .usa-radio__input:checked + .usa-radio__label {
         background-color: $link-light;
       }
 
       .usa-form-group {
         @include u-padding(2);
-
+        margin-top: 0;
         .usa-label {
           margin-top: 0;
         }
@@ -128,7 +122,7 @@
     }
   }
 
-  .statusOption+.statusOption {
+  .statusOption + .statusOption {
     @include u-margin-top(1);
   }
 
@@ -138,7 +132,7 @@
     @include u-text('light');
   }
 
-  .statusOption+.clearStatus {
+  .statusOption + .clearStatus {
     margin-top: 3px;
   }
 
@@ -176,5 +170,11 @@
       @include u-margin-bottom(0);
       white-space: pre-wrap;
     }
+  }
+  .error {
+    border: solid 4px $error;
+  }
+  .rejectionGroup {
+    margin-top: 0;
   }
 }
