@@ -354,7 +354,7 @@ commands:
             source $BASH_ENV
 
   announce_failure:
-    parameters:
+    # parameters:
     steps:
       - run:
           name: Announce failure
@@ -947,7 +947,7 @@ commands:
       - save_cache:
           key: v2-pipenv-{{ checksum "Pipfile.lock" }}-{{ .Environment.PYTHON_VERSION }}
           paths:
-            - "~/transcom/mymove/tmp/milmove_load_testing/.venv"
+            - '~/transcom/mymove/tmp/milmove_load_testing/.venv'
       - run:
           name: extract results
           # always try to extract the artifacts so it can help us
@@ -2144,7 +2144,6 @@ workflows:
           filters:
             branches:
               ignore: *integration-mtls-ignore-branch
-
 
       - integration_tests_load:
           requires:
