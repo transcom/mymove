@@ -129,7 +129,7 @@
     "@stoplight/spectral-cli": "^6.6.0",
     "@storybook/addon-a11y": "^7.0.14",
     "@storybook/addon-actions": "7.0.12",
-    "@storybook/addon-essentials": "^7.0.12",
+    "@storybook/addon-essentials": "^7.0.17",
     "@storybook/addon-knobs": "^7.0.2",
     "@storybook/addon-links": "^7.0.12",
     "@storybook/addons": "^7.0.12",
