@@ -250,6 +250,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		newServiceItemPrime := oldServiceItemPrime
 		newAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress3})
 		newServiceItemPrime.SITDestinationOriginalAddress = &newAddress
+		newServiceItemPrime.SITDestinationOriginalAddressID = &newAddress.ID
 
 		updatedServiceItem, err := updater.UpdateMTOServiceItemPrime(suite.AppContextForTest(), &newServiceItemPrime, eTag)
 
@@ -280,6 +281,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		newServiceItemPrime := oldServiceItemPrime
 		newAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress3})
 		newServiceItemPrime.SITDestinationOriginalAddress = &newAddress
+		newServiceItemPrime.SITDestinationOriginalAddressID = &newAddress.ID
 
 		updatedServiceItem, err := updater.UpdateMTOServiceItemPrime(suite.AppContextForTest(), &newServiceItemPrime, eTag)
 

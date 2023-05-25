@@ -36,14 +36,6 @@ func (suite *SITAddressUpdateServiceSuite) TestApproveSITAddressUpdateRequest() 
 					Code: models.ReServiceCodeDDDSIT,
 				},
 			},
-			{
-				Model: models.Address{},
-				Type:  &factory.Addresses.SITDestinationOriginalAddress,
-			},
-			{
-				Model: models.Address{},
-				Type:  &factory.Addresses.SITDestinationFinalAddress,
-			},
 		}, nil)
 
 		sitAddressUpdate := factory.BuildSITAddressUpdate(suite.DB(), []factory.Customization{
