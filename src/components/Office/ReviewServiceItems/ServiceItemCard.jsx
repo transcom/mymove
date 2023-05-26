@@ -320,6 +320,7 @@ const ServiceItemCard = ({
                               onChange={handleChange}
                               value={values.rejectionReason}
                               className={errors.rejectionReason && touched?.rejectionReason && styles.error}
+                              data-testid="rejectionReason"
                             />
                           </>
                         )}
