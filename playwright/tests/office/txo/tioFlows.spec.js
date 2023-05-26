@@ -473,8 +473,18 @@ test.describe('TIO user', () => {
       // Verify weight info
       const weightSection = '#billable-weights';
       await expect(page.locator(weightSection)).toContainText('Billable weights');
-      await expect(page.locator(weightSection)).toContainText('8,000 lbs');
-      await expect(page.locator(weightSection)).toContainText('2,000 lbs');
+
+      // Verify Total Billable Weight info
+      const totalBillableWeightParent = page
+        .getByRole('heading', { name: 'Total billable weight', exact: true })
+        .locator('..');
+      await expect(totalBillableWeightParent.getByRole('heading', { name: '2,000 lbs', exact: true })).toBeVisible();
+
+      // Verify Maximum billable weight info
+      const maximumBillableWeightParent = page
+        .getByRole('heading', { name: 'Maximum billable weight', exact: true })
+        .locator('..');
+      await expect(maximumBillableWeightParent.getByRole('heading', { name: '8,000 lbs', exact: true })).toBeVisible();
 
       // Verify External Shipment shown
       await expect(page.locator(weightSection)).toContainText('1 other shipment:');
