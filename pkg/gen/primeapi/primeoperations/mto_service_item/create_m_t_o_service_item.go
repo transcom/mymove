@@ -102,7 +102,7 @@ These additional fields are optional for creating a DDFSIT:
 When a DDFSIT is requested, the API will auto-create the following group of service items:
   - DDFSIT - Domestic destination 1st day SIT
   - DDASIT - Domestic destination Additional day SIT
-  - DDDSIT - Domestic destination SIT delivery
+  - DDDSIT - Domestic destination SI   T delivery
 
 **DDASIT**
 

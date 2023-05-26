@@ -23,6 +23,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers/internalapi"
 	"github.com/transcom/mymove/pkg/handlers/ordersapi"
 	"github.com/transcom/mymove/pkg/handlers/primeapi"
+	"github.com/transcom/mymove/pkg/handlers/primeapiv2"
 	"github.com/transcom/mymove/pkg/handlers/supportapi"
 	"github.com/transcom/mymove/pkg/handlers/testharnessapi"
 	"github.com/transcom/mymove/pkg/middleware"
@@ -68,6 +69,8 @@ type Config struct {
 	ServePrime bool
 	// The path to the prime api swagger definition
 	PrimeSwaggerPath string
+	// The path to the prime V2 api swagger definition
+	PrimeV2SwaggerPath string
 
 	// Should the support api be served? Mostly only used in dev environments
 	ServeSupport bool
@@ -219,7 +222,7 @@ func InitRouting(appCtx appcontext.AppContext, redisPool *redis.Pool,
 
 	if routingConfig.ServePrime {
 		primeServerName := routingConfig.HandlerConfig.AppNames().PrimeServername
-		primeMux := site.Host(primeServerName).PathPrefix("/prime/v1/").Subrouter()
+		primeMux := site.Host(primeServerName).PathPrefix("/prime/").Subrouter()
 
 		primeDetectionMiddleware := auth.HostnameDetectorMiddleware(appCtx.Logger(), primeServerName)
 		primeMux.Use(primeDetectionMiddleware)
@@ -232,7 +235,8 @@ func InitRouting(appCtx appcontext.AppContext, redisPool *redis.Pool,
 		primeMux.Use(authentication.PrimeAuthorizationMiddleware(appCtx.Logger()))
 		primeMux.Use(middleware.NoCache(appCtx.Logger()))
 		primeMux.Use(middleware.RequestLogger(appCtx.Logger()))
-		primeMux.HandleFunc("/swagger.yaml", handlers.NewFileHandler(routingConfig.PrimeSwaggerPath)).Methods("GET")
+		primeMux.HandleFunc("/v1/swagger.yaml", handlers.NewFileHandler(routingConfig.PrimeSwaggerPath)).Methods("GET")
+		primeMux.HandleFunc("/v2/swagger.yaml", handlers.NewFileHandler(routingConfig.PrimeV2SwaggerPath)).Methods("GET")
 		if routingConfig.ServeSwaggerUI {
 			appCtx.Logger().Info("Prime API Swagger UI serving is enabled")
 			primeMux.HandleFunc("/docs", handlers.NewFileHandler(path.Join(routingConfig.BuildRoot, "swagger-ui", "prime.html"))).Methods("GET")
@@ -241,7 +245,10 @@ func InitRouting(appCtx appcontext.AppContext, redisPool *redis.Pool,
 		}
 		api := primeapi.NewPrimeAPI(routingConfig.HandlerConfig)
 		tracingMiddleware := middleware.OpenAPITracing(api)
-		primeMux.PathPrefix("/").Handler(api.Serve(tracingMiddleware))
+		primeMux.PathPrefix("/v1/").Handler(api.Serve(tracingMiddleware))
+		apiV2 := primeapiv2.NewPrimeAPI(routingConfig.HandlerConfig)
+		tracingMiddlewarev2 := middleware.OpenAPITracing(apiV2)
+		primeMux.PathPrefix("/v2/").Handler(apiV2.Serve(tracingMiddlewarev2))
 	}
 
 	if routingConfig.ServeSupport {

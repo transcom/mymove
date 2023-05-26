@@ -1,0 +1,2664 @@
+swagger: '2.0'
+info:
+  title: MilMove Prime API
+  version: 0.0.1
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  contact:
+    email: dp3@truss.works
+  description: >
+    The Prime API is a RESTful API that enables the Prime contractor to request
+
+    information about upcoming moves, update the details and status of those
+    moves,
+
+    and make payment requests. It uses Mutual TLS for authentication procedures.
+
+
+    All endpoints are located at `/prime/v1/`.
+basePath: /prime/v2
+schemes:
+  - http
+tags:
+  - name: moveTaskOrder
+    description: >
+      The **moveTaskOrder** represents a military move that has been sent to a
+      contractor. It contains all the information about shipments, including
+      service items, estimated weights, actual weights, requested and scheduled
+      move dates, etc.
+  - name: mtoShipment
+    description: >
+      A shipment is some (or all) of a customer's belongings picked up in one
+      location and delivered to another location.
+
+      All of the items in a shipment are weighed and transported as a discrete
+      unit. One move may include multiple shipments.
+
+      An **mtoShipment**, in particular, is a shipment that belongs to a
+      [moveTaskOrder](#tag/moveTaskOrder).
+
+
+      The weights for all of the shipments in a move are combined and compared
+      to the customer's weight allowance.
+
+      If the sum of the shipments is greater, the customer is liable for paying
+      excess weight cost. Both the customer and
+
+      the contractor should keep this potential cost in mind when planning a
+      move and the shipments within it.
+  - name: mtoServiceItem
+    description: >
+      A service item is a service that the contractor can bill for. For example,
+      if the movers pack and/or unpack a
+
+      customer's belongings, those are billable services (packing and
+      unpacking). All **mtoServiceItems** must be
+
+      approved by the TOO before payment can be requested.
+
+
+      There are three types of service items: accessorial, MTO-level, and
+      standard.
+
+
+      **WIP:** Add an external link to an article that explains the different
+      types of service items in more detail.
+  - name: paymentRequest
+    description: >
+      The contractor submits a **paymentRequest** to the TIO for approval in
+      order to be reimbursed for 1 or more
+
+      **mtoServiceItems** on a **moveTaskOrder**.
+
+
+      Proof of service documentation may be uploaded for each **mtoServiceItem**
+      in a **paymentRequest**.
+x-tagGroups:
+  - name: Endpoints
+    tags:
+      - moveTaskOrder
+      - mtoShipment
+      - mtoServiceItem
+      - paymentRequest
+paths:
+  /moves:
+    get:
+      summary: listMoves
+      description: >
+        Gets all moves that have been reviewed and approved by the TOO. The
+        `since` parameter can be used to filter this
+
+        list down to only the moves that have been updated since the provided
+        timestamp. A move will be considered
+
+        updated if the `updatedAt` timestamp on the move or on its orders,
+        shipments, service items, or payment
+
+        requests, is later than the provided date and time.
+
+
+        **WIP**: Include what causes moves to leave this list. Currently, once
+        the `availableToPrimeAt` timestamp has
+
+        been set, that move will always appear in this list.
+      operationId: listMoves
+      tags:
+        - moveTaskOrder
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: since
+          type: string
+          format: date-time
+          description: >-
+            Only return moves updated since this time. Formatted like
+            "2021-07-23T18:30:47.116Z"
+      responses:
+        '200':
+          description: >-
+            Successfully retrieved moves. A successful fetch might still return
+            zero moves.
+          schema:
+            $ref: '#/definitions/ListMoves'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '500':
+          $ref: '#/responses/ServerError'
+definitions:
+  CreateMTOShipment:
+    type: object
+    properties:
+      moveTaskOrderID:
+        description: The ID of the move this new shipment is for.
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      requestedPickupDate:
+        description: >
+          The customer's preferred pickup date. Other dates, such as required
+          delivery date and (outside MilMove) the pack date, are derived from
+          this date.
+        format: date
+        type: string
+        x-nullable: true
+      primeEstimatedWeight:
+        description: >
+          The estimated weight of this shipment, determined by the movers during
+          the pre-move survey. This value **can only be updated once.** If there
+          was an issue with estimating the weight and a mistake was made, the
+          Prime contractor will need to contact the TOO to change it.
+        type: integer
+        example: 4500
+        minimum: 1
+        x-nullable: true
+      customerRemarks:
+        description: >
+          The customer can use the customer remarks field to inform the services
+          counselor and the movers about any
+
+          special circumstances for this shipment. Typical examples:
+            * bulky or fragile items,
+            * weapons,
+            * access info for their address.
+
+          Customer enters this information during onboarding. Optional field.
+        type: string
+        example: handle with care
+        x-nullable: true
+      agents:
+        $ref: '#/definitions/MTOAgents'
+      mtoServiceItems:
+        description: A list of service items connected to this shipment.
+        type: array
+        items:
+          $ref: '#/definitions/MTOServiceItem'
+      pickupAddress:
+        description: The address where the movers should pick up this shipment.
+        allOf:
+          - $ref: '#/definitions/Address'
+      destinationAddress:
+        description: Where the movers should deliver this shipment.
+        allOf:
+          - $ref: '#/definitions/Address'
+      shipmentType:
+        $ref: '#/definitions/MTOShipmentType'
+      diversion:
+        description: >
+          This value indicates whether or not this shipment is part of a
+          diversion. If yes, the shipment can be either the starting or ending
+          segment of the diversion.
+        type: boolean
+      pointOfContact:
+        type: string
+        description: >
+          Email or ID of the person who will be contacted in the event of
+          questions or concerns about this update. May be the person performing
+          the update, or someone else working with the Prime contractor.
+      counselorRemarks:
+        type: string
+        example: counselor approved
+        x-nullable: true
+      ppmShipment:
+        $ref: '#/definitions/CreatePPMShipment'
+    required:
+      - moveTaskOrderID
+      - shipmentType
+  CreatePPMShipment:
+    description: >-
+      Creation object containing the `PPM` shipmentType specific data, not used
+      for other shipment types.
+    type: object
+    properties:
+      expectedDepartureDate:
+        description: |
+          Date the customer expects to begin moving from their origin.
+        format: date
+        type: string
+      pickupPostalCode:
+        description: >-
+          The postal code of the origin location where goods are being moved
+          from.
+        format: zip
+        type: string
+        example: '90210'
+        pattern: ^(\d{5})$
+      secondaryPickupPostalCode:
+        description: >-
+          An optional secondary pickup location near the origin where additional
+          goods exist.
+        format: zip
+        type: string
+        title: ZIP
+        example: '90210'
+        pattern: ^(\d{5})$
+        x-nullable: true
+      destinationPostalCode:
+        description: >-
+          The postal code of the destination location where goods are being
+          delivered to.
+        format: zip
+        type: string
+        title: ZIP
+        example: '90210'
+        pattern: ^(\d{5})$
+      secondaryDestinationPostalCode:
+        description: >-
+          An optional secondary location near the destination where goods will
+          be dropped off.
+        format: zip
+        type: string
+        title: ZIP
+        example: '90210'
+        pattern: ^(\d{5})$
+        x-nullable: true
+      sitExpected:
+        description: >
+          Captures whether some or all of the PPM shipment will require
+          temporary storage at the origin or destination.
+
+
+          Must be set to `true` when providing `sitLocation`,
+          `sitEstimatedWeight`, `sitEstimatedEntryDate`, and
+          `sitEstimatedDepartureDate` values to calculate the
+          `sitEstimatedCost`.
+        type: boolean
+      sitLocation:
+        allOf:
+          - $ref: '#/definitions/SITLocationType'
+          - x-nullable: true
+      sitEstimatedWeight:
+        description: The estimated weight of the goods being put into storage in pounds.
+        type: integer
+        example: 2000
+        x-nullable: true
+      sitEstimatedEntryDate:
+        description: The date that goods will first enter the storage location.
+        format: date
+        type: string
+        x-nullable: true
+      sitEstimatedDepartureDate:
+        description: The date that goods will exit the storage location.
+        format: date
+        type: string
+        x-nullable: true
+      estimatedWeight:
+        description: The estimated weight of the PPM shipment goods being moved in pounds.
+        type: integer
+        example: 4200
+      hasProGear:
+        description: >
+          Indicates whether PPM shipment has pro gear for themselves or their
+          spouse.
+        type: boolean
+      proGearWeight:
+        description: >-
+          The estimated weight of the pro-gear being moved belonging to the
+          service member in pounds.
+        type: integer
+        x-nullable: true
+      spouseProGearWeight:
+        description: >-
+          The estimated weight of the pro-gear being moved belonging to a spouse
+          in pounds.
+        type: integer
+        x-nullable: true
+    required:
+      - expectedDepartureDate
+      - pickupPostalCode
+      - destinationPostalCode
+      - sitExpected
+      - estimatedWeight
+      - hasProGear
+  CreatePaymentRequest:
+    type: object
+    properties:
+      isFinal:
+        default: false
+        type: boolean
+      moveTaskOrderID:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+      serviceItems:
+        type: array
+        minItems: 1
+        items:
+          $ref: '#/definitions/ServiceItem'
+      pointOfContact:
+        type: string
+        description: Email or id of a contact person for this update.
+    required:
+      - moveTaskOrderID
+      - serviceItems
+  CreateSITExtension:
+    description: >-
+      CreateSITExtension contains the fields required for the prime to create a
+      SIT Extension request.
+    type: object
+    properties:
+      requestReason:
+        type: string
+        enum:
+          - SERIOUS_ILLNESS_MEMBER
+          - SERIOUS_ILLNESS_DEPENDENT
+          - IMPENDING_ASSIGNEMENT
+          - DIRECTED_TEMPORARY_DUTY
+          - NONAVAILABILITY_OF_CIVILIAN_HOUSING
+          - AWAITING_COMPLETION_OF_RESIDENCE
+          - OTHER
+      contractorRemarks:
+        type: string
+        example: We need SIT additional days. The customer has not found a house yet.
+      requestedDays:
+        type: integer
+        example: 30
+        minimum: 1
+    required:
+      - requestReason
+      - contractorRemarks
+      - requestedDays
+  Customer:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      dodID:
+        type: string
+      userID:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      currentAddress:
+        $ref: '#/definitions/Address'
+      firstName:
+        type: string
+        example: Vanya
+      lastName:
+        type: string
+        example: Petrovna
+      branch:
+        type: string
+        example: COAST_GUARD
+      phone:
+        type: string
+        format: telephone
+      email:
+        type: string
+        format: x-email
+        pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
+        example: fake@example.com
+      eTag:
+        type: string
+        readOnly: true
+  DutyLocation:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      name:
+        type: string
+        example: Fort Bragg North Station
+      addressID:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      address:
+        $ref: '#/definitions/Address'
+      eTag:
+        type: string
+        readOnly: true
+  Entitlements:
+    properties:
+      id:
+        example: 571008b1-b0de-454d-b843-d71be9f02c04
+        format: uuid
+        type: string
+      authorizedWeight:
+        example: 2000
+        type: integer
+        x-formatting: weight
+        x-nullable: true
+      dependentsAuthorized:
+        example: true
+        type: boolean
+        x-nullable: true
+      nonTemporaryStorage:
+        example: false
+        type: boolean
+        x-nullable: true
+      privatelyOwnedVehicle:
+        example: false
+        type: boolean
+        x-nullable: true
+      proGearWeight:
+        example: 2000
+        type: integer
+        x-formatting: weight
+      proGearWeightSpouse:
+        example: 500
+        type: integer
+        x-formatting: weight
+      requiredMedicalEquipmentWeight:
+        example: 500
+        type: integer
+        x-formatting: weight
+      organizationalClothingAndIndividualEquipment:
+        type: boolean
+        example: false
+      storageInTransit:
+        example: 90
+        type: integer
+      totalWeight:
+        example: 500
+        type: integer
+        x-formatting: weight
+      totalDependents:
+        example: 2
+        type: integer
+      eTag:
+        type: string
+        readOnly: true
+    type: object
+  Error:
+    properties:
+      title:
+        type: string
+      detail:
+        type: string
+      instance:
+        type: string
+        format: uuid
+    required:
+      - title
+      - detail
+    type: object
+  ListMove:
+    description: >
+      An abbreviated definition for a move, without all the nested information
+      (shipments, service items, etc). Used to fetch a list of moves more
+      efficiently.
+    type: object
+    properties:
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      moveCode:
+        type: string
+        example: HYXFJF
+        readOnly: true
+      createdAt:
+        format: date-time
+        type: string
+        readOnly: true
+      orderID:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+      referenceId:
+        example: 1001-3456
+        type: string
+      availableToPrimeAt:
+        format: date-time
+        type: string
+        x-nullable: true
+        readOnly: true
+      updatedAt:
+        format: date-time
+        type: string
+        readOnly: true
+      ppmType:
+        type: string
+        enum:
+          - FULL
+          - PARTIAL
+      ppmEstimatedWeight:
+        type: integer
+      eTag:
+        type: string
+        readOnly: true
+  ListMoves:
+    items:
+      $ref: '#/definitions/ListMove'
+    type: array
+  MoveTaskOrder:
+    type: object
+    required:
+      - mtoShipments
+      - mtoServiceItems
+      - paymentRequests
+    properties:
+      id:
+        example: a502b4f1-b9c4-4faf-8bdd-68292501bf26
+        format: uuid
+        type: string
+      moveCode:
+        type: string
+        example: HYXFJF
+        readOnly: true
+      createdAt:
+        format: date-time
+        type: string
+        readOnly: true
+      orderID:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+      order:
+        $ref: '#/definitions/Order'
+      referenceId:
+        example: 1001-3456
+        type: string
+      availableToPrimeAt:
+        format: date-time
+        type: string
+        x-nullable: true
+        readOnly: true
+      updatedAt:
+        format: date-time
+        type: string
+        readOnly: true
+      primeCounselingCompletedAt:
+        format: date-time
+        type: string
+        x-nullable: true
+        readOnly: true
+      paymentRequests:
+        $ref: '#/definitions/PaymentRequests'
+      mtoServiceItems:
+        type: array
+        items:
+          $ref: '#/definitions/MTOServiceItem'
+      mtoShipments:
+        $ref: '#/definitions/MTOShipmentsWithoutServiceObjects'
+      ppmType:
+        type: string
+        enum:
+          - PARTIAL
+          - FULL
+      ppmEstimatedWeight:
+        type: integer
+      excessWeightQualifiedAt:
+        type: string
+        format: date-time
+        readOnly: true
+        x-omitempty: false
+        x-nullable: true
+      excessWeightAcknowledgedAt:
+        type: string
+        format: date-time
+        readOnly: true
+        x-omitempty: false
+        x-nullable: true
+      excessWeightUploadId:
+        type: string
+        format: uuid
+        readOnly: true
+        x-omitempty: false
+        x-nullable: true
+      eTag:
+        type: string
+        readOnly: true
+  MTOAgent:
+    properties:
+      id:
+        description: The ID of the agent.
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        readOnly: true
+        type: string
+      mtoShipmentID:
+        description: The ID of the shipment this agent is permitted to release/receive.
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+        readOnly: true
+      createdAt:
+        format: date-time
+        type: string
+        readOnly: true
+      updatedAt:
+        format: date-time
+        type: string
+        readOnly: true
+      firstName:
+        type: string
+        x-nullable: true
+      lastName:
+        type: string
+        x-nullable: true
+      email:
+        type: string
+        format: x-email
+        pattern: ^([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})?$
+        x-nullable: true
+      phone:
+        type: string
+        format: telephone
+        pattern: ^([2-9]\d{2}-\d{3}-\d{4})?$
+        x-nullable: true
+      agentType:
+        $ref: '#/definitions/MTOAgentType'
+      eTag:
+        type: string
+        readOnly: true
+    type: object
+  MTOAgents:
+    description: >
+      A list of the agents for a shipment. Agents are the people who the Prime
+      contractor recognize as permitted to release (in the case of pickup) or
+      receive (on delivery) a shipment.
+    items:
+      $ref: '#/definitions/MTOAgent'
+    type: array
+    maxItems: 2
+  MTOAgentType:
+    title: Agent Type
+    description: >
+      The type for this agent. `RELEASING` means they have authority on pickup,
+      `RECEIVING` means they can receive the shipment on delivery.
+    type: string
+    example: RELEASING_AGENT
+    enum:
+      - RELEASING_AGENT
+      - RECEIVING_AGENT
+  MTOServiceItem:
+    description: MTOServiceItem describes a base type of a service item. Polymorphic type.
+    type: object
+    discriminator: modelType
+    properties:
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+        description: The ID of the service item.
+        readOnly: true
+      moveTaskOrderID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+        description: The ID of the move for this service item.
+      mtoShipmentID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+        description: The ID of the shipment this service is for, if any. Optional.
+      reServiceName:
+        type: string
+        readOnly: true
+        description: The full descriptive name of the service.
+      status:
+        $ref: '#/definitions/MTOServiceItemStatus'
+      rejectionReason:
+        example: item was too heavy
+        type: string
+        x-nullable: true
+        readOnly: true
+        description: The reason why this service item was rejected by the TOO.
+      modelType:
+        $ref: '#/definitions/MTOServiceItemModelType'
+      eTag:
+        type: string
+        readOnly: true
+        description: >-
+          A hash unique to this service item that should be used as the
+          "If-Match" header for any updates.
+    required:
+      - modelType
+      - moveTaskOrderID
+  MTOServiceItemBasic:
+    description: Describes a basic service item subtype of a MTOServiceItem.
+    allOf:
+      - $ref: '#/definitions/MTOServiceItem'
+      - type: object
+        properties:
+          reServiceCode:
+            $ref: '#/definitions/ReServiceCode'
+        required:
+          - reServiceCode
+  MTOServiceItemDestSIT:
+    description: >-
+      Describes a domestic destination SIT service item. Subtype of a
+      MTOServiceItem.
+    allOf:
+      - $ref: '#/definitions/MTOServiceItem'
+      - type: object
+        properties:
+          reServiceCode:
+            type: string
+            description: Service code allowed for this model type.
+            enum:
+              - DDFSIT
+              - DDASIT
+          timeMilitary1:
+            type: string
+            example: 1400Z
+            description: >-
+              Time of delivery corresponding to `firstAvailableDeliveryDate1`,
+              in military format.
+            pattern: \d{4}Z
+            x-nullable: true
+          timeMilitary2:
+            type: string
+            example: 1400Z
+            description: >-
+              Time of delivery corresponding to `firstAvailableDeliveryDate2`,
+              in military format.
+            pattern: \d{4}Z
+            x-nullable: true
+          firstAvailableDeliveryDate1:
+            format: date
+            type: string
+            description: First available date that Prime can deliver SIT service item.
+            x-nullable: true
+          firstAvailableDeliveryDate2:
+            format: date
+            type: string
+            description: Second available date that Prime can deliver SIT service item.
+            x-nullable: true
+          sitEntryDate:
+            format: date
+            type: string
+            description: Entry date for the SIT
+          sitDepartureDate:
+            format: date
+            type: string
+            description: >-
+              Departure date for SIT. This is the end date of the SIT at either
+              origin or destination. This is optional as it can be updated using
+              the UpdateMTOServiceItemSIT modelType at a later date.
+            x-nullable: true
+          sitDestinationFinalAddress:
+            $ref: '#/definitions/Address'
+          reason:
+            type: string
+            description: |
+              The reason item has been placed in SIT.
+            x-nullable: true
+            x-omitempty: false
+        required:
+          - reServiceCode
+          - sitEntryDate
+          - reason
+  MTOServiceItemDimension:
+    description: >-
+      The dimensions for either the item or the crate associated with a crating
+      service item.
+    type: object
+    properties:
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      length:
+        description: Length in thousandth inches. 1000 thou = 1 inch.
+        example: 1000
+        type: integer
+        format: int32
+      width:
+        description: Width in thousandth inches. 1000 thou = 1 inch.
+        example: 1000
+        type: integer
+        format: int32
+      height:
+        description: Height in thousandth inches. 1000 thou = 1 inch.
+        example: 1000
+        type: integer
+        format: int32
+    required:
+      - length
+      - width
+      - height
+  MTOServiceItemDomesticCrating:
+    description: >-
+      Describes a domestic crating/uncrating service item subtype of a
+      MTOServiceItem.
+    allOf:
+      - $ref: '#/definitions/MTOServiceItem'
+      - type: object
+        properties:
+          reServiceCode:
+            type: string
+            description: >-
+              A unique code for the service item. Indicates if the service is
+              for crating (DCRT) or uncrating (DUCRT).
+            enum:
+              - DCRT
+              - DUCRT
+          item:
+            description: The dimensions of the item being crated.
+            allOf:
+              - $ref: '#/definitions/MTOServiceItemDimension'
+          crate:
+            description: The dimensions for the crate the item will be shipped in.
+            allOf:
+              - $ref: '#/definitions/MTOServiceItemDimension'
+          description:
+            type: string
+            example: Decorated horse head to be crated.
+            description: A description of the item being crated.
+          reason:
+            type: string
+            example: Storage items need to be picked up
+            description: >
+              The contractor's explanation for why an item needed to be crated
+              or uncrated. Used by the TOO while deciding to approve or reject
+              the service item.
+            x-nullable: true
+            x-omitempty: false
+        required:
+          - reServiceCode
+          - item
+          - crate
+          - description
+  MTOServiceItemModelType:
+    description: >
+      Describes all model sub-types for a MTOServiceItem model.
+
+
+      Using this list, choose the correct modelType in the dropdown,
+      corresponding to the service item type.
+        * DOFSIT, DOASIT - MTOServiceItemOriginSIT
+        * DDFSIT, DDASIT - MTOServiceItemDestSIT
+        * DOSHUT, DDSHUT - MTOServiceItemShuttle
+        * DCRT, DUCRT - MTOServiceItemDomesticCrating
+
+      The documentation will then update with the supported fields.
+    type: string
+    enum:
+      - MTOServiceItemBasic
+      - MTOServiceItemOriginSIT
+      - MTOServiceItemDestSIT
+      - MTOServiceItemShuttle
+      - MTOServiceItemDomesticCrating
+  MTOServiceItemOriginSIT:
+    description: Describes a domestic origin SIT service item. Subtype of a MTOServiceItem.
+    allOf:
+      - $ref: '#/definitions/MTOServiceItem'
+      - type: object
+        properties:
+          reServiceCode:
+            type: string
+            description: Service code allowed for this model type.
+            enum:
+              - DOFSIT
+              - DOASIT
+          reason:
+            type: string
+            example: Storage items need to be picked up
+            description: Explanation of why Prime is picking up SIT item.
+          sitPostalCode:
+            type: string
+            format: zip
+            example: '90210'
+            pattern: ^(\d{5}([\-]\d{4})?)$
+          sitEntryDate:
+            format: date
+            type: string
+            description: Entry date for the SIT
+          sitDepartureDate:
+            format: date
+            type: string
+            x-nullable: true
+            description: >-
+              Departure date for SIT. This is the end date of the SIT at either
+              origin or destination. This is optional as it can be updated using
+              the UpdateMTOServiceItemSIT modelType at a later date.
+          sitHHGActualOrigin:
+            $ref: '#/definitions/Address'
+          sitHHGOriginalOrigin:
+            $ref: '#/definitions/Address'
+        required:
+          - reServiceCode
+          - reason
+          - sitPostalCode
+          - sitEntryDate
+  MTOServiceItemShuttle:
+    description: Describes a shuttle service item.
+    allOf:
+      - $ref: '#/definitions/MTOServiceItem'
+      - type: object
+        properties:
+          reServiceCode:
+            type: string
+            description: >
+              A unique code for the service item. Indicates if shuttling is
+              requested for the shipment origin (`DOSHUT`) or destination
+              (`DDSHUT`).
+            enum:
+              - DOSHUT
+              - DDSHUT
+          reason:
+            type: string
+            example: Storage items need to be picked up.
+            description: >
+              The contractor's explanation for why a shuttle service is
+              requested. Used by the TOO while deciding to approve or reject the
+              service item.
+          estimatedWeight:
+            type: integer
+            example: 4200
+            description: >-
+              An estimate of how much weight from a shipment will be included in
+              the shuttling service.
+            x-nullable: true
+            x-omitempty: false
+          actualWeight:
+            type: integer
+            example: 4000
+            description: >-
+              A record of the actual weight that was shuttled. Provided by the
+              movers, based on weight tickets.
+            x-nullable: true
+            x-omitempty: false
+        required:
+          - reason
+          - reServiceCode
+  MTOServiceItemStatus:
+    description: >-
+      The status of a service item, indicating where it is in the TOO's approval
+      process.
+    type: string
+    readOnly: true
+    enum:
+      - SUBMITTED
+      - APPROVED
+      - REJECTED
+  MTOShipmentWithoutServiceItems:
+    type: object
+    properties:
+      id:
+        description: The ID of the shipment.
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+        readOnly: true
+      moveTaskOrderID:
+        description: The ID of the move for this shipment.
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+        readOnly: true
+      approvedDate:
+        description: >-
+          The date when the Transportation Ordering Officer first approved this
+          shipment for the move.
+        format: date
+        type: string
+        readOnly: true
+        x-omitempty: false
+        x-nullable: true
+      requestedPickupDate:
+        description: >
+          The date the customer selects during onboarding as their preferred
+          pickup date. Other dates, such as required delivery date and (outside
+          MilMove) the pack date, are derived from this date.
+        format: date
+        type: string
+        readOnly: true
+        x-omitempty: false
+        x-nullable: true
+      requestedDeliveryDate:
+        description: The customer's preferred delivery date.
+        format: date
+        type: string
+        readOnly: true
+        x-omitempty: false
+        x-nullable: true
+      scheduledPickupDate:
+        description: >-
+          The date the Prime contractor scheduled to pick up this shipment after
+          consultation with the customer.
+        format: date
+        type: string
+        x-omitempty: false
+        x-nullable: true
+      actualPickupDate:
+        description: >-
+          The date when the Prime contractor actually picked up the shipment.
+          Updated after-the-fact.
+        format: date
+        type: string
+        x-omitempty: false
+        x-nullable: true
+      firstAvailableDeliveryDate:
+        description: >
+          The date the Prime provides to the customer as the first possible
+          delivery date so that they can plan their travel accordingly.
+        format: date
+        type: string
+        x-omitempty: false
+        x-nullable: true
+      requiredDeliveryDate:
+        description: >
+          The latest date by which the Prime can deliver a customer's shipment
+          without violating the contract. This is calculated based on weight,
+          distance, and the scheduled pickup date. It cannot be modified.
+        format: date
+        type: string
+        readOnly: true
+        x-omitempty: false
+        x-nullable: true
+      scheduledDeliveryDate:
+        description: >-
+          The date the Prime contractor scheduled to deliver this shipment after
+          consultation with the customer.
+        format: date
+        type: string
+        x-omitempty: false
+        x-nullable: true
+      actualDeliveryDate:
+        description: >-
+          The date when the Prime contractor actually delivered the shipment.
+          Updated after-the-fact.
+        format: date
+        type: string
+        x-omitempty: false
+        x-nullable: true
+      primeEstimatedWeight:
+        description: >
+          The estimated weight of this shipment, determined by the movers during
+          the pre-move survey. This value **can only be updated once.** If there
+          was an issue with estimating the weight and a mistake was made, the
+          Prime contracter will need to contact the TOO to change it.
+        type: integer
+        example: 4500
+        minimum: 1
+        x-nullable: true
+      primeEstimatedWeightRecordedDate:
+        description: >-
+          The date when the Prime contractor recorded the shipment's estimated
+          weight.
+        format: date
+        type: string
+        readOnly: true
+        x-omitempty: false
+        x-nullable: true
+      primeActualWeight:
+        description: >-
+          The actual weight of the shipment, provided after the Prime packs,
+          picks up, and weighs a customer's shipment.
+        type: integer
+        example: 4500
+        minimum: 1
+        x-nullable: true
+      ntsRecordedWeight:
+        description: >-
+          The previously recorded weight for the NTS Shipment. Used for NTS
+          Release to know what the previous primeActualWeight or billable weight
+          was.
+        type: integer
+        example: 4500
+        x-nullable: true
+        x-formatting: weight
+      customerRemarks:
+        description: >
+          The customer can use the customer remarks field to inform the services
+          counselor and the movers about any
+
+          special circumstances for this shipment. Typical examples:
+            * bulky or fragile items,
+            * weapons,
+            * access info for their address.
+
+          Customer enters this information during onboarding. Optional field.
+        type: string
+        example: handle with care
+        x-nullable: true
+        readOnly: true
+      counselorRemarks:
+        description: >
+          The counselor can use the counselor remarks field to inform the movers
+          about any
+
+          special circumstances for this shipment. Typical examples:
+            * bulky or fragile items,
+            * weapons,
+            * access info for their address.
+
+          Counselors enters this information when creating or editing an MTO
+          Shipment. Optional field.
+        type: string
+        example: handle with care
+        x-nullable: true
+        readOnly: true
+      agents:
+        $ref: '#/definitions/MTOAgents'
+      sitExtensions:
+        $ref: '#/definitions/SITExtensions'
+      reweigh:
+        $ref: '#/definitions/Reweigh'
+      pickupAddress:
+        description: >
+          The address where the movers should pick up this shipment, entered by
+          the customer during onboarding when they enter shipment details.
+        allOf:
+          - $ref: '#/definitions/Address'
+      destinationAddress:
+        description: >
+          Where the movers should deliver this shipment. Often provided by the
+          customer when they enter shipment details
+
+          during onboarding, if they know their new address already.
+
+
+          May be blank when entered by the customer, required when entered by
+          the Prime. May not represent the true
+
+          final destination due to the shipment being diverted or placed in SIT.
+        allOf:
+          - $ref: '#/definitions/Address'
+      destinationType:
+        $ref: '#/definitions/DestinationType'
+      secondaryPickupAddress:
+        description: >-
+          A second pickup address for this shipment, if the customer entered
+          one. An optional field.
+        allOf:
+          - $ref: '#/definitions/Address'
+      secondaryDeliveryAddress:
+        description: >-
+          A second delivery address for this shipment, if the customer entered
+          one. An optional field.
+        allOf:
+          - $ref: '#/definitions/Address'
+      storageFacility:
+        allOf:
+          - x-nullable: true
+          - $ref: '#/definitions/StorageFacility'
+      shipmentType:
+        $ref: '#/definitions/MTOShipmentType'
+      diversion:
+        description: >
+          This value indicates whether or not this shipment is part of a
+          diversion. If yes, the shipment can be either the starting or ending
+          segment of the diversion.
+        type: boolean
+      status:
+        description: >
+          The status of a shipment, indicating where it is in the TOO's approval
+          process. Can only be updated by the contractor in special
+          circumstances.
+        type: string
+        readOnly: true
+        enum:
+          - SUBMITTED
+          - APPROVED
+          - REJECTED
+          - CANCELLATION_REQUESTED
+          - CANCELED
+          - DIVERSION_REQUESTED
+      ppmShipment:
+        $ref: '#/definitions/PPMShipment'
+      eTag:
+        description: >-
+          A hash unique to this shipment that should be used as the "If-Match"
+          header for any updates.
+        type: string
+        readOnly: true
+      createdAt:
+        format: date-time
+        type: string
+        readOnly: true
+      updatedAt:
+        format: date-time
+        type: string
+        readOnly: true
+      pointOfContact:
+        type: string
+        description: >
+          Email or ID of the person who will be contacted in the event of
+          questions or concerns about this update. May be the person performing
+          the update, or someone else working with the Prime contractor.
+  MTOShipment:
+    type: object
+    properties:
+      mtoServiceItems:
+        description: A list of service items connected to this shipment.
+        items:
+          $ref: '#/definitions/MTOServiceItem'
+        type: array
+        readOnly: true
+    allOf:
+      - $ref: '#/definitions/MTOShipmentWithoutServiceItems'
+  MTOShipmentsWithoutServiceObjects:
+    description: A list of shipments without their associated service items.
+    items:
+      $ref: '#/definitions/MTOShipmentWithoutServiceItems'
+    type: array
+  MTOShipmentType:
+    title: Shipment Type
+    description: |
+      The type of shipment.
+        * `HHG` = Household goods move
+        * `HHG_INTO_NTS_DOMESTIC` = HHG into Non-temporary storage (NTS)
+        * `HHG_OUTOF_NTS_DOMESTIC` = HHG out of Non-temporary storage (NTS Release)
+        * `PPM` = Personally Procured Move also known as Do It Yourself (DITY)
+    type: string
+    example: HHG
+    enum:
+      - BOAT_HAUL_AWAY
+      - BOAT_TOW_AWAY
+      - HHG
+      - HHG_LONGHAUL_DOMESTIC
+      - HHG_INTO_NTS_DOMESTIC
+      - HHG_OUTOF_NTS_DOMESTIC
+      - HHG_SHORTHAUL_DOMESTIC
+      - INTERNATIONAL_HHG
+      - INTERNATIONAL_UB
+      - MOTORHOME
+      - PPM
+    x-display-value:
+      HHG: Household goods move (HHG)
+      HHG_LONGHAUL_DOMESTIC: Domestic Longhaul HHG
+      HHG_SHORTHAUL_DOMESTIC: Domestic Shorthaul HHG
+      HHG_INTO_NTS_DOMESTIC: HHG into Non-temporary storage (NTS)
+      HHG_OUTOF_NTS_DOMESTIC: HHG out of Non-temporary storage (NTS Release)
+      PPM: Personally Procured Move also known as Do It Yourself (DITY)
+  Order:
+    required:
+      - orderNumber
+      - rank
+      - linesOfAccounting
+    properties:
+      id:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+      customer:
+        $ref: '#/definitions/Customer'
+      customerID:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+      entitlement:
+        $ref: '#/definitions/Entitlements'
+      destinationDutyLocation:
+        $ref: '#/definitions/DutyLocation'
+      originDutyLocation:
+        $ref: '#/definitions/DutyLocation'
+      originDutyLocationGBLOC:
+        type: string
+        example: KKFA
+      rank:
+        type: string
+        example: E_5
+      reportByDate:
+        type: string
+        format: date
+      ordersType:
+        $ref: '#/definitions/OrdersType'
+      orderNumber:
+        type: string
+      linesOfAccounting:
+        type: string
+      eTag:
+        type: string
+        readOnly: true
+    type: object
+  PaymentRequest:
+    properties:
+      id:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        readOnly: true
+        type: string
+      isFinal:
+        default: false
+        type: boolean
+      moveTaskOrderID:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+      rejectionReason:
+        example: documentation was incomplete
+        type: string
+        x-nullable: true
+      status:
+        $ref: '#/definitions/PaymentRequestStatus'
+      paymentRequestNumber:
+        example: 1234-5678-1
+        readOnly: true
+        type: string
+      recalculationOfPaymentRequestID:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+        readOnly: true
+        x-nullable: true
+      proofOfServiceDocs:
+        $ref: '#/definitions/ProofOfServiceDocs'
+      paymentServiceItems:
+        $ref: '#/definitions/PaymentServiceItems'
+      eTag:
+        type: string
+        readOnly: true
+    type: object
+  PaymentRequests:
+    type: array
+    items:
+      $ref: '#/definitions/PaymentRequest'
+  PaymentRequestStatus:
+    enum:
+      - PENDING
+      - REVIEWED
+      - REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED
+      - SENT_TO_GEX
+      - RECEIVED_BY_GEX
+      - PAID
+      - EDI_ERROR
+      - DEPRECATED
+    title: Payment Request Status
+    type: string
+  PaymentServiceItem:
+    properties:
+      id:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        readOnly: true
+        type: string
+      paymentRequestID:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+      mtoServiceItemID:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+      status:
+        $ref: '#/definitions/PaymentServiceItemStatus'
+      priceCents:
+        type: integer
+        format: cents
+        title: Price of the service item in cents
+        x-nullable: true
+      rejectionReason:
+        example: documentation was incomplete
+        type: string
+        x-nullable: true
+      referenceID:
+        example: 1234-5678-c56a4180
+        readOnly: true
+        format: string
+      paymentServiceItemParams:
+        $ref: '#/definitions/PaymentServiceItemParams'
+      eTag:
+        type: string
+        readOnly: true
+    type: object
+  PaymentServiceItemParam:
+    properties:
+      id:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        readOnly: true
+        type: string
+      paymentServiceItemID:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+      key:
+        $ref: '#/definitions/ServiceItemParamName'
+      value:
+        example: '3025'
+        type: string
+      type:
+        $ref: '#/definitions/ServiceItemParamType'
+      origin:
+        $ref: '#/definitions/ServiceItemParamOrigin'
+      eTag:
+        type: string
+        readOnly: true
+    type: object
+  PaymentServiceItemParams:
+    type: array
+    items:
+      $ref: '#/definitions/PaymentServiceItemParam'
+  PaymentServiceItems:
+    type: array
+    items:
+      $ref: '#/definitions/PaymentServiceItem'
+  PaymentServiceItemStatus:
+    enum:
+      - REQUESTED
+      - APPROVED
+      - DENIED
+      - SENT_TO_GEX
+      - PAID
+      - EDI_ERROR
+    title: Payment Service Item Status
+    type: string
+  PPMShipment:
+    description: >-
+      A personally procured move is a type of shipment that a service member
+      moves themselves.
+    x-nullable: true
+    properties:
+      id:
+        description: The primary unique identifier of this PPM shipment
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+        readOnly: true
+      shipmentId:
+        description: The id of the parent MTOShipment record
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+        readOnly: true
+      createdAt:
+        description: The timestamp of when the PPM shipment was created (UTC)
+        format: date-time
+        type: string
+        readOnly: true
+      updatedAt:
+        description: The timestamp of when a property of this object was last updated (UTC)
+        format: date-time
+        type: string
+        readOnly: true
+      status:
+        $ref: '#/definitions/PPMShipmentStatus'
+      expectedDepartureDate:
+        description: |
+          Date the customer expects to begin moving from their origin.
+        format: date
+        type: string
+      actualMoveDate:
+        description: The actual start date of when the PPM shipment left the origin.
+        format: date
+        type: string
+        x-nullable: true
+        x-omitempty: false
+      submittedAt:
+        description: >-
+          The timestamp of when the customer submitted their PPM documentation
+          to the counselor for review.
+        format: date-time
+        type: string
+        x-nullable: true
+        x-omitempty: false
+      reviewedAt:
+        description: >-
+          The timestamp of when the Service Counselor has reviewed all of the
+          closeout documents.
+        format: date-time
+        type: string
+        x-nullable: true
+        x-omitempty: false
+      approvedAt:
+        description: >-
+          The timestamp of when the shipment was approved and the service member
+          can begin their move.
+        format: date-time
+        type: string
+        x-nullable: true
+        x-omitempty: false
+      pickupPostalCode:
+        description: >-
+          The postal code of the origin location where goods are being moved
+          from.
+        format: zip
+        type: string
+        title: ZIP
+        example: '90210'
+        pattern: ^(\d{5})$
+      secondaryPickupPostalCode:
+        description: >-
+          An optional secondary pickup location near the origin where additional
+          goods exist.
+        format: zip
+        type: string
+        example: '90210'
+        pattern: ^(\d{5})$
+        x-nullable: true
+        x-omitempty: false
+      actualPickupPostalCode:
+        description: >
+          The actual postal code where the PPM shipment started. To be filled
+          once the customer has moved the shipment.
+        format: zip
+        type: string
+        title: ZIP
+        example: '90210'
+        pattern: ^(\d{5})$
+        x-nullable: true
+        x-omitempty: false
+      destinationPostalCode:
+        description: >-
+          The postal code of the destination location where goods are being
+          delivered to.
+        format: zip
+        type: string
+        example: '90210'
+        pattern: ^(\d{5})$
+      secondaryDestinationPostalCode:
+        description: >-
+          An optional secondary location near the destination where goods will
+          be dropped off.
+        format: zip
+        type: string
+        example: '90210'
+        pattern: ^(\d{5})$
+        x-nullable: true
+        x-omitempty: false
+      actualDestinationPostalCode:
+        description: >
+          The actual postal code where the PPM shipment ended. To be filled once
+          the customer has moved the shipment.
+        format: zip
+        type: string
+        title: ZIP
+        example: '90210'
+        pattern: ^(\d{5})$
+        x-nullable: true
+        x-omitempty: false
+      sitExpected:
+        description: >
+          Captures whether some or all of the PPM shipment will require
+          temporary storage at the origin or destination.
+
+
+          Must be set to `true` when providing `sitLocation`,
+          `sitEstimatedWeight`, `sitEstimatedEntryDate`, and
+          `sitEstimatedDepartureDate` values to calculate the
+          `sitEstimatedCost`.
+        type: boolean
+      estimatedWeight:
+        description: The estimated weight of the PPM shipment goods being moved in pounds.
+        type: integer
+        example: 4200
+        x-nullable: true
+        x-omitempty: false
+      hasProGear:
+        description: >
+          Indicates whether PPM shipment has pro gear for themselves or their
+          spouse.
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      proGearWeight:
+        description: >-
+          The estimated weight of the pro-gear being moved belonging to the
+          service member in pounds.
+        type: integer
+        x-nullable: true
+        x-omitempty: false
+      spouseProGearWeight:
+        description: >-
+          The estimated weight of the pro-gear being moved belonging to a spouse
+          in pounds.
+        type: integer
+        x-nullable: true
+        x-omitempty: false
+      estimatedIncentive:
+        description: >-
+          The estimated amount the government will pay the service member to
+          move their belongings based on the moving date, locations, and
+          shipment weight.
+        type: integer
+        format: cents
+        x-nullable: true
+        x-omitempty: false
+      hasRequestedAdvance:
+        description: |
+          Indicates whether an advance has been requested for the PPM shipment.
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      advanceAmountRequested:
+        description: >
+          The amount requested as an advance by the service member, up to a
+          maximum percentage of the estimated incentive.
+        type: integer
+        format: cents
+        x-nullable: true
+        x-omitempty: false
+      hasReceivedAdvance:
+        description: |
+          Indicates whether an advance was received for the PPM shipment.
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      advanceAmountReceived:
+        description: |
+          The amount received for an advance, or null if no advance is received.
+        type: integer
+        format: cents
+        x-nullable: true
+        x-omitempty: false
+      sitLocation:
+        allOf:
+          - $ref: '#/definitions/SITLocationType'
+          - x-nullable: true
+          - x-omitempty: false
+      sitEstimatedWeight:
+        description: The estimated weight of the goods being put into storage in pounds.
+        type: integer
+        example: 2000
+        x-nullable: true
+        x-omitempty: false
+      sitEstimatedEntryDate:
+        description: The date that goods will first enter the storage location.
+        format: date
+        type: string
+        x-nullable: true
+        x-omitempty: false
+      sitEstimatedDepartureDate:
+        description: The date that goods will exit the storage location.
+        format: date
+        type: string
+        x-nullable: true
+        x-omitempty: false
+      sitEstimatedCost:
+        description: >-
+          The estimated amount that the government will pay the service member
+          to put their goods into storage. This estimated storage cost is
+          separate from the estimated incentive.
+        type: integer
+        format: cents
+        x-nullable: true
+        x-omitempty: false
+      eTag:
+        description: >-
+          A hash unique to this shipment that should be used as the "If-Match"
+          header for any updates.
+        type: string
+        readOnly: true
+    required:
+      - id
+      - shipmentId
+      - createdAt
+      - status
+      - expectedDepartureDate
+      - pickupPostalCode
+      - destinationPostalCode
+      - sitExpected
+      - eTag
+  ProofOfServiceDocs:
+    items:
+      $ref: '#/definitions/ProofOfServiceDoc'
+    type: array
+  ProofOfServiceDoc:
+    properties:
+      uploads:
+        items:
+          $ref: '#/definitions/UploadWithOmissions'
+        type: array
+    type: object
+  Reweigh:
+    description: >-
+      A reweigh  is when a shipment is weighed for a second time due to the
+      request of a customer, the contractor, system or TOO.
+    properties:
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      requestedAt:
+        format: date-time
+        type: string
+      requestedBy:
+        $ref: '#/definitions/ReweighRequester'
+      verificationProvidedAt:
+        format: date-time
+        type: string
+        x-nullable: true
+        x-omitempty: false
+      verificationReason:
+        example: >-
+          The reweigh was not performed due to some justification provided by
+          the Prime
+        type: string
+        x-nullable: true
+        x-omitempty: false
+      weight:
+        example: 2000
+        type: integer
+        x-formatting: weight
+        x-nullable: true
+        x-omitempty: false
+      shipmentID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      createdAt:
+        format: date-time
+        type: string
+        readOnly: true
+      updatedAt:
+        format: date-time
+        type: string
+        readOnly: true
+      eTag:
+        type: string
+        readOnly: true
+  ReweighRequester:
+    type: string
+    enum:
+      - CUSTOMER
+      - PRIME
+      - SYSTEM
+      - TOO
+  ServiceItem:
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      params:
+        type: array
+        description: >
+          This should be populated for the following service items:
+            * DOASIT(Domestic destination Additional day SIT)
+            * DDASIT(Domestic destination Additional day SIT)
+
+          Both take in the following param keys:
+            * `SITPaymentRequestStart`
+            * `SITPaymentRequestEnd`
+
+          The value of each is a date string in the format "YYYY-MM-DD" (e.g.
+          "2023-01-15")
+        items:
+          properties:
+            key:
+              type: string
+              example: Service Item Parameter Name
+            value:
+              type: string
+              example: Service Item Parameter Value
+          type: object
+      eTag:
+        type: string
+        readOnly: true
+    type: object
+  UpdateMTOServiceItem:
+    description: >-
+      UpdateMTOServiceItem describes a base type of a service item. Polymorphic
+      type. Both Move Task Orders and MTO Shipments will have MTO Service Items.
+    type: object
+    discriminator: modelType
+    properties:
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+        description: ID of the service item. Must match path.
+      modelType:
+        $ref: '#/definitions/UpdateMTOServiceItemModelType'
+    required:
+      - modelType
+  UpdateMTOServiceItemModelType:
+    description: >
+      Using this list, choose the correct modelType in the dropdown,
+      corresponding to the service item type.
+        * DDDSIT - UpdateMTOServiceItemSIT
+        * DOPSIT - UpdateMTOServiceItemSIT
+        * DDSHUT - UpdateMTOServiceItemShuttle
+        * DOSHUT - UpdateMTOServiceItemShuttle
+
+      The documentation will then update with the supported fields.
+    type: string
+    enum:
+      - UpdateMTOServiceItemSIT
+      - UpdateMTOServiceItemShuttle
+  UpdateMTOServiceItemShuttle:
+    description: >
+      Subtype used to provide the estimated weight and actual weight for
+      shuttle. This is not creating a new service item but rather updating an
+      existing service item.
+    allOf:
+      - $ref: '#/definitions/UpdateMTOServiceItem'
+      - type: object
+        properties:
+          actualWeight:
+            type: integer
+            example: 4000
+            description: >-
+              Provided by the movers, based on weight tickets. Relevant for
+              shuttling (DDSHUT & DOSHUT) service items.
+            x-nullable: true
+            x-omitempty: false
+          estimatedWeight:
+            type: integer
+            example: 4200
+            description: >-
+              An estimate of how much weight from a shipment will be included in
+              a shuttling (DDSHUT & DOSHUT) service item.
+            x-nullable: true
+            x-omitempty: false
+          reServiceCode:
+            type: string
+            description: Service code allowed for this model type.
+            enum:
+              - DDSHUT
+              - DOSHUT
+  UpdateMTOServiceItemSIT:
+    description: >
+      Subtype used to provide the departure date for origin or destination SIT.
+      This is not creating a new service item but rather updating and existing
+      service item.
+    allOf:
+      - $ref: '#/definitions/UpdateMTOServiceItem'
+      - type: object
+        properties:
+          reServiceCode:
+            type: string
+            description: Service code allowed for this model type.
+            enum:
+              - DDDSIT
+              - DOPSIT
+          sitDepartureDate:
+            format: date
+            type: string
+            description: >-
+              Departure date for SIT. This is the end date of the SIT at either
+              origin or destination.
+          sitDestinationFinalAddress:
+            $ref: '#/definitions/Address'
+          timeMilitary1:
+            type: string
+            example: 1400Z
+            description: >-
+              Time of delivery corresponding to `firstAvailableDeliveryDate1`,
+              in military format.
+            pattern: \d{4}Z
+            x-nullable: true
+          firstAvailableDeliveryDate1:
+            format: date
+            type: string
+            description: First available date that Prime can deliver SIT service item.
+            x-nullable: true
+          timeMilitary2:
+            type: string
+            example: 1400Z
+            description: >-
+              Time of delivery corresponding to `firstAvailableDeliveryDate2`,
+              in military format.
+            pattern: \d{4}Z
+            x-nullable: true
+          firstAvailableDeliveryDate2:
+            format: date
+            type: string
+            description: Second available date that Prime can deliver SIT service item.
+            x-nullable: true
+  UpdateMTOShipment:
+    properties:
+      scheduledPickupDate:
+        description: >-
+          The date the Prime contractor scheduled to pick up this shipment after
+          consultation with the customer.
+        format: date
+        type: string
+        x-omitempty: false
+        x-nullable: true
+      actualPickupDate:
+        description: >-
+          The date when the Prime contractor actually picked up the shipment.
+          Updated after-the-fact.
+        format: date
+        type: string
+        x-omitempty: false
+        x-nullable: true
+      firstAvailableDeliveryDate:
+        description: >
+          The date the Prime provides to the customer as the first possible
+          delivery date so that they can plan their travel accordingly.
+        format: date
+        type: string
+        x-omitempty: false
+        x-nullable: true
+      scheduledDeliveryDate:
+        description: >-
+          The date the Prime contractor scheduled to deliver this shipment after
+          consultation with the customer.
+        format: date
+        type: string
+        x-omitempty: false
+        x-nullable: true
+      actualDeliveryDate:
+        description: >-
+          The date when the Prime contractor actually delivered the shipment.
+          Updated after-the-fact.
+        format: date
+        type: string
+        x-omitempty: false
+        x-nullable: true
+      primeEstimatedWeight:
+        description: >
+          The estimated weight of this shipment, determined by the movers during
+          the pre-move survey. This value **can only be updated once.** If there
+          was an issue with estimating the weight and a mistake was made, the
+          Prime contracter will need to contact the TOO to change it.
+        type: integer
+        example: 4500
+        minimum: 1
+        x-nullable: true
+      primeActualWeight:
+        description: >-
+          The actual weight of the shipment, provided after the Prime packs,
+          picks up, and weighs a customer's shipment.
+        type: integer
+        example: 4500
+        minimum: 1
+        x-nullable: true
+      ntsRecordedWeight:
+        description: >-
+          The previously recorded weight for the NTS Shipment. Used for NTS
+          Release to know what the previous primeActualWeight or billable weight
+          was.
+        type: integer
+        example: 4500
+        x-nullable: true
+        x-formatting: weight
+      pickupAddress:
+        description: >
+          The address where the movers should pick up this shipment, entered by
+          the customer during onboarding when they enter shipment details.
+        allOf:
+          - $ref: '#/definitions/Address'
+      destinationAddress:
+        description: >
+          Where the movers should deliver this shipment. Often provided by the
+          customer when they enter shipment details
+
+          during onboarding, if they know their new address already.
+
+
+          May be blank when entered by the customer, required when entered by
+          the Prime. May not represent the true
+
+          final destination due to the shipment being diverted or placed in SIT.
+        allOf:
+          - $ref: '#/definitions/Address'
+      destinationType:
+        $ref: '#/definitions/DestinationType'
+      secondaryPickupAddress:
+        description: >-
+          A second pickup address for this shipment, if the customer entered
+          one. An optional field.
+        allOf:
+          - $ref: '#/definitions/Address'
+      secondaryDeliveryAddress:
+        description: >-
+          A second delivery address for this shipment, if the customer entered
+          one. An optional field.
+        allOf:
+          - $ref: '#/definitions/Address'
+      storageFacility:
+        allOf:
+          - x-nullable: true
+          - $ref: '#/definitions/StorageFacility'
+      shipmentType:
+        $ref: '#/definitions/MTOShipmentType'
+      diversion:
+        description: >
+          This value indicates whether or not this shipment is part of a
+          diversion. If yes, the shipment can be either the starting or ending
+          segment of the diversion.
+        type: boolean
+      pointOfContact:
+        type: string
+        description: >
+          Email or ID of the person who will be contacted in the event of
+          questions or concerns about this update. May be the person performing
+          the update, or someone else working with the Prime contractor.
+      counselorRemarks:
+        type: string
+        example: counselor approved
+        x-nullable: true
+      ppmShipment:
+        $ref: '#/definitions/UpdatePPMShipment'
+  UpdatePPMShipment:
+    description: The PPM specific fields of the shipment with values being changed
+    type: object
+    properties:
+      expectedDepartureDate:
+        description: |
+          Date the customer expects to begin moving from their origin.
+        format: date
+        type: string
+        x-nullable: true
+      pickupPostalCode:
+        description: >-
+          The postal code of the origin location where goods are being moved
+          from.
+        format: zip
+        type: string
+        example: '90210'
+        pattern: ^(\d{5})$
+        x-nullable: true
+      secondaryPickupPostalCode:
+        description: >-
+          An optional secondary pickup location near the origin where additional
+          goods exist.
+        format: zip
+        type: string
+        example: '90210'
+        pattern: ^(\d{5})$
+        x-nullable: true
+      destinationPostalCode:
+        description: >-
+          The postal code of the destination location where goods are being
+          delivered to.
+        format: zip
+        type: string
+        title: ZIP
+        example: '90210'
+        pattern: ^(\d{5})$
+        x-nullable: true
+      secondaryDestinationPostalCode:
+        description: >-
+          An optional secondary location near the destination where goods will
+          be dropped off.
+        format: zip
+        type: string
+        example: '90210'
+        pattern: ^(\d{5})$
+        x-nullable: true
+      sitExpected:
+        description: >
+          Captures whether some or all of the PPM shipment will require
+          temporary storage at the origin or destination.
+
+
+          Must be set to `true` when providing `sitLocation`,
+          `sitEstimatedWeight`, `sitEstimatedEntryDate`, and
+          `sitEstimatedDepartureDate` values to calculate the
+          `sitEstimatedCost`.
+        type: boolean
+        x-nullable: true
+      sitLocation:
+        allOf:
+          - $ref: '#/definitions/SITLocationType'
+          - x-nullable: true
+      sitEstimatedWeight:
+        description: The estimated weight of the goods being put into storage.
+        type: integer
+        example: 2000
+        x-nullable: true
+      sitEstimatedEntryDate:
+        description: The date that goods will first enter the storage location.
+        format: date
+        type: string
+        x-nullable: true
+      sitEstimatedDepartureDate:
+        description: The date that goods will exit the storage location.
+        format: date
+        type: string
+        x-nullable: true
+      estimatedWeight:
+        description: The estimated weight of the PPM shipment goods being moved.
+        type: integer
+        example: 4200
+        x-nullable: true
+      hasProGear:
+        description: >
+          Indicates whether PPM shipment has pro gear for themselves or their
+          spouse.
+        type: boolean
+        x-nullable: true
+      proGearWeight:
+        description: >-
+          The estimated weight of the pro-gear being moved belonging to the
+          service member.
+        type: integer
+        x-nullable: true
+      spouseProGearWeight:
+        description: >-
+          The estimated weight of the pro-gear being moved belonging to a
+          spouse.
+        type: integer
+        x-nullable: true
+  UpdateMTOShipmentStatus:
+    description: >-
+      Contains the statuses available to the Prime when updating the state of a
+      shipment.
+    type: object
+    properties:
+      status:
+        type: string
+        enum:
+          - CANCELED
+  UpdateReweigh:
+    description: Contains the fields available to the Prime when updating a reweigh record.
+    type: object
+    properties:
+      weight:
+        description: The total reweighed weight for the shipment in pounds.
+        example: 2000
+        minimum: 1
+        type: integer
+        x-formatting: weight
+        x-nullable: true
+        x-omitempty: false
+      verificationReason:
+        description: >-
+          In lieu of a document being uploaded indicating why a reweigh did not
+          occur.
+        example: >-
+          The reweigh was not performed because the shipment was already
+          delivered
+        type: string
+        x-nullable: true
+        x-omitempty: false
+  ClientError:
+    type: object
+    properties:
+      title:
+        type: string
+      detail:
+        type: string
+      instance:
+        type: string
+        format: uuid
+    required:
+      - title
+      - detail
+      - instance
+  Address:
+    description: A postal address
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      streetAddress1:
+        type: string
+        example: 123 Main Ave
+        title: Street address 1
+      streetAddress2:
+        type: string
+        example: Apartment 9000
+        x-nullable: true
+        title: Street address 2
+      streetAddress3:
+        type: string
+        example: Montmârtre
+        x-nullable: true
+        title: Address Line 3
+      city:
+        type: string
+        example: Anytown
+        title: City
+      eTag:
+        type: string
+        readOnly: true
+      state:
+        title: State
+        type: string
+        x-display-value:
+          AL: AL
+          AK: AK
+          AR: AR
+          AZ: AZ
+          CA: CA
+          CO: CO
+          CT: CT
+          DC: DC
+          DE: DE
+          FL: FL
+          GA: GA
+          HI: HI
+          IA: IA
+          ID: ID
+          IL: IL
+          IN: IN
+          KS: KS
+          KY: KY
+          LA: LA
+          MA: MA
+          MD: MD
+          ME: ME
+          MI: MI
+          MN: MN
+          MO: MO
+          MS: MS
+          MT: MT
+          NC: NC
+          ND: ND
+          NE: NE
+          NH: NH
+          NJ: NJ
+          NM: NM
+          NV: NV
+          NY: NY
+          OH: OH
+          OK: OK
+          OR: OR
+          PA: PA
+          RI: RI
+          SC: SC
+          SD: SD
+          TN: TN
+          TX: TX
+          UT: UT
+          VA: VA
+          VT: VT
+          WA: WA
+          WI: WI
+          WV: WV
+          WY: WY
+        enum:
+          - AL
+          - AK
+          - AR
+          - AZ
+          - CA
+          - CO
+          - CT
+          - DC
+          - DE
+          - FL
+          - GA
+          - HI
+          - IA
+          - ID
+          - IL
+          - IN
+          - KS
+          - KY
+          - LA
+          - MA
+          - MD
+          - ME
+          - MI
+          - MN
+          - MO
+          - MS
+          - MT
+          - NC
+          - ND
+          - NE
+          - NH
+          - NJ
+          - NM
+          - NV
+          - NY
+          - OH
+          - OK
+          - OR
+          - PA
+          - RI
+          - SC
+          - SD
+          - TN
+          - TX
+          - UT
+          - VA
+          - VT
+          - WA
+          - WI
+          - WV
+          - WY
+      postalCode:
+        type: string
+        format: zip
+        title: ZIP
+        example: '90210'
+        pattern: ^(\d{5}([\-]\d{4})?)$
+      country:
+        type: string
+        title: Country
+        x-nullable: true
+        example: USA
+        default: USA
+    required:
+      - streetAddress1
+      - city
+      - state
+      - postalCode
+  SITLocationType:
+    description: The list of SIT location types.
+    type: string
+    enum:
+      - ORIGIN
+      - DESTINATION
+  OrdersType:
+    type: string
+    title: Orders type
+    enum:
+      - PERMANENT_CHANGE_OF_STATION
+      - LOCAL_MOVE
+      - RETIREMENT
+      - SEPARATION
+    x-display-value:
+      PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
+      LOCAL_MOVE: Local Move
+      RETIREMENT: Retirement
+      SEPARATION: Separation
+  UploadWithOmissions:
+    description: An uploaded file.
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      url:
+        type: string
+        format: uri
+        example: https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538
+      filename:
+        type: string
+        example: filename.pdf
+      contentType:
+        type: string
+        format: mime-type
+        example: application/pdf
+      bytes:
+        type: integer
+      status:
+        type: string
+        enum:
+          - INFECTED
+          - CLEAN
+          - PROCESSING
+      createdAt:
+        type: string
+        format: date-time
+        readOnly: true
+      updatedAt:
+        type: string
+        format: date-time
+        readOnly: true
+    required:
+      - filename
+      - contentType
+      - bytes
+  ServiceItemParamName:
+    type: string
+    enum:
+      - ActualPickupDate
+      - ContractCode
+      - ContractYearName
+      - CubicFeetBilled
+      - CubicFeetCrating
+      - DimensionHeight
+      - DimensionLength
+      - DimensionWidth
+      - DistanceZip
+      - DistanceZipSITDest
+      - DistanceZipSITOrigin
+      - EIAFuelPrice
+      - EscalationCompounded
+      - FSCMultiplier
+      - FSCPriceDifferenceInCents
+      - FSCWeightBasedDistanceMultiplier
+      - IsPeak
+      - MarketDest
+      - MarketOrigin
+      - MTOAvailableToPrimeAt
+      - NTSPackingFactor
+      - NumberDaysSIT
+      - PriceAreaDest
+      - PriceAreaIntlDest
+      - PriceAreaIntlOrigin
+      - PriceAreaOrigin
+      - PriceRateOrFactor
+      - PSI_LinehaulDom
+      - PSI_LinehaulDomPrice
+      - PSI_LinehaulShort
+      - PSI_LinehaulShortPrice
+      - PSI_PriceDomDest
+      - PSI_PriceDomDestPrice
+      - PSI_PriceDomOrigin
+      - PSI_PriceDomOriginPrice
+      - PSI_ShippingLinehaulIntlCO
+      - PSI_ShippingLinehaulIntlCOPrice
+      - PSI_ShippingLinehaulIntlOC
+      - PSI_ShippingLinehaulIntlOCPrice
+      - PSI_ShippingLinehaulIntlOO
+      - PSI_ShippingLinehaulIntlOOPrice
+      - RateAreaNonStdDest
+      - RateAreaNonStdOrigin
+      - ReferenceDate
+      - RequestedPickupDate
+      - ServiceAreaDest
+      - ServiceAreaOrigin
+      - ServicesScheduleDest
+      - ServicesScheduleOrigin
+      - SITPaymentRequestEnd
+      - SITPaymentRequestStart
+      - SITScheduleDest
+      - SITScheduleOrigin
+      - WeightAdjusted
+      - WeightBilled
+      - WeightEstimated
+      - WeightOriginal
+      - WeightReweigh
+      - ZipDestAddress
+      - ZipPickupAddress
+      - ZipSITDestHHGFinalAddress
+      - ZipSITOriginHHGActualAddress
+      - ZipSITOriginHHGOriginalAddress
+  ServiceItemParamType:
+    type: string
+    enum:
+      - STRING
+      - DATE
+      - INTEGER
+      - DECIMAL
+      - TIMESTAMP
+      - PaymentServiceItemUUID
+      - BOOLEAN
+  ServiceItemParamOrigin:
+    type: string
+    enum:
+      - PRIME
+      - SYSTEM
+      - PRICER
+      - PAYMENT_REQUEST
+  SITExtension:
+    type: object
+    description: >-
+      A storage in transit (SIT) Extension is a request for an increase in the
+      billable number of days a shipment is allowed to be in SIT.
+    properties:
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      mtoShipmentID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      requestReason:
+        type: string
+        enum:
+          - SERIOUS_ILLNESS_MEMBER
+          - SERIOUS_ILLNESS_DEPENDENT
+          - IMPENDING_ASSIGNEMENT
+          - DIRECTED_TEMPORARY_DUTY
+          - NONAVAILABILITY_OF_CIVILIAN_HOUSING
+          - AWAITING_COMPLETION_OF_RESIDENCE
+          - OTHER
+      contractorRemarks:
+        example: We need SIT additional days. The customer has not found a house yet.
+        type: string
+        x-nullable: true
+        x-omitempty: false
+      requestedDays:
+        type: integer
+        example: 30
+      status:
+        enum:
+          - PENDING
+          - APPROVED
+          - DENIED
+      approvedDays:
+        type: integer
+        example: 30
+        x-nullable: true
+        x-omitempty: false
+      decisionDate:
+        format: date-time
+        type: string
+        x-nullable: true
+        x-omitempty: false
+      officeRemarks:
+        type: string
+        x-nullable: true
+        x-omitempty: false
+      createdAt:
+        format: date-time
+        type: string
+        readOnly: true
+      updatedAt:
+        format: date-time
+        type: string
+        readOnly: true
+      eTag:
+        type: string
+        readOnly: true
+  SITExtensions:
+    type: array
+    items:
+      $ref: '#/definitions/SITExtension'
+  DestinationType:
+    type: string
+    title: Destination Type
+    example: OTHER_THAN_AUTHORIZED
+    x-nullable: true
+    enum:
+      - HOME_OF_RECORD
+      - HOME_OF_SELECTION
+      - PLACE_ENTERED_ACTIVE_DUTY
+      - OTHER_THAN_AUTHORIZED
+  StorageFacility:
+    description: The Storage Facility information for the shipment
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      facilityName:
+        type: string
+      address:
+        $ref: '#/definitions/Address'
+      lotNumber:
+        type: string
+        x-nullable: true
+      phone:
+        type: string
+        format: telephone
+        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
+        x-nullable: true
+      email:
+        type: string
+        format: x-email
+        pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
+        x-nullable: true
+      eTag:
+        type: string
+        readOnly: true
+  PPMShipmentStatus:
+    description: |
+      Status of the PPM Shipment:
+        * **DRAFT**: The customer has created the PPM shipment but has not yet submitted their move for counseling.
+        * **SUBMITTED**: The shipment belongs to a move that has been submitted by the customer or has been created by a Service Counselor or Prime Contractor for a submitted move.
+        * **WAITING_ON_CUSTOMER**: The PPM shipment has been approved and the customer may now provide their actual move closeout information and documentation required to get paid.
+        * **NEEDS_ADVANCE_APPROVAL**: The shipment was counseled by the Prime Contractor and approved but an advance was requested so will need further financial approval from the government.
+        * **NEEDS_PAYMENT_APPROVAL**: The customer has provided their closeout weight tickets, receipts, and expenses and certified it for the Service Counselor to approve, exclude or reject.
+        * **PAYMENT_APPROVED**: The Service Counselor has reviewed all of the customer's PPM closeout documentation and authorizes the customer can download and submit their finalized SSW packet.
+    type: string
+    readOnly: true
+    enum:
+      - DRAFT
+      - SUBMITTED
+      - WAITING_ON_CUSTOMER
+      - NEEDS_ADVANCE_APPROVAL
+      - NEEDS_PAYMENT_APPROVAL
+      - PAYMENT_APPROVED
+  ReServiceCode:
+    type: string
+    description: >
+      This is the full list of service items that can be found on a shipment.
+      Not all service items
+
+      may be requested by the Prime, but may be returned in a response.
+
+
+      Documentation of all the service items will be provided.
+    enum:
+      - CS
+      - DBHF
+      - DBTF
+      - DCRT
+      - DDASIT
+      - DDDSIT
+      - DDFSIT
+      - DDP
+      - DDSHUT
+      - DLH
+      - DMHF
+      - DNPK
+      - DOASIT
+      - DOFSIT
+      - DOP
+      - DOPSIT
+      - DOSHUT
+      - DPK
+      - DSH
+      - DUCRT
+      - DUPK
+      - FSC
+      - IBHF
+      - IBTF
+      - ICOLH
+      - ICOUB
+      - ICRT
+      - ICRTSA
+      - IDASIT
+      - IDDSIT
+      - IDFSIT
+      - IDSHUT
+      - IHPK
+      - IHUPK
+      - INPK
+      - IOASIT
+      - IOCLH
+      - IOCUB
+      - IOFSIT
+      - IOOLH
+      - IOOUB
+      - IOPSIT
+      - IOSHUT
+      - IUBPK
+      - IUBUPK
+      - IUCRT
+      - MS
+      - NSTH
+      - NSTUB
+responses:
+  InvalidRequest:
+    description: The request payload is invalid.
+    schema:
+      $ref: '#/definitions/ClientError'
+  ServerError:
+    description: A server error occurred.
+    schema:
+      $ref: '#/definitions/Error'
+  NotImplemented:
+    description: The requested feature is still in development.
+    schema:
+      $ref: '#/definitions/Error'
+  PreconditionFailed:
+    description: >-
+      Precondition failed, likely due to a stale eTag (If-Match). Fetch the
+      request again to get the updated eTag value.
+    schema:
+      $ref: '#/definitions/ClientError'
+  PermissionDenied:
+    description: The request was denied.
+    schema:
+      $ref: '#/definitions/ClientError'

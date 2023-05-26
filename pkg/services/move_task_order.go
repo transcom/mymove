@@ -42,6 +42,13 @@ type MoveTaskOrderFetcher interface {
 	ListPrimeMoveTaskOrders(appCtx appcontext.AppContext, searchParams *MoveTaskOrderFetcherParams) (models.Moves, error)
 }
 
+// MoveTaskOrderFetcher is the service object interface for FetchMoveTaskOrder
+//
+//go:generate mockery --name MoveTaskOrderFetcher
+type MoveTaskOrderFetcherV2 interface {
+	ListPrimeMoveTaskOrdersV2(appCtx appcontext.AppContext, searchParams *MoveTaskOrderFetcherParams) (models.Moves, error)
+}
+
 // MoveTaskOrderUpdater is the service object interface for updating fields of a MoveTaskOrder
 //
 //go:generate mockery --name MoveTaskOrderUpdater
