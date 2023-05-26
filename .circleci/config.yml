@@ -1102,7 +1102,7 @@ jobs:
             #
             # The trailing hyphen in restore_cache seems important
             # according to the page linked above
-            - v2-spectral-lint-
+            - v4-spectral-lint-
       - run:
           name: Save Baseline Spectral Lint
           command: |
@@ -1146,7 +1146,7 @@ jobs:
           command: |
             ./scripts/ensure-spectral-lint /tmp/spectral_baseline spectral
       - save_cache:
-          key: v2-pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
+          key: v4-pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
           paths:
             - ~/.cache/pre-commit
       # only save the cache on default branch builds because we only want to
