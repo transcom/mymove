@@ -1,8 +1,10 @@
 import React from 'react';
+import { expect } from '@storybook/jest';
+import { within, userEvent } from '@storybook/testing-library';
 
 import testParams from '../ServiceItemCalculations/serviceItemTestParams';
 
-import ServiceItemCard from './ServiceItemCard';
+import ServiceItemCard from './NewServiceItemCard';
 
 import { SHIPMENT_OPTIONS, PAYMENT_SERVICE_ITEM_STATUS } from 'shared/constants';
 import { serviceItemCodes } from 'content/serviceItems';
@@ -10,7 +12,7 @@ import { shipmentModificationTypes } from 'constants/shipments';
 import { SERVICE_ITEM_CODES } from 'constants/serviceItems';
 
 export default {
-  title: 'Office Components/ReviewServiceItems/ServiceItemCards',
+  title: 'Office Components/ReviewServiceItems/NewServiceItemCards',
   component: ServiceItemCard,
   argTypes: {
     patchPaymentServiceItem: {
@@ -26,6 +28,27 @@ export const Basic = (args) => (
     patchPaymentServiceItem={args.patchPaymentServiceItem}
   />
 );
+
+export const EmptyRejectionReasonError = (args) => (
+  <ServiceItemCard
+    mtoServiceItemName={serviceItemCodes.CS}
+    amount={999.99}
+    patchPaymentServiceItem={args.patchPaymentServiceItem}
+    status={PAYMENT_SERVICE_ITEM_STATUS.DENIED}
+  />
+);
+
+EmptyRejectionReasonError.play = async ({ canvasElement }) => {
+  const canvas = within(canvasElement);
+
+  await expect(canvas.getByRole('textbox', { name: 'Reason for rejection' })).toBeInTheDocument();
+  // Using getByText because the radio element has pointer-events: none
+  await expect(canvas.getByText('Reject')).toBeInTheDocument();
+
+  // type, then clear, then blur
+  await userEvent.type(canvas.getByRole('textbox', { name: 'Reason for rejection' }), 'a{backspace}');
+  await userEvent.click(canvas.getByText('Reject'));
+};
 
 export const HHG = (args) => (
   <ServiceItemCard
