@@ -27,10 +27,10 @@ export function formatAddress(address) {
 export function formatAddressForSitAddressChangeForm(address) {
   const { streetAddress1, streetAddress2, city, state, postalCode } = address;
   return (
-    <address>
-      <span>{streetAddress1 && <>{streetAddress1},&nbsp;</>}</span>
-      <span>{streetAddress2 && <>{streetAddress2},&nbsp;</>}</span>
-      <span>{city ? `${city}, ${state} ${postalCode}` : postalCode}</span>
+    <address data-testid="SitAddressChangeDisplay">
+      {streetAddress1 && <span data-testid="AddressLine">{streetAddress1},</span>}
+      {streetAddress2 && <span data-testid="AddressLine">{streetAddress2},</span>}
+      <span data-testid="AddressLine">{city ? `${city}, ${state} ${postalCode}` : postalCode}</span>
     </address>
   );
 }

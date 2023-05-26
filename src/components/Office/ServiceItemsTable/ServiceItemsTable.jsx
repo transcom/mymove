@@ -19,6 +19,7 @@ const ServiceItemsTable = ({
   serviceItems,
   statusForTableType,
   handleUpdateMTOServiceItemStatus,
+  handleRequestSITAddressUpdateModal,
   handleShowRejectionDialog,
   handleShowEditSitAddressModal,
 }) => {
@@ -53,7 +54,7 @@ const ServiceItemsTable = ({
   const tableRows = serviceItems.map((serviceItem, index) => {
     const { id, code, details, mtoShipmentID, sitAddressUpdates, ...item } = serviceItem;
     return (
-      <>
+      <React.Fragment key={id}>
         {ALLOWED_SIT_ADDRESS_UPDATE_SI_CODES.includes(code) &&
           sitAddressUpdates &&
           showSITAddressUpdateRequestedTag(code, sitAddressUpdates) && (
@@ -122,6 +123,7 @@ const ServiceItemsTable = ({
                           type="button"
                           data-testid="reviewRequestTextButton"
                           className="text-blue usa-button--unstyled margin-left-1"
+                          onClick={() => handleRequestSITAddressUpdateModal(id, mtoShipmentID)}
                         >
                           <span>
                             <FontAwesomeIcon icon="pencil" style={{ marginRight: '5px' }} />
@@ -165,7 +167,7 @@ const ServiceItemsTable = ({
             )}
           </td>
         </tr>
-      </>
+      </React.Fragment>
     );
   });
 
@@ -185,10 +187,15 @@ const ServiceItemsTable = ({
   );
 };
 
+ServiceItemsTable.defaultProps = {
+  handleRequestSITAddressUpdateModal: () => {},
+};
+
 ServiceItemsTable.propTypes = {
   handleUpdateMTOServiceItemStatus: PropTypes.func.isRequired,
   handleShowRejectionDialog: PropTypes.func.isRequired,
   statusForTableType: PropTypes.string.isRequired,
+  handleRequestSITAddressUpdateModal: PropTypes.func,
   serviceItems: PropTypes.arrayOf(ServiceItemDetailsShape).isRequired,
 };
 
