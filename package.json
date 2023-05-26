@@ -146,7 +146,7 @@
     "@typescript-eslint/eslint-plugin": "^5.59.6",
     "@typescript-eslint/parser": "^5.59.7",
     "@wojtekmaj/enzyme-adapter-react-17": "^0.8.0",
-    "danger": "^11.2.4",
+    "danger": "^11.2.6",
     "danger-plugin-jira-issue": "^1.4.1",
     "dotenv": "^16.0.3",
     "enzyme": "^3.11.0",
