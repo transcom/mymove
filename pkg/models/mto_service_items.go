@@ -7,6 +7,7 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gobuffalo/validate/v3/validators"
 	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -97,4 +98,18 @@ func FetchRelatedDestinationSITServiceItems(tx *pop.Connection, mtoServiceItemID
 				SELECT mto_shipment_id FROM mto_service_items WHERE id = ?)`, ReServiceCodeDDFSIT, ReServiceCodeDDASIT, ReServiceCodeDDDSIT, mtoServiceItemID).
 		All(&relatedDestinationSITServiceItems)
 	return relatedDestinationSITServiceItems, err
+}
+
+func FetchServiceItem(db *pop.Connection, serviceItemID uuid.UUID) (MTOServiceItem, error) {
+	var serviceItem MTOServiceItem
+	err := db.Eager("SITDestinationFinalAddress", "SITDestinationOriginalAddress").Where("id = ?", serviceItemID).First(&serviceItem)
+
+	if err != nil {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
+			return MTOServiceItem{}, ErrFetchNotFound
+		}
+		return MTOServiceItem{}, err
+	}
+
+	return serviceItem, nil
 }

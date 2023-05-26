@@ -9,8 +9,8 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
-// approvedSITAddressUpdateCreator is the concrete struct implementing the services.ApprovedSITAddressUpdateCreator interface
-type approvedSITAddressUpdateCreator struct {
+// approvedSITAddressUpdateRequestCreator is the concrete struct implementing the services.ApprovedSITAddressUpdateRequestCreator interface
+type approvedSITAddressUpdateRequestCreator struct {
 	planner            route.Planner
 	addressCreator     services.AddressCreator
 	serviceItemUpdater services.MTOServiceItemUpdater
@@ -18,8 +18,8 @@ type approvedSITAddressUpdateCreator struct {
 }
 
 // NewApprovedOfficeSITAddressUpdateCreator creates a new struct with the service dependencies
-func NewApprovedOfficeSITAddressUpdateCreator(planner route.Planner, addressCreator services.AddressCreator, serviceItemUpdater services.MTOServiceItemUpdater) services.ApprovedSITAddressUpdateCreator {
-	return &approvedSITAddressUpdateCreator{
+func NewApprovedOfficeSITAddressUpdateCreator(planner route.Planner, addressCreator services.AddressCreator, serviceItemUpdater services.MTOServiceItemUpdater) services.ApprovedSITAddressUpdateRequestCreator {
+	return &approvedSITAddressUpdateRequestCreator{
 		planner:            planner,
 		addressCreator:     addressCreator,
 		serviceItemUpdater: serviceItemUpdater,
@@ -31,7 +31,7 @@ func NewApprovedOfficeSITAddressUpdateCreator(planner route.Planner, addressCrea
 }
 
 // CreateSITAddressUpdate creates a SIT Address Update
-func (f *approvedSITAddressUpdateCreator) CreateApprovedSITAddressUpdate(appCtx appcontext.AppContext, sitAddressUpdate *models.SITAddressUpdate) (*models.SITAddressUpdate, error) {
+func (f *approvedSITAddressUpdateRequestCreator) CreateApprovedSITAddressUpdate(appCtx appcontext.AppContext, sitAddressUpdate *models.SITAddressUpdate) (*models.SITAddressUpdate, error) {
 	var err error
 	if err = validateSITAddressUpdate(appCtx, sitAddressUpdate, f.checks...); err != nil {
 		return nil, err
@@ -41,7 +41,7 @@ func (f *approvedSITAddressUpdateCreator) CreateApprovedSITAddressUpdate(appCtx 
 
 	txErr := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) (err error) {
 		var serviceItem models.MTOServiceItem
-		err = txnAppCtx.DB().Eager("SITDestinationFinalAddress").Where("id = ?", sitAddressUpdate.MTOServiceItemID).First(&serviceItem)
+		err = txnAppCtx.DB().Eager("SITDestinationFinalAddress", "SITDestinationOriginalAddress").Where("id = ?", sitAddressUpdate.MTOServiceItemID).First(&serviceItem)
 		if err != nil {
 			return err
 		}
@@ -56,7 +56,7 @@ func (f *approvedSITAddressUpdateCreator) CreateApprovedSITAddressUpdate(appCtx 
 		sitAddressUpdate.NewAddressID = newAddress.ID
 		sitAddressUpdate.NewAddress = *newAddress
 
-		sitAddressUpdate.Distance, err = f.planner.TransitDistance(appCtx, &sitAddressUpdate.OldAddress, &sitAddressUpdate.NewAddress)
+		sitAddressUpdate.Distance, err = f.planner.ZipTransitDistance(appCtx, serviceItem.SITDestinationOriginalAddress.PostalCode, sitAddressUpdate.NewAddress.PostalCode)
 		if err != nil {
 			return err
 		}

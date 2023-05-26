@@ -20,7 +20,8 @@ func (suite *SITAddressUpdateServiceSuite) TestCheckRequiredFields() {
 				{
 					Model: models.Address{},
 					Type:  &factory.Addresses.SITDestinationFinalAddress,
-				}}, nil)
+				},
+			}, nil)
 			sitAddressUpdate := factory.BuildSITAddressUpdate(nil, []factory.Customization{
 				{
 					Model:    oldAddress,
