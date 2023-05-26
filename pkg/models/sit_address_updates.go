@@ -7,6 +7,7 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gobuffalo/validate/v3/validators"
 	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
 )
 
 // SITAddressUpdateStatus represents the possible statuses for a mto shipment
@@ -66,3 +67,17 @@ func (s SITAddressUpdate) TableName() string {
 
 // SITAddressUpdates is a slice containing of SITAddressUpdates
 type SITAddressUpdates []SITAddressUpdate
+
+func FetchSITAddressUpdate(db *pop.Connection, sitAddressUpdateID uuid.UUID) (SITAddressUpdate, error) {
+	var sitAddressUpdate SITAddressUpdate
+	err := db.Eager("NewAddress").Find(&sitAddressUpdate, sitAddressUpdateID)
+
+	if err != nil {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
+			return SITAddressUpdate{}, ErrFetchNotFound
+		}
+		return SITAddressUpdate{}, err
+	}
+
+	return sitAddressUpdate, nil
+}

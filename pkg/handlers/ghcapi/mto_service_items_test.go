@@ -554,10 +554,10 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 func (suite *HandlerSuite) TestCreateSITAddressUpdate() {
 	mockPlanner := &routemocks.Planner{}
 	mockedDistance := 55
-	mockPlanner.On("TransitDistance",
+	mockPlanner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
-		mock.AnythingOfType("*models.Address"),
-		mock.AnythingOfType("*models.Address"),
+		mock.AnythingOfType("string"),
+		mock.AnythingOfType("string"),
 	).Return(mockedDistance, nil)
 	serviceItemUpdater := mtoserviceitem.NewMTOServiceItemUpdater(query.NewQueryBuilder(), moverouter.NewMoveRouter())
 	sitAddressUpdateCreator := sitaddressupdate.NewApprovedOfficeSITAddressUpdateCreator(mockPlanner, address.NewAddressCreator(), serviceItemUpdater)
@@ -717,7 +717,7 @@ func (suite *HandlerSuite) TestCreateSITAddressUpdate() {
 	})
 
 	suite.Run("Returns 404 when creator returns NotFoundError", func() {
-		creator := &mocks.ApprovedSITAddressUpdateCreator{}
+		creator := &mocks.ApprovedSITAddressUpdateRequestCreator{}
 		creator.On(
 			"CreateApprovedSITAddressUpdate",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -830,7 +830,7 @@ func (suite *HandlerSuite) TestCreateSITAddressUpdate() {
 	})
 
 	suite.Run("Returns 500 when approver returns unexpected error", func() {
-		creator := &mocks.ApprovedSITAddressUpdateCreator{}
+		creator := &mocks.ApprovedSITAddressUpdateRequestCreator{}
 		creator.On(
 			"CreateApprovedSITAddressUpdate",
 			mock.AnythingOfType("*appcontext.appContext"),

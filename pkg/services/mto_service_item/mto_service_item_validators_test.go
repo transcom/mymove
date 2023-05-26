@@ -643,7 +643,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		suite.Contains(serviceItemData.verrs.Keys(), "SITDestinationFinalAddress")
 	})
 
-	suite.Run("checkSITDestinationOriginalAddress - invalid input failure: SITDestinationOriginalAddress", func() {
+	suite.Run("checkSITDestinationOriginalAddress - invalid input failure: adding SITDestinationOriginalAddress", func() {
 		oldServiceItemPrime := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model:    factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil),
@@ -657,7 +657,42 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		}, nil)
 		newServiceItemPrime := oldServiceItemPrime
 
-		// Try to update SITDestinationFinalAddress
+		// Try to add SITDestinationOriginalAddress
+		newAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress3})
+		newServiceItemPrime.SITDestinationOriginalAddress = &newAddress
+
+		serviceItemData := updateMTOServiceItemData{
+			updatedServiceItem:  newServiceItemPrime,
+			oldServiceItem:      oldServiceItemPrime,
+			verrs:               validate.NewErrors(),
+			availabilityChecker: checker,
+		}
+		err := serviceItemData.checkSITDestinationOriginalAddress(suite.AppContextForTest())
+
+		suite.NoError(err)
+		suite.True(serviceItemData.verrs.HasAny())
+		suite.Contains(serviceItemData.verrs.Keys(), "SITDestinationOriginalAddress")
+	})
+
+	suite.Run("checkSITDestinationOriginalAddress - invalid input failure: updating SITDestinationOriginalAddress", func() {
+		oldServiceItemPrime := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil),
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDDSIT,
+				},
+			},
+			{
+				Model: models.Address{},
+				Type:  &factory.Addresses.SITDestinationOriginalAddress,
+			},
+		}, nil)
+		newServiceItemPrime := oldServiceItemPrime
+
+		// Try to update SITDestinationOriginalAddress
 		newAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress3})
 		newServiceItemPrime.SITDestinationOriginalAddress = &newAddress
 

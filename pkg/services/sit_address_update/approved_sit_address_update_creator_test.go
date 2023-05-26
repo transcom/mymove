@@ -17,10 +17,10 @@ func (suite *SITAddressUpdateServiceSuite) TestCreateApprovedSITAddressUpdate() 
 	serviceItemUpdater := mtoserviceitem.NewMTOServiceItemUpdater(query.NewQueryBuilder(), moverouter.NewMoveRouter())
 	mockPlanner := &routemocks.Planner{}
 	mockedDistance := 55
-	mockPlanner.On("TransitDistance",
+	mockPlanner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
-		mock.AnythingOfType("*models.Address"),
-		mock.AnythingOfType("*models.Address"),
+		mock.AnythingOfType("string"),
+		mock.AnythingOfType("string"),
 	).Return(mockedDistance, nil)
 
 	suite.Run("Successfully create SITAddressUpdate", func() {
@@ -29,7 +29,7 @@ func (suite *SITAddressUpdateServiceSuite) TestCreateApprovedSITAddressUpdate() 
 		// Set up:     We create an approved service item and attempt to create a SITAddressUpdate
 		// Expected outcome:
 		//             SITAddressUpdate is created and SITDestinationFinalAddress on the service item is updated
-
+		// address := factory.BuildAddress(suite.DB(), nil, nil)
 		serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOServiceItem{
@@ -43,11 +43,11 @@ func (suite *SITAddressUpdateServiceSuite) TestCreateApprovedSITAddressUpdate() 
 			},
 			{
 				Model: models.Address{},
-				Type:  &factory.Addresses.SITDestinationOriginalAddress,
+				Type:  &factory.Addresses.SITDestinationFinalAddress,
 			},
 			{
 				Model: models.Address{},
-				Type:  &factory.Addresses.SITDestinationFinalAddress,
+				Type:  &factory.Addresses.SITDestinationOriginalAddress,
 			},
 		}, nil)
 
