@@ -236,7 +236,6 @@ func (suite *PayloadsSuite) TestSITExtensionModel() {
 }
 
 func (suite *PayloadsSuite) TestSITAddressUpdateModel() {
-	// newAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress3})
 	contractorRemark := "I must update the final address please"
 	city := "Beverly Hills"
 	state := "CA"
