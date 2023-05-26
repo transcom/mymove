@@ -17,6 +17,24 @@ export function formatAddress(address) {
   );
 }
 
+/**
+ * @description This function is used to format the address in the
+ * EditSitAddressChangeForm component. It specifically uses the `<span>`
+ * elements to be able to make each line of an address be set to `display:
+ * block;` in the CSS to match the design.
+ * @see ServiceItemUpdateModal / EditSITAddressChangeForm
+ * */
+export function formatAddressForSitAddressChangeForm(address) {
+  const { streetAddress1, streetAddress2, city, state, postalCode } = address;
+  return (
+    <address data-testid="SitAddressChangeDisplay">
+      {streetAddress1 && <span data-testid="AddressLine">{streetAddress1},</span>}
+      {streetAddress2 && <span data-testid="AddressLine">{streetAddress2},</span>}
+      <span data-testid="AddressLine">{city ? `${city}, ${state} ${postalCode}` : postalCode}</span>
+    </address>
+  );
+}
+
 export function retrieveTAC(tacType, ordersLOA) {
   switch (tacType) {
     case LOA_TYPE.HHG:
