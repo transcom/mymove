@@ -3707,22 +3707,7 @@
   optionalDependencies:
     fsevents "2.3.2"
 
-"@pmmmwh/react-refresh-webpack-plugin@^0.5.1", "@pmmmwh/react-refresh-webpack-plugin@^0.5.3":
-  version "0.5.7"
-  resolved "https://registry.yarnpkg.com/@pmmmwh/react-refresh-webpack-plugin/-/react-refresh-webpack-plugin-0.5.7.tgz#58f8217ba70069cc6a73f5d7e05e85b458c150e2"
-  integrity sha512-bcKCAzF0DV2IIROp9ZHkRJa6O4jy7NlnHdWL3GmcUxYWNjLXkK5kfELELwEfSP5hXPfVL/qOGMAROuMQb9GG8Q==
-  dependencies:
-    ansi-html-community "^0.0.8"
-    common-path-prefix "^3.0.0"
-    core-js-pure "^3.8.1"
-    error-stack-parser "^2.0.6"
-    find-up "^5.0.0"
-    html-entities "^2.1.0"
-    loader-utils "^2.0.0"
-    schema-utils "^3.0.0"
-    source-map "^0.7.3"
-
-"@pmmmwh/react-refresh-webpack-plugin@^0.5.5":
+"@pmmmwh/react-refresh-webpack-plugin@^0.5.1", "@pmmmwh/react-refresh-webpack-plugin@^0.5.3", "@pmmmwh/react-refresh-webpack-plugin@^0.5.5":
   version "0.5.10"
   resolved "https://registry.yarnpkg.com/@pmmmwh/react-refresh-webpack-plugin/-/react-refresh-webpack-plugin-0.5.10.tgz#2eba163b8e7dbabb4ce3609ab5e32ab63dda3ef8"
   integrity sha512-j0Ya0hCFZPd4x40qLzbhGsh9TMtdb+CJQiso+WxLOPNasohq9cc5SNUcwsZaRH6++Xh91Xkm/xHCkuIiIu0LUA==
@@ -4578,6 +4563,11 @@
   resolved "https://registry.yarnpkg.com/@storybook/channels/-/channels-7.0.17.tgz#e6f97783dc78a55f027073e921fd638be0649ffc"
   integrity sha512-kALTiyX7iaqUuV/70bq6sIs0abyzQSyH6WtAkjRmZLR9SxD0dLf4r+FpmxmPjbM8kguVx/nbdGX5zh2Bf7aZ/g==
 
+"@storybook/channels@7.0.18":
+  version "7.0.18"
+  resolved "https://registry.yarnpkg.com/@storybook/channels/-/channels-7.0.18.tgz#0b5053ad6237ad7f619f1e17448d588de90ac235"
+  integrity sha512-rkA7ea0M3+dWS+71iHJdiZ5R2QuIdiVg0CgyLJHDagc1qej7pEVNhMWtppeq+X5Pwp9nkz8ZTQ7aCjTf6th0/A==
+
 "@storybook/cli@7.0.17":
   version "7.0.17"
   resolved "https://registry.yarnpkg.com/@storybook/cli/-/cli-7.0.17.tgz#a35bd4393eb322cd6b5b12cb3950dd19a7a6b9f8"
@@ -4921,14 +4911,14 @@
   resolved "https://registry.yarnpkg.com/@storybook/postinstall/-/postinstall-7.0.17.tgz#b607188dcf4dd9b7a27d79b3c7b17d9817b3c420"
   integrity sha512-t8UgKv+imnrP663T3SckYOCs7NdZ0+WlydM3PRabgvqL+LzyGWRvoT5kquK/sMjSsRo+R+dGMmwrI1zeOTtC8g==
 
-"@storybook/preset-create-react-app@^7.0.17":
-  version "7.0.17"
-  resolved "https://registry.yarnpkg.com/@storybook/preset-create-react-app/-/preset-create-react-app-7.0.17.tgz#36d4c64f1bbf7425876fd14e367d07558f1769f3"
-  integrity sha512-D81iAIZuaLyQPY2AU9QZ8YjqfMEOzygII4qsuHke0BVulBIYwRxP8qY1RhnW9zfYl6pWDowR53tHbQcJm+UL2A==
+"@storybook/preset-create-react-app@^7.0.18":
+  version "7.0.18"
+  resolved "https://registry.yarnpkg.com/@storybook/preset-create-react-app/-/preset-create-react-app-7.0.18.tgz#f1f73ed8b062fbde27727d286d33dc6a76d72986"
+  integrity sha512-h0nHgKRRmA77P6GBtEISEq/FPsddZboTM+GoHiUMhVuc5GmGS27mX7ptgU3nb3c0ovMR/D780LOoavFAtQS3SQ==
   dependencies:
     "@pmmmwh/react-refresh-webpack-plugin" "^0.5.1"
     "@storybook/react-docgen-typescript-plugin" "1.0.6--canary.9.0c3f3b7.0"
-    "@storybook/types" "7.0.17"
+    "@storybook/types" "7.0.18"
     "@types/babel__core" "^7.1.7"
     babel-plugin-react-docgen "^4.1.0"
     pnp-webpack-plugin "^1.7.0"
@@ -5127,6 +5117,16 @@
   integrity sha512-orjuWtGIIW/S+dvEtA+aqByh4tTHpsNGqJMGcI0Ec6wW4Wv7s62pFvIuU0lWC/fL6Hot/bTY7tSeqrQrTLplog==
   dependencies:
     "@storybook/channels" "7.0.17"
+    "@types/babel__core" "^7.0.0"
+    "@types/express" "^4.7.0"
+    file-system-cache "^2.0.0"
+
+"@storybook/types@7.0.18":
+  version "7.0.18"
+  resolved "https://registry.yarnpkg.com/@storybook/types/-/types-7.0.18.tgz#9418da288db3a1258996aab17fd49ca4eb810b7a"
+  integrity sha512-qPop2CbvmX42/BX29YT9jIzW2TlMcMjAE+KCpcKLBiD1oT5DJ1fhMzpe6RW9HkMegkBxjWx54iamN4oHM/pwcQ==
+  dependencies:
+    "@storybook/channels" "7.0.18"
     "@types/babel__core" "^7.0.0"
     "@types/express" "^4.7.0"
     file-system-cache "^2.0.0"
@@ -8077,11 +8077,6 @@ core-js-pure@^3.23.3:
   version "3.30.2"
   resolved "https://registry.yarnpkg.com/core-js-pure/-/core-js-pure-3.30.2.tgz#005a82551f4af3250dcfb46ed360fad32ced114e"
   integrity sha512-p/npFUJXXBkCCTIlEGBdghofn00jWG6ZOtdoIXSJmAu2QBvN0IqpZXWweOytcwE6cfx8ZvVUy1vw8zxhe4Y2vg==
-
-core-js-pure@^3.8.1:
-  version "3.19.2"
-  resolved "https://registry.yarnpkg.com/core-js-pure/-/core-js-pure-3.19.2.tgz#26b5bfb503178cff6e3e115bc2ba6c6419383680"
-  integrity sha512-5LkcgQEy8pFeVnd/zomkUBSwnmIxuF1C8E9KrMAbOc8f34IBT9RGvTYeNDdp1PnvMJrrVhvk1hg/yVV5h/znlg==
 
 core-js@^2.0.0:
   version "2.6.12"
