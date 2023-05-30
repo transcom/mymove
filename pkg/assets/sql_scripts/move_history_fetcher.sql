@@ -116,7 +116,8 @@ WITH move AS (
 			)::TEXT AS context
 		FROM
 			mto_service_item_customer_contacts
-		JOIN move_service_items on move_service_items.id = mto_service_item_customer_contacts.mto_service_item_id
+		JOIN service_items_customer_contacts on service_items_customer_contacts.mtoservice_item_customer_contact_id = mto_service_item_customer_contacts.id
+		JOIN move_service_items on move_service_items.id = service_items_customer_contacts.mtoservice_item_id
 		JOIN re_services ON move_service_items.re_service_id = re_services.id
 			LEFT JOIN move_shipments ON move_service_items.mto_shipment_id = move_shipments.id
 		JOIN move ON move.id = move_service_items.move_id

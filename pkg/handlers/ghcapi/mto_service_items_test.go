@@ -26,6 +26,7 @@ import (
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	"github.com/transcom/mymove/pkg/services/query"
 	sitaddressupdate "github.com/transcom/mymove/pkg/services/sit_address_update"
+	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/trace"
 )
 
@@ -75,7 +76,7 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 		year, month, day := time.Now().Date()
 		aWeekAgo := time.Date(year, month, day-7, 0, 0, 0, 0, time.UTC)
 		departureDate := aWeekAgo.Add(time.Hour * 24 * 30)
-		sit := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+		originSit := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOServiceItem{
 					SITEntryDate:     &aWeekAgo,
@@ -98,11 +99,34 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 			},
 		}, nil)
 
-		sitAddressUpdate := factory.BuildSITAddressUpdate(suite.DB(), []factory.Customization{{Model: sit,
+		sitAddressUpdate := factory.BuildSITAddressUpdate(suite.DB(), []factory.Customization{{Model: originSit,
 			LinkOnly: true}}, nil)
-		sit.SITAddressUpdates = []models.SITAddressUpdate{sitAddressUpdate}
+		originSit.SITAddressUpdates = []models.SITAddressUpdate{sitAddressUpdate}
 
-		serviceItems := models.MTOServiceItems{serviceItem, sit}
+		customerContact := testdatagen.MakeMTOServiceItemCustomerContact(suite.DB(), testdatagen.Assertions{})
+		destinationSit := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					CustomerContacts: models.MTOServiceItemCustomerContacts{customerContact},
+				},
+			},
+			{
+				Model:    mto,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDFSIT,
+					Name: "Destination 1st Day SIT",
+				},
+			},
+		}, nil)
+
+		serviceItems := models.MTOServiceItems{serviceItem, originSit, destinationSit}
 
 		return requestUser, serviceItems
 	}
@@ -135,13 +159,17 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 		// Validate outgoing payload
 		suite.NoError(okResponse.Payload.Validate(strfmt.Default))
 
-		suite.Len(okResponse.Payload, 2)
+		suite.Len(okResponse.Payload, 3)
 		suite.Equal(serviceItems[0].ID.String(), okResponse.Payload[0].ID.String())
 		suite.Equal(serviceItems[1].ID.String(), okResponse.Payload[1].ID.String())
 
 		// Validate that SITAddressUpdates are included in payload
 		suite.Len(okResponse.Payload[1].SitAddressUpdates, 1)
 		suite.Equal(serviceItems[1].SITAddressUpdates[0].ID.String(), okResponse.Payload[1].SitAddressUpdates[0].ID.String())
+
+		// Validate that the Customer Contacts were included in the payload
+		suite.Len(okResponse.Payload[2].CustomerContacts, 1)
+		suite.Equal(serviceItems[2].CustomerContacts[0].TimeMilitary, okResponse.Payload[2].CustomerContacts[0].TimeMilitary)
 	})
 
 	suite.Run("Failure list fetch - Internal Server Error", func() {
@@ -526,10 +554,10 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 func (suite *HandlerSuite) TestCreateSITAddressUpdate() {
 	mockPlanner := &routemocks.Planner{}
 	mockedDistance := 55
-	mockPlanner.On("TransitDistance",
+	mockPlanner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
-		mock.AnythingOfType("*models.Address"),
-		mock.AnythingOfType("*models.Address"),
+		mock.AnythingOfType("string"),
+		mock.AnythingOfType("string"),
 	).Return(mockedDistance, nil)
 	serviceItemUpdater := mtoserviceitem.NewMTOServiceItemUpdater(query.NewQueryBuilder(), moverouter.NewMoveRouter())
 	sitAddressUpdateCreator := sitaddressupdate.NewApprovedOfficeSITAddressUpdateCreator(mockPlanner, address.NewAddressCreator(), serviceItemUpdater)
@@ -689,7 +717,7 @@ func (suite *HandlerSuite) TestCreateSITAddressUpdate() {
 	})
 
 	suite.Run("Returns 404 when creator returns NotFoundError", func() {
-		creator := &mocks.ApprovedSITAddressUpdateCreator{}
+		creator := &mocks.ApprovedSITAddressUpdateRequestCreator{}
 		creator.On(
 			"CreateApprovedSITAddressUpdate",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -802,7 +830,7 @@ func (suite *HandlerSuite) TestCreateSITAddressUpdate() {
 	})
 
 	suite.Run("Returns 500 when approver returns unexpected error", func() {
-		creator := &mocks.ApprovedSITAddressUpdateCreator{}
+		creator := &mocks.ApprovedSITAddressUpdateRequestCreator{}
 		creator.On(
 			"CreateApprovedSITAddressUpdate",
 			mock.AnythingOfType("*appcontext.appContext"),

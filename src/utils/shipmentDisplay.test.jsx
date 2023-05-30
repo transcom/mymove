@@ -4,6 +4,7 @@ import { render, screen } from '@testing-library/react';
 import {
   formatAccountingCode,
   formatAddress,
+  formatAddressForSitAddressChangeForm,
   formatAgent,
   formatCustomerDestination,
   formatPaymentRequestAddressString,
@@ -43,6 +44,71 @@ describe('shipmentDisplay utils', () => {
     ])('returns the correct SAC when provided the tac type of %s', (sacType, ordersLOA, expectedSAC) => {
       const retrievedSAC = retrieveSAC(sacType, ordersLOA, expectedSAC);
       expect(retrievedSAC).toEqual(expectedSAC);
+    });
+  });
+
+  describe('formatAddressForSitAddressChangeForm', () => {
+    describe('all address parts provided', () => {
+      const shipmentAddress = {
+        streetAddress1: '555 Main Street',
+        streetAddress2: 'P.O. Box 9882',
+        city: 'Celebration',
+        state: 'FL',
+        postalCode: '34747',
+      };
+      const component = mount(formatAddressForSitAddressChangeForm(shipmentAddress));
+      it('includes full address with comma seperator', () => {
+        expect(component.find('[data-testid="SitAddressChangeDisplay"]').length).toBe(1);
+        expect(component.find('[data-testid="AddressLine"]').length).toBe(3);
+        expect(component.text()).toEqual('555 Main Street,P.O. Box 9882,Celebration, FL 34747');
+        component.find('[data-testid="AddressLine"]').forEach((node) => {
+          expect(node.is('span')).toEqual(true);
+        });
+      });
+    });
+    describe('some address parts provided', () => {
+      const shipmentAddress = {
+        streetAddress1: 'P.O. Box 9882',
+        city: 'Celebration',
+        state: 'FL',
+        postalCode: '34747',
+      };
+      const component = mount(formatAddressForSitAddressChangeForm(shipmentAddress));
+      it('includes full address with comma seperator', () => {
+        expect(component.find('[data-testid="SitAddressChangeDisplay"]').length).toBe(1);
+        expect(component.find('[data-testid="AddressLine"]').length).toBe(2);
+        expect(component.text()).toEqual('P.O. Box 9882,Celebration, FL 34747');
+        component.find('[data-testid="AddressLine"]').forEach((node) => {
+          expect(node.is('span')).toEqual(true);
+        });
+      });
+    });
+    describe('street address is missing', () => {
+      const shipmentAddress = {
+        city: 'Celebration',
+        state: 'FL',
+        postalCode: '34747',
+      };
+      const component = mount(formatAddressForSitAddressChangeForm(shipmentAddress));
+      it('formats as single line', () => {
+        expect(component.find('[data-testid="SitAddressChangeDisplay"]').length).toBe(1);
+        expect(component.find('[data-testid="AddressLine"]').length).toBe(1);
+        expect(component.text()).toEqual('Celebration, FL 34747');
+        component.find('[data-testid="AddressLine"]').forEach((node) => {
+          expect(node.is('span')).toEqual(true);
+        });
+      });
+    });
+    describe('postal code only', () => {
+      const shipmentAddress = {
+        postalCode: '34747',
+      };
+      const component = mount(formatAddressForSitAddressChangeForm(shipmentAddress));
+      it('omits city and state', () => {
+        expect(component.find('[data-testid="SitAddressChangeDisplay"]').length).toBe(1);
+        expect(component.find('[data-testid="AddressLine"]').length).toBe(1);
+        expect(component.text()).toEqual('34747');
+      });
     });
   });
 

@@ -226,10 +226,10 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		err = suite.DB().Load(&createdShipment)
 		suite.FatalNoError(err)
 
-		planner.On("TransitDistance",
+		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
-			createdShipment.PickupAddress,
-			createdShipment.DestinationAddress,
+			createdShipment.PickupAddress.PostalCode,
+			createdShipment.DestinationAddress.PostalCode,
 		).Return(500, nil)
 
 		shipmentHeavyEtag := etag.GenerateEtag(shipmentHeavy.UpdatedAt)
@@ -498,16 +498,16 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 			},
 		}, nil)
 
-		var TransitDistancePickupArg *models.Address
-		var TransitDistanceDestinationArg *models.Address
+		var TransitDistancePickupArg string
+		var TransitDistanceDestinationArg string
 
-		planner.On("TransitDistance",
+		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
-			mock.AnythingOfType("*models.Address"),
-			mock.AnythingOfType("*models.Address"),
+			mock.AnythingOfType("string"),
+			mock.AnythingOfType("string"),
 		).Return(500, nil).Run(func(args mock.Arguments) {
-			TransitDistancePickupArg = args.Get(1).(*models.Address)
-			TransitDistanceDestinationArg = args.Get(2).(*models.Address)
+			TransitDistancePickupArg = args.Get(1).(string)
+			TransitDistanceDestinationArg = args.Get(2).(string)
 		})
 
 		testCases := []struct {
@@ -531,8 +531,8 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 			// We also should have a required delivery date
 			suite.NotNil(fetchedShipment.RequiredDeliveryDate)
 			// Check that TransitDistance was called with the correct addresses
-			suite.Equal(testCase.pickupLocation.PostalCode, TransitDistancePickupArg.PostalCode)
-			suite.Equal(testCase.destinationLocation.PostalCode, TransitDistanceDestinationArg.PostalCode)
+			suite.Equal(testCase.pickupLocation.PostalCode, TransitDistancePickupArg)
+			suite.Equal(testCase.destinationLocation.PostalCode, TransitDistanceDestinationArg)
 		}
 	})
 }

@@ -49,7 +49,6 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		}, nil)
 		factory.BuildDOFSITReService(suite.DB())
 		req := httptest.NewRequest("POST", "/mto-service-items", nil)
-		reason := "lorem ipsum"
 		sitEntryDate := time.Now()
 		sitPostalCode := "00000"
 
@@ -65,7 +64,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 			MoveTaskOrderID:           mto.ID,
 			MTOShipmentID:             &subtestData.mtoShipment.ID,
 			ReService:                 models.ReService{Code: models.ReServiceCodeDOFSIT},
-			Reason:                    &reason,
+			Reason:                    models.StringPointer("lorem ipsum"),
 			SITEntryDate:              &sitEntryDate,
 			SITPostalCode:             &sitPostalCode,
 			SITOriginHHGActualAddress: &actualPickupAddress,
@@ -104,6 +103,49 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		// for _, mtoServiceItem := range okResponse.Payload {
 		// 	suite.NoError(mtoServiceItem.Validate(strfmt.Default))
 		// }
+
+		suite.NotZero(okResponse.Payload[0].ID())
+	})
+
+	suite.Run("Successful POST for Creating Shuttling without PrimeEstimatedWeight set - Integration Test", func() {
+		mto := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    mto,
+				LinkOnly: true,
+			},
+		}, nil)
+		mtoShipment.PrimeEstimatedWeight = nil
+		factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDOSHUT)
+		req := httptest.NewRequest("POST", "/mto-service-items", nil)
+		reason := "lorem ipsum"
+
+		mtoServiceItem := models.MTOServiceItem{
+			MoveTaskOrderID: mto.ID,
+			MTOShipmentID:   &mtoShipment.ID,
+			ReService:       models.ReService{Code: models.ReServiceCodeDOSHUT},
+			Reason:          &reason,
+		}
+
+		params := mtoserviceitemops.CreateMTOServiceItemParams{
+			HTTPRequest: req,
+			Body:        payloads.MTOServiceItem(&mtoServiceItem),
+		}
+
+		moveRouter := moverouter.NewMoveRouter()
+		creator := mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter)
+		handler := CreateMTOServiceItemHandler{
+			suite.HandlerConfig(),
+			creator,
+			mtoChecker,
+		}
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemOK{}, response)
+		okResponse := response.(*mtoserviceitemops.CreateMTOServiceItemOK)
 
 		suite.NotZero(okResponse.Payload[0].ID())
 	})
@@ -527,7 +569,6 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandler() {
 		}, nil)
 		factory.BuildDOFSITReService(suite.DB())
 
-		reason := "lorem ipsum"
 		sitEntryDate := time.Now()
 		sitPostalCode := "00000"
 
@@ -535,7 +576,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandler() {
 			MoveTaskOrderID: subtestData.mto.ID,
 			MTOShipmentID:   &subtestData.mtoShipment.ID,
 			ReService:       models.ReService{},
-			Reason:          &reason,
+			Reason:          models.StringPointer("lorem ipsum"),
 			SITEntryDate:    &sitEntryDate,
 			SITPostalCode:   &sitPostalCode,
 		}
@@ -702,7 +743,6 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandlerWithDOFSITNoA
 			},
 		}, nil)
 		factory.BuildDOFSITReService(suite.DB())
-		reason := "lorem ipsum"
 		sitEntryDate := time.Now()
 		sitPostalCode := "00000"
 
@@ -710,7 +750,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandlerWithDOFSITNoA
 			MoveTaskOrderID: mto.ID,
 			MTOShipmentID:   &mtoShipment.ID,
 			ReService:       models.ReService{},
-			Reason:          &reason,
+			Reason:          models.StringPointer("lorem ipsum"),
 			SITEntryDate:    &sitEntryDate,
 			SITPostalCode:   &sitPostalCode,
 		}
@@ -782,7 +822,6 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandlerWithDOFSITWit
 			},
 		}, nil)
 		factory.BuildDOFSITReService(suite.DB())
-		reason := "lorem ipsum"
 		sitEntryDate := time.Now()
 		sitPostalCode := "00000"
 
@@ -801,7 +840,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandlerWithDOFSITWit
 			MoveTaskOrderID:           mto.ID,
 			MTOShipmentID:             &subtestData.mtoShipment.ID,
 			ReService:                 models.ReService{},
-			Reason:                    &reason,
+			Reason:                    models.StringPointer("lorem ipsum"),
 			SITEntryDate:              &sitEntryDate,
 			SITPostalCode:             &sitPostalCode,
 			SITOriginHHGActualAddress: &subtestData.actualPickupAddress,
@@ -960,6 +999,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 			MoveTaskOrderID: subtestData.mto.ID,
 			MTOShipmentID:   &subtestData.mtoShipment.ID,
 			ReService:       models.ReService{Code: models.ReServiceCodeDDFSIT},
+			Reason:          models.StringPointer("lorem ipsum"),
 			Description:     handlers.FmtString("description"),
 			CustomerContacts: models.MTOServiceItemCustomerContacts{
 				models.MTOServiceItemCustomerContact{
@@ -984,14 +1024,15 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 		return subtestData
 	}
 
-	suite.Run("POST failure - 422 Cannot create DDFSIT with missing fields", func() {
+	suite.Run("Successful POST - Integration Test", func() {
 		subtestData := makeSubtestData()
-		// Under test: createMTOServiceItemHandler function
-		// Set up:     We hit the endpoint with a DDFSIT MTOServiceItem missing Customer Contact fields
-		// Expected outcome:
-		//             Receive a 422 - Unprocessable Entity
-		// SETUP
-		// Create the payload
+		moveRouter := moverouter.NewMoveRouter()
+		creator := mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter)
+		handler := CreateMTOServiceItemHandler{
+			suite.HandlerConfig(),
+			creator,
+			mtoChecker,
+		}
 
 		mtoServiceItemDDFSIT := models.MTOServiceItem{
 			MoveTaskOrderID: subtestData.mto.ID,
@@ -999,6 +1040,57 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 			ReService:       models.ReService{Code: models.ReServiceCodeDDFSIT},
 			Description:     handlers.FmtString("description"),
 			SITEntryDate:    &sitEntryDate,
+			Reason:          models.StringPointer("lorem ipsum"),
+			CustomerContacts: models.MTOServiceItemCustomerContacts{
+				models.MTOServiceItemCustomerContact{
+					Type:                       models.CustomerContactTypeFirst,
+					TimeMilitary:               "0400Z",
+					FirstAvailableDeliveryDate: time.Now(),
+				},
+				models.MTOServiceItemCustomerContact{
+					Type:                       models.CustomerContactTypeSecond,
+					TimeMilitary:               "0400Z",
+					FirstAvailableDeliveryDate: time.Now(),
+				},
+			},
+		}
+
+		// CALL FUNCTION UNDER TEST
+		req := httptest.NewRequest("POST", "/mto-service-items", nil)
+		paramsDDFSIT := mtoserviceitemops.CreateMTOServiceItemParams{
+			HTTPRequest: req,
+			Body:        payloads.MTOServiceItem(&mtoServiceItemDDFSIT),
+		}
+
+		// Validate incoming payload
+		suite.NoError(paramsDDFSIT.Body.Validate(strfmt.Default))
+
+		// CHECK RESULTS
+		response := handler.Handle(paramsDDFSIT)
+
+		//Validate incoming payload
+		suite.NoError(paramsDDFSIT.Body.Validate(strfmt.Default))
+
+		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemOK{}, response)
+		responsePayload := response.(*mtoserviceitemops.CreateMTOServiceItemOK).Payload
+		suite.NotZero(responsePayload[0].ID())
+	})
+
+	suite.Run("Successful POST - create DDFSIT without customer contact fields", func() {
+		subtestData := makeSubtestData()
+		// Under test: createMTOServiceItemHandler function
+		// Set up:     We hit the endpoint with a DDFSIT MTOServiceItem missing Customer Contact fields
+		// Expected outcome:
+		//             Successful creation of Destination SIT service items
+		// SETUP
+		// Create the payload
+		mtoServiceItemDDFSIT := models.MTOServiceItem{
+			MoveTaskOrderID: subtestData.mto.ID,
+			MTOShipmentID:   &subtestData.mtoShipment.ID,
+			ReService:       models.ReService{Code: models.ReServiceCodeDDFSIT},
+			Description:     handlers.FmtString("description"),
+			SITEntryDate:    &sitEntryDate,
+			Reason:          models.StringPointer("lorem ipsum"),
 		}
 		moveRouter := moverouter.NewMoveRouter()
 		creator := mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter)
@@ -1020,14 +1112,12 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 
 		// CHECK RESULTS
 		response := handler.Handle(paramsDDFSIT)
-		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemUnprocessableEntity{}, response)
-		responsePayload := response.(*mtoserviceitemops.CreateMTOServiceItemUnprocessableEntity).Payload
-
-		// Validate outgoing payload
-		suite.NoError(responsePayload.Validate(strfmt.Default))
+		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemOK{}, response)
+		responsePayload := response.(*mtoserviceitemops.CreateMTOServiceItemOK).Payload
+		suite.NotZero(responsePayload[0].ID())
 	})
 
-	suite.Run("Successful POST - Integration Test", func() {
+	suite.Run("Failure POST - Integration Test - Missing reason", func() {
 		subtestData := makeSubtestData()
 		moveRouter := moverouter.NewMoveRouter()
 		creator := mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter)
@@ -1037,23 +1127,38 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 			mtoChecker,
 		}
 
-		// Validate incoming payload
-		suite.NoError(subtestData.params.Body.Validate(strfmt.Default))
+		mtoServiceItemDDFSIT := models.MTOServiceItem{
+			MoveTaskOrderID: subtestData.mto.ID,
+			MTOShipmentID:   &subtestData.mtoShipment.ID,
+			ReService:       models.ReService{Code: models.ReServiceCodeDDFSIT},
+			Description:     handlers.FmtString("description"),
+			SITEntryDate:    &sitEntryDate,
+			Reason:          nil,
+			CustomerContacts: models.MTOServiceItemCustomerContacts{
+				models.MTOServiceItemCustomerContact{
+					Type:                       models.CustomerContactTypeFirst,
+					TimeMilitary:               "0400Z",
+					FirstAvailableDeliveryDate: time.Now(),
+				},
+				models.MTOServiceItemCustomerContact{
+					Type:                       models.CustomerContactTypeSecond,
+					TimeMilitary:               "0400Z",
+					FirstAvailableDeliveryDate: time.Now(),
+				},
+			},
+		}
 
-		response := handler.Handle(subtestData.params)
-		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemOK{}, response)
-		okResponse := response.(*mtoserviceitemops.CreateMTOServiceItemOK)
+		// CALL FUNCTION UNDER TEST
+		req := httptest.NewRequest("POST", "/mto-service-items", nil)
+		paramsDDFSIT := mtoserviceitemops.CreateMTOServiceItemParams{
+			HTTPRequest: req,
+			Body:        payloads.MTOServiceItem(&mtoServiceItemDDFSIT),
+		}
 
-		// TODO: This is failing because DOPSIT and DDDSIT are being sent back in the response
-		//   but those are not listed in the enum in the swagger file.  They aren't allowed for
-		//   incoming payloads, but are allowed for outgoing payloads, but the same payload spec
-		//   is used for both.  Need to figure out best way to resolve.
-		// Validate outgoing payload (each element of slice)
-		// for _, mtoServiceItem := range okResponse.Payload {
-		// 	suite.NoError(mtoServiceItem.Validate(strfmt.Default))
-		// }
+		// CHECK RESULTS
+		response := handler.Handle(paramsDDFSIT)
 
-		suite.NotZero(okResponse.Payload[0].ID())
+		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemUnprocessableEntity{}, response)
 	})
 
 	suite.Run("Successful POST - Create DDASIT standalone", func() {

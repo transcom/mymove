@@ -1672,12 +1672,14 @@ definitions:
     title: Orders type
     enum:
       - PERMANENT_CHANGE_OF_STATION
+      - LOCAL_MOVE
       - RETIREMENT
       - SEPARATION
       - GHC
       - NTS
     x-display-value:
       PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station (PCS)
+      LOCAL_MOVE: Local Move
       RETIREMENT: Retirement
       SEPARATION: Separation
       GHC: GHC

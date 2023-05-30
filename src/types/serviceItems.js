@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { LOA_TYPE, PAYMENT_SERVICE_ITEM_STATUS } from 'shared/constants';
 import { ShipmentOptionsOneOf } from 'types/shipment';
 import { MTOServiceItemCustomerContactShape, MTOServiceItemDimensionShape, PaymentServiceItemParam } from 'types/order';
+import { AddressShape } from 'types/address';
 
 export const ServiceItemCardShape = PropTypes.shape({
   id: PropTypes.string, // service item id
@@ -20,6 +21,18 @@ export const ServiceItemCardShape = PropTypes.shape({
 
 export const ServiceItemCardsShape = PropTypes.arrayOf(ServiceItemCardShape);
 
+export const SitAddressUpdatesShape = PropTypes.shape({
+  id: PropTypes.string.isRequired,
+  mtoServiceItemID: PropTypes.string.isRequired,
+  contractorsRemarks: PropTypes.string,
+  distance: PropTypes.number,
+  newAddress: AddressShape.isRequired,
+  oldAddress: AddressShape.isRequired,
+  officeRemarks: PropTypes.string,
+  status: PropTypes.string.isRequired,
+  createdAt: PropTypes.string.isRequired,
+  updatedAt: PropTypes.string.isRequired,
+});
 export const ServiceItemDetailsShape = PropTypes.shape({
   id: PropTypes.string,
   mtoShipmentID: PropTypes.string,
@@ -42,6 +55,7 @@ export const ServiceItemDetailsShape = PropTypes.shape({
     secondCustomerContact: MTOServiceItemCustomerContactShape,
     estimatedWeight: PropTypes.number,
   }),
+  sitAddressUpdates: PropTypes.arrayOf(SitAddressUpdatesShape),
 });
 
 export const ShipmentPaymentSITBalanceShape = PropTypes.shape({

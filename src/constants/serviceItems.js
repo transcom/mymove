@@ -124,6 +124,24 @@ const SERVICE_ITEM_CODES = {
   MS: 'MS',
 };
 
+/**
+ * @description Service item codes related to storage in transit (SIT).
+ * */
+const SIT_SERVICE_ITEM_CODES = {
+  /** Domestic origin 1st day SIT */
+  DOFSIT: 'DOFSIT',
+  /** Domestic origin Additional day SIT */
+  DOASIT: 'DOASIT',
+  /** Domestic origin SIT pickup */
+  DOPSIT: 'DOPSIT',
+  /** Domestic destination 1st day SIT */
+  DDFSIT: 'DDFSIT',
+  /** Domestic destination Additional day SIT */
+  DDASIT: 'DDASIT',
+  /** Domestic destination SIT delivery */
+  DDDSIT: 'DDDSIT',
+};
+
 // TODO - temporary, will remove once all service item calculations are implemented
 const allowedServiceItemCalculations = [
   SERVICE_ITEM_CODES.DDASIT,
@@ -148,4 +166,10 @@ const allowedServiceItemCalculations = [
 
 export default SERVICE_ITEM_STATUSES;
 
-export { SERVICE_ITEM_PARAM_KEYS, SERVICE_ITEM_CALCULATION_LABELS, SERVICE_ITEM_CODES, allowedServiceItemCalculations };
+export {
+  SERVICE_ITEM_PARAM_KEYS,
+  SERVICE_ITEM_CALCULATION_LABELS,
+  SERVICE_ITEM_CODES,
+  SIT_SERVICE_ITEM_CODES,
+  allowedServiceItemCalculations,
+};

@@ -182,7 +182,6 @@ func (h ListMTOServiceItemsHandler) Handle(params mtoserviceitemop.ListMTOServic
 			}
 			queryAssociations := query.NewQueryAssociationsPreload([]services.QueryAssociation{
 				query.NewQueryAssociation("ReService"),
-				query.NewQueryAssociation("CustomerContacts"),
 				query.NewQueryAssociation("Dimensions"),
 				query.NewQueryAssociation("SITDestinationOriginalAddress"),
 				query.NewQueryAssociation("SITDestinationFinalAddress"),
@@ -199,6 +198,18 @@ func (h ListMTOServiceItemsHandler) Handle(params mtoserviceitemop.ListMTOServic
 				return mtoserviceitemop.NewListMTOServiceItemsInternalServerError(), err
 			}
 
+			// Due to a Pop bug we are unable to use EagerPreload to fetch customer contacts, so we need to load them here.
+			for i, serviceItem := range serviceItems {
+				if serviceItem.ReService.Code == models.ReServiceCodeDDASIT ||
+					serviceItem.ReService.Code == models.ReServiceCodeDDDSIT ||
+					serviceItem.ReService.Code == models.ReServiceCodeDDFSIT {
+					loadErr := appCtx.DB().Load(&serviceItems[i], "CustomerContacts")
+					if loadErr != nil {
+						return mtoserviceitemop.NewListMTOServiceItemsInternalServerError(), loadErr
+					}
+				}
+			}
+
 			returnPayload := payloads.MTOServiceItemModels(serviceItems)
 			return mtoserviceitemop.NewListMTOServiceItemsOK().WithPayload(returnPayload), nil
 		})
@@ -207,7 +218,7 @@ func (h ListMTOServiceItemsHandler) Handle(params mtoserviceitemop.ListMTOServic
 // CreateSITAddressUpdateHandler creates a SIT Address Update in the approved state
 type CreateSITAddressUpdateHandler struct {
 	handlers.HandlerConfig
-	services.ApprovedSITAddressUpdateCreator
+	services.ApprovedSITAddressUpdateRequestCreator
 }
 
 // Handle creates the approved SIT Address Update
@@ -252,7 +263,7 @@ func (h CreateSITAddressUpdateHandler) Handle(params mtoserviceitemop.CreateSITA
 			}
 
 			sitAddressUpdate := payloads.ApprovedSITAddressUpdateFromCreate(payload, serviceItemID)
-			createdSITAddressUpdate, err := h.ApprovedSITAddressUpdateCreator.CreateApprovedSITAddressUpdate(appCtx, sitAddressUpdate)
+			createdSITAddressUpdate, err := h.ApprovedSITAddressUpdateRequestCreator.CreateApprovedSITAddressUpdate(appCtx, sitAddressUpdate)
 			if err != nil {
 				return handleError(err)
 			}
