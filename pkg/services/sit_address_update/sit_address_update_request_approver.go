@@ -33,20 +33,20 @@ func NewSITAddressUpdateRequestApprover(serviceItemUpdater services.MTOServiceIt
 }
 
 // ApproveSITAddressUpdateRequest approves the update request and updates the service item's final address
-func (f *sitAddressUpdateRequestApprover) ApproveSITAddressUpdateRequest(appCtx appcontext.AppContext, serviceItemID uuid.UUID, sitAddressUpdateRequestID uuid.UUID, officeRemarks *string, eTag string) (*models.MTOServiceItem, error) {
-	serviceItem, err := f.findServiceItem(appCtx, serviceItemID)
+func (f *sitAddressUpdateRequestApprover) ApproveSITAddressUpdateRequest(appCtx appcontext.AppContext, sitAddressUpdateRequestID uuid.UUID, officeRemarks *string, eTag string) (*models.MTOServiceItem, error) {
+	sitAddressUpdateRequest, err := f.findSITAddressUpdateRequest(appCtx, sitAddressUpdateRequestID)
 	if err != nil {
 		return nil, err
 	}
 
-	sitAddressUpdateRequest, err := f.findSITAddressUpdateRequest(appCtx, sitAddressUpdateRequestID)
+	serviceItem, err := f.findServiceItem(appCtx, sitAddressUpdateRequest.MTOServiceItemID)
 	if err != nil {
 		return nil, err
 	}
 
 	existingETag := etag.GenerateEtag(serviceItem.UpdatedAt)
 	if existingETag != eTag {
-		return nil, apperror.NewPreconditionFailedError(serviceItemID, query.StaleIdentifierError{StaleIdentifier: eTag})
+		return nil, apperror.NewPreconditionFailedError(serviceItem.ID, query.StaleIdentifierError{StaleIdentifier: eTag})
 	}
 
 	return f.approveSITAddressUpdateRequest(appCtx, *serviceItem, *sitAddressUpdateRequest, officeRemarks)
