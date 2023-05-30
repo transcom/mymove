@@ -218,7 +218,7 @@ func (h ListMTOServiceItemsHandler) Handle(params mtoserviceitemop.ListMTOServic
 // CreateSITAddressUpdateHandler creates a SIT Address Update in the approved state
 type CreateSITAddressUpdateHandler struct {
 	handlers.HandlerConfig
-	services.ApprovedSITAddressUpdateCreator
+	services.ApprovedSITAddressUpdateRequestCreator
 }
 
 // Handle creates the approved SIT Address Update
@@ -263,7 +263,7 @@ func (h CreateSITAddressUpdateHandler) Handle(params mtoserviceitemop.CreateSITA
 			}
 
 			sitAddressUpdate := payloads.ApprovedSITAddressUpdateFromCreate(payload, serviceItemID)
-			createdSITAddressUpdate, err := h.ApprovedSITAddressUpdateCreator.CreateApprovedSITAddressUpdate(appCtx, sitAddressUpdate)
+			createdSITAddressUpdate, err := h.ApprovedSITAddressUpdateRequestCreator.CreateApprovedSITAddressUpdate(appCtx, sitAddressUpdate)
 			if err != nil {
 				return handleError(err)
 			}
