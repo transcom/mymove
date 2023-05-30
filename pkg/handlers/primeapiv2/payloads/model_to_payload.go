@@ -16,14 +16,14 @@ func ListMove(move *models.Move) *primev2messages.ListMove {
 		return nil
 	}
 	payload := &primev2messages.ListMove{
-		ID:                 "blahahahaha",
+		ID:                 strfmt.UUID(move.ID.String()),
 		MoveCode:           move.Locator,
 		CreatedAt:          strfmt.DateTime(move.CreatedAt),
 		AvailableToPrimeAt: handlers.FmtDateTimePtr(move.AvailableToPrimeAt),
 		OrderID:            strfmt.UUID(move.OrdersID.String()),
-		ReferenceID:        *move.ReferenceID,
-		UpdatedAt:          strfmt.DateTime(move.UpdatedAt),
-		ETag:               etag.GenerateEtag(move.UpdatedAt),
+		// To illustrate a breaking change I will remove this reference ID from the payload.
+		UpdatedAt: strfmt.DateTime(move.UpdatedAt),
+		ETag:      etag.GenerateEtag(move.UpdatedAt),
 	}
 
 	if move.PPMEstimatedWeight != nil {
