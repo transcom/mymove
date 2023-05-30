@@ -1,10 +1,24 @@
 import React from 'react';
+import MockDate from 'mockdate';
+import { addons } from '@storybook/preview-api';
+import { isHappoRun } from 'happo-plugin-storybook/register';
 
 import ReviewSITExtensionModal from './ReviewSITExtensionModal';
 
+// Based on sitStatus below. The date is 31 days after the entry date.
+const mockedDate = '2023-09-22T00:00:00.000Z';
 export default {
   title: 'Office Components/ReviewSITExtensionModal',
   component: ReviewSITExtensionModal,
+  decorators: [
+    (Story) => {
+      if (isHappoRun()) {
+        MockDate.set(mockedDate);
+        addons.getChannel().on('storyRendered', MockDate.reset);
+      }
+      return <Story />;
+    },
+  ],
 };
 
 const sitExtension = {
