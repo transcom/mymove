@@ -8,7 +8,8 @@ info:
   contact:
     email: dp3@truss.works
   description: >
-    The Prime API is a RESTful API that enables the Prime contractor to request
+    The Prime V2 API is a RESTful API that enables the Prime contractor to
+    request
 
     information about upcoming moves, update the details and status of those
     moves,
@@ -16,7 +17,7 @@ info:
     and make payment requests. It uses Mutual TLS for authentication procedures.
 
 
-    All endpoints are located at `/prime/v1/`.
+    All endpoints are located at `/prime/v2/`.
 basePath: /prime/v2
 schemes:
   - http
@@ -47,7 +48,7 @@ tags:
 
       the contractor should keep this potential cost in mind when planning a
       move and the shipments within it.
-  - name: mtoServiceItem
+  - name: mtoServiceItemprime_description.md
     description: >
       A service item is a service that the contractor can bill for. For example,
       if the movers pack and/or unpack a
@@ -78,9 +79,6 @@ x-tagGroups:
   - name: Endpoints
     tags:
       - moveTaskOrder
-      - mtoShipment
-      - mtoServiceItem
-      - paymentRequest
 paths:
   /moves:
     get:
@@ -164,9 +162,6 @@ definitions:
       orderID:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
-        type: string
-      referenceId:
-        example: 1001-3456
         type: string
       availableToPrimeAt:
         format: date-time

@@ -8,14 +8,14 @@ info:
   contact:
     email: dp3@truss.works
   description:
-    $ref: 'info/prime_description.md'
+    $ref: 'info/primev2_description.md'
 basePath: /prime/v2
 schemes:
   - http
 tags:
   - $ref: 'tags/moveTaskOrder.yaml'
   - $ref: 'tags/mtoShipment.yaml'
-  - name: mtoServiceItem
+  - name: mtoServiceItemprime_description.md
     description: |
       A service item is a service that the contractor can bill for. For example, if the movers pack and/or unpack a
       customer's belongings, those are billable services (packing and unpacking). All **mtoServiceItems** must be
@@ -34,9 +34,6 @@ x-tagGroups:
   - name: Endpoints
     tags:
       - moveTaskOrder
-      - mtoShipment
-      - mtoServiceItem
-      - paymentRequest
 paths:
   /moves:
     get:
@@ -106,9 +103,6 @@ definitions:
       orderID:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
-        type: string
-      referenceId:
-        example: 1001-3456
         type: string
       availableToPrimeAt:
         format: date-time

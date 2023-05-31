@@ -23,7 +23,7 @@ func init() {
   ],
   "swagger": "2.0",
   "info": {
-    "description": "The Prime API is a RESTful API that enables the Prime contractor to request\ninformation about upcoming moves, update the details and status of those moves,\nand make payment requests. It uses Mutual TLS for authentication procedures.\n\nAll endpoints are located at ` + "`" + `/prime/v1/` + "`" + `.\n",
+    "description": "The Prime V2 API is a RESTful API that enables the Prime contractor to request\ninformation about upcoming moves, update the details and status of those moves,\nand make payment requests. It uses Mutual TLS for authentication procedures.\n\nAll endpoints are located at ` + "`" + `/prime/v2/` + "`" + `.\n",
     "title": "MilMove Prime API",
     "contact": {
       "email": "dp3@truss.works"
@@ -160,10 +160,6 @@ func init() {
             "PARTIAL"
           ]
         },
-        "referenceId": {
-          "type": "string",
-          "example": "1001-3456"
-        },
         "updatedAt": {
           "type": "string",
           "format": "date-time",
@@ -221,7 +217,7 @@ func init() {
     },
     {
       "description": "A service item is a service that the contractor can bill for. For example, if the movers pack and/or unpack a\ncustomer's belongings, those are billable services (packing and unpacking). All **mtoServiceItems** must be\napproved by the TOO before payment can be requested.\n\nThere are three types of service items: accessorial, MTO-level, and standard.\n\n**WIP:** Add an external link to an article that explains the different types of service items in more detail.\n",
-      "name": "mtoServiceItem"
+      "name": "mtoServiceItemprime_description.md"
     },
     {
       "description": "The contractor submits a **paymentRequest** to the TIO for approval in order to be reimbursed for 1 or more\n**mtoServiceItems** on a **moveTaskOrder**.\n\nProof of service documentation may be uploaded for each **mtoServiceItem** in a **paymentRequest**.\n",
@@ -232,10 +228,7 @@ func init() {
     {
       "name": "Endpoints",
       "tags": [
-        "moveTaskOrder",
-        "mtoShipment",
-        "mtoServiceItem",
-        "paymentRequest"
+        "moveTaskOrder"
       ]
     }
   ]
@@ -246,7 +239,7 @@ func init() {
   ],
   "swagger": "2.0",
   "info": {
-    "description": "The Prime API is a RESTful API that enables the Prime contractor to request\ninformation about upcoming moves, update the details and status of those moves,\nand make payment requests. It uses Mutual TLS for authentication procedures.\n\nAll endpoints are located at ` + "`" + `/prime/v1/` + "`" + `.\n",
+    "description": "The Prime V2 API is a RESTful API that enables the Prime contractor to request\ninformation about upcoming moves, update the details and status of those moves,\nand make payment requests. It uses Mutual TLS for authentication procedures.\n\nAll endpoints are located at ` + "`" + `/prime/v2/` + "`" + `.\n",
     "title": "MilMove Prime API",
     "contact": {
       "email": "dp3@truss.works"
@@ -392,10 +385,6 @@ func init() {
             "PARTIAL"
           ]
         },
-        "referenceId": {
-          "type": "string",
-          "example": "1001-3456"
-        },
         "updatedAt": {
           "type": "string",
           "format": "date-time",
@@ -453,7 +442,7 @@ func init() {
     },
     {
       "description": "A service item is a service that the contractor can bill for. For example, if the movers pack and/or unpack a\ncustomer's belongings, those are billable services (packing and unpacking). All **mtoServiceItems** must be\napproved by the TOO before payment can be requested.\n\nThere are three types of service items: accessorial, MTO-level, and standard.\n\n**WIP:** Add an external link to an article that explains the different types of service items in more detail.\n",
-      "name": "mtoServiceItem"
+      "name": "mtoServiceItemprime_description.md"
     },
     {
       "description": "The contractor submits a **paymentRequest** to the TIO for approval in order to be reimbursed for 1 or more\n**mtoServiceItems** on a **moveTaskOrder**.\n\nProof of service documentation may be uploaded for each **mtoServiceItem** in a **paymentRequest**.\n",
@@ -464,10 +453,7 @@ func init() {
     {
       "name": "Endpoints",
       "tags": [
-        "moveTaskOrder",
-        "mtoShipment",
-        "mtoServiceItem",
-        "paymentRequest"
+        "moveTaskOrder"
       ]
     }
   ]

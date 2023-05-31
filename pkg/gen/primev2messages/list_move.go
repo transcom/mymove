@@ -56,10 +56,6 @@ type ListMove struct {
 	// Enum: [FULL PARTIAL]
 	PpmType string `json:"ppmType,omitempty"`
 
-	// reference Id
-	// Example: 1001-3456
-	ReferenceID string `json:"referenceId,omitempty"`
-
 	// updated at
 	// Read Only: true
 	// Format: date-time
