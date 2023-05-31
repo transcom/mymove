@@ -38,6 +38,7 @@ type iamPostgresConfig struct {
 	pauseFn          pauseFunc
 	passHolder       string
 	currentIamPass   string
+	currentIamTime   time.Time
 	currentPassMutex sync.Mutex
 	logger           *zap.Logger
 	host             string
@@ -57,9 +58,10 @@ var iamPostgres *iamPostgresConfig
 // valid password is available. It is only called when opening a new
 // database connection and thus only attempts to get the credentials a
 // limited number of times so that open a connection does not block forever
-func (i *iamPostgresConfig) getCurrentPass() string {
+func (i *iamPostgresConfig) getCurrentPass() (string, time.Time) {
 	// Blocks until the password from the dbConnectionDetails has a non blank password
 	currentPass := ""
+	var currentPassTime time.Time
 
 	counter := 0
 
@@ -68,6 +70,7 @@ func (i *iamPostgresConfig) getCurrentPass() string {
 
 		i.currentPassMutex.Lock()
 		currentPass = i.currentIamPass
+		currentPassTime = i.currentIamTime
 		i.currentPassMutex.Unlock()
 
 		if currentPass == "" {
@@ -83,17 +86,17 @@ func (i *iamPostgresConfig) getCurrentPass() string {
 		i.pauseFn()
 	}
 
-	return currentPass
+	return currentPass, currentPassTime
 }
 
-func (i *iamPostgresConfig) updateDSN(dsn string) (string, error) {
+func (i *iamPostgresConfig) updateDSN(dsn string) (string, time.Time, error) {
 	if !strings.Contains(dsn, i.passHolder) {
-		return "", errors.New("DSN does not contain password holder")
+		return "", time.Now(), errors.New("DSN does not contain password holder")
 	}
-	currentPass := i.getCurrentPass()
+	currentPass, currentPassTime := i.getCurrentPass()
 
 	dsn = strings.Replace(dsn, i.passHolder, currentPass, 1)
-	return dsn, nil
+	return dsn, currentPassTime, nil
 }
 
 func (i *iamPostgresConfig) generateNewIamPassword() {
@@ -103,6 +106,7 @@ func (i *iamPostgresConfig) generateNewIamPassword() {
 	} else {
 		i.currentPassMutex.Lock()
 		i.currentIamPass = url.QueryEscape(authToken)
+		i.currentIamTime = time.Now()
 		i.currentPassMutex.Unlock()
 	}
 	i.logger.Info("Successfully generated new IAM auth token")
@@ -282,9 +286,10 @@ type rdsPostgresConnector struct {
 func (c *rdsPostgresConnector) Connect(ctx context.Context) (driver.Conn, error) {
 	useIAM := iamPostgres != nil && iamPostgres.useIAM
 	dsn := c.dsn
+	var dsnTime time.Time
 	var err error
 	if useIAM {
-		dsn, err = iamPostgres.updateDSN(c.dsn)
+		dsn, dsnTime, err = iamPostgres.updateDSN(c.dsn)
 		if err != nil {
 			zap.L().Error("IAM iampostgres updateDSN failed", zap.Error(err))
 			return nil, err
@@ -293,24 +298,42 @@ func (c *rdsPostgresConnector) Connect(ctx context.Context) (driver.Conn, error)
 
 	connector, err := pg.NewConnector(dsn)
 	if err != nil {
-		zap.L().Error("IAM iampostgres NewConnector failed", zap.Error(err))
+		zap.L().Error("IAM iampostgres NewConnector failed",
+			zap.Any("useIAM", useIAM),
+			zap.Any("dsnTime", dsnTime),
+			zap.Any("diff", time.Now().Unix()-dsnTime.Unix()),
+			zap.Error(err))
 		return nil, err
 	}
 
 	conn, err := connector.Connect(ctx)
 	if err != nil {
-		zap.L().Error("IAM iampostgres connector.Connect failed", zap.Error(err))
+		zap.L().Error("IAM iampostgres connector.Connect failed",
+			zap.Any("useIAM", useIAM),
+			zap.Any("dsnTime", dsnTime),
+			zap.Any("diff", time.Now().Unix()-dsnTime.Unix()),
+			zap.Error(err))
 		return nil, err
 	}
 
 	wconn, err := newDriverConnWrapper(conn)
 	if err != nil {
+		zap.L().Error("IAM iampostgres connWrapper failed",
+			zap.Any("useIAM", useIAM),
+			zap.Any("dsnTime", dsnTime),
+			zap.Any("diff", time.Now().Unix()-dsnTime.Unix()),
+			zap.Error(err))
 		return nil, err
 	}
 	// go aheand and ping to ensure the connection is established
 	// successfully
 	err = wconn.Ping(ctx)
 	if err != nil {
+		zap.L().Error("IAM iampostgres Connect Ping failed",
+			zap.Any("useIAM", useIAM),
+			zap.Any("dsnTime", dsnTime),
+			zap.Any("diff", time.Now().Unix()-dsnTime.Unix()),
+			zap.Error(err))
 		return nil, err
 	}
 	return conn, nil
