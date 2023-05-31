@@ -87,9 +87,11 @@ export const ServiceItemUpdateModal = ({
           return (
             <Form className={formStyles.form}>
               <div className={styles.sitPanelForm}>
-                <div className={styles.modalReviewHeader}>
-                  <h3>SIT delivery address</h3>
-                  <Tag data-testid="sitAddressUpdateTag">UPDATE REQUESTED</Tag>
+                <div className={styles.modalHeader}>
+                  <h3 className={styles.modalReviewHeader}>SIT delivery address</h3>
+                  <Tag data-testid="sitAddressUpdateTag" className={styles.sitAddressUpdateTag}>
+                    UPDATE REQUESTED
+                  </Tag>
                 </div>
                 {content}
                 <Label htmlFor="officeRemarks">Office remarks</Label>
