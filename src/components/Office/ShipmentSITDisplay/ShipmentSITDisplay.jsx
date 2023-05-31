@@ -187,7 +187,7 @@ const ShipmentSITDisplay = ({ sitExtensions, sitStatus, shipment, className, ope
 
 ShipmentSITDisplay.propTypes = {
   sitExtensions: PropTypes.arrayOf(SITExtensionShape),
-  sitStatus: SitStatusShape,
+  sitStatus: SitStatusShape.isRequired,
   shipment: ShipmentShape.isRequired,
   openModalButton: PropTypes.element,
   className: PropTypes.string,
@@ -195,7 +195,6 @@ ShipmentSITDisplay.propTypes = {
 
 ShipmentSITDisplay.defaultProps = {
   sitExtensions: [],
-  sitStatus: null,
   openModalButton: undefined,
   className: '',
 };
