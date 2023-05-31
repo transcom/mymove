@@ -7,11 +7,9 @@ import * as PropTypes from 'prop-types';
 import styles from './ServiceItemUpdateModal.module.scss';
 
 import DataTable from 'components/DataTable/index';
-// import DataTableWrapper from 'components/DataTableWrapper/index';
 import { formatAddress } from 'utils/shipmentDisplay';
 import { AddressShape } from 'types';
 import DataTableWrapper from 'components/DataTableWrapper';
-// import DataTableWrapper from 'components/DataTableWrapper';
 
 const ReviewSitAddressChange = ({ sitAddressUpdate }) => {
   const { oldAddress, newAddress, contractorRemarks, distance } = sitAddressUpdate;
