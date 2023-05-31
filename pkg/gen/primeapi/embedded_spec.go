@@ -4237,7 +4237,7 @@ func init() {
       "name": "paymentRequest"
     },
     {
-      "description": "A **sitAddressUpdate** is submitted when the prime or office user wishes to update the final address for an\napproved service item. sitAddressUpdates with a distance greater than 50 miles will be automatically approved while\na distance greater than 50 miles will typically require office user approval.\n",
+      "description": "A **sitAddressUpdate** is submitted when the prime or office user wishes to update the final address for an\napproved service item. sitAddressUpdates with a distance less than or equal to 50 miles will be automatically\napproved while a distance greater than 50 miles will typically require office user approval.\n",
       "name": "sitAddressUpdate"
     }
   ],
@@ -8850,7 +8850,7 @@ func init() {
       "name": "paymentRequest"
     },
     {
-      "description": "A **sitAddressUpdate** is submitted when the prime or office user wishes to update the final address for an\napproved service item. sitAddressUpdates with a distance greater than 50 miles will be automatically approved while\na distance greater than 50 miles will typically require office user approval.\n",
+      "description": "A **sitAddressUpdate** is submitted when the prime or office user wishes to update the final address for an\napproved service item. sitAddressUpdates with a distance less than or equal to 50 miles will be automatically\napproved while a distance greater than 50 miles will typically require office user approval.\n",
       "name": "sitAddressUpdate"
     }
   ],
