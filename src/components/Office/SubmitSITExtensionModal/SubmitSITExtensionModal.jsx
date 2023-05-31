@@ -154,12 +154,20 @@ const SubmitSITExtensionModal = ({ shipment, sitStatus, onClose, onSubmit }) => 
     }).sitEntryDate;
   }
 
+  // Check to see if SIT Start date is in the future. If it is in the future,
+  // then use that as the base to calculate the SIT start date for the modal.
+  // If it is not in the future, then default to today's date.
+  let calculateSitStartDate = moment();
+  if (moment(sitStartDate).isAfter()) {
+    calculateSitStartDate = moment(sitStartDate);
+  }
+
   const initialValues = {
     requestReason: '',
     officeRemarks: '',
     daysApproved: String(shipment.sitDaysAllowance),
     // Subract one day from total days remaining to account for the current day
-    sitEndDate: formatDateForDatePicker(moment(sitStartDate).add(sitStatus.totalDaysRemaining - 1, 'days')),
+    sitEndDate: formatDateForDatePicker(calculateSitStartDate.add(sitStatus.totalDaysRemaining - 1, 'days')),
   };
   const minimumDaysAllowed = sitStatus.totalSITDaysUsed - sitStatus.daysInSIT + 1;
   const sitEntryDate = moment(sitStatus.sitEntryDate, utcDateFormat);
