@@ -165,6 +165,9 @@ func EnableIAM(host string, port string, region string, user string, passTemplat
 		shouldQuitChan:   shouldQuitChan,
 	}
 
+	// ensure at least one token has been generated
+	iamPostgres.generateNewIamPassword()
+
 	// GoRoutine to continually refresh the RDS IAM auth on the given interval.
 	go iamPostgres.refreshRDSIAM()
 	return nil
