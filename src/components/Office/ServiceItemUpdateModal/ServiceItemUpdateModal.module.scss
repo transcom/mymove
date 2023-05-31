@@ -23,8 +23,10 @@
     margin-top: 24px;
 
     .modalReviewHeader {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       font-size: 22px;
-      margin: 0;
     }
     .officeRemarks {
       max-height: 136px;
@@ -85,3 +87,6 @@
     font-size: 17px;
   }
 }
+// .reviewSitAddressChange {
+
+// }
