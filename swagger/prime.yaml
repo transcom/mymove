@@ -1016,7 +1016,7 @@ paths:
         of service items:
           * DDFSIT - Domestic destination 1st day SIT
           * DDASIT - Domestic destination Additional day SIT
-          * DDDSIT - Domestic destination SI   T delivery
+          * DDDSIT - Domestic destination SIT delivery
 
         **DDASIT**
 

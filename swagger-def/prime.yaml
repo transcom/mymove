@@ -856,7 +856,7 @@ paths:
         When a DDFSIT is requested, the API will auto-create the following group of service items:
           * DDFSIT - Domestic destination 1st day SIT
           * DDASIT - Domestic destination Additional day SIT
-          * DDDSIT - Domestic destination SI   T delivery
+          * DDDSIT - Domestic destination SIT delivery
 
         **DDASIT**
 
