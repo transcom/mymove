@@ -74,6 +74,15 @@ export const SITStatusDestination = {
   sitDepartureDate: '2021-08-28T15:41:59.373Z',
 };
 
+export const futureSITStatus = {
+  daysInSIT: 0,
+  location: LOCATION_VALUES.ORIGIN,
+  sitDepartureDate: '2025-03-11T15:41:59.373Z',
+  sitEntryDate: '2025-02-25T00:00:00.000Z',
+  totalDaysRemaining: 15,
+  totalSITDaysUsed: 0,
+};
+
 export const SITStatusWithPastSITOriginServiceItem = {
   daysInSIT: 30,
   location: LOCATION_VALUES.DESTINATION,
@@ -304,14 +313,23 @@ const mtoServiceItemsWithFutureSIT = [
 
 export const SITShipment = {
   ...noSITShipment,
+  sitStatus: {
+    daysInSIT: 15,
+    location: LOCATION_VALUES.DESTINATION,
+    sitDepartureDate: '2023-03-11T15:41:59.373Z',
+    sitEntryDate: '2023-04-24T00:00:00.000Z',
+    totalDaysRemaining: 210,
+    totalSITDaysUsed: 270,
+  },
   sitDaysAllowance: 270,
   mtoServiceItems: mtoServiceItemsWithSIT,
 };
 
 export const futureSITShipment = {
   ...noSITShipment,
-  sitDaysAllowance: 270,
+  sitDaysAllowance: 15,
   mtoServiceItems: mtoServiceItemsWithFutureSIT,
+  sitStatus: futureSITStatus,
 };
 
 export const SITStatusExpired = {
