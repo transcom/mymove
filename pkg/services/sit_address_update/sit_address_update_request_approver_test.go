@@ -51,7 +51,7 @@ func (suite *SITAddressUpdateServiceSuite) TestApproveSITAddressUpdateRequest() 
 			},
 		}, []factory.Trait{factory.GetTraitSITAddressUpdateWithMoveSetUp})
 
-		eTag := etag.GenerateEtag(serviceItem.UpdatedAt)
+		eTag := etag.GenerateEtag(sitAddressUpdate.UpdatedAt)
 		updatedServiceItemPostApproval, err := approve.ApproveSITAddressUpdateRequest(suite.AppContextForTest(), sitAddressUpdate.ID, &officeRemarks, eTag)
 
 		// Checking fields were updated as expected
@@ -129,7 +129,7 @@ func (suite *SITAddressUpdateServiceSuite) TestApproveSITAddressUpdateRequest() 
 			},
 		}, []factory.Trait{factory.GetTraitSITAddressUpdateWithMoveSetUp})
 
-		eTag := etag.GenerateEtag(serviceItem.UpdatedAt)
+		eTag := etag.GenerateEtag(sitAddressUpdate.UpdatedAt)
 		updatedServiceItemPostApproval, err := approve.ApproveSITAddressUpdateRequest(suite.AppContextForTest(), sitAddressUpdate.ID, &blankOfficeRemarks, eTag)
 
 		suite.Error(err)

@@ -42,9 +42,9 @@ func (f *sitAddressUpdateRequestRejector) RejectSITAddressUpdateRequest(appCtx a
 		return nil, err
 	}
 
-	existingETag := etag.GenerateEtag(serviceItem.UpdatedAt)
+	existingETag := etag.GenerateEtag(sitAddressUpdateRequest.UpdatedAt)
 	if existingETag != eTag {
-		return nil, apperror.NewPreconditionFailedError(serviceItem.ID, query.StaleIdentifierError{StaleIdentifier: eTag})
+		return nil, apperror.NewPreconditionFailedError(sitAddressUpdateRequest.ID, query.StaleIdentifierError{StaleIdentifier: eTag})
 	}
 
 	return f.rejectSITAddressUpdateRequest(appCtx, *sitAddressUpdateRequest, officeRemarks, serviceItem.MoveTaskOrderID)

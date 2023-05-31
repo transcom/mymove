@@ -44,9 +44,9 @@ func (f *sitAddressUpdateRequestApprover) ApproveSITAddressUpdateRequest(appCtx 
 		return nil, err
 	}
 
-	existingETag := etag.GenerateEtag(serviceItem.UpdatedAt)
+	existingETag := etag.GenerateEtag(sitAddressUpdateRequest.UpdatedAt)
 	if existingETag != eTag {
-		return nil, apperror.NewPreconditionFailedError(serviceItem.ID, query.StaleIdentifierError{StaleIdentifier: eTag})
+		return nil, apperror.NewPreconditionFailedError(sitAddressUpdateRequest.ID, query.StaleIdentifierError{StaleIdentifier: eTag})
 	}
 
 	return f.approveSITAddressUpdateRequest(appCtx, *serviceItem, *sitAddressUpdateRequest, officeRemarks)
@@ -77,7 +77,7 @@ func (f *sitAddressUpdateRequestApprover) findSITAddressUpdateRequest(appCtx app
 		case sql.ErrNoRows:
 			return nil, apperror.NewNotFoundError(sitAddressUpdateRequestID, "while looking for SIT address update request")
 		default:
-			return nil, apperror.NewQueryError("SITAddressUpdate", err, "unable to create SIT address update request.")
+			return nil, apperror.NewQueryError("SITAddressUpdate", err, "unable to approve SIT address update request.")
 		}
 	}
 
