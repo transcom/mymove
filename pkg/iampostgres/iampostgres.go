@@ -194,11 +194,12 @@ type DriverConnWrapper struct {
 var errWrap = errors.New("Cannot wrap driver conn")
 
 func (dcw *DriverConnWrapper) Ping(ctx context.Context) error {
-
 	err := dcw.Pinger.Ping(ctx)
 	if err != nil {
 		zap.L().Info("IAM iampostgres ping failed",
-			zap.Any("createdAt", dcw.createdAt))
+			zap.Any("createdAt", dcw.createdAt),
+			zap.Any("diff", time.Now().Unix()-dcw.createdAt.Unix()),
+			zap.Error(err))
 	}
 	return err
 }
@@ -208,6 +209,7 @@ func (dcw *DriverConnWrapper) Close() error {
 	if err != nil {
 		zap.L().Error("IAM iampostgres Close failed",
 			zap.Any("createdAt", dcw.createdAt),
+			zap.Any("diff", time.Now().Unix()-dcw.createdAt.Unix()),
 			zap.Error(err))
 	}
 	return err
@@ -218,17 +220,13 @@ func (dcw *DriverConnWrapper) ResetSession(ctx context.Context) error {
 	if err != nil {
 		zap.L().Error("IAM iampostgres reset session failed",
 			zap.Any("createdAt", dcw.createdAt),
+			zap.Any("diff", time.Now().Unix()-dcw.createdAt.Unix()),
 			zap.Error(err))
 	}
 	return err
 }
 
-func newDriverConnWrapper(dsn string, drv driver.Driver) (*DriverConnWrapper, error) {
-	conn, err := drv.Open(dsn)
-	if err != nil {
-		return nil, err
-	}
-
+func newDriverConnWrapper(conn driver.Conn) (*DriverConnWrapper, error) {
 	pinger, ok := conn.(driver.Pinger)
 	if !ok {
 		return nil, errWrap
@@ -278,7 +276,7 @@ func newDriverConnWrapper(dsn string, drv driver.Driver) (*DriverConnWrapper, er
 
 type rdsPostgresConnector struct {
 	dsn    string
-	driver *pg.Driver
+	driver driver.Driver
 }
 
 func (c *rdsPostgresConnector) Connect(ctx context.Context) (driver.Conn, error) {
@@ -288,16 +286,30 @@ func (c *rdsPostgresConnector) Connect(ctx context.Context) (driver.Conn, error)
 	if useIAM {
 		dsn, err = iamPostgres.updateDSN(c.dsn)
 		if err != nil {
+			zap.L().Error("IAM iampostgres updateDSN failed", zap.Error(err))
 			return nil, err
 		}
 	}
-	conn, err := newDriverConnWrapper(dsn, c.driver)
+
+	connector, err := pg.NewConnector(dsn)
 	if err != nil {
-		return conn, err
+		zap.L().Error("IAM iampostgres NewConnector failed", zap.Error(err))
+		return nil, err
+	}
+
+	conn, err := connector.Connect(ctx)
+	if err != nil {
+		zap.L().Error("IAM iampostgres connector.Connect failed", zap.Error(err))
+		return nil, err
+	}
+
+	wconn, err := newDriverConnWrapper(conn)
+	if err != nil {
+		return nil, err
 	}
 	// go aheand and ping to ensure the connection is established
 	// successfully
-	err = conn.Ping(ctx)
+	err = wconn.Ping(ctx)
 	if err != nil {
 		return nil, err
 	}
