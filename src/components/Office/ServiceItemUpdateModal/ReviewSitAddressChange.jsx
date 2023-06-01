@@ -22,7 +22,7 @@ const ReviewSitAddressChange = ({ sitAddressUpdate }) => {
 
   return (
     <>
-      <Alert type="warning" style={{ marginBottom: '1rem' }} data-testid="distanceAlert">
+      <Alert type="warning" style={{ marginBottom: '1rem', marginTop: '1.85rem' }} data-testid="distanceAlert">
         Requested final SIT delivery address is {distance} miles from the initial SIT delivery address. Approvals over
         50 miles will result in updated pricing for this shipment.
       </Alert>
