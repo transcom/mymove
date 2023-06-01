@@ -4749,14 +4749,7 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 
 	destEntryDate := actualPickupDate
 	destDepDate := actualPickupDate
-	destSITOriginalAddress := factory.BuildAddress(db, []factory.Customization{
-		{
-			Model: models.Address{
-				PostalCode: "88002",
-			},
-		},
-	}, nil)
-	destSITFinalAddress := factory.BuildAddress(db, nil, nil)
+	destSITAddress := factory.BuildAddress(db, nil, nil)
 	destSIT := factory.BuildMTOServiceItem(nil, []factory.Customization{
 		{
 			Model:    move,
@@ -4771,14 +4764,9 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 				Code: models.ReServiceCodeDDFSIT,
 			}},
 		{
-			Model:    destSITFinalAddress,
+			Model:    destSITAddress,
 			LinkOnly: true,
 			Type:     &factory.Addresses.SITDestinationFinalAddress,
-		},
-		{
-			Model:    destSITOriginalAddress,
-			LinkOnly: true,
-			Type:     &factory.Addresses.SITDestinationOriginalAddress,
 		},
 		{
 			Model: models.MTOServiceItem{
