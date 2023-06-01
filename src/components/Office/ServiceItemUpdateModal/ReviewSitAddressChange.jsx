@@ -11,6 +11,12 @@ import { formatAddress } from 'utils/shipmentDisplay';
 import { AddressShape } from 'types';
 import DataTableWrapper from 'components/DataTableWrapper';
 
+/**
+ * @component
+ * @description This modal serves the purpose of allowing a TOO to review a SIT address update in order to approve or deny the change.
+ * @param {ReviewSitAddressChangeProps}
+ * @returns {React.ReactElement}
+ */
 const ReviewSitAddressChange = ({ sitAddressUpdate }) => {
   const { oldAddress, newAddress, contractorRemarks, distance } = sitAddressUpdate;
 
@@ -39,6 +45,13 @@ const ReviewSitAddressChange = ({ sitAddressUpdate }) => {
   );
 };
 
+/**
+ * @typedef ReviewSitAddressChangeProps
+ * @prop{AddressShape} oldAddress
+ * @prop{AddressShape} newAddress
+ * @prop{string} contractorRemarks
+ * @prop{string} distance
+ */
 ReviewSitAddressChange.propTypes = {
   oldAddress: AddressShape,
   newAddress: AddressShape,
