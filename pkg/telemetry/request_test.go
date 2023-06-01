@@ -8,7 +8,7 @@ import (
 	"os"
 
 	"github.com/felixge/httpsnoop"
-	"go.opentelemetry.io/otel/metric/global"
+	"go.opentelemetry.io/otel"
 	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/metric/metricdata"
 )
@@ -44,7 +44,7 @@ func (suite *TelemetrySuite) TestRequestStats() {
 	}
 	rt.HandleRequest(req, metrics)
 
-	mp := global.MeterProvider()
+	mp := otel.GetMeterProvider()
 	ctx := context.Background()
 	mmp, ok := mp.(*sdkmetric.MeterProvider)
 	if !ok {

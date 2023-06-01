@@ -5,8 +5,8 @@ import (
 	"sync"
 	"time"
 
+	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/metric"
-	"go.opentelemetry.io/otel/metric/global"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/db/stats"
@@ -23,7 +23,7 @@ func RegisterDBStatsObserver(appCtx appcontext.AppContext, config *Config) error
 		return nil
 	}
 
-	meterProvider := global.MeterProvider()
+	meterProvider := otel.GetMeterProvider()
 
 	dbMeter := meterProvider.Meter("github.com/transcom/mymove/db",
 		metric.WithInstrumentationVersion(dbTelemetryVersion))

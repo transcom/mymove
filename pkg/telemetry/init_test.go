@@ -10,7 +10,6 @@ import (
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric"
-	"go.opentelemetry.io/otel/metric/global"
 	"go.opentelemetry.io/otel/metric/noop"
 	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/metric/metricdata"
@@ -25,7 +24,7 @@ func (suite *TelemetrySuite) TestInitConfigDisabled() {
 	Init(suite.Logger(), config)
 
 	suite.Equal(trace.NewNoopTracerProvider(), otel.GetTracerProvider())
-	suite.Equal(noop.NewMeterProvider(), global.MeterProvider())
+	suite.Equal(noop.NewMeterProvider(), otel.GetMeterProvider())
 }
 
 func (suite *TelemetrySuite) TestInitConfigStdoutTrace() {
@@ -93,7 +92,7 @@ func (suite *TelemetrySuite) TestInitConfigStdoutMetric() {
 	shutdownFn := Init(suite.Logger(), config)
 	defer shutdownFn()
 
-	mp := global.MeterProvider()
+	mp := otel.GetMeterProvider()
 	meter := mp.Meter("test_meter", metric.WithSchemaURL("url"))
 	counter, err := meter.Int64Counter("test_counter")
 	suite.NoError(err)
