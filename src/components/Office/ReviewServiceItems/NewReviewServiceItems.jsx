@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { sortServiceItemsByGroup } from '../../../utils/serviceItems';
 
-import styles from './ReviewServiceItems.module.scss';
-import ServiceItemCard from './ServiceItemCard';
+import styles from './NewReviewServiceItems.module.scss';
+import ServiceItemCard from './NewServiceItemCard';
 import ReviewDetailsCard from './ReviewDetailsCard';
 import AuthorizePayment from './AuthorizePayment';
 import NeedsReview from './NeedsReview';
@@ -22,13 +22,11 @@ import { AccountingCodesShape } from 'types/accountingCodes';
 
 const { APPROVED, DENIED, REQUESTED } = PAYMENT_SERVICE_ITEM_STATUS;
 
-/** NB: this component is in the process of being replaced with NewReviewServiceItems */
 const ReviewServiceItems = ({
   header,
   paymentRequest,
   serviceItemCards,
   handleClose,
-  disableScrollIntoView,
   patchPaymentServiceItem,
   onCompleteReview,
   completeReviewError,
@@ -70,37 +68,17 @@ const ReviewServiceItems = ({
   let showNeedsReview;
   let allServiceItemsRejected;
   let firstItemNeedsReviewIndex;
-  let firstBasicIndex = null;
-  let lastBasicIndex = null;
 
   if (!requestReviewed) {
     itemsNeedsReviewLength = sortedCards.filter((s) => s.status === REQUESTED)?.length;
     showNeedsReview = sortedCards.some((s) => s.status === REQUESTED);
     allServiceItemsRejected = sortedCards.every((s) => s.status === DENIED);
     firstItemNeedsReviewIndex = showNeedsReview && sortedCards.findIndex((s) => s.status === REQUESTED);
-
-    sortedCards.forEach((serviceItem, index) => {
-      // here we want to set the first and last index
-      // of basic service items to know the bounds
-      if (!serviceItem.mtoShipmentType) {
-        // no shipemntId, then it is a basic service items
-        if (firstBasicIndex === null) {
-          // if not set yet, set it the first time we see a basic
-          // service item
-          firstBasicIndex = index;
-        }
-        // keep setting the last basic index until the last one
-        lastBasicIndex = index;
-      }
-    });
   }
 
   const displayCompleteReview = curCardIndex === totalCards;
 
   const currentCard = !displayCompleteReview && sortedCards[parseInt(curCardIndex, 10)];
-
-  const isBasicServiceItem =
-    firstBasicIndex !== null && curCardIndex >= firstBasicIndex && curCardIndex <= lastBasicIndex;
 
   // Determines which ReviewDetailsCard will be shown
   let renderCompleteAction = (
@@ -115,18 +93,6 @@ const ReviewServiceItems = ({
   } else if (allServiceItemsRejected) {
     renderCompleteAction = <RejectRequest onClick={() => handleAuthorizePaymentClick(allServiceItemsRejected)} />;
   }
-
-  // Similar to component lifecycle methods
-  useEffect(() => {
-    if (!disableScrollIntoView && currentCard && isBasicServiceItem) {
-      const { id } = sortedCards[parseInt(curCardIndex, 10)];
-      const element = document.querySelector(`#card-${id}`);
-      // scroll into element view
-      if (element) {
-        element.scrollIntoView();
-      }
-    }
-  });
 
   if (displayCompleteReview)
     return (
@@ -195,29 +161,16 @@ const ReviewServiceItems = ({
         <h2 className={styles.header}>{header}</h2>
       </div>
       <div className={styles.body}>
-        {currentCard && // render multiple basic service item cards
-          // otherwise, render only one card for shipment
-          (isBasicServiceItem ? (
-            sortedCards.slice(firstBasicIndex, lastBasicIndex + 1).map((curCard) => (
-              <ServiceItemCard
-                key={`serviceItemCard_${curCard.id}`}
-                patchPaymentServiceItem={patchPaymentServiceItem}
-                // eslint-disable-next-line react/jsx-props-no-spreading
-                {...curCard}
-                requestComplete={requestReviewed}
-                additionalServiceItemData={findAdditionalServiceItemData(currentCard.mtoServiceItemCode)}
-              />
-            ))
-          ) : (
-            <ServiceItemCard
-              key={`serviceItemCard_${currentCard.id}`}
-              patchPaymentServiceItem={patchPaymentServiceItem}
-              // eslint-disable-next-line react/jsx-props-no-spreading
-              {...currentCard}
-              requestComplete={requestReviewed}
-              additionalServiceItemData={findAdditionalServiceItemData(currentCard.mtoServiceItemCode)}
-            />
-          ))}
+        {currentCard && (
+          <ServiceItemCard
+            key={`serviceItemCard_${currentCard.id}`}
+            patchPaymentServiceItem={patchPaymentServiceItem}
+            // eslint-disable-next-line react/jsx-props-no-spreading
+            {...currentCard}
+            requestComplete={requestReviewed}
+            additionalServiceItemData={findAdditionalServiceItemData(currentCard.mtoServiceItemCode)}
+          />
+        )}
       </div>
       <div className={styles.bottom}>
         <Button
@@ -256,7 +209,6 @@ ReviewServiceItems.propTypes = {
   serviceItemCards: ServiceItemCardsShape,
   handleClose: PropTypes.func.isRequired,
   patchPaymentServiceItem: PropTypes.func.isRequired,
-  disableScrollIntoView: PropTypes.bool,
   onCompleteReview: PropTypes.func.isRequired,
   completeReviewError: PropTypes.shape({
     detail: PropTypes.string,
@@ -271,7 +223,6 @@ ReviewServiceItems.defaultProps = {
   header: 'Review service items',
   paymentRequest: undefined,
   serviceItemCards: [],
-  disableScrollIntoView: false,
   completeReviewError: undefined,
   mtoServiceItems: [],
   TACs: {},
