@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { generatePath, Link, useParams } from 'react-router-dom';
+import * as Yup from 'yup';
 import { Alert, Button, Grid, GridContainer, Tag } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -951,6 +952,7 @@ export const MoveTaskOrder = (props) => {
               title="Review request: service item update"
               onSave={() => {}}
               serviceItem={selectedServiceItem}
+              validations={{ sitAddressUpdate: Yup.string().required('Required') }}
             >
               <ReviewSitAddressChange
                 sitAddressUpdate={findSITAddressUpdate(selectedServiceItem.id, selectedServiceItem.sitAddressUpdates)}
