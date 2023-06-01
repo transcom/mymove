@@ -4701,10 +4701,6 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 	// called for domestic origin SIT pickup service item
 	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), "90210", "94535").Return(348, nil).Once()
 
-	// called for domestic destination SIT delivery service item
-	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
-		"94535", "90210").Return(348, nil).Once()
-
 	for _, shipment := range []models.MTOShipment{longhaulShipment, shorthaulShipment, shipmentWithOriginalWeight, shipmentWithOriginalAndReweighWeight, shipmentWithOriginalAndReweighWeightReweihBolded, shipmentWithOriginalReweighAndAdjustedWeight, shipmentWithOriginalAndAdjustedWeight} {
 		shipmentUpdater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder, serviceItemCreator, planner)
 		_, updateErr := shipmentUpdater.UpdateMTOShipmentStatus(appCtx, shipment.ID, models.MTOShipmentStatusApproved, nil, etag.GenerateEtag(shipment.UpdatedAt))
@@ -4753,7 +4749,14 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 
 	destEntryDate := actualPickupDate
 	destDepDate := actualPickupDate
-	destSITAddress := factory.BuildAddress(db, nil, nil)
+	destSITOriginalAddress := factory.BuildAddress(db, []factory.Customization{
+		{
+			Model: models.Address{
+				PostalCode: "88002",
+			},
+		},
+	}, nil)
+	destSITFinalAddress := factory.BuildAddress(db, nil, nil)
 	destSIT := factory.BuildMTOServiceItem(nil, []factory.Customization{
 		{
 			Model:    move,
@@ -4768,9 +4771,14 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 				Code: models.ReServiceCodeDDFSIT,
 			}},
 		{
-			Model:    destSITAddress,
+			Model:    destSITFinalAddress,
 			LinkOnly: true,
 			Type:     &factory.Addresses.SITDestinationFinalAddress,
+		},
+		{
+			Model:    destSITOriginalAddress,
+			LinkOnly: true,
+			Type:     &factory.Addresses.SITDestinationOriginalAddress,
 		},
 		{
 			Model: models.MTOServiceItem{
@@ -5018,6 +5026,13 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 			Value:       destDepartureDate.Format("2006-01-02"),
 		}}
 
+	dddsitPaymentParams := []models.PaymentServiceItemParam{
+		{
+			IncomingKey: models.ServiceItemParamNameDistanceZipSITDest.String(),
+			Value:       "1000",
+		},
+	}
+
 	// Ordering the service items based on approved date to ensure the DDFSIT is after the DOASIT.
 	// This avoids a flaky error when we create the service item parameters.
 	sort.SliceStable(serviceItems, func(i, j int) bool {
@@ -5036,6 +5051,8 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 			paymentItem.PaymentServiceItemParams = doasitPaymentParams
 		} else if serviceItem.ReService.Code == models.ReServiceCodeDDASIT {
 			paymentItem.PaymentServiceItemParams = ddasitPaymentParams
+		} else if serviceItem.ReService.Code == models.ReServiceCodeDDDSIT {
+			paymentItem.PaymentServiceItemParams = dddsitPaymentParams
 		}
 		paymentServiceItems = append(paymentServiceItems, paymentItem)
 	}
