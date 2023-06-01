@@ -44,7 +44,13 @@ func NewMTOServiceItemUpdater(
 	return &mtoServiceItemUpdater{builder, createNewBuilder, moveRouter, addressCreator}
 }
 
-func (p *mtoServiceItemUpdater) ApproveOrRejectServiceItem(appCtx appcontext.AppContext, mtoServiceItemID uuid.UUID, status models.MTOServiceItemStatus, rejectionReason *string, eTag string) (*models.MTOServiceItem, error) {
+func (p *mtoServiceItemUpdater) ApproveOrRejectServiceItem(
+	appCtx appcontext.AppContext,
+	mtoServiceItemID uuid.UUID,
+	status models.MTOServiceItemStatus,
+	rejectionReason *string,
+	eTag string,
+) (*models.MTOServiceItem, error) {
 	mtoServiceItem, err := p.findServiceItem(appCtx, mtoServiceItemID)
 	if err != nil {
 		return &models.MTOServiceItem{}, err
@@ -68,7 +74,14 @@ func (p *mtoServiceItemUpdater) findServiceItem(appCtx appcontext.AppContext, se
 	return &serviceItem, nil
 }
 
-func (p *mtoServiceItemUpdater) approveOrRejectServiceItem(appCtx appcontext.AppContext, serviceItem models.MTOServiceItem, status models.MTOServiceItemStatus, rejectionReason *string, eTag string, checks ...validator) (*models.MTOServiceItem, error) {
+func (p *mtoServiceItemUpdater) approveOrRejectServiceItem(
+	appCtx appcontext.AppContext,
+	serviceItem models.MTOServiceItem,
+	status models.MTOServiceItemStatus,
+	rejectionReason *string,
+	eTag string,
+	checks ...validator,
+) (*models.MTOServiceItem, error) {
 	if verr := validateServiceItem(appCtx, &serviceItem, eTag, checks...); verr != nil {
 		return nil, verr
 	}
@@ -129,17 +142,30 @@ func (p *mtoServiceItemUpdater) updateServiceItem(appCtx appcontext.AppContext, 
 }
 
 // UpdateMTOServiceItemBasic updates the MTO Service Item using base validators
-func (p *mtoServiceItemUpdater) UpdateMTOServiceItemBasic(appCtx appcontext.AppContext, mtoServiceItem *models.MTOServiceItem, eTag string) (*models.MTOServiceItem, error) {
+func (p *mtoServiceItemUpdater) UpdateMTOServiceItemBasic(
+	appCtx appcontext.AppContext,
+	mtoServiceItem *models.MTOServiceItem,
+	eTag string,
+) (*models.MTOServiceItem, error) {
 	return p.UpdateMTOServiceItem(appCtx, mtoServiceItem, eTag, UpdateMTOServiceItemBasicValidator)
 }
 
 // UpdateMTOServiceItemPrime updates the MTO Service Item using Prime API validators
-func (p *mtoServiceItemUpdater) UpdateMTOServiceItemPrime(appCtx appcontext.AppContext, mtoServiceItem *models.MTOServiceItem, eTag string) (*models.MTOServiceItem, error) {
+func (p *mtoServiceItemUpdater) UpdateMTOServiceItemPrime(
+	appCtx appcontext.AppContext,
+	mtoServiceItem *models.MTOServiceItem,
+	eTag string,
+) (*models.MTOServiceItem, error) {
 	return p.UpdateMTOServiceItem(appCtx, mtoServiceItem, eTag, UpdateMTOServiceItemPrimeValidator)
 }
 
 // UpdateMTOServiceItem updates the given service item
-func (p *mtoServiceItemUpdater) UpdateMTOServiceItem(appCtx appcontext.AppContext, mtoServiceItem *models.MTOServiceItem, eTag string, validatorKey string) (*models.MTOServiceItem, error) {
+func (p *mtoServiceItemUpdater) UpdateMTOServiceItem(
+	appCtx appcontext.AppContext,
+	mtoServiceItem *models.MTOServiceItem,
+	eTag string,
+	validatorKey string,
+) (*models.MTOServiceItem, error) {
 	oldServiceItem := models.MTOServiceItem{}
 
 	// Find the service item, return error if not found
