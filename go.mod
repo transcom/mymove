@@ -83,7 +83,7 @@ require (
 	golang.org/x/net v0.10.0
 	golang.org/x/oauth2 v0.8.0
 	golang.org/x/text v0.9.0
-	golang.org/x/tools v0.9.1
+	golang.org/x/tools v0.9.2
 	gotest.tools/gotestsum v1.10.0
 	pault.ag/go/pksigner v1.0.2
 )
