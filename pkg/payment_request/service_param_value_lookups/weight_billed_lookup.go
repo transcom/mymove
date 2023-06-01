@@ -63,10 +63,7 @@ func (r WeightBilledLookup) lookup(appCtx appcontext.AppContext, keyData *Servic
 		}
 
 		calculator := mtoshipment.NewShipmentBillableWeightCalculator()
-		billableWeightInputs, err := calculator.CalculateShipmentBillableWeight(&r.MTOShipment)
-		if err != nil {
-			return "", err
-		}
+		billableWeightInputs := calculator.CalculateShipmentBillableWeight(&r.MTOShipment)
 		if billableWeightInputs.CalculatedBillableWeight == nil {
 			return "", fmt.Errorf("got a nil calculated billable weight from service for MTOShipmentID [%s]", r.MTOShipment.ID)
 		}
