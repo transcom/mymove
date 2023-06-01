@@ -5,8 +5,8 @@ import (
 	"sync"
 	"time"
 
+	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/metric"
-	"go.opentelemetry.io/otel/metric/global"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -183,7 +183,7 @@ func RegisterMilmoveDataObserver(appCtx appcontext.AppContext, config *Config) e
 		return nil
 	}
 
-	meterProvider := global.MeterProvider()
+	meterProvider := otel.GetMeterProvider()
 
 	milmoveDataMeter := meterProvider.Meter("github.com/transcom/mymove/data",
 		metric.WithInstrumentationVersion("0.4"))
