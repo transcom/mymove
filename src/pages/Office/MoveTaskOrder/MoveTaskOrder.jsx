@@ -16,6 +16,7 @@ import ConnectedServiceItemUpdateModal from 'components/Office/ServiceItemUpdate
 import { MILMOVE_LOG_LEVEL, milmoveLog } from 'utils/milmoveLog';
 import { formatAddressForAPI, formatStorageFacilityForAPI, removeEtag } from 'utils/formatMtoShipment';
 import hasRiskOfExcess from 'utils/hasRiskOfExcess';
+import { findSITAddressUpdate } from 'utils/serviceItems';
 import customerContactTypes from 'constants/customerContactTypes';
 import dimensionTypes from 'constants/dimensionTypes';
 import { MOVES, MTO_SERVICE_ITEMS, MTO_SHIPMENTS, ORDERS } from 'constants/queryKeys';
@@ -951,7 +952,9 @@ export const MoveTaskOrder = (props) => {
               onSave={() => {}}
               serviceItem={selectedServiceItem}
             >
-              <ReviewSitAddressChange sitAddressUpdate={selectedServiceItem.sitAddressUpdates[0]} />
+              <ReviewSitAddressChange
+                sitAddressUpdate={findSITAddressUpdate(selectedServiceItem.id, selectedServiceItem.sitAddressUpdates)}
+              />
             </ConnectedServiceItemUpdateModal>
           )}
 
