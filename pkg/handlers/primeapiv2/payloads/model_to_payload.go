@@ -16,7 +16,7 @@ func ListMove(move *models.Move) *primev2messages.ListMove {
 		return nil
 	}
 	payload := &primev2messages.ListMove{
-		ID:                 strfmt.UUID(move.ID.String()),
+		ID:                 "To be more clear that I am hitting the right v2 endpoint, I am changing this field as well",
 		MoveCode:           move.Locator,
 		CreatedAt:          strfmt.DateTime(move.CreatedAt),
 		AvailableToPrimeAt: handlers.FmtDateTimePtr(move.AvailableToPrimeAt),

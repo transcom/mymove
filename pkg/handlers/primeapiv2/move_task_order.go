@@ -14,7 +14,7 @@ import (
 // ListMovesHandler lists moves with the option to filter since a particular date. Optimized ver.
 type ListMovesHandler struct {
 	handlers.HandlerConfig
-	services.MoveTaskOrderFetcherV2
+	services.MoveTaskOrderFetcher
 }
 
 // Handle fetches all moves with the option to filter since a particular date. Optimized version.
@@ -28,7 +28,7 @@ func (h ListMovesHandler) Handle(params movetaskorderops.ListMovesParams) middle
 				searchParams.Since = &since
 			}
 
-			mtos, err := h.MoveTaskOrderFetcherV2.ListPrimeMoveTaskOrdersV2(appCtx, &searchParams)
+			mtos, err := h.MoveTaskOrderFetcher.ListPrimeMoveTaskOrders(appCtx, &searchParams)
 
 			if err != nil {
 				appCtx.Logger().Error("Unexpected error while fetching moves:", zap.Error(err))

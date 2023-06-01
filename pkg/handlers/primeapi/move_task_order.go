@@ -34,7 +34,7 @@ func (h ListMovesHandler) Handle(params movetaskorderops.ListMovesParams) middle
 				searchParams.Since = &since
 			}
 
-			mtos, err := h.MoveTaskOrderFetcher.ListPrimeMoveTaskOrders(appCtx, &searchParams)
+			mtos, err := h.MoveTaskOrderFetcher.ListPrimeMoveTaskOrdersToBeDeprecated(appCtx, &searchParams)
 
 			if err != nil {
 				appCtx.Logger().Error("Unexpected error while fetching moves:", zap.Error(err))

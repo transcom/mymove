@@ -23,7 +23,7 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primev2operations.Mymove
 
 	primeAPIV2.MoveTaskOrderListMovesHandler = ListMovesHandler{
 		handlerConfig,
-		movetaskorder.NewMoveTaskOrderFetcherV2(),
+		movetaskorder.NewMoveTaskOrderFetcher(),
 	}
 
 	return primeAPIV2
