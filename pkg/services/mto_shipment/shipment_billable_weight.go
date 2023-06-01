@@ -23,8 +23,8 @@ func NewShipmentBillableWeightCalculator() services.ShipmentBillableWeightCalcul
 // guarantee that the correct calculated weight is returned!
 // Without reweigh EagerPreload(ed) there is the risk of miscalculation.
 // Due to the nature of EagerPreload, we can no longer tell if Reweigh was NOT preloaded
-// OR if the shipment does not have a Reweigh
-func (f *shipmentBillableWeightCalculator) CalculateShipmentBillableWeight(shipment *models.MTOShipment) (services.BillableWeightInputs, error) {
+// OR if the shipment does not have a Reweigh (there is no good way to do this as of this PR)
+func (f *shipmentBillableWeightCalculator) CalculateShipmentBillableWeight(shipment *models.MTOShipment) services.BillableWeightInputs {
 	var calculatedWeight *unit.Pound
 	var reweighWeight *unit.Pound
 	var primeActualWeight *unit.Pound
@@ -61,5 +61,5 @@ func (f *shipmentBillableWeightCalculator) CalculateShipmentBillableWeight(shipm
 		OriginalWeight:           shipment.PrimeActualWeight,
 		ReweighWeight:            reweighWeight,
 		HadManualOverride:        &hasOverride,
-	}, nil
+	}
 }

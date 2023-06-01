@@ -3,7 +3,6 @@ package mtoshipment
 import (
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -25,12 +24,9 @@ func (suite *MTOShipmentServiceSuite) TestShipmentBillableWeightCalculator() {
 			Reweigh:           &reweigh,
 		}
 
-		billableWeightCalculations, err := billableWeightCalculator.CalculateShipmentBillableWeight(&shipment)
-		suite.NoError(err)
+		billableWeightCalculations := billableWeightCalculator.CalculateShipmentBillableWeight(&shipment)
 
-		if shipment.Reweigh != nil {
-			suite.Equal(shipment.Reweigh.Weight, billableWeightCalculations.CalculatedBillableWeight)
-		}
+		suite.Equal(shipment.Reweigh.Weight, billableWeightCalculations.CalculatedBillableWeight)
 	})
 
 	suite.Run("If the shipment has a lower original weight and a higher reweigh weight and no set billable weight cap, it should return the original weight", func() {
@@ -45,8 +41,7 @@ func (suite *MTOShipmentServiceSuite) TestShipmentBillableWeightCalculator() {
 			Reweigh:           &reweigh,
 		}
 
-		billableWeightCalculations, err := billableWeightCalculator.CalculateShipmentBillableWeight(&shipment)
-		suite.NoError(err)
+		billableWeightCalculations := billableWeightCalculator.CalculateShipmentBillableWeight(&shipment)
 
 		suite.Equal(shipment.PrimeActualWeight, billableWeightCalculations.CalculatedBillableWeight)
 	})
@@ -61,8 +56,7 @@ func (suite *MTOShipmentServiceSuite) TestShipmentBillableWeightCalculator() {
 			Reweigh:           &reweigh,
 		}
 
-		billableWeightCalculations, err := billableWeightCalculator.CalculateShipmentBillableWeight(&shipment)
-		suite.NoError(err)
+		billableWeightCalculations := billableWeightCalculator.CalculateShipmentBillableWeight(&shipment)
 		suite.Equal(shipment.PrimeActualWeight, billableWeightCalculations.CalculatedBillableWeight)
 	})
 
@@ -76,8 +70,7 @@ func (suite *MTOShipmentServiceSuite) TestShipmentBillableWeightCalculator() {
 			Reweigh:           &reweigh,
 		}
 
-		billableWeightCalculations, err := billableWeightCalculator.CalculateShipmentBillableWeight(&shipment)
-		suite.NoError(err)
+		billableWeightCalculations := billableWeightCalculator.CalculateShipmentBillableWeight(&shipment)
 		suite.Equal(shipment.PrimeActualWeight, billableWeightCalculations.CalculatedBillableWeight)
 	})
 
@@ -93,8 +86,7 @@ func (suite *MTOShipmentServiceSuite) TestShipmentBillableWeightCalculator() {
 			Reweigh:           &reweigh,
 		}
 
-		billableWeightCalculations, err := billableWeightCalculator.CalculateShipmentBillableWeight(&shipment)
-		suite.NoError(err)
+		billableWeightCalculations := billableWeightCalculator.CalculateShipmentBillableWeight(&shipment)
 		suite.Equal(shipment.PrimeActualWeight, billableWeightCalculations.CalculatedBillableWeight)
 	})
 
@@ -112,20 +104,18 @@ func (suite *MTOShipmentServiceSuite) TestShipmentBillableWeightCalculator() {
 			Reweigh:           &reweigh,
 		}
 
-		billableWeightCalculations, err := billableWeightCalculator.CalculateShipmentBillableWeight(&shipment)
-		suite.NoError(err)
+		billableWeightCalculations := billableWeightCalculator.CalculateShipmentBillableWeight(&shipment)
 		suite.Equal(shipment.BillableWeightCap, billableWeightCalculations.CalculatedBillableWeight)
 	})
 
-	suite.Run("Returns an error if the shipment passed in doesnt have a Reweigh eager loaded", func() {
+	suite.Run("Returns the PrimeActualWeight if the shipment passed in doesnt have a Reweigh eager loaded", func() {
 		originalWeight := unit.Pound(900)
 		shipment := models.MTOShipment{
 			PrimeActualWeight: &originalWeight,
 		}
 
-		_, err := billableWeightCalculator.CalculateShipmentBillableWeight(&shipment)
-		suite.Error(err)
-		suite.IsType(apperror.ConflictError{}, err)
+		billableWeightCalculations := billableWeightCalculator.CalculateShipmentBillableWeight(&shipment)
+		suite.Equal(&originalWeight, billableWeightCalculations.CalculatedBillableWeight)
 	})
 
 	suite.Run("Eagerly loaded reweigh where a reweigh exists", func() {
@@ -140,11 +130,10 @@ func (suite *MTOShipmentServiceSuite) TestShipmentBillableWeightCalculator() {
 		reweigh := testdatagen.MakeReweighForShipment(suite.DB(), testdatagen.Assertions{}, shipment, unit.Pound(3000))
 
 		var dbShipment models.MTOShipment
-		err := suite.DB().Eager("Reweigh").Find(&dbShipment, shipment.ID)
+		err := suite.DB().EagerPreload("Reweigh").Find(&dbShipment, shipment.ID)
 		suite.FatalNoError(err)
 
-		billableWeightCalculations, err := billableWeightCalculator.CalculateShipmentBillableWeight(&dbShipment)
-		suite.NoError(err)
+		billableWeightCalculations := billableWeightCalculator.CalculateShipmentBillableWeight(&dbShipment)
 		suite.Equal(reweigh.Weight, billableWeightCalculations.CalculatedBillableWeight)
 	})
 
@@ -160,11 +149,10 @@ func (suite *MTOShipmentServiceSuite) TestShipmentBillableWeightCalculator() {
 		// No reweigh
 
 		var dbShipment models.MTOShipment
-		err := suite.DB().Eager("Reweigh").Find(&dbShipment, shipment.ID)
+		err := suite.DB().EagerPreload("Reweigh").Find(&dbShipment, shipment.ID)
 		suite.FatalNoError(err)
 
-		billableWeightCalculations, err := billableWeightCalculator.CalculateShipmentBillableWeight(&dbShipment)
-		suite.NoError(err)
+		billableWeightCalculations := billableWeightCalculator.CalculateShipmentBillableWeight(&dbShipment)
 		suite.Equal(shipment.PrimeActualWeight, billableWeightCalculations.CalculatedBillableWeight)
 	})
 
@@ -183,8 +171,7 @@ func (suite *MTOShipmentServiceSuite) TestShipmentBillableWeightCalculator() {
 		err := suite.DB().Find(&dbShipment, shipment.ID)
 		suite.FatalNoError(err)
 
-		_, err = billableWeightCalculator.CalculateShipmentBillableWeight(&dbShipment)
-		suite.Error(err)
-		suite.Contains(err.Error(), "Invalid shipment, must have Reweigh eager loaded")
+		billableWeightCalculations := billableWeightCalculator.CalculateShipmentBillableWeight(&dbShipment)
+		suite.Equal(&actualWeight, billableWeightCalculations.CalculatedBillableWeight)
 	})
 }
