@@ -675,8 +675,13 @@ func subScenarioTXOQueues(appCtx appcontext.AppContext, userUploader *uploader.U
 	}
 }
 
-func subScenarioPaymentRequestCalculations(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader,
-	moveRouter services.MoveRouter) func() {
+func subScenarioPaymentRequestCalculations(
+	appCtx appcontext.AppContext,
+	userUploader *uploader.UserUploader,
+	primeUploader *uploader.PrimeUploader,
+	moveRouter services.MoveRouter,
+	addressCreator services.AddressCreator,
+) func() {
 	return func() {
 		createTXO(appCtx)
 		createTXOUSMC(appCtx)
@@ -691,11 +696,11 @@ func subScenarioPaymentRequestCalculations(appCtx appcontext.AppContext, userUpl
 			},
 		)
 		// Locator PARAMS
-		createHHGWithPaymentServiceItems(appCtx, primeUploader, moveRouter)
+		createHHGWithPaymentServiceItems(appCtx, primeUploader, moveRouter, addressCreator)
 		// Locator ORGSIT
-		createHHGWithOriginSITServiceItems(appCtx, primeUploader, moveRouter)
+		createHHGWithOriginSITServiceItems(appCtx, primeUploader, moveRouter, addressCreator)
 		// Locator DSTSIT
-		createHHGWithDestinationSITServiceItems(appCtx, primeUploader, moveRouter)
+		createHHGWithDestinationSITServiceItems(appCtx, primeUploader, moveRouter, addressCreator)
 	}
 }
 
@@ -860,7 +865,12 @@ func subScenarioSITAddressUpdates(appCtx appcontext.AppContext, userUploader *up
 	}
 }
 
-func subScenarioNTSandNTSR(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) func() {
+func subScenarioNTSandNTSR(
+	appCtx appcontext.AppContext,
+	userUploader *uploader.UserUploader,
+	moveRouter services.MoveRouter,
+	addressCreator services.AddressCreator,
+) func() {
 	return func() {
 		pcos := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
 
@@ -893,7 +903,7 @@ func subScenarioNTSandNTSR(appCtx appcontext.AppContext, userUploader *uploader.
 		createMoveWithNTSRShipment(appCtx, "EXTNTR", true)
 
 		// Create some submitted Moves for TXO users
-		createMoveWithHHGAndNTSRMissingInfo(appCtx, moveRouter)
+		createMoveWithHHGAndNTSRMissingInfo(appCtx, moveRouter, addressCreator)
 		createMoveWithHHGAndNTSMissingInfo(appCtx, moveRouter)
 		createMoveWithNTSAndNTSR(
 			appCtx,

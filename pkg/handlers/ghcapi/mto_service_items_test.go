@@ -474,7 +474,8 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 
 		fetcher := fetch.NewFetcher(queryBuilder)
 		moveRouter := moverouter.NewMoveRouter()
-		mtoServiceItemStatusUpdater := mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter)
+		addressCreator := address.NewAddressCreator()
+		mtoServiceItemStatusUpdater := mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter, addressCreator)
 
 		handler := UpdateMTOServiceItemStatusHandler{
 			HandlerConfig:         suite.HandlerConfig(),
@@ -502,6 +503,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 	suite.Run("Successful status update of MTO service item and event trigger", func() {
 		queryBuilder := query.NewQueryBuilder()
 		moveRouter := moverouter.NewMoveRouter()
+		addressCreator := address.NewAddressCreator()
 		mtoServiceItem, availableMove := suite.createServiceItem()
 		requestUser := factory.BuildUser(nil, nil, nil)
 		availableMoveID := availableMove.ID
@@ -523,7 +525,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 		}
 
 		fetcher := fetch.NewFetcher(queryBuilder)
-		mtoServiceItemStatusUpdater := mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter)
+		mtoServiceItemStatusUpdater := mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter, addressCreator)
 
 		handler := UpdateMTOServiceItemStatusHandler{
 			HandlerConfig:         suite.HandlerConfig(),
@@ -559,8 +561,16 @@ func (suite *HandlerSuite) TestCreateSITAddressUpdate() {
 		mock.AnythingOfType("string"),
 		mock.AnythingOfType("string"),
 	).Return(mockedDistance, nil)
-	serviceItemUpdater := mtoserviceitem.NewMTOServiceItemUpdater(query.NewQueryBuilder(), moverouter.NewMoveRouter())
-	sitAddressUpdateCreator := sitaddressupdate.NewApprovedOfficeSITAddressUpdateCreator(mockPlanner, address.NewAddressCreator(), serviceItemUpdater)
+	serviceItemUpdater := mtoserviceitem.NewMTOServiceItemUpdater(
+		query.NewQueryBuilder(),
+		moverouter.NewMoveRouter(),
+		address.NewAddressCreator(),
+	)
+	sitAddressUpdateCreator := sitaddressupdate.NewApprovedOfficeSITAddressUpdateCreator(
+		mockPlanner,
+		address.NewAddressCreator(),
+		serviceItemUpdater,
+	)
 
 	suite.Run("Returns 200, creates new SIT extension, and updates SIT days allowance on shipment without an allowance when validations pass", func() {
 		handlerConfig := suite.HandlerConfig()

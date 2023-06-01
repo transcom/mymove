@@ -27,16 +27,21 @@ type mtoServiceItemUpdater struct {
 	builder          mtoServiceItemQueryBuilder
 	createNewBuilder func() mtoServiceItemQueryBuilder
 	moveRouter       services.MoveRouter
+	addressCreator   services.AddressCreator
 }
 
 // NewMTOServiceItemUpdater returns a new mto service item updater
-func NewMTOServiceItemUpdater(builder mtoServiceItemQueryBuilder, moveRouter services.MoveRouter) services.MTOServiceItemUpdater {
+func NewMTOServiceItemUpdater(
+	builder mtoServiceItemQueryBuilder,
+	moveRouter services.MoveRouter,
+	addressCreator services.AddressCreator,
+) services.MTOServiceItemUpdater {
 	// used inside a transaction and mocking		return &mtoServiceItemUpdater{builder: builder}
 	createNewBuilder := func() mtoServiceItemQueryBuilder {
 		return query.NewQueryBuilder()
 	}
 
-	return &mtoServiceItemUpdater{builder, createNewBuilder, moveRouter}
+	return &mtoServiceItemUpdater{builder, createNewBuilder, moveRouter, addressCreator}
 }
 
 func (p *mtoServiceItemUpdater) ApproveOrRejectServiceItem(appCtx appcontext.AppContext, mtoServiceItemID uuid.UUID, status models.MTOServiceItemStatus, rejectionReason *string, eTag string) (*models.MTOServiceItem, error) {
