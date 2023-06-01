@@ -51,7 +51,7 @@ require (
 	github.com/pdfcpu/pdfcpu v0.2.5
 	github.com/pkg/errors v0.9.1
 	github.com/pkg/sftp v1.13.5
-	github.com/pterm/pterm v0.12.61
+	github.com/pterm/pterm v0.12.62
 	github.com/rickar/cal/v2 v2.1.13
 	github.com/spf13/afero v1.9.5
 	github.com/spf13/cobra v1.7.0
@@ -162,7 +162,7 @@ require (
 	github.com/kr/pretty v0.3.1 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/leodido/go-urn v1.2.4 // indirect
-	github.com/lithammer/fuzzysearch v1.1.7 // indirect
+	github.com/lithammer/fuzzysearch v1.1.8 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
