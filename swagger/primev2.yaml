@@ -1,0 +1,221 @@
+swagger: '2.0'
+info:
+  title: MilMove Prime API
+  version: 0.0.1
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  contact:
+    email: dp3@truss.works
+  description: >
+    The Prime V2 API is a RESTful API that enables the Prime contractor to
+    request
+
+    information about upcoming moves, update the details and status of those
+    moves,
+
+    and make payment requests. It uses Mutual TLS for authentication procedures.
+
+
+    All endpoints are located at `/prime/v2/`.
+basePath: /prime/v2
+schemes:
+  - http
+tags:
+  - name: moveTaskOrder
+    description: >
+      The **moveTaskOrder** represents a military move that has been sent to a
+      contractor. It contains all the information about shipments, including
+      service items, estimated weights, actual weights, requested and scheduled
+      move dates, etc.
+  - name: mtoShipment
+    description: >
+      A shipment is some (or all) of a customer's belongings picked up in one
+      location and delivered to another location.
+
+      All of the items in a shipment are weighed and transported as a discrete
+      unit. One move may include multiple shipments.
+
+      An **mtoShipment**, in particular, is a shipment that belongs to a
+      [moveTaskOrder](#tag/moveTaskOrder).
+
+
+      The weights for all of the shipments in a move are combined and compared
+      to the customer's weight allowance.
+
+      If the sum of the shipments is greater, the customer is liable for paying
+      excess weight cost. Both the customer and
+
+      the contractor should keep this potential cost in mind when planning a
+      move and the shipments within it.
+  - name: mtoServiceItemprime_description.md
+    description: >
+      A service item is a service that the contractor can bill for. For example,
+      if the movers pack and/or unpack a
+
+      customer's belongings, those are billable services (packing and
+      unpacking). All **mtoServiceItems** must be
+
+      approved by the TOO before payment can be requested.
+
+      There are three types of service items: accessorial, MTO-level, and
+      standard.
+
+      **WIP:** Add an external link to an article that explains the different
+      types of service items in more detail.
+  - name: paymentRequest
+    description: >
+      The contractor submits a **paymentRequest** to the TIO for approval in
+      order to be reimbursed for 1 or more
+
+      **mtoServiceItems** on a **moveTaskOrder**.
+
+      Proof of service documentation may be uploaded for each **mtoServiceItem**
+      in a **paymentRequest**.
+x-tagGroups:
+  - name: Endpoints
+    tags:
+      - moveTaskOrder
+paths:
+  /moves:
+    get:
+      summary: listMoves
+      description: >
+        Gets all moves that have been reviewed and approved by the TOO. The
+        `since` parameter can be used to filter this
+
+        list down to only the moves that have been updated since the provided
+        timestamp. A move will be considered
+
+        updated if the `updatedAt` timestamp on the move or on its orders,
+        shipments, service items, or payment
+
+        requests, is later than the provided date and time.
+
+        **WIP**: Include what causes moves to leave this list.  Currently, once
+        the `availableToPrimeAt` timestamp has
+
+        been set, that move will always appear in this list.
+      operationId: listMoves
+      tags:
+        - moveTaskOrder
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: since
+          type: string
+          format: date-time
+          description: >-
+            Only return moves updated since this time. Formatted like
+            "2021-07-23T18:30:47.116Z"
+      responses:
+        '200':
+          description: >-
+            Successfully retrieved moves. A successful fetch might still return
+            zero moves.
+          schema:
+            $ref: '#/definitions/ListMoves'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '500':
+          $ref: '#/responses/ServerError'
+definitions:
+  Error:
+    properties:
+      title:
+        type: string
+      detail:
+        type: string
+      instance:
+        type: string
+        format: uuid
+    required:
+      - title
+      - detail
+    type: object
+  ListMove:
+    description: >
+      An abbreviated definition for a move, without all the nested information
+      (shipments, service items, etc). Used to fetch a list of moves more
+      efficiently.
+    type: object
+    properties:
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      moveCode:
+        type: string
+        example: HYXFJF
+        readOnly: true
+      createdAt:
+        format: date-time
+        type: string
+        readOnly: true
+      orderID:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+      availableToPrimeAt:
+        format: date-time
+        type: string
+        x-nullable: true
+        readOnly: true
+      updatedAt:
+        format: date-time
+        type: string
+        readOnly: true
+      ppmType:
+        type: string
+        enum:
+          - FULL
+          - PARTIAL
+      ppmEstimatedWeight:
+        type: integer
+      eTag:
+        type: string
+        readOnly: true
+  ListMoves:
+    items:
+      $ref: '#/definitions/ListMove'
+    type: array
+  ClientError:
+    type: object
+    properties:
+      title:
+        type: string
+      detail:
+        type: string
+      instance:
+        type: string
+        format: uuid
+    required:
+      - title
+      - detail
+      - instance
+responses:
+  InvalidRequest:
+    description: The request payload is invalid.
+    schema:
+      $ref: '#/definitions/ClientError'
+  ServerError:
+    description: A server error occurred.
+    schema:
+      $ref: '#/definitions/Error'
+  NotImplemented:
+    description: The requested feature is still in development.
+    schema:
+      $ref: '#/definitions/Error'
+  PreconditionFailed:
+    description: >-
+      Precondition failed, likely due to a stale eTag (If-Match). Fetch the
+      request again to get the updated eTag value.
+    schema:
+      $ref: '#/definitions/ClientError'
+  PermissionDenied:
+    description: The request was denied.
+    schema:
+      $ref: '#/definitions/ClientError'

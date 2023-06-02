@@ -5,6 +5,7 @@ apiDefinitions:
   internal: swagger-def/internal.yaml
   orders: swagger-def/orders.yaml
   prime: swagger-def/prime.yaml
+  prime_v2: swagger-def/primev2.yaml
   support: swagger-def/support.yaml
 lint:
   extends:
