@@ -6,7 +6,7 @@ create table service_request_document_uploads
         constraint service_request_documents_service_request_documents_id_fkey
             references service_request_documents not null,
     contractor_id uuid not null constraint service_request_documents_contractor_id_fkey references contractors,
-    upload_id uuid not null constraint service_request_documents_uploads_id_fkey references upload,
+    upload_id uuid not null constraint service_request_documents_uploads_id_fkey references uploads,
     created_at timestamp not null,
     updated_at timestamp not null,
     deleted_at timestamp with time zone
