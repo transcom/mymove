@@ -34,8 +34,8 @@ func (h ListMovesHandler) Handle(params movetaskorderops.ListMovesParams) middle
 				searchParams.Since = &since
 			}
 
-			// Updating the v1 handler to reference the old version of the ListPrimeMoveTaskOrders service
-			mtos, err := h.MoveTaskOrderFetcher.ListPrimeMoveTaskOrdersToBeDeprecated(appCtx, &searchParams)
+			// In this option, we don't need to change the v1 service.
+			mtos, err := h.MoveTaskOrderFetcher.ListPrimeMoveTaskOrders(appCtx, &searchParams)
 
 			if err != nil {
 				appCtx.Logger().Error("Unexpected error while fetching moves:", zap.Error(err))
