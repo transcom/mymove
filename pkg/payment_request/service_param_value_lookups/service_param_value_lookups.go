@@ -124,7 +124,7 @@ func ServiceParamLookupInitialize(
 	//
 
 	// Load data that is only used by a few service items
-	var sitDestinationFinalAddress models.Address
+	var sitDestinationFinalAddress, sitDestinationOriginalAddress models.Address
 	var serviceItemDimensions models.MTOServiceItemDimensions
 
 	switch mtoServiceItem.ReService.Code {
@@ -143,9 +143,18 @@ func ServiceParamLookupInitialize(
 			}
 			sitDestinationFinalAddress = *mtoServiceItem.SITDestinationFinalAddress
 		}
+
+		if mtoServiceItem.SITDestinationOriginalAddressID != nil && *mtoServiceItem.SITDestinationOriginalAddressID != uuid.Nil {
+			err := appCtx.DB().Load(&mtoServiceItem, "SITDestinationOriginalAddress")
+			if err != nil {
+				return nil, err
+			}
+			sitDestinationOriginalAddress = *mtoServiceItem.SITDestinationOriginalAddress
+		}
 	}
 
 	mtoServiceItem.SITDestinationFinalAddress = &sitDestinationFinalAddress
+	mtoServiceItem.SITDestinationOriginalAddress = &sitDestinationOriginalAddress
 	mtoServiceItem.Dimensions = serviceItemDimensions
 
 	// Load shipment fields for service items that need them
@@ -240,6 +249,10 @@ func (s *ServiceItemParamKeyData) setLookup(appCtx appcontext.AppContext, servic
 
 func InitializeLookups(shipment models.MTOShipment, serviceItem models.MTOServiceItem) map[models.ServiceItemParamName]ServiceItemParamKeyLookup {
 	lookups := map[models.ServiceItemParamName]ServiceItemParamKeyLookup{}
+
+	if serviceItem.SITDestinationOriginalAddress == nil {
+		serviceItem.SITDestinationOriginalAddress = &models.Address{}
+	}
 
 	if serviceItem.SITDestinationFinalAddress == nil {
 		serviceItem.SITDestinationFinalAddress = &models.Address{}
@@ -355,7 +368,7 @@ func InitializeLookups(shipment models.MTOShipment, serviceItem models.MTOServic
 	}
 
 	lookups[models.ServiceItemParamNameDistanceZipSITDest] = DistanceZipSITDestLookup{
-		DestinationAddress:      *shipment.DestinationAddress,
+		DestinationAddress:      *serviceItem.SITDestinationOriginalAddress,
 		FinalDestinationAddress: *serviceItem.SITDestinationFinalAddress,
 	}
 
