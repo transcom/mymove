@@ -69,20 +69,21 @@ const ServiceItemsTable = ({
             <p className={styles.codeName}>{serviceItem.serviceItem}</p>
             <p>{formatDateFromIso(item[`${dateField}`], 'DD MMM YYYY')}</p>
           </td>
-          <td colSpan={2}>
-            {/* juan */}
-            {ALLOWED_SIT_ADDRESS_UPDATE_SI_CODES.includes(code) && (
-              <tr key={index}>
-                <td colSpan={1} style={{ borderBottom: 'none' }}>
-                  <Alert type="warning">Address update over 50 miles approved.</Alert>
-                </td>
-              </tr>
-            )}
-            <tr>
-              <td className={styles.detail} style={{ borderBottom: 'none' }}>
+          <td style={{ whiteSpace: 'nowrap', paddingTop: '0' }}>
+            <td style={{ borderBottom: 'none', paddingLeft: '0', paddingTop: '0' }}>
+              {ALLOWED_SIT_ADDRESS_UPDATE_SI_CODES.includes(code) && (
+                <tr>
+                  <td style={{ border: 'none', paddingLeft: '0', paddingBottom: '0' }} colSpan={2}>
+                    <Alert type="warning" slim>
+                      Address update over 50 miles approved.
+                    </Alert>
+                  </td>
+                </tr>
+              )}
+              <td style={{ borderBottom: 'none', paddingLeft: '0', paddingRight: '2rem' }}>
                 <ServiceItemDetails id={`service-${id}`} code={code} details={details} />
               </td>
-              <td style={{ borderBottom: 'none' }}>
+              <td style={{ borderBottom: 'none', paddingTop: '1.2rem' }}>
                 {statusForTableType === SERVICE_ITEM_STATUS.SUBMITTED && (
                   <Restricted to={permissionTypes.updateMTOServiceItem}>
                     <div className={styles.statusAction}>
@@ -180,7 +181,7 @@ const ServiceItemsTable = ({
                   </Restricted>
                 )}
               </td>
-            </tr>
+            </td>
           </td>
         </tr>
       </React.Fragment>
