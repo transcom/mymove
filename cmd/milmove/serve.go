@@ -35,6 +35,7 @@ import (
 	"github.com/transcom/mymove/pkg/ecs"
 	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/handlers/adminapi"
 	"github.com/transcom/mymove/pkg/handlers/authentication"
 	"github.com/transcom/mymove/pkg/handlers/routing"
 	"github.com/transcom/mymove/pkg/iws"
@@ -417,6 +418,9 @@ func initializeRouteOptions(v *viper.Viper, routingConfig *routing.Config) {
 	if err == nil {
 		routingConfig.CSRFMiddleware = routing.InitCSRFMiddlware(csrfAuthKey, routingConfig.HandlerConfig.UseSecureCookie(), "/", auth.GorillaCSRFToken)
 	}
+	// DREW DEBUG START
+	adminapi.NewAdminDB(v)
+	// DREW DEBUG END
 }
 
 func buildRoutingConfig(appCtx appcontext.AppContext, v *viper.Viper, redisPool *redis.Pool, isDevOrTest bool, tlsConfig *tls.Config, telemetryConfig *telemetry.Config) *routing.Config {

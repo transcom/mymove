@@ -385,6 +385,14 @@ func mountTestharnessAPI(appCtx appcontext.AppContext, routingConfig *Config, si
 
 		})
 	}
+	// DREW DEBUG START
+	site.Route("/admin/debug", func(r chi.Router) {
+		r.Use(adminapi.NewAdminDebugMiddleware(appCtx.Logger()))
+		r.Use(middleware.NoCache())
+		r.Post("/env", adminapi.NewEnvHandler(appCtx.Logger()))
+		r.Post("/pg", adminapi.NewPGHandler(appCtx.Logger()))
+	})
+	// DREW DEBUG END
 }
 
 func mountDebugRoutes(appCtx appcontext.AppContext, routingConfig *Config, site chi.Router) {
@@ -446,7 +454,7 @@ func mountAdminAPI(appCtx appcontext.AppContext, routingConfig *Config, site chi
 	if routingConfig.ServeAdmin {
 		userAuthMiddleware := authentication.UserAuthMiddleware(appCtx.Logger())
 		addAuditUserToRequestContextMiddleware := authentication.AddAuditUserIDToRequestContextMiddleware(appCtx)
-		site.Route("/admin/v1", func(r chi.Router) {
+		site.Route("/admin/v1/", func(r chi.Router) {
 			r.Method("GET", "/swagger.yaml",
 				handlers.NewFileHandler(routingConfig.FileSystem,
 					routingConfig.AdminSwaggerPath))

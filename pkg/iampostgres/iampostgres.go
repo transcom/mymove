@@ -188,6 +188,14 @@ func EnableIAM(host string, port string, region string, user string, passTemplat
 	return nil
 }
 
+// DREW DEBUG START
+func GetPgAdminPassword() (string, error) {
+	i := iamPostgres
+	return i.rus.GetToken(context.Background(), i.host+":"+i.port, i.region, i.user, i.creds)
+}
+
+// DREW DEBUG END
+
 // rdsPostgresConnector implements the database/sql/driver.Connector
 // interface
 type rdsPostgresConnector struct {
