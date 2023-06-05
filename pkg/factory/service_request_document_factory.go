@@ -9,7 +9,7 @@ import (
 
 // BuildServiceRequestDocument creates ServiceRequestDocument.
 // Also creates, if not provided
-// - PaymentRequest and associated set relationships
+// - MTOServiceItem and associated set relationships
 //
 // Params:
 // - customs is a slice that will be modified by the factory
