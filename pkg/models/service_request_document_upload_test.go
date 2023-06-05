@@ -2,6 +2,7 @@ package models_test
 
 import (
 	"github.com/gofrs/uuid"
+	"github.com/transcom/mymove/pkg/factory"
 
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -26,4 +27,12 @@ func (suite *ModelSuite) TestServiceRequestDocumentUploadValidation() {
 
 		suite.verifyValidationErrors(&invalidServiceRequestDocumentUpload, expErrors)
 	})
+}
+
+func (suite *ModelSuite) TestFetchDeletedServiceRequestUpload() {
+	serviceRequestUpload := factory.BuildServiceRequestDocumentUpload(suite.DB(), nil, nil)
+
+	err := models.DeleteServiceRequestDocumentUpload(suite.DB(), &serviceRequestUpload)
+
+	suite.Nil(err)
 }
