@@ -35,7 +35,7 @@ func BuildServiceRequestDocument(db *pop.Connection, customs []Customization, tr
 	}
 
 	// Overwrite values with those from assertions
-	testdatagen.MergeModels(&ServiceRequestDocument, ServiceRequestDocument)
+	testdatagen.MergeModels(&ServiceRequestDocument, cServiceRequestDocument)
 
 	// If db is false, it's a stub. No need to create in database
 	if db != nil {
