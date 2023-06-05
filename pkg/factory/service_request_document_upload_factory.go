@@ -3,7 +3,6 @@ package factory
 import (
 	"fmt"
 	"log"
-	"time"
 
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
@@ -146,18 +145,6 @@ func GetTraitUploadTypePrimeServiceRequest() []Customization {
 		{
 			Model: models.Upload{
 				UploadType: models.UploadTypePRIME,
-			},
-			Type: &Uploads.UploadTypePrime,
-		},
-	}
-}
-
-func GetTraitServiceRequestDocumentUploadDeleted() []Customization {
-	return []Customization{
-		{
-			Model: models.Upload{
-				UploadType: models.UploadTypePRIME,
-				DeletedAt:  models.TimePointer(time.Now()),
 			},
 			Type: &Uploads.UploadTypePrime,
 		},
