@@ -177,112 +177,16 @@ func EnableIAM(host string, port string, region string, user string, passTemplat
 	return nil
 }
 
-type DriverConnWrapper struct {
-	driver.Conn
-	driver.Pinger
-	driver.SessionResetter
-	driver.Validator
-	driver.ConnBeginTx
-	driver.ConnPrepareContext
-	driver.ExecerContext
-	driver.QueryerContext
-	// these interfaces are deprecated, so do not implement them
-	// putting this info here in case someone in the future wonders
-	//
-	// driver.Execer
-	// driver.Queryer
-	driver.Tx
-	createdAt time.Time
-}
-
-var errWrap = errors.New("Cannot wrap driver conn")
-
-func (dcw *DriverConnWrapper) Ping(ctx context.Context) error {
-	err := dcw.Pinger.Ping(ctx)
-	if err != nil {
-		zap.L().Info("IAM iampostgres ping failed",
-			zap.Any("createdAt", dcw.createdAt),
-			zap.Any("diff", time.Now().Unix()-dcw.createdAt.Unix()),
-			zap.Error(err))
-	}
-	return err
-}
-
-func (dcw *DriverConnWrapper) Close() error {
-	err := dcw.Conn.Close()
-	if err != nil {
-		zap.L().Error("IAM iampostgres Close failed",
-			zap.Any("createdAt", dcw.createdAt),
-			zap.Any("diff", time.Now().Unix()-dcw.createdAt.Unix()),
-			zap.Error(err))
-	}
-	return err
-}
-
-func (dcw *DriverConnWrapper) ResetSession(ctx context.Context) error {
-	err := dcw.SessionResetter.ResetSession(ctx)
-	if err != nil {
-		zap.L().Error("IAM iampostgres reset session failed",
-			zap.Any("createdAt", dcw.createdAt),
-			zap.Any("diff", time.Now().Unix()-dcw.createdAt.Unix()),
-			zap.Error(err))
-	}
-	return err
-}
-
-func newDriverConnWrapper(conn driver.Conn) (*DriverConnWrapper, error) {
-	pinger, ok := conn.(driver.Pinger)
-	if !ok {
-		return nil, errWrap
-	}
-	sessionResetter, ok := conn.(driver.SessionResetter)
-	if !ok {
-		return nil, errWrap
-	}
-	validator, ok := conn.(driver.Validator)
-	if !ok {
-		return nil, errWrap
-	}
-	connBeginTx, ok := conn.(driver.ConnBeginTx)
-	if !ok {
-		return nil, errWrap
-	}
-	connPrepareContext, ok := conn.(driver.ConnPrepareContext)
-	if !ok {
-		return nil, errWrap
-	}
-	execerContext, ok := conn.(driver.ExecerContext)
-	if !ok {
-		return nil, errWrap
-	}
-	queryerContext, ok := conn.(driver.QueryerContext)
-	if !ok {
-		return nil, errWrap
-	}
-	tx, ok := conn.(driver.Tx)
-	if !ok {
-		return nil, errWrap
-	}
-
-	return &DriverConnWrapper{
-		Conn:               conn,
-		Pinger:             pinger,
-		SessionResetter:    sessionResetter,
-		Validator:          validator,
-		ConnBeginTx:        connBeginTx,
-		ConnPrepareContext: connPrepareContext,
-		ExecerContext:      execerContext,
-		QueryerContext:     queryerContext,
-		Tx:                 tx,
-		createdAt:          time.Now(),
-	}, nil
-}
-
+// rdsPostgresConnector implements the database/sql/driver.Connector
+// interface
 type rdsPostgresConnector struct {
 	dsn    string
 	driver driver.Driver
 }
 
+// Connect is called each time a new connection to the database is
+// needed, so we can update the RDS IAM auth token immediately before
+// connecting to the DB
 func (c *rdsPostgresConnector) Connect(ctx context.Context) (driver.Conn, error) {
 	useIAM := iamPostgres != nil && iamPostgres.useIAM
 	dsn := c.dsn
@@ -316,26 +220,6 @@ func (c *rdsPostgresConnector) Connect(ctx context.Context) (driver.Conn, error)
 		return nil, err
 	}
 
-	wconn, err := newDriverConnWrapper(conn)
-	if err != nil {
-		zap.L().Error("IAM iampostgres connWrapper failed",
-			zap.Any("useIAM", useIAM),
-			zap.Any("dsnTime", dsnTime),
-			zap.Any("diff", time.Now().Unix()-dsnTime.Unix()),
-			zap.Error(err))
-		return nil, err
-	}
-	// go aheand and ping to ensure the connection is established
-	// successfully
-	err = wconn.Ping(ctx)
-	if err != nil {
-		zap.L().Error("IAM iampostgres Connect Ping failed",
-			zap.Any("useIAM", useIAM),
-			zap.Any("dsnTime", dsnTime),
-			zap.Any("diff", time.Now().Unix()-dsnTime.Unix()),
-			zap.Error(err))
-		return nil, err
-	}
 	return conn, nil
 }
 
@@ -347,6 +231,8 @@ func (c *rdsPostgresConnector) Driver() driver.Driver {
 type RDSPostgresDriver struct {
 }
 
+// From go's documentation:
+//
 // If a Driver implements DriverContext, then sql.DB will call
 // OpenConnector to obtain a Connector and then invoke that
 // Connector's Connect method to obtain each needed connection,
@@ -354,7 +240,8 @@ type RDSPostgresDriver struct {
 // The two-step sequence allows drivers to parse the name just once
 // and also provides access to per-Conn contexts.
 //
-// Milmove wants this for IAM Authentication
+// Milmove wants this for IAM Authentication so we can update the auth
+// token before connect
 func (d *RDSPostgresDriver) OpenConnector(dsn string) (driver.Connector, error) {
 	return &rdsPostgresConnector{dsn, &pg.Driver{}}, nil
 }

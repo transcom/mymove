@@ -303,19 +303,3 @@ func (fd FakeDriver) Close() error {
 func (fd FakeDriver) ResetSession(ctx context.Context) error {
 	return errors.New("FakeResetSession Error")
 }
-
-func TestDriverConnWrapper(t *testing.T) {
-	assert := assert.New(t)
-
-	fakeDriver := FakeDriver{}
-	wrapper := DriverConnWrapper{
-		Pinger:          fakeDriver,
-		Conn:            fakeDriver,
-		SessionResetter: fakeDriver,
-	}
-
-	ctx := context.Background()
-	assert.Error(wrapper.Ping(ctx))
-	assert.Error(wrapper.Close())
-	assert.Error(wrapper.ResetSession(ctx))
-}
