@@ -680,7 +680,7 @@ func subScenarioPaymentRequestCalculations(
 	userUploader *uploader.UserUploader,
 	primeUploader *uploader.PrimeUploader,
 	moveRouter services.MoveRouter,
-	addressCreator services.AddressCreator,
+	shipmentFetcher services.MTOShipmentFetcher,
 ) func() {
 	return func() {
 		createTXO(appCtx)
@@ -696,11 +696,11 @@ func subScenarioPaymentRequestCalculations(
 			},
 		)
 		// Locator PARAMS
-		createHHGWithPaymentServiceItems(appCtx, primeUploader, moveRouter, addressCreator)
+		createHHGWithPaymentServiceItems(appCtx, primeUploader, moveRouter, shipmentFetcher)
 		// Locator ORGSIT
-		createHHGWithOriginSITServiceItems(appCtx, primeUploader, moveRouter, addressCreator)
+		createHHGWithOriginSITServiceItems(appCtx, primeUploader, moveRouter, shipmentFetcher)
 		// Locator DSTSIT
-		createHHGWithDestinationSITServiceItems(appCtx, primeUploader, moveRouter, addressCreator)
+		createHHGWithDestinationSITServiceItems(appCtx, primeUploader, moveRouter, shipmentFetcher)
 	}
 }
 
@@ -869,7 +869,7 @@ func subScenarioNTSandNTSR(
 	appCtx appcontext.AppContext,
 	userUploader *uploader.UserUploader,
 	moveRouter services.MoveRouter,
-	addressCreator services.AddressCreator,
+	shipmentFetcher services.MTOShipmentFetcher,
 ) func() {
 	return func() {
 		pcos := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
@@ -903,7 +903,7 @@ func subScenarioNTSandNTSR(
 		createMoveWithNTSRShipment(appCtx, "EXTNTR", true)
 
 		// Create some submitted Moves for TXO users
-		createMoveWithHHGAndNTSRMissingInfo(appCtx, moveRouter, addressCreator)
+		createMoveWithHHGAndNTSRMissingInfo(appCtx, moveRouter, shipmentFetcher)
 		createMoveWithHHGAndNTSMissingInfo(appCtx, moveRouter)
 		createMoveWithNTSAndNTSR(
 			appCtx,

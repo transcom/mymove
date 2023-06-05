@@ -9,6 +9,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/address"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
+	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
@@ -17,7 +18,7 @@ func (suite *SITAddressUpdateServiceSuite) TestCreateApprovedSITAddressUpdate() 
 	serviceItemUpdater := mtoserviceitem.NewMTOServiceItemUpdater(
 		query.NewQueryBuilder(),
 		moverouter.NewMoveRouter(),
-		address.NewAddressCreator(),
+		mtoshipment.NewMTOShipmentFetcher(),
 	)
 	mockPlanner := &routemocks.Planner{}
 	mockedDistance := 55

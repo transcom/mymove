@@ -3950,7 +3950,7 @@ func createHHGWithOriginSITServiceItems(
 	appCtx appcontext.AppContext,
 	primeUploader *uploader.PrimeUploader,
 	moveRouter services.MoveRouter,
-	addressCreator services.AddressCreator,
+	shipmentFetcher services.MTOShipmentFetcher,
 ) {
 	db := appCtx.DB()
 	// Since we want to customize the Contractor ID for prime uploads, create the contractor here first
@@ -4091,7 +4091,7 @@ func createHHGWithOriginSITServiceItems(
 		logger.Fatal(fmt.Sprintf("error while creating origin sit service item: %v", verrs.Errors), zap.Error(createErr))
 	}
 
-	serviceItemUpdator := mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter, addressCreator)
+	serviceItemUpdator := mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter, shipmentFetcher)
 
 	var originFirstDaySIT models.MTOServiceItem
 	var originAdditionalDaySIT models.MTOServiceItem
@@ -4200,7 +4200,7 @@ func createHHGWithOriginSITServiceItems(
 // Creates an HHG Shipment with SIT at Origin and a payment request for first day and additional day SIT service items.
 // This is to compare to calculating the cost for SIT with a PPM which excludes delivery/pickup costs because the
 // address is not changing. 30 days of additional days in SIT are invoiced.
-func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, primeUploader *uploader.PrimeUploader, moveRouter services.MoveRouter, addressCreator services.AddressCreator) {
+func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, primeUploader *uploader.PrimeUploader, moveRouter services.MoveRouter, shipmentFetcher services.MTOShipmentFetcher) {
 	db := appCtx.DB()
 
 	// Since we want to customize the Contractor ID for prime uploads, create the contractor here first
@@ -4336,7 +4336,7 @@ func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, prime
 		logger.Fatal(fmt.Sprintf("error while creating origin sit service item: %v", verrs.Errors), zap.Error(createErr))
 	}
 
-	serviceItemUpdator := mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter, addressCreator)
+	serviceItemUpdator := mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter, shipmentFetcher)
 
 	var destinationFirstDaySIT models.MTOServiceItem
 	var destinationAdditionalDaySIT models.MTOServiceItem
@@ -4450,7 +4450,7 @@ func createHHGWithPaymentServiceItems(
 	appCtx appcontext.AppContext,
 	primeUploader *uploader.PrimeUploader,
 	moveRouter services.MoveRouter,
-	addressCreator services.AddressCreator,
+	shipmentFetcher services.MTOShipmentFetcher,
 ) {
 	db := appCtx.DB()
 	// Since we want to customize the Contractor ID for prime uploads, create the contractor here first
@@ -4796,7 +4796,7 @@ func createHHGWithPaymentServiceItems(
 		logger.Fatal(fmt.Sprintf("error while creating destination sit service item: %v", verrs.Errors), zap.Error(createErr))
 	}
 
-	serviceItemUpdator := mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter, addressCreator)
+	serviceItemUpdator := mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter, shipmentFetcher)
 
 	var originFirstDaySIT models.MTOServiceItem
 	var originAdditionalDaySIT models.MTOServiceItem
@@ -6892,7 +6892,7 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 	}, nil)
 }
 
-func createMoveWithHHGAndNTSRMissingInfo(appCtx appcontext.AppContext, moveRouter services.MoveRouter, addressCreator services.AddressCreator) {
+func createMoveWithHHGAndNTSRMissingInfo(appCtx appcontext.AppContext, moveRouter services.MoveRouter, shipmentFetcher services.MTOShipmentFetcher) {
 	db := appCtx.DB()
 	move := factory.BuildMove(db, []factory.Customization{
 		{

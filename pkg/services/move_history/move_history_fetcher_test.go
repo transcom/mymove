@@ -15,9 +15,9 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
-	"github.com/transcom/mymove/pkg/services/address"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
+	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/services/reweigh"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -362,8 +362,8 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 	suite.Run("has audit history records for service item", func() {
 		builder := query.NewQueryBuilder()
 		moveRouter := moverouter.NewMoveRouter()
-		addressCreator := address.NewAddressCreator()
-		updater := mtoserviceitem.NewMTOServiceItemUpdater(builder, moveRouter, addressCreator)
+		shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
+		updater := mtoserviceitem.NewMTOServiceItemUpdater(builder, moveRouter, shipmentFetcher)
 		move := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
 		serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{

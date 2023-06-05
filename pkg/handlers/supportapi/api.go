@@ -10,7 +10,6 @@ import (
 	"github.com/transcom/mymove/pkg/gen/supportapi"
 	supportops "github.com/transcom/mymove/pkg/gen/supportapi/supportoperations"
 	"github.com/transcom/mymove/pkg/handlers"
-	"github.com/transcom/mymove/pkg/services/address"
 	"github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	"github.com/transcom/mymove/pkg/services/invoice"
@@ -27,7 +26,7 @@ import (
 func NewSupportAPIHandler(handlerConfig handlers.HandlerConfig) http.Handler {
 	queryBuilder := query.NewQueryBuilder()
 	moveRouter := move.NewMoveRouter()
-	addressCreator := address.NewAddressCreator()
+	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
 	supportSpec, err := loads.Analyzed(supportapi.SwaggerJSON, "")
 	if err != nil {
 		log.Fatalln(err)
@@ -82,7 +81,7 @@ func NewSupportAPIHandler(handlerConfig handlers.HandlerConfig) http.Handler {
 			mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter), handlerConfig.HHGPlanner()),
 	}
 
-	supportAPI.MtoServiceItemUpdateMTOServiceItemStatusHandler = UpdateMTOServiceItemStatusHandler{handlerConfig, mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter, addressCreator)}
+	supportAPI.MtoServiceItemUpdateMTOServiceItemStatusHandler = UpdateMTOServiceItemStatusHandler{handlerConfig, mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter, shipmentFetcher)}
 	supportAPI.WebhookReceiveWebhookNotificationHandler = ReceiveWebhookNotificationHandler{handlerConfig}
 
 	supportAPI.PaymentRequestGetPaymentRequestEDIHandler = GetPaymentRequestEDIHandler{

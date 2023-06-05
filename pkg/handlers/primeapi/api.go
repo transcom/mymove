@@ -40,6 +40,7 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primeoperations.MymoveAP
 	queryBuilder := query.NewQueryBuilder()
 	moveRouter := move.NewMoveRouter()
 	addressCreator := address.NewAddressCreator()
+	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
 	moveWeights := move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
 	uploadCreator := upload.NewUploadCreator(handlerConfig.FileStorer())
 
@@ -77,7 +78,7 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primeoperations.MymoveAP
 
 	primeAPI.MtoServiceItemUpdateMTOServiceItemHandler = UpdateMTOServiceItemHandler{
 		handlerConfig,
-		mtoserviceitem.NewMTOServiceItemUpdater(builder, moveRouter, addressCreator),
+		mtoserviceitem.NewMTOServiceItemUpdater(builder, moveRouter, shipmentFetcher),
 	}
 
 	mtoShipmentUpdater := mtoshipment.NewPrimeMTOShipmentUpdater(

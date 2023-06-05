@@ -27,21 +27,21 @@ type mtoServiceItemUpdater struct {
 	builder          mtoServiceItemQueryBuilder
 	createNewBuilder func() mtoServiceItemQueryBuilder
 	moveRouter       services.MoveRouter
-	addressCreator   services.AddressCreator
+	shipmentFetcher  services.MTOShipmentFetcher
 }
 
 // NewMTOServiceItemUpdater returns a new mto service item updater
 func NewMTOServiceItemUpdater(
 	builder mtoServiceItemQueryBuilder,
 	moveRouter services.MoveRouter,
-	addressCreator services.AddressCreator,
+	shipmentFetcher services.MTOShipmentFetcher,
 ) services.MTOServiceItemUpdater {
 	// used inside a transaction and mocking		return &mtoServiceItemUpdater{builder: builder}
 	createNewBuilder := func() mtoServiceItemQueryBuilder {
 		return query.NewQueryBuilder()
 	}
 
-	return &mtoServiceItemUpdater{builder, createNewBuilder, moveRouter, addressCreator}
+	return &mtoServiceItemUpdater{builder, createNewBuilder, moveRouter, shipmentFetcher}
 }
 
 func (p *mtoServiceItemUpdater) ApproveOrRejectServiceItem(
@@ -131,6 +131,17 @@ func (p *mtoServiceItemUpdater) updateServiceItem(appCtx appcontext.AppContext, 
 		serviceItem.RejectionReason = nil
 		serviceItem.RejectedAt = nil
 		serviceItem.ApprovedAt = &now
+
+		// Set the original address on a service item to the shipment's
+		// destination address.
+		if serviceItem.SITDestinationOriginalAddressID != nil {
+
+			// TODO: Do we need to check for this to have an error?
+			mtoShipment, _ := p.shipmentFetcher.GetShipment(appCtx, *serviceItem.MTOShipmentID, "DestinationAddress")
+
+			serviceItem.SITDestinationOriginalAddress = mtoShipment.DestinationAddress
+			serviceItem.SITDestinationOriginalAddressID = mtoShipment.DestinationAddressID
+		}
 	}
 
 	verrs, err := appCtx.DB().ValidateAndUpdate(&serviceItem)

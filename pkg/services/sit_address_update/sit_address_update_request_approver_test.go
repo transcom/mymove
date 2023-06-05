@@ -5,10 +5,10 @@ import (
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
-	"github.com/transcom/mymove/pkg/services/address"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	movefetcher "github.com/transcom/mymove/pkg/services/move_task_order"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
+	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	query "github.com/transcom/mymove/pkg/services/query"
 )
 
@@ -16,7 +16,7 @@ func (suite *SITAddressUpdateServiceSuite) TestApproveSITAddressUpdateRequest() 
 	serviceItemUpdater := mtoserviceitem.NewMTOServiceItemUpdater(
 		query.NewQueryBuilder(),
 		moverouter.NewMoveRouter(),
-		address.NewAddressCreator(),
+		mtoshipment.NewMTOShipmentFetcher(),
 	)
 	moveRouter := moverouter.NewMoveRouter()
 	approve := NewSITAddressUpdateRequestApprover(serviceItemUpdater, moveRouter)
