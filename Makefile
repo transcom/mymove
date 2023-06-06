@@ -42,6 +42,7 @@ ifdef CIRCLECI
 endif
 
 DEV_DATABASE_URL=postgres://$(DB_USER)@$(DB_HOST):$(DB_PORT)/$(DB_NAME_DEV)?sslmode=$(DB_SSL_MODE)
+TEST_DATABASE_URL=postgres://$(DB_USER)@$(DB_HOST):$(DB_PORT_TEST)/$(DB_NAME_TEST)?sslmode=$(DB_SSL_MODE)
 
 ifdef GOLAND
 	GOLAND_GC_FLAGS=all=-N -l
@@ -625,7 +626,7 @@ db_deployed_migrations_reset: db_deployed_migrations_destroy db_deployed_migrati
 .PHONY: db_deployed_migrations_migrate_standalone
 db_deployed_migrations_migrate_standalone: bin/milmove ## Migrate Deployed Migrations DB with local secure migrations
 	@echo "Migrating the ${DB_NAME_DEPLOYED_MIGRATIONS} database..."
-	DB_DEBUG=0 DB_PORT=$(DB_PORT_DEPLOYED_MIGRATIONS) DB_NAME=$(DB_NAME_DEPLOYED_MIGRATIONS) bin/milmove migrate -p "file://migrations/${APPLICATION}/secure;file://migrations/${APPLICATION}/schema" -m "migrations/${APPLICATION}/migrations_manifest.txt"
+	DB_DEBUG=0 DB_PORT=$(DB_PORT_DEPLOYED_MIGRATIONS) DB_NAME=$(DB_NAME_DEPLOYED_MIGRATIONS) bin/milmove migrate -p "file://migrations/${APPLICATION}/secure;file://migrations/${APPLICATION}/schema" -m "migrations/${APPLICATION}/migrations_manifest.txt" --migration-schema-path "migrations/${APPLICATION}"
 
 .PHONY: db_deployed_migrations_migrate
 db_deployed_migrations_migrate: db_deployed_migrations_migrate_standalone ## Migrate Deployed Migrations DB
@@ -695,17 +696,11 @@ db_test_truncate:
 db_test_load_from_schema: bin/milmove
 	@echo "Loading from schema the ${DB_NAME_TEST} database..."
 	DB_DEBUG=0 DB_NAME=$(DB_NAME_TEST) DB_PORT=$(DB_PORT_TEST) bin/milmove dbload --migration-schema-path "migrations/${APPLICATION}"
-	# the dev data is not needed for server tests
 
 .PHONY: db_test_migrate_standalone
 db_test_migrate_standalone: bin/milmove ## Migrate Test DB directly
-ifndef CIRCLECI
 	@echo "Migrating the ${DB_NAME_TEST} database..."
 	DB_DEBUG=0 DB_NAME=$(DB_NAME_TEST) DB_PORT=$(DB_PORT_TEST) bin/milmove migrate -p "file://migrations/${APPLICATION}/secure;file://migrations/${APPLICATION}/schema" -m "migrations/${APPLICATION}/migrations_manifest.txt"
-else
-	@echo "Migrating the ${DB_NAME_TEST} database..."
-	DB_DEBUG=0 DB_NAME=$(DB_NAME_TEST) DB_PORT=$(DB_PORT_DEV) bin/milmove migrate -p "file://migrations/${APPLICATION}/secure;file://migrations/${APPLICATION}/schema" -m "migrations/${APPLICATION}/migrations_manifest.txt"
-endif
 
 .PHONY: db_test_migrate
 db_test_migrate: db_test_migrate_standalone ## Migrate Test DB
@@ -723,6 +718,17 @@ db_test_psql: ## Open PostgreSQL shell for Test DB
 # server test does not need to load with seed data
 .PHONY: db_server_test_init
 db_server_test_init: db_test_reset db_test_load_from_schema redis_reset
+
+# check for pending migrations or differences in schema
+.PHONY: db_test_schema_check
+db_test_schema_check: db_test_reset bin/milmove
+	# make sure there are no pending, uncommitted changes
+	git diff --exit-code migrations
+  # load the dev seed for this schema check as the dev seed contains
+	# the data about which migrations have already been applied
+	DB_DEBUG=0 DB_NAME=$(DB_NAME_TEST) DB_PORT=$(DB_PORT_TEST) bin/milmove migrate -p "file://migrations/${APPLICATION}/secure;file://migrations/${APPLICATION}/schema" -m "migrations/${APPLICATION}/migrations_manifest.txt" --migration-schema-path "migrations/${APPLICATION}"
+	git diff --exit-code migrations
+
 #
 # ----- END DB_TEST TARGETS -----
 #

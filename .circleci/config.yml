@@ -1337,6 +1337,36 @@ jobs:
                   - ~/transcom/mymove/tmp/test-results
       - announce_failure
 
+  # `schema_test` ensure the schema file matches the migrations
+  schema_test:
+    executor: mymove_tester
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - go-mod-sources-v5-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
+      - run: echo 'export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/bin' >> $BASH_ENV
+      - run:
+          name: make schema_test
+          command: |
+            export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)
+            make db_test_schema_check
+          environment:
+            APPLICATION: app
+            DB_PASSWORD: mysecretpassword
+            DB_USER_LOW_PRIV: crud
+            DB_PASSWORD_LOW_PRIV: mysecretpassword
+            DB_USER: postgres
+            DB_HOST: localhost
+            DB_PORT_TEST: 5433
+            DB_PORT: 5432
+            DB_NAME: test_db
+            DB_NAME_TEST: test_db
+            MIGRATION_MANIFEST: '/home/circleci/transcom/mymove/migrations/app/migrations_manifest.txt'
+            MIGRATION_PATH: 'file:///home/circleci/transcom/mymove/migrations/app/schema;file:///home/circleci/transcom/mymove/migrations/app/secure'
+            ENV: test
+            ENVIRONMENT: test
+
   # `client_test` runs the client side Javascript tests
   client_test:
     executor: mymove_compiler_xlarge
@@ -2173,6 +2203,10 @@ workflows:
             branches:
               ignore: *server-ignore-branch
 
+      - schema_test:
+          requires:
+            - pre_deps_golang
+
       - compile_app_server:
           requires:
             - anti_virus
@@ -2280,6 +2314,7 @@ workflows:
             - pre_test
             - client_test
             - server_test
+            - schema_test
             - push_app_dp3
             - compile_app_server
             - compile_app_client
