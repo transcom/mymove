@@ -42,12 +42,11 @@ EmptyRejectionReasonError.play = async ({ canvasElement }) => {
   const canvas = within(canvasElement);
 
   await expect(canvas.getByRole('textbox', { name: 'Reason for rejection' })).toBeInTheDocument();
-  // Using getByText because the radio element has pointer-events: none
   await expect(canvas.getByText('Reject')).toBeInTheDocument();
 
   // type, then clear, then blur
   await userEvent.type(canvas.getByRole('textbox', { name: 'Reason for rejection' }), 'a{backspace}');
-  await userEvent.click(canvas.getByText('Reject'));
+  await userEvent.click(canvas.getByText('Reject'), undefined, { skipPointerEventsCheck: true });
 };
 
 export const HHG = (args) => (
