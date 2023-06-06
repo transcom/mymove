@@ -388,6 +388,21 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		),
 	}
 
+	ghcAPI.MtoServiceItemApproveSITAddressUpdateHandler = ApproveSITAddressUpdateHandler{
+		handlerConfig,
+		sitaddressupdate.NewSITAddressUpdateRequestApprover(
+			mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter),
+			moveRouter,
+		),
+	}
+
+	ghcAPI.MtoServiceItemRejectSITAddressUpdateHandler = RejectSITAddressUpdateHandler{
+		handlerConfig,
+		sitaddressupdate.NewSITAddressUpdateRequestRejector(
+			moveRouter,
+		),
+	}
+
 	ghcAPI.GhcDocumentsGetDocumentHandler = GetDocumentHandler{handlerConfig}
 
 	ghcAPI.QueuesGetMovesQueueHandler = GetMovesQueueHandler{

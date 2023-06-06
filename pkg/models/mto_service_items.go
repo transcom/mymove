@@ -102,7 +102,12 @@ func FetchRelatedDestinationSITServiceItems(tx *pop.Connection, mtoServiceItemID
 
 func FetchServiceItem(db *pop.Connection, serviceItemID uuid.UUID) (MTOServiceItem, error) {
 	var serviceItem MTOServiceItem
-	err := db.Eager("SITDestinationFinalAddress", "SITDestinationOriginalAddress").Where("id = ?", serviceItemID).First(&serviceItem)
+	err := db.Eager("SITDestinationOriginalAddress",
+		"SITDestinationFinalAddress",
+		"SITAddressUpdates.NewAddress",
+		"ReService",
+		"SITAddressUpdates.OldAddress",
+		"CustomerContacts").Where("id = ?", serviceItemID).First(&serviceItem)
 
 	if err != nil {
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {

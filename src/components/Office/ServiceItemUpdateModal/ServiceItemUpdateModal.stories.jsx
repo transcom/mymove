@@ -2,6 +2,7 @@ import React from 'react';
 
 import { ServiceItemUpdateModal } from './ServiceItemUpdateModal';
 import EditSitAddressChangeForm from './EditSitAddressChangeForm';
+import ReviewSitAddressChange from './ReviewSitAddressChange';
 import { dddSitWithAddressUpdate } from './ServiceItemUpdateModalTestParams';
 
 import { requiredAddressSchema } from 'utils/validation';
@@ -43,5 +44,11 @@ export const EditServiceItemAddress = {
     </ServiceItemUpdateModal>
   ),
 };
-
-// To-do: Setup story for Reviewing Service Item requests
+// Story for reviewing service item addres update request
+export const ReviewSitAddress = {
+  render: () => (
+    <ServiceItemUpdateModal title="Review request: service item update" {...defaultValues}>
+      <ReviewSitAddressChange sitAddressUpdate={defaultValues.serviceItem.sitAddressUpdates[0]} />
+    </ServiceItemUpdateModal>
+  ),
+};

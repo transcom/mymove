@@ -7,7 +7,7 @@ import (
 	"os"
 	"strings"
 
-	"go.opentelemetry.io/otel/metric/global"
+	"go.opentelemetry.io/otel"
 	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/metric/metricdata"
 )
@@ -44,7 +44,7 @@ func (suite *TelemetrySuite) TestMilmoveDataObserver() {
 
 	err = RegisterMilmoveDataObserver(suite.AppContextForTest(), config)
 	suite.Assert().NoError(err)
-	mp := global.MeterProvider()
+	mp := otel.GetMeterProvider()
 	ctx := context.Background()
 	mmp, ok := mp.(*sdkmetric.MeterProvider)
 	if !ok {
