@@ -1,7 +1,8 @@
 import React from 'react';
 import classnames from 'classnames';
+import { Field } from 'formik';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Alert } from '@trussworks/react-uswds';
+import { Alert, FormGroup, Label, Radio } from '@trussworks/react-uswds';
 import * as PropTypes from 'prop-types';
 
 import styles from './ServiceItemUpdateModal.module.scss';
@@ -41,6 +42,14 @@ const ReviewSitAddressChange = ({ sitAddressUpdate }) => {
           ]}
         />
       </DataTableWrapper>
+      <FormGroup>
+        <h3 style={{ fontSize: '17px' }}>Review Request</h3>
+        <Label>Approve address change?</Label>
+        <div>
+          <Field as={Radio} label="Yes" id="acceptAddressUpdate" name="sitAddressUpdate" value="YES" type="radio" />
+          <Field as={Radio} label="No" id="rejectAddressUpdate" name="sitAddressUpdate" value="NO" type="radio" />
+        </div>
+      </FormGroup>
     </>
   );
 };
