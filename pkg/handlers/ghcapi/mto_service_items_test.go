@@ -894,7 +894,8 @@ func (suite *HandlerSuite) TestCreateSITAddressUpdate() {
 
 func (suite *HandlerSuite) TestApproveSITAddressUpdate() {
 	moveRouter := moverouter.NewMoveRouter()
-	serviceItemUpdater := mtoserviceitem.NewMTOServiceItemUpdater(query.NewQueryBuilder(), moveRouter)
+	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
+	serviceItemUpdater := mtoserviceitem.NewMTOServiceItemUpdater(query.NewQueryBuilder(), moveRouter, shipmentFetcher)
 	sitAddressUpdateApprover := sitaddressupdate.NewSITAddressUpdateRequestApprover(serviceItemUpdater, moveRouter)
 
 	suite.Run("Returns 200, approves SIT address update, and updates SITDestinationFinalAddress on service item", func() {
