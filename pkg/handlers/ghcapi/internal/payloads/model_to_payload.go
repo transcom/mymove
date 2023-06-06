@@ -1297,7 +1297,7 @@ func SITAddressUpdate(u models.SITAddressUpdate) *ghcmessages.SITAddressUpdate {
 		NewAddress:        Address(&u.NewAddress),
 		CreatedAt:         strfmt.DateTime(u.CreatedAt),
 		UpdatedAt:         strfmt.DateTime(u.UpdatedAt),
-	}
+		ETag:              etag.GenerateEtag(u.UpdatedAt)}
 }
 
 // SITAddressUpdates payload

@@ -46,6 +46,8 @@ func configureAPI(api *primeoperations.MymoveAPI) http.Handler {
 	// You may change here the memory limit for this multipart form parser. Below is the default (32 MB).
 	// move_task_order.CreateExcessWeightRecordMaxParseMemory = 32 << 20
 	// You may change here the memory limit for this multipart form parser. Below is the default (32 MB).
+	// mto_service_item.CreateServiceRequestDocumentUploadMaxParseMemory = 32 << 20
+	// You may change here the memory limit for this multipart form parser. Below is the default (32 MB).
 	// payment_request.CreateUploadMaxParseMemory = 32 << 20
 
 	if api.MoveTaskOrderCreateExcessWeightRecordHandler == nil {
@@ -81,6 +83,11 @@ func configureAPI(api *primeoperations.MymoveAPI) http.Handler {
 	if api.MtoShipmentCreateSITExtensionHandler == nil {
 		api.MtoShipmentCreateSITExtensionHandler = mto_shipment.CreateSITExtensionHandlerFunc(func(params mto_shipment.CreateSITExtensionParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_shipment.CreateSITExtension has not yet been implemented")
+		})
+	}
+	if api.MtoServiceItemCreateServiceRequestDocumentUploadHandler == nil {
+		api.MtoServiceItemCreateServiceRequestDocumentUploadHandler = mto_service_item.CreateServiceRequestDocumentUploadHandlerFunc(func(params mto_service_item.CreateServiceRequestDocumentUploadParams) middleware.Responder {
+			return middleware.NotImplemented("operation mto_service_item.CreateServiceRequestDocumentUpload has not yet been implemented")
 		})
 	}
 	if api.PaymentRequestCreateUploadHandler == nil {

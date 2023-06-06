@@ -20,12 +20,10 @@ const basicServiceItemCard = {
   status: PAYMENT_SERVICE_ITEM_STATUS.REQUESTED,
   patchPaymentServiceItem: jest.fn(),
 };
-
 const reviewedBasicServiceItemCard = {
   ...basicServiceItemCard,
   requestComplete: true,
 };
-
 const needsReviewServiceItemCard = {
   id: '1',
   mtoShipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
@@ -41,7 +39,6 @@ const needsReviewServiceItemCard = {
   paymentServiceItemParams: testParams.FuelSurchage,
   patchPaymentServiceItem: jest.fn(),
 };
-
 const additionalDaySITServiceItemCard = {
   ...needsReviewServiceItemCard,
   mtoServiceItemName: serviceItemCodes.DOASIT,
@@ -57,46 +54,37 @@ const additionalDaySITServiceItemCard = {
     totalSITEndDate: '2021-09-08',
   },
 };
-
 const reviewedServiceItemCard = {
   ...needsReviewServiceItemCard,
   requestComplete: true,
 };
-
 const canceledShipmentServiceItemCard = {
   ...needsReviewServiceItemCard,
   mtoShipmentModificationType: shipmentModificationTypes.CANCELED,
 };
-
 const divertedShipmentServiceItemCard = {
   ...needsReviewServiceItemCard,
   mtoShipmentModificationType: shipmentModificationTypes.DIVERSION,
 };
-
 describe('ServiceItemCard component', () => {
   describe('when payment request needs reviewed', () => {
     const wrapper = mount(<ServiceItemCard {...needsReviewServiceItemCard} />);
     it('toggles pricer calculations when button is clicked', () => {
       const toggleButton = wrapper.find('button[data-testid="toggleCalculations"]');
       expect(toggleButton.text()).toEqual('Show calculations');
-
       act(() => {
         toggleButton.simulate('click');
       });
       wrapper.update();
-
       expect(toggleButton.text()).toEqual('Hide calculations');
       expect(wrapper.find('ServiceItemCalculations').exists()).toBe(true);
-
       act(() => {
         toggleButton.simulate('click');
       });
       wrapper.update();
-
       expect(toggleButton.text()).toEqual('Show calculations');
       expect(wrapper.find('ServiceItemCalculations').exists()).toBe(false);
     });
-
     it('does not render calculations toggle when the service item calculations are not implemented', () => {
       const component = mount(<ServiceItemCard {...basicServiceItemCard} />);
       expect(component.find('button[data-testid="toggleCalculations"]').exists()).toBe(false);
@@ -181,45 +169,36 @@ describe('ServiceItemCard component', () => {
     it('toggles pricer calculations when button is clicked', () => {
       const toggleButton = wrapper.find('button[data-testid="toggleCalculations"]');
       expect(toggleButton.text()).toEqual('Show calculations');
-
       act(() => {
         toggleButton.simulate('click');
       });
       wrapper.update();
-
       expect(toggleButton.text()).toEqual('Hide calculations');
       expect(wrapper.find('ServiceItemCalculations').exists()).toBe(true);
-
       act(() => {
         toggleButton.simulate('click');
       });
       wrapper.update();
-
       expect(toggleButton.text()).toEqual('Show calculations');
       expect(wrapper.find('ServiceItemCalculations').exists()).toBe(false);
     });
-
     it('does not render calculations toggle when the service item calculations are not implemented', () => {
       const component = mount(<ServiceItemCard {...reviewedBasicServiceItemCard} />);
       expect(component.find('button[data-testid="toggleCalculations"]').exists()).toBe(false);
     });
-
     it('does not display days in SIT info for additional day service items', () => {
       const reviewedDOASIT = { ...additionalDaySITServiceItemCard, requestComplete: true };
-
       render(<ServiceItemCard {...reviewedDOASIT} />);
       expect(screen.queryByText('SIT days invoiced')).not.toBeInTheDocument();
       expect(screen.queryByText('DaysInSITAllowance')).not.toBeInTheDocument();
     });
   });
-
   describe('When a service item has a shipment that was canceled ', () => {
     const component = mount(<ServiceItemCard {...canceledShipmentServiceItemCard} />);
     it('there is a canceled tag displayed', () => {
       expect(component.find('ShipmentModificationTag').text()).toBe(shipmentModificationTypes.CANCELED);
     });
   });
-
   describe('When a service item has a shipment that was diverted ', () => {
     const component = mount(<ServiceItemCard {...divertedShipmentServiceItemCard} />);
     it('there is a diversion tag displayed', () => {

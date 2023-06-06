@@ -31,20 +31,20 @@ func NewSITAddressUpdateRequestRejector(moveRouter services.MoveRouter) services
 }
 
 // RejectSITAddressUpdateRequest rejects the update request
-func (f *sitAddressUpdateRequestRejector) RejectSITAddressUpdateRequest(appCtx appcontext.AppContext, serviceItemID uuid.UUID, sitAddressUpdateRequestID uuid.UUID, officeRemarks *string, eTag string) (*models.SITAddressUpdate, error) {
-	serviceItem, err := f.findServiceItem(appCtx, serviceItemID)
-	if err != nil {
-		return nil, err
-	}
-
+func (f *sitAddressUpdateRequestRejector) RejectSITAddressUpdateRequest(appCtx appcontext.AppContext, sitAddressUpdateRequestID uuid.UUID, officeRemarks *string, eTag string) (*models.SITAddressUpdate, error) {
 	sitAddressUpdateRequest, err := f.findSITAddressUpdateRequest(appCtx, sitAddressUpdateRequestID)
 	if err != nil {
 		return nil, err
 	}
 
-	existingETag := etag.GenerateEtag(serviceItem.UpdatedAt)
+	serviceItem, err := f.findServiceItem(appCtx, sitAddressUpdateRequest.MTOServiceItemID)
+	if err != nil {
+		return nil, err
+	}
+
+	existingETag := etag.GenerateEtag(sitAddressUpdateRequest.UpdatedAt)
 	if existingETag != eTag {
-		return nil, apperror.NewPreconditionFailedError(serviceItemID, query.StaleIdentifierError{StaleIdentifier: eTag})
+		return nil, apperror.NewPreconditionFailedError(sitAddressUpdateRequest.ID, query.StaleIdentifierError{StaleIdentifier: eTag})
 	}
 
 	return f.rejectSITAddressUpdateRequest(appCtx, *sitAddressUpdateRequest, officeRemarks, serviceItem.MoveTaskOrderID)
