@@ -24,6 +24,7 @@ func NewShipmentBillableWeightCalculator() services.ShipmentBillableWeightCalcul
 // Without reweigh EagerPreload(ed) there is the risk of miscalculation.
 // Due to the nature of EagerPreload, we can no longer tell if Reweigh was NOT preloaded
 // OR if the shipment does not have a Reweigh (there is no good way to do this as of this PR)
+// https://github.com/transcom/mymove/pull/10780
 func (f *shipmentBillableWeightCalculator) CalculateShipmentBillableWeight(shipment *models.MTOShipment) services.BillableWeightInputs {
 	var calculatedWeight *unit.Pound
 	var reweighWeight *unit.Pound
