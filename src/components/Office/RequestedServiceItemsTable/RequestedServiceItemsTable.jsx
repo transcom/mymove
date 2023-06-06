@@ -63,6 +63,7 @@ RequestedServiceItemsTable.propTypes = {
   handleShowEditSitAddressModal: PropTypes.func.isRequired,
   handleRequestSITAddressUpdateModal: PropTypes.func,
   statusForTableType: PropTypes.string.isRequired,
+  serviceItemAddressUpdateAlert: PropTypes.string.isRequired,
   serviceItems: PropTypes.arrayOf(ServiceItemDetailsShape).isRequired,
 };
 

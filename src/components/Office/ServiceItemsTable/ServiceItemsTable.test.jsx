@@ -13,6 +13,11 @@ describe('ServiceItemsTable', () => {
   const defaultProps = {
     handleUpdateMTOServiceItemStatus: jest.fn(),
     handleShowRejectionDialog: jest.fn(),
+    serviceItemAddressUpdateAlert: {
+      makeVisible: false,
+      alertMessage: '',
+      alertType: '',
+    },
   };
 
   it('renders with no details', () => {

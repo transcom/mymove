@@ -67,7 +67,7 @@ const ServiceItemsTable = ({
               </td>
             </tr>
           )}
-        {ALLOWED_SIT_ADDRESS_UPDATE_SI_CODES.includes(code) && makeVisible && (
+        {ALLOWED_SIT_ADDRESS_UPDATE_SI_CODES.includes(code) && makeVisible === true && (
           <td style={{ border: 'none', paddingLeft: '20.85rem', paddingBottom: '0' }} colSpan={3}>
             <Alert type={alertType} slim>
               {alertMessage}
@@ -206,6 +206,7 @@ ServiceItemsTable.propTypes = {
   handleShowRejectionDialog: PropTypes.func.isRequired,
   statusForTableType: PropTypes.string.isRequired,
   handleRequestSITAddressUpdateModal: PropTypes.func,
+  serviceItemAddressUpdateAlert: PropTypes.string.isRequired,
   serviceItems: PropTypes.arrayOf(ServiceItemDetailsShape).isRequired,
 };
 

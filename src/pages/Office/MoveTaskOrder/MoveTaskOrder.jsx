@@ -1109,6 +1109,7 @@ export const MoveTaskOrder = (props) => {
                     handleShowRejectionDialog={handleShowRejectionDialog}
                     handleShowEditSitAddressModal={handleShowEditSitAddressModal}
                     statusForTableType={SERVICE_ITEM_STATUSES.SUBMITTED}
+                    serviceItemAddressUpdateAlert={serviceItemAddressUpdateAlert}
                   />
                 )}
                 {approvedServiceItems?.length > 0 && (
@@ -1129,6 +1130,7 @@ export const MoveTaskOrder = (props) => {
                     handleShowRejectionDialog={handleShowRejectionDialog}
                     handleShowEditSitAddressModal={handleShowEditSitAddressModal}
                     statusForTableType={SERVICE_ITEM_STATUSES.REJECTED}
+                    serviceItemAddressUpdateAlert={serviceItemAddressUpdateAlert}
                   />
                 )}
               </ShipmentContainer>
