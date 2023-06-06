@@ -22,10 +22,22 @@
     @include u-padding(3);
     margin-top: 24px;
 
+    .modalHeader {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
     .modalReviewHeader {
       font-size: 22px;
       margin: 0;
     }
+
+    .sitAddressUpdateTag {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
     .officeRemarks {
       max-height: 136px;
     }
@@ -84,4 +96,10 @@
   .destinationAddressTitle {
     font-size: 17px;
   }
+}
+
+.reviewAddressChange {
+  @include u-padding-left(0);
+  border: none;
+  background-color: white;
 }
