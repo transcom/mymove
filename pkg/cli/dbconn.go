@@ -332,6 +332,11 @@ func InitDatabase(v *viper.Viper, creds *credentials.Credentials, logger *zap.Lo
 		// Set a bogus password holder. It will be replaced with an RDS auth token as the password.
 		passHolder := "*****"
 
+		// The AWS docs say the authentication tokens have a lifetime
+		// of 15 minutes, but testing in AWS shows, for some reasons,
+		// we start getting failures after 5 minutes
+		refreshInterval := 1 * time.Minute
+
 		err := iampg.EnableIAM(dbConnectionDetails.Host,
 			dbConnectionDetails.Port,
 			v.GetString(DbRegionFlag),
@@ -339,7 +344,7 @@ func InitDatabase(v *viper.Viper, creds *credentials.Credentials, logger *zap.Lo
 			passHolder,
 			creds,
 			iampg.RDSU{},
-			10*time.Minute, // Refresh every 10 minutes
+			refreshInterval,
 			logger,
 			make(chan bool))
 		if err != nil {
