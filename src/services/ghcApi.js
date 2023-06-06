@@ -607,6 +607,30 @@ export function createSitAddressUpdate({ mtoServiceItemID, body }) {
   );
 }
 
+export function approveSitAddressUpdate({ mtoServiceItemID, body }) {
+  const operationPath = 'mtoServiceItem.approveSITAddressUpdate';
+  return makeGHCRequest(
+    operationPath,
+    {
+      mtoServiceItemID,
+      body,
+    },
+    { normalize: false },
+  );
+}
+
+export function rejectSitAddressUpdate({ mtoServiceItemID, body }) {
+  const operationPath = 'mtoServiceItem.rejectSITAddressUpdate';
+  return makeGHCRequest(
+    operationPath,
+    {
+      mtoServiceItemID,
+      body,
+    },
+    { normalize: false },
+  );
+}
+
 export async function searchTransportationOffices(search) {
   const operationPath = 'transportationOffice.getTransportationOffices';
   return makeGHCRequest(operationPath, { search }, { normalize: false });

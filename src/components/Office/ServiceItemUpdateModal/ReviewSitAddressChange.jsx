@@ -46,8 +46,8 @@ const ReviewSitAddressChange = ({ sitAddressUpdate }) => {
         <h3 style={{ fontSize: '17px' }}>Review Request</h3>
         <Label>Approve address change?</Label>
         <div>
-          <Field as={Radio} label="Yes" id="acceptAddressUpdate" name="sitAddressUpdate" value="yes" type="radio" />
-          <Field as={Radio} label="No" id="rejectAddressUpdate" name="sitAddressUpdate" value="no" type="radio" />
+          <Field as={Radio} label="Yes" id="acceptAddressUpdate" name="sitAddressUpdate" value="YES" type="radio" />
+          <Field as={Radio} label="No" id="rejectAddressUpdate" name="sitAddressUpdate" value="NO" type="radio" />
         </div>
       </FormGroup>
     </>

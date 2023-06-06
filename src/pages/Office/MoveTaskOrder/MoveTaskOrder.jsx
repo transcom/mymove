@@ -46,6 +46,8 @@ import {
   updateMTOShipmentRequestReweigh,
   updateMTOShipmentStatus,
   createSitAddressUpdate,
+  approveSitAddressUpdate,
+  rejectSitAddressUpdate,
 } from 'services/ghcApi';
 import { MOVE_STATUSES } from 'shared/constants';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -335,6 +337,34 @@ export const MoveTaskOrder = (props) => {
       milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
     },
   });
+
+  const { mutate: mutateApproveSitAddressUpdate } = useMutation({
+    mutationFn: approveSitAddressUpdate,
+    onSuccess: (data) => {
+      const updatedServiceItems = [...mtoServiceItems];
+      updatedServiceItems[updatedServiceItems.findIndex((serviceItem) => serviceItem.id === data.id)] = data;
+      queryClient.setQueryData([MTO_SERVICE_ITEMS, move.id, false], updatedServiceItems);
+      queryClient.invalidateQueries({ queryKey: [MTO_SERVICE_ITEMS, move.id, false] });
+    },
+    onError: (error) => {
+      const errorMsg = error?.response?.body;
+      milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
+    },
+  });
+
+  const { mutate: mutateRejectSitAddressUpdate } = useMutation({
+    mutation: rejectSitAddressUpdate,
+    onSuccess: (data) => {
+      const updatedServiceItems = [...mtoServiceItems];
+      updatedServiceItems[updatedServiceItems.findIndex((serviceItem) => serviceItem.id === data.id)] = data;
+      queryClient.setQueryData([MTO_SERVICE_ITEMS, move.id, false], updatedServiceItems);
+      queryClient.invalidateQueries({ queryKey: [MTO_SERVICE_ITEMS, move.id, false] });
+    },
+    onError: (error) => {
+      const errorMsg = error?.response?.body;
+      milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
+    },
+  });
   /*
   *
   -------------------------  Toggle Modals  -------------------------
@@ -389,7 +419,7 @@ export const MoveTaskOrder = (props) => {
     setIsReviewRequestSITAddressModalVisible(true);
   };
   /**
-   * @description This is the handler function for cancelling or closeing the
+   * @description This is the handler function for cancelling or closing the
    * Request SIT Address Modal. This is used by the ConnectedServiceItemUpdateModal
    * component to close the Request SIT Address modal.
    * */
@@ -632,7 +662,7 @@ export const MoveTaskOrder = (props) => {
    * @description Updates the sitAddressUpdate logs and final SIT address with the new address submitted.
    * OnSuccess, it closes the modal and sets a success message.
    */
-  const handleSumbitSitAddressChange = (mtoServiceItemID, { newAddress, officeRemarks }) => {
+  const handleSubmitSitAddressChange = (mtoServiceItemID, { newAddress, officeRemarks }) => {
     mutateSitAddressUpdate(
       {
         mtoServiceItemID,
@@ -642,6 +672,31 @@ export const MoveTaskOrder = (props) => {
         onSuccess: () => {
           setSelectedServiceItem({});
           setIsEditSitAddressModalVisible(false);
+          setAlertMessage('Changes saved');
+          setAlertType('success');
+        },
+      },
+    );
+  };
+
+  const handleSubmitSitAddressUpdateChange = (mtoServiceItemID, { sitAddressUpdate, officeRemarks }) => {
+    const sitAddressUpdateFuncMap = {
+      YES: mutateApproveSitAddressUpdate,
+      NO: mutateRejectSitAddressUpdate,
+    };
+
+    const sitAddressUpdateID = findSITAddressUpdate(selectedServiceItem.id, selectedServiceItem.sitAddressUpdates).id;
+
+    const sitFunc = sitAddressUpdateFuncMap[sitAddressUpdate];
+    sitFunc(
+      {
+        sitAddressUpdateID,
+        body: { officeRemarks },
+      },
+      {
+        onSuccess: () => {
+          setIsReviewRequestSITAddressModalVisible(false);
+          setSelectedServiceItem({});
           setAlertMessage('Changes saved');
           setAlertType('success');
         },
@@ -950,7 +1005,7 @@ export const MoveTaskOrder = (props) => {
               isOpen={isReviewRequestSITAddressModalVisible}
               closeModal={handleCancelReviewRequestAddressModal}
               title="Review request: service item update"
-              onSave={() => {}}
+              onSave={handleSubmitSitAddressUpdateChange}
               serviceItem={selectedServiceItem}
               validations={{ sitAddressUpdate: Yup.string().required('Required') }}
             >
@@ -979,7 +1034,7 @@ export const MoveTaskOrder = (props) => {
           {isEditSitAddressModalVisible && (
             <ConnectedServiceItemUpdateModal
               closeModal={handleCancelEditAddressModal}
-              onSave={handleSumbitSitAddressChange}
+              onSave={handleSubmitSitAddressChange}
               isOpen={isEditSitAddressModalVisible}
               serviceItem={selectedServiceItem}
               initialValues={{
