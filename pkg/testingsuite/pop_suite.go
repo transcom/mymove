@@ -17,6 +17,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/iampostgres"
 	"github.com/transcom/mymove/pkg/random"
 )
 
@@ -296,7 +297,7 @@ func (suite *PopTestSuite) getDbConnectionDetails() {
 	// from cloning
 	suite.pgConnDetails = &pop.ConnectionDetails{
 		Dialect:  dbDialect,
-		Driver:   "postgres",
+		Driver:   iampostgres.CustomPostgres,
 		Database: "postgres",
 		Host:     dbHost,
 		Port:     dbPortTest,
@@ -314,7 +315,7 @@ func (suite *PopTestSuite) getDbConnectionDetails() {
 	// than the role that runs database migrations.
 	suite.lowPrivConnDetails = &pop.ConnectionDetails{
 		Dialect:  dbDialect,
-		Driver:   "postgres",
+		Driver:   iampostgres.CustomPostgres,
 		Database: dbNamePackage,
 		Host:     dbHost,
 		Port:     dbPortTest,
@@ -328,7 +329,7 @@ func (suite *PopTestSuite) getDbConnectionDetails() {
 	// higher than the role that runs application.
 	suite.highPrivConnDetails = &pop.ConnectionDetails{
 		Dialect:  dbDialect,
-		Driver:   "postgres",
+		Driver:   iampostgres.CustomPostgres,
 		Database: dbNamePackage,
 		Host:     dbHost,
 		Port:     dbPortTest,
