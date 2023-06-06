@@ -685,12 +685,13 @@ export const MoveTaskOrder = (props) => {
       NO: mutateRejectSitAddressUpdate,
     };
 
-    const sitAddressUpdateID = findSITAddressUpdate(selectedServiceItem.id, selectedServiceItem.sitAddressUpdates).id;
+    const { id, eTag } = findSITAddressUpdate(selectedServiceItem.id, selectedServiceItem.sitAddressUpdates);
 
     const sitFunc = sitAddressUpdateFuncMap[sitAddressUpdate];
     sitFunc(
       {
-        sitAddressUpdateID,
+        sitAddressUpdateID: id,
+        ifMatchETag: eTag,
         body: { officeRemarks },
       },
       {

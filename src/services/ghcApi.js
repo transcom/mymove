@@ -607,24 +607,26 @@ export function createSitAddressUpdate({ mtoServiceItemID, body }) {
   );
 }
 
-export function approveSitAddressUpdate({ mtoServiceItemID, body }) {
+export function approveSitAddressUpdate({ sitAddressUpdateID, ifMatchETag, body }) {
   const operationPath = 'mtoServiceItem.approveSITAddressUpdate';
   return makeGHCRequest(
     operationPath,
     {
-      mtoServiceItemID,
+      sitAddressUpdateID,
+      'If-Match': ifMatchETag,
       body,
     },
     { normalize: false },
   );
 }
 
-export function rejectSitAddressUpdate({ mtoServiceItemID, body }) {
+export function rejectSitAddressUpdate({ sitAddressUpdateID, ifMatchETag, body }) {
   const operationPath = 'mtoServiceItem.rejectSITAddressUpdate';
   return makeGHCRequest(
     operationPath,
     {
-      mtoServiceItemID,
+      sitAddressUpdateID,
+      'If-Match': ifMatchETag,
       body,
     },
     { normalize: false },
