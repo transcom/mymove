@@ -233,7 +233,7 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticDestinationSITDeliveryServi
 				Value:   fmt.Sprintf("%d", int(dddsitTestWeight)),
 			},
 			{
-				Key:     models.ServiceItemParamNameZipDestAddress,
+				Key:     models.ServiceItemParamNameZipSITDestHHGOriginalAddress,
 				KeyType: models.ServiceItemParamTypeString,
 				Value:   zipDest,
 			},

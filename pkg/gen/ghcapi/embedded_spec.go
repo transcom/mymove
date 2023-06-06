@@ -8382,6 +8382,7 @@ func init() {
         "ZipDestAddress",
         "ZipPickupAddress",
         "ZipSITDestHHGFinalAddress",
+        "ZipSITDestHHGOriginalAddress",
         "ZipSITOriginHHGActualAddress",
         "ZipSITOriginHHGOriginalAddress"
       ]
@@ -19153,6 +19154,7 @@ func init() {
         "ZipDestAddress",
         "ZipPickupAddress",
         "ZipSITDestHHGFinalAddress",
+        "ZipSITDestHHGOriginalAddress",
         "ZipSITOriginHHGActualAddress",
         "ZipSITOriginHHGOriginalAddress"
       ]

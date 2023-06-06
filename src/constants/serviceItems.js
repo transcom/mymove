@@ -42,6 +42,7 @@ const SERVICE_ITEM_PARAM_KEYS = {
   ZipDestAddress: 'ZipDestAddress',
   ZipPickupAddress: 'ZipPickupAddress',
   ZipSITDestHHGFinalAddress: 'ZipSITDestHHGFinalAddress',
+  ZipSITDestHHGOriginalAddress: 'ZipSITDestHHGOriginalAddress',
   ZipSITOriginHHGActualAddress: 'ZipSITOriginHHGActualAddress',
   ZipSITOriginHHGOriginalAddress: 'ZipSITOriginHHGOriginalAddress',
 };
@@ -71,6 +72,7 @@ const SERVICE_ITEM_CALCULATION_LABELS = {
   [SERVICE_ITEM_PARAM_KEYS.ZipDestAddress]: 'ZIP',
   [SERVICE_ITEM_PARAM_KEYS.ZipPickupAddress]: 'ZIP',
   [SERVICE_ITEM_PARAM_KEYS.ZipSITDestHHGFinalAddress]: 'ZIP',
+  [SERVICE_ITEM_PARAM_KEYS.ZipSITDestHHGOriginalAddress]: 'ZIP',
   AdditionalDaySITPrice: 'Additional day SIT price',
   BaselineLinehaulPrice: 'Baseline linehaul price',
   BaselineShorthaulPrice: 'Baseline shorthaul price',

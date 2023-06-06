@@ -5019,6 +5019,10 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 			IncomingKey: models.ServiceItemParamNameDistanceZipSITDest.String(),
 			Value:       "1000",
 		},
+		{
+			IncomingKey: models.ServiceItemParamNameZipSITDestHHGOriginalAddress.String(),
+			Value:       "94535",
+		},
 	}
 
 	// Ordering the service items based on approved date to ensure the DDFSIT is after the DOASIT.
