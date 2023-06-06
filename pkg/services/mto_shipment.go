@@ -38,7 +38,7 @@ type BillableWeightInputs struct {
 //
 //go:generate mockery --name ShipmentBillableWeightCalculator
 type ShipmentBillableWeightCalculator interface {
-	CalculateShipmentBillableWeight(shipment *models.MTOShipment) (BillableWeightInputs, error)
+	CalculateShipmentBillableWeight(shipment *models.MTOShipment) BillableWeightInputs
 }
 
 // ShipmentDeleter is the service object interface for deleting a shipment

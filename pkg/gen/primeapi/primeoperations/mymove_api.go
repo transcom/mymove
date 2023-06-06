@@ -70,6 +70,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		MtoShipmentCreateSITExtensionHandler: mto_shipment.CreateSITExtensionHandlerFunc(func(params mto_shipment.CreateSITExtensionParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_shipment.CreateSITExtension has not yet been implemented")
 		}),
+		MtoServiceItemCreateServiceRequestDocumentUploadHandler: mto_service_item.CreateServiceRequestDocumentUploadHandlerFunc(func(params mto_service_item.CreateServiceRequestDocumentUploadParams) middleware.Responder {
+			return middleware.NotImplemented("operation mto_service_item.CreateServiceRequestDocumentUpload has not yet been implemented")
+		}),
 		PaymentRequestCreateUploadHandler: payment_request.CreateUploadHandlerFunc(func(params payment_request.CreateUploadParams) middleware.Responder {
 			return middleware.NotImplemented("operation payment_request.CreateUpload has not yet been implemented")
 		}),
@@ -162,6 +165,8 @@ type MymoveAPI struct {
 	SitAddressUpdateCreateSITAddressUpdateRequestHandler sit_address_update.CreateSITAddressUpdateRequestHandler
 	// MtoShipmentCreateSITExtensionHandler sets the operation handler for the create s i t extension operation
 	MtoShipmentCreateSITExtensionHandler mto_shipment.CreateSITExtensionHandler
+	// MtoServiceItemCreateServiceRequestDocumentUploadHandler sets the operation handler for the create service request document upload operation
+	MtoServiceItemCreateServiceRequestDocumentUploadHandler mto_service_item.CreateServiceRequestDocumentUploadHandler
 	// PaymentRequestCreateUploadHandler sets the operation handler for the create upload operation
 	PaymentRequestCreateUploadHandler payment_request.CreateUploadHandler
 	// MtoShipmentDeleteMTOShipmentHandler sets the operation handler for the delete m t o shipment operation
@@ -284,6 +289,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.MtoShipmentCreateSITExtensionHandler == nil {
 		unregistered = append(unregistered, "mto_shipment.CreateSITExtensionHandler")
+	}
+	if o.MtoServiceItemCreateServiceRequestDocumentUploadHandler == nil {
+		unregistered = append(unregistered, "mto_service_item.CreateServiceRequestDocumentUploadHandler")
 	}
 	if o.PaymentRequestCreateUploadHandler == nil {
 		unregistered = append(unregistered, "payment_request.CreateUploadHandler")
@@ -436,6 +444,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/mto-shipments/{mtoShipmentID}/sit-extensions"] = mto_shipment.NewCreateSITExtension(o.context, o.MtoShipmentCreateSITExtensionHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/mto-service-items/{mtoServiceItemID}/uploads"] = mto_service_item.NewCreateServiceRequestDocumentUpload(o.context, o.MtoServiceItemCreateServiceRequestDocumentUploadHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}

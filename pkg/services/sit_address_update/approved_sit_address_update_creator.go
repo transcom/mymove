@@ -72,23 +72,12 @@ func (f *approvedSITAddressUpdateRequestCreator) CreateApprovedSITAddressUpdate(
 		serviceItem.SITDestinationFinalAddressID = &newAddress.ID
 		serviceItem.SITDestinationFinalAddress = newAddress
 
-		_, err = f.serviceItemUpdater.UpdateMTOServiceItemBasic(txnAppCtx, &serviceItem, etag.GenerateEtag(serviceItem.UpdatedAt))
+		updatedServiceItem, err := f.serviceItemUpdater.UpdateMTOServiceItemBasic(txnAppCtx, &serviceItem, etag.GenerateEtag(serviceItem.UpdatedAt))
 		if err != nil {
 			return err
 		}
 
-		// The serviceItemUpdater doesn't eager load all address associations,
-		// so load them here and attach them to created SitAddressUpdate
-		err = appCtx.DB().Eager(
-			"SITDestinationOriginalAddress",
-			"SITDestinationFinalAddress",
-			"SITAddressUpdates.NewAddress",
-			"ReService",
-			"SITAddressUpdates.OldAddress").
-			Where("id = ?", sitAddressUpdate.MTOServiceItemID).First(&sitAddressUpdate.MTOServiceItem)
-		if err != nil {
-			return err
-		}
+		sitAddressUpdate.MTOServiceItem = *updatedServiceItem
 
 		return nil
 	})

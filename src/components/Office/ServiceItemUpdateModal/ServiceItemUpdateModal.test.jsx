@@ -9,6 +9,7 @@ import {
   newAddress,
 } from './ServiceItemUpdateModalTestParams';
 import EditSitAddressChangeForm from './EditSitAddressChangeForm';
+import ReviewSitAddressChange from './ReviewSitAddressChange';
 
 const defaultValues = {
   closeModal: () => {},
@@ -49,6 +50,7 @@ describe('ServiceItemUpdateModal', () => {
     it('when the save button is pressed, the onSave handler is called', async () => {});
     it('when the cancel button is pressed, the onCancel handler is called', async () => {});
   });
+
   describe('when a editing an address change to a service items', () => {
     it('renders modal with the correct content', async () => {
       render(
@@ -145,12 +147,48 @@ describe('ServiceItemUpdateModal', () => {
       });
     });
   });
-  // describe('when a reviewing an address change to a service items', () => {
-  //   render(<ServiceItemUpdateModal />);
-  //   it('renders modal with the correct content', async () => {});
-  //   it('the form is editing as expected', async () => {});
-  //   it('shows error messages appear when form validations are not met', async () => {});
-  //   it('when the save button is pressed, the onSave handler is called', async () => {});
-  //   it('when the cancel button is pressed, the onCancel handler is called', async () => {});
-  // });
+
+  describe('When a TOO reviews a SIT address update request', () => {
+    it('clicking review request renders the associated modal with the correct content', async () => {
+      render(
+        <ServiceItemUpdateModal
+          title="Review request: service item update"
+          {...defaultValues}
+          serviceItem={{ dddSitWithAddressUpdate }}
+        >
+          <ReviewSitAddressChange sitAddressUpdate={dddSitWithAddressUpdate.sitAddressUpdates[0]} />
+        </ServiceItemUpdateModal>,
+      );
+
+      // Checking modal header
+      expect(screen.getByText('Review request: service item update')).toBeInTheDocument();
+      expect(screen.getByTestId('sitAddressUpdateTag')).toHaveTextContent('UPDATE REQUESTED');
+
+      // Check for yellow alert
+      expect(screen.getByTestId('distanceAlert')).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          'Requested final SIT delivery address is 500 miles from the initial SIT delivery address. Approvals over 50 miles will result in updated pricing for this shipment.',
+        ),
+      ).toBeInTheDocument();
+
+      // Check for address section
+      expect(screen.getByText('Initial SIT delivery address')).toBeInTheDocument();
+      expect(screen.getByText('345 Faker Rd, Richmond, VA 12508')).toBeInTheDocument();
+
+      expect(screen.getByText('Requested final SIT delivery address')).toBeInTheDocument();
+      expect(screen.getByText('555 Fakest Dr, Unit 133, Alexandria, VA 12867')).toBeInTheDocument();
+
+      // Check for remarks section
+      expect(screen.getByText('Update request details')).toBeInTheDocument();
+      expect(screen.getByText('Contractor remarks:')).toBeInTheDocument();
+      expect(screen.getByText('Customer wishes to be closer to family')).toBeInTheDocument();
+    });
+
+    // This is for mb-15810
+    // it('the form is editing as expected', async () => {});
+    // it('shows error messages appear when form validations are not met', async () => {});
+    // it('when the save button is pressed, the onSave handler is called', async () => {});
+    // it('when the cancel button is pressed, the onCancel handler is called', async () => {});
+  });
 });
