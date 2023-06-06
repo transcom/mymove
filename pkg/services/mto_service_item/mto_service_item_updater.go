@@ -133,14 +133,14 @@ func (p *mtoServiceItemUpdater) updateServiceItem(appCtx appcontext.AppContext, 
 		serviceItem.ApprovedAt = &now
 
 		// Set the original address on a service item to the shipment's
-		// destination address.
-		if serviceItem.SITDestinationOriginalAddressID != nil {
+		// destination address when approving a SIT service item.
+		if serviceItem.SITDestinationOriginalAddressID == nil {
 
 			// TODO: Do we need to check for this to have an error?
 			mtoShipment, _ := p.shipmentFetcher.GetShipment(appCtx, *serviceItem.MTOShipmentID, "DestinationAddress")
 
-			serviceItem.SITDestinationOriginalAddress = mtoShipment.DestinationAddress
 			serviceItem.SITDestinationOriginalAddressID = mtoShipment.DestinationAddressID
+			serviceItem.SITDestinationOriginalAddress = mtoShipment.DestinationAddress
 		}
 	}
 
