@@ -140,6 +140,18 @@ export function generatePageTitle(string) {
 }
 
 /**
+ * @func announcePageTitle
+ * @desc A function that sets the document's title announcer element to the title
+ * @param {string} title - A string that the title announcer's textContent is set to
+ */
+export function announcePageTitle(title) {
+  const titleAnnouncer = document.getElementById('title-announcer');
+  if (titleAnnouncer) {
+    titleAnnouncer.textContent = title;
+  }
+}
+
+/**
  * @func useTitle
  * @desc This function generates a subtitle using the pathname from the React Router DOM useLocation function unless a string is passed into the function and assigns the value to `subtitle`. It then calls useEffect to update the document's title attribute and an aria-live element using the `generatePageTitle` function with the internally created subtitle.
  * @param {string} [string] - A string value to be used for the title instead of using the URL path.
@@ -150,9 +162,6 @@ export function useTitle(string) {
   useEffect(() => {
     const title = generatePageTitle(subtitle);
     document.title = title;
-    const titleAnnouncer = document.getElementById('title-announcer');
-    if (titleAnnouncer) {
-      titleAnnouncer.textContent = title;
-    }
+    announcePageTitle(title);
   }, [subtitle]);
 }
