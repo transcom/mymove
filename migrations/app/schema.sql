@@ -4492,7 +4492,6 @@ COMMENT ON COLUMN public.mto_agents.deleted_at IS 'Indicates whether the mto age
 
 CREATE TABLE public.mto_service_item_customer_contacts (
     id uuid NOT NULL,
-    mto_service_item_id uuid NOT NULL,
     type public.customer_contact_type NOT NULL,
     time_military text NOT NULL,
     first_available_delivery_date timestamp with time zone NOT NULL,
@@ -4508,13 +4507,6 @@ ALTER TABLE public.mto_service_item_customer_contacts OWNER TO postgres;
 --
 
 COMMENT ON TABLE public.mto_service_item_customer_contacts IS 'Holds the data for when the Prime contacted the customer to deliver their shipment but were unable to do so. Used to justify the Prime putting the shipment into a SIT facility.';
-
-
---
--- Name: COLUMN mto_service_item_customer_contacts.mto_service_item_id; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN public.mto_service_item_customer_contacts.mto_service_item_id IS 'The UUID of the SIT service item this customer contact justifies';
 
 
 --
@@ -5162,7 +5154,7 @@ COMMENT ON COLUMN public.orders.report_by_date IS 'Date by which the customer mu
 -- Name: COLUMN orders.orders_type; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON COLUMN public.orders.orders_type IS 'MilMove supports 4 orders types: Permanent change of station (PCS), Permanent change of assignment (PCA), retirement orders, and separation orders.
+COMMENT ON COLUMN public.orders.orders_type IS 'MilMove supports 4 orders types: Permanent change of station (PCS), local move, retirement orders, and separation orders.
 In general, the moving process starts with the job/travel orders a customer receives from their service. In the orders, information describing rank, the duration of job/training, and their assigned location will determine if their entire dependent family can come, what the customer is allowed to bring, and how those items will arrive to their new location.';
 
 
@@ -7246,7 +7238,7 @@ CREATE TABLE public.re_shipment_type_prices (
     contract_id uuid NOT NULL,
     service_id uuid NOT NULL,
     market character varying(1) NOT NULL,
-    factor numeric(3,2) NOT NULL,
+    factor numeric(4,2) NOT NULL,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     CONSTRAINT re_shipment_type_prices_market_check CHECK (((market)::text = ANY (ARRAY[('C'::character varying)::text, ('O'::character varying)::text])))
@@ -7789,6 +7781,22 @@ COMMENT ON COLUMN public.service_item_param_keys.updated_at IS 'Timestamp when t
 
 
 --
+-- Name: service_items_customer_contacts; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.service_items_customer_contacts (
+    id uuid NOT NULL,
+    mtoservice_item_id uuid NOT NULL,
+    mtoservice_item_customer_contact_id uuid NOT NULL,
+    created_at timestamp without time zone DEFAULT now() NOT NULL,
+    updated_at timestamp without time zone DEFAULT now() NOT NULL,
+    deleted_at timestamp without time zone
+);
+
+
+ALTER TABLE public.service_items_customer_contacts OWNER TO postgres;
+
+--
 -- Name: service_members; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -8013,6 +8021,93 @@ COMMENT ON COLUMN public.service_params.updated_at IS 'Timestamp when the record
 --
 
 COMMENT ON COLUMN public.service_params.is_optional IS 'True if this parameter is optional for this service item.';
+
+
+--
+-- Name: service_request_document_uploads; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.service_request_document_uploads (
+    id uuid NOT NULL,
+    service_request_documents_id uuid NOT NULL,
+    contractor_id uuid NOT NULL,
+    upload_id uuid NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    deleted_at timestamp with time zone
+);
+
+
+ALTER TABLE public.service_request_document_uploads OWNER TO postgres;
+
+--
+-- Name: TABLE service_request_document_uploads; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON TABLE public.service_request_document_uploads IS 'Stores uploads from the Prime that represent proof of a service item request';
+
+
+--
+-- Name: COLUMN service_request_document_uploads.id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.service_request_document_uploads.id IS 'uuid that represents this entity';
+
+
+--
+-- Name: COLUMN service_request_document_uploads.service_request_documents_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.service_request_document_uploads.service_request_documents_id IS 'uuid that represents the associated service request document';
+
+
+--
+-- Name: COLUMN service_request_document_uploads.contractor_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.service_request_document_uploads.contractor_id IS 'uuid that represents the contractor who provided the upload';
+
+
+--
+-- Name: COLUMN service_request_document_uploads.upload_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.service_request_document_uploads.upload_id IS 'Foreign key of the uploads table';
+
+
+--
+-- Name: service_request_documents; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.service_request_documents (
+    id uuid NOT NULL,
+    mto_service_item_id uuid NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+ALTER TABLE public.service_request_documents OWNER TO postgres;
+
+--
+-- Name: TABLE service_request_documents; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON TABLE public.service_request_documents IS 'Associates uploads from the Prime that represent proof of a service item request';
+
+
+--
+-- Name: COLUMN service_request_documents.id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.service_request_documents.id IS 'uuid that represents this entity';
+
+
+--
+-- Name: COLUMN service_request_documents.mto_service_item_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.service_request_documents.mto_service_item_id IS 'Foreign key of the mto_service_items table';
 
 
 --
@@ -9252,6 +9347,22 @@ ALTER TABLE ONLY public.client_certs
 
 
 --
+-- Name: client_certs client_certs_sha256_digest_idx; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.client_certs
+    ADD CONSTRAINT client_certs_sha256_digest_idx UNIQUE (sha256_digest);
+
+
+--
+-- Name: client_certs client_certs_subject_idx; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.client_certs
+    ADD CONSTRAINT client_certs_subject_idx UNIQUE (subject);
+
+
+--
 -- Name: users constraint_name; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -9484,14 +9595,6 @@ ALTER TABLE ONLY public.mto_agents
 
 
 --
--- Name: mto_service_item_customer_contacts mto_service_item_customer_contacts_mto_service_item_id_type_key; Type: CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.mto_service_item_customer_contacts
-    ADD CONSTRAINT mto_service_item_customer_contacts_mto_service_item_id_type_key UNIQUE (mto_service_item_id, type);
-
-
---
 -- Name: mto_service_item_customer_contacts mto_service_item_customer_contacts_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -9720,7 +9823,7 @@ ALTER TABLE ONLY public.pws_violations
 --
 
 ALTER TABLE ONLY public.re_contract_years
-    ADD CONSTRAINT re_contract_years_daterange_excl EXCLUDE USING gist (contract_id WITH =, daterange(start_date, end_date, '[]'::text) WITH &&);
+    ADD CONSTRAINT re_contract_years_daterange_excl EXCLUDE USING gist (daterange(start_date, end_date, '[]'::text) WITH &&);
 
 
 --
@@ -10036,6 +10139,14 @@ ALTER TABLE ONLY public.service_item_param_keys
 
 
 --
+-- Name: service_items_customer_contacts service_items_customer_contacts_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.service_items_customer_contacts
+    ADD CONSTRAINT service_items_customer_contacts_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: service_members service_members_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -10057,6 +10168,30 @@ ALTER TABLE ONLY public.service_params
 
 ALTER TABLE ONLY public.service_params
     ADD CONSTRAINT service_params_unique_key UNIQUE (service_id, service_item_param_key_id);
+
+
+--
+-- Name: service_request_document_uploads service_request_document_uploads_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.service_request_document_uploads
+    ADD CONSTRAINT service_request_document_uploads_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: service_request_documents service_request_documents_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.service_request_documents
+    ADD CONSTRAINT service_request_documents_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: service_request_documents service_request_documents_unique_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.service_request_documents
+    ADD CONSTRAINT service_request_documents_unique_key UNIQUE (mto_service_item_id);
 
 
 --
@@ -11740,14 +11875,6 @@ ALTER TABLE ONLY public.mto_agents
 
 
 --
--- Name: mto_service_item_customer_contacts mto_service_item_customer_contacts_mto_service_item_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.mto_service_item_customer_contacts
-    ADD CONSTRAINT mto_service_item_customer_contacts_mto_service_item_id_fkey FOREIGN KEY (mto_service_item_id) REFERENCES public.mto_service_items(id) ON DELETE CASCADE;
-
-
---
 -- Name: mto_service_item_dimensions mto_service_item_dimensions_mto_service_item_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -12364,6 +12491,22 @@ ALTER TABLE ONLY public.reweighs
 
 
 --
+-- Name: service_items_customer_contacts service_items_customer_contac_mtoservice_item_customer_con_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.service_items_customer_contacts
+    ADD CONSTRAINT service_items_customer_contac_mtoservice_item_customer_con_fkey FOREIGN KEY (mtoservice_item_customer_contact_id) REFERENCES public.mto_service_item_customer_contacts(id);
+
+
+--
+-- Name: service_items_customer_contacts service_items_customer_contacts_mtoservice_item_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.service_items_customer_contacts
+    ADD CONSTRAINT service_items_customer_contacts_mtoservice_item_id_fkey FOREIGN KEY (mtoservice_item_id) REFERENCES public.mto_service_items(id);
+
+
+--
 -- Name: notifications service_member_id___fk; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -12417,6 +12560,38 @@ ALTER TABLE ONLY public.service_params
 
 ALTER TABLE ONLY public.service_params
     ADD CONSTRAINT service_params_service_item_param_key_id_fkey FOREIGN KEY (service_item_param_key_id) REFERENCES public.service_item_param_keys(id);
+
+
+--
+-- Name: service_request_document_uploads service_request_documents_contractor_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.service_request_document_uploads
+    ADD CONSTRAINT service_request_documents_contractor_id_fkey FOREIGN KEY (contractor_id) REFERENCES public.contractors(id);
+
+
+--
+-- Name: service_request_documents service_request_documents_mto_service_item_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.service_request_documents
+    ADD CONSTRAINT service_request_documents_mto_service_item_id_fkey FOREIGN KEY (mto_service_item_id) REFERENCES public.mto_service_items(id);
+
+
+--
+-- Name: service_request_document_uploads service_request_documents_service_request_documents_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.service_request_document_uploads
+    ADD CONSTRAINT service_request_documents_service_request_documents_id_fkey FOREIGN KEY (service_request_documents_id) REFERENCES public.service_request_documents(id);
+
+
+--
+-- Name: service_request_document_uploads service_request_documents_uploads_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.service_request_document_uploads
+    ADD CONSTRAINT service_request_documents_uploads_id_fkey FOREIGN KEY (upload_id) REFERENCES public.uploads(id);
 
 
 --
@@ -15131,6 +15306,15 @@ GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.service_item_param_keys TO cru
 
 
 --
+-- Name: TABLE service_items_customer_contacts; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT ALL ON TABLE public.service_items_customer_contacts TO master;
+GRANT ALL ON TABLE public.service_items_customer_contacts TO ecs_user;
+GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.service_items_customer_contacts TO crud;
+
+
+--
 -- Name: TABLE service_members; Type: ACL; Schema: public; Owner: postgres
 --
 
@@ -15146,6 +15330,24 @@ GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.service_members TO crud;
 GRANT ALL ON TABLE public.service_params TO master;
 GRANT ALL ON TABLE public.service_params TO ecs_user;
 GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.service_params TO crud;
+
+
+--
+-- Name: TABLE service_request_document_uploads; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT ALL ON TABLE public.service_request_document_uploads TO master;
+GRANT ALL ON TABLE public.service_request_document_uploads TO ecs_user;
+GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.service_request_document_uploads TO crud;
+
+
+--
+-- Name: TABLE service_request_documents; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT ALL ON TABLE public.service_request_documents TO master;
+GRANT ALL ON TABLE public.service_request_documents TO ecs_user;
+GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.service_request_documents TO crud;
 
 
 --
