@@ -16,25 +16,25 @@ type SITAddressUpdateRequestRejector struct {
 	mock.Mock
 }
 
-// RejectSITAddressUpdateRequest provides a mock function with given fields: appCtx, serviceItemID, sitAddressUpdateRequestID, officeRemarks, eTag
-func (_m *SITAddressUpdateRequestRejector) RejectSITAddressUpdateRequest(appCtx appcontext.AppContext, serviceItemID uuid.UUID, sitAddressUpdateRequestID uuid.UUID, officeRemarks *string, eTag string) (*models.SITAddressUpdate, error) {
-	ret := _m.Called(appCtx, serviceItemID, sitAddressUpdateRequestID, officeRemarks, eTag)
+// RejectSITAddressUpdateRequest provides a mock function with given fields: appCtx, sitAddressUpdateRequestID, officeRemarks, eTag
+func (_m *SITAddressUpdateRequestRejector) RejectSITAddressUpdateRequest(appCtx appcontext.AppContext, sitAddressUpdateRequestID uuid.UUID, officeRemarks *string, eTag string) (*models.SITAddressUpdate, error) {
+	ret := _m.Called(appCtx, sitAddressUpdateRequestID, officeRemarks, eTag)
 
 	var r0 *models.SITAddressUpdate
 	var r1 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, uuid.UUID, *string, string) (*models.SITAddressUpdate, error)); ok {
-		return rf(appCtx, serviceItemID, sitAddressUpdateRequestID, officeRemarks, eTag)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, *string, string) (*models.SITAddressUpdate, error)); ok {
+		return rf(appCtx, sitAddressUpdateRequestID, officeRemarks, eTag)
 	}
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, uuid.UUID, *string, string) *models.SITAddressUpdate); ok {
-		r0 = rf(appCtx, serviceItemID, sitAddressUpdateRequestID, officeRemarks, eTag)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, *string, string) *models.SITAddressUpdate); ok {
+		r0 = rf(appCtx, sitAddressUpdateRequestID, officeRemarks, eTag)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.SITAddressUpdate)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, uuid.UUID, *string, string) error); ok {
-		r1 = rf(appCtx, serviceItemID, sitAddressUpdateRequestID, officeRemarks, eTag)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, *string, string) error); ok {
+		r1 = rf(appCtx, sitAddressUpdateRequestID, officeRemarks, eTag)
 	} else {
 		r1 = ret.Error(1)
 	}

@@ -33,6 +33,7 @@ var TOO = RolePermissions{
 		"update.orders",
 		"update.allowances",
 		"update.billableWeight",
+		"update.SITAddressUpdate",
 		"update.SITExtension",
 		"update.MTOServiceItem",
 		"update.excessWeightRisk",
