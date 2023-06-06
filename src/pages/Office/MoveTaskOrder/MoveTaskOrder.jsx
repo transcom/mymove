@@ -353,7 +353,7 @@ export const MoveTaskOrder = (props) => {
   });
 
   const { mutate: mutateRejectSitAddressUpdate } = useMutation({
-    mutation: rejectSitAddressUpdate,
+    mutationFn: rejectSitAddressUpdate,
     onSuccess: (data) => {
       const updatedServiceItems = [...mtoServiceItems];
       updatedServiceItems[updatedServiceItems.findIndex((serviceItem) => serviceItem.id === data.id)] = data;
