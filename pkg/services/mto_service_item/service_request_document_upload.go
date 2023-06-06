@@ -84,17 +84,17 @@ func (p *serviceRequestDocumentUploadCreator) CreateUpload(appCtx appcontext.App
 				return apperror.NewQueryError("MTOServiceItem", err, "")
 			}
 		}
-		// create proof of service doc
+		// create service request document
 		serviceRequestDocument := models.ServiceRequestDocument{
 			MTOServiceItemID: mtoServiceItemID,
 			MTOServiceItem:   mtoServiceItem,
 		}
 		verrs, err := txnAppCtx.DB().ValidateAndCreate(&serviceRequestDocument)
 		if err != nil {
-			return fmt.Errorf("failure creating proof of service doc: %w", err) // server err
+			return fmt.Errorf("failure creating service request document: %w", err) // server err
 		}
 		if verrs.HasAny() {
-			return apperror.NewInvalidCreateInputError(verrs, "validation error with creating proof of service doc")
+			return apperror.NewInvalidCreateInputError(verrs, "validation error with creating service request document")
 		}
 
 		srdID := &serviceRequestDocument.ID
