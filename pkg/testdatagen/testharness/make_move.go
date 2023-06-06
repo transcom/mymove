@@ -2287,7 +2287,7 @@ func MakeHHGMoveWithApprovedNTSShipmentsForTOO(appCtx appcontext.AppContext) mod
 	planner := &routemocks.Planner{}
 
 	// mock any and all planner calls
-	planner.On("TransitDistance", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(2361, nil)
+	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(2361, nil)
 
 	queryBuilder := query.NewQueryBuilder()
 	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
@@ -2391,7 +2391,7 @@ func MakeHHGMoveWithApprovedNTSRShipmentsForTOO(appCtx appcontext.AppContext) mo
 	planner := &routemocks.Planner{}
 
 	// mock any and all planner calls
-	planner.On("TransitDistance", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(2361, nil)
+	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(2361, nil)
 
 	queryBuilder := query.NewQueryBuilder()
 	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
@@ -4241,16 +4241,24 @@ func MakeHHGMoveInSITWithAddressChangeRequestOver50Miles(appCtx appcontext.AppCo
 		},
 	}, nil)
 
-	factory.BuildSITAddressUpdate(appCtx.DB(), []factory.Customization{
+	sitAddressUpdate := factory.BuildSITAddressUpdate(appCtx.DB(), []factory.Customization{
 		{
 			Model:    dddsit,
 			LinkOnly: true,
 		},
 	}, []factory.Trait{factory.GetTraitSITAddressUpdateOver50Miles})
 
+	originalAddress := sitAddressUpdate.OldAddress
+	dddsit.SITDestinationOriginalAddressID = &originalAddress.ID
+	dddsit.SITDestinationFinalAddressID = &originalAddress.ID
+	err := appCtx.DB().Update(&dddsit)
+	if err != nil {
+		log.Panic(fmt.Errorf("failed to update sit service item: %w", err))
+	}
+
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 
 	return *newmove
@@ -4512,16 +4520,25 @@ func MakeHHGMoveInSITWithAddressChangeRequestUnder50Miles(appCtx appcontext.AppC
 		},
 	}, nil)
 
-	factory.BuildSITAddressUpdate(appCtx.DB(), []factory.Customization{
+	sitAddressUpdate := factory.BuildSITAddressUpdate(appCtx.DB(), []factory.Customization{
 		{
 			Model:    dddsit,
 			LinkOnly: true,
 		},
 	}, []factory.Trait{factory.GetTraitSITAddressUpdateUnder50Miles})
 
+	originalAddress := sitAddressUpdate.OldAddress
+	finalAddress := sitAddressUpdate.NewAddress
+	dddsit.SITDestinationOriginalAddressID = &originalAddress.ID
+	dddsit.SITDestinationFinalAddressID = &finalAddress.ID
+	err := appCtx.DB().Update(&dddsit)
+	if err != nil {
+		log.Panic(fmt.Errorf("failed to update sit service item: %w", err))
+	}
+
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, mto.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 
 	return *newmove

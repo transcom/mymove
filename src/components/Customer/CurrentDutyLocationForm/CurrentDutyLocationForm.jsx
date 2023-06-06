@@ -10,15 +10,9 @@ import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigat
 import formStyles from 'styles/form.module.scss';
 import { DutyLocationShape } from 'types/dutyLocation';
 
-const CurrentDutyLocationForm = ({ initialValues, onBack, onSubmit, newDutyLocation }) => {
+const CurrentDutyLocationForm = ({ initialValues, onBack, onSubmit }) => {
   const validationSchema = Yup.object().shape({
-    current_location: Yup.object()
-      .required('Required')
-      .test(
-        'existing and new duty location should not match',
-        'You entered the same duty location for your origin and destination. Please change one of them.',
-        (value) => value?.id !== newDutyLocation?.id,
-      ),
+    current_location: Yup.object().required('Required'),
   });
 
   return (
@@ -55,11 +49,6 @@ CurrentDutyLocationForm.propTypes = {
   }).isRequired,
   onBack: func.isRequired,
   onSubmit: func.isRequired,
-  newDutyLocation: DutyLocationShape,
-};
-
-CurrentDutyLocationForm.defaultProps = {
-  newDutyLocation: {},
 };
 
 export default CurrentDutyLocationForm;

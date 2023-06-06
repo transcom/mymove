@@ -32,29 +32,3 @@ export const InitialValues = (argTypes) => (
     onBack={argTypes.onBack}
   />
 );
-
-export const Error = (argTypes) => (
-  <CurrentDutyLocationForm
-    initialValues={{
-      current_location: {
-        address: {
-          city: 'Los Angeles',
-          state: 'CA',
-          postalCode: '90245',
-        },
-        name: 'Los Angeles AFB',
-        id: 'testId',
-      },
-    }}
-    newDutyLocation={{
-      address: {
-        city: 'Los Angeles',
-        state: 'CA',
-        postalCode: '90245',
-      },
-      id: 'testId',
-    }}
-    onSubmit={argTypes.onSubmit}
-    onBack={argTypes.onBack}
-  />
-);

@@ -15,6 +15,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_service_item"
 	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/payment_request"
+	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/sit_address_update"
 )
 
 //go:generate swagger generate server --target ../../gen --name Mymove --spec ../../../swagger/prime.yaml --api-package primeoperations --model-package primemessages --server-package primeapi --principal interface{} --exclude-main
@@ -45,6 +46,8 @@ func configureAPI(api *primeoperations.MymoveAPI) http.Handler {
 	// You may change here the memory limit for this multipart form parser. Below is the default (32 MB).
 	// move_task_order.CreateExcessWeightRecordMaxParseMemory = 32 << 20
 	// You may change here the memory limit for this multipart form parser. Below is the default (32 MB).
+	// mto_service_item.CreateServiceRequestDocumentUploadMaxParseMemory = 32 << 20
+	// You may change here the memory limit for this multipart form parser. Below is the default (32 MB).
 	// payment_request.CreateUploadMaxParseMemory = 32 << 20
 
 	if api.MoveTaskOrderCreateExcessWeightRecordHandler == nil {
@@ -72,9 +75,19 @@ func configureAPI(api *primeoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation payment_request.CreatePaymentRequest has not yet been implemented")
 		})
 	}
+	if api.SitAddressUpdateCreateSITAddressUpdateRequestHandler == nil {
+		api.SitAddressUpdateCreateSITAddressUpdateRequestHandler = sit_address_update.CreateSITAddressUpdateRequestHandlerFunc(func(params sit_address_update.CreateSITAddressUpdateRequestParams) middleware.Responder {
+			return middleware.NotImplemented("operation sit_address_update.CreateSITAddressUpdateRequest has not yet been implemented")
+		})
+	}
 	if api.MtoShipmentCreateSITExtensionHandler == nil {
 		api.MtoShipmentCreateSITExtensionHandler = mto_shipment.CreateSITExtensionHandlerFunc(func(params mto_shipment.CreateSITExtensionParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_shipment.CreateSITExtension has not yet been implemented")
+		})
+	}
+	if api.MtoServiceItemCreateServiceRequestDocumentUploadHandler == nil {
+		api.MtoServiceItemCreateServiceRequestDocumentUploadHandler = mto_service_item.CreateServiceRequestDocumentUploadHandlerFunc(func(params mto_service_item.CreateServiceRequestDocumentUploadParams) middleware.Responder {
+			return middleware.NotImplemented("operation mto_service_item.CreateServiceRequestDocumentUpload has not yet been implemented")
 		})
 	}
 	if api.PaymentRequestCreateUploadHandler == nil {

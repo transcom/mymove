@@ -30,7 +30,7 @@ func NewCreateApprovedSITDurationUpdate(ctx *middleware.Context, handler CreateA
 }
 
 /*
-	CreateApprovedSITDurationUpdate swagger:route POST /shipments/{shipmentID}/sit-extensions/ shipment sitExtension createApprovedSITDurationUpdate
+	CreateApprovedSITDurationUpdate swagger:route POST /shipments/{shipmentID}/sit-extensions shipment sitExtension createApprovedSITDurationUpdate
 
 # Create an approved SIT Duration Update
 

@@ -17,42 +17,23 @@ import (
 // ProofOfServiceDocs proof of service docs
 //
 // swagger:model ProofOfServiceDocs
-type ProofOfServiceDocs struct {
-
-	// uploads
-	Uploads []*UploadWithOmissions `json:"uploads"`
-}
+type ProofOfServiceDocs []*ProofOfServiceDoc
 
 // Validate validates this proof of service docs
-func (m *ProofOfServiceDocs) Validate(formats strfmt.Registry) error {
+func (m ProofOfServiceDocs) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validateUploads(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (m *ProofOfServiceDocs) validateUploads(formats strfmt.Registry) error {
-	if swag.IsZero(m.Uploads) { // not required
-		return nil
-	}
-
-	for i := 0; i < len(m.Uploads); i++ {
-		if swag.IsZero(m.Uploads[i]) { // not required
+	for i := 0; i < len(m); i++ {
+		if swag.IsZero(m[i]) { // not required
 			continue
 		}
 
-		if m.Uploads[i] != nil {
-			if err := m.Uploads[i].Validate(formats); err != nil {
+		if m[i] != nil {
+			if err := m[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("uploads" + "." + strconv.Itoa(i))
+					return ve.ValidateName(strconv.Itoa(i))
 				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName("uploads" + "." + strconv.Itoa(i))
+					return ce.ValidateName(strconv.Itoa(i))
 				}
 				return err
 			}
@@ -60,33 +41,24 @@ func (m *ProofOfServiceDocs) validateUploads(formats strfmt.Registry) error {
 
 	}
 
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
 	return nil
 }
 
 // ContextValidate validate this proof of service docs based on the context it is used
-func (m *ProofOfServiceDocs) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+func (m ProofOfServiceDocs) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.contextValidateUploads(ctx, formats); err != nil {
-		res = append(res, err)
-	}
+	for i := 0; i < len(m); i++ {
 
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (m *ProofOfServiceDocs) contextValidateUploads(ctx context.Context, formats strfmt.Registry) error {
-
-	for i := 0; i < len(m.Uploads); i++ {
-
-		if m.Uploads[i] != nil {
-			if err := m.Uploads[i].ContextValidate(ctx, formats); err != nil {
+		if m[i] != nil {
+			if err := m[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("uploads" + "." + strconv.Itoa(i))
+					return ve.ValidateName(strconv.Itoa(i))
 				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName("uploads" + "." + strconv.Itoa(i))
+					return ce.ValidateName(strconv.Itoa(i))
 				}
 				return err
 			}
@@ -94,23 +66,8 @@ func (m *ProofOfServiceDocs) contextValidateUploads(ctx context.Context, formats
 
 	}
 
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (m *ProofOfServiceDocs) MarshalBinary() ([]byte, error) {
-	if m == nil {
-		return nil, nil
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
 	}
-	return swag.WriteJSON(m)
-}
-
-// UnmarshalBinary interface implementation
-func (m *ProofOfServiceDocs) UnmarshalBinary(b []byte) error {
-	var res ProofOfServiceDocs
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*m = res
 	return nil
 }

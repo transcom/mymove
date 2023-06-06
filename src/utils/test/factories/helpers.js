@@ -1,5 +1,5 @@
 import { oneOf } from '@jackfranklin/test-data-bot';
-import { faker } from '@faker-js/faker';
+import { fakerEN_US as faker } from '@faker-js/faker';
 import { v4 as uuidv4 } from 'uuid';
 
 import { getInternalSpec } from './base';

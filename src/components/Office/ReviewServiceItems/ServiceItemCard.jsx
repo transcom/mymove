@@ -26,6 +26,7 @@ const isAdditionalDaySIT = (mtoServiceItemCode) => {
 };
 
 /** This component represents a Payment Request Service Item */
+/** NB: this component is in the process of being replaced with NewServiceItemCard */
 const ServiceItemCard = ({
   id,
   mtoShipmentType,

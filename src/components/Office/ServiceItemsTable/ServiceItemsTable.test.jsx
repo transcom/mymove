@@ -5,6 +5,7 @@ import { mount } from 'enzyme';
 import ServiceItemsTable from './ServiceItemsTable';
 
 import { SERVICE_ITEM_STATUS } from 'shared/constants';
+import { SIT_ADDRESS_UPDATE_STATUS } from 'constants/sitUpdates';
 import { MockProviders } from 'testUtils';
 import { permissionTypes } from 'constants/permissions';
 
@@ -218,5 +219,135 @@ describe('ServiceItemsTable', () => {
     expect(wrapper.find('button[data-testid="rejectButton"]').length).toBeFalsy();
     expect(wrapper.find('button[data-testid="approveTextButton"]').length).toBeFalsy();
     expect(wrapper.find('button[data-testid="rejectTextButton"]').length).toBeFalsy();
+  });
+
+  it('shows update requested tag when service item contains a requested sit address update', () => {
+    const serviceItems = [
+      {
+        id: 'abc123',
+        mtoShipmentID: 'xyz789',
+        submittedAt: '2020-11-20',
+        serviceItem: 'Domestic destination SIT delivery',
+        code: 'DDDSIT',
+        sitAddressUpdates: [
+          {
+            contractorRemarks: 'contractor remarks',
+            distance: 140,
+            status: SIT_ADDRESS_UPDATE_STATUS.REQUESTED,
+            officeRemarks: null,
+          },
+        ],
+      },
+    ];
+
+    const wrapper = mount(
+      <MockProviders permissions={[permissionTypes.updateMTOServiceItem]}>
+        <ServiceItemsTable
+          {...defaultProps}
+          serviceItems={serviceItems}
+          statusForTableType={SERVICE_ITEM_STATUS.APPROVED}
+        />
+      </MockProviders>,
+    );
+
+    expect(wrapper.find('[data-testid="sitAddressUpdateTag"]').exists()).toBe(true);
+  });
+
+  it('does not show edit/review request button when service item code is not DDDSIT', () => {
+    const serviceItems = [
+      {
+        id: 'abc123',
+        mtoShipmentID: 'xyz789',
+        submittedAt: '2020-11-20',
+        serviceItem: 'Domestic Origin 1st Day SIT',
+        code: 'DOFSIT',
+        details: {
+          pickupPostalCode: '11111',
+          reason: 'This is the reason',
+        },
+      },
+    ];
+
+    const wrapper = mount(
+      <ServiceItemsTable
+        {...defaultProps}
+        serviceItems={serviceItems}
+        statusForTableType={SERVICE_ITEM_STATUS.APPROVED}
+      />,
+    );
+
+    expect(wrapper.find('button[data-testid="editTextButton"]').length).toBeFalsy();
+  });
+
+  it('shows edit button when service item does not have requested sit address updates', () => {
+    const serviceItems = [
+      {
+        id: 'abc123',
+        mtoShipmentID: 'xyz789',
+        submittedAt: '2020-11-20',
+        serviceItem: 'Domestic destination SIT delivery',
+        code: 'DDDSIT',
+        sitAddressUpdates: [
+          {
+            contractorRemarks: 'contractor remarks',
+            distance: 140,
+            status: SIT_ADDRESS_UPDATE_STATUS.APPROVED,
+            officeRemarks: null,
+          },
+        ],
+      },
+    ];
+
+    const wrapper = mount(
+      <MockProviders permissions={[permissionTypes.updateMTOServiceItem]}>
+        <ServiceItemsTable
+          {...defaultProps}
+          serviceItems={serviceItems}
+          statusForTableType={SERVICE_ITEM_STATUS.APPROVED}
+        />
+      </MockProviders>,
+    );
+
+    const editButton = wrapper.find('button[data-testid="editTextButton"]');
+
+    expect(editButton.length).toBeTruthy();
+
+    expect(editButton.at(0).contains('Edit')).toBe(true);
+  });
+
+  it('shows review request button when service item contains requested sit address update', () => {
+    const serviceItems = [
+      {
+        id: 'abc123',
+        mtoShipmentID: 'xyz789',
+        submittedAt: '2020-11-20',
+        serviceItem: 'Domestic destination SIT delivery',
+        code: 'DDDSIT',
+        sitAddressUpdates: [
+          {
+            contractorRemarks: 'contractor remarks',
+            distance: 140,
+            status: SIT_ADDRESS_UPDATE_STATUS.REQUESTED,
+            officeRemarks: null,
+          },
+        ],
+      },
+    ];
+
+    const wrapper = mount(
+      <MockProviders permissions={[permissionTypes.updateMTOServiceItem]}>
+        <ServiceItemsTable
+          {...defaultProps}
+          serviceItems={serviceItems}
+          statusForTableType={SERVICE_ITEM_STATUS.APPROVED}
+        />
+      </MockProviders>,
+    );
+
+    const reviewRequestButton = wrapper.find('button[data-testid="reviewRequestTextButton"]');
+
+    expect(reviewRequestButton.length).toBeTruthy();
+
+    expect(reviewRequestButton.at(0).contains('Review Request')).toBe(true);
   });
 });

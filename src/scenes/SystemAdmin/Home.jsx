@@ -8,6 +8,10 @@ import WebhookSubscriptionEdit from '../../pages/Admin/WebhookSubscriptions/Webh
 import restProvider from './shared/rest_provider';
 import Menu from './shared/Menu';
 import UploadShow from './Uploads/UploadShow';
+import ClientCertList from 'pages/Admin/ClientCerts/ClientCertList';
+import ClientCertShow from 'pages/Admin/ClientCerts/ClientCertShow';
+import ClientCertCreate from 'pages/Admin/ClientCerts/ClientCertCreate';
+import ClientCertEdit from 'pages/Admin/ClientCerts/ClientCertEdit';
 import ElectronicOrderList from './ElectronicOrders/ElectronicOrderList';
 import styles from './Home.module.scss';
 import NotificationList from './Notifications/NotificationList';
@@ -83,6 +87,14 @@ const Home = () => (
       <Resource name="electronic-orders" options={{ label: 'Electronic orders' }} list={ElectronicOrderList} />
       <Resource name="uploads" options={{ label: 'Search Upload by ID' }} show={UploadShow} />
       <Resource name="organizations" />
+      <Resource
+        name="client-certificates"
+        options={{ label: 'Client Certs' }}
+        list={ClientCertList}
+        show={ClientCertShow}
+        create={ClientCertCreate}
+        edit={ClientCertEdit}
+      />
       <Resource name="notifications" options={{ label: 'Notifications' }} list={NotificationList} />
       <Resource
         name="webhook-subscriptions"

@@ -78,16 +78,30 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 
 	var serviceMember models.ServiceMember
 	var paymentRequest models.PaymentRequest
+	var mto models.Move
 	var paymentServiceItems models.PaymentServiceItems
 	var result ediinvoice.Invoice858C
 
 	setupTestData := func() {
-		mto := factory.BuildMove(suite.DB(), []factory.Customization{
+		customServiceMember := models.ServiceMember{
+			ID:    uuid.FromStringOrNil("d66d2f35-218c-4b85-b9d1-631949b9d984"),
+			Edipi: models.StringPointer("1000011111"),
+		}
+
+		serviceMember = factory.BuildExtendedServiceMember(suite.DB(), []factory.Customization{
+			{Model: customServiceMember},
+		}, nil)
+
+		mto = factory.BuildMove(suite.DB(), []factory.Customization{
 			{
 				Model: models.Move{
 					ReferenceID: &referenceID,
 					Status:      models.MoveStatusAPPROVED,
 				},
+			},
+			{
+				Model:    serviceMember,
+				LinkOnly: true,
 			},
 		}, nil)
 
@@ -293,14 +307,6 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		paymentServiceItems = models.PaymentServiceItems{}
 		paymentServiceItems = append(paymentServiceItems, dlh, fsc, ms, cs, dsh, dop, ddp, dpk, dnpk, dupk, ddfsit, ddasit, dofsit, doasit, doshut, ddshut, dcrt, ducrt, dddsit, dopsit)
 
-		serviceMember = factory.BuildExtendedServiceMember(suite.DB(), []factory.Customization{
-			{
-				Model: models.ServiceMember{
-					ID: uuid.FromStringOrNil("d66d2f35-218c-4b85-b9d1-631949b9d984"),
-				},
-			},
-		}, nil)
-
 		// setup known next value
 		icnErr := suite.icnSequencer.SetVal(suite.AppContextForTest(), 122)
 		suite.NoError(icnErr)
@@ -367,7 +373,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	suite.Run("se segment has correct value", func() {
 		setupTestData()
 		// Will need to be updated as more service items are supported
-		suite.Equal(163, result.SE.NumberOfIncludedSegments)
+		suite.Equal(165, result.SE.NumberOfIncludedSegments)
 		suite.Equal("0001", result.SE.TransactionSetControlNumber)
 	})
 
@@ -416,8 +422,9 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 			{TestName: "service member name", Qualifier: "1W", ExpectedValue: serviceMember.ReverseNameLineFormat(), ActualValue: &result.Header.ServiceMemberName},
 			{TestName: "service member rank", Qualifier: "ML", ExpectedValue: string(*serviceMember.Rank), ActualValue: &result.Header.ServiceMemberRank},
 			{TestName: "service member branch", Qualifier: "3L", ExpectedValue: string(*serviceMember.Affiliation), ActualValue: &result.Header.ServiceMemberBranch},
+			{TestName: "service member dod id", Qualifier: "4A", ExpectedValue: string(*serviceMember.Edipi), ActualValue: &result.Header.ServiceMemberDodID},
+			{TestName: "move code", Qualifier: "CMN", ExpectedValue: mto.Locator, ActualValue: &result.Header.MoveCode},
 		}
-
 		for _, data := range testData {
 			suite.Run(fmt.Sprintf("adds %s to header", data.TestName), func() {
 				suite.IsType(&edisegment.N9{}, data.ActualValue)
@@ -801,9 +808,9 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 			})
 
 			suite.Run("adds fa2 service item segment", func() {
-				fa2 := result.ServiceItems[segmentOffset].FA2
-				suite.Equal("TA", fa2.BreakdownStructureDetailCode)
-				suite.Equal(*paymentRequest.MoveTaskOrder.Orders.TAC, fa2.FinancialInformationCode)
+				fa2 := result.ServiceItems[segmentOffset].FA2s
+				suite.Equal("TA", fa2[0].BreakdownStructureDetailCode)
+				suite.Equal(*paymentRequest.MoveTaskOrder.Orders.TAC, fa2[0].FinancialInformationCode)
 			})
 
 			serviceItemPrice := paymentServiceItem.PriceCents.Int64()
@@ -1290,6 +1297,7 @@ func (suite *GHCInvoiceSuite) TestTACs() {
 
 	hhgTAC := "1111"
 	ntsTAC := "2222"
+	hhgSAC := "3333"
 
 	var mtoShipment models.MTOShipment
 	var paymentRequest models.PaymentRequest
@@ -1357,7 +1365,8 @@ func (suite *GHCInvoiceSuite) TestTACs() {
 
 		result, err := generator.Generate(suite.AppContextForTest(), paymentRequest, false)
 		suite.NoError(err)
-		suite.Equal(hhgTAC, result.ServiceItems[0].FA2.FinancialInformationCode)
+		suite.Len(result.ServiceItems[0].FA2s, 1)
+		suite.Equal(hhgTAC, result.ServiceItems[0].FA2s[0].FinancialInformationCode)
 	})
 
 	suite.Run("shipment with HHG TAC type set", func() {
@@ -1368,18 +1377,8 @@ func (suite *GHCInvoiceSuite) TestTACs() {
 
 		result, err := generator.Generate(suite.AppContextForTest(), paymentRequest, false)
 		suite.NoError(err)
-		suite.Equal(hhgTAC, result.ServiceItems[0].FA2.FinancialInformationCode)
-	})
-
-	suite.Run("shipment with HHG TAC type set", func() {
-		setupTestData()
-		tacType := models.LOATypeNTS
-		mtoShipment.TACType = &tacType
-		suite.MustSave(&mtoShipment)
-
-		result, err := generator.Generate(suite.AppContextForTest(), paymentRequest, false)
-		suite.NoError(err)
-		suite.Equal(ntsTAC, result.ServiceItems[0].FA2.FinancialInformationCode)
+		suite.Len(result.ServiceItems[0].FA2s, 1)
+		suite.Equal(hhgTAC, result.ServiceItems[0].FA2s[0].FinancialInformationCode)
 	})
 
 	suite.Run("shipment with NTS TAC type set", func() {
@@ -1390,7 +1389,8 @@ func (suite *GHCInvoiceSuite) TestTACs() {
 
 		result, err := generator.Generate(suite.AppContextForTest(), paymentRequest, false)
 		suite.NoError(err)
-		suite.Equal(ntsTAC, result.ServiceItems[0].FA2.FinancialInformationCode)
+		suite.Len(result.ServiceItems[0].FA2s, 1)
+		suite.Equal(ntsTAC, result.ServiceItems[0].FA2s[0].FinancialInformationCode)
 	})
 
 	suite.Run("shipment with HHG TAC type set, but no HHG TAC", func() {
@@ -1418,6 +1418,79 @@ func (suite *GHCInvoiceSuite) TestTACs() {
 		suite.Error(err)
 		suite.Contains(err.Error(), "Must have an NTS TAC value")
 	})
+
+	suite.Run("shipment with no SAC type set", func() {
+		setupTestData()
+		mtoShipment.SACType = nil
+		suite.MustSave(&mtoShipment)
+		paymentRequest.MoveTaskOrder.Orders.SAC = &hhgSAC
+		suite.MustSave(&paymentRequest.MoveTaskOrder.Orders)
+
+		result, err := generator.Generate(suite.AppContextForTest(), paymentRequest, false)
+		suite.NoError(err)
+		suite.Len(result.ServiceItems[0].FA2s, 2)
+		suite.Equal(hhgTAC, result.ServiceItems[0].FA2s[0].FinancialInformationCode)
+		suite.Equal(hhgSAC, result.ServiceItems[0].FA2s[1].FinancialInformationCode)
+	})
+
+	suite.Run("shipment with HHG SAC/SDN type set", func() {
+		setupTestData()
+		sacType := models.LOATypeHHG
+		mtoShipment.SACType = &sacType
+		suite.MustSave(&mtoShipment)
+		paymentRequest.MoveTaskOrder.Orders.SAC = &hhgSAC
+		suite.MustSave(&paymentRequest.MoveTaskOrder.Orders)
+
+		result, err := generator.Generate(suite.AppContextForTest(), paymentRequest, false)
+		suite.NoError(err)
+		suite.Len(result.ServiceItems[0].FA2s, 2)
+		suite.Equal(hhgTAC, result.ServiceItems[0].FA2s[0].FinancialInformationCode)
+		suite.Equal(hhgSAC, result.ServiceItems[0].FA2s[1].FinancialInformationCode)
+
+	})
+
+	suite.Run("shipment with NTS SAC/SDN type set", func() {
+		setupTestData()
+		tacType := models.LOATypeNTS
+		mtoShipment.TACType = &tacType
+		suite.MustSave(&mtoShipment)
+
+		result, err := generator.Generate(suite.AppContextForTest(), paymentRequest, false)
+		suite.NoError(err)
+		suite.Len(result.ServiceItems[0].FA2s, 1)
+		suite.Equal(ntsTAC, result.ServiceItems[0].FA2s[0].FinancialInformationCode)
+	})
+
+	suite.Run("shipment with NTS TAC set up and TAC, but not SAC/SDN; It will display TAC only", func() {
+		setupTestData()
+		tacType := models.LOATypeNTS
+		mtoShipment.TACType = &tacType
+		suite.MustSave(&mtoShipment)
+		paymentRequest.MoveTaskOrder.Orders.SAC = nil
+		suite.MustSave(&paymentRequest.MoveTaskOrder.Orders)
+
+		result, err := generator.Generate(suite.AppContextForTest(), paymentRequest, false)
+		suite.NoError(err)
+		suite.Len(result.ServiceItems[0].FA2s, 1)
+		suite.Equal(ntsTAC, result.ServiceItems[0].FA2s[0].FinancialInformationCode)
+
+	})
+
+	suite.Run("shipment with HHG TAC set up and TAC, but no SAC/SDN; It will display TAC only", func() {
+		setupTestData()
+		tacType := models.LOATypeHHG
+		mtoShipment.TACType = &tacType
+		suite.MustSave(&mtoShipment)
+		paymentRequest.MoveTaskOrder.Orders.SAC = nil
+		suite.MustSave(&paymentRequest.MoveTaskOrder.Orders)
+
+		result, err := generator.Generate(suite.AppContextForTest(), paymentRequest, false)
+		suite.NoError(err)
+		suite.Len(result.ServiceItems[0].FA2s, 1)
+		suite.Equal(hhgTAC, result.ServiceItems[0].FA2s[0].FinancialInformationCode)
+
+	})
+
 }
 
 func (suite *GHCInvoiceSuite) TestDetermineDutyLocationPhoneLinesFunc() {

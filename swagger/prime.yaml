@@ -74,6 +74,16 @@ tags:
 
       Proof of service documentation may be uploaded for each **mtoServiceItem**
       in a **paymentRequest**.
+  - name: sitAddressUpdate
+    description: >
+      A **sitAddressUpdate** is submitted when the prime or office user wishes
+      to update the final address for an
+
+      approved service item. sitAddressUpdates with a distance less than or
+      equal to 50 miles will be automatically
+
+      approved while a distance greater than 50 miles will typically require
+      office user approval.
 x-tagGroups:
   - name: Endpoints
     tags:
@@ -81,6 +91,7 @@ x-tagGroups:
       - mtoShipment
       - mtoServiceItem
       - paymentRequest
+      - sitAddressUpdate
 paths:
   /moves:
     get:
@@ -991,20 +1002,26 @@ paths:
         **DDFSIT**
 
 
-        **1st day origin SIT service item**. The additional fields are required
-        for creating a DDFSIT:
+        **1st day destination SIT service item**.
+
+
+        These additional fields are optional for creating a DDFSIT:
           * `firstAvailableDeliveryDate1`
             * string <date>
             * First available date that Prime can deliver SIT service item.
-          * `firstAvailableDeliveryDate2`
-            * string <date>
-            * Second available date that Prime can deliver SIT service item.
+            * If provided, `timeMilitary1` is required.
           * `timeMilitary1`
             * string\d{4}Z
             * Time of delivery corresponding to `firstAvailableDeliveryDate1`, in military format.
+            * If provided, `firstAvailableDeliveryDate1` is required.
+          * `firstAvailableDeliveryDate2`
+            * string <date>
+            * Second available date that Prime can deliver SIT service item.
+            * If provided, `timeMilitary2` is required.
           * `timeMilitary2`
             * string\d{4}Z
             * Time of delivery corresponding to `firstAvailableDeliveryDate2`, in military format.
+            * If provided, `firstAvailableDeliveryDate2` is required.
 
         When a DDFSIT is requested, the API will auto-create the following group
         of service items:
@@ -1065,6 +1082,15 @@ paths:
         field below, select the modelType corresponding
          to the service item you wish to update and the documentation will update with the new definition.
 
+        * Addresses: You can add a new SIT Destination final address using this
+        endpoint (and must use this endpoint to do so), but you cannot update an
+        existing one.
+
+        Please use
+        [createSITAddressUpdateRequest](#operation/createSITAddressUpdateRequest)
+        instead.
+
+
         To create a service item, please use
         [createMTOServiceItem](#operation/createMTOServiceItem)) endpoint.
       operationId: updateMTOServiceItem
@@ -1103,6 +1129,55 @@ paths:
           $ref: '#/responses/Conflict'
         '412':
           $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+  /mto-service-items/{mtoServiceItemID}/uploads:
+    post:
+      summary: createServiceRequestDocumentUpload
+      description: |
+        ### Functionality
+
+        This endpoint **uploads** a Service Request document for a
+        ServiceItem.
+
+        The ServiceItem should already exist.
+
+        ServiceItems are created with the
+        [createMTOServiceItem](#operation/createMTOServiceItem)
+        endpoint.
+      operationId: createServiceRequestDocumentUpload
+      tags:
+        - mtoServiceItem
+      consumes:
+        - multipart/form-data
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: mtoServiceItemID
+          type: string
+          description: UUID of the service item to use.
+          required: true
+        - in: formData
+          name: file
+          type: file
+          description: The file to upload.
+          required: true
+      responses:
+        '201':
+          description: Successfully created upload of digital file.
+          schema:
+            $ref: '#/definitions/UploadWithOmissions'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
         '422':
           $ref: '#/responses/UnprocessableEntity'
         '500':
@@ -1221,6 +1296,57 @@ paths:
           $ref: '#/responses/PermissionDenied'
         '404':
           $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+  /sit-address-updates:
+    post:
+      summary: createSITAddressUpdateRequest
+      description: >
+        **Functionality:**
+
+        Creates an update request for a SIT service item's final delivery
+        address.
+
+        A newly created update request is assigned the status 'REQUESTED'  if
+        the change in address
+
+        is > 50 miles and automatically approved otherwise.
+
+
+        **Limitations:**
+
+        The update can be requested for APPROVED SIT service items only.
+
+        Only ONE request is allowed per approved SIT service item.
+      operationId: createSITAddressUpdateRequest
+      tags:
+        - sitAddressUpdate
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          schema:
+            $ref: '#/definitions/CreateSITAddressUpdateRequest'
+      responses:
+        '201':
+          description: Succesfully created a SIT address update request.
+          schema:
+            $ref: '#/definitions/SitAddressUpdate'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
         '422':
           $ref: '#/responses/UnprocessableEntity'
         '500':
@@ -1675,7 +1801,7 @@ definitions:
         items:
           $ref: '#/definitions/MTOServiceItem'
       mtoShipments:
-        $ref: '#/definitions/MTOShipments'
+        $ref: '#/definitions/MTOShipmentsWithoutServiceObjects'
       ppmType:
         type: string
         enum:
@@ -1768,9 +1894,7 @@ definitions:
       - RELEASING_AGENT
       - RECEIVING_AGENT
   MTOServiceItem:
-    description: >-
-      MTOServiceItem describes a base type of a service item. Polymorphic type.
-      Both Move Task Orders and MTO Shipments will have MTO Service Items.
+    description: MTOServiceItem describes a base type of a service item. Polymorphic type.
     type: object
     discriminator: modelType
     properties:
@@ -1877,9 +2001,16 @@ definitions:
             x-nullable: true
           sitDestinationFinalAddress:
             $ref: '#/definitions/Address'
+          reason:
+            type: string
+            description: |
+              The reason item has been placed in SIT.
+            x-nullable: true
+            x-omitempty: false
         required:
           - reServiceCode
           - sitEntryDate
+          - reason
   MTOServiceItemDimension:
     description: >-
       The dimensions for either the item or the crate associated with a crating
@@ -2006,6 +2137,8 @@ definitions:
               the UpdateMTOServiceItemSIT modelType at a later date.
           sitHHGActualOrigin:
             $ref: '#/definitions/Address'
+          sitHHGOriginalOrigin:
+            $ref: '#/definitions/Address'
         required:
           - reServiceCode
           - reason
@@ -2062,7 +2195,8 @@ definitions:
       - SUBMITTED
       - APPROVED
       - REJECTED
-  MTOShipment:
+  MTOShipmentWithoutServiceItems:
+    type: object
     properties:
       id:
         description: The ID of the shipment.
@@ -2225,12 +2359,6 @@ definitions:
         $ref: '#/definitions/SITExtensions'
       reweigh:
         $ref: '#/definitions/Reweigh'
-      mtoServiceItems:
-        description: A list of service items connected to this shipment.
-        items:
-          $ref: '#/definitions/MTOServiceItem'
-        type: array
-        readOnly: true
       pickupAddress:
         description: >
           The address where the movers should pick up this shipment, entered by
@@ -2291,12 +2419,6 @@ definitions:
           - CANCELLATION_REQUESTED
           - CANCELED
           - DIVERSION_REQUESTED
-      rejectionReason:
-        description: The reason why this shipment was rejected by the TOO.
-        type: string
-        readOnly: true
-        example: MTO Shipment not good enough
-        x-nullable: true
       ppmShipment:
         $ref: '#/definitions/PPMShipment'
       eTag:
@@ -2319,10 +2441,21 @@ definitions:
           Email or ID of the person who will be contacted in the event of
           questions or concerns about this update. May be the person performing
           the update, or someone else working with the Prime contractor.
-  MTOShipments:
-    description: A list of shipments.
+  MTOShipment:
+    type: object
+    properties:
+      mtoServiceItems:
+        description: A list of service items connected to this shipment.
+        items:
+          $ref: '#/definitions/MTOServiceItem'
+        type: array
+        readOnly: true
+    allOf:
+      - $ref: '#/definitions/MTOShipmentWithoutServiceItems'
+  MTOShipmentsWithoutServiceObjects:
+    description: A list of shipments without their associated service items.
     items:
-      $ref: '#/definitions/MTOShipment'
+      $ref: '#/definitions/MTOShipmentWithoutServiceItems'
     type: array
   MTOShipmentType:
     title: Shipment Type
@@ -2773,6 +2906,10 @@ definitions:
       - sitExpected
       - eTag
   ProofOfServiceDocs:
+    items:
+      $ref: '#/definitions/ProofOfServiceDoc'
+    type: array
+  ProofOfServiceDoc:
     properties:
       uploads:
         items:
@@ -2833,6 +2970,23 @@ definitions:
       - PRIME
       - SYSTEM
       - TOO
+  CreateSITAddressUpdateRequest:
+    description: >-
+      CreateSITAddressUpdateRequest contains the fields required for the prime
+      to create a SIT address update request.
+    type: object
+    properties:
+      newAddress:
+        $ref: '#/definitions/Address'
+      contractorRemarks:
+        type: string
+        example: >-
+          Customer reached out to me this week & let me know they want to move
+          closer to family.
+      mtoServiceItemID:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
   ServiceItem:
     properties:
       id:
@@ -2865,6 +3019,61 @@ definitions:
         type: string
         readOnly: true
     type: object
+  SitAddressUpdate:
+    properties:
+      id:
+        example: ddd7bb48-4730-47c4-9781-6500384f4941
+        format: uuid
+        readOnly: true
+        type: string
+      mtoServiceItemId:
+        example: 12d9e103-5a56-4636-906d-6e993b97ef51
+        format: uuid
+        readOnly: true
+        type: string
+      newAddressId:
+        example: 31a2ad3c-1682-4d5b-8423-ff40053a056b
+        format: uuid
+        readOnly: true
+        type: string
+      newAddress:
+        $ref: '#/definitions/Address'
+      status:
+        $ref: '#/definitions/SitAddressUpdateStatus'
+      distance:
+        example: 25
+        type: integer
+        readOnly: true
+        maximum: 50
+      contractorRemarks:
+        type: string
+        example: >-
+          Customer reached out to me this week & let me know they want to move
+          closer to family.
+        x-nullable: true
+        x-omitempty: false
+      createdAt:
+        format: date-time
+        type: string
+        readOnly: true
+      updatedAt:
+        format: date-time
+        type: string
+        readOnly: true
+      eTag:
+        description: >-
+          A hash unique to this shipment that should be used as the "If-Match"
+          header for any updates.
+        type: string
+        readOnly: true
+  SitAddressUpdateStatus:
+    description: >-
+      The status of a SIT address update, indicating where it is in the TOO's
+      approval process.
+    enum:
+      - REQUESTED
+      - APPROVED
+      - REJECTED
   UpdateMTOServiceItem:
     description: >-
       UpdateMTOServiceItem describes a base type of a service item. Polymorphic
@@ -3407,10 +3616,12 @@ definitions:
     title: Orders type
     enum:
       - PERMANENT_CHANGE_OF_STATION
+      - LOCAL_MOVE
       - RETIREMENT
       - SEPARATION
     x-display-value:
       PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
+      LOCAL_MOVE: Local Move
       RETIREMENT: Retirement
       SEPARATION: Separation
   UploadWithOmissions:

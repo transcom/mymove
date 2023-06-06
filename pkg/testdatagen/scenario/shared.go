@@ -56,6 +56,8 @@ var Dec31TestYear = time.Date(testdatagen.TestYear, time.December, 31, 0, 0, 0, 
 // May14FollowingYear is May 14 of the year AFTER TestYear
 var May14FollowingYear = time.Date(testdatagen.TestYear+1, time.May, 14, 0, 0, 0, 0, time.UTC)
 
+var May14GHCTestYear = time.Date(testdatagen.GHCTestYear, time.May, 14, 0, 0, 0, 0, time.UTC)
+
 var estimatedWeight = unit.Pound(1400)
 var actualWeight = unit.Pound(2000)
 var tioRemarks = "New billable weight set"
@@ -3941,12 +3943,6 @@ func createDefaultHHGMoveWithPaymentRequest(appCtx appcontext.AppContext, userUp
 		models.Move{}, models.MTOShipment{})
 }
 
-func matchedByPostalCode(postalCode string) func(addr *models.Address) bool {
-	return func(addr *models.Address) bool {
-		return addr.PostalCode == postalCode
-	}
-}
-
 // Creates an HHG Shipment with SIT at Origin and a payment request for first day and additional day SIT service items.
 // This is to compare to calculating the cost for SIT with a PPM which excludes delivery/pickup costs because the
 // address is not changing. 30 days of additional days in SIT are invoiced.
@@ -4032,10 +4028,16 @@ func createHHGWithOriginSITServiceItems(appCtx appcontext.AppContext, primeUploa
 		logger.Fatal("Error approving move")
 	}
 
-	planner := &routemocks.Planner{}
+	// AvailableToPrimeAt is set to the current time when a move is approved, we need to update it to fall within the
+	// same contract as the rest of the timestamps on our move for pricing to work.
+	err = appCtx.DB().Find(&move, move.ID)
+	if err != nil {
+		logger.Fatal(fmt.Sprintf("Failed to fetch move: %s", err))
+	}
+	move.AvailableToPrimeAt = &May14GHCTestYear
+	testdatagen.MustSave(appCtx.DB(), &move)
 
-	// called using the addresses with origin zip of 90210 and destination zip of 30813
-	planner.On("TransitDistance", mock.AnythingOfType("*appcontext.appContext"), mock.MatchedBy(matchedByPostalCode("90210")), mock.MatchedBy(matchedByPostalCode("30813"))).Return(2361, nil)
+	planner := &routemocks.Planner{}
 
 	// called for zip 3 domestic linehaul service item
 	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
@@ -4272,14 +4274,20 @@ func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, prime
 	mtoUpdater := movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, serviceItemCreator, moveRouter)
 	_, approveErr := mtoUpdater.MakeAvailableToPrime(appCtx, move.ID, etag.GenerateEtag(move.UpdatedAt), true, true)
 
+	// AvailableToPrimeAt is set to the current time when a move is approved, we need to update it to fall within the
+	// same contract as the rest of the timestamps on our move for pricing to work.
+	err = appCtx.DB().Find(&move, move.ID)
+	if err != nil {
+		logger.Fatal(fmt.Sprintf("Failed to fetch move: %s", err))
+	}
+	move.AvailableToPrimeAt = &May14GHCTestYear
+	testdatagen.MustSave(appCtx.DB(), &move)
+
 	if approveErr != nil {
 		logger.Fatal("Error approving move")
 	}
 
 	planner := &routemocks.Planner{}
-
-	// called using the addresses with origin zip of 90210 and destination zip of 30813
-	planner.On("TransitDistance", mock.AnythingOfType("*appcontext.appContext"), mock.MatchedBy(matchedByPostalCode("90210")), mock.MatchedBy(matchedByPostalCode("30813"))).Return(2361, nil)
 
 	// called for zip 3 domestic linehaul service item
 	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
@@ -4655,6 +4663,15 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 	mtoUpdater := movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, serviceItemCreator, moveRouter)
 	_, approveErr := mtoUpdater.MakeAvailableToPrime(appCtx, move.ID, etag.GenerateEtag(move.UpdatedAt), true, true)
 
+	// AvailableToPrimeAt is set to the current time when a move is approved, we need to update it to fall within the
+	// same contract as the rest of the timestamps on our move for pricing to work.
+	err = appCtx.DB().Find(&move, move.ID)
+	if err != nil {
+		logger.Fatal(fmt.Sprintf("Failed to fetch move: %s", err))
+	}
+	move.AvailableToPrimeAt = &May14GHCTestYear
+	testdatagen.MustSave(appCtx.DB(), &move)
+
 	if approveErr != nil {
 		logger.Fatal("Error approving move")
 	}
@@ -4662,10 +4679,10 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 	planner := &routemocks.Planner{}
 
 	// called using the addresses with origin zip of 90210 and destination zip of 94535
-	planner.On("TransitDistance", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(348, nil).Times(2)
+	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(348, nil).Times(2)
 
 	// called using the addresses with origin zip of 90210 and destination zip of 90211
-	planner.On("TransitDistance", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(3, nil).Times(5)
+	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(3, nil).Times(5)
 
 	// called for zip 3 domestic linehaul service item
 	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
@@ -4819,8 +4836,6 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 
 	destDepartureDate := destEntryDate.Add(15 * 24 * time.Hour)
 	serviceItemDDDSIT.SITDepartureDate = &destDepartureDate
-	serviceItemDDDSIT.SITDestinationFinalAddress = &destSITAddress
-	serviceItemDDDSIT.SITDestinationFinalAddressID = &destSITAddress.ID
 
 	updatedDDDSIT, updateDestErr := serviceItemUpdator.UpdateMTOServiceItemPrime(appCtx, &serviceItemDDDSIT, etag.GenerateEtag(serviceItemDDDSIT.UpdatedAt))
 
@@ -5669,10 +5684,29 @@ func createHHGMoveWith10ServiceItems(appCtx appcontext.AppContext, userUploader 
 		},
 	}, nil)
 
+	firstDeliveryDate := models.TimePointer(time.Now())
+	customerContact1 := testdatagen.MakeMTOServiceItemCustomerContact(db, testdatagen.Assertions{
+		MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
+			ID:                         uuid.FromStringOrNil("f0f38ee0-0148-4892-9b5b-a091a8c5a645"),
+			Type:                       models.CustomerContactTypeFirst,
+			TimeMilitary:               "0400Z",
+			FirstAvailableDeliveryDate: *firstDeliveryDate,
+		},
+	})
+
+	customerContact2 := testdatagen.MakeMTOServiceItemCustomerContact(db, testdatagen.Assertions{
+		MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
+			ID:                         uuid.FromStringOrNil("1398aea3-d09b-485d-81c7-3bb72c21fb38"),
+			Type:                       models.CustomerContactTypeSecond,
+			TimeMilitary:               "1200Z",
+			FirstAvailableDeliveryDate: firstDeliveryDate.Add(time.Hour * 24),
+		},
+	})
 	serviceItemDDFSIT := factory.BuildMTOServiceItem(db, []factory.Customization{
 		{
 			Model: models.MTOServiceItem{
-				ID: uuid.FromStringOrNil("b2c770ab-db6f-465c-87f1-164ecd2f36a4"),
+				ID:               uuid.FromStringOrNil("b2c770ab-db6f-465c-87f1-164ecd2f36a4"),
+				CustomerContacts: models.MTOServiceItemCustomerContacts{customerContact1, customerContact2},
 			},
 		},
 		{
@@ -5689,29 +5723,6 @@ func createHHGMoveWith10ServiceItems(appCtx appcontext.AppContext, userUploader 
 			},
 		},
 	}, nil)
-
-	firstDeliveryDate := models.TimePointer(time.Now())
-	testdatagen.MakeMTOServiceItemCustomerContact(db, testdatagen.Assertions{
-		MTOServiceItem: serviceItemDDFSIT,
-		MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
-			ID:                         uuid.FromStringOrNil("f0f38ee0-0148-4892-9b5b-a091a8c5a645"),
-			MTOServiceItemID:           serviceItemDDFSIT.ID,
-			Type:                       models.CustomerContactTypeFirst,
-			TimeMilitary:               "0400Z",
-			FirstAvailableDeliveryDate: *firstDeliveryDate,
-		},
-	})
-
-	testdatagen.MakeMTOServiceItemCustomerContact(db, testdatagen.Assertions{
-		MTOServiceItem: serviceItemDDFSIT,
-		MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
-			ID:                         uuid.FromStringOrNil("1398aea3-d09b-485d-81c7-3bb72c21fb38"),
-			MTOServiceItemID:           serviceItemDDFSIT.ID,
-			Type:                       models.CustomerContactTypeSecond,
-			TimeMilitary:               "1200Z",
-			FirstAvailableDeliveryDate: firstDeliveryDate.Add(time.Hour * 24),
-		},
-	})
 
 	ddfsitCost := unit.Cents(8544)
 	factory.BuildPaymentServiceItem(db, []factory.Customization{
@@ -6610,11 +6621,30 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 		},
 	}, nil)
 
+	customerContact1 := testdatagen.MakeMTOServiceItemCustomerContact(db, testdatagen.Assertions{
+		MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
+			ID:                         uuid.Must(uuid.NewV4()),
+			Type:                       models.CustomerContactTypeFirst,
+			TimeMilitary:               "0400Z",
+			FirstAvailableDeliveryDate: time.Now(),
+		},
+	})
+
+	customerContact2 := testdatagen.MakeMTOServiceItemCustomerContact(db, testdatagen.Assertions{
+		MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
+			ID:                         uuid.Must(uuid.NewV4()),
+			Type:                       models.CustomerContactTypeSecond,
+			TimeMilitary:               "1200Z",
+			FirstAvailableDeliveryDate: time.Now().Add(time.Hour * 24),
+		},
+	})
+
 	serviceItemDDFSIT := factory.BuildMTOServiceItem(db, []factory.Customization{
 		{
 			Model: models.MTOServiceItem{
-				ID:     uuid.Must(uuid.NewV4()),
-				Status: models.MTOServiceItemStatusApproved,
+				ID:               uuid.Must(uuid.NewV4()),
+				Status:           models.MTOServiceItemStatusApproved,
+				CustomerContacts: models.MTOServiceItemCustomerContacts{customerContact1, customerContact2},
 			},
 		},
 		{
@@ -6631,28 +6661,6 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 			},
 		},
 	}, nil)
-
-	testdatagen.MakeMTOServiceItemCustomerContact(db, testdatagen.Assertions{
-		MTOServiceItem: serviceItemDDFSIT,
-		MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
-			ID:                         uuid.Must(uuid.NewV4()),
-			MTOServiceItemID:           serviceItemDDFSIT.ID,
-			Type:                       models.CustomerContactTypeFirst,
-			TimeMilitary:               "0400Z",
-			FirstAvailableDeliveryDate: time.Now(),
-		},
-	})
-
-	testdatagen.MakeMTOServiceItemCustomerContact(db, testdatagen.Assertions{
-		MTOServiceItem: serviceItemDDFSIT,
-		MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
-			ID:                         uuid.Must(uuid.NewV4()),
-			MTOServiceItemID:           serviceItemDDFSIT.ID,
-			Type:                       models.CustomerContactTypeSecond,
-			TimeMilitary:               "1200Z",
-			FirstAvailableDeliveryDate: time.Now().Add(time.Hour * 24),
-		},
-	})
 
 	ddfsitCost := unit.Cents(8544)
 	factory.BuildPaymentServiceItem(db, []factory.Customization{
@@ -7685,11 +7693,29 @@ func createMoveWith2ShipmentsAndPaymentRequest(appCtx appcontext.AppContext, use
 		},
 	}, nil)
 
-	serviceItemDDFSIT := factory.BuildMTOServiceItem(db, []factory.Customization{
+	customerContact1 := testdatagen.MakeMTOServiceItemCustomerContact(db, testdatagen.Assertions{
+		MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
+			ID:                         uuid.Must(uuid.NewV4()),
+			Type:                       models.CustomerContactTypeFirst,
+			TimeMilitary:               "0400Z",
+			FirstAvailableDeliveryDate: time.Now(),
+		},
+	})
+
+	customerContact2 := testdatagen.MakeMTOServiceItemCustomerContact(db, testdatagen.Assertions{
+		MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
+			Type:                       models.CustomerContactTypeSecond,
+			TimeMilitary:               "1200Z",
+			FirstAvailableDeliveryDate: time.Now().Add(time.Hour * 24),
+		},
+	})
+
+	factory.BuildMTOServiceItem(db, []factory.Customization{
 		{
 			Model: models.MTOServiceItem{
-				ID:     uuid.Must(uuid.NewV4()),
-				Status: models.MTOServiceItemStatusSubmitted,
+				ID:               uuid.Must(uuid.NewV4()),
+				Status:           models.MTOServiceItemStatusSubmitted,
+				CustomerContacts: models.MTOServiceItemCustomerContacts{customerContact1, customerContact2},
 			},
 		},
 		{
@@ -7706,28 +7732,6 @@ func createMoveWith2ShipmentsAndPaymentRequest(appCtx appcontext.AppContext, use
 			},
 		},
 	}, nil)
-
-	testdatagen.MakeMTOServiceItemCustomerContact(db, testdatagen.Assertions{
-		MTOServiceItem: serviceItemDDFSIT,
-		MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
-			ID:                         uuid.Must(uuid.NewV4()),
-			MTOServiceItemID:           serviceItemDDFSIT.ID,
-			Type:                       models.CustomerContactTypeFirst,
-			TimeMilitary:               "0400Z",
-			FirstAvailableDeliveryDate: time.Now(),
-		},
-	})
-
-	testdatagen.MakeMTOServiceItemCustomerContact(db, testdatagen.Assertions{
-		MTOServiceItem: serviceItemDDFSIT,
-		MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
-			ID:                         uuid.Must(uuid.NewV4()),
-			MTOServiceItemID:           serviceItemDDFSIT.ID,
-			Type:                       models.CustomerContactTypeSecond,
-			TimeMilitary:               "1200Z",
-			FirstAvailableDeliveryDate: time.Now().Add(time.Hour * 24),
-		},
-	})
 
 	serviceItemDCRT := testdatagen.MakeMTOServiceItemDomesticCrating(db, testdatagen.Assertions{
 		MTOServiceItem: models.MTOServiceItem{
@@ -10753,6 +10757,14 @@ func createMoveWithOriginAndDestinationSIT(appCtx appcontext.AppContext, userUpl
 			},
 		},
 		{
+			Model: models.Address{},
+			Type:  &factory.Addresses.SITDestinationOriginalAddress,
+		},
+		{
+			Model: models.Address{},
+			Type:  &factory.Addresses.SITDestinationFinalAddress,
+		},
+		{
 			Model: models.ReService{
 				Code: models.ReServiceCodeDDDSIT,
 			},
@@ -10766,7 +10778,6 @@ func createMoveWithOriginAndDestinationSIT(appCtx appcontext.AppContext, userUpl
 			LinkOnly: true,
 		},
 	}, nil)
-
 	testdatagen.MakeMTOServiceItemCustomerContact(db, testdatagen.Assertions{
 		MTOServiceItem: dddsit,
 	})

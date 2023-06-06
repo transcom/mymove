@@ -58,7 +58,6 @@ func (r *ReIntlAccessorialPrice) Validate(tx *pop.Connection) (*validate.Errors,
 		&validators.UUIDIsPresent{Field: r.ServiceID, Name: "ServiceID"},
 		&validators.StringIsPresent{Field: r.Market.String(), Name: "Market"},
 		&validators.StringInclusion{Field: r.Market.String(), Name: "Market", List: validMarkets},
-		&validators.IntIsPresent{Field: r.PerUnitCents.Int(), Name: "PerUnitCents"},
-		&validators.IntIsGreaterThan{Field: r.PerUnitCents.Int(), Name: "PerUnitCents", Compared: 0},
+		&validators.IntIsGreaterThan{Field: r.PerUnitCents.Int(), Name: "PerUnitCents", Compared: -1},
 	), nil
 }

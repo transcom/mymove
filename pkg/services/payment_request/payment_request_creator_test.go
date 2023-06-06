@@ -827,7 +827,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 	}
 
 	suite.Run("Given a non-existent service item id, the create should fail", func() {
-		badID, _ := uuid.FromString("0aee14dd-b5ea-441a-89ad-db4439fa4ea2")
+		badID := uuid.Nil
 		invalidPaymentRequest := models.PaymentRequest{
 			MoveTaskOrderID: moveTaskOrder.ID,
 			IsFinal:         false,
@@ -840,7 +840,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		_, err := creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &invalidPaymentRequest)
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
-		suite.Equal(fmt.Sprintf("ID: %s not found for MTO Service Item", badID), err.Error())
+		suite.Contains(err.Error(), "Not found for MTO Service Item")
 	})
 
 	suite.Run("Given a submitted (not approved) service item, the create should fail", func() {

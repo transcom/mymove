@@ -5,7 +5,6 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
-	"io"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -30,7 +29,6 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
-	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -292,29 +290,31 @@ func initializeLogger(v *viper.Viper) (*zap.Logger, func()) {
 	logger = logger.With(fields...)
 
 	if v.GetBool(cli.LogTaskMetadataFlag) {
-		resp, httpGetErr := http.Get("http://169.254.170.2/v2/metadata")
-		if httpGetErr != nil {
-			logger.Error(errors.Wrap(httpGetErr, "could not fetch task metadata").Error())
-		} else {
-			body, readAllErr := io.ReadAll(resp.Body)
-			if readAllErr != nil {
-				logger.Error(errors.Wrap(readAllErr, "could not read task metadata").Error())
+		// according to
+		// https://docs.aws.amazon.com/AmazonECS/latest/userguide/task-metadata-endpoint-v4-fargate.html
+		//
+		//     Beginning with Fargate platform version 1.4.0, an
+		//     environment variable named
+		//     ECS_CONTAINER_METADATA_URI_V4 is injected into each
+		//     container in a task
+		metadataURL := os.Getenv("ECS_CONTAINER_METADATA_URI_V4")
+		if metadataURL != "" {
+			var ecsTaskMetadataV4 ecs.TaskMetadataV4
+			r, gerr := http.Get(metadataURL + "/task")
+			if gerr != nil {
+				logger.Error("Cannot fetch v4 task metadata", zap.Error(gerr))
 			} else {
-				taskMetadata := &ecs.TaskMetadata{}
-				unmarshallErr := json.Unmarshal(body, taskMetadata)
-				if unmarshallErr != nil {
-					logger.Error(errors.Wrap(unmarshallErr, "could not parse task metadata").Error())
+				derr := json.NewDecoder(r.Body).Decode(&ecsTaskMetadataV4)
+				if derr != nil {
+					logger.Error("Cannot decode v4 task metadata", zap.Error(derr))
 				} else {
+					logger.Info("V4 Task", zap.Any("metadata", ecsTaskMetadataV4))
 					logger = logger.With(
-						zap.String("ecs_cluster", taskMetadata.Cluster),
-						zap.String("ecs_task_def_family", taskMetadata.Family),
-						zap.String("ecs_task_def_revision", taskMetadata.Revision),
+						zap.String("ecs_cluster", ecsTaskMetadataV4.Cluster),
+						zap.String("ecs_task_def_family", ecsTaskMetadataV4.Family),
+						zap.String("ecs_task_def_revision", ecsTaskMetadataV4.Revision),
 					)
 				}
-			}
-			err = resp.Body.Close()
-			if err != nil {
-				logger.Error(errors.Wrap(err, "could not close task metadata response").Error())
 			}
 		}
 	}
@@ -504,10 +504,6 @@ func buildRoutingConfig(appCtx appcontext.AppContext, v *viper.Viper, redisPool 
 	// Storage
 	fileStorer := storage.InitStorage(v, awsSession, appCtx.Logger())
 
-	// Get route planner for handlers to calculate transit distances
-	// routePlanner := route.NewBingPlanner(logger, bingMapsEndpoint, bingMapsKey)
-	routePlanner := route.InitRoutePlanner(v)
-
 	// Create a secondary planner specifically for HHG.
 	hhgRoutePlanner, err := route.InitHHGRoutePlanner(appCtx, v, tlsConfig)
 	if err != nil {
@@ -582,7 +578,6 @@ func buildRoutingConfig(appCtx appcontext.AppContext, v *viper.Viper, redisPool 
 		appCtx.DB(),
 		appCtx.Logger(),
 		clientAuthSecretKey,
-		routePlanner,
 		hhgRoutePlanner,
 		dtodRoutePlanner,
 		fileStorer,
@@ -720,14 +715,16 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	// disable otelhttp for now, as it causes a server memory leak
+	// ahobson - 2023-05-17
 	// set up telemetry options for the server
-	otelHTTPOptions := []otelhttp.Option{}
-	if telemetryConfig.ReadEvents {
-		otelHTTPOptions = append(otelHTTPOptions, otelhttp.WithMessageEvents(otelhttp.ReadEvents))
-	}
-	if telemetryConfig.WriteEvents {
-		otelHTTPOptions = append(otelHTTPOptions, otelhttp.WithMessageEvents(otelhttp.WriteEvents))
-	}
+	// otelHTTPOptions := []otelhttp.Option{}
+	// if telemetryConfig.ReadEvents {
+	// 	otelHTTPOptions = append(otelHTTPOptions, otelhttp.WithMessageEvents(otelhttp.ReadEvents))
+	// }
+	// if telemetryConfig.WriteEvents {
+	// 	otelHTTPOptions = append(otelHTTPOptions, otelhttp.WithMessageEvents(otelhttp.WriteEvents))
+	// }
 	listenInterface := v.GetString(cli.InterfaceFlag)
 
 	// start each server:
@@ -757,11 +754,15 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 			return herr
 		}
 		healthServer, err = server.CreateNamedServer(&server.CreateNamedServerInput{
-			Name:        "health",
-			Host:        "127.0.0.1", // health server is always localhost only
-			Port:        v.GetInt(cli.HealthPortFlag),
-			Logger:      logger,
-			HTTPHandler: otelhttp.NewHandler(healthSite, "health", otelHTTPOptions...),
+			Name:   "health",
+			Host:   "127.0.0.1", // health server is always localhost only
+			Port:   v.GetInt(cli.HealthPortFlag),
+			Logger: logger,
+			// disable otelhttp for now, as it causes a server memory leak
+			// ahobson - 2023-05-17
+			// HTTPHandler: otelhttp.NewHandler(healthSite, "health",
+			// otelHTTPOptions...),
+			HTTPHandler: healthSite,
 		})
 		if err != nil {
 			logger.Fatal("error creating health server", zap.Error(err))
@@ -773,11 +774,15 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	var noTLSServer *server.NamedServer
 	if noTLSEnabled {
 		noTLSServer, err = server.CreateNamedServer(&server.CreateNamedServerInput{
-			Name:        "no-tls",
-			Host:        listenInterface,
-			Port:        v.GetInt(cli.NoTLSPortFlag),
-			Logger:      logger,
-			HTTPHandler: otelhttp.NewHandler(site, "server-no-tls", otelHTTPOptions...),
+			Name:   "no-tls",
+			Host:   listenInterface,
+			Port:   v.GetInt(cli.NoTLSPortFlag),
+			Logger: logger,
+			// disable otelhttp for now, as it causes a server memory leak
+			// ahobson - 2023-05-17
+			// HTTPHandler: otelhttp.NewHandler(site, "server-no-tls",
+			// otelHTTPOptions...),
+			HTTPHandler: site,
 		})
 		if err != nil {
 			logger.Fatal("error creating no-tls server", zap.Error(err))
@@ -789,11 +794,15 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	var tlsServer *server.NamedServer
 	if tlsEnabled {
 		tlsServer, err = server.CreateNamedServer(&server.CreateNamedServerInput{
-			Name:         "tls",
-			Host:         listenInterface,
-			Port:         v.GetInt(cli.TLSPortFlag),
-			Logger:       logger,
-			HTTPHandler:  otelhttp.NewHandler(site, "server-tls", otelHTTPOptions...),
+			Name:   "tls",
+			Host:   listenInterface,
+			Port:   v.GetInt(cli.TLSPortFlag),
+			Logger: logger,
+			// disable otelhttp for now, as it causes a server memory leak
+			// ahobson - 2023-05-17
+			// HTTPHandler:  otelhttp.NewHandler(site, "server-tls",
+			// otelHTTPOptions...),
+			HTTPHandler:  site,
 			ClientAuth:   tls.NoClientCert,
 			Certificates: tlsConfig.Certificates,
 		})
@@ -807,11 +816,15 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	var mutualTLSServer *server.NamedServer
 	if mutualTLSEnabled {
 		mutualTLSServer, err = server.CreateNamedServer(&server.CreateNamedServerInput{
-			Name:         "mutual-tls",
-			Host:         listenInterface,
-			Port:         v.GetInt(cli.MutualTLSPortFlag),
-			Logger:       logger,
-			HTTPHandler:  otelhttp.NewHandler(site, "server-mtls", otelHTTPOptions...),
+			Name:   "mutual-tls",
+			Host:   listenInterface,
+			Port:   v.GetInt(cli.MutualTLSPortFlag),
+			Logger: logger,
+			// disable otelhttp for now, as it causes a server memory leak
+			// ahobson - 2023-05-17
+			// HTTPHandler:  otelhttp.NewHandler(site, "server-mtls",
+			// otelHTTPOptions...),
+			HTTPHandler:  site,
 			ClientAuth:   tls.RequireAndVerifyClientCert,
 			Certificates: tlsConfig.Certificates,
 			ClientCAs:    tlsConfig.RootCAs,

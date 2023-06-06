@@ -1,3 +1,5 @@
+# yaml-language-server: $schema=https://json.schemastore.org/circleciconfig.json
+
 ############
 #
 # Caches
@@ -9,25 +11,25 @@
 #
 ############
 
-version: '2.1'
+version: 2.1
 
 # References for variables shared across the file
 references:
   circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-59d1b5d814b190c7c5a8c460ca97ed193d518350
-
-  # the cypress image to use
-  cypress: &cypress milmove/circleci-docker:milmove-cypress-bc1b345eabd5f3607948f78455aa8257183345c5
 
   # the playwright image to use
   playwright: &playwright cimg/node:18.13.0-browsers
 
   # the image to use for running load tests
   # see milmove_load_testing for the right config
-  load_tester: &load_tester cimg/python:3.10.11
+  load_tester: &load_tester cimg/python:3.11.3
 
   postgres: &postgres cimg/postgres:12.11
 
   redis: &redis redis:5.0.6
+
+  # base image that spins up quickly
+  cimg_base: &cimg_base cimg/base:2022.12-22.04
 
   # To deploy to loadtest, demo or exp:
   # set dp3-branch to the branch you want to deploy to the env specifed
@@ -63,6 +65,13 @@ references:
   server-ignore-branch: &server-ignore-branch placeholder_branch_name
 
 executors:
+  base_small:
+    resource_class: small
+    docker:
+      - image: *cimg_base
+        auth:
+          username: $DOCKERHUB_USERNAME
+          password: $DOCKERHUB_PASSWORD
   tls_small:
     resource_class: small
     working_directory: ~/transcom/mymove
@@ -149,7 +158,7 @@ executors:
           GOPATH: /home/circleci/go
 
   mymove_tester:
-    resource_class: large
+    resource_class: xlarge
     working_directory: ~/transcom/mymove
     docker:
       - image: *circleci-docker
@@ -345,7 +354,7 @@ commands:
             source $BASH_ENV
 
   announce_failure:
-    parameters:
+    # parameters:
     steps:
       - run:
           name: Announce failure
@@ -613,7 +622,8 @@ commands:
           command: scripts/ecr-describe-image-scan-findings << parameters.repo >> ${CIRCLE_SHA1}
       - persist_to_workspace:
           root: .
-          paths: images/sha/ECR_DIGEST_<< parameters.repo >>_<< parameters.ecr_env >>
+          paths:
+            - images/sha/ECR_DIGEST_<< parameters.repo >>_<< parameters.ecr_env >>
 
   server_tests_step:
     parameters:
@@ -627,7 +637,8 @@ commands:
             make server_test
           environment:
             APPLICATION: '<< parameters.application >>'
-            GOFLAGS: '-p=4'
+            # 8 since this runs on xlarge with 8 CPUs
+            GOTEST_PARALLEL: 8
             DB_PASSWORD: mysecretpassword
             DB_USER_LOW_PRIV: crud
             DB_PASSWORD_LOW_PRIV: mysecretpassword
@@ -637,7 +648,7 @@ commands:
             DB_PORT: 5432
             DB_NAME: test_db
             DB_NAME_TEST: test_db
-            DTOD_USE_MOCK: true
+            DTOD_USE_MOCK: 'true'
             MIGRATION_MANIFEST: '/home/circleci/transcom/mymove/migrations/<< parameters.application >>/migrations_manifest.txt'
             MIGRATION_PATH: 'file:///home/circleci/transcom/mymove/migrations/<< parameters.application >>/schema;file:///home/circleci/transcom/mymove/migrations/<< parameters.application >>/secure'
             EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
@@ -645,7 +656,7 @@ commands:
             ENVIRONMENT: test
             SERVER_REPORT: 1
             COVERAGE: 1
-            SERVE_API_INTERNAL: true
+            SERVE_API_INTERNAL: 'true'
 
   # run playwright tests without using setup_remote_docker
   # the remote docker resources are not configurable and thus are
@@ -942,7 +953,7 @@ commands:
       - save_cache:
           key: v2-pipenv-{{ checksum "Pipfile.lock" }}-{{ .Environment.PYTHON_VERSION }}
           paths:
-            - "~/transcom/mymove/tmp/milmove_load_testing/.venv"
+            - '~/transcom/mymove/tmp/milmove_load_testing/.venv'
       - run:
           name: extract results
           # always try to extract the artifacts so it can help us
@@ -953,6 +964,11 @@ commands:
             mv tmp/milmove_load_testing/local_load_tests* reports
 
 jobs:
+  base_noop:
+    executor: base_small
+    steps:
+      - run: echo "noop"
+
   # `pre_deps_golang` is used for caching Go module sources
   pre_deps_golang:
     executor: mymove_compiler
@@ -1110,8 +1126,9 @@ jobs:
       # The output of golangci-lint is an artifact towards STIG compliance
       - run:
           name: Run pre-commit tests with golangci-lint only
+          # CONCURRENCY=4 as this runs on a large instance with 4 CPUs
           command: |
-            echo 'export GOLANGCI_LINT_CONCURRENCY=1' >> $BASH_ENV
+            echo 'export GOLANGCI_LINT_CONCURRENCY=4' >> $BASH_ENV
             echo 'export GOLANGCI_LINT_VERBOSE=-v' >> $BASH_ENV
             source $BASH_ENV
             mkdir -p tmp/test-results/pretest
@@ -1149,10 +1166,10 @@ jobs:
             #
             # Use the BuildNum to update the cache key so that the
             # coverage cache is always updated
-            save_cache:
-              key: v1-spectral-lint-{{ .BuildNum }}
-              paths:
-                - ~/transcom/mymove/spectral
+            - save_cache:
+                key: v1-spectral-lint-{{ .BuildNum }}
+                paths:
+                  - ~/transcom/mymove/spectral
       - store_artifacts:
           path: ~/transcom/mymove/spectral
       - announce_failure
@@ -1169,7 +1186,7 @@ jobs:
 
   integration_tests_office:
     executor: milmove_playwright_tester
-    parallelism: 6
+    parallelism: 10
     steps:
       - e2e_tests_playwright:
           path: playwright/tests/office
@@ -1178,7 +1195,7 @@ jobs:
   # reads integration tests in mymove dir, should eventually be removed when tests are in milmove dir
   integration_tests_my:
     executor: milmove_playwright_tester
-    parallelism: 6
+    parallelism: 10
     steps:
       - e2e_tests_playwright:
           path: playwright/tests/my
@@ -1222,7 +1239,7 @@ jobs:
   # keep track of the manual splitting of the integration_tests when
   # specifying dependencies
   integration_tests:
-    executor: mymove_pusher
+    executor: base_small
     steps:
       - run: echo "integration_tests done"
 
@@ -1275,7 +1292,7 @@ jobs:
             #
             # The trailing hyphen in restore_cache seems important
             # according to the page linked above
-            - v4-server-tests-coverage-
+            - v5-server-tests-coverage-
       - run:
           name: Save Baseline Test Coverage
           command: |
@@ -1314,15 +1331,15 @@ jobs:
             #
             # Use the BuildNum to update the cache key so that the
             # coverage cache is always updated
-            save_cache:
-              key: v4-server-tests-coverage-{{ .BuildNum }}
-              paths:
-                - ~/transcom/mymove/tmp/test-results
+            - save_cache:
+                key: v5-server-tests-coverage-{{ .BuildNum }}
+                paths:
+                  - ~/transcom/mymove/tmp/test-results
       - announce_failure
 
   # `client_test` runs the client side Javascript tests
   client_test:
-    executor: mymove_compiler
+    executor: mymove_compiler_xlarge
     steps:
       - checkout
       - restore_cache:
@@ -1347,7 +1364,7 @@ jobs:
           # The trailing hyphen in restore_cache seems important
           # according to the page linked above
           keys:
-            - v3-client-tests-coverage-
+            - v4-client-tests-coverage-
       - run:
           name: Save Baseline Test Coverage
           command: |
@@ -1377,10 +1394,10 @@ jobs:
             #
             # Use the BuildNum to update the cache key so that the
             # coverage cache is always updated
-            save_cache:
-              key: v3-client-tests-coverage-{{ .BuildNum }}
-              paths:
-                - ~/transcom/mymove/coverage
+            - save_cache:
+                key: v4-client-tests-coverage-{{ .BuildNum }}
+                paths:
+                  - ~/transcom/mymove/coverage
       - announce_failure
 
   # `webhook_client_test` runs the webhook client Go tests
@@ -1512,20 +1529,18 @@ jobs:
           condition:
             equal: [main, << pipeline.git.branch >>]
           steps:
-            save_cache:
-              key: v2-node-modules-cache-{{ checksum "yarn.lock" }}
-              paths:
-                - ./node_modules/.cache
+            - save_cache:
+                key: v2-node-modules-cache-{{ checksum "yarn.lock" }}
+                paths:
+                  - ./node_modules/.cache
       - persist_to_workspace:
           root: .
           # Need build for integration tests
-          # Need cypress for, uh, cypress tests
           # Need playwright, playwright.config.js, package.json, and
           # yarn.lock for playwright
           # Need eslint-plugin-ato as referenced by package.json/yarn.lock
           paths:
             - build
-            - cypress
             - playwright
             - playwright.config.js
             - package.json
@@ -1810,7 +1825,7 @@ jobs:
   deploy_dp3_migrations:
     executor: mymove_pusher
     environment:
-      - APP_ENVIRONMENT: *dp3-env
+      APP_ENVIRONMENT: *dp3-env
     steps:
       - checkout
       - aws_vars_dp3
@@ -1821,7 +1836,7 @@ jobs:
   deploy_dp3_tasks:
     executor: mymove_pusher
     environment:
-      - APP_ENVIRONMENT: *dp3-env
+      APP_ENVIRONMENT: *dp3-env
     steps:
       - checkout
       - aws_vars_dp3
@@ -1837,9 +1852,10 @@ jobs:
         default: *dp3-env
 
     environment:
-      - APP_ENVIRONMENT: *dp3-env
-      - OPEN_TELEMETRY_SIDECAR: 'true'
-      - HEALTH_CHECK: 'true'
+      APP_ENVIRONMENT: *dp3-env
+      OPEN_TELEMETRY_SIDECAR: 'true'
+      HEALTH_CHECK: 'true'
+      OTEL_COLLECTOR_IMAGE: 'amazon/aws-otel-collector:v0.29.0'
     steps:
       - checkout
       - aws_vars_dp3
@@ -1856,9 +1872,10 @@ jobs:
         type: string
         default: *dp3-env
     environment:
-      - APP_ENVIRONMENT: *dp3-env
-      - OPEN_TELEMETRY_SIDECAR: 'true'
-      - HEALTH_CHECK: 'true'
+      APP_ENVIRONMENT: *dp3-env
+      OPEN_TELEMETRY_SIDECAR: 'true'
+      HEALTH_CHECK: 'true'
+      OTEL_COLLECTOR_IMAGE: 'amazon/aws-otel-collector:v0.29.0'
     steps:
       - checkout
       - aws_vars_dp3
@@ -1892,7 +1909,7 @@ jobs:
   deploy_stg_migrations:
     executor: mymove_pusher
     environment:
-      - APP_ENVIRONMENT: 'stg'
+      APP_ENVIRONMENT: 'stg'
     steps:
       - checkout
       - aws_vars_stg
@@ -1903,7 +1920,7 @@ jobs:
   deploy_stg_tasks:
     executor: mymove_pusher
     environment:
-      - APP_ENVIRONMENT: 'stg'
+      APP_ENVIRONMENT: 'stg'
     steps:
       - checkout
       - aws_vars_stg
@@ -1913,8 +1930,13 @@ jobs:
   # `deploy_stg_app` updates the server-TLS app service in stg environment
   deploy_stg_app:
     executor: mymove_pusher
+    # use dockerhub otel collector image as govcloud does not have the
+    # right certs for pulling from public.ecr.aws
     environment:
-      - APP_ENVIRONMENT: 'stg'
+      APP_ENVIRONMENT: 'stg'
+      OPEN_TELEMETRY_SIDECAR: 'false'
+      OTEL_COLLECTOR_IMAGE: 'amazon/aws-otel-collector:v0.29.0'
+      HEALTH_CHECK: 'true'
     steps:
       - checkout
       - aws_vars_stg
@@ -1926,8 +1948,13 @@ jobs:
   # `deploy_stg_app_client_tls` updates the mutual-TLS service in the stg environment
   deploy_stg_app_client_tls:
     executor: mymove_pusher
+    # use dockerhub otel collector image as govcloud does not have the
+    # right certs for pulling from public.ecr.aws
     environment:
-      - APP_ENVIRONMENT: 'stg'
+      APP_ENVIRONMENT: 'stg'
+      OPEN_TELEMETRY_SIDECAR: 'false'
+      OTEL_COLLECTOR_IMAGE: 'amazon/aws-otel-collector:v0.29.0'
+      HEALTH_CHECK: 'true'
     steps:
       - checkout
       - aws_vars_stg
@@ -1960,7 +1987,7 @@ jobs:
   deploy_prd_migrations:
     executor: mymove_pusher
     environment:
-      - APP_ENVIRONMENT: 'prd'
+      APP_ENVIRONMENT: 'prd'
     steps:
       - checkout
       - aws_vars_prd
@@ -1971,7 +1998,7 @@ jobs:
   deploy_prd_tasks:
     executor: mymove_pusher
     environment:
-      - APP_ENVIRONMENT: 'prd'
+      APP_ENVIRONMENT: 'prd'
     steps:
       - checkout
       - aws_vars_prd
@@ -1982,7 +2009,7 @@ jobs:
   deploy_prd_app:
     executor: mymove_pusher
     environment:
-      - APP_ENVIRONMENT: 'prd'
+      APP_ENVIRONMENT: 'prd'
     steps:
       - checkout
       - aws_vars_prd
@@ -1995,7 +2022,7 @@ jobs:
   deploy_prd_app_client_tls:
     executor: mymove_pusher
     environment:
-      - APP_ENVIRONMENT: 'prd'
+      APP_ENVIRONMENT: 'prd'
     steps:
       - checkout
       - aws_vars_prd
@@ -2016,17 +2043,35 @@ workflows:
 
       - check_tls_certificate_prd
 
-      - pre_deps_golang:
-          requires:
-            - check_tls_certificate_dp3
-            - check_tls_certificate_stg
-            - check_tls_certificate_prd
+      - pre_deps_golang
 
-      - pre_deps_yarn:
+      - pre_deps_yarn
+
+      - base_noop
+
+      - anti_virus:
+          filters:
+            branches:
+              only: main
+
+      # compile_app_client does not rely on pre_deps_yarn
+      # anymore so that it can start sooner. This helps the
+      # overall build time since the compile is so slow. It does
+      # the same steps as pre_deps_yarn, it just doesn't cache
+      # the yarn downloads, so compile_app_client and
+      # pre_deps_yarn might both wind up downloading packages,
+      # but the speedup is worth the duplicate work
+      #
+      # CircleCI has a "feature" where if all dependencies are
+      # filtered, the job is not run, so add a base_noop step that
+      # should complete very quickly
+      # See workflows -> jobs -> requires at
+      #
+      # https://circleci.com/docs/configuration-reference/
+      - compile_app_client:
           requires:
-            - check_tls_certificate_dp3
-            - check_tls_certificate_stg
-            - check_tls_certificate_prd
+            - base_noop
+            - anti_virus
 
       - check_generated_code:
           requires:
@@ -2035,14 +2080,13 @@ workflows:
             branches:
               ignore: [*integration-mtls-ignore-branch, *integration-ignore-branch]
 
-      - anti_virus:
-          filters:
-            branches:
-              only: main
       - pre_test:
           requires:
             - pre_deps_golang
             - pre_deps_yarn
+            - check_tls_certificate_dp3
+            - check_tls_certificate_stg
+            - check_tls_certificate_prd
 
       - integration_tests_admin:
           requires:
@@ -2097,6 +2141,8 @@ workflows:
               ignore: *integration-ignore-branch
 
       - integration_tests_mtls:
+          # mtls integration tests use the same server image as the
+          # e2e playwright tests and so needs the client build
           requires:
             - compile_app_server
           # See comments at the top of this file for configuring/using
@@ -2104,7 +2150,6 @@ workflows:
           filters:
             branches:
               ignore: *integration-mtls-ignore-branch
-
 
       - integration_tests_load:
           requires:
@@ -2132,11 +2177,6 @@ workflows:
           requires:
             - anti_virus
             - pre_deps_golang
-
-      - compile_app_client:
-          requires:
-            - anti_virus
-            - pre_deps_yarn
 
       - build_app:
           requires:

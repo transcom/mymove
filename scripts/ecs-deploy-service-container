@@ -24,7 +24,7 @@ readonly image=$2
 readonly environment=$3
 readonly entrypoint=$4
 
-readonly RESERVATION_CPU=512
+readonly RESERVATION_CPU=1024
 readonly RESERVATION_MEM=2048
 
 # The cluster name is always `app-ENV`
@@ -100,7 +100,7 @@ check_arn "$green_task_def_arn"
 
 if update_service "$green_task_def_arn"; then
     echo "Success."
-    put_metric DeployCount "${cluster}"
+    put_metric "${name}.DeployCount" "${cluster}"
     exit 0
 fi
 echo "Service failed to stabilize!"

@@ -510,14 +510,14 @@ func (suite *HandlerSuite) TestShowMoveDatesSummaryHandler() {
 		MoveDate:    moveDate,
 	}
 	planner := &mocks.Planner{}
-	planner.On("TransitDistance",
+	planner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
 	).Return(1125, nil)
 
 	handlerConfig := suite.HandlerConfig()
-	handlerConfig.SetPlanner(planner)
+	handlerConfig.SetDTODPlanner(planner)
 
 	showHandler := ShowMoveDatesSummaryHandler{handlerConfig}
 	response := showHandler.Handle(params)
@@ -582,7 +582,7 @@ func (suite *HandlerSuite) TestShowMoveDatesSummaryForbiddenUser() {
 		MoveDate:    moveDate,
 	}
 	planner := &mocks.Planner{}
-	planner.On("TransitDistance",
+	planner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,

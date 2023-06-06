@@ -242,12 +242,15 @@ func (p *herePlanner) TransitDistance(appCtx appcontext.AppContext, source *mode
 	responses := make(chan addressLatLong)
 	var srcLatLong LatLong
 	var destLatLong LatLong
+	var hereError error
 	go p.getAddressLatLong(appCtx, responses, source)
 	go p.getAddressLatLong(appCtx, responses, destination)
 	for count := 0; count < 2; count++ {
 		response := <-responses
 		if response.err != nil {
-			return 0, response.err
+			// cannot bail early, otherwise a race condition occurs
+			// where the other go routine is not yet finished
+			hereError = response.err
 		}
 		if response.address == source {
 			srcLatLong = response.location
@@ -255,6 +258,10 @@ func (p *herePlanner) TransitDistance(appCtx appcontext.AppContext, source *mode
 			destLatLong = response.location
 		}
 	}
+	if hereError != nil {
+		return 0, hereError
+	}
+
 	return p.LatLongTransitDistance(appCtx, srcLatLong, destLatLong)
 }
 

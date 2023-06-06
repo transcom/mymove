@@ -12,6 +12,8 @@ const RequestedServiceItemsTable = ({
   serviceItems,
   handleUpdateMTOServiceItemStatus,
   handleShowRejectionDialog,
+  handleRequestSITAddressUpdateModal,
+  handleShowEditSitAddressModal,
   statusForTableType,
 }) => {
   const chooseTitleText = (status) => {
@@ -41,15 +43,23 @@ const RequestedServiceItemsTable = ({
         serviceItems={serviceItems}
         handleUpdateMTOServiceItemStatus={handleUpdateMTOServiceItemStatus}
         handleShowRejectionDialog={handleShowRejectionDialog}
+        handleShowEditSitAddressModal={handleShowEditSitAddressModal}
+        handleRequestSITAddressUpdateModal={handleRequestSITAddressUpdateModal}
         statusForTableType={statusForTableType}
       />
     </div>
   );
 };
 
+RequestedServiceItemsTable.defaultProps = {
+  handleRequestSITAddressUpdateModal: () => {},
+};
+
 RequestedServiceItemsTable.propTypes = {
   handleUpdateMTOServiceItemStatus: PropTypes.func.isRequired,
   handleShowRejectionDialog: PropTypes.func.isRequired,
+  handleShowEditSitAddressModal: PropTypes.func.isRequired,
+  handleRequestSITAddressUpdateModal: PropTypes.func,
   statusForTableType: PropTypes.string.isRequired,
   serviceItems: PropTypes.arrayOf(ServiceItemDetailsShape).isRequired,
 };

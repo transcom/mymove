@@ -43,7 +43,7 @@ const OfficeUserEdit = () => (
         ]}
         sx={{ width: 256 }}
       />
-      <RolesCheckboxInput source="roles" />
+      <RolesCheckboxInput source="roles" validate={required()} />
       <ReferenceInput
         label="Transportation Office"
         reference="offices"

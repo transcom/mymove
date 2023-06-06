@@ -38,6 +38,13 @@ func (v *basicUpdateMTOServiceItemValidator) validate(appCtx appcontext.AppConte
 		return err
 	}
 
+	// Checks that SITDestinationOriginalAddress isn't added/or updated using the updater
+	// Should only be set when approving a service item
+	err = serviceItemData.checkSITDestinationOriginalAddress(appCtx)
+	if err != nil {
+		return err
+	}
+
 	err = serviceItemData.getVerrs()
 	if err != nil {
 		return err
@@ -86,6 +93,20 @@ func (v *primeUpdateMTOServiceItemValidator) validate(appCtx appcontext.AppConte
 
 	// Checks that only SITDepartureDate is only updated for DDDSIT and DOPSIT objects
 	err = serviceItemData.checkSITDeparture(appCtx)
+	if err != nil {
+		return err
+	}
+
+	// Checks that SITDestinationOriginalAddress isn't added/or updated using the updater
+	// Should only be set when approving a service item
+	err = serviceItemData.checkSITDestinationOriginalAddress(appCtx)
+	if err != nil {
+		return err
+	}
+
+	// Checks that SITDestinationFinalAddress isn't updated through this endpoint
+	// Should use the createSITAddressUpdate endpoint
+	err = serviceItemData.checkSITDestinationFinalAddress(appCtx)
 	if err != nil {
 		return err
 	}
@@ -169,6 +190,50 @@ func (v *updateMTOServiceItemData) checkSITDeparture(appCtx appcontext.AppContex
 		fmt.Sprintf("- SIT Departure Date may only be manually updated for %s and %s service items.", models.ReServiceCodeDDDSIT, models.ReServiceCodeDOPSIT))
 }
 
+// checkSITDestinationOriginalAddress checks that SITDestinationOriginalAddress isn't being changed
+func (v *updateMTOServiceItemData) checkSITDestinationOriginalAddress(appCtx appcontext.AppContext) error {
+	if v.updatedServiceItem.SITDestinationOriginalAddress == nil {
+		return nil // SITDestinationOriginalAddress isn't being updated, so we're fine here
+	}
+
+	if v.oldServiceItem.SITDestinationOriginalAddressID == nil {
+		v.verrs.Add("SITDestinationOriginalAddress", "cannot be manually set")
+		return nil // returning here to avoid nil pointer dereference error
+	}
+
+	if *v.oldServiceItem.SITDestinationOriginalAddressID != uuid.Nil &&
+		v.updatedServiceItem.SITDestinationOriginalAddress != nil &&
+		v.updatedServiceItem.SITDestinationOriginalAddress.ID != *v.oldServiceItem.SITDestinationOriginalAddressID {
+		v.verrs.Add("SITDestinationOriginalAddress", "cannot be updated")
+	}
+
+	return nil
+}
+
+// checkSITDestinationFinalAddress checks that SITDestinationFinalAddress isn't being changed
+func (v *updateMTOServiceItemData) checkSITDestinationFinalAddress(appCtx appcontext.AppContext) error {
+	if v.updatedServiceItem.SITDestinationFinalAddress == nil {
+		return nil // SITDestinationFinalAddress isn't being updated, so we're fine here
+	}
+
+	if v.oldServiceItem.SITDestinationFinalAddressID == nil {
+		return nil // the SITDestinationFinalAddress is being created, so we're fine here
+	}
+
+	if v.oldServiceItem.ReService.Code != models.ReServiceCodeDDDSIT {
+		return apperror.NewConflictError(v.updatedServiceItem.ID,
+			fmt.Sprintf("- SIT Destination Final Address may only be manually created for %s service items.", models.ReServiceCodeDDDSIT))
+	}
+
+	if *v.oldServiceItem.SITDestinationFinalAddressID != uuid.Nil &&
+		v.updatedServiceItem.SITDestinationFinalAddress != nil &&
+		v.updatedServiceItem.SITDestinationFinalAddress.ID != *v.oldServiceItem.SITDestinationFinalAddressID {
+		v.verrs.Add("SITDestinationFinalAddress", "cannot be updated")
+	}
+
+	return nil
+}
+
 // checkPaymentRequests looks for any existing payment requests connected to this service item and returns a
 // Conflict Error if any are found
 func (v *updateMTOServiceItemData) checkPaymentRequests(appCtx appcontext.AppContext) error {
@@ -236,21 +301,11 @@ func (v *updateMTOServiceItemData) setNewMTOServiceItem() *models.MTOServiceItem
 
 	if v.updatedServiceItem.SITDestinationFinalAddress != nil {
 		newMTOServiceItem.SITDestinationFinalAddress = v.updatedServiceItem.SITDestinationFinalAddress
-
-		// If the old service item had an address, we need to save its ID on both the service item object
-		// and the address object, so we can update the existing record instead of making a new one.
-		if v.oldServiceItem.SITDestinationFinalAddressID != nil {
-			newMTOServiceItem.SITDestinationFinalAddressID = v.oldServiceItem.SITDestinationFinalAddressID
-			newMTOServiceItem.SITDestinationFinalAddress.ID = *v.oldServiceItem.SITDestinationFinalAddressID
-		} else {
-			newMTOServiceItem.SITDestinationFinalAddressID = v.updatedServiceItem.SITDestinationFinalAddressID
-		}
+		newMTOServiceItem.SITDestinationFinalAddressID = &v.updatedServiceItem.SITDestinationFinalAddress.ID
 	}
 
 	// Set customer contact fields
-	if len(v.updatedServiceItem.CustomerContacts) > 0 {
-		newMTOServiceItem.CustomerContacts = v.updatedServiceItem.CustomerContacts
-	}
+	newMTOServiceItem.CustomerContacts = v.setNewCustomerContacts()
 
 	// Set weight fields:
 	newMTOServiceItem.EstimatedWeight = services.SetOptionalPoundField(
@@ -260,4 +315,55 @@ func (v *updateMTOServiceItemData) setNewMTOServiceItem() *models.MTOServiceItem
 		v.updatedServiceItem.ActualWeight, newMTOServiceItem.ActualWeight)
 
 	return &newMTOServiceItem
+}
+
+func (v *updateMTOServiceItemData) setNewCustomerContacts() models.MTOServiceItemCustomerContacts {
+	// If there are no updated customer contacts we will just use the old ones, it doesn't matter if there are no old ones.
+	if len(v.updatedServiceItem.CustomerContacts) == 0 {
+		return v.oldServiceItem.CustomerContacts
+	}
+
+	// If there are no old customer contacts we will just use the updated ones.
+	if len(v.oldServiceItem.CustomerContacts) == 0 {
+		return v.updatedServiceItem.CustomerContacts
+	}
+
+	var newCustomerContacts models.MTOServiceItemCustomerContacts
+
+	// Iterate through the updated and the old customer contacts to see if they correspond to one another.
+	for _, updatedCustomerContact := range v.updatedServiceItem.CustomerContacts {
+		foundCorrespondingOldContact := false
+		var newCustomerContact models.MTOServiceItemCustomerContact
+		for _, oldCustomerContact := range v.oldServiceItem.CustomerContacts {
+			// We use the type field to determine if the CustomerContacts correspond to each other
+			// If they correspond we update the information on the old CustomerContact
+			if updatedCustomerContact.Type == oldCustomerContact.Type {
+				newCustomerContact = oldCustomerContact
+				newCustomerContact.TimeMilitary = updatedCustomerContact.TimeMilitary
+				newCustomerContact.FirstAvailableDeliveryDate = updatedCustomerContact.FirstAvailableDeliveryDate
+				foundCorrespondingOldContact = true
+			}
+		}
+		// If there is no corresponding old CustomerContact we use the updated CustomerContact
+		if !foundCorrespondingOldContact {
+			newCustomerContact = updatedCustomerContact
+		}
+		newCustomerContacts = append(newCustomerContacts, newCustomerContact)
+	}
+
+	// We need to iterate once more through the old CustomerContacts
+	// to find any that don't have a corresponding updated CustomerContact
+	for _, oldCustomerContact := range v.oldServiceItem.CustomerContacts {
+		foundCorrespondingUpdatedContact := false
+		for _, updatedCustomerContact := range v.updatedServiceItem.CustomerContacts {
+			if updatedCustomerContact.Type == oldCustomerContact.Type {
+				foundCorrespondingUpdatedContact = true
+			}
+		}
+		if !foundCorrespondingUpdatedContact {
+			newCustomerContact := oldCustomerContact
+			newCustomerContacts = append(newCustomerContacts, newCustomerContact)
+		}
+	}
+	return newCustomerContacts
 }

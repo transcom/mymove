@@ -5,12 +5,36 @@ import (
 	"sync"
 	"time"
 
+	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/metric"
-	"go.opentelemetry.io/otel/metric/global"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 )
+
+// When deployed in production, we have multiple deployed servers
+// running, but we only need one of them doing the queries to the
+// database. As an optimizataion, maybe we can have only one of them
+// running.
+//
+// We don't want to try to use locking as this telemetry code doesn't
+// hold a database connection open
+//
+// The hacky approach is to look at the current connections in the
+// pg_stat_activity table and have the server with the
+// min(client_addr) do the work.
+//
+// This should also allow for a new server to take over if another
+// server is restarted.
+//
+// If this doesn't work, the worst thing is the same stats will be
+// reported from multiple clients, which is ok.
+const currentClientAddrQuery = `
+SELECT client_addr FROM pg_stat_activity WHERE pid = pg_backend_pid()
+`
+const isMinClientAddrQuery = `
+SELECT min(client_addr) = ? FROM pg_stat_activity
+`
 
 type tableStatMetrics struct {
 	liveTuples metric.Int64ObservableGauge
@@ -52,12 +76,19 @@ func registerTableLiveDeadCallback(appCtx appcontext.AppContext, meter metric.Me
 	lock.Lock()
 	defer lock.Unlock()
 
+	var currentIP string
+	err := appCtx.DB().RawQuery(currentClientAddrQuery).First(&currentIP)
+	if err != nil {
+		appCtx.Logger().Error("Cannot get current client ip", zap.Error(err))
+		return err
+	}
+
 	// do the query once at register time to get the list of tables
-	// and create the gauges
+	// and create the gauges. All servers do this once on startup
 
 	allStats := []pgStatLiveDead{}
 
-	err := appCtx.DB().RawQuery(liveDeadQuery).All(&allStats)
+	err = appCtx.DB().RawQuery(liveDeadQuery).All(&allStats)
 	if err != nil {
 		appCtx.Logger().Error("Cannot get initial list of tables for table stats", zap.Error(err))
 		return err
@@ -111,8 +142,23 @@ func registerTableLiveDeadCallback(appCtx appcontext.AppContext, meter metric.Me
 				return nil
 			}
 
+			var isMinClient bool
+			aerr := appCtx.DB().RawQuery(isMinClientAddrQuery,
+				currentIP).First(&isMinClient)
+
+			if aerr != nil {
+				appCtx.Logger().Fatal("Cannot get isMinClientAddr", zap.Error(aerr))
+				return aerr
+			}
+
+			if !isMinClient {
+				appCtx.Logger().Warn("This server min is not min client addr: skipping data telemetry update",
+					zap.String("currentIp", currentIP))
+				return nil
+			}
+
 			allStats := []pgStatLiveDead{}
-			aerr := appCtx.DB().RawQuery(liveDeadQuery).All(&allStats)
+			aerr = appCtx.DB().RawQuery(liveDeadQuery).All(&allStats)
 			if aerr != nil {
 				appCtx.Logger().Fatal("Cannot get live/dead stats", zap.Error(aerr))
 				return aerr
@@ -137,7 +183,7 @@ func RegisterMilmoveDataObserver(appCtx appcontext.AppContext, config *Config) e
 		return nil
 	}
 
-	meterProvider := global.MeterProvider()
+	meterProvider := otel.GetMeterProvider()
 
 	milmoveDataMeter := meterProvider.Meter("github.com/transcom/mymove/data",
 		metric.WithInstrumentationVersion("0.4"))

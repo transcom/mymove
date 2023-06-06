@@ -32,6 +32,8 @@ type ClientOption func(*runtime.ClientOperation)
 type ClientService interface {
 	CreateMTOServiceItem(params *CreateMTOServiceItemParams, opts ...ClientOption) (*CreateMTOServiceItemOK, error)
 
+	CreateServiceRequestDocumentUpload(params *CreateServiceRequestDocumentUploadParams, opts ...ClientOption) (*CreateServiceRequestDocumentUploadCreated, error)
+
 	UpdateMTOServiceItem(params *UpdateMTOServiceItemParams, opts ...ClientOption) (*UpdateMTOServiceItemOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
@@ -85,19 +87,25 @@ model type with the following codes:
 
 **DDFSIT**
 
-**1st day origin SIT service item**. The additional fields are required for creating a DDFSIT:
+**1st day destination SIT service item**.
+
+These additional fields are optional for creating a DDFSIT:
   - `firstAvailableDeliveryDate1`
   - string <date>
   - First available date that Prime can deliver SIT service item.
-  - `firstAvailableDeliveryDate2`
-  - string <date>
-  - Second available date that Prime can deliver SIT service item.
+  - If provided, `timeMilitary1` is required.
   - `timeMilitary1`
   - string\d{4}Z
   - Time of delivery corresponding to `firstAvailableDeliveryDate1`, in military format.
+  - If provided, `firstAvailableDeliveryDate1` is required.
+  - `firstAvailableDeliveryDate2`
+  - string <date>
+  - Second available date that Prime can deliver SIT service item.
+  - If provided, `timeMilitary2` is required.
   - `timeMilitary2`
   - string\d{4}Z
   - Time of delivery corresponding to `firstAvailableDeliveryDate2`, in military format.
+  - If provided, `firstAvailableDeliveryDate2` is required.
 
 When a DDFSIT is requested, the API will auto-create the following group of service items:
   - DDFSIT - Domestic destination 1st day SIT
@@ -145,6 +153,55 @@ func (a *Client) CreateMTOServiceItem(params *CreateMTOServiceItemParams, opts .
 }
 
 /*
+	CreateServiceRequestDocumentUpload creates service request document upload
+
+	### Functionality
+
+This endpoint **uploads** a Service Request document for a
+ServiceItem.
+
+The ServiceItem should already exist.
+
+ServiceItems are created with the
+[createMTOServiceItem](#operation/createMTOServiceItem)
+endpoint.
+*/
+func (a *Client) CreateServiceRequestDocumentUpload(params *CreateServiceRequestDocumentUploadParams, opts ...ClientOption) (*CreateServiceRequestDocumentUploadCreated, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewCreateServiceRequestDocumentUploadParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "createServiceRequestDocumentUpload",
+		Method:             "POST",
+		PathPattern:        "/mto-service-items/{mtoServiceItemID}/uploads",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"multipart/form-data"},
+		Schemes:            []string{"http"},
+		Params:             params,
+		Reader:             &CreateServiceRequestDocumentUploadReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*CreateServiceRequestDocumentUploadCreated)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for createServiceRequestDocumentUpload: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
+}
+
+/*
 	UpdateMTOServiceItem updates m t o service item
 
 	Updates MTOServiceItems after creation. Not all service items or fields may be updated, please see details below.
@@ -152,6 +209,9 @@ func (a *Client) CreateMTOServiceItem(params *CreateMTOServiceItemParams, opts .
 This endpoint supports different body definitions. In the modelType field below, select the modelType corresponding
 
 	to the service item you wish to update and the documentation will update with the new definition.
+
+* Addresses: You can add a new SIT Destination final address using this endpoint (and must use this endpoint to do so), but you cannot update an existing one.
+Please use [createSITAddressUpdateRequest](#operation/createSITAddressUpdateRequest) instead.
 
 To create a service item, please use [createMTOServiceItem](#operation/createMTOServiceItem)) endpoint.
 */

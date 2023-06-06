@@ -56,6 +56,7 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 	DCRTServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
 	DCRTServiceItem.SetMtoShipmentID(*mtoShipmentIDString)
 
+	destReason := "service member will pick up from storage at destination"
 	destServiceCode := models.ReServiceCodeDDFSIT.String()
 	destDate := strfmt.Date(time.Now())
 	destTime := "1400Z"
@@ -75,6 +76,7 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 		TimeMilitary1:               &destTime,
 		TimeMilitary2:               &destTime,
 		SitDestinationFinalAddress:  &sitFinalDestAddress,
+		Reason:                      &destReason,
 	}
 
 	destServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
@@ -138,7 +140,19 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 	})
 
 	suite.Run("Success - Returns SIT destination service item model", func() {
-		returnedModel, verrs := MTOServiceItemModel(destServiceItem)
+		destSITServiceItem := &primemessages.MTOServiceItemDestSIT{
+			ReServiceCode:               &destServiceCode,
+			FirstAvailableDeliveryDate1: &destDate,
+			FirstAvailableDeliveryDate2: &destDate,
+			TimeMilitary1:               &destTime,
+			TimeMilitary2:               &destTime,
+			SitDestinationFinalAddress:  &sitFinalDestAddress,
+			Reason:                      &destReason,
+		}
+
+		destSITServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
+		destSITServiceItem.SetMtoShipmentID(*mtoShipmentIDString)
+		returnedModel, verrs := MTOServiceItemModel(destSITServiceItem)
 
 		suite.NoVerrs(verrs)
 		suite.Equal(moveTaskOrderIDField.String(), returnedModel.MoveTaskOrderID.String())
@@ -147,6 +161,26 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 		suite.Equal(destPostalCode, returnedModel.SITDestinationFinalAddress.PostalCode)
 		suite.Equal(destStreet, returnedModel.SITDestinationFinalAddress.StreetAddress1)
 
+	})
+
+	suite.Run("Success - Returns SIT destination service item model without customer contact fields", func() {
+		destSITServiceItem := &primemessages.MTOServiceItemDestSIT{
+			ReServiceCode:              &destServiceCode,
+			SitDestinationFinalAddress: &sitFinalDestAddress,
+			Reason:                     &destReason,
+		}
+
+		destSITServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
+		destSITServiceItem.SetMtoShipmentID(*mtoShipmentIDString)
+		returnedModel, verrs := MTOServiceItemModel(destSITServiceItem)
+
+		suite.NoVerrs(verrs)
+		suite.Equal(moveTaskOrderIDField.String(), returnedModel.MoveTaskOrderID.String())
+		suite.Equal(mtoShipmentIDField.String(), returnedModel.MTOShipmentID.String())
+		suite.Equal(models.ReServiceCodeDDFSIT, returnedModel.ReService.Code)
+		suite.Equal(destPostalCode, returnedModel.SITDestinationFinalAddress.PostalCode)
+		suite.Equal(destStreet, returnedModel.SITDestinationFinalAddress.StreetAddress1)
+		suite.Equal(destReason, *returnedModel.Reason)
 	})
 }
 
@@ -199,4 +233,36 @@ func (suite *PayloadsSuite) TestSITExtensionModel() {
 		suite.Equal(sitExtension.ContractorRemarks, returnedModel.ContractorRemarks)
 	})
 
+}
+
+func (suite *PayloadsSuite) TestSITAddressUpdateModel() {
+	contractorRemark := "I must update the final address please"
+	city := "Beverly Hills"
+	state := "CA"
+	postalCode := "90210"
+	street := "123 Rodeo Dr."
+	newAddress := primemessages.Address{
+		City:           &city,
+		State:          &state,
+		PostalCode:     &postalCode,
+		StreetAddress1: &street,
+	}
+
+	suite.Run("Success - Returns a SITAddressUpdate model as expected", func() {
+		sitAddressUpdate := primemessages.CreateSITAddressUpdateRequest{
+			MtoServiceItemID:  strfmt.UUID(uuid.Must(uuid.NewV4()).String()),
+			NewAddress:        &newAddress,
+			ContractorRemarks: contractorRemark,
+		}
+
+		model := SITAddressUpdateModel(&sitAddressUpdate)
+
+		suite.Equal(model.MTOServiceItemID.String(), sitAddressUpdate.MtoServiceItemID.String())
+		suite.NotNil(model.NewAddressID.String())
+		suite.Equal(model.NewAddress.City, *sitAddressUpdate.NewAddress.City)
+		suite.Equal(model.NewAddress.State, *sitAddressUpdate.NewAddress.State)
+		suite.Equal(model.NewAddress.PostalCode, *sitAddressUpdate.NewAddress.PostalCode)
+		suite.Equal(model.NewAddress.StreetAddress1, *sitAddressUpdate.NewAddress.StreetAddress1)
+		suite.Equal(*model.ContractorRemarks, sitAddressUpdate.ContractorRemarks)
+	})
 }

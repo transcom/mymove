@@ -1,6 +1,6 @@
 import React from 'react';
 import MockDate from 'mockdate';
-import addons from '@storybook/addons';
+import { addons } from '@storybook/preview-api';
 
 import SubmitSITExtensionModal from './SubmitSITExtensionModal';
 
@@ -20,6 +20,11 @@ export default {
       );
     },
   ],
+  parameters: {
+    docs: {
+      inlineStories: false,
+    },
+  },
 };
 
 const sitStatus = {

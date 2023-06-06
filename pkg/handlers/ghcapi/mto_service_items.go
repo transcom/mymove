@@ -15,6 +15,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/audit"
 	"github.com/transcom/mymove/pkg/services/event"
@@ -181,8 +182,11 @@ func (h ListMTOServiceItemsHandler) Handle(params mtoserviceitemop.ListMTOServic
 			}
 			queryAssociations := query.NewQueryAssociationsPreload([]services.QueryAssociation{
 				query.NewQueryAssociation("ReService"),
-				query.NewQueryAssociation("CustomerContacts"),
 				query.NewQueryAssociation("Dimensions"),
+				query.NewQueryAssociation("SITDestinationOriginalAddress"),
+				query.NewQueryAssociation("SITDestinationFinalAddress"),
+				query.NewQueryAssociation("SITAddressUpdates.OldAddress"),
+				query.NewQueryAssociation("SITAddressUpdates.NewAddress"),
 			})
 
 			var serviceItems models.MTOServiceItems
@@ -194,7 +198,77 @@ func (h ListMTOServiceItemsHandler) Handle(params mtoserviceitemop.ListMTOServic
 				return mtoserviceitemop.NewListMTOServiceItemsInternalServerError(), err
 			}
 
+			// Due to a Pop bug we are unable to use EagerPreload to fetch customer contacts, so we need to load them here.
+			for i, serviceItem := range serviceItems {
+				if serviceItem.ReService.Code == models.ReServiceCodeDDASIT ||
+					serviceItem.ReService.Code == models.ReServiceCodeDDDSIT ||
+					serviceItem.ReService.Code == models.ReServiceCodeDDFSIT {
+					loadErr := appCtx.DB().Load(&serviceItems[i], "CustomerContacts")
+					if loadErr != nil {
+						return mtoserviceitemop.NewListMTOServiceItemsInternalServerError(), loadErr
+					}
+				}
+			}
+
 			returnPayload := payloads.MTOServiceItemModels(serviceItems)
 			return mtoserviceitemop.NewListMTOServiceItemsOK().WithPayload(returnPayload), nil
+		})
+}
+
+// CreateSITAddressUpdateHandler creates a SIT Address Update in the approved state
+type CreateSITAddressUpdateHandler struct {
+	handlers.HandlerConfig
+	services.ApprovedSITAddressUpdateRequestCreator
+}
+
+// Handle creates the approved SIT Address Update
+func (h CreateSITAddressUpdateHandler) Handle(params mtoserviceitemop.CreateSITAddressUpdateParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+
+			payload := params.Body
+			serviceItemID := params.MtoServiceItemID
+
+			handleError := func(err error) (middleware.Responder, error) {
+				appCtx.Logger().Error("ghcapi.CreateSITAddressUpdate error", zap.Error(err))
+				switch e := err.(type) {
+				case apperror.NotFoundError:
+					payload := ghcmessages.Error{
+						Message: handlers.FmtString(err.Error()),
+					}
+					return mtoserviceitemop.NewCreateSITAddressUpdateNotFound().WithPayload(&payload), err
+				case apperror.InvalidInputError:
+					payload := payloadForValidationError(
+						"Validation errors",
+						"CreateSITAddressUpdate",
+						h.GetTraceIDFromRequest(params.HTTPRequest),
+						e.ValidationErrors)
+					return mtoserviceitemop.NewCreateSITAddressUpdateUnprocessableEntity().WithPayload(payload), err
+				case apperror.QueryError:
+					if e.Unwrap() != nil {
+						// If you can unwrap, log the internal error (usually a pq error) for better debugging
+						appCtx.Logger().Error("ghcapi.CreateSITAddressUpdate query error", zap.Error(e.Unwrap()))
+					}
+					return mtoserviceitemop.NewCreateSITAddressUpdateInternalServerError(), err
+				case apperror.ForbiddenError:
+					return mtoserviceitemop.NewCreateSITAddressUpdateForbidden().
+						WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())}), err
+				default:
+					return mtoserviceitemop.NewCreateSITAddressUpdateInternalServerError(), err
+				}
+			}
+
+			if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
+				return handleError(apperror.NewForbiddenError("is not a TOO"))
+			}
+
+			sitAddressUpdate := payloads.ApprovedSITAddressUpdateFromCreate(payload, serviceItemID)
+			createdSITAddressUpdate, err := h.ApprovedSITAddressUpdateRequestCreator.CreateApprovedSITAddressUpdate(appCtx, sitAddressUpdate)
+			if err != nil {
+				return handleError(err)
+			}
+
+			returnPayload := payloads.MTOServiceItemModel(&createdSITAddressUpdate.MTOServiceItem)
+			return mtoserviceitemop.NewCreateSITAddressUpdateOK().WithPayload(returnPayload), nil
 		})
 }

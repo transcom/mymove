@@ -30,6 +30,7 @@ import (
 	pwsviolation "github.com/transcom/mymove/pkg/services/pws_violation"
 	"github.com/transcom/mymove/pkg/services/query"
 	reportviolation "github.com/transcom/mymove/pkg/services/report_violation"
+	sitaddressupdate "github.com/transcom/mymove/pkg/services/sit_address_update"
 	sitextension "github.com/transcom/mymove/pkg/services/sit_extension"
 	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 	weightticket "github.com/transcom/mymove/pkg/services/weight_ticket"
@@ -269,7 +270,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		mtoshipment.NewShipmentApprover(
 			mtoshipment.NewShipmentRouter(),
 			mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter),
-			handlerConfig.Planner(),
+			handlerConfig.HHGPlanner(),
 		),
 		shipmentSITStatus,
 	}
@@ -321,7 +322,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		mtoshipment.NewOfficeMTOShipmentUpdater(
 			queryBuilder,
 			fetch.NewFetcher(queryBuilder),
-			handlerConfig.Planner(),
+			handlerConfig.HHGPlanner(),
 			moveRouter,
 			move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester()),
 			handlerConfig.NotificationSender(),
@@ -331,7 +332,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	mtoShipmentUpdater := mtoshipment.NewOfficeMTOShipmentUpdater(
 		queryBuilder,
 		fetch.NewFetcher(queryBuilder),
-		handlerConfig.Planner(),
+		handlerConfig.HHGPlanner(),
 		moveRouter,
 		move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester()),
 		handlerConfig.NotificationSender(),
@@ -375,6 +376,15 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		handlerConfig,
 		sitextension.NewApprovedSITDurationUpdateCreator(),
 		shipmentSITStatus,
+	}
+
+	ghcAPI.MtoServiceItemCreateSITAddressUpdateHandler = CreateSITAddressUpdateHandler{
+		handlerConfig,
+		sitaddressupdate.NewApprovedOfficeSITAddressUpdateCreator(
+			handlerConfig.HHGPlanner(),
+			addressCreator,
+			mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter),
+		),
 	}
 
 	ghcAPI.GhcDocumentsGetDocumentHandler = GetDocumentHandler{handlerConfig}
