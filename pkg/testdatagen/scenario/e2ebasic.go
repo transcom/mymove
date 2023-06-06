@@ -2312,7 +2312,7 @@ func createMoveWithServiceItemsandPaymentRequests01(appCtx appcontext.AppContext
 				ID:                   uuid.FromStringOrNil("baa00811-2381-433e-8a96-2ced58e37a14"),
 				PrimeEstimatedWeight: &estimatedWeight,
 				PrimeActualWeight:    &actualWeight,
-				ShipmentType:         models.MTOShipmentTypeHHGShortHaulDom,
+				ShipmentType:         models.MTOShipmentTypeHHG,
 				ApprovedDate:         models.TimePointer(time.Now()),
 			},
 		},

@@ -2411,10 +2411,8 @@ func init() {
         "BOAT_HAUL_AWAY",
         "BOAT_TOW_AWAY",
         "HHG",
-        "HHG_LONGHAUL_DOMESTIC",
         "HHG_INTO_NTS_DOMESTIC",
         "HHG_OUTOF_NTS_DOMESTIC",
-        "HHG_SHORTHAUL_DOMESTIC",
         "INTERNATIONAL_HHG",
         "INTERNATIONAL_UB",
         "MOTORHOME",
@@ -2423,9 +2421,7 @@ func init() {
       "x-display-value": {
         "HHG": "Household goods move (HHG)",
         "HHG_INTO_NTS_DOMESTIC": "HHG into Non-temporary storage (NTS)",
-        "HHG_LONGHAUL_DOMESTIC": "Domestic Longhaul HHG",
         "HHG_OUTOF_NTS_DOMESTIC": "HHG out of Non-temporary storage (NTS Release)",
-        "HHG_SHORTHAUL_DOMESTIC": "Domestic Shorthaul HHG",
         "PPM": "Personally Procured Move also known as Do It Yourself (DITY)"
       },
       "example": "HHG"
@@ -7021,10 +7017,8 @@ func init() {
         "BOAT_HAUL_AWAY",
         "BOAT_TOW_AWAY",
         "HHG",
-        "HHG_LONGHAUL_DOMESTIC",
         "HHG_INTO_NTS_DOMESTIC",
         "HHG_OUTOF_NTS_DOMESTIC",
-        "HHG_SHORTHAUL_DOMESTIC",
         "INTERNATIONAL_HHG",
         "INTERNATIONAL_UB",
         "MOTORHOME",
@@ -7033,9 +7027,7 @@ func init() {
       "x-display-value": {
         "HHG": "Household goods move (HHG)",
         "HHG_INTO_NTS_DOMESTIC": "HHG into Non-temporary storage (NTS)",
-        "HHG_LONGHAUL_DOMESTIC": "Domestic Longhaul HHG",
         "HHG_OUTOF_NTS_DOMESTIC": "HHG out of Non-temporary storage (NTS Release)",
-        "HHG_SHORTHAUL_DOMESTIC": "Domestic Shorthaul HHG",
         "PPM": "Personally Procured Move also known as Do It Yourself (DITY)"
       },
       "example": "HHG"

@@ -28,10 +28,7 @@ export const ShipmentListItem = ({
   const shipmentClassName = classnames({
     [styles[`shipment-list-item-NTS-release`]]: shipment.shipmentType === SHIPMENT_OPTIONS.NTSR,
     [styles[`shipment-list-item-NTS`]]: shipment.shipmentType === SHIPMENT_OPTIONS.NTS,
-    [styles[`shipment-list-item-HHG`]]:
-      shipment.shipmentType === SHIPMENT_OPTIONS.HHG ||
-      shipment.shipmentType === SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC ||
-      shipment.shipmentType === SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
+    [styles[`shipment-list-item-HHG`]]: shipment.shipmentType === SHIPMENT_OPTIONS.HHG,
     [styles[`shipment-list-item-PPM`]]: shipment.shipmentType === SHIPMENT_OPTIONS.PPM,
   });
 
