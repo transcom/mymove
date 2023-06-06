@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -332,6 +333,28 @@ func migrateFunction(cmd *cobra.Command, args []string) error {
 	errSchemaMigrations := migrator.CreateSchemaMigrations()
 	if errSchemaMigrations != nil {
 		return errors.Wrap(errSchemaMigrations, "error creating table for tracking migrations")
+	}
+
+	printStatus := v.GetBool(cli.MigrationPrintStatusFlag)
+	checkApplied := v.GetBool(cli.MigrationCheckAppliedFlag)
+	if printStatus || checkApplied {
+		buf := bytes.NewBufferString("")
+		statusErr := migrator.Status(buf)
+		if statusErr != nil {
+			return errors.Wrap(statusErr, "error running Status")
+		}
+		allStatus := strings.Split(buf.String(), "\n")
+		for i := range allStatus {
+			if printStatus {
+				logger.Info(allStatus[i])
+			}
+			if checkApplied {
+				if strings.HasSuffix(strings.TrimSpace(allStatus[i]), "Pending") {
+					return errors.New("Pending migration: " + allStatus[i])
+				}
+			}
+		}
+		return nil
 	}
 
 	errUp := migrator.Up()

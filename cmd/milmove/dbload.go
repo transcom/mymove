@@ -113,7 +113,7 @@ func dbloadFunction(cmd *cobra.Command, args []string) error {
 	f.Close()
 
 	// optionally load the dev seed data
-	if v.GetBool(cli.MigrationLoadDevSeed) {
+	if v.GetBool(cli.MigrationLoadDevSeedFlag) {
 		devSeed := filepath.Join(schemaPath, "dev_data_seed.sql")
 		wait := v.GetDuration(cli.MigrationWaitFlag)
 
