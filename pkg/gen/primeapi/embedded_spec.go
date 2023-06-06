@@ -357,6 +357,64 @@ func init() {
         }
       }
     },
+    "/mto-service-items/{mtoServiceItemID}/uploads": {
+      "post": {
+        "description": "### Functionality\n\nThis endpoint **uploads** a Service Request document for a\nServiceItem.\n\nThe ServiceItem should already exist.\n\nServiceItems are created with the\n[createMTOServiceItem](#operation/createMTOServiceItem)\nendpoint.\n",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoServiceItem"
+        ],
+        "summary": "createServiceRequestDocumentUpload",
+        "operationId": "createServiceRequestDocumentUpload",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "UUID of the service item to use.",
+            "name": "mtoServiceItemID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "file",
+            "description": "The file to upload.",
+            "name": "file",
+            "in": "formData",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successfully created upload of digital file.",
+            "schema": {
+              "$ref": "#/definitions/UploadWithOmissions"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/mto-shipments": {
       "post": {
         "description": "Creates a new shipment within the specified move. This endpoint should be used whenever the movers identify a\nneed for an additional shipment. The new shipment will be submitted to the TOO for review, and the TOO must\napprove it before the contractor can proceed with billing.\n\n**WIP**: The Prime should be notified by a push notification whenever the TOO approves a shipment connected to\none of their moves. Otherwise, the Prime can fetch the related move using the\n[getMoveTaskOrder](#operation/getMoveTaskOrder) endpoint and see if this shipment has the status ` + "`" + `\"APPROVED\"` + "`" + `.\n",
@@ -4681,6 +4739,82 @@ func init() {
           },
           "412": {
             "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "422": {
+            "description": "The request was unprocessable, likely due to bad input from the requester.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/mto-service-items/{mtoServiceItemID}/uploads": {
+      "post": {
+        "description": "### Functionality\n\nThis endpoint **uploads** a Service Request document for a\nServiceItem.\n\nThe ServiceItem should already exist.\n\nServiceItems are created with the\n[createMTOServiceItem](#operation/createMTOServiceItem)\nendpoint.\n",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoServiceItem"
+        ],
+        "summary": "createServiceRequestDocumentUpload",
+        "operationId": "createServiceRequestDocumentUpload",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "UUID of the service item to use.",
+            "name": "mtoServiceItemID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "file",
+            "description": "The file to upload.",
+            "name": "file",
+            "in": "formData",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successfully created upload of digital file.",
+            "schema": {
+              "$ref": "#/definitions/UploadWithOmissions"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "401": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
             "schema": {
               "$ref": "#/definitions/ClientError"
             }
