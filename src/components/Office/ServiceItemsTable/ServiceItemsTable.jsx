@@ -22,6 +22,7 @@ const ServiceItemsTable = ({
   handleRequestSITAddressUpdateModal,
   handleShowRejectionDialog,
   handleShowEditSitAddressModal,
+  serviceItemAddressUpdateAlert,
 }) => {
   let dateField;
   switch (statusForTableType) {
@@ -53,6 +54,9 @@ const ServiceItemsTable = ({
 
   const tableRows = serviceItems.map((serviceItem, index) => {
     const { id, code, details, mtoShipmentID, sitAddressUpdates, ...item } = serviceItem;
+    const { visible, alertType, alertMessage } = serviceItemAddressUpdateAlert;
+    // eslint-disable-next-line no-console
+    console.log(serviceItemAddressUpdateAlert);
     return (
       <React.Fragment key={id}>
         {ALLOWED_SIT_ADDRESS_UPDATE_SI_CODES.includes(code) &&
@@ -71,11 +75,11 @@ const ServiceItemsTable = ({
           </td>
           <td style={{ whiteSpace: 'nowrap', paddingTop: '0' }}>
             <td style={{ borderBottom: 'none', paddingLeft: '0', paddingTop: '0' }}>
-              {ALLOWED_SIT_ADDRESS_UPDATE_SI_CODES.includes(code) && (
+              {ALLOWED_SIT_ADDRESS_UPDATE_SI_CODES.includes(code) && visible && (
                 <tr>
                   <td style={{ border: 'none', paddingLeft: '0', paddingBottom: '0' }} colSpan={2}>
-                    <Alert type="warning" slim>
-                      Address update over 50 miles approved.
+                    <Alert type={alertType} slim>
+                      {alertMessage}
                     </Alert>
                   </td>
                 </tr>

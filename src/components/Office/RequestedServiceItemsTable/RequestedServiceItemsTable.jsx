@@ -15,6 +15,7 @@ const RequestedServiceItemsTable = ({
   handleRequestSITAddressUpdateModal,
   handleShowEditSitAddressModal,
   statusForTableType,
+  serviceItemAddressUpdateAlert,
 }) => {
   const chooseTitleText = (status) => {
     switch (status) {
@@ -46,6 +47,7 @@ const RequestedServiceItemsTable = ({
         handleShowEditSitAddressModal={handleShowEditSitAddressModal}
         handleRequestSITAddressUpdateModal={handleRequestSITAddressUpdateModal}
         statusForTableType={statusForTableType}
+        serviceItemAddressUpdateAlert={serviceItemAddressUpdateAlert}
       />
     </div>
   );

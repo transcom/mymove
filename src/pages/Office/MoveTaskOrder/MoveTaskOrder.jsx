@@ -107,6 +107,11 @@ export const MoveTaskOrder = (props) => {
   const [isWeightAlertVisible, setIsWeightAlertVisible] = useState(false);
   const [isFinancialModalVisible, setIsFinancialModalVisible] = useState(false);
   const [isSITAddressUpdateAlertVisible, setIsSITAddressUpdateAlertVisible] = useState(false);
+  const [serviceItemAddressUpdateAlert, setServiceItemAddressUpdateAlert] = useState({
+    visible: false,
+    alertMessage: '',
+    alertType: '',
+  }); // juan
   /* ------------------ Selected / Active Item ------------------------- */
   const [selectedShipment, setSelectedShipment] = useState(undefined);
   const [selectedServiceItem, setSelectedServiceItem] = useState(undefined);
@@ -638,11 +643,23 @@ export const MoveTaskOrder = (props) => {
         body: { newAddress, officeRemarks },
       },
       {
-        onSuccess: () => {
+        onSuccess: (data) => {
           setSelectedServiceItem({});
           setIsEditSitAddressModalVisible(false);
           setAlertMessage('Changes saved');
           setAlertType('success');
+
+          // Setting up the approved service item table alert for sit address update
+          const calculatedDistance = data.sitAddressUpdates.slice(-1)[0].distance;
+          const type = calculatedDistance <= 50 ? 'info' : 'warning';
+          const message =
+            calculatedDistance <= 50 ? 'Address update within 50 miles.' : 'Address update over 50 miles approved.';
+          setServiceItemAddressUpdateAlert({
+            ...serviceItemAddressUpdateAlert,
+            visible: true,
+            alertType: type,
+            alertMessage: message,
+          }); // JUAN
         },
       },
     );
@@ -977,7 +994,7 @@ export const MoveTaskOrder = (props) => {
           {isEditSitAddressModalVisible && (
             <ConnectedServiceItemUpdateModal
               closeModal={handleCancelEditAddressModal}
-              onSave={handleSumbitSitAddressChange}
+              onSave={handleSumbitSitAddressChange} // JUAN
               isOpen={isEditSitAddressModalVisible}
               serviceItem={selectedServiceItem}
               initialValues={{
@@ -1095,13 +1112,14 @@ export const MoveTaskOrder = (props) => {
                   />
                 )}
                 {approvedServiceItems?.length > 0 && (
-                  <RequestedServiceItemsTable
+                  <RequestedServiceItemsTable // juan
                     serviceItems={approvedServiceItems}
                     handleUpdateMTOServiceItemStatus={handleUpdateMTOServiceItemStatus}
                     handleShowRejectionDialog={handleShowRejectionDialog}
                     handleRequestSITAddressUpdateModal={handleReviewRequestSITAddressUpdateModal}
                     handleShowEditSitAddressModal={handleShowEditSitAddressModal}
                     statusForTableType={SERVICE_ITEM_STATUSES.APPROVED}
+                    serviceItemAddressUpdateAlert={serviceItemAddressUpdateAlert}
                   />
                 )}
                 {rejectedServiceItems?.length > 0 && (
