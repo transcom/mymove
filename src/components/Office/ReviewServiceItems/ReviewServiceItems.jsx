@@ -22,6 +22,7 @@ import { AccountingCodesShape } from 'types/accountingCodes';
 
 const { APPROVED, DENIED, REQUESTED } = PAYMENT_SERVICE_ITEM_STATUS;
 
+/** NB: this component is in the process of being replaced with NewReviewServiceItems */
 const ReviewServiceItems = ({
   header,
   paymentRequest,

@@ -135,16 +135,11 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemPrime(appCtx appcontext.AppC
 
 // UpdateMTOServiceItem updates the given service item
 func (p *mtoServiceItemUpdater) UpdateMTOServiceItem(appCtx appcontext.AppContext, mtoServiceItem *models.MTOServiceItem, eTag string, validatorKey string) (*models.MTOServiceItem, error) {
-	oldServiceItem := models.MTOServiceItem{}
-
 	// Find the service item, return error if not found
-	queryFilters := []services.QueryFilter{
-		query.NewQueryFilter("id", "=", mtoServiceItem.ID),
-	}
-	err := p.builder.FetchOne(appCtx, &oldServiceItem, queryFilters)
+	oldServiceItem, err := models.FetchServiceItem(appCtx.DB(), mtoServiceItem.ID)
 	if err != nil {
 		switch err {
-		case sql.ErrNoRows:
+		case models.ErrFetchNotFound:
 			return nil, apperror.NewNotFoundError(mtoServiceItem.ID, "while looking for MTOServiceItem")
 		default:
 			return nil, apperror.NewQueryError("MTOServiceItem", err, "")

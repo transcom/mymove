@@ -5,9 +5,9 @@ import (
 
 	"github.com/felixge/httpsnoop"
 	"github.com/gorilla/mux"
+	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric"
-	"go.opentelemetry.io/otel/metric/global"
 	"go.opentelemetry.io/otel/semconv/v1.13.0/httpconv"
 	semconv "go.opentelemetry.io/otel/semconv/v1.17.0"
 	"go.uber.org/zap"
@@ -21,7 +21,7 @@ type RequestTelemetry struct {
 const requestTelemetryVersion = "0.1"
 
 func NewRequestTelemetry(logger *zap.Logger) *RequestTelemetry {
-	meterProvider := global.MeterProvider()
+	meterProvider := otel.GetMeterProvider()
 
 	requestMeter := meterProvider.Meter("github.com/transcom/mymove/request",
 		metric.WithInstrumentationVersion(requestTelemetryVersion))

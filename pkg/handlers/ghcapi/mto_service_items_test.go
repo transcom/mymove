@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/go-openapi/strfmt"
+	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
@@ -562,7 +563,7 @@ func (suite *HandlerSuite) TestCreateSITAddressUpdate() {
 	serviceItemUpdater := mtoserviceitem.NewMTOServiceItemUpdater(query.NewQueryBuilder(), moverouter.NewMoveRouter())
 	sitAddressUpdateCreator := sitaddressupdate.NewApprovedOfficeSITAddressUpdateCreator(mockPlanner, address.NewAddressCreator(), serviceItemUpdater)
 
-	suite.Run("Returns 200, creates new SIT extension, and updates SIT days allowance on shipment without an allowance when validations pass", func() {
+	suite.Run("Returns 200, creates new SIT address update, and updates SITDestinationFinalAddress on service item when validations pass", func() {
 		handlerConfig := suite.HandlerConfig()
 		handler := CreateSITAddressUpdateHandler{
 			handlerConfig,
@@ -829,7 +830,7 @@ func (suite *HandlerSuite) TestCreateSITAddressUpdate() {
 		suite.NoError(payload.Validate(strfmt.Default))
 	})
 
-	suite.Run("Returns 500 when approver returns unexpected error", func() {
+	suite.Run("Returns 500 when creator returns unexpected error", func() {
 		creator := &mocks.ApprovedSITAddressUpdateRequestCreator{}
 		creator.On(
 			"CreateApprovedSITAddressUpdate",
@@ -874,6 +875,593 @@ func (suite *HandlerSuite) TestCreateSITAddressUpdate() {
 		response := handler.Handle(createParams)
 		suite.IsType(&mtoserviceitemop.CreateSITAddressUpdateInternalServerError{}, response)
 		payload := response.(*mtoserviceitemop.CreateSITAddressUpdateInternalServerError).Payload
+
+		// Validate outgoing payload
+		suite.Nil(payload)
+	})
+}
+
+func (suite *HandlerSuite) TestApproveSITAddressUpdate() {
+	moveRouter := moverouter.NewMoveRouter()
+	serviceItemUpdater := mtoserviceitem.NewMTOServiceItemUpdater(query.NewQueryBuilder(), moveRouter)
+	sitAddressUpdateApprover := sitaddressupdate.NewSITAddressUpdateRequestApprover(serviceItemUpdater, moveRouter)
+
+	suite.Run("Returns 200, approves SIT address update, and updates SITDestinationFinalAddress on service item", func() {
+		handlerConfig := suite.HandlerConfig()
+		handler := ApproveSITAddressUpdateHandler{
+			handlerConfig,
+			sitAddressUpdateApprover,
+		}
+
+		serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVALSREQUESTED,
+				},
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusApproved,
+				},
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDDSIT,
+				},
+			},
+			{
+				Model: models.Address{},
+				Type:  &factory.Addresses.SITDestinationOriginalAddress,
+			},
+			{
+				Model: models.Address{},
+				Type:  &factory.Addresses.SITDestinationFinalAddress,
+			},
+		}, nil)
+
+		sitAddressUpdate := factory.BuildSITAddressUpdate(suite.DB(), []factory.Customization{
+			{
+				Model:    serviceItem,
+				LinkOnly: true,
+			},
+			{
+				Model: models.SITAddressUpdate{
+					Status: models.SITAddressUpdateStatusRequested,
+				},
+			},
+		}, nil)
+
+		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/sit-address-update/%s/approve", sitAddressUpdate.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+
+		officeRemarks := "new office remarks"
+		approveParams := mtoserviceitemop.ApproveSITAddressUpdateParams{
+			HTTPRequest:        req,
+			IfMatch:            etag.GenerateEtag(sitAddressUpdate.UpdatedAt),
+			SitAddressUpdateID: *handlers.FmtUUID(sitAddressUpdate.ID),
+			Body: &ghcmessages.PatchSITAddressUpdateStatus{
+				OfficeRemarks: &officeRemarks,
+			},
+		}
+
+		// Validate incoming payload
+		suite.NoError(approveParams.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(approveParams)
+		suite.IsType(&mtoserviceitemop.ApproveSITAddressUpdateOK{}, response)
+		payload := response.(*mtoserviceitemop.ApproveSITAddressUpdateOK).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
+
+		suite.Equal(models.SITAddressUpdateStatusApproved, payload.SitAddressUpdates[0].Status)
+
+		suite.Equal(sitAddressUpdate.NewAddress.City, *payload.SitDestinationFinalAddress.City)
+		suite.Equal(*sitAddressUpdate.NewAddress.Country, *payload.SitDestinationFinalAddress.Country)
+		suite.Equal(sitAddressUpdate.NewAddress.PostalCode, *payload.SitDestinationFinalAddress.PostalCode)
+		suite.Equal(sitAddressUpdate.NewAddress.State, *payload.SitDestinationFinalAddress.State)
+		suite.Equal(sitAddressUpdate.NewAddress.StreetAddress1, *payload.SitDestinationFinalAddress.StreetAddress1)
+		suite.Equal(*sitAddressUpdate.NewAddress.StreetAddress2, *payload.SitDestinationFinalAddress.StreetAddress2)
+		suite.Equal(*sitAddressUpdate.NewAddress.StreetAddress3, *payload.SitDestinationFinalAddress.StreetAddress3)
+
+		suite.Equal(officeRemarks, *payload.SitAddressUpdates[0].OfficeRemarks)
+	})
+
+	suite.Run("Returns a 403 when the office user is not a TOO", func() {
+		handlerConfig := suite.HandlerConfig()
+		handler := ApproveSITAddressUpdateHandler{
+			handlerConfig,
+			sitAddressUpdateApprover,
+		}
+
+		serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVALSREQUESTED,
+				},
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusApproved,
+				},
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDDSIT,
+				},
+			},
+			{
+				Model: models.Address{},
+				Type:  &factory.Addresses.SITDestinationOriginalAddress,
+			},
+			{
+				Model: models.Address{},
+				Type:  &factory.Addresses.SITDestinationFinalAddress,
+			},
+		}, nil)
+
+		sitAddressUpdate := factory.BuildSITAddressUpdate(suite.DB(), []factory.Customization{
+			{
+				Model:    serviceItem,
+				LinkOnly: true,
+			},
+			{
+				Model: models.SITAddressUpdate{
+					Status: models.SITAddressUpdateStatusRequested,
+				},
+			},
+		}, nil)
+
+		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/sit-address-update/%s/approve", sitAddressUpdate.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+
+		officeRemarks := "new office remarks"
+		approveParams := mtoserviceitemop.ApproveSITAddressUpdateParams{
+			HTTPRequest:        req,
+			IfMatch:            etag.GenerateEtag(sitAddressUpdate.UpdatedAt),
+			SitAddressUpdateID: *handlers.FmtUUID(sitAddressUpdate.ID),
+			Body: &ghcmessages.PatchSITAddressUpdateStatus{
+				OfficeRemarks: &officeRemarks,
+			},
+		}
+
+		// Validate incoming payload
+		suite.NoError(approveParams.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(approveParams)
+		suite.IsType(&mtoserviceitemop.ApproveSITAddressUpdateForbidden{}, response)
+		payload := response.(*mtoserviceitemop.ApproveSITAddressUpdateForbidden).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
+
+		suite.IsType(&ghcmessages.Error{}, payload)
+	})
+
+	suite.Run("Returns 404 when approver returns NotFoundError", func() {
+		approver := &mocks.SITAddressUpdateRequestApprover{}
+		approver.On(
+			"ApproveSITAddressUpdateRequest",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("uuid.UUID"),
+			mock.AnythingOfType("*string"),
+			mock.AnythingOfType("string")).
+			Return(nil, apperror.NotFoundError{})
+
+		handlerConfig := suite.HandlerConfig()
+		handler := ApproveSITAddressUpdateHandler{
+			handlerConfig,
+			approver,
+		}
+
+		fakeID := uuid.Must(uuid.NewV4())
+
+		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/sit-address-update/%s/approve", fakeID), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+
+		officeRemarks := "new office remarks"
+		approveParams := mtoserviceitemop.ApproveSITAddressUpdateParams{
+			HTTPRequest:        req,
+			SitAddressUpdateID: *handlers.FmtUUID(fakeID),
+			Body: &ghcmessages.PatchSITAddressUpdateStatus{
+				OfficeRemarks: &officeRemarks,
+			},
+		}
+
+		// Validate incoming payload
+		suite.NoError(approveParams.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(approveParams)
+		suite.IsType(&mtoserviceitemop.ApproveSITAddressUpdateNotFound{}, response)
+		payload := response.(*mtoserviceitemop.ApproveSITAddressUpdateNotFound).Payload
+
+		// Validate outgoing payload
+		suite.Nil(payload)
+	})
+
+	suite.Run("Returns 422 when approver returns validation errors", func() {
+		approver := &mocks.SITAddressUpdateRequestApprover{}
+		approver.On(
+			"ApproveSITAddressUpdateRequest",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("uuid.UUID"),
+			mock.AnythingOfType("*string"),
+			mock.AnythingOfType("string")).
+			Return(nil, apperror.InvalidInputError{ValidationErrors: &validate.Errors{}})
+
+		handlerConfig := suite.HandlerConfig()
+		handler := ApproveSITAddressUpdateHandler{
+			handlerConfig,
+			approver,
+		}
+
+		sitAddressUpdate := factory.BuildSITAddressUpdate(suite.DB(), []factory.Customization{
+			{
+				Model: models.SITAddressUpdate{
+					Status: models.SITAddressUpdateStatusRequested,
+				},
+			},
+		}, nil)
+
+		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/sit-address-update/%s/approve", sitAddressUpdate.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+
+		officeRemarks := "new office remarks"
+		approveParams := mtoserviceitemop.ApproveSITAddressUpdateParams{
+			HTTPRequest:        req,
+			IfMatch:            etag.GenerateEtag(sitAddressUpdate.UpdatedAt),
+			SitAddressUpdateID: *handlers.FmtUUID(sitAddressUpdate.ID),
+			Body: &ghcmessages.PatchSITAddressUpdateStatus{
+				OfficeRemarks: &officeRemarks,
+			},
+		}
+
+		// Validate incoming payload
+		suite.NoError(approveParams.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(approveParams)
+		suite.IsType(&mtoserviceitemop.ApproveSITAddressUpdateUnprocessableEntity{}, response)
+		payload := response.(*mtoserviceitemop.ApproveSITAddressUpdateUnprocessableEntity).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
+	})
+
+	suite.Run("Returns 500 when approver returns unexpected error", func() {
+		approver := &mocks.SITAddressUpdateRequestApprover{}
+		approver.On(
+			"ApproveSITAddressUpdateRequest",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("uuid.UUID"),
+			mock.AnythingOfType("*string"),
+			mock.AnythingOfType("string")).
+			Return(nil, apperror.InternalServerError{})
+
+		handlerConfig := suite.HandlerConfig()
+		handler := ApproveSITAddressUpdateHandler{
+			handlerConfig,
+			approver,
+		}
+
+		fakeID := uuid.Must(uuid.NewV4())
+
+		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/sit-address-update/%s/approve", fakeID), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+
+		officeRemarks := "new office remarks"
+		approveParams := mtoserviceitemop.ApproveSITAddressUpdateParams{
+			HTTPRequest:        req,
+			SitAddressUpdateID: *handlers.FmtUUID(fakeID),
+			IfMatch:            etag.GenerateEtag(time.Now()),
+			Body: &ghcmessages.PatchSITAddressUpdateStatus{
+				OfficeRemarks: &officeRemarks,
+			},
+		}
+
+		// Validate incoming payload
+		suite.NoError(approveParams.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(approveParams)
+		suite.IsType(&mtoserviceitemop.ApproveSITAddressUpdateInternalServerError{}, response)
+		payload := response.(*mtoserviceitemop.ApproveSITAddressUpdateInternalServerError).Payload
+
+		// Validate outgoing payload
+		suite.Nil(payload)
+	})
+}
+
+func (suite *HandlerSuite) TestRejectSITAddressUpdate() {
+	moveRouter := moverouter.NewMoveRouter()
+	sitAddressUpdateRejector := sitaddressupdate.NewSITAddressUpdateRequestRejector(moveRouter)
+
+	suite.Run("Returns 200, rejects SIT address update", func() {
+		handlerConfig := suite.HandlerConfig()
+		handler := RejectSITAddressUpdateHandler{
+			handlerConfig,
+			sitAddressUpdateRejector,
+		}
+
+		serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVALSREQUESTED,
+				},
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusRejected,
+				},
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDDSIT,
+				},
+			},
+			{
+				Model: models.Address{},
+				Type:  &factory.Addresses.SITDestinationOriginalAddress,
+			},
+			{
+				Model: models.Address{},
+				Type:  &factory.Addresses.SITDestinationFinalAddress,
+			},
+		}, nil)
+
+		sitAddressUpdate := factory.BuildSITAddressUpdate(suite.DB(), []factory.Customization{
+			{
+				Model:    serviceItem,
+				LinkOnly: true,
+			},
+			{
+				Model: models.SITAddressUpdate{
+					Status: models.SITAddressUpdateStatusRequested,
+				},
+			},
+		}, nil)
+
+		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/sit-address-update/%s/reject", sitAddressUpdate.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+
+		officeRemarks := "new office remarks"
+		rejectParams := mtoserviceitemop.RejectSITAddressUpdateParams{
+			HTTPRequest:        req,
+			IfMatch:            etag.GenerateEtag(sitAddressUpdate.UpdatedAt),
+			SitAddressUpdateID: *handlers.FmtUUID(sitAddressUpdate.ID),
+			Body: &ghcmessages.PatchSITAddressUpdateStatus{
+				OfficeRemarks: &officeRemarks,
+			},
+		}
+
+		// Validate incoming payload
+		suite.NoError(rejectParams.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(rejectParams)
+		suite.IsType(&mtoserviceitemop.RejectSITAddressUpdateOK{}, response)
+		payload := response.(*mtoserviceitemop.RejectSITAddressUpdateOK).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
+
+		suite.Equal(models.SITAddressUpdateStatusRejected, payload.SitAddressUpdates[0].Status)
+
+		suite.Equal(serviceItem.SITDestinationFinalAddress.City, *payload.SitDestinationFinalAddress.City)
+		suite.Equal(*serviceItem.SITDestinationFinalAddress.Country, *payload.SitDestinationFinalAddress.Country)
+		suite.Equal(serviceItem.SITDestinationFinalAddress.PostalCode, *payload.SitDestinationFinalAddress.PostalCode)
+		suite.Equal(serviceItem.SITDestinationFinalAddress.State, *payload.SitDestinationFinalAddress.State)
+		suite.Equal(serviceItem.SITDestinationFinalAddress.StreetAddress1, *payload.SitDestinationFinalAddress.StreetAddress1)
+		suite.Equal(*serviceItem.SITDestinationFinalAddress.StreetAddress2, *payload.SitDestinationFinalAddress.StreetAddress2)
+		suite.Equal(*serviceItem.SITDestinationFinalAddress.StreetAddress3, *payload.SitDestinationFinalAddress.StreetAddress3)
+
+		suite.Equal(officeRemarks, *payload.SitAddressUpdates[0].OfficeRemarks)
+	})
+
+	suite.Run("Returns a 403 when the office user is not a TOO", func() {
+		handlerConfig := suite.HandlerConfig()
+		handler := RejectSITAddressUpdateHandler{
+			handlerConfig,
+			sitAddressUpdateRejector,
+		}
+
+		serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVALSREQUESTED,
+				},
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusRejected,
+				},
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDDSIT,
+				},
+			},
+			{
+				Model: models.Address{},
+				Type:  &factory.Addresses.SITDestinationOriginalAddress,
+			},
+			{
+				Model: models.Address{},
+				Type:  &factory.Addresses.SITDestinationFinalAddress,
+			},
+		}, nil)
+
+		sitAddressUpdate := factory.BuildSITAddressUpdate(suite.DB(), []factory.Customization{
+			{
+				Model:    serviceItem,
+				LinkOnly: true,
+			},
+			{
+				Model: models.SITAddressUpdate{
+					Status: models.SITAddressUpdateStatusRequested,
+				},
+			},
+		}, nil)
+
+		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/sit-address-update/%s/reject", sitAddressUpdate.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+
+		officeRemarks := "new office remarks"
+		rejectParams := mtoserviceitemop.RejectSITAddressUpdateParams{
+			HTTPRequest:        req,
+			IfMatch:            etag.GenerateEtag(sitAddressUpdate.UpdatedAt),
+			SitAddressUpdateID: *handlers.FmtUUID(sitAddressUpdate.ID),
+			Body: &ghcmessages.PatchSITAddressUpdateStatus{
+				OfficeRemarks: &officeRemarks,
+			},
+		}
+
+		// Validate incoming payload
+		suite.NoError(rejectParams.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(rejectParams)
+		suite.IsType(&mtoserviceitemop.RejectSITAddressUpdateForbidden{}, response)
+		payload := response.(*mtoserviceitemop.RejectSITAddressUpdateForbidden).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
+
+		suite.IsType(&ghcmessages.Error{}, payload)
+	})
+
+	suite.Run("Returns 404 when rejector returns NotFoundError", func() {
+		rejector := &mocks.SITAddressUpdateRequestRejector{}
+		rejector.On(
+			"RejectSITAddressUpdateRequest",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("uuid.UUID"),
+			mock.AnythingOfType("*string"),
+			mock.AnythingOfType("string")).
+			Return(nil, apperror.NotFoundError{})
+
+		handlerConfig := suite.HandlerConfig()
+		handler := RejectSITAddressUpdateHandler{
+			handlerConfig,
+			rejector,
+		}
+
+		fakeID := uuid.Must(uuid.NewV4())
+
+		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/sit-address-update/%s/reject", fakeID), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+
+		officeRemarks := "new office remarks"
+		rejectParams := mtoserviceitemop.RejectSITAddressUpdateParams{
+			HTTPRequest:        req,
+			SitAddressUpdateID: *handlers.FmtUUID(fakeID),
+			Body: &ghcmessages.PatchSITAddressUpdateStatus{
+				OfficeRemarks: &officeRemarks,
+			},
+		}
+
+		// Validate incoming payload
+		suite.NoError(rejectParams.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(rejectParams)
+		suite.IsType(&mtoserviceitemop.RejectSITAddressUpdateNotFound{}, response)
+		payload := response.(*mtoserviceitemop.RejectSITAddressUpdateNotFound).Payload
+
+		// Validate outgoing payload
+		suite.Nil(payload)
+	})
+
+	suite.Run("Returns 422 when rejector returns validation errors", func() {
+		rejector := &mocks.SITAddressUpdateRequestRejector{}
+		rejector.On(
+			"RejectSITAddressUpdateRequest",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("uuid.UUID"),
+			mock.AnythingOfType("*string"),
+			mock.AnythingOfType("string")).
+			Return(nil, apperror.InvalidInputError{ValidationErrors: &validate.Errors{}})
+
+		handlerConfig := suite.HandlerConfig()
+		handler := RejectSITAddressUpdateHandler{
+			handlerConfig,
+			rejector,
+		}
+
+		sitAddressUpdate := factory.BuildSITAddressUpdate(suite.DB(), []factory.Customization{
+			{
+				Model: models.SITAddressUpdate{
+					Status: models.SITAddressUpdateStatusRequested,
+				},
+			},
+		}, nil)
+
+		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/sit-address-update/%s/reject", sitAddressUpdate.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+
+		officeRemarks := "new office remarks"
+		rejectParams := mtoserviceitemop.RejectSITAddressUpdateParams{
+			HTTPRequest:        req,
+			IfMatch:            etag.GenerateEtag(sitAddressUpdate.UpdatedAt),
+			SitAddressUpdateID: *handlers.FmtUUID(sitAddressUpdate.ID),
+			Body: &ghcmessages.PatchSITAddressUpdateStatus{
+				OfficeRemarks: &officeRemarks,
+			},
+		}
+
+		// Validate incoming payload
+		suite.NoError(rejectParams.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(rejectParams)
+		suite.IsType(&mtoserviceitemop.RejectSITAddressUpdateUnprocessableEntity{}, response)
+		payload := response.(*mtoserviceitemop.RejectSITAddressUpdateUnprocessableEntity).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
+	})
+
+	suite.Run("Returns 500 when rejector returns unexpected error", func() {
+		rejector := &mocks.SITAddressUpdateRequestRejector{}
+		rejector.On(
+			"RejectSITAddressUpdateRequest",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("uuid.UUID"),
+			mock.AnythingOfType("*string"),
+			mock.AnythingOfType("string")).
+			Return(nil, apperror.InternalServerError{})
+
+		handlerConfig := suite.HandlerConfig()
+		handler := RejectSITAddressUpdateHandler{
+			handlerConfig,
+			rejector,
+		}
+
+		fakeID := uuid.Must(uuid.NewV4())
+
+		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/sit-address-update/%s/reject", fakeID), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+
+		officeRemarks := "new office remarks"
+		rejectParams := mtoserviceitemop.RejectSITAddressUpdateParams{
+			HTTPRequest:        req,
+			SitAddressUpdateID: *handlers.FmtUUID(fakeID),
+			IfMatch:            etag.GenerateEtag(time.Now()),
+			Body: &ghcmessages.PatchSITAddressUpdateStatus{
+				OfficeRemarks: &officeRemarks,
+			},
+		}
+
+		// Validate incoming payload
+		suite.NoError(rejectParams.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(rejectParams)
+		suite.IsType(&mtoserviceitemop.RejectSITAddressUpdateInternalServerError{}, response)
+		payload := response.(*mtoserviceitemop.RejectSITAddressUpdateInternalServerError).Payload
 
 		// Validate outgoing payload
 		suite.Nil(payload)

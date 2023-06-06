@@ -41,7 +41,7 @@ export const sitAddressUpdates = [
     id: '123xyz',
     mtoServiceItemID: 'abc123',
     officeRemarks: '',
-    contractorRemarks: '',
+    contractorRemarks: 'Customer wishes to be closer to family',
     distance: 500,
     status: 'APPROVED',
     oldAddress,

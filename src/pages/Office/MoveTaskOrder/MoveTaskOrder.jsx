@@ -16,6 +16,7 @@ import ConnectedServiceItemUpdateModal from 'components/Office/ServiceItemUpdate
 import { MILMOVE_LOG_LEVEL, milmoveLog } from 'utils/milmoveLog';
 import { formatAddressForAPI, formatStorageFacilityForAPI, removeEtag } from 'utils/formatMtoShipment';
 import hasRiskOfExcess from 'utils/hasRiskOfExcess';
+import { findSITAddressUpdate } from 'utils/serviceItems';
 import customerContactTypes from 'constants/customerContactTypes';
 import dimensionTypes from 'constants/dimensionTypes';
 import { MOVES, MTO_SERVICE_ITEMS, MTO_SHIPMENTS, ORDERS } from 'constants/queryKeys';
@@ -61,6 +62,7 @@ import Restricted from 'components/Restricted/Restricted';
 import { permissionTypes } from 'constants/permissions';
 import { tooRoutes } from 'constants/routes';
 import EditSitAddressChangeForm from 'components/Office/ServiceItemUpdateModal/EditSitAddressChangeForm';
+import ReviewSitAddressChange from 'components/Office/ServiceItemUpdateModal/ReviewSitAddressChange';
 import { requiredAddressSchema } from 'utils/validation';
 
 const nonShipmentSectionLabels = {
@@ -96,7 +98,7 @@ export const MoveTaskOrder = (props) => {
   const [isReweighModalVisible, setIsReweighModalVisible] = useState(false);
   const [isWeightModalVisible, setIsWeightModalVisible] = useState(false);
   // SIT Address Updates
-  const [isRequestSITAddressModalVisible, setIsRequestSITAddressModalVisible] = useState(false);
+  const [isReviewRequestSITAddressModalVisible, setIsReviewRequestSITAddressModalVisible] = useState(false);
   const [isEditSitAddressModalVisible, setIsEditSitAddressModalVisible] = useState(false);
   /* ------------------ Alerts ------------------------- */
   const [alertMessage, setAlertMessage] = useState(null);
@@ -380,18 +382,18 @@ export const MoveTaskOrder = (props) => {
    * @param {string} mtoServiceItemID The service item's ID
    * @param {string} mtoShipmentID The shipments's ID
    * */
-  const handleRequestSITAddressUpdateModal = (mtoServiceItemID, mtoShipmentID) => {
+  const handleReviewRequestSITAddressUpdateModal = (mtoServiceItemID, mtoShipmentID) => {
     const serviceItem = shipmentServiceItems[`${mtoShipmentID}`]?.find((item) => item.id === mtoServiceItemID);
     setSelectedServiceItem(serviceItem);
-    setIsRequestSITAddressModalVisible(true);
+    setIsReviewRequestSITAddressModalVisible(true);
   };
   /**
    * @description This is the handler function for cancelling or closeing the
    * Request SIT Address Modal. This is used by the ConnectedServiceItemUpdateModal
    * component to close the Request SIT Address modal.
    * */
-  const handleCancelRequestAddressModal = () => {
-    setIsRequestSITAddressModalVisible(false);
+  const handleCancelReviewRequestAddressModal = () => {
+    setIsReviewRequestSITAddressModalVisible(false);
   };
 
   const handleShowWeightModal = () => {
@@ -942,13 +944,19 @@ export const MoveTaskOrder = (props) => {
             />
           )}
 
-          <ConnectedServiceItemUpdateModal
-            isOpen={isRequestSITAddressModalVisible}
-            closeModal={handleCancelRequestAddressModal}
-            title="Review request: service item update"
-            onSave={() => {}}
-            serviceItem={selectedServiceItem}
-          />
+          {isReviewRequestSITAddressModalVisible && (
+            <ConnectedServiceItemUpdateModal
+              isOpen={isReviewRequestSITAddressModalVisible}
+              closeModal={handleCancelReviewRequestAddressModal}
+              title="Review request: service item update"
+              onSave={() => {}}
+              serviceItem={selectedServiceItem}
+            >
+              <ReviewSitAddressChange
+                sitAddressUpdate={findSITAddressUpdate(selectedServiceItem.id, selectedServiceItem.sitAddressUpdates)}
+              />
+            </ConnectedServiceItemUpdateModal>
+          )}
 
           <ConnectedEditMaxBillableWeightModal
             isOpen={isWeightModalVisible}
@@ -1091,7 +1099,7 @@ export const MoveTaskOrder = (props) => {
                     serviceItems={approvedServiceItems}
                     handleUpdateMTOServiceItemStatus={handleUpdateMTOServiceItemStatus}
                     handleShowRejectionDialog={handleShowRejectionDialog}
-                    handleRequestSITAddressUpdateModal={handleRequestSITAddressUpdateModal}
+                    handleRequestSITAddressUpdateModal={handleReviewRequestSITAddressUpdateModal}
                     handleShowEditSitAddressModal={handleShowEditSitAddressModal}
                     statusForTableType={SERVICE_ITEM_STATUSES.APPROVED}
                   />
