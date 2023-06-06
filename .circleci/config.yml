@@ -631,7 +631,7 @@ commands:
         type: string
     steps:
       - run:
-          name: make server_test_build for <<parameters.application>>
+          name: make server_test for <<parameters.application>>
           command: |
             export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)
             make server_test
