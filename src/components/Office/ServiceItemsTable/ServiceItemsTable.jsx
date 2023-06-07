@@ -206,7 +206,7 @@ ServiceItemsTable.propTypes = {
   handleShowRejectionDialog: PropTypes.func.isRequired,
   statusForTableType: PropTypes.string.isRequired,
   handleRequestSITAddressUpdateModal: PropTypes.func,
-  serviceItemAddressUpdateAlert: PropTypes.string.isRequired,
+  serviceItemAddressUpdateAlert: PropTypes.object.isRequired,
   serviceItems: PropTypes.arrayOf(ServiceItemDetailsShape).isRequired,
 };
 
