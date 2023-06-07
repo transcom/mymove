@@ -722,7 +722,7 @@ export const MoveTaskOrder = (props) => {
     if (sitAddressUpdate === 'YES') {
       mutateApproveSitAddressUpdate(
         {
-          sitAddressUpdate: id,
+          sitAddressUpdateID: id,
           ifMatchETag: eTag,
           body: { officeRemarks },
         },
@@ -735,7 +735,7 @@ export const MoveTaskOrder = (props) => {
     } else if (sitAddressUpdate === 'NO') {
       mutateRejectSitAddressUpdate(
         {
-          sitAddressUpdate: id,
+          sitAddressUpdateID: id,
           ifMatchETag: eTag,
           body: { officeRemarks },
         },
