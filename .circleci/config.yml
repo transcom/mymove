@@ -520,22 +520,6 @@ commands:
           command: scripts/check-deployed-commit "<< parameters.health_check_hosts >>" "$CIRCLE_SHA1" ${TLS_KEY} ${TLS_CERT} ${TLS_CA}
       - announce_failure
 
-  deploy_webhook_client_steps:
-    parameters:
-      ecr_env:
-        type: string
-    steps:
-      - attach_workspace:
-          at: .
-      - run:
-          name: Get Digest from filesystem
-          command: echo 'export ECR_DIGEST=$(cat images/sha/ECR_DIGEST_app-webhook-client_<< parameters.ecr_env >>)' | tee -a "${BASH_ENV}"
-      - deploy:
-          name: Deploy app-webhook-client service
-          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-service-container app-webhook-client "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-webhook-client@${ECR_DIGEST}" "${APP_ENVIRONMENT}" "/bin/webhook-client webhook-notify"
-          no_output_timeout: 20m
-      - announce_failure
-
   deploy_app_storybook:
     parameters:
       s3_bucket:
@@ -1421,8 +1405,6 @@ jobs:
             - Dockerfile.tasks
             - Dockerfile.tasks_dp3
             - Dockerfile.tools
-            - Dockerfile.webhook_client
-            - Dockerfile.webhook_client_dp3
             - bin
             - config
             - migrations
@@ -1720,30 +1702,6 @@ jobs:
           repo: app-tasks
       - announce_failure
 
-  # `build_webhook_client` builds the webhook client container
-  build_webhook_client:
-    executor: mymove_builder
-    steps:
-      - build_image:
-          dockerfile: Dockerfile.webhook_client
-          image_name: webhook_client
-          tag: dev
-          working_dir: /mnt/ramdisk
-      - announce_failure
-
-
-  # `push_webhook_client_stg` pushes the webhook client container to the stg container repository
-  push_webhook_client_stg:
-    executor: mymove_pusher
-    steps:
-      - aws_vars_stg
-      - push_image:
-          ecr_env: stg
-          image_name: webhook_client
-          tag: dev
-          repo: app-webhook-client
-      - announce_failure
-
   # All of the deploy tasks need to checkout the code so they can run the `scripts/do-exclusively` script
 
   # `deploy_dp3_migrations` deploys migrations to the dp3 environment
@@ -1876,17 +1834,6 @@ jobs:
       - deploy_app_client_tls_steps:
           compare_host: gex.stg.move.mil
           health_check_hosts: gex.stg.move.mil
-          ecr_env: stg
-
-  # `deploy_stg_webhook_client` deploys the webhook client to stg
-  deploy_stg_webhook_client:
-    executor: mymove_pusher
-    environment:
-      APP_ENVIRONMENT: 'stg'
-    steps:
-      - checkout
-      - aws_vars_stg
-      - deploy_webhook_client_steps:
           ecr_env: stg
 
   deploy_storybook_dp3:
@@ -2124,14 +2071,6 @@ workflows:
             branches:
               ignore: *dp3-branch
 
-      - build_webhook_client:
-          requires:
-            - compile_app_server
-            - compile_app_client
-          filters:
-            branches:
-              ignore: *dp3-branch
-
       - push_tasks_gov_dev:
           requires:
             - build_tasks
@@ -2230,13 +2169,6 @@ workflows:
             branches:
               only: main
 
-      - push_webhook_client_stg:
-          requires:
-            - build_webhook_client
-          filters:
-            branches:
-              only: main
-
       - check_circle_against_stg_sha:
           requires:
             - pre_deps_golang
@@ -2248,7 +2180,6 @@ workflows:
             - compile_app_client
             - push_migrations_stg
             - push_tasks_stg
-            - push_webhook_client_stg
             - integration_tests
             - integration_tests_mtls
           filters:
@@ -2283,20 +2214,12 @@ workflows:
             branches:
               only: main
 
-      - deploy_stg_webhook_client:
-          requires:
-            - deploy_stg_migrations
-          filters:
-            branches:
-              only: main
-
       - approve_prd_deploy:
           type: approval
           requires:
             - deploy_stg_tasks
             - deploy_stg_app
             - deploy_stg_app_client_tls
-            - deploy_stg_webhook_client
 
       - deploy_storybook_dp3:
           requires:
