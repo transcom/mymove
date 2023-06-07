@@ -206,7 +206,7 @@ describe('Office App', () => {
     it.each([
       ['Move Queue', '/moves/queue', roleTypes.TOO],
       ['Payment Request Queue', '/invoicing/queue', roleTypes.TIO],
-      ['Services Counseling Add Shipment', '/new-PPM', roleTypes.SERVICES_COUNSELOR],
+      ['Services Counseling Add Shipment', '/new-shipment/PPM', roleTypes.SERVICES_COUNSELOR],
       ['Services Counseling Queue', '/counseling', roleTypes.SERVICES_COUNSELOR],
       ['Services Counseling Queue', '/PPM-closeout', roleTypes.SERVICES_COUNSELOR],
       ['Services Counseling Move Info', '/counseling/moves/test123/', roleTypes.SERVICES_COUNSELOR],
@@ -261,7 +261,7 @@ describe('Office App', () => {
     it.each([
       ['Move Queue', '/moves/queue', roleTypes.PRIME_SIMULATOR],
       ['Payment Request Queue', '/invoicing/queue', roleTypes.PRIME_SIMULATOR],
-      ['Services Counseling Add Shipment', '/new-PPM', roleTypes.PRIME_SIMULATOR],
+      ['Services Counseling Add Shipment', '/new-shipment/PPM', roleTypes.PRIME_SIMULATOR],
       ['Services Counseling Move Info', '/counseling/moves/test123/', roleTypes.QAE_CSR],
       ['Edit Shipment Details', '/moves/test123/shipments/ship123', roleTypes.QAE_CSR],
       ['Prime Simulator Move Details', '/simulator/moves/test123/details', roleTypes.QAE_CSR],
