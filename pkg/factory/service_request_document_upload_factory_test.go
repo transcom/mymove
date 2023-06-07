@@ -265,25 +265,3 @@ func (suite *FactorySuite) TestBuildServiceRequestDocumentUpload() {
 	})
 
 }
-
-// suite.Run("Failed creation of upload - no appcontext", func() {
-// 	// Under test:      BuildUser
-// 	// Mocked:          None
-// 	// Set up:          Create an upload with an uploader but no appcontext
-// 	// Expected outcome:Should cause a panic
-// 	storer := storageTest.NewFakeS3Storage(true)
-// 	uploader, err := uploaderPkg.NewServiceRequestUploader(storer, 100*uploaderPkg.MB)
-// 	suite.NoError(err)
-
-// 	suite.Panics(func() {
-// 		BuildUpload(suite.DB(), []Customization{
-// 			{
-// 				Model: models.Upload{},
-// 				ExtendedParams: &ServiceRequestDocumentUploadExtendedParams{
-// 					ServiceRequestDocumentUploader: uploader,
-// 				},
-// 			},
-// 		}, nil)
-// 	})
-
-// })
