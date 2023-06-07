@@ -681,6 +681,7 @@ export const MoveTaskOrder = (props) => {
           setAlertType('success');
 
           // Setting up the approved service item table alert for TOO edits
+          // TODO: We should probably change the endpoint to send back the id of the latest update so we can match by id instead of position.
           const calculatedDistance = data.sitAddressUpdates.slice(-1)[0].distance; // Resulting update should be the last item in the array
           const type = calculatedDistance <= 50 ? 'info' : 'warning';
           const message =
