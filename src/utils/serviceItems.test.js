@@ -44,7 +44,7 @@ describe('serviceItems utils', () => {
           {
             id: '3',
             mtoShipmentID: '20',
-            mtoShipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
+            mtoShipmentType: SHIPMENT_OPTIONS.HHG,
             mtoServiceItemName: serviceItemCodes.DLH,
             amount: 5678.05,
             createdAt: '2020-01-01T00:08:00.999Z',
@@ -66,7 +66,7 @@ describe('serviceItems utils', () => {
           {
             id: '3',
             mtoShipmentID: '20',
-            mtoShipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
+            mtoShipmentType: SHIPMENT_OPTIONS.HHG,
             mtoServiceItemName: serviceItemCodes.DLH,
             amount: 5678.05,
             createdAt: '2020-01-01T00:08:00.999Z',
@@ -91,7 +91,7 @@ describe('serviceItems utils', () => {
             {
               id: '3',
               mtoShipmentID: '20',
-              mtoShipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
+              mtoShipmentType: SHIPMENT_OPTIONS.HHG,
               mtoServiceItemName: serviceItemCodes.DLH,
               amount: 5678.05,
               createdAt: '2020-01-01T00:08:10.999Z',
@@ -99,7 +99,7 @@ describe('serviceItems utils', () => {
             {
               id: '4',
               mtoShipmentID: '20',
-              mtoShipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
+              mtoShipmentType: SHIPMENT_OPTIONS.HHG,
               mtoServiceItemName: serviceItemCodes.FSC,
               amount: 5678.05,
               createdAt: '2020-01-01T00:08:00.999Z',
@@ -121,7 +121,7 @@ describe('serviceItems utils', () => {
             {
               id: '4',
               mtoShipmentID: '20',
-              mtoShipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
+              mtoShipmentType: SHIPMENT_OPTIONS.HHG,
               mtoServiceItemName: serviceItemCodes.FSC,
               amount: 5678.05,
               createdAt: '2020-01-01T00:08:00.999Z',
@@ -129,7 +129,7 @@ describe('serviceItems utils', () => {
             {
               id: '3',
               mtoShipmentID: '20',
-              mtoShipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
+              mtoShipmentType: SHIPMENT_OPTIONS.HHG,
               mtoServiceItemName: serviceItemCodes.DLH,
               amount: 5678.05,
               createdAt: '2020-01-01T00:08:10.999Z',
@@ -155,7 +155,7 @@ describe('serviceItems utils', () => {
             {
               id: '3',
               mtoShipmentID: '20',
-              mtoShipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
+              mtoShipmentType: SHIPMENT_OPTIONS.HHG,
               mtoServiceItemName: serviceItemCodes.DLH,
               amount: 5678.05,
               createdAt: '2020-01-01T00:08:10.999Z',
@@ -163,7 +163,7 @@ describe('serviceItems utils', () => {
             {
               id: '4',
               mtoShipmentID: '20',
-              mtoShipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
+              mtoShipmentType: SHIPMENT_OPTIONS.HHG,
               mtoServiceItemName: serviceItemCodes.FSC,
               amount: 5678.05,
               createdAt: '2020-01-01T00:08:00.999Z',
@@ -171,7 +171,7 @@ describe('serviceItems utils', () => {
             {
               id: '5',
               mtoShipmentID: '30',
-              mtoShipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
+              mtoShipmentType: SHIPMENT_OPTIONS.HHG,
               mtoServiceItemName: serviceItemCodes.DLH,
               amount: 5678.05,
               createdAt: '2020-01-01T00:03:10.999Z',
@@ -179,7 +179,7 @@ describe('serviceItems utils', () => {
             {
               id: '6',
               mtoShipmentID: '30',
-              mtoShipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
+              mtoShipmentType: SHIPMENT_OPTIONS.HHG,
               mtoServiceItemName: serviceItemCodes.FSC,
               amount: 5678.05,
               createdAt: '2020-01-01T00:03:00.999Z',
@@ -189,7 +189,7 @@ describe('serviceItems utils', () => {
             {
               id: '6',
               mtoShipmentID: '30',
-              mtoShipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
+              mtoShipmentType: SHIPMENT_OPTIONS.HHG,
               mtoServiceItemName: serviceItemCodes.FSC,
               amount: 5678.05,
               createdAt: '2020-01-01T00:03:00.999Z',
@@ -197,7 +197,7 @@ describe('serviceItems utils', () => {
             {
               id: '5',
               mtoShipmentID: '30',
-              mtoShipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
+              mtoShipmentType: SHIPMENT_OPTIONS.HHG,
               mtoServiceItemName: serviceItemCodes.DLH,
               amount: 5678.05,
               createdAt: '2020-01-01T00:03:10.999Z',
@@ -217,7 +217,7 @@ describe('serviceItems utils', () => {
             {
               id: '4',
               mtoShipmentID: '20',
-              mtoShipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
+              mtoShipmentType: SHIPMENT_OPTIONS.HHG,
               mtoServiceItemName: serviceItemCodes.FSC,
               amount: 5678.05,
               createdAt: '2020-01-01T00:08:00.999Z',
@@ -225,7 +225,7 @@ describe('serviceItems utils', () => {
             {
               id: '3',
               mtoShipmentID: '20',
-              mtoShipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
+              mtoShipmentType: SHIPMENT_OPTIONS.HHG,
               mtoServiceItemName: serviceItemCodes.DLH,
               amount: 5678.05,
               createdAt: '2020-01-01T00:08:10.999Z',

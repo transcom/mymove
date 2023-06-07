@@ -448,8 +448,6 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			{"HHG", models.MTOShipmentTypeHHG},
 			{"INTERNATIONAL_HHG", models.MTOShipmentTypeInternationalHHG},
 			{"INTERNATIONAL_UB", models.MTOShipmentTypeInternationalUB},
-			{"HHG_LONGHAUL_DOMESTIC", models.MTOShipmentTypeHHGLongHaulDom},
-			{"HHG_SHORTHAUL_DOMESTIC", models.MTOShipmentTypeHHGShortHaulDom},
 			{"HHG_INTO_NTS_DOMESTIC", models.MTOShipmentTypeHHGIntoNTSDom},
 			{"HHG_OUTOF_NTS_DOMESTIC", models.MTOShipmentTypeHHGOutOfNTSDom},
 			{"MOTORHOME", models.MTOShipmentTypeMotorhome},
