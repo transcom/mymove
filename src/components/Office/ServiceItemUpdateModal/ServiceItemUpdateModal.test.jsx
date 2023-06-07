@@ -187,9 +187,11 @@ describe('ServiceItemUpdateModal', () => {
       // Check for radio button section
       expect(screen.getByText('Review Request')).toBeInTheDocument();
       expect(screen.getByText('Approve address change?')).toBeInTheDocument();
+      const form = screen.getByTestId('reviewSITAddressUpdateForm');
+      expect(form).toBeInTheDocument();
     });
 
-    it('the form is editing and submits as expected', async () => {
+    it('the form is editing and submits as expected for yes button', async () => {
       const mockOnSubmit = jest.fn();
       render(
         <ServiceItemUpdateModal
@@ -215,6 +217,32 @@ describe('ServiceItemUpdateModal', () => {
         });
       });
     });
+    it('the form is editing and submits as expected for no button', async () => {
+      const mockOnSubmit = jest.fn();
+      render(
+        <ServiceItemUpdateModal
+          title="Review request: service item update"
+          onSave={mockOnSubmit}
+          closeModal={() => {}}
+          serviceItem={dddSitWithAddressUpdate}
+        >
+          <ReviewSitAddressChange sitAddressUpdate={dddSitWithAddressUpdate.sitAddressUpdates[0]} />
+        </ServiceItemUpdateModal>,
+      );
+      const approveSITAddressUpdateBtn = screen.getByRole('radio', { name: /no/i });
+      const officeRemarksInput = screen.getByLabelText('Office remarks');
+      const submitBtn = screen.getByRole('button', { name: 'Save' });
+      await act(() => userEvent.click(approveSITAddressUpdateBtn));
+      await act(() => userEvent.type(officeRemarksInput, 'Rejected!'));
+      await act(() => userEvent.click(submitBtn));
+      await waitFor(() => {
+        expect(mockOnSubmit).toHaveBeenCalled();
+        expect(mockOnSubmit).toHaveBeenCalledWith('abc123', {
+          officeRemarks: 'Rejected!',
+          sitAddressUpdate: 'NO',
+        });
+      });
+    });
     it('when the cancel button is pressed, the onCancel handler is called', async () => {
       const mockOnClose = jest.fn();
       render(
@@ -231,6 +259,25 @@ describe('ServiceItemUpdateModal', () => {
       await act(() => userEvent.click(cancelButton));
       await waitFor(() => {
         expect(mockOnClose).toHaveBeenCalled();
+      });
+    });
+
+    it('Save button is disabled if form validations are not met', async () => {
+      render(
+        <ServiceItemUpdateModal
+          title="Review request: service item update"
+          {...defaultValues}
+          serviceItem={{ dddSitWithAddressUpdate }}
+        >
+          <ReviewSitAddressChange sitAddressUpdate={dddSitWithAddressUpdate.sitAddressUpdates[0]} />
+        </ServiceItemUpdateModal>,
+      );
+      const officeRemarksInput = screen.getByLabelText('Office remarks');
+      const submitBtn = screen.getByRole('button', { name: 'Save' });
+      // Testing Office remarks validation.
+      await act(() => userEvent.clear(officeRemarksInput));
+      await waitFor(() => {
+        expect(submitBtn).toBeDisabled();
       });
     });
   });

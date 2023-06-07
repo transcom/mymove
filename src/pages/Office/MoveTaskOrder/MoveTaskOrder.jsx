@@ -680,29 +680,41 @@ export const MoveTaskOrder = (props) => {
   };
 
   const handleSubmitSitAddressUpdateChange = (mtoServiceItemID, { sitAddressUpdate, officeRemarks }) => {
-    const sitAddressUpdateFuncMap = {
-      YES: mutateApproveSitAddressUpdate,
-      NO: mutateRejectSitAddressUpdate,
+    const { id, eTag } = findSITAddressUpdate(selectedServiceItem.id, selectedServiceItem.sitAddressUpdates);
+    const runOnSuccess = () => {
+      setIsReviewRequestSITAddressModalVisible(false);
+      setSelectedServiceItem({});
+      setAlertMessage('Changes saved');
+      setAlertType('success');
     };
 
-    const { id, eTag } = findSITAddressUpdate(selectedServiceItem.id, selectedServiceItem.sitAddressUpdates);
-
-    const sitFunc = sitAddressUpdateFuncMap[sitAddressUpdate];
-    sitFunc(
-      {
-        sitAddressUpdateID: id,
-        ifMatchETag: eTag,
-        body: { officeRemarks },
-      },
-      {
-        onSuccess: () => {
-          setIsReviewRequestSITAddressModalVisible(false);
-          setSelectedServiceItem({});
-          setAlertMessage('Changes saved');
-          setAlertType('success');
+    if (sitAddressUpdate === 'YES') {
+      mutateApproveSitAddressUpdate(
+        {
+          sitAddressUpdate: id,
+          ifMatchETag: eTag,
+          body: { officeRemarks },
         },
-      },
-    );
+        {
+          onSuccess: () => {
+            runOnSuccess();
+          },
+        },
+      );
+    } else if (sitAddressUpdate === 'NO') {
+      mutateRejectSitAddressUpdate(
+        {
+          sitAddressUpdate: id,
+          ifMatchETag: eTag,
+          body: { officeRemarks },
+        },
+        {
+          onSuccess: () => {
+            runOnSuccess();
+          },
+        },
+      );
+    }
   };
 
   /*
