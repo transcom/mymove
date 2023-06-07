@@ -12,11 +12,11 @@ if [[ $# -ne 2 ]]; then
 fi
 
 repoName=$1
-gitCommit=$2
+imageDigest=$2
 
 get_findings() {
   # Get the findings reported by ECR.
-  findings=$(aws ecr describe-image-scan-findings --repository-name "${repoName}" --image-id "imageTag=\"git-${gitCommit}\"")
+  findings=$(aws ecr describe-image-scan-findings --repository-name "${repoName}" --image-id "imageDigest=${imageDigest}")
   echo "${findings}" | jq .
   echo
 

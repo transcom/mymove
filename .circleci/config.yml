@@ -611,7 +611,7 @@ commands:
             cat images/sha/ECR_DIGEST_<< parameters.repo >>_<< parameters.ecr_env >>
       - run:
           name: 'Describe image scan findings'
-          command: scripts/ecr-describe-image-scan-findings << parameters.repo >> ${CIRCLE_SHA1}
+          command: scripts/ecr-describe-image-scan-findings << parameters.repo >> $(cat images/sha/ECR_DIGEST_<< parameters.repo >>_<< parameters.ecr_env >>)
       - persist_to_workspace:
           root: .
           paths:
@@ -640,7 +640,6 @@ commands:
           at: .
       - run:
           name: 'Tag and push docker image'
-
           command: |
             aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com
             otel_image=$(echo << parameters.aws_otel_collector_image >>)
@@ -669,7 +668,7 @@ commands:
             cat images/sha/ECR_DIGEST_<< parameters.repo >>_<< parameters.ecr_env >>
       - run:
           name: 'Describe image scan findings'
-          command: scripts/ecr-describe-image-scan-findings << parameters.repo >> ${CIRCLE_SHA1}
+          command: scripts/ecr-describe-image-scan-findings << parameters.repo >> $(cat images/sha/ECR_DIGEST_<< parameters.repo >>_<< parameters.ecr_env >>)
       - persist_to_workspace:
           root: .
           paths:
