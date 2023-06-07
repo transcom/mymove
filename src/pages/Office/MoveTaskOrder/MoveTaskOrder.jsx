@@ -698,42 +698,54 @@ export const MoveTaskOrder = (props) => {
   };
 
   const handleSubmitSitAddressUpdateChange = (mtoServiceItemID, { sitAddressUpdate, officeRemarks }) => {
-    const sitAddressUpdateFuncMap = {
-      YES: mutateApproveSitAddressUpdate,
-      NO: mutateRejectSitAddressUpdate,
+    const { id, eTag } = findSITAddressUpdate(selectedServiceItem.id, selectedServiceItem.sitAddressUpdates);
+    const runOnSuccess = (data) => {
+      setIsReviewRequestSITAddressModalVisible(false);
+      setSelectedServiceItem({});
+      setAlertMessage('Changes saved');
+      setAlertType('success');
+
+      // Setting up the approved service item table alert for TOO edits
+      const { status } = data.sitAddressUpdates.find((update) => update.id === id);
+      const type = status === 'REJECTED' ? 'info' : 'warning';
+      const message =
+        status === 'REJECTED' ? 'Address update over 50 miles rejected.' : 'Address update over 50 miles approved.';
+
+      setServiceItemAddressUpdateAlert({
+        ...serviceItemAddressUpdateAlert,
+        makeVisible: true,
+        alertType: type,
+        alertMessage: message,
+      });
     };
 
-    const { id, eTag } = findSITAddressUpdate(selectedServiceItem.id, selectedServiceItem.sitAddressUpdates);
-
-    const sitFunc = sitAddressUpdateFuncMap[sitAddressUpdate];
-    sitFunc(
-      {
-        sitAddressUpdateID: id,
-        ifMatchETag: eTag,
-        body: { officeRemarks },
-      },
-      {
-        onSuccess: (data) => {
-          setIsReviewRequestSITAddressModalVisible(false);
-          setSelectedServiceItem({});
-          setAlertMessage('Changes saved');
-          setAlertType('success');
-
-          // Setting up the approved service item table alert for TOO edits
-          const { status } = data.sitAddressUpdates.find((update) => update.id === id);
-          const type = status === 'REJECTED' ? 'info' : 'warning';
-          const message =
-            status === 'REJECTED' ? 'Address update over 50 miles rejected.' : 'Address update over 50 miles approved.';
-
-          setServiceItemAddressUpdateAlert({
-            ...serviceItemAddressUpdateAlert,
-            makeVisible: true,
-            alertType: type,
-            alertMessage: message,
-          });
+    if (sitAddressUpdate === 'YES') {
+      mutateApproveSitAddressUpdate(
+        {
+          sitAddressUpdate: id,
+          ifMatchETag: eTag,
+          body: { officeRemarks },
         },
-      },
-    );
+        {
+          onSuccess: (data) => {
+            runOnSuccess(data);
+          },
+        },
+      );
+    } else if (sitAddressUpdate === 'NO') {
+      mutateRejectSitAddressUpdate(
+        {
+          sitAddressUpdate: id,
+          ifMatchETag: eTag,
+          body: { officeRemarks },
+        },
+        {
+          onSuccess: (data) => {
+            runOnSuccess(data);
+          },
+        },
+      );
+    }
   };
 
   /*
