@@ -61,7 +61,10 @@ func (p *mtoServiceItemUpdater) ApproveOrRejectServiceItem(
 
 func (p *mtoServiceItemUpdater) findServiceItem(appCtx appcontext.AppContext, serviceItemID uuid.UUID) (*models.MTOServiceItem, error) {
 	var serviceItem models.MTOServiceItem
-	err := appCtx.DB().Q().EagerPreload("MoveTaskOrder").Find(&serviceItem, serviceItemID)
+	err := appCtx.DB().Q().EagerPreload(
+		"MoveTaskOrder",
+		"MTOServiceItems.SITDestinationFinalAddress",
+	).Find(&serviceItem, serviceItemID)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
