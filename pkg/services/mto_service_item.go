@@ -31,5 +31,5 @@ type MTOServiceItemUpdater interface {
 //
 //go:generate mockery --name serviceRequestDocumentUploadCreator
 type ServiceRequestDocumentUploadCreator interface {
-	CreateUpload(appCtx appcontext.AppContext, file io.ReadCloser, paymentRequestID uuid.UUID, userID uuid.UUID, filename string) (*models.Upload, error)
+	CreateUpload(appCtx appcontext.AppContext, file io.ReadCloser, mtoServiceItemID uuid.UUID, userID uuid.UUID, filename string) (*models.Upload, error)
 }

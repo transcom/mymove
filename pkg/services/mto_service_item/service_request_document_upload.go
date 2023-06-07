@@ -45,7 +45,7 @@ func (p *serviceRequestDocumentUploadCreator) assembleUploadFilePathName(appCtx 
 	}
 
 	newfilename := time.Now().Format(VersionTimeFormat) + "-" + filename
-	uploadFilePath := fmt.Sprintf("/payment-request-uploads/mto-%s/payment-request-%s", mtoServiceItem.MoveTaskOrderID, mtoServiceItem.ID)
+	uploadFilePath := fmt.Sprintf("/mto-service-item/%s", mtoServiceItem.ID)
 	uploadFileName := path.Join(uploadFilePath, newfilename)
 
 	return uploadFileName, err
