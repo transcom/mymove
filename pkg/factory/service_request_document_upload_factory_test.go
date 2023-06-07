@@ -263,5 +263,4 @@ func (suite *FactorySuite) TestBuildServiceRequestDocumentUpload() {
 		suite.Equal(contractor.ID, serviceRequestDocumentUpload.Contractor.ID)
 		suite.Equal(contractor.ID, serviceRequestDocumentUpload.ContractorID)
 	})
-
 }
