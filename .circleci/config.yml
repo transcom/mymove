@@ -15,7 +15,8 @@ version: 2.1
 
 # References for variables shared across the file
 references:
-  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-59d1b5d814b190c7c5a8c460ca97ed193d518350
+  # with postgresql-client-14=14.7
+  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-5f1d411a8382b8f8b6bf4be8503b1aac6984265c
 
   # the playwright image to use
   playwright: &playwright cimg/node:18.13.0-browsers
@@ -24,7 +25,7 @@ references:
   # see milmove_load_testing for the right config
   load_tester: &load_tester cimg/python:3.11.3
 
-  postgres: &postgres cimg/postgres:12.11
+  postgres: &postgres cimg/postgres:14.7
 
   redis: &redis redis:5.0.6
 
@@ -177,13 +178,6 @@ executors:
           # use ramdisk for better performance
           # https://circleci.com/docs/databases/#optimizing-postgresql-images
           PGDATA: /dev/shm/pgdata/data
-        # override entrypoint/command for ramdisk
-        # this has been fixed in versions of postgres newer than 13.9
-        # https://github.com/CircleCI-Public/cimg-postgres/commit/3b320e26e4f187d0cd144efea1bc26cf5a2b68b0
-        # milmove is still on 12.11
-        entrypoint: /bin/bash
-        command: -c 'ln -s /dev/shm/pgdata/data /var/lib/postgresql/ && exec /usr/local/bin/docker-entrypoint.sh postgres'
-
       - image: *redis
         auth:
           username: $DOCKERHUB_USERNAME

@@ -40,15 +40,13 @@ buildEnv {
       })
       { }).go_1_20
 
-    (import
-      (builtins.fetchGit {
-        # Descriptive name to make the store path easier to identify
-        name = "postgresql-12.7";
-        url = "https://github.com/NixOS/nixpkgs/";
-        ref = "refs/heads/nixpkgs-unstable";
-        rev = "860b56be91fb874d48e23a950815969a7b832fbc";
-      })
-      { }).postgresql_12
+    (import (builtins.fetchGit {
+      # Descriptive name to make the store path easier to identify
+      name = "postgresql-14.7";
+      url = "https://github.com/NixOS/nixpkgs/";
+      ref = "refs/heads/nixpkgs-unstable";
+      rev = "b969a89c3e84a121c9b3af2e4ef277cd822b988a";
+    }) {}).postgresql_14
 
     (import
       (builtins.fetchGit {
