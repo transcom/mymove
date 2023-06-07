@@ -4827,8 +4827,6 @@ func init() {
       "title": "Shipment Type",
       "enum": [
         "HHG",
-        "HHG_LONGHAUL_DOMESTIC",
-        "HHG_SHORTHAUL_DOMESTIC",
         "HHG_INTO_NTS_DOMESTIC",
         "HHG_OUTOF_NTS_DOMESTIC",
         "PPM"
@@ -13454,8 +13452,6 @@ func init() {
       "title": "Shipment Type",
       "enum": [
         "HHG",
-        "HHG_LONGHAUL_DOMESTIC",
-        "HHG_SHORTHAUL_DOMESTIC",
         "HHG_INTO_NTS_DOMESTIC",
         "HHG_OUTOF_NTS_DOMESTIC",
         "PPM"

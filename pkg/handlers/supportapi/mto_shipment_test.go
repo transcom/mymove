@@ -51,7 +51,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 			{
 				Model: models.MTOShipment{
 					Status:       models.MTOShipmentStatusSubmitted,
-					ShipmentType: models.MTOShipmentTypeHHGLongHaulDom,
+					ShipmentType: models.MTOShipmentTypeHHG,
 				},
 			},
 		}, nil)
@@ -229,7 +229,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 			{
 				Model: models.MTOShipment{
 					Status:       models.MTOShipmentStatusApproved,
-					ShipmentType: models.MTOShipmentTypeHHGLongHaulDom,
+					ShipmentType: models.MTOShipmentTypeHHG,
 				},
 			},
 		}, nil)

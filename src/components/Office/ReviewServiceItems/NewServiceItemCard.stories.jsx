@@ -96,7 +96,7 @@ export const NTSR = (args) => (
 
 export const HHGLonghaulDomestic = (args) => (
   <ServiceItemCard
-    mtoShipmentType={SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC}
+    mtoShipmentType={SHIPMENT_OPTIONS.HHG}
     mtoShipmentDepartureDate="2020-03-16"
     mtoShipmentPickupAddress="Fairfield, CA 94535"
     mtoShipmentDestinationAddress="Beverly Hills, CA 90210"
@@ -111,7 +111,7 @@ export const HHGLonghaulDomestic = (args) => (
 
 export const HHGShorthaulDomestic = (args) => (
   <ServiceItemCard
-    mtoShipmentType={SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC}
+    mtoShipmentType={SHIPMENT_OPTIONS.HHG}
     mtoShipmentDepartureDate="2020-03-16"
     mtoShipmentPickupAddress="Fairfield, CA 94535"
     mtoShipmentDestinationAddress="Beverly Hills, CA 90210"
@@ -158,7 +158,7 @@ export const HHGDiverted = (args) => (
 
 export const NeedsReviewRequestCalculations = (args) => (
   <ServiceItemCard
-    mtoShipmentType={SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC}
+    mtoShipmentType={SHIPMENT_OPTIONS.HHG}
     mtoShipmentDepartureDate="2020-03-16"
     mtoShipmentPickupAddress="Fairfield, CA 94535"
     mtoShipmentDestinationAddress="Beverly Hills, CA 90210"
@@ -173,7 +173,7 @@ export const NeedsReviewRequestCalculations = (args) => (
 
 export const AcceptedRequestComplete = () => (
   <ServiceItemCard
-    mtoShipmentType={SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC}
+    mtoShipmentType={SHIPMENT_OPTIONS.HHG}
     mtoShipmentDepartureDate="2020-03-16"
     mtoShipmentPickupAddress="Fairfield, CA 94535"
     mtoShipmentDestinationAddress="Beverly Hills, CA 90210"
@@ -188,7 +188,7 @@ export const AcceptedRequestComplete = () => (
 
 export const RejectedRequestComplete = () => (
   <ServiceItemCard
-    mtoShipmentType={SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC}
+    mtoShipmentType={SHIPMENT_OPTIONS.HHG}
     mtoShipmentDepartureDate="2020-03-16"
     mtoShipmentPickupAddress="Fairfield, CA 94535"
     mtoShipmentDestinationAddress="Beverly Hills, CA 90210"
@@ -204,7 +204,7 @@ export const RejectedRequestComplete = () => (
 
 export const DaysInSITAllowance = () => (
   <ServiceItemCard
-    mtoShipmentType={SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC}
+    mtoShipmentType={SHIPMENT_OPTIONS.HHG}
     mtoShipmentDepartureDate="2021-05-08"
     mtoShipmentPickupAddress="Fairfield, CA 94535"
     mtoShipmentDestinationAddress="Beverly Hills, CA 90210"

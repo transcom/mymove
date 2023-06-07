@@ -785,20 +785,10 @@ func reServiceCodesForShipment(shipment models.MTOShipment) []models.ReServiceCo
 	// More info in MB-1140: https://dp3.atlassian.net/browse/MB-1140
 
 	switch shipment.ShipmentType {
-	case models.MTOShipmentTypeHHG, models.MTOShipmentTypeHHGLongHaulDom:
+	case models.MTOShipmentTypeHHG:
 		// Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Packing, and Dom Unpacking.
 		return []models.ReServiceCode{
 			models.ReServiceCodeDLH,
-			models.ReServiceCodeFSC,
-			models.ReServiceCodeDOP,
-			models.ReServiceCodeDDP,
-			models.ReServiceCodeDPK,
-			models.ReServiceCodeDUPK,
-		}
-	case models.MTOShipmentTypeHHGShortHaulDom:
-		// Need to create: Dom Shorthaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Packing, Dom Unpacking
-		return []models.ReServiceCode{
-			models.ReServiceCodeDSH,
 			models.ReServiceCodeFSC,
 			models.ReServiceCodeDOP,
 			models.ReServiceCodeDDP,
