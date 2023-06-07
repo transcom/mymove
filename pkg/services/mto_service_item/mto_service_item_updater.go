@@ -132,15 +132,26 @@ func (p *mtoServiceItemUpdater) updateServiceItem(appCtx appcontext.AppContext, 
 		serviceItem.RejectedAt = nil
 		serviceItem.ApprovedAt = &now
 
-		// Set the original address on a service item to the shipment's
-		// destination address when approving a SIT service item.
+		// Check to see if there is already a SIT Destination Original Address
+		// by checking for the ID before trying to set one on the service item.
+		// If there isn't one, then we set it.
 		if serviceItem.SITDestinationOriginalAddressID == nil {
-
-			// TODO: Do we need to check for this to have an error?
-			mtoShipment, _ := p.shipmentFetcher.GetShipment(appCtx, *serviceItem.MTOShipmentID, "DestinationAddress")
-
-			serviceItem.SITDestinationOriginalAddressID = mtoShipment.DestinationAddressID
-			serviceItem.SITDestinationOriginalAddress = mtoShipment.DestinationAddress
+			// Check to see if the service item has a SIT Destination Final
+			// Address ID passed in from the Prime request. If it does have
+			// one, then we set the service item's Destination Original Address
+			// to that value otherwise we use the shipment's Destination
+			// Address as a last resort.
+			if serviceItem.SITDestinationFinalAddressID != nil {
+				serviceItem.SITDestinationOriginalAddressID = serviceItem.SITDestinationFinalAddressID
+				serviceItem.SITDestinationOriginalAddress = serviceItem.SITDestinationFinalAddress
+			} else {
+				// TODO: Do we need to check for this to have an error?
+				mtoShipment, _ := p.shipmentFetcher.GetShipment(appCtx, *serviceItem.MTOShipmentID, "DestinationAddress")
+				// Set the original address on a service item to the shipment's
+				// destination address when approving a SIT service item.
+				serviceItem.SITDestinationOriginalAddressID = mtoShipment.DestinationAddressID
+				serviceItem.SITDestinationOriginalAddress = mtoShipment.DestinationAddress
+			}
 		}
 	}
 
