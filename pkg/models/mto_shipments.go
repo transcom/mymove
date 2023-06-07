@@ -30,10 +30,6 @@ const (
 	MTOShipmentTypeInternationalHHG MTOShipmentType = "INTERNATIONAL_HHG"
 	// MTOShipmentTypeInternationalUB is a Shipment Type for International UB
 	MTOShipmentTypeInternationalUB MTOShipmentType = "INTERNATIONAL_UB"
-	// MTOShipmentTypeHHGLongHaulDom is an HHG Shipment Type for Longhaul Domestic
-	MTOShipmentTypeHHGLongHaulDom MTOShipmentType = "HHG_LONGHAUL_DOMESTIC"
-	// MTOShipmentTypeHHGShortHaulDom is an HHG Shipment Type for Shothaul Domestic
-	MTOShipmentTypeHHGShortHaulDom MTOShipmentType = "HHG_SHORTHAUL_DOMESTIC"
 	// MTOShipmentTypeHHGIntoNTSDom is an HHG Shipment Type for going into NTS Domestic
 	MTOShipmentTypeHHGIntoNTSDom MTOShipmentType = NTSRaw
 	// MTOShipmentTypeHHGOutOfNTSDom is an HHG Shipment Type for going out of NTS Domestic

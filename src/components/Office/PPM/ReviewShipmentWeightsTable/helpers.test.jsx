@@ -34,8 +34,6 @@ describe('determineTableRowClassname', () => {
     ['HHG_INTO_NTS_DOMESTIC', styles[`review-shipment-weights-table-row-NTS`]],
     ['PPM', styles[`review-shipment-weights-table-row-PPM`]],
     ['HHG', styles[`review-shipment-weights-table-row-HHG`]],
-    ['HHG_SHORTHAUL_DOMESTIC', styles[`review-shipment-weights-table-row-HHG`]],
-    ['HHG_LONGHAUL_DOMESTIC', styles[`review-shipment-weights-table-row-HHG`]],
     ['NOT_AN_OPTION', ''],
   ])('returns the correct classname', (shipmentType, expectedClassname) => {
     expect(determineTableRowClassname(shipmentType)).toBe(expectedClassname);
@@ -46,7 +44,7 @@ describe('shipmentTypeCellDisplayHelper', () => {
   it.each([
     [{ shipmentType: 'PPM', showNumber: false }, 'PPM'],
     [{ shipmentType: 'HHG_OUTOF_NTS_DOMESTIC', showNumber: true, shipmentNumber: 123 }, 'NTS-release 123'],
-    [{ shipmentType: 'HHG_SHORTHAUL_DOMESTIC', showNumber: true, shipmentNumber: 8 }, 'HHG 8'],
+    [{ shipmentType: 'HHG', showNumber: true, shipmentNumber: 8 }, 'HHG 8'],
   ])('renders the correct Shipment Type Cell', (row, expectedResult) => {
     render(<ShipmentTypeCell row={row} />);
     expect(screen.getByText(expectedResult)).toBeInTheDocument();
