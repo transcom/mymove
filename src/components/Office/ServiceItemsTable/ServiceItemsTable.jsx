@@ -70,7 +70,7 @@ const ServiceItemsTable = ({
         {ALLOWED_SIT_ADDRESS_UPDATE_SI_CODES.includes(code) && makeVisible && (
           <tr key={index}>
             <td style={{ border: 'none', paddingBottom: '0' }} colSpan={3}>
-              <Alert type={alertType} slim>
+              <Alert type={alertType} slim data-testid="serviceItemAddressUpdateAlert">
                 {alertMessage}
               </Alert>
             </td>

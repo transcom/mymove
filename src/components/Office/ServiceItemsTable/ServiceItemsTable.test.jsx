@@ -258,6 +258,132 @@ describe('ServiceItemsTable', () => {
     expect(wrapper.find('[data-testid="sitAddressUpdateTag"]').exists()).toBe(true);
   });
 
+  it('properly displays service item table tag for approved address update', () => {
+    const serviceItems = [
+      {
+        id: 'abc123',
+        mtoShipmentID: 'xyz789',
+        submittedAt: '2020-11-20',
+        serviceItem: 'Domestic destination SIT delivery',
+        code: 'DDDSIT',
+        sitAddressUpdates: [
+          {
+            contractorRemarks: 'contractor remarks',
+            distance: 140,
+            status: SIT_ADDRESS_UPDATE_STATUS.APPROVED,
+            officeRemarks: 'I have approved',
+          },
+        ],
+      },
+    ];
+
+    const propsForApprovedUpdate = {
+      handleUpdateMTOServiceItemStatus: jest.fn(),
+      handleShowRejectionDialog: jest.fn(),
+      serviceItemAddressUpdateAlert: {
+        makeVisible: true,
+        alertMessage: 'warning',
+        alertType: 'Address update over 50 miles approved.',
+      },
+    };
+
+    const wrapper = mount(
+      <MockProviders permissions={[permissionTypes.updateMTOServiceItem]}>
+        <ServiceItemsTable
+          {...propsForApprovedUpdate}
+          serviceItems={serviceItems}
+          statusForTableType={SERVICE_ITEM_STATUS.APPROVED}
+        />
+      </MockProviders>,
+    );
+
+    expect(wrapper.find('[data-testid="serviceItemAddressUpdateAlert"]').exists()).toBe(true);
+  });
+
+  it('properly displays service item table tag for rejected address update', () => {
+    const serviceItems = [
+      {
+        id: 'abc123',
+        mtoShipmentID: 'xyz789',
+        submittedAt: '2020-11-20',
+        serviceItem: 'Domestic destination SIT delivery',
+        code: 'DDDSIT',
+        sitAddressUpdates: [
+          {
+            contractorRemarks: 'contractor remarks',
+            distance: 140,
+            status: SIT_ADDRESS_UPDATE_STATUS.REJECTED,
+            officeRemarks: 'I have rejected',
+          },
+        ],
+      },
+    ];
+
+    const propsForApprovedUpdate = {
+      handleUpdateMTOServiceItemStatus: jest.fn(),
+      handleShowRejectionDialog: jest.fn(),
+      serviceItemAddressUpdateAlert: {
+        makeVisible: true,
+        alertMessage: 'info',
+        alertType: 'Address update over 50 miles rejected.',
+      },
+    };
+
+    const wrapper = mount(
+      <MockProviders permissions={[permissionTypes.updateMTOServiceItem]}>
+        <ServiceItemsTable
+          {...propsForApprovedUpdate}
+          serviceItems={serviceItems}
+          statusForTableType={SERVICE_ITEM_STATUS.APPROVED}
+        />
+      </MockProviders>,
+    );
+
+    expect(wrapper.find('[data-testid="serviceItemAddressUpdateAlert"]').exists()).toBe(true);
+  });
+
+  it('properly displays service item table tag for edited address update', () => {
+    const serviceItems = [
+      {
+        id: 'abc123',
+        mtoShipmentID: 'xyz789',
+        submittedAt: '2020-11-20',
+        serviceItem: 'Domestic destination SIT delivery',
+        code: 'DDDSIT',
+        sitAddressUpdates: [
+          {
+            contractorRemarks: null,
+            distance: 49,
+            status: SIT_ADDRESS_UPDATE_STATUS.APPROVED,
+            officeRemarks: 'I have edited',
+          },
+        ],
+      },
+    ];
+
+    const propsForApprovedUpdate = {
+      handleUpdateMTOServiceItemStatus: jest.fn(),
+      handleShowRejectionDialog: jest.fn(),
+      serviceItemAddressUpdateAlert: {
+        makeVisible: true,
+        alertMessage: 'info',
+        alertType: 'Address update within 50 miles.',
+      },
+    };
+
+    const wrapper = mount(
+      <MockProviders permissions={[permissionTypes.updateMTOServiceItem]}>
+        <ServiceItemsTable
+          {...propsForApprovedUpdate}
+          serviceItems={serviceItems}
+          statusForTableType={SERVICE_ITEM_STATUS.APPROVED}
+        />
+      </MockProviders>,
+    );
+
+    expect(wrapper.find('[data-testid="serviceItemAddressUpdateAlert"]').exists()).toBe(true);
+  });
+
   it('does not show edit/review request button when service item code is not DDDSIT', () => {
     const serviceItems = [
       {
