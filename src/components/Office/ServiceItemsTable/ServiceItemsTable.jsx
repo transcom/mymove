@@ -68,11 +68,13 @@ const ServiceItemsTable = ({
             </tr>
           )}
         {ALLOWED_SIT_ADDRESS_UPDATE_SI_CODES.includes(code) && makeVisible && (
-          <td style={{ border: 'none', paddingLeft: '20.85rem', paddingBottom: '0' }} colSpan={3}>
-            <Alert type={alertType} slim>
-              {alertMessage}
-            </Alert>
-          </td>
+          <tr key={index}>
+            <td style={{ border: 'none', paddingLeft: '20.85rem', paddingBottom: '0' }} colSpan={3}>
+              <Alert type={alertType} slim>
+                {alertMessage}
+              </Alert>
+            </td>
+          </tr>
         )}
         <tr key={id}>
           <td className={styles.nameAndDate}>
