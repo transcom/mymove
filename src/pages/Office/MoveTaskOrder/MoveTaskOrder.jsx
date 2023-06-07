@@ -681,7 +681,7 @@ export const MoveTaskOrder = (props) => {
           setAlertType('success');
 
           // Setting up the approved service item table alert for TOO edits
-          const calculatedDistance = data.sitAddressUpdates.slice(-1)[0].distance;
+          const calculatedDistance = data.sitAddressUpdates.slice(-1)[0].distance; // Resulting update should be the last item in the array
           const type = calculatedDistance <= 50 ? 'info' : 'warning';
           const message =
             calculatedDistance <= 50 ? 'Address update within 50 miles.' : 'Address update over 50 miles approved.';
@@ -712,11 +712,24 @@ export const MoveTaskOrder = (props) => {
         body: { officeRemarks },
       },
       {
-        onSuccess: () => {
+        onSuccess: (data) => {
           setIsReviewRequestSITAddressModalVisible(false);
           setSelectedServiceItem({});
           setAlertMessage('Changes saved');
           setAlertType('success');
+
+          // Setting up the approved service item table alert for TOO edits
+          const { status } = data.sitAddressUpdates.find((update) => update.id === id);
+          const type = status === 'REJECTED' ? 'info' : 'warning';
+          const message =
+            status === 'REJECTED' ? 'Address update over 50 miles rejected.' : 'Address update over 50 miles approved.';
+
+          setServiceItemAddressUpdateAlert({
+            ...serviceItemAddressUpdateAlert,
+            makeVisible: true,
+            alertType: type,
+            alertMessage: message,
+          });
         },
       },
     );

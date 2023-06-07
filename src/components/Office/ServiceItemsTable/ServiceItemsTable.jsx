@@ -67,7 +67,7 @@ const ServiceItemsTable = ({
               </td>
             </tr>
           )}
-        {ALLOWED_SIT_ADDRESS_UPDATE_SI_CODES.includes(code) && makeVisible === true && (
+        {ALLOWED_SIT_ADDRESS_UPDATE_SI_CODES.includes(code) && makeVisible && (
           <td style={{ border: 'none', paddingLeft: '20.85rem', paddingBottom: '0' }} colSpan={3}>
             <Alert type={alertType} slim>
               {alertMessage}
