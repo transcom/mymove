@@ -245,7 +245,7 @@ var NTSRShipmentCardLayout = []TableRow{
 
 func PickShipmentCardLayout(shipmentType models.MTOShipmentType) []TableRow {
 	switch shipmentType {
-	case models.MTOShipmentTypeHHG, models.MTOShipmentTypeHHGLongHaulDom, models.MTOShipmentTypeHHGShortHaulDom:
+	case models.MTOShipmentTypeHHG:
 		return HHGShipmentCardLayout
 	case models.MTOShipmentTypePPM:
 		return PPMShipmentCardLayout

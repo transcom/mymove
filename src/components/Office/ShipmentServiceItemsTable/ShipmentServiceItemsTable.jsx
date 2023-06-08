@@ -15,22 +15,6 @@ const shipmentTypes = {
     serviceItemCodes.DPK,
     serviceItemCodes.DUPK,
   ],
-  HHG_LONGHAUL_DOMESTIC: [
-    serviceItemCodes.DLH,
-    serviceItemCodes.FSC,
-    serviceItemCodes.DOP,
-    serviceItemCodes.DDP,
-    serviceItemCodes.DPK,
-    serviceItemCodes.DUPK,
-  ],
-  HHG_SHORTHAUL_DOMESTIC: [
-    serviceItemCodes.DSH,
-    serviceItemCodes.FSC,
-    serviceItemCodes.DOP,
-    serviceItemCodes.DDP,
-    serviceItemCodes.DPK,
-    serviceItemCodes.DUPK,
-  ],
   HHG_INTO_NTS_DOMESTIC: [
     serviceItemCodes.DLH,
     serviceItemCodes.FSC,

@@ -51,8 +51,6 @@ const ShipmentQAEReportHeader = ({ shipment, destinationDutyLocationPostalCode }
 
   switch (shipment.shipmentType) {
     case SHIPMENT_OPTIONS.HHG:
-    case SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC:
-    case SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC:
       heading = 'HHG';
       pickupAddress = formatEvaluationReportShipmentAddress(shipment.pickupAddress);
       destinationAddress = shipment?.destinationAddress

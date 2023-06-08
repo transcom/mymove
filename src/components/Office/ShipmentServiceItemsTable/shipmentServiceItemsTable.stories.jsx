@@ -9,13 +9,9 @@ export default {
   component: ShipmentServiceItemsTable,
 };
 
-export const HHGLonghaulServiceItems = () => (
-  <ShipmentServiceItemsTable shipmentType={SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC} />
-);
+export const HHGLonghaulServiceItems = () => <ShipmentServiceItemsTable shipmentType={SHIPMENT_OPTIONS.HHG} />;
 
-export const HHGShorthaulServiceItems = () => (
-  <ShipmentServiceItemsTable shipmentType={SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC} />
-);
+export const HHGShorthaulServiceItems = () => <ShipmentServiceItemsTable shipmentType={SHIPMENT_OPTIONS.HHG} />;
 
 export const NTSServiceItems = () => <ShipmentServiceItemsTable shipmentType={SHIPMENT_OPTIONS.NTS} />;
 

@@ -10,6 +10,8 @@ import (
 
 	"github.com/DATA-DOG/go-txdb"
 	"github.com/gobuffalo/pop/v6"
+
+	"github.com/transcom/mymove/pkg/iampostgres"
 )
 
 // per process tracking of which dbNum is used
@@ -321,7 +323,7 @@ func (suite *PopTestSuite) findOrCreatePerTestTransactionDb() {
 		suite.lowPrivConnDetails.Database, pid)
 	// Register will panic if the same driver is registered more than
 	// once in the same process, so we've checked for that up above
-	txdb.Register(fakePopSqlxDriverName, "postgres", dataSourceName)
+	txdb.Register(fakePopSqlxDriverName, iampostgres.CustomPostgres, dataSourceName)
 }
 
 // tearDownTxnTest closes the db connection established for this test

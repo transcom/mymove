@@ -62,6 +62,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation order.AcknowledgeExcessWeightRisk has not yet been implemented")
 		})
 	}
+	if api.MtoServiceItemApproveSITAddressUpdateHandler == nil {
+		api.MtoServiceItemApproveSITAddressUpdateHandler = mto_service_item.ApproveSITAddressUpdateHandlerFunc(func(params mto_service_item.ApproveSITAddressUpdateParams) middleware.Responder {
+			return middleware.NotImplemented("operation mto_service_item.ApproveSITAddressUpdate has not yet been implemented")
+		})
+	}
 	if api.ShipmentApproveSITExtensionHandler == nil {
 		api.ShipmentApproveSITExtensionHandler = shipment.ApproveSITExtensionHandlerFunc(func(params shipment.ApproveSITExtensionParams) middleware.Responder {
 			return middleware.NotImplemented("operation shipment.ApproveSITExtension has not yet been implemented")
@@ -275,6 +280,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 	if api.MtoShipmentListMTOShipmentsHandler == nil {
 		api.MtoShipmentListMTOShipmentsHandler = mto_shipment.ListMTOShipmentsHandlerFunc(func(params mto_shipment.ListMTOShipmentsParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_shipment.ListMTOShipments has not yet been implemented")
+		})
+	}
+	if api.MtoServiceItemRejectSITAddressUpdateHandler == nil {
+		api.MtoServiceItemRejectSITAddressUpdateHandler = mto_service_item.RejectSITAddressUpdateHandlerFunc(func(params mto_service_item.RejectSITAddressUpdateParams) middleware.Responder {
+			return middleware.NotImplemented("operation mto_service_item.RejectSITAddressUpdate has not yet been implemented")
 		})
 	}
 	if api.ShipmentRejectShipmentHandler == nil {

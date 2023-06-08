@@ -56,7 +56,7 @@ func (u *ServiceRequestUploader) createAndStore(appCtx appcontext.AppContext, se
 
 	id := uuid.Must(uuid.NewV4())
 
-	newUploadForUser := &models.ServiceRequestDocumentUpload{
+	newUploadForPrime := &models.ServiceRequestDocumentUpload{
 		ID:                       id,
 		ServiceRequestDocumentID: *serviceItemDocID,
 		ContractorID:             contractorID,
@@ -64,13 +64,13 @@ func (u *ServiceRequestUploader) createAndStore(appCtx appcontext.AppContext, se
 		Upload:                   *newUpload,
 	}
 
-	verrs, err = appCtx.DB().ValidateAndCreate(newUploadForUser)
+	verrs, err = appCtx.DB().ValidateAndCreate(newUploadForPrime)
 	if err != nil || verrs.HasAny() {
 		appCtx.Logger().Error("error creating new prime upload", zap.Error(err))
 		return nil, verrs, err
 	}
 
-	return newUploadForUser, &validate.Errors{}, nil
+	return newUploadForPrime, &validate.Errors{}, nil
 }
 
 // CreateServiceRequestUploadForDocument creates a new ServiceRequestUpload by performing validations, storing the specified
@@ -85,18 +85,6 @@ func (u *ServiceRequestUploader) CreateServiceRequestUploadForDocument(appCtx ap
 	var serviceRequestUpload *models.ServiceRequestDocumentUpload
 	var verrs *validate.Errors
 	var uploadError error
-
-	// If we are already in a transaction, don't start one
-	if appCtx.DB().TX != nil {
-		serviceRequestUpload, verrs, uploadError = u.createAndStore(appCtx, posID, contractorID, file, allowedTypes)
-		if verrs.HasAny() || uploadError != nil {
-			appCtx.Logger().Error("error creating new prime upload (existing TX)", zap.Error(uploadError))
-		} else {
-			appCtx.Logger().Info("created a prime upload with id and key (existing TX)", zap.Any("new_prime_upload_id", serviceRequestUpload.ID), zap.String("key", serviceRequestUpload.Upload.StorageKey))
-		}
-
-		return serviceRequestUpload, verrs, uploadError
-	}
 
 	txError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		transactionError := errors.New("Rollback The transaction")
@@ -119,13 +107,6 @@ func (u *ServiceRequestUploader) CreateServiceRequestUploadForDocument(appCtx ap
 // DeleteServiceRequestUpload removes an ServiceRequestUpload from the database and deletes its file from the
 // storer.
 func (u *ServiceRequestUploader) DeleteServiceRequestUpload(appCtx appcontext.AppContext, serviceRequestUpload *models.ServiceRequestDocumentUpload) error {
-	if appCtx.DB().TX != nil {
-		if err := u.uploader.DeleteUpload(appCtx, &serviceRequestUpload.Upload); err != nil {
-			return err
-		}
-		return models.DeleteServiceRequestDocumentUpload(appCtx.DB(), serviceRequestUpload)
-
-	}
 	return appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		if err := u.uploader.DeleteUpload(txnAppCtx, &serviceRequestUpload.Upload); err != nil {
 			return err

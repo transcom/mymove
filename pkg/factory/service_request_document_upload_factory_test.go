@@ -189,6 +189,30 @@ func (suite *FactorySuite) TestBuildServiceRequestDocumentUpload() {
 		suite.False(serviceRequestDocumentUpload.Upload.ID.IsNil())
 	})
 
+	suite.Run("Successful return of linkOnly ServiceRequestDocumentUpload", func() {
+		// Under test:       BuildServiceRequestDocument
+		// Set up:           Pass in a linkOnly ServiceRequestDocumentUpload
+		// Expected outcome: No new ServiceRequestDocumentUpload should be created
+		// Check num ServiceRequestDocument records
+		precount, err := suite.DB().Count(&models.ServiceRequestDocumentUpload{})
+		suite.NoError(err)
+
+		id := uuid.Must(uuid.NewV4())
+		serviceRequestDocumentUpload := BuildServiceRequestDocumentUpload(suite.DB(), []Customization{
+			{
+				Model: models.ServiceRequestDocumentUpload{
+					ID: id,
+				},
+				LinkOnly: true,
+			},
+		}, nil)
+
+		count, err := suite.DB().Count(&models.ServiceRequestDocumentUpload{})
+		suite.Equal(precount, count)
+		suite.NoError(err)
+		suite.Equal(id, serviceRequestDocumentUpload.ID)
+	})
+
 	suite.Run("Failed creation of upload - no appcontext", func() {
 		// Under test:      BuildServiceRequestDocumentUpload
 		// Mocked:          None
@@ -263,27 +287,4 @@ func (suite *FactorySuite) TestBuildServiceRequestDocumentUpload() {
 		suite.Equal(contractor.ID, serviceRequestDocumentUpload.Contractor.ID)
 		suite.Equal(contractor.ID, serviceRequestDocumentUpload.ContractorID)
 	})
-
 }
-
-// suite.Run("Failed creation of upload - no appcontext", func() {
-// 	// Under test:      BuildUser
-// 	// Mocked:          None
-// 	// Set up:          Create an upload with an uploader but no appcontext
-// 	// Expected outcome:Should cause a panic
-// 	storer := storageTest.NewFakeS3Storage(true)
-// 	uploader, err := uploaderPkg.NewServiceRequestUploader(storer, 100*uploaderPkg.MB)
-// 	suite.NoError(err)
-
-// 	suite.Panics(func() {
-// 		BuildUpload(suite.DB(), []Customization{
-// 			{
-// 				Model: models.Upload{},
-// 				ExtendedParams: &ServiceRequestDocumentUploadExtendedParams{
-// 					ServiceRequestDocumentUploader: uploader,
-// 				},
-// 			},
-// 		}, nil)
-// 	})
-
-// })

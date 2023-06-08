@@ -1147,6 +1147,111 @@ paths:
           $ref: '#/responses/ServerError'
       x-permissions:
         - create.SITAddressUpdate
+  /sit-address-update/{sitAddressUpdateID}/approve:
+    parameters:
+      - description: ID of the sit address update
+        in: path
+        name: sitAddressUpdateID
+        required: true
+        type: string
+        format: uuid
+    patch:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/PatchSITAddressUpdateStatus'
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+      responses:
+        '200':
+          description: Successfully approved a SIT address update
+          schema:
+            $ref: '#/definitions/MTOServiceItem'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - mtoServiceItem
+      description: >-
+        This endpoint is used to approve a SIT address update. Office remarks
+        are required. Approving the SIT address update will update the SIT
+        Destination Final Address of the associated service item
+      operationId: approveSITAddressUpdate
+      summary: Approves a SIT Address Update
+      x-permissions:
+        - update.MTOServiceItem
+        - update.SITAddressUpdate
+  /sit-address-update/{sitAddressUpdateID}/reject:
+    parameters:
+      - description: ID of the sit address update
+        in: path
+        name: sitAddressUpdateID
+        required: true
+        type: string
+        format: uuid
+    patch:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/PatchSITAddressUpdateStatus'
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+      responses:
+        '200':
+          description: Successfully rejected a SIT address update
+          schema:
+            $ref: '#/definitions/MTOServiceItem'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - mtoServiceItem
+      description: >-
+        This endpoint is used to reject a requested SIT address update. Office
+        remarks are required. Rejecting the SIT address update will not update
+        the SIT Destination Final Address.
+      operationId: rejectSITAddressUpdate
+      summary: Rejects a SIT Address Update
+      x-permissions:
+        - update.SITAddressUpdate
   /shipments/{shipmentID}/sit-extensions:
     post:
       summary: Create an approved SIT Duration Update
@@ -4804,6 +4909,14 @@ definitions:
     required:
       - newAddress
       - officeRemarks
+  PatchSITAddressUpdateStatus:
+    required:
+      - officeRemarks
+    properties:
+      officeRemarks:
+        description: Reason the SIT address update was approved or rejected
+        type: string
+        example: Insufficient details provided
   PatchMTOServiceItemStatusPayload:
     properties:
       status:
@@ -5863,8 +5976,6 @@ definitions:
     example: HHG
     enum:
       - HHG
-      - HHG_LONGHAUL_DOMESTIC
-      - HHG_SHORTHAUL_DOMESTIC
       - HHG_INTO_NTS_DOMESTIC
       - HHG_OUTOF_NTS_DOMESTIC
       - INTERNATIONAL_HHG
