@@ -475,10 +475,10 @@ commands:
           name: Get Digest from filesystem
           command: echo 'export ECR_DIGEST=$(cat images/sha/ECR_DIGEST_app_<< parameters.ecr_env >>)' | tee -a "${BASH_ENV}"
       - run:
-          name: Get otel sidecar digest from filesystem
+          name: Get otel collector digest from filesystem
           command: |
-            echo 'export OTEL_ECR_DIGEST=$(cat images/sha/ECR_DIGEST_otel-sidecar_<< parameters.ecr_env >>)' | tee -a "${BASH_ENV}"
-            echo "export OTEL_COLLECTOR_IMAGE=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/otel-sidecar@${OTEL_ECR_DIGEST}" | tee -a "${BASH_ENV}"
+            echo 'export OTEL_ECR_DIGEST=$(cat images/sha/ECR_DIGEST_otel-collector_<< parameters.ecr_env >>)' | tee -a "${BASH_ENV}"
+            echo "export OTEL_COLLECTOR_IMAGE=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/otel-collector@${OTEL_ECR_DIGEST}" | tee -a "${BASH_ENV}"
       - deploy:
           name: Deploy app service
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-service-container app "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app@${ECR_DIGEST}" "${APP_ENVIRONMENT}" "/bin/milmove serve"
@@ -624,7 +624,7 @@ commands:
   # So pull the image and then push to our own ECR repo. For docker
   # STIG reasons, we need to do an image scan AND we need to expire
   # old images, so always create a new tag on each deployment
-  push_otel_sidecar_image:
+  push_otel_collector_image:
     parameters:
       ecr_env:
         type: string
@@ -1570,35 +1570,35 @@ jobs:
           working_dir: /mnt/ramdisk
       - announce_failure
 
-  # `push_otel_sidecar_image_dp3` pushes the aws otel collector image
+  # `push_otel_collector_image_dp3` pushes the aws otel collector image
   # to the milmove-<dp3-env> container repository
-  push_otel_sidecar_image_dp3:
+  push_otel_collector_image_dp3:
     executor: mymove_pusher
     steps:
       - aws_vars_dp3
-      - push_otel_sidecar_image:
+      - push_otel_collector_image:
           ecr_env: *dp3-env
           aws_otel_collector_image: *aws-otel-collector
       - announce_failure
 
-  # `push_otel_sidecar_image_stg` pushes the aws otel collector image
+  # `push_otel_collector_image_stg` pushes the aws otel collector image
   # to the milmove-stg container repository
-  push_otel_sidecar_image_stg:
+  push_otel_collector_image_stg:
     executor: mymove_pusher
     steps:
       - aws_vars_stg
-      - push_otel_sidecar_image:
+      - push_otel_collector_image:
           ecr_env: stg
           aws_otel_collector_image: *aws-otel-collector
       - announce_failure
 
-  # `push_otel_sidecar_image_stg` pushes the aws otel collector image
+  # `push_otel_collector_image_stg` pushes the aws otel collector image
   # to the milmove-stg container repository
-  push_otel_sidecar_image_prd:
+  push_otel_collector_image_prd:
     executor: mymove_pusher
     steps:
       - aws_vars_prd
-      - push_otel_sidecar_image:
+      - push_otel_collector_image:
           ecr_env: prd
           aws_otel_collector_image: *aws-otel-collector
       - announce_failure
@@ -2189,7 +2189,7 @@ workflows:
             branches:
               only: *dp3-branch
 
-      - push_otel_sidecar_image_dp3:
+      - push_otel_collector_image_dp3:
           requires:
             - compile_app_server
           filters:
@@ -2224,7 +2224,7 @@ workflows:
             - client_test
             - server_test
             - push_app_dp3
-            - push_otel_sidecar_image_dp3
+            - push_otel_collector_image_dp3
             - compile_app_server
             - compile_app_client
             - push_tasks_dp3
@@ -2254,7 +2254,7 @@ workflows:
             branches:
               only: *dp3-branch
 
-      - push_otel_sidecar_image_stg:
+      - push_otel_collector_image_stg:
           requires:
             - compile_app_server
           filters:
@@ -2289,7 +2289,7 @@ workflows:
             - client_test
             - server_test
             - push_app_stg
-            - push_otel_sidecar_image_stg
+            - push_otel_collector_image_stg
             - compile_app_server
             - compile_app_client
             - push_migrations_stg
@@ -2347,7 +2347,7 @@ workflows:
             - anti_virus
             - pre_deps_yarn
 
-      - push_otel_sidecar_image_prd:
+      - push_otel_collector_image_prd:
           requires:
             - approve_prd_deploy
           filters:
@@ -2380,7 +2380,7 @@ workflows:
             - push_migrations_prd
             - push_app_prd
             - push_tasks_prd
-            - push_otel_sidecar_image_prd
+            - push_otel_collector_image_prd
           filters:
             branches:
               only: main
