@@ -477,7 +477,9 @@ commands:
       - run:
           name: Get otel collector digest from filesystem
           command: |
-            echo 'export OTEL_ECR_DIGEST=$(cat images/sha/ECR_DIGEST_otel-collector_<< parameters.ecr_env >>)' | tee -a "${BASH_ENV}"
+            OTEL_ECR_DIGEST=$(cat images/sha/ECR_DIGEST_otel-collector_<< parameters.ecr_env >>)
+            echo "export OTEL_ECR_DIGEST=${OTEL_ECR_DIGEST}" | tee -a "${BASH_ENV}"
+
             echo "export OTEL_COLLECTOR_IMAGE=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/otel-collector@${OTEL_ECR_DIGEST}" | tee -a "${BASH_ENV}"
       - deploy:
           name: Deploy app service
@@ -511,6 +513,13 @@ commands:
       - run:
           name: Get Digest from filesystem
           command: echo 'export ECR_DIGEST=$(cat images/sha/ECR_DIGEST_app_<< parameters.ecr_env >>)' | tee -a "${BASH_ENV}"
+      - run:
+          name: Get otel collector digest from filesystem
+          command: |
+            OTEL_ECR_DIGEST=$(cat images/sha/ECR_DIGEST_otel-collector_<< parameters.ecr_env >>)
+            echo "export OTEL_ECR_DIGEST=${OTEL_ECR_DIGEST}" | tee -a "${BASH_ENV}"
+
+            echo "export OTEL_COLLECTOR_IMAGE=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/otel-collector@${OTEL_ECR_DIGEST}" | tee -a "${BASH_ENV}"
       - deploy:
           name: Deploy app-client-tls service
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-service-container app-client-tls "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app@${ECR_DIGEST}" "${APP_ENVIRONMENT}" "/bin/milmove serve"
