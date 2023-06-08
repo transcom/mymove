@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/uploader"
