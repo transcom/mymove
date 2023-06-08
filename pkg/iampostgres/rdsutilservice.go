@@ -1,7 +1,7 @@
 package iampostgres
 
 import (
-	"errors"
+	"fmt"
 
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/service/rds/rdsutils"
@@ -19,7 +19,7 @@ type RDSU struct{}
 func (r RDSU) GetToken(endpoint string, region string, user string, iamcreds *credentials.Credentials) (string, error) {
 	authToken, err := rdsutils.BuildAuthToken(endpoint, region, user, iamcreds)
 	if err != nil {
-		return "", errors.New("Failed to create RDSIAM token")
+		return "", fmt.Errorf("Failed to create RDSIAM token: %w", err)
 	}
 
 	return authToken, nil
