@@ -551,4 +551,112 @@ describe('ServiceItemsTable', () => {
 
     expect(defaultProps.handleRequestSITAddressUpdateModal).toHaveBeenCalledWith('abc123', 'xyz789');
   });
+
+  it('shows Reject text button for approved service item', () => {
+    const serviceItems = [
+      {
+        id: 'abc123',
+        mtoShipmentID: 'xyz789',
+        submittedAt: '2020-11-20',
+        serviceItem: 'Domestic destination SIT delivery',
+        code: 'DDDSIT',
+      },
+    ];
+
+    const wrapper = mount(
+      <MockProviders permissions={[permissionTypes.updateMTOServiceItem]}>
+        <ServiceItemsTable
+          {...defaultProps}
+          serviceItems={serviceItems}
+          statusForTableType={SERVICE_ITEM_STATUS.APPROVED}
+        />
+      </MockProviders>,
+    );
+
+    const rejectTextButton = wrapper.find('button[data-testid="rejectTextButton"]');
+
+    expect(rejectTextButton.length).toBeTruthy();
+
+    expect(rejectTextButton.at(0).contains('Reject')).toBe(true);
+  });
+
+  it('calls the handleShowRejectionDialog handler when the Reject text button is clicked', () => {
+    const serviceItems = [
+      {
+        id: 'abc123',
+        mtoShipmentID: 'xyz789',
+        submittedAt: '2020-11-20',
+        serviceItem: 'Domestic destination SIT delivery',
+        code: 'DDDSIT',
+      },
+    ];
+
+    const wrapper = mount(
+      <MockProviders permissions={[permissionTypes.updateMTOServiceItem]}>
+        <ServiceItemsTable
+          {...defaultProps}
+          serviceItems={serviceItems}
+          statusForTableType={SERVICE_ITEM_STATUS.APPROVED}
+        />
+      </MockProviders>,
+    );
+
+    wrapper.find('button[data-testid="rejectTextButton"]').simulate('click');
+
+    expect(defaultProps.handleShowRejectionDialog).toHaveBeenCalledWith('abc123', 'xyz789');
+  });
+
+  it('shows Approve text button for rejected service item', () => {
+    const serviceItems = [
+      {
+        id: 'abc123',
+        mtoShipmentID: 'xyz789',
+        submittedAt: '2020-11-20',
+        serviceItem: 'Domestic destination SIT delivery',
+        code: 'DDDSIT',
+      },
+    ];
+
+    const wrapper = mount(
+      <MockProviders permissions={[permissionTypes.updateMTOServiceItem]}>
+        <ServiceItemsTable
+          {...defaultProps}
+          serviceItems={serviceItems}
+          statusForTableType={SERVICE_ITEM_STATUS.REJECTED}
+        />
+      </MockProviders>,
+    );
+
+    const approveTextButton = wrapper.find('button[data-testid="approveTextButton"]');
+
+    expect(approveTextButton.length).toBeTruthy();
+
+    expect(approveTextButton.at(0).contains('Approve')).toBe(true);
+  });
+
+  it('calls the handleUpdateMTOServiceItemStatus handler when the Approve text button is clicked', () => {
+    const serviceItems = [
+      {
+        id: 'abc123',
+        mtoShipmentID: 'xyz789',
+        submittedAt: '2020-11-20',
+        serviceItem: 'Domestic destination SIT delivery',
+        code: 'DDDSIT',
+      },
+    ];
+
+    const wrapper = mount(
+      <MockProviders permissions={[permissionTypes.updateMTOServiceItem]}>
+        <ServiceItemsTable
+          {...defaultProps}
+          serviceItems={serviceItems}
+          statusForTableType={SERVICE_ITEM_STATUS.REJECTED}
+        />
+      </MockProviders>,
+    );
+
+    wrapper.find('button[data-testid="approveTextButton"]').simulate('click');
+
+    expect(defaultProps.handleUpdateMTOServiceItemStatus).toHaveBeenCalledWith('abc123', 'xyz789', 'APPROVED');
+  });
 });
