@@ -63,7 +63,7 @@ func (p *mtoServiceItemUpdater) findServiceItem(appCtx appcontext.AppContext, se
 	var serviceItem models.MTOServiceItem
 	err := appCtx.DB().Q().EagerPreload(
 		"MoveTaskOrder",
-		"MTOServiceItems.SITDestinationFinalAddress",
+		"SITDestinationFinalAddress",
 	).Find(&serviceItem, serviceItemID)
 	if err != nil {
 		switch err {
