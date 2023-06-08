@@ -29,7 +29,7 @@ type MTOServiceItemUpdater interface {
 
 // serviceRequestDocumentUploadCreator is the exported interface for creating a mto service item request upload
 //
-//go:generate mockery --name serviceRequestDocumentUploadCreator
+//go:generate mockery --name ServiceRequestDocumentUploadCreator
 type ServiceRequestDocumentUploadCreator interface {
 	CreateUpload(appCtx appcontext.AppContext, file io.ReadCloser, mtoServiceItemID uuid.UUID, userID uuid.UUID, filename string) (*models.Upload, error)
 }
