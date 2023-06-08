@@ -120,38 +120,35 @@ describe('PrimeUIShipmentCreateForm', () => {
     );
   });
 
-  it.each([
-    'HHG',
-    'HHG_SHORTHAUL_DOMESTIC',
-    'HHG_LONGHAUL_DOMESTIC',
-    'HHG_INTO_NTS_DOMESTIC',
-    'HHG_OUTOF_NTS_DOMESTIC',
-  ])('renders the initial form, selecting %s', async (shipmentType) => {
-    renderShipmentCreateForm();
+  it.each(['HHG', 'HHG_INTO_NTS_DOMESTIC', 'HHG_OUTOF_NTS_DOMESTIC'])(
+    'renders the initial form, selecting %s',
+    async (shipmentType) => {
+      renderShipmentCreateForm();
 
-    const shipmentTypeInput = await screen.findByLabelText('Shipment type');
-    expect(shipmentTypeInput).toBeInTheDocument();
+      const shipmentTypeInput = await screen.findByLabelText('Shipment type');
+      expect(shipmentTypeInput).toBeInTheDocument();
 
-    // Select the shipment type
-    await userEvent.selectOptions(shipmentTypeInput, [shipmentType]);
+      // Select the shipment type
+      await userEvent.selectOptions(shipmentTypeInput, [shipmentType]);
 
-    // Make sure than a PPM-specific field is not visible.
-    expect(await screen.queryByLabelText('Expected Departure Date')).not.toBeInTheDocument();
+      // Make sure than a PPM-specific field is not visible.
+      expect(await screen.queryByLabelText('Expected Departure Date')).not.toBeInTheDocument();
 
-    expect(await screen.findByText('Shipment Dates')).toBeInTheDocument();
-    expect(await screen.findByLabelText('Requested pickup')).toHaveValue(initialValues.requestedPickupDate);
+      expect(await screen.findByText('Shipment Dates')).toBeInTheDocument();
+      expect(await screen.findByLabelText('Requested pickup')).toHaveValue(initialValues.requestedPickupDate);
 
-    expect(await screen.findByRole('heading', { name: 'Diversion', level: 2 })).toBeInTheDocument();
-    expect(await screen.findByLabelText('Diversion')).not.toBeChecked();
+      expect(await screen.findByRole('heading', { name: 'Diversion', level: 2 })).toBeInTheDocument();
+      expect(await screen.findByLabelText('Diversion')).not.toBeChecked();
 
-    expect(await screen.findByText('Shipment Weights')).toBeInTheDocument();
-    expect(await screen.findByLabelText('Estimated weight (lbs)')).toHaveValue(initialValues.estimatedWeight);
+      expect(await screen.findByText('Shipment Weights')).toBeInTheDocument();
+      expect(await screen.findByLabelText('Estimated weight (lbs)')).toHaveValue(initialValues.estimatedWeight);
 
-    expect(await screen.findByText('Shipment Addresses')).toBeInTheDocument();
-    expect(await screen.findByText('Pickup Address')).toBeInTheDocument();
-    expect(screen.getAllByLabelText('Address 1')[0]).toHaveValue('');
+      expect(await screen.findByText('Shipment Addresses')).toBeInTheDocument();
+      expect(await screen.findByText('Pickup Address')).toBeInTheDocument();
+      expect(screen.getAllByLabelText('Address 1')[0]).toHaveValue('');
 
-    expect(await screen.findByText('Destination Address')).toBeInTheDocument();
-    expect(screen.getAllByLabelText('Address 1')[1]).toHaveValue('');
-  });
+      expect(await screen.findByText('Destination Address')).toBeInTheDocument();
+      expect(screen.getAllByLabelText('Address 1')[1]).toHaveValue('');
+    },
+  );
 });
