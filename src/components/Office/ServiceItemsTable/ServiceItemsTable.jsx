@@ -57,7 +57,7 @@ const ServiceItemsTable = ({
     const { makeVisible, alertType, alertMessage } = serviceItemAddressUpdateAlert;
 
     return (
-      <React.Fragment key={id}>
+      <React.Fragment key={`sit-alert-${id}`}>
         {ALLOWED_SIT_ADDRESS_UPDATE_SI_CODES.includes(code) &&
           sitAddressUpdates &&
           showSITAddressUpdateRequestedTag(code, sitAddressUpdates) && (
@@ -68,7 +68,7 @@ const ServiceItemsTable = ({
             </tr>
           )}
         {ALLOWED_SIT_ADDRESS_UPDATE_SI_CODES.includes(code) && makeVisible && (
-          <tr key={index}>
+          <tr key={`sit-alert-${id}`}>
             <td style={{ border: 'none', paddingBottom: '0' }} colSpan={3}>
               <Alert type={alertType} slim data-testid="serviceItemAddressUpdateAlert">
                 {alertMessage}
