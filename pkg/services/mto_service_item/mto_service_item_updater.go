@@ -148,8 +148,11 @@ func (p *mtoServiceItemUpdater) updateServiceItem(appCtx appcontext.AppContext, 
 				serviceItem.SITDestinationOriginalAddressID = serviceItem.SITDestinationFinalAddressID
 				serviceItem.SITDestinationOriginalAddress = serviceItem.SITDestinationFinalAddress
 			} else {
-				// TODO: Do we need to check for this to have an error?
-				mtoShipment, _ := p.shipmentFetcher.GetShipment(appCtx, *serviceItem.MTOShipmentID, "DestinationAddress")
+                // could do something like this
+				mtoShipment, err := p.shipmentFetcher.GetShipment(appCtx, *serviceItem.MTOShipmentID, "DestinationAddress")
+				if err != nil {
+				     return nil, err
+				}
 				// Set the original address on a service item to the shipment's
 				// destination address when approving a SIT service item.
 				serviceItem.SITDestinationOriginalAddressID = mtoShipment.DestinationAddressID
