@@ -133,7 +133,7 @@ describe('Services Counseling Move Info Container', () => {
       ['Services Counseling Move Details', '/'],
       ['Services Counseling Move Details', 'details'],
       ['Review Documents', 'shipments/SHIP123/document-review'],
-      ['Services Counseling Add Shipment', 'new-hhg'],
+      ['Services Counseling Add Shipment', 'new-shipment/hhg'],
       ['Services Counselor Customer Support Remarks', 'customer-support-remarks'],
       ['Move History', 'history'],
       ['Services Counseling Move Document Wrapper', 'allowances'],

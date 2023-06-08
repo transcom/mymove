@@ -6,8 +6,6 @@ export const shipmentTypes = {
   [SHIPMENT_OPTIONS.PPM]: 'PPM',
   [SHIPMENT_OPTIONS.NTS]: 'NTS',
   [SHIPMENT_OPTIONS.NTSR]: 'NTS-release',
-  [SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC]: 'HHG',
-  [SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC]: 'HHG',
 };
 
 export const shipmentModificationTypes = {
@@ -17,8 +15,6 @@ export const shipmentModificationTypes = {
 
 export const mtoShipmentTypes = {
   [SHIPMENT_OPTIONS.HHG]: 'Household goods',
-  [SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC]: 'Household goods',
-  [SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC]: 'Household goods',
   [SHIPMENT_OPTIONS.PPM]: 'Personally procured move',
   [SHIPMENT_OPTIONS.NTS]: 'Non-temp storage',
   [SHIPMENT_OPTIONS.NTSR]: 'Non-temp storage release',

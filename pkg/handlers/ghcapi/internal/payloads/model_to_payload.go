@@ -1041,7 +1041,7 @@ func MTOShipment(storer storage.FileStorer, mtoShipment *models.MTOShipment, sit
 	}
 
 	weightsCalculator := mtoshipment.NewShipmentBillableWeightCalculator()
-	calculatedWeights, _ := weightsCalculator.CalculateShipmentBillableWeight(mtoShipment)
+	calculatedWeights := weightsCalculator.CalculateShipmentBillableWeight(mtoShipment)
 
 	// CalculatedBillableWeight is intentionally not a part of the mto_shipments model
 	// because we don't want to store a derived value in the database
@@ -1297,7 +1297,7 @@ func SITAddressUpdate(u models.SITAddressUpdate) *ghcmessages.SITAddressUpdate {
 		NewAddress:        Address(&u.NewAddress),
 		CreatedAt:         strfmt.DateTime(u.CreatedAt),
 		UpdatedAt:         strfmt.DateTime(u.UpdatedAt),
-	}
+		ETag:              etag.GenerateEtag(u.UpdatedAt)}
 }
 
 // SITAddressUpdates payload

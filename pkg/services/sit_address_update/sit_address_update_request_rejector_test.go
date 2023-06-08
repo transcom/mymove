@@ -55,8 +55,8 @@ func (suite *SITAddressUpdateServiceSuite) TestRejectSITAddressUpdateRequest() {
 			},
 		}, []factory.Trait{factory.GetTraitSITAddressUpdateWithMoveSetUp})
 
-		eTag := etag.GenerateEtag(serviceItem.UpdatedAt)
-		updatedSITAddressUpdateRequestPostRejection, err := reject.RejectSITAddressUpdateRequest(suite.AppContextForTest(), serviceItem.ID, sitAddressUpdate.ID, &officeRemarks, eTag)
+		eTag := etag.GenerateEtag(sitAddressUpdate.UpdatedAt)
+		updatedSITAddressUpdateRequestPostRejection, err := reject.RejectSITAddressUpdateRequest(suite.AppContextForTest(), sitAddressUpdate.ID, &officeRemarks, eTag)
 
 		// Checking fields were updated as expected
 		suite.NoError(err)
@@ -119,8 +119,8 @@ func (suite *SITAddressUpdateServiceSuite) TestRejectSITAddressUpdateRequest() {
 			},
 		}, []factory.Trait{factory.GetTraitSITAddressUpdateWithMoveSetUp})
 
-		eTag := etag.GenerateEtag(serviceItem.UpdatedAt)
-		updatedSITAddressUpdateRequestPostRejection, err := reject.RejectSITAddressUpdateRequest(suite.AppContextForTest(), serviceItem.ID, sitAddressUpdate.ID, &blankOfficeRemarks, eTag)
+		eTag := etag.GenerateEtag(sitAddressUpdate.UpdatedAt)
+		updatedSITAddressUpdateRequestPostRejection, err := reject.RejectSITAddressUpdateRequest(suite.AppContextForTest(), sitAddressUpdate.ID, &blankOfficeRemarks, eTag)
 
 		suite.Error(err)
 		suite.Nil(updatedSITAddressUpdateRequestPostRejection)

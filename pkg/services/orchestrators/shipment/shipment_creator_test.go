@@ -134,18 +134,6 @@ func (suite *ShipmentSuite) TestCreateShipment() {
 			},
 			models.MTOShipmentStatusSubmitted,
 		},
-		"HHG_LONGHAUL_DOMESTIC is set to Submitted": {
-			models.MTOShipment{
-				ShipmentType: models.MTOShipmentTypeHHGLongHaulDom,
-			},
-			models.MTOShipmentStatusSubmitted,
-		},
-		"HHG_SHORTHAUL_DOMESTIC is set to Submitted": {
-			models.MTOShipment{
-				ShipmentType: models.MTOShipmentTypeHHGShortHaulDom,
-			},
-			models.MTOShipmentStatusSubmitted,
-		},
 		"NTS is set to Submitted": {
 			models.MTOShipment{
 				ShipmentType: models.MTOShipmentTypeHHGIntoNTSDom,
@@ -182,12 +170,6 @@ func (suite *ShipmentSuite) TestCreateShipment() {
 		},
 		{
 			ShipmentType: models.MTOShipmentTypeHHG,
-		},
-		{
-			ShipmentType: models.MTOShipmentTypeHHGLongHaulDom,
-		},
-		{
-			ShipmentType: models.MTOShipmentTypeHHGShortHaulDom,
 		},
 		{
 			ShipmentType: models.MTOShipmentTypeHHGIntoNTSDom,

@@ -335,7 +335,7 @@ export const allApprovedMTOQuery = {
     {
       id: '6',
       moveTaskOrderID: '2',
-      shipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
+      shipmentType: SHIPMENT_OPTIONS.HHG,
       scheduledPickupDate: '2020-03-16',
       requestedPickupDate: '2020-03-15',
       pickupAddress: {
@@ -363,7 +363,7 @@ export const allApprovedMTOQuery = {
     {
       id: '7',
       moveTaskOrderID: '2',
-      shipmentType: SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC,
+      shipmentType: SHIPMENT_OPTIONS.HHG,
       scheduledPickupDate: '2020-03-16',
       requestedPickupDate: '2020-03-15',
       pickupAddress: {
@@ -1379,7 +1379,7 @@ export const lowerReweighsMTOQuery = {
     {
       id: '6',
       moveTaskOrderID: '2',
-      shipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
+      shipmentType: SHIPMENT_OPTIONS.HHG,
       scheduledPickupDate: '2020-03-16',
       requestedPickupDate: '2020-03-15',
       pickupAddress: {
@@ -1407,7 +1407,7 @@ export const lowerReweighsMTOQuery = {
     {
       id: '7',
       moveTaskOrderID: '2',
-      shipmentType: SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC,
+      shipmentType: SHIPMENT_OPTIONS.HHG,
       scheduledPickupDate: '2020-03-16',
       requestedPickupDate: '2020-03-15',
       pickupAddress: {
@@ -1436,7 +1436,7 @@ export const lowerReweighsMTOQuery = {
     {
       id: '7',
       moveTaskOrderID: '2',
-      shipmentType: SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC,
+      shipmentType: SHIPMENT_OPTIONS.HHG,
       scheduledPickupDate: '2020-03-16',
       requestedPickupDate: '2020-03-15',
       pickupAddress: {
@@ -1603,7 +1603,7 @@ export const lowerActualsMTOQuery = {
     {
       id: '6',
       moveTaskOrderID: '2',
-      shipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
+      shipmentType: SHIPMENT_OPTIONS.HHG,
       scheduledPickupDate: '2020-03-16',
       requestedPickupDate: '2020-03-15',
       pickupAddress: {
@@ -1631,7 +1631,7 @@ export const lowerActualsMTOQuery = {
     {
       id: '7',
       moveTaskOrderID: '2',
-      shipmentType: SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC,
+      shipmentType: SHIPMENT_OPTIONS.HHG,
       scheduledPickupDate: '2020-03-16',
       requestedPickupDate: '2020-03-15',
       pickupAddress: {
@@ -1660,7 +1660,7 @@ export const lowerActualsMTOQuery = {
     {
       id: '7',
       moveTaskOrderID: '2',
-      shipmentType: SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC,
+      shipmentType: SHIPMENT_OPTIONS.HHG,
       scheduledPickupDate: '2020-03-16',
       requestedPickupDate: '2020-03-15',
       pickupAddress: {

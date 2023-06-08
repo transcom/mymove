@@ -99,8 +99,6 @@ ShipmentInfoListSelector.propTypes = {
   neverShow: PropTypes.arrayOf(PropTypes.string),
   shipmentType: PropTypes.oneOf([
     SHIPMENT_OPTIONS.HHG,
-    SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC,
-    SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
     SHIPMENT_OPTIONS.NTS,
     SHIPMENT_OPTIONS.NTSR,
     SHIPMENT_OPTIONS.PPM,
