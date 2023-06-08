@@ -189,6 +189,30 @@ func (suite *FactorySuite) TestBuildServiceRequestDocumentUpload() {
 		suite.False(serviceRequestDocumentUpload.Upload.ID.IsNil())
 	})
 
+	suite.Run("Successful return of linkOnly ServiceRequestDocumentUpload", func() {
+		// Under test:       BuildServiceRequestDocument
+		// Set up:           Pass in a linkOnly ServiceRequestDocumentUpload
+		// Expected outcome: No new ServiceRequestDocumentUpload should be created
+		// Check num ServiceRequestDocument records
+		precount, err := suite.DB().Count(&models.ServiceRequestDocumentUpload{})
+		suite.NoError(err)
+
+		id := uuid.Must(uuid.NewV4())
+		serviceRequestDocumentUpload := BuildServiceRequestDocumentUpload(suite.DB(), []Customization{
+			{
+				Model: models.ServiceRequestDocumentUpload{
+					ID: id,
+				},
+				LinkOnly: true,
+			},
+		}, nil)
+
+		count, err := suite.DB().Count(&models.ServiceRequestDocumentUpload{})
+		suite.Equal(precount, count)
+		suite.NoError(err)
+		suite.Equal(id, serviceRequestDocumentUpload.ID)
+	})
+
 	suite.Run("Failed creation of upload - no appcontext", func() {
 		// Under test:      BuildServiceRequestDocumentUpload
 		// Mocked:          None
