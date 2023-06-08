@@ -3,6 +3,7 @@ package uploader_test
 import (
 	"fmt"
 
+	"github.com/gofrs/uuid"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/uploader"
@@ -76,6 +77,23 @@ func (suite *UploaderSuite) TestTooLargeServiceRequestUploadFromLocalFile() {
 	suite.False(verrs.HasAny(), "failed to validate upload")
 }
 
+func (suite *UploaderSuite) TestFailureCreatingServiceRequestUpload() {
+	document := factory.BuildServiceRequestDocument(suite.DB(), nil, nil)
+
+	serviceRequestUploader, err := uploader.NewServiceRequestUploader(suite.storer, 25*uploader.MB)
+	suite.NoError(err)
+	file := suite.fixture("test.pdf")
+
+	contractor := factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
+
+	serviceRequestUpload, verrs, err := serviceRequestUploader.CreateServiceRequestUploadForDocument(suite.AppContextForTest(), &document.ID, contractor.ID, uploader.File{File: file}, uploader.AllowedTypesPDF)
+	suite.Nil(err, "failed to create upload")
+	suite.False(verrs.HasAny(), "failed to validate upload", verrs)
+	suite.Equal(serviceRequestUpload.Upload.ContentType, uploader.FileTypePDF)
+	suite.Equal(serviceRequestUpload.Upload.Checksum, "nOE6HwzyE4VEDXn67ULeeA==")
+	suite.False(verrs.HasAny(), "failed to validate upload")
+}
+
 func (suite *UploaderSuite) TestServiceRequestUploadStorerCalledWithTags() {
 	document := factory.BuildServiceRequestDocument(suite.DB(), nil, nil)
 	fakeS3 := test.NewFakeS3Storage(true)
@@ -88,11 +106,9 @@ func (suite *UploaderSuite) TestServiceRequestUploadStorerCalledWithTags() {
 
 	tags := "metaDataTag=value"
 
-	contractor := factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
-
 	// assert tags are passed along to storer
-	_, verrs, err := serviceRequestUploader.CreateServiceRequestUploadForDocument(suite.AppContextForTest(), &document.ID, contractor.ID, uploader.File{File: f, Tags: &tags}, uploader.AllowedTypesAny)
+	_, verrs, err := serviceRequestUploader.CreateServiceRequestUploadForDocument(suite.AppContextForTest(), &document.ID, uuid.Nil, uploader.File{File: f, Tags: &tags}, uploader.AllowedTypesAny)
 
 	suite.NoError(err)
-	suite.False(verrs.HasAny(), "failed to validate upload")
+	suite.True(verrs.HasAny(), "error creating new prime upload")
 }

@@ -56,7 +56,7 @@ func (u *ServiceRequestUploader) createAndStore(appCtx appcontext.AppContext, se
 
 	id := uuid.Must(uuid.NewV4())
 
-	newUploadForUser := &models.ServiceRequestDocumentUpload{
+	newUploadForPrime := &models.ServiceRequestDocumentUpload{
 		ID:                       id,
 		ServiceRequestDocumentID: *serviceItemDocID,
 		ContractorID:             contractorID,
@@ -64,13 +64,13 @@ func (u *ServiceRequestUploader) createAndStore(appCtx appcontext.AppContext, se
 		Upload:                   *newUpload,
 	}
 
-	verrs, err = appCtx.DB().ValidateAndCreate(newUploadForUser)
+	verrs, err = appCtx.DB().ValidateAndCreate(newUploadForPrime)
 	if err != nil || verrs.HasAny() {
 		appCtx.Logger().Error("error creating new prime upload", zap.Error(err))
 		return nil, verrs, err
 	}
 
-	return newUploadForUser, &validate.Errors{}, nil
+	return newUploadForPrime, &validate.Errors{}, nil
 }
 
 // CreateServiceRequestUploadForDocument creates a new ServiceRequestUpload by performing validations, storing the specified
