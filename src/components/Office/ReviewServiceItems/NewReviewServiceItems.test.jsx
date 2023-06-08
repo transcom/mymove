@@ -21,7 +21,7 @@ const reviewedPaymentRequest = {
 const serviceItemCards = [
   {
     id: '1',
-    mtoShipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
+    mtoShipmentType: SHIPMENT_OPTIONS.HHG,
     mtoShipmentID: '10',
     mtoServiceItemName: serviceItemCodes.DLH,
     mtoServiceItemCode: 'DLH',
@@ -31,7 +31,7 @@ const serviceItemCards = [
   },
   {
     id: '2',
-    mtoShipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
+    mtoShipmentType: SHIPMENT_OPTIONS.HHG,
     mtoShipmentID: '10',
     mtoServiceItemName: serviceItemCodes.FSC,
     mtoServiceItemCode: 'FSC',
@@ -164,7 +164,7 @@ describe('ReviewServiceItems component', () => {
     const cardsWithInitialValues = [
       {
         id: '1',
-        mtoShipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
+        mtoShipmentType: SHIPMENT_OPTIONS.HHG,
         mtoShipmentID: '10',
         mtoServiceItemName: serviceItemCodes.DLH,
         mtoServiceItemCode: 'DLH',
@@ -174,7 +174,7 @@ describe('ReviewServiceItems component', () => {
       },
       {
         id: '2',
-        mtoShipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
+        mtoShipmentType: SHIPMENT_OPTIONS.HHG,
         mtoShipmentID: '10',
         mtoServiceItemName: serviceItemCodes.FSC,
         mtoServiceItemCode: 'FSC',
@@ -346,7 +346,7 @@ describe('ReviewServiceItems component', () => {
     const cardsWithInitialValues = [
       {
         id: '1',
-        mtoShipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
+        mtoShipmentType: SHIPMENT_OPTIONS.HHG,
         mtoShipmentID: '10',
         mtoServiceItemName: serviceItemCodes.DLH,
         amount: 6423,
@@ -355,7 +355,7 @@ describe('ReviewServiceItems component', () => {
       },
       {
         id: '2',
-        mtoShipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
+        mtoShipmentType: SHIPMENT_OPTIONS.HHG,
         mtoShipmentID: '10',
         mtoServiceItemName: serviceItemCodes.FSC,
         amount: 50.25,
@@ -431,7 +431,7 @@ describe('ReviewServiceItems component', () => {
       const cardsWithInitialValues = [
         {
           id: '1',
-          mtoShipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
+          mtoShipmentType: SHIPMENT_OPTIONS.HHG,
           mtoShipmentID: '10',
           mtoServiceItemName: serviceItemCodes.DLH,
           mtoServiceItemCode: 'DLH',
@@ -441,7 +441,7 @@ describe('ReviewServiceItems component', () => {
         },
         {
           id: '2',
-          mtoShipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
+          mtoShipmentType: SHIPMENT_OPTIONS.HHG,
           mtoShipmentID: '10',
           mtoServiceItemName: serviceItemCodes.FSC,
           mtoServiceItemCode: 'FSC',
@@ -496,7 +496,7 @@ describe('ReviewServiceItems component', () => {
       const cardWithInitialValues = [
         {
           id: '1',
-          mtoShipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
+          mtoShipmentType: SHIPMENT_OPTIONS.HHG,
           mtoShipmentID: '10',
           mtoServiceItemName: serviceItemCodes.DLH,
           amount: 6423,
@@ -540,7 +540,7 @@ describe('ReviewServiceItems component', () => {
       const cardsWithInitialValues = [
         {
           id: '1',
-          mtoShipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
+          mtoShipmentType: SHIPMENT_OPTIONS.HHG,
           mtoShipmentID: '10',
           mtoServiceItemName: serviceItemCodes.DLH,
           amount: 6423,
@@ -549,7 +549,7 @@ describe('ReviewServiceItems component', () => {
         },
         {
           id: '2',
-          mtoShipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
+          mtoShipmentType: SHIPMENT_OPTIONS.HHG,
           mtoShipmentID: '10',
           mtoServiceItemName: serviceItemCodes.FSC,
           amount: 50.25,
@@ -621,7 +621,7 @@ describe('ReviewServiceItems component', () => {
       const cardsWithInitialValues = [
         {
           id: '1',
-          mtoShipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
+          mtoShipmentType: SHIPMENT_OPTIONS.HHG,
           mtoShipmentID: '10',
           mtoServiceItemName: serviceItemCodes.DLH,
           mtoServiceItemCode: 'DLH',
@@ -631,7 +631,7 @@ describe('ReviewServiceItems component', () => {
         },
         {
           id: '2',
-          mtoShipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
+          mtoShipmentType: SHIPMENT_OPTIONS.HHG,
           mtoShipmentID: '10',
           mtoServiceItemName: serviceItemCodes.FSC,
           mtoServiceItemCode: 'FSC',
@@ -740,7 +740,7 @@ describe('ReviewServiceItems component', () => {
       const cardsWithInitialValues = [
         {
           id: '1',
-          mtoShipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
+          mtoShipmentType: SHIPMENT_OPTIONS.HHG,
           mtoShipmentID: '10',
           mtoServiceItemName: serviceItemCodes.DLH,
           mtoServiceItemCode: 'DLH',
@@ -751,7 +751,7 @@ describe('ReviewServiceItems component', () => {
         },
         {
           id: '2',
-          mtoShipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
+          mtoShipmentType: SHIPMENT_OPTIONS.HHG,
           mtoShipmentID: '10',
           mtoServiceItemName: serviceItemCodes.FSC,
           mtoServiceItemCode: 'FSC',
@@ -810,7 +810,7 @@ describe('ReviewServiceItems component', () => {
       const cardsWithInitialValues = [
         {
           id: '1',
-          mtoShipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
+          mtoShipmentType: SHIPMENT_OPTIONS.HHG,
           mtoShipmentID: '10',
           mtoServiceItemName: serviceItemCodes.DLH,
           mtoServiceItemCode: 'DLH',
@@ -821,7 +821,7 @@ describe('ReviewServiceItems component', () => {
         },
         {
           id: '2',
-          mtoShipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
+          mtoShipmentType: SHIPMENT_OPTIONS.HHG,
           mtoShipmentID: '10',
           mtoServiceItemName: serviceItemCodes.FSC,
           mtoServiceItemCode: 'FSC',

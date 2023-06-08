@@ -57,8 +57,6 @@ describe('Shipment Container', () => {
 
   it.each([
     [SHIPMENT_OPTIONS.HHG, 'container--accent--hhg'],
-    [SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC, 'container--accent--hhg'],
-    [SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC, 'container--accent--hhg'],
     [SHIPMENT_OPTIONS.NTS, 'container--accent--nts'],
     [SHIPMENT_OPTIONS.NTSR, 'container--accent--ntsr'],
   ])('renders a container for a shipment (%s) with className %s ', async (shipmentType, expectedClass) => {
