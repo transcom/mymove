@@ -13,6 +13,8 @@ describe('ServiceItemsTable', () => {
   const defaultProps = {
     handleUpdateMTOServiceItemStatus: jest.fn(),
     handleShowRejectionDialog: jest.fn(),
+    handleRequestSITAddressUpdateModal: jest.fn(),
+    handleShowEditSitAddressModal: jest.fn(),
     serviceItemAddressUpdateAlert: {
       makeVisible: false,
       alertMessage: '',
@@ -446,6 +448,40 @@ describe('ServiceItemsTable', () => {
     expect(editButton.at(0).contains('Edit')).toBe(true);
   });
 
+  it('calls the handleShowEditSitAddressModal handler when the edit button is clicked', () => {
+    const serviceItems = [
+      {
+        id: 'abc123',
+        mtoShipmentID: 'xyz789',
+        submittedAt: '2020-11-20',
+        serviceItem: 'Domestic destination SIT delivery',
+        code: 'DDDSIT',
+        sitAddressUpdates: [
+          {
+            contractorRemarks: 'contractor remarks',
+            distance: 140,
+            status: SIT_ADDRESS_UPDATE_STATUS.APPROVED,
+            officeRemarks: null,
+          },
+        ],
+      },
+    ];
+
+    const wrapper = mount(
+      <MockProviders permissions={[permissionTypes.updateMTOServiceItem]}>
+        <ServiceItemsTable
+          {...defaultProps}
+          serviceItems={serviceItems}
+          statusForTableType={SERVICE_ITEM_STATUS.APPROVED}
+        />
+      </MockProviders>,
+    );
+
+    wrapper.find('button[data-testid="editTextButton"]').simulate('click');
+
+    expect(defaultProps.handleShowEditSitAddressModal).toHaveBeenCalledWith('abc123', 'xyz789');
+  });
+
   it('shows review request button when service item contains requested sit address update', () => {
     const serviceItems = [
       {
@@ -480,5 +516,39 @@ describe('ServiceItemsTable', () => {
     expect(reviewRequestButton.length).toBeTruthy();
 
     expect(reviewRequestButton.at(0).contains('Review Request')).toBe(true);
+  });
+
+  it('calls the handleRequestSITAddressUpdateModal handler when the Review Request button is clicked', () => {
+    const serviceItems = [
+      {
+        id: 'abc123',
+        mtoShipmentID: 'xyz789',
+        submittedAt: '2020-11-20',
+        serviceItem: 'Domestic destination SIT delivery',
+        code: 'DDDSIT',
+        sitAddressUpdates: [
+          {
+            contractorRemarks: 'contractor remarks',
+            distance: 140,
+            status: SIT_ADDRESS_UPDATE_STATUS.REQUESTED,
+            officeRemarks: null,
+          },
+        ],
+      },
+    ];
+
+    const wrapper = mount(
+      <MockProviders permissions={[permissionTypes.updateMTOServiceItem]}>
+        <ServiceItemsTable
+          {...defaultProps}
+          serviceItems={serviceItems}
+          statusForTableType={SERVICE_ITEM_STATUS.APPROVED}
+        />
+      </MockProviders>,
+    );
+
+    wrapper.find('button[data-testid="reviewRequestTextButton"]').simulate('click');
+
+    expect(defaultProps.handleRequestSITAddressUpdateModal).toHaveBeenCalledWith('abc123', 'xyz789');
   });
 });
