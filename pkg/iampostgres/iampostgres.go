@@ -184,16 +184,13 @@ type rdsPostgresConnector struct {
 	driver driver.Driver
 }
 
-// Connect is called each time a new connection to the database is
-// needed, so we can update the RDS IAM auth token immediately before
-// connecting to the DB
-func (c *rdsPostgresConnector) Connect(ctx context.Context) (driver.Conn, error) {
+func retryableConnect(ctx context.Context, originalDsn string) (driver.Conn, error) {
 	useIAM := iamPostgres != nil && iamPostgres.useIAM
-	dsn := c.dsn
+	dsn := originalDsn
 	var dsnTime time.Time
 	var err error
 	if useIAM {
-		dsn, dsnTime, err = iamPostgres.updateDSN(c.dsn)
+		dsn, dsnTime, err = iamPostgres.updateDSN(originalDsn)
 		if err != nil {
 			zap.L().Error("IAM iampostgres updateDSN failed", zap.Error(err))
 			return nil, err
@@ -221,6 +218,23 @@ func (c *rdsPostgresConnector) Connect(ctx context.Context) (driver.Conn, error)
 	}
 
 	return conn, nil
+}
+
+// Connect is called each time a new connection to the database is
+// needed, so we can update the RDS IAM auth token immediately before
+// connecting to the DB
+func (c *rdsPostgresConnector) Connect(ctx context.Context) (driver.Conn, error) {
+	conn, err := retryableConnect(ctx, c.dsn)
+	if err != nil {
+		useIAM := iamPostgres != nil && iamPostgres.useIAM
+		if useIAM {
+			zap.L().Error("IAM iampostgres connect failed, retrying once")
+			iamPostgres.generateNewIamPassword()
+			return retryableConnect(ctx, c.dsn)
+		}
+	}
+
+	return conn, err
 }
 
 func (c *rdsPostgresConnector) Driver() driver.Driver {
