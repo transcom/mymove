@@ -10,6 +10,6 @@ func TestDollarsToMillicents(t *testing.T) {
 
 	expected := Millicents(100000)
 	if result != expected {
-		t.Errorf("wrong number of Miles: expected %v, got %v", expected, result)
+		t.Errorf("wrong amount of millicents: expected %v, got %v", expected, result)
 	}
 }
