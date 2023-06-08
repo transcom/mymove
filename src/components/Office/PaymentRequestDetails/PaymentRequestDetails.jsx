@@ -21,8 +21,6 @@ const shipmentHeadingAndStyle = (mtoShipmentType) => {
     case null:
       return ['Basic service items', styles.basicServiceType];
     case SHIPMENT_OPTIONS.HHG:
-    case SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC:
-    case SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC:
       return ['HHG', styles.hhgShipmentType];
     case SHIPMENT_OPTIONS.NTS:
       return ['Non-temp storage', styles.ntsrShipmentType];

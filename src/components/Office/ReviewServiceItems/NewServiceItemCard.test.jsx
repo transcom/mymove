@@ -29,7 +29,7 @@ const reviewedBasicServiceItemCard = {
 
 const needsReviewServiceItemCard = {
   id: '1',
-  mtoShipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
+  mtoShipmentType: SHIPMENT_OPTIONS.HHG,
   mtoShipmentID: '2',
   mtoShipmentDepartureDate: '04 May 2021',
   mtoShipmentPickupAddress: 'Fairfield, CA 94535',
