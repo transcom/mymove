@@ -21,7 +21,6 @@ import { usePrimeSimulatorGetMove } from 'hooks/queries';
 import { completeCounseling, deleteShipment } from 'services/primeApi';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 import scrollToTop from 'shared/scrollToTop';
-import { shipment } from 'shared/Entities/schema';
 
 const MoveDetails = ({ setFlashMessage }) => {
   const { moveCodeOrID } = useParams();
@@ -155,7 +154,6 @@ const MoveDetails = ({ setFlashMessage }) => {
                       <div key={mtoShipment.id}>
                         <Shipment shipment={mtoShipment} moveId={moveTaskOrder.id} onDelete={handleDeleteShipment} />
                         {moveTaskOrder.mtoServiceItems?.map((serviceItem) => {
-                          console.log(serviceItem);
                           if (serviceItem.mtoShipmentID === mtoShipment.id) {
                             return (
                               <div className={styles.paymentRequestRows} key={serviceItem.id}>
