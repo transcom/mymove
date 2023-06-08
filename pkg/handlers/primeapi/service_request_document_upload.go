@@ -3,7 +3,6 @@ package primeapi
 import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
@@ -13,19 +12,8 @@ import (
 	mtoserviceitemops "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_service_item"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
-	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/services"
 )
-
-func payloadForServiceRequestDocumentUploadModel(u models.Upload) *primemessages.UploadWithOmissions {
-	return &primemessages.UploadWithOmissions{
-		Bytes: &u.Bytes,
-		ContentType: &u.ContentType,
-		Filename: &u.Filename,
-		CreatedAt: (strfmt.DateTime)(u.CreatedAt),
-		UpdatedAt: (strfmt.DateTime)(u.UpdatedAt),
-	}
-}
 
 type CreateServiceRequestDocumentUploadHandler struct {
 	handlers.HandlerConfig
@@ -79,7 +67,7 @@ func (h CreateServiceRequestDocumentUploadHandler) Handle(params mtoserviceitemo
 			}
 		}
 
-		returnPayload := payloadForServiceRequestDocumentUploadModel(*createServiceRequestDocumentUpload)
+		returnPayload := payloads.ServiceRequestDocumentUploadModel(*createServiceRequestDocumentUpload)
 		return mtoserviceitemops.NewCreateServiceRequestDocumentUploadCreated().WithPayload(returnPayload), nil
 	})
 }

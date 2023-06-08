@@ -79,6 +79,11 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primeoperations.MymoveAP
 		mtoserviceitem.NewMTOServiceItemUpdater(builder, moveRouter),
 	}
 
+	primeAPI.MtoServiceItemCreateServiceRequestDocumentUploadHandler = CreateServiceRequestDocumentUploadHandler{
+		handlerConfig,
+		mtoserviceitem.NewServiceRequestDocumentUploadCreator(handlerConfig.FileStorer()),
+	}
+
 	mtoShipmentUpdater := mtoshipment.NewPrimeMTOShipmentUpdater(
 		builder,
 		fetcher,
@@ -116,11 +121,6 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primeoperations.MymoveAP
 	primeAPI.PaymentRequestCreateUploadHandler = CreateUploadHandler{
 		handlerConfig,
 		paymentrequest.NewPaymentRequestUploadCreator(handlerConfig.FileStorer()),
-	}
-
-	primeAPI.ServiceRequestDocumentUploadHandler = CreateServiceRequestDocumentUploadHandler{
-		handlerConfig,
-		mtoserviceitem.NewServiceRequestDocumentUploadCreator(handlerConfig.FileStorer()),
 	}
 
 	primeAPI.MoveTaskOrderUpdateMTOPostCounselingInformationHandler = UpdateMTOPostCounselingInformationHandler{
