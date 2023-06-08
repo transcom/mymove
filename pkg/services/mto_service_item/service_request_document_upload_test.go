@@ -13,7 +13,7 @@ import (
 	"os"
 
 	"github.com/gofrs/uuid"
-	// "go.uber.org/zap"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
@@ -77,62 +77,62 @@ func (suite *MTOServiceItemServiceSuite) TestCreateUploadSuccess() {
 	testFile.Close()
 }
 
-// func (suite *MTOServiceItemServiceSuite) TestCreateUploadFailure() {
-// 	var contractor models.Contractor
+func (suite *MTOServiceItemServiceSuite) TestCreateServiceRequestUploadFailure() {
+	var contractor models.Contractor
 
-// 	fakeS3 := test.NewFakeS3Storage(true)
+	fakeS3 := test.NewFakeS3Storage(true)
 
-// 	setupTestData := func() {
-// 		contractor = factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
-// 		factory.BuildMTOServiceItem(suite.DB(), nil, nil)
-// 	}
+	setupTestData := func() {
+		contractor = factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
+		factory.BuildMTOServiceItem(suite.DB(), nil, nil)
+	}
 
-// 	suite.Run("invalid payment request ID", func() {
-// 		setupTestData()
-// 		testFile, err := os.Open("../../testdatagen/testdata/test.pdf")
-// 		suite.NoError(err)
-// 		defer func() {
-// 			if closeErr := testFile.Close(); closeErr != nil {
-// 				suite.T().Error("Failed to close file", zap.Error(closeErr))
-// 			}
-// 		}()
+	suite.Run("invalid mto service item ID", func() {
+		setupTestData()
+		testFile, err := os.Open("../../testdatagen/testdata/test.pdf")
+		suite.NoError(err)
+		defer func() {
+			if closeErr := testFile.Close(); closeErr != nil {
+				suite.T().Error("Failed to close file", zap.Error(closeErr))
+			}
+		}()
 
-// 		uploadCreator := NewServiceRequestDocumentUploadCreator(fakeS3)
-// 		_, err = uploadCreator.CreateUpload(suite.AppContextForTest(), testFile, uuid.FromStringOrNil("96b77644-4028-48c2-9ab8-754f33309db9"), contractor.ID, "unit-test-file.pdf")
-// 		suite.Error(err)
-// 	})
+		uploadCreator := NewServiceRequestDocumentUploadCreator(fakeS3)
+		_, err = uploadCreator.CreateUpload(suite.AppContextForTest(), testFile, uuid.FromStringOrNil("96b77644-4028-48c2-9ab8-754f33309db9"), contractor.ID, "unit-test-file.pdf")
+		suite.Error(err)
+	})
 
-// 	suite.Run("invalid user ID", func() {
-// 		setupTestData()
-// 		testFile, err := os.Open("../../testdatagen/testdata/test.pdf")
-// 		suite.NoError(err)
-// 		defer func() {
-// 			if closeErr := testFile.Close(); closeErr != nil {
-// 				suite.T().Error("Failed to close file", zap.Error(closeErr))
-// 			}
-// 		}()
+	suite.Run("invalid user ID", func() {
+		setupTestData()
+		testFile, err := os.Open("../../testdatagen/testdata/test.pdf")
+		suite.NoError(err)
+		defer func() {
+			if closeErr := testFile.Close(); closeErr != nil {
+				suite.T().Error("Failed to close file", zap.Error(closeErr))
+			}
+		}()
 
-// 		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), nil, nil)
-// 		uploadCreator := NewServiceRequestDocumentUploadCreator(fakeS3)
-// 		_, err = uploadCreator.CreateUpload(suite.AppContextForTest(), testFile, mtoServiceItem.ID, uuid.FromStringOrNil("806e2f96-f9f9-4cbb-9a3d-d2f488539a1f"), "unit-test-file.pdf")
-// 		suite.Error(err)
-// 	})
+		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), nil, nil)
+		uploadCreator := NewServiceRequestDocumentUploadCreator(fakeS3)
+		_, err = uploadCreator.CreateUpload(suite.AppContextForTest(), testFile, mtoServiceItem.ID, uuid.FromStringOrNil("806e2f96-f9f9-4cbb-9a3d-d2f488539a1f"), "unit-test-file.pdf")
+		suite.Error(err)
+	})
 
-// 	suite.Run("invalid file type", func() {
-// 		setupTestData()
-// 		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), nil, nil)
-// 		uploadCreator := NewServiceRequestDocumentUploadCreator(fakeS3)
-// 		wrongTypeFile, err := os.Open("../../testdatagen/testdata/test.txt")
-// 		suite.NoError(err)
+	suite.Run("invalid file type", func() {
+		setupTestData()
+		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), nil, nil)
+		uploadCreator := NewServiceRequestDocumentUploadCreator(fakeS3)
+		wrongTypeFile, err := os.Open("../../testdatagen/testdata/test.txt")
+		suite.NoError(err)
 
-// 		defer func() {
-// 			if closeErr := wrongTypeFile.Close(); closeErr != nil {
-// 				suite.T().Error("Failed to close file", zap.Error(closeErr))
-// 			}
-// 		}()
+		defer func() {
+			if closeErr := wrongTypeFile.Close(); closeErr != nil {
+				suite.T().Error("Failed to close file", zap.Error(closeErr))
+			}
+		}()
 
-// 		_, err = uploadCreator.CreateUpload(suite.AppContextForTest(), wrongTypeFile, mtoServiceItem.ID, contractor.ID, "unit-test-file.pdf")
-// 		suite.Error(err)
-// 	})
+		_, err = uploadCreator.CreateUpload(suite.AppContextForTest(), wrongTypeFile, mtoServiceItem.ID, contractor.ID, "unit-test-file.pdf")
+		suite.Error(err)
+	})
 
-// }
+}
