@@ -666,9 +666,15 @@ commands:
             mkdir -p images/sha
             echo $(aws ecr describe-images --repository-name << parameters.repo >> --image-ids imageTag=git-${otel_image_tag}-${CIRCLE_SHA1} | jq ".imageDetails[0] .imageDigest" -r) > images/sha/ECR_DIGEST_<< parameters.repo >>_<< parameters.ecr_env >>
             cat images/sha/ECR_DIGEST_<< parameters.repo >>_<< parameters.ecr_env >>
-      - run:
-          name: 'Describe image scan findings'
-          command: scripts/ecr-describe-image-scan-findings << parameters.repo >> $(cat images/sha/ECR_DIGEST_<< parameters.repo >>_<< parameters.ecr_env >>)
+      # The scans of the upstream otel collector image result in
+      #
+      #   UnsupportedImageError: The operating system and/or package manager are not supported
+      # The irony of the AWS open telemetry collector being built in a
+      # way that is not compatible with AWS image scanning is not lost
+      # on me
+      # - run:
+      #     name: 'Describe image scan findings'
+      #     command: scripts/ecr-describe-image-scan-findings << parameters.repo >> $(cat images/sha/ECR_DIGEST_<< parameters.repo >>_<< parameters.ecr_env >>) || true
       - persist_to_workspace:
           root: .
           paths:
