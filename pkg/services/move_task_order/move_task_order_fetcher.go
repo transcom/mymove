@@ -216,7 +216,12 @@ func (f moveTaskOrderFetcher) ListPrimeMoveTaskOrders(appCtx appcontext.AppConte
 			                            UNION
 			                            SELECT payment_requests.move_id
 			                            FROM payment_requests
-			                            WHERE payment_requests.updated_at >= $1)));`
+			                            WHERE payment_requests.updated_at >= $1
+										UNION
+										SELECT mto_shipments.move_id
+										FROM mto_shipments
+										INNER JOIN reweighs ON reweighs.shipment_id = mto_shipments.id
+										WHERE reweighs.updated_at >= $1)));`
 		err = appCtx.DB().RawQuery(sql, *searchParams.Since).All(&moveTaskOrders)
 	} else {
 		sql = sql + `;`

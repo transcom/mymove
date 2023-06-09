@@ -12,8 +12,10 @@ import { formatDateForSwagger } from 'shared/dates';
 import { formatAddressForPrimeAPI } from 'utils/formatters';
 import { DatePickerInput } from 'components/form/fields';
 import { ShipmentShape } from 'types/shipment';
+import TextField from 'components/form/fields/TextField/TextField';
 
 const destinationSITValidationSchema = Yup.object().shape({
+  reason: Yup.string().required('Required'),
   firstAvailableDeliveryDate1: Yup.date().typeError('Enter a complete date in DD MMM YYYY format (day, month, year).'),
   timeMilitary1: Yup.string().matches(/^(\d{4}Z)$/, 'Must be a valid military time (e.g. 1400Z)'),
   firstAvailableDeliveryDate2: Yup.date().typeError('Enter a complete date in DD MMM YYYY format (day, month, year).'),
@@ -31,6 +33,7 @@ const DestinationSITServiceItemForm = ({ shipment, submission }) => {
     mtoShipmentID: shipment.id,
     modelType: 'MTOServiceItemDestSIT',
     reServiceCode: 'DDFSIT',
+    reason: '',
     firstAvailableDeliveryDate1: '',
     timeMilitary1: '',
     firstAvailableDeliveryDate2: '',
@@ -73,6 +76,7 @@ const DestinationSITServiceItemForm = ({ shipment, submission }) => {
         <input type="hidden" name="mtoShipmentID" />
         <input type="hidden" name="modelType" />
         <input type="hidden" name="reServiceCode" />
+        <TextField label="Reason" name="reason" />
         <DatePickerInput label="First available delivery date" name="firstAvailableDeliveryDate1" />
         <MaskedTextField
           id="timeMilitary1"
@@ -91,7 +95,7 @@ const DestinationSITServiceItemForm = ({ shipment, submission }) => {
         />
         <DatePickerInput label="SIT entry date" name="sitEntryDate" />
         <DatePickerInput label="SIT departure date" name="sitDepartureDate" />
-        <AddressFields legend="SIT destination final address" name="sitHHGActualOrigin" />
+        <AddressFields legend="SIT destination final address" name="sitDestinationFinalAddress" />
         <Button type="submit">Create service item</Button>
       </Form>
     </Formik>
