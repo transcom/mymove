@@ -1,0 +1,28 @@
+-- This migration updates the mto_shipments table
+-- with newly created copies of destination duty location addresses
+-- for records without a destination address
+
+DO $$
+DECLARE
+	new_uuid uuid;
+	rec RECORD;
+
+BEGIN
+	FOR rec IN SELECT mto_shipments.id, city, state, postal_code FROM mto_shipments
+		LEFT JOIN moves ON mto_shipments.move_id = moves.id
+		LEFT JOIN orders ON moves.orders_id = orders.id
+		LEFT JOIN duty_locations ON orders.new_duty_location_id = duty_locations.id
+		LEFT JOIN addresses ON duty_locations.address_id = addresses.id
+		WHERE destination_address_id IS NULL
+
+		LOOP
+			new_uuid := uuid_generate_v4();
+
+			INSERT INTO addresses (id, created_at, updated_at, street_address_1, city, state, postal_code)
+			VALUES (new_uuid, now(), now(), '', rec.city, rec.state, rec.postal_code);
+
+			UPDATE mto_shipments
+			SET destination_address_id = new_uuid
+			WHERE mto_shipments.id = rec.id;
+	END LOOP;
+END $$
