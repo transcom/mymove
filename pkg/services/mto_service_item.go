@@ -1,6 +1,8 @@
 package services
 
 import (
+	"io"
+
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
@@ -23,4 +25,11 @@ type MTOServiceItemUpdater interface {
 	UpdateMTOServiceItem(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, eTag string, validator string) (*models.MTOServiceItem, error)
 	UpdateMTOServiceItemBasic(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, eTag string) (*models.MTOServiceItem, error)
 	UpdateMTOServiceItemPrime(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, eTag string) (*models.MTOServiceItem, error)
+}
+
+// serviceRequestDocumentUploadCreator is the exported interface for creating a mto service item request upload
+//
+//go:generate mockery --name ServiceRequestDocumentUploadCreator
+type ServiceRequestDocumentUploadCreator interface {
+	CreateUpload(appCtx appcontext.AppContext, file io.ReadCloser, mtoServiceItemID uuid.UUID, userID uuid.UUID, filename string) (*models.Upload, error)
 }

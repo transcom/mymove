@@ -153,6 +153,24 @@ const MoveDetails = ({ setFlashMessage }) => {
                     return (
                       <div key={mtoShipment.id}>
                         <Shipment shipment={mtoShipment} moveId={moveTaskOrder.id} onDelete={handleDeleteShipment} />
+                        {moveTaskOrder.mtoServiceItems?.length > 0 && <h2>Service Items</h2>}
+                        {moveTaskOrder.mtoServiceItems?.map((serviceItem) => {
+                          if (serviceItem.mtoShipmentID === mtoShipment.id) {
+                            return (
+                              <div className={styles.paymentRequestRows} key={serviceItem.id}>
+                                <h3>{serviceItem.reServiceName}</h3>
+                                <Link
+                                  to={`../mto-service-items/${serviceItem.id}/upload`}
+                                  relative="path"
+                                  className="usa-button usa-button-secondary"
+                                >
+                                  Upload Document for {serviceItem.reServiceName}
+                                </Link>
+                              </div>
+                            );
+                          }
+                          return <div />;
+                        })}
                       </div>
                     );
                   })}
