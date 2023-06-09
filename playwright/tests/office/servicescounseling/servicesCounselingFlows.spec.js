@@ -228,16 +228,19 @@ test.describe('Services counselor user', () => {
     await page.getByRole('button', { name: 'Review documents' }).click();
 
     await scPage.waitForPage.reviewWeightTicket();
-    await page.getByText('Accept').click();
+
+    await expect(page.getByLabel('Accept')).toBeVisible();
+    await page.getByLabel('Accept').dispatchEvent('click');
     await page.getByRole('button', { name: 'Continue' }).click();
 
     await scPage.waitForPage.reviewProGear();
-    await page.getByText('Accept').click();
+    await expect(page.getByLabel('Accept')).toBeVisible();
+    await page.getByLabel('Accept').dispatchEvent('click');
     await page.getByRole('button', { name: 'Continue' }).click();
 
     await scPage.waitForPage.reviewReceipt();
-    await expect(page.getByText('Accept')).toBeVisible();
-    await page.getByText('Accept').click();
+    await expect(page.getByLabel('Accept')).toBeVisible();
+    await page.getByLabel('Accept').dispatchEvent('click');
     await page.getByRole('button', { name: 'Continue' }).click();
 
     await scPage.waitForPage.reviewDocumentsConfirmation();

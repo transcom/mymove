@@ -13,6 +13,7 @@ import { LogoutUser } from 'utils/api';
 import { logOut } from 'store/auth/actions';
 import { withContext } from 'shared/AppContext';
 import Alert from 'shared/Alert';
+import { useTitle } from 'hooks/custom';
 
 const InvalidPermissions = ({ context }) => {
   const navigate = useNavigate();
@@ -21,6 +22,7 @@ const InvalidPermissions = ({ context }) => {
   const { siteName } = context;
   const { traceId } = qs.parse(location.search);
   const signoutClass = siteName === 'my.move.mil' ? styles.signInButton : 'usa-button';
+  useTitle();
 
   const handleLogOut = () => {
     logOut();
