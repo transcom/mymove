@@ -9,7 +9,6 @@ import (
 	"database/sql/driver"
 	"errors"
 	"fmt"
-	"net/url"
 	"strings"
 	"sync"
 	"time"
@@ -95,7 +94,14 @@ func (i *iamPostgresConfig) updateDSN(dsn string) (string, time.Time, error) {
 	}
 	currentPass, currentPassTime := i.getCurrentPass()
 
-	dsn = strings.Replace(dsn, i.passHolder, currentPass, 1)
+	// because this now uses the postgresql user=bob password=secret
+	// style connection string, the password does not need to be query
+	// escaped
+	//
+	// use the same escaper logic as in pg.ParseURL in case "'" or "\"
+	// appears in the generated token
+	escaper := strings.NewReplacer(`'`, `\'`, `\`, `\\`)
+	dsn = strings.Replace(dsn, i.passHolder, escaper.Replace(currentPass), 1)
 	return dsn, currentPassTime, nil
 }
 
@@ -105,7 +111,7 @@ func (i *iamPostgresConfig) generateNewIamPassword() {
 		i.logger.Error("Error building IAM auth token", zap.Error(err))
 	} else {
 		i.currentPassMutex.Lock()
-		i.currentIamPass = url.QueryEscape(authToken)
+		i.currentIamPass = authToken
 		i.currentIamTime = time.Now()
 		i.currentPassMutex.Unlock()
 	}
@@ -257,7 +263,13 @@ type RDSPostgresDriver struct {
 // Milmove wants this for IAM Authentication so we can update the auth
 // token before connect
 func (d *RDSPostgresDriver) OpenConnector(dsn string) (driver.Connector, error) {
-	return &rdsPostgresConnector{dsn, &pg.Driver{}}, nil
+	// convert to postgres style "username=foo password=bar" style so
+	// we don't have to URL encode the password
+	pgDsn, err := pg.ParseURL(dsn)
+	if err != nil {
+		return nil, err
+	}
+	return &rdsPostgresConnector{pgDsn, &pg.Driver{}}, nil
 }
 
 var errNotImplemented = errors.New("Open Not Implemented")
