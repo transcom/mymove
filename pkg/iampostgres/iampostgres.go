@@ -5,8 +5,10 @@ package iampostgres
 
 import (
 	"context"
+	"crypto/sha256"
 	"database/sql"
 	"database/sql/driver"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"strings"
@@ -115,7 +117,10 @@ func (i *iamPostgresConfig) generateNewIamPassword() {
 		i.currentIamTime = time.Now()
 		i.currentPassMutex.Unlock()
 	}
-	i.logger.Info("Successfully generated new IAM auth token")
+	hash := sha256.Sum256([]byte(authToken))
+	digest := hex.EncodeToString(hash[:])
+	i.logger.Info("Successfully generated new IAM auth token",
+		zap.String("pwDigest", digest))
 }
 
 // Refreshes the RDS IAM on the given interval.
@@ -215,10 +220,25 @@ func retryableConnect(ctx context.Context, originalDsn string) (driver.Conn, err
 
 	conn, err := connector.Connect(ctx)
 	if err != nil {
+		parts := strings.Split(dsn, " ")
+		pw := ""
+		var b strings.Builder
+		for i := range parts {
+			if strings.HasPrefix(parts[i], "password") {
+				pw = strings.TrimPrefix(parts[i], "password=")
+			} else {
+				b.WriteString(parts[i] + " ")
+			}
+		}
+		hash := sha256.Sum256([]byte(pw))
+		digest := hex.EncodeToString(hash[:])
+
 		zap.L().Error("IAM iampostgres connector.Connect failed",
-			zap.Any("useIAM", useIAM),
+			zap.Bool("useIAM", useIAM),
+			zap.Any("dsn", b.String()),
 			zap.Any("dsnTime", dsnTime),
 			zap.Any("diff", time.Now().Unix()-dsnTime.Unix()),
+			zap.String("pwDigest", digest),
 			zap.Error(err))
 		return nil, err
 	}
@@ -234,9 +254,14 @@ func (c *rdsPostgresConnector) Connect(ctx context.Context) (driver.Conn, error)
 	if err != nil {
 		useIAM := iamPostgres != nil && iamPostgres.useIAM
 		if useIAM {
-			zap.L().Error("IAM iampostgres connect failed, retrying once")
+			zap.L().Error("IAM iampostgres connect failed, retrying once", zap.Error(err))
 			iamPostgres.generateNewIamPassword()
-			return retryableConnect(ctx, c.dsn)
+			conn, err = retryableConnect(ctx, c.dsn)
+			if err != nil {
+				zap.L().Error("IAM iampostgres retry failed", zap.Error(err))
+			} else {
+				zap.L().Error("IAM iampostgres retry ok")
+			}
 		}
 	}
 
