@@ -5,7 +5,6 @@ import { shallow, mount } from 'enzyme';
 
 import ReviewServiceItems from './ReviewServiceItems';
 
-import { toDollarString } from 'utils/formatters';
 import { SHIPMENT_OPTIONS, PAYMENT_SERVICE_ITEM_STATUS, PAYMENT_REQUEST_STATUS } from 'shared/constants';
 import { serviceItemCodes } from 'content/serviceItems';
 
@@ -84,26 +83,30 @@ const basicServiceItemCards = [
   },
 ];
 
-const compareItem = (component, item) => {
-  expect(component.find('[data-testid="serviceItemName"]').text()).toEqual(item.mtoServiceItemName);
-  expect(component.find('[data-testid="serviceItemAmount"]').text()).toEqual(toDollarString(item.amount));
-};
-
 describe('ReviewServiceItems component', () => {
   const handleClose = jest.fn();
   const patchPaymentServiceItem = jest.fn();
   const onCompleteReview = jest.fn();
+  const setCardIndex = jest.fn();
+  const handlePrevious = jest.fn();
+  const setShouldAdvanceOnSubmit = jest.fn();
 
   const requiredProps = {
     handleClose,
     patchPaymentServiceItem,
     onCompleteReview,
+    setCardIndex,
+    handlePrevious,
+    setShouldAdvanceOnSubmit,
+    curCardIndex: 0,
+    requestReviewed: false,
   };
 
   const shallowComponent = shallow(
     <ReviewServiceItems
       paymentRequest={pendingPaymentRequest}
       serviceItemCards={serviceItemCards}
+      sortedCards={serviceItemCards}
       {...requiredProps}
     />,
   );
@@ -111,6 +114,7 @@ describe('ReviewServiceItems component', () => {
     <ReviewServiceItems
       paymentRequest={pendingPaymentRequest}
       serviceItemCards={serviceItemCards}
+      sortedCards={serviceItemCards}
       {...requiredProps}
     />,
   );
@@ -148,15 +152,17 @@ describe('ReviewServiceItems component', () => {
     expect(mountedComponent.find('[data-testid="approvedAmount"]').text()).toEqual('$0.00');
   });
 
-  it('renders two basic service item cards', () => {
+  it('renders one basic service item card at a time', () => {
     const basicWrapper = mount(
       <ReviewServiceItems
         paymentRequest={pendingPaymentRequest}
         serviceItemCards={basicServiceItemCards}
+        sortedCards={basicServiceItemCards}
         {...requiredProps}
       />,
     );
-    expect(basicWrapper.find('ServiceItemCard').length).toBe(2);
+    expect(basicWrapper.find('ServiceItemCard').length).toBe(1);
+    expect(basicWrapper.find('[data-testid="itemCount"]').text()).toEqual('1 OF 2 ITEMS');
   });
 
   describe('navigating through service items', () => {
@@ -206,62 +212,41 @@ describe('ReviewServiceItems component', () => {
       <ReviewServiceItems
         paymentRequest={pendingPaymentRequest}
         serviceItemCards={cardsWithInitialValues}
+        sortedCards={cardsWithInitialValues}
         {...requiredProps}
       />,
     );
     const nextButton = componentWithInitialValues.find('button[data-testid="nextServiceItem"]');
-    const prevButton = componentWithInitialValues.find('button[data-testid="prevServiceItem"]');
+    let prevButton = componentWithInitialValues.find('button[data-testid="prevServiceItem"]');
 
-    it('renders the service item cards ordered by timestamp ascending', () => {
-      compareItem(componentWithInitialValues, serviceItemCards[3]);
-
+    it('calls the callback when the "Next" button is clicked', async () => {
       nextButton.simulate('click');
-      componentWithInitialValues.update();
-
-      compareItem(componentWithInitialValues, serviceItemCards[0]);
-
-      nextButton.simulate('click');
-      componentWithInitialValues.update();
-
-      compareItem(componentWithInitialValues, serviceItemCards[1]);
-
-      nextButton.simulate('click');
-      componentWithInitialValues.update();
-
-      compareItem(componentWithInitialValues, serviceItemCards[2]);
+      expect(setShouldAdvanceOnSubmit).toHaveBeenCalledWith(true);
     });
-
+    const componentAtLastCard = mount(
+      <ReviewServiceItems
+        paymentRequest={pendingPaymentRequest}
+        serviceItemCards={cardsWithInitialValues}
+        sortedCards={cardsWithInitialValues}
+        {...requiredProps}
+        curCardIndex={cardsWithInitialValues.length}
+      />,
+    );
     it('shows the Complete Review step after the last item', async () => {
       nextButton.simulate('click');
-      componentWithInitialValues.update();
+      componentAtLastCard.update();
 
-      expect(componentWithInitialValues.find('[data-testid="authorizePaymentBtn"]').exists()).toBe(true);
+      expect(componentAtLastCard.find('[data-testid="authorizePaymentBtn"]').exists()).toBe(true);
     });
 
     it('does not show a Next button on the Complete Review step', async () => {
-      expect(componentWithInitialValues.find('[data-testid="nextServiceItem"]').exists()).toBe(false);
+      expect(componentAtLastCard.find('[data-testid="nextServiceItem"]').exists()).toBe(false);
     });
 
-    it('can click back to the first item', () => {
+    it('calls the previous handler when "Back" is clicked', () => {
+      prevButton = componentAtLastCard.find('button[data-testid="prevServiceItem"]');
       prevButton.simulate('click');
-      componentWithInitialValues.update();
-
-      compareItem(componentWithInitialValues, serviceItemCards[2]);
-
-      prevButton.simulate('click');
-      componentWithInitialValues.update();
-
-      compareItem(componentWithInitialValues, serviceItemCards[1]);
-
-      prevButton.simulate('click');
-      componentWithInitialValues.update();
-
-      compareItem(componentWithInitialValues, serviceItemCards[0]);
-
-      prevButton.simulate('click');
-      componentWithInitialValues.update();
-
-      compareItem(componentWithInitialValues, serviceItemCards[3]);
+      expect(handlePrevious).toHaveBeenCalled();
     });
   });
 
@@ -290,10 +275,9 @@ describe('ReviewServiceItems component', () => {
         rejectInput.simulate('change');
       });
       mountedComponent.update();
-      const saveButton = mountedComponent.find('button[data-testid="rejectionSaveButton"]');
-      expect(saveButton.length).toBe(1);
+
       await act(async () => {
-        saveButton.simulate('click');
+        nextButton.simulate('click');
       });
       mountedComponent.update();
       expect(patchPaymentServiceItem).toHaveBeenCalled();
@@ -393,6 +377,7 @@ describe('ReviewServiceItems component', () => {
       <ReviewServiceItems
         paymentRequest={pendingPaymentRequest}
         serviceItemCards={cardsWithInitialValues}
+        sortedCards={cardsWithInitialValues}
         {...requiredProps}
       />,
     );
@@ -452,22 +437,13 @@ describe('ReviewServiceItems component', () => {
         <ReviewServiceItems
           paymentRequest={pendingPaymentRequest}
           serviceItemCards={cardsWithInitialValues}
+          sortedCards={cardsWithInitialValues}
           {...requiredProps}
+          curCardIndex={cardsWithInitialValues.length}
         />,
       );
 
       it('lands on the Complete Review step after reviewing all items', () => {
-        const nextButton = componentWithInitialValues.find('button[data-testid="nextServiceItem"]');
-
-        nextButton.simulate('click');
-        mountedComponent.update();
-
-        nextButton.simulate('click');
-        mountedComponent.update();
-
-        nextButton.simulate('click');
-        mountedComponent.update();
-
         const header = componentWithInitialValues.find('h2');
         expect(header.exists()).toBe(true);
         expect(header.text()).toEqual('Complete request');
@@ -506,16 +482,13 @@ describe('ReviewServiceItems component', () => {
         <ReviewServiceItems
           paymentRequest={pendingPaymentRequest}
           serviceItemCards={cardWithInitialValues}
+          sortedCards={cardWithInitialValues}
           {...requiredProps}
+          curCardIndex={cardWithInitialValues.length}
         />,
       );
 
       it('lands on the Complete Review step after reviewing one item', () => {
-        const nextButton = componentWithInitialValues.find('button[data-testid="nextServiceItem"]');
-
-        nextButton.simulate('click');
-        mountedComponent.update();
-
         const header = componentWithInitialValues.find('h2');
         expect(header.exists()).toBe(true);
         expect(header.text()).toEqual('Complete request');
@@ -568,22 +541,13 @@ describe('ReviewServiceItems component', () => {
         <ReviewServiceItems
           paymentRequest={pendingPaymentRequest}
           serviceItemCards={cardsWithInitialValues}
+          sortedCards={cardsWithInitialValues}
           {...requiredProps}
+          curCardIndex={cardsWithInitialValues.length}
         />,
       );
 
       it('lands on the Complete Review step after reviewing all items', () => {
-        const nextButton = componentWithInitialValues.find('button[data-testid="nextServiceItem"]');
-
-        nextButton.simulate('click');
-        mountedComponent.update();
-
-        nextButton.simulate('click');
-        mountedComponent.update();
-
-        nextButton.simulate('click');
-        mountedComponent.update();
-
         const header = componentWithInitialValues.find('h2');
         expect(header.exists()).toBe(true);
         expect(header.text()).toEqual('Complete request');
@@ -599,19 +563,6 @@ describe('ReviewServiceItems component', () => {
         );
         expect(needsReviewContent.exists()).toBe(true);
         expect(needsReviewContent.text()).toEqual('Accept or reject all service items, then authorized payment.');
-      });
-
-      it('can click on Finish review button', async () => {
-        const finishReviewBtn = componentWithInitialValues.find('button[data-testid="finishReviewBtn"]');
-        expect(finishReviewBtn.exists()).toBe(true);
-
-        await act(async () => {
-          finishReviewBtn.simulate('click');
-        });
-
-        // goes back to first service item that needs to be reviewed
-        componentWithInitialValues.update();
-        compareItem(componentWithInitialValues, cardsWithInitialValues[2]);
       });
     });
 
@@ -652,22 +603,13 @@ describe('ReviewServiceItems component', () => {
         <ReviewServiceItems
           paymentRequest={pendingPaymentRequest}
           serviceItemCards={cardsWithInitialValues}
+          sortedCards={cardsWithInitialValues}
           {...requiredProps}
+          curCardIndex={cardsWithInitialValues.length}
         />,
       );
 
       it('lands on the Complete Review step after reviewing all items', () => {
-        const nextButton = componentWithInitialValues.find('button[data-testid="nextServiceItem"]');
-
-        nextButton.simulate('click');
-        mountedComponent.update();
-
-        nextButton.simulate('click');
-        mountedComponent.update();
-
-        nextButton.simulate('click');
-        mountedComponent.update();
-
         const header = componentWithInitialValues.find('h2');
         expect(header.exists()).toBe(true);
         expect(header.text()).toEqual('Complete request');
@@ -700,26 +642,14 @@ describe('ReviewServiceItems component', () => {
         <ReviewServiceItems
           paymentRequest={pendingPaymentRequest}
           serviceItemCards={serviceItemCards}
+          sortedCards={serviceItemCards}
           {...requiredProps}
+          curCardIndex={serviceItemCards.length}
           completeReviewError={{ detail: 'A validation error occurred' }}
         />,
       );
 
       it('lands on the Complete Review step after reviewing all items', () => {
-        const nextButton = componentWithMockError.find('button[data-testid="nextServiceItem"]');
-
-        nextButton.simulate('click');
-        componentWithMockError.update();
-
-        nextButton.simulate('click');
-        componentWithMockError.update();
-
-        nextButton.simulate('click');
-        componentWithMockError.update();
-
-        nextButton.simulate('click');
-        componentWithMockError.update();
-
         const header = componentWithMockError.find('h2');
         expect(header.exists()).toBe(true);
         expect(header.text()).toEqual('Complete request');
@@ -762,7 +692,9 @@ describe('ReviewServiceItems component', () => {
         <ReviewServiceItems
           paymentRequest={reviewedPaymentRequest}
           serviceItemCards={cardsWithInitialValues}
+          sortedCards={cardsWithInitialValues}
           {...requiredProps}
+          curCardIndex={cardsWithInitialValues.length}
         />,
       );
 
@@ -833,7 +765,9 @@ describe('ReviewServiceItems component', () => {
         <ReviewServiceItems
           paymentRequest={reviewedPaymentRequest}
           serviceItemCards={cardsWithInitialValues}
+          sortedCards={cardsWithInitialValues}
           {...requiredProps}
+          curCardIndex={cardsWithInitialValues.length}
         />,
       );
 

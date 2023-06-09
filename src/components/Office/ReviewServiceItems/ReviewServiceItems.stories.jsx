@@ -44,34 +44,6 @@ export const Basic = () => (
   />
 );
 
-export const BasicWithTwoItems = () => {
-  return (
-    <ReviewServiceItems
-      disableScrollIntoView
-      paymentRequest={pendingPaymentRequest}
-      serviceItemCards={[
-        {
-          id: '1',
-          mtoServiceItemName: serviceItemCodes.CS,
-          amount: 1234.0,
-          createdAt: '2020-01-01T00:08:00.999Z',
-        },
-        {
-          id: '2',
-          mtoServiceItemName: serviceItemCodes.MS,
-          amount: 1234.0,
-          createdAt: '2020-01-01T00:08:00.999Z',
-        },
-      ]}
-      handleClose={action('clicked')}
-      onCompleteReview={action('clicked')}
-      patchPaymentServiceItem={action('patchPaymentServiceItem')}
-      TACs={{ HHG: '1234', NTS: '5678' }}
-      SACs={{ HHG: 'AB12', NTS: 'CD34' }}
-    />
-  );
-};
-
 export const HHG = () => (
   <ReviewServiceItems
     paymentRequest={pendingPaymentRequest}
@@ -179,7 +151,6 @@ export const MultipleShipmentsGroups = () => (
 
 export const WithStatusAndReason = () => (
   <ReviewServiceItems
-    disableScrollIntoView
     paymentRequest={pendingPaymentRequest}
     serviceItemCards={[
       {
@@ -248,7 +219,6 @@ export const WithStatusAndReason = () => (
 
 export const WithNeedsReview = () => (
   <ReviewServiceItems
-    disableScrollIntoView
     paymentRequest={pendingPaymentRequest}
     serviceItemCards={[
       {
@@ -269,7 +239,6 @@ export const WithNeedsReview = () => (
 
 export const WithRejectRequest = () => (
   <ReviewServiceItems
-    disableScrollIntoView
     paymentRequest={pendingPaymentRequest}
     serviceItemCards={[
       {
@@ -290,7 +259,6 @@ export const WithRejectRequest = () => (
 
 export const WithAuthorizePayment = () => (
   <ReviewServiceItems
-    disableScrollIntoView
     paymentRequest={pendingPaymentRequest}
     serviceItemCards={[
       {
@@ -311,7 +279,6 @@ export const WithAuthorizePayment = () => (
 
 export const WithPaymentReviewedApproved = () => (
   <ReviewServiceItems
-    disableScrollIntoView
     paymentRequest={{
       status: PAYMENT_REQUEST_STATUS.REVIEWED,
       reviewedAt: '2020-08-31T20:30:59.000Z',
@@ -344,7 +311,6 @@ export const WithPaymentReviewedApproved = () => (
 
 export const WithPaymentReviewedRejected = () => (
   <ReviewServiceItems
-    disableScrollIntoView
     paymentRequest={{
       status: PAYMENT_REQUEST_STATUS.REVIEWED,
     }}

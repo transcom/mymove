@@ -4,6 +4,7 @@ import { useQueryClient, useMutation } from '@tanstack/react-query';
 
 import styles from './PaymentRequestReview.module.scss';
 
+import { sortServiceItemsByGroup } from 'utils/serviceItems';
 import { formatPaymentRequestReviewAddressString, getShipmentModificationType } from 'utils/shipmentDisplay';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
@@ -30,6 +31,7 @@ export const PaymentRequestReview = ({ order }) => {
     isError,
   } = usePaymentRequestQueries(paymentRequestId);
   const queryClient = useQueryClient();
+
   const { mutate: mutatePaymentRequest } = useMutation(patchPaymentRequest, {
     onSuccess: (data, variables) => {
       const { paymentRequestID } = variables;
@@ -44,30 +46,6 @@ export const PaymentRequestReview = ({ order }) => {
       const errorMsg = error?.response?.body;
       setCompleteReviewError(errorMsg);
     },
-  });
-
-  const { mutate: mutatePaymentServiceItemStatus } = useMutation(patchPaymentServiceItemStatus, {
-    onSuccess: (data, variables) => {
-      const newPaymentServiceItem = data.paymentServiceItems[variables.paymentServiceItemID];
-      const oldPaymentServiceItem = paymentServiceItems[variables.paymentServiceItemID];
-
-      // We already have this associated data and it won't change on status update and
-      // would be overwritten with null values as they aren't in the payload response
-      newPaymentServiceItem.mtoServiceItemName = oldPaymentServiceItem.mtoServiceItemName;
-      newPaymentServiceItem.mtoShipmentType = oldPaymentServiceItem.mtoShipmentType;
-      newPaymentServiceItem.mtoShipmentID = oldPaymentServiceItem.mtoShipmentID;
-      newPaymentServiceItem.mtoServiceItemCode = oldPaymentServiceItem.mtoServiceItemCode;
-      newPaymentServiceItem.paymentServiceItemParams = oldPaymentServiceItem.paymentServiceItemParams;
-
-      queryClient.setQueryData([PAYMENT_REQUESTS, paymentRequestId], {
-        paymentRequests,
-        paymentServiceItems: {
-          ...paymentServiceItems,
-          [`${variables.paymentServiceItemID}`]: newPaymentServiceItem,
-        },
-      });
-    },
-    throwOnError: true,
   });
 
   const serviceItemCards = React.useMemo(() => {
@@ -109,6 +87,47 @@ export const PaymentRequestReview = ({ order }) => {
       };
     });
   }, [paymentServiceItems, mtoShipments, shipmentsPaymentSITBalance]);
+
+  const requestReviewed = paymentRequest?.status !== PAYMENT_REQUEST_STATUS.PENDING;
+
+  const sortedCards = sortServiceItemsByGroup(serviceItemCards);
+
+  const totalCards = sortedCards.length;
+
+  const [curCardIndex, setCardIndex] = useState(requestReviewed ? totalCards : 0);
+
+  const [shouldAdvanceOnSubmit, setShouldAdvanceOnSubmit] = useState(false);
+
+  const handlePrevious = () => {
+    setCardIndex(curCardIndex - 1);
+  };
+
+  const { mutate: mutatePaymentServiceItemStatus } = useMutation(patchPaymentServiceItemStatus, {
+    onSuccess: (data, variables) => {
+      const newPaymentServiceItem = data.paymentServiceItems[variables.paymentServiceItemID];
+      const oldPaymentServiceItem = paymentServiceItems[variables.paymentServiceItemID];
+
+      // We already have this associated data and it won't change on status update and
+      // would be overwritten with null values as they aren't in the payload response
+      newPaymentServiceItem.mtoServiceItemName = oldPaymentServiceItem.mtoServiceItemName;
+      newPaymentServiceItem.mtoShipmentType = oldPaymentServiceItem.mtoShipmentType;
+      newPaymentServiceItem.mtoShipmentID = oldPaymentServiceItem.mtoShipmentID;
+      newPaymentServiceItem.mtoServiceItemCode = oldPaymentServiceItem.mtoServiceItemCode;
+      newPaymentServiceItem.paymentServiceItemParams = oldPaymentServiceItem.paymentServiceItemParams;
+
+      queryClient.setQueryData([PAYMENT_REQUESTS, paymentRequestId], {
+        paymentRequests,
+        paymentServiceItems: {
+          ...paymentServiceItems,
+          [`${variables.paymentServiceItemID}`]: newPaymentServiceItem,
+        },
+      });
+      if (shouldAdvanceOnSubmit) {
+        setCardIndex(curCardIndex + 1);
+      }
+    },
+    throwOnError: true,
+  });
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
@@ -161,6 +180,12 @@ export const PaymentRequestReview = ({ order }) => {
           completeReviewError={completeReviewError}
           TACs={{ HHG: tac, NTS: ntsTac }}
           SACs={{ HHG: sac, NTS: ntsSac }}
+          curCardIndex={curCardIndex}
+          setCardIndex={setCardIndex}
+          sortedCards={sortedCards}
+          handlePrevious={handlePrevious}
+          requestReviewed={requestReviewed}
+          setShouldAdvanceOnSubmit={setShouldAdvanceOnSubmit}
         />
       </div>
     </div>

@@ -3,10 +3,9 @@ import React from 'react';
 import { mount } from 'enzyme';
 import { render, screen } from '@testing-library/react';
 
-import { SHIPMENT_OPTIONS } from '../../../shared/constants';
-
 import { PaymentRequestReview } from './PaymentRequestReview';
 
+import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { usePaymentRequestQueries } from 'hooks/queries';
 import { ReactQueryWrapper } from 'testUtils';
 
@@ -139,7 +138,14 @@ const usePaymentRequestQueriesReturnValue = {
       mtoShipmentType: mockShipmentOptions.NTSR,
       mtoServiceItemName: 'Test Service Item 2',
       priceCents: 45600,
-      createdAt: '2020-01-01T00:09:00.999Z',
+      createdAt: '2020-01-02T00:09:00.999Z',
+    },
+    4: {
+      id: '4',
+      mtoServiceItemID: 'd',
+      priceCents: 99999,
+      mtoServiceItemName: 'Test Service Item 4',
+      createdAt: '2020-01-04T00:09:00.999Z',
     },
     3: {
       id: '3',
@@ -148,15 +154,8 @@ const usePaymentRequestQueriesReturnValue = {
       mtoShipmentType: mockShipmentOptions.HHG,
       mtoServiceItemName: 'Test Service Item 3',
       priceCents: 12312,
-      createdAt: '2020-01-01T00:09:00.999Z',
+      createdAt: '2020-01-03T00:09:00.999Z',
       status: 'DENIED',
-    },
-    4: {
-      id: '4',
-      mtoServiceItemID: 'd',
-      priceCents: 99999,
-      mtoServiceItemName: 'Test Service Item 4',
-      createdAt: '2020-01-01T00:09:00.999Z',
     },
   },
   shipmentsPaymentSITBalance: undefined,
@@ -232,7 +231,7 @@ describe('PaymentRequestReview', () => {
       expect(wrapper.find('ReviewServiceItems').exists()).toBe(true);
     });
 
-    it('maps the service item card data into the expected format and passes it into the ReviewServiceItems component', () => {
+    it('maps the service item card data into the expected format and passes it into the ReviewServiceItems component, ordered by timestamp ascending', () => {
       const reviewServiceItems = wrapper.find('ReviewServiceItems');
       const expectedServiceItemCards = [
         {
@@ -259,7 +258,7 @@ describe('PaymentRequestReview', () => {
           mtoShipmentDestinationAddress: 'Fairfield, CA 94535',
           mtoShipmentPickupAddress: 'Beverly Hills, CA 90210',
           amount: 456.0,
-          createdAt: '2020-01-01T00:09:00.999Z',
+          createdAt: '2020-01-02T00:09:00.999Z',
         },
         {
           id: '3',
@@ -273,18 +272,42 @@ describe('PaymentRequestReview', () => {
           mtoShipmentDestinationAddress: 'Fairfield, CA 94535',
           mtoShipmentPickupAddress: 'Beverly Hills, CA 90210',
           amount: 123.12,
-          createdAt: '2020-01-01T00:09:00.999Z',
+          createdAt: '2020-01-03T00:09:00.999Z',
           status: 'DENIED',
         },
         {
           id: '4',
           mtoServiceItemName: 'Test Service Item 4',
           amount: 999.99,
-          createdAt: '2020-01-01T00:09:00.999Z',
+          createdAt: '2020-01-04T00:09:00.999Z',
         },
       ];
 
       expect(reviewServiceItems.prop('serviceItemCards')).toEqual(expectedServiceItemCards);
     });
+
+    // const compareItem = (component, item) => {
+    //   expect(component.find('[data-testid="serviceItemName"]').text()).toEqual(item.mtoServiceItemName);
+    //   expect(component.find('[data-testid="serviceItemAmount"]').text()).toEqual(toDollarString(item.amount));
+    // };
+
+    // TODO: test card index changes
+    // TODO: check that clicking through "Next" in the parent component validates rejection reason
+    // TODO: and that it navigates forward
+    // TODO: and that the review steps can be completed
+    // TODO: refactor ReviewServiceItems to avoid duplicate sortedProps and serviceItemCards?
+    // TODO: move this to the parent component
+    // it('can click on Finish review button', async () => {
+    //   const finishReviewBtn = componentWithInitialValues.find('button[data-testid="finishReviewBtn"]');
+    //   expect(finishReviewBtn.exists()).toBe(true);
+
+    //   await act(async () => {
+    //     finishReviewBtn.simulate('click');
+    //   });
+
+    //   // goes back to first service item that needs to be reviewed
+    //   componentWithInitialValues.update();
+    //   compareItem(componentWithInitialValues, cardsWithInitialValues[2]);
+    // });
   });
 });
