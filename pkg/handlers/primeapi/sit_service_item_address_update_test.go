@@ -66,7 +66,7 @@ func (suite *HandlerSuite) TestCreateSITAddressUpdateRequest() {
 		createParams := sitaddressupdateops.CreateSITAddressUpdateRequestParams{
 			HTTPRequest: req,
 			Body: &primemessages.CreateSITAddressUpdateRequest{
-				ContractorRemarks: contractorRemarks,
+				ContractorRemarks: &contractorRemarks,
 				MtoServiceItemID:  *handlers.FmtUUID(serviceItem.ID),
 				NewAddress: &primemessages.Address{
 					City:           &newAddress.City,
@@ -94,7 +94,7 @@ func (suite *HandlerSuite) TestCreateSITAddressUpdateRequest() {
 		suite.NoError(successResponse.Validate(strfmt.Default))
 
 		//Check returned values
-		suite.Equal(createParams.Body.ContractorRemarks, *successResponse.ContractorRemarks)
+		suite.Equal(*createParams.Body.ContractorRemarks, *successResponse.ContractorRemarks)
 		suite.Equal(serviceItem.ID.String(), successResponse.MtoServiceItemID.String())
 		suite.Equal(models.SITAddressUpdateStatusRequested, successResponse.Status)
 		suite.Equal(successResponse.Distance, successResponse.Distance)
@@ -143,7 +143,7 @@ func (suite *HandlerSuite) TestCreateSITAddressUpdateRequest() {
 		createParams := sitaddressupdateops.CreateSITAddressUpdateRequestParams{
 			HTTPRequest: req,
 			Body: &primemessages.CreateSITAddressUpdateRequest{
-				ContractorRemarks: contractorRemarks,
+				ContractorRemarks: &contractorRemarks,
 				MtoServiceItemID:  *handlers.FmtUUID(serviceItem.ID),
 				NewAddress: &primemessages.Address{
 					City:           &newAddress.City,
