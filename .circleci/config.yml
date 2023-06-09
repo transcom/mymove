@@ -1331,6 +1331,48 @@ jobs:
           keys:
             - go-mod-sources-v5-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
       - run: echo 'export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/bin' >> $BASH_ENV
+      # make -j 2 tells make to run 2 simultaneous builds
+      - run: make -j 2 bin/milmove bin/go-junit-report
+      - server_tests_step:
+          application: app
+      - store_artifacts:
+          path: ~/transcom/mymove/tmp/test-results
+          destination: test-results
+      - store_test_results:
+          path: ~/transcom/mymove/tmp/test-results
+      - persist_to_workspace:
+          root: .
+          paths:
+            - tmp/test-results/gotest
+      # only save the cache on default branch builds because we only want to
+      # change the baseline of test results on main builds
+      - when:
+          condition:
+            equal: [main, << pipeline.git.branch >>]
+          steps:
+            - run:
+                name: 'Copy coverage to baseline'
+                command: |
+                  mkdir -p ~/transcom/mymove/tmp/baseline-go-coverage
+                  cp ~/transcom/mymove/tmp/test-results/gotest/app/go-coverage.txt \
+                        ~/transcom/mymove/tmp/baseline-go-coverage/go-coverage.txt
+            # ##### NOTE: Make sure this key prefix matches the one
+            # ##### below in the server_test_coverage restore_cache
+            #
+            # Use the BuildNum to update the cache key so that the
+            # coverage cache is always updated
+            - save_cache:
+                key: v6-server-tests-coverage-{{ .BuildNum }}
+                paths:
+                  - ~/transcom/mymove/tmp/baseline-go-coverage
+      - announce_failure
+
+  server_test_coverage:
+    executor: tls_small
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
       - restore_cache:
           keys:
             #
@@ -1350,50 +1392,13 @@ jobs:
             #
             # The trailing hyphen in restore_cache seems important
             # according to the page linked above
-            - v5-server-tests-coverage-
-      - run:
-          name: Save Baseline Test Coverage
-          command: |
-            [ -r ~/transcom/mymove/tmp/test-results/gotest/app/go-coverage.txt ] && cp ~/transcom/mymove/tmp/test-results/gotest/app/go-coverage.txt /tmp/coverage_baseline.txt || echo "Skipping saving baseline"
-            rm -rf ~/transcom/mymove/tmp/test-results
-      # make -j 2 tells make to run 2 simultaneous builds
-      - run: make -j 2 bin/milmove bin/go-junit-report
-      - server_tests_step:
-          application: app
-      - run:
-          name: Ensure we save both the coverage baseline & the go-coverage text files before checking test coverage status
-          command: |
-            if [ -r /tmp/coverage_baseline.txt ]; then
-              cp -v /tmp/coverage_baseline.txt ~/transcom/mymove/tmp/test-results/previous-coverage-baseline.txt
-            fi
-            if [ -r ~/transcom/mymove/tmp/test-results/gotest/app/go-coverage.txt ]; then
-              cp -v ~/transcom/mymove/tmp/test-results/gotest/app/go-coverage.txt ~/transcom/mymove/tmp/test-results/current-coverage.txt
-            fi
+            - v6-server-tests-coverage-
       - run:
           name: Ensure Test Coverage Increasing
           command: |
-            ./scripts/ensure-go-test-coverage /tmp/coverage_baseline.txt tmp/test-results/gotest/app/go-coverage.txt
-      - store_artifacts:
-          path: ~/transcom/mymove/tmp/test-results
-          destination: test-results
-      - store_test_results:
-          path: ~/transcom/mymove/tmp/test-results
-      # only save the cache on default branch builds because we only want to
-      # change the baseline of test results on main builds
-      - when:
-          condition:
-            equal: [main, << pipeline.git.branch >>]
-          steps:
-            # ##### NOTE: Make sure this key prefix matches the one
-            # ##### above in restore_cache
-            #
-            # Use the BuildNum to update the cache key so that the
-            # coverage cache is always updated
-            - save_cache:
-                key: v5-server-tests-coverage-{{ .BuildNum }}
-                paths:
-                  - ~/transcom/mymove/tmp/test-results
-      - announce_failure
+            ./scripts/ensure-go-test-coverage \
+            tmp/baseline-go-coverage/go-coverage.txt \
+            tmp/test-results/gotest/app/go-coverage.txt
 
   # `client_test` runs the client side Javascript tests
   client_test:
@@ -1403,6 +1408,48 @@ jobs:
       - restore_cache:
           keys:
             - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
+      - run:
+          name: Install Frozen YARN dependencies
+          command: yarn install --frozen-lockfile --cache-folder ~/.cache/yarn
+      - run: make client_test_coverage
+      - store_artifacts:
+          path: ~/transcom/mymove/coverage
+          destination: coverage
+      - store_test_results:
+          path: ~/transcom/mymove
+      - persist_to_workspace:
+          root: .
+          paths:
+            - coverage
+      # only save the cache on default branch builds because we only want to
+      # change the baseline of test results on main builds
+      - when:
+          condition:
+            equal: [main, << pipeline.git.branch >>]
+          steps:
+            - run:
+                name: 'Copy coverage to baseline'
+                command: |
+                  mkdir -p ~/transcom/mymove/tmp/baseline-jest-coverage
+                  cp ~/transcom/mymove/coverage/clover.xml \
+                        ~/transcom/mymove/tmp/baseline-jest-coverage/clover.xml
+            # ##### NOTE: Make sure this key prefix matches the one
+            # ##### below in client_test_coverage in restore_cache
+            #
+            # Use the BuildNum to update the cache key so that the
+            # coverage cache is always updated
+            - save_cache:
+                key: v5-client-tests-coverage-{{ .BuildNum }}
+                paths:
+                  - ~/transcom/mymove/tmp/baseline-jest-coverage
+      - announce_failure
+
+  client_test_coverage:
+    executor: tls_small
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
       - restore_cache:
           #
           # https://circleci.com/docs/caching/#restoring-cache
@@ -1422,41 +1469,14 @@ jobs:
           # The trailing hyphen in restore_cache seems important
           # according to the page linked above
           keys:
-            - v4-client-tests-coverage-
-      - run:
-          name: Save Baseline Test Coverage
-          command: |
-            [ -r ~/transcom/mymove/coverage/clover.xml ] && cp ~/transcom/mymove/coverage/clover.xml /tmp/clover_baseline.xml || echo "Skipping saving baseline"
-            rm -rf ~/transcom/mymove/coverage
-      - run:
-          name: Install Frozen YARN dependencies
-          command: yarn install --frozen-lockfile --cache-folder ~/.cache/yarn
-      - run: make client_test_coverage
+            - v5-client-tests-coverage-
       - run:
           name: Ensure Test Coverage Increasing
           command: |
-            ./scripts/ensure-js-test-coverage /tmp/clover_baseline.xml coverage/clover.xml
-      - store_artifacts:
-          path: ~/transcom/mymove/coverage
-          destination: coverage
-      - store_test_results:
-          path: ~/transcom/mymove
-      # only save the cache on default branch builds because we only want to
-      # change the baseline of test results on main builds
-      - when:
-          condition:
-            equal: [main, << pipeline.git.branch >>]
-          steps:
-            # ##### NOTE: Make sure this key prefix matches the one
-            # ##### above in restore_cache
-            #
-            # Use the BuildNum to update the cache key so that the
-            # coverage cache is always updated
-            - save_cache:
-                key: v4-client-tests-coverage-{{ .BuildNum }}
-                paths:
-                  - ~/transcom/mymove/coverage
-      - announce_failure
+            ./scripts/ensure-js-test-coverage \
+            tmp/baseline-jest-coverage/clover.xml \
+            coverage/clover.xml
+
 
   # Compile the server side of the app once and persist the relevant
   # build artifacts to the workspace.
@@ -2132,9 +2152,27 @@ workflows:
             branches:
               ignore: *client-ignore-branch
 
+      - client_test_coverage:
+          requires:
+            - client_test
+          # See comments at the top of this file for configuring/using
+          # this branch config
+          filters:
+            branches:
+              ignore: *client-ignore-branch
+
       - server_test:
           requires:
             - pre_deps_golang
+          # See comments at the top of this file for configuring/using
+          # this branch config
+          filters:
+            branches:
+              ignore: *server-ignore-branch
+
+      - server_test_coverage:
+          requires:
+            - server_test
           # See comments at the top of this file for configuring/using
           # this branch config
           filters:
