@@ -85,8 +85,6 @@ export class OfficeApp extends Component {
   }
 
   componentDidMount() {
-    document.title = 'Transcom PPP: Office';
-
     const { loadUser, loadInternalSchema, loadPublicSchema } = this.props;
 
     loadInternalSchema();

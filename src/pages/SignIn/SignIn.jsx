@@ -13,11 +13,17 @@ import { withContext } from 'shared/AppContext';
 import Alert from 'shared/Alert';
 import ConnectedEulaModal from 'components/EulaModal';
 import { isDevelopment } from 'shared/constants';
+import { useTitle } from 'hooks/custom';
 
 const SignIn = ({ context, showLocalDevLogin }) => {
   const location = useLocation();
   const [showEula, setShowEula] = useState(false);
   const navigate = useNavigate();
+
+  const { error } = qs.parse(location.search);
+  const { siteName, showLoginWarning } = context;
+
+  useTitle();
 
   useEffect(() => {
     function unload() {
@@ -26,9 +32,6 @@ const SignIn = ({ context, showLocalDevLogin }) => {
     window.addEventListener('beforeunload', unload);
     return () => window.removeEventListener('beforeunload', unload);
   }, [navigate]);
-
-  const { error } = qs.parse(location.search);
-  const { siteName, showLoginWarning } = context;
 
   return (
     <div className="usa-prose grid-container padding-top-3">
