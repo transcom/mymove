@@ -1332,7 +1332,7 @@ jobs:
             - go-mod-sources-v5-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
       - run: echo 'export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/bin' >> $BASH_ENV
       # make -j 2 tells make to run 2 simultaneous builds
-      - run: make -j 2 bin/milmove bin/go-junit-report
+      - run: make -j 2 bin/milmove bin/gotestsum
       - server_tests_step:
           application: app
       - store_artifacts:
