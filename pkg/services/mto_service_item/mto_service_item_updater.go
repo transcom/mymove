@@ -137,8 +137,11 @@ func (p *mtoServiceItemUpdater) updateServiceItem(appCtx appcontext.AppContext, 
 
 		// Check to see if there is already a SIT Destination Original Address
 		// by checking for the ID before trying to set one on the service item.
-		// If there isn't one, then we set it.
-		if serviceItem.SITDestinationOriginalAddressID == nil {
+		// If there isn't one, then we set it. We also make sure that the
+		// expression looks for the DDDSIT service code and only updates the
+		// address fields if the service item is of DDDSIT.
+		if serviceItem.ReService.Code == models.ReServiceCodeDDDSIT &&
+			serviceItem.SITDestinationOriginalAddressID == nil {
 			// Check to see if the service item has a SIT Destination Final
 			// Address ID passed in from the Prime request. If it does have
 			// one, then we set the service item's Destination Original Address
@@ -148,10 +151,9 @@ func (p *mtoServiceItemUpdater) updateServiceItem(appCtx appcontext.AppContext, 
 				serviceItem.SITDestinationOriginalAddressID = serviceItem.SITDestinationFinalAddressID
 				serviceItem.SITDestinationOriginalAddress = serviceItem.SITDestinationFinalAddress
 			} else {
-                // could do something like this
 				mtoShipment, err := p.shipmentFetcher.GetShipment(appCtx, *serviceItem.MTOShipmentID, "DestinationAddress")
 				if err != nil {
-				     return nil, err
+					return nil, err
 				}
 				// Set the original address on a service item to the shipment's
 				// destination address when approving a SIT service item.
