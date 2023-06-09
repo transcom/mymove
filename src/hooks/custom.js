@@ -1,5 +1,10 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
+import { useLocation } from 'react-router-dom';
+import { capitalize } from 'lodash';
 
+import { isAdminSite, isMilmoveSite, isOfficeSite } from '../shared/constants';
+
+import { ADMIN_BASE_PAGE_TITLE, MILMOVE_BASE_PAGE_TITLE, OFFICE_BASE_PAGE_TITLE } from 'constants/titles';
 import { shipmentStatuses } from 'constants/shipments';
 import { calculateShipmentNetWeight, getShipmentEstimatedWeight } from 'utils/shipmentWeights';
 
@@ -79,3 +84,84 @@ export const useCalculatedEstimatedWeight = (mtoShipments) => {
     return calculateEstimatedWeight(mtoShipments);
   }, [mtoShipments]);
 };
+
+/**
+ * This function generates a page subtitle from the path,
+ * by splitting the path at slashes, dashes and underscores, capitalizing, and joining with spaces and dashes.
+ * e.g. "my-favorite_path/{pathId}/details" becomes "My Favorite Path - {pathId} - Details"
+ *
+ * @param path The path to convert
+ * @return {string} The generated subtitle
+ */
+export function convertPathToSubtitle(path) {
+  return (
+    path &&
+    path
+      .split('/')
+      .filter((parameter) => parameter)
+      .map((segment) =>
+        segment
+          .split(/[-_]/)
+          .map((word) => capitalize(word))
+          .join(' '),
+      )
+      .join(' - ')
+  );
+}
+
+/**
+ * @func getBasePageTitle
+ * @desc Creates a string using the variables with the `_BASE_PAGE_TITLE` suffix defined in and exported from `src/shared/constants`.
+ * @returns {string} baseTitle - A base title which may or may not be blank.
+ */
+export function getBasePageTitle() {
+  let baseTitle = '';
+  if (isAdminSite) {
+    baseTitle = ADMIN_BASE_PAGE_TITLE;
+  }
+  if (isMilmoveSite) {
+    baseTitle = MILMOVE_BASE_PAGE_TITLE;
+  }
+  if (isOfficeSite) {
+    baseTitle = OFFICE_BASE_PAGE_TITLE;
+  }
+  return baseTitle;
+}
+
+/**
+ * @func generatePageTitle
+ * @desc A function that generates the page title using a provided string appended to the output of `getBasePageTitle`.
+ * @param {string} [string] - A string that is appended to the base title for a page.
+ * @returns {string} A generated page title.
+ */
+export function generatePageTitle(string) {
+  const baseTitle = getBasePageTitle();
+  return baseTitle + (string ? ` - ${string}` : '');
+}
+
+/**
+ * @func announcePageTitle
+ * @desc A function that sets the document's title announcer element to the title
+ * @param {string} title - A string that the title announcer's textContent is set to
+ */
+export function announcePageTitle(title) {
+  const titleAnnouncer = document.getElementById('title-announcer');
+  if (titleAnnouncer) {
+    titleAnnouncer.textContent = title;
+  }
+}
+
+/**
+ * @func useTitle
+ * @desc This function generates a subtitle using the pathname from the React Router DOM useLocation function unless a string is passed into the function and assigns the value to `subtitle`. It then calls useEffect to update the document's title attribute and an aria-live element using the `generatePageTitle` function with the internally created subtitle.
+ * @param {string} [string] - A string value to be used for the title instead of using the URL path.
+ */
+export function useTitle(string) {
+  const { pathname } = useLocation();
+  const subtitle = string || convertPathToSubtitle(pathname);
+  useEffect(() => {
+    const title = generatePageTitle(subtitle);
+    document.title = title;
+    announcePageTitle(title);
+  }, [subtitle]);
+}
