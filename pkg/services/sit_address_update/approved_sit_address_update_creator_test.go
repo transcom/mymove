@@ -144,4 +144,57 @@ func (suite *SITAddressUpdateServiceSuite) TestCreateApprovedSITAddressUpdate() 
 		suite.Error(err)
 		suite.Nil(createdSITAddressUpdate)
 	})
+
+	suite.Run("Fail to create SIT address update for service item of incorrect type", func() {
+		// TESTCASE SCENARIO
+		// Under test: CreateApprovedSITAddressUpdate function
+		// Set up: 	   We create an service item of the wrong type and attempt to create a SITAddressUpdate
+		// Expected outcome:
+		//			   Error because we cannot create a SITAddressUpdate for the wrong service item type
+
+		serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusApproved,
+				},
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDBHF,
+				},
+			},
+			{
+				Model: models.Address{},
+				Type:  &factory.Addresses.SITDestinationOriginalAddress,
+			},
+			{
+				Model: models.Address{},
+				Type:  &factory.Addresses.SITDestinationFinalAddress,
+			},
+		}, nil)
+
+		oldAddress := factory.BuildAddress(suite.DB(), nil, nil)
+		sitAddressUpdate := factory.BuildSITAddressUpdate(nil, []factory.Customization{
+			{
+				Model:    serviceItem,
+				LinkOnly: true,
+			},
+			{
+				Model:    oldAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.SITAddressUpdateOldAddress,
+			},
+			{
+				Model: models.SITAddressUpdate{
+					OfficeRemarks: models.StringPointer("office remarks"),
+				},
+			},
+		}, []factory.Trait{factory.GetTraitSITAddressUpdateWithMoveSetUp})
+
+		creator := NewApprovedOfficeSITAddressUpdateCreator(mockPlanner, addressCreator, serviceItemUpdater)
+
+		createdSITAddressUpdate, err := creator.CreateApprovedSITAddressUpdate(suite.AppContextForTest(), &sitAddressUpdate)
+		suite.Error(err)
+		suite.Nil(createdSITAddressUpdate)
+	})
 }

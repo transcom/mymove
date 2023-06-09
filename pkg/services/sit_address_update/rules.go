@@ -11,7 +11,6 @@ import (
 func checkAndValidateRequiredFields() sitAddressUpdateValidator {
 	return sitAddressUpdateValidatorFunc(func(appCtx appcontext.AppContext, sitAddressUpdate *models.SITAddressUpdate) error {
 		verrs := validate.NewErrors()
-		var err error
 
 		// Distance and Status are required fields but aren't validated here
 		// Distance should be calculated
@@ -25,20 +24,6 @@ func checkAndValidateRequiredFields() sitAddressUpdateValidator {
 		}
 		if sitAddressUpdate.MTOServiceItemID.IsNil() {
 			verrs.Add("serviceItem", "MTOServiceItem is required")
-		}
-
-		var serviceItem models.MTOServiceItem
-		err = appCtx.DB().Where("id = ?", sitAddressUpdate.MTOServiceItemID).First(&serviceItem)
-		if err != nil {
-			verrs.Add("MTOServiceItem", "MTOServiceItem was not found")
-		}
-
-		if serviceItem.Status != models.MTOServiceItemStatusApproved {
-			verrs.Add("MTOServiceItemID", "MTOServiceItem must be approved")
-		}
-
-		if serviceItem.SITDestinationFinalAddressID == nil || serviceItem.SITDestinationFinalAddressID.IsNil() {
-			verrs.Add("SITDestinationFinalAddressID", "SITDestinationFinalAddressID is required")
 		}
 
 		return verrs
@@ -77,6 +62,32 @@ func checkForExistingSITAddressUpdate() sitAddressUpdateValidator {
 		err := appCtx.DB().Where("mto_service_item_id = ?", sitAddressUpdate.MTOServiceItemID).First(&existingSITAddressUpdate)
 		if err == nil && existingSITAddressUpdate.Status == models.SITAddressUpdateStatusRequested {
 			verrs.Add("MTOServiceItem", "A pending SIT address update request already exists for this service item")
+		}
+
+		return verrs
+	})
+}
+
+func checkServiceItem() sitAddressUpdateValidator {
+	return sitAddressUpdateValidatorFunc(func(appCtx appcontext.AppContext, sitAddressUpdate *models.SITAddressUpdate) error {
+		verrs := validate.NewErrors()
+
+		var serviceItem models.MTOServiceItem
+		err := appCtx.DB().Where("id = ?", sitAddressUpdate.MTOServiceItemID).First(&serviceItem)
+		if err != nil {
+			verrs.Add("MTOServiceItem", "MTOServiceItem was not found")
+		}
+
+		if serviceItem.Status != models.MTOServiceItemStatusApproved {
+			verrs.Add("MTOServiceItemID", "MTOServiceItem must be approved")
+		}
+
+		if serviceItem.SITDestinationFinalAddressID == nil || serviceItem.SITDestinationFinalAddressID.IsNil() {
+			verrs.Add("SITDestinationFinalAddressID", "SITDestinationFinalAddressID is required")
+		}
+
+		if sitAddressUpdate.MTOServiceItem.ReService.Code != models.ReServiceCodeDDDSIT {
+			verrs.Add("MTOServiceItem", "A SIT address update request may only be created for a DDDSIT service item")
 		}
 
 		return verrs
