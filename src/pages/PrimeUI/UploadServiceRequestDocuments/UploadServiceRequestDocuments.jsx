@@ -96,7 +96,7 @@ const UploadServiceRequest = ({ setFlashMessage }) => {
           <h2>Upload Service Request Document</h2>
           <FileUpload
             ref={filePondEl}
-            createServiceRequestDocumentUpload={handleUpload}
+            createUpload={handleUpload}
             onChange={onChange}
             labelIdle={
               'Drag & drop or <span class="filepond--label-action">click to upload a service request document</span>'
