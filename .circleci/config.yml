@@ -1344,27 +1344,6 @@ jobs:
           root: .
           paths:
             - tmp/test-results/gotest
-      # only save the cache on default branch builds because we only want to
-      # change the baseline of test results on main builds
-      - when:
-          condition:
-            equal: [main, << pipeline.git.branch >>]
-          steps:
-            - run:
-                name: 'Copy coverage to baseline'
-                command: |
-                  mkdir -p ~/transcom/mymove/tmp/baseline-go-coverage
-                  cp ~/transcom/mymove/tmp/test-results/gotest/app/go-coverage.txt \
-                        ~/transcom/mymove/tmp/baseline-go-coverage/go-coverage.txt
-            # ##### NOTE: Make sure this key prefix matches the one
-            # ##### below in the server_test_coverage restore_cache
-            #
-            # Use the BuildNum to update the cache key so that the
-            # coverage cache is always updated
-            - save_cache:
-                key: v6-server-tests-coverage-{{ .BuildNum }}
-                paths:
-                  - ~/transcom/mymove/tmp/baseline-go-coverage
       - announce_failure
 
   server_test_coverage:
@@ -1399,6 +1378,27 @@ jobs:
             ./scripts/ensure-go-test-coverage \
             tmp/baseline-go-coverage/go-coverage.txt \
             tmp/test-results/gotest/app/go-coverage.txt
+      # only save the cache on default branch builds because we only want to
+      # change the baseline of test results on main builds
+      - when:
+          condition:
+            equal: [main, << pipeline.git.branch >>]
+          steps:
+            - run:
+                name: 'Copy coverage to baseline'
+                command: |
+                  mkdir -p ~/transcom/mymove/tmp/baseline-go-coverage
+                  cp ~/transcom/mymove/tmp/test-results/gotest/app/go-coverage.txt \
+                        ~/transcom/mymove/tmp/baseline-go-coverage/go-coverage.txt
+            # ##### NOTE: Make sure this key prefix matches the one
+            # ##### below above
+            #
+            # Use the BuildNum to update the cache key so that the
+            # coverage cache is always updated
+            - save_cache:
+                key: v6-server-tests-coverage-{{ .BuildNum }}
+                paths:
+                  - ~/transcom/mymove/tmp/baseline-go-coverage
 
   # `client_test` runs the client side Javascript tests
   client_test:
@@ -1421,27 +1421,6 @@ jobs:
           root: .
           paths:
             - coverage
-      # only save the cache on default branch builds because we only want to
-      # change the baseline of test results on main builds
-      - when:
-          condition:
-            equal: [main, << pipeline.git.branch >>]
-          steps:
-            - run:
-                name: 'Copy coverage to baseline'
-                command: |
-                  mkdir -p ~/transcom/mymove/tmp/baseline-jest-coverage
-                  cp ~/transcom/mymove/coverage/clover.xml \
-                        ~/transcom/mymove/tmp/baseline-jest-coverage/clover.xml
-            # ##### NOTE: Make sure this key prefix matches the one
-            # ##### below in client_test_coverage in restore_cache
-            #
-            # Use the BuildNum to update the cache key so that the
-            # coverage cache is always updated
-            - save_cache:
-                key: v5-client-tests-coverage-{{ .BuildNum }}
-                paths:
-                  - ~/transcom/mymove/tmp/baseline-jest-coverage
       - announce_failure
 
   client_test_coverage:
@@ -1476,6 +1455,27 @@ jobs:
             ./scripts/ensure-js-test-coverage \
             tmp/baseline-jest-coverage/clover.xml \
             coverage/clover.xml
+      # only save the cache on default branch builds because we only want to
+      # change the baseline of test results on main builds
+      - when:
+          condition:
+            equal: [main, << pipeline.git.branch >>]
+          steps:
+            - run:
+                name: 'Copy coverage to baseline'
+                command: |
+                  mkdir -p ~/transcom/mymove/tmp/baseline-jest-coverage
+                  cp ~/transcom/mymove/coverage/clover.xml \
+                        ~/transcom/mymove/tmp/baseline-jest-coverage/clover.xml
+            # ##### NOTE: Make sure this key prefix matches the one
+            # ##### above
+            #
+            # Use the BuildNum to update the cache key so that the
+            # coverage cache is always updated
+            - save_cache:
+                key: v5-client-tests-coverage-{{ .BuildNum }}
+                paths:
+                  - ~/transcom/mymove/tmp/baseline-jest-coverage
 
 
   # Compile the server side of the app once and persist the relevant
