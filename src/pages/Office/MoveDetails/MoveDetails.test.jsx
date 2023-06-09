@@ -24,6 +24,7 @@ const setUnapprovedSITExtensionCount = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useParams: () => ({ moveCode: 'TE5TC0DE' }),
+  useLocation: jest.fn(),
 }));
 
 const requestedMoveDetailsQuery = {
