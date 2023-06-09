@@ -8,8 +8,9 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/factory"
-	"github.com/transcom/mymove/pkg/models"
 	mtoserviceitemops "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_service_item"
+	"github.com/transcom/mymove/pkg/models"
+	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 )
 
@@ -21,7 +22,7 @@ func (suite *HandlerSuite) CreateServiceRequestDocumentUploadHandler() {
 		handlerConfig.SetFileStorer(fakeS3)
 		handler := CreateServiceRequestDocumentUploadHandler{
 			handlerConfig,
-			mtoserviceitemops.ServiceRequestDocumentUploadCreator(handlerConfig.FileStorer()),
+			mtoserviceitem.NewServiceRequestDocumentUploadCreator(handlerConfig.FileStorer()),
 		}
 		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), nil, nil)
 
@@ -29,7 +30,7 @@ func (suite *HandlerSuite) CreateServiceRequestDocumentUploadHandler() {
 		return handler, mtoServiceItem
 	}
 
-	suite.Run("successful create service request document upload", func () {
+	suite.Run("successful create service request document upload", func() {
 		primeUser := factory.BuildUser(nil, nil, nil)
 		handler, mtoServiceItem := setupTestData()
 		req := httptest.NewRequest("POST", fmt.Sprintf("/mto_service_items/%s/uploads", mtoServiceItem.ID), nil)
@@ -38,8 +39,8 @@ func (suite *HandlerSuite) CreateServiceRequestDocumentUploadHandler() {
 		file := suite.Fixture("test.pdf")
 
 		params := mtoserviceitemops.CreateServiceRequestDocumentUploadParams{
-			HTTPRequest: req,
-			File: file,
+			HTTPRequest:      req,
+			File:             file,
 			MtoServiceItemID: mtoServiceItem.ID.String(),
 		}
 
@@ -61,8 +62,8 @@ func (suite *HandlerSuite) CreateServiceRequestDocumentUploadHandler() {
 		req := httptest.NewRequest("POST", fmt.Sprintf("/mto_service_items/%s/uploads", mtoServiceItem.ID), nil)
 		req = suite.AuthenticateUserRequest(req, primeUser)
 		params := mtoserviceitemops.CreateServiceRequestDocumentUploadParams{
-			HTTPRequest: req,
-			File: file,
+			HTTPRequest:      req,
+			File:             file,
 			MtoServiceItemID: badFormatID.String(),
 		}
 
@@ -90,8 +91,8 @@ func (suite *HandlerSuite) CreateServiceRequestDocumentUploadHandler() {
 		req := httptest.NewRequest("POST", fmt.Sprintf("/mto_service_items/%s/uploads", mtoServiceItem.ID), nil)
 		req = suite.AuthenticateUserRequest(req, primeUser)
 		params := mtoserviceitemops.CreateServiceRequestDocumentUploadParams{
-			HTTPRequest: req,
-			File: file,
+			HTTPRequest:      req,
+			File:             file,
 			MtoServiceItemID: badFormatID.String(),
 		}
 
