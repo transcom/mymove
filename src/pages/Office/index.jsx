@@ -67,6 +67,9 @@ const PrimeUIShipmentForm = lazy(() => import('pages/PrimeUI/Shipment/PrimeUIShi
 const PrimeSimulatorUploadPaymentRequestDocuments = lazy(() =>
   import('pages/PrimeUI/UploadPaymentRequestDocuments/UploadPaymentRequestDocuments'),
 );
+const PrimeSimulatorUploadServiceRequestDocuments = lazy(() =>
+  import('pages/PrimeUI/UploadServiceRequestDocuments/UploadServiceRequestDocuments'),
+);
 const PrimeSimulatorCreateServiceItem = lazy(() => import('pages/PrimeUI/CreateServiceItem/CreateServiceItem'));
 const PrimeUIShipmentUpdateAddress = lazy(() => import('pages/PrimeUI/Shipment/PrimeUIShipmentUpdateAddress'));
 const PrimeUIShipmentUpdateReweigh = lazy(() => import('pages/PrimeUI/Shipment/PrimeUIShipmentUpdateReweigh'));
@@ -302,6 +305,15 @@ export class OfficeApp extends Component {
                       element={
                         <PrivateRoute requiredRoles={[roleTypes.PRIME_SIMULATOR]}>
                           <PrimeSimulatorUploadPaymentRequestDocuments />
+                        </PrivateRoute>
+                      }
+                    />
+                    <Route
+                      key="primeSimulatorUploadServiceRequestDocumentsPath"
+                      path={primeSimulatorRoutes.UPLOAD_SERVICE_REQUEST_DOCUMENTS_PATH}
+                      element={
+                        <PrivateRoute requiredRoles={[roleTypes.PRIME_SIMULATOR]}>
+                          <PrimeSimulatorUploadServiceRequestDocuments />
                         </PrivateRoute>
                       }
                     />
