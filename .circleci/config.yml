@@ -1915,7 +1915,7 @@ jobs:
     executor: mymove_pusher
     environment:
       APP_ENVIRONMENT: 'stg'
-      OPEN_TELEMETRY_SIDECAR: 'false'
+      OPEN_TELEMETRY_SIDECAR: 'true'
       HEALTH_CHECK: 'true'
     steps:
       - checkout
@@ -1932,7 +1932,7 @@ jobs:
     # right certs for pulling from public.ecr.aws
     environment:
       APP_ENVIRONMENT: 'stg'
-      OPEN_TELEMETRY_SIDECAR: 'false'
+      OPEN_TELEMETRY_SIDECAR: 'true'
       HEALTH_CHECK: 'true'
     steps:
       - checkout
