@@ -348,7 +348,7 @@ func InitializeLookups(shipment models.MTOShipment, serviceItem models.MTOServic
 	}
 
 	lookups[models.ServiceItemParamNameSITScheduleDest] = SITScheduleLookup{
-		Address: *shipment.DestinationAddress,
+		Address: *serviceItem.SITDestinationFinalAddress,
 	}
 
 	lookups[models.ServiceItemParamNameNumberDaysSIT] = NumberDaysSITLookup{
