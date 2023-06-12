@@ -1699,6 +1699,9 @@ func init() {
     "CreateSITAddressUpdateRequest": {
       "description": "CreateSITAddressUpdateRequest contains the fields required for the prime to create a SIT address update request.",
       "type": "object",
+      "required": [
+        "contractorRemarks"
+      ],
       "properties": {
         "contractorRemarks": {
           "type": "string",
@@ -6381,6 +6384,9 @@ func init() {
     "CreateSITAddressUpdateRequest": {
       "description": "CreateSITAddressUpdateRequest contains the fields required for the prime to create a SIT address update request.",
       "type": "object",
+      "required": [
+        "contractorRemarks"
+      ],
       "properties": {
         "contractorRemarks": {
           "type": "string",
