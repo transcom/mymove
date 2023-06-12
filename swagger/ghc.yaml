@@ -7288,6 +7288,7 @@ definitions:
       - ZipDestAddress
       - ZipPickupAddress
       - ZipSITDestHHGFinalAddress
+      - ZipSITDestHHGOriginalAddress
       - ZipSITOriginHHGActualAddress
       - ZipSITOriginHHGOriginalAddress
   ServiceItemParamType:
