@@ -73,7 +73,7 @@ func checkServiceItem() sitAddressUpdateValidator {
 		verrs := validate.NewErrors()
 
 		var serviceItem models.MTOServiceItem
-		err := appCtx.DB().Where("id = ?", sitAddressUpdate.MTOServiceItemID).First(&serviceItem)
+		err := appCtx.DB().Eager("ReService", "SITDestinationOriginalAddress").Where("id = ?", sitAddressUpdate.MTOServiceItemID).First(&serviceItem)
 		if err != nil {
 			verrs.Add("MTOServiceItem", "MTOServiceItem was not found")
 		}
@@ -86,7 +86,7 @@ func checkServiceItem() sitAddressUpdateValidator {
 			verrs.Add("SITDestinationFinalAddressID", "SITDestinationFinalAddressID is required")
 		}
 
-		if sitAddressUpdate.MTOServiceItem.ReService.Code != models.ReServiceCodeDDDSIT {
+		if serviceItem.ReService.Code != models.ReServiceCodeDDDSIT {
 			verrs.Add("MTOServiceItem", "A SIT address update request may only be created for a DDDSIT service item")
 		}
 
