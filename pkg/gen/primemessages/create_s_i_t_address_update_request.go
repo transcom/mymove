@@ -21,8 +21,7 @@ type CreateSITAddressUpdateRequest struct {
 
 	// contractor remarks
 	// Example: Customer reached out to me this week \u0026 let me know they want to move closer to family.
-	// Required: true
-	ContractorRemarks *string `json:"contractorRemarks"`
+	ContractorRemarks string `json:"contractorRemarks,omitempty"`
 
 	// mto service item ID
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
@@ -37,10 +36,6 @@ type CreateSITAddressUpdateRequest struct {
 func (m *CreateSITAddressUpdateRequest) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validateContractorRemarks(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateMtoServiceItemID(formats); err != nil {
 		res = append(res, err)
 	}
@@ -52,15 +47,6 @@ func (m *CreateSITAddressUpdateRequest) Validate(formats strfmt.Registry) error 
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-func (m *CreateSITAddressUpdateRequest) validateContractorRemarks(formats strfmt.Registry) error {
-
-	if err := validate.Required("contractorRemarks", "body", m.ContractorRemarks); err != nil {
-		return err
-	}
-
 	return nil
 }
 
