@@ -34,7 +34,6 @@ type Assertions struct {
 	Contractor                               models.Contractor
 	CustomerSupportRemark                    models.CustomerSupportRemark
 	DestinationAddress                       models.Address
-	DistanceCalculation                      models.DistanceCalculation
 	Document                                 models.Document
 	DutyLocation                             models.DutyLocation
 	ElectronicOrder                          models.ElectronicOrder
