@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button, Tag } from '@trussworks/react-uswds';
+import { Button, Tag, Alert } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
@@ -22,6 +22,7 @@ const ServiceItemsTable = ({
   handleRequestSITAddressUpdateModal,
   handleShowRejectionDialog,
   handleShowEditSitAddressModal,
+  serviceItemAddressUpdateAlert,
 }) => {
   let dateField;
   switch (statusForTableType) {
@@ -53,8 +54,10 @@ const ServiceItemsTable = ({
 
   const tableRows = serviceItems.map((serviceItem, index) => {
     const { id, code, details, mtoShipmentID, sitAddressUpdates, ...item } = serviceItem;
+    const { makeVisible, alertType, alertMessage } = serviceItemAddressUpdateAlert;
+
     return (
-      <React.Fragment key={id}>
+      <React.Fragment key={`sit-alert-${id}`}>
         {ALLOWED_SIT_ADDRESS_UPDATE_SI_CODES.includes(code) &&
           sitAddressUpdates &&
           showSITAddressUpdateRequestedTag(code, sitAddressUpdates) && (
@@ -64,6 +67,15 @@ const ServiceItemsTable = ({
               </td>
             </tr>
           )}
+        {ALLOWED_SIT_ADDRESS_UPDATE_SI_CODES.includes(code) && makeVisible && (
+          <tr key={`sit-alert-${id}`}>
+            <td style={{ border: 'none', paddingBottom: '0' }} colSpan={3}>
+              <Alert type={alertType} slim data-testid="serviceItemAddressUpdateAlert">
+                {alertMessage}
+              </Alert>
+            </td>
+          </tr>
+        )}
         <tr key={id}>
           <td className={styles.nameAndDate}>
             <p className={styles.codeName}>{serviceItem.serviceItem}</p>
@@ -196,6 +208,7 @@ ServiceItemsTable.propTypes = {
   handleShowRejectionDialog: PropTypes.func.isRequired,
   statusForTableType: PropTypes.string.isRequired,
   handleRequestSITAddressUpdateModal: PropTypes.func,
+  serviceItemAddressUpdateAlert: PropTypes.object.isRequired,
   serviceItems: PropTypes.arrayOf(ServiceItemDetailsShape).isRequired,
 };
 

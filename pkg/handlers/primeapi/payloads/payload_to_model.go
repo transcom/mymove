@@ -629,7 +629,7 @@ func SITAddressUpdateModel(sitAddressUpdate *primemessages.CreateSITAddressUpdat
 	}
 
 	model := &models.SITAddressUpdate{
-		ContractorRemarks: &sitAddressUpdate.ContractorRemarks,
+		ContractorRemarks: sitAddressUpdate.ContractorRemarks,
 		MTOServiceItemID:  uuid.FromStringOrNil(sitAddressUpdate.MtoServiceItemID.String()),
 	}
 
