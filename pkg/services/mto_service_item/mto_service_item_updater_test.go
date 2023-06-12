@@ -22,6 +22,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
+	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	"github.com/transcom/mymove/pkg/services/query"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -32,7 +33,8 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 
 	builder := query.NewQueryBuilder()
 	moveRouter := moverouter.NewMoveRouter()
-	updater := NewMTOServiceItemUpdater(builder, moveRouter)
+	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
+	updater := NewMTOServiceItemUpdater(builder, moveRouter, shipmentFetcher)
 
 	setupServiceItem := func() (models.MTOServiceItem, string) {
 		serviceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
@@ -617,7 +619,8 @@ func (suite *MTOServiceItemServiceSuite) createServiceItemForMoveWithUnacknowled
 func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 	builder := query.NewQueryBuilder()
 	moveRouter := moverouter.NewMoveRouter()
-	updater := NewMTOServiceItemUpdater(builder, moveRouter)
+	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
+	updater := NewMTOServiceItemUpdater(builder, moveRouter, shipmentFetcher)
 
 	rejectionReason := models.StringPointer("")
 
