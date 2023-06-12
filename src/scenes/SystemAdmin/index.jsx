@@ -38,9 +38,9 @@ class AdminWrapper extends Component {
             <Route path="/system/*" element={this.state.isLoggedIn ? <Home /> : <SignIn />} />)
             <Route path="*" element={<Navigate to="/system" />} />
           </Routes>
-       </div>
-       <div id="modal-root" />
-    </>
+        </div>
+        <div id="modal-root" />
+      </>
     );
   }
 }
