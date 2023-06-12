@@ -45,7 +45,7 @@ jest.mock('services/ghcApi', () => ({
       return Promise.resolve({
         mtoShipments: {
           a1: {
-            shipmentType: 'HHG_LONGHAUL_DOMESTIC',
+            shipmentType: 'HHG',
             mtoAgents: [
               {
                 agentType: 'RELEASING_AGENT',
@@ -92,7 +92,7 @@ jest.mock('services/ghcApi', () => ({
     return Promise.resolve([
       {
         id: 'a1',
-        shipmentType: 'HHG_LONGHAUL_DOMESTIC',
+        shipmentType: 'HHG',
         mtoAgents: [
           {
             agentType: 'RELEASING_AGENT',
@@ -391,7 +391,7 @@ describe('usePaymentRequestQueries', () => {
       mtoShipments: [
         {
           id: 'a1',
-          shipmentType: 'HHG_LONGHAUL_DOMESTIC',
+          shipmentType: 'HHG',
           mtoAgents: [
             {
               agentType: 'RELEASING_AGENT',
@@ -538,7 +538,7 @@ describe('useMoveDetailsQueries', () => {
       mtoShipments: [
         {
           id: 'a1',
-          shipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
+          shipmentType: SHIPMENT_OPTIONS.HHG,
           mtoAgents: [
             {
               agentType: 'RELEASING_AGENT',
@@ -653,7 +653,7 @@ describe('useMoveTaskOrderQueries', () => {
       mtoShipments: [
         {
           id: 'a1',
-          shipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
+          shipmentType: SHIPMENT_OPTIONS.HHG,
           mtoAgents: [
             {
               agentType: 'RELEASING_AGENT',
@@ -766,7 +766,7 @@ describe('useEditShipmentQueries', () => {
       mtoShipments: [
         {
           id: 'a1',
-          shipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
+          shipmentType: SHIPMENT_OPTIONS.HHG,
           mtoAgents: [
             {
               agentType: 'RELEASING_AGENT',
@@ -1051,7 +1051,7 @@ describe('useReviewShipmentWeightsQuery', () => {
       mtoShipments: [
         {
           id: 'a1',
-          shipmentType: 'HHG_LONGHAUL_DOMESTIC',
+          shipmentType: 'HHG',
           mtoAgents: [
             {
               agentType: 'RELEASING_AGENT',

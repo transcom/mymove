@@ -61,8 +61,8 @@ export const servicesCounselingRoutes = {
   MOVE_VIEW_PATH: 'details',
   BASE_ORDERS_EDIT_PATH: `${BASE_COUNSELING_MOVE_PATH}/orders`,
   ORDERS_EDIT_PATH: 'orders',
-  BASE_SHIPMENT_ADD_PATH: `${BASE_COUNSELING_MOVE_PATH}/new-:shipmentType`,
-  SHIPMENT_ADD_PATH: 'new-:shipmentType',
+  BASE_SHIPMENT_ADD_PATH: `${BASE_COUNSELING_MOVE_PATH}/new-shipment/:shipmentType`,
+  SHIPMENT_ADD_PATH: 'new-shipment/:shipmentType',
   BASE_SHIPMENT_EDIT_PATH: `${BASE_COUNSELING_MOVE_PATH}/shipments/:shipmentId`,
   SHIPMENT_EDIT_PATH: 'shipments/:shipmentId',
   BASE_SHIPMENT_ADVANCE_PATH: `${BASE_COUNSELING_MOVE_PATH}/shipments/:shipmentId/advance`,
@@ -121,6 +121,7 @@ export const primeSimulatorRoutes = {
   CREATE_PAYMENT_REQUEST_PATH: `${BASE_PRIME_SIMULATOR_PATH}/payment-requests/new`,
   CREATE_SERVICE_ITEM_PATH: `${BASE_PRIME_SIMULATOR_PATH}/shipments/:shipmentId/service-items/new`,
   UPLOAD_DOCUMENTS_PATH: `${BASE_PRIME_SIMULATOR_PATH}/payment-requests/:paymentRequestId/upload`,
+  UPLOAD_SERVICE_REQUEST_DOCUMENTS_PATH: `${BASE_PRIME_SIMULATOR_PATH}/mto-service-items/:mtoServiceItemId/upload`,
   SHIPMENT_UPDATE_ADDRESS_PATH: `${BASE_PRIME_SIMULATOR_PATH}/shipments/:shipmentId/addresses/update`,
   SHIPMENT_UPDATE_REWEIGH_PATH: `${BASE_PRIME_SIMULATOR_PATH}/shipments/:shipmentId/reweigh/:reweighId/update`,
 };

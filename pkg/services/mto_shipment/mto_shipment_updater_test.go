@@ -1449,7 +1449,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 			},
 			{
 				Model: models.MTOShipment{
-					ShipmentType:         models.MTOShipmentTypeHHGLongHaulDom,
+					ShipmentType:         models.MTOShipmentTypeHHG,
 					ScheduledPickupDate:  &testdatagen.DateInsidePeakRateCycle,
 					PrimeEstimatedWeight: &estimatedWeight,
 					Status:               models.MTOShipmentStatusSubmitted,
@@ -1654,7 +1654,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 			},
 			{
 				Model: models.MTOShipment{
-					ShipmentType:         models.MTOShipmentTypeHHGLongHaulDom,
+					ShipmentType:         models.MTOShipmentTypeHHG,
 					ScheduledPickupDate:  &testdatagen.DateInsidePeakRateCycle,
 					PrimeEstimatedWeight: &estimatedWeight,
 					Status:               models.MTOShipmentStatusSubmitted,

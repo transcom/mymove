@@ -27,19 +27,30 @@ type mtoServiceItemUpdater struct {
 	builder          mtoServiceItemQueryBuilder
 	createNewBuilder func() mtoServiceItemQueryBuilder
 	moveRouter       services.MoveRouter
+	shipmentFetcher  services.MTOShipmentFetcher
 }
 
 // NewMTOServiceItemUpdater returns a new mto service item updater
-func NewMTOServiceItemUpdater(builder mtoServiceItemQueryBuilder, moveRouter services.MoveRouter) services.MTOServiceItemUpdater {
+func NewMTOServiceItemUpdater(
+	builder mtoServiceItemQueryBuilder,
+	moveRouter services.MoveRouter,
+	shipmentFetcher services.MTOShipmentFetcher,
+) services.MTOServiceItemUpdater {
 	// used inside a transaction and mocking		return &mtoServiceItemUpdater{builder: builder}
 	createNewBuilder := func() mtoServiceItemQueryBuilder {
 		return query.NewQueryBuilder()
 	}
 
-	return &mtoServiceItemUpdater{builder, createNewBuilder, moveRouter}
+	return &mtoServiceItemUpdater{builder, createNewBuilder, moveRouter, shipmentFetcher}
 }
 
-func (p *mtoServiceItemUpdater) ApproveOrRejectServiceItem(appCtx appcontext.AppContext, mtoServiceItemID uuid.UUID, status models.MTOServiceItemStatus, rejectionReason *string, eTag string) (*models.MTOServiceItem, error) {
+func (p *mtoServiceItemUpdater) ApproveOrRejectServiceItem(
+	appCtx appcontext.AppContext,
+	mtoServiceItemID uuid.UUID,
+	status models.MTOServiceItemStatus,
+	rejectionReason *string,
+	eTag string,
+) (*models.MTOServiceItem, error) {
 	mtoServiceItem, err := p.findServiceItem(appCtx, mtoServiceItemID)
 	if err != nil {
 		return &models.MTOServiceItem{}, err
@@ -50,7 +61,11 @@ func (p *mtoServiceItemUpdater) ApproveOrRejectServiceItem(appCtx appcontext.App
 
 func (p *mtoServiceItemUpdater) findServiceItem(appCtx appcontext.AppContext, serviceItemID uuid.UUID) (*models.MTOServiceItem, error) {
 	var serviceItem models.MTOServiceItem
-	err := appCtx.DB().Q().EagerPreload("MoveTaskOrder").Find(&serviceItem, serviceItemID)
+	err := appCtx.DB().Q().EagerPreload(
+		"MoveTaskOrder",
+		"SITDestinationFinalAddress",
+		"ReService",
+	).Find(&serviceItem, serviceItemID)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
@@ -63,7 +78,14 @@ func (p *mtoServiceItemUpdater) findServiceItem(appCtx appcontext.AppContext, se
 	return &serviceItem, nil
 }
 
-func (p *mtoServiceItemUpdater) approveOrRejectServiceItem(appCtx appcontext.AppContext, serviceItem models.MTOServiceItem, status models.MTOServiceItemStatus, rejectionReason *string, eTag string, checks ...validator) (*models.MTOServiceItem, error) {
+func (p *mtoServiceItemUpdater) approveOrRejectServiceItem(
+	appCtx appcontext.AppContext,
+	serviceItem models.MTOServiceItem,
+	status models.MTOServiceItemStatus,
+	rejectionReason *string,
+	eTag string,
+	checks ...validator,
+) (*models.MTOServiceItem, error) {
 	if verr := validateServiceItem(appCtx, &serviceItem, eTag, checks...); verr != nil {
 		return nil, verr
 	}
@@ -113,6 +135,33 @@ func (p *mtoServiceItemUpdater) updateServiceItem(appCtx appcontext.AppContext, 
 		serviceItem.RejectionReason = nil
 		serviceItem.RejectedAt = nil
 		serviceItem.ApprovedAt = &now
+
+		// Check to see if there is already a SIT Destination Original Address
+		// by checking for the ID before trying to set one on the service item.
+		// If there isn't one, then we set it. We also make sure that the
+		// expression looks for the DDDSIT service code and only updates the
+		// address fields if the service item is of DDDSIT.
+		if serviceItem.ReService.Code == models.ReServiceCodeDDDSIT &&
+			serviceItem.SITDestinationOriginalAddressID == nil {
+			// Check to see if the service item has a SIT Destination Final
+			// Address ID passed in from the Prime request. If it does have
+			// one, then we set the service item's Destination Original Address
+			// to that value otherwise we use the shipment's Destination
+			// Address as a last resort.
+			if serviceItem.SITDestinationFinalAddressID != nil {
+				serviceItem.SITDestinationOriginalAddressID = serviceItem.SITDestinationFinalAddressID
+				serviceItem.SITDestinationOriginalAddress = serviceItem.SITDestinationFinalAddress
+			} else {
+				mtoShipment, err := p.shipmentFetcher.GetShipment(appCtx, *serviceItem.MTOShipmentID, "DestinationAddress")
+				if err != nil {
+					return nil, err
+				}
+				// Set the original address on a service item to the shipment's
+				// destination address when approving a SIT service item.
+				serviceItem.SITDestinationOriginalAddressID = mtoShipment.DestinationAddressID
+				serviceItem.SITDestinationOriginalAddress = mtoShipment.DestinationAddress
+			}
+		}
 	}
 
 	verrs, err := appCtx.DB().ValidateAndUpdate(&serviceItem)
@@ -124,27 +173,35 @@ func (p *mtoServiceItemUpdater) updateServiceItem(appCtx appcontext.AppContext, 
 }
 
 // UpdateMTOServiceItemBasic updates the MTO Service Item using base validators
-func (p *mtoServiceItemUpdater) UpdateMTOServiceItemBasic(appCtx appcontext.AppContext, mtoServiceItem *models.MTOServiceItem, eTag string) (*models.MTOServiceItem, error) {
+func (p *mtoServiceItemUpdater) UpdateMTOServiceItemBasic(
+	appCtx appcontext.AppContext,
+	mtoServiceItem *models.MTOServiceItem,
+	eTag string,
+) (*models.MTOServiceItem, error) {
 	return p.UpdateMTOServiceItem(appCtx, mtoServiceItem, eTag, UpdateMTOServiceItemBasicValidator)
 }
 
 // UpdateMTOServiceItemPrime updates the MTO Service Item using Prime API validators
-func (p *mtoServiceItemUpdater) UpdateMTOServiceItemPrime(appCtx appcontext.AppContext, mtoServiceItem *models.MTOServiceItem, eTag string) (*models.MTOServiceItem, error) {
+func (p *mtoServiceItemUpdater) UpdateMTOServiceItemPrime(
+	appCtx appcontext.AppContext,
+	mtoServiceItem *models.MTOServiceItem,
+	eTag string,
+) (*models.MTOServiceItem, error) {
 	return p.UpdateMTOServiceItem(appCtx, mtoServiceItem, eTag, UpdateMTOServiceItemPrimeValidator)
 }
 
 // UpdateMTOServiceItem updates the given service item
-func (p *mtoServiceItemUpdater) UpdateMTOServiceItem(appCtx appcontext.AppContext, mtoServiceItem *models.MTOServiceItem, eTag string, validatorKey string) (*models.MTOServiceItem, error) {
-	oldServiceItem := models.MTOServiceItem{}
-
+func (p *mtoServiceItemUpdater) UpdateMTOServiceItem(
+	appCtx appcontext.AppContext,
+	mtoServiceItem *models.MTOServiceItem,
+	eTag string,
+	validatorKey string,
+) (*models.MTOServiceItem, error) {
 	// Find the service item, return error if not found
-	queryFilters := []services.QueryFilter{
-		query.NewQueryFilter("id", "=", mtoServiceItem.ID),
-	}
-	err := p.builder.FetchOne(appCtx, &oldServiceItem, queryFilters)
+	oldServiceItem, err := models.FetchServiceItem(appCtx.DB(), mtoServiceItem.ID)
 	if err != nil {
 		switch err {
-		case sql.ErrNoRows:
+		case models.ErrFetchNotFound:
 			return nil, apperror.NewNotFoundError(mtoServiceItem.ID, "while looking for MTOServiceItem")
 		default:
 			return nil, apperror.NewQueryError("MTOServiceItem", err, "")

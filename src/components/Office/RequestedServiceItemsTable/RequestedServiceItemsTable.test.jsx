@@ -12,6 +12,11 @@ import { permissionTypes } from 'constants/permissions';
 const defaultProps = {
   handleShowRejectionDialog: jest.fn(),
   handleUpdateMTOServiceItemStatus: jest.fn(),
+  serviceItemAddressUpdateAlert: {
+    makeVisible: false,
+    alertMessage: '',
+    alertType: '',
+  },
 };
 
 const serviceItemWithCrating = {

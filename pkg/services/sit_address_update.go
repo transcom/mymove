@@ -23,12 +23,12 @@ type SITAddressUpdateRequestCreator interface {
 //
 //go:generate mockery --name SITAddressUpdateRequestApprover
 type SITAddressUpdateRequestApprover interface {
-	ApproveSITAddressUpdateRequest(appCtx appcontext.AppContext, serviceItemID uuid.UUID, sitAddressUpdateRequestID uuid.UUID, officeRemarks *string, eTag string) (*models.MTOServiceItem, error)
+	ApproveSITAddressUpdateRequest(appCtx appcontext.AppContext, sitAddressUpdateRequestID uuid.UUID, officeRemarks *string, eTag string) (*models.MTOServiceItem, error)
 }
 
 // SITAddressUpdateRequestRejector is the service object interface for rejecting a requested SIT Address Update with a distance greater than 50 miles
 //
 //go:generate mockery --name SITAddressUpdateRequestRejector
 type SITAddressUpdateRequestRejector interface {
-	RejectSITAddressUpdateRequest(appCtx appcontext.AppContext, serviceItemID uuid.UUID, sitAddressUpdateRequestID uuid.UUID, officeRemarks *string, eTag string) (*models.SITAddressUpdate, error)
+	RejectSITAddressUpdateRequest(appCtx appcontext.AppContext, sitAddressUpdateRequestID uuid.UUID, officeRemarks *string, eTag string) (*models.SITAddressUpdate, error)
 }

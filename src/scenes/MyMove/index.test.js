@@ -17,8 +17,10 @@ mockPage('pages/SignIn/SignIn');
 mockPage('pages/InvalidPermissions/InvalidPermissions');
 
 // Mock imported components
-jest.mock('shared/Statements/AccessibilityStatement', () => () => <div>Mock Accessibility Statement Component</div>);
-jest.mock('shared/Statements/PrivacyAndPolicyStatement', () => () => (
+jest.mock('components/Statements/AccessibilityStatement', () => () => (
+  <div>Mock Accessibility Statement Component</div>
+));
+jest.mock('components/Statements/PrivacyAndPolicyStatement', () => () => (
   <div>Mock Privacy And Policy Statement Component</div>
 ));
 
