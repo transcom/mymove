@@ -1380,9 +1380,16 @@ jobs:
             tmp/test-results/gotest/app/go-coverage.txt
       # only save the cache on default branch builds because we only want to
       # change the baseline of test results on main builds
+      #
+      # Save the new baseline regardless of if the coverage succeeds
+      # or fails as a merge to main means we have a new baseline. We
+      # will use other means to measure if our coverage is increasing
+      # or decreasing
       - when:
           condition:
-            equal: [main, << pipeline.git.branch >>]
+            and:
+              - equal: [main, << pipeline.git.branch >>]
+              - when: always
           steps:
             - run:
                 name: 'Copy coverage to baseline'
@@ -1399,6 +1406,17 @@ jobs:
                 key: v6-server-tests-coverage-{{ .BuildNum }}
                 paths:
                   - ~/transcom/mymove/tmp/baseline-go-coverage
+            - aws_vars_transcom_gov_dev
+            - run:
+                name: 'Record server coverage stats'
+                command: |
+                  timestamp=$(date +"%Y-%m-%dT%H:%M:%SZ")
+                  coverage=$(grep statements tmp/test-results/gotest/app/go-coverage.txt | grep -o '[0-9.]*')
+                  aws cloudwatch put-metric-data \
+                  --metric-name server_test_coverage \
+                  --namespace circleci \
+                  --value "${coverage}" \
+                  --timestamp "${timestamp}"
 
   # `client_test` runs the client side Javascript tests
   client_test:
@@ -1457,9 +1475,15 @@ jobs:
             coverage/clover.xml
       # only save the cache on default branch builds because we only want to
       # change the baseline of test results on main builds
+      # Save the new baseline regardless of if the coverage succeeds
+      # or fails as a merge to main means we have a new baseline. We
+      # will use other means to measure if our coverage is increasing
+      # or decreasing
       - when:
           condition:
-            equal: [main, << pipeline.git.branch >>]
+            and:
+              - equal: [main, << pipeline.git.branch >>]
+              - when: always
           steps:
             - run:
                 name: 'Copy coverage to baseline'
@@ -1476,6 +1500,19 @@ jobs:
                 key: v5-client-tests-coverage-{{ .BuildNum }}
                 paths:
                   - ~/transcom/mymove/tmp/baseline-jest-coverage
+            - aws_vars_transcom_gov_dev
+            - run:
+                name: 'Record client coverage stats'
+                command: |
+                  timestamp=$(date +"%Y-%m-%dT%H:%M:%SZ")
+                  coverage=$(grep -B 1 'span.*Statements' coverage/lcov-report/index.html | grep -o '[0-9.]*')
+                  aws cloudwatch put-metric-data \
+                  --metric-name client_test_coverage \
+                  --namespace circleci \
+                  --value "${coverage}" \
+                  --timestamp "${timestamp}"
+
+
 
 
   # Compile the server side of the app once and persist the relevant
