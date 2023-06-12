@@ -4012,7 +4012,7 @@ func MakeHHGMoveIn200DaysSITWithPendingExtension(appCtx appcontext.AppContext) m
 		},
 	}, nil)
 
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+	dddsit := factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.MTOServiceItem{
 				Status:        models.MTOServiceItemStatusApproved,
@@ -4035,6 +4035,22 @@ func MakeHHGMoveIn200DaysSITWithPendingExtension(appCtx appcontext.AppContext) m
 			LinkOnly: true,
 		},
 	}, nil)
+
+	sitAddressUpdate := factory.BuildSITAddressUpdate(appCtx.DB(), []factory.Customization{
+		{
+			Model:    dddsit,
+			LinkOnly: true,
+		},
+	}, []factory.Trait{factory.GetTraitSITAddressUpdateUnder50Miles})
+
+	originalAddress := sitAddressUpdate.OldAddress
+	finalAddress := sitAddressUpdate.NewAddress
+	dddsit.SITDestinationOriginalAddressID = &originalAddress.ID
+	dddsit.SITDestinationFinalAddressID = &finalAddress.ID
+	err := appCtx.DB().Update(&dddsit)
+	if err != nil {
+		log.Panic(fmt.Errorf("failed to update sit service item: %w", err))
+	}
 
 	factory.BuildSITDurationUpdate(appCtx.DB(), []factory.Customization{
 		{
