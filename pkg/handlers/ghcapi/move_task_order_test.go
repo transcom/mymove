@@ -30,7 +30,6 @@ import (
 	"github.com/transcom/mymove/pkg/services/mocks"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
-	movetaskorderfetcherv1 "github.com/transcom/mymove/pkg/services/move_task_order/move_task_order_fetcher/move_task_order_fetcher_v1"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/trace"
@@ -49,7 +48,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrderHandlerIntegration() {
 	handlerConfig := suite.HandlerConfig()
 	handler := GetMoveTaskOrderHandler{
 		handlerConfig,
-		movetaskorderfetcherv1.NewMoveTaskOrderFetcher(),
+		movetaskorder.NewMoveTaskOrderFetcher(),
 	}
 
 	// Validate incoming payload: no body to validate

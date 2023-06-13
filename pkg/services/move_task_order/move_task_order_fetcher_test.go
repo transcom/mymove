@@ -1,33 +1,18 @@
-package movetaskorderfetcherv1_test
+package movetaskorder_test
 
 import (
-	"testing"
 	"time"
 
 	"github.com/gofrs/uuid"
-	"github.com/stretchr/testify/suite"
 
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
-	. "github.com/transcom/mymove/pkg/services/move_task_order/move_task_order_fetcher/move_task_order_fetcher_v1"
+	. "github.com/transcom/mymove/pkg/services/move_task_order"
 	"github.com/transcom/mymove/pkg/testdatagen"
-	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
-type MoveTaskOrderFetcherV1Suite struct {
-	*testingsuite.PopTestSuite
-}
-
-func TestMoveTaskOrderServiceSuite(t *testing.T) {
-	ts := &MoveTaskOrderFetcherV1Suite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
-	}
-	suite.Run(t, ts)
-	ts.PopTestSuite.TearDown()
-}
-
-func (suite *MoveTaskOrderFetcherV1Suite) TestMoveTaskOrderFetcher() {
+func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 
 	setupTestData := func() (models.Move, models.MTOShipment) {
 
@@ -245,7 +230,7 @@ func doIDsMatch(moves []models.Move, moveIDs []*uuid.UUID, expectedMatchCount in
 	return expectedMatchCount == matched, mapIDs
 }
 
-func (suite *MoveTaskOrderFetcherV1Suite) TestListAllMoveTaskOrdersFetcher() {
+func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 	// Set up a hidden move so we can check if it's in the output:
 	now := time.Now()
 	show := false
@@ -392,7 +377,7 @@ func (suite *MoveTaskOrderFetcherV1Suite) TestListAllMoveTaskOrdersFetcher() {
 	})
 }
 
-func (suite *MoveTaskOrderFetcherV1Suite) TestListPrimeMoveTaskOrdersFetcher() {
+func (suite *MoveTaskOrderServiceSuite) TestListPrimeMoveTaskOrdersFetcher() {
 	now := time.Now()
 	// Set up a hidden move so we can check if it's in the output:
 	hiddenMove := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{

@@ -17,7 +17,6 @@ import (
 	"github.com/transcom/mymove/pkg/services/move"
 	movehistory "github.com/transcom/mymove/pkg/services/move_history"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
-	movetaskorderfetcher "github.com/transcom/mymove/pkg/services/move_task_order/move_task_order_fetcher"
 	movingexpense "github.com/transcom/mymove/pkg/services/moving_expense"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
@@ -167,7 +166,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 
 	ghcAPI.MoveTaskOrderGetMoveTaskOrderHandler = GetMoveTaskOrderHandler{
 		handlerConfig,
-		movetaskorderfetcher.NewMoveTaskOrderFetcher("v2"),
+		movetaskorder.NewMoveTaskOrderFetcher(),
 	}
 	ghcAPI.MoveSetFinancialReviewFlagHandler = SetFinancialReviewFlagHandler{
 		handlerConfig,

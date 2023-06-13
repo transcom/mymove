@@ -9,7 +9,7 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/address"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
-	movefetcher "github.com/transcom/mymove/pkg/services/move_task_order/move_task_order_fetcher/move_task_order_fetcher_v1"
+	movefetcher "github.com/transcom/mymove/pkg/services/move_task_order"
 )
 
 func (suite *SITAddressUpdateServiceSuite) TestCreateSITAddressUpdateRequest() {

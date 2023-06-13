@@ -13,7 +13,6 @@ import (
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
-	movetaskorderfetcher "github.com/transcom/mymove/pkg/services/move_task_order/move_task_order_fetcher"
 	"github.com/transcom/mymove/pkg/services/order"
 	"github.com/transcom/mymove/pkg/services/query"
 )
@@ -32,7 +31,7 @@ func NewMoveTaskOrderUpdater(builder UpdateMoveTaskOrderQueryBuilder, serviceIte
 	// and just tell it to use v1. However, this would need to be addressed.
 	// One idea to address it would be a middleware that
 	// attaches what version we are requesting to the appCtx or perhaps the request context.
-	mtoFetcher := movetaskorderfetcher.NewMoveTaskOrderFetcher("v1")
+	mtoFetcher := NewMoveTaskOrderFetcher()
 	return &moveTaskOrderUpdater{mtoFetcher, builder, serviceItemCreator, moveRouter}
 }
 
