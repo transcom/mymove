@@ -28,17 +28,12 @@ var AllowedShipmentAddressStatuses = []string{
 }
 
 type ShipmentAddressUpdate struct {
-	ID                             uuid.UUID `json:"id" db:"id"`
-	ContractorRemarks              string    `json:"contractor_remarks" db:"contractor_remarks"`
-	ServiceAreaChanged             bool      `json:"service_area_changed" db:"service_area_changed"`
-	MileageBracketChanged          bool      `json:"mileage_bracket_changed" db:"mileage_bracket_changed"`
-	ChangedFromShortHaulToLongHaul bool      `json:"changed_from_short_haul_to_long_haul" db:"changed_from_short_haul_to_long_haul"`
-	ChangedFromLongHaulToShortHaul bool      `json:"changed_from_long_haul_to_short_haul" db:"changed_from_long_haul_to_short_haul"`
-
-	OfficeRemarks *string                     `json:"office_remarks" db:"office_remarks"`
-	Status        ShipmentAddressUpdateStatus `json:"status" db:"status"`
-	CreatedAt     time.Time                   `db:"created_at"`
-	UpdatedAt     time.Time                   `db:"updated_at"`
+	ID                uuid.UUID                   `json:"id" db:"id"`
+	ContractorRemarks string                      `json:"contractor_remarks" db:"contractor_remarks"`
+	OfficeRemarks     *string                     `json:"office_remarks" db:"office_remarks"`
+	Status            ShipmentAddressUpdateStatus `json:"status" db:"status"`
+	CreatedAt         time.Time                   `db:"created_at"`
+	UpdatedAt         time.Time                   `db:"updated_at"`
 
 	// Associations
 	Shipment          MTOShipment `belongs_to:"mto_shipments" fk_id:"shipment_id"`

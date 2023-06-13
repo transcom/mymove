@@ -11,10 +11,6 @@ CREATE TABLE shipment_address_updates
 	new_address_id                       uuid                           NOT NULL,
 	contractor_remarks                   text                           NOT NULL,
 	status                               shipment_address_update_status NOT NULL,
-	service_area_changed                 bool                           NOT NULL,
-	mileage_bracket_changed              bool                           NOT NULL,
-	changed_from_short_haul_to_long_haul bool                           NOT NULL,
-	changed_from_long_haul_to_short_haul bool                           NOT NULL,
 	office_remarks                       text,
 	created_at                           timestamp                      NOT NULL,
 	updated_at                           timestamp                      NOT NULL

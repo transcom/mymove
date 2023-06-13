@@ -13,15 +13,11 @@ func (suite *ModelSuite) TestShipmentAddressUpdateValidation() {
 		newAddress := factory.BuildDefaultAddress(suite.DB())
 		shipmentID := uuid.Must(uuid.NewV4())
 		validAddressChange := models.ShipmentAddressUpdate{
-			ContractorRemarks:              "prev tenant of house at original address filled it w balloons and floated away",
-			ServiceAreaChanged:             false,
-			MileageBracketChanged:          false,
-			ChangedFromShortHaulToLongHaul: false,
-			ChangedFromLongHaulToShortHaul: false,
-			Status:                         models.ShipmentAddressUpdateStatusRequested,
-			ShipmentID:                     shipmentID,
-			OriginalAddressID:              originalAddress.ID,
-			NewAddressID:                   newAddress.ID,
+			ContractorRemarks: "prev tenant of house at original address filled it w balloons and floated away",
+			Status:            models.ShipmentAddressUpdateStatusRequested,
+			ShipmentID:        shipmentID,
+			OriginalAddressID: originalAddress.ID,
+			NewAddressID:      newAddress.ID,
 		}
 		expErrors := map[string][]string{}
 		suite.verifyValidationErrors(&validAddressChange, expErrors)
