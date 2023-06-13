@@ -20,3 +20,11 @@ CREATE TABLE shipment_address_updates
 	updated_at                           timestamp                      NOT NULL
 );
 
+COMMENT ON COLUMN shipment_address_updates.shipment_id IS 'The MTO Shipment ID associated with this address update request';
+COMMENT ON COLUMN shipment_address_updates.original_address_id IS 'Original address that was approved for the shipment';
+COMMENT ON COLUMN shipment_address_updates.new_address_id IS 'New address being requested';
+COMMENT ON COLUMN shipment_address_updates.contractor_remarks IS 'Reason contractor is requesting change to an address that was previously approved';
+COMMENT ON COLUMN shipment_address_updates.status IS 'REQUESTED (must be reviewed by TOO), APPROVED (auto-approved, or approved by TOO), or REJECTED (rejected by TOO)';
+COMMENT ON COLUMN shipment_address_updates.office_remarks IS 'Remarks from office user who reviewed the request';
+
+CREATE INDEX ON shipment_address_updates (shipment_id);
