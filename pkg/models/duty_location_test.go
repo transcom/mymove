@@ -8,41 +8,48 @@ import (
 )
 
 func (suite *ModelSuite) TestFindDutyLocations() {
-	address := models.Address{
-		StreetAddress1: "some address",
-		City:           "city",
-		State:          "state",
-		PostalCode:     "12345",
-	}
-	suite.MustSave(&address)
-
 	location1 := models.DutyLocation{
-		Name:      "Fort Bragg",
-		AddressID: address.ID,
+		Name:       "Fort Bragg",
+		City:       "city",
+		State:      "state",
+		PostalCode: "12345",
+		Country:    "United States",
 	}
 	suite.MustSave(&location1)
 
 	location2 := models.DutyLocation{
-		Name:      "Fort Belvoir",
-		AddressID: address.ID,
+		Name:       "Fort Belvoir",
+		City:       "city",
+		State:      "state",
+		PostalCode: "12345",
+		Country:    "United States",
 	}
 	suite.MustSave(&location2)
 
 	location3 := models.DutyLocation{
-		Name:      "Davis Monthan AFB",
-		AddressID: address.ID,
+		Name:       "Davis Monthan AFB",
+		City:       "city",
+		State:      "state",
+		PostalCode: "12345",
+		Country:    "United States",
 	}
 	suite.MustSave(&location3)
 
 	location4 := models.DutyLocation{
-		Name:      "JB Elmendorf-Richardson",
-		AddressID: address.ID,
+		Name:       "JB Elmendorf-Richardson",
+		City:       "city",
+		State:      "state",
+		PostalCode: "12345",
+		Country:    "United States",
 	}
 	suite.MustSave(&location4)
 
 	location5 := models.DutyLocation{
-		Name:      "NAS Fallon",
-		AddressID: address.ID,
+		Name:       "NAS Fallon",
+		City:       "city",
+		State:      "state",
+		PostalCode: "12345",
+		Country:    "United States",
 	}
 	suite.MustSave(&location5)
 
@@ -53,8 +60,11 @@ func (suite *ModelSuite) TestFindDutyLocations() {
 	suite.MustSave(&s5)
 
 	location6 := models.DutyLocation{
-		Name:      "NAS Fort Worth JRB",
-		AddressID: address.ID,
+		Name:       "NAS Fort Worth JRB",
+		City:       "city",
+		State:      "state",
+		PostalCode: "12345",
+		Country:    "United States",
 	}
 	suite.MustSave(&location6)
 	s6 := models.DutyLocationName{
@@ -63,17 +73,12 @@ func (suite *ModelSuite) TestFindDutyLocations() {
 	}
 	suite.MustSave(&s6)
 
-	address2 := models.Address{
-		StreetAddress1: "some address",
-		City:           "city",
-		State:          "state",
-		PostalCode:     "23456",
-	}
-	suite.MustSave(&address2)
-
 	location7 := models.DutyLocation{
-		Name:      "Very Long City Name, OH 23456",
-		AddressID: address2.ID,
+		Name:       "Very Long City Name, OH 23456",
+		City:       "city",
+		State:      "state",
+		PostalCode: "23456",
+		Country:    "United States",
 	}
 	suite.MustSave(&location7)
 
@@ -93,7 +98,7 @@ func (suite *ModelSuite) TestFindDutyLocations() {
 
 	for _, ts := range tests {
 		dutyLocations, err := models.FindDutyLocations(suite.DB(), ts.query)
-		suite.NoError(err)
+		suite.NoError(err, ts.query)
 		suite.Require().Equal(len(dutyLocations), len(ts.dutyLocations), "Wrong number of duty locations returned from query: %s", ts.query)
 		for i, dutyLocation := range dutyLocations {
 			suite.Equal(dutyLocation.Name, ts.dutyLocations[i], "Duty locations don't match order: %s", ts.query)
@@ -105,8 +110,11 @@ func (suite *ModelSuite) Test_DutyLocationValidations() {
 	location := &models.DutyLocation{}
 
 	var expErrors = map[string][]string{
-		"name":       {"Name can not be blank."},
-		"address_id": {"AddressID can not be blank."},
+		"name":        {"Name can not be blank."},
+		"city":        {"City can not be blank."},
+		"state":       {"State can not be blank."},
+		"postal_code": {"PostalCode can not be blank."},
+		"country":     {"Country can not be blank."},
 	}
 
 	suite.verifyValidationErrors(location, expErrors)

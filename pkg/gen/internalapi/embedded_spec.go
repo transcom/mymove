@@ -4474,27 +4474,30 @@ func init() {
         }
       }
     },
-    "DutyLocationPayload": {
+    "DutyLocationInternal": {
       "type": "object",
       "required": [
         "id",
         "name",
-        "address_id",
         "affiliation",
+        "city",
+        "state",
+        "postal_code",
+        "country",
         "created_at",
         "updated_at"
       ],
       "properties": {
-        "address": {
-          "$ref": "#/definitions/Address"
-        },
-        "address_id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
         "affiliation": {
           "$ref": "#/definitions/Affiliation"
+        },
+        "city": {
+          "type": "string",
+          "example": "Fort Bragg"
+        },
+        "country": {
+          "type": "string",
+          "example": "United States"
         },
         "created_at": {
           "type": "string",
@@ -4508,6 +4511,14 @@ func init() {
         "name": {
           "type": "string",
           "example": "Fort Bragg North Station"
+        },
+        "postal_code": {
+          "type": "string",
+          "example": "95437"
+        },
+        "state": {
+          "type": "string",
+          "example": "CA"
         },
         "transportation_office": {
           "$ref": "#/definitions/TransportationOffice"
@@ -4527,7 +4538,7 @@ func init() {
     "DutyLocationsPayload": {
       "type": "array",
       "items": {
-        "$ref": "#/definitions/DutyLocationPayload"
+        "$ref": "#/definitions/DutyLocationInternal"
       }
     },
     "Entitlement": {
@@ -5668,7 +5679,7 @@ func init() {
           "$ref": "#/definitions/IndexMovesPayload"
         },
         "new_duty_location": {
-          "$ref": "#/definitions/DutyLocationPayload"
+          "$ref": "#/definitions/DutyLocationInternal"
         },
         "orders_number": {
           "type": "string",
@@ -5689,7 +5700,7 @@ func init() {
         },
         "origin_duty_location": {
           "x-nullable": true,
-          "$ref": "#/definitions/DutyLocationPayload"
+          "$ref": "#/definitions/DutyLocationInternal"
         },
         "report_by_date": {
           "description": "Report By Date",
@@ -6926,7 +6937,7 @@ func init() {
           "format": "date-time"
         },
         "current_location": {
-          "$ref": "#/definitions/DutyLocationPayload"
+          "$ref": "#/definitions/DutyLocationInternal"
         },
         "edipi": {
           "type": "string",
@@ -13088,27 +13099,30 @@ func init() {
         }
       }
     },
-    "DutyLocationPayload": {
+    "DutyLocationInternal": {
       "type": "object",
       "required": [
         "id",
         "name",
-        "address_id",
         "affiliation",
+        "city",
+        "state",
+        "postal_code",
+        "country",
         "created_at",
         "updated_at"
       ],
       "properties": {
-        "address": {
-          "$ref": "#/definitions/Address"
-        },
-        "address_id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
         "affiliation": {
           "$ref": "#/definitions/Affiliation"
+        },
+        "city": {
+          "type": "string",
+          "example": "Fort Bragg"
+        },
+        "country": {
+          "type": "string",
+          "example": "United States"
         },
         "created_at": {
           "type": "string",
@@ -13122,6 +13136,14 @@ func init() {
         "name": {
           "type": "string",
           "example": "Fort Bragg North Station"
+        },
+        "postal_code": {
+          "type": "string",
+          "example": "95437"
+        },
+        "state": {
+          "type": "string",
+          "example": "CA"
         },
         "transportation_office": {
           "$ref": "#/definitions/TransportationOffice"
@@ -13141,7 +13163,7 @@ func init() {
     "DutyLocationsPayload": {
       "type": "array",
       "items": {
-        "$ref": "#/definitions/DutyLocationPayload"
+        "$ref": "#/definitions/DutyLocationInternal"
       }
     },
     "Entitlement": {
@@ -14295,7 +14317,7 @@ func init() {
           "$ref": "#/definitions/IndexMovesPayload"
         },
         "new_duty_location": {
-          "$ref": "#/definitions/DutyLocationPayload"
+          "$ref": "#/definitions/DutyLocationInternal"
         },
         "orders_number": {
           "type": "string",
@@ -14316,7 +14338,7 @@ func init() {
         },
         "origin_duty_location": {
           "x-nullable": true,
-          "$ref": "#/definitions/DutyLocationPayload"
+          "$ref": "#/definitions/DutyLocationInternal"
         },
         "report_by_date": {
           "description": "Report By Date",
@@ -15558,7 +15580,7 @@ func init() {
           "format": "date-time"
         },
         "current_location": {
-          "$ref": "#/definitions/DutyLocationPayload"
+          "$ref": "#/definitions/DutyLocationInternal"
         },
         "edipi": {
           "type": "string",

@@ -538,7 +538,7 @@ func updateOrderInTx(appCtx appcontext.AppContext, order models.Order, checks ..
 		order.OriginDutyLocationID = &originDutyLocation.ID
 		order.OriginDutyLocation = &originDutyLocation
 
-		dutyLocationGBLOC, err2 := models.FetchGBLOCForPostalCode(appCtx.DB(), originDutyLocation.Address.PostalCode)
+		dutyLocationGBLOC, err2 := models.FetchGBLOCForPostalCode(appCtx.DB(), originDutyLocation.PostalCode)
 		if err2 != nil {
 			switch err2 {
 			case sql.ErrNoRows:

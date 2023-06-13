@@ -202,9 +202,9 @@ func FetchDataShipmentSummaryWorksheetFormData(db *pop.Connection, session *auth
 	move := Move{}
 	dbQErr := db.Q().Eager(
 		"Orders",
-		"Orders.NewDutyLocation.Address",
+		"Orders.NewDutyLocation",
 		"Orders.ServiceMember",
-		"Orders.ServiceMember.DutyLocation.Address",
+		"Orders.ServiceMember.DutyLocation",
 		"PersonallyProcuredMoves",
 	).Find(&move, moveID)
 
@@ -468,7 +468,7 @@ func FormatSignatureDate(signature SignedCertification) string {
 
 // FormatLocation formats AuthorizedOrigin and AuthorizedDestination for Shipment Summary Worksheet
 func FormatLocation(dutyLocation DutyLocation) string {
-	return fmt.Sprintf("%s, %s %s", dutyLocation.Name, dutyLocation.Address.State, dutyLocation.Address.PostalCode)
+	return fmt.Sprintf("%s, %s %s", dutyLocation.Name, dutyLocation.State, dutyLocation.PostalCode)
 }
 
 // FormatServiceMemberFullName formats ServiceMember full name for Shipment Summary Worksheet

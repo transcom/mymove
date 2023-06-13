@@ -23,25 +23,25 @@ func (suite *HandlerSuite) TestSearchDutyLocationHandler() {
 	}
 	suite.MustSave(&user)
 
-	address := models.Address{
+	location1 := models.DutyLocation{
+		Name:           "First Location",
 		StreetAddress1: "some address",
 		City:           "city",
 		State:          "CA",
 		PostalCode:     "12345",
-	}
-	suite.MustSave(&address)
-
-	location1 := models.DutyLocation{
-		Name:        "First Location",
-		AddressID:   address.ID,
-		Affiliation: internalmessages.NewAffiliation(internalmessages.AffiliationAIRFORCE),
+		Country:        "United States",
+		Affiliation:    internalmessages.NewAffiliation(internalmessages.AffiliationAIRFORCE),
 	}
 	suite.MustSave(&location1)
 
 	location2 := models.DutyLocation{
-		Name:        "Second Location",
-		AddressID:   address.ID,
-		Affiliation: internalmessages.NewAffiliation(internalmessages.AffiliationAIRFORCE),
+		Name:           "Second Location",
+		StreetAddress1: "some address",
+		City:           "city",
+		State:          "CA",
+		PostalCode:     "12345",
+		Country:        "United States",
+		Affiliation:    internalmessages.NewAffiliation(internalmessages.AffiliationAIRFORCE),
 	}
 	suite.MustSave(&location2)
 

@@ -87,7 +87,6 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 			ID:    uuid.FromStringOrNil("d66d2f35-218c-4b85-b9d1-631949b9d984"),
 			Edipi: models.StringPointer("1000011111"),
 		}
-
 		serviceMember = factory.BuildExtendedServiceMember(suite.DB(), []factory.Customization{
 			{Model: customServiceMember},
 		}, nil)
@@ -454,7 +453,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 				Model: sm,
 			},
 		}, nil)
-		factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), mto.Orders.NewDutyLocation.Address.PostalCode, "KKFA")
+		factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), mto.Orders.NewDutyLocation.PostalCode, "KKFA")
 
 		paymentRequest = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
 			{
@@ -540,12 +539,11 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	suite.Run("updates the origin and destination duty locations to not have associated transportation offices", func() {
 		originDutyLocation := factory.BuildDutyLocationWithoutTransportationOffice(suite.DB(), nil, nil)
 
-		customAddress := models.Address{
-			ID:         uuid.Must(uuid.NewV4()),
+		customDutyLocation := models.DutyLocation{
 			PostalCode: "73403",
 		}
 		destDutyLocation := factory.BuildDutyLocationWithoutTransportationOffice(suite.DB(), []factory.Customization{
-			{Model: customAddress, Type: &factory.Addresses.DutyLocationAddress},
+			{Model: customDutyLocation},
 		}, nil)
 
 		mto := factory.BuildMove(suite.DB(), []factory.Customization{
@@ -695,25 +693,20 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		suite.Equal("10", n1.IdentificationCodeQualifier)
 		suite.Equal(transportationOffice.Gbloc, n1.IdentificationCode)
 		// street address
-		address := expectedDutyLocation.Address
 		destAddress := result.Header.DestinationStreetAddress
 		suite.IsType(&edisegment.N3{}, destAddress)
 		n3 := *destAddress
-		suite.Equal(address.StreetAddress1, n3.AddressInformation1)
-		if address.StreetAddress2 == nil {
-			suite.Empty(n3.AddressInformation2)
-		} else {
-			suite.Equal(*address.StreetAddress2, n3.AddressInformation2)
-		}
+		suite.Equal(expectedDutyLocation.StreetAddress1, n3.AddressInformation1)
+		suite.Empty(n3.AddressInformation2)
 		// city state info
 		n4 := result.Header.DestinationPostalDetails
 		suite.IsType(edisegment.N4{}, n4)
-		suite.Equal(address.City, n4.CityName)
-		suite.Equal(address.State, n4.StateOrProvinceCode)
-		suite.Equal(address.PostalCode, n4.PostalCode)
-		countryCode, err := address.CountryCode()
+		suite.Equal(expectedDutyLocation.City, n4.CityName)
+		suite.Equal(expectedDutyLocation.State, n4.StateOrProvinceCode)
+		suite.Equal(expectedDutyLocation.PostalCode, n4.PostalCode)
+		countryCode, err := models.CountryCode(expectedDutyLocation.Country)
 		suite.NoError(err)
-		suite.Equal(*countryCode, n4.CountryCode)
+		suite.Equal(countryCode, n4.CountryCode)
 		// Office Phone
 		destinationDutyLocationPhoneLines := expectedDutyLocation.TransportationOffice.PhoneLines
 		var destPhoneLines []string
@@ -744,25 +737,23 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		suite.Equal("10", n1.IdentificationCodeQualifier)
 		suite.Equal(expectedDutyLocation.TransportationOffice.Gbloc, n1.IdentificationCode)
 		// street address
-		address := expectedDutyLocation.Address
 		n3Address := result.Header.OriginStreetAddress
 		suite.IsType(&edisegment.N3{}, n3Address)
 		n3 := *n3Address
-		suite.Equal(address.StreetAddress1, n3.AddressInformation1)
-		suite.Equal(*address.StreetAddress2, n3.AddressInformation2)
+		suite.Equal(expectedDutyLocation.StreetAddress1, n3.AddressInformation1)
 		// city state info
 		n4 := result.Header.OriginPostalDetails
 		suite.IsType(edisegment.N4{}, n4)
 		if len(n4.CityName) >= maxCityLength {
-			suite.Equal(address.City[:maxCityLength]+"...", n4.CityName)
+			suite.Equal(expectedDutyLocation.City[:maxCityLength]+"...", n4.CityName)
 		} else {
-			suite.Equal(address.City, n4.CityName)
+			suite.Equal(expectedDutyLocation.City, n4.CityName)
 		}
-		suite.Equal(address.State, n4.StateOrProvinceCode)
-		suite.Equal(address.PostalCode, n4.PostalCode)
-		countryCode, err := address.CountryCode()
+		suite.Equal(expectedDutyLocation.State, n4.StateOrProvinceCode)
+		suite.Equal(expectedDutyLocation.PostalCode, n4.PostalCode)
+		countryCode, err := models.CountryCode(expectedDutyLocation.Country)
 		suite.NoError(err)
-		suite.Equal(*countryCode, n4.CountryCode)
+		suite.Equal(countryCode, n4.CountryCode)
 		// Office Phone
 		originDutyLocationPhoneLines := expectedDutyLocation.TransportationOffice.PhoneLines
 		var originPhoneLines []string
@@ -1142,22 +1133,6 @@ func (suite *GHCInvoiceSuite) TestNilValues() {
 		suite.IsType(apperror.ConflictError{}, err)
 		suite.Equal(fmt.Sprintf("ID: %s is in a conflicting state Invalid order. Must have an HHG TAC value", nilPaymentRequest.MoveTaskOrder.OrdersID), err.Error())
 		nilPaymentRequest.MoveTaskOrder.Orders.TAC = oldTAC
-	})
-
-	suite.Run("nil country for NewDutyLocation does not cause panic", func() {
-		setupTestData()
-		oldCountry := nilPaymentRequest.MoveTaskOrder.Orders.NewDutyLocation.Address.Country
-		nilPaymentRequest.MoveTaskOrder.Orders.NewDutyLocation.Address.Country = nil
-		suite.NotPanics(panicFunc)
-		nilPaymentRequest.MoveTaskOrder.Orders.NewDutyLocation.Address.Country = oldCountry
-	})
-
-	suite.Run("nil country for OriginDutyLocation does not cause panic", func() {
-		setupTestData()
-		oldCountry := nilPaymentRequest.MoveTaskOrder.Orders.OriginDutyLocation.Address.Country
-		nilPaymentRequest.MoveTaskOrder.Orders.OriginDutyLocation.Address.Country = nil
-		suite.NotPanics(panicFunc)
-		nilPaymentRequest.MoveTaskOrder.Orders.OriginDutyLocation.Address.Country = oldCountry
 	})
 
 	suite.Run("nil reference ID does not cause panic", func() {

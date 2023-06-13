@@ -106,12 +106,12 @@ func makeExtendedServiceMember(db *pop.Connection, assertions Assertions) models
 		dutyLocation = fetchOrMakeDefaultCurrentDutyLocation(db)
 	}
 
-	gbloc, err := models.FetchGBLOCForPostalCode(db, dutyLocation.Address.PostalCode)
+	gbloc, err := models.FetchGBLOCForPostalCode(db, dutyLocation.PostalCode)
 
 	// Duty location must have a GBLOC associated to the postal code
 	// Check for an existing GBLOC and make one if it doesn't exist
 	if gbloc.GBLOC == "" || err != nil {
-		makePostalCodeToGBLOC(db, dutyLocation.Address.PostalCode, "KKFA")
+		makePostalCodeToGBLOC(db, dutyLocation.PostalCode, "KKFA")
 	}
 
 	// Combine extended SM defaults with assertions

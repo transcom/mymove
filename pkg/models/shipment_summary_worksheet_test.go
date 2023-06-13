@@ -1,12 +1,3 @@
-// RA Summary: gosec - errcheck - Unchecked return value
-// RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
-// RA: Functions with unchecked return values in the file are used to generate stub data for a localized version of the application.
-// RA: Given the data is being generated for local use and does not contain any sensitive information, there are no unexpected states and conditions
-// RA: in which this would be considered a risk
-// RA Developer Status: Mitigated
-// RA Validator Status: Mitigated
-// RA Modified Severity: N/A
-// nolint:errcheck
 package models_test
 
 import (
@@ -54,23 +45,30 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheet() {
 	}, nil)
 
 	moveID := move.ID
+	suite.False(moveID.IsNil())
 	serviceMemberID := move.Orders.ServiceMemberID
 	advance := models.BuildDraftReimbursement(1000, models.MethodOfReceiptMILPAY)
 	netWeight := unit.Pound(10000)
 	ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
 			MoveID:              move.ID,
+			Move:                move,
 			NetWeight:           &netWeight,
 			HasRequestedAdvance: true,
 			AdvanceID:           &advance.ID,
 			Advance:             &advance,
 		},
 	})
+	suite.False(ppm.MoveID.IsNil())
+	suite.False(ppm.Move.ID.IsNil())
+
 	// Only concerned w/ approved advances for ssw
-	ppm.Move.PersonallyProcuredMoves[0].Advance.Request()
-	ppm.Move.PersonallyProcuredMoves[0].Advance.Approve()
+	suite.NoError(ppm.Move.PersonallyProcuredMoves[0].Advance.Request())
+	suite.NoError(ppm.Move.PersonallyProcuredMoves[0].Advance.Approve())
 	// Save advance in reimbursements table by saving ppm
-	models.SavePersonallyProcuredMove(suite.DB(), &ppm)
+	verrs, err := models.SavePersonallyProcuredMove(suite.DB(), &ppm)
+	suite.False(verrs.HasAny(), verrs)
+	suite.NoError(err)
 
 	session := auth.Session{
 		UserID:          move.Orders.ServiceMember.UserID,
@@ -84,13 +82,15 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheet() {
 			LinkOnly: true,
 		},
 	}, nil)
-	moveRouter.Submit(suite.AppContextForTest(), &ppm.Move, &newSignedCertification)
-	moveRouter.Approve(suite.AppContextForTest(), &ppm.Move)
+	suite.NoError(moveRouter.Submit(suite.AppContextForTest(), &ppm.Move, &newSignedCertification))
+	suite.NoError(moveRouter.Approve(suite.AppContextForTest(), &ppm.Move))
 	// This is the same PPM model as ppm, but this is the one that will be saved by SaveMoveDependencies
-	ppm.Move.PersonallyProcuredMoves[0].Submit(time.Now())
-	ppm.Move.PersonallyProcuredMoves[0].Approve(time.Now())
-	ppm.Move.PersonallyProcuredMoves[0].RequestPayment()
-	models.SaveMoveDependencies(suite.DB(), &ppm.Move)
+	suite.NoError(ppm.Move.PersonallyProcuredMoves[0].Submit(time.Now()))
+	suite.NoError(ppm.Move.PersonallyProcuredMoves[0].Approve(time.Now()))
+	suite.NoError(ppm.Move.PersonallyProcuredMoves[0].RequestPayment())
+	verrs, err = models.SaveMoveDependencies(suite.DB(), &ppm.Move)
+	suite.False(verrs.HasAny(), verrs)
+	suite.NoError(err)
 	certificationType := models.SignedCertificationTypePPMPAYMENT
 	signedCertification := factory.BuildSignedCertification(suite.DB(), []factory.Customization{
 		{
@@ -115,9 +115,9 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheet() {
 	suite.Equal(ppm.ID, ssd.PersonallyProcuredMoves[0].ID)
 	suite.Equal(serviceMemberID, ssd.ServiceMember.ID)
 	suite.Equal(yuma.ID, ssd.CurrentDutyLocation.ID)
-	suite.Equal(yuma.Address.ID, ssd.CurrentDutyLocation.Address.ID)
+	suite.Equal(yuma.PostalCode, ssd.CurrentDutyLocation.PostalCode)
 	suite.Equal(fortGordon.ID, ssd.NewDutyLocation.ID)
-	suite.Equal(fortGordon.Address.ID, ssd.NewDutyLocation.Address.ID)
+	suite.Equal(fortGordon.PostalCode, ssd.NewDutyLocation.PostalCode)
 	rankWtgAllotment := models.GetWeightAllotment(rank)
 	suite.Equal(unit.Pound(rankWtgAllotment.TotalWeightSelf), ssd.WeightAllotment.Entitlement)
 	suite.Equal(unit.Pound(rankWtgAllotment.ProGearWeight), ssd.WeightAllotment.ProGear)
@@ -232,6 +232,7 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheetOnlyPPM() {
 	ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
 			MoveID:              move.ID,
+			Move:                move,
 			NetWeight:           &netWeight,
 			HasRequestedAdvance: true,
 			AdvanceID:           &advance.ID,
@@ -239,10 +240,12 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheetOnlyPPM() {
 		},
 	})
 	// Only concerned w/ approved advances for ssw
-	ppm.Move.PersonallyProcuredMoves[0].Advance.Request()
-	ppm.Move.PersonallyProcuredMoves[0].Advance.Approve()
+	suite.NoError(ppm.Move.PersonallyProcuredMoves[0].Advance.Request())
+	suite.NoError(ppm.Move.PersonallyProcuredMoves[0].Advance.Approve())
 	// Save advance in reimbursements table by saving ppm
-	models.SavePersonallyProcuredMove(suite.DB(), &ppm)
+	verrs, err := models.SavePersonallyProcuredMove(suite.DB(), &ppm)
+	suite.False(verrs.HasAny(), verrs)
+	suite.NoError(err)
 
 	session := auth.Session{
 		UserID:          move.Orders.ServiceMember.UserID,
@@ -256,13 +259,15 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheetOnlyPPM() {
 			LinkOnly: true,
 		},
 	}, nil)
-	moveRouter.Submit(suite.AppContextForTest(), &ppm.Move, &newSignedCertification)
-	moveRouter.Approve(suite.AppContextForTest(), &ppm.Move)
+	suite.NoError(moveRouter.Submit(suite.AppContextForTest(), &ppm.Move, &newSignedCertification))
+	suite.NoError(moveRouter.Approve(suite.AppContextForTest(), &ppm.Move))
 	// This is the same PPM model as ppm, but this is the one that will be saved by SaveMoveDependencies
-	ppm.Move.PersonallyProcuredMoves[0].Submit(time.Now())
-	ppm.Move.PersonallyProcuredMoves[0].Approve(time.Now())
-	ppm.Move.PersonallyProcuredMoves[0].RequestPayment()
-	models.SaveMoveDependencies(suite.DB(), &ppm.Move)
+	suite.NoError(ppm.Move.PersonallyProcuredMoves[0].Submit(time.Now()))
+	suite.NoError(ppm.Move.PersonallyProcuredMoves[0].Approve(time.Now()))
+	suite.NoError(ppm.Move.PersonallyProcuredMoves[0].RequestPayment())
+	verrs, err = models.SaveMoveDependencies(suite.DB(), &ppm.Move)
+	suite.False(verrs.HasAny(), verrs)
+	suite.NoError(err)
 	certificationType := models.SignedCertificationTypePPMPAYMENT
 	signedCertification := factory.BuildSignedCertification(suite.DB(), []factory.Customization{
 		{
@@ -287,9 +292,9 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheetOnlyPPM() {
 	suite.Equal(ppm.ID, ssd.PersonallyProcuredMoves[0].ID)
 	suite.Equal(serviceMemberID, ssd.ServiceMember.ID)
 	suite.Equal(yuma.ID, ssd.CurrentDutyLocation.ID)
-	suite.Equal(yuma.Address.ID, ssd.CurrentDutyLocation.Address.ID)
+	suite.Equal(yuma.PostalCode, ssd.CurrentDutyLocation.PostalCode)
 	suite.Equal(fortGordon.ID, ssd.NewDutyLocation.ID)
-	suite.Equal(fortGordon.Address.ID, ssd.NewDutyLocation.Address.ID)
+	suite.Equal(fortGordon.PostalCode, ssd.NewDutyLocation.PostalCode)
 	rankWtgAllotment := models.GetWeightAllotment(rank)
 	suite.Equal(unit.Pound(rankWtgAllotment.TotalWeightSelf), ssd.WeightAllotment.Entitlement)
 	suite.Equal(unit.Pound(rankWtgAllotment.ProGearWeight), ssd.WeightAllotment.ProGear)
@@ -688,8 +693,8 @@ func (suite *ModelSuite) TestFormatSSWGetEntitlementNoDependants() {
 }
 
 func (suite *ModelSuite) TestFormatLocation() {
-	fortGordon := models.DutyLocation{Name: "Fort Gordon", Address: models.Address{State: "GA", PostalCode: "30813"}}
-	yuma := models.DutyLocation{Name: "Yuma AFB", Address: models.Address{State: "IA", PostalCode: "50309"}}
+	fortGordon := models.DutyLocation{Name: "Fort Gordon", State: "GA", PostalCode: "30813"}
+	yuma := models.DutyLocation{Name: "Yuma AFB", State: "IA", PostalCode: "50309"}
 
 	suite.Equal("Fort Gordon, GA 30813", models.FormatLocation(fortGordon))
 	suite.Equal("Yuma AFB, IA 50309", models.FormatLocation(yuma))

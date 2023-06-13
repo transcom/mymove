@@ -689,18 +689,22 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		// verify destinationDutyLocation object
 		suite.Equal(orders.NewDutyLocation.ID.String(), ordersPayload.DestinationDutyLocation.ID.String())
 		suite.Equal(orders.NewDutyLocation.Name, ordersPayload.DestinationDutyLocation.Name)
-		suite.Equal(orders.NewDutyLocation.AddressID.String(), ordersPayload.DestinationDutyLocation.AddressID.String())
-
-		verifyAddressFields(&orders.NewDutyLocation.Address, ordersPayload.DestinationDutyLocation.Address)
+		suite.Equal(orders.NewDutyLocation.StreetAddress1, *ordersPayload.DestinationDutyLocation.Address.StreetAddress1)
+		suite.Equal(orders.NewDutyLocation.City, *ordersPayload.DestinationDutyLocation.Address.City)
+		suite.Equal(orders.NewDutyLocation.State, *ordersPayload.DestinationDutyLocation.Address.State)
+		suite.Equal(orders.NewDutyLocation.PostalCode, *ordersPayload.DestinationDutyLocation.Address.PostalCode)
+		suite.Equal(orders.NewDutyLocation.Country, *ordersPayload.DestinationDutyLocation.Address.Country)
 
 		suite.NotNil(ordersPayload.DestinationDutyLocation.ETag)
 
 		// verify originDutyLocation object
 		suite.Equal(orders.OriginDutyLocation.ID.String(), ordersPayload.OriginDutyLocation.ID.String())
 		suite.Equal(orders.OriginDutyLocation.Name, ordersPayload.OriginDutyLocation.Name)
-		suite.Equal(orders.OriginDutyLocation.AddressID.String(), ordersPayload.OriginDutyLocation.AddressID.String())
-
-		verifyAddressFields(&orders.OriginDutyLocation.Address, ordersPayload.OriginDutyLocation.Address)
+		suite.Equal(orders.OriginDutyLocation.StreetAddress1, *ordersPayload.OriginDutyLocation.Address.StreetAddress1)
+		suite.Equal(orders.OriginDutyLocation.City, *ordersPayload.OriginDutyLocation.Address.City)
+		suite.Equal(orders.OriginDutyLocation.State, *ordersPayload.OriginDutyLocation.Address.State)
+		suite.Equal(orders.OriginDutyLocation.PostalCode, *ordersPayload.OriginDutyLocation.Address.PostalCode)
+		suite.Equal(orders.OriginDutyLocation.Country, *ordersPayload.OriginDutyLocation.Address.Country)
 		suite.NotNil(ordersPayload.OriginDutyLocation.ETag)
 	})
 

@@ -48,7 +48,7 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.Ap
 	paymentRequests := models.PaymentRequests{}
 	query := appCtx.DB().Q().EagerPreload(
 		"MoveTaskOrder.Orders.OriginDutyLocation.TransportationOffice",
-		"MoveTaskOrder.Orders.OriginDutyLocation.Address",
+		"MoveTaskOrder.Orders.OriginDutyLocation",
 		// See note further below about having to do this in a separate Load call due to a Pop issue.
 		// "MoveTaskOrder.Orders.ServiceMember",
 	).
@@ -146,7 +146,7 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestListByMove(appCtx appcont
 		"PaymentServiceItems.MTOServiceItem.MTOShipment",
 		"MoveTaskOrder.Contractor",
 		"MoveTaskOrder.Orders.ServiceMember",
-		"MoveTaskOrder.Orders.NewDutyLocation.Address").
+		"MoveTaskOrder.Orders.NewDutyLocation").
 		InnerJoin("moves", "payment_requests.move_id = moves.id").
 		InnerJoin("orders", "orders.id = moves.orders_id").
 		InnerJoin("service_members", "orders.service_member_id = service_members.id").

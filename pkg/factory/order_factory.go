@@ -1,7 +1,6 @@
 package factory
 
 import (
-	"log"
 	"time"
 
 	"github.com/gobuffalo/pop/v6"
@@ -224,15 +223,7 @@ func buildOrderWithBuildType(db *pop.Connection, customs []Customization, traits
 	}
 
 	if db != nil {
-		// make sure the origin duty location address is loaded as it
-		// may not be
-		if originDutyLocation.Address.PostalCode == "" {
-			err := db.EagerPreload("Address").Find(&originDutyLocation, originDutyLocation.ID)
-			if err != nil {
-				log.Panicf("Error loading duty location by id %s: %s\n", originDutyLocation.ID.String(), err)
-			}
-		}
-		postalCodeToGBLOC := FetchOrBuildPostalCodeToGBLOC(db, originDutyLocation.Address.PostalCode, "KKFA")
+		postalCodeToGBLOC := FetchOrBuildPostalCodeToGBLOC(db, originDutyLocation.PostalCode, "KKFA")
 		originDutyLocationGbloc = &postalCodeToGBLOC.GBLOC
 	}
 

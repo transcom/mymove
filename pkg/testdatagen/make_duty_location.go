@@ -18,17 +18,14 @@ func makeDutyLocation(db *pop.Connection, assertions Assertions) models.DutyLoca
 		transportationOffice = MakeTransportationOffice(db, assertions)
 	}
 
-	address := assertions.DutyLocation.Address
-	// ID is required because it must be populated for Eager saving to work.
-	if isZeroUUID(assertions.DutyLocation.AddressID) {
-		address = MakeAddress3(db, assertions)
-	}
 	affiliation := internalmessages.AffiliationAIRFORCE
 	location := models.DutyLocation{
 		Name:                   MakeRandomString(10),
 		Affiliation:            &affiliation,
-		AddressID:              address.ID,
-		Address:                address,
+		City:                   "Beverly Hills",
+		State:                  "CA",
+		PostalCode:             "90210",
+		Country:                "US",
 		TransportationOfficeID: &transportationOffice.ID,
 		TransportationOffice:   transportationOffice,
 	}
@@ -107,13 +104,12 @@ func fetchOrMakeDefaultNewOrdersDutyLocation(db *pop.Connection) models.DutyLoca
 		}
 	}
 	fortGordonAssertions := Assertions{
-		Address: models.Address{
+		DutyLocation: models.DutyLocation{
+			Name:       "Fort Gordon",
 			City:       "Augusta",
 			State:      "GA",
 			PostalCode: "30813",
-		},
-		DutyLocation: models.DutyLocation{
-			Name: "Fort Gordon",
+			Country:    "US",
 		},
 	}
 	return makeDutyLocation(db, fortGordonAssertions)

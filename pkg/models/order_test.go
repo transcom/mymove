@@ -367,19 +367,14 @@ func (suite *ModelSuite) TestSaveOrder() {
 
 	postalCode := "30813"
 	newPostalCode := "12345"
-	address := Address{
-		StreetAddress1: "some address",
-		City:           "city",
-		State:          "state",
-		PostalCode:     newPostalCode,
-	}
-	suite.MustSave(&address)
 
 	dutyLocationName := "New Duty Location"
 	location := DutyLocation{
-		Name:      dutyLocationName,
-		AddressID: address.ID,
-		Address:   address,
+		Name:       dutyLocationName,
+		City:       "city",
+		State:      "state",
+		PostalCode: newPostalCode,
+		Country:    "United States",
 	}
 	suite.MustSave(&location)
 
@@ -388,7 +383,7 @@ func (suite *ModelSuite) TestSaveOrder() {
 	suite.NoError(err)
 	suite.False(verrs.HasAny())
 
-	suite.Equal(postalCode, order.NewDutyLocation.Address.PostalCode, "Wrong orig postal code")
+	suite.Equal(postalCode, order.NewDutyLocation.PostalCode, "Wrong orig postal code")
 	order.NewDutyLocationID = location.ID
 	order.NewDutyLocation = location
 	verrs, err = SaveOrder(suite.DB(), &order)
@@ -398,7 +393,7 @@ func (suite *ModelSuite) TestSaveOrder() {
 	orderUpdated, err := FetchOrder(suite.DB(), orderID)
 	suite.NoError(err)
 	suite.Equal(location.ID, orderUpdated.NewDutyLocationID, "Wrong order new_duty_location_id")
-	suite.Equal(newPostalCode, order.NewDutyLocation.Address.PostalCode, "Wrong orig postal code")
+	suite.Equal(newPostalCode, order.NewDutyLocation.PostalCode, "Wrong orig postal code")
 
 	ppm, err := FetchPersonallyProcuredMoveByOrderID(suite.DB(), orderUpdated.ID)
 	suite.NoError(err)
@@ -426,23 +421,18 @@ func (suite *ModelSuite) TestSaveOrderWithoutPPM() {
 
 	postalCode := "30813"
 	newPostalCode := "12345"
-	address := Address{
-		StreetAddress1: "some address",
-		City:           "city",
-		State:          "state",
-		PostalCode:     newPostalCode,
-	}
-	suite.MustSave(&address)
 
 	dutyLocationName := "New Duty Location"
 	location := DutyLocation{
-		Name:      dutyLocationName,
-		AddressID: address.ID,
-		Address:   address,
+		Name:       dutyLocationName,
+		City:       "city",
+		State:      "state",
+		PostalCode: newPostalCode,
+		Country:    "United States",
 	}
 	suite.MustSave(&location)
 
-	suite.Equal(postalCode, order.NewDutyLocation.Address.PostalCode, "Wrong orig postal code")
+	suite.Equal(postalCode, order.NewDutyLocation.PostalCode, "Wrong orig postal code")
 
 	order.NewDutyLocationID = location.ID
 	order.NewDutyLocation = location
@@ -454,5 +444,5 @@ func (suite *ModelSuite) TestSaveOrderWithoutPPM() {
 	orderUpdated, err := FetchOrder(suite.DB(), orderID)
 	suite.NoError(err)
 	suite.Equal(location.ID, orderUpdated.NewDutyLocationID, "Wrong order new_duty_location_id")
-	suite.Equal(newPostalCode, order.NewDutyLocation.Address.PostalCode, "Wrong orig postal code")
+	suite.Equal(newPostalCode, order.NewDutyLocation.PostalCode, "Wrong orig postal code")
 }

@@ -322,7 +322,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestEDIHandler() {
 
 		// Make sure that there is a Postal Code to GBLOC for the duty location postal code
 
-		factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), paymentServiceItem.PaymentRequest.MoveTaskOrder.Orders.NewDutyLocation.Address.PostalCode, "KKFA")
+		factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), paymentServiceItem.PaymentRequest.MoveTaskOrder.Orders.NewDutyLocation.PostalCode, "KKFA")
 
 		return paymentServiceItem.PaymentRequest
 	}

@@ -830,3 +830,4 @@
 20230605174844_delete_ZipDestAddress_for_DDDSIT_service_item.up.sql
 20230612172652_alter_service_request_documents_table_change_contstraints.up.sql
 20230612210223_remove_distance_calculations.up.sql
+20230612210947_duty_location_address_merge.up.sql

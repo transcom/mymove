@@ -248,8 +248,8 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdatePostCouns
 
 		suite.NotNil(expectedMTO.Orders.ServiceMember.FirstName)
 		suite.NotNil(expectedMTO.Orders.ServiceMember.LastName)
-		suite.NotNil(expectedMTO.Orders.NewDutyLocation.Address.City)
-		suite.NotNil(expectedMTO.Orders.NewDutyLocation.Address.State)
+		suite.NotNil(expectedMTO.Orders.NewDutyLocation.City)
+		suite.NotNil(expectedMTO.Orders.NewDutyLocation.State)
 
 		// Should get one shipment back since we filter out external moves.
 		suite.Equal(expectedMTO.ID.String(), actualMTO.ID.String())

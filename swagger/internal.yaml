@@ -73,7 +73,7 @@ definitions:
   DutyLocationsPayload:
     type: array
     items:
-      $ref: '#/definitions/DutyLocationPayload'
+      $ref: '#/definitions/DutyLocationInternal'
   CreatePersonallyProcuredMovePayload:
     type: object
     properties:
@@ -1157,7 +1157,7 @@ definitions:
         x-nullable: true
         title: Email
       current_location:
-        $ref: '#/definitions/DutyLocationPayload'
+        $ref: '#/definitions/DutyLocationInternal'
       residential_address:
         $ref: '#/definitions/Address'
         title: Residential Address
@@ -1816,14 +1816,14 @@ definitions:
           Do you have a spouse who will need to move items related to their
           occupation (also known as spouse pro-gear)?
       origin_duty_location:
-        $ref: '#/definitions/DutyLocationPayload'
+        $ref: '#/definitions/DutyLocationInternal'
         x-nullable: true
       originDutyLocationGbloc:
         type: string
         title: From what GBLOC do your orders originate?
         x-nullable: true
       new_duty_location:
-        $ref: '#/definitions/DutyLocationPayload'
+        $ref: '#/definitions/DutyLocationInternal'
       uploaded_orders:
         $ref: '#/definitions/Document'
       uploaded_amended_orders:
@@ -2637,6 +2637,25 @@ definitions:
       LOCAL_MOVE: Local Move
       RETIREMENT: Retirement
       SEPARATION: Separation
+  Affiliation:
+    type: string
+    x-nullable: true
+    title: Branch of service
+    description: Military branch of service
+    enum:
+      - ARMY
+      - NAVY
+      - MARINES
+      - AIR_FORCE
+      - COAST_GUARD
+      - OTHER
+    x-display-value:
+      ARMY: Army
+      NAVY: Navy
+      MARINES: Marine Corps
+      AIR_FORCE: Air Force
+      COAST_GUARD: Coast Guard
+      OTHER: OTHER
   Address:
     description: A postal address
     type: object
@@ -2790,25 +2809,6 @@ definitions:
       - city
       - state
       - postalCode
-  Affiliation:
-    type: string
-    x-nullable: true
-    title: Branch of service
-    description: Military branch of service
-    enum:
-      - ARMY
-      - NAVY
-      - MARINES
-      - AIR_FORCE
-      - COAST_GUARD
-      - OTHER
-    x-display-value:
-      ARMY: Army
-      NAVY: Navy
-      MARINES: Marine Corps
-      AIR_FORCE: Air Force
-      COAST_GUARD: Coast Guard
-      OTHER: OTHER
   TransportationOffice:
     type: object
     properties:
@@ -2852,7 +2852,7 @@ definitions:
       - address
       - created_at
       - updated_at
-  DutyLocationPayload:
+  DutyLocationInternal:
     type: object
     properties:
       id:
@@ -2862,14 +2862,20 @@ definitions:
       name:
         type: string
         example: Fort Bragg North Station
-      address:
-        $ref: '#/definitions/Address'
-      address_id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
       affiliation:
         $ref: '#/definitions/Affiliation'
+      city:
+        type: string
+        example: Fort Bragg
+      state:
+        type: string
+        example: CA
+      postal_code:
+        type: string
+        example: '95437'
+      country:
+        type: string
+        example: United States
       transportation_office_id:
         type: string
         format: uuid
@@ -2886,8 +2892,11 @@ definitions:
     required:
       - id
       - name
-      - address_id
       - affiliation
+      - city
+      - state
+      - postal_code
+      - country
       - created_at
       - updated_at
   Upload:

@@ -549,7 +549,16 @@ func DutyLocation(dutyLocation *models.DutyLocation) *ghcmessages.DutyLocation {
 	if dutyLocation == nil {
 		return nil
 	}
-	address := Address(&dutyLocation.Address)
+	// fake an address structure so the API doesn't change
+	address := &ghcmessages.Address{
+		ID:             strfmt.UUID(dutyLocation.ID.String()),
+		StreetAddress1: &dutyLocation.StreetAddress1,
+		City:           &dutyLocation.City,
+		State:          &dutyLocation.State,
+		PostalCode:     &dutyLocation.PostalCode,
+		Country:        &dutyLocation.Country,
+		ETag:           etag.GenerateEtag(dutyLocation.UpdatedAt),
+	}
 	payload := ghcmessages.DutyLocation{
 		Address:   address,
 		AddressID: address.ID,
@@ -1615,8 +1624,8 @@ func SearchMoves(moves models.Moves) *ghcmessages.SearchMoves {
 			ID:                                *handlers.FmtUUID(move.ID),
 			Locator:                           move.Locator,
 			ShipmentsCount:                    int64(numShipments),
-			OriginDutyLocationPostalCode:      move.Orders.OriginDutyLocation.Address.PostalCode,
-			DestinationDutyLocationPostalCode: move.Orders.NewDutyLocation.Address.PostalCode,
+			OriginDutyLocationPostalCode:      move.Orders.OriginDutyLocation.PostalCode,
+			DestinationDutyLocationPostalCode: move.Orders.NewDutyLocation.PostalCode,
 		}
 	}
 	return &searchMoves

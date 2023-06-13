@@ -20,7 +20,7 @@ import (
 func (suite *HandlerSuite) TestCreateOrder() {
 	sm := factory.BuildExtendedServiceMember(suite.DB(), nil, nil)
 	dutyLocation := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
-	factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), dutyLocation.Address.PostalCode, "KKFA")
+	factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), dutyLocation.PostalCode, "KKFA")
 	factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 
 	req := httptest.NewRequest("POST", "/orders", nil)
@@ -79,8 +79,12 @@ func (suite *HandlerSuite) TestCreateOrder() {
 func (suite *HandlerSuite) TestShowOrder() {
 	dutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
 		{
-			Model:    factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2}),
-			LinkOnly: true,
+			Model: models.DutyLocation{
+				City:       "Fairfield",
+				State:      "CA",
+				PostalCode: "94535",
+				Country:    "United States",
+			},
 		},
 	}, nil)
 	order := factory.BuildOrder(suite.DB(), []factory.Customization{

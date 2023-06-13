@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/gofrs/uuid"
-	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/dates"
@@ -23,19 +22,13 @@ func calculateMoveDatesFromMove(appCtx appcontext.AppContext, planner route.Plan
 		return summary, err
 	}
 
-	if move.Orders.ServiceMember.DutyLocation.Address == (models.Address{}) {
-		return summary, errors.New("DutyLocation must have an address")
-	}
-	if move.Orders.NewDutyLocation.Address == (models.Address{}) {
-		return summary, errors.New("NewDutyLocation must have an address")
-	}
 	//TODO: fix test TestCreateShipmentHandlerAllValues() so that duty stations differ so that this error check does not cause the test to fail
 	//if move.Orders.NewDutyLocation.Address.PostalCode[0:5] == move.Orders.ServiceMember.DutyLocation.Address.PostalCode[0:5] {
 	//	return summary, errors.New("NewDutyLocation must not have the same zip code as the original DutyLocation")
 	//}
 
-	var source = move.Orders.ServiceMember.DutyLocation.Address.PostalCode
-	var destination = move.Orders.NewDutyLocation.Address.PostalCode
+	var source = move.Orders.ServiceMember.DutyLocation.PostalCode
+	var destination = move.Orders.NewDutyLocation.PostalCode
 
 	transitDistance, err := planner.ZipTransitDistance(appCtx, source, destination)
 	if err != nil {

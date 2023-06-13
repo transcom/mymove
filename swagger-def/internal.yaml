@@ -72,7 +72,7 @@ definitions:
   DutyLocationsPayload:
     type: array
     items:
-      $ref: 'definitions/DutyLocationPayload.yaml'
+      $ref: 'definitions/DutyLocationInternal.yaml'
   CreatePersonallyProcuredMovePayload:
     type: object
     properties:
@@ -1136,7 +1136,7 @@ definitions:
         x-nullable: true
         title: Email
       current_location:
-        $ref: 'definitions/DutyLocationPayload.yaml'
+        $ref: 'definitions/DutyLocationInternal.yaml'
       residential_address:
         $ref: 'definitions/Address.yaml'
         title: Residential Address
@@ -1793,14 +1793,14 @@ definitions:
         type: boolean
         title: Do you have a spouse who will need to move items related to their occupation (also known as spouse pro-gear)?
       origin_duty_location:
-        $ref: 'definitions/DutyLocationPayload.yaml'
+        $ref: 'definitions/DutyLocationInternal.yaml'
         x-nullable: true
       originDutyLocationGbloc:
         type: string
         title: From what GBLOC do your orders originate?
         x-nullable: true
       new_duty_location:
-        $ref: 'definitions/DutyLocationPayload.yaml'
+        $ref: 'definitions/DutyLocationInternal.yaml'
       uploaded_orders:
         $ref: 'definitions/Document.yaml'
       uploaded_amended_orders:

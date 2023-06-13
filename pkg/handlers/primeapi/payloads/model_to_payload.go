@@ -200,10 +200,20 @@ func DutyLocation(dutyLocation *models.DutyLocation) *primemessages.DutyLocation
 	if dutyLocation == nil {
 		return nil
 	}
-	address := Address(&dutyLocation.Address)
+	// fake an address structure so we do not have to change the prime
+	// API
+	address := &primemessages.Address{
+		ID:             strfmt.UUID(dutyLocation.ID.String()),
+		StreetAddress1: &dutyLocation.StreetAddress1,
+		City:           &dutyLocation.City,
+		State:          &dutyLocation.State,
+		PostalCode:     &dutyLocation.PostalCode,
+		Country:        &dutyLocation.Country,
+		ETag:           etag.GenerateEtag(dutyLocation.UpdatedAt),
+	}
 	payload := primemessages.DutyLocation{
 		Address:   address,
-		AddressID: address.ID,
+		AddressID: strfmt.UUID(dutyLocation.ID.String()),
 		ID:        strfmt.UUID(dutyLocation.ID.String()),
 		Name:      dutyLocation.Name,
 	}

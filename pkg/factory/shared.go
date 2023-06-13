@@ -153,7 +153,6 @@ type addressGroup struct {
 	SecondaryDeliveryAddress      CustomType
 	ResidentialAddress            CustomType
 	BackupMailingAddress          CustomType
-	DutyLocationAddress           CustomType
 	DutyLocationTOAddress         CustomType
 	SITAddressUpdateNewAddress    CustomType
 	SITAddressUpdateOldAddress    CustomType
@@ -172,7 +171,6 @@ var Addresses = addressGroup{
 	SecondaryDeliveryAddress:      "SecondaryDeliveryAddress",
 	ResidentialAddress:            "ResidentialAddress",
 	BackupMailingAddress:          "BackupMailingAddress",
-	DutyLocationAddress:           "DutyLocationAddress",
 	DutyLocationTOAddress:         "DutyLocationTOAddress",
 	SITAddressUpdateNewAddress:    "SITAddressUpdateNewAddress",
 	SITAddressUpdateOldAddress:    "SITAddressUpdateOldAddress",

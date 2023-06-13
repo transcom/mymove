@@ -14,20 +14,22 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func payloadForDutyLocationModel(location models.DutyLocation) *internalmessages.DutyLocationPayload {
+func payloadForDutyLocationModel(location models.DutyLocation) *internalmessages.DutyLocationInternal {
 	// If the location ID has no UUID then it isn't real data
 	// Unlike other payloads the
 	if location.ID == uuid.Nil {
 		return nil
 	}
-	payload := internalmessages.DutyLocationPayload{
+	payload := internalmessages.DutyLocationInternal{
 		ID:                     handlers.FmtUUID(location.ID),
 		CreatedAt:              handlers.FmtDateTime(location.CreatedAt),
 		UpdatedAt:              handlers.FmtDateTime(location.UpdatedAt),
 		Name:                   models.StringPointer(location.Name),
 		Affiliation:            location.Affiliation,
-		AddressID:              handlers.FmtUUID(location.AddressID),
-		Address:                payloads.Address(&location.Address),
+		City:                   models.StringPointer(location.City),
+		State:                  models.StringPointer(location.State),
+		PostalCode:             models.StringPointer(location.PostalCode),
+		Country:                models.StringPointer(location.Country),
 		TransportationOfficeID: handlers.FmtUUIDPtr(location.TransportationOfficeID),
 	}
 	payload.TransportationOffice = payloads.TransportationOffice(location.TransportationOffice)

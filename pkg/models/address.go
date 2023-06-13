@@ -142,18 +142,24 @@ func (e NotImplementedCountryCode) Error() string {
 	return fmt.Sprintf("NotImplementedCountryCode: %s", e.message)
 }
 
+func CountryCode(country string) (string, error) {
+	switch country {
+	case "United States", "US":
+		return "USA", nil
+	default:
+		return "", NotImplementedCountryCode{message: fmt.Sprintf("Country '%s'", country)}
+	}
+}
+
 // CountryCode returns 2-3 character code for country, returns nil if no Country
 // TODO: since we only support CONUS at this time this just returns USA and otherwise throws a NotImplementedCountryCode
 func (a *Address) CountryCode() (*string, error) {
 	if a.Country != nil && len(*a.Country) > 0 {
-		result := ""
-		switch *a.Country {
-		case "United States", "US":
-			result = "USA"
-		default:
-			return nil, NotImplementedCountryCode{message: fmt.Sprintf("Country '%s'", *a.Country)}
+		result, err := CountryCode(*a.Country)
+		if err != nil {
+			return nil, err
 		}
-		return &result, nil
+		return &result, err
 	}
 	return nil, nil
 }

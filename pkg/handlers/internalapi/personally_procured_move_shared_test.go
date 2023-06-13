@@ -16,18 +16,12 @@ func (suite *HandlerSuite) setupPersonallyProcuredMoveSharedTest(orderID uuid.UU
 		},
 		{
 			Model: models.DutyLocation{
-				Name: "New Duty Location",
-			},
-			Type: &factory.DutyLocations.NewDutyLocation,
-		},
-		{
-			Model: models.Address{
+				Name:           "New Duty Location",
 				StreetAddress1: "some address",
 				City:           "city",
 				State:          "state",
 				PostalCode:     "12345",
 			},
-			Type: &factory.Addresses.DutyLocationAddress,
 		},
 	}, nil)
 }

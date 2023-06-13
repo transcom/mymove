@@ -230,8 +230,7 @@ func (suite *EventServiceSuite) TestAssembleOrderPayload() {
 		suite.NotEqual(order.OriginDutyLocation.ID, uuid.Nil)
 
 		if order.OriginDutyLocation != nil {
-			suite.NotNil(order.OriginDutyLocation.Address)
-			suite.NotEqual(order.OriginDutyLocation.Address.ID, uuid.Nil)
+			suite.NotEmpty(order.OriginDutyLocation.PostalCode)
 		}
 	})
 }

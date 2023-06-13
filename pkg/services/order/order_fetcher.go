@@ -113,8 +113,8 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	if ppmCloseoutGblocs {
 		query = appCtx.DB().Q().Scope(utilities.ExcludeDeletedScope(models.MTOShipment{})).EagerPreload(
 			"Orders.ServiceMember",
-			"Orders.NewDutyLocation.Address",
-			"Orders.OriginDutyLocation.Address",
+			"Orders.NewDutyLocation",
+			"Orders.OriginDutyLocation",
 			"Orders.Entitlement",
 			"MTOShipments.PPMShipment",
 		).InnerJoin("orders", "orders.id = moves.orders_id").
@@ -127,8 +127,8 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	} else {
 		query = appCtx.DB().Q().Scope(utilities.ExcludeDeletedScope(models.MTOShipment{})).EagerPreload(
 			"Orders.ServiceMember",
-			"Orders.NewDutyLocation.Address",
-			"Orders.OriginDutyLocation.Address",
+			"Orders.NewDutyLocation",
+			"Orders.OriginDutyLocation",
 			// See note further below about having to do this in a separate Load call due to a Pop issue.
 			// "Orders.OriginDutyLocation.TransportationOffice",
 			"Orders.Entitlement",
@@ -259,7 +259,7 @@ func (f orderFetcher) FetchOrder(appCtx appcontext.AppContext, orderID uuid.UUID
 	err := appCtx.DB().Q().Eager(
 		"ServiceMember.BackupContacts",
 		"ServiceMember.ResidentialAddress",
-		"NewDutyLocation.Address",
+		"NewDutyLocation",
 		"OriginDutyLocation",
 		"Entitlement",
 		"Moves",
@@ -271,16 +271,6 @@ func (f orderFetcher) FetchOrder(appCtx appcontext.AppContext, orderID uuid.UUID
 			return &models.Order{}, apperror.NewNotFoundError(orderID, "")
 		default:
 			return &models.Order{}, apperror.NewQueryError("Order", err, "")
-		}
-	}
-
-	// Due to a bug in pop (https://github.com/gobuffalo/pop/issues/578), we
-	// cannot eager load the address as "OriginDutyLocation.Address" because
-	// OriginDutyLocation is a pointer.
-	if order.OriginDutyLocation != nil {
-		err = appCtx.DB().Load(order.OriginDutyLocation, "Address")
-		if err != nil {
-			return order, err
 		}
 	}
 

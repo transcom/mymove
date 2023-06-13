@@ -21,7 +21,7 @@ func GetDestinationDutyLocationPostalCode(appCtx appcontext.AppContext, ordersID
 
 	// TODO: fix this once order is migrated to duty_location
 	associations := query.NewQueryAssociations([]services.QueryAssociation{
-		query.NewQueryAssociation("NewDutyLocation.Address"),
+		query.NewQueryAssociation("NewDutyLocation"),
 	})
 	page, perPage := pagination.DefaultPage(), pagination.DefaultPerPage()
 	pagination := pagination.NewPagination(&page, &perPage)
@@ -36,5 +36,5 @@ func GetDestinationDutyLocationPostalCode(appCtx appcontext.AppContext, ordersID
 		return "", models.ErrFetchNotFound
 	}
 
-	return orders[0].NewDutyLocation.Address.PostalCode, nil
+	return orders[0].NewDutyLocation.PostalCode, nil
 }

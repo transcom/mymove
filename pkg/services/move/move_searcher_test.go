@@ -191,12 +191,12 @@ func setupTestData(suite *MoveServiceSuite) (models.Move, models.Move) {
 	navyAffiliation := models.AffiliationNAVY
 	firstMoveOriginDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
 		{
-			Model: models.Address{PostalCode: "89523"},
+			Model: models.DutyLocation{PostalCode: "89523"},
 		},
 	}, nil)
 	firstMoveNewDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
 		{
-			Model: models.Address{PostalCode: "11111"},
+			Model: models.DutyLocation{PostalCode: "11111"},
 		},
 	}, nil)
 
@@ -234,12 +234,12 @@ func setupTestData(suite *MoveServiceSuite) (models.Move, models.Move) {
 	}, nil)
 	secondMoveOriginDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
 		{
-			Model: models.Address{PostalCode: "90211"},
+			Model: models.DutyLocation{PostalCode: "90211"},
 		},
 	}, nil)
 	secondMoveNewDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
 		{
-			Model: models.Address{PostalCode: "22222"},
+			Model: models.DutyLocation{PostalCode: "22222"},
 		},
 	}, nil)
 
@@ -298,7 +298,7 @@ func (suite *MoveServiceSuite) TestMoveSearchOrdering() {
 	suite.Run("search results ordering", func() {
 		firstMove, secondMove := setupTestData(suite)
 		testMoves := models.Moves{}
-		suite.NoError(suite.DB().EagerPreload("Orders", "Orders.NewDutyLocation", "Orders.NewDutyLocation.Address").All(&testMoves))
+		suite.NoError(suite.DB().EagerPreload("Orders", "Orders.NewDutyLocation").All(&testMoves))
 
 		searcher := NewMoveSearcher()
 		columns := []string{"status", "originPostalCode", "destinationPostalCode", "branch", "shipmentsCount"}
@@ -335,10 +335,10 @@ func (suite *MoveServiceSuite) TestMoveSearchOrdering() {
 			services.SearchMovesParams
 		}{
 			{column: "Status", value: fmt.Sprintf("[%s]", string(secondMove.Status)), SearchMovesParams: services.SearchMovesParams{CustomerName: &nameToSearch, Status: []string{string(secondMove.Status)}}},
-			{column: "OriginPostalCode", value: secondMove.Orders.OriginDutyLocation.Address.PostalCode, SearchMovesParams: services.SearchMovesParams{CustomerName: &nameToSearch, OriginPostalCode: &secondMove.Orders.OriginDutyLocation.Address.PostalCode}},
+			{column: "OriginPostalCode", value: secondMove.Orders.OriginDutyLocation.PostalCode, SearchMovesParams: services.SearchMovesParams{CustomerName: &nameToSearch, OriginPostalCode: &secondMove.Orders.OriginDutyLocation.PostalCode}},
 			{column: "Branch", value: string(*secondMove.Orders.ServiceMember.Affiliation), SearchMovesParams: services.SearchMovesParams{CustomerName: &nameToSearch, Branch: models.StringPointer(secondMove.Orders.ServiceMember.Affiliation.String())}},
 			{column: "ShipmentsCount", value: "2", SearchMovesParams: services.SearchMovesParams{CustomerName: &nameToSearch, ShipmentsCount: models.Int64Pointer(2)}},
-			{column: "DestinationPostalCode", value: secondMove.Orders.NewDutyLocation.Address.PostalCode, SearchMovesParams: services.SearchMovesParams{CustomerName: &nameToSearch, DestinationPostalCode: &secondMove.Orders.NewDutyLocation.Address.PostalCode}},
+			{column: "DestinationPostalCode", value: secondMove.Orders.NewDutyLocation.PostalCode, SearchMovesParams: services.SearchMovesParams{CustomerName: &nameToSearch, DestinationPostalCode: &secondMove.Orders.NewDutyLocation.PostalCode}},
 		}
 		for _, testCase := range cases {
 			message := fmt.Sprintf("Filtering results of search by column %s = %s has failed", testCase.column, testCase.value)

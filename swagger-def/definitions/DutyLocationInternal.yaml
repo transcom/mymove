@@ -7,14 +7,20 @@ properties:
   name:
     type: string
     example: Fort Bragg North Station
-  address:
-    $ref: 'Address.yaml'
-  address_id:
-    type: string
-    format: uuid
-    example: c56a4180-65aa-42ec-a945-5fd21dec0538
   affiliation:
     $ref: 'Affiliation.yaml'
+  city:
+    type: string
+    example: Fort Bragg
+  state:
+    type: string
+    example: CA
+  postal_code:
+    type: string
+    example: '95437'
+  country:
+    type: string
+    example: United States
   transportation_office_id:
     type: string
     format: uuid
@@ -31,7 +37,10 @@ properties:
 required:
   - id
   - name
-  - address_id
   - affiliation
+  - city
+  - state
+  - postal_code
+  - country
   - created_at
   - updated_at

@@ -61,7 +61,7 @@ type Orders struct {
 
 	// new duty location
 	// Required: true
-	NewDutyLocation *DutyLocationPayload `json:"new_duty_location"`
+	NewDutyLocation *DutyLocationInternal `json:"new_duty_location"`
 
 	// Orders Number
 	// Example: 030-00362
@@ -78,7 +78,7 @@ type Orders struct {
 	OriginDutyLocationGbloc *string `json:"originDutyLocationGbloc,omitempty"`
 
 	// origin duty location
-	OriginDutyLocation *DutyLocationPayload `json:"origin_duty_location,omitempty"`
+	OriginDutyLocation *DutyLocationInternal `json:"origin_duty_location,omitempty"`
 
 	// Report by
 	//

@@ -17,7 +17,7 @@ import (
 // DutyLocationsPayload duty locations payload
 //
 // swagger:model DutyLocationsPayload
-type DutyLocationsPayload []*DutyLocationPayload
+type DutyLocationsPayload []*DutyLocationInternal
 
 // Validate validates this duty locations payload
 func (m DutyLocationsPayload) Validate(formats strfmt.Registry) error {

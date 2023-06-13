@@ -88,7 +88,7 @@ func FetchServiceMemberForUser(db *pop.Connection, session *auth.Session, id uui
 	err := db.Q().Eager("User",
 		"BackupMailingAddress",
 		"BackupContacts",
-		"DutyLocation.Address",
+		"DutyLocation",
 		"DutyLocation.TransportationOffice",
 		"DutyLocation.TransportationOffice.PhoneLines",
 		"Orders.NewDutyLocation.TransportationOffice",
@@ -324,9 +324,9 @@ func FetchLatestOrder(session *auth.Session, db *pop.Connection) (Order, error) 
 	var order Order
 	query := db.Where("orders.service_member_id = $1", session.ServiceMemberID).Order("created_at desc")
 	err := query.EagerPreload("ServiceMember.User",
-		"OriginDutyLocation.Address",
+		"OriginDutyLocation",
 		"OriginDutyLocation.TransportationOffice",
-		"NewDutyLocation.Address",
+		"NewDutyLocation",
 		"UploadedOrders",
 		"UploadedAmendedOrders",
 		"Moves.PersonallyProcuredMoves",

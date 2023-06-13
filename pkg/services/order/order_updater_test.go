@@ -102,7 +102,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 				},
 			},
 		}, nil)
-		updatedGbloc := factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), updatedOriginDutyLocation.Address.PostalCode, "UUUU")
+		updatedGbloc := factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), updatedOriginDutyLocation.PostalCode, "UUUU")
 		ordersType := ghcmessages.OrdersTypeSEPARATION
 		deptIndicator := ghcmessages.DeptIndicatorCOASTGUARD
 		ordersTypeDetail := ghcmessages.OrdersTypeDetail("INSTRUCTION_20_WEEKS")
@@ -785,8 +785,12 @@ func (suite *OrderServiceSuite) TestUploadAmendedOrdersForCustomer() {
 		orderUpdater := NewOrderUpdater(moveRouter)
 		dutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
 			{
-				Model:    factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2}),
-				LinkOnly: true,
+				Model: models.DutyLocation{
+					City:       "Fairfield",
+					State:      "CA",
+					PostalCode: "94535",
+					Country:    "United States",
+				},
 			},
 		}, nil)
 		var moves models.Moves
@@ -879,13 +883,7 @@ func (suite *OrderServiceSuite) TestUploadAmendedOrdersForCustomer() {
 		var moves models.Moves
 		mto := factory.BuildMove(suite.DB(), nil, nil)
 
-		dutyLocationAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
 		order := factory.BuildOrder(suite.DB(), []factory.Customization{
-			{
-				Model:    dutyLocationAddress,
-				LinkOnly: true,
-				Type:     &factory.Addresses.DutyLocationAddress,
-			},
 			{
 				Model: models.Document{},
 				Type:  &factory.Documents.UploadedAmendedOrders,

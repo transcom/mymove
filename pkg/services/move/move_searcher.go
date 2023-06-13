@@ -50,17 +50,15 @@ func (s moveSearcher) SearchMoves(appCtx appcontext.AppContext, params *services
 	query := appCtx.DB().EagerPreload(
 		"MTOShipments",
 		"Orders.ServiceMember",
-		"Orders.NewDutyLocation.Address",
-		"Orders.OriginDutyLocation.Address",
+		"Orders.NewDutyLocation",
+		"Orders.OriginDutyLocation",
 	).
 		Join("orders", "orders.id = moves.orders_id").
 		Join("service_members", "service_members.id = orders.service_member_id").
 		LeftJoin("duty_locations as origin_duty_locations", "origin_duty_locations.id = orders.origin_duty_location_id").
-		Join("addresses as origin_addresses", "origin_addresses.id = origin_duty_locations.address_id").
 		Join("duty_locations as new_duty_locations", "new_duty_locations.id = orders.new_duty_location_id").
-		Join("addresses as new_addresses", "new_addresses.id = new_duty_locations.address_id").
 		LeftJoin("mto_shipments", "mto_shipments.move_id = moves.id AND mto_shipments.status <> 'DRAFT'").
-		GroupBy("moves.id", "service_members.id", "origin_addresses.id", "new_addresses.id").
+		GroupBy("moves.id", "service_members.id", "origin_duty_locations.id", "new_duty_locations.id").
 		Where("show = TRUE")
 
 	customerNameQuery := customerNameSearch(params.CustomerName)
@@ -96,8 +94,8 @@ var parameters = map[string]string{
 	"branch":                "service_members.affiliation",
 	"locator":               "moves.locator",
 	"status":                "moves.status",
-	"originPostalCode":      "origin_addresses.postal_code",
-	"destinationPostalCode": "new_addresses.postal_code",
+	"originPostalCode":      "origin_duty_locations.postal_code",
+	"destinationPostalCode": "new_duty_locations.postal_code",
 	"shipmentsCount":        "COUNT(mto_shipments.id)",
 }
 
@@ -127,14 +125,14 @@ func branchFilter(branch *string) QueryOption {
 func originPostalCodeFilter(postalCode *string) QueryOption {
 	return func(query *pop.Query) {
 		if postalCode != nil {
-			query.Where("origin_addresses.postal_code = ?", *postalCode)
+			query.Where("origin_duty_locations.postal_code = ?", *postalCode)
 		}
 	}
 }
 func destinationPostalCodeFilter(postalCode *string) QueryOption {
 	return func(query *pop.Query) {
 		if postalCode != nil {
-			query.Where("new_addresses.postal_code = ?", *postalCode)
+			query.Where("new_duty_locations.postal_code = ?", *postalCode)
 		}
 	}
 }

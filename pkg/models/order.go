@@ -115,7 +115,7 @@ func SaveOrder(db *pop.Connection, order *Order) (*validate.Errors, error) {
 		if ppm.ID != uuid.Nil {
 			// If we're going to do this, we should check to see if the PMM postal code matches the postal code of the
 			// previous destination duty location.  Otherwise, we may be overwriting a home address postal code.
-			ppm.DestinationPostalCode = &order.NewDutyLocation.Address.PostalCode
+			ppm.DestinationPostalCode = &order.NewDutyLocation.PostalCode
 			if verrs, err := dbConnection.ValidateAndSave(ppm); verrs.HasAny() || err != nil {
 				responseVErrors.Append(verrs)
 				responseError = err
@@ -165,9 +165,9 @@ func (o *Order) Cancel() error {
 func FetchOrderForUser(db *pop.Connection, session *auth.Session, id uuid.UUID) (Order, error) {
 	var order Order
 	err := db.Q().EagerPreload("ServiceMember.User",
-		"OriginDutyLocation.Address",
+		"OriginDutyLocation",
 		"OriginDutyLocation.TransportationOffice",
-		"NewDutyLocation.Address",
+		"NewDutyLocation",
 		"NewDutyLocation.TransportationOffice",
 		"UploadedOrders",
 		"UploadedAmendedOrders",

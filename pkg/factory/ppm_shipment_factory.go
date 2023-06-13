@@ -61,7 +61,7 @@ func buildPPMShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 		Status:                models.PPMShipmentStatusDraft,
 		ExpectedDepartureDate: time.Date(GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC),
 		PickupPostalCode:      serviceMember.ResidentialAddress.PostalCode,
-		DestinationPostalCode: shipment.MoveTaskOrder.Orders.NewDutyLocation.Address.PostalCode,
+		DestinationPostalCode: shipment.MoveTaskOrder.Orders.NewDutyLocation.PostalCode,
 		SITExpected:           models.BoolPointer(false),
 	}
 
@@ -184,15 +184,16 @@ func buildApprovedPPMShipmentWithActualInfo(db *pop.Connection, userUploader *up
 		ppmShipment.HasReceivedAdvance = models.BoolPointer(false)
 	}
 
-	newDutyLocationAddress := ppmShipment.Shipment.MoveTaskOrder.Orders.NewDutyLocation.Address
+	newDutyLocation := ppmShipment.Shipment.MoveTaskOrder.Orders.NewDutyLocation
 
 	w2Address := BuildAddress(db, []Customization{
 		{
 			Model: models.Address{
 				StreetAddress1: "987 New Street",
-				City:           newDutyLocationAddress.City,
-				State:          newDutyLocationAddress.State,
-				PostalCode:     newDutyLocationAddress.PostalCode,
+				City:           newDutyLocation.City,
+				State:          newDutyLocation.State,
+				PostalCode:     newDutyLocation.PostalCode,
+				Country:        &newDutyLocation.Country,
 			},
 		},
 	}, nil)
@@ -798,9 +799,9 @@ func GetTraitApprovedPPMWithActualInfo() []Customization {
 		{
 			Model: models.Address{
 				StreetAddress1: "987 New Street",
-				City:           newDutyLocation.Address.City,
-				State:          newDutyLocation.Address.State,
-				PostalCode:     newDutyLocation.Address.PostalCode,
+				City:           newDutyLocation.City,
+				State:          newDutyLocation.State,
+				PostalCode:     newDutyLocation.PostalCode,
 			},
 			Type: &Addresses.W2Address,
 		},

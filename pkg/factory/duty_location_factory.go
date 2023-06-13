@@ -18,13 +18,11 @@ const (
 // buildDutyLocationWithBuildType does the actual work
 // if buildType is standard, it builds
 //   - DutyLocation
-//   - Address of the DL
 //   - TransportationOffice
 //   - Address of the TO
 //
 // if buildType is withoutTransportationOffice, it builds
 //   - DutyLocation
-//   - Address of the DL
 func buildDutyLocationWithBuildType(db *pop.Connection, customs []Customization, traits []Trait, buildType dutyLocationBuildType) models.DutyLocation {
 	customs = setupCustomizations(customs, traits)
 
@@ -37,26 +35,24 @@ func buildDutyLocationWithBuildType(db *pop.Connection, customs []Customization,
 		}
 	}
 
-	// Find/create the DutyLocationAddress
-	tempAddressCustoms := customs
-	result := findValidCustomization(customs, Addresses.DutyLocationAddress)
-	if result != nil {
-		tempAddressCustoms = convertCustomizationInList(tempAddressCustoms, Addresses.DutyLocationAddress, Address)
-	}
-	dlAddress := BuildAddress(db, tempAddressCustoms, []Trait{GetTraitAddress3})
-
-	if db != nil {
-		FetchOrBuildPostalCodeToGBLOC(db, dlAddress.PostalCode, "KKFA")
-	}
-
 	// Create default Duty Location
 	affiliation := internalmessages.AffiliationAIRFORCE
 
+	// Prior to putting the duty location address information in the
+	// duty location model, the duty location factory would create a
+	// duty location address that contained street address 1, 2, and
+	// 3. However, in practice, none of our duty locations have a
+	// street address 2 or 3 and only 5 have a street address 1.
+	//
+	// Change the default to not include a street address
 	location := models.DutyLocation{
-		Name:        makeRandomString(10),
-		Affiliation: &affiliation,
-		AddressID:   dlAddress.ID,
-		Address:     dlAddress,
+		Name:           makeRandomString(10),
+		Affiliation:    &affiliation,
+		StreetAddress1: "n/a",
+		City:           "Des Moines",
+		State:          "IA",
+		PostalCode:     "50309",
+		Country:        "United States",
 	}
 	if buildType == dutyLocationBuildStandard {
 		// Find/create the transportationOffice Model
@@ -75,6 +71,7 @@ func buildDutyLocationWithBuildType(db *pop.Connection, customs []Customization,
 
 	// If db is false, it's a stub. No need to create in database.
 	if db != nil {
+		FetchOrBuildPostalCodeToGBLOC(db, location.PostalCode, "KKFA")
 		mustCreate(db, &location)
 	}
 
@@ -83,7 +80,6 @@ func buildDutyLocationWithBuildType(db *pop.Connection, customs []Customization,
 
 // BuildDutyLocation creates a single DutyLocation
 // Also creates:
-//   - Address of the DL (use Addresses.DutyLocationAddress)
 //   - TransportationOffice
 //   - Address of the TO (use Addresses.DutyLocationTOAddress)
 //
@@ -95,7 +91,6 @@ func buildDutyLocationWithBuildType(db *pop.Connection, customs []Customization,
 //
 //	dutyLocation := BuildDutyLocation(suite.DB(), []Customization{
 //	       {Model: customDutyLocation},
-//	       {Model: customDutyLocationAddress, Type: &Addresses.DutyLocationAddress},
 //	       {Model: customTransportationOfficeAddress, Type: &Addresses.DutyLocationTOAddress},
 //	       }, nil)
 func BuildDutyLocation(db *pop.Connection, customs []Customization, traits []Trait) models.DutyLocation {
@@ -115,7 +110,6 @@ func BuildDutyLocation(db *pop.Connection, customs []Customization, traits []Tra
 //
 //	dutyLocation := BuildDutyLocationWithoutTransportationOffice(suite.DB(), []Customization{
 //	       {Model: customDutyLocation},
-//	       {Model: customDutyLocationAddress, Type: &Addresses.DutyLocationAddress},
 //	       }, nil)
 func BuildDutyLocationWithoutTransportationOffice(db *pop.Connection, customs []Customization, traits []Trait) models.DutyLocation {
 	return buildDutyLocationWithBuildType(db, customs, traits, dutyLocationBuildWithoutTransportationOffice)
@@ -149,25 +143,12 @@ func FetchOrBuildCurrentDutyLocation(db *pop.Connection) models.DutyLocation {
 }
 
 // FetchOrBuildOrdersDutyLocation returns a default orders duty location
-// It always fetches or builds a Fort Gordon duty location with the specified city/state/postal code
+// It always fetches or builds a Fort Gordon duty location with the
+// specified city/state/postal code
 // Some tests rely on the duty location being in 30813
 func FetchOrBuildOrdersDutyLocation(db *pop.Connection) models.DutyLocation {
 	if db == nil {
-		return BuildDutyLocation(nil, []Customization{
-			{
-				Model: models.DutyLocation{
-					Name: "Fort Gordon",
-				},
-			},
-			{
-				Model: models.Address{
-					City:       "Augusta",
-					State:      "GA",
-					PostalCode: "30813",
-				},
-				Type: &Addresses.DutyLocationAddress,
-			},
-		}, nil)
+		return BuildDutyLocation(nil, GetTraitDefaultOrdersDutyLocation(), nil)
 	}
 
 	// Check if we already have a Fort Gordon Duty Location, return it if so
@@ -182,17 +163,14 @@ func FetchOrBuildOrdersDutyLocation(db *pop.Connection) models.DutyLocation {
 func GetTraitDefaultOrdersDutyLocation() []Customization {
 	return []Customization{
 		{
-			Model: models.DutyLocation{
-				Name: "Fort Gordon",
-			},
-		},
-		{
 			// Update the DutyLocationAddress (but not TO address) to Augusta, Georgia
-			Type: &Addresses.DutyLocationAddress,
-			Model: models.Address{
-				City:       "Augusta",
-				State:      "GA",
-				PostalCode: "30813",
+			Model: models.DutyLocation{
+				Name:           "Fort Gordon",
+				StreetAddress1: "Fort Gordon",
+				City:           "Augusta",
+				State:          "GA",
+				PostalCode:     "30813",
+				Country:        "US",
 			},
 		},
 	}

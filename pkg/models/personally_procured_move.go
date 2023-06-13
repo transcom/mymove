@@ -134,7 +134,7 @@ func (p *PersonallyProcuredMove) Cancel() error {
 // FetchPersonallyProcuredMove Fetches and Validates a PPM model
 func FetchPersonallyProcuredMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*PersonallyProcuredMove, error) {
 	var ppm PersonallyProcuredMove
-	err := db.Q().Eager("Move.Orders.ServiceMember.DutyLocation.Address", "Move.Orders.NewDutyLocation.Address", "Advance").Find(&ppm, id)
+	err := db.Q().Eager("Move.Orders.ServiceMember.DutyLocation", "Move.Orders.NewDutyLocation", "Advance").Find(&ppm, id)
 	if err != nil {
 		// Otherwise, it's an unexpected err so we return that.
 		return nil, err
@@ -163,17 +163,13 @@ func FetchPersonallyProcuredMoveByOrderID(db *pop.Connection, orderID uuid.UUID)
 // SavePersonallyProcuredMove Safely saves a PPM and it's associated Advance.
 func SavePersonallyProcuredMove(db *pop.Connection, ppm *PersonallyProcuredMove) (*validate.Errors, error) {
 	responseVErrors := validate.NewErrors()
-	var responseError error
 
 	transactionErr := db.Transaction(func(db *pop.Connection) error {
-		transactionError := errors.New("Rollback The transaction")
-
 		if ppm.HasRequestedAdvance {
 			if ppm.Advance != nil {
 				if verrs, err := db.ValidateAndSave(ppm.Advance); verrs.HasAny() || err != nil {
 					responseVErrors.Append(verrs)
-					responseError = errors.Wrap(err, "Error Saving Advance")
-					return transactionError
+					return errors.Wrap(err, "Error Saving Advance")
 				}
 				ppm.AdvanceID = &ppm.Advance.ID
 			}
@@ -181,17 +177,12 @@ func SavePersonallyProcuredMove(db *pop.Connection, ppm *PersonallyProcuredMove)
 
 		if verrs, err := db.ValidateAndSave(ppm); verrs.HasAny() || err != nil {
 			responseVErrors.Append(verrs)
-			responseError = errors.Wrap(err, "Error Saving PPM")
-			return transactionError
+			return errors.Wrap(err, "Error Saving PPM")
 		}
 
 		return nil
 
 	})
 
-	if transactionErr != nil {
-		return responseVErrors, responseError
-	}
-
-	return responseVErrors, responseError
+	return responseVErrors, transactionErr
 }

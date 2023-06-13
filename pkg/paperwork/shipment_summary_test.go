@@ -111,18 +111,13 @@ func (suite *PaperworkSuite) TestComputeObligations() {
 		order := factory.BuildOrder(suite.DB(), []factory.Customization{
 			{
 				Model: models.DutyLocation{
-					Name: "New Duty Location",
-				},
-				Type: &factory.DutyLocations.NewDutyLocation,
-			},
-			{
-				Model: models.Address{
+					Name:           "New Duty Location",
 					StreetAddress1: "some address",
 					City:           "city",
 					State:          "state",
 					PostalCode:     "31905",
 				},
-				Type: &factory.Addresses.DutyLocationAddress,
+				Type: &factory.DutyLocations.NewDutyLocation,
 			},
 		}, nil)
 
@@ -158,7 +153,7 @@ func (suite *PaperworkSuite) TestComputeObligations() {
 		expectMaxObligationParams := ppmComputerParams{
 			Weight:                                 totalWeightEntitlement,
 			OriginPickupZip5:                       pickupPostalCode,
-			OriginDutyLocationZip5:                 currentDutyLocation.Address.PostalCode,
+			OriginDutyLocationZip5:                 currentDutyLocation.PostalCode,
 			DestinationZip5:                        destinationPostalCode,
 			DistanceMilesFromOriginPickupZip:       miles,
 			DistanceMilesFromOriginDutyLocationZip: miles,
@@ -168,7 +163,7 @@ func (suite *PaperworkSuite) TestComputeObligations() {
 		expectActualObligationParams := ppmComputerParams{
 			Weight:                                 ppmRemainingEntitlement,
 			OriginPickupZip5:                       pickupPostalCode,
-			OriginDutyLocationZip5:                 currentDutyLocation.Address.PostalCode,
+			OriginDutyLocationZip5:                 currentDutyLocation.PostalCode,
 			DestinationZip5:                        destinationPostalCode,
 			DistanceMilesFromOriginPickupZip:       miles,
 			DistanceMilesFromOriginDutyLocationZip: miles,

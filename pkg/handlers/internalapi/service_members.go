@@ -224,7 +224,7 @@ func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMem
 				if serviceMember.DutyLocation.ID != order.OriginDutyLocation.ID {
 					dutyLocation := &serviceMember.DutyLocation
 					var originDutyLocationGBLOC models.PostalCodeToGBLOC
-					originDutyLocationGBLOC, err = models.FetchGBLOCForPostalCode(appCtx.DB(), dutyLocation.Address.PostalCode)
+					originDutyLocationGBLOC, err = models.FetchGBLOCForPostalCode(appCtx.DB(), dutyLocation.PostalCode)
 					if err != nil {
 						switch err {
 						case sql.ErrNoRows:

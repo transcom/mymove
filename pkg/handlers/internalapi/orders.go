@@ -141,7 +141,7 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 			}
 			originDutyLocation := serviceMember.DutyLocation
 
-			originDutyLocationGBLOC, err := models.FetchGBLOCForPostalCode(appCtx.DB(), originDutyLocation.Address.PostalCode)
+			originDutyLocationGBLOC, err := models.FetchGBLOCForPostalCode(appCtx.DB(), originDutyLocation.PostalCode)
 			if err != nil {
 				switch err {
 				case sql.ErrNoRows:

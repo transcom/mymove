@@ -431,7 +431,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(ap
 		return apperror.NewConflictError(orders.ID, "Invalid Order, must have NewDutyLocation")
 	}
 
-	destPostalCodeToGbloc, gblocErr := models.FetchGBLOCForPostalCode(appCtx.DB(), destinationDutyLocation.Address.PostalCode)
+	destPostalCodeToGbloc, gblocErr := models.FetchGBLOCForPostalCode(appCtx.DB(), destinationDutyLocation.PostalCode)
 	if gblocErr != nil {
 		return apperror.NewInvalidInputError(destinationDutyLocation.ID, gblocErr, nil, "unable to determine GBLOC for duty location postal code")
 	}
@@ -445,28 +445,27 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(ap
 	}
 
 	// destination address
-	if len(destinationDutyLocation.Address.StreetAddress1) > 0 {
+	if len(destinationDutyLocation.StreetAddress1) > 0 {
+		// As of 2023-06-13, none of the duty locations had secondary
+		// street addresses.
 		destinationStreetAddress := edisegment.N3{
-			AddressInformation1: destinationDutyLocation.Address.StreetAddress1,
-		}
-		if destinationDutyLocation.Address.StreetAddress2 != nil {
-			destinationStreetAddress.AddressInformation2 = *destinationDutyLocation.Address.StreetAddress2
+			AddressInformation1: destinationDutyLocation.StreetAddress1,
 		}
 		header.DestinationStreetAddress = &destinationStreetAddress
 	}
 
 	// destination city/state/postal
 	header.DestinationPostalDetails = edisegment.N4{
-		CityName:            truncateStr(destinationDutyLocation.Address.City, maxCityLength),
-		StateOrProvinceCode: destinationDutyLocation.Address.State,
-		PostalCode:          destinationDutyLocation.Address.PostalCode,
+		CityName:            truncateStr(destinationDutyLocation.City, maxCityLength),
+		StateOrProvinceCode: destinationDutyLocation.State,
+		PostalCode:          destinationDutyLocation.PostalCode,
 	}
-	if destinationDutyLocation.Address.Country != nil {
-		countryCode, ccErr := destinationDutyLocation.Address.CountryCode()
+	if destinationDutyLocation.Country != "" {
+		countryCode, ccErr := models.CountryCode(destinationDutyLocation.Country)
 		if ccErr != nil {
 			return ccErr
 		}
-		header.DestinationPostalDetails.CountryCode = string(*countryCode)
+		header.DestinationPostalDetails.CountryCode = countryCode
 	}
 
 	// Destination PER
@@ -506,28 +505,27 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(ap
 	}
 
 	// origin address
-	if len(originDutyLocation.Address.StreetAddress1) > 0 {
+	if len(originDutyLocation.StreetAddress1) > 0 {
+		// As of 2023-06-13, none of the duty locations had secondary
+		// street addresses.
 		originStreetAddress := edisegment.N3{
-			AddressInformation1: originDutyLocation.Address.StreetAddress1,
-		}
-		if originDutyLocation.Address.StreetAddress2 != nil {
-			originStreetAddress.AddressInformation2 = *originDutyLocation.Address.StreetAddress2
+			AddressInformation1: originDutyLocation.StreetAddress1,
 		}
 		header.OriginStreetAddress = &originStreetAddress
 	}
 
 	// origin city/state/postal
 	header.OriginPostalDetails = edisegment.N4{
-		CityName:            truncateStr(originDutyLocation.Address.City, maxCityLength),
-		StateOrProvinceCode: originDutyLocation.Address.State,
-		PostalCode:          originDutyLocation.Address.PostalCode,
+		CityName:            truncateStr(originDutyLocation.City, maxCityLength),
+		StateOrProvinceCode: originDutyLocation.State,
+		PostalCode:          originDutyLocation.PostalCode,
 	}
-	if originDutyLocation.Address.Country != nil {
-		countryCode, ccErr := originDutyLocation.Address.CountryCode()
+	if originDutyLocation.Country != "" {
+		countryCode, ccErr := models.CountryCode(originDutyLocation.Country)
 		if ccErr != nil {
 			return ccErr
 		}
-		header.OriginPostalDetails.CountryCode = string(*countryCode)
+		header.OriginPostalDetails.CountryCode = countryCode
 	}
 
 	// Origin Duty Location Phone

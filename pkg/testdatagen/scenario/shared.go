@@ -2407,24 +2407,14 @@ func CreateMoveWithCloseOut(appCtx appcontext.AppContext, userUploader *uploader
 		},
 	}, nil)
 
-	address := factory.BuildAddress(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.Address{
-				StreetAddress1: "2 Second St",
-				StreetAddress2: models.StringPointer("Apt 2"),
-				StreetAddress3: models.StringPointer("Suite B"),
-				City:           "Columbia",
-				State:          "SC",
-				PostalCode:     "29212",
-				Country:        models.StringPointer("US"),
-			},
-		},
-	}, nil)
-
 	newDutyLocation := factory.BuildDutyLocation(appCtx.DB(), []factory.Customization{
 		{
-			Model:    address,
-			LinkOnly: true,
+			Model: models.DutyLocation{
+				City:       "Columbia",
+				State:      "SC",
+				PostalCode: "29212",
+				Country:    "United States",
+			},
 		},
 	}, nil)
 
@@ -9765,7 +9755,8 @@ func createMoveWithUniqueDestinationAddress(appCtx appcontext.AppContext) {
 				PostalCode:     "29212",
 				Country:        models.StringPointer("US"),
 			},
-			Type: &factory.Addresses.DutyLocationAddress,
+			// ???
+			// Type: &factory.Addresses.DutyLocationAddress,
 		},
 		{
 			Model: models.Order{

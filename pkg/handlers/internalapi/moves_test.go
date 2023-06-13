@@ -413,27 +413,16 @@ func (suite *HandlerSuite) TestSubmitMoveForServiceCounselingHandler() {
 }
 
 func (suite *HandlerSuite) TestShowMoveDatesSummaryHandler() {
-	dutyLocationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+	dutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
 		{
-			Model: models.Address{
+			Model: models.DutyLocation{
+				Name:           "Fort Sam Houston",
 				StreetAddress1: "Fort Gordon",
 				City:           "Augusta",
 				State:          "GA",
 				PostalCode:     "30813",
-				Country:        models.StringPointer("United States"),
+				Country:        "United States",
 			},
-		},
-	}, nil)
-
-	dutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
-		{
-			Model: models.DutyLocation{
-				Name: "Fort Sam Houston",
-			},
-		},
-		{
-			Model:    dutyLocationAddress,
-			LinkOnly: true,
 		},
 	}, nil)
 
@@ -450,27 +439,16 @@ func (suite *HandlerSuite) TestShowMoveDatesSummaryHandler() {
 		},
 	}, nil)
 
-	newDutyLocationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+	newDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
 		{
-			Model: models.Address{
+			Model: models.DutyLocation{
+				Name:           "Fort Gordon",
 				StreetAddress1: "n/a",
 				City:           "San Antonio",
 				State:          "TX",
 				PostalCode:     "78234",
-				Country:        models.StringPointer("United States"),
+				Country:        "United States",
 			},
-		},
-	}, nil)
-
-	newDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
-		{
-			Model: models.DutyLocation{
-				Name: "Fort Gordon",
-			},
-		},
-		{
-			Model:    newDutyLocationAddress,
-			LinkOnly: true,
 		},
 	}, nil)
 

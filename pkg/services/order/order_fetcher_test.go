@@ -24,13 +24,13 @@ func (suite *OrderServiceSuite) TestFetchOrder() {
 	suite.Equal(expectedOrder.ServiceMemberID, order.ServiceMemberID)
 	suite.NotNil(order.NewDutyLocation)
 	suite.Equal(expectedOrder.NewDutyLocationID, order.NewDutyLocation.ID)
-	suite.Equal(expectedOrder.NewDutyLocation.AddressID, order.NewDutyLocation.AddressID)
-	suite.Equal(expectedOrder.NewDutyLocation.Address.StreetAddress1, order.NewDutyLocation.Address.StreetAddress1)
+	suite.Equal(expectedOrder.NewDutyLocation.PostalCode, order.NewDutyLocation.PostalCode)
+	suite.Equal(expectedOrder.NewDutyLocation.StreetAddress1, order.NewDutyLocation.StreetAddress1)
 	suite.NotNil(order.Entitlement)
 	suite.Equal(*expectedOrder.EntitlementID, order.Entitlement.ID)
 	suite.Equal(expectedOrder.OriginDutyLocation.ID, order.OriginDutyLocation.ID)
-	suite.Equal(expectedOrder.OriginDutyLocation.AddressID, order.OriginDutyLocation.AddressID)
-	suite.Equal(expectedOrder.OriginDutyLocation.Address.StreetAddress1, order.OriginDutyLocation.Address.StreetAddress1)
+	suite.Equal(expectedOrder.OriginDutyLocation.PostalCode, order.OriginDutyLocation.PostalCode)
+	suite.Equal(expectedOrder.OriginDutyLocation.StreetAddress1, order.OriginDutyLocation.StreetAddress1)
 	suite.NotZero(order.OriginDutyLocation)
 	suite.Equal(expectedMove.Locator, order.Moves[0].Locator)
 }
@@ -118,8 +118,8 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		suite.Equal(*expectedMove.Orders.EntitlementID, move.Orders.Entitlement.ID)
 		suite.Equal(expectedMove.Orders.OriginDutyLocation.ID, move.Orders.OriginDutyLocation.ID)
 		suite.NotNil(move.Orders.OriginDutyLocation)
-		suite.Equal(expectedMove.Orders.OriginDutyLocation.AddressID, move.Orders.OriginDutyLocation.AddressID)
-		suite.Equal(expectedMove.Orders.OriginDutyLocation.Address.StreetAddress1, move.Orders.OriginDutyLocation.Address.StreetAddress1)
+		suite.Equal(expectedMove.Orders.OriginDutyLocation.PostalCode, move.Orders.OriginDutyLocation.PostalCode)
+		suite.Equal(expectedMove.Orders.OriginDutyLocation.StreetAddress1, move.Orders.OriginDutyLocation.StreetAddress1)
 	})
 
 	suite.Run("returns moves filtered by GBLOC", func() {
@@ -1583,29 +1583,20 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithGBLOC
 				},
 			},
 		}, nil)
-		// Create data for a second Origin ZANY
-		dutyLocationAddress2 := factory.BuildAddress(suite.DB(), []factory.Customization{
-			{
-				Model: models.Address{
-					StreetAddress1: "Anchor 1212",
-					City:           "Augusta",
-					State:          "GA",
-					PostalCode:     "89898",
-					Country:        models.StringPointer("United States"),
-				},
-			},
-		}, nil)
 
-		factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), dutyLocationAddress2.PostalCode, "ZANY")
+		zanyDutyLocation := models.DutyLocation{
+			Name:           "Fort Sam Snap",
+			StreetAddress1: "Anchor 1212",
+			City:           "Augusta",
+			State:          "GA",
+			PostalCode:     "89898",
+			Country:        "United States",
+		}
+
+		factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), zanyDutyLocation.PostalCode, "ZANY")
 		originDutyLocation2 := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
 			{
-				Model: models.DutyLocation{
-					Name: "Fort Sam Snap",
-				},
-			},
-			{
-				Model:    dutyLocationAddress2,
-				LinkOnly: true,
+				Model: zanyDutyLocation,
 			},
 		}, nil)
 

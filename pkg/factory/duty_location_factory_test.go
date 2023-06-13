@@ -36,7 +36,10 @@ func (suite *FactorySuite) TestBuildDutyLocation() {
 			Longitude: -23.34455,
 		}
 		defaultAddress := models.Address{
-			StreetAddress1: "987 Other Avenue",
+			City:       "Des Moines",
+			State:      "IA",
+			PostalCode: "50309",
+			Country:    models.StringPointer("United States"),
 		}
 
 		// CALL FUNCTION UNDER TEST
@@ -45,14 +48,17 @@ func (suite *FactorySuite) TestBuildDutyLocation() {
 		// VALIDATE RESULTS
 		suite.Equal(defaultAffiliation, *dutyLocation.Affiliation)
 		// Check that address was hooked in
-		suite.Equal(defaultAddress.StreetAddress1, dutyLocation.Address.StreetAddress1)
+		suite.Equal(defaultAddress.City, dutyLocation.City)
+		suite.Equal(defaultAddress.State, dutyLocation.State)
+		suite.Equal(defaultAddress.PostalCode, dutyLocation.PostalCode)
+		suite.Equal(*defaultAddress.Country, dutyLocation.Country)
 		// Check that transportation office was hooked in
 		suite.Equal(defaultOffice.Name, dutyLocation.TransportationOffice.Name)
 		suite.Equal(defaultOffice.Gbloc, dutyLocation.TransportationOffice.Gbloc)
 		suite.Equal(defaultOffice.Latitude, dutyLocation.TransportationOffice.Latitude)
 		suite.Equal(defaultOffice.Longitude, dutyLocation.TransportationOffice.Longitude)
 
-		gblocForPostalCode, err := models.FetchGBLOCForPostalCode(suite.DB(), dutyLocation.Address.PostalCode)
+		gblocForPostalCode, err := models.FetchGBLOCForPostalCode(suite.DB(), dutyLocation.PostalCode)
 		suite.NoError(err)
 		suite.Equal(gblocForPostalCode.GBLOC, defaultOffice.Gbloc)
 	})
@@ -73,26 +79,23 @@ func (suite *FactorySuite) TestBuildDutyLocation() {
 			Services:  models.StringPointer("CAC creation"),
 		}
 
-		customAddress := models.Address{
-			StreetAddress1: "123 Any Street",
-		}
-
 		customAffiliation := internalmessages.AffiliationNAVY
 
 		customDutyLocation := models.DutyLocation{
-			ID:          uuid.Must(uuid.NewV4()),
-			Affiliation: &customAffiliation,
+			ID:             uuid.Must(uuid.NewV4()),
+			Affiliation:    &customAffiliation,
+			StreetAddress1: "123 Any Street",
 		}
 
 		// CALL FUNCTION UNDER TEST
 		dutyLocation := BuildDutyLocation(suite.DB(), []Customization{
 			{Model: customDutyLocation},
-			{Model: customAddress},
 			{Model: customOffice},
 		}, nil)
 
 		// VALIDATE RESULTS
 		suite.Equal(customDutyLocation.ID, dutyLocation.ID)
+		suite.Equal(customDutyLocation.StreetAddress1, dutyLocation.StreetAddress1)
 		// Check that the transportation office was customized
 		suite.Equal(customOffice.ID, dutyLocation.TransportationOffice.ID)
 		suite.Equal(customOffice.Name, dutyLocation.TransportationOffice.Name)
@@ -102,8 +105,6 @@ func (suite *FactorySuite) TestBuildDutyLocation() {
 		suite.Equal(*customOffice.Note, *dutyLocation.TransportationOffice.Note)
 		suite.Equal(*customOffice.Hours, *dutyLocation.TransportationOffice.Hours)
 		suite.Equal(*customOffice.Services, *dutyLocation.TransportationOffice.Services)
-		// Check that the address was customized
-		suite.Equal(customAddress.StreetAddress1, dutyLocation.Address.StreetAddress1)
 	})
 
 	suite.Run("Successful creation of duty location with customized addresses", func() {
@@ -112,10 +113,6 @@ func (suite *FactorySuite) TestBuildDutyLocation() {
 		// Expected outcome:dutyLocation should be created with custom address different from address attached for TO
 
 		// SETUP
-		customDutyLocationAddress := models.Address{
-			StreetAddress1: "123 Any Street",
-		}
-
 		customTransportationOfficeAddress := models.Address{
 			StreetAddress1: "456 Something Street",
 		}
@@ -123,14 +120,14 @@ func (suite *FactorySuite) TestBuildDutyLocation() {
 		customAffiliation := internalmessages.AffiliationNAVY
 
 		customDutyLocation := models.DutyLocation{
-			ID:          uuid.Must(uuid.NewV4()),
-			Affiliation: &customAffiliation,
+			ID:             uuid.Must(uuid.NewV4()),
+			Affiliation:    &customAffiliation,
+			StreetAddress1: "123 Any Street",
 		}
 
 		// CALL FUNCTION UNDER TEST
 		dutyLocation := BuildDutyLocation(suite.DB(), []Customization{
 			{Model: customDutyLocation},
-			{Model: customDutyLocationAddress, Type: &Addresses.DutyLocationAddress},
 			{Model: customTransportationOfficeAddress, Type: &Addresses.DutyLocationTOAddress},
 		}, nil)
 
@@ -138,9 +135,9 @@ func (suite *FactorySuite) TestBuildDutyLocation() {
 		suite.Equal(customDutyLocation.ID, dutyLocation.ID)
 		suite.Equal(customAffiliation, *dutyLocation.Affiliation)
 		// Check that the address was customized
-		suite.Equal(customDutyLocationAddress.StreetAddress1, dutyLocation.Address.StreetAddress1)
+		suite.Equal(customDutyLocation.StreetAddress1, dutyLocation.StreetAddress1)
 		// Check that Transportation Office Address is different
-		suite.NotEqual(dutyLocation.Address.StreetAddress1, dutyLocation.TransportationOffice.Address.StreetAddress1)
+		suite.NotEqual(dutyLocation.StreetAddress1, dutyLocation.TransportationOffice.Address.StreetAddress1)
 	})
 
 	suite.Run("Successful creation of default duty location without transportation office", func() {
@@ -151,17 +148,12 @@ func (suite *FactorySuite) TestBuildDutyLocation() {
 		// Expected outcome: Duty Location should be created with default values
 		//                   but not have an associated transportation office
 		emptyOffice := models.TransportationOffice{}
-		defaultAddress := models.Address{
-			StreetAddress1: "987 Other Avenue",
-		}
 
 		// CALL FUNCTION UNDER TEST
 		dutyLocation := BuildDutyLocationWithoutTransportationOffice(suite.DB(), nil, nil)
 
 		// VALIDATE RESULTS
 		suite.Equal(defaultAffiliation, *dutyLocation.Affiliation)
-		// Check that address was hooked in
-		suite.Equal(defaultAddress.StreetAddress1, dutyLocation.Address.StreetAddress1)
 		// Check that no transportation office is associated with the move
 		suite.Equal(uuid.Nil, dutyLocation.TransportationOffice.ID)
 		suite.Equal(emptyOffice, dutyLocation.TransportationOffice)
@@ -176,10 +168,6 @@ func (suite *FactorySuite) TestBuildDutyLocation() {
 		//                   but not have an associated transportation office
 		emptyOffice := models.TransportationOffice{}
 
-		customAddress := models.Address{
-			StreetAddress1: "123 Any Street",
-		}
-
 		customAffiliation := internalmessages.AffiliationNAVY
 
 		customDutyLocation := models.DutyLocation{
@@ -192,14 +180,11 @@ func (suite *FactorySuite) TestBuildDutyLocation() {
 			suite.DB(),
 			[]Customization{
 				{Model: customDutyLocation},
-				{Model: customAddress},
 			},
 			nil)
 
 		// VALIDATE RESULTS
 		suite.Equal(customAffiliation, *dutyLocation.Affiliation)
-		// Check that address was hooked in
-		suite.Equal(customAddress.StreetAddress1, dutyLocation.Address.StreetAddress1)
 		// Check that no transportation office is associated with the move
 		suite.Equal(uuid.Nil, dutyLocation.TransportationOffice.ID)
 		suite.Equal(emptyOffice, dutyLocation.TransportationOffice)

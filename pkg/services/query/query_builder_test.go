@@ -340,75 +340,82 @@ func (suite *QueryBuilderSuite) TestFetchMany() {
 
 func (suite *QueryBuilderSuite) TestFetchManyAssociations() {
 	setupTestData := func() {
-		// Create two default duty locations (with address and transportation office)
-		factory.BuildDutyLocation(suite.DB(), nil, nil)
-		factory.BuildDutyLocation(suite.DB(), nil, nil)
+		// Create two extended service members (with addresses and
+		// duty locations that have transportation offices)
+		sm1 := factory.BuildExtendedServiceMember(suite.DB(), nil, nil)
+		suite.NotNil(sm1.ResidentialAddress)
+		suite.NotNil(sm1.DutyLocation.TransportationOfficeID)
+		sm2 := factory.BuildExtendedServiceMember(suite.DB(), nil, nil)
+		suite.NotNil(sm2.ResidentialAddress)
+		suite.NotNil(sm2.DutyLocation.TransportationOfficeID)
 	}
 	builder := NewQueryBuilder()
 
 	suite.Run("fetches many with default associations", func() {
 		setupTestData()
-		var dutyLocations models.DutyLocations
-		err := builder.FetchMany(suite.AppContextForTest(), &dutyLocations, nil, defaultAssociations(), nil, nil)
+		var serviceMembers models.ServiceMembers
+		err := builder.FetchMany(suite.AppContextForTest(), &serviceMembers, nil, defaultAssociations(), nil, nil)
 		suite.NoError(err)
-		suite.Len(dutyLocations, 2)
+		suite.Len(serviceMembers, 2)
 
-		// Make sure every record has an address and transportation office loaded
-		for _, dutyLocation := range dutyLocations {
-			suite.NotEqual(uuid.Nil, dutyLocation.Address.ID)
-			suite.NotEqual(uuid.Nil, dutyLocation.TransportationOffice.ID)
+		// Make sure every record has an address and duty location loaded
+		for _, serviceMember := range serviceMembers {
+			suite.False(serviceMember.ResidentialAddress.ID.IsNil())
+			suite.False(serviceMember.DutyLocation.ID.IsNil())
 		}
 	})
 
 	suite.Run("fetches many with no associations", func() {
 		setupTestData()
-		var dutyLocations models.DutyLocations
-		err := builder.FetchMany(suite.AppContextForTest(), &dutyLocations, nil, nil, nil, nil)
+		var serviceMembers models.ServiceMembers
+		err := builder.FetchMany(suite.AppContextForTest(), &serviceMembers, nil, nil, nil, nil)
 		suite.NoError(err)
-		suite.Len(dutyLocations, 2)
+		suite.Len(serviceMembers, 2)
 
 		// Make sure every record has no address or transportation office loaded
-		for _, dutyLocation := range dutyLocations {
-			suite.Equal(uuid.Nil, dutyLocation.Address.ID)
-			suite.Equal(uuid.Nil, dutyLocation.TransportationOffice.ID)
+		for _, serviceMember := range serviceMembers {
+			suite.Nil(serviceMember.ResidentialAddress)
+			suite.True(serviceMember.DutyLocation.ID.IsNil())
 		}
 	})
 
 	suite.Run("fetches many with one explicit non-preloaded association", func() {
 		setupTestData()
-		var dutyLocations models.DutyLocations
+		var serviceMembers models.ServiceMembers
 		associations := NewQueryAssociations([]services.QueryAssociation{
-			NewQueryAssociation("Address"),
+			NewQueryAssociation("DutyLocation"),
 		})
 
-		err := builder.FetchMany(suite.AppContextForTest(), &dutyLocations, nil, associations, nil, nil)
+		err := builder.FetchMany(suite.AppContextForTest(), &serviceMembers, nil, associations, nil, nil)
 		suite.NoError(err)
-		suite.Len(dutyLocations, 2)
+		suite.Len(serviceMembers, 2)
 
-		// Make sure every record has an address loaded but not a transportation office
-		for _, dutyLocation := range dutyLocations {
-			suite.NotEqual(uuid.Nil, dutyLocation.Address.ID)
-			suite.Equal(uuid.Nil, dutyLocation.TransportationOffice.ID)
+		// Make sure every record has a duty location loaded but not a
+		// residential address
+		for _, serviceMember := range serviceMembers {
+			suite.False(serviceMember.DutyLocation.ID.IsNil())
+			suite.Nil(serviceMember.ResidentialAddress)
 		}
 	})
 
 	suite.Run("fetches many with one explicit preloaded two-level association", func() {
 		setupTestData()
-		var dutyLocations models.DutyLocations
+		var serviceMembers models.ServiceMembers
 		associations := NewQueryAssociationsPreload([]services.QueryAssociation{
-			NewQueryAssociation("TransportationOffice.Address"),
+			NewQueryAssociation("DutyLocation.TransportationOffice"),
 		})
 
-		err := builder.FetchMany(suite.AppContextForTest(), &dutyLocations, nil, associations, nil, nil)
+		err := builder.FetchMany(suite.AppContextForTest(), &serviceMembers, nil, associations, nil, nil)
 		suite.NoError(err)
-		suite.Len(dutyLocations, 2)
+		suite.Len(serviceMembers, 2)
 
-		// Make sure every record does not have an address loaded but does have a transportation office and
-		// its address loaded
-		for _, dutyLocation := range dutyLocations {
-			suite.Equal(uuid.Nil, dutyLocation.Address.ID)
-			suite.NotEqual(uuid.Nil, dutyLocation.TransportationOffice.ID)
-			suite.NotEqual(uuid.Nil, dutyLocation.TransportationOffice.Address.ID)
+		// Make sure every record does not have a residential address
+		// loaded but does have a duty location and its transportation
+		// office loaded
+		for _, serviceMember := range serviceMembers {
+			suite.False(serviceMember.DutyLocation.ID.IsNil())
+			suite.False(serviceMember.DutyLocation.TransportationOffice.ID.IsNil())
+			suite.Nil(serviceMember.ResidentialAddress)
 		}
 	})
 }

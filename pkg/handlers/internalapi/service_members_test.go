@@ -1,12 +1,3 @@
-// RA Summary: gosec - errcheck - Unchecked return value
-// RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
-// RA: Functions with unchecked return values in the file are used fetch data and assign data to a variable that is checked later on
-// RA: Given the return value is being checked in a different line and the functions that are flagged by the linter are being used to assign variables
-// RA: in a unit test, then there is no risk
-// RA Developer Status: Mitigated
-// RA Validator Status: Mitigated
-// RA Modified Severity: N/A
-// nolint:errcheck
 package internalapi
 
 import (
@@ -104,7 +95,7 @@ func (suite *HandlerSuite) TestSubmitServiceMemberHandlerNoValues() {
 	// Then: we expect a servicemember to have been created for the user
 	query := suite.DB().Where("user_id = ?", user.ID)
 	var serviceMembers models.ServiceMembers
-	query.All(&serviceMembers)
+	suite.NoError(query.All(&serviceMembers))
 
 	suite.Assertions.Len(serviceMembers, 1)
 
@@ -120,7 +111,7 @@ func (suite *HandlerSuite) TestSubmitServiceMemberHandlerNoValues() {
 	// which can't be handled in OpenAPI Spec 2.0. Therefore we don't return them at all.
 	suite.Assertions.Equal((*serviceMemberPayload).Rank, (*internalmessages.ServiceMemberRank)(nil))
 	suite.Assertions.Equal((*serviceMemberPayload).Affiliation, (*internalmessages.Affiliation)(nil))
-	suite.Assertions.Equal((*serviceMemberPayload).CurrentLocation, (*internalmessages.DutyLocationPayload)(nil))
+	suite.Assertions.Equal((*serviceMemberPayload).CurrentLocation, (*internalmessages.DutyLocationInternal)(nil))
 	suite.Assertions.Equal((*serviceMemberPayload).ResidentialAddress, (*internalmessages.Address)(nil))
 	suite.Assertions.Equal((*serviceMemberPayload).BackupMailingAddress, (*internalmessages.Address)(nil))
 	suite.Assertions.Equal((*serviceMemberPayload).BackupContacts, internalmessages.IndexServiceMemberBackupContactsPayload{})
@@ -165,7 +156,7 @@ func (suite *HandlerSuite) TestSubmitServiceMemberHandlerAllValues() {
 	// Then: we expect a servicemember to have been created for the user
 	query := suite.DB().Where("user_id = ?", user.ID)
 	var serviceMembers models.ServiceMembers
-	query.All(&serviceMembers)
+	suite.NoError(query.All(&serviceMembers))
 
 	suite.Assertions.Len(serviceMembers, 1)
 }
@@ -209,29 +200,20 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 
 	origDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
 	// Test updating duty location to one with different GBLOC
-	newDutyLocationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
-		{
-			Model: models.Address{
-				StreetAddress1: "Fort Gordon",
-				City:           "Augusta",
-				State:          "GA",
-				PostalCode:     "77777",
-				Country:        models.StringPointer("United States"),
-			},
-		},
-	}, nil)
+	newDutyLocationTemplate := models.DutyLocation{
+		Name:           "Fort Sam Houston",
+		StreetAddress1: "Fort Gordon",
+		City:           "Augusta",
+		State:          "GA",
+		PostalCode:     "77777",
+		Country:        "United States",
+	}
 
 	// Create a custom postal code to GBLOC
-	newGBLOC := factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), newDutyLocationAddress.PostalCode, "UUUU")
+	newGBLOC := factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), newDutyLocationTemplate.PostalCode, "UUUU")
 	newDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
 		{
-			Model: models.DutyLocation{
-				Name: "Fort Sam Houston",
-			},
-		},
-		{
-			Model:    newDutyLocationAddress,
-			LinkOnly: true,
+			Model: newDutyLocationTemplate,
 		},
 	}, nil)
 	newDutyLocationID := strfmt.UUID(newDutyLocation.ID.String())
@@ -334,7 +316,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 	suite.Equal(*backupAddress.StreetAddress1, *serviceMemberPayload.BackupMailingAddress.StreetAddress1)
 	// Editing SM info DutyLocation and Rank fields should edit Orders OriginDutyLocation and Grade fields
 	suite.Equal(*serviceMemberPayload.Orders[0].OriginDutyLocation.Name, newDutyLocation.Name)
-	suite.Equal(serviceMemberPayload.Orders[0].OriginDutyLocationGbloc, &newGBLOC.GBLOC)
+	suite.Equal(*serviceMemberPayload.Orders[0].OriginDutyLocationGbloc, newGBLOC.GBLOC)
 	suite.Equal(*serviceMemberPayload.Orders[0].Grade, (string)(rank))
 	suite.NotEqual(*serviceMemberPayload.Orders[0].Grade, orderGrade)
 }
@@ -517,12 +499,13 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
 
 	// Then: we expect addresses to have been created
 	addresses := []models.Address{}
-	suite.DB().All(&addresses)
-	suite.Equal(6, len(addresses))
-	// Why 6?
-	// Make duty locations +2 addresses each DL => 4
+	suite.NoError(suite.DB().All(&addresses))
+	suite.Equal(4, len(addresses))
+	// Why 4?
+	// Make duty locations +1 addresses each DL (for the
+	// transportation office) => 2
 	// Patch service member +2 addresses added to service member => 2
-	// Total => 6
+	// Total => 2
 }
 
 func (suite *HandlerSuite) TestPatchServiceMemberHandlerWrongUser() {
