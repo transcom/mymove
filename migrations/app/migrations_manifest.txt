@@ -831,3 +831,4 @@
 20230612172652_alter_service_request_documents_table_change_contstraints.up.sql
 20230612210223_remove_distance_calculations.up.sql
 20230612210947_duty_location_address_merge.up.sql
+20230613192306_duty_location_postal_code_gin_index.up.sql
