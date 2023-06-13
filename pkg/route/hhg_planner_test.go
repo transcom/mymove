@@ -94,6 +94,16 @@ func (suite *GHCTestSuite) TestHHGZipTransitDistance() {
 		suite.Equal(150, distance)
 	})
 
+	suite.Run("ZipTransitDistance returns a distance of 1 if origin and dest zips are the same", func() {
+		testSoapClient := &ghcmocks.SoapCaller{}
+
+		plannerMileage := NewDTODZip5Distance(fakeUsername, fakePassword, testSoapClient)
+		planner := NewHHGPlanner(plannerMileage)
+		distance, err := planner.ZipTransitDistance(suite.AppContextForTest(), "11201", "11201")
+		suite.NoError(err)
+		suite.Equal(1, distance)
+	})
+
 	suite.Run("fake DTOD returns an error", func() {
 		testSoapClient := &ghcmocks.SoapCaller{}
 		testSoapClient.On("Call",
