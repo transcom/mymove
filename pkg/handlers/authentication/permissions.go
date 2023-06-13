@@ -43,16 +43,11 @@ var TOO = RolePermissions{
 var TIO = RolePermissions{
 	RoleType: roles.RoleTypeTIO,
 	Permissions: []string{
-		"create.ShipmentCancellation",
-		"create.shipmentDiversionRequest",
-		"create.reweighRequest",
 		"create.serviceItem",
 		"read.paymentRequest",
 		"read.shipmentsPaymentSITBalance",
-		"update.shipment",
 		"update.financialReviewFlag",
 		"update.orders",
-		"update.allowances",
 		"update.billableWeight",
 		"update.maxBillableWeight",
 		"update.paymentRequest",
