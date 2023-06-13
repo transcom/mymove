@@ -13,6 +13,13 @@ describe('ServiceItemsTable', () => {
   const defaultProps = {
     handleUpdateMTOServiceItemStatus: jest.fn(),
     handleShowRejectionDialog: jest.fn(),
+    handleRequestSITAddressUpdateModal: jest.fn(),
+    handleShowEditSitAddressModal: jest.fn(),
+    serviceItemAddressUpdateAlert: {
+      makeVisible: false,
+      alertMessage: '',
+      alertType: '',
+    },
   };
 
   it('renders with no details', () => {
@@ -253,6 +260,132 @@ describe('ServiceItemsTable', () => {
     expect(wrapper.find('[data-testid="sitAddressUpdateTag"]').exists()).toBe(true);
   });
 
+  it('properly displays service item table tag for approved address update', () => {
+    const serviceItems = [
+      {
+        id: 'abc123',
+        mtoShipmentID: 'xyz789',
+        submittedAt: '2020-11-20',
+        serviceItem: 'Domestic destination SIT delivery',
+        code: 'DDDSIT',
+        sitAddressUpdates: [
+          {
+            contractorRemarks: 'contractor remarks',
+            distance: 140,
+            status: SIT_ADDRESS_UPDATE_STATUS.APPROVED,
+            officeRemarks: 'I have approved',
+          },
+        ],
+      },
+    ];
+
+    const propsForApprovedUpdate = {
+      handleUpdateMTOServiceItemStatus: jest.fn(),
+      handleShowRejectionDialog: jest.fn(),
+      serviceItemAddressUpdateAlert: {
+        makeVisible: true,
+        alertMessage: 'warning',
+        alertType: 'Address update over 50 miles approved.',
+      },
+    };
+
+    const wrapper = mount(
+      <MockProviders permissions={[permissionTypes.updateMTOServiceItem]}>
+        <ServiceItemsTable
+          {...propsForApprovedUpdate}
+          serviceItems={serviceItems}
+          statusForTableType={SERVICE_ITEM_STATUS.APPROVED}
+        />
+      </MockProviders>,
+    );
+
+    expect(wrapper.find('[data-testid="serviceItemAddressUpdateAlert"]').exists()).toBe(true);
+  });
+
+  it('properly displays service item table tag for rejected address update', () => {
+    const serviceItems = [
+      {
+        id: 'abc123',
+        mtoShipmentID: 'xyz789',
+        submittedAt: '2020-11-20',
+        serviceItem: 'Domestic destination SIT delivery',
+        code: 'DDDSIT',
+        sitAddressUpdates: [
+          {
+            contractorRemarks: 'contractor remarks',
+            distance: 140,
+            status: SIT_ADDRESS_UPDATE_STATUS.REJECTED,
+            officeRemarks: 'I have rejected',
+          },
+        ],
+      },
+    ];
+
+    const propsForApprovedUpdate = {
+      handleUpdateMTOServiceItemStatus: jest.fn(),
+      handleShowRejectionDialog: jest.fn(),
+      serviceItemAddressUpdateAlert: {
+        makeVisible: true,
+        alertMessage: 'info',
+        alertType: 'Address update over 50 miles rejected.',
+      },
+    };
+
+    const wrapper = mount(
+      <MockProviders permissions={[permissionTypes.updateMTOServiceItem]}>
+        <ServiceItemsTable
+          {...propsForApprovedUpdate}
+          serviceItems={serviceItems}
+          statusForTableType={SERVICE_ITEM_STATUS.APPROVED}
+        />
+      </MockProviders>,
+    );
+
+    expect(wrapper.find('[data-testid="serviceItemAddressUpdateAlert"]').exists()).toBe(true);
+  });
+
+  it('properly displays service item table tag for edited address update', () => {
+    const serviceItems = [
+      {
+        id: 'abc123',
+        mtoShipmentID: 'xyz789',
+        submittedAt: '2020-11-20',
+        serviceItem: 'Domestic destination SIT delivery',
+        code: 'DDDSIT',
+        sitAddressUpdates: [
+          {
+            contractorRemarks: null,
+            distance: 49,
+            status: SIT_ADDRESS_UPDATE_STATUS.APPROVED,
+            officeRemarks: 'I have edited',
+          },
+        ],
+      },
+    ];
+
+    const propsForApprovedUpdate = {
+      handleUpdateMTOServiceItemStatus: jest.fn(),
+      handleShowRejectionDialog: jest.fn(),
+      serviceItemAddressUpdateAlert: {
+        makeVisible: true,
+        alertMessage: 'info',
+        alertType: 'Address update within 50 miles.',
+      },
+    };
+
+    const wrapper = mount(
+      <MockProviders permissions={[permissionTypes.updateMTOServiceItem]}>
+        <ServiceItemsTable
+          {...propsForApprovedUpdate}
+          serviceItems={serviceItems}
+          statusForTableType={SERVICE_ITEM_STATUS.APPROVED}
+        />
+      </MockProviders>,
+    );
+
+    expect(wrapper.find('[data-testid="serviceItemAddressUpdateAlert"]').exists()).toBe(true);
+  });
+
   it('does not show edit/review request button when service item code is not DDDSIT', () => {
     const serviceItems = [
       {
@@ -315,6 +448,40 @@ describe('ServiceItemsTable', () => {
     expect(editButton.at(0).contains('Edit')).toBe(true);
   });
 
+  it('calls the handleShowEditSitAddressModal handler when the edit button is clicked', () => {
+    const serviceItems = [
+      {
+        id: 'abc123',
+        mtoShipmentID: 'xyz789',
+        submittedAt: '2020-11-20',
+        serviceItem: 'Domestic destination SIT delivery',
+        code: 'DDDSIT',
+        sitAddressUpdates: [
+          {
+            contractorRemarks: 'contractor remarks',
+            distance: 140,
+            status: SIT_ADDRESS_UPDATE_STATUS.APPROVED,
+            officeRemarks: null,
+          },
+        ],
+      },
+    ];
+
+    const wrapper = mount(
+      <MockProviders permissions={[permissionTypes.updateMTOServiceItem]}>
+        <ServiceItemsTable
+          {...defaultProps}
+          serviceItems={serviceItems}
+          statusForTableType={SERVICE_ITEM_STATUS.APPROVED}
+        />
+      </MockProviders>,
+    );
+
+    wrapper.find('button[data-testid="editTextButton"]').simulate('click');
+
+    expect(defaultProps.handleShowEditSitAddressModal).toHaveBeenCalledWith('abc123', 'xyz789');
+  });
+
   it('shows review request button when service item contains requested sit address update', () => {
     const serviceItems = [
       {
@@ -349,5 +516,147 @@ describe('ServiceItemsTable', () => {
     expect(reviewRequestButton.length).toBeTruthy();
 
     expect(reviewRequestButton.at(0).contains('Review Request')).toBe(true);
+  });
+
+  it('calls the handleRequestSITAddressUpdateModal handler when the Review Request button is clicked', () => {
+    const serviceItems = [
+      {
+        id: 'abc123',
+        mtoShipmentID: 'xyz789',
+        submittedAt: '2020-11-20',
+        serviceItem: 'Domestic destination SIT delivery',
+        code: 'DDDSIT',
+        sitAddressUpdates: [
+          {
+            contractorRemarks: 'contractor remarks',
+            distance: 140,
+            status: SIT_ADDRESS_UPDATE_STATUS.REQUESTED,
+            officeRemarks: null,
+          },
+        ],
+      },
+    ];
+
+    const wrapper = mount(
+      <MockProviders permissions={[permissionTypes.updateMTOServiceItem]}>
+        <ServiceItemsTable
+          {...defaultProps}
+          serviceItems={serviceItems}
+          statusForTableType={SERVICE_ITEM_STATUS.APPROVED}
+        />
+      </MockProviders>,
+    );
+
+    wrapper.find('button[data-testid="reviewRequestTextButton"]').simulate('click');
+
+    expect(defaultProps.handleRequestSITAddressUpdateModal).toHaveBeenCalledWith('abc123', 'xyz789');
+  });
+
+  it('shows Reject text button for approved service item', () => {
+    const serviceItems = [
+      {
+        id: 'abc123',
+        mtoShipmentID: 'xyz789',
+        submittedAt: '2020-11-20',
+        serviceItem: 'Domestic destination SIT delivery',
+        code: 'DDDSIT',
+      },
+    ];
+
+    const wrapper = mount(
+      <MockProviders permissions={[permissionTypes.updateMTOServiceItem]}>
+        <ServiceItemsTable
+          {...defaultProps}
+          serviceItems={serviceItems}
+          statusForTableType={SERVICE_ITEM_STATUS.APPROVED}
+        />
+      </MockProviders>,
+    );
+
+    const rejectTextButton = wrapper.find('button[data-testid="rejectTextButton"]');
+
+    expect(rejectTextButton.length).toBeTruthy();
+
+    expect(rejectTextButton.at(0).contains('Reject')).toBe(true);
+  });
+
+  it('calls the handleShowRejectionDialog handler when the Reject text button is clicked', () => {
+    const serviceItems = [
+      {
+        id: 'abc123',
+        mtoShipmentID: 'xyz789',
+        submittedAt: '2020-11-20',
+        serviceItem: 'Domestic destination SIT delivery',
+        code: 'DDDSIT',
+      },
+    ];
+
+    const wrapper = mount(
+      <MockProviders permissions={[permissionTypes.updateMTOServiceItem]}>
+        <ServiceItemsTable
+          {...defaultProps}
+          serviceItems={serviceItems}
+          statusForTableType={SERVICE_ITEM_STATUS.APPROVED}
+        />
+      </MockProviders>,
+    );
+
+    wrapper.find('button[data-testid="rejectTextButton"]').simulate('click');
+
+    expect(defaultProps.handleShowRejectionDialog).toHaveBeenCalledWith('abc123', 'xyz789');
+  });
+
+  it('shows Approve text button for rejected service item', () => {
+    const serviceItems = [
+      {
+        id: 'abc123',
+        mtoShipmentID: 'xyz789',
+        submittedAt: '2020-11-20',
+        serviceItem: 'Domestic destination SIT delivery',
+        code: 'DDDSIT',
+      },
+    ];
+
+    const wrapper = mount(
+      <MockProviders permissions={[permissionTypes.updateMTOServiceItem]}>
+        <ServiceItemsTable
+          {...defaultProps}
+          serviceItems={serviceItems}
+          statusForTableType={SERVICE_ITEM_STATUS.REJECTED}
+        />
+      </MockProviders>,
+    );
+
+    const approveTextButton = wrapper.find('button[data-testid="approveTextButton"]');
+
+    expect(approveTextButton.length).toBeTruthy();
+
+    expect(approveTextButton.at(0).contains('Approve')).toBe(true);
+  });
+
+  it('calls the handleUpdateMTOServiceItemStatus handler when the Approve text button is clicked', () => {
+    const serviceItems = [
+      {
+        id: 'abc123',
+        mtoShipmentID: 'xyz789',
+        submittedAt: '2020-11-20',
+        serviceItem: 'Domestic destination SIT delivery',
+        code: 'DDDSIT',
+      },
+    ];
+
+    const wrapper = mount(
+      <MockProviders permissions={[permissionTypes.updateMTOServiceItem]}>
+        <ServiceItemsTable
+          {...defaultProps}
+          serviceItems={serviceItems}
+          statusForTableType={SERVICE_ITEM_STATUS.REJECTED}
+        />
+      </MockProviders>,
+    );
+
+    wrapper.find('button[data-testid="approveTextButton"]').simulate('click');
+
+    expect(defaultProps.handleUpdateMTOServiceItemStatus).toHaveBeenCalledWith('abc123', 'xyz789', 'APPROVED');
   });
 });

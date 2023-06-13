@@ -32,6 +32,9 @@ var (
 	// AllowedTypesPaymentRequest are the content types we allow prime to upload
 	AllowedTypesPaymentRequest AllowedFileTypes = []string{FileTypeJPEG, FileTypePNG, FileTypePDF}
 
+	// AllowedTypesServiceRequest are the content types we allow prime to upload for proof of service item requests
+	AllowedTypesServiceRequest AllowedFileTypes = []string{FileTypeJPEG, FileTypePNG, FileTypePDF}
+
 	// AllowedTypesText accepts text files
 	AllowedTypesText AllowedFileTypes = []string{FileTypeText, FileTypeTextUTF8}
 

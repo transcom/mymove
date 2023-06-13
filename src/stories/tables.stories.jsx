@@ -322,6 +322,11 @@ export const ServiceItemTables = () => (
             },
           },
         ]}
+        serviceItemAddressUpdateAlert={{
+          makeVisible: false,
+          alertMessage: '',
+          alertType: '',
+        }}
       />
     </MockProviders>
   </div>

@@ -12,10 +12,7 @@ const ShipmentContainer = ({ id, className, children, shipmentType }) => {
     styles.shipmentContainer,
     {
       'container--accent--default': shipmentType === null,
-      'container--accent--hhg':
-        shipmentType === SHIPMENT_OPTIONS.HHG ||
-        shipmentType === SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC ||
-        shipmentType === SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
+      'container--accent--hhg': shipmentType === SHIPMENT_OPTIONS.HHG,
       'container--accent--nts': shipmentType === SHIPMENT_OPTIONS.NTS,
       'container--accent--ntsr': shipmentType === SHIPMENT_OPTIONS.NTSR,
       'container--accent--ppm': shipmentType === SHIPMENT_OPTIONS.PPM,

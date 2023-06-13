@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { generatePath, Link, useParams } from 'react-router-dom';
+import * as Yup from 'yup';
 import { Alert, Button, Grid, GridContainer, Tag } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -45,6 +46,8 @@ import {
   updateMTOShipmentRequestReweigh,
   updateMTOShipmentStatus,
   createSitAddressUpdate,
+  approveSitAddressUpdate,
+  rejectSitAddressUpdate,
 } from 'services/ghcApi';
 import { MOVE_STATUSES } from 'shared/constants';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -107,6 +110,11 @@ export const MoveTaskOrder = (props) => {
   const [isWeightAlertVisible, setIsWeightAlertVisible] = useState(false);
   const [isFinancialModalVisible, setIsFinancialModalVisible] = useState(false);
   const [isSITAddressUpdateAlertVisible, setIsSITAddressUpdateAlertVisible] = useState(false);
+  const [serviceItemAddressUpdateAlert, setServiceItemAddressUpdateAlert] = useState({
+    makeVisible: false,
+    alertMessage: '',
+    alertType: '',
+  });
   /* ------------------ Selected / Active Item ------------------------- */
   const [selectedShipment, setSelectedShipment] = useState(undefined);
   const [selectedServiceItem, setSelectedServiceItem] = useState(undefined);
@@ -334,6 +342,34 @@ export const MoveTaskOrder = (props) => {
       milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
     },
   });
+
+  const { mutate: mutateApproveSitAddressUpdate } = useMutation({
+    mutationFn: approveSitAddressUpdate,
+    onSuccess: (data) => {
+      const updatedServiceItems = [...mtoServiceItems];
+      updatedServiceItems[updatedServiceItems.findIndex((serviceItem) => serviceItem.id === data.id)] = data;
+      queryClient.setQueryData([MTO_SERVICE_ITEMS, move.id, false], updatedServiceItems);
+      queryClient.invalidateQueries({ queryKey: [MTO_SERVICE_ITEMS, move.id, false] });
+    },
+    onError: (error) => {
+      const errorMsg = error?.response?.body;
+      milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
+    },
+  });
+
+  const { mutate: mutateRejectSitAddressUpdate } = useMutation({
+    mutationFn: rejectSitAddressUpdate,
+    onSuccess: (data) => {
+      const updatedServiceItems = [...mtoServiceItems];
+      updatedServiceItems[updatedServiceItems.findIndex((serviceItem) => serviceItem.id === data.id)] = data;
+      queryClient.setQueryData([MTO_SERVICE_ITEMS, move.id, false], updatedServiceItems);
+      queryClient.invalidateQueries({ queryKey: [MTO_SERVICE_ITEMS, move.id, false] });
+    },
+    onError: (error) => {
+      const errorMsg = error?.response?.body;
+      milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
+    },
+  });
   /*
   *
   -------------------------  Toggle Modals  -------------------------
@@ -388,7 +424,7 @@ export const MoveTaskOrder = (props) => {
     setIsReviewRequestSITAddressModalVisible(true);
   };
   /**
-   * @description This is the handler function for cancelling or closeing the
+   * @description This is the handler function for cancelling or closing the
    * Request SIT Address Modal. This is used by the ConnectedServiceItemUpdateModal
    * component to close the Request SIT Address modal.
    * */
@@ -631,21 +667,85 @@ export const MoveTaskOrder = (props) => {
    * @description Updates the sitAddressUpdate logs and final SIT address with the new address submitted.
    * OnSuccess, it closes the modal and sets a success message.
    */
-  const handleSumbitSitAddressChange = (mtoServiceItemID, { newAddress, officeRemarks }) => {
+  const handleSubmitSitAddressChange = (mtoServiceItemID, { newAddress, officeRemarks }) => {
     mutateSitAddressUpdate(
       {
         mtoServiceItemID,
         body: { newAddress, officeRemarks },
       },
       {
-        onSuccess: () => {
+        onSuccess: (data) => {
           setSelectedServiceItem({});
           setIsEditSitAddressModalVisible(false);
           setAlertMessage('Changes saved');
           setAlertType('success');
+
+          // Setting up the approved service item table alert for TOO edits
+          // TODO: We should probably change the endpoint to send back the id of the latest update so we can match by id instead of position.
+          const calculatedDistance = data.sitAddressUpdates.slice(-1)[0].distance; // Resulting update should be the last item in the array
+          const type = calculatedDistance <= 50 ? 'info' : 'warning';
+          const message =
+            calculatedDistance <= 50 ? 'Address update within 50 miles.' : 'Address update over 50 miles approved.';
+          setServiceItemAddressUpdateAlert({
+            ...serviceItemAddressUpdateAlert,
+            makeVisible: true,
+            alertType: type,
+            alertMessage: message,
+          });
         },
       },
     );
+  };
+
+  const handleSubmitSitAddressUpdateChange = (mtoServiceItemID, { sitAddressUpdate, officeRemarks }) => {
+    const { id, eTag } = findSITAddressUpdate(selectedServiceItem.id, selectedServiceItem.sitAddressUpdates);
+    const runOnSuccess = (data) => {
+      setIsReviewRequestSITAddressModalVisible(false);
+      setSelectedServiceItem({});
+      setAlertMessage('Changes saved');
+      setAlertType('success');
+
+      // Setting up the approved service item table alert for TOO edits
+      const { status } = data.sitAddressUpdates.find((update) => update.id === id);
+      const type = status === 'REJECTED' ? 'info' : 'warning';
+      const message =
+        status === 'REJECTED' ? 'Address update over 50 miles rejected.' : 'Address update over 50 miles approved.';
+
+      setServiceItemAddressUpdateAlert({
+        ...serviceItemAddressUpdateAlert,
+        makeVisible: true,
+        alertType: type,
+        alertMessage: message,
+      });
+    };
+
+    if (sitAddressUpdate === 'YES') {
+      mutateApproveSitAddressUpdate(
+        {
+          sitAddressUpdateID: id,
+          ifMatchETag: eTag,
+          body: { officeRemarks },
+        },
+        {
+          onSuccess: (data) => {
+            runOnSuccess(data);
+          },
+        },
+      );
+    } else if (sitAddressUpdate === 'NO') {
+      mutateRejectSitAddressUpdate(
+        {
+          sitAddressUpdateID: id,
+          ifMatchETag: eTag,
+          body: { officeRemarks },
+        },
+        {
+          onSuccess: (data) => {
+            runOnSuccess(data);
+          },
+        },
+      );
+    }
   };
 
   /*
@@ -949,8 +1049,9 @@ export const MoveTaskOrder = (props) => {
               isOpen={isReviewRequestSITAddressModalVisible}
               closeModal={handleCancelReviewRequestAddressModal}
               title="Review request: service item update"
-              onSave={() => {}}
+              onSave={handleSubmitSitAddressUpdateChange}
               serviceItem={selectedServiceItem}
+              validations={{ sitAddressUpdate: Yup.string().required('Required') }}
             >
               <ReviewSitAddressChange
                 sitAddressUpdate={findSITAddressUpdate(selectedServiceItem.id, selectedServiceItem.sitAddressUpdates)}
@@ -977,7 +1078,7 @@ export const MoveTaskOrder = (props) => {
           {isEditSitAddressModalVisible && (
             <ConnectedServiceItemUpdateModal
               closeModal={handleCancelEditAddressModal}
-              onSave={handleSumbitSitAddressChange}
+              onSave={handleSubmitSitAddressChange}
               isOpen={isEditSitAddressModalVisible}
               serviceItem={selectedServiceItem}
               initialValues={{
@@ -1092,6 +1193,7 @@ export const MoveTaskOrder = (props) => {
                     handleShowRejectionDialog={handleShowRejectionDialog}
                     handleShowEditSitAddressModal={handleShowEditSitAddressModal}
                     statusForTableType={SERVICE_ITEM_STATUSES.SUBMITTED}
+                    serviceItemAddressUpdateAlert={serviceItemAddressUpdateAlert}
                   />
                 )}
                 {approvedServiceItems?.length > 0 && (
@@ -1102,6 +1204,7 @@ export const MoveTaskOrder = (props) => {
                     handleRequestSITAddressUpdateModal={handleReviewRequestSITAddressUpdateModal}
                     handleShowEditSitAddressModal={handleShowEditSitAddressModal}
                     statusForTableType={SERVICE_ITEM_STATUSES.APPROVED}
+                    serviceItemAddressUpdateAlert={serviceItemAddressUpdateAlert}
                   />
                 )}
                 {rejectedServiceItems?.length > 0 && (
@@ -1111,6 +1214,7 @@ export const MoveTaskOrder = (props) => {
                     handleShowRejectionDialog={handleShowRejectionDialog}
                     handleShowEditSitAddressModal={handleShowEditSitAddressModal}
                     statusForTableType={SERVICE_ITEM_STATUSES.REJECTED}
+                    serviceItemAddressUpdateAlert={serviceItemAddressUpdateAlert}
                   />
                 )}
               </ShipmentContainer>
