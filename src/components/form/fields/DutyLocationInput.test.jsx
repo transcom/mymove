@@ -30,10 +30,6 @@ jest.mock('components/LocationSearchBox/api', () => {
       new Promise((resolve) => {
         resolve([]);
       }),
-    ShowAddress: () =>
-      new Promise((resolve) => {
-        resolve(43);
-      }),
   };
 });
 
@@ -50,8 +46,8 @@ describe('DutyLocationInput', () => {
       const container = wrapper.find(LocationSearchBoxContainer).dive();
       const component = container.find(LocationSearchBoxComponent).dive();
       const select = component.find(AsyncSelect);
-      await select.simulate('change', { id: 1, address_id: 1 });
-      expect(mockSetValue).toHaveBeenCalledWith({ address: 43, address_id: 1, id: 1 });
+      await select.simulate('change', { id: 1 });
+      expect(mockSetValue).toHaveBeenCalledWith({ id: 1 });
     });
 
     it('escapes regex special character input', async () => {

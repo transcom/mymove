@@ -156,7 +156,7 @@ export class Summary extends Component {
           <NTSRShipmentCard
             key={shipment.id}
             destinationLocation={shipment?.destinationAddress}
-            destinationZIP={currentOrders.new_duty_location.address.postalCode}
+            destinationZIP={currentOrders.new_duty_location.postalCode}
             secondaryDeliveryAddress={shipment?.secondaryDeliveryAddress}
             showEditAndDeleteBtn={showEditAndDeleteBtn}
             moveId={moveId}
@@ -174,7 +174,7 @@ export class Summary extends Component {
       return (
         <HHGShipmentCard
           key={shipment.id}
-          destinationZIP={currentOrders.new_duty_location.address.postalCode}
+          destinationZIP={currentOrders.new_duty_location.postalCode}
           secondaryDeliveryAddress={shipment?.secondaryDeliveryAddress}
           secondaryPickupAddress={shipment?.secondaryPickupAddress}
           destinationLocation={shipment?.destinationAddress}

@@ -7,7 +7,7 @@ import classNames from 'classnames';
 import { debounce } from 'lodash';
 
 import styles from './LocationSearchBox.module.scss';
-import { SearchDutyLocations, ShowAddress } from './api';
+import { SearchDutyLocations } from './api';
 
 import Hint from 'components/Hint';
 import { DutyLocationShape } from 'types';
@@ -78,7 +78,6 @@ const customStyles = {
 
 export const LocationSearchBoxComponent = ({
   searchLocations,
-  showAddress,
   title,
   input,
   name,
@@ -138,17 +137,6 @@ export const LocationSearchBoxComponent = ({
   }, DEBOUNCE_TIMER_MS);
 
   const selectOption = async (selectedValue) => {
-    if (!selectedValue.address) {
-      const address = await showAddress(selectedValue.address_id);
-      const newValue = {
-        ...selectedValue,
-        address,
-      };
-
-      onChange(newValue);
-      return newValue;
-    }
-
     onChange(selectedValue);
     return selectedValue;
   };
@@ -209,7 +197,7 @@ export const LocationSearchBoxComponent = ({
 
 export const LocationSearchBoxContainer = (props) => {
   const { searchLocations } = props;
-  return <LocationSearchBoxComponent {...props} searchLocations={searchLocations} showAddress={ShowAddress} />;
+  return <LocationSearchBoxComponent {...props} searchLocations={searchLocations} />;
 };
 
 LocationSearchBoxContainer.propTypes = {
@@ -246,7 +234,6 @@ LocationSearchBoxContainer.defaultProps = {
 LocationSearchBoxComponent.propTypes = {
   ...LocationSearchBoxContainer.propTypes,
   searchLocations: PropTypes.func,
-  showAddress: PropTypes.func.isRequired,
   isDisabled: PropTypes.bool,
 };
 

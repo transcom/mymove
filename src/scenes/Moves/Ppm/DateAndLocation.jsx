@@ -189,7 +189,7 @@ export class DateAndLocation extends Component {
             <div style={{ marginTop: '0.5rem' }}>
               <span className="grey">
                 The ZIP code for {currentOrders && currentOrders.new_duty_location.name} is{' '}
-                {currentOrders && currentOrders.new_duty_location.address.postalCode}.
+                {currentOrders && currentOrders.new_duty_location.postalCode}.
               </span>
             </div>
             <SwaggerField fieldName="has_sit" swagger={this.props.schema} component={YesNoBoolean} />

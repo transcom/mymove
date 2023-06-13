@@ -32,7 +32,7 @@ export class CreateOrEditMtoShipment extends Component {
       router: { location },
       mtoShipment,
       currentResidence,
-      newDutyLocationAddress,
+      newDutyLocation,
       updateMTOShipment,
       serviceMember,
       orders,
@@ -59,7 +59,7 @@ export class CreateOrEditMtoShipment extends Component {
           shipmentType={type || mtoShipment.shipmentType}
           isCreatePage={!!type}
           currentResidence={currentResidence}
-          newDutyLocationAddress={newDutyLocationAddress}
+          newDutyLocation={newDutyLocation}
           updateMTOShipment={updateMTOShipment}
           serviceMember={serviceMember}
           orders={orders}
@@ -76,7 +76,7 @@ CreateOrEditMtoShipment.propTypes = {
   fetchCustomerData: func.isRequired,
   mtoShipment: ShipmentShape,
   currentResidence: AddressShape.isRequired,
-  newDutyLocationAddress: SimpleAddressShape,
+  newDutyLocation: SimpleAddressShape,
   updateMTOShipment: func.isRequired,
   serviceMember: shape({
     weight_allotment: shape({
@@ -100,7 +100,7 @@ CreateOrEditMtoShipment.defaultProps = {
       streetAddress1: '',
     },
   },
-  newDutyLocationAddress: {
+  newDutyLocation: {
     city: '',
     state: '',
     postalCode: '',
@@ -121,7 +121,7 @@ function mapStateToProps(state, ownProps) {
     orders: selectCurrentOrders(state) || {},
     mtoShipment: selectMTOShipmentById(state, mtoShipmentId) || {},
     currentResidence: serviceMember?.residential_address || {},
-    newDutyLocationAddress: selectCurrentOrders(state)?.new_duty_location?.address || {},
+    newDutyLocation: selectCurrentOrders(state)?.new_duty_location || {},
     move: selectMove(state, moveId),
   };
 

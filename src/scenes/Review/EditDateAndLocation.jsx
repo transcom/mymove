@@ -66,7 +66,7 @@ let EditDateAndLocationForm = (props) => {
               <SwaggerField fieldName="destination_postal_code" swagger={schema} required />
               <span className="grey">
                 The ZIP code for {currentOrders && currentOrders.new_duty_location.name} is{' '}
-                {currentOrders && currentOrders.new_duty_location.address.postalCode}{' '}
+                {currentOrders && currentOrders.new_duty_location.postalCode}{' '}
               </span>
               <SwaggerField fieldName="has_sit" swagger={schema} component={YesNoBoolean} />
               {get(props, 'formValues.has_sit', false) && (
