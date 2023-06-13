@@ -258,8 +258,6 @@ func (suite *MTOShipmentServiceSuite) TestDeleteValidations() {
 			models.MTOShipmentTypeHHG:              false,
 			models.MTOShipmentTypeInternationalHHG: false,
 			models.MTOShipmentTypeInternationalUB:  false,
-			models.MTOShipmentTypeHHGLongHaulDom:   false,
-			models.MTOShipmentTypeHHGShortHaulDom:  false,
 			models.MTOShipmentTypeHHGIntoNTSDom:    false,
 			models.MTOShipmentTypeHHGOutOfNTSDom:   false,
 			models.MTOShipmentTypeMotorhome:        false,

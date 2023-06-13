@@ -252,7 +252,7 @@ func (suite *PayloadsSuite) TestSITAddressUpdateModel() {
 		sitAddressUpdate := primemessages.CreateSITAddressUpdateRequest{
 			MtoServiceItemID:  strfmt.UUID(uuid.Must(uuid.NewV4()).String()),
 			NewAddress:        &newAddress,
-			ContractorRemarks: contractorRemark,
+			ContractorRemarks: &contractorRemark,
 		}
 
 		model := SITAddressUpdateModel(&sitAddressUpdate)
@@ -263,6 +263,6 @@ func (suite *PayloadsSuite) TestSITAddressUpdateModel() {
 		suite.Equal(model.NewAddress.State, *sitAddressUpdate.NewAddress.State)
 		suite.Equal(model.NewAddress.PostalCode, *sitAddressUpdate.NewAddress.PostalCode)
 		suite.Equal(model.NewAddress.StreetAddress1, *sitAddressUpdate.NewAddress.StreetAddress1)
-		suite.Equal(*model.ContractorRemarks, sitAddressUpdate.ContractorRemarks)
+		suite.Equal(*model.ContractorRemarks, *sitAddressUpdate.ContractorRemarks)
 	})
 }
