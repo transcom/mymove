@@ -4314,6 +4314,28 @@
     ts-dedent "^2.0.0"
     uuid "^9.0.0"
 
+"@storybook/addon-actions@7.0.20":
+  version "7.0.20"
+  resolved "https://registry.yarnpkg.com/@storybook/addon-actions/-/addon-actions-7.0.20.tgz#4298f6acee8e7957db5a88e7448880667954cba5"
+  integrity sha512-otdbuEcHtzb6BzYdCYXyoZ3yNwcMdGSeGKf1aMj0b+C6b23XMnwDa90nzH3JST/sb8PJ1o5MHKWPQJ8UKt72Ug==
+  dependencies:
+    "@storybook/client-logger" "7.0.20"
+    "@storybook/components" "7.0.20"
+    "@storybook/core-events" "7.0.20"
+    "@storybook/global" "^5.0.0"
+    "@storybook/manager-api" "7.0.20"
+    "@storybook/preview-api" "7.0.20"
+    "@storybook/theming" "7.0.20"
+    "@storybook/types" "7.0.20"
+    dequal "^2.0.2"
+    lodash "^4.17.21"
+    polished "^4.2.2"
+    prop-types "^15.7.2"
+    react-inspector "^6.0.0"
+    telejson "^7.0.3"
+    ts-dedent "^2.0.0"
+    uuid "^9.0.0"
+
 "@storybook/addon-backgrounds@7.0.18":
   version "7.0.18"
   resolved "https://registry.yarnpkg.com/@storybook/addon-backgrounds/-/addon-backgrounds-7.0.18.tgz#ffb47f8ac5e51718103b8931326321032d0e3f8b"
@@ -4769,6 +4791,20 @@
     "@storybook/global" "^5.0.0"
     "@storybook/theming" "7.0.18"
     "@storybook/types" "7.0.18"
+    memoizerific "^1.11.3"
+    use-resize-observer "^9.1.0"
+    util-deprecate "^1.0.2"
+
+"@storybook/components@7.0.20":
+  version "7.0.20"
+  resolved "https://registry.yarnpkg.com/@storybook/components/-/components-7.0.20.tgz#402626b0290d1e5f6bedd8673e6ca05da96ebdd2"
+  integrity sha512-eoEtby/yVkvUKpXfktibxPOhR5UBsWnKRWQUNSxN0vYTG4iBBh3HdjgxFJYfSXV13J+6OfvpBPLlPC+enXrbrQ==
+  dependencies:
+    "@storybook/client-logger" "7.0.20"
+    "@storybook/csf" "^0.1.0"
+    "@storybook/global" "^5.0.0"
+    "@storybook/theming" "7.0.20"
+    "@storybook/types" "7.0.20"
     memoizerific "^1.11.3"
     use-resize-observer "^9.1.0"
     util-deprecate "^1.0.2"
