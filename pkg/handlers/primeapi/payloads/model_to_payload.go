@@ -411,6 +411,19 @@ func PaymentServiceItemParams(paymentServiceItemParams *models.PaymentServiceIte
 	return &payload
 }
 
+func ServiceRequestDocument(serviceRequestDocument models.ServiceRequestDocument) *primemessages.ServiceRequestDocument {
+	uploads := make([]*primemessages.UploadWithOmissions, len(serviceRequestDocument.ServiceRequestDocumentUploads))
+	if serviceRequestDocument.ServiceRequestDocumentUploads != nil && len(serviceRequestDocument.ServiceRequestDocumentUploads) > 0 {
+		for i, proofOfServiceDocumentUpload := range serviceRequestDocument.ServiceRequestDocumentUploads {
+			uploads[i] = basicUpload(&proofOfServiceDocumentUpload.Upload)
+		}
+	}
+
+	return &primemessages.ServiceRequestDocument{
+		Uploads: uploads,
+	}
+}
+
 // PPMShipment payload
 func PPMShipment(ppmShipment *models.PPMShipment) *primemessages.PPMShipment {
 	if ppmShipment == nil || ppmShipment.ID.IsNil() {
@@ -642,6 +655,14 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 		shipmentIDStr = mtoServiceItem.MTOShipmentID.String()
 	}
 
+	serviceRequestDocuments := make(primemessages.ServiceRequestDocuments, len(mtoServiceItem.ServiceRequestDocuments))
+
+	if mtoServiceItem.ServiceRequestDocuments != nil && len(mtoServiceItem.ServiceRequestDocuments) > 0 {
+		for i, serviceRequestDocument := range mtoServiceItem.ServiceRequestDocuments {
+			serviceRequestDocuments[i] = ServiceRequestDocument(serviceRequestDocument)
+		}
+	}
+
 	one := mtoServiceItem.ID.String()
 	two := strfmt.UUID(one)
 	payload.SetID(two)
@@ -651,6 +672,7 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 	payload.SetStatus(primemessages.MTOServiceItemStatus(mtoServiceItem.Status))
 	payload.SetRejectionReason(mtoServiceItem.RejectionReason)
 	payload.SetETag(etag.GenerateEtag(mtoServiceItem.UpdatedAt))
+	payload.SetServiceRequestDocuments(serviceRequestDocuments)
 	return payload
 }
 
