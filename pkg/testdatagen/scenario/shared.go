@@ -3946,7 +3946,12 @@ func createDefaultHHGMoveWithPaymentRequest(appCtx appcontext.AppContext, userUp
 // Creates an HHG Shipment with SIT at Origin and a payment request for first day and additional day SIT service items.
 // This is to compare to calculating the cost for SIT with a PPM which excludes delivery/pickup costs because the
 // address is not changing. 30 days of additional days in SIT are invoiced.
-func createHHGWithOriginSITServiceItems(appCtx appcontext.AppContext, primeUploader *uploader.PrimeUploader, moveRouter services.MoveRouter) {
+func createHHGWithOriginSITServiceItems(
+	appCtx appcontext.AppContext,
+	primeUploader *uploader.PrimeUploader,
+	moveRouter services.MoveRouter,
+	shipmentFetcher services.MTOShipmentFetcher,
+) {
 	db := appCtx.DB()
 	// Since we want to customize the Contractor ID for prime uploads, create the contractor here first
 	// BuildMove and BuildPrimeUpload both use FetchOrBuildDefaultContractor
@@ -4086,7 +4091,7 @@ func createHHGWithOriginSITServiceItems(appCtx appcontext.AppContext, primeUploa
 		logger.Fatal(fmt.Sprintf("error while creating origin sit service item: %v", verrs.Errors), zap.Error(createErr))
 	}
 
-	serviceItemUpdator := mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter)
+	serviceItemUpdator := mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter, shipmentFetcher)
 
 	var originFirstDaySIT models.MTOServiceItem
 	var originAdditionalDaySIT models.MTOServiceItem
@@ -4195,7 +4200,7 @@ func createHHGWithOriginSITServiceItems(appCtx appcontext.AppContext, primeUploa
 // Creates an HHG Shipment with SIT at Origin and a payment request for first day and additional day SIT service items.
 // This is to compare to calculating the cost for SIT with a PPM which excludes delivery/pickup costs because the
 // address is not changing. 30 days of additional days in SIT are invoiced.
-func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, primeUploader *uploader.PrimeUploader, moveRouter services.MoveRouter) {
+func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, primeUploader *uploader.PrimeUploader, moveRouter services.MoveRouter, shipmentFetcher services.MTOShipmentFetcher) {
 	db := appCtx.DB()
 
 	// Since we want to customize the Contractor ID for prime uploads, create the contractor here first
@@ -4331,7 +4336,7 @@ func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, prime
 		logger.Fatal(fmt.Sprintf("error while creating origin sit service item: %v", verrs.Errors), zap.Error(createErr))
 	}
 
-	serviceItemUpdator := mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter)
+	serviceItemUpdator := mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter, shipmentFetcher)
 
 	var destinationFirstDaySIT models.MTOServiceItem
 	var destinationAdditionalDaySIT models.MTOServiceItem
@@ -4441,7 +4446,12 @@ func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, prime
 
 // Creates a payment request with domestic hhg and shorthaul shipments with
 // service item pricing params for displaying cost calculations
-func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploader *uploader.PrimeUploader, moveRouter services.MoveRouter) {
+func createHHGWithPaymentServiceItems(
+	appCtx appcontext.AppContext,
+	primeUploader *uploader.PrimeUploader,
+	moveRouter services.MoveRouter,
+	shipmentFetcher services.MTOShipmentFetcher,
+) {
 	db := appCtx.DB()
 	// Since we want to customize the Contractor ID for prime uploads, create the contractor here first
 	// BuildMove and BuildPrimeUpload both use FetchOrBuildDefaultContractor
@@ -4497,7 +4507,7 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 				Status:               models.MTOShipmentStatusSubmitted,
 				PrimeEstimatedWeight: &estimatedWeight,
 				PrimeActualWeight:    &actualWeight,
-				ShipmentType:         models.MTOShipmentTypeHHGShortHaulDom,
+				ShipmentType:         models.MTOShipmentTypeHHG,
 				SITDaysAllowance:     &SITAllowance,
 			},
 		},
@@ -4701,6 +4711,9 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 	// called for domestic origin SIT pickup service item
 	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), "90210", "94535").Return(348, nil).Once()
 
+	// called for domestic destination SIT delivery service item
+	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), "94535", "90210").Return(348, nil).Once()
+
 	for _, shipment := range []models.MTOShipment{longhaulShipment, shorthaulShipment, shipmentWithOriginalWeight, shipmentWithOriginalAndReweighWeight, shipmentWithOriginalAndReweighWeightReweihBolded, shipmentWithOriginalReweighAndAdjustedWeight, shipmentWithOriginalAndAdjustedWeight} {
 		shipmentUpdater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder, serviceItemCreator, planner)
 		_, updateErr := shipmentUpdater.UpdateMTOShipmentStatus(appCtx, shipment.ID, models.MTOShipmentStatusApproved, nil, etag.GenerateEtag(shipment.UpdatedAt))
@@ -4782,7 +4795,7 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 		logger.Fatal(fmt.Sprintf("error while creating destination sit service item: %v", verrs.Errors), zap.Error(createErr))
 	}
 
-	serviceItemUpdator := mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter)
+	serviceItemUpdator := mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter, shipmentFetcher)
 
 	var originFirstDaySIT models.MTOServiceItem
 	var originAdditionalDaySIT models.MTOServiceItem
@@ -5014,17 +5027,6 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 			Value:       destDepartureDate.Format("2006-01-02"),
 		}}
 
-	dddsitPaymentParams := []models.PaymentServiceItemParam{
-		{
-			IncomingKey: models.ServiceItemParamNameDistanceZipSITDest.String(),
-			Value:       "1000",
-		},
-		{
-			IncomingKey: models.ServiceItemParamNameZipSITDestHHGOriginalAddress.String(),
-			Value:       "94535",
-		},
-	}
-
 	// Ordering the service items based on approved date to ensure the DDFSIT is after the DOASIT.
 	// This avoids a flaky error when we create the service item parameters.
 	sort.SliceStable(serviceItems, func(i, j int) bool {
@@ -5043,8 +5045,6 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 			paymentItem.PaymentServiceItemParams = doasitPaymentParams
 		} else if serviceItem.ReService.Code == models.ReServiceCodeDDASIT {
 			paymentItem.PaymentServiceItemParams = ddasitPaymentParams
-		} else if serviceItem.ReService.Code == models.ReServiceCodeDDDSIT {
-			paymentItem.PaymentServiceItemParams = dddsitPaymentParams
 		}
 		paymentServiceItems = append(paymentServiceItems, paymentItem)
 	}
@@ -5890,7 +5890,7 @@ func createHHGMoveWith2PaymentRequests(appCtx appcontext.AppContext, userUploade
 				ID:                   uuid.FromStringOrNil("baa00811-2381-433e-8a96-2ced58e37a14"),
 				PrimeEstimatedWeight: &estimatedWeight,
 				PrimeActualWeight:    &actualWeight,
-				ShipmentType:         models.MTOShipmentTypeHHGShortHaulDom,
+				ShipmentType:         models.MTOShipmentTypeHHG,
 				ApprovedDate:         models.TimePointer(time.Now()),
 				Status:               models.MTOShipmentStatusApproved,
 			},
@@ -6891,7 +6891,7 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 	}, nil)
 }
 
-func createMoveWithHHGAndNTSRMissingInfo(appCtx appcontext.AppContext, moveRouter services.MoveRouter) {
+func createMoveWithHHGAndNTSRMissingInfo(appCtx appcontext.AppContext, moveRouter services.MoveRouter, shipmentFetcher services.MTOShipmentFetcher) {
 	db := appCtx.DB()
 	move := factory.BuildMove(db, []factory.Customization{
 		{

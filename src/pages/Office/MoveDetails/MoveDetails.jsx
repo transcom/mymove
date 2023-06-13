@@ -75,8 +75,6 @@ const MoveDetails = ({
     // destination type must be set for for HHG, NTSR shipments only
     errorIfMissing.HHG = [{ fieldName: 'destinationType' }];
     errorIfMissing.HHG_OUTOF_NTS_DOMESTIC.push({ fieldName: 'destinationType' });
-    errorIfMissing.HHG_SHORTHAUL_DOMESTIC = [{ fieldName: 'destinationType' }];
-    errorIfMissing.HHG_LONGHAUL_DOMESTIC = [{ fieldName: 'destinationType' }];
   }
 
   let sections = useMemo(() => {

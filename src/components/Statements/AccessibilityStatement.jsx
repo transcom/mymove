@@ -1,7 +1,10 @@
 import React from 'react';
+
+import { useTitle } from 'hooks/custom';
 import './statements.css';
 
-function PrivacyPolicy() {
+function AccessibilityStatement() {
+  useTitle('508 Compliance');
   return (
     <div className="usa-grid">
       <div className="usa-width-two-thirds statement-content">
@@ -54,4 +57,4 @@ function PrivacyPolicy() {
   );
 }
 
-export default PrivacyPolicy;
+export default AccessibilityStatement;

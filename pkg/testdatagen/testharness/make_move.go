@@ -218,7 +218,7 @@ func MakeWithShipmentMove(appCtx appcontext.AppContext) models.Move {
 			Model: models.MTOShipment{
 				PrimeEstimatedWeight: &estimatedWeight,
 				PrimeActualWeight:    &actualWeight,
-				ShipmentType:         models.MTOShipmentTypeHHGShortHaulDom,
+				ShipmentType:         models.MTOShipmentTypeHHG,
 				ApprovedDate:         models.TimePointer(time.Now()),
 			},
 		},
@@ -1104,7 +1104,7 @@ func MakeHHGMoveWithServiceItemsandPaymentRequestsForTIO(appCtx appcontext.AppCo
 			Model: models.MTOShipment{
 				PrimeEstimatedWeight: &estimatedWeight,
 				PrimeActualWeight:    &actualWeight,
-				ShipmentType:         models.MTOShipmentTypeHHGShortHaulDom,
+				ShipmentType:         models.MTOShipmentTypeHHG,
 				ApprovedDate:         models.TimePointer(time.Now()),
 			},
 		},

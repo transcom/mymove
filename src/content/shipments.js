@@ -6,8 +6,6 @@ export const shipmentTypeLabels = {
   [SHIPMENT_OPTIONS.PPM]: 'PPM',
   [SHIPMENT_OPTIONS.NTS]: 'NTS',
   [SHIPMENT_OPTIONS.NTSR]: 'NTS-release',
-  [SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC]: 'HHG',
-  [SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC]: 'HHG',
 };
 
 export const shipmentForm = {
@@ -20,8 +18,6 @@ export const shipmentForm = {
 
 export const shipmentSectionLabels = {
   HHG: 'HHG shipment',
-  HHG_LONGHAUL_DOMESTIC: 'HHG shipment',
-  HHG_SHORTHAUL_DOMESTIC: 'HHG shipment',
   HHG_INTO_NTS_DOMESTIC: 'NTS shipment',
   HHG_OUTOF_NTS_DOMESTIC: 'NTS-release shipment',
 };

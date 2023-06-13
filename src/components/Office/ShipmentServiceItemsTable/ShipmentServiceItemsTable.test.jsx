@@ -15,24 +15,7 @@ describe('Shipment Service Items Table', () => {
       ['Domestic packing'],
       ['Domestic unpacking'],
     ])('expects %s to be in the document', async (serviceItem) => {
-      render(<ShipmentServiceItemsTable shipmentType={SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC} />);
-      expect(
-        await screen.findByRole('heading', { name: 'Service items for this shipment 6 items', level: 4 }),
-      ).toBeInTheDocument();
-      expect(screen.getByText(serviceItem)).toBeInTheDocument();
-    });
-  });
-
-  describe('renders the hhg shorthaul shipment type with service items', () => {
-    it.each([
-      ['Domestic shorthaul'],
-      ['Fuel surcharge'],
-      ['Domestic origin price'],
-      ['Domestic destination price'],
-      ['Domestic packing'],
-      ['Domestic unpacking'],
-    ])('expects %s to be in the document', async (serviceItem) => {
-      render(<ShipmentServiceItemsTable shipmentType={SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC} />);
+      render(<ShipmentServiceItemsTable shipmentType={SHIPMENT_OPTIONS.HHG} />);
       expect(
         await screen.findByRole('heading', { name: 'Service items for this shipment 6 items', level: 4 }),
       ).toBeInTheDocument();

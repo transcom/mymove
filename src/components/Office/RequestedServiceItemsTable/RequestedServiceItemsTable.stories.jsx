@@ -82,6 +82,12 @@ const serviceItems = [
   },
 ];
 
+const serviceItemAddressUpdateAlert = {
+  makeVisible: false,
+  alertMessage: '',
+  alertType: '',
+};
+
 const approvedServiceItems = serviceItems.map((serviceItem) => {
   return {
     ...serviceItem,
@@ -98,16 +104,28 @@ const rejectedServiceItems = serviceItems.map((serviceItem) => {
 
 export const Default = () => (
   <MockProviders permissions={[permissionTypes.updateMTOServiceItem]}>
-    <RequestedServiceItemsTable serviceItems={serviceItems} statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED} />
+    <RequestedServiceItemsTable
+      serviceItems={serviceItems}
+      statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
+      serviceItemAddressUpdateAlert={serviceItemAddressUpdateAlert}
+    />
   </MockProviders>
 );
 export const ApprovedServiceItems = () => (
   <MockProviders permissions={[permissionTypes.updateMTOServiceItem]}>
-    <RequestedServiceItemsTable serviceItems={approvedServiceItems} statusForTableType={SERVICE_ITEM_STATUS.APPROVED} />
+    <RequestedServiceItemsTable
+      serviceItems={approvedServiceItems}
+      statusForTableType={SERVICE_ITEM_STATUS.APPROVED}
+      serviceItemAddressUpdateAlert={serviceItemAddressUpdateAlert}
+    />
   </MockProviders>
 );
 export const RejectedServiceItems = () => (
   <MockProviders permissions={[permissionTypes.updateMTOServiceItem]}>
-    <RequestedServiceItemsTable serviceItems={rejectedServiceItems} statusForTableType={SERVICE_ITEM_STATUS.REJECTED} />
+    <RequestedServiceItemsTable
+      serviceItems={rejectedServiceItems}
+      statusForTableType={SERVICE_ITEM_STATUS.REJECTED}
+      serviceItemAddressUpdateAlert={serviceItemAddressUpdateAlert}
+    />
   </MockProviders>
 );

@@ -1,6 +1,7 @@
 package movetaskorder_test
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -394,12 +395,19 @@ func (suite *MoveTaskOrderServiceSuite) TestListPrimeMoveTaskOrdersFetcher() {
 	primeMove2 := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 	primeMove3 := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 	factory.BuildMTOShipmentWithMove(&primeMove3, suite.DB(), nil, nil)
-
-	// Move primeMove1 and primeMove3 into the past so we can exclude them:
-	suite.Require().NoError(suite.DB().RawQuery("UPDATE moves SET updated_at=$1 WHERE id IN ($2, $3);",
-		now.Add(-10*time.Second), primeMove1.ID, primeMove3.ID).Exec())
-	suite.Require().NoError(suite.DB().RawQuery("UPDATE orders SET updated_at=$1 WHERE id=$2;",
-		now.Add(-10*time.Second), primeMove1.OrdersID).Exec())
+	primeMove4 := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+	shipmentForPrimeMove4 := factory.BuildMTOShipmentWithMove(&primeMove4, suite.DB(), nil, nil)
+	reweigh := testdatagen.MakeReweigh(suite.DB(), testdatagen.Assertions{
+		MTOShipment: shipmentForPrimeMove4,
+	})
+	suite.Logger().Info(fmt.Sprintf("Reweigh %s", reweigh.ID))
+	// Move primeMove1, primeMove3, and primeMove4 into the past so we can exclude them:
+	suite.Require().NoError(suite.DB().RawQuery("UPDATE moves SET updated_at=$1 WHERE id IN ($2, $3, $4);",
+		now.Add(-10*time.Second), primeMove1.ID, primeMove3.ID, primeMove4.ID).Exec())
+	suite.Require().NoError(suite.DB().RawQuery("UPDATE orders SET updated_at=$1 WHERE id IN ($2, $3);",
+		now.Add(-10*time.Second), primeMove1.OrdersID, primeMove4.OrdersID).Exec())
+	suite.Require().NoError(suite.DB().RawQuery("UPDATE mto_shipments SET updated_at=$1 WHERE id=$2;",
+		now.Add(-10*time.Second), shipmentForPrimeMove4.ID).Exec())
 
 	fetcher := NewMoveTaskOrderFetcher()
 	searchParams := services.MoveTaskOrderFetcherParams{}
@@ -407,23 +415,25 @@ func (suite *MoveTaskOrderServiceSuite) TestListPrimeMoveTaskOrdersFetcher() {
 	// Run the fetcher without `since` to get all Prime moves:
 	primeMoves, err := fetcher.ListPrimeMoveTaskOrders(suite.AppContextForTest(), &searchParams)
 	suite.NoError(err)
-	suite.Len(primeMoves, 3)
+	suite.Len(primeMoves, 4)
 
-	moveIDs := []uuid.UUID{primeMoves[0].ID, primeMoves[1].ID, primeMoves[2].ID}
+	moveIDs := []uuid.UUID{primeMoves[0].ID, primeMoves[1].ID, primeMoves[2].ID, primeMoves[3].ID}
 	suite.NotContains(moveIDs, hiddenMove.ID)
 	suite.NotContains(moveIDs, nonPrimeMove.ID)
 	suite.Contains(moveIDs, primeMove1.ID)
 	suite.Contains(moveIDs, primeMove2.ID)
 	suite.Contains(moveIDs, primeMove3.ID)
+	suite.Contains(moveIDs, primeMove4.ID)
 
-	// Run the fetcher with `since` to get primeMove2 and primeMove3 (because of the shipment)
+	// Run the fetcher with `since` to get primeMove2, primeMove3 (because of the shipment), and primeMove4 (because of the reweigh)
 	since := now.Add(-5 * time.Second)
 	searchParams.Since = &since
 	sinceMoves, err := fetcher.ListPrimeMoveTaskOrders(suite.AppContextForTest(), &searchParams)
 	suite.NoError(err)
-	suite.Len(sinceMoves, 2)
+	suite.Len(sinceMoves, 3)
 
-	sinceMoveIDs := []uuid.UUID{sinceMoves[0].ID, sinceMoves[1].ID}
+	sinceMoveIDs := []uuid.UUID{sinceMoves[0].ID, sinceMoves[1].ID, sinceMoves[2].ID}
 	suite.Contains(sinceMoveIDs, primeMove2.ID)
 	suite.Contains(sinceMoveIDs, primeMove3.ID)
+	suite.Contains(sinceMoveIDs, primeMove4.ID)
 }
