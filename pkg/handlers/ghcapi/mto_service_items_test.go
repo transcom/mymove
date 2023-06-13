@@ -25,6 +25,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/mocks"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
+	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	"github.com/transcom/mymove/pkg/services/query"
 	sitaddressupdate "github.com/transcom/mymove/pkg/services/sit_address_update"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -485,7 +486,8 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 
 		fetcher := fetch.NewFetcher(queryBuilder)
 		moveRouter := moverouter.NewMoveRouter()
-		mtoServiceItemStatusUpdater := mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter)
+		shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
+		mtoServiceItemStatusUpdater := mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter, shipmentFetcher)
 
 		handler := UpdateMTOServiceItemStatusHandler{
 			HandlerConfig:         suite.HandlerConfig(),
@@ -513,6 +515,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 	suite.Run("Successful status update of MTO service item and event trigger", func() {
 		queryBuilder := query.NewQueryBuilder()
 		moveRouter := moverouter.NewMoveRouter()
+		shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
 		mtoServiceItem, availableMove := suite.createServiceItem()
 		requestUser := factory.BuildUser(nil, nil, nil)
 		availableMoveID := availableMove.ID
@@ -534,7 +537,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 		}
 
 		fetcher := fetch.NewFetcher(queryBuilder)
-		mtoServiceItemStatusUpdater := mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter)
+		mtoServiceItemStatusUpdater := mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter, shipmentFetcher)
 
 		handler := UpdateMTOServiceItemStatusHandler{
 			HandlerConfig:         suite.HandlerConfig(),
@@ -570,8 +573,16 @@ func (suite *HandlerSuite) TestCreateSITAddressUpdate() {
 		mock.AnythingOfType("string"),
 		mock.AnythingOfType("string"),
 	).Return(mockedDistance, nil)
-	serviceItemUpdater := mtoserviceitem.NewMTOServiceItemUpdater(query.NewQueryBuilder(), moverouter.NewMoveRouter())
-	sitAddressUpdateCreator := sitaddressupdate.NewApprovedOfficeSITAddressUpdateCreator(mockPlanner, address.NewAddressCreator(), serviceItemUpdater)
+	serviceItemUpdater := mtoserviceitem.NewMTOServiceItemUpdater(
+		query.NewQueryBuilder(),
+		moverouter.NewMoveRouter(),
+		mtoshipment.NewMTOShipmentFetcher(),
+	)
+	sitAddressUpdateCreator := sitaddressupdate.NewApprovedOfficeSITAddressUpdateCreator(
+		mockPlanner,
+		address.NewAddressCreator(),
+		serviceItemUpdater,
+	)
 
 	suite.Run("Returns 200, creates new SIT address update, and updates SITDestinationFinalAddress on service item when validations pass", func() {
 		handlerConfig := suite.HandlerConfig()
@@ -893,7 +904,8 @@ func (suite *HandlerSuite) TestCreateSITAddressUpdate() {
 
 func (suite *HandlerSuite) TestApproveSITAddressUpdate() {
 	moveRouter := moverouter.NewMoveRouter()
-	serviceItemUpdater := mtoserviceitem.NewMTOServiceItemUpdater(query.NewQueryBuilder(), moveRouter)
+	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
+	serviceItemUpdater := mtoserviceitem.NewMTOServiceItemUpdater(query.NewQueryBuilder(), moveRouter, shipmentFetcher)
 	sitAddressUpdateApprover := sitaddressupdate.NewSITAddressUpdateRequestApprover(serviceItemUpdater, moveRouter)
 
 	suite.Run("Returns 200, approves SIT address update, and updates SITDestinationFinalAddress on service item", func() {
