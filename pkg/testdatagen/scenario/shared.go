@@ -4711,6 +4711,9 @@ func createHHGWithPaymentServiceItems(
 	// called for domestic origin SIT pickup service item
 	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), "90210", "94535").Return(348, nil).Once()
 
+	// called for domestic destination SIT delivery service item
+	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), "94535", "90210").Return(348, nil).Once()
+
 	for _, shipment := range []models.MTOShipment{longhaulShipment, shorthaulShipment, shipmentWithOriginalWeight, shipmentWithOriginalAndReweighWeight, shipmentWithOriginalAndReweighWeightReweihBolded, shipmentWithOriginalReweighAndAdjustedWeight, shipmentWithOriginalAndAdjustedWeight} {
 		shipmentUpdater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder, serviceItemCreator, planner)
 		_, updateErr := shipmentUpdater.UpdateMTOShipmentStatus(appCtx, shipment.ID, models.MTOShipmentStatusApproved, nil, etag.GenerateEtag(shipment.UpdatedAt))
@@ -5024,13 +5027,6 @@ func createHHGWithPaymentServiceItems(
 			Value:       destDepartureDate.Format("2006-01-02"),
 		}}
 
-	dddsitPaymentParams := []models.PaymentServiceItemParam{
-		{
-			IncomingKey: models.ServiceItemParamNameDistanceZipSITDest.String(),
-			Value:       "1000",
-		},
-	}
-
 	// Ordering the service items based on approved date to ensure the DDFSIT is after the DOASIT.
 	// This avoids a flaky error when we create the service item parameters.
 	sort.SliceStable(serviceItems, func(i, j int) bool {
@@ -5049,8 +5045,6 @@ func createHHGWithPaymentServiceItems(
 			paymentItem.PaymentServiceItemParams = doasitPaymentParams
 		} else if serviceItem.ReService.Code == models.ReServiceCodeDDASIT {
 			paymentItem.PaymentServiceItemParams = ddasitPaymentParams
-		} else if serviceItem.ReService.Code == models.ReServiceCodeDDDSIT {
-			paymentItem.PaymentServiceItemParams = dddsitPaymentParams
 		}
 		paymentServiceItems = append(paymentServiceItems, paymentItem)
 	}
