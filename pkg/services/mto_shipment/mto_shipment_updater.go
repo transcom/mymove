@@ -349,6 +349,10 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 			return StaleIdentifierError{StaleIdentifier: eTag}
 		}
 
+		// TODO: We currently can't distinguish between a nil DestinationAddress meaning to "clear field"
+		//   vs "don't touch" the field, so we can't safely reset a nil DestinationAddress to the duty
+		//   location address for an HHG like we do in the MTOShipmentCreator now.  See MB-15718.
+
 		if newShipment.DestinationAddress != nil {
 			// If there is an existing DestinationAddressID associated
 			// with the shipment, grab it.
