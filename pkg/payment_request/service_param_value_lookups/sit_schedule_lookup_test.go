@@ -50,7 +50,12 @@ func (suite *ServiceParamValueLookupsSuite) TestSITSchedule() {
 			{
 				Model:    destAddress,
 				LinkOnly: true,
-				Type:     &factory.Addresses.DeliveryAddress,
+				Type:     &factory.Addresses.SITDestinationFinalAddress,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDDSIT,
+				},
 			},
 		}, []factory.Trait{
 			factory.GetTraitAvailableToPrimeMove,
@@ -167,7 +172,12 @@ func (suite *ServiceParamValueLookupsSuite) TestSITSchedule() {
 			{
 				Model:    destinationAddress,
 				LinkOnly: true,
-				Type:     &factory.Addresses.DeliveryAddress,
+				Type:     &factory.Addresses.SITDestinationFinalAddress,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDDSIT,
+				},
 			},
 		}, []factory.Trait{
 			factory.GetTraitAvailableToPrimeMove,
