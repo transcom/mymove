@@ -54,6 +54,7 @@ type MTOServiceItem struct {
 	Dimensions                      MTOServiceItemDimensions       `has_many:"mto_service_item_dimensions" fk_id:"mto_service_item_id"`
 	CustomerContacts                MTOServiceItemCustomerContacts `many_to_many:"service_items_customer_contacts"`
 	SITAddressUpdates               SITAddressUpdates              `has_many:"sit_address_updates" fk_id:"mto_service_item_id"`
+	ServiceRequestDocuments         ServiceRequestDocuments        `has_many:"service_request_document" fk_id:"mto_service_item_id"`
 	CreatedAt                       time.Time                      `db:"created_at"`
 	UpdatedAt                       time.Time                      `db:"updated_at"`
 	ApprovedAt                      *time.Time                     `db:"approved_at"`
