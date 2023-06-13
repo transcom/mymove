@@ -15,6 +15,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/invoice"
 	move "github.com/transcom/mymove/pkg/services/move"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
+	movetaskorderfetcher "github.com/transcom/mymove/pkg/services/move_task_order/move_task_order_fetcher"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
@@ -37,7 +38,7 @@ func NewSupportAPIHandler(handlerConfig handlers.HandlerConfig) http.Handler {
 
 	supportAPI.MoveTaskOrderListMTOsHandler = ListMTOsHandler{
 		handlerConfig,
-		movetaskorder.NewMoveTaskOrderFetcher(),
+		movetaskorderfetcher.NewMoveTaskOrderFetcher("v2"),
 	}
 
 	supportAPI.MoveTaskOrderMakeMoveTaskOrderAvailableHandler = MakeMoveTaskOrderAvailableHandlerFunc{
@@ -56,7 +57,7 @@ func NewSupportAPIHandler(handlerConfig handlers.HandlerConfig) http.Handler {
 
 	supportAPI.MoveTaskOrderGetMoveTaskOrderHandler = GetMoveTaskOrderHandlerFunc{
 		handlerConfig,
-		movetaskorder.NewMoveTaskOrderFetcher()}
+		movetaskorderfetcher.NewMoveTaskOrderFetcher("v2")}
 
 	supportAPI.MoveTaskOrderCreateMoveTaskOrderHandler = CreateMoveTaskOrderHandler{
 		handlerConfig,

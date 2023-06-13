@@ -20,6 +20,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/mocks"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
+	movetaskorderfetcherv1 "github.com/transcom/mymove/pkg/services/move_task_order/move_task_order_fetcher/move_task_order_fetcher_v1"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	"github.com/transcom/mymove/pkg/services/query"
 	supportMocks "github.com/transcom/mymove/pkg/services/support/mocks"
@@ -53,7 +54,7 @@ func (suite *HandlerSuite) TestListMTOsHandler() {
 
 	handler := ListMTOsHandler{
 		HandlerConfig:        handlerConfig,
-		MoveTaskOrderFetcher: movetaskorder.NewMoveTaskOrderFetcher(),
+		MoveTaskOrderFetcher: movetaskorderfetcherv1.NewMoveTaskOrderFetcher(),
 	}
 
 	response := handler.Handle(params)
@@ -193,7 +194,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 
 	handlerConfig := suite.HandlerConfig()
 	handler := GetMoveTaskOrderHandlerFunc{handlerConfig,
-		movetaskorder.NewMoveTaskOrderFetcher(),
+		movetaskorderfetcherv1.NewMoveTaskOrderFetcher(),
 	}
 	response := handler.Handle(params)
 	suite.IsNotErrResponse(response)

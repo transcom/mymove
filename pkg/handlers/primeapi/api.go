@@ -14,6 +14,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	"github.com/transcom/mymove/pkg/services/move"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
+	movetaskorderfetcherv1 "github.com/transcom/mymove/pkg/services/move_task_order/move_task_order_fetcher/move_task_order_fetcher_v1"
 	mtoagent "github.com/transcom/mymove/pkg/services/mto_agent"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
@@ -55,12 +56,12 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primeoperations.MymoveAP
 
 	primeAPI.MoveTaskOrderListMovesHandler = ListMovesHandler{
 		handlerConfig,
-		movetaskorder.NewMoveTaskOrderFetcher(),
+		movetaskorderfetcherv1.NewMoveTaskOrderFetcher(),
 	}
 
 	primeAPI.MoveTaskOrderGetMoveTaskOrderHandler = GetMoveTaskOrderHandler{
 		handlerConfig,
-		movetaskorder.NewMoveTaskOrderFetcher(),
+		movetaskorderfetcherv1.NewMoveTaskOrderFetcher(),
 	}
 
 	primeAPI.MoveTaskOrderCreateExcessWeightRecordHandler = CreateExcessWeightRecordHandler{

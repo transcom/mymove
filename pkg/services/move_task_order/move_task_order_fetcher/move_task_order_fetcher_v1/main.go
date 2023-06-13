@@ -1,4 +1,4 @@
-package movetaskorder
+package movetaskorderfetcherv1
 
 import (
 	"database/sql"
@@ -13,16 +13,16 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
-type moveTaskOrderFetcher struct {
+type MoveTaskOrderFetcher struct {
 }
 
 // NewMoveTaskOrderFetcher creates a new struct with the service dependencies
 func NewMoveTaskOrderFetcher() services.MoveTaskOrderFetcher {
-	return &moveTaskOrderFetcher{}
+	return &MoveTaskOrderFetcher{}
 }
 
 // ListAllMoveTaskOrders retrieves all Move Task Orders that may or may not be available to prime, and may or may not be enabled.
-func (f moveTaskOrderFetcher) ListAllMoveTaskOrders(appCtx appcontext.AppContext, searchParams *services.MoveTaskOrderFetcherParams) (models.Moves, error) {
+func (f MoveTaskOrderFetcher) ListAllMoveTaskOrders(appCtx appcontext.AppContext, searchParams *services.MoveTaskOrderFetcherParams) (models.Moves, error) {
 	var moveTaskOrders models.Moves
 	var err error
 	query := appCtx.DB().EagerPreload(
@@ -91,7 +91,7 @@ func (f moveTaskOrderFetcher) ListAllMoveTaskOrders(appCtx appcontext.AppContext
 }
 
 // FetchMoveTaskOrder retrieves a MoveTaskOrder for a given UUID
-func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, searchParams *services.MoveTaskOrderFetcherParams) (*models.Move, error) {
+func (f MoveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, searchParams *services.MoveTaskOrderFetcherParams) (*models.Move, error) {
 	mto := &models.Move{}
 
 	query := appCtx.DB().EagerPreload(
@@ -198,7 +198,7 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 
 // In this option we don't make a change to the old version of the service.
 // ListPrimeMoveTaskOrders performs an optimized fetch for moves specifically targeting the Prime API.
-func (f moveTaskOrderFetcher) ListPrimeMoveTaskOrders(appCtx appcontext.AppContext, searchParams *services.MoveTaskOrderFetcherParams) (models.Moves, error) {
+func (f MoveTaskOrderFetcher) ListPrimeMoveTaskOrders(appCtx appcontext.AppContext, searchParams *services.MoveTaskOrderFetcherParams) (models.Moves, error) {
 	var moveTaskOrders models.Moves
 	var err error
 

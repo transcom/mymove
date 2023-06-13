@@ -8,7 +8,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/primev2api"
 	"github.com/transcom/mymove/pkg/gen/primev2api/primev2operations"
 	"github.com/transcom/mymove/pkg/handlers"
-	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
+	movetaskorderfetcherv2 "github.com/transcom/mymove/pkg/services/move_task_order/move_task_order_fetcher/move_task_order_fetcher_v2"
 )
 
 // NewPrimeAPI returns the Prime API
@@ -26,7 +26,7 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primev2operations.Mymove
 
 	primeAPIV2.MoveTaskOrderListMovesHandler = ListMovesHandler{
 		handlerConfig,
-		movetaskorder.NewMoveTaskOrderFetcherV2(),
+		movetaskorderfetcherv2.NewMoveTaskOrderFetcher(),
 	}
 
 	return primeAPIV2

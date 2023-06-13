@@ -6,7 +6,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
-	movefetcher "github.com/transcom/mymove/pkg/services/move_task_order"
+	movefetcher "github.com/transcom/mymove/pkg/services/move_task_order/move_task_order_fetcher/move_task_order_fetcher_v1"
 )
 
 func (suite *SITAddressUpdateServiceSuite) TestRejectSITAddressUpdateRequest() {

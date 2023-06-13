@@ -13,12 +13,13 @@ import (
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	movetaskorderfetcher "github.com/transcom/mymove/pkg/services/move_task_order/move_task_order_fetcher"
 	"github.com/transcom/mymove/pkg/services/order"
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
 type moveTaskOrderUpdater struct {
-	moveTaskOrderFetcher
+	services.MoveTaskOrderFetcher
 	builder            UpdateMoveTaskOrderQueryBuilder
 	serviceItemCreator services.MTOServiceItemCreator
 	moveRouter         services.MoveRouter
@@ -26,7 +27,13 @@ type moveTaskOrderUpdater struct {
 
 // NewMoveTaskOrderUpdater creates a new struct with the service dependencies
 func NewMoveTaskOrderUpdater(builder UpdateMoveTaskOrderQueryBuilder, serviceItemCreator services.MTOServiceItemCreator, moveRouter services.MoveRouter) services.MoveTaskOrderUpdater {
-	return &moveTaskOrderUpdater{moveTaskOrderFetcher{}, builder, serviceItemCreator, moveRouter}
+	// Since this service calls our service that we have versioned we have to determine what version to use.
+	// When the service is called in the handlers we know which version to use already. We are going to fake it here,
+	// and just tell it to use v1. However, this would need to be addressed.
+	// One idea to address it would be a middleware that
+	// attaches what version we are requesting to the appCtx or perhaps the request context.
+	mtoFetcher := movetaskorderfetcher.NewMoveTaskOrderFetcher("v1")
+	return &moveTaskOrderUpdater{mtoFetcher, builder, serviceItemCreator, moveRouter}
 }
 
 // UpdateStatusServiceCounselingCompleted updates the status on the move (move task order) to service counseling completed
