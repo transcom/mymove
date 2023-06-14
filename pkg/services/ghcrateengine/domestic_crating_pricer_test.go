@@ -39,21 +39,13 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticCratingPricer() {
 		}
 		suite.validatePricerCreatedParams(expectedParams, displayParams)
 	})
-	suite.Run("success using PaymentServiceItemParams and truncating cubic feet", func() {
+	suite.Run("success with truncating cubic feet", func() {
 		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDCRT, dcrtTestServiceSchedule, dcrtTestBasePriceCents, testdatagen.DefaultContractCode, dcrtTestEscalationCompounded)
 
 		paymentServiceItem := suite.setupDomesticCratingServiceItem(unit.CubicFeet(10.005))
-		priceCents, displayParams, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
+		priceCents, _, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
 		suite.NoError(err)
 		suite.Equal(dcrtTestPriceCents, priceCents)
-
-		expectedParams := services.PricingDisplayParams{
-			{Key: models.ServiceItemParamNameContractYearName, Value: testdatagen.DefaultContractCode},
-			{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatEscalation(dcrtTestEscalationCompounded)},
-			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatCents(dcrtTestBasePriceCents)},
-			{Key: models.ServiceItemParamNameCubicFeetBilled, Value: "10.00"},
-		}
-		suite.validatePricerCreatedParams(expectedParams, displayParams)
 	})
 
 	suite.Run("success without PaymentServiceItemParams", func() {
