@@ -494,6 +494,7 @@ func (m *WeightTicket) contextValidateETag(ctx context.Context, formats strfmt.R
 func (m *WeightTicket) contextValidateEmptyDocument(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.EmptyDocument != nil {
+
 		if err := m.EmptyDocument.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("emptyDocument")
@@ -519,6 +520,7 @@ func (m *WeightTicket) contextValidateEmptyDocumentID(ctx context.Context, forma
 func (m *WeightTicket) contextValidateFullDocument(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.FullDocument != nil {
+
 		if err := m.FullDocument.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("fullDocument")
@@ -562,6 +564,7 @@ func (m *WeightTicket) contextValidatePpmShipmentID(ctx context.Context, formats
 func (m *WeightTicket) contextValidateProofOfTrailerOwnershipDocument(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.ProofOfTrailerOwnershipDocument != nil {
+
 		if err := m.ProofOfTrailerOwnershipDocument.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("proofOfTrailerOwnershipDocument")
@@ -587,6 +590,11 @@ func (m *WeightTicket) contextValidateProofOfTrailerOwnershipDocumentID(ctx cont
 func (m *WeightTicket) contextValidateReason(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Reason != nil {
+
+		if swag.IsZero(m.Reason) { // not required
+			return nil
+		}
+
 		if err := m.Reason.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("reason")
@@ -603,6 +611,11 @@ func (m *WeightTicket) contextValidateReason(ctx context.Context, formats strfmt
 func (m *WeightTicket) contextValidateStatus(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Status != nil {
+
+		if swag.IsZero(m.Status) { // not required
+			return nil
+		}
+
 		if err := m.Status.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("status")

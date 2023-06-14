@@ -598,6 +598,11 @@ func (m *PersonallyProcuredMovePayload) ContextValidate(ctx context.Context, for
 func (m *PersonallyProcuredMovePayload) contextValidateAdvance(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Advance != nil {
+
+		if swag.IsZero(m.Advance) { // not required
+			return nil
+		}
+
 		if err := m.Advance.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("advance")
@@ -614,6 +619,11 @@ func (m *PersonallyProcuredMovePayload) contextValidateAdvance(ctx context.Conte
 func (m *PersonallyProcuredMovePayload) contextValidateAdvanceWorksheet(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.AdvanceWorksheet != nil {
+
+		if swag.IsZero(m.AdvanceWorksheet) { // not required
+			return nil
+		}
+
 		if err := m.AdvanceWorksheet.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("advance_worksheet")
@@ -630,6 +640,11 @@ func (m *PersonallyProcuredMovePayload) contextValidateAdvanceWorksheet(ctx cont
 func (m *PersonallyProcuredMovePayload) contextValidateSize(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Size != nil {
+
+		if swag.IsZero(m.Size) { // not required
+			return nil
+		}
+
 		if err := m.Size.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("size")
@@ -644,6 +659,10 @@ func (m *PersonallyProcuredMovePayload) contextValidateSize(ctx context.Context,
 }
 
 func (m *PersonallyProcuredMovePayload) contextValidateStatus(ctx context.Context, formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Status) { // not required
+		return nil
+	}
 
 	if err := m.Status.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {

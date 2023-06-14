@@ -783,6 +783,10 @@ func (m *MTOServiceItemDestSIT) contextValidateServiceRequestDocuments(ctx conte
 
 func (m *MTOServiceItemDestSIT) contextValidateStatus(ctx context.Context, formats strfmt.Registry) error {
 
+	if swag.IsZero(m.Status()) { // not required
+		return nil
+	}
+
 	if err := m.Status().ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("status")
@@ -798,6 +802,11 @@ func (m *MTOServiceItemDestSIT) contextValidateStatus(ctx context.Context, forma
 func (m *MTOServiceItemDestSIT) contextValidateSitDestinationFinalAddress(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.SitDestinationFinalAddress != nil {
+
+		if swag.IsZero(m.SitDestinationFinalAddress) { // not required
+			return nil
+		}
+
 		if err := m.SitDestinationFinalAddress.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("sitDestinationFinalAddress")

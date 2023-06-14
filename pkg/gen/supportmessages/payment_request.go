@@ -198,6 +198,11 @@ func (m *PaymentRequest) ContextValidate(ctx context.Context, formats strfmt.Reg
 func (m *PaymentRequest) contextValidateDocumentPackage(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.DocumentPackage != nil {
+
+		if swag.IsZero(m.DocumentPackage) { // not required
+			return nil
+		}
+
 		if err := m.DocumentPackage.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("documentPackage")
@@ -248,6 +253,10 @@ func (m *PaymentRequest) contextValidateRecalculationOfPaymentRequestID(ctx cont
 }
 
 func (m *PaymentRequest) contextValidateStatus(ctx context.Context, formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Status) { // not required
+		return nil
+	}
 
 	if err := m.Status.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {

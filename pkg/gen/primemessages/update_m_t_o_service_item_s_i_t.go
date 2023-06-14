@@ -424,6 +424,11 @@ func (m *UpdateMTOServiceItemSIT) contextValidateModelType(ctx context.Context, 
 func (m *UpdateMTOServiceItemSIT) contextValidateSitDestinationFinalAddress(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.SitDestinationFinalAddress != nil {
+
+		if swag.IsZero(m.SitDestinationFinalAddress) { // not required
+			return nil
+		}
+
 		if err := m.SitDestinationFinalAddress.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("sitDestinationFinalAddress")
