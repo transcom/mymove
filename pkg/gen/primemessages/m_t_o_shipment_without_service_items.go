@@ -886,6 +886,11 @@ func (m *MTOShipmentWithoutServiceItems) contextValidateDestinationAddress(ctx c
 func (m *MTOShipmentWithoutServiceItems) contextValidateDestinationType(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.DestinationType != nil {
+
+		if swag.IsZero(m.DestinationType) { // not required
+			return nil
+		}
+
 		if err := m.DestinationType.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("destinationType")
@@ -934,6 +939,11 @@ func (m *MTOShipmentWithoutServiceItems) contextValidatePickupAddress(ctx contex
 func (m *MTOShipmentWithoutServiceItems) contextValidatePpmShipment(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.PpmShipment != nil {
+
+		if swag.IsZero(m.PpmShipment) { // not required
+			return nil
+		}
+
 		if err := m.PpmShipment.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("ppmShipment")
@@ -986,6 +996,11 @@ func (m *MTOShipmentWithoutServiceItems) contextValidateRequiredDeliveryDate(ctx
 func (m *MTOShipmentWithoutServiceItems) contextValidateReweigh(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Reweigh != nil {
+
+		if swag.IsZero(m.Reweigh) { // not required
+			return nil
+		}
+
 		if err := m.Reweigh.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("reweigh")
@@ -1010,6 +1025,10 @@ func (m *MTOShipmentWithoutServiceItems) contextValidateSecondaryPickupAddress(c
 }
 
 func (m *MTOShipmentWithoutServiceItems) contextValidateShipmentType(ctx context.Context, formats strfmt.Registry) error {
+
+	if swag.IsZero(m.ShipmentType) { // not required
+		return nil
+	}
 
 	if err := m.ShipmentType.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
@@ -1049,6 +1068,11 @@ func (m *MTOShipmentWithoutServiceItems) contextValidateStatus(ctx context.Conte
 func (m *MTOShipmentWithoutServiceItems) contextValidateStorageFacility(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.StorageFacility != nil {
+
+		if swag.IsZero(m.StorageFacility) { // not required
+			return nil
+		}
+
 		if err := m.StorageFacility.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("storageFacility")

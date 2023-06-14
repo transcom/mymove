@@ -332,6 +332,11 @@ func (m *MoveTaskOrder) ContextValidate(ctx context.Context, formats strfmt.Regi
 func (m *MoveTaskOrder) contextValidateDestinationAddress(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.DestinationAddress != nil {
+
+		if swag.IsZero(m.DestinationAddress) { // not required
+			return nil
+		}
+
 		if err := m.DestinationAddress.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("destinationAddress")
@@ -348,6 +353,11 @@ func (m *MoveTaskOrder) contextValidateDestinationAddress(ctx context.Context, f
 func (m *MoveTaskOrder) contextValidateEntitlements(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Entitlements != nil {
+
+		if swag.IsZero(m.Entitlements) { // not required
+			return nil
+		}
+
 		if err := m.Entitlements.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("entitlements")
@@ -364,6 +374,11 @@ func (m *MoveTaskOrder) contextValidateEntitlements(ctx context.Context, formats
 func (m *MoveTaskOrder) contextValidatePickupAddress(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.PickupAddress != nil {
+
+		if swag.IsZero(m.PickupAddress) { // not required
+			return nil
+		}
+
 		if err := m.PickupAddress.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("pickupAddress")

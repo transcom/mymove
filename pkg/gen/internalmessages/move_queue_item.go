@@ -515,6 +515,7 @@ func (m *MoveQueueItem) ContextValidate(ctx context.Context, formats strfmt.Regi
 func (m *MoveQueueItem) contextValidateRank(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Rank != nil {
+
 		if err := m.Rank.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("rank")
@@ -531,6 +532,11 @@ func (m *MoveQueueItem) contextValidateRank(ctx context.Context, formats strfmt.
 func (m *MoveQueueItem) contextValidateWeightAllotment(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.WeightAllotment != nil {
+
+		if swag.IsZero(m.WeightAllotment) { // not required
+			return nil
+		}
+
 		if err := m.WeightAllotment.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("weight_allotment")
