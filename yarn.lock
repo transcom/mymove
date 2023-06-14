@@ -15515,10 +15515,10 @@ quick-lru@^5.1.1:
   resolved "https://registry.yarnpkg.com/quick-lru/-/quick-lru-5.1.1.tgz#366493e6b3e42a3a6885e2e99d18f80fb7a8c932"
   integrity sha512-WuyALRjWPDGtt/wzJiadO5AXY+8hZ80hVpe6MyivgraREW751X3SbhRvG3eLKOYN+8VEvqLcf3wdnt44Z4S4SA==
 
-ra-core@^4.11.1:
-  version "4.11.1"
-  resolved "https://registry.yarnpkg.com/ra-core/-/ra-core-4.11.1.tgz#58675b20f693ee40b81f62ac38d28f2221b5da60"
-  integrity sha512-nqVe++/BvGJpxsfz1HRZbAtoualhbx9UHAYT6n1IekuW5TZ0s86Zj5fRPS4lw2r12a3VR+rsACW3d0zexzIyXg==
+ra-core@^4.11.2:
+  version "4.11.2"
+  resolved "https://registry.yarnpkg.com/ra-core/-/ra-core-4.11.2.tgz#224bd2e354112ca5a75a0f7b27a794cbd3f0a019"
+  integrity sha512-HAvlsyqHZr3worIAzCWwpTJ5JoYw/WjYQDf+j2yM2H8m6X/XqZ+kokljHj0/hvisrTGHaFjtCf8TYVyiTHP7nA==
   dependencies:
     clsx "^1.1.1"
     date-fns "^2.19.0"
@@ -15531,25 +15531,25 @@ ra-core@^4.11.1:
     react-is "^17.0.2"
     react-query "^3.32.1"
 
-ra-i18n-polyglot@^4.11.1:
-  version "4.11.1"
-  resolved "https://registry.yarnpkg.com/ra-i18n-polyglot/-/ra-i18n-polyglot-4.11.1.tgz#7f1feba9496de50cf4167687234a84812358a94f"
-  integrity sha512-1abeeGvPF71AKAaH56or1ImTWD+vrquBWME4wYzJB9bHyU9joSJKxVpKiH02Qe8YnMaKi0Z+mmaW3sz3qxhd3Q==
+ra-i18n-polyglot@^4.11.2:
+  version "4.11.2"
+  resolved "https://registry.yarnpkg.com/ra-i18n-polyglot/-/ra-i18n-polyglot-4.11.2.tgz#ae9e656dea5bc7a34f82f976854d2d796762c866"
+  integrity sha512-tUUqgMY7K4xoivzO9SDrOVb+SBFRGlBmhURXjFqIcfuvWdPhhK+V1/gXyE0qphqTbFFGGpEabDZQmaL1dkYfNg==
   dependencies:
     node-polyglot "^2.2.2"
-    ra-core "^4.11.1"
+    ra-core "^4.11.2"
 
-ra-language-english@^4.10.5, ra-language-english@^4.11.1:
-  version "4.11.1"
-  resolved "https://registry.yarnpkg.com/ra-language-english/-/ra-language-english-4.11.1.tgz#4bd9df6721cbe36c0a5a3a1d01d5af619e791b43"
-  integrity sha512-C7c81u9jUqrwzeQaEaoDRn0zg1jIa4Iop5rA14gAupmVkDPkzAvgOarXiZIz1LV6xk1UMdaVo4ZAGyzrrNMW/w==
+ra-language-english@^4.10.5, ra-language-english@^4.11.2:
+  version "4.11.2"
+  resolved "https://registry.yarnpkg.com/ra-language-english/-/ra-language-english-4.11.2.tgz#2c4afc6ce7e97e051be544405558fd29b74850e9"
+  integrity sha512-K6aUPrFOxrQqU5cxD619QVQwe+hsYqBnc/r71xKpVb6UOxs3UEx0BHg8m07Yyuzfnp0upXVPBKOMkY87cuLbWw==
   dependencies:
-    ra-core "^4.11.1"
+    ra-core "^4.11.2"
 
-ra-ui-materialui@^4.11.1:
-  version "4.11.1"
-  resolved "https://registry.yarnpkg.com/ra-ui-materialui/-/ra-ui-materialui-4.11.1.tgz#3ff039506dc83f8cc12e75c5fd3325be0e865ae8"
-  integrity sha512-tqpo3oQMXPWNRSSyRh3M5dQDfBHjTJGanABW78Y/L6Jo+1mfF5++rfDwRG5PL4Cs8RLge6ozz1nfTEhrStXWmA==
+ra-ui-materialui@^4.11.2:
+  version "4.11.2"
+  resolved "https://registry.yarnpkg.com/ra-ui-materialui/-/ra-ui-materialui-4.11.2.tgz#4290ecefa773b8304afa9759a673931426377fbf"
+  integrity sha512-aP4VZ70rMyVLZ3PujGVwN9ZeGMP2p8yWCyX39EppgPl+ls/mNO531YDlAfc2VPhgkoa0ZYrxYZIABaQ9Yo3RKA==
   dependencies:
     autosuggest-highlight "^3.1.1"
     clsx "^1.1.1"
@@ -15631,20 +15631,20 @@ react-admin-import-csv@^4.0.0:
     papaparse "5.x"
     ramda "0.28.0"
 
-react-admin@^4.11.1:
-  version "4.11.1"
-  resolved "https://registry.yarnpkg.com/react-admin/-/react-admin-4.11.1.tgz#4b311e6658ff9c7de1168fe51f5bc17cd92d2c1f"
-  integrity sha512-+0YJpyG62+i0l6OCaZVjcz+1HI2bl/W6n8/IZ+02C06TDM+lB1KgxhNOZ5Py0OTcclkfadYfwqfXi6joxBFNZQ==
+react-admin@^4.11.2:
+  version "4.11.2"
+  resolved "https://registry.yarnpkg.com/react-admin/-/react-admin-4.11.2.tgz#a5ff65b46e48fe62827b5ac13b1613b38f5ee905"
+  integrity sha512-pnaaE7O4h3i3HE1qISalvcCODH7EFzKVJoln9vpO+73CamXt8aMkPxxJzZDUH6jQPSrE4ALcfW2fh6iyMcQObA==
   dependencies:
     "@emotion/react" "^11.4.1"
     "@emotion/styled" "^11.3.0"
     "@mui/icons-material" "^5.0.1"
     "@mui/material" "^5.0.2"
     history "^5.1.0"
-    ra-core "^4.11.1"
-    ra-i18n-polyglot "^4.11.1"
-    ra-language-english "^4.11.1"
-    ra-ui-materialui "^4.11.1"
+    ra-core "^4.11.2"
+    ra-i18n-polyglot "^4.11.2"
+    ra-language-english "^4.11.2"
+    ra-ui-materialui "^4.11.2"
     react-hook-form "^7.43.9"
     react-router "^6.1.0"
     react-router-dom "^6.1.0"
