@@ -1,7 +1,6 @@
 package ghcrateengine
 
 import (
-	"fmt"
 	"strconv"
 	"time"
 
@@ -16,7 +15,7 @@ const (
 	dcrtTestServiceSchedule      = 3
 	dcrtTestBasePriceCents       = unit.Cents(2300)
 	dcrtTestEscalationCompounded = 1.125
-	dcrtTestBilledCubicFeet      = 10
+	dcrtTestBilledCubicFeet      = unit.CubicFeet(10)
 	dcrtTestPriceCents           = unit.Cents(25875) // dcrtTestBasePriceCents * (dcrtTestBilledCubicFeet ) * dcrtTestEscalationCompounded
 )
 
@@ -28,7 +27,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticCratingPricer() {
 	suite.Run("success using PaymentServiceItemParams", func() {
 		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDCRT, dcrtTestServiceSchedule, dcrtTestBasePriceCents, testdatagen.DefaultContractCode, dcrtTestEscalationCompounded)
 
-		paymentServiceItem := suite.setupDomesticCratingServiceItem()
+		paymentServiceItem := suite.setupDomesticCratingServiceItem(dcrtTestBilledCubicFeet)
 		priceCents, displayParams, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
 		suite.NoError(err)
 		suite.Equal(dcrtTestPriceCents, priceCents)
@@ -37,6 +36,22 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticCratingPricer() {
 			{Key: models.ServiceItemParamNameContractYearName, Value: testdatagen.DefaultContractCode},
 			{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatEscalation(dcrtTestEscalationCompounded)},
 			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatCents(dcrtTestBasePriceCents)},
+		}
+		suite.validatePricerCreatedParams(expectedParams, displayParams)
+	})
+	suite.Run("success using PaymentServiceItemParams and truncating cubic feet", func() {
+		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDCRT, dcrtTestServiceSchedule, dcrtTestBasePriceCents, testdatagen.DefaultContractCode, dcrtTestEscalationCompounded)
+
+		paymentServiceItem := suite.setupDomesticCratingServiceItem(unit.CubicFeet(10.005))
+		priceCents, displayParams, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
+		suite.NoError(err)
+		suite.Equal(dcrtTestPriceCents, priceCents)
+
+		expectedParams := services.PricingDisplayParams{
+			{Key: models.ServiceItemParamNameContractYearName, Value: testdatagen.DefaultContractCode},
+			{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatEscalation(dcrtTestEscalationCompounded)},
+			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatCents(dcrtTestBasePriceCents)},
+			{Key: models.ServiceItemParamNameCubicFeetBilled, Value: "10.00"},
 		}
 		suite.validatePricerCreatedParams(expectedParams, displayParams)
 	})
@@ -79,7 +94,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticCratingPricer() {
 	})
 }
 
-func (suite *GHCRateEngineServiceSuite) setupDomesticCratingServiceItem() models.PaymentServiceItem {
+func (suite *GHCRateEngineServiceSuite) setupDomesticCratingServiceItem(cubicFeet unit.CubicFeet) models.PaymentServiceItem {
 	return factory.BuildPaymentServiceItemWithParams(
 		suite.DB(),
 		models.ReServiceCodeDCRT,
@@ -92,7 +107,7 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticCratingServiceItem() models
 			{
 				Key:     models.ServiceItemParamNameCubicFeetBilled,
 				KeyType: models.ServiceItemParamTypeDecimal,
-				Value:   fmt.Sprintf("%d", int(dcrtTestBilledCubicFeet)),
+				Value:   cubicFeet.String(),
 			},
 			{
 				Key:     models.ServiceItemParamNameReferenceDate,

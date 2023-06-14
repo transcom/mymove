@@ -5,7 +5,7 @@ import (
 )
 
 func Test_CubicFeetStringConversion(t *testing.T) {
-	cubicFeet := CubicFeet(10.0)
+	cubicFeet := CubicFeet(10.005)
 	result := cubicFeet.String()
 
 	expected := "10.00"
