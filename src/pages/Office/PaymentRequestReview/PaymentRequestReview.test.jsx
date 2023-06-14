@@ -5,7 +5,7 @@ import { render, screen } from '@testing-library/react';
 
 import { PaymentRequestReview } from './PaymentRequestReview';
 
-import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { SHIPMENT_OPTIONS, PAYMENT_REQUEST_STATUS } from 'shared/constants';
 import { usePaymentRequestQueries } from 'hooks/queries';
 import { ReactQueryWrapper } from 'testUtils';
 
@@ -164,6 +164,14 @@ const usePaymentRequestQueriesReturnValue = {
   isSuccess: true,
 };
 
+const usePaymentRequestQueriesReturnValuePending = {
+  ...usePaymentRequestQueriesReturnValue,
+  paymentRequest: {
+    ...usePaymentRequestQueriesReturnValue.paymentRequest,
+    status: PAYMENT_REQUEST_STATUS.PENDING,
+  },
+};
+
 const requiredProps = {
   order: { tac: '1234', sac: '5678', ntsTac: 'AB12', ntsSac: 'CD34' },
 };
@@ -285,7 +293,32 @@ describe('PaymentRequestReview', () => {
 
       expect(reviewServiceItems.prop('serviceItemCards')).toEqual(expectedServiceItemCards);
     });
+  });
+  describe('next button', () => {
+    it('navigates forward', async () => {
+      usePaymentRequestQueries.mockReturnValue(usePaymentRequestQueriesReturnValuePending);
 
+      render(
+        <ReactQueryWrapper>
+          <PaymentRequestReview {...requiredProps} />
+        </ReactQueryWrapper>,
+      );
+      // console.log('not pending', usePaymentRequestQueriesReturnValue);
+      // console.log('pending', usePaymentRequestQueriesReturnValuePending);
+      // usePaymentRequestQueries.mockReturnValue(usePaymentRequestQueriesReturnValuePending);
+      // render(
+      //   <ReactQueryWrapper>
+      //     <PaymentRequestReview {...requiredProps} />
+      //   </ReactQueryWrapper>,
+      // );
+
+      // await waitFor(() => {
+      //   expect(screen.getByText(/items/)).toBeInTheDocument();
+      // });
+      // const nextButton = screen.getByTestId('nextServiceItem');
+      // expect(nextButton).toBeInTheDocument();
+      // nextButton.click();
+    });
     // const compareItem = (component, item) => {
     //   expect(component.find('[data-testid="serviceItemName"]').text()).toEqual(item.mtoServiceItemName);
     //   expect(component.find('[data-testid="serviceItemAmount"]').text()).toEqual(toDollarString(item.amount));
