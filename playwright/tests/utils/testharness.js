@@ -157,6 +157,30 @@ export class TestHarness {
   }
 
   /**
+   * Use testharness to build a move with an hhg shipment in SIT and a pending SIT extension
+   * @returns {Promise<Move>}
+   */
+  async buildHHGMoveIn200DaysSITEndsToday() {
+    return this.buildDefault('HHGMoveIn200DaysSITEndsToday');
+  }
+
+  /**
+   * Use testharness to build a move with an hhg shipment in SIT and a pending SIT extension
+   * @returns {Promise<Move>}
+   */
+  async buildHHGMoveIn200DaysSITEndsTomorrow() {
+    return this.buildDefault('HHGMoveIn200DaysSITEndsTomorrow');
+  }
+
+  /**
+   * Use testharness to build a move with an hhg shipment in SIT and a pending SIT extension
+   * @returns {Promise<Move>}
+   */
+  async buildHHGMoveIn200DaysSITEndsYesterday() {
+    return this.buildDefault('HHGMoveIn200DaysSITEndsYesterday');
+  }
+
+  /**
    * Use testharness to build hhg move for TOO
    * @returns {Promise<Move>}
    */
