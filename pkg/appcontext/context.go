@@ -7,6 +7,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
+	apiversion "github.com/transcom/mymove/pkg/handlers/routing/api_version"
 	"github.com/transcom/mymove/pkg/logging"
 )
 
@@ -20,12 +21,15 @@ type AppContext interface {
 	Logger() *zap.Logger
 	NewTransaction(func(appCtx AppContext) error) error
 	Session() *auth.Session
+	SetAPIVersion(flag apiversion.Flag)
+	GetAPIVersion() *apiversion.Flag
 }
 
 type appContext struct {
-	db      *pop.Connection
-	logger  *zap.Logger
-	session *auth.Session
+	db         *pop.Connection
+	logger     *zap.Logger
+	session    *auth.Session
+	apiVersion *apiversion.Flag
 }
 
 // NewAppContext creates a new AppContext
@@ -70,4 +74,12 @@ func (ac *appContext) NewTransaction(fn func(appCtx AppContext) error) error {
 
 func (ac *appContext) Session() *auth.Session {
 	return ac.session
+}
+
+func (ac *appContext) SetAPIVersion(flag apiversion.Flag) {
+	ac.apiVersion = &flag
+}
+
+func (ac *appContext) GetAPIVersion() *apiversion.Flag {
+	return ac.apiVersion
 }

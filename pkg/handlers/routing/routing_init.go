@@ -235,6 +235,7 @@ func InitRouting(appCtx appcontext.AppContext, redisPool *redis.Pool,
 		primeMux.Use(authentication.PrimeAuthorizationMiddleware(appCtx.Logger()))
 		primeMux.Use(middleware.NoCache(appCtx.Logger()))
 		primeMux.Use(middleware.RequestLogger(appCtx.Logger()))
+		primeMux.Use(middleware.APIVersionFlagger(appCtx))
 		primeMux.HandleFunc("/v1/swagger.yaml", handlers.NewFileHandler(routingConfig.PrimeSwaggerPath)).Methods("GET")
 		primeMux.HandleFunc("/v2/swagger.yaml", handlers.NewFileHandler(routingConfig.PrimeV2SwaggerPath)).Methods("GET")
 		if routingConfig.ServeSwaggerUI {

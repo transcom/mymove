@@ -9,6 +9,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
+	apiversion "github.com/transcom/mymove/pkg/handlers/routing/api_version"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	movetaskorderv1 "github.com/transcom/mymove/pkg/services/move_task_order/move_task_order_v1"
@@ -201,12 +202,11 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 // In this option we don't make a change to the old version of the service.
 // ListPrimeMoveTaskOrders performs an optimized fetch for moves specifically targeting the Prime API.
 func (f moveTaskOrderFetcher) ListPrimeMoveTaskOrders(appCtx appcontext.AppContext, searchParams *services.MoveTaskOrderFetcherParams) (models.Moves, error) {
-	// Faking a check for now
-	apiVersion := "v1"
-	if apiVersion == "v1" {
+	apiVersion := *appCtx.GetAPIVersion()
+	if apiVersion == apiversion.PrimeVersion1 {
 		return movetaskorderv1.ListPrimeMoveTaskOrders(f, appCtx, searchParams)
 	}
-	if apiVersion == "v2" {
+	if apiVersion == apiversion.PrimeVersion2 {
 		return movetaskorderv2.ListPrimeMoveTaskOrders(f, appCtx, searchParams)
 	}
 	return movetaskorderv2.ListPrimeMoveTaskOrders(f, appCtx, searchParams)

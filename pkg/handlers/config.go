@@ -13,6 +13,7 @@ import (
 	"github.com/transcom/mymove/pkg/audit"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/db/sequence"
+	apiversion "github.com/transcom/mymove/pkg/handlers/routing/api_version"
 	"github.com/transcom/mymove/pkg/iws"
 	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/notifications"
@@ -139,6 +140,8 @@ func (c *Config) AuditableAppContextFromRequestWithErrors(
 	var resp middleware.Responder
 	appCtx := c.AppContextFromRequest(r)
 	err := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+		apiVersion := apiversion.RetrieveAPIVersionFromContext(r.Context())
+		txnAppCtx.SetAPIVersion(apiVersion)
 		auditUserID := audit.RetrieveAuditUserIDFromContext(r.Context())
 		// not sure why, but using RawQuery("SET LOCAL foo = ?",
 		// thing) did not work
@@ -157,6 +160,7 @@ func (c *Config) AuditableAppContextFromRequestWithErrors(
 	if err != nil {
 		return resp
 	}
+
 	return resp
 }
 
