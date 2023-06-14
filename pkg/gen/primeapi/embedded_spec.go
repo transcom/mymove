@@ -291,7 +291,7 @@ func init() {
     },
     "/mto-service-items/{mtoServiceItemID}": {
       "patch": {
-        "description": "Updates MTOServiceItems after creation. Not all service items or fields may be updated, please see details below.\n\nThis endpoint supports different body definitions. In the modelType field below, select the modelType corresponding\n to the service item you wish to update and the documentation will update with the new definition.\n\n* Addresses: You can add a new SIT Destination final address using this endpoint (and must use this endpoint to do so), but you cannot update an existing one.\nPlease use [createSITAddressUpdateRequest](#operation/createSITAddressUpdateRequest) instead.\n\nTo create a service item, please use [createMTOServiceItem](#operation/createMTOServiceItem)) endpoint.\n",
+        "description": "Updates ` + "`" + `MTOServiceItems` + "`" + ` after creation. Not all service items or fields may be\nupdated, please see details below.\n\nThis endpoint supports different body definitions. In the ` + "`" + `modelType` + "`" + ` field below,\nselect the ` + "`" + `modelType` + "`" + ` corresponding to the service item you wish to update and\nthe documentation will update with the new definition.\n\n- Addresses: You can add a new SIT Destination final address using this endpoint\n  (and must use this endpoint to do so), but you cannot update an existing one.\n  Please use the\n  [createSITAddressUpdateRequest](#operation/createSITAddressUpdateRequest)\n  endpoint instead.\n\nTo create a service item, please use\n[createMTOServiceItem](#operation/createMTOServiceItem) endpoint.\n",
         "consumes": [
           "application/json"
         ],
@@ -4688,7 +4688,7 @@ func init() {
     },
     "/mto-service-items/{mtoServiceItemID}": {
       "patch": {
-        "description": "Updates MTOServiceItems after creation. Not all service items or fields may be updated, please see details below.\n\nThis endpoint supports different body definitions. In the modelType field below, select the modelType corresponding\n to the service item you wish to update and the documentation will update with the new definition.\n\n* Addresses: You can add a new SIT Destination final address using this endpoint (and must use this endpoint to do so), but you cannot update an existing one.\nPlease use [createSITAddressUpdateRequest](#operation/createSITAddressUpdateRequest) instead.\n\nTo create a service item, please use [createMTOServiceItem](#operation/createMTOServiceItem)) endpoint.\n",
+        "description": "Updates ` + "`" + `MTOServiceItems` + "`" + ` after creation. Not all service items or fields may be\nupdated, please see details below.\n\nThis endpoint supports different body definitions. In the ` + "`" + `modelType` + "`" + ` field below,\nselect the ` + "`" + `modelType` + "`" + ` corresponding to the service item you wish to update and\nthe documentation will update with the new definition.\n\n- Addresses: You can add a new SIT Destination final address using this endpoint\n  (and must use this endpoint to do so), but you cannot update an existing one.\n  Please use the\n  [createSITAddressUpdateRequest](#operation/createSITAddressUpdateRequest)\n  endpoint instead.\n\nTo create a service item, please use\n[createMTOServiceItem](#operation/createMTOServiceItem) endpoint.\n",
         "consumes": [
           "application/json"
         ],

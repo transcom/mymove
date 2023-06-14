@@ -204,16 +204,22 @@ func (a *Client) CreateServiceRequestDocumentUpload(params *CreateServiceRequest
 /*
 	UpdateMTOServiceItem updates m t o service item
 
-	Updates MTOServiceItems after creation. Not all service items or fields may be updated, please see details below.
+	Updates `MTOServiceItems` after creation. Not all service items or fields may be
 
-This endpoint supports different body definitions. In the modelType field below, select the modelType corresponding
+updated, please see details below.
 
-	to the service item you wish to update and the documentation will update with the new definition.
+This endpoint supports different body definitions. In the `modelType` field below,
+select the `modelType` corresponding to the service item you wish to update and
+the documentation will update with the new definition.
 
-* Addresses: You can add a new SIT Destination final address using this endpoint (and must use this endpoint to do so), but you cannot update an existing one.
-Please use [createSITAddressUpdateRequest](#operation/createSITAddressUpdateRequest) instead.
+  - Addresses: You can add a new SIT Destination final address using this endpoint
+    (and must use this endpoint to do so), but you cannot update an existing one.
+    Please use the
+    [createSITAddressUpdateRequest](#operation/createSITAddressUpdateRequest)
+    endpoint instead.
 
-To create a service item, please use [createMTOServiceItem](#operation/createMTOServiceItem)) endpoint.
+To create a service item, please use
+[createMTOServiceItem](#operation/createMTOServiceItem) endpoint.
 */
 func (a *Client) UpdateMTOServiceItem(params *UpdateMTOServiceItemParams, opts ...ClientOption) (*UpdateMTOServiceItemOK, error) {
 	// TODO: Validate the params before sending
