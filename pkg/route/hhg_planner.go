@@ -57,6 +57,9 @@ func (p *hhgPlanner) ZipTransitDistance(appCtx appcontext.AppContext, source str
 	destZip3 := destZip5[0:3]
 
 	if sourceZip3 == destZip3 {
+		if sourceZip5 == destZip5 {
+			return 1, nil
+		}
 		return p.dtodPlannerMileage.DTODZip5Distance(appCtx, source, destination)
 	}
 

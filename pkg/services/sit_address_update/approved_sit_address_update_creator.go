@@ -26,6 +26,7 @@ func NewApprovedOfficeSITAddressUpdateCreator(planner route.Planner, addressCrea
 		checks: []sitAddressUpdateValidator{
 			checkAndValidateRequiredFields(),
 			checkTOORequiredFields(),
+			checkServiceItem(),
 		},
 	}
 }
