@@ -21,8 +21,6 @@ class AdminWrapper extends Component {
     GetLoggedInUser()
       .then(() => this.setState({ isLoggedIn: true }))
       .catch(() => this.setState({ isLoggedIn: false }));
-
-    document.title = 'Transcom PPP: Admin';
   }
 
   render() {

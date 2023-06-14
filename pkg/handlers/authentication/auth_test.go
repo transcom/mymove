@@ -323,11 +323,12 @@ func (suite *AuthSuite) TestCustomerAPIAuthMiddleware() {
 
 // Test permissions middleware with a user who will be ALLOWED POST access on the endpoint: ghc/v1/shipments/:shipmentID/approve
 // role must have update.shipment permissions
-func (suite *AuthSuite) TestRequirePermissionsMiddlewareAuthorized() {
-	// TIO users have the proper permissions for our test - update.shipment
-	tioOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTIO})
 
-	identity, err := models.FetchUserIdentity(suite.DB(), tioOfficeUser.User.LoginGovUUID.String())
+func (suite *AuthSuite) TestRequirePermissionsMiddlewareAuthorized() {
+	// TOO users have the proper permissions for our test - update.shipment
+	tooOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+
+	identity, err := models.FetchUserIdentity(suite.DB(), tooOfficeUser.User.LoginGovUUID.String())
 
 	suite.NoError(err)
 
@@ -337,7 +338,7 @@ func (suite *AuthSuite) TestRequirePermissionsMiddlewareAuthorized() {
 
 	// And: the context contains the auth values
 	handlerSession := auth.Session{
-		UserID:          tioOfficeUser.User.ID,
+		UserID:          tooOfficeUser.User.ID,
 		IDToken:         "fake Token",
 		ApplicationName: "mil",
 	}
@@ -361,7 +362,7 @@ func (suite *AuthSuite) TestRequirePermissionsMiddlewareAuthorized() {
 	middleware(handler).ServeHTTP(rr, req)
 
 	suite.Equal(http.StatusOK, rr.Code, "handler returned wrong status code")
-	suite.Equal(handlerSession.UserID, tioOfficeUser.User.ID, "the authenticated user is different from expected")
+	suite.Equal(handlerSession.UserID, tooOfficeUser.User.ID, "the authenticated user is different from expected")
 }
 
 // Test permissions middleware with a user who will be DENIED POST access on the endpoint: ghc/v1/shipments/:shipmentID/approve

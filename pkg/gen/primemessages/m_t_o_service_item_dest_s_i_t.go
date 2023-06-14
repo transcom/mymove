@@ -32,6 +32,8 @@ type MTOServiceItemDestSIT struct {
 
 	rejectionReasonField *string
 
+	serviceRequestDocumentsField ServiceRequestDocuments
+
 	statusField MTOServiceItemStatus
 
 	// First available date that Prime can deliver SIT service item.
@@ -144,6 +146,16 @@ func (m *MTOServiceItemDestSIT) SetRejectionReason(val *string) {
 	m.rejectionReasonField = val
 }
 
+// ServiceRequestDocuments gets the service request documents of this subtype
+func (m *MTOServiceItemDestSIT) ServiceRequestDocuments() ServiceRequestDocuments {
+	return m.serviceRequestDocumentsField
+}
+
+// SetServiceRequestDocuments sets the service request documents of this subtype
+func (m *MTOServiceItemDestSIT) SetServiceRequestDocuments(val ServiceRequestDocuments) {
+	m.serviceRequestDocumentsField = val
+}
+
 // Status gets the status of this subtype
 func (m *MTOServiceItemDestSIT) Status() MTOServiceItemStatus {
 	return m.statusField
@@ -223,6 +235,8 @@ func (m *MTOServiceItemDestSIT) UnmarshalJSON(raw []byte) error {
 
 		RejectionReason *string `json:"rejectionReason,omitempty"`
 
+		ServiceRequestDocuments ServiceRequestDocuments `json:"serviceRequestDocuments,omitempty"`
+
 		Status MTOServiceItemStatus `json:"status,omitempty"`
 	}
 	buf = bytes.NewBuffer(raw)
@@ -250,6 +264,8 @@ func (m *MTOServiceItemDestSIT) UnmarshalJSON(raw []byte) error {
 	result.reServiceNameField = base.ReServiceName
 
 	result.rejectionReasonField = base.RejectionReason
+
+	result.serviceRequestDocumentsField = base.ServiceRequestDocuments
 
 	result.statusField = base.Status
 
@@ -351,6 +367,8 @@ func (m MTOServiceItemDestSIT) MarshalJSON() ([]byte, error) {
 
 		RejectionReason *string `json:"rejectionReason,omitempty"`
 
+		ServiceRequestDocuments ServiceRequestDocuments `json:"serviceRequestDocuments,omitempty"`
+
 		Status MTOServiceItemStatus `json:"status,omitempty"`
 	}{
 
@@ -367,6 +385,8 @@ func (m MTOServiceItemDestSIT) MarshalJSON() ([]byte, error) {
 		ReServiceName: m.ReServiceName(),
 
 		RejectionReason: m.RejectionReason(),
+
+		ServiceRequestDocuments: m.ServiceRequestDocuments(),
 
 		Status: m.Status(),
 	})
@@ -390,6 +410,10 @@ func (m *MTOServiceItemDestSIT) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateMtoShipmentID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateServiceRequestDocuments(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -472,6 +496,24 @@ func (m *MTOServiceItemDestSIT) validateMtoShipmentID(formats strfmt.Registry) e
 	}
 
 	if err := validate.FormatOf("mtoShipmentID", "body", "uuid", m.MtoShipmentID().String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItemDestSIT) validateServiceRequestDocuments(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.ServiceRequestDocuments()) { // not required
+		return nil
+	}
+
+	if err := m.ServiceRequestDocuments().Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("serviceRequestDocuments")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("serviceRequestDocuments")
+		}
 		return err
 	}
 
@@ -657,6 +699,10 @@ func (m *MTOServiceItemDestSIT) ContextValidate(ctx context.Context, formats str
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateServiceRequestDocuments(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateStatus(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -715,6 +761,20 @@ func (m *MTOServiceItemDestSIT) contextValidateReServiceName(ctx context.Context
 func (m *MTOServiceItemDestSIT) contextValidateRejectionReason(ctx context.Context, formats strfmt.Registry) error {
 
 	if err := validate.ReadOnly(ctx, "rejectionReason", "body", m.RejectionReason()); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItemDestSIT) contextValidateServiceRequestDocuments(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.ServiceRequestDocuments().ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("serviceRequestDocuments")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("serviceRequestDocuments")
+		}
 		return err
 	}
 

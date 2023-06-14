@@ -1,7 +1,10 @@
 import React from 'react';
+
+import { useTitle } from 'hooks/custom';
 import './statements.css';
 
 function PrivacyPolicy() {
+  useTitle('Privacy & Security Policy');
   return (
     <div className="usa-grid">
       <div className="usa-width-two-thirds statement-content">

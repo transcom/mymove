@@ -23,6 +23,7 @@ import {
 } from 'shared/Entities/modules/moveDocuments';
 import { stringifyName } from 'shared/utils/serviceMember';
 import { convertDollarsToCents } from 'shared/utils';
+import { generatePageTitle } from 'hooks/custom';
 
 import './index.css';
 import { RouterShape } from 'types';
@@ -107,7 +108,7 @@ class DocumentViewer extends Component {
     const { serviceMember, moveId, moveDocumentId, moveDocuments, moveLocator } = this.props;
     const numMoveDocs = moveDocuments ? moveDocuments.length : 0;
     const name = stringifyName(serviceMember);
-    document.title = `Document Viewer for ${name}`;
+    document.title = generatePageTitle(`Document Viewer for ${name}`);
 
     // urls: has full url with IDs
     const newUrl = `/moves/${moveId}/documents/new`;

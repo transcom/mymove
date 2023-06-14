@@ -21,6 +21,7 @@ import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { loadInternalSchema } from 'shared/Swagger/ducks';
 import { withContext } from 'shared/AppContext';
 import { no_op } from 'shared/utils';
+import { generatePageTitle } from 'hooks/custom';
 import { loadUser as loadUserAction } from 'store/auth/actions';
 import { initOnboarding as initOnboardingAction } from 'store/onboarding/actions';
 import { selectGetCurrentUserIsLoading, selectIsLoggedIn } from 'store/auth/selectors';
@@ -46,14 +47,14 @@ import ExpensesUpload from 'scenes/Moves/Ppm/ExpensesUpload';
 import AllowableExpenses from 'scenes/Moves/Ppm/AllowableExpenses';
 import WeightTicketExamples from 'scenes/Moves/Ppm/WeightTicketExamples';
 import NotFound from 'components/NotFound/NotFound';
-import PrivacyPolicyStatement from 'shared/Statements/PrivacyAndPolicyStatement';
-import AccessibilityStatement from 'shared/Statements/AccessibilityStatement';
+import PrivacyPolicyStatement from 'components/Statements/PrivacyAndPolicyStatement';
+import AccessibilityStatement from 'components/Statements/AccessibilityStatement';
 import TrailerCriteria from 'scenes/Moves/Ppm/TrailerCriteria';
 import PaymentReview from 'scenes/Moves/Ppm/PaymentReview/index';
 import CustomerAgreementLegalese from 'scenes/Moves/Ppm/CustomerAgreementLegalese';
 import ConnectedCreateOrEditMtoShipment from 'pages/MyMove/CreateOrEditMtoShipment';
 import Home from 'pages/MyMove/Home';
-
+import TitleAnnouncer from 'components/TitleAnnouncer/TitleAnnouncer';
 // Pages should be lazy-loaded (they correspond to unique routes & only need to be loaded when that URL is accessed)
 const SignIn = lazy(() => import('pages/SignIn/SignIn'));
 const InvalidPermissions = lazy(() => import('pages/InvalidPermissions/InvalidPermissions'));
@@ -88,6 +89,7 @@ export class CustomerApp extends Component {
     loadInternalSchema();
     loadUser();
     initOnboarding();
+    document.title = generatePageTitle('Sign In');
   }
 
   componentDidCatch(error, info) {
@@ -106,6 +108,7 @@ export class CustomerApp extends Component {
     return (
       <>
         <div className="my-move site" id="app-root">
+          <TitleAnnouncer />
           <CUIHeader />
           <BypassBlock />
           <GovBanner />

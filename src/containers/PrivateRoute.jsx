@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 
 import { selectLoggedInUser } from 'store/entities/selectors';
 import getRoleTypesFromRoles from 'utils/user';
+import { useTitle } from 'hooks/custom';
 import { UserRolesShape } from 'types';
 
 export function userIsAuthorized(userRoles, requiredRoles) {
@@ -19,6 +20,7 @@ export function userIsAuthorized(userRoles, requiredRoles) {
 }
 
 function PrivateRoute({ requiredRoles, userRoles, children }) {
+  useTitle();
   const userRoleTypes = getRoleTypesFromRoles(userRoles);
 
   if (!userIsAuthorized(userRoleTypes, requiredRoles)) {

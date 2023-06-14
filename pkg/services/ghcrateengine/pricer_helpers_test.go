@@ -282,7 +282,7 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticPickupDeliverySITSameZ
 	suite.Run("bad destination zip", func() {
 		_, _, err := priceDomesticPickupDeliverySIT(suite.AppContextForTest(), models.ReServiceCodeDDDSIT, testdatagen.DefaultContractCode, dddsitTestRequestedPickupDate, dddsitTestWeight, dddsitTestServiceArea, dddsitTestSchedule, "309", dshZipSITDest, dshDistance)
 		suite.Error(err)
-		suite.Contains(err.Error(), "invalid destination postal code")
+		suite.Contains(err.Error(), "invalid SIT original destination postal code")
 	})
 
 	suite.Run("bad SIT final destination zip", func() {
