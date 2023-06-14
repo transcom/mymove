@@ -165,7 +165,7 @@ func (suite *SITAddressUpdateServiceSuite) TestCreateSITAddressUpdateRequest() {
 		suite.Equal(*sitAddressUpdate.ContractorRemarks, *createdAddressUpdateRequest.ContractorRemarks)
 	})
 
-	suite.Run("Failed to create SIT address update request for unapproved service item", func() {
+	suite.Run("Fail to create SIT address update request for unapproved service item", func() {
 		// TESTCASE SCENARIO
 		// Under test: CreateSITAddressUpdateRequest function
 		// Set up:     We create an unapproved service item and fail to create a SITAddressUpdate REQUEST
@@ -191,6 +191,55 @@ func (suite *SITAddressUpdateServiceSuite) TestCreateSITAddressUpdateRequest() {
 			{
 				Model: models.Address{},
 				Type:  &factory.Addresses.SITDestinationOriginalAddress,
+			},
+			{
+				Model: models.Address{},
+				Type:  &factory.Addresses.SITDestinationFinalAddress,
+			},
+		}, nil)
+
+		sitAddressUpdate := factory.BuildSITAddressUpdate(nil, []factory.Customization{
+			{
+				Model:    serviceItem,
+				LinkOnly: true,
+			},
+			{
+				Model: models.SITAddressUpdate{
+					ContractorRemarks: models.StringPointer("Moving closer to family"),
+				},
+			},
+		}, []factory.Trait{factory.GetTraitSITAddressUpdateWithMoveSetUp})
+
+		creator := NewSITAddressUpdateRequestCreator(mockPlanner, addressCreator, moveRouter)
+
+		createdAddressUpdateRequest, err := creator.CreateSITAddressUpdateRequest(suite.AppContextForTest(), &sitAddressUpdate)
+
+		suite.Error(err)
+		suite.Nil(createdAddressUpdateRequest)
+	})
+
+	suite.Run("Fail to create SIT address update request for service item of incorrect type", func() {
+		// TESTCASE SCENARIO
+		// Under test: CreateSITAddressUpdateRequest function
+		// Set up:     We create a service item with the wrong type and fail to create a SITAddressUpdate REQUEST
+		// Expected outcome: Failure due to wrong type of service item
+		mockPlanner := &routemocks.Planner{}
+		mockPlanner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("string"),
+			mock.AnythingOfType("string"),
+		).Return(requestedMockedDistance, nil)
+
+		serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusApproved,
+				},
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDSHUT,
+				},
 			},
 			{
 				Model: models.Address{},

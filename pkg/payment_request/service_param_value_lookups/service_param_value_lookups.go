@@ -71,6 +71,7 @@ var ServiceItemParamsWithLookups = []models.ServiceItemParamName{
 	models.ServiceItemParamNameSITScheduleDest,
 	models.ServiceItemParamNameNumberDaysSIT,
 	models.ServiceItemParamNameZipSITDestHHGFinalAddress,
+	models.ServiceItemParamNameZipSITDestHHGOriginalAddress,
 	models.ServiceItemParamNameZipSITOriginHHGOriginalAddress,
 	models.ServiceItemParamNameZipSITOriginHHGActualAddress,
 	models.ServiceItemParamNameDistanceZipSITDest,
@@ -348,7 +349,7 @@ func InitializeLookups(shipment models.MTOShipment, serviceItem models.MTOServic
 	}
 
 	lookups[models.ServiceItemParamNameSITScheduleDest] = SITScheduleLookup{
-		Address: *shipment.DestinationAddress,
+		Address: *serviceItem.SITDestinationFinalAddress,
 	}
 
 	lookups[models.ServiceItemParamNameNumberDaysSIT] = NumberDaysSITLookup{
@@ -357,6 +358,10 @@ func InitializeLookups(shipment models.MTOShipment, serviceItem models.MTOServic
 
 	lookups[models.ServiceItemParamNameZipSITDestHHGFinalAddress] = ZipAddressLookup{
 		Address: *serviceItem.SITDestinationFinalAddress,
+	}
+
+	lookups[models.ServiceItemParamNameZipSITDestHHGOriginalAddress] = ZipAddressLookup{
+		Address: *serviceItem.SITDestinationOriginalAddress,
 	}
 
 	lookups[models.ServiceItemParamNameZipSITOriginHHGOriginalAddress] = ZipSITOriginHHGOriginalAddressLookup{
