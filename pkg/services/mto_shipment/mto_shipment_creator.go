@@ -120,7 +120,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 		}
 		newDutyLocationAddress := move.Orders.NewDutyLocation.Address
 		shipment.DestinationAddress = &models.Address{
-			StreetAddress1: "n/a", // can't use an empty string given the model validations
+			StreetAddress1: "N/A", // can't use an empty string given the model validations
 			City:           newDutyLocationAddress.City,
 			State:          newDutyLocationAddress.State,
 			PostalCode:     newDutyLocationAddress.PostalCode,

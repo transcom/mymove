@@ -215,7 +215,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 					// Original and new IDs should not match since we should be creating an entirely new address record
 					suite.NotEqual(subtestData.move.Orders.NewDutyLocation.Address.ID, createdShipment.DestinationAddress.ID, testCase.shipmentType)
 					suite.Equal(*createdShipment.DestinationAddressID, createdShipment.DestinationAddress.ID)
-					suite.Equal("n/a", createdShipment.DestinationAddress.StreetAddress1, testCase.shipmentType)
+					suite.Equal("N/A", createdShipment.DestinationAddress.StreetAddress1, testCase.shipmentType)
 					suite.Nil(createdShipment.DestinationAddress.StreetAddress2, testCase.shipmentType)
 					suite.Nil(createdShipment.DestinationAddress.StreetAddress3, testCase.shipmentType)
 					suite.Equal(subtestData.move.Orders.NewDutyLocation.Address.City, createdShipment.DestinationAddress.City, testCase.shipmentType)
