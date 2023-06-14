@@ -22,7 +22,7 @@ BEGIN
 			VALUES (new_uuid, now(), now(), 'n/a', rec.city, rec.state, rec.postal_code, rec.country);
 			-- insert the copied address into the mto_shipments table
 			UPDATE mto_shipments
-			SET destination_address_id = new_uuid
+			SET destination_address_id = new_uuid, updated_at = now()
 			WHERE mto_shipments.id = rec.id;
 	END LOOP;
 END $$
