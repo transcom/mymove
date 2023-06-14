@@ -790,6 +790,21 @@ func reServiceCodesForShipment(shipment models.MTOShipment) []models.ReServiceCo
 
 	switch shipment.ShipmentType {
 	case models.MTOShipmentTypeHHG:
+
+		originZIP3 := shipment.PickupAddress.PostalCode[0:3]
+		destinationZIP3 := shipment.DestinationAddress.PostalCode[0:3]
+
+		if originZIP3 == destinationZIP3 {
+			return []models.ReServiceCode{
+				models.ReServiceCodeDSH,
+				models.ReServiceCodeFSC,
+				models.ReServiceCodeDOP,
+				models.ReServiceCodeDDP,
+				models.ReServiceCodeDPK,
+				models.ReServiceCodeDUPK,
+			}
+		}
+
 		// Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Packing, and Dom Unpacking.
 		return []models.ReServiceCode{
 			models.ReServiceCodeDLH,
