@@ -28,7 +28,6 @@ func (h ListMovesHandler) Handle(params movetaskorderops.ListMovesParams) middle
 				searchParams.Since = &since
 			}
 
-			// This is referencing the most recent of the ListPrimeMoveTaskOrders services
 			mtos, err := h.MoveTaskOrderFetcher.ListPrimeMoveTaskOrders(appCtx, &searchParams)
 
 			if err != nil {

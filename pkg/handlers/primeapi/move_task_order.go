@@ -34,7 +34,6 @@ func (h ListMovesHandler) Handle(params movetaskorderops.ListMovesParams) middle
 				searchParams.Since = &since
 			}
 
-			// In this option, we don't need to change the v1 service.
 			mtos, err := h.MoveTaskOrderFetcher.ListPrimeMoveTaskOrders(appCtx, &searchParams)
 
 			if err != nil {
