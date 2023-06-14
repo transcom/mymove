@@ -140,7 +140,9 @@ func (c *Config) AuditableAppContextFromRequestWithErrors(
 	var resp middleware.Responder
 	appCtx := c.AppContextFromRequest(r)
 	err := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-		apiVersion := apiversion.RetrieveAPIVersionFromContext(r.Context())
+		// There is definitely a better place to do this. It probably should be in its own file.
+		// But this is a quick example of setting the API Version in the appCtx.
+		apiVersion := apiversion.DetermineAPIVersion(r.URL.Path)
 		txnAppCtx.SetAPIVersion(apiVersion)
 		auditUserID := audit.RetrieveAuditUserIDFromContext(r.Context())
 		// not sure why, but using RawQuery("SET LOCAL foo = ?",

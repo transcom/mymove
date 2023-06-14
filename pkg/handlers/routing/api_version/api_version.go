@@ -1,12 +1,8 @@
 package apiversion
 
 import (
-	"context"
+	"strings"
 )
-
-type contextKey string
-
-var apiVersionContextKey = contextKey("apiVersion")
 
 type Flag byte
 
@@ -16,17 +12,12 @@ const (
 	PrimeVersion2
 )
 
-// WithAPIVersion returns a new context with the API Version.
-func WithAPIVersion(ctx context.Context, apiVersion Flag) context.Context {
-	return context.WithValue(ctx, apiVersionContextKey, apiVersion)
-}
-
-// RetrieveAPIVersionFromContext returns the Flag associated with a context. If the
-// context has no Flag, the noneSpecified flag is returned
-func RetrieveAPIVersionFromContext(ctx context.Context) Flag {
-	apiVersion, ok := ctx.Value(apiVersionContextKey).(Flag)
-	if !ok {
-		return NoneSpecified
+func DetermineAPIVersion(path string) Flag {
+	if strings.Contains(path, "/prime/v1/") {
+		return PrimeVersion1
 	}
-	return apiVersion
+	if strings.Contains(path, "/prime/v2/") {
+		return PrimeVersion2
+	}
+	return NoneSpecified
 }

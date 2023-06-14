@@ -21,6 +21,9 @@ type AppContext interface {
 	Logger() *zap.Logger
 	NewTransaction(func(appCtx AppContext) error) error
 	Session() *auth.Session
+	// Adding setter and getter methods for the API version flags.
+	// There is probably a better way to flag which api version we are using, however this is just a quick example.
+	// We need to pass the flag to the services and they have access to the AppContext.
 	SetAPIVersion(flag apiversion.Flag)
 	GetAPIVersion() *apiversion.Flag
 }

@@ -199,9 +199,10 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 	return mto, nil
 }
 
-// In this option we don't make a change to the old version of the service.
 // ListPrimeMoveTaskOrders performs an optimized fetch for moves specifically targeting the Prime API.
 func (f moveTaskOrderFetcher) ListPrimeMoveTaskOrders(appCtx appcontext.AppContext, searchParams *services.MoveTaskOrderFetcherParams) (models.Moves, error) {
+	// In this option we call the appropriate version based on the api version flag.
+	//If none is specified we are using version 2.
 	apiVersion := *appCtx.GetAPIVersion()
 	if apiVersion == apiversion.PrimeVersion1 {
 		return movetaskorderv1.ListPrimeMoveTaskOrders(f, appCtx, searchParams)

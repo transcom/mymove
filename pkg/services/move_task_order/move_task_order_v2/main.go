@@ -9,6 +9,7 @@ import (
 
 // ListPrimeMoveTaskOrdersV2 performs an optimized fetch for moves specifically targeting the Prime API.
 func ListPrimeMoveTaskOrders(f services.MoveTaskOrderFetcher, appCtx appcontext.AppContext, searchParams *services.MoveTaskOrderFetcherParams) (models.Moves, error) {
+	appCtx.Logger().Info("Logging that we are using the version 2 service.")
 	var moveTaskOrders models.Moves
 	var err error
 
