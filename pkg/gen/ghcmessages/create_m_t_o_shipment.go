@@ -442,6 +442,11 @@ func (m *CreateMTOShipment) contextValidateDestinationAddress(ctx context.Contex
 func (m *CreateMTOShipment) contextValidateDestinationType(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.DestinationType != nil {
+
+		if swag.IsZero(m.DestinationType) { // not required
+			return nil
+		}
+
 		if err := m.DestinationType.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("destinationType")
@@ -477,6 +482,11 @@ func (m *CreateMTOShipment) contextValidatePickupAddress(ctx context.Context, fo
 func (m *CreateMTOShipment) contextValidatePpmShipment(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.PpmShipment != nil {
+
+		if swag.IsZero(m.PpmShipment) { // not required
+			return nil
+		}
+
 		if err := m.PpmShipment.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("ppmShipment")
@@ -493,6 +503,11 @@ func (m *CreateMTOShipment) contextValidatePpmShipment(ctx context.Context, form
 func (m *CreateMTOShipment) contextValidateSacType(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.SacType != nil {
+
+		if swag.IsZero(m.SacType) { // not required
+			return nil
+		}
+
 		if err := m.SacType.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("sacType")
@@ -509,6 +524,7 @@ func (m *CreateMTOShipment) contextValidateSacType(ctx context.Context, formats 
 func (m *CreateMTOShipment) contextValidateShipmentType(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.ShipmentType != nil {
+
 		if err := m.ShipmentType.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("shipmentType")
@@ -525,6 +541,11 @@ func (m *CreateMTOShipment) contextValidateShipmentType(ctx context.Context, for
 func (m *CreateMTOShipment) contextValidateStorageFacility(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.StorageFacility != nil {
+
+		if swag.IsZero(m.StorageFacility) { // not required
+			return nil
+		}
+
 		if err := m.StorageFacility.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("storageFacility")
@@ -541,6 +562,11 @@ func (m *CreateMTOShipment) contextValidateStorageFacility(ctx context.Context, 
 func (m *CreateMTOShipment) contextValidateTacType(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.TacType != nil {
+
+		if swag.IsZero(m.TacType) { // not required
+			return nil
+		}
+
 		if err := m.TacType.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("tacType")

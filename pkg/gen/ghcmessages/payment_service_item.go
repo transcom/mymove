@@ -271,6 +271,10 @@ func (m *PaymentServiceItem) contextValidateID(ctx context.Context, formats strf
 
 func (m *PaymentServiceItem) contextValidateMtoShipmentType(ctx context.Context, formats strfmt.Registry) error {
 
+	if swag.IsZero(m.MtoShipmentType) { // not required
+		return nil
+	}
+
 	if err := m.MtoShipmentType.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("mtoShipmentType")
@@ -307,6 +311,10 @@ func (m *PaymentServiceItem) contextValidateReferenceID(ctx context.Context, for
 }
 
 func (m *PaymentServiceItem) contextValidateStatus(ctx context.Context, formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Status) { // not required
+		return nil
+	}
 
 	if err := m.Status.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {

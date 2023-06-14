@@ -332,6 +332,11 @@ func (m *MovePayload) ContextValidate(ctx context.Context, formats strfmt.Regist
 func (m *MovePayload) contextValidateCloseoutOffice(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.CloseoutOffice != nil {
+
+		if swag.IsZero(m.CloseoutOffice) { // not required
+			return nil
+		}
+
 		if err := m.CloseoutOffice.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("closeout_office")
@@ -383,6 +388,10 @@ func (m *MovePayload) contextValidateServiceMemberID(ctx context.Context, format
 }
 
 func (m *MovePayload) contextValidateStatus(ctx context.Context, formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Status) { // not required
+		return nil
+	}
 
 	if err := m.Status.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {

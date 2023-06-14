@@ -254,6 +254,11 @@ func (m *SITAddressUpdate) contextValidateETag(ctx context.Context, formats strf
 func (m *SITAddressUpdate) contextValidateNewAddress(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.NewAddress != nil {
+
+		if swag.IsZero(m.NewAddress) { // not required
+			return nil
+		}
+
 		if err := m.NewAddress.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("newAddress")
@@ -270,6 +275,11 @@ func (m *SITAddressUpdate) contextValidateNewAddress(ctx context.Context, format
 func (m *SITAddressUpdate) contextValidateOldAddress(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.OldAddress != nil {
+
+		if swag.IsZero(m.OldAddress) { // not required
+			return nil
+		}
+
 		if err := m.OldAddress.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("oldAddress")

@@ -220,6 +220,11 @@ func (m *LoggedInUserPayload) contextValidateFirstName(ctx context.Context, form
 func (m *LoggedInUserPayload) contextValidateOfficeUser(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.OfficeUser != nil {
+
+		if swag.IsZero(m.OfficeUser) { // not required
+			return nil
+		}
+
 		if err := m.OfficeUser.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("office_user")
@@ -238,6 +243,11 @@ func (m *LoggedInUserPayload) contextValidateRoles(ctx context.Context, formats 
 	for i := 0; i < len(m.Roles); i++ {
 
 		if m.Roles[i] != nil {
+
+			if swag.IsZero(m.Roles[i]) { // not required
+				return nil
+			}
+
 			if err := m.Roles[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("roles" + "." + strconv.Itoa(i))
@@ -256,6 +266,11 @@ func (m *LoggedInUserPayload) contextValidateRoles(ctx context.Context, formats 
 func (m *LoggedInUserPayload) contextValidateServiceMember(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.ServiceMember != nil {
+
+		if swag.IsZero(m.ServiceMember) { // not required
+			return nil
+		}
+
 		if err := m.ServiceMember.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("service_member")

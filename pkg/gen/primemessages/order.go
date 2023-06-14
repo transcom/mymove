@@ -317,6 +317,11 @@ func (m *Order) ContextValidate(ctx context.Context, formats strfmt.Registry) er
 func (m *Order) contextValidateCustomer(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Customer != nil {
+
+		if swag.IsZero(m.Customer) { // not required
+			return nil
+		}
+
 		if err := m.Customer.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("customer")
@@ -333,6 +338,11 @@ func (m *Order) contextValidateCustomer(ctx context.Context, formats strfmt.Regi
 func (m *Order) contextValidateDestinationDutyLocation(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.DestinationDutyLocation != nil {
+
+		if swag.IsZero(m.DestinationDutyLocation) { // not required
+			return nil
+		}
+
 		if err := m.DestinationDutyLocation.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("destinationDutyLocation")
@@ -358,6 +368,11 @@ func (m *Order) contextValidateETag(ctx context.Context, formats strfmt.Registry
 func (m *Order) contextValidateEntitlement(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Entitlement != nil {
+
+		if swag.IsZero(m.Entitlement) { // not required
+			return nil
+		}
+
 		if err := m.Entitlement.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("entitlement")
@@ -372,6 +387,10 @@ func (m *Order) contextValidateEntitlement(ctx context.Context, formats strfmt.R
 }
 
 func (m *Order) contextValidateOrdersType(ctx context.Context, formats strfmt.Registry) error {
+
+	if swag.IsZero(m.OrdersType) { // not required
+		return nil
+	}
 
 	if err := m.OrdersType.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
@@ -388,6 +407,11 @@ func (m *Order) contextValidateOrdersType(ctx context.Context, formats strfmt.Re
 func (m *Order) contextValidateOriginDutyLocation(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.OriginDutyLocation != nil {
+
+		if swag.IsZero(m.OriginDutyLocation) { // not required
+			return nil
+		}
+
 		if err := m.OriginDutyLocation.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("originDutyLocation")

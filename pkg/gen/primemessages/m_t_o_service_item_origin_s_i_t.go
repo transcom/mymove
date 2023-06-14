@@ -727,6 +727,10 @@ func (m *MTOServiceItemOriginSIT) contextValidateServiceRequestDocuments(ctx con
 
 func (m *MTOServiceItemOriginSIT) contextValidateStatus(ctx context.Context, formats strfmt.Registry) error {
 
+	if swag.IsZero(m.Status()) { // not required
+		return nil
+	}
+
 	if err := m.Status().ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("status")
@@ -742,6 +746,11 @@ func (m *MTOServiceItemOriginSIT) contextValidateStatus(ctx context.Context, for
 func (m *MTOServiceItemOriginSIT) contextValidateSitHHGActualOrigin(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.SitHHGActualOrigin != nil {
+
+		if swag.IsZero(m.SitHHGActualOrigin) { // not required
+			return nil
+		}
+
 		if err := m.SitHHGActualOrigin.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("sitHHGActualOrigin")
@@ -758,6 +767,11 @@ func (m *MTOServiceItemOriginSIT) contextValidateSitHHGActualOrigin(ctx context.
 func (m *MTOServiceItemOriginSIT) contextValidateSitHHGOriginalOrigin(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.SitHHGOriginalOrigin != nil {
+
+		if swag.IsZero(m.SitHHGOriginalOrigin) { // not required
+			return nil
+		}
+
 		if err := m.SitHHGOriginalOrigin.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("sitHHGOriginalOrigin")

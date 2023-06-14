@@ -505,6 +505,7 @@ func (m *Revision) ContextValidate(ctx context.Context, formats strfmt.Registry)
 func (m *Revision) contextValidateGainingUnit(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.GainingUnit != nil {
+
 		if err := m.GainingUnit.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("gainingUnit")
@@ -521,6 +522,7 @@ func (m *Revision) contextValidateGainingUnit(ctx context.Context, formats strfm
 func (m *Revision) contextValidateLosingUnit(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.LosingUnit != nil {
+
 		if err := m.LosingUnit.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("losingUnit")
@@ -537,6 +539,7 @@ func (m *Revision) contextValidateLosingUnit(ctx context.Context, formats strfmt
 func (m *Revision) contextValidateMember(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Member != nil {
+
 		if err := m.Member.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("member")
@@ -553,6 +556,11 @@ func (m *Revision) contextValidateMember(ctx context.Context, formats strfmt.Reg
 func (m *Revision) contextValidateNtsAccounting(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.NtsAccounting != nil {
+
+		if swag.IsZero(m.NtsAccounting) { // not required
+			return nil
+		}
+
 		if err := m.NtsAccounting.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("ntsAccounting")
@@ -569,6 +577,7 @@ func (m *Revision) contextValidateNtsAccounting(ctx context.Context, formats str
 func (m *Revision) contextValidateOrdersType(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.OrdersType != nil {
+
 		if err := m.OrdersType.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("ordersType")
@@ -585,6 +594,11 @@ func (m *Revision) contextValidateOrdersType(ctx context.Context, formats strfmt
 func (m *Revision) contextValidatePcsAccounting(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.PcsAccounting != nil {
+
+		if swag.IsZero(m.PcsAccounting) { // not required
+			return nil
+		}
+
 		if err := m.PcsAccounting.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("pcsAccounting")
@@ -601,6 +615,11 @@ func (m *Revision) contextValidatePcsAccounting(ctx context.Context, formats str
 func (m *Revision) contextValidatePovShipmentAccounting(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.PovShipmentAccounting != nil {
+
+		if swag.IsZero(m.PovShipmentAccounting) { // not required
+			return nil
+		}
+
 		if err := m.PovShipmentAccounting.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("povShipmentAccounting")
@@ -617,6 +636,11 @@ func (m *Revision) contextValidatePovShipmentAccounting(ctx context.Context, for
 func (m *Revision) contextValidatePovStorageAccounting(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.PovStorageAccounting != nil {
+
+		if swag.IsZero(m.PovStorageAccounting) { // not required
+			return nil
+		}
+
 		if err := m.PovStorageAccounting.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("povStorageAccounting")
@@ -633,6 +657,7 @@ func (m *Revision) contextValidatePovStorageAccounting(ctx context.Context, form
 func (m *Revision) contextValidateStatus(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Status != nil {
+
 		if err := m.Status.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("status")
@@ -647,6 +672,10 @@ func (m *Revision) contextValidateStatus(ctx context.Context, formats strfmt.Reg
 }
 
 func (m *Revision) contextValidateTourType(ctx context.Context, formats strfmt.Registry) error {
+
+	if swag.IsZero(m.TourType) { // not required
+		return nil
+	}
 
 	if err := m.TourType.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
@@ -663,6 +692,11 @@ func (m *Revision) contextValidateTourType(ctx context.Context, formats strfmt.R
 func (m *Revision) contextValidateUbAccounting(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.UbAccounting != nil {
+
+		if swag.IsZero(m.UbAccounting) { // not required
+			return nil
+		}
+
 		if err := m.UbAccounting.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("ubAccounting")
