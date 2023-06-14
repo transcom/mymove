@@ -9,10 +9,10 @@ DECLARE
 
 BEGIN
 	FOR rec IN SELECT mto_shipments.id, city, state, postal_code, country FROM mto_shipments
-		LEFT JOIN moves ON mto_shipments.move_id = moves.id
-		LEFT JOIN orders ON moves.orders_id = orders.id
-		LEFT JOIN duty_locations ON orders.new_duty_location_id = duty_locations.id
-		LEFT JOIN addresses ON duty_locations.address_id = addresses.id
+		INNER JOIN moves ON mto_shipments.move_id = moves.id
+		INNER JOIN orders ON moves.orders_id = orders.id
+		INNER JOIN duty_locations ON orders.new_duty_location_id = duty_locations.id
+		INNER JOIN addresses ON duty_locations.address_id = addresses.id
 		WHERE destination_address_id IS NULL AND shipment_type = 'HHG'
 
 		LOOP
