@@ -19,7 +19,7 @@ BEGIN
 			new_uuid := uuid_generate_v4();
 			-- create a copy of the destination duty location address
 			INSERT INTO addresses (id, created_at, updated_at, street_address_1, city, state, postal_code, country)
-			VALUES (new_uuid, now(), now(), 'n/a', rec.city, rec.state, rec.postal_code, rec.country);
+			VALUES (new_uuid, now(), now(), 'N/A', rec.city, rec.state, rec.postal_code, rec.country);
 			-- insert the copied address into the mto_shipments table
 			UPDATE mto_shipments
 			SET destination_address_id = new_uuid, updated_at = now()
