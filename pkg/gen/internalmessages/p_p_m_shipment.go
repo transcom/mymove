@@ -780,6 +780,11 @@ func (m *PPMShipment) ContextValidate(ctx context.Context, formats strfmt.Regist
 func (m *PPMShipment) contextValidateAdvanceStatus(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.AdvanceStatus != nil {
+
+		if swag.IsZero(m.AdvanceStatus) { // not required
+			return nil
+		}
+
 		if err := m.AdvanceStatus.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("advanceStatus")
@@ -834,6 +839,11 @@ func (m *PPMShipment) contextValidateMovingExpenses(ctx context.Context, formats
 	for i := 0; i < len(m.MovingExpenses); i++ {
 
 		if m.MovingExpenses[i] != nil {
+
+			if swag.IsZero(m.MovingExpenses[i]) { // not required
+				return nil
+			}
+
 			if err := m.MovingExpenses[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("movingExpenses" + "." + strconv.Itoa(i))
@@ -854,6 +864,11 @@ func (m *PPMShipment) contextValidateProGearWeightTickets(ctx context.Context, f
 	for i := 0; i < len(m.ProGearWeightTickets); i++ {
 
 		if m.ProGearWeightTickets[i] != nil {
+
+			if swag.IsZero(m.ProGearWeightTickets[i]) { // not required
+				return nil
+			}
+
 			if err := m.ProGearWeightTickets[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("proGearWeightTickets" + "." + strconv.Itoa(i))
@@ -881,6 +896,11 @@ func (m *PPMShipment) contextValidateShipmentID(ctx context.Context, formats str
 func (m *PPMShipment) contextValidateSignedCertification(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.SignedCertification != nil {
+
+		if swag.IsZero(m.SignedCertification) { // not required
+			return nil
+		}
+
 		if err := m.SignedCertification.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("signedCertification")
@@ -897,6 +917,11 @@ func (m *PPMShipment) contextValidateSignedCertification(ctx context.Context, fo
 func (m *PPMShipment) contextValidateSitLocation(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.SitLocation != nil {
+
+		if swag.IsZero(m.SitLocation) { // not required
+			return nil
+		}
+
 		if err := m.SitLocation.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("sitLocation")
@@ -936,6 +961,11 @@ func (m *PPMShipment) contextValidateUpdatedAt(ctx context.Context, formats strf
 func (m *PPMShipment) contextValidateW2Address(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.W2Address != nil {
+
+		if swag.IsZero(m.W2Address) { // not required
+			return nil
+		}
+
 		if err := m.W2Address.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("w2Address")

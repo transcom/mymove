@@ -164,6 +164,11 @@ func (m *UploadInformation) ContextValidate(ctx context.Context, formats strfmt.
 func (m *UploadInformation) contextValidateUpload(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Upload != nil {
+
+		if swag.IsZero(m.Upload) { // not required
+			return nil
+		}
+
 		if err := m.Upload.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("upload")

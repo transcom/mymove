@@ -31,6 +31,8 @@ references:
   # base image that spins up quickly
   cimg_base: &cimg_base cimg/base:2022.12-22.04
 
+  aws-otel-collector: &aws-otel-collector public.ecr.aws/aws-observability/aws-otel-collector:v0.29.0
+
   # To deploy to loadtest, demo or exp:
   # set dp3-branch to the branch you want to deploy to the env specifed
   # in dp3-env (loadtest, demo, exp), or
@@ -255,6 +257,7 @@ executors:
         auth:
           username: $DOCKERHUB_USERNAME
           password: $DOCKERHUB_PASSWORD
+
 commands:
   aws_vars_stg:
     steps:
@@ -471,6 +474,13 @@ commands:
       - run:
           name: Get Digest from filesystem
           command: echo 'export ECR_DIGEST=$(cat images/sha/ECR_DIGEST_app_<< parameters.ecr_env >>)' | tee -a "${BASH_ENV}"
+      - run:
+          name: Get otel collector digest from filesystem
+          command: |
+            OTEL_ECR_DIGEST=$(cat images/sha/ECR_DIGEST_otel-collector_<< parameters.ecr_env >>)
+            echo "export OTEL_ECR_DIGEST=${OTEL_ECR_DIGEST}" | tee -a "${BASH_ENV}"
+
+            echo "export OTEL_COLLECTOR_IMAGE=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/otel-collector@${OTEL_ECR_DIGEST}" | tee -a "${BASH_ENV}"
       - deploy:
           name: Deploy app service
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-service-container app "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app@${ECR_DIGEST}" "${APP_ENVIRONMENT}" "/bin/milmove serve"
@@ -503,6 +513,13 @@ commands:
       - run:
           name: Get Digest from filesystem
           command: echo 'export ECR_DIGEST=$(cat images/sha/ECR_DIGEST_app_<< parameters.ecr_env >>)' | tee -a "${BASH_ENV}"
+      - run:
+          name: Get otel collector digest from filesystem
+          command: |
+            OTEL_ECR_DIGEST=$(cat images/sha/ECR_DIGEST_otel-collector_<< parameters.ecr_env >>)
+            echo "export OTEL_ECR_DIGEST=${OTEL_ECR_DIGEST}" | tee -a "${BASH_ENV}"
+
+            echo "export OTEL_COLLECTOR_IMAGE=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/otel-collector@${OTEL_ECR_DIGEST}" | tee -a "${BASH_ENV}"
       - deploy:
           name: Deploy app-client-tls service
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-service-container app-client-tls "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app@${ECR_DIGEST}" "${APP_ENVIRONMENT}" "/bin/milmove serve"
@@ -603,7 +620,70 @@ commands:
             cat images/sha/ECR_DIGEST_<< parameters.repo >>_<< parameters.ecr_env >>
       - run:
           name: 'Describe image scan findings'
-          command: scripts/ecr-describe-image-scan-findings << parameters.repo >> ${CIRCLE_SHA1}
+          command: scripts/ecr-describe-image-scan-findings << parameters.repo >> $(cat images/sha/ECR_DIGEST_<< parameters.repo >>_<< parameters.ecr_env >>)
+      - persist_to_workspace:
+          root: .
+          paths:
+            - images/sha/ECR_DIGEST_<< parameters.repo >>_<< parameters.ecr_env >>
+
+
+  # The ATO environments cannot pull from outside repositories
+  # the error is: x509: certificate signed by unknown authority
+  #
+  # So pull the image and then push to our own ECR repo. For docker
+  # STIG reasons, we need to do an image scan AND we need to expire
+  # old images, so always create a new tag on each deployment
+  push_otel_collector_image:
+    parameters:
+      ecr_env:
+        type: string
+      aws_otel_collector_image:
+        type: string
+      repo:
+        type: string
+        default: otel-collector
+    steps:
+      - setup_remote_docker:
+          docker_layer_caching: false
+      - attach_workspace:
+          at: .
+      - run:
+          name: 'Tag and push docker image'
+          command: |
+            aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com
+            otel_image=$(echo << parameters.aws_otel_collector_image >>)
+            docker pull "${otel_image}"
+            shopt -s extglob
+            # this removes everything before the colon, which separates the
+            # image name from the image tag
+            otel_image_tag=${otel_image#*:}
+            repo_name=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>
+            image_name="${repo_name}:${otel_image_tag}"
+            docker pull "${otel_image}"
+            # use git prefix for ECR expiration policy
+            docker tag "${otel_image}" "${repo_name}:git-${otel_image_tag}-${CIRCLE_SHA1}"
+            docker push "${repo_name}:git-${otel_image_tag}-${CIRCLE_SHA1}"
+
+      - run:
+          name: 'Record ECR Image Digest'
+          command: |
+            otel_image=$(echo << parameters.aws_otel_collector_image >>)
+            shopt -s extglob
+            # this removes everything before the colon, which separates the
+            # image name from the image tag
+            otel_image_tag=${otel_image#*:}
+            mkdir -p images/sha
+            echo $(aws ecr describe-images --repository-name << parameters.repo >> --image-ids imageTag=git-${otel_image_tag}-${CIRCLE_SHA1} | jq ".imageDetails[0] .imageDigest" -r) > images/sha/ECR_DIGEST_<< parameters.repo >>_<< parameters.ecr_env >>
+            cat images/sha/ECR_DIGEST_<< parameters.repo >>_<< parameters.ecr_env >>
+      # The scans of the upstream otel collector image result in
+      #
+      #   UnsupportedImageError: The operating system and/or package manager are not supported
+      # The irony of the AWS open telemetry collector being built in a
+      # way that is not compatible with AWS image scanning is not lost
+      # on me
+      # - run:
+      #     name: 'Describe image scan findings'
+      #     command: scripts/ecr-describe-image-scan-findings << parameters.repo >> $(cat images/sha/ECR_DIGEST_<< parameters.repo >>_<< parameters.ecr_env >>) || true
       - persist_to_workspace:
           root: .
           paths:
@@ -1499,6 +1579,39 @@ jobs:
           working_dir: /mnt/ramdisk
       - announce_failure
 
+  # `push_otel_collector_image_dp3` pushes the aws otel collector image
+  # to the milmove-<dp3-env> container repository
+  push_otel_collector_image_dp3:
+    executor: mymove_pusher
+    steps:
+      - aws_vars_dp3
+      - push_otel_collector_image:
+          ecr_env: *dp3-env
+          aws_otel_collector_image: *aws-otel-collector
+      - announce_failure
+
+  # `push_otel_collector_image_stg` pushes the aws otel collector image
+  # to the milmove-stg container repository
+  push_otel_collector_image_stg:
+    executor: mymove_pusher
+    steps:
+      - aws_vars_stg
+      - push_otel_collector_image:
+          ecr_env: stg
+          aws_otel_collector_image: *aws-otel-collector
+      - announce_failure
+
+  # `push_otel_collector_image_stg` pushes the aws otel collector image
+  # to the milmove-stg container repository
+  push_otel_collector_image_prd:
+    executor: mymove_pusher
+    steps:
+      - aws_vars_prd
+      - push_otel_collector_image:
+          ecr_env: prd
+          aws_otel_collector_image: *aws-otel-collector
+      - announce_failure
+
   # `push_app_gov_dev` pushes the app container to the gov_dev container repository
   push_app_gov_dev:
     executor: mymove_pusher
@@ -1738,7 +1851,6 @@ jobs:
       APP_ENVIRONMENT: *dp3-env
       OPEN_TELEMETRY_SIDECAR: 'true'
       HEALTH_CHECK: 'true'
-      OTEL_COLLECTOR_IMAGE: 'amazon/aws-otel-collector:v0.29.0'
     steps:
       - checkout
       - aws_vars_dp3
@@ -1758,7 +1870,6 @@ jobs:
       APP_ENVIRONMENT: *dp3-env
       OPEN_TELEMETRY_SIDECAR: 'true'
       HEALTH_CHECK: 'true'
-      OTEL_COLLECTOR_IMAGE: 'amazon/aws-otel-collector:v0.29.0'
     steps:
       - checkout
       - aws_vars_dp3
@@ -1802,12 +1913,9 @@ jobs:
   # `deploy_stg_app` updates the server-TLS app service in stg environment
   deploy_stg_app:
     executor: mymove_pusher
-    # use dockerhub otel collector image as govcloud does not have the
-    # right certs for pulling from public.ecr.aws
     environment:
       APP_ENVIRONMENT: 'stg'
-      OPEN_TELEMETRY_SIDECAR: 'false'
-      OTEL_COLLECTOR_IMAGE: 'amazon/aws-otel-collector:v0.29.0'
+      OPEN_TELEMETRY_SIDECAR: 'true'
       HEALTH_CHECK: 'true'
     steps:
       - checkout
@@ -1824,8 +1932,7 @@ jobs:
     # right certs for pulling from public.ecr.aws
     environment:
       APP_ENVIRONMENT: 'stg'
-      OPEN_TELEMETRY_SIDECAR: 'false'
-      OTEL_COLLECTOR_IMAGE: 'amazon/aws-otel-collector:v0.29.0'
+      OPEN_TELEMETRY_SIDECAR: 'true'
       HEALTH_CHECK: 'true'
     steps:
       - checkout
@@ -2091,6 +2198,13 @@ workflows:
             branches:
               only: *dp3-branch
 
+      - push_otel_collector_image_dp3:
+          requires:
+            - compile_app_server
+          filters:
+            branches:
+              only: *dp3-branch
+
       - push_app_dp3:
           requires:
             - build_dp3_app
@@ -2119,6 +2233,7 @@ workflows:
             - client_test
             - server_test
             - push_app_dp3
+            - push_otel_collector_image_dp3
             - compile_app_server
             - compile_app_client
             - push_tasks_dp3
@@ -2148,6 +2263,13 @@ workflows:
             branches:
               only: *dp3-branch
 
+      - push_otel_collector_image_stg:
+          requires:
+            - compile_app_server
+          filters:
+            branches:
+              only: main
+
       - push_app_stg:
           requires:
             - build_app
@@ -2176,6 +2298,7 @@ workflows:
             - client_test
             - server_test
             - push_app_stg
+            - push_otel_collector_image_stg
             - compile_app_server
             - compile_app_client
             - push_migrations_stg
@@ -2233,6 +2356,13 @@ workflows:
             - anti_virus
             - pre_deps_yarn
 
+      - push_otel_collector_image_prd:
+          requires:
+            - approve_prd_deploy
+          filters:
+            branches:
+              only: main
+
       - push_app_prd:
           requires:
             - approve_prd_deploy
@@ -2259,6 +2389,7 @@ workflows:
             - push_migrations_prd
             - push_app_prd
             - push_tasks_prd
+            - push_otel_collector_image_prd
           filters:
             branches:
               only: main

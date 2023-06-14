@@ -542,6 +542,10 @@ func (m *MTOServiceItemDomesticCrating) contextValidateReServiceName(ctx context
 
 func (m *MTOServiceItemDomesticCrating) contextValidateStatus(ctx context.Context, formats strfmt.Registry) error {
 
+	if swag.IsZero(m.Status()) { // not required
+		return nil
+	}
+
 	if err := m.Status().ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("status")
@@ -557,6 +561,7 @@ func (m *MTOServiceItemDomesticCrating) contextValidateStatus(ctx context.Contex
 func (m *MTOServiceItemDomesticCrating) contextValidateCrate(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Crate != nil {
+
 		if err := m.Crate.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("crate")
@@ -573,6 +578,7 @@ func (m *MTOServiceItemDomesticCrating) contextValidateCrate(ctx context.Context
 func (m *MTOServiceItemDomesticCrating) contextValidateItem(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Item != nil {
+
 		if err := m.Item.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("item")

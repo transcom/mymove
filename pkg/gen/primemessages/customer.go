@@ -162,6 +162,11 @@ func (m *Customer) ContextValidate(ctx context.Context, formats strfmt.Registry)
 func (m *Customer) contextValidateCurrentAddress(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.CurrentAddress != nil {
+
+		if swag.IsZero(m.CurrentAddress) { // not required
+			return nil
+		}
+
 		if err := m.CurrentAddress.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("currentAddress")

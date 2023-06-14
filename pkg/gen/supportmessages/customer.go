@@ -274,6 +274,11 @@ func (m *Customer) ContextValidate(ctx context.Context, formats strfmt.Registry)
 func (m *Customer) contextValidateCurrentAddress(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.CurrentAddress != nil {
+
+		if swag.IsZero(m.CurrentAddress) { // not required
+			return nil
+		}
+
 		if err := m.CurrentAddress.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("currentAddress")
@@ -308,6 +313,7 @@ func (m *Customer) contextValidateID(ctx context.Context, formats strfmt.Registr
 func (m *Customer) contextValidateRank(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Rank != nil {
+
 		if err := m.Rank.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("rank")

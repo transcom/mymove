@@ -610,6 +610,11 @@ func (m *PPMShipment) contextValidateShipmentID(ctx context.Context, formats str
 func (m *PPMShipment) contextValidateSitLocation(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.SitLocation != nil {
+
+		if swag.IsZero(m.SitLocation) { // not required
+			return nil
+		}
+
 		if err := m.SitLocation.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("sitLocation")

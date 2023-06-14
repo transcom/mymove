@@ -210,6 +210,11 @@ func (m *Customer) ContextValidate(ctx context.Context, formats strfmt.Registry)
 func (m *Customer) contextValidateBackupContact(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.BackupContact != nil {
+
+		if swag.IsZero(m.BackupContact) { // not required
+			return nil
+		}
+
 		if err := m.BackupContact.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("backup_contact")
@@ -226,6 +231,11 @@ func (m *Customer) contextValidateBackupContact(ctx context.Context, formats str
 func (m *Customer) contextValidateCurrentAddress(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.CurrentAddress != nil {
+
+		if swag.IsZero(m.CurrentAddress) { // not required
+			return nil
+		}
+
 		if err := m.CurrentAddress.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("current_address")

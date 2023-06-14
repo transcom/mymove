@@ -226,6 +226,10 @@ func (m *MTOAgent) ContextValidate(ctx context.Context, formats strfmt.Registry)
 
 func (m *MTOAgent) contextValidateAgentType(ctx context.Context, formats strfmt.Registry) error {
 
+	if swag.IsZero(m.AgentType) { // not required
+		return nil
+	}
+
 	if err := m.AgentType.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("agentType")

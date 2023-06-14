@@ -317,6 +317,7 @@ func (m *ProGearWeightTicket) contextValidateCreatedAt(ctx context.Context, form
 func (m *ProGearWeightTicket) contextValidateDocument(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Document != nil {
+
 		if err := m.Document.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("document")
@@ -369,6 +370,11 @@ func (m *ProGearWeightTicket) contextValidatePpmShipmentID(ctx context.Context, 
 func (m *ProGearWeightTicket) contextValidateReason(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Reason != nil {
+
+		if swag.IsZero(m.Reason) { // not required
+			return nil
+		}
+
 		if err := m.Reason.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("reason")
@@ -385,6 +391,11 @@ func (m *ProGearWeightTicket) contextValidateReason(ctx context.Context, formats
 func (m *ProGearWeightTicket) contextValidateStatus(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Status != nil {
+
+		if swag.IsZero(m.Status) { // not required
+			return nil
+		}
+
 		if err := m.Status.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("status")

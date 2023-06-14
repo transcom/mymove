@@ -268,6 +268,11 @@ func (m *DutyLocationPayload) ContextValidate(ctx context.Context, formats strfm
 func (m *DutyLocationPayload) contextValidateAddress(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Address != nil {
+
+		if swag.IsZero(m.Address) { // not required
+			return nil
+		}
+
 		if err := m.Address.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("address")
@@ -284,6 +289,7 @@ func (m *DutyLocationPayload) contextValidateAddress(ctx context.Context, format
 func (m *DutyLocationPayload) contextValidateAffiliation(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Affiliation != nil {
+
 		if err := m.Affiliation.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("affiliation")
@@ -300,6 +306,11 @@ func (m *DutyLocationPayload) contextValidateAffiliation(ctx context.Context, fo
 func (m *DutyLocationPayload) contextValidateTransportationOffice(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.TransportationOffice != nil {
+
+		if swag.IsZero(m.TransportationOffice) { // not required
+			return nil
+		}
+
 		if err := m.TransportationOffice.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("transportation_office")

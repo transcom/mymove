@@ -269,6 +269,11 @@ func (m *SignedCertificationPayload) ContextValidate(ctx context.Context, format
 func (m *SignedCertificationPayload) contextValidateCertificationType(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.CertificationType != nil {
+
+		if swag.IsZero(m.CertificationType) { // not required
+			return nil
+		}
+
 		if err := m.CertificationType.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("certification_type")
@@ -285,6 +290,11 @@ func (m *SignedCertificationPayload) contextValidateCertificationType(ctx contex
 func (m *SignedCertificationPayload) contextValidatePpmID(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.PpmID != nil {
+
+		if swag.IsZero(m.PpmID) { // not required
+			return nil
+		}
+
 		if err := m.PpmID.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("ppm_id")
