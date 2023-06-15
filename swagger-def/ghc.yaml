@@ -4233,22 +4233,6 @@ definitions:
         items:
           $ref: 'definitions/Upload.yaml'
         type: array
-  ServiceRequestDocuments:
-    items:
-      $ref: '#/definitions/ServiceRequestDocument'
-    type: array
-  ServiceRequestDocument:
-    type: object
-  ServiceRequestDocumentUploads:
-    items:
-      $ref: '#/definitions/ServiceRequestDocumentUpload'
-    type: array
-  ServiceRequestDocumentUpload:
-    properties:
-      uploads:
-        items:
-          $ref: 'definitions/Upload.yaml'
-        type: array
   ShipmentsPaymentSITBalance:
     items:
       $ref: '#/definitions/ShipmentPaymentSITBalance'

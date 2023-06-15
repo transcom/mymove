@@ -1,0 +1,5 @@
+properties:
+  uploads:
+    items:
+      $ref: 'definitions/Upload.yaml'
+    type: array

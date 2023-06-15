@@ -6101,7 +6101,10 @@ func init() {
         },
         "serviceRequestDocuments": {
           "description": "documents uploaded by the Prime as proof of request for service items",
-          "type": "array"
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Upload"
+          }
         },
         "sitAddressUpdates": {
           "$ref": "#/definitions/SITAddressUpdates"
@@ -8570,31 +8573,6 @@ func init() {
         "PaymentServiceItemUUID",
         "BOOLEAN"
       ]
-    },
-    "ServiceRequestDocument": {
-      "type": "object"
-    },
-    "ServiceRequestDocumentUpload": {
-      "properties": {
-        "uploads": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Upload"
-          }
-        }
-      }
-    },
-    "ServiceRequestDocumentUploads": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/ServiceRequestDocumentUpload"
-      }
-    },
-    "ServiceRequestDocuments": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/ServiceRequestDocument"
-      }
     },
     "ShipmentPaymentSITBalance": {
       "properties": {
@@ -17098,7 +17076,10 @@ func init() {
         },
         "serviceRequestDocuments": {
           "description": "documents uploaded by the Prime as proof of request for service items",
-          "type": "array"
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Upload"
+          }
         },
         "sitAddressUpdates": {
           "$ref": "#/definitions/SITAddressUpdates"
@@ -19572,31 +19553,6 @@ func init() {
         "PaymentServiceItemUUID",
         "BOOLEAN"
       ]
-    },
-    "ServiceRequestDocument": {
-      "type": "object"
-    },
-    "ServiceRequestDocumentUpload": {
-      "properties": {
-        "uploads": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Upload"
-          }
-        }
-      }
-    },
-    "ServiceRequestDocumentUploads": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/ServiceRequestDocumentUpload"
-      }
-    },
-    "ServiceRequestDocuments": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/ServiceRequestDocument"
-      }
     },
     "ShipmentPaymentSITBalance": {
       "properties": {

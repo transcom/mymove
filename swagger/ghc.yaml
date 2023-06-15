@@ -4365,22 +4365,6 @@ definitions:
         items:
           $ref: '#/definitions/Upload'
         type: array
-  ServiceRequestDocuments:
-    items:
-      $ref: '#/definitions/ServiceRequestDocument'
-    type: array
-  ServiceRequestDocument:
-    type: object
-  ServiceRequestDocumentUploads:
-    items:
-      $ref: '#/definitions/ServiceRequestDocumentUpload'
-    type: array
-  ServiceRequestDocumentUpload:
-    properties:
-      uploads:
-        items:
-          $ref: '#/definitions/Upload'
-        type: array
   ShipmentsPaymentSITBalance:
     items:
       $ref: '#/definitions/ShipmentPaymentSITBalance'
@@ -5819,6 +5803,55 @@ definitions:
       - SUBMITTED
       - APPROVED
       - REJECTED
+  Upload:
+    description: An uploaded file.
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      url:
+        type: string
+        format: uri
+        example: https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      filename:
+        type: string
+        example: filename.pdf
+        readOnly: true
+      contentType:
+        type: string
+        format: mime-type
+        example: application/pdf
+        readOnly: true
+      bytes:
+        type: integer
+        readOnly: true
+      status:
+        type: string
+        enum:
+          - INFECTED
+          - CLEAN
+          - PROCESSING
+        readOnly: true
+      createdAt:
+        type: string
+        format: date-time
+        readOnly: true
+      updatedAt:
+        type: string
+        format: date-time
+        readOnly: true
+    required:
+      - id
+      - url
+      - filename
+      - contentType
+      - bytes
+      - createdAt
+      - updatedAt
   MTOServiceItem:
     type: object
     required:
@@ -5928,7 +5961,8 @@ definitions:
       eTag:
         type: string
       serviceRequestDocuments:
-        items: null
+        items:
+          $ref: '#/definitions/Upload'
         type: array
         description: documents uploaded by the Prime as proof of request for service items
   MTOServiceItems:
@@ -6223,55 +6257,6 @@ definitions:
       - APPROVED
       - REJECTED
       - EDITED
-  Upload:
-    description: An uploaded file.
-    type: object
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        readOnly: true
-      url:
-        type: string
-        format: uri
-        example: https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538
-        readOnly: true
-      filename:
-        type: string
-        example: filename.pdf
-        readOnly: true
-      contentType:
-        type: string
-        format: mime-type
-        example: application/pdf
-        readOnly: true
-      bytes:
-        type: integer
-        readOnly: true
-      status:
-        type: string
-        enum:
-          - INFECTED
-          - CLEAN
-          - PROCESSING
-        readOnly: true
-      createdAt:
-        type: string
-        format: date-time
-        readOnly: true
-      updatedAt:
-        type: string
-        format: date-time
-        readOnly: true
-    required:
-      - id
-      - url
-      - filename
-      - contentType
-      - bytes
-      - createdAt
-      - updatedAt
   Document:
     type: object
     properties:
