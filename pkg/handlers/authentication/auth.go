@@ -129,7 +129,7 @@ func UserAuthMiddleware(globalLogger *zap.Logger) func(next http.Handler) http.H
 				return
 			}
 
-			// DO NOT CHECK MILMOVE SESSION BECAUSE NEW SERVICE MEMBERS WON'T HAVE AN ID RIGHT AWAY
+			// DO NOT CHECK MILMOVE SESSION BECAUSE WE'LL BE CHECKING THAT IN ANOTHER MIDDLEWARE
 			// This must be the right type of user for the application
 			if session.IsOfficeApp() && !session.IsOfficeUser() {
 				logger.Error("unauthorized user for office.move.mil", zap.String("user_id", session.UserID.String()))
@@ -145,6 +145,79 @@ func UserAuthMiddleware(globalLogger *zap.Logger) func(next http.Handler) http.H
 		}
 		return http.HandlerFunc(mw)
 	}
+}
+
+// CustomerAPIAuthMiddleware checks to see if the request matches one of the routes that should be allowed through with
+// less strict authentication requirements. If it is on the allow list, it will allow the request to continue. If it
+// is not, it will check to see if the user is a service member. Ideally, we will get rid of the allow list eventually
+// and the service member check can be rolled into the UserAuthMiddleware.
+func CustomerAPIAuthMiddleware(_ appcontext.AppContext, api APIWithContext) func(next http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		mw := func(w http.ResponseWriter, r *http.Request) {
+			// Pulling logger & session from the request context instead of the app context because the app context
+			// getting passed into here is the one from the server set up, not the one from the request that came in.
+			logger := logging.FromContext(r.Context())
+			session := auth.SessionFromRequestContext(r)
+
+			route, r, _ := api.Context().RouteInfo(r)
+			if route == nil {
+				// If we reach this error, something went wrong with the swagger router initialization, in reality will probably never be an issue except potentially in local testing
+				logger.Error("Route not found while checking authorization")
+				http.Error(w, http.StatusText(400), http.StatusBadRequest)
+				return
+			}
+
+			routeIsOnAllowList := checkIfRouteIsAllowed(route)
+
+			if !routeIsOnAllowList && !session.IsServiceMember() {
+				logger.Error("unauthorized user for my.move.mil", zap.String("user_id", session.UserID.String()))
+				http.Error(w, http.StatusText(403), http.StatusForbidden)
+				return
+			}
+
+			next.ServeHTTP(w, r)
+		}
+
+		return http.HandlerFunc(mw)
+	}
+}
+
+// This is a list of routes (<tag>.<id>) that cannot be strictly checked. The goal is to get rid of this list entirely,
+// so please try not to add routes to it.
+var allowedRoutes = map[string]bool{
+	"addresses.showAddress":                       true,
+	"duty_locations.searchDutyLocations":          true,
+	"move_docs.createGenericMoveDocument":         true,
+	"move_docs.deleteMoveDocument":                true,
+	"move_docs.indexMoveDocuments":                true,
+	"move_docs.updateMoveDocument":                true,
+	"moves.showMove":                              true,
+	"office.approveMove":                          true,
+	"office.approvePPM":                           true,
+	"office.approveReimbursement":                 true,
+	"office.cancelMove":                           true,
+	"office.showOfficeOrders":                     true,
+	"orders.showOrders":                           true,
+	"orders.updateOrders":                         true,
+	"postal_codes.validatePostalCodeWithRateData": true,
+	"ppm.createPPMAttachments":                    true,
+	"ppm.requestPPMExpenseSummary":                true,
+	"ppm.showPPMEstimate":                         true,
+	"ppm.showPPMIncentive":                        true,
+	"ppm.showPPMSitEstimate":                      true,
+	"ppm.showPersonallyProcuredMove":              true,
+	"ppm.updatePersonallyProcuredMove":            true,
+	"queues.showQueue":                            true,
+	"uploads.deleteUpload":                        true,
+	"users.showLoggedInUser":                      true,
+}
+
+// checkIfRouteIsAllowed checks to see if the route is one of the ones that should be allowed through without stricter
+// checks. This is a temporary solution until we can implement robust permissions checks.
+func checkIfRouteIsAllowed(route *middleware.MatchedRoute) bool {
+	currentRouteTagID := fmt.Sprintf("%s.%s", route.Operation.OperationProps.Tags[0], route.Operation.OperationProps.ID)
+
+	return allowedRoutes[currentRouteTagID]
 }
 
 func updateUserCurrentSessionID(appCtx appcontext.AppContext, sessionID string) error {

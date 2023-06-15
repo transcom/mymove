@@ -182,6 +182,7 @@ func (m *ElectronicOrder) contextValidateCreatedAt(ctx context.Context, formats 
 func (m *ElectronicOrder) contextValidateIssuer(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Issuer != nil {
+
 		if err := m.Issuer.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("issuer")

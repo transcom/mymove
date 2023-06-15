@@ -619,6 +619,11 @@ func (m *EvaluationReport) contextValidateID(ctx context.Context, formats strfmt
 func (m *EvaluationReport) contextValidateInspectionType(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.InspectionType != nil {
+
+		if swag.IsZero(m.InspectionType) { // not required
+			return nil
+		}
+
 		if err := m.InspectionType.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("inspectionType")
@@ -635,6 +640,11 @@ func (m *EvaluationReport) contextValidateInspectionType(ctx context.Context, fo
 func (m *EvaluationReport) contextValidateLocation(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Location != nil {
+
+		if swag.IsZero(m.Location) { // not required
+			return nil
+		}
+
 		if err := m.Location.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("location")
@@ -669,6 +679,11 @@ func (m *EvaluationReport) contextValidateMoveReferenceID(ctx context.Context, f
 func (m *EvaluationReport) contextValidateOfficeUser(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.OfficeUser != nil {
+
+		if swag.IsZero(m.OfficeUser) { // not required
+			return nil
+		}
+
 		if err := m.OfficeUser.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("officeUser")
@@ -692,6 +707,10 @@ func (m *EvaluationReport) contextValidateShipmentID(ctx context.Context, format
 }
 
 func (m *EvaluationReport) contextValidateType(ctx context.Context, formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Type) { // not required
+		return nil
+	}
 
 	if err := m.Type.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {

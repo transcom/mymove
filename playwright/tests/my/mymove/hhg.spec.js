@@ -53,12 +53,12 @@ test('A customer can create, edit, and delete an HHG shipment', async ({ page, c
   await pickupAddress.getByLabel('ZIP').nth(1).fill('08004');
 
   const deliveryAddress = await page.getByRole('group', { name: 'Delivery location' });
-  await deliveryAddress.getByText('Yes').click();
-  await deliveryAddress.getByLabel('Address 1').fill('9 W 2nd Ave');
-  await deliveryAddress.getByLabel('Address 2').fill('P.O. Box 456');
-  await deliveryAddress.getByLabel('City').fill('Hollywood');
-  await deliveryAddress.getByLabel('State').selectOption({ label: 'MD' });
-  await deliveryAddress.getByLabel('ZIP').fill('20636');
+  await deliveryAddress.getByText('Yes').nth(0).click();
+  await deliveryAddress.getByLabel('Address 1').nth(0).fill('9 W 2nd Ave');
+  await deliveryAddress.getByLabel('Address 2').nth(0).fill('P.O. Box 456');
+  await deliveryAddress.getByLabel('City').nth(0).fill('Hollywood');
+  await deliveryAddress.getByLabel('State').nth(0).selectOption({ label: 'MD' });
+  await deliveryAddress.getByLabel('ZIP').nth(0).fill('20636');
   // Secondary delivery address
   await deliveryAddress.getByText('Yes').nth(1).click();
   await deliveryAddress.getByLabel('Address 1').nth(1).fill('9 Q St');
@@ -72,6 +72,7 @@ test('A customer can create, edit, and delete an HHG shipment', async ({ page, c
   await customerPage.waitForPage.reviewShipments();
   await expect(page.getByTestId('ShipmentContainer').getByText('7 Q St')).toBeVisible();
   await expect(page.getByTestId('ShipmentContainer').getByText('8 Q St')).toBeVisible();
+  await expect(page.getByTestId('ShipmentContainer').getByText('9 W 2nd Ave')).toBeVisible();
   await expect(page.getByTestId('ShipmentContainer').getByText('9 Q St')).toBeVisible();
 
   // Navigate to homepage and delete shipment

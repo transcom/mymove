@@ -85,6 +85,11 @@ func (m *MTOHideMovesResponse) contextValidateMoves(ctx context.Context, formats
 	for i := 0; i < len(m.Moves); i++ {
 
 		if m.Moves[i] != nil {
+
+			if swag.IsZero(m.Moves[i]) { // not required
+				return nil
+			}
+
 			if err := m.Moves[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("moves" + "." + strconv.Itoa(i))

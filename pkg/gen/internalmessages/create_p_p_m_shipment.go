@@ -189,6 +189,10 @@ func (m *CreatePPMShipment) ContextValidate(ctx context.Context, formats strfmt.
 
 func (m *CreatePPMShipment) contextValidateSecondaryDestinationPostalCode(ctx context.Context, formats strfmt.Registry) error {
 
+	if swag.IsZero(m.SecondaryDestinationPostalCode) { // not required
+		return nil
+	}
+
 	if err := m.SecondaryDestinationPostalCode.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("secondaryDestinationPostalCode")
@@ -202,6 +206,10 @@ func (m *CreatePPMShipment) contextValidateSecondaryDestinationPostalCode(ctx co
 }
 
 func (m *CreatePPMShipment) contextValidateSecondaryPickupPostalCode(ctx context.Context, formats strfmt.Registry) error {
+
+	if swag.IsZero(m.SecondaryPickupPostalCode) { // not required
+		return nil
+	}
 
 	if err := m.SecondaryPickupPostalCode.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {

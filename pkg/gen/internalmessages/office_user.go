@@ -209,6 +209,11 @@ func (m *OfficeUser) ContextValidate(ctx context.Context, formats strfmt.Registr
 func (m *OfficeUser) contextValidateTransportationOffice(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.TransportationOffice != nil {
+
+		if swag.IsZero(m.TransportationOffice) { // not required
+			return nil
+		}
+
 		if err := m.TransportationOffice.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("transportation_office")

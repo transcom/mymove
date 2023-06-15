@@ -92,6 +92,7 @@ func (m *CreateSITAddressUpdate) ContextValidate(ctx context.Context, formats st
 func (m *CreateSITAddressUpdate) contextValidateNewAddress(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.NewAddress != nil {
+
 		if err := m.NewAddress.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("newAddress")
