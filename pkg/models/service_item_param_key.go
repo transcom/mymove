@@ -137,6 +137,8 @@ const (
 	ServiceItemParamNameZipDestAddress ServiceItemParamName = "ZipDestAddress"
 	// ServiceItemParamNameZipPickupAddress is the param key name ZipPickupAddress
 	ServiceItemParamNameZipPickupAddress ServiceItemParamName = "ZipPickupAddress"
+	// ServiceItemParamNameSITDestFinalAddress is the param key name SITDestFinalAddress
+	ServiceItemParamNameSITDestFinalAddress ServiceItemParamName = "SITDestFinalAddress"
 	// ServiceItemParamNameZipSITDestHHGFinalAddress is the param key name ZipSITDestHHGFinalAddress
 	ServiceItemParamNameZipSITDestHHGFinalAddress ServiceItemParamName = "ZipSITDestHHGFinalAddress"
 	// ServiceItemParamNameZipSITDestHHGOriginalAddress is the param key name ZipSITDestHHGOriginalAddress
@@ -246,6 +248,7 @@ var ValidServiceItemParamNames = []ServiceItemParamName{
 	ServiceItemParamNameSITPaymentRequestStart,
 	ServiceItemParamNameSITScheduleDest,
 	ServiceItemParamNameSITScheduleOrigin,
+	ServiceItemParamNameSITDestFinalAddress,
 	ServiceItemParamNameWeightAdjusted,
 	ServiceItemParamNameWeightBilled,
 	ServiceItemParamNameWeightEstimated,
@@ -314,6 +317,7 @@ var ValidServiceItemParamNameStrings = []string{
 	string(ServiceItemParamNameSITPaymentRequestStart),
 	string(ServiceItemParamNameSITScheduleDest),
 	string(ServiceItemParamNameSITScheduleOrigin),
+	string(ServiceItemParamNameSITDestFinalAddress),
 	string(ServiceItemParamNameWeightAdjusted),
 	string(ServiceItemParamNameWeightBilled),
 	string(ServiceItemParamNameWeightEstimated),
