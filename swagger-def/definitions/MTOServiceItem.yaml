@@ -105,3 +105,7 @@ properties:
     x-nullable: true
   eTag:
     type: string
+  serviceRequestDocuments:
+    items:
+    type: array
+    description: documents uploaded by the Prime as proof of request for service items

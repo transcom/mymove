@@ -4365,6 +4365,22 @@ definitions:
         items:
           $ref: '#/definitions/Upload'
         type: array
+  ServiceRequestDocuments:
+    items:
+      $ref: '#/definitions/ServiceRequestDocument'
+    type: array
+  ServiceRequestDocument:
+    type: object
+  ServiceRequestDocumentUploads:
+    items:
+      $ref: '#/definitions/ServiceRequestDocumentUpload'
+    type: array
+  ServiceRequestDocumentUpload:
+    properties:
+      uploads:
+        items:
+          $ref: '#/definitions/Upload'
+        type: array
   ShipmentsPaymentSITBalance:
     items:
       $ref: '#/definitions/ShipmentPaymentSITBalance'
@@ -5911,6 +5927,10 @@ definitions:
         x-nullable: true
       eTag:
         type: string
+      serviceRequestDocuments:
+        items: null
+        type: array
+        description: documents uploaded by the Prime as proof of request for service items
   MTOServiceItems:
     description: A list of service items connected to this shipment.
     type: array

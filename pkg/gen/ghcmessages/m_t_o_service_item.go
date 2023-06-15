@@ -106,6 +106,9 @@ type MTOServiceItem struct {
 	// rejection reason
 	RejectionReason *string `json:"rejectionReason,omitempty"`
 
+	// documents uploaded by the Prime as proof of request for service items
+	ServiceRequestDocuments []interface{} `json:"serviceRequestDocuments"`
+
 	// sit address updates
 	SitAddressUpdates SITAddressUpdates `json:"sitAddressUpdates,omitempty"`
 
