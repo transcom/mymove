@@ -18,7 +18,7 @@ func NewDomesticDestinationSITDeliveryPricer() services.DomesticDestinationSITDe
 }
 
 // Price determines the price for domestic destination SIT delivery
-func (p domesticDestinationSITDeliveryPricer) Price(appCtx appcontext.AppContext, contractCode string, referenceDate time.Time, weight unit.Pound, serviceArea string, sitSchedule int, zipDest string, zipSITDest string, distance unit.Miles) (unit.Cents, services.PricingDisplayParams, error) {
+func (p domesticDestinationSITDeliveryPricer) Price(appCtx appcontext.AppContext, contractCode string, referenceDate time.Time, weight unit.Pound, serviceArea string, sitSchedule int, zipDest string, zipSITDest string, sitDest string, distance unit.Miles) (unit.Cents, services.PricingDisplayParams, error) {
 	return priceDomesticPickupDeliverySIT(appCtx, models.ReServiceCodeDDDSIT, contractCode, referenceDate, weight, serviceArea, sitSchedule, zipDest, zipSITDest, distance)
 }
 
@@ -64,6 +64,10 @@ func (p domesticDestinationSITDeliveryPricer) PriceUsingParams(appCtx appcontext
 		return unit.Cents(0), nil, err
 	}
 
+	sitDestFinalAddress, err := getParamString(params, models.ServiceItemParamNameSITDestFinalAddress)
+	if err != nil {
+		return unit.Cents(0), nil, err
+	}
 	return p.Price(appCtx, contractCode, referenceDate, unit.Pound(weightBilled), serviceAreaDest,
-		sitScheduleDest, zipDestAddress, zipSITDestHHGFinalAddress, unit.Miles(distanceZipSITDest))
+		sitScheduleDest, zipDestAddress, zipSITDestHHGFinalAddress, sitDestFinalAddress, unit.Miles(distanceZipSITDest))
 }
