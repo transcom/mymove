@@ -2,7 +2,7 @@ default_language_version:
   golang: system
 
 # Specifying minimum pre-commit version to allow for use of default language with golang envs.
-minimum_pre_commit_version: 3.2.0
+minimum_pre_commit_version: 3.3.2
 
 repos:
   - repo: local
