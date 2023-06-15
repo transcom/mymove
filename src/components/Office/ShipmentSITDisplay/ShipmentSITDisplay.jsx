@@ -85,15 +85,9 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton }
     }).sitEntryDate;
   }
 
+  const sitEndDate = moment(sitStatus.sitAllowanceEndDate, utcDateFormat);
   sitEntryDate = moment(sitEntryDate, utcDateFormat);
-
   const sitStartDateElement = <p>{formatDate(sitEntryDate, utcDateFormat, 'DD MMM YYYY')}</p>;
-
-  // Subract one day from total days remaining to account for the current day
-  const sitEndDate = sitEntryDate.add(
-    shipment.sitDaysAllowance - (sitStatus.totalSITDaysUsed - sitStatus.daysInSIT) - 1,
-    'days',
-  );
 
   // Previous SIT calculations and date ranges
   const previousDaysUsed = sitStatus?.pastSITServiceItems?.map((pastSITItem) => {
