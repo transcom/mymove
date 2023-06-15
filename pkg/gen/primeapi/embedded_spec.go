@@ -2140,6 +2140,9 @@ func init() {
           "readOnly": true,
           "example": "item was too heavy"
         },
+        "serviceRequestDocuments": {
+          "$ref": "#/definitions/ServiceRequestDocuments"
+        },
         "status": {
           "$ref": "#/definitions/MTOServiceItemStatus"
         }
@@ -3641,6 +3644,7 @@ func init() {
         "ZipDestAddress",
         "ZipPickupAddress",
         "ZipSITDestHHGFinalAddress",
+        "ZipSITDestHHGOriginalAddress",
         "ZipSITOriginHHGActualAddress",
         "ZipSITOriginHHGOriginalAddress"
       ]
@@ -3665,6 +3669,23 @@ func init() {
         "PaymentServiceItemUUID",
         "BOOLEAN"
       ]
+    },
+    "ServiceRequestDocument": {
+      "type": "object",
+      "properties": {
+        "uploads": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UploadWithOmissions"
+          }
+        }
+      }
+    },
+    "ServiceRequestDocuments": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ServiceRequestDocument"
+      }
     },
     "SitAddressUpdate": {
       "properties": {
@@ -6825,6 +6846,9 @@ func init() {
           "readOnly": true,
           "example": "item was too heavy"
         },
+        "serviceRequestDocuments": {
+          "$ref": "#/definitions/ServiceRequestDocuments"
+        },
         "status": {
           "$ref": "#/definitions/MTOServiceItemStatus"
         }
@@ -8316,6 +8340,7 @@ func init() {
         "ZipDestAddress",
         "ZipPickupAddress",
         "ZipSITDestHHGFinalAddress",
+        "ZipSITDestHHGOriginalAddress",
         "ZipSITOriginHHGActualAddress",
         "ZipSITOriginHHGOriginalAddress"
       ]
@@ -8352,6 +8377,23 @@ func init() {
           "type": "string",
           "example": "Service Item Parameter Value"
         }
+      }
+    },
+    "ServiceRequestDocument": {
+      "type": "object",
+      "properties": {
+        "uploads": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UploadWithOmissions"
+          }
+        }
+      }
+    },
+    "ServiceRequestDocuments": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ServiceRequestDocument"
       }
     },
     "SitAddressUpdate": {

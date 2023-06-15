@@ -504,6 +504,10 @@ func (m *CreateMTOShipment) contextValidateMtoServiceItems(ctx context.Context, 
 
 	for i := 0; i < len(m.MtoServiceItems()); i++ {
 
+		if swag.IsZero(m.mtoServiceItemsField[i]) { // not required
+			return nil
+		}
+
 		if err := m.mtoServiceItemsField[i].ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("mtoServiceItems" + "." + strconv.Itoa(i))
@@ -526,6 +530,11 @@ func (m *CreateMTOShipment) contextValidatePickupAddress(ctx context.Context, fo
 func (m *CreateMTOShipment) contextValidatePpmShipment(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.PpmShipment != nil {
+
+		if swag.IsZero(m.PpmShipment) { // not required
+			return nil
+		}
+
 		if err := m.PpmShipment.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("ppmShipment")
@@ -542,6 +551,7 @@ func (m *CreateMTOShipment) contextValidatePpmShipment(ctx context.Context, form
 func (m *CreateMTOShipment) contextValidateShipmentType(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.ShipmentType != nil {
+
 		if err := m.ShipmentType.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("shipmentType")

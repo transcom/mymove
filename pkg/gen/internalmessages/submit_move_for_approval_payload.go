@@ -72,6 +72,11 @@ func (m *SubmitMoveForApprovalPayload) ContextValidate(ctx context.Context, form
 func (m *SubmitMoveForApprovalPayload) contextValidateCertificate(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Certificate != nil {
+
+		if swag.IsZero(m.Certificate) { // not required
+			return nil
+		}
+
 		if err := m.Certificate.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("certificate")

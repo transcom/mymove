@@ -26,6 +26,7 @@ import (
 func NewSupportAPIHandler(handlerConfig handlers.HandlerConfig) http.Handler {
 	queryBuilder := query.NewQueryBuilder()
 	moveRouter := move.NewMoveRouter()
+	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
 	supportSpec, err := loads.Analyzed(supportapi.SwaggerJSON, "")
 	if err != nil {
 		log.Fatalln(err)
@@ -80,7 +81,7 @@ func NewSupportAPIHandler(handlerConfig handlers.HandlerConfig) http.Handler {
 			mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter), handlerConfig.HHGPlanner()),
 	}
 
-	supportAPI.MtoServiceItemUpdateMTOServiceItemStatusHandler = UpdateMTOServiceItemStatusHandler{handlerConfig, mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter)}
+	supportAPI.MtoServiceItemUpdateMTOServiceItemStatusHandler = UpdateMTOServiceItemStatusHandler{handlerConfig, mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter, shipmentFetcher)}
 	supportAPI.WebhookReceiveWebhookNotificationHandler = ReceiveWebhookNotificationHandler{handlerConfig}
 
 	supportAPI.PaymentRequestGetPaymentRequestEDIHandler = GetPaymentRequestEDIHandler{

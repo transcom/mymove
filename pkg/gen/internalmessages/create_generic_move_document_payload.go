@@ -148,6 +148,7 @@ func (m *CreateGenericMoveDocumentPayload) ContextValidate(ctx context.Context, 
 func (m *CreateGenericMoveDocumentPayload) contextValidateMoveDocumentType(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.MoveDocumentType != nil {
+
 		if err := m.MoveDocumentType.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("move_document_type")

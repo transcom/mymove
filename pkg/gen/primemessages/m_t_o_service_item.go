@@ -66,6 +66,10 @@ type MTOServiceItem interface {
 	RejectionReason() *string
 	SetRejectionReason(*string)
 
+	// service request documents
+	ServiceRequestDocuments() ServiceRequestDocuments
+	SetServiceRequestDocuments(ServiceRequestDocuments)
+
 	// status
 	Status() MTOServiceItemStatus
 	SetStatus(MTOServiceItemStatus)
@@ -88,6 +92,8 @@ type mTOServiceItem struct {
 	reServiceNameField string
 
 	rejectionReasonField *string
+
+	serviceRequestDocumentsField ServiceRequestDocuments
 
 	statusField MTOServiceItemStatus
 }
@@ -159,6 +165,16 @@ func (m *mTOServiceItem) RejectionReason() *string {
 // SetRejectionReason sets the rejection reason of this polymorphic type
 func (m *mTOServiceItem) SetRejectionReason(val *string) {
 	m.rejectionReasonField = val
+}
+
+// ServiceRequestDocuments gets the service request documents of this polymorphic type
+func (m *mTOServiceItem) ServiceRequestDocuments() ServiceRequestDocuments {
+	return m.serviceRequestDocumentsField
+}
+
+// SetServiceRequestDocuments sets the service request documents of this polymorphic type
+func (m *mTOServiceItem) SetServiceRequestDocuments(val ServiceRequestDocuments) {
+	m.serviceRequestDocumentsField = val
 }
 
 // Status gets the status of this polymorphic type
@@ -273,6 +289,10 @@ func (m *mTOServiceItem) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateServiceRequestDocuments(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateStatus(formats); err != nil {
 		res = append(res, err)
 	}
@@ -320,6 +340,23 @@ func (m *mTOServiceItem) validateMtoShipmentID(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *mTOServiceItem) validateServiceRequestDocuments(formats strfmt.Registry) error {
+	if swag.IsZero(m.ServiceRequestDocuments()) { // not required
+		return nil
+	}
+
+	if err := m.ServiceRequestDocuments().Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("serviceRequestDocuments")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("serviceRequestDocuments")
+		}
+		return err
+	}
+
+	return nil
+}
+
 func (m *mTOServiceItem) validateStatus(formats strfmt.Registry) error {
 	if swag.IsZero(m.Status()) { // not required
 		return nil
@@ -358,6 +395,10 @@ func (m *mTOServiceItem) ContextValidate(ctx context.Context, formats strfmt.Reg
 	}
 
 	if err := m.contextValidateRejectionReason(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateServiceRequestDocuments(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -421,7 +462,25 @@ func (m *mTOServiceItem) contextValidateRejectionReason(ctx context.Context, for
 	return nil
 }
 
+func (m *mTOServiceItem) contextValidateServiceRequestDocuments(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.ServiceRequestDocuments().ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("serviceRequestDocuments")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("serviceRequestDocuments")
+		}
+		return err
+	}
+
+	return nil
+}
+
 func (m *mTOServiceItem) contextValidateStatus(ctx context.Context, formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Status()) { // not required
+		return nil
+	}
 
 	if err := m.Status().ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
