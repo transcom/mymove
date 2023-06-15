@@ -47,6 +47,7 @@ func (m *MTOServiceItemCustomerContact) Validate(tx *pop.Connection) (*validate.
 		string(CustomerContactTypeFirst),
 		string(CustomerContactTypeSecond),
 	}})
+	vs = append(vs, &validators.TimeIsPresent{Field: m.DateOfContact, Name: "DateOfContact"})
 	vs = append(vs, &validators.StringIsPresent{Field: m.TimeMilitary, Name: "TimeMilitary"})
 	vs = append(vs, &validators.TimeIsPresent{Field: m.FirstAvailableDeliveryDate, Name: "FirstAvailableDeliveryDate"})
 
