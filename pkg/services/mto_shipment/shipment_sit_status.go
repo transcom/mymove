@@ -68,6 +68,13 @@ func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppConte
 
 	shipmentSITStatus.ShipmentID = shipment.ID
 
+	totalSITAllowance, err := f.CalculateShipmentSITAllowance(appCtx, shipment)
+	if err != nil {
+		return nil, err
+	}
+
+	shipmentSITStatus.TotalDaysRemaining = totalSITAllowance - shipmentSITStatus.TotalSITDaysUsed
+
 	if currentSIT != nil {
 		if currentSIT.ReService.Code == models.ReServiceCodeDOPSIT {
 			shipmentSITStatus.Location = OriginSITLocation
@@ -77,14 +84,8 @@ func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppConte
 
 		shipmentSITStatus.SITEntryDate = *currentSIT.SITEntryDate
 		shipmentSITStatus.SITDepartureDate = currentSIT.SITDepartureDate
+		shipmentSITStatus.SITAllowanceEndDate = calculateSITAllowanceEndDate(shipmentSITStatus, today)
 	}
-
-	totalSITAllowance, err := f.CalculateShipmentSITAllowance(appCtx, shipment)
-	if err != nil {
-		return nil, err
-	}
-
-	shipmentSITStatus.TotalDaysRemaining = totalSITAllowance - shipmentSITStatus.TotalSITDaysUsed
 
 	return &shipmentSITStatus, nil
 }
@@ -105,6 +106,16 @@ func daysInSIT(serviceItem models.MTOServiceItem, today time.Time) int {
 	}
 
 	return 0
+}
+
+func calculateSITAllowanceEndDate(shipmentSITStatus services.SITStatus, today time.Time) time.Time {
+	//current SIT
+	if shipmentSITStatus.SITEntryDate.Before(today) {
+		return today.AddDate(0, 0, shipmentSITStatus.TotalDaysRemaining)
+	}
+	// future SIT
+	return shipmentSITStatus.SITEntryDate.AddDate(0, 0, shipmentSITStatus.TotalDaysRemaining)
+
 }
 
 func (f shipmentSITStatus) CalculateShipmentsSITStatuses(appCtx appcontext.AppContext, shipments []models.MTOShipment) map[string]services.SITStatus {

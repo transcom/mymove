@@ -30,6 +30,10 @@ type SITStatus struct {
 	// past s i t service items
 	PastSITServiceItems MTOServiceItems `json:"pastSITServiceItems,omitempty"`
 
+	// sit allowance end date
+	// Format: date-time
+	SitAllowanceEndDate strfmt.DateTime `json:"sitAllowanceEndDate,omitempty"`
+
 	// sit departure date
 	// Format: date-time
 	SitDepartureDate *strfmt.DateTime `json:"sitDepartureDate,omitempty"`
@@ -56,6 +60,10 @@ func (m *SITStatus) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validatePastSITServiceItems(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSitAllowanceEndDate(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -104,6 +112,18 @@ func (m *SITStatus) validatePastSITServiceItems(formats strfmt.Registry) error {
 		} else if ce, ok := err.(*errors.CompositeError); ok {
 			return ce.ValidateName("pastSITServiceItems")
 		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *SITStatus) validateSitAllowanceEndDate(formats strfmt.Registry) error {
+	if swag.IsZero(m.SitAllowanceEndDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("sitAllowanceEndDate", "body", "date-time", m.SitAllowanceEndDate.String(), formats); err != nil {
 		return err
 	}
 

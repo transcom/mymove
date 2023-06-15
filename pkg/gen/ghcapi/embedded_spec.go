@@ -8387,6 +8387,10 @@ func init() {
         "pastSITServiceItems": {
           "$ref": "#/definitions/MTOServiceItems"
         },
+        "sitAllowanceEndDate": {
+          "type": "string",
+          "format": "date-time"
+        },
         "sitDepartureDate": {
           "type": "string",
           "format": "date-time",
@@ -19356,6 +19360,10 @@ func init() {
         },
         "pastSITServiceItems": {
           "$ref": "#/definitions/MTOServiceItems"
+        },
+        "sitAllowanceEndDate": {
+          "type": "string",
+          "format": "date-time"
         },
         "sitDepartureDate": {
           "type": "string",

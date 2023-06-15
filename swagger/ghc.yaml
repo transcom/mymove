@@ -6172,6 +6172,9 @@ definitions:
         type: string
         format: date-time
         x-nullable: true
+      sitAllowanceEndDate:
+        type: string
+        format: date-time
       pastSITServiceItems:
         $ref: '#/definitions/MTOServiceItems'
   PPMShipmentStatus:

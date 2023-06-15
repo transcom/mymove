@@ -675,6 +675,7 @@ func SITStatus(shipmentSITStatuses *services.SITStatus) *ghcmessages.SITStatus {
 		Location:            shipmentSITStatuses.Location,
 		PastSITServiceItems: MTOServiceItemModels(shipmentSITStatuses.PastSITs),
 		SitDepartureDate:    handlers.FmtDateTimePtr(shipmentSITStatuses.SITDepartureDate),
+		SitAllowanceEndDate: strfmt.DateTime(shipmentSITStatuses.SITAllowanceEndDate),
 		SitEntryDate:        strfmt.DateTime(shipmentSITStatuses.SITEntryDate),
 		TotalSITDaysUsed:    handlers.FmtIntPtrToInt64(&shipmentSITStatuses.TotalSITDaysUsed),
 	}
