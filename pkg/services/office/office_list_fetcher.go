@@ -18,15 +18,15 @@ type officeListFetcher struct {
 // FetchOfficeUserList uses the passed query builder to fetch a list of transportation offices
 func (o *officeListFetcher) FetchOfficeList(appCtx appcontext.AppContext, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) (models.TransportationOffices, error) {
 	var offices models.TransportationOffices
-	error := o.builder.FetchMany(appCtx, &offices, filters, associations, pagination, ordering)
-	return offices, error
+	err := o.builder.FetchMany(appCtx, &offices, filters, associations, pagination, ordering)
+	return offices, err
 }
 
 // FetchOfficeUserCount uses the passed query builder to count the number of transportation offices
 func (o *officeListFetcher) FetchOfficeCount(appCtx appcontext.AppContext, filters []services.QueryFilter) (int, error) {
 	var offices models.TransportationOffices
-	count, error := o.builder.Count(appCtx, &offices, filters)
-	return count, error
+	count, err := o.builder.Count(appCtx, &offices, filters)
+	return count, err
 }
 
 // NewOfficeListFetcher returns an implementation of OfficeListFetcher

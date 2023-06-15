@@ -36,7 +36,7 @@ func (r ReDomesticServiceAreaPrice) TableName() string {
 type ReDomesticServiceAreaPrices []ReDomesticServiceAreaPrice
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-func (r *ReDomesticServiceAreaPrice) Validate(tx *pop.Connection) (*validate.Errors, error) {
+func (r *ReDomesticServiceAreaPrice) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.UUIDIsPresent{Field: r.ContractID, Name: "ContractID"},
 		&validators.UUIDIsPresent{Field: r.ServiceID, Name: "ServiceID"},

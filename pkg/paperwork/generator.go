@@ -123,7 +123,7 @@ func (g *Generator) newTempFile() (afero.File, error) {
 }
 
 // Cleanup removes filesystem working dir
-func (g *Generator) Cleanup(appCtx appcontext.AppContext) error {
+func (g *Generator) Cleanup(_ appcontext.AppContext) error {
 	return g.fs.RemoveAll(g.workDir)
 }
 
@@ -226,7 +226,7 @@ var contentTypeToImageType = map[string]string{
 }
 
 // ReduceUnusedSpace reduces unused space
-func ReduceUnusedSpace(appCtx appcontext.AppContext, file afero.File, g *Generator, contentType string) (imgFile afero.File, width float64, height float64, err error) {
+func ReduceUnusedSpace(_ appcontext.AppContext, file afero.File, g *Generator, contentType string) (imgFile afero.File, width float64, height float64, err error) {
 	// Figure out if the image should be rotated by calculating height and width of image.
 	pic, _, decodeErr := image.Decode(file)
 	if decodeErr != nil {
@@ -396,7 +396,7 @@ func (g *Generator) PDFFromImages(appCtx appcontext.AppContext, images []inputFi
 }
 
 // MergePDFFiles Merges a slice of paths to PDF files into a single PDF
-func (g *Generator) MergePDFFiles(appCtx appcontext.AppContext, paths []string) (afero.File, error) {
+func (g *Generator) MergePDFFiles(_ appcontext.AppContext, paths []string) (afero.File, error) {
 	var err error
 	mergedFile, err := g.newTempFile()
 	if err != nil {

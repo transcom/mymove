@@ -74,7 +74,7 @@ func (s ServiceMember) TableName() string {
 type ServiceMembers []ServiceMember
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-func (s *ServiceMember) Validate(tx *pop.Connection) (*validate.Errors, error) {
+func (s *ServiceMember) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.UUIDIsPresent{Field: s.UserID, Name: "UserID"},
 	), nil

@@ -39,17 +39,17 @@ func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppConte
 		// only departure SIT service items have a departure date
 		if code := serviceItem.ReService.Code; (code == models.ReServiceCodeDOPSIT || code == models.ReServiceCodeDDDSIT) &&
 			serviceItem.Status == models.MTOServiceItemStatusApproved {
-			if serviceItem.SITEntryDate.After(today) {
-				// There is a SIT service item that hasn't entered storage yet skip for now
-			} else if serviceItem.SITDepartureDate != nil && serviceItem.SITDepartureDate.Before(today) {
-				// SIT is in the past
-				shipmentSITStatus.TotalSITDaysUsed += daysInSIT(serviceItem, today)
-				shipmentSITStatus.PastSITs = append(shipmentSITStatus.PastSITs, shipment.MTOServiceItems[i])
-			} else {
-				// SIT is currently in storage
-				shipmentSITStatus.DaysInSIT = daysInSIT(serviceItem, today)
-				shipmentSITStatus.TotalSITDaysUsed += shipmentSITStatus.DaysInSIT
-				currentSIT = &shipment.MTOServiceItems[i]
+			if !serviceItem.SITEntryDate.After(today) { // Skip a SIT service item that hasn't entered storage yet
+				if serviceItem.SITDepartureDate != nil && serviceItem.SITDepartureDate.Before(today) {
+					// SIT is in the past
+					shipmentSITStatus.TotalSITDaysUsed += daysInSIT(serviceItem, today)
+					shipmentSITStatus.PastSITs = append(shipmentSITStatus.PastSITs, shipment.MTOServiceItems[i])
+				} else {
+					// SIT is currently in storage
+					shipmentSITStatus.DaysInSIT = daysInSIT(serviceItem, today)
+					shipmentSITStatus.TotalSITDaysUsed += shipmentSITStatus.DaysInSIT
+					currentSIT = &shipment.MTOServiceItems[i]
+				}
 			}
 		}
 	}

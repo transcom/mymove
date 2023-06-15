@@ -220,7 +220,7 @@ func (e ElectronicOrdersRevisions) String() string {
 }
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-func (e *ElectronicOrdersRevision) Validate(tx *pop.Connection) (*validate.Errors, error) {
+func (e *ElectronicOrdersRevision) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.UUIDIsPresent{Field: e.ElectronicOrderID, Name: "ElectronicOrderID"},
 		&validators.IntIsGreaterThan{Field: e.SeqNum, Name: "SeqNum", Compared: -1},

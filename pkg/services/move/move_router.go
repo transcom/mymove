@@ -429,7 +429,7 @@ func (router moveRouter) Cancel(appCtx appcontext.AppContext, reason string, mov
 //
 // This makes the move available to the TOO.  This gets called when the Service Counselor is done
 // reviewing the move and submits it.
-func (router moveRouter) CompleteServiceCounseling(appCtx appcontext.AppContext, move *models.Move) error {
+func (router moveRouter) CompleteServiceCounseling(_ appcontext.AppContext, move *models.Move) error {
 	// Verify shipments are present.
 	if len(move.MTOShipments) == 0 {
 		return apperror.NewConflictError(move.ID, "No shipments associated with move")

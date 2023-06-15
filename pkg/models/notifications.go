@@ -38,7 +38,7 @@ func (n Notification) TableName() string {
 type Notifications []Notification
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-func (n *Notification) Validate(tx *pop.Connection) (*validate.Errors, error) {
+func (n *Notification) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.UUIDIsPresent{Field: n.ServiceMemberID, Name: "ServiceMemberID"},
 	), nil

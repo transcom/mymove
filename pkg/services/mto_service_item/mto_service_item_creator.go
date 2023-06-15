@@ -390,7 +390,7 @@ func NewMTOServiceItemCreator(builder createMTOServiceItemQueryBuilder, moveRout
 	return &mtoServiceItemCreator{builder: builder, createNewBuilder: createNewBuilder, moveRouter: moveRouter}
 }
 
-func validateTimeMilitaryField(appCtx appcontext.AppContext, timeMilitary string) error {
+func validateTimeMilitaryField(_ appcontext.AppContext, timeMilitary string) error {
 	if len(timeMilitary) == 0 {
 		return nil
 	} else if len(timeMilitary) != 5 {

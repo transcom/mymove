@@ -50,7 +50,7 @@ type mockS3Client struct {
 }
 
 // mock function
-func (m *mockS3Client) ListObjects(input *s3.ListObjectsInput) (*s3.ListObjectsOutput, error) {
+func (m *mockS3Client) ListObjects(_ *s3.ListObjectsInput) (*s3.ListObjectsOutput, error) {
 	// mock response/functionality
 	var files []*s3.Object
 	files = append(files, &s3.Object{Key: &s3folder})

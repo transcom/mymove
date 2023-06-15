@@ -4,9 +4,9 @@
 
 ## Signed-off-by
 
-- Copyright 2017–2018 U.S. Federal Government (in countries where recognized) contact@dds.mil
-- Copyright 2018 [TrussWorks](https://truss.works) bizops@truss.works
-- Copyright 2018 [Sliced Bread Design](http://www.slicedbreaddesign.com/) info@slicedbreaddesign.com
+- Copyright 2017–2018 U.S. Federal Government (in countries where recognized) `contact@dds.mil`
+- Copyright 2018 [TrussWorks](https://truss.works) `bizops@truss.works`
+- Copyright 2018 [Sliced Bread Design](http://www.slicedbreaddesign.com/) `info@slicedbreaddesign.com`
 - _Add the copyright date, your name, and email address here._
 
 ## Note for U.S. Federal Employees

@@ -985,7 +985,7 @@ func subScenarioMisc(appCtx appcontext.AppContext, userUploader *uploader.UserUp
 	}
 }
 
-func subScenarioPrimeUserAndClientCert(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) func() {
+func subScenarioPrimeUserAndClientCert(appCtx appcontext.AppContext) func() {
 	return func() {
 		primeUser := createPrimeUser(appCtx)
 		createDevClientCertForUser(appCtx, primeUser)

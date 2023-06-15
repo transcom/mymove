@@ -80,7 +80,7 @@ func UploadsFromUserUploadsNoDatabase(userUploads UserUploads) (Uploads, error) 
 }
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-func (u *UserUpload) Validate(tx *pop.Connection) (*validate.Errors, error) {
+func (u *UserUpload) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.UUIDIsPresent{Field: u.UploaderID, Name: "UploaderID"},
 	), nil

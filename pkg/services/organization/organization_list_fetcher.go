@@ -18,15 +18,15 @@ type organizationListFetcher struct {
 // FetchOrganizationUserList uses the passed query builder to fetch a list of transportation offices
 func (o *organizationListFetcher) FetchOrganizationList(appCtx appcontext.AppContext, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) (models.Organizations, error) {
 	var organizations models.Organizations
-	error := o.builder.FetchMany(appCtx, &organizations, filters, associations, pagination, ordering)
-	return organizations, error
+	err := o.builder.FetchMany(appCtx, &organizations, filters, associations, pagination, ordering)
+	return organizations, err
 }
 
 // FetchOrganizationUserList uses the passed query builder to fetch a list of transportation offices
 func (o *organizationListFetcher) FetchOrganizationCount(appCtx appcontext.AppContext, filters []services.QueryFilter) (int, error) {
 	var organizations models.Organizations
-	count, error := o.builder.Count(appCtx, &organizations, filters)
-	return count, error
+	count, err := o.builder.Count(appCtx, &organizations, filters)
+	return count, err
 }
 
 // NewOrganizationListFetcher returns an implementation of OrganizationListFetcher

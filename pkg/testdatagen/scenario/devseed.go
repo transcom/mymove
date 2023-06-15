@@ -52,7 +52,7 @@ func (e *devSeedScenario) Setup(appCtx appcontext.AppContext, userUploader *uplo
 		"payment_request_calculations": subScenarioPaymentRequestCalculations(appCtx, userUploader, primeUploader, moveRouter, shipmentFetcher),
 		"ppm_customer_flow":            subScenarioPPMCustomerFlow(appCtx, userUploader, moveRouter),
 		"ppm_and_hhg":                  subScenarioPPMAndHHG(appCtx, userUploader, moveRouter),
-		"prime_user_and_client_cert":   subScenarioPrimeUserAndClientCert(appCtx, userUploader),
+		"prime_user_and_client_cert":   subScenarioPrimeUserAndClientCert(appCtx),
 		"shipment_hhg_cancelled":       subScenarioShipmentHHGCancelled(appCtx, allDutyLocations, originDutyLocationsInGBLOC),
 		"txo_queues":                   subScenarioTXOQueues(appCtx, userUploader),
 		"misc":                         subScenarioMisc(appCtx, userUploader, primeUploader, moveRouter),

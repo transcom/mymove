@@ -129,7 +129,7 @@ type updateMTOServiceItemData struct {
 }
 
 // checkLinkedIDs checks that the user didn't attempt to change the service item's move, shipment, or reService IDs
-func (v *updateMTOServiceItemData) checkLinkedIDs(appCtx appcontext.AppContext) error {
+func (v *updateMTOServiceItemData) checkLinkedIDs(_ appcontext.AppContext) error {
 	if v.updatedServiceItem.MoveTaskOrderID != uuid.Nil && v.updatedServiceItem.MoveTaskOrderID != v.oldServiceItem.MoveTaskOrderID {
 		v.verrs.Add("moveTaskOrderID", "cannot be updated")
 	}
@@ -155,7 +155,7 @@ func (v *updateMTOServiceItemData) checkPrimeAvailability(appCtx appcontext.AppC
 }
 
 // checkNonPrimeFields checks that no fields were modified that are not allowed to be updated by the Prime
-func (v *updateMTOServiceItemData) checkNonPrimeFields(appCtx appcontext.AppContext) error {
+func (v *updateMTOServiceItemData) checkNonPrimeFields(_ appcontext.AppContext) error {
 	if v.updatedServiceItem.Status != "" && v.updatedServiceItem.Status != v.oldServiceItem.Status {
 		v.verrs.Add("status", "cannot be updated")
 	}
@@ -177,7 +177,7 @@ func (v *updateMTOServiceItemData) checkNonPrimeFields(appCtx appcontext.AppCont
 
 // checkSITDeparture checks that the service item is a DDDSIT or DOPSIT if the user is trying to update the
 // SITDepartureDate
-func (v *updateMTOServiceItemData) checkSITDeparture(appCtx appcontext.AppContext) error {
+func (v *updateMTOServiceItemData) checkSITDeparture(_ appcontext.AppContext) error {
 	if v.updatedServiceItem.SITDepartureDate == nil || v.updatedServiceItem.SITDepartureDate == v.oldServiceItem.SITDepartureDate {
 		return nil // the SITDepartureDate isn't being updated, so we're fine here
 	}
@@ -191,7 +191,7 @@ func (v *updateMTOServiceItemData) checkSITDeparture(appCtx appcontext.AppContex
 }
 
 // checkSITDestinationOriginalAddress checks that SITDestinationOriginalAddress isn't being changed
-func (v *updateMTOServiceItemData) checkSITDestinationOriginalAddress(appCtx appcontext.AppContext) error {
+func (v *updateMTOServiceItemData) checkSITDestinationOriginalAddress(_ appcontext.AppContext) error {
 	if v.updatedServiceItem.SITDestinationOriginalAddress == nil {
 		return nil // SITDestinationOriginalAddress isn't being updated, so we're fine here
 	}
@@ -211,7 +211,7 @@ func (v *updateMTOServiceItemData) checkSITDestinationOriginalAddress(appCtx app
 }
 
 // checkSITDestinationFinalAddress checks that SITDestinationFinalAddress isn't being changed
-func (v *updateMTOServiceItemData) checkSITDestinationFinalAddress(appCtx appcontext.AppContext) error {
+func (v *updateMTOServiceItemData) checkSITDestinationFinalAddress(_ appcontext.AppContext) error {
 	if v.updatedServiceItem.SITDestinationFinalAddress == nil {
 		return nil // SITDestinationFinalAddress isn't being updated, so we're fine here
 	}

@@ -25,7 +25,7 @@ func InitRecalculatePaymentRequestFlags(flag *pflag.FlagSet) {
 	flag.SortFlags = false
 }
 
-func checkRecalculatePaymentRequestConfig(v *viper.Viper, args []string, logger *log.Logger) error {
+func checkRecalculatePaymentRequestConfig(v *viper.Viper, logger *log.Logger) error {
 	err := utils.CheckRootConfig(v)
 	if err != nil {
 		logger.Fatal(err)
@@ -52,7 +52,7 @@ func RecalculatePaymentRequest(cmd *cobra.Command, args []string) error {
 	}
 
 	// Check the config before talking to the CAC
-	err := checkRecalculatePaymentRequestConfig(v, args, logger)
+	err := checkRecalculatePaymentRequestConfig(v, logger)
 	if err != nil {
 		logger.Fatal(err)
 	}

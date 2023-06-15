@@ -2990,7 +2990,7 @@ func createMovesForEachBranch(appCtx appcontext.AppContext, userUploader *upload
 	}
 }
 
-func CreateSubmittedMoveWithPPMShipmentForSC(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter, moveInfo MoveCreatorInfo) models.Move {
+func CreateSubmittedMoveWithPPMShipmentForSC(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, _ services.MoveRouter, moveInfo MoveCreatorInfo) models.Move {
 	loginGovUUID := uuid.Must(uuid.NewV4())
 	submittedAt := time.Now()
 
@@ -3084,7 +3084,7 @@ func CreateSubmittedMoveWithPPMShipmentForSC(appCtx appcontext.AppContext, userU
 	return move
 }
 
-func createSubmittedMoveWithPPMShipmentForSCWithSIT(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter, locator string) {
+func createSubmittedMoveWithPPMShipmentForSCWithSIT(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, _ services.MoveRouter, locator string) {
 	userID := uuid.Must(uuid.NewV4())
 	email := "completeWithSIT@ppm.submitted"
 	loginGovUUID := uuid.Must(uuid.NewV4())
@@ -6891,7 +6891,7 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 	}, nil)
 }
 
-func createMoveWithHHGAndNTSRMissingInfo(appCtx appcontext.AppContext, moveRouter services.MoveRouter, shipmentFetcher services.MTOShipmentFetcher) {
+func createMoveWithHHGAndNTSRMissingInfo(appCtx appcontext.AppContext, moveRouter services.MoveRouter, _ services.MTOShipmentFetcher) {
 	db := appCtx.DB()
 	move := factory.BuildMove(db, []factory.Customization{
 		{
@@ -11534,7 +11534,7 @@ func createRandomMove(
 	allDutyLocations []models.DutyLocation,
 	dutyLocationsInGBLOC []models.DutyLocation,
 	withFullOrder bool,
-	userUploader *uploader.UserUploader,
+	_ *uploader.UserUploader,
 	moveTemplate models.Move,
 	mtoShipmentTemplate models.MTOShipment,
 	orderTemplate models.Order,
