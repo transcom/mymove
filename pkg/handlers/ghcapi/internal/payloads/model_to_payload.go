@@ -1199,10 +1199,40 @@ func PaymentServiceItemParams(paymentServiceItemParams *models.PaymentServiceIte
 	return &payload
 }
 
+func ServiceRequestDoc(serviceRequest models.ServiceRequestDocument, storer storage.FileStorer) (*ghcmessages.ServiceRequestDocument, error) {
+
+	uploads := make([]*ghcmessages.Upload, len(serviceRequest.ServiceRequestDocumentUploads))
+
+	if serviceRequest.ServiceRequestDocumentUploads != nil && len(serviceRequest.ServiceRequestDocumentUploads) > 0 {
+		for i, serviceRequestUpload := range serviceRequest.ServiceRequestDocumentUploads {
+			url, err := storer.PresignedURL(serviceRequestUpload.Upload.StorageKey, serviceRequestUpload.Upload.ContentType)
+			if err != nil {
+				return nil, err
+			}
+			uploads[i] = Upload(storer, serviceRequestUpload.Upload, url)
+		}
+	}
+
+	return &ghcmessages.ServiceRequestDocument{
+		Uploads: uploads,
+	}, nil
+}
 // MTOServiceItemModel payload
-func MTOServiceItemModel(s *models.MTOServiceItem) *ghcmessages.MTOServiceItem {
+func MTOServiceItemModel(s *models.MTOServiceItem, storer storage.FileStorer) *ghcmessages.MTOServiceItem {
 	if s == nil {
 		return nil
+	}
+
+	serviceRequestDocs := make(ghcmessages.ServiceRequestDocuments, len(s.ServiceRequestDocuments))
+
+	if s.ServiceRequestDocuments != nil && len(s.ServiceRequestDocuments) > 0 {
+		for i, serviceRequest := range s.ServiceRequestDocuments {
+			payload, err := ServiceRequestDoc(serviceRequest, storer)
+			if err != nil {
+				return nil, err
+			}
+			serviceRequestDocs[i] = payload
+		}
 	}
 
 	return &ghcmessages.MTOServiceItem{
@@ -1230,6 +1260,7 @@ func MTOServiceItemModel(s *models.MTOServiceItem) *ghcmessages.MTOServiceItem {
 		ApprovedAt:                    handlers.FmtDateTimePtr(s.ApprovedAt),
 		RejectedAt:                    handlers.FmtDateTimePtr(s.RejectedAt),
 		ETag:                          etag.GenerateEtag(s.UpdatedAt),
+		ServiceRequestDocuments:	   serviceRequestDocs,
 	}
 }
 

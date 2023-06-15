@@ -5803,55 +5803,17 @@ definitions:
       - SUBMITTED
       - APPROVED
       - REJECTED
-  Upload:
-    description: An uploaded file.
+  ServiceRequestDocument:
     type: object
     properties:
-      id:
+      mtoServiceItemID:
         type: string
         format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        readOnly: true
-      url:
-        type: string
-        format: uri
-        example: https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538
-        readOnly: true
-      filename:
-        type: string
-        example: filename.pdf
-        readOnly: true
-      contentType:
-        type: string
-        format: mime-type
-        example: application/pdf
-        readOnly: true
-      bytes:
-        type: integer
-        readOnly: true
-      status:
-        type: string
-        enum:
-          - INFECTED
-          - CLEAN
-          - PROCESSING
-        readOnly: true
-      createdAt:
-        type: string
-        format: date-time
-        readOnly: true
-      updatedAt:
-        type: string
-        format: date-time
-        readOnly: true
-    required:
-      - id
-      - url
-      - filename
-      - contentType
-      - bytes
-      - createdAt
-      - updatedAt
+  ServiceRequestDocuments:
+    description: documents uploaded by the Prime as proof of request for service items
+    type: array
+    items:
+      $ref: '#/definitions/ServiceRequestDocument'
   MTOServiceItem:
     type: object
     required:
@@ -5961,10 +5923,7 @@ definitions:
       eTag:
         type: string
       serviceRequestDocuments:
-        items:
-          $ref: '#/definitions/Upload'
-        type: array
-        description: documents uploaded by the Prime as proof of request for service items
+        $ref: '#/definitions/ServiceRequestDocuments'
   MTOServiceItems:
     description: A list of service items connected to this shipment.
     type: array
@@ -6257,6 +6216,55 @@ definitions:
       - APPROVED
       - REJECTED
       - EDITED
+  Upload:
+    description: An uploaded file.
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      url:
+        type: string
+        format: uri
+        example: https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      filename:
+        type: string
+        example: filename.pdf
+        readOnly: true
+      contentType:
+        type: string
+        format: mime-type
+        example: application/pdf
+        readOnly: true
+      bytes:
+        type: integer
+        readOnly: true
+      status:
+        type: string
+        enum:
+          - INFECTED
+          - CLEAN
+          - PROCESSING
+        readOnly: true
+      createdAt:
+        type: string
+        format: date-time
+        readOnly: true
+      updatedAt:
+        type: string
+        format: date-time
+        readOnly: true
+    required:
+      - id
+      - url
+      - filename
+      - contentType
+      - bytes
+      - createdAt
+      - updatedAt
   Document:
     type: object
     properties:

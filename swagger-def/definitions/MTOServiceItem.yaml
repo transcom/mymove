@@ -106,7 +106,6 @@ properties:
   eTag:
     type: string
   serviceRequestDocuments:
-    items:
-     $ref: 'Upload.yaml'
-    type: array
-    description: documents uploaded by the Prime as proof of request for service items
+    $ref: 'ServiceRequestDocuments.yaml'
+    # type: array
+    # description: documents uploaded by the Prime as proof of request for service items

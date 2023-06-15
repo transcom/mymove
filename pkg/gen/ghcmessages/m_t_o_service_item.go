@@ -8,7 +8,6 @@ package ghcmessages
 import (
 	"context"
 	"encoding/json"
-	"strconv"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
@@ -107,8 +106,8 @@ type MTOServiceItem struct {
 	// rejection reason
 	RejectionReason *string `json:"rejectionReason,omitempty"`
 
-	// documents uploaded by the Prime as proof of request for service items
-	ServiceRequestDocuments []*Upload `json:"serviceRequestDocuments"`
+	// service request documents
+	ServiceRequestDocuments ServiceRequestDocuments `json:"serviceRequestDocuments,omitempty"`
 
 	// sit address updates
 	SitAddressUpdates SITAddressUpdates `json:"sitAddressUpdates,omitempty"`
@@ -444,22 +443,13 @@ func (m *MTOServiceItem) validateServiceRequestDocuments(formats strfmt.Registry
 		return nil
 	}
 
-	for i := 0; i < len(m.ServiceRequestDocuments); i++ {
-		if swag.IsZero(m.ServiceRequestDocuments[i]) { // not required
-			continue
+	if err := m.ServiceRequestDocuments.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("serviceRequestDocuments")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("serviceRequestDocuments")
 		}
-
-		if m.ServiceRequestDocuments[i] != nil {
-			if err := m.ServiceRequestDocuments[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("serviceRequestDocuments" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName("serviceRequestDocuments" + "." + strconv.Itoa(i))
-				}
-				return err
-			}
-		}
-
+		return err
 	}
 
 	return nil
@@ -666,24 +656,13 @@ func (m *MTOServiceItem) contextValidateDimensions(ctx context.Context, formats 
 
 func (m *MTOServiceItem) contextValidateServiceRequestDocuments(ctx context.Context, formats strfmt.Registry) error {
 
-	for i := 0; i < len(m.ServiceRequestDocuments); i++ {
-
-		if m.ServiceRequestDocuments[i] != nil {
-
-			if swag.IsZero(m.ServiceRequestDocuments[i]) { // not required
-				return nil
-			}
-
-			if err := m.ServiceRequestDocuments[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("serviceRequestDocuments" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName("serviceRequestDocuments" + "." + strconv.Itoa(i))
-				}
-				return err
-			}
+	if err := m.ServiceRequestDocuments.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("serviceRequestDocuments")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("serviceRequestDocuments")
 		}
-
+		return err
 	}
 
 	return nil

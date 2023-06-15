@@ -6100,11 +6100,7 @@ func init() {
           "x-nullable": true
         },
         "serviceRequestDocuments": {
-          "description": "documents uploaded by the Prime as proof of request for service items",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Upload"
-          }
+          "$ref": "#/definitions/ServiceRequestDocuments"
         },
         "sitAddressUpdates": {
           "$ref": "#/definitions/SITAddressUpdates"
@@ -8573,6 +8569,22 @@ func init() {
         "PaymentServiceItemUUID",
         "BOOLEAN"
       ]
+    },
+    "ServiceRequestDocument": {
+      "type": "object",
+      "properties": {
+        "mtoServiceItemID": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    },
+    "ServiceRequestDocuments": {
+      "description": "documents uploaded by the Prime as proof of request for service items",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ServiceRequestDocument"
+      }
     },
     "ShipmentPaymentSITBalance": {
       "properties": {
@@ -17075,11 +17087,7 @@ func init() {
           "x-nullable": true
         },
         "serviceRequestDocuments": {
-          "description": "documents uploaded by the Prime as proof of request for service items",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Upload"
-          }
+          "$ref": "#/definitions/ServiceRequestDocuments"
         },
         "sitAddressUpdates": {
           "$ref": "#/definitions/SITAddressUpdates"
@@ -19553,6 +19561,22 @@ func init() {
         "PaymentServiceItemUUID",
         "BOOLEAN"
       ]
+    },
+    "ServiceRequestDocument": {
+      "type": "object",
+      "properties": {
+        "mtoServiceItemID": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    },
+    "ServiceRequestDocuments": {
+      "description": "documents uploaded by the Prime as proof of request for service items",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ServiceRequestDocument"
+      }
     },
     "ShipmentPaymentSITBalance": {
       "properties": {
