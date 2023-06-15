@@ -1693,6 +1693,8 @@ definitions:
         description: The reason why this service item was rejected by the TOO.
       modelType: # Base type and sub-types of MTOServiceItem
         $ref: '#/definitions/MTOServiceItemModelType'
+      serviceRequestDocuments:
+        $ref: '#/definitions/ServiceRequestDocuments'
       eTag:
         type: string
         readOnly: true
@@ -1848,6 +1850,17 @@ definitions:
       - MTOServiceItemDestSIT
       - MTOServiceItemShuttle
       - MTOServiceItemDomesticCrating
+  ServiceRequestDocuments:
+    items:
+      $ref: '#/definitions/ServiceRequestDocument'
+    type: array
+  ServiceRequestDocument:
+    properties:
+      uploads:
+        items:
+          $ref: '#/definitions/UploadWithOmissions'
+        type: array
+    type: object
   MTOServiceItemOriginSIT: # spectral oas2-unused-definition is OK here due to polymorphism
     description: Describes a domestic origin SIT service item. Subtype of a MTOServiceItem.
     allOf:
@@ -2167,18 +2180,14 @@ definitions:
       - BOAT_HAUL_AWAY
       - BOAT_TOW_AWAY
       - HHG
-      - HHG_LONGHAUL_DOMESTIC
       - HHG_INTO_NTS_DOMESTIC
       - HHG_OUTOF_NTS_DOMESTIC
-      - HHG_SHORTHAUL_DOMESTIC
       - INTERNATIONAL_HHG
       - INTERNATIONAL_UB
       - MOTORHOME
       - PPM
     x-display-value:
       HHG: Household goods move (HHG)
-      HHG_LONGHAUL_DOMESTIC: Domestic Longhaul HHG
-      HHG_SHORTHAUL_DOMESTIC: Domestic Shorthaul HHG
       HHG_INTO_NTS_DOMESTIC: HHG into Non-temporary storage (NTS)
       HHG_OUTOF_NTS_DOMESTIC: HHG out of Non-temporary storage (NTS Release)
       PPM: Personally Procured Move also known as Do It Yourself (DITY)
@@ -2639,6 +2648,8 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
+    required:
+      - contractorRemarks
   ServiceItem:
     properties:
       id:

@@ -643,6 +643,11 @@ func (m *MTOServiceItem) contextValidateSitAddressUpdates(ctx context.Context, f
 func (m *MTOServiceItem) contextValidateSitDestinationFinalAddress(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.SitDestinationFinalAddress != nil {
+
+		if swag.IsZero(m.SitDestinationFinalAddress) { // not required
+			return nil
+		}
+
 		if err := m.SitDestinationFinalAddress.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("sitDestinationFinalAddress")
@@ -659,6 +664,11 @@ func (m *MTOServiceItem) contextValidateSitDestinationFinalAddress(ctx context.C
 func (m *MTOServiceItem) contextValidateSitDestinationOriginalAddress(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.SitDestinationOriginalAddress != nil {
+
+		if swag.IsZero(m.SitDestinationOriginalAddress) { // not required
+			return nil
+		}
+
 		if err := m.SitDestinationOriginalAddress.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("sitDestinationOriginalAddress")
@@ -673,6 +683,10 @@ func (m *MTOServiceItem) contextValidateSitDestinationOriginalAddress(ctx contex
 }
 
 func (m *MTOServiceItem) contextValidateStatus(ctx context.Context, formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Status) { // not required
+		return nil
+	}
 
 	if err := m.Status.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {

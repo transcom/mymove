@@ -130,6 +130,11 @@ func (m *ServiceItem) contextValidateParams(ctx context.Context, formats strfmt.
 	for i := 0; i < len(m.Params); i++ {
 
 		if m.Params[i] != nil {
+
+			if swag.IsZero(m.Params[i]) { // not required
+				return nil
+			}
+
 			if err := m.Params[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("params" + "." + strconv.Itoa(i))

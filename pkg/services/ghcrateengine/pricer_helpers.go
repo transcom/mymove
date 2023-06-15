@@ -201,7 +201,7 @@ func priceDomesticPickupDeliverySIT(appCtx appcontext.AppContext, pickupDelivery
 	if pickupDeliverySITCode == models.ReServiceCodeDDDSIT {
 		sitType = "destination"
 		sitModifier = "delivery"
-		zipOriginalName = "destination"
+		zipOriginalName = "SIT original destination"
 		zipActualName = "SIT final destination"
 	} else if pickupDeliverySITCode == models.ReServiceCodeDOPSIT {
 		sitType = "origin"

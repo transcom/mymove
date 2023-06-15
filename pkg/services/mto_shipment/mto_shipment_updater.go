@@ -349,6 +349,10 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 			return StaleIdentifierError{StaleIdentifier: eTag}
 		}
 
+		// TODO: We currently can't distinguish between a nil DestinationAddress meaning to "clear field"
+		//   vs "don't touch" the field, so we can't safely reset a nil DestinationAddress to the duty
+		//   location address for an HHG like we do in the MTOShipmentCreator now.  See MB-15718.
+
 		if newShipment.DestinationAddress != nil {
 			// If there is an existing DestinationAddressID associated
 			// with the shipment, grab it.
@@ -785,20 +789,25 @@ func reServiceCodesForShipment(shipment models.MTOShipment) []models.ReServiceCo
 	// More info in MB-1140: https://dp3.atlassian.net/browse/MB-1140
 
 	switch shipment.ShipmentType {
-	case models.MTOShipmentTypeHHG, models.MTOShipmentTypeHHGLongHaulDom:
+	case models.MTOShipmentTypeHHG:
+
+		originZIP3 := shipment.PickupAddress.PostalCode[0:3]
+		destinationZIP3 := shipment.DestinationAddress.PostalCode[0:3]
+
+		if originZIP3 == destinationZIP3 {
+			return []models.ReServiceCode{
+				models.ReServiceCodeDSH,
+				models.ReServiceCodeFSC,
+				models.ReServiceCodeDOP,
+				models.ReServiceCodeDDP,
+				models.ReServiceCodeDPK,
+				models.ReServiceCodeDUPK,
+			}
+		}
+
 		// Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Packing, and Dom Unpacking.
 		return []models.ReServiceCode{
 			models.ReServiceCodeDLH,
-			models.ReServiceCodeFSC,
-			models.ReServiceCodeDOP,
-			models.ReServiceCodeDDP,
-			models.ReServiceCodeDPK,
-			models.ReServiceCodeDUPK,
-		}
-	case models.MTOShipmentTypeHHGShortHaulDom:
-		// Need to create: Dom Shorthaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Packing, Dom Unpacking
-		return []models.ReServiceCode{
-			models.ReServiceCodeDSH,
 			models.ReServiceCodeFSC,
 			models.ReServiceCodeDOP,
 			models.ReServiceCodeDDP,

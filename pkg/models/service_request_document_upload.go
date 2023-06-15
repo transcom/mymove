@@ -7,6 +7,8 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gobuffalo/validate/v3/validators"
 	"github.com/gofrs/uuid"
+
+	"github.com/transcom/mymove/pkg/db/utilities"
 )
 
 // A ServiceRequestDocumentUpload represents an user uploaded file, such as an image or PDF.
@@ -36,4 +38,23 @@ func (u *ServiceRequestDocumentUpload) Validate(tx *pop.Connection) (*validate.E
 		&validators.UUIDIsPresent{Field: u.ContractorID, Name: "ContractorID"},
 		&validators.UUIDIsPresent{Field: u.ServiceRequestDocumentID, Name: "ServiceRequestDocumentID"},
 	), nil
+}
+
+// DeleteServiceRequestDocumentUpload deletes an upload from the database
+func DeleteServiceRequestDocumentUpload(dbConn *pop.Connection, serviceRequestUpload *ServiceRequestDocumentUpload) error {
+	if dbConn.TX != nil {
+		err := utilities.SoftDestroy(dbConn, serviceRequestUpload)
+		if err != nil {
+			return err
+		}
+	} else {
+		return dbConn.Transaction(func(db *pop.Connection) error {
+			err := utilities.SoftDestroy(db, serviceRequestUpload)
+			if err != nil {
+				return err
+			}
+			return nil
+		})
+	}
+	return nil
 }

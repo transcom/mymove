@@ -37,7 +37,6 @@ class OrdersInfo extends Component {
   render() {
     const { serviceMember, uploads } = this.props;
     const name = stringifyName(serviceMember);
-    document.title = `Orders for ${name}`;
 
     if (!this.props.loadDependenciesHasSuccess && !this.props.loadDependenciesHasError) return <LoadingPlaceholder />;
     if (this.props.loadDependenciesHasError)

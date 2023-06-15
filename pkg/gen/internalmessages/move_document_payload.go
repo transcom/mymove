@@ -491,6 +491,7 @@ func (m *MoveDocumentPayload) ContextValidate(ctx context.Context, formats strfm
 func (m *MoveDocumentPayload) contextValidateDocument(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Document != nil {
+
 		if err := m.Document.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("document")
@@ -507,6 +508,7 @@ func (m *MoveDocumentPayload) contextValidateDocument(ctx context.Context, forma
 func (m *MoveDocumentPayload) contextValidateMoveDocumentType(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.MoveDocumentType != nil {
+
 		if err := m.MoveDocumentType.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("move_document_type")
@@ -521,6 +523,10 @@ func (m *MoveDocumentPayload) contextValidateMoveDocumentType(ctx context.Contex
 }
 
 func (m *MoveDocumentPayload) contextValidateMovingExpenseType(ctx context.Context, formats strfmt.Registry) error {
+
+	if swag.IsZero(m.MovingExpenseType) { // not required
+		return nil
+	}
 
 	if err := m.MovingExpenseType.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
@@ -537,6 +543,7 @@ func (m *MoveDocumentPayload) contextValidateMovingExpenseType(ctx context.Conte
 func (m *MoveDocumentPayload) contextValidateStatus(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Status != nil {
+
 		if err := m.Status.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("status")
@@ -553,6 +560,11 @@ func (m *MoveDocumentPayload) contextValidateStatus(ctx context.Context, formats
 func (m *MoveDocumentPayload) contextValidateWeightTicketSetType(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.WeightTicketSetType != nil {
+
+		if swag.IsZero(m.WeightTicketSetType) { // not required
+			return nil
+		}
+
 		if err := m.WeightTicketSetType.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("weight_ticket_set_type")

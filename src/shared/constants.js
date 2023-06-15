@@ -61,8 +61,6 @@ export const CONUS_STATUS = {
 export const SHIPMENT_OPTIONS = {
   HHG: 'HHG',
   PPM: 'PPM',
-  HHG_SHORTHAUL_DOMESTIC: 'HHG_SHORTHAUL_DOMESTIC',
-  HHG_LONGHAUL_DOMESTIC: 'HHG_LONGHAUL_DOMESTIC',
   NTS: 'HHG_INTO_NTS_DOMESTIC',
   NTSR: 'HHG_OUTOF_NTS_DOMESTIC',
 };
@@ -91,7 +89,6 @@ export const shipmentOptionLabels = [
   { key: SHIPMENT_OPTIONS.NTS, label: 'NTS' },
   { key: SHIPMENT_OPTIONS.HHG, label: 'HHG' },
   { key: SHIPMENT_OPTIONS.PPM, label: 'PPM' },
-  { key: SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC, label: 'HHG_SHORTHAUL_DOMESTIC' },
 ];
 
 export const SERVICE_ITEM_STATUS = {

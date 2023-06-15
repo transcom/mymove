@@ -21,23 +21,24 @@ class AdminWrapper extends Component {
     GetLoggedInUser()
       .then(() => this.setState({ isLoggedIn: true }))
       .catch(() => this.setState({ isLoggedIn: false }));
-
-    document.title = 'Transcom PPP: Admin';
   }
 
   render() {
     return (
-      <div id="app-root">
-        <CUIHeader />
-        <Routes>
-          {/* no auth */}
-          <Route path="/sign-in" element={<SignIn />} />
-          <Route path="/invalid-permissions" element={<InvalidPermissions />} />
-          {/* system is basename of admin app, see https://marmelab.com/react-admin/Routing.html#using-react-admin-inside-a-route */}
-          <Route path="/system/*" element={this.state.isLoggedIn ? <Home /> : <SignIn />} />)
-          <Route path="*" element={<Navigate to="/system" />} />
-        </Routes>
-      </div>
+      <>
+        <div id="app-root">
+          <CUIHeader />
+          <Routes>
+            {/* no auth */}
+            <Route path="/sign-in" element={<SignIn />} />
+            <Route path="/invalid-permissions" element={<InvalidPermissions />} />
+            {/* system is basename of admin app, see https://marmelab.com/react-admin/Routing.html#using-react-admin-inside-a-route */}
+            <Route path="/system/*" element={this.state.isLoggedIn ? <Home /> : <SignIn />} />)
+            <Route path="*" element={<Navigate to="/system" />} />
+          </Routes>
+        </div>
+        <div id="modal-root" />
+      </>
     );
   }
 }

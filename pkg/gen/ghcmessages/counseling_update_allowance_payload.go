@@ -202,6 +202,11 @@ func (m *CounselingUpdateAllowancePayload) ContextValidate(ctx context.Context, 
 func (m *CounselingUpdateAllowancePayload) contextValidateAgency(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Agency != nil {
+
+		if swag.IsZero(m.Agency) { // not required
+			return nil
+		}
+
 		if err := m.Agency.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("agency")
@@ -218,6 +223,11 @@ func (m *CounselingUpdateAllowancePayload) contextValidateAgency(ctx context.Con
 func (m *CounselingUpdateAllowancePayload) contextValidateGrade(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Grade != nil {
+
+		if swag.IsZero(m.Grade) { // not required
+			return nil
+		}
+
 		if err := m.Grade.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("grade")

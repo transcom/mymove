@@ -596,6 +596,16 @@ func MTOServiceItemModelFromUpdate(mtoServiceItemID string, mtoServiceItem prime
 	return model, nil
 }
 
+func ServiceRequestDocumentUploadModel(u models.Upload) *primemessages.UploadWithOmissions {
+	return &primemessages.UploadWithOmissions{
+		Bytes:       &u.Bytes,
+		ContentType: &u.ContentType,
+		Filename:    &u.Filename,
+		CreatedAt:   (strfmt.DateTime)(u.CreatedAt),
+		UpdatedAt:   (strfmt.DateTime)(u.UpdatedAt),
+	}
+}
+
 // SITExtensionModel transform the request data the sitExtension model
 func SITExtensionModel(sitExtension *primemessages.CreateSITExtension, mtoShipmentID strfmt.UUID) *models.SITDurationUpdate {
 	if sitExtension == nil {
@@ -619,7 +629,7 @@ func SITAddressUpdateModel(sitAddressUpdate *primemessages.CreateSITAddressUpdat
 	}
 
 	model := &models.SITAddressUpdate{
-		ContractorRemarks: &sitAddressUpdate.ContractorRemarks,
+		ContractorRemarks: sitAddressUpdate.ContractorRemarks,
 		MTOServiceItemID:  uuid.FromStringOrNil(sitAddressUpdate.MtoServiceItemID.String()),
 	}
 

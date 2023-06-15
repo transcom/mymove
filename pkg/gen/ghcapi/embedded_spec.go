@@ -6455,8 +6455,6 @@ func init() {
       "title": "Shipment Type",
       "enum": [
         "HHG",
-        "HHG_LONGHAUL_DOMESTIC",
-        "HHG_SHORTHAUL_DOMESTIC",
         "HHG_INTO_NTS_DOMESTIC",
         "HHG_OUTOF_NTS_DOMESTIC",
         "INTERNATIONAL_HHG",
@@ -8543,6 +8541,7 @@ func init() {
         "ZipDestAddress",
         "ZipPickupAddress",
         "ZipSITDestHHGFinalAddress",
+        "ZipSITDestHHGOriginalAddress",
         "ZipSITOriginHHGActualAddress",
         "ZipSITOriginHHGOriginalAddress"
       ]
@@ -17424,8 +17423,6 @@ func init() {
       "title": "Shipment Type",
       "enum": [
         "HHG",
-        "HHG_LONGHAUL_DOMESTIC",
-        "HHG_SHORTHAUL_DOMESTIC",
         "HHG_INTO_NTS_DOMESTIC",
         "HHG_OUTOF_NTS_DOMESTIC",
         "INTERNATIONAL_HHG",
@@ -19517,6 +19514,7 @@ func init() {
         "ZipDestAddress",
         "ZipPickupAddress",
         "ZipSITDestHHGFinalAddress",
+        "ZipSITDestHHGOriginalAddress",
         "ZipSITOriginHHGActualAddress",
         "ZipSITOriginHHGOriginalAddress"
       ]

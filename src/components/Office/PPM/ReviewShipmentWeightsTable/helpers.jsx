@@ -60,8 +60,6 @@ export function determineTableRowClassname(shipmentType) {
       shipmentClassname = styles[`review-shipment-weights-table-row-NTS`];
       break;
     case SHIPMENT_OPTIONS.HHG:
-    case SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC:
-    case SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC:
       shipmentClassname = styles[`review-shipment-weights-table-row-HHG`];
       break;
     case SHIPMENT_OPTIONS.PPM:

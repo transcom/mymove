@@ -22,6 +22,7 @@ import (
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/ghcapi"
+	"github.com/transcom/mymove/pkg/handlers/internalapi"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/notifications"
@@ -205,13 +206,129 @@ func (suite *AuthSuite) TestRequireAuthMiddleware() {
 	suite.Equal(handlerSession.UserID, user.ID, "the authenticated user is different from expected")
 }
 
+func (suite *AuthSuite) TestCustomerAPIAuthMiddleware() {
+	setUpRequest := func(endpoint string, serviceMember *models.ServiceMember, officeUser *models.OfficeUser) *http.Request {
+		req := httptest.NewRequest("GET", endpoint, nil)
+
+		session := auth.Session{
+			IDToken:         "fake Token",
+			ApplicationName: auth.MilApp,
+		}
+
+		if serviceMember != nil {
+			session.UserID = serviceMember.User.ID
+			session.ServiceMemberID = serviceMember.ID
+		} else if officeUser != nil {
+			session.UserID = officeUser.User.ID
+			session.OfficeUserID = officeUser.ID
+		} else {
+			suite.Fail("No user provided")
+		}
+
+		ctx := auth.SetSessionInRequestContext(req, &session)
+
+		return req.WithContext(ctx)
+	}
+
+	setUpHandlerAndMiddleware := func() http.Handler {
+		handlerConfig := suite.HandlerConfig()
+
+		api := internalapi.NewInternalAPI(handlerConfig)
+
+		handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
+
+		customerAPIAuthMiddleware := CustomerAPIAuthMiddleware(suite.AppContextForTest(), api)
+
+		root := mux.NewRouter()
+		internalMux := root.PathPrefix("/internal").Subrouter()
+		internalMux.PathPrefix("/").Handler(api.Serve(customerAPIAuthMiddleware))
+
+		return customerAPIAuthMiddleware(handler)
+	}
+
+	suite.Run("failure when route doesn't match an existing route", func() {
+		serviceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
+
+		rr := httptest.NewRecorder()
+
+		req := setUpRequest("/internal/does-not-exist", &serviceMember, nil)
+
+		handlerWithMiddleware := setUpHandlerAndMiddleware()
+
+		handlerWithMiddleware.ServeHTTP(rr, req)
+
+		suite.Equal(http.StatusBadRequest, rr.Code, "handler returned wrong status code")
+	})
+
+	suite.Run("success when route is on allow list and user is a service member", func() {
+		serviceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
+
+		rr := httptest.NewRecorder()
+
+		// using an arbitrary ID here
+		req := setUpRequest("/internal/moves/990fb790-df36-448d-aee0-682a23e60429", &serviceMember, nil)
+
+		handlerWithMiddleware := setUpHandlerAndMiddleware()
+
+		handlerWithMiddleware.ServeHTTP(rr, req)
+
+		suite.Equal(http.StatusOK, rr.Code, "handler returned wrong status code")
+	})
+
+	suite.Run("success when route is not on allow list and user is a service member", func() {
+		serviceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
+
+		rr := httptest.NewRecorder()
+
+		// using an arbitrary ID here
+		req := setUpRequest("/internal/service_members/326de0c9-19e3-42a9-ba74-e11855ae27cd", &serviceMember, nil)
+
+		handlerWithMiddleware := setUpHandlerAndMiddleware()
+
+		handlerWithMiddleware.ServeHTTP(rr, req)
+
+		suite.Equal(http.StatusOK, rr.Code, "handler returned wrong status code")
+	})
+
+	suite.Run("success when route is on the allow list and user is an office user", func() {
+		officeUser := factory.BuildOfficeUser(suite.DB(), nil, nil)
+
+		rr := httptest.NewRecorder()
+
+		// using an arbitrary ID here
+		req := setUpRequest("/internal/moves/990fb790-df36-448d-aee0-682a23e60429", nil, &officeUser)
+
+		handlerWithMiddleware := setUpHandlerAndMiddleware()
+
+		handlerWithMiddleware.ServeHTTP(rr, req)
+
+		suite.Equal(http.StatusOK, rr.Code, "handler returned wrong status code")
+	})
+
+	suite.Run("failure when route is not on the allow list and user is an office user", func() {
+		officeUser := factory.BuildOfficeUser(suite.DB(), nil, nil)
+
+		rr := httptest.NewRecorder()
+
+		// using an arbitrary ID here
+		req := setUpRequest("/internal/service_members/326de0c9-19e3-42a9-ba74-e11855ae27cd", nil, &officeUser)
+
+		handlerWithMiddleware := setUpHandlerAndMiddleware()
+
+		handlerWithMiddleware.ServeHTTP(rr, req)
+
+		suite.Equal(http.StatusForbidden, rr.Code, "handler returned wrong status code")
+	})
+}
+
 // Test permissions middleware with a user who will be ALLOWED POST access on the endpoint: ghc/v1/shipments/:shipmentID/approve
 // role must have update.shipment permissions
-func (suite *AuthSuite) TestRequirePermissionsMiddlewareAuthorized() {
-	// TIO users have the proper permissions for our test - update.shipment
-	tioOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTIO})
 
-	identity, err := models.FetchUserIdentity(suite.DB(), tioOfficeUser.User.LoginGovUUID.String())
+func (suite *AuthSuite) TestRequirePermissionsMiddlewareAuthorized() {
+	// TOO users have the proper permissions for our test - update.shipment
+	tooOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+
+	identity, err := models.FetchUserIdentity(suite.DB(), tooOfficeUser.User.LoginGovUUID.String())
 
 	suite.NoError(err)
 
@@ -221,7 +338,7 @@ func (suite *AuthSuite) TestRequirePermissionsMiddlewareAuthorized() {
 
 	// And: the context contains the auth values
 	handlerSession := auth.Session{
-		UserID:          tioOfficeUser.User.ID,
+		UserID:          tooOfficeUser.User.ID,
 		IDToken:         "fake Token",
 		ApplicationName: "mil",
 	}
@@ -245,7 +362,7 @@ func (suite *AuthSuite) TestRequirePermissionsMiddlewareAuthorized() {
 	middleware(handler).ServeHTTP(rr, req)
 
 	suite.Equal(http.StatusOK, rr.Code, "handler returned wrong status code")
-	suite.Equal(handlerSession.UserID, tioOfficeUser.User.ID, "the authenticated user is different from expected")
+	suite.Equal(handlerSession.UserID, tooOfficeUser.User.ID, "the authenticated user is different from expected")
 }
 
 // Test permissions middleware with a user who will be DENIED POST access on the endpoint: ghc/v1/shipments/:shipmentID/approve

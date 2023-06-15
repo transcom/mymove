@@ -125,6 +125,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		suite.NotEmpty(createdShipment.PickupAddressID)
 		suite.NotEmpty(createdShipment.DestinationAddressID)
 	})
+
 	suite.Run("If the shipment is created successfully with a destination address type it should be returned", func() {
 		destinationType := models.DestinationTypeHomeOfRecord
 		subtestData := suite.createSubtestData(nil)
@@ -151,6 +152,82 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		suite.NotEmpty(createdShipment.PickupAddressID)
 		suite.NotEmpty(createdShipment.DestinationAddressID)
 		suite.Equal(string(models.DestinationTypeHomeOfRecord), string(*createdShipment.DestinationType))
+	})
+
+	suite.Run("If the shipment has a nil destination address, the duty station address should be used if an HHG", func() {
+		subtestData := suite.createSubtestData(nil)
+		creator := subtestData.shipmentCreator
+
+		// Make sure we have all parts we care about in the source address in order to assert against them further down
+		suite.NotEmpty(subtestData.move.Orders.NewDutyLocation.AddressID)
+		if suite.NotNil(subtestData.move.Orders.NewDutyLocation.Address) {
+			suite.NotEmpty(subtestData.move.Orders.NewDutyLocation.Address.ID)
+			suite.Equal(subtestData.move.Orders.NewDutyLocation.AddressID, subtestData.move.Orders.NewDutyLocation.Address.ID)
+			suite.NotEmpty(subtestData.move.Orders.NewDutyLocation.Address.StreetAddress1)
+			suite.NotEmpty(subtestData.move.Orders.NewDutyLocation.Address.StreetAddress2)
+			suite.NotEmpty(subtestData.move.Orders.NewDutyLocation.Address.StreetAddress3)
+			suite.NotEmpty(subtestData.move.Orders.NewDutyLocation.Address.City)
+			suite.NotEmpty(subtestData.move.Orders.NewDutyLocation.Address.State)
+			suite.NotEmpty(subtestData.move.Orders.NewDutyLocation.Address.PostalCode)
+			suite.NotEmpty(subtestData.move.Orders.NewDutyLocation.Address.Country)
+		}
+
+		testCases := []struct {
+			shipmentType      models.MTOShipmentType
+			expectDutyStation bool
+		}{
+			{models.MTOShipmentTypeHHG, true},
+			{models.MTOShipmentTypeHHGIntoNTSDom, false},
+			{models.MTOShipmentTypeHHGOutOfNTSDom, false},
+			{models.MTOShipmentTypePPM, false},
+		}
+
+		for _, testCase := range testCases {
+			mtoShipment := factory.BuildMTOShipment(nil, []factory.Customization{
+				{
+					Model:    subtestData.move,
+					LinkOnly: true,
+				},
+				{
+					Model: models.MTOShipment{
+						ShipmentType: testCase.shipmentType,
+					},
+				},
+			}, nil)
+
+			mtoShipmentClear := clearShipmentIDFields(&mtoShipment)
+			mtoShipmentClear.MTOServiceItems = models.MTOServiceItems{}
+			mtoShipmentClear.DestinationAddress = nil
+
+			createdShipment, err := creator.CreateMTOShipment(suite.AppContextForTest(), mtoShipmentClear)
+
+			suite.NoError(err, testCase.shipmentType)
+			suite.NotNil(createdShipment, testCase.shipmentType)
+			suite.Equal(models.MTOShipmentStatusDraft, createdShipment.Status, testCase.shipmentType)
+
+			if testCase.expectDutyStation {
+				suite.NotEmpty(createdShipment.DestinationAddressID, testCase.shipmentType)
+				// Original and new IDs should not match since we should be creating an entirely new address record
+				suite.NotEqual(subtestData.move.Orders.NewDutyLocation.AddressID, createdShipment.DestinationAddressID, testCase.shipmentType)
+
+				// Check address fields are set appropriately when destination duty station info is copied over
+				if suite.NotNil(createdShipment.DestinationAddress, testCase.shipmentType) {
+					// Original and new IDs should not match since we should be creating an entirely new address record
+					suite.NotEqual(subtestData.move.Orders.NewDutyLocation.Address.ID, createdShipment.DestinationAddress.ID, testCase.shipmentType)
+					suite.Equal(*createdShipment.DestinationAddressID, createdShipment.DestinationAddress.ID)
+					suite.Equal("N/A", createdShipment.DestinationAddress.StreetAddress1, testCase.shipmentType)
+					suite.Nil(createdShipment.DestinationAddress.StreetAddress2, testCase.shipmentType)
+					suite.Nil(createdShipment.DestinationAddress.StreetAddress3, testCase.shipmentType)
+					suite.Equal(subtestData.move.Orders.NewDutyLocation.Address.City, createdShipment.DestinationAddress.City, testCase.shipmentType)
+					suite.Equal(subtestData.move.Orders.NewDutyLocation.Address.State, createdShipment.DestinationAddress.State, testCase.shipmentType)
+					suite.Equal(subtestData.move.Orders.NewDutyLocation.Address.PostalCode, createdShipment.DestinationAddress.PostalCode, testCase.shipmentType)
+					suite.Equal(subtestData.move.Orders.NewDutyLocation.Address.Country, createdShipment.DestinationAddress.Country, testCase.shipmentType)
+				}
+			} else {
+				suite.Nil(createdShipment.DestinationAddressID, testCase.shipmentType)
+				suite.Nil(createdShipment.DestinationAddress, testCase.shipmentType)
+			}
+		}
 	})
 
 	suite.Run("If the shipment is created successfully with submitted status it should be returned", func() {
@@ -448,8 +525,6 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			{"HHG", models.MTOShipmentTypeHHG},
 			{"INTERNATIONAL_HHG", models.MTOShipmentTypeInternationalHHG},
 			{"INTERNATIONAL_UB", models.MTOShipmentTypeInternationalUB},
-			{"HHG_LONGHAUL_DOMESTIC", models.MTOShipmentTypeHHGLongHaulDom},
-			{"HHG_SHORTHAUL_DOMESTIC", models.MTOShipmentTypeHHGShortHaulDom},
 			{"HHG_INTO_NTS_DOMESTIC", models.MTOShipmentTypeHHGIntoNTSDom},
 			{"HHG_OUTOF_NTS_DOMESTIC", models.MTOShipmentTypeHHGOutOfNTSDom},
 			{"MOTORHOME", models.MTOShipmentTypeMotorhome},
