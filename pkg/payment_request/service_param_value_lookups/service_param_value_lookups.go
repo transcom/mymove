@@ -361,7 +361,7 @@ func InitializeLookups(shipment models.MTOShipment, serviceItem models.MTOServic
 		Address: *serviceItem.SITDestinationFinalAddress,
 	}
 
-	lookups[models.ServiceItemParamNameSITDestFinalAddress] = ZipAddressLookup{
+	lookups[models.ServiceItemParamNameSITDestFinalAddress] = ServiceAreaLookup{
 		Address: *serviceItem.SITDestinationFinalAddress,
 	}
 
