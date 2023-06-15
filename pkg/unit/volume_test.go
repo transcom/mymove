@@ -12,6 +12,51 @@ func Test_CubicFeetStringConversion(t *testing.T) {
 	if result != expected {
 		t.Errorf("wrong string of CubicFeet: expected %s, got %s", expected, result)
 	}
+
+	cubicFeet = CubicFeet(1117.1)
+	result = cubicFeet.String()
+
+	expected = "1117.10"
+	if result != expected {
+		t.Errorf("wrong string of CubicFeet: expected %s, got %s", expected, result)
+	}
+
+	cubicFeet = CubicFeet(9.9)
+	result = cubicFeet.String()
+
+	expected = "9.90"
+	if result != expected {
+		t.Errorf("wrong string of CubicFeet: expected %s, got %s", expected, result)
+	}
+	cubicFeet = CubicFeet(9.90000000000000000000000001)
+	result = cubicFeet.String()
+
+	expected = "9.90"
+	if result != expected {
+		t.Errorf("wrong string of CubicFeet: expected %s, got %s", expected, result)
+	}
+	cubicFeet = CubicFeet(1.92345)
+	result = cubicFeet.String()
+
+	expected = "1.92"
+	if result != expected {
+		t.Errorf("wrong string of CubicFeet: expected %s, got %s", expected, result)
+	}
+
+	cubicFeet = CubicFeet(1520)
+	result = cubicFeet.String()
+
+	expected = "1520.00"
+	if result != expected {
+		t.Errorf("wrong string of CubicFeet: expected %s, got %s", expected, result)
+	}
+	cubicFeet = CubicFeet(1520.123456789012356756856896956533734573585689038905237835)
+	result = cubicFeet.String()
+
+	expected = "1520.12"
+	if result != expected {
+		t.Errorf("wrong string of CubicFeet: expected %s, got %s", expected, result)
+	}
 }
 
 func Test_ToCubicFeet(t *testing.T) {
