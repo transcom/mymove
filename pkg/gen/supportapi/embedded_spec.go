@@ -1362,13 +1362,27 @@ func init() {
           "type": "object",
           "required": [
             "reServiceCode",
+            "dateOfContact1",
             "timeMilitary1",
             "firstAvailableDeliveryDate1",
+            "dateOfContact2",
             "timeMilitary2",
             "firstAvailableDeliveryDate2",
             "sitEntryDate"
           ],
           "properties": {
+            "dateOfContact1": {
+              "description": "Date of attempted delivery by the prime corresponding to 'timeMilitary1'.",
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
+            "dateOfContact2": {
+              "description": "Date of attempted delivery by the prime corresponding to 'timeMilitary2'.",
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
             "firstAvailableDeliveryDate1": {
               "description": "First available date that Prime can deliver SIT service item.",
               "type": "string",
@@ -1399,13 +1413,13 @@ func init() {
               "format": "date"
             },
             "timeMilitary1": {
-              "description": "Time of delivery corresponding to ` + "`" + `firstAvailableDeliveryDate1` + "`" + `, in military format.",
+              "description": "Time of delivery corresponding to ` + "`" + `dateOfContact1` + "`" + `, in military format.",
               "type": "string",
               "pattern": "\\d{4}Z",
               "example": "1400Z"
             },
             "timeMilitary2": {
-              "description": "Time of delivery corresponding to ` + "`" + `firstAvailableDeliveryDate2` + "`" + `, in military format.",
+              "description": "Time of delivery corresponding to ` + "`" + `dateOfContact2` + "`" + `, in military format.",
               "type": "string",
               "pattern": "\\d{4}Z",
               "example": "1400Z"
@@ -4139,13 +4153,27 @@ func init() {
           "type": "object",
           "required": [
             "reServiceCode",
+            "dateOfContact1",
             "timeMilitary1",
             "firstAvailableDeliveryDate1",
+            "dateOfContact2",
             "timeMilitary2",
             "firstAvailableDeliveryDate2",
             "sitEntryDate"
           ],
           "properties": {
+            "dateOfContact1": {
+              "description": "Date of attempted delivery by the prime corresponding to 'timeMilitary1'.",
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
+            "dateOfContact2": {
+              "description": "Date of attempted delivery by the prime corresponding to 'timeMilitary2'.",
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
             "firstAvailableDeliveryDate1": {
               "description": "First available date that Prime can deliver SIT service item.",
               "type": "string",
@@ -4176,13 +4204,13 @@ func init() {
               "format": "date"
             },
             "timeMilitary1": {
-              "description": "Time of delivery corresponding to ` + "`" + `firstAvailableDeliveryDate1` + "`" + `, in military format.",
+              "description": "Time of delivery corresponding to ` + "`" + `dateOfContact1` + "`" + `, in military format.",
               "type": "string",
               "pattern": "\\d{4}Z",
               "example": "1400Z"
             },
             "timeMilitary2": {
-              "description": "Time of delivery corresponding to ` + "`" + `firstAvailableDeliveryDate2` + "`" + `, in military format.",
+              "description": "Time of delivery corresponding to ` + "`" + `dateOfContact2` + "`" + `, in military format.",
               "type": "string",
               "pattern": "\\d{4}Z",
               "example": "1400Z"

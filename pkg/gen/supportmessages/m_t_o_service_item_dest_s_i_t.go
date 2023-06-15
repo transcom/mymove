@@ -34,6 +34,16 @@ type MTOServiceItemDestSIT struct {
 
 	statusField MTOServiceItemStatus
 
+	// Date of attempted delivery by the prime corresponding to 'timeMilitary1'.
+	// Required: true
+	// Format: date
+	DateOfContact1 *strfmt.Date `json:"dateOfContact1"`
+
+	// Date of attempted delivery by the prime corresponding to 'timeMilitary2'.
+	// Required: true
+	// Format: date
+	DateOfContact2 *strfmt.Date `json:"dateOfContact2"`
+
 	// First available date that Prime can deliver SIT service item.
 	// Required: true
 	// Format: date
@@ -58,13 +68,13 @@ type MTOServiceItemDestSIT struct {
 	// Format: date
 	SitEntryDate *strfmt.Date `json:"sitEntryDate"`
 
-	// Time of delivery corresponding to `firstAvailableDeliveryDate1`, in military format.
+	// Time of delivery corresponding to `dateOfContact1`, in military format.
 	// Example: 1400Z
 	// Required: true
 	// Pattern: \d{4}Z
 	TimeMilitary1 *string `json:"timeMilitary1"`
 
-	// Time of delivery corresponding to `firstAvailableDeliveryDate2`, in military format.
+	// Time of delivery corresponding to `dateOfContact2`, in military format.
 	// Example: 1400Z
 	// Required: true
 	// Pattern: \d{4}Z
@@ -154,6 +164,16 @@ func (m *MTOServiceItemDestSIT) SetStatus(val MTOServiceItemStatus) {
 func (m *MTOServiceItemDestSIT) UnmarshalJSON(raw []byte) error {
 	var data struct {
 
+		// Date of attempted delivery by the prime corresponding to 'timeMilitary1'.
+		// Required: true
+		// Format: date
+		DateOfContact1 *strfmt.Date `json:"dateOfContact1"`
+
+		// Date of attempted delivery by the prime corresponding to 'timeMilitary2'.
+		// Required: true
+		// Format: date
+		DateOfContact2 *strfmt.Date `json:"dateOfContact2"`
+
 		// First available date that Prime can deliver SIT service item.
 		// Required: true
 		// Format: date
@@ -178,13 +198,13 @@ func (m *MTOServiceItemDestSIT) UnmarshalJSON(raw []byte) error {
 		// Format: date
 		SitEntryDate *strfmt.Date `json:"sitEntryDate"`
 
-		// Time of delivery corresponding to `firstAvailableDeliveryDate1`, in military format.
+		// Time of delivery corresponding to `dateOfContact1`, in military format.
 		// Example: 1400Z
 		// Required: true
 		// Pattern: \d{4}Z
 		TimeMilitary1 *string `json:"timeMilitary1"`
 
-		// Time of delivery corresponding to `firstAvailableDeliveryDate2`, in military format.
+		// Time of delivery corresponding to `dateOfContact2`, in military format.
 		// Example: 1400Z
 		// Required: true
 		// Pattern: \d{4}Z
@@ -245,6 +265,8 @@ func (m *MTOServiceItemDestSIT) UnmarshalJSON(raw []byte) error {
 
 	result.statusField = base.Status
 
+	result.DateOfContact1 = data.DateOfContact1
+	result.DateOfContact2 = data.DateOfContact2
 	result.FirstAvailableDeliveryDate1 = data.FirstAvailableDeliveryDate1
 	result.FirstAvailableDeliveryDate2 = data.FirstAvailableDeliveryDate2
 	result.ReServiceCode = data.ReServiceCode
@@ -263,6 +285,16 @@ func (m MTOServiceItemDestSIT) MarshalJSON() ([]byte, error) {
 	var b1, b2, b3 []byte
 	var err error
 	b1, err = json.Marshal(struct {
+
+		// Date of attempted delivery by the prime corresponding to 'timeMilitary1'.
+		// Required: true
+		// Format: date
+		DateOfContact1 *strfmt.Date `json:"dateOfContact1"`
+
+		// Date of attempted delivery by the prime corresponding to 'timeMilitary2'.
+		// Required: true
+		// Format: date
+		DateOfContact2 *strfmt.Date `json:"dateOfContact2"`
 
 		// First available date that Prime can deliver SIT service item.
 		// Required: true
@@ -288,18 +320,22 @@ func (m MTOServiceItemDestSIT) MarshalJSON() ([]byte, error) {
 		// Format: date
 		SitEntryDate *strfmt.Date `json:"sitEntryDate"`
 
-		// Time of delivery corresponding to `firstAvailableDeliveryDate1`, in military format.
+		// Time of delivery corresponding to `dateOfContact1`, in military format.
 		// Example: 1400Z
 		// Required: true
 		// Pattern: \d{4}Z
 		TimeMilitary1 *string `json:"timeMilitary1"`
 
-		// Time of delivery corresponding to `firstAvailableDeliveryDate2`, in military format.
+		// Time of delivery corresponding to `dateOfContact2`, in military format.
 		// Example: 1400Z
 		// Required: true
 		// Pattern: \d{4}Z
 		TimeMilitary2 *string `json:"timeMilitary2"`
 	}{
+
+		DateOfContact1: m.DateOfContact1,
+
+		DateOfContact2: m.DateOfContact2,
 
 		FirstAvailableDeliveryDate1: m.FirstAvailableDeliveryDate1,
 
@@ -376,6 +412,14 @@ func (m *MTOServiceItemDestSIT) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateDateOfContact1(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateDateOfContact2(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -464,6 +508,32 @@ func (m *MTOServiceItemDestSIT) validateStatus(formats strfmt.Registry) error {
 		} else if ce, ok := err.(*errors.CompositeError); ok {
 			return ce.ValidateName("status")
 		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItemDestSIT) validateDateOfContact1(formats strfmt.Registry) error {
+
+	if err := validate.Required("dateOfContact1", "body", m.DateOfContact1); err != nil {
+		return err
+	}
+
+	if err := validate.FormatOf("dateOfContact1", "body", "date", m.DateOfContact1.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItemDestSIT) validateDateOfContact2(formats strfmt.Registry) error {
+
+	if err := validate.Required("dateOfContact2", "body", m.DateOfContact2); err != nil {
+		return err
+	}
+
+	if err := validate.FormatOf("dateOfContact2", "body", "date", m.DateOfContact2.String(), formats); err != nil {
 		return err
 	}
 

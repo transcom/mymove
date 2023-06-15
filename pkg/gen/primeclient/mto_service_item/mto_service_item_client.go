@@ -93,19 +93,27 @@ These additional fields are optional for creating a DDFSIT:
   - `firstAvailableDeliveryDate1`
   - string <date>
   - First available date that Prime can deliver SIT service item.
-  - If provided, `timeMilitary1` is required.
+  - If provided, `timeMilitary1` & `dateOfContact1` is required.
+  - `dateOfContact1`
+  - string <date>
+  - Date of attempted delivery by the prime corresponding to `timeMilitary1`
+  - If provided, `firstAvailableDeliveryDate1` & `timeMilitary1` is required.
   - `timeMilitary1`
   - string\d{4}Z
-  - Time of delivery corresponding to `firstAvailableDeliveryDate1`, in military format.
-  - If provided, `firstAvailableDeliveryDate1` is required.
+  - Time of delivery corresponding to `dateOfContact1`, in military format.
+  - If provided, `firstAvailableDeliveryDate1` & `dateOfContact1` is required.
   - `firstAvailableDeliveryDate2`
   - string <date>
   - Second available date that Prime can deliver SIT service item.
-  - If provided, `timeMilitary2` is required.
+  - If provided, `timeMilitary2` & `dateOfContact2` is required.
   - `timeMilitary2`
   - string\d{4}Z
   - Time of delivery corresponding to `firstAvailableDeliveryDate2`, in military format.
-  - If provided, `firstAvailableDeliveryDate2` is required.
+  - If provided, `firstAvailableDeliveryDate2` & `dateOfContact2` is required.
+  - `dateOfContact2`
+  - string <date>
+  - Date of attempted delivery by the prime corresponding to `timeMilitary2`
+  - If provided, `firstAvailableDeliveryDate2` & `timeMilitary2` is required.
 
 When a DDFSIT is requested, the API will auto-create the following group of service items:
   - DDFSIT - Domestic destination 1st day SIT

@@ -6139,8 +6139,14 @@ func init() {
       "description": "Customer contact information for a destination SIT service item",
       "type": "object",
       "properties": {
+        "dateOfContact": {
+          "description": "Date of attempted delivery by the prime.",
+          "type": "string",
+          "format": "date",
+          "example": "2020-12-31"
+        },
         "firstAvailableDeliveryDate": {
-          "description": "First available date that Prime can deliver SIT service item.",
+          "description": "First available date that the Prime can deliver SIT service item.",
           "type": "string",
           "format": "date",
           "example": "2020-12-31"
@@ -6151,7 +6157,7 @@ func init() {
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "timeMilitary": {
-          "description": "Time of delivery corresponding to ` + "`" + `firstAvailableDeliveryDate` + "`" + `.",
+          "description": "Time of attempted delivery by the prime.",
           "type": "string",
           "example": "0400Z"
         },
@@ -17107,8 +17113,14 @@ func init() {
       "description": "Customer contact information for a destination SIT service item",
       "type": "object",
       "properties": {
+        "dateOfContact": {
+          "description": "Date of attempted delivery by the prime.",
+          "type": "string",
+          "format": "date",
+          "example": "2020-12-31"
+        },
         "firstAvailableDeliveryDate": {
-          "description": "First available date that Prime can deliver SIT service item.",
+          "description": "First available date that the Prime can deliver SIT service item.",
           "type": "string",
           "format": "date",
           "example": "2020-12-31"
@@ -17119,7 +17131,7 @@ func init() {
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "timeMilitary": {
-          "description": "Time of delivery corresponding to ` + "`" + `firstAvailableDeliveryDate` + "`" + `.",
+          "description": "Time of attempted delivery by the prime.",
           "type": "string",
           "example": "0400Z"
         },

@@ -19,7 +19,12 @@ import (
 // swagger:model MTOServiceItemCustomerContact
 type MTOServiceItemCustomerContact struct {
 
-	// First available date that Prime can deliver SIT service item.
+	// Date of attempted delivery by the prime.
+	// Example: 2020-12-31
+	// Format: date
+	DateOfContact strfmt.Date `json:"dateOfContact,omitempty"`
+
+	// First available date that the Prime can deliver SIT service item.
 	// Example: 2020-12-31
 	// Format: date
 	FirstAvailableDeliveryDate strfmt.Date `json:"firstAvailableDeliveryDate,omitempty"`
@@ -29,7 +34,7 @@ type MTOServiceItemCustomerContact struct {
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
-	// Time of delivery corresponding to `firstAvailableDeliveryDate`.
+	// Time of attempted delivery by the prime.
 	// Example: 0400Z
 	TimeMilitary string `json:"timeMilitary,omitempty"`
 
@@ -40,6 +45,10 @@ type MTOServiceItemCustomerContact struct {
 // Validate validates this m t o service item customer contact
 func (m *MTOServiceItemCustomerContact) Validate(formats strfmt.Registry) error {
 	var res []error
+
+	if err := m.validateDateOfContact(formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := m.validateFirstAvailableDeliveryDate(formats); err != nil {
 		res = append(res, err)
@@ -56,6 +65,18 @@ func (m *MTOServiceItemCustomerContact) Validate(formats strfmt.Registry) error 
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *MTOServiceItemCustomerContact) validateDateOfContact(formats strfmt.Registry) error {
+	if swag.IsZero(m.DateOfContact) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("dateOfContact", "body", "date", m.DateOfContact.String(), formats); err != nil {
+		return err
+	}
+
 	return nil
 }
 

@@ -7,12 +7,17 @@ properties:
     type: string
   type:
     $ref: 'CustomerContactType.yaml'
+  dateOfContact:
+    format: date
+    type: string
+    example: '2020-12-31'
+    description: Date of attempted delivery by the prime.
   timeMilitary:
     type: string
     example: 0400Z
-    description: Time of delivery corresponding to `firstAvailableDeliveryDate`.
+    description: Time of attempted delivery by the prime.
   firstAvailableDeliveryDate:
     format: date
     type: string
     example: '2020-12-31'
-    description: First available date that Prime can deliver SIT service item.
+    description: First available date that the Prime can deliver SIT service item.

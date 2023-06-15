@@ -1150,19 +1150,29 @@ definitions:
             enum:
               - DDFSIT # Domestic Destination First Day SIT
               - DDASIT # Domestic Destination Additional SIT
+          dateOfContact1:
+            format: date
+            type: string
+            description: Date of attempted delivery by the prime corresponding to 'timeMilitary1'.
+            x-nullable: true
           timeMilitary1:
             type: string
             example: 1400Z
-            description: Time of delivery corresponding to `firstAvailableDeliveryDate1`, in military format.
+            description: Time of delivery corresponding to `dateOfContact1`, in military format.
             pattern: '\d{4}Z'
           firstAvailableDeliveryDate1:
             format: date
             type: string
             description: First available date that Prime can deliver SIT service item.
+          dateOfContact2:
+            format: date
+            type: string
+            description: Date of attempted delivery by the prime corresponding to 'timeMilitary2'.
+            x-nullable: true
           timeMilitary2:
             type: string
             example: 1400Z
-            description: Time of delivery corresponding to `firstAvailableDeliveryDate2`, in military format.
+            description: Time of delivery corresponding to `dateOfContact2`, in military format.
             pattern: '\d{4}Z'
           firstAvailableDeliveryDate2:
             format: date
@@ -1179,8 +1189,10 @@ definitions:
             x-nullable: true
         required:
           - reServiceCode
+          - dateOfContact1
           - timeMilitary1
           - firstAvailableDeliveryDate1
+          - dateOfContact2
           - timeMilitary2
           - firstAvailableDeliveryDate2
           - sitEntryDate
