@@ -230,16 +230,6 @@ const ZipSITOriginHHGActualAddress = {
   value: '90211',
 };
 
-const ZipSITDestHHGFinalAddress = {
-  eTag: 'MjAyMS0wMy0xOFQwMTozMTo1MS4yNjY4M1o=',
-  id: '70eecf7f-beae-4906-95ba-cbfe6797cf3a',
-  key: 'ZipSITDestHHGFinalAddress',
-  origin: 'PRIME',
-  paymentServiceItemID: '28039a62-387d-479f-b50f-e0041b7e6e22',
-  type: 'STRING',
-  value: '94535',
-};
-
 const SITDestFinalAddress = {
   eTag: 'MjAyMS0wMy0xOFQwMTozMTo1MS4yNjY4M1o=',
   id: '70eecf7f-beae-4906-95ba-cbfe6797cf3a',
@@ -248,16 +238,6 @@ const SITDestFinalAddress = {
   paymentServiceItemID: '28039a62-387d-479f-b50f-e0041b7e6e22',
   type: 'STRING',
   value: '94535',
-};
-
-const ZipSITDestHHGFinalAddressMatchingZip3 = {
-  eTag: 'MjAyMS0wMy0xOFQwMTozMTo1MS4yNjY4M1o=',
-  id: '70eecf7f-beae-4906-95ba-cbfe6797cf3a',
-  key: 'ZipSITDestHHGFinalAddress',
-  origin: 'PRIME',
-  paymentServiceItemID: '28039a62-387d-479f-b50f-e0041b7e6e22',
-  type: 'STRING',
-  value: '91920',
 };
 
 const SITDestFinalAddressMatchingZip3 = {
