@@ -1269,6 +1269,7 @@ func MTOServiceItemDimensions(d models.MTOServiceItemDimensions) ghcmessages.MTO
 func MTOServiceItemCustomerContact(c *models.MTOServiceItemCustomerContact) *ghcmessages.MTOServiceItemCustomerContact {
 	return &ghcmessages.MTOServiceItemCustomerContact{
 		Type:                       ghcmessages.CustomerContactType(c.Type),
+		DateOfContact:              *handlers.FmtDate(c.DateOfContact),
 		TimeMilitary:               c.TimeMilitary,
 		FirstAvailableDeliveryDate: *handlers.FmtDate(c.FirstAvailableDeliveryDate),
 	}
