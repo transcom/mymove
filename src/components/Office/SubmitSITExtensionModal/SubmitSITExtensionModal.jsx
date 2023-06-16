@@ -18,7 +18,7 @@ import { DropdownInput, DatePickerInput } from 'components/form/fields';
 import { dropdownInputOptions } from 'utils/formatters';
 import { sitExtensionReasons } from 'constants/sitExtensions';
 import { LOCATION_TYPES } from 'types/sitStatusShape';
-import { datePickerFormat, formatDateForDatePicker, utcDateFormat } from 'shared/dates';
+import { datePickerFormat, formatDateForDatePicker, swaggerDateFormat } from 'shared/dates';
 
 const SitDaysAllowanceForm = ({ onChange }) => (
   <MaskedTextField
@@ -42,7 +42,7 @@ const SitEndDateForm = ({ onChange }) => (
 
 const SitStatusTables = ({ sitStatus, shipment }) => {
   const { totalSITDaysUsed, daysInSIT } = sitStatus;
-  const sitEntryDate = moment(sitStatus.sitEntryDate, utcDateFormat);
+  const sitEntryDate = moment(sitStatus.sitEntryDate, swaggerDateFormat);
   const daysInPreviousSIT = totalSITDaysUsed - daysInSIT;
 
   const sitAllowanceHelper = useField({ name: 'daysApproved', id: 'daysApproved' })[2];
@@ -54,12 +54,8 @@ const SitStatusTables = ({ sitStatus, shipment }) => {
   const currentDateEnteredSit = <p>{formatDateForDatePicker(sitEntryDate)}</p>;
   const totalDaysRemaining = () => {
     const daysRemaining = sitStatus ? sitStatus.totalDaysRemaining : shipment.sitDaysAllowance;
-    if (!sitStatus && daysRemaining > 0) {
+    if (daysRemaining >= 0) {
       return daysRemaining;
-    }
-    if (sitStatus && daysRemaining > 0) {
-      // Subract one day from the remaining days on the current sit to account for the current day
-      return daysRemaining - 1;
     }
     return 'Expired';
   };
@@ -158,10 +154,10 @@ const SubmitSITExtensionModal = ({ shipment, sitStatus, onClose, onSubmit }) => 
     requestReason: '',
     officeRemarks: '',
     daysApproved: String(shipment.sitDaysAllowance),
-    sitEndDate: formatDateForDatePicker(moment(sitStatus.sitAllowanceEndDate, utcDateFormat)),
+    sitEndDate: formatDateForDatePicker(moment(sitStatus.sitAllowanceEndDate, swaggerDateFormat)),
   };
   const minimumDaysAllowed = sitStatus.totalSITDaysUsed - sitStatus.daysInSIT + 1;
-  const sitEntryDate = moment(sitStatus.sitEntryDate, utcDateFormat);
+  const sitEntryDate = moment(sitStatus.sitEntryDate, swaggerDateFormat);
   const reviewSITExtensionSchema = Yup.object().shape({
     requestReason: Yup.string().required('Required'),
     officeRemarks: Yup.string().nullable(),

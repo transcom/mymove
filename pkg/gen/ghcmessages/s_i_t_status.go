@@ -31,16 +31,16 @@ type SITStatus struct {
 	PastSITServiceItems MTOServiceItems `json:"pastSITServiceItems,omitempty"`
 
 	// sit allowance end date
-	// Format: date-time
-	SitAllowanceEndDate strfmt.DateTime `json:"sitAllowanceEndDate,omitempty"`
+	// Format: date
+	SitAllowanceEndDate *strfmt.Date `json:"sitAllowanceEndDate,omitempty"`
 
 	// sit departure date
-	// Format: date-time
-	SitDepartureDate *strfmt.DateTime `json:"sitDepartureDate,omitempty"`
+	// Format: date
+	SitDepartureDate *strfmt.Date `json:"sitDepartureDate,omitempty"`
 
 	// sit entry date
-	// Format: date-time
-	SitEntryDate strfmt.DateTime `json:"sitEntryDate,omitempty"`
+	// Format: date
+	SitEntryDate *strfmt.Date `json:"sitEntryDate,omitempty"`
 
 	// total days remaining
 	// Minimum: 0
@@ -123,7 +123,7 @@ func (m *SITStatus) validateSitAllowanceEndDate(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("sitAllowanceEndDate", "body", "date-time", m.SitAllowanceEndDate.String(), formats); err != nil {
+	if err := validate.FormatOf("sitAllowanceEndDate", "body", "date", m.SitAllowanceEndDate.String(), formats); err != nil {
 		return err
 	}
 
@@ -135,7 +135,7 @@ func (m *SITStatus) validateSitDepartureDate(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("sitDepartureDate", "body", "date-time", m.SitDepartureDate.String(), formats); err != nil {
+	if err := validate.FormatOf("sitDepartureDate", "body", "date", m.SitDepartureDate.String(), formats); err != nil {
 		return err
 	}
 
@@ -147,7 +147,7 @@ func (m *SITStatus) validateSitEntryDate(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("sitEntryDate", "body", "date-time", m.SitEntryDate.String(), formats); err != nil {
+	if err := validate.FormatOf("sitEntryDate", "body", "date", m.SitEntryDate.String(), formats); err != nil {
 		return err
 	}
 

@@ -8389,16 +8389,18 @@ func init() {
         },
         "sitAllowanceEndDate": {
           "type": "string",
-          "format": "date-time"
+          "format": "date",
+          "x-nullable": true
         },
         "sitDepartureDate": {
           "type": "string",
-          "format": "date-time",
+          "format": "date",
           "x-nullable": true
         },
         "sitEntryDate": {
           "type": "string",
-          "format": "date-time"
+          "format": "date",
+          "x-nullable": true
         },
         "totalDaysRemaining": {
           "type": "integer"
@@ -19363,16 +19365,18 @@ func init() {
         },
         "sitAllowanceEndDate": {
           "type": "string",
-          "format": "date-time"
+          "format": "date",
+          "x-nullable": true
         },
         "sitDepartureDate": {
           "type": "string",
-          "format": "date-time",
+          "format": "date",
           "x-nullable": true
         },
         "sitEntryDate": {
           "type": "string",
-          "format": "date-time"
+          "format": "date",
+          "x-nullable": true
         },
         "totalDaysRemaining": {
           "type": "integer",

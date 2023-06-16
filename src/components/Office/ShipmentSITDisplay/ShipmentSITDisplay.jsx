@@ -12,7 +12,7 @@ import styles from './ShipmentSITDisplay.module.scss';
 
 import { sitExtensionReasons, SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
 import { formatDateFromIso, formatDate } from 'utils/formatters';
-import { formatDateForDatePicker, utcDateFormat } from 'shared/dates';
+import { formatDateForDatePicker, swaggerDateFormat } from 'shared/dates';
 import { SERVICE_ITEM_CODES } from 'constants/serviceItems';
 import { ShipmentShape } from 'types/shipment';
 import { SitStatusShape, LOCATION_TYPES } from 'types/sitStatusShape';
@@ -85,17 +85,18 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton }
     }).sitEntryDate;
   }
 
-  const sitEndDate = moment(sitStatus.sitAllowanceEndDate, utcDateFormat);
-  sitEntryDate = moment(sitEntryDate, utcDateFormat);
-  const sitStartDateElement = <p>{formatDate(sitEntryDate, utcDateFormat, 'DD MMM YYYY')}</p>;
+  sitEntryDate = moment(sitEntryDate, swaggerDateFormat);
+  const sitStartDateElement = <p>{formatDate(sitEntryDate, swaggerDateFormat, 'DD MMM YYYY')}</p>;
+  const sitEndDate = moment(sitStatus.sitAllowanceEndDate, swaggerDateFormat);
+  const sitEndDateString = sitEndDate.isValid() ? formatDateForDatePicker(sitEndDate) : '-';
 
   // Previous SIT calculations and date ranges
   const previousDaysUsed = sitStatus?.pastSITServiceItems?.map((pastSITItem) => {
     const sitDaysUsed = moment(pastSITItem.sitDepartureDate).diff(pastSITItem.sitEntryDate, 'days');
     const location = pastSITItem.reServiceCode === SERVICE_ITEM_CODES.DOPSIT ? 'origin' : 'destination';
 
-    const start = formatDate(pastSITItem.sitEntryDate, utcDateFormat, 'DD MMM YYYY');
-    const end = formatDate(pastSITItem.sitDepartureDate, utcDateFormat, 'DD MMM YYYY');
+    const start = formatDate(pastSITItem.sitEntryDate, swaggerDateFormat, 'DD MMM YYYY');
+    const end = formatDate(pastSITItem.sitDepartureDate, swaggerDateFormat, 'DD MMM YYYY');
     const text = `${sitDaysUsed} days at ${location} (${start} - ${end})`;
 
     return <p key={pastSITItem.id}>{text}</p>;
@@ -107,12 +108,8 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton }
   const totalSITDaysUsed = sitStatus?.totalSITDaysUsed || 0;
   const totalDaysRemaining = () => {
     const daysRemaining = sitStatus ? sitStatus.totalDaysRemaining : shipment.sitDaysAllowance;
-    if (!sitStatus && daysRemaining > 0) {
+    if (daysRemaining >= 0) {
       return daysRemaining;
-    }
-    if (sitStatus && daysRemaining > 0) {
-      // Subract one day from the remaining days on the current sit to account for the current day
-      return daysRemaining - 1;
     }
     return 'Expired';
   };
@@ -136,7 +133,7 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton }
         {currentDaysInSIT > 0 && <p className={styles.sitHeader}>Current location: {currentLocation}</p>}
         <DataTable
           columnHeaders={[`SIT start date`, 'SIT authorized end date']}
-          dataRow={[sitStartDateElement, formatDateForDatePicker(sitEndDate)]}
+          dataRow={[sitStartDateElement, sitEndDateString]}
           custClass={styles.currentLocation}
         />
       </div>
