@@ -66,13 +66,12 @@ func (_m *ElectronicOrderListFetcher) FetchElectronicOrderList(appCtx appcontext
 	return r0, r1
 }
 
-type mockConstructorTestingTNewElectronicOrderListFetcher interface {
+// NewElectronicOrderListFetcher creates a new instance of ElectronicOrderListFetcher. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewElectronicOrderListFetcher(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewElectronicOrderListFetcher creates a new instance of ElectronicOrderListFetcher. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewElectronicOrderListFetcher(t mockConstructorTestingTNewElectronicOrderListFetcher) *ElectronicOrderListFetcher {
+}) *ElectronicOrderListFetcher {
 	mock := &ElectronicOrderListFetcher{}
 	mock.Mock.Test(t)
 

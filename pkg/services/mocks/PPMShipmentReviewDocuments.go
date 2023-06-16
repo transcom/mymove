@@ -42,13 +42,12 @@ func (_m *PPMShipmentReviewDocuments) SubmitReviewedDocuments(appCtx appcontext.
 	return r0, r1
 }
 
-type mockConstructorTestingTNewPPMShipmentReviewDocuments interface {
+// NewPPMShipmentReviewDocuments creates a new instance of PPMShipmentReviewDocuments. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewPPMShipmentReviewDocuments(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewPPMShipmentReviewDocuments creates a new instance of PPMShipmentReviewDocuments. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewPPMShipmentReviewDocuments(t mockConstructorTestingTNewPPMShipmentReviewDocuments) *PPMShipmentReviewDocuments {
+}) *PPMShipmentReviewDocuments {
 	mock := &PPMShipmentReviewDocuments{}
 	mock.Mock.Test(t)
 

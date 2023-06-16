@@ -28,20 +28,17 @@ type mtoServiceItemUpdater struct {
 	createNewBuilder func() mtoServiceItemQueryBuilder
 	moveRouter       services.MoveRouter
 	shipmentFetcher  services.MTOShipmentFetcher
+	addressCreator   services.AddressCreator
 }
 
 // NewMTOServiceItemUpdater returns a new mto service item updater
-func NewMTOServiceItemUpdater(
-	builder mtoServiceItemQueryBuilder,
-	moveRouter services.MoveRouter,
-	shipmentFetcher services.MTOShipmentFetcher,
-) services.MTOServiceItemUpdater {
+func NewMTOServiceItemUpdater(builder mtoServiceItemQueryBuilder, moveRouter services.MoveRouter, shipmentFetcher services.MTOShipmentFetcher, addressCreator services.AddressCreator) services.MTOServiceItemUpdater {
 	// used inside a transaction and mocking		return &mtoServiceItemUpdater{builder: builder}
 	createNewBuilder := func() mtoServiceItemQueryBuilder {
 		return query.NewQueryBuilder()
 	}
 
-	return &mtoServiceItemUpdater{builder, createNewBuilder, moveRouter, shipmentFetcher}
+	return &mtoServiceItemUpdater{builder, createNewBuilder, moveRouter, shipmentFetcher, addressCreator}
 }
 
 func (p *mtoServiceItemUpdater) ApproveOrRejectServiceItem(
@@ -148,6 +145,8 @@ func (p *mtoServiceItemUpdater) updateServiceItem(appCtx appcontext.AppContext, 
 			// one, then we set the service item's Destination Original Address
 			// to that value otherwise we use the shipment's Destination
 			// Address as a last resort.
+			// Not creating a new address record for SITDestinationOriginalAddress since
+			// a new address record is created for SITDestinationFinalAddress when it's updated
 			if serviceItem.SITDestinationFinalAddressID != nil {
 				serviceItem.SITDestinationOriginalAddressID = serviceItem.SITDestinationFinalAddressID
 				serviceItem.SITDestinationOriginalAddress = serviceItem.SITDestinationFinalAddress
@@ -158,8 +157,25 @@ func (p *mtoServiceItemUpdater) updateServiceItem(appCtx appcontext.AppContext, 
 				}
 				// Set the original address on a service item to the shipment's
 				// destination address when approving a SIT service item.
-				serviceItem.SITDestinationOriginalAddressID = mtoShipment.DestinationAddressID
-				serviceItem.SITDestinationOriginalAddress = mtoShipment.DestinationAddress
+				// Creating a new address record to ensure SITDestinationOriginalAddress
+				// doesn't change if shipment destination address is updated
+				shipmentDestinationAddress := &models.Address{
+					StreetAddress1: mtoShipment.DestinationAddress.StreetAddress1,
+					StreetAddress2: mtoShipment.DestinationAddress.StreetAddress2,
+					StreetAddress3: mtoShipment.DestinationAddress.StreetAddress3,
+					City:           mtoShipment.DestinationAddress.City,
+					State:          mtoShipment.DestinationAddress.State,
+					PostalCode:     mtoShipment.DestinationAddress.PostalCode,
+					Country:        mtoShipment.DestinationAddress.Country,
+				}
+				shipmentDestinationAddress, err = p.addressCreator.CreateAddress(appCtx, shipmentDestinationAddress)
+				if err != nil {
+					return nil, err
+				}
+				serviceItem.SITDestinationOriginalAddressID = &shipmentDestinationAddress.ID
+				serviceItem.SITDestinationOriginalAddress = shipmentDestinationAddress
+				serviceItem.SITDestinationFinalAddressID = &shipmentDestinationAddress.ID
+				serviceItem.SITDestinationFinalAddress = shipmentDestinationAddress
 			}
 		}
 	}

@@ -36,13 +36,12 @@ func (_m *PostalCodeValidator) ValidatePostalCode(appCtx appcontext.AppContext, 
 	return r0, r1
 }
 
-type mockConstructorTestingTNewPostalCodeValidator interface {
+// NewPostalCodeValidator creates a new instance of PostalCodeValidator. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewPostalCodeValidator(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewPostalCodeValidator creates a new instance of PostalCodeValidator. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewPostalCodeValidator(t mockConstructorTestingTNewPostalCodeValidator) *PostalCodeValidator {
+}) *PostalCodeValidator {
 	mock := &PostalCodeValidator{}
 	mock.Mock.Test(t)
 

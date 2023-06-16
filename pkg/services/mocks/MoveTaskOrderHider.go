@@ -40,13 +40,12 @@ func (_m *MoveTaskOrderHider) Hide(appCtx appcontext.AppContext) (services.Hidde
 	return r0, r1
 }
 
-type mockConstructorTestingTNewMoveTaskOrderHider interface {
+// NewMoveTaskOrderHider creates a new instance of MoveTaskOrderHider. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewMoveTaskOrderHider(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewMoveTaskOrderHider creates a new instance of MoveTaskOrderHider. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewMoveTaskOrderHider(t mockConstructorTestingTNewMoveTaskOrderHider) *MoveTaskOrderHider {
+}) *MoveTaskOrderHider {
 	mock := &MoveTaskOrderHider{}
 	mock.Mock.Test(t)
 

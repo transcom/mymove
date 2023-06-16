@@ -41,13 +41,12 @@ func (_m *QueryOrder) SortOrder() *bool {
 	return r0
 }
 
-type mockConstructorTestingTNewQueryOrder interface {
+// NewQueryOrder creates a new instance of QueryOrder. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewQueryOrder(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewQueryOrder creates a new instance of QueryOrder. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewQueryOrder(t mockConstructorTestingTNewQueryOrder) *QueryOrder {
+}) *QueryOrder {
 	mock := &QueryOrder{}
 	mock.Mock.Test(t)
 

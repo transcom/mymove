@@ -40,13 +40,12 @@ func (_m *PWSViolationsFetcher) GetPWSViolations(appCtx appcontext.AppContext) (
 	return r0, r1
 }
 
-type mockConstructorTestingTNewPWSViolationsFetcher interface {
+// NewPWSViolationsFetcher creates a new instance of PWSViolationsFetcher. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewPWSViolationsFetcher(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewPWSViolationsFetcher creates a new instance of PWSViolationsFetcher. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewPWSViolationsFetcher(t mockConstructorTestingTNewPWSViolationsFetcher) *PWSViolationsFetcher {
+}) *PWSViolationsFetcher {
 	mock := &PWSViolationsFetcher{}
 	mock.Mock.Test(t)
 

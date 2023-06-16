@@ -112,13 +112,12 @@ func (_m *ShipmentRouter) Submit(appCtx appcontext.AppContext, shipment *models.
 	return r0
 }
 
-type mockConstructorTestingTNewShipmentRouter interface {
+// NewShipmentRouter creates a new instance of ShipmentRouter. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewShipmentRouter(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewShipmentRouter creates a new instance of ShipmentRouter. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewShipmentRouter(t mockConstructorTestingTNewShipmentRouter) *ShipmentRouter {
+}) *ShipmentRouter {
 	mock := &ShipmentRouter{}
 	mock.Mock.Test(t)
 

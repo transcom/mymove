@@ -40,13 +40,12 @@ func (_m *PaymentRequestStatusUpdater) UpdatePaymentRequestStatus(appCtx appcont
 	return r0, r1
 }
 
-type mockConstructorTestingTNewPaymentRequestStatusUpdater interface {
+// NewPaymentRequestStatusUpdater creates a new instance of PaymentRequestStatusUpdater. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewPaymentRequestStatusUpdater(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewPaymentRequestStatusUpdater creates a new instance of PaymentRequestStatusUpdater. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewPaymentRequestStatusUpdater(t mockConstructorTestingTNewPaymentRequestStatusUpdater) *PaymentRequestStatusUpdater {
+}) *PaymentRequestStatusUpdater {
 	mock := &PaymentRequestStatusUpdater{}
 	mock.Mock.Test(t)
 
