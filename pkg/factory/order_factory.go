@@ -209,6 +209,11 @@ func buildOrderWithBuildType(db *pop.Connection, customs []Customization, traits
 	defaultStatus := models.OrderStatusDRAFT
 	defaultOriginDutyLocationGbloc := "KKFA"
 	originDutyLocationGbloc := &defaultOriginDutyLocationGbloc
+	defaultSupplyAndServicesCostEstimate := SupplyAndServicesCostEstimate
+	defaultMethodOfPayment := MethodOfPayment
+	defaultNAICS := NAICS
+	contractor := FetchOrBuildDefaultContractor(db, nil, nil)
+	defaultPackingAndShippingInstructions := InstructionsBeforeContractNumber + " " + contractor.ContractNumber + " " + InstructionsAfterContractNumber
 
 	var ordersNumber *string
 	var tac *string
@@ -237,28 +242,32 @@ func buildOrderWithBuildType(db *pop.Connection, customs []Customization, traits
 	}
 
 	order := models.Order{
-		ServiceMember:           serviceMember,
-		ServiceMemberID:         serviceMember.ID,
-		NewDutyLocation:         newDutyLocation,
-		NewDutyLocationID:       newDutyLocation.ID,
-		UploadedOrders:          uploadedOrders,
-		UploadedOrdersID:        uploadedOrders.ID,
-		IssueDate:               defaultIssueDate,
-		ReportByDate:            defaultReportByDate,
-		OrdersType:              defaultOrdersType,
-		OrdersNumber:            ordersNumber,
-		HasDependents:           defaultHasDependents,
-		SpouseHasProGear:        defaultSpouseHasProGear,
-		Status:                  defaultStatus,
-		TAC:                     tac,
-		DepartmentIndicator:     departmentsIndicator,
-		Grade:                   &defaultGrade,
-		Entitlement:             &entitlement,
-		EntitlementID:           &entitlement.ID,
-		OriginDutyLocation:      &originDutyLocation,
-		OriginDutyLocationID:    &originDutyLocation.ID,
-		OrdersTypeDetail:        ordersTypeDetail,
-		OriginDutyLocationGBLOC: originDutyLocationGbloc,
+		ServiceMember:                  serviceMember,
+		ServiceMemberID:                serviceMember.ID,
+		NewDutyLocation:                newDutyLocation,
+		NewDutyLocationID:              newDutyLocation.ID,
+		UploadedOrders:                 uploadedOrders,
+		UploadedOrdersID:               uploadedOrders.ID,
+		IssueDate:                      defaultIssueDate,
+		ReportByDate:                   defaultReportByDate,
+		OrdersType:                     defaultOrdersType,
+		OrdersNumber:                   ordersNumber,
+		HasDependents:                  defaultHasDependents,
+		SpouseHasProGear:               defaultSpouseHasProGear,
+		Status:                         defaultStatus,
+		TAC:                            tac,
+		DepartmentIndicator:            departmentsIndicator,
+		Grade:                          &defaultGrade,
+		Entitlement:                    &entitlement,
+		EntitlementID:                  &entitlement.ID,
+		OriginDutyLocation:             &originDutyLocation,
+		OriginDutyLocationID:           &originDutyLocation.ID,
+		OrdersTypeDetail:               ordersTypeDetail,
+		OriginDutyLocationGBLOC:        originDutyLocationGbloc,
+		SupplyAndServicesCostEstimate:  defaultSupplyAndServicesCostEstimate,
+		MethodOfPayment:                defaultMethodOfPayment,
+		NAICS:                          defaultNAICS,
+		PackingAndShippingInstructions: defaultPackingAndShippingInstructions,
 	}
 
 	if amendedOrdersDocument != nil {
