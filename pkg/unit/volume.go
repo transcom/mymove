@@ -19,7 +19,7 @@ func truncateFloat(f float64) float64 {
 	prec := value.MinPrec()
 
 	// 52 is the MinPrec return for 2 decimal places, so we're checking if our values is equal to or less than that
-	if prec <= 52.0 {
+	if prec <= 52 {
 		return f
 	}
 	// if we have more than 2 decimal places, we need to truncate
