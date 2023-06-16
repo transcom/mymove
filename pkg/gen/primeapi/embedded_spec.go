@@ -995,6 +995,75 @@ func init() {
         }
       }
     },
+    "/mto-shipments/{mtoShipmentID}/shipment-address-updates": {
+      "post": {
+        "description": "### Functionality\nThis endpoint is used so the Prime can request an **update** for the destination address on an MTO Shipment for non SIT.\nAddress can update automatically unless this changes:\n -the service area\n -mileage bracket for direct delivery\n -mileage bracket where there is a switch from Domestic Short Haul (DSH) to Domestic Line Haul (DLH) or vice versa.\n For those, changes will require TOO approval.\n\n **Limitations:**\nThe update can be requested for APPROVED non SIT items only.\nOnly ONE request is allowed per approved non SIT item.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "createNonSITAddressUpdateRequest",
+        "operationId": "createNonSITAddressUpdateRequest",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the shipment associated with the address",
+            "name": "mtoShipmentID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateNonSITAddressUpdateRequest"
+            }
+          },
+          {
+            "$ref": "#/parameters/ifMatch"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successfully created the address update request.",
+            "schema": {
+              "$ref": "#/definitions/ShipmentAddressUpdate"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/mto-shipments/{mtoShipmentID}/sit-extensions": {
       "post": {
         "description": "### Functionality\nThis endpoint creates a storage in transit (SIT) extension request for a shipment. A SIT extension request is a request an\nincrease in the shipment day allowance for the number of days a shipment is allowed to be in SIT. The total SIT day allowance\nincludes time spent in both origin and destination SIT.\n",
@@ -1561,6 +1630,29 @@ func init() {
         },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
+        }
+      }
+    },
+    "CreateNonSITAddressUpdateRequest": {
+      "description": "CreateNonSITAddressUpdateRequest contains the fields required for the prime to create a non SIT address update request.",
+      "type": "object",
+      "required": [
+        "contractorRemarks",
+        "addressID",
+        "newAddress"
+      ],
+      "properties": {
+        "addressID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "contractorRemarks": {
+          "type": "string",
+          "example": "Customer reached out to me this week and let me know they want to move somewhere else."
+        },
+        "newAddress": {
+          "$ref": "#/definitions/Address"
         }
       }
     },
@@ -3687,6 +3779,61 @@ func init() {
         "$ref": "#/definitions/ServiceRequestDocument"
       }
     },
+    "ShipmentAddressUpdate": {
+      "description": "A postal address",
+      "type": "object",
+      "required": [
+        "id",
+        "status",
+        "shipmentID",
+        "originalAddress",
+        "newAddress",
+        "contractorRemarks"
+      ],
+      "properties": {
+        "contractorRemarks": {
+          "type": "string",
+          "title": "Contractor Remarks",
+          "example": "This is a contractor remark"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "newAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "officeRemarks": {
+          "type": "string",
+          "title": "Office Remarks",
+          "x-nullable": true,
+          "example": "This is an office remark"
+        },
+        "originalAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "shipmentID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "status": {
+          "type": "string",
+          "title": "Status",
+          "enum": [
+            "REQUESTED",
+            "REJECTED",
+            "APPROVED"
+          ],
+          "x-display-value": {
+            "APPROVED": "APPROVED",
+            "REJECTED": "REJECTED",
+            "REQUESTED": "REQUESTED"
+          }
+        }
+      }
+    },
     "SitAddressUpdate": {
       "properties": {
         "contractorRemarks": {
@@ -4317,6 +4464,10 @@ func init() {
     {
       "description": "A **sitAddressUpdate** is submitted when the prime or office user wishes to update the final address for an\napproved service item. sitAddressUpdates with a distance less than or equal to 50 miles will be automatically\napproved while a distance greater than 50 miles will typically require office user approval.\n",
       "name": "sitAddressUpdate"
+    },
+    {
+      "description": "A **nonSitAddressUpdate** is submitted when the prime or office user wishes to update the final address for an\napproved non SIT item. Address can update automatically unless this changes the service area, mileage bracket for direct delivery, or mileage bracket where there is a switch from Domestic Short Haul (DSH) to Domestic Line Haul (DLH) or vice versa. For those, changes will require TOO approval.\n",
+      "name": "nonSitAddressUpdate"
     }
   ],
   "x-tagGroups": [
@@ -4327,7 +4478,8 @@ func init() {
         "mtoShipment",
         "mtoServiceItem",
         "paymentRequest",
-        "sitAddressUpdate"
+        "sitAddressUpdate",
+        "nonSitAddressUpdate"
       ]
     }
   ]
@@ -5595,6 +5747,103 @@ func init() {
         }
       }
     },
+    "/mto-shipments/{mtoShipmentID}/shipment-address-updates": {
+      "post": {
+        "description": "### Functionality\nThis endpoint is used so the Prime can request an **update** for the destination address on an MTO Shipment for non SIT.\nAddress can update automatically unless this changes:\n -the service area\n -mileage bracket for direct delivery\n -mileage bracket where there is a switch from Domestic Short Haul (DSH) to Domestic Line Haul (DLH) or vice versa.\n For those, changes will require TOO approval.\n\n **Limitations:**\nThe update can be requested for APPROVED non SIT items only.\nOnly ONE request is allowed per approved non SIT item.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "createNonSITAddressUpdateRequest",
+        "operationId": "createNonSITAddressUpdateRequest",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the shipment associated with the address",
+            "name": "mtoShipmentID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateNonSITAddressUpdateRequest"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successfully created the address update request.",
+            "schema": {
+              "$ref": "#/definitions/ShipmentAddressUpdate"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "401": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "409": {
+            "description": "The request could not be processed because of conflict in the current state of the resource.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "412": {
+            "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "422": {
+            "description": "The request was unprocessable, likely due to bad input from the requester.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/mto-shipments/{mtoShipmentID}/sit-extensions": {
       "post": {
         "description": "### Functionality\nThis endpoint creates a storage in transit (SIT) extension request for a shipment. A SIT extension request is a request an\nincrease in the shipment day allowance for the number of days a shipment is allowed to be in SIT. The total SIT day allowance\nincludes time spent in both origin and destination SIT.\n",
@@ -6267,6 +6516,29 @@ func init() {
         },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
+        }
+      }
+    },
+    "CreateNonSITAddressUpdateRequest": {
+      "description": "CreateNonSITAddressUpdateRequest contains the fields required for the prime to create a non SIT address update request.",
+      "type": "object",
+      "required": [
+        "contractorRemarks",
+        "addressID",
+        "newAddress"
+      ],
+      "properties": {
+        "addressID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "contractorRemarks": {
+          "type": "string",
+          "example": "Customer reached out to me this week and let me know they want to move somewhere else."
+        },
+        "newAddress": {
+          "$ref": "#/definitions/Address"
         }
       }
     },
@@ -8396,6 +8668,61 @@ func init() {
         "$ref": "#/definitions/ServiceRequestDocument"
       }
     },
+    "ShipmentAddressUpdate": {
+      "description": "A postal address",
+      "type": "object",
+      "required": [
+        "id",
+        "status",
+        "shipmentID",
+        "originalAddress",
+        "newAddress",
+        "contractorRemarks"
+      ],
+      "properties": {
+        "contractorRemarks": {
+          "type": "string",
+          "title": "Contractor Remarks",
+          "example": "This is a contractor remark"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "newAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "officeRemarks": {
+          "type": "string",
+          "title": "Office Remarks",
+          "x-nullable": true,
+          "example": "This is an office remark"
+        },
+        "originalAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "shipmentID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "status": {
+          "type": "string",
+          "title": "Status",
+          "enum": [
+            "REQUESTED",
+            "REJECTED",
+            "APPROVED"
+          ],
+          "x-display-value": {
+            "APPROVED": "APPROVED",
+            "REJECTED": "REJECTED",
+            "REQUESTED": "REQUESTED"
+          }
+        }
+      }
+    },
     "SitAddressUpdate": {
       "properties": {
         "contractorRemarks": {
@@ -9026,6 +9353,10 @@ func init() {
     {
       "description": "A **sitAddressUpdate** is submitted when the prime or office user wishes to update the final address for an\napproved service item. sitAddressUpdates with a distance less than or equal to 50 miles will be automatically\napproved while a distance greater than 50 miles will typically require office user approval.\n",
       "name": "sitAddressUpdate"
+    },
+    {
+      "description": "A **nonSitAddressUpdate** is submitted when the prime or office user wishes to update the final address for an\napproved non SIT item. Address can update automatically unless this changes the service area, mileage bracket for direct delivery, or mileage bracket where there is a switch from Domestic Short Haul (DSH) to Domestic Line Haul (DLH) or vice versa. For those, changes will require TOO approval.\n",
+      "name": "nonSitAddressUpdate"
     }
   ],
   "x-tagGroups": [
@@ -9036,7 +9367,8 @@ func init() {
         "mtoShipment",
         "mtoServiceItem",
         "paymentRequest",
-        "sitAddressUpdate"
+        "sitAddressUpdate",
+        "nonSitAddressUpdate"
       ]
     }
   ]
