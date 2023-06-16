@@ -2,19 +2,26 @@ package internalapi
 
 import (
 	"fmt"
+	"net/http"
 	"net/http/httptest"
 	"time"
 
+	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
+	"github.com/stretchr/testify/mock"
 
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/factory"
 	ordersop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/orders"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/mocks"
 	"github.com/transcom/mymove/pkg/services/move"
 	orderservice "github.com/transcom/mymove/pkg/services/order"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
+	"github.com/transcom/mymove/pkg/uploader"
 )
 
 func (suite *HandlerSuite) TestCreateOrder() {
@@ -125,34 +132,291 @@ func (suite *HandlerSuite) TestShowOrder() {
 	suite.Assertions.Equal(order.SpouseHasProGear, *okResponse.Payload.SpouseHasProGear)
 }
 
-func (suite *HandlerSuite) TestUploadAmendedOrder() {
-	var moves models.Moves
-	mto := factory.BuildMove(suite.DB(), nil, nil)
-	order := mto.Orders
-	order.Moves = append(moves, mto)
-	path := fmt.Sprintf("/orders/%v/upload_amended_orders", order.ID.String())
-	req := httptest.NewRequest("PATCH", path, nil)
-	req = suite.AuthenticateRequest(req, order.ServiceMember)
+func setUpMockOrders() models.Order {
+	orders := factory.BuildOrderWithoutDefaults(nil, nil, nil)
 
-	params := ordersop.UploadAmendedOrdersParams{
-		HTTPRequest: req,
-		File:        suite.Fixture("test.pdf"),
-		OrdersID:    *handlers.FmtUUID(order.ID),
+	orders.ID = uuid.Must(uuid.NewV4())
+
+	orders.ServiceMemberID = uuid.Must(uuid.NewV4())
+	orders.ServiceMember.ID = orders.ServiceMemberID
+	orders.ServiceMember.UserID = uuid.Must(uuid.NewV4())
+	orders.ServiceMember.User.ID = orders.ServiceMember.UserID
+
+	return orders
+}
+
+func (suite *HandlerSuite) TestUploadAmendedOrdersHandlerUnit() {
+
+	setUpRequestAndParams := func(orders models.Order) *ordersop.UploadAmendedOrdersParams {
+		endpoint := fmt.Sprintf("/orders/%v/upload_amended_orders", orders.ID.String())
+
+		req := httptest.NewRequest("PATCH", endpoint, nil)
+
+		req = suite.AuthenticateRequest(req, orders.ServiceMember)
+
+		params := ordersop.UploadAmendedOrdersParams{
+			HTTPRequest: req,
+			File:        suite.Fixture("filled-out-orders.pdf"),
+			OrdersID:    *handlers.FmtUUID(orders.ID),
+		}
+
+		return &params
 	}
 
-	fakeS3 := storageTest.NewFakeS3Storage(true)
-	handlerConfig := suite.HandlerConfig()
-	handlerConfig.SetFileStorer(fakeS3)
-	uploadAmendedHandler := UploadAmendedOrdersHandler{
-		HandlerConfig: handlerConfig,
-		OrderUpdater:  orderservice.NewOrderUpdater(move.NewMoveRouter()),
-	}
-	response := uploadAmendedHandler.Handle(params)
+	setUpOrOrderUpdater := func(returnValues ...interface{}) services.OrderUpdater {
+		mockOrderUpdater := &mocks.OrderUpdater{}
 
-	suite.Assertions.IsType(&ordersop.UploadAmendedOrdersCreated{}, response)
-	okResponse := response.(*ordersop.UploadAmendedOrdersCreated)
-	suite.Assertions.NotNil(okResponse.Payload.ID.String()) // UploadPayload
-	suite.Assertions.Equal("test.pdf", okResponse.Payload.Filename)
+		mockOrderUpdater.On(
+			"UploadAmendedOrdersAsCustomer",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("uuid.UUID"),
+			mock.AnythingOfType("uuid.UUID"),
+			mock.AnythingOfType("*os.File"),
+			mock.AnythingOfType("string"),
+			mock.AnythingOfType("*test.FakeS3Storage"),
+		).Return(returnValues...)
+
+		return mockOrderUpdater
+	}
+
+	setUpHandler := func(orderUpdater services.OrderUpdater) UploadAmendedOrdersHandler {
+		return UploadAmendedOrdersHandler{
+			suite.createS3HandlerConfig(),
+			orderUpdater,
+		}
+	}
+
+	suite.Run("Returns a server error if there is an issue with the file type", func() {
+		orders := setUpMockOrders()
+
+		params := setUpRequestAndParams(orders)
+
+		params.File = factory.FixtureOpen("test.pdf")
+
+		mockOrderUpdater := setUpOrOrderUpdater(models.Upload{}, "", nil, nil)
+
+		handler := setUpHandler(mockOrderUpdater)
+
+		response := handler.Handle(*params)
+
+		// TODO: The type for this should probably be &ordersop.UploadAmendedOrdersInternalServerError{}, but the error
+		//  isn't being raised correctly in the handler. This should be fixed in a future commit.
+		suite.IsType(&handlers.ErrResponse{}, response)
+	})
+
+	suite.Run("Returns an error if the Orders ID in the URL is invalid", func() {
+		orders := setUpMockOrders()
+
+		params := setUpRequestAndParams(orders)
+
+		badUUID := "badUUID"
+		params.HTTPRequest.URL.Path = fmt.Sprintf("/orders/%s/upload_amended_orders", badUUID)
+		params.OrdersID = strfmt.UUID(badUUID)
+
+		mockOrderUpdater := setUpOrOrderUpdater(models.Upload{}, "", nil, nil)
+
+		handler := setUpHandler(mockOrderUpdater)
+
+		response := handler.Handle(*params)
+
+		if suite.IsType(&handlers.ErrResponse{}, response) {
+			errResponse := response.(*handlers.ErrResponse)
+
+			suite.Equal(http.StatusInternalServerError, errResponse.Code)
+			suite.Contains(errResponse.Err.Error(), "incorrect UUID")
+		}
+	})
+
+	suite.Run("Returns a 413 - Content Too Large if the file is too large", func() {
+		orders := setUpMockOrders()
+
+		params := setUpRequestAndParams(orders)
+
+		fakeErr := uploader.ErrTooLarge{
+			FileSize:      uploader.MaxCustomerUserUploadFileSizeLimit + 1,
+			FileSizeLimit: uploader.MaxCustomerUserUploadFileSizeLimit,
+		}
+		mockOrderUpdater := setUpOrOrderUpdater(models.Upload{}, "", nil, fakeErr)
+
+		handler := setUpHandler(mockOrderUpdater)
+
+		response := handler.Handle(*params)
+
+		suite.IsType(&ordersop.UploadAmendedOrdersRequestEntityTooLarge{}, response)
+	})
+
+	suite.Run("Returns a server error if there is an error with the file", func() {
+		orders := setUpMockOrders()
+
+		params := setUpRequestAndParams(orders)
+
+		fakeErr := uploader.ErrFile{}
+
+		mockOrderUpdater := setUpOrOrderUpdater(models.Upload{}, "", nil, fakeErr)
+
+		handler := setUpHandler(mockOrderUpdater)
+
+		response := handler.Handle(*params)
+
+		suite.IsType(&ordersop.UploadAmendedOrdersInternalServerError{}, response)
+	})
+
+	suite.Run("Returns a server error if there is an error initializing the uploader", func() {
+		orders := setUpMockOrders()
+
+		params := setUpRequestAndParams(orders)
+
+		fakeErr := uploader.ErrFailedToInitUploader{}
+
+		mockOrderUpdater := setUpOrOrderUpdater(models.Upload{}, "", nil, fakeErr)
+
+		handler := setUpHandler(mockOrderUpdater)
+
+		response := handler.Handle(*params)
+
+		suite.IsType(&ordersop.UploadAmendedOrdersInternalServerError{}, response)
+	})
+
+	suite.Run("Returns a 404 if the order updater returns a NotFoundError", func() {
+		orders := setUpMockOrders()
+
+		params := setUpRequestAndParams(orders)
+
+		fakeErr := apperror.NotFoundError{}
+
+		mockOrderUpdater := setUpOrOrderUpdater(models.Upload{}, "", nil, fakeErr)
+
+		handler := setUpHandler(mockOrderUpdater)
+
+		response := handler.Handle(*params)
+
+		suite.IsType(&ordersop.UploadAmendedOrdersNotFound{}, response)
+	})
+
+	suite.Run("Returns a 500 if the order updater returns an unexpected error", func() {
+		orders := setUpMockOrders()
+
+		params := setUpRequestAndParams(orders)
+
+		fakeErr := apperror.NewBadDataError("Bad data")
+
+		mockOrderUpdater := setUpOrOrderUpdater(models.Upload{}, "", nil, fakeErr)
+
+		handler := setUpHandler(mockOrderUpdater)
+
+		response := handler.Handle(*params)
+
+		if suite.IsType(&handlers.ErrResponse{}, response) {
+			errResponse := response.(*handlers.ErrResponse)
+
+			suite.Equal(http.StatusInternalServerError, errResponse.Code)
+			suite.Equal(fakeErr.Error(), errResponse.Err.Error())
+		}
+	})
+
+	suite.Run("Returns a 201 if the amended orders are uploaded successfully", func() {
+		orders := setUpMockOrders()
+
+		params := setUpRequestAndParams(orders)
+
+		upload := factory.BuildUpload(suite.DB(), nil, nil)
+
+		fakeURL := "https://fake.s3.url"
+		mockOrderUpdater := setUpOrOrderUpdater(upload, fakeURL, nil, nil)
+
+		handler := setUpHandler(mockOrderUpdater)
+
+		response := handler.Handle(*params)
+
+		if suite.IsType(&ordersop.UploadAmendedOrdersCreated{}, response) {
+			payload := response.(*ordersop.UploadAmendedOrdersCreated).Payload
+
+			suite.NoError(payload.Validate(strfmt.Default))
+
+			suite.Equal(upload.ID.String(), payload.ID.String())
+			suite.Equal(upload.ContentType, payload.ContentType)
+			suite.Equal(upload.Filename, payload.Filename)
+			suite.Equal(fakeURL, string(payload.URL))
+		}
+	})
+}
+
+func (suite *HandlerSuite) TestUploadAmendedOrdersHandlerIntegration() {
+	orderUpdater := orderservice.NewOrderUpdater(move.NewMoveRouter())
+
+	setUpRequestAndParams := func(orders models.Order) *ordersop.UploadAmendedOrdersParams {
+		endpoint := fmt.Sprintf("/orders/%v/upload_amended_orders", orders.ID.String())
+
+		req := httptest.NewRequest("PATCH", endpoint, nil)
+
+		req = suite.AuthenticateRequest(req, orders.ServiceMember)
+
+		params := ordersop.UploadAmendedOrdersParams{
+			HTTPRequest: req,
+			File:        suite.Fixture("filled-out-orders.pdf"),
+			OrdersID:    *handlers.FmtUUID(orders.ID),
+		}
+
+		return &params
+	}
+
+	setUpHandler := func() UploadAmendedOrdersHandler {
+		return UploadAmendedOrdersHandler{
+			suite.createS3HandlerConfig(),
+			orderUpdater,
+		}
+	}
+
+	suite.Run("Returns a 404 if the orders aren't found", func() {
+		orders := setUpMockOrders()
+
+		params := setUpRequestAndParams(orders)
+
+		handler := setUpHandler()
+
+		response := handler.Handle(*params)
+
+		suite.IsType(&ordersop.UploadAmendedOrdersNotFound{}, response)
+	})
+
+	suite.Run("Returns a 400 - Bad Request if there is an issue with the file being uploaded", func() {
+		orders := factory.BuildOrderWithoutDefaults(suite.DB(), nil, nil)
+
+		params := setUpRequestAndParams(orders)
+		params.File = suite.Fixture("empty.pdf")
+
+		handler := setUpHandler()
+
+		response := handler.Handle(*params)
+
+		if suite.IsType(&handlers.ErrResponse{}, response) {
+			errResponse := response.(*handlers.ErrResponse)
+
+			suite.Equal(http.StatusBadRequest, errResponse.Code)
+			suite.Equal(uploader.ErrZeroLengthFile.Error(), errResponse.Err.Error())
+		}
+	})
+
+	suite.Run("Returns a 201 if the amended orders are uploaded successfully", func() {
+		orders := factory.BuildOrderWithoutDefaults(suite.DB(), nil, nil)
+
+		params := setUpRequestAndParams(orders)
+
+		handler := setUpHandler()
+
+		response := handler.Handle(*params)
+
+		if suite.IsType(&ordersop.UploadAmendedOrdersCreated{}, response) {
+			payload := response.(*ordersop.UploadAmendedOrdersCreated).Payload
+
+			suite.NoError(payload.Validate(strfmt.Default))
+
+			suite.NotEqual("", string(payload.ID))
+			suite.Equal("filled-out-orders.pdf", payload.Filename)
+			suite.Equal(uploader.FileTypePDF, payload.ContentType)
+			suite.NotEqual("", string(payload.URL))
+		}
+	})
 }
 
 // TODO: Fix now that we capture transaction error. May be a data setup problem
