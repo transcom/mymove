@@ -99,6 +99,10 @@ func (o *Order) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		&validators.UUIDIsPresent{Field: o.UploadedOrdersID, Name: "UploadedOrdersID"},
 		&OptionalUUIDIsPresent{Field: o.UploadedAmendedOrdersID, Name: "UploadedAmendedOrdersID"},
 		&StringIsNilOrNotBlank{Field: o.OriginDutyLocationGBLOC, Name: "OriginDutyLocationGBLOC"},
+		&validators.StringIsPresent{Field: o.SupplyAndServicesCostEstimate, Name: "SupplyAndServicesCostEstimate"},
+		&validators.StringIsPresent{Field: o.PackingAndShippingInstructions, Name: "PackingAndShippingInstructions"},
+		&validators.StringIsPresent{Field: o.MethodOfPayment, Name: "MethodOfPayment"},
+		&validators.StringIsPresent{Field: o.NAICS, Name: "NAICS"},
 	), nil
 }
 
