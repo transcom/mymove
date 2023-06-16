@@ -130,7 +130,15 @@ func (f *orderUpdater) findOrder(appCtx appcontext.AppContext, orderID uuid.UUID
 
 func (f *orderUpdater) findOrderWithAmendedOrders(appCtx appcontext.AppContext, orderID uuid.UUID) (*models.Order, error) {
 	var order models.Order
-	err := appCtx.DB().Q().EagerPreload("ServiceMember", "UploadedAmendedOrders").Find(&order, orderID)
+
+	query := appCtx.DB().Q().EagerPreload("ServiceMember", "UploadedAmendedOrders")
+
+	if appCtx.Session().IsMilApp() {
+		query = query.Where("orders.service_member_id = ?", appCtx.Session().ServiceMemberID)
+	}
+
+	err := query.Find(&order, orderID)
+
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:

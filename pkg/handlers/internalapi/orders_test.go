@@ -365,6 +365,25 @@ func (suite *HandlerSuite) TestUploadAmendedOrdersHandlerIntegration() {
 		}
 	}
 
+	suite.Run("Returns a 404 if the service member attempting to upload the orders is not the service member associated with the orders", func() {
+		orders := factory.BuildOrderWithoutDefaults(suite.DB(), nil, nil)
+
+		otherServiceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
+
+		// temporarily set the orders to be associated with a different service member so that the request session
+		// has the info for the wrong service member
+		orders.ServiceMemberID = otherServiceMember.ID
+		orders.ServiceMember = otherServiceMember
+
+		params := setUpRequestAndParams(orders)
+
+		handler := setUpHandler()
+
+		response := handler.Handle(*params)
+
+		suite.IsType(&ordersop.UploadAmendedOrdersNotFound{}, response)
+	})
+
 	suite.Run("Returns a 404 if the orders aren't found", func() {
 		orders := setUpMockOrders()
 
