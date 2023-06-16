@@ -26,6 +26,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		oldServiceItem.CustomerContacts = models.MTOServiceItemCustomerContacts{
 			models.MTOServiceItemCustomerContact{
 				Type:                       models.CustomerContactTypeFirst,
+				DateOfContact:              time.Now().AddDate(0, 0, 4),
 				TimeMilitary:               "1300Z",
 				FirstAvailableDeliveryDate: time.Now().AddDate(0, 0, 3),
 			},
@@ -349,6 +350,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		editServiceItem.CustomerContacts = models.MTOServiceItemCustomerContacts{
 			models.MTOServiceItemCustomerContact{
 				Type:                       models.CustomerContactTypeFirst,
+				DateOfContact:              time.Now().AddDate(0, 0, 6),
 				TimeMilitary:               "1400Z",
 				FirstAvailableDeliveryDate: time.Now().AddDate(0, 0, 5),
 			},
@@ -368,6 +370,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		suite.NotEqual(newServiceItem.Description, oldServiceItem.Description)
 		suite.NotEqual(newServiceItem.Description, serviceItemData.oldServiceItem.Description)
 		suite.NotEqual(newServiceItem.CustomerContacts[0].TimeMilitary, serviceItemData.oldServiceItem.CustomerContacts[0].TimeMilitary)
+		suite.NotEqual(newServiceItem.CustomerContacts[0].DateOfContact, serviceItemData.oldServiceItem.CustomerContacts[0].DateOfContact)
 		suite.NotEqual(newServiceItem.CustomerContacts[0].FirstAvailableDeliveryDate, serviceItemData.oldServiceItem.CustomerContacts[0].FirstAvailableDeliveryDate)
 	})
 
@@ -454,6 +457,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		editServiceItem.CustomerContacts = models.MTOServiceItemCustomerContacts{
 			models.MTOServiceItemCustomerContact{
 				Type:                       models.CustomerContactTypeFirst,
+				DateOfContact:              time.Now().AddDate(0, 0, 6),
 				TimeMilitary:               "1400Z",
 				FirstAvailableDeliveryDate: time.Now().AddDate(0, 0, 5),
 			},
@@ -467,9 +471,11 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 
 		suite.Equal(1, len(newCustomerContacts))
 		suite.NotEqual(newCustomerContacts[0].TimeMilitary, serviceItemData.oldServiceItem.CustomerContacts[0].TimeMilitary)
+		suite.NotEqual(newCustomerContacts[0].DateOfContact, serviceItemData.oldServiceItem.CustomerContacts[0].DateOfContact)
 		suite.NotEqual(newCustomerContacts[0].FirstAvailableDeliveryDate, serviceItemData.oldServiceItem.CustomerContacts[0].FirstAvailableDeliveryDate)
 
 		suite.Equal(newCustomerContacts[0].TimeMilitary, serviceItemData.updatedServiceItem.CustomerContacts[0].TimeMilitary)
+		suite.Equal(newCustomerContacts[0].DateOfContact, serviceItemData.updatedServiceItem.CustomerContacts[0].DateOfContact)
 		suite.Equal(newCustomerContacts[0].FirstAvailableDeliveryDate, serviceItemData.updatedServiceItem.CustomerContacts[0].FirstAvailableDeliveryDate)
 	})
 
@@ -495,6 +501,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		editServiceItem.CustomerContacts = models.MTOServiceItemCustomerContacts{
 			models.MTOServiceItemCustomerContact{
 				Type:                       models.CustomerContactTypeFirst,
+				DateOfContact:              time.Now().AddDate(0, 0, 6),
 				TimeMilitary:               "1400Z",
 				FirstAvailableDeliveryDate: time.Now().AddDate(0, 0, 5),
 			},
@@ -515,6 +522,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		editServiceItem.CustomerContacts = models.MTOServiceItemCustomerContacts{
 			models.MTOServiceItemCustomerContact{
 				Type:                       models.CustomerContactTypeSecond,
+				DateOfContact:              time.Now().AddDate(0, 0, 6),
 				TimeMilitary:               "1400Z",
 				FirstAvailableDeliveryDate: time.Now().AddDate(0, 0, 5),
 			},
@@ -531,14 +539,18 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		for _, newContact := range newCustomerContacts {
 			if newContact.Type == models.CustomerContactTypeFirst {
 				suite.Equal(newContact.TimeMilitary, serviceItemData.oldServiceItem.CustomerContacts[0].TimeMilitary)
+				suite.Equal(newContact.DateOfContact, serviceItemData.oldServiceItem.CustomerContacts[0].DateOfContact)
 				suite.Equal(newContact.FirstAvailableDeliveryDate, serviceItemData.oldServiceItem.CustomerContacts[0].FirstAvailableDeliveryDate)
 				suite.NotEqual(newContact.TimeMilitary, serviceItemData.updatedServiceItem.CustomerContacts[0].TimeMilitary)
+				suite.NotEqual(newContact.DateOfContact, serviceItemData.updatedServiceItem.CustomerContacts[0].DateOfContact)
 				suite.NotEqual(newContact.FirstAvailableDeliveryDate, serviceItemData.updatedServiceItem.CustomerContacts[0].FirstAvailableDeliveryDate)
 			}
 			if newContact.Type == models.CustomerContactTypeSecond {
 				suite.NotEqual(newContact.TimeMilitary, serviceItemData.oldServiceItem.CustomerContacts[0].TimeMilitary)
+				suite.NotEqual(newContact.DateOfContact, serviceItemData.oldServiceItem.CustomerContacts[0].DateOfContact)
 				suite.NotEqual(newContact.FirstAvailableDeliveryDate, serviceItemData.oldServiceItem.CustomerContacts[0].FirstAvailableDeliveryDate)
 				suite.Equal(newContact.TimeMilitary, serviceItemData.updatedServiceItem.CustomerContacts[0].TimeMilitary)
+				suite.Equal(newContact.DateOfContact, serviceItemData.updatedServiceItem.CustomerContacts[0].DateOfContact)
 				suite.Equal(newContact.FirstAvailableDeliveryDate, serviceItemData.updatedServiceItem.CustomerContacts[0].FirstAvailableDeliveryDate)
 			}
 		}

@@ -141,6 +141,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		newServiceItem.ActualWeight = handlers.PoundPtrFromInt64Ptr(&estimatedWeight)
 		newServiceItem.CustomerContacts = models.MTOServiceItemCustomerContacts{
 			models.MTOServiceItemCustomerContact{
+				DateOfContact:              time.Date(2020, time.December, 04, 0, 0, 0, 0, time.UTC),
 				TimeMilitary:               "1400Z",
 				FirstAvailableDeliveryDate: time.Date(2020, time.December, 02, 0, 0, 0, 0, time.UTC),
 				Type:                       models.CustomerContactTypeFirst,
@@ -165,6 +166,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		suite.Equal(newServiceItem.EstimatedWeight, updatedServiceItem.EstimatedWeight)
 		suite.Equal(newServiceItem.CustomerContacts[0].TimeMilitary, updatedServiceItem.CustomerContacts[0].TimeMilitary)
 		suite.Equal(newServiceItem.CustomerContacts[0].FirstAvailableDeliveryDate, updatedServiceItem.CustomerContacts[0].FirstAvailableDeliveryDate)
+		suite.Equal(newServiceItem.CustomerContacts[0].DateOfContact, updatedServiceItem.CustomerContacts[0].DateOfContact)
 		suite.NotEqual(newServiceItem.Status, updatedServiceItem.Status)
 	})
 
@@ -173,6 +175,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		customerContact := testdatagen.MakeMTOServiceItemCustomerContact(suite.DB(), testdatagen.Assertions{
 			MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
 				Type:                       models.CustomerContactTypeFirst,
+				DateOfContact:              time.Date(1984, time.March, 24, 0, 0, 0, 0, time.UTC),
 				TimeMilitary:               "0400Z",
 				FirstAvailableDeliveryDate: time.Date(1984, time.March, 20, 0, 0, 0, 0, time.UTC),
 			},
@@ -193,6 +196,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		newServiceItem := serviceItem
 		newServiceItem.CustomerContacts = models.MTOServiceItemCustomerContacts{
 			models.MTOServiceItemCustomerContact{
+				DateOfContact:              time.Date(2020, time.December, 04, 0, 0, 0, 0, time.UTC),
 				TimeMilitary:               "1400Z",
 				FirstAvailableDeliveryDate: time.Date(2020, time.December, 02, 0, 0, 0, 0, time.UTC),
 				Type:                       models.CustomerContactTypeFirst,
@@ -211,8 +215,10 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 
 		// And the new values should be reflected in the updated customer contact
 		suite.NotEqual(customerContact.TimeMilitary, updatedServiceItem.CustomerContacts[0].TimeMilitary)
+		suite.NotEqual(customerContact.DateOfContact, updatedServiceItem.CustomerContacts[0].DateOfContact)
 		suite.NotEqual(customerContact.FirstAvailableDeliveryDate, updatedServiceItem.CustomerContacts[0].FirstAvailableDeliveryDate)
 		suite.Equal(newServiceItem.CustomerContacts[0].TimeMilitary, updatedServiceItem.CustomerContacts[0].TimeMilitary)
+		suite.Equal(newServiceItem.CustomerContacts[0].DateOfContact, updatedServiceItem.CustomerContacts[0].DateOfContact)
 		suite.Equal(newServiceItem.CustomerContacts[0].FirstAvailableDeliveryDate, updatedServiceItem.CustomerContacts[0].FirstAvailableDeliveryDate)
 	})
 
@@ -418,6 +424,7 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 		newServiceItemPrime.CustomerContacts = models.MTOServiceItemCustomerContacts{
 			models.MTOServiceItemCustomerContact{
 				TimeMilitary:               "1300Z",
+				DateOfContact:              time.Date(2020, time.December, 04, 0, 0, 0, 0, time.UTC),
 				FirstAvailableDeliveryDate: time.Date(2020, time.December, 02, 0, 0, 0, 0, time.UTC),
 			},
 		}
@@ -433,6 +440,7 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 		suite.NotNil(updatedServiceItem)
 		suite.IsType(models.MTOServiceItem{}, *updatedServiceItem)
 		suite.Equal(updatedServiceItem.CustomerContacts[0].TimeMilitary, newServiceItemPrime.CustomerContacts[0].TimeMilitary)
+		suite.Equal(updatedServiceItem.CustomerContacts[0].DateOfContact, newServiceItemPrime.CustomerContacts[0].DateOfContact)
 		suite.Equal(updatedServiceItem.CustomerContacts[0].FirstAvailableDeliveryDate, newServiceItemPrime.CustomerContacts[0].FirstAvailableDeliveryDate)
 	})
 

@@ -488,11 +488,13 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 
 		contactOne := models.MTOServiceItemCustomerContact{
 			Type:                       models.CustomerContactTypeFirst,
+			DateOfContact:              time.Now(),
 			FirstAvailableDeliveryDate: time.Now(),
 		}
 
 		contactTwo := models.MTOServiceItemCustomerContact{
 			Type:                       models.CustomerContactTypeSecond,
+			DateOfContact:              time.Now(),
 			FirstAvailableDeliveryDate: time.Now(),
 		}
 
@@ -1004,13 +1006,16 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 
 	getCustomerContacts := func() models.MTOServiceItemCustomerContacts {
 		deliveryDate := time.Now()
+		attemptedContact := time.Now()
 		contact1 := models.MTOServiceItemCustomerContact{
 			Type:                       models.CustomerContactTypeFirst,
+			DateOfContact:              attemptedContact,
 			FirstAvailableDeliveryDate: deliveryDate,
 			TimeMilitary:               "0815Z",
 		}
 		contact2 := models.MTOServiceItemCustomerContact{
 			Type:                       models.CustomerContactTypeSecond,
+			DateOfContact:              attemptedContact,
 			FirstAvailableDeliveryDate: deliveryDate,
 			TimeMilitary:               "1430Z",
 		}
@@ -1020,6 +1025,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 	}
 
 	sitEntryDate := time.Now()
+	attemptedContact := time.Now()
 
 	// Failed creation of DDFSIT because DDASIT/DDDSIT codes are not found in DB
 	suite.Run("Failure - no DDASIT/DDDSIT codes", func() {
@@ -1050,11 +1056,13 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 
 		badContact1 := models.MTOServiceItemCustomerContact{
 			Type:                       models.CustomerContactTypeFirst,
+			DateOfContact:              attemptedContact,
 			FirstAvailableDeliveryDate: sitEntryDate,
 			TimeMilitary:               "2611B",
 		}
 		badContact2 := models.MTOServiceItemCustomerContact{
 			Type:                       models.CustomerContactTypeSecond,
+			DateOfContact:              attemptedContact,
 			FirstAvailableDeliveryDate: sitEntryDate,
 			TimeMilitary:               "aaaaaaah",
 		}

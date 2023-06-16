@@ -604,13 +604,16 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 		reService := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeMS)
 
 		sitEntryDate := time.Now()
+		attemptedContact := time.Now()
 		contact1 := models.MTOServiceItemCustomerContact{
 			Type:                       models.CustomerContactTypeFirst,
+			DateOfContact:              attemptedContact,
 			FirstAvailableDeliveryDate: sitEntryDate,
 			TimeMilitary:               "0815Z",
 		}
 		contact2 := models.MTOServiceItemCustomerContact{
 			Type:                       models.CustomerContactTypeSecond,
+			DateOfContact:              attemptedContact,
 			FirstAvailableDeliveryDate: sitEntryDate,
 			TimeMilitary:               "0815Z",
 		}
