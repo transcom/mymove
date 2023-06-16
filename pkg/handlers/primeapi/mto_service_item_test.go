@@ -1005,11 +1005,13 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 			CustomerContacts: models.MTOServiceItemCustomerContacts{
 				models.MTOServiceItemCustomerContact{
 					Type:                       models.CustomerContactTypeFirst,
+					DateOfContact:              time.Now().Add(time.Hour * 24),
 					TimeMilitary:               "0400Z",
 					FirstAvailableDeliveryDate: time.Now(),
 				},
 				models.MTOServiceItemCustomerContact{
 					Type:                       models.CustomerContactTypeSecond,
+					DateOfContact:              time.Now().Add(time.Hour * 24),
 					TimeMilitary:               "0400Z",
 					FirstAvailableDeliveryDate: time.Now(),
 				},
@@ -1045,11 +1047,13 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 			CustomerContacts: models.MTOServiceItemCustomerContacts{
 				models.MTOServiceItemCustomerContact{
 					Type:                       models.CustomerContactTypeFirst,
+					DateOfContact:              time.Now().Add(time.Hour * 24),
 					TimeMilitary:               "0400Z",
 					FirstAvailableDeliveryDate: time.Now(),
 				},
 				models.MTOServiceItemCustomerContact{
 					Type:                       models.CustomerContactTypeSecond,
+					DateOfContact:              time.Now().Add(time.Hour * 24),
 					TimeMilitary:               "0400Z",
 					FirstAvailableDeliveryDate: time.Now(),
 				},
@@ -1138,11 +1142,13 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 			CustomerContacts: models.MTOServiceItemCustomerContacts{
 				models.MTOServiceItemCustomerContact{
 					Type:                       models.CustomerContactTypeFirst,
+					DateOfContact:              time.Now().Add(time.Hour * 24),
 					TimeMilitary:               "0400Z",
 					FirstAvailableDeliveryDate: time.Now(),
 				},
 				models.MTOServiceItemCustomerContact{
 					Type:                       models.CustomerContactTypeSecond,
+					DateOfContact:              time.Now().Add(time.Hour * 24),
 					TimeMilitary:               "0400Z",
 					FirstAvailableDeliveryDate: time.Now(),
 				},
@@ -1334,6 +1340,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 			ReServiceCode:               models.ReServiceCodeDDDSIT.String(),
 			SitDepartureDate:            *handlers.FmtDate(time.Now().AddDate(0, 0, 5)),
 			SitDestinationFinalAddress:  &addr,
+			DateOfContact1:              handlers.FmtDate(time.Date(2020, time.December, 04, 0, 0, 0, 0, time.UTC)),
 			TimeMilitary1:               handlers.FmtStringPtrNonEmpty(&milTime),
 			FirstAvailableDeliveryDate1: handlers.FmtDate(time.Date(2020, time.December, 02, 0, 0, 0, 0, time.UTC)),
 		}
@@ -1396,6 +1403,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 		suite.Equal(subtestData.reqPayload.SitDestinationFinalAddress.PostalCode, respPayload.SitDestinationFinalAddress.PostalCode)
 		suite.Equal(subtestData.reqPayload.SitDestinationFinalAddress.State, respPayload.SitDestinationFinalAddress.State)
 		suite.Equal(subtestData.reqPayload.SitDestinationFinalAddress.Country, respPayload.SitDestinationFinalAddress.Country)
+		suite.Equal(subtestData.reqPayload.DateOfContact1, respPayload.DateOfContact1)
 		suite.Equal(subtestData.reqPayload.TimeMilitary1, respPayload.TimeMilitary1)
 		suite.Equal(subtestData.reqPayload.FirstAvailableDeliveryDate1, respPayload.FirstAvailableDeliveryDate1)
 	})
