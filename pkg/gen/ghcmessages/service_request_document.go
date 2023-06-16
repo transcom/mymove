@@ -12,12 +12,17 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 )
 
 // ServiceRequestDocument service request document
 //
 // swagger:model ServiceRequestDocument
 type ServiceRequestDocument struct {
+
+	// mto service item ID
+	// Format: uuid
+	MtoServiceItemID strfmt.UUID `json:"mtoServiceItemID,omitempty"`
 
 	// uploads
 	Uploads []*Upload `json:"uploads"`
@@ -27,6 +32,10 @@ type ServiceRequestDocument struct {
 func (m *ServiceRequestDocument) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateMtoServiceItemID(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateUploads(formats); err != nil {
 		res = append(res, err)
 	}
@@ -34,6 +43,18 @@ func (m *ServiceRequestDocument) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *ServiceRequestDocument) validateMtoServiceItemID(formats strfmt.Registry) error {
+	if swag.IsZero(m.MtoServiceItemID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("mtoServiceItemID", "body", "uuid", m.MtoServiceItemID.String(), formats); err != nil {
+		return err
+	}
+
 	return nil
 }
 

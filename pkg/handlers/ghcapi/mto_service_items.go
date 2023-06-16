@@ -181,7 +181,7 @@ func (h ListMTOServiceItemsHandler) Handle(params mtoserviceitemop.ListMTOServic
 				query.NewQueryFilter("move_id", "=", moveTaskOrderID.String()),
 			}
 			queryAssociations := query.NewQueryAssociationsPreload([]services.QueryAssociation{
-				query.NewQueryAssociation("ServiceRequestDocuments.ServiceRequestDocumentUploads"),
+				query.NewQueryAssociation("ServiceRequestDocuments.ServiceRequestDocumentUploads.Upload"),
 				query.NewQueryAssociation("ReService"),
 				query.NewQueryAssociation("Dimensions"),
 				query.NewQueryAssociation("SITDestinationOriginalAddress"),

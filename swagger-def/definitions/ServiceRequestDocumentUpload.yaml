@@ -1,6 +1,0 @@
-properties:
-# I believe this can be deleted
-  uploads:
-    items:
-      $ref: 'Upload.yaml'
-    type: array

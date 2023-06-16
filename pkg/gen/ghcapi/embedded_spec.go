@@ -8573,6 +8573,10 @@ func init() {
     "ServiceRequestDocument": {
       "type": "object",
       "properties": {
+        "mtoServiceItemID": {
+          "type": "string",
+          "format": "uuid"
+        },
         "uploads": {
           "type": "array",
           "items": {
@@ -19567,6 +19571,10 @@ func init() {
     "ServiceRequestDocument": {
       "type": "object",
       "properties": {
+        "mtoServiceItemID": {
+          "type": "string",
+          "format": "uuid"
+        },
         "uploads": {
           "type": "array",
           "items": {

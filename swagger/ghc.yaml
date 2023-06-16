@@ -5855,6 +5855,9 @@ definitions:
   ServiceRequestDocument:
     type: object
     properties:
+      mtoServiceItemID:
+        type: string
+        format: uuid
       uploads:
         items:
           $ref: '#/definitions/Upload'
