@@ -7,11 +7,11 @@ package ghcmessages
 
 import (
 	"context"
+	"strconv"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
-	"github.com/go-openapi/validate"
 )
 
 // ServiceRequestDocument service request document
@@ -19,16 +19,15 @@ import (
 // swagger:model ServiceRequestDocument
 type ServiceRequestDocument struct {
 
-	// mto service item ID
-	// Format: uuid
-	MtoServiceItemID strfmt.UUID `json:"mtoServiceItemID,omitempty"`
+	// uploads
+	Uploads []*Upload `json:"uploads"`
 }
 
 // Validate validates this service request document
 func (m *ServiceRequestDocument) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validateMtoServiceItemID(formats); err != nil {
+	if err := m.validateUploads(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -38,20 +37,68 @@ func (m *ServiceRequestDocument) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *ServiceRequestDocument) validateMtoServiceItemID(formats strfmt.Registry) error {
-	if swag.IsZero(m.MtoServiceItemID) { // not required
+func (m *ServiceRequestDocument) validateUploads(formats strfmt.Registry) error {
+	if swag.IsZero(m.Uploads) { // not required
 		return nil
 	}
 
-	if err := validate.FormatOf("mtoServiceItemID", "body", "uuid", m.MtoServiceItemID.String(), formats); err != nil {
-		return err
+	for i := 0; i < len(m.Uploads); i++ {
+		if swag.IsZero(m.Uploads[i]) { // not required
+			continue
+		}
+
+		if m.Uploads[i] != nil {
+			if err := m.Uploads[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("uploads" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("uploads" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
 	}
 
 	return nil
 }
 
-// ContextValidate validates this service request document based on context it is used
+// ContextValidate validate this service request document based on the context it is used
 func (m *ServiceRequestDocument) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateUploads(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *ServiceRequestDocument) contextValidateUploads(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(m.Uploads); i++ {
+
+		if m.Uploads[i] != nil {
+
+			if swag.IsZero(m.Uploads[i]) { // not required
+				return nil
+			}
+
+			if err := m.Uploads[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("uploads" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("uploads" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
 	return nil
 }
 

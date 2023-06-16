@@ -1,3 +1,0 @@
-items:
-  $ref: 'ServiceRequestDocumentUpload.yaml'
-type: array

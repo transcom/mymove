@@ -131,7 +131,7 @@ func (h UpdateMTOServiceItemStatusHandler) Handle(params mtoserviceitemop.Update
 				appCtx.Logger().Error("ghcapi.UpdateMTOServiceItemStatusHandler could not generate the event")
 			}
 
-			payload := payloads.MTOServiceItemModel(updatedMTOServiceItem)
+			payload := payloads.MTOServiceItemModel(updatedMTOServiceItem, h.FileStorer())
 			return mtoserviceitemop.NewUpdateMTOServiceItemStatusOK().WithPayload(payload), nil
 		})
 }
@@ -211,7 +211,7 @@ func (h ListMTOServiceItemsHandler) Handle(params mtoserviceitemop.ListMTOServic
 				}
 			}
 
-			returnPayload := payloads.MTOServiceItemModels(serviceItems)
+			returnPayload := payloads.MTOServiceItemModels(serviceItems, h.FileStorer())
 			return mtoserviceitemop.NewListMTOServiceItemsOK().WithPayload(returnPayload), nil
 		})
 }
@@ -269,7 +269,7 @@ func (h CreateSITAddressUpdateHandler) Handle(params mtoserviceitemop.CreateSITA
 				return handleError(err)
 			}
 
-			returnPayload := payloads.MTOServiceItemModel(&createdSITAddressUpdate.MTOServiceItem)
+			returnPayload := payloads.MTOServiceItemModel(&createdSITAddressUpdate.MTOServiceItem, h.FileStorer())
 			return mtoserviceitemop.NewCreateSITAddressUpdateOK().WithPayload(returnPayload), nil
 		})
 }
@@ -319,7 +319,7 @@ func (h ApproveSITAddressUpdateHandler) Handle(params mtoserviceitemop.ApproveSI
 			if err != nil {
 				return handleError(err)
 			}
-			serviceItemPayload := payloads.MTOServiceItemModel(updatedServiceItem)
+			serviceItemPayload := payloads.MTOServiceItemModel(updatedServiceItem, h.FileStorer())
 			return mtoserviceitemop.NewApproveSITAddressUpdateOK().WithPayload(serviceItemPayload), nil
 		})
 }
@@ -376,7 +376,7 @@ func (h RejectSITAddressUpdateHandler) Handle(params mtoserviceitemop.RejectSITA
 				return handleError(err)
 			}
 
-			serviceItemPayload := payloads.MTOServiceItemModel(&serviceItem)
+			serviceItemPayload := payloads.MTOServiceItemModel(&serviceItem, h.FileStorer())
 			return mtoserviceitemop.NewRejectSITAddressUpdateOK().WithPayload(serviceItemPayload), nil
 		})
 }

@@ -8573,9 +8573,11 @@ func init() {
     "ServiceRequestDocument": {
       "type": "object",
       "properties": {
-        "mtoServiceItemID": {
-          "type": "string",
-          "format": "uuid"
+        "uploads": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Upload"
+          }
         }
       }
     },
@@ -19565,9 +19567,11 @@ func init() {
     "ServiceRequestDocument": {
       "type": "object",
       "properties": {
-        "mtoServiceItemID": {
-          "type": "string",
-          "format": "uuid"
+        "uploads": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Upload"
+          }
         }
       }
     },

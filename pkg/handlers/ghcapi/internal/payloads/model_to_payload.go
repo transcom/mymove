@@ -665,7 +665,7 @@ func SITDurationUpdates(sitDurationUpdates *models.SITDurationUpdates) *ghcmessa
 }
 
 // SITStatus payload
-func SITStatus(shipmentSITStatuses *services.SITStatus) *ghcmessages.SITStatus {
+func SITStatus(shipmentSITStatuses *services.SITStatus, storer storage.FileStorer) *ghcmessages.SITStatus {
 	if shipmentSITStatuses == nil {
 		return nil
 	}
@@ -673,7 +673,7 @@ func SITStatus(shipmentSITStatuses *services.SITStatus) *ghcmessages.SITStatus {
 		DaysInSIT:           handlers.FmtIntPtrToInt64(&shipmentSITStatuses.DaysInSIT),
 		TotalDaysRemaining:  handlers.FmtIntPtrToInt64(&shipmentSITStatuses.TotalDaysRemaining),
 		Location:            shipmentSITStatuses.Location,
-		PastSITServiceItems: MTOServiceItemModels(shipmentSITStatuses.PastSITs),
+		PastSITServiceItems: MTOServiceItemModels(shipmentSITStatuses.PastSITs, storer),
 		SitDepartureDate:    handlers.FmtDateTimePtr(shipmentSITStatuses.SITDepartureDate),
 		SitEntryDate:        strfmt.DateTime(shipmentSITStatuses.SITEntryDate),
 		TotalSITDaysUsed:    handlers.FmtIntPtrToInt64(&shipmentSITStatuses.TotalSITDaysUsed),
@@ -683,7 +683,7 @@ func SITStatus(shipmentSITStatuses *services.SITStatus) *ghcmessages.SITStatus {
 }
 
 // SITStatuses payload
-func SITStatuses(shipmentSITStatuses map[string]services.SITStatus) map[string]*ghcmessages.SITStatus {
+func SITStatuses(shipmentSITStatuses map[string]services.SITStatus, storer storage.FileStorer) map[string]*ghcmessages.SITStatus {
 	sitStatuses := map[string]*ghcmessages.SITStatus{}
 	if len(shipmentSITStatuses) == 0 {
 		return sitStatuses
@@ -691,7 +691,7 @@ func SITStatuses(shipmentSITStatuses map[string]services.SITStatus) map[string]*
 
 	for _, sitStatus := range shipmentSITStatuses {
 		copyOfSITStatus := sitStatus
-		sitStatuses[sitStatus.ShipmentID.String()] = SITStatus(&copyOfSITStatus)
+		sitStatuses[sitStatus.ShipmentID.String()] = SITStatus(&copyOfSITStatus, storer)
 	}
 
 	return sitStatuses
@@ -959,7 +959,7 @@ func MTOShipment(storer storage.FileStorer, mtoShipment *models.MTOShipment, sit
 		PrimeActualWeight:           handlers.FmtPoundPtr(mtoShipment.PrimeActualWeight),
 		NtsRecordedWeight:           handlers.FmtPoundPtr(mtoShipment.NTSRecordedWeight),
 		MtoAgents:                   *MTOAgents(&mtoShipment.MTOAgents),
-		MtoServiceItems:             MTOServiceItemModels(mtoShipment.MTOServiceItems),
+		MtoServiceItems:             MTOServiceItemModels(mtoShipment.MTOServiceItems, storer),
 		Diversion:                   mtoShipment.Diversion,
 		Reweigh:                     Reweigh(mtoShipment.Reweigh, sitStatusPayload),
 		CreatedAt:                   strfmt.DateTime(mtoShipment.CreatedAt),
@@ -1217,6 +1217,7 @@ func ServiceRequestDoc(serviceRequest models.ServiceRequestDocument, storer stor
 		Uploads: uploads,
 	}, nil
 }
+
 // MTOServiceItemModel payload
 func MTOServiceItemModel(s *models.MTOServiceItem, storer storage.FileStorer) *ghcmessages.MTOServiceItem {
 	if s == nil {
@@ -1229,7 +1230,7 @@ func MTOServiceItemModel(s *models.MTOServiceItem, storer storage.FileStorer) *g
 		for i, serviceRequest := range s.ServiceRequestDocuments {
 			payload, err := ServiceRequestDoc(serviceRequest, storer)
 			if err != nil {
-				return nil, err
+				return nil
 			}
 			serviceRequestDocs[i] = payload
 		}
@@ -1260,16 +1261,16 @@ func MTOServiceItemModel(s *models.MTOServiceItem, storer storage.FileStorer) *g
 		ApprovedAt:                    handlers.FmtDateTimePtr(s.ApprovedAt),
 		RejectedAt:                    handlers.FmtDateTimePtr(s.RejectedAt),
 		ETag:                          etag.GenerateEtag(s.UpdatedAt),
-		ServiceRequestDocuments:	   serviceRequestDocs,
+		ServiceRequestDocuments:       serviceRequestDocs,
 	}
 }
 
 // MTOServiceItemModels payload
-func MTOServiceItemModels(s models.MTOServiceItems) ghcmessages.MTOServiceItems {
+func MTOServiceItemModels(s models.MTOServiceItems, storer storage.FileStorer) ghcmessages.MTOServiceItems {
 	serviceItems := ghcmessages.MTOServiceItems{}
 	for _, item := range s {
 		copyOfServiceItem := item // Make copy to avoid implicit memory aliasing of items from a range statement.
-		serviceItems = append(serviceItems, MTOServiceItemModel(&copyOfServiceItem))
+		serviceItems = append(serviceItems, MTOServiceItemModel(&copyOfServiceItem, storer))
 	}
 
 	return serviceItems

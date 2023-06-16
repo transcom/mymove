@@ -1,5 +1,7 @@
 type: object
 properties:
-  mtoServiceItemID:
-    type: string
-    format: uuid
+# I think we should add back mtoServiceItemId 
+  uploads:
+    items:
+      $ref: 'Upload.yaml'
+    type: array

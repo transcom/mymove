@@ -1,5 +1,6 @@
 properties:
+# I believe this can be deleted
   uploads:
     items:
-      $ref: 'definitions/Upload.yaml'
+      $ref: 'Upload.yaml'
     type: array
