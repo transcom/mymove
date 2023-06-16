@@ -44,8 +44,10 @@ const ReviewServiceItems = ({
   const displayCompleteReview = curCardIndex === totalCards;
   const handleNext = () => {
     setShouldAdvanceOnSubmit(true);
-    if (formRef.current) {
+    if (formRef.current && !requestReviewed) {
       formRef.current.handleSubmit();
+    } else {
+      setCardIndex(curCardIndex + 1);
     }
   };
 

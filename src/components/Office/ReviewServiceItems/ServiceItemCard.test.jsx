@@ -144,7 +144,6 @@ describe('ServiceItemCard component', () => {
         expect(screen.queryByText(reason)).not.toBeInTheDocument();
       });
       it('and removed, and the textbox is blurred, an error is shown', async () => {
-        // TODO: the same error will show if the form is submitted without a reason; test for this in integration
         render(<ServiceItemCard {...basicServiceItemCard} />);
         const rejectButton = screen.getByLabelText('Reject');
         await userEvent.click(rejectButton);
