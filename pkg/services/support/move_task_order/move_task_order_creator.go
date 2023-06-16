@@ -154,6 +154,17 @@ func createOrder(appCtx appcontext.AppContext, customer *models.ServiceMember, o
 	order.ServiceMember = *customer
 	order.ServiceMemberID = customer.ID
 
+	contractor, err := models.FetchGHCPrimeContractor(appCtx.DB())
+	if err != nil {
+		return nil, apperror.NewQueryError("Contractor", err, "Unable to find the Prime contractor")
+	}
+	packingAndShippingInstructions := models.InstructionsBeforeContractNumber + " " + contractor.ContractNumber + " " + models.InstructionsAfterContractNumber
+
+	order.PackingAndShippingInstructions = packingAndShippingInstructions
+	order.SupplyAndServicesCostEstimate = models.SupplyAndServicesCostEstimate
+	order.MethodOfPayment = models.MethodOfPayment
+	order.NAICS = models.NAICS
+
 	// Creates the order and the entitlement at the same time
 	verrs, err := appCtx.DB().Eager().ValidateAndCreate(order)
 	if verrs.Count() > 0 {
