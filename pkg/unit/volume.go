@@ -16,10 +16,10 @@ type CubicThousandthInch int
 func truncateFloat(f float64) float64 {
 	// use big package to create a new float and get a minimum precision value before rounding would occur
 	value := big.NewFloat(f)
-	prec := value.MinPrec()
+	minPrec := value.MinPrec()
 
 	// 52 is the MinPrec return for 2 decimal places, so we're checking if our values is equal to or less than that
-	if prec <= 52 {
+	if minPrec <= 52 {
 		return f
 	}
 	// if we have more than 2 decimal places, we need to truncate
