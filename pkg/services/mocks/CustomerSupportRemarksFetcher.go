@@ -40,13 +40,12 @@ func (_m *CustomerSupportRemarksFetcher) ListCustomerSupportRemarks(appCtx appco
 	return r0, r1
 }
 
-type mockConstructorTestingTNewCustomerSupportRemarksFetcher interface {
+// NewCustomerSupportRemarksFetcher creates a new instance of CustomerSupportRemarksFetcher. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewCustomerSupportRemarksFetcher(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewCustomerSupportRemarksFetcher creates a new instance of CustomerSupportRemarksFetcher. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewCustomerSupportRemarksFetcher(t mockConstructorTestingTNewCustomerSupportRemarksFetcher) *CustomerSupportRemarksFetcher {
+}) *CustomerSupportRemarksFetcher {
 	mock := &CustomerSupportRemarksFetcher{}
 	mock.Mock.Test(t)
 

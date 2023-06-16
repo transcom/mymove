@@ -55,13 +55,12 @@ func (_m *ClientCertUpdater) UpdateClientCert(appCtx appcontext.AppContext, id u
 	return r0, r1, r2
 }
 
-type mockConstructorTestingTNewClientCertUpdater interface {
+// NewClientCertUpdater creates a new instance of ClientCertUpdater. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewClientCertUpdater(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewClientCertUpdater creates a new instance of ClientCertUpdater. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewClientCertUpdater(t mockConstructorTestingTNewClientCertUpdater) *ClientCertUpdater {
+}) *ClientCertUpdater {
 	mock := &ClientCertUpdater{}
 	mock.Mock.Test(t)
 

@@ -45,13 +45,12 @@ func (_m *ServiceRequestDocumentUploadCreator) CreateUpload(appCtx appcontext.Ap
 	return r0, r1
 }
 
-type mockConstructorTestingTNewServiceRequestDocumentUploadCreator interface {
+// NewServiceRequestDocumentUploadCreator creates a new instance of ServiceRequestDocumentUploadCreator. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewServiceRequestDocumentUploadCreator(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewServiceRequestDocumentUploadCreator creates a new instance of ServiceRequestDocumentUploadCreator. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewServiceRequestDocumentUploadCreator(t mockConstructorTestingTNewServiceRequestDocumentUploadCreator) *ServiceRequestDocumentUploadCreator {
+}) *ServiceRequestDocumentUploadCreator {
 	mock := &ServiceRequestDocumentUploadCreator{}
 	mock.Mock.Test(t)
 

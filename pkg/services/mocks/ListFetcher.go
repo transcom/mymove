@@ -52,13 +52,12 @@ func (_m *ListFetcher) FetchRecordList(appCtx appcontext.AppContext, model inter
 	return r0
 }
 
-type mockConstructorTestingTNewListFetcher interface {
+// NewListFetcher creates a new instance of ListFetcher. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewListFetcher(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewListFetcher creates a new instance of ListFetcher. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewListFetcher(t mockConstructorTestingTNewListFetcher) *ListFetcher {
+}) *ListFetcher {
 	mock := &ListFetcher{}
 	mock.Mock.Test(t)
 

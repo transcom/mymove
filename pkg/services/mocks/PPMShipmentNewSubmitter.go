@@ -42,13 +42,12 @@ func (_m *PPMShipmentNewSubmitter) SubmitNewCustomerCloseOut(appCtx appcontext.A
 	return r0, r1
 }
 
-type mockConstructorTestingTNewPPMShipmentNewSubmitter interface {
+// NewPPMShipmentNewSubmitter creates a new instance of PPMShipmentNewSubmitter. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewPPMShipmentNewSubmitter(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewPPMShipmentNewSubmitter creates a new instance of PPMShipmentNewSubmitter. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewPPMShipmentNewSubmitter(t mockConstructorTestingTNewPPMShipmentNewSubmitter) *PPMShipmentNewSubmitter {
+}) *PPMShipmentNewSubmitter {
 	mock := &PPMShipmentNewSubmitter{}
 	mock.Mock.Test(t)
 
