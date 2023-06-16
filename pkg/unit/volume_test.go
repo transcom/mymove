@@ -57,6 +57,14 @@ func Test_CubicFeetStringConversion(t *testing.T) {
 	if result != expected {
 		t.Errorf("wrong string of CubicFeet: expected %s, got %s", expected, result)
 	}
+
+	cubicFeet = CubicFeet(523452.55)
+	result = cubicFeet.String()
+
+	expected = "523452.55"
+	if result != expected {
+		t.Errorf("wrong string of CubicFeet: expected %s, got %s", expected, result)
+	}
 }
 
 func Test_ToCubicFeet(t *testing.T) {
