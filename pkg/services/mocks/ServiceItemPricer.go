@@ -49,13 +49,12 @@ func (_m *ServiceItemPricer) PriceServiceItem(appCtx appcontext.AppContext, item
 	return r0, r1, r2
 }
 
-type mockConstructorTestingTNewServiceItemPricer interface {
+// NewServiceItemPricer creates a new instance of ServiceItemPricer. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewServiceItemPricer(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewServiceItemPricer creates a new instance of ServiceItemPricer. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewServiceItemPricer(t mockConstructorTestingTNewServiceItemPricer) *ServiceItemPricer {
+}) *ServiceItemPricer {
 	mock := &ServiceItemPricer{}
 	mock.Mock.Test(t)
 

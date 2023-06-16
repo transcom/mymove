@@ -86,13 +86,12 @@ func (_m *FuelSurchargePricer) PriceUsingParams(appCtx appcontext.AppContext, pa
 	return r0, r1, r2
 }
 
-type mockConstructorTestingTNewFuelSurchargePricer interface {
+// NewFuelSurchargePricer creates a new instance of FuelSurchargePricer. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewFuelSurchargePricer(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewFuelSurchargePricer creates a new instance of FuelSurchargePricer. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewFuelSurchargePricer(t mockConstructorTestingTNewFuelSurchargePricer) *FuelSurchargePricer {
+}) *FuelSurchargePricer {
 	mock := &FuelSurchargePricer{}
 	mock.Mock.Test(t)
 

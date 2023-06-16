@@ -38,13 +38,12 @@ func (_m *SoapCaller) Call(m string, p gosoap.SoapParams) (*gosoap.Response, err
 	return r0, r1
 }
 
-type mockConstructorTestingTNewSoapCaller interface {
+// NewSoapCaller creates a new instance of SoapCaller. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewSoapCaller(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewSoapCaller creates a new instance of SoapCaller. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewSoapCaller(t mockConstructorTestingTNewSoapCaller) *SoapCaller {
+}) *SoapCaller {
 	mock := &SoapCaller{}
 	mock.Mock.Test(t)
 

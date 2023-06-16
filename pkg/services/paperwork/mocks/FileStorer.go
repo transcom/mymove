@@ -38,13 +38,12 @@ func (_m *FileStorer) Create(_a0 string) (afero.File, error) {
 	return r0, r1
 }
 
-type mockConstructorTestingTNewFileStorer interface {
+// NewFileStorer creates a new instance of FileStorer. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewFileStorer(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewFileStorer creates a new instance of FileStorer. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewFileStorer(t mockConstructorTestingTNewFileStorer) *FileStorer {
+}) *FileStorer {
 	mock := &FileStorer{}
 	mock.Mock.Test(t)
 

@@ -66,13 +66,12 @@ func (_m *MTOShipmentUpdater) UpdateMTOShipment(appCtx appcontext.AppContext, mt
 	return r0, r1
 }
 
-type mockConstructorTestingTNewMTOShipmentUpdater interface {
+// NewMTOShipmentUpdater creates a new instance of MTOShipmentUpdater. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewMTOShipmentUpdater(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewMTOShipmentUpdater creates a new instance of MTOShipmentUpdater. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewMTOShipmentUpdater(t mockConstructorTestingTNewMTOShipmentUpdater) *MTOShipmentUpdater {
+}) *MTOShipmentUpdater {
 	mock := &MTOShipmentUpdater{}
 	mock.Mock.Test(t)
 

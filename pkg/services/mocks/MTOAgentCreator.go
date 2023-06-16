@@ -40,13 +40,12 @@ func (_m *MTOAgentCreator) CreateMTOAgentPrime(appCtx appcontext.AppContext, mto
 	return r0, r1
 }
 
-type mockConstructorTestingTNewMTOAgentCreator interface {
+// NewMTOAgentCreator creates a new instance of MTOAgentCreator. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewMTOAgentCreator(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewMTOAgentCreator creates a new instance of MTOAgentCreator. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewMTOAgentCreator(t mockConstructorTestingTNewMTOAgentCreator) *MTOAgentCreator {
+}) *MTOAgentCreator {
 	mock := &MTOAgentCreator{}
 	mock.Mock.Test(t)
 

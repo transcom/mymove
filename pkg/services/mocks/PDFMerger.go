@@ -41,13 +41,12 @@ func (_m *PDFMerger) MergePDFs(appCtx appcontext.AppContext, pdfsToMerge []io.Re
 	return r0, r1
 }
 
-type mockConstructorTestingTNewPDFMerger interface {
+// NewPDFMerger creates a new instance of PDFMerger. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewPDFMerger(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewPDFMerger creates a new instance of PDFMerger. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewPDFMerger(t mockConstructorTestingTNewPDFMerger) *PDFMerger {
+}) *PDFMerger {
 	mock := &PDFMerger{}
 	mock.Mock.Test(t)
 

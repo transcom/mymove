@@ -42,13 +42,12 @@ func (_m *PaymentRequestRecalculator) RecalculatePaymentRequest(appCtx appcontex
 	return r0, r1
 }
 
-type mockConstructorTestingTNewPaymentRequestRecalculator interface {
+// NewPaymentRequestRecalculator creates a new instance of PaymentRequestRecalculator. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewPaymentRequestRecalculator(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewPaymentRequestRecalculator creates a new instance of PaymentRequestRecalculator. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewPaymentRequestRecalculator(t mockConstructorTestingTNewPaymentRequestRecalculator) *PaymentRequestRecalculator {
+}) *PaymentRequestRecalculator {
 	mock := &PaymentRequestRecalculator{}
 	mock.Mock.Test(t)
 
