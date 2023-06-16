@@ -115,3 +115,9 @@ const DefaultContractNumber = "HTC111-11-1-1111"
 
 // DefaultWebhookSubscriptionCallbackURL is the default webhooksubscription callback url for testing
 const DefaultWebhookSubscriptionCallbackURL = "/some/callback/url"
+
+const SupplyAndServicesCostEstimate string = "Prices for services under this task order will be in accordance with rates provided in GHC Attachment 2 - Pricing Rate Table. It is the responsibility of the contractor to provide the estimated weight quantity to apply to services on this task order, when applicable (See Attachment 1 - Performance Work Statement)."
+const MethodOfPayment string = "Payment will be made using the Third-Party Payment System (TPPS) Automated Payment System"
+const NAICS string = "488510 - FREIGHT TRANSPORTATION ARRANGEMENT"
+const InstructionsBeforeContractNumber string = "Packaging, packing, and shipping instructions as identified in the Conformed Copy of"
+const InstructionsAfterContractNumber string = "Attachment 1 Performance Work Statement"
