@@ -40,13 +40,12 @@ func (_m *ClientCertFetcher) FetchClientCert(appCtx appcontext.AppContext, filte
 	return r0, r1
 }
 
-type mockConstructorTestingTNewClientCertFetcher interface {
+// NewClientCertFetcher creates a new instance of ClientCertFetcher. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewClientCertFetcher(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewClientCertFetcher creates a new instance of ClientCertFetcher. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewClientCertFetcher(t mockConstructorTestingTNewClientCertFetcher) *ClientCertFetcher {
+}) *ClientCertFetcher {
 	mock := &ClientCertFetcher{}
 	mock.Mock.Test(t)
 

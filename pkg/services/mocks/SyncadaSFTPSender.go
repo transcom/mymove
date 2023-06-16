@@ -39,13 +39,12 @@ func (_m *SyncadaSFTPSender) SendToSyncadaViaSFTP(appCtx appcontext.AppContext, 
 	return r0, r1
 }
 
-type mockConstructorTestingTNewSyncadaSFTPSender interface {
+// NewSyncadaSFTPSender creates a new instance of SyncadaSFTPSender. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewSyncadaSFTPSender(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewSyncadaSFTPSender creates a new instance of SyncadaSFTPSender. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewSyncadaSFTPSender(t mockConstructorTestingTNewSyncadaSFTPSender) *SyncadaSFTPSender {
+}) *SyncadaSFTPSender {
 	mock := &SyncadaSFTPSender{}
 	mock.Mock.Test(t)
 

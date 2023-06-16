@@ -83,6 +83,7 @@
     "dns-packet": "^5.4.0",
     "eslint-plugin-react": "^7.28",
     "immer": "^9.0.2",
+    "jest-preview/postcss-load-config/yaml": "^2.2.2",
     "json5": "^2.2.2",
     "kind-of": "^6.0.2",
     "loader-utils": "^2.0.3",
@@ -90,7 +91,7 @@
     "node-fetch": "^2.6.7",
     "react-router": "6.7.0",
     "react-router-dom": "6.7.0",
-    "selfsigned": "^1.10.8",
+    "recursive-readdir": "^2.2.3",
     "url-parse": "^1.5.1",
     "y18n": "^5.0.5"
   },

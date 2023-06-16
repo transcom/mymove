@@ -42,13 +42,12 @@ func (_m *PaymentRequestShipmentRecalculator) ShipmentRecalculatePaymentRequest(
 	return r0, r1
 }
 
-type mockConstructorTestingTNewPaymentRequestShipmentRecalculator interface {
+// NewPaymentRequestShipmentRecalculator creates a new instance of PaymentRequestShipmentRecalculator. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewPaymentRequestShipmentRecalculator(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewPaymentRequestShipmentRecalculator creates a new instance of PaymentRequestShipmentRecalculator. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewPaymentRequestShipmentRecalculator(t mockConstructorTestingTNewPaymentRequestShipmentRecalculator) *PaymentRequestShipmentRecalculator {
+}) *PaymentRequestShipmentRecalculator {
 	mock := &PaymentRequestShipmentRecalculator{}
 	mock.Mock.Test(t)
 

@@ -5,11 +5,12 @@ package iampostgres
 
 import (
 	"context"
+	"crypto/sha256"
 	"database/sql"
 	"database/sql/driver"
+	"encoding/hex"
 	"errors"
 	"fmt"
-	"net/url"
 	"strings"
 	"sync"
 	"time"
@@ -95,7 +96,14 @@ func (i *iamPostgresConfig) updateDSN(dsn string) (string, time.Time, error) {
 	}
 	currentPass, currentPassTime := i.getCurrentPass()
 
-	dsn = strings.Replace(dsn, i.passHolder, currentPass, 1)
+	// because this now uses the postgresql user=bob password=secret
+	// style connection string, the password does not need to be query
+	// escaped
+	//
+	// use the same escaper logic as in pg.ParseURL in case "'" or "\"
+	// appears in the generated token
+	escaper := strings.NewReplacer(`'`, `\'`, `\`, `\\`)
+	dsn = strings.Replace(dsn, i.passHolder, escaper.Replace(currentPass), 1)
 	return dsn, currentPassTime, nil
 }
 
@@ -105,11 +113,14 @@ func (i *iamPostgresConfig) generateNewIamPassword() {
 		i.logger.Error("Error building IAM auth token", zap.Error(err))
 	} else {
 		i.currentPassMutex.Lock()
-		i.currentIamPass = url.QueryEscape(authToken)
+		i.currentIamPass = authToken
 		i.currentIamTime = time.Now()
 		i.currentPassMutex.Unlock()
 	}
-	i.logger.Info("Successfully generated new IAM auth token")
+	hash := sha256.Sum256([]byte(authToken))
+	digest := hex.EncodeToString(hash[:])
+	i.logger.Info("Successfully generated new IAM auth token",
+		zap.String("pwDigest", digest))
 }
 
 // Refreshes the RDS IAM on the given interval.
@@ -184,16 +195,13 @@ type rdsPostgresConnector struct {
 	driver driver.Driver
 }
 
-// Connect is called each time a new connection to the database is
-// needed, so we can update the RDS IAM auth token immediately before
-// connecting to the DB
-func (c *rdsPostgresConnector) Connect(ctx context.Context) (driver.Conn, error) {
+func retryableConnect(ctx context.Context, originalDsn string) (driver.Conn, error) {
 	useIAM := iamPostgres != nil && iamPostgres.useIAM
-	dsn := c.dsn
+	dsn := originalDsn
 	var dsnTime time.Time
 	var err error
 	if useIAM {
-		dsn, dsnTime, err = iamPostgres.updateDSN(c.dsn)
+		dsn, dsnTime, err = iamPostgres.updateDSN(originalDsn)
 		if err != nil {
 			zap.L().Error("IAM iampostgres updateDSN failed", zap.Error(err))
 			return nil, err
@@ -212,15 +220,52 @@ func (c *rdsPostgresConnector) Connect(ctx context.Context) (driver.Conn, error)
 
 	conn, err := connector.Connect(ctx)
 	if err != nil {
+		parts := strings.Split(dsn, " ")
+		pw := ""
+		var b strings.Builder
+		for i := range parts {
+			if strings.HasPrefix(parts[i], "password") {
+				pw = strings.TrimPrefix(parts[i], "password=")
+			} else {
+				b.WriteString(parts[i] + " ")
+			}
+		}
+		hash := sha256.Sum256([]byte(pw))
+		digest := hex.EncodeToString(hash[:])
+
 		zap.L().Error("IAM iampostgres connector.Connect failed",
-			zap.Any("useIAM", useIAM),
+			zap.Bool("useIAM", useIAM),
+			zap.Any("dsn", b.String()),
 			zap.Any("dsnTime", dsnTime),
 			zap.Any("diff", time.Now().Unix()-dsnTime.Unix()),
+			zap.String("pwDigest", digest),
 			zap.Error(err))
 		return nil, err
 	}
 
 	return conn, nil
+}
+
+// Connect is called each time a new connection to the database is
+// needed, so we can update the RDS IAM auth token immediately before
+// connecting to the DB
+func (c *rdsPostgresConnector) Connect(ctx context.Context) (driver.Conn, error) {
+	conn, err := retryableConnect(ctx, c.dsn)
+	if err != nil {
+		useIAM := iamPostgres != nil && iamPostgres.useIAM
+		if useIAM {
+			zap.L().Error("IAM iampostgres connect failed, retrying once", zap.Error(err))
+			iamPostgres.generateNewIamPassword()
+			conn, err = retryableConnect(ctx, c.dsn)
+			if err != nil {
+				zap.L().Error("IAM iampostgres retry failed", zap.Error(err))
+			} else {
+				zap.L().Error("IAM iampostgres retry ok")
+			}
+		}
+	}
+
+	return conn, err
 }
 
 func (c *rdsPostgresConnector) Driver() driver.Driver {
@@ -243,7 +288,13 @@ type RDSPostgresDriver struct {
 // Milmove wants this for IAM Authentication so we can update the auth
 // token before connect
 func (d *RDSPostgresDriver) OpenConnector(dsn string) (driver.Connector, error) {
-	return &rdsPostgresConnector{dsn, &pg.Driver{}}, nil
+	// convert to postgres style "username=foo password=bar" style so
+	// we don't have to URL encode the password
+	pgDsn, err := pg.ParseURL(dsn)
+	if err != nil {
+		return nil, err
+	}
+	return &rdsPostgresConnector{pgDsn, &pg.Driver{}}, nil
 }
 
 var errNotImplemented = errors.New("Open Not Implemented")

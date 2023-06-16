@@ -66,13 +66,12 @@ func (_m *AdminUserListFetcher) FetchAdminUserList(appCtx appcontext.AppContext,
 	return r0, r1
 }
 
-type mockConstructorTestingTNewAdminUserListFetcher interface {
+// NewAdminUserListFetcher creates a new instance of AdminUserListFetcher. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewAdminUserListFetcher(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewAdminUserListFetcher creates a new instance of AdminUserListFetcher. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewAdminUserListFetcher(t mockConstructorTestingTNewAdminUserListFetcher) *AdminUserListFetcher {
+}) *AdminUserListFetcher {
 	mock := &AdminUserListFetcher{}
 	mock.Mock.Test(t)
 

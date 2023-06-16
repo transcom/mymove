@@ -28,13 +28,12 @@ func (_m *WeightTicketDeleter) DeleteWeightTicket(appCtx appcontext.AppContext, 
 	return r0
 }
 
-type mockConstructorTestingTNewWeightTicketDeleter interface {
+// NewWeightTicketDeleter creates a new instance of WeightTicketDeleter. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewWeightTicketDeleter(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewWeightTicketDeleter creates a new instance of WeightTicketDeleter. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewWeightTicketDeleter(t mockConstructorTestingTNewWeightTicketDeleter) *WeightTicketDeleter {
+}) *WeightTicketDeleter {
 	mock := &WeightTicketDeleter{}
 	mock.Mock.Test(t)
 

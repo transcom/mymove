@@ -42,13 +42,12 @@ func (_m *FormFiller) Output(_a0 io.Writer) error {
 	return r0
 }
 
-type mockConstructorTestingTNewFormFiller interface {
+// NewFormFiller creates a new instance of FormFiller. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewFormFiller(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewFormFiller creates a new instance of FormFiller. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewFormFiller(t mockConstructorTestingTNewFormFiller) *FormFiller {
+}) *FormFiller {
 	mock := &FormFiller{}
 	mock.Mock.Test(t)
 
