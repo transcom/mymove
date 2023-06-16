@@ -41,7 +41,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationSITDeliveryPricer
 	suite.Run("success using PaymentServiceItemParams", func() {
 		suite.setupDomesticServiceAreaPrice(models.ReServiceCodeDSH, dddsitTestServiceArea, dddsitTestIsPeakPeriod, dddsitTestDomesticServiceAreaBasePriceCents, dddsitTestContractYearName, dddsitTestEscalationCompounded)
 
-		paymentServiceItem := suite.setupDomesticDestinationSITDeliveryServiceItem(zipDest, zipSITDest, distance)
+		paymentServiceItem := suite.setupDomesticDestinationSITDeliveryServiceItem(zipDest, zipSITDest, sitDest, distance)
 		priceCents, displayParams, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
 		suite.NoError(err)
 		suite.Equal(expectedPrice, priceCents)
@@ -116,6 +116,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationSITDeliveryPricer
 func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationSITDeliveryPricer50PlusMilesDiffZip3s() {
 	zipDest := "30907"
 	zipSITDest := "36106"       // different zip3
+	sitDest := "29829"          // different zip3
 	distance := unit.Miles(305) // > 50 miles
 
 	pricer := NewDomesticDestinationSITDeliveryPricer()
@@ -125,7 +126,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationSITDeliveryPricer
 	suite.Run("success using PaymentServiceItemParams", func() {
 		suite.setupDomesticLinehaulPrice(dddsitTestServiceArea, dddsitTestIsPeakPeriod, dddsitTestWeightLower, dddsitTestWeightUpper, dddsitTestMilesLower, dddsitTestMilesUpper, dddsitTestDomesticLinehaulBasePriceMillicents, dddsitTestContractYearName, dddsitTestEscalationCompounded)
 
-		paymentServiceItem := suite.setupDomesticDestinationSITDeliveryServiceItem(zipDest, zipSITDest, distance)
+		paymentServiceItem := suite.setupDomesticDestinationSITDeliveryServiceItem(zipDest, zipSITDest, sitDest, distance)
 		priceCents, displayParams, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
 		suite.NoError(err)
 		suite.Equal(expectedPrice, priceCents)
@@ -159,6 +160,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationSITDeliveryPricer
 func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationSITDeliveryPricer50MilesOrLessDiffZip3s() {
 	zipDest := "30907"
 	zipSITDest := "29801"      // different zip3
+	sitDest := "29821"         // different zip3
 	distance := unit.Miles(37) // <= 50 miles
 
 	pricer := NewDomesticDestinationSITDeliveryPricer()
@@ -167,7 +169,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationSITDeliveryPricer
 	suite.Run("success using PaymentServiceItemParams", func() {
 		suite.setupDomesticOtherPrice(models.ReServiceCodeDDDSIT, dddsitTestSchedule, dddsitTestIsPeakPeriod, dddsitTestDomesticOtherBasePriceCents, dddsitTestContractYearName, dddsitTestEscalationCompounded)
 
-		paymentServiceItem := suite.setupDomesticDestinationSITDeliveryServiceItem(zipDest, zipSITDest, distance)
+		paymentServiceItem := suite.setupDomesticDestinationSITDeliveryServiceItem(zipDest, zipSITDest, sitDest, distance)
 		priceCents, displayParams, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
 		suite.NoError(err)
 		suite.Equal(expectedPrice, priceCents)
@@ -205,7 +207,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationSITDeliveryPricer
 	})
 }
 
-func (suite *GHCRateEngineServiceSuite) setupDomesticDestinationSITDeliveryServiceItem(zipDest string, zipSITDest string, distance unit.Miles) models.PaymentServiceItem {
+func (suite *GHCRateEngineServiceSuite) setupDomesticDestinationSITDeliveryServiceItem(zipDest string, zipSITDest string, sitDest string, distance unit.Miles) models.PaymentServiceItem {
 	return factory.BuildPaymentServiceItemWithParams(
 		suite.DB(),
 		models.ReServiceCodeDDDSIT,
@@ -249,6 +251,11 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticDestinationSITDeliveryServi
 				Key:     models.ServiceItemParamNameZipSITDestHHGFinalAddress,
 				KeyType: models.ServiceItemParamTypeString,
 				Value:   zipSITDest,
+			},
+			{
+				Key:     models.ServiceItemParamNameSITDestFinalAddress,
+				KeyType: models.ServiceItemParamTypeString,
+				Value:   sitDest,
 			},
 		}, nil, nil,
 	)
