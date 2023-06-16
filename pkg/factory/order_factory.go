@@ -212,7 +212,7 @@ func buildOrderWithBuildType(db *pop.Connection, customs []Customization, traits
 	defaultSupplyAndServicesCostEstimate := models.SupplyAndServicesCostEstimate
 	defaultMethodOfPayment := models.MethodOfPayment
 	defaultNAICS := models.NAICS
-	contractor := FetchOrBuildDefaultContractor(db, nil, nil)
+	contractor := FetchOrBuildDefaultContractor(db, customs, traits)
 	defaultPackingAndShippingInstructions := models.InstructionsBeforeContractNumber + " " + contractor.ContractNumber + " " + models.InstructionsAfterContractNumber
 
 	var ordersNumber *string
