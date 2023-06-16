@@ -66,13 +66,12 @@ func (_m *MoveListFetcher) FetchMoveList(appCtx appcontext.AppContext, filters [
 	return r0, r1
 }
 
-type mockConstructorTestingTNewMoveListFetcher interface {
+// NewMoveListFetcher creates a new instance of MoveListFetcher. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewMoveListFetcher(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewMoveListFetcher creates a new instance of MoveListFetcher. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewMoveListFetcher(t mockConstructorTestingTNewMoveListFetcher) *MoveListFetcher {
+}) *MoveListFetcher {
 	mock := &MoveListFetcher{}
 	mock.Mock.Test(t)
 

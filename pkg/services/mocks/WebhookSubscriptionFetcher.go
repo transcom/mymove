@@ -40,13 +40,12 @@ func (_m *WebhookSubscriptionFetcher) FetchWebhookSubscription(appCtx appcontext
 	return r0, r1
 }
 
-type mockConstructorTestingTNewWebhookSubscriptionFetcher interface {
+// NewWebhookSubscriptionFetcher creates a new instance of WebhookSubscriptionFetcher. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewWebhookSubscriptionFetcher(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewWebhookSubscriptionFetcher creates a new instance of WebhookSubscriptionFetcher. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewWebhookSubscriptionFetcher(t mockConstructorTestingTNewWebhookSubscriptionFetcher) *WebhookSubscriptionFetcher {
+}) *WebhookSubscriptionFetcher {
 	mock := &WebhookSubscriptionFetcher{}
 	mock.Mock.Test(t)
 

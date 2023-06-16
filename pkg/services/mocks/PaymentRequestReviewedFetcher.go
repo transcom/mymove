@@ -40,13 +40,12 @@ func (_m *PaymentRequestReviewedFetcher) FetchReviewedPaymentRequest(appCtx appc
 	return r0, r1
 }
 
-type mockConstructorTestingTNewPaymentRequestReviewedFetcher interface {
+// NewPaymentRequestReviewedFetcher creates a new instance of PaymentRequestReviewedFetcher. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewPaymentRequestReviewedFetcher(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewPaymentRequestReviewedFetcher creates a new instance of PaymentRequestReviewedFetcher. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewPaymentRequestReviewedFetcher(t mockConstructorTestingTNewPaymentRequestReviewedFetcher) *PaymentRequestReviewedFetcher {
+}) *PaymentRequestReviewedFetcher {
 	mock := &PaymentRequestReviewedFetcher{}
 	mock.Mock.Test(t)
 

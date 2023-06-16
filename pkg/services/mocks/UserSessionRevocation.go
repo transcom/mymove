@@ -57,13 +57,12 @@ func (_m *UserSessionRevocation) RevokeUserSession(appCtx appcontext.AppContext,
 	return r0, r1, r2
 }
 
-type mockConstructorTestingTNewUserSessionRevocation interface {
+// NewUserSessionRevocation creates a new instance of UserSessionRevocation. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewUserSessionRevocation(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewUserSessionRevocation creates a new instance of UserSessionRevocation. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewUserSessionRevocation(t mockConstructorTestingTNewUserSessionRevocation) *UserSessionRevocation {
+}) *UserSessionRevocation {
 	mock := &UserSessionRevocation{}
 	mock.Mock.Test(t)
 

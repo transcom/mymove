@@ -42,13 +42,12 @@ func (_m *ReportViolationFetcher) FetchReportViolationsByReportID(appCtx appcont
 	return r0, r1
 }
 
-type mockConstructorTestingTNewReportViolationFetcher interface {
+// NewReportViolationFetcher creates a new instance of ReportViolationFetcher. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewReportViolationFetcher(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewReportViolationFetcher creates a new instance of ReportViolationFetcher. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewReportViolationFetcher(t mockConstructorTestingTNewReportViolationFetcher) *ReportViolationFetcher {
+}) *ReportViolationFetcher {
 	mock := &ReportViolationFetcher{}
 	mock.Mock.Test(t)
 

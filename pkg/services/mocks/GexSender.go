@@ -40,13 +40,12 @@ func (_m *GexSender) SendToGex(channel services.GEXChannel, edi string, filename
 	return r0, r1
 }
 
-type mockConstructorTestingTNewGexSender interface {
+// NewGexSender creates a new instance of GexSender. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewGexSender(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewGexSender creates a new instance of GexSender. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewGexSender(t mockConstructorTestingTNewGexSender) *GexSender {
+}) *GexSender {
 	mock := &GexSender{}
 	mock.Mock.Test(t)
 

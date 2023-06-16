@@ -42,13 +42,12 @@ func (_m *SyncadaFileProcessor) ProcessFile(appCtx appcontext.AppContext, syncad
 	return r0
 }
 
-type mockConstructorTestingTNewSyncadaFileProcessor interface {
+// NewSyncadaFileProcessor creates a new instance of SyncadaFileProcessor. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewSyncadaFileProcessor(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewSyncadaFileProcessor creates a new instance of SyncadaFileProcessor. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewSyncadaFileProcessor(t mockConstructorTestingTNewSyncadaFileProcessor) *SyncadaFileProcessor {
+}) *SyncadaFileProcessor {
 	mock := &SyncadaFileProcessor{}
 	mock.Mock.Test(t)
 
