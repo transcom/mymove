@@ -187,12 +187,8 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 			if err != nil {
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
-			const supplyAndServicesCostEstimate string = "Prices for services under this task order will be in accordance with rates provided in GHC Attachment 2 - Pricing Rate Table. It is the responsibility of the contractor to provide the estimated weight quantity to apply to services on this task order, when applicable (See Attachment 1 - Performance Work Statement)."
-			const methodOfPayment string = "Payment will be made using the Third-Party Payment System (TPPS) Automated Payment System"
-			const naics string = "488510 - FREIGHT TRANSPORTATION ARRANGEMENT"
-			const instructionsBeforeContractNumber string = "Packaging, packing, and shipping instructions as identified in the Conformed Copy of"
-			const instructionsAfterContractNumber string = "Attachment 1 Performance Work Statement"
-			packingAndShippingInstructions := instructionsBeforeContractNumber + " " + contractor.ContractNumber + " " + instructionsAfterContractNumber
+
+			packingAndShippingInstructions := models.InstructionsBeforeContractNumber + " " + contractor.ContractNumber + " " + models.InstructionsAfterContractNumber
 			newOrder, verrs, err := serviceMember.CreateOrder(
 				appCtx,
 				time.Time(*payload.IssueDate),
@@ -209,9 +205,6 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 				grade,
 				&entitlement,
 				&originDutyLocationGBLOC.GBLOC,
-				supplyAndServicesCostEstimate,
-				methodOfPayment,
-				naics,
 				packingAndShippingInstructions,
 			)
 			if err != nil || verrs.HasAny() {

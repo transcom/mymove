@@ -101,11 +101,11 @@ func makeOrder(db *pop.Connection, assertions Assertions) models.Order {
 
 	// Added as a stopgap solution to populate these new fields
 	// This testdatagen function is still being utilized through the MakeMTOServiceItemCustomerContact func
-	defaultSupplyAndServicesCostEstimate := SupplyAndServicesCostEstimate
-	defaultMethodOfPayment := MethodOfPayment
-	defaultNAICS := NAICS
+	defaultSupplyAndServicesCostEstimate := models.SupplyAndServicesCostEstimate
+	defaultMethodOfPayment := models.MethodOfPayment
+	defaultNAICS := models.NAICS
 	contractor := fetchOrMakeContractor(db, Assertions{})
-	defaultPackingAndShippingInstructions := InstructionsBeforeContractNumber + " " + contractor.ContractNumber + " " + InstructionsAfterContractNumber
+	defaultPackingAndShippingInstructions := models.InstructionsBeforeContractNumber + " " + contractor.ContractNumber + " " + models.InstructionsAfterContractNumber
 
 	order := models.Order{
 		ServiceMember:                  sm,

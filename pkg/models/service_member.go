@@ -217,9 +217,6 @@ func (s ServiceMember) CreateOrder(appCtx appcontext.AppContext,
 	grade *string,
 	entitlement *Entitlement,
 	originDutyLocationGBLOC *string,
-	supplyAndServicesCostEstimate string,
-	methodOfPayment string,
-	naics string,
 	packingAndShippingInstructions string) (Order, *validate.Errors, error) {
 
 	var newOrders Order
@@ -260,9 +257,9 @@ func (s ServiceMember) CreateOrder(appCtx appcontext.AppContext,
 			OriginDutyLocation:             originDutyLocation,
 			Entitlement:                    entitlement,
 			OriginDutyLocationGBLOC:        originDutyLocationGBLOC,
-			SupplyAndServicesCostEstimate:  supplyAndServicesCostEstimate,
-			MethodOfPayment:                methodOfPayment,
-			NAICS:                          naics,
+			SupplyAndServicesCostEstimate:  SupplyAndServicesCostEstimate,
+			MethodOfPayment:                MethodOfPayment,
+			NAICS:                          NAICS,
 			PackingAndShippingInstructions: packingAndShippingInstructions,
 		}
 

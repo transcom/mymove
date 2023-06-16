@@ -209,11 +209,11 @@ func buildOrderWithBuildType(db *pop.Connection, customs []Customization, traits
 	defaultStatus := models.OrderStatusDRAFT
 	defaultOriginDutyLocationGbloc := "KKFA"
 	originDutyLocationGbloc := &defaultOriginDutyLocationGbloc
-	defaultSupplyAndServicesCostEstimate := SupplyAndServicesCostEstimate
-	defaultMethodOfPayment := MethodOfPayment
-	defaultNAICS := NAICS
+	defaultSupplyAndServicesCostEstimate := models.SupplyAndServicesCostEstimate
+	defaultMethodOfPayment := models.MethodOfPayment
+	defaultNAICS := models.NAICS
 	contractor := FetchOrBuildDefaultContractor(db, nil, nil)
-	defaultPackingAndShippingInstructions := InstructionsBeforeContractNumber + " " + contractor.ContractNumber + " " + InstructionsAfterContractNumber
+	defaultPackingAndShippingInstructions := models.InstructionsBeforeContractNumber + " " + contractor.ContractNumber + " " + models.InstructionsAfterContractNumber
 
 	var ordersNumber *string
 	var tac *string
