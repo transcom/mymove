@@ -199,9 +199,7 @@ func (suite *HandlerSuite) TestUploadAmendedOrdersHandlerUnit() {
 
 		response := handler.Handle(*params)
 
-		// TODO: The type for this should probably be &ordersop.UploadAmendedOrdersInternalServerError{}, but the error
-		//  isn't being raised correctly in the handler. This should be fixed in a future commit.
-		suite.IsType(&handlers.ErrResponse{}, response)
+		suite.IsType(&ordersop.UploadAmendedOrdersInternalServerError{}, response)
 	})
 
 	suite.Run("Returns an error if the Orders ID in the URL is invalid", func() {
