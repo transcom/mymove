@@ -188,7 +188,7 @@ func InitRouting(appCtx appcontext.AppContext, redisPool *redis.Pool,
 	)
 
 	// Stub health check
-	healthHandler := handlers.NewHealthHandler(appCtx, redisPool,
+	healthHandler := handlers.NewHealthHandler(appCtx, routingConfig.HandlerConfig.FeatureFlagFetcher(), redisPool,
 		routingConfig.GitBranch, routingConfig.GitCommit)
 	requestLoggerMiddlware := middleware.RequestLogger(appCtx.Logger())
 	site.Handle("/health", requestLoggerMiddlware(healthHandler)).Methods("GET")
@@ -475,8 +475,9 @@ func InitHealthRouting(appCtx appcontext.AppContext, redisPool *redis.Pool, rout
 	site := mux.NewRouter()
 
 	// Stub health check
-	healthHandler := handlers.NewHealthHandler(appCtx, redisPool,
-		routingConfig.GitBranch, routingConfig.GitCommit)
+	healthHandler := handlers.NewHealthHandler(appCtx,
+		routingConfig.HandlerConfig.FeatureFlagFetcher(),
+		redisPool, routingConfig.GitBranch, routingConfig.GitCommit)
 	requestLoggerMiddlware := middleware.RequestLogger(appCtx.Logger())
 	site.Handle("/health", requestLoggerMiddlware(healthHandler)).Methods("GET")
 
