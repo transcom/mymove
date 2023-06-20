@@ -1978,6 +1978,8 @@ jobs:
     executor: mymove_pusher
     environment:
       APP_ENVIRONMENT: 'prd'
+      OPEN_TELEMETRY_SIDECAR: 'true'
+      HEALTH_CHECK: 'true'
     steps:
       - checkout
       - aws_vars_prd
@@ -1991,6 +1993,8 @@ jobs:
     executor: mymove_pusher
     environment:
       APP_ENVIRONMENT: 'prd'
+      OPEN_TELEMETRY_SIDECAR: 'true'
+      HEALTH_CHECK: 'true'
     steps:
       - checkout
       - aws_vars_prd
