@@ -124,13 +124,12 @@ func (_m *MoveRouter) Submit(appCtx appcontext.AppContext, move *models.Move, ne
 	return r0
 }
 
-type mockConstructorTestingTNewMoveRouter interface {
+// NewMoveRouter creates a new instance of MoveRouter. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewMoveRouter(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewMoveRouter creates a new instance of MoveRouter. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewMoveRouter(t mockConstructorTestingTNewMoveRouter) *MoveRouter {
+}) *MoveRouter {
 	mock := &MoveRouter{}
 	mock.Mock.Test(t)
 

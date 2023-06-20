@@ -42,13 +42,12 @@ func (_m *SITAddressUpdateRequestRejector) RejectSITAddressUpdateRequest(appCtx 
 	return r0, r1
 }
 
-type mockConstructorTestingTNewSITAddressUpdateRequestRejector interface {
+// NewSITAddressUpdateRequestRejector creates a new instance of SITAddressUpdateRequestRejector. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewSITAddressUpdateRequestRejector(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewSITAddressUpdateRequestRejector creates a new instance of SITAddressUpdateRequestRejector. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewSITAddressUpdateRequestRejector(t mockConstructorTestingTNewSITAddressUpdateRequestRejector) *SITAddressUpdateRequestRejector {
+}) *SITAddressUpdateRequestRejector {
 	mock := &SITAddressUpdateRequestRejector{}
 	mock.Mock.Test(t)
 

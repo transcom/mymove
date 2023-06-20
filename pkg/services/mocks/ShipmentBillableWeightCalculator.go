@@ -28,13 +28,12 @@ func (_m *ShipmentBillableWeightCalculator) CalculateShipmentBillableWeight(ship
 	return r0
 }
 
-type mockConstructorTestingTNewShipmentBillableWeightCalculator interface {
+// NewShipmentBillableWeightCalculator creates a new instance of ShipmentBillableWeightCalculator. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewShipmentBillableWeightCalculator(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewShipmentBillableWeightCalculator creates a new instance of ShipmentBillableWeightCalculator. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewShipmentBillableWeightCalculator(t mockConstructorTestingTNewShipmentBillableWeightCalculator) *ShipmentBillableWeightCalculator {
+}) *ShipmentBillableWeightCalculator {
 	mock := &ShipmentBillableWeightCalculator{}
 	mock.Mock.Test(t)
 

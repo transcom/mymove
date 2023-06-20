@@ -28,13 +28,12 @@ func (_m *AOAPacketCreator) CreateAOAPacket(appCtx appcontext.AppContext, ppmShi
 	return r0
 }
 
-type mockConstructorTestingTNewAOAPacketCreator interface {
+// NewAOAPacketCreator creates a new instance of AOAPacketCreator. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewAOAPacketCreator(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewAOAPacketCreator creates a new instance of AOAPacketCreator. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewAOAPacketCreator(t mockConstructorTestingTNewAOAPacketCreator) *AOAPacketCreator {
+}) *AOAPacketCreator {
 	mock := &AOAPacketCreator{}
 	mock.Mock.Test(t)
 
