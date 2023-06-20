@@ -764,34 +764,52 @@ func subScenarioSITExtensions(appCtx appcontext.AppContext, userUploader *upload
 	}
 }
 
-// Create three moves with shipment address update requests in each of the three possible states: requested, approved, and rejected
+// Create moves with shipment address update requests in each of the three possible states: requested, approved, and rejected
 func subScenarioNonSITAddressUpdates(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) func() {
 	return func() {
 		createTOO(appCtx)
 
-		move := createHHGMove(appCtx, userUploader, "CRQST1")
+		// Create move CRQST1 with a shipment address update request in requested state
 		factory.BuildShipmentAddressUpdate(appCtx.DB(), []factory.Customization{
 			{
-				Model: models.ShipmentAddressUpdate{
-					ShipmentID: move.MTOShipments[0].ID,
+				Model: models.Move{
+					Locator: "CRQST1",
+					Status:  models.MoveStatusAPPROVED,
+				},
+			},
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusApproved,
 				},
 			},
 		}, []factory.Trait{factory.GetTraitNonSITAddressUpdateRequested})
 
-		move2 := createHHGMove(appCtx, userUploader, "CRQST2")
+		// Create move CRQST2 with a shipment address update request in approved state
 		factory.BuildShipmentAddressUpdate(appCtx.DB(), []factory.Customization{
 			{
-				Model: models.ShipmentAddressUpdate{
-					ShipmentID: move2.MTOShipments[0].ID,
+				Model: models.Move{
+					Locator: "CRQST2",
+					Status:  models.MoveStatusAPPROVED,
+				},
+			},
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusApproved,
 				},
 			},
 		}, []factory.Trait{factory.GetTraitNonSITAddressUpdateApproved})
-		move3 := createHHGMove(appCtx, userUploader, "CRQST3")
 
+		// Create move CRQST3 with a shipment address update request in rejected state
 		factory.BuildShipmentAddressUpdate(appCtx.DB(), []factory.Customization{
 			{
-				Model: models.ShipmentAddressUpdate{
-					ShipmentID: move3.MTOShipments[0].ID,
+				Model: models.Move{
+					Locator: "CRQST3",
+					Status:  models.MoveStatusAPPROVED,
+				},
+			},
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusApproved,
 				},
 			},
 		}, []factory.Trait{factory.GetTraitNonSITAddressUpdateRejected})

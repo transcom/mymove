@@ -15,6 +15,8 @@ import (
 func BuildShipmentAddressUpdate(db *pop.Connection, customs []Customization, traits []Trait) models.ShipmentAddressUpdate {
 	customs = setupCustomizations(customs, traits)
 
+	move := BuildMoveWithShipment(db, customs, traits)
+
 	// Find ShipmentAddressUpdate assertion and convert to models ShipmentAddressUpdate
 	var newShipmentAddress models.ShipmentAddressUpdate
 	if result := findValidCustomization(customs, ShipmentAddressUpdate); result != nil {
@@ -25,10 +27,9 @@ func BuildShipmentAddressUpdate(db *pop.Connection, customs []Customization, tra
 	}
 
 	// Create orig/new addresses
-	originalAddress := BuildAddress(db, customs, nil)
-	newAddress := BuildAddress(db, customs, nil)
+	originalAddress := BuildAddress(db, customs, traits)
+	newAddress := BuildAddress(db, customs, traits)
 
-	// create newShipmentAddress
 	shipmentAddressUpdate := models.ShipmentAddressUpdate{
 		ID:                uuid.Must(uuid.NewV4()),
 		ContractorRemarks: "Test Contractor Remark",
@@ -38,7 +39,7 @@ func BuildShipmentAddressUpdate(db *pop.Connection, customs []Customization, tra
 		NewAddressID:      newAddress.ID,
 		OriginalAddress:   originalAddress,
 		OriginalAddressID: originalAddress.ID,
-		ShipmentID:        uuid.Must(uuid.NewV4()),
+		ShipmentID:        move.MTOShipments[0].ID,
 	}
 
 	// Overwrite values with those from assertions

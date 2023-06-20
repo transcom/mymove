@@ -10674,53 +10674,6 @@ func createMoveWithFutureSIT(appCtx appcontext.AppContext, userUploader *uploade
 
 }
 
-// Create a basic HHG move with a single shipment and payment request
-func createHHGMove(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveLocator string) models.Move {
-	db := appCtx.DB()
-
-	// Create a move with a shipment and service items
-	move := factory.BuildMove(db, []factory.Customization{
-		{
-			Model: models.Move{
-				ID:                 uuid.Must(uuid.NewV4()),
-				Locator:            moveLocator,
-				Status:             models.MoveStatusAPPROVED,
-				AvailableToPrimeAt: models.TimePointer(time.Now()),
-			},
-		},
-	}, nil)
-
-	// Create a shipment with service items
-	mtoShipment := factory.BuildMTOShipmentWithMove(&move, db, []factory.Customization{
-		{
-			Model: models.MTOShipment{
-				Status: models.MTOShipmentStatusApproved,
-			},
-		},
-	}, nil)
-
-	// Create a payment request
-	factory.BuildPaymentRequest(db, []factory.Customization{
-		{
-			Model: models.PaymentRequest{
-				ID:         uuid.Must(uuid.NewV4()),
-				Status:     models.PaymentRequestStatusReviewed,
-				ReviewedAt: models.TimePointer(time.Now()),
-			},
-		},
-		{
-			Model:    move,
-			LinkOnly: true,
-		},
-		{
-			Model:    mtoShipment,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	return move
-}
-
 func createMoveWithOriginAndDestinationSIT(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveLocator string) models.MTOServiceItem {
 	db := appCtx.DB()
 
