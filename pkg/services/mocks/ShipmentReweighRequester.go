@@ -42,13 +42,12 @@ func (_m *ShipmentReweighRequester) RequestShipmentReweigh(appCtx appcontext.App
 	return r0, r1
 }
 
-type mockConstructorTestingTNewShipmentReweighRequester interface {
+// NewShipmentReweighRequester creates a new instance of ShipmentReweighRequester. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewShipmentReweighRequester(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewShipmentReweighRequester creates a new instance of ShipmentReweighRequester. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewShipmentReweighRequester(t mockConstructorTestingTNewShipmentReweighRequester) *ShipmentReweighRequester {
+}) *ShipmentReweighRequester {
 	mock := &ShipmentReweighRequester{}
 	mock.Mock.Test(t)
 

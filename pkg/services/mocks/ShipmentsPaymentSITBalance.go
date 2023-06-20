@@ -42,13 +42,12 @@ func (_m *ShipmentsPaymentSITBalance) ListShipmentPaymentSITBalance(appCtx appco
 	return r0, r1
 }
 
-type mockConstructorTestingTNewShipmentsPaymentSITBalance interface {
+// NewShipmentsPaymentSITBalance creates a new instance of ShipmentsPaymentSITBalance. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewShipmentsPaymentSITBalance(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewShipmentsPaymentSITBalance creates a new instance of ShipmentsPaymentSITBalance. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewShipmentsPaymentSITBalance(t mockConstructorTestingTNewShipmentsPaymentSITBalance) *ShipmentsPaymentSITBalance {
+}) *ShipmentsPaymentSITBalance {
 	mock := &ShipmentsPaymentSITBalance{}
 	mock.Mock.Test(t)
 

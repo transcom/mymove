@@ -44,13 +44,12 @@ func (_m *UserRoleAssociator) UpdateUserRoles(appCtx appcontext.AppContext, user
 	return r0, r1
 }
 
-type mockConstructorTestingTNewUserRoleAssociator interface {
+// NewUserRoleAssociator creates a new instance of UserRoleAssociator. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewUserRoleAssociator(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewUserRoleAssociator creates a new instance of UserRoleAssociator. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewUserRoleAssociator(t mockConstructorTestingTNewUserRoleAssociator) *UserRoleAssociator {
+}) *UserRoleAssociator {
 	mock := &UserRoleAssociator{}
 	mock.Mock.Test(t)
 

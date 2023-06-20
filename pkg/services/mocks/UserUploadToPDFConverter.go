@@ -42,13 +42,12 @@ func (_m *UserUploadToPDFConverter) ConvertUserUploadsToPDF(appCtx appcontext.Ap
 	return r0, r1
 }
 
-type mockConstructorTestingTNewUserUploadToPDFConverter interface {
+// NewUserUploadToPDFConverter creates a new instance of UserUploadToPDFConverter. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewUserUploadToPDFConverter(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewUserUploadToPDFConverter creates a new instance of UserUploadToPDFConverter. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewUserUploadToPDFConverter(t mockConstructorTestingTNewUserUploadToPDFConverter) *UserUploadToPDFConverter {
+}) *UserUploadToPDFConverter {
 	mock := &UserUploadToPDFConverter{}
 	mock.Mock.Test(t)
 

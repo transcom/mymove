@@ -26,13 +26,12 @@ func (_m *TableFromSliceCreator) CreateTableFromSlice(appCtx appcontext.AppConte
 	return r0
 }
 
-type mockConstructorTestingTNewTableFromSliceCreator interface {
+// NewTableFromSliceCreator creates a new instance of TableFromSliceCreator. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewTableFromSliceCreator(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewTableFromSliceCreator creates a new instance of TableFromSliceCreator. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewTableFromSliceCreator(t mockConstructorTestingTNewTableFromSliceCreator) *TableFromSliceCreator {
+}) *TableFromSliceCreator {
 	mock := &TableFromSliceCreator{}
 	mock.Mock.Test(t)
 

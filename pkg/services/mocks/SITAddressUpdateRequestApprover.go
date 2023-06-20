@@ -42,13 +42,12 @@ func (_m *SITAddressUpdateRequestApprover) ApproveSITAddressUpdateRequest(appCtx
 	return r0, r1
 }
 
-type mockConstructorTestingTNewSITAddressUpdateRequestApprover interface {
+// NewSITAddressUpdateRequestApprover creates a new instance of SITAddressUpdateRequestApprover. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewSITAddressUpdateRequestApprover(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewSITAddressUpdateRequestApprover creates a new instance of SITAddressUpdateRequestApprover. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewSITAddressUpdateRequestApprover(t mockConstructorTestingTNewSITAddressUpdateRequestApprover) *SITAddressUpdateRequestApprover {
+}) *SITAddressUpdateRequestApprover {
 	mock := &SITAddressUpdateRequestApprover{}
 	mock.Mock.Test(t)
 

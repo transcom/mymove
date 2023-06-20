@@ -77,13 +77,12 @@ func (_m *OrderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uu
 	return r0, r1, r2
 }
 
-type mockConstructorTestingTNewOrderFetcher interface {
+// NewOrderFetcher creates a new instance of OrderFetcher. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewOrderFetcher(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewOrderFetcher creates a new instance of OrderFetcher. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewOrderFetcher(t mockConstructorTestingTNewOrderFetcher) *OrderFetcher {
+}) *OrderFetcher {
 	mock := &OrderFetcher{}
 	mock.Mock.Test(t)
 

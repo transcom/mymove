@@ -33,13 +33,12 @@ func (_m *PaymentRequestReviewedProcessor) ProcessReviewedPaymentRequest(appCtx 
 	_m.Called(appCtx)
 }
 
-type mockConstructorTestingTNewPaymentRequestReviewedProcessor interface {
+// NewPaymentRequestReviewedProcessor creates a new instance of PaymentRequestReviewedProcessor. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewPaymentRequestReviewedProcessor(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewPaymentRequestReviewedProcessor creates a new instance of PaymentRequestReviewedProcessor. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewPaymentRequestReviewedProcessor(t mockConstructorTestingTNewPaymentRequestReviewedProcessor) *PaymentRequestReviewedProcessor {
+}) *PaymentRequestReviewedProcessor {
 	mock := &PaymentRequestReviewedProcessor{}
 	mock.Mock.Test(t)
 

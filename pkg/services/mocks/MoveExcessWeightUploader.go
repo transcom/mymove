@@ -45,13 +45,12 @@ func (_m *MoveExcessWeightUploader) CreateExcessWeightUpload(appCtx appcontext.A
 	return r0, r1
 }
 
-type mockConstructorTestingTNewMoveExcessWeightUploader interface {
+// NewMoveExcessWeightUploader creates a new instance of MoveExcessWeightUploader. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewMoveExcessWeightUploader(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewMoveExcessWeightUploader creates a new instance of MoveExcessWeightUploader. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewMoveExcessWeightUploader(t mockConstructorTestingTNewMoveExcessWeightUploader) *MoveExcessWeightUploader {
+}) *MoveExcessWeightUploader {
 	mock := &MoveExcessWeightUploader{}
 	mock.Mock.Test(t)
 

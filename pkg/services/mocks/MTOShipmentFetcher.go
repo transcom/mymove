@@ -75,13 +75,12 @@ func (_m *MTOShipmentFetcher) ListMTOShipments(appCtx appcontext.AppContext, mov
 	return r0, r1
 }
 
-type mockConstructorTestingTNewMTOShipmentFetcher interface {
+// NewMTOShipmentFetcher creates a new instance of MTOShipmentFetcher. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewMTOShipmentFetcher(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewMTOShipmentFetcher creates a new instance of MTOShipmentFetcher. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewMTOShipmentFetcher(t mockConstructorTestingTNewMTOShipmentFetcher) *MTOShipmentFetcher {
+}) *MTOShipmentFetcher {
 	mock := &MTOShipmentFetcher{}
 	mock.Mock.Test(t)
 

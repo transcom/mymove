@@ -42,13 +42,12 @@ func (_m *ShipmentDiversionRequester) RequestShipmentDiversion(appCtx appcontext
 	return r0, r1
 }
 
-type mockConstructorTestingTNewShipmentDiversionRequester interface {
+// NewShipmentDiversionRequester creates a new instance of ShipmentDiversionRequester. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewShipmentDiversionRequester(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewShipmentDiversionRequester creates a new instance of ShipmentDiversionRequester. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewShipmentDiversionRequester(t mockConstructorTestingTNewShipmentDiversionRequester) *ShipmentDiversionRequester {
+}) *ShipmentDiversionRequester {
 	mock := &ShipmentDiversionRequester{}
 	mock.Mock.Test(t)
 
