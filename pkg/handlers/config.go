@@ -43,17 +43,12 @@ type HandlerConfig interface {
 	UseSecureCookie() bool
 	AppNames() auth.ApplicationServername
 	SessionManagers() auth.AppSessionManagers
-	GetFeatureFlag(name string) bool
 
 	GexSender() services.GexSender
 	ICNSequencer() sequence.Sequencer
 	GetTraceIDFromRequest(r *http.Request) uuid.UUID
-}
 
-// FeatureFlag struct for feature flags
-type FeatureFlag struct {
-	Name   string
-	Active bool
+	FeatureFlagFetcher() services.FeatureFlagFetcher
 }
 
 // A single Config is passed to each handler. This should be
@@ -74,7 +69,7 @@ type Config struct {
 	useSecureCookie       bool
 	appNames              auth.ApplicationServername
 	sessionManagers       auth.AppSessionManagers
-	featureFlags          map[string]bool
+	featureFlagFetcher    services.FeatureFlagFetcher
 }
 
 // NewHandlerConfig returns a new HandlerConfig interface with its
@@ -94,12 +89,8 @@ func NewHandlerConfig(
 	useSecureCookie bool,
 	appNames auth.ApplicationServername,
 	sessionManagers auth.AppSessionManagers,
-	featureFlags []FeatureFlag,
+	featureFlagFetcher services.FeatureFlagFetcher,
 ) HandlerConfig {
-	featureFlagMap := make(map[string]bool)
-	for _, ff := range featureFlags {
-		featureFlagMap[ff.Name] = ff.Active
-	}
 	return &Config{
 		db:                    db,
 		logger:                logger,
@@ -115,7 +106,7 @@ func NewHandlerConfig(
 		useSecureCookie:       useSecureCookie,
 		appNames:              appNames,
 		sessionManagers:       sessionManagers,
-		featureFlags:          featureFlagMap,
+		featureFlagFetcher:    featureFlagFetcher,
 	}
 }
 
@@ -328,23 +319,18 @@ func (c *Config) SetUseSecureCookie(useSecureCookie bool) {
 	c.useSecureCookie = useSecureCookie
 }
 
-func (c *Config) SetFeatureFlag(flag FeatureFlag) {
-	if c.featureFlags == nil {
-		c.featureFlags = make(map[string]bool)
-	}
-
-	c.featureFlags[flag.Name] = flag.Active
-}
-
-func (c *Config) GetFeatureFlag(flag string) bool {
-	if value, ok := c.featureFlags[flag]; ok {
-		return value
-	}
-	return false
-}
-
 // GetTraceIDFromRequest returns the request traceID. It
 // returns the Nil UUID if no traceid is found
 func (c *Config) GetTraceIDFromRequest(r *http.Request) uuid.UUID {
 	return trace.FromContext(r.Context())
+}
+
+// FeatureFlagFetcher returns the feature flag fetching service
+func (c *Config) FeatureFlagFetcher() services.FeatureFlagFetcher {
+	return c.featureFlagFetcher
+}
+
+// SetFeatureFlagFetcher sets the feature flag fetcher
+func (c *Config) SetFeatureFlagFetcher(fff services.FeatureFlagFetcher) {
+	c.featureFlagFetcher = fff
 }

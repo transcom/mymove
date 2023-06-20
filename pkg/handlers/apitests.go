@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"fmt"
 	"mime/multipart"
 	"net/http"
@@ -14,11 +15,15 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
+	"github.com/stretchr/testify/mock"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications"
+	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/mocks"
 	"github.com/transcom/mymove/pkg/testingsuite"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -67,11 +72,28 @@ func NewBaseHandlerTestSuite(sender notifications.NotificationSender, packageNam
 // NOTE: it returns the Config implementation, not the
 // HandlerConfig interface, so overrides can be made to the config
 func (suite *BaseHandlerTestSuite) HandlerConfig() *Config {
+	// create a mock feature flag fetcher that always returns enabled
+	mockFeatureFlagFetcher := &mocks.FeatureFlagFetcher{}
+	mockFeatureFlagFetcher.On("GetFlag",
+		mock.AnythingOfType("context.Context"),
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.AnythingOfType("string"),
+		mock.Anything,
+	).Return(func(ctx context.Context, appCtx appcontext.AppContext, key string, flagContext map[string]string) (services.FeatureFlag, error) {
+		return services.FeatureFlag{
+			Entity:    "test@example.com",
+			Key:       key,
+			Enabled:   true,
+			Value:     "mock",
+			Namespace: "test",
+		}, nil
+	})
 	return &Config{
-		db:              suite.DB(),
-		logger:          suite.Logger(),
-		appNames:        ApplicationTestServername(),
-		sessionManagers: setupSessionManagers(),
+		db:                 suite.DB(),
+		logger:             suite.Logger(),
+		appNames:           ApplicationTestServername(),
+		sessionManagers:    setupSessionManagers(),
+		featureFlagFetcher: mockFeatureFlagFetcher,
 	}
 }
 
