@@ -74,6 +74,10 @@ func (suite *HandlerSuite) TestCreateOrder() {
 	suite.Equal((*string)(sm.Rank), createdOrder.Grade)
 	suite.Assertions.Equal(*models.Int64Pointer(8000), *okResponse.Payload.AuthorizedWeight)
 	suite.NotNil(&createdOrder.Entitlement)
+	suite.NotEmpty(createdOrder.SupplyAndServicesCostEstimate)
+	suite.NotEmpty(createdOrder.PackingAndShippingInstructions)
+	suite.NotEmpty(createdOrder.MethodOfPayment)
+	suite.NotEmpty(createdOrder.NAICS)
 }
 
 func (suite *HandlerSuite) TestShowOrder() {
