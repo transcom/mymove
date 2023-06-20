@@ -15,7 +15,7 @@ import (
 func BuildShipmentAddressUpdate(db *pop.Connection, customs []Customization, traits []Trait) models.ShipmentAddressUpdate {
 	customs = setupCustomizations(customs, traits)
 
-	// Find OfficePhoneLine assertion and convert to models officephoneline
+	// Find ShipmentAddressUpdate assertion and convert to models ShipmentAddressUpdate
 	var newShipmentAddress models.ShipmentAddressUpdate
 	if result := findValidCustomization(customs, ShipmentAddressUpdate); result != nil {
 		newShipmentAddress = result.Model.(models.ShipmentAddressUpdate)
@@ -23,17 +23,22 @@ func BuildShipmentAddressUpdate(db *pop.Connection, customs []Customization, tra
 			return newShipmentAddress
 		}
 	}
-	hardcodeUUID, _ := uuid.FromString("01b9671e-b268-4906-967b-ba661a1d3933")
+
+	// Create orig/new addresses
+	originalAddress := BuildAddress(db, customs, nil)
+	newAddress := BuildAddress(db, customs, nil)
+
 	// create newShipmentAddress
 	shipmentAddressUpdate := models.ShipmentAddressUpdate{
-		ID: uuid.Must(uuid.NewV4()),
-		// ContractorRemarks:
-		// OfficeRemarks:
-		// Status:
-		// CreatedAt:
-		// UpdatedAt:
-		// we need to know the shipment id before this point
-		ShipmentID: hardcodeUUID,
+		ID:                uuid.Must(uuid.NewV4()),
+		ContractorRemarks: "Test Contractor Remark",
+		OfficeRemarks:     nil,
+		Status:            models.ShipmentAddressUpdateStatusRequested,
+		NewAddress:        newAddress,
+		NewAddressID:      newAddress.ID,
+		OriginalAddress:   originalAddress,
+		OriginalAddressID: originalAddress.ID,
+		ShipmentID:        uuid.Must(uuid.NewV4()),
 	}
 
 	// Overwrite values with those from assertions
@@ -47,18 +52,36 @@ func BuildShipmentAddressUpdate(db *pop.Connection, customs []Customization, tra
 	return shipmentAddressUpdate
 }
 
-// ID                uuid.UUID                   `json:"id" db:"id"`
-// ContractorRemarks string                      `json:"contractor_remarks" db:"contractor_remarks"`
-// OfficeRemarks     *string                     `json:"office_remarks" db:"office_remarks"`
-// Status            ShipmentAddressUpdateStatus `json:"status" db:"status"`
-// CreatedAt         time.Time                   `db:"created_at"`
-// UpdatedAt         time.Time                   `db:"updated_at"`
+// ------------------------
+//      TRAITS
+// ------------------------
 
-// what do we do with default associations?
-// Associations
-// Shipment          MTOShipment `belongs_to:"mto_shipments" fk_id:"shipment_id"`
-// ShipmentID        uuid.UUID   `db:"shipment_id"`
-// OriginalAddress   Address     `belongs_to:"addresses" fk_id:"original_address_id"`
-// OriginalAddressID uuid.UUID   `db:"original_address_id"`
-// NewAddress        Address     `belongs_to:"addresses" fk_id:"new_address_id"`
-// NewAddressID      uuid.UUID   `db:"new_address_id"`
+func GetTraitNonSITAddressUpdateRequested() []Customization {
+	return []Customization{
+		{
+			Model: models.ShipmentAddressUpdate{
+				Status: models.ShipmentAddressUpdateStatusRequested,
+			},
+		},
+	}
+}
+
+func GetTraitNonSITAddressUpdateApproved() []Customization {
+	return []Customization{
+		{
+			Model: models.ShipmentAddressUpdate{
+				Status: models.ShipmentAddressUpdateStatusApproved,
+			},
+		},
+	}
+}
+
+func GetTraitNonSITAddressUpdateRejected() []Customization {
+	return []Customization{
+		{
+			Model: models.ShipmentAddressUpdate{
+				Status: models.ShipmentAddressUpdateStatusRejected,
+			},
+		},
+	}
+}
