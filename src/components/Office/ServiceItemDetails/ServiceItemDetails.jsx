@@ -77,7 +77,7 @@ const ServiceItemDetails = ({ id, code, details }) => {
                 <>
                   {generateDetailText(
                     {
-                      [`Customer contact ${index + 1}`]:
+                      [`Customer contact attempt ${index + 1}`]:
                         contact && contact.dateOfContact && contact.timeMilitary
                           ? `${formatDate(contact.dateOfContact, 'DD MMM YYYY')}, ${contact.timeMilitary}`
                           : '-',
