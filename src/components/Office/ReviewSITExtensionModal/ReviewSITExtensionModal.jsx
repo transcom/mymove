@@ -55,7 +55,7 @@ const SITHistoryItemHeader = ({ title, value }) => {
   }
 
   return (
-    <div className={styles.sitHistoryItemHeader}>
+    <div data-happo-hide className={styles.sitHistoryItemHeader}>
       {title}
       <span className={styles.hintText}>
         {action} + Requested = {value}
