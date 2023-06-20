@@ -36,8 +36,10 @@ const serviceItems = [
     code: 'DDFSIT',
     status: 'SUBMITTED',
     details: {
-      firstCustomerContact: { timeMilitary: '', firstAvailableDeliveryDate: '2020-11-22' },
-      secondCustomerContact: { timeMilitary: '', firstAvailableDeliveryDate: '2020-11-23' },
+      customerContacts: [
+        { timeMilitary: '', firstAvailableDeliveryDate: '2020-11-22' },
+        { timeMilitary: '', firstAvailableDeliveryDate: '2020-11-23' },
+      ],
     },
   },
   {

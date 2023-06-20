@@ -10,8 +10,10 @@ const details = {
   reason: 'some reason',
   itemDimensions: { length: 1000, width: 2500, height: 3000 },
   crateDimensions: { length: 2000, width: 3500, height: 4000 },
-  firstCustomerContact: { timeMilitary: '1200Z', firstAvailableDeliveryDate: '2020-09-15' },
-  secondCustomerContact: { timeMilitary: '2300Z', firstAvailableDeliveryDate: '2020-09-21' },
+  customerContacts: [
+    { timeMilitary: '1200Z', firstAvailableDeliveryDate: '2020-09-15' },
+    { timeMilitary: '2300Z', firstAvailableDeliveryDate: '2020-09-21' },
+  ],
   estimatedWeight: 2500,
 };
 

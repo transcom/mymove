@@ -81,8 +81,10 @@ describe('ServiceItemsTable', () => {
         serviceItem: 'Domestic Crating',
         code: 'DDFSIT',
         details: {
-          firstCustomerContact: { timeMilitary: '0400Z', firstAvailableDeliveryDate: '2020-12-31' },
-          secondCustomerContact: { timeMilitary: '0800Z', firstAvailableDeliveryDate: '2021-01-01' },
+          customerContacts: [
+            { timeMilitary: '0400Z', firstAvailableDeliveryDate: '2020-12-31' },
+            { timeMilitary: '0800Z', firstAvailableDeliveryDate: '2021-01-01' },
+          ],
         },
       },
     ];
