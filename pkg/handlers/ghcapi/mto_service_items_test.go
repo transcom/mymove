@@ -101,6 +101,30 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 			},
 		}, nil)
 
+		serviceRequestDoc := factory.BuildServiceRequestDocument(suite.DB(), []factory.Customization{
+			{
+				Model:    serviceItem,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		serviceRequestDocumentUpload := factory.BuildServiceRequestDocumentUpload(suite.DB(), []factory.Customization{
+			{
+				Model:    serviceRequestDoc,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		// serviceRequestDocumentUpload := factory.BuildServiceRequestDocumentUpload(suite.DB(), []factory.Customization{
+		// 	{
+		// 		Model: serviceItem,
+		// 		LinkOnly: true,
+		// 	},
+		// }, nil)
+
+		serviceRequestDoc.ServiceRequestDocumentUploads = models.ServiceRequestDocumentUploads{serviceRequestDocumentUpload}
+		serviceItem.ServiceRequestDocuments = models.ServiceRequestDocuments{serviceRequestDoc}
+
 		sitAddressUpdate := factory.BuildSITAddressUpdate(suite.DB(), []factory.Customization{{Model: originSit,
 			LinkOnly: true}}, nil)
 		originSit.SITAddressUpdates = []models.SITAddressUpdate{sitAddressUpdate}
@@ -179,8 +203,24 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 						suite.Len(payload.CustomerContacts, 1)
 					}
 				}
-			}
 
+				//Validate that Service Request Document upload was included in payload
+				upload := serviceItem.ServiceRequestDocuments[0].ServiceRequestDocumentUploads[0].Upload
+				uploadPayload := payload.ServiceRequestDocuments[0].Uploads[0]
+				if len(serviceItem.ServiceRequestDocuments) > 0 {
+					if len(payload.ServiceRequestDocuments) > 0 {
+						if len(serviceItem.ServiceRequestDocuments[0].ServiceRequestDocumentUploads) > 0 {
+							if len(payload.ServiceRequestDocuments[0].Uploads) > 0 {
+								suite.Equal(upload.ID.String(), uploadPayload.ID.String())
+								// suite.Equal(serviceItem.ID.String(), payload.ID.String())
+								// suite.Len(payload.ServiceRequestDocuments[0].Uploads, 1)
+								// suite.Equal(serviceItem.ServiceRequestDocuments[0].ServiceRequestDocumentUploads[0].ID.String(), serviceRequestDocumentUpload.ID.String())
+
+							}
+						}
+					}
+				}
+			}
 		}
 	})
 
