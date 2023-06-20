@@ -30,17 +30,21 @@ import (
 func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddressUpdate() {
 	addressCreator := address.NewAddressCreator()
 	mockPlanner := &routemocks.Planner{}
-	mockedDistance := 55
 	mockPlanner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
-		mock.AnythingOfType("string"),
-		mock.AnythingOfType("string"),
-	).Return(mockedDistance, nil)
+		"89503",
+		"90210",
+	).Return(450, nil)
+	mockPlanner.On("ZipTransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
+		"90210",
+		"30905",
+	).Return(2500, nil)
 	moveRouter := moveservices.NewMoveRouter()
 	addressUpdateRequester := NewShipmentAddressUpdateRequester(mockPlanner, addressCreator, moveRouter)
 
 	suite.Run("Successfully create ShipmentAddressUpdate", func() {
-		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
+		testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
 				StartDate: time.Now().Add(-24 * time.Hour),
 				EndDate:   time.Now().Add(24 * time.Hour),
@@ -253,5 +257,74 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, updatedMove.Status)
 	})
 	suite.Run("mileage bracket change should be flagged", func() {
+		testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				StartDate: time.Now().Add(-24 * time.Hour),
+				EndDate:   time.Now().Add(24 * time.Hour),
+			},
+		})
+		originalDomesticServiceArea := testdatagen.FetchOrMakeReDomesticServiceArea(suite.DB(), testdatagen.Assertions{
+			ReDomesticServiceArea: models.ReDomesticServiceArea{
+				ServiceArea:      "004",
+				ServicesSchedule: 2,
+			},
+			ReContract: testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{}),
+		})
+
+		testdatagen.FetchOrMakeReZip3(suite.DB(), testdatagen.Assertions{
+			ReZip3: models.ReZip3{
+				Contract:            originalDomesticServiceArea.Contract,
+				ContractID:          originalDomesticServiceArea.ContractID,
+				DomesticServiceArea: originalDomesticServiceArea,
+				Zip3:                "871",
+			},
+		})
+		testdatagen.FetchOrMakeReZip3(suite.DB(), testdatagen.Assertions{
+			ReZip3: models.ReZip3{
+				Contract:            originalDomesticServiceArea.Contract,
+				ContractID:          originalDomesticServiceArea.ContractID,
+				DomesticServiceArea: originalDomesticServiceArea,
+				Zip3:                "870",
+			},
+		})
+
+		newAddress := models.Address{
+			StreetAddress1: "123 Any St",
+			City:           "Albuquerque",
+			State:          "NM",
+			PostalCode:     "87053",
+			Country:        models.StringPointer("United States"),
+		}
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		shipment := factory.BuildMTOShipmentWithMove(&move, suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					PostalCode: "87108",
+				},
+				Type: &factory.Addresses.DeliveryAddress,
+			},
+		}, nil)
+
+		mockPlanner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("string"),
+			"87108",
+		).Return(500, nil)
+		mockPlanner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("string"),
+			"87053",
+		).Return(501, nil)
+		suite.NotEmpty(move.MTOShipments)
+		update, err := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, newAddress, "we really need to change the address")
+		suite.NoError(err)
+		suite.NotNil(update)
+		suite.Equal(models.ShipmentAddressUpdateStatusRequested, update.Status)
+		suite.Equal("we really need to change the address", update.ContractorRemarks)
+
+		var updatedMove models.Move
+		err = suite.DB().Find(&updatedMove, shipment.MoveTaskOrderID)
+		suite.NoError(err)
+		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, updatedMove.Status)
 	})
 }
