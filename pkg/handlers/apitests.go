@@ -18,7 +18,6 @@ import (
 	"github.com/stretchr/testify/mock"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications"
@@ -75,13 +74,13 @@ func (suite *BaseHandlerTestSuite) HandlerConfig() *Config {
 	// create a mock feature flag fetcher that always returns enabled
 	mockFeatureFlagFetcher := &mocks.FeatureFlagFetcher{}
 	mockFeatureFlagFetcher.On("GetFlag",
-		mock.AnythingOfType("context.Context"),
-		mock.AnythingOfType("*appcontext.appContext"),
+		mock.Anything,
+		mock.AnythingOfType("string"),
 		mock.AnythingOfType("string"),
 		mock.Anything,
-	).Return(func(ctx context.Context, appCtx appcontext.AppContext, key string, flagContext map[string]string) (services.FeatureFlag, error) {
+	).Return(func(ctx context.Context, entityID string, key string, flagContext map[string]string) (services.FeatureFlag, error) {
 		return services.FeatureFlag{
-			Entity:    "test@example.com",
+			Entity:    entityID,
 			Key:       key,
 			Enabled:   true,
 			Value:     "mock",

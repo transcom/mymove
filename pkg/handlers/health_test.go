@@ -7,23 +7,26 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
+	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
 type HealthSuite struct {
-	*testingsuite.PopTestSuite
+	BaseHandlerTestSuite
 }
 
 func TestHealthSuite(t *testing.T) {
 	hs := &HealthSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
+		BaseHandlerTestSuite: NewBaseHandlerTestSuite(notifications.NewStubNotificationSender("milmovelocal"), testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
 	}
 	suite.Run(t, hs)
 	hs.PopTestSuite.TearDown()
 }
 
 func (suite *HealthSuite) TestHealthHandler() {
-	handler := NewHealthHandler(suite.AppContextForTest(), nil, "branch", "commit")
+	handler := NewHealthHandler(suite.AppContextForTest(),
+		suite.HandlerConfig().FeatureFlagFetcher(),
+		nil, "branch", "commit")
 
 	req, err := http.NewRequest("GET", "/", nil)
 	suite.NoError(err)
@@ -44,7 +47,9 @@ func (suite *HealthSuite) TestHealthHandlerDBFailure() {
 	// transaction will also fail
 	suite.Error(badDb.RawQuery("BLARGH").Exec())
 
-	handler := NewHealthHandler(suite.AppContextForTest(), nil, "branch", "commit")
+	handler := NewHealthHandler(suite.AppContextForTest(),
+		suite.HandlerConfig().FeatureFlagFetcher(),
+		nil, "branch", "commit")
 
 	req, err := http.NewRequest("GET", "/", nil)
 	suite.NoError(err)
