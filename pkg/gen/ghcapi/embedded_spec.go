@@ -6142,8 +6142,7 @@ func init() {
         "dateOfContact": {
           "description": "Date of attempted delivery by the prime.",
           "type": "string",
-          "format": "date",
-          "example": "2020-12-31"
+          "format": "date"
         },
         "firstAvailableDeliveryDate": {
           "description": "First available date that the Prime can deliver SIT service item.",
@@ -17116,8 +17115,7 @@ func init() {
         "dateOfContact": {
           "description": "Date of attempted delivery by the prime.",
           "type": "string",
-          "format": "date",
-          "example": "2020-12-31"
+          "format": "date"
         },
         "firstAvailableDeliveryDate": {
           "description": "First available date that the Prime can deliver SIT service item.",

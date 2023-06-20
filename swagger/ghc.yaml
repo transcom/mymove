@@ -5699,7 +5699,6 @@ definitions:
       dateOfContact:
         format: date
         type: string
-        example: '2020-12-31'
         description: Date of attempted delivery by the prime.
       timeMilitary:
         type: string

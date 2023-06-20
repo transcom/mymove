@@ -20,7 +20,6 @@ import (
 type MTOServiceItemCustomerContact struct {
 
 	// Date of attempted delivery by the prime.
-	// Example: 2020-12-31
 	// Format: date
 	DateOfContact strfmt.Date `json:"dateOfContact,omitempty"`
 
