@@ -17,6 +17,12 @@ import (
 // UploadedOrdersDocumentName is the name of an uploaded orders document
 const UploadedOrdersDocumentName = "uploaded_orders"
 
+const SupplyAndServicesCostEstimate string = "Prices for services under this task order will be in accordance with rates provided in GHC Attachment 2 - Pricing Rate Table. It is the responsibility of the contractor to provide the estimated weight quantity to apply to services on this task order, when applicable (See Attachment 1 - Performance Work Statement)."
+const MethodOfPayment string = "Payment will be made using the Third-Party Payment System (TPPS) Automated Payment System"
+const NAICS string = "488510 - FREIGHT TRANSPORTATION ARRANGEMENT"
+const InstructionsBeforeContractNumber string = "Packaging, packing, and shipping instructions as identified in the Conformed Copy of"
+const InstructionsAfterContractNumber string = "Attachment 1 Performance Work Statement"
+
 // OrderStatus represents the state of an order record in the UX manual orders flow
 type OrderStatus string
 
@@ -33,38 +39,42 @@ const (
 
 // Order is a set of orders received by a service member
 type Order struct {
-	ID                          uuid.UUID                          `json:"id" db:"id"`
-	CreatedAt                   time.Time                          `json:"created_at" db:"created_at"`
-	UpdatedAt                   time.Time                          `json:"updated_at" db:"updated_at"`
-	ServiceMemberID             uuid.UUID                          `json:"service_member_id" db:"service_member_id"`
-	ServiceMember               ServiceMember                      `belongs_to:"service_members" fk_id:"service_member_id"`
-	IssueDate                   time.Time                          `json:"issue_date" db:"issue_date"`
-	ReportByDate                time.Time                          `json:"report_by_date" db:"report_by_date"`
-	OrdersType                  internalmessages.OrdersType        `json:"orders_type" db:"orders_type"`
-	OrdersTypeDetail            *internalmessages.OrdersTypeDetail `json:"orders_type_detail" db:"orders_type_detail"`
-	HasDependents               bool                               `json:"has_dependents" db:"has_dependents"`
-	SpouseHasProGear            bool                               `json:"spouse_has_pro_gear" db:"spouse_has_pro_gear"`
-	OriginDutyLocation          *DutyLocation                      `belongs_to:"duty_locations" fk_id:"origin_duty_location_id"`
-	OriginDutyLocationID        *uuid.UUID                         `json:"origin_duty_location_id" db:"origin_duty_location_id"`
-	NewDutyLocationID           uuid.UUID                          `json:"new_duty_location_id" db:"new_duty_location_id"`
-	NewDutyLocation             DutyLocation                       `belongs_to:"duty_locations" fk_id:"new_duty_location_id"`
-	UploadedOrders              Document                           `belongs_to:"documents" fk_id:"uploaded_orders_id"`
-	UploadedOrdersID            uuid.UUID                          `json:"uploaded_orders_id" db:"uploaded_orders_id"`
-	OrdersNumber                *string                            `json:"orders_number" db:"orders_number"`
-	Moves                       Moves                              `has_many:"moves" fk_id:"orders_id" order_by:"created_at desc"`
-	Status                      OrderStatus                        `json:"status" db:"status"`
-	TAC                         *string                            `json:"tac" db:"tac"`
-	SAC                         *string                            `json:"sac" db:"sac"`
-	NtsTAC                      *string                            `json:"nts_tac" db:"nts_tac"`
-	NtsSAC                      *string                            `json:"nts_sac" db:"nts_sac"`
-	DepartmentIndicator         *string                            `json:"department_indicator" db:"department_indicator"`
-	Grade                       *string                            `json:"grade" db:"grade"`
-	Entitlement                 *Entitlement                       `belongs_to:"entitlements" fk_id:"entitlement_id"`
-	EntitlementID               *uuid.UUID                         `json:"entitlement_id" db:"entitlement_id"`
-	UploadedAmendedOrders       *Document                          `belongs_to:"documents" fk_id:"uploaded_amended_orders_id"`
-	UploadedAmendedOrdersID     *uuid.UUID                         `json:"uploaded_amended_orders_id" db:"uploaded_amended_orders_id"`
-	AmendedOrdersAcknowledgedAt *time.Time                         `json:"amended_orders_acknowledged_at" db:"amended_orders_acknowledged_at"`
-	OriginDutyLocationGBLOC     *string                            `json:"origin_duty_location_gbloc" db:"gbloc"`
+	ID                             uuid.UUID                          `json:"id" db:"id"`
+	CreatedAt                      time.Time                          `json:"created_at" db:"created_at"`
+	UpdatedAt                      time.Time                          `json:"updated_at" db:"updated_at"`
+	ServiceMemberID                uuid.UUID                          `json:"service_member_id" db:"service_member_id"`
+	ServiceMember                  ServiceMember                      `belongs_to:"service_members" fk_id:"service_member_id"`
+	IssueDate                      time.Time                          `json:"issue_date" db:"issue_date"`
+	ReportByDate                   time.Time                          `json:"report_by_date" db:"report_by_date"`
+	OrdersType                     internalmessages.OrdersType        `json:"orders_type" db:"orders_type"`
+	OrdersTypeDetail               *internalmessages.OrdersTypeDetail `json:"orders_type_detail" db:"orders_type_detail"`
+	HasDependents                  bool                               `json:"has_dependents" db:"has_dependents"`
+	SpouseHasProGear               bool                               `json:"spouse_has_pro_gear" db:"spouse_has_pro_gear"`
+	OriginDutyLocation             *DutyLocation                      `belongs_to:"duty_locations" fk_id:"origin_duty_location_id"`
+	OriginDutyLocationID           *uuid.UUID                         `json:"origin_duty_location_id" db:"origin_duty_location_id"`
+	NewDutyLocationID              uuid.UUID                          `json:"new_duty_location_id" db:"new_duty_location_id"`
+	NewDutyLocation                DutyLocation                       `belongs_to:"duty_locations" fk_id:"new_duty_location_id"`
+	UploadedOrders                 Document                           `belongs_to:"documents" fk_id:"uploaded_orders_id"`
+	UploadedOrdersID               uuid.UUID                          `json:"uploaded_orders_id" db:"uploaded_orders_id"`
+	OrdersNumber                   *string                            `json:"orders_number" db:"orders_number"`
+	Moves                          Moves                              `has_many:"moves" fk_id:"orders_id" order_by:"created_at desc"`
+	Status                         OrderStatus                        `json:"status" db:"status"`
+	TAC                            *string                            `json:"tac" db:"tac"`
+	SAC                            *string                            `json:"sac" db:"sac"`
+	NtsTAC                         *string                            `json:"nts_tac" db:"nts_tac"`
+	NtsSAC                         *string                            `json:"nts_sac" db:"nts_sac"`
+	DepartmentIndicator            *string                            `json:"department_indicator" db:"department_indicator"`
+	Grade                          *string                            `json:"grade" db:"grade"`
+	Entitlement                    *Entitlement                       `belongs_to:"entitlements" fk_id:"entitlement_id"`
+	EntitlementID                  *uuid.UUID                         `json:"entitlement_id" db:"entitlement_id"`
+	UploadedAmendedOrders          *Document                          `belongs_to:"documents" fk_id:"uploaded_amended_orders_id"`
+	UploadedAmendedOrdersID        *uuid.UUID                         `json:"uploaded_amended_orders_id" db:"uploaded_amended_orders_id"`
+	AmendedOrdersAcknowledgedAt    *time.Time                         `json:"amended_orders_acknowledged_at" db:"amended_orders_acknowledged_at"`
+	OriginDutyLocationGBLOC        *string                            `json:"origin_duty_location_gbloc" db:"gbloc"`
+	SupplyAndServicesCostEstimate  string                             `json:"supply_and_services_cost_estimate" db:"supply_and_services_cost_estimate"`
+	PackingAndShippingInstructions string                             `json:"packing_and_shipping_instructions" db:"packing_and_shipping_instructions"`
+	MethodOfPayment                string                             `json:"method_of_payment" db:"method_of_payment"`
+	NAICS                          string                             `json:"naics" db:"naics"`
 }
 
 // TableName overrides the table name used by Pop.
@@ -95,6 +105,10 @@ func (o *Order) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		&validators.UUIDIsPresent{Field: o.UploadedOrdersID, Name: "UploadedOrdersID"},
 		&OptionalUUIDIsPresent{Field: o.UploadedAmendedOrdersID, Name: "UploadedAmendedOrdersID"},
 		&StringIsNilOrNotBlank{Field: o.OriginDutyLocationGBLOC, Name: "OriginDutyLocationGBLOC"},
+		&validators.StringIsPresent{Field: o.SupplyAndServicesCostEstimate, Name: "SupplyAndServicesCostEstimate"},
+		&validators.StringIsPresent{Field: o.PackingAndShippingInstructions, Name: "PackingAndShippingInstructions"},
+		&validators.StringIsPresent{Field: o.MethodOfPayment, Name: "MethodOfPayment"},
+		&validators.StringIsPresent{Field: o.NAICS, Name: "NAICS"},
 	), nil
 }
 
