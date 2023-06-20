@@ -48,6 +48,7 @@ import (
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/server"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/featureflag"
 	"github.com/transcom/mymove/pkg/services/invoice"
 	"github.com/transcom/mymove/pkg/storage"
 	"github.com/transcom/mymove/pkg/telemetry"
@@ -224,7 +225,11 @@ func checkServeConfig(v *viper.Viper, logger *zap.Logger) error {
 		return err
 	}
 
-	return cli.CheckSession(v)
+	if err := cli.CheckSession(v); err != nil {
+		return err
+	}
+
+	return cli.CheckFeatureFlag(v)
 }
 
 func startListener(srv *server.NamedServer, logger *zap.Logger, useTLS bool) {
@@ -576,6 +581,11 @@ func buildRoutingConfig(appCtx appcontext.AppContext, v *viper.Viper, redisPool 
 	sessionManagers := auth.SetupSessionManagers(redisPool, useSecureCookie,
 		sessionIdleTimeout, sessionLifetime)
 
+	featureFlagFetcher, err := featureflag.NewFeatureFlagFetcher(cli.GetFliptFetcherConfig(v))
+	if err != nil {
+		appCtx.Logger().Fatal("Could not instantiate feature flag featcher", zap.Error(err))
+	}
+
 	routingConfig.HandlerConfig = handlers.NewHandlerConfig(
 		appCtx.DB(),
 		appCtx.Logger(),
@@ -591,7 +601,7 @@ func buildRoutingConfig(appCtx appcontext.AppContext, v *viper.Viper, redisPool 
 		useSecureCookie,
 		appNames,
 		sessionManagers,
-		[]handlers.FeatureFlag{},
+		featureFlagFetcher,
 	)
 
 	initializeRouteOptions(v, routingConfig)

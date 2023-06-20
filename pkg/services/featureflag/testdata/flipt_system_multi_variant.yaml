@@ -1,0 +1,46 @@
+---
+version: 2
+interactions:
+    - id: 0
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 130
+        transfer_encoding: []
+        trailer: {}
+        host: localhost:5050
+        remote_addr: ""
+        request_uri: ""
+        body: '{"requestId":"bf5d58f5-54da-484e-b32e-b5b694c27678", "flagKey":"multi_variant", "entityId":"system", "namespaceKey":"development"}'
+        form: {}
+        headers:
+            Authorization:
+                - Bearer token
+        url: http://localhost:5050/api/v1/namespaces/development/evaluate
+        method: POST
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding: []
+        trailer: {}
+        content_length: -1
+        uncompressed: true
+        body: '{"requestId":"bf5d58f5-54da-484e-b32e-b5b694c27678","entityId":"system","requestContext":{},"match":true,"flagKey":"multi_variant","segmentKey":"all-entities","timestamp":"2023-06-21T16:19:47.927908132Z","value":"two","requestDurationMillis":0.026042,"attachment":"null","reason":"MATCH_EVALUATION_REASON","namespaceKey":"development"}'
+        headers:
+            Content-Security-Policy:
+                - default-src 'self'; img-src * data:; frame-ancestors 'none';
+            Content-Type:
+                - application/json
+            Date:
+                - Wed, 21 Jun 2023 16:19:47 GMT
+            Grpc-Metadata-Content-Type:
+                - application/grpc
+            Vary:
+                - Accept-Encoding
+            X-Content-Type-Options:
+                - nosniff
+        status: 200 OK
+        code: 200
+        duration: 899.667µs
