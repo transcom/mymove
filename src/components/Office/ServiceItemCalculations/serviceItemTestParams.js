@@ -634,7 +634,7 @@ const testParams = {
     WeightBilled,
     WeightEstimated,
     ZipSITDestHHGOriginalAddress,
-    SITDestFinalAddress
+    SITDestFinalAddress,
   ],
   DomesticDestinationSITDeliveryMatchingZip3: [
     ContractCode,
