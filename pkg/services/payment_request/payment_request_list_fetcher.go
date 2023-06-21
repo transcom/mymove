@@ -130,7 +130,7 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.Ap
 }
 
 // FetchPaymentRequestListByMove returns a payment request by move locator id
-func (f *paymentRequestListFetcher) FetchPaymentRequestListByMove(appCtx appcontext.AppContext, officeUserID uuid.UUID, locator string) (*models.PaymentRequests, error) {
+func (f *paymentRequestListFetcher) FetchPaymentRequestListByMove(appCtx appcontext.AppContext, locator string) (*models.PaymentRequests, error) {
 	paymentRequests := models.PaymentRequests{}
 
 	// Replaced EagerPreload due to nullable fka on Contractor

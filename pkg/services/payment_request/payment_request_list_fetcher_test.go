@@ -17,8 +17,6 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListbyMove() {
 	suite.Run("Only returns visible (where Move.Show is not false) payment requests", func() {
 		paymentRequestListFetcher := NewPaymentRequestListFetcher()
 
-		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
-
 		expectedMove := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.Move{
@@ -43,7 +41,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListbyMove() {
 			},
 		}, nil)
 
-		expectedPaymentRequests, err := paymentRequestListFetcher.FetchPaymentRequestListByMove(suite.AppContextForTest(), officeUser.ID, "ABC123")
+		expectedPaymentRequests, err := paymentRequestListFetcher.FetchPaymentRequestListByMove(suite.AppContextForTest(), "ABC123")
 
 		suite.NoError(err)
 		suite.Equal(1, len(*expectedPaymentRequests))
@@ -412,7 +410,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListUSMCGBLOC() 
 
 	suite.Run("returns USMC payment requests for move", func() {
 		paymentRequestListFetcher := NewPaymentRequestListFetcher()
-		expectedPaymentRequests, err := paymentRequestListFetcher.FetchPaymentRequestListByMove(suite.AppContextForTest(), officeUserUSMC.ID, paymentRequestUSMC.MoveTaskOrder.Locator)
+		expectedPaymentRequests, err := paymentRequestListFetcher.FetchPaymentRequestListByMove(suite.AppContextForTest(), paymentRequestUSMC.MoveTaskOrder.Locator)
 		paymentRequests := *expectedPaymentRequests
 
 		suite.NoError(err)
