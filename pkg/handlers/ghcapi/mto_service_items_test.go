@@ -101,30 +101,6 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 			},
 		}, nil)
 
-		serviceRequestDoc := factory.BuildServiceRequestDocument(suite.DB(), []factory.Customization{
-			{
-				Model:    serviceItem,
-				LinkOnly: true,
-			},
-		}, nil)
-
-		serviceRequestDocumentUpload := factory.BuildServiceRequestDocumentUpload(suite.DB(), []factory.Customization{
-			{
-				Model:    serviceRequestDoc,
-				LinkOnly: true,
-			},
-		}, nil)
-
-		// serviceRequestDocumentUpload := factory.BuildServiceRequestDocumentUpload(suite.DB(), []factory.Customization{
-		// 	{
-		// 		Model: serviceItem,
-		// 		LinkOnly: true,
-		// 	},
-		// }, nil)
-
-		serviceRequestDoc.ServiceRequestDocumentUploads = models.ServiceRequestDocumentUploads{serviceRequestDocumentUpload}
-		serviceItem.ServiceRequestDocuments = models.ServiceRequestDocuments{serviceRequestDoc}
-
 		sitAddressUpdate := factory.BuildSITAddressUpdate(suite.DB(), []factory.Customization{{Model: originSit,
 			LinkOnly: true}}, nil)
 		originSit.SITAddressUpdates = []models.SITAddressUpdate{sitAddressUpdate}
@@ -167,11 +143,22 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 			MoveTaskOrderID: *handlers.FmtUUID(serviceItems[0].MoveTaskOrderID),
 		}
 
+		serviceItem1 := serviceItems[0]
+
+		serviceRequestDocumentUpload := factory.BuildServiceRequestDocumentUpload(suite.DB(), []factory.Customization{
+			{
+				Model:    serviceItem1,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		serviceItem1.ServiceRequestDocuments = models.ServiceRequestDocuments{serviceRequestDocumentUpload.ServiceRequestDocument}
+
 		queryBuilder := query.NewQueryBuilder()
 		listFetcher := fetch.NewListFetcher(queryBuilder)
 		fetcher := fetch.NewFetcher(queryBuilder)
 		handler := ListMTOServiceItemsHandler{
-			suite.HandlerConfig(),
+			suite.createS3HandlerConfig(),
 			listFetcher,
 			fetcher,
 		}
@@ -184,6 +171,7 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 
 		// Validate outgoing payload
 		suite.NoError(okResponse.Payload.Validate(strfmt.Default))
+		fmt.Println(okResponse.Payload)
 
 		suite.Len(okResponse.Payload, 3)
 		for _, serviceItem := range serviceItems {
@@ -205,19 +193,12 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 				}
 
 				//Validate that Service Request Document upload was included in payload
-				upload := serviceItem.ServiceRequestDocuments[0].ServiceRequestDocumentUploads[0].Upload
-				uploadPayload := payload.ServiceRequestDocuments[0].Uploads[0]
-				if len(serviceItem.ServiceRequestDocuments) > 0 {
-					if len(payload.ServiceRequestDocuments) > 0 {
-						if len(serviceItem.ServiceRequestDocuments[0].ServiceRequestDocumentUploads) > 0 {
-							if len(payload.ServiceRequestDocuments[0].Uploads) > 0 {
-								suite.Equal(upload.ID.String(), uploadPayload.ID.String())
-								// suite.Equal(serviceItem.ID.String(), payload.ID.String())
-								// suite.Len(payload.ServiceRequestDocuments[0].Uploads, 1)
-								// suite.Equal(serviceItem.ServiceRequestDocuments[0].ServiceRequestDocumentUploads[0].ID.String(), serviceRequestDocumentUpload.ID.String())
-
-							}
-						}
+				if len(serviceItem.ServiceRequestDocuments) == 1 && suite.Len(payload.ServiceRequestDocuments, 1) {
+					if len(serviceItem.ServiceRequestDocuments[0].ServiceRequestDocumentUploads) == 1 && suite.Len(payload.ServiceRequestDocuments[0].Uploads, 1) {
+						upload := serviceItem.ServiceRequestDocuments[0].ServiceRequestDocumentUploads[0].Upload
+						uploadPayload := payload.ServiceRequestDocuments[0].Uploads[0]
+						suite.Equal(upload.ID.String(), uploadPayload.ID.String())
+						suite.NotEqual(string(uploadPayload.URL), "")
 					}
 				}
 			}
