@@ -15,7 +15,7 @@ import (
 func BuildShipmentAddressUpdate(db *pop.Connection, customs []Customization, traits []Trait) models.ShipmentAddressUpdate {
 	customs = setupCustomizations(customs, traits)
 
-	move := BuildMoveWithShipment(db, customs, traits)
+	shipment := BuildMTOShipment(db, customs, traits)
 
 	// Find ShipmentAddressUpdate assertion and convert to models ShipmentAddressUpdate
 	var newShipmentAddress models.ShipmentAddressUpdate
@@ -39,7 +39,7 @@ func BuildShipmentAddressUpdate(db *pop.Connection, customs []Customization, tra
 		NewAddressID:      newAddress.ID,
 		OriginalAddress:   originalAddress,
 		OriginalAddressID: originalAddress.ID,
-		ShipmentID:        move.MTOShipments[0].ID,
+		ShipmentID:        shipment.ID,
 	}
 
 	// Overwrite values with those from assertions
@@ -64,6 +64,17 @@ func GetTraitShipmentAddressUpdateRequested() []Customization {
 				Status: models.ShipmentAddressUpdateStatusRequested,
 			},
 		},
+		{
+			Model: models.Move{
+				Locator: "CRQST1",
+				Status:  models.MoveStatusAPPROVALSREQUESTED,
+			},
+		},
+		{
+			Model: models.MTOShipment{
+				Status: models.MTOShipmentStatusApproved,
+			},
+		},
 	}
 }
 
@@ -74,6 +85,17 @@ func GetTraitShipmentAddressUpdateApproved() []Customization {
 				Status: models.ShipmentAddressUpdateStatusApproved,
 			},
 		},
+		{
+			Model: models.Move{
+				Locator: "CRQST2",
+				Status:  models.MoveStatusAPPROVED,
+			},
+		},
+		{
+			Model: models.MTOShipment{
+				Status: models.MTOShipmentStatusApproved,
+			},
+		},
 	}
 }
 
@@ -82,6 +104,17 @@ func GetTraitShipmentAddressUpdateRejected() []Customization {
 		{
 			Model: models.ShipmentAddressUpdate{
 				Status: models.ShipmentAddressUpdateStatusRejected,
+			},
+		},
+		{
+			Model: models.Move{
+				Locator: "CRQST3",
+				Status:  models.MoveStatusAPPROVED,
+			},
+		},
+		{
+			Model: models.MTOShipment{
+				Status: models.MTOShipmentStatusApproved,
 			},
 		},
 	}

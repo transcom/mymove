@@ -770,49 +770,13 @@ func subScenarioShipmentAddressUpdates(appCtx appcontext.AppContext, userUploade
 		createTOO(appCtx)
 
 		// Create move CRQST1 with a shipment address update request in requested state
-		factory.BuildShipmentAddressUpdate(appCtx.DB(), []factory.Customization{
-			{
-				Model: models.Move{
-					Locator: "CRQST1",
-					Status:  models.MoveStatusAPPROVED,
-				},
-			},
-			{
-				Model: models.MTOShipment{
-					Status: models.MTOShipmentStatusApproved,
-				},
-			},
-		}, []factory.Trait{factory.GetTraitShipmentAddressUpdateRequested})
+		factory.BuildShipmentAddressUpdate(appCtx.DB(), []factory.Customization{}, []factory.Trait{factory.GetTraitShipmentAddressUpdateRequested})
 
 		// Create move CRQST2 with a shipment address update request in approved state
-		factory.BuildShipmentAddressUpdate(appCtx.DB(), []factory.Customization{
-			{
-				Model: models.Move{
-					Locator: "CRQST2",
-					Status:  models.MoveStatusAPPROVED,
-				},
-			},
-			{
-				Model: models.MTOShipment{
-					Status: models.MTOShipmentStatusApproved,
-				},
-			},
-		}, []factory.Trait{factory.GetTraitShipmentAddressUpdateApproved})
+		factory.BuildShipmentAddressUpdate(appCtx.DB(), []factory.Customization{}, []factory.Trait{factory.GetTraitShipmentAddressUpdateApproved})
 
 		// Create move CRQST3 with a shipment address update request in rejected state
-		factory.BuildShipmentAddressUpdate(appCtx.DB(), []factory.Customization{
-			{
-				Model: models.Move{
-					Locator: "CRQST3",
-					Status:  models.MoveStatusAPPROVED,
-				},
-			},
-			{
-				Model: models.MTOShipment{
-					Status: models.MTOShipmentStatusApproved,
-				},
-			},
-		}, []factory.Trait{factory.GetTraitShipmentAddressUpdateRejected})
+		factory.BuildShipmentAddressUpdate(appCtx.DB(), []factory.Customization{}, []factory.Trait{factory.GetTraitShipmentAddressUpdateRejected})
 	}
 }
 
