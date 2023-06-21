@@ -42,13 +42,12 @@ func (_m *MoveFinancialReviewFlagSetter) SetFinancialReviewFlag(appCtx appcontex
 	return r0, r1
 }
 
-type mockConstructorTestingTNewMoveFinancialReviewFlagSetter interface {
+// NewMoveFinancialReviewFlagSetter creates a new instance of MoveFinancialReviewFlagSetter. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewMoveFinancialReviewFlagSetter(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewMoveFinancialReviewFlagSetter creates a new instance of MoveFinancialReviewFlagSetter. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewMoveFinancialReviewFlagSetter(t mockConstructorTestingTNewMoveFinancialReviewFlagSetter) *MoveFinancialReviewFlagSetter {
+}) *MoveFinancialReviewFlagSetter {
 	mock := &MoveFinancialReviewFlagSetter{}
 	mock.Mock.Test(t)
 

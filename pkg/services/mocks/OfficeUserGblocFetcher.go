@@ -38,13 +38,12 @@ func (_m *OfficeUserGblocFetcher) FetchGblocForOfficeUser(appCtx appcontext.AppC
 	return r0, r1
 }
 
-type mockConstructorTestingTNewOfficeUserGblocFetcher interface {
+// NewOfficeUserGblocFetcher creates a new instance of OfficeUserGblocFetcher. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewOfficeUserGblocFetcher(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewOfficeUserGblocFetcher creates a new instance of OfficeUserGblocFetcher. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewOfficeUserGblocFetcher(t mockConstructorTestingTNewOfficeUserGblocFetcher) *OfficeUserGblocFetcher {
+}) *OfficeUserGblocFetcher {
 	mock := &OfficeUserGblocFetcher{}
 	mock.Mock.Test(t)
 

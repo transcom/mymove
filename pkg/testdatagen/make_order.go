@@ -99,31 +99,43 @@ func makeOrder(db *pop.Connection, assertions Assertions) models.Order {
 		orderTypeDetail = &hhgPermittedString
 	}
 
+	// Added as a stopgap solution to populate these new fields
+	// This testdatagen function is still being utilized through the MakeMTOServiceItemCustomerContact func
+	defaultSupplyAndServicesCostEstimate := models.SupplyAndServicesCostEstimate
+	defaultMethodOfPayment := models.MethodOfPayment
+	defaultNAICS := models.NAICS
+	contractor := fetchOrMakeContractor(db, Assertions{})
+	defaultPackingAndShippingInstructions := models.InstructionsBeforeContractNumber + " " + contractor.ContractNumber + " " + models.InstructionsAfterContractNumber
+
 	order := models.Order{
-		ServiceMember:           sm,
-		ServiceMemberID:         sm.ID,
-		NewDutyLocation:         dutyLocation,
-		NewDutyLocationID:       dutyLocation.ID,
-		UploadedOrders:          document,
-		UploadedOrdersID:        document.ID,
-		UploadedAmendedOrders:   assertions.Order.UploadedAmendedOrders,
-		UploadedAmendedOrdersID: assertions.Order.UploadedAmendedOrdersID,
-		IssueDate:               time.Date(TestYear, time.March, 15, 0, 0, 0, 0, time.UTC),
-		ReportByDate:            time.Date(TestYear, time.August, 1, 0, 0, 0, 0, time.UTC),
-		OrdersType:              internalmessages.OrdersTypePERMANENTCHANGEOFSTATION,
-		OrdersNumber:            ordersNumber,
-		HasDependents:           hasDependents,
-		SpouseHasProGear:        spouseHasProGear,
-		Status:                  models.OrderStatusDRAFT,
-		TAC:                     TAC,
-		DepartmentIndicator:     departmentIndicator,
-		Grade:                   &grade,
-		Entitlement:             &entitlement,
-		EntitlementID:           &entitlement.ID,
-		OriginDutyLocation:      &originDutyLocation,
-		OriginDutyLocationID:    &originDutyLocation.ID,
-		OrdersTypeDetail:        orderTypeDetail,
-		OriginDutyLocationGBLOC: &gbloc.GBLOC,
+		ServiceMember:                  sm,
+		ServiceMemberID:                sm.ID,
+		NewDutyLocation:                dutyLocation,
+		NewDutyLocationID:              dutyLocation.ID,
+		UploadedOrders:                 document,
+		UploadedOrdersID:               document.ID,
+		UploadedAmendedOrders:          assertions.Order.UploadedAmendedOrders,
+		UploadedAmendedOrdersID:        assertions.Order.UploadedAmendedOrdersID,
+		IssueDate:                      time.Date(TestYear, time.March, 15, 0, 0, 0, 0, time.UTC),
+		ReportByDate:                   time.Date(TestYear, time.August, 1, 0, 0, 0, 0, time.UTC),
+		OrdersType:                     internalmessages.OrdersTypePERMANENTCHANGEOFSTATION,
+		OrdersNumber:                   ordersNumber,
+		HasDependents:                  hasDependents,
+		SpouseHasProGear:               spouseHasProGear,
+		Status:                         models.OrderStatusDRAFT,
+		TAC:                            TAC,
+		DepartmentIndicator:            departmentIndicator,
+		Grade:                          &grade,
+		Entitlement:                    &entitlement,
+		EntitlementID:                  &entitlement.ID,
+		OriginDutyLocation:             &originDutyLocation,
+		OriginDutyLocationID:           &originDutyLocation.ID,
+		OrdersTypeDetail:               orderTypeDetail,
+		OriginDutyLocationGBLOC:        &gbloc.GBLOC,
+		SupplyAndServicesCostEstimate:  defaultSupplyAndServicesCostEstimate,
+		MethodOfPayment:                defaultMethodOfPayment,
+		NAICS:                          defaultNAICS,
+		PackingAndShippingInstructions: defaultPackingAndShippingInstructions,
 	}
 
 	// Overwrite values with those from assertions

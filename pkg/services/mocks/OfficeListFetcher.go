@@ -66,13 +66,12 @@ func (_m *OfficeListFetcher) FetchOfficeList(appCtx appcontext.AppContext, filte
 	return r0, r1
 }
 
-type mockConstructorTestingTNewOfficeListFetcher interface {
+// NewOfficeListFetcher creates a new instance of OfficeListFetcher. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewOfficeListFetcher(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewOfficeListFetcher creates a new instance of OfficeListFetcher. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewOfficeListFetcher(t mockConstructorTestingTNewOfficeListFetcher) *OfficeListFetcher {
+}) *OfficeListFetcher {
 	mock := &OfficeListFetcher{}
 	mock.Mock.Test(t)
 

@@ -19,6 +19,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services/address"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
@@ -1343,9 +1344,10 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 		queryBuilder := query.NewQueryBuilder()
 		moveRouter := moverouter.NewMoveRouter()
 		shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
+		addressCreator := address.NewAddressCreator()
 		subtestData.handler = UpdateMTOServiceItemHandler{
 			suite.HandlerConfig(),
-			mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter, shipmentFetcher),
+			mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter, shipmentFetcher, addressCreator),
 		}
 
 		// create the params struct
@@ -1514,6 +1516,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDOPSIT() {
 	queryBuilder := query.NewQueryBuilder()
 	moveRouter := moverouter.NewMoveRouter()
 	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
+	addressCreator := address.NewAddressCreator()
 
 	type localSubtestData struct {
 		dopsit     models.MTOServiceItem
@@ -1552,7 +1555,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDOPSIT() {
 
 		subtestData.handler = UpdateMTOServiceItemHandler{
 			suite.HandlerConfig(),
-			mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter, shipmentFetcher),
+			mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter, shipmentFetcher, addressCreator),
 		}
 
 		// create the params struct

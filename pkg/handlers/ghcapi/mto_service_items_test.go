@@ -508,7 +508,8 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 		fetcher := fetch.NewFetcher(queryBuilder)
 		moveRouter := moverouter.NewMoveRouter()
 		shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
-		mtoServiceItemStatusUpdater := mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter, shipmentFetcher)
+		addressCreator := address.NewAddressCreator()
+		mtoServiceItemStatusUpdater := mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter, shipmentFetcher, addressCreator)
 
 		handler := UpdateMTOServiceItemStatusHandler{
 			HandlerConfig:         suite.HandlerConfig(),
@@ -558,7 +559,8 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 		}
 
 		fetcher := fetch.NewFetcher(queryBuilder)
-		mtoServiceItemStatusUpdater := mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter, shipmentFetcher)
+		addressCreator := address.NewAddressCreator()
+		mtoServiceItemStatusUpdater := mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter, shipmentFetcher, addressCreator)
 
 		handler := UpdateMTOServiceItemStatusHandler{
 			HandlerConfig:         suite.HandlerConfig(),
@@ -594,11 +596,7 @@ func (suite *HandlerSuite) TestCreateSITAddressUpdate() {
 		mock.AnythingOfType("string"),
 		mock.AnythingOfType("string"),
 	).Return(mockedDistance, nil)
-	serviceItemUpdater := mtoserviceitem.NewMTOServiceItemUpdater(
-		query.NewQueryBuilder(),
-		moverouter.NewMoveRouter(),
-		mtoshipment.NewMTOShipmentFetcher(),
-	)
+	serviceItemUpdater := mtoserviceitem.NewMTOServiceItemUpdater(query.NewQueryBuilder(), moverouter.NewMoveRouter(), mtoshipment.NewMTOShipmentFetcher(), address.NewAddressCreator())
 	sitAddressUpdateCreator := sitaddressupdate.NewApprovedOfficeSITAddressUpdateCreator(
 		mockPlanner,
 		address.NewAddressCreator(),
@@ -926,7 +924,8 @@ func (suite *HandlerSuite) TestCreateSITAddressUpdate() {
 func (suite *HandlerSuite) TestApproveSITAddressUpdate() {
 	moveRouter := moverouter.NewMoveRouter()
 	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
-	serviceItemUpdater := mtoserviceitem.NewMTOServiceItemUpdater(query.NewQueryBuilder(), moveRouter, shipmentFetcher)
+	addressCreator := address.NewAddressCreator()
+	serviceItemUpdater := mtoserviceitem.NewMTOServiceItemUpdater(query.NewQueryBuilder(), moveRouter, shipmentFetcher, addressCreator)
 	sitAddressUpdateApprover := sitaddressupdate.NewSITAddressUpdateRequestApprover(serviceItemUpdater, moveRouter)
 
 	suite.Run("Returns 200, approves SIT address update, and updates SITDestinationFinalAddress on service item", func() {

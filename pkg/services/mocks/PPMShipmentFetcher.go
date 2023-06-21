@@ -56,13 +56,12 @@ func (_m *PPMShipmentFetcher) PostloadAssociations(appCtx appcontext.AppContext,
 	return r0
 }
 
-type mockConstructorTestingTNewPPMShipmentFetcher interface {
+// NewPPMShipmentFetcher creates a new instance of PPMShipmentFetcher. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewPPMShipmentFetcher(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewPPMShipmentFetcher creates a new instance of PPMShipmentFetcher. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewPPMShipmentFetcher(t mockConstructorTestingTNewPPMShipmentFetcher) *PPMShipmentFetcher {
+}) *PPMShipmentFetcher {
 	mock := &PPMShipmentFetcher{}
 	mock.Mock.Test(t)
 

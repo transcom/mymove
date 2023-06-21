@@ -51,13 +51,12 @@ func (_m *SFTPFiler) WriteTo(w io.Writer) (int64, error) {
 	return r0, r1
 }
 
-type mockConstructorTestingTNewSFTPFiler interface {
+// NewSFTPFiler creates a new instance of SFTPFiler. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewSFTPFiler(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewSFTPFiler creates a new instance of SFTPFiler. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewSFTPFiler(t mockConstructorTestingTNewSFTPFiler) *SFTPFiler {
+}) *SFTPFiler {
 	mock := &SFTPFiler{}
 	mock.Mock.Test(t)
 
