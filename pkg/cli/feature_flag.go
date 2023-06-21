@@ -1,7 +1,6 @@
 package cli
 
 import (
-	"github.com/pkg/errors"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 )
@@ -20,14 +19,9 @@ func InitFeatureFlags(flag *pflag.FlagSet) {
 }
 
 // CheckFeatureFlag validates the URL
-func CheckFeatureFlag(v *viper.Viper) error {
-	ffsEndpoint := v.GetString(FeatureFlagServerURLFlag)
-	if ffsEndpoint != "" {
-		// if the URL is provided, the auth token must also be provided
-		if v.GetString(FeatureFlagAPITokenFlag) == "" {
-			return errors.New("Empty config: " + FeatureFlagAPITokenFlag)
-		}
-	}
+func CheckFeatureFlag(_ *viper.Viper) error {
+	// Right now, we have no mandatory checks as we can allow a server
+	// URL without a token
 	return nil
 }
 
