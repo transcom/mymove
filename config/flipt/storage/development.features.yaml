@@ -1,0 +1,66 @@
+namespace: development
+flags:
+  - key: boolean_variant
+    name: Boolean Variant
+    enabled: true
+    variants:
+      - key: enabled
+        name: Enabled
+      - key: disabled
+        name: Disabled
+    rules:
+      - segment: mil-app
+        rank: 1
+        distributions:
+          - variant: enabled
+            rollout: 100
+
+  - key: multi_variant
+    name: Multi Variant
+    enabled: true
+    variants:
+      - key: one
+        name: One
+      - key: two
+        name: Two
+      - key: three
+        name: Three
+    rules:
+      - segment: mil-app
+        rank: 1
+        distributions:
+          - variant: one
+            rollout: 100
+      - segment: all-entities
+        rank: 2
+        distributions:
+          - variant: two
+            rollout: 100
+
+  - key: disabled_variant
+    name: Disabled Variant
+    enabled: false
+    variants:
+      - key: one
+        name: One
+      - key: Two
+        name: Two
+    rules:
+      - segment: mil-app
+        rank: 1
+        distributions:
+          - variant: enabled
+            rollout: 100
+
+segments:
+  - key: mil-app
+    name: Mil App
+    constraints:
+      - type: STRING_COMPARISON_TYPE
+        property: applicationName
+        operator: eq
+        value: mil
+    match_type: ALL_MATCH_TYPE
+  - key: all-entities
+    name: All Entities
+    match_type: ALL_MATCH_TYPE

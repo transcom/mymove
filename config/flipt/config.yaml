@@ -1,0 +1,11 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/flipt-io/flipt/main/config/flipt.schema.json
+
+# version: "1.0"
+log:
+  level: INFO
+
+authentication:
+  required: false
+
+ui:
+  enabled: true
