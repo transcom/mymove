@@ -40,6 +40,7 @@ func BuildShipmentAddressUpdate(db *pop.Connection, customs []Customization, tra
 		OriginalAddress:   originalAddress,
 		OriginalAddressID: originalAddress.ID,
 		ShipmentID:        shipment.ID,
+		Shipment:          shipment,
 	}
 
 	// Overwrite values with those from assertions

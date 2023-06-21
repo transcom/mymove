@@ -25,24 +25,31 @@ func (suite *FactorySuite) TestBuildShipmentAddressUpdate() {
 
 		addressUpdate := BuildShipmentAddressUpdate(suite.DB(), []Customization{}, []Trait{GetTraitShipmentAddressUpdateRequested})
 
-		// Validate shipment address update status is requested
 		suite.Equal(models.ShipmentAddressUpdateStatusRequested, addressUpdate.Status)
+		suite.Equal(models.MTOShipmentStatusApproved, addressUpdate.Shipment.Status)
+		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, addressUpdate.Shipment.MoveTaskOrder.Status)
+		suite.Equal("CRQST1", addressUpdate.Shipment.MoveTaskOrder.Locator)
+
 	})
 
 	suite.Run("Successful creation of shipment address update with approved status trait", func() {
 
 		addressUpdate := BuildShipmentAddressUpdate(suite.DB(), []Customization{}, []Trait{GetTraitShipmentAddressUpdateApproved})
 
-		// Validate shipment address update status is approved
 		suite.Equal(models.ShipmentAddressUpdateStatusApproved, addressUpdate.Status)
+		suite.Equal(models.MTOShipmentStatusApproved, addressUpdate.Shipment.Status)
+		suite.Equal(models.MoveStatusAPPROVED, addressUpdate.Shipment.MoveTaskOrder.Status)
+		suite.Equal("CRQST2", addressUpdate.Shipment.MoveTaskOrder.Locator)
 	})
 
 	suite.Run("Successful creation of shipment address update with rejected status trait", func() {
 
 		addressUpdate := BuildShipmentAddressUpdate(suite.DB(), []Customization{}, []Trait{GetTraitShipmentAddressUpdateRejected})
 
-		// Validate shipment address update status is rejected
 		suite.Equal(models.ShipmentAddressUpdateStatusRejected, addressUpdate.Status)
+		suite.Equal(models.MTOShipmentStatusApproved, addressUpdate.Shipment.Status)
+		suite.Equal(models.MoveStatusAPPROVED, addressUpdate.Shipment.MoveTaskOrder.Status)
+		suite.Equal("CRQST3", addressUpdate.Shipment.MoveTaskOrder.Locator)
 	})
 
 }
