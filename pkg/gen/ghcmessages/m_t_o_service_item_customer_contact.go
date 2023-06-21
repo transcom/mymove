@@ -19,7 +19,7 @@ import (
 // swagger:model MTOServiceItemCustomerContact
 type MTOServiceItemCustomerContact struct {
 
-	// Date of attempted delivery by the prime.
+	// Date of attempted contact by the prime.
 	// Format: date
 	DateOfContact strfmt.Date `json:"dateOfContact,omitempty"`
 
@@ -33,7 +33,7 @@ type MTOServiceItemCustomerContact struct {
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
-	// Time of attempted delivery by the prime.
+	// Time of attempted contact by the prime.
 	// Example: 0400Z
 	TimeMilitary string `json:"timeMilitary,omitempty"`
 

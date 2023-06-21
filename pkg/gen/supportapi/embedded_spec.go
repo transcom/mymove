@@ -1372,13 +1372,13 @@ func init() {
           ],
           "properties": {
             "dateOfContact1": {
-              "description": "Date of attempted delivery by the prime corresponding to 'timeMilitary1'.",
+              "description": "Date of attempted contact by the prime corresponding to 'timeMilitary1'.",
               "type": "string",
               "format": "date",
               "x-nullable": true
             },
             "dateOfContact2": {
-              "description": "Date of attempted delivery by the prime corresponding to 'timeMilitary2'.",
+              "description": "Date of attempted contact by the prime corresponding to 'timeMilitary2'.",
               "type": "string",
               "format": "date",
               "x-nullable": true
@@ -1413,13 +1413,13 @@ func init() {
               "format": "date"
             },
             "timeMilitary1": {
-              "description": "Time of delivery corresponding to ` + "`" + `dateOfContact1` + "`" + `, in military format.",
+              "description": "Time of attempted contact corresponding to ` + "`" + `dateOfContact1` + "`" + `, in military format.",
               "type": "string",
               "pattern": "\\d{4}Z",
               "example": "1400Z"
             },
             "timeMilitary2": {
-              "description": "Time of delivery corresponding to ` + "`" + `dateOfContact2` + "`" + `, in military format.",
+              "description": "Time of attempted contact corresponding to ` + "`" + `dateOfContact2` + "`" + `, in military format.",
               "type": "string",
               "pattern": "\\d{4}Z",
               "example": "1400Z"
@@ -4163,13 +4163,13 @@ func init() {
           ],
           "properties": {
             "dateOfContact1": {
-              "description": "Date of attempted delivery by the prime corresponding to 'timeMilitary1'.",
+              "description": "Date of attempted contact by the prime corresponding to 'timeMilitary1'.",
               "type": "string",
               "format": "date",
               "x-nullable": true
             },
             "dateOfContact2": {
-              "description": "Date of attempted delivery by the prime corresponding to 'timeMilitary2'.",
+              "description": "Date of attempted contact by the prime corresponding to 'timeMilitary2'.",
               "type": "string",
               "format": "date",
               "x-nullable": true
@@ -4204,13 +4204,13 @@ func init() {
               "format": "date"
             },
             "timeMilitary1": {
-              "description": "Time of delivery corresponding to ` + "`" + `dateOfContact1` + "`" + `, in military format.",
+              "description": "Time of attempted contact corresponding to ` + "`" + `dateOfContact1` + "`" + `, in military format.",
               "type": "string",
               "pattern": "\\d{4}Z",
               "example": "1400Z"
             },
             "timeMilitary2": {
-              "description": "Time of delivery corresponding to ` + "`" + `dateOfContact2` + "`" + `, in military format.",
+              "description": "Time of attempted contact corresponding to ` + "`" + `dateOfContact2` + "`" + `, in military format.",
               "type": "string",
               "pattern": "\\d{4}Z",
               "example": "1400Z"

@@ -10,11 +10,11 @@ properties:
   dateOfContact:
     format: date
     type: string
-    description: Date of attempted delivery by the prime.
+    description: Date of attempted contact by the prime.
   timeMilitary:
     type: string
     example: 0400Z
-    description: Time of attempted delivery by the prime.
+    description: Time of attempted contact by the prime.
   firstAvailableDeliveryDate:
     format: date
     type: string

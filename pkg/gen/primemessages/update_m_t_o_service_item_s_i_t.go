@@ -22,11 +22,11 @@ import (
 type UpdateMTOServiceItemSIT struct {
 	idField strfmt.UUID
 
-	// Date of attempted delivery by the prime corresponding to 'timeMilitary1'.
+	// Date of attempted contact by the prime corresponding to 'timeMilitary1'.
 	// Format: date
 	DateOfContact1 *strfmt.Date `json:"dateOfContact1,omitempty"`
 
-	// Date of attempted delivery by the prime corresponding to 'timeMilitary2'.
+	// Date of attempted contact by the prime corresponding to 'timeMilitary2'.
 	// Format: date
 	DateOfContact2 *strfmt.Date `json:"dateOfContact2,omitempty"`
 
@@ -49,12 +49,12 @@ type UpdateMTOServiceItemSIT struct {
 	// sit destination final address
 	SitDestinationFinalAddress *Address `json:"sitDestinationFinalAddress,omitempty"`
 
-	// Time of attempted delivery by the prime corresponding to 'dateOfContact1', in military format.
+	// Time of attempted contact by the prime corresponding to 'dateOfContact1', in military format.
 	// Example: 1400Z
 	// Pattern: \d{4}Z
 	TimeMilitary1 *string `json:"timeMilitary1,omitempty"`
 
-	// Time of attempted delivery by the prime corresponding to 'dateOfContact2', in military format.
+	// Time of attempted contact by the prime corresponding to 'dateOfContact2', in military format.
 	// Example: 1400Z
 	// Pattern: \d{4}Z
 	TimeMilitary2 *string `json:"timeMilitary2,omitempty"`
@@ -83,11 +83,11 @@ func (m *UpdateMTOServiceItemSIT) SetModelType(val UpdateMTOServiceItemModelType
 func (m *UpdateMTOServiceItemSIT) UnmarshalJSON(raw []byte) error {
 	var data struct {
 
-		// Date of attempted delivery by the prime corresponding to 'timeMilitary1'.
+		// Date of attempted contact by the prime corresponding to 'timeMilitary1'.
 		// Format: date
 		DateOfContact1 *strfmt.Date `json:"dateOfContact1,omitempty"`
 
-		// Date of attempted delivery by the prime corresponding to 'timeMilitary2'.
+		// Date of attempted contact by the prime corresponding to 'timeMilitary2'.
 		// Format: date
 		DateOfContact2 *strfmt.Date `json:"dateOfContact2,omitempty"`
 
@@ -110,12 +110,12 @@ func (m *UpdateMTOServiceItemSIT) UnmarshalJSON(raw []byte) error {
 		// sit destination final address
 		SitDestinationFinalAddress *Address `json:"sitDestinationFinalAddress,omitempty"`
 
-		// Time of attempted delivery by the prime corresponding to 'dateOfContact1', in military format.
+		// Time of attempted contact by the prime corresponding to 'dateOfContact1', in military format.
 		// Example: 1400Z
 		// Pattern: \d{4}Z
 		TimeMilitary1 *string `json:"timeMilitary1,omitempty"`
 
-		// Time of attempted delivery by the prime corresponding to 'dateOfContact2', in military format.
+		// Time of attempted contact by the prime corresponding to 'dateOfContact2', in military format.
 		// Example: 1400Z
 		// Pattern: \d{4}Z
 		TimeMilitary2 *string `json:"timeMilitary2,omitempty"`
@@ -173,11 +173,11 @@ func (m UpdateMTOServiceItemSIT) MarshalJSON() ([]byte, error) {
 	var err error
 	b1, err = json.Marshal(struct {
 
-		// Date of attempted delivery by the prime corresponding to 'timeMilitary1'.
+		// Date of attempted contact by the prime corresponding to 'timeMilitary1'.
 		// Format: date
 		DateOfContact1 *strfmt.Date `json:"dateOfContact1,omitempty"`
 
-		// Date of attempted delivery by the prime corresponding to 'timeMilitary2'.
+		// Date of attempted contact by the prime corresponding to 'timeMilitary2'.
 		// Format: date
 		DateOfContact2 *strfmt.Date `json:"dateOfContact2,omitempty"`
 
@@ -200,12 +200,12 @@ func (m UpdateMTOServiceItemSIT) MarshalJSON() ([]byte, error) {
 		// sit destination final address
 		SitDestinationFinalAddress *Address `json:"sitDestinationFinalAddress,omitempty"`
 
-		// Time of attempted delivery by the prime corresponding to 'dateOfContact1', in military format.
+		// Time of attempted contact by the prime corresponding to 'dateOfContact1', in military format.
 		// Example: 1400Z
 		// Pattern: \d{4}Z
 		TimeMilitary1 *string `json:"timeMilitary1,omitempty"`
 
-		// Time of attempted delivery by the prime corresponding to 'dateOfContact2', in military format.
+		// Time of attempted contact by the prime corresponding to 'dateOfContact2', in military format.
 		// Example: 1400Z
 		// Pattern: \d{4}Z
 		TimeMilitary2 *string `json:"timeMilitary2,omitempty"`

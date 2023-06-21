@@ -6140,7 +6140,7 @@ func init() {
       "type": "object",
       "properties": {
         "dateOfContact": {
-          "description": "Date of attempted delivery by the prime.",
+          "description": "Date of attempted contact by the prime.",
           "type": "string",
           "format": "date"
         },
@@ -6156,7 +6156,7 @@ func init() {
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "timeMilitary": {
-          "description": "Time of attempted delivery by the prime.",
+          "description": "Time of attempted contact by the prime.",
           "type": "string",
           "example": "0400Z"
         },
@@ -17113,7 +17113,7 @@ func init() {
       "type": "object",
       "properties": {
         "dateOfContact": {
-          "description": "Date of attempted delivery by the prime.",
+          "description": "Date of attempted contact by the prime.",
           "type": "string",
           "format": "date"
         },
@@ -17129,7 +17129,7 @@ func init() {
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "timeMilitary": {
-          "description": "Time of attempted delivery by the prime.",
+          "description": "Time of attempted contact by the prime.",
           "type": "string",
           "example": "0400Z"
         },
