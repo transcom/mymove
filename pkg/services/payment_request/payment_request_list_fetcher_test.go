@@ -14,7 +14,7 @@ import (
 )
 
 func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListbyMove() {
-	suite.Run("Only returns visible (where Move.Show is not false) payment requests matching office user GBLOC", func() {
+	suite.Run("Only returns visible (where Move.Show is not false) payment requests", func() {
 		paymentRequestListFetcher := NewPaymentRequestListFetcher()
 
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
@@ -26,7 +26,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListbyMove() {
 				},
 			},
 		}, nil)
-		// We need a payment request with a move that has a shipment that's within the GBLOC
+		// We need a payment request with a move that has a shipment
 		paymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
 			{
 				Model:    expectedMove,

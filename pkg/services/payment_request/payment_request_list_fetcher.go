@@ -131,12 +131,6 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.Ap
 
 // FetchPaymentRequestListByMove returns a payment request by move locator id
 func (f *paymentRequestListFetcher) FetchPaymentRequestListByMove(appCtx appcontext.AppContext, officeUserID uuid.UUID, locator string) (*models.PaymentRequests, error) {
-	gblocFetcher := officeuser.NewOfficeUserGblocFetcher()
-	gbloc, gblocErr := gblocFetcher.FetchGblocForOfficeUser(appCtx, officeUserID)
-	if gblocErr != nil {
-		return &models.PaymentRequests{}, gblocErr
-	}
-
 	paymentRequests := models.PaymentRequests{}
 
 	// Replaced EagerPreload due to nullable fka on Contractor
@@ -156,21 +150,11 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestListByMove(appCtx appcont
 		LeftJoin("transportation_offices", "duty_locations.transportation_office_id = transportation_offices.id").
 		// If a customer puts in an invalid ZIP for their pickup address, it won't show up in this view,
 		// and we don't want it to get hidden from services counselors.
-		LeftJoin("move_to_gbloc", "move_to_gbloc.move_id = moves.id").
 		Where("moves.show = ?", models.BoolPointer(true))
 
-	var branchQuery QueryOption
-	// If the user is associated with the USMC GBLOC we want to show them ALL the USMC moves, so let's override here.
-	// We also only want to do the gbloc filtering thing if we aren't a USMC user, which we cover with the else.
-	var gblocQuery QueryOption
-	if gbloc == "USMC" {
-		branchQuery = branchFilter(models.StringPointer(string(models.AffiliationMARINES)))
-	} else {
-		gblocQuery = shipmentGBLOCFilter(&gbloc)
-	}
 	locatorQuery := locatorFilter(&locator)
 
-	options := [3]QueryOption{branchQuery, gblocQuery, locatorQuery}
+	options := [1]QueryOption{locatorQuery}
 
 	for _, option := range options {
 		if option != nil {
