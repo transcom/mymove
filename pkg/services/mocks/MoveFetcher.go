@@ -42,13 +42,12 @@ func (_m *MoveFetcher) FetchMove(appCtx appcontext.AppContext, locator string, s
 	return r0, r1
 }
 
-type mockConstructorTestingTNewMoveFetcher interface {
+// NewMoveFetcher creates a new instance of MoveFetcher. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewMoveFetcher(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewMoveFetcher creates a new instance of MoveFetcher. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewMoveFetcher(t mockConstructorTestingTNewMoveFetcher) *MoveFetcher {
+}) *MoveFetcher {
 	mock := &MoveFetcher{}
 	mock.Mock.Test(t)
 

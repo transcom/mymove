@@ -28,13 +28,12 @@ func (_m *EvaluationReportDeleter) DeleteEvaluationReport(appCtx appcontext.AppC
 	return r0
 }
 
-type mockConstructorTestingTNewEvaluationReportDeleter interface {
+// NewEvaluationReportDeleter creates a new instance of EvaluationReportDeleter. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewEvaluationReportDeleter(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewEvaluationReportDeleter creates a new instance of EvaluationReportDeleter. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewEvaluationReportDeleter(t mockConstructorTestingTNewEvaluationReportDeleter) *EvaluationReportDeleter {
+}) *EvaluationReportDeleter {
 	mock := &EvaluationReportDeleter{}
 	mock.Mock.Test(t)
 

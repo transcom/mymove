@@ -28,13 +28,12 @@ func (_m *Fetcher) FetchRecord(appCtx appcontext.AppContext, model interface{}, 
 	return r0
 }
 
-type mockConstructorTestingTNewFetcher interface {
+// NewFetcher creates a new instance of Fetcher. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewFetcher(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewFetcher creates a new instance of Fetcher. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewFetcher(t mockConstructorTestingTNewFetcher) *Fetcher {
+}) *Fetcher {
 	mock := &Fetcher{}
 	mock.Mock.Test(t)
 

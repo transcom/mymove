@@ -49,13 +49,12 @@ func (_m *MoveSearcher) SearchMoves(appCtx appcontext.AppContext, params *servic
 	return r0, r1, r2
 }
 
-type mockConstructorTestingTNewMoveSearcher interface {
+// NewMoveSearcher creates a new instance of MoveSearcher. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewMoveSearcher(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewMoveSearcher creates a new instance of MoveSearcher. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewMoveSearcher(t mockConstructorTestingTNewMoveSearcher) *MoveSearcher {
+}) *MoveSearcher {
 	mock := &MoveSearcher{}
 	mock.Mock.Test(t)
 

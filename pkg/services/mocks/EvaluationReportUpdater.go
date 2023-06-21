@@ -44,13 +44,12 @@ func (_m *EvaluationReportUpdater) UpdateEvaluationReport(appCtx appcontext.AppC
 	return r0
 }
 
-type mockConstructorTestingTNewEvaluationReportUpdater interface {
+// NewEvaluationReportUpdater creates a new instance of EvaluationReportUpdater. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewEvaluationReportUpdater(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewEvaluationReportUpdater creates a new instance of EvaluationReportUpdater. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewEvaluationReportUpdater(t mockConstructorTestingTNewEvaluationReportUpdater) *EvaluationReportUpdater {
+}) *EvaluationReportUpdater {
 	mock := &EvaluationReportUpdater{}
 	mock.Mock.Test(t)
 

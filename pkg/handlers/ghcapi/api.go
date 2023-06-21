@@ -135,7 +135,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 
 	ghcAPI.MtoServiceItemUpdateMTOServiceItemStatusHandler = UpdateMTOServiceItemStatusHandler{
 		HandlerConfig:         handlerConfig,
-		MTOServiceItemUpdater: mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter, shipmentFetcher),
+		MTOServiceItemUpdater: mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter, shipmentFetcher, addressCreator),
 		Fetcher:               fetch.NewFetcher(queryBuilder),
 	}
 
@@ -384,14 +384,14 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		sitaddressupdate.NewApprovedOfficeSITAddressUpdateCreator(
 			handlerConfig.HHGPlanner(),
 			addressCreator,
-			mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter, shipmentFetcher),
+			mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter, shipmentFetcher, addressCreator),
 		),
 	}
 
 	ghcAPI.MtoServiceItemApproveSITAddressUpdateHandler = ApproveSITAddressUpdateHandler{
 		handlerConfig,
 		sitaddressupdate.NewSITAddressUpdateRequestApprover(
-			mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter, shipmentFetcher),
+			mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter, shipmentFetcher, addressCreator),
 			moveRouter,
 		),
 	}

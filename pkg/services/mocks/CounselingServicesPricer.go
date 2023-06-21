@@ -86,13 +86,12 @@ func (_m *CounselingServicesPricer) PriceUsingParams(appCtx appcontext.AppContex
 	return r0, r1, r2
 }
 
-type mockConstructorTestingTNewCounselingServicesPricer interface {
+// NewCounselingServicesPricer creates a new instance of CounselingServicesPricer. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewCounselingServicesPricer(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewCounselingServicesPricer creates a new instance of CounselingServicesPricer. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewCounselingServicesPricer(t mockConstructorTestingTNewCounselingServicesPricer) *CounselingServicesPricer {
+}) *CounselingServicesPricer {
 	mock := &CounselingServicesPricer{}
 	mock.Mock.Test(t)
 

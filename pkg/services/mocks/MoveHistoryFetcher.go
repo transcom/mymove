@@ -49,13 +49,12 @@ func (_m *MoveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, par
 	return r0, r1, r2
 }
 
-type mockConstructorTestingTNewMoveHistoryFetcher interface {
+// NewMoveHistoryFetcher creates a new instance of MoveHistoryFetcher. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewMoveHistoryFetcher(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewMoveHistoryFetcher creates a new instance of MoveHistoryFetcher. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewMoveHistoryFetcher(t mockConstructorTestingTNewMoveHistoryFetcher) *MoveHistoryFetcher {
+}) *MoveHistoryFetcher {
 	mock := &MoveHistoryFetcher{}
 	mock.Mock.Test(t)
 

@@ -21,17 +21,21 @@ func (suite *ModelSuite) TestBasicOrderInstantiation() {
 	}
 
 	expErrors := map[string][]string{
-		"orders_type":                    {"OrdersType can not be blank."},
-		"issue_date":                     {"IssueDate can not be blank."},
-		"report_by_date":                 {"ReportByDate can not be blank."},
-		"service_member_id":              {"ServiceMemberID can not be blank."},
-		"new_duty_location_id":           {"NewDutyLocationID can not be blank."},
-		"status":                         {"Status can not be blank."},
-		"uploaded_orders_id":             {"UploadedOrdersID can not be blank."},
-		"transportation_accounting_code": {"TAC must be exactly 4 alphanumeric characters.", "TransportationAccountingCode can not be blank."},
-		"sac":                            {"SAC can not be blank."},
-		"nts_tac":                        {"NtsTAC can not be blank."},
-		"nts_sac":                        {"NtsSAC can not be blank."},
+		"orders_type":                       {"OrdersType can not be blank."},
+		"issue_date":                        {"IssueDate can not be blank."},
+		"report_by_date":                    {"ReportByDate can not be blank."},
+		"service_member_id":                 {"ServiceMemberID can not be blank."},
+		"new_duty_location_id":              {"NewDutyLocationID can not be blank."},
+		"status":                            {"Status can not be blank."},
+		"uploaded_orders_id":                {"UploadedOrdersID can not be blank."},
+		"transportation_accounting_code":    {"TAC must be exactly 4 alphanumeric characters.", "TransportationAccountingCode can not be blank."},
+		"sac":                               {"SAC can not be blank."},
+		"nts_tac":                           {"NtsTAC can not be blank."},
+		"nts_sac":                           {"NtsSAC can not be blank."},
+		"supply_and_services_cost_estimate": {"SupplyAndServicesCostEstimate can not be blank."},
+		"method_of_payment":                 {"MethodOfPayment can not be blank."},
+		"naics":                             {"NAICS can not be blank."},
+		"packing_and_shipping_instructions": {"PackingAndShippingInstructions can not be blank."},
 	}
 
 	suite.verifyValidationErrors(order, expErrors)
@@ -272,21 +276,27 @@ func (suite *ModelSuite) TestFetchOrderNotForUser() {
 	deptIndicator := testdatagen.DefaultDepartmentIndicator
 	TAC := testdatagen.DefaultTransportationAccountingCode
 	suite.MustSave(&uploadedOrder)
+	contractor := factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
+	packingAndShippingInstructions := InstructionsBeforeContractNumber + " " + contractor.ContractNumber + " " + InstructionsAfterContractNumber
 	order := Order{
-		ServiceMemberID:     serviceMember1.ID,
-		ServiceMember:       serviceMember1,
-		IssueDate:           issueDate,
-		ReportByDate:        reportByDate,
-		OrdersType:          ordersType,
-		HasDependents:       hasDependents,
-		SpouseHasProGear:    spouseHasProGear,
-		NewDutyLocationID:   dutyLocation.ID,
-		NewDutyLocation:     dutyLocation,
-		UploadedOrdersID:    uploadedOrder.ID,
-		UploadedOrders:      uploadedOrder,
-		Status:              OrderStatusSUBMITTED,
-		TAC:                 &TAC,
-		DepartmentIndicator: &deptIndicator,
+		ServiceMemberID:                serviceMember1.ID,
+		ServiceMember:                  serviceMember1,
+		IssueDate:                      issueDate,
+		ReportByDate:                   reportByDate,
+		OrdersType:                     ordersType,
+		HasDependents:                  hasDependents,
+		SpouseHasProGear:               spouseHasProGear,
+		NewDutyLocationID:              dutyLocation.ID,
+		NewDutyLocation:                dutyLocation,
+		UploadedOrdersID:               uploadedOrder.ID,
+		UploadedOrders:                 uploadedOrder,
+		Status:                         OrderStatusSUBMITTED,
+		TAC:                            &TAC,
+		DepartmentIndicator:            &deptIndicator,
+		SupplyAndServicesCostEstimate:  SupplyAndServicesCostEstimate,
+		MethodOfPayment:                MethodOfPayment,
+		NAICS:                          NAICS,
+		PackingAndShippingInstructions: packingAndShippingInstructions,
 	}
 	suite.MustSave(&order)
 
@@ -316,22 +326,28 @@ func (suite *ModelSuite) TestOrderStateMachine() {
 	}
 	deptIndicator := testdatagen.DefaultDepartmentIndicator
 	TAC := testdatagen.DefaultTransportationAccountingCode
+	contractor := factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
+	packingAndShippingInstructions := InstructionsBeforeContractNumber + " " + contractor.ContractNumber + " " + InstructionsAfterContractNumber
 	suite.MustSave(&uploadedOrder)
 	order := Order{
-		ServiceMemberID:     serviceMember1.ID,
-		ServiceMember:       serviceMember1,
-		IssueDate:           issueDate,
-		ReportByDate:        reportByDate,
-		OrdersType:          ordersType,
-		HasDependents:       hasDependents,
-		SpouseHasProGear:    spouseHasProGear,
-		NewDutyLocationID:   dutyLocation.ID,
-		NewDutyLocation:     dutyLocation,
-		UploadedOrdersID:    uploadedOrder.ID,
-		UploadedOrders:      uploadedOrder,
-		Status:              OrderStatusDRAFT,
-		TAC:                 &TAC,
-		DepartmentIndicator: &deptIndicator,
+		ServiceMemberID:                serviceMember1.ID,
+		ServiceMember:                  serviceMember1,
+		IssueDate:                      issueDate,
+		ReportByDate:                   reportByDate,
+		OrdersType:                     ordersType,
+		HasDependents:                  hasDependents,
+		SpouseHasProGear:               spouseHasProGear,
+		NewDutyLocationID:              dutyLocation.ID,
+		NewDutyLocation:                dutyLocation,
+		UploadedOrdersID:               uploadedOrder.ID,
+		UploadedOrders:                 uploadedOrder,
+		Status:                         OrderStatusDRAFT,
+		TAC:                            &TAC,
+		DepartmentIndicator:            &deptIndicator,
+		SupplyAndServicesCostEstimate:  SupplyAndServicesCostEstimate,
+		MethodOfPayment:                MethodOfPayment,
+		NAICS:                          NAICS,
+		PackingAndShippingInstructions: packingAndShippingInstructions,
 	}
 	suite.MustSave(&order)
 

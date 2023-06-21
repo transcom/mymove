@@ -40,13 +40,12 @@ func (_m *GHCPaymentRequestInvoiceGenerator) Generate(appCtx appcontext.AppConte
 	return r0, r1
 }
 
-type mockConstructorTestingTNewGHCPaymentRequestInvoiceGenerator interface {
+// NewGHCPaymentRequestInvoiceGenerator creates a new instance of GHCPaymentRequestInvoiceGenerator. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewGHCPaymentRequestInvoiceGenerator(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewGHCPaymentRequestInvoiceGenerator creates a new instance of GHCPaymentRequestInvoiceGenerator. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewGHCPaymentRequestInvoiceGenerator(t mockConstructorTestingTNewGHCPaymentRequestInvoiceGenerator) *GHCPaymentRequestInvoiceGenerator {
+}) *GHCPaymentRequestInvoiceGenerator {
 	mock := &GHCPaymentRequestInvoiceGenerator{}
 	mock.Mock.Test(t)
 

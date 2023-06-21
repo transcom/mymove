@@ -66,13 +66,12 @@ func (_m *Helper) FetchServiceParamsForServiceItems(appCtx appcontext.AppContext
 	return r0, r1
 }
 
-type mockConstructorTestingTNewHelper interface {
+// NewHelper creates a new instance of Helper. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewHelper(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewHelper creates a new instance of Helper. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewHelper(t mockConstructorTestingTNewHelper) *Helper {
+}) *Helper {
 	mock := &Helper{}
 	mock.Mock.Test(t)
 

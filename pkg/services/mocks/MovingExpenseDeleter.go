@@ -28,13 +28,12 @@ func (_m *MovingExpenseDeleter) DeleteMovingExpense(appCtx appcontext.AppContext
 	return r0
 }
 
-type mockConstructorTestingTNewMovingExpenseDeleter interface {
+// NewMovingExpenseDeleter creates a new instance of MovingExpenseDeleter. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewMovingExpenseDeleter(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewMovingExpenseDeleter creates a new instance of MovingExpenseDeleter. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewMovingExpenseDeleter(t mockConstructorTestingTNewMovingExpenseDeleter) *MovingExpenseDeleter {
+}) *MovingExpenseDeleter {
 	mock := &MovingExpenseDeleter{}
 	mock.Mock.Test(t)
 
