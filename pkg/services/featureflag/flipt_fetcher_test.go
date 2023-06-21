@@ -1,10 +1,17 @@
 package featureflag
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
+	"io"
+	"net/http"
+	"reflect"
 	"testing"
 
 	"github.com/stretchr/testify/suite"
+	"go.uber.org/zap"
+	"gopkg.in/dnaeon/go-vcr.v3/cassette"
 	"gopkg.in/dnaeon/go-vcr.v3/recorder"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -27,20 +34,94 @@ func TestFliptFetcherSuite(t *testing.T) {
 	hs.PopTestSuite.TearDown()
 }
 
-func (suite *FliptFetcherSuite) TestGetFlagForUserDisabledVariant() {
-	recorder, err := recorder.New("testdata/flipt_user_disabled_variant")
+type fliptRequestBody struct {
+	RequestID      string            `json:"requestId"`
+	EntityID       string            `json:"entityId"`
+	RequestContext map[string]string `json:"requestContext"`
+	Match          bool              `json:"match"`
+	FlagKey        string            `json:"flagKey"`
+	SegmentKey     string            `json:"segmentKey"`
+	Timestamp      string            `json:"timestamp"`
+}
+
+func (suite *FliptFetcherSuite) setupRecorder(path string) *recorder.Recorder {
+	recorder, err := recorder.New(path)
 	suite.NoError(err)
-	defer func() {
+	suite.T().Cleanup(func() {
 		suite.NoError(recorder.Stop())
-	}()
+	})
+
+	recorder.SetReplayableInteractions(true)
+
+	customMatcher := func(r *http.Request, expected cassette.Request) bool {
+		suite.Logger().Info("Starting custom matcher")
+		if !reflect.DeepEqual(r.Header, expected.Headers) {
+			suite.Logger().Info("Header mismatch",
+				zap.Any("expected", expected.Headers),
+				zap.Any("actual", r.Header),
+			)
+			return false
+		}
+		if (r.Body == nil || r.Body == http.NoBody) && expected.Body == "" {
+			return cassette.DefaultMatcher(r, expected)
+		}
+
+		reqBody, err := io.ReadAll(r.Body)
+		suite.FatalNoError(err, "failed to read request body")
+		r.Body.Close()
+		r.Body = io.NopCloser(bytes.NewBuffer(reqBody))
+
+		var actualBody fliptRequestBody
+		err = json.Unmarshal(reqBody, &actualBody)
+		suite.FatalNoError(err, "failed to decode actual request body")
+
+		var expectedBody fliptRequestBody
+		err = json.Unmarshal([]byte(expected.Body), &expectedBody)
+		suite.FatalNoError(err, "failed to decode expected request body")
+
+		if actualBody.EntityID != expectedBody.EntityID {
+			suite.Logger().Info("EntityID mismatch")
+			return false
+		}
+		if actualBody.Match != expectedBody.Match {
+			suite.Logger().Info("Match mismatch")
+			return false
+		}
+		if actualBody.FlagKey != expectedBody.FlagKey {
+			suite.Logger().Info("FlagKey mismatch")
+			return false
+		}
+		if actualBody.SegmentKey != expectedBody.SegmentKey {
+			suite.Logger().Info("SegmentKey mismatch")
+			return false
+		}
+
+		if !reflect.DeepEqual(actualBody.RequestContext, expectedBody.RequestContext) {
+			suite.Logger().Info("RequestContext mismatch")
+			return false
+		}
+
+		return cassette.DefaultMatcher(r, expected)
+	}
+
+	recorder.SetMatcher(customMatcher)
+	return recorder
+}
+
+func (suite *FliptFetcherSuite) setupFliptFetcher(path string) *FliptFetcher {
+	recorder := suite.setupRecorder(path)
 	client := recorder.GetDefaultClient()
 	ffConfig := cli.FeatureFlagConfig{
 		URL:       "http://localhost:5050",
-		Token:     "token",
 		Namespace: "development",
 	}
 	f, err := NewFliptFetcherWithClient(ffConfig, client)
 	suite.NoError(err)
+	return f
+}
+
+func (suite *FliptFetcherSuite) TestGetFlagForUserDisabledVariant() {
+	f := suite.setupFliptFetcher("testdata/flipt_user_disabled_variant")
 	fakeSession := &auth.Session{
 		Email:           "foo@example.com",
 		ApplicationName: auth.MilApp,
@@ -53,23 +134,11 @@ func (suite *FliptFetcherSuite) TestGetFlagForUserDisabledVariant() {
 	suite.False(flag.Enabled)
 	suite.Equal(fakeSession.Email, flag.Entity)
 	suite.Equal("", flag.Value)
-	suite.Equal(ffConfig.Namespace, flag.Namespace)
+	suite.Equal(f.config.Namespace, flag.Namespace)
 }
 
 func (suite *FliptFetcherSuite) TestIsEnabledForUserDisabledVariant() {
-	recorder, err := recorder.New("testdata/flipt_user_disabled_variant")
-	suite.NoError(err)
-	defer func() {
-		suite.NoError(recorder.Stop())
-	}()
-	client := recorder.GetDefaultClient()
-	ffConfig := cli.FeatureFlagConfig{
-		URL:       "http://localhost:5050",
-		Token:     "token",
-		Namespace: "development",
-	}
-	f, err := NewFliptFetcherWithClient(ffConfig, client)
-	suite.NoError(err)
+	f := suite.setupFliptFetcher("testdata/flipt_user_disabled_variant")
 	fakeSession := &auth.Session{
 		Email:           "foo@example.com",
 		ApplicationName: auth.MilApp,
@@ -82,19 +151,7 @@ func (suite *FliptFetcherSuite) TestIsEnabledForUserDisabledVariant() {
 }
 
 func (suite *FliptFetcherSuite) TestGetFlagForUserBooleanVariant() {
-	recorder, err := recorder.New("testdata/flipt_user_boolean_variant")
-	suite.NoError(err)
-	defer func() {
-		suite.NoError(recorder.Stop())
-	}()
-	client := recorder.GetDefaultClient()
-	ffConfig := cli.FeatureFlagConfig{
-		URL:       "http://localhost:5050",
-		Token:     "token",
-		Namespace: "development",
-	}
-	f, err := NewFliptFetcherWithClient(ffConfig, client)
-	suite.NoError(err)
+	f := suite.setupFliptFetcher("testdata/flipt_user_boolean_variant")
 	fakeSession := &auth.Session{
 		Email:           "foo@example.com",
 		ApplicationName: auth.MilApp,
@@ -107,23 +164,11 @@ func (suite *FliptFetcherSuite) TestGetFlagForUserBooleanVariant() {
 	suite.True(flag.Enabled)
 	suite.Equal(fakeSession.Email, flag.Entity)
 	suite.Equal(enabledVariant, flag.Value)
-	suite.Equal(ffConfig.Namespace, flag.Namespace)
+	suite.Equal(f.config.Namespace, flag.Namespace)
 }
 
 func (suite *FliptFetcherSuite) TestIsEnabledForUserBooleanVariant() {
-	recorder, err := recorder.New("testdata/flipt_user_boolean_variant")
-	suite.NoError(err)
-	defer func() {
-		suite.NoError(recorder.Stop())
-	}()
-	client := recorder.GetDefaultClient()
-	ffConfig := cli.FeatureFlagConfig{
-		URL:       "http://localhost:5050",
-		Token:     "token",
-		Namespace: "development",
-	}
-	f, err := NewFliptFetcherWithClient(ffConfig, client)
-	suite.NoError(err)
+	f := suite.setupFliptFetcher("testdata/flipt_user_boolean_variant")
 	fakeSession := &auth.Session{
 		Email:           "foo@example.com",
 		ApplicationName: auth.MilApp,
@@ -136,19 +181,7 @@ func (suite *FliptFetcherSuite) TestIsEnabledForUserBooleanVariant() {
 }
 
 func (suite *FliptFetcherSuite) TestGetFlagForUserMultiVariant() {
-	recorder, err := recorder.New("testdata/flipt_user_multi_variant")
-	suite.NoError(err)
-	defer func() {
-		suite.NoError(recorder.Stop())
-	}()
-	client := recorder.GetDefaultClient()
-	ffConfig := cli.FeatureFlagConfig{
-		URL:       "http://localhost:5050",
-		Token:     "token",
-		Namespace: "development",
-	}
-	f, err := NewFliptFetcherWithClient(ffConfig, client)
-	suite.NoError(err)
+	f := suite.setupFliptFetcher("testdata/flipt_user_multi_variant")
 	fakeSession := &auth.Session{
 		Email:           "foo@example.com",
 		ApplicationName: auth.MilApp,
@@ -161,23 +194,11 @@ func (suite *FliptFetcherSuite) TestGetFlagForUserMultiVariant() {
 	suite.Equal("multi_variant", flag.Key)
 	suite.Equal("one", flag.Value)
 	suite.Equal(fakeSession.Email, flag.Entity)
-	suite.Equal(ffConfig.Namespace, flag.Namespace)
+	suite.Equal(f.config.Namespace, flag.Namespace)
 }
 
 func (suite *FliptFetcherSuite) TestGetFlagSystemMultiVariant() {
-	recorder, err := recorder.New("testdata/flipt_system_multi_variant")
-	suite.NoError(err)
-	defer func() {
-		suite.NoError(recorder.Stop())
-	}()
-	client := recorder.GetDefaultClient()
-	ffConfig := cli.FeatureFlagConfig{
-		URL:       "http://localhost:5050",
-		Token:     "token",
-		Namespace: "development",
-	}
-	f, err := NewFliptFetcherWithClient(ffConfig, client)
-	suite.NoError(err)
+	f := suite.setupFliptFetcher("testdata/flipt_system_multi_variant")
 	flag, err := f.GetFlag(context.Background(),
 		"system",
 		"multi_variant", map[string]string{})
@@ -186,5 +207,5 @@ func (suite *FliptFetcherSuite) TestGetFlagSystemMultiVariant() {
 	suite.Equal("multi_variant", flag.Key)
 	suite.Equal("two", flag.Value)
 	suite.Equal("system", flag.Entity)
-	suite.Equal(ffConfig.Namespace, flag.Namespace)
+	suite.Equal(f.config.Namespace, flag.Namespace)
 }

@@ -41,16 +41,19 @@ func NewFliptFetcherWithClient(config cli.FeatureFlagConfig, httpClient *http.Cl
 	if config.URL == "" {
 		return nil, errors.New("FliptFetcher needs a non-empty Endpoint")
 	}
-	if config.Token == "" {
-		return nil, errors.New("FliptFetcher needs a non-empty Token")
+	sdkOptions := []sdk.Option{}
+	if config.Token != "" {
+		// if flipt is not exposed to the internet, we can run it
+		// without authentication
+		provider := sdk.StaticClientTokenProvider(config.Token)
+		sdkOptions = append(sdkOptions, sdk.WithClientTokenProvider(provider))
 	}
-	provider := sdk.StaticClientTokenProvider(config.Token)
 	transportOptions := []sdkhttp.Option{}
 	if httpClient != nil {
 		transportOptions = append(transportOptions, sdkhttp.WithHTTPClient(httpClient))
 	}
 	transport := sdkhttp.NewTransport(config.URL, transportOptions...)
-	client := sdk.New(transport, sdk.WithClientTokenProvider(provider))
+	client := sdk.New(transport, sdkOptions...)
 	return &FliptFetcher{
 		client: client,
 		config: config,

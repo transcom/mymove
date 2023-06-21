@@ -6,17 +6,15 @@ interactions:
         proto: HTTP/1.1
         proto_major: 1
         proto_minor: 1
-        content_length: 250
+        content_length: 243
         transfer_encoding: []
         trailer: {}
         host: localhost:5050
         remote_addr: ""
         request_uri: ""
-        body: '{"requestId":"8c3a1161-d71d-4c26-8fd8-15373e2f98f1", "flagKey":"multi_variant", "entityId":"foo@example.com", "context":{"applicationName":"mil", "isAdminUser":"false", "isOfficeUser":"false", "isServiceMember":"false"}, "namespaceKey":"development"}'
+        body: '{"requestId":"84a11035-58f1-43cd-9de2-d2494f6ec8e8","flagKey":"multi_variant","entityId":"foo@example.com","context":{"applicationName":"mil","isAdminUser":"false","isOfficeUser":"false","isServiceMember":"false"},"namespaceKey":"development"}'
         form: {}
-        headers:
-            Authorization:
-                - Bearer token
+        headers: {}
         url: http://localhost:5050/api/v1/namespaces/development/evaluate
         method: POST
       response:
@@ -27,14 +25,14 @@ interactions:
         trailer: {}
         content_length: -1
         uncompressed: true
-        body: '{"requestId":"8c3a1161-d71d-4c26-8fd8-15373e2f98f1","entityId":"foo@example.com","requestContext":{"applicationName":"mil","isAdminUser":"false","isOfficeUser":"false","isServiceMember":"false"},"match":true,"flagKey":"multi_variant","segmentKey":"mil-app","timestamp":"2023-06-21T16:19:47.924177799Z","value":"one","requestDurationMillis":0.027709,"attachment":"null","reason":"MATCH_EVALUATION_REASON","namespaceKey":"development"}'
+        body: '{"requestId":"84a11035-58f1-43cd-9de2-d2494f6ec8e8","entityId":"foo@example.com","requestContext":{"applicationName":"mil","isAdminUser":"false","isOfficeUser":"false","isServiceMember":"false"},"match":true,"flagKey":"multi_variant","segmentKey":"mil-app","timestamp":"2023-06-21T16:33:12.816057838Z","value":"one","requestDurationMillis":0.05475,"attachment":"null","reason":"MATCH_EVALUATION_REASON","namespaceKey":"development"}'
         headers:
             Content-Security-Policy:
                 - default-src 'self'; img-src * data:; frame-ancestors 'none';
             Content-Type:
                 - application/json
             Date:
-                - Wed, 21 Jun 2023 16:19:47 GMT
+                - Wed, 21 Jun 2023 16:33:12 GMT
             Grpc-Metadata-Content-Type:
                 - application/grpc
             Vary:
@@ -43,4 +41,4 @@ interactions:
                 - nosniff
         status: 200 OK
         code: 200
-        duration: 1.526792ms
+        duration: 3.774208ms
