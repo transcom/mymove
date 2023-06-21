@@ -2,11 +2,11 @@ package shipmentaddressupdate
 
 import (
 	"database/sql"
-	"fmt"
 
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
 	serviceparamvaluelookups "github.com/transcom/mymove/pkg/payment_request/service_param_value_lookups"
 	"github.com/transcom/mymove/pkg/route"
@@ -76,77 +76,89 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 	// if status is not approved
 	//   use move router to change move status to approvals requested
 
-	var existingUpdate models.ShipmentAddressUpdate
+	var addressUpdate models.ShipmentAddressUpdate
 	var shipment models.MTOShipment
 	err := appCtx.DB().EagerPreload("MoveTaskOrder", "PickupAddress").Find(&shipment, shipmentID)
 	if shipment.ShipmentType != models.MTOShipmentTypeHHG {
-		return nil, fmt.Errorf("only works for HHG") // TODO replace me with a better error
+		return nil, apperror.NewUnprocessableEntityError("destination address update requests can only be created for HHG shipments")
 	}
 	isThereAnExistingUpdate := true
 	if err != nil {
 		return nil, err
 	}
-	err = appCtx.DB().Where("shipment_id = ?", shipmentID).First(&existingUpdate)
+	err = appCtx.DB().Where("shipment_id = ?", shipmentID).First(&addressUpdate)
 	if err != nil && err != sql.ErrNoRows {
 		return nil, err
 	}
 	if err != nil && err == sql.ErrNoRows {
 		isThereAnExistingUpdate = false
-		existingUpdate.OriginalAddressID = *shipment.DestinationAddressID
-		existingUpdate.ShipmentID = shipmentID
-		existingUpdate.OfficeRemarks = nil
+		addressUpdate.OriginalAddressID = *shipment.DestinationAddressID
+		addressUpdate.ShipmentID = shipmentID
+		addressUpdate.OfficeRemarks = nil
 	}
 
-	existingUpdate.Status = models.ShipmentAddressUpdateStatusApproved
-	existingUpdate.ContractorRemarks = contractorRemarks
+	addressUpdate.Status = models.ShipmentAddressUpdateStatusApproved
+	addressUpdate.ContractorRemarks = contractorRemarks
 	address, err := f.addressCreator.CreateAddress(appCtx, &newAddress)
 	if err != nil {
 		return nil, err
 	}
-	existingUpdate.NewAddressID = address.ID
+	addressUpdate.NewAddressID = address.ID
 
 	contract, err := serviceparamvaluelookups.FetchContract(appCtx, *shipment.MoveTaskOrder.AvailableToPrimeAt)
 	if err != nil {
 		return nil, err
 	}
 
-	changesServiceArea, err := f.doesDeliveryAddressUpdateChangeServiceArea(appCtx, contract.ID, existingUpdate.OriginalAddress, newAddress)
+	changesServiceArea, err := f.doesDeliveryAddressUpdateChangeServiceArea(appCtx, contract.ID, addressUpdate.OriginalAddress, newAddress)
 	if err != nil {
 		return nil, err
 	}
 
-	changesMileageBracket, err := f.doesDeliveryAddressUpdateChangeMileageBracket(appCtx, contract.ID, *shipment.PickupAddress, existingUpdate.OriginalAddress, newAddress)
+	changesMileageBracket, err := f.doesDeliveryAddressUpdateChangeMileageBracket(appCtx, contract.ID, *shipment.PickupAddress, addressUpdate.OriginalAddress, newAddress)
 	if err != nil {
 		return nil, err
 	}
 
-	changesShipmentPricingType, err := f.doesDeliveryAddressUpdateChangeShipmentPricingType(appCtx, *shipment.PickupAddress, existingUpdate.OriginalAddress, newAddress)
+	changesShipmentPricingType, err := f.doesDeliveryAddressUpdateChangeShipmentPricingType(appCtx, *shipment.PickupAddress, addressUpdate.OriginalAddress, newAddress)
 	if err != nil {
 		return nil, err
 	}
 
 	updateNeedsTOOReview := changesServiceArea || changesMileageBracket || changesShipmentPricingType
 	if updateNeedsTOOReview {
-		existingUpdate.Status = models.ShipmentAddressUpdateStatusRequested
+		addressUpdate.Status = models.ShipmentAddressUpdateStatusRequested
 	}
 
-	if isThereAnExistingUpdate {
-		verrs, err := appCtx.DB().ValidateAndSave(&existingUpdate)
-		if verrs.HasAny() {
-			return nil, fmt.Errorf(verrs.String()) // TODO improve error
+	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+		if isThereAnExistingUpdate {
+			verrs, txnErr := appCtx.DB().ValidateAndSave(&addressUpdate)
+			if verrs.HasAny() {
+				return apperror.NewInvalidInputError(addressUpdate.ID, txnErr, verrs, "unable to save ShipmentAddressUpdate")
+			}
+			if txnErr != nil {
+				return apperror.NewQueryError("ShipmentAddressUpdate", txnErr, "error saving shipment address update request")
+			}
+		} else {
+			verrs, txnErr := appCtx.DB().ValidateAndCreate(&addressUpdate)
+			if verrs.HasAny() {
+				return apperror.NewInvalidInputError(uuid.Nil, txnErr, verrs, "unable to create ShipmentAddressUpdate")
+			}
+			if txnErr != nil {
+				return apperror.NewQueryError("ShipmentAddressUpdate", txnErr, "error creating shipment address update request")
+			}
 		}
+
+		err = f.moveRouter.SendToOfficeUser(appCtx, &shipment.MoveTaskOrder)
 		if err != nil {
-			return nil, err
+			return err
 		}
-	} else {
-		verrs, err := appCtx.DB().ValidateAndCreate(&existingUpdate)
-		if verrs.HasAny() {
-			return nil, fmt.Errorf(verrs.String()) // TODO improve error
-		}
-		if err != nil {
-			return nil, err
-		}
+
+		return nil
+	})
+	if transactionError != nil {
+		return nil, transactionError
 	}
 
-	return &existingUpdate, nil
+	return &addressUpdate, nil
 }
