@@ -765,7 +765,7 @@ func subScenarioSITExtensions(appCtx appcontext.AppContext, userUploader *upload
 }
 
 // Create moves with shipment address update requests in each of the three possible states: requested, approved, and rejected
-func subScenarioNonSITAddressUpdates(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) func() {
+func subScenarioShipmentAddressUpdates(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) func() {
 	return func() {
 		createTOO(appCtx)
 
@@ -782,7 +782,7 @@ func subScenarioNonSITAddressUpdates(appCtx appcontext.AppContext, userUploader 
 					Status: models.MTOShipmentStatusApproved,
 				},
 			},
-		}, []factory.Trait{factory.GetTraitNonSITAddressUpdateRequested})
+		}, []factory.Trait{factory.GetTraitShipmentAddressUpdateRequested})
 
 		// Create move CRQST2 with a shipment address update request in approved state
 		factory.BuildShipmentAddressUpdate(appCtx.DB(), []factory.Customization{
@@ -797,7 +797,7 @@ func subScenarioNonSITAddressUpdates(appCtx appcontext.AppContext, userUploader 
 					Status: models.MTOShipmentStatusApproved,
 				},
 			},
-		}, []factory.Trait{factory.GetTraitNonSITAddressUpdateApproved})
+		}, []factory.Trait{factory.GetTraitShipmentAddressUpdateApproved})
 
 		// Create move CRQST3 with a shipment address update request in rejected state
 		factory.BuildShipmentAddressUpdate(appCtx.DB(), []factory.Customization{
@@ -812,7 +812,7 @@ func subScenarioNonSITAddressUpdates(appCtx appcontext.AppContext, userUploader 
 					Status: models.MTOShipmentStatusApproved,
 				},
 			},
-		}, []factory.Trait{factory.GetTraitNonSITAddressUpdateRejected})
+		}, []factory.Trait{factory.GetTraitShipmentAddressUpdateRejected})
 	}
 }
 

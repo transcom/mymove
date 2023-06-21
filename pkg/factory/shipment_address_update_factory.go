@@ -57,7 +57,7 @@ func BuildShipmentAddressUpdate(db *pop.Connection, customs []Customization, tra
 //      TRAITS
 // ------------------------
 
-func GetTraitNonSITAddressUpdateRequested() []Customization {
+func GetTraitShipmentAddressUpdateRequested() []Customization {
 	return []Customization{
 		{
 			Model: models.ShipmentAddressUpdate{
@@ -67,7 +67,7 @@ func GetTraitNonSITAddressUpdateRequested() []Customization {
 	}
 }
 
-func GetTraitNonSITAddressUpdateApproved() []Customization {
+func GetTraitShipmentAddressUpdateApproved() []Customization {
 	return []Customization{
 		{
 			Model: models.ShipmentAddressUpdate{
@@ -77,7 +77,7 @@ func GetTraitNonSITAddressUpdateApproved() []Customization {
 	}
 }
 
-func GetTraitNonSITAddressUpdateRejected() []Customization {
+func GetTraitShipmentAddressUpdateRejected() []Customization {
 	return []Customization{
 		{
 			Model: models.ShipmentAddressUpdate{
