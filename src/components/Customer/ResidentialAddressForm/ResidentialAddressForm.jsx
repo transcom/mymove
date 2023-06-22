@@ -36,7 +36,7 @@ const ResidentialAddressForm = ({ formFieldsName, initialValues, onSubmit, onBac
               <AddressFields
                 name={formFieldsName}
                 validators={validators}
-                validatePostalCodeOnChangeProps={{ setFieldTouched, handleChange }}
+                formikFunctionsToValidatePostalCodeOnChange={{ setFieldTouched, handleChange }}
               />
             </SectionWrapper>
 

@@ -60,12 +60,31 @@ const statesList = [
   { value: 'WY', key: 'WY' },
 ];
 
-export const AddressFields = ({ legend, className, name, render, validators, validatePostalCodeOnChangeProps }) => {
+/**
+ * @param legend
+ * @param className
+ * @param name
+ * @param render
+ * @param validators
+ * @param formikFunctionsToValidatePostalCodeOnChange If you are intending to validate the postal code on change, you
+ * will need to pass the handleChange and setFieldTouched Formik functions through in an object here.
+ * See ResidentialAddressForm for an example.
+ * @return {JSX.Element}
+ * @constructor
+ */
+export const AddressFields = ({
+  legend,
+  className,
+  name,
+  render,
+  validators,
+  formikFunctionsToValidatePostalCodeOnChange,
+}) => {
   const addressFieldsUUID = useRef(uuidv4());
 
   let postalCodeField;
 
-  if (validatePostalCodeOnChangeProps) {
+  if (formikFunctionsToValidatePostalCodeOnChange) {
     postalCodeField = (
       <TextField
         label="ZIP"
@@ -78,8 +97,8 @@ export const AddressFields = ({ legend, className, name, render, validators, val
           // Formik by default sets the field to touched on blur. The validation errors will not show unless the field
           // has been touched. We are passing false as shouldValidate. By default, Formik validates during
           // setFieldTouched. However, at this point Formik has not set the field value, so it would use stale data.
-          validatePostalCodeOnChangeProps.setFieldTouched(e.target.name, true, false);
-          validatePostalCodeOnChangeProps.handleChange(e);
+          formikFunctionsToValidatePostalCodeOnChange.setFieldTouched(e.target.name, true, false);
+          formikFunctionsToValidatePostalCodeOnChange.handleChange(e);
         }}
       />
     );
@@ -149,7 +168,7 @@ AddressFields.propTypes = {
     state: PropTypes.func,
     postalCode: PropTypes.func,
   }),
-  validatePostalCodeOnChangeProps: PropTypes.shape({
+  formikFunctionsToValidatePostalCodeOnChange: PropTypes.shape({
     handleChange: PropTypes.func,
     setFieldTouched: PropTypes.func,
   }),
@@ -160,7 +179,7 @@ AddressFields.defaultProps = {
   className: '',
   render: (fields) => fields,
   validators: {},
-  validatePostalCodeOnChangeProps: null,
+  formikFunctionsToValidatePostalCodeOnChange: null,
 };
 
 export default AddressFields;

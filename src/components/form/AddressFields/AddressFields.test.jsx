@@ -103,7 +103,7 @@ describe('AddressFields component', () => {
             <AddressFields
               legend="Address Form"
               name="address"
-              validatePostalCodeOnChangeProps={{ handleChange, setFieldTouched }}
+              formikFunctionsToValidatePostalCodeOnChange={{ handleChange, setFieldTouched }}
               validators={{
                 postalCode: (value) => (value !== '99999' ? postalCodeErrorText : ''),
               }}
