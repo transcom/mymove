@@ -40,13 +40,12 @@ func (_m *UploadInformationFetcher) FetchUploadInformation(appCtx appcontext.App
 	return r0, r1
 }
 
-type mockConstructorTestingTNewUploadInformationFetcher interface {
+// NewUploadInformationFetcher creates a new instance of UploadInformationFetcher. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewUploadInformationFetcher(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewUploadInformationFetcher creates a new instance of UploadInformationFetcher. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewUploadInformationFetcher(t mockConstructorTestingTNewUploadInformationFetcher) *UploadInformationFetcher {
+}) *UploadInformationFetcher {
 	mock := &UploadInformationFetcher{}
 	mock.Mock.Test(t)
 

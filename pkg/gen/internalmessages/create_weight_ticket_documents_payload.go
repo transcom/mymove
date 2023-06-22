@@ -247,6 +247,7 @@ func (m *CreateWeightTicketDocumentsPayload) ContextValidate(ctx context.Context
 func (m *CreateWeightTicketDocumentsPayload) contextValidateWeightTicketSetType(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.WeightTicketSetType != nil {
+
 		if err := m.WeightTicketSetType.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("weight_ticket_set_type")

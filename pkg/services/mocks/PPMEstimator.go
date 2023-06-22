@@ -77,13 +77,12 @@ func (_m *PPMEstimator) FinalIncentiveWithDefaultChecks(appCtx appcontext.AppCon
 	return r0, r1
 }
 
-type mockConstructorTestingTNewPPMEstimator interface {
+// NewPPMEstimator creates a new instance of PPMEstimator. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewPPMEstimator(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewPPMEstimator creates a new instance of PPMEstimator. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewPPMEstimator(t mockConstructorTestingTNewPPMEstimator) *PPMEstimator {
+}) *PPMEstimator {
 	mock := &PPMEstimator{}
 	mock.Mock.Test(t)
 

@@ -333,6 +333,9 @@ func InitRouting(appCtx appcontext.AppContext, redisPool *redis.Pool,
 		internalAPIMux.Use(addAuditUserToRequestContextMiddleware)
 		internalAPIMux.Use(middleware.NoCache(appCtx.Logger()))
 		api := internalapi.NewInternalAPI(routingConfig.HandlerConfig)
+		// This middleware enables stricter checks for most of the internal api endpoints
+		customerAPIAuthMiddleware := authentication.CustomerAPIAuthMiddleware(appCtx, api)
+		internalAPIMux.Use(customerAPIAuthMiddleware)
 		tracingMiddleware := middleware.OpenAPITracing(api)
 		internalAPIMux.PathPrefix("/").Handler(api.Serve(tracingMiddleware))
 	}

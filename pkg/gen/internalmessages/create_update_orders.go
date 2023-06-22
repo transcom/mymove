@@ -281,6 +281,11 @@ func (m *CreateUpdateOrders) ContextValidate(ctx context.Context, formats strfmt
 func (m *CreateUpdateOrders) contextValidateDepartmentIndicator(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.DepartmentIndicator != nil {
+
+		if swag.IsZero(m.DepartmentIndicator) { // not required
+			return nil
+		}
+
 		if err := m.DepartmentIndicator.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("department_indicator")
@@ -297,6 +302,7 @@ func (m *CreateUpdateOrders) contextValidateDepartmentIndicator(ctx context.Cont
 func (m *CreateUpdateOrders) contextValidateOrdersType(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.OrdersType != nil {
+
 		if err := m.OrdersType.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("orders_type")
@@ -313,6 +319,11 @@ func (m *CreateUpdateOrders) contextValidateOrdersType(ctx context.Context, form
 func (m *CreateUpdateOrders) contextValidateOrdersTypeDetail(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.OrdersTypeDetail != nil {
+
+		if swag.IsZero(m.OrdersTypeDetail) { // not required
+			return nil
+		}
+
 		if err := m.OrdersTypeDetail.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("orders_type_detail")

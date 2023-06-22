@@ -30,7 +30,7 @@ type ServiceItem struct {
 	ID strfmt.UUID `json:"id,omitempty"`
 
 	// This should be populated for the following service items:
-	//   * DOASIT(Domestic destination Additional day SIT)
+	//   * DOASIT(Domestic origin Additional day SIT)
 	//   * DDASIT(Domestic destination Additional day SIT)
 	//
 	// Both take in the following param keys:
@@ -130,6 +130,11 @@ func (m *ServiceItem) contextValidateParams(ctx context.Context, formats strfmt.
 	for i := 0; i < len(m.Params); i++ {
 
 		if m.Params[i] != nil {
+
+			if swag.IsZero(m.Params[i]) { // not required
+				return nil
+			}
+
 			if err := m.Params[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("params" + "." + strconv.Itoa(i))

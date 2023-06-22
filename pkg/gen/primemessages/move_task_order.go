@@ -738,6 +738,10 @@ func (m *MoveTaskOrder) contextValidateMtoServiceItems(ctx context.Context, form
 
 	for i := 0; i < len(m.MtoServiceItems()); i++ {
 
+		if swag.IsZero(m.mtoServiceItemsField[i]) { // not required
+			return nil
+		}
+
 		if err := m.mtoServiceItemsField[i].ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("mtoServiceItems" + "." + strconv.Itoa(i))
@@ -769,6 +773,11 @@ func (m *MoveTaskOrder) contextValidateMtoShipments(ctx context.Context, formats
 func (m *MoveTaskOrder) contextValidateOrder(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Order != nil {
+
+		if swag.IsZero(m.Order) { // not required
+			return nil
+		}
+
 		if err := m.Order.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("order")

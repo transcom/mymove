@@ -28,13 +28,12 @@ func (_m *ProgearWeightTicketDeleter) DeleteProgearWeightTicket(appCtx appcontex
 	return r0
 }
 
-type mockConstructorTestingTNewProgearWeightTicketDeleter interface {
+// NewProgearWeightTicketDeleter creates a new instance of ProgearWeightTicketDeleter. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewProgearWeightTicketDeleter(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewProgearWeightTicketDeleter creates a new instance of ProgearWeightTicketDeleter. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewProgearWeightTicketDeleter(t mockConstructorTestingTNewProgearWeightTicketDeleter) *ProgearWeightTicketDeleter {
+}) *ProgearWeightTicketDeleter {
 	mock := &ProgearWeightTicketDeleter{}
 	mock.Mock.Test(t)
 

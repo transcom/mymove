@@ -287,6 +287,11 @@ func (m *SitAddressUpdate) contextValidateMtoServiceItemID(ctx context.Context, 
 func (m *SitAddressUpdate) contextValidateNewAddress(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.NewAddress != nil {
+
+		if swag.IsZero(m.NewAddress) { // not required
+			return nil
+		}
+
 		if err := m.NewAddress.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("newAddress")

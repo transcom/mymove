@@ -341,6 +341,11 @@ func (m *UpdateShipment) contextValidateAgents(ctx context.Context, formats strf
 func (m *UpdateShipment) contextValidateDestinationAddress(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.DestinationAddress != nil {
+
+		if swag.IsZero(m.DestinationAddress) { // not required
+			return nil
+		}
+
 		if err := m.DestinationAddress.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("destinationAddress")
@@ -357,6 +362,11 @@ func (m *UpdateShipment) contextValidateDestinationAddress(ctx context.Context, 
 func (m *UpdateShipment) contextValidatePickupAddress(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.PickupAddress != nil {
+
+		if swag.IsZero(m.PickupAddress) { // not required
+			return nil
+		}
+
 		if err := m.PickupAddress.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("pickupAddress")
@@ -373,6 +383,11 @@ func (m *UpdateShipment) contextValidatePickupAddress(ctx context.Context, forma
 func (m *UpdateShipment) contextValidatePpmShipment(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.PpmShipment != nil {
+
+		if swag.IsZero(m.PpmShipment) { // not required
+			return nil
+		}
+
 		if err := m.PpmShipment.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("ppmShipment")
@@ -389,6 +404,11 @@ func (m *UpdateShipment) contextValidatePpmShipment(ctx context.Context, formats
 func (m *UpdateShipment) contextValidateSecondaryDeliveryAddress(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.SecondaryDeliveryAddress != nil {
+
+		if swag.IsZero(m.SecondaryDeliveryAddress) { // not required
+			return nil
+		}
+
 		if err := m.SecondaryDeliveryAddress.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("secondaryDeliveryAddress")
@@ -405,6 +425,11 @@ func (m *UpdateShipment) contextValidateSecondaryDeliveryAddress(ctx context.Con
 func (m *UpdateShipment) contextValidateSecondaryPickupAddress(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.SecondaryPickupAddress != nil {
+
+		if swag.IsZero(m.SecondaryPickupAddress) { // not required
+			return nil
+		}
+
 		if err := m.SecondaryPickupAddress.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("secondaryPickupAddress")
@@ -420,6 +445,10 @@ func (m *UpdateShipment) contextValidateSecondaryPickupAddress(ctx context.Conte
 
 func (m *UpdateShipment) contextValidateShipmentType(ctx context.Context, formats strfmt.Registry) error {
 
+	if swag.IsZero(m.ShipmentType) { // not required
+		return nil
+	}
+
 	if err := m.ShipmentType.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("shipmentType")
@@ -433,6 +462,10 @@ func (m *UpdateShipment) contextValidateShipmentType(ctx context.Context, format
 }
 
 func (m *UpdateShipment) contextValidateStatus(ctx context.Context, formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Status) { // not required
+		return nil
+	}
 
 	if err := m.Status.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {

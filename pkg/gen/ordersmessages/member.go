@@ -161,6 +161,7 @@ func (m *Member) ContextValidate(ctx context.Context, formats strfmt.Registry) e
 func (m *Member) contextValidateAffiliation(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Affiliation != nil {
+
 		if err := m.Affiliation.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("affiliation")
@@ -177,6 +178,7 @@ func (m *Member) contextValidateAffiliation(ctx context.Context, formats strfmt.
 func (m *Member) contextValidateRank(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Rank != nil {
+
 		if err := m.Rank.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("rank")

@@ -36,7 +36,7 @@ type PaymentRequestShipmentRecalculator interface {
 //go:generate mockery --name PaymentRequestListFetcher
 type PaymentRequestListFetcher interface {
 	FetchPaymentRequestList(appCtx appcontext.AppContext, officeUserID uuid.UUID, params *FetchPaymentRequestListParams) (*models.PaymentRequests, int, error)
-	FetchPaymentRequestListByMove(appCtx appcontext.AppContext, officeUserID uuid.UUID, locator string) (*models.PaymentRequests, error)
+	FetchPaymentRequestListByMove(appCtx appcontext.AppContext, locator string) (*models.PaymentRequests, error)
 }
 
 // PaymentRequestFetcher is the exported interface for fetching a payment request

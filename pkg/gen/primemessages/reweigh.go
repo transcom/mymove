@@ -236,6 +236,10 @@ func (m *Reweigh) contextValidateETag(ctx context.Context, formats strfmt.Regist
 
 func (m *Reweigh) contextValidateRequestedBy(ctx context.Context, formats strfmt.Registry) error {
 
+	if swag.IsZero(m.RequestedBy) { // not required
+		return nil
+	}
+
 	if err := m.RequestedBy.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("requestedBy")

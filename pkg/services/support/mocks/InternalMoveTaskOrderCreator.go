@@ -42,13 +42,12 @@ func (_m *InternalMoveTaskOrderCreator) InternalCreateMoveTaskOrder(appCtx appco
 	return r0, r1
 }
 
-type mockConstructorTestingTNewInternalMoveTaskOrderCreator interface {
+// NewInternalMoveTaskOrderCreator creates a new instance of InternalMoveTaskOrderCreator. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewInternalMoveTaskOrderCreator(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewInternalMoveTaskOrderCreator creates a new instance of InternalMoveTaskOrderCreator. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewInternalMoveTaskOrderCreator(t mockConstructorTestingTNewInternalMoveTaskOrderCreator) *InternalMoveTaskOrderCreator {
+}) *InternalMoveTaskOrderCreator {
 	mock := &InternalMoveTaskOrderCreator{}
 	mock.Mock.Test(t)
 

@@ -42,13 +42,12 @@ func (_m *SITExtensionDenier) DenySITExtension(appCtx appcontext.AppContext, shi
 	return r0, r1
 }
 
-type mockConstructorTestingTNewSITExtensionDenier interface {
+// NewSITExtensionDenier creates a new instance of SITExtensionDenier. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewSITExtensionDenier(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewSITExtensionDenier creates a new instance of SITExtensionDenier. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewSITExtensionDenier(t mockConstructorTestingTNewSITExtensionDenier) *SITExtensionDenier {
+}) *SITExtensionDenier {
 	mock := &SITExtensionDenier{}
 	mock.Mock.Test(t)
 

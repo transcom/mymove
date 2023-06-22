@@ -55,13 +55,12 @@ func (_m *OfficeUserUpdater) UpdateOfficeUser(appCtx appcontext.AppContext, id u
 	return r0, r1, r2
 }
 
-type mockConstructorTestingTNewOfficeUserUpdater interface {
+// NewOfficeUserUpdater creates a new instance of OfficeUserUpdater. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewOfficeUserUpdater(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewOfficeUserUpdater creates a new instance of OfficeUserUpdater. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewOfficeUserUpdater(t mockConstructorTestingTNewOfficeUserUpdater) *OfficeUserUpdater {
+}) *OfficeUserUpdater {
 	mock := &OfficeUserUpdater{}
 	mock.Mock.Test(t)
 

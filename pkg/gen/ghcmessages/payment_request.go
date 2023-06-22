@@ -298,6 +298,11 @@ func (m *PaymentRequest) contextValidateID(ctx context.Context, formats strfmt.R
 func (m *PaymentRequest) contextValidateMoveTaskOrder(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.MoveTaskOrder != nil {
+
+		if swag.IsZero(m.MoveTaskOrder) { // not required
+			return nil
+		}
+
 		if err := m.MoveTaskOrder.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("moveTaskOrder")
@@ -358,6 +363,10 @@ func (m *PaymentRequest) contextValidateServiceItems(ctx context.Context, format
 }
 
 func (m *PaymentRequest) contextValidateStatus(ctx context.Context, formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Status) { // not required
+		return nil
+	}
 
 	if err := m.Status.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {

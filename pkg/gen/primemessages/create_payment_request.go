@@ -121,6 +121,11 @@ func (m *CreatePaymentRequest) contextValidateServiceItems(ctx context.Context, 
 	for i := 0; i < len(m.ServiceItems); i++ {
 
 		if m.ServiceItems[i] != nil {
+
+			if swag.IsZero(m.ServiceItems[i]) { // not required
+				return nil
+			}
+
 			if err := m.ServiceItems[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("serviceItems" + "." + strconv.Itoa(i))

@@ -631,6 +631,7 @@ describe('ServiceItemsTable', () => {
 
     expect(approveTextButton.length).toBeTruthy();
 
+    expect(approveTextButton.at(0).find('svg[data-icon="check"]').length).toBe(1);
     expect(approveTextButton.at(0).contains('Approve')).toBe(true);
   });
 

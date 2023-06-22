@@ -53,13 +53,12 @@ func (_m *ClientCertRemover) RemoveClientCert(appCtx appcontext.AppContext, id u
 	return r0, r1, r2
 }
 
-type mockConstructorTestingTNewClientCertRemover interface {
+// NewClientCertRemover creates a new instance of ClientCertRemover. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewClientCertRemover(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewClientCertRemover creates a new instance of ClientCertRemover. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewClientCertRemover(t mockConstructorTestingTNewClientCertRemover) *ClientCertRemover {
+}) *ClientCertRemover {
 	mock := &ClientCertRemover{}
 	mock.Mock.Test(t)
 
