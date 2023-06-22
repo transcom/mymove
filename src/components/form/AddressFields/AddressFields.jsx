@@ -74,6 +74,7 @@ export const AddressFields = ({ legend, className, name, render, validators, val
         maxLength={10}
         validate={validators?.postalCode}
         onChange={(e) => {
+          console.log(`value in the on change: ${e.target.value}`);
           // If we are validating on change we need to also set the field to touched when it is changed.
           // Formik by default sets the field to touched on blur.
           validatePostalCodeOnChangeProps.handleChange(e);
