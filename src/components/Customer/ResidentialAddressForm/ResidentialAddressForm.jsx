@@ -23,7 +23,7 @@ const ResidentialAddressForm = ({ formFieldsName, initialValues, onSubmit, onBac
     <Formik
       initialValues={initialValues}
       onSubmit={onSubmit}
-      validateOnChange
+      validateOnChange={false}
       validateOnMount
       validationSchema={validationSchema}
     >
@@ -36,7 +36,7 @@ const ResidentialAddressForm = ({ formFieldsName, initialValues, onSubmit, onBac
               <AddressFields
                 name={formFieldsName}
                 validators={validators}
-                formikFunctionsToValidatePostalCodeOnChange={{ setFieldTouched, handleChange }}
+                formikFunctionsToValidatePostalCodeOnChange={{ handleChange, setFieldTouched }}
               />
             </SectionWrapper>
 

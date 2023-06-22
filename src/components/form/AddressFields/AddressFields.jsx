@@ -92,13 +92,12 @@ export const AddressFields = ({
         name={`${name}.postalCode`}
         maxLength={10}
         validate={validators?.postalCode}
-        onChange={(e) => {
+        onChange={async (e) => {
           // If we are validating on change we need to also set the field to touched when it is changed.
           // Formik by default sets the field to touched on blur. The validation errors will not show unless the field
-          // has been touched. We are passing false as shouldValidate. By default, Formik validates during
-          // setFieldTouched. However, at this point Formik has not set the field value, so it would use stale data.
-          formikFunctionsToValidatePostalCodeOnChange.setFieldTouched(e.target.name, true, false);
-          formikFunctionsToValidatePostalCodeOnChange.handleChange(e);
+          // has been touched.
+          await formikFunctionsToValidatePostalCodeOnChange.handleChange(e);
+          formikFunctionsToValidatePostalCodeOnChange.setFieldTouched(`${name}.postalCode`);
         }}
       />
     );
