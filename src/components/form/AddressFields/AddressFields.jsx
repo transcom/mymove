@@ -160,7 +160,7 @@ AddressFields.defaultProps = {
   className: '',
   render: (fields) => fields,
   validators: {},
-  validatePostalCodeOnChangeProps: {},
+  validatePostalCodeOnChangeProps: null,
 };
 
 export default AddressFields;
