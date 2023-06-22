@@ -40,13 +40,12 @@ func (_m *ShipmentCreator) CreateShipment(appCtx appcontext.AppContext, shipment
 	return r0, r1
 }
 
-type mockConstructorTestingTNewShipmentCreator interface {
+// NewShipmentCreator creates a new instance of ShipmentCreator. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewShipmentCreator(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewShipmentCreator creates a new instance of ShipmentCreator. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewShipmentCreator(t mockConstructorTestingTNewShipmentCreator) *ShipmentCreator {
+}) *ShipmentCreator {
 	mock := &ShipmentCreator{}
 	mock.Mock.Test(t)
 

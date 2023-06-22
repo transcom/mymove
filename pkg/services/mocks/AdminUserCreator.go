@@ -53,13 +53,12 @@ func (_m *AdminUserCreator) CreateAdminUser(appCtx appcontext.AppContext, user *
 	return r0, r1, r2
 }
 
-type mockConstructorTestingTNewAdminUserCreator interface {
+// NewAdminUserCreator creates a new instance of AdminUserCreator. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewAdminUserCreator(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewAdminUserCreator creates a new instance of AdminUserCreator. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewAdminUserCreator(t mockConstructorTestingTNewAdminUserCreator) *AdminUserCreator {
+}) *AdminUserCreator {
 	mock := &AdminUserCreator{}
 	mock.Mock.Test(t)
 

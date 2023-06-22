@@ -42,13 +42,12 @@ func (_m *ApprovedSITDurationUpdateCreator) CreateApprovedSITDurationUpdate(appC
 	return r0, r1
 }
 
-type mockConstructorTestingTNewApprovedSITDurationUpdateCreator interface {
+// NewApprovedSITDurationUpdateCreator creates a new instance of ApprovedSITDurationUpdateCreator. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewApprovedSITDurationUpdateCreator(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewApprovedSITDurationUpdateCreator creates a new instance of ApprovedSITDurationUpdateCreator. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewApprovedSITDurationUpdateCreator(t mockConstructorTestingTNewApprovedSITDurationUpdateCreator) *ApprovedSITDurationUpdateCreator {
+}) *ApprovedSITDurationUpdateCreator {
 	mock := &ApprovedSITDurationUpdateCreator{}
 	mock.Mock.Test(t)
 

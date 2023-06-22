@@ -182,27 +182,33 @@ func (suite *ModelSuite) TestFetchLatestOrders() {
 		suite.MustSave(&uploadedOrder)
 		SAC := "N002214CSW32Y9"
 		ordersNumber := "FD4534JFJ"
+		contractor := factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
+		packingAndShippingInstructions := InstructionsBeforeContractNumber + " " + contractor.ContractNumber + " " + InstructionsAfterContractNumber
 
 		order := Order{
-			ServiceMemberID:      serviceMember.ID,
-			ServiceMember:        serviceMember,
-			IssueDate:            issueDate,
-			ReportByDate:         reportByDate,
-			OrdersType:           ordersType,
-			HasDependents:        hasDependents,
-			SpouseHasProGear:     spouseHasProGear,
-			OriginDutyLocationID: &dutyLocation.ID,
-			OriginDutyLocation:   &dutyLocation,
-			NewDutyLocationID:    dutyLocation2.ID,
-			NewDutyLocation:      dutyLocation2,
-			UploadedOrdersID:     uploadedOrder.ID,
-			UploadedOrders:       uploadedOrder,
-			Status:               OrderStatusSUBMITTED,
-			OrdersNumber:         &ordersNumber,
-			TAC:                  &TAC,
-			SAC:                  &SAC,
-			DepartmentIndicator:  &deptIndicator,
-			Grade:                StringPointer("E-1"),
+			ServiceMemberID:                serviceMember.ID,
+			ServiceMember:                  serviceMember,
+			IssueDate:                      issueDate,
+			ReportByDate:                   reportByDate,
+			OrdersType:                     ordersType,
+			HasDependents:                  hasDependents,
+			SpouseHasProGear:               spouseHasProGear,
+			OriginDutyLocationID:           &dutyLocation.ID,
+			OriginDutyLocation:             &dutyLocation,
+			NewDutyLocationID:              dutyLocation2.ID,
+			NewDutyLocation:                dutyLocation2,
+			UploadedOrdersID:               uploadedOrder.ID,
+			UploadedOrders:                 uploadedOrder,
+			Status:                         OrderStatusSUBMITTED,
+			OrdersNumber:                   &ordersNumber,
+			TAC:                            &TAC,
+			SAC:                            &SAC,
+			DepartmentIndicator:            &deptIndicator,
+			Grade:                          StringPointer("E-1"),
+			SupplyAndServicesCostEstimate:  SupplyAndServicesCostEstimate,
+			MethodOfPayment:                MethodOfPayment,
+			NAICS:                          NAICS,
+			PackingAndShippingInstructions: packingAndShippingInstructions,
 		}
 		suite.MustSave(&order)
 

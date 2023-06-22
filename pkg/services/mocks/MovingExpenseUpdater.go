@@ -40,13 +40,12 @@ func (_m *MovingExpenseUpdater) UpdateMovingExpense(appCtx appcontext.AppContext
 	return r0, r1
 }
 
-type mockConstructorTestingTNewMovingExpenseUpdater interface {
+// NewMovingExpenseUpdater creates a new instance of MovingExpenseUpdater. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewMovingExpenseUpdater(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewMovingExpenseUpdater creates a new instance of MovingExpenseUpdater. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewMovingExpenseUpdater(t mockConstructorTestingTNewMovingExpenseUpdater) *MovingExpenseUpdater {
+}) *MovingExpenseUpdater {
 	mock := &MovingExpenseUpdater{}
 	mock.Mock.Test(t)
 

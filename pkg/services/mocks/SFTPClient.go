@@ -80,13 +80,12 @@ func (_m *SFTPClient) Remove(path string) error {
 	return r0
 }
 
-type mockConstructorTestingTNewSFTPClient interface {
+// NewSFTPClient creates a new instance of SFTPClient. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewSFTPClient(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewSFTPClient creates a new instance of SFTPClient. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewSFTPClient(t mockConstructorTestingTNewSFTPClient) *SFTPClient {
+}) *SFTPClient {
 	mock := &SFTPClient{}
 	mock.Mock.Test(t)
 

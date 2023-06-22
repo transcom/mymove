@@ -42,13 +42,12 @@ func (_m *MovingExpenseCreator) CreateMovingExpense(appCtx appcontext.AppContext
 	return r0, r1
 }
 
-type mockConstructorTestingTNewMovingExpenseCreator interface {
+// NewMovingExpenseCreator creates a new instance of MovingExpenseCreator. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewMovingExpenseCreator(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewMovingExpenseCreator creates a new instance of MovingExpenseCreator. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewMovingExpenseCreator(t mockConstructorTestingTNewMovingExpenseCreator) *MovingExpenseCreator {
+}) *MovingExpenseCreator {
 	mock := &MovingExpenseCreator{}
 	mock.Mock.Test(t)
 
