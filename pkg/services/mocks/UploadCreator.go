@@ -43,13 +43,12 @@ func (_m *UploadCreator) CreateUpload(appCtx appcontext.AppContext, file io.Read
 	return r0, r1
 }
 
-type mockConstructorTestingTNewUploadCreator interface {
+// NewUploadCreator creates a new instance of UploadCreator. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewUploadCreator(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewUploadCreator creates a new instance of UploadCreator. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewUploadCreator(t mockConstructorTestingTNewUploadCreator) *UploadCreator {
+}) *UploadCreator {
 	mock := &UploadCreator{}
 	mock.Mock.Test(t)
 

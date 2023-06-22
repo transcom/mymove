@@ -315,6 +315,10 @@ func (m *UpdatePPMShipment) contextValidateFinalIncentive(ctx context.Context, f
 
 func (m *UpdatePPMShipment) contextValidateSecondaryDestinationPostalCode(ctx context.Context, formats strfmt.Registry) error {
 
+	if swag.IsZero(m.SecondaryDestinationPostalCode) { // not required
+		return nil
+	}
+
 	if err := m.SecondaryDestinationPostalCode.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("secondaryDestinationPostalCode")
@@ -328,6 +332,10 @@ func (m *UpdatePPMShipment) contextValidateSecondaryDestinationPostalCode(ctx co
 }
 
 func (m *UpdatePPMShipment) contextValidateSecondaryPickupPostalCode(ctx context.Context, formats strfmt.Registry) error {
+
+	if swag.IsZero(m.SecondaryPickupPostalCode) { // not required
+		return nil
+	}
 
 	if err := m.SecondaryPickupPostalCode.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
@@ -344,6 +352,11 @@ func (m *UpdatePPMShipment) contextValidateSecondaryPickupPostalCode(ctx context
 func (m *UpdatePPMShipment) contextValidateW2Address(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.W2Address != nil {
+
+		if swag.IsZero(m.W2Address) { // not required
+			return nil
+		}
+
 		if err := m.W2Address.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("w2Address")

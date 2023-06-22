@@ -28,13 +28,12 @@ func (_m *NotificationSender) SendNotification(appCtx appcontext.AppContext, not
 	return r0
 }
 
-type mockConstructorTestingTNewNotificationSender interface {
+// NewNotificationSender creates a new instance of NotificationSender. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewNotificationSender(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewNotificationSender creates a new instance of NotificationSender. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewNotificationSender(t mockConstructorTestingTNewNotificationSender) *NotificationSender {
+}) *NotificationSender {
 	mock := &NotificationSender{}
 	mock.Mock.Test(t)
 

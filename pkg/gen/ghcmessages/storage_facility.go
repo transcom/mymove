@@ -148,6 +148,11 @@ func (m *StorageFacility) ContextValidate(ctx context.Context, formats strfmt.Re
 func (m *StorageFacility) contextValidateAddress(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Address != nil {
+
+		if swag.IsZero(m.Address) { // not required
+			return nil
+		}
+
 		if err := m.Address.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("address")

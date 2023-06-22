@@ -1699,6 +1699,9 @@ func init() {
     "CreateSITAddressUpdateRequest": {
       "description": "CreateSITAddressUpdateRequest contains the fields required for the prime to create a SIT address update request.",
       "type": "object",
+      "required": [
+        "contractorRemarks"
+      ],
       "properties": {
         "contractorRemarks": {
           "type": "string",
@@ -2136,6 +2139,9 @@ func init() {
           "x-nullable": true,
           "readOnly": true,
           "example": "item was too heavy"
+        },
+        "serviceRequestDocuments": {
+          "$ref": "#/definitions/ServiceRequestDocuments"
         },
         "status": {
           "$ref": "#/definitions/MTOServiceItemStatus"
@@ -3556,7 +3562,7 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "params": {
-          "description": "This should be populated for the following service items:\n  * DOASIT(Domestic destination Additional day SIT)\n  * DDASIT(Domestic destination Additional day SIT)\n\nBoth take in the following param keys:\n  * ` + "`" + `SITPaymentRequestStart` + "`" + `\n  * ` + "`" + `SITPaymentRequestEnd` + "`" + `\n\nThe value of each is a date string in the format \"YYYY-MM-DD\" (e.g. \"2023-01-15\")\n",
+          "description": "This should be populated for the following service items:\n  * DOASIT(Domestic origin Additional day SIT)\n  * DDASIT(Domestic destination Additional day SIT)\n\nBoth take in the following param keys:\n  * ` + "`" + `SITPaymentRequestStart` + "`" + `\n  * ` + "`" + `SITPaymentRequestEnd` + "`" + `\n\nThe value of each is a date string in the format \"YYYY-MM-DD\" (e.g. \"2023-01-15\")\n",
           "type": "array",
           "items": {
             "type": "object",
@@ -3638,6 +3644,7 @@ func init() {
         "ZipDestAddress",
         "ZipPickupAddress",
         "ZipSITDestHHGFinalAddress",
+        "ZipSITDestHHGOriginalAddress",
         "ZipSITOriginHHGActualAddress",
         "ZipSITOriginHHGOriginalAddress"
       ]
@@ -3662,6 +3669,23 @@ func init() {
         "PaymentServiceItemUUID",
         "BOOLEAN"
       ]
+    },
+    "ServiceRequestDocument": {
+      "type": "object",
+      "properties": {
+        "uploads": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UploadWithOmissions"
+          }
+        }
+      }
+    },
+    "ServiceRequestDocuments": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ServiceRequestDocument"
+      }
     },
     "SitAddressUpdate": {
       "properties": {
@@ -6381,6 +6405,9 @@ func init() {
     "CreateSITAddressUpdateRequest": {
       "description": "CreateSITAddressUpdateRequest contains the fields required for the prime to create a SIT address update request.",
       "type": "object",
+      "required": [
+        "contractorRemarks"
+      ],
       "properties": {
         "contractorRemarks": {
           "type": "string",
@@ -6818,6 +6845,9 @@ func init() {
           "x-nullable": true,
           "readOnly": true,
           "example": "item was too heavy"
+        },
+        "serviceRequestDocuments": {
+          "$ref": "#/definitions/ServiceRequestDocuments"
         },
         "status": {
           "$ref": "#/definitions/MTOServiceItemStatus"
@@ -8238,7 +8268,7 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "params": {
-          "description": "This should be populated for the following service items:\n  * DOASIT(Domestic destination Additional day SIT)\n  * DDASIT(Domestic destination Additional day SIT)\n\nBoth take in the following param keys:\n  * ` + "`" + `SITPaymentRequestStart` + "`" + `\n  * ` + "`" + `SITPaymentRequestEnd` + "`" + `\n\nThe value of each is a date string in the format \"YYYY-MM-DD\" (e.g. \"2023-01-15\")\n",
+          "description": "This should be populated for the following service items:\n  * DOASIT(Domestic origin Additional day SIT)\n  * DDASIT(Domestic destination Additional day SIT)\n\nBoth take in the following param keys:\n  * ` + "`" + `SITPaymentRequestStart` + "`" + `\n  * ` + "`" + `SITPaymentRequestEnd` + "`" + `\n\nThe value of each is a date string in the format \"YYYY-MM-DD\" (e.g. \"2023-01-15\")\n",
           "type": "array",
           "items": {
             "$ref": "#/definitions/ServiceItemParamsItems0"
@@ -8310,6 +8340,7 @@ func init() {
         "ZipDestAddress",
         "ZipPickupAddress",
         "ZipSITDestHHGFinalAddress",
+        "ZipSITDestHHGOriginalAddress",
         "ZipSITOriginHHGActualAddress",
         "ZipSITOriginHHGOriginalAddress"
       ]
@@ -8346,6 +8377,23 @@ func init() {
           "type": "string",
           "example": "Service Item Parameter Value"
         }
+      }
+    },
+    "ServiceRequestDocument": {
+      "type": "object",
+      "properties": {
+        "uploads": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UploadWithOmissions"
+          }
+        }
+      }
+    },
+    "ServiceRequestDocuments": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ServiceRequestDocument"
       }
     },
     "SitAddressUpdate": {

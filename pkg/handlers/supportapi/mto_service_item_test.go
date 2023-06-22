@@ -19,8 +19,10 @@ import (
 	mtoserviceitemop "github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/mto_service_item"
 	"github.com/transcom/mymove/pkg/gen/supportmessages"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services/address"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
+	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
@@ -72,8 +74,11 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandlerApproveSuccess()
 	handlerConfig := suite.HandlerConfig()
 	queryBuilder := query.NewQueryBuilder()
 	moveRouter := moverouter.NewMoveRouter()
+	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
+	addressCreator := address.NewAddressCreator()
+
 	handler := UpdateMTOServiceItemStatusHandler{handlerConfig,
-		mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter),
+		mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter, shipmentFetcher, addressCreator),
 	}
 
 	// CALL FUNCTION UNDER TEST
@@ -120,8 +125,10 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandlerRejectSuccess() 
 	handlerConfig := suite.HandlerConfig()
 	queryBuilder := query.NewQueryBuilder()
 	moveRouter := moverouter.NewMoveRouter()
+	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
+	addressCreator := address.NewAddressCreator()
 	handler := UpdateMTOServiceItemStatusHandler{handlerConfig,
-		mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter),
+		mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter, shipmentFetcher, addressCreator),
 	}
 
 	// CALL FUNCTION UNDER TEST
@@ -168,8 +175,10 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandlerRejectionFailedN
 	handlerConfig := suite.HandlerConfig()
 	queryBuilder := query.NewQueryBuilder()
 	moveRouter := moverouter.NewMoveRouter()
+	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
+	addressCreator := address.NewAddressCreator()
 	handler := UpdateMTOServiceItemStatusHandler{handlerConfig,
-		mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter),
+		mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter, shipmentFetcher, addressCreator),
 	}
 
 	// CALL FUNCTION UNDER TEST

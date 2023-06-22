@@ -29,6 +29,10 @@ mockPage(
   'pages/PrimeUI/UploadPaymentRequestDocuments/UploadPaymentRequestDocuments',
   'Prime Simulator Upload Payment Request Documents',
 );
+mockPage(
+  'pages/PrimeUI/UploadServiceRequestDocuments/UploadServiceRequestDocuments',
+  'Prime Simulator Upload Service Request Documents',
+);
 mockPage('pages/PrimeUI/CreateServiceItem/CreateServiceItem', 'Prime Simulator Create Service Item');
 mockPage('pages/PrimeUI/Shipment/PrimeUIShipmentUpdateReweigh', 'Prime Simulator Shipment Update Reweigh');
 mockPage('pages/Office/QAECSRMoveSearch/QAECSRMoveSearch', 'QAE CSR Move Search');

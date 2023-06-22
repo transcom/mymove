@@ -512,6 +512,11 @@ func (m *ServiceMemberPayload) ContextValidate(ctx context.Context, formats strf
 func (m *ServiceMemberPayload) contextValidateAffiliation(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Affiliation != nil {
+
+		if swag.IsZero(m.Affiliation) { // not required
+			return nil
+		}
+
 		if err := m.Affiliation.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("affiliation")
@@ -542,6 +547,11 @@ func (m *ServiceMemberPayload) contextValidateBackupContacts(ctx context.Context
 func (m *ServiceMemberPayload) contextValidateBackupMailingAddress(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.BackupMailingAddress != nil {
+
+		if swag.IsZero(m.BackupMailingAddress) { // not required
+			return nil
+		}
+
 		if err := m.BackupMailingAddress.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("backup_mailing_address")
@@ -558,6 +568,11 @@ func (m *ServiceMemberPayload) contextValidateBackupMailingAddress(ctx context.C
 func (m *ServiceMemberPayload) contextValidateCurrentLocation(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.CurrentLocation != nil {
+
+		if swag.IsZero(m.CurrentLocation) { // not required
+			return nil
+		}
+
 		if err := m.CurrentLocation.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("current_location")
@@ -576,6 +591,11 @@ func (m *ServiceMemberPayload) contextValidateOrders(ctx context.Context, format
 	for i := 0; i < len(m.Orders); i++ {
 
 		if m.Orders[i] != nil {
+
+			if swag.IsZero(m.Orders[i]) { // not required
+				return nil
+			}
+
 			if err := m.Orders[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("orders" + "." + strconv.Itoa(i))
@@ -594,6 +614,11 @@ func (m *ServiceMemberPayload) contextValidateOrders(ctx context.Context, format
 func (m *ServiceMemberPayload) contextValidateRank(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Rank != nil {
+
+		if swag.IsZero(m.Rank) { // not required
+			return nil
+		}
+
 		if err := m.Rank.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("rank")
@@ -610,6 +635,11 @@ func (m *ServiceMemberPayload) contextValidateRank(ctx context.Context, formats 
 func (m *ServiceMemberPayload) contextValidateResidentialAddress(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.ResidentialAddress != nil {
+
+		if swag.IsZero(m.ResidentialAddress) { // not required
+			return nil
+		}
+
 		if err := m.ResidentialAddress.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("residential_address")
@@ -626,6 +656,11 @@ func (m *ServiceMemberPayload) contextValidateResidentialAddress(ctx context.Con
 func (m *ServiceMemberPayload) contextValidateWeightAllotment(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.WeightAllotment != nil {
+
+		if swag.IsZero(m.WeightAllotment) { // not required
+			return nil
+		}
+
 		if err := m.WeightAllotment.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("weight_allotment")

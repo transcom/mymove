@@ -68,13 +68,12 @@ func (_m *EvaluationReportFetcher) FetchEvaluationReports(appCtx appcontext.AppC
 	return r0, r1
 }
 
-type mockConstructorTestingTNewEvaluationReportFetcher interface {
+// NewEvaluationReportFetcher creates a new instance of EvaluationReportFetcher. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewEvaluationReportFetcher(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewEvaluationReportFetcher creates a new instance of EvaluationReportFetcher. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewEvaluationReportFetcher(t mockConstructorTestingTNewEvaluationReportFetcher) *EvaluationReportFetcher {
+}) *EvaluationReportFetcher {
 	mock := &EvaluationReportFetcher{}
 	mock.Mock.Test(t)
 

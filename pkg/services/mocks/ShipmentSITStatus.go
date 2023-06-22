@@ -82,13 +82,12 @@ func (_m *ShipmentSITStatus) CalculateShipmentsSITStatuses(appCtx appcontext.App
 	return r0
 }
 
-type mockConstructorTestingTNewShipmentSITStatus interface {
+// NewShipmentSITStatus creates a new instance of ShipmentSITStatus. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewShipmentSITStatus(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewShipmentSITStatus creates a new instance of ShipmentSITStatus. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewShipmentSITStatus(t mockConstructorTestingTNewShipmentSITStatus) *ShipmentSITStatus {
+}) *ShipmentSITStatus {
 	mock := &ShipmentSITStatus{}
 	mock.Mock.Test(t)
 

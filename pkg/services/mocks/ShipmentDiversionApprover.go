@@ -42,13 +42,12 @@ func (_m *ShipmentDiversionApprover) ApproveShipmentDiversion(appCtx appcontext.
 	return r0, r1
 }
 
-type mockConstructorTestingTNewShipmentDiversionApprover interface {
+// NewShipmentDiversionApprover creates a new instance of ShipmentDiversionApprover. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewShipmentDiversionApprover(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewShipmentDiversionApprover creates a new instance of ShipmentDiversionApprover. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewShipmentDiversionApprover(t mockConstructorTestingTNewShipmentDiversionApprover) *ShipmentDiversionApprover {
+}) *ShipmentDiversionApprover {
 	mock := &ShipmentDiversionApprover{}
 	mock.Mock.Test(t)
 

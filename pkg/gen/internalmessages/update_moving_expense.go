@@ -189,6 +189,7 @@ func (m *UpdateMovingExpense) ContextValidate(ctx context.Context, formats strfm
 func (m *UpdateMovingExpense) contextValidateMovingExpenseType(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.MovingExpenseType != nil {
+
 		if err := m.MovingExpenseType.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("movingExpenseType")

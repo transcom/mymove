@@ -86,13 +86,12 @@ func (_m *DomesticShorthaulPricer) PriceUsingParams(appCtx appcontext.AppContext
 	return r0, r1, r2
 }
 
-type mockConstructorTestingTNewDomesticShorthaulPricer interface {
+// NewDomesticShorthaulPricer creates a new instance of DomesticShorthaulPricer. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewDomesticShorthaulPricer(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewDomesticShorthaulPricer creates a new instance of DomesticShorthaulPricer. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewDomesticShorthaulPricer(t mockConstructorTestingTNewDomesticShorthaulPricer) *DomesticShorthaulPricer {
+}) *DomesticShorthaulPricer {
 	mock := &DomesticShorthaulPricer{}
 	mock.Mock.Test(t)
 

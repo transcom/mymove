@@ -379,6 +379,11 @@ func (m *QueueMove) ContextValidate(ctx context.Context, formats strfmt.Registry
 func (m *QueueMove) contextValidateCustomer(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Customer != nil {
+
+		if swag.IsZero(m.Customer) { // not required
+			return nil
+		}
+
 		if err := m.Customer.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("customer")
@@ -395,6 +400,11 @@ func (m *QueueMove) contextValidateCustomer(ctx context.Context, formats strfmt.
 func (m *QueueMove) contextValidateDepartmentIndicator(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.DepartmentIndicator != nil {
+
+		if swag.IsZero(m.DepartmentIndicator) { // not required
+			return nil
+		}
+
 		if err := m.DepartmentIndicator.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("departmentIndicator")
@@ -411,6 +421,11 @@ func (m *QueueMove) contextValidateDepartmentIndicator(ctx context.Context, form
 func (m *QueueMove) contextValidateDestinationDutyLocation(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.DestinationDutyLocation != nil {
+
+		if swag.IsZero(m.DestinationDutyLocation) { // not required
+			return nil
+		}
+
 		if err := m.DestinationDutyLocation.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("destinationDutyLocation")
@@ -427,6 +442,11 @@ func (m *QueueMove) contextValidateDestinationDutyLocation(ctx context.Context, 
 func (m *QueueMove) contextValidateOriginDutyLocation(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.OriginDutyLocation != nil {
+
+		if swag.IsZero(m.OriginDutyLocation) { // not required
+			return nil
+		}
+
 		if err := m.OriginDutyLocation.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("originDutyLocation")
@@ -442,6 +462,10 @@ func (m *QueueMove) contextValidateOriginDutyLocation(ctx context.Context, forma
 
 func (m *QueueMove) contextValidateOriginGBLOC(ctx context.Context, formats strfmt.Registry) error {
 
+	if swag.IsZero(m.OriginGBLOC) { // not required
+		return nil
+	}
+
 	if err := m.OriginGBLOC.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("originGBLOC")
@@ -455,6 +479,10 @@ func (m *QueueMove) contextValidateOriginGBLOC(ctx context.Context, formats strf
 }
 
 func (m *QueueMove) contextValidateStatus(ctx context.Context, formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Status) { // not required
+		return nil
+	}
 
 	if err := m.Status.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {

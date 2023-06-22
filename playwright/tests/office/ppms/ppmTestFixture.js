@@ -103,7 +103,7 @@ export class PpmPage extends ServiceCounselorPage {
   /**
    * @param {Object} options
    * @param {string} [options.destinationPostalCode=76127]
-   * @param {string} [options.secondDestinationPostalCode=08540]
+   * @param {string} [options.secondDestinationPostalCode=98444]
    *
    * @returns Promise<void>
    */

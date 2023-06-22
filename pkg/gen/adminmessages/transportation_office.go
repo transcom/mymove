@@ -223,6 +223,7 @@ func (m *TransportationOffice) ContextValidate(ctx context.Context, formats strf
 func (m *TransportationOffice) contextValidateAddress(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Address != nil {
+
 		if err := m.Address.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("address")

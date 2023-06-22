@@ -255,6 +255,11 @@ func (m *QueuePaymentRequest) ContextValidate(ctx context.Context, formats strfm
 func (m *QueuePaymentRequest) contextValidateCustomer(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Customer != nil {
+
+		if swag.IsZero(m.Customer) { // not required
+			return nil
+		}
+
 		if err := m.Customer.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("customer")
@@ -271,6 +276,11 @@ func (m *QueuePaymentRequest) contextValidateCustomer(ctx context.Context, forma
 func (m *QueuePaymentRequest) contextValidateDepartmentIndicator(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.DepartmentIndicator != nil {
+
+		if swag.IsZero(m.DepartmentIndicator) { // not required
+			return nil
+		}
+
 		if err := m.DepartmentIndicator.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("departmentIndicator")
@@ -287,6 +297,11 @@ func (m *QueuePaymentRequest) contextValidateDepartmentIndicator(ctx context.Con
 func (m *QueuePaymentRequest) contextValidateOriginDutyLocation(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.OriginDutyLocation != nil {
+
+		if swag.IsZero(m.OriginDutyLocation) { // not required
+			return nil
+		}
+
 		if err := m.OriginDutyLocation.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("originDutyLocation")
@@ -302,6 +317,10 @@ func (m *QueuePaymentRequest) contextValidateOriginDutyLocation(ctx context.Cont
 
 func (m *QueuePaymentRequest) contextValidateOriginGBLOC(ctx context.Context, formats strfmt.Registry) error {
 
+	if swag.IsZero(m.OriginGBLOC) { // not required
+		return nil
+	}
+
 	if err := m.OriginGBLOC.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("originGBLOC")
@@ -315,6 +334,10 @@ func (m *QueuePaymentRequest) contextValidateOriginGBLOC(ctx context.Context, fo
 }
 
 func (m *QueuePaymentRequest) contextValidateStatus(ctx context.Context, formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Status) { // not required
+		return nil
+	}
 
 	if err := m.Status.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {

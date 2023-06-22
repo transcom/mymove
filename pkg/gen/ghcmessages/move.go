@@ -456,6 +456,11 @@ func (m *Move) ContextValidate(ctx context.Context, formats strfmt.Registry) err
 func (m *Move) contextValidateCloseoutOffice(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.CloseoutOffice != nil {
+
+		if swag.IsZero(m.CloseoutOffice) { // not required
+			return nil
+		}
+
 		if err := m.CloseoutOffice.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("closeoutOffice")
@@ -472,6 +477,11 @@ func (m *Move) contextValidateCloseoutOffice(ctx context.Context, formats strfmt
 func (m *Move) contextValidateContractor(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Contractor != nil {
+
+		if swag.IsZero(m.Contractor) { // not required
+			return nil
+		}
+
 		if err := m.Contractor.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("contractor")
@@ -506,6 +516,11 @@ func (m *Move) contextValidateFinancialReviewRemarks(ctx context.Context, format
 func (m *Move) contextValidateOrders(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Orders != nil {
+
+		if swag.IsZero(m.Orders) { // not required
+			return nil
+		}
+
 		if err := m.Orders.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("orders")
@@ -520,6 +535,10 @@ func (m *Move) contextValidateOrders(ctx context.Context, formats strfmt.Registr
 }
 
 func (m *Move) contextValidateStatus(ctx context.Context, formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Status) { // not required
+		return nil
+	}
 
 	if err := m.Status.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {

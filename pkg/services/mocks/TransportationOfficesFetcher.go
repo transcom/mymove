@@ -68,13 +68,12 @@ func (_m *TransportationOfficesFetcher) GetTransportationOffices(appCtx appconte
 	return r0, r1
 }
 
-type mockConstructorTestingTNewTransportationOfficesFetcher interface {
+// NewTransportationOfficesFetcher creates a new instance of TransportationOfficesFetcher. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewTransportationOfficesFetcher(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewTransportationOfficesFetcher creates a new instance of TransportationOfficesFetcher. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewTransportationOfficesFetcher(t mockConstructorTestingTNewTransportationOfficesFetcher) *TransportationOfficesFetcher {
+}) *TransportationOfficesFetcher {
 	mock := &TransportationOfficesFetcher{}
 	mock.Mock.Test(t)
 

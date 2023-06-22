@@ -353,6 +353,11 @@ func (m *CounselingUpdateOrderPayload) ContextValidate(ctx context.Context, form
 func (m *CounselingUpdateOrderPayload) contextValidateDepartmentIndicator(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.DepartmentIndicator != nil {
+
+		if swag.IsZero(m.DepartmentIndicator) { // not required
+			return nil
+		}
+
 		if err := m.DepartmentIndicator.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("departmentIndicator")
@@ -368,6 +373,10 @@ func (m *CounselingUpdateOrderPayload) contextValidateDepartmentIndicator(ctx co
 
 func (m *CounselingUpdateOrderPayload) contextValidateNtsSac(ctx context.Context, formats strfmt.Registry) error {
 
+	if swag.IsZero(m.NtsSac) { // not required
+		return nil
+	}
+
 	if err := m.NtsSac.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("ntsSac")
@@ -381,6 +390,10 @@ func (m *CounselingUpdateOrderPayload) contextValidateNtsSac(ctx context.Context
 }
 
 func (m *CounselingUpdateOrderPayload) contextValidateNtsTac(ctx context.Context, formats strfmt.Registry) error {
+
+	if swag.IsZero(m.NtsTac) { // not required
+		return nil
+	}
 
 	if err := m.NtsTac.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
@@ -397,6 +410,7 @@ func (m *CounselingUpdateOrderPayload) contextValidateNtsTac(ctx context.Context
 func (m *CounselingUpdateOrderPayload) contextValidateOrdersType(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.OrdersType != nil {
+
 		if err := m.OrdersType.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("ordersType")
@@ -413,6 +427,11 @@ func (m *CounselingUpdateOrderPayload) contextValidateOrdersType(ctx context.Con
 func (m *CounselingUpdateOrderPayload) contextValidateOrdersTypeDetail(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.OrdersTypeDetail != nil {
+
+		if swag.IsZero(m.OrdersTypeDetail) { // not required
+			return nil
+		}
+
 		if err := m.OrdersTypeDetail.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("ordersTypeDetail")
@@ -427,6 +446,10 @@ func (m *CounselingUpdateOrderPayload) contextValidateOrdersTypeDetail(ctx conte
 }
 
 func (m *CounselingUpdateOrderPayload) contextValidateSac(ctx context.Context, formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Sac) { // not required
+		return nil
+	}
 
 	if err := m.Sac.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {

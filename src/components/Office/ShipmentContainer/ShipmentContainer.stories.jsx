@@ -121,6 +121,11 @@ export const MTOAccessorial = () => (
             code: 'FSC',
           }),
         ]}
+        serviceItemAddressUpdateAlert={{
+          makeVisible: false,
+          alertMessage: '',
+          alertType: '',
+        }}
       />
     </ShipmentContainer>
   </MockProviders>

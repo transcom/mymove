@@ -42,13 +42,12 @@ func (_m *SITExtensionApprover) ApproveSITExtension(appCtx appcontext.AppContext
 	return r0, r1
 }
 
-type mockConstructorTestingTNewSITExtensionApprover interface {
+// NewSITExtensionApprover creates a new instance of SITExtensionApprover. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewSITExtensionApprover(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewSITExtensionApprover creates a new instance of SITExtensionApprover. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewSITExtensionApprover(t mockConstructorTestingTNewSITExtensionApprover) *SITExtensionApprover {
+}) *SITExtensionApprover {
 	mock := &SITExtensionApprover{}
 	mock.Mock.Test(t)
 

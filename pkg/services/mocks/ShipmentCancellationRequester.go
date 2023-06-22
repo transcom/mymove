@@ -42,13 +42,12 @@ func (_m *ShipmentCancellationRequester) RequestShipmentCancellation(appCtx appc
 	return r0, r1
 }
 
-type mockConstructorTestingTNewShipmentCancellationRequester interface {
+// NewShipmentCancellationRequester creates a new instance of ShipmentCancellationRequester. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewShipmentCancellationRequester(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewShipmentCancellationRequester creates a new instance of ShipmentCancellationRequester. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewShipmentCancellationRequester(t mockConstructorTestingTNewShipmentCancellationRequester) *ShipmentCancellationRequester {
+}) *ShipmentCancellationRequester {
 	mock := &ShipmentCancellationRequester{}
 	mock.Mock.Test(t)
 

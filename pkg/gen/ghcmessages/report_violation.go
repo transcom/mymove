@@ -136,6 +136,11 @@ func (m *ReportViolation) ContextValidate(ctx context.Context, formats strfmt.Re
 func (m *ReportViolation) contextValidateViolation(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Violation != nil {
+
+		if swag.IsZero(m.Violation) { // not required
+			return nil
+		}
+
 		if err := m.Violation.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("violation")

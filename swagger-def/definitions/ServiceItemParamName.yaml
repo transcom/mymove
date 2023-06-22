@@ -61,5 +61,6 @@ enum:
   - ZipDestAddress
   - ZipPickupAddress
   - ZipSITDestHHGFinalAddress
+  - ZipSITDestHHGOriginalAddress
   - ZipSITOriginHHGActualAddress
   - ZipSITOriginHHGOriginalAddress

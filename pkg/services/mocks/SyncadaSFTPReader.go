@@ -40,13 +40,12 @@ func (_m *SyncadaSFTPReader) FetchAndProcessSyncadaFiles(appCtx appcontext.AppCo
 	return r0, r1
 }
 
-type mockConstructorTestingTNewSyncadaSFTPReader interface {
+// NewSyncadaSFTPReader creates a new instance of SyncadaSFTPReader. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewSyncadaSFTPReader(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewSyncadaSFTPReader creates a new instance of SyncadaSFTPReader. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewSyncadaSFTPReader(t mockConstructorTestingTNewSyncadaSFTPReader) *SyncadaSFTPReader {
+}) *SyncadaSFTPReader {
 	mock := &SyncadaSFTPReader{}
 	mock.Mock.Test(t)
 
