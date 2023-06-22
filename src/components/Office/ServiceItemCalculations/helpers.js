@@ -218,14 +218,13 @@ const baselineShorthaulPrice = (params, shipmentType) => {
 };
 // TODO: Ask about the structure of this function.
 const dddSITmileageZip5 = (params) => {
+  console.log(getParamValue(SERVICE_ITEM_PARAM_KEYS.SITDestFinalAddress, params))
   const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.DistanceZipSITDest, params);
   const label = SERVICE_ITEM_CALCULATION_LABELS.Mileage;
   const detail = `${
     SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipSITDestHHGOriginalAddress]
   } ${getParamValue(SERVICE_ITEM_PARAM_KEYS.ZipSITDestHHGOriginalAddress, params)} to ${
     SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipSITDestHHGFinalAddress]
-  } ${getParamValue(SERVICE_ITEM_PARAM_KEYS.ZipSITDestHHGFinalAddress, params)} to ${
-    SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.SITDestFinalAddress]
   } ${getParamValue(SERVICE_ITEM_PARAM_KEYS.ZipSITDestHHGFinalAddress, params)}
   `;
 
@@ -553,7 +552,7 @@ export default function makeCalculations(itemCode, totalAmount, params, mtoParam
     case SERVICE_ITEM_CODES.DDDSIT: {
       const mileage = getParamValue(SERVICE_ITEM_PARAM_KEYS.DistanceZipSITDest, params);
       const startZip = getParamValue(SERVICE_ITEM_PARAM_KEYS.ZipSITDestHHGOriginalAddress, params)?.slice(0, 3);
-      const endZip = getParamValue(SERVICE_ITEM_PARAM_KEYS.SITDestFinalAddress, params)?.slice(0, 3);
+      const endZip = getParamValue(SERVICE_ITEM_PARAM_KEYS.ZipSITDestHHGFinalAddress, params)?.slice(0, 3);
       // Mileage does not factor into the pricing for distances less than 50 miles and non-matching
       // zip3, so we won't display mileage
       if (mileage <= LONGHAUL_MIN_DISTANCE && startZip !== endZip) {
