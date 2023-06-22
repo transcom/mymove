@@ -30,8 +30,7 @@ func (suite *GhcAPISuite) TestCustomer() {
 		// see if servicemember two can get info on servicemember one
 		serviceMemberOne := factory.BuildServiceMember(suite.DB(), factory.GetTraitActiveServiceMemberUser(), nil)
 		serviceMemberTwo := factory.BuildServiceMember(suite.DB(), factory.GetTraitActiveServiceMemberUser(), nil)
-		req := suite.NewMilRequest("GET", "/ghc/v1/customer/"+serviceMemberOne.ID.String(), nil)
-		suite.SetupMilRequestSession(req, serviceMemberTwo)
+		req := suite.NewAuthenticatedMilRequest("GET", "/ghc/v1/customer/"+serviceMemberOne.ID.String(), nil, serviceMemberTwo)
 		rr := httptest.NewRecorder()
 		suite.SetupSiteHandler().ServeHTTP(rr, req)
 

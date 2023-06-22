@@ -42,8 +42,7 @@ func (suite *InternalAPISuite) TestMoves() {
 		// see if servicemember two can get info on servicemember one
 		moveOne := factory.BuildMove(suite.DB(), factory.GetTraitActiveServiceMemberUser(), nil)
 		moveTwo := factory.BuildMove(suite.DB(), factory.GetTraitActiveServiceMemberUser(), nil)
-		req := suite.NewMilRequest("GET", "/internal/moves/"+moveOne.ID.String(), nil)
-		suite.SetupMilRequestSession(req, moveTwo.Orders.ServiceMember)
+		req := suite.NewAuthenticatedMilRequest("GET", "/internal/moves/"+moveOne.ID.String(), nil, moveTwo.Orders.ServiceMember)
 		rr := httptest.NewRecorder()
 		suite.SetupSiteHandler().ServeHTTP(rr, req)
 
