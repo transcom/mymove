@@ -218,7 +218,6 @@ const baselineShorthaulPrice = (params, shipmentType) => {
 };
 // TODO: Ask about the structure of this function.
 const dddSITmileageZip5 = (params) => {
-  console.log(getParamValue(SERVICE_ITEM_PARAM_KEYS.SITDestFinalAddress, params))
   const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.DistanceZipSITDest, params);
   const label = SERVICE_ITEM_CALCULATION_LABELS.Mileage;
   const detail = `${
