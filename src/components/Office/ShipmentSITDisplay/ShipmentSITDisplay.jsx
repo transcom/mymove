@@ -70,8 +70,8 @@ const SitHistoryList = ({ sitHistory, dayAllowance }) => {
 };
 
 const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton }) => {
+  const currentOrUpcomingSIT = !!sitStatus.location;
   const pendingSITExtension = sitExtensions.find((se) => se.status === SIT_EXTENSION_STATUS.PENDING);
-
   const currentDaysInSIT = sitStatus?.daysInSIT || 0;
   const currentDaysInSITElement = <p>{currentDaysInSIT}</p>;
   let sitEntryDate = sitStatus?.sitEntryDate;
@@ -118,7 +118,7 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton }
     <>
       <div className={styles.title}>
         <p>SIT (STORAGE IN TRANSIT){pendingSITExtension && <Tag>Additional Days Requested</Tag>}</p>
-        {openModalButton}
+        {currentOrUpcomingSIT && openModalButton}
       </div>
       <div className={styles.tableContainer} data-testid="sitStatusTable">
         {/* Sit Total days table */}
@@ -128,19 +128,25 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton }
         />
       </div>
 
-      <div className={styles.tableContainer} data-testid="sitStartAndEndTable">
-        {/* Sit Start and End table */}
-        {currentDaysInSIT > 0 && <p className={styles.sitHeader}>Current location: {currentLocation}</p>}
-        <DataTable
-          columnHeaders={[`SIT start date`, 'SIT authorized end date']}
-          dataRow={[sitStartDateElement, sitEndDateString]}
-          custClass={styles.currentLocation}
-        />
-      </div>
-      <div className={styles.tableContainer} data-testid="sitDaysAtCurrentLocation">
-        {/* Total days at current location */}
-        <DataTable columnHeaders={[`Total days in ${currentLocation}`]} dataRow={[currentDaysInSITElement]} />
-      </div>
+      {/* Current SIT Info Section */}
+      {currentOrUpcomingSIT && (
+        <>
+          <div className={styles.tableContainer} data-testid="sitStartAndEndTable">
+            {/* Sit Start and End table */}
+            {currentDaysInSIT > 0 && <p className={styles.sitHeader}>Current location: {currentLocation}</p>}
+            <DataTable
+              columnHeaders={[`SIT start date`, 'SIT authorized end date']}
+              dataRow={[sitStartDateElement, sitEndDateString]}
+              custClass={styles.currentLocation}
+            />
+          </div>
+          <div className={styles.tableContainer} data-testid="sitDaysAtCurrentLocation">
+            {/* Total days at current location */}
+            <DataTable columnHeaders={[`Total days in ${currentLocation}`]} dataRow={[currentDaysInSITElement]} />
+          </div>
+        </>
+      )}
+
       {/* Service Items */}
       {sitStatus?.pastSITServiceItems && (
         <div className={styles.tableContainer}>
