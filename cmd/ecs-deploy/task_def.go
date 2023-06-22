@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -11,17 +12,16 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/arn"
-	"github.com/aws/aws-sdk-go/aws/endpoints"
-	"github.com/aws/aws-sdk-go/aws/request"
-	awssession "github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/private/protocol/json/jsonutil"
-	"github.com/aws/aws-sdk-go/service/cloudwatchevents"
-	"github.com/aws/aws-sdk-go/service/ecr"
-	"github.com/aws/aws-sdk-go/service/ecs"
-	"github.com/aws/aws-sdk-go/service/rds"
-	"github.com/aws/aws-sdk-go/service/ssm"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/aws/arn"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/cloudwatchevents"
+	"github.com/aws/aws-sdk-go-v2/service/ecr"
+	ecrtypes "github.com/aws/aws-sdk-go-v2/service/ecr/types"
+	"github.com/aws/aws-sdk-go-v2/service/ecs"
+	ecstypes "github.com/aws/aws-sdk-go-v2/service/ecs/types"
+	"github.com/aws/aws-sdk-go-v2/service/rds"
+	"github.com/aws/aws-sdk-go-v2/service/ssm"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
@@ -72,10 +72,10 @@ var servicesToEntryPoints = map[string][]string{
 
 // Services mapped to App Ports
 // This ensures app ports are correct for a service that requires port mappings
-var servicesToAppPorts = map[string]int64{
-	"app":            int64(8443),
-	"app-client-tls": int64(9443),
-	"orders":         int64(9443),
+var servicesToAppPorts = map[string]int32{
+	"app":            int32(8443),
+	"app-client-tls": int32(9443),
+	"orders":         int32(9443),
 }
 
 type errInvalidService struct {
@@ -177,28 +177,24 @@ func NewECRImage(imageURI string) (*ECRImage, error) {
 }
 
 // Validate checks ecr image struct values by running validate method and making a request to aws service
-func (ecrImage ECRImage) Validate(serviceECR *ecr.ECR) error {
-	imageIdentifier := ecr.ImageIdentifier{}
+func (ecrImage ECRImage) Validate(ecrClient *ecr.Client) error {
+	imageIdentifier := ecrtypes.ImageIdentifier{}
 	if ecrImage.ImageURIByDigest != nil {
-		imageIdentifier.SetImageDigest(ecrImage.Digest)
+		imageIdentifier.ImageDigest = &ecrImage.Digest
 	} else if ecrImage.ImageURIByTag != nil {
-		imageIdentifier.SetImageTag(ecrImage.Tag)
+		imageIdentifier.ImageTag = &ecrImage.Tag
 	} else {
 		return fmt.Errorf("no valid imageuri, ImageURIByTag and ImageURIByDigest are null in ecrImage: %v", ecrImage)
 	}
 
-	//check to make sure image can validate
-	errImageIdentifierValidate := imageIdentifier.Validate()
-	if errImageIdentifierValidate != nil {
-		return fmt.Errorf("image identifier invalid %w", errImageIdentifierValidate)
-	}
-
 	//check to make sure image exists
-	imageList, describeImageErr := serviceECR.DescribeImages(&ecr.DescribeImagesInput{
-		ImageIds:       append([]*ecr.ImageIdentifier{}, &imageIdentifier),
-		RegistryId:     aws.String(ecrImage.RegistryID),
-		RepositoryName: aws.String(ecrImage.RepositoryName),
-	})
+	imageList, describeImageErr := ecrClient.DescribeImages(
+		context.Background(),
+		&ecr.DescribeImagesInput{
+			ImageIds:       []ecrtypes.ImageIdentifier{imageIdentifier},
+			RegistryId:     aws.String(ecrImage.RegistryID),
+			RepositoryName: aws.String(ecrImage.RepositoryName),
+		})
 
 	if describeImageErr != nil {
 		return fmt.Errorf("unable to retrieve image: %v: Error: %w", ecrImage, describeImageErr)
@@ -254,29 +250,9 @@ func checkTaskDefConfig(v *viper.Viper) error {
 		return fmt.Errorf("%q is invalid: %w", awsAccountIDFlag, &errInvalidAccountID{AwsAccountID: awsAccountID})
 	}
 
-	region, err := cli.CheckAWSRegion(v)
+	_, err := cli.CheckAWSRegion(v)
 	if err != nil {
 		return fmt.Errorf("%q is invalid: %w", cli.AWSRegionFlag, err)
-	}
-
-	if err := cli.CheckAWSRegionForService(region, cloudwatchevents.ServiceName); err != nil {
-		return fmt.Errorf("%q is invalid for service %s: %w", cli.AWSRegionFlag, cloudwatchevents.ServiceName, err)
-	}
-
-	if err := cli.CheckAWSRegionForService(region, ecs.ServiceName); err != nil {
-		return fmt.Errorf("%q is invalid for service %s: %w", cli.AWSRegionFlag, ecs.ServiceName, err)
-	}
-
-	if err := cli.CheckAWSRegionForService(region, ecr.ServiceName); err != nil {
-		return fmt.Errorf("%q is invalid for service %s: %w", cli.AWSRegionFlag, ecr.ServiceName, err)
-	}
-
-	if err := cli.CheckAWSRegionForService(region, rds.ServiceName); err != nil {
-		return fmt.Errorf("%q is invalid for service %s: %w", cli.AWSRegionFlag, rds.ServiceName, err)
-	}
-
-	if err := cli.CheckAWSRegionForService(region, ssm.ServiceName); err != nil {
-		return fmt.Errorf("%q is invalid for service %s: %w", cli.AWSRegionFlag, ssm.ServiceName, err)
 	}
 
 	serviceName := v.GetString(serviceFlag)
@@ -339,39 +315,45 @@ func checkTaskDefConfig(v *viper.Viper) error {
 	return nil
 }
 
-func buildSecrets(serviceSSM *ssm.SSM, awsRegion, awsAccountID, serviceName, environmentName string) []*ecs.Secret {
+func buildSecrets(cfg aws.Config, awsAccountID, serviceName, environmentName string) ([]ecstypes.Secret, error) {
 
-	var secrets []*ecs.Secret
+	var secrets []ecstypes.Secret
 
-	params := ssm.DescribeParametersInput{
-		MaxResults: aws.Int64(50),
+	ssmClient := ssm.NewFromConfig(cfg)
+
+	resolver := ssm.NewDefaultEndpointResolver()
+	endpoint, err := resolver.ResolveEndpoint(cfg.Region,
+		ssm.EndpointResolverOptions{})
+	if err != nil {
+		return nil, err
 	}
+	partition := endpoint.PartitionID
 
 	ctx := context.Background()
 
-	p := request.Pagination{
-		NewRequest: func() (*request.Request, error) {
-			req, _ := serviceSSM.DescribeParametersRequest(&params)
-			req.SetContext(ctx)
-			return req, nil
-		},
-	}
+	paginator := ssm.NewDescribeParametersPaginator(ssmClient,
+		&ssm.DescribeParametersInput{},
+		func(opts *ssm.DescribeParametersPaginatorOptions) {
+			opts.Limit = 50
+		})
 
-	partition, _ := endpoints.PartitionForRegion(endpoints.DefaultPartitions(), awsRegion)
-
-	for p.Next() {
-		page := p.Page().(*ssm.DescribeParametersOutput)
+	servicePrefix := fmt.Sprintf("/%s-%s", serviceName, environmentName)
+	for paginator.HasMorePages() {
+		page, err := paginator.NextPage(ctx)
+		if err != nil {
+			return secrets, err
+		}
 
 		for _, parameter := range page.Parameters {
-			if strings.HasPrefix(*parameter.Name, fmt.Sprintf("/%s-%s", serviceName, environmentName)) {
+			if strings.HasPrefix(*parameter.Name, servicePrefix) {
 				parameterARN := arn.ARN{
-					Partition: partition.ID(),
+					Partition: partition,
 					Service:   "ssm",
-					Region:    awsRegion,
+					Region:    cfg.Region,
 					AccountID: awsAccountID,
 					Resource:  fmt.Sprintf("parameter%s", *parameter.Name),
 				}
-				secrets = append(secrets, &ecs.Secret{
+				secrets = append(secrets, ecstypes.Secret{
 					Name:      aws.String(strings.ToUpper(strings.Split(*parameter.Name, "/")[2])),
 					ValueFrom: aws.String(parameterARN.String()),
 				})
@@ -379,10 +361,10 @@ func buildSecrets(serviceSSM *ssm.SSM, awsRegion, awsAccountID, serviceName, env
 		}
 	}
 
-	return secrets
+	return secrets, nil
 }
 
-func buildContainerEnvironment(environmentName string, dbHost string, variablesFile string) []*ecs.KeyValuePair {
+func buildContainerEnvironment(environmentName string, dbHost string, variablesFile string) []ecstypes.KeyValuePair {
 
 	envVars := map[string]string{
 		"DB_ENV":      cli.DbEnvContainer,
@@ -414,7 +396,7 @@ func buildContainerEnvironment(environmentName string, dbHost string, variablesF
 		}
 	}
 
-	var ecsKVPair []*ecs.KeyValuePair
+	var ecsKVPair []ecstypes.KeyValuePair
 
 	// Sort these for easier reading
 	keys := make([]string, 0, len(envVars))
@@ -424,7 +406,7 @@ func buildContainerEnvironment(environmentName string, dbHost string, variablesF
 	sort.Strings(keys)
 
 	for _, key := range keys {
-		ecsKVPair = append(ecsKVPair, &ecs.KeyValuePair{
+		ecsKVPair = append(ecsKVPair, ecstypes.KeyValuePair{
 			Name:  aws.String(key),
 			Value: aws.String(envVars[key]),
 		})
@@ -465,23 +447,22 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 	}
 
 	// Ensure the configuration works against the variables
-	checkConfigErr := checkTaskDefConfig(v)
-	if checkConfigErr != nil {
-		quit(logger, flag, checkConfigErr)
-	}
-
-	awsConfig := createAwsConfig(v.GetString(cli.AWSRegionFlag))
-	sess, err := awssession.NewSession(awsConfig)
+	err = checkTaskDefConfig(v)
 	if err != nil {
-		quit(logger, nil, fmt.Errorf("failed to create AWS session: %w", err))
+		quit(logger, flag, err)
 	}
 
-	// Create the Services
-	serviceCloudWatchEvents := cloudwatchevents.New(sess)
-	serviceECS := ecs.New(sess)
-	serviceECR := ecr.New(sess)
-	serviceRDS := rds.New(sess)
-	serviceSSM := ssm.New(sess)
+	cfg, errCfg := config.LoadDefaultConfig(context.Background(),
+		config.WithRegion(v.GetString(cli.AWSRegionFlag)),
+	)
+	if errCfg != nil {
+		quit(logger, flag, err)
+	}
+
+	serviceCloudWatchEvents := cloudwatchevents.NewFromConfig(cfg)
+	serviceECS := ecs.NewFromConfig(cfg)
+	serviceECR := ecr.NewFromConfig(cfg)
+	serviceRDS := rds.NewFromConfig(cfg)
 
 	// ===== Limit the variables required =====
 	awsAccountID := v.GetString(awsAccountIDFlag)
@@ -520,8 +501,11 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 	// handle entrypoint specific logic
 	var awsLogsStreamPrefix string
 	var awsLogsGroup string
-	var portMappings []*ecs.PortMapping
+	var portMappings []ecstypes.PortMapping
 	var containerDefName string
+
+	ctx := context.Background()
+
 	if commandName == binMilMoveTasks {
 		executionRoleArn = fmt.Sprintf("ecs-task-exec-role-%s-%s-%s", serviceNameShort, environmentName, subCommandName)
 		taskRoleArn = fmt.Sprintf("ecs-task-role-%s-%s-%s", serviceNameShort, environmentName, subCommandName)
@@ -532,9 +516,11 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 		containerDefName = fmt.Sprintf("%s-%s-%s", serviceName, subCommandName, environmentName)
 
 		ruleName := fmt.Sprintf("%s-%s", subCommandName, environmentName)
-		_, listTargetsByRuleErr := serviceCloudWatchEvents.ListTargetsByRule(&cloudwatchevents.ListTargetsByRuleInput{
-			Rule: aws.String(ruleName),
-		})
+		_, listTargetsByRuleErr := serviceCloudWatchEvents.ListTargetsByRule(
+			ctx,
+			&cloudwatchevents.ListTargetsByRuleInput{
+				Rule: aws.String(ruleName),
+			})
 		if listTargetsByRuleErr != nil {
 			quit(logger, nil, fmt.Errorf("error retrieving targets for rule %q: %w", ruleName, listTargetsByRuleErr))
 		}
@@ -561,20 +547,22 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 
 		// Ports
 		port := servicesToAppPorts[serviceName]
-		portMappings = []*ecs.PortMapping{
+		portMappings = []ecstypes.PortMapping{
 			{
-				ContainerPort: aws.Int64(port),
-				HostPort:      aws.Int64(port),
-				Protocol:      aws.String("tcp"),
+				ContainerPort: aws.Int32(port),
+				HostPort:      aws.Int32(port),
+				Protocol:      ecstypes.TransportProtocolTcp,
 			},
 		}
 	}
 
 	// Get the database host using the instance identifier
 	dbInstanceIdentifier := fmt.Sprintf("%s-%s", serviceNameShort, environmentName)
-	dbInstancesOutput, err := serviceRDS.DescribeDBInstances(&rds.DescribeDBInstancesInput{
-		DBInstanceIdentifier: aws.String(dbInstanceIdentifier),
-	})
+	dbInstancesOutput, err := serviceRDS.DescribeDBInstances(
+		ctx,
+		&rds.DescribeDBInstancesInput{
+			DBInstanceIdentifier: aws.String(dbInstanceIdentifier),
+		})
 	if err != nil {
 		quit(logger, nil, fmt.Errorf("error retrieving database definition for %q: %w", dbInstanceIdentifier, err))
 	}
@@ -586,7 +574,10 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 
 	// Create the set of secrets and environment variables that will be injected into the
 	// container.
-	secrets := buildSecrets(serviceSSM, awsRegion, awsAccountID, serviceNameShort, environmentName)
+	secrets, err := buildSecrets(cfg, awsAccountID, serviceNameShort, environmentName)
+	if err != nil {
+		quit(logger, nil, err)
+	}
 	containerEnvironment := buildContainerEnvironment(environmentName, dbHost, variablesFile)
 
 	// AWS does not permit supplying both a secret and an environment variable that share the same
@@ -595,28 +586,28 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 	// that have been transitioned into being set as environment variables.
 	secrets = removeSecretsWithMatchingEnvironmentVariables(secrets, containerEnvironment)
 
-	containerDefinitions := []*ecs.ContainerDefinition{
+	containerDefinitions := []ecstypes.ContainerDefinition{
 		{
 			Name:        aws.String(containerDefName),
 			Image:       aws.String(ecrImage.ImageURI),
 			Essential:   aws.Bool(true),
-			EntryPoint:  aws.StringSlice(entryPointList),
-			Command:     []*string{},
+			EntryPoint:  entryPointList,
+			Command:     []string{},
 			Secrets:     secrets,
 			Environment: containerEnvironment,
-			Ulimits: []*ecs.Ulimit{
+			Ulimits: []ecstypes.Ulimit{
 				{
-					Name:      aws.String("nofile"),
-					SoftLimit: aws.Int64(10000),
-					HardLimit: aws.Int64(10000),
+					Name:      ecstypes.UlimitName("nofile"),
+					SoftLimit: 10000,
+					HardLimit: 10000,
 				},
 			},
-			LogConfiguration: &ecs.LogConfiguration{
-				LogDriver: aws.String("awslogs"),
-				Options: map[string]*string{
-					"awslogs-group":         aws.String(awsLogsGroup),
-					"awslogs-region":        aws.String(awsRegion),
-					"awslogs-stream-prefix": aws.String(awsLogsStreamPrefix),
+			LogConfiguration: &ecstypes.LogConfiguration{
+				LogDriver: ecstypes.LogDriverAwslogs,
+				Options: map[string]string{
+					"awslogs-group":         awsLogsGroup,
+					"awslogs-region":        awsRegion,
+					"awslogs-stream-prefix": awsLogsStreamPrefix,
 				},
 			},
 			PortMappings:           portMappings,
@@ -628,11 +619,11 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 
 	// if health check is enabled, add it to the container definition
 	if v.GetBool(healthCheckFlag) {
-		containerDefinitions[0].HealthCheck = &ecs.HealthCheck{
-			Command: []*string{
-				aws.String("CMD"),
-				aws.String(binMilMove),
-				aws.String("health"),
+		containerDefinitions[0].HealthCheck = &ecstypes.HealthCheck{
+			Command: []string{
+				"CMD",
+				binMilMove,
+				"health",
 			},
 			// Interval defaults to 30 seconds
 			// Retries defaults to 3
@@ -882,28 +873,28 @@ service:
 
 		otelCollectorImage := v.GetString(otelCollectorImageFlag)
 		containerDefinitions = append(containerDefinitions,
-			&ecs.ContainerDefinition{
+			ecstypes.ContainerDefinition{
 				Name:      aws.String("otel-" + containerDefName),
 				Image:     aws.String(otelCollectorImage),
 				Essential: aws.Bool(true),
-				Environment: []*ecs.KeyValuePair{
+				Environment: []ecstypes.KeyValuePair{
 					{
 						Name:  aws.String("AOT_CONFIG_CONTENT"),
 						Value: aws.String(aotConfigContent),
 					},
 				},
-				LogConfiguration: &ecs.LogConfiguration{
-					LogDriver: aws.String("awslogs"),
-					Options: map[string]*string{
-						"awslogs-group":         aws.String(awsLogsGroup),
-						"awslogs-region":        aws.String(awsRegion),
-						"awslogs-stream-prefix": aws.String("otel-" + awsLogsStreamPrefix),
+				LogConfiguration: &ecstypes.LogConfiguration{
+					LogDriver: ecstypes.LogDriverAwslogs,
+					Options: map[string]string{
+						"awslogs-group":         awsLogsGroup,
+						"awslogs-region":        awsRegion,
+						"awslogs-stream-prefix": "otel-" + awsLogsStreamPrefix,
 					},
 				},
-				HealthCheck: &ecs.HealthCheck{
-					Command: []*string{
-						aws.String("CMD"),
-						aws.String("/healthcheck"),
+				HealthCheck: &ecstypes.HealthCheck{
+					Command: []string{
+						"CMD",
+						"/healthcheck",
 					},
 				},
 			},
@@ -916,23 +907,21 @@ service:
 		ExecutionRoleArn:        aws.String(executionRoleArn),
 		Family:                  aws.String(family),
 		Memory:                  aws.String(mem),
-		NetworkMode:             aws.String("awsvpc"),
-		RequiresCompatibilities: []*string{aws.String("FARGATE")},
+		NetworkMode:             ecstypes.NetworkModeAwsvpc,
+		RequiresCompatibilities: []ecstypes.Compatibility{"FARGATE"},
 		TaskRoleArn:             aws.String(taskRoleArn),
 	}
 
 	// Registration is never allowed by default and requires a flag
 	if v.GetBool(dryRunFlag) {
 		// Format the new task def as JSON for viewing
-		newTaskDefJSON, jsonErr := jsonutil.BuildJSON(newTaskDefInput)
+		jsonErr := json.NewEncoder(logger.Writer()).Encode(newTaskDefInput)
 		if jsonErr != nil {
 			quit(logger, nil, err)
 		}
-
-		logger.Println(string(newTaskDefJSON))
 	} else if v.GetBool(registerFlag) {
 		// Register the new task definition
-		newTaskDefOutput, err := serviceECS.RegisterTaskDefinition(&newTaskDefInput)
+		newTaskDefOutput, err := serviceECS.RegisterTaskDefinition(ctx, &newTaskDefInput)
 		if err != nil {
 			quit(logger, nil, fmt.Errorf("error registering new task definition: %w", err))
 		}
@@ -945,17 +934,10 @@ service:
 	return nil
 }
 
-func createAwsConfig(awsRegionFlag string) *aws.Config {
-	awsConfig := &aws.Config{
-		Region: aws.String(awsRegionFlag),
-	}
-	return awsConfig
-}
-
-func removeSecretsWithMatchingEnvironmentVariables(secrets []*ecs.Secret, containerEnvironment []*ecs.KeyValuePair) []*ecs.Secret {
+func removeSecretsWithMatchingEnvironmentVariables(secrets []ecstypes.Secret, containerEnvironment []ecstypes.KeyValuePair) []ecstypes.Secret {
 	// Remove any secrets that share a name with an environment variable. Do this by creating a new
 	// slice of secrets that does not any secrets that share a name with an environment variable.
-	newSecrets := []*ecs.Secret{}
+	newSecrets := []ecstypes.Secret{}
 	for _, secret := range secrets {
 		conflictFound := false
 		for _, envSetting := range containerEnvironment {

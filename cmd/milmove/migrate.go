@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -10,12 +11,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
-	awssession "github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/s3"
-	"github.com/aws/aws-sdk-go/service/sts"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/gobuffalo/pop/v6"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
@@ -187,45 +184,13 @@ func migrateFunction(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	var session *awssession.Session
-	if v.GetBool(cli.DbIamFlag) || s3Migrations {
-		c := &aws.Config{
-			Region: aws.String(v.GetString(cli.AWSRegionFlag)),
-		}
-		s, errorSession := awssession.NewSession(c)
-		if errorSession != nil {
-			return errors.Wrap(errorSession, "error creating aws session")
-		}
-		session = s
-	}
-
-	var dbCreds *credentials.Credentials
-	if v.GetBool(cli.DbIamFlag) {
-		if session != nil {
-			// We want to get the credentials from the logged in AWS session rather than create directly,
-			// because the session conflates the environment, shared, and container metdata config
-			// within NewSession.  With stscreds, we use the Secure Token Service,
-			// to assume the given role (that has rds db connect permissions).
-			dbIamRole := v.GetString(cli.DbIamRoleFlag)
-			logger.Info(fmt.Sprintf("assuming AWS role %q for db connection", dbIamRole))
-			dbCreds = stscreds.NewCredentials(session, dbIamRole)
-			stsService := sts.New(session)
-			callerIdentity, callerIdentityErr := stsService.GetCallerIdentity(&sts.GetCallerIdentityInput{})
-			if callerIdentityErr != nil {
-				logger.Error(errors.Wrap(callerIdentityErr, "error getting aws sts caller identity").Error())
-			} else {
-				logger.Info(fmt.Sprintf("STS Caller Identity - Account: %s, ARN: %s, UserId: %s", *callerIdentity.Account, *callerIdentity.Arn, *callerIdentity.UserId))
-			}
-		}
-	}
-
 	// Create a connection to the DB with retry logic
 	var dbConnection *pop.Connection
 	retryCount := 0
 	retryMax := v.GetInt(cli.DbRetryMaxFlag)
 	retryInterval := v.GetDuration(cli.DbRetryIntervalFlag)
 
-	dbConnection, err = cli.InitDatabase(v, dbCreds, logger)
+	dbConnection, err = cli.InitDatabase(v, logger)
 	if err != nil {
 		logger.Fatal("Invalid DB Configuration", zap.Error(err))
 	}
@@ -251,9 +216,16 @@ func migrateFunction(cmd *cobra.Command, args []string) error {
 	migrationManifest := expandPath(v.GetString(cli.MigrationManifestFlag))
 	logger.Info(fmt.Sprintf("using migration manifest %q", migrationManifest))
 
-	var s3Client *s3.S3
+	var s3Client *s3.Client
 	if s3Migrations {
-		s3Client = s3.New(session)
+		s3Region := v.GetString(cli.AWSS3RegionFlag)
+		cfg, errCfg := config.LoadDefaultConfig(context.Background(),
+			config.WithRegion(s3Region),
+		)
+		if errCfg != nil {
+			logger.Fatal("error loading rds aws config", zap.Error(errCfg))
+		}
+		s3Client = s3.NewFromConfig(cfg)
 	}
 
 	migrationFiles := map[string][]string{}

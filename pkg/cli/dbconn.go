@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"os"
@@ -10,8 +11,9 @@ import (
 	"time"
 
 	"github.com/XSAM/otelsql"
-	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/aws/aws-sdk-go/service/rds"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/credentials/stscreds"
+	"github.com/aws/aws-sdk-go-v2/service/sts"
 	pop "github.com/gobuffalo/pop/v6"
 	"github.com/luna-duclos/instrumentedsql"
 	"github.com/pkg/errors"
@@ -248,8 +250,8 @@ func CheckDatabase(v *viper.Viper, logger *zap.Logger) error {
 	if v.GetBool(DbIamFlag) {
 		// DbRegionFlag must be set if IAM authentication is enabled.
 		dbRegion := v.GetString(DbRegionFlag)
-		if err := CheckAWSRegionForService(dbRegion, rds.ServiceName); err != nil {
-			return errors.Wrap(err, fmt.Sprintf("'%q' is invalid for service %s", DbRegionFlag, rds.ServiceName))
+		if dbRegion == "" {
+			return fmt.Errorf("invalid value for %s: %s", DbRegionFlag, dbRegion)
 		}
 
 		dbIamRole := v.GetString(DbIamRoleFlag)
@@ -277,7 +279,7 @@ func CheckDatabase(v *viper.Viper, logger *zap.Logger) error {
 // v is the viper Configuration.
 // creds must relate to an assumed role and can't point to a user or task role directly.
 // logger is the application logger.
-func InitDatabase(v *viper.Viper, creds *credentials.Credentials, logger *zap.Logger) (*pop.Connection, error) {
+func InitDatabase(v *viper.Viper, logger *zap.Logger) (*pop.Connection, error) {
 
 	dbEnv := v.GetString(DbEnvFlag)
 	dbName := v.GetString(DbNameFlag)
@@ -329,6 +331,26 @@ func InitDatabase(v *viper.Viper, creds *credentials.Credentials, logger *zap.Lo
 	}
 
 	if v.GetBool(DbIamFlag) {
+		// We want to get the credentials from the logged in AWS
+		// session rather than create directly, because the session
+		// conflates the environment, shared, and container metdata
+		// config within NewSession. With stscreds, we use the Secure
+		// Token Service, to assume the given role (that has rds db
+		// connect permissions).
+		dbRegion := v.GetString(DbRegionFlag)
+
+		cfg, errCfg := config.LoadDefaultConfig(context.Background(),
+			config.WithRegion(dbRegion),
+		)
+		if errCfg != nil {
+			logger.Fatal("error loading rds aws config", zap.Error(errCfg))
+		}
+
+		dbIamRole := v.GetString(DbIamRoleFlag)
+		logger.Info(fmt.Sprintf("assuming AWS role %q for db connection", dbIamRole))
+		stsClient := sts.NewFromConfig(cfg)
+		dbCreds := stscreds.NewAssumeRoleProvider(stsClient, dbIamRole)
+
 		// Set a bogus password holder. It will be replaced with an RDS auth token as the password.
 		passHolder := "*****"
 
@@ -342,7 +364,7 @@ func InitDatabase(v *viper.Viper, creds *credentials.Credentials, logger *zap.Lo
 			v.GetString(DbRegionFlag),
 			dbConnectionDetails.User,
 			passHolder,
-			creds,
+			dbCreds,
 			iampg.RDSU{},
 			refreshInterval,
 			logger,

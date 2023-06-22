@@ -3,7 +3,6 @@ package cli
 import (
 	"fmt"
 
-	"github.com/aws/aws-sdk-go/service/ses"
 	"github.com/pkg/errors"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
@@ -37,8 +36,8 @@ func CheckEmail(v *viper.Viper) error {
 
 	if emailBackend == "ses" {
 		r := v.GetString(AWSSESRegionFlag)
-		if err := CheckAWSRegionForService(r, ses.ServiceName); err != nil {
-			return errors.Wrap(err, fmt.Sprintf("%s is invalid", AWSSESRegionFlag))
+		if r == "" {
+			return fmt.Errorf("invalid value for %s: %s", AWSSESRegionFlag, r)
 		}
 		if h := v.GetString(AWSSESDomainFlag); len(h) == 0 {
 			return errors.Wrap(&errInvalidHost{Host: h}, fmt.Sprintf("%s is invalid", AWSSESDomainFlag))

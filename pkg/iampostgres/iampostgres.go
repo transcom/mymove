@@ -15,7 +15,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/jmoiron/sqlx"
 	pg "github.com/lib/pq"
 	"go.uber.org/zap"
@@ -47,7 +47,7 @@ type iamPostgresConfig struct {
 	region           string
 	user             string
 	passTemplate     string
-	creds            *credentials.Credentials
+	creds            aws.CredentialsProvider
 	rus              RDSUtilService
 	ticker           *time.Ticker
 	shouldQuitChan   chan bool
@@ -108,7 +108,7 @@ func (i *iamPostgresConfig) updateDSN(dsn string) (string, time.Time, error) {
 }
 
 func (i *iamPostgresConfig) generateNewIamPassword() {
-	authToken, err := i.rus.GetToken(i.host+":"+i.port, i.region, i.user, i.creds)
+	authToken, err := i.rus.GetToken(context.Background(), i.host+":"+i.port, i.region, i.user, i.creds)
 	if err != nil {
 		i.logger.Error("Error building IAM auth token", zap.Error(err))
 	} else {
@@ -148,7 +148,7 @@ func (i *iamPostgresConfig) refreshRDSIAM() {
 // EnableIAM enables the use of IAM and pulls first credential set as a sanity check
 // Note: This method is intended to be non-blocking, so please add any changes to the goroutine
 // Note: Ensure the timer is on an interval lower than 15 minutes (AWS RDS IAM auth limit)
-func EnableIAM(host string, port string, region string, user string, passTemplate string, creds *credentials.Credentials, rus RDSUtilService, waitDuration time.Duration, logger *zap.Logger, shouldQuitChan chan bool) error {
+func EnableIAM(host string, port string, region string, user string, passTemplate string, creds aws.CredentialsProvider, rus RDSUtilService, waitDuration time.Duration, logger *zap.Logger, shouldQuitChan chan bool) error {
 	if creds == nil {
 		return errors.New("IAM Credentials are missing")
 	}
