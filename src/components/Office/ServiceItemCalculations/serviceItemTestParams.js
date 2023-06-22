@@ -230,20 +230,20 @@ const ZipSITOriginHHGActualAddress = {
   value: '90211',
 };
 
-const SITDestFinalAddress = {
+const ZipSITDestHHGFinalAddress = {
   eTag: 'MjAyMS0wMy0xOFQwMTozMTo1MS4yNjY4M1o=',
   id: '70eecf7f-beae-4906-95ba-cbfe6797cf3a',
-  key: 'SITDestFinalAddress',
+  key: 'ZipSITDestHHGFinalAddress',
   origin: 'PRIME',
   paymentServiceItemID: '28039a62-387d-479f-b50f-e0041b7e6e22',
   type: 'STRING',
   value: '94535',
 };
 
-const SITDestFinalAddressMatchingZip3 = {
+const ZipSITDestHHGFinalAddressMatchingZip3 = {
   eTag: 'MjAyMS0wMy0xOFQwMTozMTo1MS4yNjY4M1o=',
   id: '70eecf7f-beae-4906-95ba-cbfe6797cf3a',
-  key: 'SITDestFinalAddress',
+  key: 'ZipSITDestHHGFinalAddress',
   origin: 'PRIME',
   paymentServiceItemID: '28039a62-387d-479f-b50f-e0041b7e6e22',
   type: 'STRING',
@@ -619,7 +619,7 @@ const testParams = {
     WeightBilled,
     WeightEstimated,
     ZipSITDestHHGOriginalAddress,
-    SITDestFinalAddress,
+    ZipSITDestHHGFinalAddress,
   ],
   DomesticDestinationSITDeliveryLonghaul: [
     ContractCode,
@@ -634,7 +634,7 @@ const testParams = {
     WeightBilled,
     WeightEstimated,
     ZipSITDestHHGOriginalAddress,
-    SITDestFinalAddress,
+    ZipSITDestHHGFinalAddress,
   ],
   DomesticDestinationSITDeliveryMatchingZip3: [
     ContractCode,
@@ -649,7 +649,7 @@ const testParams = {
     WeightBilled,
     WeightEstimated,
     ZipSITDestHHGOriginalAddress,
-    SITDestFinalAddressMatchingZip3,
+    ZipSITDestHHGFinalAddress,
   ],
   DomesticPacking: [
     ContractYearName,
