@@ -74,11 +74,12 @@ export const AddressFields = ({ legend, className, name, render, validators, val
         maxLength={10}
         validate={validators?.postalCode}
         onChange={(e) => {
-          console.log(`value in the on change: ${e.target.value}`);
           // If we are validating on change we need to also set the field to touched when it is changed.
-          // Formik by default sets the field to touched on blur.
+          // Formik by default sets the field to touched on blur. The validation errors will not show unless the field
+          // has been touched. We are passing false as shouldValidate. By default, Formik validates during
+          // setFieldTouched. However, at this point Formik has not set the field value, so it would use stale data.
+          validatePostalCodeOnChangeProps.setFieldTouched(e.target.name, true, false);
           validatePostalCodeOnChangeProps.handleChange(e);
-          validatePostalCodeOnChangeProps.setFieldTouched(e.target.name);
         }}
       />
     );
@@ -148,7 +149,10 @@ AddressFields.propTypes = {
     state: PropTypes.func,
     postalCode: PropTypes.func,
   }),
-  validatePostalCodeOnChangeProps: PropTypes.object,
+  validatePostalCodeOnChangeProps: PropTypes.shape({
+    handleChange: PropTypes.func,
+    setFieldTouched: PropTypes.func,
+  }),
 };
 
 AddressFields.defaultProps = {
@@ -156,7 +160,7 @@ AddressFields.defaultProps = {
   className: '',
   render: (fields) => fields,
   validators: {},
-  validatePostalCodeOnChangeProps: null,
+  validatePostalCodeOnChangeProps: {},
 };
 
 export default AddressFields;

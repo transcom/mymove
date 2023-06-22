@@ -21,8 +21,6 @@ const UnsupportedZipCodeErrorMsg =
 const validatePostalCode = async (value) => {
   // Since we are validating the postal code on change, we want to only make this validation check
   // when we know the value could possibly be valid.
-
-  console.log(`value in the async validator: ${value}`);
   if (!value || (value.length !== 5 && value.length !== 10)) {
     return undefined;
   }
