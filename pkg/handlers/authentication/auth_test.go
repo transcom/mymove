@@ -57,6 +57,14 @@ func (suite *AuthSuite) AuthContext() Context {
 		"http", suite.callbackPort)
 }
 
+func (suite *AuthSuite) urlForHost(host string) *url.URL {
+	var u url.URL
+	u.Scheme = "http"
+	u.Host = fmt.Sprintf("%s:%d", host, suite.callbackPort)
+	u.Path = "/"
+	return &u
+}
+
 func TestAuthSuite(t *testing.T) {
 	hs := &AuthSuite{
 		BaseHandlerTestSuite: handlers.NewBaseHandlerTestSuite(notifications.NewStubNotificationSender("milmovelocal"), testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
@@ -684,7 +692,11 @@ func (suite *AuthSuite) TestRedirectLoginGovErrorMsg() {
 		}
 	}
 
-	suite.Equal("http://office.example.com:1234/?error=SIGNIN_ERROR", rr2.Result().Header.Get("Location"))
+	u := suite.urlForHost(appnames.OfficeServername)
+	q := u.Query()
+	q.Add("error", "SIGNIN_ERROR")
+	u.RawQuery = q.Encode()
+	suite.Equal(u.String(), rr2.Result().Header.Get("Location"))
 }
 
 type stubLoginGovProvider struct {
@@ -795,7 +807,8 @@ func (suite *AuthSuite) TestRedirectFromLoginGovForValidUser() {
 
 	suite.Equal(http.StatusTemporaryRedirect, rr.Code)
 
-	suite.Equal("http://office.example.com:1234/", rr.Result().Header.Get("Location"))
+	suite.Equal(suite.urlForHost(appnames.OfficeServername).String(),
+		rr.Result().Header.Get("Location"))
 }
 
 // test to make sure the full auth flow works, although we are using
@@ -854,7 +867,9 @@ func (suite *AuthSuite) TestRedirectFromLoginGovForInvalidUser() {
 
 	suite.Equal(http.StatusTemporaryRedirect, rr.Code)
 
-	suite.Equal("http://office.example.com:1234/invalid-permissions", rr.Result().Header.Get("Location"))
+	u := suite.urlForHost(appnames.OfficeServername)
+	u.Path = "/invalid-permissions"
+	suite.Equal(u.String(), rr.Result().Header.Get("Location"))
 }
 
 func (suite *AuthSuite) TestAuthKnownSingleRoleAdmin() {
@@ -1125,6 +1140,7 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeNotFound() {
 func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeLogsIn() {
 	user := factory.BuildDefaultUser(suite.DB())
 	// user is in office_users but has never logged into the app
+	// no roles at all
 	officeUser := factory.BuildOfficeUser(suite.DB(), []factory.Customization{
 		{
 			Model: models.OfficeUser{
@@ -1171,8 +1187,9 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeLogsIn() {
 	suite.Equal(officeUser.ID, session.OfficeUserID)
 	suite.Equal(uuid.Nil, session.AdminUserID)
 	suite.NotEqual("", foundUser.CurrentOfficeSessionID)
-	suite.NotEmpty(session.Roles)
-	suite.NotEmpty(session.Permissions)
+	// this user was created without roles or permissions
+	suite.Empty(session.Roles)
+	suite.Empty(session.Permissions)
 }
 
 func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeLogsInWithPermissions() {
