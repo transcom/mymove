@@ -23,16 +23,19 @@ type ShipmentAddressUpdate struct {
 	// Contractor Remarks
 	// Example: This is a contractor remark
 	// Required: true
-	ContractorRemarks *string `json:"contractorRemarks"`
+	// Read Only: true
+	ContractorRemarks string `json:"contractorRemarks"`
 
 	// id
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Required: true
+	// Read Only: true
 	// Format: uuid
-	ID *strfmt.UUID `json:"id"`
+	ID strfmt.UUID `json:"id"`
 
 	// new address
 	// Required: true
+	// Read Only: true
 	NewAddress *Address `json:"newAddress"`
 
 	// Office Remarks
@@ -46,13 +49,15 @@ type ShipmentAddressUpdate struct {
 	// shipment ID
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Required: true
+	// Read Only: true
 	// Format: uuid
-	ShipmentID *strfmt.UUID `json:"shipmentID"`
+	ShipmentID strfmt.UUID `json:"shipmentID"`
 
 	// Status
 	// Required: true
+	// Read Only: true
 	// Enum: [REQUESTED REJECTED APPROVED]
-	Status *string `json:"status"`
+	Status string `json:"status"`
 }
 
 // Validate validates this shipment address update
@@ -91,7 +96,7 @@ func (m *ShipmentAddressUpdate) Validate(formats strfmt.Registry) error {
 
 func (m *ShipmentAddressUpdate) validateContractorRemarks(formats strfmt.Registry) error {
 
-	if err := validate.Required("contractorRemarks", "body", m.ContractorRemarks); err != nil {
+	if err := validate.RequiredString("contractorRemarks", "body", m.ContractorRemarks); err != nil {
 		return err
 	}
 
@@ -100,7 +105,7 @@ func (m *ShipmentAddressUpdate) validateContractorRemarks(formats strfmt.Registr
 
 func (m *ShipmentAddressUpdate) validateID(formats strfmt.Registry) error {
 
-	if err := validate.Required("id", "body", m.ID); err != nil {
+	if err := validate.Required("id", "body", strfmt.UUID(m.ID)); err != nil {
 		return err
 	}
 
@@ -153,7 +158,7 @@ func (m *ShipmentAddressUpdate) validateOriginalAddress(formats strfmt.Registry)
 
 func (m *ShipmentAddressUpdate) validateShipmentID(formats strfmt.Registry) error {
 
-	if err := validate.Required("shipmentID", "body", m.ShipmentID); err != nil {
+	if err := validate.Required("shipmentID", "body", strfmt.UUID(m.ShipmentID)); err != nil {
 		return err
 	}
 
@@ -198,12 +203,12 @@ func (m *ShipmentAddressUpdate) validateStatusEnum(path, location string, value 
 
 func (m *ShipmentAddressUpdate) validateStatus(formats strfmt.Registry) error {
 
-	if err := validate.Required("status", "body", m.Status); err != nil {
+	if err := validate.RequiredString("status", "body", m.Status); err != nil {
 		return err
 	}
 
 	// value enum
-	if err := m.validateStatusEnum("status", "body", *m.Status); err != nil {
+	if err := m.validateStatusEnum("status", "body", m.Status); err != nil {
 		return err
 	}
 
@@ -214,6 +219,14 @@ func (m *ShipmentAddressUpdate) validateStatus(formats strfmt.Registry) error {
 func (m *ShipmentAddressUpdate) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.contextValidateContractorRemarks(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateID(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateNewAddress(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -222,9 +235,35 @@ func (m *ShipmentAddressUpdate) ContextValidate(ctx context.Context, formats str
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateShipmentID(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateStatus(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *ShipmentAddressUpdate) contextValidateContractorRemarks(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "contractorRemarks", "body", string(m.ContractorRemarks)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *ShipmentAddressUpdate) contextValidateID(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "id", "body", strfmt.UUID(m.ID)); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -257,6 +296,24 @@ func (m *ShipmentAddressUpdate) contextValidateOriginalAddress(ctx context.Conte
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *ShipmentAddressUpdate) contextValidateShipmentID(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "shipmentID", "body", strfmt.UUID(m.ShipmentID)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *ShipmentAddressUpdate) contextValidateStatus(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "status", "body", string(m.Status)); err != nil {
+		return err
 	}
 
 	return nil

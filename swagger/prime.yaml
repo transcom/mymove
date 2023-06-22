@@ -4036,10 +4036,12 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
       contractorRemarks:
         type: string
         example: This is a contractor remark
         title: Contractor Remarks
+        readOnly: true
       officeRemarks:
         type: string
         example: This is an office remark
@@ -4048,6 +4050,7 @@ definitions:
       status:
         type: string
         title: Status
+        readOnly: true
         x-display-value:
           REQUESTED: REQUESTED
           REJECTED: REJECTED
@@ -4060,6 +4063,7 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
       originalAddress:
         $ref: '#/definitions/Address'
       newAddress:

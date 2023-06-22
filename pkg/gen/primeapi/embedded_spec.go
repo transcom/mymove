@@ -3794,15 +3794,18 @@ func init() {
         "contractorRemarks": {
           "type": "string",
           "title": "Contractor Remarks",
+          "readOnly": true,
           "example": "This is a contractor remark"
         },
         "id": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "newAddress": {
-          "$ref": "#/definitions/Address"
+          "$ref": "#/definitions/Address",
+          "readOnly": true
         },
         "officeRemarks": {
           "type": "string",
@@ -3816,6 +3819,7 @@ func init() {
         "shipmentID": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "status": {
@@ -3830,7 +3834,8 @@ func init() {
             "APPROVED": "APPROVED",
             "REJECTED": "REJECTED",
             "REQUESTED": "REQUESTED"
-          }
+          },
+          "readOnly": true
         }
       }
     },
@@ -8683,15 +8688,18 @@ func init() {
         "contractorRemarks": {
           "type": "string",
           "title": "Contractor Remarks",
+          "readOnly": true,
           "example": "This is a contractor remark"
         },
         "id": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "newAddress": {
-          "$ref": "#/definitions/Address"
+          "$ref": "#/definitions/Address",
+          "readOnly": true
         },
         "officeRemarks": {
           "type": "string",
@@ -8705,6 +8713,7 @@ func init() {
         "shipmentID": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "status": {
@@ -8719,7 +8728,8 @@ func init() {
             "APPROVED": "APPROVED",
             "REJECTED": "REJECTED",
             "REQUESTED": "REQUESTED"
-          }
+          },
+          "readOnly": true
         }
       }
     },
