@@ -184,8 +184,8 @@ export class TestHarness {
    * Use testharness to build a move with an hhg shipment in SIT and a pending SIT extension
    * @returns {Promise<Move>}
    */
-  async buildHHGMoveIn200DaysSITEndsYesterdayDeparted() {
-    return this.buildDefault('HHGMoveIn200DaysSITEndsYesterdayDeparted');
+  async buildHHGMoveIn200DaysSITDeparted() {
+    return this.buildDefault('HHGMoveIn200DaysSITDeparted');
   }
 
   /**

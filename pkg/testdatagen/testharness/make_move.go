@@ -5321,7 +5321,7 @@ func MakeHHGMoveIn200DaysSITEndsYesterday(appCtx appcontext.AppContext) models.M
 	return mto
 }
 
-func MakeHHGMoveIn200DaysSITEndsYesterdayDeparted(appCtx appcontext.AppContext) models.Move {
+func MakeHHGMoveIn200DaysSITDeparted(appCtx appcontext.AppContext) models.Move {
 	userUploader := newUserUploader(appCtx)
 	// primeUploader := newPrimeUploader(appCtx)
 	userInfo := newUserInfo("customer")
@@ -5427,9 +5427,9 @@ func MakeHHGMoveIn200DaysSITEndsYesterdayDeparted(appCtx appcontext.AppContext) 
 		},
 	}, nil)
 
-	daysAgo201 := now.AddDate(0, 0, -201)
-	daysAgo101 := now.AddDate(0, 0, -101)
-	yesterday := now.AddDate(0, 0, -1)
+	daysAgo203 := now.AddDate(0, 0, -203)
+	daysAgo103 := now.AddDate(0, 0, -103)
+	daysAgo5 := now.AddDate(0, 0, -5)
 	postalCode := "90210"
 	reason := "peak season all trucks in use"
 
@@ -5437,7 +5437,7 @@ func MakeHHGMoveIn200DaysSITEndsYesterdayDeparted(appCtx appcontext.AppContext) 
 		{
 			Model: models.MTOServiceItem{
 				Status:        models.MTOServiceItemStatusApproved,
-				SITEntryDate:  &daysAgo201,
+				SITEntryDate:  &daysAgo203,
 				SITPostalCode: &postalCode,
 				Reason:        &reason,
 			},
@@ -5461,7 +5461,7 @@ func MakeHHGMoveIn200DaysSITEndsYesterdayDeparted(appCtx appcontext.AppContext) 
 		{
 			Model: models.MTOServiceItem{
 				Status:        models.MTOServiceItemStatusApproved,
-				SITEntryDate:  &daysAgo201,
+				SITEntryDate:  &daysAgo203,
 				SITPostalCode: &postalCode,
 				Reason:        &reason,
 			},
@@ -5485,8 +5485,8 @@ func MakeHHGMoveIn200DaysSITEndsYesterdayDeparted(appCtx appcontext.AppContext) 
 		{
 			Model: models.MTOServiceItem{
 				Status:           models.MTOServiceItemStatusApproved,
-				SITEntryDate:     &daysAgo201,
-				SITDepartureDate: &daysAgo101,
+				SITEntryDate:     &daysAgo203,
+				SITDepartureDate: &daysAgo103,
 				SITPostalCode:    &postalCode,
 				Reason:           &reason,
 			},
@@ -5510,7 +5510,7 @@ func MakeHHGMoveIn200DaysSITEndsYesterdayDeparted(appCtx appcontext.AppContext) 
 		{
 			Model: models.MTOServiceItem{
 				Status:        models.MTOServiceItemStatusApproved,
-				SITEntryDate:  &daysAgo101,
+				SITEntryDate:  &daysAgo103,
 				SITPostalCode: &postalCode,
 				Reason:        &reason,
 			},
@@ -5534,7 +5534,7 @@ func MakeHHGMoveIn200DaysSITEndsYesterdayDeparted(appCtx appcontext.AppContext) 
 		{
 			Model: models.MTOServiceItem{
 				Status:        models.MTOServiceItemStatusApproved,
-				SITEntryDate:  &daysAgo101,
+				SITEntryDate:  &daysAgo103,
 				SITPostalCode: &postalCode,
 				Reason:        &reason,
 			},
@@ -5558,8 +5558,8 @@ func MakeHHGMoveIn200DaysSITEndsYesterdayDeparted(appCtx appcontext.AppContext) 
 		{
 			Model: models.MTOServiceItem{
 				Status:           models.MTOServiceItemStatusApproved,
-				SITEntryDate:     &daysAgo101,
-				SITDepartureDate: &yesterday,
+				SITEntryDate:     &daysAgo103,
+				SITDepartureDate: &daysAgo5,
 				SITPostalCode:    &postalCode,
 				Reason:           &reason,
 			},
