@@ -46,6 +46,9 @@ const ServiceItemDetails = ({ id, code, details }) => {
     case 'DDASIT':
     case 'DDDSIT': {
       const { customerContacts } = details;
+      // Below we are using the sortBy func in lodash to sort the customer contacts
+      // by the firstAvailableDeliveryDate and dateOfContact fields. sortBy returns a new
+      // array with the elements in ascending order.
       const sortedDeliveryDates = sortBy(customerContacts, [
         (a) => {
           return new Date(a.firstAvailableDeliveryDate);
