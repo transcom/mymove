@@ -30,7 +30,7 @@ type ServiceItem struct {
 	ID strfmt.UUID `json:"id,omitempty"`
 
 	// This should be populated for the following service items:
-	//   * DOASIT(Domestic destination Additional day SIT)
+	//   * DOASIT(Domestic origin Additional day SIT)
 	//   * DDASIT(Domestic destination Additional day SIT)
 	//
 	// Both take in the following param keys:
