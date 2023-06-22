@@ -60,8 +60,38 @@ const statesList = [
   { value: 'WY', key: 'WY' },
 ];
 
-export const AddressFields = ({ legend, className, name, render, validators }) => {
+export const AddressFields = ({ legend, className, name, render, validators, validatePostalCodeOnChangeProps }) => {
   const addressFieldsUUID = useRef(uuidv4());
+
+  let postalCodeField;
+
+  if (validatePostalCodeOnChangeProps) {
+    postalCodeField = (
+      <TextField
+        label="ZIP"
+        id={`zip_${addressFieldsUUID.current}`}
+        name={`${name}.postalCode`}
+        maxLength={10}
+        validate={validators?.postalCode}
+        onChange={(e) => {
+          // If we are validating on change we need to also set the field to touched when it is changed.
+          // Formik by default sets the field to touched on blur.
+          validatePostalCodeOnChangeProps.handleChange(e);
+          validatePostalCodeOnChangeProps.setFieldTouched(e.target.name);
+        }}
+      />
+    );
+  } else {
+    postalCodeField = (
+      <TextField
+        label="ZIP"
+        id={`zip_${addressFieldsUUID.current}`}
+        name={`${name}.postalCode`}
+        maxLength={10}
+        validate={validators?.postalCode}
+      />
+    );
+  }
 
   return (
     <Fieldset legend={legend} className={className}>
@@ -97,15 +127,7 @@ export const AddressFields = ({ legend, className, name, render, validators }) =
                 validate={validators?.state}
               />
             </div>
-            <div className="mobile-lg:grid-col-6">
-              <TextField
-                label="ZIP"
-                id={`zip_${addressFieldsUUID.current}`}
-                name={`${name}.postalCode`}
-                maxLength={10}
-                validate={validators?.postalCode}
-              />
-            </div>
+            <div className="mobile-lg:grid-col-6">{postalCodeField}</div>
           </div>
         </>,
       )}
@@ -125,6 +147,7 @@ AddressFields.propTypes = {
     state: PropTypes.func,
     postalCode: PropTypes.func,
   }),
+  validatePostalCodeOnChangeProps: PropTypes.object,
 };
 
 AddressFields.defaultProps = {
@@ -132,6 +155,7 @@ AddressFields.defaultProps = {
   className: '',
   render: (fields) => fields,
   validators: {},
+  validatePostalCodeOnChangeProps: null,
 };
 
 export default AddressFields;

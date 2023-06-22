@@ -23,17 +23,21 @@ const ResidentialAddressForm = ({ formFieldsName, initialValues, onSubmit, onBac
     <Formik
       initialValues={initialValues}
       onSubmit={onSubmit}
-      validateOnChange={false}
+      validateOnChange
       validateOnMount
       validationSchema={validationSchema}
     >
-      {({ isValid, isSubmitting, handleSubmit }) => {
+      {({ isValid, isSubmitting, handleChange, handleSubmit, setFieldTouched }) => {
         return (
           <Form className={formStyles.form}>
             <h1>Current pickup address</h1>
             <p className={styles.noBottomMargin}>Must be a physical address.</p>
             <SectionWrapper className={classnames(styles.noTopMargin, formStyles.formSection)}>
-              <AddressFields name={formFieldsName} validators={validators} />
+              <AddressFields
+                name={formFieldsName}
+                validators={validators}
+                validatePostalCodeOnChangeProps={{ setFieldTouched, handleChange }}
+              />
             </SectionWrapper>
 
             <div className={formStyles.formActions}>

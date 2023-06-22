@@ -19,10 +19,11 @@ const UnsupportedZipCodeErrorMsg =
   'Sorry, we don’t support that zip code yet. Please contact your local PPPO for assistance.';
 
 const validatePostalCode = async (value) => {
-  if (!value) {
+  // Since we are validating the postal code on change, we want to only make this validation check
+  // when we know the value could possibly be valid.
+  if (!value || (value.length !== 5 && value.length !== 10)) {
     return undefined;
   }
-
   let responseBody;
   try {
     responseBody = await ValidateZipRateData(value, 'origin');
