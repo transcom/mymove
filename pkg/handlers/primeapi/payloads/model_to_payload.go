@@ -473,6 +473,9 @@ func PPMShipment(ppmShipment *models.PPMShipment) *primemessages.PPMShipment {
 }
 
 func MTOShipmentWithoutServiceItems(mtoShipment *models.MTOShipment) *primemessages.MTOShipmentWithoutServiceItems {
+	//println("🥉🥉🥉🥉🥉🥉🥉  new", strfmt.UUID(mtoShipment.DeliveryAddressUpdate.NewAddress.ID.String()))
+	//	println("🥉🥉🥉🥉🥉🥉🥉   orig", strfmt.UUID(mtoShipment.DeliveryAddressUpdate.OriginalAddress.ID.String()))
+	// println("🥉🥉🥉🥉🥉🥉🥉   orig", mtoShipment.DeliveryAddressUpdate.Status)
 	payload := &primemessages.MTOShipmentWithoutServiceItems{
 		ID:                               strfmt.UUID(mtoShipment.ID.String()),
 		ActualPickupDate:                 handlers.FmtDatePtr(mtoShipment.ActualPickupDate),
@@ -498,6 +501,8 @@ func MTOShipmentWithoutServiceItems(mtoShipment *models.MTOShipment) *primemessa
 		UpdatedAt:                        strfmt.DateTime(mtoShipment.UpdatedAt),
 		PpmShipment:                      PPMShipment(mtoShipment.PPMShipment),
 		ETag:                             etag.GenerateEtag(mtoShipment.UpdatedAt),
+		DeliveryAddressUpdate:            ShipmentAddressUpdate(mtoShipment.DeliveryAddressUpdate),
+		// DeliveryAddressUpdate:			  *ShipmentAddressUpdate(mtoShipment.DeliveryAddressUpdate),
 	}
 
 	// Set up address payloads
@@ -822,6 +827,35 @@ func SITAddressUpdate(sitAddressUpdate *models.SITAddressUpdate) *primemessages.
 		Status:            primemessages.SitAddressUpdateStatus(sitAddressUpdate.Status),
 		CreatedAt:         strfmt.DateTime(sitAddressUpdate.CreatedAt),
 		UpdatedAt:         strfmt.DateTime(sitAddressUpdate.UpdatedAt),
+	}
+
+	return payload
+}
+
+// ShipmentAddressUpdate payload
+func ShipmentAddressUpdate(shipmentAddressUpdate *models.ShipmentAddressUpdate) *primemessages.ShipmentAddressUpdate {
+	if shipmentAddressUpdate == nil {
+		return nil
+	}
+
+	// println("🧼🧼🧼🧼🧼🧼🧼🧼🧼🧼🧼🧼🧼🧼🧼", shipmentAddressUpdate.NewAddress.ID.String())
+	// println("🤷🤷🤷🤷🤷🤷🤷🤷🤷🤷", shipmentAddressUpdate.OriginalAddress.ID.String()) // THis is null/breaks things if we preload both
+
+	payload := &primemessages.ShipmentAddressUpdate{
+		ID:         strfmt.UUID(shipmentAddressUpdate.ID.String()),
+		ShipmentID: strfmt.UUID(shipmentAddressUpdate.ShipmentID.String()),
+		// NewAddress:        Address(shipmentAddressUpdate.NewAddress),
+		// OriginalAddress:   Address(shipmentAddressUpdate.OriginalAddress),
+		ContractorRemarks: shipmentAddressUpdate.ContractorRemarks,
+		OfficeRemarks:     shipmentAddressUpdate.OfficeRemarks,
+		Status:            string(shipmentAddressUpdate.Status),
+	}
+
+	if shipmentAddressUpdate.NewAddress != nil {
+		payload.NewAddress.Address = *Address(shipmentAddressUpdate.NewAddress)
+	}
+	if shipmentAddressUpdate.OriginalAddress != nil {
+		payload.OriginalAddress.Address = *Address(shipmentAddressUpdate.OriginalAddress)
 	}
 
 	return payload

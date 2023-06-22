@@ -110,10 +110,14 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 		"MTOShipments.SITDurationUpdates",
 		"MTOShipments.StorageFacility",
 		"MTOShipments.StorageFacility.Address",
+		"MTOShipments.DeliveryAddressUpdate",
+		"MTOShipments.DeliveryAddressUpdate.OriginalAddress",
+		"MTOShipments.DeliveryAddressUpdate.NewAddress",
 		"Orders.ServiceMember",
 		"Orders.ServiceMember.ResidentialAddress",
 		"Orders.Entitlement",
 		"Orders.NewDutyLocation.Address",
+
 		"Orders.OriginDutyLocation.Address", // this line breaks Eager, but works with EagerPreload
 	)
 
@@ -173,6 +177,8 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 	}
 	mto.MTOShipments = filteredShipments
 
+	println("🪄🪄🪄🪄🪄🪄🪄🪄🪄🔮", mto.MTOShipments[0].DeliveryAddressUpdate.NewAddress.ID.String())
+	// println("🪄🪄🪄🪄🪄🪄🪄🪄🪄🔮", mto.MTOShipments[0].DeliveryAddressUpdate.OriginalAddress.ID.String()) // THIS IS NOT WORKING BEACUSE ORIGNAL ADDRESS IS NOT LOADED
 	// Due to a Pop bug, we cannot fetch Customer Contacts with EagerPreload, this is due to a difference between what Pop expects
 	// the column names to be when creating the rows on the Many-to-Many table and with what it expects when fetching with EagerPreload
 	var loadedServiceItems models.MTOServiceItems

@@ -175,6 +175,28 @@ func MTOShipmentModelFromCreate(mtoShipment *primemessages.CreateMTOShipment) *m
 	return model
 }
 
+// Non SIT Address update Model
+func ShipmentAddressUpdateModel(nonSITAddressUpdate *primemessages.CreateNonSITAddressUpdateRequest, MtoShipmentID uuid.UUID) *models.ShipmentAddressUpdate {
+	if nonSITAddressUpdate == nil {
+		return nil
+	}
+
+	originalAddressID := uuid.FromStringOrNil(nonSITAddressUpdate.AddressID.String())
+	model := &models.ShipmentAddressUpdate{
+		ContractorRemarks: *nonSITAddressUpdate.ContractorRemarks,
+		ShipmentID:        MtoShipmentID,
+		OriginalAddressID: &originalAddressID,
+	}
+
+	addressModel := AddressModel(nonSITAddressUpdate.NewAddress)
+	if addressModel != nil {
+		model.NewAddress = addressModel
+	}
+
+	return model
+
+}
+
 // PPMShipmentModelFromCreate model
 func PPMShipmentModelFromCreate(ppmShipment *primemessages.CreatePPMShipment) *models.PPMShipment {
 	if ppmShipment == nil {

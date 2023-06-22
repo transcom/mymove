@@ -6276,6 +6276,9 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
+        "deliveryAddressUpdate": {
+          "$ref": "#/definitions/ShipmentAddressUpdate"
+        },
         "destinationAddress": {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
@@ -8566,6 +8569,75 @@ func init() {
         "PaymentServiceItemUUID",
         "BOOLEAN"
       ]
+    },
+    "ShipmentAddressUpdate": {
+      "description": "A postal address",
+      "type": "object",
+      "required": [
+        "id",
+        "status",
+        "shipmentID",
+        "originalAddress",
+        "newAddress",
+        "contractorRemarks"
+      ],
+      "properties": {
+        "contractorRemarks": {
+          "type": "string",
+          "title": "Contractor Remarks",
+          "readOnly": true,
+          "example": "This is a contractor remark"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "newAddress": {
+          "description": "fdas\n",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "officeRemarks": {
+          "type": "string",
+          "title": "Office Remarks",
+          "x-nullable": true,
+          "example": "This is an office remark"
+        },
+        "originalAddress": {
+          "description": "No\n",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "shipmentID": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "status": {
+          "type": "string",
+          "title": "Status",
+          "enum": [
+            "REQUESTED",
+            "REJECTED",
+            "APPROVED"
+          ],
+          "x-display-value": {
+            "APPROVED": "APPROVED",
+            "REJECTED": "REJECTED",
+            "REQUESTED": "REQUESTED"
+          },
+          "readOnly": true
+        }
+      }
     },
     "ShipmentPaymentSITBalance": {
       "properties": {
@@ -17244,6 +17316,9 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
+        "deliveryAddressUpdate": {
+          "$ref": "#/definitions/ShipmentAddressUpdate"
+        },
         "destinationAddress": {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
@@ -19539,6 +19614,75 @@ func init() {
         "PaymentServiceItemUUID",
         "BOOLEAN"
       ]
+    },
+    "ShipmentAddressUpdate": {
+      "description": "A postal address",
+      "type": "object",
+      "required": [
+        "id",
+        "status",
+        "shipmentID",
+        "originalAddress",
+        "newAddress",
+        "contractorRemarks"
+      ],
+      "properties": {
+        "contractorRemarks": {
+          "type": "string",
+          "title": "Contractor Remarks",
+          "readOnly": true,
+          "example": "This is a contractor remark"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "newAddress": {
+          "description": "fdas\n",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "officeRemarks": {
+          "type": "string",
+          "title": "Office Remarks",
+          "x-nullable": true,
+          "example": "This is an office remark"
+        },
+        "originalAddress": {
+          "description": "No\n",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "shipmentID": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "status": {
+          "type": "string",
+          "title": "Status",
+          "enum": [
+            "REQUESTED",
+            "REJECTED",
+            "APPROVED"
+          ],
+          "x-display-value": {
+            "APPROVED": "APPROVED",
+            "REJECTED": "REJECTED",
+            "REQUESTED": "REQUESTED"
+          },
+          "readOnly": true
+        }
+      }
     },
     "ShipmentPaymentSITBalance": {
       "properties": {

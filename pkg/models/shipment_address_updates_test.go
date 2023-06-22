@@ -16,8 +16,8 @@ func (suite *ModelSuite) TestShipmentAddressUpdateValidation() {
 			ContractorRemarks: "prev tenant of house at original address filled it w balloons and floated away",
 			Status:            models.ShipmentAddressUpdateStatusRequested,
 			ShipmentID:        shipmentID,
-			OriginalAddressID: originalAddress.ID,
-			NewAddressID:      newAddress.ID,
+			OriginalAddressID: &originalAddress.ID,
+			NewAddressID:      &newAddress.ID,
 		}
 		expErrors := map[string][]string{}
 		suite.verifyValidationErrors(&validAddressChange, expErrors)
@@ -39,8 +39,8 @@ func (suite *ModelSuite) TestShipmentAddressUpdateValidation() {
 			ContractorRemarks: "",
 			Status:            "not a real status",
 			ShipmentID:        uuid.Nil,
-			OriginalAddressID: uuid.Nil,
-			NewAddressID:      uuid.Nil,
+			OriginalAddressID: &uuid.Nil,
+			NewAddressID:      &uuid.Nil,
 		}
 		expErrors := map[string][]string{
 			"shipment_id":         {"ShipmentID can not be blank."},

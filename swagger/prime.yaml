@@ -84,6 +84,16 @@ tags:
 
       approved while a distance greater than 50 miles will typically require
       office user approval.
+  - name: nonSitAddressUpdate
+    description: >
+      A **nonSitAddressUpdate** is submitted when the prime or office user
+      wishes to update the final address for an
+
+      approved non SIT item. Address can update automatically unless this
+      changes the service area, mileage bracket for direct delivery, or mileage
+      bracket where there is a switch from Domestic Short Haul (DSH) to Domestic
+      Line Haul (DLH) or vice versa. For those, changes will require TOO
+      approval.
 x-tagGroups:
   - name: Endpoints
     tags:
@@ -92,6 +102,7 @@ x-tagGroups:
       - mtoServiceItem
       - paymentRequest
       - sitAddressUpdate
+      - nonSitAddressUpdate
 paths:
   /moves:
     get:
@@ -604,6 +615,66 @@ paths:
           description: Successfully updated the address.
           schema:
             $ref: '#/definitions/Address'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+  /mto-shipments/{mtoShipmentID}/shipment-address-updates:
+    post:
+      summary: createNonSITAddressUpdateRequest
+      description: >
+        ### Functionality
+
+        This endpoint is used so the Prime can request an **update** for the
+        destination address on an MTO Shipment for non SIT.
+
+        Address can update automatically unless this changes:
+         -the service area
+         -mileage bracket for direct delivery
+         -mileage bracket where there is a switch from Domestic Short Haul (DSH) to Domestic Line Haul (DLH) or vice versa.
+         For those, changes will require TOO approval.
+
+         **Limitations:**
+        The update can be requested for APPROVED non SIT items only.
+
+        Only ONE request is allowed per approved non SIT item.
+      operationId: createNonSITAddressUpdateRequest
+      tags:
+        - mtoShipment
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: mtoShipmentID
+          description: UUID of the shipment associated with the address
+          required: true
+          format: uuid
+          type: string
+        - in: body
+          required: true
+          name: body
+          schema:
+            $ref: '#/definitions/CreateNonSITAddressUpdateRequest'
+        - $ref: '#/parameters/ifMatch'
+      responses:
+        '201':
+          description: Successfully created the address update request.
+          schema:
+            $ref: '#/definitions/ShipmentAddressUpdate'
         '400':
           $ref: '#/responses/InvalidRequest'
         '401':
@@ -2454,6 +2525,8 @@ definitions:
           Email or ID of the person who will be contacted in the event of
           questions or concerns about this update. May be the person performing
           the update, or someone else working with the Prime contractor.
+      deliveryAddressUpdate:
+        $ref: '#/definitions/ShipmentAddressUpdate'
   MTOShipment:
     type: object
     properties:
@@ -2979,6 +3052,27 @@ definitions:
       - PRIME
       - SYSTEM
       - TOO
+  CreateNonSITAddressUpdateRequest:
+    description: >-
+      CreateNonSITAddressUpdateRequest contains the fields required for the
+      prime to create a non SIT address update request.
+    type: object
+    properties:
+      newAddress:
+        $ref: '#/definitions/Address'
+      contractorRemarks:
+        type: string
+        example: >-
+          Customer reached out to me this week and let me know they want to move
+          somewhere else.
+      addressID:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+    required:
+      - contractorRemarks
+      - addressID
+      - newAddress
   CreateSITAddressUpdateRequest:
     description: >-
       CreateSITAddressUpdateRequest contains the fields required for the prime
@@ -3886,6 +3980,59 @@ definitions:
     enum:
       - ORIGIN
       - DESTINATION
+  ShipmentAddressUpdate:
+    description: A postal address
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      contractorRemarks:
+        type: string
+        example: This is a contractor remark
+        title: Contractor Remarks
+        readOnly: true
+      officeRemarks:
+        type: string
+        example: This is an office remark
+        title: Office Remarks
+        x-nullable: true
+      status:
+        type: string
+        title: Status
+        readOnly: true
+        x-display-value:
+          REQUESTED: REQUESTED
+          REJECTED: REJECTED
+          APPROVED: APPROVED
+        enum:
+          - REQUESTED
+          - REJECTED
+          - APPROVED
+      shipmentID:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      originalAddress:
+        description: |
+          No
+        allOf:
+          - $ref: '#/definitions/Address'
+      newAddress:
+        description: |
+          fdas
+        allOf:
+          - $ref: '#/definitions/Address'
+    required:
+      - id
+      - status
+      - shipmentID
+      - originalAddress
+      - newAddress
+      - contractorRemarks
   ExcessWeightRecord:
     description: >-
       A document uploaded by the movers proving that the customer has been

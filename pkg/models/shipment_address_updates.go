@@ -38,10 +38,10 @@ type ShipmentAddressUpdate struct {
 	// Associations
 	Shipment          MTOShipment `belongs_to:"mto_shipments" fk_id:"shipment_id"`
 	ShipmentID        uuid.UUID   `db:"shipment_id"`
-	OriginalAddress   Address     `belongs_to:"addresses" fk_id:"original_address_id"`
-	OriginalAddressID uuid.UUID   `db:"original_address_id"`
-	NewAddress        Address     `belongs_to:"addresses" fk_id:"new_address_id"`
-	NewAddressID      uuid.UUID   `db:"new_address_id"`
+	OriginalAddress   *Address    `belongs_to:"addresses" fk_id:"original_address_id"`
+	OriginalAddressID *uuid.UUID  `db:"original_address_id"`
+	NewAddress        *Address    `belongs_to:"addresses" fk_id:"new_address_id"`
+	NewAddressID      *uuid.UUID  `db:"new_address_id"`
 }
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate,
@@ -50,8 +50,8 @@ type ShipmentAddressUpdate struct {
 func (s *ShipmentAddressUpdate) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.UUIDIsPresent{Name: "ShipmentID", Field: s.ShipmentID},
-		&validators.UUIDIsPresent{Name: "OriginalAddressID", Field: s.OriginalAddressID},
-		&validators.UUIDIsPresent{Name: "NewAddressID", Field: s.NewAddressID},
+		&validators.UUIDIsPresent{Name: "OriginalAddressID", Field: *s.OriginalAddressID},
+		&validators.UUIDIsPresent{Name: "NewAddressID", Field: *s.NewAddressID},
 		&validators.StringInclusion{Name: "Status", Field: string(s.Status), List: AllowedShipmentAddressStatuses},
 		&validators.StringIsPresent{Name: "ContractorRemarks", Field: s.ContractorRemarks},
 		&StringIsNilOrNotBlank{Name: "OfficeRemarks", Field: s.OfficeRemarks},
