@@ -1,0 +1,24 @@
+description: A feature flag
+type: object
+properties:
+  entity:
+    type: string
+    example: user@example.com
+  key:
+    type: string
+    example: flag
+  enabled:
+    type: boolean
+    example: true
+  value:
+    type: string
+    example: myval
+  namespace:
+    type: string
+    example: test
+required:
+  - entity
+  - key
+  - enabled
+  - value
+  - namespace

@@ -34,6 +34,7 @@ tags:
   - name: postal_codes
   - name: addresses
   - name: mtoShipment
+  - name: featureFlags
 definitions:
   LoggedInUserPayload:
     type: object
@@ -2697,6 +2698,42 @@ paths:
           description: distance is less than 50 miles (no short haul moves)
         '422':
           description: the payload was unprocessable
+        '500':
+          description: internal server error
+  /feature-flags/user/{key}:
+    post:
+      summary: Determines if a user has a feature flag enabled
+      description: Determines if a user has a feature flag enabled. The flagContext contains context used to determine if this flag applies to the logged in user.
+      operationId: featureFlagForUser
+      tags:
+        - featureFlags
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: key
+          type: string
+          required: true
+          description: Feature Flag Key
+        - in: body
+          name: flagContext
+          required: true
+          description: context for the feature flag request
+          schema:
+            type: object
+            additionalProperties:
+              type: string
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Feature Flag Status
+          schema:
+            $ref: 'definitions/FeatureFlag.yaml'
+        '400':
+          description: invalid request
+        '401':
+          description: request requires user authentication
         '500':
           description: internal server error
   /users/logged_in:
