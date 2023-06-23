@@ -42,13 +42,12 @@ func (_m *ShipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(a
 	return r0, r1
 }
 
-type mockConstructorTestingTNewShipmentAddressUpdateRequester interface {
+// NewShipmentAddressUpdateRequester creates a new instance of ShipmentAddressUpdateRequester. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewShipmentAddressUpdateRequester(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewShipmentAddressUpdateRequester creates a new instance of ShipmentAddressUpdateRequester. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewShipmentAddressUpdateRequester(t mockConstructorTestingTNewShipmentAddressUpdateRequester) *ShipmentAddressUpdateRequester {
+}) *ShipmentAddressUpdateRequester {
 	mock := &ShipmentAddressUpdateRequester{}
 	mock.Mock.Test(t)
 

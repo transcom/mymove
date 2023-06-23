@@ -594,9 +594,9 @@ func (suite *HandlerSuite) TestCreateNonSITAddressUpdateRequestHandler() {
 
 		mockCreator.On("RequestShipmentDeliveryAddressUpdate",
 			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
-			mock.Anything,
-			mock.Anything,
+			mock.AnythingOfType("uuid.UUID"),
+			mock.AnythingOfType("models.Address"),
+			mock.AnythingOfType("string"),
 		).Return(nil, err)
 
 		// Validate incoming payload
@@ -625,9 +625,9 @@ func (suite *HandlerSuite) TestCreateNonSITAddressUpdateRequestHandler() {
 
 		mockCreator.On("RequestShipmentDeliveryAddressUpdate",
 			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
-			mock.Anything,
-			mock.Anything,
+			mock.AnythingOfType("uuid.UUID"),
+			mock.AnythingOfType("models.Address"),
+			mock.AnythingOfType("string"),
 		).Return(nil, err)
 
 		// Validate incoming payload
@@ -657,9 +657,9 @@ func (suite *HandlerSuite) TestCreateNonSITAddressUpdateRequestHandler() {
 
 		mockCreator.On("RequestShipmentDeliveryAddressUpdate",
 			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
-			mock.Anything,
-			mock.Anything,
+			mock.AnythingOfType("uuid.UUID"),
+			mock.AnythingOfType("models.Address"),
+			mock.AnythingOfType("string"),
 		).Return(nil, err)
 
 		// Validate incoming payload
@@ -689,9 +689,9 @@ func (suite *HandlerSuite) TestCreateNonSITAddressUpdateRequestHandler() {
 
 		mockCreator.On("RequestShipmentDeliveryAddressUpdate",
 			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
-			mock.Anything,
-			mock.Anything,
+			mock.AnythingOfType("uuid.UUID"),
+			mock.AnythingOfType("models.Address"),
+			mock.AnythingOfType("string"),
 		).Return(nil, err)
 
 		// Validate incoming payload

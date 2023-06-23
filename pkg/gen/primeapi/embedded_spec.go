@@ -997,7 +997,7 @@ func init() {
     },
     "/mto-shipments/{mtoShipmentID}/shipment-address-updates": {
       "post": {
-        "description": "### Functionality\nThis endpoint is used so the Prime can request an **update** for the destination address on an MTO Shipment for non SIT.\nAddress can update automatically unless this changes:\n -the service area\n -mileage bracket for direct delivery\n -mileage bracket where there is a switch from Domestic Short Haul (DSH) to Domestic Line Haul (DLH) or vice versa.\n For those, changes will require TOO approval.\n\n **Limitations:**\nThe update can be requested for APPROVED non SIT items only.\nOnly ONE request is allowed per approved non SIT item.\n",
+        "description": "### Functionality\nThis endpoint is used so the Prime can request an **update** for the destination address on an MTO Shipment for non SIT.\nAddress can update automatically unless this changes:\n -the service area\n -mileage bracket for direct delivery\n -mileage bracket where there is a Zip3 resulting in Domestic Short Haul (DSH) changing from Domestic Short Haul (DSH) to Domestic Line Haul (DLH) or vice versa.\n For those, changes will require TOO approval.\n\n **Limitations:**\nThe update can be requested for APPROVED non SIT items only.\nOnly ONE request is allowed per approved non SIT item.\n",
         "consumes": [
           "application/json"
         ],
@@ -4470,7 +4470,7 @@ func init() {
       "name": "sitAddressUpdate"
     },
     {
-      "description": "A **nonSitAddressUpdate** is submitted when the prime or office user wishes to update the final address for an\napproved non SIT item. Address can update automatically unless this changes the service area, mileage bracket for direct delivery, or mileage bracket where there is a switch from Domestic Short Haul (DSH) to Domestic Line Haul (DLH) or vice versa. For those, changes will require TOO approval.\n",
+      "description": "A **nonSitAddressUpdate** is submitted when the prime or office user wishes to update the final address for an\napproved non SIT shipment. Address can update automatically unless this changes:\n   -the service area\n   -mileage bracket for direct delivery\n   -mileage bracket where there is a Zip3 resulting in Domestic Short Haul (DSH) changing from Domestic Short Haul (DSH) to Domestic Line Haul (DLH) or vice versa.\n   For those, changes will require TOO approval.\n",
       "name": "nonSitAddressUpdate"
     }
   ],
@@ -5753,7 +5753,7 @@ func init() {
     },
     "/mto-shipments/{mtoShipmentID}/shipment-address-updates": {
       "post": {
-        "description": "### Functionality\nThis endpoint is used so the Prime can request an **update** for the destination address on an MTO Shipment for non SIT.\nAddress can update automatically unless this changes:\n -the service area\n -mileage bracket for direct delivery\n -mileage bracket where there is a switch from Domestic Short Haul (DSH) to Domestic Line Haul (DLH) or vice versa.\n For those, changes will require TOO approval.\n\n **Limitations:**\nThe update can be requested for APPROVED non SIT items only.\nOnly ONE request is allowed per approved non SIT item.\n",
+        "description": "### Functionality\nThis endpoint is used so the Prime can request an **update** for the destination address on an MTO Shipment for non SIT.\nAddress can update automatically unless this changes:\n -the service area\n -mileage bracket for direct delivery\n -mileage bracket where there is a Zip3 resulting in Domestic Short Haul (DSH) changing from Domestic Short Haul (DSH) to Domestic Line Haul (DLH) or vice versa.\n For those, changes will require TOO approval.\n\n **Limitations:**\nThe update can be requested for APPROVED non SIT items only.\nOnly ONE request is allowed per approved non SIT item.\n",
         "consumes": [
           "application/json"
         ],
@@ -9363,7 +9363,7 @@ func init() {
       "name": "sitAddressUpdate"
     },
     {
-      "description": "A **nonSitAddressUpdate** is submitted when the prime or office user wishes to update the final address for an\napproved non SIT item. Address can update automatically unless this changes the service area, mileage bracket for direct delivery, or mileage bracket where there is a switch from Domestic Short Haul (DSH) to Domestic Line Haul (DLH) or vice versa. For those, changes will require TOO approval.\n",
+      "description": "A **nonSitAddressUpdate** is submitted when the prime or office user wishes to update the final address for an\napproved non SIT shipment. Address can update automatically unless this changes:\n   -the service area\n   -mileage bracket for direct delivery\n   -mileage bracket where there is a Zip3 resulting in Domestic Short Haul (DSH) changing from Domestic Short Haul (DSH) to Domestic Line Haul (DLH) or vice versa.\n   For those, changes will require TOO approval.\n",
       "name": "nonSitAddressUpdate"
     }
   ],
