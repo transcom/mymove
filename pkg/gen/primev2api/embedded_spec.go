@@ -1276,6 +1276,12 @@ func init() {
         "linesOfAccounting": {
           "type": "string"
         },
+        "methodOfPayment": {
+          "type": "string"
+        },
+        "naics": {
+          "type": "string"
+        },
         "orderNumber": {
           "type": "string"
         },
@@ -1289,6 +1295,9 @@ func init() {
           "type": "string",
           "example": "KKFA"
         },
+        "packingAndShippingInstructions": {
+          "type": "string"
+        },
         "rank": {
           "type": "string",
           "example": "E_5"
@@ -1296,6 +1305,9 @@ func init() {
         "reportByDate": {
           "type": "string",
           "format": "date"
+        },
+        "supplyAndServicesCostEstimate": {
+          "type": "string"
         }
       }
     },
@@ -3456,6 +3468,12 @@ func init() {
         "linesOfAccounting": {
           "type": "string"
         },
+        "methodOfPayment": {
+          "type": "string"
+        },
+        "naics": {
+          "type": "string"
+        },
         "orderNumber": {
           "type": "string"
         },
@@ -3469,6 +3487,9 @@ func init() {
           "type": "string",
           "example": "KKFA"
         },
+        "packingAndShippingInstructions": {
+          "type": "string"
+        },
         "rank": {
           "type": "string",
           "example": "E_5"
@@ -3476,6 +3497,9 @@ func init() {
         "reportByDate": {
           "type": "string",
           "format": "date"
+        },
+        "supplyAndServicesCostEstimate": {
+          "type": "string"
         }
       }
     },

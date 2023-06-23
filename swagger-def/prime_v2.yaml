@@ -305,6 +305,14 @@ definitions:
         type: string
       linesOfAccounting:
         type: string
+      supplyAndServicesCostEstimate:
+        type: string
+      packingAndShippingInstructions:
+        type: string
+      methodOfPayment:
+        type: string
+      naics:
+        type: string
       eTag:
         type: string
         readOnly: true

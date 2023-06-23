@@ -46,6 +46,12 @@ type Order struct {
 	// Required: true
 	LinesOfAccounting *string `json:"linesOfAccounting"`
 
+	// method of payment
+	MethodOfPayment string `json:"methodOfPayment,omitempty"`
+
+	// naics
+	Naics string `json:"naics,omitempty"`
+
 	// order number
 	// Required: true
 	OrderNumber *string `json:"orderNumber"`
@@ -60,6 +66,9 @@ type Order struct {
 	// Example: KKFA
 	OriginDutyLocationGBLOC string `json:"originDutyLocationGBLOC,omitempty"`
 
+	// packing and shipping instructions
+	PackingAndShippingInstructions string `json:"packingAndShippingInstructions,omitempty"`
+
 	// rank
 	// Example: E_5
 	// Required: true
@@ -68,6 +77,9 @@ type Order struct {
 	// report by date
 	// Format: date
 	ReportByDate strfmt.Date `json:"reportByDate,omitempty"`
+
+	// supply and services cost estimate
+	SupplyAndServicesCostEstimate string `json:"supplyAndServicesCostEstimate,omitempty"`
 }
 
 // Validate validates this order

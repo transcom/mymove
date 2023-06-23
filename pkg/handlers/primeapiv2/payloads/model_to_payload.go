@@ -636,19 +636,23 @@ func Order(order *models.Order) *primev2messages.Order {
 	}
 
 	payload := primev2messages.Order{
-		CustomerID:              strfmt.UUID(order.ServiceMemberID.String()),
-		Customer:                Customer(&order.ServiceMember),
-		DestinationDutyLocation: destinationDutyLocation,
-		Entitlement:             Entitlement(order.Entitlement),
-		ID:                      strfmt.UUID(order.ID.String()),
-		OriginDutyLocation:      originDutyLocation,
-		OriginDutyLocationGBLOC: swag.StringValue(order.OriginDutyLocationGBLOC),
-		OrderNumber:             order.OrdersNumber,
-		LinesOfAccounting:       order.TAC,
-		Rank:                    order.Grade,
-		ETag:                    etag.GenerateEtag(order.UpdatedAt),
-		ReportByDate:            strfmt.Date(order.ReportByDate),
-		OrdersType:              primev2messages.OrdersType(order.OrdersType),
+		CustomerID:                     strfmt.UUID(order.ServiceMemberID.String()),
+		Customer:                       Customer(&order.ServiceMember),
+		DestinationDutyLocation:        destinationDutyLocation,
+		Entitlement:                    Entitlement(order.Entitlement),
+		ID:                             strfmt.UUID(order.ID.String()),
+		OriginDutyLocation:             originDutyLocation,
+		OriginDutyLocationGBLOC:        swag.StringValue(order.OriginDutyLocationGBLOC),
+		OrderNumber:                    order.OrdersNumber,
+		LinesOfAccounting:              order.TAC,
+		Rank:                           order.Grade,
+		ETag:                           etag.GenerateEtag(order.UpdatedAt),
+		ReportByDate:                   strfmt.Date(order.ReportByDate),
+		OrdersType:                     primev2messages.OrdersType(order.OrdersType),
+		SupplyAndServicesCostEstimate:  order.SupplyAndServicesCostEstimate,
+		PackingAndShippingInstructions: order.PackingAndShippingInstructions,
+		MethodOfPayment:                order.MethodOfPayment,
+		Naics:                          order.NAICS,
 	}
 
 	if payload.Customer.Branch == "Marines" {
