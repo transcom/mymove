@@ -224,8 +224,7 @@ const dddSITmileageZip5 = (params) => {
     SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipSITDestHHGOriginalAddress]
   } ${getParamValue(SERVICE_ITEM_PARAM_KEYS.ZipSITDestHHGOriginalAddress, params)} to ${
     SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipSITDestHHGFinalAddress]
-  } ${getParamValue(SERVICE_ITEM_PARAM_KEYS.ZipSITDestHHGFinalAddress, params)}
-  `;
+  } ${getParamValue(SERVICE_ITEM_PARAM_KEYS.ZipSITDestHHGFinalAddress, params)}`;
 
   return calculation(value, label, formatDetail(detail));
 };
