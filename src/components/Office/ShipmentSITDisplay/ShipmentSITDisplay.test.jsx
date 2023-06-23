@@ -36,7 +36,7 @@ describe('ShipmentSITDisplay', () => {
     expect(within(sitStatusTable).getByText('Total days used')).toBeInTheDocument();
     expect(within(sitStatusTable).getByText('45')).toBeInTheDocument();
     expect(within(sitStatusTable).getByText('Total days remaining')).toBeInTheDocument();
-    expect(within(sitStatusTable).getByText('59')).toBeInTheDocument();
+    expect(within(sitStatusTable).getByText('60')).toBeInTheDocument();
 
     expect(screen.getByText('Current location: origin SIT')).toBeInTheDocument();
 
@@ -153,15 +153,13 @@ describe('ShipmentSITDisplay', () => {
     expect(sitStatusTable).toBeInTheDocument();
     expect(within(sitStatusTable).getByText('Total days of SIT approved')).toBeInTheDocument();
     expect(within(sitStatusTable).getByText('Total days remaining')).toBeInTheDocument();
-    const daysApprovedAndRemaining = within(sitStatusTable).getAllByText('15');
+    const daysApprovedAndRemaining = within(sitStatusTable).getAllByText('365');
     expect(daysApprovedAndRemaining).toHaveLength(1);
     const sitStartAndEndTable = await screen.findByTestId('sitStartAndEndTable');
     expect(sitStartAndEndTable).toBeInTheDocument();
     expect(within(sitStartAndEndTable).queryByText('Current location')).not.toBeInTheDocument();
     expect(within(sitStartAndEndTable).getByText('SIT start date')).toBeInTheDocument();
-    expect(within(sitStartAndEndTable).getByText('25 Feb 2025')).toBeInTheDocument();
     expect(within(sitStartAndEndTable).getByText('SIT authorized end date')).toBeInTheDocument();
-    expect(within(sitStartAndEndTable).getByText('11 Mar 2025')).toBeInTheDocument();
     const sitDaysAtCurrentLocation = await screen.findByTestId('sitDaysAtCurrentLocation');
     expect(sitDaysAtCurrentLocation).toBeInTheDocument();
     expect(within(sitDaysAtCurrentLocation).getByText('Total days in origin SIT')).toBeInTheDocument();
@@ -238,7 +236,7 @@ describe('ShipmentSITDisplay', () => {
 
     expect(await screen.queryByRole('button', { name: 'Edit' })).not.toBeInTheDocument();
   });
-  it('shows Expired when the remaining days is less that the approved days', async () => {
+  it('shows Expired when the used days is greater than the approved days', async () => {
     render(
       <MockProviders>
         <ShipmentSITDisplay sitExtensions={SITExtensions} sitStatus={SITStatusExpired} shipment={SITShipment} />

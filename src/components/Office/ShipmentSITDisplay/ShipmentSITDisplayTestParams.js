@@ -1,5 +1,8 @@
+import moment from 'moment';
+
 import SERVICE_ITEM_STATUSES, { SERVICE_ITEM_CODES } from 'constants/serviceItems';
 import { SIT_EXTENSION_REASON } from 'constants/sitExtensions';
+import { swaggerDateFormat } from 'shared/dates';
 
 const LOCATION_VALUES = {
   ORIGIN: 'ORIGIN',
@@ -61,8 +64,8 @@ export const SITStatusOrigin = {
   totalSITDaysUsed: 45,
   totalDaysRemaining: 60,
   daysInSIT: 15,
-  sitEntryDate: '2021-08-13T15:41:59.373Z',
-  sitDepartureDate: '2021-08-28T15:41:59.373Z',
+  sitEntryDate: '2021-08-13',
+  sitAllowanceEndDate: '2021-08-28',
 };
 
 export const SITStatusDestination = {
@@ -70,23 +73,23 @@ export const SITStatusDestination = {
   totalSITDaysUsed: 45,
   totalDaysRemaining: 60,
   daysInSIT: 15,
-  sitEntryDate: '2021-08-13T15:41:59.373Z',
-  sitDepartureDate: '2021-08-28T15:41:59.373Z',
+  sitEntryDate: '2021-08-13',
+  sitAllowanceEndDate: '2021-08-28',
 };
 
 export const futureSITStatus = {
   daysInSIT: 0,
   location: LOCATION_VALUES.ORIGIN,
-  sitDepartureDate: '2025-03-11T15:41:59.373Z',
-  sitEntryDate: '2025-02-25T00:00:00.000Z',
-  totalDaysRemaining: 15,
+  sitEntryDate: moment().add(2, 'years').format(swaggerDateFormat),
+  sitAllowanceEndDate: moment().add(3, 'years').format(swaggerDateFormat),
+  totalDaysRemaining: 365,
   totalSITDaysUsed: 0,
 };
 
 export const SITStatusWithPastSITOriginServiceItem = {
   daysInSIT: 30,
   location: LOCATION_VALUES.DESTINATION,
-  sitEntryDate: '2021-08-23T00:00:00.000Z',
+  sitEntryDate: '2021-08-23',
   totalDaysRemaining: 210,
   totalSITDaysUsed: 60,
   pastSITServiceItems: [
@@ -116,7 +119,7 @@ export const SITStatusWithPastSITOriginServiceItem = {
 export const SITStatusWithPastSITServiceItems = {
   daysInSIT: 30,
   location: LOCATION_VALUES.DESTINATION,
-  sitEntryDate: '2021-08-23T00:00:00.000Z',
+  sitEntryDate: '2021-08-23',
   totalDaysRemaining: 210,
   totalSITDaysUsed: 60,
   pastSITServiceItems: [
@@ -154,8 +157,8 @@ export const SITStatusWithPastSITServiceItems = {
       reServiceID: 'd0561c49-e1a9-40b8-a739-3e639a9d77af',
       reServiceName: 'Domestic destination SIT pickup',
       reason: 'peak season all trucks in use',
-      sitDepartureDate: '2021-09-24T00:00:00.000Z',
-      sitEntryDate: '2021-09-03T00:00:00.000Z',
+      sitDepartureDate: '2021-09-24',
+      sitEntryDate: '2021-09-03',
       status: SERVICE_ITEM_STATUSES.APPROVED,
       submittedAt: '0001-01-01',
       updatedAt: '0001-01-01T00:00:00.000Z',
@@ -316,8 +319,8 @@ export const SITShipment = {
   sitStatus: {
     daysInSIT: 15,
     location: LOCATION_VALUES.DESTINATION,
-    sitDepartureDate: '2023-03-11T15:41:59.373Z',
-    sitEntryDate: '2023-04-24T00:00:00.000Z',
+    sitDepartureDate: '2023-03-11',
+    sitEntryDate: '2023-04-24',
     totalDaysRemaining: 210,
     totalSITDaysUsed: 270,
   },
@@ -335,8 +338,8 @@ export const futureSITShipment = {
 export const SITStatusExpired = {
   location: LOCATION_VALUES.DESTINATION,
   totalSITDaysUsed: 270,
-  totalDaysRemaining: 0,
+  totalDaysRemaining: -2,
   daysInSIT: 15,
-  sitEntryDate: '2021-08-13T15:41:59.373Z',
-  sitDepartureDate: '2021-08-28T15:41:59.373Z',
+  sitEntryDate: '2021-08-13',
+  sitAllowanceEndDate: '2021-08-28',
 };
