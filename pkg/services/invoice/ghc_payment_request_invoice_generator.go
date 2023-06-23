@@ -498,6 +498,14 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(ap
 		return apperror.NewConflictError(orders.ID, "Invalid Order, must have OriginDutyLocation")
 	}
 
+	if orders.ServiceMember.Affiliation == nil {
+		return apperror.NewInvalidInputError(orders.ID, fmt.Errorf("service member is missing an affiliation"), nil, "service member affiliation is required")
+	}
+
+	if orders.OriginDutyLocationGBLOC == nil {
+		return apperror.NewInvalidInputError(orders.ID, fmt.Errorf("origin duty location GBLOC value is missing"), nil, "origin duty location GBLOC is required")
+	}
+
 	header.OriginName = edisegment.N1{
 		EntityIdentifierCode:        "SF",
 		Name:                        originDutyLocation.Name,
