@@ -157,7 +157,7 @@ export class TestHarness {
   }
 
   /**
-   * Use testharness to build a move with an hhg shipment in SIT and a pending SIT extension
+   * Use testharness to build a move with an hhg shipment in SIT with an allowance that ends today
    * @returns {Promise<Move>}
    */
   async buildHHGMoveIn200DaysSITEndsToday() {
@@ -165,7 +165,7 @@ export class TestHarness {
   }
 
   /**
-   * Use testharness to build a move with an hhg shipment in SIT and a pending SIT extension
+   * Use testharness to build a move with an hhg shipment in SIT with an allowance that ends tomorrow
    * @returns {Promise<Move>}
    */
   async buildHHGMoveIn200DaysSITEndsTomorrow() {
@@ -173,7 +173,7 @@ export class TestHarness {
   }
 
   /**
-   * Use testharness to build a move with an hhg shipment in SIT and a pending SIT extension
+   * Use testharness to build a move with an hhg shipment in SIT with an allowance that ended yesterday
    * @returns {Promise<Move>}
    */
   async buildHHGMoveIn200DaysSITEndsYesterday() {
@@ -181,7 +181,8 @@ export class TestHarness {
   }
 
   /**
-   * Use testharness to build a move with an hhg shipment in SIT and a pending SIT extension
+   * Use testharness to build a move with an hhg shipment in SIT that departed storage before the allowance
+   * was exhausted
    * @returns {Promise<Move>}
    */
   async buildHHGMoveIn200DaysSITDeparted() {
