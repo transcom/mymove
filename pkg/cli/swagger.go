@@ -19,6 +19,8 @@ const (
 	GHCSwaggerFlag string = "ghc-swagger"
 	// PrimeSwaggerFlag is the Prime Swagger Flag
 	PrimeSwaggerFlag string = "prime-swagger"
+	// PrimeV2SwaggerFlag is the Prime V2 Swagger Flag
+	PrimeV2SwaggerFlag string = "prime-v2-swagger"
 	// ServeSwaggerUIFlag is the Serve Swagger UI Flag
 	ServeSwaggerUIFlag string = "serve-swagger-ui"
 	// SupportSwaggerFlag is the Support Swagger Flag
@@ -33,6 +35,7 @@ func InitSwaggerFlags(flag *pflag.FlagSet) {
 	flag.String(AdminSwaggerFlag, "swagger/admin.yaml", "The location of the admin API swagger definition")
 	flag.String(GHCSwaggerFlag, "swagger/ghc.yaml", "The location of the GHC API swagger definition")
 	flag.String(PrimeSwaggerFlag, "swagger/prime.yaml", "The location of the Prime API swagger definition")
+	flag.String(PrimeV2SwaggerFlag, "swagger/primev2.yaml", "The location of the Prime V2 API swagger definition")
 	flag.Bool(ServeSwaggerUIFlag, false, "Whether to serve swagger UI for the APIs")
 }
 
@@ -45,6 +48,7 @@ func CheckSwagger(v *viper.Viper) error {
 		GHCSwaggerFlag,
 		AdminSwaggerFlag,
 		PrimeSwaggerFlag,
+		PrimeV2SwaggerFlag,
 	}
 
 	for _, c := range swaggerVars {
