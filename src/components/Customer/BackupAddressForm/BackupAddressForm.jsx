@@ -20,7 +20,7 @@ const BackupAddressForm = ({ formFieldsName, initialValues, onSubmit, onBack }) 
     <Formik
       initialValues={initialValues}
       onSubmit={onSubmit}
-      validateOnChange
+      validateOnChange={false}
       validateOnMount
       validationSchema={validationSchema}
     >
