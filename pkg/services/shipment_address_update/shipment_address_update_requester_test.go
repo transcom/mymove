@@ -11,6 +11,7 @@ import (
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services/address"
 	moveservices "github.com/transcom/mymove/pkg/services/move"
+	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -30,6 +31,7 @@ import (
 
 func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddressUpdate() {
 	addressCreator := address.NewAddressCreator()
+	shipmentSITStatus := mtoshipment.NewShipmentSITStatus()
 	mockPlanner := &routemocks.Planner{}
 	mockPlanner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
@@ -42,7 +44,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 		"30905",
 	).Return(2500, nil)
 	moveRouter := moveservices.NewMoveRouter()
-	addressUpdateRequester := NewShipmentAddressUpdateRequester(mockPlanner, addressCreator, moveRouter)
+	addressUpdateRequester := NewShipmentAddressUpdateRequester(mockPlanner, addressCreator, moveRouter, shipmentSITStatus)
 
 	suite.Run("Successfully create ShipmentAddressUpdate", func() {
 		testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
@@ -119,10 +121,34 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 			PostalCode:     "90210",
 			Country:        models.StringPointer("United States"),
 		}
+
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		shipment := factory.BuildMTOShipmentWithMove(&move, suite.DB(), nil, nil)
-		factory.BuildRealMTOServiceItemWithAllDeps(suite.DB(), models.ReServiceCodeDOASIT, move, shipment)
-		suite.NotEmpty(move.MTOShipments)
+		year, month, day := time.Now().Date()
+		lastMonthEntry := time.Date(year, month, day-37, 0, 0, 0, 0, time.UTC)
+		lastMonthDeparture := time.Date(year, month, day-30, 0, 0, 0, 0, time.UTC)
+		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate:     &lastMonthEntry,
+					SITDepartureDate: &lastMonthDeparture,
+					Status:           models.MTOServiceItemStatusApproved,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDOPSIT,
+				},
+			},
+		}, nil)
 		update, err := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, newAddress, "we really need to change the address")
 		suite.Error(err)
 		suite.Nil(update)

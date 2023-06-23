@@ -17,10 +17,12 @@ type shipmentAddressUpdateRequester struct {
 	planner        route.Planner
 	addressCreator services.AddressCreator
 	//checks         []sitAddressUpdateValidator // not sure if i'll need these yet
-	moveRouter services.MoveRouter
+	moveRouter        services.MoveRouter
+	shipmentSITStatus services.ShipmentSITStatus
 }
 
-func NewShipmentAddressUpdateRequester(planner route.Planner, addressCreator services.AddressCreator, moveRouter services.MoveRouter) services.ShipmentAddressUpdateRequester {
+func NewShipmentAddressUpdateRequester(planner route.Planner, addressCreator services.AddressCreator, moveRouter services.MoveRouter, shipmentSITStatus services.ShipmentSITStatus) services.ShipmentAddressUpdateRequester {
+
 	return &shipmentAddressUpdateRequester{
 		planner:        planner,
 		addressCreator: addressCreator,
@@ -30,7 +32,8 @@ func NewShipmentAddressUpdateRequester(planner route.Planner, addressCreator ser
 		//	checkForExistingSITAddressUpdate(),
 		//	checkServiceItem(),
 		//},
-		moveRouter: moveRouter,
+		shipmentSITStatus: shipmentSITStatus,
+		moveRouter:        moveRouter,
 	}
 }
 
@@ -76,10 +79,19 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 
 	var addressUpdate models.ShipmentAddressUpdate
 	var shipment models.MTOShipment
-	err := appCtx.DB().EagerPreload("MoveTaskOrder", "PickupAddress").Find(&shipment, shipmentID)
+	err := appCtx.DB().EagerPreload("MoveTaskOrder", "PickupAddress", "MTOServiceItems", "MTOServiceItems.ReService").Find(&shipment, shipmentID)
+
 	if shipment.ShipmentType != models.MTOShipmentTypeHHG {
 		return nil, apperror.NewUnprocessableEntityError("destination address update requests can only be created for HHG shipments")
 	}
+	sitStatus, err := f.shipmentSITStatus.CalculateShipmentSITStatus(appCtx, shipment)
+	if err != nil {
+		return nil, err
+	}
+	if sitStatus != nil {
+		return nil, apperror.NewUnprocessableEntityError("destination address update requests can only be created for shipments that do not use SIT")
+	}
+
 	isThereAnExistingUpdate := true
 	if err != nil {
 		return nil, err
