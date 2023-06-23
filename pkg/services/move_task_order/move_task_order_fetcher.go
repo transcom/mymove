@@ -112,12 +112,10 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 		"MTOShipments.StorageFacility.Address",
 		"MTOShipments.DeliveryAddressUpdate",
 		"MTOShipments.DeliveryAddressUpdate.OriginalAddress",
-		"MTOShipments.DeliveryAddressUpdate.NewAddress",
 		"Orders.ServiceMember",
 		"Orders.ServiceMember.ResidentialAddress",
 		"Orders.Entitlement",
 		"Orders.NewDutyLocation.Address",
-
 		"Orders.OriginDutyLocation.Address", // this line breaks Eager, but works with EagerPreload
 	)
 
@@ -146,6 +144,18 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 		}
 	}
 
+	// Due to a bug in Pop for EagerPreload the New Address of the DeliveryAddressUpdate must be loaded manually.
+	// The bug occurs in EagerPreload when there are two or more eager paths with 3+ levels
+	// where the first 2 levels match.  For example:
+	//   "MTOShipments.DeliveryAddressUpdate.OriginalAddress" and "MTOShipments.DeliveryAddressUpdate.NewAddress"
+	// In those cases, only the last relationship is loaded in the results.  So, we can only do one of the paths
+	// in the EagerPreload above and request the second one explicitly with a separate Load call.
+	for i := range mto.MTOShipments {
+		loadErr := appCtx.DB().Load(mto.MTOShipments[i].DeliveryAddressUpdate, "NewAddress")
+		if loadErr != nil {
+			return &models.Move{}, apperror.NewQueryError("DeliveryAddressUpdate", loadErr, "")
+		}
+	}
 	// Filtering external vendor shipments in code since we can't do it easily in Pop without a raw query.
 	// Also, due to a Pop bug, we cannot EagerPreload "Reweigh" or "PPMShipment" likely because they are both
 	// a pointer and "has_one" field, so we're loading those here.  This seems similar to other EagerPreload
