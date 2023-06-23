@@ -67,7 +67,7 @@ describe('ShipmentSITDisplay', () => {
     );
 
     expect(screen.getByText('Previously used SIT')).toBeInTheDocument();
-    expect(await screen.getByText(`30 days at origin (24 Jul 2021 - 23 Aug 2021)`)).toBeInTheDocument();
+    expect(screen.getByText(`30 days at origin (24 Jul 2021 - 23 Aug 2021)`)).toBeInTheDocument();
   });
 
   it('renders the Shipment SIT at Destination, multiple previous SIT', async () => {
@@ -77,8 +77,8 @@ describe('ShipmentSITDisplay', () => {
       </MockProviders>,
     );
     expect(screen.getByText('Previously used SIT')).toBeInTheDocument();
-    expect(await screen.getByText(`30 days at origin (24 Jul 2021 - 23 Aug 2021)`)).toBeInTheDocument();
-    expect(await screen.getByText(`21 days at destination (03 Sep 2021 - 24 Sep 2021)`)).toBeInTheDocument();
+    expect(screen.getByText(`30 days at origin (24 Jul 2021 - 23 Aug 2021)`)).toBeInTheDocument();
+    expect(screen.getByText(`21 days at destination (03 Sep 2021 - 24 Sep 2021)`)).toBeInTheDocument();
   });
 
   it('renders with no current or future sit and multiple departed SIT', async () => {
@@ -96,8 +96,8 @@ describe('ShipmentSITDisplay', () => {
     expect(screen.queryByText('SIT authorized end date')).not.toBeInTheDocument();
 
     expect(screen.getByText('Previously used SIT')).toBeInTheDocument();
-    expect(await screen.getByText(`30 days at origin (24 Jul 2021 - 23 Aug 2021)`)).toBeInTheDocument();
-    expect(await screen.getByText(`21 days at destination (03 Sep 2021 - 24 Sep 2021)`)).toBeInTheDocument();
+    expect(screen.getByText(`30 days at origin (24 Jul 2021 - 23 Aug 2021)`)).toBeInTheDocument();
+    expect(screen.getByText(`21 days at destination (03 Sep 2021 - 24 Sep 2021)`)).toBeInTheDocument();
   });
 
   it('renders the approved Shipment SIT Extensions', async () => {
@@ -160,7 +160,7 @@ describe('ShipmentSITDisplay', () => {
       </MockProviders>,
     );
 
-    expect(await screen.queryByText('SIT extensions')).not.toBeInTheDocument();
+    expect(screen.queryByText('SIT extensions')).not.toBeInTheDocument();
   });
 
   it('renders the future SIT', async () => {
@@ -224,7 +224,7 @@ describe('ShipmentSITDisplay', () => {
       </MockProviders>,
     );
 
-    expect(await screen.queryByRole('button', { name: 'View request' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'View request' })).not.toBeInTheDocument();
   });
 
   it('hides submit new SIT Extension button when hide prop is true', async () => {
@@ -234,7 +234,7 @@ describe('ShipmentSITDisplay', () => {
       </MockProviders>,
     );
 
-    expect(await screen.queryByRole('button', { name: 'Edit' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Edit' })).not.toBeInTheDocument();
   });
 
   it('View request button is hidden when user does not have permissions', async () => {
@@ -244,7 +244,7 @@ describe('ShipmentSITDisplay', () => {
       </MockProviders>,
     );
 
-    expect(await screen.queryByRole('button', { name: 'View request' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'View request' })).not.toBeInTheDocument();
   });
 
   it('Edit button is hidden when user does not have permissions', async () => {
@@ -254,7 +254,7 @@ describe('ShipmentSITDisplay', () => {
       </MockProviders>,
     );
 
-    expect(await screen.queryByRole('button', { name: 'Edit' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Edit' })).not.toBeInTheDocument();
   });
   it('shows Expired when the used days is greater than the approved days', async () => {
     render(
