@@ -14,9 +14,8 @@ import (
 )
 
 type shipmentAddressUpdateRequester struct {
-	planner        route.Planner
-	addressCreator services.AddressCreator
-	//checks         []sitAddressUpdateValidator // not sure if i'll need these yet
+	planner           route.Planner
+	addressCreator    services.AddressCreator
 	moveRouter        services.MoveRouter
 	shipmentSITStatus services.ShipmentSITStatus
 }
@@ -24,14 +23,8 @@ type shipmentAddressUpdateRequester struct {
 func NewShipmentAddressUpdateRequester(planner route.Planner, addressCreator services.AddressCreator, moveRouter services.MoveRouter, shipmentSITStatus services.ShipmentSITStatus) services.ShipmentAddressUpdateRequester {
 
 	return &shipmentAddressUpdateRequester{
-		planner:        planner,
-		addressCreator: addressCreator,
-		//checks: []sitAddressUpdateValidator{
-		//	checkAndValidateRequiredFields(),
-		//	checkPrimeRequiredFields(),
-		//	checkForExistingSITAddressUpdate(),
-		//	checkServiceItem(),
-		//},
+		planner:           planner,
+		addressCreator:    addressCreator,
 		shipmentSITStatus: shipmentSITStatus,
 		moveRouter:        moveRouter,
 	}
@@ -58,25 +51,8 @@ func (f *shipmentAddressUpdateRequester) doesDeliveryAddressUpdateChangeShipment
 	return false, nil
 }
 
-// RequestShipmentDeliveryAddressUpdate
+// RequestShipmentDeliveryAddressUpdate is used to update the destination address of an HHG shipment without SIT after it has been approved by the TOO. If this update could result in excess cost for the customer, this service requires the change to go through TOO approval.
 func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(appCtx appcontext.AppContext, shipmentID uuid.UUID, newAddress models.Address, contractorRemarks string) (*models.ShipmentAddressUpdate, error) {
-	// if shipment is not HHG, return error
-	// if shipment has SIT, return error
-
-	// get contract ID
-	// create a default update record
-	// does an update exist for the shipment?
-	//   if so, we want to use that (but we want to zero out all fields except id, shipment id, old address id)
-	// set status to approved
-	// do we need to flag the update?
-	//   if so, set status to requested
-	// transaction
-	// update or create the update record
-	// if status is approved
-	//   save delivery address on shipment
-	// if status is not approved
-	//   use move router to change move status to approvals requested
-
 	var addressUpdate models.ShipmentAddressUpdate
 	var shipment models.MTOShipment
 	err := appCtx.DB().EagerPreload("MoveTaskOrder", "PickupAddress", "MTOServiceItems", "MTOServiceItems.ReService").Find(&shipment, shipmentID)
@@ -93,9 +69,6 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 	}
 
 	isThereAnExistingUpdate := true
-	if err != nil {
-		return nil, err
-	}
 	err = appCtx.DB().Where("shipment_id = ?", shipmentID).First(&addressUpdate)
 	if err != nil {
 		if err == sql.ErrNoRows {
