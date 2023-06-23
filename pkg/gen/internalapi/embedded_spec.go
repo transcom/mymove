@@ -547,6 +547,60 @@ func init() {
         }
       }
     },
+    "/feature-flags/user/{key}": {
+      "post": {
+        "description": "Determines if a user has a feature flag enabled. The flagContext contains context used to determine if this flag applies to the logged in user.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "featureFlags"
+        ],
+        "summary": "Determines if a user has a feature flag enabled",
+        "operationId": "featureFlagForUser",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Feature Flag Key",
+            "name": "key",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "context for the feature flag request",
+            "name": "flagContext",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Feature Flag Status",
+            "schema": {
+              "$ref": "#/definitions/FeatureFlag"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "500": {
+            "description": "internal server error"
+          }
+        }
+      }
+    },
     "/move_documents/{moveDocumentId}": {
       "put": {
         "description": "Update a move document with the given information",
@@ -4588,6 +4642,39 @@ func init() {
         }
       }
     },
+    "FeatureFlag": {
+      "description": "A feature flag",
+      "type": "object",
+      "required": [
+        "entity",
+        "key",
+        "enabled",
+        "value",
+        "namespace"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "example": true
+        },
+        "entity": {
+          "type": "string",
+          "example": "user@example.com"
+        },
+        "key": {
+          "type": "string",
+          "example": "flag"
+        },
+        "namespace": {
+          "type": "string",
+          "example": "test"
+        },
+        "value": {
+          "type": "string",
+          "example": "myval"
+        }
+      }
+    },
     "IndexEntitlements": {
       "type": "object",
       "additionalProperties": {
@@ -8213,6 +8300,9 @@ func init() {
     },
     {
       "name": "mtoShipment"
+    },
+    {
+      "name": "featureFlags"
     }
   ]
 }`))
@@ -8739,6 +8829,60 @@ func init() {
           },
           "422": {
             "description": "the payload was unprocessable"
+          },
+          "500": {
+            "description": "internal server error"
+          }
+        }
+      }
+    },
+    "/feature-flags/user/{key}": {
+      "post": {
+        "description": "Determines if a user has a feature flag enabled. The flagContext contains context used to determine if this flag applies to the logged in user.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "featureFlags"
+        ],
+        "summary": "Determines if a user has a feature flag enabled",
+        "operationId": "featureFlagForUser",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Feature Flag Key",
+            "name": "key",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "context for the feature flag request",
+            "name": "flagContext",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Feature Flag Status",
+            "schema": {
+              "$ref": "#/definitions/FeatureFlag"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
           },
           "500": {
             "description": "internal server error"
@@ -13213,6 +13357,39 @@ func init() {
         }
       }
     },
+    "FeatureFlag": {
+      "description": "A feature flag",
+      "type": "object",
+      "required": [
+        "entity",
+        "key",
+        "enabled",
+        "value",
+        "namespace"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "example": true
+        },
+        "entity": {
+          "type": "string",
+          "example": "user@example.com"
+        },
+        "key": {
+          "type": "string",
+          "example": "flag"
+        },
+        "namespace": {
+          "type": "string",
+          "example": "test"
+        },
+        "value": {
+          "type": "string",
+          "example": "myval"
+        }
+      }
+    },
     "IndexEntitlements": {
       "type": "object",
       "additionalProperties": {
@@ -16858,6 +17035,9 @@ func init() {
     },
     {
       "name": "mtoShipment"
+    },
+    {
+      "name": "featureFlags"
     }
   ]
 }`))
