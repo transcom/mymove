@@ -98,14 +98,16 @@
 .pageFooter {
   display: flex;
   align-items: center;
+  @include u-margin-top(4);
 
   h6 {
     margin: 0;
     line-height: 1.25;
+    text-transform: none !important;
   }
 
   h6 + h6 {
-    @include u-margin-top(1);
+    @include u-margin-top(2);
   }
 
   .pageFooterDetails {
