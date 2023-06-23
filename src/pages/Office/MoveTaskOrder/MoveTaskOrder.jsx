@@ -1220,6 +1220,12 @@ export const MoveTaskOrder = (props) => {
               </ShipmentContainer>
             );
           })}
+          <div className={styles.pageFooter}>
+            <div className={styles.pageFooterDetails}>
+              <h6>MTO Reference ID #{move?.referenceId}</h6>
+              <h6>Contract #1234567890</h6> {/* TODO - need this value from the API */}
+            </div>
+          </div>
         </FlashGridContainer>
       </div>
     </div>

@@ -95,6 +95,25 @@
   }
 }
 
+.pageFooter {
+  display: flex;
+  align-items: center;
+
+  h6 {
+    margin: 0;
+    line-height: 1.25;
+  }
+
+  h6 + h6 {
+    @include u-margin-top(1);
+  }
+
+  .pageFooterDetails {
+    color: $base;
+    text-align: left;
+  }
+}
+
 .section {
   background: $bg-white;
   border-radius: 3px;
