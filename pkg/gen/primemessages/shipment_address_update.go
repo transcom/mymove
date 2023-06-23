@@ -35,7 +35,6 @@ type ShipmentAddressUpdate struct {
 
 	// new address
 	// Required: true
-	// Read Only: true
 	NewAddress *Address `json:"newAddress"`
 
 	// Office Remarks

@@ -37,7 +37,6 @@ properties:
     $ref: 'Address.yaml'
   newAddress:
     $ref: 'Address.yaml'
-    readOnly: true
 required:
   - id
   - status

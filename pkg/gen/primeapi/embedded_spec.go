@@ -3804,8 +3804,7 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "newAddress": {
-          "$ref": "#/definitions/Address",
-          "readOnly": true
+          "$ref": "#/definitions/Address"
         },
         "officeRemarks": {
           "type": "string",
@@ -8698,8 +8697,7 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "newAddress": {
-          "$ref": "#/definitions/Address",
-          "readOnly": true
+          "$ref": "#/definitions/Address"
         },
         "officeRemarks": {
           "type": "string",
