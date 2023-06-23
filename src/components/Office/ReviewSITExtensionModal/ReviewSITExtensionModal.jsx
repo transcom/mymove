@@ -107,16 +107,17 @@ const SitStatusTables = ({ sitStatus, sitExtension, shipment }) => {
    * @description This function is used to change the values of the Total Days
    * of SIT approved input when the End Date datepicker is modified. This is
    * being triggered on the `onChange` event for the SitEndDateForm component.
-   * @param {moment.input} endDate A Moment.input representing the last day approved in the form.
+   * @param {Date} endDate A Moment.input representing the last day approved in the form.
    * @see handleDaysAllowanceChange
    * @see SitEndDateForm component
    */
   const handleSitEndDateChange = (endDate) => {
     endDateHelper.setValue(endDate);
     // Total days of SIT
-    const calculatedSitDaysAllowance = Math.ceil(
-      moment.duration(moment(endDate, datePickerFormat).diff(sitEntryDate)).asDays() + daysInPreviousSIT,
-    );
+    const startOfEndDate = moment(endDate, datePickerFormat).startOf('day');
+    const startOfEntryDate = sitEntryDate.startOf('day');
+    const calculatedSitDaysAllowance =
+      moment.duration(startOfEndDate.diff(startOfEntryDate)).asDays() + daysInPreviousSIT;
     // Update form value
     sitAllowanceHelper.setValue(String(calculatedSitDaysAllowance));
   };
