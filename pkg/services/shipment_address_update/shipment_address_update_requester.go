@@ -57,8 +57,6 @@ func (f *shipmentAddressUpdateRequester) doesDeliveryAddressUpdateChangeShipment
 
 // RequestShipmentDeliveryAddressUpdate
 func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(appCtx appcontext.AppContext, shipmentID uuid.UUID, newAddress models.Address, contractorRemarks string) (*models.ShipmentAddressUpdate, error) {
-	// do we need to create the new address or can we assume it has already been created in the handler?
-
 	// if shipment is not HHG, return error
 	// if shipment has SIT, return error
 
@@ -87,14 +85,16 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 		return nil, err
 	}
 	err = appCtx.DB().Where("shipment_id = ?", shipmentID).First(&addressUpdate)
-	if err != nil && err != sql.ErrNoRows {
-		return nil, err
-	}
-	if err != nil && err == sql.ErrNoRows {
-		isThereAnExistingUpdate = false
-		addressUpdate.OriginalAddressID = *shipment.DestinationAddressID
-		addressUpdate.ShipmentID = shipmentID
-		addressUpdate.OfficeRemarks = nil
+	if err != nil {
+		if err == sql.ErrNoRows {
+			// If we didn't find an existing update, we'll need to make a new one
+			isThereAnExistingUpdate = false
+			addressUpdate.OriginalAddressID = *shipment.DestinationAddressID
+			addressUpdate.ShipmentID = shipmentID
+			addressUpdate.OfficeRemarks = nil
+		} else {
+			return nil, err
+		}
 	}
 
 	addressUpdate.Status = models.ShipmentAddressUpdateStatusApproved

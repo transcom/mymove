@@ -1,6 +1,7 @@
 package shipmentaddressupdate
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/stretchr/testify/mock"
@@ -64,6 +65,67 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 		suite.NoError(err)
 		suite.NotNil(update)
 		suite.Equal(models.ShipmentAddressUpdateStatusApproved, update.Status)
+
+		// Make sure the destination address on the shipment was updated
+		var updatedShipment models.MTOShipment
+		err = suite.DB().EagerPreload("DestinationAddress").Find(&updatedShipment, shipment.ID)
+		suite.NoError(err)
+
+		suite.Equal(newAddress.StreetAddress1, updatedShipment.DestinationAddress.StreetAddress1)
+		suite.Equal(newAddress.PostalCode, updatedShipment.DestinationAddress.PostalCode)
+		suite.Equal(newAddress.State, updatedShipment.DestinationAddress.State)
+		suite.Equal(newAddress.City, updatedShipment.DestinationAddress.City)
+	})
+
+	suite.Run("Failed distance calculation should error", func() {
+		mockPlanner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("string"),
+			mock.AnythingOfType("string"),
+		).Return(0, fmt.Errorf("error calculating distance")).Once()
+
+		testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				StartDate: time.Now().Add(-24 * time.Hour),
+				EndDate:   time.Now().Add(24 * time.Hour),
+			},
+		})
+		newAddress := models.Address{
+			StreetAddress1: "123 Any St",
+			City:           "Beverly Hills",
+			State:          "CA",
+			PostalCode:     "90210",
+			Country:        models.StringPointer("United States"),
+		}
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		shipment := factory.BuildMTOShipmentWithMove(&move, suite.DB(), nil, nil)
+		suite.NotEmpty(move.MTOShipments)
+		update, err := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, newAddress, "we really need to change the address")
+		suite.Error(err)
+		suite.Nil(update)
+	})
+
+	suite.Run("Should not be able to use this service to update a shipment with SIT", func() {
+		testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				StartDate: time.Now().Add(-24 * time.Hour),
+				EndDate:   time.Now().Add(24 * time.Hour),
+			},
+		})
+		newAddress := models.Address{
+			StreetAddress1: "123 Any St",
+			City:           "Beverly Hills",
+			State:          "CA",
+			PostalCode:     "90210",
+			Country:        models.StringPointer("United States"),
+		}
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		shipment := factory.BuildMTOShipmentWithMove(&move, suite.DB(), nil, nil)
+		factory.BuildRealMTOServiceItemWithAllDeps(suite.DB(), models.ReServiceCodeDOASIT, move, shipment)
+		suite.NotEmpty(move.MTOShipments)
+		update, err := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, newAddress, "we really need to change the address")
+		suite.Error(err)
+		suite.Nil(update)
 	})
 	suite.Run("Should not be able to update NTS shipment", func() {
 		newAddress := models.Address{
