@@ -143,11 +143,22 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 			MoveTaskOrderID: *handlers.FmtUUID(serviceItems[0].MoveTaskOrderID),
 		}
 
+		serviceItem1 := serviceItems[0]
+
+		serviceRequestDocumentUpload := factory.BuildServiceRequestDocumentUpload(suite.DB(), []factory.Customization{
+			{
+				Model:    serviceItem1,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		serviceItem1.ServiceRequestDocuments = models.ServiceRequestDocuments{serviceRequestDocumentUpload.ServiceRequestDocument}
+
 		queryBuilder := query.NewQueryBuilder()
 		listFetcher := fetch.NewListFetcher(queryBuilder)
 		fetcher := fetch.NewFetcher(queryBuilder)
 		handler := ListMTOServiceItemsHandler{
-			suite.HandlerConfig(),
+			suite.createS3HandlerConfig(),
 			listFetcher,
 			fetcher,
 		}
@@ -160,6 +171,7 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 
 		// Validate outgoing payload
 		suite.NoError(okResponse.Payload.Validate(strfmt.Default))
+		fmt.Println(okResponse.Payload)
 
 		suite.Len(okResponse.Payload, 3)
 		for _, serviceItem := range serviceItems {
@@ -179,8 +191,17 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 						suite.Len(payload.CustomerContacts, 1)
 					}
 				}
-			}
 
+				//Validate that Service Request Document upload was included in payload
+				if len(serviceItem.ServiceRequestDocuments) == 1 && suite.Len(payload.ServiceRequestDocuments, 1) {
+					if len(serviceItem.ServiceRequestDocuments[0].ServiceRequestDocumentUploads) == 1 && suite.Len(payload.ServiceRequestDocuments[0].Uploads, 1) {
+						upload := serviceItem.ServiceRequestDocuments[0].ServiceRequestDocumentUploads[0].Upload
+						uploadPayload := payload.ServiceRequestDocuments[0].Uploads[0]
+						suite.Equal(upload.ID.String(), uploadPayload.ID.String())
+						suite.NotEqual(string(uploadPayload.URL), "")
+					}
+				}
+			}
 		}
 	})
 
