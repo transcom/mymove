@@ -41,8 +41,8 @@ func (f *shipmentAddressUpdateRequester) doesDeliveryAddressUpdateChangeServiceA
 	var originalZip models.ReZip3
 	var destinationZip models.ReZip3
 
-	originalZip.Zip3 = originalDeliveryAddress.PostalCode[0:2]
-	destinationZip.Zip3 = newDeliveryAddress.PostalCode[0:2]
+	originalZip.Zip3 = originalDeliveryAddress.PostalCode[0:3]
+	destinationZip.Zip3 = newDeliveryAddress.PostalCode[0:3]
 
 	err := appCtx.DB().Where("zip3 = ?", originalZip.Zip3).First(&existingServiceArea)
 	if err != nil {
@@ -54,7 +54,7 @@ func (f *shipmentAddressUpdateRequester) doesDeliveryAddressUpdateChangeServiceA
 		return false, err
 	}
 
-	if existingServiceArea.DomesticServiceAreaID == actualServiceArea.DomesticServiceAreaID {
+	if existingServiceArea.DomesticServiceAreaID != actualServiceArea.DomesticServiceAreaID {
 		return true, nil
 	}
 	return false, nil
@@ -90,9 +90,9 @@ func (f *shipmentAddressUpdateRequester) doesDeliveryAddressUpdateChangeMileageB
 		if perviousDistance >= lowerLimit && perviousDistance <= upperLimit {
 
 			if newDistance >= lowerLimit && newDistance <= upperLimit {
-				return true, nil
+				return false, nil
 			}
-			return false, nil
+			return true, nil
 		}
 	}
 
@@ -113,18 +113,21 @@ func (f *shipmentAddressUpdateRequester) doesDeliveryAddressUpdateChangeShipment
 	originalDestinationZip.Zip3 = originalDeliveryAddress.PostalCode[0:2]
 	newDestinationZip.Zip3 = newDeliveryAddress.PostalCode[0:2]
 
-	if originalZip.Zip3 == originalDestinationZip.Zip3 && originalDestinationZip.Zip3 == newDestinationZip.Zip3 {
-		return true, nil
-	}
+	isoriginalrouteshorthaul := originalZip.Zip3 == originalDestinationZip.Zip3
 
-	return false, nil
+	isnewrouteshorthaul := originalDestinationZip.Zip3 == newDestinationZip.Zip3
+
+	if isoriginalrouteshorthaul == isnewrouteshorthaul {
+		return false, nil
+	}
+	return true, nil
 }
 
 // RequestShipmentDeliveryAddressUpdate is used to update the destination address of an HHG shipment without SIT after it has been approved by the TOO. If this update could result in excess cost for the customer, this service requires the change to go through TOO approval.
 func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(appCtx appcontext.AppContext, shipmentID uuid.UUID, newAddress models.Address, contractorRemarks string) (*models.ShipmentAddressUpdate, error) {
 	var addressUpdate models.ShipmentAddressUpdate
 	var shipment models.MTOShipment
-	err := appCtx.DB().EagerPreload("MoveTaskOrder", "PickupAddress", "MTOServiceItems", "MTOServiceItems.ReService").Find(&shipment, shipmentID)
+	err := appCtx.DB().EagerPreload("MoveTaskOrder", "PickupAddress", "MTOServiceItems", "MTOServiceItems.ReService", "DestinationAddress").Find(&shipment, shipmentID)
 
 	if shipment.ShipmentType != models.MTOShipmentTypeHHG {
 		return nil, apperror.NewUnprocessableEntityError("destination address update requests can only be created for HHG shipments")
@@ -144,6 +147,7 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 			// If we didn't find an existing update, we'll need to make a new one
 			isThereAnExistingUpdate = false
 			addressUpdate.OriginalAddressID = *shipment.DestinationAddressID
+			addressUpdate.OriginalAddress = *shipment.DestinationAddress
 			addressUpdate.ShipmentID = shipmentID
 			addressUpdate.OfficeRemarks = nil
 		} else {
