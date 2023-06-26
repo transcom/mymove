@@ -2629,6 +2629,9 @@ func init() {
           "readOnly": true,
           "example": "handle with care"
         },
+        "deliveryAddressUpdate": {
+          "$ref": "#/definitions/ShipmentAddressUpdate"
+        },
         "destinationAddress": {
           "description": "Where the movers should deliver this shipment. Often provided by the customer when they enter shipment details\nduring onboarding, if they know their new address already.\n\nMay be blank when entered by the customer, required when entered by the Prime. May not represent the true\nfinal destination due to the shipment being diverted or placed in SIT.\n",
           "allOf": [
@@ -3822,21 +3825,24 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "status": {
-          "type": "string",
-          "title": "Status",
-          "enum": [
-            "REQUESTED",
-            "REJECTED",
-            "APPROVED"
-          ],
-          "x-display-value": {
-            "APPROVED": "APPROVED",
-            "REJECTED": "REJECTED",
-            "REQUESTED": "REQUESTED"
-          },
-          "readOnly": true
+          "$ref": "#/definitions/ShipmentAddressUpdateStatus"
         }
       }
+    },
+    "ShipmentAddressUpdateStatus": {
+      "type": "string",
+      "title": "Status",
+      "enum": [
+        "REQUESTED",
+        "REJECTED",
+        "APPROVED"
+      ],
+      "x-display-value": {
+        "APPROVED": "APPROVED",
+        "REJECTED": "REJECTED",
+        "REQUESTED": "REQUESTED"
+      },
+      "readOnly": true
     },
     "SitAddressUpdate": {
       "properties": {
@@ -7514,6 +7520,9 @@ func init() {
           "readOnly": true,
           "example": "handle with care"
         },
+        "deliveryAddressUpdate": {
+          "$ref": "#/definitions/ShipmentAddressUpdate"
+        },
         "destinationAddress": {
           "description": "Where the movers should deliver this shipment. Often provided by the customer when they enter shipment details\nduring onboarding, if they know their new address already.\n\nMay be blank when entered by the customer, required when entered by the Prime. May not represent the true\nfinal destination due to the shipment being diverted or placed in SIT.\n",
           "allOf": [
@@ -8710,21 +8719,24 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "status": {
-          "type": "string",
-          "title": "Status",
-          "enum": [
-            "REQUESTED",
-            "REJECTED",
-            "APPROVED"
-          ],
-          "x-display-value": {
-            "APPROVED": "APPROVED",
-            "REJECTED": "REJECTED",
-            "REQUESTED": "REQUESTED"
-          },
-          "readOnly": true
+          "$ref": "#/definitions/ShipmentAddressUpdateStatus"
         }
       }
+    },
+    "ShipmentAddressUpdateStatus": {
+      "type": "string",
+      "title": "Status",
+      "enum": [
+        "REQUESTED",
+        "REJECTED",
+        "APPROVED"
+      ],
+      "x-display-value": {
+        "APPROVED": "APPROVED",
+        "REJECTED": "REJECTED",
+        "REQUESTED": "REQUESTED"
+      },
+      "readOnly": true
     },
     "SitAddressUpdate": {
       "properties": {

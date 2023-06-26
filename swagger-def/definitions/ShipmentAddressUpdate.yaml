@@ -17,17 +17,7 @@ properties:
     title: Office Remarks
     x-nullable: true
   status:
-    type: string
-    title: Status
-    readOnly: true
-    x-display-value:
-      REQUESTED: REQUESTED
-      REJECTED: REJECTED
-      APPROVED: APPROVED
-    enum:
-      - REQUESTED
-      - REJECTED
-      - APPROVED
+    $ref: 'ShipmentAddressUpdateStatus.yaml'
   shipmentID:
     type: string
     format: uuid
@@ -44,4 +34,3 @@ required:
   - originalAddress
   - newAddress
   - contractorRemarks
-
