@@ -53,6 +53,18 @@ var actionDispatcher = map[string]actionFunc{
 	"HHGMoveIn200DaysSITWithPendingExtension": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeHHGMoveIn200DaysSITWithPendingExtension(appCtx)
 	},
+	"HHGMoveIn200DaysSITEndsToday": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeHHGMoveIn200DaysSITEndsToday(appCtx)
+	},
+	"HHGMoveIn200DaysSITEndsTomorrow": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeHHGMoveIn200DaysSITEndsTomorrow(appCtx)
+	},
+	"HHGMoveIn200DaysSITEndsYesterday": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeHHGMoveIn200DaysSITEndsYesterday(appCtx)
+	},
+	"HHGMoveIn200DaysSITDeparted": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeHHGMoveIn200DaysSITDeparted(appCtx)
+	},
 	"HHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO(appCtx)
 	},

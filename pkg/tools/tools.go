@@ -12,11 +12,9 @@ import (
 	_ "github.com/codegangsta/gin"
 	// Install for managing the database
 	_ "github.com/gobuffalo/pop/v6/soda"
-	// Install go-junit-report for CircleCI test result report generation
-	_ "github.com/jstemmer/go-junit-report"
 	// Install for autogenerating mocks
 	_ "github.com/vektra/mockery/v2"
-	// Possible replacement for go-junit-report
+	// Replacement for go-junit-report
 	_ "gotest.tools/gotestsum"
 	// Install for go-swagger code generation
 	_ "github.com/go-swagger/go-swagger/cmd/swagger"

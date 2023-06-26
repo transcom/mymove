@@ -18,7 +18,7 @@ import { DropdownInput, DatePickerInput } from 'components/form/fields';
 import { dropdownInputOptions } from 'utils/formatters';
 import { sitExtensionReasons } from 'constants/sitExtensions';
 import { LOCATION_TYPES } from 'types/sitStatusShape';
-import { datePickerFormat, formatDateForDatePicker, utcDateFormat } from 'shared/dates';
+import { datePickerFormat, formatDateForDatePicker, swaggerDateFormat } from 'shared/dates';
 
 const SitDaysAllowanceForm = ({ onChange }) => (
   <MaskedTextField
@@ -42,7 +42,7 @@ const SitEndDateForm = ({ onChange }) => (
 
 const SitStatusTables = ({ sitStatus, shipment }) => {
   const { totalSITDaysUsed, daysInSIT } = sitStatus;
-  const sitEntryDate = moment(sitStatus.sitEntryDate, utcDateFormat);
+  const sitEntryDate = moment(sitStatus.sitEntryDate, swaggerDateFormat);
   const daysInPreviousSIT = totalSITDaysUsed - daysInSIT;
 
   const sitAllowanceHelper = useField({ name: 'daysApproved', id: 'daysApproved' })[2];
@@ -54,12 +54,8 @@ const SitStatusTables = ({ sitStatus, shipment }) => {
   const currentDateEnteredSit = <p>{formatDateForDatePicker(sitEntryDate)}</p>;
   const totalDaysRemaining = () => {
     const daysRemaining = sitStatus ? sitStatus.totalDaysRemaining : shipment.sitDaysAllowance;
-    if (!sitStatus && daysRemaining > 0) {
+    if (daysRemaining >= 0) {
       return daysRemaining;
-    }
-    if (sitStatus && daysRemaining > 0) {
-      // Subract one day from the remaining days on the current sit to account for the current day
-      return daysRemaining - 1;
     }
     return 'Expired';
   };
@@ -69,16 +65,17 @@ const SitStatusTables = ({ sitStatus, shipment }) => {
    * @description This function is used to change the values of the Total Days
    * of SIT approved input when the End Date datepicker is modified. This is
    * being triggered on the `onChange` event for the SitEndDateForm component.
-   * @param {moment.input} endDate A Moment.input representing the last day approved in the form.
+   * @param {Date} endDate A Moment.input representing the last day approved in the form.
    * @see handleDaysAllowanceChange
    * @see SitEndDateForm component
    */
   const handleSitEndDateChange = (endDate) => {
     endDateHelper.setValue(endDate);
     // Total days of SIT
-    const calculatedSitDaysAllowance = Math.ceil(
-      moment.duration(moment(endDate, datePickerFormat).diff(sitEntryDate)).asDays() + daysInPreviousSIT,
-    );
+    const startOfEndDate = moment(endDate, datePickerFormat).startOf('day');
+    const startOfEntryDate = sitEntryDate.startOf('day');
+    const calculatedSitDaysAllowance =
+      moment.duration(startOfEndDate.diff(startOfEntryDate)).asDays() + daysInPreviousSIT;
     // Update form value
     sitAllowanceHelper.setValue(String(calculatedSitDaysAllowance));
   };
@@ -144,15 +141,24 @@ const SitStatusTables = ({ sitStatus, shipment }) => {
 };
 
 const SubmitSITExtensionModal = ({ shipment, sitStatus, onClose, onSubmit }) => {
+  let sitStartDate = sitStatus?.sitEntryDate;
+  if (!sitStartDate) {
+    sitStartDate = shipment.mtoServiceItems?.reduce((item, acc) => {
+      if (item.sitEntryDate < acc.sitEntryDate) {
+        return item;
+      }
+      return acc;
+    }).sitEntryDate;
+  }
+
   const initialValues = {
     requestReason: '',
     officeRemarks: '',
     daysApproved: String(shipment.sitDaysAllowance),
-    // Subract one day from total days remaining to account for the current day
-    sitEndDate: formatDateForDatePicker(moment().add(sitStatus.totalDaysRemaining - 1, 'days')),
+    sitEndDate: formatDateForDatePicker(moment(sitStatus.sitAllowanceEndDate, swaggerDateFormat)),
   };
   const minimumDaysAllowed = sitStatus.totalSITDaysUsed - sitStatus.daysInSIT + 1;
-  const sitEntryDate = moment(sitStatus.sitEntryDate, utcDateFormat);
+  const sitEntryDate = moment(sitStatus.sitEntryDate, swaggerDateFormat);
   const reviewSITExtensionSchema = Yup.object().shape({
     requestReason: Yup.string().required('Required'),
     officeRemarks: Yup.string().nullable(),

@@ -170,7 +170,7 @@ const ServiceItemsTable = ({
                     onClick={() => handleUpdateMTOServiceItemStatus(id, mtoShipmentID, SERVICE_ITEM_STATUS.APPROVED)}
                   >
                     <span className="icon">
-                      <FontAwesomeIcon icon="times" />
+                      <FontAwesomeIcon icon="check" />
                     </span>{' '}
                     Approve
                   </Button>
