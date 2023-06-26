@@ -17,6 +17,7 @@ func MakeMTOServiceItemCustomerContact(db *pop.Connection, assertions Assertions
 
 	MTOServiceItemCustomerContact := models.MTOServiceItemCustomerContact{
 		Type:                       models.CustomerContactTypeFirst,
+		DateOfContact:              time.Now(),
 		TimeMilitary:               "0400Z",
 		FirstAvailableDeliveryDate: time.Now(),
 		CreatedAt:                  time.Now(),
