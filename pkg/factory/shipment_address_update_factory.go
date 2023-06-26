@@ -1,6 +1,8 @@
 package factory
 
 import (
+	"time"
+
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
 
@@ -67,8 +69,9 @@ func GetTraitShipmentAddressUpdateRequested() []Customization {
 		},
 		{
 			Model: models.Move{
-				Locator: "CRQST1",
-				Status:  models.MoveStatusAPPROVALSREQUESTED,
+				Locator:            "CRQST1",
+				Status:             models.MoveStatusAPPROVALSREQUESTED,
+				AvailableToPrimeAt: models.TimePointer(time.Now()),
 			},
 		},
 		{
@@ -88,8 +91,9 @@ func GetTraitShipmentAddressUpdateApproved() []Customization {
 		},
 		{
 			Model: models.Move{
-				Locator: "CRQST2",
-				Status:  models.MoveStatusAPPROVED,
+				Locator:            "CRQST2",
+				Status:             models.MoveStatusAPPROVED,
+				AvailableToPrimeAt: models.TimePointer(time.Now()),
 			},
 		},
 		{
@@ -109,8 +113,9 @@ func GetTraitShipmentAddressUpdateRejected() []Customization {
 		},
 		{
 			Model: models.Move{
-				Locator: "CRQST3",
-				Status:  models.MoveStatusAPPROVED,
+				Locator:            "CRQST3",
+				Status:             models.MoveStatusAPPROVED,
+				AvailableToPrimeAt: models.TimePointer(time.Now()),
 			},
 		},
 		{
