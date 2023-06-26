@@ -36,11 +36,11 @@ type MTOServiceItemDestSIT struct {
 
 	statusField MTOServiceItemStatus
 
-	// Date of attempted contact by the prime corresponding to 'timeMilitary1'.
+	// Date of attempted contact by the prime corresponding to `timeMilitary1`.
 	// Format: date
 	DateOfContact1 *strfmt.Date `json:"dateOfContact1,omitempty"`
 
-	// Date of attempted contact by the prime corresponding to 'timeMilitary2'.
+	// Date of attempted contact by the prime corresponding to `timeMilitary2`.
 	// Format: date
 	DateOfContact2 *strfmt.Date `json:"dateOfContact2,omitempty"`
 
@@ -178,11 +178,11 @@ func (m *MTOServiceItemDestSIT) SetStatus(val MTOServiceItemStatus) {
 func (m *MTOServiceItemDestSIT) UnmarshalJSON(raw []byte) error {
 	var data struct {
 
-		// Date of attempted contact by the prime corresponding to 'timeMilitary1'.
+		// Date of attempted contact by the prime corresponding to `timeMilitary1`.
 		// Format: date
 		DateOfContact1 *strfmt.Date `json:"dateOfContact1,omitempty"`
 
-		// Date of attempted contact by the prime corresponding to 'timeMilitary2'.
+		// Date of attempted contact by the prime corresponding to `timeMilitary2`.
 		// Format: date
 		DateOfContact2 *strfmt.Date `json:"dateOfContact2,omitempty"`
 
@@ -308,11 +308,11 @@ func (m MTOServiceItemDestSIT) MarshalJSON() ([]byte, error) {
 	var err error
 	b1, err = json.Marshal(struct {
 
-		// Date of attempted contact by the prime corresponding to 'timeMilitary1'.
+		// Date of attempted contact by the prime corresponding to `timeMilitary1`.
 		// Format: date
 		DateOfContact1 *strfmt.Date `json:"dateOfContact1,omitempty"`
 
-		// Date of attempted contact by the prime corresponding to 'timeMilitary2'.
+		// Date of attempted contact by the prime corresponding to `timeMilitary2`.
 		// Format: date
 		DateOfContact2 *strfmt.Date `json:"dateOfContact2,omitempty"`
 

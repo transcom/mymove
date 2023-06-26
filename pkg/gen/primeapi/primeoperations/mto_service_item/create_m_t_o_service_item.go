@@ -104,7 +104,7 @@ These additional fields are optional for creating a DDFSIT:
   - dateOfContact2, timeMilitary2, and firstAvailableDeliveryDate2 are required together
   - `timeMilitary2`
   - string\d{4}Z
-  - Time of attempted contact corresponding to `firstAvailableDeliveryDate2`, in military format.
+  - Time of attempted contact corresponding to `dateOfContact2`, in military format.
   - timeMilitary2, dateOfContact2, and firstAvailableDeliveryDate2 are required together
 
 When a DDFSIT is requested, the API will auto-create the following group of service items:
