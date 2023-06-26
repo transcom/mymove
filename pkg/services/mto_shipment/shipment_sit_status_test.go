@@ -34,7 +34,7 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 		suite.Nil(sitStatus)
 	})
 
-	suite.Run("returns nil when the shipment has a SIT service item with entry date in the future", func() {
+	suite.Run("returns SIT Status when the shipment has a SIT service item with entry date in the future", func() {
 		approvedShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{
@@ -66,7 +66,7 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 
 		sitStatus, err := sitStatusService.CalculateShipmentSITStatus(suite.AppContextForTest(), approvedShipment)
 		suite.NoError(err)
-		suite.Nil(sitStatus)
+		suite.NotNil(sitStatus)
 	})
 
 	suite.Run("includes SIT service item that has departed storage", func() {
