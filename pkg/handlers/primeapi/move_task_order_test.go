@@ -1113,6 +1113,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 
 		contact1 := testdatagen.MakeMTOServiceItemCustomerContact(suite.DB(), testdatagen.Assertions{
 			MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
+				DateOfContact:              time.Date(2023, time.December, 04, 0, 0, 0, 0, time.UTC),
 				TimeMilitary:               "1400Z",
 				FirstAvailableDeliveryDate: time.Date(2023, time.December, 02, 0, 0, 0, 0, time.UTC),
 				Type:                       models.CustomerContactTypeFirst,
@@ -1121,6 +1122,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 
 		contact2 := testdatagen.MakeMTOServiceItemCustomerContact(suite.DB(), testdatagen.Assertions{
 			MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
+				DateOfContact:              time.Date(2023, time.December, 8, 0, 0, 0, 0, time.UTC),
 				TimeMilitary:               "1600Z",
 				FirstAvailableDeliveryDate: time.Date(2023, time.December, 07, 0, 0, 0, 0, time.UTC),
 				Type:                       models.CustomerContactTypeSecond,
@@ -1195,8 +1197,10 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		suite.Equal(*serviceItem.Reason, *payload.Reason)
 		suite.Equal(serviceItem.SITEntryDate.Format(time.RFC3339), handlers.FmtDatePtrToPop(payload.SitEntryDate).Format(time.RFC3339))
 		suite.Equal(serviceItem.SITDepartureDate.Format(time.RFC3339), handlers.FmtDatePtrToPop(payload.SitDepartureDate).Format(time.RFC3339))
+		suite.Equal(serviceItem.CustomerContacts[0].DateOfContact.Format(time.RFC3339), handlers.FmtDatePtrToPop(payload.DateOfContact1).Format(time.RFC3339))
 		suite.Equal(serviceItem.CustomerContacts[0].TimeMilitary, *payload.TimeMilitary1)
 		suite.Equal(serviceItem.CustomerContacts[0].FirstAvailableDeliveryDate.Format(time.RFC3339), handlers.FmtDatePtrToPop(payload.FirstAvailableDeliveryDate1).Format(time.RFC3339))
+		suite.Equal(serviceItem.CustomerContacts[1].DateOfContact.Format(time.RFC3339), handlers.FmtDatePtrToPop(payload.DateOfContact2).Format(time.RFC3339))
 		suite.Equal(serviceItem.CustomerContacts[1].TimeMilitary, *payload.TimeMilitary2)
 		suite.Equal(serviceItem.CustomerContacts[1].FirstAvailableDeliveryDate.Format(time.RFC3339), handlers.FmtDatePtrToPop(payload.FirstAvailableDeliveryDate2).Format(time.RFC3339))
 		verifyAddressFields(serviceItem.SITDestinationFinalAddress, payload.SitDestinationFinalAddress)
