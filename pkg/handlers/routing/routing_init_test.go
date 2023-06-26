@@ -38,20 +38,29 @@ func (suite *RoutingSuite) TestBasicRoutingInit() {
 
 func (suite *RoutingSuite) TestServeGHC() {
 
-	user := factory.BuildUser(suite.DB(), nil, nil)
+	serviceMember := factory.BuildServiceMember(suite.DB(), factory.GetTraitActiveServiceMemberUser(), nil)
 	routingConfig := suite.RoutingConfig()
 	siteHandler := suite.SetupCustomSiteHandler(routingConfig)
 
-	// make the request without auth
-	req := suite.NewMilRequest("GET", fmt.Sprintf("/ghc/v1/customer/%s", user.ID.String()), nil)
+	// make the request with auth
+	req := suite.NewAuthenticatedMilRequest("GET", fmt.Sprintf("/ghc/v1/customer/%s", serviceMember.ID.String()), nil, serviceMember)
 	rr := httptest.NewRecorder()
+	siteHandler.ServeHTTP(rr, req)
+	// 🚨🚨🚨
+	// Should service members have access to the GHC API?
+	// 🚨🚨🚨
+	suite.Equal(http.StatusOK, rr.Code)
+
+	// make the request without auth
+	req = suite.NewMilRequest("GET", fmt.Sprintf("/ghc/v1/customer/%s", serviceMember.ID.String()), nil)
+	rr = httptest.NewRecorder()
 	siteHandler.ServeHTTP(rr, req)
 	suite.Equal(http.StatusUnauthorized, rr.Code)
 
 	// make the request with GHC routing turned off
 	routingConfig.ServeGHC = false
 	noghcHandler := suite.SetupCustomSiteHandler(routingConfig)
-	req = suite.NewMilRequest("GET", fmt.Sprintf("/ghc/v1/customer/%s", user.ID.String()), nil)
+	req = suite.NewMilRequest("GET", fmt.Sprintf("/ghc/v1/customer/%s", serviceMember.ID.String()), nil)
 	rr = httptest.NewRecorder()
 	noghcHandler.ServeHTTP(rr, req)
 	// if the API is not enabled, the routing will be served by the
