@@ -35,6 +35,7 @@ export const OrderShape = PropTypes.shape({
   methodOfPayment: PropTypes.string,
   packingAndShippingInstructions: PropTypes.string,
   supplyAndServicesCostEstimate: PropTypes.string,
+  naics: PropTypes.string,
 });
 
 export const OrdersInfoShape = PropTypes.shape({

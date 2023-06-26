@@ -489,6 +489,7 @@ func Order(order *models.Order) *ghcmessages.Order {
 		SupplyAndServicesCostEstimate:  order.SupplyAndServicesCostEstimate,
 		PackingAndShippingInstructions: order.PackingAndShippingInstructions,
 		MethodOfPayment:                order.MethodOfPayment,
+		Naics:                          order.NAICS,
 		UploadedOrderID:                strfmt.UUID(order.UploadedOrdersID.String()),
 		UploadedAmendedOrderID:         handlers.FmtUUIDPtr(order.UploadedAmendedOrdersID),
 		AmendedOrdersAcknowledgedAt:    handlers.FmtDateTimePtr(order.AmendedOrdersAcknowledgedAt),

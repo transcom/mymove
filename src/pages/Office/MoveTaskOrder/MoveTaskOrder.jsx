@@ -1095,6 +1095,7 @@ export const MoveTaskOrder = (props) => {
             <div className={styles.pageHeaderDetails}>
               <h6>MTO Reference ID #{move?.referenceId}</h6>
               <h6>Contract #{move?.contractor?.contractNumber}</h6>
+              <h6>NAICS: {order?.naics}</h6>
               <Restricted to={permissionTypes.updateFinancialReviewFlag}>
                 <div className={moveTaskOrderStyles.financialReviewContainer}>
                   <FinancialReviewButton
