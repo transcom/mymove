@@ -1,0 +1,9 @@
+type: object
+properties:
+  mtoServiceItemID:
+    type: string
+    format: uuid
+  uploads:
+    items:
+      $ref: 'Upload.yaml'
+    type: array
