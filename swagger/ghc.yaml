@@ -6167,10 +6167,15 @@ definitions:
         minimum: 0
       sitEntryDate:
         type: string
-        format: date-time
+        format: date
+        x-nullable: true
       sitDepartureDate:
         type: string
-        format: date-time
+        format: date
+        x-nullable: true
+      sitAllowanceEndDate:
+        type: string
+        format: date
         x-nullable: true
       pastSITServiceItems:
         $ref: '#/definitions/MTOServiceItems'
