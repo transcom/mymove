@@ -70,7 +70,7 @@ const SitHistoryList = ({ sitHistory, dayAllowance }) => {
 };
 
 const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton }) => {
-  const currentOrUpcomingSIT = !!sitStatus.location;
+  const currentOrUpcomingSIT = !!sitStatus?.location;
   const pendingSITExtension = sitExtensions.find((se) => se.status === SIT_EXTENSION_STATUS.PENDING);
   const currentDaysInSIT = sitStatus?.daysInSIT || 0;
   const currentDaysInSITElement = <p>{currentDaysInSIT}</p>;
@@ -87,7 +87,7 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton }
 
   sitEntryDate = moment(sitEntryDate, swaggerDateFormat);
   const sitStartDateElement = <p>{formatDate(sitEntryDate, swaggerDateFormat, 'DD MMM YYYY')}</p>;
-  const sitEndDate = moment(sitStatus.sitAllowanceEndDate, swaggerDateFormat);
+  const sitEndDate = moment(sitStatus?.sitAllowanceEndDate, swaggerDateFormat);
   const sitEndDateString = sitEndDate.isValid() ? formatDateForDatePicker(sitEndDate) : '-';
 
   // Previous SIT calculations and date ranges
