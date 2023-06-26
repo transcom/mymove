@@ -1071,19 +1071,27 @@ paths:
           * `firstAvailableDeliveryDate1`
             * string <date>
             * First available date that Prime can deliver SIT service item.
-            * If provided, `timeMilitary1` is required.
+            * firstAvailableDeliveryDate1, dateOfContact1, and timeMilitary1 are required together
+          * `dateOfContact1`
+            * string <date>
+            * Date of attempted contact by the prime corresponding to `timeMilitary1`
+            * dateOfContact1, timeMilitary1, and firstAvailableDeliveryDate1 are required together
           * `timeMilitary1`
             * string\d{4}Z
-            * Time of delivery corresponding to `firstAvailableDeliveryDate1`, in military format.
-            * If provided, `firstAvailableDeliveryDate1` is required.
+            * Time of attempted contact corresponding to `dateOfContact1`, in military format.
+            * timeMilitary1, dateOfContact1, and firstAvailableDeliveryDate1 are required together
           * `firstAvailableDeliveryDate2`
             * string <date>
             * Second available date that Prime can deliver SIT service item.
-            * If provided, `timeMilitary2` is required.
+            * firstAvailableDeliveryDate2, dateOfContact2, and timeMilitary2 are required together
+          * `dateOfContact2`
+            * string <date>
+            * Date of attempted contact delivery by the prime corresponding to `timeMilitary2`
+            * dateOfContact2, timeMilitary2, and firstAvailableDeliveryDate2 are required together
           * `timeMilitary2`
             * string\d{4}Z
-            * Time of delivery corresponding to `firstAvailableDeliveryDate2`, in military format.
-            * If provided, `firstAvailableDeliveryDate2` is required.
+            * Time of attempted contact corresponding to `dateOfContact2`, in military format.
+            * timeMilitary2, dateOfContact2, and firstAvailableDeliveryDate2 are required together
 
         When a DDFSIT is requested, the API will auto-create the following group
         of service items:
@@ -2025,20 +2033,34 @@ definitions:
             enum:
               - DDFSIT
               - DDASIT
+          dateOfContact1:
+            format: date
+            type: string
+            description: >-
+              Date of attempted contact by the prime corresponding to
+              `timeMilitary1`.
+            x-nullable: true
+          dateOfContact2:
+            format: date
+            type: string
+            description: >-
+              Date of attempted contact by the prime corresponding to
+              `timeMilitary2`.
+            x-nullable: true
           timeMilitary1:
             type: string
             example: 1400Z
             description: >-
-              Time of delivery corresponding to `firstAvailableDeliveryDate1`,
-              in military format.
+              Time of attempted contact corresponding to `dateOfContact1`, in
+              military format.
             pattern: \d{4}Z
             x-nullable: true
           timeMilitary2:
             type: string
             example: 1400Z
             description: >-
-              Time of delivery corresponding to `firstAvailableDeliveryDate2`,
-              in military format.
+              Time of attempted contact corresponding to `dateOfContact2`, in
+              military format.
             pattern: \d{4}Z
             x-nullable: true
           firstAvailableDeliveryDate1:
@@ -3254,12 +3276,19 @@ definitions:
               origin or destination.
           sitDestinationFinalAddress:
             $ref: '#/definitions/Address'
+          dateOfContact1:
+            format: date
+            type: string
+            description: >-
+              Date of attempted contact by the prime corresponding to
+              'timeMilitary1'.
+            x-nullable: true
           timeMilitary1:
             type: string
             example: 1400Z
             description: >-
-              Time of delivery corresponding to `firstAvailableDeliveryDate1`,
-              in military format.
+              Time of attempted contact by the prime corresponding to
+              'dateOfContact1', in military format.
             pattern: \d{4}Z
             x-nullable: true
           firstAvailableDeliveryDate1:
@@ -3267,12 +3296,19 @@ definitions:
             type: string
             description: First available date that Prime can deliver SIT service item.
             x-nullable: true
+          dateOfContact2:
+            format: date
+            type: string
+            description: >-
+              Date of attempted contact by the prime corresponding to
+              'timeMilitary2'.
+            x-nullable: true
           timeMilitary2:
             type: string
             example: 1400Z
             description: >-
-              Time of delivery corresponding to `firstAvailableDeliveryDate2`,
-              in military format.
+              Time of attempted contact by the prime corresponding to
+              'dateOfContact2', in military format.
             pattern: \d{4}Z
             x-nullable: true
           firstAvailableDeliveryDate2:
