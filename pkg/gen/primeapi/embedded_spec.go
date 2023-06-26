@@ -706,7 +706,7 @@ func init() {
     },
     "/mto-shipments/{mtoShipmentID}/addresses/{addressID}": {
       "put": {
-        "description": "### Functionality\nThis endpoint is used to **update** the addresses on an MTO Shipment. The address details completely replace the original, except for the UUID.\nTherefore a complete address should be sent in the request.\n\nThis endpoint **cannot create** an address.\nTo create an address on an MTO shipment, the caller must use [updateMTOShipment](#operation/updateMTOShipment) as the parent shipment has to be updated with the appropriate link to the address.\n\n### Errors\nThe address must be associated with the mtoShipment passed in the url.\nIn other words, it should be listed as pickupAddress, destinationAddress, secondaryPickupAddress or secondaryDeliveryAddress on the mtoShipment provided.\nIf it is not, caller will receive a **Conflict** Error.\n\nThe mtoShipment should be associated with an MTO that is available to prime.\nIf the caller requests an update to an address, and the shipment is not on an available MTO, the caller will receive a **NotFound** Error.\n",
+        "description": "### Functionality\nThis endpoint is used to **update** the addresses on an MTO Shipment (except for when it is the prime that updates address, then that would use /mto-shipments/{mtoShipmentID}/shipment-address-updates instead). The address details completely replace the original, except for the UUID.\nTherefore a complete address should be sent in the request.\n\nThis endpoint **cannot create** an address.\nTo create an address on an MTO shipment, the caller must use [updateMTOShipment](#operation/updateMTOShipment) as the parent shipment has to be updated with the appropriate link to the address.\n\n### Errors\nThe address must be associated with the mtoShipment passed in the url.\nIn other words, it should be listed as pickupAddress, destinationAddress, secondaryPickupAddress or secondaryDeliveryAddress on the mtoShipment provided.\nIf it is not, caller will receive a **Conflict** Error.\n\nThe mtoShipment should be associated with an MTO that is available to prime.\nIf the caller requests an update to an address, and the shipment is not on an available MTO, the caller will receive a **NotFound** Error.\n",
         "consumes": [
           "application/json"
         ],
@@ -4468,10 +4468,6 @@ func init() {
     {
       "description": "A **sitAddressUpdate** is submitted when the prime or office user wishes to update the final address for an\napproved service item. sitAddressUpdates with a distance less than or equal to 50 miles will be automatically\napproved while a distance greater than 50 miles will typically require office user approval.\n",
       "name": "sitAddressUpdate"
-    },
-    {
-      "description": "A **nonSitAddressUpdate** is submitted when the prime or office user wishes to update the final address for an\napproved non SIT shipment. Address can update automatically unless this changes:\n   -the service area\n   -mileage bracket for direct delivery\n   -mileage bracket where there is a Zip3 resulting in Domestic Short Haul (DSH) changing from Domestic Short Haul (DSH) to Domestic Line Haul (DLH) or vice versa.\n   For those, changes will require TOO approval.\n",
-      "name": "nonSitAddressUpdate"
     }
   ],
   "x-tagGroups": [
@@ -4482,8 +4478,7 @@ func init() {
         "mtoShipment",
         "mtoServiceItem",
         "paymentRequest",
-        "sitAddressUpdate",
-        "nonSitAddressUpdate"
+        "sitAddressUpdate"
       ]
     }
   ]
@@ -5360,7 +5355,7 @@ func init() {
     },
     "/mto-shipments/{mtoShipmentID}/addresses/{addressID}": {
       "put": {
-        "description": "### Functionality\nThis endpoint is used to **update** the addresses on an MTO Shipment. The address details completely replace the original, except for the UUID.\nTherefore a complete address should be sent in the request.\n\nThis endpoint **cannot create** an address.\nTo create an address on an MTO shipment, the caller must use [updateMTOShipment](#operation/updateMTOShipment) as the parent shipment has to be updated with the appropriate link to the address.\n\n### Errors\nThe address must be associated with the mtoShipment passed in the url.\nIn other words, it should be listed as pickupAddress, destinationAddress, secondaryPickupAddress or secondaryDeliveryAddress on the mtoShipment provided.\nIf it is not, caller will receive a **Conflict** Error.\n\nThe mtoShipment should be associated with an MTO that is available to prime.\nIf the caller requests an update to an address, and the shipment is not on an available MTO, the caller will receive a **NotFound** Error.\n",
+        "description": "### Functionality\nThis endpoint is used to **update** the addresses on an MTO Shipment (except for when it is the prime that updates address, then that would use /mto-shipments/{mtoShipmentID}/shipment-address-updates instead). The address details completely replace the original, except for the UUID.\nTherefore a complete address should be sent in the request.\n\nThis endpoint **cannot create** an address.\nTo create an address on an MTO shipment, the caller must use [updateMTOShipment](#operation/updateMTOShipment) as the parent shipment has to be updated with the appropriate link to the address.\n\n### Errors\nThe address must be associated with the mtoShipment passed in the url.\nIn other words, it should be listed as pickupAddress, destinationAddress, secondaryPickupAddress or secondaryDeliveryAddress on the mtoShipment provided.\nIf it is not, caller will receive a **Conflict** Error.\n\nThe mtoShipment should be associated with an MTO that is available to prime.\nIf the caller requests an update to an address, and the shipment is not on an available MTO, the caller will receive a **NotFound** Error.\n",
         "consumes": [
           "application/json"
         ],
@@ -9361,10 +9356,6 @@ func init() {
     {
       "description": "A **sitAddressUpdate** is submitted when the prime or office user wishes to update the final address for an\napproved service item. sitAddressUpdates with a distance less than or equal to 50 miles will be automatically\napproved while a distance greater than 50 miles will typically require office user approval.\n",
       "name": "sitAddressUpdate"
-    },
-    {
-      "description": "A **nonSitAddressUpdate** is submitted when the prime or office user wishes to update the final address for an\napproved non SIT shipment. Address can update automatically unless this changes:\n   -the service area\n   -mileage bracket for direct delivery\n   -mileage bracket where there is a Zip3 resulting in Domestic Short Haul (DSH) changing from Domestic Short Haul (DSH) to Domestic Line Haul (DLH) or vice versa.\n   For those, changes will require TOO approval.\n",
-      "name": "nonSitAddressUpdate"
     }
   ],
   "x-tagGroups": [
@@ -9375,8 +9366,7 @@ func init() {
         "mtoShipment",
         "mtoServiceItem",
         "paymentRequest",
-        "sitAddressUpdate",
-        "nonSitAddressUpdate"
+        "sitAddressUpdate"
       ]
     }
   ]

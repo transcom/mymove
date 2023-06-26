@@ -399,7 +399,7 @@ func (a *Client) UpdateMTOShipment(params *UpdateMTOShipmentParams, opts ...Clie
 
 	### Functionality
 
-This endpoint is used to **update** the addresses on an MTO Shipment. The address details completely replace the original, except for the UUID.
+This endpoint is used to **update** the addresses on an MTO Shipment (except for when it is the prime that updates address, then that would use /mto-shipments/{mtoShipmentID}/shipment-address-updates instead). The address details completely replace the original, except for the UUID.
 Therefore a complete address should be sent in the request.
 
 This endpoint **cannot create** an address.

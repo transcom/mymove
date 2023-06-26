@@ -35,14 +35,7 @@ tags:
       A **sitAddressUpdate** is submitted when the prime or office user wishes to update the final address for an
       approved service item. sitAddressUpdates with a distance less than or equal to 50 miles will be automatically
       approved while a distance greater than 50 miles will typically require office user approval.
-  - name: nonSitAddressUpdate
-    description: |
-      A **nonSitAddressUpdate** is submitted when the prime or office user wishes to update the final address for an
-      approved non SIT shipment. Address can update automatically unless this changes:
-         -the service area
-         -mileage bracket for direct delivery
-         -mileage bracket where there is a Zip3 resulting in Domestic Short Haul (DSH) changing from Domestic Short Haul (DSH) to Domestic Line Haul (DLH) or vice versa.
-         For those, changes will require TOO approval.
+
 
 x-tagGroups:
   - name: Endpoints
@@ -52,7 +45,6 @@ x-tagGroups:
       - mtoServiceItem
       - paymentRequest
       - sitAddressUpdate
-      - nonSitAddressUpdate
 paths:
   /moves:
     get:
@@ -476,7 +468,7 @@ paths:
       summary: updateMTOShipmentAddress
       description: |
         ### Functionality
-        This endpoint is used to **update** the addresses on an MTO Shipment. The address details completely replace the original, except for the UUID.
+        This endpoint is used to **update** the addresses on an MTO Shipment (except for when it is the prime that updates address, then that would use /mto-shipments/{mtoShipmentID}/shipment-address-updates instead). The address details completely replace the original, except for the UUID.
         Therefore a complete address should be sent in the request.
 
         This endpoint **cannot create** an address.

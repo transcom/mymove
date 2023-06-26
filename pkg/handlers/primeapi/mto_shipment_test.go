@@ -618,9 +618,6 @@ func (suite *HandlerSuite) TestCreateNonSITAddressUpdateRequestHandler() {
 			&mockCreator,
 		}
 		// NewConflictError should generate a RequestConflict response error
-		// Need verrs incorporated to satisfy swagger validation
-		verrs := validate.NewErrors()
-		verrs.Add("some key", "some value")
 		err := apperror.NewConflictError(uuid.Nil, "unable to create ShipmentAddressUpdate")
 
 		mockCreator.On("RequestShipmentDeliveryAddressUpdate",
@@ -650,9 +647,6 @@ func (suite *HandlerSuite) TestCreateNonSITAddressUpdateRequestHandler() {
 			&mockCreator,
 		}
 		// NewNotFoundError should generate a RequestNotFound response error
-		// Need verrs incorporated to satisfy swagger validation
-		verrs := validate.NewErrors()
-		verrs.Add("some key", "some value")
 		err := apperror.NewNotFoundError(uuid.Nil, "unable to create ShipmentAddressUpdate")
 
 		mockCreator.On("RequestShipmentDeliveryAddressUpdate",
@@ -682,9 +676,6 @@ func (suite *HandlerSuite) TestCreateNonSITAddressUpdateRequestHandler() {
 			&mockCreator,
 		}
 		// NewQueryError should generate an InternalServerError response error
-		// Need verrs incorporated to satisfy swagger validation
-		verrs := validate.NewErrors()
-		verrs.Add("some key", "some value")
 		err := apperror.NewQueryError("", nil, "unable to reach database")
 
 		mockCreator.On("RequestShipmentDeliveryAddressUpdate",
