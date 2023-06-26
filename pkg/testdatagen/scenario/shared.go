@@ -10665,6 +10665,54 @@ func createMoveWithFutureSIT(appCtx appcontext.AppContext, userUploader *uploade
 		},
 	}, nil)
 
+	factory.BuildMTOServiceItem(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:        models.MTOServiceItemStatusApproved,
+				SITEntryDate:  &threeMonthsFromNow,
+				SITPostalCode: &postalCode,
+				Reason:        &reason,
+			},
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDOASIT,
+			},
+		},
+		{
+			Model:    mtoShipmentSIT,
+			LinkOnly: true,
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	factory.BuildMTOServiceItem(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:        models.MTOServiceItemStatusApproved,
+				SITEntryDate:  &threeMonthsFromNow,
+				SITPostalCode: &postalCode,
+				Reason:        &reason,
+			},
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDOPSIT,
+			},
+		},
+		{
+			Model:    mtoShipmentSIT,
+			LinkOnly: true,
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
+
 	factory.BuildPaymentRequest(db, []factory.Customization{
 		{
 			Model: models.PaymentRequest{

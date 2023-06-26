@@ -6099,6 +6099,9 @@ func init() {
           "type": "string",
           "x-nullable": true
         },
+        "serviceRequestDocuments": {
+          "$ref": "#/definitions/ServiceRequestDocuments"
+        },
         "sitAddressUpdates": {
           "$ref": "#/definitions/SITAddressUpdates"
         },
@@ -8392,14 +8395,20 @@ func init() {
         "pastSITServiceItems": {
           "$ref": "#/definitions/MTOServiceItems"
         },
+        "sitAllowanceEndDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
         "sitDepartureDate": {
           "type": "string",
-          "format": "date-time",
+          "format": "date",
           "x-nullable": true
         },
         "sitEntryDate": {
           "type": "string",
-          "format": "date-time"
+          "format": "date",
+          "x-nullable": true
         },
         "totalDaysRemaining": {
           "type": "integer"
@@ -8571,6 +8580,28 @@ func init() {
         "PaymentServiceItemUUID",
         "BOOLEAN"
       ]
+    },
+    "ServiceRequestDocument": {
+      "type": "object",
+      "properties": {
+        "mtoServiceItemID": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "uploads": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Upload"
+          }
+        }
+      }
+    },
+    "ServiceRequestDocuments": {
+      "description": "documents uploaded by the Prime as proof of request for service items",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ServiceRequestDocument"
+      }
     },
     "ShipmentPaymentSITBalance": {
       "properties": {
@@ -17072,6 +17103,9 @@ func init() {
           "type": "string",
           "x-nullable": true
         },
+        "serviceRequestDocuments": {
+          "$ref": "#/definitions/ServiceRequestDocuments"
+        },
         "sitAddressUpdates": {
           "$ref": "#/definitions/SITAddressUpdates"
         },
@@ -19368,14 +19402,20 @@ func init() {
         "pastSITServiceItems": {
           "$ref": "#/definitions/MTOServiceItems"
         },
+        "sitAllowanceEndDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
         "sitDepartureDate": {
           "type": "string",
-          "format": "date-time",
+          "format": "date",
           "x-nullable": true
         },
         "sitEntryDate": {
           "type": "string",
-          "format": "date-time"
+          "format": "date",
+          "x-nullable": true
         },
         "totalDaysRemaining": {
           "type": "integer",
@@ -19549,6 +19589,28 @@ func init() {
         "PaymentServiceItemUUID",
         "BOOLEAN"
       ]
+    },
+    "ServiceRequestDocument": {
+      "type": "object",
+      "properties": {
+        "mtoServiceItemID": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "uploads": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Upload"
+          }
+        }
+      }
+    },
+    "ServiceRequestDocuments": {
+      "description": "documents uploaded by the Prime as proof of request for service items",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ServiceRequestDocument"
+      }
     },
     "ShipmentPaymentSITBalance": {
       "properties": {

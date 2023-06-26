@@ -158,6 +158,8 @@ func BuildMoveWithShipment(db *pop.Connection, customs []Customization, traits [
 	shipmentTraits := append(traits, GetTraitSubmittedShipment)
 	shipmentCustoms := setupCustomizations(customs, shipmentTraits)
 	shipmentCustoms = removeCustomization(shipmentCustoms, Move)
+
+	// Note: The shipmentTraits have not been scrubbed of Move customizations. It will throw an error if any move specific ones are included.
 	BuildMTOShipmentWithMove(&move, db, shipmentCustoms, shipmentTraits)
 
 	return move

@@ -43,6 +43,7 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primeoperations.MymoveAP
 	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
 	moveWeights := move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
 	uploadCreator := upload.NewUploadCreator(handlerConfig.FileStorer())
+	serviceItemUpdater := mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter, shipmentFetcher, addressCreator)
 
 	paymentRequestRecalculator := paymentrequest.NewPaymentRequestRecalculator(
 		paymentrequest.NewPaymentRequestCreator(
@@ -78,7 +79,7 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primeoperations.MymoveAP
 
 	primeAPI.MtoServiceItemUpdateMTOServiceItemHandler = UpdateMTOServiceItemHandler{
 		handlerConfig,
-		mtoserviceitem.NewMTOServiceItemUpdater(builder, moveRouter, shipmentFetcher, addressCreator),
+		serviceItemUpdater,
 	}
 
 	primeAPI.MtoServiceItemCreateServiceRequestDocumentUploadHandler = CreateServiceRequestDocumentUploadHandler{
@@ -180,7 +181,7 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primeoperations.MymoveAP
 
 	primeAPI.SitAddressUpdateCreateSITAddressUpdateRequestHandler = CreateSITAddressUpdateRequestHandler{
 		handlerConfig,
-		sitaddressupdate.NewSITAddressUpdateRequestCreator(handlerConfig.HHGPlanner(), addressCreator, moveRouter),
+		sitaddressupdate.NewSITAddressUpdateRequestCreator(handlerConfig.HHGPlanner(), addressCreator, serviceItemUpdater, moveRouter),
 	}
 	return primeAPI
 }
