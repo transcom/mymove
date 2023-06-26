@@ -38,12 +38,14 @@ createNonSITAddressUpdateRequest
 This endpoint is used so the Prime can request an **update** for the destination address on an MTO Shipment for non SIT.
 Address can update automatically unless this changes:
 
-	-the service area
-	-mileage bracket for direct delivery
-	-mileage bracket where there is a Zip3 resulting in Domestic Short Haul (DSH) changing from Domestic Short Haul (DSH) to Domestic Line Haul (DLH) or vice versa.
-	For those, changes will require TOO approval.
+  - the service area
 
-	**Limitations:**
+  - mileage bracket for direct delivery
+
+  - mileage bracket where there is a Zip3 resulting in Domestic Short Haul (DSH) changing from Domestic Short Haul (DSH) to Domestic Line Haul (DLH) or vice versa.
+    For those, changes will require TOO approval.
+
+    **Limitations:**
 
 The update can be requested for APPROVED non SIT items only.
 Only ONE request is allowed per approved non SIT item.
