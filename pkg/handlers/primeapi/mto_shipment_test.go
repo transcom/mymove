@@ -7,6 +7,8 @@ import (
 	"time"
 
 	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/swag"
+	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
@@ -550,6 +552,150 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		suite.Contains(*typedResponse.Payload.Detail, "MTOServiceItem modelType() not allowed")
 	})
+}
+
+func (suite *HandlerSuite) TestCreateNonSITAddressUpdateRequestHandler() {
+	req := httptest.NewRequest("POST", "/mto-shipments/{mtoShipmentID}/shipment-address-updates", nil)
+
+	makeSubtestData := func() mtoshipmentops.CreateNonSITAddressUpdateRequestParams {
+		contractorRemark := "This is a contractor remark"
+		addressID := strfmt.UUID(uuid.Must(uuid.NewV4()).String())
+		body := primemessages.CreateNonSITAddressUpdateRequest{
+			AddressID:         &addressID,
+			ContractorRemarks: &contractorRemark,
+			NewAddress: &primemessages.Address{
+				City:           swag.String("Beverly Hills"),
+				PostalCode:     swag.String("90210"),
+				State:          swag.String("CA"),
+				StreetAddress1: swag.String("1234 N. 1st Street"),
+			},
+		}
+
+		params := mtoshipmentops.CreateNonSITAddressUpdateRequestParams{
+			HTTPRequest: req,
+			Body:        &body,
+		}
+
+		return params
+
+	}
+	suite.Run("POST failure - 422 Unprocessable Entity Error", func() {
+		subtestData := makeSubtestData()
+		mockCreator := mocks.ShipmentAddressUpdateRequester{}
+		handler := CreateNonSITAddressUpdateRequestHandler{
+			suite.HandlerConfig(),
+			&mockCreator,
+		}
+		// InvalidInputError should generate an UnprocessableEntity response error
+		// Need verrs incorporated to satisfy swagger validation
+		verrs := validate.NewErrors()
+		verrs.Add("some key", "some value")
+		err := apperror.NewInvalidInputError(uuid.Nil, nil, verrs, "unable to create ShipmentAddressUpdate")
+
+		mockCreator.On("RequestShipmentDeliveryAddressUpdate",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("uuid.UUID"),
+			mock.AnythingOfType("models.Address"),
+			mock.AnythingOfType("string"),
+		).Return(nil, err)
+
+		// Validate incoming payload
+		suite.NoError(subtestData.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(subtestData)
+		suite.IsType(&mtoshipmentops.CreateNonSITAddressUpdateRequestUnprocessableEntity{}, response)
+		errResponse := response.(*mtoshipmentops.CreateNonSITAddressUpdateRequestUnprocessableEntity)
+
+		// Validate outgoing payload
+		suite.NoError(errResponse.Payload.Validate(strfmt.Default))
+	})
+
+	suite.Run("POST failure - 409 Request conflict reponse Error", func() {
+		subtestData := makeSubtestData()
+		mockCreator := mocks.ShipmentAddressUpdateRequester{}
+		handler := CreateNonSITAddressUpdateRequestHandler{
+			suite.HandlerConfig(),
+			&mockCreator,
+		}
+		// NewConflictError should generate a RequestConflict response error
+		err := apperror.NewConflictError(uuid.Nil, "unable to create ShipmentAddressUpdate")
+
+		mockCreator.On("RequestShipmentDeliveryAddressUpdate",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("uuid.UUID"),
+			mock.AnythingOfType("models.Address"),
+			mock.AnythingOfType("string"),
+		).Return(nil, err)
+
+		// Validate incoming payload
+		suite.NoError(subtestData.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(subtestData)
+		suite.IsType(&mtoshipmentops.CreateNonSITAddressUpdateRequestConflict{}, response)
+		errResponse := response.(*mtoshipmentops.CreateNonSITAddressUpdateRequestConflict)
+
+		// Validate outgoing payload
+		suite.NoError(errResponse.Payload.Validate(strfmt.Default))
+	})
+
+	suite.Run("POST failure - 404 Not Found response error", func() {
+
+		subtestData := makeSubtestData()
+		mockCreator := mocks.ShipmentAddressUpdateRequester{}
+		handler := CreateNonSITAddressUpdateRequestHandler{
+			suite.HandlerConfig(),
+			&mockCreator,
+		}
+		// NewNotFoundError should generate a RequestNotFound response error
+		err := apperror.NewNotFoundError(uuid.Nil, "unable to create ShipmentAddressUpdate")
+
+		mockCreator.On("RequestShipmentDeliveryAddressUpdate",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("uuid.UUID"),
+			mock.AnythingOfType("models.Address"),
+			mock.AnythingOfType("string"),
+		).Return(nil, err)
+
+		// Validate incoming payload
+		suite.NoError(subtestData.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(subtestData)
+		suite.IsType(&mtoshipmentops.CreateNonSITAddressUpdateRequestNotFound{}, response)
+		errResponse := response.(*mtoshipmentops.CreateNonSITAddressUpdateRequestNotFound)
+
+		// Validate outgoing payload
+		suite.NoError(errResponse.Payload.Validate(strfmt.Default))
+	})
+
+	suite.Run("500 server error", func() {
+
+		subtestData := makeSubtestData()
+		mockCreator := mocks.ShipmentAddressUpdateRequester{}
+		handler := CreateNonSITAddressUpdateRequestHandler{
+			suite.HandlerConfig(),
+			&mockCreator,
+		}
+		// NewQueryError should generate an InternalServerError response error
+		err := apperror.NewQueryError("", nil, "unable to reach database")
+
+		mockCreator.On("RequestShipmentDeliveryAddressUpdate",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("uuid.UUID"),
+			mock.AnythingOfType("models.Address"),
+			mock.AnythingOfType("string"),
+		).Return(nil, err)
+
+		// Validate incoming payload
+		suite.NoError(subtestData.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(subtestData)
+		suite.IsType(&mtoshipmentops.CreateNonSITAddressUpdateRequestInternalServerError{}, response)
+		errResponse := response.(*mtoshipmentops.CreateNonSITAddressUpdateRequestInternalServerError)
+
+		// Validate outgoing payload
+		suite.NoError(errResponse.Payload.Validate(strfmt.Default))
+	})
+
 }
 
 // ClearNonUpdateFields clears out the MTOShipment payload fields that CANNOT be sent in for a successful update

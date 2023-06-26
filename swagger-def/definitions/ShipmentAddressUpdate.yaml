@@ -1,0 +1,47 @@
+description: A postal address
+type: object
+properties:
+  id:
+    type: string
+    format: uuid
+    example: c56a4180-65aa-42ec-a945-5fd21dec0538
+    readOnly: true
+  contractorRemarks:
+    type: string
+    example: 'This is a contractor remark'
+    title: Contractor Remarks
+    readOnly: true
+  officeRemarks:
+    type: string
+    example: 'This is an office remark'
+    title: Office Remarks
+    x-nullable: true
+  status:
+    type: string
+    title: Status
+    readOnly: true
+    x-display-value:
+      REQUESTED: REQUESTED
+      REJECTED: REJECTED
+      APPROVED: APPROVED
+    enum:
+      - REQUESTED
+      - REJECTED
+      - APPROVED
+  shipmentID:
+    type: string
+    format: uuid
+    example: c56a4180-65aa-42ec-a945-5fd21dec0538
+    readOnly: true
+  originalAddress:
+    $ref: 'Address.yaml'
+  newAddress:
+    $ref: 'Address.yaml'
+required:
+  - id
+  - status
+  - shipmentID
+  - originalAddress
+  - newAddress
+  - contractorRemarks
+
