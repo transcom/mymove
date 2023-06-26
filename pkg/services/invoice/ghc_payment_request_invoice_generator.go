@@ -240,6 +240,10 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(appCtx appcontext.AppContext
 		}
 	}
 
+	if moveTaskOrder.Orders.OriginDutyLocationGBLOC == nil {
+		return ediinvoice.Invoice858C{}, apperror.NewInvalidInputError(moveTaskOrder.OrdersID, fmt.Errorf("origin duty location GBLOC value is missing"), nil, "origin duty location GBLOC is required")
+	}
+
 	// Add buyer and seller organization names
 	err = g.createBuyerAndSellerOrganizationNamesSegments(appCtx, paymentRequest.ID, moveTaskOrder.Orders, &edi858.Header)
 	if err != nil {
