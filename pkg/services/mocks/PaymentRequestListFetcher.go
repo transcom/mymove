@@ -51,25 +51,25 @@ func (_m *PaymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.A
 	return r0, r1, r2
 }
 
-// FetchPaymentRequestListByMove provides a mock function with given fields: appCtx, officeUserID, locator
-func (_m *PaymentRequestListFetcher) FetchPaymentRequestListByMove(appCtx appcontext.AppContext, officeUserID uuid.UUID, locator string) (*models.PaymentRequests, error) {
-	ret := _m.Called(appCtx, officeUserID, locator)
+// FetchPaymentRequestListByMove provides a mock function with given fields: appCtx, locator
+func (_m *PaymentRequestListFetcher) FetchPaymentRequestListByMove(appCtx appcontext.AppContext, locator string) (*models.PaymentRequests, error) {
+	ret := _m.Called(appCtx, locator)
 
 	var r0 *models.PaymentRequests
 	var r1 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, string) (*models.PaymentRequests, error)); ok {
-		return rf(appCtx, officeUserID, locator)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string) (*models.PaymentRequests, error)); ok {
+		return rf(appCtx, locator)
 	}
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, string) *models.PaymentRequests); ok {
-		r0 = rf(appCtx, officeUserID, locator)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string) *models.PaymentRequests); ok {
+		r0 = rf(appCtx, locator)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.PaymentRequests)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, string) error); ok {
-		r1 = rf(appCtx, officeUserID, locator)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, string) error); ok {
+		r1 = rf(appCtx, locator)
 	} else {
 		r1 = ret.Error(1)
 	}

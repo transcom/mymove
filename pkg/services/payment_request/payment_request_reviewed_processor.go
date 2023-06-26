@@ -91,6 +91,10 @@ func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(appCtx appcon
 			return fmt.Errorf("failure retrieving payment request with ID: %s. Err: %w", pr.ID, err)
 		}
 
+		appCtx.Logger().Info("processing locked payment request",
+			zap.String("paymentRequestID", pr.ID.String()),
+			zap.String("moveTaskOrderID", pr.MoveTaskOrderID.String()))
+
 		// generate EDI file
 		var edi858c ediinvoice.Invoice858C
 		edi858c, err = p.ediGenerator.Generate(txnAppCtx, lockedPR, false)
@@ -218,6 +222,7 @@ func (p *paymentRequestReviewedProcessor) ProcessReviewedPaymentRequest(appCtx a
 		return
 	}
 
+	logger.Info("preparing to process reviewed payment requests for send to Syncada", zap.Int("reviewedPaymentRequestCount", len(reviewedPaymentRequests)))
 	// Send all reviewed payment request to Syncada
 	for _, pr := range reviewedPaymentRequests {
 		err := p.ProcessAndLockReviewedPR(appCtx, pr)
