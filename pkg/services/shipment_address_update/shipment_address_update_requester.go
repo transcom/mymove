@@ -38,6 +38,29 @@ func NewShipmentAddressUpdateRequester(planner route.Planner, addressCreator ser
 // need old and new dest zips (destination service area?)
 // i guess this changes unpack price and stuff like that, but not linehaul price?
 func (f *shipmentAddressUpdateRequester) doesDeliveryAddressUpdateChangeServiceArea(appCtx appcontext.AppContext, contractID uuid.UUID, originalDeliveryAddress models.Address, newDeliveryAddress models.Address) (bool, error) {
+
+	var existingServiceArea models.ReZip3
+	var actualServiceArea models.ReZip3
+
+	var originalZip models.ReZip3
+	var destinationZip models.ReZip3
+
+	originalZip.Zip3 = originalDeliveryAddress.PostalCode[0:2]
+	destinationZip.Zip3 = newDeliveryAddress.PostalCode[0:2]
+
+	err := appCtx.DB().Where("zip3 = ?", originalZip.Zip3).First(&existingServiceArea)
+	if err != nil {
+		return false, err
+	}
+
+	err = appCtx.DB().Where("zip3 = ?", destinationZip.Zip3).First(&actualServiceArea)
+	if err != nil {
+		return false, err
+	}
+
+	if existingServiceArea.DomesticServiceAreaID == actualServiceArea.DomesticServiceAreaID {
+		return true, nil
+	}
 	return false, nil
 }
 
@@ -47,11 +70,57 @@ func (f *shipmentAddressUpdateRequester) doesDeliveryAddressUpdateChangeMileageB
 	// or look up the linehaul price record for both and compare miles_upper and miles_lower
 	//   this needs weight and isPeak as well.
 	//   unless we can assume mileage brackets don't change within a contract, we could maybe aggregate and skip?
-	return false, nil
+
+	var milesUpper = [9]int{250, 500, 1000, 1500, 2000, 2500, 3000, 3500, 4000}
+	var milesLower = [9]int{0, 251, 501, 1001, 1501, 2001, 2501, 3001, 3501}
+
+	perviousDistance, err := f.planner.ZipTransitDistance(appCtx, originalPickupAddress.PostalCode, originalDeliveryAddress.PostalCode)
+	if err != nil {
+		return false, nil
+	}
+	newDistance, err := f.planner.ZipTransitDistance(appCtx, originalPickupAddress.PostalCode, newDeliveryAddress.PostalCode)
+	if err != nil {
+		return false, nil
+	}
+
+	if perviousDistance == newDistance {
+		return false, nil
+	}
+
+	for index, lowerLimit := range milesLower {
+
+		upperLimit := milesUpper[index]
+
+		if perviousDistance >= lowerLimit && perviousDistance <= upperLimit {
+
+			if newDistance >= lowerLimit && newDistance <= upperLimit {
+				return true, nil
+			}
+			return false, nil
+		}
+	}
+
+	if newDistance >= 4001 {
+		return false, nil
+	}
+	return true, nil
 }
 
 // doesDeliveryAddressUpdateChangeShipmentPricingType checks if an address update would change a move from shorthaul to linehaul pricing or vice versa
 func (f *shipmentAddressUpdateRequester) doesDeliveryAddressUpdateChangeShipmentPricingType(appCtx appcontext.AppContext, originalPickupAddress models.Address, originalDeliveryAddress models.Address, newDeliveryAddress models.Address) (bool, error) {
+
+	var originalZip models.ReZip3
+	var originalDestinationZip models.ReZip3
+	var newDestinationZip models.ReZip3
+
+	originalZip.Zip3 = originalPickupAddress.PostalCode[0:2]
+	originalDestinationZip.Zip3 = originalDeliveryAddress.PostalCode[0:2]
+	newDestinationZip.Zip3 = newDeliveryAddress.PostalCode[0:2]
+
+	if originalZip.Zip3 == originalDestinationZip.Zip3 && originalDestinationZip.Zip3 == newDestinationZip.Zip3 {
+		return true, nil
+	}
+
 	return false, nil
 }
 
