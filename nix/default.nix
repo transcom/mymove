@@ -33,10 +33,10 @@ buildEnv {
     (import
       (builtins.fetchGit {
         # Descriptive name to make the store path easier to identify
-        name = "go-1.20.3";
+        name = "go-1.20.5";
         url = "https://github.com/NixOS/nixpkgs/";
         ref = "refs/heads/nixpkgs-unstable";
-        rev = "96ba1c52e54e74c3197f4d43026b3f3d92e83ff9";
+        rev = "3d8a93602bc54ece7a4e689d9aea1a574e2bbc24";
       })
       { }).go_1_20
 
