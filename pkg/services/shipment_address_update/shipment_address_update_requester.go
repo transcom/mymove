@@ -7,6 +7,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
 	serviceparamvaluelookups "github.com/transcom/mymove/pkg/payment_request/service_param_value_lookups"
 	"github.com/transcom/mymove/pkg/route"
@@ -70,16 +71,16 @@ func (f *shipmentAddressUpdateRequester) doesDeliveryAddressUpdateChangeMileageB
 	var milesUpper = [9]int{250, 500, 1000, 1500, 2000, 2500, 3000, 3500, 4000}
 	var milesLower = [9]int{0, 251, 501, 1001, 1501, 2001, 2501, 3001, 3501}
 
-	perviousDistance, err := f.planner.ZipTransitDistance(appCtx, originalPickupAddress.PostalCode, originalDeliveryAddress.PostalCode)
+	previousDistance, err := f.planner.ZipTransitDistance(appCtx, originalPickupAddress.PostalCode, originalDeliveryAddress.PostalCode)
 	if err != nil {
-		return false, nil
+		return false, err
 	}
 	newDistance, err := f.planner.ZipTransitDistance(appCtx, originalPickupAddress.PostalCode, newDeliveryAddress.PostalCode)
 	if err != nil {
-		return false, nil
+		return false, err
 	}
 
-	if perviousDistance == newDistance {
+	if previousDistance == newDistance {
 		return false, nil
 	}
 
@@ -87,7 +88,7 @@ func (f *shipmentAddressUpdateRequester) doesDeliveryAddressUpdateChangeMileageB
 
 		upperLimit := milesUpper[index]
 
-		if perviousDistance >= lowerLimit && perviousDistance <= upperLimit {
+		if previousDistance >= lowerLimit && previousDistance <= upperLimit {
 
 			if newDistance >= lowerLimit && newDistance <= upperLimit {
 				return false, nil
@@ -109,26 +110,30 @@ func (f *shipmentAddressUpdateRequester) doesDeliveryAddressUpdateChangeShipment
 	var originalDestinationZip models.ReZip3
 	var newDestinationZip models.ReZip3
 
-	originalZip.Zip3 = originalPickupAddress.PostalCode[0:2]
-	originalDestinationZip.Zip3 = originalDeliveryAddress.PostalCode[0:2]
-	newDestinationZip.Zip3 = newDeliveryAddress.PostalCode[0:2]
+	originalZip.Zip3 = originalPickupAddress.PostalCode[0:3]
+	originalDestinationZip.Zip3 = originalDeliveryAddress.PostalCode[0:3]
+	newDestinationZip.Zip3 = newDeliveryAddress.PostalCode[0:3]
 
-	isoriginalrouteshorthaul := originalZip.Zip3 == originalDestinationZip.Zip3
+	isOriginalRouteShorthaul := originalZip.Zip3 == originalDestinationZip.Zip3
 
-	isnewrouteshorthaul := originalDestinationZip.Zip3 == newDestinationZip.Zip3
+	isNewRouteShorthaul := originalZip.Zip3 == newDestinationZip.Zip3
 
-	if isoriginalrouteshorthaul == isnewrouteshorthaul {
+	if isOriginalRouteShorthaul == isNewRouteShorthaul {
 		return false, nil
 	}
 	return true, nil
 }
 
 // RequestShipmentDeliveryAddressUpdate is used to update the destination address of an HHG shipment without SIT after it has been approved by the TOO. If this update could result in excess cost for the customer, this service requires the change to go through TOO approval.
-func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(appCtx appcontext.AppContext, shipmentID uuid.UUID, newAddress models.Address, contractorRemarks string, _ string) (*models.ShipmentAddressUpdate, error) {
+func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(appCtx appcontext.AppContext, shipmentID uuid.UUID, newAddress models.Address, contractorRemarks string, eTag string) (*models.ShipmentAddressUpdate, error) {
 	var addressUpdate models.ShipmentAddressUpdate
 	var shipment models.MTOShipment
 	err := appCtx.DB().EagerPreload("MoveTaskOrder", "PickupAddress", "MTOServiceItems", "MTOServiceItems.ReService", "DestinationAddress").Find(&shipment, shipmentID)
 
+	if eTag != etag.GenerateEtag(shipment.UpdatedAt) {
+		return nil, apperror.NewPreconditionFailedError(shipmentID, nil)
+
+	}
 	if shipment.ShipmentType != models.MTOShipmentTypeHHG {
 		return nil, apperror.NewUnprocessableEntityError("destination address update requests can only be created for HHG shipments")
 	}
