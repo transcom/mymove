@@ -771,6 +771,23 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// how we might allow only certain users to log into the
+	// production environment when we are testing moves
+	//
+	// const loginEnabledFlag = "loginEnabled"
+	// flag, err := h.FeatureFlagFetcher().GetFlagForUser(r.Context(), appCtx, loginEnabledFlag, map[string]string{})
+	// if err != nil {
+	// 	// in this case, we will fail open in case of feature flag
+	// 	// failure. The user has already been authenticated by login.gov
+	// 	appCtx.Logger().Warn("Feature flag failure in auth handler", zap.Error(err))
+	// } else {
+	// 	if !flag.IsEnabledVariant() {
+	// 		appCtx.Logger().Info("User does not have login flag enabled", zap.String("flag", loginEnabledFlag))
+	// 		invalidPermissionsResponse(appCtx, h.HandlerConfig, h.Context, w, r)
+	// 		return
+	// 	}
+	// }
+
 	appCtx.Session().IDToken = idToken
 	appCtx.Session().Email = openIDUser.Email
 
