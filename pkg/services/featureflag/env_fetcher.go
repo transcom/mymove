@@ -32,9 +32,8 @@ func (ef *EnvFetcher) GetFlagForUser(ctx context.Context, appCtx appcontext.AppC
 		// if getting a flag for a user, a session must exist
 		return featureFlag, errors.New("Nil session when calling GetFlagForUser")
 	}
-	// use email for entityID as that makes the feature flags easier
-	// to reason about
-	entityID := appCtx.Session().Email
+	entityID := appCtx.Session().UserID.String()
+	flagContext[email] = appCtx.Session().Email
 	return ef.GetFlag(ctx, appCtx.Logger(), entityID, key, flagContext)
 }
 

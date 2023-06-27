@@ -24,6 +24,7 @@ const (
 	isAdminUser     = "isAdminUser"
 	isOfficeUser    = "isOfficeUser"
 	isServiceMember = "isServiceMember"
+	email           = "email"
 
 	// use a convention in flipt where the name of the variant is
 	// enabled or disabled for booleans
@@ -70,12 +71,11 @@ func (ff *FliptFetcher) GetFlagForUser(ctx context.Context, appCtx appcontext.Ap
 		return featureFlag, errors.New("Nil session when calling GetFlagForUser")
 	}
 
-	// use email for entityID as that makes the feature flags easier
-	// to reason about
-	entityID := appCtx.Session().Email
+	entityID := appCtx.Session().UserID.String()
 
 	// automatically set the context
 	featureFlagContext := flagContext
+	featureFlagContext[email] = appCtx.Session().Email
 	featureFlagContext[applicationName] = string(appCtx.Session().ApplicationName)
 
 	featureFlagContext[isAdminUser] = strconv.FormatBool(appCtx.Session().IsAdminUser())
@@ -109,18 +109,22 @@ func (ff *FliptFetcher) IsEnabledForUser(ctx context.Context, appCtx appcontext.
 
 func (ff *FliptFetcher) GetFlag(ctx context.Context, logger *zap.Logger, entityID string, key string, flagContext map[string]string) (services.FeatureFlag, error) {
 
-	featureFlag := services.FeatureFlag{}
-	result, err := ff.client.Flipt().Evaluate(ctx, &flipt.EvaluationRequest{
+	// defaults in case the flag is not found
+	featureFlag := services.FeatureFlag{
+		Entity:    entityID,
+		Key:       key,
+		Enabled:   false,
+		Namespace: ff.config.Namespace,
+	}
+	req := &flipt.EvaluationRequest{
 		RequestId:    uuid.Must(uuid.NewV4()).String(),
 		NamespaceKey: ff.config.Namespace,
 		FlagKey:      key,
 		EntityId:     entityID,
 		Context:      flagContext,
-	})
-	featureFlag.Entity = entityID
-	featureFlag.Key = key
-	featureFlag.Enabled = false
-	featureFlag.Namespace = ff.config.Namespace
+	}
+	logger.Debug("flipt evaluation request", zap.Any("req", req))
+	result, err := ff.client.Flipt().Evaluate(ctx, req)
 
 	if err != nil {
 		logger.Warn("Flipt error", zap.Error(err))
