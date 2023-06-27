@@ -31,7 +31,7 @@ func awsXrayIDFromBytes(data []byte) (string, error) {
 const traceHeader = "X-MILMOVE-TRACE-ID"
 
 // Trace returns a trace middleware that injects a unique trace id into every request.
-func Trace(globalLogger *zap.Logger) func(next http.Handler) http.Handler {
+func Trace(_ *zap.Logger) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			logger := logging.FromContext(r.Context())

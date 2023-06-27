@@ -2,7 +2,7 @@ default_language_version:
   golang: system
 
 # Specifying minimum pre-commit version to allow for use of default language with golang envs.
-minimum_pre_commit_version: 3.2.0
+minimum_pre_commit_version: 3.3.2
 
 repos:
   - repo: local
@@ -57,7 +57,7 @@ repos:
         exclude: ^public/swagger-ui/
 
   - repo: https://github.com/golangci/golangci-lint
-    rev: v1.51.2
+    rev: v1.53.3
     hooks:
       - id: golangci-lint
         entry: bash -c 'exec golangci-lint run ${GOLANGCI_LINT_VERBOSE} -j=${GOLANGCI_LINT_CONCURRENCY:-1}' # custom bash so we can override concurrency for faster dev runs
@@ -81,7 +81,7 @@ repos:
         language: script
 
   - repo: https://github.com/igorshubovych/markdownlint-cli
-    rev: v0.33.0
+    rev: v0.35.0
     hooks:
       - id: markdownlint
         entry: markdownlint --ignore .github/*.md

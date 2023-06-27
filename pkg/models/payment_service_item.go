@@ -81,7 +81,7 @@ func (p PaymentServiceItem) TableName() string {
 type PaymentServiceItems []PaymentServiceItem
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-func (p *PaymentServiceItem) Validate(tx *pop.Connection) (*validate.Errors, error) {
+func (p *PaymentServiceItem) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.UUIDIsPresent{Field: p.PaymentRequestID, Name: "PaymentRequestID"},
 		&validators.UUIDIsPresent{Field: p.MTOServiceItemID, Name: "MTOServiceItemID"},

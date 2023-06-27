@@ -14,7 +14,7 @@ type ZipSITOriginHHGActualAddressLookup struct {
 	ServiceItem models.MTOServiceItem
 }
 
-func (z ZipSITOriginHHGActualAddressLookup) lookup(appCtx appcontext.AppContext, keyData *ServiceItemParamKeyData) (string, error) {
+func (z ZipSITOriginHHGActualAddressLookup) lookup(appCtx appcontext.AppContext, _ *ServiceItemParamKeyData) (string, error) {
 	if z.ServiceItem.SITOriginHHGActualAddressID != nil && *z.ServiceItem.SITOriginHHGActualAddressID != uuid.Nil {
 		err := appCtx.DB().Load(&z.ServiceItem, "SITOriginHHGActualAddress")
 		if err != nil {

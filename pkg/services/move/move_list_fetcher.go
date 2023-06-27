@@ -18,15 +18,15 @@ type moveListFetcher struct {
 // FetchMoveList uses the passed query builder to fetch a list of moves
 func (o *moveListFetcher) FetchMoveList(appCtx appcontext.AppContext, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) (models.Moves, error) {
 	var moves models.Moves
-	error := o.builder.FetchMany(appCtx, &moves, filters, associations, pagination, ordering)
-	return moves, error
+	err := o.builder.FetchMany(appCtx, &moves, filters, associations, pagination, ordering)
+	return moves, err
 }
 
 // FetchMoveCount uses the passed query builder to count moves
 func (o *moveListFetcher) FetchMoveCount(appCtx appcontext.AppContext, filters []services.QueryFilter) (int, error) {
 	var moves models.Moves
-	count, error := o.builder.Count(appCtx, &moves, filters)
-	return count, error
+	count, err := o.builder.Count(appCtx, &moves, filters)
+	return count, err
 }
 
 // NewMoveListFetcher returns an implementation of OfficeUserListFetcher

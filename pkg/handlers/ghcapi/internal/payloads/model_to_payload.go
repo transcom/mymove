@@ -699,7 +699,7 @@ func SITStatuses(shipmentSITStatuses map[string]services.SITStatus, storer stora
 }
 
 // PPMShipment payload
-func PPMShipment(storer storage.FileStorer, ppmShipment *models.PPMShipment) *ghcmessages.PPMShipment {
+func PPMShipment(_ storage.FileStorer, ppmShipment *models.PPMShipment) *ghcmessages.PPMShipment {
 	if ppmShipment == nil || ppmShipment.ID.IsNil() {
 		return nil
 	}
@@ -1611,7 +1611,7 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests) *ghcmessages.
 }
 
 // Reweigh payload
-func Reweigh(reweigh *models.Reweigh, sitStatusPayload *ghcmessages.SITStatus) *ghcmessages.Reweigh {
+func Reweigh(reweigh *models.Reweigh, _ *ghcmessages.SITStatus) *ghcmessages.Reweigh {
 	if reweigh == nil || reweigh.ID == uuid.Nil {
 		return nil
 	}

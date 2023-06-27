@@ -18,15 +18,15 @@ type adminUserListFetcher struct {
 // FetchAdminUserList uses the passed query builder to fetch a list of office users
 func (o *adminUserListFetcher) FetchAdminUserList(appCtx appcontext.AppContext, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) (models.AdminUsers, error) {
 	var adminUsers models.AdminUsers
-	error := o.builder.FetchMany(appCtx, &adminUsers, filters, associations, pagination, ordering)
-	return adminUsers, error
+	err := o.builder.FetchMany(appCtx, &adminUsers, filters, associations, pagination, ordering)
+	return adminUsers, err
 }
 
 // FetchAdminUserList uses the passed query builder to fetch a list of office users
 func (o *adminUserListFetcher) FetchAdminUserCount(appCtx appcontext.AppContext, filters []services.QueryFilter) (int, error) {
 	var adminUsers models.AdminUsers
-	count, error := o.builder.Count(appCtx, &adminUsers, filters)
-	return count, error
+	count, err := o.builder.Count(appCtx, &adminUsers, filters)
+	return count, err
 }
 
 // NewAdminUserListFetcher returns an implementation of AdminUserListFetcher

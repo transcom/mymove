@@ -195,11 +195,7 @@ func (f *excessWeightRiskManager) updateMaxBillableWeightTIORemarks(appCtx appco
 func (f *excessWeightRiskManager) updateAuthorizedWeight(appCtx appcontext.AppContext, order models.Order, weight *int) error {
 	order.Entitlement.DBAuthorizedWeight = weight
 	verrs, err := appCtx.DB().ValidateAndUpdate(order.Entitlement)
-	if e := f.handleError(order.ID, verrs, err); e != nil {
-		return e
-	}
-
-	return nil
+	return f.handleError(order.ID, verrs, err)
 }
 
 func (f *excessWeightRiskManager) acknowledgeExcessWeight(appCtx appcontext.AppContext, move models.Move) (*models.Move, error) {

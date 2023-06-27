@@ -73,7 +73,7 @@ func (r EvaluationReport) TableName() string {
 type EvaluationReports []EvaluationReport
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-func (r *EvaluationReport) Validate(tx *pop.Connection) (*validate.Errors, error) {
+func (r *EvaluationReport) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	var vs []validate.Validator
 	if r.ShipmentID != nil {
 		vs = append(vs, &validators.StringsMatch{Name: "Type", Field: string(r.Type), Field2: string(EvaluationReportTypeShipment)})

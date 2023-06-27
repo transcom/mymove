@@ -45,7 +45,7 @@ func (wS WebhookSubscription) TableName() string {
 type WebhookSubscriptions []WebhookSubscription
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-func (wS *WebhookSubscription) Validate(tx *pop.Connection) (*validate.Errors, error) {
+func (wS *WebhookSubscription) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.UUIDIsPresent{Field: wS.SubscriberID, Name: "SubscriberID"},
 		&validators.StringIsPresent{Field: wS.EventKey, Name: "EventKey"},

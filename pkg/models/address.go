@@ -61,7 +61,7 @@ func FetchAddressByID(dbConnection *pop.Connection, id *uuid.UUID) *Address {
 }
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-func (a *Address) Validate(tx *pop.Connection) (*validate.Errors, error) {
+func (a *Address) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.StringIsPresent{Field: a.StreetAddress1, Name: "StreetAddress1"},
 		&validators.StringIsPresent{Field: a.City, Name: "City"},

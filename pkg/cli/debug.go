@@ -16,6 +16,6 @@ func InitDebugFlags(flag *pflag.FlagSet) {
 }
 
 // CheckDebugFlags validates command line flags
-func CheckDebugFlags(v *viper.Viper) error {
+func CheckDebugFlags(_ *viper.Viper) error {
 	return nil
 }

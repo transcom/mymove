@@ -29,7 +29,7 @@ func (s ServiceRequestDocument) TableName() string {
 type ServiceRequestDocuments []ServiceRequestDocument
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-func (s *ServiceRequestDocument) Validate(tx *pop.Connection) (*validate.Errors, error) {
+func (s *ServiceRequestDocument) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.UUIDIsPresent{Field: s.MTOServiceItemID, Name: "MTOServiceItemID"},
 	), nil

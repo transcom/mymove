@@ -24,7 +24,7 @@ func NewEDI824Processor() services.SyncadaFileProcessor {
 }
 
 // ProcessFile parses an EDI 824 response and updates the payment request status
-func (e *edi824Processor) ProcessFile(appCtx appcontext.AppContext, path string, stringEDI824 string) error {
+func (e *edi824Processor) ProcessFile(appCtx appcontext.AppContext, _ string, stringEDI824 string) error {
 	edi824 := ediResponse824.EDI{}
 	err := edi824.Parse(stringEDI824)
 	if err != nil {

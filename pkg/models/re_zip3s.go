@@ -36,7 +36,7 @@ func (r ReZip3) TableName() string {
 type ReZip3s []ReZip3
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-func (r *ReZip3) Validate(tx *pop.Connection) (*validate.Errors, error) {
+func (r *ReZip3) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.StringLengthInRange{Field: r.Zip3, Name: "Zip3", Min: 3, Max: 3},
 		&validators.UUIDIsPresent{Field: r.ContractID, Name: "ContractID"},
