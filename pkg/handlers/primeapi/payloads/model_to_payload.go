@@ -840,7 +840,7 @@ func SITAddressUpdate(sitAddressUpdate *models.SITAddressUpdate) *primemessages.
 
 // ShipmentAddressUpdate payload
 func ShipmentAddressUpdate(shipmentAddressUpdate *models.ShipmentAddressUpdate) *primemessages.ShipmentAddressUpdate {
-	if shipmentAddressUpdate == nil {
+	if shipmentAddressUpdate == nil || shipmentAddressUpdate.ID.IsNil() {
 		return nil
 	}
 
