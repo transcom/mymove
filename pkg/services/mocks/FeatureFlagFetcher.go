@@ -67,30 +67,6 @@ func (_m *FeatureFlagFetcher) GetFlagForUser(ctx context.Context, appCtx appcont
 	return r0, r1
 }
 
-// IsEnabledForUser provides a mock function with given fields: ctx, appCtx, key
-func (_m *FeatureFlagFetcher) IsEnabledForUser(ctx context.Context, appCtx appcontext.AppContext, key string) (bool, error) {
-	ret := _m.Called(ctx, appCtx, key)
-
-	var r0 bool
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, appcontext.AppContext, string) (bool, error)); ok {
-		return rf(ctx, appCtx, key)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, appcontext.AppContext, string) bool); ok {
-		r0 = rf(ctx, appCtx, key)
-	} else {
-		r0 = ret.Get(0).(bool)
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, appcontext.AppContext, string) error); ok {
-		r1 = rf(ctx, appCtx, key)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
 // NewFeatureFlagFetcher creates a new instance of FeatureFlagFetcher. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewFeatureFlagFetcher(t interface {

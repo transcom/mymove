@@ -17,6 +17,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/cli"
+	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
@@ -137,20 +138,7 @@ func (suite *FliptFetcherSuite) TestGetFlagForUserDisabledVariant() {
 	suite.Equal(fakeSession.UserID.String(), flag.Entity)
 	suite.Equal("", flag.Value)
 	suite.Equal(f.config.Namespace, flag.Namespace)
-}
-
-func (suite *FliptFetcherSuite) TestIsEnabledForUserDisabledVariant() {
-	f := suite.setupFliptFetcher("testdata/flipt_user_disabled_variant")
-	fakeSession := &auth.Session{
-		UserID:          uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001"),
-		Email:           "foo@example.com",
-		ApplicationName: auth.MilApp,
-	}
-	enabled, err := f.IsEnabledForUser(context.Background(),
-		suite.AppContextWithSessionForTest(fakeSession),
-		"disabled_variant")
-	suite.NoError(err)
-	suite.False(enabled)
+	suite.False(flag.IsEnabledVariant())
 }
 
 func (suite *FliptFetcherSuite) TestGetFlagForUserBooleanVariant() {
@@ -167,22 +155,9 @@ func (suite *FliptFetcherSuite) TestGetFlagForUserBooleanVariant() {
 	suite.Equal("boolean_variant", flag.Key)
 	suite.True(flag.Enabled)
 	suite.Equal(fakeSession.UserID.String(), flag.Entity)
-	suite.Equal(enabledVariant, flag.Value)
+	suite.Equal(services.FeatureFlagEnabledVariant, flag.Value)
 	suite.Equal(f.config.Namespace, flag.Namespace)
-}
-
-func (suite *FliptFetcherSuite) TestIsEnabledForUserBooleanVariant() {
-	f := suite.setupFliptFetcher("testdata/flipt_user_boolean_variant")
-	fakeSession := &auth.Session{
-		UserID:          uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001"),
-		Email:           "foo@example.com",
-		ApplicationName: auth.MilApp,
-	}
-	enabled, err := f.IsEnabledForUser(context.Background(),
-		suite.AppContextWithSessionForTest(fakeSession),
-		"boolean_variant")
-	suite.NoError(err)
-	suite.True(enabled)
+	suite.True(flag.IsEnabledVariant())
 }
 
 func (suite *FliptFetcherSuite) TestGetFlagForUserMultiVariant() {
@@ -201,6 +176,8 @@ func (suite *FliptFetcherSuite) TestGetFlagForUserMultiVariant() {
 	suite.Equal("one", flag.Value)
 	suite.Equal(fakeSession.UserID.String(), flag.Entity)
 	suite.Equal(f.config.Namespace, flag.Namespace)
+	suite.True(flag.IsVariant("one"))
+	suite.False(flag.IsVariant("two"))
 }
 
 func (suite *FliptFetcherSuite) TestGetFlagSystemMultiVariant() {
@@ -215,4 +192,6 @@ func (suite *FliptFetcherSuite) TestGetFlagSystemMultiVariant() {
 	suite.Equal("two", flag.Value)
 	suite.Equal("system", flag.Entity)
 	suite.Equal(f.config.Namespace, flag.Namespace)
+	suite.True(flag.IsVariant("two"))
+	suite.False(flag.IsVariant("one"))
 }

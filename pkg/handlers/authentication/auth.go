@@ -439,28 +439,10 @@ func (context Context) landingURL(session *auth.Session) string {
 	return fmt.Sprintf(context.callbackTemplate, session.Hostname)
 }
 
-// SetFeatureFlag sets a feature flag in the context
-func (context *Context) SetFeatureFlag(flag FeatureFlag) {
-	if context.featureFlags == nil {
-		context.featureFlags = make(map[string]bool)
-	}
-
-	context.featureFlags[flag.Name] = flag.Active
-}
-
-// GetFeatureFlag gets a feature flag from the context
-func (context *Context) GetFeatureFlag(flag string) bool {
-	if value, ok := context.featureFlags[flag]; ok {
-		return value
-	}
-	return false
-}
-
 // Context is the common handler type for auth handlers
 type Context struct {
 	loginGovProvider LoginGovProvider
 	callbackTemplate string
-	featureFlags     map[string]bool
 }
 
 // FeatureFlag holds the name of a feature flag and if it is enabled

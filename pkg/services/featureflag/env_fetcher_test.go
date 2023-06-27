@@ -8,6 +8,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/cli"
+	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
@@ -34,6 +35,7 @@ func (suite *EnvFetcherSuite) TestGetFlagForUserEnvMissing() {
 		"missing", map[string]string{})
 	suite.NoError(err)
 	suite.False(flag.Enabled)
+	suite.False(flag.IsEnabledVariant())
 }
 
 func (suite *EnvFetcherSuite) TestGetFlagForUserEnvDisabled() {
@@ -44,28 +46,45 @@ func (suite *EnvFetcherSuite) TestGetFlagForUserEnvDisabled() {
 		suite.AppContextWithSessionForTest(&auth.Session{Email: "foo@example.com"}),
 		"foo", map[string]string{})
 	suite.NoError(err)
-	suite.False(flag.Enabled)
+	suite.True(flag.Enabled)
+	suite.False(flag.IsEnabledVariant())
 }
 
 func (suite *EnvFetcherSuite) TestGetFlagForUserEnvEnabled() {
 	f, err := NewEnvFetcher(cli.FeatureFlagConfig{})
 	suite.NoError(err)
-	suite.T().Setenv("FEATURE_FLAG_FOO", "true")
+	suite.T().Setenv("FEATURE_FLAG_FOO", services.FeatureFlagEnabledVariant)
 	flag, err := f.GetFlagForUser(context.Background(),
 		suite.AppContextWithSessionForTest(&auth.Session{Email: "foo@example.com"}),
 		"foo", map[string]string{})
 	suite.NoError(err)
 	suite.True(flag.Enabled)
+	suite.True(flag.IsEnabledVariant())
 }
 
 func (suite *EnvFetcherSuite) TestGetFlagEnvEnabled() {
 	f, err := NewEnvFetcher(cli.FeatureFlagConfig{})
 	suite.NoError(err)
-	suite.T().Setenv("FEATURE_FLAG_FOO", "true")
+	suite.T().Setenv("FEATURE_FLAG_FOO", services.FeatureFlagEnabledVariant)
 	flag, err := f.GetFlag(context.Background(),
 		suite.Logger(),
 		"systemEntity",
 		"foo", map[string]string{})
 	suite.NoError(err)
 	suite.True(flag.Enabled)
+	suite.True(flag.IsEnabledVariant())
+}
+
+func (suite *EnvFetcherSuite) TestGetFlagEnvVariant() {
+	f, err := NewEnvFetcher(cli.FeatureFlagConfig{})
+	suite.NoError(err)
+	const myVariant = "myVariant"
+	suite.T().Setenv("FEATURE_FLAG_FOO", myVariant)
+	flag, err := f.GetFlag(context.Background(),
+		suite.Logger(),
+		"systemEntity",
+		"foo", map[string]string{})
+	suite.NoError(err)
+	suite.True(flag.Enabled)
+	suite.True(flag.IsVariant(myVariant))
 }
