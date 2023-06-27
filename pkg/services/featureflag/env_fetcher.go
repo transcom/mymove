@@ -8,6 +8,8 @@ import (
 	"strconv"
 	"strings"
 
+	"go.uber.org/zap"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/services"
@@ -33,7 +35,7 @@ func (ef *EnvFetcher) GetFlagForUser(ctx context.Context, appCtx appcontext.AppC
 	// use email for entityID as that makes the feature flags easier
 	// to reason about
 	entityID := appCtx.Session().Email
-	return ef.GetFlag(ctx, entityID, key, flagContext)
+	return ef.GetFlag(ctx, appCtx.Logger(), entityID, key, flagContext)
 }
 
 func (ef *EnvFetcher) IsEnabledForUser(ctx context.Context, appCtx appcontext.AppContext, key string) (bool, error) {
@@ -44,7 +46,7 @@ func (ef *EnvFetcher) IsEnabledForUser(ctx context.Context, appCtx appcontext.Ap
 	return flag.Enabled, nil
 }
 
-func (ef *EnvFetcher) GetFlag(_ context.Context, entityID string, key string, _ map[string]string) (services.FeatureFlag, error) {
+func (ef *EnvFetcher) GetFlag(_ context.Context, _ *zap.Logger, entityID string, key string, _ map[string]string) (services.FeatureFlag, error) {
 	featureFlag := services.FeatureFlag{}
 	re, err := regexp.Compile("[^a-zA-Z0-9]")
 	if err != nil {

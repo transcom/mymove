@@ -63,6 +63,7 @@ func (suite *EnvFetcherSuite) TestGetFlagEnvEnabled() {
 	suite.NoError(err)
 	suite.T().Setenv("FEATURE_FLAG_FOO", "true")
 	flag, err := f.GetFlag(context.Background(),
+		suite.Logger(),
 		"systemEntity",
 		"foo", map[string]string{})
 	suite.NoError(err)

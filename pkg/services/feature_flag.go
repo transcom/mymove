@@ -3,6 +3,8 @@ package services
 import (
 	"context"
 
+	"go.uber.org/zap"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 )
 
@@ -22,5 +24,5 @@ type FeatureFlag struct {
 type FeatureFlagFetcher interface {
 	GetFlagForUser(ctx context.Context, appCtx appcontext.AppContext, key string, flagContext map[string]string) (FeatureFlag, error)
 	IsEnabledForUser(ctx context.Context, appCtx appcontext.AppContext, key string) (bool, error)
-	GetFlag(ctx context.Context, entityID string, key string, flagContext map[string]string) (FeatureFlag, error)
+	GetFlag(ctx context.Context, logger *zap.Logger, entityID string, key string, flagContext map[string]string) (FeatureFlag, error)
 }

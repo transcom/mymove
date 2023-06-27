@@ -19,7 +19,7 @@ func InitFeatureFlags(flag *pflag.FlagSet) {
 }
 
 // CheckFeatureFlag validates the URL
-func CheckFeatureFlag(v *viper.Viper) error {
+func CheckFeatureFlag(_ *viper.Viper) error {
 	// Right now, we have no mandatory checks as we can allow a server
 	// URL without a token
 	return nil
