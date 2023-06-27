@@ -13,7 +13,7 @@ type testElectronicOrderCategoricalCountQueryBuilder struct {
 	fakeFetchCategoricalCountsFromOneModel func(appCtx appcontext.AppContext, model interface{}) (map[interface{}]int, error)
 }
 
-func (t *testElectronicOrderCategoricalCountQueryBuilder) FetchCategoricalCountsFromOneModel(appCtx appcontext.AppContext, model interface{}, filters []services.QueryFilter, andFilters *[]services.QueryFilter) (map[interface{}]int, error) {
+func (t *testElectronicOrderCategoricalCountQueryBuilder) FetchCategoricalCountsFromOneModel(appCtx appcontext.AppContext, model interface{}, _ []services.QueryFilter, _ *[]services.QueryFilter) (map[interface{}]int, error) {
 	m, err := t.fakeFetchCategoricalCountsFromOneModel(appCtx, model)
 	return m, err
 }

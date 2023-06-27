@@ -43,7 +43,7 @@ func (m MTOServiceItemDimension) TableName() string {
 type MTOServiceItemDimensions []MTOServiceItemDimension
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-func (m *MTOServiceItemDimension) Validate(tx *pop.Connection) (*validate.Errors, error) {
+func (m *MTOServiceItemDimension) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	var vs []validate.Validator
 	vs = append(vs, &validators.UUIDIsPresent{Field: m.MTOServiceItemID, Name: "MTOServiceItemID"})
 	vs = append(vs, &validators.StringInclusion{Field: string(m.Type), Name: "Type", List: []string{

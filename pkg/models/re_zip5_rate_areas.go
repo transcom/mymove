@@ -31,7 +31,7 @@ func (r ReZip5RateArea) TableName() string {
 type ReZip5RateAreas []ReZip5RateArea
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-func (r *ReZip5RateArea) Validate(tx *pop.Connection) (*validate.Errors, error) {
+func (r *ReZip5RateArea) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.UUIDIsPresent{Field: r.ContractID, Name: "ContractID"},
 		&validators.UUIDIsPresent{Field: r.RateAreaID, Name: "RateAreaID"},

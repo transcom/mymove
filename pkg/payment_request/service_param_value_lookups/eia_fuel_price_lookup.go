@@ -16,7 +16,7 @@ type EIAFuelPriceLookup struct {
 	MTOShipment models.MTOShipment
 }
 
-func (r EIAFuelPriceLookup) lookup(appCtx appcontext.AppContext, keyData *ServiceItemParamKeyData) (string, error) {
+func (r EIAFuelPriceLookup) lookup(appCtx appcontext.AppContext, _ *ServiceItemParamKeyData) (string, error) {
 	db := appCtx.DB()
 
 	// Make sure there is an actual pickup date since ActualPickupDate is nullable

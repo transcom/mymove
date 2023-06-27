@@ -44,7 +44,7 @@ type CostDetails map[string]*CostDetail
 
 // ComputePPMMoveCosts uses zip codes to make two calculations for the price of a PPM move - once with the pickup zip and once with the current duty location zip - and returns both calcs.
 // Deprecated: This is part of the old pre-GHC rate engine.
-func (re *RateEngine) ComputePPMMoveCosts(appCtx appcontext.AppContext, weight unit.Pound, originPickupZip5 string, originDutyLocationZip5 string, destinationZip5 string, distanceMilesFromOriginPickupZip int, distanceMilesFromOriginDutyLocationZip int, date time.Time, daysInSit int) (costDetails CostDetails, err error) {
+func (re *RateEngine) ComputePPMMoveCosts(appCtx appcontext.AppContext, _ unit.Pound, _ string, _ string, _ string, _ int, _ int, _ time.Time, _ int) (costDetails CostDetails, err error) {
 	errDeprecated := errors.New("ComputePPMMoveCosts function is deprecated")
 	appCtx.Logger().Error("Invoking deprecated function", zap.Error(errDeprecated))
 	return nil, errDeprecated

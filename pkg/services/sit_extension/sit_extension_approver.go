@@ -114,11 +114,7 @@ func (f *sitExtensionApprover) updateSITExtension(appCtx appcontext.AppContext, 
 	}
 
 	verrs, err := appCtx.DB().ValidateAndUpdate(&sitExtension)
-	if e := f.handleError(sitExtension.ID, verrs, err); e != nil {
-		return e
-	}
-
-	return nil
+	return f.handleError(sitExtension.ID, verrs, err)
 }
 
 func (f *sitExtensionApprover) updateSitDaysAllowance(appCtx appcontext.AppContext, shipment models.MTOShipment, approvedDays int) (*models.MTOShipment, error) {

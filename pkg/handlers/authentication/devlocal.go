@@ -920,7 +920,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 }
 
 // createSession creates a new session for the user
-func createSession(h devlocalAuthHandler, user *models.User, userType string, w http.ResponseWriter, r *http.Request) (*auth.Session, error) {
+func createSession(h devlocalAuthHandler, user *models.User, userType string, _ http.ResponseWriter, r *http.Request) (*auth.Session, error) {
 	appCtx := h.AppContextFromRequest(r)
 	// Preference any session already in the request context. Otherwise just create a new empty session.
 	session := auth.SessionFromRequestContext(r)

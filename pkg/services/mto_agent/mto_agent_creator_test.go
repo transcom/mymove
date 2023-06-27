@@ -13,7 +13,7 @@ import (
 const agentTypeReceiving = "RECEIVING_AGENT"
 const agentTypeReleasing = "RELEASING_AGENT"
 
-func createAgentModel(firstName string, lastName string, agentType string, shipmentID uuid.UUID) *models.MTOAgent {
+func createAgentModel(firstName string, lastName string, _ string, shipmentID uuid.UUID) *models.MTOAgent {
 	// Create valid Receiving Agent for the shipment
 	return &models.MTOAgent{
 		FirstName:     models.StringPointer(firstName),
