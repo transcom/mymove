@@ -33,4 +33,4 @@ func NewShipmentAddressUpdateRequester(planner route.Planner, addressCreator ser
 // RequestShipmentDeliveryAddressUpdate
 func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(_ appcontext.AppContext, _ uuid.UUID, _ models.Address, _ string, _ string) (*models.ShipmentAddressUpdate, error) {
 	return nil, nil
-} //_ appcontext.AppContext, _ uuid.UUID, _ models.Address, _ string, _ string
+}
