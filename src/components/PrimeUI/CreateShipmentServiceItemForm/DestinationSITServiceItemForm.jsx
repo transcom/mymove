@@ -35,8 +35,10 @@ const DestinationSITServiceItemForm = ({ shipment, submission }) => {
     reServiceCode: 'DDFSIT',
     reason: '',
     firstAvailableDeliveryDate1: '',
+    dateOfContact1: '',
     timeMilitary1: '',
     firstAvailableDeliveryDate2: '',
+    dateOfContact2: '',
     timeMilitary2: '',
     sitEntryDate: '',
     sitDepartureDate: '',
@@ -52,11 +54,15 @@ const DestinationSITServiceItemForm = ({ shipment, submission }) => {
       sitDestinationFinalAddress,
       timeMilitary1,
       timeMilitary2,
+      dateOfContact1,
+      dateOfContact2,
       ...serviceItemValues
     } = values;
     const body = {
       firstAvailableDeliveryDate1: formatDateForSwagger(firstAvailableDeliveryDate1),
       firstAvailableDeliveryDate2: formatDateForSwagger(firstAvailableDeliveryDate2),
+      dateOfContact1: formatDateForSwagger(dateOfContact1),
+      dateOfContact2: formatDateForSwagger(dateOfContact2),
       sitEntryDate: formatDateForSwagger(sitEntryDate),
       sitDepartureDate: sitDepartureDate ? formatDateForSwagger(sitDepartureDate) : null,
       sitDestinationFinalAddress: sitDestinationFinalAddress.streetAddress1
@@ -78,18 +84,20 @@ const DestinationSITServiceItemForm = ({ shipment, submission }) => {
         <input type="hidden" name="reServiceCode" />
         <TextField label="Reason" name="reason" />
         <DatePickerInput label="First available delivery date" name="firstAvailableDeliveryDate1" />
+        <DatePickerInput label="First date of attempted contact" name="dateOfContact1" />
         <MaskedTextField
           id="timeMilitary1"
           name="timeMilitary1"
-          label="First available delivery time"
+          label="First time of attempted contact"
           mask="0000{Z}"
           placeholder="1400Z"
         />
         <DatePickerInput label="Second available delivery date" name="firstAvailableDeliveryDate2" />
+        <DatePickerInput label="Second date of attempted contact" name="dateOfContact2" />
         <MaskedTextField
           id="timeMilitary1"
           name="timeMilitary2"
-          label="Second available delivery time"
+          label="Second time of attempted contact"
           mask="0000{Z}"
           placeholder="1400Z"
         />

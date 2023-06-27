@@ -28,9 +28,23 @@ func BuildShipmentAddressUpdate(db *pop.Connection, customs []Customization, tra
 		}
 	}
 
-	// Create orig/new addresses
-	originalAddress := BuildAddress(db, customs, traits)
-	newAddress := BuildAddress(db, customs, traits)
+	// Find Original Address Customizations
+	tempOrigAddressCustoms := customs
+	validOrigCustoms := findValidCustomization(customs, Addresses.OriginalAddress)
+	if validOrigCustoms != nil {
+		tempOrigAddressCustoms = convertCustomizationInList(tempOrigAddressCustoms, Addresses.OriginalAddress, Address)
+	}
+	// Create Original Address
+	originalAddress := BuildAddress(db, tempOrigAddressCustoms, traits)
+
+	// Find New Address Customizations
+	tempNewAddressCustoms := customs
+	validNewCustoms := findValidCustomization(customs, Addresses.NewAddress)
+	if validNewCustoms != nil {
+		tempNewAddressCustoms = convertCustomizationInList(tempNewAddressCustoms, Addresses.NewAddress, Address)
+	}
+	// Create New Address
+	newAddress := BuildAddress(db, tempNewAddressCustoms, traits)
 
 	shipmentAddressUpdate := models.ShipmentAddressUpdate{
 		ID:                uuid.Must(uuid.NewV4()),
@@ -79,6 +93,15 @@ func GetTraitShipmentAddressUpdateRequested() []Customization {
 				Status: models.MTOShipmentStatusApproved,
 			},
 		},
+		{
+			Model: models.Address{
+				StreetAddress1: "1234 Any Avenue",
+				City:           "Des Moines",
+				State:          "IA",
+				PostalCode:     "50309",
+			},
+			Type: &Addresses.NewAddress,
+		},
 	}
 }
 
@@ -101,6 +124,15 @@ func GetTraitShipmentAddressUpdateApproved() []Customization {
 				Status: models.MTOShipmentStatusApproved,
 			},
 		},
+		{
+			Model: models.Address{
+				StreetAddress1: "5678 Some Avenue",
+				City:           "Des Moines",
+				State:          "IA",
+				PostalCode:     "50309",
+			},
+			Type: &Addresses.NewAddress,
+		},
 	}
 }
 
@@ -122,6 +154,15 @@ func GetTraitShipmentAddressUpdateRejected() []Customization {
 			Model: models.MTOShipment{
 				Status: models.MTOShipmentStatusApproved,
 			},
+		},
+		{
+			Model: models.Address{
+				StreetAddress1: "9012 Some Avenue",
+				City:           "Des Moines",
+				State:          "IA",
+				PostalCode:     "50309",
+			},
+			Type: &Addresses.NewAddress,
 		},
 	}
 }
