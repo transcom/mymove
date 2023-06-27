@@ -82,3 +82,19 @@ func GetTraitAdminUserEmail() []Customization {
 		},
 	}
 }
+
+// GetTraitActiveAdminUser sets the User and AdminUser as Active
+func GetTraitActiveAdminUser() []Customization {
+	return []Customization{
+		{
+			Model: models.AdminUser{
+				Active: true,
+			},
+		},
+		{
+			Model: models.User{
+				Active: true,
+			},
+		},
+	}
+}

@@ -105,3 +105,5 @@ properties:
     x-nullable: true
   eTag:
     type: string
+  serviceRequestDocuments:
+    $ref: 'ServiceRequestDocuments.yaml'

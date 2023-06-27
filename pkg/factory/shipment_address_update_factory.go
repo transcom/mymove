@@ -1,6 +1,8 @@
 package factory
 
 import (
+	"time"
+
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
 
@@ -26,9 +28,24 @@ func BuildShipmentAddressUpdate(db *pop.Connection, customs []Customization, tra
 		}
 	}
 
-	// Create orig/new addresses
-	originalAddress := BuildAddress(db, customs, traits)
-	newAddress := BuildAddress(db, customs, traits)
+	// Use shipment dest address as original address unless customizations are provided
+	originalAddress := *shipment.DestinationAddress
+	tempOrigAddressCustoms := customs
+	validOrigCustoms := findValidCustomization(customs, Addresses.OriginalAddress)
+	if validOrigCustoms != nil {
+		tempOrigAddressCustoms = convertCustomizationInList(tempOrigAddressCustoms, Addresses.OriginalAddress, Address)
+		// Create Original Address
+		originalAddress = BuildAddress(db, tempOrigAddressCustoms, traits)
+	}
+
+	// Find New Address Customizations
+	tempNewAddressCustoms := customs
+	validNewCustoms := findValidCustomization(customs, Addresses.NewAddress)
+	if validNewCustoms != nil {
+		tempNewAddressCustoms = convertCustomizationInList(tempNewAddressCustoms, Addresses.NewAddress, Address)
+	}
+	// Create New Address
+	newAddress := BuildAddress(db, tempNewAddressCustoms, traits)
 
 	shipmentAddressUpdate := models.ShipmentAddressUpdate{
 		ID:                uuid.Must(uuid.NewV4()),
@@ -67,8 +84,9 @@ func GetTraitShipmentAddressUpdateRequested() []Customization {
 		},
 		{
 			Model: models.Move{
-				Locator: "CRQST1",
-				Status:  models.MoveStatusAPPROVALSREQUESTED,
+				Locator:            "CRQST1",
+				Status:             models.MoveStatusAPPROVALSREQUESTED,
+				AvailableToPrimeAt: models.TimePointer(time.Now()),
 			},
 		},
 		{
@@ -88,8 +106,9 @@ func GetTraitShipmentAddressUpdateApproved() []Customization {
 		},
 		{
 			Model: models.Move{
-				Locator: "CRQST2",
-				Status:  models.MoveStatusAPPROVED,
+				Locator:            "CRQST2",
+				Status:             models.MoveStatusAPPROVED,
+				AvailableToPrimeAt: models.TimePointer(time.Now()),
 			},
 		},
 		{
@@ -109,8 +128,9 @@ func GetTraitShipmentAddressUpdateRejected() []Customization {
 		},
 		{
 			Model: models.Move{
-				Locator: "CRQST3",
-				Status:  models.MoveStatusAPPROVED,
+				Locator:            "CRQST3",
+				Status:             models.MoveStatusAPPROVED,
+				AvailableToPrimeAt: models.TimePointer(time.Now()),
 			},
 		},
 		{

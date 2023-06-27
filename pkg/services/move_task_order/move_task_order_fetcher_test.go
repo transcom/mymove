@@ -92,7 +92,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 		address := factory.BuildAddress(suite.DB(), nil, nil)
 		sitEntryDate := time.Now()
 		customerContact := testdatagen.MakeMTOServiceItemCustomerContact(suite.DB(), testdatagen.Assertions{})
-		factory.BuildMTOServiceItemBasic(suite.DB(), []factory.Customization{
+		serviceItemBasic := factory.BuildMTOServiceItemBasic(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOServiceItem{
 					Status:           models.MTOServiceItemStatusApproved,
@@ -113,6 +113,12 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 				Model: models.ReService{
 					Code: models.ReServiceCodeDDFSIT, // DDFSIT - Domestic destination 1st day SIT
 				},
+			},
+		}, nil)
+		serviceRequestDocumentUpload := factory.BuildServiceRequestDocumentUpload(suite.DB(), []factory.Customization{
+			{
+				Model:    serviceItemBasic,
+				LinkOnly: true,
 			},
 		}, nil)
 		factory.BuildMTOServiceItemBasic(suite.DB(), []factory.Customization{
@@ -136,6 +142,12 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 			suite.Equal(address.State, serviceItem1.SITDestinationFinalAddress.State)
 			suite.Equal(address.City, serviceItem1.SITDestinationFinalAddress.City)
 			suite.Equal(1, len(serviceItem1.CustomerContacts))
+
+			if suite.Len(serviceItem1.ServiceRequestDocuments, 1) {
+				if suite.Len(serviceItem1.ServiceRequestDocuments[0].ServiceRequestDocumentUploads, 1) {
+					suite.Equal(serviceRequestDocumentUpload.ID, serviceItem1.ServiceRequestDocuments[0].ServiceRequestDocumentUploads[0].ID)
+				}
+			}
 		}
 	})
 

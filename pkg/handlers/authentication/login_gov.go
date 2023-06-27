@@ -27,24 +27,37 @@ type MilMoveLoginGovProvider interface {
 	BeginAuth(state string) (goth.Session, error)
 	FetchUser(goth.Session) (goth.User, error)
 	ClientKey() string
+	// this is an addition to allow for stubbing/overriding in tests
+	FetchUserAndIDTokenByCode(code string) (goth.User, string, error)
 }
 
 type milMoveLoginGovProviderWrapper struct {
 	*openidConnect.Provider
+	LoginGovProvider
 }
 
 func (w *milMoveLoginGovProviderWrapper) ClientKey() string {
 	return w.Provider.ClientKey
 }
 
-func wrapGothProvider(provider goth.Provider) MilMoveLoginGovProvider {
+func (w *milMoveLoginGovProviderWrapper) FetchUserAndIDTokenByCode(code string) (goth.User, string, error) {
+	// TODO: validate the state is the same (pull from session)
+	session, err := fetchToken(code, w.ClientKey(), w.LoginGovProvider)
+	if err != nil {
+		return goth.User{}, "", err
+	}
+	user, err := w.FetchUser(session)
+	return user, session.IDToken, err
+}
+
+func wrapGothProvider(provider goth.Provider, lgProvider LoginGovProvider) MilMoveLoginGovProvider {
 	if openidProvider, ok := provider.(*openidConnect.Provider); ok {
-		return &milMoveLoginGovProviderWrapper{openidProvider}
+		return &milMoveLoginGovProviderWrapper{openidProvider, lgProvider}
 	}
 	return provider.(MilMoveLoginGovProvider)
 }
 
-func getLoginGovProviderForRequest(r *http.Request) (MilMoveLoginGovProvider, error) {
+func getLoginGovProviderForRequest(r *http.Request, lgProvider LoginGovProvider) (MilMoveLoginGovProvider, error) {
 	session := auth.SessionFromRequestContext(r)
 	providerName := milProviderName
 	if session.IsOfficeApp() {
@@ -56,7 +69,7 @@ func getLoginGovProviderForRequest(r *http.Request) (MilMoveLoginGovProvider, er
 	if err != nil {
 		return nil, err
 	}
-	return wrapGothProvider(gothProvider), nil
+	return wrapGothProvider(gothProvider, lgProvider), nil
 }
 
 func SetLoginGovProviders(milProvider MilMoveLoginGovProvider,
@@ -114,9 +127,9 @@ func (p LoginGovProvider) RegisterProvider(milHostname string, milClientID strin
 		p.logger.Error("getting open_id provider", zap.String("host", adminHostname), zap.Error(err))
 		return err
 	}
-	SetLoginGovProviders(wrapGothProvider(milProvider),
-		wrapGothProvider(officeProvider),
-		wrapGothProvider(adminProvider))
+	SetLoginGovProviders(wrapGothProvider(milProvider, p),
+		wrapGothProvider(officeProvider, p),
+		wrapGothProvider(adminProvider, p))
 	return nil
 }
 
@@ -146,7 +159,7 @@ type LoginGovData struct {
 
 // AuthorizationURL returns a URL for login.gov authorization with required params
 func (p LoginGovProvider) AuthorizationURL(r *http.Request) (*LoginGovData, error) {
-	provider, err := getLoginGovProviderForRequest(r)
+	provider, err := getLoginGovProviderForRequest(r, p)
 	if err != nil {
 		p.logger.Error("Get Goth provider", zap.Error(err))
 		return nil, err

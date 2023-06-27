@@ -29,6 +29,7 @@ func (suite *FactorySuite) TestBuildShipmentAddressUpdate() {
 		suite.Equal(models.MTOShipmentStatusApproved, addressUpdate.Shipment.Status)
 		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, addressUpdate.Shipment.MoveTaskOrder.Status)
 		suite.Equal("CRQST1", addressUpdate.Shipment.MoveTaskOrder.Locator)
+		suite.NotNil(addressUpdate.Shipment.MoveTaskOrder.AvailableToPrimeAt)
 
 	})
 
@@ -40,6 +41,7 @@ func (suite *FactorySuite) TestBuildShipmentAddressUpdate() {
 		suite.Equal(models.MTOShipmentStatusApproved, addressUpdate.Shipment.Status)
 		suite.Equal(models.MoveStatusAPPROVED, addressUpdate.Shipment.MoveTaskOrder.Status)
 		suite.Equal("CRQST2", addressUpdate.Shipment.MoveTaskOrder.Locator)
+		suite.NotNil(addressUpdate.Shipment.MoveTaskOrder.AvailableToPrimeAt)
 	})
 
 	suite.Run("Successful creation of shipment address update with rejected status trait", func() {
@@ -50,6 +52,7 @@ func (suite *FactorySuite) TestBuildShipmentAddressUpdate() {
 		suite.Equal(models.MTOShipmentStatusApproved, addressUpdate.Shipment.Status)
 		suite.Equal(models.MoveStatusAPPROVED, addressUpdate.Shipment.MoveTaskOrder.Status)
 		suite.Equal("CRQST3", addressUpdate.Shipment.MoveTaskOrder.Locator)
+		suite.NotNil(addressUpdate.Shipment.MoveTaskOrder.AvailableToPrimeAt)
 	})
 
 }

@@ -5697,10 +5697,12 @@ func createHHGMoveWith10ServiceItems(appCtx appcontext.AppContext, userUploader 
 	}, nil)
 
 	firstDeliveryDate := models.TimePointer(time.Now())
+	dateOfContact := models.TimePointer(time.Now())
 	customerContact1 := testdatagen.MakeMTOServiceItemCustomerContact(db, testdatagen.Assertions{
 		MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
 			ID:                         uuid.FromStringOrNil("f0f38ee0-0148-4892-9b5b-a091a8c5a645"),
 			Type:                       models.CustomerContactTypeFirst,
+			DateOfContact:              dateOfContact.Add(time.Hour * 24),
 			TimeMilitary:               "0400Z",
 			FirstAvailableDeliveryDate: *firstDeliveryDate,
 		},
@@ -5710,6 +5712,7 @@ func createHHGMoveWith10ServiceItems(appCtx appcontext.AppContext, userUploader 
 		MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
 			ID:                         uuid.FromStringOrNil("1398aea3-d09b-485d-81c7-3bb72c21fb38"),
 			Type:                       models.CustomerContactTypeSecond,
+			DateOfContact:              dateOfContact.Add(time.Hour * 48),
 			TimeMilitary:               "1200Z",
 			FirstAvailableDeliveryDate: firstDeliveryDate.Add(time.Hour * 24),
 		},
@@ -6637,6 +6640,7 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 		MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
 			ID:                         uuid.Must(uuid.NewV4()),
 			Type:                       models.CustomerContactTypeFirst,
+			DateOfContact:              time.Now().Add(time.Hour * 24),
 			TimeMilitary:               "0400Z",
 			FirstAvailableDeliveryDate: time.Now(),
 		},
@@ -6646,6 +6650,7 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 		MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
 			ID:                         uuid.Must(uuid.NewV4()),
 			Type:                       models.CustomerContactTypeSecond,
+			DateOfContact:              time.Now().Add(time.Hour * 48),
 			TimeMilitary:               "1200Z",
 			FirstAvailableDeliveryDate: time.Now().Add(time.Hour * 24),
 		},
@@ -7709,6 +7714,7 @@ func createMoveWith2ShipmentsAndPaymentRequest(appCtx appcontext.AppContext, use
 		MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
 			ID:                         uuid.Must(uuid.NewV4()),
 			Type:                       models.CustomerContactTypeFirst,
+			DateOfContact:              time.Now().Add(time.Hour * 24),
 			TimeMilitary:               "0400Z",
 			FirstAvailableDeliveryDate: time.Now(),
 		},
@@ -7717,6 +7723,7 @@ func createMoveWith2ShipmentsAndPaymentRequest(appCtx appcontext.AppContext, use
 	customerContact2 := testdatagen.MakeMTOServiceItemCustomerContact(db, testdatagen.Assertions{
 		MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
 			Type:                       models.CustomerContactTypeSecond,
+			DateOfContact:              time.Now().Add(time.Hour * 48),
 			TimeMilitary:               "1200Z",
 			FirstAvailableDeliveryDate: time.Now().Add(time.Hour * 24),
 		},
@@ -8692,25 +8699,16 @@ func createPrimeUser(appCtx appcontext.AppContext) models.User {
 				ID:            userUUID,
 				LoginGovUUID:  &loginGovUUID,
 				LoginGovEmail: email,
-				Active:        true,
-				Roles:         roles.Roles{userRole},
-			}},
-	}, nil)
+			},
+		},
+	}, []factory.Trait{factory.GetTraitPrimeUser})
 	return primeUser
 }
 
 func createDevClientCertForUser(appCtx appcontext.AppContext, user models.User) {
-	// Create dev client cert from 20191212230438_add_devlocal-mtls_client_cert.up.sql
-	devClientCert := models.ClientCert{
-		ID:           uuid.Must(uuid.FromString("190b1e07-eef8-445a-9696-5a2b49ee488d")),
-		Sha256Digest: "2c0c1fc67a294443292a9e71de0c71cc374fe310e8073f8cdc15510f6b0ef4db",
-		Subject:      "/C=US/ST=DC/L=Washington/O=Truss/OU=AppClientTLS/CN=devlocal",
-		UserID:       user.ID,
-	}
-	assertions := testdatagen.Assertions{
-		ClientCert: devClientCert,
-	}
-	testdatagen.MakeDevClientCert(appCtx.DB(), assertions)
+	devlocalCert := factory.FetchOrBuildDevlocalClientCert(appCtx.DB())
+	devlocalCert.UserID = user.ID
+	testdatagen.MustSave(appCtx.DB(), &devlocalCert)
 }
 
 func createHHGMoveWithReweigh(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -10646,6 +10644,54 @@ func createMoveWithFutureSIT(appCtx appcontext.AppContext, userUploader *uploade
 		{
 			Model: models.ReService{
 				Code: models.ReServiceCodeDOFSIT,
+			},
+		},
+		{
+			Model:    mtoShipmentSIT,
+			LinkOnly: true,
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	factory.BuildMTOServiceItem(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:        models.MTOServiceItemStatusApproved,
+				SITEntryDate:  &threeMonthsFromNow,
+				SITPostalCode: &postalCode,
+				Reason:        &reason,
+			},
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDOASIT,
+			},
+		},
+		{
+			Model:    mtoShipmentSIT,
+			LinkOnly: true,
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	factory.BuildMTOServiceItem(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:        models.MTOServiceItemStatusApproved,
+				SITEntryDate:  &threeMonthsFromNow,
+				SITPostalCode: &postalCode,
+				Reason:        &reason,
+			},
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDOPSIT,
 			},
 		},
 		{
