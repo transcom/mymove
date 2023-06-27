@@ -8,6 +8,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -130,6 +131,22 @@ func GetTraitActiveUser() []Customization {
 		{
 			Model: models.User{
 				Active: true,
+			},
+		},
+	}
+}
+
+// GetTraitActiveUser returns a customization to enable active on a user
+func GetTraitPrimeUser() []Customization {
+	return []Customization{
+		{
+			Model: models.User{
+				Active: true,
+				Roles: []roles.Role{
+					{
+						RoleType: roles.RoleTypePrime,
+					},
+				},
 			},
 		},
 	}

@@ -7,18 +7,20 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *NotificationSuite) TestClientCertModified() {
-	responsibleUser := testdatagen.MakeDefaultUser(suite.DB())
-	modifiedClientCert := testdatagen.MakeDevClientCert(suite.DB(),
-		testdatagen.Assertions{
-			ClientCert: models.ClientCert{
-				UserID: responsibleUser.ID,
+	responsibleUser := factory.BuildUser(nil, nil, nil)
+	modifiedClientCert := factory.BuildClientCert(suite.DB(),
+		[]factory.Customization{
+			{
+				Model: models.ClientCert{
+					UserID: responsibleUser.ID,
+				},
 			},
-		})
+		}, nil)
 	session := &auth.Session{
 		UserID:   responsibleUser.ID,
 		Hostname: "adminlocal",
@@ -79,13 +81,15 @@ func (suite *NotificationSuite) TestClientCertModified() {
 }
 
 func (suite *NotificationSuite) TestClientCertModifiedHTMLTemplateRender() {
-	responsibleUser := testdatagen.MakeDefaultUser(suite.DB())
-	modifiedClientCert := testdatagen.MakeDevClientCert(suite.DB(),
-		testdatagen.Assertions{
-			ClientCert: models.ClientCert{
-				UserID: responsibleUser.ID,
+	responsibleUser := factory.BuildUser(nil, nil, nil)
+	modifiedClientCert := factory.BuildClientCert(suite.DB(),
+		[]factory.Customization{
+			{
+				Model: models.ClientCert{
+					UserID: responsibleUser.ID,
+				},
 			},
-		})
+		}, nil)
 	session := &auth.Session{
 		UserID:   responsibleUser.ID,
 		Hostname: "adminlocal",
@@ -131,13 +135,15 @@ func (suite *NotificationSuite) TestClientCertModifiedHTMLTemplateRender() {
 }
 
 func (suite *NotificationSuite) TestClientCertModifiedTextTemplateRender() {
-	responsibleUser := testdatagen.MakeDefaultUser(suite.DB())
-	modifiedClientCert := testdatagen.MakeDevClientCert(suite.DB(),
-		testdatagen.Assertions{
-			ClientCert: models.ClientCert{
-				UserID: responsibleUser.ID,
+	responsibleUser := factory.BuildUser(nil, nil, nil)
+	modifiedClientCert := factory.BuildClientCert(suite.DB(),
+		[]factory.Customization{
+			{
+				Model: models.ClientCert{
+					UserID: responsibleUser.ID,
+				},
 			},
-		})
+		}, nil)
 	session := &auth.Session{
 		UserID:   responsibleUser.ID,
 		Hostname: "adminlocal",
