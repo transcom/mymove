@@ -12,7 +12,7 @@ interactions:
         host: localhost:5050
         remote_addr: ""
         request_uri: ""
-        body: '{"requestId":"7249ca84-3945-4daa-9b4a-ff6c70784428","flagKey":"multi_variant","entityId":"system","namespaceKey":"development"}'
+        body: '{"requestId":"316ab946-9e87-4973-890e-21b1be3f6813","flagKey":"multi_variant","entityId":"system","namespaceKey":"development"}'
         form: {}
         headers: {}
         url: http://localhost:5050/api/v1/namespaces/development/evaluate
@@ -25,14 +25,14 @@ interactions:
         trailer: {}
         content_length: -1
         uncompressed: true
-        body: '{"requestId":"7249ca84-3945-4daa-9b4a-ff6c70784428","entityId":"system","requestContext":{},"match":true,"flagKey":"multi_variant","segmentKey":"all-entities","timestamp":"2023-06-21T16:33:12.824400380Z","value":"two","requestDurationMillis":0.046458,"attachment":"null","reason":"MATCH_EVALUATION_REASON","namespaceKey":"development"}'
+        body: '{"requestId":"316ab946-9e87-4973-890e-21b1be3f6813","entityId":"system","requestContext":{},"match":true,"flagKey":"multi_variant","segmentKey":"all-entities","timestamp":"2023-06-27T16:41:18.880462846Z","value":"two","requestDurationMillis":0.052667,"attachment":"null","reason":"MATCH_EVALUATION_REASON","namespaceKey":"development"}'
         headers:
             Content-Security-Policy:
                 - default-src 'self'; img-src * data:; frame-ancestors 'none';
             Content-Type:
                 - application/json
             Date:
-                - Wed, 21 Jun 2023 16:33:12 GMT
+                - Tue, 27 Jun 2023 16:41:18 GMT
             Grpc-Metadata-Content-Type:
                 - application/grpc
             Vary:
@@ -41,4 +41,4 @@ interactions:
                 - nosniff
         status: 200 OK
         code: 200
-        duration: 1.910959ms
+        duration: 1.934417ms

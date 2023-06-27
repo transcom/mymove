@@ -9,6 +9,7 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 	"gopkg.in/dnaeon/go-vcr.v3/cassette"
@@ -123,6 +124,7 @@ func (suite *FliptFetcherSuite) setupFliptFetcher(path string) *FliptFetcher {
 func (suite *FliptFetcherSuite) TestGetFlagForUserDisabledVariant() {
 	f := suite.setupFliptFetcher("testdata/flipt_user_disabled_variant")
 	fakeSession := &auth.Session{
+		UserID:          uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001"),
 		Email:           "foo@example.com",
 		ApplicationName: auth.MilApp,
 	}
@@ -132,7 +134,7 @@ func (suite *FliptFetcherSuite) TestGetFlagForUserDisabledVariant() {
 	suite.NoError(err)
 	suite.Equal("disabled_variant", flag.Key)
 	suite.False(flag.Enabled)
-	suite.Equal(fakeSession.Email, flag.Entity)
+	suite.Equal(fakeSession.UserID.String(), flag.Entity)
 	suite.Equal("", flag.Value)
 	suite.Equal(f.config.Namespace, flag.Namespace)
 }
@@ -140,6 +142,7 @@ func (suite *FliptFetcherSuite) TestGetFlagForUserDisabledVariant() {
 func (suite *FliptFetcherSuite) TestIsEnabledForUserDisabledVariant() {
 	f := suite.setupFliptFetcher("testdata/flipt_user_disabled_variant")
 	fakeSession := &auth.Session{
+		UserID:          uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001"),
 		Email:           "foo@example.com",
 		ApplicationName: auth.MilApp,
 	}
@@ -153,6 +156,7 @@ func (suite *FliptFetcherSuite) TestIsEnabledForUserDisabledVariant() {
 func (suite *FliptFetcherSuite) TestGetFlagForUserBooleanVariant() {
 	f := suite.setupFliptFetcher("testdata/flipt_user_boolean_variant")
 	fakeSession := &auth.Session{
+		UserID:          uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001"),
 		Email:           "foo@example.com",
 		ApplicationName: auth.MilApp,
 	}
@@ -162,7 +166,7 @@ func (suite *FliptFetcherSuite) TestGetFlagForUserBooleanVariant() {
 	suite.NoError(err)
 	suite.Equal("boolean_variant", flag.Key)
 	suite.True(flag.Enabled)
-	suite.Equal(fakeSession.Email, flag.Entity)
+	suite.Equal(fakeSession.UserID.String(), flag.Entity)
 	suite.Equal(enabledVariant, flag.Value)
 	suite.Equal(f.config.Namespace, flag.Namespace)
 }
@@ -170,6 +174,7 @@ func (suite *FliptFetcherSuite) TestGetFlagForUserBooleanVariant() {
 func (suite *FliptFetcherSuite) TestIsEnabledForUserBooleanVariant() {
 	f := suite.setupFliptFetcher("testdata/flipt_user_boolean_variant")
 	fakeSession := &auth.Session{
+		UserID:          uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001"),
 		Email:           "foo@example.com",
 		ApplicationName: auth.MilApp,
 	}
@@ -183,6 +188,7 @@ func (suite *FliptFetcherSuite) TestIsEnabledForUserBooleanVariant() {
 func (suite *FliptFetcherSuite) TestGetFlagForUserMultiVariant() {
 	f := suite.setupFliptFetcher("testdata/flipt_user_multi_variant")
 	fakeSession := &auth.Session{
+		UserID:          uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001"),
 		Email:           "foo@example.com",
 		ApplicationName: auth.MilApp,
 	}
@@ -193,7 +199,7 @@ func (suite *FliptFetcherSuite) TestGetFlagForUserMultiVariant() {
 	suite.True(flag.Enabled)
 	suite.Equal("multi_variant", flag.Key)
 	suite.Equal("one", flag.Value)
-	suite.Equal(fakeSession.Email, flag.Entity)
+	suite.Equal(fakeSession.UserID.String(), flag.Entity)
 	suite.Equal(f.config.Namespace, flag.Namespace)
 }
 
