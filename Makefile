@@ -363,7 +363,7 @@ server_run_debug: .check_hosts.stamp .check_go_version.stamp .check_gopath.stamp
 	DISABLE_AWS_VAULT_WRAPPER=1 \
 	AWS_REGION=us-gov-west-1 \
 	aws-vault exec transcom-gov-dev -- \
-	dlv debug cmd/milmove/*.go -- serve 2>&1 | tee -a log/dev.log
+	dlv debug -l 127.0.0.1:38697 --headless cmd/milmove/*.go -- serve 2>&1 | tee -a log/dev.log
 
 .PHONY: build_tools
 build_tools: bin/gin \
