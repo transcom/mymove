@@ -194,6 +194,8 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					<p>
 					  <input type="hidden" name="gorilla.csrf.Token" value="{{.CsrfToken}}">
 					  <input type="hidden" name="userType" value="{{.MilMoveUserType}}">
+					  <label for="email">User Email</label>
+					  <input type="text" name="email" value="">
 					  <button type="submit" data-hook="new-user-login-{{.MilMoveUserType}}">Create a New {{.MilMoveUserType}} User</button>
 					</p>
 				  </form>
