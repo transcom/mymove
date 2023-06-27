@@ -71,11 +71,10 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 			mock.AnythingOfType("*appcontext.appContext"),
 			"90210",
 			"94535",
-		).Return(2500, nil)
+		).Return(2500, nil).Twice()
 		move := setupTestData()
 		shipment := factory.BuildMTOShipmentWithMove(&move, suite.DB(), nil, nil)
-		fmt.Println("shipment pickup", shipment.PickupAddress.PostalCode)
-		fmt.Println("shipment deliver", shipment.DestinationAddress.PostalCode)
+
 		// New destination address with same postal code should not change pricing
 		newAddress := models.Address{
 			StreetAddress1: "123 Any St",
@@ -99,6 +98,23 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 		suite.Equal(newAddress.PostalCode, updatedShipment.DestinationAddress.PostalCode)
 		suite.Equal(newAddress.State, updatedShipment.DestinationAddress.State)
 		suite.Equal(newAddress.City, updatedShipment.DestinationAddress.City)
+	})
+	suite.Run("Update with invalid etag should fail", func() {
+		move := setupTestData()
+		shipment := factory.BuildMTOShipmentWithMove(&move, suite.DB(), nil, nil)
+
+		// New destination address with same postal code should not change pricing
+		newAddress := models.Address{
+			StreetAddress1: "123 Any St",
+			City:           "Beverly Hills",
+			State:          "CA",
+			PostalCode:     shipment.DestinationAddress.PostalCode,
+			Country:        models.StringPointer("United States"),
+		}
+		suite.NotEmpty(move.MTOShipments)
+		update, err := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, newAddress, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt.Add(-1)))
+		suite.Error(err)
+		suite.Nil(update)
 	})
 
 	suite.Run("Failed distance calculation should error", func() {
@@ -197,12 +213,23 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 			PostalCode:     shipment.DestinationAddress.PostalCode,
 			Country:        models.StringPointer("United States"),
 		}
+		mockPlanner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			"90210",
+			"94535",
+		).Return(2500, nil).Times(4)
 		update, err := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, newAddress, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt))
 		suite.NoError(err)
 		suite.NotNil(update)
 		suite.Equal(models.ShipmentAddressUpdateStatusApproved, update.Status)
 		suite.Equal("we really need to change the address", update.ContractorRemarks)
-		update, err = addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, newAddress, "we really need to change the address again", etag.GenerateEtag(shipment.UpdatedAt))
+
+		// Need to re-request the shipment to get the updated etag
+		var updatedShipment models.MTOShipment
+		err = suite.DB().Find(&updatedShipment, shipment.ID)
+		suite.NoError(err)
+
+		update, err = addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, newAddress, "we really need to change the address again", etag.GenerateEtag(updatedShipment.UpdatedAt))
 		suite.NoError(err)
 		suite.NotNil(update)
 		suite.Equal(models.ShipmentAddressUpdateStatusApproved, update.Status)

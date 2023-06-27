@@ -35,7 +35,6 @@ func NewShipmentAddressUpdateRequester(planner route.Planner, addressCreator ser
 // need old and new dest zips (destination service area?)
 // i guess this changes unpack price and stuff like that, but not linehaul price?
 func (f *shipmentAddressUpdateRequester) doesDeliveryAddressUpdateChangeServiceArea(appCtx appcontext.AppContext, contractID uuid.UUID, originalDeliveryAddress models.Address, newDeliveryAddress models.Address) (bool, error) {
-
 	var existingServiceArea models.ReZip3
 	var actualServiceArea models.ReZip3
 
