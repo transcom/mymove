@@ -114,17 +114,17 @@ func (f *shipmentAddressUpdateRequester) doesDeliveryAddressUpdateChangeMileageB
 // doesDeliveryAddressUpdateChangeShipmentPricingType checks if an address update would change a move from shorthaul to linehaul pricing or vice versa
 func (f *shipmentAddressUpdateRequester) doesDeliveryAddressUpdateChangeShipmentPricingType(appCtx appcontext.AppContext, originalPickupAddress models.Address, originalDeliveryAddress models.Address, newDeliveryAddress models.Address) (bool, error) {
 
-	var originalZip models.ReZip3
-	var originalDestinationZip models.ReZip3
-	var newDestinationZip models.ReZip3
+	var originalZip string
+	var originalDestinationZip string
+	var newDestinationZip string
 
-	originalZip.Zip3 = originalPickupAddress.PostalCode[0:3]
-	originalDestinationZip.Zip3 = originalDeliveryAddress.PostalCode[0:3]
-	newDestinationZip.Zip3 = newDeliveryAddress.PostalCode[0:3]
+	originalZip = originalPickupAddress.PostalCode[0:3]
+	originalDestinationZip = originalDeliveryAddress.PostalCode[0:3]
+	newDestinationZip = newDeliveryAddress.PostalCode[0:3]
 
-	isoriginalrouteshorthaul := originalZip.Zip3 == originalDestinationZip.Zip3
+	isoriginalrouteshorthaul := originalZip == originalDestinationZip
 
-	isnewrouteshorthaul := originalDestinationZip.Zip3 == newDestinationZip.Zip3
+	isnewrouteshorthaul := originalDestinationZip == newDestinationZip
 
 	if isoriginalrouteshorthaul == isnewrouteshorthaul {
 		return false, nil
