@@ -19,13 +19,13 @@ import (
 // swagger:model CreateNonSITAddressUpdateRequest
 type CreateNonSITAddressUpdateRequest struct {
 
-	// address ID
+	// Address ID should be the existing delivery address ID of the shipment.
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Required: true
 	// Format: uuid
 	AddressID *strfmt.UUID `json:"addressID"`
 
-	// contractor remarks
+	// This is the remark the Prime has entered, which would be the reason there is an address change.
 	// Example: Customer reached out to me this week and let me know they want to move somewhere else.
 	// Required: true
 	ContractorRemarks *string `json:"contractorRemarks"`

@@ -997,7 +997,7 @@ func init() {
     },
     "/mto-shipments/{mtoShipmentID}/shipment-address-updates": {
       "post": {
-        "description": "### Functionality\nThis endpoint is used so the Prime can request an **update** for the destination address on an MTO Shipment for non SIT.\nAddress can update automatically unless this changes:\n  - the service area\n  - mileage bracket for direct delivery\n  - mileage bracket where there is a Zip3 resulting in Domestic Short Haul (DSH) changing from Domestic Short Haul (DSH) to Domestic Line Haul (DLH) or vice versa.\n  For those, changes will require TOO approval.\n\n **Limitations:**\nThe update can be requested for APPROVED non SIT items only.\nOnly ONE request is allowed per approved non SIT item.\n",
+        "description": "### Functionality\nThis endpoint is used so the Prime can request an **update** for the destination address on an MTO Shipment for non SIT.\nAddress can update automatically unless this changes:\n  - the service area\n  - mileage bracket for direct delivery\n  - mileage bracket where there is a Zip3 resulting in Domestic Short Haul (DSH) changing from Domestic Short Haul (DSH) to Domestic Line Haul (DLH) or vice versa.\n\nFor those, changes will require TOO approval.\n\n **Limitations:**\nThe update can be requested for APPROVED non SIT items only.\nOnly ONE request is allowed per approved non SIT item.\n",
         "consumes": [
           "application/json"
         ],
@@ -1027,7 +1027,11 @@ func init() {
             }
           },
           {
-            "$ref": "#/parameters/ifMatch"
+            "type": "string",
+            "description": "Needs to be the eTag of the mtoShipment. Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
           }
         ],
         "responses": {
@@ -1643,11 +1647,13 @@ func init() {
       ],
       "properties": {
         "addressID": {
+          "description": "Address ID should be the existing delivery address ID of the shipment.",
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "contractorRemarks": {
+          "description": "This is the remark the Prime has entered, which would be the reason there is an address change.",
           "type": "string",
           "example": "Customer reached out to me this week and let me know they want to move somewhere else."
         },
@@ -5748,7 +5754,7 @@ func init() {
     },
     "/mto-shipments/{mtoShipmentID}/shipment-address-updates": {
       "post": {
-        "description": "### Functionality\nThis endpoint is used so the Prime can request an **update** for the destination address on an MTO Shipment for non SIT.\nAddress can update automatically unless this changes:\n  - the service area\n  - mileage bracket for direct delivery\n  - mileage bracket where there is a Zip3 resulting in Domestic Short Haul (DSH) changing from Domestic Short Haul (DSH) to Domestic Line Haul (DLH) or vice versa.\n  For those, changes will require TOO approval.\n\n **Limitations:**\nThe update can be requested for APPROVED non SIT items only.\nOnly ONE request is allowed per approved non SIT item.\n",
+        "description": "### Functionality\nThis endpoint is used so the Prime can request an **update** for the destination address on an MTO Shipment for non SIT.\nAddress can update automatically unless this changes:\n  - the service area\n  - mileage bracket for direct delivery\n  - mileage bracket where there is a Zip3 resulting in Domestic Short Haul (DSH) changing from Domestic Short Haul (DSH) to Domestic Line Haul (DLH) or vice versa.\n\nFor those, changes will require TOO approval.\n\n **Limitations:**\nThe update can be requested for APPROVED non SIT items only.\nOnly ONE request is allowed per approved non SIT item.\n",
         "consumes": [
           "application/json"
         ],
@@ -5779,7 +5785,7 @@ func init() {
           },
           {
             "type": "string",
-            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "description": "Needs to be the eTag of the mtoShipment. Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
             "name": "If-Match",
             "in": "header",
             "required": true
@@ -6528,11 +6534,13 @@ func init() {
       ],
       "properties": {
         "addressID": {
+          "description": "Address ID should be the existing delivery address ID of the shipment.",
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "contractorRemarks": {
+          "description": "This is the remark the Prime has entered, which would be the reason there is an address change.",
           "type": "string",
           "example": "Customer reached out to me this week and let me know they want to move somewhere else."
         },
