@@ -15,12 +15,14 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// ShipmentAddressUpdate A postal address
+// ShipmentAddressUpdate This represents a destination address change request made by the Prime that is either auto-approved or requires review if the pricing criteria has changed. If criteria has changed, then it must be approved or rejected by a TOO.
 //
 // swagger:model ShipmentAddressUpdate
 type ShipmentAddressUpdate struct {
 
 	// Contractor Remarks
+	//
+	// The reason there is an address change.
 	// Example: This is a contractor remark
 	// Required: true
 	// Read Only: true
@@ -38,6 +40,8 @@ type ShipmentAddressUpdate struct {
 	NewAddress *Address `json:"newAddress"`
 
 	// Office Remarks
+	//
+	// The TOO comment on approval or rejection.
 	// Example: This is an office remark
 	OfficeRemarks *string `json:"officeRemarks,omitempty"`
 
