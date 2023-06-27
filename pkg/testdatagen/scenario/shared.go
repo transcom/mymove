@@ -5697,10 +5697,12 @@ func createHHGMoveWith10ServiceItems(appCtx appcontext.AppContext, userUploader 
 	}, nil)
 
 	firstDeliveryDate := models.TimePointer(time.Now())
+	dateOfContact := models.TimePointer(time.Now())
 	customerContact1 := testdatagen.MakeMTOServiceItemCustomerContact(db, testdatagen.Assertions{
 		MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
 			ID:                         uuid.FromStringOrNil("f0f38ee0-0148-4892-9b5b-a091a8c5a645"),
 			Type:                       models.CustomerContactTypeFirst,
+			DateOfContact:              dateOfContact.Add(time.Hour * 24),
 			TimeMilitary:               "0400Z",
 			FirstAvailableDeliveryDate: *firstDeliveryDate,
 		},
@@ -5710,6 +5712,7 @@ func createHHGMoveWith10ServiceItems(appCtx appcontext.AppContext, userUploader 
 		MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
 			ID:                         uuid.FromStringOrNil("1398aea3-d09b-485d-81c7-3bb72c21fb38"),
 			Type:                       models.CustomerContactTypeSecond,
+			DateOfContact:              dateOfContact.Add(time.Hour * 48),
 			TimeMilitary:               "1200Z",
 			FirstAvailableDeliveryDate: firstDeliveryDate.Add(time.Hour * 24),
 		},
@@ -6637,6 +6640,7 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 		MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
 			ID:                         uuid.Must(uuid.NewV4()),
 			Type:                       models.CustomerContactTypeFirst,
+			DateOfContact:              time.Now().Add(time.Hour * 24),
 			TimeMilitary:               "0400Z",
 			FirstAvailableDeliveryDate: time.Now(),
 		},
@@ -6646,6 +6650,7 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 		MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
 			ID:                         uuid.Must(uuid.NewV4()),
 			Type:                       models.CustomerContactTypeSecond,
+			DateOfContact:              time.Now().Add(time.Hour * 48),
 			TimeMilitary:               "1200Z",
 			FirstAvailableDeliveryDate: time.Now().Add(time.Hour * 24),
 		},
@@ -7709,6 +7714,7 @@ func createMoveWith2ShipmentsAndPaymentRequest(appCtx appcontext.AppContext, use
 		MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
 			ID:                         uuid.Must(uuid.NewV4()),
 			Type:                       models.CustomerContactTypeFirst,
+			DateOfContact:              time.Now().Add(time.Hour * 24),
 			TimeMilitary:               "0400Z",
 			FirstAvailableDeliveryDate: time.Now(),
 		},
@@ -7717,6 +7723,7 @@ func createMoveWith2ShipmentsAndPaymentRequest(appCtx appcontext.AppContext, use
 	customerContact2 := testdatagen.MakeMTOServiceItemCustomerContact(db, testdatagen.Assertions{
 		MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
 			Type:                       models.CustomerContactTypeSecond,
+			DateOfContact:              time.Now().Add(time.Hour * 48),
 			TimeMilitary:               "1200Z",
 			FirstAvailableDeliveryDate: time.Now().Add(time.Hour * 24),
 		},
@@ -10646,6 +10653,54 @@ func createMoveWithFutureSIT(appCtx appcontext.AppContext, userUploader *uploade
 		{
 			Model: models.ReService{
 				Code: models.ReServiceCodeDOFSIT,
+			},
+		},
+		{
+			Model:    mtoShipmentSIT,
+			LinkOnly: true,
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	factory.BuildMTOServiceItem(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:        models.MTOServiceItemStatusApproved,
+				SITEntryDate:  &threeMonthsFromNow,
+				SITPostalCode: &postalCode,
+				Reason:        &reason,
+			},
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDOASIT,
+			},
+		},
+		{
+			Model:    mtoShipmentSIT,
+			LinkOnly: true,
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	factory.BuildMTOServiceItem(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:        models.MTOServiceItemStatusApproved,
+				SITEntryDate:  &threeMonthsFromNow,
+				SITPostalCode: &postalCode,
+				Reason:        &reason,
+			},
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDOPSIT,
 			},
 		},
 		{

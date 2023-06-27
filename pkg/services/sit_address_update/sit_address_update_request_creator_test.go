@@ -10,11 +10,15 @@ import (
 	"github.com/transcom/mymove/pkg/services/address"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	movefetcher "github.com/transcom/mymove/pkg/services/move_task_order"
+	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
+	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
+	"github.com/transcom/mymove/pkg/services/query"
 )
 
 func (suite *SITAddressUpdateServiceSuite) TestCreateSITAddressUpdateRequest() {
 	moveRouter := moverouter.NewMoveRouter()
 	addressCreator := address.NewAddressCreator()
+	serviceItemUpdater := mtoserviceitem.NewMTOServiceItemUpdater(query.NewQueryBuilder(), moveRouter, mtoshipment.NewMTOShipmentFetcher(), addressCreator)
 	requestedMockedDistance := 55
 	approvedMockedDistance := 45
 
@@ -63,7 +67,7 @@ func (suite *SITAddressUpdateServiceSuite) TestCreateSITAddressUpdateRequest() {
 			},
 		}, []factory.Trait{factory.GetTraitSITAddressUpdateWithMoveSetUp})
 
-		creator := NewSITAddressUpdateRequestCreator(mockPlanner, addressCreator, moveRouter)
+		creator := NewSITAddressUpdateRequestCreator(mockPlanner, addressCreator, serviceItemUpdater, moveRouter)
 
 		createdAddressUpdateRequest, err := creator.CreateSITAddressUpdateRequest(suite.AppContextForTest(), &sitAddressUpdate)
 
@@ -142,7 +146,7 @@ func (suite *SITAddressUpdateServiceSuite) TestCreateSITAddressUpdateRequest() {
 			},
 		}, []factory.Trait{factory.GetTraitSITAddressUpdateWithMoveSetUp})
 
-		creator := NewSITAddressUpdateRequestCreator(mockPlanner, addressCreator, moveRouter)
+		creator := NewSITAddressUpdateRequestCreator(mockPlanner, addressCreator, serviceItemUpdater, moveRouter)
 
 		createdAddressUpdateRequest, err := creator.CreateSITAddressUpdateRequest(suite.AppContextForTest(), &sitAddressUpdate)
 
@@ -160,6 +164,9 @@ func (suite *SITAddressUpdateServiceSuite) TestCreateSITAddressUpdateRequest() {
 		suite.Equal(*serviceItem.SITDestinationFinalAddressID, createdAddressUpdateRequest.OldAddressID)
 		suite.Equal(serviceItem.SITDestinationFinalAddress.StreetAddress1, createdAddressUpdateRequest.OldAddress.StreetAddress1)
 		suite.Equal(serviceItem.SITDestinationFinalAddress.PostalCode, createdAddressUpdateRequest.OldAddress.PostalCode)
+		sitDestinationFinalAddress := *createdAddressUpdateRequest.MTOServiceItem.SITDestinationFinalAddress
+		suite.Equal(createdAddressUpdateRequest.NewAddress.StreetAddress1, sitDestinationFinalAddress.StreetAddress1)
+		suite.Equal(createdAddressUpdateRequest.NewAddress.PostalCode, sitDestinationFinalAddress.PostalCode)
 
 		// Contractor Remarks should match
 		suite.Equal(*sitAddressUpdate.ContractorRemarks, *createdAddressUpdateRequest.ContractorRemarks)
@@ -210,7 +217,7 @@ func (suite *SITAddressUpdateServiceSuite) TestCreateSITAddressUpdateRequest() {
 			},
 		}, []factory.Trait{factory.GetTraitSITAddressUpdateWithMoveSetUp})
 
-		creator := NewSITAddressUpdateRequestCreator(mockPlanner, addressCreator, moveRouter)
+		creator := NewSITAddressUpdateRequestCreator(mockPlanner, addressCreator, serviceItemUpdater, moveRouter)
 
 		createdAddressUpdateRequest, err := creator.CreateSITAddressUpdateRequest(suite.AppContextForTest(), &sitAddressUpdate)
 
@@ -259,7 +266,7 @@ func (suite *SITAddressUpdateServiceSuite) TestCreateSITAddressUpdateRequest() {
 			},
 		}, []factory.Trait{factory.GetTraitSITAddressUpdateWithMoveSetUp})
 
-		creator := NewSITAddressUpdateRequestCreator(mockPlanner, addressCreator, moveRouter)
+		creator := NewSITAddressUpdateRequestCreator(mockPlanner, addressCreator, serviceItemUpdater, moveRouter)
 
 		createdAddressUpdateRequest, err := creator.CreateSITAddressUpdateRequest(suite.AppContextForTest(), &sitAddressUpdate)
 
