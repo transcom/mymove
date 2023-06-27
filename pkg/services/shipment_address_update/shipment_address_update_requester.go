@@ -69,7 +69,8 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 	}
 
 	isThereAnExistingUpdate := true
-	err = appCtx.DB().Where("shipment_id = ?", shipmentID).First(&addressUpdate)
+
+	err = appCtx.DB().EagerPreload("OriginalAddress", "NewAddress").Where("shipment_id = ?", shipmentID).First(&addressUpdate)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			// If we didn't find an existing update, we'll need to make a new one
@@ -133,10 +134,22 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 				return apperror.NewQueryError("ShipmentAddressUpdate", txnErr, "error creating shipment address update request")
 			}
 		}
+		if updateNeedsTOOReview {
+			err = f.moveRouter.SendToOfficeUser(appCtx, &shipment.MoveTaskOrder)
+			if err != nil {
+				return err
+			}
 
-		err = f.moveRouter.SendToOfficeUser(appCtx, &shipment.MoveTaskOrder)
-		if err != nil {
-			return err
+		} else {
+			shipment.DestinationAddressID = &addressUpdate.NewAddressID
+			verrs, err := appCtx.DB().ValidateAndUpdate(&shipment)
+			if verrs != nil && verrs.HasAny() {
+				return apperror.NewInvalidInputError(
+					shipment.ID, err, verrs, "Invalid input found while saving updated destination address on shipment")
+			}
+			if err != nil {
+				return err
+			}
 		}
 
 		return nil
