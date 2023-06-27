@@ -7,6 +7,7 @@ import { setConusStatus } from 'store/onboarding/actions';
 import { selectConusStatus } from 'store/onboarding/selectors';
 import { CONUS_STATUS } from 'shared/constants';
 import SectionWrapper from 'components/Customer/SectionWrapper';
+import { FeatureFlag } from 'components/FeatureFlag/FeatureFlag';
 
 // eslint-disable-next-line react/prefer-stateless-function
 export class ConusOrNot extends Component {
@@ -20,7 +21,7 @@ export class ConusOrNot extends Component {
       </>
     );
 
-    return (
+    const enabledConus = (
       <div className="grid-row">
         <div className="grid-col">
           <h1 className="sm-heading">Where are you moving?</h1>
@@ -48,6 +49,24 @@ export class ConusOrNot extends Component {
         </div>
       </div>
     );
+
+    // in reality, we would pick much friendly text here
+    const disabledConus = (
+      <div className="grid-row">
+        <div className="grid-col">
+          <h1 className="sm-heading">You are not allowed to use this site (yet)</h1>
+        </div>
+      </div>
+    );
+
+    const featureFlagRender = (flagValue) => {
+      if (flagValue && flagValue === 'enabled') {
+        return enabledConus;
+      }
+      return disabledConus;
+    };
+
+    return <FeatureFlag flagKey="onboarding-enabled" render={featureFlagRender} />;
   }
 }
 
