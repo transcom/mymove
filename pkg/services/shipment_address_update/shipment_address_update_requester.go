@@ -38,18 +38,23 @@ func (f *shipmentAddressUpdateRequester) doesDeliveryAddressUpdateChangeServiceA
 	var existingServiceArea models.ReZip3
 	var actualServiceArea models.ReZip3
 
-	var originalZip models.ReZip3
-	var destinationZip models.ReZip3
+	var originalZip string
+	var destinationZip string
 
-	originalZip.Zip3 = originalDeliveryAddress.PostalCode[0:3]
-	destinationZip.Zip3 = newDeliveryAddress.PostalCode[0:3]
+	originalZip = originalDeliveryAddress.PostalCode[0:3]
+	destinationZip = newDeliveryAddress.PostalCode[0:3]
 
-	err := appCtx.DB().Where("zip3 = ?", originalZip.Zip3).First(&existingServiceArea)
+	if originalZip == destinationZip {
+		actualServiceArea.DomesticServiceAreaID = existingServiceArea.DomesticServiceAreaID
+		return false, nil
+	}
+
+	err := appCtx.DB().Where("zip3 = ?", originalZip).First(&existingServiceArea)
 	if err != nil {
 		return false, err
 	}
 
-	err = appCtx.DB().Where("zip3 = ?", destinationZip.Zip3).First(&actualServiceArea)
+	err = appCtx.DB().Where("zip3 = ?", destinationZip).First(&actualServiceArea)
 	if err != nil {
 		return false, err
 	}
