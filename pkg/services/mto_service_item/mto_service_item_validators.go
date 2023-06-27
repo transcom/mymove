@@ -339,6 +339,7 @@ func (v *updateMTOServiceItemData) setNewCustomerContacts() models.MTOServiceIte
 			// If they correspond we update the information on the old CustomerContact
 			if updatedCustomerContact.Type == oldCustomerContact.Type {
 				newCustomerContact = oldCustomerContact
+				newCustomerContact.DateOfContact = updatedCustomerContact.DateOfContact
 				newCustomerContact.TimeMilitary = updatedCustomerContact.TimeMilitary
 				newCustomerContact.FirstAvailableDeliveryDate = updatedCustomerContact.FirstAvailableDeliveryDate
 				foundCorrespondingOldContact = true

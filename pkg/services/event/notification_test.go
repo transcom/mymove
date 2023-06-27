@@ -53,6 +53,7 @@ func (suite *EventServiceSuite) Test_MTOServiceItemPayload() {
 		customerContact1 := testdatagen.MakeMTOServiceItemCustomerContact(suite.DB(), testdatagen.Assertions{
 			MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
 				Type:                       models.CustomerContactTypeFirst,
+				DateOfContact:              time.Now(),
 				TimeMilitary:               "0800Z",
 				FirstAvailableDeliveryDate: time.Now(),
 			},
@@ -64,6 +65,7 @@ func (suite *EventServiceSuite) Test_MTOServiceItemPayload() {
 		customerContact2 := testdatagen.MakeMTOServiceItemCustomerContact(suite.DB(), testdatagen.Assertions{
 			MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
 				Type:                       models.CustomerContactTypeSecond,
+				DateOfContact:              time.Now(),
 				TimeMilitary:               "0400Z",
 				FirstAvailableDeliveryDate: time.Now(),
 			},
