@@ -837,6 +837,22 @@ func SITAddressUpdate(sitAddressUpdate *models.SITAddressUpdate) *primemessages.
 	return payload
 }
 
+// ShipmentAddressUpdate payload
+func ShipmentAddressUpdate(shipmentAddressUpdate *models.ShipmentAddressUpdate) *primemessages.ShipmentAddressUpdate {
+	if shipmentAddressUpdate == nil {
+		return nil
+	}
+
+	payload := &primemessages.ShipmentAddressUpdate{
+		ID:                strfmt.UUID(shipmentAddressUpdate.ID.String()),
+		ShipmentID:        strfmt.UUID(shipmentAddressUpdate.ShipmentID.String()),
+		NewAddress:        Address(&shipmentAddressUpdate.NewAddress),
+		ContractorRemarks: shipmentAddressUpdate.ContractorRemarks,
+	}
+
+	return payload
+}
+
 // SITDurationUpdates payload
 func SITDurationUpdates(sitDurationUpdates *models.SITDurationUpdates) *primemessages.SITExtensions {
 	if sitDurationUpdates == nil {
