@@ -12,7 +12,7 @@ import (
 type shipmentAddressUpdateRequester struct {
 	planner        route.Planner
 	addressCreator services.AddressCreator
-	//checks         []sitAddressUpdateValidator // not sure if i'll need these yet
+	//checks         []sitAddressUpdateValidator
 	moveRouter services.MoveRouter
 }
 
@@ -31,6 +31,6 @@ func NewShipmentAddressUpdateRequester(planner route.Planner, addressCreator ser
 }
 
 // RequestShipmentDeliveryAddressUpdate
-func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(appCtx appcontext.AppContext, shipmentID uuid.UUID, newAddress models.Address, contractorRemarks string) (*models.ShipmentAddressUpdate, error) {
+func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(_ appcontext.AppContext, _ uuid.UUID, _ models.Address, _ string, _ string) (*models.ShipmentAddressUpdate, error) {
 	return nil, nil
 }

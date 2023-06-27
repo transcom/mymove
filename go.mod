@@ -7,7 +7,7 @@ require (
 	github.com/XSAM/otelsql v0.23.0
 	github.com/alexedwards/scs/redisstore v0.0.0-20221223131519-238b052508b6
 	github.com/alexedwards/scs/v2 v2.5.1
-	github.com/aws/aws-sdk-go v1.44.285
+	github.com/aws/aws-sdk-go v1.44.290
 	github.com/benbjohnson/clock v1.3.5
 	github.com/codegangsta/gin v0.0.0-20211113050330-71f90109db02
 	github.com/disintegration/imaging v1.6.2
@@ -60,7 +60,7 @@ require (
 	github.com/tcnksm/go-input v0.0.0-20180404061846-548a7d7a8ee8
 	github.com/tealeg/xlsx/v3 v3.3.0
 	github.com/tiaguinho/gosoap v1.4.4
-	github.com/vektra/mockery/v2 v2.30.1
+	github.com/vektra/mockery/v2 v2.30.16
 	go.mozilla.org/pkcs7 v0.0.0-20210826202110-33d05740a352
 	go.opentelemetry.io/contrib/detectors/aws/ecs v1.17.0
 	go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux v0.42.0

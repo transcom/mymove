@@ -1,4 +1,5 @@
-description: A postal address
+description: >
+  This represents a destination address change request made by the Prime that is either auto-approved or requires review if the pricing criteria has changed. If criteria has changed, then it must be approved or rejected by a TOO.
 type: object
 properties:
   id:
@@ -10,12 +11,14 @@ properties:
     type: string
     example: 'This is a contractor remark'
     title: Contractor Remarks
+    description: The reason there is an address change.
     readOnly: true
   officeRemarks:
     type: string
     example: 'This is an office remark'
     title: Office Remarks
     x-nullable: true
+    description: The TOO comment on approval or rejection.
   status:
     $ref: 'ShipmentAddressUpdateStatus.yaml'
   shipmentID:

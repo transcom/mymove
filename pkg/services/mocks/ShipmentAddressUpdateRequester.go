@@ -16,25 +16,25 @@ type ShipmentAddressUpdateRequester struct {
 	mock.Mock
 }
 
-// RequestShipmentDeliveryAddressUpdate provides a mock function with given fields: appCtx, shipmentID, newAddress, contractorRemarks
-func (_m *ShipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(appCtx appcontext.AppContext, shipmentID uuid.UUID, newAddress models.Address, contractorRemarks string) (*models.ShipmentAddressUpdate, error) {
-	ret := _m.Called(appCtx, shipmentID, newAddress, contractorRemarks)
+// RequestShipmentDeliveryAddressUpdate provides a mock function with given fields: appCtx, shipmentID, newAddress, contractorRemarks, eTag
+func (_m *ShipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(appCtx appcontext.AppContext, shipmentID uuid.UUID, newAddress models.Address, contractorRemarks string, eTag string) (*models.ShipmentAddressUpdate, error) {
+	ret := _m.Called(appCtx, shipmentID, newAddress, contractorRemarks, eTag)
 
 	var r0 *models.ShipmentAddressUpdate
 	var r1 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, models.Address, string) (*models.ShipmentAddressUpdate, error)); ok {
-		return rf(appCtx, shipmentID, newAddress, contractorRemarks)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, models.Address, string, string) (*models.ShipmentAddressUpdate, error)); ok {
+		return rf(appCtx, shipmentID, newAddress, contractorRemarks, eTag)
 	}
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, models.Address, string) *models.ShipmentAddressUpdate); ok {
-		r0 = rf(appCtx, shipmentID, newAddress, contractorRemarks)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, models.Address, string, string) *models.ShipmentAddressUpdate); ok {
+		r0 = rf(appCtx, shipmentID, newAddress, contractorRemarks, eTag)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.ShipmentAddressUpdate)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, models.Address, string) error); ok {
-		r1 = rf(appCtx, shipmentID, newAddress, contractorRemarks)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, models.Address, string, string) error); ok {
+		r1 = rf(appCtx, shipmentID, newAddress, contractorRemarks, eTag)
 	} else {
 		r1 = ret.Error(1)
 	}

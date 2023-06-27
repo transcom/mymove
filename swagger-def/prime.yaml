@@ -468,7 +468,7 @@ paths:
       summary: updateMTOShipmentAddress
       description: |
         ### Functionality
-        This endpoint is used to **update** the addresses on an MTO Shipment (except for when it is the prime that updates address, then that would use /mto-shipments/{mtoShipmentID}/shipment-address-updates instead). The address details completely replace the original, except for the UUID.
+        This endpoint is used to **update** the pickup and secondary addresses on an MTO Shipment. mto-shipments/{mtoShipmentID}/shipment-address-updates is for updating a delivery address. The address details completely replace the original, except for the UUID.
         Therefore a complete address should be sent in the request.
 
         This endpoint **cannot create** an address.
@@ -536,10 +536,11 @@ paths:
         ### Functionality
         This endpoint is used so the Prime can request an **update** for the destination address on an MTO Shipment for non SIT.
         Address can update automatically unless this changes:
-         -the service area
-         -mileage bracket for direct delivery
-         -mileage bracket where there is a Zip3 resulting in Domestic Short Haul (DSH) changing from Domestic Short Haul (DSH) to Domestic Line Haul (DLH) or vice versa.
-         For those, changes will require TOO approval.
+          - the service area
+          - mileage bracket for direct delivery
+          - mileage bracket where there is a Zip3 resulting in Domestic Short Haul (DSH) changing from Domestic Short Haul (DSH) to Domestic Line Haul (DLH) or vice versa.
+
+        For those, changes will require TOO approval.
 
          **Limitations:**
         The update can be requested for APPROVED non SIT items only.
@@ -564,7 +565,13 @@ paths:
           name: body
           schema:
             $ref: '#/definitions/CreateNonSITAddressUpdateRequest'
-        - $ref: 'parameters/ifMatch.yaml'
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+          description: >
+            Needs to be the eTag of the mtoShipment. Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
+
       responses:
         '201':
           description: Successfully created the address update request.
@@ -2722,10 +2729,12 @@ definitions:
       contractorRemarks:
         type: string
         example: Customer reached out to me this week and let me know they want to move somewhere else.
+        description: This is the remark the Prime has entered, which would be the reason there is an address change.
       addressID:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
+        description: Address ID should be the existing delivery address ID of the shipment.
     required:
       - contractorRemarks
       - addressID

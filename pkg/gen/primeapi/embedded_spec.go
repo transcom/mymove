@@ -706,7 +706,7 @@ func init() {
     },
     "/mto-shipments/{mtoShipmentID}/addresses/{addressID}": {
       "put": {
-        "description": "### Functionality\nThis endpoint is used to **update** the addresses on an MTO Shipment (except for when it is the prime that updates address, then that would use /mto-shipments/{mtoShipmentID}/shipment-address-updates instead). The address details completely replace the original, except for the UUID.\nTherefore a complete address should be sent in the request.\n\nThis endpoint **cannot create** an address.\nTo create an address on an MTO shipment, the caller must use [updateMTOShipment](#operation/updateMTOShipment) as the parent shipment has to be updated with the appropriate link to the address.\n\n### Errors\nThe address must be associated with the mtoShipment passed in the url.\nIn other words, it should be listed as pickupAddress, destinationAddress, secondaryPickupAddress or secondaryDeliveryAddress on the mtoShipment provided.\nIf it is not, caller will receive a **Conflict** Error.\n\nThe mtoShipment should be associated with an MTO that is available to prime.\nIf the caller requests an update to an address, and the shipment is not on an available MTO, the caller will receive a **NotFound** Error.\n",
+        "description": "### Functionality\nThis endpoint is used to **update** the pickup and secondary addresses on an MTO Shipment. mto-shipments/{mtoShipmentID}/shipment-address-updates is for updating a delivery address. The address details completely replace the original, except for the UUID.\nTherefore a complete address should be sent in the request.\n\nThis endpoint **cannot create** an address.\nTo create an address on an MTO shipment, the caller must use [updateMTOShipment](#operation/updateMTOShipment) as the parent shipment has to be updated with the appropriate link to the address.\n\n### Errors\nThe address must be associated with the mtoShipment passed in the url.\nIn other words, it should be listed as pickupAddress, destinationAddress, secondaryPickupAddress or secondaryDeliveryAddress on the mtoShipment provided.\nIf it is not, caller will receive a **Conflict** Error.\n\nThe mtoShipment should be associated with an MTO that is available to prime.\nIf the caller requests an update to an address, and the shipment is not on an available MTO, the caller will receive a **NotFound** Error.\n",
         "consumes": [
           "application/json"
         ],
@@ -997,7 +997,7 @@ func init() {
     },
     "/mto-shipments/{mtoShipmentID}/shipment-address-updates": {
       "post": {
-        "description": "### Functionality\nThis endpoint is used so the Prime can request an **update** for the destination address on an MTO Shipment for non SIT.\nAddress can update automatically unless this changes:\n -the service area\n -mileage bracket for direct delivery\n -mileage bracket where there is a Zip3 resulting in Domestic Short Haul (DSH) changing from Domestic Short Haul (DSH) to Domestic Line Haul (DLH) or vice versa.\n For those, changes will require TOO approval.\n\n **Limitations:**\nThe update can be requested for APPROVED non SIT items only.\nOnly ONE request is allowed per approved non SIT item.\n",
+        "description": "### Functionality\nThis endpoint is used so the Prime can request an **update** for the destination address on an MTO Shipment for non SIT.\nAddress can update automatically unless this changes:\n  - the service area\n  - mileage bracket for direct delivery\n  - mileage bracket where there is a Zip3 resulting in Domestic Short Haul (DSH) changing from Domestic Short Haul (DSH) to Domestic Line Haul (DLH) or vice versa.\n\nFor those, changes will require TOO approval.\n\n **Limitations:**\nThe update can be requested for APPROVED non SIT items only.\nOnly ONE request is allowed per approved non SIT item.\n",
         "consumes": [
           "application/json"
         ],
@@ -1027,7 +1027,11 @@ func init() {
             }
           },
           {
-            "$ref": "#/parameters/ifMatch"
+            "type": "string",
+            "description": "Needs to be the eTag of the mtoShipment. Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
           }
         ],
         "responses": {
@@ -1643,11 +1647,13 @@ func init() {
       ],
       "properties": {
         "addressID": {
+          "description": "Address ID should be the existing delivery address ID of the shipment.",
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "contractorRemarks": {
+          "description": "This is the remark the Prime has entered, which would be the reason there is an address change.",
           "type": "string",
           "example": "Customer reached out to me this week and let me know they want to move somewhere else."
         },
@@ -3795,7 +3801,7 @@ func init() {
       }
     },
     "ShipmentAddressUpdate": {
-      "description": "A postal address",
+      "description": "This represents a destination address change request made by the Prime that is either auto-approved or requires review if the pricing criteria has changed. If criteria has changed, then it must be approved or rejected by a TOO.\n",
       "type": "object",
       "required": [
         "id",
@@ -3807,6 +3813,7 @@ func init() {
       ],
       "properties": {
         "contractorRemarks": {
+          "description": "The reason there is an address change.",
           "type": "string",
           "title": "Contractor Remarks",
           "readOnly": true,
@@ -3822,6 +3829,7 @@ func init() {
           "$ref": "#/definitions/Address"
         },
         "officeRemarks": {
+          "description": "The TOO comment on approval or rejection.",
           "type": "string",
           "title": "Office Remarks",
           "x-nullable": true,
@@ -5385,7 +5393,7 @@ func init() {
     },
     "/mto-shipments/{mtoShipmentID}/addresses/{addressID}": {
       "put": {
-        "description": "### Functionality\nThis endpoint is used to **update** the addresses on an MTO Shipment (except for when it is the prime that updates address, then that would use /mto-shipments/{mtoShipmentID}/shipment-address-updates instead). The address details completely replace the original, except for the UUID.\nTherefore a complete address should be sent in the request.\n\nThis endpoint **cannot create** an address.\nTo create an address on an MTO shipment, the caller must use [updateMTOShipment](#operation/updateMTOShipment) as the parent shipment has to be updated with the appropriate link to the address.\n\n### Errors\nThe address must be associated with the mtoShipment passed in the url.\nIn other words, it should be listed as pickupAddress, destinationAddress, secondaryPickupAddress or secondaryDeliveryAddress on the mtoShipment provided.\nIf it is not, caller will receive a **Conflict** Error.\n\nThe mtoShipment should be associated with an MTO that is available to prime.\nIf the caller requests an update to an address, and the shipment is not on an available MTO, the caller will receive a **NotFound** Error.\n",
+        "description": "### Functionality\nThis endpoint is used to **update** the pickup and secondary addresses on an MTO Shipment. mto-shipments/{mtoShipmentID}/shipment-address-updates is for updating a delivery address. The address details completely replace the original, except for the UUID.\nTherefore a complete address should be sent in the request.\n\nThis endpoint **cannot create** an address.\nTo create an address on an MTO shipment, the caller must use [updateMTOShipment](#operation/updateMTOShipment) as the parent shipment has to be updated with the appropriate link to the address.\n\n### Errors\nThe address must be associated with the mtoShipment passed in the url.\nIn other words, it should be listed as pickupAddress, destinationAddress, secondaryPickupAddress or secondaryDeliveryAddress on the mtoShipment provided.\nIf it is not, caller will receive a **Conflict** Error.\n\nThe mtoShipment should be associated with an MTO that is available to prime.\nIf the caller requests an update to an address, and the shipment is not on an available MTO, the caller will receive a **NotFound** Error.\n",
         "consumes": [
           "application/json"
         ],
@@ -5778,7 +5786,7 @@ func init() {
     },
     "/mto-shipments/{mtoShipmentID}/shipment-address-updates": {
       "post": {
-        "description": "### Functionality\nThis endpoint is used so the Prime can request an **update** for the destination address on an MTO Shipment for non SIT.\nAddress can update automatically unless this changes:\n -the service area\n -mileage bracket for direct delivery\n -mileage bracket where there is a Zip3 resulting in Domestic Short Haul (DSH) changing from Domestic Short Haul (DSH) to Domestic Line Haul (DLH) or vice versa.\n For those, changes will require TOO approval.\n\n **Limitations:**\nThe update can be requested for APPROVED non SIT items only.\nOnly ONE request is allowed per approved non SIT item.\n",
+        "description": "### Functionality\nThis endpoint is used so the Prime can request an **update** for the destination address on an MTO Shipment for non SIT.\nAddress can update automatically unless this changes:\n  - the service area\n  - mileage bracket for direct delivery\n  - mileage bracket where there is a Zip3 resulting in Domestic Short Haul (DSH) changing from Domestic Short Haul (DSH) to Domestic Line Haul (DLH) or vice versa.\n\nFor those, changes will require TOO approval.\n\n **Limitations:**\nThe update can be requested for APPROVED non SIT items only.\nOnly ONE request is allowed per approved non SIT item.\n",
         "consumes": [
           "application/json"
         ],
@@ -5809,7 +5817,7 @@ func init() {
           },
           {
             "type": "string",
-            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "description": "Needs to be the eTag of the mtoShipment. Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
             "name": "If-Match",
             "in": "header",
             "required": true
@@ -6558,11 +6566,13 @@ func init() {
       ],
       "properties": {
         "addressID": {
+          "description": "Address ID should be the existing delivery address ID of the shipment.",
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "contractorRemarks": {
+          "description": "This is the remark the Prime has entered, which would be the reason there is an address change.",
           "type": "string",
           "example": "Customer reached out to me this week and let me know they want to move somewhere else."
         },
@@ -8713,7 +8723,7 @@ func init() {
       }
     },
     "ShipmentAddressUpdate": {
-      "description": "A postal address",
+      "description": "This represents a destination address change request made by the Prime that is either auto-approved or requires review if the pricing criteria has changed. If criteria has changed, then it must be approved or rejected by a TOO.\n",
       "type": "object",
       "required": [
         "id",
@@ -8725,6 +8735,7 @@ func init() {
       ],
       "properties": {
         "contractorRemarks": {
+          "description": "The reason there is an address change.",
           "type": "string",
           "title": "Contractor Remarks",
           "readOnly": true,
@@ -8740,6 +8751,7 @@ func init() {
           "$ref": "#/definitions/Address"
         },
         "officeRemarks": {
+          "description": "The TOO comment on approval or rejection.",
           "type": "string",
           "title": "Office Remarks",
           "x-nullable": true,

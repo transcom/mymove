@@ -118,7 +118,9 @@ func (h CreateNonSITAddressUpdateRequestHandler) Handle(params mtoshipmentops.Cr
 
 			addressUpdate := payloads.ShipmentAddressUpdateModel(payload, shipmentID)
 
-			response, err := h.ShipmentAddressUpdateRequester.RequestShipmentDeliveryAddressUpdate(appCtx, shipmentID, addressUpdate.NewAddress, addressUpdate.ContractorRemarks)
+			eTag := params.IfMatch
+
+			response, err := h.ShipmentAddressUpdateRequester.RequestShipmentDeliveryAddressUpdate(appCtx, shipmentID, addressUpdate.NewAddress, addressUpdate.ContractorRemarks, eTag)
 
 			if err != nil {
 				appCtx.Logger().Error("primeapi.CreateNonSITAddressUpdateRequestHandler error", zap.Error(err))
