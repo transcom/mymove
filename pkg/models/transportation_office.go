@@ -40,7 +40,7 @@ func (t TransportationOffice) TableName() string {
 type TransportationOffices []TransportationOffice
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-func (t *TransportationOffice) Validate(tx *pop.Connection) (*validate.Errors, error) {
+func (t *TransportationOffice) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	verrs := validate.Validate(
 		&validators.StringIsPresent{Field: t.Name, Name: "Name"},
 		&validators.UUIDIsPresent{Field: t.AddressID, Name: "AddressID"},

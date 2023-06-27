@@ -104,7 +104,7 @@ func NewValidationErrorsResponse(verrs *validate.Errors) *ValidationErrorsRespon
 }
 
 // WriteResponse to the client
-func (v *ValidationErrorsResponse) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+func (v *ValidationErrorsResponse) WriteResponse(rw http.ResponseWriter, _ runtime.Producer) {
 	rw.WriteHeader(http.StatusBadRequest)
 	errNewEncoder := json.NewEncoder(rw).Encode(v)
 	if errNewEncoder != nil {
@@ -128,7 +128,7 @@ func newErrResponse(code int, err error) *ErrResponse {
 }
 
 // WriteResponse to the client
-func (o *ErrResponse) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+func (o *ErrResponse) WriteResponse(rw http.ResponseWriter, _ runtime.Producer) {
 	rw.WriteHeader(o.Code)
 	errNewEncoder := json.NewEncoder(rw).Encode(clientMessage{o.Err.Error()})
 	if errNewEncoder != nil {

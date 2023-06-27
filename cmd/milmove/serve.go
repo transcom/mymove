@@ -223,11 +223,7 @@ func checkServeConfig(v *viper.Viper, logger *zap.Logger) error {
 		return err
 	}
 
-	if err := cli.CheckSession(v); err != nil {
-		return err
-	}
-
-	return nil
+	return cli.CheckSession(v)
 }
 
 func startListener(srv *server.NamedServer, logger *zap.Logger, useTLS bool) {

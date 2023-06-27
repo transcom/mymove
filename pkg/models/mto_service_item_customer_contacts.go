@@ -25,6 +25,7 @@ type MTOServiceItemCustomerContact struct {
 	ID                         uuid.UUID           `db:"id"`
 	MTOServiceItems            MTOServiceItems     `many_to_many:"service_items_customer_contacts" db:"-"`
 	Type                       CustomerContactType `db:"type"`
+	DateOfContact              time.Time           `db:"date_of_contact"`
 	TimeMilitary               string              `db:"time_military"`
 	FirstAvailableDeliveryDate time.Time           `db:"first_available_delivery_date"`
 	CreatedAt                  time.Time           `db:"created_at"`
@@ -40,12 +41,13 @@ func (m MTOServiceItemCustomerContact) TableName() string {
 type MTOServiceItemCustomerContacts []MTOServiceItemCustomerContact
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-func (m *MTOServiceItemCustomerContact) Validate(tx *pop.Connection) (*validate.Errors, error) {
+func (m *MTOServiceItemCustomerContact) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	var vs []validate.Validator
 	vs = append(vs, &validators.StringInclusion{Field: string(m.Type), Name: "Type", List: []string{
 		string(CustomerContactTypeFirst),
 		string(CustomerContactTypeSecond),
 	}})
+	vs = append(vs, &validators.TimeIsPresent{Field: m.DateOfContact, Name: "DateOfContact"})
 	vs = append(vs, &validators.StringIsPresent{Field: m.TimeMilitary, Name: "TimeMilitary"})
 	vs = append(vs, &validators.TimeIsPresent{Field: m.FirstAvailableDeliveryDate, Name: "FirstAvailableDeliveryDate"})
 

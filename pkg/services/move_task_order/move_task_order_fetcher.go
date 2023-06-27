@@ -27,6 +27,7 @@ func (f moveTaskOrderFetcher) ListAllMoveTaskOrders(appCtx appcontext.AppContext
 		"PaymentRequests.PaymentServiceItems.PaymentServiceItemParams.ServiceItemParamKey",
 		"MTOServiceItems.ReService",
 		"MTOServiceItems.Dimensions",
+		"MTOServiceItems.ServiceRequestDocuments.ServiceRequestDocumentUploads",
 		"MTOShipments.DestinationAddress",
 		"MTOShipments.PickupAddress",
 		"MTOShipments.SecondaryDeliveryAddress",
@@ -94,12 +95,12 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 	// If none is specified we are using version 2.
 	apiVersion := *appCtx.GetAPIVersion()
 	if apiVersion == apiversion.PrimeVersion1 {
-		return movetaskorderv1.FetchMoveTaskOrder(f, appCtx, searchParams)
+		return movetaskorderv1.FetchMoveTaskOrder(appCtx, searchParams)
 	}
 	if apiVersion == apiversion.PrimeVersion2 {
-		return movetaskorderv2.FetchMoveTaskOrder(f, appCtx, searchParams)
+		return movetaskorderv2.FetchMoveTaskOrder(appCtx, searchParams)
 	}
-	return movetaskorderv2.FetchMoveTaskOrder(f, appCtx, searchParams)
+	return movetaskorderv2.FetchMoveTaskOrder(appCtx, searchParams)
 }
 
 // ListPrimeMoveTaskOrders performs an optimized fetch for moves specifically targeting the Prime API.

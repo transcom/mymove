@@ -95,7 +95,7 @@ func (v *RoleInclusion) IsValid(errors *validate.Errors) {
 }
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-func (a *AdminUser) Validate(tx *pop.Connection) (*validate.Errors, error) {
+func (a *AdminUser) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.StringIsPresent{Field: a.FirstName, Name: "FirstName"},
 		&validators.StringIsPresent{Field: a.LastName, Name: "LastName"},

@@ -21,8 +21,8 @@ type webhookSubscriptionFetcher struct {
 // FetchWebhookSubscription fetches a webhookSubscription given a slice of filters
 func (o *webhookSubscriptionFetcher) FetchWebhookSubscription(appCtx appcontext.AppContext, filters []services.QueryFilter) (models.WebhookSubscription, error) {
 	var webhookSubscription models.WebhookSubscription
-	error := o.builder.FetchOne(appCtx, &webhookSubscription, filters)
-	return webhookSubscription, error
+	err := o.builder.FetchOne(appCtx, &webhookSubscription, filters)
+	return webhookSubscription, err
 }
 
 // NewWebhookSubscriptionFetcher return an implementation of the WebhookSubscriptionFetcher interface

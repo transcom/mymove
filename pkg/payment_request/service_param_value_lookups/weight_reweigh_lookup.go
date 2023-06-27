@@ -15,7 +15,7 @@ type WeightReweighLookup struct {
 	MTOShipment models.MTOShipment
 }
 
-func (r WeightReweighLookup) lookup(appCtx appcontext.AppContext, keyData *ServiceItemParamKeyData) (string, error) {
+func (r WeightReweighLookup) lookup(appCtx appcontext.AppContext, _ *ServiceItemParamKeyData) (string, error) {
 
 	err := appCtx.DB().Load(&r.MTOShipment, "Reweigh")
 	if err != nil {

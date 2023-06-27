@@ -45,7 +45,7 @@ func (b BackupContact) TableName() string {
 type BackupContacts []BackupContact
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-func (b *BackupContact) Validate(tx *pop.Connection) (*validate.Errors, error) {
+func (b *BackupContact) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.StringIsPresent{Field: b.Name, Name: "Name"},
 		&validators.StringIsPresent{Field: b.Email, Name: "Email"},

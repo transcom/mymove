@@ -14,7 +14,7 @@ import (
 )
 
 // FetchMoveTaskOrder retrieves a MoveTaskOrder for a given UUID
-func FetchMoveTaskOrder(f services.MoveTaskOrderFetcher, appCtx appcontext.AppContext, searchParams *services.MoveTaskOrderFetcherParams) (*models.Move, error) {
+func FetchMoveTaskOrder(appCtx appcontext.AppContext, searchParams *services.MoveTaskOrderFetcherParams) (*models.Move, error) {
 	mto := &models.Move{}
 
 	query := appCtx.DB().EagerPreload(
@@ -26,6 +26,7 @@ func FetchMoveTaskOrder(f services.MoveTaskOrderFetcher, appCtx appcontext.AppCo
 		"MTOServiceItems.SITDestinationFinalAddress",
 		"MTOServiceItems.SITOriginHHGOriginalAddress",
 		"MTOServiceItems.SITOriginHHGActualAddress",
+		"MTOServiceItems.ServiceRequestDocuments.ServiceRequestDocumentUploads",
 		"MTOShipments.DestinationAddress",
 		"MTOShipments.PickupAddress",
 		"MTOShipments.SecondaryDeliveryAddress",

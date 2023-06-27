@@ -29,7 +29,7 @@ func (p ProofOfServiceDoc) TableName() string {
 type ProofOfServiceDocs []ProofOfServiceDoc
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-func (p *ProofOfServiceDoc) Validate(tx *pop.Connection) (*validate.Errors, error) {
+func (p *ProofOfServiceDoc) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.UUIDIsPresent{Field: p.PaymentRequestID, Name: "PaymentRequestID"},
 	), nil
