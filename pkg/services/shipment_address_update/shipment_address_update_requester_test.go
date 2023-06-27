@@ -37,7 +37,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 		mock.AnythingOfType("*appcontext.appContext"),
 		"90210",
 		"90210",
-	).Return(0, nil)
+	).Return(1, nil)
 	mockPlanner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
 		"90210",

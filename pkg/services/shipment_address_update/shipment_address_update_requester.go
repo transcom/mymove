@@ -70,6 +70,10 @@ func (f *shipmentAddressUpdateRequester) doesDeliveryAddressUpdateChangeMileageB
 	var milesUpper = [9]int{250, 500, 1000, 1500, 2000, 2500, 3000, 3500, 4000}
 	var milesLower = [9]int{0, 251, 501, 1001, 1501, 2001, 2501, 3001, 3501}
 
+	if originalDeliveryAddress.PostalCode == newDeliveryAddress.PostalCode {
+		return false, nil
+	}
+
 	perviousDistance, err := f.planner.ZipTransitDistance(appCtx, originalPickupAddress.PostalCode, originalDeliveryAddress.PostalCode)
 	if err != nil {
 		return false, nil
@@ -109,9 +113,9 @@ func (f *shipmentAddressUpdateRequester) doesDeliveryAddressUpdateChangeShipment
 	var originalDestinationZip models.ReZip3
 	var newDestinationZip models.ReZip3
 
-	originalZip.Zip3 = originalPickupAddress.PostalCode[0:2]
-	originalDestinationZip.Zip3 = originalDeliveryAddress.PostalCode[0:2]
-	newDestinationZip.Zip3 = newDeliveryAddress.PostalCode[0:2]
+	originalZip.Zip3 = originalPickupAddress.PostalCode[0:3]
+	originalDestinationZip.Zip3 = originalDeliveryAddress.PostalCode[0:3]
+	newDestinationZip.Zip3 = newDeliveryAddress.PostalCode[0:3]
 
 	isoriginalrouteshorthaul := originalZip.Zip3 == originalDestinationZip.Zip3
 
