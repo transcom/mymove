@@ -1,5 +1,5 @@
 import React from 'react';
-import { sortBy } from 'lodash';
+import { isEmpty, sortBy } from 'lodash';
 import classnames from 'classnames';
 
 import { ServiceItemDetailsShape } from '../../../types/serviceItems';
@@ -47,49 +47,39 @@ const ServiceItemDetails = ({ id, code, details }) => {
     case 'DDDSIT': {
       const { customerContacts } = details;
       // Below we are using the sortBy func in lodash to sort the customer contacts
-      // by the firstAvailableDeliveryDate and dateOfContact fields. sortBy returns a new
+      // by the firstAvailableDeliveryDate field. sortBy returns a new
       // array with the elements in ascending order.
-      const sortedDeliveryDates = sortBy(customerContacts, [
+      const sortedCustomerContacts = sortBy(customerContacts, [
         (a) => {
           return new Date(a.firstAvailableDeliveryDate);
         },
       ]);
-      const sortedDateOfContacts = sortBy(customerContacts, [
-        (a) => {
-          return new Date(a.dateOfContact);
-        },
-      ]);
+      const defaultDetailText = generateDetailText({
+        'First available delivery date 1': '-',
+        'Customer contact 1': '-',
+      });
       detailSection = (
         <div>
           <dl>
-            {sortedDeliveryDates.map((contact, index) => (
-              <>
-                {generateDetailText(
-                  {
-                    [`First available delivery date ${index + 1}`]:
-                      contact && contact.firstAvailableDeliveryDate
-                        ? formatDate(contact.firstAvailableDeliveryDate, 'DD MMM YYYY')
-                        : '-',
-                  },
-                  id,
-                )}
-              </>
-            ))}
-            <div className={styles.customerContact}>
-              {sortedDateOfContacts.map((contact, index) => (
-                <>
-                  {generateDetailText(
-                    {
-                      [`Customer contact attempt ${index + 1}`]:
-                        contact && contact.dateOfContact && contact.timeMilitary
-                          ? `${formatDate(contact.dateOfContact, 'DD MMM YYYY')}, ${contact.timeMilitary}`
-                          : '-',
-                    },
-                    id,
-                  )}
-                </>
-              ))}
-            </div>
+            {!isEmpty(sortedCustomerContacts)
+              ? sortedCustomerContacts.map((contact, index) => (
+                  <>
+                    {generateDetailText(
+                      {
+                        [`First available delivery date ${index + 1}`]:
+                          contact && contact.firstAvailableDeliveryDate
+                            ? formatDate(contact.firstAvailableDeliveryDate, 'DD MMM YYYY')
+                            : '-',
+                        [`Customer contact attempt ${index + 1}`]:
+                          contact && contact.dateOfContact && contact.timeMilitary
+                            ? `${formatDate(contact.dateOfContact, 'DD MMM YYYY')}, ${contact.timeMilitary}`
+                            : '-',
+                      },
+                      id,
+                    )}
+                  </>
+                ))
+              : defaultDetailText}
             {generateDetailText({ Reason: details.reason ? details.reason : '-' })}
             {details.rejectionReason &&
               generateDetailText({ 'Rejection reason': details.rejectionReason }, id, 'margin-top-2')}
