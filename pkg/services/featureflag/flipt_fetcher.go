@@ -25,11 +25,6 @@ const (
 	isOfficeUser    = "isOfficeUser"
 	isServiceMember = "isServiceMember"
 	email           = "email"
-
-	// use a convention in flipt where the name of the variant is
-	// enabled or disabled for booleans
-	enabledVariant  = "enabled"
-	disabledVariant = "disabled"
 )
 
 type FliptFetcher struct {
@@ -90,21 +85,6 @@ func (ff *FliptFetcher) GetFlagForUser(ctx context.Context, appCtx appcontext.Ap
 	}
 
 	return ff.GetFlag(ctx, appCtx.Logger(), entityID, key, flagContext)
-}
-
-// IsEnabledForUser is a wrapper around GetFlag for boolean flags
-func (ff *FliptFetcher) IsEnabledForUser(ctx context.Context, appCtx appcontext.AppContext, key string) (bool, error) {
-	flag, err := ff.GetFlagForUser(ctx, appCtx, key, map[string]string{})
-	if err != nil {
-		return false, err
-	}
-	// if the flag is not enabled at all, nothing more to do
-	if !flag.Enabled {
-		return false, nil
-	}
-
-	// Check for a variant specifically called 'enabled'
-	return flag.Value == enabledVariant, nil
 }
 
 func (ff *FliptFetcher) GetFlag(ctx context.Context, logger *zap.Logger, entityID string, key string, flagContext map[string]string) (services.FeatureFlag, error) {

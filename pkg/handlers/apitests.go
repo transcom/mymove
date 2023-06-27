@@ -98,13 +98,6 @@ func (suite *BaseHandlerTestSuite) HandlerConfig() *Config {
 	).Return(func(ctx context.Context, appCtx appcontext.AppContext, key string, flagContext map[string]string) (services.FeatureFlag, error) {
 		return mockGetFlagFunc(ctx, appCtx.Logger(), "user@example.com", key, flagContext)
 	})
-	mockFeatureFlagFetcher.On("IsEnabledForUser",
-		mock.Anything,
-		mock.AnythingOfType("*appcontext.appContext"),
-		mock.AnythingOfType("string"),
-	).Return(func(ctx context.Context, appCtx appcontext.AppContext, key string) (services.FeatureFlag, error) {
-		return mockGetFlagFunc(ctx, appCtx.Logger(), "user@example.com", key, map[string]string{})
-	})
 	return &Config{
 		db:                 suite.DB(),
 		logger:             suite.Logger(),

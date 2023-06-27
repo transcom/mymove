@@ -5,7 +5,6 @@ import (
 	"errors"
 	"os"
 	"regexp"
-	"strconv"
 	"strings"
 
 	"go.uber.org/zap"
@@ -37,14 +36,6 @@ func (ef *EnvFetcher) GetFlagForUser(ctx context.Context, appCtx appcontext.AppC
 	return ef.GetFlag(ctx, appCtx.Logger(), entityID, key, flagContext)
 }
 
-func (ef *EnvFetcher) IsEnabledForUser(ctx context.Context, appCtx appcontext.AppContext, key string) (bool, error) {
-	flag, err := ef.GetFlagForUser(ctx, appCtx, key, map[string]string{})
-	if err != nil {
-		return false, err
-	}
-	return flag.Enabled, nil
-}
-
 func (ef *EnvFetcher) GetFlag(_ context.Context, _ *zap.Logger, entityID string, key string, _ map[string]string) (services.FeatureFlag, error) {
 	featureFlag := services.FeatureFlag{}
 	re, err := regexp.Compile("[^a-zA-Z0-9]")
@@ -54,14 +45,12 @@ func (ef *EnvFetcher) GetFlag(_ context.Context, _ *zap.Logger, entityID string,
 	envKey := "FEATURE_FLAG_" +
 		strings.ToUpper(string(re.ReplaceAll([]byte(key), []byte("_"))))
 	envVal := os.Getenv(envKey)
-	val, err := strconv.ParseBool(envVal)
-	if err != nil {
-		// if the boolean cannot be parsed, it is false, not an error
-		val = false
-	}
+
+	// if the flag is anything but empty, the flag is considered enabled
+	enabled := envVal != ""
 	featureFlag.Entity = entityID
 	featureFlag.Key = key
-	featureFlag.Enabled = val
+	featureFlag.Enabled = enabled
 	featureFlag.Value = envVal
 	featureFlag.Namespace = ef.config.Namespace
 	return featureFlag, nil
