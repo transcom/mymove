@@ -248,19 +248,19 @@ func setNewShipmentFields(appCtx appcontext.AppContext, dbShipment *models.MTOSh
 							dbShipment.MTOAgents[i].MTOAgentType = newAgentInfo.MTOAgentType
 						}
 
-						if newAgentInfo.FirstName != nil {
+						if newAgentInfo.FirstName != nil || (newAgentInfo.FirstName == nil && dbShipment.MTOAgents[i].FirstName != nil) {
 							dbShipment.MTOAgents[i].FirstName = newAgentInfo.FirstName
 						}
 
-						if newAgentInfo.LastName != nil {
+						if newAgentInfo.LastName != nil || (newAgentInfo.LastName == nil && dbShipment.MTOAgents[i].LastName != nil) {
 							dbShipment.MTOAgents[i].LastName = newAgentInfo.LastName
 						}
 
-						if newAgentInfo.Email != nil {
+						if newAgentInfo.Email != nil || (newAgentInfo.Email == nil && dbShipment.MTOAgents[i].Email != nil) {
 							dbShipment.MTOAgents[i].Email = newAgentInfo.Email
 						}
 
-						if newAgentInfo.Phone != nil {
+						if newAgentInfo.Phone != nil || (newAgentInfo.Phone == nil && dbShipment.MTOAgents[i].Phone != nil) {
 							dbShipment.MTOAgents[i].Phone = newAgentInfo.Phone
 						}
 						agentsToCreateOrUpdate = append(agentsToCreateOrUpdate, dbShipment.MTOAgents[i])
