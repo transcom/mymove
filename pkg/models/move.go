@@ -98,7 +98,7 @@ type MoveOptions struct {
 type Moves []Move
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-func (m *Move) Validate(tx *pop.Connection) (*validate.Errors, error) {
+func (m *Move) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.StringIsPresent{Field: m.Locator, Name: "Locator"},
 		&validators.UUIDIsPresent{Field: m.OrdersID, Name: "OrdersID"},

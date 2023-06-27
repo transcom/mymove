@@ -275,6 +275,6 @@ func (u *Uploader) DeleteUpload(appCtx appcontext.AppContext, upload *models.Upl
 // file is returned.
 //
 // It is the caller's responsibility to delete the tempfile.
-func (u *Uploader) Download(appCtx appcontext.AppContext, upload *models.Upload) (io.ReadCloser, error) {
+func (u *Uploader) Download(_ appcontext.AppContext, upload *models.Upload) (io.ReadCloser, error) {
 	return u.Storer.Fetch(upload.StorageKey)
 }

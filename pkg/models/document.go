@@ -33,7 +33,7 @@ func (d Document) TableName() string {
 type Documents []Document
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-func (d *Document) Validate(tx *pop.Connection) (*validate.Errors, error) {
+func (d *Document) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.UUIDIsPresent{Field: d.ServiceMemberID, Name: "ServiceMemberID"},
 	), nil

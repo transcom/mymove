@@ -275,7 +275,7 @@ func objectEventHandler(event *Event, modelBeingUpdated interface{}) (bool, erro
 
 // The purpose of this function is to handle order specific events.
 
-func orderEventHandler(event *Event, modelBeingUpdated interface{}) (bool, error) {
+func orderEventHandler(event *Event, _ interface{}) (bool, error) {
 	appCtx := event.AppContext
 	// CHECK SOURCE
 	// Continue only if source of event is not Prime

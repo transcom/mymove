@@ -10,7 +10,7 @@ import (
 
 // RegisterRuntimeObserver creates a custom metric that is updated
 // automatically using an observer
-func RegisterRuntimeObserver(appCtx appcontext.AppContext, config *Config) error {
+func RegisterRuntimeObserver(_ appcontext.AppContext, config *Config) error {
 	if !config.Enabled {
 		return nil
 	}
@@ -19,11 +19,5 @@ func RegisterRuntimeObserver(appCtx appcontext.AppContext, config *Config) error
 		collectSeconds = defaultCollectSeconds
 	}
 
-	if err := runtime.Start(
-		runtime.WithMinimumReadMemStatsInterval(time.Duration(collectSeconds) * time.Second),
-	); err != nil {
-		return err
-	}
-
-	return nil
+	return runtime.Start(runtime.WithMinimumReadMemStatsInterval(time.Duration(collectSeconds) * time.Second))
 }

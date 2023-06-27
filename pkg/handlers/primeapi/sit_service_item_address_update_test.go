@@ -14,6 +14,9 @@ import (
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services/address"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
+	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
+	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
+	"github.com/transcom/mymove/pkg/services/query"
 	sitaddressupdate "github.com/transcom/mymove/pkg/services/sit_address_update"
 )
 
@@ -27,7 +30,9 @@ func (suite *HandlerSuite) TestCreateSITAddressUpdateRequest() {
 	).Return(mockedDistance, nil)
 
 	moveRouter := moverouter.NewMoveRouter()
-	sitAddressUpdateCreator := sitaddressupdate.NewSITAddressUpdateRequestCreator(mockPlanner, address.NewAddressCreator(), moveRouter)
+	addressCreator := address.NewAddressCreator()
+	serviceItemUpdater := mtoserviceitem.NewMTOServiceItemUpdater(query.NewQueryBuilder(), moveRouter, mtoshipment.NewMTOShipmentFetcher(), addressCreator)
+	sitAddressUpdateCreator := sitaddressupdate.NewSITAddressUpdateRequestCreator(mockPlanner, addressCreator, serviceItemUpdater, moveRouter)
 
 	suite.Run("Success 201 - Create SIT address update request", func() {
 		// Testcase:   sitExtension is created

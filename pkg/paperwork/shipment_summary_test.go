@@ -32,7 +32,7 @@ type mockPPMComputer struct {
 	ppmComputerParams []ppmComputerParams
 }
 
-func (mppmc *mockPPMComputer) ComputePPMMoveCosts(appCtx appcontext.AppContext, weight unit.Pound, originPickupZip5 string, originDutyLocationZip5 string, destinationZip5 string, distanceMilesFromOriginPickupZip int, distanceMilesFromOriginDutyLocationZip int, date time.Time, daysInSit int) (cost rateengine.CostDetails, err error) {
+func (mppmc *mockPPMComputer) ComputePPMMoveCosts(_ appcontext.AppContext, weight unit.Pound, originPickupZip5 string, originDutyLocationZip5 string, destinationZip5 string, distanceMilesFromOriginPickupZip int, distanceMilesFromOriginDutyLocationZip int, date time.Time, daysInSit int) (cost rateengine.CostDetails, err error) {
 	mppmc.ppmComputerParams = append(mppmc.ppmComputerParams, ppmComputerParams{
 		Weight:                                 weight,
 		OriginPickupZip5:                       originPickupZip5,

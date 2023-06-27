@@ -109,11 +109,7 @@ func (f *sitExtensionDenier) updateSITExtension(appCtx appcontext.AppContext, si
 	sitExtension.DecisionDate = &now
 
 	verrs, err := appCtx.DB().ValidateAndUpdate(&sitExtension)
-	if e := f.handleError(sitExtension.ID, verrs, err); e != nil {
-		return e
-	}
-
-	return nil
+	return f.handleError(sitExtension.ID, verrs, err)
 }
 
 func (f *sitExtensionDenier) handleError(modelID uuid.UUID, verrs *validate.Errors, err error) error {

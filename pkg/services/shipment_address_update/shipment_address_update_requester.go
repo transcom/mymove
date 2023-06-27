@@ -33,12 +33,12 @@ func NewShipmentAddressUpdateRequester(planner route.Planner, addressCreator ser
 // service area change
 // need old and new dest zips (destination service area?)
 // i guess this changes unpack price and stuff like that, but not linehaul price?
-func (f *shipmentAddressUpdateRequester) doesDeliveryAddressUpdateChangeServiceArea(appCtx appcontext.AppContext, contractID uuid.UUID, originalDeliveryAddress models.Address, newDeliveryAddress models.Address) (bool, error) {
+func (f *shipmentAddressUpdateRequester) doesDeliveryAddressUpdateChangeServiceArea(_ appcontext.AppContext, _ uuid.UUID, _ models.Address, _ models.Address) (bool, error) {
 	return false, nil
 }
 
 // mileage bracket change (only applicable for linehaul)
-func (f *shipmentAddressUpdateRequester) doesDeliveryAddressUpdateChangeMileageBracket(appCtx appcontext.AppContext, contractID uuid.UUID, originalPickupAddress models.Address, originalDeliveryAddress, newDeliveryAddress models.Address) (bool, error) {
+func (f *shipmentAddressUpdateRequester) doesDeliveryAddressUpdateChangeMileageBracket(_ appcontext.AppContext, _ uuid.UUID, _ models.Address, _ models.Address, _ models.Address) (bool, error) {
 	// either look up both distances, and look up in hard coded list of brackets
 	// or look up the linehaul price record for both and compare miles_upper and miles_lower
 	//   this needs weight and isPeak as well.
@@ -47,12 +47,12 @@ func (f *shipmentAddressUpdateRequester) doesDeliveryAddressUpdateChangeMileageB
 }
 
 // doesDeliveryAddressUpdateChangeShipmentPricingType checks if an address update would change a move from shorthaul to linehaul pricing or vice versa
-func (f *shipmentAddressUpdateRequester) doesDeliveryAddressUpdateChangeShipmentPricingType(appCtx appcontext.AppContext, originalPickupAddress models.Address, originalDeliveryAddress models.Address, newDeliveryAddress models.Address) (bool, error) {
+func (f *shipmentAddressUpdateRequester) doesDeliveryAddressUpdateChangeShipmentPricingType(_ appcontext.AppContext, _ models.Address, _ models.Address, _ models.Address) (bool, error) {
 	return false, nil
 }
 
 // RequestShipmentDeliveryAddressUpdate is used to update the destination address of an HHG shipment without SIT after it has been approved by the TOO. If this update could result in excess cost for the customer, this service requires the change to go through TOO approval.
-func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(appCtx appcontext.AppContext, shipmentID uuid.UUID, newAddress models.Address, contractorRemarks string) (*models.ShipmentAddressUpdate, error) {
+func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(appCtx appcontext.AppContext, shipmentID uuid.UUID, newAddress models.Address, contractorRemarks string, _ string) (*models.ShipmentAddressUpdate, error) {
 	var addressUpdate models.ShipmentAddressUpdate
 	var shipment models.MTOShipment
 	err := appCtx.DB().EagerPreload("MoveTaskOrder", "PickupAddress", "MTOServiceItems", "MTOServiceItems.ReService").Find(&shipment, shipmentID)

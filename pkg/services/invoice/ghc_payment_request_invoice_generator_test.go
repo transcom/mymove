@@ -1144,6 +1144,17 @@ func (suite *GHCInvoiceSuite) TestNilValues() {
 		nilPaymentRequest.MoveTaskOrder.Orders.TAC = oldTAC
 	})
 
+	suite.Run("nil originDutyLocationGBLOC returns error", func() {
+		setupTestData()
+		oldGBLOC := nilPaymentRequest.MoveTaskOrder.Orders.OriginDutyLocationGBLOC
+		nilPaymentRequest.MoveTaskOrder.Orders.OriginDutyLocationGBLOC = nil
+		_, err := generator.Generate(suite.AppContextForTest(), nilPaymentRequest, false)
+		suite.Error(err)
+		suite.IsType(apperror.InvalidInputError{}, err)
+		suite.Equal("origin duty location GBLOC is required", err.Error())
+		nilPaymentRequest.MoveTaskOrder.Orders.OriginDutyLocationGBLOC = oldGBLOC
+	})
+
 	suite.Run("nil country for NewDutyLocation does not cause panic", func() {
 		setupTestData()
 		oldCountry := nilPaymentRequest.MoveTaskOrder.Orders.NewDutyLocation.Address.Country

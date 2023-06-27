@@ -44,7 +44,7 @@ func (u Upload) TableName() string {
 type Uploads []Upload
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-func (u *Upload) Validate(tx *pop.Connection) (*validate.Errors, error) {
+func (u *Upload) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	var vs []validate.Validator
 	vs = append(vs, &validators.StringInclusion{Field: string(u.UploadType), Name: "UploadType", List: []string{
 		string(UploadTypeUSER),
@@ -60,7 +60,7 @@ func (u *Upload) Validate(tx *pop.Connection) (*validate.Errors, error) {
 }
 
 // BeforeCreate populates the StorageKey on a newly created UserUpload
-func (u *Upload) BeforeCreate(tx *pop.Connection) error {
+func (u *Upload) BeforeCreate(_ *pop.Connection) error {
 	// Populate ID if not exists
 	if u.ID == uuid.Nil {
 		u.ID = uuid.Must(uuid.NewV4())

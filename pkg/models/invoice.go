@@ -53,7 +53,7 @@ func (i Invoice) TableName() string {
 type Invoices []Invoice
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-func (i *Invoice) Validate(tx *pop.Connection) (*validate.Errors, error) {
+func (i *Invoice) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.StringIsPresent{Field: string(i.Status), Name: "Status"},
 		// Note that a SCAC can be 2 to 4 letters long, so the minimum invoice number

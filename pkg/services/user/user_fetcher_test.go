@@ -18,12 +18,12 @@ type testUserQueryBuilder struct {
 	fakeUpdateOne func(appCtx appcontext.AppContext, models interface{}, eTag *string) (*validate.Errors, error)
 }
 
-func (t *testUserQueryBuilder) FetchOne(appCtx appcontext.AppContext, model interface{}, filters []services.QueryFilter) error {
+func (t *testUserQueryBuilder) FetchOne(appCtx appcontext.AppContext, model interface{}, _ []services.QueryFilter) error {
 	m := t.fakeFetchOne(appCtx, model)
 	return m
 }
 
-func (t *testUserQueryBuilder) UpdateOne(appCtx appcontext.AppContext, model interface{}, eTag *string) (*validate.Errors, error) {
+func (t *testUserQueryBuilder) UpdateOne(_ appcontext.AppContext, _ interface{}, _ *string) (*validate.Errors, error) {
 	return nil, nil
 }
 

@@ -25,9 +25,7 @@ const ServicesCounselingEditShipmentDetails = lazy(() =>
   import('pages/Office/ServicesCounselingEditShipmentDetails/ServicesCounselingEditShipmentDetails'),
 );
 const CustomerInfo = lazy(() => import('pages/Office/CustomerInfo/CustomerInfo'));
-const ServicesCounselorCustomerSupportRemarks = lazy(() =>
-  import('pages/Office/ServicesCounselorCustomerSupportRemarks/ServicesCounselorCustomerSupportRemarks'),
-);
+const CustomerSupportRemarks = lazy(() => import('pages/Office/CustomerSupportRemarks/CustomerSupportRemarks'));
 const MoveHistory = lazy(() => import('pages/Office/MoveHistory/MoveHistory'));
 const ReviewDocuments = lazy(() => import('pages/Office/PPM/ReviewDocuments/ReviewDocuments'));
 const ServicesCounselingReviewShipmentWeights = lazy(() =>
@@ -162,7 +160,7 @@ const ServicesCounselingMoveInfo = () => {
           <Route
             path={servicesCounselingRoutes.CUSTOMER_SUPPORT_REMARKS_PATH}
             end
-            element={<ServicesCounselorCustomerSupportRemarks />}
+            element={<CustomerSupportRemarks />}
           />
 
           <Route path={servicesCounselingRoutes.MOVE_HISTORY_PATH} end element={<MoveHistory moveCode={moveCode} />} />

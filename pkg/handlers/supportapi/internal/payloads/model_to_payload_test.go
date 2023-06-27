@@ -13,7 +13,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func TestOrder(t *testing.T) {
+func TestOrder(_ *testing.T) {
 	order := &models.Order{}
 	Order(order)
 }
