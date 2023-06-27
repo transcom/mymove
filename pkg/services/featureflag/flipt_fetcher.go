@@ -10,6 +10,9 @@ import (
 	"go.flipt.io/flipt/rpc/flipt"
 	sdk "go.flipt.io/flipt/sdk/go"
 	sdkhttp "go.flipt.io/flipt/sdk/go/http"
+	"go.uber.org/zap"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/cli"
@@ -86,7 +89,7 @@ func (ff *FliptFetcher) GetFlagForUser(ctx context.Context, appCtx appcontext.Ap
 		featureFlagContext["permissions."+permissions[i]] = strconv.FormatBool(true)
 	}
 
-	return ff.GetFlag(ctx, entityID, key, flagContext)
+	return ff.GetFlag(ctx, appCtx.Logger(), entityID, key, flagContext)
 }
 
 // IsEnabledForUser is a wrapper around GetFlag for boolean flags
@@ -104,7 +107,7 @@ func (ff *FliptFetcher) IsEnabledForUser(ctx context.Context, appCtx appcontext.
 	return flag.Value == enabledVariant, nil
 }
 
-func (ff *FliptFetcher) GetFlag(ctx context.Context, entityID string, key string, flagContext map[string]string) (services.FeatureFlag, error) {
+func (ff *FliptFetcher) GetFlag(ctx context.Context, logger *zap.Logger, entityID string, key string, flagContext map[string]string) (services.FeatureFlag, error) {
 
 	featureFlag := services.FeatureFlag{}
 	result, err := ff.client.Flipt().Evaluate(ctx, &flipt.EvaluationRequest{
@@ -114,15 +117,25 @@ func (ff *FliptFetcher) GetFlag(ctx context.Context, entityID string, key string
 		EntityId:     entityID,
 		Context:      flagContext,
 	})
+	featureFlag.Entity = entityID
+	featureFlag.Key = key
+	featureFlag.Enabled = false
+	featureFlag.Namespace = ff.config.Namespace
+
 	if err != nil {
+		logger.Warn("Flipt error", zap.Error(err))
+		if s, ok := status.FromError(err); ok && s.Code() == codes.NotFound {
+			// treat a missing feature flag as a disabled one
+			logger.Warn("Feature flag not found",
+				zap.String("key", key),
+				zap.String("namespace", ff.config.Namespace))
+			return featureFlag, nil
+		}
 		return featureFlag, err
 	}
 
-	featureFlag.Entity = entityID
-	featureFlag.Key = key
 	featureFlag.Enabled = result.Match
 	featureFlag.Value = result.Value
-	featureFlag.Namespace = result.NamespaceKey
 
 	return featureFlag, nil
 }

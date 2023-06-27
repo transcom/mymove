@@ -84,7 +84,8 @@ func NewHealthHandler(appCtx appcontext.AppContext, featureFlagFetcher services.
 				data["redis"] = true
 			}
 
-			flag, err := featureFlagFetcher.GetFlag(r.Context(), "health", "basic", map[string]string{})
+			flag, err := featureFlagFetcher.GetFlag(r.Context(), appCtx.Logger(),
+				"health", "basic", map[string]string{})
 			if err != nil {
 				appCtx.Logger().Warn("Cannot fetch feature flag in health handler", zap.Error(err))
 			} else {

@@ -200,6 +200,7 @@ func (suite *FliptFetcherSuite) TestGetFlagForUserMultiVariant() {
 func (suite *FliptFetcherSuite) TestGetFlagSystemMultiVariant() {
 	f := suite.setupFliptFetcher("testdata/flipt_system_multi_variant")
 	flag, err := f.GetFlag(context.Background(),
+		suite.Logger(),
 		"system",
 		"multi_variant", map[string]string{})
 	suite.NoError(err)
