@@ -560,16 +560,16 @@ func Test_OptionalPoundIsPositive_isValid(t *testing.T) {
 }
 
 func Test_MustBeBothNilOrBothNotNil_IsValid(t *testing.T) {
-	brand := "Honda"
-	model := "Civic"
+	vehicleMake := "Honda"
+	vehicleModel := "Civic"
 
 	t.Run("fields both have value succeeds", func(t *testing.T) {
 
 		v := models.MustBeBothNilOrBothHaveValue{
 			FieldName1:  "VehicleMake",
-			FieldValue1: &brand,
+			FieldValue1: &vehicleMake,
 			FieldName2:  "VehicleModel",
-			FieldValue2: &model,
+			FieldValue2: &vehicleModel,
 		}
 		errs := validate.NewErrors()
 		v.IsValid(errs)
@@ -597,7 +597,7 @@ func Test_MustBeBothNilOrBothNotNil_IsValid(t *testing.T) {
 			FieldName1:  "VehicleMake",
 			FieldValue1: nil,
 			FieldName2:  "VehicleModel",
-			FieldValue2: &model,
+			FieldValue2: &vehicleModel,
 		}
 
 		errs := validate.NewErrors()
@@ -610,7 +610,7 @@ func Test_MustBeBothNilOrBothNotNil_IsValid(t *testing.T) {
 	t.Run("first field has value and the second field is nil fails", func(t *testing.T) {
 		v := models.MustBeBothNilOrBothHaveValue{
 			FieldName1:  "VehicleMake",
-			FieldValue1: &brand,
+			FieldValue1: &vehicleMake,
 			FieldName2:  "VehicleModel",
 			FieldValue2: nil,
 		}
