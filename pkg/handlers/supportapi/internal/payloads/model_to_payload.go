@@ -313,8 +313,10 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) supportmessages.MTOSe
 
 		payload = &supportmessages.MTOServiceItemDestSIT{
 			ReServiceCode:               handlers.FmtString(string(mtoServiceItem.ReService.Code)),
+			DateOfContact1:              handlers.FmtDate(firstContact.DateOfContact),
 			TimeMilitary1:               handlers.FmtString(firstContact.TimeMilitary),
 			FirstAvailableDeliveryDate1: handlers.FmtDate(firstContact.FirstAvailableDeliveryDate),
+			DateOfContact2:              handlers.FmtDate(secondContact.DateOfContact),
 			TimeMilitary2:               handlers.FmtString(secondContact.TimeMilitary),
 			FirstAvailableDeliveryDate2: handlers.FmtDate(secondContact.FirstAvailableDeliveryDate),
 			SitDepartureDate:            handlers.FmtDate(sitDepartureDate),

@@ -85,7 +85,7 @@ func (o Order) TableName() string {
 type Orders []Order
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-func (o *Order) Validate(tx *pop.Connection) (*validate.Errors, error) {
+func (o *Order) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&OrdersTypeIsPresent{Field: o.OrdersType, Name: "OrdersType"},
 		&validators.TimeIsPresent{Field: o.IssueDate, Name: "IssueDate"},

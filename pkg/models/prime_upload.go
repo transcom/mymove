@@ -52,7 +52,7 @@ func UploadsFromPrimeUploads(db *pop.Connection, primeUploads PrimeUploads) (Upl
 }
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-func (u *PrimeUpload) Validate(tx *pop.Connection) (*validate.Errors, error) {
+func (u *PrimeUpload) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.UUIDIsPresent{Field: u.ContractorID, Name: "ContractorID"},
 		&validators.UUIDIsPresent{Field: u.ProofOfServiceDocID, Name: "ProofOfServiceDocID"},

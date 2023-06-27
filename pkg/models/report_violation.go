@@ -22,7 +22,7 @@ func (r ReportViolation) TableName() string {
 type ReportViolations []ReportViolation
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-func (r *ReportViolation) Validate(tx *pop.Connection) (*validate.Errors, error) {
+func (r *ReportViolation) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	var vs []validate.Validator
 
 	verrs := validate.Validate(vs...)

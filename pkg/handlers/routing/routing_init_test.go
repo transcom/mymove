@@ -1,125 +1,88 @@
 package routing
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"path"
 	"testing"
 
-	"github.com/spf13/afero"
 	"github.com/stretchr/testify/suite"
 
-	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
-	"github.com/transcom/mymove/pkg/handlers"
-	"github.com/transcom/mymove/pkg/handlers/authentication"
-	"github.com/transcom/mymove/pkg/notifications"
-	"github.com/transcom/mymove/pkg/telemetry"
-	"github.com/transcom/mymove/pkg/testingsuite"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
+	"github.com/transcom/mymove/pkg/models/roles"
 )
 
 type RoutingSuite struct {
-	handlers.BaseHandlerTestSuite
+	BaseRoutingSuite
 }
 
 func TestRoutingSuite(t *testing.T) {
 	hs := &RoutingSuite{
-		BaseHandlerTestSuite: handlers.NewBaseHandlerTestSuite(notifications.NewStubNotificationSender("milmovelocal"), testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
+		NewBaseRoutingSuite(),
 	}
 	suite.Run(t, hs)
 	hs.PopTestSuite.TearDown()
 }
 
-var appNames = auth.ApplicationServername{
-	MilServername:    "mil.example.com",
-	OfficeServername: "office.example.com",
-	AdminServername:  "admin.example.com",
-	PrimeServername:  "prime.example.com",
-}
-
-const indexContent = "<html></html>"
-
-func (suite *RoutingSuite) setupRouting() *Config {
-	// Test that we can initialize routing and serve the index file
-	handlerConfig := suite.HandlerConfig()
-	handlerConfig.SetAppNames(appNames)
-
-	fakeLoginGovProvider := authentication.NewLoginGovProvider("fakeHostname", "secret_key", suite.Logger())
-
-	authContext := authentication.NewAuthContext(suite.Logger(), fakeLoginGovProvider, "http", 80)
-
-	fakeFs := afero.NewMemMapFs()
-	fakeBase := "fakebase"
-	f, err := fakeFs.Create(path.Join(fakeBase, "index.html"))
-	suite.NoError(err)
-	_, err = f.Write([]byte(indexContent))
-	suite.NoError(err)
-
-	rConfig := &Config{
-		FileSystem:    fakeFs,
-		HandlerConfig: handlerConfig,
-		AuthContext:   authContext,
-		BuildRoot:     fakeBase,
-
-		// include all these as true to increase test coverage
-		ServeSwaggerUI:      true,
-		ServePrime:          true,
-		ServeSupport:        true,
-		ServeDebugPProf:     true,
-		ServeAPIInternal:    true,
-		ServeAdmin:          true,
-		ServePrimeSimulator: true,
-		ServeGHC:            true,
-		ServeDevlocalAuth:   true,
-		ServeOrders:         true,
-	}
-
-	return rConfig
-
-}
-
 func (suite *RoutingSuite) TestBasicRoutingInit() {
 
-	rConfig := suite.setupRouting()
-	h, err := InitRouting(suite.AppContextForTest(), nil, rConfig, &telemetry.Config{})
-	suite.NoError(err)
-
-	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/", appNames.MilServername), nil)
+	req := suite.NewMilRequest("GET", "/", nil)
 	rr := httptest.NewRecorder()
-	h.ServeHTTP(rr, req)
+	suite.SetupSiteHandler().ServeHTTP(rr, req)
 
 	suite.Equal(http.StatusOK, rr.Code)
-	suite.Equal(indexContent, rr.Body.String())
+	suite.Equal(suite.indexContent, rr.Body.String())
 }
 
 func (suite *RoutingSuite) TestServeGHC() {
 
-	rConfig := suite.setupRouting()
-	h, err := InitRouting(suite.AppContextForTest(), nil, rConfig, &telemetry.Config{})
-	suite.NoError(err)
+	serviceMember := factory.BuildServiceMember(suite.DB(), factory.GetTraitActiveServiceMemberUser(), nil)
+	routingConfig := suite.RoutingConfig()
+	siteHandler := suite.SetupCustomSiteHandler(routingConfig)
 
-	user := factory.BuildUser(suite.DB(), nil, nil)
+	// make the request with auth
+	req := suite.NewAuthenticatedMilRequest("GET", fmt.Sprintf("/ghc/v1/customer/%s", serviceMember.ID.String()), nil, serviceMember)
+	rr := httptest.NewRecorder()
+	siteHandler.ServeHTTP(rr, req)
+	// 🚨🚨🚨
+	// Should service members have access to the GHC API?
+	// 🚨🚨🚨
+	suite.Equal(http.StatusOK, rr.Code)
 
 	// make the request without auth
-	// getting auth working here in the test is a good bit more work.
-	// Will have that in a future PR
-	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/ghc/v1/customer/%s", appNames.MilServername, user.ID.String()), nil)
-	rr := httptest.NewRecorder()
-	h.ServeHTTP(rr, req)
+	req = suite.NewMilRequest("GET", fmt.Sprintf("/ghc/v1/customer/%s", serviceMember.ID.String()), nil)
+	rr = httptest.NewRecorder()
+	siteHandler.ServeHTTP(rr, req)
 	suite.Equal(http.StatusUnauthorized, rr.Code)
 
 	// make the request with GHC routing turned off
-	rConfig = suite.setupRouting()
-	rConfig.ServeGHC = false
-	h, err = InitRouting(suite.AppContextForTest(), nil, rConfig, &telemetry.Config{})
-	suite.NoError(err)
-	req = httptest.NewRequest("GET", fmt.Sprintf("http://%s/ghc/v1/customer/%s", appNames.MilServername, user.ID.String()), nil)
+	routingConfig.ServeGHC = false
+	noghcHandler := suite.SetupCustomSiteHandler(routingConfig)
+	req = suite.NewMilRequest("GET", fmt.Sprintf("/ghc/v1/customer/%s", serviceMember.ID.String()), nil)
 	rr = httptest.NewRecorder()
-	h.ServeHTTP(rr, req)
+	noghcHandler.ServeHTTP(rr, req)
 	// if the API is not enabled, the routing will be served by the
 	// SPA handler, sending back the index page, which will have the
 	// javascript SPA routing
 	suite.Equal(http.StatusOK, rr.Code)
-	suite.Equal(indexContent, rr.Body.String())
+	suite.Equal(suite.indexContent, rr.Body.String())
+}
+
+func (suite *RoutingSuite) TestOfficeLoggedInEndpoint() {
+	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitActiveOfficeUser(),
+		[]roles.RoleType{roles.RoleTypeTIO, roles.RoleTypeServicesCounselor})
+	req := suite.NewAuthenticatedOfficeRequest("GET", "/internal/users/logged_in", nil, officeUser)
+
+	rr := httptest.NewRecorder()
+	suite.SetupSiteHandler().ServeHTTP(rr, req)
+	suite.Equal(http.StatusOK, rr.Code)
+
+	var userPayload internalmessages.LoggedInUserPayload
+	suite.NoError(json.Unmarshal(rr.Body.Bytes(), &userPayload))
+	suite.Equal(officeUser.UserID.String(), userPayload.ID.String())
+	suite.NotNil(userPayload.OfficeUser)
+	suite.Equal(officeUser.ID.String(), userPayload.OfficeUser.ID.String())
+	suite.NotEmpty(userPayload.Permissions)
 }

@@ -136,11 +136,7 @@ func (f *sitAddressUpdateRequestApprover) updateSITAddressUpdateRequest(appCtx a
 	sitAddressUpdateRequest.Status = models.SITAddressUpdateStatusApproved
 
 	verrs, err := appCtx.DB().ValidateAndUpdate(&sitAddressUpdateRequest)
-	if error := f.handleError(sitAddressUpdateRequest.ID, verrs, err); error != nil {
-		return error
-	}
-
-	return nil
+	return f.handleError(sitAddressUpdateRequest.ID, verrs, err)
 }
 
 func (f *sitAddressUpdateRequestApprover) updateServiceItemFinalAddress(appCtx appcontext.AppContext, serviceItem models.MTOServiceItem, sitAddressUpdateRequest models.SITAddressUpdate) (*models.MTOServiceItem, error) {

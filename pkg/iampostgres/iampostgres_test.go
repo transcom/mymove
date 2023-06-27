@@ -18,7 +18,7 @@ type RDSUTest struct {
 	passes []string
 }
 
-func (r *RDSUTest) GetToken(endpoint string, region string, user string, iamcreds *credentials.Credentials) (string, error) {
+func (r *RDSUTest) GetToken(_ string, _ string, _ string, _ *credentials.Credentials) (string, error) {
 	if len(r.passes) == 0 {
 		return "", errors.New("no passwords to rotate")
 	}
@@ -284,11 +284,11 @@ func TestUpdateDSN(t *testing.T) {
 type FakeDriver struct {
 }
 
-func (fd FakeDriver) Ping(ctx context.Context) error {
+func (fd FakeDriver) Ping(_ context.Context) error {
 	return errors.New("FakePing Error")
 }
 
-func (fd FakeDriver) Prepare(query string) (driver.Stmt, error) {
+func (fd FakeDriver) Prepare(_ string) (driver.Stmt, error) {
 	return nil, errors.New("FakePrepare Error")
 }
 
@@ -300,6 +300,6 @@ func (fd FakeDriver) Close() error {
 	return errors.New("FakeClose Error")
 }
 
-func (fd FakeDriver) ResetSession(ctx context.Context) error {
+func (fd FakeDriver) ResetSession(_ context.Context) error {
 	return errors.New("FakeResetSession Error")
 }

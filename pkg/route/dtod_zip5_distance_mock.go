@@ -26,7 +26,7 @@ func NewMockDTODZip5Distance() DTODPlannerMileage {
 }
 
 // DTODZip5Distance returns a deterministic (but fake) distance between a pickup and destination zip
-func (m *mockDTODZip5DistanceInfo) DTODZip5Distance(appCtx appcontext.AppContext, pickupZip string, destinationZip string) (int, error) {
+func (m *mockDTODZip5DistanceInfo) DTODZip5Distance(_ appcontext.AppContext, pickupZip string, destinationZip string) (int, error) {
 	// DTOD apparently returns -1 for the distance when there are errors, so we simulate that here
 	// (we shouldn't be using the distance value on error, but this at least keeps things in sync).
 

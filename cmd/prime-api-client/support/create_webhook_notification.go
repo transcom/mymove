@@ -23,7 +23,7 @@ func InitCreateWebhookNotificationFlags(flag *pflag.FlagSet) {
 }
 
 // CheckCreateWebhookNotificationConfig checks the args.
-func CheckCreateWebhookNotificationConfig(v *viper.Viper, args []string) error {
+func CheckCreateWebhookNotificationConfig(v *viper.Viper) error {
 	err := utils.CheckRootConfig(v)
 	if err != nil {
 		return err
@@ -45,7 +45,7 @@ func CreateWebhookNotification(cmd *cobra.Command, args []string) error {
 	}
 
 	// Check the config before talking to the CAC
-	err := CheckCreateWebhookNotificationConfig(v, args)
+	err := CheckCreateWebhookNotificationConfig(v)
 	if err != nil {
 		logger.Fatal(err)
 	}
