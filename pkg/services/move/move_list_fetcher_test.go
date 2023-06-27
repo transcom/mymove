@@ -18,12 +18,12 @@ type testMoveListQueryBuilder struct {
 	fakeCount     func(appCtx appcontext.AppContext, model interface{}) (int, error)
 }
 
-func (t *testMoveListQueryBuilder) FetchMany(appCtx appcontext.AppContext, model interface{}, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) error {
+func (t *testMoveListQueryBuilder) FetchMany(appCtx appcontext.AppContext, model interface{}, _ []services.QueryFilter, _ services.QueryAssociations, _ services.Pagination, _ services.QueryOrder) error {
 	m := t.fakeFetchMany(appCtx, model)
 	return m
 }
 
-func (t *testMoveListQueryBuilder) Count(appCtx appcontext.AppContext, model interface{}, filters []services.QueryFilter) (int, error) {
+func (t *testMoveListQueryBuilder) Count(appCtx appcontext.AppContext, model interface{}, _ []services.QueryFilter) (int, error) {
 	count, m := t.fakeCount(appCtx, model)
 	return count, m
 }

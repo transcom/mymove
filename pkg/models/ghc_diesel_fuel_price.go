@@ -26,7 +26,7 @@ func (g GHCDieselFuelPrice) TableName() string {
 }
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-func (g *GHCDieselFuelPrice) Validate(tx *pop.Connection) (*validate.Errors, error) {
+func (g *GHCDieselFuelPrice) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.IntIsPresent{Field: g.FuelPriceInMillicents.Int(), Name: "FuelPriceInMillicents"},
 		&validators.TimeIsPresent{Field: g.PublicationDate, Name: "PublicationDate"},

@@ -130,7 +130,7 @@ func BuildRequestedReimbursement(requestedAmount unit.Cents, methodOfReceipt Met
 type Reimbursements []Reimbursement
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-func (r *Reimbursement) Validate(tx *pop.Connection) (*validate.Errors, error) {
+func (r *Reimbursement) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	if r == nil {
 		return validate.NewErrors(), nil
 	}
@@ -157,7 +157,7 @@ func (r *Reimbursement) Validate(tx *pop.Connection) (*validate.Errors, error) {
 }
 
 // FetchReimbursement Fetches and Validates a Reimbursement model
-func FetchReimbursement(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Reimbursement, error) {
+func FetchReimbursement(db *pop.Connection, _ *auth.Session, id uuid.UUID) (*Reimbursement, error) {
 	var reimbursement Reimbursement
 	err := db.Q().Find(&reimbursement, id)
 	if err != nil {

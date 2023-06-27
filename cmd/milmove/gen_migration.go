@@ -39,11 +39,7 @@ func checkGenMigrationConfig(v *viper.Viper) error {
 		return err
 	}
 
-	if err := cli.CheckMigrationGenPath(v); err != nil {
-		return err
-	}
-
-	return nil
+	return cli.CheckMigrationGenPath(v)
 }
 
 func genMigrationFunction(cmd *cobra.Command, args []string) error {

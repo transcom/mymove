@@ -300,7 +300,7 @@ func (f *FormFiller) drawData(fields map[string]FieldPos, data interface{}) erro
 }
 
 // ScaleText scales the text down to fit the cell if it is too long to fit in one line
-func (f *FormFiller) ScaleText(displayValue string, fontsize float64, width float64) {
+func (f *FormFiller) ScaleText(displayValue string, _ float64, width float64) {
 	stringWidth := f.pdf.GetStringWidth(displayValue)
 	for f.isMoreThanOneLine(stringWidth, width) {
 		ptSize, _ := f.pdf.GetFontSize()

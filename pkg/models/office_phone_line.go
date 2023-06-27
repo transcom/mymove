@@ -30,7 +30,7 @@ func (o OfficePhoneLine) TableName() string {
 type OfficePhoneLines []OfficePhoneLine
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-func (o *OfficePhoneLine) Validate(tx *pop.Connection) (*validate.Errors, error) {
+func (o *OfficePhoneLine) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	validLineTypes := []string{"voice", "fax"}
 	return validate.Validate(
 		&validators.StringIsPresent{Field: o.Number, Name: "Number"},

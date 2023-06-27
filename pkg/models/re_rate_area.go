@@ -31,7 +31,7 @@ func (r ReRateArea) TableName() string {
 type ReRateAreas []ReRateArea
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-func (r *ReRateArea) Validate(tx *pop.Connection) (*validate.Errors, error) {
+func (r *ReRateArea) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.UUIDIsPresent{Field: r.ContractID, Name: "ContractID"},
 		&validators.StringIsPresent{Field: r.Code, Name: "Code"},

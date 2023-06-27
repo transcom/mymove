@@ -50,7 +50,7 @@ func (ar AuthorizationResult) String() string {
 }
 
 // IsLoggedInMiddleware handles requests to is_logged_in endpoint by returning true if someone is logged in
-func IsLoggedInMiddleware(globalLogger *zap.Logger) http.HandlerFunc {
+func IsLoggedInMiddleware(_ *zap.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		logger := logging.FromContext(r.Context())
 		data := map[string]interface{}{
@@ -127,7 +127,7 @@ func PermissionsMiddleware(appCtx appcontext.AppContext, api APIWithContext) fun
 }
 
 // UserAuthMiddleware enforces that the incoming request is tied to a user session
-func UserAuthMiddleware(globalLogger *zap.Logger) func(next http.Handler) http.Handler {
+func UserAuthMiddleware(_ *zap.Logger) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
 
@@ -374,7 +374,7 @@ func authenticateUser(ctx context.Context, appCtx appcontext.AppContext, session
 }
 
 // AdminAuthMiddleware is middleware for admin authentication
-func AdminAuthMiddleware(globalLogger *zap.Logger) func(next http.Handler) http.Handler {
+func AdminAuthMiddleware(_ *zap.Logger) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
 			logger := logging.FromContext(r.Context())
@@ -394,7 +394,7 @@ func AdminAuthMiddleware(globalLogger *zap.Logger) func(next http.Handler) http.
 }
 
 // PrimeAuthorizationMiddleware is the prime authorization middleware
-func PrimeAuthorizationMiddleware(globalLogger *zap.Logger) func(next http.Handler) http.Handler {
+func PrimeAuthorizationMiddleware(_ *zap.Logger) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
 			logger := logging.FromContext(r.Context())
@@ -419,7 +419,7 @@ func PrimeAuthorizationMiddleware(globalLogger *zap.Logger) func(next http.Handl
 
 // PrimeSimulatorAuthorizationMiddleware ensures only users with the
 // prime simulator role can access the simulator
-func PrimeSimulatorAuthorizationMiddleware(globalLogger *zap.Logger) func(next http.Handler) http.Handler {
+func PrimeSimulatorAuthorizationMiddleware(_ *zap.Logger) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
 			logger := logging.FromContext(r.Context())
@@ -470,7 +470,7 @@ type FeatureFlag struct {
 }
 
 // NewAuthContext creates an Context
-func NewAuthContext(logger *zap.Logger, loginGovProvider LoginGovProvider, callbackProtocol string, callbackPort int) Context {
+func NewAuthContext(_ *zap.Logger, loginGovProvider LoginGovProvider, callbackProtocol string, callbackPort int) Context {
 	context := Context{
 		loginGovProvider: loginGovProvider,
 		callbackTemplate: fmt.Sprintf("%s://%%s:%d/", callbackProtocol, callbackPort),

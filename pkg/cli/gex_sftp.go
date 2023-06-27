@@ -57,11 +57,7 @@ func CheckGEXSFTP(v *viper.Viper) error {
 		return err
 	}
 
-	if err := ValidateHost(v, GEXSFTPIPAddressFlag); err != nil {
-		return err
-	}
-
-	return nil
+	return ValidateHost(v, GEXSFTPIPAddressFlag)
 }
 
 // InitGEXSSH initializes a GEX SSH client from command line flags.
