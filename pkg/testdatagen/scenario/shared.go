@@ -8699,25 +8699,16 @@ func createPrimeUser(appCtx appcontext.AppContext) models.User {
 				ID:            userUUID,
 				LoginGovUUID:  &loginGovUUID,
 				LoginGovEmail: email,
-				Active:        true,
-				Roles:         roles.Roles{userRole},
-			}},
-	}, nil)
+			},
+		},
+	}, []factory.Trait{factory.GetTraitPrimeUser})
 	return primeUser
 }
 
 func createDevClientCertForUser(appCtx appcontext.AppContext, user models.User) {
-	// Create dev client cert from 20191212230438_add_devlocal-mtls_client_cert.up.sql
-	devClientCert := models.ClientCert{
-		ID:           uuid.Must(uuid.FromString("190b1e07-eef8-445a-9696-5a2b49ee488d")),
-		Sha256Digest: "2c0c1fc67a294443292a9e71de0c71cc374fe310e8073f8cdc15510f6b0ef4db",
-		Subject:      "/C=US/ST=DC/L=Washington/O=Truss/OU=AppClientTLS/CN=devlocal",
-		UserID:       user.ID,
-	}
-	assertions := testdatagen.Assertions{
-		ClientCert: devClientCert,
-	}
-	testdatagen.MakeDevClientCert(appCtx.DB(), assertions)
+	devlocalCert := factory.FetchOrBuildDevlocalClientCert(appCtx.DB())
+	devlocalCert.UserID = user.ID
+	testdatagen.MustSave(appCtx.DB(), &devlocalCert)
 }
 
 func createHHGMoveWithReweigh(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {

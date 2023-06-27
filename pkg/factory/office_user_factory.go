@@ -146,3 +146,19 @@ func GetTraitOfficeUserWithID() []Customization {
 		},
 	}
 }
+
+// GetTraitOfficeUserActive sets the User and OfficeUser as Active
+func GetTraitActiveOfficeUser() []Customization {
+	return []Customization{
+		{
+			Model: models.OfficeUser{
+				Active: true,
+			},
+		},
+		{
+			Model: models.User{
+				Active: true,
+			},
+		},
+	}
+}
