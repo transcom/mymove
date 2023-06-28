@@ -6,6 +6,6 @@ import "github.com/transcom/mymove/pkg/appcontext"
 type ContractCodeLookup struct {
 }
 
-func (c ContractCodeLookup) lookup(appCtx appcontext.AppContext, keyData *ServiceItemParamKeyData) (string, error) {
+func (c ContractCodeLookup) lookup(_ appcontext.AppContext, keyData *ServiceItemParamKeyData) (string, error) {
 	return keyData.ContractCode, nil
 }

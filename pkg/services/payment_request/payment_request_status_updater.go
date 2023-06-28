@@ -37,10 +37,10 @@ func (p *paymentRequestStatusUpdater) UpdatePaymentRequestStatus(appCtx appconte
 			query.NewQueryFilter("payment_request_id", "=", id),
 			query.NewQueryFilter("status", "=", models.PaymentServiceItemStatusRequested),
 		}
-		error := p.builder.FetchMany(appCtx, &paymentServiceItems, serviceItemFilter, nil, nil, nil)
+		err := p.builder.FetchMany(appCtx, &paymentServiceItems, serviceItemFilter, nil, nil, nil)
 
-		if error != nil {
-			return nil, error
+		if err != nil {
+			return nil, err
 		}
 
 		if len(paymentServiceItems) > 0 {

@@ -8,7 +8,7 @@
 # - CIRCLECI: Will reduce parallelism and make the test output verbose
 # - COVERAGE: '1' will enable test coverage flags
 # - DRY_RUN: '1' will build the tests but not run them
-# - SERVER_REPORT: '1' will run go-junit-report and go coverage on output
+# - SERVER_REPORT: '1' will run gotestsum and go coverage on output
 # - LONG_TEST: '1' will remove the '-short' flag and run extended tests
 # - NO_RACE: disables the race detector, allowing the tests to run faster
 # - NO_DB: Will disable the db reset and migration steps
@@ -38,7 +38,7 @@ fi
 if [ -n "${CIRCLECI+x}" ]; then
 	# Limit the maximum number of tests to run in parallel for CircleCI due to memory constraints.
   gotest_args+=("-parallel" "4")
-	# Add verbose (-v) so go-junit-report can parse it for CircleCI
+	# Add verbose (-v) so gotestsum can parse it for CircleCI
   # results
   verbose_flag="-v"
   # Don't fail fast in Circle CI so we can see all the tests that failed

@@ -725,7 +725,7 @@ func (s *stubLoginGovProvider) FetchUser(goth.Session) (goth.User, error) {
 	return s.StubUser, nil
 }
 
-func (s *stubLoginGovProvider) FetchUserAndIDTokenByCode(code string) (goth.User, string, error) {
+func (s *stubLoginGovProvider) FetchUserAndIDTokenByCode(_ string) (goth.User, string, error) {
 	return s.StubUser, s.StubToken, nil
 }
 
@@ -733,7 +733,7 @@ func (s *stubLoginGovProvider) ClientKey() string {
 	return s.StubClientKey
 }
 
-func (s *stubLoginGovProvider) UnmarshalSession(data string) (goth.Session, error) {
+func (s *stubLoginGovProvider) UnmarshalSession(_ string) (goth.Session, error) {
 	return nil, http.ErrHijacked
 }
 func (s *stubLoginGovProvider) Debug(setting bool) {
@@ -741,7 +741,7 @@ func (s *stubLoginGovProvider) Debug(setting bool) {
 }
 
 // Get new access token based on the refresh token
-func (s *stubLoginGovProvider) RefreshToken(refreshToken string) (*oauth2.Token, error) {
+func (s *stubLoginGovProvider) RefreshToken(_ string) (*oauth2.Token, error) {
 	return nil, http.ErrHijacked
 }
 

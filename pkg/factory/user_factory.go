@@ -54,7 +54,7 @@ func BuildUser(db *pop.Connection, customs []Customization, traits []Trait) mode
 // Params:
 // - customs is a slice that will be modified by the factory
 // - db can be set to nil to create a stubbed model that is not stored in DB, but Roles and UsersRoles won't be created
-func BuildUserAndUsersRoles(db *pop.Connection, customs []Customization, traits []Trait) models.User {
+func BuildUserAndUsersRoles(db *pop.Connection, customs []Customization, _ []Trait) models.User {
 
 	user := BuildUser(db, customs, nil)
 	if db != nil {

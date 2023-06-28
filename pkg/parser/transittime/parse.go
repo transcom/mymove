@@ -171,7 +171,7 @@ func Parse(appCtx appcontext.AppContext, xlsxDataSheets []XlsxDataSheetInfo, par
 //	    a.) add new verify function for your processing
 //	    b.) add new process function for your processing
 //	    c.) update InitDataSheetInfo() with a.) and b.)
-func process(appCtx appcontext.AppContext, xlsxDataSheets []XlsxDataSheetInfo, params ParamConfig, sheetIndex int, tableFromSliceCreator services.TableFromSliceCreator) error {
+func process(appCtx appcontext.AppContext, xlsxDataSheets []XlsxDataSheetInfo, params ParamConfig, sheetIndex int, _ services.TableFromSliceCreator) error {
 	xlsxInfo := xlsxDataSheets[sheetIndex]
 	var description string
 	if xlsxInfo.Description != nil {

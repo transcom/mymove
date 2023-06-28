@@ -6,7 +6,7 @@ import "github.com/transcom/mymove/pkg/appcontext"
 type NotImplementedLookup struct {
 }
 
-func (r NotImplementedLookup) lookup(appCtx appcontext.AppContext, keyData *ServiceItemParamKeyData) (string, error) {
+func (r NotImplementedLookup) lookup(_ appcontext.AppContext, _ *ServiceItemParamKeyData) (string, error) {
 	value := "NOT IMPLEMENTED"
 
 	return value, nil

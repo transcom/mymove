@@ -24,7 +24,7 @@ func (p PaymentRequestToInterchangeControlNumber) TableName() string {
 }
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-func (p *PaymentRequestToInterchangeControlNumber) Validate(tx *pop.Connection) (*validate.Errors, error) {
+func (p *PaymentRequestToInterchangeControlNumber) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.StringInclusion{Field: p.EDIType.String(), Name: "EDIType", List: allowedEDITypes},
 		&validators.UUIDIsPresent{Field: p.PaymentRequestID, Name: "PaymentRequestID"},
