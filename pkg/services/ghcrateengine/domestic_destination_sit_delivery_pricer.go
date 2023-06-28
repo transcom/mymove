@@ -38,7 +38,7 @@ func (p domesticDestinationSITDeliveryPricer) PriceUsingParams(appCtx appcontext
 	if err != nil {
 		return unit.Cents(0), nil, err
 	}
-	// To trigger make sure you get the price from the Prime, and see what the value is once you try creating the Payment Request.
+
 	serviceAreaDest, err := getParamString(params, models.ServiceItemParamNameSITDestFinalAddress)
 	if err != nil {
 		return unit.Cents(0), nil, err
