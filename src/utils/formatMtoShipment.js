@@ -20,11 +20,11 @@ function formatAgentForDisplay(agent) {
   return agentCopy;
 }
 
-function formatAgentForAPI(agent) {
+function formatAgentForAPI(agent, isCreatePage) {
   const agentCopy = { ...agent };
   Object.keys(agentCopy).forEach((key) => {
     const sanitizedKey = `${key}`;
-    if (agentCopy[sanitizedKey] === '') {
+    if (agentCopy[sanitizedKey] === '' && isCreatePage) {
       delete agentCopy[sanitizedKey];
     } else if (
       // These fields are readOnly so we don't want to send them in requests
@@ -293,25 +293,28 @@ export function formatPpmShipmentForAPI(formValues) {
  * formatMtoShipmentForAPI converts mtoShipment data from the template format to the format API calls expect
  * @param {*} param - unnamed object representing various mtoShipment data parts
  */
-export function formatMtoShipmentForAPI({
-  moveId,
-  shipmentType,
-  pickup,
-  delivery,
-  customerRemarks,
-  counselorRemarks,
-  hasSecondaryPickup,
-  secondaryPickup,
-  hasSecondaryDelivery,
-  secondaryDelivery,
-  ntsRecordedWeight,
-  tacType,
-  sacType,
-  serviceOrderNumber,
-  storageFacility,
-  usesExternalVendor,
-  destinationType,
-}) {
+export function formatMtoShipmentForAPI(
+  {
+    moveId,
+    shipmentType,
+    pickup,
+    delivery,
+    customerRemarks,
+    counselorRemarks,
+    hasSecondaryPickup,
+    secondaryPickup,
+    hasSecondaryDelivery,
+    secondaryDelivery,
+    ntsRecordedWeight,
+    tacType,
+    sacType,
+    serviceOrderNumber,
+    storageFacility,
+    usesExternalVendor,
+    destinationType,
+  },
+  isCreatePage,
+) {
   const formattedMtoShipment = {
     moveTaskOrderID: moveId,
     shipmentType,
@@ -328,7 +331,7 @@ export function formatMtoShipmentForAPI({
     formattedMtoShipment.pickupAddress = formatAddressForAPI(pickup.address);
 
     if (pickup.agent) {
-      const formattedAgent = formatAgentForAPI(pickup.agent);
+      const formattedAgent = formatAgentForAPI(pickup.agent, isCreatePage);
       if (!isEmpty(formattedAgent)) {
         formattedMtoShipment.agents.push({ ...formattedAgent, agentType: MTOAgentType.RELEASING });
       }
@@ -347,7 +350,7 @@ export function formatMtoShipmentForAPI({
     }
 
     if (delivery.agent) {
-      const formattedAgent = formatAgentForAPI(delivery.agent);
+      const formattedAgent = formatAgentForAPI(delivery.agent, isCreatePage);
       if (!isEmpty(formattedAgent)) {
         formattedMtoShipment.agents.push({ ...formattedAgent, agentType: MTOAgentType.RECEIVING });
       }

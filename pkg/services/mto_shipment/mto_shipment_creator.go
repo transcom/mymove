@@ -215,6 +215,18 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 						return apperror.NewInvalidInputError(uuid.Nil, nil, nil, "MTOAgents can only contain one agent of each type")
 					}
 				}
+				if *agent.FirstName == "" {
+					agent.FirstName = nil
+				}
+				if *agent.LastName == "" {
+					agent.LastName = nil
+				}
+				if *agent.Email == "" {
+					agent.Email = nil
+				}
+				if *agent.Phone == "" {
+					agent.Phone = nil
+				}
 
 				agentsList = append(agentsList, copyOfAgent)
 			}

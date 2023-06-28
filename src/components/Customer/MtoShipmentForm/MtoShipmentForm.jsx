@@ -97,7 +97,7 @@ class MtoShipmentForm extends Component {
       secondaryDelivery: hasSecondaryDelivery === 'yes' ? secondaryDelivery : {},
     };
 
-    const pendingMtoShipment = formatMtoShipmentForAPI(preformattedMtoShipment);
+    const pendingMtoShipment = formatMtoShipmentForAPI(preformattedMtoShipment, isCreatePage);
 
     const reviewPath = generatePath(customerRoutes.MOVE_REVIEW_PATH, { moveId });
 

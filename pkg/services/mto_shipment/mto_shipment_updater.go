@@ -234,6 +234,18 @@ func setNewShipmentFields(appCtx appcontext.AppContext, dbShipment *models.MTOSh
 			// if no record exists in the db
 			if newAgentInfo.ID == uuid.Nil {
 				newAgentInfo.MTOShipmentID = requestedUpdatedShipment.ID
+				if *newAgentInfo.FirstName == "" {
+					newAgentInfo.FirstName = nil
+				}
+				if *newAgentInfo.LastName == "" {
+					newAgentInfo.LastName = nil
+				}
+				if *newAgentInfo.Email == "" {
+					newAgentInfo.Email = nil
+				}
+				if *newAgentInfo.Phone == "" {
+					newAgentInfo.Phone = nil
+				}
 				agentsToCreateOrUpdate = append(agentsToCreateOrUpdate, newAgentInfo)
 			} else {
 				foundAgent := false
@@ -248,21 +260,26 @@ func setNewShipmentFields(appCtx appcontext.AppContext, dbShipment *models.MTOSh
 							dbShipment.MTOAgents[i].MTOAgentType = newAgentInfo.MTOAgentType
 						}
 
-						if newAgentInfo.FirstName != nil || (newAgentInfo.FirstName == nil && dbShipment.MTOAgents[i].FirstName != nil) {
-							dbShipment.MTOAgents[i].FirstName = newAgentInfo.FirstName
-						}
+						dbShipment.MTOAgents[i].FirstName = services.SetOptionalStringField(newAgentInfo.FirstName, dbShipment.MTOAgents[i].FirstName)
+						dbShipment.MTOAgents[i].LastName = services.SetOptionalStringField(newAgentInfo.LastName, dbShipment.MTOAgents[i].LastName)
+						dbShipment.MTOAgents[i].Email = services.SetOptionalStringField(newAgentInfo.Email, dbShipment.MTOAgents[i].Email)
+						dbShipment.MTOAgents[i].Phone = services.SetOptionalStringField(newAgentInfo.Phone, dbShipment.MTOAgents[i].Phone)
 
-						if newAgentInfo.LastName != nil || (newAgentInfo.LastName == nil && dbShipment.MTOAgents[i].LastName != nil) {
-							dbShipment.MTOAgents[i].LastName = newAgentInfo.LastName
-						}
-
-						if newAgentInfo.Email != nil || (newAgentInfo.Email == nil && dbShipment.MTOAgents[i].Email != nil) {
-							dbShipment.MTOAgents[i].Email = newAgentInfo.Email
-						}
-
-						if newAgentInfo.Phone != nil || (newAgentInfo.Phone == nil && dbShipment.MTOAgents[i].Phone != nil) {
-							dbShipment.MTOAgents[i].Phone = newAgentInfo.Phone
-						}
+						//if newAgentInfo.FirstName != nil || (newAgentInfo.FirstName == nil && dbShipment.MTOAgents[i].FirstName != nil) {
+						//	dbShipment.MTOAgents[i].FirstName = newAgentInfo.FirstName
+						//}
+						//
+						//if newAgentInfo.LastName != nil || (newAgentInfo.LastName == nil && dbShipment.MTOAgents[i].LastName != nil) {
+						//	dbShipment.MTOAgents[i].LastName = newAgentInfo.LastName
+						//}
+						//
+						//if newAgentInfo.Email != nil || (newAgentInfo.Email == nil && dbShipment.MTOAgents[i].Email != nil) {
+						//	dbShipment.MTOAgents[i].Email = newAgentInfo.Email
+						//}
+						//
+						//if newAgentInfo.Phone != nil || (newAgentInfo.Phone == nil && dbShipment.MTOAgents[i].Phone != nil) {
+						//	dbShipment.MTOAgents[i].Phone = newAgentInfo.Phone
+						//}
 						agentsToCreateOrUpdate = append(agentsToCreateOrUpdate, dbShipment.MTOAgents[i])
 					}
 				}
