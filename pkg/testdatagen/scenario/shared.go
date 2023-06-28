@@ -10804,7 +10804,7 @@ func createMoveWithOriginAndDestinationSIT(appCtx appcontext.AppContext, userUpl
 			LinkOnly: true,
 		},
 	}, nil)
-
+	approvedAt := time.Now()
 	oneWeekAgo := oneMonthAgo.Add(time.Hour * 24 * 23)
 	dddsit := factory.BuildMTOServiceItem(db, []factory.Customization{
 		{
@@ -10812,6 +10812,7 @@ func createMoveWithOriginAndDestinationSIT(appCtx appcontext.AppContext, userUpl
 				Status:       models.MTOServiceItemStatusApproved,
 				SITEntryDate: &oneWeekAgo,
 				Reason:       &reason,
+				ApprovedAt:   &approvedAt,
 			},
 		},
 		{
