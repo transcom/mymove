@@ -2,6 +2,7 @@ package shipmentaddressupdate
 
 import (
 	"database/sql"
+	"time"
 
 	"github.com/gofrs/uuid"
 
@@ -31,9 +32,6 @@ func NewShipmentAddressUpdateRequester(planner route.Planner, addressCreator ser
 	}
 }
 
-// service area change
-// need old and new dest zips (destination service area?)
-// i guess this changes unpack price and stuff like that, but not linehaul price?
 func (f *shipmentAddressUpdateRequester) doesDeliveryAddressUpdateChangeServiceArea(appCtx appcontext.AppContext, contractID uuid.UUID, originalDeliveryAddress models.Address, newDeliveryAddress models.Address) (bool, error) {
 	var existingServiceArea models.ReZip3
 	var actualServiceArea models.ReZip3
@@ -62,13 +60,12 @@ func (f *shipmentAddressUpdateRequester) doesDeliveryAddressUpdateChangeServiceA
 
 // mileage bracket change (only applicable for linehaul)
 func (f *shipmentAddressUpdateRequester) doesDeliveryAddressUpdateChangeMileageBracket(appCtx appcontext.AppContext, originalPickupAddress models.Address, originalDeliveryAddress, newDeliveryAddress models.Address) (bool, error) {
-	// either look up both distances, and look up in hard coded list of brackets
-	// or look up the linehaul price record for both and compare miles_upper and miles_lower
-	//   this needs weight and isPeak as well.
-	//   unless we can assume mileage brackets don't change within a contract, we could maybe aggregate and skip?
 
-	var milesUpper = [9]int{250, 500, 1000, 1500, 2000, 2500, 3000, 3500, 4000}
+	// Mileage brackets are taken from the pricing spreadsheet, "2a) Domestic Linehaul Prices"
+	// They are: [0, 250], [251, 500], [501, 1000], [1001, 1500], [1501-2000], [2001, 2500], [2501, 3000], [3001, 3500], [3501, 4000], and [4001, infinity)
+	// We will handle the maximum bracket (>=4001 miles) separately.
 	var milesLower = [9]int{0, 251, 501, 1001, 1501, 2001, 2501, 3001, 3501}
+	var milesUpper = [9]int{250, 500, 1000, 1500, 2000, 2500, 3000, 3500, 4000}
 
 	previousDistance, err := f.planner.ZipTransitDistance(appCtx, originalPickupAddress.PostalCode, originalDeliveryAddress.PostalCode)
 	if err != nil {
@@ -84,18 +81,19 @@ func (f *shipmentAddressUpdateRequester) doesDeliveryAddressUpdateChangeMileageB
 	}
 
 	for index, lowerLimit := range milesLower {
-
 		upperLimit := milesUpper[index]
 
+		// Find the mileage bracket that the original shipment's distance falls into
 		if previousDistance >= lowerLimit && previousDistance <= upperLimit {
 
-			if newDistance >= lowerLimit && newDistance <= upperLimit {
-				return false, nil
-			}
-			return true, nil
+			// If the new distance after the address change falls in a different bracket, then there could be a pricing change
+			newDistanceIsInSameBracket := newDistance >= lowerLimit && newDistance <= upperLimit
+			return !newDistanceIsInSameBracket, nil
 		}
 	}
 
+	// if we get past the loop, then the original distance must be >=4001 miles, so we just have to check if
+	// the new distance is also in this last bracket.
 	if newDistance >= 4001 {
 		return false, nil
 	}
@@ -211,22 +209,26 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 				return apperror.NewQueryError("ShipmentAddressUpdate", txnErr, "error creating shipment address update request")
 			}
 		}
+
 		if updateNeedsTOOReview {
 			err = f.moveRouter.SendToOfficeUser(appCtx, &shipment.MoveTaskOrder)
 			if err != nil {
 				return err
 			}
 
+			// If the update needs approval, we need to manually make sure the etag gets updated
+			shipment.UpdatedAt = time.Now()
 		} else {
 			shipment.DestinationAddressID = &addressUpdate.NewAddressID
-			verrs, err := appCtx.DB().ValidateAndUpdate(&shipment)
-			if verrs != nil && verrs.HasAny() {
-				return apperror.NewInvalidInputError(
-					shipment.ID, err, verrs, "Invalid input found while saving updated destination address on shipment")
-			}
-			if err != nil {
-				return err
-			}
+		}
+
+		verrs, err := appCtx.DB().ValidateAndUpdate(&shipment)
+		if verrs != nil && verrs.HasAny() {
+			return apperror.NewInvalidInputError(
+				shipment.ID, err, verrs, "Invalid input found while updating shipment")
+		}
+		if err != nil {
+			return err
 		}
 
 		return nil
