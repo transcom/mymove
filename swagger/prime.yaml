@@ -3090,14 +3090,8 @@ definitions:
         description: >-
           This is the remark the Prime has entered, which would be the reason
           there is an address change.
-      addressID:
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        format: uuid
-        type: string
-        description: Address ID should be the existing delivery address ID of the shipment.
     required:
       - contractorRemarks
-      - addressID
       - newAddress
   CreateSITAddressUpdateRequest:
     description: >-

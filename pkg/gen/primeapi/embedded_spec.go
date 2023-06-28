@@ -1642,16 +1642,9 @@ func init() {
       "type": "object",
       "required": [
         "contractorRemarks",
-        "addressID",
         "newAddress"
       ],
       "properties": {
-        "addressID": {
-          "description": "Address ID should be the existing delivery address ID of the shipment.",
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
         "contractorRemarks": {
           "description": "This is the remark the Prime has entered, which would be the reason there is an address change.",
           "type": "string",
@@ -6561,16 +6554,9 @@ func init() {
       "type": "object",
       "required": [
         "contractorRemarks",
-        "addressID",
         "newAddress"
       ],
       "properties": {
-        "addressID": {
-          "description": "Address ID should be the existing delivery address ID of the shipment.",
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
         "contractorRemarks": {
           "description": "This is the remark the Prime has entered, which would be the reason there is an address change.",
           "type": "string",
