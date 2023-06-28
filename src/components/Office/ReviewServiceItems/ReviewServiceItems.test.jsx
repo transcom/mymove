@@ -106,7 +106,6 @@ describe('ReviewServiceItems component', () => {
     <ReviewServiceItems
       paymentRequest={pendingPaymentRequest}
       serviceItemCards={serviceItemCards}
-      sortedCards={serviceItemCards}
       {...requiredProps}
     />,
   );
@@ -114,7 +113,6 @@ describe('ReviewServiceItems component', () => {
     <ReviewServiceItems
       paymentRequest={pendingPaymentRequest}
       serviceItemCards={serviceItemCards}
-      sortedCards={serviceItemCards}
       {...requiredProps}
     />,
   );
@@ -157,7 +155,6 @@ describe('ReviewServiceItems component', () => {
       <ReviewServiceItems
         paymentRequest={pendingPaymentRequest}
         serviceItemCards={basicServiceItemCards}
-        sortedCards={basicServiceItemCards}
         {...requiredProps}
       />,
     );
@@ -212,7 +209,6 @@ describe('ReviewServiceItems component', () => {
       <ReviewServiceItems
         paymentRequest={pendingPaymentRequest}
         serviceItemCards={cardsWithInitialValues}
-        sortedCards={cardsWithInitialValues}
         {...requiredProps}
       />,
     );
@@ -227,7 +223,6 @@ describe('ReviewServiceItems component', () => {
       <ReviewServiceItems
         paymentRequest={pendingPaymentRequest}
         serviceItemCards={cardsWithInitialValues}
-        sortedCards={cardsWithInitialValues}
         {...requiredProps}
         curCardIndex={cardsWithInitialValues.length}
       />,
@@ -377,7 +372,6 @@ describe('ReviewServiceItems component', () => {
       <ReviewServiceItems
         paymentRequest={pendingPaymentRequest}
         serviceItemCards={cardsWithInitialValues}
-        sortedCards={cardsWithInitialValues}
         {...requiredProps}
       />,
     );
@@ -437,7 +431,6 @@ describe('ReviewServiceItems component', () => {
         <ReviewServiceItems
           paymentRequest={pendingPaymentRequest}
           serviceItemCards={cardsWithInitialValues}
-          sortedCards={cardsWithInitialValues}
           {...requiredProps}
           curCardIndex={cardsWithInitialValues.length}
         />,
@@ -482,7 +475,6 @@ describe('ReviewServiceItems component', () => {
         <ReviewServiceItems
           paymentRequest={pendingPaymentRequest}
           serviceItemCards={cardWithInitialValues}
-          sortedCards={cardWithInitialValues}
           {...requiredProps}
           curCardIndex={cardWithInitialValues.length}
         />,
@@ -541,7 +533,6 @@ describe('ReviewServiceItems component', () => {
         <ReviewServiceItems
           paymentRequest={pendingPaymentRequest}
           serviceItemCards={cardsWithInitialValues}
-          sortedCards={cardsWithInitialValues}
           {...requiredProps}
           curCardIndex={cardsWithInitialValues.length}
         />,
@@ -603,7 +594,6 @@ describe('ReviewServiceItems component', () => {
         <ReviewServiceItems
           paymentRequest={pendingPaymentRequest}
           serviceItemCards={cardsWithInitialValues}
-          sortedCards={cardsWithInitialValues}
           {...requiredProps}
           curCardIndex={cardsWithInitialValues.length}
         />,
@@ -642,7 +632,6 @@ describe('ReviewServiceItems component', () => {
         <ReviewServiceItems
           paymentRequest={pendingPaymentRequest}
           serviceItemCards={serviceItemCards}
-          sortedCards={serviceItemCards}
           {...requiredProps}
           curCardIndex={serviceItemCards.length}
           completeReviewError={{ detail: 'A validation error occurred' }}
@@ -692,7 +681,6 @@ describe('ReviewServiceItems component', () => {
         <ReviewServiceItems
           paymentRequest={reviewedPaymentRequest}
           serviceItemCards={cardsWithInitialValues}
-          sortedCards={cardsWithInitialValues}
           {...requiredProps}
           curCardIndex={cardsWithInitialValues.length}
           requestReviewed
@@ -747,7 +735,6 @@ describe('ReviewServiceItems component', () => {
         <ReviewServiceItems
           paymentRequest={reviewedPaymentRequest}
           serviceItemCards={cardsWithInitialValues}
-          sortedCards={cardsWithInitialValues}
           {...requiredProps}
           curCardIndex={cardsWithInitialValues.length}
           requestReviewed

@@ -32,14 +32,13 @@ const ReviewServiceItems = ({
   SACs,
   curCardIndex,
   setCardIndex,
-  sortedCards,
   handlePrevious,
   requestReviewed,
   setShouldAdvanceOnSubmit,
 }) => {
   const formRef = useRef();
 
-  const totalCards = sortedCards.length;
+  const totalCards = serviceItemCards.length;
 
   const displayCompleteReview = curCardIndex === totalCards;
   const handleNext = () => {
@@ -66,9 +65,9 @@ const ReviewServiceItems = ({
   };
 
   // calculating the sums
-  const approvedSum = sortedCards.filter((s) => s.status === APPROVED).reduce((sum, cur) => sum + cur.amount, 0);
-  const rejectedSum = sortedCards.filter((s) => s.status === DENIED).reduce((sum, cur) => sum + cur.amount, 0);
-  const requestedSum = sortedCards.reduce((sum, cur) => sum + cur.amount, 0);
+  const approvedSum = serviceItemCards.filter((s) => s.status === APPROVED).reduce((sum, cur) => sum + cur.amount, 0);
+  const rejectedSum = serviceItemCards.filter((s) => s.status === DENIED).reduce((sum, cur) => sum + cur.amount, 0);
+  const requestedSum = serviceItemCards.reduce((sum, cur) => sum + cur.amount, 0);
 
   let itemsNeedsReviewLength;
   let showNeedsReview;
@@ -76,13 +75,13 @@ const ReviewServiceItems = ({
   let firstItemNeedsReviewIndex;
 
   if (!requestReviewed) {
-    itemsNeedsReviewLength = sortedCards.filter((s) => s.status === REQUESTED)?.length;
-    showNeedsReview = sortedCards.some((s) => s.status === REQUESTED);
-    allServiceItemsRejected = sortedCards.every((s) => s.status === DENIED);
-    firstItemNeedsReviewIndex = showNeedsReview && sortedCards.findIndex((s) => s.status === REQUESTED);
+    itemsNeedsReviewLength = serviceItemCards.filter((s) => s.status === REQUESTED)?.length;
+    showNeedsReview = serviceItemCards.some((s) => s.status === REQUESTED);
+    allServiceItemsRejected = serviceItemCards.every((s) => s.status === DENIED);
+    firstItemNeedsReviewIndex = showNeedsReview && serviceItemCards.findIndex((s) => s.status === REQUESTED);
   }
 
-  const currentCard = !displayCompleteReview && sortedCards[parseInt(curCardIndex, 10)];
+  const currentCard = !displayCompleteReview && serviceItemCards[parseInt(curCardIndex, 10)];
 
   // Determines which ReviewDetailsCard will be shown
   let renderCompleteAction = (
@@ -128,7 +127,7 @@ const ReviewServiceItems = ({
             dateAuthorized={paymentRequest?.reviewedAt}
             TACs={TACs}
             SACs={SACs}
-            cards={sortedCards}
+            cards={serviceItemCards}
           >
             {renderCompleteAction}
           </ReviewDetailsCard>
@@ -225,7 +224,6 @@ ReviewServiceItems.propTypes = {
   SACs: AccountingCodesShape,
   curCardIndex: PropTypes.number,
   setCardIndex: PropTypes.func.isRequired,
-  sortedCards: ServiceItemCardsShape,
   handlePrevious: PropTypes.func.isRequired,
   requestReviewed: PropTypes.bool.isRequired,
   setShouldAdvanceOnSubmit: PropTypes.func.isRequired,
@@ -240,7 +238,6 @@ ReviewServiceItems.defaultProps = {
   TACs: {},
   SACs: {},
   curCardIndex: 0,
-  sortedCards: [],
 };
 
 export default ReviewServiceItems;

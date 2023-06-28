@@ -173,7 +173,7 @@ export const PaymentRequestReview = ({ order }) => {
         <ReviewServiceItems
           handleClose={handleClose}
           paymentRequest={paymentRequest}
-          serviceItemCards={serviceItemCards}
+          serviceItemCards={sortedCards}
           patchPaymentServiceItem={handleUpdatePaymentServiceItemStatus}
           onCompleteReview={handleCompleteReview}
           completeReviewError={completeReviewError}
@@ -181,7 +181,6 @@ export const PaymentRequestReview = ({ order }) => {
           SACs={{ HHG: sac, NTS: ntsSac }}
           curCardIndex={curCardIndex}
           setCardIndex={setCardIndex}
-          sortedCards={sortedCards}
           handlePrevious={handlePrevious}
           requestReviewed={requestReviewed}
           setShouldAdvanceOnSubmit={setShouldAdvanceOnSubmit}
