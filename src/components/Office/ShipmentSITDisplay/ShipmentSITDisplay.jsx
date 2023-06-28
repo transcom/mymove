@@ -70,11 +70,10 @@ const SitHistoryList = ({ sitHistory, dayAllowance }) => {
 };
 
 const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton }) => {
-  // const currentOrUpcomingSIT = !!sitStatus?.location;
   const pendingSITExtension = sitExtensions.find((se) => se.status === SIT_EXTENSION_STATUS.PENDING);
-  const currentDaysInSIT = sitStatus?.daysInSIT || 0;
+  const currentDaysInSIT = sitStatus?.currentSIT?.daysInSIT || 0;
   const currentDaysInSITElement = <p>{currentDaysInSIT}</p>;
-  let sitEntryDate = sitStatus?.sitEntryDate;
+  let sitEntryDate = sitStatus?.currentSIT?.sitEntryDate;
   if (!sitEntryDate) {
     sitEntryDate = shipment.mtoServiceItems?.reduce((item, acc) => {
       // Check if the current
@@ -87,7 +86,7 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton }
 
   sitEntryDate = moment(sitEntryDate, swaggerDateFormat);
   const sitStartDateElement = <p>{formatDate(sitEntryDate, swaggerDateFormat, 'DD MMM YYYY')}</p>;
-  const sitEndDate = moment(sitStatus?.sitAllowanceEndDate, swaggerDateFormat);
+  const sitEndDate = moment(sitStatus?.currentSIT?.sitAllowanceEndDate, swaggerDateFormat);
   const sitEndDateString = sitEndDate.isValid() ? formatDateForDatePicker(sitEndDate) : '-';
 
   // Previous SIT calculations and date ranges
@@ -103,7 +102,8 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton }
   });
 
   // Currently active SIT
-  const currentLocation = sitStatus?.location === LOCATION_TYPES.DESTINATION ? 'destination SIT' : 'origin SIT';
+  const currentLocation =
+    sitStatus?.currentSIT?.location === LOCATION_TYPES.DESTINATION ? 'destination SIT' : 'origin SIT';
 
   const totalSITDaysUsed = sitStatus?.totalSITDaysUsed || 0;
   const totalDaysRemaining = () => {
@@ -118,7 +118,7 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton }
     <>
       <div className={styles.title}>
         <p>SIT (STORAGE IN TRANSIT){pendingSITExtension && <Tag>Additional Days Requested</Tag>}</p>
-        {/* currentOrUpcomingSIT && */ openModalButton}
+        {sitStatus.currentSIT && openModalButton}
       </div>
       <div className={styles.tableContainer} data-testid="sitStatusTable">
         {/* Sit Total days table */}
@@ -129,8 +129,8 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton }
       </div>
 
       {/* Current SIT Info Section */}
-      {
-        /* currentOrUpcomingSIT &&  */ <>
+      {sitStatus.currentSIT && (
+        <>
           <div className={styles.tableContainer} data-testid="sitStartAndEndTable">
             {/* Sit Start and End table */}
             {currentDaysInSIT > 0 && <p className={styles.sitHeader}>Current location: {currentLocation}</p>}
@@ -145,7 +145,7 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton }
             <DataTable columnHeaders={[`Total days in ${currentLocation}`]} dataRow={[currentDaysInSITElement]} />
           </div>
         </>
-      }
+      )}
 
       {/* Service Items */}
       {sitStatus?.pastSITServiceItems && (

@@ -45,7 +45,7 @@ func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppConte
 				// NOTE: We're treating future SIT as if it's current SIT in
 				// order to allow for SIT to be editable even if it hasn't entered SIT.
 				// This was introduced in MB-14973
-				shipmentSITStatus.DaysInSIT = 0
+				shipmentSITStatus.CurrentSIT.DaysInSIT = 0
 				shipmentSITStatus.TotalSITDaysUsed = 0
 				currentSIT = &shipment.MTOServiceItems[i]
 			} else if serviceItem.SITDepartureDate != nil && serviceItem.SITDepartureDate.Before(today) {
@@ -54,8 +54,8 @@ func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppConte
 				shipmentSITStatus.PastSITs = append(shipmentSITStatus.PastSITs, shipment.MTOServiceItems[i])
 			} else {
 				// SIT is currently in storage
-				shipmentSITStatus.DaysInSIT = daysInSIT(serviceItem, today)
-				shipmentSITStatus.TotalSITDaysUsed += shipmentSITStatus.DaysInSIT
+				shipmentSITStatus.CurrentSIT.DaysInSIT = daysInSIT(serviceItem, today)
+				shipmentSITStatus.TotalSITDaysUsed += shipmentSITStatus.CurrentSIT.DaysInSIT
 				currentSIT = &shipment.MTOServiceItems[i]
 			}
 		}
@@ -77,14 +77,14 @@ func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppConte
 
 	if currentSIT != nil {
 		if currentSIT.ReService.Code == models.ReServiceCodeDOPSIT {
-			shipmentSITStatus.Location = OriginSITLocation
+			shipmentSITStatus.CurrentSIT.Location = OriginSITLocation
 		} else {
-			shipmentSITStatus.Location = DestinationSITLocation
+			shipmentSITStatus.CurrentSIT.Location = DestinationSITLocation
 		}
 
-		shipmentSITStatus.SITEntryDate = *currentSIT.SITEntryDate
-		shipmentSITStatus.SITDepartureDate = currentSIT.SITDepartureDate
-		shipmentSITStatus.SITAllowanceEndDate = calculateSITAllowanceEndDate(shipmentSITStatus, today)
+		shipmentSITStatus.CurrentSIT.SITEntryDate = *currentSIT.SITEntryDate
+		shipmentSITStatus.CurrentSIT.SITDepartureDate = currentSIT.SITDepartureDate
+		shipmentSITStatus.CurrentSIT.SITAllowanceEndDate = calculateSITAllowanceEndDate(shipmentSITStatus, today)
 	}
 
 	return &shipmentSITStatus, nil
@@ -110,11 +110,11 @@ func daysInSIT(serviceItem models.MTOServiceItem, today time.Time) int {
 
 func calculateSITAllowanceEndDate(shipmentSITStatus services.SITStatus, today time.Time) time.Time {
 	//current SIT
-	if shipmentSITStatus.SITEntryDate.Before(today) {
+	if shipmentSITStatus.CurrentSIT.SITEntryDate.Before(today) {
 		return today.AddDate(0, 0, shipmentSITStatus.TotalDaysRemaining)
 	}
 	// future SIT
-	return shipmentSITStatus.SITEntryDate.AddDate(0, 0, shipmentSITStatus.TotalDaysRemaining)
+	return shipmentSITStatus.CurrentSIT.SITEntryDate.AddDate(0, 0, shipmentSITStatus.TotalDaysRemaining)
 
 }
 

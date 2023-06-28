@@ -66,7 +66,7 @@ const SITHistoryItemHeader = ({ title, value }) => {
 
 const SitStatusTables = ({ sitStatus, sitExtension, shipment }) => {
   const { totalSITDaysUsed, daysInSIT, location } = sitStatus;
-  const sitEntryDate = moment(sitStatus.sitEntryDate, swaggerDateFormat);
+  const sitEntryDate = moment(sitStatus.currentSIT.sitEntryDate, swaggerDateFormat);
   const daysInPreviousSIT = totalSITDaysUsed - daysInSIT;
 
   /**
@@ -211,10 +211,10 @@ const ReviewSITExtensionsModal = ({ onClose, onSubmit, sitExtension, shipment, s
     daysApproved: String(shipment.sitDaysAllowance),
     requestReason: sitExtension.requestReason,
     officeRemarks: '',
-    sitEndDate: formatDateForDatePicker(moment(sitStatus.sitAllowanceEndDate, swaggerDateFormat)),
+    sitEndDate: formatDateForDatePicker(moment(sitStatus.currentSIT.sitAllowanceEndDate, swaggerDateFormat)),
   };
   const minimumDaysAllowed = shipment.sitDaysAllowance + 1;
-  const sitEntryDate = moment(sitStatus.sitEntryDate, swaggerDateFormat);
+  const sitEntryDate = moment(sitStatus.currentSIT.sitEntryDate, swaggerDateFormat);
   const reviewSITExtensionSchema = Yup.object().shape({
     acceptExtension: Yup.mixed().oneOf(['yes', 'no']).required('Required'),
     requestReason: Yup.string().required('Required'),
