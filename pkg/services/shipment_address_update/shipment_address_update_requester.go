@@ -172,6 +172,7 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 		return nil, err
 	}
 	addressUpdate.NewAddressID = address.ID
+	addressUpdate.NewAddress = *address
 
 	contract, err := serviceparamvaluelookups.FetchContract(appCtx, *shipment.MoveTaskOrder.AvailableToPrimeAt)
 	if err != nil {
