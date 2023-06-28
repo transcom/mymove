@@ -4,6 +4,7 @@ import (
 	"context"
 	"testing"
 
+	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/suite"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -34,7 +35,7 @@ func (suite *EnvFetcherSuite) TestGetFlagForUserEnvMissing() {
 		suite.AppContextWithSessionForTest(&auth.Session{Email: "foo@example.com"}),
 		"missing", map[string]string{})
 	suite.NoError(err)
-	suite.False(flag.Enabled)
+	suite.False(flag.Match)
 	suite.False(flag.IsEnabledVariant())
 }
 
@@ -46,7 +47,7 @@ func (suite *EnvFetcherSuite) TestGetFlagForUserEnvDisabled() {
 		suite.AppContextWithSessionForTest(&auth.Session{Email: "foo@example.com"}),
 		"foo", map[string]string{})
 	suite.NoError(err)
-	suite.True(flag.Enabled)
+	suite.True(flag.Match)
 	suite.False(flag.IsEnabledVariant())
 }
 
@@ -58,7 +59,7 @@ func (suite *EnvFetcherSuite) TestGetFlagForUserEnvEnabled() {
 		suite.AppContextWithSessionForTest(&auth.Session{Email: "foo@example.com"}),
 		"foo", map[string]string{})
 	suite.NoError(err)
-	suite.True(flag.Enabled)
+	suite.True(flag.Match)
 	suite.True(flag.IsEnabledVariant())
 }
 
@@ -71,7 +72,7 @@ func (suite *EnvFetcherSuite) TestGetFlagEnvEnabled() {
 		"systemEntity",
 		"foo", map[string]string{})
 	suite.NoError(err)
-	suite.True(flag.Enabled)
+	suite.True(flag.Match)
 	suite.True(flag.IsEnabledVariant())
 }
 
@@ -85,6 +86,35 @@ func (suite *EnvFetcherSuite) TestGetFlagEnvVariant() {
 		"systemEntity",
 		"foo", map[string]string{})
 	suite.NoError(err)
-	suite.True(flag.Enabled)
+	suite.True(flag.Match)
 	suite.True(flag.IsVariant(myVariant))
+}
+
+func (suite *EnvFetcherSuite) TestGetFlagForUserEnvEmailDisabled() {
+	f, err := NewEnvFetcher(cli.FeatureFlagConfig{})
+	suite.NoError(err)
+	disabledEmail := "foo@example.com"
+	suite.T().Setenv("FEATURE_FLAG_FOO", services.FeatureFlagEnabledVariant)
+	suite.T().Setenv("FEATURE_FLAG_FOO_EMAIL", disabledEmail)
+	suite.T().Setenv("FEATURE_FLAG_FOO_EMAIL_VALUE", services.FeatureFlagDisabledVariant)
+
+	flag, err := f.GetFlagForUser(context.Background(),
+		suite.AppContextWithSessionForTest(&auth.Session{
+			UserID: uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001"),
+			Email:  "anyother@example.com",
+		}),
+		"foo", map[string]string{})
+	suite.NoError(err)
+	suite.True(flag.Match)
+	suite.True(flag.IsEnabledVariant())
+
+	flag, err = f.GetFlagForUser(context.Background(),
+		suite.AppContextWithSessionForTest(&auth.Session{
+			UserID: uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001"),
+			Email:  disabledEmail,
+		}),
+		"foo", map[string]string{})
+	suite.NoError(err)
+	suite.True(flag.Match)
+	suite.False(flag.IsEnabledVariant())
 }

@@ -34,13 +34,13 @@ func (suite *HandlerSuite) TestFeatureFlagForUserHandler() {
 	expected := services.FeatureFlag{
 		Entity:    "user@example.com",
 		Key:       params.Key,
-		Enabled:   true,
+		Match:     true,
 		Value:     "mock",
 		Namespace: "test",
 	}
 	suite.Equal(expected.Entity, *okResponse.Payload.Entity)
 	suite.Equal(expected.Key, *okResponse.Payload.Key)
-	suite.Equal(expected.Enabled, *okResponse.Payload.Enabled)
+	suite.Equal(expected.Match, *okResponse.Payload.Match)
 	suite.Equal(expected.Value, *okResponse.Payload.Value)
 	suite.Equal(expected.Namespace, *okResponse.Payload.Namespace)
 }

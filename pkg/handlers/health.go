@@ -89,7 +89,7 @@ func NewHealthHandler(appCtx appcontext.AppContext, featureFlagFetcher services.
 			if err != nil {
 				appCtx.Logger().Warn("Cannot fetch feature flag in health handler", zap.Error(err))
 			} else {
-				data["basicFlagEnabled"] = flag.Enabled
+				data["basicFlagMatch"] = flag.Match
 			}
 		}
 		newEncoderErr := json.NewEncoder(w).Encode(data)
