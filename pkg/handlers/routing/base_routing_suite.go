@@ -9,6 +9,7 @@ import (
 	"path"
 	"time"
 
+	"github.com/gorilla/csrf"
 	"github.com/spf13/afero"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -70,6 +71,10 @@ func (suite *BaseRoutingSuite) RoutingConfig() *Config {
 	_, err = f.Write([]byte(suite.indexContent))
 	suite.FatalNoError(err)
 
+	// make a fake csrf auth key that would be completely insecure for
+	// real world usage
+	fakeCsrfAuthKey := make([]byte, 32)
+
 	suite.routingConfig = &Config{
 		FileSystem:    fakeFs,
 		HandlerConfig: handlerConfig,
@@ -87,6 +92,8 @@ func (suite *BaseRoutingSuite) RoutingConfig() *Config {
 		ServeGHC:            true,
 		ServeDevlocalAuth:   true,
 		ServeOrders:         true,
+
+		CSRFMiddleware: InitCSRFMiddlware(fakeCsrfAuthKey, false, "/", auth.GorillaCSRFToken),
 
 		// note that enabling devlocal auth also enables accessing the
 		// Prime API without requiring mTLS. See
@@ -147,8 +154,20 @@ func (suite *BaseRoutingSuite) setupRequestSession(req *http.Request, user model
 	}
 	cookie.Expires = time.Unix(1, 0)
 	cookie.MaxAge = -1
+	req.AddCookie(cookie)
 
-	req.Header.Add("cookie", cookie.String())
+	// set up CSRF cookie and headers
+	maskedToken := ""
+	tokenHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		maskedToken = csrf.Token(r)
+	})
+	fakeReq := httptest.NewRequest("GET", "/", nil)
+	rr := httptest.NewRecorder()
+	suite.routingConfig.CSRFMiddleware(tokenHandler).ServeHTTP(rr, fakeReq)
+	for _, cookie := range rr.Result().Cookies() {
+		req.AddCookie(cookie)
+	}
+	req.Header.Set("X-CSRF-Token", maskedToken)
 }
 
 func (suite *BaseRoutingSuite) SetupAdminRequestSession(req *http.Request, adminUser models.AdminUser) {
