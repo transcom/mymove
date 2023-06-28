@@ -2,7 +2,6 @@ package shipmentaddressupdate
 
 import (
 	"database/sql"
-	"time"
 
 	"github.com/gofrs/uuid"
 
@@ -216,13 +215,11 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 			if err != nil {
 				return err
 			}
-
-			// If the update needs review, we need to manually make sure the etag gets updated
-			shipment.UpdatedAt = time.Now()
 		} else {
 			shipment.DestinationAddressID = &addressUpdate.NewAddressID
 		}
 
+		// If the request needs TOO review, this will just update the UpdatedAt timestamp on the shipment
 		verrs, err := appCtx.DB().ValidateAndUpdate(&shipment)
 		if verrs != nil && verrs.HasAny() {
 			return apperror.NewInvalidInputError(
