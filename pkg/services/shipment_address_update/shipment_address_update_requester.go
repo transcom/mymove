@@ -36,11 +36,8 @@ func (f *shipmentAddressUpdateRequester) doesDeliveryAddressUpdateChangeServiceA
 	var existingServiceArea models.ReZip3
 	var actualServiceArea models.ReZip3
 
-	var originalZip string
-	var destinationZip string
-
-	originalZip = originalDeliveryAddress.PostalCode[0:3]
-	destinationZip = newDeliveryAddress.PostalCode[0:3]
+	originalZip := originalDeliveryAddress.PostalCode[0:3]
+	destinationZip := newDeliveryAddress.PostalCode[0:3]
 
 	if originalZip == destinationZip {
 		// If the ZIP hasn't changed, we must be in the same service area
@@ -111,14 +108,9 @@ func (f *shipmentAddressUpdateRequester) doesDeliveryAddressUpdateChangeMileageB
 
 // doesDeliveryAddressUpdateChangeShipmentPricingType checks if an address update would change a move from shorthaul to linehaul pricing or vice versa
 func (f *shipmentAddressUpdateRequester) doesDeliveryAddressUpdateChangeShipmentPricingType(originalPickupAddress models.Address, originalDeliveryAddress models.Address, newDeliveryAddress models.Address) (bool, error) {
-
-	var originalZip string
-	var originalDestinationZip string
-	var newDestinationZip string
-
-	originalZip = originalPickupAddress.PostalCode[0:3]
-	originalDestinationZip = originalDeliveryAddress.PostalCode[0:3]
-	newDestinationZip = newDeliveryAddress.PostalCode[0:3]
+	originalZip := originalPickupAddress.PostalCode[0:3]
+	originalDestinationZip := originalDeliveryAddress.PostalCode[0:3]
+	newDestinationZip := newDeliveryAddress.PostalCode[0:3]
 
 	isOriginalRouteShorthaul := originalZip == originalDestinationZip
 
