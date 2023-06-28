@@ -277,6 +277,15 @@ const ServiceAreaDest = {
   type: 'STRING',
   value: '080',
 };
+const SITDestFinalAddress = {
+  eTag: 'MjAyMS0wMy0xOFQwMTozMTo1MS4yNjY4M1o=',
+  id: 'af92f0ca-f669-4483-95d2-d66e9c0c69e4',
+  key: 'ServiceAreaDest',
+  origin: 'SYSTEM',
+  paymentServiceItemID: '28039a62-387d-479f-b50f-e0041b7e6e22',
+  type: 'STRING',
+  value: '080',
+};
 const SITScheduleOrigin = {
   eTag: 'MjAyMS0wMy0xOFQwMTozMTo1MS4yNjY4M1o=',
   id: 'edeb108a-3aa8-4e7c-9571-de81951cbb51',
@@ -613,7 +622,7 @@ const testParams = {
     EscalationCompounded,
     PriceRateOrFactor,
     ReferenceDate,
-    ServiceAreaDest,
+    SITDestFinalAddress,
     SITScheduleDest,
     WeightOriginal,
     WeightBilled,
@@ -628,7 +637,7 @@ const testParams = {
     EscalationCompounded,
     PriceRateOrFactor,
     ReferenceDate,
-    ServiceAreaDest,
+    SITDestFinalAddress,
     SITScheduleDest,
     WeightOriginal,
     WeightBilled,
@@ -643,7 +652,7 @@ const testParams = {
     EscalationCompounded,
     PriceRateOrFactor,
     ReferenceDate,
-    ServiceAreaDest,
+    SITDestFinalAddress,
     SITScheduleDest,
     WeightOriginal,
     WeightBilled,
