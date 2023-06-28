@@ -16,6 +16,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers/authentication"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications"
+	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/telemetry"
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
@@ -53,6 +54,10 @@ func (suite *BaseRoutingSuite) RoutingConfig() *Config {
 	// Test that we can initialize routing and serve the index file
 	handlerConfig := suite.BaseHandlerTestSuite.HandlerConfig()
 	handlerConfig.SetAppNames(handlers.ApplicationTestServername())
+
+	// Need this for any requests that will either retrieve or save files or their info.
+	fakeS3 := storageTest.NewFakeS3Storage(true)
+	handlerConfig.SetFileStorer(fakeS3)
 
 	fakeLoginGovProvider := authentication.NewLoginGovProvider("fakeHostname", "secret_key", suite.Logger())
 
