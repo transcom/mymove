@@ -36,18 +36,23 @@ func (f *shipmentAddressUpdateRequester) doesDeliveryAddressUpdateChangeServiceA
 	var existingServiceArea models.ReZip3
 	var actualServiceArea models.ReZip3
 
-	var originalZip models.ReZip3
-	var destinationZip models.ReZip3
+	var originalZip string
+	var destinationZip string
 
-	originalZip.Zip3 = originalDeliveryAddress.PostalCode[0:3]
-	destinationZip.Zip3 = newDeliveryAddress.PostalCode[0:3]
+	originalZip = originalDeliveryAddress.PostalCode[0:3]
+	destinationZip = newDeliveryAddress.PostalCode[0:3]
 
-	err := appCtx.DB().Where("zip3 = ?", originalZip.Zip3).Where("contract_id = ?", contractID).First(&existingServiceArea)
+	if originalZip == destinationZip {
+		// If the ZIP hasn't changed, we must be in the same service area
+		return false, nil
+	}
+
+	err := appCtx.DB().Where("zip3 = ?", originalZip).Where("contract_id = ?", contractID).First(&existingServiceArea)
 	if err != nil {
 		return false, err
 	}
 
-	err = appCtx.DB().Where("zip3 = ?", destinationZip.Zip3).Where("contract_id = ?", contractID).First(&actualServiceArea)
+	err = appCtx.DB().Where("zip3 = ?", destinationZip).Where("contract_id = ?", contractID).First(&actualServiceArea)
 	if err != nil {
 		return false, err
 	}
@@ -66,6 +71,10 @@ func (f *shipmentAddressUpdateRequester) doesDeliveryAddressUpdateChangeMileageB
 	// We will handle the maximum bracket (>=4001 miles) separately.
 	var milesLower = [9]int{0, 251, 501, 1001, 1501, 2001, 2501, 3001, 3501}
 	var milesUpper = [9]int{250, 500, 1000, 1500, 2000, 2500, 3000, 3500, 4000}
+
+	if originalDeliveryAddress.PostalCode == newDeliveryAddress.PostalCode {
+		return false, nil
+	}
 
 	previousDistance, err := f.planner.ZipTransitDistance(appCtx, originalPickupAddress.PostalCode, originalDeliveryAddress.PostalCode)
 	if err != nil {
@@ -103,17 +112,17 @@ func (f *shipmentAddressUpdateRequester) doesDeliveryAddressUpdateChangeMileageB
 // doesDeliveryAddressUpdateChangeShipmentPricingType checks if an address update would change a move from shorthaul to linehaul pricing or vice versa
 func (f *shipmentAddressUpdateRequester) doesDeliveryAddressUpdateChangeShipmentPricingType(originalPickupAddress models.Address, originalDeliveryAddress models.Address, newDeliveryAddress models.Address) (bool, error) {
 
-	var originalZip models.ReZip3
-	var originalDestinationZip models.ReZip3
-	var newDestinationZip models.ReZip3
+	var originalZip string
+	var originalDestinationZip string
+	var newDestinationZip string
 
-	originalZip.Zip3 = originalPickupAddress.PostalCode[0:3]
-	originalDestinationZip.Zip3 = originalDeliveryAddress.PostalCode[0:3]
-	newDestinationZip.Zip3 = newDeliveryAddress.PostalCode[0:3]
+	originalZip = originalPickupAddress.PostalCode[0:3]
+	originalDestinationZip = originalDeliveryAddress.PostalCode[0:3]
+	newDestinationZip = newDeliveryAddress.PostalCode[0:3]
 
-	isOriginalRouteShorthaul := originalZip.Zip3 == originalDestinationZip.Zip3
+	isOriginalRouteShorthaul := originalZip == originalDestinationZip
 
-	isNewRouteShorthaul := originalZip.Zip3 == newDestinationZip.Zip3
+	isNewRouteShorthaul := originalZip == newDestinationZip
 
 	if isOriginalRouteShorthaul == isNewRouteShorthaul {
 		return false, nil
