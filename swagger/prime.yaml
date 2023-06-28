@@ -2527,6 +2527,8 @@ definitions:
           - DIVERSION_REQUESTED
       ppmShipment:
         $ref: '#/definitions/PPMShipment'
+      deliveryAddressUpdate:
+        $ref: '#/definitions/ShipmentAddressUpdate'
       eTag:
         description: >-
           A hash unique to this shipment that should be used as the "If-Match"
@@ -4018,6 +4020,61 @@ definitions:
     enum:
       - ORIGIN
       - DESTINATION
+  ShipmentAddressUpdateStatus:
+    type: string
+    title: Status
+    readOnly: true
+    x-display-value:
+      REQUESTED: REQUESTED
+      REJECTED: REJECTED
+      APPROVED: APPROVED
+    enum:
+      - REQUESTED
+      - REJECTED
+      - APPROVED
+  ShipmentAddressUpdate:
+    description: >
+      This represents a destination address change request made by the Prime
+      that is either auto-approved or requires review if the pricing criteria
+      has changed. If criteria has changed, then it must be approved or rejected
+      by a TOO.
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      contractorRemarks:
+        type: string
+        example: This is a contractor remark
+        title: Contractor Remarks
+        description: The reason there is an address change.
+        readOnly: true
+      officeRemarks:
+        type: string
+        example: This is an office remark
+        title: Office Remarks
+        x-nullable: true
+        description: The TOO comment on approval or rejection.
+      status:
+        $ref: '#/definitions/ShipmentAddressUpdateStatus'
+      shipmentID:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      originalAddress:
+        $ref: '#/definitions/Address'
+      newAddress:
+        $ref: '#/definitions/Address'
+    required:
+      - id
+      - status
+      - shipmentID
+      - originalAddress
+      - newAddress
+      - contractorRemarks
   ExcessWeightRecord:
     description: >-
       A document uploaded by the movers proving that the customer has been
@@ -4068,59 +4125,6 @@ definitions:
                 type: string
         required:
           - invalidFields
-  ShipmentAddressUpdate:
-    description: >
-      This represents a destination address change request made by the Prime
-      that is either auto-approved or requires review if the pricing criteria
-      has changed. If criteria has changed, then it must be approved or rejected
-      by a TOO.
-    type: object
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        readOnly: true
-      contractorRemarks:
-        type: string
-        example: This is a contractor remark
-        title: Contractor Remarks
-        description: The reason there is an address change.
-        readOnly: true
-      officeRemarks:
-        type: string
-        example: This is an office remark
-        title: Office Remarks
-        x-nullable: true
-        description: The TOO comment on approval or rejection.
-      status:
-        type: string
-        title: Status
-        readOnly: true
-        x-display-value:
-          REQUESTED: REQUESTED
-          REJECTED: REJECTED
-          APPROVED: APPROVED
-        enum:
-          - REQUESTED
-          - REJECTED
-          - APPROVED
-      shipmentID:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        readOnly: true
-      originalAddress:
-        $ref: '#/definitions/Address'
-      newAddress:
-        $ref: '#/definitions/Address'
-    required:
-      - id
-      - status
-      - shipmentID
-      - originalAddress
-      - newAddress
-      - contractorRemarks
   ReServiceCode:
     type: string
     description: >
