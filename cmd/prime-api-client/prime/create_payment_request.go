@@ -24,7 +24,7 @@ func InitCreatePaymentRequestFlags(flag *pflag.FlagSet) {
 }
 
 // checkCreatePaymentRequestConfig checks the args.
-func checkCreatePaymentRequestConfig(v *viper.Viper, args []string, logger *log.Logger) error {
+func checkCreatePaymentRequestConfig(v *viper.Viper, args []string) error {
 	err := utils.CheckRootConfig(v)
 	if err != nil {
 		return err
@@ -51,7 +51,7 @@ func CreatePaymentRequest(cmd *cobra.Command, args []string) error {
 	}
 
 	// Check the config before talking to the CAC
-	err := checkCreatePaymentRequestConfig(v, args, logger)
+	err := checkCreatePaymentRequestConfig(v, args)
 	if err != nil {
 		logger.Fatal(err)
 	}

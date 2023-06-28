@@ -32,8 +32,25 @@ import (
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
+// used by authorizeKnownUser and authorizeUnknownUser
+type AuthorizationResult byte
+
+const (
+	authorizationResultAuthorized AuthorizationResult = iota
+	authorizationResultUnauthorized
+	authorizationResultError
+)
+
+func (ar AuthorizationResult) String() string {
+	return []string{
+		"authorizationResultAuthorized",
+		"authorizationResultUnauthorized",
+		"authorizationResultError",
+	}[ar]
+}
+
 // IsLoggedInMiddleware handles requests to is_logged_in endpoint by returning true if someone is logged in
-func IsLoggedInMiddleware(globalLogger *zap.Logger) http.HandlerFunc {
+func IsLoggedInMiddleware(_ *zap.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		logger := logging.FromContext(r.Context())
 		data := map[string]interface{}{
@@ -110,7 +127,7 @@ func PermissionsMiddleware(appCtx appcontext.AppContext, api APIWithContext) fun
 }
 
 // UserAuthMiddleware enforces that the incoming request is tied to a user session
-func UserAuthMiddleware(globalLogger *zap.Logger) func(next http.Handler) http.Handler {
+func UserAuthMiddleware(_ *zap.Logger) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
 
@@ -129,7 +146,7 @@ func UserAuthMiddleware(globalLogger *zap.Logger) func(next http.Handler) http.H
 				return
 			}
 
-			// DO NOT CHECK MILMOVE SESSION BECAUSE NEW SERVICE MEMBERS WON'T HAVE AN ID RIGHT AWAY
+			// DO NOT CHECK MILMOVE SESSION BECAUSE WE'LL BE CHECKING THAT IN ANOTHER MIDDLEWARE
 			// This must be the right type of user for the application
 			if session.IsOfficeApp() && !session.IsOfficeUser() {
 				logger.Error("unauthorized user for office.move.mil", zap.String("user_id", session.UserID.String()))
@@ -145,6 +162,79 @@ func UserAuthMiddleware(globalLogger *zap.Logger) func(next http.Handler) http.H
 		}
 		return http.HandlerFunc(mw)
 	}
+}
+
+// CustomerAPIAuthMiddleware checks to see if the request matches one of the routes that should be allowed through with
+// less strict authentication requirements. If it is on the allow list, it will allow the request to continue. If it
+// is not, it will check to see if the user is a service member. Ideally, we will get rid of the allow list eventually
+// and the service member check can be rolled into the UserAuthMiddleware.
+func CustomerAPIAuthMiddleware(_ appcontext.AppContext, api APIWithContext) func(next http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		mw := func(w http.ResponseWriter, r *http.Request) {
+			// Pulling logger & session from the request context instead of the app context because the app context
+			// getting passed into here is the one from the server set up, not the one from the request that came in.
+			logger := logging.FromContext(r.Context())
+			session := auth.SessionFromRequestContext(r)
+
+			route, r, _ := api.Context().RouteInfo(r)
+			if route == nil {
+				// If we reach this error, something went wrong with the swagger router initialization, in reality will probably never be an issue except potentially in local testing
+				logger.Error("Route not found while checking authorization")
+				http.Error(w, http.StatusText(400), http.StatusBadRequest)
+				return
+			}
+
+			routeIsOnAllowList := checkIfRouteIsAllowed(route)
+
+			if !routeIsOnAllowList && !session.IsServiceMember() {
+				logger.Error("unauthorized user for my.move.mil", zap.String("user_id", session.UserID.String()))
+				http.Error(w, http.StatusText(403), http.StatusForbidden)
+				return
+			}
+
+			next.ServeHTTP(w, r)
+		}
+
+		return http.HandlerFunc(mw)
+	}
+}
+
+// This is a list of routes (<tag>.<id>) that cannot be strictly checked. The goal is to get rid of this list entirely,
+// so please try not to add routes to it.
+var allowedRoutes = map[string]bool{
+	"addresses.showAddress":                       true,
+	"duty_locations.searchDutyLocations":          true,
+	"move_docs.createGenericMoveDocument":         true,
+	"move_docs.deleteMoveDocument":                true,
+	"move_docs.indexMoveDocuments":                true,
+	"move_docs.updateMoveDocument":                true,
+	"moves.showMove":                              true,
+	"office.approveMove":                          true,
+	"office.approvePPM":                           true,
+	"office.approveReimbursement":                 true,
+	"office.cancelMove":                           true,
+	"office.showOfficeOrders":                     true,
+	"orders.showOrders":                           true,
+	"orders.updateOrders":                         true,
+	"postal_codes.validatePostalCodeWithRateData": true,
+	"ppm.createPPMAttachments":                    true,
+	"ppm.requestPPMExpenseSummary":                true,
+	"ppm.showPPMEstimate":                         true,
+	"ppm.showPPMIncentive":                        true,
+	"ppm.showPPMSitEstimate":                      true,
+	"ppm.showPersonallyProcuredMove":              true,
+	"ppm.updatePersonallyProcuredMove":            true,
+	"queues.showQueue":                            true,
+	"uploads.deleteUpload":                        true,
+	"users.showLoggedInUser":                      true,
+}
+
+// checkIfRouteIsAllowed checks to see if the route is one of the ones that should be allowed through without stricter
+// checks. This is a temporary solution until we can implement robust permissions checks.
+func checkIfRouteIsAllowed(route *middleware.MatchedRoute) bool {
+	currentRouteTagID := fmt.Sprintf("%s.%s", route.Operation.OperationProps.Tags[0], route.Operation.OperationProps.ID)
+
+	return allowedRoutes[currentRouteTagID]
 }
 
 func updateUserCurrentSessionID(appCtx appcontext.AppContext, sessionID string) error {
@@ -284,7 +374,7 @@ func authenticateUser(ctx context.Context, appCtx appcontext.AppContext, session
 }
 
 // AdminAuthMiddleware is middleware for admin authentication
-func AdminAuthMiddleware(globalLogger *zap.Logger) func(next http.Handler) http.Handler {
+func AdminAuthMiddleware(_ *zap.Logger) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
 			logger := logging.FromContext(r.Context())
@@ -304,7 +394,7 @@ func AdminAuthMiddleware(globalLogger *zap.Logger) func(next http.Handler) http.
 }
 
 // PrimeAuthorizationMiddleware is the prime authorization middleware
-func PrimeAuthorizationMiddleware(globalLogger *zap.Logger) func(next http.Handler) http.Handler {
+func PrimeAuthorizationMiddleware(_ *zap.Logger) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
 			logger := logging.FromContext(r.Context())
@@ -329,7 +419,7 @@ func PrimeAuthorizationMiddleware(globalLogger *zap.Logger) func(next http.Handl
 
 // PrimeSimulatorAuthorizationMiddleware ensures only users with the
 // prime simulator role can access the simulator
-func PrimeSimulatorAuthorizationMiddleware(globalLogger *zap.Logger) func(next http.Handler) http.Handler {
+func PrimeSimulatorAuthorizationMiddleware(_ *zap.Logger) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
 			logger := logging.FromContext(r.Context())
@@ -380,7 +470,7 @@ type FeatureFlag struct {
 }
 
 // NewAuthContext creates an Context
-func NewAuthContext(logger *zap.Logger, loginGovProvider LoginGovProvider, callbackProtocol string, callbackPort int) Context {
+func NewAuthContext(_ *zap.Logger, loginGovProvider LoginGovProvider, callbackProtocol string, callbackPort int) Context {
 	context := Context{
 		loginGovProvider: loginGovProvider,
 		callbackTemplate: fmt.Sprintf("%s://%%s:%d/", callbackProtocol, callbackPort),
@@ -421,7 +511,7 @@ func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			if appCtx.Session().IDToken == "devlocal" {
 				logoutURL = redirectURL
 			} else {
-				provider, err := getLoginGovProviderForRequest(r)
+				provider, err := getLoginGovProviderForRequest(r, h.loginGovProvider)
 				if err != nil {
 					appCtx.Logger().Error("Failed to get provider from request", zap.Error(err))
 					http.Error(w, http.StatusText(500), http.StatusInternalServerError)
@@ -685,46 +775,50 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	provider, err := getLoginGovProviderForRequest(r)
+	provider, err := getLoginGovProviderForRequest(r, h.loginGovProvider)
 	if err != nil {
 		appCtx.Logger().Error("Get Goth provider", zap.Error(err))
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return
 	}
 
-	// TODO: validate the state is the same (pull from session)
-	openIDSession, err := fetchToken(
-		appCtx.Logger(),
-		r.URL.Query().Get("code"),
-		provider.ClientKey(),
-		h.loginGovProvider)
-	if err != nil {
-		appCtx.Logger().Error("Reading openIDSession from login.gov", zap.Error(err))
-		http.Error(w, http.StatusText(401), http.StatusUnauthorized)
-		return
-	}
-
-	openIDUser, err := provider.FetchUser(openIDSession)
+	openIDUser, idToken, err := provider.FetchUserAndIDTokenByCode(r.URL.Query().Get("code"))
 	if err != nil {
 		appCtx.Logger().Error("Login.gov user info request", zap.Error(err))
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return
 	}
 
-	appCtx.Session().IDToken = openIDSession.IDToken
+	appCtx.Session().IDToken = idToken
 	appCtx.Session().Email = openIDUser.Email
 
 	appCtx.Logger().Info("New Login", zap.String("OID_User", openIDUser.UserID), zap.String("OID_Email", openIDUser.Email), zap.String("Host", appCtx.Session().Hostname))
 
+	result := authorizeUser(r.Context(), appCtx, openIDUser, sessionManager, h.sender)
+	switch result {
+	case authorizationResultError:
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+	case authorizationResultUnauthorized:
+		invalidPermissionsResponse(appCtx, h.HandlerConfig, h.Context, w, r)
+	case authorizationResultAuthorized:
+		http.Redirect(w, r, landingURL.String(), http.StatusTemporaryRedirect)
+	}
+}
+
+func authorizeUser(ctx context.Context, appCtx appcontext.AppContext, openIDUser goth.User, sessionManager auth.SessionManager, notificationSender notifications.NotificationSender) AuthorizationResult {
 	userIdentity, err := models.FetchUserIdentity(appCtx.DB(), openIDUser.UserID)
+
 	if err == nil {
 		// In this case, we found an existing user associated with the
 		// unique login.gov UUID (aka OID_User, aka openIDUser.UserID,
 		// aka models.User.login_gov_uuid)
 		appCtx.Logger().Info("Known user: found by login.gov OID_User, checking authorization", zap.String("OID_User", openIDUser.UserID), zap.String("OID_Email", openIDUser.Email), zap.String("user.id", userIdentity.ID.String()), zap.String("user.login_gov_email", userIdentity.Email))
-		ok := authorizeKnownUser(appCtx, userIdentity, h, w, r, landingURL.String())
-		appCtx.Logger().Info("Known user authorization", zap.Bool("authorized", ok), zap.String("OID_User", openIDUser.UserID), zap.String("OID_Email", openIDUser.Email))
-		return
+		result := AuthorizeKnownUser(ctx, appCtx, userIdentity, sessionManager)
+		appCtx.Logger().Info("Known user authorization",
+			zap.Any("authorizedResult", result),
+			zap.String("OID_User", openIDUser.UserID),
+			zap.String("OID_Email", openIDUser.Email))
+		return result
 	} else if err == models.ErrFetchNotFound { // Never heard of them
 		// so far In this case, we can't find an existing user
 		// associated with the unique login.gov UUID (aka OID_User,
@@ -732,24 +826,25 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		// The authorizeUnknownUser method tries to find a user record
 		// with a matching email address
 		appCtx.Logger().Info("Unknown user: not found by login.gov OID_User, associating email and checking authorization", zap.String("OID_User", openIDUser.UserID), zap.String("OID_Email", openIDUser.Email))
-		ok := authorizeUnknownUser(appCtx, openIDUser, h, w, r, landingURL.String())
-		appCtx.Logger().Info("Unknown user authorization", zap.Bool("authorized", ok), zap.String("OID_User", openIDUser.UserID), zap.String("OID_Email", openIDUser.Email))
-		return
-	} else {
-		appCtx.Logger().Error("Error loading Identity.", zap.Error(err))
-		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-		return
+		result := authorizeUnknownUser(ctx, appCtx, openIDUser, sessionManager, notificationSender)
+		appCtx.Logger().Info("Unknown user authorization",
+			zap.Any("authorizedResult", result),
+			zap.String("OID_User", openIDUser.UserID),
+			zap.String("OID_Email", openIDUser.Email))
+		return result
 	}
+
+	appCtx.Logger().Error("Error loading Identity.", zap.Error(err))
+	return authorizationResultError
 }
 
-var authorizeKnownUser = func(appCtx appcontext.AppContext, userIdentity *models.UserIdentity, h CallbackHandler, w http.ResponseWriter, r *http.Request, lURL string) bool {
+func AuthorizeKnownUser(ctx context.Context, appCtx appcontext.AppContext, userIdentity *models.UserIdentity, sessionManager auth.SessionManager) AuthorizationResult {
 	if !userIdentity.Active {
 		appCtx.Logger().Error("Inactive user requesting authentication",
 			zap.String("application_name", string(appCtx.Session().ApplicationName)),
 			zap.String("hostname", appCtx.Session().Hostname),
 			zap.String("user_id", appCtx.Session().UserID.String()))
-		invalidPermissionsResponse(appCtx, h.HandlerConfig, h.Context, w, r)
-		return false
+		return authorizationResultUnauthorized
 	}
 	appCtx.Session().Roles = append(appCtx.Session().Roles, userIdentity.Roles...)
 	appCtx.Session().Permissions = getPermissionsForUser(appCtx, userIdentity.ID)
@@ -765,8 +860,7 @@ var authorizeKnownUser = func(appCtx appcontext.AppContext, userIdentity *models
 				zap.String("application_name", string(appCtx.Session().ApplicationName)),
 				zap.String("hostname", appCtx.Session().Hostname),
 				zap.String("user_id", appCtx.Session().UserID.String()))
-			invalidPermissionsResponse(appCtx, h.HandlerConfig, h.Context, w, r)
-			return false
+			return authorizationResultUnauthorized
 		}
 		if userIdentity.OfficeUserID != nil {
 			appCtx.Session().OfficeUserID = *(userIdentity.OfficeUserID)
@@ -778,14 +872,12 @@ var authorizeKnownUser = func(appCtx appcontext.AppContext, userIdentity *models
 					zap.String("application_name", string(appCtx.Session().ApplicationName)),
 					zap.String("hostname", appCtx.Session().Hostname),
 					zap.String("user_id", appCtx.Session().UserID.String()))
-				invalidPermissionsResponse(appCtx, h.HandlerConfig, h.Context, w, r)
-				return false
+				return authorizationResultUnauthorized
 			} else if err != nil {
 				appCtx.Logger().Error("Checking for office user during authorization",
 					zap.String("user_id", appCtx.Session().UserID.String()),
 					zap.Error(err))
-				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-				return false
+				return authorizationResultError
 			}
 			appCtx.Session().OfficeUserID = officeUser.ID
 			officeUser.UserID = &userIdentity.ID
@@ -794,8 +886,7 @@ var authorizeKnownUser = func(appCtx appcontext.AppContext, userIdentity *models
 				appCtx.Logger().Error("Updating office user during authorization",
 					zap.String("user_id", appCtx.Session().UserID.String()),
 					zap.Error(err))
-				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-				return false
+				return authorizationResultError
 			}
 		}
 	}
@@ -806,8 +897,7 @@ var authorizeKnownUser = func(appCtx appcontext.AppContext, userIdentity *models
 				zap.String("application_name", string(appCtx.Session().ApplicationName)),
 				zap.String("hostname", appCtx.Session().Hostname),
 				zap.String("user_id", appCtx.Session().UserID.String()))
-			invalidPermissionsResponse(appCtx, h.HandlerConfig, h.Context, w, r)
-			return false
+			return authorizationResultUnauthorized
 		}
 		if userIdentity.AdminUserID != nil {
 			appCtx.Session().AdminUserID = *(userIdentity.AdminUserID)
@@ -824,12 +914,10 @@ var authorizeKnownUser = func(appCtx appcontext.AppContext, userIdentity *models
 			if err != nil && errors.Cause(err).Error() == models.RecordNotFoundErrorString {
 				appCtx.Logger().Error("No admin user found during authorization",
 					zap.String("user_id", appCtx.Session().UserID.String()))
-				invalidPermissionsResponse(appCtx, h.HandlerConfig, h.Context, w, r)
-				return false
+				return authorizationResultUnauthorized
 			} else if err != nil {
 				appCtx.Logger().Error("Checking for admin user", zap.String("userID", appCtx.Session().UserID.String()), zap.Error(err))
-				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-				return false
+				return authorizationResultError
 			}
 
 			appCtx.Session().AdminUserID = adminUser.ID
@@ -838,14 +926,12 @@ var authorizeKnownUser = func(appCtx appcontext.AppContext, userIdentity *models
 			verrs, err := appCtx.DB().ValidateAndSave(&adminUser)
 			if err != nil {
 				appCtx.Logger().Error("Updating admin user", zap.String("userID", appCtx.Session().UserID.String()), zap.Error(err))
-				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-				return false
+				return authorizationResultError
 			}
 
 			if verrs != nil {
 				appCtx.Logger().Error("Admin user validation errors", zap.String("userID", appCtx.Session().UserID.String()), zap.Error(verrs))
-				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-				return false
+				return authorizationResultError
 			}
 		}
 	}
@@ -853,25 +939,21 @@ var authorizeKnownUser = func(appCtx appcontext.AppContext, userIdentity *models
 	appCtx.Session().LastName = userIdentity.LastName()
 	appCtx.Session().Middle = userIdentity.Middle()
 
-	sessionManager := h.SessionManagers().SessionManagerForApplication(appCtx.Session().ApplicationName)
 	if sessionManager == nil {
 		appCtx.Logger().Error("Authenticating user, cannot get session manager from request")
-		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-		return false
+		return authorizationResultError
 	}
 
-	authError := authenticateUser(r.Context(), appCtx, sessionManager)
+	authError := authenticateUser(ctx, appCtx, sessionManager)
 	if authError != nil {
 		appCtx.Logger().Error("Authenticating user", zap.Error(authError))
-		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-		return false
+		return authorizationResultError
 	}
 
-	http.Redirect(w, r, lURL, http.StatusTemporaryRedirect)
-	return true
+	return authorizationResultAuthorized
 }
 
-var authorizeUnknownUser = func(appCtx appcontext.AppContext, openIDUser goth.User, h CallbackHandler, w http.ResponseWriter, r *http.Request, lURL string) bool {
+func authorizeUnknownUser(ctx context.Context, appCtx appcontext.AppContext, openIDUser goth.User, sessionManager auth.SessionManager, notificationSender notifications.NotificationSender) AuthorizationResult {
 	var officeUser *models.OfficeUser
 	var user *models.User
 	var err error
@@ -886,22 +968,19 @@ var authorizeUnknownUser = func(appCtx appcontext.AppContext, openIDUser goth.Us
 			appCtx.Logger().Error("Unauthorized: No Office user found",
 				zap.String("OID_User", openIDUser.UserID),
 				zap.String("OID_Email", openIDUser.Email))
-			invalidPermissionsResponse(appCtx, h.HandlerConfig, h.Context, w, r)
-			return false
+			return authorizationResultUnauthorized
 		} else if err != nil {
 			appCtx.Logger().Error("Authorization checking for office user",
 				zap.String("OID_User", openIDUser.UserID),
 				zap.String("OID_Email", openIDUser.Email),
 				zap.Error(err))
-			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-			return false
+			return authorizationResultError
 		}
 		if !officeUser.Active {
 			appCtx.Logger().Error("Unauthorized: Office user deactivated",
 				zap.String("OID_User", openIDUser.UserID),
 				zap.String("OID_Email", openIDUser.Email))
-			invalidPermissionsResponse(appCtx, h.HandlerConfig, h.Context, w, r)
-			return false
+			return authorizationResultUnauthorized
 		}
 		user = &officeUser.User
 	}
@@ -920,23 +999,20 @@ var authorizeUnknownUser = func(appCtx appcontext.AppContext, openIDUser goth.Us
 			appCtx.Logger().Error("Unauthorized: No admin user found",
 				zap.String("OID_User", openIDUser.UserID),
 				zap.String("OID_Email", openIDUser.Email))
-			invalidPermissionsResponse(appCtx, h.HandlerConfig, h.Context, w, r)
-			return false
+			return authorizationResultUnauthorized
 		} else if err != nil {
 			appCtx.Logger().Error("Authorization checking for admin user",
 				zap.String("OID_User", openIDUser.UserID),
 				zap.String("OID_Email", openIDUser.Email),
 				zap.Error(err))
-			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-			return false
+			return authorizationResultError
 		}
 		// Log error and return if adminUser was found but deactivated
 		if !adminUser.Active {
 			appCtx.Logger().Error("Unauthorized: Admin user deactivated",
 				zap.String("OID_User", openIDUser.UserID),
 				zap.String("OID_Email", openIDUser.Email))
-			invalidPermissionsResponse(appCtx, h.HandlerConfig, h.Context, w, r)
-			return false
+			return authorizationResultUnauthorized
 		}
 		user = &adminUser.User
 	}
@@ -944,14 +1020,14 @@ var authorizeUnknownUser = func(appCtx appcontext.AppContext, openIDUser goth.Us
 	if appCtx.Session().IsMilApp() {
 		user, err = models.CreateUser(appCtx.DB(), openIDUser.UserID, openIDUser.Email)
 		if err == nil {
-			sysAdminEmail := notifications.GetSysAdminEmail(h.sender)
+			sysAdminEmail := notifications.GetSysAdminEmail(notificationSender)
 			appCtx.Logger().Info(
 				"New user account created through Login.gov",
 				zap.String("newUserID", user.ID.String()),
 			)
 			email, emailErr := notifications.NewUserAccountCreated(appCtx, sysAdminEmail, user.ID, user.UpdatedAt)
 			if emailErr == nil {
-				sendErr := h.sender.SendNotification(appCtx, email)
+				sendErr := notificationSender.SendNotification(appCtx, email)
 				if sendErr != nil {
 					appCtx.Logger().Error("Error sending user creation email", zap.Error(sendErr))
 				}
@@ -974,8 +1050,7 @@ var authorizeUnknownUser = func(appCtx appcontext.AppContext, openIDUser goth.Us
 		smVerrs, smErr := models.SaveServiceMember(appCtx, &newServiceMember)
 		if smVerrs.HasAny() || smErr != nil {
 			appCtx.Logger().Error("Error creating service member for user", zap.Error(smErr))
-			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-			return false
+			return authorizationResultError
 		}
 		appCtx.Session().ServiceMemberID = newServiceMember.ID
 	} else {
@@ -990,8 +1065,7 @@ var authorizeUnknownUser = func(appCtx appcontext.AppContext, openIDUser goth.Us
 
 	if err != nil {
 		appCtx.Logger().Error("Authorization error updating/creating user", zap.Error(err))
-		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-		return false
+		return authorizationResultError
 	}
 
 	appCtx.Session().UserID = user.ID
@@ -1004,25 +1078,22 @@ var authorizeUnknownUser = func(appCtx appcontext.AppContext, openIDUser goth.Us
 	appCtx.Session().Roles = append(appCtx.Session().Roles, user.Roles...)
 	appCtx.Session().Permissions = getPermissionsForUser(appCtx, user.ID)
 
-	sessionManager := h.SessionManagers().SessionManagerForApplication(appCtx.Session().ApplicationName)
 	if sessionManager == nil {
 		appCtx.Logger().Error("Authenticating user, cannot get session manager from request")
-		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-		return false
+		return authorizationResultError
 	}
 
-	authError := authenticateUser(r.Context(), appCtx, sessionManager)
+	authError := authenticateUser(ctx, appCtx, sessionManager)
 	if authError != nil {
 		appCtx.Logger().Error("Authenticate user", zap.Error(authError))
-		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-		return false
+		return authorizationResultError
 	}
 
-	http.Redirect(w, r, lURL, http.StatusTemporaryRedirect)
-	return true
+	return authorizationResultAuthorized
 }
 
-func fetchToken(logger *zap.Logger, code string, clientID string, loginGovProvider LoginGovProvider) (*openidConnect.Session, error) {
+func fetchToken(code string, clientID string, loginGovProvider LoginGovProvider) (*openidConnect.Session, error) {
+	logger := loginGovProvider.logger
 	expiry := auth.GetExpiryTimeFromMinutes(auth.SessionExpiryInMinutes)
 	params, err := loginGovProvider.TokenParams(code, clientID, expiry)
 	if err != nil {

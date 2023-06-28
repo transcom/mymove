@@ -57,7 +57,7 @@ func NewMemory(params MemoryParams) *Memory {
 }
 
 // Store stores the content from an io.ReadSeeker at the specified key.
-func (fs *Memory) Store(key string, data io.ReadSeeker, checksum string, tags *string) (*StoreResult, error) {
+func (fs *Memory) Store(key string, data io.ReadSeeker, _ string, _ *string) (*StoreResult, error) {
 	if key == "" {
 		return nil, errors.New("A valid StorageKey must be set before data can be uploaded")
 	}
@@ -113,7 +113,7 @@ func (fs *Memory) Fetch(key string) (io.ReadCloser, error) {
 }
 
 // Tags returns the tags for a specified key
-func (fs *Memory) Tags(key string) (map[string]string, error) {
+func (fs *Memory) Tags(_ string) (map[string]string, error) {
 	tags := make(map[string]string)
 	return tags, nil
 }

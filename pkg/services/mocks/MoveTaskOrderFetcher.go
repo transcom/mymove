@@ -94,13 +94,12 @@ func (_m *MoveTaskOrderFetcher) ListPrimeMoveTaskOrders(appCtx appcontext.AppCon
 	return r0, r1
 }
 
-type mockConstructorTestingTNewMoveTaskOrderFetcher interface {
+// NewMoveTaskOrderFetcher creates a new instance of MoveTaskOrderFetcher. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewMoveTaskOrderFetcher(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewMoveTaskOrderFetcher creates a new instance of MoveTaskOrderFetcher. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewMoveTaskOrderFetcher(t mockConstructorTestingTNewMoveTaskOrderFetcher) *MoveTaskOrderFetcher {
+}) *MoveTaskOrderFetcher {
 	mock := &MoveTaskOrderFetcher{}
 	mock.Mock.Test(t)
 

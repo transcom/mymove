@@ -127,8 +127,8 @@ func (f *sitAddressUpdateRequestRejector) updateSITAddressUpdateRequest(appCtx a
 	sitAddressUpdateRequest.Status = models.SITAddressUpdateStatusRejected
 
 	verrs, err := appCtx.DB().ValidateAndUpdate(&sitAddressUpdateRequest)
-	if error := f.handleError(sitAddressUpdateRequest.ID, verrs, err); error != nil {
-		return nil, error
+	if handleErr := f.handleError(sitAddressUpdateRequest.ID, verrs, err); handleErr != nil {
+		return nil, handleErr
 	}
 
 	return &sitAddressUpdateRequest, nil
@@ -138,9 +138,6 @@ func (f *sitAddressUpdateRequestRejector) handleError(modelID uuid.UUID, verrs *
 	if verrs != nil && verrs.HasAny() {
 		return apperror.NewInvalidInputError(modelID, nil, verrs, "")
 	}
-	if err != nil {
-		return err
-	}
 
-	return nil
+	return err
 }

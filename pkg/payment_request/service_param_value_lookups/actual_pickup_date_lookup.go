@@ -11,7 +11,7 @@ type ActualPickupDateLookup struct {
 	MTOShipment models.MTOShipment
 }
 
-func (r ActualPickupDateLookup) lookup(appCtx appcontext.AppContext, keyData *ServiceItemParamKeyData) (string, error) {
+func (r ActualPickupDateLookup) lookup(_ appcontext.AppContext, _ *ServiceItemParamKeyData) (string, error) {
 	actualPickupDate := r.MTOShipment.ActualPickupDate
 	if actualPickupDate == nil {
 		return "", nil

@@ -68,10 +68,9 @@ func SplitStatements(lines chan string, statements chan string, wait time.Durati
 				if err == ErrWait {
 					time.Sleep(wait)
 					continue
-				} else {
-					close(statements)
-					return
 				}
+				close(statements)
+				return
 			} else if twoPrevChars == "\\." {
 				// Found the end stdin marker, so slice the string into lines, send to the
 				// channel, and reset our copy statement boolean.
@@ -186,10 +185,9 @@ func SplitStatements(lines chan string, statements chan string, wait time.Durati
 							if errIndex == ErrWait {
 								time.Sleep(wait)
 								continue
-							} else {
-								close(statements)
-								return
 							}
+							close(statements)
+							return
 						}
 						b := true
 						switch c2 {
@@ -209,10 +207,9 @@ func SplitStatements(lines chan string, statements chan string, wait time.Durati
 							if err == ErrWait {
 								time.Sleep(wait)
 								continue
-							} else {
-								close(statements)
-								return
 							}
+							close(statements)
+							return
 						}
 						b := false
 						switch c3 {

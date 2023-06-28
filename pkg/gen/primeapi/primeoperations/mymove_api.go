@@ -61,6 +61,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		MtoShipmentCreateMTOShipmentHandler: mto_shipment.CreateMTOShipmentHandlerFunc(func(params mto_shipment.CreateMTOShipmentParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_shipment.CreateMTOShipment has not yet been implemented")
 		}),
+		MtoShipmentCreateNonSITAddressUpdateRequestHandler: mto_shipment.CreateNonSITAddressUpdateRequestHandlerFunc(func(params mto_shipment.CreateNonSITAddressUpdateRequestParams) middleware.Responder {
+			return middleware.NotImplemented("operation mto_shipment.CreateNonSITAddressUpdateRequest has not yet been implemented")
+		}),
 		PaymentRequestCreatePaymentRequestHandler: payment_request.CreatePaymentRequestHandlerFunc(func(params payment_request.CreatePaymentRequestParams) middleware.Responder {
 			return middleware.NotImplemented("operation payment_request.CreatePaymentRequest has not yet been implemented")
 		}),
@@ -159,6 +162,8 @@ type MymoveAPI struct {
 	MtoServiceItemCreateMTOServiceItemHandler mto_service_item.CreateMTOServiceItemHandler
 	// MtoShipmentCreateMTOShipmentHandler sets the operation handler for the create m t o shipment operation
 	MtoShipmentCreateMTOShipmentHandler mto_shipment.CreateMTOShipmentHandler
+	// MtoShipmentCreateNonSITAddressUpdateRequestHandler sets the operation handler for the create non s i t address update request operation
+	MtoShipmentCreateNonSITAddressUpdateRequestHandler mto_shipment.CreateNonSITAddressUpdateRequestHandler
 	// PaymentRequestCreatePaymentRequestHandler sets the operation handler for the create payment request operation
 	PaymentRequestCreatePaymentRequestHandler payment_request.CreatePaymentRequestHandler
 	// SitAddressUpdateCreateSITAddressUpdateRequestHandler sets the operation handler for the create s i t address update request operation
@@ -280,6 +285,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.MtoShipmentCreateMTOShipmentHandler == nil {
 		unregistered = append(unregistered, "mto_shipment.CreateMTOShipmentHandler")
+	}
+	if o.MtoShipmentCreateNonSITAddressUpdateRequestHandler == nil {
+		unregistered = append(unregistered, "mto_shipment.CreateNonSITAddressUpdateRequestHandler")
 	}
 	if o.PaymentRequestCreatePaymentRequestHandler == nil {
 		unregistered = append(unregistered, "payment_request.CreatePaymentRequestHandler")
@@ -435,6 +443,10 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
+	o.handlers["POST"]["/mto-shipments/{mtoShipmentID}/shipment-address-updates"] = mto_shipment.NewCreateNonSITAddressUpdateRequest(o.context, o.MtoShipmentCreateNonSITAddressUpdateRequestHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
 	o.handlers["POST"]["/payment-requests"] = payment_request.NewCreatePaymentRequest(o.context, o.PaymentRequestCreatePaymentRequestHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
@@ -533,6 +545,6 @@ func (o *MymoveAPI) AddMiddlewareFor(method, path string, builder middleware.Bui
 	}
 	o.Init()
 	if h, ok := o.handlers[um][path]; ok {
-		o.handlers[method][path] = builder(h)
+		o.handlers[um][path] = builder(h)
 	}
 }

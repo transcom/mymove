@@ -74,7 +74,7 @@ func (s ServiceMember) TableName() string {
 type ServiceMembers []ServiceMember
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-func (s *ServiceMember) Validate(tx *pop.Connection) (*validate.Errors, error) {
+func (s *ServiceMember) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.UUIDIsPresent{Field: s.UserID, Name: "UserID"},
 	), nil
@@ -216,7 +216,8 @@ func (s ServiceMember) CreateOrder(appCtx appcontext.AppContext,
 	originDutyLocation *DutyLocation,
 	grade *string,
 	entitlement *Entitlement,
-	originDutyLocationGBLOC *string) (Order, *validate.Errors, error) {
+	originDutyLocationGBLOC *string,
+	packingAndShippingInstructions string) (Order, *validate.Errors, error) {
 
 	var newOrders Order
 	responseVErrors := validate.NewErrors()
@@ -236,26 +237,30 @@ func (s ServiceMember) CreateOrder(appCtx appcontext.AppContext,
 		}
 
 		newOrders = Order{
-			ServiceMemberID:         s.ID,
-			ServiceMember:           s,
-			IssueDate:               issueDate,
-			ReportByDate:            reportByDate,
-			OrdersType:              ordersType,
-			HasDependents:           hasDependents,
-			SpouseHasProGear:        spouseHasProGear,
-			NewDutyLocationID:       newDutyLocation.ID,
-			NewDutyLocation:         newDutyLocation,
-			UploadedOrders:          uploadedOrders,
-			UploadedOrdersID:        uploadedOrders.ID,
-			Status:                  OrderStatusDRAFT,
-			OrdersNumber:            ordersNumber,
-			TAC:                     tac,
-			SAC:                     sac,
-			DepartmentIndicator:     departmentIndicator,
-			Grade:                   grade,
-			OriginDutyLocation:      originDutyLocation,
-			Entitlement:             entitlement,
-			OriginDutyLocationGBLOC: originDutyLocationGBLOC,
+			ServiceMemberID:                s.ID,
+			ServiceMember:                  s,
+			IssueDate:                      issueDate,
+			ReportByDate:                   reportByDate,
+			OrdersType:                     ordersType,
+			HasDependents:                  hasDependents,
+			SpouseHasProGear:               spouseHasProGear,
+			NewDutyLocationID:              newDutyLocation.ID,
+			NewDutyLocation:                newDutyLocation,
+			UploadedOrders:                 uploadedOrders,
+			UploadedOrdersID:               uploadedOrders.ID,
+			Status:                         OrderStatusDRAFT,
+			OrdersNumber:                   ordersNumber,
+			TAC:                            tac,
+			SAC:                            sac,
+			DepartmentIndicator:            departmentIndicator,
+			Grade:                          grade,
+			OriginDutyLocation:             originDutyLocation,
+			Entitlement:                    entitlement,
+			OriginDutyLocationGBLOC:        originDutyLocationGBLOC,
+			SupplyAndServicesCostEstimate:  SupplyAndServicesCostEstimate,
+			MethodOfPayment:                MethodOfPayment,
+			NAICS:                          NAICS,
+			PackingAndShippingInstructions: packingAndShippingInstructions,
 		}
 
 		verrs, err = txnAppCtx.DB().ValidateAndCreate(&newOrders)

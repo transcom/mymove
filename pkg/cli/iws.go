@@ -20,8 +20,5 @@ func InitIWSFlags(flag *pflag.FlagSet) {
 
 // CheckIWS validates IWS command line flags
 func CheckIWS(v *viper.Viper) error {
-	if err := ValidateHost(v, IWSRBSHostFlag); err != nil {
-		return err
-	}
-	return nil
+	return ValidateHost(v, IWSRBSHostFlag)
 }

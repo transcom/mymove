@@ -102,6 +102,10 @@ func (m *CategoryExpenseSummary) ContextValidate(ctx context.Context, formats st
 
 func (m *CategoryExpenseSummary) contextValidateCategory(ctx context.Context, formats strfmt.Registry) error {
 
+	if swag.IsZero(m.Category) { // not required
+		return nil
+	}
+
 	if err := m.Category.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("category")
@@ -117,6 +121,11 @@ func (m *CategoryExpenseSummary) contextValidateCategory(ctx context.Context, fo
 func (m *CategoryExpenseSummary) contextValidatePaymentMethods(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.PaymentMethods != nil {
+
+		if swag.IsZero(m.PaymentMethods) { // not required
+			return nil
+		}
+
 		if err := m.PaymentMethods.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("payment_methods")

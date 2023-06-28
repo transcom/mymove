@@ -42,7 +42,7 @@ type mtoShipmentUpdater struct {
 }
 
 // NewMTOShipmentUpdater creates a new struct with the service dependencies
-func NewMTOShipmentUpdater(builder UpdateMTOShipmentQueryBuilder, fetcher services.Fetcher, planner route.Planner, moveRouter services.MoveRouter, moveWeights services.MoveWeights, sender notifications.NotificationSender, recalculator services.PaymentRequestShipmentRecalculator) services.MTOShipmentUpdater {
+func NewMTOShipmentUpdater(builder UpdateMTOShipmentQueryBuilder, _ services.Fetcher, planner route.Planner, moveRouter services.MoveRouter, moveWeights services.MoveWeights, sender notifications.NotificationSender, recalculator services.PaymentRequestShipmentRecalculator) services.MTOShipmentUpdater {
 	return &mtoShipmentUpdater{
 		builder,
 		fetch.NewFetcher(builder),
@@ -57,7 +57,7 @@ func NewMTOShipmentUpdater(builder UpdateMTOShipmentQueryBuilder, fetcher servic
 
 // TODO: apply the subset of business logic validations
 // that would be appropriate for the CUSTOMER
-func NewCustomerMTOShipmentUpdater(builder UpdateMTOShipmentQueryBuilder, fetcher services.Fetcher, planner route.Planner, moveRouter services.MoveRouter, moveWeights services.MoveWeights, sender notifications.NotificationSender, recalculator services.PaymentRequestShipmentRecalculator) services.MTOShipmentUpdater {
+func NewCustomerMTOShipmentUpdater(builder UpdateMTOShipmentQueryBuilder, _ services.Fetcher, planner route.Planner, moveRouter services.MoveRouter, moveWeights services.MoveWeights, sender notifications.NotificationSender, recalculator services.PaymentRequestShipmentRecalculator) services.MTOShipmentUpdater {
 	return &mtoShipmentUpdater{
 		builder,
 		fetch.NewFetcher(builder),
@@ -70,7 +70,7 @@ func NewCustomerMTOShipmentUpdater(builder UpdateMTOShipmentQueryBuilder, fetche
 	}
 }
 
-func NewOfficeMTOShipmentUpdater(builder UpdateMTOShipmentQueryBuilder, fetcher services.Fetcher, planner route.Planner, moveRouter services.MoveRouter, moveWeights services.MoveWeights, sender notifications.NotificationSender, recalculator services.PaymentRequestShipmentRecalculator) services.MTOShipmentUpdater {
+func NewOfficeMTOShipmentUpdater(builder UpdateMTOShipmentQueryBuilder, _ services.Fetcher, planner route.Planner, moveRouter services.MoveRouter, moveWeights services.MoveWeights, sender notifications.NotificationSender, recalculator services.PaymentRequestShipmentRecalculator) services.MTOShipmentUpdater {
 	return &mtoShipmentUpdater{
 		builder,
 		fetch.NewFetcher(builder),
@@ -85,7 +85,7 @@ func NewOfficeMTOShipmentUpdater(builder UpdateMTOShipmentQueryBuilder, fetcher 
 
 // TODO: apply the subset of business logic validations
 // that would be appropriate for the PRIME
-func NewPrimeMTOShipmentUpdater(builder UpdateMTOShipmentQueryBuilder, fetcher services.Fetcher, planner route.Planner, moveRouter services.MoveRouter, moveWeights services.MoveWeights, sender notifications.NotificationSender, recalculator services.PaymentRequestShipmentRecalculator) services.MTOShipmentUpdater {
+func NewPrimeMTOShipmentUpdater(builder UpdateMTOShipmentQueryBuilder, _ services.Fetcher, planner route.Planner, moveRouter services.MoveRouter, moveWeights services.MoveWeights, sender notifications.NotificationSender, recalculator services.PaymentRequestShipmentRecalculator) services.MTOShipmentUpdater {
 	return &mtoShipmentUpdater{
 		builder,
 		fetch.NewFetcher(builder),
@@ -99,7 +99,7 @@ func NewPrimeMTOShipmentUpdater(builder UpdateMTOShipmentQueryBuilder, fetcher s
 }
 
 // setNewShipmentFields validates the updated shipment
-func setNewShipmentFields(appCtx appcontext.AppContext, dbShipment *models.MTOShipment, requestedUpdatedShipment *models.MTOShipment) {
+func setNewShipmentFields(_ appcontext.AppContext, dbShipment *models.MTOShipment, requestedUpdatedShipment *models.MTOShipment) {
 	if requestedUpdatedShipment.RequestedPickupDate != nil {
 		dbShipment.RequestedPickupDate = requestedUpdatedShipment.RequestedPickupDate
 	}
@@ -348,6 +348,10 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 		if !updatedAt.Equal(dbShipment.UpdatedAt) {
 			return StaleIdentifierError{StaleIdentifier: eTag}
 		}
+
+		// TODO: We currently can't distinguish between a nil DestinationAddress meaning to "clear field"
+		//   vs "don't touch" the field, so we can't safely reset a nil DestinationAddress to the duty
+		//   location address for an HHG like we do in the MTOShipmentCreator now.  See MB-15718.
 
 		if newShipment.DestinationAddress != nil {
 			// If there is an existing DestinationAddressID associated
@@ -786,6 +790,21 @@ func reServiceCodesForShipment(shipment models.MTOShipment) []models.ReServiceCo
 
 	switch shipment.ShipmentType {
 	case models.MTOShipmentTypeHHG:
+
+		originZIP3 := shipment.PickupAddress.PostalCode[0:3]
+		destinationZIP3 := shipment.DestinationAddress.PostalCode[0:3]
+
+		if originZIP3 == destinationZIP3 {
+			return []models.ReServiceCode{
+				models.ReServiceCodeDSH,
+				models.ReServiceCodeFSC,
+				models.ReServiceCodeDOP,
+				models.ReServiceCodeDDP,
+				models.ReServiceCodeDPK,
+				models.ReServiceCodeDUPK,
+			}
+		}
+
 		// Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Packing, and Dom Unpacking.
 		return []models.ReServiceCode{
 			models.ReServiceCodeDLH,

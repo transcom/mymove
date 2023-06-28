@@ -112,6 +112,11 @@ func (m *ExpenseSummaryPayload) contextValidateCategories(ctx context.Context, f
 	for i := 0; i < len(m.Categories); i++ {
 
 		if m.Categories[i] != nil {
+
+			if swag.IsZero(m.Categories[i]) { // not required
+				return nil
+			}
+
 			if err := m.Categories[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("categories" + "." + strconv.Itoa(i))
@@ -130,6 +135,11 @@ func (m *ExpenseSummaryPayload) contextValidateCategories(ctx context.Context, f
 func (m *ExpenseSummaryPayload) contextValidateGrandTotal(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.GrandTotal != nil {
+
+		if swag.IsZero(m.GrandTotal) { // not required
+			return nil
+		}
+
 		if err := m.GrandTotal.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("grand_total")
@@ -223,6 +233,11 @@ func (m *ExpenseSummaryPayloadGrandTotal) ContextValidate(ctx context.Context, f
 func (m *ExpenseSummaryPayloadGrandTotal) contextValidatePaymentMethodTotals(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.PaymentMethodTotals != nil {
+
+		if swag.IsZero(m.PaymentMethodTotals) { // not required
+			return nil
+		}
+
 		if err := m.PaymentMethodTotals.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("grand_total" + "." + "payment_method_totals")

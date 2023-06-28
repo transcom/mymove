@@ -19,7 +19,7 @@ import { Form } from 'components/form';
 import { ModalContainer, Overlay } from 'components/MigratedModal/MigratedModal';
 import Modal, { ModalActions, ModalClose, ModalTitle } from 'components/Modal/Modal';
 import { sitExtensionReasons } from 'constants/sitExtensions';
-import { datePickerFormat, formatDateForDatePicker, utcDateFormat } from 'shared/dates';
+import { datePickerFormat, formatDateForDatePicker, swaggerDateFormat } from 'shared/dates';
 import { SitStatusShape, LOCATION_TYPES } from 'types/sitStatusShape';
 import { ShipmentShape } from 'types';
 
@@ -55,7 +55,7 @@ const SITHistoryItemHeader = ({ title, value }) => {
   }
 
   return (
-    <div className={styles.sitHistoryItemHeader}>
+    <div data-happo-hide className={styles.sitHistoryItemHeader}>
       {title}
       <span className={styles.hintText}>
         {action} + Requested = {value}
@@ -66,7 +66,7 @@ const SITHistoryItemHeader = ({ title, value }) => {
 
 const SitStatusTables = ({ sitStatus, sitExtension, shipment }) => {
   const { totalSITDaysUsed, daysInSIT, location } = sitStatus;
-  const sitEntryDate = moment(sitStatus.sitEntryDate, utcDateFormat);
+  const sitEntryDate = moment(sitStatus.sitEntryDate, swaggerDateFormat);
   const daysInPreviousSIT = totalSITDaysUsed - daysInSIT;
 
   /**
@@ -107,16 +107,17 @@ const SitStatusTables = ({ sitStatus, sitExtension, shipment }) => {
    * @description This function is used to change the values of the Total Days
    * of SIT approved input when the End Date datepicker is modified. This is
    * being triggered on the `onChange` event for the SitEndDateForm component.
-   * @param {moment.input} endDate A Moment.input representing the last day approved in the form.
+   * @param {Date} endDate A Moment.input representing the last day approved in the form.
    * @see handleDaysAllowanceChange
    * @see SitEndDateForm component
    */
   const handleSitEndDateChange = (endDate) => {
     endDateHelper.setValue(endDate);
     // Total days of SIT
-    const calculatedSitDaysAllowance = Math.ceil(
-      moment.duration(moment(endDate, datePickerFormat).diff(sitEntryDate)).asDays() + daysInPreviousSIT,
-    );
+    const startOfEndDate = moment(endDate, datePickerFormat).startOf('day');
+    const startOfEntryDate = sitEntryDate.startOf('day');
+    const calculatedSitDaysAllowance =
+      moment.duration(startOfEndDate.diff(startOfEntryDate)).asDays() + daysInPreviousSIT;
     // Update form value
     sitAllowanceHelper.setValue(String(calculatedSitDaysAllowance));
   };
@@ -189,16 +190,31 @@ const SitStatusTables = ({ sitStatus, sitExtension, shipment }) => {
   );
 };
 
+/**
+ * @description This component contains a form that can be viewed from the SIT
+ * Display on the MTO page when the Prime submits a SIT Extension for review of
+ * the TOO.
+ */
 const ReviewSITExtensionsModal = ({ onClose, onSubmit, sitExtension, shipment, sitStatus }) => {
+  let sitStartDate = sitStatus?.sitEntryDate;
+  if (!sitStartDate) {
+    sitStartDate = shipment.mtoServiceItems?.reduce((item, acc) => {
+      if (item.sitEntryDate < acc.sitEntryDate) {
+        return item;
+      }
+      return acc;
+    }).sitEntryDate;
+  }
+
   const initialValues = {
     acceptExtension: '',
     daysApproved: String(shipment.sitDaysAllowance),
     requestReason: sitExtension.requestReason,
     officeRemarks: '',
-    sitEndDate: formatDateForDatePicker(moment().add(sitStatus.totalDaysRemaining - 1, 'days')),
+    sitEndDate: formatDateForDatePicker(moment(sitStatus.sitAllowanceEndDate, swaggerDateFormat)),
   };
   const minimumDaysAllowed = shipment.sitDaysAllowance + 1;
-  const sitEntryDate = moment(sitStatus.sitEntryDate, utcDateFormat);
+  const sitEntryDate = moment(sitStatus.sitEntryDate, swaggerDateFormat);
   const reviewSITExtensionSchema = Yup.object().shape({
     acceptExtension: Yup.mixed().oneOf(['yes', 'no']).required('Required'),
     requestReason: Yup.string().required('Required'),

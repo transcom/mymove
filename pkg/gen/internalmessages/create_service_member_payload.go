@@ -321,6 +321,11 @@ func (m *CreateServiceMemberPayload) ContextValidate(ctx context.Context, format
 func (m *CreateServiceMemberPayload) contextValidateAffiliation(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Affiliation != nil {
+
+		if swag.IsZero(m.Affiliation) { // not required
+			return nil
+		}
+
 		if err := m.Affiliation.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("affiliation")
@@ -337,6 +342,11 @@ func (m *CreateServiceMemberPayload) contextValidateAffiliation(ctx context.Cont
 func (m *CreateServiceMemberPayload) contextValidateBackupMailingAddress(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.BackupMailingAddress != nil {
+
+		if swag.IsZero(m.BackupMailingAddress) { // not required
+			return nil
+		}
+
 		if err := m.BackupMailingAddress.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("backup_mailing_address")
@@ -353,6 +363,11 @@ func (m *CreateServiceMemberPayload) contextValidateBackupMailingAddress(ctx con
 func (m *CreateServiceMemberPayload) contextValidateRank(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Rank != nil {
+
+		if swag.IsZero(m.Rank) { // not required
+			return nil
+		}
+
 		if err := m.Rank.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("rank")
@@ -369,6 +384,11 @@ func (m *CreateServiceMemberPayload) contextValidateRank(ctx context.Context, fo
 func (m *CreateServiceMemberPayload) contextValidateResidentialAddress(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.ResidentialAddress != nil {
+
+		if swag.IsZero(m.ResidentialAddress) { // not required
+			return nil
+		}
+
 		if err := m.ResidentialAddress.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("residential_address")

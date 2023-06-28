@@ -120,13 +120,12 @@ func (_m *MTOServiceItemUpdater) UpdateMTOServiceItemPrime(appCtx appcontext.App
 	return r0, r1
 }
 
-type mockConstructorTestingTNewMTOServiceItemUpdater interface {
+// NewMTOServiceItemUpdater creates a new instance of MTOServiceItemUpdater. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewMTOServiceItemUpdater(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewMTOServiceItemUpdater creates a new instance of MTOServiceItemUpdater. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewMTOServiceItemUpdater(t mockConstructorTestingTNewMTOServiceItemUpdater) *MTOServiceItemUpdater {
+}) *MTOServiceItemUpdater {
 	mock := &MTOServiceItemUpdater{}
 	mock.Mock.Test(t)
 

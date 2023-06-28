@@ -22,6 +22,14 @@ import (
 type UpdateMTOServiceItemSIT struct {
 	idField strfmt.UUID
 
+	// Date of attempted contact by the prime corresponding to 'timeMilitary1'.
+	// Format: date
+	DateOfContact1 *strfmt.Date `json:"dateOfContact1,omitempty"`
+
+	// Date of attempted contact by the prime corresponding to 'timeMilitary2'.
+	// Format: date
+	DateOfContact2 *strfmt.Date `json:"dateOfContact2,omitempty"`
+
 	// First available date that Prime can deliver SIT service item.
 	// Format: date
 	FirstAvailableDeliveryDate1 *strfmt.Date `json:"firstAvailableDeliveryDate1,omitempty"`
@@ -41,12 +49,12 @@ type UpdateMTOServiceItemSIT struct {
 	// sit destination final address
 	SitDestinationFinalAddress *Address `json:"sitDestinationFinalAddress,omitempty"`
 
-	// Time of delivery corresponding to `firstAvailableDeliveryDate1`, in military format.
+	// Time of attempted contact by the prime corresponding to 'dateOfContact1', in military format.
 	// Example: 1400Z
 	// Pattern: \d{4}Z
 	TimeMilitary1 *string `json:"timeMilitary1,omitempty"`
 
-	// Time of delivery corresponding to `firstAvailableDeliveryDate2`, in military format.
+	// Time of attempted contact by the prime corresponding to 'dateOfContact2', in military format.
 	// Example: 1400Z
 	// Pattern: \d{4}Z
 	TimeMilitary2 *string `json:"timeMilitary2,omitempty"`
@@ -75,6 +83,14 @@ func (m *UpdateMTOServiceItemSIT) SetModelType(val UpdateMTOServiceItemModelType
 func (m *UpdateMTOServiceItemSIT) UnmarshalJSON(raw []byte) error {
 	var data struct {
 
+		// Date of attempted contact by the prime corresponding to 'timeMilitary1'.
+		// Format: date
+		DateOfContact1 *strfmt.Date `json:"dateOfContact1,omitempty"`
+
+		// Date of attempted contact by the prime corresponding to 'timeMilitary2'.
+		// Format: date
+		DateOfContact2 *strfmt.Date `json:"dateOfContact2,omitempty"`
+
 		// First available date that Prime can deliver SIT service item.
 		// Format: date
 		FirstAvailableDeliveryDate1 *strfmt.Date `json:"firstAvailableDeliveryDate1,omitempty"`
@@ -94,12 +110,12 @@ func (m *UpdateMTOServiceItemSIT) UnmarshalJSON(raw []byte) error {
 		// sit destination final address
 		SitDestinationFinalAddress *Address `json:"sitDestinationFinalAddress,omitempty"`
 
-		// Time of delivery corresponding to `firstAvailableDeliveryDate1`, in military format.
+		// Time of attempted contact by the prime corresponding to 'dateOfContact1', in military format.
 		// Example: 1400Z
 		// Pattern: \d{4}Z
 		TimeMilitary1 *string `json:"timeMilitary1,omitempty"`
 
-		// Time of delivery corresponding to `firstAvailableDeliveryDate2`, in military format.
+		// Time of attempted contact by the prime corresponding to 'dateOfContact2', in military format.
 		// Example: 1400Z
 		// Pattern: \d{4}Z
 		TimeMilitary2 *string `json:"timeMilitary2,omitempty"`
@@ -136,6 +152,8 @@ func (m *UpdateMTOServiceItemSIT) UnmarshalJSON(raw []byte) error {
 		return errors.New(422, "invalid modelType value: %q", base.ModelType)
 	}
 
+	result.DateOfContact1 = data.DateOfContact1
+	result.DateOfContact2 = data.DateOfContact2
 	result.FirstAvailableDeliveryDate1 = data.FirstAvailableDeliveryDate1
 	result.FirstAvailableDeliveryDate2 = data.FirstAvailableDeliveryDate2
 	result.ReServiceCode = data.ReServiceCode
@@ -154,6 +172,14 @@ func (m UpdateMTOServiceItemSIT) MarshalJSON() ([]byte, error) {
 	var b1, b2, b3 []byte
 	var err error
 	b1, err = json.Marshal(struct {
+
+		// Date of attempted contact by the prime corresponding to 'timeMilitary1'.
+		// Format: date
+		DateOfContact1 *strfmt.Date `json:"dateOfContact1,omitempty"`
+
+		// Date of attempted contact by the prime corresponding to 'timeMilitary2'.
+		// Format: date
+		DateOfContact2 *strfmt.Date `json:"dateOfContact2,omitempty"`
 
 		// First available date that Prime can deliver SIT service item.
 		// Format: date
@@ -174,16 +200,20 @@ func (m UpdateMTOServiceItemSIT) MarshalJSON() ([]byte, error) {
 		// sit destination final address
 		SitDestinationFinalAddress *Address `json:"sitDestinationFinalAddress,omitempty"`
 
-		// Time of delivery corresponding to `firstAvailableDeliveryDate1`, in military format.
+		// Time of attempted contact by the prime corresponding to 'dateOfContact1', in military format.
 		// Example: 1400Z
 		// Pattern: \d{4}Z
 		TimeMilitary1 *string `json:"timeMilitary1,omitempty"`
 
-		// Time of delivery corresponding to `firstAvailableDeliveryDate2`, in military format.
+		// Time of attempted contact by the prime corresponding to 'dateOfContact2', in military format.
 		// Example: 1400Z
 		// Pattern: \d{4}Z
 		TimeMilitary2 *string `json:"timeMilitary2,omitempty"`
 	}{
+
+		DateOfContact1: m.DateOfContact1,
+
+		DateOfContact2: m.DateOfContact2,
 
 		FirstAvailableDeliveryDate1: m.FirstAvailableDeliveryDate1,
 
@@ -224,6 +254,14 @@ func (m *UpdateMTOServiceItemSIT) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateDateOfContact1(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateDateOfContact2(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -268,6 +306,32 @@ func (m *UpdateMTOServiceItemSIT) validateID(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("id", "body", "uuid", m.ID().String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *UpdateMTOServiceItemSIT) validateDateOfContact1(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.DateOfContact1) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("dateOfContact1", "body", "date", m.DateOfContact1.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *UpdateMTOServiceItemSIT) validateDateOfContact2(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.DateOfContact2) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("dateOfContact2", "body", "date", m.DateOfContact2.String(), formats); err != nil {
 		return err
 	}
 
@@ -424,6 +488,11 @@ func (m *UpdateMTOServiceItemSIT) contextValidateModelType(ctx context.Context, 
 func (m *UpdateMTOServiceItemSIT) contextValidateSitDestinationFinalAddress(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.SitDestinationFinalAddress != nil {
+
+		if swag.IsZero(m.SitDestinationFinalAddress) { // not required
+			return nil
+		}
+
 		if err := m.SitDestinationFinalAddress.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("sitDestinationFinalAddress")

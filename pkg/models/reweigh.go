@@ -52,7 +52,7 @@ func (r Reweigh) TableName() string {
 }
 
 // Validate ensures the reweigh fields have the required and optional valid values prior to saving
-func (r *Reweigh) Validate(tx *pop.Connection) (*validate.Errors, error) {
+func (r *Reweigh) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.TimeIsPresent{Field: r.RequestedAt, Name: "RequestedAt"},
 		&validators.StringInclusion{Field: string(r.RequestedBy), Name: "RequestedBy", List: requestedByValues},

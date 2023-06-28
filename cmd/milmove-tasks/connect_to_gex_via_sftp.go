@@ -22,11 +22,7 @@ import (
 func checkConnectToGEXViaSFTPConfig(v *viper.Viper, logger *zap.Logger) error {
 	logger.Debug("checking config")
 
-	if err := cli.CheckGEX(v); err != nil {
-		return err
-	}
-
-	return nil
+	return cli.CheckGEX(v)
 }
 
 func initConnectToGEXViaSFTPFlags(flag *pflag.FlagSet) {
@@ -40,7 +36,7 @@ func initConnectToGEXViaSFTPFlags(flag *pflag.FlagSet) {
 	flag.SortFlags = false
 }
 
-func connectToGEXViaSFTP(cmd *cobra.Command, args []string) error {
+func connectToGEXViaSFTP(_ *cobra.Command, _ []string) error {
 	v := viper.New()
 
 	logger, _, err := logging.Config(

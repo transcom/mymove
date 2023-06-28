@@ -46,5 +46,4 @@ if new_percent < baseline_percent:
   print(f"\nBaseline test coverage: {baseline_percent}")
   print(f"New test coverage: {new_percent}")
   print("Test Coverage has decreased\n")
-  # ALWAYS PASS
-  sys.exit(0)
+  sys.exit(1)

@@ -13,7 +13,7 @@ type WeightEstimatedLookup struct {
 	MTOShipment models.MTOShipment
 }
 
-func (r WeightEstimatedLookup) lookup(appCtx appcontext.AppContext, keyData *ServiceItemParamKeyData) (string, error) {
+func (r WeightEstimatedLookup) lookup(_ appcontext.AppContext, keyData *ServiceItemParamKeyData) (string, error) {
 	var estimatedWeight *unit.Pound
 
 	switch keyData.MTOServiceItem.ReService.Code {

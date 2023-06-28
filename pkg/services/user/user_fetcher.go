@@ -20,8 +20,8 @@ type userFetcher struct {
 // FetchUser fetches an  user given a slice of filters
 func (o *userFetcher) FetchUser(appCtx appcontext.AppContext, filters []services.QueryFilter) (models.User, error) {
 	var user models.User
-	error := o.builder.FetchOne(appCtx, &user, filters)
-	return user, error
+	err := o.builder.FetchOne(appCtx, &user, filters)
+	return user, err
 }
 
 // NewUserFetcher return an implementation of the UserFetcher interface

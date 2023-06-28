@@ -66,13 +66,12 @@ func (_m *OrganizationListFetcher) FetchOrganizationList(appCtx appcontext.AppCo
 	return r0, r1
 }
 
-type mockConstructorTestingTNewOrganizationListFetcher interface {
+// NewOrganizationListFetcher creates a new instance of OrganizationListFetcher. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewOrganizationListFetcher(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewOrganizationListFetcher creates a new instance of OrganizationListFetcher. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewOrganizationListFetcher(t mockConstructorTestingTNewOrganizationListFetcher) *OrganizationListFetcher {
+}) *OrganizationListFetcher {
 	mock := &OrganizationListFetcher{}
 	mock.Mock.Test(t)
 

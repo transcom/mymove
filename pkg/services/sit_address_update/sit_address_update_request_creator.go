@@ -5,26 +5,30 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/services"
 )
 
 type sitAddressUpdateRequestCreator struct {
-	planner        route.Planner
-	addressCreator services.AddressCreator
-	checks         []sitAddressUpdateValidator
-	moveRouter     services.MoveRouter
+	planner            route.Planner
+	addressCreator     services.AddressCreator
+	serviceItemUpdater services.MTOServiceItemUpdater
+	checks             []sitAddressUpdateValidator
+	moveRouter         services.MoveRouter
 }
 
-func NewSITAddressUpdateRequestCreator(planner route.Planner, addressCreator services.AddressCreator, moveRouter services.MoveRouter) services.SITAddressUpdateRequestCreator {
+func NewSITAddressUpdateRequestCreator(planner route.Planner, addressCreator services.AddressCreator, serviceItemUpdater services.MTOServiceItemUpdater, moveRouter services.MoveRouter) services.SITAddressUpdateRequestCreator {
 	return &sitAddressUpdateRequestCreator{
-		planner:        planner,
-		addressCreator: addressCreator,
+		planner:            planner,
+		addressCreator:     addressCreator,
+		serviceItemUpdater: serviceItemUpdater,
 		checks: []sitAddressUpdateValidator{
 			checkAndValidateRequiredFields(),
 			checkPrimeRequiredFields(),
 			checkForExistingSITAddressUpdate(),
+			checkServiceItem(),
 		},
 		moveRouter: moveRouter,
 	}
@@ -106,6 +110,22 @@ func (f *sitAddressUpdateRequestCreator) CreateSITAddressUpdateRequest(appCtx ap
 					return err
 				}
 			}
+		} else if sitAddressUpdateRequest.Status == models.SITAddressUpdateStatusApproved {
+			var serviceItem models.MTOServiceItem
+			err := txnAppCtx.DB().Find(&serviceItem, sitAddressUpdateRequest.MTOServiceItemID)
+			if err != nil {
+				return err
+			}
+
+			serviceItem.SITDestinationFinalAddressID = &newAddress.ID
+			serviceItem.SITDestinationFinalAddress = newAddress
+
+			updatedServiceItem, err := f.serviceItemUpdater.UpdateMTOServiceItemBasic(txnAppCtx, &serviceItem, etag.GenerateEtag(serviceItem.UpdatedAt))
+			if err != nil {
+				return err
+			}
+
+			sitAddressUpdateRequest.MTOServiceItem = *updatedServiceItem
 		}
 
 		return nil

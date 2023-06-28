@@ -5,7 +5,7 @@ import React from 'react';
 
 import ReviewSITExtensionModal from './ReviewSITExtensionModal';
 
-import { formatDateForDatePicker, utcDateFormat } from 'shared/dates';
+import { formatDateForDatePicker, swaggerDateFormat } from 'shared/dates';
 
 describe('ReviewSITExtensionModal', () => {
   const sitExt = {
@@ -17,7 +17,8 @@ describe('ReviewSITExtensionModal', () => {
 
   const sitStatus = {
     totalDaysRemaining: 30,
-    sitEntryDate: moment().subtract(15, 'days').format(utcDateFormat),
+    sitEntryDate: moment().subtract(15, 'days').format(swaggerDateFormat),
+    sitAllowanceEndDate: moment().add(15, 'days').format(swaggerDateFormat),
     totalSITDaysUsed: 15,
     daysInSIT: 15,
   };

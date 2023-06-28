@@ -41,7 +41,7 @@ func (c ClientCert) TableName() string {
 }
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-func (c *ClientCert) Validate(tx *pop.Connection) (*validate.Errors, error) {
+func (c *ClientCert) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		// a hex encoded sha256 digest is exactly 64 characters long.
 		// Allowing any other length would almost certainly be a

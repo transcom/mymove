@@ -38,7 +38,7 @@ func (o Organizations) String() string {
 }
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-func (o *Organization) Validate(tx *pop.Connection) (*validate.Errors, error) {
+func (o *Organization) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.StringIsPresent{Field: o.Name, Name: "Name"},
 	), nil

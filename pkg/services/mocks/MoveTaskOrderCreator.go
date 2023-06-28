@@ -51,13 +51,12 @@ func (_m *MoveTaskOrderCreator) CreateMoveTaskOrder(appCtx appcontext.AppContext
 	return r0, r1, r2
 }
 
-type mockConstructorTestingTNewMoveTaskOrderCreator interface {
+// NewMoveTaskOrderCreator creates a new instance of MoveTaskOrderCreator. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewMoveTaskOrderCreator(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewMoveTaskOrderCreator creates a new instance of MoveTaskOrderCreator. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewMoveTaskOrderCreator(t mockConstructorTestingTNewMoveTaskOrderCreator) *MoveTaskOrderCreator {
+}) *MoveTaskOrderCreator {
 	mock := &MoveTaskOrderCreator{}
 	mock.Mock.Test(t)
 
