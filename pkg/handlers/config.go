@@ -141,8 +141,11 @@ func (c *Config) AuditableAppContextFromRequestWithErrors(
 	appCtx := c.AppContextFromRequest(r)
 	err := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		// There may be a better place to do this. It probably should be in its own file.
-		apiVersion := apiversion.DetermineAPIVersion(r.URL.Path)
-		txnAppCtx.SetAPIVersion(apiVersion)
+		// apiVersion := apiversion.NoneSpecified
+		if r.URL != nil {
+			apiVersion := apiversion.DetermineAPIVersion(r.URL.Path)
+			txnAppCtx.SetAPIVersion(apiVersion)
+		}
 
 		auditUserID := audit.RetrieveAuditUserIDFromContext(r.Context())
 		// not sure why, but using RawQuery("SET LOCAL foo = ?",
