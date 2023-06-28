@@ -3,6 +3,7 @@ import { mount } from 'enzyme';
 import { act } from 'react-dom/test-utils';
 import { Radio } from '@trussworks/react-uswds';
 
+import { ENABLED_VALUE } from 'components/FeatureFlag/FeatureFlag';
 import { ConusOrNot } from 'pages/MyMove/ConusOrNot';
 import { CONUS_STATUS } from 'shared/constants';
 import { getFeatureFlagForUser } from 'services/internalApi';
@@ -18,7 +19,7 @@ describe('ConusOrNot', () => {
     setLocation: () => {},
   };
   it('should render radio buttons', async () => {
-    getFeatureFlagForUser.mockResolvedValue({ enabled: true, value: 'enabled' });
+    getFeatureFlagForUser.mockResolvedValue({ match: true, value: ENABLED_VALUE });
     // eslint-disable-next-line react/jsx-props-no-spreading
     const wrapper = mount(<ConusOrNot {...minProps} />);
 

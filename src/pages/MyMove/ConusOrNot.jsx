@@ -3,11 +3,11 @@ import { connect } from 'react-redux';
 import { func, PropTypes } from 'prop-types';
 
 import SelectableCard from 'components/Customer/SelectableCard';
+import SectionWrapper from 'components/Customer/SectionWrapper';
 import { setConusStatus } from 'store/onboarding/actions';
 import { selectConusStatus } from 'store/onboarding/selectors';
 import { CONUS_STATUS } from 'shared/constants';
-import SectionWrapper from 'components/Customer/SectionWrapper';
-import { FeatureFlag } from 'components/FeatureFlag/FeatureFlag';
+import { FeatureFlag, featureIsEnabled } from 'components/FeatureFlag/FeatureFlag';
 
 // eslint-disable-next-line react/prefer-stateless-function
 export class ConusOrNot extends Component {
@@ -60,13 +60,13 @@ export class ConusOrNot extends Component {
     );
 
     const featureFlagRender = (flagValue) => {
-      if (flagValue && flagValue === 'enabled') {
+      if (featureIsEnabled(flagValue)) {
         return enabledConus;
       }
       return disabledConus;
     };
 
-    return <FeatureFlag flagKey="onboarding-enabled" render={featureFlagRender} />;
+    return <FeatureFlag flagKey="service-member-onboarding" render={featureFlagRender} />;
   }
 }
 

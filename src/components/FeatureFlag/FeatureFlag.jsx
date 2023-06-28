@@ -4,6 +4,13 @@ import PropTypes from 'prop-types';
 import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
 import { getFeatureFlagForUser } from 'services/internalApi';
 
+export const ENABLED_VALUE = 'enabled';
+export const DISABLED_VALUE = 'disabled';
+
+export function featureIsEnabled(val) {
+  return val && val === ENABLED_VALUE;
+}
+
 // Example of how we might have a FeatureFlag component
 // This is probably not production ready
 export const FeatureFlag = ({ flagKey, flagContext, render }) => {
@@ -12,15 +19,15 @@ export const FeatureFlag = ({ flagKey, flagContext, render }) => {
   React.useEffect(() => {
     getFeatureFlagForUser(flagKey, flagContext)
       .then((result) => {
-        if (!result.enabled) {
-          setFlagValue('disabled');
+        if (!result.match) {
+          setFlagValue(DISABLED_VALUE);
         } else {
           setFlagValue(result.value);
         }
       })
       .catch((error) => {
         milmoveLog(MILMOVE_LOG_LEVEL.ERROR, error);
-        setFlagValue('disabled');
+        setFlagValue(DISABLED_VALUE);
       });
   });
 
