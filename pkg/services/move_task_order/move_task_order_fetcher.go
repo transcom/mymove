@@ -93,11 +93,11 @@ func (f moveTaskOrderFetcher) ListAllMoveTaskOrders(appCtx appcontext.AppContext
 func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, searchParams *services.MoveTaskOrderFetcherParams) (*models.Move, error) {
 	// We call the appropriate version based on the api version flag.
 	// If none is specified we are using version 2.
-	apiVersion := *appCtx.GetAPIVersion()
-	if apiVersion == apiversion.PrimeVersion1 {
+	apiVersion := appCtx.GetAPIVersion()
+	if apiVersion != nil && *apiVersion == apiversion.PrimeVersion1 {
 		return movetaskorderv1.FetchMoveTaskOrder(appCtx, searchParams)
 	}
-	if apiVersion == apiversion.PrimeVersion2 {
+	if apiVersion != nil && *apiVersion == apiversion.PrimeVersion2 {
 		return movetaskorderv2.FetchMoveTaskOrder(appCtx, searchParams)
 	}
 	return movetaskorderv2.FetchMoveTaskOrder(appCtx, searchParams)
