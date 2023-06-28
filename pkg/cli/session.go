@@ -25,11 +25,7 @@ func CheckSession(v *viper.Viper) error {
 		return err
 	}
 
-	if err := ValidateSessionLifetime(v, SessionLifetimeInHoursFlag); err != nil {
-		return err
-	}
-
-	return nil
+	return ValidateSessionLifetime(v, SessionLifetimeInHoursFlag)
 }
 
 // ValidateSessionTimeout validates session idle timeout

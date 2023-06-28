@@ -91,14 +91,14 @@ func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppm
 
 		if updatedPPMShipment.W2Address != nil {
 			var updatedAddress *models.Address
-			var error error
+			var createOrUpdateErr error
 			if updatedPPMShipment.W2Address.ID.IsNil() {
-				updatedAddress, error = f.addressCreator.CreateAddress(txnAppCtx, updatedPPMShipment.W2Address)
+				updatedAddress, createOrUpdateErr = f.addressCreator.CreateAddress(txnAppCtx, updatedPPMShipment.W2Address)
 			} else {
-				updatedAddress, error = f.addressUpdater.UpdateAddress(txnAppCtx, updatedPPMShipment.W2Address, etag.GenerateEtag(oldPPMShipment.W2Address.UpdatedAt))
+				updatedAddress, createOrUpdateErr = f.addressUpdater.UpdateAddress(txnAppCtx, updatedPPMShipment.W2Address, etag.GenerateEtag(oldPPMShipment.W2Address.UpdatedAt))
 			}
-			if error != nil {
-				return error
+			if createOrUpdateErr != nil {
+				return createOrUpdateErr
 			}
 			updatedPPMShipment.W2AddressID = &updatedAddress.ID
 			updatedPPMShipment.W2Address = updatedAddress

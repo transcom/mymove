@@ -764,6 +764,22 @@ func subScenarioSITExtensions(appCtx appcontext.AppContext, userUploader *upload
 	}
 }
 
+// Create moves with shipment address update requests in each of the three possible states: requested, approved, and rejected
+func subScenarioShipmentAddressUpdates(appCtx appcontext.AppContext) func() {
+	return func() {
+		createTOO(appCtx)
+
+		// Create move CRQST1 with a shipment address update request in requested state
+		factory.BuildShipmentAddressUpdate(appCtx.DB(), []factory.Customization{}, []factory.Trait{factory.GetTraitShipmentAddressUpdateRequested})
+
+		// Create move CRQST2 with a shipment address update request in approved state
+		factory.BuildShipmentAddressUpdate(appCtx.DB(), []factory.Customization{}, []factory.Trait{factory.GetTraitShipmentAddressUpdateApproved})
+
+		// Create move CRQST3 with a shipment address update request in rejected state
+		factory.BuildShipmentAddressUpdate(appCtx.DB(), []factory.Customization{}, []factory.Trait{factory.GetTraitShipmentAddressUpdateRejected})
+	}
+}
+
 func subScenarioSITAddressUpdates(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) func() {
 	return func() {
 		createTOO(appCtx)
@@ -985,7 +1001,7 @@ func subScenarioMisc(appCtx appcontext.AppContext, userUploader *uploader.UserUp
 	}
 }
 
-func subScenarioPrimeUserAndClientCert(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) func() {
+func subScenarioPrimeUserAndClientCert(appCtx appcontext.AppContext) func() {
 	return func() {
 		primeUser := createPrimeUser(appCtx)
 		createDevClientCertForUser(appCtx, primeUser)

@@ -40,13 +40,12 @@ func (_m *OfficeUserFetcher) FetchOfficeUser(appCtx appcontext.AppContext, filte
 	return r0, r1
 }
 
-type mockConstructorTestingTNewOfficeUserFetcher interface {
+// NewOfficeUserFetcher creates a new instance of OfficeUserFetcher. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewOfficeUserFetcher(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewOfficeUserFetcher creates a new instance of OfficeUserFetcher. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewOfficeUserFetcher(t mockConstructorTestingTNewOfficeUserFetcher) *OfficeUserFetcher {
+}) *OfficeUserFetcher {
 	mock := &OfficeUserFetcher{}
 	mock.Mock.Test(t)
 

@@ -40,13 +40,12 @@ func (_m *SignedCertificationCreator) CreateSignedCertification(appCtx appcontex
 	return r0, r1
 }
 
-type mockConstructorTestingTNewSignedCertificationCreator interface {
+// NewSignedCertificationCreator creates a new instance of SignedCertificationCreator. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewSignedCertificationCreator(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewSignedCertificationCreator creates a new instance of SignedCertificationCreator. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewSignedCertificationCreator(t mockConstructorTestingTNewSignedCertificationCreator) *SignedCertificationCreator {
+}) *SignedCertificationCreator {
 	mock := &SignedCertificationCreator{}
 	mock.Mock.Test(t)
 

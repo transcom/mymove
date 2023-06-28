@@ -75,7 +75,7 @@ func (suite *ModelSuite) TestShowPPMQueue() {
 		string(PPMStatusDRAFT):            true,
 	}
 
-	new := map[string]bool{
+	newStatuses := map[string]bool{
 		string(PPMStatusSUBMITTED): true,
 		string(PPMStatusDRAFT):     true,
 	}
@@ -85,7 +85,7 @@ func (suite *ModelSuite) TestShowPPMQueue() {
 		movesCount int
 		want       map[string]bool
 	}{
-		{input: "new", movesCount: 2, want: new},
+		{input: "new", movesCount: 2, want: newStatuses},
 		{input: "ppm_payment_requested", movesCount: 1, want: map[string]bool{string(PPMStatusPAYMENTREQUESTED): true}},
 		{input: "ppm_completed", movesCount: 1, want: map[string]bool{string(PPMStatusCOMPLETED): true}},
 		{input: "ppm_approved", movesCount: 1, want: map[string]bool{string(PPMStatusAPPROVED): true}},

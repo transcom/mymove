@@ -218,7 +218,7 @@ func (p *herePlanner) Zip5TransitDistance(appCtx appcontext.AppContext, source s
 }
 
 // ZipTransitDistance calculates the distance between two valid Zip5s; it is used by the PPM flow
-func (p *herePlanner) ZipTransitDistance(appCtx appcontext.AppContext, source string, destination string) (int, error) {
+func (p *herePlanner) ZipTransitDistance(_ appcontext.AppContext, _ string, _ string) (int, error) {
 	// This might get retired after we transition over fully to GHC.
 
 	panic("implement me")

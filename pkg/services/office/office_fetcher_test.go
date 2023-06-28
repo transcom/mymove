@@ -16,7 +16,7 @@ type testOfficeQueryBuilder struct {
 	fakeFetchOne func(appCtx appcontext.AppContext, model interface{}) error
 }
 
-func (t *testOfficeQueryBuilder) FetchOne(appCtx appcontext.AppContext, model interface{}, filters []services.QueryFilter) error {
+func (t *testOfficeQueryBuilder) FetchOne(appCtx appcontext.AppContext, model interface{}, _ []services.QueryFilter) error {
 	m := t.fakeFetchOne(appCtx, model)
 	return m
 }

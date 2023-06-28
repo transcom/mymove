@@ -42,13 +42,12 @@ func (_m *PPMShipmentUpdater) UpdatePPMShipmentWithDefaultCheck(appCtx appcontex
 	return r0, r1
 }
 
-type mockConstructorTestingTNewPPMShipmentUpdater interface {
+// NewPPMShipmentUpdater creates a new instance of PPMShipmentUpdater. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewPPMShipmentUpdater(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewPPMShipmentUpdater creates a new instance of PPMShipmentUpdater. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewPPMShipmentUpdater(t mockConstructorTestingTNewPPMShipmentUpdater) *PPMShipmentUpdater {
+}) *PPMShipmentUpdater {
 	mock := &PPMShipmentUpdater{}
 	mock.Mock.Test(t)
 

@@ -38,13 +38,12 @@ func (_m *MoveTaskOrderChecker) MTOAvailableToPrime(appCtx appcontext.AppContext
 	return r0, r1
 }
 
-type mockConstructorTestingTNewMoveTaskOrderChecker interface {
+// NewMoveTaskOrderChecker creates a new instance of MoveTaskOrderChecker. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewMoveTaskOrderChecker(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewMoveTaskOrderChecker creates a new instance of MoveTaskOrderChecker. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewMoveTaskOrderChecker(t mockConstructorTestingTNewMoveTaskOrderChecker) *MoveTaskOrderChecker {
+}) *MoveTaskOrderChecker {
 	mock := &MoveTaskOrderChecker{}
 	mock.Mock.Test(t)
 

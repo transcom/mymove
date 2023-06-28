@@ -16,14 +16,14 @@ type listFetcher struct {
 
 // FetchRecordList uses the passed query builder to fetch a list of records
 func (o *listFetcher) FetchRecordList(appCtx appcontext.AppContext, model interface{}, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) error {
-	error := o.builder.FetchMany(appCtx, model, filters, associations, pagination, ordering)
-	return error
+	err := o.builder.FetchMany(appCtx, model, filters, associations, pagination, ordering)
+	return err
 }
 
 // FetchRecordCount uses the passed query builder to count records
 func (o *listFetcher) FetchRecordCount(appCtx appcontext.AppContext, model interface{}, filters []services.QueryFilter) (int, error) {
-	count, error := o.builder.Count(appCtx, model, filters)
-	return count, error
+	count, err := o.builder.Count(appCtx, model, filters)
+	return count, err
 }
 
 // NewListFetcher returns an implementation of ListFetcher

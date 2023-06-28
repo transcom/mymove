@@ -42,13 +42,12 @@ func (_m *PPMDocumentFetcher) GetPPMDocuments(appCtx appcontext.AppContext, mtoS
 	return r0, r1
 }
 
-type mockConstructorTestingTNewPPMDocumentFetcher interface {
+// NewPPMDocumentFetcher creates a new instance of PPMDocumentFetcher. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewPPMDocumentFetcher(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewPPMDocumentFetcher creates a new instance of PPMDocumentFetcher. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewPPMDocumentFetcher(t mockConstructorTestingTNewPPMDocumentFetcher) *PPMDocumentFetcher {
+}) *PPMDocumentFetcher {
 	mock := &PPMDocumentFetcher{}
 	mock.Mock.Test(t)
 

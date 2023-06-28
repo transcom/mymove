@@ -42,13 +42,12 @@ func (_m *WeightTicketFetcher) GetWeightTicket(appCtx appcontext.AppContext, wei
 	return r0, r1
 }
 
-type mockConstructorTestingTNewWeightTicketFetcher interface {
+// NewWeightTicketFetcher creates a new instance of WeightTicketFetcher. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewWeightTicketFetcher(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewWeightTicketFetcher creates a new instance of WeightTicketFetcher. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewWeightTicketFetcher(t mockConstructorTestingTNewWeightTicketFetcher) *WeightTicketFetcher {
+}) *WeightTicketFetcher {
 	mock := &WeightTicketFetcher{}
 	mock.Mock.Test(t)
 

@@ -88,10 +88,7 @@ var verifyDomesticOtherPrices verifyXlsxSheet = func(params ParamConfig, sheetIn
 	if err := verifyPackUnpackPrices(params, sheetIndex); err != nil {
 		return err
 	}
-	if err := verifySITPickupPrices(params, sheetIndex); err != nil {
-		return err
-	}
-	return nil
+	return verifySITPickupPrices(params, sheetIndex)
 }
 
 func verifyPackUnpackPrices(params ParamConfig, sheetIndex int) error {

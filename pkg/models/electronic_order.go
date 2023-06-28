@@ -56,7 +56,7 @@ func (e ElectronicOrders) String() string {
 }
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-func (e *ElectronicOrder) Validate(tx *pop.Connection) (*validate.Errors, error) {
+func (e *ElectronicOrder) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.StringIsPresent{Field: e.OrdersNumber, Name: "OrdersNumber"},
 		&validators.StringIsPresent{Field: e.Edipi, Name: "Edipi"},

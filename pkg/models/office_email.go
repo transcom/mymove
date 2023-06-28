@@ -28,7 +28,7 @@ func (o OfficeEmail) TableName() string {
 type OfficeEmails []OfficeEmail
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-func (o *OfficeEmail) Validate(tx *pop.Connection) (*validate.Errors, error) {
+func (o *OfficeEmail) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.UUIDIsPresent{Field: o.TransportationOfficeID, Name: "TransportationOfficeID"},
 		&validators.StringIsPresent{Field: o.Email, Name: "Email"},

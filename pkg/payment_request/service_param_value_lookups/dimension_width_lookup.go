@@ -13,7 +13,7 @@ type DimensionWidthLookup struct {
 	Dimensions models.MTOServiceItemDimensions
 }
 
-func (d DimensionWidthLookup) lookup(appCtx appcontext.AppContext, keyData *ServiceItemParamKeyData) (string, error) {
+func (d DimensionWidthLookup) lookup(_ appcontext.AppContext, keyData *ServiceItemParamKeyData) (string, error) {
 	// Each service item has an array of dimensions. There is a DB constraint preventing
 	// more than one dimension of each type for a given service item, so we just have to
 	// look for the first crating dimension.

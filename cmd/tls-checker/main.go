@@ -234,7 +234,7 @@ func createHTTPClient(v *viper.Viper, logger *zap.Logger, tlsVersion uint16) (*h
 
 }
 
-func checkURLWillNotConnect(httpClient *http.Client, url string, logger *zap.Logger) error {
+func checkURLWillNotConnect(httpClient *http.Client, url string) error {
 	resp, err := httpClient.Get(url)
 	if err == nil {
 		return &errTLSCheck{URL: url, TLSVersion: resp.TLS.Version}
@@ -376,7 +376,7 @@ func main() {
 					if verbose {
 						logger.Info("checking url will not connect with invalid TLS", zap.String("url", url), zap.String("tlsVersion", tlsName))
 					}
-					err := checkURLWillNotConnect(httpClient, url, logger)
+					err := checkURLWillNotConnect(httpClient, url)
 					if err != nil {
 						if exitOnError {
 							logger.Fatal(err.Error())

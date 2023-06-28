@@ -30,13 +30,12 @@ func (_m *ReportViolationsCreator) AssociateReportViolations(appCtx appcontext.A
 	return r0
 }
 
-type mockConstructorTestingTNewReportViolationsCreator interface {
+// NewReportViolationsCreator creates a new instance of ReportViolationsCreator. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewReportViolationsCreator(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewReportViolationsCreator creates a new instance of ReportViolationsCreator. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewReportViolationsCreator(t mockConstructorTestingTNewReportViolationsCreator) *ReportViolationsCreator {
+}) *ReportViolationsCreator {
 	mock := &ReportViolationsCreator{}
 	mock.Mock.Test(t)
 

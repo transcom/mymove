@@ -369,7 +369,7 @@ func (s ServiceItemParamKey) TableName() string {
 type ServiceItemParamKeys []ServiceItemParamKey
 
 // Validate validates a ServiceItemParamKey
-func (s *ServiceItemParamKey) Validate(tx *pop.Connection) (*validate.Errors, error) {
+func (s *ServiceItemParamKey) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.StringIsPresent{Field: s.Key.String(), Name: "Key"},
 		&validators.StringInclusion{Field: s.Key.String(), Name: "Key", List: ValidServiceItemParamNameStrings},

@@ -40,13 +40,12 @@ func (_m *ProgearWeightTicketUpdater) UpdateProgearWeightTicket(appCtx appcontex
 	return r0, r1
 }
 
-type mockConstructorTestingTNewProgearWeightTicketUpdater interface {
+// NewProgearWeightTicketUpdater creates a new instance of ProgearWeightTicketUpdater. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewProgearWeightTicketUpdater(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewProgearWeightTicketUpdater creates a new instance of ProgearWeightTicketUpdater. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewProgearWeightTicketUpdater(t mockConstructorTestingTNewProgearWeightTicketUpdater) *ProgearWeightTicketUpdater {
+}) *ProgearWeightTicketUpdater {
 	mock := &ProgearWeightTicketUpdater{}
 	mock.Mock.Test(t)
 

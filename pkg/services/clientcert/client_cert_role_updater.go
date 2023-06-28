@@ -15,7 +15,7 @@ import (
 // associated with the client cert. If the client cert is nil, the
 // cert has been deleted. If the user has no other client certs
 // associated, the prime role will be removed
-func updatePrimeRoleForUser(appCtx appcontext.AppContext, userID uuid.UUID, clientCert *models.ClientCert, queryBuilder clientCertQueryBuilder, associator services.UserRoleAssociator) error {
+func updatePrimeRoleForUser(appCtx appcontext.AppContext, userID uuid.UUID, clientCert *models.ClientCert, _ clientCertQueryBuilder, associator services.UserRoleAssociator) error {
 
 	userRoles, err := roles.FetchRolesForUser(appCtx.DB(), userID)
 	if err != nil && err != sql.ErrNoRows {
