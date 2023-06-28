@@ -7,7 +7,6 @@ package primemessages
 
 import (
 	"context"
-	"encoding/json"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
@@ -56,11 +55,9 @@ type ShipmentAddressUpdate struct {
 	// Format: uuid
 	ShipmentID strfmt.UUID `json:"shipmentID"`
 
-	// Status
+	// status
 	// Required: true
-	// Read Only: true
-	// Enum: [REQUESTED REJECTED APPROVED]
-	Status string `json:"status"`
+	Status ShipmentAddressUpdateStatus `json:"status"`
 }
 
 // Validate validates this shipment address update
@@ -172,46 +169,18 @@ func (m *ShipmentAddressUpdate) validateShipmentID(formats strfmt.Registry) erro
 	return nil
 }
 
-var shipmentAddressUpdateTypeStatusPropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["REQUESTED","REJECTED","APPROVED"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		shipmentAddressUpdateTypeStatusPropEnum = append(shipmentAddressUpdateTypeStatusPropEnum, v)
-	}
-}
-
-const (
-
-	// ShipmentAddressUpdateStatusREQUESTED captures enum value "REQUESTED"
-	ShipmentAddressUpdateStatusREQUESTED string = "REQUESTED"
-
-	// ShipmentAddressUpdateStatusREJECTED captures enum value "REJECTED"
-	ShipmentAddressUpdateStatusREJECTED string = "REJECTED"
-
-	// ShipmentAddressUpdateStatusAPPROVED captures enum value "APPROVED"
-	ShipmentAddressUpdateStatusAPPROVED string = "APPROVED"
-)
-
-// prop value enum
-func (m *ShipmentAddressUpdate) validateStatusEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, shipmentAddressUpdateTypeStatusPropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
 func (m *ShipmentAddressUpdate) validateStatus(formats strfmt.Registry) error {
 
-	if err := validate.RequiredString("status", "body", m.Status); err != nil {
+	if err := validate.Required("status", "body", ShipmentAddressUpdateStatus(m.Status)); err != nil {
 		return err
 	}
 
-	// value enum
-	if err := m.validateStatusEnum("status", "body", m.Status); err != nil {
+	if err := m.Status.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("status")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("status")
+		}
 		return err
 	}
 
@@ -315,7 +284,12 @@ func (m *ShipmentAddressUpdate) contextValidateShipmentID(ctx context.Context, f
 
 func (m *ShipmentAddressUpdate) contextValidateStatus(ctx context.Context, formats strfmt.Registry) error {
 
-	if err := validate.ReadOnly(ctx, "status", "body", string(m.Status)); err != nil {
+	if err := m.Status.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("status")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("status")
+		}
 		return err
 	}
 
