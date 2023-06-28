@@ -32,6 +32,8 @@ describe('ServiceItemUpdateModal', () => {
       const cancelButton = screen.getByRole('button', { name: 'Cancel' });
       expect(screen.getByText('HHG')).toBeInTheDocument();
       expect(screen.getByText('Title for the modal')).toBeInTheDocument();
+      expect(screen.getByText('Domestic destination SIT')).toBeInTheDocument();
+      expect(screen.getByText('20 Nov 2020')).toBeInTheDocument();
       expect(within(sitDetailsTable).getByText('Customer contact 1:')).toBeInTheDocument();
       expect(within(sitDetailsTable).getByText('1200Z')).toBeInTheDocument();
       expect(within(sitDetailsTable).getByText('First available delivery date 1:')).toBeInTheDocument();

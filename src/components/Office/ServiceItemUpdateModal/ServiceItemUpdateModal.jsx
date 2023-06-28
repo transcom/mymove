@@ -14,6 +14,7 @@ import { Form } from 'components/form/Form';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { formatDateFromIso } from 'utils/formatters';
 import formStyles from 'styles/form.module.scss';
+import { selectDateFieldByStatus } from 'utils/dates';
 
 /**
  * @function
@@ -23,14 +24,15 @@ import formStyles from 'styles/form.module.scss';
  * @returns {React.ReactElement}
  */
 const ServiceItemDetail = ({ serviceItem }) => {
-  const { id, code, submittedAt, details } = serviceItem;
+  const { id, code, details, status } = serviceItem;
+
   return (
     <table data-testid="sitAddressUpdateDetailTable" className={styles.serviceItemDetails}>
       <tbody>
         <tr key={`sid-${id}`}>
           <td className={styles.nameDateContainer}>
             <p className={styles.serviceItemName}>{serviceItem.serviceItem}</p>
-            <p>{formatDateFromIso(submittedAt, 'DD MMM YYYY')}</p>
+            <p>{formatDateFromIso(serviceItem[`${selectDateFieldByStatus(status)}`], 'DD MMM YYYY')}</p>
           </td>
           <td className={styles.detailsContainer}>
             <ServiceItemDetails id={`sid-${id}`} code={code} details={details} />
