@@ -19,11 +19,6 @@ import (
 // swagger:model FeatureFlag
 type FeatureFlag struct {
 
-	// enabled
-	// Example: true
-	// Required: true
-	Enabled *bool `json:"enabled"`
-
 	// entity
 	// Example: user@example.com
 	// Required: true
@@ -33,6 +28,11 @@ type FeatureFlag struct {
 	// Example: flag
 	// Required: true
 	Key *string `json:"key"`
+
+	// match
+	// Example: true
+	// Required: true
+	Match *bool `json:"match"`
 
 	// namespace
 	// Example: test
@@ -49,15 +49,15 @@ type FeatureFlag struct {
 func (m *FeatureFlag) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validateEnabled(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateEntity(formats); err != nil {
 		res = append(res, err)
 	}
 
 	if err := m.validateKey(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateMatch(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -75,15 +75,6 @@ func (m *FeatureFlag) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *FeatureFlag) validateEnabled(formats strfmt.Registry) error {
-
-	if err := validate.Required("enabled", "body", m.Enabled); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (m *FeatureFlag) validateEntity(formats strfmt.Registry) error {
 
 	if err := validate.Required("entity", "body", m.Entity); err != nil {
@@ -96,6 +87,15 @@ func (m *FeatureFlag) validateEntity(formats strfmt.Registry) error {
 func (m *FeatureFlag) validateKey(formats strfmt.Registry) error {
 
 	if err := validate.Required("key", "body", m.Key); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *FeatureFlag) validateMatch(formats strfmt.Registry) error {
+
+	if err := validate.Required("match", "body", m.Match); err != nil {
 		return err
 	}
 

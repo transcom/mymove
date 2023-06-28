@@ -93,7 +93,7 @@ func (ff *FliptFetcher) GetFlag(ctx context.Context, logger *zap.Logger, entityI
 	featureFlag := services.FeatureFlag{
 		Entity:    entityID,
 		Key:       key,
-		Enabled:   false,
+		Match:     false,
 		Namespace: ff.config.Namespace,
 	}
 	req := &flipt.EvaluationRequest{
@@ -118,7 +118,7 @@ func (ff *FliptFetcher) GetFlag(ctx context.Context, logger *zap.Logger, entityI
 		return featureFlag, err
 	}
 
-	featureFlag.Enabled = result.Match
+	featureFlag.Match = result.Match
 	featureFlag.Value = result.Value
 
 	return featureFlag, nil

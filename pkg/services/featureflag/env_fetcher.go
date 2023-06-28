@@ -37,7 +37,13 @@ func (ef *EnvFetcher) GetFlagForUser(ctx context.Context, appCtx appcontext.AppC
 }
 
 func (ef *EnvFetcher) GetFlag(_ context.Context, _ *zap.Logger, entityID string, key string, flagContext map[string]string) (services.FeatureFlag, error) {
-	featureFlag := services.FeatureFlag{}
+	// defaults in case the flag is not found
+	featureFlag := services.FeatureFlag{
+		Entity:    entityID,
+		Key:       key,
+		Match:     false,
+		Namespace: ef.config.Namespace,
+	}
 	re, err := regexp.Compile("[^a-zA-Z0-9]")
 	if err != nil {
 		return featureFlag, err
@@ -47,7 +53,8 @@ func (ef *EnvFetcher) GetFlag(_ context.Context, _ *zap.Logger, entityID string,
 	envVal := os.Getenv(envKey)
 
 	// default to the value of the variable
-	value := envVal
+	featureFlag.Match = envVal != ""
+	featureFlag.Value = envVal
 
 	// look for another environment variable with email addresses
 	emailEnvKey := envKey + "_EMAIL"
@@ -63,17 +70,11 @@ func (ef *EnvFetcher) GetFlag(_ context.Context, _ *zap.Logger, entityID string,
 					// if the email matches, set the value to the
 					// custom one provided
 					emailValueEnvKey := emailEnvKey + "_VALUE"
-					value = os.Getenv(emailValueEnvKey)
+					featureFlag.Value = os.Getenv(emailValueEnvKey)
+					return featureFlag, nil
 				}
 			}
 		}
 	}
-	// if the flag is anything but empty, the flag is considered enabled
-	enabled := envVal != ""
-	featureFlag.Entity = entityID
-	featureFlag.Key = key
-	featureFlag.Enabled = enabled
-	featureFlag.Value = value
-	featureFlag.Namespace = ef.config.Namespace
 	return featureFlag, nil
 }

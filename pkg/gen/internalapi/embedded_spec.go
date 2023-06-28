@@ -4648,15 +4648,11 @@ func init() {
       "required": [
         "entity",
         "key",
-        "enabled",
+        "match",
         "value",
         "namespace"
       ],
       "properties": {
-        "enabled": {
-          "type": "boolean",
-          "example": true
-        },
         "entity": {
           "type": "string",
           "example": "user@example.com"
@@ -4664,6 +4660,10 @@ func init() {
         "key": {
           "type": "string",
           "example": "flag"
+        },
+        "match": {
+          "type": "boolean",
+          "example": true
         },
         "namespace": {
           "type": "string",
@@ -13363,15 +13363,11 @@ func init() {
       "required": [
         "entity",
         "key",
-        "enabled",
+        "match",
         "value",
         "namespace"
       ],
       "properties": {
-        "enabled": {
-          "type": "boolean",
-          "example": true
-        },
         "entity": {
           "type": "string",
           "example": "user@example.com"
@@ -13379,6 +13375,10 @@ func init() {
         "key": {
           "type": "string",
           "example": "flag"
+        },
+        "match": {
+          "type": "boolean",
+          "example": true
         },
         "namespace": {
           "type": "string",

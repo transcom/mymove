@@ -20,17 +20,17 @@ const (
 type FeatureFlag struct {
 	Entity    string
 	Key       string
-	Enabled   bool
+	Match     bool
 	Value     string
 	Namespace string
 }
 
 func (ff FeatureFlag) IsEnabledVariant() bool {
-	return ff.Enabled && ff.Value == FeatureFlagEnabledVariant
+	return ff.Match && ff.Value == FeatureFlagEnabledVariant
 }
 
 func (ff FeatureFlag) IsVariant(variant string) bool {
-	return ff.Enabled && ff.Value == variant
+	return ff.Match && ff.Value == variant
 }
 
 // FeatureFlagFetcher is the exported interface for feature flags

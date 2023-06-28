@@ -2635,7 +2635,7 @@ definitions:
       key:
         type: string
         example: flag
-      enabled:
+      match:
         type: boolean
         example: true
       value:
@@ -2647,7 +2647,7 @@ definitions:
     required:
       - entity
       - key
-      - enabled
+      - match
       - value
       - namespace
   OrdersType:

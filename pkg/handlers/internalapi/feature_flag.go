@@ -28,7 +28,7 @@ func (h FeatureFlagsForUserHandler) Handle(params ffop.FeatureFlagForUserParams)
 			flagPayload := internalmessages.FeatureFlag{
 				Entity:    &flag.Entity,
 				Key:       &flag.Key,
-				Enabled:   &flag.Enabled,
+				Match:     &flag.Match,
 				Value:     &flag.Value,
 				Namespace: &flag.Namespace,
 			}

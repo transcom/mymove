@@ -78,7 +78,7 @@ func (suite *BaseHandlerTestSuite) HandlerConfig() *Config {
 		return services.FeatureFlag{
 			Entity:    entityID,
 			Key:       key,
-			Enabled:   true,
+			Match:     true,
 			Value:     "mock",
 			Namespace: "test",
 		}, nil
