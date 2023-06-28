@@ -112,6 +112,8 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 		"MTOShipments.SITDurationUpdates",
 		"MTOShipments.StorageFacility",
 		"MTOShipments.StorageFacility.Address",
+		"MTOShipments.DeliveryAddressUpdate",
+		"MTOShipments.DeliveryAddressUpdate.OriginalAddress",
 		"Orders.ServiceMember",
 		"Orders.ServiceMember.ResidentialAddress",
 		"Orders.Entitlement",
@@ -141,6 +143,23 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 			return &models.Move{}, apperror.NewNotFoundError(searchParams.MoveTaskOrderID, "")
 		default:
 			return &models.Move{}, apperror.NewQueryError("Move", err, "")
+		}
+	}
+
+	// Due to a bug in Pop for EagerPreload the New Address of the DeliveryAddressUpdate must be loaded manually.
+	// The bug occurs in EagerPreload when there are two or more eager paths with 3+ levels
+	// where the first 2 levels match.  For example:
+	//   "MTOShipments.DeliveryAddressUpdate.OriginalAddress" and "MTOShipments.DeliveryAddressUpdate.NewAddress"
+	// In those cases, only the last relationship is loaded in the results.  So, we can only do one of the paths
+	// in the EagerPreload above and request the second one explicitly with a separate Load call.
+	// For more, see: https://transcom.github.io/mymove-docs/docs/backend/setup/using-eagerpreload-in-pop#associations-with-3-path-elements-where-the-first-2-path-elements-match
+	for i := range mto.MTOShipments {
+		if mto.MTOShipments[i].DeliveryAddressUpdate == nil {
+			continue
+		}
+		loadErr := appCtx.DB().Load(mto.MTOShipments[i].DeliveryAddressUpdate, "NewAddress")
+		if loadErr != nil {
+			return &models.Move{}, apperror.NewQueryError("DeliveryAddressUpdate", loadErr, "")
 		}
 	}
 
