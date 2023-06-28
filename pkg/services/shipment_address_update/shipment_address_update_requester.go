@@ -126,15 +126,24 @@ func (f *shipmentAddressUpdateRequester) doesDeliveryAddressUpdateChangeShipment
 func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(appCtx appcontext.AppContext, shipmentID uuid.UUID, newAddress models.Address, contractorRemarks string, eTag string) (*models.ShipmentAddressUpdate, error) {
 	var addressUpdate models.ShipmentAddressUpdate
 	var shipment models.MTOShipment
-	err := appCtx.DB().EagerPreload("MoveTaskOrder", "PickupAddress", "MTOServiceItems", "MTOServiceItems.ReService", "DestinationAddress").Find(&shipment, shipmentID)
+	err := appCtx.DB().EagerPreload("MoveTaskOrder", "PickupAddress", "MTOServiceItems.ReService", "DestinationAddress").Find(&shipment, shipmentID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, apperror.NewNotFoundError(shipmentID, "looking for shipment")
+		}
+		return nil, apperror.NewQueryError("MTOShipment", err, "")
+	}
 
-	if eTag != etag.GenerateEtag(shipment.UpdatedAt) {
-		return nil, apperror.NewPreconditionFailedError(shipmentID, nil)
-
+	if shipment.MoveTaskOrder.AvailableToPrimeAt == nil {
+		return nil, apperror.NewUnprocessableEntityError("destination address update requests can only be created for moves that are available to the Prime")
 	}
 	if shipment.ShipmentType != models.MTOShipmentTypeHHG {
 		return nil, apperror.NewUnprocessableEntityError("destination address update requests can only be created for HHG shipments")
 	}
+	if eTag != etag.GenerateEtag(shipment.UpdatedAt) {
+		return nil, apperror.NewPreconditionFailedError(shipmentID, nil)
+	}
+
 	sitStatus, err := f.shipmentSITStatus.CalculateShipmentSITStatus(appCtx, shipment)
 	if err != nil {
 		return nil, err
@@ -143,13 +152,10 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 		return nil, apperror.NewUnprocessableEntityError("destination address update requests can only be created for shipments that do not use SIT")
 	}
 
-	isThereAnExistingUpdate := true
-
 	err = appCtx.DB().EagerPreload("OriginalAddress", "NewAddress").Where("shipment_id = ?", shipmentID).First(&addressUpdate)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			// If we didn't find an existing update, we'll need to make a new one
-			isThereAnExistingUpdate = false
 			addressUpdate.OriginalAddressID = *shipment.DestinationAddressID
 			addressUpdate.OriginalAddress = *shipment.DestinationAddress
 			addressUpdate.ShipmentID = shipmentID
@@ -172,43 +178,36 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 		return nil, err
 	}
 
-	changesServiceArea, err := f.doesDeliveryAddressUpdateChangeServiceArea(appCtx, contract.ID, addressUpdate.OriginalAddress, newAddress)
+	updateNeedsTOOReview, err := f.doesDeliveryAddressUpdateChangeServiceArea(appCtx, contract.ID, addressUpdate.OriginalAddress, newAddress)
 	if err != nil {
 		return nil, err
 	}
 
-	changesMileageBracket, err := f.doesDeliveryAddressUpdateChangeMileageBracket(appCtx, *shipment.PickupAddress, addressUpdate.OriginalAddress, newAddress)
-	if err != nil {
-		return nil, err
+	if !updateNeedsTOOReview {
+		updateNeedsTOOReview, err = f.doesDeliveryAddressUpdateChangeShipmentPricingType(*shipment.PickupAddress, addressUpdate.OriginalAddress, newAddress)
+		if err != nil {
+			return nil, err
+		}
 	}
 
-	changesShipmentPricingType, err := f.doesDeliveryAddressUpdateChangeShipmentPricingType(*shipment.PickupAddress, addressUpdate.OriginalAddress, newAddress)
-	if err != nil {
-		return nil, err
+	if !updateNeedsTOOReview {
+		updateNeedsTOOReview, err = f.doesDeliveryAddressUpdateChangeMileageBracket(appCtx, *shipment.PickupAddress, addressUpdate.OriginalAddress, newAddress)
+		if err != nil {
+			return nil, err
+		}
 	}
 
-	updateNeedsTOOReview := changesServiceArea || changesMileageBracket || changesShipmentPricingType
 	if updateNeedsTOOReview {
 		addressUpdate.Status = models.ShipmentAddressUpdateStatusRequested
 	}
 
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-		if isThereAnExistingUpdate {
-			verrs, txnErr := appCtx.DB().ValidateAndSave(&addressUpdate)
-			if verrs.HasAny() {
-				return apperror.NewInvalidInputError(addressUpdate.ID, txnErr, verrs, "unable to save ShipmentAddressUpdate")
-			}
-			if txnErr != nil {
-				return apperror.NewQueryError("ShipmentAddressUpdate", txnErr, "error saving shipment address update request")
-			}
-		} else {
-			verrs, txnErr := appCtx.DB().ValidateAndCreate(&addressUpdate)
-			if verrs.HasAny() {
-				return apperror.NewInvalidInputError(uuid.Nil, txnErr, verrs, "unable to create ShipmentAddressUpdate")
-			}
-			if txnErr != nil {
-				return apperror.NewQueryError("ShipmentAddressUpdate", txnErr, "error creating shipment address update request")
-			}
+		verrs, txnErr := appCtx.DB().ValidateAndSave(&addressUpdate)
+		if verrs.HasAny() {
+			return apperror.NewInvalidInputError(addressUpdate.ID, txnErr, verrs, "unable to save ShipmentAddressUpdate")
+		}
+		if txnErr != nil {
+			return apperror.NewQueryError("ShipmentAddressUpdate", txnErr, "error saving shipment address update request")
 		}
 
 		if updateNeedsTOOReview {
@@ -217,7 +216,7 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 				return err
 			}
 
-			// If the update needs approval, we need to manually make sure the etag gets updated
+			// If the update needs review, we need to manually make sure the etag gets updated
 			shipment.UpdatedAt = time.Now()
 		} else {
 			shipment.DestinationAddressID = &addressUpdate.NewAddressID
