@@ -36,6 +36,7 @@ func MoveTaskOrder(moveTaskOrder *models.Move) *primev2messages.MoveTaskOrder {
 		ReferenceID:                *moveTaskOrder.ReferenceID,
 		PaymentRequests:            *paymentRequests,
 		MtoShipments:               *mtoShipments,
+		ContractNumber:             moveTaskOrder.Contractor.ContractNumber,
 		UpdatedAt:                  strfmt.DateTime(moveTaskOrder.UpdatedAt),
 		ETag:                       etag.GenerateEtag(moveTaskOrder.UpdatedAt),
 	}

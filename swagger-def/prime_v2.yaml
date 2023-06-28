@@ -122,6 +122,9 @@ definitions:
         readOnly: true
         x-omitempty: false
         x-nullable: true
+      contractNumber:
+        type: string
+        readOnly: true
       eTag:
         type: string
         readOnly: true

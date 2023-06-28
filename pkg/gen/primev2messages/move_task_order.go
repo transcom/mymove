@@ -29,6 +29,10 @@ type MoveTaskOrder struct {
 	// Format: date-time
 	AvailableToPrimeAt *strfmt.DateTime `json:"availableToPrimeAt,omitempty"`
 
+	// contract number
+	// Read Only: true
+	ContractNumber string `json:"contractNumber,omitempty"`
+
 	// created at
 	// Read Only: true
 	// Format: date-time
@@ -118,6 +122,8 @@ func (m *MoveTaskOrder) UnmarshalJSON(raw []byte) error {
 	var data struct {
 		AvailableToPrimeAt *strfmt.DateTime `json:"availableToPrimeAt,omitempty"`
 
+		ContractNumber string `json:"contractNumber,omitempty"`
+
 		CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
 		ETag string `json:"eTag,omitempty"`
@@ -169,6 +175,9 @@ func (m *MoveTaskOrder) UnmarshalJSON(raw []byte) error {
 
 	// availableToPrimeAt
 	result.AvailableToPrimeAt = data.AvailableToPrimeAt
+
+	// contractNumber
+	result.ContractNumber = data.ContractNumber
 
 	// createdAt
 	result.CreatedAt = data.CreatedAt
@@ -233,6 +242,8 @@ func (m MoveTaskOrder) MarshalJSON() ([]byte, error) {
 	b1, err = json.Marshal(struct {
 		AvailableToPrimeAt *strfmt.DateTime `json:"availableToPrimeAt,omitempty"`
 
+		ContractNumber string `json:"contractNumber,omitempty"`
+
 		CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
 		ETag string `json:"eTag,omitempty"`
@@ -267,6 +278,8 @@ func (m MoveTaskOrder) MarshalJSON() ([]byte, error) {
 	}{
 
 		AvailableToPrimeAt: m.AvailableToPrimeAt,
+
+		ContractNumber: m.ContractNumber,
 
 		CreatedAt: m.CreatedAt,
 
@@ -617,6 +630,10 @@ func (m *MoveTaskOrder) ContextValidate(ctx context.Context, formats strfmt.Regi
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateContractNumber(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateCreatedAt(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -674,6 +691,15 @@ func (m *MoveTaskOrder) ContextValidate(ctx context.Context, formats strfmt.Regi
 func (m *MoveTaskOrder) contextValidateAvailableToPrimeAt(ctx context.Context, formats strfmt.Registry) error {
 
 	if err := validate.ReadOnly(ctx, "availableToPrimeAt", "body", m.AvailableToPrimeAt); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MoveTaskOrder) contextValidateContractNumber(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "contractNumber", "body", string(m.ContractNumber)); err != nil {
 		return err
 	}
 

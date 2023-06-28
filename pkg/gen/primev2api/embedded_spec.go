@@ -1155,6 +1155,10 @@ func init() {
           "x-nullable": true,
           "readOnly": true
         },
+        "contractNumber": {
+          "type": "string",
+          "readOnly": true
+        },
         "createdAt": {
           "type": "string",
           "format": "date-time",
@@ -3345,6 +3349,10 @@ func init() {
           "type": "string",
           "format": "date-time",
           "x-nullable": true,
+          "readOnly": true
+        },
+        "contractNumber": {
+          "type": "string",
           "readOnly": true
         },
         "createdAt": {
