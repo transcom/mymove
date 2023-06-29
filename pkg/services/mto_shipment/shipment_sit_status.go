@@ -79,6 +79,7 @@ func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppConte
 	}
 	shipmentSITStatus.TotalSITDaysUsed = calculateTotalDaysInSIT(shipmentSITs, today)
 	shipmentSITStatus.TotalDaysRemaining = totalSITAllowance - shipmentSITStatus.TotalSITDaysUsed
+	shipmentSITStatus.PastSITs = shipmentSITs.pastSITs
 
 	if currentSIT != nil {
 		if currentSIT.ReService.Code == models.ReServiceCodeDOPSIT {
@@ -86,6 +87,7 @@ func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppConte
 		} else {
 			shipmentSITStatus.CurrentSIT.Location = DestinationSITLocation
 		}
+		shipmentSITStatus.CurrentSIT.DaysInSIT = daysInSIT(*currentSIT, today)
 		shipmentSITStatus.CurrentSIT.SITEntryDate = *currentSIT.SITEntryDate
 		shipmentSITStatus.CurrentSIT.SITDepartureDate = currentSIT.SITDepartureDate
 		shipmentSITStatus.CurrentSIT.SITAllowanceEndDate = calculateSITAllowanceEndDate(shipmentSITStatus, today)
