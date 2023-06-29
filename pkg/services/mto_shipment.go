@@ -127,7 +127,7 @@ type SITStatus struct {
 	ShipmentID         uuid.UUID
 	TotalSITDaysUsed   int
 	TotalDaysRemaining int
-	CurrentSIT         CurrentSIT
+	CurrentSIT         *CurrentSIT
 	PastSITs           []models.MTOServiceItem
 }
 

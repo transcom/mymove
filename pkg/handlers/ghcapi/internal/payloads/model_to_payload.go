@@ -664,6 +664,19 @@ func SITDurationUpdates(sitDurationUpdates *models.SITDurationUpdates) *ghcmessa
 	return &payload
 }
 
+func currentSIT(currentSIT *services.CurrentSIT) *ghcmessages.SITStatusCurrentSIT {
+	if currentSIT == nil {
+		return nil
+	}
+	return &ghcmessages.SITStatusCurrentSIT{
+		Location:            currentSIT.Location,
+		DaysInSIT:           handlers.FmtIntPtrToInt64(&currentSIT.DaysInSIT),
+		SitEntryDate:        handlers.FmtDate(currentSIT.SITEntryDate),
+		SitDepartureDate:    handlers.FmtDatePtr(currentSIT.SITDepartureDate),
+		SitAllowanceEndDate: handlers.FmtDate(currentSIT.SITAllowanceEndDate),
+	}
+}
+
 // SITStatus payload
 func SITStatus(shipmentSITStatuses *services.SITStatus, storer storage.FileStorer) *ghcmessages.SITStatus {
 	if shipmentSITStatuses == nil {
@@ -673,13 +686,7 @@ func SITStatus(shipmentSITStatuses *services.SITStatus, storer storage.FileStore
 		PastSITServiceItems: MTOServiceItemModels(shipmentSITStatuses.PastSITs, storer),
 		TotalSITDaysUsed:    handlers.FmtIntPtrToInt64(&shipmentSITStatuses.TotalSITDaysUsed),
 		TotalDaysRemaining:  handlers.FmtIntPtrToInt64(&shipmentSITStatuses.TotalDaysRemaining),
-		CurrentSIT: &ghcmessages.SITStatusCurrentSIT{
-			Location:            shipmentSITStatuses.CurrentSIT.Location,
-			DaysInSIT:           handlers.FmtIntPtrToInt64(&shipmentSITStatuses.CurrentSIT.DaysInSIT),
-			SitEntryDate:        handlers.FmtDate(shipmentSITStatuses.CurrentSIT.SITEntryDate),
-			SitDepartureDate:    handlers.FmtDatePtr(shipmentSITStatuses.CurrentSIT.SITDepartureDate),
-			SitAllowanceEndDate: handlers.FmtDate(shipmentSITStatuses.CurrentSIT.SITAllowanceEndDate),
-		},
+		CurrentSIT:          currentSIT(shipmentSITStatuses.CurrentSIT),
 	}
 
 	return payload
