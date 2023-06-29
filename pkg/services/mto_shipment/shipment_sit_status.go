@@ -68,7 +68,7 @@ func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppConte
 	currentSIT := getCurrentSIT(shipmentSITs)
 
 	// There were no relevant SIT service items for this shipment
-	if currentSIT == nil && len(shipmentSITStatus.PastSITs) == 0 {
+	if currentSIT == nil && len(shipmentSITs.pastSITs) == 0 {
 		return nil, nil
 	}
 
