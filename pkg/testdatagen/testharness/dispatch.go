@@ -68,6 +68,9 @@ var actionDispatcher = map[string]actionFunc{
 	"HHGMoveIn200DaysSITStartsInFuture": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeHHGMoveIn200DaysSITStartsInFuture(appCtx)
 	},
+	"HHGMoveIn200DaysSITNotApproved": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeHHGMoveIn200DaysSITNotApproved(appCtx)
+	},
 	"HHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO(appCtx)
 	},
