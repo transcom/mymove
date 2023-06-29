@@ -8,7 +8,7 @@ import * as Yup from 'yup';
 import styles from './ExpenseForm.module.scss';
 
 import { formatCents } from 'utils/formatters';
-import numOfDaysBetweenDates from 'utils/dates';
+import { numOfDaysBetweenDates } from 'utils/dates';
 import { ppmExpenseTypes } from 'constants/ppmExpenseTypes';
 import { ExpenseShape } from 'types/shipment';
 import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
