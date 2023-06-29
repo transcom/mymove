@@ -27,7 +27,6 @@ type sortedShipmentSITs struct {
 	pastSITs    []models.MTOServiceItem
 	currentSITs []models.MTOServiceItem
 	futureSITs  []models.MTOServiceItem
-	pendingSITs []models.MTOServiceItem
 }
 
 func newSortedShipmentSITs() sortedShipmentSITs {
@@ -35,7 +34,6 @@ func newSortedShipmentSITs() sortedShipmentSITs {
 		pastSITs:    make([]models.MTOServiceItem, 0),
 		currentSITs: make([]models.MTOServiceItem, 0),
 		futureSITs:  make([]models.MTOServiceItem, 0),
-		pendingSITs: make([]models.MTOServiceItem, 0),
 	}
 }
 
@@ -55,17 +53,14 @@ func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppConte
 
 	for _, serviceItem := range shipment.MTOServiceItems {
 		// only departure SIT service items have a departure date
-		if code := serviceItem.ReService.Code; code == models.ReServiceCodeDOPSIT || code == models.ReServiceCodeDDDSIT {
-			if serviceItem.Status == models.MTOServiceItemStatusApproved {
-				if serviceItem.SITEntryDate.After(today) {
-					shipmentSITs.futureSITs = append(shipmentSITs.futureSITs, serviceItem)
-				} else if serviceItem.SITDepartureDate != nil && serviceItem.SITDepartureDate.Before(today) {
-					shipmentSITs.pastSITs = append(shipmentSITs.pastSITs, serviceItem)
-				} else {
-					shipmentSITs.currentSITs = append(shipmentSITs.currentSITs, serviceItem)
-				}
-			} else if serviceItem.Status == models.MTOServiceItemStatusSubmitted {
-				shipmentSITs.pendingSITs = append(shipmentSITs.pendingSITs, serviceItem)
+		if code := serviceItem.ReService.Code; (code == models.ReServiceCodeDOPSIT || code == models.ReServiceCodeDDDSIT) &&
+			serviceItem.Status == models.MTOServiceItemStatusApproved {
+			if serviceItem.SITEntryDate.After(today) {
+				shipmentSITs.futureSITs = append(shipmentSITs.futureSITs, serviceItem)
+			} else if serviceItem.SITDepartureDate != nil && serviceItem.SITDepartureDate.Before(today) {
+				shipmentSITs.pastSITs = append(shipmentSITs.pastSITs, serviceItem)
+			} else {
+				shipmentSITs.currentSITs = append(shipmentSITs.currentSITs, serviceItem)
 			}
 		}
 	}
@@ -119,16 +114,13 @@ func getEarliestSIT(sitServiceItems []models.MTOServiceItem) *models.MTOServiceI
 /*
 Private function that returns the most relevant current or upcoming SIT.
 SIT service items that have already started are prioritized, followed by SIT
-service items that start in the future, and then SIT service items that have
-yet to be approved.
+service items that start in the future.
 */
 func getCurrentSIT(shipmentSITs sortedShipmentSITs) *models.MTOServiceItem {
 	if len(shipmentSITs.currentSITs) > 0 {
 		return getEarliestSIT(shipmentSITs.currentSITs)
 	} else if len(shipmentSITs.futureSITs) > 0 {
 		return getEarliestSIT(shipmentSITs.futureSITs)
-	} else if len(shipmentSITs.pendingSITs) > 0 {
-		return getEarliestSIT(shipmentSITs.pendingSITs)
 	}
 	return nil
 }
