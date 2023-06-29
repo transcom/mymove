@@ -71,9 +71,9 @@ const SitHistoryList = ({ sitHistory, dayAllowance }) => {
 
 const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton }) => {
   const pendingSITExtension = sitExtensions.find((se) => se.status === SIT_EXTENSION_STATUS.PENDING);
-  const currentDaysInSIT = sitStatus?.currentSIT?.daysInSIT || 0;
+  const currentDaysInSIT = sitStatus.currentSIT?.daysInSIT || 0;
   const currentDaysInSITElement = <p>{currentDaysInSIT}</p>;
-  let sitEntryDate = sitStatus?.currentSIT?.sitEntryDate;
+  let sitEntryDate = sitStatus.currentSIT?.sitEntryDate;
   if (!sitEntryDate) {
     sitEntryDate = shipment.mtoServiceItems?.reduce((item, acc) => {
       // Check if the current
@@ -86,11 +86,11 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton }
 
   sitEntryDate = moment(sitEntryDate, swaggerDateFormat);
   const sitStartDateElement = <p>{formatDate(sitEntryDate, swaggerDateFormat, 'DD MMM YYYY')}</p>;
-  const sitEndDate = moment(sitStatus?.currentSIT?.sitAllowanceEndDate, swaggerDateFormat);
+  const sitEndDate = moment(sitStatus.currentSIT?.sitAllowanceEndDate, swaggerDateFormat);
   const sitEndDateString = sitEndDate.isValid() ? formatDateForDatePicker(sitEndDate) : '-';
 
   // Previous SIT calculations and date ranges
-  const previousDaysUsed = sitStatus?.pastSITServiceItems?.map((pastSITItem) => {
+  const previousDaysUsed = sitStatus.pastSITServiceItems?.map((pastSITItem) => {
     const sitDaysUsed = moment(pastSITItem.sitDepartureDate).diff(pastSITItem.sitEntryDate, 'days');
     const location = pastSITItem.reServiceCode === SERVICE_ITEM_CODES.DOPSIT ? 'origin' : 'destination';
 
@@ -103,9 +103,9 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton }
 
   // Currently active SIT
   const currentLocation =
-    sitStatus?.currentSIT?.location === LOCATION_TYPES.DESTINATION ? 'destination SIT' : 'origin SIT';
+    sitStatus.currentSIT?.location === LOCATION_TYPES.DESTINATION ? 'destination SIT' : 'origin SIT';
 
-  const totalSITDaysUsed = sitStatus?.totalSITDaysUsed || 0;
+  const totalSITDaysUsed = sitStatus.totalSITDaysUsed || 0;
   const totalDaysRemaining = () => {
     const daysRemaining = sitStatus ? sitStatus.totalDaysRemaining : shipment.sitDaysAllowance;
     if (daysRemaining >= 0) {
@@ -148,7 +148,7 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton }
       )}
 
       {/* Service Items */}
-      {sitStatus?.pastSITServiceItems && (
+      {sitStatus.pastSITServiceItems && (
         <div className={styles.tableContainer}>
           <DataTable columnHeaders={['Previously used SIT']} dataRow={[previousDaysUsed]} />
         </div>
