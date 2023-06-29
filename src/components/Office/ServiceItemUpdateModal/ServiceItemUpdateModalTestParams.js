@@ -71,8 +71,10 @@ export const domesticDestinationSitServiceItem = {
   mtoServiceItemID: '678hij',
   details: {
     reason: "Customer's housing at base is not ready",
-    firstCustomerContact: { timeMilitary: '1200Z', firstAvailableDeliveryDate: '2020-09-15' },
-    secondCustomerContact: { timeMilitary: '2300Z', firstAvailableDeliveryDate: '2020-09-21' },
+    customerContacts: [
+      { timeMilitary: '1200Z', firstAvailableDeliveryDate: '2020-09-15', dateOfContact: '2020-09-15' },
+      { timeMilitary: '2300Z', firstAvailableDeliveryDate: '2020-09-21', dateOfContact: '2020-09-21' },
+    ],
     serviceItem: 'Domestic Destination SIT',
   },
   sitDestinationFinalAddress: finalAddress,
