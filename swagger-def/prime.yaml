@@ -1699,6 +1699,8 @@ definitions:
         x-nullable: true
         readOnly: true
         description: The reason why this service item was rejected by the TOO.
+      sitAddressUpdate:
+        $ref: '#/definitions/SitAddressUpdate'
       modelType: # Base type and sub-types of MTOServiceItem
         $ref: '#/definitions/MTOServiceItemModelType'
       serviceRequestDocuments:
@@ -2728,6 +2730,11 @@ definitions:
       contractorRemarks:
         type: string
         example: Customer reached out to me this week & let me know they want to move closer to family.
+        x-nullable: true
+        x-omitempty: false
+      officeRemarks:
+        example: The customer has found a new house closer to base.
+        type: string
         x-nullable: true
         x-omitempty: false
       createdAt:

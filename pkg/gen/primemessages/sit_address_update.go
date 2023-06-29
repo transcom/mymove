@@ -59,6 +59,10 @@ type SitAddressUpdate struct {
 	// Format: uuid
 	NewAddressID strfmt.UUID `json:"newAddressId,omitempty"`
 
+	// office remarks
+	// Example: The customer has found a new house closer to base.
+	OfficeRemarks *string `json:"officeRemarks"`
+
 	// status
 	Status SitAddressUpdateStatus `json:"status,omitempty"`
 

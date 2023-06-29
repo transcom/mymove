@@ -2143,6 +2143,9 @@ func init() {
         "serviceRequestDocuments": {
           "$ref": "#/definitions/ServiceRequestDocuments"
         },
+        "sitAddressUpdate": {
+          "$ref": "#/definitions/SitAddressUpdate"
+        },
         "status": {
           "$ref": "#/definitions/MTOServiceItemStatus"
         }
@@ -3743,6 +3746,12 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "31a2ad3c-1682-4d5b-8423-ff40053a056b"
+        },
+        "officeRemarks": {
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "The customer has found a new house closer to base."
         },
         "status": {
           "$ref": "#/definitions/SitAddressUpdateStatus"
@@ -6873,6 +6882,9 @@ func init() {
         "serviceRequestDocuments": {
           "$ref": "#/definitions/ServiceRequestDocuments"
         },
+        "sitAddressUpdate": {
+          "$ref": "#/definitions/SitAddressUpdate"
+        },
         "status": {
           "$ref": "#/definitions/MTOServiceItemStatus"
         }
@@ -8476,6 +8488,12 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "31a2ad3c-1682-4d5b-8423-ff40053a056b"
+        },
+        "officeRemarks": {
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "The customer has found a new house closer to base."
         },
         "status": {
           "$ref": "#/definitions/SitAddressUpdateStatus"

@@ -70,6 +70,10 @@ type MTOServiceItem interface {
 	ServiceRequestDocuments() ServiceRequestDocuments
 	SetServiceRequestDocuments(ServiceRequestDocuments)
 
+	// sit address update
+	SitAddressUpdate() *SitAddressUpdate
+	SetSitAddressUpdate(*SitAddressUpdate)
+
 	// status
 	Status() MTOServiceItemStatus
 	SetStatus(MTOServiceItemStatus)
@@ -94,6 +98,8 @@ type mTOServiceItem struct {
 	rejectionReasonField *string
 
 	serviceRequestDocumentsField ServiceRequestDocuments
+
+	sitAddressUpdateField *SitAddressUpdate
 
 	statusField MTOServiceItemStatus
 }
@@ -175,6 +181,16 @@ func (m *mTOServiceItem) ServiceRequestDocuments() ServiceRequestDocuments {
 // SetServiceRequestDocuments sets the service request documents of this polymorphic type
 func (m *mTOServiceItem) SetServiceRequestDocuments(val ServiceRequestDocuments) {
 	m.serviceRequestDocumentsField = val
+}
+
+// SitAddressUpdate gets the sit address update of this polymorphic type
+func (m *mTOServiceItem) SitAddressUpdate() *SitAddressUpdate {
+	return m.sitAddressUpdateField
+}
+
+// SetSitAddressUpdate sets the sit address update of this polymorphic type
+func (m *mTOServiceItem) SetSitAddressUpdate(val *SitAddressUpdate) {
+	m.sitAddressUpdateField = val
 }
 
 // Status gets the status of this polymorphic type
@@ -293,6 +309,10 @@ func (m *mTOServiceItem) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateSitAddressUpdate(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateStatus(formats); err != nil {
 		res = append(res, err)
 	}
@@ -357,6 +377,25 @@ func (m *mTOServiceItem) validateServiceRequestDocuments(formats strfmt.Registry
 	return nil
 }
 
+func (m *mTOServiceItem) validateSitAddressUpdate(formats strfmt.Registry) error {
+	if swag.IsZero(m.SitAddressUpdate()) { // not required
+		return nil
+	}
+
+	if m.SitAddressUpdate() != nil {
+		if err := m.SitAddressUpdate().Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("sitAddressUpdate")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("sitAddressUpdate")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *mTOServiceItem) validateStatus(formats strfmt.Registry) error {
 	if swag.IsZero(m.Status()) { // not required
 		return nil
@@ -399,6 +438,10 @@ func (m *mTOServiceItem) ContextValidate(ctx context.Context, formats strfmt.Reg
 	}
 
 	if err := m.contextValidateServiceRequestDocuments(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateSitAddressUpdate(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -471,6 +514,27 @@ func (m *mTOServiceItem) contextValidateServiceRequestDocuments(ctx context.Cont
 			return ce.ValidateName("serviceRequestDocuments")
 		}
 		return err
+	}
+
+	return nil
+}
+
+func (m *mTOServiceItem) contextValidateSitAddressUpdate(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.SitAddressUpdate() != nil {
+
+		if swag.IsZero(m.SitAddressUpdate()) { // not required
+			return nil
+		}
+
+		if err := m.SitAddressUpdate().ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("sitAddressUpdate")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("sitAddressUpdate")
+			}
+			return err
+		}
 	}
 
 	return nil
