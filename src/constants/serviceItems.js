@@ -45,7 +45,7 @@ const SERVICE_ITEM_PARAM_KEYS = {
   ZipSITDestHHGOriginalAddress: 'ZipSITDestHHGOriginalAddress',
   ZipSITOriginHHGActualAddress: 'ZipSITOriginHHGActualAddress',
   ZipSITOriginHHGOriginalAddress: 'ZipSITOriginHHGOriginalAddress',
-  SITDestFinalAddress: 'SITDestFinalAddress',
+  SITServiceAreaDest: 'SITServiceAreaDest',
 };
 
 const SERVICE_ITEM_CALCULATION_LABELS = {
@@ -61,7 +61,7 @@ const SERVICE_ITEM_CALCULATION_LABELS = {
   [SERVICE_ITEM_PARAM_KEYS.RequestedPickupDate]: 'Requested pickup',
   [SERVICE_ITEM_PARAM_KEYS.ServiceAreaOrigin]: 'Origin service area',
   [SERVICE_ITEM_PARAM_KEYS.ServiceAreaDest]: 'Destination service area',
-  [SERVICE_ITEM_PARAM_KEYS.SITDestFinalAddress]: 'Destination service area',
+  [SERVICE_ITEM_PARAM_KEYS.SITServiceAreaDest]: 'SIT Destination service area',
   [SERVICE_ITEM_PARAM_KEYS.ServicesScheduleDest]: 'Destination service schedule',
   [SERVICE_ITEM_PARAM_KEYS.ServicesScheduleOrigin]: 'Origin service schedule',
   [SERVICE_ITEM_PARAM_KEYS.SITScheduleDest]: 'Destination SIT schedule',

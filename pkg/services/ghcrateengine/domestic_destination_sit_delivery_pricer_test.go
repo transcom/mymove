@@ -97,11 +97,11 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationSITDeliveryPricer
 		suite.Contains(err.Error(), "invalid SIT final destination postal code")
 	})
 
-	suite.Run("bad SIT final destination zip using ServiceAreaLookup", func() {
+	suite.Run("bad SIT final destination zip and service area using ServiceAreaLookup", func() {
 		suite.setupDomesticServiceAreaPrice(models.ReServiceCodeDSH, dddsitTestServiceArea, dddsitTestIsPeakPeriod, dddsitTestDomesticServiceAreaBasePriceCents, dddsitTestContractYearName, dddsitTestEscalationCompounded)
 		_, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, dddsitTestRequestedPickupDate, dddsitTestWeight, dddsitTestServiceArea, dddsitTestSchedule, zipDest, "456", distance)
 		suite.Error(err)
-		suite.Contains(err.Error(), "invalid SIT final destination postal code")
+		suite.Contains(err.Error(), "invalid SIT final destination service area")
 	})
 
 	suite.Run("error from shorthaul pricer", func() {
@@ -115,7 +115,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationSITDeliveryPricer
 func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationSITDeliveryPricer50PlusMilesDiffZip3s() {
 	zipDest := "30907"
 	zipSITDest := "36106"       // different zip3
-	sitDest := "020"            // different service Area
+	sitServiceAreaDest := "020" // different service Area
 	distance := unit.Miles(305) // > 50 miles
 
 	pricer := NewDomesticDestinationSITDeliveryPricer()
@@ -125,7 +125,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationSITDeliveryPricer
 	suite.Run("success using PaymentServiceItemParams", func() {
 		suite.setupDomesticLinehaulPrice(dddsitTestServiceArea, dddsitTestIsPeakPeriod, dddsitTestWeightLower, dddsitTestWeightUpper, dddsitTestMilesLower, dddsitTestMilesUpper, dddsitTestDomesticLinehaulBasePriceMillicents, dddsitTestContractYearName, dddsitTestEscalationCompounded)
 
-		paymentServiceItem := suite.setupDomesticDestinationSITDeliveryServiceItem(sitDest, zipDest, zipSITDest, distance)
+		paymentServiceItem := suite.setupDomesticDestinationSITDeliveryServiceItem(sitServiceAreaDest, zipDest, zipSITDest, distance)
 		priceCents, displayParams, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
 		suite.NoError(err)
 		suite.Equal(expectedPrice, priceCents)
@@ -226,7 +226,7 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticDestinationSITDeliveryServi
 				Value:   dddsitTestRequestedPickupDate.Format(DateParamFormat),
 			},
 			{
-				Key:     models.ServiceItemParamNameSITDestFinalAddress,
+				Key:     models.ServiceItemParamNameSITServiceAreaDest,
 				KeyType: models.ServiceItemParamTypeString,
 				Value:   dddsitTestServiceArea,
 			},

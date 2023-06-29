@@ -3864,7 +3864,7 @@ definitions:
       - SITPaymentRequestStart
       - SITScheduleDest
       - SITScheduleOrigin
-      - SITDestFinalAddress
+      - SITServiceAreaDest
       - WeightAdjusted
       - WeightBilled
       - WeightEstimated
