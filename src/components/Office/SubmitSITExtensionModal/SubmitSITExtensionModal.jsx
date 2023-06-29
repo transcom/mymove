@@ -18,7 +18,7 @@ import { DropdownInput, DatePickerInput } from 'components/form/fields';
 import { dropdownInputOptions } from 'utils/formatters';
 import { sitExtensionReasons } from 'constants/sitExtensions';
 import { LOCATION_TYPES } from 'types/sitStatusShape';
-import { datePickerFormat, formatDateForDatePicker, swaggerDateFormat } from 'shared/dates';
+import { formatDateForDatePicker, swaggerDateFormat } from 'shared/dates';
 
 const SitDaysAllowanceForm = ({ onChange }) => (
   <MaskedTextField
@@ -41,7 +41,8 @@ const SitEndDateForm = ({ onChange }) => (
 );
 
 const SitStatusTables = ({ sitStatus, shipment }) => {
-  const { totalSITDaysUsed, daysInSIT } = sitStatus;
+  const { totalSITDaysUsed } = sitStatus;
+  const { daysInSIT } = sitStatus.currentSIT;
   const sitEntryDate = moment(sitStatus.currentSIT.sitEntryDate, swaggerDateFormat);
   const daysInPreviousSIT = totalSITDaysUsed - daysInSIT;
 
@@ -70,13 +71,16 @@ const SitStatusTables = ({ sitStatus, shipment }) => {
    * @see SitEndDateForm component
    */
   const handleSitEndDateChange = (endDate) => {
+    // Calculate total allowance
+    // Set dates to same time zone and strip of time information to calculate integer
+    // days between them
+    const endDay = moment(endDate).utcOffset(sitEntryDate.utcOffset(), true).startOf('day');
+    const startDay = sitEntryDate.startOf('day');
+    const sitDurationDays = moment.duration(endDay.diff(startDay)).asDays();
+    const calculatedSitDaysAllowance = sitDurationDays + daysInPreviousSIT;
+
+    // Update form values
     endDateHelper.setValue(endDate);
-    // Total days of SIT
-    const startOfEndDate = moment(endDate, datePickerFormat).startOf('day');
-    const startOfEntryDate = sitEntryDate.startOf('day');
-    const calculatedSitDaysAllowance =
-      moment.duration(startOfEndDate.diff(startOfEntryDate)).asDays() + daysInPreviousSIT;
-    // Update form value
     sitAllowanceHelper.setValue(String(calculatedSitDaysAllowance));
   };
 
