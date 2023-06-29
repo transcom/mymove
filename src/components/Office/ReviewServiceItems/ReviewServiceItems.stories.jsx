@@ -97,58 +97,6 @@ export const NonTemporaryStorage = () => (
   />
 );
 
-export const MultipleShipmentsGroups = () => (
-  <ReviewServiceItems
-    paymentRequest={pendingPaymentRequest}
-    serviceItemCards={[
-      {
-        id: '1',
-        mtoServiceItemName: serviceItemCodes.CS,
-        amount: 0.01,
-        createdAt: '2020-01-01T00:09:00.999Z',
-      },
-      {
-        id: '3',
-        mtoShipmentID: '20',
-        mtoShipmentType: SHIPMENT_OPTIONS.HHG,
-        mtoShipmentDepartureDate: '04 May 2021',
-        mtoShipmentPickupAddress: 'Fairfield, CA 94535',
-        mtoShipmentDestinationAddress: 'Beverly Hills, CA 90210',
-        mtoServiceItemName: serviceItemCodes.DLH,
-        mtoServiceItemCode: 'DLH',
-        paymentServiceItemParams: testParams.DomesticLongHaul,
-        amount: 5678.05,
-        createdAt: '2020-01-01T00:08:00.999Z',
-      },
-      {
-        id: '4',
-        mtoShipmentID: '30',
-        mtoShipmentType: SHIPMENT_OPTIONS.NTS,
-        mtoServiceItemName: serviceItemCodes.DLH,
-        mtoServiceItemCode: 'DLH',
-        paymentServiceItemParams: testParams.DomesticLongHaul,
-        amount: 6423.51,
-        createdAt: '2020-01-01T00:07:30.999Z',
-      },
-      {
-        id: '5',
-        mtoShipmentID: '30',
-        mtoShipmentType: SHIPMENT_OPTIONS.NTS,
-        mtoServiceItemName: serviceItemCodes.FSC,
-        mtoServiceItemCode: 'FSC',
-        paymentServiceItemParams: testParams.FuelSurchage,
-        amount: 100000000000000,
-        createdAt: '2020-01-01T00:07:00.999Z',
-      },
-    ]}
-    handleClose={action('clicked')}
-    onCompleteReview={action('clicked')}
-    patchPaymentServiceItem={action('patchPaymentServiceItem')}
-    TACs={{ HHG: '1234', NTS: '5678' }}
-    SACs={{ HHG: 'AB12', NTS: 'CD34' }}
-  />
-);
-
 export const WithStatusAndReason = () => (
   <ReviewServiceItems
     paymentRequest={pendingPaymentRequest}
@@ -301,6 +249,8 @@ export const WithPaymentReviewedApproved = () => (
         createdAt: '2020-01-01T00:08:00.999Z',
       },
     ]}
+    curCardIndex={1}
+    requestReviewed
     handleClose={action('clicked')}
     onCompleteReview={action('clicked')}
     patchPaymentServiceItem={action('patchPaymentServiceItem')}
@@ -324,6 +274,8 @@ export const WithPaymentReviewedRejected = () => (
         createdAt: '2020-01-01T00:09:00.999Z',
       },
     ]}
+    curCardIndex={1}
+    requestReviewed
     handleClose={action('clicked')}
     onCompleteReview={action('clicked')}
     patchPaymentServiceItem={action('patchPaymentServiceItem')}
