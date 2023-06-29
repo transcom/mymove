@@ -79,6 +79,8 @@ export const domesticDestinationSitServiceItem = {
   },
   sitDestinationFinalAddress: finalAddress,
   sitDestinationOriginalAddress: originalAddress,
+  status: 'APPROVED',
+  approvedAt: '2020-11-20',
 };
 
 export const dddSitWithAddressUpdate = {
