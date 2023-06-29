@@ -190,6 +190,14 @@ export class TestHarness {
   }
 
   /**
+   * Use testharness to build a move with an hhg shipment that hasn't yet entered SIT
+   * @returns {Promise<Move>}
+   */
+  async buildHHGMoveIn200DaysSITStartsInFuture() {
+    return this.buildDefault('HHGMoveIn200DaysSITStartsInFuture');
+  }
+
+  /**
    * Use testharness to build hhg move for TOO
    * @returns {Promise<Move>}
    */
