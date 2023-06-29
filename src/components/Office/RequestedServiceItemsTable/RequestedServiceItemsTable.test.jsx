@@ -36,8 +36,10 @@ const serviceItemWithContact = {
   serviceItem: 'Domestic destination 1st day SIT',
   code: 'DDFSIT',
   details: {
-    firstCustomerContact: { timeMilitary: '1200Z', firstAvailableDeliveryDate: '2020-09-15' },
-    secondCustomerContact: { timeMilitary: '2300Z', firstAvailableDeliveryDate: '2020-09-21' },
+    customerContacts: [
+      { timeMilitary: '1200Z', firstAvailableDeliveryDate: '2020-09-15', dateOfContact: '2020-09-15' },
+      { timeMilitary: '2300Z', firstAvailableDeliveryDate: '2020-09-21', dateOfContact: '2020-09-21' },
+    ],
     reason: 'Took a detour',
   },
 };
@@ -63,15 +65,15 @@ const testDetails = (wrapper) => {
   expect(detailTypes.at(1).text()).toBe('Item size:');
   expect(detailDefinitions.at(1).text()).toBe('7"x2"x3.5"');
 
-  expect(detailTypes.at(3).text()).toBe('Customer contact 1:');
-  expect(detailDefinitions.at(3).text().includes('1200Z')).toBe(true);
-  expect(detailTypes.at(4).text()).toBe('First available delivery date 1:');
-  expect(detailDefinitions.at(4).text().includes('15 Sep 2020')).toBe(true);
+  expect(detailTypes.at(3).text()).toBe('First available delivery date 1:');
+  expect(detailDefinitions.at(3).text().includes('15 Sep 2020')).toBe(true);
+  expect(detailTypes.at(4).text()).toBe('Customer contact attempt 1:');
+  expect(detailDefinitions.at(4).text().includes('15 Sep 2020, 1200Z')).toBe(true);
 
-  expect(detailTypes.at(5).text()).toBe('Customer contact 2:');
-  expect(detailDefinitions.at(5).text().includes('2300Z')).toBe(true);
-  expect(detailTypes.at(6).text()).toBe('First available delivery date 2:');
-  expect(detailDefinitions.at(6).text().includes('21 Sep 2020')).toBe(true);
+  expect(detailTypes.at(5).text()).toBe('First available delivery date 2:');
+  expect(detailDefinitions.at(5).text().includes('21 Sep 2020')).toBe(true);
+  expect(detailTypes.at(6).text()).toBe('Customer contact attempt 2:');
+  expect(detailDefinitions.at(6).text().includes('21 Sep 2020, 2300Z')).toBe(true);
 
   expect(detailTypes.at(8).text()).toBe('ZIP:');
   expect(detailDefinitions.at(8).text().includes('12345')).toBe(true);
