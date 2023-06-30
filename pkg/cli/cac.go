@@ -138,7 +138,7 @@ func GetCACStore(v *viper.Viper) (*pksigner.Store, error) {
 
 // CACStoreLogin login to existing CAC store
 // Call 'defer store.Close()' after retrieving the store
-func CACStoreLogin(v *viper.Viper, store *pksigner.Store) (*pksigner.Store, error) {
+func CACStoreLogin(_ *viper.Viper, store *pksigner.Store) (*pksigner.Store, error) {
 
 	if store == nil {
 		return nil, errors.New("Do not have an existing CAC store. Use GetCACStore()")

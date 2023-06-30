@@ -81,7 +81,7 @@ func (e EIAData) price() float64 {
 }
 
 // NewDieselFuelPriceInfo creates a new dieselFuelPriceInfo struct and returns a pointer to said struct
-func NewDieselFuelPriceInfo(eiaURL string, eiaKey string, eiaDataFetcherFunction eiaDataFetcherFunction, logger *zap.Logger) *DieselFuelPriceInfo {
+func NewDieselFuelPriceInfo(eiaURL string, eiaKey string, eiaDataFetcherFunction eiaDataFetcherFunction, _ *zap.Logger) *DieselFuelPriceInfo {
 	return &DieselFuelPriceInfo{
 		eiaURL:                 eiaURL,
 		eiaKey:                 eiaKey,

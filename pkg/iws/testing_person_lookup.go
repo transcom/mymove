@@ -13,17 +13,17 @@ func NewTestingPersonLookup() (*TestingPersonLookup, error) {
 }
 
 // GetPersonUsingEDIPI returns a static dummy RBS result
-func (r TestingPersonLookup) GetPersonUsingEDIPI(edipi uint64) (*Person, []Personnel, error) {
+func (r TestingPersonLookup) GetPersonUsingEDIPI(_ uint64) (*Person, []Personnel, error) {
 	return getTestPerson(), []Personnel{getTestPersonnel()}, nil
 }
 
 // GetPersonUsingSSN returns a static dummy RBS result
-func (r TestingPersonLookup) GetPersonUsingSSN(params GetPersonUsingSSNParams) (MatchReasonCode, uint64, *Person, []Personnel, error) {
+func (r TestingPersonLookup) GetPersonUsingSSN(_ GetPersonUsingSSNParams) (MatchReasonCode, uint64, *Person, []Personnel, error) {
 	return MatchReasonCodeFull, edipi, getTestPerson(), []Personnel{getTestPersonnel()}, nil
 }
 
 // GetPersonUsingWorkEmail returns a static dummy RBS result
-func (r TestingPersonLookup) GetPersonUsingWorkEmail(workEmail string) (uint64, *Person, []Personnel, error) {
+func (r TestingPersonLookup) GetPersonUsingWorkEmail(_ string) (uint64, *Person, []Personnel, error) {
 	return edipi, getTestPerson(), []Personnel{getTestPersonnel()}, nil
 }
 

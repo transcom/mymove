@@ -98,11 +98,7 @@ func CheckLogging(v *viper.Viper) error {
 		return &errInvalidLoggingLevel{Value: str, LoggingLevels: allLoggingLevels}
 	}
 
-	if err := ValidateStacktraceLength(v, StacktraceLengthFlag); err != nil {
-		return err
-	}
-
-	return nil
+	return ValidateStacktraceLength(v, StacktraceLengthFlag)
 }
 
 // LogLevelIsDebug is a helper for functions that require a boolean to determine

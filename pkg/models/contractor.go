@@ -28,7 +28,7 @@ func (c Contractor) TableName() string {
 type Contractors []Contractor
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-func (c *Contractor) Validate(tx *pop.Connection) (*validate.Errors, error) {
+func (c *Contractor) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.StringIsPresent{Field: string(c.Name), Name: "Name"},
 		&validators.StringIsPresent{Field: string(c.Type), Name: "Type"},

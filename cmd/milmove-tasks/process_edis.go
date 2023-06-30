@@ -62,11 +62,7 @@ func checkProcessEDIsConfig(v *viper.Viper, logger *zap.Logger) error {
 		return err
 	}
 
-	if err := cli.CheckEntrustCert(v); err != nil {
-		return err
-	}
-
-	return nil
+	return cli.CheckEntrustCert(v)
 }
 
 func initProcessEDIsFlags(flag *pflag.FlagSet) {
@@ -95,7 +91,7 @@ func initProcessEDIsFlags(flag *pflag.FlagSet) {
 	flag.SortFlags = false
 }
 
-func processEDIs(cmd *cobra.Command, args []string) error {
+func processEDIs(_ *cobra.Command, _ []string) error {
 	v := viper.New()
 
 	logger, _, err := logging.Config(

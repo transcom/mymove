@@ -61,7 +61,7 @@ func NewDistanceCalculation(appCtx appcontext.AppContext, planner distanceCalcul
 }
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-func (d *DistanceCalculation) Validate(tx *pop.Connection) (*validate.Errors, error) {
+func (d *DistanceCalculation) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.UUIDIsPresent{Field: d.OriginAddressID, Name: "OriginAddressID"},
 		&validators.UUIDIsPresent{Field: d.DestinationAddressID, Name: "DestinationAddressID"},

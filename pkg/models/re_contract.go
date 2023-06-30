@@ -26,7 +26,7 @@ func (r ReContract) TableName() string {
 type ReContracts []ReContract
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-func (r *ReContract) Validate(tx *pop.Connection) (*validate.Errors, error) {
+func (r *ReContract) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.StringIsPresent{Field: r.Code, Name: "Code"},
 		&validators.StringIsPresent{Field: r.Name, Name: "Name"},

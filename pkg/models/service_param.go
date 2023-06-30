@@ -31,7 +31,7 @@ func (p ServiceParam) TableName() string {
 type ServiceParams []ServiceParam
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-func (p *ServiceParam) Validate(tx *pop.Connection) (*validate.Errors, error) {
+func (p *ServiceParam) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.UUIDIsPresent{Field: p.ServiceID, Name: "ServiceID"},
 		&validators.UUIDIsPresent{Field: p.ServiceItemParamKeyID, Name: "ServiceItemParamKeyID"},

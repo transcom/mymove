@@ -1,6 +1,8 @@
 package factory
 
 import (
+	"time"
+
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
 
@@ -26,14 +28,15 @@ func BuildShipmentAddressUpdate(db *pop.Connection, customs []Customization, tra
 		}
 	}
 
-	// Find Original Address Customizations
+	// Use shipment dest address as original address unless customizations are provided
+	originalAddress := *shipment.DestinationAddress
 	tempOrigAddressCustoms := customs
 	validOrigCustoms := findValidCustomization(customs, Addresses.OriginalAddress)
 	if validOrigCustoms != nil {
 		tempOrigAddressCustoms = convertCustomizationInList(tempOrigAddressCustoms, Addresses.OriginalAddress, Address)
+		// Create Original Address
+		originalAddress = BuildAddress(db, tempOrigAddressCustoms, traits)
 	}
-	// Create Original Address
-	originalAddress := BuildAddress(db, tempOrigAddressCustoms, traits)
 
 	// Find New Address Customizations
 	tempNewAddressCustoms := customs
@@ -81,23 +84,15 @@ func GetTraitShipmentAddressUpdateRequested() []Customization {
 		},
 		{
 			Model: models.Move{
-				Locator: "CRQST1",
-				Status:  models.MoveStatusAPPROVALSREQUESTED,
+				Locator:            "CRQST1",
+				Status:             models.MoveStatusAPPROVALSREQUESTED,
+				AvailableToPrimeAt: models.TimePointer(time.Now()),
 			},
 		},
 		{
 			Model: models.MTOShipment{
 				Status: models.MTOShipmentStatusApproved,
 			},
-		},
-		{
-			Model: models.Address{
-				StreetAddress1: "1234 Any Avenue",
-				City:           "Des Moines",
-				State:          "IA",
-				PostalCode:     "50309",
-			},
-			Type: &Addresses.NewAddress,
 		},
 	}
 }
@@ -111,23 +106,15 @@ func GetTraitShipmentAddressUpdateApproved() []Customization {
 		},
 		{
 			Model: models.Move{
-				Locator: "CRQST2",
-				Status:  models.MoveStatusAPPROVED,
+				Locator:            "CRQST2",
+				Status:             models.MoveStatusAPPROVED,
+				AvailableToPrimeAt: models.TimePointer(time.Now()),
 			},
 		},
 		{
 			Model: models.MTOShipment{
 				Status: models.MTOShipmentStatusApproved,
 			},
-		},
-		{
-			Model: models.Address{
-				StreetAddress1: "5678 Some Avenue",
-				City:           "Des Moines",
-				State:          "IA",
-				PostalCode:     "50309",
-			},
-			Type: &Addresses.NewAddress,
 		},
 	}
 }
@@ -141,23 +128,15 @@ func GetTraitShipmentAddressUpdateRejected() []Customization {
 		},
 		{
 			Model: models.Move{
-				Locator: "CRQST3",
-				Status:  models.MoveStatusAPPROVED,
+				Locator:            "CRQST3",
+				Status:             models.MoveStatusAPPROVED,
+				AvailableToPrimeAt: models.TimePointer(time.Now()),
 			},
 		},
 		{
 			Model: models.MTOShipment{
 				Status: models.MTOShipmentStatusApproved,
 			},
-		},
-		{
-			Model: models.Address{
-				StreetAddress1: "9012 Some Avenue",
-				City:           "Des Moines",
-				State:          "IA",
-				PostalCode:     "50309",
-			},
-			Type: &Addresses.NewAddress,
 		},
 	}
 }
