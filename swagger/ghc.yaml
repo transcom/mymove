@@ -3896,6 +3896,14 @@ definitions:
         title: >-
           Do you have a spouse who will need to move items related to their
           occupation (also known as spouse pro-gear)?
+      supplyAndServicesCostEstimate:
+        type: string
+      packingAndShippingInstructions:
+        type: string
+      methodOfPayment:
+        type: string
+      naics:
+        type: string
       eTag:
         type: string
     type: object
