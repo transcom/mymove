@@ -14,7 +14,7 @@ type ZipSITOriginHHGOriginalAddressLookup struct {
 	ServiceItem models.MTOServiceItem
 }
 
-func (z ZipSITOriginHHGOriginalAddressLookup) lookup(appCtx appcontext.AppContext, keyData *ServiceItemParamKeyData) (string, error) {
+func (z ZipSITOriginHHGOriginalAddressLookup) lookup(appCtx appcontext.AppContext, _ *ServiceItemParamKeyData) (string, error) {
 
 	// load updated origin SIT addresses from service item
 	if z.ServiceItem.SITOriginHHGOriginalAddressID != nil && *z.ServiceItem.SITOriginHHGOriginalAddressID != uuid.Nil {

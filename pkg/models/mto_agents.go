@@ -42,7 +42,7 @@ func (m MTOAgent) TableName() string {
 type MTOAgents []MTOAgent
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-func (m *MTOAgent) Validate(tx *pop.Connection) (*validate.Errors, error) {
+func (m *MTOAgent) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	var vs []validate.Validator
 	vs = append(vs, &validators.UUIDIsPresent{Field: m.MTOShipmentID, Name: "MTOShipmentID"})
 	vs = append(vs, &validators.StringInclusion{Field: string(m.MTOAgentType), Name: "MTOAgentType", List: []string{

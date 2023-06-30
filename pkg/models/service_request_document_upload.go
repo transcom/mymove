@@ -33,7 +33,7 @@ func (u ServiceRequestDocumentUpload) TableName() string {
 type ServiceRequestDocumentUploads []ServiceRequestDocumentUpload
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-func (u *ServiceRequestDocumentUpload) Validate(tx *pop.Connection) (*validate.Errors, error) {
+func (u *ServiceRequestDocumentUpload) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.UUIDIsPresent{Field: u.ContractorID, Name: "ContractorID"},
 		&validators.UUIDIsPresent{Field: u.ServiceRequestDocumentID, Name: "ServiceRequestDocumentID"},

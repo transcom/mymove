@@ -98,10 +98,18 @@ func DevlocalClientCertMiddleware(appCtx appcontext.AppContext) func(next http.H
 				hash := sha256.Sum256(r.TLS.PeerCertificates[0].Raw)
 				hashString = hex.EncodeToString(hash[:])
 				newAppCtx.Logger().Info("TLS connection has a client certificate")
+			} else if hashStringHeader := r.Header.Get("X-Devlocal-Cert-Hash"); hashStringHeader != "" {
+				// This lets us simulate different certificates when
+				// devlocal auth is enabled
+				hashString = hashStringHeader
+				newAppCtx.Logger().Info("TLS connection has x-devlocal-cert-hash header")
 			} else {
 				// otherwise, for devlocal, default to the devlocal cert
 				// This hash gets populated as part of migration
 				// 20191212230438_add_devlocal-mtls_client_cert.up.sql
+				//
+				// This is particularly useful for ephemeral deploys
+				// when testing the prime api via swagger-ui
 				hashString = "2c0c1fc67a294443292a9e71de0c71cc374fe310e8073f8cdc15510f6b0ef4db"
 				newAppCtx.Logger().Info("TLS connection doesn't have a client certificate")
 			}

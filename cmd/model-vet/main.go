@@ -148,9 +148,8 @@ func auditModel(appCtx appcontext.AppContext, model Model) (bool, error) {
 		if findErr := query.First(&column); findErr != nil {
 			if findErr.Error() == models.RecordNotFoundErrorString {
 				continue
-			} else {
-				return false, findErr
 			}
+			return false, findErr
 		}
 		if field.pointer != column.Nullable {
 			if !printedModelName {

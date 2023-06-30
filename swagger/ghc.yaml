@@ -3896,6 +3896,14 @@ definitions:
         title: >-
           Do you have a spouse who will need to move items related to their
           occupation (also known as spouse pro-gear)?
+      supplyAndServicesCostEstimate:
+        type: string
+      packingAndShippingInstructions:
+        type: string
+      methodOfPayment:
+        type: string
+      naics:
+        type: string
       eTag:
         type: string
     type: object
@@ -5696,15 +5704,19 @@ definitions:
         type: string
       type:
         $ref: '#/definitions/CustomerContactType'
+      dateOfContact:
+        format: date
+        type: string
+        description: Date of attempted contact by the prime.
       timeMilitary:
         type: string
         example: 0400Z
-        description: Time of delivery corresponding to `firstAvailableDeliveryDate`.
+        description: Time of attempted contact by the prime.
       firstAvailableDeliveryDate:
         format: date
         type: string
         example: '2020-12-31'
-        description: First available date that Prime can deliver SIT service item.
+        description: First available date that the Prime can deliver SIT service item.
   MTOServiceItemCustomerContacts:
     type: array
     items:
@@ -5803,6 +5815,70 @@ definitions:
       - SUBMITTED
       - APPROVED
       - REJECTED
+  Upload:
+    description: An uploaded file.
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      url:
+        type: string
+        format: uri
+        example: https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      filename:
+        type: string
+        example: filename.pdf
+        readOnly: true
+      contentType:
+        type: string
+        format: mime-type
+        example: application/pdf
+        readOnly: true
+      bytes:
+        type: integer
+        readOnly: true
+      status:
+        type: string
+        enum:
+          - INFECTED
+          - CLEAN
+          - PROCESSING
+        readOnly: true
+      createdAt:
+        type: string
+        format: date-time
+        readOnly: true
+      updatedAt:
+        type: string
+        format: date-time
+        readOnly: true
+    required:
+      - id
+      - url
+      - filename
+      - contentType
+      - bytes
+      - createdAt
+      - updatedAt
+  ServiceRequestDocument:
+    type: object
+    properties:
+      mtoServiceItemID:
+        type: string
+        format: uuid
+      uploads:
+        items:
+          $ref: '#/definitions/Upload'
+        type: array
+  ServiceRequestDocuments:
+    description: documents uploaded by the Prime as proof of request for service items
+    type: array
+    items:
+      $ref: '#/definitions/ServiceRequestDocument'
   MTOServiceItem:
     type: object
     required:
@@ -5911,6 +5987,8 @@ definitions:
         x-nullable: true
       eTag:
         type: string
+      serviceRequestDocuments:
+        $ref: '#/definitions/ServiceRequestDocuments'
   MTOServiceItems:
     description: A list of service items connected to this shipment.
     type: array
@@ -6167,10 +6245,15 @@ definitions:
         minimum: 0
       sitEntryDate:
         type: string
-        format: date-time
+        format: date
+        x-nullable: true
       sitDepartureDate:
         type: string
-        format: date-time
+        format: date
+        x-nullable: true
+      sitAllowanceEndDate:
+        type: string
+        format: date
         x-nullable: true
       pastSITServiceItems:
         $ref: '#/definitions/MTOServiceItems'
@@ -6203,55 +6286,6 @@ definitions:
       - APPROVED
       - REJECTED
       - EDITED
-  Upload:
-    description: An uploaded file.
-    type: object
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        readOnly: true
-      url:
-        type: string
-        format: uri
-        example: https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538
-        readOnly: true
-      filename:
-        type: string
-        example: filename.pdf
-        readOnly: true
-      contentType:
-        type: string
-        format: mime-type
-        example: application/pdf
-        readOnly: true
-      bytes:
-        type: integer
-        readOnly: true
-      status:
-        type: string
-        enum:
-          - INFECTED
-          - CLEAN
-          - PROCESSING
-        readOnly: true
-      createdAt:
-        type: string
-        format: date-time
-        readOnly: true
-      updatedAt:
-        type: string
-        format: date-time
-        readOnly: true
-    required:
-      - id
-      - url
-      - filename
-      - contentType
-      - bytes
-      - createdAt
-      - updatedAt
   Document:
     type: object
     properties:

@@ -6099,6 +6099,9 @@ func init() {
           "type": "string",
           "x-nullable": true
         },
+        "serviceRequestDocuments": {
+          "$ref": "#/definitions/ServiceRequestDocuments"
+        },
         "sitAddressUpdates": {
           "$ref": "#/definitions/SITAddressUpdates"
         },
@@ -6139,8 +6142,13 @@ func init() {
       "description": "Customer contact information for a destination SIT service item",
       "type": "object",
       "properties": {
+        "dateOfContact": {
+          "description": "Date of attempted contact by the prime.",
+          "type": "string",
+          "format": "date"
+        },
         "firstAvailableDeliveryDate": {
-          "description": "First available date that Prime can deliver SIT service item.",
+          "description": "First available date that the Prime can deliver SIT service item.",
           "type": "string",
           "format": "date",
           "example": "2020-12-31"
@@ -6151,7 +6159,7 @@ func init() {
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "timeMilitary": {
-          "description": "Time of delivery corresponding to ` + "`" + `firstAvailableDeliveryDate` + "`" + `.",
+          "description": "Time of attempted contact by the prime.",
           "type": "string",
           "example": "0400Z"
         },
@@ -7113,6 +7121,9 @@ func init() {
           "readOnly": true,
           "example": "Doe"
         },
+        "methodOfPayment": {
+          "type": "string"
+        },
         "moveCode": {
           "type": "string",
           "example": "H2XFJF"
@@ -7121,6 +7132,9 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "naics": {
+          "type": "string"
         },
         "ntsSac": {
           "type": "string",
@@ -7149,6 +7163,9 @@ func init() {
         "originDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
         },
+        "packingAndShippingInstructions": {
+          "type": "string"
+        },
         "report_by_date": {
           "type": "string",
           "format": "date",
@@ -7164,6 +7181,9 @@ func init() {
           "type": "boolean",
           "title": "Do you have a spouse who will need to move items related to their occupation (also known as spouse pro-gear)?",
           "example": false
+        },
+        "supplyAndServicesCostEstimate": {
+          "type": "string"
         },
         "tac": {
           "type": "string",
@@ -8387,14 +8407,20 @@ func init() {
         "pastSITServiceItems": {
           "$ref": "#/definitions/MTOServiceItems"
         },
+        "sitAllowanceEndDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
         "sitDepartureDate": {
           "type": "string",
-          "format": "date-time",
+          "format": "date",
           "x-nullable": true
         },
         "sitEntryDate": {
           "type": "string",
-          "format": "date-time"
+          "format": "date",
+          "x-nullable": true
         },
         "totalDaysRemaining": {
           "type": "integer"
@@ -8566,6 +8592,28 @@ func init() {
         "PaymentServiceItemUUID",
         "BOOLEAN"
       ]
+    },
+    "ServiceRequestDocument": {
+      "type": "object",
+      "properties": {
+        "mtoServiceItemID": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "uploads": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Upload"
+          }
+        }
+      }
+    },
+    "ServiceRequestDocuments": {
+      "description": "documents uploaded by the Prime as proof of request for service items",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ServiceRequestDocument"
+      }
     },
     "ShipmentPaymentSITBalance": {
       "properties": {
@@ -17067,6 +17115,9 @@ func init() {
           "type": "string",
           "x-nullable": true
         },
+        "serviceRequestDocuments": {
+          "$ref": "#/definitions/ServiceRequestDocuments"
+        },
         "sitAddressUpdates": {
           "$ref": "#/definitions/SITAddressUpdates"
         },
@@ -17107,8 +17158,13 @@ func init() {
       "description": "Customer contact information for a destination SIT service item",
       "type": "object",
       "properties": {
+        "dateOfContact": {
+          "description": "Date of attempted contact by the prime.",
+          "type": "string",
+          "format": "date"
+        },
         "firstAvailableDeliveryDate": {
-          "description": "First available date that Prime can deliver SIT service item.",
+          "description": "First available date that the Prime can deliver SIT service item.",
           "type": "string",
           "format": "date",
           "example": "2020-12-31"
@@ -17119,7 +17175,7 @@ func init() {
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "timeMilitary": {
-          "description": "Time of delivery corresponding to ` + "`" + `firstAvailableDeliveryDate` + "`" + `.",
+          "description": "Time of attempted contact by the prime.",
           "type": "string",
           "example": "0400Z"
         },
@@ -18081,6 +18137,9 @@ func init() {
           "readOnly": true,
           "example": "Doe"
         },
+        "methodOfPayment": {
+          "type": "string"
+        },
         "moveCode": {
           "type": "string",
           "example": "H2XFJF"
@@ -18089,6 +18148,9 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "naics": {
+          "type": "string"
         },
         "ntsSac": {
           "type": "string",
@@ -18117,6 +18179,9 @@ func init() {
         "originDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
         },
+        "packingAndShippingInstructions": {
+          "type": "string"
+        },
         "report_by_date": {
           "type": "string",
           "format": "date",
@@ -18132,6 +18197,9 @@ func init() {
           "type": "boolean",
           "title": "Do you have a spouse who will need to move items related to their occupation (also known as spouse pro-gear)?",
           "example": false
+        },
+        "supplyAndServicesCostEstimate": {
+          "type": "string"
         },
         "tac": {
           "type": "string",
@@ -19358,14 +19426,20 @@ func init() {
         "pastSITServiceItems": {
           "$ref": "#/definitions/MTOServiceItems"
         },
+        "sitAllowanceEndDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
         "sitDepartureDate": {
           "type": "string",
-          "format": "date-time",
+          "format": "date",
           "x-nullable": true
         },
         "sitEntryDate": {
           "type": "string",
-          "format": "date-time"
+          "format": "date",
+          "x-nullable": true
         },
         "totalDaysRemaining": {
           "type": "integer",
@@ -19539,6 +19613,28 @@ func init() {
         "PaymentServiceItemUUID",
         "BOOLEAN"
       ]
+    },
+    "ServiceRequestDocument": {
+      "type": "object",
+      "properties": {
+        "mtoServiceItemID": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "uploads": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Upload"
+          }
+        }
+      }
+    },
+    "ServiceRequestDocuments": {
+      "description": "documents uploaded by the Prime as proof of request for service items",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ServiceRequestDocument"
+      }
     },
     "ShipmentPaymentSITBalance": {
       "properties": {

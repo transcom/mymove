@@ -32,7 +32,7 @@ func (e EdiError) TableName() string {
 type EdiErrors []EdiError
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-func (e *EdiError) Validate(tx *pop.Connection) (*validate.Errors, error) {
+func (e *EdiError) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	var vs []validate.Validator
 	vs = append(vs, &validators.StringInclusion{Field: string(e.EDIType), Name: "EDIType", List: allowedEDITypes})
 	vs = append(vs, &validators.UUIDIsPresent{Field: e.PaymentRequestID, Name: "PaymentRequestID"})

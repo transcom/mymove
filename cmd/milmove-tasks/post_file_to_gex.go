@@ -64,7 +64,7 @@ func initPostFileToGEXFlags(flag *pflag.FlagSet) {
 }
 
 // go run ./cmd/milmove-tasks post-file-to-gex --edi filepath --filename filename --gex-url 'url'
-func postFileToGEX(cmd *cobra.Command, args []string) error {
+func postFileToGEX(_ *cobra.Command, _ []string) error {
 	// Create the logger
 	v := viper.New()
 

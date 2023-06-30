@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func versionFunction(cmd *cobra.Command, args []string) error {
+func versionFunction(_ *cobra.Command, _ []string) error {
 	str, err := json.Marshal(map[string]interface{}{
 		"gitBranch": gitBranch,
 		"gitCommit": gitCommit,

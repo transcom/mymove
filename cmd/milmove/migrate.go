@@ -71,11 +71,7 @@ func checkMigrateConfig(v *viper.Viper, logger *zap.Logger) error {
 		return err
 	}
 
-	if err := cli.CheckLogging(v); err != nil {
-		return err
-	}
-
-	return nil
+	return cli.CheckLogging(v)
 }
 
 func expandPath(in string) string {

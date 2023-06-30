@@ -156,7 +156,7 @@ func (m MTOShipment) TableName() string {
 type MTOShipments []MTOShipment
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-func (m *MTOShipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
+func (m *MTOShipment) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	var vs []validate.Validator
 	vs = append(vs, &validators.StringInclusion{Field: string(m.Status), Name: "Status", List: []string{
 		string(MTOShipmentStatusApproved),

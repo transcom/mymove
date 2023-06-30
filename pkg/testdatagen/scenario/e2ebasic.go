@@ -1042,7 +1042,7 @@ func aCanceledPPMMove(appCtx appcontext.AppContext, userUploader *uploader.UserU
 	}
 }
 
-func serviceMemberWithOrdersAndAMoveNoMoveType(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+func serviceMemberWithOrdersAndAMoveNoMoveType(appCtx appcontext.AppContext) {
 	email := "sm_no_move_type@example.com"
 	uuidStr := "9ceb8321-6a82-4f6d-8bb3-a1d85922a202"
 	loginGovID := uuid.Must(uuid.NewV4())
@@ -1202,7 +1202,7 @@ func serviceMemberWithOrdersAndAMovePPMandHHG(appCtx appcontext.AppContext, user
 	}
 }
 
-func serviceMemberWithUnsubmittedHHG(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+func serviceMemberWithUnsubmittedHHG(appCtx appcontext.AppContext) {
 	email := "hhg@only.unsubmitted"
 	uuidStr := "f08146cf-4d6b-43d5-9ca5-c8d239d37b3e"
 	loginGovID := uuid.Must(uuid.NewV4())
@@ -1268,7 +1268,7 @@ func serviceMemberWithUnsubmittedHHG(appCtx appcontext.AppContext, userUploader 
 
 }
 
-func serviceMemberWithNTSandNTSRandUnsubmittedMove01(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+func serviceMemberWithNTSandNTSRandUnsubmittedMove01(appCtx appcontext.AppContext) {
 	email := "nts@ntsr.unsubmitted"
 	uuidStr := "583cfbe1-cb34-4381-9e1f-54f68200da1b"
 	loginGovID := uuid.Must(uuid.NewV4())
@@ -1371,7 +1371,7 @@ func serviceMemberWithNTSandNTSRandUnsubmittedMove01(appCtx appcontext.AppContex
 		},
 	}, nil)
 }
-func serviceMemberWithNTSandNTSRandUnsubmittedMove02(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+func serviceMemberWithNTSandNTSRandUnsubmittedMove02(appCtx appcontext.AppContext) {
 	email := "nts2@ntsr.unsubmitted"
 	uuidStr := "80da86f3-9dac-4298-8b03-b753b443668e"
 	loginGovID := uuid.Must(uuid.NewV4())
@@ -3165,10 +3165,12 @@ func createMoveWithServiceItemsandPaymentRequests02(appCtx appcontext.AppContext
 	}, nil)
 
 	firstDeliveryDate := models.TimePointer(time.Now())
+	dateOfContact := models.TimePointer(time.Now())
 	customerContact1 := testdatagen.MakeMTOServiceItemCustomerContact(appCtx.DB(), testdatagen.Assertions{
 		MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
 			ID:                         uuid.FromStringOrNil("f0f38ee0-0148-4892-9b5b-a091a8c5a645"),
 			Type:                       models.CustomerContactTypeFirst,
+			DateOfContact:              dateOfContact.Add(time.Hour * 24),
 			TimeMilitary:               "0400Z",
 			FirstAvailableDeliveryDate: *firstDeliveryDate,
 		},
@@ -3178,6 +3180,7 @@ func createMoveWithServiceItemsandPaymentRequests02(appCtx appcontext.AppContext
 		MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
 			ID:                         uuid.FromStringOrNil("1398aea3-d09b-485d-81c7-3bb72c21fb38"),
 			Type:                       models.CustomerContactTypeSecond,
+			DateOfContact:              dateOfContact.Add(time.Hour * 48),
 			TimeMilitary:               "1200Z",
 			FirstAvailableDeliveryDate: firstDeliveryDate.Add(time.Hour * 24),
 		},
@@ -4906,7 +4909,7 @@ func createNTSRMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader
 	)
 }
 
-func createNTSMoveWithServiceItemsandPaymentRequests(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+func createNTSMoveWithServiceItemsandPaymentRequests(appCtx appcontext.AppContext) {
 	/*
 		Creates a move for the TIO flow
 	*/
@@ -5344,11 +5347,11 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	serviceMemberWithPPMMoveWithPaymentRequested01(appCtx, userUploader, moveRouter)
 	serviceMemberWithPPMMoveWithPaymentRequested02(appCtx, userUploader, moveRouter)
 	aCanceledPPMMove(appCtx, userUploader, moveRouter)
-	serviceMemberWithOrdersAndAMoveNoMoveType(appCtx, userUploader)
+	serviceMemberWithOrdersAndAMoveNoMoveType(appCtx)
 	serviceMemberWithOrdersAndAMovePPMandHHG(appCtx, userUploader, moveRouter)
-	serviceMemberWithUnsubmittedHHG(appCtx, userUploader)
-	serviceMemberWithNTSandNTSRandUnsubmittedMove01(appCtx, userUploader)
-	serviceMemberWithNTSandNTSRandUnsubmittedMove02(appCtx, userUploader)
+	serviceMemberWithUnsubmittedHHG(appCtx)
+	serviceMemberWithNTSandNTSRandUnsubmittedMove01(appCtx)
+	serviceMemberWithNTSandNTSRandUnsubmittedMove02(appCtx)
 	serviceMemberWithPPMReadyToRequestPayment01(appCtx, userUploader, moveRouter)
 	serviceMemberWithPPMReadyToRequestPayment02(appCtx, userUploader, moveRouter)
 	serviceMemberWithPPMReadyToRequestPayment03(appCtx, userUploader, moveRouter)
@@ -5427,7 +5430,7 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	createMoveWithTaskOrderServices(appCtx, userUploader)
 	createPrimeSimulatorMoveNeedsShipmentUpdate(appCtx, userUploader)
 
-	createNTSMoveWithServiceItemsandPaymentRequests(appCtx, userUploader)
+	createNTSMoveWithServiceItemsandPaymentRequests(appCtx)
 
 	// PPMs
 	createBasicMovePPM01(appCtx, userUploader)

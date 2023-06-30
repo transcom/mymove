@@ -36,6 +36,18 @@ test.describe('TOO user', () => {
         'Approved service items (12 items)',
       );
 
+      // MTO compliance information is visible
+      await expect(
+        page.getByText('Payment will be made using the Third-Party Payment System (TPPS) Automated Payment System'),
+      ).toBeVisible();
+      await expect(
+        page.getByText(
+          'Packaging, packing, and shipping instructions as identified in the Conformed Copy of HTC111-11-1-1112 Attachment 1 Performance Work Statement',
+        ),
+      ).toBeVisible();
+      await expect(page.getByText('NAICS: 488510 - FREIGHT TRANSPORTATION ARRANGEMENT')).toBeVisible();
+      await expect(page.getByText('Contract #HTC111-11-1-1112')).toBeVisible();
+
       // Navigate back to Move Details
       await page.getByTestId('MoveDetails-Tab').click();
       await tooFlowPage.waitForLoading();
@@ -125,8 +137,8 @@ test.describe('TOO user', () => {
       // Accept a previously rejected service item
       await page.locator('[data-testid="RejectedServiceItemsTable"] button').click();
 
-      await expect(page.getByText('Approved service items (13 items)')).toBeVisible();
-      await expect(page.locator('[data-testid="ApprovedServiceItemsTable"] tbody tr')).toHaveCount(13);
+      await expect(page.getByText('Approved service items (14 items)')).toBeVisible();
+      await expect(page.locator('[data-testid="ApprovedServiceItemsTable"] tbody tr')).toHaveCount(15);
       await expect(page.getByText('Rejected service items (1 item)')).not.toBeVisible();
 
       // Reject a previously accpeted service item
@@ -145,7 +157,7 @@ test.describe('TOO user', () => {
 
       await expect(page.getByText('Requested service items')).not.toBeVisible();
       await expect(page.getByText('Approved service items (13 items)')).toBeVisible();
-      await expect(page.locator('[data-testid="ApprovedServiceItemsTable"] tbody tr')).toHaveCount(13);
+      await expect(page.locator('[data-testid="ApprovedServiceItemsTable"] tbody tr')).toHaveCount(14);
     });
 
     test('is able to edit orders', async ({ page }) => {

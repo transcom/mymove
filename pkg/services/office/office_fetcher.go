@@ -17,8 +17,8 @@ type officeFetcher struct {
 // FetchOffice fetches an office user for the given a slice of filters
 func (o *officeFetcher) FetchOffice(appCtx appcontext.AppContext, filters []services.QueryFilter) (models.TransportationOffice, error) {
 	var office models.TransportationOffice
-	error := o.builder.FetchOne(appCtx, &office, filters)
-	return office, error
+	err := o.builder.FetchOne(appCtx, &office, filters)
+	return office, err
 }
 
 // NewOfficeFetcher return an implementaion of the OfficeFetcher interface

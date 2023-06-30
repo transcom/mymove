@@ -68,7 +68,7 @@ func (m SITDurationUpdate) TableName() string {
 }
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-func (m *SITDurationUpdate) Validate(tx *pop.Connection) (*validate.Errors, error) {
+func (m *SITDurationUpdate) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	var vs []validate.Validator
 	vs = append(vs, &validators.UUIDIsPresent{Field: m.MTOShipmentID, Name: "MTOShipmentID"})
 	vs = append(vs, &validators.StringInclusion{Field: string(m.RequestReason), Name: "RequestReason", List: []string{

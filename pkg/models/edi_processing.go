@@ -30,7 +30,7 @@ func (e EDIProcessing) TableName() string {
 type EDIProcessings []EDIProcessing
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-func (e *EDIProcessing) Validate(tx *pop.Connection) (*validate.Errors, error) {
+func (e *EDIProcessing) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.StringInclusion{Field: string(e.EDIType), Name: "EDIType", List: allowedEDITypes},
 		&validators.IntIsGreaterThan{Field: e.NumEDIsProcessed, Name: "NumEDIsProcessed", Compared: -1},

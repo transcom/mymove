@@ -20,7 +20,7 @@ func InitListMTOsFlags(flag *pflag.FlagSet) {
 	flag.SortFlags = false
 }
 
-func checkListMTOsConfig(v *viper.Viper, args []string, logger *log.Logger) error {
+func checkListMTOsConfig(v *viper.Viper, logger *log.Logger) error {
 	err := utils.CheckRootConfig(v)
 	if err != nil {
 		logger.Fatal(err)
@@ -43,7 +43,7 @@ func ListMTOs(cmd *cobra.Command, args []string) error {
 	}
 
 	// Check the config before talking to the CAC
-	err := checkListMTOsConfig(v, args, logger)
+	err := checkListMTOsConfig(v, logger)
 	if err != nil {
 		logger.Fatal(err)
 	}

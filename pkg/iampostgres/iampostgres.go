@@ -299,7 +299,7 @@ func (d *RDSPostgresDriver) OpenConnector(dsn string) (driver.Connector, error) 
 
 var errNotImplemented = errors.New("Open Not Implemented")
 
-func (d *RDSPostgresDriver) Open(dsn string) (driver.Conn, error) {
+func (d *RDSPostgresDriver) Open(_ string) (driver.Conn, error) {
 	// will not be called because of OpenConnector
 	return nil, errNotImplemented
 }

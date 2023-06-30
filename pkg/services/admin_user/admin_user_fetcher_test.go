@@ -19,7 +19,7 @@ type testAdminUserQueryBuilder struct {
 	fakeUpdateOne func(appConfig appcontext.AppContext, models interface{}, eTag *string) (*validate.Errors, error)
 }
 
-func (t *testAdminUserQueryBuilder) FetchOne(appConfig appcontext.AppContext, model interface{}, filters []services.QueryFilter) error {
+func (t *testAdminUserQueryBuilder) FetchOne(appConfig appcontext.AppContext, model interface{}, _ []services.QueryFilter) error {
 	m := t.fakeFetchOne(appConfig, model)
 	return m
 }
@@ -28,7 +28,7 @@ func (t *testAdminUserQueryBuilder) CreateOne(appConfig appcontext.AppContext, m
 	return t.fakeCreateOne(appConfig, model)
 }
 
-func (t *testAdminUserQueryBuilder) UpdateOne(appConfig appcontext.AppContext, model interface{}, eTag *string) (*validate.Errors, error) {
+func (t *testAdminUserQueryBuilder) UpdateOne(_ appcontext.AppContext, _ interface{}, _ *string) (*validate.Errors, error) {
 	return nil, nil
 }
 

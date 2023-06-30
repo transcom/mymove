@@ -18,15 +18,15 @@ type clientCertListFetcher struct {
 // FetchClientCertList uses the passed query builder to fetch a list of office users
 func (o *clientCertListFetcher) FetchClientCertList(appCtx appcontext.AppContext, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) (models.ClientCerts, error) {
 	var clientCerts models.ClientCerts
-	error := o.builder.FetchMany(appCtx, &clientCerts, filters, associations, pagination, ordering)
-	return clientCerts, error
+	err := o.builder.FetchMany(appCtx, &clientCerts, filters, associations, pagination, ordering)
+	return clientCerts, err
 }
 
 // FetchClientCertList uses the passed query builder to fetch a list of office users
 func (o *clientCertListFetcher) FetchClientCertCount(appCtx appcontext.AppContext, filters []services.QueryFilter) (int, error) {
 	var clientCerts models.ClientCerts
-	count, error := o.builder.Count(appCtx, &clientCerts, filters)
-	return count, error
+	count, err := o.builder.Count(appCtx, &clientCerts, filters)
+	return count, err
 }
 
 // NewClientCertListFetcher returns an implementation of ClientCertListFetcher

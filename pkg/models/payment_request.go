@@ -82,7 +82,7 @@ func (p PaymentRequest) TableName() string {
 type PaymentRequests []PaymentRequest
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-func (p *PaymentRequest) Validate(tx *pop.Connection) (*validate.Errors, error) {
+func (p *PaymentRequest) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.UUIDIsPresent{Field: p.MoveTaskOrderID, Name: "MoveTaskOrderID"},
 		&validators.StringInclusion{Field: p.Status.String(), Name: "Status", List: validPaymentRequestStatus},
