@@ -15,19 +15,17 @@ import (
 )
 
 type shipmentAddressUpdateRequester struct {
-	planner           route.Planner
-	addressCreator    services.AddressCreator
-	moveRouter        services.MoveRouter
-	shipmentSITStatus services.ShipmentSITStatus
+	planner        route.Planner
+	addressCreator services.AddressCreator
+	moveRouter     services.MoveRouter
 }
 
-func NewShipmentAddressUpdateRequester(planner route.Planner, addressCreator services.AddressCreator, moveRouter services.MoveRouter, shipmentSITStatus services.ShipmentSITStatus) services.ShipmentAddressUpdateRequester {
+func NewShipmentAddressUpdateRequester(planner route.Planner, addressCreator services.AddressCreator, moveRouter services.MoveRouter) services.ShipmentAddressUpdateRequester {
 
 	return &shipmentAddressUpdateRequester{
-		planner:           planner,
-		addressCreator:    addressCreator,
-		shipmentSITStatus: shipmentSITStatus,
-		moveRouter:        moveRouter,
+		planner:        planner,
+		addressCreator: addressCreator,
+		moveRouter:     moveRouter,
 	}
 }
 
@@ -59,7 +57,6 @@ func (f *shipmentAddressUpdateRequester) doesDeliveryAddressUpdateChangeServiceA
 	return false, nil
 }
 
-// mileage bracket change (only applicable for linehaul)
 func (f *shipmentAddressUpdateRequester) doesDeliveryAddressUpdateChangeMileageBracket(appCtx appcontext.AppContext, originalPickupAddress models.Address, originalDeliveryAddress, newDeliveryAddress models.Address) (bool, error) {
 
 	// Mileage brackets are taken from the pricing spreadsheet, "2a) Domestic Linehaul Prices"
@@ -141,14 +138,6 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 	}
 	if eTag != etag.GenerateEtag(shipment.UpdatedAt) {
 		return nil, apperror.NewPreconditionFailedError(shipmentID, nil)
-	}
-
-	sitStatus, err := f.shipmentSITStatus.CalculateShipmentSITStatus(appCtx, shipment)
-	if err != nil {
-		return nil, err
-	}
-	if sitStatus != nil {
-		return nil, apperror.NewUnprocessableEntityError("destination address update requests can only be created for shipments that do not use SIT")
 	}
 
 	err = appCtx.DB().EagerPreload("OriginalAddress", "NewAddress").Where("shipment_id = ?", shipmentID).First(&addressUpdate)

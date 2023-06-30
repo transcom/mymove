@@ -12,7 +12,6 @@ import (
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services/address"
 	moveservices "github.com/transcom/mymove/pkg/services/move"
-	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -61,10 +60,9 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 		return move
 	}
 	addressCreator := address.NewAddressCreator()
-	shipmentSITStatus := mtoshipment.NewShipmentSITStatus()
 	mockPlanner := &routemocks.Planner{}
 	moveRouter := moveservices.NewMoveRouter()
-	addressUpdateRequester := NewShipmentAddressUpdateRequester(mockPlanner, addressCreator, moveRouter, shipmentSITStatus)
+	addressUpdateRequester := NewShipmentAddressUpdateRequester(mockPlanner, addressCreator, moveRouter)
 
 	suite.Run("Successfully create ShipmentAddressUpdate", func() {
 		mockPlanner.On("ZipTransitDistance",
@@ -144,13 +142,8 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 		suite.Nil(update)
 	})
 
-	suite.Run("Should not be able to use this service to update a shipment with SIT", func() {
-		testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				StartDate: time.Now().Add(-24 * time.Hour),
-				EndDate:   time.Now().Add(24 * time.Hour),
-			},
-		})
+	suite.Run("Should be able to use this service to update a shipment with SIT", func() {
+		move := setupTestData()
 		newAddress := models.Address{
 			StreetAddress1: "123 Any St",
 			City:           "Beverly Hills",
@@ -159,7 +152,6 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 			Country:        models.StringPointer("United States"),
 		}
 
-		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		shipment := factory.BuildMTOShipmentWithMove(&move, suite.DB(), nil, nil)
 		year, month, day := time.Now().Date()
 		lastMonthEntry := time.Date(year, month, day-37, 0, 0, 0, 0, time.UTC)
@@ -187,8 +179,8 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 			},
 		}, nil)
 		update, err := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, newAddress, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt))
-		suite.Error(err)
-		suite.Nil(update)
+		suite.NoError(err)
+		suite.NotNil(update)
 	})
 	suite.Run("Should not be able to update NTS shipment", func() {
 		newAddress := models.Address{

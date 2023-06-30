@@ -159,6 +159,7 @@ This endpoint is used so the Prime can request an **update** for the destination
 Address can update automatically unless this changes:
   - the service area
   - mileage bracket for direct delivery
+  - Domestic Short Haul to Domestic Line Haul or vice versa
   - mileage bracket where there is a Zip3 resulting in Domestic Short Haul (DSH) changing from Domestic Short Haul (DSH) to Domestic Line Haul (DLH) or vice versa.
 
 For those, changes will require TOO approval.
