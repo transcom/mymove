@@ -63,8 +63,7 @@ type MTOServiceItemDestSIT struct {
 	Reason *string `json:"reason"`
 
 	// sit address updates
-	// Required: true
-	SitAddressUpdates SitAddressUpdates `json:"sitAddressUpdates"`
+	SitAddressUpdates SitAddressUpdates `json:"sitAddressUpdates,omitempty"`
 
 	// Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.
 	// Format: date
@@ -209,8 +208,7 @@ func (m *MTOServiceItemDestSIT) UnmarshalJSON(raw []byte) error {
 		Reason *string `json:"reason"`
 
 		// sit address updates
-		// Required: true
-		SitAddressUpdates SitAddressUpdates `json:"sitAddressUpdates"`
+		SitAddressUpdates SitAddressUpdates `json:"sitAddressUpdates,omitempty"`
 
 		// Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.
 		// Format: date
@@ -344,8 +342,7 @@ func (m MTOServiceItemDestSIT) MarshalJSON() ([]byte, error) {
 		Reason *string `json:"reason"`
 
 		// sit address updates
-		// Required: true
-		SitAddressUpdates SitAddressUpdates `json:"sitAddressUpdates"`
+		SitAddressUpdates SitAddressUpdates `json:"sitAddressUpdates,omitempty"`
 
 		// Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.
 		// Format: date
@@ -692,8 +689,8 @@ func (m *MTOServiceItemDestSIT) validateReason(formats strfmt.Registry) error {
 
 func (m *MTOServiceItemDestSIT) validateSitAddressUpdates(formats strfmt.Registry) error {
 
-	if err := validate.Required("sitAddressUpdates", "body", m.SitAddressUpdates); err != nil {
-		return err
+	if swag.IsZero(m.SitAddressUpdates) { // not required
+		return nil
 	}
 
 	if err := m.SitAddressUpdates.Validate(formats); err != nil {

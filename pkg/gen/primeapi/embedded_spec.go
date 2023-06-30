@@ -2179,8 +2179,7 @@ func init() {
           "required": [
             "reServiceCode",
             "sitEntryDate",
-            "reason",
-            "sitAddressUpdates"
+            "reason"
           ],
           "properties": {
             "dateOfContact1": {
@@ -6935,8 +6934,7 @@ func init() {
           "required": [
             "reServiceCode",
             "sitEntryDate",
-            "reason",
-            "sitAddressUpdates"
+            "reason"
           ],
           "properties": {
             "dateOfContact1": {
