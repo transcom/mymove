@@ -31,6 +31,8 @@ const (
 	ReServiceCodeDDASIT ReServiceCode = "DDASIT"
 	// ReServiceCodeDDDSIT Domestic destination SIT delivery
 	ReServiceCodeDDDSIT ReServiceCode = "DDDSIT"
+	// ReServiceCodeDDSFSC Domestic destination SIT FSC
+	ReServiceCodeDDSFSC ReServiceCode = "DDSFSC"
 	// ReServiceCodeDDFSIT Domestic destination 1st day SIT
 	ReServiceCodeDDFSIT ReServiceCode = "DDFSIT"
 	// ReServiceCodeDDP Domestic destination price
@@ -51,6 +53,8 @@ const (
 	ReServiceCodeDOP ReServiceCode = "DOP"
 	// ReServiceCodeDOPSIT Domestic origin SIT pickup
 	ReServiceCodeDOPSIT ReServiceCode = "DOPSIT"
+	// ReServiceCodeDOSFSC Domestic origin SIT FSC
+	ReServiceCodeDOSFSC ReServiceCode = "DOSFSC"
 	// ReServiceCodeDOSHUT Domestic origin shuttle service
 	ReServiceCodeDOSHUT ReServiceCode = "DOSHUT"
 	// ReServiceCodeDPK Domestic packing
