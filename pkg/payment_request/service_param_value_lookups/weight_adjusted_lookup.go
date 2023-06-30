@@ -12,7 +12,7 @@ type WeightAdjustedLookup struct {
 	MTOShipment models.MTOShipment
 }
 
-func (r WeightAdjustedLookup) lookup(appCtx appcontext.AppContext, keyData *ServiceItemParamKeyData) (string, error) {
+func (r WeightAdjustedLookup) lookup(_ appcontext.AppContext, _ *ServiceItemParamKeyData) (string, error) {
 	if r.MTOShipment.BillableWeightCap == nil {
 		return "", nil
 	}

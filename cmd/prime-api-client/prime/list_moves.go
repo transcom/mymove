@@ -23,7 +23,7 @@ func InitListMovesFlags(flag *pflag.FlagSet) {
 	flag.SortFlags = false
 }
 
-func checkListMovesConfig(v *viper.Viper, args []string, logger *log.Logger) error {
+func checkListMovesConfig(v *viper.Viper, logger *log.Logger) error {
 	err := utils.CheckRootConfig(v)
 	if err != nil {
 		logger.Fatal(err)
@@ -46,7 +46,7 @@ func ListMoves(cmd *cobra.Command, args []string) error {
 	}
 
 	// Check the config before talking to the CAC
-	err := checkListMovesConfig(v, args, logger)
+	err := checkListMovesConfig(v, logger)
 	if err != nil {
 		logger.Fatal(err)
 	}

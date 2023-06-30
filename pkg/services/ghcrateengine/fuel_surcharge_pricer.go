@@ -28,7 +28,7 @@ func NewFuelSurchargePricer() services.FuelSurchargePricer {
 }
 
 // Price determines the price for a counseling service
-func (p fuelSurchargePricer) Price(appCtx appcontext.AppContext, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, fscWeightBasedDistanceMultiplier float64, eiaFuelPrice unit.Millicents, isPPM bool) (unit.Cents, services.PricingDisplayParams, error) {
+func (p fuelSurchargePricer) Price(_ appcontext.AppContext, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, fscWeightBasedDistanceMultiplier float64, eiaFuelPrice unit.Millicents, isPPM bool) (unit.Cents, services.PricingDisplayParams, error) {
 	// Validate parameters
 	if actualPickupDate.IsZero() {
 		return 0, nil, errors.New("ActualPickupDate is required")

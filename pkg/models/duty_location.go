@@ -35,7 +35,7 @@ func (d DutyLocation) TableName() string {
 type DutyLocations []DutyLocation
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-func (d *DutyLocation) Validate(tx *pop.Connection) (*validate.Errors, error) {
+func (d *DutyLocation) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.StringIsPresent{Field: d.Name, Name: "Name"},
 		&validators.UUIDIsPresent{Field: d.AddressID, Name: "AddressID"},

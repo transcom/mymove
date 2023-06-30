@@ -99,7 +99,7 @@ func (b *MigrationBuilder) findDutyStations(appCtx appcontext.AppContext, s Stat
 	return filteredLocations
 }
 
-func (b *MigrationBuilder) addressLatLong(appCtx appcontext.AppContext, address models.Address) (route.LatLong, error) {
+func (b *MigrationBuilder) addressLatLong(_ appcontext.AppContext, address models.Address) (route.LatLong, error) {
 	return route.Zip5ToLatLong(address.PostalCode)
 }
 

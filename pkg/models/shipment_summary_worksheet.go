@@ -511,7 +511,7 @@ func FormatAllShipments(ppms PersonallyProcuredMoves) ShipmentSummaryWorkSheetSh
 
 // FetchMovingExpensesShipmentSummaryWorksheet fetches moving expenses for the Shipment Summary Worksheet
 // TODO: update to create moving expense summary with the new moving expense model
-func FetchMovingExpensesShipmentSummaryWorksheet(move Move, db *pop.Connection, session *auth.Session) ([]MovingExpense, error) {
+func FetchMovingExpensesShipmentSummaryWorksheet(_ Move, _ *pop.Connection, _ *auth.Session) ([]MovingExpense, error) {
 	var movingExpenseDocuments []MovingExpense
 
 	return movingExpenseDocuments, nil

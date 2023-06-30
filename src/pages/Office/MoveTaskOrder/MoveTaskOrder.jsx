@@ -18,7 +18,6 @@ import { MILMOVE_LOG_LEVEL, milmoveLog } from 'utils/milmoveLog';
 import { formatAddressForAPI, formatStorageFacilityForAPI, removeEtag } from 'utils/formatMtoShipment';
 import hasRiskOfExcess from 'utils/hasRiskOfExcess';
 import { findSITAddressUpdate } from 'utils/serviceItems';
-import customerContactTypes from 'constants/customerContactTypes';
 import dimensionTypes from 'constants/dimensionTypes';
 import { MOVES, MTO_SERVICE_ITEMS, MTO_SHIPMENTS, ORDERS } from 'constants/queryKeys';
 import SERVICE_ITEM_STATUSES from 'constants/serviceItems';
@@ -162,8 +161,7 @@ export const MoveTaskOrder = (props) => {
         description: item.description,
         itemDimensions: item.dimensions?.find((dimension) => dimension?.type === dimensionTypes.ITEM),
         crateDimensions: item.dimensions?.find((dimension) => dimension?.type === dimensionTypes.CRATE),
-        firstCustomerContact: item.customerContacts?.find((contact) => contact?.type === customerContactTypes.FIRST),
-        secondCustomerContact: item.customerContacts?.find((contact) => contact?.type === customerContactTypes.SECOND),
+        customerContacts: item.customerContacts,
         estimatedWeight: item.estimatedWeight,
         rejectionReason: item.rejectionReason,
       };

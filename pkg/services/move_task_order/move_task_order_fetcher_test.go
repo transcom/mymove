@@ -60,6 +60,71 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 
 	mtoFetcher := NewMoveTaskOrderFetcher()
 
+	suite.Run("Success with fetching a MTO that has a shipment address update", func() {
+		traits := []factory.Trait{factory.GetTraitShipmentAddressUpdateApproved}
+		expectedAddressUpdate := factory.BuildShipmentAddressUpdate(suite.DB(), nil, traits)
+
+		searchParams := services.MoveTaskOrderFetcherParams{
+			IncludeHidden:      false,
+			IsAvailableToPrime: true,
+			MoveTaskOrderID:    expectedAddressUpdate.Shipment.MoveTaskOrder.ID,
+		}
+
+		actualMTO, err := mtoFetcher.FetchMoveTaskOrder(suite.AppContextForTest(), &searchParams)
+		suite.NoError(err)
+
+		// Validate MTO was fetched that includes expected shipment address update
+		actualAddressUpdate := actualMTO.MTOShipments[0].DeliveryAddressUpdate
+		suite.Equal(expectedAddressUpdate.ShipmentID, actualAddressUpdate.ShipmentID)
+		suite.Equal(expectedAddressUpdate.Status, actualAddressUpdate.Status)
+		suite.Equal(expectedAddressUpdate.OfficeRemarks, actualAddressUpdate.OfficeRemarks)
+		suite.Equal(expectedAddressUpdate.ContractorRemarks, actualAddressUpdate.ContractorRemarks)
+		suite.Equal(expectedAddressUpdate.NewAddressID, actualAddressUpdate.NewAddressID)
+		suite.Equal(expectedAddressUpdate.OriginalAddressID, actualAddressUpdate.OriginalAddressID)
+	})
+
+	suite.Run("Success with fetching a MTO with a Shipment Address Update that has a customized Original Address", func() {
+		traits := []factory.Trait{factory.GetTraitShipmentAddressUpdateApproved}
+
+		expectedAddressUpdate := factory.BuildShipmentAddressUpdate(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "123 Main St",
+					StreetAddress2: models.StringPointer("Apt 2"),
+					StreetAddress3: models.StringPointer("Suite 200"),
+					City:           "New York",
+					State:          "NY",
+					PostalCode:     "10001",
+					Country:        models.StringPointer("US"),
+				},
+				Type: &factory.Addresses.OriginalAddress,
+			},
+		}, traits)
+
+		searchParams := services.MoveTaskOrderFetcherParams{
+			IncludeHidden:      false,
+			IsAvailableToPrime: true,
+			MoveTaskOrderID:    expectedAddressUpdate.Shipment.MoveTaskOrder.ID,
+		}
+
+		actualMTO, err := mtoFetcher.FetchMoveTaskOrder(suite.AppContextForTest(), &searchParams)
+		suite.NoError(err)
+
+		actualAddressUpdate := actualMTO.MTOShipments[0].DeliveryAddressUpdate
+
+		// Validate MTO was fetched that includes expected shipment address update with customized original address
+		suite.Equal(expectedAddressUpdate.ShipmentID, actualAddressUpdate.ShipmentID)
+		suite.Equal(expectedAddressUpdate.Status, actualAddressUpdate.Status)
+		suite.ElementsMatch(expectedAddressUpdate.OriginalAddressID, actualAddressUpdate.OriginalAddressID)
+		suite.Equal(expectedAddressUpdate.OriginalAddress.StreetAddress1, actualAddressUpdate.OriginalAddress.StreetAddress1)
+		suite.Equal(expectedAddressUpdate.OriginalAddress.StreetAddress2, actualAddressUpdate.OriginalAddress.StreetAddress2)
+		suite.Equal(expectedAddressUpdate.OriginalAddress.StreetAddress3, actualAddressUpdate.OriginalAddress.StreetAddress3)
+		suite.Equal(expectedAddressUpdate.OriginalAddress.City, actualAddressUpdate.OriginalAddress.City)
+		suite.Equal(expectedAddressUpdate.OriginalAddress.State, actualAddressUpdate.OriginalAddress.State)
+		suite.Equal(expectedAddressUpdate.OriginalAddress.PostalCode, actualAddressUpdate.OriginalAddress.PostalCode)
+		suite.Equal(expectedAddressUpdate.OriginalAddress.Country, actualAddressUpdate.OriginalAddress.Country)
+	})
+
 	suite.Run("Success with Prime-available move by ID, fetch all non-deleted shipments", func() {
 		expectedMTO, _ := setupTestData()
 		searchParams := services.MoveTaskOrderFetcherParams{
@@ -92,7 +157,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 		address := factory.BuildAddress(suite.DB(), nil, nil)
 		sitEntryDate := time.Now()
 		customerContact := testdatagen.MakeMTOServiceItemCustomerContact(suite.DB(), testdatagen.Assertions{})
-		factory.BuildMTOServiceItemBasic(suite.DB(), []factory.Customization{
+		serviceItemBasic := factory.BuildMTOServiceItemBasic(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOServiceItem{
 					Status:           models.MTOServiceItemStatusApproved,
@@ -113,6 +178,12 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 				Model: models.ReService{
 					Code: models.ReServiceCodeDDFSIT, // DDFSIT - Domestic destination 1st day SIT
 				},
+			},
+		}, nil)
+		serviceRequestDocumentUpload := factory.BuildServiceRequestDocumentUpload(suite.DB(), []factory.Customization{
+			{
+				Model:    serviceItemBasic,
+				LinkOnly: true,
 			},
 		}, nil)
 		factory.BuildMTOServiceItemBasic(suite.DB(), []factory.Customization{
@@ -136,6 +207,12 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 			suite.Equal(address.State, serviceItem1.SITDestinationFinalAddress.State)
 			suite.Equal(address.City, serviceItem1.SITDestinationFinalAddress.City)
 			suite.Equal(1, len(serviceItem1.CustomerContacts))
+
+			if suite.Len(serviceItem1.ServiceRequestDocuments, 1) {
+				if suite.Len(serviceItem1.ServiceRequestDocuments[0].ServiceRequestDocumentUploads, 1) {
+					suite.Equal(serviceRequestDocumentUpload.ID, serviceItem1.ServiceRequestDocuments[0].ServiceRequestDocumentUploads[0].ID)
+				}
+			}
 		}
 	})
 

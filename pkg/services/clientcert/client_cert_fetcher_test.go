@@ -28,11 +28,11 @@ func (t *testClientCertQueryBuilder) CreateOne(appConfig appcontext.AppContext, 
 	return t.fakeCreateOne(appConfig, model)
 }
 
-func (t *testClientCertQueryBuilder) UpdateOne(appConfig appcontext.AppContext, model interface{}, eTag *string) (*validate.Errors, error) {
+func (t *testClientCertQueryBuilder) UpdateOne(_ appcontext.AppContext, _ interface{}, _ *string) (*validate.Errors, error) {
 	return nil, nil
 }
 
-func (t *testClientCertQueryBuilder) DeleteOne(appConfig appcontext.AppContext, model interface{}) error {
+func (t *testClientCertQueryBuilder) DeleteOne(_ appcontext.AppContext, _ interface{}) error {
 	return nil
 }
 
