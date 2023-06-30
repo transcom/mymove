@@ -234,16 +234,16 @@ func setNewShipmentFields(_ appcontext.AppContext, dbShipment *models.MTOShipmen
 			// if no record exists in the db
 			if newAgentInfo.ID == uuid.Nil {
 				newAgentInfo.MTOShipmentID = requestedUpdatedShipment.ID
-				if *newAgentInfo.FirstName == "" {
+				if newAgentInfo.FirstName != nil && *newAgentInfo.FirstName == "" {
 					newAgentInfo.FirstName = nil
 				}
-				if *newAgentInfo.LastName == "" {
+				if newAgentInfo.LastName != nil && *newAgentInfo.LastName == "" {
 					newAgentInfo.LastName = nil
 				}
-				if *newAgentInfo.Email == "" {
+				if newAgentInfo.Email != nil && *newAgentInfo.Email == "" {
 					newAgentInfo.Email = nil
 				}
-				if *newAgentInfo.Phone == "" {
+				if newAgentInfo.Phone != nil && *newAgentInfo.Phone == "" {
 					newAgentInfo.Phone = nil
 				}
 				// If no fields are set, then we do not want to create the MTO agent
