@@ -1846,6 +1846,8 @@ definitions:
               The reason item has been placed in SIT.
             x-nullable: true
             x-omitempty: false
+          sitAddressUpdates:
+            $ref: '#/definitions/SitAddressUpdates'
         required:
           - reServiceCode
           - sitEntryDate
@@ -2785,6 +2787,11 @@ definitions:
         type: string
         readOnly: true
     type: object
+  SitAddressUpdates:
+    description: A list of updates to a SIT service item address.
+    type: array
+    items:
+      $ref: '#/definitions/SitAddressUpdate'
   SitAddressUpdate:
     properties:
       id:
@@ -2804,6 +2811,13 @@ definitions:
         type: string
       newAddress:
         $ref: 'definitions/Address.yaml'
+      oldAddressId:
+        example: 31a2ad3c-1682-4d5b-8423-ff40053a056b
+        format: uuid
+        readOnly: true
+        type: string
+      oldAddress:
+        $ref: 'definitions/Address.yaml'
       status:
         $ref: '#/definitions/SitAddressUpdateStatus'
       distance:
@@ -2814,6 +2828,11 @@ definitions:
       contractorRemarks:
         type: string
         example: Customer reached out to me this week & let me know they want to move closer to family.
+        x-nullable: true
+        x-omitempty: false
+      officeRemarks:
+        example: The customer has found a new house closer to base.
+        type: string
         x-nullable: true
         x-omitempty: false
       createdAt:
