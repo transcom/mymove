@@ -8,7 +8,7 @@ import * as PropTypes from 'prop-types';
 import styles from './ServiceItemUpdateModal.module.scss';
 
 import DataTable from 'components/DataTable/index';
-import { formatAddress } from 'utils/shipmentDisplay';
+import { formatAddressForSitAddressChangeForm } from 'utils/shipmentDisplay';
 import { AddressShape } from 'types';
 import DataTableWrapper from 'components/DataTableWrapper';
 
@@ -30,7 +30,7 @@ const ReviewSitAddressChange = ({ sitAddressUpdate }) => {
       <DataTableWrapper className={classnames('maxw-tablet', 'table--data-point-group', styles.reviewAddressChange)}>
         <DataTable
           columnHeaders={['Initial SIT delivery address', 'Requested final SIT delivery address']}
-          dataRow={[formatAddress(oldAddress), formatAddress(newAddress)]}
+          dataRow={[formatAddressForSitAddressChangeForm(oldAddress), formatAddressForSitAddressChangeForm(newAddress)]}
           icon={<FontAwesomeIcon icon="arrow-right" />}
         />
         <DataTable

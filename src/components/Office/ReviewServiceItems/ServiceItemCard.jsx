@@ -4,6 +4,7 @@ import { Button, Fieldset, Form, FormGroup, Label, Radio, Textarea } from '@trus
 import { Formik } from 'formik';
 import classnames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import * as Yup from 'yup';
 
 import { ShipmentPaymentSITBalanceShape } from '../../../types/serviceItems';
 
@@ -20,13 +21,13 @@ import { PaymentServiceItemParam, MTOServiceItemShape } from 'types/order';
 import { allowedServiceItemCalculations, SERVICE_ITEM_CODES } from 'constants/serviceItems';
 import DaysInSITAllowance from 'components/Office/DaysInSITAllowance/DaysInSITAllowance';
 import approveRejectStyles from 'styles/approveRejectControls.module.scss';
+import { ErrorMessage } from 'components/form';
 
 const isAdditionalDaySIT = (mtoServiceItemCode) => {
   return mtoServiceItemCode === SERVICE_ITEM_CODES.DOASIT || mtoServiceItemCode === SERVICE_ITEM_CODES.DDASIT;
 };
 
 /** This component represents a Payment Request Service Item */
-/** NB: this component is in the process of being replaced with NewServiceItemCard */
 const ServiceItemCard = ({
   id,
   mtoShipmentType,
@@ -39,16 +40,25 @@ const ServiceItemCard = ({
   amount,
   status,
   rejectionReason,
-  patchPaymentServiceItem,
   requestComplete,
   paymentServiceItemParams,
   additionalServiceItemData,
   shipmentSITBalance,
+  patchPaymentServiceItem,
+  formRef,
+  setShouldAdvanceOnSubmit,
 }) => {
   const [calculationsVisible, setCalulationsVisible] = useState(false);
   const [canEditRejection, setCanEditRejection] = useState(!rejectionReason);
 
   const { APPROVED, DENIED } = PAYMENT_SERVICE_ITEM_STATUS;
+
+  const validationSchema = Yup.object().shape({
+    rejectionReason: Yup.string().when('status', {
+      is: DENIED,
+      then: (schema) => schema.required('Add a reason why this service item is rejected'),
+    }),
+  });
 
   const toggleCalculations =
     mtoServiceItemCode &&
@@ -154,31 +164,37 @@ const ServiceItemCard = ({
       <Formik
         initialValues={{ status, rejectionReason }}
         onSubmit={(values) => {
-          return patchPaymentServiceItem(id, values);
+          patchPaymentServiceItem(id, values);
         }}
         enableReinitialize
+        validationSchema={validationSchema}
+        innerRef={formRef}
       >
-        {({ initialValues, handleReset, handleChange, submitForm, values, setValues }) => {
+        {({
+          handleBlur,
+          handleChange,
+          errors,
+          touched,
+          submitForm,
+          values,
+          setFieldValue,
+          setFieldTouched,
+          setFieldError,
+          setValues,
+        }) => {
           const handleApprovalChange = (event) => {
             handleChange(event);
-            submitForm().then(() => {
-              setCanEditRejection(true);
-            });
+            setFieldValue('rejectionReason', '');
+            setFieldTouched('rejectionReason', false, false);
+            setFieldError('rejectionReason', null);
+            setCanEditRejection(true);
           };
 
-          const handleRejectChange = (event) => {
+          const handleRejectionChange = (event) => {
             handleChange(event);
-            submitForm().then(() => {
-              setCanEditRejection(false);
-            });
-          };
-
-          const handleRejectCancel = (event) => {
-            if (initialValues.rejectionReason) {
-              setCanEditRejection(false);
-            }
-
-            handleReset(event);
+            setFieldValue('rejectionReason', '');
+            setFieldTouched('rejectionReason', false, false);
+            setFieldError('rejectionReason', null);
           };
 
           const handleFormReset = () => {
@@ -186,6 +202,7 @@ const ServiceItemCard = ({
               status: 'REQUESTED',
               rejectionReason: '',
             });
+            setShouldAdvanceOnSubmit(false);
             submitForm().then(() => {
               setCanEditRejection(true);
             });
@@ -267,12 +284,12 @@ const ServiceItemCard = ({
                       value={DENIED}
                       name="status"
                       label="Reject"
-                      onChange={handleChange}
+                      onChange={handleRejectionChange}
                       data-testid="rejectRadio"
                     />
 
                     {values.status === DENIED && (
-                      <FormGroup>
+                      <FormGroup className={styles.rejectionGroup}>
                         <Label htmlFor={`rejectReason-${id}`}>Reason for rejection</Label>
                         {!canEditRejection && (
                           <>
@@ -295,33 +312,18 @@ const ServiceItemCard = ({
 
                         {!requestComplete && canEditRejection && (
                           <>
+                            <ErrorMessage display={!!errors?.rejectionReason && !!touched?.rejectionReason}>
+                              {errors.rejectionReason}
+                            </ErrorMessage>
                             <Textarea
                               id={`rejectReason-${id}`}
                               name="rejectionReason"
+                              onBlur={handleBlur}
                               onChange={handleChange}
                               value={values.rejectionReason}
+                              className={errors.rejectionReason && touched?.rejectionReason && styles.error}
+                              data-testid="rejectionReason"
                             />
-                            <div className={approveRejectStyles.rejectionButtonGroup}>
-                              <Button
-                                id="rejectionSaveButton"
-                                type="button"
-                                data-testid="rejectionSaveButton"
-                                onClick={handleRejectChange}
-                                disabled={!values.rejectionReason}
-                                aria-label="Rejection save button"
-                              >
-                                Save
-                              </Button>
-                              <Button
-                                data-testid="cancelRejectionButton"
-                                secondary
-                                onClick={handleRejectCancel}
-                                type="button"
-                                aria-label="Cancel rejection button"
-                              >
-                                Cancel
-                              </Button>
-                            </div>
                           </>
                         )}
                       </FormGroup>
@@ -365,11 +367,13 @@ ServiceItemCard.propTypes = {
   amount: PropTypes.number.isRequired,
   status: PropTypes.string,
   rejectionReason: PropTypes.string,
-  patchPaymentServiceItem: PropTypes.func.isRequired,
   requestComplete: PropTypes.bool,
   paymentServiceItemParams: PropTypes.arrayOf(PaymentServiceItemParam),
   additionalServiceItemData: MTOServiceItemShape,
   shipmentSITBalance: ShipmentPaymentSITBalanceShape,
+  patchPaymentServiceItem: PropTypes.func.isRequired,
+  formRef: PropTypes.object,
+  setShouldAdvanceOnSubmit: PropTypes.func,
 };
 
 ServiceItemCard.defaultProps = {
@@ -386,6 +390,8 @@ ServiceItemCard.defaultProps = {
   paymentServiceItemParams: [],
   additionalServiceItemData: {},
   shipmentSITBalance: undefined,
+  formRef: null,
+  setShouldAdvanceOnSubmit: () => {},
 };
 
 export default ServiceItemCard;
