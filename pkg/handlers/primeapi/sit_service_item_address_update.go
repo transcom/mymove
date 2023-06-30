@@ -60,7 +60,7 @@ func (h CreateSITAddressUpdateRequestHandler) Handle(params sitaddressupdateops.
 			}
 
 			// If no error, create a succesful payload to return
-			payload := payloads.SITAddressUpdate(createdSITAddressUpdateRequest)
+			payload := payloads.SITAddressUpdate(*createdSITAddressUpdateRequest)
 			return sitaddressupdateops.NewCreateSITAddressUpdateRequestCreated().WithPayload(payload), nil
 		})
 }

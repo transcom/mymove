@@ -101,8 +101,6 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 		"MTOServiceItems.ReService",
 		"MTOServiceItems.Dimensions",
 		"MTOServiceItems.SITAddressUpdates",
-		"MTOServiceItems.SITAddressUpdates.OldAddress",
-		"MTOServiceItems.SITAddressUpdates.NewAddress",
 		"MTOServiceItems.SITDestinationFinalAddress",
 		"MTOServiceItems.SITOriginHHGOriginalAddress",
 		"MTOServiceItems.SITOriginHHGActualAddress",

@@ -622,6 +622,7 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 			SitDepartureDate:            handlers.FmtDate(sitDepartureDate),
 			SitEntryDate:                handlers.FmtDatePtr(mtoServiceItem.SITEntryDate),
 			SitDestinationFinalAddress:  Address(mtoServiceItem.SITDestinationFinalAddress),
+			SitAddressUpdates:           SITAddressUpdates(mtoServiceItem.SITAddressUpdates),
 		}
 
 	case models.ReServiceCodeDCRT, models.ReServiceCodeDUCRT:
@@ -813,6 +814,15 @@ func SITDurationUpdate(sitDurationUpdate *models.SITDurationUpdate) *primemessag
 		OfficeRemarks:     handlers.FmtStringPtr(sitDurationUpdate.OfficeRemarks),
 	}
 
+	return payload
+}
+
+// SITAddressUpdates payload
+func SITAddressUpdates(u models.SITAddressUpdates) primemessages.SitAddressUpdate {
+	payload := make(primemessages.SitAddressUpdates, len(u))
+	for i, item := range u {
+		payload[i] = SITAddressUpdate(&item)
+	}
 	return payload
 }
 
