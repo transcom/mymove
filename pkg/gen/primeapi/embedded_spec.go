@@ -3754,6 +3754,15 @@ func init() {
           "x-omitempty": false,
           "example": "The customer has found a new house closer to base."
         },
+        "oldAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "oldAddressId": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "31a2ad3c-1682-4d5b-8423-ff40053a056b"
+        },
         "status": {
           "$ref": "#/definitions/SitAddressUpdateStatus"
         },
@@ -8503,6 +8512,15 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false,
           "example": "The customer has found a new house closer to base."
+        },
+        "oldAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "oldAddressId": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "31a2ad3c-1682-4d5b-8423-ff40053a056b"
         },
         "status": {
           "$ref": "#/definitions/SitAddressUpdateStatus"

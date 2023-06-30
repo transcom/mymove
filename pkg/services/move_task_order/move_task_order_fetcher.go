@@ -101,8 +101,8 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 		"MTOServiceItems.ReService",
 		"MTOServiceItems.Dimensions",
 		"MTOServiceItems.SITAddressUpdates",
-		"MTOServiceItems.SITAddressUpdates.NewAddress",
-		"MTOServiceItems.SITAddressUpdates.OldAddress",
+		//"MTOServiceItems.SITAddressUpdates.NewAddress",
+		//"MTOServiceItems.SITAddressUpdates.OldAddress",
 		"MTOServiceItems.SITDestinationFinalAddress",
 		"MTOServiceItems.SITOriginHHGOriginalAddress",
 		"MTOServiceItems.SITOriginHHGActualAddress",
@@ -188,7 +188,8 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 		if serviceItem.ReService.Code == models.ReServiceCodeDDASIT ||
 			serviceItem.ReService.Code == models.ReServiceCodeDDDSIT ||
 			serviceItem.ReService.Code == models.ReServiceCodeDDFSIT {
-			loadErr := appCtx.DB().Load(&mto.MTOServiceItems[i], "CustomerContacts")
+			//loadErr := appCtx.DB().Load(&mto.MTOServiceItems[i], "CustomerContacts")
+			loadErr := appCtx.DB().Load(&mto.MTOServiceItems[i], "CustomerContacts", "SITAddressUpdates.NewAddress", "SITAddressUpdates.OldAddress")
 			if loadErr != nil {
 				return &models.Move{}, apperror.NewQueryError("CustomerContacts", loadErr, "")
 			}

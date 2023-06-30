@@ -2726,6 +2726,13 @@ definitions:
         type: string
       newAddress:
         $ref: 'definitions/Address.yaml'
+      oldAddressId:
+        example: 31a2ad3c-1682-4d5b-8423-ff40053a056b
+        format: uuid
+        readOnly: true
+        type: string
+      oldAddress:
+        $ref: 'definitions/Address.yaml'
       status:
         $ref: '#/definitions/SitAddressUpdateStatus'
       distance:
