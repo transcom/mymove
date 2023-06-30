@@ -42,8 +42,6 @@ type Config struct {
 	// during testing
 	FileSystem afero.Fs
 
-	// routing config
-
 	// BuildRoot is where the client build is located (e.g. "build")
 	BuildRoot string
 
@@ -137,7 +135,8 @@ func InitRouting(appCtx appcontext.AppContext, redisPool *redis.Pool,
 	site := mux.NewRouter()
 
 	if routingConfig.LocalStorageRoot != "" && routingConfig.LocalStorageWebRoot != "" {
-		localStorageHandlerFunc := storage.NewFilesystemHandler(routingConfig.LocalStorageRoot)
+		localStorageHandlerFunc := storage.NewFilesystemHandler(
+			routingConfig.FileSystem, routingConfig.LocalStorageRoot)
 
 		// path.Join removes trailing slashes, but we want it
 		storageHandlerPath := path.Join("/", routingConfig.LocalStorageWebRoot) + "/"
@@ -176,7 +175,9 @@ func InitRouting(appCtx appcontext.AppContext, redisPool *redis.Pool,
 
 	// Serves files out of build folder
 	cfs := handlers.NewCustomFileSystem(
-		http.Dir(routingConfig.BuildRoot),
+		// use afero HttpFS so we can wrap the existing FileSystem
+		// Super useful for testing
+		afero.NewHttpFs(routingConfig.FileSystem).Dir(routingConfig.BuildRoot),
 		"index.html",
 		appCtx.Logger(),
 	)
@@ -228,10 +229,15 @@ func InitRouting(appCtx appcontext.AppContext, redisPool *redis.Pool,
 		ordersMux.Use(middleware.NoCache(appCtx.Logger()))
 		ordersMux.Use(clientCertMiddleware)
 		ordersMux.Use(middleware.RequestLogger(appCtx.Logger()))
-		ordersMux.HandleFunc("/swagger.yaml", handlers.NewFileHandler(routingConfig.OrdersSwaggerPath)).Methods("GET")
+		ordersMux.HandleFunc("/swagger.yaml", handlers.NewFileHandler(
+			routingConfig.FileSystem,
+			routingConfig.OrdersSwaggerPath)).Methods("GET")
 		if routingConfig.ServeSwaggerUI {
 			appCtx.Logger().Info("Orders API Swagger UI serving is enabled")
-			ordersMux.HandleFunc("/docs", handlers.NewFileHandler(path.Join(routingConfig.BuildRoot, "swagger-ui", "orders.html"))).Methods("GET")
+			ordersMux.HandleFunc("/docs",
+				handlers.NewFileHandler(
+					routingConfig.FileSystem,
+					path.Join(routingConfig.BuildRoot, "swagger-ui", "orders.html"))).Methods("GET")
 		} else {
 			ordersMux.Handle("/docs", http.NotFoundHandler()).Methods("GET")
 		}
@@ -261,12 +267,20 @@ func InitRouting(appCtx appcontext.AppContext, redisPool *redis.Pool,
 		primeV1Mux := primeMux.PathPrefix("/v1/").Subrouter()
 		primeV2Mux := primeMux.PathPrefix("/v2/").Subrouter()
 
-		primeV1Mux.HandleFunc("/swagger.yaml", handlers.NewFileHandler(routingConfig.PrimeSwaggerPath)).Methods("GET")
-		primeV2Mux.HandleFunc("/swagger.yaml", handlers.NewFileHandler(routingConfig.PrimeV2SwaggerPath)).Methods("GET")
+		primeV1Mux.HandleFunc("/swagger.yaml", handlers.NewFileHandler(
+			routingConfig.FileSystem,
+			routingConfig.PrimeSwaggerPath)).Methods("GET")
+		primeV2Mux.HandleFunc("/swagger.yaml", handlers.NewFileHandler(
+			routingConfig.FileSystem,
+			routingConfig.PrimeV2SwaggerPath)).Methods("GET")
 		if routingConfig.ServeSwaggerUI {
 			appCtx.Logger().Info("Prime API Swagger UI serving is enabled")
-			primeV1Mux.HandleFunc("/docs", handlers.NewFileHandler(path.Join(routingConfig.BuildRoot, "swagger-ui", "prime.html"))).Methods("GET")
-			primeV2Mux.HandleFunc("/docs", handlers.NewFileHandler(path.Join(routingConfig.BuildRoot, "swagger-ui", "prime_v2.html"))).Methods("GET")
+			primeV1Mux.HandleFunc("/docs", handlers.NewFileHandler(
+				routingConfig.FileSystem,
+				path.Join(routingConfig.BuildRoot, "swagger-ui", "prime.html"))).Methods("GET")
+			primeV2Mux.HandleFunc("/docs", handlers.NewFileHandler(
+				routingConfig.FileSystem,
+				path.Join(routingConfig.BuildRoot, "swagger-ui", "prime_v2.html"))).Methods("GET")
 		} else {
 			primeV1Mux.Handle("/docs", http.NotFoundHandler()).Methods("GET")
 			primeV2Mux.Handle("/docs", http.NotFoundHandler()).Methods("GET")
@@ -304,10 +318,14 @@ func InitRouting(appCtx appcontext.AppContext, redisPool *redis.Pool,
 		supportMux.Use(authentication.PrimeAuthorizationMiddleware(appCtx.Logger()))
 		supportMux.Use(middleware.NoCache(appCtx.Logger()))
 		supportMux.Use(middleware.RequestLogger(appCtx.Logger()))
-		supportMux.HandleFunc("/swagger.yaml", handlers.NewFileHandler(routingConfig.SupportSwaggerPath)).Methods("GET")
+		supportMux.HandleFunc("/swagger.yaml", handlers.NewFileHandler(
+			routingConfig.FileSystem,
+			routingConfig.SupportSwaggerPath)).Methods("GET")
 		if routingConfig.ServeSwaggerUI {
 			appCtx.Logger().Info("Support API Swagger UI serving is enabled")
-			supportMux.HandleFunc("/docs", handlers.NewFileHandler(path.Join(routingConfig.BuildRoot, "swagger-ui", "support.html"))).Methods("GET")
+			supportMux.HandleFunc("/docs", handlers.NewFileHandler(
+				routingConfig.FileSystem,
+				path.Join(routingConfig.BuildRoot, "swagger-ui", "support.html"))).Methods("GET")
 		} else {
 			supportMux.Handle("/docs", http.NotFoundHandler()).Methods("GET")
 		}
@@ -354,10 +372,14 @@ func InitRouting(appCtx appcontext.AppContext, redisPool *redis.Pool,
 
 	if routingConfig.ServeAPIInternal {
 		internalMux := root.PathPrefix("/internal/").Subrouter()
-		internalMux.HandleFunc("/swagger.yaml", handlers.NewFileHandler(routingConfig.APIInternalSwaggerPath)).Methods("GET")
+		internalMux.HandleFunc("/swagger.yaml", handlers.NewFileHandler(
+			routingConfig.FileSystem,
+			routingConfig.APIInternalSwaggerPath)).Methods("GET")
 		if routingConfig.ServeSwaggerUI {
 			appCtx.Logger().Info("Internal API Swagger UI serving is enabled")
-			internalMux.HandleFunc("/docs", handlers.NewFileHandler(path.Join(routingConfig.BuildRoot, "swagger-ui", "internal.html"))).Methods("GET")
+			internalMux.HandleFunc("/docs", handlers.NewFileHandler(
+				routingConfig.FileSystem,
+				path.Join(routingConfig.BuildRoot, "swagger-ui", "internal.html"))).Methods("GET")
 		} else {
 			internalMux.Handle("/docs", http.NotFoundHandler()).Methods("GET")
 		}
@@ -378,10 +400,14 @@ func InitRouting(appCtx appcontext.AppContext, redisPool *redis.Pool,
 	if routingConfig.ServeAdmin {
 		adminMux := root.PathPrefix("/admin/v1/").Subrouter()
 
-		adminMux.HandleFunc("/swagger.yaml", handlers.NewFileHandler(routingConfig.AdminSwaggerPath)).Methods("GET")
+		adminMux.HandleFunc("/swagger.yaml", handlers.NewFileHandler(
+			routingConfig.FileSystem,
+			routingConfig.AdminSwaggerPath)).Methods("GET")
 		if routingConfig.ServeSwaggerUI {
 			appCtx.Logger().Info("Admin API Swagger UI serving is enabled")
-			adminMux.HandleFunc("/docs", handlers.NewFileHandler(path.Join(routingConfig.BuildRoot, "swagger-ui", "admin.html"))).Methods("GET")
+			adminMux.HandleFunc("/docs", handlers.NewFileHandler(
+				routingConfig.FileSystem,
+				path.Join(routingConfig.BuildRoot, "swagger-ui", "admin.html"))).Methods("GET")
 		} else {
 			adminMux.Handle("/docs", http.NotFoundHandler()).Methods("GET")
 		}
@@ -401,10 +427,14 @@ func InitRouting(appCtx appcontext.AppContext, redisPool *redis.Pool,
 		// attach prime simulator API to root so cookies are handled
 		officeServerName := routingConfig.HandlerConfig.AppNames().OfficeServername
 		primeSimulatorMux := root.Host(officeServerName).PathPrefix("/prime/v1/").Subrouter()
-		primeSimulatorMux.HandleFunc("/swagger.yaml", handlers.NewFileHandler(routingConfig.PrimeSwaggerPath)).Methods("GET")
+		primeSimulatorMux.HandleFunc("/swagger.yaml", handlers.NewFileHandler(
+			routingConfig.FileSystem,
+			routingConfig.PrimeSwaggerPath)).Methods("GET")
 		if routingConfig.ServeSwaggerUI {
 			appCtx.Logger().Info("Prime Simulator API Swagger UI serving is enabled")
-			primeSimulatorMux.HandleFunc("/docs", handlers.NewFileHandler(path.Join(routingConfig.BuildRoot, "swagger-ui", "prime.html"))).Methods("GET")
+			primeSimulatorMux.HandleFunc("/docs", handlers.NewFileHandler(
+				routingConfig.FileSystem,
+				path.Join(routingConfig.BuildRoot, "swagger-ui", "prime.html"))).Methods("GET")
 		} else {
 			primeSimulatorMux.Handle("/docs", http.NotFoundHandler()).Methods("GET")
 		}
@@ -422,10 +452,14 @@ func InitRouting(appCtx appcontext.AppContext, redisPool *redis.Pool,
 
 	if routingConfig.ServeGHC {
 		ghcMux := root.PathPrefix("/ghc/v1/").Subrouter()
-		ghcMux.HandleFunc("/swagger.yaml", handlers.NewFileHandler(routingConfig.GHCSwaggerPath)).Methods("GET")
+		ghcMux.HandleFunc("/swagger.yaml", handlers.NewFileHandler(
+			routingConfig.FileSystem,
+			routingConfig.GHCSwaggerPath)).Methods("GET")
 		if routingConfig.ServeSwaggerUI {
 			appCtx.Logger().Info("GHC API Swagger UI serving is enabled")
-			ghcMux.HandleFunc("/docs", handlers.NewFileHandler(path.Join(routingConfig.BuildRoot, "swagger-ui", "ghc.html"))).Methods("GET")
+			ghcMux.HandleFunc("/docs", handlers.NewFileHandler(
+				routingConfig.FileSystem,
+				path.Join(routingConfig.BuildRoot, "swagger-ui", "ghc.html"))).Methods("GET")
 		} else {
 			ghcMux.Handle("/docs", http.NotFoundHandler()).Methods("GET")
 		}

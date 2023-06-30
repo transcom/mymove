@@ -2,17 +2,24 @@ package routing
 
 import (
 	"context"
+	"crypto/sha256"
+	"crypto/tls"
+	"crypto/x509"
+	"encoding/hex"
 	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"path"
+	"path/filepath"
+	"runtime"
 	"time"
 
 	"github.com/gorilla/csrf"
 	"github.com/spf13/afero"
 
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/authentication"
 	"github.com/transcom/mymove/pkg/models"
@@ -70,6 +77,7 @@ func (suite *BaseRoutingSuite) RoutingConfig() *Config {
 	suite.FatalNoError(err)
 	_, err = f.Write([]byte(suite.indexContent))
 	suite.FatalNoError(err)
+	suite.FatalNoError(f.Close())
 
 	// make a fake csrf auth key that would be completely insecure for
 	// real world usage
@@ -228,7 +236,51 @@ func (suite *BaseRoutingSuite) NewPrimeRequest(method string, relativePath strin
 // of a particular hash, so ensure that hash exists in the db and is
 // associated with a user
 func (suite *BaseRoutingSuite) NewAuthenticatedPrimeRequest(method string, relativePath string, body io.Reader, clientCert models.ClientCert) *http.Request {
-	req := suite.NewMilRequest(method, relativePath, body)
+	req := suite.NewPrimeRequest(method, relativePath, body)
 	req.Header.Add("X-Devlocal-Cert-Hash", clientCert.Sha256Digest)
 	return req
+}
+
+// The ClientCertMiddleware looks at the TLS certificate on the
+// request to make sure it matches something in the database. Fake the TLS
+// info on the request
+func (suite *BaseRoutingSuite) NewTLSAuthenticatedPrimeRequest(method string, relativePath string, body io.Reader) *http.Request {
+
+	req := suite.NewPrimeRequest(method, relativePath, body)
+	// runtime.Caller gets the path to the current file
+	_, filename, _, ok := runtime.Caller(0)
+	suite.FatalTrue(ok)
+	dirname := filepath.Dir(filename)
+
+	// Now load
+	tlsDir, err := filepath.Abs(filepath.Join(dirname, "../../../config/tls"))
+	suite.FatalNoError(err)
+	certFile := filepath.Join(tlsDir, "devlocal-mtls.cer")
+	keyFile := filepath.Join(tlsDir, "devlocal-mtls.key")
+
+	cert, err := tls.LoadX509KeyPair(certFile, keyFile)
+	suite.FatalNoError(err)
+	x509Cert, err := x509.ParseCertificate(cert.Certificate[0])
+	suite.FatalNoError(err)
+	req.TLS = &tls.ConnectionState{
+		PeerCertificates: []*x509.Certificate{x509Cert},
+	}
+
+	// make sure the this matches the devlocal hash in the db
+	hash := sha256.Sum256(x509Cert.Raw)
+	hashString := hex.EncodeToString(hash[:])
+	devlocalCert := factory.FetchOrBuildDevlocalClientCert(suite.DB())
+	suite.Equal(devlocalCert.Sha256Digest, hashString)
+	return req
+}
+
+func (suite *BaseRoutingSuite) CreateFileWithContent(fpath string, fcontent string) {
+	routingConfig := suite.RoutingConfig()
+	dir := filepath.Dir(fpath)
+	suite.NoError(routingConfig.FileSystem.MkdirAll(dir, 0777))
+	f, err := routingConfig.FileSystem.Create(fpath)
+	suite.NoError(err)
+	_, err = f.WriteString(fcontent)
+	suite.NoError(err)
+	suite.NoError(f.Close())
 }
