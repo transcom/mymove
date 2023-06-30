@@ -818,7 +818,7 @@ func SITDurationUpdate(sitDurationUpdate *models.SITDurationUpdate) *primemessag
 }
 
 // SITAddressUpdates payload
-func SITAddressUpdates(u models.SITAddressUpdates) primemessages.SitAddressUpdate {
+func SITAddressUpdates(u models.SITAddressUpdates) primemessages.SitAddressUpdates {
 	payload := make(primemessages.SitAddressUpdates, len(u))
 	for i, item := range u {
 		payload[i] = SITAddressUpdate(&item)
