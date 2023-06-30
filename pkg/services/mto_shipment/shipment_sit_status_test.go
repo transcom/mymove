@@ -112,7 +112,7 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 
 		suite.Equal(15, sitStatus.TotalSITDaysUsed)
 		suite.Equal(75, sitStatus.TotalDaysRemaining)
-		suite.Equal("", sitStatus.CurrentSIT.Location) // No current SIT so it will receive the zero value of empty
+		suite.Nil(sitStatus.CurrentSIT) // No current SIT since all SIT items have departed status
 	})
 
 	suite.Run("calculates status for a shipment currently in SIT", func() {
