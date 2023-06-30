@@ -34,8 +34,6 @@ type MTOServiceItemDestSIT struct {
 
 	serviceRequestDocumentsField ServiceRequestDocuments
 
-	sitAddressUpdateField *SitAddressUpdate
-
 	statusField MTOServiceItemStatus
 
 	// Date of attempted contact by the prime corresponding to `timeMilitary1`.
@@ -63,6 +61,10 @@ type MTOServiceItemDestSIT struct {
 	//
 	// Required: true
 	Reason *string `json:"reason"`
+
+	// sit address updates
+	// Required: true
+	SitAddressUpdates SitAddressUpdates `json:"sitAddressUpdates"`
 
 	// Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.
 	// Format: date
@@ -166,16 +168,6 @@ func (m *MTOServiceItemDestSIT) SetServiceRequestDocuments(val ServiceRequestDoc
 	m.serviceRequestDocumentsField = val
 }
 
-// SitAddressUpdate gets the sit address update of this subtype
-func (m *MTOServiceItemDestSIT) SitAddressUpdate() *SitAddressUpdate {
-	return m.sitAddressUpdateField
-}
-
-// SetSitAddressUpdate sets the sit address update of this subtype
-func (m *MTOServiceItemDestSIT) SetSitAddressUpdate(val *SitAddressUpdate) {
-	m.sitAddressUpdateField = val
-}
-
 // Status gets the status of this subtype
 func (m *MTOServiceItemDestSIT) Status() MTOServiceItemStatus {
 	return m.statusField
@@ -215,6 +207,10 @@ func (m *MTOServiceItemDestSIT) UnmarshalJSON(raw []byte) error {
 		//
 		// Required: true
 		Reason *string `json:"reason"`
+
+		// sit address updates
+		// Required: true
+		SitAddressUpdates SitAddressUpdates `json:"sitAddressUpdates"`
 
 		// Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.
 		// Format: date
@@ -265,8 +261,6 @@ func (m *MTOServiceItemDestSIT) UnmarshalJSON(raw []byte) error {
 
 		ServiceRequestDocuments ServiceRequestDocuments `json:"serviceRequestDocuments,omitempty"`
 
-		SitAddressUpdate *SitAddressUpdate `json:"sitAddressUpdate,omitempty"`
-
 		Status MTOServiceItemStatus `json:"status,omitempty"`
 	}
 	buf = bytes.NewBuffer(raw)
@@ -297,8 +291,6 @@ func (m *MTOServiceItemDestSIT) UnmarshalJSON(raw []byte) error {
 
 	result.serviceRequestDocumentsField = base.ServiceRequestDocuments
 
-	result.sitAddressUpdateField = base.SitAddressUpdate
-
 	result.statusField = base.Status
 
 	result.DateOfContact1 = data.DateOfContact1
@@ -307,6 +299,7 @@ func (m *MTOServiceItemDestSIT) UnmarshalJSON(raw []byte) error {
 	result.FirstAvailableDeliveryDate2 = data.FirstAvailableDeliveryDate2
 	result.ReServiceCode = data.ReServiceCode
 	result.Reason = data.Reason
+	result.SitAddressUpdates = data.SitAddressUpdates
 	result.SitDepartureDate = data.SitDepartureDate
 	result.SitDestinationFinalAddress = data.SitDestinationFinalAddress
 	result.SitEntryDate = data.SitEntryDate
@@ -350,6 +343,10 @@ func (m MTOServiceItemDestSIT) MarshalJSON() ([]byte, error) {
 		// Required: true
 		Reason *string `json:"reason"`
 
+		// sit address updates
+		// Required: true
+		SitAddressUpdates SitAddressUpdates `json:"sitAddressUpdates"`
+
 		// Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.
 		// Format: date
 		SitDepartureDate *strfmt.Date `json:"sitDepartureDate,omitempty"`
@@ -385,6 +382,8 @@ func (m MTOServiceItemDestSIT) MarshalJSON() ([]byte, error) {
 
 		Reason: m.Reason,
 
+		SitAddressUpdates: m.SitAddressUpdates,
+
 		SitDepartureDate: m.SitDepartureDate,
 
 		SitDestinationFinalAddress: m.SitDestinationFinalAddress,
@@ -415,8 +414,6 @@ func (m MTOServiceItemDestSIT) MarshalJSON() ([]byte, error) {
 
 		ServiceRequestDocuments ServiceRequestDocuments `json:"serviceRequestDocuments,omitempty"`
 
-		SitAddressUpdate *SitAddressUpdate `json:"sitAddressUpdate,omitempty"`
-
 		Status MTOServiceItemStatus `json:"status,omitempty"`
 	}{
 
@@ -435,8 +432,6 @@ func (m MTOServiceItemDestSIT) MarshalJSON() ([]byte, error) {
 		RejectionReason: m.RejectionReason(),
 
 		ServiceRequestDocuments: m.ServiceRequestDocuments(),
-
-		SitAddressUpdate: m.SitAddressUpdate(),
 
 		Status: m.Status(),
 	})
@@ -467,10 +462,6 @@ func (m *MTOServiceItemDestSIT) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateSitAddressUpdate(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateStatus(formats); err != nil {
 		res = append(res, err)
 	}
@@ -496,6 +487,10 @@ func (m *MTOServiceItemDestSIT) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateReason(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSitAddressUpdates(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -577,26 +572,6 @@ func (m *MTOServiceItemDestSIT) validateServiceRequestDocuments(formats strfmt.R
 			return ce.ValidateName("serviceRequestDocuments")
 		}
 		return err
-	}
-
-	return nil
-}
-
-func (m *MTOServiceItemDestSIT) validateSitAddressUpdate(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.SitAddressUpdate()) { // not required
-		return nil
-	}
-
-	if m.SitAddressUpdate() != nil {
-		if err := m.SitAddressUpdate().Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("sitAddressUpdate")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("sitAddressUpdate")
-			}
-			return err
-		}
 	}
 
 	return nil
@@ -715,6 +690,24 @@ func (m *MTOServiceItemDestSIT) validateReason(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *MTOServiceItemDestSIT) validateSitAddressUpdates(formats strfmt.Registry) error {
+
+	if err := validate.Required("sitAddressUpdates", "body", m.SitAddressUpdates); err != nil {
+		return err
+	}
+
+	if err := m.SitAddressUpdates.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("sitAddressUpdates")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("sitAddressUpdates")
+		}
+		return err
+	}
+
+	return nil
+}
+
 func (m *MTOServiceItemDestSIT) validateSitDepartureDate(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.SitDepartureDate) { // not required
@@ -811,11 +804,11 @@ func (m *MTOServiceItemDestSIT) ContextValidate(ctx context.Context, formats str
 		res = append(res, err)
 	}
 
-	if err := m.contextValidateSitAddressUpdate(ctx, formats); err != nil {
+	if err := m.contextValidateStatus(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := m.contextValidateStatus(ctx, formats); err != nil {
+	if err := m.contextValidateSitAddressUpdates(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -893,27 +886,6 @@ func (m *MTOServiceItemDestSIT) contextValidateServiceRequestDocuments(ctx conte
 	return nil
 }
 
-func (m *MTOServiceItemDestSIT) contextValidateSitAddressUpdate(ctx context.Context, formats strfmt.Registry) error {
-
-	if m.SitAddressUpdate() != nil {
-
-		if swag.IsZero(m.SitAddressUpdate()) { // not required
-			return nil
-		}
-
-		if err := m.SitAddressUpdate().ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("sitAddressUpdate")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("sitAddressUpdate")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
 func (m *MTOServiceItemDestSIT) contextValidateStatus(ctx context.Context, formats strfmt.Registry) error {
 
 	if swag.IsZero(m.Status()) { // not required
@@ -925,6 +897,20 @@ func (m *MTOServiceItemDestSIT) contextValidateStatus(ctx context.Context, forma
 			return ve.ValidateName("status")
 		} else if ce, ok := err.(*errors.CompositeError); ok {
 			return ce.ValidateName("status")
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItemDestSIT) contextValidateSitAddressUpdates(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.SitAddressUpdates.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("sitAddressUpdates")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("sitAddressUpdates")
 		}
 		return err
 	}

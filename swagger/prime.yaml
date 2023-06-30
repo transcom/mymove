@@ -1934,8 +1934,6 @@ definitions:
         x-nullable: true
         readOnly: true
         description: The reason why this service item was rejected by the TOO.
-      sitAddressUpdate:
-        $ref: '#/definitions/SitAddressUpdate'
       modelType:
         $ref: '#/definitions/MTOServiceItemModelType'
       serviceRequestDocuments:
@@ -2033,10 +2031,13 @@ definitions:
               The reason item has been placed in SIT.
             x-nullable: true
             x-omitempty: false
+          sitAddressUpdates:
+            $ref: '#/definitions/SitAddressUpdates'
         required:
           - reServiceCode
           - sitEntryDate
           - reason
+          - sitAddressUpdates
   MTOServiceItemDimension:
     description: >-
       The dimensions for either the item or the crate associated with a crating
@@ -3054,6 +3055,11 @@ definitions:
         type: string
         readOnly: true
     type: object
+  SitAddressUpdates:
+    description: A list of updates to a SIT service item address.
+    type: array
+    items:
+      $ref: '#/definitions/SitAddressUpdate'
   SitAddressUpdate:
     properties:
       id:

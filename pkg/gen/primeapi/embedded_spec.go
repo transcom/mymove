@@ -2143,9 +2143,6 @@ func init() {
         "serviceRequestDocuments": {
           "$ref": "#/definitions/ServiceRequestDocuments"
         },
-        "sitAddressUpdate": {
-          "$ref": "#/definitions/SitAddressUpdate"
-        },
         "status": {
           "$ref": "#/definitions/MTOServiceItemStatus"
         }
@@ -2182,7 +2179,8 @@ func init() {
           "required": [
             "reServiceCode",
             "sitEntryDate",
-            "reason"
+            "reason",
+            "sitAddressUpdates"
           ],
           "properties": {
             "dateOfContact1": {
@@ -2222,6 +2220,9 @@ func init() {
               "type": "string",
               "x-nullable": true,
               "x-omitempty": false
+            },
+            "sitAddressUpdates": {
+              "$ref": "#/definitions/SitAddressUpdates"
             },
             "sitDepartureDate": {
               "description": "Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.",
@@ -3770,6 +3771,13 @@ func init() {
         "APPROVED",
         "REJECTED"
       ]
+    },
+    "SitAddressUpdates": {
+      "description": "A list of updates to a SIT service item address.",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/SitAddressUpdate"
+      }
     },
     "StorageFacility": {
       "description": "The Storage Facility information for the shipment",
@@ -6882,9 +6890,6 @@ func init() {
         "serviceRequestDocuments": {
           "$ref": "#/definitions/ServiceRequestDocuments"
         },
-        "sitAddressUpdate": {
-          "$ref": "#/definitions/SitAddressUpdate"
-        },
         "status": {
           "$ref": "#/definitions/MTOServiceItemStatus"
         }
@@ -6921,7 +6926,8 @@ func init() {
           "required": [
             "reServiceCode",
             "sitEntryDate",
-            "reason"
+            "reason",
+            "sitAddressUpdates"
           ],
           "properties": {
             "dateOfContact1": {
@@ -6961,6 +6967,9 @@ func init() {
               "type": "string",
               "x-nullable": true,
               "x-omitempty": false
+            },
+            "sitAddressUpdates": {
+              "$ref": "#/definitions/SitAddressUpdates"
             },
             "sitDepartureDate": {
               "description": "Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.",
@@ -8512,6 +8521,13 @@ func init() {
         "APPROVED",
         "REJECTED"
       ]
+    },
+    "SitAddressUpdates": {
+      "description": "A list of updates to a SIT service item address.",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/SitAddressUpdate"
+      }
     },
     "StorageFacility": {
       "description": "The Storage Facility information for the shipment",
