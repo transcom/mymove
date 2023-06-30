@@ -332,8 +332,10 @@ func (h UploadAmendedOrdersHandler) Handle(params ordersop.UploadAmendedOrdersPa
 			file, ok := params.File.(*runtime.File)
 			if !ok {
 				errMsg := "This should always be a runtime.File, something has changed in go-swagger."
+
 				appCtx.Logger().Error(errMsg)
-				return handlers.ResponseForError(appCtx.Logger(), nil), apperror.NewBadDataError(errMsg)
+
+				return ordersop.NewUploadAmendedOrdersInternalServerError(), nil
 			}
 
 			appCtx.Logger().Info(
