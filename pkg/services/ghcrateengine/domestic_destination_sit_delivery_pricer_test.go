@@ -205,7 +205,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationSITDeliveryPricer
 	})
 }
 
-func (suite *GHCRateEngineServiceSuite) setupDomesticDestinationSITDeliveryServiceItem(serviceArea string, zipDest string, zipSITDest string, distance unit.Miles) models.PaymentServiceItem {
+func (suite *GHCRateEngineServiceSuite) setupDomesticDestinationSITDeliveryServiceItem(dddsitTestServiceArea string, zipDest string, zipSITDest string, distance unit.Miles) models.PaymentServiceItem {
 	return factory.BuildPaymentServiceItemWithParams(
 		suite.DB(),
 		models.ReServiceCodeDDDSIT,
