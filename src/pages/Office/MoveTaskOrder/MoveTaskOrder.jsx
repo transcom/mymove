@@ -1094,8 +1094,8 @@ export const MoveTaskOrder = (props) => {
             <h1>Move task order</h1>
             <div className={styles.pageHeaderDetails}>
               <h6>MTO Reference ID #{move?.referenceId}</h6>
-              <h6 data-testid="contractNumber">Contract #{move?.contractor?.contractNumber}</h6>
-              <h6 data-testid="naics">NAICS: {order?.naics}</h6>
+              <h6>Contract #{move?.contractor?.contractNumber}</h6>
+              <h6>NAICS: {order?.naics}</h6>
               <Restricted to={permissionTypes.updateFinancialReviewFlag}>
                 <div className={moveTaskOrderStyles.financialReviewContainer}>
                   <FinancialReviewButton
@@ -1223,8 +1223,8 @@ export const MoveTaskOrder = (props) => {
           })}
           <div className={styles.pageFooter}>
             <div className={styles.pageFooterDetails}>
-              <h6 data-testid="packingAndShippingInstructions">{order?.packingAndShippingInstructions}</h6>
-              <h6 data-testid="methodOfPayment">{order?.methodOfPayment}</h6>
+              <h6>{order?.packingAndShippingInstructions}</h6>
+              <h6>{order?.methodOfPayment}</h6>
             </div>
           </div>
         </FlashGridContainer>

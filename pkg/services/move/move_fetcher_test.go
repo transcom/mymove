@@ -28,7 +28,7 @@ func (suite *MoveServiceSuite) TestMoveFetcher() {
 		suite.Equal(expectedMove.Status, actualMove.Status)
 		suite.Equal(expectedMove.AvailableToPrimeAt, actualMove.AvailableToPrimeAt)
 		suite.Equal(expectedMove.ContractorID, actualMove.ContractorID)
-		suite.Equal(expectedMove.Contractor.Name, actualMove.Contractor.Name)
+		suite.Equal(expectedMove.Contractor.ContractNumber, actualMove.Contractor.ContractNumber)
 		suite.Equal(expectedMove.ReferenceID, actualMove.ReferenceID)
 	})
 

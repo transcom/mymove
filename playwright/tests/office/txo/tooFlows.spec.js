@@ -37,16 +37,16 @@ test.describe('TOO user', () => {
       );
 
       // MTO compliance information is visible
-      await expect(page.locator('[data-testid="methodOfPayment"]')).toContainText(
-        'Payment will be made using the Third-Party Payment System (TPPS) Automated Payment System',
-      );
-      await expect(page.locator('[data-testid="packingAndShippingInstructions"]')).toContainText(
-        'Packaging, packing, and shipping instructions as identified in the Conformed Copy of HTC111-11-1-1112 Attachment 1 Performance Work Statement',
-      );
-      await expect(page.locator('[data-testid="naics"]')).toContainText(
-        'NAICS: 488510 - FREIGHT TRANSPORTATION ARRANGEMENT',
-      );
-      await expect(page.locator('[data-testid="contractNumber"]')).toContainText('Contract #HTC111-11-1-1112');
+      await expect(
+        page.getByText('Payment will be made using the Third-Party Payment System (TPPS) Automated Payment System'),
+      ).toBeVisible();
+      await expect(
+        page.getByText(
+          'Packaging, packing, and shipping instructions as identified in the Conformed Copy of HTC111-11-1-1112 Attachment 1 Performance Work Statement',
+        ),
+      ).toBeVisible();
+      await expect(page.getByText('NAICS: 488510 - FREIGHT TRANSPORTATION ARRANGEMENT')).toBeVisible();
+      await expect(page.getByText('Contract #HTC111-11-1-1112')).toBeVisible();
 
       // Navigate back to Move Details
       await page.getByTestId('MoveDetails-Tab').click();
