@@ -202,6 +202,22 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 			for _, agent := range shipment.MTOAgents {
 				copyOfAgent := agent
 				copyOfAgent.MTOShipmentID = shipment.ID
+				if *copyOfAgent.FirstName == "" {
+					copyOfAgent.FirstName = nil
+				}
+				if *copyOfAgent.LastName == "" {
+					copyOfAgent.LastName = nil
+				}
+				if *copyOfAgent.Email == "" {
+					copyOfAgent.Email = nil
+				}
+				if *copyOfAgent.Phone == "" {
+					copyOfAgent.Phone = nil
+				}
+				// If no fields are set, then we do not want to create the MTO agent
+				if copyOfAgent.FirstName == nil && copyOfAgent.LastName == nil && copyOfAgent.Email == nil && copyOfAgent.Phone == nil {
+					continue
+				}
 				verrs, err = f.builder.CreateOne(txnAppCtx, &copyOfAgent)
 				if verrs != nil && verrs.HasAny() {
 					return verrs
@@ -214,18 +230,6 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 					if agentInList.MTOAgentType == copyOfAgent.MTOAgentType {
 						return apperror.NewInvalidInputError(uuid.Nil, nil, nil, "MTOAgents can only contain one agent of each type")
 					}
-				}
-				if *agent.FirstName == "" {
-					agent.FirstName = nil
-				}
-				if *agent.LastName == "" {
-					agent.LastName = nil
-				}
-				if *agent.Email == "" {
-					agent.Email = nil
-				}
-				if *agent.Phone == "" {
-					agent.Phone = nil
 				}
 
 				agentsList = append(agentsList, copyOfAgent)
