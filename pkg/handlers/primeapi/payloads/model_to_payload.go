@@ -821,7 +821,8 @@ func SITDurationUpdate(sitDurationUpdate *models.SITDurationUpdate) *primemessag
 func SITAddressUpdates(u models.SITAddressUpdates) primemessages.SitAddressUpdates {
 	payload := make(primemessages.SitAddressUpdates, len(u))
 	for i, item := range u {
-		payload[i] = SITAddressUpdate(&item)
+		copyOfItem := item
+		payload[i] = SITAddressUpdate(&copyOfItem)
 	}
 	return payload
 }
