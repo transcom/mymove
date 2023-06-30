@@ -97,11 +97,11 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationSITDeliveryPricer
 		suite.Contains(err.Error(), "invalid SIT final destination postal code")
 	})
 
-	suite.Run("bad SIT final destination zip using ServiceAreaLookup", func() {
+	suite.Run("bad SIT final destination service area using ServiceAreaLookup", func() {
 		suite.setupDomesticServiceAreaPrice(models.ReServiceCodeDSH, dddsitTestServiceArea, dddsitTestIsPeakPeriod, dddsitTestDomesticServiceAreaBasePriceCents, dddsitTestContractYearName, dddsitTestEscalationCompounded)
-		_, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, dddsitTestRequestedPickupDate, dddsitTestWeight, dddsitTestServiceArea, dddsitTestSchedule, zipDest, "456", distance)
+		_, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, dddsitTestRequestedPickupDate, dddsitTestWeight, "111", dddsitTestSchedule, zipDest, zipSITDest, distance)
 		suite.Error(err)
-		suite.Contains(err.Error(), "invalid SIT final destination postal code")
+		suite.Contains(err.Error(), "invalid SIT final destination service area")
 	})
 
 	suite.Run("error from shorthaul pricer", func() {
