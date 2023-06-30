@@ -31,9 +31,11 @@ const sitExtension = {
 
 const sitStatus = {
   totalDaysRemaining: 30,
-  sitEntryDate: new Date('22 Aug 2023'),
   totalSITDaysUsed: 15,
-  daysInSIT: 15,
+  currentSIT: {
+    daysInSIT: 15,
+    sitEntryDate: new Date('22 Aug 2023'),
+  },
 };
 
 const shipment = {

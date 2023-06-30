@@ -60,30 +60,36 @@ export const SITExtensionDenied = [
 ];
 
 export const SITStatusOrigin = {
-  location: LOCATION_VALUES.ORIGIN,
   totalSITDaysUsed: 45,
   totalDaysRemaining: 60,
-  daysInSIT: 15,
-  sitEntryDate: '2021-08-13',
-  sitAllowanceEndDate: '2021-08-28',
+  currentSIT: {
+    location: LOCATION_VALUES.ORIGIN,
+    daysInSIT: 15,
+    sitEntryDate: '2021-08-13',
+    sitAllowanceEndDate: '2021-08-28',
+  },
 };
 
 export const SITStatusDestination = {
-  location: LOCATION_VALUES.DESTINATION,
   totalSITDaysUsed: 45,
   totalDaysRemaining: 60,
-  daysInSIT: 15,
-  sitEntryDate: '2021-08-13',
-  sitAllowanceEndDate: '2021-08-28',
+  currentSIT: {
+    location: LOCATION_VALUES.DESTINATION,
+    daysInSIT: 15,
+    sitEntryDate: '2021-08-13',
+    sitAllowanceEndDate: '2021-08-28',
+  },
 };
 
 export const futureSITStatus = {
-  daysInSIT: 0,
-  location: LOCATION_VALUES.ORIGIN,
-  sitEntryDate: moment().add(2, 'years').format(swaggerDateFormat),
-  sitAllowanceEndDate: moment().add(3, 'years').format(swaggerDateFormat),
   totalDaysRemaining: 365,
   totalSITDaysUsed: 0,
+  currentSIT: {
+    location: LOCATION_VALUES.ORIGIN,
+    daysInSIT: 0,
+    sitEntryDate: moment().add(2, 'years').format(swaggerDateFormat),
+    sitAllowanceEndDate: moment().add(3, 'years').format(swaggerDateFormat),
+  },
 };
 
 export const SITStatusWithPastSITOriginServiceItem = {
@@ -383,10 +389,12 @@ export const futureSITShipment = {
 };
 
 export const SITStatusExpired = {
-  location: LOCATION_VALUES.DESTINATION,
   totalSITDaysUsed: 270,
   totalDaysRemaining: -2,
-  daysInSIT: 15,
-  sitEntryDate: '2021-08-13',
-  sitAllowanceEndDate: '2021-08-28',
+  currentSIT: {
+    location: LOCATION_VALUES.DESTINATION,
+    daysInSIT: 15,
+    sitEntryDate: '2021-08-13',
+    sitAllowanceEndDate: '2021-08-28',
+  },
 };
