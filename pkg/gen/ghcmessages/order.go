@@ -73,6 +73,9 @@ type Order struct {
 	// Read Only: true
 	LastName string `json:"last_name,omitempty"`
 
+	// method of payment
+	MethodOfPayment string `json:"methodOfPayment,omitempty"`
+
 	// move code
 	// Example: H2XFJF
 	MoveCode string `json:"moveCode,omitempty"`
@@ -81,6 +84,9 @@ type Order struct {
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Format: uuid
 	MoveTaskOrderID strfmt.UUID `json:"moveTaskOrderID,omitempty"`
+
+	// naics
+	Naics string `json:"naics,omitempty"`
 
 	// NTS SAC
 	// Example: N002214CSW32Y9
@@ -103,6 +109,9 @@ type Order struct {
 	// origin duty location
 	OriginDutyLocation *DutyLocation `json:"originDutyLocation,omitempty"`
 
+	// packing and shipping instructions
+	PackingAndShippingInstructions string `json:"packingAndShippingInstructions,omitempty"`
+
 	// report by date
 	// Example: 2020-01-01
 	// Format: date
@@ -115,6 +124,9 @@ type Order struct {
 	// Do you have a spouse who will need to move items related to their occupation (also known as spouse pro-gear)?
 	// Example: false
 	SpouseHasProGear bool `json:"spouse_has_pro_gear,omitempty"`
+
+	// supply and services cost estimate
+	SupplyAndServicesCostEstimate string `json:"supplyAndServicesCostEstimate,omitempty"`
 
 	// TAC
 	// Example: F8J1

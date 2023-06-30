@@ -46,8 +46,7 @@ class TioFlowPage extends OfficePage {
       const inputEl = serviceItemCardLocator.locator('input[data-testid="rejectRadio"]');
       const id = await inputEl.getAttribute('id');
       await this.page.locator(`label[for="${id}"]`).click();
-      await this.page.locator('textarea[data-testid="textarea"]').type('This is not a valid request');
-      await serviceItemCardLocator.getByRole('button', { name: 'Save' }).click();
+      await this.page.locator('textarea[data-testid="rejectionReason"]').type('This is not a valid request');
     } else {
       const inputEl = serviceItemCardLocator.locator('input[data-testid="approveRadio"]');
       const id = await inputEl.getAttribute('id');

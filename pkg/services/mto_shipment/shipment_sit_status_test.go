@@ -112,7 +112,7 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 
 		suite.Equal(15, sitStatus.TotalSITDaysUsed)
 		suite.Equal(75, sitStatus.TotalDaysRemaining)
-		suite.Equal("", sitStatus.Location) // No current SIT so it will receive the zero value of empty
+		suite.Nil(sitStatus.CurrentSIT) // No current SIT since all SIT items have departed status
 	})
 
 	suite.Run("calculates status for a shipment currently in SIT", func() {
@@ -152,12 +152,12 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 		suite.NoError(err)
 		suite.NotNil(sitStatus)
 
-		suite.Equal(OriginSITLocation, sitStatus.Location)
+		suite.Equal(OriginSITLocation, sitStatus.CurrentSIT.Location)
 		suite.Equal(30, sitStatus.TotalSITDaysUsed)
 		suite.Equal(60, sitStatus.TotalDaysRemaining)
-		suite.Equal(30, sitStatus.DaysInSIT)
-		suite.Equal(aMonthAgo.String(), sitStatus.SITEntryDate.String())
-		suite.Nil(sitStatus.SITDepartureDate)
+		suite.Equal(30, sitStatus.CurrentSIT.DaysInSIT)
+		suite.Equal(aMonthAgo.String(), sitStatus.CurrentSIT.SITEntryDate.String())
+		suite.Nil(sitStatus.CurrentSIT.SITDepartureDate)
 		suite.Equal(approvedShipment.ID.String(), sitStatus.ShipmentID.String())
 		suite.Len(sitStatus.PastSITs, 0)
 	})
@@ -222,12 +222,12 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 
 		suite.NotNil(sitStatus)
 
-		suite.Equal(OriginSITLocation, sitStatus.Location)
+		suite.Equal(OriginSITLocation, sitStatus.CurrentSIT.Location)
 		suite.Equal(22, sitStatus.TotalSITDaysUsed) // 15 days from previous SIT, 7 days from the current
 		suite.Equal(68, sitStatus.TotalDaysRemaining)
-		suite.Equal(7, sitStatus.DaysInSIT)
-		suite.Equal(aWeekAgo.String(), sitStatus.SITEntryDate.String())
-		suite.Nil(sitStatus.SITDepartureDate)
+		suite.Equal(7, sitStatus.CurrentSIT.DaysInSIT)
+		suite.Equal(aWeekAgo.String(), sitStatus.CurrentSIT.SITEntryDate.String())
+		suite.Nil(sitStatus.CurrentSIT.SITDepartureDate)
 		suite.Equal(approvedShipment.ID.String(), sitStatus.ShipmentID.String())
 
 		suite.Len(sitStatus.PastSITs, 1)
@@ -294,12 +294,12 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 
 		suite.NotNil(sitStatus)
 
-		suite.Equal(DestinationSITLocation, sitStatus.Location)
+		suite.Equal(DestinationSITLocation, sitStatus.CurrentSIT.Location)
 		suite.Equal(22, sitStatus.TotalSITDaysUsed) // 15 days from previous SIT, 7 days from the current
 		suite.Equal(68, sitStatus.TotalDaysRemaining)
-		suite.Equal(7, sitStatus.DaysInSIT)
-		suite.Equal(aWeekAgo.String(), sitStatus.SITEntryDate.String())
-		suite.Nil(sitStatus.SITDepartureDate)
+		suite.Equal(7, sitStatus.CurrentSIT.DaysInSIT)
+		suite.Equal(aWeekAgo.String(), sitStatus.CurrentSIT.SITEntryDate.String())
+		suite.Nil(sitStatus.CurrentSIT.SITDepartureDate)
 		suite.Equal(approvedShipment.ID.String(), sitStatus.ShipmentID.String())
 
 		suite.Len(sitStatus.PastSITs, 1)
@@ -366,12 +366,12 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 
 		suite.NotNil(sitStatus)
 
-		suite.Equal(DestinationSITLocation, sitStatus.Location)
+		suite.Equal(DestinationSITLocation, sitStatus.CurrentSIT.Location)
 		suite.Equal(97, sitStatus.TotalSITDaysUsed) // 15 days from previous SIT, 7 days from the current
 		suite.Equal(-7, sitStatus.TotalDaysRemaining)
-		suite.Equal(7, sitStatus.DaysInSIT)
-		suite.Equal(aWeekAgo.String(), sitStatus.SITEntryDate.String())
-		suite.Nil(sitStatus.SITDepartureDate)
+		suite.Equal(7, sitStatus.CurrentSIT.DaysInSIT)
+		suite.Equal(aWeekAgo.String(), sitStatus.CurrentSIT.SITEntryDate.String())
+		suite.Nil(sitStatus.CurrentSIT.SITDepartureDate)
 		suite.Equal(approvedShipment.ID.String(), sitStatus.ShipmentID.String())
 
 		suite.Len(sitStatus.PastSITs, 1)
