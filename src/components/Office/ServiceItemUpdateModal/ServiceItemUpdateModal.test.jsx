@@ -32,12 +32,14 @@ describe('ServiceItemUpdateModal', () => {
       const cancelButton = screen.getByRole('button', { name: 'Cancel' });
       expect(screen.getByText('HHG')).toBeInTheDocument();
       expect(screen.getByText('Title for the modal')).toBeInTheDocument();
-      expect(within(sitDetailsTable).getByText('Customer contact 1:')).toBeInTheDocument();
-      expect(within(sitDetailsTable).getByText('1200Z')).toBeInTheDocument();
+      expect(screen.getByText('Domestic destination SIT')).toBeInTheDocument();
+      expect(screen.getByText('20 Nov 2020')).toBeInTheDocument();
+      expect(within(sitDetailsTable).getByText('Customer contact attempt 1:')).toBeInTheDocument();
+      expect(within(sitDetailsTable).getByText('15 Sep 2020, 1200Z')).toBeInTheDocument();
       expect(within(sitDetailsTable).getByText('First available delivery date 1:')).toBeInTheDocument();
       expect(within(sitDetailsTable).getByText('15 Sep 2020')).toBeInTheDocument();
-      expect(within(sitDetailsTable).getByText('Customer contact 2:')).toBeInTheDocument();
-      expect(within(sitDetailsTable).getByText('2300Z')).toBeInTheDocument();
+      expect(within(sitDetailsTable).getByText('Customer contact attempt 2:')).toBeInTheDocument();
+      expect(within(sitDetailsTable).getByText('21 Sep 2020, 2300Z')).toBeInTheDocument();
       expect(within(sitDetailsTable).getByText('First available delivery date 2:')).toBeInTheDocument();
       expect(within(sitDetailsTable).getByText('21 Sep 2020')).toBeInTheDocument();
       expect(within(sitDetailsTable).getByText('Reason:')).toBeInTheDocument();
@@ -174,10 +176,13 @@ describe('ServiceItemUpdateModal', () => {
 
       // Check for address section
       expect(screen.getByText('Initial SIT delivery address')).toBeInTheDocument();
-      expect(screen.getByText('345 Faker Rd, Richmond, VA 12508')).toBeInTheDocument();
+      expect(screen.queryByText('345 Faker Rd,')).toBeInTheDocument();
+      expect(screen.queryByText('Richmond, VA 12508')).toBeInTheDocument();
 
       expect(screen.getByText('Requested final SIT delivery address')).toBeInTheDocument();
-      expect(screen.getByText('555 Fakest Dr, Unit 133, Alexandria, VA 12867')).toBeInTheDocument();
+      expect(screen.queryByText('555 Fakest Dr,')).toBeInTheDocument();
+      expect(screen.queryByText('Unit 133,')).toBeInTheDocument();
+      expect(screen.queryByText('Alexandria, VA 12867')).toBeInTheDocument();
 
       // Check for remarks section
       expect(screen.getByText('Update request details')).toBeInTheDocument();

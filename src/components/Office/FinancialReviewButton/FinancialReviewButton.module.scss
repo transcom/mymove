@@ -4,6 +4,7 @@
 
 .FinancialReviewButton {
   @include u-padding-left(0);
+  float: right;
 }
 
 .EditFinancialReviewContainer {
