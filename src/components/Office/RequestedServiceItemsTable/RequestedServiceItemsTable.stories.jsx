@@ -60,6 +60,14 @@ const serviceItems = [
           },
         ],
       },
+      {
+        uploads: [
+          {
+            filename: '/mto-service-item/ae1c6472-5e03-4f9c-bef5-55605dbeb31e/20230630161854-service-item-doc.pdf',
+            url: '/storage//mto-service-item/ae1c6472-5e03-4f9c-bef5-55605dbeb31e/20230630161854-service-item-doc.pdf?contentType=application%2Fpdf',
+          },
+        ],
+      },
     ],
   },
   {
