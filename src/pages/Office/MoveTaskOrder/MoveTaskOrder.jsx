@@ -190,6 +190,7 @@ export const MoveTaskOrder = (props) => {
         newMTOServiceItem;
       queryClient.setQueryData([MTO_SERVICE_ITEMS, variables.moveId, false], mtoServiceItems);
       queryClient.invalidateQueries({ queryKey: [MTO_SERVICE_ITEMS, variables.moveId] });
+      queryClient.invalidateQueries({ queryKey: [MTO_SHIPMENTS] });
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
