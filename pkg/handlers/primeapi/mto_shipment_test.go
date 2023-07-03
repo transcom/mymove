@@ -559,9 +559,7 @@ func (suite *HandlerSuite) TestCreateNonSITAddressUpdateRequestHandler() {
 
 	makeSubtestData := func() mtoshipmentops.CreateNonSITAddressUpdateRequestParams {
 		contractorRemark := "This is a contractor remark"
-		addressID := strfmt.UUID(uuid.Must(uuid.NewV4()).String())
 		body := primemessages.CreateNonSITAddressUpdateRequest{
-			AddressID:         &addressID,
 			ContractorRemarks: &contractorRemark,
 			NewAddress: &primemessages.Address{
 				City:           swag.String("Beverly Hills"),

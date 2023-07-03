@@ -534,17 +534,17 @@ paths:
       summary: createNonSITAddressUpdateRequest
       description: |
         ### Functionality
-        This endpoint is used so the Prime can request an **update** for the destination address on an MTO Shipment for non SIT.
-        Address can update automatically unless this changes:
+        This endpoint is used so the Prime can request an **update** for the destination address on an MTO Shipment,
+        after the destination address has already been approved.
+        This does not change addresses on SIT service items.
+        Address updates will be automatically approved unless they change:
           - the service area
-          - mileage bracket for direct delivery
-          - mileage bracket where there is a Zip3 resulting in Domestic Short Haul (DSH) changing from Domestic Short Haul (DSH) to Domestic Line Haul (DLH) or vice versa.
+          - Mileage bracket for direct delivery
+          - Domestic Short Haul to Domestic Line Haul or vice versa
+              - Shipments that start and end in one ZIP3 use Short Haul pricing
+              - Shipments that start and end in different ZIP3s use Line Haul pricing
 
         For those, changes will require TOO approval.
-
-         **Limitations:**
-        The update can be requested for APPROVED non SIT items only.
-        Only ONE request is allowed per approved non SIT item.
 
       operationId: createNonSITAddressUpdateRequest
       tags:
@@ -2732,14 +2732,8 @@ definitions:
         type: string
         example: Customer reached out to me this week and let me know they want to move somewhere else.
         description: This is the remark the Prime has entered, which would be the reason there is an address change.
-      addressID:
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        format: uuid
-        type: string
-        description: Address ID should be the existing delivery address ID of the shipment.
     required:
       - contractorRemarks
-      - addressID
       - newAddress
   CreateSITAddressUpdateRequest:
     description: CreateSITAddressUpdateRequest contains the fields required for the prime to create a SIT address update request.
