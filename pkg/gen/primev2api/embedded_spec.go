@@ -601,6 +601,18 @@ func init() {
             "reason"
           ],
           "properties": {
+            "dateOfContact1": {
+              "description": "Date of attempted contact by the prime corresponding to ` + "`" + `timeMilitary1` + "`" + `.",
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
+            "dateOfContact2": {
+              "description": "Date of attempted contact by the prime corresponding to ` + "`" + `timeMilitary2` + "`" + `.",
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
             "firstAvailableDeliveryDate1": {
               "description": "First available date that Prime can deliver SIT service item.",
               "type": "string",
@@ -642,14 +654,14 @@ func init() {
               "format": "date"
             },
             "timeMilitary1": {
-              "description": "Time of delivery corresponding to ` + "`" + `firstAvailableDeliveryDate1` + "`" + `, in military format.",
+              "description": "Time of attempted contact corresponding to ` + "`" + `dateOfContact1` + "`" + `, in military format.",
               "type": "string",
               "pattern": "\\d{4}Z",
               "x-nullable": true,
               "example": "1400Z"
             },
             "timeMilitary2": {
-              "description": "Time of delivery corresponding to ` + "`" + `firstAvailableDeliveryDate2` + "`" + `, in military format.",
+              "description": "Time of attempted contact corresponding to ` + "`" + `dateOfContact2` + "`" + `, in military format.",
               "type": "string",
               "pattern": "\\d{4}Z",
               "x-nullable": true,
@@ -955,6 +967,9 @@ func init() {
           "x-nullable": true,
           "readOnly": true,
           "example": "handle with care"
+        },
+        "deliveryAddressUpdate": {
+          "$ref": "#/definitions/ShipmentAddressUpdate"
         },
         "destinationAddress": {
           "description": "Where the movers should deliver this shipment. Often provided by the customer when they enter shipment details\nduring onboarding, if they know their new address already.\n\nMay be blank when entered by the customer, required when entered by the Prime. May not represent the true\nfinal destination due to the shipment being diverted or placed in SIT.\n",
@@ -1281,10 +1296,12 @@ func init() {
           "type": "string"
         },
         "methodOfPayment": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "naics": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "orderNumber": {
           "type": "string"
@@ -1300,7 +1317,8 @@ func init() {
           "example": "KKFA"
         },
         "packingAndShippingInstructions": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "rank": {
           "type": "string",
@@ -1311,7 +1329,8 @@ func init() {
           "format": "date"
         },
         "supplyAndServicesCostEstimate": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         }
       }
     },
@@ -2091,6 +2110,70 @@ func init() {
         "$ref": "#/definitions/ServiceRequestDocument"
       }
     },
+    "ShipmentAddressUpdate": {
+      "description": "This represents a destination address change request made by the Prime that is either auto-approved or requires review if the pricing criteria has changed. If criteria has changed, then it must be approved or rejected by a TOO.\n",
+      "type": "object",
+      "required": [
+        "id",
+        "status",
+        "shipmentID",
+        "originalAddress",
+        "newAddress",
+        "contractorRemarks"
+      ],
+      "properties": {
+        "contractorRemarks": {
+          "description": "The reason there is an address change.",
+          "type": "string",
+          "title": "Contractor Remarks",
+          "readOnly": true,
+          "example": "This is a contractor remark"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "newAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "officeRemarks": {
+          "description": "The TOO comment on approval or rejection.",
+          "type": "string",
+          "title": "Office Remarks",
+          "x-nullable": true,
+          "example": "This is an office remark"
+        },
+        "originalAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "shipmentID": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "status": {
+          "$ref": "#/definitions/ShipmentAddressUpdateStatus"
+        }
+      }
+    },
+    "ShipmentAddressUpdateStatus": {
+      "type": "string",
+      "title": "Status",
+      "enum": [
+        "REQUESTED",
+        "REJECTED",
+        "APPROVED"
+      ],
+      "x-display-value": {
+        "APPROVED": "APPROVED",
+        "REJECTED": "REJECTED",
+        "REQUESTED": "REQUESTED"
+      },
+      "readOnly": true
+    },
     "StorageFacility": {
       "description": "The Storage Facility information for the shipment",
       "type": "object",
@@ -2199,7 +2282,21 @@ func init() {
         "$ref": "#/definitions/Error"
       }
     }
-  }
+  },
+  "tags": [
+    {
+      "description": "The **moveTaskOrder** represents a military move that has been sent to a contractor. It contains all the information about shipments, including service items, estimated weights, actual weights, requested and scheduled move dates, etc.\n",
+      "name": "moveTaskOrder"
+    }
+  ],
+  "x-tagGroups": [
+    {
+      "name": "Endpoints",
+      "tags": [
+        "moveTaskOrder"
+      ]
+    }
+  ]
 }`))
 	FlatSwaggerJSON = json.RawMessage([]byte(`{
   "schemes": [
@@ -2797,6 +2894,18 @@ func init() {
             "reason"
           ],
           "properties": {
+            "dateOfContact1": {
+              "description": "Date of attempted contact by the prime corresponding to ` + "`" + `timeMilitary1` + "`" + `.",
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
+            "dateOfContact2": {
+              "description": "Date of attempted contact by the prime corresponding to ` + "`" + `timeMilitary2` + "`" + `.",
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
             "firstAvailableDeliveryDate1": {
               "description": "First available date that Prime can deliver SIT service item.",
               "type": "string",
@@ -2838,14 +2947,14 @@ func init() {
               "format": "date"
             },
             "timeMilitary1": {
-              "description": "Time of delivery corresponding to ` + "`" + `firstAvailableDeliveryDate1` + "`" + `, in military format.",
+              "description": "Time of attempted contact corresponding to ` + "`" + `dateOfContact1` + "`" + `, in military format.",
               "type": "string",
               "pattern": "\\d{4}Z",
               "x-nullable": true,
               "example": "1400Z"
             },
             "timeMilitary2": {
-              "description": "Time of delivery corresponding to ` + "`" + `firstAvailableDeliveryDate2` + "`" + `, in military format.",
+              "description": "Time of attempted contact corresponding to ` + "`" + `dateOfContact2` + "`" + `, in military format.",
               "type": "string",
               "pattern": "\\d{4}Z",
               "x-nullable": true,
@@ -3151,6 +3260,9 @@ func init() {
           "x-nullable": true,
           "readOnly": true,
           "example": "handle with care"
+        },
+        "deliveryAddressUpdate": {
+          "$ref": "#/definitions/ShipmentAddressUpdate"
         },
         "destinationAddress": {
           "description": "Where the movers should deliver this shipment. Often provided by the customer when they enter shipment details\nduring onboarding, if they know their new address already.\n\nMay be blank when entered by the customer, required when entered by the Prime. May not represent the true\nfinal destination due to the shipment being diverted or placed in SIT.\n",
@@ -3477,10 +3589,12 @@ func init() {
           "type": "string"
         },
         "methodOfPayment": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "naics": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "orderNumber": {
           "type": "string"
@@ -3496,7 +3610,8 @@ func init() {
           "example": "KKFA"
         },
         "packingAndShippingInstructions": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "rank": {
           "type": "string",
@@ -3507,7 +3622,8 @@ func init() {
           "format": "date"
         },
         "supplyAndServicesCostEstimate": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         }
       }
     },
@@ -4287,6 +4403,70 @@ func init() {
         "$ref": "#/definitions/ServiceRequestDocument"
       }
     },
+    "ShipmentAddressUpdate": {
+      "description": "This represents a destination address change request made by the Prime that is either auto-approved or requires review if the pricing criteria has changed. If criteria has changed, then it must be approved or rejected by a TOO.\n",
+      "type": "object",
+      "required": [
+        "id",
+        "status",
+        "shipmentID",
+        "originalAddress",
+        "newAddress",
+        "contractorRemarks"
+      ],
+      "properties": {
+        "contractorRemarks": {
+          "description": "The reason there is an address change.",
+          "type": "string",
+          "title": "Contractor Remarks",
+          "readOnly": true,
+          "example": "This is a contractor remark"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "newAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "officeRemarks": {
+          "description": "The TOO comment on approval or rejection.",
+          "type": "string",
+          "title": "Office Remarks",
+          "x-nullable": true,
+          "example": "This is an office remark"
+        },
+        "originalAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "shipmentID": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "status": {
+          "$ref": "#/definitions/ShipmentAddressUpdateStatus"
+        }
+      }
+    },
+    "ShipmentAddressUpdateStatus": {
+      "type": "string",
+      "title": "Status",
+      "enum": [
+        "REQUESTED",
+        "REJECTED",
+        "APPROVED"
+      ],
+      "x-display-value": {
+        "APPROVED": "APPROVED",
+        "REJECTED": "REJECTED",
+        "REQUESTED": "REQUESTED"
+      },
+      "readOnly": true
+    },
     "StorageFacility": {
       "description": "The Storage Facility information for the shipment",
       "type": "object",
@@ -4395,6 +4575,20 @@ func init() {
         "$ref": "#/definitions/Error"
       }
     }
-  }
+  },
+  "tags": [
+    {
+      "description": "The **moveTaskOrder** represents a military move that has been sent to a contractor. It contains all the information about shipments, including service items, estimated weights, actual weights, requested and scheduled move dates, etc.\n",
+      "name": "moveTaskOrder"
+    }
+  ],
+  "x-tagGroups": [
+    {
+      "name": "Endpoints",
+      "tags": [
+        "moveTaskOrder"
+      ]
+    }
+  ]
 }`))
 }

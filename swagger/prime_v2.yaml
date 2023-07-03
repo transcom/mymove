@@ -21,6 +21,17 @@ info:
 basePath: /prime/v2
 schemes:
   - http
+tags:
+  - name: moveTaskOrder
+    description: >
+      The **moveTaskOrder** represents a military move that has been sent to a
+      contractor. It contains all the information about shipments, including
+      service items, estimated weights, actual weights, requested and scheduled
+      move dates, etc.
+x-tagGroups:
+  - name: Endpoints
+    tags:
+      - moveTaskOrder
 paths:
   /move-task-orders/{moveID}:
     get:
@@ -139,304 +150,69 @@ definitions:
       eTag:
         type: string
         readOnly: true
-  PaymentRequest:
+  MTOAgent:
     properties:
       id:
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        description: The ID of the agent.
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         readOnly: true
         type: string
-      isFinal:
-        default: false
-        type: boolean
-      moveTaskOrderID:
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        format: uuid
-        type: string
-      rejectionReason:
-        example: documentation was incomplete
-        type: string
-        x-nullable: true
-      status:
-        $ref: '#/definitions/PaymentRequestStatus'
-      paymentRequestNumber:
-        example: 1234-5678-1
-        readOnly: true
-        type: string
-      recalculationOfPaymentRequestID:
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      mtoShipmentID:
+        description: The ID of the shipment this agent is permitted to release/receive.
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
         readOnly: true
-        x-nullable: true
-      proofOfServiceDocs:
-        $ref: '#/definitions/ProofOfServiceDocs'
-      paymentServiceItems:
-        $ref: '#/definitions/PaymentServiceItems'
-      eTag:
+      createdAt:
+        format: date-time
         type: string
         readOnly: true
-    type: object
-  PaymentServiceItemStatus:
-    enum:
-      - REQUESTED
-      - APPROVED
-      - DENIED
-      - SENT_TO_GEX
-      - PAID
-      - EDI_ERROR
-    title: Payment Service Item Status
-    type: string
-  PaymentRequests:
-    type: array
-    items:
-      $ref: '#/definitions/PaymentRequest'
-  PaymentRequestStatus:
-    enum:
-      - PENDING
-      - REVIEWED
-      - REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED
-      - SENT_TO_GEX
-      - RECEIVED_BY_GEX
-      - PAID
-      - EDI_ERROR
-      - DEPRECATED
-    title: Payment Request Status
-    type: string
-  PaymentServiceItem:
-    properties:
-      id:
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        format: uuid
-        readOnly: true
-        type: string
-      paymentRequestID:
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        format: uuid
-        type: string
-      mtoServiceItemID:
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        format: uuid
-        type: string
-      status:
-        $ref: '#/definitions/PaymentServiceItemStatus'
-      priceCents:
-        type: integer
-        format: cents
-        title: Price of the service item in cents
-        x-nullable: true
-      rejectionReason:
-        example: documentation was incomplete
-        type: string
-        x-nullable: true
-      referenceID:
-        example: 1234-5678-c56a4180
-        readOnly: true
-        format: string
-      paymentServiceItemParams:
-        $ref: '#/definitions/PaymentServiceItemParams'
-      eTag:
+      updatedAt:
+        format: date-time
         type: string
         readOnly: true
-    type: object
-  ProofOfServiceDocs:
-    items:
-      $ref: '#/definitions/ProofOfServiceDoc'
-    type: array
-  ProofOfServiceDoc:
-    properties:
-      uploads:
-        items:
-          $ref: '#/definitions/UploadWithOmissions'
-        type: array
-    type: object
-  PaymentServiceItemParam:
-    properties:
-      id:
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        format: uuid
-        readOnly: true
-        type: string
-      paymentServiceItemID:
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        format: uuid
-        type: string
-      key:
-        $ref: '#/definitions/ServiceItemParamName'
-      value:
-        example: '3025'
-        type: string
-      type:
-        $ref: '#/definitions/ServiceItemParamType'
-      origin:
-        $ref: '#/definitions/ServiceItemParamOrigin'
-      eTag:
-        type: string
-        readOnly: true
-    type: object
-  PaymentServiceItemParams:
-    type: array
-    items:
-      $ref: '#/definitions/PaymentServiceItemParam'
-  PaymentServiceItems:
-    type: array
-    items:
-      $ref: '#/definitions/PaymentServiceItem'
-  Order:
-    required:
-      - orderNumber
-      - rank
-      - linesOfAccounting
-    properties:
-      id:
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        format: uuid
-        type: string
-      customer:
-        $ref: '#/definitions/Customer'
-      customerID:
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        format: uuid
-        type: string
-      entitlement:
-        $ref: '#/definitions/Entitlements'
-      destinationDutyLocation:
-        $ref: '#/definitions/DutyLocation'
-      originDutyLocation:
-        $ref: '#/definitions/DutyLocation'
-      originDutyLocationGBLOC:
-        type: string
-        example: KKFA
-      rank:
-        type: string
-        example: E_5
-      reportByDate:
-        type: string
-        format: date
-      ordersType:
-        $ref: '#/definitions/OrdersType'
-      orderNumber:
-        type: string
-      linesOfAccounting:
-        type: string
-      supplyAndServicesCostEstimate:
-        type: string
-      packingAndShippingInstructions:
-        type: string
-      methodOfPayment:
-        type: string
-      naics:
-        type: string
-      eTag:
-        type: string
-        readOnly: true
-    type: object
-  Customer:
-    type: object
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      dodID:
-        type: string
-      userID:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      currentAddress:
-        $ref: '#/definitions/Address'
       firstName:
         type: string
-        example: Vanya
+        x-nullable: true
       lastName:
         type: string
-        example: Petrovna
-      branch:
-        type: string
-        example: COAST_GUARD
-      phone:
-        type: string
-        format: telephone
+        x-nullable: true
       email:
         type: string
         format: x-email
-        pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
-        example: fake@example.com
-      eTag:
-        type: string
-        readOnly: true
-  DutyLocation:
-    type: object
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      name:
-        type: string
-        example: Fort Bragg North Station
-      addressID:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      address:
-        $ref: '#/definitions/Address'
-      eTag:
-        type: string
-        readOnly: true
-  Entitlements:
-    properties:
-      id:
-        example: 571008b1-b0de-454d-b843-d71be9f02c04
-        format: uuid
-        type: string
-      authorizedWeight:
-        example: 2000
-        type: integer
-        x-formatting: weight
+        pattern: ^([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})?$
         x-nullable: true
-      dependentsAuthorized:
-        example: true
-        type: boolean
+      phone:
+        type: string
+        format: telephone
+        pattern: ^([2-9]\d{2}-\d{3}-\d{4})?$
         x-nullable: true
-      nonTemporaryStorage:
-        example: false
-        type: boolean
-        x-nullable: true
-      privatelyOwnedVehicle:
-        example: false
-        type: boolean
-        x-nullable: true
-      proGearWeight:
-        example: 2000
-        type: integer
-        x-formatting: weight
-      proGearWeightSpouse:
-        example: 500
-        type: integer
-        x-formatting: weight
-      requiredMedicalEquipmentWeight:
-        example: 500
-        type: integer
-        x-formatting: weight
-      organizationalClothingAndIndividualEquipment:
-        type: boolean
-        example: false
-      storageInTransit:
-        example: 90
-        type: integer
-      totalWeight:
-        example: 500
-        type: integer
-        x-formatting: weight
-      totalDependents:
-        example: 2
-        type: integer
+      agentType:
+        $ref: '#/definitions/MTOAgentType'
       eTag:
         type: string
         readOnly: true
     type: object
+  MTOAgents:
+    description: >
+      A list of the agents for a shipment. Agents are the people who the Prime
+      contractor recognize as permitted to release (in the case of pickup) or
+      receive (on delivery) a shipment.
+    items:
+      $ref: '#/definitions/MTOAgent'
+    type: array
+    maxItems: 2
+  MTOAgentType:
+    title: Agent Type
+    description: >
+      The type for this agent. `RELEASING` means they have authority on pickup,
+      `RECEIVING` means they can receive the shipment on delivery.
+    type: string
+    example: RELEASING_AGENT
+    enum:
+      - RELEASING_AGENT
+      - RECEIVING_AGENT
   MTOServiceItem:
     description: MTOServiceItem describes a base type of a service item. Polymorphic type.
     type: object
@@ -507,20 +283,34 @@ definitions:
             enum:
               - DDFSIT
               - DDASIT
+          dateOfContact1:
+            format: date
+            type: string
+            description: >-
+              Date of attempted contact by the prime corresponding to
+              `timeMilitary1`.
+            x-nullable: true
+          dateOfContact2:
+            format: date
+            type: string
+            description: >-
+              Date of attempted contact by the prime corresponding to
+              `timeMilitary2`.
+            x-nullable: true
           timeMilitary1:
             type: string
             example: 1400Z
             description: >-
-              Time of delivery corresponding to `firstAvailableDeliveryDate1`,
-              in military format.
+              Time of attempted contact corresponding to `dateOfContact1`, in
+              military format.
             pattern: \d{4}Z
             x-nullable: true
           timeMilitary2:
             type: string
             example: 1400Z
             description: >-
-              Time of delivery corresponding to `firstAvailableDeliveryDate2`,
-              in military format.
+              Time of attempted contact corresponding to `dateOfContact2`, in
+              military format.
             pattern: \d{4}Z
             x-nullable: true
           firstAvailableDeliveryDate1:
@@ -978,6 +768,8 @@ definitions:
           - DIVERSION_REQUESTED
       ppmShipment:
         $ref: '#/definitions/PPMShipment'
+      deliveryAddressUpdate:
+        $ref: '#/definitions/ShipmentAddressUpdate'
       eTag:
         description: >-
           A hash unique to this shipment that should be used as the "If-Match"
@@ -1039,123 +831,191 @@ definitions:
       HHG_INTO_NTS_DOMESTIC: HHG into Non-temporary storage (NTS)
       HHG_OUTOF_NTS_DOMESTIC: HHG out of Non-temporary storage (NTS Release)
       PPM: Personally Procured Move also known as Do It Yourself (DITY)
-  MTOAgent:
+  Order:
+    required:
+      - orderNumber
+      - rank
+      - linesOfAccounting
     properties:
       id:
-        description: The ID of the agent.
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+      customer:
+        $ref: '#/definitions/Customer'
+      customerID:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+      entitlement:
+        $ref: '#/definitions/Entitlements'
+      destinationDutyLocation:
+        $ref: '#/definitions/DutyLocation'
+      originDutyLocation:
+        $ref: '#/definitions/DutyLocation'
+      originDutyLocationGBLOC:
+        type: string
+        example: KKFA
+      rank:
+        type: string
+        example: E_5
+      reportByDate:
+        type: string
+        format: date
+      ordersType:
+        $ref: '#/definitions/OrdersType'
+      orderNumber:
+        type: string
+      linesOfAccounting:
+        type: string
+      supplyAndServicesCostEstimate:
+        type: string
+        readOnly: true
+      packingAndShippingInstructions:
+        type: string
+        readOnly: true
+      methodOfPayment:
+        type: string
+        readOnly: true
+      naics:
+        type: string
+        readOnly: true
+      eTag:
+        type: string
+        readOnly: true
+    type: object
+  PaymentRequest:
+    properties:
+      id:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         readOnly: true
         type: string
-      mtoShipmentID:
-        description: The ID of the shipment this agent is permitted to release/receive.
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+      isFinal:
+        default: false
+        type: boolean
+      moveTaskOrderID:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+      rejectionReason:
+        example: documentation was incomplete
+        type: string
+        x-nullable: true
+      status:
+        $ref: '#/definitions/PaymentRequestStatus'
+      paymentRequestNumber:
+        example: 1234-5678-1
+        readOnly: true
+        type: string
+      recalculationOfPaymentRequestID:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
         readOnly: true
-      createdAt:
-        format: date-time
-        type: string
-        readOnly: true
-      updatedAt:
-        format: date-time
-        type: string
-        readOnly: true
-      firstName:
-        type: string
         x-nullable: true
-      lastName:
-        type: string
-        x-nullable: true
-      email:
-        type: string
-        format: x-email
-        pattern: ^([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})?$
-        x-nullable: true
-      phone:
-        type: string
-        format: telephone
-        pattern: ^([2-9]\d{2}-\d{3}-\d{4})?$
-        x-nullable: true
-      agentType:
-        $ref: '#/definitions/MTOAgentType'
+      proofOfServiceDocs:
+        $ref: '#/definitions/ProofOfServiceDocs'
+      paymentServiceItems:
+        $ref: '#/definitions/PaymentServiceItems'
       eTag:
         type: string
         readOnly: true
     type: object
-  MTOAgents:
-    description: >
-      A list of the agents for a shipment. Agents are the people who the Prime
-      contractor recognize as permitted to release (in the case of pickup) or
-      receive (on delivery) a shipment.
-    items:
-      $ref: '#/definitions/MTOAgent'
+  PaymentRequests:
     type: array
-    maxItems: 2
-  MTOAgentType:
-    title: Agent Type
-    description: >
-      The type for this agent. `RELEASING` means they have authority on pickup,
-      `RECEIVING` means they can receive the shipment on delivery.
-    type: string
-    example: RELEASING_AGENT
+    items:
+      $ref: '#/definitions/PaymentRequest'
+  PaymentRequestStatus:
     enum:
-      - RELEASING_AGENT
-      - RECEIVING_AGENT
-  Reweigh:
-    description: >-
-      A reweigh  is when a shipment is weighed for a second time due to the
-      request of a customer, the contractor, system or TOO.
+      - PENDING
+      - REVIEWED
+      - REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED
+      - SENT_TO_GEX
+      - RECEIVED_BY_GEX
+      - PAID
+      - EDI_ERROR
+      - DEPRECATED
+    title: Payment Request Status
+    type: string
+  PaymentServiceItem:
     properties:
       id:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        readOnly: true
+        type: string
+      paymentRequestID:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
-      requestedAt:
-        format: date-time
+      mtoServiceItemID:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
         type: string
-      requestedBy:
-        $ref: '#/definitions/ReweighRequester'
-      verificationProvidedAt:
-        format: date-time
-        type: string
-        x-nullable: true
-        x-omitempty: false
-      verificationReason:
-        example: >-
-          The reweigh was not performed due to some justification provided by
-          the Prime
-        type: string
-        x-nullable: true
-        x-omitempty: false
-      weight:
-        example: 2000
+      status:
+        $ref: '#/definitions/PaymentServiceItemStatus'
+      priceCents:
         type: integer
-        x-formatting: weight
+        format: cents
+        title: Price of the service item in cents
         x-nullable: true
-        x-omitempty: false
-      shipmentID:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
+      rejectionReason:
+        example: documentation was incomplete
         type: string
-      createdAt:
-        format: date-time
-        type: string
+        x-nullable: true
+      referenceID:
+        example: 1234-5678-c56a4180
         readOnly: true
-      updatedAt:
-        format: date-time
-        type: string
-        readOnly: true
+        format: string
+      paymentServiceItemParams:
+        $ref: '#/definitions/PaymentServiceItemParams'
       eTag:
         type: string
         readOnly: true
-  ReweighRequester:
-    type: string
+    type: object
+  PaymentServiceItemParam:
+    properties:
+      id:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        readOnly: true
+        type: string
+      paymentServiceItemID:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+      key:
+        $ref: '#/definitions/ServiceItemParamName'
+      value:
+        example: '3025'
+        type: string
+      type:
+        $ref: '#/definitions/ServiceItemParamType'
+      origin:
+        $ref: '#/definitions/ServiceItemParamOrigin'
+      eTag:
+        type: string
+        readOnly: true
+    type: object
+  PaymentServiceItemParams:
+    type: array
+    items:
+      $ref: '#/definitions/PaymentServiceItemParam'
+  PaymentServiceItems:
+    type: array
+    items:
+      $ref: '#/definitions/PaymentServiceItem'
+  PaymentServiceItemStatus:
     enum:
-      - CUSTOMER
-      - PRIME
-      - SYSTEM
-      - TOO
+      - REQUESTED
+      - APPROVED
+      - DENIED
+      - SENT_TO_GEX
+      - PAID
+      - EDI_ERROR
+    title: Payment Service Item Status
+    type: string
   PPMShipment:
     description: >-
       A personally procured move is a type of shipment that a service member
@@ -1402,6 +1262,177 @@ definitions:
       - destinationPostalCode
       - sitExpected
       - eTag
+  ProofOfServiceDocs:
+    items:
+      $ref: '#/definitions/ProofOfServiceDoc'
+    type: array
+  ProofOfServiceDoc:
+    properties:
+      uploads:
+        items:
+          $ref: '#/definitions/UploadWithOmissions'
+        type: array
+    type: object
+  Reweigh:
+    description: >-
+      A reweigh  is when a shipment is weighed for a second time due to the
+      request of a customer, the contractor, system or TOO.
+    properties:
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      requestedAt:
+        format: date-time
+        type: string
+      requestedBy:
+        $ref: '#/definitions/ReweighRequester'
+      verificationProvidedAt:
+        format: date-time
+        type: string
+        x-nullable: true
+        x-omitempty: false
+      verificationReason:
+        example: >-
+          The reweigh was not performed due to some justification provided by
+          the Prime
+        type: string
+        x-nullable: true
+        x-omitempty: false
+      weight:
+        example: 2000
+        type: integer
+        x-formatting: weight
+        x-nullable: true
+        x-omitempty: false
+      shipmentID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      createdAt:
+        format: date-time
+        type: string
+        readOnly: true
+      updatedAt:
+        format: date-time
+        type: string
+        readOnly: true
+      eTag:
+        type: string
+        readOnly: true
+  ReweighRequester:
+    type: string
+    enum:
+      - CUSTOMER
+      - PRIME
+      - SYSTEM
+      - TOO
+  Customer:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      dodID:
+        type: string
+      userID:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      currentAddress:
+        $ref: '#/definitions/Address'
+      firstName:
+        type: string
+        example: Vanya
+      lastName:
+        type: string
+        example: Petrovna
+      branch:
+        type: string
+        example: COAST_GUARD
+      phone:
+        type: string
+        format: telephone
+      email:
+        type: string
+        format: x-email
+        pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
+        example: fake@example.com
+      eTag:
+        type: string
+        readOnly: true
+  DutyLocation:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      name:
+        type: string
+        example: Fort Bragg North Station
+      addressID:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      address:
+        $ref: '#/definitions/Address'
+      eTag:
+        type: string
+        readOnly: true
+  Entitlements:
+    properties:
+      id:
+        example: 571008b1-b0de-454d-b843-d71be9f02c04
+        format: uuid
+        type: string
+      authorizedWeight:
+        example: 2000
+        type: integer
+        x-formatting: weight
+        x-nullable: true
+      dependentsAuthorized:
+        example: true
+        type: boolean
+        x-nullable: true
+      nonTemporaryStorage:
+        example: false
+        type: boolean
+        x-nullable: true
+      privatelyOwnedVehicle:
+        example: false
+        type: boolean
+        x-nullable: true
+      proGearWeight:
+        example: 2000
+        type: integer
+        x-formatting: weight
+      proGearWeightSpouse:
+        example: 500
+        type: integer
+        x-formatting: weight
+      requiredMedicalEquipmentWeight:
+        example: 500
+        type: integer
+        x-formatting: weight
+      organizationalClothingAndIndividualEquipment:
+        type: boolean
+        example: false
+      storageInTransit:
+        example: 90
+        type: integer
+      totalWeight:
+        example: 500
+        type: integer
+        x-formatting: weight
+      totalDependents:
+        example: 2
+        type: integer
+      eTag:
+        type: string
+        readOnly: true
+    type: object
   Error:
     properties:
       title:
@@ -1832,6 +1863,61 @@ definitions:
     enum:
       - ORIGIN
       - DESTINATION
+  ShipmentAddressUpdateStatus:
+    type: string
+    title: Status
+    readOnly: true
+    x-display-value:
+      REQUESTED: REQUESTED
+      REJECTED: REJECTED
+      APPROVED: APPROVED
+    enum:
+      - REQUESTED
+      - REJECTED
+      - APPROVED
+  ShipmentAddressUpdate:
+    description: >
+      This represents a destination address change request made by the Prime
+      that is either auto-approved or requires review if the pricing criteria
+      has changed. If criteria has changed, then it must be approved or rejected
+      by a TOO.
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      contractorRemarks:
+        type: string
+        example: This is a contractor remark
+        title: Contractor Remarks
+        description: The reason there is an address change.
+        readOnly: true
+      officeRemarks:
+        type: string
+        example: This is an office remark
+        title: Office Remarks
+        x-nullable: true
+        description: The TOO comment on approval or rejection.
+      status:
+        $ref: '#/definitions/ShipmentAddressUpdateStatus'
+      shipmentID:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      originalAddress:
+        $ref: '#/definitions/Address'
+      newAddress:
+        $ref: '#/definitions/Address'
+    required:
+      - id
+      - status
+      - shipmentID
+      - originalAddress
+      - newAddress
+      - contractorRemarks
   ClientError:
     type: object
     properties:

@@ -47,9 +47,11 @@ type Order struct {
 	LinesOfAccounting *string `json:"linesOfAccounting"`
 
 	// method of payment
+	// Read Only: true
 	MethodOfPayment string `json:"methodOfPayment,omitempty"`
 
 	// naics
+	// Read Only: true
 	Naics string `json:"naics,omitempty"`
 
 	// order number
@@ -67,6 +69,7 @@ type Order struct {
 	OriginDutyLocationGBLOC string `json:"originDutyLocationGBLOC,omitempty"`
 
 	// packing and shipping instructions
+	// Read Only: true
 	PackingAndShippingInstructions string `json:"packingAndShippingInstructions,omitempty"`
 
 	// rank
@@ -79,6 +82,7 @@ type Order struct {
 	ReportByDate strfmt.Date `json:"reportByDate,omitempty"`
 
 	// supply and services cost estimate
+	// Read Only: true
 	SupplyAndServicesCostEstimate string `json:"supplyAndServicesCostEstimate,omitempty"`
 }
 
@@ -312,11 +316,27 @@ func (m *Order) ContextValidate(ctx context.Context, formats strfmt.Registry) er
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateMethodOfPayment(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateNaics(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateOrdersType(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
 	if err := m.contextValidateOriginDutyLocation(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidatePackingAndShippingInstructions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateSupplyAndServicesCostEstimate(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -398,6 +418,24 @@ func (m *Order) contextValidateEntitlement(ctx context.Context, formats strfmt.R
 	return nil
 }
 
+func (m *Order) contextValidateMethodOfPayment(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "methodOfPayment", "body", string(m.MethodOfPayment)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Order) contextValidateNaics(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "naics", "body", string(m.Naics)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *Order) contextValidateOrdersType(ctx context.Context, formats strfmt.Registry) error {
 
 	if swag.IsZero(m.OrdersType) { // not required
@@ -432,6 +470,24 @@ func (m *Order) contextValidateOriginDutyLocation(ctx context.Context, formats s
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *Order) contextValidatePackingAndShippingInstructions(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "packingAndShippingInstructions", "body", string(m.PackingAndShippingInstructions)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Order) contextValidateSupplyAndServicesCostEstimate(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "supplyAndServicesCostEstimate", "body", string(m.SupplyAndServicesCostEstimate)); err != nil {
+		return err
 	}
 
 	return nil
