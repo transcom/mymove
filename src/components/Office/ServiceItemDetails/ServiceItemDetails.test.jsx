@@ -34,15 +34,16 @@ const nilDetails = {
 };
 
 describe('ServiceItemDetails Domestic Origin SIT', () => {
-  it.each([['DOFSIT'], ['DOASIT'], ['DOPSIT']])('renders ZIP and reason', (code) => {
+  it.each([['DOFSIT'], ['DOASIT'], ['DOPSIT']])('renders ZIP, reason, and service request documents', (code) => {
     render(<ServiceItemDetails id="1" code={code} details={details} serviceRequestDocs={serviceRequestDocs} />);
 
     expect(screen.getByText('ZIP:')).toBeInTheDocument();
     expect(screen.getByText('12345')).toBeInTheDocument();
     expect(screen.getByText('Reason:')).toBeInTheDocument();
     expect(screen.getByText('some reason')).toBeInTheDocument();
-    expect(screen.getByText('Download service item documentation')).toBeInTheDocument();
-    expect(screen.getByText('receipt.pdf')).toBeInTheDocument();
+    expect(screen.getByText('Download service item documentation:')).toBeInTheDocument();
+    // expect(screen.getByText('receipt.pdf')).toBeInTheDocument();
+    expect(screen.getByRole('link')).toHaveTextContent('receipt.pdf');
   });
 });
 

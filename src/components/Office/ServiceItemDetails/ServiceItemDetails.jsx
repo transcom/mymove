@@ -1,6 +1,7 @@
 import React from 'react';
 import { isEmpty, sortBy } from 'lodash';
 import classnames from 'classnames';
+import { Link } from 'react-router-dom';
 
 import { ServiceItemDetailsShape } from '../../../types/serviceItems';
 
@@ -50,7 +51,8 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs }) => {
                 {serviceRequestDocUploads.map((file) => (
                   <div className={styles.uploads}>
                     {/* <a href={file.url}>{file.filename.split('/').pop().split('-').pop()}</a> */}
-                    <a href={file.url}>{trimFileName(file.filename)}</a>
+                    {/* <a href={file.url}>{trimFileName(file.filename)}</a> */}
+                    <Link to={file.url}>{trimFileName(file.filename)}</Link>
                   </div>
                 ))}
               </div>
@@ -106,7 +108,8 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs }) => {
                 <p className={styles.detailType}>Download service item documentation:</p>
                 {serviceRequestDocUploads.map((file) => (
                   <div className={styles.uploads}>
-                    <a href={file.url}>{trimFileName(file.filename)}</a>
+                    {/* <a href={file.url}>{trimFileName(file.filename)}</a> */}
+                    <Link to={file.url}>{trimFileName(file.filename)}</Link>
                   </div>
                 ))}
               </div>
@@ -143,7 +146,7 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs }) => {
                 <p className={styles.detailType}>Download service item documentation:</p>
                 {serviceRequestDocUploads.map((file) => (
                   <div className={styles.uploads}>
-                    <a href={file.url}>{trimFileName(file.filename)}</a>
+                    <Link href={file.url}>{trimFileName(file.filename)}</Link>
                   </div>
                 ))}
               </div>
@@ -178,7 +181,8 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs }) => {
                 <p className={styles.detailType}>Download service item documentation:</p>
                 {serviceRequestDocUploads.map((file) => (
                   <div className={styles.uploads}>
-                    <a href={file.url}>{trimFileName(file.filename)}</a>
+                    {/* <a href={file.url}>{trimFileName(file.filename)}</a> */}
+                    <Link to={file.url}>{trimFileName(file.filename)}</Link>
                   </div>
                 ))}
               </div>
@@ -205,7 +209,8 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs }) => {
                 <p className={styles.detailType}>Download service item documentation:</p>
                 {serviceRequestDocUploads.map((file) => (
                   <div className={styles.uploads}>
-                    <a href={file.url}>{trimFileName(file.filename)}</a>
+                    {/* <a href={file.url}>{trimFileName(file.filename)}</a> */}
+                    <Link to={file.url}>{trimFileName(file.filename)}</Link>
                   </div>
                 ))}
               </div>
@@ -227,7 +232,10 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs }) => {
                 <p className={styles.detailType}>Download service item documentation:</p>
                 {serviceRequestDocUploads.map((file) => (
                   <div className={styles.uploads}>
-                    <a href={file.url}>{trimFileName(file.filename)}</a>
+                    {/* <a href={file.url}>{trimFileName(file.filename)}</a> */}
+                    <Link to={file.url} className="usa-link">
+                      {trimFileName(file.filename)}
+                    </Link>
                   </div>
                 ))}
               </div>
