@@ -35,18 +35,17 @@ func NewCreateNonSITAddressUpdateRequest(ctx *middleware.Context, handler Create
 createNonSITAddressUpdateRequest
 
 ### Functionality
-This endpoint is used so the Prime can request an **update** for the destination address on an MTO Shipment for non SIT.
-Address can update automatically unless this changes:
+This endpoint is used so the Prime can request an **update** for the destination address on an MTO Shipment,
+after the destination address has already been approved.
+This does not change addresses on SIT service items.
+Address updates will be automatically approved unless they change:
   - the service area
-  - mileage bracket for direct delivery
-  - mileage bracket where there is a Zip3 resulting in Domestic Short Haul (DSH) changing from Domestic Short Haul (DSH) to Domestic Line Haul (DLH) or vice versa.
+  - Mileage bracket for direct delivery
+  - Domestic Short Haul to Domestic Line Haul or vice versa
+  - Shipments that start and end in one ZIP3 use Short Haul pricing
+  - Shipments that start and end in different ZIP3s use Line Haul pricing
 
 For those, changes will require TOO approval.
-
-	**Limitations:**
-
-The update can be requested for APPROVED non SIT items only.
-Only ONE request is allowed per approved non SIT item.
 */
 type CreateNonSITAddressUpdateRequest struct {
 	Context *middleware.Context
