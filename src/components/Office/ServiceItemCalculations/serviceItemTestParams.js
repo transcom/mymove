@@ -277,7 +277,7 @@ const ServiceAreaDest = {
   type: 'STRING',
   value: '080',
 };
-const SITServiceAreaDest = {
+const SITDestFinalAddress = {
   eTag: 'MjAyMS0wMy0xOFQwMTozMTo1MS4yNjY4M1o=',
   id: 'af92f0ca-f669-4483-95d2-d66e9c0c69e4',
   key: 'ServiceAreaDest',
@@ -622,7 +622,7 @@ const testParams = {
     EscalationCompounded,
     PriceRateOrFactor,
     ReferenceDate,
-    SITServiceAreaDest,
+    SITDestFinalAddress,
     SITScheduleDest,
     WeightOriginal,
     WeightBilled,
@@ -637,7 +637,7 @@ const testParams = {
     EscalationCompounded,
     PriceRateOrFactor,
     ReferenceDate,
-    SITServiceAreaDest,
+    SITDestFinalAddress,
     SITScheduleDest,
     WeightOriginal,
     WeightBilled,
@@ -652,7 +652,7 @@ const testParams = {
     EscalationCompounded,
     PriceRateOrFactor,
     ReferenceDate,
-    SITServiceAreaDest,
+    SITDestFinalAddress,
     SITScheduleDest,
     WeightOriginal,
     WeightBilled,
