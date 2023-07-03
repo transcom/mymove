@@ -3431,7 +3431,9 @@ func init() {
                 "Payment requested",
                 "Reviewed",
                 "Rejected",
-                "Paid"
+                "Paid",
+                "Deprecated",
+                "Error"
               ],
               "type": "string"
             },
@@ -8106,7 +8108,9 @@ func init() {
         "Payment requested",
         "Reviewed",
         "Rejected",
-        "Paid"
+        "Paid",
+        "Deprecated",
+        "Error"
       ]
     },
     "QueuePaymentRequests": {
@@ -14104,7 +14108,9 @@ func init() {
                 "Payment requested",
                 "Reviewed",
                 "Rejected",
-                "Paid"
+                "Paid",
+                "Deprecated",
+                "Error"
               ],
               "type": "string"
             },
@@ -19111,7 +19117,9 @@ func init() {
         "Payment requested",
         "Reviewed",
         "Rejected",
-        "Paid"
+        "Paid",
+        "Deprecated",
+        "Error"
       ]
     },
     "QueuePaymentRequests": {

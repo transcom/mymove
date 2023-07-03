@@ -41,6 +41,12 @@ const (
 
 	// QueuePaymentRequestStatusPaid captures enum value "Paid"
 	QueuePaymentRequestStatusPaid QueuePaymentRequestStatus = "Paid"
+
+	// QueuePaymentRequestStatusDeprecated captures enum value "Deprecated"
+	QueuePaymentRequestStatusDeprecated QueuePaymentRequestStatus = "Deprecated"
+
+	// QueuePaymentRequestStatusError captures enum value "Error"
+	QueuePaymentRequestStatusError QueuePaymentRequestStatus = "Error"
 )
 
 // for schema
@@ -48,7 +54,7 @@ var queuePaymentRequestStatusEnum []interface{}
 
 func init() {
 	var res []QueuePaymentRequestStatus
-	if err := json.Unmarshal([]byte(`["Payment requested","Reviewed","Rejected","Paid"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["Payment requested","Reviewed","Rejected","Paid","Deprecated","Error"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {

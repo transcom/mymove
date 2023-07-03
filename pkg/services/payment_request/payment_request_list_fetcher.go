@@ -288,6 +288,8 @@ func paymentRequestsStatusFilter(statuses []string) QueryOption {
 						models.PaymentRequestStatusReviewedAllRejected.String())
 				} else if strings.EqualFold(status, "Paid") {
 					translatedStatuses = append(translatedStatuses, models.PaymentRequestStatusPaid.String())
+				} else if strings.EqualFold(status, "Deprecated") {
+					translatedStatuses = append(translatedStatuses, models.PaymentRequestStatusDeprecated.String())
 				}
 			}
 			query.Where("payment_requests.status in (?)", translatedStatuses)
