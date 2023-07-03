@@ -195,11 +195,15 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 	}
 	mto.MTOShipments = filteredShipments
 
-	// Due to a Pop bug, we cannot fetch Customer Contacts or
-	// SITAddressUpdates.NewAddress or SITAddressUpdates.OldAddress with
-	// EagerPreload, this is due to a difference between what Pop expects the
-	// column names to be when creating the rows on the Many-to-Many table and
-	// with what it expects when fetching with EagerPreload
+	// Due to a Pop bug, we cannot fetch Customer Contacts with EagerPreload,
+	// this is due to a difference between what Pop expects the column names to
+	// be when creating the rows on the Many-to-Many table and with what it
+	// expects when fetching with EagerPreload
+	//
+	// Also due to how EagerPreload works, SITAddressUpdates.NewAddress &
+	// SITAddressUpdates.OldAddress appear to be duplicated because there are
+	// multiple relationships on the same table for SITAddressUpdates. We fix
+	// that by fetching the NewAddress and OldAddress data separately.
 	var loadedServiceItems models.MTOServiceItems
 	if mto.MTOServiceItems != nil {
 		loadedServiceItems = models.MTOServiceItems{}
