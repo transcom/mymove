@@ -19,12 +19,6 @@ import (
 // swagger:model CreateNonSITAddressUpdateRequest
 type CreateNonSITAddressUpdateRequest struct {
 
-	// Address ID should be the existing delivery address ID of the shipment.
-	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
-	// Required: true
-	// Format: uuid
-	AddressID *strfmt.UUID `json:"addressID"`
-
 	// This is the remark the Prime has entered, which would be the reason there is an address change.
 	// Example: Customer reached out to me this week and let me know they want to move somewhere else.
 	// Required: true
@@ -39,10 +33,6 @@ type CreateNonSITAddressUpdateRequest struct {
 func (m *CreateNonSITAddressUpdateRequest) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validateAddressID(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateContractorRemarks(formats); err != nil {
 		res = append(res, err)
 	}
@@ -54,19 +44,6 @@ func (m *CreateNonSITAddressUpdateRequest) Validate(formats strfmt.Registry) err
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-func (m *CreateNonSITAddressUpdateRequest) validateAddressID(formats strfmt.Registry) error {
-
-	if err := validate.Required("addressID", "body", m.AddressID); err != nil {
-		return err
-	}
-
-	if err := validate.FormatOf("addressID", "body", "uuid", m.AddressID.String(), formats); err != nil {
-		return err
-	}
-
 	return nil
 }
 
