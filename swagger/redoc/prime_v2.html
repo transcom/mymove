@@ -2,7 +2,7 @@
 <html>
 
 <head>
-  <title>Support API Reference</title>
+  <title>Prime API Reference</title>
   <!-- needed for adaptive design -->
   <meta content="width=device-width, initial-scale=1" name="viewport">
   <meta charset="UTF-8">
@@ -33,18 +33,18 @@
       </ul>
     </div>
     <nav class="nav-header">
-      <a class="nav-link" href="prime_v2.html">Prime v2</a>
+      <a aria-current="page" class="nav-link active" href="prime_v2.html">Prime v2</a>
       <a class="nav-link" href="prime.html">Prime</a>
-      <a aria-current="page" class="nav-link active" href="support.html">Support</a>
+      <a class="nav-link" href="support.html">Support</a>
     </nav>
   </header>
 
   <!-- {{{redocHTML}}} -->
-  <main id="support-redoc"></main>
+  <main id="prime-redoc"></main>
 
   <script src="https://cdn.jsdelivr.net/npm/redoc@next/bundles/redoc.standalone.js"></script>
   <script>
-    Redoc.init('../support.yaml', REDOC_THEME, document.getElementById('support-redoc'));
+    Redoc.init('../prime_v2.yaml', REDOC_THEME, document.getElementById('prime-redoc'));
   </script>
 </body>
 
