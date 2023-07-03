@@ -67,8 +67,8 @@ type InvoiceResponseHeader struct {
 	ST  edisegment.ST
 }
 
-// ServiceItemSegmentsSize is the number of fields in the ServiceItemSegments struct
-const ServiceItemSegmentsSize int = 7
+// ServiceItemSegmentsSizeWithoutFA2s is the number of fields in the ServiceItemSegments struct that does not include the FA2s
+const ServiceItemSegmentsSizeWithoutFA2s int = 6
 
 // ServiceItemSegments holds segments that are required for every service item
 type ServiceItemSegments struct {
