@@ -42,8 +42,8 @@ describe('ServiceItemDetails Domestic Origin SIT', () => {
     expect(screen.getByText('Reason:')).toBeInTheDocument();
     expect(screen.getByText('some reason')).toBeInTheDocument();
     expect(screen.getByText('Download service item documentation:')).toBeInTheDocument();
-    // expect(screen.getByText('receipt.pdf')).toBeInTheDocument();
-    expect(screen.getByRole('link')).toHaveTextContent('receipt.pdf');
+    const downloadLink = screen.getByText('receipt.pdf');
+    expect(downloadLink).toBeInstanceOf(HTMLAnchorElement);
   });
 });
 
