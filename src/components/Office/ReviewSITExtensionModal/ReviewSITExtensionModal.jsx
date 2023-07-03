@@ -19,7 +19,7 @@ import { Form } from 'components/form';
 import { ModalContainer, Overlay } from 'components/MigratedModal/MigratedModal';
 import Modal, { ModalActions, ModalClose, ModalTitle } from 'components/Modal/Modal';
 import { sitExtensionReasons } from 'constants/sitExtensions';
-import { datePickerFormat, formatDateForDatePicker, swaggerDateFormat } from 'shared/dates';
+import { formatDateForDatePicker, swaggerDateFormat } from 'shared/dates';
 import { SitStatusShape, LOCATION_TYPES } from 'types/sitStatusShape';
 import { ShipmentShape } from 'types';
 
@@ -65,8 +65,9 @@ const SITHistoryItemHeader = ({ title, value }) => {
 };
 
 const SitStatusTables = ({ sitStatus, sitExtension, shipment }) => {
-  const { totalSITDaysUsed, daysInSIT, location } = sitStatus;
-  const sitEntryDate = moment(sitStatus.sitEntryDate, swaggerDateFormat);
+  const { totalSITDaysUsed } = sitStatus;
+  const { daysInSIT, location } = sitStatus.currentSIT;
+  const sitEntryDate = moment(sitStatus.currentSIT.sitEntryDate, swaggerDateFormat);
   const daysInPreviousSIT = totalSITDaysUsed - daysInSIT;
 
   /**
@@ -112,13 +113,16 @@ const SitStatusTables = ({ sitStatus, sitExtension, shipment }) => {
    * @see SitEndDateForm component
    */
   const handleSitEndDateChange = (endDate) => {
+    // Calculate total allowance
+    // Set dates to same time zone and strip of time information to calculate integer
+    // days between them
+    const endDay = moment(endDate).utcOffset(sitEntryDate.utcOffset(), true).startOf('day');
+    const startDay = sitEntryDate.startOf('day');
+    const sitDurationDays = moment.duration(endDay.diff(startDay)).asDays();
+    const calculatedSitDaysAllowance = sitDurationDays + daysInPreviousSIT;
+
+    // Update form values
     endDateHelper.setValue(endDate);
-    // Total days of SIT
-    const startOfEndDate = moment(endDate, datePickerFormat).startOf('day');
-    const startOfEntryDate = sitEntryDate.startOf('day');
-    const calculatedSitDaysAllowance =
-      moment.duration(startOfEndDate.diff(startOfEntryDate)).asDays() + daysInPreviousSIT;
-    // Update form value
     sitAllowanceHelper.setValue(String(calculatedSitDaysAllowance));
   };
 
@@ -196,25 +200,15 @@ const SitStatusTables = ({ sitStatus, sitExtension, shipment }) => {
  * the TOO.
  */
 const ReviewSITExtensionsModal = ({ onClose, onSubmit, sitExtension, shipment, sitStatus }) => {
-  let sitStartDate = sitStatus?.sitEntryDate;
-  if (!sitStartDate) {
-    sitStartDate = shipment.mtoServiceItems?.reduce((item, acc) => {
-      if (item.sitEntryDate < acc.sitEntryDate) {
-        return item;
-      }
-      return acc;
-    }).sitEntryDate;
-  }
-
   const initialValues = {
     acceptExtension: '',
     daysApproved: String(shipment.sitDaysAllowance),
     requestReason: sitExtension.requestReason,
     officeRemarks: '',
-    sitEndDate: formatDateForDatePicker(moment(sitStatus.sitAllowanceEndDate, swaggerDateFormat)),
+    sitEndDate: formatDateForDatePicker(moment(sitStatus.currentSIT.sitAllowanceEndDate, swaggerDateFormat)),
   };
   const minimumDaysAllowed = shipment.sitDaysAllowance + 1;
-  const sitEntryDate = moment(sitStatus.sitEntryDate, swaggerDateFormat);
+  const sitEntryDate = moment(sitStatus.currentSIT.sitEntryDate, swaggerDateFormat);
   const reviewSITExtensionSchema = Yup.object().shape({
     acceptExtension: Yup.mixed().oneOf(['yes', 'no']).required('Required'),
     requestReason: Yup.string().required('Required'),

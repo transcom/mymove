@@ -190,6 +190,7 @@ export const MoveTaskOrder = (props) => {
         newMTOServiceItem;
       queryClient.setQueryData([MTO_SERVICE_ITEMS, variables.moveId, false], mtoServiceItems);
       queryClient.invalidateQueries({ queryKey: [MTO_SERVICE_ITEMS, variables.moveId] });
+      queryClient.invalidateQueries({ queryKey: [MTO_SHIPMENTS] });
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
@@ -1092,7 +1093,8 @@ export const MoveTaskOrder = (props) => {
             <h1>Move task order</h1>
             <div className={styles.pageHeaderDetails}>
               <h6>MTO Reference ID #{move?.referenceId}</h6>
-              <h6>Contract #1234567890</h6> {/* TODO - need this value from the API */}
+              <h6>Contract #{move?.contractor?.contractNumber}</h6>
+              <h6>NAICS: {order?.naics}</h6>
               <Restricted to={permissionTypes.updateFinancialReviewFlag}>
                 <div className={moveTaskOrderStyles.financialReviewContainer}>
                   <FinancialReviewButton
@@ -1218,6 +1220,12 @@ export const MoveTaskOrder = (props) => {
               </ShipmentContainer>
             );
           })}
+          <div className={styles.pageFooter}>
+            <div className={styles.pageFooterDetails}>
+              <h6>{order?.packingAndShippingInstructions}</h6>
+              <h6>{order?.methodOfPayment}</h6>
+            </div>
+          </div>
         </FlashGridContainer>
       </div>
     </div>

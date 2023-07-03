@@ -2318,6 +2318,9 @@ func init() {
               "x-nullable": true,
               "x-omitempty": false
             },
+            "sitAddressUpdates": {
+              "$ref": "#/definitions/SitAddressUpdates"
+            },
             "sitDepartureDate": {
               "description": "Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.",
               "type": "string",
@@ -3909,6 +3912,21 @@ func init() {
           "readOnly": true,
           "example": "31a2ad3c-1682-4d5b-8423-ff40053a056b"
         },
+        "officeRemarks": {
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "The customer has found a new house closer to base."
+        },
+        "oldAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "oldAddressId": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "31a2ad3c-1682-4d5b-8423-ff40053a056b"
+        },
         "status": {
           "$ref": "#/definitions/SitAddressUpdateStatus"
         },
@@ -3926,6 +3944,13 @@ func init() {
         "APPROVED",
         "REJECTED"
       ]
+    },
+    "SitAddressUpdates": {
+      "description": "A list of updates to a SIT service item address.",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/SitAddressUpdate"
+      }
     },
     "StorageFacility": {
       "description": "The Storage Facility information for the shipment",
@@ -7237,6 +7262,9 @@ func init() {
               "x-nullable": true,
               "x-omitempty": false
             },
+            "sitAddressUpdates": {
+              "$ref": "#/definitions/SitAddressUpdates"
+            },
             "sitDepartureDate": {
               "description": "Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.",
               "type": "string",
@@ -8831,6 +8859,21 @@ func init() {
           "readOnly": true,
           "example": "31a2ad3c-1682-4d5b-8423-ff40053a056b"
         },
+        "officeRemarks": {
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "The customer has found a new house closer to base."
+        },
+        "oldAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "oldAddressId": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "31a2ad3c-1682-4d5b-8423-ff40053a056b"
+        },
         "status": {
           "$ref": "#/definitions/SitAddressUpdateStatus"
         },
@@ -8848,6 +8891,13 @@ func init() {
         "APPROVED",
         "REJECTED"
       ]
+    },
+    "SitAddressUpdates": {
+      "description": "A list of updates to a SIT service item address.",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/SitAddressUpdate"
+      }
     },
     "StorageFacility": {
       "description": "The Storage Facility information for the shipment",

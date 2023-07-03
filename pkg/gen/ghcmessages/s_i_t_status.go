@@ -19,28 +19,11 @@ import (
 // swagger:model SITStatus
 type SITStatus struct {
 
-	// days in s i t
-	// Minimum: 0
-	DaysInSIT *int64 `json:"daysInSIT,omitempty"`
-
-	// location
-	// Enum: [ORIGIN DESTINATION]
-	Location interface{} `json:"location,omitempty"`
+	// current s i t
+	CurrentSIT *SITStatusCurrentSIT `json:"currentSIT,omitempty"`
 
 	// past s i t service items
 	PastSITServiceItems MTOServiceItems `json:"pastSITServiceItems,omitempty"`
-
-	// sit allowance end date
-	// Format: date
-	SitAllowanceEndDate *strfmt.Date `json:"sitAllowanceEndDate,omitempty"`
-
-	// sit departure date
-	// Format: date
-	SitDepartureDate *strfmt.Date `json:"sitDepartureDate,omitempty"`
-
-	// sit entry date
-	// Format: date
-	SitEntryDate *strfmt.Date `json:"sitEntryDate,omitempty"`
 
 	// total days remaining
 	// Minimum: 0
@@ -55,23 +38,11 @@ type SITStatus struct {
 func (m *SITStatus) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validateDaysInSIT(formats); err != nil {
+	if err := m.validateCurrentSIT(formats); err != nil {
 		res = append(res, err)
 	}
 
 	if err := m.validatePastSITServiceItems(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateSitAllowanceEndDate(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateSitDepartureDate(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateSitEntryDate(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -89,13 +60,20 @@ func (m *SITStatus) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *SITStatus) validateDaysInSIT(formats strfmt.Registry) error {
-	if swag.IsZero(m.DaysInSIT) { // not required
+func (m *SITStatus) validateCurrentSIT(formats strfmt.Registry) error {
+	if swag.IsZero(m.CurrentSIT) { // not required
 		return nil
 	}
 
-	if err := validate.MinimumInt("daysInSIT", "body", *m.DaysInSIT, 0, false); err != nil {
-		return err
+	if m.CurrentSIT != nil {
+		if err := m.CurrentSIT.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("currentSIT")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("currentSIT")
+			}
+			return err
+		}
 	}
 
 	return nil
@@ -112,42 +90,6 @@ func (m *SITStatus) validatePastSITServiceItems(formats strfmt.Registry) error {
 		} else if ce, ok := err.(*errors.CompositeError); ok {
 			return ce.ValidateName("pastSITServiceItems")
 		}
-		return err
-	}
-
-	return nil
-}
-
-func (m *SITStatus) validateSitAllowanceEndDate(formats strfmt.Registry) error {
-	if swag.IsZero(m.SitAllowanceEndDate) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("sitAllowanceEndDate", "body", "date", m.SitAllowanceEndDate.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *SITStatus) validateSitDepartureDate(formats strfmt.Registry) error {
-	if swag.IsZero(m.SitDepartureDate) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("sitDepartureDate", "body", "date", m.SitDepartureDate.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *SITStatus) validateSitEntryDate(formats strfmt.Registry) error {
-	if swag.IsZero(m.SitEntryDate) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("sitEntryDate", "body", "date", m.SitEntryDate.String(), formats); err != nil {
 		return err
 	}
 
@@ -182,6 +124,10 @@ func (m *SITStatus) validateTotalSITDaysUsed(formats strfmt.Registry) error {
 func (m *SITStatus) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.contextValidateCurrentSIT(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidatePastSITServiceItems(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -189,6 +135,27 @@ func (m *SITStatus) ContextValidate(ctx context.Context, formats strfmt.Registry
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *SITStatus) contextValidateCurrentSIT(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.CurrentSIT != nil {
+
+		if swag.IsZero(m.CurrentSIT) { // not required
+			return nil
+		}
+
+		if err := m.CurrentSIT.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("currentSIT")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("currentSIT")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -217,6 +184,129 @@ func (m *SITStatus) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (m *SITStatus) UnmarshalBinary(b []byte) error {
 	var res SITStatus
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*m = res
+	return nil
+}
+
+// SITStatusCurrentSIT s i t status current s i t
+//
+// swagger:model SITStatusCurrentSIT
+type SITStatusCurrentSIT struct {
+
+	// days in s i t
+	// Minimum: 0
+	DaysInSIT *int64 `json:"daysInSIT,omitempty"`
+
+	// location
+	// Enum: [ORIGIN DESTINATION]
+	Location interface{} `json:"location,omitempty"`
+
+	// sit allowance end date
+	// Format: date
+	SitAllowanceEndDate *strfmt.Date `json:"sitAllowanceEndDate,omitempty"`
+
+	// sit departure date
+	// Format: date
+	SitDepartureDate *strfmt.Date `json:"sitDepartureDate,omitempty"`
+
+	// sit entry date
+	// Format: date
+	SitEntryDate *strfmt.Date `json:"sitEntryDate,omitempty"`
+}
+
+// Validate validates this s i t status current s i t
+func (m *SITStatusCurrentSIT) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.validateDaysInSIT(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSitAllowanceEndDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSitDepartureDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSitEntryDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *SITStatusCurrentSIT) validateDaysInSIT(formats strfmt.Registry) error {
+	if swag.IsZero(m.DaysInSIT) { // not required
+		return nil
+	}
+
+	if err := validate.MinimumInt("currentSIT"+"."+"daysInSIT", "body", *m.DaysInSIT, 0, false); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *SITStatusCurrentSIT) validateSitAllowanceEndDate(formats strfmt.Registry) error {
+	if swag.IsZero(m.SitAllowanceEndDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("currentSIT"+"."+"sitAllowanceEndDate", "body", "date", m.SitAllowanceEndDate.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *SITStatusCurrentSIT) validateSitDepartureDate(formats strfmt.Registry) error {
+	if swag.IsZero(m.SitDepartureDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("currentSIT"+"."+"sitDepartureDate", "body", "date", m.SitDepartureDate.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *SITStatusCurrentSIT) validateSitEntryDate(formats strfmt.Registry) error {
+	if swag.IsZero(m.SitEntryDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("currentSIT"+"."+"sitEntryDate", "body", "date", m.SitEntryDate.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validates this s i t status current s i t based on context it is used
+func (m *SITStatusCurrentSIT) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (m *SITStatusCurrentSIT) MarshalBinary() ([]byte, error) {
+	if m == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(m)
+}
+
+// UnmarshalBinary interface implementation
+func (m *SITStatusCurrentSIT) UnmarshalBinary(b []byte) error {
+	var res SITStatusCurrentSIT
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
