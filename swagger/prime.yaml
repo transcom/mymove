@@ -629,20 +629,18 @@ paths:
         ### Functionality
 
         This endpoint is used so the Prime can request an **update** for the
-        destination address on an MTO Shipment for non SIT.
+        destination address on an MTO Shipment.
 
-        Address can update automatically unless this changes:
+        This does not change addresses on SIT service items.
+
+        Address updates will be automatically approved unless they change:
           - the service area
-          - mileage bracket for direct delivery
+          - Mileage bracket for direct delivery
           - Domestic Short Haul to Domestic Line Haul or vice versa
-          - mileage bracket where there is a Zip3 resulting in Domestic Short Haul (DSH) changing from Domestic Short Haul (DSH) to Domestic Line Haul (DLH) or vice versa.
+              - Shipments that start and end in one ZIP3 use Short Haul pricing
+              - Shipments that start and end in different ZIP3s use Line Haul pricing
 
         For those, changes will require TOO approval.
-
-         **Limitations:**
-        The update can be requested for APPROVED non SIT items only.
-
-        Only ONE request is allowed per approved non SIT item.
       operationId: createNonSITAddressUpdateRequest
       tags:
         - mtoShipment
@@ -2103,6 +2101,8 @@ definitions:
               The reason item has been placed in SIT.
             x-nullable: true
             x-omitempty: false
+          sitAddressUpdates:
+            $ref: '#/definitions/SitAddressUpdates'
         required:
           - reServiceCode
           - sitEntryDate
@@ -3145,6 +3145,11 @@ definitions:
         type: string
         readOnly: true
     type: object
+  SitAddressUpdates:
+    description: A list of updates to a SIT service item address.
+    type: array
+    items:
+      $ref: '#/definitions/SitAddressUpdate'
   SitAddressUpdate:
     properties:
       id:
@@ -3164,6 +3169,13 @@ definitions:
         type: string
       newAddress:
         $ref: '#/definitions/Address'
+      oldAddressId:
+        example: 31a2ad3c-1682-4d5b-8423-ff40053a056b
+        format: uuid
+        readOnly: true
+        type: string
+      oldAddress:
+        $ref: '#/definitions/Address'
       status:
         $ref: '#/definitions/SitAddressUpdateStatus'
       distance:
@@ -3176,6 +3188,11 @@ definitions:
         example: >-
           Customer reached out to me this week & let me know they want to move
           closer to family.
+        x-nullable: true
+        x-omitempty: false
+      officeRemarks:
+        example: The customer has found a new house closer to base.
+        type: string
         x-nullable: true
         x-omitempty: false
       createdAt:

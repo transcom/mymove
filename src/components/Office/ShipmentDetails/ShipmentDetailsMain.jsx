@@ -5,7 +5,6 @@ import { Button } from '@trussworks/react-uswds';
 import styles from './ShipmentDetails.module.scss';
 
 import { SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
-import { SIT_SERVICE_ITEM_CODES } from 'constants/serviceItems';
 import { formatDate } from 'shared/dates';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { AddressShape } from 'types';
@@ -55,7 +54,6 @@ const ShipmentDetailsMain = ({
     primeActualWeight,
     counselorRemarks,
     customerRemarks,
-    mtoServiceItems,
     sitExtensions,
     sitStatus,
     storageInTransit,
@@ -77,22 +75,6 @@ const ShipmentDetailsMain = ({
   };
 
   const pendingSITExtension = sitExtensions?.find((se) => se.status === SIT_EXTENSION_STATUS.PENDING);
-
-  /**
-   * @description This variable is used to store the existence of service items
-   * codes that contain SIT and are a part of the constants
-   * SIT_SERVICE_ITEM_CODES.
-   *
-   * It is `undefined` by default unless there are SIT service items found in
-   * the `mtoServiceItems` Array.
-   *
-   * When there are any SIT service items present, it is set to a value of the
-   * first found SIT service item. We treat this value as a boolean later on
-   * when calling the ShipmentSITDisplay component.
-   */
-  const serviceItemsContainSIT = mtoServiceItems?.find(
-    (serviceItem) => SIT_SERVICE_ITEM_CODES[serviceItem.reServiceCode],
-  );
 
   /**
    * Displays correct button to open the modal on the SIT Display component to open with either Sumbit or Review SIT modal.
@@ -153,7 +135,7 @@ const ShipmentDetailsMain = ({
           sitStatus={sitStatus}
         />
       )}
-      {serviceItemsContainSIT && (
+      {sitStatus && (
         <ShipmentSITDisplay
           sitExtensions={sitExtensions}
           sitStatus={sitStatus}

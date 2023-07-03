@@ -9,11 +9,13 @@ import { formatDateForDatePicker, utcDateFormat } from 'shared/dates';
 
 const defaultValues = {
   sitStatus: {
-    daysInSIT: 60,
-    location: 'DESTINATION',
-    sitEntryDate: moment().subtract(60, 'days').format(utcDateFormat),
     totalDaysRemaining: 210,
     totalSITDaysUsed: 60,
+    currentSIT: {
+      location: 'DESTINATION',
+      daysInSIT: 60,
+      sitEntryDate: moment().subtract(60, 'days').format(utcDateFormat),
+    },
   },
   shipment: {
     sitDaysAllowance: 270,

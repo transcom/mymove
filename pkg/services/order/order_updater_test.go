@@ -2,12 +2,15 @@ package order
 
 import (
 	"fmt"
+	"reflect"
 	"time"
 
+	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
@@ -779,10 +782,10 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 }
 
 func (suite *OrderServiceSuite) TestUploadAmendedOrdersForCustomer() {
+	moveRouter := move.NewMoveRouter()
+	orderUpdater := NewOrderUpdater(moveRouter)
 
-	suite.Run("Creates and saves new amendedOrder doc when the order.UploadedAmendedOrders is nil", func() {
-		moveRouter := move.NewMoveRouter()
-		orderUpdater := NewOrderUpdater(moveRouter)
+	setUpOrders := func(setUpPreExistingAmendedOrders bool) *models.Order {
 		dutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
 			{
 				Model:    factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2}),
@@ -790,22 +793,86 @@ func (suite *OrderServiceSuite) TestUploadAmendedOrdersForCustomer() {
 			},
 		}, nil)
 		var moves models.Moves
-		mto := factory.BuildServiceCounselingCompletedMove(suite.DB(), []factory.Customization{
+
+		customs := []factory.Customization{
 			{
 				Model:    dutyLocation,
 				LinkOnly: true,
 				Type:     &factory.DutyLocations.OriginDutyLocation,
 			},
-		}, nil)
+		}
+
+		if setUpPreExistingAmendedOrders {
+			customs = append(
+				customs,
+				factory.Customization{
+					Model: models.Document{},
+					Type:  &factory.Documents.UploadedAmendedOrders,
+				},
+			)
+		}
+
+		mto := factory.BuildServiceCounselingCompletedMove(suite.DB(), customs, nil)
 
 		order := mto.Orders
 		order.Moves = append(moves, mto)
 
-		file := testdatagen.FixtureRuntimeFile("test.pdf")
-		defer func() {
+		return &order
+	}
+
+	setUpFileToUpload := func() (*runtime.File, func()) {
+		file := testdatagen.FixtureRuntimeFile("filled-out-orders.pdf")
+
+		cleanUpFunc := func() {
 			fileCloseErr := file.Close()
 			suite.NoError(fileCloseErr)
-		}()
+		}
+
+		return file, cleanUpFunc
+	}
+
+	suite.Run("Returns a NotFoundErr if the orders are not associated with the service member attempting to upload amended orders", func() {
+		order := setUpOrders(false)
+		otherServiceMember := factory.BuildExtendedServiceMember(suite.DB(), nil, nil)
+
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.MilApp,
+			ServiceMemberID: otherServiceMember.ID,
+		})
+
+		file, cleanUpFunc := setUpFileToUpload()
+		defer cleanUpFunc()
+
+		fakeS3 := storageTest.NewFakeS3Storage(true)
+
+		upload, url, verrs, err := orderUpdater.UploadAmendedOrdersAsCustomer(
+			appCtx,
+			order.ServiceMember.UserID,
+			order.ID,
+			file.Data,
+			file.Header.Filename,
+			fakeS3,
+		)
+
+		if suite.Error(err) {
+			suite.True(reflect.DeepEqual(models.Upload{}, upload), "Upload should be empty")
+			suite.Equal("", url, "URL should be empty")
+			suite.NoVerrs(verrs)
+
+			suite.IsType(apperror.NotFoundError{}, err)
+			suite.Contains(err.Error(), "not found while looking for order")
+		}
+	})
+
+	suite.Run("Creates and saves new amendedOrder doc when the order.UploadedAmendedOrders is nil", func() {
+		order := setUpOrders(false)
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.MilApp,
+			ServiceMemberID: order.ServiceMemberID,
+		})
+
+		file, cleanUpFunc := setUpFileToUpload()
+		defer cleanUpFunc()
 
 		fakeS3 := storageTest.NewFakeS3Storage(true)
 
@@ -813,7 +880,7 @@ func (suite *OrderServiceSuite) TestUploadAmendedOrdersForCustomer() {
 		suite.NotEqual(uuid.Nil, order.ServiceMember.UserID, "ServiceMember.UserID has ID that is not 0/empty")
 
 		upload, url, verrs, err := orderUpdater.UploadAmendedOrdersAsCustomer(
-			suite.AppContextForTest(),
+			appCtx,
 			order.ServiceMember.UserID,
 			order.ID,
 			file.Data,
@@ -822,7 +889,7 @@ func (suite *OrderServiceSuite) TestUploadAmendedOrdersForCustomer() {
 		suite.NoError(err)
 		suite.NoVerrs(verrs)
 
-		expectedChecksum := "nOE6HwzyE4VEDXn67ULeeA=="
+		expectedChecksum := "EUzjq/RQB5xjsdYBNl13zQ=="
 		if upload.Checksum != expectedChecksum {
 			suite.Fail("Did not calculate the correct MD5: expected %s, got %s", expectedChecksum, upload.Checksum)
 		}
@@ -846,22 +913,25 @@ func (suite *OrderServiceSuite) TestUploadAmendedOrdersForCustomer() {
 	})
 
 	suite.Run("Returns an error when order is not found", func() {
-		moveRouter := move.NewMoveRouter()
-		orderUpdater := NewOrderUpdater(moveRouter)
-		nonexistentUUID := uuid.Must(uuid.NewV4())
+		order := setUpOrders(false)
 
-		file := testdatagen.FixtureRuntimeFile("test.pdf")
-		defer func() {
-			fileCloseErr := file.Close()
-			suite.NoError(fileCloseErr)
-		}()
+		nonexistentOrdersUUID := uuid.Must(uuid.NewV4())
+
+		// No need for a service member in this case because it'll fail on to
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.MilApp,
+			ServiceMemberID: order.ServiceMemberID,
+		})
+
+		file, cleanUpFunc := setUpFileToUpload()
+		defer cleanUpFunc()
 
 		fakeS3 := storageTest.NewFakeS3Storage(true)
 
 		_, _, verrs, err := orderUpdater.UploadAmendedOrdersAsCustomer(
-			suite.AppContextForTest(),
-			nonexistentUUID,
-			nonexistentUUID,
+			appCtx,
+			order.ServiceMember.UserID,
+			nonexistentOrdersUUID,
 			file.Data,
 			file.Header.Filename,
 			fakeS3)
@@ -873,31 +943,15 @@ func (suite *OrderServiceSuite) TestUploadAmendedOrdersForCustomer() {
 	})
 
 	suite.Run("Saves userUpload payload to order.UploadedAmendedOrders if the document already exists", func() {
-		moveRouter := move.NewMoveRouter()
-		orderUpdater := NewOrderUpdater(moveRouter)
+		order := setUpOrders(true)
 
-		var moves models.Moves
-		mto := factory.BuildMove(suite.DB(), nil, nil)
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.MilApp,
+			ServiceMemberID: order.ServiceMemberID,
+		})
 
-		dutyLocationAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
-		order := factory.BuildOrder(suite.DB(), []factory.Customization{
-			{
-				Model:    dutyLocationAddress,
-				LinkOnly: true,
-				Type:     &factory.Addresses.DutyLocationAddress,
-			},
-			{
-				Model: models.Document{},
-				Type:  &factory.Documents.UploadedAmendedOrders,
-			},
-		}, nil)
-		order.Moves = append(moves, mto)
-
-		file := testdatagen.FixtureRuntimeFile("test.pdf")
-		defer func() {
-			fileCloseErr := file.Close()
-			suite.NoError(fileCloseErr)
-		}()
+		file, cleanUpFunc := setUpFileToUpload()
+		defer cleanUpFunc()
 
 		fakeS3 := storageTest.NewFakeS3Storage(true)
 
@@ -905,7 +959,7 @@ func (suite *OrderServiceSuite) TestUploadAmendedOrdersForCustomer() {
 		suite.NotEqual(uuid.Nil, order.ServiceMember.UserID, "ServiceMember.UserID has ID that is not 0/empty")
 
 		_, _, verrs, err := orderUpdater.UploadAmendedOrdersAsCustomer(
-			suite.AppContextForTest(),
+			appCtx,
 			order.ServiceMember.UserID,
 			order.ID,
 			file.Data,

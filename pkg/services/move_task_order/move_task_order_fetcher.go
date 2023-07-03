@@ -100,6 +100,7 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 		"PaymentRequests.ProofOfServiceDocs.PrimeUploads.Upload",
 		"MTOServiceItems.ReService",
 		"MTOServiceItems.Dimensions",
+		"MTOServiceItems.SITAddressUpdates",
 		"MTOServiceItems.SITDestinationFinalAddress",
 		"MTOServiceItems.SITOriginHHGOriginalAddress",
 		"MTOServiceItems.SITOriginHHGActualAddress",
@@ -194,8 +195,11 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 	}
 	mto.MTOShipments = filteredShipments
 
-	// Due to a Pop bug, we cannot fetch Customer Contacts with EagerPreload, this is due to a difference between what Pop expects
-	// the column names to be when creating the rows on the Many-to-Many table and with what it expects when fetching with EagerPreload
+	// Due to a Pop bug, we cannot fetch Customer Contacts or
+	// SITAddressUpdates.NewAddress or SITAddressUpdates.OldAddress with
+	// EagerPreload, this is due to a difference between what Pop expects the
+	// column names to be when creating the rows on the Many-to-Many table and
+	// with what it expects when fetching with EagerPreload
 	var loadedServiceItems models.MTOServiceItems
 	if mto.MTOServiceItems != nil {
 		loadedServiceItems = models.MTOServiceItems{}
@@ -204,9 +208,9 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 		if serviceItem.ReService.Code == models.ReServiceCodeDDASIT ||
 			serviceItem.ReService.Code == models.ReServiceCodeDDDSIT ||
 			serviceItem.ReService.Code == models.ReServiceCodeDDFSIT {
-			loadErr := appCtx.DB().Load(&mto.MTOServiceItems[i], "CustomerContacts")
+			loadErr := appCtx.DB().Load(&mto.MTOServiceItems[i], "CustomerContacts", "SITAddressUpdates.NewAddress", "SITAddressUpdates.OldAddress")
 			if loadErr != nil {
-				return &models.Move{}, apperror.NewQueryError("CustomerContacts", loadErr, "")
+				return &models.Move{}, apperror.NewQueryError("CustomerContacts or SITAddressUpdates.NewAddress or SITAddressUpdates.OldAddress", loadErr, "")
 			}
 		}
 

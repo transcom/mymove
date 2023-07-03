@@ -65,12 +65,14 @@ const PastServiceItemsShape = PropTypes.shape({
 });
 
 export const SitStatusShape = PropTypes.shape({
-  location: LOCATION_TYPES_ONE_OF,
   totalSITDaysUsed: PropTypes.number.isRequired,
   totalDaysRemaining: PropTypes.number.isRequired,
-  daysInSIT: PropTypes.number,
-  sitEntryDate: PropTypes.string,
-  sitDepartureDate: PropTypes.string,
-  sitAllowanceEndDate: PropTypes.string,
+  currentSIT: PropTypes.shape({
+    location: LOCATION_TYPES_ONE_OF,
+    daysInSIT: PropTypes.number,
+    sitEntryDate: PropTypes.string,
+    sitDepartureDate: PropTypes.string,
+    sitAllowanceEndDate: PropTypes.string,
+  }),
   pastSITServiceItems: PropTypes.arrayOf(PastServiceItemsShape),
 });

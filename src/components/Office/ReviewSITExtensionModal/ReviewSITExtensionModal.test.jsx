@@ -17,10 +17,12 @@ describe('ReviewSITExtensionModal', () => {
 
   const sitStatus = {
     totalDaysRemaining: 30,
-    sitEntryDate: moment().subtract(15, 'days').format(swaggerDateFormat),
-    sitAllowanceEndDate: moment().add(15, 'days').format(swaggerDateFormat),
     totalSITDaysUsed: 15,
-    daysInSIT: 15,
+    currentSIT: {
+      daysInSIT: 15,
+      sitEntryDate: moment().subtract(15, 'days').format(swaggerDateFormat),
+      sitAllowanceEndDate: moment().add(15, 'days').format(swaggerDateFormat),
+    },
   };
 
   const shipment = {
