@@ -976,20 +976,6 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandler() {
 		},
 	}, nil)
 
-	factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
-		{
-			Model:    hhgMove,
-			LinkOnly: true,
-		},
-		{
-			Model: models.PaymentRequest{
-				CreatedAt:      prevCreatedAt,
-				SequenceNumber: 2,
-				Status:         models.PaymentRequestStatusDeprecated,
-			},
-		},
-	}, nil)
-
 	factory.BuildPaymentRequest(suite.DB(), nil, nil)
 
 	request := httptest.NewRequest("GET", "/queues/payment-requests", nil)
@@ -1012,7 +998,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandler() {
 	// Validate outgoing payload
 	suite.NoError(payload.Validate(strfmt.Default))
 
-	suite.Len(payload.QueuePaymentRequests, 2)
+	suite.Len(payload.QueuePaymentRequests, 1)
 
 	paymentRequest := *payload.QueuePaymentRequests[0]
 
@@ -1022,12 +1008,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandler() {
 	suite.Equal(string(paymentRequest.Status), "Payment requested")
 	suite.Equal("KKFA", string(paymentRequest.OriginGBLOC))
 
-	deprecatedPaymentRequest := *payload.QueuePaymentRequests[1]
-
-	suite.Equal(string(deprecatedPaymentRequest.Status), "Deprecated")
-
 	//createdAt := actualPaymentRequest.CreatedAt
-
 	age := float64(2)
 	deptIndicator := *paymentRequest.DepartmentIndicator
 
