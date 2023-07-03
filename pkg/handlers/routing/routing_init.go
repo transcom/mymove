@@ -1,7 +1,8 @@
 package routing
 
 import (
-	"encoding/hex"
+	"errors"
+	"fmt"
 	"net/http"
 	"net/http/pprof"
 	"path"
@@ -26,6 +27,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers/primeapiv2"
 	"github.com/transcom/mymove/pkg/handlers/supportapi"
 	"github.com/transcom/mymove/pkg/handlers/testharnessapi"
+	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/middleware"
 	"github.com/transcom/mymove/pkg/storage"
 	"github.com/transcom/mymove/pkg/telemetry"
@@ -53,9 +55,6 @@ type Config struct {
 
 	// What is the maximum body size that should be accepted?
 	MaxBodySize int64
-
-	// To prevent CSRF, configure a authentication key
-	CSRFAuthKey string
 
 	// Should the swagger ui be served? Generally only enabled in development
 	ServeSwaggerUI bool
@@ -107,6 +106,27 @@ type Config struct {
 	// The git branch and commit used when building this server
 	GitBranch string
 	GitCommit string
+
+	// To prevent CSRF, configure a CSRF Middlware
+	// Configuring it here lets us re-use it / override it effectively
+	// in tests
+	CSRFMiddleware func(http.Handler) http.Handler
+}
+
+func InitCSRFMiddlware(csrfAuthKey []byte, secure bool, path string, cookieName string) func(http.Handler) http.Handler {
+	return csrf.Protect(csrfAuthKey,
+		csrf.Secure(secure),
+		csrf.Path(path),
+		csrf.CookieName(cookieName),
+		csrf.ErrorHandler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			reason := csrf.FailureReason(r)
+			logger := logging.FromContext(r.Context())
+			logger.Info("Request forbidden by CSRF Middleware", zap.String("reason", reason.Error()))
+			http.Error(w, fmt.Sprintf("%s - %s",
+				http.StatusText(http.StatusForbidden), reason),
+				http.StatusForbidden)
+		})),
+	)
 }
 
 // InitRouting sets up the routing
@@ -308,13 +328,11 @@ func InitRouting(appCtx appcontext.AppContext, redisPool *redis.Pool,
 		debug.HandleFunc("/", http.NotFound).Methods("GET")
 	}
 
-	// CSRF path is set specifically at the root to avoid duplicate tokens from different paths
-	csrfAuthKey, err := hex.DecodeString(routingConfig.CSRFAuthKey)
-	if err != nil {
-		appCtx.Logger().Fatal("Failed to decode csrf auth key", zap.Error(err))
+	if routingConfig.CSRFMiddleware == nil {
+		return nil, errors.New("Missing CSRF Middleware")
 	}
 	appCtx.Logger().Info("Enabling CSRF protection")
-	root.Use(csrf.Protect(csrfAuthKey, csrf.Secure(routingConfig.HandlerConfig.UseSecureCookie()), csrf.Path("/"), csrf.CookieName(auth.GorillaCSRFToken)))
+	root.Use(routingConfig.CSRFMiddleware)
 	root.Use(maskedCSRFMiddleware)
 
 	site.Host(routingConfig.HandlerConfig.AppNames().MilServername).PathPrefix("/").

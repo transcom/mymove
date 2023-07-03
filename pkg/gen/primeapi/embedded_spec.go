@@ -997,7 +997,7 @@ func init() {
     },
     "/mto-shipments/{mtoShipmentID}/shipment-address-updates": {
       "post": {
-        "description": "### Functionality\nThis endpoint is used so the Prime can request an **update** for the destination address on an MTO Shipment for non SIT.\nAddress can update automatically unless this changes:\n  - the service area\n  - mileage bracket for direct delivery\n  - mileage bracket where there is a Zip3 resulting in Domestic Short Haul (DSH) changing from Domestic Short Haul (DSH) to Domestic Line Haul (DLH) or vice versa.\n\nFor those, changes will require TOO approval.\n\n **Limitations:**\nThe update can be requested for APPROVED non SIT items only.\nOnly ONE request is allowed per approved non SIT item.\n",
+        "description": "### Functionality\nThis endpoint is used so the Prime can request an **update** for the destination address on an MTO Shipment,\nafter the destination address has already been approved.\nThis does not change addresses on SIT service items.\nAddress updates will be automatically approved unless they change:\n  - the service area\n  - Mileage bracket for direct delivery\n  - Domestic Short Haul to Domestic Line Haul or vice versa\n      - Shipments that start and end in one ZIP3 use Short Haul pricing\n      - Shipments that start and end in different ZIP3s use Line Haul pricing\n\nFor those, changes will require TOO approval.\n",
         "consumes": [
           "application/json"
         ],
@@ -1642,16 +1642,9 @@ func init() {
       "type": "object",
       "required": [
         "contractorRemarks",
-        "addressID",
         "newAddress"
       ],
       "properties": {
-        "addressID": {
-          "description": "Address ID should be the existing delivery address ID of the shipment.",
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
         "contractorRemarks": {
           "description": "This is the remark the Prime has entered, which would be the reason there is an address change.",
           "type": "string",
@@ -2317,6 +2310,9 @@ func init() {
               "type": "string",
               "x-nullable": true,
               "x-omitempty": false
+            },
+            "sitAddressUpdates": {
+              "$ref": "#/definitions/SitAddressUpdates"
             },
             "sitDepartureDate": {
               "description": "Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.",
@@ -3909,6 +3905,21 @@ func init() {
           "readOnly": true,
           "example": "31a2ad3c-1682-4d5b-8423-ff40053a056b"
         },
+        "officeRemarks": {
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "The customer has found a new house closer to base."
+        },
+        "oldAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "oldAddressId": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "31a2ad3c-1682-4d5b-8423-ff40053a056b"
+        },
         "status": {
           "$ref": "#/definitions/SitAddressUpdateStatus"
         },
@@ -3926,6 +3937,13 @@ func init() {
         "APPROVED",
         "REJECTED"
       ]
+    },
+    "SitAddressUpdates": {
+      "description": "A list of updates to a SIT service item address.",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/SitAddressUpdate"
+      }
     },
     "StorageFacility": {
       "description": "The Storage Facility information for the shipment",
@@ -5786,7 +5804,7 @@ func init() {
     },
     "/mto-shipments/{mtoShipmentID}/shipment-address-updates": {
       "post": {
-        "description": "### Functionality\nThis endpoint is used so the Prime can request an **update** for the destination address on an MTO Shipment for non SIT.\nAddress can update automatically unless this changes:\n  - the service area\n  - mileage bracket for direct delivery\n  - mileage bracket where there is a Zip3 resulting in Domestic Short Haul (DSH) changing from Domestic Short Haul (DSH) to Domestic Line Haul (DLH) or vice versa.\n\nFor those, changes will require TOO approval.\n\n **Limitations:**\nThe update can be requested for APPROVED non SIT items only.\nOnly ONE request is allowed per approved non SIT item.\n",
+        "description": "### Functionality\nThis endpoint is used so the Prime can request an **update** for the destination address on an MTO Shipment,\nafter the destination address has already been approved.\nThis does not change addresses on SIT service items.\nAddress updates will be automatically approved unless they change:\n  - the service area\n  - Mileage bracket for direct delivery\n  - Domestic Short Haul to Domestic Line Haul or vice versa\n      - Shipments that start and end in one ZIP3 use Short Haul pricing\n      - Shipments that start and end in different ZIP3s use Line Haul pricing\n\nFor those, changes will require TOO approval.\n",
         "consumes": [
           "application/json"
         ],
@@ -6561,16 +6579,9 @@ func init() {
       "type": "object",
       "required": [
         "contractorRemarks",
-        "addressID",
         "newAddress"
       ],
       "properties": {
-        "addressID": {
-          "description": "Address ID should be the existing delivery address ID of the shipment.",
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
         "contractorRemarks": {
           "description": "This is the remark the Prime has entered, which would be the reason there is an address change.",
           "type": "string",
@@ -7236,6 +7247,9 @@ func init() {
               "type": "string",
               "x-nullable": true,
               "x-omitempty": false
+            },
+            "sitAddressUpdates": {
+              "$ref": "#/definitions/SitAddressUpdates"
             },
             "sitDepartureDate": {
               "description": "Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.",
@@ -8831,6 +8845,21 @@ func init() {
           "readOnly": true,
           "example": "31a2ad3c-1682-4d5b-8423-ff40053a056b"
         },
+        "officeRemarks": {
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "The customer has found a new house closer to base."
+        },
+        "oldAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "oldAddressId": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "31a2ad3c-1682-4d5b-8423-ff40053a056b"
+        },
         "status": {
           "$ref": "#/definitions/SitAddressUpdateStatus"
         },
@@ -8848,6 +8877,13 @@ func init() {
         "APPROVED",
         "REJECTED"
       ]
+    },
+    "SitAddressUpdates": {
+      "description": "A list of updates to a SIT service item address.",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/SitAddressUpdate"
+      }
     },
     "StorageFacility": {
       "description": "The Storage Facility information for the shipment",

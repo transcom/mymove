@@ -110,6 +110,7 @@
 
       .usa-form-group {
         @include u-padding(2);
+        margin-top: 0;
         .usa-label {
           margin-top: 0;
         }
@@ -175,5 +176,11 @@
       @include u-margin-bottom(0);
       white-space: pre-wrap;
     }
+  }
+  .error {
+    border: solid 4px $error;
+  }
+  .rejectionGroup {
+    margin-top: 0;
   }
 }

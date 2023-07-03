@@ -23,6 +23,7 @@ func FetchMoveTaskOrder(appCtx appcontext.AppContext, searchParams *services.Mov
 		"PaymentRequests.ProofOfServiceDocs.PrimeUploads.Upload",
 		"MTOServiceItems.ReService",
 		"MTOServiceItems.Dimensions",
+		"MTOServiceItems.SITAddressUpdates",
 		"MTOServiceItems.SITDestinationFinalAddress",
 		"MTOServiceItems.SITOriginHHGOriginalAddress",
 		"MTOServiceItems.SITOriginHHGActualAddress",
@@ -117,8 +118,15 @@ func FetchMoveTaskOrder(appCtx appcontext.AppContext, searchParams *services.Mov
 	}
 	mto.MTOShipments = filteredShipments
 
-	// Due to a Pop bug, we cannot fetch Customer Contacts with EagerPreload, this is due to a difference between what Pop expects
-	// the column names to be when creating the rows on the Many-to-Many table and with what it expects when fetching with EagerPreload
+	// Due to a Pop bug, we cannot fetch Customer Contacts with EagerPreload,
+	// this is due to a difference between what Pop expects the column names to
+	// be when creating the rows on the Many-to-Many table and with what it
+	// expects when fetching with EagerPreload
+	//
+	// Also due to how EagerPreload works, SITAddressUpdates.NewAddress &
+	// SITAddressUpdates.OldAddress appear to be duplicated because there are
+	// multiple relationships on the same table for SITAddressUpdates. We fix
+	// that by fetching the NewAddress and OldAddress data separately.
 	var loadedServiceItems models.MTOServiceItems
 	if mto.MTOServiceItems != nil {
 		loadedServiceItems = models.MTOServiceItems{}
@@ -127,9 +135,9 @@ func FetchMoveTaskOrder(appCtx appcontext.AppContext, searchParams *services.Mov
 		if serviceItem.ReService.Code == models.ReServiceCodeDDASIT ||
 			serviceItem.ReService.Code == models.ReServiceCodeDDDSIT ||
 			serviceItem.ReService.Code == models.ReServiceCodeDDFSIT {
-			loadErr := appCtx.DB().Load(&mto.MTOServiceItems[i], "CustomerContacts")
+			loadErr := appCtx.DB().Load(&mto.MTOServiceItems[i], "CustomerContacts", "SITAddressUpdates.NewAddress", "SITAddressUpdates.OldAddress")
 			if loadErr != nil {
-				return &models.Move{}, apperror.NewQueryError("CustomerContacts", loadErr, "")
+				return &models.Move{}, apperror.NewQueryError("CustomerContacts or SITAddressUpdates.NewAddress or SITAddressUpdates.OldAddress", loadErr, "")
 			}
 		}
 
