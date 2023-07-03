@@ -19,7 +19,14 @@ function generateDetailText(details, id, className) {
   return detailList;
 }
 
-const ServiceItemDetails = ({ id, code, details }) => {
+const ServiceItemDetails = ({ id, code, details, serviceRequestDocs }) => {
+  const serviceRequestDocUploads = serviceRequestDocs?.map((doc) => doc.uploads[0]);
+
+  const trimFileName = (file) => {
+    const splitName = file.split('/').pop();
+    return splitName.substring(splitName.indexOf('-') + 1);
+  };
+
   let detailSection;
   switch (code) {
     case 'DOFSIT':
@@ -37,6 +44,17 @@ const ServiceItemDetails = ({ id, code, details }) => {
             )}
             {details.rejectionReason &&
               generateDetailText({ 'Rejection reason': details.rejectionReason }, id, 'margin-top-2')}
+            {!isEmpty(serviceRequestDocUploads) ? (
+              <div className={styles.uploads}>
+                <p className={styles.detailType}>Download service item documentation:</p>
+                {serviceRequestDocUploads.map((file) => (
+                  <div className={styles.uploads}>
+                    {/* <a href={file.url}>{file.filename.split('/').pop().split('-').pop()}</a> */}
+                    <a href={file.url}>{trimFileName(file.filename)}</a>
+                  </div>
+                ))}
+              </div>
+            ) : null}
           </dl>
         </div>
       );
@@ -83,6 +101,16 @@ const ServiceItemDetails = ({ id, code, details }) => {
             {generateDetailText({ Reason: details.reason ? details.reason : '-' })}
             {details.rejectionReason &&
               generateDetailText({ 'Rejection reason': details.rejectionReason }, id, 'margin-top-2')}
+            {!isEmpty(serviceRequestDocUploads) ? (
+              <div className={styles.uploads}>
+                <p className={styles.detailType}>Download service item documentation:</p>
+                {serviceRequestDocUploads.map((file) => (
+                  <div className={styles.uploads}>
+                    <a href={file.url}>{trimFileName(file.filename)}</a>
+                  </div>
+                ))}
+              </div>
+            ) : null}
           </dl>
         </div>
       );
@@ -110,6 +138,16 @@ const ServiceItemDetails = ({ id, code, details }) => {
             {generateDetailText({ Reason: details.reason ? details.reason : '-' })}
             {details.rejectionReason &&
               generateDetailText({ 'Rejection reason': details.rejectionReason }, id, 'margin-top-2')}
+            {!isEmpty(serviceRequestDocUploads) ? (
+              <div className={styles.uploads}>
+                <p className={styles.detailType}>Download service item documentation:</p>
+                {serviceRequestDocUploads.map((file) => (
+                  <div className={styles.uploads}>
+                    <a href={file.url}>{trimFileName(file.filename)}</a>
+                  </div>
+                ))}
+              </div>
+            ) : null}
           </dl>
         </div>
       );
@@ -135,6 +173,16 @@ const ServiceItemDetails = ({ id, code, details }) => {
             {crateDimensions && generateDetailText({ 'Crate size': crateDimensionFormat }, id)}
             {details.rejectionReason &&
               generateDetailText({ 'Rejection reason': details.rejectionReason }, id, 'margin-top-2')}
+            {!isEmpty(serviceRequestDocUploads) ? (
+              <div className={styles.uploads}>
+                <p className={styles.detailType}>Download service item documentation:</p>
+                {serviceRequestDocUploads.map((file) => (
+                  <div className={styles.uploads}>
+                    <a href={file.url}>{trimFileName(file.filename)}</a>
+                  </div>
+                ))}
+              </div>
+            ) : null}
           </dl>
         </div>
       );
@@ -152,6 +200,16 @@ const ServiceItemDetails = ({ id, code, details }) => {
             {generateDetailText({ Reason: details.reason })}
             {details.rejectionReason &&
               generateDetailText({ 'Rejection reason': details.rejectionReason }, id, 'margin-top-2')}
+            {!isEmpty(serviceRequestDocUploads) ? (
+              <div className={styles.uploads}>
+                <p className={styles.detailType}>Download service item documentation:</p>
+                {serviceRequestDocUploads.map((file) => (
+                  <div className={styles.uploads}>
+                    <a href={file.url}>{trimFileName(file.filename)}</a>
+                  </div>
+                ))}
+              </div>
+            ) : null}
           </dl>
         </div>
       );
@@ -164,6 +222,16 @@ const ServiceItemDetails = ({ id, code, details }) => {
           <dl>
             {details.rejectionReason &&
               generateDetailText({ 'Rejection reason': details.rejectionReason }, id, 'margin-top-2')}
+            {!isEmpty(serviceRequestDocUploads) ? (
+              <div className={styles.uploads}>
+                <p className={styles.detailType}>Download service item documentation:</p>
+                {serviceRequestDocUploads.map((file) => (
+                  <div className={styles.uploads}>
+                    <a href={file.url}>{trimFileName(file.filename)}</a>
+                  </div>
+                ))}
+              </div>
+            ) : null}
           </dl>
         </div>
       );
