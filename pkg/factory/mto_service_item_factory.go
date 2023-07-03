@@ -143,6 +143,12 @@ var (
 		Type:        models.ServiceItemParamTypeInteger,
 		Origin:      models.ServiceItemParamOriginSystem,
 	}
+	paramDistanceZipSITOrigin = models.ServiceItemParamKey{
+		Key:         models.ServiceItemParamNameDistanceZipSITOrigin,
+		Description: "distance zip SIT origin",
+		Type:        models.ServiceItemParamTypeInteger,
+		Origin:      models.ServiceItemParamOriginSystem,
+	}
 	paramEIAFuelPrice = models.ServiceItemParamKey{
 		Key:         models.ServiceItemParamNameEIAFuelPrice,
 		Description: "eia fuel price",
@@ -269,9 +275,21 @@ var (
 		Type:        models.ServiceItemParamTypeString,
 		Origin:      models.ServiceItemParamOriginPrime,
 	}
+	paramZipSITOriginHHGActualAddress = models.ServiceItemParamKey{
+		Key:         models.ServiceItemParamNameZipSITOriginHHGActualAddress,
+		Description: "zip dest address SIT origin HHG actual address",
+		Type:        models.ServiceItemParamTypeString,
+		Origin:      models.ServiceItemParamOriginPrime,
+	}
 	paramZipPickupAddress = models.ServiceItemParamKey{
 		Key:         models.ServiceItemParamNameZipPickupAddress,
 		Description: "zip pickup address",
+		Type:        models.ServiceItemParamTypeString,
+		Origin:      models.ServiceItemParamOriginPrime,
+	}
+	paramZipSITOriginHHGOriginalAddress = models.ServiceItemParamKey{
+		Key:         models.ServiceItemParamNameZipSITOriginHHGOriginalAddress,
+		Description: "zip pickup address SIT origin HHG original address",
 		Type:        models.ServiceItemParamTypeString,
 		Origin:      models.ServiceItemParamOriginPrime,
 	}
@@ -375,6 +393,21 @@ var (
 			paramWeightOriginal,
 			paramWeightReweigh,
 			paramZipPickupAddress,
+		},
+		models.ReServiceCodeDOSFSC: {
+			paramActualPickupDate,
+			paramDistanceZipSITOrigin,
+			paramFSCWeightBasedDistanceMultiplier,
+			paramEIAFuelPrice,
+			paramWeightBilled,
+			paramWeightAdjusted,
+			paramWeightOriginal,
+			paramWeightEstimated,
+			paramZipSITOriginHHGOriginalAddress,
+			paramZipSITOriginHHGActualAddress,
+			paramFSCPriceDifferenceInCents,
+			paramContractCode,
+			paramFSCMultiplier,
 		},
 	}
 )
