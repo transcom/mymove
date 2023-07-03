@@ -149,6 +149,12 @@ var (
 		Type:        models.ServiceItemParamTypeInteger,
 		Origin:      models.ServiceItemParamOriginSystem,
 	}
+	paramDistanceZipSITDest = models.ServiceItemParamKey{
+		Key:         models.ServiceItemParamNameDistanceZipSITDest,
+		Description: "distance zip SIT destination",
+		Type:        models.ServiceItemParamTypeInteger,
+		Origin:      models.ServiceItemParamOriginSystem,
+	}
 	paramEIAFuelPrice = models.ServiceItemParamKey{
 		Key:         models.ServiceItemParamNameEIAFuelPrice,
 		Description: "eia fuel price",
@@ -281,6 +287,12 @@ var (
 		Type:        models.ServiceItemParamTypeString,
 		Origin:      models.ServiceItemParamOriginPrime,
 	}
+	paramZipSITDestHHGFinalAddress = models.ServiceItemParamKey{
+		Key:         models.ServiceItemParamNameZipSITDestHHGFinalAddress,
+		Description: "zip dest address SIT destination HHG final address",
+		Type:        models.ServiceItemParamTypeString,
+		Origin:      models.ServiceItemParamOriginPrime,
+	}
 	paramZipPickupAddress = models.ServiceItemParamKey{
 		Key:         models.ServiceItemParamNameZipPickupAddress,
 		Description: "zip pickup address",
@@ -290,6 +302,12 @@ var (
 	paramZipSITOriginHHGOriginalAddress = models.ServiceItemParamKey{
 		Key:         models.ServiceItemParamNameZipSITOriginHHGOriginalAddress,
 		Description: "zip pickup address SIT origin HHG original address",
+		Type:        models.ServiceItemParamTypeString,
+		Origin:      models.ServiceItemParamOriginPrime,
+	}
+	paramZipSITDestHHGOriginalAddress = models.ServiceItemParamKey{
+		Key:         models.ServiceItemParamNameZipSITDestHHGOriginalAddress,
+		Description: "zip pickup address SIT destination HHG original address",
 		Type:        models.ServiceItemParamTypeString,
 		Origin:      models.ServiceItemParamOriginPrime,
 	}
@@ -405,6 +423,21 @@ var (
 			paramWeightEstimated,
 			paramZipSITOriginHHGOriginalAddress,
 			paramZipSITOriginHHGActualAddress,
+			paramFSCPriceDifferenceInCents,
+			paramContractCode,
+			paramFSCMultiplier,
+		},
+		models.ReServiceCodeDDSFSC: {
+			paramActualPickupDate,
+			paramDistanceZipSITDest,
+			paramFSCWeightBasedDistanceMultiplier,
+			paramEIAFuelPrice,
+			paramWeightBilled,
+			paramWeightAdjusted,
+			paramWeightOriginal,
+			paramWeightEstimated,
+			paramZipSITDestHHGOriginalAddress,
+			paramZipSITDestHHGFinalAddress,
 			paramFSCPriceDifferenceInCents,
 			paramContractCode,
 			paramFSCMultiplier,
