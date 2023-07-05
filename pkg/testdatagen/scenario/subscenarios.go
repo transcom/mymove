@@ -751,6 +751,7 @@ func subScenarioReweighs(appCtx appcontext.AppContext, userUploader *uploader.Us
 		createReweighWithShipmentMaxBillableWeightExceeded(appCtx, userUploader, primeUploader, moveRouter)
 		createReweighWithShipmentNoEstimatedWeight(appCtx, userUploader, primeUploader, moveRouter)
 		createReweighWithShipmentDeprecatedPaymentRequest(appCtx, userUploader, primeUploader, moveRouter)
+		createReweighWithShipmentEDIErrorPaymentRequest(appCtx, userUploader, primeUploader, moveRouter)
 		createReweighWithMixedShipmentStatuses(appCtx, userUploader)
 	}
 }

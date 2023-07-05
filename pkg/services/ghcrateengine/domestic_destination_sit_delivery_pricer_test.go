@@ -97,6 +97,13 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationSITDeliveryPricer
 		suite.Contains(err.Error(), "invalid SIT final destination postal code")
 	})
 
+	suite.Run("bad SIT final destination service area using ServiceAreaLookup", func() {
+		suite.setupDomesticServiceAreaPrice(models.ReServiceCodeDSH, "", dddsitTestIsPeakPeriod, dddsitTestDomesticServiceAreaBasePriceCents, dddsitTestContractYearName, dddsitTestEscalationCompounded)
+		_, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, dddsitTestRequestedPickupDate, dddsitTestWeight, "111", dddsitTestSchedule, zipDest, zipSITDest, distance)
+		suite.Error(err)
+		suite.Contains(err.Error(), "could not price shorthaul: Could not lookup Domestic Service Area Price")
+	})
+
 	suite.Run("error from shorthaul pricer", func() {
 		suite.setupDomesticServiceAreaPrice(models.ReServiceCodeDSH, dddsitTestServiceArea, dddsitTestIsPeakPeriod, dddsitTestDomesticServiceAreaBasePriceCents, dddsitTestContractYearName, dddsitTestEscalationCompounded)
 		_, _, err := pricer.Price(suite.AppContextForTest(), "BOGUS", dddsitTestRequestedPickupDate, dddsitTestWeight, dddsitTestServiceArea, dddsitTestSchedule, zipDest, zipSITDest, distance)
@@ -107,7 +114,8 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationSITDeliveryPricer
 
 func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationSITDeliveryPricer50PlusMilesDiffZip3s() {
 	zipDest := "30907"
-	zipSITDest := "36106"       // different zip3
+	zipSITDest := "36106" // different zip3
+	//sitServiceAreaDest := "020" // different service Area
 	distance := unit.Miles(305) // > 50 miles
 
 	pricer := NewDomesticDestinationSITDeliveryPricer()
@@ -218,7 +226,7 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticDestinationSITDeliveryServi
 				Value:   dddsitTestRequestedPickupDate.Format(DateParamFormat),
 			},
 			{
-				Key:     models.ServiceItemParamNameServiceAreaDest,
+				Key:     models.ServiceItemParamNameSITServiceAreaDest,
 				KeyType: models.ServiceItemParamTypeString,
 				Value:   dddsitTestServiceArea,
 			},
