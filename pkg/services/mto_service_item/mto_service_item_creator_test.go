@@ -85,6 +85,9 @@ func (suite *MTOServiceItemServiceSuite) buildValidDDFSITServiceItemWithValidMov
 		UpdatedAt: time.Now(),
 	}
 	reServiceDDFSIT := factory.BuildDDFSITReService(suite.DB())
+	factory.FetchOrBuildReServiceByCode(suite.DB(), models.ReServiceCodeDDASIT)
+	factory.FetchOrBuildReServiceByCode(suite.DB(), models.ReServiceCodeDDDSIT)
+	factory.FetchOrBuildReServiceByCode(suite.DB(), models.ReServiceCodeDDSFSC)
 	shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 		{
 			Model:    move,
@@ -215,7 +218,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		// Under test: CreateMTOServiceItem function
 		// Set up:     We create an approved move and attempt to create DDFSIT service item on it.
 		// Expected outcome:
-		//             3 SIT items are created, status of move is APPROVALS_REQUESTED
+		//             4 SIT items are created, status of move is APPROVALS_REQUESTED
 
 		sitServiceItem := suite.buildValidDDFSITServiceItemWithValidMove()
 		sitMove := sitServiceItem.MoveTaskOrder
@@ -232,8 +235,8 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		suite.NoError(err)
 
 		createdServiceItemList := *createdServiceItems
-		suite.Equal(len(createdServiceItemList), 3)
-		suite.NotEmpty(createdServiceItemList[2].Dimensions)
+		suite.Equal(len(createdServiceItemList), 4)
+		suite.NotEmpty(createdServiceItemList[3].Dimensions)
 		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, foundMove.Status)
 
 		for _, createdServiceItem := range createdServiceItemList {
@@ -485,6 +488,9 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 			},
 		}, nil)
 		reServiceDDFSIT := factory.BuildDDFSITReService(suite.DB())
+		factory.FetchOrBuildReServiceByCode(suite.DB(), models.ReServiceCodeDDASIT)
+		factory.FetchOrBuildReServiceByCode(suite.DB(), models.ReServiceCodeDDDSIT)
+		factory.FetchOrBuildReServiceByCode(suite.DB(), models.ReServiceCodeDDSFSC)
 
 		contactOne := models.MTOServiceItemCustomerContact{
 			Type:                       models.CustomerContactTypeFirst,
@@ -617,6 +623,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 		reServiceDOASIT = factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDOASIT)
 		reServiceDOFSIT = factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
 		reServiceDOPSIT = factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDOPSIT)
+		_ = factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDOSFSC)
 
 		return mtoShipment
 	}
@@ -660,11 +667,11 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 
 	})
 
-	suite.Run("Create DOFSIT service item and auto-create DOASIT, DOPSIT", func() {
+	suite.Run("Create DOFSIT service item and auto-create DOASIT, DOPSIT, DOSFSC", func() {
 		// TESTCASE SCENARIO
 		// Under test: CreateMTOServiceItem function
 		// Set up:     Create DOFSIT service item with a new address
-		// Expected outcome: Success, 3 service items created
+		// Expected outcome: Success, 4 service items created
 
 		// Customer gets new pickup address for SIT Origin Pickup (DOPSIT) which gets added when
 		// creating DOFSIT (SIT origin first day).
@@ -698,11 +705,12 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 		suite.NoError(err)
 
 		createdServiceItemsList := *createdServiceItems
-		suite.Equal(3, len(createdServiceItemsList))
+		suite.Equal(4, len(createdServiceItemsList))
 
 		numDOFSITFound := 0
 		numDOASITFound := 0
 		numDOPSITFound := 0
+		numDOSFSCFound := 0
 
 		for _, item := range createdServiceItemsList {
 			suite.Equal(serviceItemDOFSIT.MoveTaskOrderID, item.MoveTaskOrderID)
@@ -718,12 +726,15 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 				numDOASITFound++
 			case models.ReServiceCodeDOPSIT:
 				numDOPSITFound++
+			case models.ReServiceCodeDOSFSC:
+				numDOSFSCFound++
 			}
 		}
 
 		suite.Equal(1, numDOFSITFound)
 		suite.Equal(1, numDOASITFound)
 		suite.Equal(1, numDOPSITFound)
+		suite.Equal(1, numDOSFSCFound)
 	})
 
 	setupDOFSIT := func(shipment models.MTOShipment) services.MTOServiceItemCreator {
@@ -997,11 +1008,12 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 
 	}
 
-	setupAdditionalSIT := func() (models.ReService, models.ReService) {
+	setupAdditionalSIT := func() (models.ReService, models.ReService, models.ReService) {
 		// These codes will be needed for the following tests:
 		reServiceDDASIT := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDDASIT)
 		reServiceDDDSIT := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDDDSIT)
-		return reServiceDDASIT, reServiceDDDSIT
+		reServiceDDSFSC := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDDSFSC)
+		return reServiceDDASIT, reServiceDDDSIT, reServiceDDSFSC
 	}
 
 	getCustomerContacts := func() models.MTOServiceItemCustomerContacts {
@@ -1108,12 +1120,13 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 		suite.NoError(err)
 
 		createdServiceItemList := *createdServiceItems
-		suite.Equal(len(createdServiceItemList), 3)
+		suite.Equal(len(createdServiceItemList), 4)
 
 		// check the returned items for the correct data
 		numDDASITFound := 0
 		numDDDSITFound := 0
 		numDDFSITFound := 0
+		numDDSFSCFound := 0
 		for _, item := range createdServiceItemList {
 			suite.Equal(item.MoveTaskOrderID, serviceItemDDFSIT.MoveTaskOrderID)
 			suite.Equal(item.MTOShipmentID, serviceItemDDFSIT.MTOShipmentID)
@@ -1129,10 +1142,14 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 				numDDFSITFound++
 				suite.Equal(len(item.CustomerContacts), len(serviceItemDDFSIT.CustomerContacts))
 			}
+			if item.ReService.Code == models.ReServiceCodeDDDSIT {
+				numDDSFSCFound++
+			}
 		}
 		suite.Equal(numDDASITFound, 1)
 		suite.Equal(numDDDSITFound, 1)
 		suite.Equal(numDDFSITFound, 1)
+		suite.Equal(numDDSFSCFound, 1)
 
 		// We create one set of customer contacts and attach them to each destination service item.
 		// This portion verifies that.
@@ -1173,7 +1190,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 	// Successful creation of DDASIT service item
 	suite.Run("Success - DDASIT creation approved", func() {
 		shipment, creator, reServiceDDFSIT := setupTestData()
-		reServiceDDASIT, _ := setupAdditionalSIT()
+		reServiceDDASIT, _, _ := setupAdditionalSIT()
 
 		// First create a DDFSIT because it's required to request a DDASIT
 		serviceItemDDFSIT := models.MTOServiceItem{
@@ -1218,7 +1235,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 	suite.Run("Failure - DDASIT creation needs DDFSIT", func() {
 
 		// Make the necessary SIT code objects
-		reServiceDDASIT, _ := setupAdditionalSIT()
+		reServiceDDASIT, _, _ := setupAdditionalSIT()
 		factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDDFSIT)
 
 		// Make a shipment with no DDFSIT
@@ -1255,7 +1272,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 	// Failed creation of DDDSIT service item
 	suite.Run("Failure - cannot create DDDSIT", func() {
 		shipment, creator, _ := setupTestData()
-		_, reServiceDDDSIT := setupAdditionalSIT()
+		_, reServiceDDDSIT, _ := setupAdditionalSIT()
 
 		serviceItemDDDSIT := models.MTOServiceItem{
 			MoveTaskOrder:    shipment.MoveTaskOrder,
@@ -1272,6 +1289,32 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 		suite.Error(err)
 		suite.IsType(apperror.InvalidInputError{}, err)
 		suite.Contains(err.Error(), models.ReServiceCodeDDDSIT)
+
+		invalidInputError := err.(apperror.InvalidInputError)
+		suite.NotEmpty(invalidInputError.ValidationErrors)
+		suite.Contains(invalidInputError.ValidationErrors.Keys(), "reServiceCode")
+	})
+
+	// Failed creation of DDSFSC service item
+	suite.Run("Failure - cannot create DDSFSC", func() {
+		shipment, creator, _ := setupTestData()
+		_, _, reServiceDDSFSC := setupAdditionalSIT()
+
+		serviceItemDDSFSC := models.MTOServiceItem{
+			MoveTaskOrder:    shipment.MoveTaskOrder,
+			MoveTaskOrderID:  shipment.MoveTaskOrderID,
+			MTOShipment:      shipment,
+			MTOShipmentID:    &shipment.ID,
+			ReService:        reServiceDDSFSC,
+			SITEntryDate:     &sitEntryDate,
+			CustomerContacts: getCustomerContacts(),
+		}
+
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDSFSC)
+		suite.Nil(createdServiceItems)
+		suite.Error(err)
+		suite.IsType(apperror.InvalidInputError{}, err)
+		suite.Contains(err.Error(), models.ReServiceCodeDDSFSC)
 
 		invalidInputError := err.(apperror.InvalidInputError)
 		suite.NotEmpty(invalidInputError.ValidationErrors)
