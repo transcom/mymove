@@ -53,6 +53,7 @@ enum:
   - SITPaymentRequestStart
   - SITScheduleDest
   - SITScheduleOrigin
+  - SITServiceAreaDest
   - WeightAdjusted
   - WeightBilled
   - WeightEstimated

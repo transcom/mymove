@@ -1567,6 +1567,10 @@ var (
 	QueuePaymentRequestRejected = "Rejected"
 	// QueuePaymentRequestPaid status PaymentRequest paid
 	QueuePaymentRequestPaid = "Paid"
+	// QueuePaymentRequestDeprecated status PaymentRequest deprecated
+	QueuePaymentRequestDeprecated = "Deprecated"
+	// QueuePaymentRequestError status PaymentRequest error
+	QueuePaymentRequestError = "Error"
 )
 
 // This is a helper function to calculate the inferred status needed for QueuePaymentRequest payload
@@ -1587,7 +1591,16 @@ func queuePaymentRequestStatus(paymentRequest models.PaymentRequest) string {
 		return QueuePaymentRequestRejected
 	}
 
-	return QueuePaymentRequestPaid
+	if paymentRequest.Status == models.PaymentRequestStatusPaid {
+		return QueuePaymentRequestPaid
+	}
+
+	if paymentRequest.Status == models.PaymentRequestStatusDeprecated {
+		return QueuePaymentRequestDeprecated
+	}
+
+	return QueuePaymentRequestError
+
 }
 
 // QueuePaymentRequests payload
