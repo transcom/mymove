@@ -8,6 +8,7 @@
 
 .ShipmentDetailsMain {
   @include u-margin-right(4);
+  min-width: 633px; // minimum width to fit the widest shipment details row
 
   :global(.table--data-point-group),
   .shipmentSITSummary {
