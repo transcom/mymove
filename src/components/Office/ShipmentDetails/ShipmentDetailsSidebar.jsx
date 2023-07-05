@@ -103,7 +103,7 @@ const ShipmentDetailsSidebar = ({
             header={agent.agentType === 'RELEASING_AGENT' ? 'Releasing agent' : 'Receiving agent'}
             border
           >
-            <div>{formatAgent(agent)}</div>
+            <div className={styles.MtoAgentSection}>{formatAgent(agent)}</div>
           </SimpleSection>
         ))}
 

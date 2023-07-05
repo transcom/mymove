@@ -8395,32 +8395,37 @@ func init() {
     },
     "SITStatus": {
       "properties": {
-        "daysInSIT": {
-          "type": "integer"
-        },
-        "location": {
-          "enum": [
-            "ORIGIN",
-            "DESTINATION"
-          ]
+        "currentSIT": {
+          "type": "object",
+          "properties": {
+            "daysInSIT": {
+              "type": "integer"
+            },
+            "location": {
+              "enum": [
+                "ORIGIN",
+                "DESTINATION"
+              ]
+            },
+            "sitAllowanceEndDate": {
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
+            "sitDepartureDate": {
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
+            "sitEntryDate": {
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            }
+          }
         },
         "pastSITServiceItems": {
           "$ref": "#/definitions/MTOServiceItems"
-        },
-        "sitAllowanceEndDate": {
-          "type": "string",
-          "format": "date",
-          "x-nullable": true
-        },
-        "sitDepartureDate": {
-          "type": "string",
-          "format": "date",
-          "x-nullable": true
-        },
-        "sitEntryDate": {
-          "type": "string",
-          "format": "date",
-          "x-nullable": true
         },
         "totalDaysRemaining": {
           "type": "integer"
@@ -8559,6 +8564,7 @@ func init() {
         "SITPaymentRequestStart",
         "SITScheduleDest",
         "SITScheduleOrigin",
+        "SITServiceAreaDest",
         "WeightAdjusted",
         "WeightBilled",
         "WeightEstimated",
@@ -19413,6 +19419,52 @@ func init() {
     },
     "SITStatus": {
       "properties": {
+        "currentSIT": {
+          "type": "object",
+          "properties": {
+            "daysInSIT": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "location": {
+              "enum": [
+                "ORIGIN",
+                "DESTINATION"
+              ]
+            },
+            "sitAllowanceEndDate": {
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
+            "sitDepartureDate": {
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
+            "sitEntryDate": {
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            }
+          }
+        },
+        "pastSITServiceItems": {
+          "$ref": "#/definitions/MTOServiceItems"
+        },
+        "totalDaysRemaining": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "totalSITDaysUsed": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "SITStatusCurrentSIT": {
+      "type": "object",
+      "properties": {
         "daysInSIT": {
           "type": "integer",
           "minimum": 0
@@ -19422,9 +19474,6 @@ func init() {
             "ORIGIN",
             "DESTINATION"
           ]
-        },
-        "pastSITServiceItems": {
-          "$ref": "#/definitions/MTOServiceItems"
         },
         "sitAllowanceEndDate": {
           "type": "string",
@@ -19440,14 +19489,6 @@ func init() {
           "type": "string",
           "format": "date",
           "x-nullable": true
-        },
-        "totalDaysRemaining": {
-          "type": "integer",
-          "minimum": 0
-        },
-        "totalSITDaysUsed": {
-          "type": "integer",
-          "minimum": 0
         }
       }
     },
@@ -19580,6 +19621,7 @@ func init() {
         "SITPaymentRequestStart",
         "SITScheduleDest",
         "SITScheduleOrigin",
+        "SITServiceAreaDest",
         "WeightAdjusted",
         "WeightBilled",
         "WeightEstimated",

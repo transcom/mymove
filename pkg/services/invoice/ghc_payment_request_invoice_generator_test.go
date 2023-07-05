@@ -441,6 +441,124 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		suite.Equal("USD", currency.CurrencyCodeC301)
 	})
 
+	// test that the total segment count is correct when there are multiple FA2s
+	suite.Run("adds multiple FA2s and counts total segments correctly", func() {
+		sm := models.ServiceMember{
+			ID: uuid.FromStringOrNil("d66d2215-218c-4b85-b9d1-631949b9d100"),
+		}
+
+		// SAC isn't supplied to BuildOrder by default
+		// If SAC is missing only 1 FA2 segment is created
+		// Because this test is testing the total segment count when there are multiple FA2s,
+		// The SAC is being explictly set
+		sac := "1234"
+		order := models.Order{
+			ID:  uuid.FromStringOrNil("d66d2215-218c-4b85-b9d1-631949b9d100"),
+			SAC: &sac,
+		}
+
+		mto := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: sm,
+			},
+			{
+				Model: order,
+			},
+		}, nil)
+
+		paymentRequest = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    mto,
+				LinkOnly: true,
+			},
+			{
+				Model: models.PaymentRequest{
+					IsFinal:         false,
+					Status:          models.PaymentRequestStatusPending,
+					RejectionReason: nil,
+				},
+			},
+		}, nil)
+
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    mto,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: &requestedPickupDate,
+					ScheduledPickupDate: &scheduledPickupDate,
+					ActualPickupDate:    &actualPickupDate,
+				},
+			},
+		}, nil)
+
+		priceCents := unit.Cents(888)
+		customizations := []factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					Status:     models.PaymentServiceItemStatusApproved,
+					PriceCents: &priceCents,
+				},
+			},
+			{
+				Model:    mto,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipment,
+				LinkOnly: true,
+			},
+			{
+				Model:    paymentRequest,
+				LinkOnly: true,
+			},
+		}
+		distanceZipSITOriginParam := factory.CreatePaymentServiceItemParams{
+			Key:     models.ServiceItemParamNameDistanceZipSITOrigin,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "33",
+		}
+
+		// DOPSIT chosen for this test because it's a service item that generates LOA/FA segments
+		dopsitParams := append(basicPaymentServiceItemParams, distanceZipSITOriginParam)
+		dopsit := factory.BuildPaymentServiceItemWithParams(
+			suite.DB(),
+			models.ReServiceCodeDOPSIT,
+			dopsitParams,
+			customizations, nil,
+		)
+
+		paymentServiceItems = models.PaymentServiceItems{}
+		paymentServiceItems = append(paymentServiceItems, dopsit)
+
+		// setup known next value
+		icnErr := suite.icnSequencer.SetVal(suite.AppContextForTest(), 122)
+		suite.NoError(icnErr)
+
+		// Proceed with full EDI Generation tests
+		var err error
+		result, err = generator.Generate(suite.AppContextForTest(), paymentRequest, false)
+		suite.NoError(err)
+
+		// the expected number of total included segments is equal to:
+		// the number of ServiceItemSegments not including the FA2s segments * number of service items
+		// added to the total number of FA2 segments across all service items
+		// added to the number of segments in the header
+		// added to 3 which represents one count each for the ST, L3 and SE segments
+		var fa2segments []edisegment.FA2
+		for _, serviceItem := range result.ServiceItems {
+			fa2segments = append(fa2segments, serviceItem.FA2s...)
+		}
+		suite.Equal((ediinvoice.ServiceItemSegmentsSizeWithoutFA2s*len(result.ServiceItems))+
+			len(fa2segments)+result.Header.Size()+3,
+			result.SE.NumberOfIncludedSegments)
+		suite.Equal("0001", result.SE.TransactionSetControlNumber)
+		suite.Len(result.ServiceItems[0].FA2s, 2)
+		suite.Len(result.ServiceItems, 1)
+	})
+
 	// test that service members of affiliation MARINES have a GBLOC of USMC
 	suite.Run("updates the GBLOC for marines to be USMC", func() {
 		affiliationMarines := models.AffiliationMARINES

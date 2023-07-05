@@ -668,20 +668,29 @@ func SITDurationUpdates(sitDurationUpdates *models.SITDurationUpdates) *ghcmessa
 	return &payload
 }
 
+func currentSIT(currentSIT *services.CurrentSIT) *ghcmessages.SITStatusCurrentSIT {
+	if currentSIT == nil {
+		return nil
+	}
+	return &ghcmessages.SITStatusCurrentSIT{
+		Location:            currentSIT.Location,
+		DaysInSIT:           handlers.FmtIntPtrToInt64(&currentSIT.DaysInSIT),
+		SitEntryDate:        handlers.FmtDate(currentSIT.SITEntryDate),
+		SitDepartureDate:    handlers.FmtDatePtr(currentSIT.SITDepartureDate),
+		SitAllowanceEndDate: handlers.FmtDate(currentSIT.SITAllowanceEndDate),
+	}
+}
+
 // SITStatus payload
 func SITStatus(shipmentSITStatuses *services.SITStatus, storer storage.FileStorer) *ghcmessages.SITStatus {
 	if shipmentSITStatuses == nil {
 		return nil
 	}
 	payload := &ghcmessages.SITStatus{
-		DaysInSIT:           handlers.FmtIntPtrToInt64(&shipmentSITStatuses.DaysInSIT),
-		TotalDaysRemaining:  handlers.FmtIntPtrToInt64(&shipmentSITStatuses.TotalDaysRemaining),
-		Location:            shipmentSITStatuses.Location,
 		PastSITServiceItems: MTOServiceItemModels(shipmentSITStatuses.PastSITs, storer),
-		SitDepartureDate:    handlers.FmtDatePtr(shipmentSITStatuses.SITDepartureDate),
-		SitAllowanceEndDate: handlers.FmtDate(shipmentSITStatuses.SITAllowanceEndDate),
-		SitEntryDate:        handlers.FmtDate(shipmentSITStatuses.SITEntryDate),
 		TotalSITDaysUsed:    handlers.FmtIntPtrToInt64(&shipmentSITStatuses.TotalSITDaysUsed),
+		TotalDaysRemaining:  handlers.FmtIntPtrToInt64(&shipmentSITStatuses.TotalDaysRemaining),
+		CurrentSIT:          currentSIT(shipmentSITStatuses.CurrentSIT),
 	}
 
 	return payload
@@ -1558,6 +1567,10 @@ var (
 	QueuePaymentRequestRejected = "Rejected"
 	// QueuePaymentRequestPaid status PaymentRequest paid
 	QueuePaymentRequestPaid = "Paid"
+	// QueuePaymentRequestDeprecated status PaymentRequest deprecated
+	QueuePaymentRequestDeprecated = "Deprecated"
+	// QueuePaymentRequestError status PaymentRequest error
+	QueuePaymentRequestError = "Error"
 )
 
 // This is a helper function to calculate the inferred status needed for QueuePaymentRequest payload
@@ -1578,7 +1591,16 @@ func queuePaymentRequestStatus(paymentRequest models.PaymentRequest) string {
 		return QueuePaymentRequestRejected
 	}
 
-	return QueuePaymentRequestPaid
+	if paymentRequest.Status == models.PaymentRequestStatusPaid {
+		return QueuePaymentRequestPaid
+	}
+
+	if paymentRequest.Status == models.PaymentRequestStatusDeprecated {
+		return QueuePaymentRequestDeprecated
+	}
+
+	return QueuePaymentRequestError
+
 }
 
 // QueuePaymentRequests payload

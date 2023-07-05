@@ -6230,31 +6230,34 @@ definitions:
       $ref: '#/definitions/SITExtension'
   SITStatus:
     properties:
-      location:
-        enum:
-          - ORIGIN
-          - DESTINATION
       totalSITDaysUsed:
         type: integer
         minimum: 0
       totalDaysRemaining:
         type: integer
         minimum: 0
-      daysInSIT:
-        type: integer
-        minimum: 0
-      sitEntryDate:
-        type: string
-        format: date
-        x-nullable: true
-      sitDepartureDate:
-        type: string
-        format: date
-        x-nullable: true
-      sitAllowanceEndDate:
-        type: string
-        format: date
-        x-nullable: true
+      currentSIT:
+        type: object
+        properties:
+          location:
+            enum:
+              - ORIGIN
+              - DESTINATION
+          daysInSIT:
+            type: integer
+            minimum: 0
+          sitEntryDate:
+            type: string
+            format: date
+            x-nullable: true
+          sitDepartureDate:
+            type: string
+            format: date
+            x-nullable: true
+          sitAllowanceEndDate:
+            type: string
+            format: date
+            x-nullable: true
       pastSITServiceItems:
         $ref: '#/definitions/MTOServiceItems'
   PPMShipmentStatus:
@@ -7312,6 +7315,7 @@ definitions:
       - SITPaymentRequestStart
       - SITScheduleDest
       - SITScheduleOrigin
+      - SITServiceAreaDest
       - WeightAdjusted
       - WeightBilled
       - WeightEstimated

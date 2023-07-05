@@ -9277,6 +9277,104 @@ func createReweighWithShipmentDeprecatedPaymentRequest(appCtx appcontext.AppCont
 	testdatagen.MakeReweighForShipment(db, testdatagen.Assertions{UserUploader: userUploader}, shipment, unit.Pound(5000))
 }
 
+func createReweighWithShipmentEDIErrorPaymentRequest(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, moveRouter services.MoveRouter) {
+	db := appCtx.DB()
+	email := "errrorPaymentRequest@hhg.hhg"
+	uuidStr := "91252539-e8d0-4b9c-9722-d57c3b30bfb9"
+	loginGovUUID := uuid.Must(uuid.NewV4())
+	user := factory.BuildUser(db, []factory.Customization{
+		{
+			Model: models.User{
+				ID:            uuid.Must(uuid.FromString(uuidStr)),
+				LoginGovUUID:  &loginGovUUID,
+				LoginGovEmail: email,
+				Active:        true,
+			}},
+	}, nil)
+
+	smID := "8edb2121-3f7f-46f8-b8be-33ee60371369"
+	sm := factory.BuildExtendedServiceMember(db, []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				ID:            uuid.FromStringOrNil(smID),
+				FirstName:     models.StringPointer("Error"),
+				LastName:      models.StringPointer("PaymentRequest"),
+				Edipi:         models.StringPointer("6833908166"),
+				PersonalEmail: models.StringPointer(email),
+			},
+		},
+		{
+			Model:    user,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	move := factory.BuildMove(db, []factory.Customization{
+		{
+			Model:    sm,
+			LinkOnly: true,
+		},
+		{
+			Model: models.Move{
+				ID:         uuid.FromStringOrNil("18175273-1274-459e-b419-96450e49dafc"),
+				Locator:    "ERRPRQ",
+				TIORemarks: &tioRemarks,
+			},
+		},
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
+	actualHHGWeight := unit.Pound(6000)
+	now := time.Now()
+	shipment := factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				PrimeActualWeight: &actualHHGWeight,
+				ShipmentType:      models.MTOShipmentTypeHHG,
+				ApprovedDate:      &now,
+				Status:            models.MTOShipmentStatusApproved,
+			},
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
+	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
+	err := moveRouter.Submit(appCtx, &move, &newSignedCertification)
+	if err != nil {
+		log.Panic(err)
+	}
+	verrs, err := models.SaveMoveDependencies(db, &move)
+	if err != nil || verrs.HasAny() {
+		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
+	}
+	err = moveRouter.Approve(appCtx, &move)
+	if err != nil {
+		log.Panic(err)
+	}
+	move.AvailableToPrimeAt = &now
+	err = db.Save(&move)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	filterFile := &[]string{"150Kb.png"}
+	paymentRequestID := uuid.Must(uuid.FromString("cc967c33-674e-4987-b4fc-b48624191c43"))
+	makePaymentRequestForShipment(appCtx, move, shipment, primeUploader, filterFile, paymentRequestID, models.PaymentRequestStatusEDIError)
+	testdatagen.MakeReweighForShipment(db, testdatagen.Assertions{UserUploader: userUploader}, shipment, unit.Pound(5000))
+}
+
 func createHHGMoveWithTaskOrderServices(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 
 	db := appCtx.DB()
