@@ -91,3 +91,9 @@ export function hasMoveManagement(mtoServiceItems) {
   }
   return !!mtoServiceItems?.some(isMoveManagement);
 }
+
+// trims the file name (deletes unwanted spaces, characters) for a service item's service request doc
+export function trimFileName(serviceRequestDocFile) {
+  const splitName = serviceRequestDocFile.split('/').pop();
+  return splitName.substring(splitName.indexOf('-') + 1);
+}

@@ -3,6 +3,7 @@ import { isEmpty, sortBy } from 'lodash';
 import classnames from 'classnames';
 
 import { ServiceItemDetailsShape } from '../../../types/serviceItems';
+import { trimFileName } from '../../../utils/serviceItems';
 
 import styles from './ServiceItemDetails.module.scss';
 
@@ -21,11 +22,6 @@ function generateDetailText(details, id, className) {
 
 const ServiceItemDetails = ({ id, code, details, serviceRequestDocs }) => {
   const serviceRequestDocUploads = serviceRequestDocs?.map((doc) => doc.uploads[0]);
-
-  const trimFileName = (file) => {
-    const splitName = file.split('/').pop();
-    return splitName.substring(splitName.indexOf('-') + 1);
-  };
 
   let detailSection;
   switch (code) {
@@ -49,7 +45,9 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs }) => {
                 <p className={styles.detailType}>Download service item documentation:</p>
                 {serviceRequestDocUploads.map((file) => (
                   <div className={styles.uploads}>
-                    <a href={file.url}>{trimFileName(file.filename)}</a>
+                    <a href={file.url} download>
+                      {trimFileName(file.filename)}
+                    </a>
                   </div>
                 ))}
               </div>
@@ -105,7 +103,9 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs }) => {
                 <p className={styles.detailType}>Download service item documentation:</p>
                 {serviceRequestDocUploads.map((file) => (
                   <div className={styles.uploads}>
-                    <a href={file.url}>{trimFileName(file.filename)}</a>
+                    <a href={file.url} download>
+                      {trimFileName(file.filename)}
+                    </a>
                   </div>
                 ))}
               </div>
@@ -142,7 +142,9 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs }) => {
                 <p className={styles.detailType}>Download service item documentation:</p>
                 {serviceRequestDocUploads.map((file) => (
                   <div className={styles.uploads}>
-                    <a href={file.url}>{trimFileName(file.filename)}</a>
+                    <a href={file.url} download>
+                      {trimFileName(file.filename)}
+                    </a>
                   </div>
                 ))}
               </div>
@@ -177,7 +179,9 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs }) => {
                 <p className={styles.detailType}>Download service item documentation:</p>
                 {serviceRequestDocUploads.map((file) => (
                   <div className={styles.uploads}>
-                    <a href={file.url}>{trimFileName(file.filename)}</a>
+                    <a href={file.url} download>
+                      {trimFileName(file.filename)}
+                    </a>
                   </div>
                 ))}
               </div>
@@ -204,7 +208,9 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs }) => {
                 <p className={styles.detailType}>Download service item documentation:</p>
                 {serviceRequestDocUploads.map((file) => (
                   <div className={styles.uploads}>
-                    <a href={file.url}>{trimFileName(file.filename)}</a>
+                    <a href={file.url} download>
+                      {trimFileName(file.filename)}
+                    </a>
                   </div>
                 ))}
               </div>
@@ -226,7 +232,9 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs }) => {
                 <p className={styles.detailType}>Download service item documentation:</p>
                 {serviceRequestDocUploads.map((file) => (
                   <div className={styles.uploads}>
-                    <a href={file.url}>{trimFileName(file.filename)}</a>
+                    <a href={file.url} download>
+                      {trimFileName(file.filename)}
+                    </a>
                   </div>
                 ))}
               </div>
