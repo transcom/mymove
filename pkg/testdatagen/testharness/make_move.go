@@ -243,6 +243,9 @@ func MakeWithShipmentMove(appCtx appcontext.AppContext) models.Move {
 
 }
 
+// MakeHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO is a function
+// that creates an HHG move with service items and payments requests with files
+// from the Prime for review by thte TOO
 // copied almost verbatim from e2ebasic createHHGMoveWithServiceItemsAndPaymentRequestsAndFiles
 func MakeHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO(appCtx appcontext.AppContext) models.Move {
 	userUploader := newUserUploader(appCtx)
@@ -436,6 +439,31 @@ func MakeHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO(appCtx appconte
 	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.MTOServiceItem{
+				Status:           models.MTOServiceItemStatusApproved,
+				SITEntryDate:     &threeMonthsAgo,
+				SITDepartureDate: &twoMonthsAgo,
+				SITPostalCode:    &postalCode,
+				Reason:           &reason,
+			},
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDOSFSC,
+			},
+		},
+		{
+			Model:    MTOShipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
 				Status:        models.MTOServiceItemStatusApproved,
 				SITEntryDate:  &twoMonthsAgo,
 				SITPostalCode: &postalCode,
@@ -469,6 +497,30 @@ func MakeHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO(appCtx appconte
 		{
 			Model: models.ReService{
 				Code: models.ReServiceCodeDDASIT,
+			},
+		},
+		{
+			Model:    MTOShipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:        models.MTOServiceItemStatusApproved,
+				SITEntryDate:  &twoMonthsAgo,
+				SITPostalCode: &postalCode,
+				Reason:        &reason,
+			},
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDDSFSC,
 			},
 		},
 		{
