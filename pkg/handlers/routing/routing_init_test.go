@@ -34,8 +34,7 @@ func (suite *RoutingSuite) TestBasicRoutingInit() {
 	rr := httptest.NewRecorder()
 	suite.SetupSiteHandler().ServeHTTP(rr, req)
 
-	suite.Equal(http.StatusOK, rr.Code)
-	suite.Equal(suite.indexContent, rr.Body.String())
+	suite.EqualDefaultIndex(rr)
 }
 
 func (suite *RoutingSuite) TestServeGHC() {
@@ -48,16 +47,17 @@ func (suite *RoutingSuite) TestServeGHC() {
 	req := suite.NewAuthenticatedMilRequest("GET", fmt.Sprintf("/ghc/v1/customer/%s", serviceMember.ID.String()), nil, serviceMember)
 	rr := httptest.NewRecorder()
 	siteHandler.ServeHTTP(rr, req)
-	// 🚨🚨🚨
-	// Should service members have access to the GHC API?
-	// 🚨🚨🚨
-	suite.Equal(http.StatusOK, rr.Code)
+	// the GHC API is not available to the Mil app, so the default
+	// route is served for GET
+	suite.EqualDefaultIndex(rr)
 
 	// make the request without auth
 	req = suite.NewMilRequest("GET", fmt.Sprintf("/ghc/v1/customer/%s", serviceMember.ID.String()), nil)
 	rr = httptest.NewRecorder()
 	siteHandler.ServeHTTP(rr, req)
-	suite.Equal(http.StatusUnauthorized, rr.Code)
+	// the GHC API is not available to the Mil app, so the default
+	// route is served for GET
+	suite.EqualDefaultIndex(rr)
 
 	// make the request with GHC routing turned off
 	routingConfig.ServeGHC = false
@@ -68,8 +68,7 @@ func (suite *RoutingSuite) TestServeGHC() {
 	// if the API is not enabled, the routing will be served by the
 	// SPA handler, sending back the index page, which will have the
 	// javascript SPA routing
-	suite.Equal(http.StatusOK, rr.Code)
-	suite.Equal(suite.indexContent, rr.Body.String())
+	suite.EqualDefaultIndex(rr)
 }
 
 func (suite *RoutingSuite) TestOfficeLoggedInEndpoint() {

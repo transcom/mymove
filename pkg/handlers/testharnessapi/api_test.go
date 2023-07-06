@@ -1,12 +1,13 @@
 package testharnessapi
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
 
-	"github.com/gorilla/mux"
+	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/suite"
 
 	"github.com/transcom/mymove/pkg/handlers"
@@ -29,7 +30,9 @@ func TestTestHarnessAPISuite(t *testing.T) {
 // tests a post without an accept header
 func (suite *TestHarnessAPISuite) TestNewDefaultBuilderNoAcceptHeader() {
 	req := httptest.NewRequest("POST", "/build/DefaultMove", nil)
-	req = mux.SetURLVars(req, map[string]string{"action": "DefaultMove"})
+	chiRouteCtx := chi.NewRouteContext()
+	chiRouteCtx.URLParams.Add("action", "DefaultMove")
+	req = req.WithContext(context.WithValue(req.Context(), chi.RouteCtxKey, chiRouteCtx))
 	rr := httptest.NewRecorder()
 	handler := NewDefaultBuilder(suite.HandlerConfig())
 	handler.ServeHTTP(rr, req)
@@ -41,7 +44,9 @@ func (suite *TestHarnessAPISuite) TestNewDefaultBuilderNoAcceptHeader() {
 // tests a post without an accept header
 func (suite *TestHarnessAPISuite) TestNewDefaultBuilderWithAcceptHeader() {
 	req := httptest.NewRequest("POST", "/build/DefaultMove", nil)
-	req = mux.SetURLVars(req, map[string]string{"action": "DefaultMove"})
+	chiRouteCtx := chi.NewRouteContext()
+	chiRouteCtx.URLParams.Add("action", "DefaultMove")
+	req = req.WithContext(context.WithValue(req.Context(), chi.RouteCtxKey, chiRouteCtx))
 	req.Header.Add("Accept", "text/html")
 	rr := httptest.NewRecorder()
 	handler := NewDefaultBuilder(suite.HandlerConfig())

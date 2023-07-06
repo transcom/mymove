@@ -31,6 +31,7 @@ import (
 
 type BaseRoutingSuite struct {
 	handlers.BaseHandlerTestSuite
+	port          int
 	indexContent  string
 	routingConfig *Config
 }
@@ -41,6 +42,7 @@ func NewBaseRoutingSuite() BaseRoutingSuite {
 			notifications.NewStubNotificationSender("milmovelocal"),
 			testingsuite.CurrentPackage(),
 			testingsuite.WithPerTestTransaction()),
+		port:         80,
 		indexContent: "<html></html>",
 	}
 }
@@ -49,6 +51,13 @@ func NewBaseRoutingSuite() BaseRoutingSuite {
 // so the same session manager(s) are used
 func (suite *BaseRoutingSuite) HandlerConfig() handlers.HandlerConfig {
 	return suite.RoutingConfig().HandlerConfig
+}
+
+// EqualDefaultIndex compares the response and ensures it has been
+// served by the default index handler
+func (suite *BaseRoutingSuite) EqualDefaultIndex(rr *httptest.ResponseRecorder) {
+	suite.Equal(http.StatusOK, rr.Code)
+	suite.Equal(suite.indexContent, rr.Body.String())
 }
 
 func (suite *BaseRoutingSuite) RoutingConfig() *Config {
@@ -69,7 +78,7 @@ func (suite *BaseRoutingSuite) RoutingConfig() *Config {
 
 	fakeLoginGovProvider := authentication.NewLoginGovProvider("fakeHostname", "secret_key", suite.Logger())
 
-	authContext := authentication.NewAuthContext(suite.Logger(), fakeLoginGovProvider, "http", 80)
+	authContext := authentication.NewAuthContext(suite.Logger(), fakeLoginGovProvider, "http", suite.port)
 
 	fakeFs := afero.NewMemMapFs()
 	fakeBase := "fakebase"
@@ -116,7 +125,7 @@ func (suite *BaseRoutingSuite) SetupSiteHandler() http.Handler {
 }
 
 func (suite *BaseRoutingSuite) SetupCustomSiteHandler(routingConfig *Config) http.Handler {
-	siteHandler, err := InitRouting(suite.AppContextForTest(), nil, routingConfig, &telemetry.Config{})
+	siteHandler, err := InitRouting("test-server", suite.AppContextForTest(), nil, routingConfig, &telemetry.Config{})
 	suite.FatalNoError(err)
 	return siteHandler
 }

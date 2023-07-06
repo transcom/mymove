@@ -22,6 +22,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
 	awssession "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/sts"
+	"github.com/go-chi/chi/v5"
 	"github.com/gobuffalo/pop/v6"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/gomodule/redigo/redis"
@@ -711,22 +712,6 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	routingConfig := buildRoutingConfig(appCtx, v, redisPool, session,
 		isDevOrTest, tlsConfig)
 
-	// initialize the router
-	site, err := routing.InitRouting(appCtx, redisPool, routingConfig, telemetryConfig)
-	if err != nil {
-		return err
-	}
-
-	// disable otelhttp for now, as it causes a server memory leak
-	// ahobson - 2023-05-17
-	// set up telemetry options for the server
-	// otelHTTPOptions := []otelhttp.Option{}
-	// if telemetryConfig.ReadEvents {
-	// 	otelHTTPOptions = append(otelHTTPOptions, otelhttp.WithMessageEvents(otelhttp.ReadEvents))
-	// }
-	// if telemetryConfig.WriteEvents {
-	// 	otelHTTPOptions = append(otelHTTPOptions, otelhttp.WithMessageEvents(otelhttp.WriteEvents))
-	// }
 	listenInterface := v.GetString(cli.InterfaceFlag)
 
 	// start each server:
@@ -751,19 +736,15 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	healthEnabled := v.GetBool(cli.HealthListenerFlag)
 	var healthServer *server.NamedServer
 	if healthEnabled {
-		healthSite, herr := routing.InitHealthRouting(appCtx, redisPool, routingConfig)
-		if herr != nil {
-			return herr
-		}
+		healthSite := chi.NewRouter()
+		healthSite.Use(telemetry.NewOtelHTTPMiddleware(telemetryConfig, "health"))
+		routing.InitHealthRouting(appCtx, redisPool, routingConfig, healthSite)
+
 		healthServer, err = server.CreateNamedServer(&server.CreateNamedServerInput{
-			Name:   "health",
-			Host:   "127.0.0.1", // health server is always localhost only
-			Port:   v.GetInt(cli.HealthPortFlag),
-			Logger: logger,
-			// disable otelhttp for now, as it causes a server memory leak
-			// ahobson - 2023-05-17
-			// HTTPHandler: otelhttp.NewHandler(healthSite, "health",
-			// otelHTTPOptions...),
+			Name:        "health",
+			Host:        "127.0.0.1", // health server is always localhost only
+			Port:        v.GetInt(cli.HealthPortFlag),
+			Logger:      logger,
 			HTTPHandler: healthSite,
 		})
 		if err != nil {
@@ -775,15 +756,20 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	noTLSEnabled := v.GetBool(cli.NoTLSListenerFlag)
 	var noTLSServer *server.NamedServer
 	if noTLSEnabled {
+		serverName := "no-tls"
+		noTLSPort := v.GetInt(cli.NoTLSPortFlag)
+		// initialize the router
+		site, err := routing.InitRouting(serverName, appCtx, redisPool,
+			routingConfig, telemetryConfig)
+		if err != nil {
+			return err
+		}
+
 		noTLSServer, err = server.CreateNamedServer(&server.CreateNamedServerInput{
-			Name:   "no-tls",
-			Host:   listenInterface,
-			Port:   v.GetInt(cli.NoTLSPortFlag),
-			Logger: logger,
-			// disable otelhttp for now, as it causes a server memory leak
-			// ahobson - 2023-05-17
-			// HTTPHandler: otelhttp.NewHandler(site, "server-no-tls",
-			// otelHTTPOptions...),
+			Name:        serverName,
+			Host:        listenInterface,
+			Port:        noTLSPort,
+			Logger:      logger,
 			HTTPHandler: site,
 		})
 		if err != nil {
@@ -795,15 +781,19 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	tlsEnabled := v.GetBool(cli.TLSListenerFlag)
 	var tlsServer *server.NamedServer
 	if tlsEnabled {
+		serverName := "tls"
+		tlsPort := v.GetInt(cli.TLSPortFlag)
+		// initialize the router
+		site, err := routing.InitRouting(serverName, appCtx, redisPool,
+			routingConfig, telemetryConfig)
+		if err != nil {
+			return err
+		}
 		tlsServer, err = server.CreateNamedServer(&server.CreateNamedServerInput{
-			Name:   "tls",
-			Host:   listenInterface,
-			Port:   v.GetInt(cli.TLSPortFlag),
-			Logger: logger,
-			// disable otelhttp for now, as it causes a server memory leak
-			// ahobson - 2023-05-17
-			// HTTPHandler:  otelhttp.NewHandler(site, "server-tls",
-			// otelHTTPOptions...),
+			Name:         serverName,
+			Host:         listenInterface,
+			Port:         tlsPort,
+			Logger:       logger,
 			HTTPHandler:  site,
 			ClientAuth:   tls.NoClientCert,
 			Certificates: tlsConfig.Certificates,
@@ -817,15 +807,20 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	mutualTLSEnabled := v.GetBool(cli.MutualTLSListenerFlag)
 	var mutualTLSServer *server.NamedServer
 	if mutualTLSEnabled {
+		serverName := "mutual-tls"
+		mtlsPort := v.GetInt(cli.MutualTLSPortFlag)
+		// initialize the router
+		site, err := routing.InitRouting(serverName, appCtx, redisPool,
+			routingConfig, telemetryConfig)
+		if err != nil {
+			return err
+		}
+
 		mutualTLSServer, err = server.CreateNamedServer(&server.CreateNamedServerInput{
-			Name:   "mutual-tls",
-			Host:   listenInterface,
-			Port:   v.GetInt(cli.MutualTLSPortFlag),
-			Logger: logger,
-			// disable otelhttp for now, as it causes a server memory leak
-			// ahobson - 2023-05-17
-			// HTTPHandler:  otelhttp.NewHandler(site, "server-mtls",
-			// otelHTTPOptions...),
+			Name:         serverName,
+			Host:         listenInterface,
+			Port:         mtlsPort,
+			Logger:       logger,
 			HTTPHandler:  site,
 			ClientAuth:   tls.RequireAndVerifyClientCert,
 			Certificates: tlsConfig.Certificates,
