@@ -60,8 +60,60 @@ const statesList = [
   { value: 'WY', key: 'WY' },
 ];
 
-export const AddressFields = ({ legend, className, name, render, validators }) => {
+/**
+ * @param legend
+ * @param className
+ * @param name
+ * @param render
+ * @param validators
+ * @param formikFunctionsToValidatePostalCodeOnChange If you are intending to validate the postal code on change, you
+ * will need to pass the handleChange and setFieldTouched Formik functions through in an object here.
+ * See ResidentialAddressForm for an example.
+ * @return {JSX.Element}
+ * @constructor
+ */
+export const AddressFields = ({
+  legend,
+  className,
+  name,
+  render,
+  validators,
+  formikFunctionsToValidatePostalCodeOnChange,
+}) => {
   const addressFieldsUUID = useRef(uuidv4());
+
+  let postalCodeField;
+
+  if (formikFunctionsToValidatePostalCodeOnChange) {
+    postalCodeField = (
+      <TextField
+        label="ZIP"
+        id={`zip_${addressFieldsUUID.current}`}
+        name={`${name}.postalCode`}
+        maxLength={10}
+        validate={validators?.postalCode}
+        onChange={async (e) => {
+          // If we are validating on change we need to also set the field to touched when it is changed.
+          // Formik, by default, only sets the field to touched on blur.
+          // The validation errors will not show unless the field has been touched. We await the handleChange event,
+          // then we set the field to touched.
+          // We send true for the shouldValidate arg to validate the field at the same time.
+          await formikFunctionsToValidatePostalCodeOnChange.handleChange(e);
+          formikFunctionsToValidatePostalCodeOnChange.setFieldTouched(`${name}.postalCode`, true, true);
+        }}
+      />
+    );
+  } else {
+    postalCodeField = (
+      <TextField
+        label="ZIP"
+        id={`zip_${addressFieldsUUID.current}`}
+        name={`${name}.postalCode`}
+        maxLength={10}
+        validate={validators?.postalCode}
+      />
+    );
+  }
 
   return (
     <Fieldset legend={legend} className={className}>
@@ -97,15 +149,7 @@ export const AddressFields = ({ legend, className, name, render, validators }) =
                 validate={validators?.state}
               />
             </div>
-            <div className="mobile-lg:grid-col-6">
-              <TextField
-                label="ZIP"
-                id={`zip_${addressFieldsUUID.current}`}
-                name={`${name}.postalCode`}
-                maxLength={10}
-                validate={validators?.postalCode}
-              />
-            </div>
+            <div className="mobile-lg:grid-col-6">{postalCodeField}</div>
           </div>
         </>,
       )}
@@ -125,6 +169,10 @@ AddressFields.propTypes = {
     state: PropTypes.func,
     postalCode: PropTypes.func,
   }),
+  formikFunctionsToValidatePostalCodeOnChange: PropTypes.shape({
+    handleChange: PropTypes.func,
+    setFieldTouched: PropTypes.func,
+  }),
 };
 
 AddressFields.defaultProps = {
@@ -132,6 +180,7 @@ AddressFields.defaultProps = {
   className: '',
   render: (fields) => fields,
   validators: {},
+  formikFunctionsToValidatePostalCodeOnChange: null,
 };
 
 export default AddressFields;
