@@ -363,6 +363,15 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 		suite.Equal(v2MTO.Status, v1MTO.Status)
 		suite.Equal(v2MTO.ReferenceID, v1MTO.ReferenceID)
 		suite.Equal(v2MTO.AvailableToPrimeAt, v1MTO.AvailableToPrimeAt)
+
+		// It might be simpler to just test that the objects are different and then overwrite them to make them equal to test the differences
+		suite.NotEqual(v2MTO, v1MTO)
+		v1MTOUpdated := *v1MTO
+		v1MTOUpdated.Contractor = v2MTO.Contractor
+		suite.Equal(v2MTO, &v1MTOUpdated)
+		v2MTOUpdated := *v2MTO
+		v2MTOUpdated.Contractor = nil
+		suite.Equal(v1MTO, &v2MTOUpdated)
 	})
 }
 
