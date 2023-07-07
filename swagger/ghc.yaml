@@ -1105,6 +1105,58 @@ paths:
       summary: Requests a shipment reweigh
       x-permissions:
         - create.reweighRequest
+  /shipments/{shipmentID}/review-shipment-address-update:
+    parameters:
+      - description: ID of the shipment
+        in: path
+        name: shipmentID
+        required: true
+        format: uuid
+        type: string
+    patch:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+        - in: body
+          name: body
+          schema:
+            properties:
+              status:
+                type: string
+                enum:
+                  - REQUESTED
+                  - REJECTED
+                  - APPROVED
+              remarks:
+                type: string
+      responses:
+        '200':
+          description: Successfully requested a shipment address update
+          schema:
+            $ref: '#/definitions/ShipmentAddressUpdate'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - shipment
+      description: Allows TOO to review a shipment address update
+      operationId: reviewShipmentAddressUpdate
+      summary: Allows TOO to review a shipment address update
   /service-items/{mtoServiceItemID}/sit-address-update:
     post:
       summary: Create an approved SIT Address Update
@@ -7222,6 +7274,61 @@ definitions:
     enum:
       - HHG
       - NTS
+  ShipmentAddressUpdateStatus:
+    type: string
+    title: Status
+    readOnly: true
+    x-display-value:
+      REQUESTED: REQUESTED
+      REJECTED: REJECTED
+      APPROVED: APPROVED
+    enum:
+      - REQUESTED
+      - REJECTED
+      - APPROVED
+  ShipmentAddressUpdate:
+    description: >
+      This represents a destination address change request made by the Prime
+      that is either auto-approved or requires review if the pricing criteria
+      has changed. If criteria has changed, then it must be approved or rejected
+      by a TOO.
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      contractorRemarks:
+        type: string
+        example: This is a contractor remark
+        title: Contractor Remarks
+        description: The reason there is an address change.
+        readOnly: true
+      officeRemarks:
+        type: string
+        example: This is an office remark
+        title: Office Remarks
+        x-nullable: true
+        description: The TOO comment on approval or rejection.
+      status:
+        $ref: '#/definitions/ShipmentAddressUpdateStatus'
+      shipmentID:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      originalAddress:
+        $ref: '#/definitions/Address'
+      newAddress:
+        $ref: '#/definitions/Address'
+    required:
+      - id
+      - status
+      - shipmentID
+      - originalAddress
+      - newAddress
+      - contractorRemarks
   ProGearWeightTickets:
     description: All progear weight tickets associated with a PPM shipment.
     type: array
