@@ -42,6 +42,7 @@ const ShipmentInfoList = ({
     mtoAgents,
     counselorRemarks,
     customerRemarks,
+    // deliveryAddressUpdate
   } = shipment;
 
   setFlagStyles({
@@ -54,6 +55,11 @@ const ShipmentInfoList = ({
   const showElement = (elementFlags) => {
     return (isExpanded || elementFlags.alwaysShow) && !elementFlags.hideRow;
   };
+
+  const deliveryAddressUpdate = {
+    status: 'REQUESTED',
+  };
+  const hasDeliveryAddressUpdate = deliveryAddressUpdate && deliveryAddressUpdate.status === 'REQUESTED';
 
   const releasingAgent = mtoAgents ? mtoAgents.find((agent) => agent.agentType === 'RELEASING_AGENT') : false;
   const receivingAgent = mtoAgents ? mtoAgents.find((agent) => agent.agentType === 'RECEIVING_AGENT') : false;
@@ -186,7 +192,12 @@ const ShipmentInfoList = ({
   );
 
   const destinationAddressElementFlags = getDisplayFlags('destinationAddress');
-  const destinationAddressElement = (
+  const destinationAddressElement = hasDeliveryAddressUpdate ? (
+    <div className={destinationAddressElementFlags.classes}>
+      <dt>Destination address</dt>
+      <dd data-testid="destinationAddress">Review required</dd>
+    </div>
+  ) : (
     <div className={destinationAddressElementFlags.classes}>
       <dt>Destination address</dt>
       <dd data-testid="destinationAddress">{destinationAddress ? formatAddress(destinationAddress) : '—'}</dd>

@@ -33,7 +33,7 @@ const ShipmentDetails = ({
         className={styles.ShipmentDetailsMain}
         handleDivertShipment={handleDivertShipment}
         handleRequestReweighModal={handleRequestReweighModal}
-        shipment={shipment}
+        shipment={shipment} // when combined with Patrick's work this shipment will have the new data which we will check against to determine whether or not to show the alert
         entitilement={entitlement}
         dutyLocationAddresses={{
           originDutyLocationAddress: originDutyLocation?.address,
