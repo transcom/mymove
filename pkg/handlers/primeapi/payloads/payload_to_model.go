@@ -184,7 +184,6 @@ func ShipmentAddressUpdateModel(nonSITAddressUpdate *primemessages.CreateNonSITA
 	model := &models.ShipmentAddressUpdate{
 		ContractorRemarks: *nonSITAddressUpdate.ContractorRemarks,
 		ShipmentID:        MtoShipmentID,
-		OriginalAddressID: uuid.FromStringOrNil(nonSITAddressUpdate.AddressID.String()),
 	}
 
 	addressModel := AddressModel(nonSITAddressUpdate.NewAddress)

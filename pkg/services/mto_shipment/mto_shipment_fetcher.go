@@ -46,6 +46,8 @@ func (f mtoShipmentFetcher) ListMTOShipments(appCtx appcontext.AppContext, moveI
 			"PPMShipment.WeightTickets",
 			"PPMShipment.MovingExpenses",
 			"PPMShipment.ProgearWeightTickets",
+			"DeliveryAddressUpdate",
+			"DeliveryAddressUpdate.OriginalAddress",
 			"Reweigh",
 			"SITDurationUpdates",
 			"StorageFacility.Address",
@@ -108,6 +110,13 @@ func (f mtoShipmentFetcher) ListMTOShipments(appCtx appcontext.AppContext, moveI
 				}
 				progearWeightTicket.Document.UserUploads = progearWeightTicket.Document.UserUploads.FilterDeleted()
 			}
+		}
+		if shipments[i].DeliveryAddressUpdate == nil {
+			continue
+		}
+		loadErr := appCtx.DB().Load(shipments[i].DeliveryAddressUpdate, "NewAddress")
+		if loadErr != nil {
+			return nil, apperror.NewQueryError("DeliveryAddressUpdate", loadErr, "")
 		}
 	}
 

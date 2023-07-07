@@ -167,7 +167,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListStatusFilter
 	paymentRequestListFetcher := NewPaymentRequestListFetcher()
 	var officeUser models.OfficeUser
 	var allPaymentRequests models.PaymentRequests
-	var pendingPaymentRequest, reviewedPaymentRequest, sentToGexPaymentRequest, recByGexPaymentRequest, rejectedPaymentRequest, paidPaymentRequest models.PaymentRequest
+	var pendingPaymentRequest, reviewedPaymentRequest, sentToGexPaymentRequest, recByGexPaymentRequest, rejectedPaymentRequest, paidPaymentRequest, deprecatedPaymentRequest, errorPaymentRequest models.PaymentRequest
 
 	suite.PreloadData(func() {
 		officeUser = factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
@@ -178,6 +178,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListStatusFilter
 		expectedMove4 := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
 		expectedMove5 := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
 		expectedMove6 := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
+		expectedMove7 := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
 
 		reviewedPaymentRequest = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
 			{
@@ -249,7 +250,32 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListStatusFilter
 			},
 		}, nil)
 
-		allPaymentRequests = []models.PaymentRequest{pendingPaymentRequest, reviewedPaymentRequest, rejectedPaymentRequest, sentToGexPaymentRequest, recByGexPaymentRequest, paidPaymentRequest}
+		deprecatedPaymentRequest = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    expectedMove6,
+				LinkOnly: true,
+			},
+			{
+				Model: models.PaymentRequest{
+					Status:         models.PaymentRequestStatusDeprecated,
+					IsFinal:        false,
+					SequenceNumber: 2,
+				},
+			},
+		}, nil)
+
+		errorPaymentRequest = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    expectedMove7,
+				LinkOnly: true,
+			},
+			{
+				Model: models.PaymentRequest{
+					Status: models.PaymentRequestStatusEDIError,
+				},
+			},
+		}, nil)
+		allPaymentRequests = []models.PaymentRequest{pendingPaymentRequest, reviewedPaymentRequest, rejectedPaymentRequest, sentToGexPaymentRequest, recByGexPaymentRequest, paidPaymentRequest, deprecatedPaymentRequest, errorPaymentRequest}
 	})
 
 	suite.Run("Returns all payment requests when no status filter is specified", func() {
@@ -261,7 +287,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListStatusFilter
 
 	suite.Run("Returns all payment requests when all status filters are selected", func() {
 		_, actualCount, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID,
-			&services.FetchPaymentRequestListParams{Status: []string{"Payment requested", "Reviewed", "Rejected", "Paid"}})
+			&services.FetchPaymentRequestListParams{Status: []string{"Payment requested", "Reviewed", "Rejected", "Paid", "Deprecated", "Error"}})
 		suite.NoError(err)
 		suite.Equal(len(allPaymentRequests), actualCount)
 	})
@@ -298,6 +324,22 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListStatusFilter
 		suite.NoError(err)
 		suite.Equal(1, paidCount)
 		suite.Equal(paidPaymentRequest.ID, paid[0].ID)
+
+		deprecatedPaymentRequests, deprecatedCount, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID,
+			&services.FetchPaymentRequestListParams{Status: []string{"Deprecated"}})
+
+		deprecated := *deprecatedPaymentRequests
+		suite.NoError(err)
+		suite.Equal(1, deprecatedCount)
+		suite.Equal(deprecatedPaymentRequest.ID, deprecated[0].ID)
+
+		errorPaymentRequests, errorCount, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID,
+			&services.FetchPaymentRequestListParams{Status: []string{"Error"}})
+
+		errorPR := *errorPaymentRequests
+		suite.NoError(err)
+		suite.Equal(1, errorCount)
+		suite.Equal(errorPaymentRequest.ID, errorPR[0].ID)
 	})
 }
 

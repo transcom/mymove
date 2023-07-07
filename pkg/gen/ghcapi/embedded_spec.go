@@ -6284,6 +6284,9 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
+        "deliveryAddressUpdate": {
+          "$ref": "#/definitions/ShipmentAddressUpdate"
+        },
         "destinationAddress": {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
@@ -8564,6 +8567,7 @@ func init() {
         "SITPaymentRequestStart",
         "SITScheduleDest",
         "SITScheduleOrigin",
+        "SITServiceAreaDest",
         "WeightAdjusted",
         "WeightBilled",
         "WeightEstimated",
@@ -8619,6 +8623,70 @@ func init() {
       "items": {
         "$ref": "#/definitions/ServiceRequestDocument"
       }
+    },
+    "ShipmentAddressUpdate": {
+      "description": "This represents a destination address change request made by the Prime that is either auto-approved or requires review if the pricing criteria has changed. If criteria has changed, then it must be approved or rejected by a TOO.\n",
+      "type": "object",
+      "required": [
+        "id",
+        "status",
+        "shipmentID",
+        "originalAddress",
+        "newAddress",
+        "contractorRemarks"
+      ],
+      "properties": {
+        "contractorRemarks": {
+          "description": "The reason there is an address change.",
+          "type": "string",
+          "title": "Contractor Remarks",
+          "readOnly": true,
+          "example": "This is a contractor remark"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "newAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "officeRemarks": {
+          "description": "The TOO comment on approval or rejection.",
+          "type": "string",
+          "title": "Office Remarks",
+          "x-nullable": true,
+          "example": "This is an office remark"
+        },
+        "originalAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "shipmentID": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "status": {
+          "$ref": "#/definitions/ShipmentAddressUpdateStatus"
+        }
+      }
+    },
+    "ShipmentAddressUpdateStatus": {
+      "type": "string",
+      "title": "Status",
+      "enum": [
+        "REQUESTED",
+        "REJECTED",
+        "APPROVED"
+      ],
+      "x-display-value": {
+        "APPROVED": "APPROVED",
+        "REJECTED": "REJECTED",
+        "REQUESTED": "REQUESTED"
+      },
+      "readOnly": true
     },
     "ShipmentPaymentSITBalance": {
       "properties": {
@@ -17305,6 +17373,9 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
+        "deliveryAddressUpdate": {
+          "$ref": "#/definitions/ShipmentAddressUpdate"
+        },
         "destinationAddress": {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
@@ -19620,6 +19691,7 @@ func init() {
         "SITPaymentRequestStart",
         "SITScheduleDest",
         "SITScheduleOrigin",
+        "SITServiceAreaDest",
         "WeightAdjusted",
         "WeightBilled",
         "WeightEstimated",
@@ -19675,6 +19747,70 @@ func init() {
       "items": {
         "$ref": "#/definitions/ServiceRequestDocument"
       }
+    },
+    "ShipmentAddressUpdate": {
+      "description": "This represents a destination address change request made by the Prime that is either auto-approved or requires review if the pricing criteria has changed. If criteria has changed, then it must be approved or rejected by a TOO.\n",
+      "type": "object",
+      "required": [
+        "id",
+        "status",
+        "shipmentID",
+        "originalAddress",
+        "newAddress",
+        "contractorRemarks"
+      ],
+      "properties": {
+        "contractorRemarks": {
+          "description": "The reason there is an address change.",
+          "type": "string",
+          "title": "Contractor Remarks",
+          "readOnly": true,
+          "example": "This is a contractor remark"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "newAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "officeRemarks": {
+          "description": "The TOO comment on approval or rejection.",
+          "type": "string",
+          "title": "Office Remarks",
+          "x-nullable": true,
+          "example": "This is an office remark"
+        },
+        "originalAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "shipmentID": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "status": {
+          "$ref": "#/definitions/ShipmentAddressUpdateStatus"
+        }
+      }
+    },
+    "ShipmentAddressUpdateStatus": {
+      "type": "string",
+      "title": "Status",
+      "enum": [
+        "REQUESTED",
+        "REJECTED",
+        "APPROVED"
+      ],
+      "x-display-value": {
+        "APPROVED": "APPROVED",
+        "REJECTED": "REJECTED",
+        "REQUESTED": "REQUESTED"
+      },
+      "readOnly": true
     },
     "ShipmentPaymentSITBalance": {
       "properties": {

@@ -952,6 +952,25 @@ func PPMDocuments(storer storage.FileStorer, ppmDocuments *models.PPMDocuments) 
 	return payload
 }
 
+// ShipmentAddressUpdate payload
+func ShipmentAddressUpdate(shipmentAddressUpdate *models.ShipmentAddressUpdate) *ghcmessages.ShipmentAddressUpdate {
+	if shipmentAddressUpdate == nil || shipmentAddressUpdate.ID.IsNil() {
+		return nil
+	}
+
+	payload := &ghcmessages.ShipmentAddressUpdate{
+		ID:                strfmt.UUID(shipmentAddressUpdate.ID.String()),
+		ShipmentID:        strfmt.UUID(shipmentAddressUpdate.ShipmentID.String()),
+		NewAddress:        Address(&shipmentAddressUpdate.NewAddress),
+		OriginalAddress:   Address(&shipmentAddressUpdate.OriginalAddress),
+		ContractorRemarks: shipmentAddressUpdate.ContractorRemarks,
+		OfficeRemarks:     shipmentAddressUpdate.OfficeRemarks,
+		Status:            ghcmessages.ShipmentAddressUpdateStatus(shipmentAddressUpdate.Status),
+	}
+
+	return payload
+}
+
 // MTOShipment payload
 func MTOShipment(storer storage.FileStorer, mtoShipment *models.MTOShipment, sitStatusPayload *ghcmessages.SITStatus) *ghcmessages.MTOShipment {
 
@@ -989,6 +1008,7 @@ func MTOShipment(storer storage.FileStorer, mtoShipment *models.MTOShipment, sit
 		ServiceOrderNumber:          mtoShipment.ServiceOrderNumber,
 		StorageFacility:             StorageFacility(mtoShipment.StorageFacility),
 		PpmShipment:                 PPMShipment(storer, mtoShipment.PPMShipment),
+		DeliveryAddressUpdate:       ShipmentAddressUpdate(mtoShipment.DeliveryAddressUpdate),
 	}
 
 	if sitStatusPayload != nil {
@@ -1567,6 +1587,10 @@ var (
 	QueuePaymentRequestRejected = "Rejected"
 	// QueuePaymentRequestPaid status PaymentRequest paid
 	QueuePaymentRequestPaid = "Paid"
+	// QueuePaymentRequestDeprecated status PaymentRequest deprecated
+	QueuePaymentRequestDeprecated = "Deprecated"
+	// QueuePaymentRequestError status PaymentRequest error
+	QueuePaymentRequestError = "Error"
 )
 
 // This is a helper function to calculate the inferred status needed for QueuePaymentRequest payload
@@ -1587,7 +1611,16 @@ func queuePaymentRequestStatus(paymentRequest models.PaymentRequest) string {
 		return QueuePaymentRequestRejected
 	}
 
-	return QueuePaymentRequestPaid
+	if paymentRequest.Status == models.PaymentRequestStatusPaid {
+		return QueuePaymentRequestPaid
+	}
+
+	if paymentRequest.Status == models.PaymentRequestStatusDeprecated {
+		return QueuePaymentRequestDeprecated
+	}
+
+	return QueuePaymentRequestError
+
 }
 
 // QueuePaymentRequests payload

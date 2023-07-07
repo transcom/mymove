@@ -17,6 +17,16 @@ const details = {
   estimatedWeight: 2500,
 };
 
+const serviceRequestDocs = [
+  {
+    uploads: [
+      {
+        filename: '/mto-service-item/ae1c6472-5e03-4f9c-bef5-55605dbeb31e/20230630161854-receipt.pdf',
+      },
+    ],
+  },
+];
+
 const detailsRejectedServiceItem = { ...details, rejectionReason: 'some rejection reason' };
 
 const nilDetails = {
@@ -24,13 +34,16 @@ const nilDetails = {
 };
 
 describe('ServiceItemDetails Domestic Origin SIT', () => {
-  it.each([['DOFSIT'], ['DOASIT'], ['DOPSIT']])('renders ZIP and reason', (code) => {
-    render(<ServiceItemDetails id="1" code={code} details={details} />);
+  it.each([['DOFSIT'], ['DOASIT'], ['DOPSIT']])('renders ZIP, reason, and service request documents', (code) => {
+    render(<ServiceItemDetails id="1" code={code} details={details} serviceRequestDocs={serviceRequestDocs} />);
 
     expect(screen.getByText('ZIP:')).toBeInTheDocument();
     expect(screen.getByText('12345')).toBeInTheDocument();
     expect(screen.getByText('Reason:')).toBeInTheDocument();
     expect(screen.getByText('some reason')).toBeInTheDocument();
+    expect(screen.getByText('Download service item documentation:')).toBeInTheDocument();
+    const downloadLink = screen.getByText('receipt.pdf');
+    expect(downloadLink).toBeInstanceOf(HTMLAnchorElement);
   });
 });
 
