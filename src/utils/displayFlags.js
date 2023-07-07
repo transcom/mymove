@@ -8,7 +8,10 @@ let neverShow = [];
 let flaggedItem = null;
 let flagStyles = null;
 
-export function objectIsMissingFieldWithCondition(object, { fieldName, condition }) {
+export function objectIsMissingFieldWithCondition(object, { fieldName, condition, optional }) {
+  if (optional) {
+    return !condition || condition(object);
+  }
   return !object[fieldName] && (!condition || condition(object));
 }
 
@@ -73,6 +76,7 @@ export function getDisplayFlags(fieldname) {
       classes,
     };
   }
+  // console.log('😤😤😤😤😤 fieldErrorIfMissing: ', fieldErrorIfMissing);
   const fieldWarnIfMissing = warnIfMissing.find((entry) => entry.fieldName === fieldname);
   if (fieldWarnIfMissing && objectIsMissingFieldWithCondition(flaggedItem, fieldWarnIfMissing)) {
     alwaysShow = true;

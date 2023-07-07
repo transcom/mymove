@@ -28,6 +28,20 @@ const showWhenCollapsedWithGHCPrime = {
   HHG_OUTOF_NTS_DOMESTIC: ['ntsRecordedWeight', 'serviceOrderNumber', 'tacType'],
 };
 
+const condition = () => {
+  // console.log('😶‍🌫️😶‍🌫️😶‍🌫️😶‍🌫️😶‍🌫️ shipment: ', shipment);
+  return true;
+};
+const errorIfMissing = [
+  {
+    fieldName: 'destinationAddress',
+    // will be shipment.deliveryAddressUpdate.status === 'REQUESTED'
+    // will be red when condition is true
+    condition,
+    optional: true,
+  },
+];
+
 const ApprovedRequestedShipments = ({ mtoShipments, ordersInfo, mtoServiceItems, displayDestinationType }) => {
   const ordersLOA = {
     tac: ordersInfo.tacMDC,
@@ -74,6 +88,7 @@ const ApprovedRequestedShipments = ({ mtoShipments, ordersInfo, mtoServiceItems,
                     ? showWhenCollapsedWithExternalVendor[shipment.shipmentType]
                     : showWhenCollapsedWithGHCPrime[shipment.shipmentType]
                 }
+                errorIfMissing={errorIfMissing}
                 isSubmitted={false}
                 editURL={editUrl}
               />

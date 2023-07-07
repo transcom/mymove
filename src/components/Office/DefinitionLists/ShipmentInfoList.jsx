@@ -45,6 +45,8 @@ const ShipmentInfoList = ({
     // deliveryAddressUpdate
   } = shipment;
 
+  // console.log('🤬🤬🤬🤬🤬🤬 error if missing: ', errorIfMissing);
+
   setFlagStyles({
     row: styles.row,
     warning: shipmentDefinitionListsStyles.warning,
@@ -57,9 +59,9 @@ const ShipmentInfoList = ({
   };
 
   const deliveryAddressUpdate = {
-    status: 'REQUESTED',
+    status: 'SUBMITTED',
   };
-  const hasDeliveryAddressUpdate = deliveryAddressUpdate && deliveryAddressUpdate.status === 'REQUESTED';
+  // const hasDeliveryAddressUpdate = deliveryAddressUpdate && deliveryAddressUpdate.status === 'REQUESTED';
 
   const releasingAgent = mtoAgents ? mtoAgents.find((agent) => agent.agentType === 'RELEASING_AGENT') : false;
   const receivingAgent = mtoAgents ? mtoAgents.find((agent) => agent.agentType === 'RECEIVING_AGENT') : false;
@@ -192,15 +194,14 @@ const ShipmentInfoList = ({
   );
 
   const destinationAddressElementFlags = getDisplayFlags('destinationAddress');
-  const destinationAddressElement = hasDeliveryAddressUpdate ? (
+  const destinationAddressElement = (
     <div className={destinationAddressElementFlags.classes}>
       <dt>Destination address</dt>
-      <dd data-testid="destinationAddress">Review required</dd>
-    </div>
-  ) : (
-    <div className={destinationAddressElementFlags.classes}>
-      <dt>Destination address</dt>
-      <dd data-testid="destinationAddress">{destinationAddress ? formatAddress(destinationAddress) : '—'}</dd>
+      <dd data-testid="destinationAddress">
+        {destinationAddress && deliveryAddressUpdate.status === 'REQUESTED'
+          ? 'Review required'
+          : formatAddress(destinationAddress)}
+      </dd>
     </div>
   );
 
