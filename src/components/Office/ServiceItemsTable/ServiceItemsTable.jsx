@@ -39,7 +39,7 @@ const ServiceItemsTable = ({
   };
 
   const tableRows = serviceItems.map((serviceItem, index) => {
-    const { id, code, details, mtoShipmentID, sitAddressUpdates, ...item } = serviceItem;
+    const { id, code, details, mtoShipmentID, sitAddressUpdates, serviceRequestDocuments, ...item } = serviceItem;
     const { makeVisible, alertType, alertMessage } = serviceItemAddressUpdateAlert;
 
     return (
@@ -68,7 +68,12 @@ const ServiceItemsTable = ({
             <p>{formatDateFromIso(item[`${selectDateFieldByStatus(statusForTableType)}`], 'DD MMM YYYY')}</p>
           </td>
           <td className={styles.detail}>
-            <ServiceItemDetails id={`service-${id}`} code={code} details={details} />
+            <ServiceItemDetails
+              id={`service-${id}`}
+              code={code}
+              details={details}
+              serviceRequestDocs={serviceRequestDocuments}
+            />
           </td>
           <td>
             {statusForTableType === SERVICE_ITEM_STATUS.SUBMITTED && (
