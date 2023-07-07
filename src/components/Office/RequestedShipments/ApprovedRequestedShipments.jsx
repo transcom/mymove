@@ -28,16 +28,12 @@ const showWhenCollapsedWithGHCPrime = {
   HHG_OUTOF_NTS_DOMESTIC: ['ntsRecordedWeight', 'serviceOrderNumber', 'tacType'],
 };
 
-const condition = () => {
-  // console.log('😶‍🌫️😶‍🌫️😶‍🌫️😶‍🌫️😶‍🌫️ shipment: ', shipment);
-  return true;
-};
 const errorIfMissing = [
   {
     fieldName: 'destinationAddress',
     // will be shipment.deliveryAddressUpdate.status === 'REQUESTED'
     // will be red when condition is true
-    condition,
+    condition: (shipment) => shipment.deliveryAddressUpdate?.status === 'REQUESTED',
     optional: true,
   },
 ];
