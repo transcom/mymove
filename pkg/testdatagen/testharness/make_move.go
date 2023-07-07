@@ -6038,5 +6038,29 @@ func MakeHHGMoveIn200DaysSITNotApproved(appCtx appcontext.AppContext) models.Mov
 			LinkOnly: true,
 		},
 	}, nil)
+
+	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:        models.MTOServiceItemStatusSubmitted,
+				SITEntryDate:  &daysLater100,
+				SITPostalCode: &postalCode,
+				Reason:        &reason,
+			},
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDOSFSC,
+			},
+		},
+		{
+			Model:    MTOShipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+	}, nil)
 	return mto
 }
