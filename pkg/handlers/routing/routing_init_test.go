@@ -122,6 +122,17 @@ func (suite *RoutingSuite) TestBasicHealthRouting() {
 	suite.Contains(actualDataString, `"database"`)
 	suite.Contains(actualDataString, `"gitBranch"`)
 	suite.Contains(actualDataString, `"gitCommit"`)
+
+	// test health check with IP host as that is what requests from
+	// the AWS ELB look like
+	req = httptest.NewRequest("GET", "http://1.2.3.4:8443/health", nil)
+	rr = httptest.NewRecorder()
+	siteHandler.ServeHTTP(rr, req)
+	suite.Equal(http.StatusOK, rr.Code)
+	actualDataString = rr.Body.String()
+	suite.Contains(actualDataString, `"database"`)
+	suite.Contains(actualDataString, `"gitBranch"`)
+	suite.Contains(actualDataString, `"gitCommit"`)
 }
 
 func (suite *RoutingSuite) TestBasicStaticRouting() {

@@ -155,6 +155,11 @@ func (hr *HostRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		router.ServeHTTP(w, r)
 		return
 	}
+	// wildcard
+	if router, ok := hr.routes["*"]; ok {
+		router.ServeHTTP(w, r)
+		return
+	}
 	http.NotFound(w, r)
 }
 
@@ -664,6 +669,12 @@ func InitRouting(serverName string, appCtx appcontext.AppContext, redisPool *red
 	primeServerName := routingConfig.HandlerConfig.AppNames().PrimeServername
 	primeRouter := initPrimeRouting(appCtx, redisPool, routingConfig, telemetryConfig, serverName)
 	hostRouter.Map(primeServerName, primeRouter)
+
+	// need a wildcard health router as the ELB makes requests to the
+	// IP, not the hostname
+	wildcardRouter := chi.NewRouter()
+	InitHealthRouting(appCtx, redisPool, routingConfig, wildcardRouter)
+	hostRouter.Map("*", wildcardRouter)
 
 	return hostRouter, nil
 }
