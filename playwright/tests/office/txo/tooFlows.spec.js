@@ -33,7 +33,7 @@ test.describe('TOO user', () => {
       expect(page.url()).toContain(`/moves/${tooFlowPage.moveLocator}/mto`);
       await expect(page.getByTestId('ShipmentContainer')).toBeVisible();
       await expect(page.locator('[data-testid="ApprovedServiceItemsTable"] h3')).toContainText(
-        'Approved service items (12 items)',
+        'Approved service items (14 items)',
       );
 
       // MTO compliance information is visible
@@ -102,7 +102,7 @@ test.describe('TOO user', () => {
       // Move Task Order page
       await expect(page.getByTestId('ShipmentContainer')).toHaveCount(1);
 
-      await expect(page.getByText('Approved service items (12 items)')).toBeVisible();
+      await expect(page.getByText('Approved service items (14 items)')).toBeVisible();
       await expect(page.getByText('Rejected service items')).not.toBeVisible();
 
       await expect(page.getByTestId('modal')).not.toBeVisible();
@@ -113,8 +113,8 @@ test.describe('TOO user', () => {
       await serviceItemsTable.locator('.acceptButton').first().click();
       await tooFlowPage.waitForLoading();
 
-      await expect(page.getByText('Approved service items (12 items)')).toBeVisible();
-      await expect(page.locator('[data-testid="ApprovedServiceItemsTable"] tbody tr')).toHaveCount(13);
+      await expect(page.getByText('Approved service items (15 items)')).toBeVisible();
+      await expect(page.locator('[data-testid="ApprovedServiceItemsTable"] tbody tr')).toHaveCount(16);
 
       // Reject a requested service item
       await expect(page.getByText('Requested service items (1 item)')).toBeVisible();
@@ -137,8 +137,8 @@ test.describe('TOO user', () => {
       // Accept a previously rejected service item
       await page.locator('[data-testid="RejectedServiceItemsTable"] button').click();
 
-      await expect(page.getByText('Approved service items (14 items)')).toBeVisible();
-      await expect(page.locator('[data-testid="ApprovedServiceItemsTable"] tbody tr')).toHaveCount(15);
+      await expect(page.getByText('Approved service items (16 items)')).toBeVisible();
+      await expect(page.locator('[data-testid="ApprovedServiceItemsTable"] tbody tr')).toHaveCount(17);
       await expect(page.getByText('Rejected service items (1 item)')).not.toBeVisible();
 
       // Reject a previously accpeted service item
@@ -156,8 +156,8 @@ test.describe('TOO user', () => {
       await expect(page.locator('[data-testid="RejectedServiceItemsTable"] tbody tr')).toHaveCount(1);
 
       await expect(page.getByText('Requested service items')).not.toBeVisible();
-      await expect(page.getByText('Approved service items (13 items)')).toBeVisible();
-      await expect(page.locator('[data-testid="ApprovedServiceItemsTable"] tbody tr')).toHaveCount(14);
+      await expect(page.getByText('Approved service items (15 items)')).toBeVisible();
+      await expect(page.locator('[data-testid="ApprovedServiceItemsTable"] tbody tr')).toHaveCount(16);
     });
 
     test('is able to edit orders', async ({ page }) => {
