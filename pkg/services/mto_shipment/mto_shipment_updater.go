@@ -12,6 +12,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/db/utilities"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications"
@@ -99,7 +100,7 @@ func NewPrimeMTOShipmentUpdater(builder UpdateMTOShipmentQueryBuilder, _ service
 }
 
 // setNewShipmentFields validates the updated shipment
-func setNewShipmentFields(_ appcontext.AppContext, dbShipment *models.MTOShipment, requestedUpdatedShipment *models.MTOShipment) {
+func setNewShipmentFields(appCtx appcontext.AppContext, dbShipment *models.MTOShipment, requestedUpdatedShipment *models.MTOShipment) {
 	if requestedUpdatedShipment.RequestedPickupDate != nil {
 		dbShipment.RequestedPickupDate = requestedUpdatedShipment.RequestedPickupDate
 	}
@@ -229,7 +230,7 @@ func setNewShipmentFields(_ appcontext.AppContext, dbShipment *models.MTOShipmen
 
 	//// TODO: move mtoagent creation into service: Should not update MTOAgents here because we don't have an eTag
 	if len(requestedUpdatedShipment.MTOAgents) > 0 {
-		agentsToCreateOrUpdate := []models.MTOAgent{}
+		var agentsToCreateOrUpdate []models.MTOAgent
 		for _, newAgentInfo := range requestedUpdatedShipment.MTOAgents {
 			// if no record exists in the db
 			if newAgentInfo.ID == uuid.Nil {
@@ -267,6 +268,14 @@ func setNewShipmentFields(_ appcontext.AppContext, dbShipment *models.MTOShipmen
 						dbShipment.MTOAgents[i].LastName = services.SetOptionalStringField(newAgentInfo.LastName, dbShipment.MTOAgents[i].LastName)
 						dbShipment.MTOAgents[i].Email = services.SetOptionalStringField(newAgentInfo.Email, dbShipment.MTOAgents[i].Email)
 						dbShipment.MTOAgents[i].Phone = services.SetOptionalStringField(newAgentInfo.Phone, dbShipment.MTOAgents[i].Phone)
+						// If no fields are set, then we will soft-delete the MTO agent
+						if dbShipment.MTOAgents[i].FirstName == nil && dbShipment.MTOAgents[i].LastName == nil && dbShipment.MTOAgents[i].Email == nil && dbShipment.MTOAgents[i].Phone == nil {
+							err := utilities.SoftDestroy(appCtx.DB(), &dbShipment.MTOAgents[i])
+							if err != nil {
+								appCtx.Logger().Error("Error soft destroying MTO Agent.")
+								continue
+							}
+						}
 						agentsToCreateOrUpdate = append(agentsToCreateOrUpdate, dbShipment.MTOAgents[i])
 					}
 				}
