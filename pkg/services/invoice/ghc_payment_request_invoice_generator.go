@@ -269,7 +269,12 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(appCtx appcontext.AppContext
 	l3Count := 1
 	seCount := 1
 	headerSegmentCount := edi858.Header.Size()
-	serviceItemSegmentCount := len(edi858.ServiceItems) * ediinvoice.ServiceItemSegmentsSize
+	var fa2segments []edisegment.FA2
+	for _, serviceItem := range edi858.ServiceItems {
+		fa2segments = append(fa2segments, serviceItem.FA2s...)
+	}
+
+	serviceItemSegmentCount := len(edi858.ServiceItems)*ediinvoice.ServiceItemSegmentsSizeWithoutFA2s + len(fa2segments)
 	totalNumberOfSegments := stCount + headerSegmentCount + serviceItemSegmentCount + l3Count + seCount
 
 	edi858.SE = edisegment.SE{

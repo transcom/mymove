@@ -124,15 +124,19 @@ type ShipmentRouter interface {
 
 // SITStatus is the summary of the current SIT service item days in storage remaining balance and dates
 type SITStatus struct {
-	ShipmentID          uuid.UUID
+	ShipmentID         uuid.UUID
+	TotalSITDaysUsed   int
+	TotalDaysRemaining int
+	CurrentSIT         *CurrentSIT
+	PastSITs           []models.MTOServiceItem
+}
+
+type CurrentSIT struct {
 	Location            string
-	TotalSITDaysUsed    int
-	TotalDaysRemaining  int
 	DaysInSIT           int
 	SITEntryDate        time.Time
-	SITAllowanceEndDate time.Time
 	SITDepartureDate    *time.Time
-	PastSITs            []models.MTOServiceItem
+	SITAllowanceEndDate time.Time
 }
 
 // ShipmentSITStatus is the interface for calculating SIT service item summary balances of shipments

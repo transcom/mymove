@@ -1,9 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useRef } from 'react';
 import PropTypes from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-
-import { sortServiceItemsByGroup } from '../../../utils/serviceItems';
 
 import styles from './ReviewServiceItems.module.scss';
 import ServiceItemCard from './ServiceItemCard';
@@ -15,36 +13,41 @@ import RejectRequest from './RejectRequest';
 import Alert from 'shared/Alert';
 import { ServiceItemCardsShape } from 'types/serviceItems';
 import { MTOServiceItemShape } from 'types/order';
-import { PAYMENT_SERVICE_ITEM_STATUS, PAYMENT_REQUEST_STATUS } from 'shared/constants';
+import { PAYMENT_SERVICE_ITEM_STATUS } from 'shared/constants';
 import { toDollarString } from 'utils/formatters';
 import { PaymentRequestShape } from 'types/index';
 import { AccountingCodesShape } from 'types/accountingCodes';
 
 const { APPROVED, DENIED, REQUESTED } = PAYMENT_SERVICE_ITEM_STATUS;
 
-/** NB: this component is in the process of being replaced with NewReviewServiceItems */
 const ReviewServiceItems = ({
   header,
   paymentRequest,
   serviceItemCards,
   handleClose,
-  disableScrollIntoView,
   patchPaymentServiceItem,
   onCompleteReview,
   completeReviewError,
   TACs,
   SACs,
+  curCardIndex,
+  setCardIndex,
+  handlePrevious,
+  requestReviewed,
+  setShouldAdvanceOnSubmit,
 }) => {
-  const requestReviewed = paymentRequest?.status !== PAYMENT_REQUEST_STATUS.PENDING;
+  const formRef = useRef();
 
-  const sortedCards = sortServiceItemsByGroup(serviceItemCards);
+  const totalCards = serviceItemCards.length;
 
-  const totalCards = sortedCards.length;
-
-  const [curCardIndex, setCardIndex] = useState(requestReviewed ? totalCards : 0);
-
-  const handleServiceItemNavBtnClick = (index) => {
-    setCardIndex(index);
+  const displayCompleteReview = curCardIndex === totalCards;
+  const handleNext = () => {
+    setShouldAdvanceOnSubmit(true);
+    if (formRef.current && !requestReviewed) {
+      formRef.current.handleSubmit();
+    } else {
+      setCardIndex(curCardIndex + 1);
+    }
   };
 
   const handleAuthorizePaymentClick = (allServiceItemsRejected = false) => {
@@ -62,45 +65,23 @@ const ReviewServiceItems = ({
   };
 
   // calculating the sums
-  const approvedSum = sortedCards.filter((s) => s.status === APPROVED).reduce((sum, cur) => sum + cur.amount, 0);
-  const rejectedSum = sortedCards.filter((s) => s.status === DENIED).reduce((sum, cur) => sum + cur.amount, 0);
-  const requestedSum = sortedCards.reduce((sum, cur) => sum + cur.amount, 0);
+  const approvedSum = serviceItemCards.filter((s) => s.status === APPROVED).reduce((sum, cur) => sum + cur.amount, 0);
+  const rejectedSum = serviceItemCards.filter((s) => s.status === DENIED).reduce((sum, cur) => sum + cur.amount, 0);
+  const requestedSum = serviceItemCards.reduce((sum, cur) => sum + cur.amount, 0);
 
   let itemsNeedsReviewLength;
   let showNeedsReview;
   let allServiceItemsRejected;
   let firstItemNeedsReviewIndex;
-  let firstBasicIndex = null;
-  let lastBasicIndex = null;
 
   if (!requestReviewed) {
-    itemsNeedsReviewLength = sortedCards.filter((s) => s.status === REQUESTED)?.length;
-    showNeedsReview = sortedCards.some((s) => s.status === REQUESTED);
-    allServiceItemsRejected = sortedCards.every((s) => s.status === DENIED);
-    firstItemNeedsReviewIndex = showNeedsReview && sortedCards.findIndex((s) => s.status === REQUESTED);
-
-    sortedCards.forEach((serviceItem, index) => {
-      // here we want to set the first and last index
-      // of basic service items to know the bounds
-      if (!serviceItem.mtoShipmentType) {
-        // no shipemntId, then it is a basic service items
-        if (firstBasicIndex === null) {
-          // if not set yet, set it the first time we see a basic
-          // service item
-          firstBasicIndex = index;
-        }
-        // keep setting the last basic index until the last one
-        lastBasicIndex = index;
-      }
-    });
+    itemsNeedsReviewLength = serviceItemCards.filter((s) => s.status === REQUESTED)?.length;
+    showNeedsReview = serviceItemCards.some((s) => s.status === REQUESTED);
+    allServiceItemsRejected = serviceItemCards.every((s) => s.status === DENIED);
+    firstItemNeedsReviewIndex = showNeedsReview && serviceItemCards.findIndex((s) => s.status === REQUESTED);
   }
 
-  const displayCompleteReview = curCardIndex === totalCards;
-
-  const currentCard = !displayCompleteReview && sortedCards[parseInt(curCardIndex, 10)];
-
-  const isBasicServiceItem =
-    firstBasicIndex !== null && curCardIndex >= firstBasicIndex && curCardIndex <= lastBasicIndex;
+  const currentCard = !displayCompleteReview && serviceItemCards[parseInt(curCardIndex, 10)];
 
   // Determines which ReviewDetailsCard will be shown
   let renderCompleteAction = (
@@ -115,18 +96,6 @@ const ReviewServiceItems = ({
   } else if (allServiceItemsRejected) {
     renderCompleteAction = <RejectRequest onClick={() => handleAuthorizePaymentClick(allServiceItemsRejected)} />;
   }
-
-  // Similar to component lifecycle methods
-  useEffect(() => {
-    if (!disableScrollIntoView && currentCard && isBasicServiceItem) {
-      const { id } = sortedCards[parseInt(curCardIndex, 10)];
-      const element = document.querySelector(`#card-${id}`);
-      // scroll into element view
-      if (element) {
-        element.scrollIntoView();
-      }
-    }
-  });
 
   if (displayCompleteReview)
     return (
@@ -158,7 +127,7 @@ const ReviewServiceItems = ({
             dateAuthorized={paymentRequest?.reviewedAt}
             TACs={TACs}
             SACs={SACs}
-            cards={sortedCards}
+            cards={serviceItemCards}
           >
             {renderCompleteAction}
           </ReviewDetailsCard>
@@ -167,7 +136,7 @@ const ReviewServiceItems = ({
           <Button
             data-testid="prevServiceItem"
             type="button"
-            onClick={() => handleServiceItemNavBtnClick(curCardIndex - 1)}
+            onClick={handlePrevious}
             secondary
             disabled={curCardIndex === 0}
           >
@@ -195,36 +164,25 @@ const ReviewServiceItems = ({
         <h2 className={styles.header}>{header}</h2>
       </div>
       <div className={styles.body}>
-        {currentCard && // render multiple basic service item cards
-          // otherwise, render only one card for shipment
-          (isBasicServiceItem ? (
-            sortedCards.slice(firstBasicIndex, lastBasicIndex + 1).map((curCard) => (
-              <ServiceItemCard
-                key={`serviceItemCard_${curCard.id}`}
-                patchPaymentServiceItem={patchPaymentServiceItem}
-                // eslint-disable-next-line react/jsx-props-no-spreading
-                {...curCard}
-                requestComplete={requestReviewed}
-                additionalServiceItemData={findAdditionalServiceItemData(currentCard.mtoServiceItemCode)}
-              />
-            ))
-          ) : (
-            <ServiceItemCard
-              key={`serviceItemCard_${currentCard.id}`}
-              patchPaymentServiceItem={patchPaymentServiceItem}
-              // eslint-disable-next-line react/jsx-props-no-spreading
-              {...currentCard}
-              requestComplete={requestReviewed}
-              additionalServiceItemData={findAdditionalServiceItemData(currentCard.mtoServiceItemCode)}
-            />
-          ))}
+        {currentCard && (
+          <ServiceItemCard
+            key={`serviceItemCard_${currentCard.id}`}
+            patchPaymentServiceItem={patchPaymentServiceItem}
+            // eslint-disable-next-line react/jsx-props-no-spreading
+            {...currentCard}
+            requestComplete={requestReviewed}
+            additionalServiceItemData={findAdditionalServiceItemData(currentCard.mtoServiceItemCode)}
+            formRef={formRef}
+            setShouldAdvanceOnSubmit={setShouldAdvanceOnSubmit}
+          />
+        )}
       </div>
       <div className={styles.bottom}>
         <Button
           data-testid="prevServiceItem"
           aria-label="Previous Service Item"
           type="button"
-          onClick={() => handleServiceItemNavBtnClick(curCardIndex - 1)}
+          onClick={() => setCardIndex(curCardIndex - 1)}
           secondary
           disabled={curCardIndex === 0}
         >
@@ -234,7 +192,7 @@ const ReviewServiceItems = ({
           data-testid="nextServiceItem"
           aria-label="Next Service Item"
           type="button"
-          onClick={() => handleServiceItemNavBtnClick(curCardIndex + 1)}
+          onClick={handleNext}
           disabled={curCardIndex === totalCards}
         >
           Next
@@ -256,7 +214,6 @@ ReviewServiceItems.propTypes = {
   serviceItemCards: ServiceItemCardsShape,
   handleClose: PropTypes.func.isRequired,
   patchPaymentServiceItem: PropTypes.func.isRequired,
-  disableScrollIntoView: PropTypes.bool,
   onCompleteReview: PropTypes.func.isRequired,
   completeReviewError: PropTypes.shape({
     detail: PropTypes.string,
@@ -265,17 +222,22 @@ ReviewServiceItems.propTypes = {
   mtoServiceItems: PropTypes.arrayOf(MTOServiceItemShape),
   TACs: AccountingCodesShape,
   SACs: AccountingCodesShape,
+  curCardIndex: PropTypes.number,
+  setCardIndex: PropTypes.func.isRequired,
+  handlePrevious: PropTypes.func.isRequired,
+  requestReviewed: PropTypes.bool.isRequired,
+  setShouldAdvanceOnSubmit: PropTypes.func.isRequired,
 };
 
 ReviewServiceItems.defaultProps = {
   header: 'Review service items',
   paymentRequest: undefined,
   serviceItemCards: [],
-  disableScrollIntoView: false,
   completeReviewError: undefined,
   mtoServiceItems: [],
   TACs: {},
   SACs: {},
+  curCardIndex: 0,
 };
 
 export default ReviewServiceItems;

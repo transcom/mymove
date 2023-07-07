@@ -60,9 +60,12 @@ describe('ResidentialAddressForm component', () => {
     const postalCode = '99999';
 
     await userEvent.type(postalCodeInput, postalCode);
-    await userEvent.tab();
 
     await waitFor(() => {
+      // We expect this to be called 6 times.
+      // 1 - validate on mount
+      // 5 - once for each 9 that was typed, since we are validating on change
+      expect(postalCodeValidator).toHaveBeenCalledTimes(6);
       expect(postalCodeValidator).toHaveBeenCalledWith(postalCode);
     });
   });

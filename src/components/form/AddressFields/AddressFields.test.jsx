@@ -82,4 +82,42 @@ describe('AddressFields component', () => {
       expect(postalCodeError).toHaveTextContent(postalCodeErrorText);
     });
   });
+
+  describe('with on change postal code validator', () => {
+    it('puts the validator on the expected field', async () => {
+      const initialValues = {
+        address: {
+          streetAddress1: '',
+          streetAddress2: '',
+          city: '',
+          state: '',
+          postalCode: '',
+        },
+      };
+
+      const postalCodeErrorText = 'ZIP code must be 99999';
+
+      const { getByLabelText, findByRole } = render(
+        <Formik initialValues={initialValues} validateOnChange>
+          {({ handleChange, setFieldTouched }) => (
+            <AddressFields
+              legend="Address Form"
+              name="address"
+              formikFunctionsToValidatePostalCodeOnChange={{ handleChange, setFieldTouched }}
+              validators={{
+                postalCode: (value) => (value !== '99999' ? postalCodeErrorText : ''),
+              }}
+            />
+          )}
+        </Formik>,
+      );
+
+      const postalCodeInput = getByLabelText('ZIP');
+      await userEvent.type(postalCodeInput, '12345');
+
+      const postalCodeError = await findByRole('alert');
+
+      expect(postalCodeError).toHaveTextContent(postalCodeErrorText);
+    });
+  });
 });
