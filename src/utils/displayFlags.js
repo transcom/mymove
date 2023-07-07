@@ -76,7 +76,7 @@ export function getDisplayFlags(fieldname) {
       classes,
     };
   }
-  // console.log('😤😤😤😤😤 fieldErrorIfMissing: ', fieldErrorIfMissing);
+
   const fieldWarnIfMissing = warnIfMissing.find((entry) => entry.fieldName === fieldname);
   if (fieldWarnIfMissing && objectIsMissingFieldWithCondition(flaggedItem, fieldWarnIfMissing)) {
     alwaysShow = true;
@@ -108,4 +108,5 @@ export function getMissingOrDash(fieldName) {
 export const fieldValidationShape = PropTypes.shape({
   fieldName: PropTypes.string.isRequired,
   condition: PropTypes.func,
+  optional: PropTypes.bool,
 });

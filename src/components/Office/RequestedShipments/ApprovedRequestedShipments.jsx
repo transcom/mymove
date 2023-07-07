@@ -31,8 +31,6 @@ const showWhenCollapsedWithGHCPrime = {
 const errorIfMissing = [
   {
     fieldName: 'destinationAddress',
-    // will be shipment.deliveryAddressUpdate.status === 'REQUESTED'
-    // will be red when condition is true
     condition: (shipment) => shipment.deliveryAddressUpdate?.status === 'REQUESTED',
     optional: true,
   },
