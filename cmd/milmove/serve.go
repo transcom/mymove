@@ -386,9 +386,9 @@ func initializeTLSConfig(appCtx appcontext.AppContext, v *viper.Viper) *tls.Conf
 	}
 
 	useDevlocalAuthCA := stringSliceContains([]string{cli.EnvironmentTest, cli.EnvironmentDevelopment, cli.EnvironmentReview, cli.EnvironmentLoadtest}, v.GetString(cli.EnvironmentFlag))
-	if useDevlocalAuthCA {
+	devlocalCAPath := v.GetString(cli.DevlocalCAFlag)
+	if useDevlocalAuthCA && devlocalCAPath != "" {
 		appCtx.Logger().Info("Adding devlocal CA to root CAs")
-		devlocalCAPath := v.GetString(cli.DevlocalCAFlag)
 		devlocalCa, readFileErr := os.ReadFile(filepath.Clean(devlocalCAPath))
 		if readFileErr != nil {
 			appCtx.Logger().Error(fmt.Sprintf("Unable to read devlocal CA from path %s", devlocalCAPath), zap.Error(readFileErr))
