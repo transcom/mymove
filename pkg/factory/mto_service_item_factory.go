@@ -445,7 +445,9 @@ var (
 	}
 )
 
-func BuildRealMTOServiceItemWithAllDeps(db *pop.Connection, serviceCode models.ReServiceCode, mto models.Move, mtoShipment models.MTOShipment) models.MTOServiceItem {
+// BuildRealMTOServiceItemWithAllDeps builds an MTOServiceItem along with its service params if they don't already exist
+// Customizations that link the MTOServiceItem to the move, shipment, and service are created by default
+func BuildRealMTOServiceItemWithAllDeps(db *pop.Connection, serviceCode models.ReServiceCode, mto models.Move, mtoShipment models.MTOShipment, customs []Customization, traits []Trait) models.MTOServiceItem {
 	// look up the service item param keys we need
 	if serviceItemParamKeys, ok := fixtureServiceItemParamsMap[serviceCode]; ok {
 		// get or create the ReService
@@ -458,7 +460,7 @@ func BuildRealMTOServiceItemWithAllDeps(db *pop.Connection, serviceCode models.R
 					Model: serviceParamKeyToCreate,
 				},
 			}, nil)
-			BuildServiceParam(db, []Customization{
+			FetchOrBuildServiceParam(db, []Customization{
 				{
 					Model:    reService,
 					LinkOnly: true,
@@ -470,8 +472,7 @@ func BuildRealMTOServiceItemWithAllDeps(db *pop.Connection, serviceCode models.R
 			}, nil)
 		}
 
-		// create a service item and return it
-		mtoServiceItem := BuildMTOServiceItem(db, []Customization{
+		allCustoms := []Customization{
 			{
 				Model:    mto,
 				LinkOnly: true,
@@ -484,13 +485,18 @@ func BuildRealMTOServiceItemWithAllDeps(db *pop.Connection, serviceCode models.R
 				Model:    reService,
 				LinkOnly: true,
 			},
-			{
-				Model: models.MTOServiceItem{
-					Status: models.MTOServiceItemStatusApproved,
-				},
-			},
-		}, nil)
+		}
+		if len(customs) > 0 {
+			allCustoms = append(allCustoms, customs...)
+		}
 
+		allTraits := []Trait{GetTraitStatusApproved}
+		if len(traits) > 0 {
+			allTraits = append(allTraits, traits...)
+		}
+
+		// create a service item and return it
+		mtoServiceItem := BuildMTOServiceItem(db, allCustoms, allTraits)
 		return mtoServiceItem
 	}
 
@@ -516,19 +522,19 @@ func BuildFullDLHMTOServiceItems(db *pop.Connection, customs []Customization, tr
 	var mtoServiceItems models.MTOServiceItems
 	// Service Item MS
 	mtoServiceItemMS := BuildRealMTOServiceItemWithAllDeps(db,
-		models.ReServiceCodeMS, move, mtoShipment)
+		models.ReServiceCodeMS, move, mtoShipment, nil, nil)
 	mtoServiceItems = append(mtoServiceItems, mtoServiceItemMS)
 	// Service Item CS
 	mtoServiceItemCS := BuildRealMTOServiceItemWithAllDeps(db,
-		models.ReServiceCodeCS, move, mtoShipment)
+		models.ReServiceCodeCS, move, mtoShipment, nil, nil)
 	mtoServiceItems = append(mtoServiceItems, mtoServiceItemCS)
 	// Service Item DLH
 	mtoServiceItemDLH := BuildRealMTOServiceItemWithAllDeps(db,
-		models.ReServiceCodeDLH, move, mtoShipment)
+		models.ReServiceCodeDLH, move, mtoShipment, nil, nil)
 	mtoServiceItems = append(mtoServiceItems, mtoServiceItemDLH)
 	// Service Item FSC
 	mtoServiceItemFSC := BuildRealMTOServiceItemWithAllDeps(db,
-		models.ReServiceCodeFSC, move, mtoShipment)
+		models.ReServiceCodeFSC, move, mtoShipment, nil, nil)
 	mtoServiceItems = append(mtoServiceItems, mtoServiceItemFSC)
 
 	return move, mtoServiceItems
@@ -551,12 +557,26 @@ func BuildFullOriginMTOServiceItems(db *pop.Connection, customs []Customization,
 	var mtoServiceItems models.MTOServiceItems
 	// Service Item DPK
 	mtoServiceItemDPK := BuildRealMTOServiceItemWithAllDeps(db,
-		models.ReServiceCodeDPK, move, mtoShipment)
+		models.ReServiceCodeDPK, move, mtoShipment, nil, nil)
 	mtoServiceItems = append(mtoServiceItems, mtoServiceItemDPK)
 	// Service Item DOP
 	mtoServiceItemDOP := BuildRealMTOServiceItemWithAllDeps(db,
-		models.ReServiceCodeDOP, move, mtoShipment)
+		models.ReServiceCodeDOP, move, mtoShipment, nil, nil)
 	mtoServiceItems = append(mtoServiceItems, mtoServiceItemDOP)
 
 	return move, mtoServiceItems
+}
+
+// ------------------------
+//        TRAITS
+// ------------------------
+
+func GetTraitStatusApproved() []Customization {
+	return []Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status: models.MTOServiceItemStatusApproved,
+			},
+		},
+	}
 }

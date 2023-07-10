@@ -233,7 +233,7 @@ func (suite *FactorySuite) TestBuildMTOServiceItem() {
 			},
 		}, nil)
 		mtoServiceItem := BuildRealMTOServiceItemWithAllDeps(suite.DB(),
-			models.ReServiceCodeMS, move, shipment)
+			models.ReServiceCodeMS, move, shipment, nil, nil)
 
 		reService := FetchOrBuildReServiceByCode(suite.DB(), models.ReServiceCodeMS)
 
@@ -259,7 +259,7 @@ func (suite *FactorySuite) TestBuildMTOServiceItem() {
 		suite.Panics(func() {
 			// this code is not a supported one
 			BuildRealMTOServiceItemWithAllDeps(suite.DB(),
-				models.ReServiceCodeDOFSIT, move, shipment)
+				models.ReServiceCodeDOFSIT, move, shipment, nil, nil)
 		})
 		suite.Contains(buf.String(), "couldn't create service item service code")
 	})
