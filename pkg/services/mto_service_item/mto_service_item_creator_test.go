@@ -604,6 +604,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 	var reServiceDOASIT models.ReService
 	var reServiceDOFSIT models.ReService
 	var reServiceDOPSIT models.ReService
+	var reServiceDOSFSC models.ReService
 
 	setupTestData := func() models.MTOShipment {
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
@@ -617,7 +618,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 		reServiceDOASIT = factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDOASIT)
 		reServiceDOFSIT = factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
 		reServiceDOPSIT = factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDOPSIT)
-		_ = factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDOSFSC)
+		reServiceDOSFSC = factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDOSFSC)
 
 		return mtoShipment
 	}
@@ -867,6 +868,34 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 			MTOShipment:     shipment,
 			MTOShipmentID:   &shipment.ID,
 			ReService:       reServiceDOPSIT,
+		}
+
+		builder := query.NewQueryBuilder()
+		moveRouter := moverouter.NewMoveRouter()
+		creator := NewMTOServiceItemCreator(builder, moveRouter)
+
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDOPSIT)
+
+		suite.Nil(createdServiceItems)
+		suite.Error(err)
+		suite.IsType(apperror.InvalidInputError{}, err)
+
+	})
+
+	suite.Run("Do not create standalone DOSFSC service item", func() {
+		// TESTCASE SCENARIO
+		// Under test: CreateMTOServiceItem function
+		// Set up:     Create a shipment, then create a DOSFSC item on it
+		// Expected outcome: Invalid input error, can't create standalone DOSFSC, no DOSFSC item created
+
+		shipment := setupTestData()
+
+		serviceItemDOPSIT := models.MTOServiceItem{
+			MoveTaskOrder:   shipment.MoveTaskOrder,
+			MoveTaskOrderID: shipment.MoveTaskOrderID,
+			MTOShipment:     shipment,
+			MTOShipmentID:   &shipment.ID,
+			ReService:       reServiceDOSFSC,
 		}
 
 		builder := query.NewQueryBuilder()
