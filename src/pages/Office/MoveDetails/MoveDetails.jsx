@@ -149,6 +149,10 @@ const MoveDetails = ({
       shipment.status === shipmentStatuses.CANCELED,
   );
 
+  const shipmentWithDestinationAddressChangeRequest = mtoShipments?.filter(
+    (shipment) => shipment?.deliveryAddressUpdate?.status === 'REQUESTED' && !shipment.deletedAt,
+  );
+
   const shipmentsInfoNonPPM = mtoShipments?.filter((shipment) => shipment.shipmentType !== 'PPM');
 
   useEffect(() => {
@@ -283,6 +287,8 @@ const MoveDetails = ({
 
   const hasMissingOrdersRequiredInfo = Object.values(requiredOrdersInfo).some((value) => !value || value === '');
   const hasAmendedOrders = ordersInfo.uploadedAmendedOrderID && !ordersInfo.amendedOrdersAcknowledgedAt;
+  const hasDestinationAddressUpdate =
+    shipmentWithDestinationAddressChangeRequest && shipmentWithDestinationAddressChangeRequest.length > 0;
 
   return (
     <div className={styles.tabContent}>
@@ -315,6 +321,13 @@ const MoveDetails = ({
             associatedSectionName="requested-shipments"
             showTag={shipmentMissingRequiredInformation}
             testID="shipment-missing-info-alert"
+          >
+            <FontAwesomeIcon icon="exclamation" />
+          </LeftNavTag>
+          <LeftNavTag
+            associatedSectionName="approved-shipments"
+            className="usa-tag usa-tag--alert"
+            showTag={hasDestinationAddressUpdate}
           >
             <FontAwesomeIcon icon="exclamation" />
           </LeftNavTag>

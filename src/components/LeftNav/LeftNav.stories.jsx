@@ -35,14 +35,6 @@ export const WithAlert = () => (
       <LeftNavTag associatedSectionName="approved-shipments" showTag className="usa-tag usa-tag--alert">
         <FontAwesomeIcon icon="exclamation" />
       </LeftNavTag>
-
-      <LeftNavTag associatedSectionName="orders" showTag className="usa-tag--teal">
-        INTL
-      </LeftNavTag>
-
-      <LeftNavTag associatedSectionName="customer-info" showTag>
-        3
-      </LeftNavTag>
     </LeftNav>
   </div>
 );
