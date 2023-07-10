@@ -350,6 +350,13 @@ func (f *mtoShipmentUpdater) UpdateMTOShipment(appCtx appcontext.AppContext, mto
 		return nil, err
 	}
 
+	var updatedAgents []models.MTOAgent
+	err = appCtx.DB().Scope(utilities.ExcludeDeletedScope()).Where("mto_shipment_id = ?", mtoShipment.ID).All(&updatedAgents)
+	if err != nil {
+		return nil, err
+	}
+	updatedShipment.MTOAgents = updatedAgents
+
 	return updatedShipment, nil
 }
 
