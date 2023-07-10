@@ -48,9 +48,7 @@ const ShipmentServiceItemsTable = ({ shipmentType, destinationZip3, pickupZip3, 
       <table className={classNames('table--stacked', styles.serviceItemsTable)}>
         <caption>
           <div className="stackedtable-header">
-            <h4>
-              Service items for this shipment <span>{shipmentServiceItems.length} items</span>
-            </h4>
+            <h4>Service items for this shipment {shipmentServiceItems.length} items</h4>
           </div>
         </caption>
         <thead className="table--small">

@@ -191,11 +191,11 @@ const shipments = [
     createdAt: '2020-06-10T15:58:02.404029Z',
     customerRemarks: 'please treat gently',
     destinationAddress: {
-      city: 'Fairfield',
+      city: 'Venice',
       country: 'US',
       eTag: 'MjAyMC0wNi0xMFQxNTo1ODowMi4zODk0MTJa',
       id: '672ff379-f6e3-48b4-a87d-796713f8f997',
-      postalCode: '90245',
+      postalCode: '90292',
       state: 'CA',
       streetAddress1: '987 Any Avenue',
       streetAddress2: 'P.O. Box 9876',
