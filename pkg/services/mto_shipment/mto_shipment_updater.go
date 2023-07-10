@@ -301,7 +301,6 @@ func (f *mtoShipmentUpdater) UpdateMTOShipment(appCtx appcontext.AppContext, mto
 		"DestinationAddress",
 		"SecondaryPickupAddress",
 		"SecondaryDeliveryAddress",
-		"MTOAgents",
 		"SITDurationUpdates",
 		"MTOServiceItems.ReService",
 		"MTOServiceItems.Dimensions",
@@ -314,6 +313,13 @@ func (f *mtoShipmentUpdater) UpdateMTOShipment(appCtx appcontext.AppContext, mto
 	if err != nil {
 		return nil, err
 	}
+
+	var agents []models.MTOAgent
+	err = appCtx.DB().Scope(utilities.ExcludeDeletedScope()).Where("mto_shipment_id = ?", mtoShipment.ID).All(&agents)
+	if err != nil {
+		return nil, err
+	}
+	oldShipment.MTOAgents = agents
 
 	// run the (read-only) validations
 	if verr := validateShipment(appCtx, mtoShipment, oldShipment, f.checks...); verr != nil {

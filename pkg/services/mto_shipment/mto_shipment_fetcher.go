@@ -36,7 +36,6 @@ func (f mtoShipmentFetcher) ListMTOShipments(appCtx appcontext.AppContext, moveI
 	err = appCtx.DB().Scope(utilities.ExcludeDeletedScope()).
 		EagerPreload(
 			"MTOServiceItems.ReService",
-			//"MTOAgents",
 			"PickupAddress",
 			"SecondaryPickupAddress",
 			"DestinationAddress",
