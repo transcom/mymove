@@ -9,6 +9,7 @@ import { serviceItemCodes } from 'content/serviceItems';
 const shipmentTypes = {
   HHG: [
     serviceItemCodes.DLH,
+    serviceItemCodes.DSH,
     serviceItemCodes.FSC,
     serviceItemCodes.DOP,
     serviceItemCodes.DDP,
@@ -17,6 +18,7 @@ const shipmentTypes = {
   ],
   HHG_INTO_NTS_DOMESTIC: [
     serviceItemCodes.DLH,
+    serviceItemCodes.DSH,
     serviceItemCodes.FSC,
     serviceItemCodes.DOP,
     serviceItemCodes.DDP,
@@ -24,6 +26,7 @@ const shipmentTypes = {
   ],
   HHG_OUTOF_NTS_DOMESTIC: [
     serviceItemCodes.DLH,
+    serviceItemCodes.DSH,
     serviceItemCodes.FSC,
     serviceItemCodes.DOP,
     serviceItemCodes.DDP,
@@ -31,9 +34,15 @@ const shipmentTypes = {
   ],
 };
 
-const ShipmentServiceItemsTable = ({ shipmentType, className }) => {
+const ShipmentServiceItemsTable = ({ shipmentType, destinationZip3, pickupZip3, className }) => {
   const shipmentServiceItems = shipmentTypes[`${shipmentType}`] || [];
-
+  const shortHaulServiceItems = shipmentServiceItems.filter((item) => {
+    return item !== 'Domestic linehaul';
+  });
+  const lineHaulServiceItems = shipmentServiceItems.filter((item) => {
+    return item !== 'Domestic shorthaul';
+  });
+  const sameZip3 = destinationZip3 === pickupZip3;
   return (
     <div className={classNames('container', 'container--gray', className)}>
       <table className={classNames('table--stacked', styles.serviceItemsTable)}>
@@ -50,11 +59,17 @@ const ShipmentServiceItemsTable = ({ shipmentType, className }) => {
           </tr>
         </thead>
         <tbody>
-          {shipmentServiceItems.map((serviceItem) => (
-            <tr key={serviceItem}>
-              <td>{serviceItem}</td>
-            </tr>
-          ))}
+          {sameZip3
+            ? shortHaulServiceItems.map((serviceItem) => (
+                <tr key={serviceItem}>
+                  <td>{serviceItem}</td>
+                </tr>
+              ))
+            : lineHaulServiceItems.map((serviceItem) => (
+                <tr key={serviceItem}>
+                  <td>{serviceItem}</td>
+                </tr>
+              ))}
         </tbody>
       </table>
     </div>
