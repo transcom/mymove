@@ -14,6 +14,7 @@ const TXOTabNav = ({
   excessWeightRiskCount,
   pendingPaymentRequestCount,
   unapprovedSITExtensionCount,
+  shipmentsWithDeliveryAddressUpdateRequestedCount,
   order,
   moveCode,
 }) => {
@@ -23,6 +24,9 @@ const TXOTabNav = ({
   }
   if (order.uploadedAmendedOrderID && !order.amendedOrdersAcknowledgedAt) {
     moveDetailsTagCount += 1;
+  }
+  if (shipmentsWithDeliveryAddressUpdateRequestedCount) {
+    moveDetailsTagCount += shipmentsWithDeliveryAddressUpdateRequestedCount;
   }
 
   let moveTaskOrderTagCount = 0;

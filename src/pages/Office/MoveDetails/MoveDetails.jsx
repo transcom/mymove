@@ -55,6 +55,7 @@ const MoveDetails = ({
   setUnapprovedSITAddressUpdateCount,
   setExcessWeightRiskCount,
   setUnapprovedSITExtensionCount,
+  setShipmentsWithDeliveryAddressUpdateRequestedCount,
 }) => {
   const { moveCode } = useParams();
   const [isFinancialModalVisible, setIsFinancialModalVisible] = useState(false);
@@ -152,6 +153,10 @@ const MoveDetails = ({
   const shipmentWithDestinationAddressChangeRequest = mtoShipments?.filter(
     (shipment) => shipment?.deliveryAddressUpdate?.status === 'REQUESTED' && !shipment.deletedAt,
   );
+  useEffect(() => {
+    const shipmentCount = shipmentWithDestinationAddressChangeRequest?.length || 0;
+    setShipmentsWithDeliveryAddressUpdateRequestedCount(shipmentCount);
+  }, [mtoShipments, shipmentWithDestinationAddressChangeRequest, setShipmentsWithDeliveryAddressUpdateRequestedCount]);
 
   const shipmentsInfoNonPPM = mtoShipments?.filter((shipment) => shipment.shipmentType !== 'PPM');
 
