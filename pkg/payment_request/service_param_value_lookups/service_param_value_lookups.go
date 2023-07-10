@@ -203,7 +203,7 @@ func ServiceParamLookupInitialize(
 	mtoShipment.DestinationAddress = &destinationAddress
 
 	switch mtoServiceItem.ReService.Code {
-	case models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT, models.ReServiceCodeDDFSIT, models.ReServiceCodeDOASIT, models.ReServiceCodeDOPSIT, models.ReServiceCodeDOFSIT:
+	case models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT, models.ReServiceCodeDDFSIT, models.ReServiceCodeDDSFSC, models.ReServiceCodeDOASIT, models.ReServiceCodeDOPSIT, models.ReServiceCodeDOFSIT, models.ReServiceCodeDOSFSC:
 		err := appCtx.DB().Load(&mtoShipment, "SITDurationUpdates")
 		if err != nil {
 			return nil, err
