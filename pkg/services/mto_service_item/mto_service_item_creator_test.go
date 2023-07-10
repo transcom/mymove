@@ -85,9 +85,6 @@ func (suite *MTOServiceItemServiceSuite) buildValidDDFSITServiceItemWithValidMov
 		UpdatedAt: time.Now(),
 	}
 	reServiceDDFSIT := factory.BuildDDFSITReService(suite.DB())
-	factory.FetchOrBuildReServiceByCode(suite.DB(), models.ReServiceCodeDDASIT)
-	factory.FetchOrBuildReServiceByCode(suite.DB(), models.ReServiceCodeDDDSIT)
-	factory.FetchOrBuildReServiceByCode(suite.DB(), models.ReServiceCodeDDSFSC)
 	shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 		{
 			Model:    move,
@@ -488,9 +485,6 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 			},
 		}, nil)
 		reServiceDDFSIT := factory.BuildDDFSITReService(suite.DB())
-		factory.FetchOrBuildReServiceByCode(suite.DB(), models.ReServiceCodeDDASIT)
-		factory.FetchOrBuildReServiceByCode(suite.DB(), models.ReServiceCodeDDDSIT)
-		factory.FetchOrBuildReServiceByCode(suite.DB(), models.ReServiceCodeDDSFSC)
 
 		contactOne := models.MTOServiceItemCustomerContact{
 			Type:                       models.CustomerContactTypeFirst,

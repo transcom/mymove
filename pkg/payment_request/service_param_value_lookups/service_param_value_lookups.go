@@ -136,7 +136,7 @@ func ServiceParamLookupInitialize(
 			return nil, err
 		}
 		serviceItemDimensions = mtoServiceItem.Dimensions
-	case models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT, models.ReServiceCodeDDFSIT:
+	case models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT, models.ReServiceCodeDDFSIT, models.ReServiceCodeDDSFSC:
 		// load destination address from final address on service item
 		if mtoServiceItem.SITDestinationFinalAddressID != nil && *mtoServiceItem.SITDestinationFinalAddressID != uuid.Nil {
 			err := appCtx.DB().Load(&mtoServiceItem, "SITDestinationFinalAddress")
