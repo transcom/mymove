@@ -149,7 +149,7 @@
     "@wojtekmaj/enzyme-adapter-react-17": "^0.8.0",
     "danger": "^11.2.6",
     "danger-plugin-jira-issue": "^1.4.1",
-    "dotenv": "^16.1.4",
+    "dotenv": "^16.3.1",
     "enzyme": "^3.11.0",
     "eslint-config-airbnb": "19.0.4",
     "eslint-config-prettier": "^8.8.0",
