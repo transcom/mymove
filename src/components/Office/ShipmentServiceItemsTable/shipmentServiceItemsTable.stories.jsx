@@ -25,6 +25,10 @@ export const HHGShorthaulServiceItems = () => (
   />
 );
 
-export const NTSServiceItems = () => <ShipmentServiceItemsTable shipmentType={SHIPMENT_OPTIONS.NTS} />;
+export const NTSServiceItems = () => (
+  <ShipmentServiceItemsTable destinationZip3={destZip3} pickupZip3={pickupZip3} shipmentType={SHIPMENT_OPTIONS.NTS} />
+);
 
-export const NTSRServiceItems = () => <ShipmentServiceItemsTable shipmentType={SHIPMENT_OPTIONS.NTSR} />;
+export const NTSRServiceItems = () => (
+  <ShipmentServiceItemsTable destinationZip3={destZip3} pickupZip3={pickupZip3} shipmentType={SHIPMENT_OPTIONS.NTSR} />
+);

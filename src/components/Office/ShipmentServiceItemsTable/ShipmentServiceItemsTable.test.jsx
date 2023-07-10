@@ -26,10 +26,12 @@ describe('Shipment Service Items Table', () => {
           shipmentType={SHIPMENT_OPTIONS.HHG}
         />,
       );
-      // expect(
-      //   await screen.findByRole('heading', { name: 'Service items for this shipment 6 items', level: 4 }),
-      // ).toBeInTheDocument();
-      expect(await screen.findByText('Service items for this shipment 6 items')).toBeInTheDocument();
+      expect(
+        await screen.findByRole('heading', { name: 'Service items for this shipment 6 items', level: 4 }),
+      ).toBeInTheDocument();
+      // expect(await screen.findByRole('heading', { level: 4 })).toHaveTextContent(
+      //   /Service items for this shipment 6 items/,
+      // );
       expect(screen.getByText(serviceItem)).toBeInTheDocument();
     });
   });
@@ -50,6 +52,9 @@ describe('Shipment Service Items Table', () => {
           shipmentType={SHIPMENT_OPTIONS.HHG}
         />,
       );
+      // expect(await screen.findByRole('heading', { level: 4 })).toHaveTextContent(
+      //   /Service items for this shipment 6 items/,
+      // );
       expect(
         await screen.findByRole('heading', { name: 'Service items for this shipment 6 items', level: 4 }),
       ).toBeInTheDocument();
@@ -65,7 +70,13 @@ describe('Shipment Service Items Table', () => {
       ['Domestic destination price'],
       ['Domestic NTS packing'],
     ])('expects %s to be in the document', async (serviceItem) => {
-      render(<ShipmentServiceItemsTable shipmentType={SHIPMENT_OPTIONS.NTS} />);
+      render(
+        <ShipmentServiceItemsTable
+          destinationZip3={destZip3}
+          pickupZip3={pickupZip3}
+          shipmentType={SHIPMENT_OPTIONS.NTS}
+        />,
+      );
       expect(
         await screen.findByRole('heading', { name: 'Service items for this shipment 5 items', level: 4 }),
       ).toBeInTheDocument();
@@ -81,7 +92,13 @@ describe('Shipment Service Items Table', () => {
       ['Domestic destination price'],
       ['Domestic unpacking'],
     ])('expects %s to be in the document', async (serviceItem) => {
-      render(<ShipmentServiceItemsTable shipmentType={SHIPMENT_OPTIONS.NTSR} />);
+      render(
+        <ShipmentServiceItemsTable
+          destinationZip3={destZip3}
+          pickupZip3={pickupZip3}
+          shipmentType={SHIPMENT_OPTIONS.NTSR}
+        />,
+      );
       expect(
         await screen.findByRole('heading', { name: 'Service items for this shipment 5 items', level: 4 }),
       ).toBeInTheDocument();

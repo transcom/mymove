@@ -39,7 +39,7 @@ const ShipmentServiceItemsTable = ({ shipmentType, destinationZip3, pickupZip3, 
   const shortHaulServiceItems = shipmentServiceItems.filter((item) => {
     return item !== 'Domestic linehaul';
   });
-  const lineHaulServiceItems = shipmentServiceItems.filter((item) => {
+  const longHaulServiceItems = shipmentServiceItems.filter((item) => {
     return item !== 'Domestic shorthaul';
   });
   const sameZip3 = destinationZip3 === pickupZip3;
@@ -48,7 +48,10 @@ const ShipmentServiceItemsTable = ({ shipmentType, destinationZip3, pickupZip3, 
       <table className={classNames('table--stacked', styles.serviceItemsTable)}>
         <caption>
           <div className="stackedtable-header">
-            <h4>Service items for this shipment {shipmentServiceItems.length} items</h4>
+            <h4>
+              Service items for this shipment <br />
+              {sameZip3 ? shortHaulServiceItems.length : longHaulServiceItems.length} items
+            </h4>
           </div>
         </caption>
         <thead className="table--small">
@@ -63,7 +66,7 @@ const ShipmentServiceItemsTable = ({ shipmentType, destinationZip3, pickupZip3, 
                   <td>{serviceItem}</td>
                 </tr>
               ))
-            : lineHaulServiceItems.map((serviceItem) => (
+            : longHaulServiceItems.map((serviceItem) => (
                 <tr key={serviceItem}>
                   <td>{serviceItem}</td>
                 </tr>
