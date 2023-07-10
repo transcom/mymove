@@ -623,6 +623,7 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 			SitDepartureDate:            handlers.FmtDate(sitDepartureDate),
 			SitEntryDate:                handlers.FmtDatePtr(mtoServiceItem.SITEntryDate),
 			SitDestinationFinalAddress:  Address(mtoServiceItem.SITDestinationFinalAddress),
+			SitAddressUpdates:           SITAddressUpdates(mtoServiceItem.SITAddressUpdates),
 		}
 
 	case models.ReServiceCodeDCRT, models.ReServiceCodeDUCRT:
@@ -817,6 +818,16 @@ func SITDurationUpdate(sitDurationUpdate *models.SITDurationUpdate) *primemessag
 	return payload
 }
 
+// SITAddressUpdates payload
+func SITAddressUpdates(u models.SITAddressUpdates) primemessages.SitAddressUpdates {
+	payload := make(primemessages.SitAddressUpdates, len(u))
+	for i, item := range u {
+		copyOfItem := item
+		payload[i] = SITAddressUpdate(&copyOfItem)
+	}
+	return payload
+}
+
 // SITAddressUpdate payload
 func SITAddressUpdate(sitAddressUpdate *models.SITAddressUpdate) *primemessages.SitAddressUpdate {
 	if sitAddressUpdate == nil {
@@ -830,6 +841,9 @@ func SITAddressUpdate(sitAddressUpdate *models.SITAddressUpdate) *primemessages.
 		NewAddressID:      strfmt.UUID(sitAddressUpdate.NewAddressID.String()),
 		NewAddress:        Address(&sitAddressUpdate.NewAddress),
 		ContractorRemarks: handlers.FmtStringPtr(sitAddressUpdate.ContractorRemarks),
+		OfficeRemarks:     handlers.FmtStringPtr(sitAddressUpdate.OfficeRemarks),
+		OldAddressID:      strfmt.UUID(sitAddressUpdate.OldAddressID.String()),
+		OldAddress:        Address(&sitAddressUpdate.OldAddress),
 		Status:            primemessages.SitAddressUpdateStatus(sitAddressUpdate.Status),
 		CreatedAt:         strfmt.DateTime(sitAddressUpdate.CreatedAt),
 		UpdatedAt:         strfmt.DateTime(sitAddressUpdate.UpdatedAt),
