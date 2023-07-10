@@ -8,7 +8,7 @@
 
 // design called for thin semi bold which isn't a variant
 .detailType {
-  @include u-font-weight(600);
+  @include u-font-weight(700);
 }
 
 .customerContact {
@@ -23,4 +23,17 @@
 
 .detailCaption {
   @include u-margin-left(3);
+}
+
+.uploads {
+  @include u-font-size('body', '3xs');
+
+  p {
+    @include u-font-size('body', '3xs');
+    margin:0;
+  }
+
+  a {
+    @include u-text-decoration(underline);
+  }
 }

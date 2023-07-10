@@ -494,6 +494,7 @@ func MTOShipmentWithoutServiceItems(mtoShipment *models.MTOShipment) *primemessa
 		CounselorRemarks:                 mtoShipment.CounselorRemarks,
 		Status:                           string(mtoShipment.Status),
 		Diversion:                        bool(mtoShipment.Diversion),
+		DeliveryAddressUpdate:            ShipmentAddressUpdate(mtoShipment.DeliveryAddressUpdate),
 		CreatedAt:                        strfmt.DateTime(mtoShipment.CreatedAt),
 		UpdatedAt:                        strfmt.DateTime(mtoShipment.UpdatedAt),
 		PpmShipment:                      PPMShipment(mtoShipment.PPMShipment),
@@ -622,6 +623,7 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 			SitDepartureDate:            handlers.FmtDate(sitDepartureDate),
 			SitEntryDate:                handlers.FmtDatePtr(mtoServiceItem.SITEntryDate),
 			SitDestinationFinalAddress:  Address(mtoServiceItem.SITDestinationFinalAddress),
+			SitAddressUpdates:           SITAddressUpdates(mtoServiceItem.SITAddressUpdates),
 		}
 
 	case models.ReServiceCodeDCRT, models.ReServiceCodeDUCRT:
@@ -816,6 +818,16 @@ func SITDurationUpdate(sitDurationUpdate *models.SITDurationUpdate) *primemessag
 	return payload
 }
 
+// SITAddressUpdates payload
+func SITAddressUpdates(u models.SITAddressUpdates) primemessages.SitAddressUpdates {
+	payload := make(primemessages.SitAddressUpdates, len(u))
+	for i, item := range u {
+		copyOfItem := item
+		payload[i] = SITAddressUpdate(&copyOfItem)
+	}
+	return payload
+}
+
 // SITAddressUpdate payload
 func SITAddressUpdate(sitAddressUpdate *models.SITAddressUpdate) *primemessages.SitAddressUpdate {
 	if sitAddressUpdate == nil {
@@ -829,6 +841,9 @@ func SITAddressUpdate(sitAddressUpdate *models.SITAddressUpdate) *primemessages.
 		NewAddressID:      strfmt.UUID(sitAddressUpdate.NewAddressID.String()),
 		NewAddress:        Address(&sitAddressUpdate.NewAddress),
 		ContractorRemarks: handlers.FmtStringPtr(sitAddressUpdate.ContractorRemarks),
+		OfficeRemarks:     handlers.FmtStringPtr(sitAddressUpdate.OfficeRemarks),
+		OldAddressID:      strfmt.UUID(sitAddressUpdate.OldAddressID.String()),
+		OldAddress:        Address(&sitAddressUpdate.OldAddress),
 		Status:            primemessages.SitAddressUpdateStatus(sitAddressUpdate.Status),
 		CreatedAt:         strfmt.DateTime(sitAddressUpdate.CreatedAt),
 		UpdatedAt:         strfmt.DateTime(sitAddressUpdate.UpdatedAt),
@@ -839,7 +854,7 @@ func SITAddressUpdate(sitAddressUpdate *models.SITAddressUpdate) *primemessages.
 
 // ShipmentAddressUpdate payload
 func ShipmentAddressUpdate(shipmentAddressUpdate *models.ShipmentAddressUpdate) *primemessages.ShipmentAddressUpdate {
-	if shipmentAddressUpdate == nil {
+	if shipmentAddressUpdate == nil || shipmentAddressUpdate.ID.IsNil() {
 		return nil
 	}
 
@@ -847,7 +862,10 @@ func ShipmentAddressUpdate(shipmentAddressUpdate *models.ShipmentAddressUpdate) 
 		ID:                strfmt.UUID(shipmentAddressUpdate.ID.String()),
 		ShipmentID:        strfmt.UUID(shipmentAddressUpdate.ShipmentID.String()),
 		NewAddress:        Address(&shipmentAddressUpdate.NewAddress),
+		OriginalAddress:   Address(&shipmentAddressUpdate.OriginalAddress),
 		ContractorRemarks: shipmentAddressUpdate.ContractorRemarks,
+		OfficeRemarks:     shipmentAddressUpdate.OfficeRemarks,
+		Status:            primemessages.ShipmentAddressUpdateStatus(shipmentAddressUpdate.Status),
 	}
 
 	return payload

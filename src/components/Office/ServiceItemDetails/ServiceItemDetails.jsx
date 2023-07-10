@@ -1,7 +1,9 @@
 import React from 'react';
+import { isEmpty, sortBy } from 'lodash';
 import classnames from 'classnames';
 
 import { ServiceItemDetailsShape } from '../../../types/serviceItems';
+import { trimFileName } from '../../../utils/serviceItems';
 
 import styles from './ServiceItemDetails.module.scss';
 
@@ -18,7 +20,9 @@ function generateDetailText(details, id, className) {
   return detailList;
 }
 
-const ServiceItemDetails = ({ id, code, details }) => {
+const ServiceItemDetails = ({ id, code, details, serviceRequestDocs }) => {
+  const serviceRequestDocUploads = serviceRequestDocs?.map((doc) => doc.uploads[0]);
+
   let detailSection;
   switch (code) {
     case 'DOFSIT':
@@ -36,6 +40,18 @@ const ServiceItemDetails = ({ id, code, details }) => {
             )}
             {details.rejectionReason &&
               generateDetailText({ 'Rejection reason': details.rejectionReason }, id, 'margin-top-2')}
+            {!isEmpty(serviceRequestDocUploads) ? (
+              <div className={styles.uploads}>
+                <p className={styles.detailType}>Download service item documentation:</p>
+                {serviceRequestDocUploads.map((file) => (
+                  <div className={styles.uploads}>
+                    <a href={file.url} download>
+                      {trimFileName(file.filename)}
+                    </a>
+                  </div>
+                ))}
+              </div>
+            ) : null}
           </dl>
         </div>
       );
@@ -44,39 +60,56 @@ const ServiceItemDetails = ({ id, code, details }) => {
     case 'DDFSIT':
     case 'DDASIT':
     case 'DDDSIT': {
-      const { firstCustomerContact, secondCustomerContact } = details;
+      const { customerContacts } = details;
+      // Below we are using the sortBy func in lodash to sort the customer contacts
+      // by the firstAvailableDeliveryDate field. sortBy returns a new
+      // array with the elements in ascending order.
+      const sortedCustomerContacts = sortBy(customerContacts, [
+        (a) => {
+          return new Date(a.firstAvailableDeliveryDate);
+        },
+      ]);
+      const defaultDetailText = generateDetailText({
+        'First available delivery date 1': '-',
+        'Customer contact 1': '-',
+      });
       detailSection = (
         <div>
           <dl>
-            {generateDetailText(
-              {
-                'Customer contact 1':
-                  firstCustomerContact && firstCustomerContact.timeMilitary ? firstCustomerContact.timeMilitary : '-',
-                'First available delivery date 1':
-                  firstCustomerContact && firstCustomerContact.firstAvailableDeliveryDate
-                    ? formatDate(firstCustomerContact.firstAvailableDeliveryDate, 'DD MMM YYYY')
-                    : '-',
-              },
-              id,
-            )}
-            <div className={styles.customerContact}>
-              {generateDetailText(
-                {
-                  'Customer contact 2':
-                    secondCustomerContact && secondCustomerContact.timeMilitary
-                      ? secondCustomerContact.timeMilitary
-                      : '-',
-                  'First available delivery date 2':
-                    secondCustomerContact && secondCustomerContact.firstAvailableDeliveryDate
-                      ? formatDate(secondCustomerContact.firstAvailableDeliveryDate, 'DD MMM YYYY')
-                      : '-',
-                },
-                id,
-              )}
-            </div>
+            {!isEmpty(sortedCustomerContacts)
+              ? sortedCustomerContacts.map((contact, index) => (
+                  <>
+                    {generateDetailText(
+                      {
+                        [`First available delivery date ${index + 1}`]:
+                          contact && contact.firstAvailableDeliveryDate
+                            ? formatDate(contact.firstAvailableDeliveryDate, 'DD MMM YYYY')
+                            : '-',
+                        [`Customer contact attempt ${index + 1}`]:
+                          contact && contact.dateOfContact && contact.timeMilitary
+                            ? `${formatDate(contact.dateOfContact, 'DD MMM YYYY')}, ${contact.timeMilitary}`
+                            : '-',
+                      },
+                      id,
+                    )}
+                  </>
+                ))
+              : defaultDetailText}
             {generateDetailText({ Reason: details.reason ? details.reason : '-' })}
             {details.rejectionReason &&
               generateDetailText({ 'Rejection reason': details.rejectionReason }, id, 'margin-top-2')}
+            {!isEmpty(serviceRequestDocUploads) ? (
+              <div className={styles.uploads}>
+                <p className={styles.detailType}>Download service item documentation:</p>
+                {serviceRequestDocUploads.map((file) => (
+                  <div className={styles.uploads}>
+                    <a href={file.url} download>
+                      {trimFileName(file.filename)}
+                    </a>
+                  </div>
+                ))}
+              </div>
+            ) : null}
           </dl>
         </div>
       );
@@ -104,6 +137,18 @@ const ServiceItemDetails = ({ id, code, details }) => {
             {generateDetailText({ Reason: details.reason ? details.reason : '-' })}
             {details.rejectionReason &&
               generateDetailText({ 'Rejection reason': details.rejectionReason }, id, 'margin-top-2')}
+            {!isEmpty(serviceRequestDocUploads) ? (
+              <div className={styles.uploads}>
+                <p className={styles.detailType}>Download service item documentation:</p>
+                {serviceRequestDocUploads.map((file) => (
+                  <div className={styles.uploads}>
+                    <a href={file.url} download>
+                      {trimFileName(file.filename)}
+                    </a>
+                  </div>
+                ))}
+              </div>
+            ) : null}
           </dl>
         </div>
       );
@@ -129,6 +174,18 @@ const ServiceItemDetails = ({ id, code, details }) => {
             {crateDimensions && generateDetailText({ 'Crate size': crateDimensionFormat }, id)}
             {details.rejectionReason &&
               generateDetailText({ 'Rejection reason': details.rejectionReason }, id, 'margin-top-2')}
+            {!isEmpty(serviceRequestDocUploads) ? (
+              <div className={styles.uploads}>
+                <p className={styles.detailType}>Download service item documentation:</p>
+                {serviceRequestDocUploads.map((file) => (
+                  <div className={styles.uploads}>
+                    <a href={file.url} download>
+                      {trimFileName(file.filename)}
+                    </a>
+                  </div>
+                ))}
+              </div>
+            ) : null}
           </dl>
         </div>
       );
@@ -146,6 +203,18 @@ const ServiceItemDetails = ({ id, code, details }) => {
             {generateDetailText({ Reason: details.reason })}
             {details.rejectionReason &&
               generateDetailText({ 'Rejection reason': details.rejectionReason }, id, 'margin-top-2')}
+            {!isEmpty(serviceRequestDocUploads) ? (
+              <div className={styles.uploads}>
+                <p className={styles.detailType}>Download service item documentation:</p>
+                {serviceRequestDocUploads.map((file) => (
+                  <div className={styles.uploads}>
+                    <a href={file.url} download>
+                      {trimFileName(file.filename)}
+                    </a>
+                  </div>
+                ))}
+              </div>
+            ) : null}
           </dl>
         </div>
       );
@@ -158,6 +227,18 @@ const ServiceItemDetails = ({ id, code, details }) => {
           <dl>
             {details.rejectionReason &&
               generateDetailText({ 'Rejection reason': details.rejectionReason }, id, 'margin-top-2')}
+            {!isEmpty(serviceRequestDocUploads) ? (
+              <div className={styles.uploads}>
+                <p className={styles.detailType}>Download service item documentation:</p>
+                {serviceRequestDocUploads.map((file) => (
+                  <div className={styles.uploads}>
+                    <a href={file.url} download>
+                      {trimFileName(file.filename)}
+                    </a>
+                  </div>
+                ))}
+              </div>
+            ) : null}
           </dl>
         </div>
       );

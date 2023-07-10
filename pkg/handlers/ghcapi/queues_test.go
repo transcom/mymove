@@ -990,7 +990,6 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandler() {
 	}
 
 	// Validate incoming payload: no body to validate
-
 	response := handler.Handle(params)
 	suite.IsNotErrResponse(response)
 	suite.IsType(&queues.GetPaymentRequestsQueueOK{}, response)
