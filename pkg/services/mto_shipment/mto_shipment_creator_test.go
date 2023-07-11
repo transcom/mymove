@@ -472,6 +472,42 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		suite.IsType(apperror.InvalidInputError{}, err)
 	})
 
+	suite.Run("Will not create MTO agent if all fields are empty", func() {
+		subtestData := suite.createSubtestData(nil)
+		creator := subtestData.shipmentCreator
+
+		firstName := ""
+		lastName := ""
+		email := ""
+
+		var agents models.MTOAgents
+
+		agent1 := models.MTOAgent{
+			FirstName:    &firstName,
+			LastName:     &lastName,
+			Email:        &email,
+			MTOAgentType: models.MTOAgentReceiving,
+		}
+
+		agents = append(agents, agent1)
+
+		shipment := factory.BuildMTOShipment(nil, []factory.Customization{
+			{
+				Model:    subtestData.move,
+				LinkOnly: true,
+			},
+		}, nil)
+		clearedShipment := clearShipmentIDFields(&shipment)
+
+		clearedShipment.MTOAgents = agents
+		clearedShipment.MTOServiceItems = models.MTOServiceItems{}
+
+		createdShipment, err := creator.CreateMTOShipment(suite.AppContextForTest(), clearedShipment)
+
+		suite.NoError(err)
+		suite.Len(createdShipment.MTOAgents, 0)
+	})
+
 	suite.Run("Move status transitions when a new shipment is created and SUBMITTED", func() {
 		// If a new shipment is added to an APPROVED move and given the SUBMITTED status,
 		// the move should transition to "APPROVALS REQUESTED"
