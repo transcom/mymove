@@ -260,6 +260,7 @@ func InitRouting(appCtx appcontext.AppContext, redisPool *redis.Pool,
 		if routingConfig.ServeSwaggerUI {
 			appCtx.Logger().Info("Prime API Swagger UI serving is enabled")
 			primeMux.HandleFunc("/docs", handlers.NewFileHandler(path.Join(routingConfig.BuildRoot, "swagger-ui", "prime.html"))).Methods("GET")
+			primeMux.HandleFunc("/docs", handlers.NewFileHandler(path.Join(routingConfig.BuildRoot, "swagger-ui", "prime_v2.html"))).Methods("GET")
 		} else {
 			primeMux.Handle("/docs", http.NotFoundHandler()).Methods("GET")
 		}
