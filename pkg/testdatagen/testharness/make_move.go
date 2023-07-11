@@ -3415,7 +3415,7 @@ func MakeHHGMoveIn200DaysSIT(appCtx appcontext.AppContext) models.Move {
 		},
 	}, nil)
 	now := time.Now()
-	mto := factory.BuildMove(appCtx.DB(), []factory.Customization{
+	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
 		{
 			Model:    orders,
 			LinkOnly: true,
@@ -3434,7 +3434,7 @@ func MakeHHGMoveIn200DaysSIT(appCtx appcontext.AppContext) models.Move {
 	requestedDeliveryDate := requestedPickupDate.AddDate(0, 1, 0)
 	// pickupAddress := factory.BuildAddress(appCtx.DB(), nil, nil)
 
-	MTOShipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+	shipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.MTOShipment{
 				PrimeEstimatedWeight:  &estimatedWeight,
@@ -3447,7 +3447,7 @@ func MakeHHGMoveIn200DaysSIT(appCtx appcontext.AppContext) models.Move {
 			},
 		},
 		{
-			Model:    mto,
+			Model:    move,
 			LinkOnly: true,
 		},
 	}, nil)
@@ -3455,7 +3455,7 @@ func MakeHHGMoveIn200DaysSIT(appCtx appcontext.AppContext) models.Move {
 	agentUserInfo := newUserInfo("agent")
 	factory.BuildMTOAgent(appCtx.DB(), []factory.Customization{
 		{
-			Model:    MTOShipment,
+			Model:    shipment,
 			LinkOnly: true,
 		},
 		{Model: models.MTOAgent{
@@ -3470,8 +3470,8 @@ func MakeHHGMoveIn200DaysSIT(appCtx appcontext.AppContext) models.Move {
 	year, month, day := time.Now().Add(time.Hour * 24 * -60).Date()
 	threeMonthsAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
 	twoMonthsAgo := threeMonthsAgo.Add(time.Hour * 24 * 30)
-	factory.BuildOriginSITServiceItems(appCtx.DB(), mto, MTOShipment, &threeMonthsAgo, &twoMonthsAgo)
-	destSITItems := factory.BuildDestSITServiceItems(appCtx.DB(), mto, MTOShipment, &twoMonthsAgo, nil)
+	factory.BuildOriginSITServiceItems(appCtx.DB(), move, shipment, &threeMonthsAgo, &twoMonthsAgo)
+	destSITItems := factory.BuildDestSITServiceItems(appCtx.DB(), move, shipment, &twoMonthsAgo, nil)
 	for i := range destSITItems {
 		if destSITItems[i].ReService.Code == models.ReServiceCodeDDDSIT {
 			sitAddressUpdate := factory.BuildSITAddressUpdate(appCtx.DB(), []factory.Customization{
@@ -3492,7 +3492,7 @@ func MakeHHGMoveIn200DaysSIT(appCtx appcontext.AppContext) models.Move {
 		}
 	}
 
-	return mto
+	return move
 }
 
 func MakeHHGMoveIn200DaysSITWithPendingExtension(appCtx appcontext.AppContext) models.Move {
@@ -3548,7 +3548,7 @@ func MakeHHGMoveIn200DaysSITWithPendingExtension(appCtx appcontext.AppContext) m
 		},
 	}, nil)
 	now := time.Now()
-	mto := factory.BuildMove(appCtx.DB(), []factory.Customization{
+	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
 		{
 			Model:    orders,
 			LinkOnly: true,
@@ -3567,7 +3567,7 @@ func MakeHHGMoveIn200DaysSITWithPendingExtension(appCtx appcontext.AppContext) m
 	requestedDeliveryDate := requestedPickupDate.AddDate(0, 1, 0)
 	// pickupAddress := factory.BuildAddress(appCtx.DB(), nil, nil)
 
-	MTOShipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+	shipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.MTOShipment{
 				PrimeEstimatedWeight:  &estimatedWeight,
@@ -3580,7 +3580,7 @@ func MakeHHGMoveIn200DaysSITWithPendingExtension(appCtx appcontext.AppContext) m
 			},
 		},
 		{
-			Model:    mto,
+			Model:    move,
 			LinkOnly: true,
 		},
 	}, nil)
@@ -3588,7 +3588,7 @@ func MakeHHGMoveIn200DaysSITWithPendingExtension(appCtx appcontext.AppContext) m
 	agentUserInfo := newUserInfo("agent")
 	factory.BuildMTOAgent(appCtx.DB(), []factory.Customization{
 		{
-			Model:    MTOShipment,
+			Model:    shipment,
 			LinkOnly: true,
 		},
 		{Model: models.MTOAgent{
@@ -3603,8 +3603,8 @@ func MakeHHGMoveIn200DaysSITWithPendingExtension(appCtx appcontext.AppContext) m
 	year, month, day := time.Now().Add(time.Hour * 24 * -60).Date()
 	threeMonthsAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
 	twoMonthsAgo := threeMonthsAgo.Add(time.Hour * 24 * 30)
-	factory.BuildOriginSITServiceItems(appCtx.DB(), mto, MTOShipment, &threeMonthsAgo, &twoMonthsAgo)
-	destSITItems := factory.BuildDestSITServiceItems(appCtx.DB(), mto, MTOShipment, &twoMonthsAgo, nil)
+	factory.BuildOriginSITServiceItems(appCtx.DB(), move, shipment, &threeMonthsAgo, &twoMonthsAgo)
+	destSITItems := factory.BuildDestSITServiceItems(appCtx.DB(), move, shipment, &twoMonthsAgo, nil)
 	for i := range destSITItems {
 		if destSITItems[i].ReService.Code == models.ReServiceCodeDDDSIT {
 			sitAddressUpdate := factory.BuildSITAddressUpdate(appCtx.DB(), []factory.Customization{
@@ -3626,12 +3626,12 @@ func MakeHHGMoveIn200DaysSITWithPendingExtension(appCtx appcontext.AppContext) m
 	}
 	factory.BuildSITDurationUpdate(appCtx.DB(), []factory.Customization{
 		{
-			Model:    MTOShipment,
+			Model:    shipment,
 			LinkOnly: true,
 		},
 	}, nil)
 
-	return mto
+	return move
 }
 
 func MakeHHGMoveInSITWithAddressChangeRequestOver50Miles(appCtx appcontext.AppContext) models.Move {
@@ -3733,12 +3733,12 @@ func MakeHHGMoveInSITWithAddressChangeRequestOver50Miles(appCtx appcontext.AppCo
 		}
 	}
 
-	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
+	newMove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
 		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 
-	return *newmove
+	return *newMove
 }
 
 func MakeHHGMoveInSITWithAddressChangeRequestUnder50Miles(appCtx appcontext.AppContext) models.Move {
@@ -3797,7 +3797,7 @@ func MakeHHGMoveInSITWithAddressChangeRequestUnder50Miles(appCtx appcontext.AppC
 	}, nil)
 
 	now := time.Now()
-	mto := factory.BuildMove(appCtx.DB(), []factory.Customization{
+	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
 		{
 			Model:    orders,
 			LinkOnly: true,
@@ -3813,7 +3813,7 @@ func MakeHHGMoveInSITWithAddressChangeRequestUnder50Miles(appCtx appcontext.AppC
 	requestedPickupDate := time.Now().AddDate(0, 3, 0)
 	requestedDeliveryDate := requestedPickupDate.AddDate(0, 1, 0)
 
-	MTOshipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+	shipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.MTOShipment{
 				PrimeEstimatedWeight:  models.PoundPointer(unit.Pound(1400)),
@@ -3826,7 +3826,7 @@ func MakeHHGMoveInSITWithAddressChangeRequestUnder50Miles(appCtx appcontext.AppC
 			},
 		},
 		{
-			Model:    mto,
+			Model:    move,
 			LinkOnly: true,
 		},
 	}, nil)
@@ -3834,7 +3834,7 @@ func MakeHHGMoveInSITWithAddressChangeRequestUnder50Miles(appCtx appcontext.AppC
 	agentUserInfo := newUserInfo("agent")
 	factory.BuildMTOAgent(appCtx.DB(), []factory.Customization{
 		{
-			Model:    MTOshipment,
+			Model:    shipment,
 			LinkOnly: true,
 		},
 		{Model: models.MTOAgent{
@@ -3849,8 +3849,8 @@ func MakeHHGMoveInSITWithAddressChangeRequestUnder50Miles(appCtx appcontext.AppC
 	year, month, day := time.Now().Add(time.Hour * 24 * -60).Date()
 	threeMonthsAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
 	twoMonthsAgo := threeMonthsAgo.Add(time.Hour * 24 * 30)
-	factory.BuildOriginSITServiceItems(appCtx.DB(), mto, MTOshipment, &threeMonthsAgo, &twoMonthsAgo)
-	destSITItems := factory.BuildDestSITServiceItems(appCtx.DB(), mto, MTOshipment, &twoMonthsAgo, nil)
+	factory.BuildOriginSITServiceItems(appCtx.DB(), move, shipment, &threeMonthsAgo, &twoMonthsAgo)
+	destSITItems := factory.BuildDestSITServiceItems(appCtx.DB(), move, shipment, &twoMonthsAgo, nil)
 	for i := range destSITItems {
 		if destSITItems[i].ReService.Code == models.ReServiceCodeDDDSIT {
 			sitAddressUpdate := factory.BuildSITAddressUpdate(appCtx.DB(), []factory.Customization{
@@ -3871,12 +3871,12 @@ func MakeHHGMoveInSITWithAddressChangeRequestUnder50Miles(appCtx appcontext.AppC
 		}
 	}
 
-	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, mto.ID)
+	newMove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
 		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 
-	return *newmove
+	return *newMove
 }
 
 func MakeHHGMoveIn200DaysSITEndsToday(appCtx appcontext.AppContext) models.Move {
@@ -3932,7 +3932,7 @@ func MakeHHGMoveIn200DaysSITEndsToday(appCtx appcontext.AppContext) models.Move 
 		},
 	}, nil)
 	now := time.Now()
-	mto := factory.BuildMove(appCtx.DB(), []factory.Customization{
+	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
 		{
 			Model:    orders,
 			LinkOnly: true,
@@ -3951,7 +3951,7 @@ func MakeHHGMoveIn200DaysSITEndsToday(appCtx appcontext.AppContext) models.Move 
 	requestedDeliveryDate := requestedPickupDate.AddDate(0, 1, 0)
 	// pickupAddress := factory.BuildAddress(appCtx.DB(), nil, nil)
 
-	MTOShipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+	shipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.MTOShipment{
 				PrimeEstimatedWeight:  &estimatedWeight,
@@ -3964,7 +3964,7 @@ func MakeHHGMoveIn200DaysSITEndsToday(appCtx appcontext.AppContext) models.Move 
 			},
 		},
 		{
-			Model:    mto,
+			Model:    move,
 			LinkOnly: true,
 		},
 	}, nil)
@@ -3972,7 +3972,7 @@ func MakeHHGMoveIn200DaysSITEndsToday(appCtx appcontext.AppContext) models.Move 
 	agentUserInfo := newUserInfo("agent")
 	factory.BuildMTOAgent(appCtx.DB(), []factory.Customization{
 		{
-			Model:    MTOShipment,
+			Model:    shipment,
 			LinkOnly: true,
 		},
 		{Model: models.MTOAgent{
@@ -3986,10 +3986,10 @@ func MakeHHGMoveIn200DaysSITEndsToday(appCtx appcontext.AppContext) models.Move 
 
 	daysAgo200 := now.AddDate(0, 0, -200)
 	daysAgo100 := now.AddDate(0, 0, -100)
-	factory.BuildOriginSITServiceItems(appCtx.DB(), mto, MTOShipment, &daysAgo200, &daysAgo100)
-	factory.BuildDestSITServiceItems(appCtx.DB(), mto, MTOShipment, &daysAgo100, nil)
+	factory.BuildOriginSITServiceItems(appCtx.DB(), move, shipment, &daysAgo200, &daysAgo100)
+	factory.BuildDestSITServiceItems(appCtx.DB(), move, shipment, &daysAgo100, nil)
 
-	return mto
+	return move
 }
 
 func MakeHHGMoveIn200DaysSITEndsTomorrow(appCtx appcontext.AppContext) models.Move {
@@ -4045,7 +4045,7 @@ func MakeHHGMoveIn200DaysSITEndsTomorrow(appCtx appcontext.AppContext) models.Mo
 		},
 	}, nil)
 	now := time.Now()
-	mto := factory.BuildMove(appCtx.DB(), []factory.Customization{
+	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
 		{
 			Model:    orders,
 			LinkOnly: true,
@@ -4064,7 +4064,7 @@ func MakeHHGMoveIn200DaysSITEndsTomorrow(appCtx appcontext.AppContext) models.Mo
 	requestedDeliveryDate := requestedPickupDate.AddDate(0, 1, 0)
 	// pickupAddress := factory.BuildAddress(appCtx.DB(), nil, nil)
 
-	MTOShipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+	shipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.MTOShipment{
 				PrimeEstimatedWeight:  &estimatedWeight,
@@ -4077,7 +4077,7 @@ func MakeHHGMoveIn200DaysSITEndsTomorrow(appCtx appcontext.AppContext) models.Mo
 			},
 		},
 		{
-			Model:    mto,
+			Model:    move,
 			LinkOnly: true,
 		},
 	}, nil)
@@ -4085,7 +4085,7 @@ func MakeHHGMoveIn200DaysSITEndsTomorrow(appCtx appcontext.AppContext) models.Mo
 	agentUserInfo := newUserInfo("agent")
 	factory.BuildMTOAgent(appCtx.DB(), []factory.Customization{
 		{
-			Model:    MTOShipment,
+			Model:    shipment,
 			LinkOnly: true,
 		},
 		{Model: models.MTOAgent{
@@ -4099,10 +4099,10 @@ func MakeHHGMoveIn200DaysSITEndsTomorrow(appCtx appcontext.AppContext) models.Mo
 
 	daysAgo199 := now.AddDate(0, 0, -199)
 	daysAgo99 := now.AddDate(0, 0, -99)
-	factory.BuildOriginSITServiceItems(appCtx.DB(), mto, MTOShipment, &daysAgo199, &daysAgo99)
-	factory.BuildDestSITServiceItems(appCtx.DB(), mto, MTOShipment, &daysAgo99, nil)
+	factory.BuildOriginSITServiceItems(appCtx.DB(), move, shipment, &daysAgo199, &daysAgo99)
+	factory.BuildDestSITServiceItems(appCtx.DB(), move, shipment, &daysAgo99, nil)
 
-	return mto
+	return move
 }
 
 func MakeHHGMoveIn200DaysSITEndsYesterday(appCtx appcontext.AppContext) models.Move {
@@ -4158,7 +4158,7 @@ func MakeHHGMoveIn200DaysSITEndsYesterday(appCtx appcontext.AppContext) models.M
 		},
 	}, nil)
 	now := time.Now()
-	mto := factory.BuildMove(appCtx.DB(), []factory.Customization{
+	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
 		{
 			Model:    orders,
 			LinkOnly: true,
@@ -4177,7 +4177,7 @@ func MakeHHGMoveIn200DaysSITEndsYesterday(appCtx appcontext.AppContext) models.M
 	requestedDeliveryDate := requestedPickupDate.AddDate(0, 1, 0)
 	// pickupAddress := factory.BuildAddress(appCtx.DB(), nil, nil)
 
-	MTOShipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+	shipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.MTOShipment{
 				PrimeEstimatedWeight:  &estimatedWeight,
@@ -4190,7 +4190,7 @@ func MakeHHGMoveIn200DaysSITEndsYesterday(appCtx appcontext.AppContext) models.M
 			},
 		},
 		{
-			Model:    mto,
+			Model:    move,
 			LinkOnly: true,
 		},
 	}, nil)
@@ -4198,7 +4198,7 @@ func MakeHHGMoveIn200DaysSITEndsYesterday(appCtx appcontext.AppContext) models.M
 	agentUserInfo := newUserInfo("agent")
 	factory.BuildMTOAgent(appCtx.DB(), []factory.Customization{
 		{
-			Model:    MTOShipment,
+			Model:    shipment,
 			LinkOnly: true,
 		},
 		{Model: models.MTOAgent{
@@ -4212,10 +4212,10 @@ func MakeHHGMoveIn200DaysSITEndsYesterday(appCtx appcontext.AppContext) models.M
 
 	daysAgo201 := now.AddDate(0, 0, -201)
 	daysAgo101 := now.AddDate(0, 0, -101)
-	factory.BuildOriginSITServiceItems(appCtx.DB(), mto, MTOShipment, &daysAgo201, &daysAgo101)
-	factory.BuildDestSITServiceItems(appCtx.DB(), mto, MTOShipment, &daysAgo101, nil)
+	factory.BuildOriginSITServiceItems(appCtx.DB(), move, shipment, &daysAgo201, &daysAgo101)
+	factory.BuildDestSITServiceItems(appCtx.DB(), move, shipment, &daysAgo101, nil)
 
-	return mto
+	return move
 }
 
 func MakeHHGMoveIn200DaysSITDeparted(appCtx appcontext.AppContext) models.Move {
@@ -4271,7 +4271,7 @@ func MakeHHGMoveIn200DaysSITDeparted(appCtx appcontext.AppContext) models.Move {
 		},
 	}, nil)
 	now := time.Now()
-	mto := factory.BuildMove(appCtx.DB(), []factory.Customization{
+	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
 		{
 			Model:    orders,
 			LinkOnly: true,
@@ -4290,7 +4290,7 @@ func MakeHHGMoveIn200DaysSITDeparted(appCtx appcontext.AppContext) models.Move {
 	requestedDeliveryDate := requestedPickupDate.AddDate(0, 1, 0)
 	// pickupAddress := factory.BuildAddress(appCtx.DB(), nil, nil)
 
-	MTOShipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+	shipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.MTOShipment{
 				PrimeEstimatedWeight:  &estimatedWeight,
@@ -4303,7 +4303,7 @@ func MakeHHGMoveIn200DaysSITDeparted(appCtx appcontext.AppContext) models.Move {
 			},
 		},
 		{
-			Model:    mto,
+			Model:    move,
 			LinkOnly: true,
 		},
 	}, nil)
@@ -4311,7 +4311,7 @@ func MakeHHGMoveIn200DaysSITDeparted(appCtx appcontext.AppContext) models.Move {
 	agentUserInfo := newUserInfo("agent")
 	factory.BuildMTOAgent(appCtx.DB(), []factory.Customization{
 		{
-			Model:    MTOShipment,
+			Model:    shipment,
 			LinkOnly: true,
 		},
 		{Model: models.MTOAgent{
@@ -4326,10 +4326,10 @@ func MakeHHGMoveIn200DaysSITDeparted(appCtx appcontext.AppContext) models.Move {
 	daysAgo203 := now.AddDate(0, 0, -203)
 	daysAgo103 := now.AddDate(0, 0, -103)
 	daysAgo5 := now.AddDate(0, 0, -5)
-	factory.BuildOriginSITServiceItems(appCtx.DB(), mto, MTOShipment, &daysAgo203, &daysAgo103)
-	factory.BuildDestSITServiceItems(appCtx.DB(), mto, MTOShipment, &daysAgo103, &daysAgo5)
+	factory.BuildOriginSITServiceItems(appCtx.DB(), move, shipment, &daysAgo203, &daysAgo103)
+	factory.BuildDestSITServiceItems(appCtx.DB(), move, shipment, &daysAgo103, &daysAgo5)
 
-	return mto
+	return move
 }
 
 func MakeHHGMoveIn200DaysSITStartsInFuture(appCtx appcontext.AppContext) models.Move {
@@ -4385,7 +4385,7 @@ func MakeHHGMoveIn200DaysSITStartsInFuture(appCtx appcontext.AppContext) models.
 		},
 	}, nil)
 	now := time.Now()
-	mto := factory.BuildMove(appCtx.DB(), []factory.Customization{
+	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
 		{
 			Model:    orders,
 			LinkOnly: true,
@@ -4404,7 +4404,7 @@ func MakeHHGMoveIn200DaysSITStartsInFuture(appCtx appcontext.AppContext) models.
 	requestedDeliveryDate := requestedPickupDate.AddDate(0, 1, 0)
 	// pickupAddress := factory.BuildAddress(appCtx.DB(), nil, nil)
 
-	MTOShipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+	shipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.MTOShipment{
 				PrimeEstimatedWeight:  &estimatedWeight,
@@ -4417,7 +4417,7 @@ func MakeHHGMoveIn200DaysSITStartsInFuture(appCtx appcontext.AppContext) models.
 			},
 		},
 		{
-			Model:    mto,
+			Model:    move,
 			LinkOnly: true,
 		},
 	}, nil)
@@ -4425,7 +4425,7 @@ func MakeHHGMoveIn200DaysSITStartsInFuture(appCtx appcontext.AppContext) models.
 	agentUserInfo := newUserInfo("agent")
 	factory.BuildMTOAgent(appCtx.DB(), []factory.Customization{
 		{
-			Model:    MTOShipment,
+			Model:    shipment,
 			LinkOnly: true,
 		},
 		{Model: models.MTOAgent{
@@ -4438,9 +4438,9 @@ func MakeHHGMoveIn200DaysSITStartsInFuture(appCtx appcontext.AppContext) models.
 	}, nil)
 
 	daysLater100 := now.AddDate(0, 0, 100)
-	factory.BuildOriginSITServiceItems(appCtx.DB(), mto, MTOShipment, &daysLater100, nil)
+	factory.BuildOriginSITServiceItems(appCtx.DB(), move, shipment, &daysLater100, nil)
 
-	return mto
+	return move
 }
 
 func MakeHHGMoveIn200DaysSITNotApproved(appCtx appcontext.AppContext) models.Move {
@@ -4496,7 +4496,7 @@ func MakeHHGMoveIn200DaysSITNotApproved(appCtx appcontext.AppContext) models.Mov
 		},
 	}, nil)
 	now := time.Now()
-	mto := factory.BuildMove(appCtx.DB(), []factory.Customization{
+	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
 		{
 			Model:    orders,
 			LinkOnly: true,
@@ -4515,7 +4515,7 @@ func MakeHHGMoveIn200DaysSITNotApproved(appCtx appcontext.AppContext) models.Mov
 	requestedDeliveryDate := requestedPickupDate.AddDate(0, 1, 0)
 	// pickupAddress := factory.BuildAddress(appCtx.DB(), nil, nil)
 
-	MTOShipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+	shipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.MTOShipment{
 				PrimeEstimatedWeight:  &estimatedWeight,
@@ -4528,7 +4528,7 @@ func MakeHHGMoveIn200DaysSITNotApproved(appCtx appcontext.AppContext) models.Mov
 			},
 		},
 		{
-			Model:    mto,
+			Model:    move,
 			LinkOnly: true,
 		},
 	}, nil)
@@ -4536,7 +4536,7 @@ func MakeHHGMoveIn200DaysSITNotApproved(appCtx appcontext.AppContext) models.Mov
 	agentUserInfo := newUserInfo("agent")
 	factory.BuildMTOAgent(appCtx.DB(), []factory.Customization{
 		{
-			Model:    MTOShipment,
+			Model:    shipment,
 			LinkOnly: true,
 		},
 		{Model: models.MTOAgent{
@@ -4549,8 +4549,8 @@ func MakeHHGMoveIn200DaysSITNotApproved(appCtx appcontext.AppContext) models.Mov
 	}, nil)
 
 	daysLater100 := now.AddDate(0, 0, 100)
-	sitItems := factory.BuildOriginSITServiceItems(appCtx.DB(), mto, MTOShipment, &daysLater100, nil)
-	sitItems = append(sitItems, factory.BuildDestSITServiceItems(appCtx.DB(), mto, MTOShipment, &daysLater100, nil)...)
+	sitItems := factory.BuildOriginSITServiceItems(appCtx.DB(), move, shipment, &daysLater100, nil)
+	sitItems = append(sitItems, factory.BuildDestSITServiceItems(appCtx.DB(), move, shipment, &daysLater100, nil)...)
 
 	for i := range sitItems {
 		sitItems[i].Status = models.MTOServiceItemStatusSubmitted
@@ -4560,5 +4560,5 @@ func MakeHHGMoveIn200DaysSITNotApproved(appCtx appcontext.AppContext) models.Mov
 		}
 	}
 
-	return mto
+	return move
 }
