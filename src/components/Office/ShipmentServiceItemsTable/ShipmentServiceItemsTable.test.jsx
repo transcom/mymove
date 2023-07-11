@@ -29,9 +29,6 @@ describe('Shipment Service Items Table', () => {
       expect(
         await screen.findByRole('heading', { name: 'Service items for this shipment 6 items', level: 4 }),
       ).toBeInTheDocument();
-      // expect(await screen.findByRole('heading', { level: 4 })).toHaveTextContent(
-      //   /Service items for this shipment 6 items/,
-      // );
       expect(screen.getByText(serviceItem)).toBeInTheDocument();
     });
   });
@@ -52,9 +49,6 @@ describe('Shipment Service Items Table', () => {
           shipmentType={SHIPMENT_OPTIONS.HHG}
         />,
       );
-      // expect(await screen.findByRole('heading', { level: 4 })).toHaveTextContent(
-      //   /Service items for this shipment 6 items/,
-      // );
       expect(
         await screen.findByRole('heading', { name: 'Service items for this shipment 6 items', level: 4 }),
       ).toBeInTheDocument();

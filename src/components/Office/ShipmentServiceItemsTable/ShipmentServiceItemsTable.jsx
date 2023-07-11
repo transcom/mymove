@@ -36,13 +36,18 @@ const shipmentTypes = {
 
 const ShipmentServiceItemsTable = ({ shipmentType, destinationZip3, pickupZip3, className }) => {
   const shipmentServiceItems = shipmentTypes[`${shipmentType}`] || [];
-  const shortHaulServiceItems = shipmentServiceItems.filter((item) => {
-    return item !== 'Domestic linehaul';
-  });
-  const longHaulServiceItems = shipmentServiceItems.filter((item) => {
-    return item !== 'Domestic shorthaul';
-  });
   const sameZip3 = destinationZip3 === pickupZip3;
+  let filteredServiceItemsList;
+
+  if (sameZip3) {
+    filteredServiceItemsList = shipmentServiceItems.filter((item) => {
+      return item !== serviceItemCodes.DLH;
+    });
+  } else {
+    filteredServiceItemsList = shipmentServiceItems.filter((item) => {
+      return item !== serviceItemCodes.DSH;
+    });
+  }
   return (
     <div className={classNames('container', 'container--gray', className)}>
       <table className={classNames('table--stacked', styles.serviceItemsTable)}>
@@ -50,7 +55,7 @@ const ShipmentServiceItemsTable = ({ shipmentType, destinationZip3, pickupZip3, 
           <div className="stackedtable-header">
             <h4>
               Service items for this shipment <br />
-              {sameZip3 ? shortHaulServiceItems.length : longHaulServiceItems.length} items
+              {filteredServiceItemsList.length} items
             </h4>
           </div>
         </caption>
@@ -60,17 +65,11 @@ const ShipmentServiceItemsTable = ({ shipmentType, destinationZip3, pickupZip3, 
           </tr>
         </thead>
         <tbody>
-          {sameZip3
-            ? shortHaulServiceItems.map((serviceItem) => (
-                <tr key={serviceItem}>
-                  <td>{serviceItem}</td>
-                </tr>
-              ))
-            : longHaulServiceItems.map((serviceItem) => (
-                <tr key={serviceItem}>
-                  <td>{serviceItem}</td>
-                </tr>
-              ))}
+          {filteredServiceItemsList.map((serviceItem) => (
+            <tr key={serviceItem}>
+              <td>{serviceItem}</td>
+            </tr>
+          ))}
         </tbody>
       </table>
     </div>
