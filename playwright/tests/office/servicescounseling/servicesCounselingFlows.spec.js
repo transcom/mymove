@@ -202,6 +202,28 @@ test.describe('Services counselor user', () => {
       await expect(page.locator('.usa-alert__text')).toContainText('Your changes were saved.');
     });
 
+    test('is able to update destination type if destination address is unknown', async ({ page, scPage }) => {
+      const deliveryDate = new Date().toLocaleDateString('en-US');
+
+      // edit a shipment
+      await page.locator('[data-testid="ShipmentContainer"] .usa-button').first().click();
+      await page.locator('#requestedPickupDate').clear();
+      await page.locator('#requestedPickupDate').type(deliveryDate);
+      await page.locator('#requestedPickupDate').blur();
+      await page.getByText('Use current address').click();
+
+      await page.locator('#requestedDeliveryDate').clear();
+      await page.locator('#requestedDeliveryDate').type('16 Mar 2022');
+      await page.locator('#requestedDeliveryDate').blur();
+      await page.getByRole('group', { name: 'Delivery location' }).getByText('No').nth(1).click();
+      await expect(page.locator('select[name="destinationType"]')).toBeVisible();
+      await page.locator('select[name="destinationType"]').selectOption({ label: 'Home of selection (HOS)' });
+      await page.locator('[data-testid="submitForm"]').click();
+      await scPage.waitForLoading();
+
+      await expect(page.locator('.usa-alert__text')).toContainText('Your changes were saved.');
+    });
+
     test('is able to see that the tag next to shipment is updated', async ({ page, scPage }) => {
       // Verify that there's a tag on the left nav that flags missing information
       await expect(page.locator('[data-testid="requestedShipmentsTag"]')).toContainText('3');
