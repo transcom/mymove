@@ -215,7 +215,10 @@ test.describe('Services counselor user', () => {
       await page.locator('#requestedDeliveryDate').clear();
       await page.locator('#requestedDeliveryDate').type('16 Mar 2022');
       await page.locator('#requestedDeliveryDate').blur();
+
+      // Select that we do not know the destination address yet
       await page.getByRole('group', { name: 'Delivery location' }).getByText('No').nth(1).click();
+
       await expect(page.locator('select[name="destinationType"]')).toBeVisible();
       await page.locator('select[name="destinationType"]').selectOption({ label: 'Home of selection (HOS)' });
       await page.locator('[data-testid="submitForm"]').click();
