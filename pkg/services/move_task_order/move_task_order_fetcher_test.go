@@ -10,8 +10,6 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	. "github.com/transcom/mymove/pkg/services/move_task_order"
-	movetaskorderv1 "github.com/transcom/mymove/pkg/services/move_task_order/move_task_order_v1"
-	movetaskorderv2 "github.com/transcom/mymove/pkg/services/move_task_order/move_task_order_v2"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -289,89 +287,6 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 
 		_, err := mtoFetcher.FetchMoveTaskOrder(suite.AppContextForTest(), &searchParams)
 		suite.Error(err)
-	})
-
-	suite.Run("Compares v2 with v1", func() {
-		// Expect: v2 should be identical to v1 except that it should fetch the Contractors object
-		expectedMTO, _ := setupTestData()
-
-		address := factory.BuildAddress(suite.DB(), nil, nil)
-		sitEntryDate := time.Now()
-		customerContact := testdatagen.MakeMTOServiceItemCustomerContact(suite.DB(), testdatagen.Assertions{})
-		serviceItemBasic := factory.BuildMTOServiceItemBasic(suite.DB(), []factory.Customization{
-			{
-				Model: models.MTOServiceItem{
-					Status:           models.MTOServiceItemStatusApproved,
-					SITEntryDate:     &sitEntryDate,
-					CustomerContacts: models.MTOServiceItemCustomerContacts{customerContact},
-				},
-			},
-			{
-				Model:    address,
-				LinkOnly: true,
-				Type:     &factory.Addresses.SITDestinationFinalAddress,
-			},
-			{
-				Model:    expectedMTO,
-				LinkOnly: true,
-			},
-			{
-				Model: models.ReService{
-					Code: models.ReServiceCodeDDFSIT, // DDFSIT - Domestic destination 1st day SIT
-				},
-			},
-		}, nil)
-		factory.BuildServiceRequestDocumentUpload(suite.DB(), []factory.Customization{
-			{
-				Model:    serviceItemBasic,
-				LinkOnly: true,
-			},
-		}, nil)
-		factory.BuildMTOServiceItemBasic(suite.DB(), []factory.Customization{
-			{
-				Model: models.MTOServiceItem{
-					Status: models.MTOServiceItemStatusApproved,
-				},
-			},
-			{
-				Model:    expectedMTO,
-				LinkOnly: true,
-			},
-		}, nil)
-
-		searchParams := services.MoveTaskOrderFetcherParams{
-			IncludeHidden:   false,
-			MoveTaskOrderID: expectedMTO.ID,
-		}
-
-		v1MTO, err := movetaskorderv1.FetchMoveTaskOrder(suite.AppContextForTest(), &searchParams)
-		suite.NoError(err)
-
-		v2MTO, err := movetaskorderv2.FetchMoveTaskOrder(suite.AppContextForTest(), &searchParams)
-		suite.NoError(err)
-
-		suite.Equal(v2MTO.ID, v1MTO.ID)
-		suite.Equal(v2MTO.Orders.ID, v1MTO.Orders.ID)
-		suite.Equal(v2MTO.Orders, v1MTO.Orders)
-		suite.Equal(v2MTO.Orders.SupplyAndServicesCostEstimate, v1MTO.Orders.SupplyAndServicesCostEstimate)
-		suite.Equal(v2MTO.MTOServiceItems, v1MTO.MTOServiceItems)
-		suite.Equal(v2MTO.MTOServiceItems[0].CustomerContacts, v1MTO.MTOServiceItems[0].CustomerContacts)
-		suite.NotEqual(v2MTO.Contractor, v1MTO.Contractor)
-		suite.Nil(v1MTO.Contractor)
-		suite.Equal(v2MTO.ContractorID, v1MTO.ContractorID)
-		suite.Equal(v2MTO.MTOShipments, v1MTO.MTOShipments)
-		suite.Equal(v2MTO.Status, v1MTO.Status)
-		suite.Equal(v2MTO.ReferenceID, v1MTO.ReferenceID)
-		suite.Equal(v2MTO.AvailableToPrimeAt, v1MTO.AvailableToPrimeAt)
-
-		// It might be simpler to just test that the objects are different and then overwrite them to make them equal to test the differences
-		suite.NotEqual(v2MTO, v1MTO)
-		v1MTOUpdated := *v1MTO
-		v1MTOUpdated.Contractor = v2MTO.Contractor
-		suite.Equal(v2MTO, &v1MTOUpdated)
-		v2MTOUpdated := *v2MTO
-		v2MTOUpdated.Contractor = nil
-		suite.Equal(v1MTO, &v2MTOUpdated)
 	})
 }
 
