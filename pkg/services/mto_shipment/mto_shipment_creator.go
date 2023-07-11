@@ -202,6 +202,22 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 			for _, agent := range shipment.MTOAgents {
 				copyOfAgent := agent
 				copyOfAgent.MTOShipmentID = shipment.ID
+				if copyOfAgent.FirstName != nil && *copyOfAgent.FirstName == "" {
+					copyOfAgent.FirstName = nil
+				}
+				if copyOfAgent.LastName != nil && *copyOfAgent.LastName == "" {
+					copyOfAgent.LastName = nil
+				}
+				if copyOfAgent.Email != nil && *copyOfAgent.Email == "" {
+					copyOfAgent.Email = nil
+				}
+				if copyOfAgent.Phone != nil && *copyOfAgent.Phone == "" {
+					copyOfAgent.Phone = nil
+				}
+				// If no fields are set, then we do not want to create the MTO agent
+				if copyOfAgent.FirstName == nil && copyOfAgent.LastName == nil && copyOfAgent.Email == nil && copyOfAgent.Phone == nil {
+					continue
+				}
 				verrs, err = f.builder.CreateOne(txnAppCtx, &copyOfAgent)
 				if verrs != nil && verrs.HasAny() {
 					return verrs
