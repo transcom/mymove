@@ -259,7 +259,7 @@ func (suite *FactorySuite) TestBuildMTOServiceItem() {
 		suite.Panics(func() {
 			// this code is not a supported one
 			BuildRealMTOServiceItemWithAllDeps(suite.DB(),
-				models.ReServiceCodeDOFSIT, move, shipment, nil, nil)
+				models.ReServiceCodeDUCRT, move, shipment, nil, nil)
 		})
 		suite.Contains(buf.String(), "couldn't create service item service code")
 	})
