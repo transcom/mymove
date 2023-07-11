@@ -4163,7 +4163,7 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         x-nullable: true
       status:
-        $ref: '#/definitions/PaymentServiceItemStatus'
+        $ref: 'definitions/PaymentServiceItemStatus.yaml'
       priceCents:
         type: integer
         format: cents
@@ -4178,59 +4178,12 @@ definitions:
         readOnly: true
         format: string
       paymentServiceItemParams:
-        $ref: '#/definitions/PaymentServiceItemParams'
+        $ref: 'definitions/PaymentServiceItemParams.yaml'
       eTag:
         type: string
     type: object
-  PaymentServiceItemStatus:
-    enum:
-      - REQUESTED
-      - APPROVED
-      - DENIED
-      - SENT_TO_GEX
-      - PAID
-      - EDI_ERROR
-    title: Payment Service Item Status
-    type: string
-  PaymentServiceItemParam:
-    properties:
-      id:
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        format: uuid
-        readOnly: true
-        type: string
-      paymentServiceItemID:
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        format: uuid
-        type: string
-      key:
-        $ref: 'definitions/ServiceItemParamName.yaml'
-      value:
-        example: 3025
-        type: string
-      type:
-        $ref: 'definitions/ServiceItemParamType.yaml'
-      origin:
-        $ref: 'definitions/ServiceItemParamOrigin.yaml'
-      eTag:
-        type: string
-    type: object
-  PaymentServiceItemParams:
-    type: array
-    items:
-      $ref: '#/definitions/PaymentServiceItemParam'
   PaymentRequestStatus:
-    enum:
-      - PENDING
-      - REVIEWED
-      - REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED
-      - SENT_TO_GEX
-      - RECEIVED_BY_GEX
-      - PAID
-      - EDI_ERROR
-      - DEPRECATED
-    title: Payment Request Status
-    type: string
+    $ref: 'definitions/PaymentRequestStatus.yaml'
   ProofOfServiceDocs:
     items:
       $ref: '#/definitions/ProofOfServiceDoc'
