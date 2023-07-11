@@ -101,6 +101,10 @@ func (f mtoShipmentAddressUpdater) UpdateMTOShipmentAddress(appCtx appcontext.Ap
 		return nil, apperror.NewConflictError(newAddress.ID, ": Address is not associated with the provided MTOShipmentID.")
 	}
 
+	if mtoShipment.ShipmentType == models.MTOShipmentTypeHHG && mtoShipment.DestinationAddressID != nil && *mtoShipment.DestinationAddressID == newAddress.ID {
+		return nil, apperror.NewConflictError(newAddress.ID, ": This endpoint cannot be used to update HHG shipment destination addresses")
+	}
+
 	// Make the update and create a InvalidInput Error if there were validation issues
 	verrs, err := appCtx.DB().ValidateAndSave(newAddress)
 

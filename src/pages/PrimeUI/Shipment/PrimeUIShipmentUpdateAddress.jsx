@@ -13,9 +13,10 @@ import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { primeSimulatorRoutes } from 'constants/routes';
 import { addressSchema } from 'utils/validation';
 import scrollToTop from 'shared/scrollToTop';
-import { updatePrimeMTOShipmentAddress } from 'services/primeApi';
+import { updatePrimeMTOShipmentAddress, updatePrimeMTOShipmentDestinationAddress } from 'services/primeApi';
 import primeStyles from 'pages/PrimeUI/Prime.module.scss';
 import { isEmpty } from 'shared/utils';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { fromPrimeAPIAddressFormat } from 'utils/formatters';
 import { PRIME_SIMULATOR_MOVE } from 'constants/queryKeys';
 
@@ -28,10 +29,10 @@ const updatePickupAddressSchema = Yup.object().shape({
 });
 
 const updateDestinationAddressSchema = Yup.object().shape({
-  addressID: Yup.string(),
-  destinationAddress: Yup.object().shape({
+  newAddress: Yup.object().shape({
     address: addressSchema,
   }),
+  contractorRemarks: Yup.string(),
   eTag: Yup.string(),
 });
 
@@ -48,6 +49,47 @@ const PrimeUIShipmentUpdateAddress = () => {
   };
 
   const queryClient = useQueryClient();
+  const { mutateAsync: mutateMTOShipmentDestinationAddressHHG } = useMutation(
+    updatePrimeMTOShipmentDestinationAddress,
+    {
+      onSuccess: () => {
+        // onSuccess: (shipmentUpdateRequest) => {
+        // if status is approved then we could update the shipment
+        // can we just always invalidate the move? how does that play into other stuff?
+
+        // const shipmentIndex = mtoShipments.findIndex((mtoShipment) => mtoShipment.id === shipmentId);
+        // let updateQuery = false;
+        // ['pickupAddress', 'destinationAddress'].forEach((key) => {
+        //   if (updatedMTOShipmentAddress.id === mtoShipments[shipmentIndex][key].id) {
+        //     mtoShipments[shipmentIndex][key] = updatedMTOShipmentAddress;
+        //     updateQuery = true;
+        //   }
+        // });
+        // if (updateQuery) {
+        //   moveTaskOrder.mtoShipments = mtoShipments;
+        //   queryClient.setQueryData([PRIME_SIMULATOR_MOVE, moveCodeOrID], moveTaskOrder);
+        //   queryClient.invalidateQueries([PRIME_SIMULATOR_MOVE, moveCodeOrID]);
+        // }
+        handleClose();
+      },
+      onError: (error) => {
+        const { response: { body } = {} } = error;
+
+        if (body) {
+          setErrorMessage({
+            title: `Prime API: ${body.title} `,
+            detail: `${body.detail}`,
+          });
+        } else {
+          setErrorMessage({
+            title: 'Unexpected error',
+            detail: 'An unknown error has occurred, please check the address values used',
+          });
+        }
+        scrollToTop();
+      },
+    },
+  );
   const { mutateAsync: mutateMTOShipment } = useMutation(updatePrimeMTOShipmentAddress, {
     onSuccess: (updatedMTOShipmentAddress) => {
       const shipmentIndex = mtoShipments.findIndex((mtoShipment) => mtoShipment.id === shipmentId);
@@ -121,6 +163,33 @@ const PrimeUIShipmentUpdateAddress = () => {
     });
   };
 
+  const onSubmitDestinationHHG = (values, { setSubmitting }) => {
+    const body = {
+      newAddress: values.newAddress,
+      contractorRemarks: values.contractorRemarks,
+    };
+
+    // Check if the address payload contains any blank properties and remove
+    // them. This will allow the backend to send the proper error messages
+    // since the properties won't exist in the payload that is sent.
+    Object.keys(body).forEach((k) => {
+      if (!body[k]) {
+        delete body[k];
+      }
+    });
+
+    mutateMTOShipmentDestinationAddressHHG({
+      mtoShipmentID: shipmentId,
+      addressID: values.addressID,
+      ifMatchETag: values.eTag,
+      body,
+    }).then(() => {
+      setSubmitting(false);
+    });
+  };
+
+  const onSubmitDestination = shipment.shipmentType === SHIPMENT_OPTIONS.HHG ? onSubmitDestinationHHG : onSubmit;
+
   const reformatPrimeApiPickupAddress = fromPrimeAPIAddressFormat(shipment.pickupAddress);
   const reformatPrimeApiDestinationAddress = fromPrimeAPIAddressFormat(shipment.destinationAddress);
   const editablePickupAddress = !isEmpty(reformatPrimeApiPickupAddress);
@@ -133,14 +202,20 @@ const PrimeUIShipmentUpdateAddress = () => {
     },
     eTag: shipment.pickupAddress?.eTag,
   };
-  const initialValuesDestinationAddress = {
-    addressID: shipment.destinationAddress?.id,
-    destinationAddress: {
-      address: reformatPrimeApiDestinationAddress,
-    },
-    eTag: shipment.destinationAddress?.eTag,
-  };
-
+  const initialValuesDestinationAddress =
+    shipment.shipmentType === SHIPMENT_OPTIONS.HHG
+      ? {
+          newAddress: reformatPrimeApiDestinationAddress,
+          eTag: shipment.eTag,
+          contractorRemarks: '',
+        }
+      : {
+          addressID: shipment.destinationAddress?.id,
+          destinationAddress: {
+            address: reformatPrimeApiDestinationAddress,
+          },
+          eTag: shipment.destinationAddress?.eTag,
+        };
   return (
     <div className={styles.tabContent}>
       <div className={styles.container}>
@@ -168,10 +243,10 @@ const PrimeUIShipmentUpdateAddress = () => {
               {editableDestinationAddress && (
                 <PrimeUIShipmentUpdateAddressForm
                   initialValues={initialValuesDestinationAddress}
-                  onSubmit={onSubmit}
+                  onSubmit={onSubmitDestination}
                   updateShipmentAddressSchema={updateDestinationAddressSchema}
                   addressLocation="Destination address"
-                  name="destinationAddress.address"
+                  name="newAddress"
                 />
               )}
             </Grid>

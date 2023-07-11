@@ -12,6 +12,7 @@ import { primeSimulatorRoutes } from 'constants/routes';
 import { Form } from 'components/form/Form';
 import formStyles from 'styles/form.module.scss';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
+import TextField from 'components/form/fields/TextField/TextField';
 
 const PrimeUIShipmentUpdateAddressForm = ({
   initialValues,
@@ -35,6 +36,9 @@ const PrimeUIShipmentUpdateAddressForm = ({
             <SectionWrapper className={formStyles.formSection}>
               <h2>{addressLocation}</h2>
               <AddressFields name={name} />
+              {addressLocation === 'Destination address' && (
+                <TextField label="Contractor remarks" id="contractorRemarks" name="contractorRemarks" />
+              )}
             </SectionWrapper>
             <WizardNavigation
               editMode
