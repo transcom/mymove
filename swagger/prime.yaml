@@ -2189,8 +2189,8 @@ definitions:
 
       Using this list, choose the correct modelType in the dropdown,
       corresponding to the service item type.
-        * DOFSIT, DOASIT, DOSFSC - MTOServiceItemOriginSIT
-        * DDFSIT, DDASIT, DDSFSC - MTOServiceItemDestSIT
+        * DOFSIT, DOASIT - MTOServiceItemOriginSIT
+        * DDFSIT, DDASIT - MTOServiceItemDestSIT
         * DOSHUT, DDSHUT - MTOServiceItemShuttle
         * DCRT, DUCRT - MTOServiceItemDomesticCrating
 
