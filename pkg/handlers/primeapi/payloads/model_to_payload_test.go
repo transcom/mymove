@@ -264,6 +264,7 @@ func (suite *PayloadsSuite) TestSitExtension() {
 func (suite *PayloadsSuite) TestSITAddressUpdate() {
 	newAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress3})
 	contractorRemark := "I must update the final address please"
+	officeRemark := ""
 
 	suite.Run("Success - Returns a SITAddressUpdate payload as expected", func() {
 		sitAddressUpdate := models.SITAddressUpdate{
@@ -272,6 +273,7 @@ func (suite *PayloadsSuite) TestSITAddressUpdate() {
 			NewAddressID:      newAddress.ID,
 			NewAddress:        newAddress,
 			ContractorRemarks: &contractorRemark,
+			OfficeRemarks:     &officeRemark,
 			Status:            models.SITAddressUpdateStatusRequested,
 			UpdatedAt:         time.Now(),
 			CreatedAt:         time.Now(),
@@ -289,6 +291,7 @@ func (suite *PayloadsSuite) TestSITAddressUpdate() {
 		suite.Equal(*payload.NewAddress.Country, *sitAddressUpdate.NewAddress.Country)
 		suite.Equal(*payload.NewAddress.StreetAddress1, sitAddressUpdate.NewAddress.StreetAddress1)
 		suite.Equal(payload.ContractorRemarks, sitAddressUpdate.ContractorRemarks)
+		suite.Equal(payload.OfficeRemarks, sitAddressUpdate.OfficeRemarks)
 		suite.Equal(payload.Status, sitAddressUpdate.Status)
 		suite.Equal(strfmt.DateTime(payload.UpdatedAt).String(), strfmt.DateTime(sitAddressUpdate.UpdatedAt).String())
 		suite.Equal(strfmt.DateTime(payload.CreatedAt).String(), strfmt.DateTime(sitAddressUpdate.CreatedAt).String())

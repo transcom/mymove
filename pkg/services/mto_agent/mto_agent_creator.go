@@ -7,6 +7,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/db/utilities"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -48,7 +49,7 @@ func (f *mtoAgentCreator) CreateMTOAgentPrime(appCtx appcontext.AppContext, mtoA
 func (f *mtoAgentCreator) createMTOAgent(appCtx appcontext.AppContext, mtoAgent *models.MTOAgent, checks ...mtoAgentValidator) (*models.MTOAgent, error) {
 	// Get existing shipment and agents information for validation
 	mtoShipment := &models.MTOShipment{}
-	err := appCtx.DB().Eager("MTOAgents").Find(mtoShipment, mtoAgent.MTOShipmentID)
+	err := appCtx.DB().Find(mtoShipment, mtoAgent.MTOShipmentID)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
@@ -57,6 +58,13 @@ func (f *mtoAgentCreator) createMTOAgent(appCtx appcontext.AppContext, mtoAgent 
 			return nil, apperror.NewQueryError("MTOShipment", err, "")
 		}
 	}
+
+	var agents []models.MTOAgent
+	err = appCtx.DB().Scope(utilities.ExcludeDeletedScope()).Where("mto_shipment_id = ?", mtoShipment.ID).All(&agents)
+	if err != nil {
+		return nil, err
+	}
+	mtoShipment.MTOAgents = agents
 
 	err = validateMTOAgent(appCtx, *mtoAgent, nil, mtoShipment, checks...)
 	if err != nil {

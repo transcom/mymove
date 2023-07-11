@@ -841,7 +841,7 @@ func SITAddressUpdate(sitAddressUpdate *models.SITAddressUpdate) *primemessages.
 		NewAddressID:      strfmt.UUID(sitAddressUpdate.NewAddressID.String()),
 		NewAddress:        Address(&sitAddressUpdate.NewAddress),
 		ContractorRemarks: handlers.FmtStringPtr(sitAddressUpdate.ContractorRemarks),
-		OfficeRemarks:     handlers.FmtStringPtr(sitAddressUpdate.ContractorRemarks),
+		OfficeRemarks:     handlers.FmtStringPtr(sitAddressUpdate.OfficeRemarks),
 		OldAddressID:      strfmt.UUID(sitAddressUpdate.OldAddressID.String()),
 		OldAddress:        Address(&sitAddressUpdate.OldAddress),
 		Status:            primemessages.SitAddressUpdateStatus(sitAddressUpdate.Status),
