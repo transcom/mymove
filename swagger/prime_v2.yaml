@@ -1707,6 +1707,7 @@ definitions:
       - SITPaymentRequestStart
       - SITScheduleDest
       - SITScheduleOrigin
+      - SITServiceAreaDest
       - WeightAdjusted
       - WeightBilled
       - WeightEstimated
