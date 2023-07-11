@@ -295,6 +295,10 @@ describe('MtoShipmentForm component', () => {
       };
 
       const expectedPayload = {
+        agents: [
+          { agentType: 'RELEASING_AGENT', email: '', firstName: '', lastName: '', phone: '' },
+          { agentType: 'RECEIVING_AGENT', email: '', firstName: '', lastName: '', phone: '' },
+        ],
         moveTaskOrderID: moveId,
         shipmentType: SHIPMENT_OPTIONS.HHG,
         customerRemarks: '',
@@ -636,7 +640,10 @@ describe('MtoShipmentForm component', () => {
         hasSecondaryDeliveryAddress: false,
         secondaryPickupAddress: undefined,
         hasSecondaryPickupAddress: false,
-        agents: undefined,
+        agents: [
+          { agentType: 'RELEASING_AGENT', email: '', firstName: '', lastName: '', phone: '' },
+          { agentType: 'RECEIVING_AGENT', email: '', firstName: '', lastName: '', phone: '' },
+        ],
         counselorRemarks: undefined,
       };
       delete expectedPayload.destinationAddress.id;

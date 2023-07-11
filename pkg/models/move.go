@@ -129,7 +129,7 @@ func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, 
 	}
 
 	var shipments MTOShipments
-	err = db.Q().Scope(utilities.ExcludeDeletedScope()).Eager("MTOAgents",
+	err = db.Q().Scope(utilities.ExcludeDeletedScope()).Eager(
 		"PickupAddress",
 		"SecondaryPickupAddress",
 		"DestinationAddress",
@@ -140,6 +140,14 @@ func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, 
 		return nil, err
 	}
 
+	for i := range shipments {
+		var agents []MTOAgent
+		err = db.Scope(utilities.ExcludeDeletedScope()).Where("mto_shipment_id = ?", shipments[i].ID).All(&agents)
+		if err != nil {
+			return nil, err
+		}
+		shipments[i].MTOAgents = agents
+	}
 	move.MTOShipments = shipments
 
 	// Ensure that the logged-in user is authorized to access this move
