@@ -213,7 +213,8 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 
 		// TESTCASE SCENARIO
 		// Under test: CreateMTOServiceItem function
-		// Set up:     We create an approved move and attempt to create DDFSIT service item on it.
+		// Set up:     We create an approved move and attempt to create DDFSIT service item on it. Includes Dimensions
+		//             and a SITDestinationFinalAddress
 		// Expected outcome:
 		//             4 SIT items are created, status of move is APPROVALS_REQUESTED
 
@@ -233,13 +234,33 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 
 		createdServiceItemList := *createdServiceItems
 		suite.Equal(len(createdServiceItemList), 4)
-		suite.NotEmpty(createdServiceItemList[3].Dimensions)
 		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, foundMove.Status)
+
+		numDDFSITFound := 0
+		numDDASITFound := 0
+		numDDDSITFound := 0
+		numDDSFSCFound := 0
 
 		for _, createdServiceItem := range createdServiceItemList {
 			suite.Equal(sitDestinationFinalAddress.StreetAddress1, createdServiceItem.SITDestinationFinalAddress.StreetAddress1)
 			suite.Equal(sitDestinationFinalAddressID, createdServiceItem.SITDestinationFinalAddressID)
+
+			switch createdServiceItem.ReService.Code {
+			case models.ReServiceCodeDDFSIT:
+				suite.NotEmpty(createdServiceItem.Dimensions)
+				numDDFSITFound++
+			case models.ReServiceCodeDDASIT:
+				numDDASITFound++
+			case models.ReServiceCodeDDDSIT:
+				numDDDSITFound++
+			case models.ReServiceCodeDDSFSC:
+				numDDSFSCFound++
+			}
 		}
+		suite.Equal(numDDASITFound, 1)
+		suite.Equal(numDDDSITFound, 1)
+		suite.Equal(numDDFSITFound, 1)
+		suite.Equal(numDDSFSCFound, 1)
 	})
 
 	// Happy path: If the service item is created successfully it should be returned
@@ -713,6 +734,8 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 			suite.Equal(serviceItemDOFSIT.SITEntryDate, item.SITEntryDate)
 			suite.Equal(serviceItemDOFSIT.Reason, item.Reason)
 			suite.Equal(serviceItemDOFSIT.SITPostalCode, item.SITPostalCode)
+			suite.Equal(actualPickupAddress.StreetAddress1, item.SITOriginHHGActualAddress.StreetAddress1)
+			suite.Equal(actualPickupAddress.ID, *item.SITOriginHHGActualAddressID)
 
 			switch item.ReService.Code {
 			case models.ReServiceCodeDOFSIT:
@@ -1123,7 +1146,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 	})
 
 	// Successful creation of DDFSIT service item and the extra DDASIT/DDDSIT items
-	suite.Run("Success - DDFSIT creation approved", func() {
+	suite.Run("Success - DDFSIT creation approved - no SITDestinationFinalAddress", func() {
 		shipment, creator, reServiceDDFSIT := setupTestData()
 		setupAdditionalSIT()
 
