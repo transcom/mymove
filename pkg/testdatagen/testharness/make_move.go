@@ -243,6 +243,9 @@ func MakeWithShipmentMove(appCtx appcontext.AppContext) models.Move {
 
 }
 
+// MakeHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO is a function
+// that creates an HHG move with service items and payments requests with files
+// from the Prime for review by thte TOO
 // copied almost verbatim from e2ebasic createHHGMoveWithServiceItemsAndPaymentRequestsAndFiles
 func MakeHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO(appCtx appcontext.AppContext) models.Move {
 	userUploader := newUserUploader(appCtx)
@@ -436,6 +439,31 @@ func MakeHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO(appCtx appconte
 	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.MTOServiceItem{
+				Status:           models.MTOServiceItemStatusApproved,
+				SITEntryDate:     &threeMonthsAgo,
+				SITDepartureDate: &twoMonthsAgo,
+				SITPostalCode:    &postalCode,
+				Reason:           &reason,
+			},
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDOSFSC,
+			},
+		},
+		{
+			Model:    MTOShipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
 				Status:        models.MTOServiceItemStatusApproved,
 				SITEntryDate:  &twoMonthsAgo,
 				SITPostalCode: &postalCode,
@@ -469,6 +497,30 @@ func MakeHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO(appCtx appconte
 		{
 			Model: models.ReService{
 				Code: models.ReServiceCodeDDASIT,
+			},
+		},
+		{
+			Model:    MTOShipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:        models.MTOServiceItemStatusApproved,
+				SITEntryDate:  &twoMonthsAgo,
+				SITPostalCode: &postalCode,
+				Reason:        &reason,
+			},
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDDSFSC,
 			},
 		},
 		{
@@ -3690,6 +3742,31 @@ func MakeHHGMoveIn200DaysSIT(appCtx appcontext.AppContext) models.Move {
 	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.MTOServiceItem{
+				Status:           models.MTOServiceItemStatusApproved,
+				SITEntryDate:     &threeMonthsAgo,
+				SITDepartureDate: &twoMonthsAgo,
+				SITPostalCode:    &postalCode,
+				Reason:           &reason,
+			},
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDOSFSC,
+			},
+		},
+		{
+			Model:    MTOShipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
 				Status:        models.MTOServiceItemStatusApproved,
 				SITEntryDate:  &twoMonthsAgo,
 				SITPostalCode: &postalCode,
@@ -3723,6 +3800,30 @@ func MakeHHGMoveIn200DaysSIT(appCtx appcontext.AppContext) models.Move {
 		{
 			Model: models.ReService{
 				Code: models.ReServiceCodeDDASIT,
+			},
+		},
+		{
+			Model:    MTOShipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:        models.MTOServiceItemStatusApproved,
+				SITEntryDate:  &twoMonthsAgo,
+				SITPostalCode: &postalCode,
+				Reason:        &reason,
+			},
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDDSFSC,
 			},
 		},
 		{
@@ -3965,6 +4066,31 @@ func MakeHHGMoveIn200DaysSITWithPendingExtension(appCtx appcontext.AppContext) m
 	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.MTOServiceItem{
+				Status:           models.MTOServiceItemStatusApproved,
+				SITEntryDate:     &threeMonthsAgo,
+				SITDepartureDate: &twoMonthsAgo,
+				SITPostalCode:    &postalCode,
+				Reason:           &reason,
+			},
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDOSFSC,
+			},
+		},
+		{
+			Model:    MTOShipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
 				Status:        models.MTOServiceItemStatusApproved,
 				SITEntryDate:  &twoMonthsAgo,
 				SITPostalCode: &postalCode,
@@ -3998,6 +4124,30 @@ func MakeHHGMoveIn200DaysSITWithPendingExtension(appCtx appcontext.AppContext) m
 		{
 			Model: models.ReService{
 				Code: models.ReServiceCodeDDASIT,
+			},
+		},
+		{
+			Model:    MTOShipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:        models.MTOServiceItemStatusApproved,
+				SITEntryDate:  &twoMonthsAgo,
+				SITPostalCode: &postalCode,
+				Reason:        &reason,
+			},
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDDSFSC,
 			},
 		},
 		{
@@ -4217,6 +4367,31 @@ func MakeHHGMoveInSITWithAddressChangeRequestOver50Miles(appCtx appcontext.AppCo
 	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.MTOServiceItem{
+				Status:           models.MTOServiceItemStatusApproved,
+				SITEntryDate:     &threeMonthsAgo,
+				SITDepartureDate: &twoMonthsAgo,
+				SITPostalCode:    &postalCode,
+				Reason:           &reason,
+			},
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDOSFSC,
+			},
+		},
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
 				Status:        models.MTOServiceItemStatusApproved,
 				SITEntryDate:  &twoMonthsAgo,
 				SITPostalCode: &postalCode,
@@ -4250,6 +4425,30 @@ func MakeHHGMoveInSITWithAddressChangeRequestOver50Miles(appCtx appcontext.AppCo
 		{
 			Model: models.ReService{
 				Code: models.ReServiceCodeDDASIT,
+			},
+		},
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:        models.MTOServiceItemStatusApproved,
+				SITEntryDate:  &twoMonthsAgo,
+				SITPostalCode: &postalCode,
+				Reason:        &reason,
+			},
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDDSFSC,
 			},
 		},
 		{
@@ -4496,6 +4695,31 @@ func MakeHHGMoveInSITWithAddressChangeRequestUnder50Miles(appCtx appcontext.AppC
 	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.MTOServiceItem{
+				Status:           models.MTOServiceItemStatusApproved,
+				SITEntryDate:     &threeMonthsAgo,
+				SITDepartureDate: &twoMonthsAgo,
+				SITPostalCode:    &postalCode,
+				Reason:           &reason,
+			},
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDOSFSC,
+			},
+		},
+		{
+			Model:    MTOshipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
 				Status:        models.MTOServiceItemStatusApproved,
 				SITEntryDate:  &twoMonthsAgo,
 				SITPostalCode: &postalCode,
@@ -4529,6 +4753,30 @@ func MakeHHGMoveInSITWithAddressChangeRequestUnder50Miles(appCtx appcontext.AppC
 		{
 			Model: models.ReService{
 				Code: models.ReServiceCodeDDASIT,
+			},
+		},
+		{
+			Model:    MTOshipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:        models.MTOServiceItemStatusApproved,
+				SITEntryDate:  &twoMonthsAgo,
+				SITPostalCode: &postalCode,
+				Reason:        &reason,
+			},
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDDSFSC,
 			},
 		},
 		{
@@ -4775,6 +5023,31 @@ func MakeHHGMoveIn200DaysSITEndsToday(appCtx appcontext.AppContext) models.Move 
 	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.MTOServiceItem{
+				Status:           models.MTOServiceItemStatusApproved,
+				SITEntryDate:     &daysAgo200,
+				SITDepartureDate: &daysAgo100,
+				SITPostalCode:    &postalCode,
+				Reason:           &reason,
+			},
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDOSFSC,
+			},
+		},
+		{
+			Model:    MTOShipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
 				Status:        models.MTOServiceItemStatusApproved,
 				SITEntryDate:  &daysAgo100,
 				SITPostalCode: &postalCode,
@@ -4808,6 +5081,30 @@ func MakeHHGMoveIn200DaysSITEndsToday(appCtx appcontext.AppContext) models.Move 
 		{
 			Model: models.ReService{
 				Code: models.ReServiceCodeDDASIT,
+			},
+		},
+		{
+			Model:    MTOShipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:        models.MTOServiceItemStatusApproved,
+				SITEntryDate:  &daysAgo100,
+				SITPostalCode: &postalCode,
+				Reason:        &reason,
+			},
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDDSFSC,
 			},
 		},
 		{
@@ -5033,6 +5330,31 @@ func MakeHHGMoveIn200DaysSITEndsTomorrow(appCtx appcontext.AppContext) models.Mo
 	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.MTOServiceItem{
+				Status:           models.MTOServiceItemStatusApproved,
+				SITEntryDate:     &daysAgo199,
+				SITDepartureDate: &daysAgo99,
+				SITPostalCode:    &postalCode,
+				Reason:           &reason,
+			},
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDOSFSC,
+			},
+		},
+		{
+			Model:    MTOShipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
 				Status:        models.MTOServiceItemStatusApproved,
 				SITEntryDate:  &daysAgo99,
 				SITPostalCode: &postalCode,
@@ -5066,6 +5388,30 @@ func MakeHHGMoveIn200DaysSITEndsTomorrow(appCtx appcontext.AppContext) models.Mo
 		{
 			Model: models.ReService{
 				Code: models.ReServiceCodeDDASIT,
+			},
+		},
+		{
+			Model:    MTOShipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:        models.MTOServiceItemStatusApproved,
+				SITEntryDate:  &daysAgo99,
+				SITPostalCode: &postalCode,
+				Reason:        &reason,
+			},
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDDSFSC,
 			},
 		},
 		{
@@ -5291,6 +5637,31 @@ func MakeHHGMoveIn200DaysSITEndsYesterday(appCtx appcontext.AppContext) models.M
 	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.MTOServiceItem{
+				Status:           models.MTOServiceItemStatusApproved,
+				SITEntryDate:     &daysAgo201,
+				SITDepartureDate: &daysAgo101,
+				SITPostalCode:    &postalCode,
+				Reason:           &reason,
+			},
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDOSFSC,
+			},
+		},
+		{
+			Model:    MTOShipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
 				Status:        models.MTOServiceItemStatusApproved,
 				SITEntryDate:  &daysAgo101,
 				SITPostalCode: &postalCode,
@@ -5324,6 +5695,30 @@ func MakeHHGMoveIn200DaysSITEndsYesterday(appCtx appcontext.AppContext) models.M
 		{
 			Model: models.ReService{
 				Code: models.ReServiceCodeDDASIT,
+			},
+		},
+		{
+			Model:    MTOShipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:        models.MTOServiceItemStatusApproved,
+				SITEntryDate:  &daysAgo101,
+				SITPostalCode: &postalCode,
+				Reason:        &reason,
+			},
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDDSFSC,
 			},
 		},
 		{
@@ -5550,6 +5945,31 @@ func MakeHHGMoveIn200DaysSITDeparted(appCtx appcontext.AppContext) models.Move {
 	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.MTOServiceItem{
+				Status:           models.MTOServiceItemStatusApproved,
+				SITEntryDate:     &daysAgo203,
+				SITDepartureDate: &daysAgo103,
+				SITPostalCode:    &postalCode,
+				Reason:           &reason,
+			},
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDOSFSC,
+			},
+		},
+		{
+			Model:    MTOShipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
 				Status:        models.MTOServiceItemStatusApproved,
 				SITEntryDate:  &daysAgo103,
 				SITPostalCode: &postalCode,
@@ -5583,6 +6003,30 @@ func MakeHHGMoveIn200DaysSITDeparted(appCtx appcontext.AppContext) models.Move {
 		{
 			Model: models.ReService{
 				Code: models.ReServiceCodeDDASIT,
+			},
+		},
+		{
+			Model:    MTOShipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:        models.MTOServiceItemStatusApproved,
+				SITEntryDate:  &daysAgo103,
+				SITPostalCode: &postalCode,
+				Reason:        &reason,
+			},
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDDSFSC,
 			},
 		},
 		{
@@ -5803,6 +6247,30 @@ func MakeHHGMoveIn200DaysSITStartsInFuture(appCtx appcontext.AppContext) models.
 			LinkOnly: true,
 		},
 	}, nil)
+
+	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:        models.MTOServiceItemStatusApproved,
+				SITEntryDate:  &daysLater100,
+				SITPostalCode: &postalCode,
+				Reason:        &reason,
+			},
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDOSFSC,
+			},
+		},
+		{
+			Model:    MTOShipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+	}, nil)
 	return mto
 }
 
@@ -5986,5 +6454,126 @@ func MakeHHGMoveIn200DaysSITNotApproved(appCtx appcontext.AppContext) models.Mov
 			LinkOnly: true,
 		},
 	}, nil)
+
+	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:        models.MTOServiceItemStatusSubmitted,
+				SITEntryDate:  &daysLater100,
+				SITPostalCode: &postalCode,
+				Reason:        &reason,
+			},
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDOSFSC,
+			},
+		},
+		{
+			Model:    MTOShipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:        models.MTOServiceItemStatusSubmitted,
+				SITEntryDate:  &daysLater100,
+				SITPostalCode: &postalCode,
+				Reason:        &reason,
+			},
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDDFSIT,
+			},
+		},
+		{
+			Model:    MTOShipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:        models.MTOServiceItemStatusSubmitted,
+				SITEntryDate:  &daysLater100,
+				SITPostalCode: &postalCode,
+				Reason:        &reason,
+			},
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDDASIT,
+			},
+		},
+		{
+			Model:    MTOShipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:        models.MTOServiceItemStatusSubmitted,
+				SITEntryDate:  &daysLater100,
+				SITPostalCode: &postalCode,
+				Reason:        &reason,
+			},
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDDSFSC,
+			},
+		},
+		{
+			Model:    MTOShipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:        models.MTOServiceItemStatusSubmitted,
+				SITEntryDate:  &daysLater100,
+				SITPostalCode: &postalCode,
+				Reason:        &reason,
+			},
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDDDSIT,
+			},
+		},
+		{
+			Model:    MTOShipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+	}, nil)
+
 	return mto
 }

@@ -24,10 +24,8 @@ function formatAgentForAPI(agent) {
   const agentCopy = { ...agent };
   Object.keys(agentCopy).forEach((key) => {
     const sanitizedKey = `${key}`;
-    if (agentCopy[sanitizedKey] === '') {
-      delete agentCopy[sanitizedKey];
-    } else if (
-      // These fields are readOnly so we don't want to send them in requests
+    if (
+      // These fields are readOnly, so we don't want to send them in requests
       sanitizedKey === 'updatedAt' ||
       sanitizedKey === 'createdAt' ||
       sanitizedKey === 'mtoShipmentID'

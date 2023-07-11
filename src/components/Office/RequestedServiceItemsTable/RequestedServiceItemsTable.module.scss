@@ -12,10 +12,12 @@
   :global .table--service-item--hasimg {
     td {
       vertical-align: top;
+      padding-bottom: 12px;
     }
 
     dl {
       @include u-margin-top(0);
+      @include u-margin-bottom(0);
     }
 
     dt,

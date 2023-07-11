@@ -598,6 +598,54 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		mockShipmentRecalculator.AssertNotCalled(suite.T(), "ShipmentRecalculatePaymentRequest", mock.Anything, mock.Anything)
 	})
 
+	suite.Run("Successfully remove MTO Agent", func() {
+		setupTestData()
+
+		shipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
+		existingAgent := factory.BuildMTOAgent(suite.DB(), []factory.Customization{
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOAgent{
+					FirstName:    models.StringPointer("Test"),
+					LastName:     models.StringPointer("Agent"),
+					Email:        models.StringPointer("test@test.email.com"),
+					MTOAgentType: models.MTOAgentReleasing,
+				},
+			},
+		}, nil)
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+
+		updatedAgents := make(models.MTOAgents, 1)
+		blankFirstName := ""
+		blankLastName := ""
+		blankPhone := ""
+		blankEmail := ""
+		existingAgent.FirstName = &blankFirstName
+		existingAgent.LastName = &blankLastName
+		existingAgent.Email = &blankEmail
+		existingAgent.Phone = &blankPhone
+		updatedAgents[0] = existingAgent
+
+		updatedShipment := models.MTOShipment{
+			ID:        shipment.ID,
+			MTOAgents: updatedAgents,
+		}
+
+		session := auth.Session{}
+		updatedMTOShipment, err := mtoShipmentUpdaterCustomer.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag)
+
+		suite.Require().NoError(err)
+		suite.NotZero(updatedMTOShipment.ID, oldMTOShipment.ID)
+		// Verify that there are no returned MTO Agents
+		suite.Equal(0, len(updatedMTOShipment.MTOAgents))
+
+		// Verify that shipment recalculate was handled correctly
+		mockShipmentRecalculator.AssertNotCalled(suite.T(), "ShipmentRecalculatePaymentRequest", mock.Anything, mock.Anything)
+	})
+
 	suite.Run("Successfully add storage facility to shipment", func() {
 		setupTestData()
 
