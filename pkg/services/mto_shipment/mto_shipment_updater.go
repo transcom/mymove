@@ -66,7 +66,7 @@ func NewCustomerMTOShipmentUpdater(builder UpdateMTOShipmentQueryBuilder, fetche
 		moveWeights,
 		sender,
 		recalculator,
-		[]validator{checkStatus(), checkUpdateAllowedByCustomer()},
+		[]validator{checkStatus()},
 	}
 }
 
@@ -769,10 +769,6 @@ func fetchShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID, builder U
 
 	queryFilters := []services.QueryFilter{
 		query.NewQueryFilter("id", "=", shipmentID),
-	}
-
-	if appCtx.Session() != nil && appCtx.Session().IsMilApp() {
-		queryFilters = append(queryFilters, query.NewQueryFilter("mto_shipments.move_task_orders.orders.service_member_id", "=", appCtx.Session().ServiceMemberID))
 	}
 
 	err := builder.FetchOne(appCtx, &shipment, queryFilters)
