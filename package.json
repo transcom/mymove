@@ -127,7 +127,7 @@
     "@babel/helper-builder-react-jsx-experimental": "^7.12.11",
     "@faker-js/faker": "^8.0.2",
     "@jackfranklin/test-data-bot": "^2.1.0",
-    "@playwright/test": "^1.35.1",
+    "@playwright/test": "^1.36.0",
     "@stoplight/spectral-cli": "^6.8.0",
     "@storybook/addon-a11y": "^7.0.26",
     "@storybook/addon-actions": "^7.0.26",
