@@ -116,6 +116,7 @@ func BuildDDFSITReService(db *pop.Connection) models.ReService {
 	reService := FetchOrBuildReServiceByCode(db, models.ReServiceCodeDDFSIT)
 	FetchOrBuildReServiceByCode(db, models.ReServiceCodeDDASIT)
 	FetchOrBuildReServiceByCode(db, models.ReServiceCodeDDDSIT)
+	FetchOrBuildReServiceByCode(db, models.ReServiceCodeDDSFSC)
 	return reService
 }
 
@@ -124,5 +125,6 @@ func BuildDOFSITReService(db *pop.Connection) models.ReService {
 	reService := FetchOrBuildReServiceByCode(db, models.ReServiceCodeDOFSIT)
 	FetchOrBuildReServiceByCode(db, models.ReServiceCodeDOASIT)
 	FetchOrBuildReServiceByCode(db, models.ReServiceCodeDOPSIT)
+	FetchOrBuildReServiceByCode(db, models.ReServiceCodeDOSFSC)
 	return reService
 }

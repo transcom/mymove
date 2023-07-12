@@ -76,7 +76,8 @@ func (f moveTaskOrderFetcher) ListAllMoveTaskOrders(appCtx appcontext.AppContext
 		for i, serviceItem := range move.MTOServiceItems {
 			if serviceItem.ReService.Code == models.ReServiceCodeDDASIT ||
 				serviceItem.ReService.Code == models.ReServiceCodeDDDSIT ||
-				serviceItem.ReService.Code == models.ReServiceCodeDDFSIT {
+				serviceItem.ReService.Code == models.ReServiceCodeDDFSIT ||
+				serviceItem.ReService.Code == models.ReServiceCodeDDSFSC {
 				loadErr := appCtx.DB().Load(&move.MTOServiceItems[i], "CustomerContacts")
 				if loadErr != nil {
 					return models.Moves{}, apperror.NewQueryError("CustomerContacts", loadErr, "")
@@ -211,7 +212,8 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 	for i, serviceItem := range mto.MTOServiceItems {
 		if serviceItem.ReService.Code == models.ReServiceCodeDDASIT ||
 			serviceItem.ReService.Code == models.ReServiceCodeDDDSIT ||
-			serviceItem.ReService.Code == models.ReServiceCodeDDFSIT {
+			serviceItem.ReService.Code == models.ReServiceCodeDDFSIT ||
+			serviceItem.ReService.Code == models.ReServiceCodeDDSFSC {
 			loadErr := appCtx.DB().Load(&mto.MTOServiceItems[i], "CustomerContacts", "SITAddressUpdates.NewAddress", "SITAddressUpdates.OldAddress")
 			if loadErr != nil {
 				return &models.Move{}, apperror.NewQueryError("CustomerContacts or SITAddressUpdates.NewAddress or SITAddressUpdates.OldAddress", loadErr, "")
