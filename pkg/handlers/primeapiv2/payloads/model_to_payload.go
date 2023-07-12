@@ -457,6 +457,7 @@ func MTOShipmentWithoutServiceItems(mtoShipment *models.MTOShipment) *primev2mes
 		CounselorRemarks:                 mtoShipment.CounselorRemarks,
 		Status:                           string(mtoShipment.Status),
 		Diversion:                        bool(mtoShipment.Diversion),
+		DeliveryAddressUpdate:            ShipmentAddressUpdate(mtoShipment.DeliveryAddressUpdate),
 		CreatedAt:                        strfmt.DateTime(mtoShipment.CreatedAt),
 		UpdatedAt:                        strfmt.DateTime(mtoShipment.UpdatedAt),
 		PpmShipment:                      PPMShipment(mtoShipment.PPMShipment),
@@ -570,6 +571,7 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primev2messages.MTOSe
 			SitDepartureDate:            handlers.FmtDate(sitDepartureDate),
 			SitEntryDate:                handlers.FmtDatePtr(mtoServiceItem.SITEntryDate),
 			SitDestinationFinalAddress:  Address(mtoServiceItem.SITDestinationFinalAddress),
+			SitAddressUpdates:           SITAddressUpdates(mtoServiceItem.SITAddressUpdates),
 		}
 
 	case models.ReServiceCodeDCRT, models.ReServiceCodeDUCRT:
@@ -751,6 +753,59 @@ func GetCustomerContact(customerContacts models.MTOServiceItemCustomerContacts, 
 	}
 
 	return models.MTOServiceItemCustomerContact{}
+}
+
+// ShipmentAddressUpdate payload
+func ShipmentAddressUpdate(shipmentAddressUpdate *models.ShipmentAddressUpdate) *primev2messages.ShipmentAddressUpdate {
+	if shipmentAddressUpdate == nil || shipmentAddressUpdate.ID.IsNil() {
+		return nil
+	}
+
+	payload := &primev2messages.ShipmentAddressUpdate{
+		ID:                strfmt.UUID(shipmentAddressUpdate.ID.String()),
+		ShipmentID:        strfmt.UUID(shipmentAddressUpdate.ShipmentID.String()),
+		NewAddress:        Address(&shipmentAddressUpdate.NewAddress),
+		OriginalAddress:   Address(&shipmentAddressUpdate.OriginalAddress),
+		ContractorRemarks: shipmentAddressUpdate.ContractorRemarks,
+		OfficeRemarks:     shipmentAddressUpdate.OfficeRemarks,
+		Status:            primev2messages.ShipmentAddressUpdateStatus(shipmentAddressUpdate.Status),
+	}
+
+	return payload
+}
+
+// SITAddressUpdates payload
+func SITAddressUpdates(u models.SITAddressUpdates) primev2messages.SitAddressUpdates {
+	payload := make(primev2messages.SitAddressUpdates, len(u))
+	for i, item := range u {
+		copyOfItem := item
+		payload[i] = SITAddressUpdate(&copyOfItem)
+	}
+	return payload
+}
+
+// SITAddressUpdate payload
+func SITAddressUpdate(sitAddressUpdate *models.SITAddressUpdate) *primev2messages.SitAddressUpdate {
+	if sitAddressUpdate == nil {
+		return nil
+	}
+
+	payload := &primev2messages.SitAddressUpdate{
+		ID:                strfmt.UUID(sitAddressUpdate.ID.String()),
+		ETag:              etag.GenerateEtag(sitAddressUpdate.UpdatedAt),
+		MtoServiceItemID:  strfmt.UUID(sitAddressUpdate.MTOServiceItemID.String()),
+		NewAddressID:      strfmt.UUID(sitAddressUpdate.NewAddressID.String()),
+		NewAddress:        Address(&sitAddressUpdate.NewAddress),
+		ContractorRemarks: handlers.FmtStringPtr(sitAddressUpdate.ContractorRemarks),
+		OfficeRemarks:     handlers.FmtStringPtr(sitAddressUpdate.OfficeRemarks),
+		OldAddressID:      strfmt.UUID(sitAddressUpdate.OldAddressID.String()),
+		OldAddress:        Address(&sitAddressUpdate.OldAddress),
+		Status:            primev2messages.SitAddressUpdateStatus(sitAddressUpdate.Status),
+		CreatedAt:         strfmt.DateTime(sitAddressUpdate.CreatedAt),
+		UpdatedAt:         strfmt.DateTime(sitAddressUpdate.UpdatedAt),
+	}
+
+	return payload
 }
 
 // ClientError describes errors in a standard structure to be returned in the payload
