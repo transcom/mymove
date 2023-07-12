@@ -52,24 +52,14 @@ const PrimeUIShipmentUpdateAddress = () => {
   const { mutateAsync: mutateMTOShipmentDestinationAddressHHG } = useMutation(
     updatePrimeMTOShipmentDestinationAddress,
     {
-      onSuccess: () => {
-        // onSuccess: (shipmentUpdateRequest) => {
-        // if status is approved then we could update the shipment
-        // can we just always invalidate the move? how does that play into other stuff?
-
-        // const shipmentIndex = mtoShipments.findIndex((mtoShipment) => mtoShipment.id === shipmentId);
-        // let updateQuery = false;
-        // ['pickupAddress', 'destinationAddress'].forEach((key) => {
-        //   if (updatedMTOShipmentAddress.id === mtoShipments[shipmentIndex][key].id) {
-        //     mtoShipments[shipmentIndex][key] = updatedMTOShipmentAddress;
-        //     updateQuery = true;
-        //   }
-        // });
-        // if (updateQuery) {
-        //   moveTaskOrder.mtoShipments = mtoShipments;
-        //   queryClient.setQueryData([PRIME_SIMULATOR_MOVE, moveCodeOrID], moveTaskOrder);
-        //   queryClient.invalidateQueries([PRIME_SIMULATOR_MOVE, moveCodeOrID]);
-        // }
+      onSuccess: (shipmentUpdateRequest) => {
+        if (shipmentUpdateRequest.status === 'APPROVED') {
+          const shipmentIndex = mtoShipments.findIndex((mtoShipment) => mtoShipment.id === shipmentId);
+          mtoShipments[shipmentIndex].destinationAddress = shipmentUpdateRequest.newAddress;
+          moveTaskOrder.mtoShipments = mtoShipments;
+          queryClient.setQueryData([PRIME_SIMULATOR_MOVE, moveCodeOrID], moveTaskOrder);
+          queryClient.invalidateQueries([PRIME_SIMULATOR_MOVE, moveCodeOrID]);
+        }
         handleClose();
       },
       onError: (error) => {
