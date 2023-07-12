@@ -147,7 +147,8 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 		}
 	}
 
-	if serviceItem.ReService.Code == models.ReServiceCodeDDDSIT || serviceItem.ReService.Code == models.ReServiceCodeDOPSIT {
+	if serviceItem.ReService.Code == models.ReServiceCodeDDDSIT || serviceItem.ReService.Code == models.ReServiceCodeDOPSIT ||
+		serviceItem.ReService.Code == models.ReServiceCodeDDSFSC || serviceItem.ReService.Code == models.ReServiceCodeDOSFSC {
 		verrs = validate.NewErrors()
 		verrs.Add("reServiceCode", fmt.Sprintf("%s cannot be created", serviceItem.ReService.Code))
 		return nil, nil, apperror.NewInvalidInputError(serviceItem.ID, nil, verrs,
@@ -189,7 +190,8 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 			for itemIndex := range *extraServiceItems {
 				extraServiceItem := &(*extraServiceItems)[itemIndex]
 				if extraServiceItem.ReService.Code == models.ReServiceCodeDOPSIT ||
-					extraServiceItem.ReService.Code == models.ReServiceCodeDOASIT {
+					extraServiceItem.ReService.Code == models.ReServiceCodeDOASIT ||
+					extraServiceItem.ReService.Code == models.ReServiceCodeDOSFSC {
 					extraServiceItem.SITOriginHHGActualAddress = serviceItem.SITOriginHHGActualAddress
 					extraServiceItem.SITOriginHHGActualAddressID = serviceItem.SITOriginHHGActualAddressID
 					extraServiceItem.SITOriginHHGOriginalAddress = serviceItem.SITOriginHHGOriginalAddress
@@ -203,7 +205,8 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 			for itemIndex := range *extraServiceItems {
 				extraServiceItem := &(*extraServiceItems)[itemIndex]
 				if extraServiceItem.ReService.Code == models.ReServiceCodeDDDSIT ||
-					extraServiceItem.ReService.Code == models.ReServiceCodeDDASIT {
+					extraServiceItem.ReService.Code == models.ReServiceCodeDDASIT ||
+					extraServiceItem.ReService.Code == models.ReServiceCodeDDSFSC {
 					extraServiceItem.SITDestinationFinalAddress = serviceItem.SITDestinationFinalAddress
 					extraServiceItem.SITDestinationFinalAddressID = serviceItem.SITDestinationFinalAddressID
 				}
@@ -361,7 +364,7 @@ func (o *mtoServiceItemCreator) makeExtraSITServiceItem(appCtx appcontext.AppCon
 		}
 	}
 
-	// When a DDFSIT is created, this is where we auto create the accompanying DDASIT and DDDSIT.
+	// When a DDFSIT is created, this is where we auto create the accompanying DDASIT, DDDSIT, and DDSFSC.
 	// These service items will be associated with the same customer contacts as the DDFSIT.
 	contacts := firstSIT.CustomerContacts
 
@@ -524,9 +527,9 @@ func (o *mtoServiceItemCreator) validateFirstDaySITServiceItem(appCtx appcontext
 
 	switch serviceItem.ReService.Code {
 	case models.ReServiceCodeDDFSIT:
-		reServiceCodes = append(reServiceCodes, models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT)
+		reServiceCodes = append(reServiceCodes, models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT, models.ReServiceCodeDDSFSC)
 	case models.ReServiceCodeDOFSIT:
-		reServiceCodes = append(reServiceCodes, models.ReServiceCodeDOASIT, models.ReServiceCodeDOPSIT)
+		reServiceCodes = append(reServiceCodes, models.ReServiceCodeDOASIT, models.ReServiceCodeDOPSIT, models.ReServiceCodeDOSFSC)
 	default:
 		verrs := validate.NewErrors()
 		verrs.Add("reServiceCode", fmt.Sprintf("%s invalid code", serviceItem.ReService.Code))
