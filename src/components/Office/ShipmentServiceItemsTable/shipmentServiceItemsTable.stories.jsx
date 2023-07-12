@@ -9,10 +9,26 @@ export default {
   component: ShipmentServiceItemsTable,
 };
 
-export const HHGLonghaulServiceItems = () => <ShipmentServiceItemsTable shipmentType={SHIPMENT_OPTIONS.HHG} />;
+const destZip3 = '112';
+const sameDestZip3 = '902';
+const pickupZip3 = '902';
 
-export const HHGShorthaulServiceItems = () => <ShipmentServiceItemsTable shipmentType={SHIPMENT_OPTIONS.HHG} />;
+export const HHGLonghaulServiceItems = () => (
+  <ShipmentServiceItemsTable destinationZip3={destZip3} pickupZip3={pickupZip3} shipmentType={SHIPMENT_OPTIONS.HHG} />
+);
 
-export const NTSServiceItems = () => <ShipmentServiceItemsTable shipmentType={SHIPMENT_OPTIONS.NTS} />;
+export const HHGShorthaulServiceItems = () => (
+  <ShipmentServiceItemsTable
+    destinationZip3={sameDestZip3}
+    pickupZip3={pickupZip3}
+    shipmentType={SHIPMENT_OPTIONS.HHG}
+  />
+);
 
-export const NTSRServiceItems = () => <ShipmentServiceItemsTable shipmentType={SHIPMENT_OPTIONS.NTSR} />;
+export const NTSServiceItems = () => (
+  <ShipmentServiceItemsTable destinationZip3={destZip3} pickupZip3={pickupZip3} shipmentType={SHIPMENT_OPTIONS.NTS} />
+);
+
+export const NTSRServiceItems = () => (
+  <ShipmentServiceItemsTable destinationZip3={destZip3} pickupZip3={pickupZip3} shipmentType={SHIPMENT_OPTIONS.NTSR} />
+);
