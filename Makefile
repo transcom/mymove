@@ -89,7 +89,7 @@ endif
 
 .PHONY: check_go_version
 check_go_version: .check_go_version.stamp ## Check that the correct Golang version is installed
-.check_go_version.stamp: scripts/check-go-version .go-version
+.check_go_version.stamp: scripts/check-go-version .tool-versions
 	scripts/check-go-version
 	touch .check_go_version.stamp
 
@@ -105,7 +105,7 @@ endif
 
 .PHONY: check_node_version
 check_node_version: .check_node_version.stamp ## Check that the correct Node version is installed
-.check_node_version.stamp: scripts/check-node-version .node-version
+.check_node_version.stamp: scripts/check-node-version .tool-versions
 	scripts/check-node-version
 	touch .check_node_version.stamp
 
