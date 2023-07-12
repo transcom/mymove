@@ -73,11 +73,9 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 	}
 
 	setupParams := func(shipment models.MTOShipment) mtoshipmentops.UpdateMTOShipmentStatusParams {
-		requestUser := factory.BuildUser(nil, nil, nil)
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", shipment.ID.String()), nil)
-		req = suite.AuthenticateUserRequest(req, requestUser)
 
 		return mtoshipmentops.UpdateMTOShipmentStatusParams{
 			HTTPRequest:   req,
