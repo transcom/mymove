@@ -250,9 +250,6 @@ bin/ecs-deploy: cmd/ecs-deploy
 bin/generate-shipment-summary: cmd/generate-shipment-summary
 	go build -ldflags "$(LDFLAGS)" -o bin/generate-shipment-summary ./cmd/generate-shipment-summary
 
-bin/generate-test-data: cmd/generate-test-data
-	go build -ldflags "$(LDFLAGS)" -o bin/generate-test-data ./cmd/generate-test-data
-
 bin/ghc-pricing-parser: cmd/ghc-pricing-parser
 	go build -ldflags "$(LDFLAGS)" -o bin/ghc-pricing-parser ./cmd/ghc-pricing-parser
 
@@ -372,7 +369,6 @@ build_tools: bin/gin \
 	bin/ecs-deploy \
 	bin/generate-payment-request-edi \
 	bin/generate-shipment-summary \
-	bin/generate-test-data \
 	bin/ghc-pricing-parser \
 	bin/ghc-transit-time-parser \
 	bin/health-checker \
@@ -534,32 +530,11 @@ db_dev_migrate: db_dev_migrate_standalone ## Migrate Dev DB
 db_dev_psql: ## Open PostgreSQL shell for Dev DB
 	scripts/psql-dev
 
-.PHONY: db_dev_fresh
-db_dev_fresh: check_app db_dev_reset db_dev_migrate ## Recreate dev db from scratch and populate with devseed data
-	@echo "Populate the ${DB_NAME_DEV} database..."
-	go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="dev_seed" --db-env="development" --named-sub-scenario="${DEVSEED_SUBSCENARIO}"
-
 .PHONY: db_dev_truncate
 db_dev_truncate: ## Truncate dev db
 	@echo "Truncate the ${DB_NAME_DEV} database..."
 	psql postgres://postgres:$(PGPASSWORD)@${DB_HOST}:$(DB_PORT_DEV)/$(DB_NAME_DEV)?sslmode=disable -c 'TRUNCATE users, uploads, webhook_subscriptions, storage_facilities CASCADE'
 
-.PHONY: db_dev_e2e_populate
-db_dev_e2e_populate: check_app db_dev_migrate db_dev_truncate ## Migrate dev db and populate with devseed data
-	@echo "Populate the ${DB_NAME_DEV} database..."
-	go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="dev_seed" --db-env="development" --named-sub-scenario="${DEVSEED_SUBSCENARIO}"
-
-## Alias for db_dev_bandwidth_up
-## We started with `db_bandwidth_up`, which some folks are already using, and
-## then renamed it to `db_dev_bandwidth_up`. To allow folks to keep using the
-## name they're familiar with, we've added this alias to the renamed command.
-.PHONY: db_bandwidth_up
-db_bandwidth_up: db_dev_bandwidth_up
-
-.PHONY: db_dev_bandwidth_up
-db_dev_bandwidth_up: check_app bin/generate-test-data db_dev_truncate ## Truncate Dev DB and Generate data for bandwidth tests
-	@echo "Populate the ${DB_NAME_DEV} database..."
-	DB_PORT=$(DB_PORT_DEV) go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="bandwidth" --db-env="development"
 #
 # ----- END DB_DEV TARGETS -----
 #
