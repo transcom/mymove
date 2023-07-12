@@ -9,6 +9,7 @@ import { serviceItemCodes } from 'content/serviceItems';
 const shipmentTypes = {
   HHG: [
     serviceItemCodes.DLH,
+    serviceItemCodes.DSH,
     serviceItemCodes.FSC,
     serviceItemCodes.DOP,
     serviceItemCodes.DDP,
@@ -17,6 +18,7 @@ const shipmentTypes = {
   ],
   HHG_INTO_NTS_DOMESTIC: [
     serviceItemCodes.DLH,
+    serviceItemCodes.DSH,
     serviceItemCodes.FSC,
     serviceItemCodes.DOP,
     serviceItemCodes.DDP,
@@ -24,6 +26,7 @@ const shipmentTypes = {
   ],
   HHG_OUTOF_NTS_DOMESTIC: [
     serviceItemCodes.DLH,
+    serviceItemCodes.DSH,
     serviceItemCodes.FSC,
     serviceItemCodes.DOP,
     serviceItemCodes.DDP,
@@ -31,16 +34,28 @@ const shipmentTypes = {
   ],
 };
 
-const ShipmentServiceItemsTable = ({ shipmentType, className }) => {
+const ShipmentServiceItemsTable = ({ shipmentType, destinationZip3, pickupZip3, className }) => {
   const shipmentServiceItems = shipmentTypes[`${shipmentType}`] || [];
+  const sameZip3 = destinationZip3 === pickupZip3;
+  let filteredServiceItemsList;
 
+  if (sameZip3) {
+    filteredServiceItemsList = shipmentServiceItems.filter((item) => {
+      return item !== serviceItemCodes.DLH;
+    });
+  } else {
+    filteredServiceItemsList = shipmentServiceItems.filter((item) => {
+      return item !== serviceItemCodes.DSH;
+    });
+  }
   return (
     <div className={classNames('container', 'container--gray', className)}>
       <table className={classNames('table--stacked', styles.serviceItemsTable)}>
         <caption>
           <div className="stackedtable-header">
             <h4>
-              Service items for this shipment <span>{shipmentServiceItems.length} items</span>
+              Service items for this shipment <br />
+              {filteredServiceItemsList.length} items
             </h4>
           </div>
         </caption>
@@ -50,7 +65,7 @@ const ShipmentServiceItemsTable = ({ shipmentType, className }) => {
           </tr>
         </thead>
         <tbody>
-          {shipmentServiceItems.map((serviceItem) => (
+          {filteredServiceItemsList.map((serviceItem) => (
             <tr key={serviceItem}>
               <td>{serviceItem}</td>
             </tr>
