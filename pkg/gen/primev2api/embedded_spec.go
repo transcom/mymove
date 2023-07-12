@@ -639,6 +639,9 @@ func init() {
               "x-nullable": true,
               "x-omitempty": false
             },
+            "sitAddressUpdates": {
+              "$ref": "#/definitions/SitAddressUpdates"
+            },
             "sitDepartureDate": {
               "description": "Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.",
               "type": "string",
@@ -879,24 +882,6 @@ func init() {
         "REJECTED"
       ],
       "readOnly": true
-    },
-    "MTOShipment": {
-      "type": "object",
-      "allOf": [
-        {
-          "$ref": "#/definitions/MTOShipmentWithoutServiceItems"
-        }
-      ],
-      "properties": {
-        "mtoServiceItems": {
-          "description": "A list of service items connected to this shipment.",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/MTOServiceItem"
-          },
-          "readOnly": true
-        }
-      }
     },
     "MTOShipmentType": {
       "description": "The type of shipment.\n  * ` + "`" + `HHG` + "`" + ` = Household goods move\n  * ` + "`" + `HHG_INTO_NTS_DOMESTIC` + "`" + ` = HHG into Non-temporary storage (NTS)\n  * ` + "`" + `HHG_OUTOF_NTS_DOMESTIC` + "`" + ` = HHG out of Non-temporary storage (NTS Release)\n  * ` + "`" + `PPM` + "`" + ` = Personally Procured Move also known as Do It Yourself (DITY)\n",
@@ -2174,6 +2159,91 @@ func init() {
         "REQUESTED": "REQUESTED"
       },
       "readOnly": true
+    },
+    "SitAddressUpdate": {
+      "properties": {
+        "contractorRemarks": {
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "Customer reached out to me this week \u0026 let me know they want to move closer to family."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "distance": {
+          "type": "integer",
+          "maximum": 50,
+          "readOnly": true,
+          "example": 25
+        },
+        "eTag": {
+          "description": "A hash unique to this shipment that should be used as the \"If-Match\" header for any updates.",
+          "type": "string",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "ddd7bb48-4730-47c4-9781-6500384f4941"
+        },
+        "mtoServiceItemId": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "12d9e103-5a56-4636-906d-6e993b97ef51"
+        },
+        "newAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "newAddressId": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "31a2ad3c-1682-4d5b-8423-ff40053a056b"
+        },
+        "officeRemarks": {
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "The customer has found a new house closer to base."
+        },
+        "oldAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "oldAddressId": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "31a2ad3c-1682-4d5b-8423-ff40053a056b"
+        },
+        "status": {
+          "$ref": "#/definitions/SitAddressUpdateStatus"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
+    "SitAddressUpdateStatus": {
+      "description": "The status of a SIT address update, indicating where it is in the TOO's approval process.",
+      "enum": [
+        "REQUESTED",
+        "APPROVED",
+        "REJECTED"
+      ]
+    },
+    "SitAddressUpdates": {
+      "description": "A list of updates to a SIT service item address.",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/SitAddressUpdate"
+      }
     },
     "StorageFacility": {
       "description": "The Storage Facility information for the shipment",
@@ -2933,6 +3003,9 @@ func init() {
               "x-nullable": true,
               "x-omitempty": false
             },
+            "sitAddressUpdates": {
+              "$ref": "#/definitions/SitAddressUpdates"
+            },
             "sitDepartureDate": {
               "description": "Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.",
               "type": "string",
@@ -3173,24 +3246,6 @@ func init() {
         "REJECTED"
       ],
       "readOnly": true
-    },
-    "MTOShipment": {
-      "type": "object",
-      "allOf": [
-        {
-          "$ref": "#/definitions/MTOShipmentWithoutServiceItems"
-        }
-      ],
-      "properties": {
-        "mtoServiceItems": {
-          "description": "A list of service items connected to this shipment.",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/MTOServiceItem"
-          },
-          "readOnly": true
-        }
-      }
     },
     "MTOShipmentType": {
       "description": "The type of shipment.\n  * ` + "`" + `HHG` + "`" + ` = Household goods move\n  * ` + "`" + `HHG_INTO_NTS_DOMESTIC` + "`" + ` = HHG into Non-temporary storage (NTS)\n  * ` + "`" + `HHG_OUTOF_NTS_DOMESTIC` + "`" + ` = HHG out of Non-temporary storage (NTS Release)\n  * ` + "`" + `PPM` + "`" + ` = Personally Procured Move also known as Do It Yourself (DITY)\n",
@@ -4468,6 +4523,91 @@ func init() {
         "REQUESTED": "REQUESTED"
       },
       "readOnly": true
+    },
+    "SitAddressUpdate": {
+      "properties": {
+        "contractorRemarks": {
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "Customer reached out to me this week \u0026 let me know they want to move closer to family."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "distance": {
+          "type": "integer",
+          "maximum": 50,
+          "readOnly": true,
+          "example": 25
+        },
+        "eTag": {
+          "description": "A hash unique to this shipment that should be used as the \"If-Match\" header for any updates.",
+          "type": "string",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "ddd7bb48-4730-47c4-9781-6500384f4941"
+        },
+        "mtoServiceItemId": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "12d9e103-5a56-4636-906d-6e993b97ef51"
+        },
+        "newAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "newAddressId": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "31a2ad3c-1682-4d5b-8423-ff40053a056b"
+        },
+        "officeRemarks": {
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "The customer has found a new house closer to base."
+        },
+        "oldAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "oldAddressId": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "31a2ad3c-1682-4d5b-8423-ff40053a056b"
+        },
+        "status": {
+          "$ref": "#/definitions/SitAddressUpdateStatus"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
+    "SitAddressUpdateStatus": {
+      "description": "The status of a SIT address update, indicating where it is in the TOO's approval process.",
+      "enum": [
+        "REQUESTED",
+        "APPROVED",
+        "REJECTED"
+      ]
+    },
+    "SitAddressUpdates": {
+      "description": "A list of updates to a SIT service item address.",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/SitAddressUpdate"
+      }
     },
     "StorageFacility": {
       "description": "The Storage Facility information for the shipment",
