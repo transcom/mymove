@@ -112,6 +112,22 @@ func checkUpdateAllowed() validator {
 	})
 }
 
+// Checks if a SM is able to update a shipment if it belongs to them
+func checkUpdateAllowedByCustomer() validator {
+	return validatorFunc(func(appCtx appcontext.AppContext, _ *models.MTOShipment, older *models.MTOShipment) error {
+		msg := fmt.Sprintf("%v is not updatable", older.ID)
+		err := apperror.NewForbiddenError(msg)
+
+		if appCtx.Session().IsMilApp() {
+			if older.MoveTaskOrder.Orders.ServiceMemberID == appCtx.Session().ServiceMemberID {
+				return err
+			}
+		}
+
+		return err
+	})
+}
+
 // Checks if a shipment can be deleted
 func checkDeleteAllowed() validator {
 	return validatorFunc(func(appCtx appcontext.AppContext, _ *models.MTOShipment, older *models.MTOShipment) error {
