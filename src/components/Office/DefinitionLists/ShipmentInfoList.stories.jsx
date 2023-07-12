@@ -115,15 +115,3 @@ export const WithAllInfo = () => (
     }}
   />
 );
-
-// export const WithDestinationAddressUpdate = () => (
-//   <ShipmentInfoList
-//     shipment={shipment}
-//     errorIfMissing={[
-//       {
-//         fieldName: 'deliveryAddress',
-//         condition: (shipment) => shipment?.shipment?.hasDeliveryAddressUpdate === true,
-//       },
-//     ]}
-//   />
-// );
