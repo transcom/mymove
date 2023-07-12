@@ -95,8 +95,8 @@ func FetchRelatedDestinationSITServiceItems(tx *pop.Connection, mtoServiceItemID
 		`SELECT msi.id
 			FROM mto_service_items msi
 			INNER JOIN re_services res ON msi.re_service_id = res.id
-			WHERE res.code IN (?, ?, ?) AND mto_shipment_id IN (
-				SELECT mto_shipment_id FROM mto_service_items WHERE id = ?)`, ReServiceCodeDDFSIT, ReServiceCodeDDASIT, ReServiceCodeDDDSIT, mtoServiceItemID).
+			WHERE res.code IN (?, ?, ?, ?) AND mto_shipment_id IN (
+				SELECT mto_shipment_id FROM mto_service_items WHERE id = ?)`, ReServiceCodeDDFSIT, ReServiceCodeDDASIT, ReServiceCodeDDDSIT, ReServiceCodeDDSFSC, mtoServiceItemID).
 		All(&relatedDestinationSITServiceItems)
 	return relatedDestinationSITServiceItems, err
 }
