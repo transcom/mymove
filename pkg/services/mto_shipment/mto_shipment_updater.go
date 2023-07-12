@@ -770,7 +770,7 @@ func fetchShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID, builder U
 		query.NewQueryFilter("id", "=", shipmentID),
 	}
 
-	if appCtx.Session().IsMilApp() {
+	if appCtx.Session() != nil && appCtx.Session().IsMilApp() {
 		queryFilters = append(queryFilters, query.NewQueryFilter("mto_shipments.move_task_orders.orders.service_member_id", "=", appCtx.Session().ServiceMemberID))
 	}
 

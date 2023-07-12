@@ -1816,6 +1816,28 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		}
 	})
 
+	suite.Run("Shipments from a different service member are not eligible for updating", func() {
+		setupTestData()
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.MilApp,
+			ServiceMemberID: mto.Orders.ServiceMember.ID,
+		})
+
+		shipmentFromDiffSM := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model: models.ServiceMember{
+					ID: uuid.FromStringOrNil("424d930b-cf8d-4c10-8059-be8a25ba952a"),
+				},
+			},
+		}, nil)
+
+		shipmentEtag := etag.GenerateEtag(shipmentFromDiffSM.UpdatedAt)
+		_, err := updater.UpdateMTOShipmentStatus(appCtx, shipmentFromDiffSM.ID, status, nil, shipmentEtag)
+		suite.IsType(apperror.QueryError{}, err)
+		suite.NotEqual(shipmentFromDiffSM.MoveTaskOrder.Orders.ServiceMemberID, appCtx.Session().ServiceMemberID)
+
+	})
+
 	suite.Run("Cannot set SUBMITTED status on shipment via UpdateMTOShipmentStatus", func() {
 		setupTestData()
 
