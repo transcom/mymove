@@ -870,6 +870,31 @@ func (h RequestShipmentReweighHandler) triggerRequestShipmentReweighEvent(appCtx
 	}
 }
 
+// ReviewShipmentAddressUpdateHandler Reviews a shipment address change
+type ReviewShipmentAddressUpdateHandler struct {
+	handlers.HandlerConfig
+	services.ShipmentAddressUpdateRequester
+}
+
+// Handle ... reviews address update request
+func (h ReviewShipmentAddressUpdateHandler) Handle(params shipmentops.ReviewShipmentAddressUpdateParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+
+			shipmentID := uuid.FromStringOrNil(params.ShipmentID.String())
+			addressApprovalStatus := params.Body.Status
+			remarks := params.Body.Remarks
+
+			response, err := h.ShipmentAddressUpdateRequester.ReviewShipmentAddressChange(appCtx, shipmentID, models.ShipmentAddressUpdateStatus(addressApprovalStatus), remarks)
+			//TO DO add error handling
+			if err != nil {
+				return nil, err
+			}
+			payload := payloads.ShipmentAddressUpdate(response)
+			return shipmentops.NewReviewShipmentAddressUpdateOK().WithPayload(payload), nil
+		})
+}
+
 // ApproveSITExtensionHandler approves a SIT extension
 type ApproveSITExtensionHandler struct {
 	handlers.HandlerConfig
