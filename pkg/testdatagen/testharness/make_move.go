@@ -26,7 +26,6 @@ import (
 	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/storage"
 	"github.com/transcom/mymove/pkg/testdatagen"
-	"github.com/transcom/mymove/pkg/testdatagen/scenario"
 	"github.com/transcom/mymove/pkg/unit"
 	"github.com/transcom/mymove/pkg/uploader"
 )
@@ -557,7 +556,7 @@ func MakeHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO(appCtx appconte
 		},
 	}, nil)
 
-	scenario.MakeSITExtensionsForShipment(appCtx, MTOShipment)
+	MakeSITExtensionsForShipment(appCtx, MTOShipment)
 
 	sitAddressUpdate := factory.BuildSITAddressUpdate(appCtx.DB(), []factory.Customization{
 		{
@@ -1105,7 +1104,7 @@ func MakeNTSRMoveWithPaymentRequest(appCtx appcontext.AppContext) models.Move {
 }
 
 // MakeHHGMoveWithServiceItemsandPaymentRequestsForTIO is basically
-// scenario.createMoveWithServiceItemsandPaymentRequests01
+// createMoveWithServiceItemsandPaymentRequests01
 func MakeHHGMoveWithServiceItemsandPaymentRequestsForTIO(appCtx appcontext.AppContext) models.Move {
 	/*
 		Creates a move for the TIO flow
@@ -1624,7 +1623,7 @@ func MakeHHGMoveWithServiceItemsandPaymentRequestsForTIO(appCtx appcontext.AppCo
 	return *newmove
 }
 
-// like scenario.createNTSRMoveWithServiceItemsAndPaymentRequest
+// like createNTSRMoveWithServiceItemsAndPaymentRequest
 func MakeNTSRMoveWithServiceItemsAndPaymentRequest(appCtx appcontext.AppContext) models.Move {
 	userUploader := newUserUploader(appCtx)
 
@@ -2263,7 +2262,7 @@ func MakeHHGMoveWithRetireeForTOO(appCtx appcontext.AppContext) models.Move {
 	retirement := internalmessages.OrdersTypeRETIREMENT
 	hhg := models.MTOShipmentTypeHHG
 	hor := models.DestinationTypeHomeOfRecord
-	move := scenario.CreateMoveWithOptions(appCtx, testdatagen.Assertions{
+	move := CreateMoveWithOptions(appCtx, testdatagen.Assertions{
 		Order: models.Order{
 			OrdersType: retirement,
 		},
@@ -2291,7 +2290,7 @@ func MakeHHGMoveWithRetireeForTOO(appCtx appcontext.AppContext) models.Move {
 // MakeHHGMoveWithNTSShipmentsForTOO creates an HHG Move with NTS Shipment
 func MakeHHGMoveWithNTSShipmentsForTOO(appCtx appcontext.AppContext) models.Move {
 	locator := models.GenerateLocator()
-	move := scenario.CreateMoveWithHHGAndNTSShipments(appCtx, locator, false)
+	move := CreateMoveWithHHGAndNTSShipments(appCtx, locator, false)
 
 	// re-fetch the move so that we ensure we have exactly what is in
 	// the db
@@ -2306,7 +2305,7 @@ func MakeHHGMoveWithNTSShipmentsForTOO(appCtx appcontext.AppContext) models.Move
 // NTS Shipment by external vendor
 func MakeHHGMoveWithExternalNTSShipmentsForTOO(appCtx appcontext.AppContext) models.Move {
 	locator := models.GenerateLocator()
-	move := scenario.CreateMoveWithHHGAndNTSShipments(appCtx, locator, true)
+	move := CreateMoveWithHHGAndNTSShipments(appCtx, locator, true)
 
 	// re-fetch the move so that we ensure we have exactly what is in
 	// the db
@@ -2321,7 +2320,7 @@ func MakeHHGMoveWithExternalNTSShipmentsForTOO(appCtx appcontext.AppContext) mod
 // Shipments
 func MakeHHGMoveWithApprovedNTSShipmentsForTOO(appCtx appcontext.AppContext) models.Move {
 	locator := models.GenerateLocator()
-	move := scenario.CreateMoveWithHHGAndNTSShipments(appCtx, locator, false)
+	move := CreateMoveWithHHGAndNTSShipments(appCtx, locator, false)
 
 	moveRouter := moverouter.NewMoveRouter()
 	err := moveRouter.Approve(appCtx, &move)
@@ -2396,7 +2395,7 @@ func MakeHHGMoveWithApprovedNTSShipmentsForTOO(appCtx appcontext.AppContext) mod
 // MakeMoveWithNTSShipmentsForTOO creates an HHG Move with NTS Shipment
 func MakeMoveWithNTSShipmentsForTOO(appCtx appcontext.AppContext) models.Move {
 	locator := models.GenerateLocator()
-	move := scenario.CreateMoveWithNTSShipment(appCtx, locator, true)
+	move := CreateMoveWithNTSShipment(appCtx, locator, true)
 
 	// re-fetch the move so that we ensure we have exactly what is in
 	// the db
@@ -2410,7 +2409,7 @@ func MakeMoveWithNTSShipmentsForTOO(appCtx appcontext.AppContext) models.Move {
 // MakeHHGMoveWithNTSSRhipmentsForTOO creates an HHG Move with NTS-R Shipment
 func MakeHHGMoveWithNTSRShipmentsForTOO(appCtx appcontext.AppContext) models.Move {
 	locator := models.GenerateLocator()
-	move := scenario.CreateMoveWithHHGAndNTSRShipments(appCtx, locator, false)
+	move := CreateMoveWithHHGAndNTSRShipments(appCtx, locator, false)
 
 	// re-fetch the move so that we ensure we have exactly what is in
 	// the db
@@ -2425,7 +2424,7 @@ func MakeHHGMoveWithNTSRShipmentsForTOO(appCtx appcontext.AppContext) models.Mov
 // Shipments
 func MakeHHGMoveWithApprovedNTSRShipmentsForTOO(appCtx appcontext.AppContext) models.Move {
 	locator := models.GenerateLocator()
-	move := scenario.CreateMoveWithHHGAndNTSRShipments(appCtx, locator, false)
+	move := CreateMoveWithHHGAndNTSRShipments(appCtx, locator, false)
 
 	moveRouter := moverouter.NewMoveRouter()
 	err := moveRouter.Approve(appCtx, &move)
@@ -2501,7 +2500,7 @@ func MakeHHGMoveWithApprovedNTSRShipmentsForTOO(appCtx appcontext.AppContext) mo
 // NTS Shipment by external vendor
 func MakeHHGMoveWithExternalNTSRShipmentsForTOO(appCtx appcontext.AppContext) models.Move {
 	locator := models.GenerateLocator()
-	move := scenario.CreateMoveWithHHGAndNTSRShipments(appCtx, locator, true)
+	move := CreateMoveWithHHGAndNTSRShipments(appCtx, locator, true)
 
 	// re-fetch the move so that we ensure we have exactly what is in
 	// the db
@@ -2517,7 +2516,7 @@ func MakeHHGMoveWithExternalNTSRShipmentsForTOO(appCtx appcontext.AppContext) mo
 func MakeMoveWithMinimalNTSRNeedsSC(appCtx appcontext.AppContext) models.Move {
 	pcos := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
 	locator := models.GenerateLocator()
-	move := scenario.CreateNeedsServicesCounselingMinimalNTSR(appCtx, pcos, locator)
+	move := CreateNeedsServicesCounselingMinimalNTSR(appCtx, pcos, locator)
 
 	// re-fetch the move so that we ensure we have exactly what is in
 	// the db
@@ -2533,7 +2532,7 @@ func MakeHHGMoveNeedsSC(appCtx appcontext.AppContext) models.Move {
 	pcos := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
 	hhg := models.MTOShipmentTypeHHG
 	locator := models.GenerateLocator()
-	move := scenario.CreateNeedsServicesCounseling(appCtx, pcos, hhg, nil, locator)
+	move := CreateNeedsServicesCounseling(appCtx, pcos, hhg, nil, locator)
 
 	// re-fetch the move so that we ensure we have exactly what is in
 	// the db
@@ -2551,7 +2550,7 @@ func MakeHHGMoveForSeparationNeedsSC(appCtx appcontext.AppContext) models.Move {
 	hhg := models.MTOShipmentTypeHHG
 	hor := models.DestinationTypeHomeOfRecord
 	locator := models.GenerateLocator()
-	move := scenario.CreateNeedsServicesCounseling(appCtx, separation, hhg, &hor, locator)
+	move := CreateNeedsServicesCounseling(appCtx, separation, hhg, &hor, locator)
 
 	// re-fetch the move so that we ensure we have exactly what is in
 	// the db
@@ -2569,7 +2568,7 @@ func MakeHHGMoveForRetireeNeedsSC(appCtx appcontext.AppContext) models.Move {
 	hhg := models.MTOShipmentTypeHHG
 	hos := models.DestinationTypeHomeOfSelection
 	locator := models.GenerateLocator()
-	move := scenario.CreateNeedsServicesCounseling(appCtx, retirement, hhg, &hos, locator)
+	move := CreateNeedsServicesCounseling(appCtx, retirement, hhg, &hos, locator)
 
 	// re-fetch the move so that we ensure we have exactly what is in
 	// the db
@@ -2589,7 +2588,7 @@ func MakeMoveWithPPMShipmentReadyForFinalCloseout(appCtx appcontext.AppContext) 
 	}, nil)
 
 	userInfo := newUserInfo("customer")
-	moveInfo := scenario.MoveCreatorInfo{
+	moveInfo := MoveCreatorInfo{
 		UserID:           uuid.Must(uuid.NewV4()),
 		Email:            userInfo.email,
 		SmID:             uuid.Must(uuid.NewV4()),
@@ -2625,7 +2624,7 @@ func MakeMoveWithPPMShipmentReadyForFinalCloseout(appCtx appcontext.AppContext) 
 		},
 	}
 
-	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	move, shipment := CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
 
 	factory.BuildWeightTicket(appCtx.DB(), []factory.Customization{
 		{
@@ -2698,7 +2697,7 @@ func MakePPMMoveWithCloseout(appCtx appcontext.AppContext) models.Move {
 		},
 	}, nil)
 	userInfo := newUserInfo("customer")
-	moveInfo := scenario.MoveCreatorInfo{
+	moveInfo := MoveCreatorInfo{
 		UserID:           uuid.Must(uuid.NewV4()),
 		Email:            userInfo.email,
 		SmID:             uuid.Must(uuid.NewV4()),
@@ -2709,7 +2708,7 @@ func MakePPMMoveWithCloseout(appCtx appcontext.AppContext) models.Move {
 		CloseoutOfficeID: &closeoutOffice.ID,
 	}
 
-	move := scenario.CreateMoveWithCloseOut(appCtx, userUploader, moveInfo, models.AffiliationARMY)
+	move := CreateMoveWithCloseOut(appCtx, userUploader, moveInfo, models.AffiliationARMY)
 
 	// re-fetch the move so that we ensure we have exactly what is in
 	// the db
@@ -2724,7 +2723,7 @@ func MakePPMMoveWithCloseoutOffice(appCtx appcontext.AppContext) models.Move {
 	userUploader := newUserUploader(appCtx)
 
 	userInfo := newUserInfo("customer")
-	moveInfo := scenario.MoveCreatorInfo{
+	moveInfo := MoveCreatorInfo{
 		UserID:      uuid.Must(uuid.NewV4()),
 		Email:       userInfo.email,
 		SmID:        uuid.Must(uuid.NewV4()),
@@ -2734,7 +2733,7 @@ func MakePPMMoveWithCloseoutOffice(appCtx appcontext.AppContext) models.Move {
 		MoveLocator: models.GenerateLocator(),
 	}
 
-	move := scenario.CreateMoveWithCloseoutOffice(appCtx, moveInfo, userUploader)
+	move := CreateMoveWithCloseoutOffice(appCtx, moveInfo, userUploader)
 
 	// re-fetch the move so that we ensure we have exactly what is in
 	// the db
@@ -2757,7 +2756,7 @@ func MakeSubmittedMoveWithPPMShipmentForSC(appCtx appcontext.AppContext) models.
 	userUploader := newUserUploader(appCtx)
 
 	userInfo := newUserInfo("customer")
-	moveInfo := scenario.MoveCreatorInfo{
+	moveInfo := MoveCreatorInfo{
 		UserID:      uuid.Must(uuid.NewV4()),
 		Email:       userInfo.email,
 		SmID:        uuid.Must(uuid.NewV4()),
@@ -2769,7 +2768,7 @@ func MakeSubmittedMoveWithPPMShipmentForSC(appCtx appcontext.AppContext) models.
 
 	moveRouter := moverouter.NewMoveRouter()
 
-	move := scenario.CreateSubmittedMoveWithPPMShipmentForSC(appCtx, userUploader, moveRouter, moveInfo)
+	move := CreateSubmittedMoveWithPPMShipmentForSC(appCtx, userUploader, moveRouter, moveInfo)
 
 	// re-fetch the move so that we ensure we have exactly what is in
 	// the db
@@ -2785,7 +2784,7 @@ func MakeApprovedMoveWithPPM(appCtx appcontext.AppContext) models.Move {
 	userUploader := newUserUploader(appCtx)
 
 	userInfo := newUserInfo("customer")
-	moveInfo := scenario.MoveCreatorInfo{
+	moveInfo := MoveCreatorInfo{
 		UserID:      uuid.Must(uuid.NewV4()),
 		Email:       userInfo.email,
 		SmID:        uuid.Must(uuid.NewV4()),
@@ -2812,7 +2811,7 @@ func MakeApprovedMoveWithPPM(appCtx appcontext.AppContext) models.Move {
 		},
 	}
 
-	move, _ := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	move, _ := CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
 
 	// re-fetch the move so that we ensure we have exactly what is in
 	// the db
@@ -2831,7 +2830,7 @@ func MakeUnSubmittedMoveWithPPMShipmentThroughEstimatedWeights(appCtx appcontext
 	userUploader := newUserUploader(appCtx)
 
 	userInfo := newUserInfo("customer")
-	moveInfo := scenario.MoveCreatorInfo{
+	moveInfo := MoveCreatorInfo{
 		UserID:           uuid.Must(uuid.NewV4()),
 		Email:            userInfo.email,
 		SmID:             uuid.Must(uuid.NewV4()),
@@ -2839,7 +2838,7 @@ func MakeUnSubmittedMoveWithPPMShipmentThroughEstimatedWeights(appCtx appcontext
 		LastName:         userInfo.lastName,
 		MoveID:           uuid.Must(uuid.NewV4()),
 		MoveLocator:      models.GenerateLocator(),
-		CloseoutOfficeID: &scenario.DefaultCloseoutOfficeID,
+		CloseoutOfficeID: &DefaultCloseoutOfficeID,
 	}
 	assertions := testdatagen.Assertions{
 		UserUploader: userUploader,
@@ -2851,7 +2850,7 @@ func MakeUnSubmittedMoveWithPPMShipmentThroughEstimatedWeights(appCtx appcontext
 		},
 	}
 
-	move, _ := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, true, userUploader, nil, nil, assertions.PPMShipment)
+	move, _ := CreateGenericMoveWithPPMShipment(appCtx, moveInfo, true, userUploader, nil, nil, assertions.PPMShipment)
 
 	// re-fetch the move so that we ensure we have exactly what is in
 	// the db
@@ -2867,7 +2866,7 @@ func MakeApprovedMoveWithPPMWithAboutFormComplete(appCtx appcontext.AppContext) 
 	userUploader := newUserUploader(appCtx)
 
 	userInfo := newUserInfo("customer")
-	moveInfo := scenario.MoveCreatorInfo{
+	moveInfo := MoveCreatorInfo{
 		UserID:           uuid.Must(uuid.NewV4()),
 		Email:            userInfo.email,
 		SmID:             uuid.Must(uuid.NewV4()),
@@ -2875,7 +2874,7 @@ func MakeApprovedMoveWithPPMWithAboutFormComplete(appCtx appcontext.AppContext) 
 		LastName:         userInfo.lastName,
 		MoveID:           uuid.Must(uuid.NewV4()),
 		MoveLocator:      models.GenerateLocator(),
-		CloseoutOfficeID: &scenario.DefaultCloseoutOfficeID,
+		CloseoutOfficeID: &DefaultCloseoutOfficeID,
 	}
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
@@ -2902,7 +2901,7 @@ func MakeApprovedMoveWithPPMWithAboutFormComplete(appCtx appcontext.AppContext) 
 		},
 	}
 
-	move, _ := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	move, _ := CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
 
 	// re-fetch the move so that we ensure we have exactly what is in
 	// the db
@@ -2918,7 +2917,7 @@ func MakeUnsubmittedMoveWithMultipleFullPPMShipmentComplete(appCtx appcontext.Ap
 	userUploader := newUserUploader(appCtx)
 
 	userInfo := newUserInfo("customer")
-	moveInfo := scenario.MoveCreatorInfo{
+	moveInfo := MoveCreatorInfo{
 		UserID:           uuid.Must(uuid.NewV4()),
 		Email:            userInfo.email,
 		SmID:             uuid.Must(uuid.NewV4()),
@@ -2926,7 +2925,7 @@ func MakeUnsubmittedMoveWithMultipleFullPPMShipmentComplete(appCtx appcontext.Ap
 		LastName:         userInfo.lastName,
 		MoveID:           uuid.Must(uuid.NewV4()),
 		MoveLocator:      models.GenerateLocator(),
-		CloseoutOfficeID: &scenario.DefaultCloseoutOfficeID,
+		CloseoutOfficeID: &DefaultCloseoutOfficeID,
 	}
 
 	assertions := testdatagen.Assertions{
@@ -2937,7 +2936,7 @@ func MakeUnsubmittedMoveWithMultipleFullPPMShipmentComplete(appCtx appcontext.Ap
 		},
 	}
 
-	move, _ := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, nil, nil, assertions.PPMShipment)
+	move, _ := CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, nil, nil, assertions.PPMShipment)
 
 	factory.BuildPPMShipment(appCtx.DB(), []factory.Customization{
 		{
@@ -2959,7 +2958,7 @@ func MakeApprovedMoveWithPPMProgearWeightTicket(appCtx appcontext.AppContext) mo
 	userUploader := newUserUploader(appCtx)
 
 	userInfo := newUserInfo("customer")
-	moveInfo := scenario.MoveCreatorInfo{
+	moveInfo := MoveCreatorInfo{
 		UserID:      uuid.Must(uuid.NewV4()),
 		Email:       userInfo.email,
 		SmID:        uuid.Must(uuid.NewV4()),
@@ -2993,7 +2992,7 @@ func MakeApprovedMoveWithPPMProgearWeightTicket(appCtx appcontext.AppContext) mo
 		},
 	}
 
-	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	move, shipment := CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
 
 	factory.BuildWeightTicket(appCtx.DB(), []factory.Customization{
 		{
@@ -3035,7 +3034,7 @@ func MakeApprovedMoveWithPPMProgearWeightTicketOffice(appCtx appcontext.AppConte
 	}, nil)
 
 	userInfo := newUserInfo("customer")
-	moveInfo := scenario.MoveCreatorInfo{
+	moveInfo := MoveCreatorInfo{
 		UserID:           uuid.Must(uuid.NewV4()),
 		Email:            userInfo.email,
 		SmID:             uuid.Must(uuid.NewV4()),
@@ -3070,7 +3069,7 @@ func MakeApprovedMoveWithPPMProgearWeightTicketOffice(appCtx appcontext.AppConte
 		},
 	}
 
-	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	move, shipment := CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
 
 	factory.BuildWeightTicket(appCtx.DB(), []factory.Customization{
 		{
@@ -3111,7 +3110,7 @@ func MakeApprovedMoveWithPPMWeightTicketOffice(appCtx appcontext.AppContext) mod
 		},
 	}, nil)
 	userInfo := newUserInfo("customer")
-	moveInfo := scenario.MoveCreatorInfo{
+	moveInfo := MoveCreatorInfo{
 		UserID:           uuid.Must(uuid.NewV4()),
 		Email:            userInfo.email,
 		SmID:             uuid.Must(uuid.NewV4()),
@@ -3146,7 +3145,7 @@ func MakeApprovedMoveWithPPMWeightTicketOffice(appCtx appcontext.AppContext) mod
 		},
 	}
 
-	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	move, shipment := CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
 
 	factory.BuildWeightTicket(appCtx.DB(), []factory.Customization{
 		{
@@ -3173,7 +3172,7 @@ func MakeApprovedMoveWithPPMMovingExpense(appCtx appcontext.AppContext) models.M
 	userUploader := newUserUploader(appCtx)
 
 	userInfo := newUserInfo("customer")
-	moveInfo := scenario.MoveCreatorInfo{
+	moveInfo := MoveCreatorInfo{
 		UserID:      uuid.Must(uuid.NewV4()),
 		Email:       userInfo.email,
 		SmID:        uuid.Must(uuid.NewV4()),
@@ -3208,7 +3207,7 @@ func MakeApprovedMoveWithPPMMovingExpense(appCtx appcontext.AppContext) models.M
 		},
 	}
 
-	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	move, shipment := CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
 
 	factory.BuildWeightTicket(appCtx.DB(), []factory.Customization{
 		{
@@ -3271,7 +3270,7 @@ func MakeApprovedMoveWithPPMMovingExpenseOffice(appCtx appcontext.AppContext) mo
 	}, nil)
 
 	userInfo := newUserInfo("customer")
-	moveInfo := scenario.MoveCreatorInfo{
+	moveInfo := MoveCreatorInfo{
 		UserID:           uuid.Must(uuid.NewV4()),
 		Email:            userInfo.email,
 		SmID:             uuid.Must(uuid.NewV4()),
@@ -3307,7 +3306,7 @@ func MakeApprovedMoveWithPPMMovingExpenseOffice(appCtx appcontext.AppContext) mo
 		},
 	}
 
-	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	move, shipment := CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
 
 	factory.BuildWeightTicket(appCtx.DB(), []factory.Customization{
 		{
@@ -3369,7 +3368,7 @@ func MakeApprovedMoveWithPPMAllDocTypesOffice(appCtx appcontext.AppContext) mode
 	}, nil)
 
 	userInfo := newUserInfo("customer")
-	moveInfo := scenario.MoveCreatorInfo{
+	moveInfo := MoveCreatorInfo{
 		UserID:           uuid.Must(uuid.NewV4()),
 		Email:            userInfo.email,
 		SmID:             uuid.Must(uuid.NewV4()),
@@ -3405,7 +3404,7 @@ func MakeApprovedMoveWithPPMAllDocTypesOffice(appCtx appcontext.AppContext) mode
 		},
 	}
 
-	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	move, shipment := CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
 
 	factory.BuildWeightTicket(appCtx.DB(), []factory.Customization{
 		{
@@ -3453,7 +3452,7 @@ func MakeDraftMoveWithPPMWithDepartureDate(appCtx appcontext.AppContext) models.
 	userUploader := newUserUploader(appCtx)
 
 	userInfo := newUserInfo("customer")
-	moveInfo := scenario.MoveCreatorInfo{
+	moveInfo := MoveCreatorInfo{
 		UserID:      uuid.Must(uuid.NewV4()),
 		Email:       userInfo.email,
 		SmID:        uuid.Must(uuid.NewV4()),
@@ -3478,7 +3477,7 @@ func MakeDraftMoveWithPPMWithDepartureDate(appCtx appcontext.AppContext) models.
 		},
 	}
 
-	move, _ := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, nil, nil, assertions.PPMShipment)
+	move, _ := CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, nil, nil, assertions.PPMShipment)
 
 	// re-fetch the move so that we ensure we have exactly what is in
 	// the db
@@ -3499,7 +3498,7 @@ func MakeApprovedMoveWithPPMShipmentAndExcessWeight(appCtx appcontext.AppContext
 		},
 	}, nil)
 
-	moveInfo := scenario.MoveCreatorInfo{
+	moveInfo := MoveCreatorInfo{
 		UserID:           uuid.Must(uuid.NewV4()),
 		Email:            "excessweightsPPM@ppm.approved",
 		SmID:             uuid.Must(uuid.NewV4()),
@@ -3535,7 +3534,7 @@ func MakeApprovedMoveWithPPMShipmentAndExcessWeight(appCtx appcontext.AppContext
 		},
 	}
 
-	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	move, shipment := CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
 
 	factory.BuildWeightTicket(appCtx.DB(), []factory.Customization{
 		{

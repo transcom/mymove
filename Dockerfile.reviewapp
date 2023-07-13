@@ -60,6 +60,9 @@ COPY config/tls/dod-sw-ca-54.pem /config/tls/dod-sw-ca-54.pem
 COPY config/tls/devlocal-ca.key /config/tls/devlocal-ca.key
 COPY config/tls/devlocal-ca.pem /config/tls/devlocal-ca.pem
 
+# test data for generate-test-data
+COPY pkg/testdatagen/testdata /pkg/testdatagen/testdata
+
 # Install tools needed in container
 # hadolint ignore=DL3018
 RUN apk update && apk add ca-certificates --no-cache
@@ -67,6 +70,10 @@ RUN apk update && apk add ca-certificates --no-cache
 WORKDIR /
 
 USER nobody
+
+ENTRYPOINT ["/bin/sh", "-c", \
+  "/bin/milmove migrate" \
+  ]
 
 # build client after migrate since migrations don't need client
 
