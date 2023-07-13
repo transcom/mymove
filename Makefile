@@ -530,6 +530,9 @@ db_dev_migrate: db_dev_migrate_standalone ## Migrate Dev DB
 db_dev_psql: ## Open PostgreSQL shell for Dev DB
 	scripts/psql-dev
 
+.PHONY: db_dev_fresh
+db_dev_fresh: check_app db_dev_reset db_dev_migrate ## Recreate dev db from scratch and populate with devseed data
+
 .PHONY: db_dev_truncate
 db_dev_truncate: ## Truncate dev db
 	@echo "Truncate the ${DB_NAME_DEV} database..."
