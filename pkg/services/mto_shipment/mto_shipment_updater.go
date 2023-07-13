@@ -284,7 +284,6 @@ func (e StaleIdentifierError) Error() string {
 // UpdateMTOShipment updates the mto shipment
 func (f *mtoShipmentUpdater) UpdateMTOShipment(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error) {
 	eagerAssociations := []string{"MoveTaskOrder",
-		"MoveTaskOrder.Orders",
 		"PickupAddress",
 		"DestinationAddress",
 		"SecondaryPickupAddress",
@@ -772,7 +771,6 @@ func fetchShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID, builder U
 	}
 
 	err := builder.FetchOne(appCtx, &shipment, queryFilters)
-
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
