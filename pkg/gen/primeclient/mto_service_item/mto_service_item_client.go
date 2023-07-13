@@ -70,6 +70,7 @@ model type with the following codes:
   - DOFSIT - Domestic origin 1st day SIT
   - DOASIT - Domestic origin Additional day SIT
   - DOPSIT - Domestic origin SIT pickup
+  - DOSFSC - Domestic origin SIT fuel surcharge
 
 **DOASIT**
 
@@ -119,6 +120,7 @@ When a DDFSIT is requested, the API will auto-create the following group of serv
   - DDFSIT - Domestic destination 1st day SIT
   - DDASIT - Domestic destination Additional day SIT
   - DDDSIT - Domestic destination SIT delivery
+  - DDSFSC - Domestic destination SIT fuel surcharge
 
 **DDASIT**
 

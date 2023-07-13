@@ -39,7 +39,7 @@ func (p domesticDestinationSITDeliveryPricer) PriceUsingParams(appCtx appcontext
 		return unit.Cents(0), nil, err
 	}
 
-	serviceAreaDest, err := getParamString(params, models.ServiceItemParamNameServiceAreaDest)
+	serviceAreaDest, err := getParamString(params, models.ServiceItemParamNameSITServiceAreaDest)
 	if err != nil {
 		return unit.Cents(0), nil, err
 	}

@@ -63,7 +63,7 @@ func (w WebhookNotifications) String() string {
 }
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-func (w *WebhookNotification) Validate(tx *pop.Connection) (*validate.Errors, error) {
+func (w *WebhookNotification) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&OptionalRegexMatch{Field: &w.EventKey, Name: "EventKey", Expr: `\w+\.\w+`, Message: "Eventkey should be in Subject.Action format."},
 		&OptionalUUIDIsPresent{Field: w.TraceID, Name: "TraceID"},

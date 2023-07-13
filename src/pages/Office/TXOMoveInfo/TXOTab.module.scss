@@ -74,7 +74,7 @@
 
 .pageHeader {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
 
   h1 {
     flex-grow: 1;
@@ -92,6 +92,27 @@
   .pageHeaderDetails {
     color: $base;
     text-align: right;
+  }
+}
+
+.pageFooter {
+  display: flex;
+  @include u-margin-top(4);
+
+  h6 {
+    margin: 0;
+    line-height: 1.25;
+    text-transform: none;
+  }
+
+  h6 + h6 {
+    @include u-margin-top(2);
+  }
+
+  .pageFooterDetails {
+    color: $base;
+    text-align: left;
+    @include u-margin-bottom(64px);
   }
 }
 

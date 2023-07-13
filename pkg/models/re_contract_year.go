@@ -33,7 +33,7 @@ func (r ReContractYear) TableName() string {
 type ReContractYears []ReContractYear
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-func (r *ReContractYear) Validate(tx *pop.Connection) (*validate.Errors, error) {
+func (r *ReContractYear) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.UUIDIsPresent{Field: r.ContractID, Name: "ContractID"},
 		&validators.StringIsPresent{Field: r.Name, Name: "Name"},

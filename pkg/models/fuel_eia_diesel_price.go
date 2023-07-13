@@ -61,7 +61,7 @@ func FetchMostRecentFuelPrices(dbConnection *pop.Connection, clock clock.Clock, 
 }
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-func (f *FuelEIADieselPrice) Validate(tx *pop.Connection) (*validate.Errors, error) {
+func (f *FuelEIADieselPrice) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.TimeIsPresent{Field: f.PubDate, Name: "PubDate"},
 		&validators.TimeIsPresent{Field: f.RateStartDate, Name: "RateStartDate"},

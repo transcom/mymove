@@ -89,7 +89,7 @@ func (p PersonallyProcuredMove) TableName() string {
 type PersonallyProcuredMoves []PersonallyProcuredMove
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-func (p *PersonallyProcuredMove) Validate(tx *pop.Connection) (*validate.Errors, error) {
+func (p *PersonallyProcuredMove) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.StringIsPresent{Field: string(p.Status), Name: "Status"},
 	), nil
@@ -132,7 +132,7 @@ func (p *PersonallyProcuredMove) Cancel() error {
 }
 
 // FetchPersonallyProcuredMove Fetches and Validates a PPM model
-func FetchPersonallyProcuredMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*PersonallyProcuredMove, error) {
+func FetchPersonallyProcuredMove(db *pop.Connection, _ *auth.Session, id uuid.UUID) (*PersonallyProcuredMove, error) {
 	var ppm PersonallyProcuredMove
 	err := db.Q().Eager("Move.Orders.ServiceMember.DutyLocation.Address", "Move.Orders.NewDutyLocation.Address", "Advance").Find(&ppm, id)
 	if err != nil {

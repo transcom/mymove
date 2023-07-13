@@ -70,7 +70,7 @@ func (m MTOServiceItem) TableName() string {
 type MTOServiceItems []MTOServiceItem
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-func (m *MTOServiceItem) Validate(tx *pop.Connection) (*validate.Errors, error) {
+func (m *MTOServiceItem) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	var vs []validate.Validator
 	vs = append(vs, &validators.StringInclusion{Field: string(m.Status), Name: "Status", List: []string{
 		string(MTOServiceItemStatusSubmitted),
@@ -95,8 +95,8 @@ func FetchRelatedDestinationSITServiceItems(tx *pop.Connection, mtoServiceItemID
 		`SELECT msi.id
 			FROM mto_service_items msi
 			INNER JOIN re_services res ON msi.re_service_id = res.id
-			WHERE res.code IN (?, ?, ?) AND mto_shipment_id IN (
-				SELECT mto_shipment_id FROM mto_service_items WHERE id = ?)`, ReServiceCodeDDFSIT, ReServiceCodeDDASIT, ReServiceCodeDDDSIT, mtoServiceItemID).
+			WHERE res.code IN (?, ?, ?, ?) AND mto_shipment_id IN (
+				SELECT mto_shipment_id FROM mto_service_items WHERE id = ?)`, ReServiceCodeDDFSIT, ReServiceCodeDDASIT, ReServiceCodeDDDSIT, ReServiceCodeDDSFSC, mtoServiceItemID).
 		All(&relatedDestinationSITServiceItems)
 	return relatedDestinationSITServiceItems, err
 }

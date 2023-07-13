@@ -21,8 +21,8 @@ type adminUserFetcher struct {
 // FetchAdminUser fetches an admin user given a slice of filters
 func (o *adminUserFetcher) FetchAdminUser(appCtx appcontext.AppContext, filters []services.QueryFilter) (models.AdminUser, error) {
 	var adminUser models.AdminUser
-	error := o.builder.FetchOne(appCtx, &adminUser, filters)
-	return adminUser, error
+	err := o.builder.FetchOne(appCtx, &adminUser, filters)
+	return adminUser, err
 }
 
 // NewAdminUserFetcher return an implementation of the AdminUserFetcher interface

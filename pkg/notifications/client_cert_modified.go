@@ -48,7 +48,7 @@ func NewClientCertCreated(
 
 // NewClientCertUpdated returns a new ClientCertModified notification for cert modification
 func NewClientCertUpdated(
-	appCtx appcontext.AppContext,
+	_ appcontext.AppContext,
 	sysAdminEmail string,
 	modifiedClientCertID uuid.UUID,
 	modifiedAt time.Time,

@@ -3896,6 +3896,14 @@ definitions:
         title: >-
           Do you have a spouse who will need to move items related to their
           occupation (also known as spouse pro-gear)?
+      supplyAndServicesCostEstimate:
+        type: string
+      packingAndShippingInstructions:
+        type: string
+      methodOfPayment:
+        type: string
+      naics:
+        type: string
       eTag:
         type: string
     type: object
@@ -6012,12 +6020,12 @@ definitions:
       email:
         type: string
         format: x-email
-        pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
+        pattern: (^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$)|(^$)
         x-nullable: true
       phone:
         type: string
         format: telephone
-        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
+        pattern: (^[2-9]\d{2}-\d{3}-\d{4}$)|(^$)
         x-nullable: true
       agentType:
         type: string
@@ -6222,31 +6230,34 @@ definitions:
       $ref: '#/definitions/SITExtension'
   SITStatus:
     properties:
-      location:
-        enum:
-          - ORIGIN
-          - DESTINATION
       totalSITDaysUsed:
         type: integer
         minimum: 0
       totalDaysRemaining:
         type: integer
         minimum: 0
-      daysInSIT:
-        type: integer
-        minimum: 0
-      sitEntryDate:
-        type: string
-        format: date
-        x-nullable: true
-      sitDepartureDate:
-        type: string
-        format: date
-        x-nullable: true
-      sitAllowanceEndDate:
-        type: string
-        format: date
-        x-nullable: true
+      currentSIT:
+        type: object
+        properties:
+          location:
+            enum:
+              - ORIGIN
+              - DESTINATION
+          daysInSIT:
+            type: integer
+            minimum: 0
+          sitEntryDate:
+            type: string
+            format: date
+            x-nullable: true
+          sitDepartureDate:
+            type: string
+            format: date
+            x-nullable: true
+          sitAllowanceEndDate:
+            type: string
+            format: date
+            x-nullable: true
       pastSITServiceItems:
         $ref: '#/definitions/MTOServiceItems'
   PPMShipmentStatus:
@@ -7304,6 +7315,7 @@ definitions:
       - SITPaymentRequestStart
       - SITScheduleDest
       - SITScheduleOrigin
+      - SITServiceAreaDest
       - WeightAdjusted
       - WeightBilled
       - WeightEstimated

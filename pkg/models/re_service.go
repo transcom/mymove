@@ -31,6 +31,8 @@ const (
 	ReServiceCodeDDASIT ReServiceCode = "DDASIT"
 	// ReServiceCodeDDDSIT Domestic destination SIT delivery
 	ReServiceCodeDDDSIT ReServiceCode = "DDDSIT"
+	// ReServiceCodeDDSFSC Domestic destination SIT FSC
+	ReServiceCodeDDSFSC ReServiceCode = "DDSFSC"
 	// ReServiceCodeDDFSIT Domestic destination 1st day SIT
 	ReServiceCodeDDFSIT ReServiceCode = "DDFSIT"
 	// ReServiceCodeDDP Domestic destination price
@@ -51,6 +53,8 @@ const (
 	ReServiceCodeDOP ReServiceCode = "DOP"
 	// ReServiceCodeDOPSIT Domestic origin SIT pickup
 	ReServiceCodeDOPSIT ReServiceCode = "DOPSIT"
+	// ReServiceCodeDOSFSC Domestic origin SIT FSC
+	ReServiceCodeDOSFSC ReServiceCode = "DOSFSC"
 	// ReServiceCodeDOSHUT Domestic origin shuttle service
 	ReServiceCodeDOSHUT ReServiceCode = "DOSHUT"
 	// ReServiceCodeDPK Domestic packing
@@ -137,7 +141,7 @@ func (r ReService) TableName() string {
 type ReServices []ReService
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-func (r *ReService) Validate(tx *pop.Connection) (*validate.Errors, error) {
+func (r *ReService) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.StringIsPresent{Field: string(r.Code), Name: "Code"},
 		&validators.StringIsPresent{Field: r.Name, Name: "Name"},

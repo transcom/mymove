@@ -30,7 +30,7 @@ func (z Zip3Distance) TableName() string {
 type Zip3Distances []Zip3Distance
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-func (z *Zip3Distance) Validate(tx *pop.Connection) (*validate.Errors, error) {
+func (z *Zip3Distance) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.StringLengthInRange{Field: z.FromZip3, Name: "FromZip3", Min: 3, Max: 3},
 		&validators.StringLengthInRange{Field: z.ToZip3, Name: "ToZip3", Min: 3, Max: 3},

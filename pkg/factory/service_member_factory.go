@@ -194,3 +194,14 @@ func GetTraitServiceMemberSetIDs() []Customization {
 		},
 	}
 }
+
+// GetTraitServiceMemberUserActive sets the User as Active
+func GetTraitActiveServiceMemberUser() []Customization {
+	return []Customization{
+		{
+			Model: models.User{
+				Active: true,
+			},
+		},
+	}
+}

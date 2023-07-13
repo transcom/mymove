@@ -14,6 +14,7 @@ import { formatDateFromIso } from 'utils/formatters';
 import ServiceItemDetails from 'components/Office/ServiceItemDetails/ServiceItemDetails';
 import Restricted from 'components/Restricted/Restricted';
 import { permissionTypes } from 'constants/permissions';
+import { selectDateFieldByStatus } from 'utils/dates';
 
 const ServiceItemsTable = ({
   serviceItems,
@@ -24,21 +25,6 @@ const ServiceItemsTable = ({
   handleShowEditSitAddressModal,
   serviceItemAddressUpdateAlert,
 }) => {
-  let dateField;
-  switch (statusForTableType) {
-    case SERVICE_ITEM_STATUS.SUBMITTED:
-      dateField = 'createdAt';
-      break;
-    case SERVICE_ITEM_STATUS.APPROVED:
-      dateField = 'approvedAt';
-      break;
-    case SERVICE_ITEM_STATUS.REJECTED:
-      dateField = 'rejectedAt';
-      break;
-    default:
-      dateField = 'createdAt';
-  }
-
   const hasSITAddressUpdate = (sitAddressUpdates) => {
     const requestedAddressUpdates = sitAddressUpdates.filter((s) => s.status === SIT_ADDRESS_UPDATE_STATUS.REQUESTED);
     return requestedAddressUpdates.length > 0;
@@ -53,7 +39,7 @@ const ServiceItemsTable = ({
   };
 
   const tableRows = serviceItems.map((serviceItem, index) => {
-    const { id, code, details, mtoShipmentID, sitAddressUpdates, ...item } = serviceItem;
+    const { id, code, details, mtoShipmentID, sitAddressUpdates, serviceRequestDocuments, ...item } = serviceItem;
     const { makeVisible, alertType, alertMessage } = serviceItemAddressUpdateAlert;
 
     return (
@@ -79,10 +65,15 @@ const ServiceItemsTable = ({
         <tr key={id}>
           <td className={styles.nameAndDate}>
             <p className={styles.codeName}>{serviceItem.serviceItem}</p>
-            <p>{formatDateFromIso(item[`${dateField}`], 'DD MMM YYYY')}</p>
+            <p>{formatDateFromIso(item[`${selectDateFieldByStatus(statusForTableType)}`], 'DD MMM YYYY')}</p>
           </td>
           <td className={styles.detail}>
-            <ServiceItemDetails id={`service-${id}`} code={code} details={details} />
+            <ServiceItemDetails
+              id={`service-${id}`}
+              code={code}
+              details={details}
+              serviceRequestDocs={serviceRequestDocuments}
+            />
           </td>
           <td>
             {statusForTableType === SERVICE_ITEM_STATUS.SUBMITTED && (

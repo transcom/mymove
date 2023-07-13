@@ -92,7 +92,7 @@ func buildQuery(query *pop.Query, filters []services.QueryFilter, pagination ser
 	return query, nil
 }
 
-func paginatedQuery(query *pop.Query, pagination services.Pagination, t reflect.Type) (*pop.Query, error) {
+func paginatedQuery(query *pop.Query, pagination services.Pagination, _ reflect.Type) (*pop.Query, error) {
 	if pagination == nil {
 		return query, nil
 	}
@@ -485,7 +485,7 @@ func (p *Builder) QueryForAssociations(appCtx appcontext.AppContext, model inter
 	return nil
 }
 
-func associatedQuery(query *pop.Query, associations services.QueryAssociations, model interface{}) *pop.Query {
+func associatedQuery(query *pop.Query, associations services.QueryAssociations, _ interface{}) *pop.Query {
 	if associations == nil {
 		return query
 	}

@@ -144,9 +144,9 @@ func main() {
 
 	if resp == nil {
 		log.Fatal("Gex Sender had no response")
-	} else {
-		statusCode = resp.StatusCode
 	}
+
+	statusCode = resp.StatusCode
 
 	fmt.Printf("status code: %v, error: %v \n", statusCode, err)
 }

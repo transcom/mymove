@@ -32,6 +32,10 @@ export const OrderShape = PropTypes.shape({
   destinationDutyLocation: DutyLocationShape,
   originDutyLocation: DutyLocationShape,
   entitlement: EntitlementShape,
+  methodOfPayment: PropTypes.string,
+  packingAndShippingInstructions: PropTypes.string,
+  supplyAndServicesCostEstimate: PropTypes.string,
+  naics: PropTypes.string,
 });
 
 export const OrdersInfoShape = PropTypes.shape({

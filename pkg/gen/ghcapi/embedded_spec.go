@@ -5939,7 +5939,7 @@ func init() {
         "email": {
           "type": "string",
           "format": "x-email",
-          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "pattern": "(^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$)|(^$)",
           "x-nullable": true
         },
         "firstName": {
@@ -5963,7 +5963,7 @@ func init() {
         "phone": {
           "type": "string",
           "format": "telephone",
-          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "pattern": "(^[2-9]\\d{2}-\\d{3}-\\d{4}$)|(^$)",
           "x-nullable": true
         },
         "updatedAt": {
@@ -7121,6 +7121,9 @@ func init() {
           "readOnly": true,
           "example": "Doe"
         },
+        "methodOfPayment": {
+          "type": "string"
+        },
         "moveCode": {
           "type": "string",
           "example": "H2XFJF"
@@ -7129,6 +7132,9 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "naics": {
+          "type": "string"
         },
         "ntsSac": {
           "type": "string",
@@ -7157,6 +7163,9 @@ func init() {
         "originDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
         },
+        "packingAndShippingInstructions": {
+          "type": "string"
+        },
         "report_by_date": {
           "type": "string",
           "format": "date",
@@ -7172,6 +7181,9 @@ func init() {
           "type": "boolean",
           "title": "Do you have a spouse who will need to move items related to their occupation (also known as spouse pro-gear)?",
           "example": false
+        },
+        "supplyAndServicesCostEstimate": {
+          "type": "string"
         },
         "tac": {
           "type": "string",
@@ -8383,32 +8395,37 @@ func init() {
     },
     "SITStatus": {
       "properties": {
-        "daysInSIT": {
-          "type": "integer"
-        },
-        "location": {
-          "enum": [
-            "ORIGIN",
-            "DESTINATION"
-          ]
+        "currentSIT": {
+          "type": "object",
+          "properties": {
+            "daysInSIT": {
+              "type": "integer"
+            },
+            "location": {
+              "enum": [
+                "ORIGIN",
+                "DESTINATION"
+              ]
+            },
+            "sitAllowanceEndDate": {
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
+            "sitDepartureDate": {
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
+            "sitEntryDate": {
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            }
+          }
         },
         "pastSITServiceItems": {
           "$ref": "#/definitions/MTOServiceItems"
-        },
-        "sitAllowanceEndDate": {
-          "type": "string",
-          "format": "date",
-          "x-nullable": true
-        },
-        "sitDepartureDate": {
-          "type": "string",
-          "format": "date",
-          "x-nullable": true
-        },
-        "sitEntryDate": {
-          "type": "string",
-          "format": "date",
-          "x-nullable": true
         },
         "totalDaysRemaining": {
           "type": "integer"
@@ -8547,6 +8564,7 @@ func init() {
         "SITPaymentRequestStart",
         "SITScheduleDest",
         "SITScheduleOrigin",
+        "SITServiceAreaDest",
         "WeightAdjusted",
         "WeightBilled",
         "WeightEstimated",
@@ -16943,7 +16961,7 @@ func init() {
         "email": {
           "type": "string",
           "format": "x-email",
-          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "pattern": "(^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$)|(^$)",
           "x-nullable": true
         },
         "firstName": {
@@ -16967,7 +16985,7 @@ func init() {
         "phone": {
           "type": "string",
           "format": "telephone",
-          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "pattern": "(^[2-9]\\d{2}-\\d{3}-\\d{4}$)|(^$)",
           "x-nullable": true
         },
         "updatedAt": {
@@ -18125,6 +18143,9 @@ func init() {
           "readOnly": true,
           "example": "Doe"
         },
+        "methodOfPayment": {
+          "type": "string"
+        },
         "moveCode": {
           "type": "string",
           "example": "H2XFJF"
@@ -18133,6 +18154,9 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "naics": {
+          "type": "string"
         },
         "ntsSac": {
           "type": "string",
@@ -18161,6 +18185,9 @@ func init() {
         "originDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
         },
+        "packingAndShippingInstructions": {
+          "type": "string"
+        },
         "report_by_date": {
           "type": "string",
           "format": "date",
@@ -18176,6 +18203,9 @@ func init() {
           "type": "boolean",
           "title": "Do you have a spouse who will need to move items related to their occupation (also known as spouse pro-gear)?",
           "example": false
+        },
+        "supplyAndServicesCostEstimate": {
+          "type": "string"
         },
         "tac": {
           "type": "string",
@@ -19389,6 +19419,52 @@ func init() {
     },
     "SITStatus": {
       "properties": {
+        "currentSIT": {
+          "type": "object",
+          "properties": {
+            "daysInSIT": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "location": {
+              "enum": [
+                "ORIGIN",
+                "DESTINATION"
+              ]
+            },
+            "sitAllowanceEndDate": {
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
+            "sitDepartureDate": {
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
+            "sitEntryDate": {
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            }
+          }
+        },
+        "pastSITServiceItems": {
+          "$ref": "#/definitions/MTOServiceItems"
+        },
+        "totalDaysRemaining": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "totalSITDaysUsed": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "SITStatusCurrentSIT": {
+      "type": "object",
+      "properties": {
         "daysInSIT": {
           "type": "integer",
           "minimum": 0
@@ -19398,9 +19474,6 @@ func init() {
             "ORIGIN",
             "DESTINATION"
           ]
-        },
-        "pastSITServiceItems": {
-          "$ref": "#/definitions/MTOServiceItems"
         },
         "sitAllowanceEndDate": {
           "type": "string",
@@ -19416,14 +19489,6 @@ func init() {
           "type": "string",
           "format": "date",
           "x-nullable": true
-        },
-        "totalDaysRemaining": {
-          "type": "integer",
-          "minimum": 0
-        },
-        "totalSITDaysUsed": {
-          "type": "integer",
-          "minimum": 0
         }
       }
     },
@@ -19556,6 +19621,7 @@ func init() {
         "SITPaymentRequestStart",
         "SITScheduleDest",
         "SITScheduleOrigin",
+        "SITServiceAreaDest",
         "WeightAdjusted",
         "WeightBilled",
         "WeightEstimated",

@@ -60,6 +60,7 @@ type SessionManager interface {
 	Load(context.Context, string) (context.Context, error)
 	LoadAndSave(http.Handler) http.Handler
 	Store() scs.Store
+	SessionCookie() scs.SessionCookie
 }
 
 type ScsSessionManagerWrapper struct {
@@ -96,6 +97,10 @@ func (s ScsSessionManagerWrapper) LoadAndSave(next http.Handler) http.Handler {
 
 func (s ScsSessionManagerWrapper) Store() scs.Store {
 	return s.ScsSessionManager.Store
+}
+
+func (s ScsSessionManagerWrapper) SessionCookie() scs.SessionCookie {
+	return s.ScsSessionManager.Cookie
 }
 
 type AppSessionManagers struct {

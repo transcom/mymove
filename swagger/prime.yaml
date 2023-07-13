@@ -543,9 +543,11 @@ paths:
       description: >
         ### Functionality
 
-        This endpoint is used to **update** the addresses on an MTO Shipment.
-        The address details completely replace the original, except for the
-        UUID.
+        This endpoint is used to **update** the pickup and secondary addresses
+        on an MTO Shipment.
+        mto-shipments/{mtoShipmentID}/shipment-address-updates is for updating a
+        delivery address. The address details completely replace the original,
+        except for the UUID.
 
         Therefore a complete address should be sent in the request.
 
@@ -604,6 +606,76 @@ paths:
           description: Successfully updated the address.
           schema:
             $ref: '#/definitions/Address'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+  /mto-shipments/{mtoShipmentID}/shipment-address-updates:
+    post:
+      summary: createNonSITAddressUpdateRequest
+      description: >
+        ### Functionality
+
+        This endpoint is used so the Prime can request an **update** for the
+        destination address on an MTO Shipment,
+
+        after the destination address has already been approved.
+
+        This does not change addresses on SIT service items.
+
+        Address updates will be automatically approved unless they change:
+          - the service area
+          - Mileage bracket for direct delivery
+          - Domestic Short Haul to Domestic Line Haul or vice versa
+              - Shipments that start and end in one ZIP3 use Short Haul pricing
+              - Shipments that start and end in different ZIP3s use Line Haul pricing
+
+        For those, changes will require TOO approval.
+      operationId: createNonSITAddressUpdateRequest
+      tags:
+        - mtoShipment
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: mtoShipmentID
+          description: UUID of the shipment associated with the address
+          required: true
+          format: uuid
+          type: string
+        - in: body
+          required: true
+          name: body
+          schema:
+            $ref: '#/definitions/CreateNonSITAddressUpdateRequest'
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+          description: >
+            Needs to be the eTag of the mtoShipment. Optimistic locking is
+            implemented via the `If-Match` header. If the ETag header does not
+            match the value of the resource on the server, the server rejects
+            the change with a `412 Precondition Failed` error.
+      responses:
+        '201':
+          description: Successfully created the address update request.
+          schema:
+            $ref: '#/definitions/ShipmentAddressUpdate'
         '400':
           $ref: '#/responses/InvalidRequest'
         '401':
@@ -973,6 +1045,7 @@ paths:
           * DOFSIT - Domestic origin 1st day SIT
           * DOASIT - Domestic origin Additional day SIT
           * DOPSIT - Domestic origin SIT pickup
+          * DOSFSC - Domestic origin SIT fuel surcharge
 
         **DOASIT**
 
@@ -1036,6 +1109,7 @@ paths:
           * DDFSIT - Domestic destination 1st day SIT
           * DDASIT - Domestic destination Additional day SIT
           * DDDSIT - Domestic destination SIT delivery
+          * DDSFSC - Domestic destination SIT fuel surcharge
 
         **DDASIT**
 
@@ -2031,6 +2105,8 @@ definitions:
               The reason item has been placed in SIT.
             x-nullable: true
             x-omitempty: false
+          sitAddressUpdates:
+            $ref: '#/definitions/SitAddressUpdates'
         required:
           - reServiceCode
           - sitEntryDate
@@ -2456,6 +2532,8 @@ definitions:
           - DIVERSION_REQUESTED
       ppmShipment:
         $ref: '#/definitions/PPMShipment'
+      deliveryAddressUpdate:
+        $ref: '#/definitions/ShipmentAddressUpdate'
       eTag:
         description: >-
           A hash unique to this shipment that should be used as the "If-Match"
@@ -3001,6 +3079,25 @@ definitions:
       - PRIME
       - SYSTEM
       - TOO
+  CreateNonSITAddressUpdateRequest:
+    description: >-
+      CreateNonSITAddressUpdateRequest contains the fields required for the
+      prime to create a non SIT address update request.
+    type: object
+    properties:
+      newAddress:
+        $ref: '#/definitions/Address'
+      contractorRemarks:
+        type: string
+        example: >-
+          Customer reached out to me this week and let me know they want to move
+          somewhere else.
+        description: >-
+          This is the remark the Prime has entered, which would be the reason
+          there is an address change.
+    required:
+      - contractorRemarks
+      - newAddress
   CreateSITAddressUpdateRequest:
     description: >-
       CreateSITAddressUpdateRequest contains the fields required for the prime
@@ -3052,6 +3149,11 @@ definitions:
         type: string
         readOnly: true
     type: object
+  SitAddressUpdates:
+    description: A list of updates to a SIT service item address.
+    type: array
+    items:
+      $ref: '#/definitions/SitAddressUpdate'
   SitAddressUpdate:
     properties:
       id:
@@ -3071,6 +3173,13 @@ definitions:
         type: string
       newAddress:
         $ref: '#/definitions/Address'
+      oldAddressId:
+        example: 31a2ad3c-1682-4d5b-8423-ff40053a056b
+        format: uuid
+        readOnly: true
+        type: string
+      oldAddress:
+        $ref: '#/definitions/Address'
       status:
         $ref: '#/definitions/SitAddressUpdateStatus'
       distance:
@@ -3083,6 +3192,11 @@ definitions:
         example: >-
           Customer reached out to me this week & let me know they want to move
           closer to family.
+        x-nullable: true
+        x-omitempty: false
+      officeRemarks:
+        example: The customer has found a new house closer to base.
+        type: string
         x-nullable: true
         x-omitempty: false
       createdAt:
@@ -3766,6 +3880,7 @@ definitions:
       - SITPaymentRequestStart
       - SITScheduleDest
       - SITScheduleOrigin
+      - SITServiceAreaDest
       - WeightAdjusted
       - WeightBilled
       - WeightEstimated
@@ -3922,6 +4037,61 @@ definitions:
     enum:
       - ORIGIN
       - DESTINATION
+  ShipmentAddressUpdateStatus:
+    type: string
+    title: Status
+    readOnly: true
+    x-display-value:
+      REQUESTED: REQUESTED
+      REJECTED: REJECTED
+      APPROVED: APPROVED
+    enum:
+      - REQUESTED
+      - REJECTED
+      - APPROVED
+  ShipmentAddressUpdate:
+    description: >
+      This represents a destination address change request made by the Prime
+      that is either auto-approved or requires review if the pricing criteria
+      has changed. If criteria has changed, then it must be approved or rejected
+      by a TOO.
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      contractorRemarks:
+        type: string
+        example: This is a contractor remark
+        title: Contractor Remarks
+        description: The reason there is an address change.
+        readOnly: true
+      officeRemarks:
+        type: string
+        example: This is an office remark
+        title: Office Remarks
+        x-nullable: true
+        description: The TOO comment on approval or rejection.
+      status:
+        $ref: '#/definitions/ShipmentAddressUpdateStatus'
+      shipmentID:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      originalAddress:
+        $ref: '#/definitions/Address'
+      newAddress:
+        $ref: '#/definitions/Address'
+    required:
+      - id
+      - status
+      - shipmentID
+      - originalAddress
+      - newAddress
+      - contractorRemarks
   ExcessWeightRecord:
     description: >-
       A document uploaded by the movers proving that the customer has been

@@ -465,32 +465,36 @@ func Order(order *models.Order) *ghcmessages.Order {
 	}
 
 	payload := ghcmessages.Order{
-		DestinationDutyLocation:     destinationDutyLocation,
-		Entitlement:                 entitlements,
-		Grade:                       &grade,
-		OrderNumber:                 order.OrdersNumber,
-		OrderTypeDetail:             &ordersTypeDetail,
-		ID:                          strfmt.UUID(order.ID.String()),
-		OriginDutyLocation:          originDutyLocation,
-		ETag:                        etag.GenerateEtag(order.UpdatedAt),
-		Agency:                      &affiliation,
-		CustomerID:                  strfmt.UUID(order.ServiceMemberID.String()),
-		Customer:                    Customer(&order.ServiceMember),
-		FirstName:                   swag.StringValue(order.ServiceMember.FirstName),
-		LastName:                    swag.StringValue(order.ServiceMember.LastName),
-		ReportByDate:                strfmt.Date(order.ReportByDate),
-		DateIssued:                  strfmt.Date(order.IssueDate),
-		OrderType:                   ghcmessages.OrdersType(order.OrdersType),
-		DepartmentIndicator:         &deptIndicator,
-		Tac:                         handlers.FmtStringPtr(order.TAC),
-		Sac:                         handlers.FmtStringPtr(order.SAC),
-		NtsTac:                      handlers.FmtStringPtr(order.NtsTAC),
-		NtsSac:                      handlers.FmtStringPtr(order.NtsSAC),
-		UploadedOrderID:             strfmt.UUID(order.UploadedOrdersID.String()),
-		UploadedAmendedOrderID:      handlers.FmtUUIDPtr(order.UploadedAmendedOrdersID),
-		AmendedOrdersAcknowledgedAt: handlers.FmtDateTimePtr(order.AmendedOrdersAcknowledgedAt),
-		MoveCode:                    moveCode,
-		MoveTaskOrderID:             moveTaskOrderID,
+		DestinationDutyLocation:        destinationDutyLocation,
+		Entitlement:                    entitlements,
+		Grade:                          &grade,
+		OrderNumber:                    order.OrdersNumber,
+		OrderTypeDetail:                &ordersTypeDetail,
+		ID:                             strfmt.UUID(order.ID.String()),
+		OriginDutyLocation:             originDutyLocation,
+		ETag:                           etag.GenerateEtag(order.UpdatedAt),
+		Agency:                         &affiliation,
+		CustomerID:                     strfmt.UUID(order.ServiceMemberID.String()),
+		Customer:                       Customer(&order.ServiceMember),
+		FirstName:                      swag.StringValue(order.ServiceMember.FirstName),
+		LastName:                       swag.StringValue(order.ServiceMember.LastName),
+		ReportByDate:                   strfmt.Date(order.ReportByDate),
+		DateIssued:                     strfmt.Date(order.IssueDate),
+		OrderType:                      ghcmessages.OrdersType(order.OrdersType),
+		DepartmentIndicator:            &deptIndicator,
+		Tac:                            handlers.FmtStringPtr(order.TAC),
+		Sac:                            handlers.FmtStringPtr(order.SAC),
+		NtsTac:                         handlers.FmtStringPtr(order.NtsTAC),
+		NtsSac:                         handlers.FmtStringPtr(order.NtsSAC),
+		SupplyAndServicesCostEstimate:  order.SupplyAndServicesCostEstimate,
+		PackingAndShippingInstructions: order.PackingAndShippingInstructions,
+		MethodOfPayment:                order.MethodOfPayment,
+		Naics:                          order.NAICS,
+		UploadedOrderID:                strfmt.UUID(order.UploadedOrdersID.String()),
+		UploadedAmendedOrderID:         handlers.FmtUUIDPtr(order.UploadedAmendedOrdersID),
+		AmendedOrdersAcknowledgedAt:    handlers.FmtDateTimePtr(order.AmendedOrdersAcknowledgedAt),
+		MoveCode:                       moveCode,
+		MoveTaskOrderID:                moveTaskOrderID,
 	}
 
 	return &payload
@@ -664,20 +668,29 @@ func SITDurationUpdates(sitDurationUpdates *models.SITDurationUpdates) *ghcmessa
 	return &payload
 }
 
+func currentSIT(currentSIT *services.CurrentSIT) *ghcmessages.SITStatusCurrentSIT {
+	if currentSIT == nil {
+		return nil
+	}
+	return &ghcmessages.SITStatusCurrentSIT{
+		Location:            currentSIT.Location,
+		DaysInSIT:           handlers.FmtIntPtrToInt64(&currentSIT.DaysInSIT),
+		SitEntryDate:        handlers.FmtDate(currentSIT.SITEntryDate),
+		SitDepartureDate:    handlers.FmtDatePtr(currentSIT.SITDepartureDate),
+		SitAllowanceEndDate: handlers.FmtDate(currentSIT.SITAllowanceEndDate),
+	}
+}
+
 // SITStatus payload
 func SITStatus(shipmentSITStatuses *services.SITStatus, storer storage.FileStorer) *ghcmessages.SITStatus {
 	if shipmentSITStatuses == nil {
 		return nil
 	}
 	payload := &ghcmessages.SITStatus{
-		DaysInSIT:           handlers.FmtIntPtrToInt64(&shipmentSITStatuses.DaysInSIT),
-		TotalDaysRemaining:  handlers.FmtIntPtrToInt64(&shipmentSITStatuses.TotalDaysRemaining),
-		Location:            shipmentSITStatuses.Location,
 		PastSITServiceItems: MTOServiceItemModels(shipmentSITStatuses.PastSITs, storer),
-		SitDepartureDate:    handlers.FmtDatePtr(shipmentSITStatuses.SITDepartureDate),
-		SitAllowanceEndDate: handlers.FmtDate(shipmentSITStatuses.SITAllowanceEndDate),
-		SitEntryDate:        handlers.FmtDate(shipmentSITStatuses.SITEntryDate),
 		TotalSITDaysUsed:    handlers.FmtIntPtrToInt64(&shipmentSITStatuses.TotalSITDaysUsed),
+		TotalDaysRemaining:  handlers.FmtIntPtrToInt64(&shipmentSITStatuses.TotalDaysRemaining),
+		CurrentSIT:          currentSIT(shipmentSITStatuses.CurrentSIT),
 	}
 
 	return payload
@@ -699,7 +712,7 @@ func SITStatuses(shipmentSITStatuses map[string]services.SITStatus, storer stora
 }
 
 // PPMShipment payload
-func PPMShipment(storer storage.FileStorer, ppmShipment *models.PPMShipment) *ghcmessages.PPMShipment {
+func PPMShipment(_ storage.FileStorer, ppmShipment *models.PPMShipment) *ghcmessages.PPMShipment {
 	if ppmShipment == nil || ppmShipment.ID.IsNil() {
 		return nil
 	}
@@ -1554,6 +1567,10 @@ var (
 	QueuePaymentRequestRejected = "Rejected"
 	// QueuePaymentRequestPaid status PaymentRequest paid
 	QueuePaymentRequestPaid = "Paid"
+	// QueuePaymentRequestDeprecated status PaymentRequest deprecated
+	QueuePaymentRequestDeprecated = "Deprecated"
+	// QueuePaymentRequestError status PaymentRequest error
+	QueuePaymentRequestError = "Error"
 )
 
 // This is a helper function to calculate the inferred status needed for QueuePaymentRequest payload
@@ -1574,7 +1591,16 @@ func queuePaymentRequestStatus(paymentRequest models.PaymentRequest) string {
 		return QueuePaymentRequestRejected
 	}
 
-	return QueuePaymentRequestPaid
+	if paymentRequest.Status == models.PaymentRequestStatusPaid {
+		return QueuePaymentRequestPaid
+	}
+
+	if paymentRequest.Status == models.PaymentRequestStatusDeprecated {
+		return QueuePaymentRequestDeprecated
+	}
+
+	return QueuePaymentRequestError
+
 }
 
 // QueuePaymentRequests payload
@@ -1611,7 +1637,7 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests) *ghcmessages.
 }
 
 // Reweigh payload
-func Reweigh(reweigh *models.Reweigh, sitStatusPayload *ghcmessages.SITStatus) *ghcmessages.Reweigh {
+func Reweigh(reweigh *models.Reweigh, _ *ghcmessages.SITStatus) *ghcmessages.Reweigh {
 	if reweigh == nil || reweigh.ID == uuid.Nil {
 		return nil
 	}

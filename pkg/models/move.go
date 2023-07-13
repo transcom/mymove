@@ -98,7 +98,7 @@ type MoveOptions struct {
 type Moves []Move
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-func (m *Move) Validate(tx *pop.Connection) (*validate.Errors, error) {
+func (m *Move) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.StringIsPresent{Field: m.Locator, Name: "Locator"},
 		&validators.UUIDIsPresent{Field: m.OrdersID, Name: "OrdersID"},
@@ -129,7 +129,7 @@ func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, 
 	}
 
 	var shipments MTOShipments
-	err = db.Q().Scope(utilities.ExcludeDeletedScope()).Eager("MTOAgents",
+	err = db.Q().Scope(utilities.ExcludeDeletedScope()).Eager(
 		"PickupAddress",
 		"SecondaryPickupAddress",
 		"DestinationAddress",
@@ -140,6 +140,14 @@ func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, 
 		return nil, err
 	}
 
+	for i := range shipments {
+		var agents []MTOAgent
+		err = db.Scope(utilities.ExcludeDeletedScope()).Where("mto_shipment_id = ?", shipments[i].ID).All(&agents)
+		if err != nil {
+			return nil, err
+		}
+		shipments[i].MTOAgents = agents
+	}
 	move.MTOShipments = shipments
 
 	// Ensure that the logged-in user is authorized to access this move

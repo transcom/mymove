@@ -76,7 +76,8 @@ func (f moveTaskOrderFetcher) ListAllMoveTaskOrders(appCtx appcontext.AppContext
 		for i, serviceItem := range move.MTOServiceItems {
 			if serviceItem.ReService.Code == models.ReServiceCodeDDASIT ||
 				serviceItem.ReService.Code == models.ReServiceCodeDDDSIT ||
-				serviceItem.ReService.Code == models.ReServiceCodeDDFSIT {
+				serviceItem.ReService.Code == models.ReServiceCodeDDFSIT ||
+				serviceItem.ReService.Code == models.ReServiceCodeDDSFSC {
 				loadErr := appCtx.DB().Load(&move.MTOServiceItems[i], "CustomerContacts")
 				if loadErr != nil {
 					return models.Moves{}, apperror.NewQueryError("CustomerContacts", loadErr, "")
@@ -100,6 +101,7 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 		"PaymentRequests.ProofOfServiceDocs.PrimeUploads.Upload",
 		"MTOServiceItems.ReService",
 		"MTOServiceItems.Dimensions",
+		"MTOServiceItems.SITAddressUpdates",
 		"MTOServiceItems.SITDestinationFinalAddress",
 		"MTOServiceItems.SITOriginHHGOriginalAddress",
 		"MTOServiceItems.SITOriginHHGActualAddress",
@@ -112,6 +114,8 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 		"MTOShipments.SITDurationUpdates",
 		"MTOShipments.StorageFacility",
 		"MTOShipments.StorageFacility.Address",
+		"MTOShipments.DeliveryAddressUpdate",
+		"MTOShipments.DeliveryAddressUpdate.OriginalAddress",
 		"Orders.ServiceMember",
 		"Orders.ServiceMember.ResidentialAddress",
 		"Orders.Entitlement",
@@ -141,6 +145,23 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 			return &models.Move{}, apperror.NewNotFoundError(searchParams.MoveTaskOrderID, "")
 		default:
 			return &models.Move{}, apperror.NewQueryError("Move", err, "")
+		}
+	}
+
+	// Due to a bug in Pop for EagerPreload the New Address of the DeliveryAddressUpdate must be loaded manually.
+	// The bug occurs in EagerPreload when there are two or more eager paths with 3+ levels
+	// where the first 2 levels match.  For example:
+	//   "MTOShipments.DeliveryAddressUpdate.OriginalAddress" and "MTOShipments.DeliveryAddressUpdate.NewAddress"
+	// In those cases, only the last relationship is loaded in the results.  So, we can only do one of the paths
+	// in the EagerPreload above and request the second one explicitly with a separate Load call.
+	// For more, see: https://transcom.github.io/mymove-docs/docs/backend/setup/using-eagerpreload-in-pop#associations-with-3-path-elements-where-the-first-2-path-elements-match
+	for i := range mto.MTOShipments {
+		if mto.MTOShipments[i].DeliveryAddressUpdate == nil {
+			continue
+		}
+		loadErr := appCtx.DB().Load(mto.MTOShipments[i].DeliveryAddressUpdate, "NewAddress")
+		if loadErr != nil {
+			return &models.Move{}, apperror.NewQueryError("DeliveryAddressUpdate", loadErr, "")
 		}
 	}
 
@@ -175,8 +196,15 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 	}
 	mto.MTOShipments = filteredShipments
 
-	// Due to a Pop bug, we cannot fetch Customer Contacts with EagerPreload, this is due to a difference between what Pop expects
-	// the column names to be when creating the rows on the Many-to-Many table and with what it expects when fetching with EagerPreload
+	// Due to a Pop bug, we cannot fetch Customer Contacts with EagerPreload,
+	// this is due to a difference between what Pop expects the column names to
+	// be when creating the rows on the Many-to-Many table and with what it
+	// expects when fetching with EagerPreload
+	//
+	// Also due to how EagerPreload works, SITAddressUpdates.NewAddress &
+	// SITAddressUpdates.OldAddress appear to be duplicated because there are
+	// multiple relationships on the same table for SITAddressUpdates. We fix
+	// that by fetching the NewAddress and OldAddress data separately.
 	var loadedServiceItems models.MTOServiceItems
 	if mto.MTOServiceItems != nil {
 		loadedServiceItems = models.MTOServiceItems{}
@@ -184,10 +212,11 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 	for i, serviceItem := range mto.MTOServiceItems {
 		if serviceItem.ReService.Code == models.ReServiceCodeDDASIT ||
 			serviceItem.ReService.Code == models.ReServiceCodeDDDSIT ||
-			serviceItem.ReService.Code == models.ReServiceCodeDDFSIT {
-			loadErr := appCtx.DB().Load(&mto.MTOServiceItems[i], "CustomerContacts")
+			serviceItem.ReService.Code == models.ReServiceCodeDDFSIT ||
+			serviceItem.ReService.Code == models.ReServiceCodeDDSFSC {
+			loadErr := appCtx.DB().Load(&mto.MTOServiceItems[i], "CustomerContacts", "SITAddressUpdates.NewAddress", "SITAddressUpdates.OldAddress")
 			if loadErr != nil {
-				return &models.Move{}, apperror.NewQueryError("CustomerContacts", loadErr, "")
+				return &models.Move{}, apperror.NewQueryError("CustomerContacts or SITAddressUpdates.NewAddress or SITAddressUpdates.OldAddress", loadErr, "")
 			}
 		}
 
