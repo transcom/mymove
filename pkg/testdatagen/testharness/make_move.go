@@ -360,219 +360,26 @@ func MakeHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO(appCtx appconte
 	year, month, day := time.Now().Add(time.Hour * 24 * -60).Date()
 	threeMonthsAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
 	twoMonthsAgo := threeMonthsAgo.Add(time.Hour * 24 * 30)
-	postalCode := "90210"
-	reason := "peak season all trucks in use"
-
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:        models.MTOServiceItemStatusApproved,
-				SITEntryDate:  &threeMonthsAgo,
-				SITPostalCode: &postalCode,
-				Reason:        &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDOFSIT,
-			},
-		},
-		{
-			Model:    MTOShipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:        models.MTOServiceItemStatusApproved,
-				SITEntryDate:  &threeMonthsAgo,
-				SITPostalCode: &postalCode,
-				Reason:        &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDOASIT,
-			},
-		},
-		{
-			Model:    MTOShipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:           models.MTOServiceItemStatusApproved,
-				SITEntryDate:     &threeMonthsAgo,
-				SITDepartureDate: &twoMonthsAgo,
-				SITPostalCode:    &postalCode,
-				Reason:           &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDOPSIT,
-			},
-		},
-		{
-			Model:    MTOShipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:           models.MTOServiceItemStatusApproved,
-				SITEntryDate:     &threeMonthsAgo,
-				SITDepartureDate: &twoMonthsAgo,
-				SITPostalCode:    &postalCode,
-				Reason:           &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDOSFSC,
-			},
-		},
-		{
-			Model:    MTOShipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:        models.MTOServiceItemStatusApproved,
-				SITEntryDate:  &twoMonthsAgo,
-				SITPostalCode: &postalCode,
-				Reason:        &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDDFSIT,
-			},
-		},
-		{
-			Model:    MTOShipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:        models.MTOServiceItemStatusApproved,
-				SITEntryDate:  &twoMonthsAgo,
-				SITPostalCode: &postalCode,
-				Reason:        &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDDASIT,
-			},
-		},
-		{
-			Model:    MTOShipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:        models.MTOServiceItemStatusApproved,
-				SITEntryDate:  &twoMonthsAgo,
-				SITPostalCode: &postalCode,
-				Reason:        &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDDSFSC,
-			},
-		},
-		{
-			Model:    MTOShipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	dddsit := factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:        models.MTOServiceItemStatusApproved,
-				SITEntryDate:  &twoMonthsAgo,
-				SITPostalCode: &postalCode,
-				Reason:        &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDDDSIT,
-			},
-		},
-		{
-			Model:    MTOShipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	scenario.MakeSITExtensionsForShipment(appCtx, MTOShipment)
-
-	sitAddressUpdate := factory.BuildSITAddressUpdate(appCtx.DB(), []factory.Customization{
-		{
-			Model:    dddsit,
-			LinkOnly: true,
-		},
-	}, []factory.Trait{factory.GetTraitSITAddressUpdateOver50Miles})
-
-	originalAddress := sitAddressUpdate.OldAddress
-	dddsit.SITDestinationOriginalAddressID = &originalAddress.ID
-	dddsit.SITDestinationFinalAddressID = &originalAddress.ID
-	err := appCtx.DB().Update(&dddsit)
-	if err != nil {
-		log.Panic(fmt.Errorf("failed to update sit service item: %w", err))
+	factory.BuildOriginSITServiceItems(appCtx.DB(), mto, MTOShipment, &threeMonthsAgo, &twoMonthsAgo)
+	destSITItems := factory.BuildDestSITServiceItems(appCtx.DB(), mto, MTOShipment, &twoMonthsAgo, nil)
+	for i := range destSITItems {
+		if destSITItems[i].ReService.Code == models.ReServiceCodeDDDSIT {
+			sitAddressUpdate := factory.BuildSITAddressUpdate(appCtx.DB(), []factory.Customization{
+				{
+					Model:    destSITItems[i],
+					LinkOnly: true,
+				},
+			}, []factory.Trait{factory.GetTraitSITAddressUpdateOver50Miles})
+			originalAddress := sitAddressUpdate.OldAddress
+			destSITItems[i].SITDestinationOriginalAddressID = &originalAddress.ID
+			destSITItems[i].SITDestinationFinalAddressID = &originalAddress.ID
+			err := appCtx.DB().Update(&destSITItems[i])
+			if err != nil {
+				log.Panic(fmt.Errorf("failed to update sit service item: %w", err))
+			}
+		}
 	}
+	scenario.MakeSITExtensionsForShipment(appCtx, MTOShipment)
 
 	dcrtCost := unit.Cents(99999)
 	mtoServiceItemDCRT := testdatagen.MakeMTOServiceItemDomesticCrating(appCtx.DB(), testdatagen.Assertions{
@@ -3555,7 +3362,7 @@ func MakeApprovedMoveWithPPMShipmentAndExcessWeight(appCtx appcontext.AppContext
 	return move
 }
 
-func MakeHHGMoveIn200DaysSIT(appCtx appcontext.AppContext) models.Move {
+func MakeHHGMoveInSIT(appCtx appcontext.AppContext) models.Move {
 	userUploader := newUserUploader(appCtx)
 	userInfo := newUserInfo("customer")
 
@@ -3581,7 +3388,7 @@ func MakeHHGMoveIn200DaysSIT(appCtx appcontext.AppContext) models.Move {
 		},
 	}, nil)
 	dependentsAuthorized := true
-	sitDaysAllowance := 200
+	sitDaysAllowance := 90
 	entitlements := factory.BuildEntitlement(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.Entitlement{
@@ -3608,7 +3415,7 @@ func MakeHHGMoveIn200DaysSIT(appCtx appcontext.AppContext) models.Move {
 		},
 	}, nil)
 	now := time.Now()
-	mto := factory.BuildMove(appCtx.DB(), []factory.Customization{
+	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
 		{
 			Model:    orders,
 			LinkOnly: true,
@@ -3623,11 +3430,11 @@ func MakeHHGMoveIn200DaysSIT(appCtx appcontext.AppContext) models.Move {
 	estimatedWeight := unit.Pound(1400)
 	actualWeight := unit.Pound(2000)
 
-	requestedPickupDate := time.Now().AddDate(0, 3, 0)
+	requestedPickupDate := now.AddDate(0, 3, 0)
 	requestedDeliveryDate := requestedPickupDate.AddDate(0, 1, 0)
 	// pickupAddress := factory.BuildAddress(appCtx.DB(), nil, nil)
 
-	MTOShipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+	shipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.MTOShipment{
 				PrimeEstimatedWeight:  &estimatedWeight,
@@ -3640,7 +3447,7 @@ func MakeHHGMoveIn200DaysSIT(appCtx appcontext.AppContext) models.Move {
 			},
 		},
 		{
-			Model:    mto,
+			Model:    move,
 			LinkOnly: true,
 		},
 	}, nil)
@@ -3648,7 +3455,7 @@ func MakeHHGMoveIn200DaysSIT(appCtx appcontext.AppContext) models.Move {
 	agentUserInfo := newUserInfo("agent")
 	factory.BuildMTOAgent(appCtx.DB(), []factory.Customization{
 		{
-			Model:    MTOShipment,
+			Model:    shipment,
 			LinkOnly: true,
 		},
 		{Model: models.MTOAgent{
@@ -3660,226 +3467,34 @@ func MakeHHGMoveIn200DaysSIT(appCtx appcontext.AppContext) models.Move {
 		},
 	}, nil)
 
-	year, month, day := time.Now().Add(time.Hour * 24 * -60).Date()
-	threeMonthsAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
-	twoMonthsAgo := threeMonthsAgo.Add(time.Hour * 24 * 30)
-	postalCode := "90210"
-	reason := "peak season all trucks in use"
+	twoMonthsAgo := now.AddDate(0, -2, 0)
+	oneMonthAgo := now.AddDate(0, -1, 0)
+	factory.BuildOriginSITServiceItems(appCtx.DB(), move, shipment, &twoMonthsAgo, &oneMonthAgo)
+	destSITItems := factory.BuildDestSITServiceItems(appCtx.DB(), move, shipment, &oneMonthAgo, nil)
+	for i := range destSITItems {
+		if destSITItems[i].ReService.Code == models.ReServiceCodeDDDSIT {
+			sitAddressUpdate := factory.BuildSITAddressUpdate(appCtx.DB(), []factory.Customization{
+				{
+					Model:    destSITItems[i],
+					LinkOnly: true,
+				},
+			}, []factory.Trait{factory.GetTraitSITAddressUpdateOver50Miles})
 
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:        models.MTOServiceItemStatusApproved,
-				SITEntryDate:  &threeMonthsAgo,
-				SITPostalCode: &postalCode,
-				Reason:        &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDOFSIT,
-			},
-		},
-		{
-			Model:    MTOShipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:        models.MTOServiceItemStatusApproved,
-				SITEntryDate:  &threeMonthsAgo,
-				SITPostalCode: &postalCode,
-				Reason:        &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDOASIT,
-			},
-		},
-		{
-			Model:    MTOShipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:           models.MTOServiceItemStatusApproved,
-				SITEntryDate:     &threeMonthsAgo,
-				SITDepartureDate: &twoMonthsAgo,
-				SITPostalCode:    &postalCode,
-				Reason:           &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDOPSIT,
-			},
-		},
-		{
-			Model:    MTOShipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:           models.MTOServiceItemStatusApproved,
-				SITEntryDate:     &threeMonthsAgo,
-				SITDepartureDate: &twoMonthsAgo,
-				SITPostalCode:    &postalCode,
-				Reason:           &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDOSFSC,
-			},
-		},
-		{
-			Model:    MTOShipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:        models.MTOServiceItemStatusApproved,
-				SITEntryDate:  &twoMonthsAgo,
-				SITPostalCode: &postalCode,
-				Reason:        &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDDFSIT,
-			},
-		},
-		{
-			Model:    MTOShipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:        models.MTOServiceItemStatusApproved,
-				SITEntryDate:  &twoMonthsAgo,
-				SITPostalCode: &postalCode,
-				Reason:        &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDDASIT,
-			},
-		},
-		{
-			Model:    MTOShipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:        models.MTOServiceItemStatusApproved,
-				SITEntryDate:  &twoMonthsAgo,
-				SITPostalCode: &postalCode,
-				Reason:        &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDDSFSC,
-			},
-		},
-		{
-			Model:    MTOShipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	dddsit := factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:        models.MTOServiceItemStatusApproved,
-				SITEntryDate:  &twoMonthsAgo,
-				SITPostalCode: &postalCode,
-				Reason:        &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDDDSIT,
-			},
-		},
-		{
-			Model:    MTOShipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	sitAddressUpdate := factory.BuildSITAddressUpdate(appCtx.DB(), []factory.Customization{
-		{
-			Model:    dddsit,
-			LinkOnly: true,
-		},
-	}, []factory.Trait{factory.GetTraitSITAddressUpdateOver50Miles})
-
-	originalAddress := sitAddressUpdate.OldAddress
-	finalAddress := sitAddressUpdate.NewAddress
-	dddsit.SITDestinationOriginalAddressID = &originalAddress.ID
-	dddsit.SITDestinationFinalAddressID = &finalAddress.ID
-	err := appCtx.DB().Update(&dddsit)
-	if err != nil {
-		log.Panic(fmt.Errorf("failed to update sit service item: %w", err))
+			originalAddress := sitAddressUpdate.OldAddress
+			finalAddress := sitAddressUpdate.NewAddress
+			destSITItems[i].SITDestinationOriginalAddressID = &originalAddress.ID
+			destSITItems[i].SITDestinationFinalAddressID = &finalAddress.ID
+			err := appCtx.DB().Update(&destSITItems[i])
+			if err != nil {
+				log.Panic(fmt.Errorf("failed to update sit service item: %w", err))
+			}
+		}
 	}
 
-	return mto
+	return move
 }
 
-func MakeHHGMoveIn200DaysSITWithPendingExtension(appCtx appcontext.AppContext) models.Move {
+func MakeHHGMoveInSITWithPendingExtension(appCtx appcontext.AppContext) models.Move {
 	userUploader := newUserUploader(appCtx)
 	userInfo := newUserInfo("customer")
 
@@ -3905,7 +3520,7 @@ func MakeHHGMoveIn200DaysSITWithPendingExtension(appCtx appcontext.AppContext) m
 		},
 	}, nil)
 	dependentsAuthorized := true
-	sitDaysAllowance := 200
+	sitDaysAllowance := 90
 	entitlements := factory.BuildEntitlement(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.Entitlement{
@@ -3932,7 +3547,7 @@ func MakeHHGMoveIn200DaysSITWithPendingExtension(appCtx appcontext.AppContext) m
 		},
 	}, nil)
 	now := time.Now()
-	mto := factory.BuildMove(appCtx.DB(), []factory.Customization{
+	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
 		{
 			Model:    orders,
 			LinkOnly: true,
@@ -3947,11 +3562,11 @@ func MakeHHGMoveIn200DaysSITWithPendingExtension(appCtx appcontext.AppContext) m
 	estimatedWeight := unit.Pound(1400)
 	actualWeight := unit.Pound(2000)
 
-	requestedPickupDate := time.Now().AddDate(0, 3, 0)
+	requestedPickupDate := now.AddDate(0, 3, 0)
 	requestedDeliveryDate := requestedPickupDate.AddDate(0, 1, 0)
 	// pickupAddress := factory.BuildAddress(appCtx.DB(), nil, nil)
 
-	MTOShipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+	shipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.MTOShipment{
 				PrimeEstimatedWeight:  &estimatedWeight,
@@ -3964,7 +3579,7 @@ func MakeHHGMoveIn200DaysSITWithPendingExtension(appCtx appcontext.AppContext) m
 			},
 		},
 		{
-			Model:    mto,
+			Model:    move,
 			LinkOnly: true,
 		},
 	}, nil)
@@ -3972,7 +3587,7 @@ func MakeHHGMoveIn200DaysSITWithPendingExtension(appCtx appcontext.AppContext) m
 	agentUserInfo := newUserInfo("agent")
 	factory.BuildMTOAgent(appCtx.DB(), []factory.Customization{
 		{
-			Model:    MTOShipment,
+			Model:    shipment,
 			LinkOnly: true,
 		},
 		{Model: models.MTOAgent{
@@ -3984,230 +3599,37 @@ func MakeHHGMoveIn200DaysSITWithPendingExtension(appCtx appcontext.AppContext) m
 		},
 	}, nil)
 
-	year, month, day := time.Now().Add(time.Hour * 24 * -60).Date()
-	threeMonthsAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
-	twoMonthsAgo := threeMonthsAgo.Add(time.Hour * 24 * 30)
-	postalCode := "90210"
-	reason := "peak season all trucks in use"
+	twoMonthsAgo := now.AddDate(0, -2, 0)
+	oneMonthAgo := now.AddDate(0, -1, 0)
+	factory.BuildOriginSITServiceItems(appCtx.DB(), move, shipment, &twoMonthsAgo, &oneMonthAgo)
+	destSITItems := factory.BuildDestSITServiceItems(appCtx.DB(), move, shipment, &oneMonthAgo, nil)
+	for i := range destSITItems {
+		if destSITItems[i].ReService.Code == models.ReServiceCodeDDDSIT {
+			sitAddressUpdate := factory.BuildSITAddressUpdate(appCtx.DB(), []factory.Customization{
+				{
+					Model:    destSITItems[i],
+					LinkOnly: true,
+				},
+			}, []factory.Trait{factory.GetTraitSITAddressUpdateUnder50Miles})
 
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:        models.MTOServiceItemStatusApproved,
-				SITEntryDate:  &threeMonthsAgo,
-				SITPostalCode: &postalCode,
-				Reason:        &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDOFSIT,
-			},
-		},
-		{
-			Model:    MTOShipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:        models.MTOServiceItemStatusApproved,
-				SITEntryDate:  &threeMonthsAgo,
-				SITPostalCode: &postalCode,
-				Reason:        &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDOASIT,
-			},
-		},
-		{
-			Model:    MTOShipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:           models.MTOServiceItemStatusApproved,
-				SITEntryDate:     &threeMonthsAgo,
-				SITDepartureDate: &twoMonthsAgo,
-				SITPostalCode:    &postalCode,
-				Reason:           &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDOPSIT,
-			},
-		},
-		{
-			Model:    MTOShipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:           models.MTOServiceItemStatusApproved,
-				SITEntryDate:     &threeMonthsAgo,
-				SITDepartureDate: &twoMonthsAgo,
-				SITPostalCode:    &postalCode,
-				Reason:           &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDOSFSC,
-			},
-		},
-		{
-			Model:    MTOShipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:        models.MTOServiceItemStatusApproved,
-				SITEntryDate:  &twoMonthsAgo,
-				SITPostalCode: &postalCode,
-				Reason:        &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDDFSIT,
-			},
-		},
-		{
-			Model:    MTOShipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:        models.MTOServiceItemStatusApproved,
-				SITEntryDate:  &twoMonthsAgo,
-				SITPostalCode: &postalCode,
-				Reason:        &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDDASIT,
-			},
-		},
-		{
-			Model:    MTOShipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:        models.MTOServiceItemStatusApproved,
-				SITEntryDate:  &twoMonthsAgo,
-				SITPostalCode: &postalCode,
-				Reason:        &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDDSFSC,
-			},
-		},
-		{
-			Model:    MTOShipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	dddsit := factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:        models.MTOServiceItemStatusApproved,
-				SITEntryDate:  &twoMonthsAgo,
-				SITPostalCode: &postalCode,
-				Reason:        &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDDDSIT,
-			},
-		},
-		{
-			Model:    MTOShipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	sitAddressUpdate := factory.BuildSITAddressUpdate(appCtx.DB(), []factory.Customization{
-		{
-			Model:    dddsit,
-			LinkOnly: true,
-		},
-	}, []factory.Trait{factory.GetTraitSITAddressUpdateUnder50Miles})
-
-	originalAddress := sitAddressUpdate.OldAddress
-	finalAddress := sitAddressUpdate.NewAddress
-	dddsit.SITDestinationOriginalAddressID = &originalAddress.ID
-	dddsit.SITDestinationFinalAddressID = &finalAddress.ID
-	err := appCtx.DB().Update(&dddsit)
-	if err != nil {
-		log.Panic(fmt.Errorf("failed to update sit service item: %w", err))
+			originalAddress := sitAddressUpdate.OldAddress
+			finalAddress := sitAddressUpdate.NewAddress
+			destSITItems[i].SITDestinationOriginalAddressID = &originalAddress.ID
+			destSITItems[i].SITDestinationFinalAddressID = &finalAddress.ID
+			err := appCtx.DB().Update(&destSITItems[i])
+			if err != nil {
+				log.Panic(fmt.Errorf("failed to update sit service item: %w", err))
+			}
+		}
 	}
-
 	factory.BuildSITDurationUpdate(appCtx.DB(), []factory.Customization{
 		{
-			Model:    MTOShipment,
+			Model:    shipment,
 			LinkOnly: true,
 		},
 	}, nil)
 
-	return mto
+	return move
 }
 
 func MakeHHGMoveInSITWithAddressChangeRequestOver50Miles(appCtx appcontext.AppContext) models.Move {
@@ -4230,7 +3652,7 @@ func MakeHHGMoveInSITWithAddressChangeRequestOver50Miles(appCtx appcontext.AppCo
 		},
 	}, nil)
 
-	sitDaysAllowance := 200
+	sitDaysAllowance := 90
 	orders := factory.BuildOrder(appCtx.DB(), []factory.Customization{
 		{
 			Model:    customer,
@@ -4251,6 +3673,7 @@ func MakeHHGMoveInSITWithAddressChangeRequestOver50Miles(appCtx appcontext.AppCo
 		},
 	}, nil)
 
+	now := time.Now()
 	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
 		{
 			Model:    orders,
@@ -4259,12 +3682,12 @@ func MakeHHGMoveInSITWithAddressChangeRequestOver50Miles(appCtx appcontext.AppCo
 		{
 			Model: models.Move{
 				Status:             models.MoveStatusAPPROVED,
-				AvailableToPrimeAt: models.TimePointer(time.Now()),
+				AvailableToPrimeAt: models.TimePointer(now),
 			},
 		},
 	}, nil)
 
-	requestedPickupDate := time.Now().AddDate(0, 3, 0)
+	requestedPickupDate := now.AddDate(0, 3, 0)
 	requestedDeliveryDate := requestedPickupDate.AddDate(0, 1, 0)
 
 	shipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
@@ -4285,227 +3708,35 @@ func MakeHHGMoveInSITWithAddressChangeRequestOver50Miles(appCtx appcontext.AppCo
 		},
 	}, nil)
 
-	year, month, day := time.Now().Add(time.Hour * 24 * -60).Date()
-	threeMonthsAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
-	twoMonthsAgo := threeMonthsAgo.Add(time.Hour * 24 * 30)
-	postalCode := "90210"
-	reason := "peak season all trucks in use"
+	twoMonthsAgo := now.AddDate(0, -2, 0)
+	oneMonthAgo := now.AddDate(0, -1, 0)
+	factory.BuildOriginSITServiceItems(appCtx.DB(), move, shipment, &twoMonthsAgo, &oneMonthAgo)
+	destSITItems := factory.BuildDestSITServiceItems(appCtx.DB(), move, shipment, &oneMonthAgo, nil)
+	for i := range destSITItems {
+		if destSITItems[i].ReService.Code == models.ReServiceCodeDDDSIT {
+			sitAddressUpdate := factory.BuildSITAddressUpdate(appCtx.DB(), []factory.Customization{
+				{
+					Model:    destSITItems[i],
+					LinkOnly: true,
+				},
+			}, []factory.Trait{factory.GetTraitSITAddressUpdateOver50Miles})
 
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:        models.MTOServiceItemStatusApproved,
-				SITEntryDate:  &threeMonthsAgo,
-				SITPostalCode: &postalCode,
-				Reason:        &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDOFSIT,
-			},
-		},
-		{
-			Model:    shipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    move,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:        models.MTOServiceItemStatusApproved,
-				SITEntryDate:  &threeMonthsAgo,
-				SITPostalCode: &postalCode,
-				Reason:        &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDOASIT,
-			},
-		},
-		{
-			Model:    shipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    move,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:           models.MTOServiceItemStatusApproved,
-				SITEntryDate:     &threeMonthsAgo,
-				SITDepartureDate: &twoMonthsAgo,
-				SITPostalCode:    &postalCode,
-				Reason:           &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDOPSIT,
-			},
-		},
-		{
-			Model:    shipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    move,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:           models.MTOServiceItemStatusApproved,
-				SITEntryDate:     &threeMonthsAgo,
-				SITDepartureDate: &twoMonthsAgo,
-				SITPostalCode:    &postalCode,
-				Reason:           &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDOSFSC,
-			},
-		},
-		{
-			Model:    shipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    move,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:        models.MTOServiceItemStatusApproved,
-				SITEntryDate:  &twoMonthsAgo,
-				SITPostalCode: &postalCode,
-				Reason:        &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDDFSIT,
-			},
-		},
-		{
-			Model:    shipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    move,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:        models.MTOServiceItemStatusApproved,
-				SITEntryDate:  &twoMonthsAgo,
-				SITPostalCode: &postalCode,
-				Reason:        &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDDASIT,
-			},
-		},
-		{
-			Model:    shipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    move,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:        models.MTOServiceItemStatusApproved,
-				SITEntryDate:  &twoMonthsAgo,
-				SITPostalCode: &postalCode,
-				Reason:        &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDDSFSC,
-			},
-		},
-		{
-			Model:    shipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    move,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	dddsit := factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:        models.MTOServiceItemStatusApproved,
-				SITEntryDate:  &twoMonthsAgo,
-				SITPostalCode: &postalCode,
-				Reason:        &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDDDSIT,
-			},
-		},
-		{
-			Model:    shipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    move,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	sitAddressUpdate := factory.BuildSITAddressUpdate(appCtx.DB(), []factory.Customization{
-		{
-			Model:    dddsit,
-			LinkOnly: true,
-		},
-	}, []factory.Trait{factory.GetTraitSITAddressUpdateOver50Miles})
-
-	originalAddress := sitAddressUpdate.OldAddress
-	dddsit.SITDestinationOriginalAddressID = &originalAddress.ID
-	dddsit.SITDestinationFinalAddressID = &originalAddress.ID
-	err := appCtx.DB().Update(&dddsit)
-	if err != nil {
-		log.Panic(fmt.Errorf("failed to update sit service item: %w", err))
+			originalAddress := sitAddressUpdate.OldAddress
+			destSITItems[i].SITDestinationOriginalAddressID = &originalAddress.ID
+			destSITItems[i].SITDestinationFinalAddressID = &originalAddress.ID
+			err := appCtx.DB().Update(&destSITItems[i])
+			if err != nil {
+				log.Panic(fmt.Errorf("failed to update sit service item: %w", err))
+			}
+		}
 	}
 
-	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
+	newMove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
 		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 
-	return *newmove
+	return *newMove
 }
 
 func MakeHHGMoveInSITWithAddressChangeRequestUnder50Miles(appCtx appcontext.AppContext) models.Move {
@@ -4535,7 +3766,7 @@ func MakeHHGMoveInSITWithAddressChangeRequestUnder50Miles(appCtx appcontext.AppC
 	}, nil)
 
 	dependentsAuthorized := true
-	sitDaysAllowance := 200
+	sitDaysAllowance := 90
 	entitlements := factory.BuildEntitlement(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.Entitlement{
@@ -4564,7 +3795,7 @@ func MakeHHGMoveInSITWithAddressChangeRequestUnder50Miles(appCtx appcontext.AppC
 	}, nil)
 
 	now := time.Now()
-	mto := factory.BuildMove(appCtx.DB(), []factory.Customization{
+	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
 		{
 			Model:    orders,
 			LinkOnly: true,
@@ -4577,10 +3808,10 @@ func MakeHHGMoveInSITWithAddressChangeRequestUnder50Miles(appCtx appcontext.AppC
 		},
 	}, nil)
 
-	requestedPickupDate := time.Now().AddDate(0, 3, 0)
+	requestedPickupDate := now.AddDate(0, 3, 0)
 	requestedDeliveryDate := requestedPickupDate.AddDate(0, 1, 0)
 
-	MTOshipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+	shipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.MTOShipment{
 				PrimeEstimatedWeight:  models.PoundPointer(unit.Pound(1400)),
@@ -4593,7 +3824,7 @@ func MakeHHGMoveInSITWithAddressChangeRequestUnder50Miles(appCtx appcontext.AppC
 			},
 		},
 		{
-			Model:    mto,
+			Model:    move,
 			LinkOnly: true,
 		},
 	}, nil)
@@ -4601,7 +3832,7 @@ func MakeHHGMoveInSITWithAddressChangeRequestUnder50Miles(appCtx appcontext.AppC
 	agentUserInfo := newUserInfo("agent")
 	factory.BuildMTOAgent(appCtx.DB(), []factory.Customization{
 		{
-			Model:    MTOshipment,
+			Model:    shipment,
 			LinkOnly: true,
 		},
 		{Model: models.MTOAgent{
@@ -4613,231 +3844,39 @@ func MakeHHGMoveInSITWithAddressChangeRequestUnder50Miles(appCtx appcontext.AppC
 		},
 	}, nil)
 
-	year, month, day := time.Now().Add(time.Hour * 24 * -60).Date()
-	threeMonthsAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
-	twoMonthsAgo := threeMonthsAgo.Add(time.Hour * 24 * 30)
-	postalCode := "90210"
-	reason := "peak season all trucks in use"
+	twoMonthsAgo := now.AddDate(0, -2, 0)
+	oneMonthAgo := now.AddDate(0, -1, 0)
+	factory.BuildOriginSITServiceItems(appCtx.DB(), move, shipment, &twoMonthsAgo, &oneMonthAgo)
+	destSITItems := factory.BuildDestSITServiceItems(appCtx.DB(), move, shipment, &oneMonthAgo, nil)
+	for i := range destSITItems {
+		if destSITItems[i].ReService.Code == models.ReServiceCodeDDDSIT {
+			sitAddressUpdate := factory.BuildSITAddressUpdate(appCtx.DB(), []factory.Customization{
+				{
+					Model:    destSITItems[i],
+					LinkOnly: true,
+				},
+			}, []factory.Trait{factory.GetTraitSITAddressUpdateUnder50Miles})
 
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:        models.MTOServiceItemStatusApproved,
-				SITEntryDate:  &threeMonthsAgo,
-				SITPostalCode: &postalCode,
-				Reason:        &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDOFSIT,
-			},
-		},
-		{
-			Model:    MTOshipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:        models.MTOServiceItemStatusApproved,
-				SITEntryDate:  &threeMonthsAgo,
-				SITPostalCode: &postalCode,
-				Reason:        &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDOASIT,
-			},
-		},
-		{
-			Model:    MTOshipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:           models.MTOServiceItemStatusApproved,
-				SITEntryDate:     &threeMonthsAgo,
-				SITDepartureDate: &twoMonthsAgo,
-				SITPostalCode:    &postalCode,
-				Reason:           &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDOPSIT,
-			},
-		},
-		{
-			Model:    MTOshipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:           models.MTOServiceItemStatusApproved,
-				SITEntryDate:     &threeMonthsAgo,
-				SITDepartureDate: &twoMonthsAgo,
-				SITPostalCode:    &postalCode,
-				Reason:           &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDOSFSC,
-			},
-		},
-		{
-			Model:    MTOshipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:        models.MTOServiceItemStatusApproved,
-				SITEntryDate:  &twoMonthsAgo,
-				SITPostalCode: &postalCode,
-				Reason:        &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDDFSIT,
-			},
-		},
-		{
-			Model:    MTOshipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:        models.MTOServiceItemStatusApproved,
-				SITEntryDate:  &twoMonthsAgo,
-				SITPostalCode: &postalCode,
-				Reason:        &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDDASIT,
-			},
-		},
-		{
-			Model:    MTOshipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:        models.MTOServiceItemStatusApproved,
-				SITEntryDate:  &twoMonthsAgo,
-				SITPostalCode: &postalCode,
-				Reason:        &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDDSFSC,
-			},
-		},
-		{
-			Model:    MTOshipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	dddsit := factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:        models.MTOServiceItemStatusApproved,
-				SITEntryDate:  &twoMonthsAgo,
-				SITPostalCode: &postalCode,
-				Reason:        &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDDDSIT,
-			},
-		},
-		{
-			Model:    MTOshipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	sitAddressUpdate := factory.BuildSITAddressUpdate(appCtx.DB(), []factory.Customization{
-		{
-			Model:    dddsit,
-			LinkOnly: true,
-		},
-	}, []factory.Trait{factory.GetTraitSITAddressUpdateUnder50Miles})
-
-	originalAddress := sitAddressUpdate.OldAddress
-	finalAddress := sitAddressUpdate.NewAddress
-	dddsit.SITDestinationOriginalAddressID = &originalAddress.ID
-	dddsit.SITDestinationFinalAddressID = &finalAddress.ID
-	err := appCtx.DB().Update(&dddsit)
-	if err != nil {
-		log.Panic(fmt.Errorf("failed to update sit service item: %w", err))
+			originalAddress := sitAddressUpdate.OldAddress
+			finalAddress := sitAddressUpdate.NewAddress
+			destSITItems[i].SITDestinationOriginalAddressID = &originalAddress.ID
+			destSITItems[i].SITDestinationFinalAddressID = &finalAddress.ID
+			err := appCtx.DB().Update(&destSITItems[i])
+			if err != nil {
+				log.Panic(fmt.Errorf("failed to update sit service item: %w", err))
+			}
+		}
 	}
 
-	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, mto.ID)
+	newMove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
 		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 
-	return *newmove
+	return *newMove
 }
 
-func MakeHHGMoveIn200DaysSITEndsToday(appCtx appcontext.AppContext) models.Move {
+func MakeHHGMoveInSITEndsToday(appCtx appcontext.AppContext) models.Move {
 	userUploader := newUserUploader(appCtx)
 	userInfo := newUserInfo("customer")
 
@@ -4863,7 +3902,7 @@ func MakeHHGMoveIn200DaysSITEndsToday(appCtx appcontext.AppContext) models.Move 
 		},
 	}, nil)
 	dependentsAuthorized := true
-	sitDaysAllowance := 200
+	sitDaysAllowance := 90
 	entitlements := factory.BuildEntitlement(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.Entitlement{
@@ -4890,7 +3929,7 @@ func MakeHHGMoveIn200DaysSITEndsToday(appCtx appcontext.AppContext) models.Move 
 		},
 	}, nil)
 	now := time.Now()
-	mto := factory.BuildMove(appCtx.DB(), []factory.Customization{
+	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
 		{
 			Model:    orders,
 			LinkOnly: true,
@@ -4905,11 +3944,11 @@ func MakeHHGMoveIn200DaysSITEndsToday(appCtx appcontext.AppContext) models.Move 
 	estimatedWeight := unit.Pound(1400)
 	actualWeight := unit.Pound(2000)
 
-	requestedPickupDate := time.Now().AddDate(0, 3, 0)
+	requestedPickupDate := now.AddDate(0, 3, 0)
 	requestedDeliveryDate := requestedPickupDate.AddDate(0, 1, 0)
 	// pickupAddress := factory.BuildAddress(appCtx.DB(), nil, nil)
 
-	MTOShipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+	shipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.MTOShipment{
 				PrimeEstimatedWeight:  &estimatedWeight,
@@ -4922,7 +3961,7 @@ func MakeHHGMoveIn200DaysSITEndsToday(appCtx appcontext.AppContext) models.Move 
 			},
 		},
 		{
-			Model:    mto,
+			Model:    move,
 			LinkOnly: true,
 		},
 	}, nil)
@@ -4930,7 +3969,7 @@ func MakeHHGMoveIn200DaysSITEndsToday(appCtx appcontext.AppContext) models.Move 
 	agentUserInfo := newUserInfo("agent")
 	factory.BuildMTOAgent(appCtx.DB(), []factory.Customization{
 		{
-			Model:    MTOShipment,
+			Model:    shipment,
 			LinkOnly: true,
 		},
 		{Model: models.MTOAgent{
@@ -4942,209 +3981,15 @@ func MakeHHGMoveIn200DaysSITEndsToday(appCtx appcontext.AppContext) models.Move 
 		},
 	}, nil)
 
-	daysAgo200 := now.AddDate(0, 0, -200)
-	daysAgo100 := now.AddDate(0, 0, -100)
-	postalCode := "90210"
-	reason := "peak season all trucks in use"
+	daysAgo90 := now.AddDate(0, 0, -90)
+	daysAgo45 := now.AddDate(0, 0, -45)
+	factory.BuildOriginSITServiceItems(appCtx.DB(), move, shipment, &daysAgo90, &daysAgo45)
+	factory.BuildDestSITServiceItems(appCtx.DB(), move, shipment, &daysAgo45, nil)
 
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:        models.MTOServiceItemStatusApproved,
-				SITEntryDate:  &daysAgo200,
-				SITPostalCode: &postalCode,
-				Reason:        &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDOFSIT,
-			},
-		},
-		{
-			Model:    MTOShipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:        models.MTOServiceItemStatusApproved,
-				SITEntryDate:  &daysAgo200,
-				SITPostalCode: &postalCode,
-				Reason:        &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDOASIT,
-			},
-		},
-		{
-			Model:    MTOShipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:           models.MTOServiceItemStatusApproved,
-				SITEntryDate:     &daysAgo200,
-				SITDepartureDate: &daysAgo100,
-				SITPostalCode:    &postalCode,
-				Reason:           &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDOPSIT,
-			},
-		},
-		{
-			Model:    MTOShipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:           models.MTOServiceItemStatusApproved,
-				SITEntryDate:     &daysAgo200,
-				SITDepartureDate: &daysAgo100,
-				SITPostalCode:    &postalCode,
-				Reason:           &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDOSFSC,
-			},
-		},
-		{
-			Model:    MTOShipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:        models.MTOServiceItemStatusApproved,
-				SITEntryDate:  &daysAgo100,
-				SITPostalCode: &postalCode,
-				Reason:        &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDDFSIT,
-			},
-		},
-		{
-			Model:    MTOShipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:        models.MTOServiceItemStatusApproved,
-				SITEntryDate:  &daysAgo100,
-				SITPostalCode: &postalCode,
-				Reason:        &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDDASIT,
-			},
-		},
-		{
-			Model:    MTOShipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:        models.MTOServiceItemStatusApproved,
-				SITEntryDate:  &daysAgo100,
-				SITPostalCode: &postalCode,
-				Reason:        &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDDSFSC,
-			},
-		},
-		{
-			Model:    MTOShipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:        models.MTOServiceItemStatusApproved,
-				SITEntryDate:  &daysAgo100,
-				SITPostalCode: &postalCode,
-				Reason:        &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDDDSIT,
-			},
-		},
-		{
-			Model:    MTOShipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	return mto
+	return move
 }
 
-func MakeHHGMoveIn200DaysSITEndsTomorrow(appCtx appcontext.AppContext) models.Move {
+func MakeHHGMoveInSITEndsTomorrow(appCtx appcontext.AppContext) models.Move {
 	userUploader := newUserUploader(appCtx)
 	userInfo := newUserInfo("customer")
 
@@ -5170,7 +4015,7 @@ func MakeHHGMoveIn200DaysSITEndsTomorrow(appCtx appcontext.AppContext) models.Mo
 		},
 	}, nil)
 	dependentsAuthorized := true
-	sitDaysAllowance := 200
+	sitDaysAllowance := 90
 	entitlements := factory.BuildEntitlement(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.Entitlement{
@@ -5197,7 +4042,7 @@ func MakeHHGMoveIn200DaysSITEndsTomorrow(appCtx appcontext.AppContext) models.Mo
 		},
 	}, nil)
 	now := time.Now()
-	mto := factory.BuildMove(appCtx.DB(), []factory.Customization{
+	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
 		{
 			Model:    orders,
 			LinkOnly: true,
@@ -5212,11 +4057,11 @@ func MakeHHGMoveIn200DaysSITEndsTomorrow(appCtx appcontext.AppContext) models.Mo
 	estimatedWeight := unit.Pound(1400)
 	actualWeight := unit.Pound(2000)
 
-	requestedPickupDate := time.Now().AddDate(0, 3, 0)
+	requestedPickupDate := now.AddDate(0, 3, 0)
 	requestedDeliveryDate := requestedPickupDate.AddDate(0, 1, 0)
 	// pickupAddress := factory.BuildAddress(appCtx.DB(), nil, nil)
 
-	MTOShipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+	shipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.MTOShipment{
 				PrimeEstimatedWeight:  &estimatedWeight,
@@ -5229,7 +4074,7 @@ func MakeHHGMoveIn200DaysSITEndsTomorrow(appCtx appcontext.AppContext) models.Mo
 			},
 		},
 		{
-			Model:    mto,
+			Model:    move,
 			LinkOnly: true,
 		},
 	}, nil)
@@ -5237,7 +4082,7 @@ func MakeHHGMoveIn200DaysSITEndsTomorrow(appCtx appcontext.AppContext) models.Mo
 	agentUserInfo := newUserInfo("agent")
 	factory.BuildMTOAgent(appCtx.DB(), []factory.Customization{
 		{
-			Model:    MTOShipment,
+			Model:    shipment,
 			LinkOnly: true,
 		},
 		{Model: models.MTOAgent{
@@ -5249,209 +4094,15 @@ func MakeHHGMoveIn200DaysSITEndsTomorrow(appCtx appcontext.AppContext) models.Mo
 		},
 	}, nil)
 
-	daysAgo199 := now.AddDate(0, 0, -199)
-	daysAgo99 := now.AddDate(0, 0, -99)
-	postalCode := "90210"
-	reason := "peak season all trucks in use"
+	daysAgo89 := now.AddDate(0, 0, -89)
+	daysAgo44 := now.AddDate(0, 0, -44)
+	factory.BuildOriginSITServiceItems(appCtx.DB(), move, shipment, &daysAgo89, &daysAgo44)
+	factory.BuildDestSITServiceItems(appCtx.DB(), move, shipment, &daysAgo44, nil)
 
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:        models.MTOServiceItemStatusApproved,
-				SITEntryDate:  &daysAgo199,
-				SITPostalCode: &postalCode,
-				Reason:        &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDOFSIT,
-			},
-		},
-		{
-			Model:    MTOShipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:        models.MTOServiceItemStatusApproved,
-				SITEntryDate:  &daysAgo199,
-				SITPostalCode: &postalCode,
-				Reason:        &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDOASIT,
-			},
-		},
-		{
-			Model:    MTOShipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:           models.MTOServiceItemStatusApproved,
-				SITEntryDate:     &daysAgo199,
-				SITDepartureDate: &daysAgo99,
-				SITPostalCode:    &postalCode,
-				Reason:           &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDOPSIT,
-			},
-		},
-		{
-			Model:    MTOShipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:           models.MTOServiceItemStatusApproved,
-				SITEntryDate:     &daysAgo199,
-				SITDepartureDate: &daysAgo99,
-				SITPostalCode:    &postalCode,
-				Reason:           &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDOSFSC,
-			},
-		},
-		{
-			Model:    MTOShipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:        models.MTOServiceItemStatusApproved,
-				SITEntryDate:  &daysAgo99,
-				SITPostalCode: &postalCode,
-				Reason:        &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDDFSIT,
-			},
-		},
-		{
-			Model:    MTOShipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:        models.MTOServiceItemStatusApproved,
-				SITEntryDate:  &daysAgo99,
-				SITPostalCode: &postalCode,
-				Reason:        &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDDASIT,
-			},
-		},
-		{
-			Model:    MTOShipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:        models.MTOServiceItemStatusApproved,
-				SITEntryDate:  &daysAgo99,
-				SITPostalCode: &postalCode,
-				Reason:        &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDDSFSC,
-			},
-		},
-		{
-			Model:    MTOShipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:        models.MTOServiceItemStatusApproved,
-				SITEntryDate:  &daysAgo99,
-				SITPostalCode: &postalCode,
-				Reason:        &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDDDSIT,
-			},
-		},
-		{
-			Model:    MTOShipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	return mto
+	return move
 }
 
-func MakeHHGMoveIn200DaysSITEndsYesterday(appCtx appcontext.AppContext) models.Move {
+func MakeHHGMoveInSITEndsYesterday(appCtx appcontext.AppContext) models.Move {
 	userUploader := newUserUploader(appCtx)
 	userInfo := newUserInfo("customer")
 
@@ -5477,7 +4128,7 @@ func MakeHHGMoveIn200DaysSITEndsYesterday(appCtx appcontext.AppContext) models.M
 		},
 	}, nil)
 	dependentsAuthorized := true
-	sitDaysAllowance := 200
+	sitDaysAllowance := 90
 	entitlements := factory.BuildEntitlement(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.Entitlement{
@@ -5504,7 +4155,7 @@ func MakeHHGMoveIn200DaysSITEndsYesterday(appCtx appcontext.AppContext) models.M
 		},
 	}, nil)
 	now := time.Now()
-	mto := factory.BuildMove(appCtx.DB(), []factory.Customization{
+	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
 		{
 			Model:    orders,
 			LinkOnly: true,
@@ -5519,11 +4170,11 @@ func MakeHHGMoveIn200DaysSITEndsYesterday(appCtx appcontext.AppContext) models.M
 	estimatedWeight := unit.Pound(1400)
 	actualWeight := unit.Pound(2000)
 
-	requestedPickupDate := time.Now().AddDate(0, 3, 0)
+	requestedPickupDate := now.AddDate(0, 3, 0)
 	requestedDeliveryDate := requestedPickupDate.AddDate(0, 1, 0)
 	// pickupAddress := factory.BuildAddress(appCtx.DB(), nil, nil)
 
-	MTOShipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+	shipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.MTOShipment{
 				PrimeEstimatedWeight:  &estimatedWeight,
@@ -5536,7 +4187,7 @@ func MakeHHGMoveIn200DaysSITEndsYesterday(appCtx appcontext.AppContext) models.M
 			},
 		},
 		{
-			Model:    mto,
+			Model:    move,
 			LinkOnly: true,
 		},
 	}, nil)
@@ -5544,7 +4195,7 @@ func MakeHHGMoveIn200DaysSITEndsYesterday(appCtx appcontext.AppContext) models.M
 	agentUserInfo := newUserInfo("agent")
 	factory.BuildMTOAgent(appCtx.DB(), []factory.Customization{
 		{
-			Model:    MTOShipment,
+			Model:    shipment,
 			LinkOnly: true,
 		},
 		{Model: models.MTOAgent{
@@ -5556,209 +4207,15 @@ func MakeHHGMoveIn200DaysSITEndsYesterday(appCtx appcontext.AppContext) models.M
 		},
 	}, nil)
 
-	daysAgo201 := now.AddDate(0, 0, -201)
-	daysAgo101 := now.AddDate(0, 0, -101)
-	postalCode := "90210"
-	reason := "peak season all trucks in use"
+	daysAgo91 := now.AddDate(0, 0, -91)
+	daysAgo46 := now.AddDate(0, 0, -46)
+	factory.BuildOriginSITServiceItems(appCtx.DB(), move, shipment, &daysAgo91, &daysAgo46)
+	factory.BuildDestSITServiceItems(appCtx.DB(), move, shipment, &daysAgo46, nil)
 
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:        models.MTOServiceItemStatusApproved,
-				SITEntryDate:  &daysAgo201,
-				SITPostalCode: &postalCode,
-				Reason:        &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDOFSIT,
-			},
-		},
-		{
-			Model:    MTOShipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:        models.MTOServiceItemStatusApproved,
-				SITEntryDate:  &daysAgo201,
-				SITPostalCode: &postalCode,
-				Reason:        &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDOASIT,
-			},
-		},
-		{
-			Model:    MTOShipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:           models.MTOServiceItemStatusApproved,
-				SITEntryDate:     &daysAgo201,
-				SITDepartureDate: &daysAgo101,
-				SITPostalCode:    &postalCode,
-				Reason:           &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDOPSIT,
-			},
-		},
-		{
-			Model:    MTOShipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:           models.MTOServiceItemStatusApproved,
-				SITEntryDate:     &daysAgo201,
-				SITDepartureDate: &daysAgo101,
-				SITPostalCode:    &postalCode,
-				Reason:           &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDOSFSC,
-			},
-		},
-		{
-			Model:    MTOShipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:        models.MTOServiceItemStatusApproved,
-				SITEntryDate:  &daysAgo101,
-				SITPostalCode: &postalCode,
-				Reason:        &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDDFSIT,
-			},
-		},
-		{
-			Model:    MTOShipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:        models.MTOServiceItemStatusApproved,
-				SITEntryDate:  &daysAgo101,
-				SITPostalCode: &postalCode,
-				Reason:        &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDDASIT,
-			},
-		},
-		{
-			Model:    MTOShipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:        models.MTOServiceItemStatusApproved,
-				SITEntryDate:  &daysAgo101,
-				SITPostalCode: &postalCode,
-				Reason:        &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDDSFSC,
-			},
-		},
-		{
-			Model:    MTOShipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:        models.MTOServiceItemStatusApproved,
-				SITEntryDate:  &daysAgo101,
-				SITPostalCode: &postalCode,
-				Reason:        &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDDDSIT,
-			},
-		},
-		{
-			Model:    MTOShipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	return mto
+	return move
 }
 
-func MakeHHGMoveIn200DaysSITDeparted(appCtx appcontext.AppContext) models.Move {
+func MakeHHGMoveInSITDeparted(appCtx appcontext.AppContext) models.Move {
 	userUploader := newUserUploader(appCtx)
 	userInfo := newUserInfo("customer")
 
@@ -5784,7 +4241,7 @@ func MakeHHGMoveIn200DaysSITDeparted(appCtx appcontext.AppContext) models.Move {
 		},
 	}, nil)
 	dependentsAuthorized := true
-	sitDaysAllowance := 200
+	sitDaysAllowance := 90
 	entitlements := factory.BuildEntitlement(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.Entitlement{
@@ -5811,7 +4268,7 @@ func MakeHHGMoveIn200DaysSITDeparted(appCtx appcontext.AppContext) models.Move {
 		},
 	}, nil)
 	now := time.Now()
-	mto := factory.BuildMove(appCtx.DB(), []factory.Customization{
+	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
 		{
 			Model:    orders,
 			LinkOnly: true,
@@ -5826,11 +4283,11 @@ func MakeHHGMoveIn200DaysSITDeparted(appCtx appcontext.AppContext) models.Move {
 	estimatedWeight := unit.Pound(1400)
 	actualWeight := unit.Pound(2000)
 
-	requestedPickupDate := time.Now().AddDate(0, 3, 0)
+	requestedPickupDate := now.AddDate(0, 3, 0)
 	requestedDeliveryDate := requestedPickupDate.AddDate(0, 1, 0)
 	// pickupAddress := factory.BuildAddress(appCtx.DB(), nil, nil)
 
-	MTOShipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+	shipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.MTOShipment{
 				PrimeEstimatedWeight:  &estimatedWeight,
@@ -5843,7 +4300,7 @@ func MakeHHGMoveIn200DaysSITDeparted(appCtx appcontext.AppContext) models.Move {
 			},
 		},
 		{
-			Model:    mto,
+			Model:    move,
 			LinkOnly: true,
 		},
 	}, nil)
@@ -5851,7 +4308,7 @@ func MakeHHGMoveIn200DaysSITDeparted(appCtx appcontext.AppContext) models.Move {
 	agentUserInfo := newUserInfo("agent")
 	factory.BuildMTOAgent(appCtx.DB(), []factory.Customization{
 		{
-			Model:    MTOShipment,
+			Model:    shipment,
 			LinkOnly: true,
 		},
 		{Model: models.MTOAgent{
@@ -5863,211 +4320,16 @@ func MakeHHGMoveIn200DaysSITDeparted(appCtx appcontext.AppContext) models.Move {
 		},
 	}, nil)
 
-	daysAgo203 := now.AddDate(0, 0, -203)
-	daysAgo103 := now.AddDate(0, 0, -103)
+	daysAgo93 := now.AddDate(0, 0, -93)
+	daysAgo48 := now.AddDate(0, 0, -48)
 	daysAgo5 := now.AddDate(0, 0, -5)
-	postalCode := "90210"
-	reason := "peak season all trucks in use"
+	factory.BuildOriginSITServiceItems(appCtx.DB(), move, shipment, &daysAgo93, &daysAgo48)
+	factory.BuildDestSITServiceItems(appCtx.DB(), move, shipment, &daysAgo48, &daysAgo5)
 
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:        models.MTOServiceItemStatusApproved,
-				SITEntryDate:  &daysAgo203,
-				SITPostalCode: &postalCode,
-				Reason:        &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDOFSIT,
-			},
-		},
-		{
-			Model:    MTOShipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:        models.MTOServiceItemStatusApproved,
-				SITEntryDate:  &daysAgo203,
-				SITPostalCode: &postalCode,
-				Reason:        &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDOASIT,
-			},
-		},
-		{
-			Model:    MTOShipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:           models.MTOServiceItemStatusApproved,
-				SITEntryDate:     &daysAgo203,
-				SITDepartureDate: &daysAgo103,
-				SITPostalCode:    &postalCode,
-				Reason:           &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDOPSIT,
-			},
-		},
-		{
-			Model:    MTOShipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:           models.MTOServiceItemStatusApproved,
-				SITEntryDate:     &daysAgo203,
-				SITDepartureDate: &daysAgo103,
-				SITPostalCode:    &postalCode,
-				Reason:           &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDOSFSC,
-			},
-		},
-		{
-			Model:    MTOShipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:        models.MTOServiceItemStatusApproved,
-				SITEntryDate:  &daysAgo103,
-				SITPostalCode: &postalCode,
-				Reason:        &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDDFSIT,
-			},
-		},
-		{
-			Model:    MTOShipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:        models.MTOServiceItemStatusApproved,
-				SITEntryDate:  &daysAgo103,
-				SITPostalCode: &postalCode,
-				Reason:        &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDDASIT,
-			},
-		},
-		{
-			Model:    MTOShipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:        models.MTOServiceItemStatusApproved,
-				SITEntryDate:  &daysAgo103,
-				SITPostalCode: &postalCode,
-				Reason:        &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDDSFSC,
-			},
-		},
-		{
-			Model:    MTOShipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:           models.MTOServiceItemStatusApproved,
-				SITEntryDate:     &daysAgo103,
-				SITDepartureDate: &daysAgo5,
-				SITPostalCode:    &postalCode,
-				Reason:           &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDDDSIT,
-			},
-		},
-		{
-			Model:    MTOShipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	return mto
+	return move
 }
 
-func MakeHHGMoveIn200DaysSITStartsInFuture(appCtx appcontext.AppContext) models.Move {
+func MakeHHGMoveInSITStartsInFuture(appCtx appcontext.AppContext) models.Move {
 	userUploader := newUserUploader(appCtx)
 	userInfo := newUserInfo("customer")
 
@@ -6093,7 +4355,7 @@ func MakeHHGMoveIn200DaysSITStartsInFuture(appCtx appcontext.AppContext) models.
 		},
 	}, nil)
 	dependentsAuthorized := true
-	sitDaysAllowance := 200
+	sitDaysAllowance := 90
 	entitlements := factory.BuildEntitlement(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.Entitlement{
@@ -6120,7 +4382,7 @@ func MakeHHGMoveIn200DaysSITStartsInFuture(appCtx appcontext.AppContext) models.
 		},
 	}, nil)
 	now := time.Now()
-	mto := factory.BuildMove(appCtx.DB(), []factory.Customization{
+	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
 		{
 			Model:    orders,
 			LinkOnly: true,
@@ -6135,11 +4397,11 @@ func MakeHHGMoveIn200DaysSITStartsInFuture(appCtx appcontext.AppContext) models.
 	estimatedWeight := unit.Pound(1400)
 	actualWeight := unit.Pound(2000)
 
-	requestedPickupDate := time.Now().AddDate(0, 3, 0)
+	requestedPickupDate := now.AddDate(0, 3, 0)
 	requestedDeliveryDate := requestedPickupDate.AddDate(0, 1, 0)
 	// pickupAddress := factory.BuildAddress(appCtx.DB(), nil, nil)
 
-	MTOShipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+	shipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.MTOShipment{
 				PrimeEstimatedWeight:  &estimatedWeight,
@@ -6152,7 +4414,7 @@ func MakeHHGMoveIn200DaysSITStartsInFuture(appCtx appcontext.AppContext) models.
 			},
 		},
 		{
-			Model:    mto,
+			Model:    move,
 			LinkOnly: true,
 		},
 	}, nil)
@@ -6160,7 +4422,7 @@ func MakeHHGMoveIn200DaysSITStartsInFuture(appCtx appcontext.AppContext) models.
 	agentUserInfo := newUserInfo("agent")
 	factory.BuildMTOAgent(appCtx.DB(), []factory.Customization{
 		{
-			Model:    MTOShipment,
+			Model:    shipment,
 			LinkOnly: true,
 		},
 		{Model: models.MTOAgent{
@@ -6173,108 +4435,12 @@ func MakeHHGMoveIn200DaysSITStartsInFuture(appCtx appcontext.AppContext) models.
 	}, nil)
 
 	daysLater100 := now.AddDate(0, 0, 100)
-	postalCode := "90210"
-	reason := "peak season all trucks in use"
+	factory.BuildOriginSITServiceItems(appCtx.DB(), move, shipment, &daysLater100, nil)
 
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:        models.MTOServiceItemStatusApproved,
-				SITEntryDate:  &daysLater100,
-				SITPostalCode: &postalCode,
-				Reason:        &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDOFSIT,
-			},
-		},
-		{
-			Model:    MTOShipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:        models.MTOServiceItemStatusApproved,
-				SITEntryDate:  &daysLater100,
-				SITPostalCode: &postalCode,
-				Reason:        &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDOASIT,
-			},
-		},
-		{
-			Model:    MTOShipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:        models.MTOServiceItemStatusApproved,
-				SITEntryDate:  &daysLater100,
-				SITPostalCode: &postalCode,
-				Reason:        &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDOPSIT,
-			},
-		},
-		{
-			Model:    MTOShipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:        models.MTOServiceItemStatusApproved,
-				SITEntryDate:  &daysLater100,
-				SITPostalCode: &postalCode,
-				Reason:        &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDOSFSC,
-			},
-		},
-		{
-			Model:    MTOShipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-	return mto
+	return move
 }
 
-func MakeHHGMoveIn200DaysSITNotApproved(appCtx appcontext.AppContext) models.Move {
+func MakeHHGMoveInSITNotApproved(appCtx appcontext.AppContext) models.Move {
 	userUploader := newUserUploader(appCtx)
 	userInfo := newUserInfo("customer")
 
@@ -6300,7 +4466,7 @@ func MakeHHGMoveIn200DaysSITNotApproved(appCtx appcontext.AppContext) models.Mov
 		},
 	}, nil)
 	dependentsAuthorized := true
-	sitDaysAllowance := 200
+	sitDaysAllowance := 90
 	entitlements := factory.BuildEntitlement(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.Entitlement{
@@ -6327,7 +4493,7 @@ func MakeHHGMoveIn200DaysSITNotApproved(appCtx appcontext.AppContext) models.Mov
 		},
 	}, nil)
 	now := time.Now()
-	mto := factory.BuildMove(appCtx.DB(), []factory.Customization{
+	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
 		{
 			Model:    orders,
 			LinkOnly: true,
@@ -6342,11 +4508,11 @@ func MakeHHGMoveIn200DaysSITNotApproved(appCtx appcontext.AppContext) models.Mov
 	estimatedWeight := unit.Pound(1400)
 	actualWeight := unit.Pound(2000)
 
-	requestedPickupDate := time.Now().AddDate(0, 3, 0)
+	requestedPickupDate := now.AddDate(0, 3, 0)
 	requestedDeliveryDate := requestedPickupDate.AddDate(0, 1, 0)
 	// pickupAddress := factory.BuildAddress(appCtx.DB(), nil, nil)
 
-	MTOShipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+	shipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.MTOShipment{
 				PrimeEstimatedWeight:  &estimatedWeight,
@@ -6359,7 +4525,7 @@ func MakeHHGMoveIn200DaysSITNotApproved(appCtx appcontext.AppContext) models.Mov
 			},
 		},
 		{
-			Model:    mto,
+			Model:    move,
 			LinkOnly: true,
 		},
 	}, nil)
@@ -6367,7 +4533,7 @@ func MakeHHGMoveIn200DaysSITNotApproved(appCtx appcontext.AppContext) models.Mov
 	agentUserInfo := newUserInfo("agent")
 	factory.BuildMTOAgent(appCtx.DB(), []factory.Customization{
 		{
-			Model:    MTOShipment,
+			Model:    shipment,
 			LinkOnly: true,
 		},
 		{Model: models.MTOAgent{
@@ -6379,201 +4545,17 @@ func MakeHHGMoveIn200DaysSITNotApproved(appCtx appcontext.AppContext) models.Mov
 		},
 	}, nil)
 
-	daysLater100 := now.AddDate(0, 0, 100)
-	postalCode := "90210"
-	reason := "peak season all trucks in use"
+	oneMonthLater := now.AddDate(0, 1, 0)
+	twoMonthsLater := now.AddDate(0, 2, 0)
+	sitItems := factory.BuildOriginSITServiceItems(appCtx.DB(), move, shipment, &oneMonthLater, nil)
+	sitItems = append(sitItems, factory.BuildDestSITServiceItems(appCtx.DB(), move, shipment, &twoMonthsLater, nil)...)
+	for i := range sitItems {
+		sitItems[i].Status = models.MTOServiceItemStatusSubmitted
+		err := appCtx.DB().Update(&sitItems[i])
+		if err != nil {
+			log.Panic(fmt.Errorf("failed to update sit service item: %w", err))
+		}
+	}
 
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:        models.MTOServiceItemStatusSubmitted,
-				SITEntryDate:  &daysLater100,
-				SITPostalCode: &postalCode,
-				Reason:        &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDOFSIT,
-			},
-		},
-		{
-			Model:    MTOShipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:        models.MTOServiceItemStatusSubmitted,
-				SITEntryDate:  &daysLater100,
-				SITPostalCode: &postalCode,
-				Reason:        &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDOASIT,
-			},
-		},
-		{
-			Model:    MTOShipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:        models.MTOServiceItemStatusSubmitted,
-				SITEntryDate:  &daysLater100,
-				SITPostalCode: &postalCode,
-				Reason:        &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDOPSIT,
-			},
-		},
-		{
-			Model:    MTOShipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:        models.MTOServiceItemStatusSubmitted,
-				SITEntryDate:  &daysLater100,
-				SITPostalCode: &postalCode,
-				Reason:        &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDOSFSC,
-			},
-		},
-		{
-			Model:    MTOShipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:        models.MTOServiceItemStatusSubmitted,
-				SITEntryDate:  &daysLater100,
-				SITPostalCode: &postalCode,
-				Reason:        &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDDFSIT,
-			},
-		},
-		{
-			Model:    MTOShipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:        models.MTOServiceItemStatusSubmitted,
-				SITEntryDate:  &daysLater100,
-				SITPostalCode: &postalCode,
-				Reason:        &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDDASIT,
-			},
-		},
-		{
-			Model:    MTOShipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:        models.MTOServiceItemStatusSubmitted,
-				SITEntryDate:  &daysLater100,
-				SITPostalCode: &postalCode,
-				Reason:        &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDDSFSC,
-			},
-		},
-		{
-			Model:    MTOShipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:        models.MTOServiceItemStatusSubmitted,
-				SITEntryDate:  &daysLater100,
-				SITPostalCode: &postalCode,
-				Reason:        &reason,
-			},
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDDDSIT,
-			},
-		},
-		{
-			Model:    MTOShipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    mto,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	return mto
+	return move
 }

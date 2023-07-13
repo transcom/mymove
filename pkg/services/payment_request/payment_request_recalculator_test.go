@@ -521,7 +521,7 @@ func (suite *PaymentRequestServiceSuite) setupRecalculateData1() (models.Move, m
 	}
 
 	// DOASIT
-	mtoServiceItemDOASIT := factory.BuildRealMTOServiceItemWithAllDeps(suite.DB(), models.ReServiceCodeDOASIT, moveTaskOrder, moveTaskOrder.MTOShipments[0])
+	mtoServiceItemDOASIT := factory.BuildRealMTOServiceItemWithAllDeps(suite.DB(), models.ReServiceCodeDOASIT, moveTaskOrder, moveTaskOrder.MTOShipments[0], nil, nil)
 	mtoServiceItemDOASIT.SITEntryDate = &recalculateSITEntryDate
 	suite.MustSave(&mtoServiceItemDOASIT)
 
