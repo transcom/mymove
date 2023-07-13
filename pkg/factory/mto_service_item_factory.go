@@ -603,7 +603,7 @@ func BuildRealMTOServiceItemWithAllDeps(db *pop.Connection, serviceCode models.R
 			allCustoms = append(allCustoms, customs...)
 		}
 
-		allTraits := []Trait{GetTraitStatusApproved}
+		allTraits := []Trait{GetTraitServiceItemStatusApproved}
 		if len(traits) > 0 {
 			allTraits = append(allTraits, traits...)
 		}
@@ -804,7 +804,7 @@ func BuildDestSITServiceItems(db *pop.Connection, move models.Move, shipment mod
 //        TRAITS
 // ------------------------
 
-func GetTraitStatusApproved() []Customization {
+func GetTraitServiceItemStatusApproved() []Customization {
 	return []Customization{
 		{
 			Model: models.MTOServiceItem{
