@@ -259,10 +259,11 @@ func InitRouting(appCtx appcontext.AppContext, redisPool *redis.Pool,
 		primeMux.HandleFunc("/v2/swagger.yaml", handlers.NewFileHandler(routingConfig.PrimeV2SwaggerPath)).Methods("GET")
 		if routingConfig.ServeSwaggerUI {
 			appCtx.Logger().Info("Prime API Swagger UI serving is enabled")
-			primeMux.HandleFunc("/docs", handlers.NewFileHandler(path.Join(routingConfig.BuildRoot, "swagger-ui", "prime.html"))).Methods("GET")
-			primeMux.HandleFunc("/docs", handlers.NewFileHandler(path.Join(routingConfig.BuildRoot, "swagger-ui", "prime_v2.html"))).Methods("GET")
+			primeMux.HandleFunc("/v1/docs", handlers.NewFileHandler(path.Join(routingConfig.BuildRoot, "swagger-ui", "prime.html"))).Methods("GET")
+			primeMux.HandleFunc("/v2/docs", handlers.NewFileHandler(path.Join(routingConfig.BuildRoot, "swagger-ui", "prime_v2.html"))).Methods("GET")
 		} else {
-			primeMux.Handle("/docs", http.NotFoundHandler()).Methods("GET")
+			primeMux.Handle("/v1/docs", http.NotFoundHandler()).Methods("GET")
+			primeMux.Handle("/v2/docs", http.NotFoundHandler()).Methods("GET")
 		}
 		apiV1 := primeapi.NewPrimeAPI(routingConfig.HandlerConfig)
 		tracingMiddleware := middleware.OpenAPITracing(apiV1)
