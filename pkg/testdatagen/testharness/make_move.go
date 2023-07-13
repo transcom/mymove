@@ -357,27 +357,40 @@ func MakeHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO(appCtx appconte
 		},
 	}, nil)
 
-	year, month, day := time.Now().Add(time.Hour * 24 * -60).Date()
-	threeMonthsAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
-	twoMonthsAgo := threeMonthsAgo.Add(time.Hour * 24 * 30)
-	factory.BuildOriginSITServiceItems(appCtx.DB(), mto, MTOShipment, &threeMonthsAgo, &twoMonthsAgo)
-	destSITItems := factory.BuildDestSITServiceItems(appCtx.DB(), mto, MTOShipment, &twoMonthsAgo, nil)
-	for i := range destSITItems {
-		if destSITItems[i].ReService.Code == models.ReServiceCodeDDDSIT {
+	threeMonthsAgo := time.Now().AddDate(0, -3, 0)
+	twoMonthsAgo := threeMonthsAgo.AddDate(0, 1, 0)
+	sitCost := unit.Cents(200000)
+	sitItems := factory.BuildOriginSITServiceItems(appCtx.DB(), mto, MTOShipment, &threeMonthsAgo, &twoMonthsAgo)
+	sitItems = append(sitItems, factory.BuildDestSITServiceItems(appCtx.DB(), mto, MTOShipment, &twoMonthsAgo, nil)...)
+	for i := range sitItems {
+		if sitItems[i].ReService.Code == models.ReServiceCodeDDDSIT {
 			sitAddressUpdate := factory.BuildSITAddressUpdate(appCtx.DB(), []factory.Customization{
 				{
-					Model:    destSITItems[i],
+					Model:    sitItems[i],
 					LinkOnly: true,
 				},
 			}, []factory.Trait{factory.GetTraitSITAddressUpdateOver50Miles})
 			originalAddress := sitAddressUpdate.OldAddress
-			destSITItems[i].SITDestinationOriginalAddressID = &originalAddress.ID
-			destSITItems[i].SITDestinationFinalAddressID = &originalAddress.ID
-			err := appCtx.DB().Update(&destSITItems[i])
+			sitItems[i].SITDestinationOriginalAddressID = &originalAddress.ID
+			sitItems[i].SITDestinationFinalAddressID = &originalAddress.ID
+			err := appCtx.DB().Update(&sitItems[i])
 			if err != nil {
 				log.Panic(fmt.Errorf("failed to update sit service item: %w", err))
 			}
 		}
+		factory.BuildPaymentServiceItem(appCtx.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &sitCost,
+				},
+			}, {
+				Model:    paymentRequest,
+				LinkOnly: true,
+			}, {
+				Model:    sitItems[i],
+				LinkOnly: true,
+			},
+		}, nil)
 	}
 	scenario.MakeSITExtensionsForShipment(appCtx, MTOShipment)
 
