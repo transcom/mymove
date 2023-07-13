@@ -253,13 +253,13 @@ var (
 		Origin:      models.ServiceItemParamOriginPaymentRequest,
 	}
 	paramSITScheduleDest = models.ServiceItemParamKey{
-		Key:         models.ServiceItemParamNameSITScheduleOrigin,
+		Key:         models.ServiceItemParamNameSITScheduleDest,
 		Description: "Origin SIT schedule",
 		Type:        models.ServiceItemParamTypeInteger,
 		Origin:      models.ServiceItemParamOriginSystem,
 	}
 	paramSITScheduleOrigin = models.ServiceItemParamKey{
-		Key:         models.ServiceItemParamNameSITScheduleDest,
+		Key:         models.ServiceItemParamNameSITScheduleOrigin,
 		Description: "Dest SIT schedule",
 		Type:        models.ServiceItemParamTypeInteger,
 		Origin:      models.ServiceItemParamOriginSystem,
