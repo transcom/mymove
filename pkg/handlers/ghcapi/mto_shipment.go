@@ -886,7 +886,7 @@ func (h ReviewShipmentAddressUpdateHandler) Handle(params shipmentops.ReviewShip
 			remarks := params.Body.Remarks
 
 			response, err := h.ShipmentAddressUpdateRequester.ReviewShipmentAddressChange(appCtx, shipmentID, models.ShipmentAddressUpdateStatus(addressApprovalStatus), remarks)
-			//TO DO add error handling
+
 			handleError := func(err error) (middleware.Responder, error) {
 				appCtx.Logger().Error("ghcapi.ReviewShipmentAddressUpdateHandler", zap.Error(err))
 
