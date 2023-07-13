@@ -108,6 +108,7 @@ TXOTabNav.defaultProps = {
   excessWeightRiskCount: 0,
   pendingPaymentRequestCount: 0,
   unapprovedSITExtensionCount: 0,
+  shipmentsWithDeliveryAddressUpdateRequestedCount: 0,
 };
 
 TXOTabNav.propTypes = {
@@ -118,6 +119,7 @@ TXOTabNav.propTypes = {
   excessWeightRiskCount: PropTypes.number,
   pendingPaymentRequestCount: PropTypes.number,
   unapprovedSITExtensionCount: PropTypes.number,
+  shipmentsWithDeliveryAddressUpdateRequestedCount: PropTypes.number,
   moveCode: PropTypes.string.isRequired,
 };
 

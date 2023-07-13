@@ -158,4 +158,35 @@ describe('Shipment Info List', () => {
     const customerRemarks = screen.getByText(labels.customerRemarks);
     expect(within(customerRemarks.parentElement).getByText(info.customerRemarks)).toBeInTheDocument();
   });
+
+  it('renders Review required instead of destination address when the Prime has submitted a destination address change', async () => {
+    render(
+      <ShipmentInfoList
+        shipment={{
+          requestedPickupDate: info.requestedPickupDate,
+          pickupAddress: info.pickupAddress,
+          destinationAddress: info.destinationAddress,
+          deliveryAddressUpdate: { status: 'REQUESTED' },
+        }}
+        errorIfMissing={[
+          {
+            fieldName: 'destinationAddress',
+            condition: (shipment) => shipment.deliveryAddressUpdate?.status === 'REQUESTED',
+            optional: true,
+          },
+        ]}
+      />,
+    );
+
+    const destinationAddress = screen.getByText(labels.destinationAddress);
+    // The destination address will not render the address field
+    // when the Prime requests a dest add update
+    expect(
+      within(destinationAddress.parentElement).queryByText(info.destinationAddress.streetAddress1, {
+        exact: false,
+      }),
+    ).not.toBeInTheDocument();
+
+    expect(within(destinationAddress.parentElement).getByText('Review required')).toBeInTheDocument();
+  });
 });

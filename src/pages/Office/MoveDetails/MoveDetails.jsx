@@ -155,7 +155,8 @@ const MoveDetails = ({
   );
   useEffect(() => {
     const shipmentCount = shipmentWithDestinationAddressChangeRequest?.length || 0;
-    setShipmentsWithDeliveryAddressUpdateRequestedCount(shipmentCount);
+    if (setShipmentsWithDeliveryAddressUpdateRequestedCount)
+      setShipmentsWithDeliveryAddressUpdateRequestedCount(shipmentCount);
   }, [mtoShipments, shipmentWithDestinationAddressChangeRequest, setShipmentsWithDeliveryAddressUpdateRequestedCount]);
 
   const shipmentsInfoNonPPM = mtoShipments?.filter((shipment) => shipment.shipmentType !== 'PPM');
@@ -459,6 +460,11 @@ MoveDetails.propTypes = {
   setUnapprovedSITAddressUpdateCount: func.isRequired,
   setExcessWeightRiskCount: func.isRequired,
   setUnapprovedSITExtensionCount: func.isRequired,
+  setShipmentsWithDeliveryAddressUpdateRequestedCount: func,
+};
+
+MoveDetails.defaultProps = {
+  setShipmentsWithDeliveryAddressUpdateRequestedCount: () => {},
 };
 
 export default MoveDetails;
