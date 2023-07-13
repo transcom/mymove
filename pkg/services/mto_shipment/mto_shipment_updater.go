@@ -770,6 +770,7 @@ func fetchShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID, builder U
 		query.NewQueryFilter("id", "=", shipmentID),
 	}
 	err := builder.FetchOne(appCtx, &shipment, queryFilters)
+
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
