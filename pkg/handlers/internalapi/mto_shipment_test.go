@@ -401,7 +401,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		suite.IsType(&mtoshipmentops.CreateMTOShipmentUnauthorized{}, response)
 	})
 
-	suite.Run("POST failure - 403 - permission denied - wrong SM does not match move", func() {
+	suite.Run("POST failure - 403 - forbidden - wrong SM does not match move", func() {
 		subtestData := makeCreateSubtestData()
 
 		sm := factory.BuildServiceMember(suite.DB(), nil, nil)
