@@ -887,8 +887,31 @@ func (h ReviewShipmentAddressUpdateHandler) Handle(params shipmentops.ReviewShip
 
 			response, err := h.ShipmentAddressUpdateRequester.ReviewShipmentAddressChange(appCtx, shipmentID, models.ShipmentAddressUpdateStatus(addressApprovalStatus), remarks)
 			//TO DO add error handling
+			handleError := func(err error) (middleware.Responder, error) {
+				appCtx.Logger().Error("ghcapi.ReviewShipmentAddressUpdateHandler", zap.Error(err))
+
+				switch e := err.(type) {
+				case apperror.NotFoundError:
+					return shipmentops.NewReviewShipmentAddressUpdateNotFound(), err
+				case apperror.InvalidInputError:
+					payload := payloadForValidationError(
+						"Validation errors",
+						"ReviewShipmentAddressUpdate",
+						h.GetTraceIDFromRequest(params.HTTPRequest),
+						e.ValidationErrors)
+					return shipmentops.NewReviewShipmentAddressUpdateUnprocessableEntity().WithPayload(payload), err
+				case apperror.PreconditionFailedError:
+					return shipmentops.NewReviewShipmentAddressUpdatePreconditionFailed().
+						WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())}), err
+				case mtoshipment.ConflictStatusError:
+					return shipmentops.NewReviewShipmentAddressUpdateConflict().
+						WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())}), err
+				default:
+					return shipmentops.NewReviewShipmentAddressUpdateInternalServerError(), err
+				}
+			}
 			if err != nil {
-				return nil, err
+				return handleError(err)
 			}
 			payload := payloads.ShipmentAddressUpdate(response)
 			return shipmentops.NewReviewShipmentAddressUpdateOK().WithPayload(payload), nil
