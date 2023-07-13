@@ -150,6 +150,17 @@ func (suite *MTOShipmentServiceSuite) TestListMTOShipments() {
 			},
 		}, nil)
 
+		shipmentAddressUpdate := factory.BuildShipmentAddressUpdate(suite.DB(), []factory.Customization{
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, []factory.Trait{factory.GetTraitShipmentAddressUpdateRequested})
+
 		serviceItem := testdatagen.MakeMTOServiceItemDomesticCrating(suite.DB(), testdatagen.Assertions{
 			ReService: models.ReService{
 				Code: models.ReServiceCodeDCRT,
@@ -191,7 +202,11 @@ func (suite *MTOShipmentServiceSuite) TestListMTOShipments() {
 		suite.Len(actualShipment.MTOServiceItems[0].Dimensions, 2)
 		suite.Equal(SITExtension.ID.String(), actualShipment.SITDurationUpdates[0].ID.String())
 		suite.Equal(reweigh.ID.String(), actualShipment.Reweigh.ID.String())
+		suite.Equal(shipmentAddressUpdate.ID.String(), actualShipment.DeliveryAddressUpdate.ID.String())
+		suite.Equal(shipmentAddressUpdate.NewAddress.ID.String(), actualShipment.DeliveryAddressUpdate.NewAddress.ID.String())
+		suite.Equal(shipmentAddressUpdate.OriginalAddress.ID.String(), actualShipment.DeliveryAddressUpdate.OriginalAddress.ID.String())
 	})
+
 	suite.Run("Loads PPM associations", func() {
 		// not reusing the test above because the fetcher only loads PPM associations if the shipment type is PPM
 		move := factory.BuildMove(suite.DB(), nil, nil)
