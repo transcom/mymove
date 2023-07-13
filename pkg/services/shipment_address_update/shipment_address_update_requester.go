@@ -185,6 +185,9 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 			return nil, err
 		}
 	}
+	if updateNeedsTOOReview {
+		addressUpdate.Status = models.ShipmentAddressUpdateStatusRequested
+	}
 
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		verrs, txnErr := appCtx.DB().ValidateAndSave(&addressUpdate)
