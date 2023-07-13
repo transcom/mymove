@@ -386,7 +386,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		suite.IsType(&mtoshipmentops.CreateMTOShipmentUnauthorized{}, response)
 	})
 
-	suite.Run("POST failure - 403- permission denied - wrong application", func() {
+	suite.Run("POST failure - 403 - unauthorized - wrong application", func() {
 		subtestData := makeCreateSubtestData()
 
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
@@ -399,6 +399,21 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		response := subtestData.handler.Handle(unauthorizedParams)
 
 		suite.IsType(&mtoshipmentops.CreateMTOShipmentUnauthorized{}, response)
+	})
+
+	suite.Run("POST failure - 403 - permission denied - wrong SM does not match move", func() {
+		subtestData := makeCreateSubtestData()
+
+		sm := factory.BuildServiceMember(suite.DB(), nil, nil)
+
+		req := subtestData.params.HTTPRequest
+		unauthorizedReq := suite.AuthenticateUserRequest(req, sm.User)
+		unauthorizedParams := subtestData.params
+		unauthorizedParams.HTTPRequest = unauthorizedReq
+
+		response := subtestData.handler.Handle(unauthorizedParams)
+
+		suite.IsType(&mtoshipmentops.CreateMTOShipmentForbidden{}, response)
 	})
 
 	suite.Run("POST failure - 404 -- not found", func() {
