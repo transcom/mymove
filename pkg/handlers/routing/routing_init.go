@@ -244,6 +244,7 @@ func InitRouting(appCtx appcontext.AppContext, redisPool *redis.Pool,
 		primeServerName := routingConfig.HandlerConfig.AppNames().PrimeServername
 		primeMux := site.Host(primeServerName).PathPrefix("/prime/").Subrouter()
 
+		// Setup shared middleware
 		primeDetectionMiddleware := auth.HostnameDetectorMiddleware(appCtx.Logger(), primeServerName)
 		primeMux.Use(primeDetectionMiddleware)
 		if routingConfig.ServeDevlocalAuth {
@@ -255,22 +256,29 @@ func InitRouting(appCtx appcontext.AppContext, redisPool *redis.Pool,
 		primeMux.Use(authentication.PrimeAuthorizationMiddleware(appCtx.Logger()))
 		primeMux.Use(middleware.NoCache(appCtx.Logger()))
 		primeMux.Use(middleware.RequestLogger(appCtx.Logger()))
-		primeMux.HandleFunc("/v1/swagger.yaml", handlers.NewFileHandler(routingConfig.PrimeSwaggerPath)).Methods("GET")
-		primeMux.HandleFunc("/v2/swagger.yaml", handlers.NewFileHandler(routingConfig.PrimeV2SwaggerPath)).Methods("GET")
+
+		// Setup version specific info
+		primeV1Mux := primeMux.PathPrefix("/v1/").Subrouter()
+		primeV2Mux := primeMux.PathPrefix("/v2/").Subrouter()
+
+		primeV1Mux.HandleFunc("/swagger.yaml", handlers.NewFileHandler(routingConfig.PrimeSwaggerPath)).Methods("GET")
+		primeV2Mux.HandleFunc("/swagger.yaml", handlers.NewFileHandler(routingConfig.PrimeV2SwaggerPath)).Methods("GET")
 		if routingConfig.ServeSwaggerUI {
 			appCtx.Logger().Info("Prime API Swagger UI serving is enabled")
-			primeMux.HandleFunc("/v1/docs", handlers.NewFileHandler(path.Join(routingConfig.BuildRoot, "swagger-ui", "prime.html"))).Methods("GET")
-			primeMux.HandleFunc("/v2/docs", handlers.NewFileHandler(path.Join(routingConfig.BuildRoot, "swagger-ui", "prime_v2.html"))).Methods("GET")
+			primeV1Mux.HandleFunc("/docs", handlers.NewFileHandler(path.Join(routingConfig.BuildRoot, "swagger-ui", "prime.html"))).Methods("GET")
+			primeV2Mux.HandleFunc("/docs", handlers.NewFileHandler(path.Join(routingConfig.BuildRoot, "swagger-ui", "prime_v2.html"))).Methods("GET")
 		} else {
-			primeMux.Handle("/v1/docs", http.NotFoundHandler()).Methods("GET")
-			primeMux.Handle("/v2/docs", http.NotFoundHandler()).Methods("GET")
+			primeV1Mux.Handle("/docs", http.NotFoundHandler()).Methods("GET")
+			primeV2Mux.Handle("/docs", http.NotFoundHandler()).Methods("GET")
 		}
+
 		apiV1 := primeapi.NewPrimeAPI(routingConfig.HandlerConfig)
-		tracingMiddleware := middleware.OpenAPITracing(apiV1)
-		primeMux.PathPrefix("/v1/").Handler(apiV1.Serve(tracingMiddleware))
+		tracingMiddlewareV1 := middleware.OpenAPITracing(apiV1)
+		primeV1Mux.PathPrefix("/").Handler(apiV1.Serve(tracingMiddlewareV1))
+
 		apiV2 := primeapiv2.NewPrimeAPI(routingConfig.HandlerConfig)
-		tracingMiddlewarev2 := middleware.OpenAPITracing(apiV2)
-		primeMux.PathPrefix("/v2/").Handler(apiV2.Serve(tracingMiddlewarev2))
+		tracingMiddlewareV2 := middleware.OpenAPITracing(apiV2)
+		primeV2Mux.PathPrefix("/").Handler(apiV2.Serve(tracingMiddlewareV2))
 	}
 
 	if routingConfig.ServeSupport {
