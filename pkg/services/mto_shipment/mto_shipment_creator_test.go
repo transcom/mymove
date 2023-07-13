@@ -473,7 +473,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		suite.IsType(apperror.InvalidInputError{}, err)
 	})
 
-	suite.Run("401 Forbidden Error - shipment can only be created for service member associated with the current session", func() {
+	suite.Run("403 Forbidden Error - shipment can only be created for service member associated with the current session", func() {
 		subtestData := suite.createSubtestData(nil)
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 			ApplicationName: auth.MilApp,
