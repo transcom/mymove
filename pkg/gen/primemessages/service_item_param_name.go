@@ -189,6 +189,9 @@ const (
 	// ServiceItemParamNameSITScheduleOrigin captures enum value "SITScheduleOrigin"
 	ServiceItemParamNameSITScheduleOrigin ServiceItemParamName = "SITScheduleOrigin"
 
+	// ServiceItemParamNameSITServiceAreaDest captures enum value "SITServiceAreaDest"
+	ServiceItemParamNameSITServiceAreaDest ServiceItemParamName = "SITServiceAreaDest"
+
 	// ServiceItemParamNameWeightAdjusted captures enum value "WeightAdjusted"
 	ServiceItemParamNameWeightAdjusted ServiceItemParamName = "WeightAdjusted"
 
@@ -213,6 +216,9 @@ const (
 	// ServiceItemParamNameZipSITDestHHGFinalAddress captures enum value "ZipSITDestHHGFinalAddress"
 	ServiceItemParamNameZipSITDestHHGFinalAddress ServiceItemParamName = "ZipSITDestHHGFinalAddress"
 
+	// ServiceItemParamNameZipSITDestHHGOriginalAddress captures enum value "ZipSITDestHHGOriginalAddress"
+	ServiceItemParamNameZipSITDestHHGOriginalAddress ServiceItemParamName = "ZipSITDestHHGOriginalAddress"
+
 	// ServiceItemParamNameZipSITOriginHHGActualAddress captures enum value "ZipSITOriginHHGActualAddress"
 	ServiceItemParamNameZipSITOriginHHGActualAddress ServiceItemParamName = "ZipSITOriginHHGActualAddress"
 
@@ -225,7 +231,7 @@ var serviceItemParamNameEnum []interface{}
 
 func init() {
 	var res []ServiceItemParamName
-	if err := json.Unmarshal([]byte(`["ActualPickupDate","ContractCode","ContractYearName","CubicFeetBilled","CubicFeetCrating","DimensionHeight","DimensionLength","DimensionWidth","DistanceZip","DistanceZipSITDest","DistanceZipSITOrigin","EIAFuelPrice","EscalationCompounded","FSCMultiplier","FSCPriceDifferenceInCents","FSCWeightBasedDistanceMultiplier","IsPeak","MarketDest","MarketOrigin","MTOAvailableToPrimeAt","NTSPackingFactor","NumberDaysSIT","PriceAreaDest","PriceAreaIntlDest","PriceAreaIntlOrigin","PriceAreaOrigin","PriceRateOrFactor","PSI_LinehaulDom","PSI_LinehaulDomPrice","PSI_LinehaulShort","PSI_LinehaulShortPrice","PSI_PriceDomDest","PSI_PriceDomDestPrice","PSI_PriceDomOrigin","PSI_PriceDomOriginPrice","PSI_ShippingLinehaulIntlCO","PSI_ShippingLinehaulIntlCOPrice","PSI_ShippingLinehaulIntlOC","PSI_ShippingLinehaulIntlOCPrice","PSI_ShippingLinehaulIntlOO","PSI_ShippingLinehaulIntlOOPrice","RateAreaNonStdDest","RateAreaNonStdOrigin","ReferenceDate","RequestedPickupDate","ServiceAreaDest","ServiceAreaOrigin","ServicesScheduleDest","ServicesScheduleOrigin","SITPaymentRequestEnd","SITPaymentRequestStart","SITScheduleDest","SITScheduleOrigin","WeightAdjusted","WeightBilled","WeightEstimated","WeightOriginal","WeightReweigh","ZipDestAddress","ZipPickupAddress","ZipSITDestHHGFinalAddress","ZipSITOriginHHGActualAddress","ZipSITOriginHHGOriginalAddress"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["ActualPickupDate","ContractCode","ContractYearName","CubicFeetBilled","CubicFeetCrating","DimensionHeight","DimensionLength","DimensionWidth","DistanceZip","DistanceZipSITDest","DistanceZipSITOrigin","EIAFuelPrice","EscalationCompounded","FSCMultiplier","FSCPriceDifferenceInCents","FSCWeightBasedDistanceMultiplier","IsPeak","MarketDest","MarketOrigin","MTOAvailableToPrimeAt","NTSPackingFactor","NumberDaysSIT","PriceAreaDest","PriceAreaIntlDest","PriceAreaIntlOrigin","PriceAreaOrigin","PriceRateOrFactor","PSI_LinehaulDom","PSI_LinehaulDomPrice","PSI_LinehaulShort","PSI_LinehaulShortPrice","PSI_PriceDomDest","PSI_PriceDomDestPrice","PSI_PriceDomOrigin","PSI_PriceDomOriginPrice","PSI_ShippingLinehaulIntlCO","PSI_ShippingLinehaulIntlCOPrice","PSI_ShippingLinehaulIntlOC","PSI_ShippingLinehaulIntlOCPrice","PSI_ShippingLinehaulIntlOO","PSI_ShippingLinehaulIntlOOPrice","RateAreaNonStdDest","RateAreaNonStdOrigin","ReferenceDate","RequestedPickupDate","ServiceAreaDest","ServiceAreaOrigin","ServicesScheduleDest","ServicesScheduleOrigin","SITPaymentRequestEnd","SITPaymentRequestStart","SITScheduleDest","SITScheduleOrigin","SITServiceAreaDest","WeightAdjusted","WeightBilled","WeightEstimated","WeightOriginal","WeightReweigh","ZipDestAddress","ZipPickupAddress","ZipSITDestHHGFinalAddress","ZipSITDestHHGOriginalAddress","ZipSITOriginHHGActualAddress","ZipSITOriginHHGOriginalAddress"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {

@@ -39,7 +39,6 @@ func (h GetPaymentRequestForMoveHandler) Handle(
 
 			paymentRequests, err := h.FetchPaymentRequestListByMove(
 				appCtx,
-				appCtx.Session().OfficeUserID,
 				locator,
 			)
 			if err != nil {

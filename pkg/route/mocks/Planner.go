@@ -160,13 +160,12 @@ func (_m *Planner) ZipTransitDistance(appCtx appcontext.AppContext, source strin
 	return r0, r1
 }
 
-type mockConstructorTestingTNewPlanner interface {
+// NewPlanner creates a new instance of Planner. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewPlanner(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewPlanner creates a new instance of Planner. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewPlanner(t mockConstructorTestingTNewPlanner) *Planner {
+}) *Planner {
 	mock := &Planner{}
 	mock.Mock.Test(t)
 

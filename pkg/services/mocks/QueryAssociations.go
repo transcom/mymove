@@ -39,13 +39,12 @@ func (_m *QueryAssociations) StringGetAssociations() []string {
 	return r0
 }
 
-type mockConstructorTestingTNewQueryAssociations interface {
+// NewQueryAssociations creates a new instance of QueryAssociations. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewQueryAssociations(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewQueryAssociations creates a new instance of QueryAssociations. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewQueryAssociations(t mockConstructorTestingTNewQueryAssociations) *QueryAssociations {
+}) *QueryAssociations {
 	mock := &QueryAssociations{}
 	mock.Mock.Test(t)
 

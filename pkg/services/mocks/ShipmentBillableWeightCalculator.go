@@ -15,36 +15,25 @@ type ShipmentBillableWeightCalculator struct {
 }
 
 // CalculateShipmentBillableWeight provides a mock function with given fields: shipment
-func (_m *ShipmentBillableWeightCalculator) CalculateShipmentBillableWeight(shipment *models.MTOShipment) (services.BillableWeightInputs, error) {
+func (_m *ShipmentBillableWeightCalculator) CalculateShipmentBillableWeight(shipment *models.MTOShipment) services.BillableWeightInputs {
 	ret := _m.Called(shipment)
 
 	var r0 services.BillableWeightInputs
-	var r1 error
-	if rf, ok := ret.Get(0).(func(*models.MTOShipment) (services.BillableWeightInputs, error)); ok {
-		return rf(shipment)
-	}
 	if rf, ok := ret.Get(0).(func(*models.MTOShipment) services.BillableWeightInputs); ok {
 		r0 = rf(shipment)
 	} else {
 		r0 = ret.Get(0).(services.BillableWeightInputs)
 	}
 
-	if rf, ok := ret.Get(1).(func(*models.MTOShipment) error); ok {
-		r1 = rf(shipment)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-type mockConstructorTestingTNewShipmentBillableWeightCalculator interface {
-	mock.TestingT
-	Cleanup(func())
+	return r0
 }
 
 // NewShipmentBillableWeightCalculator creates a new instance of ShipmentBillableWeightCalculator. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewShipmentBillableWeightCalculator(t mockConstructorTestingTNewShipmentBillableWeightCalculator) *ShipmentBillableWeightCalculator {
+// The first argument is typically a *testing.T value.
+func NewShipmentBillableWeightCalculator(t interface {
+	mock.TestingT
+	Cleanup(func())
+}) *ShipmentBillableWeightCalculator {
 	mock := &ShipmentBillableWeightCalculator{}
 	mock.Mock.Test(t)
 

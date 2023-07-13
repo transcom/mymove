@@ -374,6 +374,7 @@ func (m *MovingExpense) contextValidateCreatedAt(ctx context.Context, formats st
 func (m *MovingExpense) contextValidateDocument(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Document != nil {
+
 		if err := m.Document.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("document")
@@ -417,6 +418,11 @@ func (m *MovingExpense) contextValidateID(ctx context.Context, formats strfmt.Re
 func (m *MovingExpense) contextValidateMovingExpenseType(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.MovingExpenseType != nil {
+
+		if swag.IsZero(m.MovingExpenseType) { // not required
+			return nil
+		}
+
 		if err := m.MovingExpenseType.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("movingExpenseType")
@@ -442,6 +448,11 @@ func (m *MovingExpense) contextValidatePpmShipmentID(ctx context.Context, format
 func (m *MovingExpense) contextValidateReason(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Reason != nil {
+
+		if swag.IsZero(m.Reason) { // not required
+			return nil
+		}
+
 		if err := m.Reason.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("reason")
@@ -458,6 +469,11 @@ func (m *MovingExpense) contextValidateReason(ctx context.Context, formats strfm
 func (m *MovingExpense) contextValidateStatus(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Status != nil {
+
+		if swag.IsZero(m.Status) { // not required
+			return nil
+		}
+
 		if err := m.Status.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("status")

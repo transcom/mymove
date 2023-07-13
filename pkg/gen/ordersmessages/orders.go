@@ -196,6 +196,7 @@ func (m *Orders) ContextValidate(ctx context.Context, formats strfmt.Registry) e
 func (m *Orders) contextValidateIssuer(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Issuer != nil {
+
 		if err := m.Issuer.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("issuer")
@@ -214,6 +215,11 @@ func (m *Orders) contextValidateRevisions(ctx context.Context, formats strfmt.Re
 	for i := 0; i < len(m.Revisions); i++ {
 
 		if m.Revisions[i] != nil {
+
+			if swag.IsZero(m.Revisions[i]) { // not required
+				return nil
+			}
+
 			if err := m.Revisions[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("revisions" + "." + strconv.Itoa(i))

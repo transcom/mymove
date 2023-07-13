@@ -291,7 +291,7 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) supportmessages.MTOSe
 	var payload supportmessages.MTOServiceItem
 	// Here we determine which payload model to use based on the re service code
 	switch mtoServiceItem.ReService.Code {
-	case models.ReServiceCodeDOFSIT, models.ReServiceCodeDOASIT, models.ReServiceCodeDOPSIT:
+	case models.ReServiceCodeDOFSIT, models.ReServiceCodeDOASIT, models.ReServiceCodeDOPSIT, models.ReServiceCodeDOSFSC:
 		var sitDepartureDate time.Time
 		if mtoServiceItem.SITDepartureDate != nil {
 			sitDepartureDate = *mtoServiceItem.SITDepartureDate
@@ -303,7 +303,7 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) supportmessages.MTOSe
 			SitEntryDate:     handlers.FmtDatePtr(mtoServiceItem.SITEntryDate),
 			SitPostalCode:    mtoServiceItem.SITPostalCode,
 		}
-	case models.ReServiceCodeDDFSIT, models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT:
+	case models.ReServiceCodeDDFSIT, models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT, models.ReServiceCodeDDSFSC:
 		var sitDepartureDate time.Time
 		if mtoServiceItem.SITDepartureDate != nil {
 			sitDepartureDate = *mtoServiceItem.SITDepartureDate
@@ -313,8 +313,10 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) supportmessages.MTOSe
 
 		payload = &supportmessages.MTOServiceItemDestSIT{
 			ReServiceCode:               handlers.FmtString(string(mtoServiceItem.ReService.Code)),
+			DateOfContact1:              handlers.FmtDate(firstContact.DateOfContact),
 			TimeMilitary1:               handlers.FmtString(firstContact.TimeMilitary),
 			FirstAvailableDeliveryDate1: handlers.FmtDate(firstContact.FirstAvailableDeliveryDate),
+			DateOfContact2:              handlers.FmtDate(secondContact.DateOfContact),
 			TimeMilitary2:               handlers.FmtString(secondContact.TimeMilitary),
 			FirstAvailableDeliveryDate2: handlers.FmtDate(secondContact.FirstAvailableDeliveryDate),
 			SitDepartureDate:            handlers.FmtDate(sitDepartureDate),

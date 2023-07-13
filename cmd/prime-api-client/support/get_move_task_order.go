@@ -24,7 +24,7 @@ func InitGetMTOFlags(flag *pflag.FlagSet) {
 	flag.SortFlags = false
 }
 
-func checkGetMTOConfig(v *viper.Viper, args []string, logger *log.Logger) error {
+func checkGetMTOConfig(v *viper.Viper, logger *log.Logger) error {
 	err := utils.CheckRootConfig(v)
 	if err != nil {
 		logger.Fatal(err)
@@ -51,7 +51,7 @@ func GetMTO(cmd *cobra.Command, args []string) error {
 	}
 
 	// Check the config before talking to the CAC
-	err := checkGetMTOConfig(v, args, logger)
+	err := checkGetMTOConfig(v, logger)
 	if err != nil {
 		logger.Fatal(err)
 	}

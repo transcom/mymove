@@ -21,6 +21,7 @@ import (
 	"github.com/transcom/mymove/pkg/random"
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/address"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
@@ -2990,7 +2991,7 @@ func createMovesForEachBranch(appCtx appcontext.AppContext, userUploader *upload
 	}
 }
 
-func CreateSubmittedMoveWithPPMShipmentForSC(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter, moveInfo MoveCreatorInfo) models.Move {
+func CreateSubmittedMoveWithPPMShipmentForSC(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, _ services.MoveRouter, moveInfo MoveCreatorInfo) models.Move {
 	loginGovUUID := uuid.Must(uuid.NewV4())
 	submittedAt := time.Now()
 
@@ -3084,7 +3085,7 @@ func CreateSubmittedMoveWithPPMShipmentForSC(appCtx appcontext.AppContext, userU
 	return move
 }
 
-func createSubmittedMoveWithPPMShipmentForSCWithSIT(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter, locator string) {
+func createSubmittedMoveWithPPMShipmentForSCWithSIT(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, _ services.MoveRouter, locator string) {
 	userID := uuid.Must(uuid.NewV4())
 	email := "completeWithSIT@ppm.submitted"
 	loginGovUUID := uuid.Must(uuid.NewV4())
@@ -3946,7 +3947,12 @@ func createDefaultHHGMoveWithPaymentRequest(appCtx appcontext.AppContext, userUp
 // Creates an HHG Shipment with SIT at Origin and a payment request for first day and additional day SIT service items.
 // This is to compare to calculating the cost for SIT with a PPM which excludes delivery/pickup costs because the
 // address is not changing. 30 days of additional days in SIT are invoiced.
-func createHHGWithOriginSITServiceItems(appCtx appcontext.AppContext, primeUploader *uploader.PrimeUploader, moveRouter services.MoveRouter) {
+func createHHGWithOriginSITServiceItems(
+	appCtx appcontext.AppContext,
+	primeUploader *uploader.PrimeUploader,
+	moveRouter services.MoveRouter,
+	shipmentFetcher services.MTOShipmentFetcher,
+) {
 	db := appCtx.DB()
 	// Since we want to customize the Contractor ID for prime uploads, create the contractor here first
 	// BuildMove and BuildPrimeUpload both use FetchOrBuildDefaultContractor
@@ -4085,12 +4091,13 @@ func createHHGWithOriginSITServiceItems(appCtx appcontext.AppContext, primeUploa
 	if validErrs.HasAny() || createErr != nil {
 		logger.Fatal(fmt.Sprintf("error while creating origin sit service item: %v", verrs.Errors), zap.Error(createErr))
 	}
-
-	serviceItemUpdator := mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter)
+	addressCreator := address.NewAddressCreator()
+	serviceItemUpdator := mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter, shipmentFetcher, addressCreator)
 
 	var originFirstDaySIT models.MTOServiceItem
 	var originAdditionalDaySIT models.MTOServiceItem
 	var originPickupSIT models.MTOServiceItem
+	var originSITFSC models.MTOServiceItem
 	for _, createdServiceItem := range *createdOriginServiceItems {
 		switch createdServiceItem.ReService.Code {
 		case models.ReServiceCodeDOFSIT:
@@ -4099,10 +4106,12 @@ func createHHGWithOriginSITServiceItems(appCtx appcontext.AppContext, primeUploa
 			originAdditionalDaySIT = createdServiceItem
 		case models.ReServiceCodeDOPSIT:
 			originPickupSIT = createdServiceItem
+		case models.ReServiceCodeDOSFSC:
+			originSITFSC = createdServiceItem
 		}
 	}
 
-	for _, createdServiceItem := range []models.MTOServiceItem{originFirstDaySIT, originAdditionalDaySIT, originPickupSIT} {
+	for _, createdServiceItem := range []models.MTOServiceItem{originFirstDaySIT, originAdditionalDaySIT, originPickupSIT, originSITFSC} {
 		_, updateErr := serviceItemUpdator.ApproveOrRejectServiceItem(appCtx, createdServiceItem.ID, models.MTOServiceItemStatusApproved, nil, etag.GenerateEtag(createdServiceItem.UpdatedAt))
 		if updateErr != nil {
 			logger.Fatal("Error approving SIT service item", zap.Error(updateErr))
@@ -4145,8 +4154,9 @@ func createHHGWithOriginSITServiceItems(appCtx appcontext.AppContext, primeUploa
 		if serviceItem.ReService.Code == models.ReServiceCodeDOASIT {
 			paymentItem.PaymentServiceItemParams = doasitPaymentParams
 		}
-
-		paymentServiceItems = append(paymentServiceItems, paymentItem)
+		if serviceItem.ReService.Code != models.ReServiceCodeDOSFSC && serviceItem.ReService.Code != models.ReServiceCodeDDSFSC {
+			paymentServiceItems = append(paymentServiceItems, paymentItem)
+		}
 	}
 
 	paymentRequest.PaymentServiceItems = paymentServiceItems
@@ -4195,7 +4205,7 @@ func createHHGWithOriginSITServiceItems(appCtx appcontext.AppContext, primeUploa
 // Creates an HHG Shipment with SIT at Origin and a payment request for first day and additional day SIT service items.
 // This is to compare to calculating the cost for SIT with a PPM which excludes delivery/pickup costs because the
 // address is not changing. 30 days of additional days in SIT are invoiced.
-func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, primeUploader *uploader.PrimeUploader, moveRouter services.MoveRouter) {
+func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, primeUploader *uploader.PrimeUploader, moveRouter services.MoveRouter, shipmentFetcher services.MTOShipmentFetcher) {
 	db := appCtx.DB()
 
 	// Since we want to customize the Contractor ID for prime uploads, create the contractor here first
@@ -4331,11 +4341,13 @@ func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, prime
 		logger.Fatal(fmt.Sprintf("error while creating origin sit service item: %v", verrs.Errors), zap.Error(createErr))
 	}
 
-	serviceItemUpdator := mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter)
+	addressCreator := address.NewAddressCreator()
+	serviceItemUpdator := mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter, shipmentFetcher, addressCreator)
 
 	var destinationFirstDaySIT models.MTOServiceItem
 	var destinationAdditionalDaySIT models.MTOServiceItem
 	var destinationDeliverySIT models.MTOServiceItem
+	var destinationSITFSC models.MTOServiceItem
 	for _, createdServiceItem := range *createdOriginServiceItems {
 		switch createdServiceItem.ReService.Code {
 		case models.ReServiceCodeDDFSIT:
@@ -4344,10 +4356,12 @@ func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, prime
 			destinationAdditionalDaySIT = createdServiceItem
 		case models.ReServiceCodeDDDSIT:
 			destinationDeliverySIT = createdServiceItem
+		case models.ReServiceCodeDDSFSC:
+			destinationSITFSC = createdServiceItem
 		}
 	}
 
-	for _, createdServiceItem := range []models.MTOServiceItem{destinationFirstDaySIT, destinationAdditionalDaySIT, destinationDeliverySIT} {
+	for _, createdServiceItem := range []models.MTOServiceItem{destinationFirstDaySIT, destinationAdditionalDaySIT, destinationDeliverySIT, destinationSITFSC} {
 		_, updateErr := serviceItemUpdator.ApproveOrRejectServiceItem(appCtx, createdServiceItem.ID, models.MTOServiceItemStatusApproved, nil, etag.GenerateEtag(createdServiceItem.UpdatedAt))
 		if updateErr != nil {
 			logger.Fatal("Error approving SIT service item", zap.Error(updateErr))
@@ -4391,8 +4405,9 @@ func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, prime
 		if serviceItem.ReService.Code == models.ReServiceCodeDDASIT {
 			paymentItem.PaymentServiceItemParams = ddasitPaymentParams
 		}
-
-		paymentServiceItems = append(paymentServiceItems, paymentItem)
+		if serviceItem.ReService.Code != models.ReServiceCodeDOSFSC && serviceItem.ReService.Code != models.ReServiceCodeDDSFSC {
+			paymentServiceItems = append(paymentServiceItems, paymentItem)
+		}
 	}
 
 	paymentRequest.PaymentServiceItems = paymentServiceItems
@@ -4441,7 +4456,12 @@ func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, prime
 
 // Creates a payment request with domestic hhg and shorthaul shipments with
 // service item pricing params for displaying cost calculations
-func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploader *uploader.PrimeUploader, moveRouter services.MoveRouter) {
+func createHHGWithPaymentServiceItems(
+	appCtx appcontext.AppContext,
+	primeUploader *uploader.PrimeUploader,
+	moveRouter services.MoveRouter,
+	shipmentFetcher services.MTOShipmentFetcher,
+) {
 	db := appCtx.DB()
 	// Since we want to customize the Contractor ID for prime uploads, create the contractor here first
 	// BuildMove and BuildPrimeUpload both use FetchOrBuildDefaultContractor
@@ -4497,7 +4517,7 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 				Status:               models.MTOShipmentStatusSubmitted,
 				PrimeEstimatedWeight: &estimatedWeight,
 				PrimeActualWeight:    &actualWeight,
-				ShipmentType:         models.MTOShipmentTypeHHGShortHaulDom,
+				ShipmentType:         models.MTOShipmentTypeHHG,
 				SITDaysAllowance:     &SITAllowance,
 			},
 		},
@@ -4702,8 +4722,7 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), "90210", "94535").Return(348, nil).Once()
 
 	// called for domestic destination SIT delivery service item
-	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
-		"94535", "90210").Return(348, nil).Once()
+	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), "94535", "90210").Return(348, nil).Once()
 
 	for _, shipment := range []models.MTOShipment{longhaulShipment, shorthaulShipment, shipmentWithOriginalWeight, shipmentWithOriginalAndReweighWeight, shipmentWithOriginalAndReweighWeightReweihBolded, shipmentWithOriginalReweighAndAdjustedWeight, shipmentWithOriginalAndAdjustedWeight} {
 		shipmentUpdater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder, serviceItemCreator, planner)
@@ -4786,11 +4805,13 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 		logger.Fatal(fmt.Sprintf("error while creating destination sit service item: %v", verrs.Errors), zap.Error(createErr))
 	}
 
-	serviceItemUpdator := mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter)
+	addressCreator := address.NewAddressCreator()
+	serviceItemUpdater := mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter, shipmentFetcher, addressCreator)
 
 	var originFirstDaySIT models.MTOServiceItem
 	var originAdditionalDaySIT models.MTOServiceItem
 	var originPickupSIT models.MTOServiceItem
+	var originSITFSC models.MTOServiceItem
 	for _, createdServiceItem := range *createdOriginServiceItems {
 		switch createdServiceItem.ReService.Code {
 		case models.ReServiceCodeDOFSIT:
@@ -4799,13 +4820,15 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 			originAdditionalDaySIT = createdServiceItem
 		case models.ReServiceCodeDOPSIT:
 			originPickupSIT = createdServiceItem
+		case models.ReServiceCodeDOSFSC:
+			originSITFSC = createdServiceItem
 		}
 	}
 
 	originDepartureDate := originEntryDate.Add(15 * 24 * time.Hour)
 	originPickupSIT.SITDepartureDate = &originDepartureDate
 
-	updatedDOPSIT, updateOriginErr := serviceItemUpdator.UpdateMTOServiceItemPrime(appCtx, &originPickupSIT, etag.GenerateEtag(originPickupSIT.UpdatedAt))
+	updatedDOPSIT, updateOriginErr := serviceItemUpdater.UpdateMTOServiceItemPrime(appCtx, &originPickupSIT, etag.GenerateEtag(originPickupSIT.UpdatedAt))
 
 	if updateOriginErr != nil {
 		logger.Fatal(fmt.Sprintf("Error updating %s with departure date", models.ReServiceCodeDOPSIT))
@@ -4813,8 +4836,8 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 
 	originPickupSIT = *updatedDOPSIT
 
-	for _, createdServiceItem := range []models.MTOServiceItem{originFirstDaySIT, originAdditionalDaySIT, originPickupSIT} {
-		_, updateErr := serviceItemUpdator.ApproveOrRejectServiceItem(appCtx, createdServiceItem.ID, models.MTOServiceItemStatusApproved, nil, etag.GenerateEtag(createdServiceItem.UpdatedAt))
+	for _, createdServiceItem := range []models.MTOServiceItem{originFirstDaySIT, originAdditionalDaySIT, originPickupSIT, originSITFSC} {
+		_, updateErr := serviceItemUpdater.ApproveOrRejectServiceItem(appCtx, createdServiceItem.ID, models.MTOServiceItemStatusApproved, nil, etag.GenerateEtag(createdServiceItem.UpdatedAt))
 		if updateErr != nil {
 			logger.Fatal("Error approving SIT service item", zap.Error(updateErr))
 		}
@@ -4823,6 +4846,7 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 	var serviceItemDDFSIT models.MTOServiceItem
 	var serviceItemDDASIT models.MTOServiceItem
 	var serviceItemDDDSIT models.MTOServiceItem
+	var serviceItemDDSFSC models.MTOServiceItem
 	for _, createdDestServiceItem := range *createdDestServiceItems {
 		switch createdDestServiceItem.ReService.Code {
 		case models.ReServiceCodeDDFSIT:
@@ -4831,13 +4855,15 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 			serviceItemDDASIT = createdDestServiceItem
 		case models.ReServiceCodeDDDSIT:
 			serviceItemDDDSIT = createdDestServiceItem
+		case models.ReServiceCodeDDSFSC:
+			serviceItemDDSFSC = createdDestServiceItem
 		}
 	}
 
 	destDepartureDate := destEntryDate.Add(15 * 24 * time.Hour)
 	serviceItemDDDSIT.SITDepartureDate = &destDepartureDate
 
-	updatedDDDSIT, updateDestErr := serviceItemUpdator.UpdateMTOServiceItemPrime(appCtx, &serviceItemDDDSIT, etag.GenerateEtag(serviceItemDDDSIT.UpdatedAt))
+	updatedDDDSIT, updateDestErr := serviceItemUpdater.UpdateMTOServiceItemPrime(appCtx, &serviceItemDDDSIT, etag.GenerateEtag(serviceItemDDDSIT.UpdatedAt))
 
 	if updateDestErr != nil {
 		logger.Fatal(fmt.Sprintf("Error updating %s with departure date", models.ReServiceCodeDDDSIT))
@@ -4845,8 +4871,8 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 
 	serviceItemDDDSIT = *updatedDDDSIT
 
-	for _, createdServiceItem := range []models.MTOServiceItem{serviceItemDDASIT, serviceItemDDDSIT, serviceItemDDFSIT} {
-		_, updateErr := serviceItemUpdator.ApproveOrRejectServiceItem(appCtx, createdServiceItem.ID, models.MTOServiceItemStatusApproved, nil, etag.GenerateEtag(createdServiceItem.UpdatedAt))
+	for _, createdServiceItem := range []models.MTOServiceItem{serviceItemDDASIT, serviceItemDDDSIT, serviceItemDDFSIT, serviceItemDDSFSC} {
+		_, updateErr := serviceItemUpdater.ApproveOrRejectServiceItem(appCtx, createdServiceItem.ID, models.MTOServiceItemStatusApproved, nil, etag.GenerateEtag(createdServiceItem.UpdatedAt))
 		if updateErr != nil {
 			logger.Fatal("Error approving SIT service item", zap.Error(updateErr))
 		}
@@ -5037,7 +5063,9 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 		} else if serviceItem.ReService.Code == models.ReServiceCodeDDASIT {
 			paymentItem.PaymentServiceItemParams = ddasitPaymentParams
 		}
-		paymentServiceItems = append(paymentServiceItems, paymentItem)
+		if serviceItem.ReService.Code != models.ReServiceCodeDOSFSC && serviceItem.ReService.Code != models.ReServiceCodeDDSFSC {
+			paymentServiceItems = append(paymentServiceItems, paymentItem)
+		}
 	}
 
 	logger.Debug(serviceItemOrderString)
@@ -5685,10 +5713,12 @@ func createHHGMoveWith10ServiceItems(appCtx appcontext.AppContext, userUploader 
 	}, nil)
 
 	firstDeliveryDate := models.TimePointer(time.Now())
+	dateOfContact := models.TimePointer(time.Now())
 	customerContact1 := testdatagen.MakeMTOServiceItemCustomerContact(db, testdatagen.Assertions{
 		MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
-			ID:                         uuid.FromStringOrNil("f0f38ee0-0148-4892-9b5b-a091a8c5a645"),
+			ID:                         uuid.FromStringOrNil("8f048005-f090-45e9-936b-7fd22801f4ee"),
 			Type:                       models.CustomerContactTypeFirst,
+			DateOfContact:              dateOfContact.Add(time.Hour * 24),
 			TimeMilitary:               "0400Z",
 			FirstAvailableDeliveryDate: *firstDeliveryDate,
 		},
@@ -5696,8 +5726,9 @@ func createHHGMoveWith10ServiceItems(appCtx appcontext.AppContext, userUploader 
 
 	customerContact2 := testdatagen.MakeMTOServiceItemCustomerContact(db, testdatagen.Assertions{
 		MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
-			ID:                         uuid.FromStringOrNil("1398aea3-d09b-485d-81c7-3bb72c21fb38"),
+			ID:                         uuid.FromStringOrNil("32cfbc8a-2222-4014-b203-fbe059b6cb8d"),
 			Type:                       models.CustomerContactTypeSecond,
+			DateOfContact:              dateOfContact.Add(time.Hour * 48),
 			TimeMilitary:               "1200Z",
 			FirstAvailableDeliveryDate: firstDeliveryDate.Add(time.Hour * 24),
 		},
@@ -5881,7 +5912,7 @@ func createHHGMoveWith2PaymentRequests(appCtx appcontext.AppContext, userUploade
 				ID:                   uuid.FromStringOrNil("baa00811-2381-433e-8a96-2ced58e37a14"),
 				PrimeEstimatedWeight: &estimatedWeight,
 				PrimeActualWeight:    &actualWeight,
-				ShipmentType:         models.MTOShipmentTypeHHGShortHaulDom,
+				ShipmentType:         models.MTOShipmentTypeHHG,
 				ApprovedDate:         models.TimePointer(time.Now()),
 				Status:               models.MTOShipmentStatusApproved,
 			},
@@ -6625,6 +6656,7 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 		MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
 			ID:                         uuid.Must(uuid.NewV4()),
 			Type:                       models.CustomerContactTypeFirst,
+			DateOfContact:              time.Now().Add(time.Hour * 24),
 			TimeMilitary:               "0400Z",
 			FirstAvailableDeliveryDate: time.Now(),
 		},
@@ -6634,6 +6666,7 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 		MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
 			ID:                         uuid.Must(uuid.NewV4()),
 			Type:                       models.CustomerContactTypeSecond,
+			DateOfContact:              time.Now().Add(time.Hour * 48),
 			TimeMilitary:               "1200Z",
 			FirstAvailableDeliveryDate: time.Now().Add(time.Hour * 24),
 		},
@@ -6882,7 +6915,7 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 	}, nil)
 }
 
-func createMoveWithHHGAndNTSRMissingInfo(appCtx appcontext.AppContext, moveRouter services.MoveRouter) {
+func createMoveWithHHGAndNTSRMissingInfo(appCtx appcontext.AppContext, moveRouter services.MoveRouter, _ services.MTOShipmentFetcher) {
 	db := appCtx.DB()
 	move := factory.BuildMove(db, []factory.Customization{
 		{
@@ -7697,6 +7730,7 @@ func createMoveWith2ShipmentsAndPaymentRequest(appCtx appcontext.AppContext, use
 		MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
 			ID:                         uuid.Must(uuid.NewV4()),
 			Type:                       models.CustomerContactTypeFirst,
+			DateOfContact:              time.Now().Add(time.Hour * 24),
 			TimeMilitary:               "0400Z",
 			FirstAvailableDeliveryDate: time.Now(),
 		},
@@ -7705,6 +7739,7 @@ func createMoveWith2ShipmentsAndPaymentRequest(appCtx appcontext.AppContext, use
 	customerContact2 := testdatagen.MakeMTOServiceItemCustomerContact(db, testdatagen.Assertions{
 		MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
 			Type:                       models.CustomerContactTypeSecond,
+			DateOfContact:              time.Now().Add(time.Hour * 48),
 			TimeMilitary:               "1200Z",
 			FirstAvailableDeliveryDate: time.Now().Add(time.Hour * 24),
 		},
@@ -8680,25 +8715,16 @@ func createPrimeUser(appCtx appcontext.AppContext) models.User {
 				ID:            userUUID,
 				LoginGovUUID:  &loginGovUUID,
 				LoginGovEmail: email,
-				Active:        true,
-				Roles:         roles.Roles{userRole},
-			}},
-	}, nil)
+			},
+		},
+	}, []factory.Trait{factory.GetTraitPrimeUser})
 	return primeUser
 }
 
 func createDevClientCertForUser(appCtx appcontext.AppContext, user models.User) {
-	// Create dev client cert from 20191212230438_add_devlocal-mtls_client_cert.up.sql
-	devClientCert := models.ClientCert{
-		ID:           uuid.Must(uuid.FromString("190b1e07-eef8-445a-9696-5a2b49ee488d")),
-		Sha256Digest: "2c0c1fc67a294443292a9e71de0c71cc374fe310e8073f8cdc15510f6b0ef4db",
-		Subject:      "/C=US/ST=DC/L=Washington/O=Truss/OU=AppClientTLS/CN=devlocal",
-		UserID:       user.ID,
-	}
-	assertions := testdatagen.Assertions{
-		ClientCert: devClientCert,
-	}
-	testdatagen.MakeDevClientCert(appCtx.DB(), assertions)
+	devlocalCert := factory.FetchOrBuildDevlocalClientCert(appCtx.DB())
+	devlocalCert.UserID = user.ID
+	testdatagen.MustSave(appCtx.DB(), &devlocalCert)
 }
 
 func createHHGMoveWithReweigh(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -9264,6 +9290,104 @@ func createReweighWithShipmentDeprecatedPaymentRequest(appCtx appcontext.AppCont
 	filterFile := &[]string{"150Kb.png"}
 	paymentRequestID := uuid.Must(uuid.FromString("f80a07d3-0dcf-431f-b72c-dfd77e0483f6"))
 	makePaymentRequestForShipment(appCtx, move, shipment, primeUploader, filterFile, paymentRequestID, models.PaymentRequestStatusDeprecated)
+	testdatagen.MakeReweighForShipment(db, testdatagen.Assertions{UserUploader: userUploader}, shipment, unit.Pound(5000))
+}
+
+func createReweighWithShipmentEDIErrorPaymentRequest(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, moveRouter services.MoveRouter) {
+	db := appCtx.DB()
+	email := "errrorPaymentRequest@hhg.hhg"
+	uuidStr := "91252539-e8d0-4b9c-9722-d57c3b30bfb9"
+	loginGovUUID := uuid.Must(uuid.NewV4())
+	user := factory.BuildUser(db, []factory.Customization{
+		{
+			Model: models.User{
+				ID:            uuid.Must(uuid.FromString(uuidStr)),
+				LoginGovUUID:  &loginGovUUID,
+				LoginGovEmail: email,
+				Active:        true,
+			}},
+	}, nil)
+
+	smID := "8edb2121-3f7f-46f8-b8be-33ee60371369"
+	sm := factory.BuildExtendedServiceMember(db, []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				ID:            uuid.FromStringOrNil(smID),
+				FirstName:     models.StringPointer("Error"),
+				LastName:      models.StringPointer("PaymentRequest"),
+				Edipi:         models.StringPointer("6833908166"),
+				PersonalEmail: models.StringPointer(email),
+			},
+		},
+		{
+			Model:    user,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	move := factory.BuildMove(db, []factory.Customization{
+		{
+			Model:    sm,
+			LinkOnly: true,
+		},
+		{
+			Model: models.Move{
+				ID:         uuid.FromStringOrNil("18175273-1274-459e-b419-96450e49dafc"),
+				Locator:    "ERRPRQ",
+				TIORemarks: &tioRemarks,
+			},
+		},
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
+	actualHHGWeight := unit.Pound(6000)
+	now := time.Now()
+	shipment := factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				PrimeActualWeight: &actualHHGWeight,
+				ShipmentType:      models.MTOShipmentTypeHHG,
+				ApprovedDate:      &now,
+				Status:            models.MTOShipmentStatusApproved,
+			},
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
+	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
+	err := moveRouter.Submit(appCtx, &move, &newSignedCertification)
+	if err != nil {
+		log.Panic(err)
+	}
+	verrs, err := models.SaveMoveDependencies(db, &move)
+	if err != nil || verrs.HasAny() {
+		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
+	}
+	err = moveRouter.Approve(appCtx, &move)
+	if err != nil {
+		log.Panic(err)
+	}
+	move.AvailableToPrimeAt = &now
+	err = db.Save(&move)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	filterFile := &[]string{"150Kb.png"}
+	paymentRequestID := uuid.Must(uuid.FromString("cc967c33-674e-4987-b4fc-b48624191c43"))
+	makePaymentRequestForShipment(appCtx, move, shipment, primeUploader, filterFile, paymentRequestID, models.PaymentRequestStatusEDIError)
 	testdatagen.MakeReweighForShipment(db, testdatagen.Assertions{UserUploader: userUploader}, shipment, unit.Pound(5000))
 }
 
@@ -10646,6 +10770,54 @@ func createMoveWithFutureSIT(appCtx appcontext.AppContext, userUploader *uploade
 		},
 	}, nil)
 
+	factory.BuildMTOServiceItem(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:        models.MTOServiceItemStatusApproved,
+				SITEntryDate:  &threeMonthsFromNow,
+				SITPostalCode: &postalCode,
+				Reason:        &reason,
+			},
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDOASIT,
+			},
+		},
+		{
+			Model:    mtoShipmentSIT,
+			LinkOnly: true,
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	factory.BuildMTOServiceItem(db, []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:        models.MTOServiceItemStatusApproved,
+				SITEntryDate:  &threeMonthsFromNow,
+				SITPostalCode: &postalCode,
+				Reason:        &reason,
+			},
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDOPSIT,
+			},
+		},
+		{
+			Model:    mtoShipmentSIT,
+			LinkOnly: true,
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
+
 	factory.BuildPaymentRequest(db, []factory.Customization{
 		{
 			Model: models.PaymentRequest{
@@ -10746,7 +10918,7 @@ func createMoveWithOriginAndDestinationSIT(appCtx appcontext.AppContext, userUpl
 			LinkOnly: true,
 		},
 	}, nil)
-
+	approvedAt := time.Now()
 	oneWeekAgo := oneMonthAgo.Add(time.Hour * 24 * 23)
 	dddsit := factory.BuildMTOServiceItem(db, []factory.Customization{
 		{
@@ -10754,6 +10926,7 @@ func createMoveWithOriginAndDestinationSIT(appCtx appcontext.AppContext, userUpl
 				Status:       models.MTOServiceItemStatusApproved,
 				SITEntryDate: &oneWeekAgo,
 				Reason:       &reason,
+				ApprovedAt:   &approvedAt,
 			},
 		},
 		{
@@ -11525,7 +11698,7 @@ func createRandomMove(
 	allDutyLocations []models.DutyLocation,
 	dutyLocationsInGBLOC []models.DutyLocation,
 	withFullOrder bool,
-	userUploader *uploader.UserUploader,
+	_ *uploader.UserUploader,
 	moveTemplate models.Move,
 	mtoShipmentTemplate models.MTOShipment,
 	orderTemplate models.Order,

@@ -26,6 +26,16 @@ const serviceItems = [
       SITPostalCode: '22030',
       reason: "here's the reason",
     },
+    serviceRequestDocuments: [
+      {
+        uploads: [
+          {
+            filename: '/mto-service-item/ae1c6472-5e03-4f9c-bef5-55605dbeb31e/20230630161854-receipt.png',
+            url: '/storage//mto-service-item/ae1c6472-5e03-4f9c-bef5-55605dbeb31e/20230630161854-receipt.png?contentType=image%2Fpng',
+          },
+        ],
+      },
+    ],
   },
   {
     id: 'abc-1234',
@@ -36,9 +46,29 @@ const serviceItems = [
     code: 'DDFSIT',
     status: 'SUBMITTED',
     details: {
-      firstCustomerContact: { timeMilitary: '', firstAvailableDeliveryDate: '2020-11-22' },
-      secondCustomerContact: { timeMilitary: '', firstAvailableDeliveryDate: '2020-11-23' },
+      customerContacts: [
+        { timeMilitary: '', firstAvailableDeliveryDate: '2020-11-22' },
+        { timeMilitary: '', firstAvailableDeliveryDate: '2020-11-23' },
+      ],
     },
+    serviceRequestDocuments: [
+      {
+        uploads: [
+          {
+            filename: '/mto-service-item/ae1c6472-5e03-4f9c-bef5-55605dbeb31e/20230630161854-storage-document.pdf',
+            url: '/storage//mto-service-item/ae1c6472-5e03-4f9c-bef5-55605dbeb31e/20230630161854-storage-document.pdf?contentType=application%2Fpdf',
+          },
+        ],
+      },
+      {
+        uploads: [
+          {
+            filename: '/mto-service-item/ae1c6472-5e03-4f9c-bef5-55605dbeb31e/20230630161854-service-item-doc.pdf',
+            url: '/storage//mto-service-item/ae1c6472-5e03-4f9c-bef5-55605dbeb31e/20230630161854-service-item-doc.pdf?contentType=application%2Fpdf',
+          },
+        ],
+      },
+    ],
   },
   {
     id: 'cba-123',
@@ -82,6 +112,12 @@ const serviceItems = [
   },
 ];
 
+const serviceItemAddressUpdateAlert = {
+  makeVisible: false,
+  alertMessage: '',
+  alertType: '',
+};
+
 const approvedServiceItems = serviceItems.map((serviceItem) => {
   return {
     ...serviceItem,
@@ -98,16 +134,28 @@ const rejectedServiceItems = serviceItems.map((serviceItem) => {
 
 export const Default = () => (
   <MockProviders permissions={[permissionTypes.updateMTOServiceItem]}>
-    <RequestedServiceItemsTable serviceItems={serviceItems} statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED} />
+    <RequestedServiceItemsTable
+      serviceItems={serviceItems}
+      statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
+      serviceItemAddressUpdateAlert={serviceItemAddressUpdateAlert}
+    />
   </MockProviders>
 );
 export const ApprovedServiceItems = () => (
   <MockProviders permissions={[permissionTypes.updateMTOServiceItem]}>
-    <RequestedServiceItemsTable serviceItems={approvedServiceItems} statusForTableType={SERVICE_ITEM_STATUS.APPROVED} />
+    <RequestedServiceItemsTable
+      serviceItems={approvedServiceItems}
+      statusForTableType={SERVICE_ITEM_STATUS.APPROVED}
+      serviceItemAddressUpdateAlert={serviceItemAddressUpdateAlert}
+    />
   </MockProviders>
 );
 export const RejectedServiceItems = () => (
   <MockProviders permissions={[permissionTypes.updateMTOServiceItem]}>
-    <RequestedServiceItemsTable serviceItems={rejectedServiceItems} statusForTableType={SERVICE_ITEM_STATUS.REJECTED} />
+    <RequestedServiceItemsTable
+      serviceItems={rejectedServiceItems}
+      statusForTableType={SERVICE_ITEM_STATUS.REJECTED}
+      serviceItemAddressUpdateAlert={serviceItemAddressUpdateAlert}
+    />
   </MockProviders>
 );

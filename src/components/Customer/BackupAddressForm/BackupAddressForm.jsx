@@ -24,7 +24,7 @@ const BackupAddressForm = ({ formFieldsName, initialValues, onSubmit, onBack }) 
       validateOnMount
       validationSchema={validationSchema}
     >
-      {({ isValid, isSubmitting, handleSubmit }) => {
+      {({ isValid, isSubmitting, handleChange, handleSubmit, setFieldTouched }) => {
         return (
           <Form className={formStyles.form}>
             <h1>Backup address</h1>
@@ -35,7 +35,10 @@ const BackupAddressForm = ({ formFieldsName, initialValues, onSubmit, onBack }) 
             </p>
 
             <SectionWrapper className={formStyles.formSection}>
-              <AddressFields name={formFieldsName} />
+              <AddressFields
+                name={formFieldsName}
+                formikFunctionsToValidatePostalCodeOnChange={{ setFieldTouched, handleChange }}
+              />
             </SectionWrapper>
 
             <div className={formStyles.formActions}>

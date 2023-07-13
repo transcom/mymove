@@ -104,6 +104,11 @@ func (m *ProofOfServicePackage) contextValidateUploads(ctx context.Context, form
 	for i := 0; i < len(m.Uploads); i++ {
 
 		if m.Uploads[i] != nil {
+
+			if swag.IsZero(m.Uploads[i]) { // not required
+				return nil
+			}
+
 			if err := m.Uploads[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("uploads" + "." + strconv.Itoa(i))

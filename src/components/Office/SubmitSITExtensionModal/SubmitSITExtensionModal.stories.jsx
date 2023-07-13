@@ -28,11 +28,13 @@ export default {
 };
 
 const sitStatus = {
-  daysInSIT: 30,
-  location: 'DESTINATION',
-  sitEntryDate: '2023-03-19T00:00:00.000Z',
   totalDaysRemaining: 210,
   totalSITDaysUsed: 60,
+  currentSIT: {
+    location: 'DESTINATION',
+    daysInSIT: 30,
+    sitEntryDate: '2023-03-19T00:00:00.000Z',
+  },
 };
 
 export const Basic = () => (

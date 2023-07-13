@@ -50,7 +50,7 @@ const approvedMoveTaskOrder = {
           state: null,
           streetAddress1: null,
         },
-        shipmentType: 'HHG_LONGHAUL_DOMESTIC',
+        shipmentType: 'HHG',
         status: 'APPROVED',
         updatedAt: '2021-10-22',
         mtoServiceItems: null,

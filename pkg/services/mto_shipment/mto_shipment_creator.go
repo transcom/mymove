@@ -111,6 +111,23 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 		shipment.MTOServiceItems = serviceItemsList
 	}
 
+	// Populate the destination address fields with the new duty location's address when
+	// we have an HHG with no destination address, but don't copy over any street fields.
+	if shipment.ShipmentType == models.MTOShipmentTypeHHG && shipment.DestinationAddress == nil {
+		err = appCtx.DB().Load(&move, "Orders.NewDutyLocation.Address")
+		if err != nil {
+			return nil, apperror.NewQueryError("Orders", err, "")
+		}
+		newDutyLocationAddress := move.Orders.NewDutyLocation.Address
+		shipment.DestinationAddress = &models.Address{
+			StreetAddress1: "N/A", // can't use an empty string given the model validations
+			City:           newDutyLocationAddress.City,
+			State:          newDutyLocationAddress.State,
+			PostalCode:     newDutyLocationAddress.PostalCode,
+			Country:        newDutyLocationAddress.Country,
+		}
+	}
+
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		// create pickup and destination addresses
 		if shipment.PickupAddress != nil {
@@ -185,6 +202,22 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 			for _, agent := range shipment.MTOAgents {
 				copyOfAgent := agent
 				copyOfAgent.MTOShipmentID = shipment.ID
+				if copyOfAgent.FirstName != nil && *copyOfAgent.FirstName == "" {
+					copyOfAgent.FirstName = nil
+				}
+				if copyOfAgent.LastName != nil && *copyOfAgent.LastName == "" {
+					copyOfAgent.LastName = nil
+				}
+				if copyOfAgent.Email != nil && *copyOfAgent.Email == "" {
+					copyOfAgent.Email = nil
+				}
+				if copyOfAgent.Phone != nil && *copyOfAgent.Phone == "" {
+					copyOfAgent.Phone = nil
+				}
+				// If no fields are set, then we do not want to create the MTO agent
+				if copyOfAgent.FirstName == nil && copyOfAgent.LastName == nil && copyOfAgent.Email == nil && copyOfAgent.Phone == nil {
+					continue
+				}
 				verrs, err = f.builder.CreateOne(txnAppCtx, &copyOfAgent)
 				if verrs != nil && verrs.HasAny() {
 					return verrs

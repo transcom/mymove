@@ -54,6 +54,7 @@ type MTOServiceItem struct {
 	Dimensions                      MTOServiceItemDimensions       `has_many:"mto_service_item_dimensions" fk_id:"mto_service_item_id"`
 	CustomerContacts                MTOServiceItemCustomerContacts `many_to_many:"service_items_customer_contacts"`
 	SITAddressUpdates               SITAddressUpdates              `has_many:"sit_address_updates" fk_id:"mto_service_item_id"`
+	ServiceRequestDocuments         ServiceRequestDocuments        `has_many:"service_request_document" fk_id:"mto_service_item_id"`
 	CreatedAt                       time.Time                      `db:"created_at"`
 	UpdatedAt                       time.Time                      `db:"updated_at"`
 	ApprovedAt                      *time.Time                     `db:"approved_at"`
@@ -69,7 +70,7 @@ func (m MTOServiceItem) TableName() string {
 type MTOServiceItems []MTOServiceItem
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-func (m *MTOServiceItem) Validate(tx *pop.Connection) (*validate.Errors, error) {
+func (m *MTOServiceItem) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	var vs []validate.Validator
 	vs = append(vs, &validators.StringInclusion{Field: string(m.Status), Name: "Status", List: []string{
 		string(MTOServiceItemStatusSubmitted),
@@ -94,15 +95,20 @@ func FetchRelatedDestinationSITServiceItems(tx *pop.Connection, mtoServiceItemID
 		`SELECT msi.id
 			FROM mto_service_items msi
 			INNER JOIN re_services res ON msi.re_service_id = res.id
-			WHERE res.code IN (?, ?, ?) AND mto_shipment_id IN (
-				SELECT mto_shipment_id FROM mto_service_items WHERE id = ?)`, ReServiceCodeDDFSIT, ReServiceCodeDDASIT, ReServiceCodeDDDSIT, mtoServiceItemID).
+			WHERE res.code IN (?, ?, ?, ?) AND mto_shipment_id IN (
+				SELECT mto_shipment_id FROM mto_service_items WHERE id = ?)`, ReServiceCodeDDFSIT, ReServiceCodeDDASIT, ReServiceCodeDDDSIT, ReServiceCodeDDSFSC, mtoServiceItemID).
 		All(&relatedDestinationSITServiceItems)
 	return relatedDestinationSITServiceItems, err
 }
 
 func FetchServiceItem(db *pop.Connection, serviceItemID uuid.UUID) (MTOServiceItem, error) {
 	var serviceItem MTOServiceItem
-	err := db.Eager("SITDestinationFinalAddress", "SITDestinationOriginalAddress").Where("id = ?", serviceItemID).First(&serviceItem)
+	err := db.Eager("SITDestinationOriginalAddress",
+		"SITDestinationFinalAddress",
+		"SITAddressUpdates.NewAddress",
+		"ReService",
+		"SITAddressUpdates.OldAddress",
+		"CustomerContacts").Where("id = ?", serviceItemID).First(&serviceItem)
 
 	if err != nil {
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {

@@ -18,7 +18,7 @@ type RDSUTest struct {
 	passes []string
 }
 
-func (r *RDSUTest) GetToken(endpoint string, region string, user string, iamcreds *credentials.Credentials) (string, error) {
+func (r *RDSUTest) GetToken(_ string, _ string, _ string, _ *credentials.Credentials) (string, error) {
 	if len(r.passes) == 0 {
 		return "", errors.New("no passwords to rotate")
 	}
@@ -83,8 +83,9 @@ func TestGetCurrentPassword(t *testing.T) {
 	assert.NotNil(iamPostgres)
 
 	// this should block once and then continue
-	currentPass := iamPostgres.getCurrentPass()
+	currentPass, currentPassTime := iamPostgres.getCurrentPass()
 	assert.Equal(currentPass, "abc")
+	assert.NotNil(currentPassTime)
 	shouldQuitChan <- true
 
 	// This test wants to ensure that getCurrentPass does not return
@@ -155,8 +156,9 @@ func TestGetCurrentPasswordFail(t *testing.T) {
 	assert.NotNil(iamPostgres)
 
 	// this should block until maxRetries, then return empty string
-	currentPass := iamPostgres.getCurrentPass()
+	currentPass, currentPassTime := iamPostgres.getCurrentPass()
 	assert.Equal(currentPass, "")
+	assert.NotNil(currentPassTime)
 	shouldQuitChan <- true
 	assert.Equal(int(iamPostgres.maxRetries), pauseCounter)
 }
@@ -227,8 +229,9 @@ func TestEnableIAMNormal(t *testing.T) {
 
 	// Confirm that the password has changed (it's no longer the initial
 	// password) to the 1 password being cycled through.
-	pass := iamPostgres.getCurrentPass()
+	pass, passTime := iamPostgres.getCurrentPass()
 	assert.Equal("abc", pass)
+	assert.NotNil(passTime)
 
 	shouldQuitChan <- true
 
@@ -271,8 +274,9 @@ func TestUpdateDSN(t *testing.T) {
 			currentPassMutex: sync.Mutex{},
 			logger:           zaptest.NewLogger(t),
 		}
-		dsn, err := localIamPostgresConfig.updateDSN(tt.dsn)
+		dsn, dsnTime, err := localIamPostgresConfig.updateDSN(tt.dsn)
 		assert.Equal(dsn, tt.expectedDSN)
+		assert.Equal(localIamPostgresConfig.currentIamTime, dsnTime)
 		assert.Nil(err)
 	}
 }
@@ -280,11 +284,11 @@ func TestUpdateDSN(t *testing.T) {
 type FakeDriver struct {
 }
 
-func (fd FakeDriver) Ping(ctx context.Context) error {
+func (fd FakeDriver) Ping(_ context.Context) error {
 	return errors.New("FakePing Error")
 }
 
-func (fd FakeDriver) Prepare(query string) (driver.Stmt, error) {
+func (fd FakeDriver) Prepare(_ string) (driver.Stmt, error) {
 	return nil, errors.New("FakePrepare Error")
 }
 
@@ -296,22 +300,6 @@ func (fd FakeDriver) Close() error {
 	return errors.New("FakeClose Error")
 }
 
-func (fd FakeDriver) ResetSession(ctx context.Context) error {
+func (fd FakeDriver) ResetSession(_ context.Context) error {
 	return errors.New("FakeResetSession Error")
-}
-
-func TestDriverConnWrapper(t *testing.T) {
-	assert := assert.New(t)
-
-	fakeDriver := FakeDriver{}
-	wrapper := DriverConnWrapper{
-		Pinger:          fakeDriver,
-		Conn:            fakeDriver,
-		SessionResetter: fakeDriver,
-	}
-
-	ctx := context.Background()
-	assert.Error(wrapper.Ping(ctx))
-	assert.Error(wrapper.Close())
-	assert.Error(wrapper.ResetSession(ctx))
 }

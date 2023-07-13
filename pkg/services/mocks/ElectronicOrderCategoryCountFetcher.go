@@ -40,13 +40,12 @@ func (_m *ElectronicOrderCategoryCountFetcher) FetchElectronicOrderCategoricalCo
 	return r0, r1
 }
 
-type mockConstructorTestingTNewElectronicOrderCategoryCountFetcher interface {
+// NewElectronicOrderCategoryCountFetcher creates a new instance of ElectronicOrderCategoryCountFetcher. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewElectronicOrderCategoryCountFetcher(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewElectronicOrderCategoryCountFetcher creates a new instance of ElectronicOrderCategoryCountFetcher. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewElectronicOrderCategoryCountFetcher(t mockConstructorTestingTNewElectronicOrderCategoryCountFetcher) *ElectronicOrderCategoryCountFetcher {
+}) *ElectronicOrderCategoryCountFetcher {
 	mock := &ElectronicOrderCategoryCountFetcher{}
 	mock.Mock.Test(t)
 

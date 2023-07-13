@@ -5,11 +5,12 @@ package iampostgres
 
 import (
 	"context"
+	"crypto/sha256"
 	"database/sql"
 	"database/sql/driver"
+	"encoding/hex"
 	"errors"
 	"fmt"
-	"net/url"
 	"strings"
 	"sync"
 	"time"
@@ -29,11 +30,6 @@ const defaultMaxRetries = 120
 
 var defaultPauseFn pauseFunc = func() { time.Sleep(defaultPauseDuration) }
 
-// RDSPostgresDriver wrapper around postgres driver
-type RDSPostgresDriver struct {
-	*pg.Driver
-}
-
 // CustomPostgres is used to set the driverName to the custom postgres driver
 const CustomPostgres string = "custompostgres"
 
@@ -43,6 +39,7 @@ type iamPostgresConfig struct {
 	pauseFn          pauseFunc
 	passHolder       string
 	currentIamPass   string
+	currentIamTime   time.Time
 	currentPassMutex sync.Mutex
 	logger           *zap.Logger
 	host             string
@@ -62,9 +59,10 @@ var iamPostgres *iamPostgresConfig
 // valid password is available. It is only called when opening a new
 // database connection and thus only attempts to get the credentials a
 // limited number of times so that open a connection does not block forever
-func (i *iamPostgresConfig) getCurrentPass() string {
+func (i *iamPostgresConfig) getCurrentPass() (string, time.Time) {
 	// Blocks until the password from the dbConnectionDetails has a non blank password
 	currentPass := ""
+	var currentPassTime time.Time
 
 	counter := 0
 
@@ -73,6 +71,7 @@ func (i *iamPostgresConfig) getCurrentPass() string {
 
 		i.currentPassMutex.Lock()
 		currentPass = i.currentIamPass
+		currentPassTime = i.currentIamTime
 		i.currentPassMutex.Unlock()
 
 		if currentPass == "" {
@@ -88,17 +87,24 @@ func (i *iamPostgresConfig) getCurrentPass() string {
 		i.pauseFn()
 	}
 
-	return currentPass
+	return currentPass, currentPassTime
 }
 
-func (i *iamPostgresConfig) updateDSN(dsn string) (string, error) {
+func (i *iamPostgresConfig) updateDSN(dsn string) (string, time.Time, error) {
 	if !strings.Contains(dsn, i.passHolder) {
-		return "", errors.New("DSN does not contain password holder")
+		return "", time.Now(), errors.New("DSN does not contain password holder")
 	}
-	currentPass := i.getCurrentPass()
+	currentPass, currentPassTime := i.getCurrentPass()
 
-	dsn = strings.Replace(dsn, i.passHolder, currentPass, 1)
-	return dsn, nil
+	// because this now uses the postgresql user=bob password=secret
+	// style connection string, the password does not need to be query
+	// escaped
+	//
+	// use the same escaper logic as in pg.ParseURL in case "'" or "\"
+	// appears in the generated token
+	escaper := strings.NewReplacer(`'`, `\'`, `\`, `\\`)
+	dsn = strings.Replace(dsn, i.passHolder, escaper.Replace(currentPass), 1)
+	return dsn, currentPassTime, nil
 }
 
 func (i *iamPostgresConfig) generateNewIamPassword() {
@@ -107,10 +113,14 @@ func (i *iamPostgresConfig) generateNewIamPassword() {
 		i.logger.Error("Error building IAM auth token", zap.Error(err))
 	} else {
 		i.currentPassMutex.Lock()
-		i.currentIamPass = url.QueryEscape(authToken)
+		i.currentIamPass = authToken
+		i.currentIamTime = time.Now()
 		i.currentPassMutex.Unlock()
 	}
-	i.logger.Info("Successfully generated new IAM auth token")
+	hash := sha256.Sum256([]byte(authToken))
+	digest := hex.EncodeToString(hash[:])
+	i.logger.Info("Successfully generated new IAM auth token",
+		zap.String("pwDigest", digest))
 }
 
 // Refreshes the RDS IAM on the given interval.
@@ -170,128 +180,131 @@ func EnableIAM(host string, port string, region string, user string, passTemplat
 		shouldQuitChan:   shouldQuitChan,
 	}
 
+	// ensure at least one token has been generated
+	iamPostgres.generateNewIamPassword()
+
 	// GoRoutine to continually refresh the RDS IAM auth on the given interval.
 	go iamPostgres.refreshRDSIAM()
 	return nil
 }
 
-type DriverConnWrapper struct {
-	driver.Conn
-	driver.Pinger
-	driver.SessionResetter
-	driver.Validator
-	driver.ConnBeginTx
-	driver.ConnPrepareContext
-	driver.ExecerContext
-	driver.QueryerContext
-	// these interfaces are deprecated, so do not implement them
-	// putting this info here in case someone in the future wonders
-	//
-	// driver.Execer
-	// driver.Queryer
-	driver.Tx
-	createdAt time.Time
+// rdsPostgresConnector implements the database/sql/driver.Connector
+// interface
+type rdsPostgresConnector struct {
+	dsn    string
+	driver driver.Driver
 }
 
-var errWrap = errors.New("Cannot wrap driver conn")
-
-func (dcw DriverConnWrapper) Ping(ctx context.Context) error {
-
-	err := dcw.Pinger.Ping(ctx)
-	if err != nil {
-		zap.L().Info("IAM iampostgres ping failed",
-			zap.Any("createdAt", dcw.createdAt))
-	}
-	return err
-}
-
-func (dcw DriverConnWrapper) Close() error {
-	err := dcw.Conn.Close()
-	if err != nil {
-		zap.L().Error("IAM iampostgres Close failed",
-			zap.Any("createdAt", dcw.createdAt),
-			zap.Error(err))
-	}
-	return err
-}
-
-func (dcw DriverConnWrapper) ResetSession(ctx context.Context) error {
-	err := dcw.SessionResetter.ResetSession(ctx)
-	if err != nil {
-		zap.L().Error("IAM iampostgres reset session failed",
-			zap.Any("createdAt", dcw.createdAt),
-			zap.Error(err))
-	}
-	return err
-}
-
-func (d RDSPostgresDriver) newDriverConnWrapper(dsn string) (DriverConnWrapper, error) {
-	conn, err := d.Driver.Open(dsn)
-	if err != nil {
-		return DriverConnWrapper{}, err
-	}
-
-	pinger, ok := conn.(driver.Pinger)
-	if !ok {
-		return DriverConnWrapper{}, errWrap
-	}
-	sessionResetter, ok := conn.(driver.SessionResetter)
-	if !ok {
-		return DriverConnWrapper{}, errWrap
-	}
-	validator, ok := conn.(driver.Validator)
-	if !ok {
-		return DriverConnWrapper{}, errWrap
-	}
-	connBeginTx, ok := conn.(driver.ConnBeginTx)
-	if !ok {
-		return DriverConnWrapper{}, errWrap
-	}
-	connPrepareContext, ok := conn.(driver.ConnPrepareContext)
-	if !ok {
-		return DriverConnWrapper{}, errWrap
-	}
-	execerContext, ok := conn.(driver.ExecerContext)
-	if !ok {
-		return DriverConnWrapper{}, errWrap
-	}
-	queryerContext, ok := conn.(driver.QueryerContext)
-	if !ok {
-		return DriverConnWrapper{}, errWrap
-	}
-	tx, ok := conn.(driver.Tx)
-	if !ok {
-		return DriverConnWrapper{}, errWrap
-	}
-
-	return DriverConnWrapper{
-		Conn:               conn,
-		Pinger:             pinger,
-		SessionResetter:    sessionResetter,
-		Validator:          validator,
-		ConnBeginTx:        connBeginTx,
-		ConnPrepareContext: connPrepareContext,
-		ExecerContext:      execerContext,
-		QueryerContext:     queryerContext,
-		Tx:                 tx,
-		createdAt:          time.Now(),
-	}, nil
-}
-
-// Open wrapper around postgres Open func
-func (d RDSPostgresDriver) Open(dsn string) (_ driver.Conn, err error) {
+func retryableConnect(ctx context.Context, originalDsn string) (driver.Conn, error) {
 	useIAM := iamPostgres != nil && iamPostgres.useIAM
-	// default to global logger
+	dsn := originalDsn
+	var dsnTime time.Time
+	var err error
 	if useIAM {
-		dsn, err = iamPostgres.updateDSN(dsn)
+		dsn, dsnTime, err = iamPostgres.updateDSN(originalDsn)
 		if err != nil {
+			zap.L().Error("IAM iampostgres updateDSN failed", zap.Error(err))
 			return nil, err
 		}
 	}
-	return d.newDriverConnWrapper(dsn)
+
+	connector, err := pg.NewConnector(dsn)
+	if err != nil {
+		zap.L().Error("IAM iampostgres NewConnector failed",
+			zap.Any("useIAM", useIAM),
+			zap.Any("dsnTime", dsnTime),
+			zap.Any("diff", time.Now().Unix()-dsnTime.Unix()),
+			zap.Error(err))
+		return nil, err
+	}
+
+	conn, err := connector.Connect(ctx)
+	if err != nil {
+		parts := strings.Split(dsn, " ")
+		pw := ""
+		var b strings.Builder
+		for i := range parts {
+			if strings.HasPrefix(parts[i], "password") {
+				pw = strings.TrimPrefix(parts[i], "password=")
+			} else {
+				b.WriteString(parts[i] + " ")
+			}
+		}
+		hash := sha256.Sum256([]byte(pw))
+		digest := hex.EncodeToString(hash[:])
+
+		zap.L().Error("IAM iampostgres connector.Connect failed",
+			zap.Bool("useIAM", useIAM),
+			zap.Any("dsn", b.String()),
+			zap.Any("dsnTime", dsnTime),
+			zap.Any("diff", time.Now().Unix()-dsnTime.Unix()),
+			zap.String("pwDigest", digest),
+			zap.Error(err))
+		return nil, err
+	}
+
+	return conn, nil
+}
+
+// Connect is called each time a new connection to the database is
+// needed, so we can update the RDS IAM auth token immediately before
+// connecting to the DB
+func (c *rdsPostgresConnector) Connect(ctx context.Context) (driver.Conn, error) {
+	conn, err := retryableConnect(ctx, c.dsn)
+	if err != nil {
+		useIAM := iamPostgres != nil && iamPostgres.useIAM
+		if useIAM {
+			zap.L().Error("IAM iampostgres connect failed, retrying once", zap.Error(err))
+			iamPostgres.generateNewIamPassword()
+			conn, err = retryableConnect(ctx, c.dsn)
+			if err != nil {
+				zap.L().Error("IAM iampostgres retry failed", zap.Error(err))
+			} else {
+				zap.L().Error("IAM iampostgres retry ok")
+			}
+		}
+	}
+
+	return conn, err
+}
+
+func (c *rdsPostgresConnector) Driver() driver.Driver {
+	return c.driver
+}
+
+// RDSPostgresDriver implemements driver.DriverContext
+type RDSPostgresDriver struct {
+}
+
+// From go's documentation:
+//
+// If a Driver implements DriverContext, then sql.DB will call
+// OpenConnector to obtain a Connector and then invoke that
+// Connector's Connect method to obtain each needed connection,
+// instead of invoking the Driver's Open method for each connection.
+// The two-step sequence allows drivers to parse the name just once
+// and also provides access to per-Conn contexts.
+//
+// Milmove wants this for IAM Authentication so we can update the auth
+// token before connect
+func (d *RDSPostgresDriver) OpenConnector(dsn string) (driver.Connector, error) {
+	// convert to postgres style "username=foo password=bar" style so
+	// we don't have to URL encode the password
+	pgDsn, err := pg.ParseURL(dsn)
+	if err != nil {
+		return nil, err
+	}
+	return &rdsPostgresConnector{pgDsn, &pg.Driver{}}, nil
+}
+
+var errNotImplemented = errors.New("Open Not Implemented")
+
+func (d *RDSPostgresDriver) Open(_ string) (driver.Conn, error) {
+	// will not be called because of OpenConnector
+	return nil, errNotImplemented
 }
 
 func init() {
-	sql.Register(CustomPostgres, &RDSPostgresDriver{&pg.Driver{}})
+	sql.Register(CustomPostgres, &RDSPostgresDriver{})
 	sqlx.BindDriver(CustomPostgres, sqlx.DOLLAR)
 }

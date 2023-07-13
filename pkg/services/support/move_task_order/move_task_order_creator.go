@@ -118,7 +118,9 @@ func createOrder(appCtx appcontext.AppContext, customer *models.ServiceMember, o
 	if orderPayload.OriginDutyLocationID != nil {
 		originDutyLocation = &models.DutyLocation{}
 		originDutyLocationID := uuid.FromStringOrNil(orderPayload.OriginDutyLocationID.String())
-		err = appCtx.DB().Find(originDutyLocation, originDutyLocationID)
+		err = appCtx.DB().Q().EagerPreload(
+			"Address",
+		).Find(originDutyLocation, originDutyLocationID)
 		if err != nil {
 			appCtx.Logger().Error("supportapi.createOrder error", zap.Error(err))
 			switch err {
@@ -130,6 +132,18 @@ func createOrder(appCtx appcontext.AppContext, customer *models.ServiceMember, o
 		}
 		order.OriginDutyLocation = originDutyLocation
 		order.OriginDutyLocationID = &originDutyLocationID
+
+		var originDutyLocationGBLOC models.PostalCodeToGBLOC
+		originDutyLocationGBLOC, err = models.FetchGBLOCForPostalCode(appCtx.DB(), originDutyLocation.Address.PostalCode)
+		if err != nil {
+			switch err {
+			case sql.ErrNoRows:
+				return nil, apperror.NewNotFoundError(originDutyLocationID, "while looking for Duty Location PostalCodeToGBLOC")
+			default:
+				return nil, apperror.NewQueryError("PostalCodeToGBLOC", err, "")
+			}
+		}
+		order.OriginDutyLocationGBLOC = &originDutyLocationGBLOC.GBLOC
 	}
 	// Check that the uploaded orders document exists
 	var uploadedOrders *models.Document
@@ -153,6 +167,17 @@ func createOrder(appCtx appcontext.AppContext, customer *models.ServiceMember, o
 	// Add customer to mO
 	order.ServiceMember = *customer
 	order.ServiceMemberID = customer.ID
+
+	contractor, err := models.FetchGHCPrimeContractor(appCtx.DB())
+	if err != nil {
+		return nil, apperror.NewQueryError("Contractor", err, "Unable to find the Prime contractor")
+	}
+	packingAndShippingInstructions := models.InstructionsBeforeContractNumber + " " + contractor.ContractNumber + " " + models.InstructionsAfterContractNumber
+
+	order.PackingAndShippingInstructions = packingAndShippingInstructions
+	order.SupplyAndServicesCostEstimate = models.SupplyAndServicesCostEstimate
+	order.MethodOfPayment = models.MethodOfPayment
+	order.NAICS = models.NAICS
 
 	// Creates the order and the entitlement at the same time
 	verrs, err := appCtx.DB().Eager().ValidateAndCreate(order)

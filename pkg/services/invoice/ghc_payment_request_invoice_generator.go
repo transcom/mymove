@@ -240,6 +240,10 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(appCtx appcontext.AppContext
 		}
 	}
 
+	if moveTaskOrder.Orders.OriginDutyLocationGBLOC == nil {
+		return ediinvoice.Invoice858C{}, apperror.NewInvalidInputError(moveTaskOrder.OrdersID, fmt.Errorf("origin duty location GBLOC value is missing"), nil, "origin duty location GBLOC is required")
+	}
+
 	// Add buyer and seller organization names
 	err = g.createBuyerAndSellerOrganizationNamesSegments(appCtx, paymentRequest.ID, moveTaskOrder.Orders, &edi858.Header)
 	if err != nil {
@@ -265,7 +269,12 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(appCtx appcontext.AppContext
 	l3Count := 1
 	seCount := 1
 	headerSegmentCount := edi858.Header.Size()
-	serviceItemSegmentCount := len(edi858.ServiceItems) * ediinvoice.ServiceItemSegmentsSize
+	var fa2segments []edisegment.FA2
+	for _, serviceItem := range edi858.ServiceItems {
+		fa2segments = append(fa2segments, serviceItem.FA2s...)
+	}
+
+	serviceItemSegmentCount := len(edi858.ServiceItems)*ediinvoice.ServiceItemSegmentsSizeWithoutFA2s + len(fa2segments)
 	totalNumberOfSegments := stCount + headerSegmentCount + serviceItemSegmentCount + l3Count + seCount
 
 	edi858.SE = edisegment.SE{
@@ -390,7 +399,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createG62Segments(appCtx appcontext.A
 	return nil
 }
 
-func (g ghcPaymentRequestInvoiceGenerator) createBuyerAndSellerOrganizationNamesSegments(appCtx appcontext.AppContext, paymentRequestID uuid.UUID, orders models.Order, header *ediinvoice.InvoiceHeader) error {
+func (g ghcPaymentRequestInvoiceGenerator) createBuyerAndSellerOrganizationNamesSegments(appCtx appcontext.AppContext, _ uuid.UUID, orders models.Order, header *ediinvoice.InvoiceHeader) error {
 	var err error
 	var originDutyLocation models.DutyLocation
 	if orders.OriginDutyLocationID != nil && *orders.OriginDutyLocationID != uuid.Nil {
@@ -419,7 +428,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createBuyerAndSellerOrganizationNames
 	return nil
 }
 
-func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(appCtx appcontext.AppContext, paymentRequestID uuid.UUID, orders models.Order, header *ediinvoice.InvoiceHeader) error {
+func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(appCtx appcontext.AppContext, _ uuid.UUID, orders models.Order, header *ediinvoice.InvoiceHeader) error {
 	var err error
 	var destinationDutyLocation models.DutyLocation
 	if orders.NewDutyLocationID != uuid.Nil {

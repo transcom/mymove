@@ -19,7 +19,7 @@ import (
 func InitHideNonFakeMoveTaskOrdersFlags(flag *pflag.FlagSet) {
 	flag.SortFlags = false
 }
-func checkHideMoveTaskOrderConfig(v *viper.Viper, args []string, logger *log.Logger) error {
+func checkHideMoveTaskOrderConfig(v *viper.Viper, logger *log.Logger) error {
 	err := utils.CheckRootConfig(v)
 	if err != nil {
 		logger.Fatal(err)
@@ -38,7 +38,7 @@ func HideNonFakeMoveTaskOrders(cmd *cobra.Command, args []string) error {
 		return errParseFlags
 	}
 	// Check the config before talking to the CAC
-	err := checkHideMoveTaskOrderConfig(v, args, logger)
+	err := checkHideMoveTaskOrderConfig(v, logger)
 	if err != nil {
 		logger.Fatal(err)
 	}

@@ -36,13 +36,12 @@ func (_m *DTODPlannerMileage) DTODZip5Distance(appCtx appcontext.AppContext, pic
 	return r0, r1
 }
 
-type mockConstructorTestingTNewDTODPlannerMileage interface {
+// NewDTODPlannerMileage creates a new instance of DTODPlannerMileage. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewDTODPlannerMileage(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewDTODPlannerMileage creates a new instance of DTODPlannerMileage. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewDTODPlannerMileage(t mockConstructorTestingTNewDTODPlannerMileage) *DTODPlannerMileage {
+}) *DTODPlannerMileage {
 	mock := &DTODPlannerMileage{}
 	mock.Mock.Test(t)
 

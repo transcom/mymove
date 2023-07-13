@@ -73,6 +73,9 @@ type Order struct {
 	// Read Only: true
 	LastName string `json:"last_name,omitempty"`
 
+	// method of payment
+	MethodOfPayment string `json:"methodOfPayment,omitempty"`
+
 	// move code
 	// Example: H2XFJF
 	MoveCode string `json:"moveCode,omitempty"`
@@ -81,6 +84,9 @@ type Order struct {
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Format: uuid
 	MoveTaskOrderID strfmt.UUID `json:"moveTaskOrderID,omitempty"`
+
+	// naics
+	Naics string `json:"naics,omitempty"`
 
 	// NTS SAC
 	// Example: N002214CSW32Y9
@@ -103,6 +109,9 @@ type Order struct {
 	// origin duty location
 	OriginDutyLocation *DutyLocation `json:"originDutyLocation,omitempty"`
 
+	// packing and shipping instructions
+	PackingAndShippingInstructions string `json:"packingAndShippingInstructions,omitempty"`
+
 	// report by date
 	// Example: 2020-01-01
 	// Format: date
@@ -115,6 +124,9 @@ type Order struct {
 	// Do you have a spouse who will need to move items related to their occupation (also known as spouse pro-gear)?
 	// Example: false
 	SpouseHasProGear bool `json:"spouse_has_pro_gear,omitempty"`
+
+	// supply and services cost estimate
+	SupplyAndServicesCostEstimate string `json:"supplyAndServicesCostEstimate,omitempty"`
 
 	// TAC
 	// Example: F8J1
@@ -531,6 +543,11 @@ func (m *Order) ContextValidate(ctx context.Context, formats strfmt.Registry) er
 func (m *Order) contextValidateAgency(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Agency != nil {
+
+		if swag.IsZero(m.Agency) { // not required
+			return nil
+		}
+
 		if err := m.Agency.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("agency")
@@ -547,6 +564,11 @@ func (m *Order) contextValidateAgency(ctx context.Context, formats strfmt.Regist
 func (m *Order) contextValidateCustomer(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Customer != nil {
+
+		if swag.IsZero(m.Customer) { // not required
+			return nil
+		}
+
 		if err := m.Customer.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("customer")
@@ -563,6 +585,11 @@ func (m *Order) contextValidateCustomer(ctx context.Context, formats strfmt.Regi
 func (m *Order) contextValidateDepartmentIndicator(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.DepartmentIndicator != nil {
+
+		if swag.IsZero(m.DepartmentIndicator) { // not required
+			return nil
+		}
+
 		if err := m.DepartmentIndicator.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("department_indicator")
@@ -579,6 +606,11 @@ func (m *Order) contextValidateDepartmentIndicator(ctx context.Context, formats 
 func (m *Order) contextValidateDestinationDutyLocation(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.DestinationDutyLocation != nil {
+
+		if swag.IsZero(m.DestinationDutyLocation) { // not required
+			return nil
+		}
+
 		if err := m.DestinationDutyLocation.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("destinationDutyLocation")
@@ -595,6 +627,11 @@ func (m *Order) contextValidateDestinationDutyLocation(ctx context.Context, form
 func (m *Order) contextValidateEntitlement(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Entitlement != nil {
+
+		if swag.IsZero(m.Entitlement) { // not required
+			return nil
+		}
+
 		if err := m.Entitlement.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("entitlement")
@@ -620,6 +657,11 @@ func (m *Order) contextValidateFirstName(ctx context.Context, formats strfmt.Reg
 func (m *Order) contextValidateGrade(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Grade != nil {
+
+		if swag.IsZero(m.Grade) { // not required
+			return nil
+		}
+
 		if err := m.Grade.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("grade")
@@ -644,6 +686,10 @@ func (m *Order) contextValidateLastName(ctx context.Context, formats strfmt.Regi
 
 func (m *Order) contextValidateOrderType(ctx context.Context, formats strfmt.Registry) error {
 
+	if swag.IsZero(m.OrderType) { // not required
+		return nil
+	}
+
 	if err := m.OrderType.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("order_type")
@@ -659,6 +705,11 @@ func (m *Order) contextValidateOrderType(ctx context.Context, formats strfmt.Reg
 func (m *Order) contextValidateOrderTypeDetail(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.OrderTypeDetail != nil {
+
+		if swag.IsZero(m.OrderTypeDetail) { // not required
+			return nil
+		}
+
 		if err := m.OrderTypeDetail.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("order_type_detail")
@@ -675,6 +726,11 @@ func (m *Order) contextValidateOrderTypeDetail(ctx context.Context, formats strf
 func (m *Order) contextValidateOriginDutyLocation(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.OriginDutyLocation != nil {
+
+		if swag.IsZero(m.OriginDutyLocation) { // not required
+			return nil
+		}
+
 		if err := m.OriginDutyLocation.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("originDutyLocation")

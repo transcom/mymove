@@ -18,8 +18,10 @@ import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { MoveShape } from 'types/customerShapes';
 import { ShipmentShape } from 'types/shipment';
 import { isPPMShipmentComplete } from 'utils/shipments';
+import { useTitle } from 'hooks/custom';
 
 const Review = ({ currentMove, mtoShipments }) => {
+  useTitle('Move review');
   const navigate = useNavigate();
   const { moveId } = useParams();
   const handleCancel = () => {

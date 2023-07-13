@@ -69,8 +69,10 @@ var ServiceItemParamsWithLookups = []models.ServiceItemParamName{
 	models.ServiceItemParamNameServicesScheduleDest,
 	models.ServiceItemParamNameSITScheduleOrigin,
 	models.ServiceItemParamNameSITScheduleDest,
+	models.ServiceItemParamNameSITServiceAreaDest,
 	models.ServiceItemParamNameNumberDaysSIT,
 	models.ServiceItemParamNameZipSITDestHHGFinalAddress,
+	models.ServiceItemParamNameZipSITDestHHGOriginalAddress,
 	models.ServiceItemParamNameZipSITOriginHHGOriginalAddress,
 	models.ServiceItemParamNameZipSITOriginHHGActualAddress,
 	models.ServiceItemParamNameDistanceZipSITDest,
@@ -124,7 +126,7 @@ func ServiceParamLookupInitialize(
 	//
 
 	// Load data that is only used by a few service items
-	var sitDestinationFinalAddress models.Address
+	var sitDestinationFinalAddress, sitDestinationOriginalAddress models.Address
 	var serviceItemDimensions models.MTOServiceItemDimensions
 
 	switch mtoServiceItem.ReService.Code {
@@ -134,7 +136,7 @@ func ServiceParamLookupInitialize(
 			return nil, err
 		}
 		serviceItemDimensions = mtoServiceItem.Dimensions
-	case models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT, models.ReServiceCodeDDFSIT:
+	case models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT, models.ReServiceCodeDDFSIT, models.ReServiceCodeDDSFSC:
 		// load destination address from final address on service item
 		if mtoServiceItem.SITDestinationFinalAddressID != nil && *mtoServiceItem.SITDestinationFinalAddressID != uuid.Nil {
 			err := appCtx.DB().Load(&mtoServiceItem, "SITDestinationFinalAddress")
@@ -143,9 +145,18 @@ func ServiceParamLookupInitialize(
 			}
 			sitDestinationFinalAddress = *mtoServiceItem.SITDestinationFinalAddress
 		}
+
+		if mtoServiceItem.SITDestinationOriginalAddressID != nil && *mtoServiceItem.SITDestinationOriginalAddressID != uuid.Nil {
+			err := appCtx.DB().Load(&mtoServiceItem, "SITDestinationOriginalAddress")
+			if err != nil {
+				return nil, err
+			}
+			sitDestinationOriginalAddress = *mtoServiceItem.SITDestinationOriginalAddress
+		}
 	}
 
 	mtoServiceItem.SITDestinationFinalAddress = &sitDestinationFinalAddress
+	mtoServiceItem.SITDestinationOriginalAddress = &sitDestinationOriginalAddress
 	mtoServiceItem.Dimensions = serviceItemDimensions
 
 	// Load shipment fields for service items that need them
@@ -192,7 +203,7 @@ func ServiceParamLookupInitialize(
 	mtoShipment.DestinationAddress = &destinationAddress
 
 	switch mtoServiceItem.ReService.Code {
-	case models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT, models.ReServiceCodeDDFSIT, models.ReServiceCodeDOASIT, models.ReServiceCodeDOPSIT, models.ReServiceCodeDOFSIT:
+	case models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT, models.ReServiceCodeDDFSIT, models.ReServiceCodeDDSFSC, models.ReServiceCodeDOASIT, models.ReServiceCodeDOPSIT, models.ReServiceCodeDOFSIT, models.ReServiceCodeDOSFSC:
 		err := appCtx.DB().Load(&mtoShipment, "SITDurationUpdates")
 		if err != nil {
 			return nil, err
@@ -240,6 +251,10 @@ func (s *ServiceItemParamKeyData) setLookup(appCtx appcontext.AppContext, servic
 
 func InitializeLookups(shipment models.MTOShipment, serviceItem models.MTOServiceItem) map[models.ServiceItemParamName]ServiceItemParamKeyLookup {
 	lookups := map[models.ServiceItemParamName]ServiceItemParamKeyLookup{}
+
+	if serviceItem.SITDestinationOriginalAddress == nil {
+		serviceItem.SITDestinationOriginalAddress = &models.Address{}
+	}
 
 	if serviceItem.SITDestinationFinalAddress == nil {
 		serviceItem.SITDestinationFinalAddress = &models.Address{}
@@ -335,7 +350,7 @@ func InitializeLookups(shipment models.MTOShipment, serviceItem models.MTOServic
 	}
 
 	lookups[models.ServiceItemParamNameSITScheduleDest] = SITScheduleLookup{
-		Address: *shipment.DestinationAddress,
+		Address: *serviceItem.SITDestinationFinalAddress,
 	}
 
 	lookups[models.ServiceItemParamNameNumberDaysSIT] = NumberDaysSITLookup{
@@ -344,6 +359,14 @@ func InitializeLookups(shipment models.MTOShipment, serviceItem models.MTOServic
 
 	lookups[models.ServiceItemParamNameZipSITDestHHGFinalAddress] = ZipAddressLookup{
 		Address: *serviceItem.SITDestinationFinalAddress,
+	}
+
+	lookups[models.ServiceItemParamNameSITServiceAreaDest] = ServiceAreaLookup{
+		Address: *serviceItem.SITDestinationFinalAddress,
+	}
+
+	lookups[models.ServiceItemParamNameZipSITDestHHGOriginalAddress] = ZipAddressLookup{
+		Address: *serviceItem.SITDestinationOriginalAddress,
 	}
 
 	lookups[models.ServiceItemParamNameZipSITOriginHHGOriginalAddress] = ZipSITOriginHHGOriginalAddressLookup{
@@ -355,7 +378,7 @@ func InitializeLookups(shipment models.MTOShipment, serviceItem models.MTOServic
 	}
 
 	lookups[models.ServiceItemParamNameDistanceZipSITDest] = DistanceZipSITDestLookup{
-		DestinationAddress:      *shipment.DestinationAddress,
+		DestinationAddress:      *serviceItem.SITDestinationOriginalAddress,
 		FinalDestinationAddress: *serviceItem.SITDestinationFinalAddress,
 	}
 

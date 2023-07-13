@@ -598,6 +598,54 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		mockShipmentRecalculator.AssertNotCalled(suite.T(), "ShipmentRecalculatePaymentRequest", mock.Anything, mock.Anything)
 	})
 
+	suite.Run("Successfully remove MTO Agent", func() {
+		setupTestData()
+
+		shipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
+		existingAgent := factory.BuildMTOAgent(suite.DB(), []factory.Customization{
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOAgent{
+					FirstName:    models.StringPointer("Test"),
+					LastName:     models.StringPointer("Agent"),
+					Email:        models.StringPointer("test@test.email.com"),
+					MTOAgentType: models.MTOAgentReleasing,
+				},
+			},
+		}, nil)
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+
+		updatedAgents := make(models.MTOAgents, 1)
+		blankFirstName := ""
+		blankLastName := ""
+		blankPhone := ""
+		blankEmail := ""
+		existingAgent.FirstName = &blankFirstName
+		existingAgent.LastName = &blankLastName
+		existingAgent.Email = &blankEmail
+		existingAgent.Phone = &blankPhone
+		updatedAgents[0] = existingAgent
+
+		updatedShipment := models.MTOShipment{
+			ID:        shipment.ID,
+			MTOAgents: updatedAgents,
+		}
+
+		session := auth.Session{}
+		updatedMTOShipment, err := mtoShipmentUpdaterCustomer.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag)
+
+		suite.Require().NoError(err)
+		suite.NotZero(updatedMTOShipment.ID, oldMTOShipment.ID)
+		// Verify that there are no returned MTO Agents
+		suite.Equal(0, len(updatedMTOShipment.MTOAgents))
+
+		// Verify that shipment recalculate was handled correctly
+		mockShipmentRecalculator.AssertNotCalled(suite.T(), "ShipmentRecalculatePaymentRequest", mock.Anything, mock.Anything)
+	})
+
 	suite.Run("Successfully add storage facility to shipment", func() {
 		setupTestData()
 
@@ -1449,7 +1497,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 			},
 			{
 				Model: models.MTOShipment{
-					ShipmentType:         models.MTOShipmentTypeHHGLongHaulDom,
+					ShipmentType:         models.MTOShipmentTypeHHG,
 					ScheduledPickupDate:  &testdatagen.DateInsidePeakRateCycle,
 					PrimeEstimatedWeight: &estimatedWeight,
 					Status:               models.MTOShipmentStatusSubmitted,
@@ -1654,7 +1702,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 			},
 			{
 				Model: models.MTOShipment{
-					ShipmentType:         models.MTOShipmentTypeHHGLongHaulDom,
+					ShipmentType:         models.MTOShipmentTypeHHG,
 					ScheduledPickupDate:  &testdatagen.DateInsidePeakRateCycle,
 					PrimeEstimatedWeight: &estimatedWeight,
 					Status:               models.MTOShipmentStatusSubmitted,
@@ -2559,5 +2607,154 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentNullableFields() {
 		suite.NoError(err)
 		suite.Equal(*requestedUpdate.TACType, *updatedMtoShipment.TACType)
 		suite.Equal(*shipment.SACType, *updatedMtoShipment.SACType)
+	})
+}
+
+func (suite *MTOShipmentServiceSuite) TestUpdateStatusServiceItems() {
+
+	expectedReServiceCodes := []models.ReServiceCode{
+		models.ReServiceCodeDLH,
+		models.ReServiceCodeDSH,
+		models.ReServiceCodeFSC,
+		models.ReServiceCodeDOP,
+		models.ReServiceCodeDDP,
+		models.ReServiceCodeDPK,
+		models.ReServiceCodeDUPK,
+	}
+
+	var pickupAddress models.Address
+	var longhaulDestinationAddress models.Address
+	var shorthaulDestinationAddress models.Address
+	var mto models.Move
+
+	setupTestData := func() {
+		for i := range expectedReServiceCodes {
+			factory.BuildReServiceByCode(suite.DB(), expectedReServiceCodes[i])
+		}
+
+		pickupAddress = factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "7 Q St",
+					City:           "Twentynine Palms",
+					State:          "CA",
+					PostalCode:     "92277",
+				},
+			},
+		}, nil)
+
+		longhaulDestinationAddress = factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "278 E Maple Drive",
+					City:           "San Diego",
+					State:          "CA",
+					PostalCode:     "92114",
+				},
+			},
+		}, nil)
+
+		shorthaulDestinationAddress = factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "448 Washington Boulevard NE",
+					City:           "Winterhaven",
+					State:          "CA",
+					PostalCode:     "92283",
+				},
+			},
+		}, nil)
+
+		mto = factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVED,
+				},
+			},
+		}, nil)
+	}
+
+	builder := query.NewQueryBuilder()
+	moveRouter := moveservices.NewMoveRouter()
+	siCreator := mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter)
+	planner := &mocks.Planner{}
+	updater := NewMTOShipmentStatusUpdater(builder, siCreator, planner)
+
+	suite.Run("Shipments with different origin/destination ZIP3 have longhaul service item", func() {
+		setupTestData()
+
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    mto,
+				LinkOnly: true,
+			},
+			{
+				Model:    pickupAddress,
+				Type:     &factory.Addresses.PickupAddress,
+				LinkOnly: true,
+			},
+			{
+				Model:    longhaulDestinationAddress,
+				Type:     &factory.Addresses.DeliveryAddress,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypeHHG,
+					Status:       models.MTOShipmentStatusSubmitted,
+				},
+			},
+		}, nil)
+
+		appCtx := suite.AppContextForTest()
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+
+		updatedShipment, err := updater.UpdateMTOShipmentStatus(appCtx, shipment.ID, models.MTOShipmentStatusApproved, nil, eTag)
+		suite.NoError(err)
+
+		serviceItems := models.MTOServiceItems{}
+		err = appCtx.DB().EagerPreload("ReService").Where("mto_shipment_id = ?", updatedShipment.ID).All(&serviceItems)
+		suite.NoError(err)
+
+		suite.Equal(models.ReServiceCodeDLH, serviceItems[0].ReService.Code)
+	})
+
+	suite.Run("Shipments with same origin/destination ZIP3 have shorthaul service item", func() {
+		setupTestData()
+
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    mto,
+				LinkOnly: true,
+			},
+			{
+				Model:    pickupAddress,
+				Type:     &factory.Addresses.PickupAddress,
+				LinkOnly: true,
+			},
+			{
+				Model:    shorthaulDestinationAddress,
+				Type:     &factory.Addresses.DeliveryAddress,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypeHHG,
+					Status:       models.MTOShipmentStatusSubmitted,
+				},
+			},
+		}, nil)
+
+		appCtx := suite.AppContextForTest()
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+
+		updatedShipment, err := updater.UpdateMTOShipmentStatus(appCtx, shipment.ID, models.MTOShipmentStatusApproved, nil, eTag)
+		suite.NoError(err)
+
+		serviceItems := models.MTOServiceItems{}
+		err = appCtx.DB().EagerPreload("ReService").Where("mto_shipment_id = ?", updatedShipment.ID).All(&serviceItems)
+		suite.NoError(err)
+
+		suite.Equal(models.ReServiceCodeDSH, serviceItems[0].ReService.Code)
 	})
 }

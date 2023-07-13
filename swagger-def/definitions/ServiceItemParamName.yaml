@@ -53,6 +53,7 @@ enum:
   - SITPaymentRequestStart
   - SITScheduleDest
   - SITScheduleOrigin
+  - SITServiceAreaDest
   - WeightAdjusted
   - WeightBilled
   - WeightEstimated
@@ -61,5 +62,6 @@ enum:
   - ZipDestAddress
   - ZipPickupAddress
   - ZipSITDestHHGFinalAddress
+  - ZipSITDestHHGOriginalAddress
   - ZipSITOriginHHGActualAddress
   - ZipSITOriginHHGOriginalAddress

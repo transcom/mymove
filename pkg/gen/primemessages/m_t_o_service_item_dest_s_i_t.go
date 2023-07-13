@@ -32,7 +32,17 @@ type MTOServiceItemDestSIT struct {
 
 	rejectionReasonField *string
 
+	serviceRequestDocumentsField ServiceRequestDocuments
+
 	statusField MTOServiceItemStatus
+
+	// Date of attempted contact by the prime corresponding to `timeMilitary1`.
+	// Format: date
+	DateOfContact1 *strfmt.Date `json:"dateOfContact1,omitempty"`
+
+	// Date of attempted contact by the prime corresponding to `timeMilitary2`.
+	// Format: date
+	DateOfContact2 *strfmt.Date `json:"dateOfContact2,omitempty"`
 
 	// First available date that Prime can deliver SIT service item.
 	// Format: date
@@ -52,6 +62,9 @@ type MTOServiceItemDestSIT struct {
 	// Required: true
 	Reason *string `json:"reason"`
 
+	// sit address updates
+	SitAddressUpdates SitAddressUpdates `json:"sitAddressUpdates,omitempty"`
+
 	// Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.
 	// Format: date
 	SitDepartureDate *strfmt.Date `json:"sitDepartureDate,omitempty"`
@@ -64,12 +77,12 @@ type MTOServiceItemDestSIT struct {
 	// Format: date
 	SitEntryDate *strfmt.Date `json:"sitEntryDate"`
 
-	// Time of delivery corresponding to `firstAvailableDeliveryDate1`, in military format.
+	// Time of attempted contact corresponding to `dateOfContact1`, in military format.
 	// Example: 1400Z
 	// Pattern: \d{4}Z
 	TimeMilitary1 *string `json:"timeMilitary1,omitempty"`
 
-	// Time of delivery corresponding to `firstAvailableDeliveryDate2`, in military format.
+	// Time of attempted contact corresponding to `dateOfContact2`, in military format.
 	// Example: 1400Z
 	// Pattern: \d{4}Z
 	TimeMilitary2 *string `json:"timeMilitary2,omitempty"`
@@ -144,6 +157,16 @@ func (m *MTOServiceItemDestSIT) SetRejectionReason(val *string) {
 	m.rejectionReasonField = val
 }
 
+// ServiceRequestDocuments gets the service request documents of this subtype
+func (m *MTOServiceItemDestSIT) ServiceRequestDocuments() ServiceRequestDocuments {
+	return m.serviceRequestDocumentsField
+}
+
+// SetServiceRequestDocuments sets the service request documents of this subtype
+func (m *MTOServiceItemDestSIT) SetServiceRequestDocuments(val ServiceRequestDocuments) {
+	m.serviceRequestDocumentsField = val
+}
+
 // Status gets the status of this subtype
 func (m *MTOServiceItemDestSIT) Status() MTOServiceItemStatus {
 	return m.statusField
@@ -157,6 +180,14 @@ func (m *MTOServiceItemDestSIT) SetStatus(val MTOServiceItemStatus) {
 // UnmarshalJSON unmarshals this object with a polymorphic type from a JSON structure
 func (m *MTOServiceItemDestSIT) UnmarshalJSON(raw []byte) error {
 	var data struct {
+
+		// Date of attempted contact by the prime corresponding to `timeMilitary1`.
+		// Format: date
+		DateOfContact1 *strfmt.Date `json:"dateOfContact1,omitempty"`
+
+		// Date of attempted contact by the prime corresponding to `timeMilitary2`.
+		// Format: date
+		DateOfContact2 *strfmt.Date `json:"dateOfContact2,omitempty"`
 
 		// First available date that Prime can deliver SIT service item.
 		// Format: date
@@ -176,6 +207,9 @@ func (m *MTOServiceItemDestSIT) UnmarshalJSON(raw []byte) error {
 		// Required: true
 		Reason *string `json:"reason"`
 
+		// sit address updates
+		SitAddressUpdates SitAddressUpdates `json:"sitAddressUpdates,omitempty"`
+
 		// Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.
 		// Format: date
 		SitDepartureDate *strfmt.Date `json:"sitDepartureDate,omitempty"`
@@ -188,12 +222,12 @@ func (m *MTOServiceItemDestSIT) UnmarshalJSON(raw []byte) error {
 		// Format: date
 		SitEntryDate *strfmt.Date `json:"sitEntryDate"`
 
-		// Time of delivery corresponding to `firstAvailableDeliveryDate1`, in military format.
+		// Time of attempted contact corresponding to `dateOfContact1`, in military format.
 		// Example: 1400Z
 		// Pattern: \d{4}Z
 		TimeMilitary1 *string `json:"timeMilitary1,omitempty"`
 
-		// Time of delivery corresponding to `firstAvailableDeliveryDate2`, in military format.
+		// Time of attempted contact corresponding to `dateOfContact2`, in military format.
 		// Example: 1400Z
 		// Pattern: \d{4}Z
 		TimeMilitary2 *string `json:"timeMilitary2,omitempty"`
@@ -223,6 +257,8 @@ func (m *MTOServiceItemDestSIT) UnmarshalJSON(raw []byte) error {
 
 		RejectionReason *string `json:"rejectionReason,omitempty"`
 
+		ServiceRequestDocuments ServiceRequestDocuments `json:"serviceRequestDocuments,omitempty"`
+
 		Status MTOServiceItemStatus `json:"status,omitempty"`
 	}
 	buf = bytes.NewBuffer(raw)
@@ -251,12 +287,17 @@ func (m *MTOServiceItemDestSIT) UnmarshalJSON(raw []byte) error {
 
 	result.rejectionReasonField = base.RejectionReason
 
+	result.serviceRequestDocumentsField = base.ServiceRequestDocuments
+
 	result.statusField = base.Status
 
+	result.DateOfContact1 = data.DateOfContact1
+	result.DateOfContact2 = data.DateOfContact2
 	result.FirstAvailableDeliveryDate1 = data.FirstAvailableDeliveryDate1
 	result.FirstAvailableDeliveryDate2 = data.FirstAvailableDeliveryDate2
 	result.ReServiceCode = data.ReServiceCode
 	result.Reason = data.Reason
+	result.SitAddressUpdates = data.SitAddressUpdates
 	result.SitDepartureDate = data.SitDepartureDate
 	result.SitDestinationFinalAddress = data.SitDestinationFinalAddress
 	result.SitEntryDate = data.SitEntryDate
@@ -273,6 +314,14 @@ func (m MTOServiceItemDestSIT) MarshalJSON() ([]byte, error) {
 	var b1, b2, b3 []byte
 	var err error
 	b1, err = json.Marshal(struct {
+
+		// Date of attempted contact by the prime corresponding to `timeMilitary1`.
+		// Format: date
+		DateOfContact1 *strfmt.Date `json:"dateOfContact1,omitempty"`
+
+		// Date of attempted contact by the prime corresponding to `timeMilitary2`.
+		// Format: date
+		DateOfContact2 *strfmt.Date `json:"dateOfContact2,omitempty"`
 
 		// First available date that Prime can deliver SIT service item.
 		// Format: date
@@ -292,6 +341,9 @@ func (m MTOServiceItemDestSIT) MarshalJSON() ([]byte, error) {
 		// Required: true
 		Reason *string `json:"reason"`
 
+		// sit address updates
+		SitAddressUpdates SitAddressUpdates `json:"sitAddressUpdates,omitempty"`
+
 		// Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.
 		// Format: date
 		SitDepartureDate *strfmt.Date `json:"sitDepartureDate,omitempty"`
@@ -304,16 +356,20 @@ func (m MTOServiceItemDestSIT) MarshalJSON() ([]byte, error) {
 		// Format: date
 		SitEntryDate *strfmt.Date `json:"sitEntryDate"`
 
-		// Time of delivery corresponding to `firstAvailableDeliveryDate1`, in military format.
+		// Time of attempted contact corresponding to `dateOfContact1`, in military format.
 		// Example: 1400Z
 		// Pattern: \d{4}Z
 		TimeMilitary1 *string `json:"timeMilitary1,omitempty"`
 
-		// Time of delivery corresponding to `firstAvailableDeliveryDate2`, in military format.
+		// Time of attempted contact corresponding to `dateOfContact2`, in military format.
 		// Example: 1400Z
 		// Pattern: \d{4}Z
 		TimeMilitary2 *string `json:"timeMilitary2,omitempty"`
 	}{
+
+		DateOfContact1: m.DateOfContact1,
+
+		DateOfContact2: m.DateOfContact2,
 
 		FirstAvailableDeliveryDate1: m.FirstAvailableDeliveryDate1,
 
@@ -322,6 +378,8 @@ func (m MTOServiceItemDestSIT) MarshalJSON() ([]byte, error) {
 		ReServiceCode: m.ReServiceCode,
 
 		Reason: m.Reason,
+
+		SitAddressUpdates: m.SitAddressUpdates,
 
 		SitDepartureDate: m.SitDepartureDate,
 
@@ -351,6 +409,8 @@ func (m MTOServiceItemDestSIT) MarshalJSON() ([]byte, error) {
 
 		RejectionReason *string `json:"rejectionReason,omitempty"`
 
+		ServiceRequestDocuments ServiceRequestDocuments `json:"serviceRequestDocuments,omitempty"`
+
 		Status MTOServiceItemStatus `json:"status,omitempty"`
 	}{
 
@@ -367,6 +427,8 @@ func (m MTOServiceItemDestSIT) MarshalJSON() ([]byte, error) {
 		ReServiceName: m.ReServiceName(),
 
 		RejectionReason: m.RejectionReason(),
+
+		ServiceRequestDocuments: m.ServiceRequestDocuments(),
 
 		Status: m.Status(),
 	})
@@ -393,7 +455,19 @@ func (m *MTOServiceItemDestSIT) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateServiceRequestDocuments(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateDateOfContact1(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateDateOfContact2(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -410,6 +484,10 @@ func (m *MTOServiceItemDestSIT) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateReason(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSitAddressUpdates(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -478,6 +556,24 @@ func (m *MTOServiceItemDestSIT) validateMtoShipmentID(formats strfmt.Registry) e
 	return nil
 }
 
+func (m *MTOServiceItemDestSIT) validateServiceRequestDocuments(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.ServiceRequestDocuments()) { // not required
+		return nil
+	}
+
+	if err := m.ServiceRequestDocuments().Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("serviceRequestDocuments")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("serviceRequestDocuments")
+		}
+		return err
+	}
+
+	return nil
+}
+
 func (m *MTOServiceItemDestSIT) validateStatus(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.Status()) { // not required
@@ -490,6 +586,32 @@ func (m *MTOServiceItemDestSIT) validateStatus(formats strfmt.Registry) error {
 		} else if ce, ok := err.(*errors.CompositeError); ok {
 			return ce.ValidateName("status")
 		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItemDestSIT) validateDateOfContact1(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.DateOfContact1) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("dateOfContact1", "body", "date", m.DateOfContact1.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItemDestSIT) validateDateOfContact2(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.DateOfContact2) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("dateOfContact2", "body", "date", m.DateOfContact2.String(), formats); err != nil {
 		return err
 	}
 
@@ -559,6 +681,24 @@ func (m *MTOServiceItemDestSIT) validateReServiceCode(formats strfmt.Registry) e
 func (m *MTOServiceItemDestSIT) validateReason(formats strfmt.Registry) error {
 
 	if err := validate.Required("reason", "body", m.Reason); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItemDestSIT) validateSitAddressUpdates(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.SitAddressUpdates) { // not required
+		return nil
+	}
+
+	if err := m.SitAddressUpdates.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("sitAddressUpdates")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("sitAddressUpdates")
+		}
 		return err
 	}
 
@@ -657,7 +797,15 @@ func (m *MTOServiceItemDestSIT) ContextValidate(ctx context.Context, formats str
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateServiceRequestDocuments(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateStatus(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateSitAddressUpdates(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -721,7 +869,25 @@ func (m *MTOServiceItemDestSIT) contextValidateRejectionReason(ctx context.Conte
 	return nil
 }
 
+func (m *MTOServiceItemDestSIT) contextValidateServiceRequestDocuments(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.ServiceRequestDocuments().ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("serviceRequestDocuments")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("serviceRequestDocuments")
+		}
+		return err
+	}
+
+	return nil
+}
+
 func (m *MTOServiceItemDestSIT) contextValidateStatus(ctx context.Context, formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Status()) { // not required
+		return nil
+	}
 
 	if err := m.Status().ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
@@ -735,9 +901,28 @@ func (m *MTOServiceItemDestSIT) contextValidateStatus(ctx context.Context, forma
 	return nil
 }
 
+func (m *MTOServiceItemDestSIT) contextValidateSitAddressUpdates(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.SitAddressUpdates.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("sitAddressUpdates")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("sitAddressUpdates")
+		}
+		return err
+	}
+
+	return nil
+}
+
 func (m *MTOServiceItemDestSIT) contextValidateSitDestinationFinalAddress(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.SitDestinationFinalAddress != nil {
+
+		if swag.IsZero(m.SitDestinationFinalAddress) { // not required
+			return nil
+		}
+
 		if err := m.SitDestinationFinalAddress.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("sitDestinationFinalAddress")

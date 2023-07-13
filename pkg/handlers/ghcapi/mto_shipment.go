@@ -10,6 +10,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/db/utilities"
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_shipment"
 	shipmentops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/shipment"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
@@ -58,7 +59,7 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 
 			shipmentSITStatuses := h.CalculateShipmentsSITStatuses(appCtx, shipments)
 
-			sitStatusPayload := payloads.SITStatuses(shipmentSITStatuses)
+			sitStatusPayload := payloads.SITStatuses(shipmentSITStatuses, h.FileStorer())
 			payload := payloads.MTOShipments(h.FileStorer(), (*models.MTOShipments)(&shipments), sitStatusPayload)
 			return mtoshipmentops.NewListMTOShipmentsOK().WithPayload(*payload), nil
 		})
@@ -94,7 +95,6 @@ func (h GetMTOShipmentHandler) Handle(params mtoshipmentops.GetShipmentParams) m
 				"DestinationAddress",
 				"SecondaryPickupAddress",
 				"SecondaryDeliveryAddress",
-				"MTOAgents",
 				"MTOServiceItems.CustomerContacts",
 				"StorageFacility.Address",
 				"PPMShipment"}
@@ -105,6 +105,13 @@ func (h GetMTOShipmentHandler) Handle(params mtoshipmentops.GetShipmentParams) m
 			if err != nil {
 				return handleError(err)
 			}
+
+			var agents []models.MTOAgent
+			err = appCtx.DB().Scope(utilities.ExcludeDeletedScope()).Where("mto_shipment_id = ?", mtoShipment.ID).All(&agents)
+			if err != nil {
+				return handleError(err)
+			}
+			mtoShipment.MTOAgents = agents
 			payload := payloads.MTOShipment(h.FileStorer(), mtoShipment, nil)
 			return mtoshipmentops.NewGetShipmentOK().WithPayload(payload), nil
 		})
@@ -303,7 +310,7 @@ func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentPar
 			if err != nil {
 				return handleError(err)
 			}
-			sitStatusPayload := payloads.SITStatus(shipmentSITStatus)
+			sitStatusPayload := payloads.SITStatus(shipmentSITStatus, h.FileStorer())
 
 			returnPayload := payloads.MTOShipment(h.FileStorer(), updatedMtoShipment, sitStatusPayload)
 			return mtoshipmentops.NewUpdateMTOShipmentOK().WithPayload(returnPayload), nil
@@ -428,7 +435,7 @@ func (h ApproveShipmentHandler) Handle(params shipmentops.ApproveShipmentParams)
 			if err != nil {
 				return handleError(err)
 			}
-			sitStatusPayload := payloads.SITStatus(shipmentSITStatus)
+			sitStatusPayload := payloads.SITStatus(shipmentSITStatus, h.FileStorer())
 
 			payload := payloads.MTOShipment(h.FileStorer(), shipment, sitStatusPayload)
 			return shipmentops.NewApproveShipmentOK().WithPayload(payload), nil
@@ -509,7 +516,7 @@ func (h RequestShipmentDiversionHandler) Handle(params shipmentops.RequestShipme
 			if err != nil {
 				return handleError(err)
 			}
-			sitStatusPayload := payloads.SITStatus(shipmentSITStatus)
+			sitStatusPayload := payloads.SITStatus(shipmentSITStatus, h.FileStorer())
 
 			payload := payloads.MTOShipment(h.FileStorer(), shipment, sitStatusPayload)
 			return shipmentops.NewRequestShipmentDiversionOK().WithPayload(payload), nil
@@ -590,7 +597,7 @@ func (h ApproveShipmentDiversionHandler) Handle(params shipmentops.ApproveShipme
 			if err != nil {
 				return handleError(err)
 			}
-			sitStatusPayload := payloads.SITStatus(shipmentSITStatus)
+			sitStatusPayload := payloads.SITStatus(shipmentSITStatus, h.FileStorer())
 
 			payload := payloads.MTOShipment(h.FileStorer(), shipment, sitStatusPayload)
 			return shipmentops.NewApproveShipmentDiversionOK().WithPayload(payload), nil
@@ -743,7 +750,7 @@ func (h RequestShipmentCancellationHandler) Handle(params shipmentops.RequestShi
 			if err != nil {
 				return handleError(err)
 			}
-			sitStatusPayload := payloads.SITStatus(shipmentSITStatus)
+			sitStatusPayload := payloads.SITStatus(shipmentSITStatus, h.FileStorer())
 
 			payload := payloads.MTOShipment(h.FileStorer(), shipment, sitStatusPayload)
 			return shipmentops.NewRequestShipmentCancellationOK().WithPayload(payload), nil
@@ -845,7 +852,7 @@ func (h RequestShipmentReweighHandler) Handle(params shipmentops.RequestShipment
 			if err != nil {
 				return handleError(err), err
 			}
-			sitStatusPayload := payloads.SITStatus(shipmentSITStatus)
+			sitStatusPayload := payloads.SITStatus(shipmentSITStatus, h.FileStorer())
 
 			payload := payloads.Reweigh(reweigh, sitStatusPayload)
 			return shipmentops.NewRequestShipmentReweighOK().WithPayload(payload), nil
@@ -924,7 +931,7 @@ func (h ApproveSITExtensionHandler) Handle(params shipmentops.ApproveSITExtensio
 			if err != nil {
 				return handleError(err)
 			}
-			sitStatusPayload := payloads.SITStatus(shipmentSITStatus)
+			sitStatusPayload := payloads.SITStatus(shipmentSITStatus, h.FileStorer())
 
 			shipmentPayload := payloads.MTOShipment(h.FileStorer(), updatedShipment, sitStatusPayload)
 
@@ -1004,7 +1011,7 @@ func (h DenySITExtensionHandler) Handle(params shipmentops.DenySITExtensionParam
 				return handleError(err)
 			}
 
-			sitStatusPayload := payloads.SITStatus(shipmentSITStatus)
+			sitStatusPayload := payloads.SITStatus(shipmentSITStatus, h.FileStorer())
 			shipmentPayload := payloads.MTOShipment(h.FileStorer(), updatedShipment, sitStatusPayload)
 
 			h.triggerDenySITExtensionEvent(appCtx, shipmentID, updatedShipment.MoveTaskOrderID, params)
@@ -1093,7 +1100,7 @@ func (h CreateApprovedSITDurationUpdateHandler) Handle(params shipmentops.Create
 				return handleError(err)
 			}
 
-			sitStatusPayload := payloads.SITStatus(shipmentSITStatus)
+			sitStatusPayload := payloads.SITStatus(shipmentSITStatus, h.FileStorer())
 			returnPayload := payloads.MTOShipment(h.FileStorer(), shipment, sitStatusPayload)
 			return shipmentops.NewCreateApprovedSITDurationUpdateOK().WithPayload(returnPayload), nil
 		})

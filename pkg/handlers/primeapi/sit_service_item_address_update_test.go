@@ -14,6 +14,9 @@ import (
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services/address"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
+	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
+	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
+	"github.com/transcom/mymove/pkg/services/query"
 	sitaddressupdate "github.com/transcom/mymove/pkg/services/sit_address_update"
 )
 
@@ -27,7 +30,9 @@ func (suite *HandlerSuite) TestCreateSITAddressUpdateRequest() {
 	).Return(mockedDistance, nil)
 
 	moveRouter := moverouter.NewMoveRouter()
-	sitAddressUpdateCreator := sitaddressupdate.NewSITAddressUpdateRequestCreator(mockPlanner, address.NewAddressCreator(), moveRouter)
+	addressCreator := address.NewAddressCreator()
+	serviceItemUpdater := mtoserviceitem.NewMTOServiceItemUpdater(query.NewQueryBuilder(), moveRouter, mtoshipment.NewMTOShipmentFetcher(), addressCreator)
+	sitAddressUpdateCreator := sitaddressupdate.NewSITAddressUpdateRequestCreator(mockPlanner, addressCreator, serviceItemUpdater, moveRouter)
 
 	suite.Run("Success 201 - Create SIT address update request", func() {
 		// Testcase:   sitExtension is created
@@ -66,7 +71,7 @@ func (suite *HandlerSuite) TestCreateSITAddressUpdateRequest() {
 		createParams := sitaddressupdateops.CreateSITAddressUpdateRequestParams{
 			HTTPRequest: req,
 			Body: &primemessages.CreateSITAddressUpdateRequest{
-				ContractorRemarks: contractorRemarks,
+				ContractorRemarks: &contractorRemarks,
 				MtoServiceItemID:  *handlers.FmtUUID(serviceItem.ID),
 				NewAddress: &primemessages.Address{
 					City:           &newAddress.City,
@@ -94,7 +99,7 @@ func (suite *HandlerSuite) TestCreateSITAddressUpdateRequest() {
 		suite.NoError(successResponse.Validate(strfmt.Default))
 
 		//Check returned values
-		suite.Equal(createParams.Body.ContractorRemarks, *successResponse.ContractorRemarks)
+		suite.Equal(*createParams.Body.ContractorRemarks, *successResponse.ContractorRemarks)
 		suite.Equal(serviceItem.ID.String(), successResponse.MtoServiceItemID.String())
 		suite.Equal(models.SITAddressUpdateStatusRequested, successResponse.Status)
 		suite.Equal(successResponse.Distance, successResponse.Distance)
@@ -143,7 +148,7 @@ func (suite *HandlerSuite) TestCreateSITAddressUpdateRequest() {
 		createParams := sitaddressupdateops.CreateSITAddressUpdateRequestParams{
 			HTTPRequest: req,
 			Body: &primemessages.CreateSITAddressUpdateRequest{
-				ContractorRemarks: contractorRemarks,
+				ContractorRemarks: &contractorRemarks,
 				MtoServiceItemID:  *handlers.FmtUUID(serviceItem.ID),
 				NewAddress: &primemessages.Address{
 					City:           &newAddress.City,

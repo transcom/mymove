@@ -10,11 +10,15 @@ import (
 	"github.com/transcom/mymove/pkg/services/address"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	movefetcher "github.com/transcom/mymove/pkg/services/move_task_order"
+	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
+	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
+	"github.com/transcom/mymove/pkg/services/query"
 )
 
 func (suite *SITAddressUpdateServiceSuite) TestCreateSITAddressUpdateRequest() {
 	moveRouter := moverouter.NewMoveRouter()
 	addressCreator := address.NewAddressCreator()
+	serviceItemUpdater := mtoserviceitem.NewMTOServiceItemUpdater(query.NewQueryBuilder(), moveRouter, mtoshipment.NewMTOShipmentFetcher(), addressCreator)
 	requestedMockedDistance := 55
 	approvedMockedDistance := 45
 
@@ -63,7 +67,7 @@ func (suite *SITAddressUpdateServiceSuite) TestCreateSITAddressUpdateRequest() {
 			},
 		}, []factory.Trait{factory.GetTraitSITAddressUpdateWithMoveSetUp})
 
-		creator := NewSITAddressUpdateRequestCreator(mockPlanner, addressCreator, moveRouter)
+		creator := NewSITAddressUpdateRequestCreator(mockPlanner, addressCreator, serviceItemUpdater, moveRouter)
 
 		createdAddressUpdateRequest, err := creator.CreateSITAddressUpdateRequest(suite.AppContextForTest(), &sitAddressUpdate)
 
@@ -142,7 +146,7 @@ func (suite *SITAddressUpdateServiceSuite) TestCreateSITAddressUpdateRequest() {
 			},
 		}, []factory.Trait{factory.GetTraitSITAddressUpdateWithMoveSetUp})
 
-		creator := NewSITAddressUpdateRequestCreator(mockPlanner, addressCreator, moveRouter)
+		creator := NewSITAddressUpdateRequestCreator(mockPlanner, addressCreator, serviceItemUpdater, moveRouter)
 
 		createdAddressUpdateRequest, err := creator.CreateSITAddressUpdateRequest(suite.AppContextForTest(), &sitAddressUpdate)
 
@@ -160,12 +164,15 @@ func (suite *SITAddressUpdateServiceSuite) TestCreateSITAddressUpdateRequest() {
 		suite.Equal(*serviceItem.SITDestinationFinalAddressID, createdAddressUpdateRequest.OldAddressID)
 		suite.Equal(serviceItem.SITDestinationFinalAddress.StreetAddress1, createdAddressUpdateRequest.OldAddress.StreetAddress1)
 		suite.Equal(serviceItem.SITDestinationFinalAddress.PostalCode, createdAddressUpdateRequest.OldAddress.PostalCode)
+		sitDestinationFinalAddress := *createdAddressUpdateRequest.MTOServiceItem.SITDestinationFinalAddress
+		suite.Equal(createdAddressUpdateRequest.NewAddress.StreetAddress1, sitDestinationFinalAddress.StreetAddress1)
+		suite.Equal(createdAddressUpdateRequest.NewAddress.PostalCode, sitDestinationFinalAddress.PostalCode)
 
 		// Contractor Remarks should match
 		suite.Equal(*sitAddressUpdate.ContractorRemarks, *createdAddressUpdateRequest.ContractorRemarks)
 	})
 
-	suite.Run("Failed to create SIT address update request for unapproved service item", func() {
+	suite.Run("Fail to create SIT address update request for unapproved service item", func() {
 		// TESTCASE SCENARIO
 		// Under test: CreateSITAddressUpdateRequest function
 		// Set up:     We create an unapproved service item and fail to create a SITAddressUpdate REQUEST
@@ -210,7 +217,56 @@ func (suite *SITAddressUpdateServiceSuite) TestCreateSITAddressUpdateRequest() {
 			},
 		}, []factory.Trait{factory.GetTraitSITAddressUpdateWithMoveSetUp})
 
-		creator := NewSITAddressUpdateRequestCreator(mockPlanner, addressCreator, moveRouter)
+		creator := NewSITAddressUpdateRequestCreator(mockPlanner, addressCreator, serviceItemUpdater, moveRouter)
+
+		createdAddressUpdateRequest, err := creator.CreateSITAddressUpdateRequest(suite.AppContextForTest(), &sitAddressUpdate)
+
+		suite.Error(err)
+		suite.Nil(createdAddressUpdateRequest)
+	})
+
+	suite.Run("Fail to create SIT address update request for service item of incorrect type", func() {
+		// TESTCASE SCENARIO
+		// Under test: CreateSITAddressUpdateRequest function
+		// Set up:     We create a service item with the wrong type and fail to create a SITAddressUpdate REQUEST
+		// Expected outcome: Failure due to wrong type of service item
+		mockPlanner := &routemocks.Planner{}
+		mockPlanner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("string"),
+			mock.AnythingOfType("string"),
+		).Return(requestedMockedDistance, nil)
+
+		serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusApproved,
+				},
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDSHUT,
+				},
+			},
+			{
+				Model: models.Address{},
+				Type:  &factory.Addresses.SITDestinationFinalAddress,
+			},
+		}, nil)
+
+		sitAddressUpdate := factory.BuildSITAddressUpdate(nil, []factory.Customization{
+			{
+				Model:    serviceItem,
+				LinkOnly: true,
+			},
+			{
+				Model: models.SITAddressUpdate{
+					ContractorRemarks: models.StringPointer("Moving closer to family"),
+				},
+			},
+		}, []factory.Trait{factory.GetTraitSITAddressUpdateWithMoveSetUp})
+
+		creator := NewSITAddressUpdateRequestCreator(mockPlanner, addressCreator, serviceItemUpdater, moveRouter)
 
 		createdAddressUpdateRequest, err := creator.CreateSITAddressUpdateRequest(suite.AppContextForTest(), &sitAddressUpdate)
 

@@ -106,6 +106,9 @@ type MTOServiceItem struct {
 	// rejection reason
 	RejectionReason *string `json:"rejectionReason,omitempty"`
 
+	// service request documents
+	ServiceRequestDocuments ServiceRequestDocuments `json:"serviceRequestDocuments,omitempty"`
+
 	// sit address updates
 	SitAddressUpdates SITAddressUpdates `json:"sitAddressUpdates,omitempty"`
 
@@ -191,6 +194,10 @@ func (m *MTOServiceItem) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateRejectedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateServiceRequestDocuments(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -431,6 +438,23 @@ func (m *MTOServiceItem) validateRejectedAt(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *MTOServiceItem) validateServiceRequestDocuments(formats strfmt.Registry) error {
+	if swag.IsZero(m.ServiceRequestDocuments) { // not required
+		return nil
+	}
+
+	if err := m.ServiceRequestDocuments.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("serviceRequestDocuments")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("serviceRequestDocuments")
+		}
+		return err
+	}
+
+	return nil
+}
+
 func (m *MTOServiceItem) validateSitAddressUpdates(formats strfmt.Registry) error {
 	if swag.IsZero(m.SitAddressUpdates) { // not required
 		return nil
@@ -567,6 +591,10 @@ func (m *MTOServiceItem) ContextValidate(ctx context.Context, formats strfmt.Reg
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateServiceRequestDocuments(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateSitAddressUpdates(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -626,6 +654,20 @@ func (m *MTOServiceItem) contextValidateDimensions(ctx context.Context, formats 
 	return nil
 }
 
+func (m *MTOServiceItem) contextValidateServiceRequestDocuments(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.ServiceRequestDocuments.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("serviceRequestDocuments")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("serviceRequestDocuments")
+		}
+		return err
+	}
+
+	return nil
+}
+
 func (m *MTOServiceItem) contextValidateSitAddressUpdates(ctx context.Context, formats strfmt.Registry) error {
 
 	if err := m.SitAddressUpdates.ContextValidate(ctx, formats); err != nil {
@@ -643,6 +685,11 @@ func (m *MTOServiceItem) contextValidateSitAddressUpdates(ctx context.Context, f
 func (m *MTOServiceItem) contextValidateSitDestinationFinalAddress(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.SitDestinationFinalAddress != nil {
+
+		if swag.IsZero(m.SitDestinationFinalAddress) { // not required
+			return nil
+		}
+
 		if err := m.SitDestinationFinalAddress.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("sitDestinationFinalAddress")
@@ -659,6 +706,11 @@ func (m *MTOServiceItem) contextValidateSitDestinationFinalAddress(ctx context.C
 func (m *MTOServiceItem) contextValidateSitDestinationOriginalAddress(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.SitDestinationOriginalAddress != nil {
+
+		if swag.IsZero(m.SitDestinationOriginalAddress) { // not required
+			return nil
+		}
+
 		if err := m.SitDestinationOriginalAddress.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("sitDestinationOriginalAddress")
@@ -673,6 +725,10 @@ func (m *MTOServiceItem) contextValidateSitDestinationOriginalAddress(ctx contex
 }
 
 func (m *MTOServiceItem) contextValidateStatus(ctx context.Context, formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Status) { // not required
+		return nil
+	}
 
 	if err := m.Status.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {

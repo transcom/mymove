@@ -15,7 +15,7 @@ type ReferenceDateLookup struct {
 	MTOShipment models.MTOShipment
 }
 
-func (r ReferenceDateLookup) lookup(appCtx appcontext.AppContext, keyData *ServiceItemParamKeyData) (string, error) {
+func (r ReferenceDateLookup) lookup(_ appcontext.AppContext, _ *ServiceItemParamKeyData) (string, error) {
 	var referenceDate *time.Time
 
 	// Most shipment types should use RequestedPickupDate, but there are exceptions.

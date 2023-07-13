@@ -36,6 +36,7 @@ tags:
       approved service item. sitAddressUpdates with a distance less than or equal to 50 miles will be automatically
       approved while a distance greater than 50 miles will typically require office user approval.
 
+
 x-tagGroups:
   - name: Endpoints
     tags:
@@ -467,7 +468,7 @@ paths:
       summary: updateMTOShipmentAddress
       description: |
         ### Functionality
-        This endpoint is used to **update** the addresses on an MTO Shipment. The address details completely replace the original, except for the UUID.
+        This endpoint is used to **update** the pickup and secondary addresses on an MTO Shipment. mto-shipments/{mtoShipmentID}/shipment-address-updates is for updating a delivery address. The address details completely replace the original, except for the UUID.
         Therefore a complete address should be sent in the request.
 
         This endpoint **cannot create** an address.
@@ -512,6 +513,70 @@ paths:
           description: Successfully updated the address.
           schema:
             $ref: 'definitions/Address.yaml'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: 'responses/PermissionDenied.yaml'
+        '403':
+          $ref: 'responses/PermissionDenied.yaml'
+        '404':
+          $ref: 'responses/NotFound.yaml'
+        '409':
+          $ref: 'responses/Conflict.yaml'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: 'responses/UnprocessableEntity.yaml'
+        '500':
+          $ref: '#/responses/ServerError'
+  /mto-shipments/{mtoShipmentID}/shipment-address-updates:
+    post:
+      summary: createNonSITAddressUpdateRequest
+      description: |
+        ### Functionality
+        This endpoint is used so the Prime can request an **update** for the destination address on an MTO Shipment,
+        after the destination address has already been approved.
+        This does not change addresses on SIT service items.
+        Address updates will be automatically approved unless they change:
+          - the service area
+          - Mileage bracket for direct delivery
+          - Domestic Short Haul to Domestic Line Haul or vice versa
+              - Shipments that start and end in one ZIP3 use Short Haul pricing
+              - Shipments that start and end in different ZIP3s use Line Haul pricing
+
+        For those, changes will require TOO approval.
+
+      operationId: createNonSITAddressUpdateRequest
+      tags:
+        - mtoShipment
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: mtoShipmentID
+          description: UUID of the shipment associated with the address
+          required: true
+          format: uuid
+          type: string
+        - in: body
+          required: true
+          name: body
+          schema:
+            $ref: '#/definitions/CreateNonSITAddressUpdateRequest'
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+          description: >
+            Needs to be the eTag of the mtoShipment. Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
+
+      responses:
+        '201':
+          description: Successfully created the address update request.
+          schema:
+            $ref: 'definitions/ShipmentAddressUpdate.yaml'
         '400':
           $ref: '#/responses/InvalidRequest'
         '401':
@@ -823,6 +888,7 @@ paths:
           * DOFSIT - Domestic origin 1st day SIT
           * DOASIT - Domestic origin Additional day SIT
           * DOPSIT - Domestic origin SIT pickup
+          * DOSFSC - Domestic origin SIT fuel surcharge
 
         **DOASIT**
 
@@ -846,24 +912,33 @@ paths:
           * `firstAvailableDeliveryDate1`
             * string <date>
             * First available date that Prime can deliver SIT service item.
-            * If provided, `timeMilitary1` is required.
+            * firstAvailableDeliveryDate1, dateOfContact1, and timeMilitary1 are required together
+          * `dateOfContact1`
+            * string <date>
+            * Date of attempted contact by the prime corresponding to `timeMilitary1`
+            * dateOfContact1, timeMilitary1, and firstAvailableDeliveryDate1 are required together
           * `timeMilitary1`
             * string\d{4}Z
-            * Time of delivery corresponding to `firstAvailableDeliveryDate1`, in military format.
-            * If provided, `firstAvailableDeliveryDate1` is required.
+            * Time of attempted contact corresponding to `dateOfContact1`, in military format.
+            * timeMilitary1, dateOfContact1, and firstAvailableDeliveryDate1 are required together
           * `firstAvailableDeliveryDate2`
             * string <date>
             * Second available date that Prime can deliver SIT service item.
-            * If provided, `timeMilitary2` is required.
+            * firstAvailableDeliveryDate2, dateOfContact2, and timeMilitary2 are required together
+          * `dateOfContact2`
+            * string <date>
+            * Date of attempted contact delivery by the prime corresponding to `timeMilitary2`
+            * dateOfContact2, timeMilitary2, and firstAvailableDeliveryDate2 are required together
           * `timeMilitary2`
             * string\d{4}Z
-            * Time of delivery corresponding to `firstAvailableDeliveryDate2`, in military format.
-            * If provided, `firstAvailableDeliveryDate2` is required.
+            * Time of attempted contact corresponding to `dateOfContact2`, in military format.
+            * timeMilitary2, dateOfContact2, and firstAvailableDeliveryDate2 are required together
 
         When a DDFSIT is requested, the API will auto-create the following group of service items:
           * DDFSIT - Domestic destination 1st day SIT
           * DDASIT - Domestic destination Additional day SIT
           * DDDSIT - Domestic destination SIT delivery
+          * DDSFSC - Domestic destination SIT fuel surcharge
 
         **DDASIT**
 
@@ -1693,6 +1768,8 @@ definitions:
         description: The reason why this service item was rejected by the TOO.
       modelType: # Base type and sub-types of MTOServiceItem
         $ref: '#/definitions/MTOServiceItemModelType'
+      serviceRequestDocuments:
+        $ref: '#/definitions/ServiceRequestDocuments'
       eTag:
         type: string
         readOnly: true
@@ -1722,16 +1799,26 @@ definitions:
             enum:
               - DDFSIT # Domestic Destination First Day SIT
               - DDASIT # Domestic Destination Additional SIT
+          dateOfContact1:
+            format: date
+            type: string
+            description: Date of attempted contact by the prime corresponding to `timeMilitary1`.
+            x-nullable: true
+          dateOfContact2:
+            format: date
+            type: string
+            description: Date of attempted contact by the prime corresponding to `timeMilitary2`.
+            x-nullable: true
           timeMilitary1:
             type: string
             example: 1400Z
-            description: Time of delivery corresponding to `firstAvailableDeliveryDate1`, in military format.
+            description: Time of attempted contact corresponding to `dateOfContact1`, in military format.
             pattern: '\d{4}Z'
             x-nullable: true
           timeMilitary2:
             type: string
             example: 1400Z
-            description: Time of delivery corresponding to `firstAvailableDeliveryDate2`, in military format.
+            description: Time of attempted contact corresponding to `dateOfContact2`, in military format.
             pattern: '\d{4}Z'
             x-nullable: true
           firstAvailableDeliveryDate1:
@@ -1761,6 +1848,8 @@ definitions:
               The reason item has been placed in SIT.
             x-nullable: true
             x-omitempty: false
+          sitAddressUpdates:
+            $ref: '#/definitions/SitAddressUpdates'
         required:
           - reServiceCode
           - sitEntryDate
@@ -1848,6 +1937,17 @@ definitions:
       - MTOServiceItemDestSIT
       - MTOServiceItemShuttle
       - MTOServiceItemDomesticCrating
+  ServiceRequestDocuments:
+    items:
+      $ref: '#/definitions/ServiceRequestDocument'
+    type: array
+  ServiceRequestDocument:
+    properties:
+      uploads:
+        items:
+          $ref: '#/definitions/UploadWithOmissions'
+        type: array
+    type: object
   MTOServiceItemOriginSIT: # spectral oas2-unused-definition is OK here due to polymorphism
     description: Describes a domestic origin SIT service item. Subtype of a MTOServiceItem.
     allOf:
@@ -2120,6 +2220,8 @@ definitions:
           - DIVERSION_REQUESTED
       ppmShipment:
         $ref: '#/definitions/PPMShipment'
+      deliveryAddressUpdate:
+        $ref: 'definitions/ShipmentAddressUpdate.yaml'
       eTag:
         description: A hash unique to this shipment that should be used as the "If-Match" header for any updates.
         type: string
@@ -2167,18 +2269,14 @@ definitions:
       - BOAT_HAUL_AWAY
       - BOAT_TOW_AWAY
       - HHG
-      - HHG_LONGHAUL_DOMESTIC
       - HHG_INTO_NTS_DOMESTIC
       - HHG_OUTOF_NTS_DOMESTIC
-      - HHG_SHORTHAUL_DOMESTIC
       - INTERNATIONAL_HHG
       - INTERNATIONAL_UB
       - MOTORHOME
       - PPM
     x-display-value:
       HHG: Household goods move (HHG)
-      HHG_LONGHAUL_DOMESTIC: Domestic Longhaul HHG
-      HHG_SHORTHAUL_DOMESTIC: Domestic Shorthaul HHG
       HHG_INTO_NTS_DOMESTIC: HHG into Non-temporary storage (NTS)
       HHG_OUTOF_NTS_DOMESTIC: HHG out of Non-temporary storage (NTS Release)
       PPM: Personally Procured Move also known as Do It Yourself (DITY)
@@ -2626,6 +2724,19 @@ definitions:
       - PRIME
       - SYSTEM
       - TOO
+  CreateNonSITAddressUpdateRequest:
+    description: CreateNonSITAddressUpdateRequest contains the fields required for the prime to create a non SIT address update request.
+    type: object
+    properties:
+      newAddress:
+        $ref: 'definitions/Address.yaml'
+      contractorRemarks:
+        type: string
+        example: Customer reached out to me this week and let me know they want to move somewhere else.
+        description: This is the remark the Prime has entered, which would be the reason there is an address change.
+    required:
+      - contractorRemarks
+      - newAddress
   CreateSITAddressUpdateRequest:
     description: CreateSITAddressUpdateRequest contains the fields required for the prime to create a SIT address update request.
     type: object
@@ -2639,6 +2750,8 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
+    required:
+      - contractorRemarks
   ServiceItem:
     properties:
       id:
@@ -2649,7 +2762,7 @@ definitions:
         type: array
         description: |
           This should be populated for the following service items:
-            * DOASIT(Domestic destination Additional day SIT)
+            * DOASIT(Domestic origin Additional day SIT)
             * DDASIT(Domestic destination Additional day SIT)
 
           Both take in the following param keys:
@@ -2670,6 +2783,11 @@ definitions:
         type: string
         readOnly: true
     type: object
+  SitAddressUpdates:
+    description: A list of updates to a SIT service item address.
+    type: array
+    items:
+      $ref: '#/definitions/SitAddressUpdate'
   SitAddressUpdate:
     properties:
       id:
@@ -2689,6 +2807,13 @@ definitions:
         type: string
       newAddress:
         $ref: 'definitions/Address.yaml'
+      oldAddressId:
+        example: 31a2ad3c-1682-4d5b-8423-ff40053a056b
+        format: uuid
+        readOnly: true
+        type: string
+      oldAddress:
+        $ref: 'definitions/Address.yaml'
       status:
         $ref: '#/definitions/SitAddressUpdateStatus'
       distance:
@@ -2699,6 +2824,11 @@ definitions:
       contractorRemarks:
         type: string
         example: Customer reached out to me this week & let me know they want to move closer to family.
+        x-nullable: true
+        x-omitempty: false
+      officeRemarks:
+        example: The customer has found a new house closer to base.
+        type: string
         x-nullable: true
         x-omitempty: false
       createdAt:
@@ -2790,10 +2920,15 @@ definitions:
             description: Departure date for SIT. This is the end date of the SIT at either origin or destination.
           sitDestinationFinalAddress:
             $ref: 'definitions/Address.yaml'
+          dateOfContact1:
+            format: date
+            type: string
+            description: Date of attempted contact by the prime corresponding to 'timeMilitary1'.
+            x-nullable: true
           timeMilitary1:
             type: string
             example: 1400Z
-            description: Time of delivery corresponding to `firstAvailableDeliveryDate1`, in military format.
+            description: Time of attempted contact by the prime corresponding to 'dateOfContact1', in military format.
             pattern: '\d{4}Z'
             x-nullable: true
           firstAvailableDeliveryDate1:
@@ -2801,10 +2936,15 @@ definitions:
             type: string
             description: First available date that Prime can deliver SIT service item.
             x-nullable: true
+          dateOfContact2:
+            format: date
+            type: string
+            description: Date of attempted contact by the prime corresponding to 'timeMilitary2'.
+            x-nullable: true
           timeMilitary2:
             type: string
             example: 1400Z
-            description: Time of delivery corresponding to `firstAvailableDeliveryDate2`, in military format.
+            description: Time of attempted contact by the prime corresponding to 'dateOfContact2', in military format.
             pattern: '\d{4}Z'
             x-nullable: true
           firstAvailableDeliveryDate2:

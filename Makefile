@@ -214,10 +214,6 @@ bin/gin: .check_go_version.stamp .check_gopath.stamp pkg/tools/tools.go
 bin/soda: .check_go_version.stamp .check_gopath.stamp pkg/tools/tools.go
 	go build -ldflags "$(LDFLAGS)" -o bin/soda github.com/gobuffalo/pop/v6/soda
 
-# No static linking / $(LDFLAGS) because go-junit-report is only used for building the CirlceCi test report
-bin/go-junit-report: .check_go_version.stamp .check_gopath.stamp pkg/tools/tools.go
-	go build -o bin/go-junit-report github.com/jstemmer/go-junit-report
-
 # No static linking / $(LDFLAGS) because gotestsum is only used for building the CirlceCi test report
 bin/gotestsum: .check_go_version.stamp .check_gopath.stamp pkg/tools/tools.go
 	go build -o bin/gotestsum gotest.tools/gotestsum
@@ -366,7 +362,7 @@ server_run_debug: .check_hosts.stamp .check_go_version.stamp .check_gopath.stamp
 	DISABLE_AWS_VAULT_WRAPPER=1 \
 	AWS_REGION=us-gov-west-1 \
 	aws-vault exec transcom-gov-dev -- \
-	dlv debug cmd/milmove/*.go -- serve 2>&1 | tee -a log/dev.log
+	dlv debug -l 127.0.0.1:38697 --headless cmd/milmove/*.go -- serve 2>&1 | tee -a log/dev.log
 
 .PHONY: build_tools
 build_tools: bin/gin \
@@ -1077,7 +1073,7 @@ pretty: gofmt ## Run code through JS and Golang formatters
 
 .PHONY: docker_circleci
 docker_circleci: ## Run CircleCI container locally with project mounted
-	docker run -it --pull=always --rm=true -v $(PWD):$(PWD) -w $(PWD) -e CIRCLECI=1 milmove/circleci-docker:milmove-app-59d1b5d814b190c7c5a8c460ca97ed193d518350 bash
+	docker run -it --pull=always --rm=true -v $(PWD):$(PWD) -w $(PWD) -e CIRCLECI=1 milmove/circleci-docker:milmove-app-3e1a3c25b7a176f7d6994a9d542b522f3c08cf26 bash
 
 .PHONY: prune_images
 prune_images:  ## Prune docker images

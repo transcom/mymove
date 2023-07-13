@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button, Tag } from '@trussworks/react-uswds';
+import { Button, Tag, Alert } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
@@ -14,6 +14,7 @@ import { formatDateFromIso } from 'utils/formatters';
 import ServiceItemDetails from 'components/Office/ServiceItemDetails/ServiceItemDetails';
 import Restricted from 'components/Restricted/Restricted';
 import { permissionTypes } from 'constants/permissions';
+import { selectDateFieldByStatus } from 'utils/dates';
 
 const ServiceItemsTable = ({
   serviceItems,
@@ -22,22 +23,8 @@ const ServiceItemsTable = ({
   handleRequestSITAddressUpdateModal,
   handleShowRejectionDialog,
   handleShowEditSitAddressModal,
+  serviceItemAddressUpdateAlert,
 }) => {
-  let dateField;
-  switch (statusForTableType) {
-    case SERVICE_ITEM_STATUS.SUBMITTED:
-      dateField = 'createdAt';
-      break;
-    case SERVICE_ITEM_STATUS.APPROVED:
-      dateField = 'approvedAt';
-      break;
-    case SERVICE_ITEM_STATUS.REJECTED:
-      dateField = 'rejectedAt';
-      break;
-    default:
-      dateField = 'createdAt';
-  }
-
   const hasSITAddressUpdate = (sitAddressUpdates) => {
     const requestedAddressUpdates = sitAddressUpdates.filter((s) => s.status === SIT_ADDRESS_UPDATE_STATUS.REQUESTED);
     return requestedAddressUpdates.length > 0;
@@ -52,9 +39,11 @@ const ServiceItemsTable = ({
   };
 
   const tableRows = serviceItems.map((serviceItem, index) => {
-    const { id, code, details, mtoShipmentID, sitAddressUpdates, ...item } = serviceItem;
+    const { id, code, details, mtoShipmentID, sitAddressUpdates, serviceRequestDocuments, ...item } = serviceItem;
+    const { makeVisible, alertType, alertMessage } = serviceItemAddressUpdateAlert;
+
     return (
-      <React.Fragment key={id}>
+      <React.Fragment key={`sit-alert-${id}`}>
         {ALLOWED_SIT_ADDRESS_UPDATE_SI_CODES.includes(code) &&
           sitAddressUpdates &&
           showSITAddressUpdateRequestedTag(code, sitAddressUpdates) && (
@@ -64,13 +53,27 @@ const ServiceItemsTable = ({
               </td>
             </tr>
           )}
+        {ALLOWED_SIT_ADDRESS_UPDATE_SI_CODES.includes(code) && makeVisible && (
+          <tr key={`sit-alert-${id}`}>
+            <td style={{ border: 'none', paddingBottom: '0' }} colSpan={3}>
+              <Alert type={alertType} slim data-testid="serviceItemAddressUpdateAlert">
+                {alertMessage}
+              </Alert>
+            </td>
+          </tr>
+        )}
         <tr key={id}>
           <td className={styles.nameAndDate}>
             <p className={styles.codeName}>{serviceItem.serviceItem}</p>
-            <p>{formatDateFromIso(item[`${dateField}`], 'DD MMM YYYY')}</p>
+            <p>{formatDateFromIso(item[`${selectDateFieldByStatus(statusForTableType)}`], 'DD MMM YYYY')}</p>
           </td>
           <td className={styles.detail}>
-            <ServiceItemDetails id={`service-${id}`} code={code} details={details} />
+            <ServiceItemDetails
+              id={`service-${id}`}
+              code={code}
+              details={details}
+              serviceRequestDocs={serviceRequestDocuments}
+            />
           </td>
           <td>
             {statusForTableType === SERVICE_ITEM_STATUS.SUBMITTED && (
@@ -158,7 +161,7 @@ const ServiceItemsTable = ({
                     onClick={() => handleUpdateMTOServiceItemStatus(id, mtoShipmentID, SERVICE_ITEM_STATUS.APPROVED)}
                   >
                     <span className="icon">
-                      <FontAwesomeIcon icon="times" />
+                      <FontAwesomeIcon icon="check" />
                     </span>{' '}
                     Approve
                   </Button>
@@ -196,6 +199,7 @@ ServiceItemsTable.propTypes = {
   handleShowRejectionDialog: PropTypes.func.isRequired,
   statusForTableType: PropTypes.string.isRequired,
   handleRequestSITAddressUpdateModal: PropTypes.func,
+  serviceItemAddressUpdateAlert: PropTypes.object.isRequired,
   serviceItems: PropTypes.arrayOf(ServiceItemDetailsShape).isRequired,
 };
 

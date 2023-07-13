@@ -286,8 +286,6 @@ CREATE TYPE public.mto_shipment_type AS ENUM (
     'HHG',
     'INTERNATIONAL_HHG',
     'INTERNATIONAL_UB',
-    'HHG_LONGHAUL_DOMESTIC',
-    'HHG_SHORTHAUL_DOMESTIC',
     'HHG_INTO_NTS_DOMESTIC',
     'HHG_OUTOF_NTS_DOMESTIC',
     'MOTORHOME',
@@ -456,6 +454,19 @@ CREATE TYPE public.service_item_status AS ENUM (
 
 
 ALTER TYPE public.service_item_status OWNER TO postgres;
+
+--
+-- Name: shipment_address_update_status; Type: TYPE; Schema: public; Owner: postgres
+--
+
+CREATE TYPE public.shipment_address_update_status AS ENUM (
+    'REQUESTED',
+    'REJECTED',
+    'APPROVED'
+);
+
+
+ALTER TYPE public.shipment_address_update_status OWNER TO postgres;
 
 --
 -- Name: sit_address_update_status; Type: TYPE; Schema: public; Owner: postgres
@@ -4496,7 +4507,8 @@ CREATE TABLE public.mto_service_item_customer_contacts (
     time_military text NOT NULL,
     first_available_delivery_date timestamp with time zone NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
-    updated_at timestamp with time zone DEFAULT now() NOT NULL
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    date_of_contact timestamp with time zone NOT NULL
 );
 
 
@@ -4520,7 +4532,7 @@ COMMENT ON COLUMN public.mto_service_item_customer_contacts.type IS 'Either the 
 -- Name: COLUMN mto_service_item_customer_contacts.time_military; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON COLUMN public.mto_service_item_customer_contacts.time_military IS 'The time the Prime contacted the customer, in military format (HHMMZ)';
+COMMENT ON COLUMN public.mto_service_item_customer_contacts.time_military IS 'The time of attempted contact with the customer by the prime, in military format (HHMMZ), corresponding to the date_of_contact column';
 
 
 --
@@ -4542,6 +4554,13 @@ COMMENT ON COLUMN public.mto_service_item_customer_contacts.created_at IS 'Date 
 --
 
 COMMENT ON COLUMN public.mto_service_item_customer_contacts.updated_at IS 'Date & time the customer contact was last updated';
+
+
+--
+-- Name: COLUMN mto_service_item_customer_contacts.date_of_contact; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.mto_service_item_customer_contacts.date_of_contact IS 'The date of attempted contact with the customer by the prime corresponding to the time_military column';
 
 
 --
@@ -5116,7 +5135,11 @@ CREATE TABLE public.orders (
     nts_sac character varying(255),
     origin_duty_location_id uuid,
     new_duty_location_id uuid NOT NULL,
-    gbloc character varying
+    gbloc character varying,
+    supply_and_services_cost_estimate text NOT NULL,
+    packing_and_shipping_instructions text NOT NULL,
+    method_of_payment text NOT NULL,
+    naics text NOT NULL
 );
 
 
@@ -5303,6 +5326,34 @@ COMMENT ON COLUMN public.orders.new_duty_location_id IS 'Unique identifier for t
 --
 
 COMMENT ON COLUMN public.orders.gbloc IS 'Services Counselor office users from transportation offices in this GBLOC will see these orders in their queue.';
+
+
+--
+-- Name: COLUMN orders.supply_and_services_cost_estimate; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.orders.supply_and_services_cost_estimate IS 'Context for what the costs are based on.';
+
+
+--
+-- Name: COLUMN orders.packing_and_shipping_instructions; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.orders.packing_and_shipping_instructions IS 'Context for where instructions can be found.';
+
+
+--
+-- Name: COLUMN orders.method_of_payment; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.orders.method_of_payment IS 'Context regarding how the payment will occur.';
+
+
+--
+-- Name: COLUMN orders.naics; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.orders.naics IS 'North American Industry Classification System Code.';
 
 
 --
@@ -8111,6 +8162,67 @@ COMMENT ON COLUMN public.service_request_documents.mto_service_item_id IS 'Forei
 
 
 --
+-- Name: shipment_address_updates; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.shipment_address_updates (
+    id uuid NOT NULL,
+    shipment_id uuid NOT NULL,
+    original_address_id uuid NOT NULL,
+    new_address_id uuid NOT NULL,
+    contractor_remarks text NOT NULL,
+    status public.shipment_address_update_status NOT NULL,
+    office_remarks text,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+ALTER TABLE public.shipment_address_updates OWNER TO postgres;
+
+--
+-- Name: COLUMN shipment_address_updates.shipment_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.shipment_address_updates.shipment_id IS 'The MTO Shipment ID associated with this address update request';
+
+
+--
+-- Name: COLUMN shipment_address_updates.original_address_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.shipment_address_updates.original_address_id IS 'Original address that was approved for the shipment';
+
+
+--
+-- Name: COLUMN shipment_address_updates.new_address_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.shipment_address_updates.new_address_id IS 'New address being requested';
+
+
+--
+-- Name: COLUMN shipment_address_updates.contractor_remarks; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.shipment_address_updates.contractor_remarks IS 'Reason contractor is requesting change to an address that was previously approved';
+
+
+--
+-- Name: COLUMN shipment_address_updates.status; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.shipment_address_updates.status IS 'REQUESTED (must be reviewed by TOO), APPROVED (auto-approved, or approved by TOO), or REJECTED (rejected by TOO)';
+
+
+--
+-- Name: COLUMN shipment_address_updates.office_remarks; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.shipment_address_updates.office_remarks IS 'Remarks from office user who reviewed the request';
+
+
+--
 -- Name: signed_certifications; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -10187,11 +10299,19 @@ ALTER TABLE ONLY public.service_request_documents
 
 
 --
--- Name: service_request_documents service_request_documents_unique_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: service_request_document_uploads service_request_documents_uploads_unique_key; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public.service_request_documents
-    ADD CONSTRAINT service_request_documents_unique_key UNIQUE (mto_service_item_id);
+ALTER TABLE ONLY public.service_request_document_uploads
+    ADD CONSTRAINT service_request_documents_uploads_unique_key UNIQUE (upload_id);
+
+
+--
+-- Name: shipment_address_updates shipment_address_updates_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.shipment_address_updates
+    ADD CONSTRAINT shipment_address_updates_pkey PRIMARY KEY (id);
 
 
 --
@@ -11162,6 +11282,13 @@ CREATE INDEX service_members_user_id_idx ON public.service_members USING btree (
 --
 
 CREATE UNIQUE INDEX service_members_user_id_uniq_idx ON public.service_members USING btree (user_id);
+
+
+--
+-- Name: shipment_address_updates_shipment_id_idx; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX shipment_address_updates_shipment_id_idx ON public.shipment_address_updates USING btree (shipment_id);
 
 
 --
@@ -12592,6 +12719,14 @@ ALTER TABLE ONLY public.service_request_document_uploads
 
 ALTER TABLE ONLY public.service_request_document_uploads
     ADD CONSTRAINT service_request_documents_uploads_id_fkey FOREIGN KEY (upload_id) REFERENCES public.uploads(id);
+
+
+--
+-- Name: shipment_address_updates shipment_address_updates_shipment_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.shipment_address_updates
+    ADD CONSTRAINT shipment_address_updates_shipment_id_fkey FOREIGN KEY (shipment_id) REFERENCES public.mto_shipments(id);
 
 
 --
@@ -15348,6 +15483,15 @@ GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.service_request_document_uploa
 GRANT ALL ON TABLE public.service_request_documents TO master;
 GRANT ALL ON TABLE public.service_request_documents TO ecs_user;
 GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.service_request_documents TO crud;
+
+
+--
+-- Name: TABLE shipment_address_updates; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT ALL ON TABLE public.shipment_address_updates TO master;
+GRANT ALL ON TABLE public.shipment_address_updates TO ecs_user;
+GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.shipment_address_updates TO crud;
 
 
 --

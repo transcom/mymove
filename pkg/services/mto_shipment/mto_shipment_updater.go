@@ -12,6 +12,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/db/utilities"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications"
@@ -42,7 +43,7 @@ type mtoShipmentUpdater struct {
 }
 
 // NewMTOShipmentUpdater creates a new struct with the service dependencies
-func NewMTOShipmentUpdater(builder UpdateMTOShipmentQueryBuilder, fetcher services.Fetcher, planner route.Planner, moveRouter services.MoveRouter, moveWeights services.MoveWeights, sender notifications.NotificationSender, recalculator services.PaymentRequestShipmentRecalculator) services.MTOShipmentUpdater {
+func NewMTOShipmentUpdater(builder UpdateMTOShipmentQueryBuilder, _ services.Fetcher, planner route.Planner, moveRouter services.MoveRouter, moveWeights services.MoveWeights, sender notifications.NotificationSender, recalculator services.PaymentRequestShipmentRecalculator) services.MTOShipmentUpdater {
 	return &mtoShipmentUpdater{
 		builder,
 		fetch.NewFetcher(builder),
@@ -57,7 +58,7 @@ func NewMTOShipmentUpdater(builder UpdateMTOShipmentQueryBuilder, fetcher servic
 
 // TODO: apply the subset of business logic validations
 // that would be appropriate for the CUSTOMER
-func NewCustomerMTOShipmentUpdater(builder UpdateMTOShipmentQueryBuilder, fetcher services.Fetcher, planner route.Planner, moveRouter services.MoveRouter, moveWeights services.MoveWeights, sender notifications.NotificationSender, recalculator services.PaymentRequestShipmentRecalculator) services.MTOShipmentUpdater {
+func NewCustomerMTOShipmentUpdater(builder UpdateMTOShipmentQueryBuilder, _ services.Fetcher, planner route.Planner, moveRouter services.MoveRouter, moveWeights services.MoveWeights, sender notifications.NotificationSender, recalculator services.PaymentRequestShipmentRecalculator) services.MTOShipmentUpdater {
 	return &mtoShipmentUpdater{
 		builder,
 		fetch.NewFetcher(builder),
@@ -70,7 +71,7 @@ func NewCustomerMTOShipmentUpdater(builder UpdateMTOShipmentQueryBuilder, fetche
 	}
 }
 
-func NewOfficeMTOShipmentUpdater(builder UpdateMTOShipmentQueryBuilder, fetcher services.Fetcher, planner route.Planner, moveRouter services.MoveRouter, moveWeights services.MoveWeights, sender notifications.NotificationSender, recalculator services.PaymentRequestShipmentRecalculator) services.MTOShipmentUpdater {
+func NewOfficeMTOShipmentUpdater(builder UpdateMTOShipmentQueryBuilder, _ services.Fetcher, planner route.Planner, moveRouter services.MoveRouter, moveWeights services.MoveWeights, sender notifications.NotificationSender, recalculator services.PaymentRequestShipmentRecalculator) services.MTOShipmentUpdater {
 	return &mtoShipmentUpdater{
 		builder,
 		fetch.NewFetcher(builder),
@@ -85,7 +86,7 @@ func NewOfficeMTOShipmentUpdater(builder UpdateMTOShipmentQueryBuilder, fetcher 
 
 // TODO: apply the subset of business logic validations
 // that would be appropriate for the PRIME
-func NewPrimeMTOShipmentUpdater(builder UpdateMTOShipmentQueryBuilder, fetcher services.Fetcher, planner route.Planner, moveRouter services.MoveRouter, moveWeights services.MoveWeights, sender notifications.NotificationSender, recalculator services.PaymentRequestShipmentRecalculator) services.MTOShipmentUpdater {
+func NewPrimeMTOShipmentUpdater(builder UpdateMTOShipmentQueryBuilder, _ services.Fetcher, planner route.Planner, moveRouter services.MoveRouter, moveWeights services.MoveWeights, sender notifications.NotificationSender, recalculator services.PaymentRequestShipmentRecalculator) services.MTOShipmentUpdater {
 	return &mtoShipmentUpdater{
 		builder,
 		fetch.NewFetcher(builder),
@@ -229,11 +230,27 @@ func setNewShipmentFields(appCtx appcontext.AppContext, dbShipment *models.MTOSh
 
 	//// TODO: move mtoagent creation into service: Should not update MTOAgents here because we don't have an eTag
 	if len(requestedUpdatedShipment.MTOAgents) > 0 {
-		agentsToCreateOrUpdate := []models.MTOAgent{}
+		var agentsToCreateOrUpdate []models.MTOAgent
 		for _, newAgentInfo := range requestedUpdatedShipment.MTOAgents {
 			// if no record exists in the db
 			if newAgentInfo.ID == uuid.Nil {
 				newAgentInfo.MTOShipmentID = requestedUpdatedShipment.ID
+				if newAgentInfo.FirstName != nil && *newAgentInfo.FirstName == "" {
+					newAgentInfo.FirstName = nil
+				}
+				if newAgentInfo.LastName != nil && *newAgentInfo.LastName == "" {
+					newAgentInfo.LastName = nil
+				}
+				if newAgentInfo.Email != nil && *newAgentInfo.Email == "" {
+					newAgentInfo.Email = nil
+				}
+				if newAgentInfo.Phone != nil && *newAgentInfo.Phone == "" {
+					newAgentInfo.Phone = nil
+				}
+				// If no fields are set, then we do not want to create the MTO agent
+				if newAgentInfo.FirstName == nil && newAgentInfo.LastName == nil && newAgentInfo.Email == nil && newAgentInfo.Phone == nil {
+					continue
+				}
 				agentsToCreateOrUpdate = append(agentsToCreateOrUpdate, newAgentInfo)
 			} else {
 				foundAgent := false
@@ -247,21 +264,17 @@ func setNewShipmentFields(appCtx appcontext.AppContext, dbShipment *models.MTOSh
 						if newAgentInfo.MTOAgentType != "" && newAgentInfo.MTOAgentType != dbAgent.MTOAgentType {
 							dbShipment.MTOAgents[i].MTOAgentType = newAgentInfo.MTOAgentType
 						}
-
-						if newAgentInfo.FirstName != nil {
-							dbShipment.MTOAgents[i].FirstName = newAgentInfo.FirstName
-						}
-
-						if newAgentInfo.LastName != nil {
-							dbShipment.MTOAgents[i].LastName = newAgentInfo.LastName
-						}
-
-						if newAgentInfo.Email != nil {
-							dbShipment.MTOAgents[i].Email = newAgentInfo.Email
-						}
-
-						if newAgentInfo.Phone != nil {
-							dbShipment.MTOAgents[i].Phone = newAgentInfo.Phone
+						dbShipment.MTOAgents[i].FirstName = services.SetOptionalStringField(newAgentInfo.FirstName, dbShipment.MTOAgents[i].FirstName)
+						dbShipment.MTOAgents[i].LastName = services.SetOptionalStringField(newAgentInfo.LastName, dbShipment.MTOAgents[i].LastName)
+						dbShipment.MTOAgents[i].Email = services.SetOptionalStringField(newAgentInfo.Email, dbShipment.MTOAgents[i].Email)
+						dbShipment.MTOAgents[i].Phone = services.SetOptionalStringField(newAgentInfo.Phone, dbShipment.MTOAgents[i].Phone)
+						// If no fields are set, then we will soft-delete the MTO agent
+						if dbShipment.MTOAgents[i].FirstName == nil && dbShipment.MTOAgents[i].LastName == nil && dbShipment.MTOAgents[i].Email == nil && dbShipment.MTOAgents[i].Phone == nil {
+							err := utilities.SoftDestroy(appCtx.DB(), &dbShipment.MTOAgents[i])
+							if err != nil {
+								appCtx.Logger().Error("Error soft destroying MTO Agent.")
+								continue
+							}
 						}
 						agentsToCreateOrUpdate = append(agentsToCreateOrUpdate, dbShipment.MTOAgents[i])
 					}
@@ -288,7 +301,6 @@ func (f *mtoShipmentUpdater) UpdateMTOShipment(appCtx appcontext.AppContext, mto
 		"DestinationAddress",
 		"SecondaryPickupAddress",
 		"SecondaryDeliveryAddress",
-		"MTOAgents",
 		"SITDurationUpdates",
 		"MTOServiceItems.ReService",
 		"MTOServiceItems.Dimensions",
@@ -301,6 +313,13 @@ func (f *mtoShipmentUpdater) UpdateMTOShipment(appCtx appcontext.AppContext, mto
 	if err != nil {
 		return nil, err
 	}
+
+	var agents []models.MTOAgent
+	err = appCtx.DB().Scope(utilities.ExcludeDeletedScope()).Where("mto_shipment_id = ?", mtoShipment.ID).All(&agents)
+	if err != nil {
+		return nil, err
+	}
+	oldShipment.MTOAgents = agents
 
 	// run the (read-only) validations
 	if verr := validateShipment(appCtx, mtoShipment, oldShipment, f.checks...); verr != nil {
@@ -331,6 +350,13 @@ func (f *mtoShipmentUpdater) UpdateMTOShipment(appCtx appcontext.AppContext, mto
 		return nil, err
 	}
 
+	var updatedAgents []models.MTOAgent
+	err = appCtx.DB().Scope(utilities.ExcludeDeletedScope()).Where("mto_shipment_id = ?", mtoShipment.ID).All(&updatedAgents)
+	if err != nil {
+		return nil, err
+	}
+	updatedShipment.MTOAgents = updatedAgents
+
 	return updatedShipment, nil
 }
 
@@ -348,6 +374,10 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 		if !updatedAt.Equal(dbShipment.UpdatedAt) {
 			return StaleIdentifierError{StaleIdentifier: eTag}
 		}
+
+		// TODO: We currently can't distinguish between a nil DestinationAddress meaning to "clear field"
+		//   vs "don't touch" the field, so we can't safely reset a nil DestinationAddress to the duty
+		//   location address for an HHG like we do in the MTOShipmentCreator now.  See MB-15718.
 
 		if newShipment.DestinationAddress != nil {
 			// If there is an existing DestinationAddressID associated
@@ -785,20 +815,25 @@ func reServiceCodesForShipment(shipment models.MTOShipment) []models.ReServiceCo
 	// More info in MB-1140: https://dp3.atlassian.net/browse/MB-1140
 
 	switch shipment.ShipmentType {
-	case models.MTOShipmentTypeHHG, models.MTOShipmentTypeHHGLongHaulDom:
+	case models.MTOShipmentTypeHHG:
+
+		originZIP3 := shipment.PickupAddress.PostalCode[0:3]
+		destinationZIP3 := shipment.DestinationAddress.PostalCode[0:3]
+
+		if originZIP3 == destinationZIP3 {
+			return []models.ReServiceCode{
+				models.ReServiceCodeDSH,
+				models.ReServiceCodeFSC,
+				models.ReServiceCodeDOP,
+				models.ReServiceCodeDDP,
+				models.ReServiceCodeDPK,
+				models.ReServiceCodeDUPK,
+			}
+		}
+
 		// Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Packing, and Dom Unpacking.
 		return []models.ReServiceCode{
 			models.ReServiceCodeDLH,
-			models.ReServiceCodeFSC,
-			models.ReServiceCodeDOP,
-			models.ReServiceCodeDDP,
-			models.ReServiceCodeDPK,
-			models.ReServiceCodeDUPK,
-		}
-	case models.MTOShipmentTypeHHGShortHaulDom:
-		// Need to create: Dom Shorthaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Packing, Dom Unpacking
-		return []models.ReServiceCode{
-			models.ReServiceCodeDSH,
 			models.ReServiceCodeFSC,
 			models.ReServiceCodeDOP,
 			models.ReServiceCodeDDP,

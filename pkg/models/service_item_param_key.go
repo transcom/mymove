@@ -137,8 +137,12 @@ const (
 	ServiceItemParamNameZipDestAddress ServiceItemParamName = "ZipDestAddress"
 	// ServiceItemParamNameZipPickupAddress is the param key name ZipPickupAddress
 	ServiceItemParamNameZipPickupAddress ServiceItemParamName = "ZipPickupAddress"
+	// ServiceItemParamNameSITServiceAreaDest is the param key name SITServiceAreaDest
+	ServiceItemParamNameSITServiceAreaDest ServiceItemParamName = "SITServiceAreaDest"
 	// ServiceItemParamNameZipSITDestHHGFinalAddress is the param key name ZipSITDestHHGFinalAddress
 	ServiceItemParamNameZipSITDestHHGFinalAddress ServiceItemParamName = "ZipSITDestHHGFinalAddress"
+	// ServiceItemParamNameZipSITDestHHGOriginalAddress is the param key name ZipSITDestHHGOriginalAddress
+	ServiceItemParamNameZipSITDestHHGOriginalAddress ServiceItemParamName = "ZipSITDestHHGOriginalAddress"
 	// ServiceItemParamNameZipSITOriginHHGActualAddress is the param key name ZipSITOriginHHGActualAddress
 	ServiceItemParamNameZipSITOriginHHGActualAddress ServiceItemParamName = "ZipSITOriginHHGActualAddress"
 	// ServiceItemParamNameZipSITOriginHHGOriginalAddress is the param key name ZipSITOriginHHGOriginalAddress
@@ -244,6 +248,7 @@ var ValidServiceItemParamNames = []ServiceItemParamName{
 	ServiceItemParamNameSITPaymentRequestStart,
 	ServiceItemParamNameSITScheduleDest,
 	ServiceItemParamNameSITScheduleOrigin,
+	ServiceItemParamNameSITServiceAreaDest,
 	ServiceItemParamNameWeightAdjusted,
 	ServiceItemParamNameWeightBilled,
 	ServiceItemParamNameWeightEstimated,
@@ -252,6 +257,7 @@ var ValidServiceItemParamNames = []ServiceItemParamName{
 	ServiceItemParamNameZipDestAddress,
 	ServiceItemParamNameZipPickupAddress,
 	ServiceItemParamNameZipSITDestHHGFinalAddress,
+	ServiceItemParamNameZipSITDestHHGOriginalAddress,
 	ServiceItemParamNameZipSITOriginHHGActualAddress,
 	ServiceItemParamNameZipSITOriginHHGOriginalAddress,
 }
@@ -311,6 +317,7 @@ var ValidServiceItemParamNameStrings = []string{
 	string(ServiceItemParamNameSITPaymentRequestStart),
 	string(ServiceItemParamNameSITScheduleDest),
 	string(ServiceItemParamNameSITScheduleOrigin),
+	string(ServiceItemParamNameSITServiceAreaDest),
 	string(ServiceItemParamNameWeightAdjusted),
 	string(ServiceItemParamNameWeightBilled),
 	string(ServiceItemParamNameWeightEstimated),
@@ -319,6 +326,7 @@ var ValidServiceItemParamNameStrings = []string{
 	string(ServiceItemParamNameZipDestAddress),
 	string(ServiceItemParamNameZipPickupAddress),
 	string(ServiceItemParamNameZipSITDestHHGFinalAddress),
+	string(ServiceItemParamNameZipSITDestHHGOriginalAddress),
 	string(ServiceItemParamNameZipSITOriginHHGActualAddress),
 	string(ServiceItemParamNameZipSITOriginHHGOriginalAddress),
 }
@@ -361,7 +369,7 @@ func (s ServiceItemParamKey) TableName() string {
 type ServiceItemParamKeys []ServiceItemParamKey
 
 // Validate validates a ServiceItemParamKey
-func (s *ServiceItemParamKey) Validate(tx *pop.Connection) (*validate.Errors, error) {
+func (s *ServiceItemParamKey) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.StringIsPresent{Field: s.Key.String(), Name: "Key"},
 		&validators.StringInclusion{Field: s.Key.String(), Name: "Key", List: ValidServiceItemParamNameStrings},

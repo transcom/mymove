@@ -23,13 +23,12 @@ func (_m *QueryAssociation) Field() string {
 	return r0
 }
 
-type mockConstructorTestingTNewQueryAssociation interface {
+// NewQueryAssociation creates a new instance of QueryAssociation. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewQueryAssociation(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewQueryAssociation creates a new instance of QueryAssociation. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewQueryAssociation(t mockConstructorTestingTNewQueryAssociation) *QueryAssociation {
+}) *QueryAssociation {
 	mock := &QueryAssociation{}
 	mock.Mock.Test(t)
 

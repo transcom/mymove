@@ -46,8 +46,7 @@ class TioFlowPage extends OfficePage {
       const inputEl = serviceItemCardLocator.locator('input[data-testid="rejectRadio"]');
       const id = await inputEl.getAttribute('id');
       await this.page.locator(`label[for="${id}"]`).click();
-      await this.page.locator('textarea[data-testid="textarea"]').type('This is not a valid request');
-      await serviceItemCardLocator.getByRole('button', { name: 'Save' }).click();
+      await this.page.locator('textarea[data-testid="rejectionReason"]').type('This is not a valid request');
     } else {
       const inputEl = serviceItemCardLocator.locator('input[data-testid="approveRadio"]');
       const id = await inputEl.getAttribute('id');
@@ -473,8 +472,18 @@ test.describe('TIO user', () => {
       // Verify weight info
       const weightSection = '#billable-weights';
       await expect(page.locator(weightSection)).toContainText('Billable weights');
-      await expect(page.locator(weightSection)).toContainText('8,000 lbs');
-      await expect(page.locator(weightSection)).toContainText('2,000 lbs');
+
+      // Verify Total Billable Weight info
+      const totalBillableWeightParent = page
+        .getByRole('heading', { name: 'Total billable weight', exact: true })
+        .locator('..');
+      await expect(totalBillableWeightParent.getByRole('heading', { name: '2,000 lbs', exact: true })).toBeVisible();
+
+      // Verify Maximum billable weight info
+      const maximumBillableWeightParent = page
+        .getByRole('heading', { name: 'Maximum billable weight', exact: true })
+        .locator('..');
+      await expect(maximumBillableWeightParent.getByRole('heading', { name: '8,000 lbs', exact: true })).toBeVisible();
 
       // Verify External Shipment shown
       await expect(page.locator(weightSection)).toContainText('1 other shipment:');

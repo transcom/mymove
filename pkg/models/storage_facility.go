@@ -29,7 +29,7 @@ func (f StorageFacility) TableName() string {
 
 type StorageFacilities []StorageFacility
 
-func (f *StorageFacility) Validate(tx *pop.Connection) (*validate.Errors, error) {
+func (f *StorageFacility) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.UUIDIsPresent{Field: f.AddressID, Name: "AddressID"},
 		&validators.StringIsPresent{Field: f.FacilityName, Name: "FacilityName"},

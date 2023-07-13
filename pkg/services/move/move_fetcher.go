@@ -23,7 +23,7 @@ func NewMoveFetcher() services.MoveFetcher {
 func (f moveFetcher) FetchMove(appCtx appcontext.AppContext, locator string, searchParams *services.MoveFetcherParams) (*models.Move, error) {
 	move := &models.Move{}
 	query := appCtx.DB().
-		EagerPreload("CloseoutOffice.Address").
+		EagerPreload("CloseoutOffice.Address", "Contractor").
 		Where("locator = $1", locator)
 
 	if searchParams == nil || !searchParams.IncludeHidden {

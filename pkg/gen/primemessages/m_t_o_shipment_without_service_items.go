@@ -65,6 +65,9 @@ type MTOShipmentWithoutServiceItems struct {
 	// Read Only: true
 	CustomerRemarks *string `json:"customerRemarks,omitempty"`
 
+	// delivery address update
+	DeliveryAddressUpdate *ShipmentAddressUpdate `json:"deliveryAddressUpdate,omitempty"`
+
 	// Where the movers should deliver this shipment. Often provided by the customer when they enter shipment details
 	// during onboarding, if they know their new address already.
 	//
@@ -216,6 +219,10 @@ func (m *MTOShipmentWithoutServiceItems) Validate(formats strfmt.Registry) error
 	}
 
 	if err := m.validateCreatedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateDeliveryAddressUpdate(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -377,6 +384,25 @@ func (m *MTOShipmentWithoutServiceItems) validateCreatedAt(formats strfmt.Regist
 
 	if err := validate.FormatOf("createdAt", "body", "date-time", m.CreatedAt.String(), formats); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (m *MTOShipmentWithoutServiceItems) validateDeliveryAddressUpdate(formats strfmt.Registry) error {
+	if swag.IsZero(m.DeliveryAddressUpdate) { // not required
+		return nil
+	}
+
+	if m.DeliveryAddressUpdate != nil {
+		if err := m.DeliveryAddressUpdate.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("deliveryAddressUpdate")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("deliveryAddressUpdate")
+			}
+			return err
+		}
 	}
 
 	return nil
@@ -746,6 +772,10 @@ func (m *MTOShipmentWithoutServiceItems) ContextValidate(ctx context.Context, fo
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateDeliveryAddressUpdate(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateDestinationAddress(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -878,6 +908,27 @@ func (m *MTOShipmentWithoutServiceItems) contextValidateCustomerRemarks(ctx cont
 	return nil
 }
 
+func (m *MTOShipmentWithoutServiceItems) contextValidateDeliveryAddressUpdate(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.DeliveryAddressUpdate != nil {
+
+		if swag.IsZero(m.DeliveryAddressUpdate) { // not required
+			return nil
+		}
+
+		if err := m.DeliveryAddressUpdate.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("deliveryAddressUpdate")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("deliveryAddressUpdate")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *MTOShipmentWithoutServiceItems) contextValidateDestinationAddress(ctx context.Context, formats strfmt.Registry) error {
 
 	return nil
@@ -886,6 +937,11 @@ func (m *MTOShipmentWithoutServiceItems) contextValidateDestinationAddress(ctx c
 func (m *MTOShipmentWithoutServiceItems) contextValidateDestinationType(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.DestinationType != nil {
+
+		if swag.IsZero(m.DestinationType) { // not required
+			return nil
+		}
+
 		if err := m.DestinationType.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("destinationType")
@@ -934,6 +990,11 @@ func (m *MTOShipmentWithoutServiceItems) contextValidatePickupAddress(ctx contex
 func (m *MTOShipmentWithoutServiceItems) contextValidatePpmShipment(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.PpmShipment != nil {
+
+		if swag.IsZero(m.PpmShipment) { // not required
+			return nil
+		}
+
 		if err := m.PpmShipment.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("ppmShipment")
@@ -986,6 +1047,11 @@ func (m *MTOShipmentWithoutServiceItems) contextValidateRequiredDeliveryDate(ctx
 func (m *MTOShipmentWithoutServiceItems) contextValidateReweigh(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Reweigh != nil {
+
+		if swag.IsZero(m.Reweigh) { // not required
+			return nil
+		}
+
 		if err := m.Reweigh.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("reweigh")
@@ -1010,6 +1076,10 @@ func (m *MTOShipmentWithoutServiceItems) contextValidateSecondaryPickupAddress(c
 }
 
 func (m *MTOShipmentWithoutServiceItems) contextValidateShipmentType(ctx context.Context, formats strfmt.Registry) error {
+
+	if swag.IsZero(m.ShipmentType) { // not required
+		return nil
+	}
 
 	if err := m.ShipmentType.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
@@ -1049,6 +1119,11 @@ func (m *MTOShipmentWithoutServiceItems) contextValidateStatus(ctx context.Conte
 func (m *MTOShipmentWithoutServiceItems) contextValidateStorageFacility(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.StorageFacility != nil {
+
+		if swag.IsZero(m.StorageFacility) { // not required
+			return nil
+		}
+
 		if err := m.StorageFacility.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("storageFacility")

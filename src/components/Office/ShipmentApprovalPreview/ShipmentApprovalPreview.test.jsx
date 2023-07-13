@@ -66,7 +66,66 @@ const shipments = [
       streetAddress2: 'P.O. Box 12345',
       streetAddress3: 'c/o Some Person',
     },
-    shipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
+    shipmentType: SHIPMENT_OPTIONS.HHG,
+    status: 'SUBMITTED',
+    updatedAt: '2020-06-10T15:58:02.404031Z',
+  },
+  {
+    approvedDate: '0001-01-01',
+    createdAt: '2020-06-10T15:58:02.404029Z',
+    customerRemarks: 'please treat gently',
+    counselorRemarks: 'all good',
+    destinationAddress: {
+      city: 'Venice',
+      country: 'US',
+      eTag: 'MjAyMC0wNi0xMFQxNTo1ODowMi4zODk0MTJa',
+      id: '672ff379-f6e3-48b4-a87d-796713f8f997',
+      postalCode: '90292',
+      state: 'CA',
+      streetAddress1: '987 Any Avenue',
+      streetAddress2: 'P.O. Box 9876',
+      streetAddress3: 'c/o Some Person',
+    },
+    eTag: 'MjAyMC0wNi0xMFQxNTo1ODowMi40MDQwMzFa',
+    id: 'ce01a5b8-9b44-4511-8a8d-edb60f2a4aea',
+    moveTaskOrderID: '9c7b255c-2981-4bf8-839f-61c7458e2b4d',
+    pickupAddress: {
+      city: 'Beverly Hills',
+      country: 'US',
+      eTag: 'MjAyMC0wNi0xMFQxNTo1ODowMi4zODQ3Njla',
+      id: '1686751b-ab36-43cf-b3c9-c0f467d13c19',
+      postalCode: '90210',
+      state: 'CA',
+      streetAddress1: '123 Any Street',
+      streetAddress2: 'P.O. Box 12345',
+      streetAddress3: 'c/o Some Person',
+    },
+    rejectionReason: 'shipment not good enough',
+    requestedPickupDate: '2018-03-15',
+    scheduledPickupDate: '2018-03-16',
+    secondaryDeliveryAddress: {
+      city: 'Beverly Hills',
+      country: 'US',
+      eTag: 'MjAyMC0wNi0xMFQxNTo1ODowMi4zOTkzMlo=',
+      id: '15e8f6cc-e1d7-44b2-b1e0-fcb3d6442831',
+      postalCode: '90210',
+      state: 'CA',
+      streetAddress1: '123 Any Street',
+      streetAddress2: 'P.O. Box 12345',
+      streetAddress3: 'c/o Some Person',
+    },
+    secondaryPickupAddress: {
+      city: 'Beverly Hills',
+      country: 'US',
+      eTag: 'MjAyMC0wNi0xMFQxNTo1ODowMi4zOTM4OTZa',
+      id: '9b79e0c3-8ed5-4fb8-aa36-95845707d8ee',
+      postalCode: '90210',
+      state: 'CA',
+      streetAddress1: '123 Any Street',
+      streetAddress2: 'P.O. Box 12345',
+      streetAddress3: 'c/o Some Person',
+    },
+    shipmentType: SHIPMENT_OPTIONS.HHG,
     status: 'SUBMITTED',
     updatedAt: '2020-06-10T15:58:02.404031Z',
   },
@@ -227,7 +286,8 @@ describe('Shipment preview modal', () => {
     expect(wrapper.find(CustomerInfoList).exists()).toBe(true);
 
     expect(wrapper.find('h3').at(0).text()).toEqual('Household goods');
-    expect(wrapper.find('h3').at(1).text()).toEqual('Non-temp storage release');
+    expect(wrapper.find('h3').at(1).text()).toEqual('Household goods');
+    expect(wrapper.find('h3').at(2).text()).toEqual('Non-temp storage release');
   });
   it('renders the modal successfully with mtoAgents provided', () => {
     const wrapper = mount(
@@ -312,7 +372,7 @@ describe('Shipment preview modal', () => {
     expect(wrapper.find('[data-testid="destinationAddress"]').at(0).text()).toEqual(
       '987 Any Avenue, P.O. Box 9876, Fairfield, CA 94535',
     );
-    expect(wrapper.find('[data-testid="destinationAddress"]').at(1).text()).toEqual(
+    expect(wrapper.find('[data-testid="destinationAddress"]').at(2).text()).toEqual(
       ordersInfo.newDutyLocation.address.postalCode,
     );
   });

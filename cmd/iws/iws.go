@@ -27,7 +27,6 @@ func main() {
 	rbs, err := iws.NewRBSPersonLookup(*host, *dodCaCertPackage, *moveMilDODTLSCert, *moveMilDODTLSKey)
 	if err != nil {
 		log.Fatal(err)
-		os.Exit(1)
 	}
 
 	var retcode int

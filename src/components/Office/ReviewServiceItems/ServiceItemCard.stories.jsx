@@ -1,4 +1,6 @@
 import React from 'react';
+import { expect } from '@storybook/jest';
+import { within, userEvent } from '@storybook/testing-library';
 
 import testParams from '../ServiceItemCalculations/serviceItemTestParams';
 
@@ -26,6 +28,26 @@ export const Basic = (args) => (
     patchPaymentServiceItem={args.patchPaymentServiceItem}
   />
 );
+
+export const EmptyRejectionReasonError = (args) => (
+  <ServiceItemCard
+    mtoServiceItemName={serviceItemCodes.CS}
+    amount={999.99}
+    patchPaymentServiceItem={args.patchPaymentServiceItem}
+    status={PAYMENT_SERVICE_ITEM_STATUS.DENIED}
+  />
+);
+
+EmptyRejectionReasonError.play = async ({ canvasElement }) => {
+  const canvas = within(canvasElement);
+
+  await expect(canvas.getByRole('textbox', { name: 'Reason for rejection' })).toBeInTheDocument();
+  await expect(canvas.getByText('Reject')).toBeInTheDocument();
+
+  // type, then clear, then blur
+  await userEvent.type(canvas.getByRole('textbox', { name: 'Reason for rejection' }), 'a{backspace}');
+  await userEvent.click(canvas.getByText('Reject'), undefined, { skipPointerEventsCheck: true });
+};
 
 export const HHG = (args) => (
   <ServiceItemCard
@@ -74,7 +96,7 @@ export const NTSR = (args) => (
 
 export const HHGLonghaulDomestic = (args) => (
   <ServiceItemCard
-    mtoShipmentType={SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC}
+    mtoShipmentType={SHIPMENT_OPTIONS.HHG}
     mtoShipmentDepartureDate="2020-03-16"
     mtoShipmentPickupAddress="Fairfield, CA 94535"
     mtoShipmentDestinationAddress="Beverly Hills, CA 90210"
@@ -89,7 +111,7 @@ export const HHGLonghaulDomestic = (args) => (
 
 export const HHGShorthaulDomestic = (args) => (
   <ServiceItemCard
-    mtoShipmentType={SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC}
+    mtoShipmentType={SHIPMENT_OPTIONS.HHG}
     mtoShipmentDepartureDate="2020-03-16"
     mtoShipmentPickupAddress="Fairfield, CA 94535"
     mtoShipmentDestinationAddress="Beverly Hills, CA 90210"
@@ -136,7 +158,7 @@ export const HHGDiverted = (args) => (
 
 export const NeedsReviewRequestCalculations = (args) => (
   <ServiceItemCard
-    mtoShipmentType={SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC}
+    mtoShipmentType={SHIPMENT_OPTIONS.HHG}
     mtoShipmentDepartureDate="2020-03-16"
     mtoShipmentPickupAddress="Fairfield, CA 94535"
     mtoShipmentDestinationAddress="Beverly Hills, CA 90210"
@@ -151,7 +173,7 @@ export const NeedsReviewRequestCalculations = (args) => (
 
 export const AcceptedRequestComplete = () => (
   <ServiceItemCard
-    mtoShipmentType={SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC}
+    mtoShipmentType={SHIPMENT_OPTIONS.HHG}
     mtoShipmentDepartureDate="2020-03-16"
     mtoShipmentPickupAddress="Fairfield, CA 94535"
     mtoShipmentDestinationAddress="Beverly Hills, CA 90210"
@@ -166,7 +188,7 @@ export const AcceptedRequestComplete = () => (
 
 export const RejectedRequestComplete = () => (
   <ServiceItemCard
-    mtoShipmentType={SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC}
+    mtoShipmentType={SHIPMENT_OPTIONS.HHG}
     mtoShipmentDepartureDate="2020-03-16"
     mtoShipmentPickupAddress="Fairfield, CA 94535"
     mtoShipmentDestinationAddress="Beverly Hills, CA 90210"
@@ -182,7 +204,7 @@ export const RejectedRequestComplete = () => (
 
 export const DaysInSITAllowance = () => (
   <ServiceItemCard
-    mtoShipmentType={SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC}
+    mtoShipmentType={SHIPMENT_OPTIONS.HHG}
     mtoShipmentDepartureDate="2021-05-08"
     mtoShipmentPickupAddress="Fairfield, CA 94535"
     mtoShipmentDestinationAddress="Beverly Hills, CA 90210"

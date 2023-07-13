@@ -31,20 +31,20 @@ func NewSITAddressUpdateRequestRejector(moveRouter services.MoveRouter) services
 }
 
 // RejectSITAddressUpdateRequest rejects the update request
-func (f *sitAddressUpdateRequestRejector) RejectSITAddressUpdateRequest(appCtx appcontext.AppContext, serviceItemID uuid.UUID, sitAddressUpdateRequestID uuid.UUID, officeRemarks *string, eTag string) (*models.SITAddressUpdate, error) {
-	serviceItem, err := f.findServiceItem(appCtx, serviceItemID)
-	if err != nil {
-		return nil, err
-	}
-
+func (f *sitAddressUpdateRequestRejector) RejectSITAddressUpdateRequest(appCtx appcontext.AppContext, sitAddressUpdateRequestID uuid.UUID, officeRemarks *string, eTag string) (*models.SITAddressUpdate, error) {
 	sitAddressUpdateRequest, err := f.findSITAddressUpdateRequest(appCtx, sitAddressUpdateRequestID)
 	if err != nil {
 		return nil, err
 	}
 
-	existingETag := etag.GenerateEtag(serviceItem.UpdatedAt)
+	serviceItem, err := f.findServiceItem(appCtx, sitAddressUpdateRequest.MTOServiceItemID)
+	if err != nil {
+		return nil, err
+	}
+
+	existingETag := etag.GenerateEtag(sitAddressUpdateRequest.UpdatedAt)
 	if existingETag != eTag {
-		return nil, apperror.NewPreconditionFailedError(serviceItemID, query.StaleIdentifierError{StaleIdentifier: eTag})
+		return nil, apperror.NewPreconditionFailedError(sitAddressUpdateRequest.ID, query.StaleIdentifierError{StaleIdentifier: eTag})
 	}
 
 	return f.rejectSITAddressUpdateRequest(appCtx, *sitAddressUpdateRequest, officeRemarks, serviceItem.MoveTaskOrderID)
@@ -127,8 +127,8 @@ func (f *sitAddressUpdateRequestRejector) updateSITAddressUpdateRequest(appCtx a
 	sitAddressUpdateRequest.Status = models.SITAddressUpdateStatusRejected
 
 	verrs, err := appCtx.DB().ValidateAndUpdate(&sitAddressUpdateRequest)
-	if error := f.handleError(sitAddressUpdateRequest.ID, verrs, err); error != nil {
-		return nil, error
+	if handleErr := f.handleError(sitAddressUpdateRequest.ID, verrs, err); handleErr != nil {
+		return nil, handleErr
 	}
 
 	return &sitAddressUpdateRequest, nil
@@ -138,9 +138,6 @@ func (f *sitAddressUpdateRequestRejector) handleError(modelID uuid.UUID, verrs *
 	if verrs != nil && verrs.HasAny() {
 		return apperror.NewInvalidInputError(modelID, nil, verrs, "")
 	}
-	if err != nil {
-		return err
-	}
 
-	return nil
+	return err
 }

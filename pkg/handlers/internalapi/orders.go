@@ -182,6 +182,13 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 				errMsg := "missing required field: OrdersType"
 				return handlers.ResponseForError(appCtx.Logger(), errors.New(errMsg)), apperror.NewBadDataError("missing required field: OrdersType")
 			}
+
+			contractor, err := models.FetchGHCPrimeContractor(appCtx.DB())
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
+
+			packingAndShippingInstructions := models.InstructionsBeforeContractNumber + " " + contractor.ContractNumber + " " + models.InstructionsAfterContractNumber
 			newOrder, verrs, err := serviceMember.CreateOrder(
 				appCtx,
 				time.Time(*payload.IssueDate),
@@ -198,6 +205,7 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 				grade,
 				&entitlement,
 				&originDutyLocationGBLOC.GBLOC,
+				packingAndShippingInstructions,
 			)
 			if err != nil || verrs.HasAny() {
 				return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err), err
@@ -324,8 +332,10 @@ func (h UploadAmendedOrdersHandler) Handle(params ordersop.UploadAmendedOrdersPa
 			file, ok := params.File.(*runtime.File)
 			if !ok {
 				errMsg := "This should always be a runtime.File, something has changed in go-swagger."
+
 				appCtx.Logger().Error(errMsg)
-				return handlers.ResponseForError(appCtx.Logger(), nil), apperror.NewBadDataError(errMsg)
+
+				return ordersop.NewUploadAmendedOrdersInternalServerError(), nil
 			}
 
 			appCtx.Logger().Info(

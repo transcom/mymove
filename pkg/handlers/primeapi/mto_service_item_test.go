@@ -19,10 +19,12 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services/address"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
+	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -1004,11 +1006,13 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 			CustomerContacts: models.MTOServiceItemCustomerContacts{
 				models.MTOServiceItemCustomerContact{
 					Type:                       models.CustomerContactTypeFirst,
+					DateOfContact:              time.Now().Add(time.Hour * 24),
 					TimeMilitary:               "0400Z",
 					FirstAvailableDeliveryDate: time.Now(),
 				},
 				models.MTOServiceItemCustomerContact{
 					Type:                       models.CustomerContactTypeSecond,
+					DateOfContact:              time.Now().Add(time.Hour * 24),
 					TimeMilitary:               "0400Z",
 					FirstAvailableDeliveryDate: time.Now(),
 				},
@@ -1044,11 +1048,13 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 			CustomerContacts: models.MTOServiceItemCustomerContacts{
 				models.MTOServiceItemCustomerContact{
 					Type:                       models.CustomerContactTypeFirst,
+					DateOfContact:              time.Now().Add(time.Hour * 24),
 					TimeMilitary:               "0400Z",
 					FirstAvailableDeliveryDate: time.Now(),
 				},
 				models.MTOServiceItemCustomerContact{
 					Type:                       models.CustomerContactTypeSecond,
+					DateOfContact:              time.Now().Add(time.Hour * 24),
 					TimeMilitary:               "0400Z",
 					FirstAvailableDeliveryDate: time.Now(),
 				},
@@ -1137,11 +1143,13 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 			CustomerContacts: models.MTOServiceItemCustomerContacts{
 				models.MTOServiceItemCustomerContact{
 					Type:                       models.CustomerContactTypeFirst,
+					DateOfContact:              time.Now().Add(time.Hour * 24),
 					TimeMilitary:               "0400Z",
 					FirstAvailableDeliveryDate: time.Now(),
 				},
 				models.MTOServiceItemCustomerContact{
 					Type:                       models.CustomerContactTypeSecond,
+					DateOfContact:              time.Now().Add(time.Hour * 24),
 					TimeMilitary:               "0400Z",
 					FirstAvailableDeliveryDate: time.Now(),
 				},
@@ -1333,6 +1341,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 			ReServiceCode:               models.ReServiceCodeDDDSIT.String(),
 			SitDepartureDate:            *handlers.FmtDate(time.Now().AddDate(0, 0, 5)),
 			SitDestinationFinalAddress:  &addr,
+			DateOfContact1:              handlers.FmtDate(time.Date(2020, time.December, 04, 0, 0, 0, 0, time.UTC)),
 			TimeMilitary1:               handlers.FmtStringPtrNonEmpty(&milTime),
 			FirstAvailableDeliveryDate1: handlers.FmtDate(time.Date(2020, time.December, 02, 0, 0, 0, 0, time.UTC)),
 		}
@@ -1341,9 +1350,11 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 		// Create the handler
 		queryBuilder := query.NewQueryBuilder()
 		moveRouter := moverouter.NewMoveRouter()
+		shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
+		addressCreator := address.NewAddressCreator()
 		subtestData.handler = UpdateMTOServiceItemHandler{
 			suite.HandlerConfig(),
-			mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter),
+			mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter, shipmentFetcher, addressCreator),
 		}
 
 		// create the params struct
@@ -1394,6 +1405,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 		suite.Equal(subtestData.reqPayload.SitDestinationFinalAddress.PostalCode, respPayload.SitDestinationFinalAddress.PostalCode)
 		suite.Equal(subtestData.reqPayload.SitDestinationFinalAddress.State, respPayload.SitDestinationFinalAddress.State)
 		suite.Equal(subtestData.reqPayload.SitDestinationFinalAddress.Country, respPayload.SitDestinationFinalAddress.Country)
+		suite.Equal(subtestData.reqPayload.DateOfContact1, respPayload.DateOfContact1)
 		suite.Equal(subtestData.reqPayload.TimeMilitary1, respPayload.TimeMilitary1)
 		suite.Equal(subtestData.reqPayload.FirstAvailableDeliveryDate1, respPayload.FirstAvailableDeliveryDate1)
 	})
@@ -1511,6 +1523,8 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDOPSIT() {
 	// Create the handler
 	queryBuilder := query.NewQueryBuilder()
 	moveRouter := moverouter.NewMoveRouter()
+	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
+	addressCreator := address.NewAddressCreator()
 
 	type localSubtestData struct {
 		dopsit     models.MTOServiceItem
@@ -1549,7 +1563,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDOPSIT() {
 
 		subtestData.handler = UpdateMTOServiceItemHandler{
 			suite.HandlerConfig(),
-			mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter),
+			mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter, shipmentFetcher, addressCreator),
 		}
 
 		// create the params struct

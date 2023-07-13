@@ -55,7 +55,7 @@ jest.mock('hooks/queries', () => ({
 mockPage('pages/Office/ServicesCounselingMoveDetails/ServicesCounselingMoveDetails');
 mockPage('pages/Office/PPM/ReviewDocuments/ReviewDocuments');
 mockPage('pages/Office/ServicesCounselingAddShipment/ServicesCounselingAddShipment');
-mockPage('pages/Office/ServicesCounselorCustomerSupportRemarks/ServicesCounselorCustomerSupportRemarks');
+mockPage('pages/Office/CustomerSupportRemarks/CustomerSupportRemarks');
 mockPage('pages/Office/MoveHistory/MoveHistory');
 mockPage('pages/Office/ServicesCounselingMoveDocumentWrapper/ServicesCounselingMoveDocumentWrapper');
 mockPage('pages/Office/CustomerInfo/CustomerInfo');
@@ -133,8 +133,8 @@ describe('Services Counseling Move Info Container', () => {
       ['Services Counseling Move Details', '/'],
       ['Services Counseling Move Details', 'details'],
       ['Review Documents', 'shipments/SHIP123/document-review'],
-      ['Services Counseling Add Shipment', 'new-hhg'],
-      ['Services Counselor Customer Support Remarks', 'customer-support-remarks'],
+      ['Services Counseling Add Shipment', 'new-shipment/hhg'],
+      ['Customer Support Remarks', 'customer-support-remarks'],
       ['Move History', 'history'],
       ['Services Counseling Move Document Wrapper', 'allowances'],
       ['Services Counseling Move Document Wrapper', 'orders'],

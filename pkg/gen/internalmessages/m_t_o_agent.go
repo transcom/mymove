@@ -28,7 +28,7 @@ type MTOAgent struct {
 	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
 	// email
-	// Pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
+	// Pattern: (^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$)|(^$)
 	Email *string `json:"email,omitempty"`
 
 	// first name
@@ -49,7 +49,7 @@ type MTOAgent struct {
 	MtoShipmentID strfmt.UUID `json:"mtoShipmentID,omitempty"`
 
 	// phone
-	// Pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
+	// Pattern: (^[2-9]\d{2}-\d{3}-\d{4}$)|(^$)
 	Phone *string `json:"phone,omitempty"`
 
 	// updated at
@@ -130,7 +130,7 @@ func (m *MTOAgent) validateEmail(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.Pattern("email", "body", *m.Email, `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`); err != nil {
+	if err := validate.Pattern("email", "body", *m.Email, `(^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$)|(^$)`); err != nil {
 		return err
 	}
 
@@ -166,7 +166,7 @@ func (m *MTOAgent) validatePhone(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.Pattern("phone", "body", *m.Phone, `^[2-9]\d{2}-\d{3}-\d{4}$`); err != nil {
+	if err := validate.Pattern("phone", "body", *m.Phone, `(^[2-9]\d{2}-\d{3}-\d{4}$)|(^$)`); err != nil {
 		return err
 	}
 
@@ -212,6 +212,10 @@ func (m *MTOAgent) ContextValidate(ctx context.Context, formats strfmt.Registry)
 }
 
 func (m *MTOAgent) contextValidateAgentType(ctx context.Context, formats strfmt.Registry) error {
+
+	if swag.IsZero(m.AgentType) { // not required
+		return nil
+	}
 
 	if err := m.AgentType.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {

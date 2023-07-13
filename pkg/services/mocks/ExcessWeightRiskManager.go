@@ -112,13 +112,12 @@ func (_m *ExcessWeightRiskManager) UpdateMaxBillableWeightAsTIO(appCtx appcontex
 	return r0, r1, r2
 }
 
-type mockConstructorTestingTNewExcessWeightRiskManager interface {
+// NewExcessWeightRiskManager creates a new instance of ExcessWeightRiskManager. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewExcessWeightRiskManager(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewExcessWeightRiskManager creates a new instance of ExcessWeightRiskManager. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewExcessWeightRiskManager(t mockConstructorTestingTNewExcessWeightRiskManager) *ExcessWeightRiskManager {
+}) *ExcessWeightRiskManager {
 	mock := &ExcessWeightRiskManager{}
 	mock.Mock.Test(t)
 

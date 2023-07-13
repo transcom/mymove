@@ -130,7 +130,15 @@ func (f *orderUpdater) findOrder(appCtx appcontext.AppContext, orderID uuid.UUID
 
 func (f *orderUpdater) findOrderWithAmendedOrders(appCtx appcontext.AppContext, orderID uuid.UUID) (*models.Order, error) {
 	var order models.Order
-	err := appCtx.DB().Q().EagerPreload("ServiceMember", "UploadedAmendedOrders").Find(&order, orderID)
+
+	query := appCtx.DB().Q().EagerPreload("ServiceMember", "UploadedAmendedOrders")
+
+	if appCtx.Session().IsMilApp() {
+		query = query.Where("orders.service_member_id = ?", appCtx.Session().ServiceMemberID)
+	}
+
+	err := query.Find(&order, orderID)
+
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
@@ -143,7 +151,7 @@ func (f *orderUpdater) findOrderWithAmendedOrders(appCtx appcontext.AppContext, 
 	return &order, nil
 }
 
-func orderFromTOOPayload(appCtx appcontext.AppContext, existingOrder models.Order, payload ghcmessages.UpdateOrderPayload) models.Order {
+func orderFromTOOPayload(_ appcontext.AppContext, existingOrder models.Order, payload ghcmessages.UpdateOrderPayload) models.Order {
 	order := existingOrder
 
 	// update both order origin duty location and service member duty location
@@ -440,11 +448,7 @@ func (f *orderUpdater) saveDocumentForAmendedOrder(appCtx appcontext.AppContext,
 		var verrs *validate.Errors
 		var err error
 		verrs, err = txnAppCtx.DB().ValidateAndSave(doc)
-		if e := handleError(docID, verrs, err); e != nil {
-			return e
-		}
-
-		return nil
+		return handleError(docID, verrs, err)
 	})
 
 	if transactionError != nil {

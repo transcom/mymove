@@ -411,6 +411,19 @@ func PaymentServiceItemParams(paymentServiceItemParams *models.PaymentServiceIte
 	return &payload
 }
 
+func ServiceRequestDocument(serviceRequestDocument models.ServiceRequestDocument) *primemessages.ServiceRequestDocument {
+	uploads := make([]*primemessages.UploadWithOmissions, len(serviceRequestDocument.ServiceRequestDocumentUploads))
+	if serviceRequestDocument.ServiceRequestDocumentUploads != nil && len(serviceRequestDocument.ServiceRequestDocumentUploads) > 0 {
+		for i, proofOfServiceDocumentUpload := range serviceRequestDocument.ServiceRequestDocumentUploads {
+			uploads[i] = basicUpload(&proofOfServiceDocumentUpload.Upload)
+		}
+	}
+
+	return &primemessages.ServiceRequestDocument{
+		Uploads: uploads,
+	}
+}
+
 // PPMShipment payload
 func PPMShipment(ppmShipment *models.PPMShipment) *primemessages.PPMShipment {
 	if ppmShipment == nil || ppmShipment.ID.IsNil() {
@@ -481,6 +494,7 @@ func MTOShipmentWithoutServiceItems(mtoShipment *models.MTOShipment) *primemessa
 		CounselorRemarks:                 mtoShipment.CounselorRemarks,
 		Status:                           string(mtoShipment.Status),
 		Diversion:                        bool(mtoShipment.Diversion),
+		DeliveryAddressUpdate:            ShipmentAddressUpdate(mtoShipment.DeliveryAddressUpdate),
 		CreatedAt:                        strfmt.DateTime(mtoShipment.CreatedAt),
 		UpdatedAt:                        strfmt.DateTime(mtoShipment.UpdatedAt),
 		PpmShipment:                      PPMShipment(mtoShipment.PPMShipment),
@@ -554,7 +568,7 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 	var payload primemessages.MTOServiceItem
 	// here we determine which payload model to use based on the re service code
 	switch mtoServiceItem.ReService.Code {
-	case models.ReServiceCodeDOFSIT, models.ReServiceCodeDOASIT, models.ReServiceCodeDOPSIT:
+	case models.ReServiceCodeDOFSIT, models.ReServiceCodeDOASIT, models.ReServiceCodeDOPSIT, models.ReServiceCodeDOSFSC:
 		var sitDepartureDate time.Time
 		if mtoServiceItem.SITDepartureDate != nil {
 			sitDepartureDate = *mtoServiceItem.SITDepartureDate
@@ -568,8 +582,8 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 			SitHHGActualOrigin:   Address(mtoServiceItem.SITOriginHHGActualAddress),
 			SitHHGOriginalOrigin: Address(mtoServiceItem.SITOriginHHGOriginalAddress),
 		}
-	case models.ReServiceCodeDDFSIT, models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT:
-		var sitDepartureDate, firstAvailableDeliveryDate1, firstAvailableDeliveryDate2 time.Time
+	case models.ReServiceCodeDDFSIT, models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT, models.ReServiceCodeDDSFSC:
+		var sitDepartureDate, firstAvailableDeliveryDate1, firstAvailableDeliveryDate2, dateOfContact1, dateOfContact2 time.Time
 		var timeMilitary1, timeMilitary2 *string
 
 		if mtoServiceItem.SITDepartureDate != nil {
@@ -580,6 +594,14 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 		secondContact := GetCustomerContact(mtoServiceItem.CustomerContacts, models.CustomerContactTypeSecond)
 		timeMilitary1 = &firstContact.TimeMilitary
 		timeMilitary2 = &secondContact.TimeMilitary
+
+		if !firstContact.DateOfContact.IsZero() {
+			dateOfContact1 = firstContact.DateOfContact
+		}
+
+		if !secondContact.DateOfContact.IsZero() {
+			dateOfContact2 = secondContact.DateOfContact
+		}
 
 		if !firstContact.FirstAvailableDeliveryDate.IsZero() {
 			firstAvailableDeliveryDate1 = firstContact.FirstAvailableDeliveryDate
@@ -592,13 +614,16 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 		payload = &primemessages.MTOServiceItemDestSIT{
 			ReServiceCode:               handlers.FmtString(string(mtoServiceItem.ReService.Code)),
 			Reason:                      mtoServiceItem.Reason,
+			DateOfContact1:              handlers.FmtDate(dateOfContact1),
 			TimeMilitary1:               handlers.FmtStringPtrNonEmpty(timeMilitary1),
 			FirstAvailableDeliveryDate1: handlers.FmtDate(firstAvailableDeliveryDate1),
+			DateOfContact2:              handlers.FmtDate(dateOfContact2),
 			TimeMilitary2:               handlers.FmtStringPtrNonEmpty(timeMilitary2),
 			FirstAvailableDeliveryDate2: handlers.FmtDate(firstAvailableDeliveryDate2),
 			SitDepartureDate:            handlers.FmtDate(sitDepartureDate),
 			SitEntryDate:                handlers.FmtDatePtr(mtoServiceItem.SITEntryDate),
 			SitDestinationFinalAddress:  Address(mtoServiceItem.SITDestinationFinalAddress),
+			SitAddressUpdates:           SITAddressUpdates(mtoServiceItem.SITAddressUpdates),
 		}
 
 	case models.ReServiceCodeDCRT, models.ReServiceCodeDUCRT:
@@ -642,6 +667,14 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 		shipmentIDStr = mtoServiceItem.MTOShipmentID.String()
 	}
 
+	serviceRequestDocuments := make(primemessages.ServiceRequestDocuments, len(mtoServiceItem.ServiceRequestDocuments))
+
+	if mtoServiceItem.ServiceRequestDocuments != nil && len(mtoServiceItem.ServiceRequestDocuments) > 0 {
+		for i, serviceRequestDocument := range mtoServiceItem.ServiceRequestDocuments {
+			serviceRequestDocuments[i] = ServiceRequestDocument(serviceRequestDocument)
+		}
+	}
+
 	one := mtoServiceItem.ID.String()
 	two := strfmt.UUID(one)
 	payload.SetID(two)
@@ -651,6 +684,7 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 	payload.SetStatus(primemessages.MTOServiceItemStatus(mtoServiceItem.Status))
 	payload.SetRejectionReason(mtoServiceItem.RejectionReason)
 	payload.SetETag(etag.GenerateEtag(mtoServiceItem.UpdatedAt))
+	payload.SetServiceRequestDocuments(serviceRequestDocuments)
 	return payload
 }
 
@@ -784,6 +818,16 @@ func SITDurationUpdate(sitDurationUpdate *models.SITDurationUpdate) *primemessag
 	return payload
 }
 
+// SITAddressUpdates payload
+func SITAddressUpdates(u models.SITAddressUpdates) primemessages.SitAddressUpdates {
+	payload := make(primemessages.SitAddressUpdates, len(u))
+	for i, item := range u {
+		copyOfItem := item
+		payload[i] = SITAddressUpdate(&copyOfItem)
+	}
+	return payload
+}
+
 // SITAddressUpdate payload
 func SITAddressUpdate(sitAddressUpdate *models.SITAddressUpdate) *primemessages.SitAddressUpdate {
 	if sitAddressUpdate == nil {
@@ -797,9 +841,31 @@ func SITAddressUpdate(sitAddressUpdate *models.SITAddressUpdate) *primemessages.
 		NewAddressID:      strfmt.UUID(sitAddressUpdate.NewAddressID.String()),
 		NewAddress:        Address(&sitAddressUpdate.NewAddress),
 		ContractorRemarks: handlers.FmtStringPtr(sitAddressUpdate.ContractorRemarks),
+		OfficeRemarks:     handlers.FmtStringPtr(sitAddressUpdate.OfficeRemarks),
+		OldAddressID:      strfmt.UUID(sitAddressUpdate.OldAddressID.String()),
+		OldAddress:        Address(&sitAddressUpdate.OldAddress),
 		Status:            primemessages.SitAddressUpdateStatus(sitAddressUpdate.Status),
 		CreatedAt:         strfmt.DateTime(sitAddressUpdate.CreatedAt),
 		UpdatedAt:         strfmt.DateTime(sitAddressUpdate.UpdatedAt),
+	}
+
+	return payload
+}
+
+// ShipmentAddressUpdate payload
+func ShipmentAddressUpdate(shipmentAddressUpdate *models.ShipmentAddressUpdate) *primemessages.ShipmentAddressUpdate {
+	if shipmentAddressUpdate == nil || shipmentAddressUpdate.ID.IsNil() {
+		return nil
+	}
+
+	payload := &primemessages.ShipmentAddressUpdate{
+		ID:                strfmt.UUID(shipmentAddressUpdate.ID.String()),
+		ShipmentID:        strfmt.UUID(shipmentAddressUpdate.ShipmentID.String()),
+		NewAddress:        Address(&shipmentAddressUpdate.NewAddress),
+		OriginalAddress:   Address(&shipmentAddressUpdate.OriginalAddress),
+		ContractorRemarks: shipmentAddressUpdate.ContractorRemarks,
+		OfficeRemarks:     shipmentAddressUpdate.OfficeRemarks,
+		Status:            primemessages.ShipmentAddressUpdateStatus(shipmentAddressUpdate.Status),
 	}
 
 	return payload

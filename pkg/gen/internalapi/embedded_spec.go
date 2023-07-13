@@ -4681,7 +4681,7 @@ func init() {
         "email": {
           "type": "string",
           "format": "x-email",
-          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "pattern": "(^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$)|(^$)",
           "x-nullable": true
         },
         "firstName": {
@@ -4706,7 +4706,7 @@ func init() {
         "phone": {
           "type": "string",
           "format": "telephone",
-          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "pattern": "(^[2-9]\\d{2}-\\d{3}-\\d{4}$)|(^$)",
           "x-nullable": true
         },
         "updatedAt": {
@@ -4827,8 +4827,6 @@ func init() {
       "title": "Shipment Type",
       "enum": [
         "HHG",
-        "HHG_LONGHAUL_DOMESTIC",
-        "HHG_SHORTHAUL_DOMESTIC",
         "HHG_INTO_NTS_DOMESTIC",
         "HHG_OUTOF_NTS_DOMESTIC",
         "PPM"
@@ -13308,7 +13306,7 @@ func init() {
         "email": {
           "type": "string",
           "format": "x-email",
-          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "pattern": "(^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$)|(^$)",
           "x-nullable": true
         },
         "firstName": {
@@ -13333,7 +13331,7 @@ func init() {
         "phone": {
           "type": "string",
           "format": "telephone",
-          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "pattern": "(^[2-9]\\d{2}-\\d{3}-\\d{4}$)|(^$)",
           "x-nullable": true
         },
         "updatedAt": {
@@ -13454,8 +13452,6 @@ func init() {
       "title": "Shipment Type",
       "enum": [
         "HHG",
-        "HHG_LONGHAUL_DOMESTIC",
-        "HHG_SHORTHAUL_DOMESTIC",
         "HHG_INTO_NTS_DOMESTIC",
         "HHG_OUTOF_NTS_DOMESTIC",
         "PPM"

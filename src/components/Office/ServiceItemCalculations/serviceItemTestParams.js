@@ -106,6 +106,15 @@ const ZipDestAddress = {
   type: 'STRING',
   value: '91910',
 };
+const ZipSITDestHHGOriginalAddress = {
+  eTag: 'MjAyMS0wMy0xOFQwMTozMTo1MS4zNTI1MDZa',
+  id: 'b26fcc8f-2c06-4b00-8b51-4715a2eb0f33',
+  key: 'ZipSITDestHHGOriginalAddress',
+  origin: 'SYSTEM',
+  paymentServiceItemID: '28039a62-387d-479f-b50f-e0041b7e6e22',
+  type: 'STRING',
+  value: '91910',
+};
 const ZipPickupAddress = {
   eTag: 'MjAyMS0wMy0xOFQwMTozMTo1MS4zNjA5MTha',
   id: 'dcfa55b2-3106-4e1b-af4a-f19d82b5f446',
@@ -260,6 +269,15 @@ const FSCWeightBasedDistanceMultiplier = {
   value: '0.000417',
 };
 const ServiceAreaDest = {
+  eTag: 'MjAyMS0wMy0xOFQwMTozMTo1MS4yNjY4M1o=',
+  id: 'af92f0ca-f669-4483-95d2-d66e9c0c69e4',
+  key: 'ServiceAreaDest',
+  origin: 'SYSTEM',
+  paymentServiceItemID: '28039a62-387d-479f-b50f-e0041b7e6e22',
+  type: 'STRING',
+  value: '080',
+};
+const SITServiceAreaDest = {
   eTag: 'MjAyMS0wMy0xOFQwMTozMTo1MS4yNjY4M1o=',
   id: 'af92f0ca-f669-4483-95d2-d66e9c0c69e4',
   key: 'ServiceAreaDest',
@@ -604,12 +622,12 @@ const testParams = {
     EscalationCompounded,
     PriceRateOrFactor,
     ReferenceDate,
-    ServiceAreaDest,
+    SITServiceAreaDest,
     SITScheduleDest,
     WeightOriginal,
     WeightBilled,
     WeightEstimated,
-    ZipDestAddress,
+    ZipSITDestHHGOriginalAddress,
     ZipSITDestHHGFinalAddress,
   ],
   DomesticDestinationSITDeliveryLonghaul: [
@@ -619,12 +637,12 @@ const testParams = {
     EscalationCompounded,
     PriceRateOrFactor,
     ReferenceDate,
-    ServiceAreaDest,
+    SITServiceAreaDest,
     SITScheduleDest,
     WeightOriginal,
     WeightBilled,
     WeightEstimated,
-    ZipDestAddress,
+    ZipSITDestHHGOriginalAddress,
     ZipSITDestHHGFinalAddress,
   ],
   DomesticDestinationSITDeliveryMatchingZip3: [
@@ -634,12 +652,12 @@ const testParams = {
     EscalationCompounded,
     PriceRateOrFactor,
     ReferenceDate,
-    ServiceAreaDest,
+    SITServiceAreaDest,
     SITScheduleDest,
     WeightOriginal,
     WeightBilled,
     WeightEstimated,
-    ZipDestAddress,
+    ZipSITDestHHGOriginalAddress,
     ZipSITDestHHGFinalAddressMatchingZip3,
   ],
   DomesticPacking: [

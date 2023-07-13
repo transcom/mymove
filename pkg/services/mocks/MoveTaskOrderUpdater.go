@@ -172,13 +172,12 @@ func (_m *MoveTaskOrderUpdater) UpdateTIORemarks(appCtx appcontext.AppContext, m
 	return r0, r1
 }
 
-type mockConstructorTestingTNewMoveTaskOrderUpdater interface {
+// NewMoveTaskOrderUpdater creates a new instance of MoveTaskOrderUpdater. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewMoveTaskOrderUpdater(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewMoveTaskOrderUpdater creates a new instance of MoveTaskOrderUpdater. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewMoveTaskOrderUpdater(t mockConstructorTestingTNewMoveTaskOrderUpdater) *MoveTaskOrderUpdater {
+}) *MoveTaskOrderUpdater {
 	mock := &MoveTaskOrderUpdater{}
 	mock.Mock.Test(t)
 

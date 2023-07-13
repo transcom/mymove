@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"crypto/tls"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -223,11 +224,7 @@ func checkServeConfig(v *viper.Viper, logger *zap.Logger) error {
 		return err
 	}
 
-	if err := cli.CheckSession(v); err != nil {
-		return err
-	}
-
-	return nil
+	return cli.CheckSession(v)
 }
 
 func startListener(srv *server.NamedServer, logger *zap.Logger, useTLS bool) {
@@ -444,10 +441,14 @@ func initializeRouteOptions(v *viper.Viper, routingConfig *routing.Config) {
 		routingConfig.GHCSwaggerPath = v.GetString(cli.GHCSwaggerFlag)
 	}
 	routingConfig.ServeDevlocalAuth = v.GetBool(cli.DevlocalAuthFlag)
-	routingConfig.CSRFAuthKey = v.GetString(cli.CSRFAuthKeyFlag)
 
 	routingConfig.GitBranch = gitBranch
 	routingConfig.GitCommit = gitCommit
+
+	csrfAuthKey, err := hex.DecodeString(v.GetString(cli.CSRFAuthKeyFlag))
+	if err == nil {
+		routingConfig.CSRFMiddleware = routing.InitCSRFMiddlware(csrfAuthKey, routingConfig.HandlerConfig.UseSecureCookie(), "/", auth.GorillaCSRFToken)
+	}
 }
 
 func buildRoutingConfig(appCtx appcontext.AppContext, v *viper.Viper, redisPool *redis.Pool, awsSession *awssession.Session, isDevOrTest bool, tlsConfig *tls.Config) *routing.Config {

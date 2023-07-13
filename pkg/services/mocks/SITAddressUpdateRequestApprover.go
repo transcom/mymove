@@ -16,25 +16,25 @@ type SITAddressUpdateRequestApprover struct {
 	mock.Mock
 }
 
-// ApproveSITAddressUpdateRequest provides a mock function with given fields: appCtx, serviceItemID, sitAddressUpdateRequestID, officeRemarks, eTag
-func (_m *SITAddressUpdateRequestApprover) ApproveSITAddressUpdateRequest(appCtx appcontext.AppContext, serviceItemID uuid.UUID, sitAddressUpdateRequestID uuid.UUID, officeRemarks *string, eTag string) (*models.MTOServiceItem, error) {
-	ret := _m.Called(appCtx, serviceItemID, sitAddressUpdateRequestID, officeRemarks, eTag)
+// ApproveSITAddressUpdateRequest provides a mock function with given fields: appCtx, sitAddressUpdateRequestID, officeRemarks, eTag
+func (_m *SITAddressUpdateRequestApprover) ApproveSITAddressUpdateRequest(appCtx appcontext.AppContext, sitAddressUpdateRequestID uuid.UUID, officeRemarks *string, eTag string) (*models.MTOServiceItem, error) {
+	ret := _m.Called(appCtx, sitAddressUpdateRequestID, officeRemarks, eTag)
 
 	var r0 *models.MTOServiceItem
 	var r1 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, uuid.UUID, *string, string) (*models.MTOServiceItem, error)); ok {
-		return rf(appCtx, serviceItemID, sitAddressUpdateRequestID, officeRemarks, eTag)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, *string, string) (*models.MTOServiceItem, error)); ok {
+		return rf(appCtx, sitAddressUpdateRequestID, officeRemarks, eTag)
 	}
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, uuid.UUID, *string, string) *models.MTOServiceItem); ok {
-		r0 = rf(appCtx, serviceItemID, sitAddressUpdateRequestID, officeRemarks, eTag)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, *string, string) *models.MTOServiceItem); ok {
+		r0 = rf(appCtx, sitAddressUpdateRequestID, officeRemarks, eTag)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.MTOServiceItem)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, uuid.UUID, *string, string) error); ok {
-		r1 = rf(appCtx, serviceItemID, sitAddressUpdateRequestID, officeRemarks, eTag)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, *string, string) error); ok {
+		r1 = rf(appCtx, sitAddressUpdateRequestID, officeRemarks, eTag)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -42,13 +42,12 @@ func (_m *SITAddressUpdateRequestApprover) ApproveSITAddressUpdateRequest(appCtx
 	return r0, r1
 }
 
-type mockConstructorTestingTNewSITAddressUpdateRequestApprover interface {
+// NewSITAddressUpdateRequestApprover creates a new instance of SITAddressUpdateRequestApprover. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewSITAddressUpdateRequestApprover(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewSITAddressUpdateRequestApprover creates a new instance of SITAddressUpdateRequestApprover. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewSITAddressUpdateRequestApprover(t mockConstructorTestingTNewSITAddressUpdateRequestApprover) *SITAddressUpdateRequestApprover {
+}) *SITAddressUpdateRequestApprover {
 	mock := &SITAddressUpdateRequestApprover{}
 	mock.Mock.Test(t)
 

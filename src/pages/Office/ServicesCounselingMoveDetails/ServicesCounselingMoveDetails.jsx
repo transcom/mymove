@@ -111,8 +111,6 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
     // destination type must be set for for HHG, NTSR shipments only
     errorIfMissing.HHG = [{ fieldName: 'destinationType' }];
     errorIfMissing.HHG_OUTOF_NTS_DOMESTIC.push({ fieldName: 'destinationType' });
-    errorIfMissing.HHG_SHORTHAUL_DOMESTIC = [{ fieldName: 'destinationType' }];
-    errorIfMissing.HHG_LONGHAUL_DOMESTIC = [{ fieldName: 'destinationType' }];
   }
 
   if (!order.department_indicator || !order.order_number || !order.order_type_detail || !order.tac)

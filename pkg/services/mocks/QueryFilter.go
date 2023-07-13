@@ -53,13 +53,12 @@ func (_m *QueryFilter) Value() interface{} {
 	return r0
 }
 
-type mockConstructorTestingTNewQueryFilter interface {
+// NewQueryFilter creates a new instance of QueryFilter. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewQueryFilter(t interface {
 	mock.TestingT
 	Cleanup(func())
-}
-
-// NewQueryFilter creates a new instance of QueryFilter. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
-func NewQueryFilter(t mockConstructorTestingTNewQueryFilter) *QueryFilter {
+}) *QueryFilter {
 	mock := &QueryFilter{}
 	mock.Mock.Test(t)
 

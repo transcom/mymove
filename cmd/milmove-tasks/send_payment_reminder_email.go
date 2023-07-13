@@ -30,11 +30,7 @@ func checkPaymentReminderConfig(v *viper.Viper, logger *zap.Logger) error {
 		return err
 	}
 
-	if err := cli.CheckEmail(v); err != nil {
-		return err
-	}
-
-	return nil
+	return cli.CheckEmail(v)
 }
 
 func initPaymentReminderFlags(flag *pflag.FlagSet) {

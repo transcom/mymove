@@ -59,6 +59,19 @@ type SitAddressUpdate struct {
 	// Format: uuid
 	NewAddressID strfmt.UUID `json:"newAddressId,omitempty"`
 
+	// office remarks
+	// Example: The customer has found a new house closer to base.
+	OfficeRemarks *string `json:"officeRemarks"`
+
+	// old address
+	OldAddress *Address `json:"oldAddress,omitempty"`
+
+	// old address Id
+	// Example: 31a2ad3c-1682-4d5b-8423-ff40053a056b
+	// Read Only: true
+	// Format: uuid
+	OldAddressID strfmt.UUID `json:"oldAddressId,omitempty"`
+
 	// status
 	Status SitAddressUpdateStatus `json:"status,omitempty"`
 
@@ -93,6 +106,14 @@ func (m *SitAddressUpdate) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateNewAddressID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateOldAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateOldAddressID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -185,6 +206,37 @@ func (m *SitAddressUpdate) validateNewAddressID(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *SitAddressUpdate) validateOldAddress(formats strfmt.Registry) error {
+	if swag.IsZero(m.OldAddress) { // not required
+		return nil
+	}
+
+	if m.OldAddress != nil {
+		if err := m.OldAddress.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("oldAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("oldAddress")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *SitAddressUpdate) validateOldAddressID(formats strfmt.Registry) error {
+	if swag.IsZero(m.OldAddressID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("oldAddressId", "body", "uuid", m.OldAddressID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *SitAddressUpdate) validateUpdatedAt(formats strfmt.Registry) error {
 	if swag.IsZero(m.UpdatedAt) { // not required
 		return nil
@@ -226,6 +278,14 @@ func (m *SitAddressUpdate) ContextValidate(ctx context.Context, formats strfmt.R
 	}
 
 	if err := m.contextValidateNewAddressID(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateOldAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateOldAddressID(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -287,6 +347,11 @@ func (m *SitAddressUpdate) contextValidateMtoServiceItemID(ctx context.Context, 
 func (m *SitAddressUpdate) contextValidateNewAddress(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.NewAddress != nil {
+
+		if swag.IsZero(m.NewAddress) { // not required
+			return nil
+		}
+
 		if err := m.NewAddress.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("newAddress")
@@ -303,6 +368,36 @@ func (m *SitAddressUpdate) contextValidateNewAddress(ctx context.Context, format
 func (m *SitAddressUpdate) contextValidateNewAddressID(ctx context.Context, formats strfmt.Registry) error {
 
 	if err := validate.ReadOnly(ctx, "newAddressId", "body", strfmt.UUID(m.NewAddressID)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *SitAddressUpdate) contextValidateOldAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.OldAddress != nil {
+
+		if swag.IsZero(m.OldAddress) { // not required
+			return nil
+		}
+
+		if err := m.OldAddress.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("oldAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("oldAddress")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *SitAddressUpdate) contextValidateOldAddressID(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "oldAddressId", "body", strfmt.UUID(m.OldAddressID)); err != nil {
 		return err
 	}
 

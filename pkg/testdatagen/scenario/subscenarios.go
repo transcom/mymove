@@ -675,8 +675,13 @@ func subScenarioTXOQueues(appCtx appcontext.AppContext, userUploader *uploader.U
 	}
 }
 
-func subScenarioPaymentRequestCalculations(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader,
-	moveRouter services.MoveRouter) func() {
+func subScenarioPaymentRequestCalculations(
+	appCtx appcontext.AppContext,
+	userUploader *uploader.UserUploader,
+	primeUploader *uploader.PrimeUploader,
+	moveRouter services.MoveRouter,
+	shipmentFetcher services.MTOShipmentFetcher,
+) func() {
 	return func() {
 		createTXO(appCtx)
 		createTXOUSMC(appCtx)
@@ -691,11 +696,11 @@ func subScenarioPaymentRequestCalculations(appCtx appcontext.AppContext, userUpl
 			},
 		)
 		// Locator PARAMS
-		createHHGWithPaymentServiceItems(appCtx, primeUploader, moveRouter)
+		createHHGWithPaymentServiceItems(appCtx, primeUploader, moveRouter, shipmentFetcher)
 		// Locator ORGSIT
-		createHHGWithOriginSITServiceItems(appCtx, primeUploader, moveRouter)
+		createHHGWithOriginSITServiceItems(appCtx, primeUploader, moveRouter, shipmentFetcher)
 		// Locator DSTSIT
-		createHHGWithDestinationSITServiceItems(appCtx, primeUploader, moveRouter)
+		createHHGWithDestinationSITServiceItems(appCtx, primeUploader, moveRouter, shipmentFetcher)
 	}
 }
 
@@ -746,6 +751,7 @@ func subScenarioReweighs(appCtx appcontext.AppContext, userUploader *uploader.Us
 		createReweighWithShipmentMaxBillableWeightExceeded(appCtx, userUploader, primeUploader, moveRouter)
 		createReweighWithShipmentNoEstimatedWeight(appCtx, userUploader, primeUploader, moveRouter)
 		createReweighWithShipmentDeprecatedPaymentRequest(appCtx, userUploader, primeUploader, moveRouter)
+		createReweighWithShipmentEDIErrorPaymentRequest(appCtx, userUploader, primeUploader, moveRouter)
 		createReweighWithMixedShipmentStatuses(appCtx, userUploader)
 	}
 }
@@ -756,6 +762,22 @@ func subScenarioSITExtensions(appCtx appcontext.AppContext, userUploader *upload
 		createMoveWithSITExtensionHistory(appCtx, userUploader)
 		createMoveWithFutureSIT(appCtx, userUploader)
 		createMoveWithAllPendingTOOActions(appCtx, userUploader, primeUploader)
+	}
+}
+
+// Create moves with shipment address update requests in each of the three possible states: requested, approved, and rejected
+func subScenarioShipmentAddressUpdates(appCtx appcontext.AppContext) func() {
+	return func() {
+		createTOO(appCtx)
+
+		// Create move CRQST1 with a shipment address update request in requested state
+		factory.BuildShipmentAddressUpdate(appCtx.DB(), []factory.Customization{}, []factory.Trait{factory.GetTraitShipmentAddressUpdateRequested})
+
+		// Create move CRQST2 with a shipment address update request in approved state
+		factory.BuildShipmentAddressUpdate(appCtx.DB(), []factory.Customization{}, []factory.Trait{factory.GetTraitShipmentAddressUpdateApproved})
+
+		// Create move CRQST3 with a shipment address update request in rejected state
+		factory.BuildShipmentAddressUpdate(appCtx.DB(), []factory.Customization{}, []factory.Trait{factory.GetTraitShipmentAddressUpdateRejected})
 	}
 }
 
@@ -860,7 +882,12 @@ func subScenarioSITAddressUpdates(appCtx appcontext.AppContext, userUploader *up
 	}
 }
 
-func subScenarioNTSandNTSR(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) func() {
+func subScenarioNTSandNTSR(
+	appCtx appcontext.AppContext,
+	userUploader *uploader.UserUploader,
+	moveRouter services.MoveRouter,
+	shipmentFetcher services.MTOShipmentFetcher,
+) func() {
 	return func() {
 		pcos := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
 
@@ -893,7 +920,7 @@ func subScenarioNTSandNTSR(appCtx appcontext.AppContext, userUploader *uploader.
 		createMoveWithNTSRShipment(appCtx, "EXTNTR", true)
 
 		// Create some submitted Moves for TXO users
-		createMoveWithHHGAndNTSRMissingInfo(appCtx, moveRouter)
+		createMoveWithHHGAndNTSRMissingInfo(appCtx, moveRouter, shipmentFetcher)
 		createMoveWithHHGAndNTSMissingInfo(appCtx, moveRouter)
 		createMoveWithNTSAndNTSR(
 			appCtx,
@@ -975,7 +1002,7 @@ func subScenarioMisc(appCtx appcontext.AppContext, userUploader *uploader.UserUp
 	}
 }
 
-func subScenarioPrimeUserAndClientCert(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) func() {
+func subScenarioPrimeUserAndClientCert(appCtx appcontext.AppContext) func() {
 	return func() {
 		primeUser := createPrimeUser(appCtx)
 		createDevClientCertForUser(appCtx, primeUser)

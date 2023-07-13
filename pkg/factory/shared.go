@@ -75,6 +75,9 @@ var Role CustomType = "Role"
 var ServiceItemParamKey CustomType = "ServiceItemParamKey"
 var ServiceParam CustomType = "ServiceParam"
 var ServiceMember CustomType = "ServiceMember"
+var ServiceRequestDocument CustomType = "ServiceRequestDocument"
+var ServiceRequestDocumentUpload CustomType = "ServiceRequestDocumentUpload"
+var ShipmentAddressUpdate CustomType = "ShipmentAddressUpdate"
 var SignedCertification CustomType = "SignedCertification"
 var SITAddressUpdate CustomType = "SITAddressUpdate"
 var SITDurationUpdate CustomType = "SITDurationUpdate"
@@ -123,8 +126,11 @@ var defaultTypesMap = map[string]CustomType{
 	"models.ReService":                                ReService,
 	"models.ServiceItemParamKey":                      ServiceItemParamKey,
 	"models.ServiceMember":                            ServiceMember,
+	"models.ServiceRequestDocument":                   ServiceRequestDocument,
+	"models.ServiceRequestDocumentUpload":             ServiceRequestDocumentUpload,
 	"models.ServiceParam":                             ServiceParam,
 	"models.SignedCertification":                      SignedCertification,
+	"models.ShipmentAddressUpdate":                    ShipmentAddressUpdate,
 	"models.SITAddressUpdate":                         SITAddressUpdate,
 	"models.SITDurationUpdate":                        SITDurationUpdate,
 	"models.StorageFacility":                          StorageFacility,
@@ -158,6 +164,8 @@ type addressGroup struct {
 	SITDestinationFinalAddress    CustomType
 	SITDestinationOriginalAddress CustomType
 	W2Address                     CustomType
+	OriginalAddress               CustomType
+	NewAddress                    CustomType
 }
 
 // Addresses is the struct to access the various fields externally
@@ -177,6 +185,8 @@ var Addresses = addressGroup{
 	SITDestinationFinalAddress:    "SITDestinationFinalAddress",
 	SITDestinationOriginalAddress: "SITDestinationOriginalAddress",
 	W2Address:                     "W2Address",
+	OriginalAddress:               "OriginalAddress",
+	NewAddress:                    "NewAddress",
 }
 
 // dimensionGroup is a grouping of all the Dimension related fields

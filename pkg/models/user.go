@@ -36,7 +36,7 @@ func (u User) TableName() string {
 type Users []User
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-func (u *User) Validate(tx *pop.Connection) (*validate.Errors, error) {
+func (u *User) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.StringIsPresent{Field: u.LoginGovEmail, Name: "LoginGovEmail"},
 	), nil

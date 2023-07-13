@@ -20,8 +20,10 @@ import (
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services/address"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
+	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	"github.com/transcom/mymove/pkg/services/query"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -32,7 +34,9 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 
 	builder := query.NewQueryBuilder()
 	moveRouter := moverouter.NewMoveRouter()
-	updater := NewMTOServiceItemUpdater(builder, moveRouter)
+	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
+	addressCreator := address.NewAddressCreator()
+	updater := NewMTOServiceItemUpdater(builder, moveRouter, shipmentFetcher, addressCreator)
 
 	setupServiceItem := func() (models.MTOServiceItem, string) {
 		serviceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
@@ -139,6 +143,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		newServiceItem.ActualWeight = handlers.PoundPtrFromInt64Ptr(&estimatedWeight)
 		newServiceItem.CustomerContacts = models.MTOServiceItemCustomerContacts{
 			models.MTOServiceItemCustomerContact{
+				DateOfContact:              time.Date(2020, time.December, 04, 0, 0, 0, 0, time.UTC),
 				TimeMilitary:               "1400Z",
 				FirstAvailableDeliveryDate: time.Date(2020, time.December, 02, 0, 0, 0, 0, time.UTC),
 				Type:                       models.CustomerContactTypeFirst,
@@ -163,6 +168,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		suite.Equal(newServiceItem.EstimatedWeight, updatedServiceItem.EstimatedWeight)
 		suite.Equal(newServiceItem.CustomerContacts[0].TimeMilitary, updatedServiceItem.CustomerContacts[0].TimeMilitary)
 		suite.Equal(newServiceItem.CustomerContacts[0].FirstAvailableDeliveryDate, updatedServiceItem.CustomerContacts[0].FirstAvailableDeliveryDate)
+		suite.Equal(newServiceItem.CustomerContacts[0].DateOfContact, updatedServiceItem.CustomerContacts[0].DateOfContact)
 		suite.NotEqual(newServiceItem.Status, updatedServiceItem.Status)
 	})
 
@@ -171,6 +177,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		customerContact := testdatagen.MakeMTOServiceItemCustomerContact(suite.DB(), testdatagen.Assertions{
 			MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
 				Type:                       models.CustomerContactTypeFirst,
+				DateOfContact:              time.Date(1984, time.March, 24, 0, 0, 0, 0, time.UTC),
 				TimeMilitary:               "0400Z",
 				FirstAvailableDeliveryDate: time.Date(1984, time.March, 20, 0, 0, 0, 0, time.UTC),
 			},
@@ -191,6 +198,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		newServiceItem := serviceItem
 		newServiceItem.CustomerContacts = models.MTOServiceItemCustomerContacts{
 			models.MTOServiceItemCustomerContact{
+				DateOfContact:              time.Date(2020, time.December, 04, 0, 0, 0, 0, time.UTC),
 				TimeMilitary:               "1400Z",
 				FirstAvailableDeliveryDate: time.Date(2020, time.December, 02, 0, 0, 0, 0, time.UTC),
 				Type:                       models.CustomerContactTypeFirst,
@@ -209,8 +217,10 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 
 		// And the new values should be reflected in the updated customer contact
 		suite.NotEqual(customerContact.TimeMilitary, updatedServiceItem.CustomerContacts[0].TimeMilitary)
+		suite.NotEqual(customerContact.DateOfContact, updatedServiceItem.CustomerContacts[0].DateOfContact)
 		suite.NotEqual(customerContact.FirstAvailableDeliveryDate, updatedServiceItem.CustomerContacts[0].FirstAvailableDeliveryDate)
 		suite.Equal(newServiceItem.CustomerContacts[0].TimeMilitary, updatedServiceItem.CustomerContacts[0].TimeMilitary)
+		suite.Equal(newServiceItem.CustomerContacts[0].DateOfContact, updatedServiceItem.CustomerContacts[0].DateOfContact)
 		suite.Equal(newServiceItem.CustomerContacts[0].FirstAvailableDeliveryDate, updatedServiceItem.CustomerContacts[0].FirstAvailableDeliveryDate)
 	})
 
@@ -416,6 +426,7 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 		newServiceItemPrime.CustomerContacts = models.MTOServiceItemCustomerContacts{
 			models.MTOServiceItemCustomerContact{
 				TimeMilitary:               "1300Z",
+				DateOfContact:              time.Date(2020, time.December, 04, 0, 0, 0, 0, time.UTC),
 				FirstAvailableDeliveryDate: time.Date(2020, time.December, 02, 0, 0, 0, 0, time.UTC),
 			},
 		}
@@ -431,6 +442,7 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 		suite.NotNil(updatedServiceItem)
 		suite.IsType(models.MTOServiceItem{}, *updatedServiceItem)
 		suite.Equal(updatedServiceItem.CustomerContacts[0].TimeMilitary, newServiceItemPrime.CustomerContacts[0].TimeMilitary)
+		suite.Equal(updatedServiceItem.CustomerContacts[0].DateOfContact, newServiceItemPrime.CustomerContacts[0].DateOfContact)
 		suite.Equal(updatedServiceItem.CustomerContacts[0].FirstAvailableDeliveryDate, newServiceItemPrime.CustomerContacts[0].FirstAvailableDeliveryDate)
 	})
 
@@ -617,7 +629,9 @@ func (suite *MTOServiceItemServiceSuite) createServiceItemForMoveWithUnacknowled
 func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 	builder := query.NewQueryBuilder()
 	moveRouter := moverouter.NewMoveRouter()
-	updater := NewMTOServiceItemUpdater(builder, moveRouter)
+	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
+	addressCreator := address.NewAddressCreator()
+	updater := NewMTOServiceItemUpdater(builder, moveRouter, shipmentFetcher, addressCreator)
 
 	rejectionReason := models.StringPointer("")
 
@@ -642,6 +656,112 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 		suite.Nil(serviceItem.RejectionReason)
 		suite.Nil(serviceItem.RejectedAt)
 		suite.NotNil(updatedServiceItem)
+	})
+
+	suite.Run("When TOO approves a DDDSIT service item with an existing SITDestinationFinalAddress", func() {
+		move := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
+		sitDestinationFinalAddress := factory.BuildAddress(suite.DB(), nil, nil)
+		serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDDSIT,
+				},
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusSubmitted,
+				},
+			},
+			{
+				Model:    sitDestinationFinalAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.SITDestinationFinalAddress,
+			},
+		}, nil)
+
+		eTag := etag.GenerateEtag(serviceItem.UpdatedAt)
+
+		updatedServiceItem, err := updater.ApproveOrRejectServiceItem(
+			suite.AppContextForTest(), serviceItem.ID, models.MTOServiceItemStatusApproved, rejectionReason, eTag)
+		suite.NoError(err)
+
+		// ApproveOrRejectServiceItem doesn't return the service item with the updated move
+		// get move from the db to check the updated status
+		err = suite.DB().Find(&move, move.ID)
+		suite.NoError(err)
+		suite.Equal(models.MoveStatusAPPROVED, move.Status)
+
+		suite.Equal(models.MTOServiceItemStatusApproved, updatedServiceItem.Status)
+		suite.NotNil(updatedServiceItem.ApprovedAt)
+		suite.Nil(updatedServiceItem.RejectionReason)
+		suite.Nil(updatedServiceItem.RejectedAt)
+		suite.NotNil(updatedServiceItem)
+		suite.Equal(sitDestinationFinalAddress.ID, *updatedServiceItem.SITDestinationOriginalAddressID)
+		suite.Equal(sitDestinationFinalAddress.ID, updatedServiceItem.SITDestinationOriginalAddress.ID)
+		suite.Equal(sitDestinationFinalAddress.StreetAddress1, updatedServiceItem.SITDestinationOriginalAddress.StreetAddress1)
+		suite.Equal(sitDestinationFinalAddress.City, updatedServiceItem.SITDestinationOriginalAddress.City)
+		suite.Equal(sitDestinationFinalAddress.State, updatedServiceItem.SITDestinationOriginalAddress.State)
+		suite.Equal(sitDestinationFinalAddress.PostalCode, updatedServiceItem.SITDestinationOriginalAddress.PostalCode)
+	})
+
+	suite.Run("When TOO approves a DDDSIT service item without a SITDestinationFinalAddress", func() {
+		move := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+		serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDDSIT,
+				},
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusSubmitted,
+				},
+			},
+		}, nil)
+
+		eTag := etag.GenerateEtag(serviceItem.UpdatedAt)
+
+		updatedServiceItem, err := updater.ApproveOrRejectServiceItem(
+			suite.AppContextForTest(), serviceItem.ID, models.MTOServiceItemStatusApproved, rejectionReason, eTag)
+		suite.NoError(err)
+
+		// ApproveOrRejectServiceItem doesn't return the service item with the updated move
+		// get move from the db to check the updated status
+		err = suite.DB().Find(&move, move.ID)
+		suite.NoError(err)
+		suite.Equal(models.MoveStatusAPPROVED, move.Status)
+
+		suite.Equal(models.MTOServiceItemStatusApproved, updatedServiceItem.Status)
+		suite.NotNil(updatedServiceItem.ApprovedAt)
+		suite.Nil(updatedServiceItem.RejectionReason)
+		suite.Nil(updatedServiceItem.RejectedAt)
+		suite.NotNil(updatedServiceItem)
+		suite.NotEqual(shipment.DestinationAddressID, *updatedServiceItem.SITDestinationOriginalAddressID)
+		suite.NotEqual(shipment.DestinationAddress.ID, *updatedServiceItem.SITDestinationOriginalAddressID)
+		suite.Equal(shipment.DestinationAddress.StreetAddress1, updatedServiceItem.SITDestinationOriginalAddress.StreetAddress1)
+		suite.Equal(shipment.DestinationAddress.City, updatedServiceItem.SITDestinationOriginalAddress.City)
+		suite.Equal(shipment.DestinationAddress.State, updatedServiceItem.SITDestinationOriginalAddress.State)
+		suite.Equal(shipment.DestinationAddress.PostalCode, updatedServiceItem.SITDestinationOriginalAddress.PostalCode)
+		suite.NotEqual(shipment.DestinationAddressID, *updatedServiceItem.SITDestinationFinalAddressID)
+		suite.NotEqual(shipment.DestinationAddress.ID, *updatedServiceItem.SITDestinationFinalAddressID)
+		suite.Equal(shipment.DestinationAddress.StreetAddress1, updatedServiceItem.SITDestinationFinalAddress.StreetAddress1)
+		suite.Equal(shipment.DestinationAddress.City, updatedServiceItem.SITDestinationFinalAddress.City)
+		suite.Equal(shipment.DestinationAddress.State, updatedServiceItem.SITDestinationFinalAddress.State)
+		suite.Equal(shipment.DestinationAddress.PostalCode, updatedServiceItem.SITDestinationFinalAddress.PostalCode)
 	})
 
 	// Test that the move's status changes to Approvals Requested if any of its service

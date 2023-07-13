@@ -104,6 +104,11 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITDestLookup() {
 					LinkOnly: true,
 					Type:     &factory.Addresses.SITDestinationFinalAddress,
 				},
+				{
+					Model:    destAddress,
+					LinkOnly: true,
+					Type:     &factory.Addresses.SITDestinationOriginalAddress,
+				},
 			}, nil)
 
 		mtoServiceItemDiffZip3 = factory.BuildMTOServiceItem(suite.DB(),
@@ -129,6 +134,11 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITDestLookup() {
 					Model:    finalDestDiffZip3Address,
 					LinkOnly: true,
 					Type:     &factory.Addresses.SITDestinationFinalAddress,
+				},
+				{
+					Model:    destAddress,
+					LinkOnly: true,
+					Type:     &factory.Addresses.SITDestinationOriginalAddress,
 				},
 			}, nil)
 	}

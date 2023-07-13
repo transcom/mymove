@@ -10,6 +10,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/db/utilities"
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
@@ -103,6 +104,60 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 		})
 }
 
+// CreateNonSITAddressUpdateRequestHandler is the handler to create address update request for non-SIT
+type CreateNonSITAddressUpdateRequestHandler struct {
+	handlers.HandlerConfig
+	services.ShipmentAddressUpdateRequester
+}
+
+// Handle creates the address update request for non-SIT
+func (h CreateNonSITAddressUpdateRequestHandler) Handle(params mtoshipmentops.CreateNonSITAddressUpdateRequestParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			payload := params.Body
+			shipmentID := uuid.FromStringOrNil(params.MtoShipmentID.String())
+
+			addressUpdate := payloads.ShipmentAddressUpdateModel(payload, shipmentID)
+
+			eTag := params.IfMatch
+
+			response, err := h.ShipmentAddressUpdateRequester.RequestShipmentDeliveryAddressUpdate(appCtx, shipmentID, addressUpdate.NewAddress, addressUpdate.ContractorRemarks, eTag)
+
+			if err != nil {
+				appCtx.Logger().Error("primeapi.CreateNonSITAddressUpdateRequestHandler error", zap.Error(err))
+
+				switch e := err.(type) {
+
+				// NotFoundError -> Not Found response
+				case apperror.NotFoundError:
+					return mtoshipmentops.NewCreateNonSITAddressUpdateRequestNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
+
+				// ConflictError -> Request conflict reponse
+				case apperror.ConflictError:
+					return mtoshipmentops.NewCreateNonSITAddressUpdateRequestConflict().WithPayload(payloads.ClientError(handlers.ConflictErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
+
+				// PreconditionError -> precondition failed reponse
+				case apperror.PreconditionFailedError:
+					return mtoshipmentops.NewCreateNonSITAddressUpdateRequestPreconditionFailed().WithPayload(payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
+
+				// InvalidInputError -> Unprocessable Entity reponse
+				case apperror.InvalidInputError:
+					return mtoshipmentops.NewCreateNonSITAddressUpdateRequestUnprocessableEntity().WithPayload(payloads.ValidationError(err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors)), err
+
+				// Unknown -> Internal Server Error
+				default:
+					return mtoshipmentops.NewCreateNonSITAddressUpdateRequestInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
+
+				}
+
+			}
+
+			returnPayload := payloads.ShipmentAddressUpdate(response)
+			return mtoshipmentops.NewCreateNonSITAddressUpdateRequestCreated().WithPayload(returnPayload), nil
+
+		})
+}
+
 // UpdateMTOShipmentHandler is the handler to update MTO shipments
 type UpdateMTOShipmentHandler struct {
 	handlers.HandlerConfig
@@ -118,13 +173,20 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 			dbShipment, err := mtoshipment.FindShipment(appCtx, mtoShipment.ID, "DestinationAddress",
 				"SecondaryPickupAddress",
 				"SecondaryDeliveryAddress",
-				"MTOAgents",
 				"StorageFacility",
 				"PPMShipment")
 			if err != nil {
 				return mtoshipmentops.NewUpdateMTOShipmentNotFound().WithPayload(
 					payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
 			}
+
+			var agents []models.MTOAgent
+			err = appCtx.DB().Scope(utilities.ExcludeDeletedScope()).Where("mto_shipment_id = ?", mtoShipment.ID).All(&agents)
+			if err != nil {
+				return mtoshipmentops.NewUpdateMTOShipmentInternalServerError().WithPayload(
+					payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
+			}
+			dbShipment.MTOAgents = agents
 
 			// Validate further prime restrictions on model
 			mtoShipment.ShipmentType = dbShipment.ShipmentType

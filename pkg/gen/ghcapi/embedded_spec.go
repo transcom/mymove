@@ -4349,6 +4349,155 @@ func init() {
         }
       ]
     },
+    "/sit-address-update/{sitAddressUpdateID}/approve": {
+      "patch": {
+        "description": "This endpoint is used to approve a SIT address update. Office remarks are required. Approving the SIT address update will update the SIT Destination Final Address of the associated service item",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoServiceItem"
+        ],
+        "summary": "Approves a SIT Address Update",
+        "operationId": "approveSITAddressUpdate",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/PatchSITAddressUpdateStatus"
+            }
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully approved a SIT address update",
+            "schema": {
+              "$ref": "#/definitions/MTOServiceItem"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        },
+        "x-permissions": [
+          "update.MTOServiceItem",
+          "update.SITAddressUpdate"
+        ]
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the sit address update",
+          "name": "sitAddressUpdateID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/sit-address-update/{sitAddressUpdateID}/reject": {
+      "patch": {
+        "description": "This endpoint is used to reject a requested SIT address update. Office remarks are required. Rejecting the SIT address update will not update the SIT Destination Final Address.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoServiceItem"
+        ],
+        "summary": "Rejects a SIT Address Update",
+        "operationId": "rejectSITAddressUpdate",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/PatchSITAddressUpdateStatus"
+            }
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully rejected a SIT address update",
+            "schema": {
+              "$ref": "#/definitions/MTOServiceItem"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        },
+        "x-permissions": [
+          "update.SITAddressUpdate"
+        ]
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the sit address update",
+          "name": "sitAddressUpdateID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/tac/valid": {
       "get": {
         "description": "Returns a boolean based on whether a tac value is valid or not",
@@ -5790,7 +5939,7 @@ func init() {
         "email": {
           "type": "string",
           "format": "x-email",
-          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "pattern": "(^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$)|(^$)",
           "x-nullable": true
         },
         "firstName": {
@@ -5814,7 +5963,7 @@ func init() {
         "phone": {
           "type": "string",
           "format": "telephone",
-          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "pattern": "(^[2-9]\\d{2}-\\d{3}-\\d{4}$)|(^$)",
           "x-nullable": true
         },
         "updatedAt": {
@@ -5950,6 +6099,9 @@ func init() {
           "type": "string",
           "x-nullable": true
         },
+        "serviceRequestDocuments": {
+          "$ref": "#/definitions/ServiceRequestDocuments"
+        },
         "sitAddressUpdates": {
           "$ref": "#/definitions/SITAddressUpdates"
         },
@@ -5990,8 +6142,13 @@ func init() {
       "description": "Customer contact information for a destination SIT service item",
       "type": "object",
       "properties": {
+        "dateOfContact": {
+          "description": "Date of attempted contact by the prime.",
+          "type": "string",
+          "format": "date"
+        },
         "firstAvailableDeliveryDate": {
-          "description": "First available date that Prime can deliver SIT service item.",
+          "description": "First available date that the Prime can deliver SIT service item.",
           "type": "string",
           "format": "date",
           "example": "2020-12-31"
@@ -6002,7 +6159,7 @@ func init() {
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "timeMilitary": {
-          "description": "Time of delivery corresponding to ` + "`" + `firstAvailableDeliveryDate` + "`" + `.",
+          "description": "Time of attempted contact by the prime.",
           "type": "string",
           "example": "0400Z"
         },
@@ -6126,6 +6283,9 @@ func init() {
           "type": "string",
           "format": "date-time",
           "x-nullable": true
+        },
+        "deliveryAddressUpdate": {
+          "$ref": "#/definitions/ShipmentAddressUpdate"
         },
         "destinationAddress": {
           "x-nullable": true,
@@ -6306,8 +6466,6 @@ func init() {
       "title": "Shipment Type",
       "enum": [
         "HHG",
-        "HHG_LONGHAUL_DOMESTIC",
-        "HHG_SHORTHAUL_DOMESTIC",
         "HHG_INTO_NTS_DOMESTIC",
         "HHG_OUTOF_NTS_DOMESTIC",
         "INTERNATIONAL_HHG",
@@ -6966,6 +7124,9 @@ func init() {
           "readOnly": true,
           "example": "Doe"
         },
+        "methodOfPayment": {
+          "type": "string"
+        },
         "moveCode": {
           "type": "string",
           "example": "H2XFJF"
@@ -6974,6 +7135,9 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "naics": {
+          "type": "string"
         },
         "ntsSac": {
           "type": "string",
@@ -7002,6 +7166,9 @@ func init() {
         "originDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
         },
+        "packingAndShippingInstructions": {
+          "type": "string"
+        },
         "report_by_date": {
           "type": "string",
           "format": "date",
@@ -7017,6 +7184,9 @@ func init() {
           "type": "boolean",
           "title": "Do you have a spouse who will need to move items related to their occupation (also known as spouse pro-gear)?",
           "example": false
+        },
+        "supplyAndServicesCostEstimate": {
+          "type": "string"
         },
         "tac": {
           "type": "string",
@@ -7484,6 +7654,18 @@ func init() {
             "APPROVED",
             "REJECTED"
           ]
+        }
+      }
+    },
+    "PatchSITAddressUpdateStatus": {
+      "required": [
+        "officeRemarks"
+      ],
+      "properties": {
+        "officeRemarks": {
+          "description": "Reason the SIT address update was approved or rejected",
+          "type": "string",
+          "example": "Insufficient details provided"
         }
       }
     },
@@ -8216,26 +8398,37 @@ func init() {
     },
     "SITStatus": {
       "properties": {
-        "daysInSIT": {
-          "type": "integer"
-        },
-        "location": {
-          "enum": [
-            "ORIGIN",
-            "DESTINATION"
-          ]
+        "currentSIT": {
+          "type": "object",
+          "properties": {
+            "daysInSIT": {
+              "type": "integer"
+            },
+            "location": {
+              "enum": [
+                "ORIGIN",
+                "DESTINATION"
+              ]
+            },
+            "sitAllowanceEndDate": {
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
+            "sitDepartureDate": {
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
+            "sitEntryDate": {
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            }
+          }
         },
         "pastSITServiceItems": {
           "$ref": "#/definitions/MTOServiceItems"
-        },
-        "sitDepartureDate": {
-          "type": "string",
-          "format": "date-time",
-          "x-nullable": true
-        },
-        "sitEntryDate": {
-          "type": "string",
-          "format": "date-time"
         },
         "totalDaysRemaining": {
           "type": "integer"
@@ -8374,6 +8567,7 @@ func init() {
         "SITPaymentRequestStart",
         "SITScheduleDest",
         "SITScheduleOrigin",
+        "SITServiceAreaDest",
         "WeightAdjusted",
         "WeightBilled",
         "WeightEstimated",
@@ -8382,6 +8576,7 @@ func init() {
         "ZipDestAddress",
         "ZipPickupAddress",
         "ZipSITDestHHGFinalAddress",
+        "ZipSITDestHHGOriginalAddress",
         "ZipSITOriginHHGActualAddress",
         "ZipSITOriginHHGOriginalAddress"
       ]
@@ -8406,6 +8601,92 @@ func init() {
         "PaymentServiceItemUUID",
         "BOOLEAN"
       ]
+    },
+    "ServiceRequestDocument": {
+      "type": "object",
+      "properties": {
+        "mtoServiceItemID": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "uploads": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Upload"
+          }
+        }
+      }
+    },
+    "ServiceRequestDocuments": {
+      "description": "documents uploaded by the Prime as proof of request for service items",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ServiceRequestDocument"
+      }
+    },
+    "ShipmentAddressUpdate": {
+      "description": "This represents a destination address change request made by the Prime that is either auto-approved or requires review if the pricing criteria has changed. If criteria has changed, then it must be approved or rejected by a TOO.\n",
+      "type": "object",
+      "required": [
+        "id",
+        "status",
+        "shipmentID",
+        "originalAddress",
+        "newAddress",
+        "contractorRemarks"
+      ],
+      "properties": {
+        "contractorRemarks": {
+          "description": "The reason there is an address change.",
+          "type": "string",
+          "title": "Contractor Remarks",
+          "readOnly": true,
+          "example": "This is a contractor remark"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "newAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "officeRemarks": {
+          "description": "The TOO comment on approval or rejection.",
+          "type": "string",
+          "title": "Office Remarks",
+          "x-nullable": true,
+          "example": "This is an office remark"
+        },
+        "originalAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "shipmentID": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "status": {
+          "$ref": "#/definitions/ShipmentAddressUpdateStatus"
+        }
+      }
+    },
+    "ShipmentAddressUpdateStatus": {
+      "type": "string",
+      "title": "Status",
+      "enum": [
+        "REQUESTED",
+        "REJECTED",
+        "APPROVED"
+      ],
+      "x-display-value": {
+        "APPROVED": "APPROVED",
+        "REJECTED": "REJECTED",
+        "REQUESTED": "REQUESTED"
+      },
+      "readOnly": true
     },
     "ShipmentPaymentSITBalance": {
       "properties": {
@@ -15081,6 +15362,197 @@ func init() {
         }
       ]
     },
+    "/sit-address-update/{sitAddressUpdateID}/approve": {
+      "patch": {
+        "description": "This endpoint is used to approve a SIT address update. Office remarks are required. Approving the SIT address update will update the SIT Destination Final Address of the associated service item",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoServiceItem"
+        ],
+        "summary": "Approves a SIT Address Update",
+        "operationId": "approveSITAddressUpdate",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/PatchSITAddressUpdateStatus"
+            }
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully approved a SIT address update",
+            "schema": {
+              "$ref": "#/definitions/MTOServiceItem"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "x-permissions": [
+          "update.MTOServiceItem",
+          "update.SITAddressUpdate"
+        ]
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the sit address update",
+          "name": "sitAddressUpdateID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/sit-address-update/{sitAddressUpdateID}/reject": {
+      "patch": {
+        "description": "This endpoint is used to reject a requested SIT address update. Office remarks are required. Rejecting the SIT address update will not update the SIT Destination Final Address.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoServiceItem"
+        ],
+        "summary": "Rejects a SIT Address Update",
+        "operationId": "rejectSITAddressUpdate",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/PatchSITAddressUpdateStatus"
+            }
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully rejected a SIT address update",
+            "schema": {
+              "$ref": "#/definitions/MTOServiceItem"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "x-permissions": [
+          "update.SITAddressUpdate"
+        ]
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the sit address update",
+          "name": "sitAddressUpdateID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/tac/valid": {
       "get": {
         "description": "Returns a boolean based on whether a tac value is valid or not",
@@ -16556,7 +17028,7 @@ func init() {
         "email": {
           "type": "string",
           "format": "x-email",
-          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "pattern": "(^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$)|(^$)",
           "x-nullable": true
         },
         "firstName": {
@@ -16580,7 +17052,7 @@ func init() {
         "phone": {
           "type": "string",
           "format": "telephone",
-          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "pattern": "(^[2-9]\\d{2}-\\d{3}-\\d{4}$)|(^$)",
           "x-nullable": true
         },
         "updatedAt": {
@@ -16716,6 +17188,9 @@ func init() {
           "type": "string",
           "x-nullable": true
         },
+        "serviceRequestDocuments": {
+          "$ref": "#/definitions/ServiceRequestDocuments"
+        },
         "sitAddressUpdates": {
           "$ref": "#/definitions/SITAddressUpdates"
         },
@@ -16756,8 +17231,13 @@ func init() {
       "description": "Customer contact information for a destination SIT service item",
       "type": "object",
       "properties": {
+        "dateOfContact": {
+          "description": "Date of attempted contact by the prime.",
+          "type": "string",
+          "format": "date"
+        },
         "firstAvailableDeliveryDate": {
-          "description": "First available date that Prime can deliver SIT service item.",
+          "description": "First available date that the Prime can deliver SIT service item.",
           "type": "string",
           "format": "date",
           "example": "2020-12-31"
@@ -16768,7 +17248,7 @@ func init() {
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "timeMilitary": {
-          "description": "Time of delivery corresponding to ` + "`" + `firstAvailableDeliveryDate` + "`" + `.",
+          "description": "Time of attempted contact by the prime.",
           "type": "string",
           "example": "0400Z"
         },
@@ -16892,6 +17372,9 @@ func init() {
           "type": "string",
           "format": "date-time",
           "x-nullable": true
+        },
+        "deliveryAddressUpdate": {
+          "$ref": "#/definitions/ShipmentAddressUpdate"
         },
         "destinationAddress": {
           "x-nullable": true,
@@ -17072,8 +17555,6 @@ func init() {
       "title": "Shipment Type",
       "enum": [
         "HHG",
-        "HHG_LONGHAUL_DOMESTIC",
-        "HHG_SHORTHAUL_DOMESTIC",
         "HHG_INTO_NTS_DOMESTIC",
         "HHG_OUTOF_NTS_DOMESTIC",
         "INTERNATIONAL_HHG",
@@ -17732,6 +18213,9 @@ func init() {
           "readOnly": true,
           "example": "Doe"
         },
+        "methodOfPayment": {
+          "type": "string"
+        },
         "moveCode": {
           "type": "string",
           "example": "H2XFJF"
@@ -17740,6 +18224,9 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "naics": {
+          "type": "string"
         },
         "ntsSac": {
           "type": "string",
@@ -17768,6 +18255,9 @@ func init() {
         "originDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
         },
+        "packingAndShippingInstructions": {
+          "type": "string"
+        },
         "report_by_date": {
           "type": "string",
           "format": "date",
@@ -17783,6 +18273,9 @@ func init() {
           "type": "boolean",
           "title": "Do you have a spouse who will need to move items related to their occupation (also known as spouse pro-gear)?",
           "example": false
+        },
+        "supplyAndServicesCostEstimate": {
+          "type": "string"
         },
         "tac": {
           "type": "string",
@@ -18250,6 +18743,18 @@ func init() {
             "APPROVED",
             "REJECTED"
           ]
+        }
+      }
+    },
+    "PatchSITAddressUpdateStatus": {
+      "required": [
+        "officeRemarks"
+      ],
+      "properties": {
+        "officeRemarks": {
+          "description": "Reason the SIT address update was approved or rejected",
+          "type": "string",
+          "example": "Insufficient details provided"
         }
       }
     },
@@ -18984,6 +19489,52 @@ func init() {
     },
     "SITStatus": {
       "properties": {
+        "currentSIT": {
+          "type": "object",
+          "properties": {
+            "daysInSIT": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "location": {
+              "enum": [
+                "ORIGIN",
+                "DESTINATION"
+              ]
+            },
+            "sitAllowanceEndDate": {
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
+            "sitDepartureDate": {
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
+            "sitEntryDate": {
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            }
+          }
+        },
+        "pastSITServiceItems": {
+          "$ref": "#/definitions/MTOServiceItems"
+        },
+        "totalDaysRemaining": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "totalSITDaysUsed": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "SITStatusCurrentSIT": {
+      "type": "object",
+      "properties": {
         "daysInSIT": {
           "type": "integer",
           "minimum": 0
@@ -18994,25 +19545,20 @@ func init() {
             "DESTINATION"
           ]
         },
-        "pastSITServiceItems": {
-          "$ref": "#/definitions/MTOServiceItems"
+        "sitAllowanceEndDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
         },
         "sitDepartureDate": {
           "type": "string",
-          "format": "date-time",
+          "format": "date",
           "x-nullable": true
         },
         "sitEntryDate": {
           "type": "string",
-          "format": "date-time"
-        },
-        "totalDaysRemaining": {
-          "type": "integer",
-          "minimum": 0
-        },
-        "totalSITDaysUsed": {
-          "type": "integer",
-          "minimum": 0
+          "format": "date",
+          "x-nullable": true
         }
       }
     },
@@ -19145,6 +19691,7 @@ func init() {
         "SITPaymentRequestStart",
         "SITScheduleDest",
         "SITScheduleOrigin",
+        "SITServiceAreaDest",
         "WeightAdjusted",
         "WeightBilled",
         "WeightEstimated",
@@ -19153,6 +19700,7 @@ func init() {
         "ZipDestAddress",
         "ZipPickupAddress",
         "ZipSITDestHHGFinalAddress",
+        "ZipSITDestHHGOriginalAddress",
         "ZipSITOriginHHGActualAddress",
         "ZipSITOriginHHGOriginalAddress"
       ]
@@ -19177,6 +19725,92 @@ func init() {
         "PaymentServiceItemUUID",
         "BOOLEAN"
       ]
+    },
+    "ServiceRequestDocument": {
+      "type": "object",
+      "properties": {
+        "mtoServiceItemID": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "uploads": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Upload"
+          }
+        }
+      }
+    },
+    "ServiceRequestDocuments": {
+      "description": "documents uploaded by the Prime as proof of request for service items",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ServiceRequestDocument"
+      }
+    },
+    "ShipmentAddressUpdate": {
+      "description": "This represents a destination address change request made by the Prime that is either auto-approved or requires review if the pricing criteria has changed. If criteria has changed, then it must be approved or rejected by a TOO.\n",
+      "type": "object",
+      "required": [
+        "id",
+        "status",
+        "shipmentID",
+        "originalAddress",
+        "newAddress",
+        "contractorRemarks"
+      ],
+      "properties": {
+        "contractorRemarks": {
+          "description": "The reason there is an address change.",
+          "type": "string",
+          "title": "Contractor Remarks",
+          "readOnly": true,
+          "example": "This is a contractor remark"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "newAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "officeRemarks": {
+          "description": "The TOO comment on approval or rejection.",
+          "type": "string",
+          "title": "Office Remarks",
+          "x-nullable": true,
+          "example": "This is an office remark"
+        },
+        "originalAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "shipmentID": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "status": {
+          "$ref": "#/definitions/ShipmentAddressUpdateStatus"
+        }
+      }
+    },
+    "ShipmentAddressUpdateStatus": {
+      "type": "string",
+      "title": "Status",
+      "enum": [
+        "REQUESTED",
+        "REJECTED",
+        "APPROVED"
+      ],
+      "x-display-value": {
+        "APPROVED": "APPROVED",
+        "REJECTED": "REJECTED",
+        "REQUESTED": "REQUESTED"
+      },
+      "readOnly": true
     },
     "ShipmentPaymentSITBalance": {
       "properties": {
