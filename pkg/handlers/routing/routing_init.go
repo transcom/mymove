@@ -140,11 +140,16 @@ func NewHostRouter() *HostRouter {
 	}
 }
 
+// Map adds a chi.Router for a hostname
 func (hr *HostRouter) Map(host string, r chi.Router) {
 	hr.routes[strings.ToLower(host)] = r
 }
 
 func (hr *HostRouter) Match(_ *chi.Context, _ string, _ string) bool {
+	// the chi.Context does not contain information about which host
+	// was requested and the host router is not distinguishing based
+	// on method or path, so the host router always matches every
+	// route. The per host dispatch happens below in ServeHTTP
 	return true
 }
 
@@ -163,10 +168,15 @@ func (hr *HostRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	http.NotFound(w, r)
 }
 
+// The HostRouter does not use chi.Route as mentioned in Match, and so
+// the list of routes is always empty
 func (hr *HostRouter) Routes() []chi.Route {
 	return []chi.Route{}
 }
 
+// The HostRouter does not support setting up middleware for all
+// hosts, it should be done on a per host basis using the chi.Router
+// added via Map. Thus the host router always has empty middleware
 func (hr *HostRouter) Middlewares() chi.Middlewares {
 	return chi.Middlewares{}
 }
