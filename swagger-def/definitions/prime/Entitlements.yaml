@@ -1,0 +1,51 @@
+type: object
+properties:
+  id:
+    example: 571008b1-b0de-454d-b843-d71be9f02c04
+    format: uuid
+    type: string
+  authorizedWeight:
+    example: 2000
+    type: integer
+    x-formatting: weight
+    x-nullable: true
+  dependentsAuthorized:
+    example: true
+    type: boolean
+    x-nullable: true
+  nonTemporaryStorage:
+    example: false
+    type: boolean
+    x-nullable: true
+  privatelyOwnedVehicle:
+    example: false
+    type: boolean
+    x-nullable: true
+  proGearWeight:
+    example: 2000
+    type: integer
+    x-formatting: weight
+  proGearWeightSpouse:
+    example: 500
+    type: integer
+    x-formatting: weight
+  requiredMedicalEquipmentWeight:
+    example: 500
+    type: integer
+    x-formatting: weight
+  organizationalClothingAndIndividualEquipment:
+    type: boolean
+    example: false
+  storageInTransit:
+    example: 90
+    type: integer
+  totalWeight:
+    example: 500
+    type: integer
+    x-formatting: weight
+  totalDependents:
+    example: 2
+    type: integer
+  eTag:
+    type: string
+    readOnly: true
