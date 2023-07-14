@@ -135,7 +135,7 @@
     "@storybook/addon-knobs": "^7.0.2",
     "@storybook/addon-links": "^7.0.26",
     "@storybook/jest": "^0.1.0",
-    "@storybook/preset-create-react-app": "^7.0.26",
+    "@storybook/preset-create-react-app": "^7.0.27",
     "@storybook/preview-api": "^7.0.26",
     "@storybook/react": "^7.0.26",
     "@storybook/react-webpack5": "^7.0.26",
