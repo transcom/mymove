@@ -979,7 +979,10 @@ commands:
             export SERVE_API_PRIME=true
 
             make db_dev_create
-            bin/milmove migrate
+            # cannot use Makefile target because of missing source files
+            DB_DEBUG=0 bin/milmove dbload \
+            --migration-schema-path "migrations/app" \
+            --migration-load-dev-seed
             # load tests do not need client files
             mkdir -p build
             touch build/index.html
