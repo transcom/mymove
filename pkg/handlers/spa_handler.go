@@ -10,7 +10,10 @@ import (
 	"github.com/transcom/mymove/pkg/logging"
 )
 
-// This is straight from github.com/gorilla/mux
+// The SpaHandler code was inspired by code from the README for
+// github.com/gorilla/mux
+//
+// https://github.com/gorilla/mux#serving-single-page-applications
 
 // SpaHandler implements the http.Handler interface, so we can use it
 // to respond to HTTP requests. The path to the static directory and
