@@ -163,3 +163,5 @@ properties:
     $ref: 'StorageFacility.yaml'
   ppmShipment:
     $ref: 'PPMShipment.yaml'
+  deliveryAddressUpdate:
+    $ref: 'ShipmentAddressUpdate.yaml'
