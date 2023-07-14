@@ -13,7 +13,7 @@ export default {
 
 export const Basic = () => (
   <div id="l-nav" style={{ padding: '20px', background: '#f0f0f0' }}>
-    <LeftNav sections={['requested-shipments', 'orders', 'allowances', 'customer-info']}>
+    <LeftNav sections={['allowances', 'requested-shipments', 'orders', 'customer-info']}>
       <LeftNavTag associatedSectionName="requested-shipments" showTag className="usa-tag usa-tag--alert">
         <FontAwesomeIcon icon="exclamation" />
       </LeftNavTag>
