@@ -718,11 +718,42 @@ db_server_test_init: db_test_reset db_test_load_from_schema redis_reset
 # check for pending migrations or differences in schema
 .PHONY: db_test_schema_check
 db_test_schema_check: db_test_reset bin/milmove
-	# make sure there are no pending, uncommitted changes
+# make sure there are no pending, uncommitted changes
 	git diff --exit-code migrations
-  # load the dev seed for this schema check as the dev seed contains
-	# the data about which migrations have already been applied
+# the database is empty now, so run all the migrations
 	DB_DEBUG=0 DB_NAME=$(DB_NAME_TEST) DB_PORT=$(DB_PORT_TEST) bin/milmove migrate -p "file://migrations/${APPLICATION}/secure;file://migrations/${APPLICATION}/schema" -m "migrations/${APPLICATION}/migrations_manifest.txt" --migration-schema-path "migrations/${APPLICATION}"
+
+# now the schema.sql file has been generated. HOWEVER, it seems
+# there is some issue/bug/something with postgresql and the schema
+# dump. If we now reset the database again, load the schema, and
+# then dump it again, there are some formatting changes. So let's do
+# that round trip again to get the final schema dump
+
+# Have I mentioned how much I hate Makefiles? We have to copy and
+# paste all this code for destroying the database, loading the
+# schema, and then running the migrations again
+
+# destroy the database
+	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_TEST)?sslmode=disable -c 'DROP DATABASE IF EXISTS $(DB_NAME_TEST);'
+
+# drop the users. Without dropping the users, the order of the GRANT
+# statements in the schema dump changes
+	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_TEST)?sslmode=disable -c 'DROP USER crud;'
+	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_TEST)?sslmode=disable -c 'DROP USER master;'
+	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_TEST)?sslmode=disable -c 'DROP USER ecs_user;'
+
+# re-create the database
+	@echo "Create the ${DB_NAME_TEST} database..."
+	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_TEST)?sslmode=disable -c 'CREATE DATABASE $(DB_NAME_TEST);'
+
+# load from the schema file
+	DB_DEBUG=0 DB_NAME=$(DB_NAME_TEST) DB_PORT=$(DB_PORT_TEST) bin/milmove dbload --migration-schema-path "migrations/${APPLICATION}" --migration-load-dev-seed
+
+# run all the migrations, which should be a noop, but it will re-dump
+# the schema file
+	DB_DEBUG=0 DB_NAME=$(DB_NAME_TEST) DB_PORT=$(DB_PORT_TEST) bin/milmove migrate -p "file://migrations/${APPLICATION}/secure;file://migrations/${APPLICATION}/schema" -m "migrations/${APPLICATION}/migrations_manifest.txt" --migration-schema-path "migrations/${APPLICATION}"
+
+# now, the schema file should be exactly the same
 	git diff --exit-code migrations
 
 #
