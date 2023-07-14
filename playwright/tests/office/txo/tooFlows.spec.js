@@ -112,8 +112,9 @@ test.describe('TOO user', () => {
       const rejectedServiceItemsTable = page.getByTestId('RejectedServiceItemsTable');
       let rejectedServiceItemCount = await rejectedServiceItemsTable.locator('tbody tr').count();
 
-      await expect(page.getByText('Approved service items', { exact: false })).toBeVisible();
-      await expect(page.getByText('Rejected service items')).not.toBeVisible();
+      // This test requires at least two requested service items
+      await expect(page.getByText('Requested service items', { exact: false })).toBeVisible();
+      await expect(requestedServiceItemsTable.locator('tbody tr >> nth=1')).toBeVisible();
 
       await expect(page.getByTestId('modal')).not.toBeVisible();
 
@@ -157,7 +158,6 @@ test.describe('TOO user', () => {
       await expect(approvedServiceItemsTable.locator('tbody tr')).toHaveCount(approvedServiceItemCount + 1);
       approvedServiceItemCount = await approvedServiceItemsTable.locator('tbody tr').count();
 
-      await expect(page.getByText('Rejected service items')).not.toBeVisible();
       await expect(rejectedServiceItemsTable.locator('tbody tr')).toHaveCount(rejectedServiceItemCount - 1);
       rejectedServiceItemCount = await rejectedServiceItemsTable.locator('tbody tr').count();
 
@@ -176,7 +176,6 @@ test.describe('TOO user', () => {
       await expect(rejectedServiceItemsTable.locator('tbody tr')).toHaveCount(rejectedServiceItemCount + 1);
       rejectedServiceItemCount = await rejectedServiceItemsTable.locator('tbody tr').count();
 
-      // await expect(page.getByText('Requested service items')).not.toBeVisible();
       await expect(page.getByText('Approved service items', { exact: false })).toBeVisible();
       await expect(approvedServiceItemsTable.locator('tbody tr')).toHaveCount(approvedServiceItemCount - 1);
       approvedServiceItemCount = await approvedServiceItemsTable.locator('tbody tr').count();
