@@ -83,10 +83,6 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 		}
 	}
 
-	err = appCtx.DB().Load(&move, "Orders")
-	if err != nil {
-		return nil, apperror.NewQueryError("Orders", err, "")
-	}
 	if appCtx.Session() != nil && appCtx.Session().IsMilApp() {
 		if move.Orders.ServiceMemberID != appCtx.Session().ServiceMemberID {
 			return nil, apperror.ForbiddenError{}
