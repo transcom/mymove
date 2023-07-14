@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -95,6 +96,43 @@ func expandPaths(in []string) []string {
 		out = append(out, expandPath(x))
 	}
 	return out
+}
+
+func normalizeSchemaDump(migrator pop.Migrator) error {
+	schemaFilename := filepath.Join(migrator.SchemaPath, "schema.sql")
+	tmpSchemaFilename := schemaFilename + ".tmp_sanitized"
+
+	in, err := os.Open(schemaFilename)
+	if err != nil {
+		return err
+	}
+	defer in.Close()
+	out, err := os.Create(tmpSchemaFilename)
+	if err != nil {
+		return err
+	}
+	scanner := bufio.NewScanner(in)
+	for scanner.Scan() {
+		line := scanner.Text()
+		// remove any version information
+		// it can look like
+		// Dumped from database version 12.13 (Debian 12.13-1.pgdg110+1)
+		// or
+		// Dumped by pg_dump version 12.13 (Ubuntu 12.13-1.pgdg20.04+1)
+		if ndx := strings.Index(line, " ("); ndx > 0 && strings.HasPrefix(line, "-- Dumped ") {
+			line = line[0:ndx]
+		}
+		_, werr := fmt.Fprintln(out, line)
+		if werr != nil {
+			return werr
+		}
+	}
+	err = out.Close()
+	if err != nil {
+		return err
+	}
+	// overwrite the dump with the sanitized version
+	return os.Rename(tmpSchemaFilename, schemaFilename)
 }
 
 func migrateFunction(cmd *cobra.Command, args []string) error {
@@ -282,6 +320,8 @@ func migrateFunction(cmd *cobra.Command, args []string) error {
 	schemaPath := v.GetString(cli.MigrationSchemaPathFlag)
 
 	migrator := pop.NewMigrator(dbConnection)
+
+	// setting this tells the migrator to dump the schema
 	migrator.SchemaPath = schemaPath
 	scanner := bufio.NewScanner(manifest)
 	for scanner.Scan() {
@@ -358,9 +398,9 @@ func migrateFunction(cmd *cobra.Command, args []string) error {
 		return errors.Wrap(errUp, "error running migrations")
 	}
 
-	err = migrator.DumpMigrationSchema()
+	err = normalizeSchemaDump(migrator)
 	if err != nil {
-		return errors.Wrap(err, "error dumping migration")
+		return err
 	}
 
 	return nil
