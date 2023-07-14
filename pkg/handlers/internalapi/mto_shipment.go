@@ -69,16 +69,6 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 								e.ValidationErrors,
 							),
 						), err
-				case apperror.ForbiddenError:
-					return mtoshipmentops.
-						NewCreateMTOShipmentForbidden().
-						WithPayload(
-							payloads.ClientError(
-								handlers.ForbiddenErrMessage,
-								err.Error(),
-								h.GetTraceIDFromRequest(params.HTTPRequest),
-							),
-						), err
 				case apperror.QueryError:
 					if e.Unwrap() != nil {
 						// If you can unwrap, log the internal error (usually a pq error) for better debugging

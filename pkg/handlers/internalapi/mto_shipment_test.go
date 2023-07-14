@@ -401,7 +401,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		suite.IsType(&mtoshipmentops.CreateMTOShipmentUnauthorized{}, response)
 	})
 
-	suite.Run("POST failure - 403 - forbidden - wrong SM does not match move", func() {
+	suite.Run("POST failure - 404 - not found - wrong SM does not match move", func() {
 		subtestData := makeCreateSubtestData()
 
 		sm := factory.BuildServiceMember(suite.DB(), nil, nil)
@@ -413,7 +413,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		response := subtestData.handler.Handle(unauthorizedParams)
 
-		suite.IsType(&mtoshipmentops.CreateMTOShipmentForbidden{}, response)
+		suite.IsType(&mtoshipmentops.CreateMTOShipmentNotFound{}, response)
 	})
 
 	suite.Run("POST failure - 404 -- not found", func() {
