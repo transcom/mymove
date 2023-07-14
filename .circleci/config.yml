@@ -1338,14 +1338,13 @@ jobs:
       - run: echo 'export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - run:
           # https://support.circleci.com/hc/en-us/articles/10816400480411-How-to-pass-environment-variables-between-jobs
-          name: Copy Workflow Job ID to bash.env
+          name: Copy Workflow Job ID to file
           command: |
-            echo "export SERVER_TEST_JOB_ID=$CIRCLE_WORKFLOW_JOB_ID" >> $BASH_ENV
-            cp $BASH_ENV bash.env
+            echo "export SERVER_TEST_JOB_ID=$CIRCLE_WORKFLOW_JOB_ID" >> server_test_job_id.env
       - persist_to_workspace:
           root: .
           paths:
-            - bash.env
+            - server_test_job_id.env
       # make -j 2 tells make to run 2 simultaneous builds
       - run: make -j 2 bin/milmove bin/gotestsum
       - server_tests_step:
@@ -1394,16 +1393,11 @@ jobs:
             tmp/baseline-go-coverage/go-coverage.txt \
             tmp/test-results/gotest/app/go-coverage.txt
       - run:
-          # https://support.circleci.com/hc/en-us/articles/10816400480411-How-to-pass-environment-variables-between-jobs
-          when: on_fail
-          name: Import bash.env
-          command: |
-            cat bash.env >> $BASH_ENV; cat bash.env
-      - run:
           # on failure, post a comment to the PR with a link to the report
           when: on_fail
           name: 'Post server coverage failure comment to GitHub'
           command: |
+            source server_test_job_id.env
             ./scripts/handle-pr-comment \
             $CIRCLE_BRANCH \
             https://output.circle-artifacts.com/output/job/${SERVER_TEST_JOB_ID}/artifacts/${CIRCLE_NODE_INDEX}/test-results/gotest/app/go-coverage.html \
@@ -1416,7 +1410,7 @@ jobs:
           command: |
             ./scripts/handle-pr-comment \
             $CIRCLE_BRANCH \
-            https://output.circle-artifacts.com/output/job/${SERVER_TEST_JOB_ID}/artifacts/${CIRCLE_NODE_INDEX}/tmp/test-results/gotest/app/go-coverage.html \
+            "" \
             "server" \
             "success"
 
@@ -1479,14 +1473,13 @@ jobs:
       - run: make client_test_coverage
       - run:
           # https://support.circleci.com/hc/en-us/articles/10816400480411-How-to-pass-environment-variables-between-jobs
-          name: Copy Workflow Job ID to bash.env
+          name: Copy Workflow Job ID to file
           command: |
-            echo "export CLIENT_TEST_JOB_ID=$CIRCLE_WORKFLOW_JOB_ID" >> $BASH_ENV
-            cp $BASH_ENV bash.env
+            echo "export CLIENT_TEST_JOB_ID=$CIRCLE_WORKFLOW_JOB_ID" >> client_test_job_id.env
       - persist_to_workspace:
           root: .
           paths:
-            - bash.env
+            - client_test_job_id.env
 
       - store_artifacts:
           path: ~/transcom/mymove/coverage
@@ -1532,16 +1525,11 @@ jobs:
             tmp/baseline-jest-coverage/clover.xml \
             coverage/clover.xml
       - run:
-          # https://support.circleci.com/hc/en-us/articles/10816400480411-How-to-pass-environment-variables-between-jobs
-          name: Import bash.env
-          command: |
-            cat bash.env >> $BASH_ENV
-          when: on_fail
-      - run:
           # on failure, post a comment to the PR with a link to the report
           when: on_fail
           name: 'Post client coverage failure comment to GitHub'
           command: |
+            source client_test_job_id.env
             ./scripts/handle-pr-comment \
             $CIRCLE_BRANCH \
             "https://output.circle-artifacts.com/output/job/${CLIENT_TEST_JOB_ID}/artifacts/${CIRCLE_NODE_INDEX}/coverage/lcov-report/index.html" \
@@ -1554,7 +1542,7 @@ jobs:
           command: |
             ./scripts/handle-pr-comment \
             $CIRCLE_BRANCH \
-            "https://output.circle-artifacts.com/output/job/${CLIENT_TEST_JOB_ID}/artifacts/${CIRCLE_NODE_INDEX}/coverage/lcov-report/index.html" \
+            "" \
             "client" \
             "success"
       # only save the cache on default branch builds because we only want to
