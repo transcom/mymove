@@ -563,7 +563,7 @@ func mountSessionRoutes(appCtx appcontext.AppContext, routingConfig *Config, bas
 
 }
 
-func initMilRouting(appCtx appcontext.AppContext, redisPool *redis.Pool,
+func newMilRouter(appCtx appcontext.AppContext, redisPool *redis.Pool,
 	routingConfig *Config, telemetryConfig *telemetry.Config, serverName string) chi.Router {
 
 	site := newBaseRouter(appCtx, routingConfig, telemetryConfig, serverName)
@@ -585,7 +585,7 @@ func initMilRouting(appCtx appcontext.AppContext, redisPool *redis.Pool,
 	return site
 }
 
-func initOfficeRouting(appCtx appcontext.AppContext, redisPool *redis.Pool,
+func newOfficeRouter(appCtx appcontext.AppContext, redisPool *redis.Pool,
 	routingConfig *Config, telemetryConfig *telemetry.Config, serverName string) chi.Router {
 
 	site := newBaseRouter(appCtx, routingConfig, telemetryConfig, serverName)
@@ -609,7 +609,7 @@ func initOfficeRouting(appCtx appcontext.AppContext, redisPool *redis.Pool,
 	return site
 }
 
-func initAdminRouting(appCtx appcontext.AppContext, redisPool *redis.Pool,
+func newAdminRouter(appCtx appcontext.AppContext, redisPool *redis.Pool,
 	routingConfig *Config, telemetryConfig *telemetry.Config, serverName string) chi.Router {
 
 	site := newBaseRouter(appCtx, routingConfig, telemetryConfig, serverName)
@@ -633,7 +633,7 @@ func initAdminRouting(appCtx appcontext.AppContext, redisPool *redis.Pool,
 	return site
 }
 
-func initPrimeRouting(appCtx appcontext.AppContext, redisPool *redis.Pool,
+func newPrimeRouter(appCtx appcontext.AppContext, redisPool *redis.Pool,
 	routingConfig *Config, telemetryConfig *telemetry.Config, serverName string) chi.Router {
 
 	site := newBaseRouter(appCtx, routingConfig, telemetryConfig, serverName)
@@ -646,7 +646,8 @@ func initPrimeRouting(appCtx appcontext.AppContext, redisPool *redis.Pool,
 	return site
 }
 
-// InitRouting sets up the routing
+// InitRouting sets up the routing for all the hosts (mil, office,
+// admin, api)
 func InitRouting(serverName string, appCtx appcontext.AppContext, redisPool *redis.Pool,
 	routingConfig *Config, telemetryConfig *telemetry.Config) (http.Handler, error) {
 
@@ -664,36 +665,41 @@ func InitRouting(serverName string, appCtx appcontext.AppContext, redisPool *red
 	hostRouter := NewHostRouter()
 
 	milServerName := routingConfig.HandlerConfig.AppNames().MilServername
-	milRouter := initMilRouting(appCtx, redisPool, routingConfig, telemetryConfig, serverName)
+	milRouter := newMilRouter(appCtx, redisPool, routingConfig, telemetryConfig, serverName)
 	hostRouter.Map(milServerName, milRouter)
 
 	officeServerName := routingConfig.HandlerConfig.AppNames().OfficeServername
 
-	officeRouter := initOfficeRouting(appCtx, redisPool, routingConfig, telemetryConfig, serverName)
+	officeRouter := newOfficeRouter(appCtx, redisPool, routingConfig, telemetryConfig, serverName)
 	hostRouter.Map(officeServerName, officeRouter)
 
 	adminServerName := routingConfig.HandlerConfig.AppNames().AdminServername
-	adminRouter := initAdminRouting(appCtx, redisPool, routingConfig, telemetryConfig, serverName)
+	adminRouter := newAdminRouter(appCtx, redisPool, routingConfig, telemetryConfig, serverName)
 	hostRouter.Map(adminServerName, adminRouter)
 
 	primeServerName := routingConfig.HandlerConfig.AppNames().PrimeServername
-	primeRouter := initPrimeRouting(appCtx, redisPool, routingConfig, telemetryConfig, serverName)
+	primeRouter := newPrimeRouter(appCtx, redisPool, routingConfig, telemetryConfig, serverName)
 	hostRouter.Map(primeServerName, primeRouter)
 
 	// need a wildcard health router as the ELB makes requests to the
 	// IP, not the hostname
-	wildcardRouter := chi.NewRouter()
-	InitHealthRouting(appCtx, redisPool, routingConfig, wildcardRouter)
-	hostRouter.Map("*", wildcardRouter)
+	healthRouter := chi.NewRouter()
+	mountHealthRoute(appCtx, redisPool, routingConfig, healthRouter)
+	hostRouter.Map("*", healthRouter)
 
 	return hostRouter, nil
 }
 
-// InitHealthRouting sets up the routing for the health server. The
-// health server should only listen on localhost and not be available publicly
-func InitHealthRouting(appCtx appcontext.AppContext, redisPool *redis.Pool, routingConfig *Config, site chi.Router) {
+// InitHealthRouting sets up the routing for the internal health
+// server used by the ECS health check
+func InitHealthRouting(serverName string, appCtx appcontext.AppContext, redisPool *redis.Pool,
+	routingConfig *Config, telemetryConfig *telemetry.Config) (http.Handler, error) {
 
+	site := chi.NewRouter()
+	site.Use(telemetry.NewOtelHTTPMiddleware(telemetryConfig, serverName))
 	mountHealthRoute(appCtx, redisPool, routingConfig, site)
+
+	return site, nil
 }
 
 // indexHandler returns a handler that will serve the resulting content

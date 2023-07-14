@@ -22,7 +22,6 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
 	awssession "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/sts"
-	"github.com/go-chi/chi/v5"
 	"github.com/gobuffalo/pop/v6"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/gomodule/redigo/redis"
@@ -736,14 +735,18 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	healthEnabled := v.GetBool(cli.HealthListenerFlag)
 	var healthServer *server.NamedServer
 	if healthEnabled {
-		healthSite := chi.NewRouter()
-		healthSite.Use(telemetry.NewOtelHTTPMiddleware(telemetryConfig, "health"))
-		routing.InitHealthRouting(appCtx, redisPool, routingConfig, healthSite)
+		serverName := "health"
+		healthPort := v.GetInt(cli.HealthPortFlag)
+		healthSite, err := routing.InitHealthRouting(serverName, appCtx, redisPool,
+			routingConfig, telemetryConfig)
+		if err != nil {
+			return err
+		}
 
 		healthServer, err = server.CreateNamedServer(&server.CreateNamedServerInput{
 			Name:        "health",
 			Host:        "127.0.0.1", // health server is always localhost only
-			Port:        v.GetInt(cli.HealthPortFlag),
+			Port:        healthPort,
 			Logger:      logger,
 			HTTPHandler: healthSite,
 		})
