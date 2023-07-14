@@ -9,8 +9,8 @@ test.describe('TOO user', () => {
 
   test.describe('updating a move shipment in SIT', () => {
     test.beforeEach(async ({ officePage }) => {
-      // build move in SIT with 200 days authorized and without pending extension requests
-      const move = await officePage.testHarness.buildHHGMoveIn200DaysSIT();
+      // build move in SIT with 90 days authorized and without pending extension requests
+      const move = await officePage.testHarness.buildHHGMoveInSIT();
       await officePage.signInAsNewTOOUser();
       tooFlowPage = new TooFlowPage(officePage, move);
       await officePage.tooNavigateToMove(move.locator);
@@ -21,18 +21,18 @@ test.describe('TOO user', () => {
       await page.getByTestId('MoveTaskOrder-Tab').click();
       await tooFlowPage.waitForPage.moveTaskOrder();
 
-      // increase SIT authorization to 220 days
+      // increase SIT authorization to 100 days
       await page.getByTestId('sitExtensions').getByTestId('button').click();
       await expect(page.getByRole('heading', { name: 'Edit SIT authorization' })).toBeVisible();
       await page.getByTestId('daysApproved').clear();
-      await page.getByTestId('daysApproved').fill('220');
+      await page.getByTestId('daysApproved').fill('100');
       await page.getByTestId('dropdown').selectOption('AWAITING_COMPLETION_OF_RESIDENCE');
       await page.getByTestId('officeRemarks').fill('residence under construction');
       await expect(page.getByTestId('form').getByTestId('button')).toBeEnabled();
       await page.getByTestId('form').getByTestId('button').click();
 
-      // assert that days authorization is now 220
-      await expect(page.getByTestId('sitStatusTable').getByText('220', { exact: true }).first()).toBeVisible();
+      // assert that days authorization is now 100
+      await expect(page.getByTestId('sitStatusTable').getByText('100', { exact: true }).first()).toBeVisible();
     });
 
     test('is able to decrease a SIT authorization', async ({ page }) => {
@@ -40,17 +40,17 @@ test.describe('TOO user', () => {
       await page.getByTestId('MoveTaskOrder-Tab').click();
       await tooFlowPage.waitForPage.moveTaskOrder();
 
-      // decrease SIT authorization to 190 days
+      // decrease SIT authorization to 80 days
       await page.getByTestId('sitExtensions').getByTestId('button').click();
       await expect(page.getByRole('heading', { name: 'Edit SIT authorization' })).toBeVisible();
       await page.getByTestId('daysApproved').clear();
-      await page.getByTestId('daysApproved').fill('190');
+      await page.getByTestId('daysApproved').fill('80');
       await page.getByTestId('dropdown').selectOption('AWAITING_COMPLETION_OF_RESIDENCE');
       await page.getByTestId('officeRemarks').fill('residence under construction');
       await page.getByTestId('form').getByTestId('button').click();
 
-      // assert that days authorization is now 190
-      await expect(page.getByTestId('sitStatusTable').getByText('190', { exact: true }).first()).toBeVisible();
+      // assert that days authorization is now 80
+      await expect(page.getByTestId('sitStatusTable').getByText('80', { exact: true }).first()).toBeVisible();
     });
 
     test('is unable to decrease the SIT authorization below the number of days already used', async ({ page }) => {
@@ -77,8 +77,8 @@ test.describe('TOO user', () => {
 
   test.describe('updating a move shipment in SIT with a SIT extension request', () => {
     test.beforeEach(async ({ officePage }) => {
-      // build move in SIT with 200 days authorized and with one pending extension request
-      const move = await officePage.testHarness.buildHHGMoveIn200DaysSITWithPendingExtension();
+      // build move in SIT with 90 days authorized and with one pending extension request
+      const move = await officePage.testHarness.buildHHGMoveInSITWithPendingExtension();
       await officePage.signInAsNewTOOUser();
       tooFlowPage = new TooFlowPage(officePage, move);
       await officePage.tooNavigateToMove(move.locator);
@@ -92,19 +92,19 @@ test.describe('TOO user', () => {
       // assert that there is a pending SIT extension request
       await expect(page.getByText('Additional days requested')).toBeVisible();
 
-      // approve SIT extension with an adjusted approved days value of 220 days and change the extension reason
+      // approve SIT extension with an adjusted approved days value of 100 days and change the extension reason
       await page.getByTestId('sitExtensions').getByTestId('button').click();
       await expect(page.getByRole('heading', { name: 'Review additional days requested' })).toBeVisible();
       await page.getByTestId('daysApproved').clear();
-      await page.getByTestId('daysApproved').fill('220');
+      await page.getByTestId('daysApproved').fill('100');
       await page.getByText('Yes', { exact: true }).click();
       await page.getByTestId('dropdown').selectOption('OTHER');
       await page.getByTestId('officeRemarks').fill('allowance increased by 20 days instead of the requested 45 days');
       await page.getByTestId('form').getByTestId('button').click();
 
-      // assert that there is no pending SIT extension request and the days authorization is now 220
+      // assert that there is no pending SIT extension request and the days authorization is now 100
       await expect(page.getByText('Additional days requested')).toBeHidden();
-      await expect(page.getByTestId('sitStatusTable').getByText('220', { exact: true }).first()).toBeVisible();
+      await expect(page.getByTestId('sitStatusTable').getByText('100', { exact: true }).first()).toBeVisible();
     });
 
     test('is able to deny the SIT extension request', async ({ page }) => {
@@ -122,9 +122,9 @@ test.describe('TOO user', () => {
       await page.getByTestId('officeRemarks').fill('extension request denied');
       await page.getByTestId('form').getByTestId('button').click();
 
-      // assert that there is no pending SIT extension request and the days authorization is still 200
+      // assert that there is no pending SIT extension request and the days authorization is still 90
       await expect(page.getByText('Additional days requested')).toBeHidden();
-      await expect(page.getByTestId('sitStatusTable').getByText('200', { exact: true }).first()).toBeVisible();
+      await expect(page.getByTestId('sitStatusTable').getByText('90', { exact: true }).first()).toBeVisible();
     });
   });
 });
