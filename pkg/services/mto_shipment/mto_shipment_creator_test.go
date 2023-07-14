@@ -506,7 +506,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 
 		suite.Nil(createdShipment)
 		suite.Error(err)
-		suite.IsType(apperror.ForbiddenError{}, err)
+		suite.IsType(apperror.NotFoundError{}, err)
 	})
 
 	suite.Run("Will not create MTO agent if all fields are empty", func() {
