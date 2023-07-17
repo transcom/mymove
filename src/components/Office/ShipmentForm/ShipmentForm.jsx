@@ -619,13 +619,13 @@ const ShipmentForm = (props) => {
                       <Fieldset legend="Delivery location" disabled={deliveryAddressUpdateRequested}>
                         {deliveryAddressUpdateRequested && (
                           <Alert type="error" slim>
-                            <div className={styles.deliveryAddressUpdateAlert}>
+                            <span className={styles.deliveryAddressUpdateAlert}>
                               Pending delivery location change request needs review.{' '}
                               <Link className={styles.reviewRequestLink} onClick={() => {}}>
                                 Review request
                               </Link>{' '}
                               to proceed.
-                            </div>
+                            </span>
                           </Alert>
                         )}
                         <FormGroup>
