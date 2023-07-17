@@ -3,7 +3,7 @@ import { arrayOf, bool, func, number, shape, string, oneOf } from 'prop-types';
 import { Field, Formik } from 'formik';
 import { generatePath, useNavigate, useParams } from 'react-router-dom';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
-import { Alert, Button, Checkbox, Fieldset, FormGroup, Radio } from '@trussworks/react-uswds';
+import { Alert, Button, Checkbox, Fieldset, FormGroup, Link, Radio } from '@trussworks/react-uswds';
 
 import getShipmentOptions from '../../Customer/MtoShipmentForm/getShipmentOptions';
 import { CloseoutOfficeInput } from '../../form/fields/CloseoutOfficeInput';
@@ -125,6 +125,8 @@ const ShipmentForm = (props) => {
   const handleShowCancellationModal = () => {
     setIsCancelModalVisible(true);
   };
+
+  const deliveryAddressUpdateRequested = mtoShipment?.deliveryAddressUpdate?.status === 'REQUESTED';
 
   const isHHG = shipmentType === SHIPMENT_OPTIONS.HHG;
   const isNTS = shipmentType === SHIPMENT_OPTIONS.NTS;
@@ -467,6 +469,9 @@ const ShipmentForm = (props) => {
                 the movers handling it.
               </Alert>
             )}
+            {deliveryAddressUpdateRequested && (
+              <Alert type="error">Request needs review. See delivery location to proceed.</Alert>
+            )}
 
             <div className={styles.ShipmentForm}>
               <div className={styles.headerWrapper}>
@@ -611,7 +616,18 @@ const ShipmentForm = (props) => {
                         )}
                       </Fieldset>
                     ) : (
-                      <Fieldset legend="Delivery location">
+                      <Fieldset legend="Delivery location" disabled={deliveryAddressUpdateRequested}>
+                        {deliveryAddressUpdateRequested && (
+                          <Alert type="error" slim>
+                            <div className={styles.deliveryAddressUpdateAlert}>
+                              Pending delivery location change request needs review.{' '}
+                              <Link className={styles.reviewRequestLink} onClick={() => {}}>
+                                Review request
+                              </Link>{' '}
+                              to proceed.
+                            </div>
+                          </Alert>
+                        )}
                         <FormGroup>
                           <p>Does the customer know their delivery address yet?</p>
                           <div className={formStyles.radioGroup}>
