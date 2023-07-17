@@ -27,7 +27,8 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs }) => {
   switch (code) {
     case 'DOFSIT':
     case 'DOASIT':
-    case 'DOPSIT': {
+    case 'DOPSIT':
+    case 'DOSFSC': {
       detailSection = (
         <div>
           <dl>
@@ -59,7 +60,8 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs }) => {
     }
     case 'DDFSIT':
     case 'DDASIT':
-    case 'DDDSIT': {
+    case 'DDDSIT':
+    case 'DDSFSC': {
       const { customerContacts } = details;
       // Below we are using the sortBy func in lodash to sort the customer contacts
       // by the firstAvailableDeliveryDate field. sortBy returns a new
