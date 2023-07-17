@@ -106,12 +106,15 @@ test.describe('TOO user', () => {
       await expect(page.getByTestId('ShipmentContainer')).toHaveCount(1);
 
       /**
-       * This test approves and rejects service items, which moves them from one table to another
+       * @function
+       * @description This test approves and rejects service items, which moves them from one table to another
        * and expects the counts of each table to increment/decrement by one item each time
        * This function gets the service items for a given table to help count them
+       * @param {import("playwright-core").Locator} table
+       * @returns {import("playwright-core").Locator}
        */
-      const getServiceItemsInTable = (/** @type {import("playwright-core").Locator} */ table) => {
-        return table.locator('tbody tr');
+      const getServiceItemsInTable = (table) => {
+        return table.getByRole('rowgroup').nth(1).getByRole('row');
       };
 
       const requestedServiceItemsTable = page.getByTestId('RequestedServiceItemsTable');
@@ -123,13 +126,13 @@ test.describe('TOO user', () => {
 
       // This test requires at least two requested service items
       await expect(page.getByText('Requested service items', { exact: false })).toBeVisible();
-      await expect(requestedServiceItemsTable.locator('tbody tr >> nth=1')).toBeVisible();
+      await expect(getServiceItemsInTable(requestedServiceItemsTable).nth(1)).toBeVisible();
 
       await expect(page.getByTestId('modal')).not.toBeVisible();
 
       // Approve a requested service item
       expect((await getServiceItemsInTable(requestedServiceItemsTable).count()) > 0);
-      await requestedServiceItemsTable.locator('.acceptButton').first().click();
+      await requestedServiceItemsTable.getByRole('button', { name: 'Accept' }).first().click();
       await tooFlowPage.waitForLoading();
 
       await expect(page.getByText('Approved service items', { exact: false })).toBeVisible();
@@ -142,14 +145,14 @@ test.describe('TOO user', () => {
       // Reject a requested service item
       await expect(page.getByText('Requested service items', { exact: false })).toBeVisible();
       expect((await getServiceItemsInTable(requestedServiceItemsTable).count()) > 0);
-      await requestedServiceItemsTable.locator('.rejectButton').first().click();
+      await requestedServiceItemsTable.getByRole('button', { name: 'Reject' }).first().click();
 
       await expect(page.getByTestId('modal')).toBeVisible();
       let modal = page.getByTestId('modal');
 
-      await expect(modal.locator('button[type="submit"]')).toBeDisabled();
-      await modal.locator('[data-testid="textInput"]').type('my very valid reason');
-      await modal.locator('button[type="submit"]').click();
+      await expect(modal.getByRole('button', { name: 'Submit' })).toBeDisabled();
+      await modal.getByRole('textbox').type('my very valid reason');
+      await modal.getByRole('button', { name: 'Submit' }).click();
 
       await expect(page.getByTestId('modal')).not.toBeVisible();
 
@@ -161,7 +164,7 @@ test.describe('TOO user', () => {
       requestedServiceItemCount = await getServiceItemsInTable(requestedServiceItemsTable).count();
 
       // Accept a previously rejected service item
-      await page.locator('[data-testid="RejectedServiceItemsTable"] button').click();
+      await rejectedServiceItemsTable.getByRole('button').first().click();
 
       await expect(page.getByText('Approved service items', { exact: false })).toBeVisible();
       await expect(getServiceItemsInTable(approvedServiceItemsTable)).toHaveCount(approvedServiceItemCount + 1);
@@ -171,13 +174,13 @@ test.describe('TOO user', () => {
       rejectedServiceItemCount = await getServiceItemsInTable(rejectedServiceItemsTable).count();
 
       // Reject a previously accepted service item
-      await approvedServiceItemsTable.locator('button').first().click();
+      await approvedServiceItemsTable.getByRole('button').first().click();
 
       await expect(page.getByTestId('modal')).toBeVisible();
       modal = page.getByTestId('modal');
-      await expect(modal.locator('button[type="submit"]')).toBeDisabled();
+      await expect(modal.getByRole('button', { name: 'Submit' })).toBeDisabled();
       await modal.getByTestId('textInput').type('changed my mind about this one');
-      await modal.locator('button[type="submit"]').click();
+      await modal.getByRole('button', { name: 'Submit' }).click();
 
       await expect(page.getByTestId('modal')).not.toBeVisible();
 
