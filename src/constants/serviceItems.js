@@ -17,6 +17,7 @@ const SERVICE_ITEM_PARAM_KEYS = {
   DistanceZipSITDest: 'DistanceZipSITDest',
   DistanceZipSITOrigin: 'DistanceZipSITOrigin',
   EIAFuelPrice: 'EIAFuelPrice',
+  FSCPriceDifferenceInCents: 'FSCPriceDifferenceInCents',
   EscalationCompounded: 'EscalationCompounded',
   FSCWeightBasedDistanceMultiplier: 'FSCWeightBasedDistanceMultiplier',
   IsPeak: 'IsPeak',
@@ -53,6 +54,7 @@ const SERVICE_ITEM_CALCULATION_LABELS = {
   [SERVICE_ITEM_PARAM_KEYS.ContractYearName]: 'Base year',
   [SERVICE_ITEM_PARAM_KEYS.DestinationPrice]: 'Destination price',
   [SERVICE_ITEM_PARAM_KEYS.EIAFuelPrice]: 'EIA diesel',
+  [SERVICE_ITEM_PARAM_KEYS.FSCPriceDifferenceInCents]: 'FRA',
   [SERVICE_ITEM_PARAM_KEYS.FSCWeightBasedDistanceMultiplier]: 'Weight-based distance multiplier',
   // Domestic non-peak or Domestic peak
   [SERVICE_ITEM_PARAM_KEYS.IsPeak]: 'Domestic',
@@ -103,6 +105,7 @@ const SERVICE_ITEM_CALCULATION_LABELS = {
   UnpackPrice: 'Unpack price',
   UncratingDate: 'Uncrating date',
   UncratingPrice: 'Uncrating price (per cu ft)',
+  SITFuelSurchargePrice: 'SIT fuel surcharge price (per mi)',
 };
 
 const SERVICE_ITEM_CODES = {
@@ -126,6 +129,8 @@ const SERVICE_ITEM_CODES = {
   DCRT: 'DCRT',
   DUCRT: 'DUCRT',
   MS: 'MS',
+  DOSFSC: 'DOSFSC',
+  DDSFSC: 'DDSFSC',
 };
 
 /**
@@ -166,6 +171,8 @@ const allowedServiceItemCalculations = [
   SERVICE_ITEM_CODES.DDSHUT,
   SERVICE_ITEM_CODES.DCRT,
   SERVICE_ITEM_CODES.DUCRT,
+  SERVICE_ITEM_CODES.DOSFSC,
+  SERVICE_ITEM_CODES.DDSFSC,
 ];
 
 export default SERVICE_ITEM_STATUSES;

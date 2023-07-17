@@ -341,6 +341,10 @@ const fuelSurchargePrice = (params) => {
     SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.EIAFuelPrice]
   }: ${formatDollarFromMillicents(getParamValue(SERVICE_ITEM_PARAM_KEYS.EIAFuelPrice, params))}`;
 
+  const fuelRateAdjustment = `${
+    SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.FSCPriceDifferenceInCents]
+  }: ${formatDollarFromMillicents(getParamValue(SERVICE_ITEM_PARAM_KEYS.FSCPriceDifferenceInCents))}`;
+
   const fscWeightBasedDistanceMultiplier = `${
     SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.FSCWeightBasedDistanceMultiplier]
   }: ${getParamValue(SERVICE_ITEM_PARAM_KEYS.FSCWeightBasedDistanceMultiplier, params)}`;
@@ -354,6 +358,7 @@ const fuelSurchargePrice = (params) => {
     value,
     label,
     formatDetail(eiaFuelPrice),
+    formatDetail(fuelRateAdjustment),
     formatDetail(fscWeightBasedDistanceMultiplier),
     formatDetail(actualPickupDate),
   );
@@ -544,7 +549,8 @@ const totalAmountRequested = (totalAmount) => {
 
 export default function makeCalculations(itemCode, totalAmount, params, mtoParams, shipmentType) {
   let result = [];
-
+  // eslint-disable-next-line no-console
+  console.log('params:', params);
   switch (itemCode) {
     case SERVICE_ITEM_CODES.DDDSIT: {
       const mileage = getParamValue(SERVICE_ITEM_PARAM_KEYS.DistanceZipSITDest, params);
@@ -582,6 +588,26 @@ export default function makeCalculations(itemCode, totalAmount, params, mtoParam
       break;
     // Fuel surcharge
     case SERVICE_ITEM_CODES.FSC:
+      result = [
+        billableWeight(params),
+        mileageZip(params),
+        fuelSurchargePrice(params),
+        totalAmountRequested(totalAmount),
+      ];
+      break;
+    // Domestic origin SIT fuel surcharge
+    case SERVICE_ITEM_CODES.DOSFSC:
+      // WIP
+      result = [
+        billableWeight(params),
+        fuelSurchargePrice(params),
+        mileageZip(params),
+        totalAmountRequested(totalAmount),
+      ];
+      break;
+    // Domestic destination SIT fuel surcharge
+    case SERVICE_ITEM_CODES.DDSFSC:
+      // WIP
       result = [
         billableWeight(params),
         mileageZip(params),
