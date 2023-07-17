@@ -184,11 +184,6 @@ func (suite *GHCRateEngineServiceSuite) TestPriceUsingParamsDomesticDestinationF
 		suite.validatePricerCreatedParams(expectedParams, displayParams)
 	})
 
-	suite.Run("sending PaymentServiceItemParams without expected param", func() {
-		_, _, err := DomesticDestinationFuelSurchargePricer.PriceUsingParams(suite.AppContextForTest(), models.PaymentServiceItemParams{})
-		suite.Error(err)
-	})
-
 	suite.Run("PriceUsingParams validation errors", func() {
 		testCases := map[string]struct {
 			missingPaymentServiceItem models.ServiceItemParamName
@@ -227,7 +222,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceUsingParamsDomesticDestinationF
 		}
 	})
 
-	suite.Run("not found error on shipment", func() {
+	suite.Run("not found error on PaymentServiceItem", func() {
 		paymentServiceItem := setupTestData()
 		paramsWithBadReference := paymentServiceItem.PaymentServiceItemParams
 		paramsWithBadReference[0].PaymentServiceItemID = uuid.Nil
