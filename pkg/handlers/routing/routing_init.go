@@ -189,7 +189,7 @@ func newBaseRouter(appCtx appcontext.AppContext, routingConfig *Config, telemetr
 	// called first).
 	router.Use(telemetry.NewOtelHTTPMiddleware(telemetryConfig, serverName))
 	router.Use(auth.SessionIDMiddleware(routingConfig.HandlerConfig.AppNames(), routingConfig.HandlerConfig.SessionManagers()))
-	router.Use(middleware.Trace(appCtx.Logger())) // injects trace id into the context
+	router.Use(middleware.Trace(telemetryConfig)) // injects trace id into the context
 	router.Use(middleware.ContextLogger("milmove_trace_id", appCtx.Logger()))
 	router.Use(middleware.Recovery(appCtx.Logger()))
 	router.Use(middleware.SecurityHeaders(appCtx.Logger()))
