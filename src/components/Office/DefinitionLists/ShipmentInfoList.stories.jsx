@@ -28,6 +28,9 @@ const info = {
     state: 'TX',
     postalCode: '78722',
   },
+  deliveryAddressUpdate: {
+    status: 'REQUESTED',
+  },
   secondaryDeliveryAddress: {
     streetAddress1: '17 8th St',
     city: 'Austin',
@@ -113,5 +116,23 @@ export const WithAllInfo = () => (
       counselorRemarks: text('counselorRemarks', info.counselorRemarks),
       customerRemarks: text('customerRemarks', info.customerRemarks),
     }}
+  />
+);
+
+export const WithDeliveryAddressUpdateRequested = () => (
+  <ShipmentInfoList
+    shipment={{
+      requestedPickupDate: text('requestedPickupDate', info.requestedPickupDate),
+      pickupAddress: object('pickupAddress', info.pickupAddress),
+      deliveryAddressUpdate: object('deliveryAddressUpdate', info.deliveryAddressUpdate),
+      destinationAddress: object('destinationAddress', info.destinationAddress),
+    }}
+    errorIfMissing={[
+      {
+        fieldName: 'destinationAddress',
+        condition: (shipment) => shipment.deliveryAddressUpdate?.status === 'REQUESTED',
+        optional: true,
+      },
+    ]}
   />
 );
