@@ -148,6 +148,7 @@ const mockDeliveryAddressUpdate = {
     status: 'REQUESTED',
   },
 };
+
 const defaultPropsRetirement = {
   ...defaultProps,
   displayDestinationType: true,
