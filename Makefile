@@ -65,8 +65,15 @@ help:  ## Print the help documentation
 # This target ensures that the pre-commit hook is installed and kept up to date
 # if pre-commit updates.
 .PHONY: ensure_pre_commit
-ensure_pre_commit: .git/hooks/pre-commit install_pre_commit ## Ensure pre-commit is installed
-.git/hooks/pre-commit: /usr/local/bin/pre-commit
+ensure_pre_commit: .git/hooks/pre-commit install_pre_commit ## Ensure pre-commit hooks are installed
+.git/hooks/pre-commit: .check_pre-commit_installed.stamp
+.check_pre-commit_installed.stamp:
+ifeq (, $(shell which pre-commit))
+	$(error pre-commit is not installed. Install with `brew install pre-commit`.)
+else
+	@echo "pre-commit is installed"
+	touch .check_pre-commit_installed.stamp
+endif
 
 .PHONY: install_pre_commit
 install_pre_commit:  ## Installs pre-commit hooks
