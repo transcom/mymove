@@ -886,7 +886,7 @@ func (h ReviewShipmentAddressUpdateHandler) Handle(params shipmentops.ReviewShip
 			remarks := params.Body.Remarks
 
 			response, err := h.ShipmentAddressUpdateRequester.ReviewShipmentAddressChange(appCtx, shipmentID, models.ShipmentAddressUpdateStatus(addressApprovalStatus), remarks)
-
+			fmt.Println(response)
 			handleError := func(err error) (middleware.Responder, error) {
 				appCtx.Logger().Error("ghcapi.ReviewShipmentAddressUpdateHandler", zap.Error(err))
 
@@ -914,6 +914,7 @@ func (h ReviewShipmentAddressUpdateHandler) Handle(params shipmentops.ReviewShip
 				return handleError(err)
 			}
 			payload := payloads.ShipmentAddressUpdate(response)
+			fmt.Println(payload)
 			return shipmentops.NewReviewShipmentAddressUpdateOK().WithPayload(payload), nil
 		})
 }
