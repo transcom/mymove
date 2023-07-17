@@ -102,7 +102,7 @@ func (f mtoShipmentAddressUpdater) UpdateMTOShipmentAddress(appCtx appcontext.Ap
 	}
 
 	if mtoShipment.ShipmentType == models.MTOShipmentTypeHHG && mtoShipment.DestinationAddressID != nil && *mtoShipment.DestinationAddressID == newAddress.ID {
-		return nil, apperror.NewConflictError(newAddress.ID, ": This endpoint cannot be used to update HHG shipment destination addresses")
+		return nil, apperror.NewConflictError(newAddress.ID, ": This endpoint cannot be used to update HHG shipment destination addresses. Use '/mto-shipments/{mtoShipmentID}/shipment-address-updates' instead")
 	}
 
 	// Make the update and create a InvalidInput Error if there were validation issues
