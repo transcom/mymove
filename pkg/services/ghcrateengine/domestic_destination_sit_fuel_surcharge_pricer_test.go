@@ -168,18 +168,6 @@ func (suite *GHCRateEngineServiceSuite) TestPriceUsingParamsDomesticDestinationF
 			}, nil, nil,
 		)
 
-		//var mtoServiceItem models.MTOServiceItem
-		//err := suite.DB().Eager("MTOShipment").Find(&mtoServiceItem, paymentServiceItem.MTOServiceItemID)
-		//suite.NoError(err)
-		//
-		//distance := fscTestDistance
-		//mtoServiceItem.MTOShipment.Distance = &distance
-		//err = suite.DB().Save(&mtoServiceItem.MTOShipment)
-		//suite.NoError(err)
-
-		// the testdatagen factory has some dirty shipment data that we don't want to pass through to the pricer in the test
-		paymentServiceItem.PaymentServiceItemParams[0].PaymentServiceItem.MTOServiceItem = models.MTOServiceItem{}
-
 		return paymentServiceItem
 	}
 
@@ -239,17 +227,12 @@ func (suite *GHCRateEngineServiceSuite) TestPriceUsingParamsDomesticDestinationF
 		}
 	})
 
-	suite.Run("can't get distance from shipment - not found error on shipment", func() {
+	suite.Run("not found error on shipment", func() {
 		paymentServiceItem := setupTestData()
-		//paramsWithBelowMinimumWeight := paymentServiceItem.PaymentServiceItemParams
-		//weightBilledIndex := 2
-		//if paramsWithBelowMinimumWeight[weightBilledIndex].ServiceItemParamKey.Key != models.ServiceItemParamNameWeightBilled {
-		//	suite.FailNow("failed", "Test needs to adjust the weight of %s but the index is pointing to %s ", models.ServiceItemParamNameWeightBilled, paramsWithBelowMinimumWeight[4].ServiceItemParamKey.Key)
-		//}
-		//paramsWithBelowMinimumWeight[weightBilledIndex].Value = "200"
-
 		paramsWithBadReference := paymentServiceItem.PaymentServiceItemParams
 		paramsWithBadReference[0].PaymentServiceItemID = uuid.Nil
+		// Pricer only searches for the shipment when the ID is nil
+		paramsWithBadReference[0].PaymentServiceItem.MTOServiceItem.MTOShipment.ID = uuid.Nil
 		_, _, err := DomesticDestinationFuelSurchargePricer.PriceUsingParams(suite.AppContextForTest(), paramsWithBadReference)
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
@@ -291,18 +274,6 @@ func (suite *GHCRateEngineServiceSuite) TestPriceUsingParamsDDSFSCBelowMinimumWe
 				},
 			}, nil, nil,
 		)
-
-		//var mtoServiceItem models.MTOServiceItem
-		//err := suite.DB().Eager("MTOShipment").Find(&mtoServiceItem, paymentServiceItem.MTOServiceItemID)
-		//suite.NoError(err)
-		//
-		//distance := fscTestDistance
-		//mtoServiceItem.MTOShipment.Distance = &distance
-		//err = suite.DB().Save(&mtoServiceItem.MTOShipment)
-		//suite.NoError(err)
-
-		// the testdatagen factory has some dirty shipment data that we don't want to pass through to the pricer in the test
-		paymentServiceItem.PaymentServiceItemParams[0].PaymentServiceItem.MTOServiceItem = models.MTOServiceItem{}
 
 		return paymentServiceItem
 	}
