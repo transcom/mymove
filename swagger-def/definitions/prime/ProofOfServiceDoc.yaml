@@ -1,0 +1,6 @@
+type: object
+properties:
+  uploads:
+    type: array
+    items:
+      $ref: '../UploadWithOmissions.yaml'

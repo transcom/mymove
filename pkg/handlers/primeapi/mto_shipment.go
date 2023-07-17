@@ -10,6 +10,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/db/utilities"
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
@@ -172,13 +173,20 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 			dbShipment, err := mtoshipment.FindShipment(appCtx, mtoShipment.ID, "DestinationAddress",
 				"SecondaryPickupAddress",
 				"SecondaryDeliveryAddress",
-				"MTOAgents",
 				"StorageFacility",
 				"PPMShipment")
 			if err != nil {
 				return mtoshipmentops.NewUpdateMTOShipmentNotFound().WithPayload(
 					payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
 			}
+
+			var agents []models.MTOAgent
+			err = appCtx.DB().Scope(utilities.ExcludeDeletedScope()).Where("mto_shipment_id = ?", mtoShipment.ID).All(&agents)
+			if err != nil {
+				return mtoshipmentops.NewUpdateMTOShipmentInternalServerError().WithPayload(
+					payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
+			}
+			dbShipment.MTOAgents = agents
 
 			// Validate further prime restrictions on model
 			mtoShipment.ShipmentType = dbShipment.ShipmentType

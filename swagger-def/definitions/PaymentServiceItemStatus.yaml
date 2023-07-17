@@ -1,0 +1,9 @@
+type: string
+enum:
+  - REQUESTED
+  - APPROVED
+  - DENIED
+  - SENT_TO_GEX
+  - PAID
+  - EDI_ERROR
+title: Payment Service Item Status

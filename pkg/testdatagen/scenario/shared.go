@@ -4097,6 +4097,7 @@ func createHHGWithOriginSITServiceItems(
 	var originFirstDaySIT models.MTOServiceItem
 	var originAdditionalDaySIT models.MTOServiceItem
 	var originPickupSIT models.MTOServiceItem
+	var originSITFSC models.MTOServiceItem
 	for _, createdServiceItem := range *createdOriginServiceItems {
 		switch createdServiceItem.ReService.Code {
 		case models.ReServiceCodeDOFSIT:
@@ -4105,10 +4106,12 @@ func createHHGWithOriginSITServiceItems(
 			originAdditionalDaySIT = createdServiceItem
 		case models.ReServiceCodeDOPSIT:
 			originPickupSIT = createdServiceItem
+		case models.ReServiceCodeDOSFSC:
+			originSITFSC = createdServiceItem
 		}
 	}
 
-	for _, createdServiceItem := range []models.MTOServiceItem{originFirstDaySIT, originAdditionalDaySIT, originPickupSIT} {
+	for _, createdServiceItem := range []models.MTOServiceItem{originFirstDaySIT, originAdditionalDaySIT, originPickupSIT, originSITFSC} {
 		_, updateErr := serviceItemUpdator.ApproveOrRejectServiceItem(appCtx, createdServiceItem.ID, models.MTOServiceItemStatusApproved, nil, etag.GenerateEtag(createdServiceItem.UpdatedAt))
 		if updateErr != nil {
 			logger.Fatal("Error approving SIT service item", zap.Error(updateErr))
@@ -4151,8 +4154,9 @@ func createHHGWithOriginSITServiceItems(
 		if serviceItem.ReService.Code == models.ReServiceCodeDOASIT {
 			paymentItem.PaymentServiceItemParams = doasitPaymentParams
 		}
-
-		paymentServiceItems = append(paymentServiceItems, paymentItem)
+		if serviceItem.ReService.Code != models.ReServiceCodeDOSFSC && serviceItem.ReService.Code != models.ReServiceCodeDDSFSC {
+			paymentServiceItems = append(paymentServiceItems, paymentItem)
+		}
 	}
 
 	paymentRequest.PaymentServiceItems = paymentServiceItems
@@ -4343,6 +4347,7 @@ func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, prime
 	var destinationFirstDaySIT models.MTOServiceItem
 	var destinationAdditionalDaySIT models.MTOServiceItem
 	var destinationDeliverySIT models.MTOServiceItem
+	var destinationSITFSC models.MTOServiceItem
 	for _, createdServiceItem := range *createdOriginServiceItems {
 		switch createdServiceItem.ReService.Code {
 		case models.ReServiceCodeDDFSIT:
@@ -4351,10 +4356,12 @@ func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, prime
 			destinationAdditionalDaySIT = createdServiceItem
 		case models.ReServiceCodeDDDSIT:
 			destinationDeliverySIT = createdServiceItem
+		case models.ReServiceCodeDDSFSC:
+			destinationSITFSC = createdServiceItem
 		}
 	}
 
-	for _, createdServiceItem := range []models.MTOServiceItem{destinationFirstDaySIT, destinationAdditionalDaySIT, destinationDeliverySIT} {
+	for _, createdServiceItem := range []models.MTOServiceItem{destinationFirstDaySIT, destinationAdditionalDaySIT, destinationDeliverySIT, destinationSITFSC} {
 		_, updateErr := serviceItemUpdator.ApproveOrRejectServiceItem(appCtx, createdServiceItem.ID, models.MTOServiceItemStatusApproved, nil, etag.GenerateEtag(createdServiceItem.UpdatedAt))
 		if updateErr != nil {
 			logger.Fatal("Error approving SIT service item", zap.Error(updateErr))
@@ -4398,8 +4405,9 @@ func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, prime
 		if serviceItem.ReService.Code == models.ReServiceCodeDDASIT {
 			paymentItem.PaymentServiceItemParams = ddasitPaymentParams
 		}
-
-		paymentServiceItems = append(paymentServiceItems, paymentItem)
+		if serviceItem.ReService.Code != models.ReServiceCodeDOSFSC && serviceItem.ReService.Code != models.ReServiceCodeDDSFSC {
+			paymentServiceItems = append(paymentServiceItems, paymentItem)
+		}
 	}
 
 	paymentRequest.PaymentServiceItems = paymentServiceItems
@@ -4803,6 +4811,7 @@ func createHHGWithPaymentServiceItems(
 	var originFirstDaySIT models.MTOServiceItem
 	var originAdditionalDaySIT models.MTOServiceItem
 	var originPickupSIT models.MTOServiceItem
+	var originSITFSC models.MTOServiceItem
 	for _, createdServiceItem := range *createdOriginServiceItems {
 		switch createdServiceItem.ReService.Code {
 		case models.ReServiceCodeDOFSIT:
@@ -4811,6 +4820,8 @@ func createHHGWithPaymentServiceItems(
 			originAdditionalDaySIT = createdServiceItem
 		case models.ReServiceCodeDOPSIT:
 			originPickupSIT = createdServiceItem
+		case models.ReServiceCodeDOSFSC:
+			originSITFSC = createdServiceItem
 		}
 	}
 
@@ -4825,7 +4836,7 @@ func createHHGWithPaymentServiceItems(
 
 	originPickupSIT = *updatedDOPSIT
 
-	for _, createdServiceItem := range []models.MTOServiceItem{originFirstDaySIT, originAdditionalDaySIT, originPickupSIT} {
+	for _, createdServiceItem := range []models.MTOServiceItem{originFirstDaySIT, originAdditionalDaySIT, originPickupSIT, originSITFSC} {
 		_, updateErr := serviceItemUpdater.ApproveOrRejectServiceItem(appCtx, createdServiceItem.ID, models.MTOServiceItemStatusApproved, nil, etag.GenerateEtag(createdServiceItem.UpdatedAt))
 		if updateErr != nil {
 			logger.Fatal("Error approving SIT service item", zap.Error(updateErr))
@@ -4835,6 +4846,7 @@ func createHHGWithPaymentServiceItems(
 	var serviceItemDDFSIT models.MTOServiceItem
 	var serviceItemDDASIT models.MTOServiceItem
 	var serviceItemDDDSIT models.MTOServiceItem
+	var serviceItemDDSFSC models.MTOServiceItem
 	for _, createdDestServiceItem := range *createdDestServiceItems {
 		switch createdDestServiceItem.ReService.Code {
 		case models.ReServiceCodeDDFSIT:
@@ -4843,6 +4855,8 @@ func createHHGWithPaymentServiceItems(
 			serviceItemDDASIT = createdDestServiceItem
 		case models.ReServiceCodeDDDSIT:
 			serviceItemDDDSIT = createdDestServiceItem
+		case models.ReServiceCodeDDSFSC:
+			serviceItemDDSFSC = createdDestServiceItem
 		}
 	}
 
@@ -4857,7 +4871,7 @@ func createHHGWithPaymentServiceItems(
 
 	serviceItemDDDSIT = *updatedDDDSIT
 
-	for _, createdServiceItem := range []models.MTOServiceItem{serviceItemDDASIT, serviceItemDDDSIT, serviceItemDDFSIT} {
+	for _, createdServiceItem := range []models.MTOServiceItem{serviceItemDDASIT, serviceItemDDDSIT, serviceItemDDFSIT, serviceItemDDSFSC} {
 		_, updateErr := serviceItemUpdater.ApproveOrRejectServiceItem(appCtx, createdServiceItem.ID, models.MTOServiceItemStatusApproved, nil, etag.GenerateEtag(createdServiceItem.UpdatedAt))
 		if updateErr != nil {
 			logger.Fatal("Error approving SIT service item", zap.Error(updateErr))
@@ -5049,7 +5063,9 @@ func createHHGWithPaymentServiceItems(
 		} else if serviceItem.ReService.Code == models.ReServiceCodeDDASIT {
 			paymentItem.PaymentServiceItemParams = ddasitPaymentParams
 		}
-		paymentServiceItems = append(paymentServiceItems, paymentItem)
+		if serviceItem.ReService.Code != models.ReServiceCodeDOSFSC && serviceItem.ReService.Code != models.ReServiceCodeDDSFSC {
+			paymentServiceItems = append(paymentServiceItems, paymentItem)
+		}
 	}
 
 	logger.Debug(serviceItemOrderString)
@@ -5700,7 +5716,7 @@ func createHHGMoveWith10ServiceItems(appCtx appcontext.AppContext, userUploader 
 	dateOfContact := models.TimePointer(time.Now())
 	customerContact1 := testdatagen.MakeMTOServiceItemCustomerContact(db, testdatagen.Assertions{
 		MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
-			ID:                         uuid.FromStringOrNil("f0f38ee0-0148-4892-9b5b-a091a8c5a645"),
+			ID:                         uuid.FromStringOrNil("8f048005-f090-45e9-936b-7fd22801f4ee"),
 			Type:                       models.CustomerContactTypeFirst,
 			DateOfContact:              dateOfContact.Add(time.Hour * 24),
 			TimeMilitary:               "0400Z",
@@ -5710,7 +5726,7 @@ func createHHGMoveWith10ServiceItems(appCtx appcontext.AppContext, userUploader 
 
 	customerContact2 := testdatagen.MakeMTOServiceItemCustomerContact(db, testdatagen.Assertions{
 		MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
-			ID:                         uuid.FromStringOrNil("1398aea3-d09b-485d-81c7-3bb72c21fb38"),
+			ID:                         uuid.FromStringOrNil("32cfbc8a-2222-4014-b203-fbe059b6cb8d"),
 			Type:                       models.CustomerContactTypeSecond,
 			DateOfContact:              dateOfContact.Add(time.Hour * 48),
 			TimeMilitary:               "1200Z",

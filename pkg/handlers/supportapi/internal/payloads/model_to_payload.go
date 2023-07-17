@@ -291,7 +291,7 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) supportmessages.MTOSe
 	var payload supportmessages.MTOServiceItem
 	// Here we determine which payload model to use based on the re service code
 	switch mtoServiceItem.ReService.Code {
-	case models.ReServiceCodeDOFSIT, models.ReServiceCodeDOASIT, models.ReServiceCodeDOPSIT:
+	case models.ReServiceCodeDOFSIT, models.ReServiceCodeDOASIT, models.ReServiceCodeDOPSIT, models.ReServiceCodeDOSFSC:
 		var sitDepartureDate time.Time
 		if mtoServiceItem.SITDepartureDate != nil {
 			sitDepartureDate = *mtoServiceItem.SITDepartureDate
@@ -303,7 +303,7 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) supportmessages.MTOSe
 			SitEntryDate:     handlers.FmtDatePtr(mtoServiceItem.SITEntryDate),
 			SitPostalCode:    mtoServiceItem.SITPostalCode,
 		}
-	case models.ReServiceCodeDDFSIT, models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT:
+	case models.ReServiceCodeDDFSIT, models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT, models.ReServiceCodeDDSFSC:
 		var sitDepartureDate time.Time
 		if mtoServiceItem.SITDepartureDate != nil {
 			sitDepartureDate = *mtoServiceItem.SITDepartureDate
