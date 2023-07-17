@@ -1,0 +1,23 @@
+type: object
+properties:
+  id:
+    example: c56a4180-65aa-42ec-a945-5fd21dec0538
+    format: uuid
+    readOnly: true
+    type: string
+  paymentServiceItemID:
+    example: c56a4180-65aa-42ec-a945-5fd21dec0538
+    format: uuid
+    type: string
+  key:
+    $ref: 'ServiceItemParamName.yaml'
+  value:
+    example: '3025'
+    type: string
+  type:
+    $ref: 'ServiceItemParamType.yaml'
+  origin:
+    $ref: 'ServiceItemParamOrigin.yaml'
+  eTag:
+    type: string
+    readOnly: true

@@ -4314,44 +4314,8 @@ definitions:
       eTag:
         type: string
     type: object
-  PaymentServiceItemStatus:
-    enum:
-      - REQUESTED
-      - APPROVED
-      - DENIED
-      - SENT_TO_GEX
-      - PAID
-      - EDI_ERROR
-    title: Payment Service Item Status
-    type: string
-  PaymentServiceItemParam:
-    properties:
-      id:
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        format: uuid
-        readOnly: true
-        type: string
-      paymentServiceItemID:
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        format: uuid
-        type: string
-      key:
-        $ref: '#/definitions/ServiceItemParamName'
-      value:
-        example: 3025
-        type: string
-      type:
-        $ref: '#/definitions/ServiceItemParamType'
-      origin:
-        $ref: '#/definitions/ServiceItemParamOrigin'
-      eTag:
-        type: string
-    type: object
-  PaymentServiceItemParams:
-    type: array
-    items:
-      $ref: '#/definitions/PaymentServiceItemParam'
   PaymentRequestStatus:
+    type: string
     enum:
       - PENDING
       - REVIEWED
@@ -4362,7 +4326,6 @@ definitions:
       - EDI_ERROR
       - DEPRECATED
     title: Payment Request Status
-    type: string
   ProofOfServiceDocs:
     items:
       $ref: '#/definitions/ProofOfServiceDoc'
@@ -7037,6 +7000,61 @@ definitions:
       - destinationPostalCode
       - sitExpected
       - eTag
+  ShipmentAddressUpdateStatus:
+    type: string
+    title: Status
+    readOnly: true
+    x-display-value:
+      REQUESTED: REQUESTED
+      REJECTED: REJECTED
+      APPROVED: APPROVED
+    enum:
+      - REQUESTED
+      - REJECTED
+      - APPROVED
+  ShipmentAddressUpdate:
+    description: >
+      This represents a destination address change request made by the Prime
+      that is either auto-approved or requires review if the pricing criteria
+      has changed. If criteria has changed, then it must be approved or rejected
+      by a TOO.
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      contractorRemarks:
+        type: string
+        example: This is a contractor remark
+        title: Contractor Remarks
+        description: The reason there is an address change.
+        readOnly: true
+      officeRemarks:
+        type: string
+        example: This is an office remark
+        title: Office Remarks
+        x-nullable: true
+        description: The TOO comment on approval or rejection.
+      status:
+        $ref: '#/definitions/ShipmentAddressUpdateStatus'
+      shipmentID:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      originalAddress:
+        $ref: '#/definitions/Address'
+      newAddress:
+        $ref: '#/definitions/Address'
+    required:
+      - id
+      - status
+      - shipmentID
+      - originalAddress
+      - newAddress
+      - contractorRemarks
   MTOShipment:
     properties:
       moveTaskOrderID:
@@ -7211,6 +7229,8 @@ definitions:
         $ref: '#/definitions/StorageFacility'
       ppmShipment:
         $ref: '#/definitions/PPMShipment'
+      deliveryAddressUpdate:
+        $ref: '#/definitions/ShipmentAddressUpdate'
   LOATypeNullable:
     description: The Line of accounting (TAC/SAC) type that will be used for the shipment
     type: string
@@ -7259,6 +7279,16 @@ definitions:
       APPROVED: Approved
       EXCLUDED: Excluded
       REJECTED: Rejected
+  PaymentServiceItemStatus:
+    type: string
+    enum:
+      - REQUESTED
+      - APPROVED
+      - DENIED
+      - SENT_TO_GEX
+      - PAID
+      - EDI_ERROR
+    title: Payment Service Item Status
   ServiceItemParamName:
     type: string
     enum:
@@ -7344,6 +7374,34 @@ definitions:
       - SYSTEM
       - PRICER
       - PAYMENT_REQUEST
+  PaymentServiceItemParam:
+    type: object
+    properties:
+      id:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        readOnly: true
+        type: string
+      paymentServiceItemID:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+      key:
+        $ref: '#/definitions/ServiceItemParamName'
+      value:
+        example: '3025'
+        type: string
+      type:
+        $ref: '#/definitions/ServiceItemParamType'
+      origin:
+        $ref: '#/definitions/ServiceItemParamOrigin'
+      eTag:
+        type: string
+        readOnly: true
+  PaymentServiceItemParams:
+    type: array
+    items:
+      $ref: '#/definitions/PaymentServiceItemParam'
   CustomerSupportRemark:
     type: object
     description: >-
