@@ -67,7 +67,7 @@ help:  ## Print the help documentation
 .PHONY: ensure_pre_commit
 ensure_pre_commit: .git/hooks/pre-commit install_pre_commit ## Ensure pre-commit hooks are installed
 .git/hooks/pre-commit: .check_pre-commit_installed.stamp
-.check_pre-commit_installed.stamp:
+.check_pre-commit_installed.stamp: ## Ensure pre-commit is installed
 ifeq (, $(shell which pre-commit))
 	$(error pre-commit is not installed. Install with `brew install pre-commit`.)
 else
