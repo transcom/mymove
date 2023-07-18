@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"crypto/tls"
+	"crypto/x509"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
@@ -379,7 +380,7 @@ func initializeDB(v *viper.Viper, logger *zap.Logger,
 }
 
 func initializeTLSConfig(appCtx appcontext.AppContext, v *viper.Viper) *tls.Config {
-	certificates, rootCAs, err := certs.InitDoDCertificates(v, appCtx.Logger())
+	certificates, rootCAs, err := certs.InitDoDCertificates(v, appCtx.Logger()) //initialize DOD config
 	if certificates == nil || rootCAs == nil || err != nil {
 		appCtx.Logger().Fatal("Failed to initialize DOD certificates", zap.Error(err))
 	}
@@ -408,6 +409,29 @@ func initializeTLSConfig(appCtx appcontext.AppContext, v *viper.Viper) *tls.Conf
 	appCtx.Logger().Info("Trusted CAs", zap.Any("num", len(subjects)), zap.Any("subjects", subjects))
 
 	return &tls.Config{Certificates: certificates, RootCAs: rootCAs, MinVersion: tls.VersionTLS12}
+}
+
+// HTTP client
+// Hard failure - failure to check revocation list status due to network or other failures.
+Fail := false
+func certRevokedCheck(appCtx appcontext.AppContext, cert *x509.Certificate) (revoked, ok bool, err error) {
+	if revoked, ok, err := certRevokedOCSP(cert, Fail); !ok {
+		//log.Warning("error checking revocation via OCSP")
+		appCtx.Logger().Info("error checking revocation via OCSP")
+		if Fail {
+			return true, false, err
+		}
+		return false, false, err
+	} else if revoked {
+		appCtx.Logger().Info("certificate is revoked via OCSP")
+		return true, true, err
+	}
+
+	return false, true, nil
+}
+
+func certRevokedOCSP(cert *x509.Certificate, strict bool) (revoked, ok bool, err error) {
+	return revoked, ok, err
 }
 
 func initializeRouteOptions(v *viper.Viper, routingConfig *routing.Config) {
