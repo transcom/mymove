@@ -567,7 +567,8 @@ func MTOServiceItemModelFromUpdate(mtoServiceItemID string, mtoServiceItem prime
 
 		if sit.ReServiceCode == string(models.ReServiceCodeDDDSIT) ||
 			sit.ReServiceCode == string(models.ReServiceCodeDDASIT) ||
-			sit.ReServiceCode == string(models.ReServiceCodeDDFSIT) {
+			sit.ReServiceCode == string(models.ReServiceCodeDDFSIT) ||
+			sit.ReServiceCode == string(models.ReServiceCodeDDSFSC) {
 			destSitVerrs := validateDestSITForUpdate(*sit)
 
 			if destSitVerrs.HasAny() {

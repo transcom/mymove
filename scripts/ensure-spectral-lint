@@ -69,7 +69,7 @@ for fn in files:
     # set a really high number that will come down
     unknown_baseline_count = 1024
     baseline_counts = {}
-    if not os.path.exists(baseline_dir):
+    if not os.path.exists(baseline_file):
         print(f"\nBaseline file for '{fn}' does not exist, assuming {unknown_baseline_count}")
     else:
         baseline_counts = total_linting_counts(baseline_file)

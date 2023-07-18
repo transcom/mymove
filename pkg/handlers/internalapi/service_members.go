@@ -193,6 +193,7 @@ func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMem
 			var verrs *validate.Errors
 
 			serviceMember, err = models.FetchServiceMemberForUser(appCtx.DB(), appCtx.Session(), serviceMemberID)
+
 			if err != nil {
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
