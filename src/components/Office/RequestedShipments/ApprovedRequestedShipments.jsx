@@ -8,7 +8,7 @@ import styles from './RequestedShipments.module.scss';
 import { SERVICE_ITEM_CODES } from 'constants/serviceItems';
 import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
 import { tooRoutes } from 'constants/routes';
-import { shipmentDestinationTypes } from 'constants/shipments';
+import { ADDRESS_UPDATE_STATUS, shipmentDestinationTypes } from 'constants/shipments';
 import { shipmentTypeLabels } from 'content/shipments';
 import shipmentCardsStyles from 'styles/shipmentCards.module.scss';
 import { MTOServiceItemShape, OrdersInfoShape } from 'types/order';
@@ -31,7 +31,7 @@ const showWhenCollapsedWithGHCPrime = {
 const errorIfMissing = [
   {
     fieldName: 'destinationAddress',
-    condition: (shipment) => shipment.deliveryAddressUpdate?.status === 'REQUESTED',
+    condition: (shipment) => shipment.deliveryAddressUpdate?.status === ADDRESS_UPDATE_STATUS.REQUESTED,
     optional: true,
   },
 ];

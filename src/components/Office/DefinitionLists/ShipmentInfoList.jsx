@@ -15,6 +15,7 @@ import {
   getMissingOrDash,
   fieldValidationShape,
 } from 'utils/displayFlags';
+import { ADDRESS_UPDATE_STATUS } from 'constants/shipments';
 
 const ShipmentInfoList = ({
   className,
@@ -191,7 +192,7 @@ const ShipmentInfoList = ({
     <div className={destinationAddressElementFlags.classes}>
       <dt>Destination address</dt>
       <dd data-testid="destinationAddress">
-        {deliveryAddressUpdate?.status === 'REQUESTED'
+        {deliveryAddressUpdate?.status === ADDRESS_UPDATE_STATUS.REQUESTED
           ? 'Review required'
           : (destinationAddress && formatAddress(destinationAddress)) || '-'}
       </dd>

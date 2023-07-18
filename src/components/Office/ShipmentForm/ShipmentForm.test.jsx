@@ -323,7 +323,7 @@ describe('ShipmentForm component', () => {
           isCreatePage={false}
           shipmentType={SHIPMENT_OPTIONS.HHG}
           mtoShipment={mockMtoShipment}
-          displayDestinationType
+          displayDestinationType={false}
         />,
       );
 
@@ -353,6 +353,11 @@ describe('ShipmentForm component', () => {
       expect(screen.getByText('Customer remarks')).toBeTruthy();
       expect(screen.getByText('mock customer remarks')).toBeTruthy();
       expect(screen.getByLabelText('Counselor remarks')).toHaveValue('mock counselor remarks');
+
+      const noDestinationTypeRadioButton = await screen.getAllByLabelText('No')[1];
+      await userEvent.click(noDestinationTypeRadioButton);
+      expect(screen.getByText('We can use the zip of their new duty location:')).toBeTruthy();
+      expect(screen.queryByLabelText('Destination type')).toBeNull();
     });
   });
 
@@ -395,6 +400,11 @@ describe('ShipmentForm component', () => {
       expect(screen.getByLabelText('Counselor remarks')).toHaveValue('mock counselor remarks');
       expect(screen.getByLabelText('Destination type')).toHaveValue('PLACE_ENTERED_ACTIVE_DUTY');
       expect(screen.queryByTestId('alert')).not.toBeInTheDocument();
+
+      const noDestinationTypeRadioButton = await screen.getAllByLabelText('No')[1];
+      await userEvent.click(noDestinationTypeRadioButton);
+      expect(screen.getByText('We can use the zip of their HOR, HOS or PLEAD:')).toBeTruthy();
+      expect(screen.getByLabelText('Destination type')).toBeVisible();
     });
 
     it('displays appropriate alerting when an address change is requested', async () => {

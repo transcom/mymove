@@ -3,6 +3,8 @@ import { render, screen, within } from '@testing-library/react';
 
 import ShipmentInfoList from './ShipmentInfoList';
 
+import { ADDRESS_UPDATE_STATUS } from 'constants/shipments';
+
 const info = {
   requestedPickupDate: '2020-03-26',
   pickupAddress: {
@@ -166,12 +168,12 @@ describe('Shipment Info List', () => {
           requestedPickupDate: info.requestedPickupDate,
           pickupAddress: info.pickupAddress,
           destinationAddress: info.destinationAddress,
-          deliveryAddressUpdate: { status: 'REQUESTED' },
+          deliveryAddressUpdate: { status: ADDRESS_UPDATE_STATUS.REQUESTED },
         }}
         errorIfMissing={[
           {
             fieldName: 'destinationAddress',
-            condition: (shipment) => shipment.deliveryAddressUpdate?.status === 'REQUESTED',
+            condition: (shipment) => shipment.deliveryAddressUpdate?.status === ADDRESS_UPDATE_STATUS.REQUESTED,
             optional: true,
           },
         ]}

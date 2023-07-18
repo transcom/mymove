@@ -696,15 +696,25 @@ const ShipmentForm = (props) => {
                             )}
                           />
                         ) : (
-                          <p>
-                            We can use the zip of their{' '}
-                            {displayDestinationType ? 'HOR, HOS or PLEAD:' : 'new duty location:'}
-                            <br />
-                            <strong>
-                              {newDutyLocationAddress.city}, {newDutyLocationAddress.state}{' '}
-                              {newDutyLocationAddress.postalCode}{' '}
-                            </strong>
-                          </p>
+                          <div>
+                            <p>
+                              We can use the zip of their{' '}
+                              {displayDestinationType ? 'HOR, HOS or PLEAD:' : 'new duty location:'}
+                              <br />
+                              <strong>
+                                {newDutyLocationAddress.city}, {newDutyLocationAddress.state}{' '}
+                                {newDutyLocationAddress.postalCode}{' '}
+                              </strong>
+                            </p>
+                            {displayDestinationType && (
+                              <DropdownInput
+                                label="Destination type"
+                                name="destinationType"
+                                options={shipmentDestinationAddressOptions}
+                                id="destinationType"
+                              />
+                            )}
+                          </div>
                         )}
                       </Fieldset>
                     )}
