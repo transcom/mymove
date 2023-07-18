@@ -1131,7 +1131,6 @@ paths:
               status:
                 type: string
                 enum:
-                  - REQUESTED
                   - REJECTED
                   - APPROVED
               officeRemarks:

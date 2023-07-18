@@ -4157,7 +4157,6 @@ func init() {
                 "status": {
                   "type": "string",
                   "enum": [
-                    "REQUESTED",
                     "REJECTED",
                     "APPROVED"
                   ]
@@ -15200,7 +15199,6 @@ func init() {
                 "status": {
                   "type": "string",
                   "enum": [
-                    "REQUESTED",
                     "REJECTED",
                     "APPROVED"
                   ]

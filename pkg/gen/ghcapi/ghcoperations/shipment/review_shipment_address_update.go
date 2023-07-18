@@ -74,7 +74,7 @@ type ReviewShipmentAddressUpdateBody struct {
 
 	// status
 	// Required: true
-	// Enum: [REQUESTED REJECTED APPROVED]
+	// Enum: [REJECTED APPROVED]
 	Status *string `json:"status"`
 }
 
@@ -109,7 +109,7 @@ var reviewShipmentAddressUpdateBodyTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["REQUESTED","REJECTED","APPROVED"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["REJECTED","APPROVED"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -118,9 +118,6 @@ func init() {
 }
 
 const (
-
-	// ReviewShipmentAddressUpdateBodyStatusREQUESTED captures enum value "REQUESTED"
-	ReviewShipmentAddressUpdateBodyStatusREQUESTED string = "REQUESTED"
 
 	// ReviewShipmentAddressUpdateBodyStatusREJECTED captures enum value "REJECTED"
 	ReviewShipmentAddressUpdateBodyStatusREJECTED string = "REJECTED"
