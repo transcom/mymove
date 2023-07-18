@@ -158,4 +158,122 @@ func (suite *PaymentRequestServiceSuite) TestValidationRules() {
 
 	})
 
+	suite.Run("checkStatusOfExistingPaymentRequest", func() {
+
+		suite.Run("success", func() {
+
+			move := factory.BuildMove(suite.DB(), nil, []factory.Trait{factory.GetTraitAvailableToPrimeMove})
+			testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
+				ReContractYear: models.ReContractYear{
+					EndDate: time.Now().Add(time.Hour * 24),
+				},
+			})
+			estimatedWeight := unit.Pound(2048)
+			serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+				{
+					Model:    move,
+					LinkOnly: true,
+				},
+				{
+					Model: models.ReService{
+						Code: models.ReServiceCodeDLH,
+					},
+				},
+				{
+					Model: models.MTOShipment{
+						PrimeEstimatedWeight: &estimatedWeight,
+					},
+				},
+				{
+					Model: models.MTOServiceItem{Status: models.MTOServiceItemStatusApproved},
+				},
+			}, nil)
+
+			paymentRequest := models.PaymentRequest{
+				MoveTaskOrderID: move.ID,
+				IsFinal:         false,
+				ReviewedAt:      nil,
+				PaymentServiceItems: models.PaymentServiceItems{
+					{
+						MTOServiceItemID: serviceItem.ID,
+						MTOServiceItem:   serviceItem,
+						PaymentServiceItemParams: models.PaymentServiceItemParams{
+							{
+								IncomingKey: models.ServiceItemParamNameWeightEstimated.String(),
+								Value:       "3254",
+							},
+							{
+								IncomingKey: models.ServiceItemParamNameRequestedPickupDate.String(),
+								Value:       "2022-03-16",
+							},
+						},
+					},
+				},
+			}
+
+			err := checkStatusOfExistingPaymentRequest().Validate(suite.AppContextForTest(), paymentRequest, nil)
+			suite.NoError(err)
+		})
+
+		suite.Run("failure", func() {
+
+			move := factory.BuildMove(suite.DB(), nil, []factory.Trait{factory.GetTraitAvailableToPrimeMove})
+
+			testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
+				ReContractYear: models.ReContractYear{
+					EndDate: time.Now().Add(time.Hour * 24),
+				},
+			})
+			estimatedWeight := unit.Pound(2048)
+			serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+				{
+					Model:    move,
+					LinkOnly: true,
+				},
+				{
+					Model: models.ReService{
+						Code: models.ReServiceCodeDLH,
+					},
+				},
+				{
+					Model: models.MTOShipment{
+						PrimeEstimatedWeight: &estimatedWeight,
+					},
+				},
+				{
+					Model: models.MTOServiceItem{Status: models.MTOServiceItemStatusApproved},
+				},
+			}, nil)
+
+			paymentRequest := models.PaymentRequest{
+				MoveTaskOrderID: move.ID,
+				IsFinal:         false,
+				PaymentServiceItems: models.PaymentServiceItems{
+					{
+						MTOServiceItemID: serviceItem.ID,
+						MTOServiceItem:   serviceItem,
+						PaymentServiceItemParams: models.PaymentServiceItemParams{
+							{
+								IncomingKey: models.ServiceItemParamNameWeightEstimated.String(),
+								Value:       "3254",
+							},
+							{
+								IncomingKey: models.ServiceItemParamNameRequestedPickupDate.String(),
+								Value:       "2023-12-16",
+							},
+						},
+						PaymentRequest: models.PaymentRequest{
+							ReviewedAt: models.TimePointer(time.Now()),
+						},
+					},
+				},
+			}
+
+			err := checkStatusOfExistingPaymentRequest().Validate(suite.AppContextForTest(), paymentRequest, nil)
+			suite.Error(err)
+			suite.Contains(err.Error(), "Conflict Error: Payment Request for Service Item is already paid or requested")
+		})
+
+	})
+
 }

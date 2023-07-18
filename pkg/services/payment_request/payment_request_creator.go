@@ -34,7 +34,7 @@ func NewPaymentRequestCreator(planner route.Planner, pricer services.ServiceItem
 		checks: []paymentRequestValidator{
 			checkMTOIDField(),
 			checkMTOIDMatchesServiceItemMTOID(),
-			checkStatusOfPaymentRequest(),
+			checkStatusOfExistingPaymentRequest(),
 		},
 	}
 }
