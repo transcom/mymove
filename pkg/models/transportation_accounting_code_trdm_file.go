@@ -4,7 +4,7 @@ package models
 // Transportation_Accounting_Code (TAC) .txt file
 
 // This struct only applies to the received .txt file.
-type TransportationAccountingCodeTextFileRecord struct {
+type TransportationAccountingCodeTrdmFileRecord struct {
 	TAC_SYS_ID              string
 	LOA_SYS_ID              string
 	TRNSPRTN_ACNT_CD        string

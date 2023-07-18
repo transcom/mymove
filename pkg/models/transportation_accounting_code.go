@@ -21,7 +21,7 @@ func (t TransportationAccountingCode) TableName() string {
 	return "transportation_accounting_codes"
 }
 
-func MapTransportationAccountingCodeFileRecordToInternalStruct(tacFileRecord TransportationAccountingCodeTextFileRecord) TransportationAccountingCode {
+func MapTransportationAccountingCodeFileRecordToInternalStruct(tacFileRecord TransportationAccountingCodeTrdmFileRecord) TransportationAccountingCode {
 	return TransportationAccountingCode{
 		TAC: tacFileRecord.TRNSPRTN_ACNT_CD,
 	}

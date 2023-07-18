@@ -12,8 +12,8 @@ func TestTransportationAccountingCodeMapForUnusedFields(t *testing.T) {
 	t.Skip("Skipping this test until the fields and usecase has been finalized.")
 
 	// TODO: Create a TAC File Record factory
-	// Example of TransportationAccountingCodeTextFileRecord
-	tacFileRecord := models.TransportationAccountingCodeTextFileRecord{
+	// Example of TransportationAccountingCodeTrdmFileRecord
+	tacFileRecord := models.TransportationAccountingCodeTrdmFileRecord{
 		TRNSPRTN_ACNT_CD:        "4EVR",
 		TAC_SYS_ID:              "3080819",
 		LOA_SYS_ID:              "55555555",
@@ -54,7 +54,7 @@ func TestTransportationAccountingCodeMapForUnusedFields(t *testing.T) {
 
 		// Error if the field isn't found in the reflectedMappedStruct
 		if !exists {
-			t.Errorf("Field '%s' in TransportationAccountingCodeTextFileRecord is not used in MapTransportationAccountingCodeFileRecordToInternalStruct function", fieldName)
+			t.Errorf("Field '%s' in TransportationAccountingCodeTrdmFileRecord is not used in MapTransportationAccountingCodeFileRecordToInternalStruct function", fieldName)
 		}
 	}
 }
@@ -65,7 +65,7 @@ func TestTransportationAccountingCodeMapForUnusedFields(t *testing.T) {
 // This function makes sure it gets connected properly.
 func TestTransportationAccountingCodeMapToInternal(t *testing.T) {
 
-	tacFileRecord := models.TransportationAccountingCodeTextFileRecord{
+	tacFileRecord := models.TransportationAccountingCodeTrdmFileRecord{
 		TRNSPRTN_ACNT_CD: "4EVR",
 	}
 
