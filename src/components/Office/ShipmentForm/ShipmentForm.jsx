@@ -33,7 +33,7 @@ import StorageFacilityInfo from 'components/Office/StorageFacilityInfo/StorageFa
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { MOVES, MTO_SHIPMENTS } from 'constants/queryKeys';
 import { servicesCounselingRoutes, tooRoutes } from 'constants/routes';
-import { shipmentDestinationTypes } from 'constants/shipments';
+import { ADDRESS_UPDATE_STATUS, shipmentDestinationTypes } from 'constants/shipments';
 import { officeRoles, roleTypes } from 'constants/userRoles';
 import { deleteShipment, updateMoveCloseoutOffice } from 'services/ghcApi';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
@@ -126,7 +126,7 @@ const ShipmentForm = (props) => {
     setIsCancelModalVisible(true);
   };
 
-  const deliveryAddressUpdateRequested = mtoShipment?.deliveryAddressUpdate?.status === 'REQUESTED';
+  const deliveryAddressUpdateRequested = mtoShipment?.deliveryAddressUpdate?.status === ADDRESS_UPDATE_STATUS.REQUESTED;
 
   const isHHG = shipmentType === SHIPMENT_OPTIONS.HHG;
   const isNTS = shipmentType === SHIPMENT_OPTIONS.NTS;
