@@ -41,6 +41,11 @@ update_service() {
     local arn="$1"
     echo "* Updating service ${name} with ARN ${arn}"
 
+    # read the currently running tasks into an array so later on we
+    # can query to ensure they have been stopped
+    local old_tasks
+    read -ra old_tasks <<< "$(aws ecs list-tasks --service-name "${name}" --cluster "${cluster}" --query='taskArns[]' --output text)"
+
     local network_config
     network_config=$(aws ecs describe-services --services "${name}" --cluster "${cluster}" --query 'services[0].networkConfiguration')
 
@@ -50,8 +55,14 @@ update_service() {
     aws ecs list-tasks --service "${name}" --cluster "${cluster}" --desired-status=RUNNING
     echo "* Updating ${name} service to use ${arn}"
     aws ecs update-service --cluster "${cluster}" --service "${name}" --task-definition "${arn}" --query 'service.deployments' --network-configuration "${network_config}" || return 1
-    echo "* Newly started ECS tasks:"
-    aws ecs list-tasks --service "${name}" --cluster "${cluster}" --desired-status=PENDING
+
+    # According to the help for the AWS CLI,
+    #
+    # "Although you can filter results based on  a  desired  status
+    # of PENDING , this doesn't return any results."
+    #
+    echo "* All ECS tasks:"
+    aws ecs list-tasks --service "${name}" --cluster "${cluster}" --desired-status=RUNNING
     echo "* Waiting for service to stabilize (this takes a while)"
     time aws ecs wait services-stable --services "${name}" --cluster "${cluster}"
     local exit_code=$?
@@ -61,6 +72,19 @@ update_service() {
     echo "Last 5 service events:"
     aws ecs describe-services --service "${name}" --cluster "${cluster}" --query 'services[].events[:5]'
     echo
+
+    if [[ $exit_code -gt 0 ]]; then
+        return $exit_code
+    fi
+
+    # Are there any tasks that should be stopped that aren't? Maybe
+    # this is how we can fix the flaky deployments?
+    time aws ecs wait tasks-stopped --cluster "${cluster}" --tasks "${old_tasks[@]}"
+    exit_code=$?
+
+    if [[ $exit_code -gt 0 ]]; then
+        echo "The original tasks did not stop as expected"
+    fi
 
     return $exit_code
 }
