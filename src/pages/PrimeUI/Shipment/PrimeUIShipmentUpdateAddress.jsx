@@ -36,6 +36,17 @@ const updateDestinationAddressSchema = Yup.object().shape({
   eTag: Yup.string(),
 });
 
+function removeEmptyKeys(payload) {
+  // Check if the payload contains any blank properties and remove them
+  const cleanedPayload = payload;
+  Object.keys(cleanedPayload).forEach((k) => {
+    if (!cleanedPayload[k]) {
+      delete cleanedPayload[k];
+    }
+  });
+  return cleanedPayload;
+}
+
 const PrimeUIShipmentUpdateAddress = () => {
   const [errorMessage, setErrorMessage] = useState();
   const { moveCodeOrID, shipmentId } = useParams();
@@ -134,20 +145,11 @@ const PrimeUIShipmentUpdateAddress = () => {
       postalCode: address.postalCode,
     };
 
-    // Check if the address payload contains any blank properties and remove
-    // them. This will allow the backend to send the proper error messages
-    // since the properties won't exist in the payload that is sent.
-    Object.keys(body).forEach((k) => {
-      if (!body[k]) {
-        delete body[k];
-      }
-    });
-
     mutateMTOShipment({
       mtoShipmentID: shipmentId,
       addressID: values.addressID,
       ifMatchETag: values.eTag,
-      body,
+      body: removeEmptyKeys(body),
     }).then(() => {
       setSubmitting(false);
     });
@@ -159,20 +161,11 @@ const PrimeUIShipmentUpdateAddress = () => {
       contractorRemarks: values.contractorRemarks,
     };
 
-    // Check if the address payload contains any blank properties and remove
-    // them. This will allow the backend to send the proper error messages
-    // since the properties won't exist in the payload that is sent.
-    Object.keys(body).forEach((k) => {
-      if (!body[k]) {
-        delete body[k];
-      }
-    });
-
     mutateMTOShipmentDestinationAddressHHG({
       mtoShipmentID: shipmentId,
       addressID: values.addressID,
       ifMatchETag: values.eTag,
-      body,
+      body: removeEmptyKeys(body),
     }).then(() => {
       setSubmitting(false);
     });
