@@ -3,6 +3,8 @@ import { render, screen, within } from '@testing-library/react';
 
 import ShipmentInfoList from './ShipmentInfoList';
 
+import { ADDRESS_UPDATE_STATUS } from 'constants/shipments';
+
 const info = {
   requestedPickupDate: '2020-03-26',
   pickupAddress: {
@@ -157,5 +159,36 @@ describe('Shipment Info List', () => {
 
     const customerRemarks = screen.getByText(labels.customerRemarks);
     expect(within(customerRemarks.parentElement).getByText(info.customerRemarks)).toBeInTheDocument();
+  });
+
+  it('renders Review required instead of destination address when the Prime has submitted a destination address change', async () => {
+    render(
+      <ShipmentInfoList
+        shipment={{
+          requestedPickupDate: info.requestedPickupDate,
+          pickupAddress: info.pickupAddress,
+          destinationAddress: info.destinationAddress,
+          deliveryAddressUpdate: { status: ADDRESS_UPDATE_STATUS.REQUESTED },
+        }}
+        errorIfMissing={[
+          {
+            fieldName: 'destinationAddress',
+            condition: (shipment) => shipment.deliveryAddressUpdate?.status === ADDRESS_UPDATE_STATUS.REQUESTED,
+            optional: true,
+          },
+        ]}
+      />,
+    );
+
+    const destinationAddress = screen.getByText(labels.destinationAddress);
+    // The destination address will not render the address field
+    // when the Prime requests a dest add update
+    expect(
+      within(destinationAddress.parentElement).queryByText(info.destinationAddress.streetAddress1, {
+        exact: false,
+      }),
+    ).not.toBeInTheDocument();
+
+    expect(within(destinationAddress.parentElement).getByText('Review required')).toBeInTheDocument();
   });
 });

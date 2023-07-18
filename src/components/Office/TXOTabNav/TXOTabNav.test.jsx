@@ -41,6 +41,17 @@ describe('Move details tag rendering', () => {
     expect(within(moveDetailsTab).getByTestId('tag')).toHaveTextContent('1');
   });
 
+  it('should render the move details tab container with a tag that shows the count of items that need attention when there are approved shipments with a destination address update requiring TXO review', () => {
+    const moveDetailsOneShipment = {
+      ...basicNavProps,
+      shipmentsWithDeliveryAddressUpdateRequestedCount: 1,
+    };
+    render(<TXOTabNav {...moveDetailsOneShipment} />, { wrapper: MemoryRouter });
+
+    const moveDetailsTab = screen.getByTestId('MoveDetails-Tab');
+    expect(within(moveDetailsTab).getByTestId('tag')).toHaveTextContent('1');
+  });
+
   it('should render the move details tab container with a tag that shows the count of items that need attention when the orders have been amended and there are unapproved shipments', () => {
     const moveDetailsShipmentAndAmendedOrders = {
       ...basicNavProps,
