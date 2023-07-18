@@ -46,7 +46,7 @@ func (suite *TacParserSuite) TestParsing() {
 	// Assuming the txt file has at least one record
 	suite.NotEmpty(codes)
 
-	// Check values of the first record (modify this according to your actual data)
+	// Do a hard coded check to the first line of data to ensure a 1:1 match to what is expected.
 	firstCode := codes[0]
 	suite.Equal("0003", firstCode.TAC)
 	suite.Equal("FIRST LINE", firstCode.BillingAddressFirstLine)

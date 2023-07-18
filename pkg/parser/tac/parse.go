@@ -13,7 +13,7 @@ import (
 // Parse the pipe delimited .txt file with the following assumptions:
 // 1. The first and last lines are the security classification.
 // 2. The second line of the file are the columns that will be a 1:1 match to the TransportationAccountingCodeTrdmFileRecord struct in pipe delimited format.
-// 3. There are 23 values per line, including the security classification. Again, to know what these values are refer to note #2.
+// 3. There are 23 values per line, excluding the security classification. Again, to know what these values are refer to note #2.
 // 4. All values are in pipe delimited format.
 // 5. Null values will be present, but are not acceptable for TRNSPRTN_ACNT_CD.
 func Parse(file io.Reader) ([]models.TransportationAccountingCodeDesiredFromTRDM, error) {
@@ -78,6 +78,7 @@ func Parse(file io.Reader) ([]models.TransportationAccountingCodeDesiredFromTRDM
 	return codes, nil
 }
 
+// Compare a struct's field names to the columns retrieved from the .txt file
 func ensureFileStructMatchesColumnNames(columnNames []string) error {
 	if len(columnNames) == 0 {
 		return errors.New("column names were not parsed properly from the second line of the tac file")
@@ -89,6 +90,8 @@ func ensureFileStructMatchesColumnNames(columnNames []string) error {
 	return nil
 }
 
+// This function gathers the struct field names for comparison to
+// line 2 of the .txt file - The columns
 func getFieldNames(obj interface{}) []string {
 	var fieldNames []string
 
