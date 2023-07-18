@@ -4144,9 +4144,14 @@ func init() {
           {
             "name": "body",
             "in": "body",
+            "required": true,
             "schema": {
+              "required": [
+                "officeRemarks",
+                "status"
+              ],
               "properties": {
-                "remarks": {
+                "officeRemarks": {
                   "type": "string"
                 },
                 "status": {
@@ -15182,9 +15187,14 @@ func init() {
           {
             "name": "body",
             "in": "body",
+            "required": true,
             "schema": {
+              "required": [
+                "officeRemarks",
+                "status"
+              ],
               "properties": {
-                "remarks": {
+                "officeRemarks": {
                   "type": "string"
                 },
                 "status": {

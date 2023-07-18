@@ -1095,16 +1095,19 @@ paths:
           required: true
         - in: body
           name: body
+          required: true
           schema:
             properties:
               status:
                 type: string
                 enum:
-                  - REQUESTED
                   - REJECTED
                   - APPROVED
-              remarks:
+              officeRemarks:
                 type: string
+            required:
+              - officeRemarks
+              - status
       responses:
         '200':
           description: Successfully requested a shipment address update

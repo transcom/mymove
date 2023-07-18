@@ -6,6 +6,7 @@ import (
 
 	"github.com/stretchr/testify/mock"
 
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
@@ -468,4 +469,54 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 		suite.NoError(err)
 		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, updatedMove.Status)
 	})
+}
+
+func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUpdateRequest() {
+
+	addressCreator := address.NewAddressCreator()
+	mockPlanner := &routemocks.Planner{}
+	moveRouter := moveservices.NewMoveRouter()
+	addressUpdateRequester := NewShipmentAddressUpdateRequester(mockPlanner, addressCreator, moveRouter)
+
+	suite.Run("TOO approves address change", func() {
+
+		addressChange := factory.BuildShipmentAddressUpdate(suite.DB(), nil, nil)
+		officeRemarks := "This is a TOO remark"
+
+		update, err := addressUpdateRequester.ReviewShipmentAddressChange(suite.AppContextForTest(), addressChange.Shipment.ID, "APPROVED", officeRemarks)
+
+		suite.NoError(err)
+		suite.NotNil(update)
+		suite.Equal(models.ShipmentAddressUpdateStatusApproved, update.Status)
+		suite.Equal("This is a TOO remark", *update.OfficeRemarks)
+
+	})
+
+	suite.Run("TOO rejects address change", func() {
+
+		addressChange := factory.BuildShipmentAddressUpdate(suite.DB(), nil, nil)
+		officeRemarks := "This is a TOO remark"
+
+		update, err := addressUpdateRequester.ReviewShipmentAddressChange(suite.AppContextForTest(), addressChange.Shipment.ID, "REJECTED", officeRemarks)
+
+		suite.NoError(err)
+		suite.NotNil(update)
+		suite.Equal(models.ShipmentAddressUpdateStatusRejected, update.Status)
+		suite.Equal("This is a TOO remark", *update.OfficeRemarks)
+
+	})
+
+	suite.Run("TOO approves address change and left no remarks", func() {
+
+		addressChange := factory.BuildShipmentAddressUpdate(suite.DB(), nil, nil)
+		officeRemarks := ""
+
+		update, err := addressUpdateRequester.ReviewShipmentAddressChange(suite.AppContextForTest(), addressChange.Shipment.ID, "APPROVED", officeRemarks)
+
+		suite.Error(err)
+		suite.IsType(apperror.InvalidInputError{}, err)
+		fmt.Println(err)
+		suite.Nil(update)
+	})
+
 }

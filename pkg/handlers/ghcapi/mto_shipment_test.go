@@ -2413,16 +2413,17 @@ func (suite *HandlerSuite) TestReviewShipmentAddressUpdateHandler() {
 
 	addressChange := factory.BuildShipmentAddressUpdate(suite.DB(), nil, nil)
 	officeRemarks := "This is a TOO remark"
+	status := "APPROVED"
 
 	newAddress := models.ShipmentAddressUpdate{
 		OfficeRemarks: &officeRemarks,
-		Status:        "APPROVED",
+		Status:        models.ShipmentAddressUpdateStatusApproved,
 		ID:            addressChange.ID,
 	}
 
 	body := shipmentops.ReviewShipmentAddressUpdateBody{
-		Remarks: "This is a TOO remark",
-		Status:  "APPROVED",
+		OfficeRemarks: &officeRemarks,
+		Status:        &status,
 	}
 
 	req := httptest.NewRequest("PATCH", "/shipments/{mtoShipmentID}/review-shipment-address-update", nil)

@@ -68,17 +68,23 @@ func (o *ReviewShipmentAddressUpdate) ServeHTTP(rw http.ResponseWriter, r *http.
 // swagger:model ReviewShipmentAddressUpdateBody
 type ReviewShipmentAddressUpdateBody struct {
 
-	// remarks
-	Remarks string `json:"remarks,omitempty"`
+	// office remarks
+	// Required: true
+	OfficeRemarks *string `json:"officeRemarks"`
 
 	// status
+	// Required: true
 	// Enum: [REQUESTED REJECTED APPROVED]
-	Status string `json:"status,omitempty"`
+	Status *string `json:"status"`
 }
 
 // Validate validates this review shipment address update body
 func (o *ReviewShipmentAddressUpdateBody) Validate(formats strfmt.Registry) error {
 	var res []error
+
+	if err := o.validateOfficeRemarks(formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := o.validateStatus(formats); err != nil {
 		res = append(res, err)
@@ -87,6 +93,15 @@ func (o *ReviewShipmentAddressUpdateBody) Validate(formats strfmt.Registry) erro
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (o *ReviewShipmentAddressUpdateBody) validateOfficeRemarks(formats strfmt.Registry) error {
+
+	if err := validate.Required("body"+"."+"officeRemarks", "body", o.OfficeRemarks); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -123,12 +138,13 @@ func (o *ReviewShipmentAddressUpdateBody) validateStatusEnum(path, location stri
 }
 
 func (o *ReviewShipmentAddressUpdateBody) validateStatus(formats strfmt.Registry) error {
-	if swag.IsZero(o.Status) { // not required
-		return nil
+
+	if err := validate.Required("body"+"."+"status", "body", o.Status); err != nil {
+		return err
 	}
 
 	// value enum
-	if err := o.validateStatusEnum("body"+"."+"status", "body", o.Status); err != nil {
+	if err := o.validateStatusEnum("body"+"."+"status", "body", *o.Status); err != nil {
 		return err
 	}
 
