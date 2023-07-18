@@ -230,21 +230,15 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 	var shipment models.MTOShipment
 	var addressUpdate models.ShipmentAddressUpdate
 
-	err := appCtx.DB().Find(&shipment, shipmentID)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil, apperror.NewNotFoundError(shipmentID, "looking for shipment")
-		}
-		return nil, apperror.NewQueryError("MTOShipment", err, "")
-	}
-
-	err = appCtx.DB().Where("shipment_id = ?", shipmentID).First(&addressUpdate)
+	err := appCtx.DB().EagerPreload("Shipment", "Shipment.MoveTaskOrder").Where("shipment_id = ?", shipmentID).First(&addressUpdate)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, apperror.NewNotFoundError(shipmentID, "looking for shipment address update")
 		}
 		return nil, apperror.NewQueryError("ShipmentAddressUpdate", err, "")
 	}
+
+	shipment = addressUpdate.Shipment
 
 	if tooApprovalStatus == models.ShipmentAddressUpdateStatusApproved {
 		addressUpdate.Status = models.ShipmentAddressUpdateStatusApproved
@@ -272,6 +266,11 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 			return apperror.NewInvalidInputError(
 				shipment.ID, err, verrs, "Invalid input found while updating shipment")
 		}
+		if err != nil {
+			return err
+		}
+
+		_, err = f.moveRouter.ApproveOrRequestApproval(appCtx, shipment.MoveTaskOrder)
 		if err != nil {
 			return err
 		}
