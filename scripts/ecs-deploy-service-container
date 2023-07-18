@@ -128,7 +128,7 @@ if update_service "$green_task_def_arn"; then
     exit 0
 fi
 echo "Service failed to stabilize!"
-put_metric DeployFail "${cluster}"
+put_metric "${name}.DeployFail" "${cluster}"
 
 echo
 echo "Showing logs from recently stopped tasks:"
@@ -138,9 +138,9 @@ echo
 echo "* Rolling back to $blue_task_def_arn"
 if update_service "$blue_task_def_arn"; then
     echo "Rollback complete."
-    put_metric RollbackCount "${cluster}"
+    put_metric "${name}.RollbackCount" "${cluster}"
     exit 1
 fi
 echo "Rollback failed!"
-put_metric RollbackFail "${cluster}"
+put_metric "${name}.RollbackFail" "${cluster}"
 exit 1
