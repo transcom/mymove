@@ -5,7 +5,7 @@ import (
 	"net/http/httptest"
 
 	"github.com/gofrs/uuid"
-	sdktrace "go.opentelemetry.io/otel/trace"
+	oteltrace "go.opentelemetry.io/otel/trace"
 
 	"github.com/transcom/mymove/pkg/telemetry"
 	"github.com/transcom/mymove/pkg/trace"
@@ -25,19 +25,19 @@ func (suite *testSuite) TestTraceWithSpan() {
 	// request context
 	var traceID uuid.UUID
 	var xrayID string
-	var span sdktrace.Span
+	var span oteltrace.Span
 	next := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		traceID = trace.FromContext(r.Context())
-		span = sdktrace.SpanFromContext(r.Context())
+		span = oteltrace.SpanFromContext(r.Context())
 		xrayID = trace.AwsXrayFromContext(r.Context())
 	})
 
 	// fake a span to test setting the aws xray id
-	sc := sdktrace.NewSpanContext(sdktrace.SpanContextConfig{
+	sc := oteltrace.NewSpanContext(oteltrace.SpanContextConfig{
 		SpanID:  [8]byte{1},
-		TraceID: sdktrace.TraceID(spanTraceID.Bytes()),
+		TraceID: oteltrace.TraceID(spanTraceID.Bytes()),
 	})
-	req = req.WithContext(sdktrace.ContextWithSpanContext(req.Context(), sc))
+	req = req.WithContext(oteltrace.ContextWithSpanContext(req.Context(), sc))
 
 	// run the middleware
 	suite.do(mw, next, rr, req)
@@ -59,10 +59,10 @@ func (suite *testSuite) TestTraceWithoutSpan() {
 	// request context
 	var traceID uuid.UUID
 	var xrayID string
-	var span sdktrace.Span
+	var span oteltrace.Span
 	next := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		traceID = trace.FromContext(r.Context())
-		span = sdktrace.SpanFromContext(r.Context())
+		span = oteltrace.SpanFromContext(r.Context())
 		xrayID = trace.AwsXrayFromContext(r.Context())
 	})
 

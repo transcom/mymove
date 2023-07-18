@@ -7,7 +7,6 @@ import (
 	"net/http/httptest"
 	"os"
 
-	"github.com/felixge/httpsnoop"
 	"go.opentelemetry.io/otel"
 	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/metric/metricdata"
@@ -39,10 +38,9 @@ func (suite *TelemetrySuite) TestRequestStats() {
 	suite.NotNil(rt)
 
 	req := httptest.NewRequest("GET", "http://test.example.com/foobad", nil)
-	metrics := httpsnoop.Metrics{
-		Code: 200,
-	}
-	rt.HandleRequest(req, metrics)
+	routePattern := "/foobad"
+	statusCode := 200
+	rt.IncrementRequestCount(req, routePattern, statusCode)
 
 	mp := otel.GetMeterProvider()
 	ctx := context.Background()
@@ -63,8 +61,8 @@ func (suite *TelemetrySuite) TestRequestStats() {
 	// interfaces for aggregations
 	suite.NotNil(err)
 	suite.Equal(1, len(metricData.ScopeMetrics))
-	// currently recording 2 request metrics: request count and duration
-	suite.Equal(2, len(metricData.ScopeMetrics[0].Metrics))
+	// currently recording 1 request metrics: request count
+	suite.Equal(1, len(metricData.ScopeMetrics[0].Metrics))
 	suite.Equal("github.com/transcom/mymove/request",
 		metricData.ScopeMetrics[0].Scope.Name)
 }

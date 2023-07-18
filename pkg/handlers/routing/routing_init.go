@@ -187,7 +187,7 @@ func newBaseRouter(appCtx appcontext.AppContext, routingConfig *Config, telemetr
 	// are added, but the resulting http.Handlers execute in "normal" order
 	// (i.e., the http.Handler returned by the first Middleware added gets
 	// called first).
-	router.Use(telemetry.NewOtelHTTPMiddleware(telemetryConfig, serverName))
+	router.Use(telemetry.NewOtelHTTPMiddleware(telemetryConfig, serverName, appCtx.Logger()))
 	router.Use(auth.SessionIDMiddleware(routingConfig.HandlerConfig.AppNames(), routingConfig.HandlerConfig.SessionManagers()))
 	router.Use(middleware.Trace(telemetryConfig)) // injects trace id into the context
 	router.Use(middleware.ContextLogger("milmove_trace_id", appCtx.Logger()))
@@ -203,7 +203,7 @@ func newBaseRouter(appCtx appcontext.AppContext, routingConfig *Config, telemetr
 
 func mountHealthRoute(appCtx appcontext.AppContext, redisPool *redis.Pool,
 	routingConfig *Config, site chi.Router) {
-	requestLoggerMiddleware := middleware.RequestLogger(appCtx.Logger())
+	requestLoggerMiddleware := middleware.RequestLogger()
 	healthHandler := handlers.NewHealthHandler(appCtx, redisPool,
 		routingConfig.GitBranch, routingConfig.GitCommit)
 	site.Method("GET", "/health", requestLoggerMiddleware(healthHandler))
@@ -219,7 +219,7 @@ func mountLocalStorageRoute(appCtx appcontext.AppContext, routingConfig *Config,
 		appCtx.Logger().Info("Registering storage handler",
 			zap.Any("storageHandlerPath", storageHandlerPath))
 		site.Route(storageHandlerPath, func(r chi.Router) {
-			r.Use(middleware.RequestLogger(appCtx.Logger()))
+			r.Use(middleware.RequestLogger())
 			r.Get("/*", localStorageHandlerFunc)
 			r.Head("/*", localStorageHandlerFunc)
 		})
@@ -243,13 +243,13 @@ func mountStaticRoutes(appCtx appcontext.AppContext, routingConfig *Config, site
 	)
 
 	site.Route("/static/", func(r chi.Router) {
-		r.Use(middleware.RequestLogger(appCtx.Logger()))
+		r.Use(middleware.RequestLogger())
 		r.Method("GET", "/*", clientHandler)
 		r.Method("HEAD", "/*", clientHandler)
 	})
 
 	site.Route("/downloads/", func(r chi.Router) {
-		r.Use(middleware.RequestLogger(appCtx.Logger()))
+		r.Use(middleware.RequestLogger())
 		r.Method("GET", "/*", clientHandler)
 		r.Method("HEAD", "/*", clientHandler)
 	})
@@ -283,7 +283,7 @@ func mountPrimeAPI(appCtx appcontext.AppContext, routingConfig *Config, site chi
 			}
 			primeRouter.Use(authentication.PrimeAuthorizationMiddleware(appCtx.Logger()))
 			primeRouter.Use(middleware.NoCache())
-			primeRouter.Use(middleware.RequestLogger(appCtx.Logger()))
+			primeRouter.Use(middleware.RequestLogger())
 
 			// Setup version specific info for v1
 			primeRouter.Route("/v1", func(r chi.Router) {
@@ -330,7 +330,7 @@ func mountSupportAPI(appCtx appcontext.AppContext, routingConfig *Config, site c
 			r.Use(clientCertMiddleware)
 			r.Use(authentication.PrimeAuthorizationMiddleware(appCtx.Logger()))
 			r.Use(middleware.NoCache())
-			r.Use(middleware.RequestLogger(appCtx.Logger()))
+			r.Use(middleware.RequestLogger())
 			r.Method("GET", "/swagger.yaml",
 				handlers.NewFileHandler(routingConfig.FileSystem,
 					routingConfig.SupportSwaggerPath))
@@ -354,7 +354,7 @@ func mountTestharnessAPI(appCtx appcontext.AppContext, routingConfig *Config, si
 		addAuditUserToRequestContextMiddleware := authentication.AddAuditUserIDToRequestContextMiddleware(appCtx)
 		appCtx.Logger().Info("Enabling testharness")
 		site.Route("/testharness", func(r chi.Router) {
-			r.Use(middleware.RequestLogger(appCtx.Logger()))
+			r.Use(middleware.RequestLogger())
 			r.Use(addAuditUserToRequestContextMiddleware)
 			r.Method("POST", "/build/{action}",
 				testharnessapi.NewDefaultBuilder(routingConfig.HandlerConfig))
@@ -370,7 +370,7 @@ func mountDebugRoutes(appCtx appcontext.AppContext, routingConfig *Config, site 
 		appCtx.Logger().Info("Enabling pprof routes")
 
 		site.Route("/debug/pprof/", func(r chi.Router) {
-			r.Use(middleware.RequestLogger(appCtx.Logger()))
+			r.Use(middleware.RequestLogger())
 			r.Get("/", pprof.Index)
 			r.Method("GET", "/allocs", pprof.Handler("allocs"))
 			r.Method("GET", "/block", pprof.Handler("block"))
@@ -391,7 +391,7 @@ func mountInternalAPI(appCtx appcontext.AppContext, routingConfig *Config, site 
 		isLoggedInMiddleware := authentication.IsLoggedInMiddleware(appCtx.Logger())
 		userAuthMiddleware := authentication.UserAuthMiddleware(appCtx.Logger())
 		addAuditUserToRequestContextMiddleware := authentication.AddAuditUserIDToRequestContextMiddleware(appCtx)
-		site.Route("/internal/", func(r chi.Router) {
+		site.Route("/internal", func(r chi.Router) {
 			r.Method("GET", "/swagger.yaml",
 				handlers.NewFileHandler(routingConfig.FileSystem,
 					routingConfig.APIInternalSwaggerPath))
@@ -424,7 +424,7 @@ func mountAdminAPI(appCtx appcontext.AppContext, routingConfig *Config, site chi
 	if routingConfig.ServeAdmin {
 		userAuthMiddleware := authentication.UserAuthMiddleware(appCtx.Logger())
 		addAuditUserToRequestContextMiddleware := authentication.AddAuditUserIDToRequestContextMiddleware(appCtx)
-		site.Route("/admin/v1/", func(r chi.Router) {
+		site.Route("/admin/v1", func(r chi.Router) {
 			r.Method("GET", "/swagger.yaml",
 				handlers.NewFileHandler(routingConfig.FileSystem,
 					routingConfig.AdminSwaggerPath))
@@ -455,7 +455,7 @@ func mountPrimeSimulatorAPI(appCtx appcontext.AppContext, routingConfig *Config,
 	if routingConfig.ServePrimeSimulator {
 		userAuthMiddleware := authentication.UserAuthMiddleware(appCtx.Logger())
 		addAuditUserToRequestContextMiddleware := authentication.AddAuditUserIDToRequestContextMiddleware(appCtx)
-		site.Route("/prime/v1/", func(r chi.Router) {
+		site.Route("/prime/v1", func(r chi.Router) {
 			r.Method("GET", "/swagger.yaml",
 				handlers.NewFileHandler(routingConfig.FileSystem,
 					routingConfig.PrimeSwaggerPath))
@@ -550,7 +550,7 @@ func mountSessionRoutes(appCtx appcontext.AppContext, routingConfig *Config, bas
 		// need to load and save in the session manager before any other
 		r.Use(sessionManager.LoadAndSave)
 		r.Use(sessionCookieMiddleware)
-		r.Use(middleware.RequestLogger(appCtx.Logger()))
+		r.Use(middleware.RequestLogger())
 
 		appCtx.Logger().Info("Enabling CSRF protection")
 		r.Use(routingConfig.CSRFMiddleware)
@@ -696,7 +696,7 @@ func InitHealthRouting(serverName string, appCtx appcontext.AppContext, redisPoo
 	routingConfig *Config, telemetryConfig *telemetry.Config) (http.Handler, error) {
 
 	site := chi.NewRouter()
-	site.Use(telemetry.NewOtelHTTPMiddleware(telemetryConfig, serverName))
+	site.Use(telemetry.NewOtelHTTPMiddleware(telemetryConfig, serverName, appCtx.Logger()))
 	mountHealthRoute(appCtx, redisPool, routingConfig, site)
 
 	return site, nil
