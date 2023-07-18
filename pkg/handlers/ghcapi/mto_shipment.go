@@ -10,6 +10,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/db/utilities"
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_shipment"
 	shipmentops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/shipment"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
@@ -94,7 +95,6 @@ func (h GetMTOShipmentHandler) Handle(params mtoshipmentops.GetShipmentParams) m
 				"DestinationAddress",
 				"SecondaryPickupAddress",
 				"SecondaryDeliveryAddress",
-				"MTOAgents",
 				"MTOServiceItems.CustomerContacts",
 				"StorageFacility.Address",
 				"PPMShipment"}
@@ -105,6 +105,13 @@ func (h GetMTOShipmentHandler) Handle(params mtoshipmentops.GetShipmentParams) m
 			if err != nil {
 				return handleError(err)
 			}
+
+			var agents []models.MTOAgent
+			err = appCtx.DB().Scope(utilities.ExcludeDeletedScope()).Where("mto_shipment_id = ?", mtoShipment.ID).All(&agents)
+			if err != nil {
+				return handleError(err)
+			}
+			mtoShipment.MTOAgents = agents
 			payload := payloads.MTOShipment(h.FileStorer(), mtoShipment, nil)
 			return mtoshipmentops.NewGetShipmentOK().WithPayload(payload), nil
 		})

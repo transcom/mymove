@@ -1,0 +1,43 @@
+properties:
+  id:
+    description: The ID of the agent.
+    example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+    format: uuid
+    readOnly: true
+    type: string
+  mtoShipmentID:
+    description: The ID of the shipment this agent is permitted to release/receive.
+    example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+    format: uuid
+    type: string
+    readOnly: true
+  createdAt:
+    format: date-time
+    type: string
+    readOnly: true
+  updatedAt:
+    format: date-time
+    type: string
+    readOnly: true
+  firstName:
+    type: string
+    x-nullable: true
+  lastName:
+    type: string
+    x-nullable: true
+  email:
+    type: string
+    format: x-email
+    pattern: '^([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})?$'
+    x-nullable: true
+  phone:
+    type: string
+    format: telephone
+    pattern: '^([2-9]\d{2}-\d{3}-\d{4})?$'
+    x-nullable: true
+  agentType:
+    $ref: 'MTOAgentType.yaml'
+  eTag:
+    type: string
+    readOnly: true
+type: object

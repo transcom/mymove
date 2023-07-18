@@ -3,6 +3,7 @@ import { isEmpty, sortBy } from 'lodash';
 import classnames from 'classnames';
 
 import { ServiceItemDetailsShape } from '../../../types/serviceItems';
+import { trimFileName } from '../../../utils/serviceItems';
 
 import styles from './ServiceItemDetails.module.scss';
 
@@ -19,12 +20,15 @@ function generateDetailText(details, id, className) {
   return detailList;
 }
 
-const ServiceItemDetails = ({ id, code, details }) => {
+const ServiceItemDetails = ({ id, code, details, serviceRequestDocs }) => {
+  const serviceRequestDocUploads = serviceRequestDocs?.map((doc) => doc.uploads[0]);
+
   let detailSection;
   switch (code) {
     case 'DOFSIT':
     case 'DOASIT':
-    case 'DOPSIT': {
+    case 'DOPSIT':
+    case 'DOSFSC': {
       detailSection = (
         <div>
           <dl>
@@ -37,6 +41,18 @@ const ServiceItemDetails = ({ id, code, details }) => {
             )}
             {details.rejectionReason &&
               generateDetailText({ 'Rejection reason': details.rejectionReason }, id, 'margin-top-2')}
+            {!isEmpty(serviceRequestDocUploads) ? (
+              <div className={styles.uploads}>
+                <p className={styles.detailType}>Download service item documentation:</p>
+                {serviceRequestDocUploads.map((file) => (
+                  <div className={styles.uploads}>
+                    <a href={file.url} download>
+                      {trimFileName(file.filename)}
+                    </a>
+                  </div>
+                ))}
+              </div>
+            ) : null}
           </dl>
         </div>
       );
@@ -44,7 +60,8 @@ const ServiceItemDetails = ({ id, code, details }) => {
     }
     case 'DDFSIT':
     case 'DDASIT':
-    case 'DDDSIT': {
+    case 'DDDSIT':
+    case 'DDSFSC': {
       const { customerContacts } = details;
       // Below we are using the sortBy func in lodash to sort the customer contacts
       // by the firstAvailableDeliveryDate field. sortBy returns a new
@@ -83,6 +100,18 @@ const ServiceItemDetails = ({ id, code, details }) => {
             {generateDetailText({ Reason: details.reason ? details.reason : '-' })}
             {details.rejectionReason &&
               generateDetailText({ 'Rejection reason': details.rejectionReason }, id, 'margin-top-2')}
+            {!isEmpty(serviceRequestDocUploads) ? (
+              <div className={styles.uploads}>
+                <p className={styles.detailType}>Download service item documentation:</p>
+                {serviceRequestDocUploads.map((file) => (
+                  <div className={styles.uploads}>
+                    <a href={file.url} download>
+                      {trimFileName(file.filename)}
+                    </a>
+                  </div>
+                ))}
+              </div>
+            ) : null}
           </dl>
         </div>
       );
@@ -110,6 +139,18 @@ const ServiceItemDetails = ({ id, code, details }) => {
             {generateDetailText({ Reason: details.reason ? details.reason : '-' })}
             {details.rejectionReason &&
               generateDetailText({ 'Rejection reason': details.rejectionReason }, id, 'margin-top-2')}
+            {!isEmpty(serviceRequestDocUploads) ? (
+              <div className={styles.uploads}>
+                <p className={styles.detailType}>Download service item documentation:</p>
+                {serviceRequestDocUploads.map((file) => (
+                  <div className={styles.uploads}>
+                    <a href={file.url} download>
+                      {trimFileName(file.filename)}
+                    </a>
+                  </div>
+                ))}
+              </div>
+            ) : null}
           </dl>
         </div>
       );
@@ -135,6 +176,18 @@ const ServiceItemDetails = ({ id, code, details }) => {
             {crateDimensions && generateDetailText({ 'Crate size': crateDimensionFormat }, id)}
             {details.rejectionReason &&
               generateDetailText({ 'Rejection reason': details.rejectionReason }, id, 'margin-top-2')}
+            {!isEmpty(serviceRequestDocUploads) ? (
+              <div className={styles.uploads}>
+                <p className={styles.detailType}>Download service item documentation:</p>
+                {serviceRequestDocUploads.map((file) => (
+                  <div className={styles.uploads}>
+                    <a href={file.url} download>
+                      {trimFileName(file.filename)}
+                    </a>
+                  </div>
+                ))}
+              </div>
+            ) : null}
           </dl>
         </div>
       );
@@ -152,6 +205,18 @@ const ServiceItemDetails = ({ id, code, details }) => {
             {generateDetailText({ Reason: details.reason })}
             {details.rejectionReason &&
               generateDetailText({ 'Rejection reason': details.rejectionReason }, id, 'margin-top-2')}
+            {!isEmpty(serviceRequestDocUploads) ? (
+              <div className={styles.uploads}>
+                <p className={styles.detailType}>Download service item documentation:</p>
+                {serviceRequestDocUploads.map((file) => (
+                  <div className={styles.uploads}>
+                    <a href={file.url} download>
+                      {trimFileName(file.filename)}
+                    </a>
+                  </div>
+                ))}
+              </div>
+            ) : null}
           </dl>
         </div>
       );
@@ -164,6 +229,18 @@ const ServiceItemDetails = ({ id, code, details }) => {
           <dl>
             {details.rejectionReason &&
               generateDetailText({ 'Rejection reason': details.rejectionReason }, id, 'margin-top-2')}
+            {!isEmpty(serviceRequestDocUploads) ? (
+              <div className={styles.uploads}>
+                <p className={styles.detailType}>Download service item documentation:</p>
+                {serviceRequestDocUploads.map((file) => (
+                  <div className={styles.uploads}>
+                    <a href={file.url} download>
+                      {trimFileName(file.filename)}
+                    </a>
+                  </div>
+                ))}
+              </div>
+            ) : null}
           </dl>
         </div>
       );
