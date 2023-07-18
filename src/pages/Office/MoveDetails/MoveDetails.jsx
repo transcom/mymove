@@ -13,7 +13,7 @@ import hasRiskOfExcess from 'utils/hasRiskOfExcess';
 import { MOVES, MTO_SERVICE_ITEMS, MTO_SHIPMENTS } from 'constants/queryKeys';
 import SERVICE_ITEM_STATUSES from 'constants/serviceItems';
 import { ALLOWED_SIT_ADDRESS_UPDATE_SI_CODES, SIT_ADDRESS_UPDATE_STATUS } from 'constants/sitUpdates';
-import { shipmentStatuses } from 'constants/shipments';
+import { ADDRESS_UPDATE_STATUS, shipmentStatuses } from 'constants/shipments';
 import AllowancesList from 'components/Office/DefinitionLists/AllowancesList';
 import CustomerInfoList from 'components/Office/DefinitionLists/CustomerInfoList';
 import OrdersList from 'components/Office/DefinitionLists/OrdersList';
@@ -151,7 +151,7 @@ const MoveDetails = ({
   );
 
   const shipmentWithDestinationAddressChangeRequest = mtoShipments?.filter(
-    (shipment) => shipment?.deliveryAddressUpdate?.status === 'REQUESTED' && !shipment.deletedAt,
+    (shipment) => shipment?.deliveryAddressUpdate?.status === ADDRESS_UPDATE_STATUS.REQUESTED && !shipment.deletedAt,
   );
   useEffect(() => {
     const shipmentCount = shipmentWithDestinationAddressChangeRequest?.length || 0;

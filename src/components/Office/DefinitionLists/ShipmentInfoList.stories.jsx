@@ -3,6 +3,8 @@ import { object, text } from '@storybook/addon-knobs';
 
 import ShipmentInfoList from './ShipmentInfoList';
 
+import { ADDRESS_UPDATE_STATUS } from 'constants/shipments';
+
 export default {
   title: 'Office Components/HHG Shipment Info List',
   component: ShipmentInfoList,
@@ -130,7 +132,7 @@ export const WithDeliveryAddressUpdateRequested = () => (
     errorIfMissing={[
       {
         fieldName: 'destinationAddress',
-        condition: (shipment) => shipment.deliveryAddressUpdate?.status === 'REQUESTED',
+        condition: (shipment) => shipment.deliveryAddressUpdate?.status === ADDRESS_UPDATE_STATUS.REQUESTED,
         optional: true,
       },
     ]}
