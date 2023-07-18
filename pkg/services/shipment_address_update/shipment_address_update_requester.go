@@ -246,14 +246,14 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 		return nil, apperror.NewQueryError("ShipmentAddressUpdate", err, "")
 	}
 
-	if tooApprovalStatus == "APPROVED" {
+	if tooApprovalStatus == models.ShipmentAddressUpdateStatusApproved {
 		addressUpdate.Status = models.ShipmentAddressUpdateStatusApproved
 		addressUpdate.OfficeRemarks = &tooRemarks
 		shipment.DestinationAddress = &addressUpdate.NewAddress
 		shipment.DestinationAddressID = &addressUpdate.NewAddressID
 	}
 
-	if tooApprovalStatus == "REJECTED" {
+	if tooApprovalStatus == models.ShipmentAddressUpdateStatusRejected {
 		addressUpdate.Status = models.ShipmentAddressUpdateStatusRejected
 		addressUpdate.OfficeRemarks = &tooRemarks
 	}
