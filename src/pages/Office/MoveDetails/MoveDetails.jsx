@@ -157,7 +157,7 @@ const MoveDetails = ({
     const shipmentCount = shipmentWithDestinationAddressChangeRequest?.length || 0;
     if (setShipmentsWithDeliveryAddressUpdateRequestedCount)
       setShipmentsWithDeliveryAddressUpdateRequestedCount(shipmentCount);
-  }, [mtoShipments, shipmentWithDestinationAddressChangeRequest, setShipmentsWithDeliveryAddressUpdateRequestedCount]);
+  }, [shipmentWithDestinationAddressChangeRequest?.length, setShipmentsWithDeliveryAddressUpdateRequestedCount]);
 
   const shipmentsInfoNonPPM = mtoShipments?.filter((shipment) => shipment.shipmentType !== 'PPM');
 
