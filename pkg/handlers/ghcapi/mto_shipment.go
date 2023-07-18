@@ -893,13 +893,15 @@ func (h ReviewShipmentAddressUpdateHandler) Handle(params shipmentops.ReviewShip
 			remarks := params.Body.OfficeRemarks
 
 			response, err := h.ShipmentAddressUpdateRequester.ReviewShipmentAddressChange(appCtx, shipmentID, models.ShipmentAddressUpdateStatus(*addressApprovalStatus), *remarks)
-			fmt.Println(response)
 			handleError := func(err error) (middleware.Responder, error) {
 				appCtx.Logger().Error("ghcapi.ReviewShipmentAddressUpdateHandler", zap.Error(err))
+				payload := ghcmessages.Error{
+					Message: handlers.FmtString(err.Error()),
+				}
 
 				switch e := err.(type) {
 				case apperror.NotFoundError:
-					return shipmentops.NewReviewShipmentAddressUpdateNotFound(), err
+					return shipmentops.NewReviewShipmentAddressUpdateNotFound().WithPayload(&payload), err
 				case apperror.InvalidInputError:
 					payload := payloadForValidationError(
 						"Validation errors",
@@ -909,10 +911,10 @@ func (h ReviewShipmentAddressUpdateHandler) Handle(params shipmentops.ReviewShip
 					return shipmentops.NewReviewShipmentAddressUpdateUnprocessableEntity().WithPayload(payload), err
 				case apperror.PreconditionFailedError:
 					return shipmentops.NewReviewShipmentAddressUpdatePreconditionFailed().
-						WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())}), err
-				case mtoshipment.ConflictStatusError:
+						WithPayload(&payload), err
+				case apperror.ConflictError:
 					return shipmentops.NewReviewShipmentAddressUpdateConflict().
-						WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())}), err
+						WithPayload(&payload), err
 				default:
 					return shipmentops.NewReviewShipmentAddressUpdateInternalServerError(), err
 				}
@@ -921,7 +923,6 @@ func (h ReviewShipmentAddressUpdateHandler) Handle(params shipmentops.ReviewShip
 				return handleError(err)
 			}
 			payload := payloads.ShipmentAddressUpdate(response)
-			fmt.Println(payload)
 			return shipmentops.NewReviewShipmentAddressUpdateOK().WithPayload(payload), nil
 		})
 }

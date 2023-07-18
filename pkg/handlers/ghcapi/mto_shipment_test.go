@@ -2503,11 +2503,10 @@ func (suite *HandlerSuite) TestReviewShipmentAddressUpdateHandler() {
 		suite.NoError(params.Body.Validate(strfmt.Default))
 
 		response := handler.Handle(params)
+		suite.IsType(&shipmentops.ReviewShipmentAddressUpdateUnprocessableEntity{}, response)
+
 		errResponse := response.(*shipmentops.ReviewShipmentAddressUpdateUnprocessableEntity)
-		suite.IsType(shipmentops.ReviewShipmentAddressUpdateUnprocessableEntity{}, *errResponse)
-
 		suite.NoError(errResponse.Payload.Validate(strfmt.Default))
-
 	})
 
 	suite.Run("PATCH Failure - 409 Request conflict response error", func() {
@@ -2536,7 +2535,7 @@ func (suite *HandlerSuite) TestReviewShipmentAddressUpdateHandler() {
 			ShipmentID:  *handlers.FmtUUID(addressChange.ShipmentID),
 		}
 
-		err := apperror.NewNotFoundError(uuid.Nil, "unable to create ReviewShipmentAddressChange")
+		err := apperror.NewConflictError(uuid.Nil, "unable to create ReviewShipmentAddressChange")
 
 		mockCreator.On("ReviewShipmentAddressChange",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -2548,6 +2547,7 @@ func (suite *HandlerSuite) TestReviewShipmentAddressUpdateHandler() {
 		suite.NoError(params.Body.Validate(strfmt.Default))
 
 		response := handler.Handle(params)
+		suite.NotNil(response)
 		suite.IsType(&shipmentops.ReviewShipmentAddressUpdateConflict{}, response)
 		errResponse := response.(*shipmentops.ReviewShipmentAddressUpdateConflict)
 
@@ -2592,11 +2592,9 @@ func (suite *HandlerSuite) TestReviewShipmentAddressUpdateHandler() {
 		suite.NoError(params.Body.Validate(strfmt.Default))
 
 		response := handler.Handle(params)
-		suite.IsType(shipmentops.ReviewShipmentAddressUpdateNotFound{}, response)
+		suite.IsType(&shipmentops.ReviewShipmentAddressUpdateNotFound{}, response)
 		errResponse := response.(*shipmentops.ReviewShipmentAddressUpdateNotFound)
-
 		suite.NoError(errResponse.Payload.Validate(strfmt.Default))
-
 	})
 
 	suite.Run("500 server error", func() {
@@ -2637,10 +2635,7 @@ func (suite *HandlerSuite) TestReviewShipmentAddressUpdateHandler() {
 		suite.NoError(params.Body.Validate(strfmt.Default))
 
 		response := handler.Handle(params)
-		suite.IsType(shipmentops.ReviewShipmentAddressUpdateInternalServerError{}, response)
-		errResponse := response.(*shipmentops.ReviewShipmentAddressUpdateInternalServerError)
-
-		suite.NoError(errResponse.Payload.Validate(strfmt.Default))
+		suite.IsType(&shipmentops.ReviewShipmentAddressUpdateInternalServerError{}, response)
 	})
 }
 
