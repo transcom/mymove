@@ -35,11 +35,7 @@ const MoveDocumentWrapper = () => {
           <DocumentViewer files={documentsForViewer} />
         </div>
       )}
-      {showOrders ? (
-        <Orders moveCode={moveCode} redirectTo="moveDetails" />
-      ) : (
-        <MoveAllowances moveCode={moveCode} redirectTo="moveDetails" />
-      )}
+      {showOrders ? <Orders moveCode={moveCode} /> : <MoveAllowances moveCode={moveCode} />}
     </div>
   );
 };

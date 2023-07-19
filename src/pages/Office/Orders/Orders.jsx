@@ -4,6 +4,7 @@ import { Button } from '@trussworks/react-uswds';
 import { Formik } from 'formik';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { string } from 'prop-types';
 
 import ordersFormValidationSchema from './ordersFormValidationSchema';
 
@@ -27,7 +28,7 @@ const deptIndicatorDropdownOptions = dropdownInputOptions(DEPARTMENT_INDICATOR_O
 const ordersTypeDropdownOptions = dropdownInputOptions(ORDERS_TYPE_OPTIONS);
 const ordersTypeDetailsDropdownOptions = dropdownInputOptions(ORDERS_TYPE_DETAILS_OPTIONS);
 
-const Orders = () => {
+const Orders = ({ redirectTo }) => {
   const navigate = useNavigate();
   const { moveCode } = useParams();
   const [tacValidationState, tacValidationDispatch] = useReducer(reducer, null, initialState);
@@ -36,8 +37,14 @@ const Orders = () => {
   const orderId = move?.ordersId;
 
   const handleClose = React.useCallback(() => {
-    navigate(`/moves/${moveCode}/payment-requests`);
-  }, [navigate, moveCode]);
+    let redirectPath;
+    if (redirectTo) {
+      redirectPath = `/moves/${moveCode}/details`;
+    } else {
+      redirectPath = `/moves/${moveCode}/payment-requests`;
+    }
+    navigate(redirectPath);
+  }, [navigate, moveCode, redirectTo]);
   const queryClient = useQueryClient();
   const { mutate: mutateOrders } = useMutation(updateOrder, {
     onSuccess: (data, variables) => {
@@ -244,6 +251,14 @@ const Orders = () => {
       </Formik>
     </div>
   );
+};
+
+Orders.propTypes = {
+  redirectTo: string,
+};
+
+Orders.defaultProps = {
+  redirectTo: undefined,
 };
 
 export default Orders;
