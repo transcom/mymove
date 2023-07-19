@@ -177,10 +177,20 @@ const mileageZip = (params) => {
   return calculation(value, label, formatDetail(detail));
 };
 
-const mileageZipSITOrigin = (params) => {
+const mileageZipSIT = (params, itemCode) => {
   const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.DistanceZipSITOrigin, params);
+  let label;
+  switch (itemCode) {
+    case SERVICE_ITEM_CODES.DOSFSC:
+      label = SERVICE_ITEM_CALCULATION_LABELS.MileageIntoSIT;
+      break;
+    case SERVICE_ITEM_CODES.DDSFSC:
+      label = SERVICE_ITEM_CALCULATION_LABELS.MileageOutOfSIT;
+      break;
+    default:
+      label = SERVICE_ITEM_CALCULATION_LABELS.Mileage;
+  }
 
-  const label = SERVICE_ITEM_CALCULATION_LABELS.Mileage;
   const detail = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipPickupAddress]} ${getParamValue(
     SERVICE_ITEM_PARAM_KEYS.ZipSITOriginHHGOriginalAddress,
     params,
@@ -326,16 +336,23 @@ const priceEscalationFactorWithoutContractYear = (params) => {
   return calculation(value, label);
 };
 
-const fuelSurchargePrice = (params) => {
-  // to get the Fuel surcharge price (per mi), multiply FSCWeightBasedDistanceMultiplier by DistanceZip
+const fuelSurchargePrice = (params, itemCode) => {
+  // to get the Fuel surcharge price (per mi), multiply FSCWeightBasedDistanceMultiplier by distanceZip
   // which gets the dollar value
+  const distanceZip =
+    itemCode === SERVICE_ITEM_CODES.DOSFSC
+      ? SERVICE_ITEM_PARAM_KEYS.DistanceZip
+      : SERVICE_ITEM_PARAM_KEYS.DistanceZipSITOrigin;
   const value = parseFloat(
     String(
       getParamValue(SERVICE_ITEM_PARAM_KEYS.FSCWeightBasedDistanceMultiplier, params) *
-        getParamValue(SERVICE_ITEM_PARAM_KEYS.DistanceZip, params),
+        getParamValue(distanceZip, params),
     ),
   ).toFixed(2);
-  const label = SERVICE_ITEM_CALCULATION_LABELS.FuelSurchargePrice;
+  const label =
+    itemCode === (SERVICE_ITEM_CODES.DOSFSC || SERVICE_ITEM_CODES.DDSFSC)
+      ? SERVICE_ITEM_CALCULATION_LABELS.SITFuelSurchargePrice
+      : SERVICE_ITEM_CALCULATION_LABELS.FuelSurchargePrice;
 
   const eiaFuelPrice = `${
     SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.EIAFuelPrice]
@@ -343,7 +360,7 @@ const fuelSurchargePrice = (params) => {
 
   const fuelRateAdjustment = `${
     SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.FSCPriceDifferenceInCents]
-  }: ${formatDollarFromMillicents(getParamValue(SERVICE_ITEM_PARAM_KEYS.FSCPriceDifferenceInCents))}`;
+  }: ${formatDollarFromMillicents(getParamValue(SERVICE_ITEM_PARAM_KEYS.FSCPriceDifferenceInCents, params))}`;
 
   const fscWeightBasedDistanceMultiplier = `${
     SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.FSCWeightBasedDistanceMultiplier]
@@ -597,21 +614,19 @@ export default function makeCalculations(itemCode, totalAmount, params, mtoParam
       break;
     // Domestic origin SIT fuel surcharge
     case SERVICE_ITEM_CODES.DOSFSC:
-      // WIP
       result = [
         billableWeight(params),
-        fuelSurchargePrice(params),
-        mileageZip(params),
+        mileageZipSIT(params, itemCode),
+        fuelSurchargePrice(params, itemCode),
         totalAmountRequested(totalAmount),
       ];
       break;
     // Domestic destination SIT fuel surcharge
     case SERVICE_ITEM_CODES.DDSFSC:
-      // WIP
       result = [
         billableWeight(params),
-        mileageZip(params),
-        fuelSurchargePrice(params),
+        mileageZipSIT(params, itemCode),
+        fuelSurchargePrice(params, itemCode),
         totalAmountRequested(totalAmount),
       ];
       break;
@@ -693,7 +708,7 @@ export default function makeCalculations(itemCode, totalAmount, params, mtoParam
     case SERVICE_ITEM_CODES.DOPSIT:
       result = [
         billableWeight(params),
-        mileageZipSITOrigin(params),
+        mileageZipSIT(params, itemCode),
         pickupSITPrice(params, shipmentType),
         priceEscalationFactor(params),
         totalAmountRequested(totalAmount),

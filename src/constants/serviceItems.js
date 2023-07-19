@@ -92,6 +92,8 @@ const SERVICE_ITEM_CALCULATION_LABELS = {
   Domestic: 'Domestic',
   FuelSurchargePrice: 'Fuel surcharge price (per mi)',
   Mileage: 'Mileage',
+  MileageIntoSIT: 'Mileage into SIT',
+  MileageOutOfSIT: 'MileageOutOfSIT',
   NTSPackingFactor: 'NTS packing factor',
   NTSReleaseReferenceDate: 'Actual pickup',
   PackPrice: 'Pack price',
