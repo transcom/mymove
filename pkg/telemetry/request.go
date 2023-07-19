@@ -6,8 +6,8 @@ import (
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric"
-	semconv "go.opentelemetry.io/otel/semconv/v1.17.0"
-	"go.opentelemetry.io/otel/semconv/v1.17.0/httpconv"
+	semconv "go.opentelemetry.io/otel/semconv/v1.20.0"
+	"go.opentelemetry.io/otel/semconv/v1.20.0/httpconv"
 	"go.uber.org/zap"
 )
 
