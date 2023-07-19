@@ -25,12 +25,12 @@ install_asdf_tools() {
   fi
 
   if ! asdf_plugin_is_installed "nodejs"; then
-      fancy_echo "Adding nodejs plugin to asdf..."
-      asdf plugin add nodejs
-    else
-      fancy_echo "Updating asdf nodejs plugin..."
-      asdf plugin update nodejs
-    fi
+    fancy_echo "Adding nodejs plugin to asdf..."
+    asdf plugin add nodejs
+  else
+    fancy_echo "Updating asdf nodejs plugin..."
+    asdf plugin update nodejs
+  fi
 
   fancy_echo "Installing asdf managed tools from .tool-versions..."
   asdf install
