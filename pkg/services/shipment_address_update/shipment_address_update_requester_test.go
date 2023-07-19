@@ -480,7 +480,9 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 
 	suite.Run("TOO approves address change", func() {
 
-		addressChange := factory.BuildShipmentAddressUpdate(suite.DB(), nil, nil)
+		addressChange := factory.BuildShipmentAddressUpdate(suite.DB(), nil, []factory.Trait{
+			factory.GetTraitAvailableToPrimeMove,
+		})
 		officeRemarks := "This is a TOO remark"
 
 		update, err := addressUpdateRequester.ReviewShipmentAddressChange(suite.AppContextForTest(), addressChange.Shipment.ID, "APPROVED", officeRemarks)
@@ -494,7 +496,9 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 
 	suite.Run("TOO rejects address change", func() {
 
-		addressChange := factory.BuildShipmentAddressUpdate(suite.DB(), nil, nil)
+		addressChange := factory.BuildShipmentAddressUpdate(suite.DB(), nil, []factory.Trait{
+			factory.GetTraitAvailableToPrimeMove,
+		})
 		officeRemarks := "This is a TOO remark"
 
 		update, err := addressUpdateRequester.ReviewShipmentAddressChange(suite.AppContextForTest(), addressChange.Shipment.ID, "REJECTED", officeRemarks)
@@ -515,7 +519,6 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 
 		suite.Error(err)
 		suite.IsType(apperror.InvalidInputError{}, err)
-		fmt.Println(err)
 		suite.Nil(update)
 	})
 
