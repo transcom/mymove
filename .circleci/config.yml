@@ -632,7 +632,6 @@ commands:
           paths:
             - images/sha/ECR_DIGEST_<< parameters.repo >>_<< parameters.ecr_env >>
 
-
   # The ATO environments cannot pull from outside repositories
   # the error is: x509: certificate signed by unknown authority
   #
@@ -1337,6 +1336,15 @@ jobs:
           keys:
             - go-mod-sources-v5-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
       - run: echo 'export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/bin' >> $BASH_ENV
+      - run:
+          # https://support.circleci.com/hc/en-us/articles/10816400480411-How-to-pass-environment-variables-between-jobs
+          name: Copy Workflow Job ID to file
+          command: |
+            echo "export SERVER_TEST_JOB_ID=$CIRCLE_WORKFLOW_JOB_ID" >> server_test_job_id.env
+      - persist_to_workspace:
+          root: .
+          paths:
+            - server_test_job_id.env
       # make -j 2 tells make to run 2 simultaneous builds
       - run: make -j 2 bin/milmove bin/gotestsum
       - server_tests_step:
@@ -1384,6 +1392,28 @@ jobs:
             ./scripts/ensure-go-test-coverage \
             tmp/baseline-go-coverage/go-coverage.txt \
             tmp/test-results/gotest/app/go-coverage.txt
+      - run:
+          # on failure, post a comment to the PR with a link to the report
+          when: on_fail
+          name: 'Post server coverage failure comment to GitHub'
+          command: |
+            source server_test_job_id.env
+            ./scripts/handle-pr-comment \
+            $CIRCLE_BRANCH \
+            https://output.circle-artifacts.com/output/job/${SERVER_TEST_JOB_ID}/artifacts/${CIRCLE_NODE_INDEX}/test-results/gotest/app/go-coverage.html \
+            "server" \
+            "failure"
+      - run:
+          # on success, check for an existing PR comment and remove it
+          when: on_success
+          name: 'Delete server coverage failure comment on PR if present'
+          command: |
+            ./scripts/handle-pr-comment \
+            $CIRCLE_BRANCH \
+            "" \
+            "server" \
+            "success"
+
       # only save the cache on default branch builds because we only want to
       # change the baseline of test results on main builds
       #
@@ -1441,6 +1471,16 @@ jobs:
           name: Install Frozen YARN dependencies
           command: yarn install --frozen-lockfile --cache-folder ~/.cache/yarn
       - run: make client_test_coverage
+      - run:
+          # https://support.circleci.com/hc/en-us/articles/10816400480411-How-to-pass-environment-variables-between-jobs
+          name: Copy Workflow Job ID to file
+          command: |
+            echo "export CLIENT_TEST_JOB_ID=$CIRCLE_WORKFLOW_JOB_ID" >> client_test_job_id.env
+      - persist_to_workspace:
+          root: .
+          paths:
+            - client_test_job_id.env
+
       - store_artifacts:
           path: ~/transcom/mymove/coverage
           destination: coverage
@@ -1484,6 +1524,27 @@ jobs:
             ./scripts/ensure-js-test-coverage \
             tmp/baseline-jest-coverage/clover.xml \
             coverage/clover.xml
+      - run:
+          # on failure, post a comment to the PR with a link to the report
+          when: on_fail
+          name: 'Post client coverage failure comment to GitHub'
+          command: |
+            source client_test_job_id.env
+            ./scripts/handle-pr-comment \
+            $CIRCLE_BRANCH \
+            "https://output.circle-artifacts.com/output/job/${CLIENT_TEST_JOB_ID}/artifacts/${CIRCLE_NODE_INDEX}/coverage/lcov-report/index.html" \
+            "client" \
+            "failure"
+      - run:
+          # on success, check for an existing PR comment and remove it
+          when: on_success
+          name: 'Delete client coverage failure comment on PR if present'
+          command: |
+            ./scripts/handle-pr-comment \
+            $CIRCLE_BRANCH \
+            "" \
+            "client" \
+            "success"
       # only save the cache on default branch builds because we only want to
       # change the baseline of test results on main builds
       # Save the new baseline regardless of if the coverage succeeds
@@ -1946,7 +2007,6 @@ jobs:
           compare_host: '' # leave blank since we want dp3 to be able to roll back
           health_check_hosts: api.<< parameters.dp3-env >>.dp3.us
           ecr_env: *dp3-env
-
 
   check_circle_against_stg_sha:
     executor: mymove_pusher
