@@ -194,7 +194,7 @@ test.describe('TIO user', () => {
       await form.locator('input[name="sac"]').blur();
       // Edit orders page | Save
       await page.getByRole('button', { name: 'Save' }).click();
-      await page.waitForURL('**/details');
+      await page.waitForURL('**/payment-requests');
       await tioFlowPage.waitForLoading();
 
       await page.getByRole('link', { name: 'Payment requests', exact: true }).click();
