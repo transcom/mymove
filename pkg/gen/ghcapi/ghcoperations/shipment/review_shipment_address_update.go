@@ -40,7 +40,7 @@ func NewReviewShipmentAddressUpdate(ctx *middleware.Context, handler ReviewShipm
 
 # Allows TOO to review a shipment address update
 
-Allows TOO to review a shipment address update
+This endpoint is used to approve a address update request. Office remarks are required. Approving the address update will update the Destination Final Address of the associated service item
 */
 type ReviewShipmentAddressUpdate struct {
 	Context *middleware.Context

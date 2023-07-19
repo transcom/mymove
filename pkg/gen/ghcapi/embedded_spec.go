@@ -4122,7 +4122,7 @@ func init() {
     },
     "/shipments/{shipmentID}/review-shipment-address-update": {
       "patch": {
-        "description": "Allows TOO to review a shipment address update",
+        "description": "This endpoint is used to approve a address update request. Office remarks are required. Approving the address update will update the Destination Final Address of the associated service item",
         "consumes": [
           "application/json"
         ],
@@ -15168,7 +15168,7 @@ func init() {
     },
     "/shipments/{shipmentID}/review-shipment-address-update": {
       "patch": {
-        "description": "Allows TOO to review a shipment address update",
+        "description": "This endpoint is used to approve a address update request. Office remarks are required. Approving the address update will update the Destination Final Address of the associated service item",
         "consumes": [
           "application/json"
         ],

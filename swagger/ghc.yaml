@@ -1157,7 +1157,10 @@ paths:
           $ref: '#/responses/ServerError'
       tags:
         - shipment
-      description: Allows TOO to review a shipment address update
+      description: >-
+        This endpoint is used to approve a address update request. Office
+        remarks are required. Approving the address update will update the
+        Destination Final Address of the associated service item
       operationId: reviewShipmentAddressUpdate
       summary: Allows TOO to review a shipment address update
   /service-items/{mtoServiceItemID}/sit-address-update:
