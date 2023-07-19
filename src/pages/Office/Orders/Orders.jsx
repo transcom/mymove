@@ -1,10 +1,9 @@
-import React, { useEffect, useReducer } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import React, { useEffect, useReducer, useCallback } from 'react';
+import { Link, useNavigate, useParams, useLocation } from 'react-router-dom';
 import { Button } from '@trussworks/react-uswds';
 import { Formik } from 'formik';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { string } from 'prop-types';
 
 import ordersFormValidationSchema from './ordersFormValidationSchema';
 
@@ -28,23 +27,24 @@ const deptIndicatorDropdownOptions = dropdownInputOptions(DEPARTMENT_INDICATOR_O
 const ordersTypeDropdownOptions = dropdownInputOptions(ORDERS_TYPE_OPTIONS);
 const ordersTypeDetailsDropdownOptions = dropdownInputOptions(ORDERS_TYPE_DETAILS_OPTIONS);
 
-const Orders = ({ redirectTo }) => {
+const Orders = () => {
   const navigate = useNavigate();
   const { moveCode } = useParams();
   const [tacValidationState, tacValidationDispatch] = useReducer(reducer, null, initialState);
 
   const { move, orders, isLoading, isError } = useOrdersDocumentQueries(moveCode);
+  const { state } = useLocation();
   const orderId = move?.ordersId;
-
-  const handleClose = React.useCallback(() => {
+  const from = state?.from;
+  const handleClose = useCallback(() => {
     let redirectPath;
-    if (redirectTo) {
-      redirectPath = `/moves/${moveCode}/details`;
-    } else {
+    if (from === 'paymentRequestDetails') {
       redirectPath = `/moves/${moveCode}/payment-requests`;
+    } else {
+      redirectPath = `/moves/${moveCode}/details`;
     }
     navigate(redirectPath);
-  }, [navigate, moveCode, redirectTo]);
+  }, [navigate, moveCode, from]);
   const queryClient = useQueryClient();
   const { mutate: mutateOrders } = useMutation(updateOrder, {
     onSuccess: (data, variables) => {
@@ -194,7 +194,12 @@ const Orders = ({ redirectTo }) => {
                   </Button>
                   <h2 className={styles.header}>View Orders</h2>
                   <div>
-                    <Link className={styles.viewAllowances} data-testid="view-allowances" to="../allowances">
+                    <Link
+                      className={styles.viewAllowances}
+                      data-testid="view-allowances"
+                      to="../allowances"
+                      state={{ from }}
+                    >
                       View Allowances
                     </Link>
                   </div>
@@ -251,14 +256,6 @@ const Orders = ({ redirectTo }) => {
       </Formik>
     </div>
   );
-};
-
-Orders.propTypes = {
-  redirectTo: string,
-};
-
-Orders.defaultProps = {
-  redirectTo: undefined,
 };
 
 export default Orders;

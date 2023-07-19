@@ -1,6 +1,6 @@
 /* eslint-disable camelcase */
-import React from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import React, { useCallback } from 'react';
+import { Link, useNavigate, useParams, useLocation } from 'react-router-dom';
 import { Button } from '@trussworks/react-uswds';
 import { Formik } from 'formik';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
@@ -49,13 +49,22 @@ const validationSchema = Yup.object({
 const MoveAllowances = () => {
   const { moveCode } = useParams();
   const navigate = useNavigate();
+  const { state } = useLocation();
+  const from = state?.from;
 
   const { move, orders, isLoading, isError } = useOrdersDocumentQueries(moveCode);
   const orderId = move?.ordersId;
 
-  const handleClose = () => {
-    navigate(`/moves/${moveCode}/details`);
-  };
+  const handleClose = useCallback(() => {
+    let redirectPath;
+    if (from === 'paymentRequestDetails') {
+      redirectPath = `/moves/${moveCode}/payment-requests`;
+    } else {
+      redirectPath = `/moves/${moveCode}/details`;
+    }
+    navigate(redirectPath);
+  }, [navigate, moveCode, from]);
+
   const queryClient = useQueryClient();
 
   const { mutate: mutateOrders } = useMutation(updateAllowance, {

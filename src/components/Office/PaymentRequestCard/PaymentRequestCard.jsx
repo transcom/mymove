@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { arrayOf, oneOf, shape, bool, node, string, func } from 'prop-types';
 import classnames from 'classnames';
 import moment from 'moment';
@@ -205,7 +205,13 @@ const PaymentRequestCard = ({ paymentRequest, shipmentsInfo, hasBillableWeightIs
             <dt>Contract number:</dt>
             <dd>{contractNumber}</dd>
           </dl>
-          {paymentRequest.status === 'PENDING' ? <a href="orders">View orders</a> : ViewDocuments}
+          {paymentRequest.status === 'PENDING' ? (
+            <Link to="../orders" state={{ from: 'paymentRequestDetails' }}>
+              View orders
+            </Link>
+          ) : (
+            ViewDocuments
+          )}
           <div className={styles.toggleDrawer}>
             {showRequestDetailsButton && (
               <Button
