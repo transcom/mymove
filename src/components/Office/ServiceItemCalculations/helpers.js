@@ -178,7 +178,11 @@ const mileageZip = (params) => {
 };
 
 const mileageZipSIT = (params, itemCode) => {
-  const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.DistanceZipSITOrigin, params);
+  const distanceZip =
+    itemCode === SERVICE_ITEM_CODES.DDSFSC
+      ? SERVICE_ITEM_PARAM_KEYS.DistanceZipSITDest
+      : SERVICE_ITEM_PARAM_KEYS.DistanceZipSITOrigin;
+  const value = getParamValue(distanceZip, params);
   let label;
   switch (itemCode) {
     case SERVICE_ITEM_CODES.DOSFSC:
@@ -339,10 +343,17 @@ const priceEscalationFactorWithoutContractYear = (params) => {
 const fuelSurchargePrice = (params, itemCode) => {
   // to get the Fuel surcharge price (per mi), multiply FSCWeightBasedDistanceMultiplier by distanceZip
   // which gets the dollar value
-  const distanceZip =
-    itemCode === SERVICE_ITEM_CODES.DOSFSC
-      ? SERVICE_ITEM_PARAM_KEYS.DistanceZip
-      : SERVICE_ITEM_PARAM_KEYS.DistanceZipSITOrigin;
+  let distanceZip;
+  switch (itemCode) {
+    case SERVICE_ITEM_CODES.DDSFSC:
+      distanceZip = SERVICE_ITEM_PARAM_KEYS.DistanceZipSITDest;
+      break;
+    case SERVICE_ITEM_CODES.DOSFSC:
+      distanceZip = SERVICE_ITEM_PARAM_KEYS.DistanceZipSITOrigin;
+      break;
+    default:
+      distanceZip = SERVICE_ITEM_PARAM_KEYS.DistanceZip;
+  }
   const value = parseFloat(
     String(
       getParamValue(SERVICE_ITEM_PARAM_KEYS.FSCWeightBasedDistanceMultiplier, params) *
@@ -350,7 +361,7 @@ const fuelSurchargePrice = (params, itemCode) => {
     ),
   ).toFixed(2);
   const label =
-    itemCode === (SERVICE_ITEM_CODES.DOSFSC || SERVICE_ITEM_CODES.DDSFSC)
+    itemCode === SERVICE_ITEM_CODES.DOSFSC || itemCode === SERVICE_ITEM_CODES.DDSFSC
       ? SERVICE_ITEM_CALCULATION_LABELS.SITFuelSurchargePrice
       : SERVICE_ITEM_CALCULATION_LABELS.FuelSurchargePrice;
 
@@ -566,8 +577,6 @@ const totalAmountRequested = (totalAmount) => {
 
 export default function makeCalculations(itemCode, totalAmount, params, mtoParams, shipmentType) {
   let result = [];
-  // eslint-disable-next-line no-console
-  console.log('params:', params);
   switch (itemCode) {
     case SERVICE_ITEM_CODES.DDDSIT: {
       const mileage = getParamValue(SERVICE_ITEM_PARAM_KEYS.DistanceZipSITDest, params);
@@ -608,7 +617,7 @@ export default function makeCalculations(itemCode, totalAmount, params, mtoParam
       result = [
         billableWeight(params),
         mileageZip(params),
-        fuelSurchargePrice(params),
+        fuelSurchargePrice(params, itemCode),
         totalAmountRequested(totalAmount),
       ];
       break;
