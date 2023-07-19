@@ -522,4 +522,28 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 		suite.Nil(update)
 	})
 
+	suite.Run("After TOO approval, move transitions from approvals requested to approved", func() {
+		addressChange := factory.BuildShipmentAddressUpdate(suite.DB(), []factory.Customization{{
+			Model: models.Move{
+				Status: "APPROVALS REQUESTED",
+			},
+		}}, nil)
+		officeRemarks := "Looks good!"
+
+		var updatedMove models.Move
+		err := suite.DB().Find(&updatedMove, addressChange.Shipment.MoveTaskOrderID)
+		suite.NoError(err)
+
+		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, updatedMove.Status)
+
+		update, err := addressUpdateRequester.ReviewShipmentAddressChange(suite.AppContextForTest(), addressChange.Shipment.ID, "APPROVED", officeRemarks)
+		suite.NoError(err)
+
+		err = suite.DB().Find(&updatedMove, addressChange.Shipment.MoveTaskOrderID)
+		suite.NoError(err)
+		suite.NotNil(update)
+		suite.Equal(models.MoveStatusAPPROVED, updatedMove.Status)
+
+	})
+
 }
