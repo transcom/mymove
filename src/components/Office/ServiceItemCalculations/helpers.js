@@ -714,6 +714,7 @@ export default function makeCalculations(itemCode, totalAmount, params, mtoParam
         totalAmountRequested(totalAmount),
       ];
       break;
+    // Domestic Origin SIT Pickup
     case SERVICE_ITEM_CODES.DOPSIT:
       result = [
         billableWeight(params),
@@ -732,6 +733,7 @@ export default function makeCalculations(itemCode, totalAmount, params, mtoParam
         totalAmountRequested(totalAmount),
       ];
       break;
+    // Domestic Destination Additional Days SIT
     case SERVICE_ITEM_CODES.DDASIT:
       result = [
         billableWeight(params),
