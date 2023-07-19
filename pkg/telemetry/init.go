@@ -131,6 +131,7 @@ func Init(logger *zap.Logger, config *Config) (shutdown func()) {
 		idGenerator = xray.NewIDGenerator()
 	}
 	if ecsResource.Attributes() != nil {
+		logger.Info("ECS resource for telemetry", zap.Any("attributes", ecsResource.Attributes()))
 		resourceAttrs = append(resourceAttrs, ecsResource.Attributes()...)
 	}
 
