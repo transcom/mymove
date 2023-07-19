@@ -32,6 +32,7 @@ tags:
   - name: customer
   - name: mtoServiceItem
   - name: mtoShipment
+  - name: shipment
   - name: mtoAgent
   - name: paymentServiceItem
   - name: ppm

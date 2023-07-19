@@ -9928,6 +9928,9 @@ func init() {
       "name": "mtoShipment"
     },
     {
+      "name": "shipment"
+    },
+    {
       "name": "mtoAgent"
     },
     {
@@ -21166,6 +21169,9 @@ func init() {
     },
     {
       "name": "mtoShipment"
+    },
+    {
+      "name": "shipment"
     },
     {
       "name": "mtoAgent"
