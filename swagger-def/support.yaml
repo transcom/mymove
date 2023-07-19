@@ -1650,17 +1650,7 @@ definitions:
       $ref: '#/definitions/PaymentRequest'
     type: array
   PaymentRequestStatus:
-    enum:
-      - PENDING
-      - REVIEWED
-      - REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED
-      - SENT_TO_GEX
-      - RECEIVED_BY_GEX
-      - PAID
-      - EDI_ERROR
-      - DEPRECATED
-    title: Payment Request Status
-    type: string
+    $ref: 'definitions/PaymentRequestStatus.yaml'
   ProcessReviewedPaymentRequests:
     type: object
     properties:

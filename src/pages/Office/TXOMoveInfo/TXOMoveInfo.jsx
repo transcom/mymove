@@ -31,6 +31,8 @@ const TXOMoveInfo = () => {
   const [unapprovedShipmentCount, setUnapprovedShipmentCount] = React.useState(0);
   const [unapprovedServiceItemCount, setUnapprovedServiceItemCount] = React.useState(0);
   const [unapprovedSITAddressUpdateCount, setUnapprovedSITAddressUpdateCount] = React.useState(0);
+  const [shipmentsWithDeliveryAddressUpdateRequestedCount, setShipmentsWithDeliveryAddressUpdateRequestedCount] =
+    React.useState(0);
   const [excessWeightRiskCount, setExcessWeightRiskCount] = React.useState(0);
   const [pendingPaymentRequestCount, setPendingPaymentRequestCount] = React.useState(0);
   const [unapprovedSITExtensionCount, setUnApprovedSITExtensionCount] = React.useState(0);
@@ -90,6 +92,7 @@ const TXOMoveInfo = () => {
           unapprovedShipmentCount={unapprovedShipmentCount}
           unapprovedServiceItemCount={unapprovedServiceItemCount}
           unapprovedSITAddressUpdateCount={unapprovedSITAddressUpdateCount}
+          shipmentsWithDeliveryAddressUpdateRequestedCount={shipmentsWithDeliveryAddressUpdateRequestedCount}
           excessWeightRiskCount={excessWeightRiskCount}
           pendingPaymentRequestCount={pendingPaymentRequestCount}
           unapprovedSITExtensionCount={unapprovedSITExtensionCount}
@@ -109,6 +112,9 @@ const TXOMoveInfo = () => {
                 setUnapprovedShipmentCount={setUnapprovedShipmentCount}
                 setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
                 setUnapprovedSITAddressUpdateCount={setUnapprovedSITAddressUpdateCount}
+                setShipmentsWithDeliveryAddressUpdateRequestedCount={
+                  setShipmentsWithDeliveryAddressUpdateRequestedCount
+                }
                 setExcessWeightRiskCount={setExcessWeightRiskCount}
                 setUnapprovedSITExtensionCount={setUnApprovedSITExtensionCount}
               />

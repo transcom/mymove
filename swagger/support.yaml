@@ -1772,6 +1772,7 @@ definitions:
       $ref: '#/definitions/PaymentRequest'
     type: array
   PaymentRequestStatus:
+    type: string
     enum:
       - PENDING
       - REVIEWED
@@ -1782,7 +1783,6 @@ definitions:
       - EDI_ERROR
       - DEPRECATED
     title: Payment Request Status
-    type: string
   ProcessReviewedPaymentRequests:
     type: object
     properties:
