@@ -14,6 +14,7 @@ const TXOTabNav = ({
   excessWeightRiskCount,
   pendingPaymentRequestCount,
   unapprovedSITExtensionCount,
+  shipmentsWithDeliveryAddressUpdateRequestedCount,
   order,
   moveCode,
 }) => {
@@ -23,6 +24,9 @@ const TXOTabNav = ({
   }
   if (order.uploadedAmendedOrderID && !order.amendedOrdersAcknowledgedAt) {
     moveDetailsTagCount += 1;
+  }
+  if (shipmentsWithDeliveryAddressUpdateRequestedCount) {
+    moveDetailsTagCount += shipmentsWithDeliveryAddressUpdateRequestedCount;
   }
 
   let moveTaskOrderTagCount = 0;
@@ -104,6 +108,7 @@ TXOTabNav.defaultProps = {
   excessWeightRiskCount: 0,
   pendingPaymentRequestCount: 0,
   unapprovedSITExtensionCount: 0,
+  shipmentsWithDeliveryAddressUpdateRequestedCount: 0,
 };
 
 TXOTabNav.propTypes = {
@@ -114,6 +119,7 @@ TXOTabNav.propTypes = {
   excessWeightRiskCount: PropTypes.number,
   pendingPaymentRequestCount: PropTypes.number,
   unapprovedSITExtensionCount: PropTypes.number,
+  shipmentsWithDeliveryAddressUpdateRequestedCount: PropTypes.number,
   moveCode: PropTypes.string.isRequired,
 };
 
