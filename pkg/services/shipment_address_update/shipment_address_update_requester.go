@@ -185,7 +185,6 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 			return nil, err
 		}
 	}
-
 	if updateNeedsTOOReview {
 		addressUpdate.Status = models.ShipmentAddressUpdateStatusRequested
 	}
@@ -220,6 +219,65 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 
 		return nil
 	})
+	if transactionError != nil {
+		return nil, transactionError
+	}
+
+	return &addressUpdate, nil
+}
+
+func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appcontext.AppContext, shipmentID uuid.UUID, tooApprovalStatus models.ShipmentAddressUpdateStatus, tooRemarks string) (*models.ShipmentAddressUpdate, error) {
+	var shipment models.MTOShipment
+	var addressUpdate models.ShipmentAddressUpdate
+
+	err := appCtx.DB().EagerPreload("Shipment", "Shipment.MoveTaskOrder", "OriginalAddress", "NewAddress").Where("shipment_id = ?", shipmentID).First(&addressUpdate)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, apperror.NewNotFoundError(shipmentID, "looking for shipment address update")
+		}
+		return nil, apperror.NewQueryError("ShipmentAddressUpdate", err, "")
+	}
+
+	shipment = addressUpdate.Shipment
+
+	if tooApprovalStatus == models.ShipmentAddressUpdateStatusApproved {
+		addressUpdate.Status = models.ShipmentAddressUpdateStatusApproved
+		addressUpdate.OfficeRemarks = &tooRemarks
+		shipment.DestinationAddress = &addressUpdate.NewAddress
+		shipment.DestinationAddressID = &addressUpdate.NewAddressID
+	}
+
+	if tooApprovalStatus == models.ShipmentAddressUpdateStatusRejected {
+		addressUpdate.Status = models.ShipmentAddressUpdateStatusRejected
+		addressUpdate.OfficeRemarks = &tooRemarks
+	}
+
+	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+		verrs, txnErr := appCtx.DB().ValidateAndSave(&addressUpdate)
+		if verrs.HasAny() {
+			return apperror.NewInvalidInputError(addressUpdate.ID, txnErr, verrs, "unable to save ShipmentAddressUpdate")
+		}
+		if txnErr != nil {
+			return apperror.NewQueryError("ShipmentAddressUpdate", txnErr, "error saving shipment address update request")
+		}
+
+		verrs, err := appCtx.DB().ValidateAndUpdate(&shipment)
+		if verrs != nil && verrs.HasAny() {
+			return apperror.NewInvalidInputError(
+				shipment.ID, err, verrs, "Invalid input found while updating shipment")
+		}
+		if err != nil {
+			return err
+		}
+
+		_, err = f.moveRouter.ApproveOrRequestApproval(appCtx, shipment.MoveTaskOrder)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+
 	if transactionError != nil {
 		return nil, transactionError
 	}
