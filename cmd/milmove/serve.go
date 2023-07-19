@@ -4,9 +4,12 @@ import (
 	"context"
 	"crypto/tls"
 	"crypto/x509"
+	"crypto/x509/pkix"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"golang.org/x/crypto/ocsp"
+	"io"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -430,8 +433,42 @@ func certRevokedCheck(appCtx appcontext.AppContext, cert *x509.Certificate) (rev
 	return false, true, nil
 }
 
+func getCRL(url string) (rawCerts [][]byte,verifiedChains [][]*x509.Certificate) {
+	//userCert := verifiedChains[0][0]
+	//issuerCert := verifiedChains[0][1]
+	//responseBody := [][]byte //TODO: read response body here
+	//return x509.ParseCRL(responseBody) // NOTE: ParseCRL is deprecated, use something else to parse
+	return nil, nil
+}
+
+func getIssuer(issuerCert *x509.Certificate) *x509.Certificate {
+	return issuer
+}
+
+// Check cert against a specific CRL
+func certRevokedCRL(cert *x509.Certificate, url string) (revoked, ok bool, err error) {
+	// Add check that cer hasn't expired
+	return false, true, err
+}
+
 func certRevokedOCSP(cert *x509.Certificate, strict bool) (revoked, ok bool, err error) {
 	return revoked, ok, err
+}
+
+// Request OCSP response from server.
+// Returns error if the server can't get the certificate
+func sendOCSPRequest(server string, request []byte, leafCertificate, issuer *x509.Certificate) (*ocsp.Response, error) {
+	var ocspRead = io.ReadAll
+	response := *http.Response
+	body, err := ocspRead(response.Body)
+	if err != nil {
+		return nil, err
+	}
+	return ocsp.ParseResponseForCert(body, leafCertificate, issuer)
+}
+
+func getOCSPResponse(commonName string, clientCert, issuerCert *x509.Certificate, ocspServerURL string) (*ocsp.Response, error){
+
 }
 
 func initializeRouteOptions(v *viper.Viper, routingConfig *routing.Config) {
