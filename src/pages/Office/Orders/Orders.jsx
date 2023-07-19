@@ -36,7 +36,7 @@ const Orders = () => {
   const orderId = move?.ordersId;
 
   const handleClose = React.useCallback(() => {
-    navigate(`/moves/${moveCode}/details`);
+    navigate(`/moves/${moveCode}/payment-requests`);
   }, [navigate, moveCode]);
   const queryClient = useQueryClient();
   const { mutate: mutateOrders } = useMutation(updateOrder, {
