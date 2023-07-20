@@ -4154,7 +4154,7 @@ func createHHGWithOriginSITServiceItems(
 		if serviceItem.ReService.Code == models.ReServiceCodeDOASIT {
 			paymentItem.PaymentServiceItemParams = doasitPaymentParams
 		}
-		if serviceItem.ReService.Code != models.ReServiceCodeDOSFSC && serviceItem.ReService.Code != models.ReServiceCodeDDSFSC {
+		if serviceItem.ReService.Code != models.ReServiceCodeDOSFSC {
 			paymentServiceItems = append(paymentServiceItems, paymentItem)
 		}
 	}
@@ -4405,7 +4405,7 @@ func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, prime
 		if serviceItem.ReService.Code == models.ReServiceCodeDDASIT {
 			paymentItem.PaymentServiceItemParams = ddasitPaymentParams
 		}
-		if serviceItem.ReService.Code != models.ReServiceCodeDOSFSC && serviceItem.ReService.Code != models.ReServiceCodeDDSFSC {
+		if serviceItem.ReService.Code != models.ReServiceCodeDOSFSC {
 			paymentServiceItems = append(paymentServiceItems, paymentItem)
 		}
 	}
