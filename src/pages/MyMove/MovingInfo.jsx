@@ -78,12 +78,11 @@ export class MovingInfo extends Component {
                   changes to your shipments.
                 </p>
               </IconSection>
-              <IconSection icon="truck-moving" headline="If you use movers, they will:">
+              <IconSection icon="truck-moving" headline="Your Move Manager will:">
                 <div className={styles.IconSectionList}>
                   <ul>
                     <li>Help estimate how much your belongings weigh</li>
                     <li>Set pack and pickup dates based on your preferred pickup date</li>
-                    <li>Contact you after you talk to a move counselor</li>
                     <li>Be your main point of contact during your move</li>
                   </ul>
                 </div>
