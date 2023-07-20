@@ -37,6 +37,8 @@ type TransportationAccountingCode struct {
 	TacBlldAddFrthLnTx *string    `json:"tac_blld_add_frth_ln_tx" db:"tac_blld_add_frth_ln_tx"`
 }
 
+// TODO Validate required fields?
+
 // TableName overrides the table name used by Pop.
 func (t TransportationAccountingCode) TableName() string {
 	return "transportation_accounting_codes"
