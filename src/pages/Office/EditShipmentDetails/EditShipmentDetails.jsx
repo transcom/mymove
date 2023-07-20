@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { GridContainer, Grid } from '@trussworks/react-uswds';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 
-import styles from '../ServicesCounselingMoveInfo/ServicesCounselingTab.module.scss';
+import styles from './EditShipmentDetails.module.scss';
 
 import 'styles/office.scss';
 import CustomerHeader from 'components/CustomerHeader';
@@ -13,6 +13,7 @@ import { useEditShipmentQueries } from 'hooks/queries';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { updateMTOShipment } from 'services/ghcApi';
+import { ORDERS_TYPE } from 'constants/orders';
 import { roleTypes } from 'constants/userRoles';
 
 const EditShipmentDetails = () => {
@@ -46,6 +47,9 @@ const EditShipmentDetails = () => {
     NTS: order.ntsSac,
   };
 
+  const isRetirementOrSeparation =
+    order?.order_type === ORDERS_TYPE.RETIREMENT || order?.order_type === ORDERS_TYPE.SEPARATION;
+
   return (
     <>
       <CustomerHeader order={order} customer={customer} moveCode={moveCode} />
@@ -67,7 +71,7 @@ const EditShipmentDetails = () => {
                   TACs={TACs}
                   SACs={SACs}
                   userRole={roleTypes.TOO}
-                  displayDestinationType
+                  displayDestinationType={isRetirementOrSeparation}
                 />
               </Grid>
             </Grid>

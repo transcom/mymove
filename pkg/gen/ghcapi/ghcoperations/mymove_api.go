@@ -213,6 +213,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		ShipmentRequestShipmentReweighHandler: shipment.RequestShipmentReweighHandlerFunc(func(params shipment.RequestShipmentReweighParams) middleware.Responder {
 			return middleware.NotImplemented("operation shipment.RequestShipmentReweigh has not yet been implemented")
 		}),
+		ShipmentReviewShipmentAddressUpdateHandler: shipment.ReviewShipmentAddressUpdateHandlerFunc(func(params shipment.ReviewShipmentAddressUpdateParams) middleware.Responder {
+			return middleware.NotImplemented("operation shipment.ReviewShipmentAddressUpdate has not yet been implemented")
+		}),
 		EvaluationReportsSaveEvaluationReportHandler: evaluation_reports.SaveEvaluationReportHandlerFunc(func(params evaluation_reports.SaveEvaluationReportParams) middleware.Responder {
 			return middleware.NotImplemented("operation evaluation_reports.SaveEvaluationReport has not yet been implemented")
 		}),
@@ -428,6 +431,8 @@ type MymoveAPI struct {
 	ShipmentRequestShipmentDiversionHandler shipment.RequestShipmentDiversionHandler
 	// ShipmentRequestShipmentReweighHandler sets the operation handler for the request shipment reweigh operation
 	ShipmentRequestShipmentReweighHandler shipment.RequestShipmentReweighHandler
+	// ShipmentReviewShipmentAddressUpdateHandler sets the operation handler for the review shipment address update operation
+	ShipmentReviewShipmentAddressUpdateHandler shipment.ReviewShipmentAddressUpdateHandler
 	// EvaluationReportsSaveEvaluationReportHandler sets the operation handler for the save evaluation report operation
 	EvaluationReportsSaveEvaluationReportHandler evaluation_reports.SaveEvaluationReportHandler
 	// MoveSearchMovesHandler sets the operation handler for the search moves operation
@@ -705,6 +710,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.ShipmentRequestShipmentReweighHandler == nil {
 		unregistered = append(unregistered, "shipment.RequestShipmentReweighHandler")
+	}
+	if o.ShipmentReviewShipmentAddressUpdateHandler == nil {
+		unregistered = append(unregistered, "shipment.ReviewShipmentAddressUpdateHandler")
 	}
 	if o.EvaluationReportsSaveEvaluationReportHandler == nil {
 		unregistered = append(unregistered, "evaluation_reports.SaveEvaluationReportHandler")
@@ -1068,6 +1076,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/shipments/{shipmentID}/request-reweigh"] = shipment.NewRequestShipmentReweigh(o.context, o.ShipmentRequestShipmentReweighHandler)
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/shipments/{shipmentID}/review-shipment-address-update"] = shipment.NewReviewShipmentAddressUpdate(o.context, o.ShipmentReviewShipmentAddressUpdateHandler)
 	if o.handlers["PUT"] == nil {
 		o.handlers["PUT"] = make(map[string]http.Handler)
 	}

@@ -176,6 +176,9 @@ var actionDispatcher = map[string]actionFunc{
 	"ApprovedMoveWithPPMShipmentAndExcessWeight": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeApprovedMoveWithPPMShipmentAndExcessWeight(appCtx)
 	},
+	"HHGMoveWithAddressChangeRequest": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeHHGMoveWithAddressChangeRequest(appCtx)
+	},
 }
 
 func Actions() []string {

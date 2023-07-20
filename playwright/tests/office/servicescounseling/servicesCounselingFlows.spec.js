@@ -64,6 +64,36 @@ test.describe('Services counselor user', () => {
       // Verify sucess alert and tag
       await expect(page.getByText('Move unflagged for financial review.', { exact: true })).toBeVisible();
     });
+
+    test('is able to edit a shipment', async ({ page, scPage }) => {
+      await page.locator('[data-testid="ShipmentContainer"] .usa-button').first().click();
+      await page.locator('#requestedPickupDate').clear();
+      await page.locator('#requestedPickupDate').type('16 Mar 2022');
+      await page.locator('#requestedPickupDate').blur();
+      await page.getByText('Use current address').click();
+
+      await page.locator('#requestedDeliveryDate').clear();
+      await page.locator('#requestedDeliveryDate').type('16 May 2022');
+      await page.locator('#requestedDeliveryDate').blur();
+
+      await page.getByRole('group', { name: 'Delivery location' }).getByText('Yes').nth(1).click();
+      await page.locator('input[name="delivery.address.streetAddress1"]').clear();
+      await page.locator('input[name="delivery.address.streetAddress1"]').type('7 q st');
+      await page.locator('input[name="delivery.address.city"]').clear();
+      await page.locator('input[name="delivery.address.city"]').type('city');
+      await page.locator('select[name="delivery.address.state"]').selectOption({ label: 'OH' });
+      await page.locator('input[name="delivery.address.postalCode"]').clear();
+      await page.locator('input[name="delivery.address.postalCode"]').type('90210');
+
+      // Select that we do not know the destination address yet
+      await page.getByRole('group', { name: 'Delivery location' }).getByText('No').nth(1).click();
+      await expect(page.getByText('We can use the zip of their new duty location:')).toBeVisible();
+
+      await page.locator('[data-testid="submitForm"]').click();
+      await scPage.waitForLoading();
+
+      await expect(page.locator('.usa-alert__text')).toContainText('Your changes were saved.');
+    });
   });
 
   test.describe('with separation HHG move', () => {
@@ -175,17 +205,14 @@ test.describe('Services counselor user', () => {
     });
 
     test('is able to edit a shipment', async ({ page, scPage }) => {
-      const deliveryDate = new Date().toLocaleDateString('en-US');
-
-      // edit a shipment
       await page.locator('[data-testid="ShipmentContainer"] .usa-button').first().click();
       await page.locator('#requestedPickupDate').clear();
-      await page.locator('#requestedPickupDate').type(deliveryDate);
+      await page.locator('#requestedPickupDate').type('16 Mar 2022');
       await page.locator('#requestedPickupDate').blur();
       await page.getByText('Use current address').click();
 
       await page.locator('#requestedDeliveryDate').clear();
-      await page.locator('#requestedDeliveryDate').type('16 Mar 2022');
+      await page.locator('#requestedDeliveryDate').type('16 May 2022');
       await page.locator('#requestedDeliveryDate').blur();
       await page.getByRole('group', { name: 'Delivery location' }).getByText('Yes').nth(1).click();
       await page.locator('input[name="delivery.address.streetAddress1"]').clear();
@@ -195,6 +222,29 @@ test.describe('Services counselor user', () => {
       await page.locator('select[name="delivery.address.state"]').selectOption({ label: 'OH' });
       await page.locator('input[name="delivery.address.postalCode"]').clear();
       await page.locator('input[name="delivery.address.postalCode"]').type('90210');
+      await page.locator('select[name="destinationType"]').selectOption({ label: 'Home of selection (HOS)' });
+      await page.locator('[data-testid="submitForm"]').click();
+      await scPage.waitForLoading();
+
+      await expect(page.locator('.usa-alert__text')).toContainText('Your changes were saved.');
+    });
+
+    test('is able to update destination type if destination address is unknown', async ({ page, scPage }) => {
+      await page.locator('[data-testid="ShipmentContainer"] .usa-button').first().click();
+      await page.locator('#requestedPickupDate').clear();
+      await page.locator('#requestedPickupDate').type('16 Mar 2022');
+      await page.locator('#requestedPickupDate').blur();
+      await page.getByText('Use current address').click();
+
+      await page.locator('#requestedDeliveryDate').clear();
+      await page.locator('#requestedDeliveryDate').type('16 May 2022');
+      await page.locator('#requestedDeliveryDate').blur();
+
+      // Select that we do not know the destination address yet
+      await page.getByRole('group', { name: 'Delivery location' }).getByText('No').nth(1).click();
+
+      await expect(page.locator('select[name="destinationType"]')).toBeVisible();
+      await expect(page.getByText('We can use the zip of their HOR, HOS or PLEAD:')).toBeVisible();
       await page.locator('select[name="destinationType"]').selectOption({ label: 'Home of selection (HOS)' });
       await page.locator('[data-testid="submitForm"]').click();
       await scPage.waitForLoading();
