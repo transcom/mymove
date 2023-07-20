@@ -205,10 +205,10 @@ type DomesticDestinationSITDeliveryPricer interface {
 	ParamsPricer
 }
 
-// DomesticDestinationFuelSurchargePricer prices domestic destination SIT fuel surcharge
+// DomesticDestinationSITFuelSurchargePricer prices domestic destination SIT fuel surcharge
 //
-//go:generate mockery --name DomesticDestinationFuelSurchargePricer
-type DomesticDestinationFuelSurchargePricer interface {
+//go:generate mockery --name DomesticDestinationSITFuelSurchargePricer
+type DomesticDestinationSITFuelSurchargePricer interface {
 	Price(appCtx appcontext.AppContext, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, fscWeightBasedDistanceMultiplier float64, eiaFuelPrice unit.Millicents, isPPM bool) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
 }

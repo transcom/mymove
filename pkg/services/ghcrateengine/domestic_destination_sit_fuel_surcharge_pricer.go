@@ -16,15 +16,15 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-type domesticDestinationFuelSurchargePricer struct {
+type domesticDestinationSITFuelSurchargePricer struct {
 }
 
-func NewDomesticDestinationFuelSurchargePricer() services.DomesticDestinationFuelSurchargePricer {
-	return &domesticDestinationFuelSurchargePricer{}
+func NewDomesticDestinationSITFuelSurchargePricer() services.DomesticDestinationSITFuelSurchargePricer {
+	return &domesticDestinationSITFuelSurchargePricer{}
 }
 
 // Price determines the price for a counseling service
-func (p domesticDestinationFuelSurchargePricer) Price(_ appcontext.AppContext, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, fscWeightBasedDistanceMultiplier float64, eiaFuelPrice unit.Millicents, isPPM bool) (unit.Cents, services.PricingDisplayParams, error) {
+func (p domesticDestinationSITFuelSurchargePricer) Price(_ appcontext.AppContext, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, fscWeightBasedDistanceMultiplier float64, eiaFuelPrice unit.Millicents, isPPM bool) (unit.Cents, services.PricingDisplayParams, error) {
 	// Validate parameters
 	if actualPickupDate.IsZero() {
 		return 0, nil, errors.New("ActualPickupDate is required")
@@ -55,7 +55,7 @@ func (p domesticDestinationFuelSurchargePricer) Price(_ appcontext.AppContext, a
 	return totalCost, displayParams, nil
 }
 
-func (p domesticDestinationFuelSurchargePricer) PriceUsingParams(appCtx appcontext.AppContext, params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {
+func (p domesticDestinationSITFuelSurchargePricer) PriceUsingParams(appCtx appcontext.AppContext, params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {
 	actualPickupDate, err := getParamTime(params, models.ServiceItemParamNameActualPickupDate)
 	if err != nil {
 		return unit.Cents(0), nil, err

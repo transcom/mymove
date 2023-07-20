@@ -25,25 +25,25 @@ const (
 var ddsfscActualPickupDate = time.Date(testdatagen.TestYear, time.June, 5, 7, 33, 11, 456, time.UTC)
 
 func (suite *GHCRateEngineServiceSuite) TestPriceDomesticDestinationFuelSurcharge() {
-	DomesticDestinationFuelSurchargePricer := NewDomesticDestinationFuelSurchargePricer()
+	pricer := NewDomesticDestinationSITFuelSurchargePricer()
 
 	suite.Run("success without PaymentServiceItemParams", func() {
 		isPPM := false
-		priceCents, _, err := DomesticDestinationFuelSurchargePricer.Price(suite.AppContextForTest(), ddsfscActualPickupDate, ddsfscTestDistance, ddsfscTestWeight, ddsfscWeightDistanceMultiplier, ddsfscFuelPrice, isPPM)
+		priceCents, _, err := pricer.Price(suite.AppContextForTest(), ddsfscActualPickupDate, ddsfscTestDistance, ddsfscTestWeight, ddsfscWeightDistanceMultiplier, ddsfscFuelPrice, isPPM)
 		suite.NoError(err)
 		suite.Equal(ddsfscPriceCents, priceCents)
 	})
 
 	suite.Run("success without PaymentServiceItemParams when shipment is PPM with < 500 lb weight", func() {
 		isPPM := true
-		priceCents, _, err := DomesticDestinationFuelSurchargePricer.Price(suite.AppContextForTest(), ddsfscActualPickupDate, ddsfscTestDistance, unit.Pound(250), ddsfscWeightDistanceMultiplier, ddsfscFuelPrice, isPPM)
+		priceCents, _, err := pricer.Price(suite.AppContextForTest(), ddsfscActualPickupDate, ddsfscTestDistance, unit.Pound(250), ddsfscWeightDistanceMultiplier, ddsfscFuelPrice, isPPM)
 		suite.NoError(err)
 		suite.Equal(ddsfscPriceCents, priceCents)
 	})
 
 	suite.Run("DDSFSC is negative if fuel price from EIA is below $2.50", func() {
 		isPPM := false
-		priceCents, _, err := DomesticDestinationFuelSurchargePricer.Price(suite.AppContextForTest(), ddsfscActualPickupDate, ddsfscTestDistance, ddsfscTestWeight, ddsfscWeightDistanceMultiplier, 242400, isPPM)
+		priceCents, _, err := pricer.Price(suite.AppContextForTest(), ddsfscActualPickupDate, ddsfscTestDistance, ddsfscTestWeight, ddsfscWeightDistanceMultiplier, 242400, isPPM)
 		suite.NoError(err)
 		suite.Equal(unit.Cents(-721), priceCents)
 	})
@@ -121,7 +121,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticDestinationFuelSurcharg
 
 		for name, testcase := range testCases {
 			suite.Run(name, func() {
-				_, _, err := DomesticDestinationFuelSurchargePricer.Price(suite.AppContextForTest(), testcase.priceArgs.actualPickupDate, testcase.priceArgs.distance, testcase.priceArgs.weight, testcase.priceArgs.fscWeightBasedDistanceMultiplier, testcase.priceArgs.eiaFuelPrice, testcase.priceArgs.isPPM)
+				_, _, err := pricer.Price(suite.AppContextForTest(), testcase.priceArgs.actualPickupDate, testcase.priceArgs.distance, testcase.priceArgs.weight, testcase.priceArgs.fscWeightBasedDistanceMultiplier, testcase.priceArgs.eiaFuelPrice, testcase.priceArgs.isPPM)
 				suite.Error(err)
 				suite.Equal(testcase.errorMessage, err.Error())
 			})
@@ -130,7 +130,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticDestinationFuelSurcharg
 }
 
 func (suite *GHCRateEngineServiceSuite) TestPriceUsingParamsDomesticDestinationFuelSurcharge() {
-	DomesticDestinationFuelSurchargePricer := NewDomesticDestinationFuelSurchargePricer()
+	pricer := NewDomesticDestinationSITFuelSurchargePricer()
 
 	fscPriceDifferenceInCents := (ddsfscFuelPrice - baseGHCDieselFuelPrice).Float64() / 1000.0
 	fscMultiplier := ddsfscWeightDistanceMultiplier * ddsfscTestDistance.Float64()
@@ -173,7 +173,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceUsingParamsDomesticDestinationF
 
 	suite.Run("success using PaymentServiceItemParams", func() {
 		paymentServiceItem := setupTestData()
-		priceCents, displayParams, err := DomesticDestinationFuelSurchargePricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
+		priceCents, displayParams, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
 		suite.NoError(err)
 		suite.Equal(ddsfscPriceCents, priceCents)
 
@@ -215,7 +215,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceUsingParamsDomesticDestinationF
 			suite.Run(name, func() {
 				paymentServiceItem := setupTestData()
 				params := suite.removeOnePaymentServiceItem(paymentServiceItem.PaymentServiceItemParams, testcase.missingPaymentServiceItem)
-				_, _, err := DomesticDestinationFuelSurchargePricer.PriceUsingParams(suite.AppContextForTest(), params)
+				_, _, err := pricer.PriceUsingParams(suite.AppContextForTest(), params)
 				suite.Error(err)
 				suite.Equal(testcase.errorMessage, err.Error())
 			})
@@ -228,13 +228,13 @@ func (suite *GHCRateEngineServiceSuite) TestPriceUsingParamsDomesticDestinationF
 		paramsWithBadReference[0].PaymentServiceItemID = uuid.Nil
 		// Pricer only searches for the shipment when the ID is nil
 		paramsWithBadReference[0].PaymentServiceItem.MTOServiceItem.MTOShipment.ID = uuid.Nil
-		_, _, err := DomesticDestinationFuelSurchargePricer.PriceUsingParams(suite.AppContextForTest(), paramsWithBadReference)
+		_, _, err := pricer.PriceUsingParams(suite.AppContextForTest(), paramsWithBadReference)
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
 	})
 }
 func (suite *GHCRateEngineServiceSuite) TestPriceUsingParamsDDSFSCBelowMinimumWeight() {
-	DomesticDestinationFuelSurchargePricer := NewDomesticDestinationFuelSurchargePricer()
+	pricer := NewDomesticDestinationSITFuelSurchargePricer()
 
 	setupTestData := func() models.PaymentServiceItem {
 		belowMinWeightBilled := unit.Pound(200)
@@ -278,7 +278,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceUsingParamsDDSFSCBelowMinimumWe
 		paramsWithBelowMinimumWeight := paymentServiceItem.PaymentServiceItemParams
 		paramsWithBelowMinimumWeight[0].PaymentServiceItem.MTOServiceItem.MTOShipment.ShipmentType = models.MTOShipmentTypePPM
 
-		priceCents, _, err := DomesticDestinationFuelSurchargePricer.PriceUsingParams(suite.AppContextForTest(), paramsWithBelowMinimumWeight)
+		priceCents, _, err := pricer.PriceUsingParams(suite.AppContextForTest(), paramsWithBelowMinimumWeight)
 		suite.NoError(err)
 		suite.Equal(ddsfscPriceCents, priceCents)
 
@@ -288,7 +288,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceUsingParamsDDSFSCBelowMinimumWe
 		paymentServiceItem := setupTestData()
 		paramsWithBelowMinimumWeight := paymentServiceItem.PaymentServiceItemParams
 
-		priceCents, _, err := DomesticDestinationFuelSurchargePricer.PriceUsingParams(suite.AppContextForTest(), paramsWithBelowMinimumWeight)
+		priceCents, _, err := pricer.PriceUsingParams(suite.AppContextForTest(), paramsWithBelowMinimumWeight)
 		if suite.Error(err) {
 			suite.Equal("Weight must be a minimum of 500", err.Error())
 			suite.Equal(unit.Cents(0), priceCents)
