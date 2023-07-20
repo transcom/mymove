@@ -72,6 +72,6 @@ type LineOfAccounting struct {
 // TODO Validate required fields?
 
 // TableName overrides the table name used by Pop.
-func (t LineOfAccounting) TableName() string {
+func (l LineOfAccounting) TableName() string {
 	return "lines_of_accounting"
 }
