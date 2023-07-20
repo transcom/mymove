@@ -12,7 +12,7 @@ type TransportationAccountingCode struct {
 	TAC                string     `json:"tac" db:"tac"`
 	CreatedAt          time.Time  `json:"created_at" db:"created_at"`
 	UpdatedAt          time.Time  `json:"updated_at" db:"updated_at"`
-	LoaID              uuid.UUID  `json:"loa_id" db:"loa_id"`
+	LoaID              uuid.UUID  `json:"loa_id" db:"loa_id"` // TODO: Foreign Key to LOA table
 	TacSysID           *int       `json:"tac_sys_id" db:"tac_sys_id"`
 	LoaSysID           *int       `json:"loa_sys_id" db:"loa_sys_id"`
 	TacFyTxt           int        `json:"tac_fy_txt" db:"tac_fy_txt"`
