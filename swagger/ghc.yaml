@@ -32,6 +32,7 @@ tags:
   - name: customer
   - name: mtoServiceItem
   - name: mtoShipment
+  - name: shipment
   - name: mtoAgent
   - name: paymentServiceItem
   - name: ppm
@@ -1105,6 +1106,64 @@ paths:
       summary: Requests a shipment reweigh
       x-permissions:
         - create.reweighRequest
+  /shipments/{shipmentID}/review-shipment-address-update:
+    parameters:
+      - description: ID of the shipment
+        in: path
+        name: shipmentID
+        required: true
+        format: uuid
+        type: string
+    patch:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+        - in: body
+          name: body
+          required: true
+          schema:
+            properties:
+              status:
+                type: string
+                enum:
+                  - REJECTED
+                  - APPROVED
+              officeRemarks:
+                type: string
+            required:
+              - officeRemarks
+              - status
+      responses:
+        '200':
+          description: Successfully requested a shipment address update
+          schema:
+            $ref: '#/definitions/ShipmentAddressUpdate'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - shipment
+      description: >-
+        This endpoint is used to approve a address update request. Office
+        remarks are required. Approving the address update will update the
+        Destination Final Address of the associated service item
+      operationId: reviewShipmentAddressUpdate
+      summary: Allows TOO to review a shipment address update
   /service-items/{mtoServiceItemID}/sit-address-update:
     post:
       summary: Create an approved SIT Address Update
