@@ -303,7 +303,7 @@ class MtoShipmentForm extends Component {
                             legend={<div className={formStyles.legendContent}>Releasing agent {optionalLabel}</div>}
                             render={(fields) => (
                               <>
-                                <p>Who can let the movers pick up your things if you’re not there?</p>
+                                <p>Who can let the movers pick up your personal property if you’re not there?</p>
                                 {fields}
                               </>
                             )}
