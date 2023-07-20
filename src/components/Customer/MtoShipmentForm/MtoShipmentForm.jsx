@@ -425,7 +425,7 @@ class MtoShipmentForm extends Component {
                             legend={<div className={formStyles.legendContent}>Receiving agent {optionalLabel}</div>}
                             render={(fields) => (
                               <>
-                                <p>Who can take delivery for you if the movers arrive and you’re not there?</p>
+                                <p>Who can take delivery for you if the movers arrive and you are not there?</p>
                                 {fields}
                               </>
                             )}
