@@ -100,7 +100,7 @@ func applyMinimum(code models.ReServiceCode, shipmentType models.MTOShipmentType
 			models.ReServiceCodeDDASIT,
 			models.ReServiceCodeDOPSIT,
 			models.ReServiceCodeDDDSIT,
-			//models.ReServiceCodeDDSFSC,
+			models.ReServiceCodeDDSFSC,
 			models.ReServiceCodeDPK,
 			models.ReServiceCodeDNPK,
 			models.ReServiceCodeDUPK,
