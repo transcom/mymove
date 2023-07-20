@@ -197,10 +197,6 @@ test.describe('TIO user', () => {
       await page.waitForURL('**/payment-requests');
       await tioFlowPage.waitForLoading();
 
-      await page.getByRole('link', { name: 'Payment requests', exact: true }).click();
-      await page.waitForURL('**/payment-requests');
-      await tioFlowPage.waitForLoading();
-
       // confirm the move is set up as expected
       await expect(page.getByRole('heading', { name: '$1,130.21' })).toBeVisible();
       await expect(page.getByRole('heading', { name: '$805.55' })).toBeVisible();
