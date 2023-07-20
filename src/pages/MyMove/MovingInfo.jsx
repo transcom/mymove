@@ -94,10 +94,13 @@ export class MovingInfo extends Component {
                   Personally Procured Move (PPM).
                 </p>
               </IconSection>
-              <IconSection icon="hand-holding-usd" headline="You can get paid for things you move yourself.">
+              <IconSection
+                icon="hand-holding-usd"
+                headline="You can get paid for any household goods you move yourself."
+              >
                 <p>
-                  The government will pay you for moving belongings that you document by weight. (This is a PPM, or
-                  DITY.)
+                  Remember to obtain and submit documents to the government to verify the weight of your PPM shipment in
+                  order to receive your payment.
                 </p>
               </IconSection>
             </SectionWrapper>
