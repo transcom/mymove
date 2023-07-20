@@ -89,8 +89,9 @@ export class MovingInfo extends Component {
               </IconSection>
               <IconSection icon="car" headline="It's common to move some things yourself.">
                 <p>
-                  Most people have professionals move most of their things, but handle a few important things
-                  themselves.
+                  Most people utilize a professional moving company to pack, pick-up and deliver the majority of their
+                  personal property and move a few important or necessary items themselves. This is called a partial
+                  Personally Procured Move (PPM).
                 </p>
               </IconSection>
               <IconSection icon="hand-holding-usd" headline="You can get paid for things you move yourself.">
