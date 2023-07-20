@@ -4572,3 +4572,70 @@ func MakeHHGMoveInSITNotApproved(appCtx appcontext.AppContext) models.Move {
 
 	return move
 }
+
+func MakeHHGMoveWithAddressChangeRequest(appCtx appcontext.AppContext) models.ShipmentAddressUpdate {
+	userUploader := newUserUploader(appCtx)
+	userInfo := newUserInfo("customer")
+
+	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.User{
+				LoginGovEmail: userInfo.email,
+				Active:        true,
+			},
+		},
+	}, nil)
+	customer := factory.BuildExtendedServiceMember(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				PersonalEmail: &userInfo.email,
+				FirstName:     &userInfo.firstName,
+				LastName:      &userInfo.lastName,
+			},
+		},
+		{
+			Model:    user,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	orders := factory.BuildOrder(appCtx.DB(), []factory.Customization{
+		{
+			Model:    customer,
+			LinkOnly: true,
+		},
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
+
+	shipmentAddressUpdate := factory.BuildShipmentAddressUpdate(appCtx.DB(), []factory.Customization{
+		{
+			Model:    orders,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ShipmentAddressUpdate{
+				Status: models.ShipmentAddressUpdateStatusRequested,
+			},
+		},
+		{
+			Model: models.Move{
+				Status:             models.MoveStatusAPPROVALSREQUESTED,
+				AvailableToPrimeAt: models.TimePointer(time.Now()),
+			},
+		},
+		{
+			Model: models.MTOShipment{
+				Status: models.MTOShipmentStatusApproved,
+			},
+		},
+	}, nil)
+
+	return shipmentAddressUpdate
+
+}
