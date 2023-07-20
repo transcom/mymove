@@ -63,7 +63,10 @@ export class MovingInfo extends Component {
                 icon="weight-hanging"
                 headline={`You can move ${formatWeight(entitlementWeight)} in this move.`}
               >
-                <p>You&apos;ll have to pay for any excess weight the government moves.</p>
+                <p>
+                  You will have to pay for any excess weight above this allowance, so work hard to make sure you stay
+                  within your weight limit.
+                </p>
               </IconSection>
               <IconSection icon="pencil-alt" headline="You don't need to get the details perfect.">
                 <p>
