@@ -192,8 +192,8 @@ export class SelectShipmentType extends Component {
               {!shipmentInfo.hasShipment && (
                 <p data-testid="helper-footer" className={styles.footer}>
                   <small>
-                    It’s OK if you’re not sure about your choices. Your move counselor will go over all your options and
-                    can help make changes if necessary.
+                    It’s okay if you are not sure about your choice. Your move counselor will go over all your options
+                    and can help make changes if necessary.
                   </small>
                 </p>
               )}
