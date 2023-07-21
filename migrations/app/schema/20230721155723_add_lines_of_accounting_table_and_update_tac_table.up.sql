@@ -63,10 +63,10 @@ CREATE TABLE lines_of_accounting
 );
 
 ALTER TABLE transportation_accounting_codes
-ADD loa_id uuid NOT NULL,
+ADD loa_id uuid,
 ADD tac_sys_id integer,
 ADD loa_sys_id integer,
-ADD tac_fy_txt integer NOT NULL,
+ADD tac_fy_txt integer,
 ADD tac_fn_bl_mod_cd char(1),
 ADD org_grp_dfas_cd char(2),
 ADD tac_mvt_dsg_id varchar(255),
