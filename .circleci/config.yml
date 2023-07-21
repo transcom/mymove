@@ -31,7 +31,7 @@ references:
   # base image that spins up quickly
   cimg_base: &cimg_base cimg/base:2022.12-22.04
 
-  aws-otel-collector: &aws-otel-collector public.ecr.aws/aws-observability/aws-otel-collector:v0.29.0
+  aws-otel-collector: &aws-otel-collector public.ecr.aws/aws-observability/aws-otel-collector:v0.31.0
 
   # To deploy to loadtest, demo or exp:
   # set dp3-branch to the branch you want to deploy to the env specifed

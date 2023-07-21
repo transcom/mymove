@@ -1,3 +1,7 @@
+#
+# Inspired by
+# https://github.com/open-telemetry/opentelemetry-demo/blob/main/docker-compose.yml
+#
 version: '3.7'
 x-default-logging: &logging
   driver: "json-file"
@@ -8,7 +12,7 @@ x-default-logging: &logging
 services:
   # Jaeger
   jaeger:
-    image: jaegertracing/all-in-one
+    image: jaegertracing/all-in-one:1.47
     container_name: jaeger
     command:
       - "--memory.max-traces"
@@ -20,7 +24,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 275M
+          memory: 300M
     restart: unless-stopped
     ports:
       - "16686:16686"                     # Jaeger UI
@@ -32,8 +36,12 @@ services:
 
   # Grafana
   grafana:
-    image: grafana/grafana:9.1.0
+    image: grafana/grafana:9.4.7
     container_name: grafana
+    deploy:
+      resources:
+        limits:
+          memory: 100M
     volumes:
       - ./config/telemetry/grafana.ini:/etc/grafana/grafana.ini
       - ./config/telemetry/provisioning/:/etc/grafana/provisioning/
@@ -43,16 +51,17 @@ services:
 
   # OpenTelemetry Collector
   otelcol:
-    image: otel/opentelemetry-collector-contrib:0.70.0
+    image: otel/opentelemetry-collector-contrib:0.81.0
     container_name: otel-col
     deploy:
       resources:
         limits:
-          memory: 100M
+          memory: 125M
     restart: unless-stopped
-    command: [ "--config=/etc/otelcol-config.yml", "--config=/etc/otelcol-config-extras.yml" ]
+    command: [ "--config=/etc/otelcol-config.yml", "--config=/etc/otelcol-observability.yml", "--config=/etc/otelcol-config-extras.yml" ]
     volumes:
       - ./config/telemetry/otelcol-config.yml:/etc/otelcol-config.yml
+      - ./config/telemetry/otelcol-observability.yml:/etc/otelcol-observability.yml
       - ./config/telemetry/otelcol-config-extras.yml:/etc/otelcol-config-extras.yml
     ports:
       - "4317:4317"     # OTLP over gRPC receiver
@@ -65,7 +74,7 @@ services:
 
   # Prometheus
   prometheus:
-    image: quay.io/prometheus/prometheus:v2.34.0
+    image: quay.io/prometheus/prometheus:v2.43.0
     container_name: prometheus
     command:
       - --web.console.templates=/etc/prometheus/consoles
@@ -78,6 +87,10 @@ services:
       - --enable-feature=exemplar-storage
     volumes:
       - ./config/telemetry/prometheus-config.yaml:/etc/prometheus/prometheus-config.yaml
+    deploy:
+      resources:
+        limits:
+          memory: 300M
     ports:
       - "9090:9090"
     logging: *logging
