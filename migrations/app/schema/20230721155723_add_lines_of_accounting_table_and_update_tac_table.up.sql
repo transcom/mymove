@@ -62,6 +62,66 @@ CREATE TABLE lines_of_accounting
 	updated_at timestamp without time zone NOT NULL
 );
 
+-- Column Comments
+COMMENT on TABLE lines_of_accounting IS '';
+COMMENT on COLUMN lines_of_accounting.loa_sys_id IS 'Unique primary id that is referenced from rows in the Transportation Accounting spreadsheet';
+COMMENT on COLUMN lines_of_accounting.loa_dpt_id IS 'Department Indicator';
+COMMENT on COLUMN lines_of_accounting.loa_tnsfr_dpt_nm IS 'Transfer From Department';
+COMMENT on COLUMN lines_of_accounting.loa_baf_id IS 'Basic Symbol Number';
+COMMENT on COLUMN lines_of_accounting.loa_trsy_sfx_tx IS 'Subhead/Limit';
+COMMENT on COLUMN lines_of_accounting.loa_maj_clm_nm IS 'Fund Code/Major Claimant';
+COMMENT on COLUMN lines_of_accounting.loa_op_agncy_id IS 'Operation Agency Code/Fund Admin';
+COMMENT on COLUMN lines_of_accounting.loa_allt_sn_id IS 'Allotment Serial Number';
+COMMENT on COLUMN lines_of_accounting.loa_pgm_elmnt_id IS 'Program Element Code';
+COMMENT on COLUMN lines_of_accounting.loa_tsk_bdgt_sbln_tx IS 'Project Task/Budget Subline';
+COMMENT on COLUMN lines_of_accounting.loa_df_agncy_alctn_rcpnt_id IS 'Defense Agency Allocation Recipient';
+COMMENT on COLUMN lines_of_accounting.loa_jb_ord_nm IS 'Job Order/Work Order Code';
+COMMENT on COLUMN lines_of_accounting.loa_sbaltmt_rcpnt_id IS 'Sub-Allotment Recipient';
+COMMENT on COLUMN lines_of_accounting.loa_wk_cntr_rcpnt_nm IS 'Work Center Recipient';
+COMMENT on COLUMN lines_of_accounting.loa_maj_rmbsmt_src_id IS 'Major Reimbursement Source Code';
+COMMENT on COLUMN lines_of_accounting.loa_dtl_rmbsmt_src_id IS 'Detail Reimbursement Source Code';
+COMMENT on COLUMN lines_of_accounting.loa_cust_nm IS 'Customer Indicator/MPC';
+COMMENT on COLUMN lines_of_accounting.loa_obj_cls_id IS 'Object Class';
+COMMENT on COLUMN lines_of_accounting.loa_srv_src_id IS 'Government/Public Sector Identifier';
+COMMENT on COLUMN lines_of_accounting.loa_spcl_intr_id IS 'Special Interest Code/Special Program Cost Code';
+COMMENT on COLUMN lines_of_accounting.loa_bdgt_acnt_cls_nm IS 'DoD Budget & Accounting Class. Code';
+COMMENT on COLUMN lines_of_accounting.loa_doc_id IS 'Document/Record Reference Number';
+COMMENT on COLUMN lines_of_accounting.loa_cls_ref_id IS 'Accounting Classification Reference Number';
+COMMENT on COLUMN lines_of_accounting.loa_instl_acntg_act_id IS 'Accounting Installation Number';
+COMMENT on COLUMN lines_of_accounting.loa_lcl_instl_id IS 'Local Installation Data/IFS Number';
+COMMENT on COLUMN lines_of_accounting.loa_fms_trnsactn_id IS 'Transaction Type';
+COMMENT on COLUMN lines_of_accounting.loa_dsc_tx IS 'FMS Country Code, Implementing Agency, Case Number & Line Item Number';
+COMMENT on COLUMN lines_of_accounting.loa_bgn_dt IS 'Begin Date (Fiscal Year)';
+COMMENT on COLUMN lines_of_accounting.loa_end_dt IS 'End Date (Fiscal Year)';
+COMMENT on COLUMN lines_of_accounting.loa_fnct_prs_nm IS '';
+COMMENT on COLUMN lines_of_accounting.loa_stat_cd IS '';
+COMMENT on COLUMN lines_of_accounting.loa_hist_stat_cd IS '';
+COMMENT on COLUMN lines_of_accounting.loa_hs_gds_cd IS 'Household Goods Program Code';
+COMMENT on COLUMN lines_of_accounting.org_grp_dfas_cd IS '';
+COMMENT on COLUMN lines_of_accounting.loa_uic IS 'Unit Identification Code';
+COMMENT on COLUMN lines_of_accounting.loa_trnsn_id IS '';
+COMMENT on COLUMN lines_of_accounting.loa_sub_acnt_id IS '';
+COMMENT on COLUMN lines_of_accounting.loa_bet_cd IS '';
+COMMENT on COLUMN lines_of_accounting.loa_fnd_ty_fg_cd IS '';
+COMMENT on COLUMN lines_of_accounting.loa_bgt_ln_itm_id IS '';
+COMMENT on COLUMN lines_of_accounting.loa_scrty_coop_impl_agnc_cd IS '';
+COMMENT on COLUMN lines_of_accounting.loa_scrty_coop_dsgntr_cd IS '';
+COMMENT on COLUMN lines_of_accounting.loa_scrty_coop_ln_itm_id IS '';
+COMMENT on COLUMN lines_of_accounting.loa_agnc_dsbr_cd IS '';
+COMMENT on COLUMN lines_of_accounting.loa_agnc_acntng_cd IS '';
+COMMENT on COLUMN lines_of_accounting.loa_fnd_cntr_id IS '';
+COMMENT on COLUMN lines_of_accounting.loa_cst_cntr_id IS '';
+COMMENT on COLUMN lines_of_accounting.loa_prj_id IS '';
+COMMENT on COLUMN lines_of_accounting.loa_actvty_id IS '';
+COMMENT on COLUMN lines_of_accounting.loa_cst_cd IS '';
+COMMENT on COLUMN lines_of_accounting.loa_wrk_ord_id IS '';
+COMMENT on COLUMN lines_of_accounting.loa_fncl_ar_id IS '';
+COMMENT on COLUMN lines_of_accounting.loa_scrty_coop_cust_cd IS '';
+COMMENT on COLUMN lines_of_accounting.loa_end_fy_tx IS '';
+COMMENT on COLUMN lines_of_accounting.loa_bg_fy_tx IS '';
+COMMENT on COLUMN lines_of_accounting.loa_bgt_rstr_cd IS '';
+COMMENT on COLUMN lines_of_accounting.loa_bgt_sub_act_cd IS '';
+
 ALTER TABLE transportation_accounting_codes
 ADD loa_id uuid,
 ADD tac_sys_id integer,
@@ -90,3 +150,29 @@ ADD tac_fnct_poc_nm varchar(255);
 
 ALTER TABLE transportation_accounting_codes
 	ADD CONSTRAINT transportation_accounting_codes_loa_id_fkey FOREIGN KEY (loa_id) REFERENCES lines_of_accounting (id);
+
+-- Column Comments
+COMMENT on COLUMN transportation_accounting_codes.loa_id IS 'Associates the TAC to a Line of Accounting';
+COMMENT on COLUMN transportation_accounting_codes.tac_sys_id IS 'TAC System Identifier';
+COMMENT on COLUMN transportation_accounting_codes.loa_sys_id IS 'LOA System Identifier';
+COMMENT on COLUMN transportation_accounting_codes.tac_fy_txt IS 'Fiscal year';
+COMMENT on COLUMN transportation_accounting_codes.tac_fn_bl_mod_cd IS 'Financial Bill Mode Code';
+COMMENT on COLUMN transportation_accounting_codes.org_grp_dfas_cd IS 'Transportation Service Code';
+COMMENT on COLUMN transportation_accounting_codes.tac_mvt_dsg_id IS 'Movement Designator Code';
+COMMENT on COLUMN transportation_accounting_codes.tac_ty_cd IS 'Type Code';
+COMMENT on COLUMN transportation_accounting_codes.tac_use_cd IS 'Usage Code';
+COMMENT on COLUMN transportation_accounting_codes.tac_maj_clmt_id IS 'Major Claimant';
+COMMENT on COLUMN transportation_accounting_codes.tac_bill_act_txt IS 'Bill Account Code';
+COMMENT on COLUMN transportation_accounting_codes.tac_cost_ctr_nm IS 'Cost Center';
+COMMENT on COLUMN transportation_accounting_codes.buic IS 'BUIC';
+COMMENT on COLUMN transportation_accounting_codes.tac_hist_cd IS 'History Status Code';
+COMMENT on COLUMN transportation_accounting_codes.tac_stat_cd IS 'TAC Status Code';
+COMMENT on COLUMN transportation_accounting_codes.trnsprtn_acnt_tx IS 'Description';
+COMMENT on COLUMN transportation_accounting_codes.trnsprtn_acnt_bgn_dt IS 'Effective Begin Date';
+COMMENT on COLUMN transportation_accounting_codes.trnsprtn_acnt_end_dt IS 'Effective End Date';
+COMMENT on COLUMN transportation_accounting_codes.dd_actvty_adrs_id IS 'DODAAC';
+COMMENT on COLUMN transportation_accounting_codes.tac_blld_add_frst_ln_tx IS 'Billed Address Line 1';
+COMMENT on COLUMN transportation_accounting_codes.tac_blld_add_scnd_ln_tx IS 'Billed Address Line 2';
+COMMENT on COLUMN transportation_accounting_codes.tac_blld_add_thrd_ln_tx IS 'Billed Address Line 3';
+COMMENT on COLUMN transportation_accounting_codes.tac_blld_add_frth_ln_tx IS 'Billed Address Line 4';
+COMMENT on COLUMN transportation_accounting_codes.tac_fnct_poc_nm IS 'TAC Functional POC';
