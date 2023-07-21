@@ -10,6 +10,10 @@
     margin-top: 20px; // + global 20px padding = 40px = 5 units
   }
 
+  :global .usa-alert--slim::before {
+    height: 2.3rem !important; // Centers the alert icon vertically
+  }
+
   .headerWrapper {
     display: flex;
     justify-content: space-between;
@@ -64,6 +68,15 @@
     input {
       @include u-margin-top(1);
       width: 70%;
+    }
+  }
+
+  .deliveryAddressUpdateAlert {
+    font-size: 13px;
+
+    .reviewRequestLink {
+      font-weight: 400;
+      cursor: pointer;
     }
   }
 
