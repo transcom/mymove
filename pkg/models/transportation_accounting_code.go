@@ -36,6 +36,7 @@ type TransportationAccountingCode struct {
 	TacBlldAddScndLnTx *string          `json:"tac_blld_add_scnd_ln_tx" db:"tac_blld_add_scnd_ln_tx"`
 	TacBlldAddThrdLnTx *string          `json:"tac_blld_add_thrd_ln_tx" db:"tac_blld_add_thrd_ln_tx"`
 	TacBlldAddFrthLnTx *string          `json:"tac_blld_add_frth_ln_tx" db:"tac_blld_add_frth_ln_tx"`
+	TacFnctPocNm       *string          `json:"tac_fnct_poc_nm" db:"tac_fnct_poc_nm"`
 }
 
 // TODO Validate required fields?
