@@ -141,7 +141,7 @@ const EstimatedWeightsProGearForm = ({ orders, serviceMember, mtoShipment, onSub
                   />
                 </Fieldset>
                 <Hint className={ppmStyles.hint}>
-                  If you&apos;re not sure, select yes and your counselor can help you figure it out.
+                  If you are not sure, select yes and your counselor can help you figure it out.
                 </Hint>
                 {values.hasProGear === 'true' && (
                   <>
