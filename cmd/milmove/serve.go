@@ -4,7 +4,6 @@ import (
 	"context"
 	"crypto/tls"
 	"crypto/x509"
-	"crypto/x509/pkix"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
@@ -416,12 +415,12 @@ func initializeTLSConfig(appCtx appcontext.AppContext, v *viper.Viper) *tls.Conf
 
 // HTTP client
 // Hard failure - failure to check revocation list status due to network or other failures.
-Fail := false
-func certRevokedCheck(appCtx appcontext.AppContext, cert *x509.Certificate) (revoked, ok bool, err error) {
-	if revoked, ok, err := certRevokedOCSP(cert, Fail); !ok {
-		//log.Warning("error checking revocation via OCSP")
+var failToCheckRevList bool = false
+
+func certRevokedCheck(appCtx appcontext.AppContext, clientCert *x509.Certificate) (revoked, ok bool, err error) {
+	if revoked, ok, err := certRevokedOCSP(clientCert, failToCheckRevList); !ok {
 		appCtx.Logger().Info("error checking revocation via OCSP")
-		if Fail {
+		if failToCheckRevList {
 			return true, false, err
 		}
 		return false, false, err
@@ -433,7 +432,7 @@ func certRevokedCheck(appCtx appcontext.AppContext, cert *x509.Certificate) (rev
 	return false, true, nil
 }
 
-func getCRL(url string) (rawCerts [][]byte,verifiedChains [][]*x509.Certificate) {
+func getCRL(url string) (rawCerts [][]byte, verifiedChains [][]*x509.Certificate) {
 	//userCert := verifiedChains[0][0]
 	//issuerCert := verifiedChains[0][1]
 	//responseBody := [][]byte //TODO: read response body here
@@ -459,6 +458,7 @@ func certRevokedOCSP(cert *x509.Certificate, strict bool) (revoked, ok bool, err
 // Returns error if the server can't get the certificate
 func sendOCSPRequest(server string, request []byte, leafCertificate, issuer *x509.Certificate) (*ocsp.Response, error) {
 	var ocspRead = io.ReadAll
+	// NOTE: http requests must be made with TLS
 	response := *http.Response
 	body, err := ocspRead(response.Body)
 	if err != nil {
@@ -467,8 +467,16 @@ func sendOCSPRequest(server string, request []byte, leafCertificate, issuer *x50
 	return ocsp.ParseResponseForCert(body, leafCertificate, issuer)
 }
 
-func getOCSPResponse(commonName string, clientCert, issuerCert *x509.Certificate, ocspServerURL string) (*ocsp.Response, error){
+func getOCSPResponse(commonName string, clientCert, issuerCert *x509.Certificate, ocspServerURL string) (*ocsp.Response, error) {
 
+}
+
+func fetchRemoteCert(url string) (*x509.Certificate, error) {
+	response, err := httpClient.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	response.Body.Close()
 }
 
 func initializeRouteOptions(v *viper.Viper, routingConfig *routing.Config) {
