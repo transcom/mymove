@@ -370,10 +370,13 @@ func InitDatabase(v *viper.Viper, creds *credentials.Credentials, logger *zap.Lo
 		// the otelsql one manually here
 		instrumentedDriverName := "instrumented-" + dbConnectionDetails.Driver
 		spanOptions := otelsql.SpanOptions{
-			Ping:                 true,
-			RowsNext:             v.GetBool(DbDebugFlag),
+			Ping:     true,
+			RowsNext: v.GetBool(DbDebugFlag),
+			// These provide very little information and can make it
+			// hard to see through the noise
 			OmitConnResetSession: true,
 			OmitConnectorConnect: true,
+			OmitRows:             true,
 		}
 		otelDriver := otelsql.WrapDriver(&iampg.RDSPostgresDriver{},
 			otelsql.WithSpanOptions(spanOptions))
