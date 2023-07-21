@@ -1,8 +1,6 @@
 CREATE TABLE lines_of_accounting
 (
 	id uuid PRIMARY KEY,
-	created_at timestamp without time zone NOT NULL,
-	updated_at timestamp without time zone NOT NULL,
 	loa_sys_id integer,
 	loa_dpt_id char(2),
 	loa_tnsfr_dpt_nm varchar(4),
@@ -59,5 +57,7 @@ CREATE TABLE lines_of_accounting
 	loa_end_fy_tx integer,
 	loa_bg_fy_tx integer,
 	loa_bgt_rstr_cd char(1),
-	loa_bgt_sub_act_cd char(4)
+	loa_bgt_sub_act_cd char(4),
+	created_at timestamp without time zone NOT NULL,
+	updated_at timestamp without time zone NOT NULL
 );

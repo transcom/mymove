@@ -8,8 +8,6 @@ import (
 
 type LineOfAccounting struct {
 	ID                     uuid.UUID  `json:"id" db:"id"`
-	CreatedAt              time.Time  `json:"created_at" db:"created_at"`
-	UpdatedAt              time.Time  `json:"updated_at" db:"updated_at"`
 	LoaSysID               *int       `json:"loa_sys_id" db:"loa_sys_id"`
 	LoaDptID               *string    `json:"loa_dpt_id" db:"loa_dpt_id"`
 	LoaTnsfrDptNm          *string    `json:"loa_tnsfr_dpt_nm" db:"loa_tnsfr_dpt_nm"`
@@ -67,6 +65,8 @@ type LineOfAccounting struct {
 	LoaBgFyTx              *int       `json:"loa_bg_fy_tx" db:"loa_bg_fy_tx"`
 	LoaBgtRstrCd           *string    `json:"loa_bgt_rstr_cd" db:"loa_bgt_rstr_cd"`
 	LoaBgtSubActCd         *string    `json:"loa_bgt_sub_act_cd" db:"loa_bgt_sub_act_cd"`
+	CreatedAt              time.Time  `json:"created_at" db:"created_at"`
+	UpdatedAt              time.Time  `json:"updated_at" db:"updated_at"`
 }
 
 // TODO Validate required fields?

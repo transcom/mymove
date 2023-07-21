@@ -10,8 +10,6 @@ import (
 type TransportationAccountingCode struct {
 	ID                 uuid.UUID        `json:"id" db:"id"`
 	TAC                string           `json:"tac" db:"tac"`
-	CreatedAt          time.Time        `json:"created_at" db:"created_at"`
-	UpdatedAt          time.Time        `json:"updated_at" db:"updated_at"`
 	LoaID              uuid.UUID        `json:"loa_id" db:"loa_id"`
 	LineOfAccounting   LineOfAccounting `belongs_to:"lines_of_accounting" fk_id:"loa_id"`
 	TacSysID           *int             `json:"tac_sys_id" db:"tac_sys_id"`
@@ -37,6 +35,8 @@ type TransportationAccountingCode struct {
 	TacBlldAddThrdLnTx *string          `json:"tac_blld_add_thrd_ln_tx" db:"tac_blld_add_thrd_ln_tx"`
 	TacBlldAddFrthLnTx *string          `json:"tac_blld_add_frth_ln_tx" db:"tac_blld_add_frth_ln_tx"`
 	TacFnctPocNm       *string          `json:"tac_fnct_poc_nm" db:"tac_fnct_poc_nm"`
+	CreatedAt          time.Time        `json:"created_at" db:"created_at"`
+	UpdatedAt          time.Time        `json:"updated_at" db:"updated_at"`
 }
 
 // TODO Validate required fields?
