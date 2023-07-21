@@ -495,8 +495,8 @@ export class Home extends Component {
                         />
                         {this.hasSubmittedMove && (
                           <p className={styles.descriptionExtra}>
-                            If you need to change, add, or get rid of shipments, talk to your move counselor or to your
-                            movers.
+                            If you need to change, add, or cancel shipments, talk to your move counselor or Customer
+                            Care Representative
                           </p>
                         )}
                       </div>
