@@ -63,7 +63,7 @@ CREATE TABLE lines_of_accounting
 );
 
 -- Column Comments
-COMMENT on TABLE lines_of_accounting IS '';
+COMMENT on TABLE lines_of_accounting IS 'A Line of Accounting (LOA) is the funding associated with a federal organization’s budget';
 COMMENT on COLUMN lines_of_accounting.loa_sys_id IS 'Unique primary id that is referenced from rows in the Transportation Accounting spreadsheet';
 COMMENT on COLUMN lines_of_accounting.loa_dpt_id IS 'Department Indicator';
 COMMENT on COLUMN lines_of_accounting.loa_tnsfr_dpt_nm IS 'Transfer From Department';
