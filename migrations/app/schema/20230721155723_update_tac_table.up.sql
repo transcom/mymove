@@ -1,7 +1,7 @@
 ALTER TABLE transportation_accounting_codes
 ADD loa_id uuid NOT NULL,
 ADD tac_sys_id integer,
-ADD loa_sys_id interger,
+ADD loa_sys_id integer,
 ADD tac_fy_txt integer NOT NULL,
 ADD tac_fn_bl_mod_cd char(1),
 ADD org_grp_dfas_cd char(2),
