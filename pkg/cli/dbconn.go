@@ -18,6 +18,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
+	semconv "go.opentelemetry.io/otel/semconv/v1.20.0"
 	"go.uber.org/zap"
 
 	iampg "github.com/transcom/mymove/pkg/iampostgres"
@@ -379,6 +380,7 @@ func InitDatabase(v *viper.Viper, creds *credentials.Credentials, logger *zap.Lo
 			OmitRows:             true,
 		}
 		otelDriver := otelsql.WrapDriver(&iampg.RDSPostgresDriver{},
+			otelsql.WithAttributes(semconv.DBSystemPostgreSQL),
 			otelsql.WithSpanOptions(spanOptions))
 
 		// Make sure the otelsql driver implements the DriverContext interface
