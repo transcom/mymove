@@ -42,6 +42,19 @@ func (suite *cliTestSuite) SetViper(v *viper.Viper) {
 	suite.viper = v
 }
 
+// FatalNoError ends a test if an error is not nil
+func (suite *cliTestSuite) FatalNoError(err error, messages ...string) {
+	t := suite.T()
+	t.Helper()
+	if !suite.NoError(err) {
+		if len(messages) > 0 {
+			t.Fatalf("%s: %s", strings.Join(messages, ","), err.Error())
+		} else {
+			t.Fatal(err.Error())
+		}
+	}
+}
+
 func TestCLISuite(t *testing.T) {
 
 	ss := &cliTestSuite{

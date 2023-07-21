@@ -57,6 +57,12 @@ func CheckGEXSFTP(v *viper.Viper) error {
 		return err
 	}
 
+	hostKeyString := v.GetString(GEXSFTPHostKeyFlag)
+	_, _, _, _, hostKeyErr := ssh.ParseAuthorizedKey([]byte(hostKeyString))
+	if hostKeyErr != nil {
+		return hostKeyErr
+	}
+
 	return ValidateHost(v, GEXSFTPIPAddressFlag)
 }
 
