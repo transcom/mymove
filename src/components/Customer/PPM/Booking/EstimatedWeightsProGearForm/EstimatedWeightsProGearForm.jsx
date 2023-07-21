@@ -98,8 +98,8 @@ const EstimatedWeightsProGearForm = ({ orders, serviceMember, mtoShipment, onSub
                 <p>A good guideline: Estimate 1,000 to 1,500 lbs per room.</p>
 
                 <p>
-                  If you own a lot of things for your space, estimate on the higher side. If you own less, estimate
-                  lower. The services have an official{' '}
+                  If you own a lot of personal property, estimate on the higher side. If you own less, estimate lower.
+                  The Services have an official{' '}
                   <a
                     href="https://www.ustranscom.mil/dp3/weightestimator.cfm"
                     target="_blank"
@@ -107,8 +107,8 @@ const EstimatedWeightsProGearForm = ({ orders, serviceMember, mtoShipment, onSub
                   >
                     weight estimation calculator
                   </a>{' '}
-                  <FontAwesomeIcon icon="external-link-alt" /> you can use for a more accurate estimate. (Link opens a
-                  new window.)
+                  <FontAwesomeIcon icon="external-link-alt" /> to discover the average weight of standard household
+                  items and get a calculation to compare with your entitlement allowance. (Link opens in a new window.)
                 </p>
               </SectionWrapper>
               <SectionWrapper className={classnames(ppmStyles.sectionWrapper, formStyles.formSection)}>
