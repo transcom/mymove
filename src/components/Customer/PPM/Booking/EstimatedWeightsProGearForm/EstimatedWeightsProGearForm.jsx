@@ -115,7 +115,7 @@ const EstimatedWeightsProGearForm = ({ orders, serviceMember, mtoShipment, onSub
                 <h2>Pro-gear</h2>
                 <p>
                   Pro-gear, or PBP&E, includes books, papers, and equipment you need for your official duties. Service
-                  members can move up to 2,000 lbs of pro-gear. Spouses can move up to 500 lbs.
+                  members can move up to 2,000 lbs of pro-gear. Additionally, spouses can move up to 500 lbs.
                 </p>
 
                 <p>You get paid for moving pro-gear, but it does not count against your total weight allowance.</p>
