@@ -59,8 +59,8 @@ const EstimatedWeightsProGearForm = ({ orders, serviceMember, mtoShipment, onSub
               <SectionWrapper className={classnames(ppmStyles.sectionWrapper, formStyles.formSection)}>
                 <h2>Full PPM</h2>
                 <p>
-                  Estimate the full weight of your PPM, including everything you plan to move. If you’re moving pro-gear
-                  in this PPM, include that weight in this estimate.
+                  Estimate the full weight of your PPM, including everything you plan to move. If you are moving
+                  pro-gear in this PPM, include that weight in this estimate.
                 </p>
                 <p className={formStyles.pBeforeFormGroup}>
                   Do not count weight twice, though. Do not include weight in your estimate that will be moved in other
