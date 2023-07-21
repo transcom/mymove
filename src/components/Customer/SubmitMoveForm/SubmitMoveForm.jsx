@@ -29,7 +29,7 @@ const SubmitMoveForm = (props) => {
           <Form className={`${formStyles.form} ${styles.SubmitMoveForm}`}>
             <h1>Now for the official part&hellip;</h1>
             <p>
-              Please read this agreement, type your name in the <strong>Signature</strong> field to sign it, then tap
+              Please read this agreement, type your name in the <strong>SIGNATURE</strong> field to sign it, then click
               the <strong>Complete</strong> button.
             </p>
             <p>This agreement covers the shipment of your personal property.</p>
