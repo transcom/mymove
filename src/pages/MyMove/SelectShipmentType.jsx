@@ -129,7 +129,9 @@ export class SelectShipmentType extends Component {
                 You can move everything in one shipment, or you can split your belongings into multiple shipments that
                 are moved in different ways.
               </p>
-              <p>After you set up this shipment, you can add another shipment if you have more things to move.</p>
+              <p>
+                After you set up this shipment, you can add another shipment if you have more personal property to move.
+              </p>
 
               <SelectableCard
                 {...selectableCardDefaultProps}
