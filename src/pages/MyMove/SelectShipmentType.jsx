@@ -168,7 +168,7 @@ export class SelectShipmentType extends Component {
                   <p>Your orders might not authorize long-term storage &mdash; your counselor can verify.</p>
                   <SelectableCard
                     {...selectableCardDefaultProps}
-                    label="It's going into storage for months or years (NTS)"
+                    label="It is going into storage for months or years (NTS)"
                     value={SHIPMENT_OPTIONS.NTS}
                     id={SHIPMENT_OPTIONS.NTS}
                     cardText={ntsCardText}
