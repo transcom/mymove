@@ -474,7 +474,7 @@ class MtoShipmentForm extends Component {
                             data-testid="remarks"
                             name="customerRemarks"
                             className={`${formStyles.remarks}`}
-                            placeholder="Don’t itemize your belongings here. Your movers will help do that when they talk to you."
+                            placeholder="Do not itemize your personal property here. Your movers will help do that when they talk to you."
                             id="customerRemarks"
                             maxLength={250}
                           />
