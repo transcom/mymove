@@ -465,7 +465,10 @@ export class Home extends Component {
                       <p>If you receive amended orders:</p>
                       <ul>
                         <li>Upload the new documents here</li>
-                        <li>Talk directly with your movers about changes</li>
+                        <li>
+                          Talk directly to your local transportation office and Customer Care Representative about
+                          changes
+                        </li>
                         <li>The transportation office will update your move info to reflect the new orders</li>
                       </ul>
                     </Step>
