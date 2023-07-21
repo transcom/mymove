@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bytes"
 	"context"
+	"crypto"
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/hex"
@@ -456,15 +458,27 @@ func certRevokedOCSP(cert *x509.Certificate, strict bool) (revoked, ok bool, err
 
 // Request OCSP response from server.
 // Returns error if the server can't get the certificate
-func sendOCSPRequest(server string, request []byte, leafCertificate, issuer *x509.Certificate) (*ocsp.Response, error) {
+func sendOCSPRequest(ocspServer string, request []byte, clientCert, leafCertificate, issuerCert *x509.Certificate) (*ocsp.Response, error) {
 	var ocspRead = io.ReadAll
 	// NOTE: http requests must be made with TLS
-	response := *http.Response
+	ocspRequstOpts := &ocsp.RequestOptions{Hash: crypto.SHA256}
+	buffer, err := ocsp.CreateRequest(clientCert, issuerCert, ocspRequstOpts)
+	if err != nil {
+		return nil, err
+	}
+	httpRequest, err := http.NewRequest(http.MethodPost, ocspServer, bytes.NewBuffer(buffer))
+	if err != nil {
+		return nil, err
+	}
+	response, err := httpClient.Do(httpRequest)
+	if err != nil {
+		return nil, err
+	}
 	body, err := ocspRead(response.Body)
 	if err != nil {
 		return nil, err
 	}
-	return ocsp.ParseResponseForCert(body, leafCertificate, issuer)
+	return ocsp.ParseResponseForCert(body, leafCertificate, issuerCert)
 }
 
 func getOCSPResponse(commonName string, clientCert, issuerCert *x509.Certificate, ocspServerURL string) (*ocsp.Response, error) {
