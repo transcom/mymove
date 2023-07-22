@@ -6,31 +6,29 @@ import (
 	"os"
 	"strings"
 
-	"github.com/pkg/sftp"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
+	awssession "github.com/aws/aws-sdk-go/aws/session"
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
-	"golang.org/x/crypto/ssh"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/logging"
 )
 
 // Call this from the command line with go run ./cmd/milmove-tasks connect-to-gex-via-sftp
 
-func checkConnectToGEXViaSFTPConfig(v *viper.Viper, logger *zap.Logger) error {
-	logger.Debug("checking config")
-
-	return cli.CheckGEX(v)
-}
-
 func initConnectToGEXViaSFTPFlags(flag *pflag.FlagSet) {
 	// Logging Levels
 	cli.InitLoggingFlags(flag)
 
-	// GEX
-	cli.InitGEXFlags(flag)
+	// GEX SFTP
+	cli.InitGEXSFTPFlags(flag)
 
 	// Don't sort flags
 	flag.SortFlags = false
@@ -63,71 +61,63 @@ func connectToGEXViaSFTP(_ *cobra.Command, _ []string) error {
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	v.AutomaticEnv()
 
-	err = checkConnectToGEXViaSFTPConfig(v, logger)
+	var session *awssession.Session
+	if v.GetBool(cli.DbIamFlag) {
+		c := &aws.Config{
+			Region: aws.String(v.GetString(cli.AWSRegionFlag)),
+		}
+		s, errorSession := awssession.NewSession(c)
+		if errorSession != nil {
+			logger.Fatal(errors.Wrap(errorSession, "error creating aws session").Error())
+		}
+		session = s
+	}
+
+	var dbCreds *credentials.Credentials
+	if v.GetBool(cli.DbIamFlag) {
+		if session != nil {
+			// We want to get the credentials from the logged in AWS session rather than create directly,
+			// because the session conflates the environment, shared, and container metadata config
+			// within NewSession.  With stscreds, we use the Secure Token Service,
+			// to assume the given role (that has rds db connect permissions).
+			dbIamRole := v.GetString(cli.DbIamRoleFlag)
+			logger.Info(fmt.Sprintf("assuming AWS role %q for db connection", dbIamRole))
+			dbCreds = stscreds.NewCredentials(session, dbIamRole)
+		}
+	}
+
+	// Create a connection to the DB
+	dbConnection, err := cli.InitDatabase(v, dbCreds, logger)
 	if err != nil {
-		logger.Fatal("invalid configuration", zap.Error(err))
+		logger.Fatal("Connecting to DB", zap.Error(err))
 	}
 
-	port := os.Getenv("GEX_SFTP_PORT")
-	if port == "" {
-		return fmt.Errorf("Invalid credentials SFTP missing GEX_SFTP_PORT")
-	}
+	appCtx := appcontext.NewAppContext(dbConnection, logger, nil)
 
-	userID := os.Getenv("GEX_SFTP_USER_ID")
-	if userID == "" {
-		return fmt.Errorf("Invalid credentials SFTP missing GEX_SFTP_USER_ID")
-	}
-
-	remote := os.Getenv("GEX_SFTP_IP_ADDRESS")
-	if remote == "" {
-		return fmt.Errorf("Invalid credentials SFTP missing GEX_SFTP_IP_ADDRESS")
-	}
-
-	password := os.Getenv("GEX_SFTP_PASSWORD")
-	if password == "" {
-		return fmt.Errorf("Invalid credentials SFTP missing GEX_SFTP_PASSWORD")
-	}
-
-	hostKeyString := os.Getenv("GEX_SFTP_HOST_KEY")
-	if hostKeyString == "" {
-		return fmt.Errorf("Invalid credentials sftp missing GEX_SFTP_HOST_KEY")
-	}
-	hostKey, _, _, _, err := ssh.ParseAuthorizedKey([]byte(hostKeyString))
+	// SSH and SFTP Connection Setup
+	sshClient, err := cli.InitGEXSSH(appCtx, v)
 	if err != nil {
-		return fmt.Errorf("Failed to parse host key %w", err)
-	}
-
-	config := &ssh.ClientConfig{
-		User: userID,
-		Auth: []ssh.AuthMethod{
-			ssh.Password(password),
-		},
-		HostKeyCallback: ssh.FixedHostKey(hostKey),
-	}
-
-	// connect
-	connection, err := ssh.Dial("tcp", remote+":"+port, config)
-	if err != nil {
+		logger.Error("couldn't initialize SSH client", zap.Error(err))
 		return err
 	}
 	defer func() {
-		if closeErr := connection.Close(); closeErr != nil {
-			logger.Debug("Failed to close tcp connection", zap.Error(closeErr))
+		if closeErr := sshClient.Close(); closeErr != nil {
+			logger.Error("could not close SFTP client", zap.Error(closeErr))
 		}
 	}()
 
-	// create new SFTP client
-	client, err := sftp.NewClient(connection)
+	sftpClient, err := cli.InitGEXSFTP(appCtx, sshClient)
 	if err != nil {
+		logger.Error("couldn't initialize SFTP client", zap.Error(err))
 		return err
 	}
 	defer func() {
-		if closeErr := client.Close(); closeErr != nil {
-			logger.Debug("Failed to close sftp client connection", zap.Error(closeErr))
+		if closeErr := sftpClient.Close(); closeErr != nil {
+			logger.Error("could not close SFTP client", zap.Error(closeErr))
 		}
 	}()
 
-	pwd, err := client.Getwd()
+	pwd, err := sftpClient.Getwd()
 	if err != nil {
 		return err
 	}

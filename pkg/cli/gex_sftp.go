@@ -53,14 +53,38 @@ func InitGEXSFTPFlags(flag *pflag.FlagSet) {
 
 // CheckGEXSFTP validates GEX SFTP command line flags
 func CheckGEXSFTP(v *viper.Viper) error {
+
+	port := v.GetString(GEXSFTPPortFlag)
+	if port == "" {
+		return fmt.Errorf("Invalid credentials SFTP missing GEX_SFTP_PORT")
+	}
+
 	if err := ValidatePort(v, GEXSFTPPortFlag); err != nil {
 		return err
 	}
 
 	hostKeyString := v.GetString(GEXSFTPHostKeyFlag)
+	if hostKeyString == "" {
+		return fmt.Errorf("Invalid credentials sftp missing GEX_SFTP_HOST_KEY")
+	}
 	_, _, _, _, hostKeyErr := ssh.ParseAuthorizedKey([]byte(hostKeyString))
 	if hostKeyErr != nil {
 		return hostKeyErr
+	}
+
+	userID := v.GetString(GEXSFTPUserIDFlag)
+	if userID == "" {
+		return fmt.Errorf("Invalid credentials SFTP missing GEX_SFTP_USER_ID")
+	}
+
+	remote := v.GetString(GEXSFTPIPAddressFlag)
+	if remote == "" {
+		return fmt.Errorf("Invalid credentials SFTP missing GEX_SFTP_IP_ADDRESS")
+	}
+
+	password := v.GetString(GEXSFTPPasswordFlag)
+	if password == "" {
+		return fmt.Errorf("Invalid credentials SFTP missing GEX_SFTP_PASSWORD")
 	}
 
 	return ValidateHost(v, GEXSFTPIPAddressFlag)
