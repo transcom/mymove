@@ -168,6 +168,12 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestListByMove(appCtx appcont
 		return nil, err
 	}
 
+	for i := range paymentRequests {
+		for j := range paymentRequests[i].ProofOfServiceDocs {
+			paymentRequests[i].ProofOfServiceDocs[j].PrimeUploads = paymentRequests[i].ProofOfServiceDocs[j].PrimeUploads.FilterDeleted()
+		}
+	}
+
 	return &paymentRequests, nil
 }
 
