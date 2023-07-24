@@ -84,7 +84,7 @@ export class SelectShipmentType extends Component {
       : 'Talk with your movers directly if you want to add or change shipments.';
 
     const ntsCardText = shipmentInfo.isNTSSelectable
-      ? `Movers pack and ship things to a storage facility, where they stay until a future move. This is an NTS (non-temporary storage) shipment.`
+      ? `Movers pack and ship personal property to a storage facility, where they stay until a future move. This is an NTS (non-temporary storage) shipment.`
       : 'You’ve already requested a long-term storage shipment for this move. Talk to your movers to change or add to your request.';
 
     const ntsrCardText = shipmentInfo.isNTSRSelectable
