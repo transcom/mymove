@@ -189,29 +189,57 @@ func (suite *PaymentRequestServiceSuite) TestValidationRules() {
 				},
 			}, nil)
 
-			paymentRequest := models.PaymentRequest{
-				MoveTaskOrderID: move.ID,
-				IsFinal:         false,
-				PaymentServiceItems: models.PaymentServiceItems{
-					{
-						MTOServiceItemID: serviceItem.ID,
-						MTOServiceItem:   serviceItem,
-						PaymentServiceItemParams: models.PaymentServiceItemParams{
+			// paymentRequest := models.PaymentRequest{
+			// 	MoveTaskOrderID: move.ID,
+			// 	IsFinal:         false,
+			// 	PaymentServiceItems: models.PaymentServiceItems{
+			// 		{
+			// 			MTOServiceItemID: serviceItem.ID,
+			// 			MTOServiceItem:   serviceItem,
+			// 			PaymentServiceItemParams: models.PaymentServiceItemParams{
+			// 				{
+			// 					IncomingKey: models.ServiceItemParamNameWeightEstimated.String(),
+			// 					Value:       "3254",
+			// 				},
+			// 				{
+			// 					IncomingKey: models.ServiceItemParamNameRequestedPickupDate.String(),
+			// 					Value:       "2022-03-16",
+			// 				},
+			// 			},
+			// 			PaymentRequest: models.PaymentRequest{
+			// 				ReviewedAt: models.TimePointer(time.Now()),
+			// 			},
+			// 		},
+			// 	},
+			// }
+
+			paymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+				{
+					Model:    move,
+					LinkOnly: true,
+				},
+				{
+					Model: models.PaymentRequest{
+						PaymentServiceItems: []models.PaymentServiceItem{
 							{
-								IncomingKey: models.ServiceItemParamNameWeightEstimated.String(),
-								Value:       "3254",
-							},
-							{
-								IncomingKey: models.ServiceItemParamNameRequestedPickupDate.String(),
-								Value:       "2022-03-16",
+								MTOServiceItemID: serviceItem.ID,
+								MTOServiceItem:   serviceItem,
+								PaymentServiceItemParams: models.PaymentServiceItemParams{
+									{
+										IncomingKey: models.ServiceItemParamNameWeightEstimated.String(),
+										Value:       "3254",
+									},
+									{
+										IncomingKey: models.ServiceItemParamNameRequestedPickupDate.String(),
+										Value:       "2022-03-16",
+									},
+								},
 							},
 						},
-						PaymentRequest: models.PaymentRequest{
-							ReviewedAt: models.TimePointer(time.Now()),
-						},
+						Status: models.PaymentRequestStatusReviewed,
 					},
 				},
-			}
+			}, nil)
 
 			err := checkStatusOfExistingPaymentRequest().Validate(suite.AppContextForTest(), paymentRequest, nil)
 			suite.NoError(err)
@@ -247,27 +275,55 @@ func (suite *PaymentRequestServiceSuite) TestValidationRules() {
 				},
 			}, nil)
 
-			paymentRequest := models.PaymentRequest{
-				MoveTaskOrderID: move.ID,
-				IsFinal:         false,
-				ReviewedAt:      nil,
-				PaymentServiceItems: models.PaymentServiceItems{
-					{
-						MTOServiceItemID: serviceItem.ID,
-						MTOServiceItem:   serviceItem,
-						PaymentServiceItemParams: models.PaymentServiceItemParams{
+			// paymentRequest := models.PaymentRequest{
+			// 	MoveTaskOrderID: move.ID,
+			// 	IsFinal:         false,
+			// 	ReviewedAt:      nil,
+			// 	PaymentServiceItems: models.PaymentServiceItems{
+			// 		{
+			// 			MTOServiceItemID: serviceItem.ID,
+			// 			MTOServiceItem:   serviceItem,
+			// 			PaymentServiceItemParams: models.PaymentServiceItemParams{
+			// 				{
+			// 					IncomingKey: models.ServiceItemParamNameWeightEstimated.String(),
+			// 					Value:       "3254",
+			// 				},
+			// 				{
+			// 					IncomingKey: models.ServiceItemParamNameRequestedPickupDate.String(),
+			// 					Value:       "2023-12-16",
+			// 				},
+			// 			},
+			// 		},
+			// 	},
+			// }
+
+			paymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+				{
+					Model:    move,
+					LinkOnly: true,
+				},
+				{
+					Model: models.PaymentRequest{
+						PaymentServiceItems: []models.PaymentServiceItem{
 							{
-								IncomingKey: models.ServiceItemParamNameWeightEstimated.String(),
-								Value:       "3254",
-							},
-							{
-								IncomingKey: models.ServiceItemParamNameRequestedPickupDate.String(),
-								Value:       "2023-12-16",
+								MTOServiceItemID: serviceItem.ID,
+								MTOServiceItem:   serviceItem,
+								PaymentServiceItemParams: models.PaymentServiceItemParams{
+									{
+										IncomingKey: models.ServiceItemParamNameWeightEstimated.String(),
+										Value:       "3254",
+									},
+									{
+										IncomingKey: models.ServiceItemParamNameRequestedPickupDate.String(),
+										Value:       "2022-03-16",
+									},
+								},
 							},
 						},
+						Status: models.PaymentRequestStatusPaid,
 					},
 				},
-			}
+			}, nil)
 
 			err := checkStatusOfExistingPaymentRequest().Validate(suite.AppContextForTest(), paymentRequest, nil)
 			suite.Error(err)
