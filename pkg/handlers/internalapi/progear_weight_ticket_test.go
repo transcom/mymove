@@ -15,6 +15,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services/mocks"
+	"github.com/transcom/mymove/pkg/services/ppmshipment"
 	progear "github.com/transcom/mymove/pkg/services/progear_weight_ticket"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -23,6 +24,7 @@ import (
 func (suite *HandlerSuite) TestCreateProGearWeightTicketHandler() {
 	// Reusable objects
 	progearCreator := progear.NewCustomerProgearWeightTicketCreator()
+	shipmentFetcher := ppmshipment.NewPPMShipmentFetcher()
 
 	type progearCreateSubtestData struct {
 		ppmShipment models.PPMShipment
@@ -45,6 +47,7 @@ func (suite *HandlerSuite) TestCreateProGearWeightTicketHandler() {
 		subtestData.handler = CreateProGearWeightTicketHandler{
 			suite.HandlerConfig(),
 			progearCreator,
+			shipmentFetcher,
 		}
 
 		return subtestData
@@ -90,6 +93,20 @@ func (suite *HandlerSuite) TestCreateProGearWeightTicketHandler() {
 		suite.IsType(&progearops.CreateProGearWeightTicketForbidden{}, response)
 	})
 
+	suite.Run("POST failure - 403- permission denied - wrong service member", func() {
+		subtestData := makeCreateSubtestData(false)
+
+		unauthorizedUser := factory.BuildServiceMember(suite.DB(), nil, nil)
+		req := subtestData.params.HTTPRequest
+		unauthorizedReq := suite.AuthenticateRequest(req, unauthorizedUser)
+		unauthorizedParams := subtestData.params
+		unauthorizedParams.HTTPRequest = unauthorizedReq
+
+		response := subtestData.handler.Handle(unauthorizedParams)
+
+		suite.IsType(&progearops.CreateProGearWeightTicketForbidden{}, response)
+	})
+
 	suite.Run("Post failure - 500 - Server Error", func() {
 		mockCreator := mocks.ProgearWeightTicketCreator{}
 
@@ -105,6 +122,7 @@ func (suite *HandlerSuite) TestCreateProGearWeightTicketHandler() {
 		handler := CreateProGearWeightTicketHandler{
 			suite.HandlerConfig(),
 			&mockCreator,
+			shipmentFetcher,
 		}
 
 		response := handler.Handle(params)

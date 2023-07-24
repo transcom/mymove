@@ -15,27 +15,40 @@ import (
 	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/ppmshipment"
 )
 
 // CreateProGearWeightTicketHandler
 type CreateProGearWeightTicketHandler struct {
 	handlers.HandlerConfig
-	progearCreator services.ProgearWeightTicketCreator
+	progearCreator  services.ProgearWeightTicketCreator
+	shipmentFetcher services.PPMShipmentFetcher
 }
 
 // Handle creating a progear weight ticket
 func (h CreateProGearWeightTicketHandler) Handle(params progearops.CreateProGearWeightTicketParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-			if !appCtx.Session().IsMilApp() && appCtx.Session().ServiceMemberID == uuid.Nil {
-				noServiceMemberIDErr := apperror.NewSessionError("No service member ID")
-				return progearops.NewCreateProGearWeightTicketForbidden(), noServiceMemberIDErr
-			}
-
 			ppmShipmentID, err := uuid.FromString(params.PpmShipmentID.String())
 			if err != nil {
 				appCtx.Logger().Error("missing PPM Shipment ID", zap.Error(err))
 				return progearops.NewCreateProGearWeightTicketBadRequest(), nil
+			}
+
+			if appCtx.Session().ServiceMemberID == uuid.Nil {
+				noServiceMemberIDErr := apperror.NewSessionError("No service member ID")
+				return progearops.NewCreateProGearWeightTicketForbidden(), noServiceMemberIDErr
+			}
+
+			ppmShipment, ppmShipmentErr := h.shipmentFetcher.GetPPMShipment(appCtx, ppmShipmentID, []string{
+				ppmshipment.EagerPreloadAssociationServiceMember,
+			}, []string{})
+
+			if ppmShipmentErr != nil {
+				return progearops.NewCreateProGearWeightTicketInternalServerError(), ppmShipmentErr
+			}
+			if ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMemberID != appCtx.Session().ServiceMemberID {
+				return progearops.NewCreateProGearWeightTicketForbidden(), apperror.NewSessionError("Incorrect service member ID")
 			}
 
 			progear, err := h.progearCreator.CreateProgearWeightTicket(appCtx, ppmShipmentID)
