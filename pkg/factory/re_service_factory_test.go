@@ -222,7 +222,7 @@ func (suite *FactorySuite) TestBuildReServiceHelpers() {
 	suite.Run("BuildDDFSITReService", func() {
 		// Under test:      BuildDDFSITReService
 		// Set up:          Call BuildDDFSITReService
-		// Expected outcome:DDFSIT reservice is returned. DDASIT and DDDSIT are also created
+		// Expected outcome:DDFSIT reservice is returned. DDASIT, DDDSIT, and DDSFSC are also created
 
 		precount, err := suite.DB().Count(&models.ReService{})
 		suite.NoError(err)
@@ -234,10 +234,10 @@ func (suite *FactorySuite) TestBuildReServiceHelpers() {
 
 		// Count how many reServices are in the DB, 3 new reServices should have been created.
 		var reServices []models.ReService
-		var hasDDASIT, hasDDDSIT bool
+		var hasDDASIT, hasDDDSIT, hasDDSFSC bool
 		err = suite.DB().All(&reServices)
 		suite.NoError(err)
-		suite.Equal(precount+3, len(reServices))
+		suite.Equal(precount+4, len(reServices))
 		for _, service := range reServices {
 			if service.Code == models.ReServiceCodeDDASIT {
 				hasDDASIT = true
@@ -245,10 +245,15 @@ func (suite *FactorySuite) TestBuildReServiceHelpers() {
 			}
 			if service.Code == models.ReServiceCodeDDDSIT {
 				hasDDDSIT = true
+				continue
+			}
+			if service.Code == models.ReServiceCodeDDSFSC {
+				hasDDSFSC = true
 			}
 		}
 		suite.True(hasDDASIT)
 		suite.True(hasDDDSIT)
+		suite.True(hasDDSFSC)
 	})
 
 	suite.Run("BuildDOFSITReService", func() {
@@ -266,10 +271,10 @@ func (suite *FactorySuite) TestBuildReServiceHelpers() {
 
 		// Count how many reServices are in the DB, 3 new reServices should have been created.
 		var reServices []models.ReService
-		var hasDOPSIT, hasDOASIT bool
+		var hasDOPSIT, hasDOASIT, hasDOSFSC bool
 		err = suite.DB().All(&reServices)
 		suite.NoError(err)
-		suite.Equal(precount+3, len(reServices))
+		suite.Equal(precount+4, len(reServices))
 		for _, service := range reServices {
 			if service.Code == models.ReServiceCodeDOPSIT {
 				hasDOPSIT = true
@@ -277,9 +282,14 @@ func (suite *FactorySuite) TestBuildReServiceHelpers() {
 			}
 			if service.Code == models.ReServiceCodeDOASIT {
 				hasDOASIT = true
+				continue
+			}
+			if service.Code == models.ReServiceCodeDOSFSC {
+				hasDOSFSC = true
 			}
 		}
 		suite.True(hasDOPSIT)
 		suite.True(hasDOASIT)
+		suite.True(hasDOSFSC)
 	})
 }

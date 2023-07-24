@@ -45,6 +45,8 @@ func (f mtoShipmentFetcher) ListMTOShipments(appCtx appcontext.AppContext, moveI
 			"PPMShipment.WeightTickets",
 			"PPMShipment.MovingExpenses",
 			"PPMShipment.ProgearWeightTickets",
+			"DeliveryAddressUpdate",
+			"DeliveryAddressUpdate.OriginalAddress",
 			"Reweigh",
 			"SITDurationUpdates",
 			"StorageFacility.Address",
@@ -108,6 +110,16 @@ func (f mtoShipmentFetcher) ListMTOShipments(appCtx appcontext.AppContext, moveI
 				progearWeightTicket.Document.UserUploads = progearWeightTicket.Document.UserUploads.FilterDeleted()
 			}
 		}
+
+		if shipments[i].DeliveryAddressUpdate != nil {
+			// Cannot EagerPreload the address update `NewAddress` due to POP bug
+			// See: https://transcom.github.io/mymove-docs/docs/backend/setup/using-eagerpreload-in-pop#eager-vs-eagerpreload-inconsistency
+			loadErr := appCtx.DB().Load(shipments[i].DeliveryAddressUpdate, "NewAddress")
+			if loadErr != nil {
+				return nil, apperror.NewQueryError("DeliveryAddressUpdate", loadErr, "")
+			}
+		}
+
 		var agents []models.MTOAgent
 		err = appCtx.DB().Scope(utilities.ExcludeDeletedScope()).Where("mto_shipment_id = ?", shipments[i].ID).All(&agents)
 		if err != nil {
