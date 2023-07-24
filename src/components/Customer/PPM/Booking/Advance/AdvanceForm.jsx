@@ -57,7 +57,7 @@ const AdvanceForm = ({ mtoShipment, onSubmit, onBack }) => {
             <Form className={(formStyles.form, ppmStyles.form)}>
               <SectionWrapper className={classnames(ppmStyles.sectionWrapper, formStyles.formSection)}>
                 <h2>{`You can ask for up to $${formattedMaxAdvance} as an advance`}</h2>
-                <p>{`That's ${getFormattedMaxAdvancePercentage()} of $${formattedIncentive}, the estimated incentive for your PPM.`}</p>
+                <p>{`That is ${getFormattedMaxAdvancePercentage()} of $${formattedIncentive}, the estimated incentive for your PPM.`}</p>
                 <p>
                   You can request an Advance Operating Allowance (AOA, or “Advance”) to help cover some of your up-front
                   moving expenses.
