@@ -49,12 +49,6 @@ export const HelperSubmittedMove = () => (
   <Helper title="Next step: Your move gets approved" className={styles['helper-submitted-section']}>
     <div>
       <p>
-        <strong>We have assigned you a move code above.</strong> Write it down and use this code when talking to any
-        representative about your move. You will also receive this code via a confirmation email.
-      </p>
-    </div>
-    <div>
-      <p>
         <strong>A move counselor will contact you.</strong> They will confirm the information you entered here, give
         advice, and answer questions.
       </p>
@@ -63,17 +57,19 @@ export const HelperSubmittedMove = () => (
       <p>
         <strong>For PPM (do it yourself) shipments</strong>
       </p>
-      <p>You can start packing, but do not move any of your things until you hear that your move is approved</p>
+      <ul className={styles['top-gap']}>
+        <li>You can start packing, but do not move any of your things until you hear that your move is approved</li>
+      </ul>
     </div>
     <div>
       <p>
         <strong>For HHGs and other shipments using movers</strong>
       </p>
       <div className={styles['top-gap']}>
-        <p>Your Customer Care Representative will contact you to:</p>
+        <p>Your movers will contact you to:</p>
         <ul>
-          <li>Estimate the weight of your personal property</li>
-          <li>Finalize dates to pack and pick up your personal property</li>
+          <li>Estimate the weight of your belongings</li>
+          <li>Finalize dates to pack and pick up your things</li>
         </ul>
       </div>
     </div>
