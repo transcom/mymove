@@ -3,6 +3,9 @@ package models
 import (
 	"time"
 
+	"github.com/gobuffalo/pop/v6"
+	"github.com/gobuffalo/validate/v3"
+	"github.com/gobuffalo/validate/v3/validators"
 	"github.com/gofrs/uuid"
 )
 
@@ -39,7 +42,11 @@ type TransportationAccountingCode struct {
 	UpdatedAt          time.Time         `json:"updated_at" db:"updated_at"`
 }
 
-// TODO Validate required fields?
+func (t *TransportationAccountingCode) Validate(_ *pop.Connection) (*validate.Errors, error) {
+	return validate.Validate(
+		&validators.StringIsPresent{Field: t.TAC, Name: "TAC"},
+	), nil
+}
 
 // TableName overrides the table name used by Pop.
 func (t TransportationAccountingCode) TableName() string {
