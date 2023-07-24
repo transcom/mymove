@@ -87,7 +87,7 @@ export class MovingInfo extends Component {
                   </ul>
                 </div>
               </IconSection>
-              <IconSection icon="car" headline="It's common to move some things yourself.">
+              <IconSection icon="car" headline="You still have the option to move some of your belongings yourself.">
                 <p>
                   Most people utilize a professional moving company to pack, pick-up and deliver the majority of their
                   personal property and move a few important or necessary items themselves. This is called a partial
