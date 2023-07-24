@@ -5063,7 +5063,7 @@ func createHHGWithPaymentServiceItems(
 		} else if serviceItem.ReService.Code == models.ReServiceCodeDDASIT {
 			paymentItem.PaymentServiceItemParams = ddasitPaymentParams
 		}
-		if serviceItem.ReService.Code != models.ReServiceCodeDOSFSC && serviceItem.ReService.Code != models.ReServiceCodeDDSFSC {
+		if serviceItem.ReService.Code != models.ReServiceCodeDOSFSC {
 			paymentServiceItems = append(paymentServiceItems, paymentItem)
 		}
 	}
