@@ -69,8 +69,6 @@ type LineOfAccounting struct {
 	UpdatedAt              time.Time  `json:"updated_at" db:"updated_at"`
 }
 
-// TODO Validate required fields?
-
 // TableName overrides the table name used by Pop.
 func (l LineOfAccounting) TableName() string {
 	return "lines_of_accounting"

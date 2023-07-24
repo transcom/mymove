@@ -7,18 +7,18 @@ import (
 )
 
 func (suite *ModelSuite) Test_ValidTac() {
-	tac := models.TransportationAccountingCode{
+	tac := &models.TransportationAccountingCode{
 		ID:  uuid.Must(uuid.NewV4()),
 		TAC: "TheTac",
 	}
 
 	expErrors := map[string][]string{}
 
-	suite.verifyValidationErrors(&tac, expErrors)
+	suite.verifyValidationErrors(tac, expErrors)
 }
 
 func (suite *ModelSuite) Test_InvalidTac() {
-	tac := models.TransportationAccountingCode{
+	tac := &models.TransportationAccountingCode{
 		ID: uuid.Must(uuid.NewV4()),
 	}
 
@@ -26,5 +26,5 @@ func (suite *ModelSuite) Test_InvalidTac() {
 		"tac": {"TAC can not be blank."},
 	}
 
-	suite.verifyValidationErrors(&tac, expErrors)
+	suite.verifyValidationErrors(tac, expErrors)
 }
