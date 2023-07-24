@@ -307,6 +307,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation shipment.RequestShipmentReweigh has not yet been implemented")
 		})
 	}
+	if api.ShipmentReviewShipmentAddressUpdateHandler == nil {
+		api.ShipmentReviewShipmentAddressUpdateHandler = shipment.ReviewShipmentAddressUpdateHandlerFunc(func(params shipment.ReviewShipmentAddressUpdateParams) middleware.Responder {
+			return middleware.NotImplemented("operation shipment.ReviewShipmentAddressUpdate has not yet been implemented")
+		})
+	}
 	if api.EvaluationReportsSaveEvaluationReportHandler == nil {
 		api.EvaluationReportsSaveEvaluationReportHandler = evaluation_reports.SaveEvaluationReportHandlerFunc(func(params evaluation_reports.SaveEvaluationReportParams) middleware.Responder {
 			return middleware.NotImplemented("operation evaluation_reports.SaveEvaluationReport has not yet been implemented")

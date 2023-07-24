@@ -17,6 +17,7 @@ import (
 	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
 	"go.opentelemetry.io/otel/metric/noop"
 	"go.opentelemetry.io/otel/propagation"
+	"go.opentelemetry.io/otel/sdk/instrumentation"
 	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/resource"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
@@ -153,9 +154,30 @@ func Init(logger *zap.Logger, config *Config) (shutdown func()) {
 	pr := sdkmetric.NewPeriodicReader(metricExporter,
 		sdkmetric.WithInterval(time.Duration(collectSeconds)*time.Second),
 	)
+
+	// create a view to filter otelhttp attributes; otherwise we have
+	// a memory leak as otel tracks attributes with an infinite number
+	// of values (e.g. user-agent)
+	//
+	// inspired by
+	// https://github.com/open-telemetry/opentelemetry-go-contrib/issues/3071#issuecomment-1419366500
+	//
+
+	otelhttpView := sdkmetric.NewView(
+		sdkmetric.Instrument{
+			Scope: instrumentation.Scope{
+				// this constant is not exported by otelhttp
+				Name: "go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp",
+			},
+		},
+		sdkmetric.Stream{
+			AttributeFilter: allowedHTTPRequestAttributeFilter,
+		},
+	)
 	mp := sdkmetric.NewMeterProvider(
 		sdkmetric.WithResource(milmoveResource),
 		sdkmetric.WithReader(pr),
+		sdkmetric.WithView(otelhttpView),
 	)
 
 	logger.Info("emitting tracing to local opentelemetry collector at " + config.Endpoint)

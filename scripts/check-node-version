@@ -2,7 +2,7 @@
 
 set -eu -o pipefail
 
-VERSION_NUMBER="$(cat < ".node-version")"
+VERSION_NUMBER="$(awk '/nodejs/ { print $2 }' .tool-versions)"
 VERSION="v${VERSION_NUMBER}"
 
 NODE_VERSION=$(node --version)

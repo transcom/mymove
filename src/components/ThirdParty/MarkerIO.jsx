@@ -19,4 +19,11 @@ const MarkerIO = () => {
   return null;
 };
 
+export const setMarkerIOMilmoveTraceID = (milmoveTraceId) => {
+  window.markerConfig = {
+    ...window.markerConfig,
+    ...{ customData: { ...window.markerConfig?.customData, ...{ milmoveTraceId } } },
+  };
+};
+
 export default MarkerIO;
