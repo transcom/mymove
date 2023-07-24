@@ -14,6 +14,7 @@ require (
 	github.com/dustin/go-humanize v1.0.1
 	github.com/felixge/httpsnoop v1.0.3
 	github.com/gabriel-vasile/mimetype v1.4.2
+	github.com/go-chi/chi/v5 v5.0.8
 	github.com/go-gomail/gomail v0.0.0-20160411212932-81ebce5c23df
 	github.com/go-logr/zapr v1.2.4
 	github.com/go-openapi/errors v0.20.4
@@ -36,7 +37,6 @@ require (
 	github.com/gomodule/redigo v1.8.9
 	github.com/google/go-github/v31 v31.0.0
 	github.com/gorilla/csrf v1.7.1
-	github.com/gorilla/mux v1.8.0
 	github.com/imdario/mergo v0.3.16
 	github.com/jackc/pgerrcode v0.0.0-20220416144525-469b46aa5efa
 	github.com/jessevdk/go-flags v1.5.0
@@ -63,7 +63,6 @@ require (
 	github.com/vektra/mockery/v2 v2.32.0
 	go.mozilla.org/pkcs7 v0.0.0-20210826202110-33d05740a352
 	go.opentelemetry.io/contrib/detectors/aws/ecs v1.17.0
-	go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux v0.42.0
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.42.0
 	go.opentelemetry.io/contrib/instrumentation/runtime v0.42.0
 	go.opentelemetry.io/contrib/propagators/aws v1.17.0

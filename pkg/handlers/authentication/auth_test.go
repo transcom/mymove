@@ -11,8 +11,8 @@ import (
 	"testing"
 
 	"github.com/alexedwards/scs/v2"
+	"github.com/go-chi/chi/v5"
 	"github.com/gofrs/uuid"
-	"github.com/gorilla/mux"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/providers/openidConnect"
 	"github.com/stretchr/testify/mock"
@@ -253,9 +253,8 @@ func (suite *AuthSuite) TestCustomerAPIAuthMiddleware() {
 
 		customerAPIAuthMiddleware := CustomerAPIAuthMiddleware(suite.AppContextForTest(), api)
 
-		root := mux.NewRouter()
-		internalMux := root.PathPrefix("/internal").Subrouter()
-		internalMux.PathPrefix("/").Handler(api.Serve(customerAPIAuthMiddleware))
+		root := chi.NewRouter()
+		root.Mount("/internal", api.Serve(customerAPIAuthMiddleware))
 
 		return customerAPIAuthMiddleware(handler)
 	}
@@ -369,9 +368,8 @@ func (suite *AuthSuite) TestRequirePermissionsMiddlewareAuthorized() {
 
 	middleware := PermissionsMiddleware(suite.AppContextForTest(), api)
 
-	root := mux.NewRouter()
-	ghcMux := root.PathPrefix("/ghc/v1/").Subrouter()
-	ghcMux.PathPrefix("/").Handler(api.Serve(middleware))
+	root := chi.NewRouter()
+	root.Mount("/ghc/v1", api.Serve(middleware))
 
 	middleware(handler).ServeHTTP(rr, req)
 
@@ -412,9 +410,8 @@ func (suite *AuthSuite) TestRequirePermissionsMiddlewareUnauthorized() {
 
 	middleware := PermissionsMiddleware(suite.AppContextForTest(), api)
 
-	root := mux.NewRouter()
-	ghcMux := root.PathPrefix("/ghc/v1/").Subrouter()
-	ghcMux.PathPrefix("/").Handler(api.Serve(middleware))
+	root := chi.NewRouter()
+	root.Mount("/ghc/v1", api.Serve(middleware))
 
 	middleware(handler).ServeHTTP(rr, req)
 
