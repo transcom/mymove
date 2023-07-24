@@ -23,7 +23,7 @@ func (suite *ModelSuite) Test_InvalidTac() {
 	}
 
 	expErrors := map[string][]string{
-		"TAC": {"TAC can not be blank."},
+		"tac": {"TAC can not be blank."},
 	}
 
 	suite.verifyValidationErrors(&tac, expErrors)
