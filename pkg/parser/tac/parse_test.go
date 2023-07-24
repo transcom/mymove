@@ -4,10 +4,12 @@ import (
 	"bytes"
 	"os"
 	"testing"
+	"time"
 
 	"go.uber.org/zap"
 
 	"github.com/stretchr/testify/suite"
+	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/parser/tac"
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
@@ -54,8 +56,8 @@ func (suite *TacParserSuite) TestParsing() {
 	suite.Equal("THIRD LINE", firstCode.BillingAddressThirdLine)
 	suite.Equal("FOURTH LINE", firstCode.BillingAddressFourthLine)
 	suite.Equal("FOR MOVEMENT TEST 1", firstCode.Transaction)
-	suite.Equal("2021-10-01 00:00:00", firstCode.EffectiveDate)
-	suite.Equal("2022-09-30 00:00:00", firstCode.ExpirationDate)
+	suite.Equal(time.Date(2021, 10, 1, 0, 0, 0, 0, time.UTC), firstCode.EffectiveDate)
+	suite.Equal(time.Date(2021, 10, 1, 0, 0, 0, 0, time.UTC), firstCode.ExpirationDate)
 	suite.Equal("2022", firstCode.FiscalYear)
 }
 
@@ -100,4 +102,56 @@ Unclassified`)
 	_, err := tac.Parse(reader)
 
 	suite.Error(err)
+}
+
+func (suite *TacParserSuite) TestExpiredTACs() {
+
+	// Create an expired TAC
+	expiredTAC := models.TransportationAccountingCodeDesiredFromTRDM{
+		TAC:            "0003",
+		Transaction:    "FOR MOVEMENT TEST 1",
+		EffectiveDate:  time.Now().AddDate(-1, 0, 0), // A year ago
+		ExpirationDate: time.Now().AddDate(0, 0, -1),
+		FiscalYear:     "2022",
+	}
+
+	parsedTACs := []models.TransportationAccountingCodeDesiredFromTRDM{expiredTAC}
+	prunedTACs := tac.PruneExpiredTACsDesiredFromTRDM(parsedTACs)
+
+	// Check that the expired TAC was properly removed
+	suite.NotContains(prunedTACs, expiredTAC)
+}
+
+func (suite *TacParserSuite) TestDuplicateTACs() {
+
+	// Create duplicate TACs
+	duplicateTAC1 := models.TransportationAccountingCodeDesiredFromTRDM{
+		TAC:            "0003",
+		Transaction:    "FOR MOVEMENT TEST 1",
+		EffectiveDate:  time.Now().AddDate(-1, 0, 0), // A year ago
+		ExpirationDate: time.Now().AddDate(1, 0, 0),  // A year from now
+		FiscalYear:     "2022",
+	}
+
+	duplicateTAC2 := models.TransportationAccountingCodeDesiredFromTRDM{
+		TAC:            "0003",
+		Transaction:    "FOR MOVEMENT TEST 2",
+		EffectiveDate:  time.Now().AddDate(-1, 0, 0), // A year ago
+		ExpirationDate: time.Now().AddDate(1, 0, 0),  // A year from now
+		FiscalYear:     "2022",
+	}
+
+	parsedTACs := []models.TransportationAccountingCodeDesiredFromTRDM{duplicateTAC1, duplicateTAC2}
+	consolidatedTACs := tac.ConsolidateDuplicateTACsDesiredFromTRDM(parsedTACs)
+
+	// Create the expected TAC value for comparison
+	expectedConsolidatedTAC := models.TransportationAccountingCodeDesiredFromTRDM{
+		TAC:            "0003",
+		Transaction:    "FOR MOVEMENT TEST 1. Additional description found: FOR MOVEMENT TEST 2",
+		EffectiveDate:  time.Now().AddDate(-1, 0, 0), // A year ago
+		ExpirationDate: time.Now().AddDate(1, 0, 0),  // A year from now
+		FiscalYear:     "2022",
+	}
+
+	suite.Contains(consolidatedTACs, expectedConsolidatedTAC)
 }

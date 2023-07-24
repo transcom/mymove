@@ -3,9 +3,11 @@ package tac
 import (
 	"bufio"
 	"errors"
+	"fmt"
 	"io"
 	"reflect"
 	"strings"
+	"time"
 
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -53,7 +55,17 @@ func Parse(file io.Reader) ([]models.TransportationAccountingCodeDesiredFromTRDM
 
 		values := strings.Split(line, "|")
 		if len(values) != len(columnHeaders) {
-			return nil, errors.New("malformed line in the tac file: " + line)
+			return nil, errors.New("malformed line in the provided tac file: " + line)
+		}
+
+		effectiveDate, err := time.Parse(time.RFC3339, values[16])
+		if err != nil {
+			return nil, fmt.Errorf("malformed effective date in the provided tac file: %s", err)
+		}
+
+		expiredDate, err := time.Parse(time.RFC3339, values[17])
+		if err != nil {
+			return nil, fmt.Errorf("malformed expiration date in the provided tac file: %s", err)
 		}
 
 		code := models.TransportationAccountingCodeDesiredFromTRDM{
@@ -63,8 +75,8 @@ func Parse(file io.Reader) ([]models.TransportationAccountingCodeDesiredFromTRDM
 			BillingAddressThirdLine:  values[21],
 			BillingAddressFourthLine: values[22],
 			Transaction:              values[15],
-			EffectiveDate:            values[16],
-			ExpirationDate:           values[17],
+			EffectiveDate:            effectiveDate,
+			ExpirationDate:           expiredDate,
 			FiscalYear:               values[3],
 		}
 
@@ -102,4 +114,38 @@ func getFieldNames(obj interface{}) []string {
 	}
 
 	return fieldNames
+}
+
+// Removes all TACs with an expiration date in the past
+func PruneExpiredTACsDesiredFromTRDM(codes []models.TransportationAccountingCodeDesiredFromTRDM) []models.TransportationAccountingCodeDesiredFromTRDM {
+	var pruned []models.TransportationAccountingCodeDesiredFromTRDM
+
+	for _, code := range codes {
+		if code.ExpirationDate.Before(time.Now()) {
+			pruned = append(pruned, code)
+		}
+	}
+
+	return pruned
+}
+
+// Consoliddates TACs with the same TAC value. Duplicate "Transaction", aka description, calues are combined with a delimeter of ". Additional description found: "
+func ConsolidateDuplicateTACsDesiredFromTRDM(codes []models.TransportationAccountingCodeDesiredFromTRDM) []models.TransportationAccountingCodeDesiredFromTRDM {
+	consolidatedMap := make(map[string]models.TransportationAccountingCodeDesiredFromTRDM)
+
+	for _, code := range codes {
+		existingCode, exists := consolidatedMap[code.TAC]
+		if exists && existingCode.Transaction != code.Transaction {
+			existingCode.Transaction = existingCode.Transaction + ". Additional description found: " + code.Transaction
+		} else {
+			consolidatedMap[code.TAC] = code
+		}
+	}
+
+	var consolidated []models.TransportationAccountingCodeDesiredFromTRDM
+	for _, value := range consolidatedMap {
+		consolidated = append(consolidated, value)
+	}
+
+	return consolidated
 }
