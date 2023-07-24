@@ -49,6 +49,12 @@ export const HelperSubmittedMove = () => (
   <Helper title="Next step: Your move gets approved" className={styles['helper-submitted-section']}>
     <div>
       <p>
+        <strong>We have assigned you a move code above.</strong> Write it down and use this code when talking to any
+        representative about your move. You will also receive this code via a confirmation email.
+      </p>
+    </div>
+    <div>
+      <p>
         <strong>A move counselor will contact you.</strong> They will confirm the information you entered here, give
         advice, and answer questions.
       </p>
@@ -68,8 +74,8 @@ export const HelperSubmittedMove = () => (
       <div className={styles['top-gap']}>
         <p>Your movers will contact you to:</p>
         <ul>
-          <li>Estimate the weight of your belongings</li>
-          <li>Finalize dates to pack and pick up your things</li>
+          <li>Estimate the weight of your personal property</li>
+          <li>Finalize dates to pack and pick up your personal property</li>
         </ul>
       </div>
     </div>
