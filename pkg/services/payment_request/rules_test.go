@@ -192,7 +192,6 @@ func (suite *PaymentRequestServiceSuite) TestValidationRules() {
 			paymentRequest := models.PaymentRequest{
 				MoveTaskOrderID: move.ID,
 				IsFinal:         false,
-				ReviewedAt:      nil,
 				PaymentServiceItems: models.PaymentServiceItems{
 					{
 						MTOServiceItemID: serviceItem.ID,
@@ -206,6 +205,9 @@ func (suite *PaymentRequestServiceSuite) TestValidationRules() {
 								IncomingKey: models.ServiceItemParamNameRequestedPickupDate.String(),
 								Value:       "2022-03-16",
 							},
+						},
+						PaymentRequest: models.PaymentRequest{
+							ReviewedAt: models.TimePointer(time.Now()),
 						},
 					},
 				},
@@ -248,6 +250,7 @@ func (suite *PaymentRequestServiceSuite) TestValidationRules() {
 			paymentRequest := models.PaymentRequest{
 				MoveTaskOrderID: move.ID,
 				IsFinal:         false,
+				ReviewedAt:      nil,
 				PaymentServiceItems: models.PaymentServiceItems{
 					{
 						MTOServiceItemID: serviceItem.ID,
@@ -261,9 +264,6 @@ func (suite *PaymentRequestServiceSuite) TestValidationRules() {
 								IncomingKey: models.ServiceItemParamNameRequestedPickupDate.String(),
 								Value:       "2023-12-16",
 							},
-						},
-						PaymentRequest: models.PaymentRequest{
-							ReviewedAt: models.TimePointer(time.Now()),
 						},
 					},
 				},
