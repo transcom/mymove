@@ -40,7 +40,7 @@ const officeQueryConfig = new QueryClient({
     queries: {
       retry: false, // default to no retries for now
       // do not re-query on window refocus
-      refetchOnWindowFocus: false,
+      refetchOnWindowFocus: true,
       // onError: noop, // TODO - log errors?
       networkMode: 'offlineFirst', // restoring previous-behavior. Without this, it will be paused without a network
     },
