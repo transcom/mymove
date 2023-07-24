@@ -76,7 +76,7 @@ export class SelectShipmentType extends Component {
     const shipmentInfo = determineShipmentInfo(move, mtoShipments);
 
     const ppmCardText = shipmentInfo.isPPMSelectable
-      ? 'You pack and move your things, or make other arrangements, The government pays you for the weight you move.  This is a Personally Procured Move (PPM), sometimes called a DITY.'
+      ? 'You pack and move your personal property or make other arrangements, The government pays you for the weight you move. This is a Personally Procured Move (PPM).'
       : 'You’ve already requested a PPM shipment. If you have more things to move yourself but that you can’t add to that shipment, contact the PPPO at your origin duty location.';
 
     const hhgCardText = shipmentInfo.isHHGSelectable
