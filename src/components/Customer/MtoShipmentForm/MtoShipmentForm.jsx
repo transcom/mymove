@@ -441,7 +441,7 @@ class MtoShipmentForm extends Component {
                               your belongings there.
                             </p>
                             <p>
-                              You’ll need to schedule an NTS release shipment to get your items back, most likely as
+                              You will need to schedule an NTS release shipment to get your items back, most likely as
                               part of a future move.
                             </p>
                           </Fieldset>
