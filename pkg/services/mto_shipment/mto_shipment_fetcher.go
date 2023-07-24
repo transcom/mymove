@@ -134,7 +134,9 @@ func (f mtoShipmentFetcher) ListMTOShipments(appCtx appcontext.AppContext, moveI
 func FindShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID, eagerAssociations ...string) (*models.MTOShipment, error) {
 	var shipment models.MTOShipment
 	findShipmentQuery := appCtx.DB().Q().Scope(utilities.ExcludeDeletedScope())
-
+	if appCtx.Session().IsMilApp() {
+		findShipmentQuery = findShipmentQuery.Where("moves.orders.service_member_id = ?", appCtx.Session().ServiceMemberID)
+	}
 	if len(eagerAssociations) > 0 {
 		findShipmentQuery.Eager(eagerAssociations...)
 	}
