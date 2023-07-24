@@ -138,6 +138,7 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestListByMove(appCtx appcont
 		"PaymentServiceItems.PaymentServiceItemParams.ServiceItemParamKey",
 		"PaymentServiceItems.MTOServiceItem.ReService",
 		"PaymentServiceItems.MTOServiceItem.MTOShipment",
+		"ProofOfServiceDocs.PrimeUploads.Upload",
 		"MoveTaskOrder.Contractor",
 		"MoveTaskOrder.Orders.ServiceMember",
 		"MoveTaskOrder.Orders.NewDutyLocation.Address").
