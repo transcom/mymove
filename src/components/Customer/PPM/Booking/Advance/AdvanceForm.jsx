@@ -72,9 +72,9 @@ const AdvanceForm = ({ mtoShipment, onSubmit, onBack }) => {
                   service might not authorize any advances for moves associated with retirement or separation.
                 </p>
                 <p>
-                  If your service authorizes an advance, the amount you receive will be deducted from your PPM incentive
-                  payment. If your incentive ends up being less than your advance, you will be required to pay back the
-                  difference.
+                  If your service authorizes an advance, the amount you receive will be deducted from your final PPM
+                  incentive payment.. If your incentive ends up being less than your advance, you will be required to
+                  pay back the difference.
                 </p>
                 <Fieldset>
                   <legend className="usa-label">Would you like to request an advance on your incentive?</legend>
