@@ -189,30 +189,6 @@ func (suite *PaymentRequestServiceSuite) TestValidationRules() {
 				},
 			}, nil)
 
-			// paymentRequest := models.PaymentRequest{
-			// 	MoveTaskOrderID: move.ID,
-			// 	IsFinal:         false,
-			// 	PaymentServiceItems: models.PaymentServiceItems{
-			// 		{
-			// 			MTOServiceItemID: serviceItem.ID,
-			// 			MTOServiceItem:   serviceItem,
-			// 			PaymentServiceItemParams: models.PaymentServiceItemParams{
-			// 				{
-			// 					IncomingKey: models.ServiceItemParamNameWeightEstimated.String(),
-			// 					Value:       "3254",
-			// 				},
-			// 				{
-			// 					IncomingKey: models.ServiceItemParamNameRequestedPickupDate.String(),
-			// 					Value:       "2022-03-16",
-			// 				},
-			// 			},
-			// 			PaymentRequest: models.PaymentRequest{
-			// 				ReviewedAt: models.TimePointer(time.Now()),
-			// 			},
-			// 		},
-			// 	},
-			// }
-
 			paymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
 				{
 					Model:    move,
@@ -275,28 +251,6 @@ func (suite *PaymentRequestServiceSuite) TestValidationRules() {
 					Model: models.MTOServiceItem{Status: models.MTOServiceItemStatusApproved},
 				},
 			}, nil)
-
-			// paymentRequest := models.PaymentRequest{
-			// 	MoveTaskOrderID: move.ID,
-			// 	IsFinal:         false,
-			// 	ReviewedAt:      nil,
-			// 	PaymentServiceItems: models.PaymentServiceItems{
-			// 		{
-			// 			MTOServiceItemID: serviceItem.ID,
-			// 			MTOServiceItem:   serviceItem,
-			// 			PaymentServiceItemParams: models.PaymentServiceItemParams{
-			// 				{
-			// 					IncomingKey: models.ServiceItemParamNameWeightEstimated.String(),
-			// 					Value:       "3254",
-			// 				},
-			// 				{
-			// 					IncomingKey: models.ServiceItemParamNameRequestedPickupDate.String(),
-			// 					Value:       "2023-12-16",
-			// 				},
-			// 			},
-			// 		},
-			// 	},
-			// }
 
 			paymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
 				{
