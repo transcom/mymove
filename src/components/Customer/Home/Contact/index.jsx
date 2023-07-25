@@ -33,7 +33,6 @@ const Contact = ({ header, dutyLocationName, officeType, telephone }) => (
       </USWDSLink>
       .
     </p>
-    <p>If you are using government movers, contact them directly for questions about your shipments.</p>
   </div>
 );
 
