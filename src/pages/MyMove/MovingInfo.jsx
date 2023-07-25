@@ -74,8 +74,8 @@ export class MovingInfo extends Component {
                   verify your choices and help identify more complicated situations.
                 </p>
                 <p>
-                  If you use movers, they will be your point of contact throughout your move and can also help you make
-                  changes to your shipments.
+                  The Customer Care Representative will be your point of contact throughout your move and can also help
+                  you make changes to your shipment.
                 </p>
               </IconSection>
               <IconSection icon="truck-moving" headline="Your Move Manager will:">
