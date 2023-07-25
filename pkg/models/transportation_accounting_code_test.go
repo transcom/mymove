@@ -17,6 +17,8 @@ func (suite *ModelSuite) Test_ValidTac() {
 	suite.verifyValidationErrors(tac, expErrors)
 }
 
+// TODO: Test saveable/validatable with all optional fields
+
 func (suite *ModelSuite) Test_InvalidTac() {
 	tac := &models.TransportationAccountingCode{
 		ID: uuid.Must(uuid.NewV4()),
