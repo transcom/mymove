@@ -422,16 +422,34 @@ func initializeTLSConfig(appCtx appcontext.AppContext, v *viper.Viper) *tls.Conf
 var failToCheckRevList bool = false
 
 func certRevokedCheck(appCtx appcontext.AppContext, clientCert *x509.Certificate) (revoked, ok bool, err error) {
-	if revoked, ok, err := certRevokedOCSP(clientCert, failToCheckRevList); !ok {
-		appCtx.Logger().Info("error checking revocation via OCSP")
-		if failToCheckRevList {
-			return true, false, err
-		}
-		return false, false, err
-	} else if revoked {
-		appCtx.Logger().Info("certificate is revoked via OCSP")
-		return true, true, err
+	ocspResponse, err := sendOCSPRequestAndGetResponse(clientCert.Subject.CommonName, clientCert.Issuer, clientCert.OCSPServer[0])
+	if err != nil {
+		return err
 	}
+	switch ocspResponse.Status {
+		case ocsp.Good:
+			fmt.Printf("[+] Certificate status is Good\n")
+		case ocsp.Revoked:
+			fmt.Printf("[-] Certificate status is Revoked\n")
+			return fmt.Errorf("The certificate was revoked!")
+		case ocsp.Unknown:
+			fmt.Printf("[-] Certificate status is Unknown\n")
+			return fmt.Errorf("The certificate is unknown to OCSP server!")
+		}
+
+		fmt.Printf("Server certificate was allowed\n")
+	return nil
+	}
+	//if revoked, ok, err := certRevokedOCSP(clientCert, failToCheckRevList); !ok {
+	//	appCtx.Logger().Info("error checking revocation via OCSP")
+	//	if failToCheckRevList {
+	//		return true, false, err
+	//	}
+	//	return false, false, err
+	//} else if revoked {
+	//	appCtx.Logger().Info("certificate is revoked via OCSP")
+	//	return true, true, err
+	//}
 
 	return false, true, nil
 }
@@ -460,7 +478,7 @@ func certRevokedOCSP(cert *x509.Certificate, strict bool) (revoked, ok bool, err
 
 // Request OCSP response from server.
 // Returns error if the server can't get the certificate
-func sendOCSPRequestAndGetResponse(appCtx appcontext.AppContext, ocspServer string, request *http.Request, responseWriter http.ResponseWriter, leafCertificate, clientCert, issuerCert *x509.Certificate) (*ocsp.Response, error) {
+func sendOCSPRequestAndGetResponse(appCtx appcontext.AppContext, ocspServer string, request *http.Request, responseWriter http.ResponseWriter, clientCert, issuerCert *x509.Certificate) (*ocsp.Response, error) {
 	var ocspRead = io.ReadAll
 	// NOTE: http requests must be made with TLS
 	newAppCtx := appcontext.NewAppContextFromContext(request.Context(), appCtx)
