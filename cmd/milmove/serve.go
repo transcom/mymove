@@ -4,11 +4,13 @@ import (
 	"bytes"
 	"context"
 	"crypto"
+	"crypto/sha256"
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/transcom/mymove/pkg/models"
 	"golang.org/x/crypto/ocsp"
 	"io"
 	"log"
@@ -458,11 +460,26 @@ func certRevokedOCSP(cert *x509.Certificate, strict bool) (revoked, ok bool, err
 
 // Request OCSP response from server.
 // Returns error if the server can't get the certificate
-func sendOCSPRequest(ocspServer string, request []byte, clientCert, leafCertificate, issuerCert *x509.Certificate) (*ocsp.Response, error) {
+func sendOCSPRequestAndGetResponse(appCtx appcontext.AppContext, ocspServer string, request *http.Request, responseWriter http.ResponseWriter, leafCertificate, clientCert, issuerCert *x509.Certificate) (*ocsp.Response, error) {
 	var ocspRead = io.ReadAll
 	// NOTE: http requests must be made with TLS
-	ocspRequstOpts := &ocsp.RequestOptions{Hash: crypto.SHA256}
-	buffer, err := ocsp.CreateRequest(clientCert, issuerCert, ocspRequstOpts)
+	newAppCtx := appcontext.NewAppContextFromContext(request.Context(), appCtx)
+	hash := sha256.Sum256(request.TLS.PeerCertificates[0].Raw)
+	hashString := hex.EncodeToString(hash[:])
+
+	clientCert, err := models.FetchClientCert(newAppCtx.DB(), hashString)
+	if err != nil {
+		// This is not a known client certificate at all
+		newAppCtx.Logger().Info(
+			"Unknown / unregistered client certificate",
+			zap.String("SHA256_hash_string", hashString),
+		)
+		http.Error(responseWriter, http.StatusText(401), http.StatusUnauthorized)
+		return nil, nil
+	}
+
+	ocspRequestOpts := &ocsp.RequestOptions{Hash: crypto.SHA256}
+	buffer, err := ocsp.CreateRequest(clientCert, issuerCert, ocspRequestOpts)
 	if err != nil {
 		return nil, err
 	}
@@ -470,20 +487,24 @@ func sendOCSPRequest(ocspServer string, request []byte, clientCert, leafCertific
 	if err != nil {
 		return nil, err
 	}
-	response, err := httpClient.Do(httpRequest)
+
+	httpResponse, err := httpClient.Do(httpRequest)
 	if err != nil {
 		return nil, err
 	}
-	body, err := ocspRead(response.Body)
+	defer httpResponse.Body.Close()
+	body, err := ocspRead(httpResponse.Body)
 	if err != nil {
 		return nil, err
 	}
-	return ocsp.ParseResponseForCert(body, leafCertificate, issuerCert)
+	ocspResponse, err := ocsp.ParseResponseForCert(body, clientCert, issuerCert)
+	//return ocsp.ParseResponseForCert(body, leafCertificate, issuerCert)
+	return ocspResponse, err
 }
 
-func getOCSPResponse(commonName string, clientCert, issuerCert *x509.Certificate, ocspServerURL string) (*ocsp.Response, error) {
-
-}
+//func getOCSPResponse(commonName string, clientCert, issuerCert *x509.Certificate, ocspServerURL string) (*ocsp.Response, error) {
+// // OCSP Request
+//}
 
 func fetchRemoteCert(url string) (*x509.Certificate, error) {
 	response, err := httpClient.Get(url)
