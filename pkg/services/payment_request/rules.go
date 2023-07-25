@@ -1,13 +1,7 @@
 package paymentrequest
 
 import (
-	// "github.com/transcom/mymove/pkg/services"
-	// "time"
-	// "database/sql"
-	"fmt"
-
 	"github.com/gofrs/uuid"
-	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
@@ -74,27 +68,28 @@ func checkStatusOfExistingPaymentRequest() paymentRequestValidator {
 	return paymentRequestValidatorFunc(func(appCtx appcontext.AppContext, paymentRequest models.PaymentRequest, oldPaymentRequest *models.PaymentRequest) error {
 		var paymentRequestServiceItems = paymentRequest.PaymentServiceItems
 
-		fetcher := NewPaymentRequestFetcher()
+		// fetcher := NewPaymentRequestFetcher()
 
 		for _, paymentRequestServiceItem := range paymentRequestServiceItems {
-			if paymentRequest.PaymentServiceItems[0].MTOServiceItemID == paymentRequestServiceItem.MTOServiceItemID {
-				var paymentRequestIDFromServiceItem = paymentRequestServiceItem.PaymentRequestID
-				foundPaymentRequest, err := fetcher.FetchPaymentRequest(appCtx, paymentRequestIDFromServiceItem)
+			// if paymentRequest.PaymentServiceItems[0].MTOServiceItemID == paymentRequestServiceItem.MTOServiceItemID {
+			// var paymentRequestIDFromServiceItem = paymentRequestServiceItem.PaymentRequestID
+			// foundPaymentRequest, err := fetcher.FetchPaymentRequest(appCtx, paymentRequestIDFromServiceItem)
 
-				if err != nil {
-					msg := fmt.Sprintf("Error finding Payment Request for status update with ID: %s", paymentRequestIDFromServiceItem)
-					appCtx.Logger().Error(msg, zap.Error(err))
-					// return paymentrequestop.NewUpdatePaymentRequestStatusNotFound().WithPayload(
-					// 	payloads.ClientError(handlers.NotFoundMessage, msg, h.GetTraceIDFromRequest(params.HTTPRequest))), err
-				}
+			// if err != nil {
+			// 	msg := fmt.Sprintf("Error finding Payment Request for status update with ID: %s", paymentRequestIDFromServiceItem)
+			// 	appCtx.Logger().Error(msg, zap.Error(err))
+			// 	// return paymentrequestop.NewUpdatePaymentRequestStatusNotFound().WithPayload(
+			// 	// 	payloads.ClientError(handlers.NotFoundMessage, msg, h.GetTraceIDFromRequest(params.HTTPRequest))), err
+			// }
 
-				status := foundPaymentRequest.Status
+			// status := foundPaymentRequest.Status
+			status := paymentRequestServiceItem.Status
 
-				if status == models.PaymentRequestStatusPending || status == models.PaymentRequestStatusPaid {
-					return apperror.NewConflictError(paymentRequest.ID, "Conflict Error: Payment Request for Service Item is already paid or requested")
-				}
-
+			if status == models.PaymentServiceItemStatusRequested || status == models.PaymentServiceItemStatusPaid {
+				return apperror.NewConflictError(paymentRequestServiceItem.MTOServiceItemID, "Conflict Error: Payment Request for Service Item is already paid or requested")
 			}
+
+			// }
 		}
 
 		return nil
