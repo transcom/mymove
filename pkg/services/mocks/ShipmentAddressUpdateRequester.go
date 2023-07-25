@@ -42,6 +42,32 @@ func (_m *ShipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(a
 	return r0, r1
 }
 
+// ReviewShipmentAddressChange provides a mock function with given fields: appCtx, shipmentID, tooApprovalStatus, tooRemarks
+func (_m *ShipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appcontext.AppContext, shipmentID uuid.UUID, tooApprovalStatus models.ShipmentAddressUpdateStatus, tooRemarks string) (*models.ShipmentAddressUpdate, error) {
+	ret := _m.Called(appCtx, shipmentID, tooApprovalStatus, tooRemarks)
+
+	var r0 *models.ShipmentAddressUpdate
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, models.ShipmentAddressUpdateStatus, string) (*models.ShipmentAddressUpdate, error)); ok {
+		return rf(appCtx, shipmentID, tooApprovalStatus, tooRemarks)
+	}
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, models.ShipmentAddressUpdateStatus, string) *models.ShipmentAddressUpdate); ok {
+		r0 = rf(appCtx, shipmentID, tooApprovalStatus, tooRemarks)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.ShipmentAddressUpdate)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, models.ShipmentAddressUpdateStatus, string) error); ok {
+		r1 = rf(appCtx, shipmentID, tooApprovalStatus, tooRemarks)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // NewShipmentAddressUpdateRequester creates a new instance of ShipmentAddressUpdateRequester. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewShipmentAddressUpdateRequester(t interface {
