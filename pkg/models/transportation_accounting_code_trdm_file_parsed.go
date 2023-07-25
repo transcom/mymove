@@ -1,5 +1,7 @@
 package models
 
+import "time"
+
 // !IMPORTANT! This struct is not the file record, see TransportationAccountingCodeTrdmFileRecord model for this.
 // This struct is what will be returned when the TRDM .txt file gets parsed.
 // See TransportationAccountingCodeTrdmFileRecord for the struct representing the .txt file.
@@ -15,7 +17,7 @@ type TransportationAccountingCodeDesiredFromTRDM struct {
 	BillingAddressThirdLine/*22nd in line, values[21]*/ string  `json:"billing_address_third_line"`
 	BillingAddressFourthLine/*23rd in line, values[22]*/ string `json:"billing_address_fourth_line"`
 	Transaction/*16th in line, values[15]*/ string              `json:"transaction"`
-	EffectiveDate/*17th in line, values[16]*/ string            `json:"effective_date"`
-	ExpirationDate/*18th in line, values[17]*/ string           `json:"expiration_date"`
+	EffectiveDate/*17th in line, values[16]*/ time.Time         `json:"effective_date"`
+	ExpirationDate/*18th in line, values[17]*/ time.Time        `json:"expiration_date"`
 	FiscalYear/*4th in line, values[3]*/ string                 `json:"fiscal_year"`
 }

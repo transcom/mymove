@@ -58,12 +58,12 @@ func Parse(file io.Reader) ([]models.TransportationAccountingCodeDesiredFromTRDM
 			return nil, errors.New("malformed line in the provided tac file: " + line)
 		}
 
-		effectiveDate, err := time.Parse(time.RFC3339, values[16])
+		effectiveDate, err := time.Parse("2006-01-02 15:04:05", values[16])
 		if err != nil {
 			return nil, fmt.Errorf("malformed effective date in the provided tac file: %s", err)
 		}
 
-		expiredDate, err := time.Parse(time.RFC3339, values[17])
+		expiredDate, err := time.Parse("2006-01-02 15:04:05", values[17])
 		if err != nil {
 			return nil, fmt.Errorf("malformed expiration date in the provided tac file: %s", err)
 		}
@@ -120,8 +120,9 @@ func getFieldNames(obj interface{}) []string {
 func PruneExpiredTACsDesiredFromTRDM(codes []models.TransportationAccountingCodeDesiredFromTRDM) []models.TransportationAccountingCodeDesiredFromTRDM {
 	var pruned []models.TransportationAccountingCodeDesiredFromTRDM
 
+	// If the expiration date is not before time.Now(), then it is not expired and should be appended to the pruned array
 	for _, code := range codes {
-		if code.ExpirationDate.Before(time.Now()) {
+		if !code.ExpirationDate.Before(time.Now()) {
 			pruned = append(pruned, code)
 		}
 	}
@@ -129,7 +130,7 @@ func PruneExpiredTACsDesiredFromTRDM(codes []models.TransportationAccountingCode
 	return pruned
 }
 
-// Consoliddates TACs with the same TAC value. Duplicate "Transaction", aka description, calues are combined with a delimeter of ". Additional description found: "
+// Consolidates TACs with the same TAC value. Duplicate "Transaction", aka description, calues are combined with a delimeter of ". Additional description found: "
 func ConsolidateDuplicateTACsDesiredFromTRDM(codes []models.TransportationAccountingCodeDesiredFromTRDM) []models.TransportationAccountingCodeDesiredFromTRDM {
 	consolidatedMap := make(map[string]models.TransportationAccountingCodeDesiredFromTRDM)
 
@@ -137,6 +138,7 @@ func ConsolidateDuplicateTACsDesiredFromTRDM(codes []models.TransportationAccoun
 		existingCode, exists := consolidatedMap[code.TAC]
 		if exists && existingCode.Transaction != code.Transaction {
 			existingCode.Transaction = existingCode.Transaction + ". Additional description found: " + code.Transaction
+			consolidatedMap[code.TAC] = existingCode
 		} else {
 			consolidatedMap[code.TAC] = code
 		}
