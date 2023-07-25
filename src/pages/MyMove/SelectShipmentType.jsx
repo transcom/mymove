@@ -80,7 +80,7 @@ export class SelectShipmentType extends Component {
       : 'You’ve already requested a PPM shipment. If you have more things to move yourself but that you can’t add to that shipment, contact the PPPO at your origin duty location.';
 
     const hhgCardText = shipmentInfo.isHHGSelectable
-      ? 'All of your things are packed and moved by professionals, paid for by the government. This is a Household Goods move (HHG).'
+      ? 'A combination of HHG + PPM. Many people pack and move important personal property themselves, and have professional movers pack and transport the rest.'
       : 'Talk with your movers directly if you want to add or change shipments.';
 
     const ntsCardText = shipmentInfo.isNTSSelectable
