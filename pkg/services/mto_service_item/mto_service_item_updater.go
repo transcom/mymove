@@ -136,11 +136,10 @@ func (p *mtoServiceItemUpdater) updateServiceItem(appCtx appcontext.AppContext, 
 		// Check to see if there is already a SIT Destination Original Address
 		// by checking for the ID before trying to set one on the service item.
 		// If there isn't one, then we set it. We also make sure that the
-		// expression looks for the DDDSIT, DOSFSC, or DDSFSC service codes and
-		// only updates the address fields if the service item is of DDDSIT,
-		// DOSFSC, DDSFSC.
+		// expression looks for the DDDSIT or DDSFSC service codes and only
+		// updates the address fields if the service item is of DDDSIT or
+		// DDSFSC.
 		if (serviceItem.ReService.Code == models.ReServiceCodeDDDSIT ||
-			serviceItem.ReService.Code == models.ReServiceCodeDOSFSC ||
 			serviceItem.ReService.Code == models.ReServiceCodeDDSFSC) &&
 			serviceItem.SITDestinationOriginalAddressID == nil {
 			// Check to see if the service item has a SIT Destination Final
