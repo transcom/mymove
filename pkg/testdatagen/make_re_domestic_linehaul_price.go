@@ -56,11 +56,6 @@ func MakeReDomesticLinehaulPrice(db *pop.Connection, assertions Assertions) mode
 	return reDomesticLinehaulPrice
 }
 
-// MakeDefaultReDomesticLinehaulPrice makes a single ReDomesticLinehaulPrice with default values
-func MakeDefaultReDomesticLinehaulPrice(db *pop.Connection) models.ReDomesticLinehaulPrice {
-	return MakeReDomesticLinehaulPrice(db, Assertions{})
-}
-
 func FetchOrMakeReDomesticLinehaulPrice(db *pop.Connection, assertions Assertions) models.ReDomesticLinehaulPrice {
 	reDomesticLinehaulPrice := assertions.ReDomesticLinehaulPrice
 	var existingReDomesticLinehaulPrice models.ReDomesticLinehaulPrice

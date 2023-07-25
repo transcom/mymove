@@ -64,25 +64,6 @@ func MakeDefaultMTOServiceItem(db *pop.Connection) models.MTOServiceItem {
 	return MakeMTOServiceItem(db, Assertions{})
 }
 
-// MakeMTOServiceItem creates a single MTOServiceItem and associated set relationships
-func MakeStubbedMTOServiceItem(db *pop.Connection) models.MTOServiceItem {
-	return makeServiceItem(db, Assertions{
-		Stub: true,
-	}, false)
-}
-
-// MakeMTOServiceItemBasic creates a single MTOServiceItem that is a basic type, meaning no shipment id associated.
-func MakeMTOServiceItemBasic(db *pop.Connection, assertions Assertions) models.MTOServiceItem {
-	return makeServiceItem(db, assertions, true)
-}
-
-// MakeMTOServiceItems makes an array of MTOServiceItems
-func MakeMTOServiceItems(db *pop.Connection) models.MTOServiceItems {
-	var serviceItemList models.MTOServiceItems
-	serviceItemList = append(serviceItemList, MakeDefaultMTOServiceItem(db))
-	return serviceItemList
-}
-
 // MakeMTOServiceItemDomesticCrating makes a domestic crating service item and its associated item and crate
 func MakeMTOServiceItemDomesticCrating(db *pop.Connection, assertions Assertions) models.MTOServiceItem {
 	mtoServiceItem := MakeMTOServiceItem(db, assertions)

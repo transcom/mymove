@@ -43,8 +43,3 @@ func FetchOrMakeReService(db *pop.Connection, assertions Assertions) models.ReSe
 
 	return existingReServices[0]
 }
-
-// MakeDefaultReService makes a single ReService with default values
-func MakeDefaultReService(db *pop.Connection) models.ReService {
-	return MakeReService(db, Assertions{})
-}

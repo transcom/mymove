@@ -32,8 +32,3 @@ func MakeDistanceCalculation(db *pop.Connection, assertions Assertions) models.D
 
 	return distanceCalculation
 }
-
-// MakeDefaultDistanceCalculation returns a DistanceCalculation with default values
-func MakeDefaultDistanceCalculation(db *pop.Connection) models.DistanceCalculation {
-	return MakeDistanceCalculation(db, Assertions{})
-}

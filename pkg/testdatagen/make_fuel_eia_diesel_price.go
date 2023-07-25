@@ -189,8 +189,3 @@ func MakeFuelEIADieselPriceForDate(db *pop.Connection, shipmentDate time.Time, a
 func MakeDefaultFuelEIADieselPriceForDate(db *pop.Connection, shipmentDate time.Time) models.FuelEIADieselPrice {
 	return MakeFuelEIADieselPriceForDate(db, shipmentDate, Assertions{})
 }
-
-// MakeDefaultFuelEIADieselPrices creates a single FuelEIADieselPrice record with default values for a given shipmentDate
-func MakeDefaultFuelEIADieselPrices(db *pop.Connection) {
-	MakeFuelEIADieselPrices(db, Assertions{})
-}

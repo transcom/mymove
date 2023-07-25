@@ -64,8 +64,3 @@ func FetchOrMakeReZip3(db *pop.Connection, assertions Assertions) models.ReZip3 
 
 	return reZip3
 }
-
-// MakeDefaultReZip3 makes a single ReZip3 with default values
-func MakeDefaultReZip3(db *pop.Connection) models.ReZip3 {
-	return MakeReZip3(db, Assertions{})
-}
