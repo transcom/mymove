@@ -33,7 +33,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOriginFuelSurcharge() {
 	setupTestData := func() models.PaymentServiceItem {
 		paymentServiceItem := factory.BuildPaymentServiceItemWithParams(
 			suite.DB(),
-			models.ReServiceCodeDDSFSC,
+			models.ReServiceCodeDOSFSC,
 			[]factory.CreatePaymentServiceItemParams{
 				{
 					Key:     models.ServiceItemParamNameActualPickupDate,
@@ -41,7 +41,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOriginFuelSurcharge() {
 					Value:   dosfscActualPickupDate.Format(DateParamFormat),
 				},
 				{
-					Key:     models.ServiceItemParamNameDistanceZipSITDest,
+					Key:     models.ServiceItemParamNameDistanceZipSITOrigin,
 					KeyType: models.ServiceItemParamTypeInteger,
 					Value:   fmt.Sprintf("%d", int(dosfscTestDistance)),
 				},
@@ -141,7 +141,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOriginFuelSurcharge() {
 		}
 	})
 
-	suite.Run("DDSFSC is negative if fuel price from EIA is below $2.50", func() {
+	suite.Run("DOSFSC is negative if fuel price from EIA is below $2.50", func() {
 		isPPM := false
 		priceCents, _, err := DomesticOriginFuelSurchargePricer.Price(suite.AppContextForTest(), dosfscActualPickupDate, dosfscTestDistance, dosfscTestWeight, dosfscWeightDistanceMultiplier, 242400, isPPM)
 		suite.NoError(err)
