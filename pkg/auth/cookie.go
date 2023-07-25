@@ -91,9 +91,11 @@ func DeleteCSRFCookies(w http.ResponseWriter) {
 }
 
 // MaskedCSRFMiddleware handles setting the CSRF Token cookie
-func MaskedCSRFMiddleware(_ *zap.Logger, useSecureCookie bool) func(next http.Handler) http.Handler {
+func MaskedCSRFMiddleware(useSecureCookie bool) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
+			logger := logging.FromContext(r.Context())
+			logger.Debug("MaskedCSRFMiddlware Used")
 			// Write a masked CSRF cookie (creates a new one with each request).  Per the gorilla/csrf docs:
 			// "This library generates unique-per-request (masked) tokens as a mitigation against the BREACH attack."
 			// https://github.com/gorilla/csrf#design-notes
