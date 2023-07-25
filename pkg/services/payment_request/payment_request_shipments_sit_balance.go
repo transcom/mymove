@@ -11,6 +11,7 @@ import (
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 )
 
 var sitParamDateFormat = "2006-01-02"
@@ -72,7 +73,9 @@ func hasSITServiceItem(paymentServiceItems models.PaymentServiceItems) bool {
 	return false
 }
 
-func calculateReviewedSITBalance(paymentServiceItems []models.PaymentServiceItem, shipmentsSITBalances map[string]services.ShipmentPaymentSITBalance) error {
+func calculateReviewedSITBalance(appCtx appcontext.AppContext, paymentServiceItems []models.PaymentServiceItem, shipmentsSITBalances map[string]services.ShipmentPaymentSITBalance) error {
+	year, month, day := time.Now().Date()
+	today := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
 	for _, paymentServiceItem := range paymentServiceItems {
 		// Ignoring potentially rejected SIT service items here
 		if paymentServiceItem.Status == models.PaymentServiceItemStatusApproved {
@@ -106,11 +109,15 @@ func calculateReviewedSITBalance(paymentServiceItems []models.PaymentServiceItem
 					PreviouslyBilledDays:    &daysInSIT,
 					PreviouslyBilledEndDate: &end,
 				}
-
-				if shipment.SITDaysAllowance != nil {
-					shipmentSITBalance.TotalSITDaysAuthorized = *shipment.SITDaysAllowance
-					shipmentSITBalance.TotalSITDaysRemaining = shipmentSITBalance.TotalSITDaysAuthorized - daysInSIT
+				shipmentSITs := mtoshipment.SortShipmentSITs(shipment, today)
+				totalSITAllowance, err := mtoshipment.CalculateShipmentSITAllowanceFunc(appCtx, shipment)
+				if err != nil {
+					return err
 				}
+				totalSITDaysUsed := mtoshipment.CalculateTotalDaysInSIT(shipmentSITs, today)
+
+				shipmentSITBalance.TotalSITDaysAuthorized = totalSITAllowance
+				shipmentSITBalance.TotalSITDaysRemaining = shipmentSITBalance.TotalSITDaysAuthorized - totalSITDaysUsed
 
 				shipmentsSITBalances[shipment.ID.String()] = shipmentSITBalance
 			}
@@ -120,7 +127,9 @@ func calculateReviewedSITBalance(paymentServiceItems []models.PaymentServiceItem
 	return nil
 }
 
-func calculatePendingSITBalance(paymentServiceItems []models.PaymentServiceItem, shipmentsSITBalances map[string]services.ShipmentPaymentSITBalance) error {
+func calculatePendingSITBalance(appCtx appcontext.AppContext, paymentServiceItems []models.PaymentServiceItem, shipmentsSITBalances map[string]services.ShipmentPaymentSITBalance) error {
+	year, month, day := time.Now().Date()
+	today := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
 	for _, paymentServiceItem := range paymentServiceItems {
 		if !isAdditionalDaySIT(paymentServiceItem.MTOServiceItem.ReService.Code) {
 			continue
@@ -140,17 +149,13 @@ func calculatePendingSITBalance(paymentServiceItems []models.PaymentServiceItem,
 
 		if shipmentSITBalance, ok := shipmentsSITBalances[shipment.ID.String()]; ok {
 			shipmentSITBalance.PendingSITDaysInvoiced = daysInSIT
-
-			if shipment.SITDaysAllowance != nil {
-				shipmentSITBalance.TotalSITDaysRemaining -= shipmentSITBalance.PendingSITDaysInvoiced
-				// start counting from the day after the last day in the SIT payment range
-				shipmentSITBalance.TotalSITEndDate = end.AddDate(0, 0, shipmentSITBalance.TotalSITDaysRemaining+1)
-			}
-
 			// I think this would be accurate for the scenario there were 2 pending payment requests, they would see
 			// dates reflective of only their SIT items. I think we would need to do something different if we wanted
 			// to show different values for origin and dest SIT service items on the same payment request and shipment
 			shipmentSITBalance.PendingBilledEndDate = end
+			sitAllowanceEndDate := mtoshipment.CalculateSITAllowanceEndDate(shipmentSITBalance.TotalSITDaysRemaining, *paymentServiceItem.MTOServiceItem.SITEntryDate, today)
+
+			shipmentSITBalance.TotalSITEndDate = sitAllowanceEndDate
 			shipmentsSITBalances[shipment.ID.String()] = shipmentSITBalance
 		} else {
 			shipmentSITBalance := services.ShipmentPaymentSITBalance{
@@ -158,13 +163,19 @@ func calculatePendingSITBalance(paymentServiceItems []models.PaymentServiceItem,
 				PendingSITDaysInvoiced: daysInSIT,
 				PendingBilledEndDate:   end,
 			}
-
-			if shipment.SITDaysAllowance != nil {
-				shipmentSITBalance.TotalSITDaysAuthorized = *shipment.SITDaysAllowance
-				shipmentSITBalance.TotalSITDaysRemaining = shipmentSITBalance.TotalSITDaysAuthorized - daysInSIT
-				// start counting from the day after the last day in the SIT payment range
-				shipmentSITBalance.TotalSITEndDate = end.AddDate(0, 0, shipmentSITBalance.TotalSITDaysRemaining+1)
+			shipmentSITs := mtoshipment.SortShipmentSITs(shipment, today)
+			totalSITAllowance, err := mtoshipment.CalculateShipmentSITAllowanceFunc(appCtx, shipment)
+			if err != nil {
+				return err
 			}
+			totalSITDaysUsed := mtoshipment.CalculateTotalDaysInSIT(shipmentSITs, today)
+			totalDaysRemaining := totalSITAllowance - totalSITDaysUsed
+
+			sitAllowanceEndDate := mtoshipment.CalculateSITAllowanceEndDate(totalDaysRemaining, *paymentServiceItem.MTOServiceItem.SITEntryDate, today)
+
+			shipmentSITBalance.TotalSITDaysAuthorized = totalSITAllowance
+			shipmentSITBalance.TotalSITDaysRemaining = shipmentSITBalance.TotalSITDaysAuthorized - totalSITDaysUsed
+			shipmentSITBalance.TotalSITEndDate = sitAllowanceEndDate
 
 			shipmentsSITBalances[shipment.ID.String()] = shipmentSITBalance
 		}
@@ -177,7 +188,13 @@ func (m paymentRequestShipmentsSITBalance) ListShipmentPaymentSITBalance(appCtx 
 	var paymentRequest models.PaymentRequest
 	// Keeping this query simple in case the payment request is not found as opposed to existing but with no SIT service
 	// items
-	err := appCtx.DB().Eager("PaymentServiceItems.MTOServiceItem.ReService", "PaymentServiceItems.MTOServiceItem.MTOShipment", "PaymentServiceItems.PaymentServiceItemParams.ServiceItemParamKey").Find(&paymentRequest, paymentRequestID)
+	err := appCtx.DB().Eager(
+		"PaymentServiceItems.MTOServiceItem.ReService",
+		"PaymentServiceItems.MTOServiceItem.MTOShipment",
+		"PaymentServiceItems.MTOServiceItem.MTOShipment.MTOServiceItems",
+		"PaymentServiceItems.MTOServiceItem.MTOShipment.MTOServiceItems.ReService",
+		"PaymentServiceItems.MTOServiceItem.MTOShipment.SITDurationUpdates",
+		"PaymentServiceItems.PaymentServiceItemParams.ServiceItemParamKey").Find(&paymentRequest, paymentRequestID)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
@@ -212,7 +229,7 @@ func (m paymentRequestShipmentsSITBalance) ListShipmentPaymentSITBalance(appCtx 
 	shipmentsSITBalances := map[string]services.ShipmentPaymentSITBalance{}
 
 	// first go through the previously billed SIT service items
-	err = calculateReviewedSITBalance(paymentServiceItems, shipmentsSITBalances)
+	err = calculateReviewedSITBalance(appCtx, paymentServiceItems, shipmentsSITBalances)
 	if err != nil {
 		return nil, err
 	}
@@ -220,7 +237,7 @@ func (m paymentRequestShipmentsSITBalance) ListShipmentPaymentSITBalance(appCtx 
 	// review the pending SIT service items on the open payment request
 	// we may need to change how this works once a pending payment request is reviewed by the TIO because the numbers
 	// will look different when looking at the reviewed payment request again.
-	err = calculatePendingSITBalance(paymentRequest.PaymentServiceItems, shipmentsSITBalances)
+	err = calculatePendingSITBalance(appCtx, paymentRequest.PaymentServiceItems, shipmentsSITBalances)
 	if err != nil {
 		return nil, err
 	}

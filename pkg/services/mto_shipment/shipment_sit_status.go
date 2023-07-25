@@ -23,32 +23,21 @@ func NewShipmentSITStatus() services.ShipmentSITStatus {
 	return &shipmentSITStatus{}
 }
 
-type sortedShipmentSITs struct {
+type SortedShipmentSITs struct {
 	pastSITs    []models.MTOServiceItem
 	currentSITs []models.MTOServiceItem
 	futureSITs  []models.MTOServiceItem
 }
 
-func newSortedShipmentSITs() sortedShipmentSITs {
-	return sortedShipmentSITs{
+func newSortedShipmentSITs() SortedShipmentSITs {
+	return SortedShipmentSITs{
 		pastSITs:    make([]models.MTOServiceItem, 0),
 		currentSITs: make([]models.MTOServiceItem, 0),
 		futureSITs:  make([]models.MTOServiceItem, 0),
 	}
 }
 
-// CalculateShipmentSITStatus creates a SIT Status for payload to be used in
-// multiple handlers in the `ghcapi` package for the MTOShipment handlers.
-func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppContext, shipment models.MTOShipment) (*services.SITStatus, error) {
-	if shipment.MTOServiceItems == nil || len(shipment.MTOServiceItems) == 0 {
-		return nil, nil
-	}
-
-	var shipmentSITStatus services.SITStatus
-
-	year, month, day := time.Now().Date()
-	today := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
-
+func SortShipmentSITs(shipment models.MTOShipment, today time.Time) SortedShipmentSITs {
 	shipmentSITs := newSortedShipmentSITs()
 
 	for _, serviceItem := range shipment.MTOServiceItems {
@@ -64,6 +53,22 @@ func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppConte
 			}
 		}
 	}
+	return shipmentSITs
+}
+
+// CalculateShipmentSITStatus creates a SIT Status for payload to be used in
+// multiple handlers in the `ghcapi` package for the MTOShipment handlers.
+func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppContext, shipment models.MTOShipment) (*services.SITStatus, error) {
+	if shipment.MTOServiceItems == nil || len(shipment.MTOServiceItems) == 0 {
+		return nil, nil
+	}
+
+	var shipmentSITStatus services.SITStatus
+
+	year, month, day := time.Now().Date()
+	today := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
+
+	shipmentSITs := SortShipmentSITs(shipment, today)
 
 	currentSIT := getCurrentSIT(shipmentSITs)
 
@@ -77,7 +82,7 @@ func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppConte
 	if err != nil {
 		return nil, err
 	}
-	shipmentSITStatus.TotalSITDaysUsed = calculateTotalDaysInSIT(shipmentSITs, today)
+	shipmentSITStatus.TotalSITDaysUsed = CalculateTotalDaysInSIT(shipmentSITs, today)
 	shipmentSITStatus.TotalDaysRemaining = totalSITAllowance - shipmentSITStatus.TotalSITDaysUsed
 	shipmentSITStatus.PastSITs = shipmentSITs.pastSITs
 
@@ -89,7 +94,7 @@ func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppConte
 		daysInSIT := daysInSIT(*currentSIT, today)
 		sitEntryDate := *currentSIT.SITEntryDate
 		sitDepartureDate := currentSIT.SITDepartureDate
-		sitAllowanceEndDate := calculateSITAllowanceEndDate(shipmentSITStatus.TotalDaysRemaining, sitEntryDate, today)
+		sitAllowanceEndDate := CalculateSITAllowanceEndDate(shipmentSITStatus.TotalDaysRemaining, sitEntryDate, today)
 		shipmentSITStatus.CurrentSIT = &services.CurrentSIT{
 			Location:            location,
 			DaysInSIT:           daysInSIT,
@@ -124,7 +129,7 @@ Private function that returns the most relevant current or upcoming SIT.
 SIT service items that have already started are prioritized, followed by SIT
 service items that start in the future.
 */
-func getCurrentSIT(shipmentSITs sortedShipmentSITs) *models.MTOServiceItem {
+func getCurrentSIT(shipmentSITs SortedShipmentSITs) *models.MTOServiceItem {
 	if len(shipmentSITs.currentSITs) > 0 {
 		return getEarliestSIT(shipmentSITs.currentSITs)
 	} else if len(shipmentSITs.futureSITs) > 0 {
@@ -151,7 +156,7 @@ func daysInSIT(serviceItem models.MTOServiceItem, today time.Time) int {
 	return 0
 }
 
-func calculateTotalDaysInSIT(shipmentSITs sortedShipmentSITs, today time.Time) int {
+func CalculateTotalDaysInSIT(shipmentSITs SortedShipmentSITs, today time.Time) int {
 	totalDays := 0
 	for _, serviceItem := range shipmentSITs.pastSITs {
 		totalDays += daysInSIT(serviceItem, today)
@@ -162,7 +167,7 @@ func calculateTotalDaysInSIT(shipmentSITs sortedShipmentSITs, today time.Time) i
 	return totalDays
 }
 
-func calculateSITAllowanceEndDate(totalDaysRemaining int, sitEntryDate time.Time, today time.Time) time.Time {
+func CalculateSITAllowanceEndDate(totalDaysRemaining int, sitEntryDate time.Time, today time.Time) time.Time {
 	//current SIT
 	if sitEntryDate.Before(today) {
 		return today.AddDate(0, 0, totalDaysRemaining)
@@ -186,6 +191,10 @@ func (f shipmentSITStatus) CalculateShipmentsSITStatuses(appCtx appcontext.AppCo
 
 // CalculateShipmentSITAllowance finds the number of days allowed in SIT for a shipment based on its entitlement and any approved SIT extensions
 func (f shipmentSITStatus) CalculateShipmentSITAllowance(appCtx appcontext.AppContext, shipment models.MTOShipment) (int, error) {
+	return CalculateShipmentSITAllowanceFunc(appCtx, shipment)
+}
+
+func CalculateShipmentSITAllowanceFunc(appCtx appcontext.AppContext, shipment models.MTOShipment) (int, error) {
 	entitlement, err := fetchEntitlement(appCtx, shipment)
 	if err != nil {
 		return 0, apperror.NewNotFoundError(shipment.ID, "shipment is missing entitlement")
