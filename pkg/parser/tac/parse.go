@@ -95,13 +95,7 @@ func ConsolidateDuplicateTACsDesiredFromTRDM(codes []models.TransportationAccoun
 	consolidatedMap := make(map[string]models.TransportationAccountingCodeDesiredFromTRDM)
 
 	for _, code := range codes {
-		existingCode, exists := consolidatedMap[code.TAC]
-		if exists && existingCode.Transaction != code.Transaction {
-			existingCode.Transaction = existingCode.Transaction + ". Additional description found: " + code.Transaction
-			consolidatedMap[code.TAC] = existingCode
-		} else {
-			consolidatedMap[code.TAC] = code
-		}
+		consolidatedMap[code.TAC] = overwriteDuplicateCode(consolidatedMap[code.TAC], code)
 	}
 
 	var consolidated []models.TransportationAccountingCodeDesiredFromTRDM
@@ -110,6 +104,33 @@ func ConsolidateDuplicateTACsDesiredFromTRDM(codes []models.TransportationAccoun
 	}
 
 	return consolidated
+}
+
+// This function checks two TAC codes: one existing and one new to decide which one to keep based on their ExpirationDates
+// If the ExpirationDate is the same, it appends the transactions and maintains the first code found
+// If the ExpirationDate is different, it appends the transactions and maintains the ExpirationDate further in the future
+func overwriteDuplicateCode(existingCode models.TransportationAccountingCodeDesiredFromTRDM, newCode models.TransportationAccountingCodeDesiredFromTRDM) models.TransportationAccountingCodeDesiredFromTRDM {
+
+	// If the new code expires later, append its transaction to the existing one (if not empty), and keep the new code
+	if newCode.ExpirationDate.After(existingCode.ExpirationDate) {
+		if existingCode.Transaction != "" {
+			newCode.Transaction = existingCode.Transaction + ". Additional description found: " + newCode.Transaction
+		}
+		return newCode
+	}
+
+	// If the new code expires at the same time or earlier compared to the existing code,
+	// append its transaction to the existing code (if not empty) because this one expires earlier or is already expired.
+	// A separate function handles the pruning of expired codes, not this one
+	if newCode.ExpirationDate.Before(existingCode.ExpirationDate) || newCode.ExpirationDate.Equal(existingCode.ExpirationDate) {
+		if existingCode.Transaction != "" {
+			existingCode.Transaction = existingCode.Transaction + ". Additional description found: " + newCode.Transaction
+		} else {
+			existingCode.Transaction = newCode.Transaction
+		}
+	}
+
+	return existingCode
 }
 
 // This function handles the heavy lifting for the main parse function. It handles the scanning of every line and conversion into the TransportationAccountingCodeDesiredFromTRDM model.
