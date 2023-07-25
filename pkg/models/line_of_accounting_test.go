@@ -79,6 +79,8 @@ func (suite *ModelSuite) Test_AllFieldsPresentCanSave() {
 		LoaBgtSubActCd:         models.StringPointer("1234"),
 	}
 
-	err := suite.DB().Save(loa)
+	verrs, err := suite.DB().ValidateAndSave(loa)
+
+	suite.NoVerrs(verrs)
 	suite.NoError(err)
 }
