@@ -50,6 +50,7 @@ var Document CustomType = "Document"
 var DutyLocation CustomType = "DutyLocation"
 var Entitlement CustomType = "Entitlement"
 var EvaluationReport CustomType = "EvaluationReport"
+var LineOfAccounting CustomType = "LineOfAccounting"
 var Move CustomType = "Move"
 var MovingExpense CustomType = "MovingExpense"
 var MTOAgent CustomType = "MTOAgent"
@@ -103,6 +104,7 @@ var defaultTypesMap = map[string]CustomType{
 	"models.DutyLocation":                             DutyLocation,
 	"models.Entitlement":                              Entitlement,
 	"models.EvaluationReport":                         EvaluationReport,
+	"models.LineOfAccounting":                         LineOfAccounting,
 	"models.Move":                                     Move,
 	"models.MovingExpense":                            MovingExpense,
 	"models.MTOAgent":                                 MTOAgent,
