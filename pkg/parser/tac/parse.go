@@ -41,49 +41,9 @@ func Parse(file io.Reader) ([]models.TransportationAccountingCodeDesiredFromTRDM
 		ensureFileStructMatchesColumnNames(columnHeaders)
 	}
 
-	// Scan every line and parse into Transportation Accounting Codes
-	for scanner.Scan() {
-		line := scanner.Text()
-
-		// This check will skip the last line of the file.
-		// bufio does not appear to have a method of skipping the last line
-		// nor check the total amount of lines present in a file without
-		// scanning every single line to memory first.
-		if line == "Unclassified" {
-			break
-		}
-
-		values := strings.Split(line, "|")
-		if len(values) != len(columnHeaders) {
-			return nil, errors.New("malformed line in the provided tac file: " + line)
-		}
-
-		effectiveDate, err := time.Parse("2006-01-02 15:04:05", values[16])
-		if err != nil {
-			return nil, fmt.Errorf("malformed effective date in the provided tac file: %s", err)
-		}
-
-		expiredDate, err := time.Parse("2006-01-02 15:04:05", values[17])
-		if err != nil {
-			return nil, fmt.Errorf("malformed expiration date in the provided tac file: %s", err)
-		}
-
-		code := models.TransportationAccountingCodeDesiredFromTRDM{
-			TAC:                      values[2],
-			BillingAddressFirstLine:  values[19],
-			BillingAddressSecondLine: values[20],
-			BillingAddressThirdLine:  values[21],
-			BillingAddressFourthLine: values[22],
-			Transaction:              values[15],
-			EffectiveDate:            effectiveDate,
-			ExpirationDate:           expiredDate,
-			FiscalYear:               values[3],
-		}
-
-		codes = append(codes, code)
-	}
-
-	if err := scanner.Err(); err != nil {
+	// Process the lines of the .txt file into modeled codes
+	codes, err := processLines(scanner, columnHeaders, codes)
+	if err != nil {
 		return nil, err
 	}
 
@@ -150,4 +110,53 @@ func ConsolidateDuplicateTACsDesiredFromTRDM(codes []models.TransportationAccoun
 	}
 
 	return consolidated
+}
+
+// This function handles the heavy lifting for the main parse function. It handles the scanning of every line and conversion into the TransportationAccountingCodeDesiredFromTRDM model.
+func processLines(scanner *bufio.Scanner, columnHeaders []string, codes []models.TransportationAccountingCodeDesiredFromTRDM) ([]models.TransportationAccountingCodeDesiredFromTRDM, error) {
+	// Scan every line and parse into Transportation Accounting Codes
+	for scanner.Scan() {
+		line := scanner.Text()
+
+		// This check will skip the last line of the file.
+		if line == "Unclassified" {
+			break
+		}
+
+		values := strings.Split(line, "|")
+		if len(values) != len(columnHeaders) {
+			return nil, errors.New("malformed line in the provided tac file: " + line)
+		}
+
+		// Skip the entry if the TAC value is empty
+		if values[2] == "" {
+			continue
+		}
+
+		effectiveDate, err := time.Parse("2006-01-02 15:04:05", values[16])
+		if err != nil {
+			return nil, fmt.Errorf("malformed effective date in the provided tac file: %s", err)
+		}
+
+		expiredDate, err := time.Parse("2006-01-02 15:04:05", values[17])
+		if err != nil {
+			return nil, fmt.Errorf("malformed expiration date in the provided tac file: %s", err)
+		}
+
+		code := models.TransportationAccountingCodeDesiredFromTRDM{
+			TAC:                      values[2],
+			BillingAddressFirstLine:  values[19],
+			BillingAddressSecondLine: values[20],
+			BillingAddressThirdLine:  values[21],
+			BillingAddressFourthLine: values[22],
+			Transaction:              values[15],
+			EffectiveDate:            effectiveDate,
+			ExpirationDate:           expiredDate,
+			FiscalYear:               values[3],
+		}
+
+		codes = append(codes, code)
+	}
+
+	return codes, scanner.Err()
 }

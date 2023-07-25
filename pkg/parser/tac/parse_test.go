@@ -104,6 +104,7 @@ Unclassified`)
 	suite.Error(err)
 }
 
+// This function will test the pruning of all expired TACs when called.
 func (suite *TacParserSuite) TestExpiredTACs() {
 
 	// Create an expired TAC
@@ -123,6 +124,7 @@ func (suite *TacParserSuite) TestExpiredTACs() {
 	suite.NotContains(prunedTACs, expiredTAC)
 }
 
+// This function will test the conslidation of duplicate TACs. It is expected to combine their transaction descriptions.
 func (suite *TacParserSuite) TestDuplicateTACs() {
 	oneYearAgo := time.Now().AddDate(-1, 0, 0)  // A year ago
 	oneYearAhead := time.Now().AddDate(1, 0, 0) // A year from now
