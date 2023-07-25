@@ -2,22 +2,28 @@ import React from 'react';
 import { Button, Textarea, Label, FormGroup, Radio } from '@trussworks/react-uswds'; // Tag Label
 import { Formik, Field } from 'formik';
 
-import Modal, { ModalActions, ModalClose, connectModal } from 'components/Modal/Modal'; // ModalTitle
+import styles from './ShipmentAddressUpdateReviewRequestModal.module.scss';
+
+import Modal, { ModalActions, ModalClose, ModalTitle, connectModal } from 'components/Modal/Modal'; // ModalTitle
 import { Form } from 'components/form/Form';
 import formStyles from 'styles/form.module.scss';
+import AddressUpdatePreview from 'components/Office/AddressUpdatePreview/AddressUpdatePreview';
+import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 
-export const ShipmentAddressUpdateReviewRequestModal = ({ onClose }) => {
+export const ShipmentAddressUpdateReviewRequestModal = ({ deliveryAddressUpdate, shipmentType, onClose }) => {
   return (
     <Modal>
       <ModalClose handleClick={() => onClose()} />
+      <ModalTitle>
+        <ShipmentTag shipmentType={shipmentType} />
+        <h2 className={styles.modalTitle}>Review request</h2>
+      </ModalTitle>
       <Formik>
         <Form className={formStyles.form}>
-          <div>
-            <div>
-              <h3>Address update form</h3>
-            </div>
+          <div className={styles.modalbody}>
+            <AddressUpdatePreview deliveryAddressUpdate={deliveryAddressUpdate} shipmentType={shipmentType} />
             <FormGroup>
-              <h3 style={{ fontSize: '17px' }}>Review Request</h3>
+              <h4>Review Request</h4>
               <Label>Approve address change?</Label>
               <div data-testid="reviewSITAddressUpdateForm">
                 <Field

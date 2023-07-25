@@ -463,6 +463,8 @@ const ShipmentForm = (props) => {
             <ConnectedShipmentAddressUpdateReviewRequestModal
               isOpen={isAddressChangeModalOpen}
               onClose={() => setIsAddressChangeModalOpen(false)}
+              deliveryAddressUpdate={mtoShipment?.deliveryAddressUpdate}
+              shipmentType={mtoShipment?.shipmentType}
             />
             <NotificationScrollToTop dependency={errorMessage} />
             {errorMessage && (

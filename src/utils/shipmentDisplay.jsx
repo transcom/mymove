@@ -17,6 +17,19 @@ export function formatAddress(address) {
   );
 }
 
+export function formatTwoLineAddress(address) {
+  const { streetAddress1, streetAddress2, city, state, postalCode } = address;
+
+  return (
+    <address>
+      {streetAddress1 && <span>{streetAddress1},</span>}
+      {streetAddress2 && <span>{` ${streetAddress2}`}</span>}
+      <br />
+      <span>{`${city}, ${state} ${postalCode}`}</span>
+    </address>
+  );
+}
+
 /**
  * @description This function is used to format the address in the
  * EditSitAddressChangeForm component. It specifically uses the `<span>`

@@ -1,0 +1,17 @@
+@import 'shared/styles/_basics';
+@import 'shared/styles/colors';
+
+.modalTitle {
+  padding-top: 1rem;
+}
+
+.modalbody {
+  @include u-border('base-lighter');
+  @include u-border('1px');
+  @include u-radius('05');
+  @include u-padding(3);
+
+  h4 {
+    @include u-font-weight(bold);
+  }
+}
