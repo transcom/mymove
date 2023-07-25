@@ -1,32 +1,31 @@
 package models_test
 
 import (
-	"github.com/gofrs/uuid"
-
 	"github.com/transcom/mymove/pkg/models"
 )
 
 func (suite *ModelSuite) Test_ValidTac() {
-	tac := &models.TransportationAccountingCode{
-		ID:  uuid.Must(uuid.NewV4()),
-		TAC: "TheTac",
+	tac := models.TransportationAccountingCode{
+		TAC: "Tac1",
 	}
 
-	expErrors := map[string][]string{}
+	verrs, err := suite.DB().ValidateAndSave(&tac)
 
-	suite.verifyValidationErrors(tac, expErrors)
+	suite.NoVerrs(verrs)
+	suite.NoError(err)
 }
 
-// TODO: Test saveable/validatable with all optional fields
-
 func (suite *ModelSuite) Test_InvalidTac() {
-	tac := &models.TransportationAccountingCode{
-		ID: uuid.Must(uuid.NewV4()),
-	}
+	tac := models.TransportationAccountingCode{}
 
 	expErrors := map[string][]string{
 		"tac": {"TAC can not be blank."},
 	}
 
-	suite.verifyValidationErrors(tac, expErrors)
+	verrs, err := suite.DB().ValidateAndSave(&tac)
+
+	suite.Equal(expErrors, verrs.Errors)
+	suite.NoError(err)
 }
+
+// TODO: Test saveable/validatable with all optional fields
