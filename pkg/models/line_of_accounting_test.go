@@ -13,8 +13,6 @@ func (suite *ModelSuite) Test_AllFieldsOptionalCanSave() {
 }
 
 func (suite *ModelSuite) Test_AllFieldsPresentCanSave() {
-
-	// TODO: use Factory
 	loa := factory.BuildFullLineOfAccounting(suite.DB())
 
 	verrs, err := suite.DB().ValidateAndSave(&loa)

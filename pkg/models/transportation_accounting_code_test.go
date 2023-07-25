@@ -1,6 +1,7 @@
 package models_test
 
 import (
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -28,4 +29,11 @@ func (suite *ModelSuite) Test_InvalidTac() {
 	suite.NoError(err)
 }
 
-// TODO: Test saveable/validatable with all optional fields
+func (suite *ModelSuite) Test_CanSaveTac() {
+	tac := factory.BuildFullTransportationAccountingCode(suite.DB())
+
+	verrs, err := suite.DB().ValidateAndSave(&tac)
+
+	suite.NoVerrs(verrs)
+	suite.NoError(err)
+}

@@ -83,6 +83,7 @@ var SignedCertification CustomType = "SignedCertification"
 var SITAddressUpdate CustomType = "SITAddressUpdate"
 var SITDurationUpdate CustomType = "SITDurationUpdate"
 var StorageFacility CustomType = "StorageFacility"
+var TransportationAccountingCode CustomType = "TransportationAccountingCode"
 var TransportationOffice CustomType = "TransportationOffice"
 var Upload CustomType = "Upload"
 var UserUpload CustomType = "UserUpload"
@@ -136,6 +137,7 @@ var defaultTypesMap = map[string]CustomType{
 	"models.SITAddressUpdate":                         SITAddressUpdate,
 	"models.SITDurationUpdate":                        SITDurationUpdate,
 	"models.StorageFacility":                          StorageFacility,
+	"models.TransportationAccountingCode":             TransportationAccountingCode,
 	"models.TransportationOffice":                     TransportationOffice,
 	"models.Upload":                                   Upload,
 	"models.UserUpload":                               UserUpload,

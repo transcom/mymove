@@ -6,6 +6,8 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
+// TODO: Replace with new factory?
+
 // MakeTransportationAccountingCode creates a single transportation access code
 func MakeTransportationAccountingCode(db *pop.Connection, assertions Assertions) models.TransportationAccountingCode {
 	transportationAccountingCode := models.TransportationAccountingCode{
