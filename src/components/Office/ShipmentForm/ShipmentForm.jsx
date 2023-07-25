@@ -13,6 +13,7 @@ import ppmShipmentSchema from './ppmShipmentSchema';
 
 import SITCostDetails from 'components/Office/SITCostDetails/SITCostDetails';
 import ConnectedDestructiveShipmentConfirmationModal from 'components/ConfirmationModals/DestructiveShipmentConfirmationModal';
+import ConnectedShipmentAddressUpdateReviewRequestModal from 'components/Office/ShipmentAddressUpdateReviewRequestModal/ShipmentAddressUpdateReviewRequestModal';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
 import { ContactInfoFields } from 'components/form/ContactInfoFields/ContactInfoFields';
@@ -127,6 +128,8 @@ const ShipmentForm = (props) => {
   };
 
   const deliveryAddressUpdateRequested = mtoShipment?.deliveryAddressUpdate?.status === ADDRESS_UPDATE_STATUS.REQUESTED;
+
+  const [isAddressChangeModalOpen, setIsAddressChangeModalOpen] = useState(false);
 
   const isHHG = shipmentType === SHIPMENT_OPTIONS.HHG;
   const isNTS = shipmentType === SHIPMENT_OPTIONS.NTS;
@@ -457,6 +460,10 @@ const ShipmentForm = (props) => {
               onClose={setIsCancelModalVisible}
               onSubmit={handleDeleteShipment}
             />
+            <ConnectedShipmentAddressUpdateReviewRequestModal
+              isOpen={isAddressChangeModalOpen}
+              onClose={() => setIsAddressChangeModalOpen(false)}
+            />
             <NotificationScrollToTop dependency={errorMessage} />
             {errorMessage && (
               <Alert type="error" headingLevel="h4" heading="An error occurred">
@@ -621,7 +628,12 @@ const ShipmentForm = (props) => {
                           <Alert type="error" slim>
                             <span className={styles.deliveryAddressUpdateAlert}>
                               Pending delivery location change request needs review.{' '}
-                              <Link className={styles.reviewRequestLink} onClick={() => {}}>
+                              <Link
+                                className={styles.reviewRequestLink}
+                                onClick={() => {
+                                  setIsAddressChangeModalOpen(true);
+                                }}
+                              >
                                 Review request
                               </Link>{' '}
                               to proceed.
