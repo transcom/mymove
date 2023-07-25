@@ -70,8 +70,8 @@ export class MovingInfo extends Component {
               </IconSection>
               <IconSection icon="pencil-alt" headline="You don't need to get the details perfect.">
                 <p>
-                  After you submit this information, you&apos;ll talk to a move counselor. They will verify your choices
-                  and help identify more complicated situations.
+                  After you submit this information, you&apos;ll talk to a Customer Care Representative. They will
+                  verify your choices and help identify more complicated situations.
                 </p>
                 <p>
                   If you use movers, they will be your point of contact throughout your move and can also help you make
