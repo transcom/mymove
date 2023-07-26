@@ -502,8 +502,9 @@ export class Home extends Component {
                       </div>
                     ) : (
                       <Description>
-                        We will collect addresses, dates, and how you want to move your personal property. Note: You can
-                        change these details later by talking to a move counselor or customer care representative.
+                        We will collect addresses, dates, and how you want to move your personal property.
+                        <br /> Note: You can change these details later by talking to a move counselor or customer care
+                        representative.
                       </Description>
                     )}
                   </Step>

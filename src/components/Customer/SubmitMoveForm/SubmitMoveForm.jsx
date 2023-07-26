@@ -42,7 +42,7 @@ const SubmitMoveForm = (props) => {
               <CertificationText certificationText={certificationText} />
 
               <div className={styles.signatureBox}>
-                <h3>Signature</h3>
+                <h3>SIGNATURE</h3>
                 <p>
                   In consideration of said household goods or mobile homes being shipped at Government expense, I hereby
                   agree to the certifications stated above.
