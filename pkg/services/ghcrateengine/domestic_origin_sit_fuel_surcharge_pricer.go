@@ -23,7 +23,7 @@ func NewDomesticOriginSITFuelSurchargePricer() services.DomesticOriginSITFuelSur
 	return &domesticOriginFuelSurchargePricer{}
 }
 
-// Price determines the price for a counseling service
+// Price determines the price for Domestic Origin SIT Fuel Surcharges
 func (p domesticOriginFuelSurchargePricer) Price(_ appcontext.AppContext, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, fscWeightBasedDistanceMultiplier float64, eiaFuelPrice unit.Millicents, isPPM bool) (unit.Cents, services.PricingDisplayParams, error) {
 	// Validate parameters
 	if actualPickupDate.IsZero() {
