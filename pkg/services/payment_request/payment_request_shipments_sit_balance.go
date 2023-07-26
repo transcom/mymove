@@ -109,12 +109,15 @@ func calculateReviewedSITBalance(appCtx appcontext.AppContext, paymentServiceIte
 					PreviouslyBilledDays:    &daysInSIT,
 					PreviouslyBilledEndDate: &end,
 				}
+
+				// Sort the shipment SITs into past, future, and current SITs, required to calculate total days in SIT
 				shipmentSITs := mtoshipment.SortShipmentSITs(shipment, today)
+				totalSITDaysUsed := mtoshipment.CalculateTotalDaysInSIT(shipmentSITs, today)
+
 				totalSITAllowance, err := mtoshipment.NewShipmentSITStatus().CalculateShipmentSITAllowance(appCtx, shipment)
 				if err != nil {
 					return err
 				}
-				totalSITDaysUsed := mtoshipment.CalculateTotalDaysInSIT(shipmentSITs, today)
 
 				shipmentSITBalance.TotalSITDaysAuthorized = totalSITAllowance
 				shipmentSITBalance.TotalSITDaysRemaining = shipmentSITBalance.TotalSITDaysAuthorized - totalSITDaysUsed
@@ -163,6 +166,7 @@ func calculatePendingSITBalance(appCtx appcontext.AppContext, paymentServiceItem
 				PendingSITDaysInvoiced: daysInSIT,
 				PendingBilledEndDate:   end,
 			}
+
 			shipmentSITs := mtoshipment.SortShipmentSITs(shipment, today)
 			totalSITAllowance, err := mtoshipment.NewShipmentSITStatus().CalculateShipmentSITAllowance(appCtx, shipment)
 			if err != nil {
