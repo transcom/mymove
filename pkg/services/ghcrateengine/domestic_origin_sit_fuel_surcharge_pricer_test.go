@@ -63,18 +63,6 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOriginFuelSurcharge() {
 			}, nil, nil,
 		)
 
-		var mtoServiceItem models.MTOServiceItem
-		err := suite.DB().Eager("MTOShipment").Find(&mtoServiceItem, paymentServiceItem.MTOServiceItemID)
-		suite.NoError(err)
-
-		distance := fscTestDistance
-		mtoServiceItem.MTOShipment.Distance = &distance
-		err = suite.DB().Save(&mtoServiceItem.MTOShipment)
-		suite.NoError(err)
-
-		// the testdatagen factory has some dirty shipment data that we don't want to pass through to the pricer in the test
-		paymentServiceItem.PaymentServiceItemParams[0].PaymentServiceItem.MTOServiceItem = models.MTOServiceItem{}
-
 		return paymentServiceItem
 	}
 
