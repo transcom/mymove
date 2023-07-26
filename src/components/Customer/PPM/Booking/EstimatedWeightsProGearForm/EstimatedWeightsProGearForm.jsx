@@ -105,9 +105,9 @@ const EstimatedWeightsProGearForm = ({ orders, serviceMember, mtoShipment, onSub
                     target="_blank"
                     rel="noreferrer noopener"
                   >
-                    weight estimation calculator tool
+                    weight estimation calculator
                   </a>{' '}
-                  <FontAwesomeIcon icon="external-link-alt" /> to discover the average weight of standard household
+                  <FontAwesomeIcon icon="external-link-alt" /> tool to discover the average weight of standard household
                   items and get a calculation to compare with your entitlement allowance. (Link opens in a new window.)
                 </p>
               </SectionWrapper>
