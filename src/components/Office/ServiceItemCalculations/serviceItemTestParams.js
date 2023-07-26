@@ -802,8 +802,8 @@ const testParams = {
     WeightEstimated,
     ZipDestAddress,
     ZipPickupAddress,
-    ZipSITOriginHHGOriginalAddress,
-    ZipSITOriginHHGActualAddress,
+    ZipSITDestHHGOriginalAddress,
+    ZipSITDestHHGFinalAddress,
   ],
   DomesticMobileHomeFactor: [
     PSILinehaulDom,

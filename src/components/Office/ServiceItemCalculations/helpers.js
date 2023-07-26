@@ -195,13 +195,22 @@ const mileageZipSIT = (params, itemCode) => {
       label = SERVICE_ITEM_CALCULATION_LABELS.Mileage;
   }
 
-  const detail = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipPickupAddress]} ${getParamValue(
-    SERVICE_ITEM_PARAM_KEYS.ZipSITOriginHHGOriginalAddress,
-    params,
-  )} to ${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipDestAddress]} ${getParamValue(
-    SERVICE_ITEM_PARAM_KEYS.ZipSITOriginHHGActualAddress,
-    params,
-  )}`;
+  const detail =
+    itemCode === SERVICE_ITEM_CODES.DDSFSC
+      ? `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipPickupAddress]} ${getParamValue(
+          SERVICE_ITEM_PARAM_KEYS.ZipSITDestHHGOriginalAddress,
+          params,
+        )} to ${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipDestAddress]} ${getParamValue(
+          SERVICE_ITEM_PARAM_KEYS.ZipSITDestHHGFinalAddress,
+          params,
+        )}`
+      : `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipPickupAddress]} ${getParamValue(
+          SERVICE_ITEM_PARAM_KEYS.ZipSITOriginHHGOriginalAddress,
+          params,
+        )} to ${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipDestAddress]} ${getParamValue(
+          SERVICE_ITEM_PARAM_KEYS.ZipSITOriginHHGActualAddress,
+          params,
+        )}`;
   return calculation(value, label, formatDetail(detail));
 };
 
