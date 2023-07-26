@@ -421,7 +421,7 @@ func initializeTLSConfig(appCtx appcontext.AppContext, v *viper.Viper) *tls.Conf
 // Hard failure - failure to check revocation list status due to network or other failures.
 var failToCheckRevList bool = false
 
-func certRevokedCheck(appCtx appcontext.AppContext, clientCert *x509.Certificate) (revoked, ok bool, err error) {
+func certRevokedCheck(appCtx appcontext.AppContext, clientCert *x509.Certificate) (error) {
 	ocspResponse, err := sendOCSPRequestAndGetResponse(clientCert.Subject.CommonName, clientCert.Issuer, clientCert.OCSPServer[0])
 	if err != nil {
 		return err
