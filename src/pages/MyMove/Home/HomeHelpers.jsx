@@ -17,10 +17,9 @@ export const HelperNeedsOrders = () => (
 );
 
 export const HelperNeedsShipment = () => (
-  <Helper title="Time for step 3: set up your shipments" className={styles['helper-paragraph-only']}>
+  <Helper title="Time for step 3: Set up your shipments" className={styles['helper-paragraph-only']}>
     <p>Share where and when you&apos;re moving, and how you want your things to be shipped.</p>
     <p>
-      {' '}
       Important Notice: USTRANSCOM has contracted a single move manager to manage the hundreds of commercial moving
       companies that pack, ship, and deliver personal property worldwide. They will manage household goods,
       storage-in-transit warehouse services, and unaccompanied baggage shipments. This move manager will be your primary
@@ -28,7 +27,6 @@ export const HelperNeedsShipment = () => (
       office will remain your primary DOD contact to ensure quality performance.
     </p>
     <p>
-      {' '}
       Note: This move manager does not manage personally procured moves or replace the existing programs for
       non-temporary storage or the movement of privately owned vehicles.
     </p>
