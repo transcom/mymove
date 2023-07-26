@@ -110,7 +110,7 @@ func calculateReviewedSITBalance(appCtx appcontext.AppContext, paymentServiceIte
 					PreviouslyBilledEndDate: &end,
 				}
 				shipmentSITs := mtoshipment.SortShipmentSITs(shipment, today)
-				totalSITAllowance, err := mtoshipment.CalculateShipmentSITAllowanceFunc(appCtx, shipment)
+				totalSITAllowance, err := mtoshipment.NewShipmentSITStatus().CalculateShipmentSITAllowance(appCtx, shipment)
 				if err != nil {
 					return err
 				}
@@ -164,7 +164,7 @@ func calculatePendingSITBalance(appCtx appcontext.AppContext, paymentServiceItem
 				PendingBilledEndDate:   end,
 			}
 			shipmentSITs := mtoshipment.SortShipmentSITs(shipment, today)
-			totalSITAllowance, err := mtoshipment.CalculateShipmentSITAllowanceFunc(appCtx, shipment)
+			totalSITAllowance, err := mtoshipment.NewShipmentSITStatus().CalculateShipmentSITAllowance(appCtx, shipment)
 			if err != nil {
 				return err
 			}

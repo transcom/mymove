@@ -191,10 +191,6 @@ func (f shipmentSITStatus) CalculateShipmentsSITStatuses(appCtx appcontext.AppCo
 
 // CalculateShipmentSITAllowance finds the number of days allowed in SIT for a shipment based on its entitlement and any approved SIT extensions
 func (f shipmentSITStatus) CalculateShipmentSITAllowance(appCtx appcontext.AppContext, shipment models.MTOShipment) (int, error) {
-	return CalculateShipmentSITAllowanceFunc(appCtx, shipment)
-}
-
-func CalculateShipmentSITAllowanceFunc(appCtx appcontext.AppContext, shipment models.MTOShipment) (int, error) {
 	entitlement, err := fetchEntitlement(appCtx, shipment)
 	if err != nil {
 		return 0, apperror.NewNotFoundError(shipment.ID, "shipment is missing entitlement")
