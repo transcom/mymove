@@ -67,7 +67,7 @@ describe('Agreement page', () => {
     submitMoveForApproval.mockRejectedValueOnce({ errors: { signature: 'Signature can not be blank.' } });
 
     render(<Agreement {...testProps} />);
-    await userEvent.type(screen.getByLabelText('Signature'), 'Sofia Clark-Nuñez');
+    await userEvent.type(screen.getByLabelText('SIGNATURE'), 'Sofia Clark-Nuñez');
     await userEvent.click(screen.getByRole('button', { name: 'Complete' }));
 
     await waitFor(() => {
