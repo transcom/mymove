@@ -150,7 +150,7 @@ func FindShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID, eagerAssoc
 
 	if appCtx.Session() != nil && appCtx.Session().IsMilApp() {
 
-		if shipment.MoveTaskOrder.Orders.ServiceMemberID != appCtx.Session().ServiceMemberID {
+		if shipment.MoveTaskOrder.Orders.ServiceMemberID != appCtx.Session().ServiceMemberID && shipment.MoveTaskOrder.Orders.ServiceMemberID != uuid.Nil {
 			return nil, apperror.NewNotFoundError(shipmentID, "while looking for shipment")
 		}
 	}
