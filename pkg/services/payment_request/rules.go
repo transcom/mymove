@@ -40,8 +40,9 @@ func checkStatusOfExistingPaymentRequest() paymentRequestValidator {
 		for _, paymentRequestServiceItem := range paymentRequestServiceItems {
 
 			status := paymentRequestServiceItem.Status
+			reserviceCode := paymentRequestServiceItem.MTOServiceItem.ReService.Code
 
-			if status == models.PaymentServiceItemStatusRequested || status == models.PaymentServiceItemStatusPaid {
+			if (reserviceCode != models.ReServiceCodeDDASIT && reserviceCode != models.ReServiceCodeDOASIT) && (status == models.PaymentServiceItemStatusRequested || status == models.PaymentServiceItemStatusPaid) {
 				return apperror.NewConflictError(paymentRequestServiceItem.MTOServiceItemID, "Conflict Error: Payment Request for Service Item is already paid or requested")
 			}
 		}
