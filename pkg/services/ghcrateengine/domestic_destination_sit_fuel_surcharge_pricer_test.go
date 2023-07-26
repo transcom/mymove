@@ -24,7 +24,7 @@ const (
 
 var ddsfscActualPickupDate = time.Date(testdatagen.TestYear, time.June, 5, 7, 33, 11, 456, time.UTC)
 
-func (suite *GHCRateEngineServiceSuite) TestPriceDomesticDestinationFuelSurcharge() {
+func (suite *GHCRateEngineServiceSuite) TestPriceDomesticDestinationSITFuelSurcharge() {
 	pricer := NewDomesticDestinationSITFuelSurchargePricer()
 
 	suite.Run("success without PaymentServiceItemParams", func() {
@@ -129,7 +129,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticDestinationFuelSurcharg
 	})
 }
 
-func (suite *GHCRateEngineServiceSuite) TestPriceUsingParamsDomesticDestinationFuelSurcharge() {
+func (suite *GHCRateEngineServiceSuite) TestPriceUsingParamsDomesticDestinationSITFuelSurcharge() {
 	pricer := NewDomesticDestinationSITFuelSurchargePricer()
 
 	fscPriceDifferenceInCents := (ddsfscFuelPrice - baseGHCDieselFuelPrice).Float64() / 1000.0
