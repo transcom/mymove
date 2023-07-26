@@ -125,28 +125,6 @@ func (suite *FactorySuite) TestBuildTransportationAccountingCode() {
 		suite.Equal(4321, *tac.LineOfAccounting.LoaSysID)
 	})
 
-	suite.Run("Successful creation of a TAC with customization", func() {
-		// Under test:      BuildTransportationAccountingCode
-		// Set up:          Create a TAC with no customizations or traits
-		// Expected outcome:TAC should be created with custom value
-		tac := BuildTransportationAccountingCode(suite.DB(), []Customization{
-			{
-				Model: models.TransportationAccountingCode{
-					TAC: "1234",
-				},
-			},
-			{
-				Model: models.LineOfAccounting{
-					LoaSysID: models.IntPointer(4321),
-				},
-			},
-		}, nil)
-
-		// VALIDATE RESULTS
-		suite.Equal("1234", tac.TAC)
-		suite.Equal(4321, *tac.LineOfAccounting.LoaSysID)
-	})
-
 	suite.Run("Successful creation of a fully-filled TAC", func() {
 		// Under test:      BuildFullTransportationAccountingCode
 		// Set up:          Create a TAC with no customizations or traits
