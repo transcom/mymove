@@ -151,6 +151,8 @@ ADD tac_fnct_poc_nm varchar(255);
 ALTER TABLE transportation_accounting_codes
 	ADD CONSTRAINT transportation_accounting_codes_loa_id_fkey FOREIGN KEY (loa_id) REFERENCES lines_of_accounting (id);
 
+CREATE INDEX IF NOT EXISTS transportation_accounting_codes_loa_id_idx ON transportation_accounting_codes(loa_id);
+
 -- Column Comments
 COMMENT on COLUMN transportation_accounting_codes.loa_id IS 'Associates the TAC to a Line of Accounting';
 COMMENT on COLUMN transportation_accounting_codes.tac_sys_id IS 'TAC System Identifier';
