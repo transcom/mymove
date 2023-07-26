@@ -268,6 +268,9 @@ commands:
             echo "export AWS_ACCOUNT_ID=$STG_ACCOUNT_ID" >> $BASH_ENV
             echo "export AWS_ACCESS_KEY_ID=$STG_ACCESS_KEY_ID" >> $BASH_ENV
             echo "export AWS_SECRET_ACCESS_KEY=$STG_SECRET_ACCESS_KEY" >> $BASH_ENV
+            # override default cpu/memory for staging
+            echo "export SERVICE_RESERVATION_CPU=2048" >> $BASH_ENV
+            echo "export SERVICE_RESERVATION_MEM=4096" >> $BASH_ENV
             source $BASH_ENV
   tls_vars_stg:
     steps:
@@ -287,6 +290,9 @@ commands:
             echo "export AWS_ACCOUNT_ID=$PRD_ACCOUNT_ID" >> $BASH_ENV
             echo "export AWS_ACCESS_KEY_ID=$PRD_ACCESS_KEY_ID" >> $BASH_ENV
             echo "export AWS_SECRET_ACCESS_KEY=$PRD_SECRET_ACCESS_KEY" >> $BASH_ENV
+            # override default cpu/memory for production
+            echo "export SERVICE_RESERVATION_CPU=2048" >> $BASH_ENV
+            echo "export SERVICE_RESERVATION_MEM=4096" >> $BASH_ENV
             source $BASH_ENV
   tls_vars_prd:
     steps:
@@ -346,7 +352,17 @@ commands:
             echo "export AWS_ACCOUNT_ID=\$$(echo << parameters.dp3-env >> | tr 'a-z' 'A-Z')_ACCOUNT_ID" >> $BASH_ENV
             echo "export AWS_ACCESS_KEY_ID=\$$(echo << parameters.dp3-env >> | tr 'a-z' 'A-Z')_ACCESS_KEY_ID" >> $BASH_ENV
             echo "export AWS_SECRET_ACCESS_KEY=\$$(echo << parameters.dp3-env >> | tr 'a-z' 'A-Z')_SECRET_ACCESS_KEY" >> $BASH_ENV
-            source $BASH_ENV
+      - when:
+          condition:
+            equal: [loadtest, << parameters.dp3-env >>]
+          steps:
+            - run:
+                name: 'Increase cpu/memory reservation for loadtest'
+                command: |
+                  # override default cpu/memory
+                  echo "export SERVICE_RESERVATION_CPU=2048" >> $BASH_ENV
+                  echo "export SERVICE_RESERVATION_MEM=4096" >> $BASH_ENV
+                  source $BASH_ENV
   tls_vars_dp3:
     parameters:
       dp3-env:
