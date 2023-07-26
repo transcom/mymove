@@ -206,8 +206,8 @@ func (suite *GHCRateEngineServiceSuite) TestPriceUsingParamsDomesticOriginSITFue
 				errorMessage:              "could not find param with key EIAFuelPrice",
 			},
 			"Missing Distance": {
-				missingPaymentServiceItem: models.ServiceItemParamNameDistanceZipSITDest,
-				errorMessage:              "could not find param with key DistanceZipSITDest",
+				missingPaymentServiceItem: models.ServiceItemParamNameDistanceZipSITOrigin,
+				errorMessage:              "could not find param with key DistanceZipSITOrigin",
 			},
 		}
 
