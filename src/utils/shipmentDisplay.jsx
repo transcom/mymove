@@ -21,11 +21,11 @@ export function formatTwoLineAddress(address) {
   const { streetAddress1, streetAddress2, city, state, postalCode } = address;
 
   return (
-    <address>
-      {streetAddress1 && <span>{streetAddress1},</span>}
-      {streetAddress2 && <span>{` ${streetAddress2}`}</span>}
+    <address data-testid="two-line-address">
+      {streetAddress1 && `${streetAddress1},`}
+      {streetAddress2 && ` ${streetAddress2}`}
       <br />
-      <span>{`${city}, ${state} ${postalCode}`}</span>
+      {city ? `${city}, ${state} ${postalCode}` : postalCode}
     </address>
   );
 }

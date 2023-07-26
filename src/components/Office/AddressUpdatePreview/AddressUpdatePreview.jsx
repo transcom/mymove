@@ -8,6 +8,7 @@ import styles from './AddressUpdatePreview.module.scss';
 import DataTable from 'components/DataTable/index';
 import { formatTwoLineAddress } from 'utils/shipmentDisplay';
 import DataTableWrapper from 'components/DataTableWrapper';
+import { ShipmentAddressUpdateShape } from 'types';
 
 const AddressUpdatePreview = ({ deliveryAddressUpdate }) => {
   const { originalAddress, newAddress, contractorRemarks } = deliveryAddressUpdate;
@@ -25,7 +26,10 @@ const AddressUpdatePreview = ({ deliveryAddressUpdate }) => {
         Approvals will result in updated pricing for this shipment. Customer may be subject to excess costs.
       </Alert>
 
-      <DataTableWrapper className={classnames('maxw-tablet', 'table--data-point-group', styles.reviewAddressChange)}>
+      <DataTableWrapper
+        className={classnames('maxw-tablet', 'table--data-point-group', styles.reviewAddressChange)}
+        testID="address-change-preview"
+      >
         <DataTable
           columnHeaders={['Original delivery location', 'Requested delivery location']}
           dataRow={[formatTwoLineAddress(originalAddress), formatTwoLineAddress(newAddress)]}
@@ -46,3 +50,7 @@ const AddressUpdatePreview = ({ deliveryAddressUpdate }) => {
 };
 
 export default AddressUpdatePreview;
+
+AddressUpdatePreview.propTypes = {
+  deliveryAddressUpdate: ShipmentAddressUpdateShape.isRequired,
+};
