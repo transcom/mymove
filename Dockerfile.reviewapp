@@ -3,7 +3,7 @@
 ###########
 
 # Base builder so the ci build image hash is referenced once
-FROM milmove/circleci-docker:milmove-app-3e1a3c25b7a176f7d6994a9d542b522f3c08cf26 as builder
+FROM milmove/circleci-docker:milmove-app-d6fb22d168665e4dc9d565a536480dee7b715dda as builder
 
 ENV CIRCLECI=docker
 ENV REACT_APP_NODE_ENV=development
