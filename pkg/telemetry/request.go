@@ -15,7 +15,10 @@ type RequestTelemetry struct {
 	requestCounter metric.Int64Counter
 }
 
-const requestTelemetryVersion = "0.1"
+const (
+	RequestTelemetryName    = "github.com/transcom/mymove/request"
+	RequestTelemetryVersion = "0.1"
+)
 
 // NewRequestTelemetry provides a way for the request logger to
 // provide stats. If we want accurate request counts with dimensions,
@@ -36,8 +39,8 @@ const requestTelemetryVersion = "0.1"
 func NewRequestTelemetry(logger *zap.Logger) *RequestTelemetry {
 	meterProvider := otel.GetMeterProvider()
 
-	requestMeter := meterProvider.Meter("github.com/transcom/mymove/request",
-		metric.WithInstrumentationVersion(requestTelemetryVersion))
+	requestMeter := meterProvider.Meter(RequestTelemetryName,
+		metric.WithInstrumentationVersion(RequestTelemetryVersion))
 
 	requestCounter, err := requestMeter.Int64Counter("http.server.request_count",
 		metric.WithDescription("Count of http requests"),
@@ -69,7 +72,7 @@ func allowedHTTPRequestAttributeFilter(kv attribute.KeyValue) bool {
 func (rt *RequestTelemetry) IncrementRequestCount(r *http.Request, routePattern string, statusCode int) {
 
 	serverAttributes := httpconv.ServerRequest(r.Host, r)
-	metricAttributes := []attribute.KeyValue{semconv.HTTPRoute(routePattern)}
+	metricAttributes := []attribute.KeyValue{}
 
 	for i := range serverAttributes {
 		attr := serverAttributes[i]
@@ -78,8 +81,14 @@ func (rt *RequestTelemetry) IncrementRequestCount(r *http.Request, routePattern 
 		}
 	}
 
-	metricAttributes = append(metricAttributes,
-		semconv.HTTPStatusCode(statusCode))
+	if routePattern != "" {
+		metricAttributes = append(metricAttributes, semconv.HTTPRoute(routePattern))
+	}
+
+	if statusCode > 0 {
+		metricAttributes = append(metricAttributes,
+			semconv.HTTPStatusCode(statusCode))
+	}
 	o := metric.WithAttributes(metricAttributes...)
 
 	rt.requestCounter.Add(r.Context(), 1, o)

@@ -666,7 +666,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 
 	// initialize the telemetry system and ensure it is shut down when
 	// the server finishes
-	telemetryShutdownFn := telemetry.Init(logger, telemetryConfig)
+	telemetryShutdownFn, _, _ := telemetry.Init(logger, telemetryConfig)
 	defer telemetryShutdownFn()
 
 	dbEnv := v.GetString(cli.DbEnvFlag)

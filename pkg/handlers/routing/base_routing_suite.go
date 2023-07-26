@@ -34,6 +34,7 @@ type BaseRoutingSuite struct {
 	handlers.BaseHandlerTestSuite
 	port          int
 	indexContent  string
+	serverName    string
 	routingConfig *Config
 }
 
@@ -45,6 +46,7 @@ func NewBaseRoutingSuite() BaseRoutingSuite {
 			testingsuite.WithPerTestTransaction()),
 		port:         80,
 		indexContent: "<html></html>",
+		serverName:   "test-server",
 	}
 }
 
@@ -59,6 +61,10 @@ func (suite *BaseRoutingSuite) HandlerConfig() handlers.HandlerConfig {
 func (suite *BaseRoutingSuite) EqualDefaultIndex(rr *httptest.ResponseRecorder) {
 	suite.Equal(http.StatusOK, rr.Code)
 	suite.Equal(suite.indexContent, rr.Body.String())
+}
+
+func (suite *BaseRoutingSuite) EqualServerName(actualServerName string) {
+	suite.Equal(suite.serverName, actualServerName)
 }
 
 func (suite *BaseRoutingSuite) RoutingConfig() *Config {
@@ -130,7 +136,7 @@ func (suite *BaseRoutingSuite) SetupCustomSiteHandler(routingConfig *Config) htt
 }
 
 func (suite *BaseRoutingSuite) SetupCustomSiteHandlerWithTelemetry(routingConfig *Config, telemetryConfig *telemetry.Config) http.Handler {
-	siteHandler, err := InitRouting("test-server", suite.AppContextForTest(), nil, routingConfig, telemetryConfig)
+	siteHandler, err := InitRouting(suite.serverName, suite.AppContextForTest(), nil, routingConfig, telemetryConfig)
 	suite.FatalNoError(err)
 	return siteHandler
 }

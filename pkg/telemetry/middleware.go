@@ -69,6 +69,9 @@ func NewOtelHTTPMiddleware(config *Config, name string, globalLogger *zap.Logger
 				var routePattern string
 				r = r.WithContext(ContextWithRoutePattern(r.Context(), &routePattern))
 
+				// we expect the RequestLogger middleware to set the
+				// status code, as it has the metrics captured via
+				// httpsnoop
 				var statusCode int
 				r = r.WithContext(ContextWithStatusCode(r.Context(), &statusCode))
 				h.ServeHTTP(w, r)
