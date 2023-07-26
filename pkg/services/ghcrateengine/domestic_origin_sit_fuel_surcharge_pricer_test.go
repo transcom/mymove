@@ -63,6 +63,9 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOriginFuelSurcharge() {
 			}, nil, nil,
 		)
 
+		// the testdatagen factory has some dirty shipment data that we don't want to pass through to the pricer in the test
+		paymentServiceItem.PaymentServiceItemParams[0].PaymentServiceItem.MTOServiceItem = models.MTOServiceItem{}
+
 		return paymentServiceItem
 	}
 
