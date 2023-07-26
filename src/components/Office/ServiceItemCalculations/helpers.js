@@ -178,39 +178,49 @@ const mileageZip = (params) => {
 };
 
 const mileageZipSIT = (params, itemCode) => {
-  const distanceZip =
-    itemCode === SERVICE_ITEM_CODES.DDSFSC
-      ? SERVICE_ITEM_PARAM_KEYS.DistanceZipSITDest
-      : SERVICE_ITEM_PARAM_KEYS.DistanceZipSITOrigin;
-  const value = getParamValue(distanceZip, params);
   let label;
+  let distanceZip;
+  let detail;
+
   switch (itemCode) {
     case SERVICE_ITEM_CODES.DOSFSC:
       label = SERVICE_ITEM_CALCULATION_LABELS.MileageIntoSIT;
+      distanceZip = SERVICE_ITEM_PARAM_KEYS.DistanceZipSITOrigin;
+      detail = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipPickupAddress]} ${getParamValue(
+        SERVICE_ITEM_PARAM_KEYS.ZipSITOriginHHGOriginalAddress,
+        params,
+      )} to ${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipDestAddress]} ${getParamValue(
+        SERVICE_ITEM_PARAM_KEYS.ZipSITOriginHHGActualAddress,
+        params,
+      )}`;
       break;
+
     case SERVICE_ITEM_CODES.DDSFSC:
       label = SERVICE_ITEM_CALCULATION_LABELS.MileageOutOfSIT;
+      distanceZip = SERVICE_ITEM_PARAM_KEYS.DistanceZipSITDest;
+      detail = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipPickupAddress]} ${getParamValue(
+        SERVICE_ITEM_PARAM_KEYS.ZipSITDestHHGOriginalAddress,
+        params,
+      )} to ${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipDestAddress]} ${getParamValue(
+        SERVICE_ITEM_PARAM_KEYS.ZipSITDestHHGFinalAddress,
+        params,
+      )}`;
       break;
+
     default:
       label = SERVICE_ITEM_CALCULATION_LABELS.Mileage;
+      distanceZip = SERVICE_ITEM_PARAM_KEYS.DistanceZipSITOrigin;
+      detail = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipPickupAddress]} ${getParamValue(
+        SERVICE_ITEM_PARAM_KEYS.ZipSITOriginHHGOriginalAddress,
+        params,
+      )} to ${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipDestAddress]} ${getParamValue(
+        SERVICE_ITEM_PARAM_KEYS.ZipSITOriginHHGActualAddress,
+        params,
+      )}`;
   }
 
-  const detail =
-    itemCode === SERVICE_ITEM_CODES.DDSFSC
-      ? `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipPickupAddress]} ${getParamValue(
-          SERVICE_ITEM_PARAM_KEYS.ZipSITDestHHGOriginalAddress,
-          params,
-        )} to ${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipDestAddress]} ${getParamValue(
-          SERVICE_ITEM_PARAM_KEYS.ZipSITDestHHGFinalAddress,
-          params,
-        )}`
-      : `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipPickupAddress]} ${getParamValue(
-          SERVICE_ITEM_PARAM_KEYS.ZipSITOriginHHGOriginalAddress,
-          params,
-        )} to ${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipDestAddress]} ${getParamValue(
-          SERVICE_ITEM_PARAM_KEYS.ZipSITOriginHHGActualAddress,
-          params,
-        )}`;
+  const value = getParamValue(distanceZip, params);
+
   return calculation(value, label, formatDetail(detail));
 };
 
