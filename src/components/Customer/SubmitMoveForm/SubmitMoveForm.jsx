@@ -51,7 +51,7 @@ const SubmitMoveForm = (props) => {
                   <Grid row gap>
                     <Grid tablet={{ col: 'fill' }}>
                       <FormGroup error={showSignatureError}>
-                        <Label htmlFor="signature">Signature</Label>
+                        <Label htmlFor="signature">SIGNATURE</Label>
                         {showSignatureError && (
                           <ErrorMessage id="signature-error-message">{errors.signature}</ErrorMessage>
                         )}
