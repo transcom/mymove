@@ -125,7 +125,7 @@ func (suite *TacParserSuite) TestExpiredTACs() {
 }
 
 // This function will test the conslidation of two TACs with matching "TAC" and "ExpirationDate" values, but that have a difference in other values.
-// It is expected to combine their transaction descriptions and preserve the first code found in the arrau
+// It is expected to combine their transaction descriptions and preserve the first code found in the array
 func (suite *TacParserSuite) TestDuplicateTACsWithDifferentValuesAndEquivalentExpirationDates() {
 	oneYearAgo := time.Now().AddDate(-1, 0, 0)  // A year ago
 	oneYearAhead := time.Now().AddDate(1, 0, 0) // A year from now

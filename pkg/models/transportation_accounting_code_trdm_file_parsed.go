@@ -9,7 +9,7 @@ import "time"
 // TRNSPRTN_ACNT_CD, TAC_BLLD_ADD_FRST_LN_TX, TAC_BLLD_ADD_SCND_LN_TX, TAC_BLLD_ADD_THRD_LN_TX,
 // TAC_BLLD_ADD_FRTH_LN_TX, TRNSPRTN_ACNT_TX, TRNSPRTN_ACNT_BGN_DT, TRNSPRTN_ACNT_END_DT
 // TAC_FY_TXT
-// TODO: Verify TRNSPRTN_ACNT_TX acronym
+
 type TransportationAccountingCodeDesiredFromTRDM struct {
 	TAC/*Third in line, values[2]*/ string                      `json:"tac"`
 	BillingAddressFirstLine/*20th in line, values[19]*/ string  `json:"billing_address_first_line"`
