@@ -5058,8 +5058,8 @@ func createHHGWithPaymentServiceItems(
 			paymentItem.PaymentServiceItemParams = doasitPaymentParams
 		} else if serviceItem.ReService.Code == models.ReServiceCodeDDASIT {
 			paymentItem.PaymentServiceItemParams = ddasitPaymentParams
-		}
-		if serviceItem.ReService.Code != models.ReServiceCodeDOSFSC && serviceItem.ReService.Code != models.ReServiceCodeDDSFSC {
+		} // TODO: remove check once DOSFSC pricer is merged
+		if serviceItem.ReService.Code != models.ReServiceCodeDOSFSC {
 			paymentServiceItems = append(paymentServiceItems, paymentItem)
 		}
 	}
