@@ -5,19 +5,19 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func (suite *ModelSuite) Test_AllFieldsOptionalCanSave() {
+func (suite *ModelSuite) Test_LineOfAccountingAllFieldsOptionalCanSave() {
 	loa := factory.BuildDefaultLineOfAccounting(suite.DB())
 
-	suite.MustCreate(&loa)
+	suite.MustSave(&loa)
 }
 
-func (suite *ModelSuite) Test_AllFieldsPresentCanSave() {
+func (suite *ModelSuite) Test_LineOfAccountingAllFieldsPresentCanSave() {
 	loa := factory.BuildFullLineOfAccounting(suite.DB())
 
-	suite.MustCreate(loa)
+	suite.MustSave(&loa)
 }
 
-func (suite *ModelSuite) Test_CanSaveAndFetch() {
+func (suite *ModelSuite) Test_LineOfAccountingCanSaveAndFetch() {
 	// Can save
 	loa := models.LineOfAccounting{LoaSysID: models.IntPointer(1234)}
 
