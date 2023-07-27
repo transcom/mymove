@@ -1,8 +1,6 @@
 import React from 'react';
 
-import { ShipmentAddressUpdateReviewRequestModal } from './ShipmentAddressUpdateReviewRequestModal';
-
-import { SHIPMENT_OPTIONS } from 'shared/constants';
+import AddressUpdatePreview from './AddressUpdatePreview';
 
 const mockDeliveryAddressUpdate = {
   contractorRemarks: 'Test Contractor Remark',
@@ -29,16 +27,14 @@ const mockDeliveryAddressUpdate = {
 };
 
 export default {
-  title: 'Office Components/ShipmentAddressUpdateReviewRequestModal',
-  component: ShipmentAddressUpdateReviewRequestModal,
+  title: 'Office Components/AddressUpdatePreview',
+  component: AddressUpdatePreview,
 };
 
-export const ReviewModal = {
+export const preview = {
   render: () => (
-    <ShipmentAddressUpdateReviewRequestModal
-      deliveryAddressUpdate={mockDeliveryAddressUpdate}
-      shipmentType={SHIPMENT_OPTIONS.HHG}
-      onClose={() => {}}
-    />
+    <div style={{ width: '566px' }}>
+      <AddressUpdatePreview deliveryAddressUpdate={mockDeliveryAddressUpdate} />,
+    </div>
   ),
 };
