@@ -25,7 +25,7 @@ const (
 var dosfscActualPickupDate = time.Date(testdatagen.TestYear, time.June, 5, 7, 33, 11, 456, time.UTC)
 
 func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOriginSITFuelSurcharge() {
-	pricer := NewDomesticDestinationSITFuelSurchargePricer()
+	pricer := NewDomesticOriginSITFuelSurchargePricer()
 
 	suite.Run("success without PaymentServiceItemParams", func() {
 		isPPM := false
@@ -130,7 +130,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOriginSITFuelSurcharge(
 }
 
 func (suite *GHCRateEngineServiceSuite) TestPriceUsingParamsDomesticOriginSITFuelSurcharge() {
-	pricer := NewDomesticDestinationSITFuelSurchargePricer()
+	pricer := NewDomesticOriginSITFuelSurchargePricer()
 
 	fscPriceDifferenceInCents := (dosfscFuelPrice - baseGHCDieselFuelPrice).Float64() / 1000.0
 	fscMultiplier := dosfscWeightDistanceMultiplier * dosfscTestDistance.Float64()
@@ -234,7 +234,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceUsingParamsDomesticOriginSITFue
 	})
 }
 func (suite *GHCRateEngineServiceSuite) TestPriceUsingParamsDOSFSCBelowMinimumWeight() {
-	pricer := NewDomesticDestinationSITFuelSurchargePricer()
+	pricer := NewDomesticOriginSITFuelSurchargePricer()
 
 	setupTestData := func() models.PaymentServiceItem {
 		belowMinWeightBilled := unit.Pound(200)
