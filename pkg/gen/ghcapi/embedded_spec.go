@@ -4120,6 +4120,89 @@ func init() {
         }
       ]
     },
+    "/shipments/{shipmentID}/review-shipment-address-update": {
+      "patch": {
+        "description": "This endpoint is used to approve a address update request. Office remarks are required. Approving the address update will update the Destination Final Address of the associated service item",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "shipment"
+        ],
+        "summary": "Allows TOO to review a shipment address update",
+        "operationId": "reviewShipmentAddressUpdate",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "required": [
+                "officeRemarks",
+                "status"
+              ],
+              "properties": {
+                "officeRemarks": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "REJECTED",
+                    "APPROVED"
+                  ]
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully requested a shipment address update",
+            "schema": {
+              "$ref": "#/definitions/ShipmentAddressUpdate"
+            }
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the shipment",
+          "name": "shipmentID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/shipments/{shipmentID}/sit-extensions": {
       "post": {
         "description": "TOO can creates an already-approved SIT Duration Update on behalf of a customer",
@@ -7821,7 +7904,8 @@ func init() {
       "type": "object",
       "properties": {
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -7845,7 +7929,7 @@ func init() {
         },
         "value": {
           "type": "string",
-          "example": 3025
+          "example": "3025"
         }
       }
     },
@@ -9842,6 +9926,9 @@ func init() {
     },
     {
       "name": "mtoShipment"
+    },
+    {
+      "name": "shipment"
     },
     {
       "name": "mtoAgent"
@@ -15082,6 +15169,107 @@ func init() {
         }
       ]
     },
+    "/shipments/{shipmentID}/review-shipment-address-update": {
+      "patch": {
+        "description": "This endpoint is used to approve a address update request. Office remarks are required. Approving the address update will update the Destination Final Address of the associated service item",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "shipment"
+        ],
+        "summary": "Allows TOO to review a shipment address update",
+        "operationId": "reviewShipmentAddressUpdate",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "required": [
+                "officeRemarks",
+                "status"
+              ],
+              "properties": {
+                "officeRemarks": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "REJECTED",
+                    "APPROVED"
+                  ]
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully requested a shipment address update",
+            "schema": {
+              "$ref": "#/definitions/ShipmentAddressUpdate"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "409": {
+            "description": "Conflict error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the shipment",
+          "name": "shipmentID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/shipments/{shipmentID}/sit-extensions": {
       "post": {
         "description": "TOO can creates an already-approved SIT Duration Update on behalf of a customer",
@@ -18910,7 +19098,8 @@ func init() {
       "type": "object",
       "properties": {
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -18934,7 +19123,7 @@ func init() {
         },
         "value": {
           "type": "string",
-          "example": 3025
+          "example": "3025"
         }
       }
     },
@@ -20980,6 +21169,9 @@ func init() {
     },
     {
       "name": "mtoShipment"
+    },
+    {
+      "name": "shipment"
     },
     {
       "name": "mtoAgent"

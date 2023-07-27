@@ -32,6 +32,7 @@ tags:
   - name: customer
   - name: mtoServiceItem
   - name: mtoShipment
+  - name: shipment
   - name: mtoAgent
   - name: paymentServiceItem
   - name: ppm
@@ -1105,6 +1106,64 @@ paths:
       summary: Requests a shipment reweigh
       x-permissions:
         - create.reweighRequest
+  /shipments/{shipmentID}/review-shipment-address-update:
+    parameters:
+      - description: ID of the shipment
+        in: path
+        name: shipmentID
+        required: true
+        format: uuid
+        type: string
+    patch:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+        - in: body
+          name: body
+          required: true
+          schema:
+            properties:
+              status:
+                type: string
+                enum:
+                  - REJECTED
+                  - APPROVED
+              officeRemarks:
+                type: string
+            required:
+              - officeRemarks
+              - status
+      responses:
+        '200':
+          description: Successfully requested a shipment address update
+          schema:
+            $ref: '#/definitions/ShipmentAddressUpdate'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - shipment
+      description: >-
+        This endpoint is used to approve a address update request. Office
+        remarks are required. Approving the address update will update the
+        Destination Final Address of the associated service item
+      operationId: reviewShipmentAddressUpdate
+      summary: Allows TOO to review a shipment address update
   /service-items/{mtoServiceItemID}/sit-address-update:
     post:
       summary: Create an approved SIT Address Update
@@ -4314,44 +4373,8 @@ definitions:
       eTag:
         type: string
     type: object
-  PaymentServiceItemStatus:
-    enum:
-      - REQUESTED
-      - APPROVED
-      - DENIED
-      - SENT_TO_GEX
-      - PAID
-      - EDI_ERROR
-    title: Payment Service Item Status
-    type: string
-  PaymentServiceItemParam:
-    properties:
-      id:
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        format: uuid
-        readOnly: true
-        type: string
-      paymentServiceItemID:
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        format: uuid
-        type: string
-      key:
-        $ref: '#/definitions/ServiceItemParamName'
-      value:
-        example: 3025
-        type: string
-      type:
-        $ref: '#/definitions/ServiceItemParamType'
-      origin:
-        $ref: '#/definitions/ServiceItemParamOrigin'
-      eTag:
-        type: string
-    type: object
-  PaymentServiceItemParams:
-    type: array
-    items:
-      $ref: '#/definitions/PaymentServiceItemParam'
   PaymentRequestStatus:
+    type: string
     enum:
       - PENDING
       - REVIEWED
@@ -4362,7 +4385,6 @@ definitions:
       - EDI_ERROR
       - DEPRECATED
     title: Payment Request Status
-    type: string
   ProofOfServiceDocs:
     items:
       $ref: '#/definitions/ProofOfServiceDoc'
@@ -7316,6 +7338,16 @@ definitions:
       APPROVED: Approved
       EXCLUDED: Excluded
       REJECTED: Rejected
+  PaymentServiceItemStatus:
+    type: string
+    enum:
+      - REQUESTED
+      - APPROVED
+      - DENIED
+      - SENT_TO_GEX
+      - PAID
+      - EDI_ERROR
+    title: Payment Service Item Status
   ServiceItemParamName:
     type: string
     enum:
@@ -7401,6 +7433,34 @@ definitions:
       - SYSTEM
       - PRICER
       - PAYMENT_REQUEST
+  PaymentServiceItemParam:
+    type: object
+    properties:
+      id:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        readOnly: true
+        type: string
+      paymentServiceItemID:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+      key:
+        $ref: '#/definitions/ServiceItemParamName'
+      value:
+        example: '3025'
+        type: string
+      type:
+        $ref: '#/definitions/ServiceItemParamType'
+      origin:
+        $ref: '#/definitions/ServiceItemParamOrigin'
+      eTag:
+        type: string
+        readOnly: true
+  PaymentServiceItemParams:
+    type: array
+    items:
+      $ref: '#/definitions/PaymentServiceItemParam'
   CustomerSupportRemark:
     type: object
     description: >-

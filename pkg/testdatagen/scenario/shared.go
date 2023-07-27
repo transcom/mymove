@@ -4154,9 +4154,7 @@ func createHHGWithOriginSITServiceItems(
 		if serviceItem.ReService.Code == models.ReServiceCodeDOASIT {
 			paymentItem.PaymentServiceItemParams = doasitPaymentParams
 		}
-		if serviceItem.ReService.Code != models.ReServiceCodeDOSFSC && serviceItem.ReService.Code != models.ReServiceCodeDDSFSC {
-			paymentServiceItems = append(paymentServiceItems, paymentItem)
-		}
+		paymentServiceItems = append(paymentServiceItems, paymentItem)
 	}
 
 	paymentRequest.PaymentServiceItems = paymentServiceItems
@@ -4405,9 +4403,7 @@ func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, prime
 		if serviceItem.ReService.Code == models.ReServiceCodeDDASIT {
 			paymentItem.PaymentServiceItemParams = ddasitPaymentParams
 		}
-		if serviceItem.ReService.Code != models.ReServiceCodeDOSFSC && serviceItem.ReService.Code != models.ReServiceCodeDDSFSC {
-			paymentServiceItems = append(paymentServiceItems, paymentItem)
-		}
+		paymentServiceItems = append(paymentServiceItems, paymentItem)
 	}
 
 	paymentRequest.PaymentServiceItems = paymentServiceItems
@@ -5062,8 +5058,8 @@ func createHHGWithPaymentServiceItems(
 			paymentItem.PaymentServiceItemParams = doasitPaymentParams
 		} else if serviceItem.ReService.Code == models.ReServiceCodeDDASIT {
 			paymentItem.PaymentServiceItemParams = ddasitPaymentParams
-		}
-		if serviceItem.ReService.Code != models.ReServiceCodeDOSFSC && serviceItem.ReService.Code != models.ReServiceCodeDDSFSC {
+		} // TODO: remove check once DOSFSC pricer is merged
+		if serviceItem.ReService.Code != models.ReServiceCodeDOSFSC {
 			paymentServiceItems = append(paymentServiceItems, paymentItem)
 		}
 	}

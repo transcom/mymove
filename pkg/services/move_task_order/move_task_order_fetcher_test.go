@@ -147,6 +147,20 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 		suite.Len(actualMTO.MTOShipments, 2)
 	})
 
+	suite.Run("Success with fetching contractor portion of a move", func() {
+		expectedMTO, _ := setupTestData()
+		searchParams := services.MoveTaskOrderFetcherParams{
+			IncludeHidden:   false,
+			MoveTaskOrderID: expectedMTO.ID,
+		}
+
+		actualMTO, err := mtoFetcher.FetchMoveTaskOrder(suite.AppContextForTest(), &searchParams)
+		suite.NoError(err)
+
+		suite.NotNil(expectedMTO.Contractor, actualMTO.Contractor)
+		suite.NotNil(expectedMTO.Contractor.ContractNumber, actualMTO.Contractor.ContractNumber)
+	})
+
 	suite.Run("Success with fetching move with a related service item", func() {
 		expectedMTO, _ := setupTestData()
 		searchParams := services.MoveTaskOrderFetcherParams{
