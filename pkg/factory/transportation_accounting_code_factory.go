@@ -42,6 +42,7 @@ func BuildDefaultTransportationAccountingCode(db *pop.Connection) models.Transpo
 }
 
 func BuildFullTransportationAccountingCode(db *pop.Connection) models.TransportationAccountingCode {
+	// Creating as a stub since the Line of Accounting will be Created by the TAC factory
 	LineOfAccounting := BuildFullLineOfAccounting(nil)
 
 	defaultCustoms := []Customization{
