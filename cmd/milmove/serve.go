@@ -484,14 +484,15 @@ func buildRoutingConfig(appCtx appcontext.AppContext, v *viper.Viper, redisPool 
 		appCtx.Logger().Fatal("Must provide the Login.gov hostname parameter, exiting")
 	}
 
-	// Register Login.gov authentication provider for My.(move.mil)
-	loginGovProvider, err := authentication.InitAuth(v, appCtx.Logger(),
+	// Register Okta authentication provider for My.(move.mil)
+	oktaProvider, err := authentication.InitAuth(v, appCtx.Logger(),
 		appNames)
 	if err != nil {
 		appCtx.Logger().Fatal("Registering login provider", zap.Error(err))
 	}
 
-	routingConfig.AuthContext = authentication.NewAuthContext(appCtx.Logger(), loginGovProvider, loginGovCallbackProtocol, loginGovCallbackPort)
+	// TODO: Update loginGov callbacks to Okta
+	routingConfig.AuthContext = authentication.NewAuthContext(appCtx.Logger(), *oktaProvider, loginGovCallbackProtocol, loginGovCallbackPort)
 
 	// Email
 	notificationSender, err := notifications.InitEmail(v, awsSession, appCtx.Logger())

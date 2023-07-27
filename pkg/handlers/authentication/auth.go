@@ -457,8 +457,10 @@ func (context *Context) GetFeatureFlag(flag string) bool {
 }
 
 // Context is the common handler type for auth handlers
+// TODO: Remove loginGov
 type Context struct {
 	loginGovProvider LoginGovProvider
+	oktaProvider     OktaProvider
 	callbackTemplate string
 	featureFlags     map[string]bool
 }
@@ -470,9 +472,9 @@ type FeatureFlag struct {
 }
 
 // NewAuthContext creates an Context
-func NewAuthContext(_ *zap.Logger, loginGovProvider LoginGovProvider, callbackProtocol string, callbackPort int) Context {
+func NewAuthContext(_ *zap.Logger, oktaProvider OktaProvider, callbackProtocol string, callbackPort int) Context {
 	context := Context{
-		loginGovProvider: loginGovProvider,
+		oktaProvider:     oktaProvider,
 		callbackTemplate: fmt.Sprintf("%s://%%s:%d/", callbackProtocol, callbackPort),
 	}
 	return context
@@ -584,6 +586,7 @@ func StateCookieName(session *auth.Session) string {
 }
 
 // RedirectHandler constructs the Login.gov authentication URL and redirects to it
+// TODO: More login.gov to Okta
 func (h RedirectHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	appCtx := h.AppContextFromRequest(r)
 
@@ -593,7 +596,7 @@ func (h RedirectHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	loginData, err := h.loginGovProvider.AuthorizationURL(r)
+	loginData, err := h.oktaProvider.AuthorizationURL(r)
 	if err != nil {
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return
@@ -1139,14 +1142,15 @@ func fetchToken(code string, clientID string, loginGovProvider LoginGovProvider)
 	return &session, err
 }
 
-// InitAuth initializes the Login.gov provider
-func InitAuth(v *viper.Viper, logger *zap.Logger, appnames auth.ApplicationServername) (LoginGovProvider, error) {
+// InitAuth initializes the Okta provider
+func InitAuth(v *viper.Viper, logger *zap.Logger, appnames auth.ApplicationServername) (*OktaProvider, error) {
 	loginGovCallbackProtocol := v.GetString(cli.LoginGovCallbackProtocolFlag)
 	loginGovCallbackPort := v.GetInt(cli.LoginGovCallbackPortFlag)
 	loginGovSecretKey := v.GetString(cli.LoginGovSecretKeyFlag)
 	loginGovHostname := v.GetString(cli.LoginGovHostnameFlag)
 
 	loginGovProvider := NewLoginGovProvider(loginGovHostname, loginGovSecretKey, logger)
+	oktaProvider := NewOktaProvider(logger)
 	err := loginGovProvider.RegisterProvider(
 		appnames.MilServername,
 		v.GetString(cli.LoginGovMyClientIDFlag),
@@ -1156,5 +1160,5 @@ func InitAuth(v *viper.Viper, logger *zap.Logger, appnames auth.ApplicationServe
 		v.GetString(cli.LoginGovAdminClientIDFlag),
 		loginGovCallbackProtocol,
 		loginGovCallbackPort)
-	return loginGovProvider, err
+	return oktaProvider, err
 }

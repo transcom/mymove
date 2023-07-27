@@ -1,6 +1,7 @@
 # direnv
 .envrc.local
 .envrc.chamber
+.envrc.okta
 
 # dependencies
 /vendor

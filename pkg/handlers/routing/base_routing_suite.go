@@ -60,9 +60,8 @@ func (suite *BaseRoutingSuite) RoutingConfig() *Config {
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	handlerConfig.SetFileStorer(fakeS3)
 
-	fakeLoginGovProvider := authentication.NewLoginGovProvider("fakeHostname", "secret_key", suite.Logger())
-
-	authContext := authentication.NewAuthContext(suite.Logger(), fakeLoginGovProvider, "http", 80)
+	fakeOktaProvider := authentication.NewOktaProvider(suite.Logger())
+	authContext := authentication.NewAuthContext(suite.Logger(), *fakeOktaProvider, "http", 80)
 
 	fakeFs := afero.NewMemMapFs()
 	fakeBase := "fakebase"
