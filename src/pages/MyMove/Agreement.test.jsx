@@ -42,7 +42,7 @@ describe('Agreement page', () => {
     submitMoveForApproval.mockResolvedValueOnce(submittedMoveSuccessResponse);
 
     render(<Agreement {...testProps} />);
-    await userEvent.type(screen.getByLabelText('Signature'), 'Sofia Clark-Nuñez');
+    await userEvent.type(screen.getByLabelText('SIGNATURE'), 'Sofia Clark-Nuñez');
     await userEvent.click(screen.getByRole('button', { name: 'Complete' }));
 
     await waitFor(() => {
