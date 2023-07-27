@@ -2,6 +2,7 @@ import React from 'react';
 import { Button, Textarea, Label, FormGroup, Radio } from '@trussworks/react-uswds'; // Tag Label
 import { Formik, Field } from 'formik';
 import * as Yup from 'yup';
+import * as PropTypes from 'prop-types';
 
 import styles from './ShipmentAddressUpdateReviewRequestModal.module.scss';
 
@@ -10,6 +11,7 @@ import { Form } from 'components/form/Form';
 import formStyles from 'styles/form.module.scss';
 import AddressUpdatePreview from 'components/Office/AddressUpdatePreview/AddressUpdatePreview';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
+import { ShipmentAddressUpdateShape } from 'types';
 
 const formSchema = Yup.object().shape({
   addressUpdate: Yup.string().required('Required'),
@@ -84,9 +86,11 @@ export const ShipmentAddressUpdateReviewRequestModal = ({ deliveryAddressUpdate,
   );
 };
 
-ShipmentAddressUpdateReviewRequestModal.propTypes = {};
-
-ShipmentAddressUpdateReviewRequestModal.defaultProps = {};
+ShipmentAddressUpdateReviewRequestModal.propTypes = {
+  deliveryAddressUpdate: ShipmentAddressUpdateShape.isRequired,
+  shipmentType: PropTypes.string.isRequired,
+  onClose: PropTypes.func.isRequired,
+};
 
 ShipmentAddressUpdateReviewRequestModal.displayName = 'ShipmentAddressUpdateReviewRequestModal';
 export default connectModal(ShipmentAddressUpdateReviewRequestModal);
