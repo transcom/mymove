@@ -30,11 +30,11 @@ func (suite *ModelSuite) Test_CanSaveAndFetchTac() {
 	// Can save
 	tac := factory.BuildFullTransportationAccountingCode(suite.DB())
 
-	suite.MustCreate(&tac)
+	suite.MustSave(&tac)
 
 	// Can fetch tac with associations
 	var fetchedTac models.TransportationAccountingCode
-	err := suite.DB().Where("TAC = $1", tac.TAC).Eager("LineOfAccounting").First(&fetchedTac)
+	err := suite.DB().Where("tac = $1", tac.TAC).Eager("LineOfAccounting").First(&fetchedTac)
 
 	suite.NoError(err)
 	suite.Equal(tac.TAC, fetchedTac.TAC)
