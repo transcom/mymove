@@ -92,6 +92,20 @@ const useOrdersDocumentQueriesReturnValue = {
       url: '/storage/user/1/uploads/2?contentType=application%2Fpdf',
     },
   },
+  amendedDocuments: {
+    2: {
+      id: '2',
+      uploads: ['x'],
+    },
+  },
+  amendedUpload: {
+    x: {
+      id: 'z',
+      filename: 'amended_test.pdf',
+      contentType: 'application/pdf',
+      url: '/storage/user/1/uploads/2?contentType=application%2Fpdf',
+    },
+  },
 };
 
 const loadingReturnValue = {
@@ -158,6 +172,30 @@ describe('ServicesCounselingMoveDocumentWrapper', () => {
       useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
       const wrapper = shallow(<ServicesCounselingMoveDocumentWrapper />);
       expect(wrapper.find('ServicesCounselingMoveAllowances').exists()).toBe(true);
+    });
+
+    it('displays amended orders with original orders', () => {
+      useLocation.mockReturnValue({ pathname: `/moves/${testMoveId}/orders` });
+      useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
+
+      const wrapper = shallow(<ServicesCounselingMoveDocumentWrapper />);
+      expect(wrapper.find('DocumentViewer').props('files')).toEqual({
+        allowDownload: false,
+        files: [
+          {
+            contentType: 'application/pdf',
+            filename: 'test.pdf',
+            id: 'z',
+            url: '/storage/user/1/uploads/2?contentType=application%2Fpdf',
+          },
+          {
+            contentType: 'application/pdf',
+            filename: 'amended_test.pdf',
+            id: 'z',
+            url: '/storage/user/1/uploads/2?contentType=application%2Fpdf',
+          },
+        ],
+      });
     });
   });
 });
