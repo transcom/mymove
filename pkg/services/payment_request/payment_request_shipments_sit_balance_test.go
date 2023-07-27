@@ -18,18 +18,30 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 				},
 			},
 		}, nil)
-
-		oneHundredAndTwentyDays := 120
 		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{
-					Status:           models.MTOShipmentStatusApproved,
-					SITDaysAllowance: &oneHundredAndTwentyDays,
+					Status: models.MTOShipmentStatusApproved,
 				},
 			},
 			{
 				Model:    move,
 				LinkOnly: true,
+			},
+		}, nil)
+
+		thirtyDaySITExtensionRequest := 30
+		factory.BuildSITDurationUpdate(suite.DB(), []factory.Customization{
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.SITDurationUpdate{
+					Status:        models.SITExtensionStatusApproved,
+					RequestedDays: thirtyDaySITExtensionRequest,
+					ApprovedDays:  &thirtyDaySITExtensionRequest,
+				},
 			},
 		}, nil)
 
@@ -46,7 +58,7 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 		}, nil)
 
 		year, month, day := time.Now().Date()
-		originEntryDate := time.Date(year, month, day-120, 0, 0, 0, 0, time.UTC)
+		originEntryDate := time.Date(year, month, day-30, 0, 0, 0, 0, time.UTC)
 		doasit := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOServiceItem{
@@ -57,6 +69,27 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 			{
 				Model: models.ReService{
 					Code: models.ReServiceCodeDOASIT,
+				},
+			},
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status:       models.MTOServiceItemStatusApproved,
+					SITEntryDate: &originEntryDate,
+				},
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDOPSIT,
 				},
 			},
 			{
@@ -163,7 +196,7 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 		suite.Equal(paymentEndDate.String(), pendingSITBalance.PendingBilledEndDate.String())
 		suite.Equal(120, pendingSITBalance.TotalSITDaysAuthorized)
 		suite.Equal(90, pendingSITBalance.TotalSITDaysRemaining)
-		suite.Equal(paymentEndDate.AddDate(0, 0, 91).String(), pendingSITBalance.TotalSITEndDate.String())
+		suite.Equal(doasit.SITEntryDate.AddDate(0, 0, 120).String(), pendingSITBalance.TotalSITEndDate.String())
 	})
 
 	suite.Run("calculates pending destination SIT balance when origin was invoiced previously", func() {

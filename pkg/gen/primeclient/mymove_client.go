@@ -26,7 +26,7 @@ const (
 	DefaultHost string = "localhost"
 	// DefaultBasePath is the default BasePath
 	// found in Meta (info) section of spec file
-	DefaultBasePath string = "/prime/v1"
+	DefaultBasePath string = "/prime/v2"
 )
 
 // DefaultSchemes are the default schemes found in Meta (info) section of spec file
