@@ -10,6 +10,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/db/utilities"
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_shipment"
 	shipmentops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/shipment"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
@@ -94,7 +95,6 @@ func (h GetMTOShipmentHandler) Handle(params mtoshipmentops.GetShipmentParams) m
 				"DestinationAddress",
 				"SecondaryPickupAddress",
 				"SecondaryDeliveryAddress",
-				"MTOAgents",
 				"MTOServiceItems.CustomerContacts",
 				"StorageFacility.Address",
 				"PPMShipment"}
@@ -105,6 +105,13 @@ func (h GetMTOShipmentHandler) Handle(params mtoshipmentops.GetShipmentParams) m
 			if err != nil {
 				return handleError(err)
 			}
+
+			var agents []models.MTOAgent
+			err = appCtx.DB().Scope(utilities.ExcludeDeletedScope()).Where("mto_shipment_id = ?", mtoShipment.ID).All(&agents)
+			if err != nil {
+				return handleError(err)
+			}
+			mtoShipment.MTOAgents = agents
 			payload := payloads.MTOShipment(h.FileStorer(), mtoShipment, nil)
 			return mtoshipmentops.NewGetShipmentOK().WithPayload(payload), nil
 		})
@@ -868,6 +875,56 @@ func (h RequestShipmentReweighHandler) triggerRequestShipmentReweighEvent(appCtx
 	if err != nil {
 		appCtx.Logger().Error("ghcapi.RequestShipmentReweighHandler could not generate the event", zap.Error(err))
 	}
+}
+
+// ReviewShipmentAddressUpdateHandler Reviews a shipment address change
+type ReviewShipmentAddressUpdateHandler struct {
+	handlers.HandlerConfig
+	services.ShipmentAddressUpdateRequester
+}
+
+// Handle ... reviews address update request
+func (h ReviewShipmentAddressUpdateHandler) Handle(params shipmentops.ReviewShipmentAddressUpdateParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+
+			shipmentID := uuid.FromStringOrNil(params.ShipmentID.String())
+			addressApprovalStatus := params.Body.Status
+			remarks := params.Body.OfficeRemarks
+
+			response, err := h.ShipmentAddressUpdateRequester.ReviewShipmentAddressChange(appCtx, shipmentID, models.ShipmentAddressUpdateStatus(*addressApprovalStatus), *remarks)
+			handleError := func(err error) (middleware.Responder, error) {
+				appCtx.Logger().Error("ghcapi.ReviewShipmentAddressUpdateHandler", zap.Error(err))
+				payload := ghcmessages.Error{
+					Message: handlers.FmtString(err.Error()),
+				}
+
+				switch e := err.(type) {
+				case apperror.NotFoundError:
+					return shipmentops.NewReviewShipmentAddressUpdateNotFound().WithPayload(&payload), err
+				case apperror.InvalidInputError:
+					payload := payloadForValidationError(
+						"Validation errors",
+						"ReviewShipmentAddressUpdate",
+						h.GetTraceIDFromRequest(params.HTTPRequest),
+						e.ValidationErrors)
+					return shipmentops.NewReviewShipmentAddressUpdateUnprocessableEntity().WithPayload(payload), err
+				case apperror.PreconditionFailedError:
+					return shipmentops.NewReviewShipmentAddressUpdatePreconditionFailed().
+						WithPayload(&payload), err
+				case apperror.ConflictError:
+					return shipmentops.NewReviewShipmentAddressUpdateConflict().
+						WithPayload(&payload), err
+				default:
+					return shipmentops.NewReviewShipmentAddressUpdateInternalServerError(), err
+				}
+			}
+			if err != nil {
+				return handleError(err)
+			}
+			payload := payloads.ShipmentAddressUpdate(response)
+			return shipmentops.NewReviewShipmentAddressUpdateOK().WithPayload(payload), nil
+		})
 }
 
 // ApproveSITExtensionHandler approves a SIT extension

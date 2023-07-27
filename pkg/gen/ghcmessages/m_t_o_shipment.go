@@ -66,6 +66,9 @@ type MTOShipment struct {
 	// Format: date-time
 	DeletedAt *strfmt.DateTime `json:"deletedAt,omitempty"`
 
+	// delivery address update
+	DeliveryAddressUpdate *ShipmentAddressUpdate `json:"deliveryAddressUpdate,omitempty"`
+
 	// destination address
 	DestinationAddress *Address `json:"destinationAddress,omitempty"`
 
@@ -209,6 +212,10 @@ func (m *MTOShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateDeletedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateDeliveryAddressUpdate(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -369,6 +376,25 @@ func (m *MTOShipment) validateDeletedAt(formats strfmt.Registry) error {
 
 	if err := validate.FormatOf("deletedAt", "body", "date-time", m.DeletedAt.String(), formats); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) validateDeliveryAddressUpdate(formats strfmt.Registry) error {
+	if swag.IsZero(m.DeliveryAddressUpdate) { // not required
+		return nil
+	}
+
+	if m.DeliveryAddressUpdate != nil {
+		if err := m.DeliveryAddressUpdate.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("deliveryAddressUpdate")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("deliveryAddressUpdate")
+			}
+			return err
+		}
 	}
 
 	return nil
@@ -772,6 +798,10 @@ func (m *MTOShipment) ContextValidate(ctx context.Context, formats strfmt.Regist
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateDeliveryAddressUpdate(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateDestinationAddress(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -846,6 +876,27 @@ func (m *MTOShipment) contextValidateCalculatedBillableWeight(ctx context.Contex
 
 	if err := validate.ReadOnly(ctx, "calculatedBillableWeight", "body", m.CalculatedBillableWeight); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) contextValidateDeliveryAddressUpdate(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.DeliveryAddressUpdate != nil {
+
+		if swag.IsZero(m.DeliveryAddressUpdate) { // not required
+			return nil
+		}
+
+		if err := m.DeliveryAddressUpdate.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("deliveryAddressUpdate")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("deliveryAddressUpdate")
+			}
+			return err
+		}
 	}
 
 	return nil

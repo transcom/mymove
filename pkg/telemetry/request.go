@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/felixge/httpsnoop"
-	"github.com/gorilla/mux"
+	"github.com/go-chi/chi/v5"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric"
@@ -49,12 +49,17 @@ func NewRequestTelemetry(logger *zap.Logger) *RequestTelemetry {
 	}
 }
 
-var ourRequestAttributes = map[attribute.Key]bool{
+var allowedHTTPRequestAttributes = map[attribute.Key]bool{
 	semconv.HTTPMethodKey:  true,
 	semconv.HTTPSchemeKey:  true,
 	semconv.HTTPFlavorKey:  true,
 	semconv.HTTPTargetKey:  true,
 	semconv.NetHostNameKey: true,
+}
+
+func allowedHTTPRequestAttributeFilter(kv attribute.KeyValue) bool {
+	_, ok := allowedHTTPRequestAttributes[kv.Key]
+	return ok
 }
 
 func (rt *RequestTelemetry) HandleRequest(r *http.Request, metrics httpsnoop.Metrics) {
@@ -63,22 +68,17 @@ func (rt *RequestTelemetry) HandleRequest(r *http.Request, metrics httpsnoop.Met
 	metricAttributes := []attribute.KeyValue{}
 	for i := range serverAttributes {
 		attr := serverAttributes[i]
-		if ok := ourRequestAttributes[attr.Key]; ok {
+		if allowedHTTPRequestAttributeFilter(attr) {
 			metricAttributes = append(metricAttributes, attr)
 		}
 	}
 
 	routeStr := ""
-	route := mux.CurrentRoute(r)
-	if route != nil {
-		var err error
-		routeStr, err = route.GetPathTemplate()
-		if err != nil {
-			routeStr, err = route.GetPathRegexp()
-			if err != nil {
-				routeStr = ""
-			}
-		}
+	// this returns a value as long as it is called after the
+	// ServeHTTP call and this is called inside middleware
+	chiRouteContext := chi.RouteContext(r.Context())
+	if chiRouteContext != nil {
+		routeStr = chiRouteContext.RoutePattern()
 	}
 
 	if routeStr != "" {

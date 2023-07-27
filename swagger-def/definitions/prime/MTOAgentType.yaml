@@ -1,0 +1,9 @@
+title: Agent Type
+description: >
+  The type for this agent. `RELEASING` means they have authority on pickup, `RECEIVING` means they can receive the
+  shipment on delivery.
+type: string
+example: RELEASING_AGENT
+enum:
+  - RELEASING_AGENT
+  - RECEIVING_AGENT

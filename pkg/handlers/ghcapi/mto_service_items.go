@@ -203,7 +203,8 @@ func (h ListMTOServiceItemsHandler) Handle(params mtoserviceitemop.ListMTOServic
 			for i, serviceItem := range serviceItems {
 				if serviceItem.ReService.Code == models.ReServiceCodeDDASIT ||
 					serviceItem.ReService.Code == models.ReServiceCodeDDDSIT ||
-					serviceItem.ReService.Code == models.ReServiceCodeDDFSIT {
+					serviceItem.ReService.Code == models.ReServiceCodeDDFSIT ||
+					serviceItem.ReService.Code == models.ReServiceCodeDDSFSC {
 					loadErr := appCtx.DB().Load(&serviceItems[i], "CustomerContacts")
 					if loadErr != nil {
 						return mtoserviceitemop.NewListMTOServiceItemsInternalServerError(), loadErr

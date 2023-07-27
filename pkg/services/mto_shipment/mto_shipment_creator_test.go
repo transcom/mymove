@@ -6,6 +6,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -470,6 +471,78 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		suite.Nil(createdShipment)
 		suite.Error(err)
 		suite.IsType(apperror.InvalidInputError{}, err)
+	})
+
+	suite.Run("403 Forbidden Error - shipment can only be created for service member associated with the current session", func() {
+		subtestData := suite.createSubtestData(nil)
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.MilApp,
+			ServiceMemberID: subtestData.move.Orders.ServiceMember.ID,
+		})
+		creator := subtestData.shipmentCreator
+		move := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					ID: uuid.FromStringOrNil("424d932b-cf8d-4c10-8059-be8a25ba952a"),
+				},
+			},
+		}, nil)
+
+		shipment := factory.BuildMTOShipment(nil, []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ServiceMember{
+					ID: uuid.FromStringOrNil("424d930b-cf8d-4c10-8059-be8a25ba952a"),
+				},
+			},
+		}, nil)
+
+		mtoShipmentClear := clearShipmentIDFields(&shipment)
+		mtoShipmentClear.MTOServiceItems = models.MTOServiceItems{}
+		createdShipment, err := creator.CreateMTOShipment(appCtx, mtoShipmentClear)
+
+		suite.Nil(createdShipment)
+		suite.Error(err)
+		suite.IsType(apperror.NotFoundError{}, err)
+	})
+
+	suite.Run("Will not create MTO agent if all fields are empty", func() {
+		subtestData := suite.createSubtestData(nil)
+		creator := subtestData.shipmentCreator
+
+		firstName := ""
+		lastName := ""
+		email := ""
+
+		var agents models.MTOAgents
+
+		agent1 := models.MTOAgent{
+			FirstName:    &firstName,
+			LastName:     &lastName,
+			Email:        &email,
+			MTOAgentType: models.MTOAgentReceiving,
+		}
+
+		agents = append(agents, agent1)
+
+		shipment := factory.BuildMTOShipment(nil, []factory.Customization{
+			{
+				Model:    subtestData.move,
+				LinkOnly: true,
+			},
+		}, nil)
+		clearedShipment := clearShipmentIDFields(&shipment)
+
+		clearedShipment.MTOAgents = agents
+		clearedShipment.MTOServiceItems = models.MTOServiceItems{}
+
+		createdShipment, err := creator.CreateMTOShipment(suite.AppContextForTest(), clearedShipment)
+
+		suite.NoError(err)
+		suite.Len(createdShipment.MTOAgents, 0)
 	})
 
 	suite.Run("Move status transitions when a new shipment is created and SUBMITTED", func() {

@@ -7,6 +7,7 @@ import * as schema from 'shared/Entities/schema';
 import { interceptInjection } from 'store/interceptor/injectionMiddleware';
 import { interceptResponse } from 'store/interceptor/actions';
 import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
+import { setMarkerIOMilmoveTraceID } from 'components/ThirdParty/MarkerIO';
 
 // setting up the same config from Swagger/api.js
 export const requestInterceptor = (req) => {
@@ -33,6 +34,9 @@ export const responseInterceptor = (res) => {
     }
   }
 
+  if (!res.ok) {
+    setMarkerIOMilmoveTraceID(res.headers['x-milmove-trace-id']);
+  }
   return res;
 };
 

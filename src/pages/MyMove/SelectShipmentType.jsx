@@ -76,19 +76,19 @@ export class SelectShipmentType extends Component {
     const shipmentInfo = determineShipmentInfo(move, mtoShipments);
 
     const ppmCardText = shipmentInfo.isPPMSelectable
-      ? 'You pack and move your things, or make other arrangements, The government pays you for the weight you move.  This is a Personally Procured Move (PPM), sometimes called a DITY.'
+      ? 'You pack and move your personal property or make other arrangements, The government pays you for the weight you move. This is a Personally Procured Move (PPM).'
       : 'You’ve already requested a PPM shipment. If you have more things to move yourself but that you can’t add to that shipment, contact the PPPO at your origin duty location.';
 
     const hhgCardText = shipmentInfo.isHHGSelectable
-      ? 'All of your things are packed and moved by professionals, paid for by the government. This is a Household Goods move (HHG).'
+      ? 'A combination of HHG + PPM. Many people pack and move important personal property themselves, and have professional movers pack and transport the rest.'
       : 'Talk with your movers directly if you want to add or change shipments.';
 
     const ntsCardText = shipmentInfo.isNTSSelectable
-      ? `Movers pack and ship things to a storage facility, where they stay until a future move. This is an NTS (non-temporary storage) shipment.`
+      ? `Movers pack and ship personal property to a storage facility, where they stay until a future move. This is an NTS (non-temporary storage) shipment.`
       : 'You’ve already requested a long-term storage shipment for this move. Talk to your movers to change or add to your request.';
 
     const ntsrCardText = shipmentInfo.isNTSRSelectable
-      ? 'Movers pick up things you put into NTS during an earlier move and ship them to your new destination. This is an NTS-release (non-temporary storage release) shipment.'
+      ? 'Movers pick up personal property you put into NTS during an earlier move and ship them to your new destination. This is an NTS-release (non-temporary storage release) shipment.'
       : 'You’ve already asked to have things taken out of storage for this move. Talk to your movers to change or add to your request.';
 
     const selectableCardDefaultProps = {
@@ -129,7 +129,9 @@ export class SelectShipmentType extends Component {
                 You can move everything in one shipment, or you can split your belongings into multiple shipments that
                 are moved in different ways.
               </p>
-              <p>After you set up this shipment, you can add another shipment if you have more things to move.</p>
+              <p>
+                After you set up this shipment, you can add another shipment if you have more personal property to move.
+              </p>
 
               <SelectableCard
                 {...selectableCardDefaultProps}
@@ -166,7 +168,7 @@ export class SelectShipmentType extends Component {
                   <p>Your orders might not authorize long-term storage &mdash; your counselor can verify.</p>
                   <SelectableCard
                     {...selectableCardDefaultProps}
-                    label="It's going into storage for months or years (NTS)"
+                    label="It is going into storage for months or years (NTS)"
                     value={SHIPMENT_OPTIONS.NTS}
                     id={SHIPMENT_OPTIONS.NTS}
                     cardText={ntsCardText}
@@ -190,8 +192,8 @@ export class SelectShipmentType extends Component {
               {!shipmentInfo.hasShipment && (
                 <p data-testid="helper-footer" className={styles.footer}>
                   <small>
-                    It’s OK if you’re not sure about your choices. Your move counselor will go over all your options and
-                    can help make changes if necessary.
+                    It’s okay if you are not sure about your choice. Your move counselor will go over all your options
+                    and can help make changes if necessary.
                   </small>
                 </p>
               )}
