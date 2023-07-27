@@ -5,15 +5,12 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func (suite *ModelSuite) Test_ValidTac() {
+func (suite *ModelSuite) Test_CanSaveValidTac() {
 	tac := models.TransportationAccountingCode{
 		TAC: "Tac1",
 	}
 
-	verrs, err := suite.DB().ValidateAndSave(&tac)
-
-	suite.NoVerrs(verrs)
-	suite.NoError(err)
+	suite.MustCreate(&tac)
 }
 
 func (suite *ModelSuite) Test_InvalidTac() {
@@ -29,11 +26,17 @@ func (suite *ModelSuite) Test_InvalidTac() {
 	suite.NoError(err)
 }
 
-func (suite *ModelSuite) Test_CanSaveTac() {
+func (suite *ModelSuite) Test_CanSaveAndFetchTac() {
+	// Can save
 	tac := factory.BuildFullTransportationAccountingCode(suite.DB())
 
-	verrs, err := suite.DB().ValidateAndSave(&tac)
+	suite.MustCreate(&tac)
 
-	suite.NoVerrs(verrs)
+	// Can fetch tac with associations
+	var fetchedTac models.TransportationAccountingCode
+	err := suite.DB().Where("TAC = $1", tac.TAC).Eager("LineOfAccounting").First(&fetchedTac)
+
 	suite.NoError(err)
+	suite.Equal(tac.TAC, fetchedTac.TAC)
+	suite.NotNil(tac.LineOfAccounting)
 }
