@@ -14,4 +14,14 @@
   h4 {
     @include u-font-weight(bold);
   }
+
+  .approveLabel {
+    @include u-margin-top(1.5);
+  }
+  .subLabel {
+    font-size: small;
+  }
+  .officeRemarks {
+    height: 116px;
+  }
 }

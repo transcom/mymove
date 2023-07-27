@@ -37,7 +37,7 @@ export const ShipmentAddressUpdateReviewRequestModal = ({ deliveryAddressUpdate,
                 <AddressUpdatePreview deliveryAddressUpdate={deliveryAddressUpdate} shipmentType={shipmentType} />
                 <FormGroup>
                   <h4>Review Request</h4>
-                  <Label>Approve address change?</Label>
+                  <Label className={styles.approveLabel}>Approve address change?</Label>
                   <div>
                     <Field
                       as={Radio}
@@ -58,8 +58,15 @@ export const ShipmentAddressUpdateReviewRequestModal = ({ deliveryAddressUpdate,
                   </div>
                 </FormGroup>
                 <Label htmlFor="officeRemarks">Office remarks</Label>
-                <p style={{ fontSize: 'small' }}>Office remarks will be sent to the contractor.</p>
-                <Field as={Textarea} data-testid="officeRemarks" label="No" name="officeRemarks" id="officeRemarks" />
+                <p className={styles.subLabel}>Office remarks will be sent to the contractor.</p>
+                <Field
+                  as={Textarea}
+                  data-testid="officeRemarks"
+                  label="No"
+                  name="officeRemarks"
+                  id="officeRemarks"
+                  className={styles.officeRemarks}
+                />
               </div>
               <ModalActions>
                 <Button type="submit" disabled={!isValid}>
