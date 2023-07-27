@@ -4,6 +4,7 @@ import { render, screen } from '@testing-library/react';
 import {
   formatAccountingCode,
   formatAddress,
+  formatTwoLineAddress,
   formatAddressForSitAddressChangeForm,
   formatAgent,
   formatCustomerDestination,
@@ -152,6 +153,77 @@ describe('shipmentDisplay utils', () => {
       });
     });
   });
+
+  describe('formatTwoLineAddress', () => {
+    it('includes full address with comma seperators', () => {
+      const shipmentAddress = {
+        streetAddress1: '555 Main Street',
+        streetAddress2: 'P.O. Box 9882',
+        city: 'Celebration',
+        state: 'FL',
+        postalCode: '34747',
+      };
+      const component = mount(formatTwoLineAddress(shipmentAddress));
+      const addressSections = component.children();
+
+      expect(addressSections.at(0).text()).toEqual(`${shipmentAddress.streetAddress1},`);
+      expect(addressSections.at(1).text()).toEqual(` ${shipmentAddress.streetAddress2}`);
+      expect(addressSections.at(2).html()).toEqual('<br>');
+      expect(addressSections.at(3).text()).toEqual(
+        `${shipmentAddress.city}, ${shipmentAddress.state} ${shipmentAddress.postalCode}`,
+      );
+    });
+
+    it('displays correctly when street address one is missing', () => {
+      const shipmentAddress = {
+        streetAddress2: 'Test Address 2',
+        city: 'Celebration',
+        state: 'FL',
+        postalCode: '34747',
+      };
+      const component = mount(formatTwoLineAddress(shipmentAddress));
+      const addressSections = component.children();
+
+      expect(addressSections.at(0).text()).toEqual(` ${shipmentAddress.streetAddress2}`);
+      expect(addressSections.at(1).html()).toEqual('<br>');
+      expect(addressSections.at(2).text()).toEqual(
+        `${shipmentAddress.city}, ${shipmentAddress.state} ${shipmentAddress.postalCode}`,
+      );
+    });
+
+    it('displays correctly when street address two is missing', () => {
+      const shipmentAddress = {
+        streetAddress1: '555 Main Street',
+        city: 'Celebration',
+        state: 'FL',
+        postalCode: '34747',
+      };
+      const component = mount(formatTwoLineAddress(shipmentAddress));
+      const addressSections = component.children();
+
+      expect(addressSections.at(0).text()).toEqual(`${shipmentAddress.streetAddress1},`);
+      expect(addressSections.at(1).html()).toEqual('<br>');
+      expect(addressSections.at(2).text()).toEqual(
+        `${shipmentAddress.city}, ${shipmentAddress.state} ${shipmentAddress.postalCode}`,
+      );
+    });
+
+    it('displays correctly when city is missing', () => {
+      const shipmentAddress = {
+        streetAddress1: '555 Main Street',
+        streetAddress2: 'P.O. Box 9882',
+        state: 'FL',
+        postalCode: '34747',
+      };
+      const component = mount(formatTwoLineAddress(shipmentAddress));
+      const addressSections = component.children();
+
+      expect(addressSections.at(0).text()).toEqual(`${shipmentAddress.streetAddress1},`);
+      expect(addressSections.at(1).text()).toEqual(` ${shipmentAddress.streetAddress2}`);
+      expect(addressSections.at(2).html()).toEqual('<br>');
+    });
+  });
+
   describe('formatAgent', () => {
     it('shows entire agent', () => {
       const agent = {
