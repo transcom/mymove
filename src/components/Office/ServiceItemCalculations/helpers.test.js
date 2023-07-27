@@ -861,7 +861,7 @@ describe('makeCalculations', () => {
     expect(result).toEqual([]);
   });
 
-  it('returns correct data for FuelSurchage', () => {
+  it('FuelSurcharge returns correct data for FSC', () => {
     const resultFSC = makeCalculations('FSC', 99999, testParams.FuelSurchage);
     expect(resultFSC).toEqual([
       {
@@ -879,6 +879,69 @@ describe('makeCalculations', () => {
         label: 'Fuel surcharge price (per mi)',
         details: [
           { text: 'EIA diesel: $2.73', styles: {} },
+          { text: 'FRA: $2.00', styles: {} },
+          { text: 'Weight-based distance multiplier: 0.000417', styles: {} },
+          { text: 'Pickup date: 11 Mar 2020', styles: {} },
+        ],
+      },
+      {
+        value: '$999.99',
+        label: 'Total amount requested',
+        details: [{ text: '', styles: {} }],
+      },
+    ]);
+  });
+
+  it('FuelSurcharge returns correct data for DOSFSC', () => {
+    const resultFSC = makeCalculations('DOSFSC', 99999, testParams.DomesticOriginSITFuelSurchage);
+    expect(resultFSC).toEqual([
+      {
+        value: '85 cwt',
+        label: 'Billable weight (cwt)',
+        details: [{ text: 'Estimated: 8,000 lbs', styles: {} }],
+      },
+      {
+        value: '29',
+        label: 'Mileage into SIT',
+        details: [{ text: 'ZIP 90210 to ZIP 90211', styles: {} }],
+      },
+      {
+        value: '0.01',
+        label: 'SIT fuel surcharge price (per mi)',
+        details: [
+          { text: 'EIA diesel: $2.73', styles: {} },
+          { text: 'FRA: $2.00', styles: {} },
+          { text: 'Weight-based distance multiplier: 0.000417', styles: {} },
+          { text: 'Pickup date: 11 Mar 2020', styles: {} },
+        ],
+      },
+      {
+        value: '$999.99',
+        label: 'Total amount requested',
+        details: [{ text: '', styles: {} }],
+      },
+    ]);
+  });
+
+  it('FuelSurcharge returns correct data for DDSFSC', () => {
+    const resultFSC = makeCalculations('DDSFSC', 99999, testParams.DomesticDestinationSITFuelSurchage);
+    expect(resultFSC).toEqual([
+      {
+        value: '85 cwt',
+        label: 'Billable weight (cwt)',
+        details: [{ text: 'Estimated: 8,000 lbs', styles: {} }],
+      },
+      {
+        value: '29',
+        label: 'Mileage out of SIT',
+        details: [{ text: 'ZIP 91910 to ZIP 94535', styles: {} }],
+      },
+      {
+        value: '0.01',
+        label: 'SIT fuel surcharge price (per mi)',
+        details: [
+          { text: 'EIA diesel: $2.73', styles: {} },
+          { text: 'FRA: $2.00', styles: {} },
           { text: 'Weight-based distance multiplier: 0.000417', styles: {} },
           { text: 'Pickup date: 11 Mar 2020', styles: {} },
         ],
