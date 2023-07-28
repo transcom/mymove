@@ -1032,6 +1032,17 @@ jobs:
     steps:
       - run: echo "noop"
 
+  set_go_version:
+    executor: base_small
+    steps:
+      - run:
+          name: Create .go-version file
+          command: |
+            GO_VERSION=$(awk '/golang/ { print $2 }' .tool-versions)
+            echo "Creating .go-version using version ${GO_VERSION}"
+            echo $GO_VERSION > .go-version
+
+
   # `pre_deps_golang` is used for caching Go module sources
   pre_deps_golang:
     executor: mymove_compiler
@@ -2139,7 +2150,11 @@ workflows:
 
       - check_tls_certificate_prd
 
-      - pre_deps_golang
+      - set_go_version
+
+      - pre_deps_golang:
+          requires:
+            - set_go_version
 
       - pre_deps_yarn
 
