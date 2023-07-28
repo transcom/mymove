@@ -128,7 +128,7 @@
     "@faker-js/faker": "^8.0.2",
     "@jackfranklin/test-data-bot": "^2.1.0",
     "@playwright/test": "^1.36.0",
-    "@stoplight/spectral-cli": "^6.8.0",
+    "@stoplight/spectral-cli": "^6.10.0",
     "@storybook/addon-a11y": "^7.1.0",
     "@storybook/addon-actions": "^7.1.0",
     "@storybook/addon-essentials": "^7.1.0",
