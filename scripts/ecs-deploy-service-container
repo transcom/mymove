@@ -77,8 +77,11 @@ update_service() {
         return $exit_code
     fi
 
-    # Are there any tasks that should be stopped that aren't? Maybe
-    # this is how we can fix the flaky deployments?
+    # Are there any tasks that should be stopped that aren't? If so,
+    # wait for them to stop.
+    #
+    # Try to fix the flaky deployment failures documented in MB-15530
+    # If we stop seeing failures, we can update this comment
     time aws ecs wait tasks-stopped --cluster "${cluster}" --tasks "${old_tasks[@]}"
     exit_code=$?
 
