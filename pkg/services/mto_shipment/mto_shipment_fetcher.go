@@ -138,6 +138,13 @@ func FindShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID, eagerAssoc
 		findShipmentQuery.Eager(eagerAssociations...)
 	}
 
+	if appCtx.Session() != nil && appCtx.Session().IsMilApp() {
+		findShipmentQuery.
+			LeftJoin("moves", "moves.id = mto_shipments.move_id").
+			LeftJoin("orders", "orders.id = moves.orders_id").
+			Where("orders.service_member_id = ?", appCtx.Session().ServiceMemberID)
+	}
+
 	err := findShipmentQuery.Find(&shipment, shipmentID)
 	if err != nil {
 		switch err {
@@ -145,13 +152,6 @@ func FindShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID, eagerAssoc
 			return nil, apperror.NewNotFoundError(shipmentID, "while looking for shipment")
 		default:
 			return nil, apperror.NewQueryError("MTOShipment", err, "")
-		}
-	}
-
-	if appCtx.Session() != nil && appCtx.Session().IsMilApp() {
-
-		if shipment.MoveTaskOrder.Orders.ServiceMemberID != appCtx.Session().ServiceMemberID && shipment.MoveTaskOrder.Orders.ServiceMemberID != uuid.Nil {
-			return nil, apperror.NewNotFoundError(shipmentID, "while looking for shipment")
 		}
 	}
 
