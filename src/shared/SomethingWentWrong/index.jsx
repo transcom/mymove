@@ -17,7 +17,7 @@ const SomethingWentWrong = ({ error, info }) => (
       <br />
       <br />
       <br />
-      <p>
+      <p data-testid="contactMsg">
         If you continue to receive this error, call (800) 462-2176, Option 2 or{' '}
         <a href="mailto:usarmy.scott.sddc.mbx.g6-src-dps-hd@mail.mil" className="usa-link">
           email us
