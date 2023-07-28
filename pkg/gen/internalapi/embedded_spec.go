@@ -2283,7 +2283,7 @@ func init() {
           }
         ],
         "responses": {
-          "200": {
+          "201": {
             "description": "returns new moving expense object",
             "schema": {
               "$ref": "#/definitions/MovingExpense"
@@ -10557,7 +10557,7 @@ func init() {
           }
         ],
         "responses": {
-          "200": {
+          "201": {
             "description": "returns new moving expense object",
             "schema": {
               "$ref": "#/definitions/MovingExpense"
