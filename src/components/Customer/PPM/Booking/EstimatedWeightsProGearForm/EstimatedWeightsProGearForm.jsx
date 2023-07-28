@@ -59,8 +59,8 @@ const EstimatedWeightsProGearForm = ({ orders, serviceMember, mtoShipment, onSub
               <SectionWrapper className={classnames(ppmStyles.sectionWrapper, formStyles.formSection)}>
                 <h2>Full PPM</h2>
                 <p>
-                  Estimate the full weight of your PPM, including everything you plan to move. If you’re moving pro-gear
-                  in this PPM, include that weight in this estimate.
+                  Estimate the full weight of your PPM, including everything you plan to move. If you are moving
+                  pro-gear in this PPM, include that weight in this estimate.
                 </p>
                 <p className={formStyles.pBeforeFormGroup}>
                   Do not count weight twice, though. Do not include weight in your estimate that will be moved in other
@@ -98,8 +98,8 @@ const EstimatedWeightsProGearForm = ({ orders, serviceMember, mtoShipment, onSub
                 <p>A good guideline: Estimate 1,000 to 1,500 lbs per room.</p>
 
                 <p>
-                  If you own a lot of things for your space, estimate on the higher side. If you own less, estimate
-                  lower. The services have an official{' '}
+                  If you own a lot of personal property, estimate on the higher side. If you own less, estimate lower.
+                  The Services have an official{' '}
                   <a
                     href="https://www.ustranscom.mil/dp3/weightestimator.cfm"
                     target="_blank"
@@ -107,15 +107,15 @@ const EstimatedWeightsProGearForm = ({ orders, serviceMember, mtoShipment, onSub
                   >
                     weight estimation calculator
                   </a>{' '}
-                  <FontAwesomeIcon icon="external-link-alt" /> you can use for a more accurate estimate. (Link opens a
-                  new window.)
+                  <FontAwesomeIcon icon="external-link-alt" /> tool to discover the average weight of standard household
+                  items and get a calculation to compare with your entitlement allowance. (Link opens in a new window.)
                 </p>
               </SectionWrapper>
               <SectionWrapper className={classnames(ppmStyles.sectionWrapper, formStyles.formSection)}>
                 <h2>Pro-gear</h2>
                 <p>
                   Pro-gear, or PBP&E, includes books, papers, and equipment you need for your official duties. Service
-                  members can move up to 2,000 lbs of pro-gear. Spouses can move up to 500 lbs.
+                  members can move up to 2,000 lbs of pro-gear. Additionally, spouses can move up to 500 lbs.
                 </p>
 
                 <p>You get paid for moving pro-gear, but it does not count against your total weight allowance.</p>
@@ -141,7 +141,7 @@ const EstimatedWeightsProGearForm = ({ orders, serviceMember, mtoShipment, onSub
                   />
                 </Fieldset>
                 <Hint className={ppmStyles.hint}>
-                  If you&apos;re not sure, select yes and your counselor can help you figure it out.
+                  If you are not sure, select yes and your counselor can help you figure it out.
                 </Hint>
                 {values.hasProGear === 'true' && (
                   <>
