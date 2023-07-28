@@ -259,6 +259,32 @@ executors:
           password: $DOCKERHUB_PASSWORD
 
 commands:
+  # creates a .go-version file which can be used for cache keys specific to golang
+  create_dot_go_version:
+    steps:
+      - run:
+          name: Create a .go-version file
+          command: |
+            GO_VERSION=$(awk '/golang/ { print $2 }' .tool-versions)
+            echo "Creating .go-version using version ${GO_VERSION}"
+            echo $GO_VERSION > .go-version
+
+  restore_cache_for_go:
+    steps:
+      - create_dot_go_version
+      - restore_cache:
+          keys:
+            - go-mod-sources-v5-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
+
+  save_cache_for_go:
+    steps:
+      - create_dot_go_version
+      - save_cache:
+          key: go-mod-sources-v5-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
+          paths:
+            - '~/go'
+            - '~/transcom/mymove/bin/swagger'
+
   aws_vars_stg:
     steps:
       - run:
@@ -474,9 +500,7 @@ commands:
           name: Compare against deployed commit
           command: |
             [[ -z "<< parameters.compare_host >>" ]] || scripts/compare-deployed-commit "<< parameters.compare_host >>" $CIRCLE_SHA1
-      - restore_cache:
-          keys:
-            - go-mod-sources-v5-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
+      - restore_cache_for_go
       - run:
           name: Get Digest from filesystem
           command: echo 'export ECR_DIGEST=$(cat images/sha/ECR_DIGEST_app_<< parameters.ecr_env >>)' | tee -a "${BASH_ENV}"
@@ -1032,32 +1056,12 @@ jobs:
     steps:
       - run: echo "noop"
 
-  # `set_go_version` creates a .go-version file which can be used for cache keys specific to golang
-  setup_go_version:
-    executor: base_small
-    steps:
-      - checkout
-      - run:
-          name: Create .go-version file
-          command: |
-            GO_VERSION=$(awk '/golang/ { print $2 }' .tool-versions)
-            echo "Creating .go-version using version ${GO_VERSION}"
-            echo $GO_VERSION > .go-version
-      - persist_to_workspace:
-          root: .
-          paths:
-            - .go-version
-
             # `pre_deps_golang` is used for caching Go module sources
   pre_deps_golang:
     executor: mymove_compiler
     steps:
       - checkout
-      - attach_workspace:
-            at: .
-      - restore_cache:
-          keys:
-            - go-mod-sources-v5-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
+      - restore_cache_for_go
       - run: echo 'export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - run:
           name: Install dependencies
@@ -1066,11 +1070,7 @@ jobs:
       - run:
           name: Install go-swagger
           command: make bin/swagger
-      - save_cache:
-          key: go-mod-sources-v5-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
-          paths:
-            - '~/go'
-            - '~/transcom/mymove/bin/swagger'
+      - save_cache_for_go
       - announce_failure
 
   # `pre_deps_yarn` is used to cache yarn sources
@@ -1097,11 +1097,7 @@ jobs:
     executor: mymove_compiler
     steps:
       - checkout
-      - attach_workspace:
-          at: .
-      - restore_cache:
-          keys:
-            - go-mod-sources-v5-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
+      - restore_cache_for_go
       - run: echo 'export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - run: make server_generate mocks_generate
       - run: scripts/check-generated-code pkg/gen/ $(find . -type d -name "*mocks" -exec echo -n '{} ' \;)
@@ -1166,11 +1162,7 @@ jobs:
     executor: mymove_compiler
     steps:
       - checkout
-      - attach_workspace:
-          at: .
-      - restore_cache:
-          keys:
-            - go-mod-sources-v5-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
+      - restore_cache_for_go
       - restore_cache:
           keys:
             - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
@@ -1291,11 +1283,7 @@ jobs:
     executor: mymove_tester
     steps:
       - checkout
-      - attach_workspace:
-          at: .
-      - restore_cache:
-          keys:
-            - go-mod-sources-v5-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
+      - restore_cache_for_go
       - run: echo 'export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - run:
           name: db_dev_fresh
@@ -1356,11 +1344,7 @@ jobs:
     executor: mymove_tester
     steps:
       - checkout
-      - attach_workspace:
-          at: .
-      - restore_cache:
-          keys:
-            - go-mod-sources-v5-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
+      - restore_cache_for_go
       - run: echo 'export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - run:
           # https://support.circleci.com/hc/en-us/articles/10816400480411-How-to-pass-environment-variables-between-jobs
@@ -1622,11 +1606,7 @@ jobs:
     executor: mymove_compiler
     steps:
       - checkout
-      - attach_workspace:
-          at: .
-      - restore_cache:
-          keys:
-            - go-mod-sources-v5-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
+      - restore_cache_for_go
       # make -j 4 tells make to run 4 simultaneous builds
       - run: make -j 4 server_build build_tools
       - persist_to_workspace:
@@ -2167,11 +2147,7 @@ workflows:
 
       - check_tls_certificate_prd
 
-      - setup_go_version
-
-      - pre_deps_golang:
-          requires:
-            - setup_go_version
+      - pre_deps_golang
 
       - pre_deps_yarn
 
