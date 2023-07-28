@@ -40,6 +40,7 @@ import { formatMtoShipmentForAPI, formatMtoShipmentForDisplay } from 'utils/form
 import { formatWeight } from 'utils/formatters';
 import { validateDate } from 'utils/validation';
 import withRouter from 'utils/routing';
+import { ORDERS_TYPE } from 'constants/orders';
 
 const blankAddress = {
   address: {
@@ -159,7 +160,8 @@ class MtoShipmentForm extends Component {
     const isNTS = shipmentType === SHIPMENT_OPTIONS.NTS;
     const isNTSR = shipmentType === SHIPMENT_OPTIONS.NTSR;
     const shipmentNumber = shipmentType === SHIPMENT_OPTIONS.HHG ? this.getShipmentNumber() : null;
-    const isRetireeSeparatee = orders.orders_type !== 'PERMANENT_CHANGE_OF_STATION';
+    const isRetireeSeparatee =
+      orders.orders_type === ORDERS_TYPE.RETIREMENT || orders.orders_type === ORDERS_TYPE.SEPARATION;
 
     const initialValues = formatMtoShipmentForDisplay(isCreatePage ? {} : mtoShipment);
 
