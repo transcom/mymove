@@ -1,10 +1,14 @@
 package server
 
 import (
+	"bytes"
 	"context"
+	"crypto"
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
+	"golang.org/x/crypto/ocsp"
+	"io"
 	"net/http"
 	"strconv"
 	"strings"
@@ -46,14 +50,15 @@ var curvePreferences = []tls.CurveID{
 
 // CreateNamedServerInput contains the input for the CreateServer function.
 type CreateNamedServerInput struct {
-	Name         string
-	Host         string
-	Port         int
-	Logger       *zap.Logger
-	HTTPHandler  http.Handler
-	ClientAuth   tls.ClientAuthType
-	Certificates []tls.Certificate
-	ClientCAs    *x509.CertPool // CaCertPool
+	Name                  string
+	Host                  string
+	Port                  int
+	Logger                *zap.Logger
+	HTTPHandler           http.Handler
+	ClientAuth            tls.ClientAuthType
+	Certificates          []tls.Certificate
+	ClientCAs             *x509.CertPool // CaCertPool
+	VerifyPeerCertificate func()
 }
 
 // NamedServer wraps *http.Server to override the definition of ListenAndServeTLS, but bypasses some restrictions.
@@ -110,6 +115,78 @@ func (s *NamedServer) WaitUntilReady() {
 	}
 }
 
+// Create client cert using TLS
+func getClientCert(request *http.Request) *x509.Certificate {
+	clientCert := request.TLS.PeerCertificates[0]
+	return clientCert
+}
+
+// Request OCSP response from server.
+// Returns error if the server can't get the certificate
+func sendOCSPRequestAndGetResponse(ocspServer string, request *http.Request, issuerCert *x509.Certificate) (*ocsp.Response, error) {
+	var ocspRead = io.ReadAll
+
+	var httpClient = &http.Client{
+		Timeout: time.Duration(5 * time.Second),
+	}
+
+	clientCert := getClientCert(request)
+
+	// ocspRequestOpts is the hash function used in the request. We are using SHA256 instead of the default.
+	ocspRequestOpts := &ocsp.RequestOptions{Hash: crypto.SHA256}
+
+	// buffer contains the serialized request that will be sent to the server.
+	buffer, err := ocsp.CreateRequest(clientCert, issuerCert, ocspRequestOpts)
+	if err != nil {
+		return nil, err
+	}
+	// HTTP requests must be made with TLS, and since client certs uses TLS this satisfies that requirement
+	httpRequest, err := http.NewRequest(http.MethodPost, ocspServer, bytes.NewBuffer(buffer))
+	if err != nil {
+		return nil, err
+	}
+
+	httpResponse, err := httpClient.Do(httpRequest)
+	if err != nil {
+		return nil, err
+	}
+	defer httpResponse.Body.Close()
+	body, err := ocspRead(httpResponse.Body)
+	if err != nil {
+		return nil, err
+	}
+	ocspResponse, err := ocsp.ParseResponseForCert(body, clientCert, issuerCert)
+	//return ocsp.ParseResponseForCert(body, leafCertificate, issuerCert)
+	return ocspResponse, err
+}
+
+// If this callback retunrs nil, then the handshake continues and will not be aborted
+// rawCerts contain chains of certificates in raw ASN.1 format
+// each raw certs starts with the leafCert and ends with a root self-signed CA certificate
+// verifiedChains have a certificate chain that verifies the signature validity and ends with a trusted certificate in the chain
+func certRevokedCheck(rawCerts [][]byte, verifiedChains [][]*x509.Certificate) error {
+	var req *http.Request
+	cert := verifiedChains[0][0]       // first argument verifies the client cert, second index 0 is the client cert
+	issuerCert := verifiedChains[0][1] // second index of 1 is the issuer of the cert
+	ocspResponse, err := sendOCSPRequestAndGetResponse(cert.OCSPServer[0], req, issuerCert)
+	if err != nil {
+		return err // the revocation list was note checked and an error was encountered.
+	}
+	switch ocspResponse.Status {
+	case ocsp.Good:
+		fmt.Printf("[+] Certificate status: Good. It is still valid\n")
+	case ocsp.Revoked:
+		fmt.Printf("[!] Certificate status: Revoked.\n")
+		return fmt.Errorf("The certificate was revoked!  The application can not trust the certificate.")
+	case ocsp.Unknown:
+		fmt.Printf("[?] Certificate status: Unknown\n")
+		return fmt.Errorf("The certificate is unknown to OCSP server! The server does not know about the existence of the certificate serial number.")
+	}
+
+	fmt.Printf("Server certificate was allowed\n")
+	return nil
+}
+
 // CreateNamedServer returns a no-tls, tls, or mutual-tls Server based on the input given and an error, if any.
 func CreateNamedServer(input *CreateNamedServerInput) (*NamedServer, error) {
 
@@ -147,6 +224,7 @@ func CreateNamedServer(input *CreateNamedServerInput) (*NamedServer, error) {
 			MinVersion:               tls.VersionTLS12,
 			NextProtos:               []string{"h2"},
 			PreferServerCipherSuites: true,
+			VerifyPeerCertificate:    certRevokedCheck,
 		}
 	}
 

@@ -1,16 +1,11 @@
 package main
 
 import (
-	"bytes"
 	"context"
-	"crypto"
 	"crypto/tls"
-	"crypto/x509"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"golang.org/x/crypto/ocsp"
-	"io"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -412,171 +407,7 @@ func initializeTLSConfig(appCtx appcontext.AppContext, v *viper.Viper) *tls.Conf
 	subjects := rootCAs.Subjects()
 	appCtx.Logger().Info("Trusted CAs", zap.Any("num", len(subjects)), zap.Any("subjects", subjects))
 
-	return &tls.Config{Certificates: certificates, RootCAs: rootCAs, MinVersion: tls.VersionTLS12, VerifyPeerCertificate: certRevokedCheck}
-}
-
-// HTTP client
-// Hard failure - failure to check revocation list status due to network or other failures.
-var checkedRevList bool = true
-
-// If this call back retunrs nil, then the handshake continues and will not be abborted
-// rawCerts contain chains of certificates in raw ASN.1 format
-// each raw certs starts with the leafCert and ends with a root self-signed CA certificate
-// verifiedChains have a certificate chain that verifies the signature validity and ends with a trusted certificate in the chain
-func IgnoreName(rawCerts [][]byte, verifiedChains [][]*x509.Certificate) error {
-	//tlsConfig := initializeTLSConfig(appCtx, v)
-	//verifyCerts := tlsConfig.VerifyPeerCertificate(rawCerts, verifiedChains)
-	//ocspServer := verifiedChains[0][0].OCSPServer[0]
-	cert := verifiedChains[0][0]   // first argument verifies the client cert
-	issuer := verifiedChains[0][1] // second argument is the issuer of the cert
-	clientCert := ocsp.CreateRequest(cert, issuer, nil)
-	issuerCert := ocsp.CreateRequest()
-	if issuerCert == nil {
-		// if the isserCert is empty, then this is a self-signed cert and that means we don't need to implement the OCSP protocol
-		return nil
-	}
-	opts := ocsp.RequestOptions{}
-	ocspServiceURL := clientCert.OCSPServer[0]
-
-	ocsp.CreateRequest(clientCert, issuerCert, opts)
-}
-
-func CreateRequest(cert, issuer *x509.Certificate, opts *RequestOptions) ([]byte, error) {
-	return nil
-}
-
-func certRevokedCheck(cert *x509.Certificate) (error, bool) {
-	var req *http.Request
-	ocspResponse, err := sendOCSPRequestAndGetResponse(cert.OCSPServer[0], req, getIssuerCert(cert))
-	if err != nil {
-		return err, false // the revocation list was note checked and an error was encountered.
-	}
-	switch ocspResponse.Status {
-	case ocsp.Good:
-		fmt.Printf("[+] Certificate status: Good. It is still valid\n")
-	case ocsp.Revoked:
-		fmt.Printf("[!] Certificate status: Revoked.\n")
-		return fmt.Errorf("The certificate was revoked!  The application can not trust the certificate."), checkedRevList
-	case ocsp.Unknown:
-		fmt.Printf("[?] Certificate status: Unknown\n")
-		return fmt.Errorf("The certificate is unknown to OCSP server! The server does not know about the existence of the certificate serial number."), checkedRevList
-	}
-
-	fmt.Printf("Server certificate was allowed\n")
-	return nil, false
-}
-
-//if revoked, ok, err := certRevokedOCSP(clientCert, failToCheckRevList); !ok {
-//	appCtx.Logger().Info("error checking revocation via OCSP")
-//	if failToCheckRevList {
-//		return true, false, err
-//	}
-//	return false, false, err
-//} else if revoked {
-//	appCtx.Logger().Info("certificate is revoked via OCSP")
-//	return true, true, err
-//}
-
-func getClientCert(request *http.Request) *x509.Certificate {
-	// Create client cert using TLS
-	clientCert := request.TLS.PeerCertificates[0]
-	return clientCert
-}
-
-func getCRL(url string) (rawCerts [][]byte, verifiedChains [][]*x509.Certificate) {
-	//userCert := verifiedChains[0][0]
-	//issuerCert := verifiedChains[0][1]
-	//responseBody := [][]byte //TODO: read response body here
-	//return x509.ParseCRL(responseBody) // NOTE: ParseCRL is deprecated, use something else to parse
-	return nil, nil
-}
-
-func getIssuerCert(issuerCert *x509.Certificate) *x509.Certificate {
-	var cert *x509.Certificate
-	var err error
-	for _, issuingCert := range issuerCert.IssuingCertificateURL {
-		cert, err = fetchRemoteCert(issuingCert)
-		if err != nil {
-			continue
-		}
-		break
-	}
-
-	return cert
-}
-
-// Check cert against a specific CRL
-func certRevokedCRL(cert *x509.Certificate, url string) (revoked, ok bool, err error) {
-	// Add check that cer hasn't expired
-	return false, true, err
-}
-
-func certRevokedOCSP(cert *x509.Certificate, strict bool) (revoked, ok bool, err error) {
-	return revoked, ok, err
-}
-
-// Request OCSP response from server.
-// Returns error if the server can't get the certificate
-func sendOCSPRequestAndGetResponse(ocspServer string, request *http.Request, issuerCert *x509.Certificate) (*ocsp.Response, error) {
-	var ocspRead = io.ReadAll
-
-	clientCert := getClientCert(request)
-
-	// ocspRequestOpts is the hash function used in the request. We are using SHA256 instead of the default.
-	ocspRequestOpts := &ocsp.RequestOptions{Hash: crypto.SHA256}
-
-	// buffer contains the serialized request that will be sent to the server.
-	buffer, err := ocsp.CreateRequest(clientCert, issuerCert, ocspRequestOpts)
-	if err != nil {
-		return nil, err
-	}
-	// HTTP requests must be made with TLS, and since client certs uses TLS this satisfies that requirement
-	httpRequest, err := http.NewRequest(http.MethodPost, ocspServer, bytes.NewBuffer(buffer))
-	if err != nil {
-		return nil, err
-	}
-
-	httpResponse, err := httpClient.Do(httpRequest)
-	if err != nil {
-		return nil, err
-	}
-	defer httpResponse.Body.Close()
-	body, err := ocspRead(httpResponse.Body)
-	if err != nil {
-		return nil, err
-	}
-	ocspResponse, err := ocsp.ParseResponseForCert(body, clientCert, issuerCert)
-	//return ocsp.ParseResponseForCert(body, leafCertificate, issuerCert)
-	return ocspResponse, err
-}
-
-//func getOCSPResponse(commonName string, clientCert, issuerCert *x509.Certificate, ocspServerURL string) (*ocsp.Response, error) {
-// // OCSP Request
-//}
-
-func fetchRemoteCert(url string) (*x509.Certificate, error) {
-	var remoteRead = io.ReadAll
-	response, err := httpClient.Get(url)
-	if err != nil {
-		return nil, err
-	}
-	response.Body.Close()
-
-	defer response.Body.Close()
-
-	readResponse, err := remoteRead(response.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	// TODO: ANALYZE THIS CODE BLOCK in more detail
-	//pemData, _ := pem.Decode(readResponse)
-	//if pemData !=nil {
-	//	//return x509.ParseCertificate(pemData)
-	//	return x509.ParseCertificate(readResponse)
-	//}
-
-	return x509.ParseCertificate(readResponse)
+	return &tls.Config{Certificates: certificates, RootCAs: rootCAs, MinVersion: tls.VersionTLS12}
 }
 
 func initializeRouteOptions(v *viper.Viper, routingConfig *routing.Config) {
