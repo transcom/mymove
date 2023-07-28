@@ -90,7 +90,7 @@ func PruneExpiredTACsDesiredFromTRDM(codes []models.TransportationAccountingCode
 	return pruned
 }
 
-// Consolidates TACs with the same TAC value. Duplicate "Transaction", aka description, calues are combined with a delimeter of ". Additional description found: "
+// Consolidates TACs with the same TAC value. Duplicate "Transaction", aka description, values are combined with a delimeter of ". Additional description found: "
 func ConsolidateDuplicateTACsDesiredFromTRDM(codes []models.TransportationAccountingCodeDesiredFromTRDM) []models.TransportationAccountingCodeDesiredFromTRDM {
 	consolidatedMap := make(map[string]models.TransportationAccountingCodeDesiredFromTRDM)
 
