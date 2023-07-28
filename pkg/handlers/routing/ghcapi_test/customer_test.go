@@ -1,7 +1,6 @@
 package ghcapi_test
 
 import (
-	"net/http"
 	"net/http/httptest"
 
 	"github.com/transcom/mymove/pkg/factory"
@@ -14,7 +13,8 @@ func (suite *GhcAPISuite) TestCustomer() {
 		rr := httptest.NewRecorder()
 		suite.SetupSiteHandler().ServeHTTP(rr, req)
 
-		suite.Equal(http.StatusUnauthorized, rr.Code)
+		// the GHC API is not available to the Mil app
+		suite.EqualDefaultIndex(rr)
 	})
 
 	suite.Run("Authorized milmove /customer/:id", func() {
@@ -23,7 +23,8 @@ func (suite *GhcAPISuite) TestCustomer() {
 		rr := httptest.NewRecorder()
 		suite.SetupSiteHandler().ServeHTTP(rr, req)
 
-		suite.Equal(http.StatusOK, rr.Code)
+		// the GHC API is not available to the Mil app
+		suite.EqualDefaultIndex(rr)
 	})
 
 	suite.Run("Unauthorized milmove different customer /customer/:id", func() {
@@ -34,10 +35,8 @@ func (suite *GhcAPISuite) TestCustomer() {
 		rr := httptest.NewRecorder()
 		suite.SetupSiteHandler().ServeHTTP(rr, req)
 
-		// 🚨🚨🚨
-		// This should be a 404
-		// 🚨🚨🚨
-		suite.Equal(http.StatusOK, rr.Code)
+		// the GHC API is not available to the Mil app
+		suite.EqualDefaultIndex(rr)
 	})
 
 }

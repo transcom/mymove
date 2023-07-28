@@ -79,6 +79,37 @@ const mockMtoShipment = {
   },
 };
 
+const mockDeliveryAddressUpdate = {
+  deliveryAddressUpdate: {
+    contractorRemarks: 'Test Contractor Remark',
+    id: 'c49f7921-5a6e-46b4-bb39-022583574453',
+    newAddress: {
+      city: 'Beverly Hills',
+      country: 'US',
+      eTag: 'MjAyMy0wNy0xN1QxODowODowNi42NTU5MTVa',
+      id: '6b57ce91-cabd-4e3b-9f48-ed4627d4878f',
+      postalCode: '90210',
+      state: 'CA',
+      streetAddress1: '123 Any Street',
+      streetAddress2: 'P.O. Box 12345',
+      streetAddress3: 'c/o Some Person',
+    },
+    originalAddress: {
+      city: 'Fairfield',
+      country: 'US',
+      eTag: 'MjAyMy0wNy0xN1QxODowODowNi42NDkyNTha',
+      id: '92509013-aafc-4892-a476-2e3b97e6933d',
+      postalCode: '94535',
+      state: 'CA',
+      streetAddress1: '987 Any Avenue',
+      streetAddress2: 'P.O. Box 9876',
+      streetAddress3: 'c/o Some Person',
+    },
+    shipmentID: '5c84bcf3-92f7-448f-b0e1-e5378b6806df',
+    status: 'REQUESTED',
+  },
+};
+
 const mockPPMShipment = {
   id: '4774f99f-bc94-467a-9469-b6f81657b9ef',
   mtoShipmentId: mockMtoShipment.id,
@@ -153,6 +184,15 @@ EditHHGShipmentNoCustRemarks.args = {
   isCreatePage: false,
   mtoShipment: mockMtoShipmentNoCustomerRemarks,
   userRole: roleTypes.SERVICES_COUNSELOR,
+};
+
+export const EditHHGShipmentAsTOOWithDeliveryAddressUpdateRequested = Template.bind({});
+EditHHGShipmentAsTOOWithDeliveryAddressUpdateRequested.args = {
+  ...defaultProps,
+  shipmentType: SHIPMENT_OPTIONS.HHG,
+  isCreatePage: false,
+  mtoShipment: { ...mockMtoShipment, ...mockDeliveryAddressUpdate },
+  userRole: roleTypes.TOO,
 };
 
 export const HHGShipmentAsTOO = Template.bind({});

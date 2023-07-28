@@ -57,8 +57,8 @@ export const WithAdditionalText = () => (
           render={(fields) => (
             <>
               <p>
-                If we can&apos;t reach you, who can we contact? Any person you assign as a backup contact must be 18
-                years of age or older.
+                If we cannot reach you, who can we contact? Any person you assign as a backup contact must be 18 years
+                of age or older.
               </p>
               {fields}
             </>

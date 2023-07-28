@@ -972,6 +972,26 @@ describe('MoveDetails page', () => {
     });
   });
 
+  describe('When a shipment has a pending destination address update requested by the Prime', () => {
+    it('renders an alert indicator in the sidebar', async () => {
+      useMoveDetailsQueries.mockReturnValue(requestedMoveDetailsMissingInfoQuery);
+
+      render(
+        <MockProviders>
+          <MoveDetails
+            setUnapprovedShipmentCount={setUnapprovedShipmentCount}
+            setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setUnapprovedSITAddressUpdateCount={setUnapprovedSITAddressUpdateCount}
+            setExcessWeightRiskCount={setExcessWeightRiskCount}
+            setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
+          />
+        </MockProviders>,
+      );
+
+      expect(await screen.findByTestId('shipment-missing-info-alert')).toBeInTheDocument();
+    });
+  });
+
   describe('permission dependent rendering', () => {
     const testProps = {
       setUnapprovedShipmentCount,

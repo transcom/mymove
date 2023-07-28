@@ -13,7 +13,7 @@ import hasRiskOfExcess from 'utils/hasRiskOfExcess';
 import { MOVES, MTO_SERVICE_ITEMS, MTO_SHIPMENTS } from 'constants/queryKeys';
 import SERVICE_ITEM_STATUSES from 'constants/serviceItems';
 import { ALLOWED_SIT_ADDRESS_UPDATE_SI_CODES, SIT_ADDRESS_UPDATE_STATUS } from 'constants/sitUpdates';
-import { shipmentStatuses } from 'constants/shipments';
+import { ADDRESS_UPDATE_STATUS, shipmentStatuses } from 'constants/shipments';
 import AllowancesList from 'components/Office/DefinitionLists/AllowancesList';
 import CustomerInfoList from 'components/Office/DefinitionLists/CustomerInfoList';
 import OrdersList from 'components/Office/DefinitionLists/OrdersList';
@@ -55,6 +55,7 @@ const MoveDetails = ({
   setUnapprovedSITAddressUpdateCount,
   setExcessWeightRiskCount,
   setUnapprovedSITExtensionCount,
+  setShipmentsWithDeliveryAddressUpdateRequestedCount,
 }) => {
   const { moveCode } = useParams();
   const [isFinancialModalVisible, setIsFinancialModalVisible] = useState(false);
@@ -148,6 +149,15 @@ const MoveDetails = ({
       shipment.status === shipmentStatuses.CANCELLATION_REQUESTED ||
       shipment.status === shipmentStatuses.CANCELED,
   );
+
+  const shipmentWithDestinationAddressChangeRequest = mtoShipments?.filter(
+    (shipment) => shipment?.deliveryAddressUpdate?.status === ADDRESS_UPDATE_STATUS.REQUESTED && !shipment.deletedAt,
+  );
+  useEffect(() => {
+    const shipmentCount = shipmentWithDestinationAddressChangeRequest?.length || 0;
+    if (setShipmentsWithDeliveryAddressUpdateRequestedCount)
+      setShipmentsWithDeliveryAddressUpdateRequestedCount(shipmentCount);
+  }, [shipmentWithDestinationAddressChangeRequest?.length, setShipmentsWithDeliveryAddressUpdateRequestedCount]);
 
   const shipmentsInfoNonPPM = mtoShipments?.filter((shipment) => shipment.shipmentType !== 'PPM');
 
@@ -283,6 +293,8 @@ const MoveDetails = ({
 
   const hasMissingOrdersRequiredInfo = Object.values(requiredOrdersInfo).some((value) => !value || value === '');
   const hasAmendedOrders = ordersInfo.uploadedAmendedOrderID && !ordersInfo.amendedOrdersAcknowledgedAt;
+  const hasDestinationAddressUpdate =
+    shipmentWithDestinationAddressChangeRequest && shipmentWithDestinationAddressChangeRequest.length > 0;
 
   return (
     <div className={styles.tabContent}>
@@ -315,6 +327,13 @@ const MoveDetails = ({
             associatedSectionName="requested-shipments"
             showTag={shipmentMissingRequiredInformation}
             testID="shipment-missing-info-alert"
+          >
+            <FontAwesomeIcon icon="exclamation" />
+          </LeftNavTag>
+          <LeftNavTag
+            associatedSectionName="approved-shipments"
+            className="usa-tag usa-tag--alert"
+            showTag={hasDestinationAddressUpdate}
           >
             <FontAwesomeIcon icon="exclamation" />
           </LeftNavTag>
@@ -441,6 +460,11 @@ MoveDetails.propTypes = {
   setUnapprovedSITAddressUpdateCount: func.isRequired,
   setExcessWeightRiskCount: func.isRequired,
   setUnapprovedSITExtensionCount: func.isRequired,
+  setShipmentsWithDeliveryAddressUpdateRequestedCount: func,
+};
+
+MoveDetails.defaultProps = {
+  setShipmentsWithDeliveryAddressUpdateRequestedCount: () => {},
 };
 
 export default MoveDetails;
