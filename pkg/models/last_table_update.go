@@ -1,0 +1,111 @@
+package models
+
+import (
+	"fmt"
+	"time"
+
+	"github.com/tiaguinho/gosoap"
+	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/appcontext"
+)
+
+/*******************************************
+
+The struct/method getLastTableUpdate:GetLastTableUpdate implements the service TRDM.
+
+This method GetLastTableUpdate sends a SOAP request to TRDM to get the last table update.
+This code is using the gosoap lib https://github.com/tiaguinho/gosoap
+
+The Request to GetTable
+SOAP Request:
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ret="http://ReturnTablePackage/">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <ret:getTableRequestElement>
+         <ret:input>
+            <ret:TRDM>
+               <ret:physicalName>ACFT</ret:physicalName>
+               <ret:returnContent>true</ret:returnContent>
+            </ret:TRDM>
+         </ret:input>
+      </ret:getTableRequestElement>
+   </soapenv:Body>
+</soapenv:Envelope>
+
+SOAP Response:
+
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+   <soap:Body>
+      <getTableResponseElement xmlns="http://ReturnTablePackage/">
+         <output>
+            <TRDM>
+               <status>
+                  <rowCount>28740</rowCount>
+                  <statusCode>Successful</statusCode>
+                  <dateTime>2020-01-27T19:12:25.326Z</dateTime>
+               </status>
+            </TRDM>
+         </output>
+         <attachment>
+            <xop:Include href="cid:fefe5d81-468c-4639-a543-e758a3cbceea-2@ReturnTablePackage" xmlns:xop="http://www.w3.org/2004/08/xop/include"/>
+         </attachment>
+      </getTableResponseElement>
+   </soap:Body>
+</soap:Envelope>
+ *******************************************/
+// Date/time value is used in conjunction with the contentUpdatedSinceDateTime column in the getTable method.
+
+type getLastTableUpdateReq struct {
+	physicalName  string
+	returnContent bool
+	soapClient    SoapCaller
+}
+
+type SoapCaller interface {
+	Call(m string, p gosoap.Params) (res *gosoap.Response, err error)
+}
+
+// Response XML Struct
+type getLastTableUpdate struct {
+	LastUpdate time.Time `xml:"lastUpdate"`
+	RowCount   int       `xml:"rowCount"`
+	StatusCode string    `xml:"statusCode"`
+	Message    string    `xml:"message"`
+	DateTime   time.Time `xml:"dateTime"`
+}
+
+func GetLastTableUpdate(appCtx appcontext.AppContext, req getLastTableUpdateReq) error {
+
+	gosoap.SetCustomEnvelope("soapenv", map[string]string{
+		"xmlns:soapenv": "http://schemas.xmlsoap.org/soap/envelope/",
+		"xmlns:ser":     "https://dtod.sddc.army.mil/service/", //! Replace
+	})
+
+	params := gosoap.Params{
+		"TRDM": map[string]interface{}{
+			"physicalName":  req.physicalName,
+			"returnContent": req.returnContent,
+		},
+	}
+	res, err := req.soapClient.Call("ProcessRequest", params)
+	if err != nil {
+		return fmt.Errorf("call error: %s", err.Error())
+	}
+
+	var r getLastTableUpdate
+	err = res.Unmarshal(&r)
+
+	if r.RowCount != 0 {
+		if r.LastUpdate != time.Now() {
+			return nil
+		}
+	}
+
+	if err != nil {
+		return fmt.Errorf("unmarshal error: %s", err.Error())
+	}
+	appCtx.Logger().Debug("getLastTableUpdate result", zap.Any("processRequestResponse", r))
+
+	return nil
+}
