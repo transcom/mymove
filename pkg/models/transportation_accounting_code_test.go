@@ -38,5 +38,5 @@ func (suite *ModelSuite) Test_CanSaveAndFetchTac() {
 
 	suite.NoError(err)
 	suite.Equal(tac.TAC, fetchedTac.TAC)
-	suite.NotNil(tac.LineOfAccounting)
+	suite.NotNil(*fetchedTac.LineOfAccounting.LoaSysID)
 }
