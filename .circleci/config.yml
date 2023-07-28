@@ -1032,6 +1032,7 @@ jobs:
     steps:
       - run: echo "noop"
 
+  # `set_go_version` creates a .go-version file which can be used for cache keys specific to golang
   set_go_version:
     executor: base_small
     steps:
