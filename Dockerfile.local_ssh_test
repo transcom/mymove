@@ -1,0 +1,125 @@
+# Sample sftp / ssh server to test key based authentication
+#
+# There are some setup steps you'll need to do for this Docker container.
+#
+# Generate a key pair. Save and DO NOT COMMIT your key files.
+# Keep the public private key pair in the same directory as this file.
+# ssh-keygen -f ./test_key_pair -t ecdsa -b 521
+#
+# Inside of your .envrc.local file, add some environment variables.
+# The GEX SFTP Host Key you will need to get from inside the Docker container
+# at this location
+# /etc/ssh/ssh_host_ecdsa_key.pub
+# Environment variables to add to .envrc.local
+# export GEX_SFTP_USER_ID=testu
+# export GEX_SFTP_PASSWORD=testp
+# export GEX_SFTP_IP_ADDRESS=localhost
+# export GEX_SFTP_PORT=2222
+# export SEND_TO_SYNCADA=true
+# export GEX_SFTP_HOST_KEY=''
+# export GEX_PRIVATE_KEY=$(<./test_key_pair)
+#
+# To apply the environment variables, run
+# direnv allow
+#
+# To build this Docker container
+# docker build -t gex-test-server -f Dockerfile.local_ssh_test .
+#
+# To run the Docker container
+# docker run -d -p 2222:22 gex-test-server
+#
+# To test using the Docker container just made
+# make build_tools
+# milmove-tasks connect-to-gex-via-sftp
+#
+# # Further explanation:
+# On the run step, we set input on the host to port 2222 so that it goes to
+# output on the server's port 22.
+# We use the connect-to-gex-via-sftp since that uses gex_sftp which connects
+# a provided server via ssh and sftp.
+#
+# Useful tips and commands:
+#
+# /etc/ssh/sshd_config
+# This is the config file for a server, which this Docker container is.
+# ssh_config is for a ssh client.
+#
+# service ssh status
+# If you run this inside the Docker container, it will give you the status of
+# the ssh service.
+#
+# ssh -v -i test_key_pair -p 2222 testu@localhost
+# You should be able to test logging in via ssh to the Docker container with
+# this command.
+
+
+# syntax=docker/dockerfile:1
+
+FROM ubuntu:latest
+WORKDIR /
+RUN apt-get update
+
+# Get the openssh-server package and install it.
+RUN apt-get install -y openssh-server
+
+# Create a group and add testu to that group
+RUN groupadd sftp_users
+RUN useradd -rm -d /home/ubuntu -s /bin/bash -g sftp_users -G sudo -u 1000 testu
+RUN  echo 'testu:testp' | chpasswd
+
+# Change the sshd_config so that the created user can login via ssh and sftp
+
+# Permit root login via SSH
+RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+# Use sed with ! as the delimiter so there isn't any slash nonsense going on.
+# Keep the spaces in here so that it does the line replacement properly.
+RUN sed -i 's!Subsystem       sftp    /usr/lib/openssh/sftp-server!Subsystem sftp internal-sftp!' /etc/ssh/sshd_config
+# Point the authorized keys to /home/ubuntu/.ssh/authorized since that's where
+# we'll be copying them.
+RUN sed -i '#AuthorizedKeysFile      .ssh/authorized_keys .ssh/authorized_keys2!#AuthorizedKeysFile /home/ubuntu/.ssh/authorized_keys .ssh/authorized_keys2!' /etc/ssh/sshd_config
+
+
+# If the user is not part of the sftp_users group, then force sftp.
+# Had to configure the sshd_config this way because setting ForceCommand
+# internal sftp only allows the user to login via sftp. In this case, we
+# want the created user to be able to login with both sftp and ssh.
+# So, we match everyone that isn't part of the sftp_users group and only
+# allow them to login via sftp.
+RUN echo 'Match Group !sftp_users' >> /etc/ssh/sshd_config
+RUN echo 'ChrootDirectory /data/%up' >> /etc/ssh/sshd_config
+RUN echo 'ForceCommand internal-sftp' >> /etc/ssh/sshd_config
+
+# Test file so that you can tell when you sshed in that it's really the
+# Docker container
+RUN touch /home/ubuntu/test_file_you_are_logged_into_docker
+
+# Configure ssh for key based auth and add our public key. Add it to this
+# directory rather than ~/.ssh because this setup more closely matched up
+# with GEX's setup.
+RUN mkdir /home/ubuntu/.ssh
+COPY test_key_pair.pub /home/ubuntu/.ssh/authorized_keys
+RUN chmod 400 /home/ubuntu/.ssh/authorized_keys
+RUN chmod 500 /home/ubuntu/.ssh
+# We have to change the ownershp to testu for these files for public key
+# authentication to work.
+# -R is to recursively change ownership of files under that folder.
+# Root having ownership of these files will cause public key authentication
+# to fail in weird, quiet ways.
+RUN chown -R testu /home/ubuntu/.ssh
+
+# Make directories for sftp
+RUN mkdir -p /data/testu/upload
+RUN chown -R root:sftp_users /data/testu
+RUN chown -R testu:sftp_users /data/testu/upload
+
+# Install vim because it's useful if you need to go into the container and edit
+# or view files. Install your editor of choice if you don't like using vim.
+RUN apt-get -y install vim
+
+# Start the ssh serve
+RUN service ssh start
+
+# Be sure to expose the 22 port since that's used for ssh and sftp
+EXPOSE 22
+
+CMD ["/usr/sbin/sshd","-D"]
