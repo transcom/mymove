@@ -41,6 +41,9 @@ var actionDispatcher = map[string]actionFunc{
 	"HHGMoveNeedsSC": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeHHGMoveNeedsSC(appCtx)
 	},
+	"HHGMoveWithAmendedOrders": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeHHGMoveWithAmendedOrders(appCtx)
+	},
 	"HHGMoveForSeparationNeedsSC": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeHHGMoveForSeparationNeedsSC(appCtx)
 	},

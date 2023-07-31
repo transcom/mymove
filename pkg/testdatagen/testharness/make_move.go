@@ -2364,6 +2364,22 @@ func MakeHHGMoveNeedsSC(appCtx appcontext.AppContext) models.Move {
 	return *newmove
 }
 
+// MakeHHGMoveWithAmendedOrders creates a move needing SC approval with amended orders
+func MakeHHGMoveWithAmendedOrders(appCtx appcontext.AppContext) models.Move {
+	pcos := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
+	hhg := models.MTOShipmentTypeHHG
+	locator := models.GenerateLocator()
+	userUploader := newUserUploader(appCtx)
+	move := scenario.CreateNeedsServicesCounselingWithAmendedOrders(appCtx, userUploader, pcos, hhg, nil, locator)
+	// re-fetch the move so that we ensure we have exactly what is in
+	// the db
+	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+	}
+	return *newmove
+}
+
 // MakeHHGMoveForSeparationNeedsSC creates an fully ready move for
 // separation needing SC approval
 func MakeHHGMoveForSeparationNeedsSC(appCtx appcontext.AppContext) models.Move {

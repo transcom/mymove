@@ -6,6 +6,7 @@ import { useLocation } from 'react-router-dom';
 import ServicesCounselingMoveDocumentWrapper from './ServicesCounselingMoveDocumentWrapper';
 
 import { useOrdersDocumentQueries } from 'hooks/queries';
+import createUpload from 'utils/test/factories/upload';
 
 const mockOriginDutyLocation = {
   address: {
@@ -46,6 +47,12 @@ jest.mock('hooks/queries', () => ({
 }));
 
 const testMoveId = '10000';
+
+const amendedUploadDate = new Date();
+const amendedUpload = createUpload(
+  { fileName: 'amended_test.pdf', createdAtDate: amendedUploadDate },
+  { url: '/storage/user/1/uploads/2?contentType=application%2Fpdf', id: 'z', status: null, bytes: null },
+);
 
 const useOrdersDocumentQueriesReturnValue = {
   orders: {
@@ -92,19 +99,8 @@ const useOrdersDocumentQueriesReturnValue = {
       url: '/storage/user/1/uploads/2?contentType=application%2Fpdf',
     },
   },
-  amendedDocuments: {
-    2: {
-      id: '2',
-      uploads: ['x'],
-    },
-  },
   amendedUpload: {
-    x: {
-      id: 'z',
-      filename: 'amended_test.pdf',
-      contentType: 'application/pdf',
-      url: '/storage/user/1/uploads/2?contentType=application%2Fpdf',
-    },
+    amendedUpload,
   },
 };
 
@@ -193,6 +189,10 @@ describe('ServicesCounselingMoveDocumentWrapper', () => {
             filename: 'amended_test.pdf',
             id: 'z',
             url: '/storage/user/1/uploads/2?contentType=application%2Fpdf',
+            status: null,
+            updatedAt: amendedUploadDate.toISOString(),
+            createdAt: amendedUploadDate.toISOString(),
+            bytes: null,
           },
         ],
       });
