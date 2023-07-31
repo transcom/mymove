@@ -334,13 +334,7 @@ func (suite *MTOShipmentServiceSuite) TestFindMTOShipment() {
 			ServiceMemberID: uuid.Must(uuid.NewV4()),
 		})
 
-		move := factory.BuildMove(suite.DB(), []factory.Customization{
-			{
-				Model: models.Move{
-					ID: uuid.Must(uuid.NewV4()),
-				},
-			},
-		}, nil)
+		move := factory.BuildMove(suite.DB(), nil, nil)
 
 		shipment := factory.BuildMTOShipment(nil, []factory.Customization{
 			{
