@@ -1056,7 +1056,7 @@ jobs:
     steps:
       - run: echo "noop"
 
-  # `pre_deps_golang` is used for caching Go module sources
+    # `pre_deps_golang` is used for caching Go module sources
   pre_deps_golang:
     executor: mymove_compiler
     steps:
