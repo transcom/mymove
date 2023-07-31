@@ -207,8 +207,10 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 	})
 
 	suite.Run("calculates pending destination SIT balance when origin was invoiced previously", func() {
+		// Set up a move with a shipment that has a 120 days of authorized SIT
 		move, shipment := setUpShipmentWith120DaysOfAuthorizedSIT(suite.DB())
 
+		// Create a reviewed payment request
 		reviewedPaymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
 			{
 				Model:    move,
@@ -221,6 +223,8 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 			},
 		}, nil)
 
+		// Attach origin SIT service items to the reviewed payment request.
+		// Create the accompanying dates that uses up 30 of the 120 authorized days of SIT.
 		year, month, day := time.Now().Date()
 		originEntryDate := time.Date(year, month, day-90, 0, 0, 0, 0, time.UTC)
 		doasit := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
@@ -244,11 +248,13 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 				LinkOnly: true,
 			},
 		}, nil)
+		originDepartureDate := originEntryDate.AddDate(0, 0, 30)
 		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOServiceItem{
-					Status:       models.MTOServiceItemStatusApproved,
-					SITEntryDate: &originEntryDate,
+					Status:           models.MTOServiceItemStatusApproved,
+					SITEntryDate:     &originEntryDate,
+					SITDepartureDate: &originDepartureDate,
 				},
 			},
 			{
@@ -358,6 +364,7 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 			},
 		}, nil)
 
+		// Create a pending payment request
 		pendingPaymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
 			{
 				Model:    move,
@@ -365,13 +372,15 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 			},
 			{
 				Model: models.PaymentRequest{
-					Status:         models.PaymentRequestStatusReviewed,
+					Status:         models.PaymentRequestStatusPending,
 					SequenceNumber: 2,
 				},
 			},
 		}, nil)
 
-		destinationEntryDate := time.Date(year, month, day-89, 0, 0, 0, 0, time.UTC)
+		// Create the destination SIT service items and attach them to the pending payment request.
+		// Set up the dates so that it went into storage 60 days ago and it is still in storage now.
+		destinationEntryDate := time.Date(year, month, day-60, 0, 0, 0, 0, time.UTC)
 		ddasit := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOServiceItem{
@@ -382,6 +391,27 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 			{
 				Model: models.ReService{
 					Code: models.ReServiceCodeDDASIT,
+				},
+			},
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status:       models.MTOServiceItemStatusApproved,
+					SITEntryDate: &destinationEntryDate,
+				},
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDDSIT,
 				},
 			},
 			{
@@ -487,13 +517,20 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 		suite.Len(sitBalances, 1)
 		pendingSITBalance := sitBalances[0]
 		suite.Equal(shipment.ID.String(), pendingSITBalance.ShipmentID.String())
+
+		// 30 is what was previously billed on the reviewed payment request
 		suite.Equal(30, *pendingSITBalance.PreviouslyBilledDays)
 		suite.Equal(paymentEndDate.String(), pendingSITBalance.PreviouslyBilledEndDate.String())
+
+		// 60 days is the pending amount on the pending payment request
 		suite.Equal(60, pendingSITBalance.PendingSITDaysInvoiced)
 		suite.Equal(destinationPaymentEndDate.String(), pendingSITBalance.PendingBilledEndDate.String())
+
 		suite.Equal(120, pendingSITBalance.TotalSITDaysAuthorized)
+		// 120 total authorized - 30 from origin SIT - 60 from destination SIT = 30 SIT days remaining
 		suite.Equal(30, pendingSITBalance.TotalSITDaysRemaining)
-		suite.Equal(doasit.SITEntryDate.AddDate(0, 0, 120).String(), pendingSITBalance.TotalSITEndDate.String())
+
+		suite.Equal(ddasit.SITEntryDate.AddDate(0, 0, 90).String(), pendingSITBalance.TotalSITEndDate.String())
 	})
 
 	suite.Run("ignores including previously denied service items in SIT balance", func() {
