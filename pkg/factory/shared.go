@@ -50,6 +50,7 @@ var Document CustomType = "Document"
 var DutyLocation CustomType = "DutyLocation"
 var Entitlement CustomType = "Entitlement"
 var EvaluationReport CustomType = "EvaluationReport"
+var LineOfAccounting CustomType = "LineOfAccounting"
 var Move CustomType = "Move"
 var MovingExpense CustomType = "MovingExpense"
 var MTOAgent CustomType = "MTOAgent"
@@ -82,6 +83,7 @@ var SignedCertification CustomType = "SignedCertification"
 var SITAddressUpdate CustomType = "SITAddressUpdate"
 var SITDurationUpdate CustomType = "SITDurationUpdate"
 var StorageFacility CustomType = "StorageFacility"
+var TransportationAccountingCode CustomType = "TransportationAccountingCode"
 var TransportationOffice CustomType = "TransportationOffice"
 var Upload CustomType = "Upload"
 var UserUpload CustomType = "UserUpload"
@@ -103,6 +105,7 @@ var defaultTypesMap = map[string]CustomType{
 	"models.DutyLocation":                             DutyLocation,
 	"models.Entitlement":                              Entitlement,
 	"models.EvaluationReport":                         EvaluationReport,
+	"models.LineOfAccounting":                         LineOfAccounting,
 	"models.Move":                                     Move,
 	"models.MovingExpense":                            MovingExpense,
 	"models.MTOAgent":                                 MTOAgent,
@@ -134,6 +137,7 @@ var defaultTypesMap = map[string]CustomType{
 	"models.SITAddressUpdate":                         SITAddressUpdate,
 	"models.SITDurationUpdate":                        SITDurationUpdate,
 	"models.StorageFacility":                          StorageFacility,
+	"models.TransportationAccountingCode":             TransportationAccountingCode,
 	"models.TransportationOffice":                     TransportationOffice,
 	"models.Upload":                                   Upload,
 	"models.UserUpload":                               UserUpload,

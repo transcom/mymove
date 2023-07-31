@@ -38,7 +38,7 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
           <h1>Profile</h1>
           {showMessages && (
             <Alert headingLevel="h4" type="info">
-              Contact your movers if you need to make changes to your move.
+              You can change these details later by talking to a move counselor or customer care representative.
             </Alert>
           )}
           <SectionWrapper className={formStyles.formSection}>
