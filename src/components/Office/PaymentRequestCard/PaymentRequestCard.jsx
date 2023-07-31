@@ -19,15 +19,15 @@ import { permissionTypes } from 'constants/permissions';
 
 const paymentRequestStatusLabel = (status) => {
   switch (status) {
-    case 'PENDING':
+    case PAYMENT_REQUEST_STATUS.PENDING:
       return 'Needs review';
-    case 'REVIEWED':
-    case 'SENT_TO_GEX':
-    case 'RECEIVED_BY_GEX':
+    case PAYMENT_REQUEST_STATUS.REVIEWED:
+    case PAYMENT_REQUEST_STATUS.SENT_TO_GEX:
+    case PAYMENT_REQUEST_STATUS.RECEIVED_BY_GEX:
       return 'Reviewed';
-    case 'REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED':
+    case PAYMENT_REQUEST_STATUS.REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED:
       return 'Rejected';
-    case 'PAID':
+    case PAYMENT_REQUEST_STATUS.PAID:
       return 'Paid';
     default:
       return status;
@@ -37,7 +37,7 @@ const paymentRequestStatusLabel = (status) => {
 const PaymentRequestCard = ({ paymentRequest, shipmentsInfo, hasBillableWeightIssues, onEditAccountingCodes }) => {
   const navigate = useNavigate();
   // show details by default if in pending/needs review
-  const defaultShowDetails = paymentRequest.status === 'PENDING';
+  const defaultShowDetails = paymentRequest.status === PAYMENT_REQUEST_STATUS.PENDING;
   // only show button in reviewed/paid
   const showRequestDetailsButton = !defaultShowDetails;
   // state to toggle between showing details or not
@@ -122,9 +122,11 @@ const PaymentRequestCard = ({ paymentRequest, shipmentsInfo, hasBillableWeightIs
           <h6>Payment Request {paymentRequest.paymentRequestNumber}</h6>
           <Tag
             className={classnames({
-              pending: paymentRequest.status === 'PENDING',
-              reviewed: paymentRequest.status !== 'PENDING' && paymentRequest.status !== 'PAID',
-              paid: paymentRequest.status === 'PAID',
+              pending: paymentRequest.status === PAYMENT_REQUEST_STATUS.PENDING,
+              reviewed:
+                paymentRequest.status !== PAYMENT_REQUEST_STATUS.PENDING &&
+                paymentRequest.status !== PAYMENT_REQUEST_STATUS.PAID,
+              paid: paymentRequest.status === PAYMENT_REQUEST_STATUS.PAID,
             })}
           >
             {paymentRequestStatusLabel(paymentRequest.status)}
@@ -135,7 +137,7 @@ const PaymentRequestCard = ({ paymentRequest, shipmentsInfo, hasBillableWeightIs
           </span>
         </div>
         <div className={styles.totalReviewed}>
-          {paymentRequest.status === 'PENDING' ? (
+          {paymentRequest.status === PAYMENT_REQUEST_STATUS.PENDING ? (
             <div className={styles.amountRequested}>
               <h2>{toDollarString(formatCents(requestedAmount))}</h2>
               <span>Requested</span>
@@ -164,7 +166,7 @@ const PaymentRequestCard = ({ paymentRequest, shipmentsInfo, hasBillableWeightIs
               )}
             </>
           )}
-          {paymentRequest.status === 'PENDING' && (
+          {paymentRequest.status === PAYMENT_REQUEST_STATUS.PENDING && (
             <>
               <Restricted to={permissionTypes.readPaymentServiceItemStatus}>
                 <div className={styles.reviewButton}>
@@ -205,7 +207,7 @@ const PaymentRequestCard = ({ paymentRequest, shipmentsInfo, hasBillableWeightIs
             <dt>Contract number:</dt>
             <dd>{contractNumber}</dd>
           </dl>
-          {paymentRequest.status === 'PENDING' ? (
+          {paymentRequest.status === PAYMENT_REQUEST_STATUS.PENDING ? (
             <Link to="../orders" state={{ from: 'paymentRequestDetails' }}>
               View orders
             </Link>
