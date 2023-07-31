@@ -16,9 +16,7 @@ import (
 )
 
 // RequestLogger returns a middleware that logs requests.
-func RequestLogger(globalLogger *zap.Logger) func(inner http.Handler) http.Handler {
-
-	requestTelemetry := telemetry.NewRequestTelemetry(globalLogger)
+func RequestLogger() func(inner http.Handler) http.Handler {
 
 	return func(inner http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -80,10 +78,13 @@ func RequestLogger(globalLogger *zap.Logger) func(inner http.Handler) http.Handl
 				zap.Int("resp-status", metrics.Code),
 			}...)
 
-			logger.Info("Request", fields...)
-			if requestTelemetry != nil {
-				requestTelemetry.HandleRequest(r, metrics)
+			// See telemetry.NewOtelHTTPMiddleware for more explanation
+			statusCode := telemetry.StatusCodeFromContext(r.Context())
+			if statusCode != nil {
+				*statusCode = metrics.Code
 			}
+
+			logger.Info("Request", fields...)
 		})
 	}
 }
