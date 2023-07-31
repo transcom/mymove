@@ -25,7 +25,6 @@ func TestHealthSuite(t *testing.T) {
 
 func (suite *HealthSuite) TestHealthHandler() {
 	handler := NewHealthHandler(suite.AppContextForTest(),
-		suite.HandlerConfig().FeatureFlagFetcher(),
 		nil, "branch", "commit")
 
 	req, err := http.NewRequest("GET", "/", nil)
@@ -48,7 +47,6 @@ func (suite *HealthSuite) TestHealthHandlerDBFailure() {
 	suite.Error(badDb.RawQuery("BLARGH").Exec())
 
 	handler := NewHealthHandler(suite.AppContextForTest(),
-		suite.HandlerConfig().FeatureFlagFetcher(),
 		nil, "branch", "commit")
 
 	req, err := http.NewRequest("GET", "/", nil)

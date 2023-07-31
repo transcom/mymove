@@ -8,7 +8,6 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
-	"github.com/transcom/mymove/pkg/services"
 )
 
 func redisHealthCheck(pool *redis.Pool, logger *zap.Logger) error {
@@ -41,7 +40,7 @@ func healthCheckError(appCtx appcontext.AppContext, w http.ResponseWriter, data 
 
 // NewHealthHandler creates a http.HandlerFunc for a health endpoint.
 // If redisPool is nil, redis health will not be checked
-func NewHealthHandler(appCtx appcontext.AppContext, featureFlagFetcher services.FeatureFlagFetcher, redisPool *redis.Pool, gitBranch string, gitCommit string) http.HandlerFunc {
+func NewHealthHandler(appCtx appcontext.AppContext, redisPool *redis.Pool, gitBranch string, gitCommit string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		data := map[string]interface{}{
@@ -83,15 +82,8 @@ func NewHealthHandler(appCtx appcontext.AppContext, featureFlagFetcher services.
 				}
 				data["redis"] = true
 			}
-
-			flag, err := featureFlagFetcher.GetFlag(r.Context(), appCtx.Logger(),
-				"health", "basic", map[string]string{})
-			if err != nil {
-				appCtx.Logger().Warn("Cannot fetch feature flag in health handler", zap.Error(err))
-			} else {
-				data["basicFlagMatch"] = flag.Match
-			}
 		}
+
 		newEncoderErr := json.NewEncoder(w).Encode(data)
 		if newEncoderErr != nil {
 			appCtx.Logger().Error("Failed encoding health check response", zap.Error(newEncoderErr))

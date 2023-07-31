@@ -205,8 +205,7 @@ func mountHealthRoute(appCtx appcontext.AppContext, redisPool *redis.Pool,
 	routingConfig *Config, site chi.Router) {
 	requestLoggerMiddleware := middleware.RequestLogger()
 	healthHandler := handlers.NewHealthHandler(appCtx,
-		routingConfig.HandlerConfig.FeatureFlagFetcher(), redisPool,
-		routingConfig.GitBranch, routingConfig.GitCommit)
+		redisPool, routingConfig.GitBranch, routingConfig.GitCommit)
 	site.Method("GET", "/health", requestLoggerMiddleware(healthHandler))
 }
 

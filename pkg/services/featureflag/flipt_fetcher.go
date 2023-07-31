@@ -3,8 +3,10 @@ package featureflag
 import (
 	"context"
 	"errors"
+	"net"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gofrs/uuid"
 	"go.flipt.io/flipt/rpc/flipt"
@@ -33,7 +35,26 @@ type FliptFetcher struct {
 }
 
 func NewFliptFetcher(config cli.FeatureFlagConfig) (*FliptFetcher, error) {
-	return NewFliptFetcherWithClient(config, nil)
+	// For reasons I do not fully understand, trying to resolve the
+	// service name in AWS ECS results in a panic(!!!) in the default
+	// go resolver. Setting up this custom http client with the custom
+	// resolver settings seems to work. ¯\_(ツ)_/¯
+	//
+	// ahobson - 2023-08-01
+	client := &http.Client{
+		Timeout: time.Second * 5,
+		Transport: &http.Transport{
+			// Inspect the network connection type
+			DialContext: (&net.Dialer{
+				Resolver: &net.Resolver{
+					PreferGo:     true,
+					StrictErrors: false,
+				},
+			}).DialContext,
+		},
+	}
+
+	return NewFliptFetcherWithClient(config, client)
 }
 
 func NewFliptFetcherWithClient(config cli.FeatureFlagConfig, httpClient *http.Client) (*FliptFetcher, error) {
@@ -122,4 +143,8 @@ func (ff *FliptFetcher) GetFlag(ctx context.Context, logger *zap.Logger, entityI
 	featureFlag.Value = result.Value
 
 	return featureFlag, nil
+}
+
+func (ff *FliptFetcher) GetConfig() cli.FeatureFlagConfig {
+	return ff.config
 }
