@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
 	"github.com/tiaguinho/gosoap"
 	"go.uber.org/zap"
 
@@ -56,7 +58,9 @@ SOAP Response:
 </soap:Envelope>
  *******************************************/
 // Date/time value is used in conjunction with the contentUpdatedSinceDateTime column in the getTable method.
-
+type TRDMGetLastTableUpdate interface {
+	GetLastTableUpdate(appCtx appcontext.AppContext, physicalName string, returnContent bool) error
+}
 type getLastTableUpdateReq struct {
 	physicalName  string
 	returnContent bool
@@ -67,15 +71,18 @@ type SoapCaller interface {
 	Call(m string, p gosoap.Params) (res *gosoap.Response, err error)
 }
 
+type getTableResponse struct {
+	GetTableResponseElement getTableResponseElement `xml:"getTableResponseElement"`
+}
+
 // Response XML Struct
-type getLastTableUpdate struct {
+type getTableResponseElement struct {
 	LastUpdate time.Time `xml:"lastUpdate"`
 	RowCount   int       `xml:"rowCount"`
 	StatusCode string    `xml:"statusCode"`
 	Message    string    `xml:"message"`
 	DateTime   time.Time `xml:"dateTime"`
 }
-
 type TACCodes struct {
 	ID        uuid.UUID `json:"id" db:"id"`
 	Tac       string    `json:"tac" db:"tac"`
@@ -83,7 +90,30 @@ type TACCodes struct {
 	UpdatedAt time.Time `json:"updated_at" db:"updated_at"`
 }
 
-func GetLastTableUpdate(appCtx appcontext.AppContext, req getLastTableUpdateReq) error {
+func NewTRDMGetLastTableUpdate(physicalName string, returnContent bool, soapClient SoapCaller) TRDMGetLastTableUpdate {
+	return &getLastTableUpdateReq{
+		physicalName:  physicalName,
+		returnContent: returnContent,
+		soapClient:    soapClient,
+	}
+
+}
+
+// FetchAllTACRecords queries and fetches all transportation_accounting_codes
+func fetchAllTACRecords(dbConnection *pop.Connection) ([]TACCodes, error) {
+	var tacCodes []TACCodes
+	query := `Select * from transportation_accounting_codes`
+
+	err := dbConnection.RawQuery(query).All(&tacCodes)
+	if err != nil {
+		return tacCodes, errors.Wrap(err, "Fetch line items query failed")
+	}
+
+	return tacCodes, nil
+
+}
+
+func (d *getLastTableUpdateReq) GetLastTableUpdate(appCtx appcontext.AppContext, physicalName string, returnContent bool) error {
 
 	gosoap.SetCustomEnvelope("soapenv", map[string]string{
 		"xmlns:soapenv": "http://schemas.xmlsoap.org/soap/envelope/",
@@ -92,21 +122,27 @@ func GetLastTableUpdate(appCtx appcontext.AppContext, req getLastTableUpdateReq)
 
 	params := gosoap.Params{
 		"TRDM": map[string]interface{}{
-			"physicalName":  req.physicalName,
-			"returnContent": req.returnContent,
+			"physicalName":  physicalName,
+			"returnContent": returnContent,
 		},
 	}
-	res, err := req.soapClient.Call("ProcessRequest", params)
+	res, err := d.soapClient.Call("ProcessRequest", params)
 	if err != nil {
 		return fmt.Errorf("call error: %s", err.Error())
 	}
 
-	var r getLastTableUpdate
+	var r getTableResponse
 	err = res.Unmarshal(&r)
 
-	if r.RowCount != 0 {
-		if r.LastUpdate != time.Now() {
-			return nil
+	if r.GetTableResponseElement.RowCount != 0 {
+		tacCodes, dbError := fetchAllTACRecords(appCtx.DB())
+		if dbError != nil {
+			return fmt.Errorf(err.Error())
+		}
+		for _, tacCode := range tacCodes {
+			if tacCode.UpdatedAt != r.GetTableResponseElement.LastUpdate {
+				return nil
+			}
 		}
 	}
 
@@ -117,19 +153,3 @@ func GetLastTableUpdate(appCtx appcontext.AppContext, req getLastTableUpdateReq)
 
 	return nil
 }
-
-// FetchAllTACRecords queries and fetches all transportation_accounting_codes
-// func fetchAllTACRecords(dbConnection *pop.Connection) (TACCodes, error) {
-
-// 	var tacCodes TACCodes
-
-// 	query := `Select * from transportation_accounting_codes`
-
-// 	err := dbConnection.RawQuery(query).All(&tacCodes)
-// 	if err != nil {
-// 		return tacCodes, errors.Wrap(err, "Fetch line items query failed")
-// 	}
-
-// 	return tacCodes, nil
-
-// }
