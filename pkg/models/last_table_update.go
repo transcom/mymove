@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/gofrs/uuid"
 	"github.com/tiaguinho/gosoap"
 	"go.uber.org/zap"
 
@@ -75,6 +76,13 @@ type getLastTableUpdate struct {
 	DateTime   time.Time `xml:"dateTime"`
 }
 
+type TACCodes struct {
+	ID        uuid.UUID `json:"id" db:"id"`
+	Tac       string    `json:"tac" db:"tac"`
+	CreatedAt time.Time `json:"created_at" db:"created_at"`
+	UpdatedAt time.Time `json:"updated_at" db:"updated_at"`
+}
+
 func GetLastTableUpdate(appCtx appcontext.AppContext, req getLastTableUpdateReq) error {
 
 	gosoap.SetCustomEnvelope("soapenv", map[string]string{
@@ -109,3 +117,19 @@ func GetLastTableUpdate(appCtx appcontext.AppContext, req getLastTableUpdateReq)
 
 	return nil
 }
+
+// FetchAllTACRecords queries and fetches all transportation_accounting_codes
+// func fetchAllTACRecords(dbConnection *pop.Connection) (TACCodes, error) {
+
+// 	var tacCodes TACCodes
+
+// 	query := `Select * from transportation_accounting_codes`
+
+// 	err := dbConnection.RawQuery(query).All(&tacCodes)
+// 	if err != nil {
+// 		return tacCodes, errors.Wrap(err, "Fetch line items query failed")
+// 	}
+
+// 	return tacCodes, nil
+
+// }
