@@ -41,7 +41,9 @@ describe('EstimatedIncentiveDetails component', () => {
     expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('$8,765 is your estimated incentive');
 
     expect(
-      screen.getByText("That's about how much you could earn for moving your PPM, based on what you've entered:"),
+      screen.getByText(
+        'This is an estimate of how much you could earn by moving your PPM, based on what you have entered:',
+      ),
     ).toBeInTheDocument();
 
     const incentiveListItems = screen.getAllByRole('listitem');
