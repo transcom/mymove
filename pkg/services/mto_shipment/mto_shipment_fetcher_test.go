@@ -303,8 +303,12 @@ func (suite *MTOShipmentServiceSuite) TestFindMTOShipment() {
 	// Test successful fetch
 	suite.Run("Returns a shipment successfully with correct ID", func() {
 		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), nil, nil)
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			OfficeUserID:    uuid.Must(uuid.NewV4()),
+		})
 
-		fetchedShipment, err := FindShipment(suite.AppContextForTest(), shipment.ID)
+		fetchedShipment, err := FindShipment(session, shipment.ID)
 		suite.NoError(err)
 		suite.Equal(shipment.ID, fetchedShipment.ID)
 	})
@@ -313,8 +317,12 @@ func (suite *MTOShipmentServiceSuite) TestFindMTOShipment() {
 	suite.Run("Returns not found error when shipment id doesn't exist", func() {
 		shipmentID := uuid.Must(uuid.NewV4())
 		expectedError := apperror.NewNotFoundError(shipmentID, "while looking for shipment")
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			OfficeUserID:    uuid.Must(uuid.NewV4()),
+		})
 
-		mtoShipment, err := FindShipment(suite.AppContextForTest(), shipmentID)
+		mtoShipment, err := FindShipment(session, shipmentID)
 
 		suite.Nil(mtoShipment)
 		suite.Equalf(err, expectedError, "while looking for shipment")
