@@ -2,13 +2,8 @@ package internalapi_test
 
 import (
 	"bytes"
-	// "encoding/json"
 	"fmt"
-	"io/ioutil"
-
-	// "log"
-
-	// "mime/multipart"
+	"io"
 	"net/http"
 	"net/http/httptest"
 
@@ -18,26 +13,12 @@ import (
 )
 
 func (suite *InternalAPISuite) TestUpdateMTOShipment() {
-	type ShipmentUpdate struct {
-		CustomerRemarks string `json:"estimated_weight"`
-		ShipmentType    string `json:"shipment_type"`
-	}
-
 	setUpRequestBody := func(shipment models.MTOShipment) *bytes.Buffer {
-		// shipmentUpdateJson := ShipmentUpdate{
-		// 	CustomerRemarks: "handle with care",
-		// 	ShipmentType:    string(shipment.ShipmentType),
-		// }
-
-		// var buf bytes.Buffer
-		// err := json.NewEncoder(&buf).Encode(shipmentUpdateJson)
-		// if err != nil {
-		// 	log.Fatal(err)
-		// }
 		jsonBody := []byte(fmt.Sprintf(`{"customerRemarks": "hello, server!", "shipmentType": "%s"}`, shipment.ShipmentType))
 		bodyBuffer := bytes.NewBuffer(jsonBody)
 		return bodyBuffer
 	}
+
 	suite.Run("Unauthorized mto shipment update by another service member", func() {
 		shipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
 
@@ -54,7 +35,7 @@ func (suite *InternalAPISuite) TestUpdateMTOShipment() {
 
 		rr := httptest.NewRecorder()
 		suite.SetupSiteHandler().ServeHTTP(rr, req)
-		resBody, err := ioutil.ReadAll(rr.Body)
+		resBody, err := io.ReadAll(rr.Body)
 		if err != nil {
 			fmt.Printf("client: could not read response body: %s\n", err)
 		}
