@@ -3,28 +3,44 @@ package telemetry
 import (
 	"net/http"
 
-	"github.com/felixge/httpsnoop"
-	"github.com/go-chi/chi/v5"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric"
-	"go.opentelemetry.io/otel/semconv/v1.13.0/httpconv"
-	semconv "go.opentelemetry.io/otel/semconv/v1.17.0"
+	semconv "go.opentelemetry.io/otel/semconv/v1.20.0"
+	"go.opentelemetry.io/otel/semconv/v1.20.0/httpconv"
 	"go.uber.org/zap"
 )
 
 type RequestTelemetry struct {
-	requestCounter         metric.Int64Counter
-	serverLatencyHistogram metric.Float64Histogram
+	requestCounter metric.Int64Counter
 }
 
-const requestTelemetryVersion = "0.1"
+const (
+	RequestTelemetryName    = "github.com/transcom/mymove/request"
+	RequestTelemetryVersion = "0.1"
+)
 
+// NewRequestTelemetry provides a way for the request logger to
+// provide stats. If we want accurate request counts with dimensions,
+// this seems to be the best way to do it
+//
+// # According to the cloudwatch concepts documentation
+//
+// https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/cloudwatch_concepts.html
+//
+//	CloudWatch treats each unique combination of dimensions as a
+//	separate metric, even if the metrics have the same metric name.
+//
+// This means if we try to use the "Sample count" statistic in cloud
+// watch, it will count across all dimensions. It doesn't seem
+// possible to get the count without dimensions.
+//
+// Increment a request count with the same dimensions
 func NewRequestTelemetry(logger *zap.Logger) *RequestTelemetry {
 	meterProvider := otel.GetMeterProvider()
 
-	requestMeter := meterProvider.Meter("github.com/transcom/mymove/request",
-		metric.WithInstrumentationVersion(requestTelemetryVersion))
+	requestMeter := meterProvider.Meter(RequestTelemetryName,
+		metric.WithInstrumentationVersion(RequestTelemetryVersion))
 
 	requestCounter, err := requestMeter.Int64Counter("http.server.request_count",
 		metric.WithDescription("Count of http requests"),
@@ -34,27 +50,18 @@ func NewRequestTelemetry(logger *zap.Logger) *RequestTelemetry {
 		logger.Error("Error registering request counter", zap.Error(err))
 		return nil
 	}
-	serverLatencyHistogram, err := requestMeter.Float64Histogram("http.server.duration",
-		metric.WithDescription("Duration of request in seconds"),
-		metric.WithUnit("s"),
-	)
-	if err != nil {
-		logger.Error("Error registering latency histogram", zap.Error(err))
-		return nil
-	}
 
 	return &RequestTelemetry{
-		requestCounter:         requestCounter,
-		serverLatencyHistogram: serverLatencyHistogram,
+		requestCounter: requestCounter,
 	}
 }
 
 var allowedHTTPRequestAttributes = map[attribute.Key]bool{
-	semconv.HTTPMethodKey:  true,
-	semconv.HTTPSchemeKey:  true,
-	semconv.HTTPFlavorKey:  true,
-	semconv.HTTPTargetKey:  true,
-	semconv.NetHostNameKey: true,
+	semconv.HTTPMethodKey:     true,
+	semconv.HTTPRouteKey:      true,
+	semconv.HTTPSchemeKey:     true,
+	semconv.HTTPStatusCodeKey: true,
+	semconv.NetHostNameKey:    true,
 }
 
 func allowedHTTPRequestAttributeFilter(kv attribute.KeyValue) bool {
@@ -62,10 +69,11 @@ func allowedHTTPRequestAttributeFilter(kv attribute.KeyValue) bool {
 	return ok
 }
 
-func (rt *RequestTelemetry) HandleRequest(r *http.Request, metrics httpsnoop.Metrics) {
-	serverAttributes := httpconv.ServerRequest(r.Host, r)
+func (rt *RequestTelemetry) IncrementRequestCount(r *http.Request, routePattern string, statusCode int) {
 
+	serverAttributes := httpconv.ServerRequest(r.Host, r)
 	metricAttributes := []attribute.KeyValue{}
+
 	for i := range serverAttributes {
 		attr := serverAttributes[i]
 		if allowedHTTPRequestAttributeFilter(attr) {
@@ -73,23 +81,15 @@ func (rt *RequestTelemetry) HandleRequest(r *http.Request, metrics httpsnoop.Met
 		}
 	}
 
-	routeStr := ""
-	// this returns a value as long as it is called after the
-	// ServeHTTP call and this is called inside middleware
-	chiRouteContext := chi.RouteContext(r.Context())
-	if chiRouteContext != nil {
-		routeStr = chiRouteContext.RoutePattern()
+	if routePattern != "" {
+		metricAttributes = append(metricAttributes, semconv.HTTPRoute(routePattern))
 	}
 
-	if routeStr != "" {
+	if statusCode > 0 {
 		metricAttributes = append(metricAttributes,
-			semconv.HTTPRoute(routeStr))
+			semconv.HTTPStatusCode(statusCode))
 	}
-
-	metricAttributes = append(metricAttributes,
-		semconv.HTTPStatusCode(metrics.Code))
 	o := metric.WithAttributes(metricAttributes...)
 
 	rt.requestCounter.Add(r.Context(), 1, o)
-	rt.serverLatencyHistogram.Record(r.Context(), metrics.Duration.Seconds(), o)
 }
