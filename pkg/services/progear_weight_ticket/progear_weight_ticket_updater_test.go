@@ -16,10 +16,15 @@ import (
 
 func (suite *ProgearWeightTicketSuite) TestUpdateProgearWeightTicket() {
 	setupForTest := func(appCtx appcontext.AppContext, overrides *models.ProgearWeightTicket, hasdocFiles bool) *models.ProgearWeightTicket {
-		serviceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
+		// serviceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
 		ppmShipment := factory.BuildMinimalPPMShipment(suite.DB(), nil, nil)
+		serviceMember := ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
 
 		document := factory.BuildDocumentLinkServiceMember(suite.DB(), serviceMember)
+
+		// session := &auth.Session{
+		// 	ServiceMemberID: serviceMemberID,
+		// }
 
 		now := time.Now()
 		if hasdocFiles {
@@ -68,6 +73,7 @@ func (suite *ProgearWeightTicketSuite) TestUpdateProgearWeightTicket() {
 		updater := NewCustomerProgearWeightTicketUpdater()
 
 		updatedProgearWeightTicket, err := updater.UpdateProgearWeightTicket(suite.AppContextForTest(), badProgearWeightTicket, "")
+		// updatedProgearWeightTicket, err := updater.UpdateProgearWeightTicket(suite.AppContextWithSessionForTest(session), badProgearWeightTicket, "")
 
 		suite.Nil(updatedProgearWeightTicket)
 

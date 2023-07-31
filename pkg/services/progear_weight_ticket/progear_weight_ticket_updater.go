@@ -43,6 +43,11 @@ func (f *progearWeightTicketUpdater) UpdateProgearWeightTicket(appCtx appcontext
 		return nil, apperror.NewPreconditionFailedError(originalProgearWeightTicket.ID, nil)
 	}
 
+	//auth check to verify progear ticket belongs to the correct service member
+	if progearWeightTicket.Document.ServiceMemberID != appCtx.Session().ServiceMemberID {
+		return nil, apperror.NewNotFoundError(progearWeightTicket.ID, "Progear weight ticket not found for this service member")
+	}
+
 	mergedProgearWeightTicket := mergeProgearWeightTicket(progearWeightTicket, *originalProgearWeightTicket)
 
 	// validate updated model
