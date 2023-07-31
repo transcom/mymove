@@ -123,7 +123,7 @@ func getClientCert(request *http.Request) *x509.Certificate {
 
 // Request OCSP response from server.
 // Returns error if the server can't get the certificate
-func sendOCSPRequestAndGetResponse(ocspServer string, request *http.Request, issuerCert *x509.Certificate) (*ocsp.Response, error) {
+func getOCSPResponse(ocspServer string, request *http.Request, issuerCert *x509.Certificate) (*ocsp.Response, error) {
 	var ocspRead = io.ReadAll
 
 	var httpClient = &http.Client{
@@ -168,7 +168,7 @@ func certRevokedCheck(rawCerts [][]byte, verifiedChains [][]*x509.Certificate) e
 	var req *http.Request
 	cert := verifiedChains[0][0]       // first argument verifies the client cert, second index 0 is the client cert
 	issuerCert := verifiedChains[0][1] // second index of 1 is the issuer of the cert
-	ocspResponse, err := sendOCSPRequestAndGetResponse(cert.OCSPServer[0], req, issuerCert)
+	ocspResponse, err := getOCSPResponse(cert.OCSPServer[0], req, issuerCert)
 	if err != nil {
 		return err // the revocation list was note checked and an error was encountered.
 	}
