@@ -63,38 +63,44 @@ export class MovingInfo extends Component {
                 icon="weight-hanging"
                 headline={`You can move ${formatWeight(entitlementWeight)} in this move.`}
               >
-                <p>You&apos;ll have to pay for any excess weight the government moves.</p>
+                <p>
+                  You will have to pay for any excess weight above this allowance, so work hard to make sure you stay
+                  within your weight limit.
+                </p>
               </IconSection>
               <IconSection icon="pencil-alt" headline="You don't need to get the details perfect.">
                 <p>
-                  After you submit this information, you&apos;ll talk to a move counselor. They will verify your choices
-                  and help identify more complicated situations.
+                  After you submit this information, you&apos;ll talk to a Customer Care Representative. They will
+                  verify your choices and help identify more complicated situations.
                 </p>
                 <p>
-                  If you use movers, they will be your point of contact throughout your move and can also help you make
-                  changes to your shipments.
+                  The Customer Care Representative will be your point of contact throughout your move and can also help
+                  you make changes to your shipment.
                 </p>
               </IconSection>
-              <IconSection icon="truck-moving" headline="If you use movers, they will:">
+              <IconSection icon="truck-moving" headline="Your Move Manager will:">
                 <div className={styles.IconSectionList}>
                   <ul>
                     <li>Help estimate how much your belongings weigh</li>
                     <li>Set pack and pickup dates based on your preferred pickup date</li>
-                    <li>Contact you after you talk to a move counselor</li>
                     <li>Be your main point of contact during your move</li>
                   </ul>
                 </div>
               </IconSection>
-              <IconSection icon="car" headline="It's common to move some things yourself.">
+              <IconSection icon="car" headline="You still have the option to move some of your belongings yourself.">
                 <p>
-                  Most people have professionals move most of their things, but handle a few important things
-                  themselves.
+                  Most people utilize a professional moving company to pack, pick-up and deliver the majority of their
+                  personal property and move a few important or necessary items themselves. This is called a partial
+                  Personally Procured Move (PPM).
                 </p>
               </IconSection>
-              <IconSection icon="hand-holding-usd" headline="You can get paid for things you move yourself.">
+              <IconSection
+                icon="hand-holding-usd"
+                headline="You can get paid for any household goods you move yourself."
+              >
                 <p>
-                  The government will pay you for moving belongings that you document by weight. (This is a PPM, or
-                  DITY.)
+                  Remember to obtain and submit documents to the government to verify the weight of your PPM shipment in
+                  order to receive your payment.
                 </p>
               </IconSection>
             </SectionWrapper>

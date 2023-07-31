@@ -14,8 +14,8 @@ describe('SubmitMoveForm component', () => {
 
   it('renders the signature and date inputs', () => {
     const { getByLabelText } = render(<SubmitMoveForm {...testProps} />);
-    expect(getByLabelText('Signature')).toBeInTheDocument();
-    expect(getByLabelText('Signature')).toBeRequired();
+    expect(getByLabelText('SIGNATURE')).toBeInTheDocument();
+    expect(getByLabelText('SIGNATURE')).toBeRequired();
     expect(getByLabelText('Date')).toBeInTheDocument();
     expect(getByLabelText('Date')).toBeDisabled();
   });
@@ -34,7 +34,7 @@ describe('SubmitMoveForm component', () => {
   it('submits the form when its valid', async () => {
     const { getByLabelText, getByTestId } = render(<SubmitMoveForm {...testProps} />);
 
-    const signatureInput = getByLabelText('Signature');
+    const signatureInput = getByLabelText('SIGNATURE');
     const submitBtn = getByTestId('wizardCompleteButton');
 
     await userEvent.type(signatureInput, 'My Name');
