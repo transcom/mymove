@@ -704,6 +704,14 @@ func BuildOriginSITServiceItems(db *pop.Connection, move models.Move, shipment m
 				Reason:        &reason,
 			},
 		},
+		{
+			Model: models.Address{},
+			Type:  &Addresses.SITOriginHHGActualAddress,
+		},
+		{
+			Model: models.Address{},
+			Type:  &Addresses.SITOriginHHGOriginalAddress,
+		},
 	}, nil)
 
 	doasit := BuildRealMTOServiceItemWithAllDeps(db, models.ReServiceCodeDOASIT, move, shipment, []Customization{
@@ -735,6 +743,14 @@ func BuildOriginSITServiceItems(db *pop.Connection, move models.Move, shipment m
 				SITPostalCode: &postalCode,
 				Reason:        &reason,
 			},
+		},
+		{
+			Model: models.Address{},
+			Type:  &Addresses.SITOriginHHGActualAddress,
+		},
+		{
+			Model: models.Address{},
+			Type:  &Addresses.SITOriginHHGOriginalAddress,
 		},
 	}, nil)
 	return []models.MTOServiceItem{dofsit, doasit, dopsit, dosfsc}
@@ -786,6 +802,14 @@ func BuildDestSITServiceItems(db *pop.Connection, move models.Move, shipment mod
 				Reason:           &reason,
 			},
 		},
+		{
+			Model: models.Address{},
+			Type:  &Addresses.SITDestinationFinalAddress,
+		},
+		{
+			Model: models.Address{},
+			Type:  &Addresses.SITDestinationOriginalAddress,
+		},
 	}, nil)
 
 	ddsfsc := BuildRealMTOServiceItemWithAllDeps(db, models.ReServiceCodeDDSFSC, move, shipment, []Customization{
@@ -795,6 +819,14 @@ func BuildDestSITServiceItems(db *pop.Connection, move models.Move, shipment mod
 				SITPostalCode: &postalCode,
 				Reason:        &reason,
 			},
+		},
+		{
+			Model: models.Address{},
+			Type:  &Addresses.SITDestinationFinalAddress,
+		},
+		{
+			Model: models.Address{},
+			Type:  &Addresses.SITDestinationOriginalAddress,
 		},
 	}, nil)
 	return []models.MTOServiceItem{ddfsit, ddasit, dddsit, ddsfsc}
