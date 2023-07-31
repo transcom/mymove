@@ -78,6 +78,7 @@ describe('EditOrders Page', () => {
       },
       moves: ['testMove'],
     },
+    currentMove: { status: 'DRAFT' },
     existingUploads: [
       {
         id: '123',
@@ -99,6 +100,22 @@ describe('EditOrders Page', () => {
 
     const editOrdersHeader = await screen.findByRole('heading', { name: 'Edit Orders:', level: 2 });
     expect(editOrdersHeader).toBeInTheDocument();
+  });
+
+  it('delete button visible for orders when move is in draft state', async () => {
+    render(<EditOrders {...testProps} />);
+
+    const deleteButton = await screen.findByText('Delete');
+
+    expect(deleteButton).toBeInTheDocument();
+  });
+
+  it('no option to delete uploaded orders when move is submitted', async () => {
+    testProps.currentMove.status = 'SUBMITTED';
+
+    render(<EditOrders {...testProps} />);
+
+    expect(screen.queryByText('Delete')).toBeNull();
   });
 
   it('goes back to the previous page when the cancel button is clicked', async () => {
