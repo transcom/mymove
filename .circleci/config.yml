@@ -259,15 +259,19 @@ executors:
           password: $DOCKERHUB_PASSWORD
 
 commands:
-  # creates a .go-version file which can be used for cache keys specific to golang
   create_dot_go_version:
+    description: "Creates a .go-version file (if needed) which can be used for cache keys specific to golang"
     steps:
       - run:
           name: Create a .go-version file
           command: |
-            GO_VERSION=$(awk '/golang/ { print $2 }' .tool-versions)
-            echo "Creating .go-version using version ${GO_VERSION}"
-            echo $GO_VERSION > .go-version
+            if [ -f ".go-version" ]; then
+              echo ".go-version already exists, no need to re-create"
+            else
+              GO_VERSION=$(awk '/golang/ { print $2 }' .tool-versions)
+              echo "Creating .go-version using version ${GO_VERSION}"
+              echo $GO_VERSION > .go-version
+            fi
 
   restore_cache_for_go:
     steps:
