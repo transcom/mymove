@@ -623,24 +623,26 @@ func (g ghcPaymentRequestInvoiceGenerator) createLoaSegments(orders models.Order
 		AgencyQualifierCode: agencyQualifierCode,
 	}
 
-	fa2 := edisegment.FA2{
+	// May have multiple FA2 segments: TAC, SAC (optional), and many long LOA values
+	var fa2s []edisegment.FA2
+
+	// TAC
+	fa2TAC := edisegment.FA2{
 		BreakdownStructureDetailCode: "TA",
 		FinancialInformationCode:     tac,
 	}
+	fa2s = append(fa2s, fa2TAC)
 
-	if sac == "" {
-
-		return fa1, []edisegment.FA2{fa2}, nil
-
+	// SAC (optional)
+	if sac != "" {
+		fa2SAC := edisegment.FA2{
+			BreakdownStructureDetailCode: "ZZ",
+			FinancialInformationCode:     sac,
+		}
+		fa2s = append(fa2s, fa2SAC)
 	}
 
-	fa2sac := edisegment.FA2{
-		BreakdownStructureDetailCode: "ZZ",
-		FinancialInformationCode:     sac,
-	}
-
-	return fa1, []edisegment.FA2{fa2, fa2sac}, nil
-
+	return fa1, fa2s, nil
 }
 
 func (g ghcPaymentRequestInvoiceGenerator) fetchPaymentServiceItemParam(appCtx appcontext.AppContext, serviceItemID uuid.UUID, key models.ServiceItemParamName) (models.PaymentServiceItemParam, error) {
