@@ -3,7 +3,6 @@ package internalapi_test
 import (
 	"bytes"
 	"fmt"
-	"io"
 	"net/http"
 	"net/http/httptest"
 
@@ -35,12 +34,6 @@ func (suite *InternalAPISuite) TestUpdateMTOShipment() {
 
 		rr := httptest.NewRecorder()
 		suite.SetupSiteHandler().ServeHTTP(rr, req)
-		resBody, err := io.ReadAll(rr.Body)
-		if err != nil {
-			fmt.Printf("client: could not read response body: %s\n", err)
-		}
-
-		fmt.Printf("resbody: %s\n", resBody)
 
 		suite.Equal(http.StatusNotFound, rr.Code)
 	})
