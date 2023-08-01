@@ -134,6 +134,10 @@ func (d *getLastTableUpdateReq) GetLastTableUpdate(appCtx appcontext.AppContext,
 	var r getTableResponse
 	err = res.Unmarshal(&r)
 
+	if err != nil {
+		return fmt.Errorf("unmarshal error: %s", err.Error())
+	}
+
 	if r.GetTableResponseElement.RowCount != 0 {
 		tacCodes, dbError := fetchAllTACRecords(appCtx.DB())
 		if dbError != nil {
@@ -146,9 +150,6 @@ func (d *getLastTableUpdateReq) GetLastTableUpdate(appCtx appcontext.AppContext,
 		}
 	}
 
-	if err != nil {
-		return fmt.Errorf("unmarshal error: %s", err.Error())
-	}
 	appCtx.Logger().Debug("getLastTableUpdate result", zap.Any("processRequestResponse", r))
 
 	return nil
