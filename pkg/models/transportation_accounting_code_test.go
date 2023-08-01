@@ -4,6 +4,7 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -75,11 +76,9 @@ func TestTransportationAccountingCodeMapToInternal(t *testing.T) {
 	if mappedTacFileRecord.TAC != tacFileRecord.TRNSPRTN_ACNT_CD {
 		t.Errorf("Expected TAC to be '%s', got '%s'", tacFileRecord.TRNSPRTN_ACNT_CD, mappedTacFileRecord.TAC)
 	}
-	"github.com/transcom/mymove/pkg/factory"
-	"github.com/transcom/mymove/pkg/models"
-)
+}
 
-func (suite *ModelSuite) Test_CanSaveValidTac() {
+func (suite *ModelSuite) TestCanSaveValidTac() {
 	tac := models.TransportationAccountingCode{
 		TAC: "Tac1",
 	}
@@ -87,7 +86,7 @@ func (suite *ModelSuite) Test_CanSaveValidTac() {
 	suite.MustCreate(&tac)
 }
 
-func (suite *ModelSuite) Test_InvalidTac() {
+func (suite *ModelSuite) TestInvalidTac() {
 	tac := models.TransportationAccountingCode{}
 
 	expErrors := map[string][]string{
@@ -100,7 +99,7 @@ func (suite *ModelSuite) Test_InvalidTac() {
 	suite.NoError(err)
 }
 
-func (suite *ModelSuite) Test_CanSaveAndFetchTac() {
+func (suite *ModelSuite) TestCanSaveAndFetchTac() {
 	// Can save
 	tac := factory.BuildFullTransportationAccountingCode(suite.DB())
 

@@ -9,6 +9,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/stretchr/testify/suite"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/parser/loa"
 	"github.com/transcom/mymove/pkg/testingsuite"
@@ -50,63 +51,63 @@ func (suite *LoaParserSuite) TestParsing() {
 
 	// Do a hard coded check to the first line of data to ensure a 1:1 match to what is expected.
 	firstCode := codes[0]
-	suite.Equal("124641", firstCode.LOA)
-	suite.Equal("97", firstCode.DepartmentID)
-	suite.Equal("", firstCode.TransferDepartmentName)
-	suite.Equal("4930", firstCode.BasicAppropriationFundID)
-	suite.Equal("AA37", firstCode.TreasurySuffixText)
-	suite.Equal("", firstCode.MajorClaimantName)
-	suite.Equal("6D", firstCode.OperatingAgencyID)
-	suite.Equal("0000", firstCode.AllotmentSerialNumberID)
-	suite.Equal("MZZF0000", firstCode.ProgramElementID)
-	suite.Equal("", firstCode.TaskBudgetSublineText)
-	suite.Equal("", firstCode.DefenseAgencyAllocationRecipientID)
-	suite.Equal("", firstCode.JobOrderName)
-	suite.Equal("", firstCode.SubAllotmentRecipientId)
-	suite.Equal("D0000", firstCode.WorkCenterRecipientName)
-	suite.Equal("", firstCode.MajorReimbursementSourceID)
-	suite.Equal("", firstCode.DetailReimbursementSourceID)
-	suite.Equal("", firstCode.CustomerName)
-	suite.Equal("22NL", firstCode.ObjectClassID)
-	suite.Equal("", firstCode.ServiceSourceID)
-	suite.Equal("", firstCode.SpecialInterestID)
-	suite.Equal("MA1MN4", firstCode.BudgetAccountClassificationName)
-	suite.Equal("FRT1MNUSAF7790", firstCode.DocumentID)
-	suite.Equal("", firstCode.ClassReferenceID)
-	suite.Equal("011000", firstCode.InstallationAccountingActivityID)
-	suite.Equal("", firstCode.LocalInstallationID)
-	suite.Equal("", firstCode.FMSTransactionID)
-	suite.Equal("CONUS ENTRY", firstCode.DescriptionText)
-	suite.Equal(time.Date(2006, 10, 1, 0, 0, 0, 0, time.UTC), firstCode.BeginningDate)
-	suite.Equal(time.Date(2007, 9, 30, 0, 0, 0, 0, time.UTC), firstCode.EndDate)
-	suite.Equal("", firstCode.FunctionalPersonName)
-	suite.Equal("U", firstCode.StatusCode)
-	suite.Equal("", firstCode.HistoryStatusCode)
-	suite.Equal("", firstCode.HouseholdGoodsCode)
-	suite.Equal("DZ", firstCode.OrganizationGroupDefenseFinanceAccountingServiceCode)
-	suite.Equal("", firstCode.UnitIdentificationCode)
-	suite.Equal("", firstCode.TransactionID)
-	suite.Equal("", firstCode.SubordinateAccountID)
-	suite.Equal("", firstCode.BusinessEventTypeCode)
-	suite.Equal("", firstCode.FundTypeFlagCode)
-	suite.Equal("", firstCode.BudgetLineItemID)
-	suite.Equal("", firstCode.SecurityCooperationImplementingAgencyCode)
-	suite.Equal("", firstCode.SecurityCooperationDesignatorID)
-	suite.Equal("", firstCode.SecurityCooperationLineItemID)
-	suite.Equal("", firstCode.AgencyDisbursingCode)
-	suite.Equal("", firstCode.AgencyAccountingCode)
-	suite.Equal("", firstCode.FundCenterID)
-	suite.Equal("", firstCode.CostCenterID)
-	suite.Equal("", firstCode.ProjectTaskID)
-	suite.Equal("", firstCode.ActivityID)
-	suite.Equal("", firstCode.CostCode)
-	suite.Equal("", firstCode.WorkOrderID)
-	suite.Equal("", firstCode.FunctionalAreaID)
-	suite.Equal("", firstCode.SecurityCooperationCustomerCode)
-	suite.Equal(0, firstCode.EndingFiscalYear)
-	suite.Equal(0, firstCode.BeginningFiscalYear)
-	suite.Equal("", firstCode.BudgetRestrictionCode)
-	suite.Equal("", firstCode.BudgetSubActivityCode)
+	suite.Equal(124641, *firstCode.LoaSysID)
+	suite.Equal("97", *firstCode.LoaDptID)
+	suite.Equal("", *firstCode.LoaTnsfrDptNm)
+	suite.Equal("4930", *firstCode.LoaBafID)
+	suite.Equal("AA37", *firstCode.LoaTrsySfxTx)
+	suite.Equal("", *firstCode.LoaMajClmNm)
+	suite.Equal("6D", *firstCode.LoaOpAgncyID)
+	suite.Equal("0000", *firstCode.LoaAlltSnID)
+	suite.Equal("MZZF0000", *firstCode.LoaPgmElmntID)
+	suite.Equal("", *firstCode.LoaTskBdgtSblnTx)
+	suite.Equal("", *firstCode.LoaDfAgncyAlctnRcpntID)
+	suite.Equal("", *firstCode.LoaJbOrdNm)
+	suite.Equal("", *firstCode.LoaSbaltmtRcpntID)
+	suite.Equal("D0000", *firstCode.LoaWkCntrRcpntNm)
+	suite.Equal("", *firstCode.LoaMajRmbsmtSrcID)
+	suite.Equal("", *firstCode.LoaDtlRmbsmtSrcID)
+	suite.Equal("", *firstCode.LoaCustNm)
+	suite.Equal("22NL", *firstCode.LoaObjClsID)
+	suite.Equal("", *firstCode.LoaSrvSrcID)
+	suite.Equal("", *firstCode.LoaSpclIntrID)
+	suite.Equal("MA1MN4", *firstCode.LoaBdgtAcntClsNm)
+	suite.Equal("FRT1MNUSAF7790", *firstCode.LoaDocID)
+	suite.Equal("", *firstCode.LoaClsRefID)
+	suite.Equal("011000", *firstCode.LoaInstlAcntgActID)
+	suite.Equal("", *firstCode.LoaLclInstlID)
+	suite.Equal("", *firstCode.LoaFmsTrnsactnID)
+	suite.Equal("CONUS ENTRY", *firstCode.LoaDscTx)
+	suite.Equal(time.Date(2006, 10, 1, 0, 0, 0, 0, time.UTC), *firstCode.LoaBgnDt)
+	suite.Equal(time.Date(2007, 9, 30, 0, 0, 0, 0, time.UTC), *firstCode.LoaEndDt)
+	suite.Equal("", *firstCode.LoaFnctPrsNm)
+	suite.Equal("U", *firstCode.LoaStatCd)
+	suite.Equal("", *firstCode.LoaHistStatCd)
+	suite.Equal("", *firstCode.LoaHsGdsCd)
+	suite.Equal("DZ", *firstCode.OrgGrpDfasCd)
+	suite.Equal("", *firstCode.LoaUic)
+	suite.Equal("", *firstCode.LoaTrnsnID)
+	suite.Equal("", *firstCode.LoaSubAcntID)
+	suite.Equal("", *firstCode.LoaBetCd)
+	suite.Equal("", *firstCode.LoaFndTyFgCd)
+	suite.Equal("", *firstCode.LoaBgtLnItmID)
+	suite.Equal("", *firstCode.LoaScrtyCoopImplAgncCd)
+	suite.Equal("", *firstCode.LoaScrtyCoopDsgntrCd)
+	suite.Equal("", *firstCode.LoaScrtyCoopLnItmID)
+	suite.Equal("", *firstCode.LoaAgncDsbrCd)
+	suite.Equal("", *firstCode.LoaAgncAcntngCd)
+	suite.Equal("", *firstCode.LoaFndCntrID)
+	suite.Equal("", *firstCode.LoaCstCntrID)
+	suite.Equal("", *firstCode.LoaPrjID)
+	suite.Equal("", *firstCode.LoaActvtyID)
+	suite.Equal("", *firstCode.LoaCstCd)
+	suite.Equal("", *firstCode.LoaWrkOrdID)
+	suite.Equal("", *firstCode.LoaFnclArID)
+	suite.Equal("", *firstCode.LoaScrtyCoopCustCd)
+	suite.Equal(0, *firstCode.LoaEndFyTx)
+	suite.Equal(0, *firstCode.LoaBgFyTx)
+	suite.Equal("", *firstCode.LoaBgtRstrCd)
+	suite.Equal("", *firstCode.LoaBgtSubActCd)
 }
 
 // This test will ensure that the parse function errors on an empty file.
@@ -119,7 +120,7 @@ func (suite *LoaParserSuite) TestEmptyFileContent() {
 }
 
 // There are 57 expected values per line entry. This test will make sure
-// an error is reported if it is not met.
+// an error is reported if it is not met. Utilizing the same TAC test works here.
 func (suite *LoaParserSuite) TestIncorrectNumberOfValuesInLine() {
 	// !Warning, do not touch the format of the byte
 	content := []byte(`Unclassified
@@ -152,75 +153,18 @@ Unclassified`)
 	suite.Error(err)
 }
 
-// This function will test the pruning of all expired TACs when called.
-// TODO: Add factory
-func (suite *LoaParserSuite) TestExpiredTACs() {
+// This function will test that the LineOfAccounting package can properly
+// prune out empty household good codes if so desired
+func (suite *LoaParserSuite) TestPruningEmptyHhgCodes() {
 
-	// Create a loa with an empty household good code
-	emptyHhgLoa := models.LineOfAccountingDesiredFromTRDM{
-		LOA:                                "124641",
-		DepartmentID:                       "97",
-		TransferDepartmentName:             "",
-		BasicAppropriationFundID:           "4930",
-		TreasurySuffixText:                 "AA37",
-		MajorClaimantName:                  "",
-		OperatingAgencyID:                  "6D",
-		AllotmentSerialNumberID:            "0000",
-		ProgramElementID:                   "MZZF0000",
-		TaskBudgetSublineText:              "",
-		DefenseAgencyAllocationRecipientID: "",
-		JobOrderName:                       "",
-		SubAllotmentRecipientId:            "",
-		WorkCenterRecipientName:            "D0000",
-		MajorReimbursementSourceID:         "",
-		DetailReimbursementSourceID:        "",
-		CustomerName:                       "",
-		ObjectClassID:                      "22NL",
-		ServiceSourceID:                    "",
-		SpecialInterestID:                  "",
-		BudgetAccountClassificationName:    "MA1MN4",
-		DocumentID:                         "FRT1MNUSAF7790",
-		ClassReferenceID:                   "",
-		InstallationAccountingActivityID:   "011000",
-		LocalInstallationID:                "",
-		FMSTransactionID:                   "",
-		DescriptionText:                    "CONUS ENTRY",
-		BeginningDate:                      time.Date(2006, 10, 1, 0, 0, 0, 0, time.UTC),
-		EndDate:                            time.Date(2007, 9, 30, 0, 0, 0, 0, time.UTC),
-		FunctionalPersonName:               "",
-		StatusCode:                         "U",
-		HistoryStatusCode:                  "",
-		HouseholdGoodsCode:                 "",
-		OrganizationGroupDefenseFinanceAccountingServiceCode: "DZ",
-		UnitIdentificationCode:                               "",
-		TransactionID:                                        "",
-		SubordinateAccountID:                                 "",
-		BusinessEventTypeCode:                                "",
-		FundTypeFlagCode:                                     "",
-		BudgetLineItemID:                                     "",
-		SecurityCooperationImplementingAgencyCode:            "",
-		SecurityCooperationDesignatorID:                      "",
-		SecurityCooperationLineItemID:                        "",
-		AgencyDisbursingCode:                                 "",
-		AgencyAccountingCode:                                 "",
-		FundCenterID:                                         "",
-		CostCenterID:                                         "",
-		ProjectTaskID:                                        "",
-		ActivityID:                                           "",
-		CostCode:                                             "",
-		WorkOrderID:                                          "",
-		FunctionalAreaID:                                     "",
-		SecurityCooperationCustomerCode:                      "",
-		EndingFiscalYear:                                     0,
-		BeginningFiscalYear:                                  0,
-		BudgetRestrictionCode:                                "",
-		BudgetSubActivityCode:                                "",
-	}
+	dummyLoa := factory.BuildDefaultLineOfAccounting(suite.DB())
+	// Using a zero value for test rather than nil
+	dummyLoa.LoaHsGdsCd = models.StringPointer("")
 
 	// Attempt to prune all expired LOAs
-	parsedLOAs := []models.LineOfAccountingDesiredFromTRDM{emptyHhgLoa}
+	parsedLOAs := []models.LineOfAccounting{dummyLoa}
 	prunedLOAs := loa.PruneEmptyHhgCodes(parsedLOAs)
 
 	// Check that the expired LOA was properly removed
-	suite.NotContains(prunedLOAs, emptyHhgLoa)
+	suite.NotContains(prunedLOAs, dummyLoa)
 }

@@ -10,7 +10,7 @@ import (
 // This struct only applies to the received .txt file.
 // 57 values pulled from TRDM
 type LineOfAccountingTrdmFileRecord struct {
-	LOA_SYS_ID                  string
+	LOA_SYS_ID                  string // Yes, this is a string not an int to stay in line with the matrix. The LineOfAccounting struct uses an int
 	LOA_DPT_ID                  string
 	LOA_TNSFR_DPT_NM            string
 	LOA_BAF_ID                  string

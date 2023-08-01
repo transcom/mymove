@@ -21,10 +21,10 @@ const timeConversionMethod = "2006-01-02 15:04:05"
 // 3. There are 57 values per line, excluding the security classification. Again, to know what these values are refer to note #2.
 // 4. All values are in pipe delimited format.
 // 5. Null values will be present, but it may be desired to filter out LOAs with a null LOA_HS_GDS_CD
-func Parse(file io.Reader) ([]models.LineOfAccountingDesiredFromTRDM, error) {
+func Parse(file io.Reader) ([]models.LineOfAccounting, error) {
 
 	// Init variables
-	var codes []models.LineOfAccountingDesiredFromTRDM
+	var codes []models.LineOfAccounting
 	scanner := bufio.NewScanner(file)
 	var columnHeaders []string
 
@@ -80,12 +80,12 @@ func getFieldNames(obj interface{}) []string {
 }
 
 // Removes all LOAs with an empty HHG code
-func PruneEmptyHhgCodes(codes []models.LineOfAccountingDesiredFromTRDM) []models.LineOfAccountingDesiredFromTRDM {
-	var pruned []models.LineOfAccountingDesiredFromTRDM
+func PruneEmptyHhgCodes(codes []models.LineOfAccounting) []models.LineOfAccounting {
+	var pruned []models.LineOfAccounting
 
 	// If the household goods code is not empty, then it should be appended to the pruned array for return
 	for _, code := range codes {
-		if code.HouseholdGoodsCode != "" {
+		if *code.LoaHsGdsCd != "" {
 			pruned = append(pruned, code)
 		}
 	}
@@ -93,8 +93,8 @@ func PruneEmptyHhgCodes(codes []models.LineOfAccountingDesiredFromTRDM) []models
 	return pruned
 }
 
-// This function handles the heavy lifting for the main parse function. It handles the scanning of every line and conversion into the LineOfAccountingDesiredFromTRDM model.
-func processLines(scanner *bufio.Scanner, columnHeaders []string, codes []models.LineOfAccountingDesiredFromTRDM) ([]models.LineOfAccountingDesiredFromTRDM, error) {
+// This function handles the heavy lifting for the main parse function. It processes every line from the .txt file into a proper struct
+func processLines(scanner *bufio.Scanner, columnHeaders []string, codes []models.LineOfAccounting) ([]models.LineOfAccounting, error) {
 	// Scan every line and parse into the desired Line of Accounting codes
 	for scanner.Scan() {
 		line := scanner.Text()
@@ -111,6 +111,16 @@ func processLines(scanner *bufio.Scanner, columnHeaders []string, codes []models
 
 		values := strings.Split(line, "|")
 		if len(values) != len(columnHeaders) {
+			return nil, errors.New("malformed line in the provided loa file: " + line)
+		}
+
+		// Check that the LOA sys id is not empty
+		if values[0] == "" {
+			return nil, errors.New("malformed line in the provided loa file: " + line)
+		}
+
+		loaSysId, err := strconv.Atoi(values[0])
+		if err != nil {
 			return nil, errors.New("malformed line in the provided loa file: " + line)
 		}
 
@@ -144,64 +154,64 @@ func processLines(scanner *bufio.Scanner, columnHeaders []string, codes []models
 			}
 		}
 
-		code := models.LineOfAccountingDesiredFromTRDM{
-			LOA:                                values[0],
-			DepartmentID:                       values[1],
-			TransferDepartmentName:             values[2],
-			BasicAppropriationFundID:           values[3],
-			TreasurySuffixText:                 values[4],
-			MajorClaimantName:                  values[5],
-			OperatingAgencyID:                  values[6],
-			AllotmentSerialNumberID:            values[7],
-			ProgramElementID:                   values[8],
-			TaskBudgetSublineText:              values[9],
-			DefenseAgencyAllocationRecipientID: values[10],
-			JobOrderName:                       values[11],
-			SubAllotmentRecipientId:            values[12],
-			WorkCenterRecipientName:            values[13],
-			MajorReimbursementSourceID:         values[14],
-			DetailReimbursementSourceID:        values[15],
-			CustomerName:                       values[16],
-			ObjectClassID:                      values[17],
-			ServiceSourceID:                    values[18],
-			SpecialInterestID:                  values[19],
-			BudgetAccountClassificationName:    values[20],
-			DocumentID:                         values[21],
-			ClassReferenceID:                   values[22],
-			InstallationAccountingActivityID:   values[23],
-			LocalInstallationID:                values[24],
-			FMSTransactionID:                   values[25],
-			DescriptionText:                    values[26],
-			BeginningDate:                      beginningDate,
-			EndDate:                            endingDate,
-			FunctionalPersonName:               values[29],
-			StatusCode:                         values[30],
-			HistoryStatusCode:                  values[31],
-			HouseholdGoodsCode:                 values[32],
-			OrganizationGroupDefenseFinanceAccountingServiceCode: values[33],
-			UnitIdentificationCode:                               values[34],
-			TransactionID:                                        values[35],
-			SubordinateAccountID:                                 values[36],
-			BusinessEventTypeCode:                                values[37],
-			FundTypeFlagCode:                                     values[38],
-			BudgetLineItemID:                                     values[39],
-			SecurityCooperationImplementingAgencyCode:            values[40],
-			SecurityCooperationDesignatorID:                      values[41],
-			SecurityCooperationLineItemID:                        values[42],
-			AgencyDisbursingCode:                                 values[43],
-			AgencyAccountingCode:                                 values[44],
-			FundCenterID:                                         values[45],
-			CostCenterID:                                         values[46],
-			ProjectTaskID:                                        values[47],
-			ActivityID:                                           values[48],
-			CostCode:                                             values[49],
-			WorkOrderID:                                          values[50],
-			FunctionalAreaID:                                     values[51],
-			SecurityCooperationCustomerCode:                      values[52],
-			EndingFiscalYear:                                     endingFY,
-			BeginningFiscalYear:                                  beginningFY,
-			BudgetRestrictionCode:                                values[55],
-			BudgetSubActivityCode:                                values[56],
+		code := models.LineOfAccounting{
+			LoaSysID:               &loaSysId,
+			LoaDptID:               &values[1],
+			LoaTnsfrDptNm:          &values[2],
+			LoaBafID:               &values[3],
+			LoaTrsySfxTx:           &values[4],
+			LoaMajClmNm:            &values[5],
+			LoaOpAgncyID:           &values[6],
+			LoaAlltSnID:            &values[7],
+			LoaPgmElmntID:          &values[8],
+			LoaTskBdgtSblnTx:       &values[9],
+			LoaDfAgncyAlctnRcpntID: &values[10],
+			LoaJbOrdNm:             &values[11],
+			LoaSbaltmtRcpntID:      &values[12],
+			LoaWkCntrRcpntNm:       &values[13],
+			LoaMajRmbsmtSrcID:      &values[14],
+			LoaDtlRmbsmtSrcID:      &values[15],
+			LoaCustNm:              &values[16],
+			LoaObjClsID:            &values[17],
+			LoaSrvSrcID:            &values[18],
+			LoaSpclIntrID:          &values[19],
+			LoaBdgtAcntClsNm:       &values[20],
+			LoaDocID:               &values[21],
+			LoaClsRefID:            &values[22],
+			LoaInstlAcntgActID:     &values[23],
+			LoaLclInstlID:          &values[24],
+			LoaFmsTrnsactnID:       &values[25],
+			LoaDscTx:               &values[26],
+			LoaBgnDt:               &beginningDate,
+			LoaEndDt:               &endingDate,
+			LoaFnctPrsNm:           &values[29],
+			LoaStatCd:              &values[30],
+			LoaHistStatCd:          &values[31],
+			LoaHsGdsCd:             &values[32],
+			OrgGrpDfasCd:           &values[33],
+			LoaUic:                 &values[34],
+			LoaTrnsnID:             &values[35],
+			LoaSubAcntID:           &values[36],
+			LoaBetCd:               &values[37],
+			LoaFndTyFgCd:           &values[38],
+			LoaBgtLnItmID:          &values[39],
+			LoaScrtyCoopImplAgncCd: &values[40],
+			LoaScrtyCoopDsgntrCd:   &values[41],
+			LoaScrtyCoopLnItmID:    &values[42],
+			LoaAgncDsbrCd:          &values[43],
+			LoaAgncAcntngCd:        &values[44],
+			LoaFndCntrID:           &values[45],
+			LoaCstCntrID:           &values[46],
+			LoaPrjID:               &values[47],
+			LoaActvtyID:            &values[48],
+			LoaCstCd:               &values[49],
+			LoaWrkOrdID:            &values[50],
+			LoaFnclArID:            &values[51],
+			LoaScrtyCoopCustCd:     &values[52],
+			LoaEndFyTx:             &endingFY,
+			LoaBgFyTx:              &beginningFY,
+			LoaBgtRstrCd:           &values[55],
+			LoaBgtSubActCd:         &values[56],
 		}
 
 		codes = append(codes, code)
