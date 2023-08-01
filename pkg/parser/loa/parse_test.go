@@ -217,7 +217,7 @@ func (suite *LoaParserSuite) TestExpiredTACs() {
 		BudgetSubActivityCode:                                "",
 	}
 
-	// Attempt to prune all expired TACs
+	// Attempt to prune all expired LOAs
 	parsedLOAs := []models.LineOfAccountingDesiredFromTRDM{emptyHhgLoa}
 	prunedLOAs := loa.PruneEmptyHhgCodes(parsedLOAs)
 

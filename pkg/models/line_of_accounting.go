@@ -7,75 +7,75 @@ import (
 )
 
 type LineOfAccounting struct {
-	ID                                                   uuid.UUID `json:"id"`
-	LOA                                                  string    `json:"loa"`
-	CreatedAt                                            time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt                                            time.Time `json:"updated_at" db:"updated_at"`
-	DepartmentID                                         string    `json:"department_id"`
-	TransferDepartmentName                               string    `json:"transfer_department_name"`
-	BasicAppropriationFundID                             string    `json:"basic_appropriation_fund_id"`
-	TreasurySuffixText                                   string    `json:"treasury_suffix_text"`
-	MajorClaimantName                                    string    `json:"major_claimant_name"`
-	OperatingAgencyID                                    string    `json:"operating_agency_id"`
-	AllotmentSerialNumberID                              string    `json:"allotment_serial_number_id"`
-	ProgramElementID                                     string    `json:"program_element_id"`
-	TaskBudgetSublineText                                string    `json:"task_budget_subline_text"`
-	DefenseAgencyAllocationRecipientID                   string    `json:"defense_agency_allocation_recipient_id"`
-	JobOrderName                                         string    `json:"job_order_name"`
-	SubAllotmentRecipientId                              string    `json:"sub_allotment_recipient_id"`
-	WorkCenterRecipientName                              string    `json:"work_center_recipient_name"`
-	MajorReimbursementSourceID                           string    `json:"major_reimbursement_source_id"`
-	DetailReimbursementSourceID                          string    `json:"detail_reimbursement_source_id"`
-	CustomerName                                         string    `json:"customer_name"`
-	ObjectClassID                                        string    `json:"object_class_id"`
-	ServiceSourceID                                      string    `json:"service_source_id"`
-	SpecialInterestID                                    string    `json:"special_interest_id"`
-	BudgetAccountClassificationName                      string    `json:"budget_account_classification_name"`
-	DocumentID                                           string    `json:"document_id"`
-	ClassReferenceID                                     string    `json:"class_reference_id"`
-	InstallationAccountingActivityID                     string    `json:"installation_accounting_activity_id"`
-	LocalInstallationID                                  string    `json:"local_installation_id"`
-	FMSTransactionID                                     string    `json:"fms_transaction_id"`
-	DescriptionText                                      string    `json:"description_text"`
-	BeginningDate                                        time.Time `json:"beginning_date"`
-	EndDate                                              time.Time `json:"end_date"`
-	FunctionalPersonName                                 string    `json:"functional_person_name"`
-	StatusCode                                           string    `json:"status_code"`
-	HistoryStatusCode                                    string    `json:"history_status_code"`
-	HouseholdGoodsCode                                   string    `json:"household_goods_code"`
-	OrganizationGroupDefenseFinanceAccountingServiceCode string    `json:"organization_group_defense_finance_accounting_service_code"`
-	UnitIdentificationCode                               string    `json:"unit_identification_code"`
-	TransactionID                                        string    `json:"transaction_id"`
-	SubordinateAccountID                                 string    `json:"subordinate_account_id"`
-	BusinessEventTypeCode                                string    `json:"business_event_type_code"`
-	FundTypeFlagCode                                     string    `json:"fund_type_flag_code"`
-	BudgetLineItemID                                     string    `json:"budget_line_item_id"`
-	SecurityCooperationImplementingAgencyCode            string    `json:"security_cooperation_implementing_agency_code"`
-	SecurityCooperationDesignatorID                      string    `json:"security_cooperation_designator_id"`
-	SecurityCooperationLineItemID                        string    `json:"security_cooperation_line_item_id"`
-	AgencyDisbursingCode                                 string    `json:"agency_disbursing_code"`
-	AgencyAccountingCode                                 string    `json:"agency_accounting_code"`
-	FundCenterID                                         string    `json:"fund_center_id"`
-	CostCenterID                                         string    `json:"cost_center_id"`
-	ProjectTaskID                                        string    `json:"project_task_id"`
-	ActivityID                                           string    `json:"activity_id"`
-	CostCode                                             string    `json:"cost_code"`
-	WorkOrderID                                          string    `json:"work_order_id"`
-	FunctionalAreaID                                     string    `json:"functional_area_id"`
-	SecurityCooperationCustomerCode                      string    `json:"security_cooperation_customer_code"`
-	EndingFiscalYear                                     int       `json:"ending_fiscal_year"`
-	BeginningFiscalYear                                  int       `json:"beginning_fiscal_year"`
-	BudgetRestrictionCode                                string    `json:"budget_restriction_code"`
-	BudgetSubActivityCode                                string    `json:"budget_sub_activity_code"`
+	ID                     uuid.UUID  `json:"id" db:"id"`
+	LoaSysID               *int       `json:"loa_sys_id" db:"loa_sys_id"`
+	LoaDptID               *string    `json:"loa_dpt_id" db:"loa_dpt_id"`
+	LoaTnsfrDptNm          *string    `json:"loa_tnsfr_dpt_nm" db:"loa_tnsfr_dpt_nm"`
+	LoaBafID               *string    `json:"loa_baf_id" db:"loa_baf_id"`
+	LoaTrsySfxTx           *string    `json:"loa_trsy_sfx_tx" db:"loa_trsy_sfx_tx"`
+	LoaMajClmNm            *string    `json:"loa_maj_clm_nm" db:"loa_maj_clm_nm"`
+	LoaOpAgncyID           *string    `json:"loa_op_agncy_id" db:"loa_op_agncy_id"`
+	LoaAlltSnID            *string    `json:"loa_allt_sn_id" db:"loa_allt_sn_id"`
+	LoaPgmElmntID          *string    `json:"loa_pgm_elmnt_id" db:"loa_pgm_elmnt_id"`
+	LoaTskBdgtSblnTx       *string    `json:"loa_tsk_bdgt_sbln_tx" db:"loa_tsk_bdgt_sbln_tx"`
+	LoaDfAgncyAlctnRcpntID *string    `json:"loa_df_agncy_alctn_rcpnt_id" db:"loa_df_agncy_alctn_rcpnt_id"`
+	LoaJbOrdNm             *string    `json:"loa_jb_ord_nm" db:"loa_jb_ord_nm"`
+	LoaSbaltmtRcpntID      *string    `json:"loa_sbaltmt_rcpnt_id" db:"loa_sbaltmt_rcpnt_id"`
+	LoaWkCntrRcpntNm       *string    `json:"loa_wk_cntr_rcpnt_nm" db:"loa_wk_cntr_rcpnt_nm"`
+	LoaMajRmbsmtSrcID      *string    `json:"loa_maj_rmbsmt_src_id" db:"loa_maj_rmbsmt_src_id"`
+	LoaDtlRmbsmtSrcID      *string    `json:"loa_dtl_rmbsmt_src_id" db:"loa_dtl_rmbsmt_src_id"`
+	LoaCustNm              *string    `json:"loa_cust_nm" db:"loa_cust_nm"`
+	LoaObjClsID            *string    `json:"loa_obj_cls_id" db:"loa_obj_cls_id"`
+	LoaSrvSrcID            *string    `json:"loa_srv_src_id" db:"loa_srv_src_id"`
+	LoaSpclIntrID          *string    `json:"loa_spcl_intr_id" db:"loa_spcl_intr_id"`
+	LoaBdgtAcntClsNm       *string    `json:"loa_bdgt_acnt_cls_nm" db:"loa_bdgt_acnt_cls_nm"`
+	LoaDocID               *string    `json:"loa_doc_id" db:"loa_doc_id"`
+	LoaClsRefID            *string    `json:"loa_cls_ref_id" db:"loa_cls_ref_id"`
+	LoaInstlAcntgActID     *string    `json:"loa_instl_acntg_act_id" db:"loa_instl_acntg_act_id"`
+	LoaLclInstlID          *string    `json:"loa_lcl_instl_id" db:"loa_lcl_instl_id"`
+	LoaFmsTrnsactnID       *string    `json:"loa_fms_trnsactn_id" db:"loa_fms_trnsactn_id"`
+	LoaDscTx               *string    `json:"loa_dsc_tx" db:"loa_dsc_tx"`
+	LoaBgnDt               *time.Time `json:"loa_bgn_dt" db:"loa_bgn_dt"`
+	LoaEndDt               *time.Time `json:"loa_end_dt" db:"loa_end_dt"`
+	LoaFnctPrsNm           *string    `json:"loa_fnct_prs_nm" db:"loa_fnct_prs_nm"`
+	LoaStatCd              *string    `json:"loa_stat_cd" db:"loa_stat_cd"`
+	LoaHistStatCd          *string    `json:"loa_hist_stat_cd" db:"loa_hist_stat_cd"`
+	LoaHsGdsCd             *string    `json:"loa_hs_gds_cd" db:"loa_hs_gds_cd"`
+	OrgGrpDfasCd           *string    `json:"org_grp_dfas_cd" db:"org_grp_dfas_cd"`
+	LoaUic                 *string    `json:"loa_uic" db:"loa_uic"`
+	LoaTrnsnID             *string    `json:"loa_trnsn_id" db:"loa_trnsn_id"`
+	LoaSubAcntID           *string    `json:"loa_sub_acnt_id" db:"loa_sub_acnt_id"`
+	LoaBetCd               *string    `json:"loa_bet_cd" db:"loa_bet_cd"`
+	LoaFndTyFgCd           *string    `json:"loa_fnd_ty_fg_cd" db:"loa_fnd_ty_fg_cd"`
+	LoaBgtLnItmID          *string    `json:"loa_bgt_ln_itm_id" db:"loa_bgt_ln_itm_id"`
+	LoaScrtyCoopImplAgncCd *string    `json:"loa_scrty_coop_impl_agnc_cd" db:"loa_scrty_coop_impl_agnc_cd"`
+	LoaScrtyCoopDsgntrCd   *string    `json:"loa_scrty_coop_dsgntr_cd" db:"loa_scrty_coop_dsgntr_cd"`
+	LoaScrtyCoopLnItmID    *string    `json:"loa_scrty_coop_ln_itm_id" db:"loa_scrty_coop_ln_itm_id"`
+	LoaAgncDsbrCd          *string    `json:"loa_agnc_dsbr_cd" db:"loa_agnc_dsbr_cd"`
+	LoaAgncAcntngCd        *string    `json:"loa_agnc_acntng_cd" db:"loa_agnc_acntng_cd"`
+	LoaFndCntrID           *string    `json:"loa_fnd_cntr_id" db:"loa_fnd_cntr_id"`
+	LoaCstCntrID           *string    `json:"loa_cst_cntr_id" db:"loa_cst_cntr_id"`
+	LoaPrjID               *string    `json:"loa_prj_id" db:"loa_prj_id"`
+	LoaActvtyID            *string    `json:"loa_actvty_id" db:"loa_actvty_id"`
+	LoaCstCd               *string    `json:"loa_cst_cd" db:"loa_cst_cd"`
+	LoaWrkOrdID            *string    `json:"loa_wrk_ord_id" db:"loa_wrk_ord_id"`
+	LoaFnclArID            *string    `json:"loa_fncl_ar_id" db:"loa_fncl_ar_id"`
+	LoaScrtyCoopCustCd     *string    `json:"loa_scrty_coop_cust_cd" db:"loa_scrty_coop_cust_cd"`
+	LoaEndFyTx             *int       `json:"loa_end_fy_tx" db:"loa_end_fy_tx"`
+	LoaBgFyTx              *int       `json:"loa_bg_fy_tx" db:"loa_bg_fy_tx"`
+	LoaBgtRstrCd           *string    `json:"loa_bgt_rstr_cd" db:"loa_bgt_rstr_cd"`
+	LoaBgtSubActCd         *string    `json:"loa_bgt_sub_act_cd" db:"loa_bgt_sub_act_cd"`
+	CreatedAt              time.Time  `json:"created_at" db:"created_at"`
+	UpdatedAt              time.Time  `json:"updated_at" db:"updated_at"`
 }
 
 // TableName overrides the table name used by Pop.
-func (t LineOfAccounting) TableName() string {
-	return "line_of_ccounting"
+func (l LineOfAccounting) TableName() string {
+	return "lines_of_accounting"
 }
 
 // This func will take the "Desired" values, compare it to the "Internal" values that are currently captured, and map to what is stored internally.
-// So, for example, as of right now TAC codes are only utilizing the "TAC" value. But, the .txt file holds way more information. So, we created the desired values
+// So, for example referencing TACs, as of right now TAC codes are only utilizing the "TAC" value. But, the .txt file holds way more information. So, we created the desired values
 // struct so that we can map only the desired values. This is the same for LOAs at the moment; however, LOAs are currently not being utilized
 // via this struct at all yet. This is the groundwork for future feature updates.
 // This func will take the "Desired" values, compare it to the "Internal" values that are currently captured,
