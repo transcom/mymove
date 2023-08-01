@@ -35,6 +35,10 @@ const LogoutOnInactivity = ({ idleTimeout, warningTime }) => {
     }
   };
 
+  const onAction = (_event, idleTimer) => {
+    idleTimer.activate();
+  };
+
   const onIdle = () => {
     if (isLoggedIn) {
       LogoutUser().then((r) => {
@@ -51,6 +55,7 @@ const LogoutOnInactivity = ({ idleTimeout, warningTime }) => {
   const { getRemainingTime } = useIdleTimer({
     element: document,
     events: ['blur', 'focus', 'mousedown', 'touchstart', 'MSPointerDown'],
+    onAction,
     onActive,
     onIdle,
     onPrompt,
