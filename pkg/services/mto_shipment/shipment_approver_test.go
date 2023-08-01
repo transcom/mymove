@@ -8,6 +8,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
@@ -85,8 +86,10 @@ func (suite *MTOShipmentServiceSuite) createApproveShipmentSubtestData() (subtes
 
 	subtestData.shipmentApprover = NewShipmentApprover(router, siCreator, subtestData.planner)
 	subtestData.mockedShipmentApprover = NewShipmentApprover(subtestData.mockedShipmentRouter, siCreator, subtestData.planner)
-
-	subtestData.appCtx = suite.AppContextForTest()
+	subtestData.appCtx = suite.AppContextWithSessionForTest(&auth.Session{
+		ApplicationName: auth.OfficeApp,
+		OfficeUserID:    uuid.Must(uuid.NewV4()),
+	})
 
 	return subtestData
 }

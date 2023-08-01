@@ -22,6 +22,7 @@ import (
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/authentication"
+	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
@@ -33,6 +34,7 @@ type BaseRoutingSuite struct {
 	handlers.BaseHandlerTestSuite
 	port          int
 	indexContent  string
+	serverName    string
 	routingConfig *Config
 }
 
@@ -44,6 +46,7 @@ func NewBaseRoutingSuite() BaseRoutingSuite {
 			testingsuite.WithPerTestTransaction()),
 		port:         80,
 		indexContent: "<html></html>",
+		serverName:   "test-server",
 	}
 }
 
@@ -58,6 +61,10 @@ func (suite *BaseRoutingSuite) HandlerConfig() handlers.HandlerConfig {
 func (suite *BaseRoutingSuite) EqualDefaultIndex(rr *httptest.ResponseRecorder) {
 	suite.Equal(http.StatusOK, rr.Code)
 	suite.Equal(suite.indexContent, rr.Body.String())
+}
+
+func (suite *BaseRoutingSuite) EqualServerName(actualServerName string) {
+	suite.Equal(suite.serverName, actualServerName)
 }
 
 func (suite *BaseRoutingSuite) RoutingConfig() *Config {
@@ -125,7 +132,11 @@ func (suite *BaseRoutingSuite) SetupSiteHandler() http.Handler {
 }
 
 func (suite *BaseRoutingSuite) SetupCustomSiteHandler(routingConfig *Config) http.Handler {
-	siteHandler, err := InitRouting("test-server", suite.AppContextForTest(), nil, routingConfig, &telemetry.Config{})
+	return suite.SetupCustomSiteHandlerWithTelemetry(routingConfig, &telemetry.Config{})
+}
+
+func (suite *BaseRoutingSuite) SetupCustomSiteHandlerWithTelemetry(routingConfig *Config, telemetryConfig *telemetry.Config) http.Handler {
+	siteHandler, err := InitRouting(suite.serverName, suite.AppContextForTest(), nil, routingConfig, telemetryConfig)
 	suite.FatalNoError(err)
 	return siteHandler
 }
@@ -199,9 +210,18 @@ func (suite *BaseRoutingSuite) SetupOfficeRequestSession(req *http.Request, offi
 	suite.setupRequestSession(req, officeUser.User, suite.HandlerConfig().AppNames().OfficeServername)
 }
 
+func (suite *BaseRoutingSuite) NewRequest(method string, hostname string, relativePath string, body io.Reader) *http.Request {
+	req := httptest.NewRequest(method,
+		fmt.Sprintf("http://%s%s", hostname, relativePath),
+		body)
+	// ensure the request has the suite logger
+	return req.WithContext(logging.NewContext(req.Context(), suite.Logger()))
+}
+
 func (suite *BaseRoutingSuite) NewAdminRequest(method string, relativePath string, body io.Reader) *http.Request {
-	return httptest.NewRequest(method,
-		fmt.Sprintf("http://%s%s", suite.HandlerConfig().AppNames().AdminServername, relativePath),
+	return suite.NewRequest(method,
+		suite.HandlerConfig().AppNames().AdminServername,
+		relativePath,
 		body)
 }
 
@@ -212,8 +232,9 @@ func (suite *BaseRoutingSuite) NewAuthenticatedAdminRequest(method string, relat
 }
 
 func (suite *BaseRoutingSuite) NewMilRequest(method string, relativePath string, body io.Reader) *http.Request {
-	return httptest.NewRequest(method,
-		fmt.Sprintf("http://%s%s", suite.HandlerConfig().AppNames().MilServername, relativePath),
+	return suite.NewRequest(method,
+		suite.HandlerConfig().AppNames().MilServername,
+		relativePath,
 		body)
 }
 
@@ -224,8 +245,9 @@ func (suite *BaseRoutingSuite) NewAuthenticatedMilRequest(method string, relativ
 }
 
 func (suite *BaseRoutingSuite) NewOfficeRequest(method string, relativePath string, body io.Reader) *http.Request {
-	return httptest.NewRequest(method,
-		fmt.Sprintf("http://%s%s", suite.HandlerConfig().AppNames().OfficeServername, relativePath),
+	return suite.NewRequest(method,
+		suite.HandlerConfig().AppNames().OfficeServername,
+		relativePath,
 		body)
 }
 
@@ -236,8 +258,9 @@ func (suite *BaseRoutingSuite) NewAuthenticatedOfficeRequest(method string, rela
 }
 
 func (suite *BaseRoutingSuite) NewPrimeRequest(method string, relativePath string, body io.Reader) *http.Request {
-	return httptest.NewRequest(method,
-		fmt.Sprintf("http://%s%s", suite.HandlerConfig().AppNames().PrimeServername, relativePath),
+	return suite.NewRequest(method,
+		suite.HandlerConfig().AppNames().PrimeServername,
+		relativePath,
 		body)
 }
 

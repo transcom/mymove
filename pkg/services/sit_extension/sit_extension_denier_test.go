@@ -4,6 +4,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
@@ -18,8 +19,11 @@ func (suite *SitExtensionServiceSuite) TestDenySITExtension() {
 		nonexistentUUID := uuid.Must(uuid.NewV4())
 		officeRemarks := "office remarks"
 		eTag := ""
-
-		_, err := sitExtensionDenier.DenySITExtension(suite.AppContextForTest(), nonexistentUUID, nonexistentUUID, &officeRemarks, eTag)
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			OfficeUserID:    uuid.Must(uuid.NewV4()),
+		})
+		_, err := sitExtensionDenier.DenySITExtension(session, nonexistentUUID, nonexistentUUID, &officeRemarks, eTag)
 
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
@@ -30,8 +34,11 @@ func (suite *SitExtensionServiceSuite) TestDenySITExtension() {
 		mtoShipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
 		officeRemarks := "office remarks"
 		eTag := ""
-
-		_, err := sitExtensionDenier.DenySITExtension(suite.AppContextForTest(), mtoShipment.ID, nonexistentUUID, &officeRemarks, eTag)
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			OfficeUserID:    uuid.Must(uuid.NewV4()),
+		})
+		_, err := sitExtensionDenier.DenySITExtension(session, mtoShipment.ID, nonexistentUUID, &officeRemarks, eTag)
 
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
@@ -42,8 +49,12 @@ func (suite *SitExtensionServiceSuite) TestDenySITExtension() {
 		mtoShipment := sitExtension.MTOShipment
 		officeRemarks := "office remarks"
 		eTag := ""
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			OfficeUserID:    uuid.Must(uuid.NewV4()),
+		})
 
-		_, err := sitExtensionDenier.DenySITExtension(suite.AppContextForTest(), mtoShipment.ID, sitExtension.ID, &officeRemarks, eTag)
+		_, err := sitExtensionDenier.DenySITExtension(session, mtoShipment.ID, sitExtension.ID, &officeRemarks, eTag)
 
 		suite.Error(err)
 		suite.IsType(apperror.PreconditionFailedError{}, err)
@@ -61,8 +72,12 @@ func (suite *SitExtensionServiceSuite) TestDenySITExtension() {
 		}, nil)
 		officeRemarks := "office remarks"
 		eTag := ""
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			OfficeUserID:    uuid.Must(uuid.NewV4()),
+		})
 
-		_, err := sitExtensionDenier.DenySITExtension(suite.AppContextForTest(), otherMtoShipment.ID, sitExtension.ID, &officeRemarks, eTag)
+		_, err := sitExtensionDenier.DenySITExtension(session, otherMtoShipment.ID, sitExtension.ID, &officeRemarks, eTag)
 
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
@@ -90,8 +105,12 @@ func (suite *SitExtensionServiceSuite) TestDenySITExtension() {
 		}, nil)
 		officeRemarks := "office remarks"
 		eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			OfficeUserID:    uuid.Must(uuid.NewV4()),
+		})
 
-		updatedShipment, err := sitExtensionDenier.DenySITExtension(suite.AppContextForTest(), mtoShipment.ID, sitExtension.ID, &officeRemarks, eTag)
+		updatedShipment, err := sitExtensionDenier.DenySITExtension(session, mtoShipment.ID, sitExtension.ID, &officeRemarks, eTag)
 		suite.NoError(err)
 
 		var shipmentInDB models.MTOShipment
@@ -135,8 +154,12 @@ func (suite *SitExtensionServiceSuite) TestDenySITExtension() {
 		}, nil)
 		officeRemarks := "office remarks"
 		eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			OfficeUserID:    uuid.Must(uuid.NewV4()),
+		})
 
-		_, err := sitExtensionDenier.DenySITExtension(suite.AppContextForTest(), mtoShipment.ID, sitExtensionToBeDenied.ID, &officeRemarks, eTag)
+		_, err := sitExtensionDenier.DenySITExtension(session, mtoShipment.ID, sitExtensionToBeDenied.ID, &officeRemarks, eTag)
 		suite.NoError(err)
 
 		var shipmentInDB models.MTOShipment
