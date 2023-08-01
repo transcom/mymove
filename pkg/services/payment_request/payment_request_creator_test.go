@@ -578,14 +578,13 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 
 	suite.Run("Given a non-existent move task order id, the create should fail", func() {
 		badID, _ := uuid.FromString("0aee14dd-b5ea-441a-89ad-db4439fa4ea2")
-		anotherBadID, _ := uuid.FromString("0aee14dd-b5ea-441a-89ad-db4439fa4ea2")
-		move := factory.BuildMove(suite.DB(), nil, []factory.Trait{factory.GetTraitAvailableToPrimeMove})
+		// move := factory.BuildMove(suite.DB(), nil, []factory.Trait{factory.GetTraitAvailableToPrimeMove})
 		estimatedWeight := unit.Pound(2048)
-		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
-			{
-				Model:    move,
-				LinkOnly: true,
-			},
+		serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			// {
+			// 	Model:    move,
+			// 	LinkOnly: true,
+			// },
 			{
 				Model: models.ReService{
 					Code: models.ReServiceCodeDLH,
@@ -598,16 +597,18 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			},
 			{
 				Model: models.MTOServiceItem{
-					Status:          models.MTOServiceItemStatusApproved,
-					MoveTaskOrderID: anotherBadID,
+					Status: models.MTOServiceItemStatusApproved,
 				},
 			},
 		}, nil)
+		serviceItem.MoveTaskOrderID = badID
 		invalidPaymentRequest := models.PaymentRequest{
 			MoveTaskOrderID: badID,
 			IsFinal:         false,
 			PaymentServiceItems: []models.PaymentServiceItem{
 				{
+					MTOServiceItemID: serviceItem.ID,
+					MTOServiceItem:   serviceItem,
 					PaymentServiceItemParams: models.PaymentServiceItemParams{
 						{
 							IncomingKey: models.ServiceItemParamNameWeightEstimated.String(),
@@ -630,11 +631,23 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 	})
 
 	suite.Run("Given an already paid or requested payment service item, the create should fail", func() {
-		move := factory.BuildMove(suite.DB(), nil, []factory.Trait{factory.GetTraitAvailableToPrimeMove})
-		estimatedWeight := unit.Pound(2048)
+		move := factory.BuildMove(suite.DB(), []factory.Customization{}, []factory.Trait{factory.GetTraitAvailableToPrimeMove})
+
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+		shipmentID := shipment.ID
+		// estimatedWeight := unit.Pound(2048)
 		serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    shipment,
 				LinkOnly: true,
 			},
 			{
@@ -642,18 +655,25 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 					Code: models.ReServiceCodeDLH,
 				},
 			},
+			// {
+			// 	Model: models.MTOShipment{
+			// 		PrimeEstimatedWeight: &estimatedWeight,
+			// 	},
+			// },
 			{
-				Model: models.MTOShipment{
-					PrimeEstimatedWeight: &estimatedWeight,
+				Model: models.MTOServiceItem{
+					Status:        models.MTOServiceItemStatusApproved,
+					MTOShipmentID: &shipmentID,
 				},
-			},
-			{
-				Model: models.MTOServiceItem{Status: models.MTOServiceItemStatusApproved},
 			},
 		}, nil)
 		paymentRequest1 := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
 			{
 				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    shipment,
 				LinkOnly: true,
 			},
 			{
@@ -680,7 +700,13 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			},
 		}, nil)
 
+		var paymentRequests models.PaymentRequests
+		paymentRequests = append(paymentRequests, paymentRequest1)
+		shipment.MoveTaskOrder.PaymentRequests = paymentRequests
+		// suite.Equal(len(shipment.MoveTaskOrder.PaymentRequests), 10)
+
 		paymentRequest2 := models.PaymentRequest{
+			MoveTaskOrderID: move.ID,
 			PaymentServiceItems: []models.PaymentServiceItem{
 				{
 					MTOServiceItemID: serviceItem.ID,
@@ -695,12 +721,17 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 							Value:       "2022-03-16",
 						},
 					},
-					Status: models.PaymentServiceItemStatusApproved,
+					Status: models.PaymentServiceItemStatusRequested,
 				},
 			},
 		}
 		_, err := creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &paymentRequest2)
+		// suite.Equal(shipmentID.String(), paymentRequest1.PaymentServiceItems[0].MTOServiceItem.MTOShipmentID.String())
+		// suite.Equal(paymentRequest1.PaymentServiceItems[0].MTOServiceItemID, paymentRequest2.PaymentServiceItems[0].MTOServiceItemID)
+		// suite.Equal(paymentRequest1.PaymentServiceItems[0].Status.String(), "PAID" )
+		// suite.Equal(paymentRequest2.PaymentServiceItems[0].Status.String(), "APPROVED" )
 
+		// suite.NoError(err)
 		suite.Error(err)
 		suite.IsType(apperror.ConflictError{}, err)
 

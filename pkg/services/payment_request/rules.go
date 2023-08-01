@@ -59,10 +59,13 @@ func checkStatusOfExistingPaymentRequest() paymentRequestValidator {
 
 		// var existingShipments = paymentRequest.MoveTaskOrder.MTOShipments
 		//paymentRequest.MoveTaskOrder.MTOShipment.ID
+		// return apperror.NewConflictError(paymentRequest.ID, "Conflict Error: Payment Request for Service Item is already paid or requested")
 
+		// return apperror.NewConflictError(paymentRequest.ID, "Conflict Error: Payment Request for Service Item is already paid or requested")
 		if len(existingPaymentRequests) > 0 {
 			for _, pr := range existingPaymentRequests {
 				for _, existingPaymentServiceItem := range pr.PaymentServiceItems {
+
 					// this vv check is needed for moves that have multiple shipments, we don't want to exclude
 					// a paid/requested payment service item if it's associated with a different shipment
 					// this check needs more work because currently it's coming back as always false
@@ -72,14 +75,15 @@ func checkStatusOfExistingPaymentRequest() paymentRequestValidator {
 						// if existingShipment.ID.String() == shipmentID.String() {
 						for _, newPaymentServiceItem := range newPaymentServiceItems {
 							if newPaymentServiceItem.MTOServiceItemID == existingPaymentServiceItem.MTOServiceItemID {
+								// if newPaymentServiceItem.MTOServiceItem.ReService.Code != models.ReServiceCodeDDASIT && newPaymentServiceItem.MTOServiceItem.ReService.Code != models.ReServiceCodeDOASIT {
 								if (newPaymentServiceItem.MTOServiceItem.ReService.Code != models.ReServiceCodeDDASIT && newPaymentServiceItem.MTOServiceItem.ReService.Code != models.ReServiceCodeDOASIT) && (existingPaymentServiceItem.Status == models.PaymentServiceItemStatusRequested || existingPaymentServiceItem.Status == models.PaymentServiceItemStatusPaid) {
 									// need to add back the exception for DDA and DOASIT
 									return apperror.NewConflictError(pr.ID, "Conflict Error: Payment Request for Service Item is already paid or requested")
 								}
+								// }
 							}
 						}
 					}
-					// }
 				}
 			}
 		}
