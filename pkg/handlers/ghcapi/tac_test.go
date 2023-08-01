@@ -9,14 +9,13 @@ import (
 
 	"github.com/transcom/mymove/pkg/factory"
 	tacop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/tac"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *HandlerSuite) TestTacValidation() {
 
 	suite.Run("TAC validation", func() {
 		user := factory.BuildOfficeUser(suite.DB(), nil, nil)
-		transportationAccountingCode := testdatagen.MakeDefaultTransportationAccountingCode(suite.DB())
+		transportationAccountingCode := factory.BuildDefaultTransportationAccountingCode(suite.DB())
 		tests := []struct {
 			tacCode string
 			isValid bool

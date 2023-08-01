@@ -29,6 +29,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/query"
 	signedcertification "github.com/transcom/mymove/pkg/services/signed_certification"
 	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
+	"github.com/transcom/mymove/pkg/services/upload"
 	weightticket "github.com/transcom/mymove/pkg/services/weight_ticket"
 	"github.com/transcom/mymove/pkg/uploader"
 )
@@ -104,7 +105,7 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 	internalAPI.DocumentsCreateDocumentHandler = CreateDocumentHandler{handlerConfig}
 	internalAPI.DocumentsShowDocumentHandler = ShowDocumentHandler{handlerConfig}
 	internalAPI.UploadsCreateUploadHandler = CreateUploadHandler{handlerConfig}
-	internalAPI.UploadsDeleteUploadHandler = DeleteUploadHandler{handlerConfig}
+	internalAPI.UploadsDeleteUploadHandler = DeleteUploadHandler{handlerConfig, upload.NewUploadInformationFetcher()}
 	internalAPI.UploadsDeleteUploadsHandler = DeleteUploadsHandler{handlerConfig}
 
 	internalAPI.QueuesShowQueueHandler = ShowQueueHandler{handlerConfig}
