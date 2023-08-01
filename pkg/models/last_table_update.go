@@ -58,7 +58,7 @@ SOAP Response:
 </soap:Envelope>
  *******************************************/
 // Date/time value is used in conjunction with the contentUpdatedSinceDateTime column in the getTable method.
-type TRDMGetLastTableUpdate interface {
+type TRDMGetLastTableUpdater interface {
 	GetLastTableUpdate(appCtx appcontext.AppContext, physicalName string, returnContent bool) error
 }
 type getLastTableUpdateReq struct {
@@ -90,7 +90,7 @@ type TACCodes struct {
 	UpdatedAt time.Time `json:"updated_at" db:"updated_at"`
 }
 
-func NewTRDMGetLastTableUpdate(physicalName string, returnContent bool, soapClient SoapCaller) TRDMGetLastTableUpdate {
+func NewTRDMGetLastTableUpdate(physicalName string, returnContent bool, soapClient SoapCaller) TRDMGetLastTableUpdater {
 	return &getLastTableUpdateReq{
 		physicalName:  physicalName,
 		returnContent: returnContent,
