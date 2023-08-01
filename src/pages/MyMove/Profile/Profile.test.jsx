@@ -264,7 +264,9 @@ describe('Profile component', () => {
       </MockProviders>,
     );
 
-    const alert = screen.getByText('Contact your movers if you need to make changes to your move.');
+    const alert = screen.getByText(
+      'You can change these details later by talking to a move counselor or customer care representative.',
+    );
 
     expect(alert).toBeInTheDocument();
 
