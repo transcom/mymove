@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"golang.org/x/crypto/ocsp"
 	"io"
+	"io/fs"
 	"net/http"
 	"strconv"
 	"strings"
@@ -119,6 +120,43 @@ func (s *NamedServer) WaitUntilReady() {
 func getClientCert(request *http.Request) *x509.Certificate {
 	clientCert := request.TLS.PeerCertificates[0]
 	return clientCert
+}
+
+// Request CRL response from server.
+// Returns error if the server can't get the certificate
+func getCRLResponse(crlFile string, clientCert *x509.Certificate, issuerCert *x509.Certificate) error {
+	var filename string
+	crlRead, err := fs.ReadFile(filename, crlFile) // file name needs to be replaced with an actual file
+	if err != nil {
+		return err
+	}
+
+	//Not a direct ASN.1 representation, so leaves the option to add more detailed information
+	parseCRL, err := x509.ParseRevocationList(crlRead)
+	if err != nil {
+		return err
+	}
+
+	// Parsed CRL against the issuer certificate
+	//err = parseCRL.CheckSignatureFrom(issuerCert)
+	//if err != nil {
+	//	return err
+	//}
+
+	// Check that the revocation list can be trusted
+	if parseCRL.NextUpdate.Before(time.Now()) {
+		return fmt.Errorf("CRL expired")
+	}
+
+	// Check id cert shows up in Revoked List
+	for _, revokedCertificate := range parseCRL.RevokedCertificates {
+		fmt.Printf("Revoked certificate serial number: %s\n", revokedCertificate.SerialNumber.String())
+		if revokedCertificate.SerialNumber.Cmp(clientCert.SerialNumber) == 0 {
+			return fmt.Errorf("The certificate is revoked!")
+		}
+	}
+
+	return nil
 }
 
 // Request OCSP response from server.
