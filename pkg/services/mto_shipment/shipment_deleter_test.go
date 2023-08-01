@@ -6,6 +6,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -13,9 +14,13 @@ import (
 func (suite *MTOShipmentServiceSuite) TestShipmentDeleter() {
 	suite.Run("Returns an error when shipment is not found", func() {
 		shipmentDeleter := NewShipmentDeleter()
-		uuid := uuid.Must(uuid.NewV4())
+		id := uuid.Must(uuid.NewV4())
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			OfficeUserID:    uuid.Must(uuid.NewV4()),
+		})
 
-		_, err := shipmentDeleter.DeleteShipment(suite.AppContextForTest(), uuid)
+		_, err := shipmentDeleter.DeleteShipment(session, id)
 
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
@@ -27,8 +32,12 @@ func (suite *MTOShipmentServiceSuite) TestShipmentDeleter() {
 		move := shipment.MoveTaskOrder
 		move.Status = models.MoveStatusServiceCounselingCompleted
 		suite.MustSave(&move)
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			OfficeUserID:    uuid.Must(uuid.NewV4()),
+		})
 
-		_, err := shipmentDeleter.DeleteShipment(suite.AppContextForTest(), shipment.ID)
+		_, err := shipmentDeleter.DeleteShipment(session, shipment.ID)
 
 		suite.Error(err)
 		suite.IsType(apperror.ForbiddenError{}, err)
@@ -49,8 +58,11 @@ func (suite *MTOShipmentServiceSuite) TestShipmentDeleter() {
 			move := shipment.MoveTaskOrder
 			move.Status = validStatus.status
 			suite.MustSave(&move)
-
-			moveID, err := shipmentDeleter.DeleteShipment(suite.AppContextForTest(), shipment.ID)
+			session := suite.AppContextWithSessionForTest(&auth.Session{
+				ApplicationName: auth.OfficeApp,
+				OfficeUserID:    uuid.Must(uuid.NewV4()),
+			})
+			moveID, err := shipmentDeleter.DeleteShipment(session, shipment.ID)
 			suite.NoError(err)
 			// Verify that the shipment's Move ID is returned because the
 			// handler needs it to generate the TriggerEvent.
@@ -75,12 +87,16 @@ func (suite *MTOShipmentServiceSuite) TestShipmentDeleter() {
 	suite.Run("Returns not found error when the shipment is already deleted", func() {
 		shipmentDeleter := NewShipmentDeleter()
 		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), nil, nil)
-		_, err := shipmentDeleter.DeleteShipment(suite.AppContextForTest(), shipment.ID)
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			OfficeUserID:    uuid.Must(uuid.NewV4()),
+		})
+		_, err := shipmentDeleter.DeleteShipment(session, shipment.ID)
 
 		suite.NoError(err)
 
 		// Try to delete the shipment a second time
-		_, err = shipmentDeleter.DeleteShipment(suite.AppContextForTest(), shipment.ID)
+		_, err = shipmentDeleter.DeleteShipment(session, shipment.ID)
 		suite.IsType(apperror.NotFoundError{}, err)
 	})
 
@@ -93,7 +109,12 @@ func (suite *MTOShipmentServiceSuite) TestShipmentDeleter() {
 				},
 			},
 		}, nil)
-		moveID, err := shipmentDeleter.DeleteShipment(suite.AppContextForTest(), ppmShipment.ShipmentID)
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			OfficeUserID:    uuid.Must(uuid.NewV4()),
+		})
+
+		moveID, err := shipmentDeleter.DeleteShipment(session, ppmShipment.ShipmentID)
 		suite.NoError(err)
 		// Verify that the shipment's Move ID is returned because the
 		// handler needs it to generate the TriggerEvent.
@@ -128,8 +149,12 @@ func (suite *MTOShipmentServiceSuite) TestPrimeShipmentDeleter() {
 				},
 			},
 		}, nil)
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			OfficeUserID:    uuid.Must(uuid.NewV4()),
+		})
 
-		_, err := shipmentDeleter.DeleteShipment(suite.AppContextForTest(), shipment.ID)
+		_, err := shipmentDeleter.DeleteShipment(session, shipment.ID)
 		suite.Error(err)
 	})
 
@@ -143,8 +168,12 @@ func (suite *MTOShipmentServiceSuite) TestPrimeShipmentDeleter() {
 				},
 			},
 		}, nil)
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			OfficeUserID:    uuid.Must(uuid.NewV4()),
+		})
 
-		_, err := shipmentDeleter.DeleteShipment(suite.AppContextForTest(), shipment.ID)
+		_, err := shipmentDeleter.DeleteShipment(session, shipment.ID)
 		suite.Error(err)
 	})
 
@@ -163,8 +192,12 @@ func (suite *MTOShipmentServiceSuite) TestPrimeShipmentDeleter() {
 				},
 			},
 		}, nil)
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			OfficeUserID:    uuid.Must(uuid.NewV4()),
+		})
 
-		_, err := shipmentDeleter.DeleteShipment(suite.AppContextForTest(), shipment.ID)
+		_, err := shipmentDeleter.DeleteShipment(session, shipment.ID)
 		suite.Error(err)
 	})
 
@@ -183,8 +216,12 @@ func (suite *MTOShipmentServiceSuite) TestPrimeShipmentDeleter() {
 				},
 			},
 		}, nil)
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			OfficeUserID:    uuid.Must(uuid.NewV4()),
+		})
 
-		_, err := shipmentDeleter.DeleteShipment(suite.AppContextForTest(), shipment.ID)
+		_, err := shipmentDeleter.DeleteShipment(session, shipment.ID)
 		suite.Error(err)
 	})
 }
