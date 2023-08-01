@@ -578,15 +578,133 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 
 	suite.Run("Given a non-existent move task order id, the create should fail", func() {
 		badID, _ := uuid.FromString("0aee14dd-b5ea-441a-89ad-db4439fa4ea2")
+		anotherBadID, _ := uuid.FromString("0aee14dd-b5ea-441a-89ad-db4439fa4ea2")
+		move := factory.BuildMove(suite.DB(), nil, []factory.Trait{factory.GetTraitAvailableToPrimeMove})
+		estimatedWeight := unit.Pound(2048)
+		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDLH,
+				},
+			},
+			{
+				Model: models.MTOShipment{
+					PrimeEstimatedWeight: &estimatedWeight,
+				},
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status:          models.MTOServiceItemStatusApproved,
+					MoveTaskOrderID: anotherBadID,
+				},
+			},
+		}, nil)
 		invalidPaymentRequest := models.PaymentRequest{
 			MoveTaskOrderID: badID,
 			IsFinal:         false,
+			PaymentServiceItems: []models.PaymentServiceItem{
+				{
+					PaymentServiceItemParams: models.PaymentServiceItemParams{
+						{
+							IncomingKey: models.ServiceItemParamNameWeightEstimated.String(),
+							Value:       "3254",
+						},
+						{
+							IncomingKey: models.ServiceItemParamNameRequestedPickupDate.String(),
+							Value:       "2022-03-16",
+						},
+					},
+					Status: models.PaymentServiceItemStatusApproved,
+				},
+			},
 		}
 		_, err := creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &invalidPaymentRequest)
 
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
 		suite.Equal(fmt.Sprintf("ID: %s not found for Move", badID), err.Error())
+	})
+
+	suite.Run("Given an already paid or requested payment service item, the create should fail", func() {
+		move := factory.BuildMove(suite.DB(), nil, []factory.Trait{factory.GetTraitAvailableToPrimeMove})
+		estimatedWeight := unit.Pound(2048)
+		serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDLH,
+				},
+			},
+			{
+				Model: models.MTOShipment{
+					PrimeEstimatedWeight: &estimatedWeight,
+				},
+			},
+			{
+				Model: models.MTOServiceItem{Status: models.MTOServiceItemStatusApproved},
+			},
+		}, nil)
+		paymentRequest1 := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.PaymentRequest{
+					PaymentServiceItems: []models.PaymentServiceItem{
+						{
+							MTOServiceItemID: serviceItem.ID,
+							MTOServiceItem:   serviceItem,
+							PaymentServiceItemParams: models.PaymentServiceItemParams{
+								{
+									IncomingKey: models.ServiceItemParamNameWeightEstimated.String(),
+									Value:       "3254",
+								},
+								{
+									IncomingKey: models.ServiceItemParamNameRequestedPickupDate.String(),
+									Value:       "2022-03-16",
+								},
+							},
+							Status: models.PaymentServiceItemStatusPaid,
+						},
+					},
+					Status: models.PaymentRequestStatusPaid,
+				},
+			},
+		}, nil)
+
+		paymentRequest2 := models.PaymentRequest{
+			PaymentServiceItems: []models.PaymentServiceItem{
+				{
+					MTOServiceItemID: serviceItem.ID,
+					MTOServiceItem:   serviceItem,
+					PaymentServiceItemParams: models.PaymentServiceItemParams{
+						{
+							IncomingKey: models.ServiceItemParamNameWeightEstimated.String(),
+							Value:       "3254",
+						},
+						{
+							IncomingKey: models.ServiceItemParamNameRequestedPickupDate.String(),
+							Value:       "2022-03-16",
+						},
+					},
+					Status: models.PaymentServiceItemStatusApproved,
+				},
+			},
+		}
+		_, err := creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &paymentRequest2)
+
+		suite.Error(err)
+		suite.IsType(apperror.ConflictError{}, err)
+
+		suite.Equal(fmt.Sprintf("%s, Conflict Error: Payment Request for Service Item is already paid or requested", paymentRequest1.ID), err.Error())
 	})
 
 	suite.Run("Given no move task order id, the create should fail", func() {
