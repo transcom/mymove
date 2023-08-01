@@ -27,11 +27,6 @@ type CreateProGearWeightTicketHandler struct {
 func (h CreateProGearWeightTicketHandler) Handle(params progearops.CreateProGearWeightTicketParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-			if !appCtx.Session().IsMilApp() && appCtx.Session().ServiceMemberID == uuid.Nil {
-				noServiceMemberIDErr := apperror.NewSessionError("No service member ID")
-				return progearops.NewCreateProGearWeightTicketForbidden(), noServiceMemberIDErr
-			}
-
 			ppmShipmentID, err := uuid.FromString(params.PpmShipmentID.String())
 			if err != nil {
 				appCtx.Logger().Error("missing PPM Shipment ID", zap.Error(err))

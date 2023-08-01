@@ -17,8 +17,19 @@ export const HelperNeedsOrders = () => (
 );
 
 export const HelperNeedsShipment = () => (
-  <Helper title="Time for step 3: set up your shipments" className={styles['helper-paragraph-only']}>
+  <Helper title="Time for step 3: Set up your shipments" className={styles['helper-paragraph-only']}>
     <p>Share where and when you&apos;re moving, and how you want your things to be shipped.</p>
+    <p>
+      Important Notice: USTRANSCOM has contracted a single move manager to manage the hundreds of commercial moving
+      companies that pack, ship, and deliver personal property worldwide. They will manage household goods,
+      storage-in-transit warehouse services, and unaccompanied baggage shipments. This move manager will be your primary
+      contact for scheduling and conducting your move. The DOD will oversee their work and your local transportation
+      office will remain your primary DOD contact to ensure quality performance.
+    </p>
+    <p>
+      Note: This move manager does not manage personally procured moves or replace the existing programs for
+      non-temporary storage or the movement of privately owned vehicles.
+    </p>
   </Helper>
 );
 
@@ -36,6 +47,12 @@ export const HelperSubmittedMove = () => (
   <Helper title="Next step: Your move gets approved" className={styles['helper-submitted-section']}>
     <div>
       <p>
+        <strong>We have assigned you a move code above.</strong> Write it down and use this code when talking to any
+        representative about your move. You will also receive this code via a confirmation email.
+      </p>
+    </div>
+    <div>
+      <p>
         <strong>A move counselor will contact you.</strong> They will confirm the information you entered here, give
         advice, and answer questions.
       </p>
@@ -45,7 +62,9 @@ export const HelperSubmittedMove = () => (
         <strong>For PPM (do it yourself) shipments</strong>
       </p>
       <ul className={styles['top-gap']}>
-        <li>You can start packing, but do not move any of your things until you hear that your move is approved</li>
+        <li>
+          You can start packing, but do not move any of your personal property until you hear that your move is approved
+        </li>
       </ul>
     </div>
     <div>
@@ -53,10 +72,10 @@ export const HelperSubmittedMove = () => (
         <strong>For HHGs and other shipments using movers</strong>
       </p>
       <div className={styles['top-gap']}>
-        <p>Your movers will contact you to:</p>
+        <p>Your Customer Care Representative will contact you to:</p>
         <ul>
-          <li>Estimate the weight of your belongings</li>
-          <li>Finalize dates to pack and pick up your things</li>
+          <li>Estimate the weight of your personal property</li>
+          <li>Finalize dates to pack and pick up your personal property</li>
         </ul>
       </div>
     </div>

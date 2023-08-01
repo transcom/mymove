@@ -1,0 +1,9 @@
+description: >-
+  The status of a service item, indicating where it is in the TOO's approval
+  process.
+type: string
+readOnly: true
+enum:
+  - SUBMITTED
+  - APPROVED
+  - REJECTED

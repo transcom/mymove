@@ -15,7 +15,7 @@ test('A customer can create, edit, and delete an NTS shipment', async ({ page, c
   await customerPage.waitForPage.selectShipmentType();
 
   // Create an NTS shipment
-  await page.getByText("It's going into storage for months or years").click();
+  await page.getByText('It is going into storage for months or years (NTS)').click();
   await customerPage.navigateForward();
 
   // Fill in form to create NTS shipment
