@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"bytes"
 	"encoding/json"
 	"io"
 	"net/http"
@@ -24,6 +25,9 @@ func (lt *LoggingTransport) RoundTrip(req *http.Request) (*http.Response, error)
 // NewClientCollectorHandler creates a handler for receiving client
 // telemetry and forwarding it to the aws otel collector
 func NewClientCollectorHandler(appCtx appcontext.AppContext, telemetryConfig *telemetry.Config) (http.Handler, error) {
+	appCtx.Logger().Info("DREW DEBUG client collector telemetry",
+		zap.String("http_endpoint", telemetryConfig.HTTPEndpoint),
+	)
 	telemetryURL, err := url.Parse(telemetryConfig.HTTPEndpoint)
 	if err != nil {
 		appCtx.Logger().Error("Cannot create client collector handler",
@@ -32,6 +36,9 @@ func NewClientCollectorHandler(appCtx appcontext.AppContext, telemetryConfig *te
 		)
 		return nil, err
 	}
+	appCtx.Logger().Info("DREW DEBUG client collector telemetry",
+		zap.String("telemetryURL", telemetryURL.String()),
+	)
 
 	director := func(req *http.Request) {
 		rAppCtx := appcontext.NewAppContextFromContext(req.Context(), appCtx)
@@ -62,7 +69,9 @@ func NewClientCollectorHandler(appCtx appcontext.AppContext, telemetryConfig *te
 			rAppCtx := appcontext.NewAppContextFromContext(req.Context(), appCtx)
 			resp, err := defaultTransport.RoundTrip(req)
 			var status string
+			var statusCode int
 			if err != nil && resp != nil {
+				statusCode = resp.StatusCode
 				status = resp.Status
 			}
 			rAppCtx.Logger().Info("DREW DEBUG roundtrip",
@@ -70,9 +79,22 @@ func NewClientCollectorHandler(appCtx appcontext.AppContext, telemetryConfig *te
 				zap.Any("req.RequestURI", req.RequestURI),
 				zap.Any("req.URL", req.URL),
 				zap.Any("resp.Status", status),
+				zap.Any("resp.StatusCode", statusCode),
 				zap.Error(err),
 			)
-			return resp, err
+			if statusCode == http.StatusOK {
+				return resp, err
+			}
+			// if the collector redirection failed for any reason, no
+			// need to report that to the client, so fake a response
+			data := `{"partialSuccess":{}}`
+			buf := bytes.NewBuffer([]byte(data))
+			resp = &http.Response{
+				Status:     "OK",
+				StatusCode: http.StatusOK,
+				Body:       io.NopCloser(buf),
+			}
+			return resp, nil
 		},
 	}
 	reverseProxy := httputil.ReverseProxy{
