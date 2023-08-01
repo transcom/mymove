@@ -196,7 +196,7 @@ const Orders = () => {
                   <h2 className={styles.header}>View Orders</h2>
                   <div>
                     {/* the prop "from" represents the page the Link navigates away from.
-                        Passing it via state allows the new page to have access to what the previous page was 
+                        Passing it via state allows the new page to have access to what the previous page was
                         for purposes of redirecting back to the previous page on cancel
                         For documentation please see https://reactrouter.com/en/main/components/link#state
                      */}
