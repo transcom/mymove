@@ -78,7 +78,7 @@ func TestTransportationAccountingCodeMapToInternal(t *testing.T) {
 	}
 }
 
-func (suite *ModelSuite) TestCanSaveValidTac() {
+func (suite *ModelSuite) Test_CanSaveValidTac() {
 	tac := models.TransportationAccountingCode{
 		TAC: "Tac1",
 	}
@@ -86,7 +86,7 @@ func (suite *ModelSuite) TestCanSaveValidTac() {
 	suite.MustCreate(&tac)
 }
 
-func (suite *ModelSuite) TestInvalidTac() {
+func (suite *ModelSuite) Test_InvalidTac() {
 	tac := models.TransportationAccountingCode{}
 
 	expErrors := map[string][]string{
@@ -99,7 +99,7 @@ func (suite *ModelSuite) TestInvalidTac() {
 	suite.NoError(err)
 }
 
-func (suite *ModelSuite) TestCanSaveAndFetchTac() {
+func (suite *ModelSuite) Test_CanSaveAndFetchTac() {
 	// Can save
 	tac := factory.BuildFullTransportationAccountingCode(suite.DB())
 
