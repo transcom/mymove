@@ -14,20 +14,13 @@ import (
 
 const getLastTableUpdateTemplate = `<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
 <soap:Body>
-   <getTableResponseElement xmlns="http://ReturnTablePackage/">
-	  <output>
-		 <TRDM>
-			<status>
-			   <rowCount>28740</rowCount>
-			   <statusCode>%v</statusCode>
-			   <dateTime>2020-01-27T19:12:25.326Z</dateTime>
-			</status>
-		 </TRDM>
-	  </output>
-	  <attachment>
-		 <xop:Include href="cid:fefe5d81-468c-4639-a543-e758a3cbceea-2@ReturnTablePackage" xmlns:xop="http://www.w3.org/2004/08/xop/include"/>
-	  </attachment>
-   </getTableResponseElement>
+   <getLastTableUpdateResponseElement xmlns="http://ReturnTablePackage/">
+	  <lastUpdate>%v</lastUpdate>
+	  <status>
+		 <statusCode>Successful</statusCode>
+		 <dateTime>2020-01-27T20:18:34.226Z</dateTime>
+	  </status>
+   </getLastTableUpdateResponseElement>
 </soap:Body>
 </soap:Envelope> `
 
@@ -41,9 +34,9 @@ const (
 )
 
 // TODO: Replace tableName and all references
-func soapResponseForGetLastTableUpdate(statusCode string) *gosoap.Response {
+func soapResponseForGetLastTableUpdate(lastUpdate string) *gosoap.Response {
 	return &gosoap.Response{
-		Body: []byte(fmt.Sprintf(getLastTableUpdateTemplate, statusCode)),
+		Body: []byte(fmt.Sprintf(getLastTableUpdateTemplate, lastUpdate)),
 	}
 }
 
@@ -51,7 +44,7 @@ func (suite *TRDMTestSuite) TestTRDMGetLastTableUpdateFake() {
 
 	tests := []struct {
 		name          string
-		statusCode    string
+		lastUpdate    string
 		returnContent bool
 		responseError bool
 		shouldError   bool
@@ -73,7 +66,7 @@ func (suite *TRDMTestSuite) TestTRDMGetLastTableUpdateFake() {
 			testSoapClient.On("Call",
 				mock.Anything,
 				mock.Anything,
-			).Return(soapResponseForGetLastTableUpdate(test.statusCode), soapError)
+			).Return(soapResponseForGetLastTableUpdate(test.lastUpdate), soapError)
 
 			lastTableUpdate := models.NewTRDMGetLastTableUpdate(physicalName, returnContent, nil) //! REPLACE nil with soapClient
 			err := lastTableUpdate.GetLastTableUpdate(suite.AppContextForTest(), "ACFT", true)
