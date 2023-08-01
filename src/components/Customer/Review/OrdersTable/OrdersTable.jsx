@@ -24,7 +24,12 @@ const OrdersTable = ({
     <div className={reviewStyles['review-container']}>
       <div className={reviewStyles['review-header']}>
         <h2>Orders</h2>
-        <Button unstyled className={reviewStyles['edit-btn']} onClick={() => onEditClick(editPath)}>
+        <Button
+          unstyled
+          className={reviewStyles['edit-btn']}
+          data-testid="edit-orders-table"
+          onClick={() => onEditClick(editPath)}
+        >
           Edit
         </Button>
       </div>
