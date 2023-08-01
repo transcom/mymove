@@ -1,5 +1,5 @@
 import React, { useEffect, useReducer, useCallback } from 'react';
-import { Link, useNavigate, useParams, useLocation } from 'react-router-dom';
+import { Link, useNavigate, useParams, useLocation, generatePath } from 'react-router-dom';
 import { Button } from '@trussworks/react-uswds';
 import { Formik } from 'formik';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
@@ -11,6 +11,7 @@ import styles from 'styles/documentViewerWithSidebar.module.scss';
 import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
 import { getTacValid, updateOrder } from 'services/ghcApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import { tooRoutes, tioRoutes } from 'constants/routes';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import OrdersDetailForm from 'components/Office/OrdersDetailForm/OrdersDetailForm';
 import { formatSwaggerDate, dropdownInputOptions } from 'utils/formatters';
@@ -39,9 +40,9 @@ const Orders = () => {
   const handleClose = useCallback(() => {
     let redirectPath;
     if (from === 'paymentRequestDetails') {
-      redirectPath = `/moves/${moveCode}/payment-requests`;
+      redirectPath = generatePath(tioRoutes.BASE_PAYMENT_REQUESTS_PATH, { moveCode });
     } else {
-      redirectPath = `/moves/${moveCode}/details`;
+      redirectPath = generatePath(tooRoutes.BASE_MOVE_VIEW_PATH, { moveCode });
     }
     navigate(redirectPath);
   }, [navigate, moveCode, from]);
