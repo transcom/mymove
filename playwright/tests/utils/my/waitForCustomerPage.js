@@ -107,6 +107,12 @@ export class WaitForCustomerPage extends WaitForPage {
     await this.runAccessibilityAudit();
   }
 
+  async editOrders() {
+    await this.runAccessibilityAudit();
+    await base.expect(this.page.getByRole('heading', { level: 1 })).toHaveText('Orders');
+    await this.runAccessibilityAudit();
+  }
+
   /**
    * @returns {Promise<void>}
    */
