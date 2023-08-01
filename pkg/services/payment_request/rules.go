@@ -38,9 +38,9 @@ func checkStatusOfExistingPaymentRequest() paymentRequestValidator {
 	return paymentRequestValidatorFunc(func(appCtx appcontext.AppContext, paymentRequest models.PaymentRequest, oldPaymentRequest *models.PaymentRequest) error {
 		// var paymentRequestServiceItems = paymentRequest.PaymentServiceItems
 		shipmentID := paymentRequest.PaymentServiceItems[0].MTOServiceItem.MTOShipmentID
-		currentServiceItemID := paymentRequest.PaymentServiceItems[0].MTOServiceItemID
-		reserviceCode := paymentRequest.PaymentServiceItems[0].MTOServiceItem.ReService.Code
-		status := paymentRequest.PaymentServiceItems[0].Status
+		// currentServiceItemID := paymentRequest.PaymentServiceItems[0].MTOServiceItemID
+		// reserviceCode := paymentRequest.PaymentServiceItems[0].MTOServiceItem.ReService.Code
+		// status := paymentRequest.PaymentServiceItems[0].Status
 
 		//get all the payment requests that exist for a shipment
 		//append
@@ -48,31 +48,34 @@ func checkStatusOfExistingPaymentRequest() paymentRequestValidator {
 		// loop through all requests to find if a payment service item already exists (same one as the one thats being created)
 		// if exists --> check status if requested or paid --> conflict error
 
-		shipment, err := mtoshipment.FindShipment(appCtx, *shipmentID, "MoveTaskOrder.PaymentRequests")
+		shipment, err := mtoshipment.FindShipment(appCtx, *shipmentID, "MoveTaskOrder", "MoveTaskOrder.PaymentRequests", "MoveTaskOrder.PaymentRequests.PaymentServiceItems", "MoveTaskOrder.PaymentRequests.PaymentServiceItems.MTOServiceItem")
 		if err != nil {
 			return err
 		}
 
 		var existingPaymentRequests = shipment.MoveTaskOrder.PaymentRequests
+		newPaymentServiceItems := paymentRequest.PaymentServiceItems
 
 		if len(existingPaymentRequests) > 0 {
-			for _, paymentRequest := range existingPaymentRequests {
-				if paymentRequest.PaymentServiceItems[0].MTOServiceItemID == currentServiceItemID {
-					if (reserviceCode != models.ReServiceCodeDDASIT && reserviceCode != models.ReServiceCodeDOASIT) && (status == models.PaymentServiceItemStatusRequested || status == models.PaymentServiceItemStatusPaid) {
-						return apperror.NewConflictError(paymentRequest.PaymentServiceItems[0].MTOServiceItemID, "Conflict Error: Payment Request for Service Item is already paid or requested")
+			for _, pr := range existingPaymentRequests {
+				for _, existingPaymentServiceItem := range pr.PaymentServiceItems {
+					// this vv check is needed for moves that have multiple shipments, we don't want to exclude
+					// a paid/requested payment service item if it's associated with a different shipment
+					// this check needs more work because currently it's coming back as always false
+					// I believe it's an issue with how MTOService item is being eager loaded in
+					// if existingPaymentServiceItem.MTOServiceItem.MTOShipmentID == shipmentID {
+					for _, newPaymentServiceItem := range newPaymentServiceItems {
+						if newPaymentServiceItem.MTOServiceItemID == existingPaymentServiceItem.MTOServiceItemID {
+							if existingPaymentServiceItem.Status == models.PaymentServiceItemStatusRequested || existingPaymentServiceItem.Status == models.PaymentServiceItemStatusPaid {
+								// need to add back the exception for DDA and DOASIT
+								return apperror.NewConflictError(pr.ID, "Conflict Error: Payment Request for Service Item is already paid or requested")
+							}
+						}
 					}
 				}
 			}
 		}
-		// for _, paymentRequestServiceItem := range paymentRequestServiceItems {
 
-		// 	status := paymentRequestServiceItem.Status
-		// 	reserviceCode := paymentRequestServiceItem.MTOServiceItem.ReService.Code
-
-		// 	if (reserviceCode != models.ReServiceCodeDDASIT && reserviceCode != models.ReServiceCodeDOASIT) && (status == models.PaymentServiceItemStatusRequested || status == models.PaymentServiceItemStatusPaid) {
-		// 		return apperror.NewConflictError(paymentRequestServiceItem.MTOServiceItemID, "Conflict Error: Payment Request for Service Item is already paid or requested")
-		// 	}
-		// }
 		return nil
 	})
 }
