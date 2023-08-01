@@ -33,7 +33,7 @@ const (
 	returnContent = false
 )
 
-// TODO: Replace tableName and all references
+// TODO: Replace lastUpdate and all references
 func soapResponseForGetLastTableUpdate(lastUpdate string) *gosoap.Response {
 	return &gosoap.Response{
 		Body: []byte(fmt.Sprintf(getLastTableUpdateTemplate, lastUpdate)),
