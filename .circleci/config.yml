@@ -1672,7 +1672,12 @@ jobs:
       - restore_cache:
           keys:
             - v2-node-modules-cache-{{ checksum "yarn.lock" }}
-      - run: make client_build
+      - run:
+          name: make client_build
+          command: |
+            export REACT_APP_ERROR_LOGGING=otel
+            export REACT_APP_TELEMETRY_ENABLED=true
+            make client_build
       # only save the cache on default branch builds so that PRs don't pollute
       # the cache
       - when:
