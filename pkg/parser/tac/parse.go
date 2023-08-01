@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"reflect"
+	"strconv"
 	"strings"
 	"time"
 
@@ -18,10 +19,10 @@ import (
 // 3. There are 23 values per line, excluding the security classification. Again, to know what these values are refer to note #2.
 // 4. All values are in pipe delimited format.
 // 5. Null values will be present, but are not acceptable for TRNSPRTN_ACNT_CD.
-func Parse(file io.Reader) ([]models.TransportationAccountingCodeDesiredFromTRDM, error) {
+func Parse(file io.Reader) ([]models.TransportationAccountingCode, error) {
 
 	// Init variables
-	var codes []models.TransportationAccountingCodeDesiredFromTRDM
+	var codes []models.TransportationAccountingCode
 	scanner := bufio.NewScanner(file)
 	var columnHeaders []string
 
@@ -77,12 +78,12 @@ func getFieldNames(obj interface{}) []string {
 }
 
 // Removes all TACs with an expiration date in the past
-func PruneExpiredTACsDesiredFromTRDM(codes []models.TransportationAccountingCodeDesiredFromTRDM) []models.TransportationAccountingCodeDesiredFromTRDM {
-	var pruned []models.TransportationAccountingCodeDesiredFromTRDM
+func PruneExpiredTACs(codes []models.TransportationAccountingCode) []models.TransportationAccountingCode {
+	var pruned []models.TransportationAccountingCode
 
 	// If the expiration date is not before time.Now(), then it is not expired and should be appended to the pruned array
 	for _, code := range codes {
-		if !code.ExpirationDate.Before(time.Now()) {
+		if !code.TrnsprtnAcntEndDt.Before(time.Now()) {
 			pruned = append(pruned, code)
 		}
 	}
@@ -90,15 +91,15 @@ func PruneExpiredTACsDesiredFromTRDM(codes []models.TransportationAccountingCode
 	return pruned
 }
 
-// Consolidates TACs with the same TAC value. Duplicate "Transaction", aka description, values are combined with a delimeter of ". Additional description found: "
-func ConsolidateDuplicateTACsDesiredFromTRDM(codes []models.TransportationAccountingCodeDesiredFromTRDM) []models.TransportationAccountingCodeDesiredFromTRDM {
-	consolidatedMap := make(map[string]models.TransportationAccountingCodeDesiredFromTRDM)
+// Consolidates TACs with the same TAC value. Duplicate "Transaction", aka description & TrnsprtnAcntTx, values are combined with a delimeter of ". Additional description found: "
+func ConsolidateDuplicateTACsDesiredFromTRDM(codes []models.TransportationAccountingCode) []models.TransportationAccountingCode {
+	consolidatedMap := make(map[string]models.TransportationAccountingCode)
 
 	for _, code := range codes {
 		consolidatedMap[code.TAC] = overwriteDuplicateCode(consolidatedMap[code.TAC], code)
 	}
 
-	var consolidated []models.TransportationAccountingCodeDesiredFromTRDM
+	var consolidated []models.TransportationAccountingCode
 	for _, value := range consolidatedMap {
 		consolidated = append(consolidated, value)
 	}
@@ -109,12 +110,17 @@ func ConsolidateDuplicateTACsDesiredFromTRDM(codes []models.TransportationAccoun
 // This function checks two TAC codes: one existing and one new to decide which one to keep based on their ExpirationDates
 // If the ExpirationDate is the same, it appends the transactions and maintains the first code found
 // If the ExpirationDate is different, it appends the transactions and maintains the ExpirationDate further in the future
-func overwriteDuplicateCode(existingCode models.TransportationAccountingCodeDesiredFromTRDM, newCode models.TransportationAccountingCodeDesiredFromTRDM) models.TransportationAccountingCodeDesiredFromTRDM {
+func overwriteDuplicateCode(existingCode models.TransportationAccountingCode, newCode models.TransportationAccountingCode) models.TransportationAccountingCode {
+
+	// If the existing code has a nil expiry date but the new code does not, the new code is a better representation and should be return
+	if existingCode.TrnsprtnAcntEndDt == nil && newCode.TrnsprtnAcntEndDt != nil {
+		return newCode
+	}
 
 	// If the new code expires later, append its transaction to the existing one (if not empty), and keep the new code
-	if newCode.ExpirationDate.After(existingCode.ExpirationDate) {
-		if existingCode.Transaction != "" {
-			newCode.Transaction = existingCode.Transaction + ". Additional description found: " + newCode.Transaction
+	if newCode.TrnsprtnAcntEndDt.After(*existingCode.TrnsprtnAcntEndDt) && newCode.TrnsprtnAcntEndDt != nil {
+		if existingCode.TrnsprtnAcntTx != nil && *existingCode.TrnsprtnAcntTx != "" {
+			*newCode.TrnsprtnAcntTx = *existingCode.TrnsprtnAcntTx + ". Additional description found: " + *newCode.TrnsprtnAcntTx
 		}
 		return newCode
 	}
@@ -122,28 +128,34 @@ func overwriteDuplicateCode(existingCode models.TransportationAccountingCodeDesi
 	// If the new code expires at the same time or earlier compared to the existing code,
 	// append its transaction to the existing code (if not empty) because this one expires earlier or is already expired.
 	// A separate function handles the pruning of expired codes, not this one
-	if newCode.ExpirationDate.Before(existingCode.ExpirationDate) || newCode.ExpirationDate.Equal(existingCode.ExpirationDate) {
-		if existingCode.Transaction != "" {
-			existingCode.Transaction = existingCode.Transaction + ". Additional description found: " + newCode.Transaction
+	// Additionally, the new codes end date must not be nil
+	if newCode.TrnsprtnAcntEndDt.Before(*existingCode.TrnsprtnAcntEndDt) || newCode.TrnsprtnAcntEndDt.Equal(*existingCode.TrnsprtnAcntEndDt) && newCode.TrnsprtnAcntEndDt != nil {
+		if existingCode.TrnsprtnAcntTx != nil && *existingCode.TrnsprtnAcntTx != "" {
+			*existingCode.TrnsprtnAcntTx = *existingCode.TrnsprtnAcntTx + ". Additional description found: " + *newCode.TrnsprtnAcntTx
 		} else {
-			existingCode.Transaction = newCode.Transaction
+			existingCode.TrnsprtnAcntTx = newCode.TrnsprtnAcntTx
 		}
 	}
 
 	return existingCode
 }
 
-// This function handles the heavy lifting for the main parse function. It handles the scanning of every line and conversion into the TransportationAccountingCodeDesiredFromTRDM model.
-func processLines(scanner *bufio.Scanner, columnHeaders []string, codes []models.TransportationAccountingCodeDesiredFromTRDM) ([]models.TransportationAccountingCodeDesiredFromTRDM, error) {
+// This function handles the heavy lifting for the main parse function. It handles the scanning of every line and conversion into the TransportationAccountingCode model.
+func processLines(scanner *bufio.Scanner, columnHeaders []string, codes []models.TransportationAccountingCode) ([]models.TransportationAccountingCode, error) {
 	// Scan every line and parse into Transportation Accounting Codes
 	for scanner.Scan() {
 		line := scanner.Text()
+		var tacFyTxt int
+		var tacSysId int
+		var loaSysID int
+		var err error
 
 		// This check will skip the last line of the file.
 		if line == "Unclassified" {
 			break
 		}
 
+		// Gather values from the pipe delimited line
 		values := strings.Split(line, "|")
 		if len(values) != len(columnHeaders) {
 			return nil, errors.New("malformed line in the provided tac file: " + line)
@@ -152,6 +164,30 @@ func processLines(scanner *bufio.Scanner, columnHeaders []string, codes []models
 		// Skip the entry if the TAC value is empty
 		if values[2] == "" {
 			continue
+		}
+
+		// If TacSysID is not empty, convert to int
+		if values[0] != "" {
+			tacSysId, err = strconv.Atoi(values[0])
+			if err != nil {
+				return nil, errors.New("malformed tac_sys_id in the provided tac file: " + line)
+			}
+		}
+
+		// If LoaSysId is not empty, convert to int
+		if values[1] != "" {
+			loaSysID, err = strconv.Atoi(values[1])
+			if err != nil {
+				return nil, errors.New("malformed loa_sys_id in the provided tac file: " + line)
+			}
+		}
+
+		// Check if fiscal year text is not empty, convert to int
+		if values[3] != "" {
+			tacFyTxt, err = strconv.Atoi(values[3])
+			if err != nil {
+				return nil, fmt.Errorf("malformed tac_fy_txt in the provided tac file: %s", err)
+			}
 		}
 
 		effectiveDate, err := time.Parse("2006-01-02 15:04:05", values[16])
@@ -164,16 +200,31 @@ func processLines(scanner *bufio.Scanner, columnHeaders []string, codes []models
 			return nil, fmt.Errorf("malformed expiration date in the provided tac file: %s", err)
 		}
 
-		code := models.TransportationAccountingCodeDesiredFromTRDM{
-			TAC:                      values[2],
-			BillingAddressFirstLine:  values[19],
-			BillingAddressSecondLine: values[20],
-			BillingAddressThirdLine:  values[21],
-			BillingAddressFourthLine: values[22],
-			Transaction:              values[15],
-			EffectiveDate:            effectiveDate,
-			ExpirationDate:           expiredDate,
-			FiscalYear:               values[3],
+		code := models.TransportationAccountingCode{
+			TacSysID:           &tacSysId,
+			LoaSysID:           &loaSysID,
+			TAC:                values[2],
+			TacFyTxt:           &tacFyTxt,
+			TacFnBlModCd:       &values[4],
+			OrgGrpDfasCd:       &values[5],
+			TacMvtDsgID:        &values[6],
+			TacTyCd:            &values[7],
+			TacUseCd:           &values[8],
+			TacMajClmtID:       &values[9],
+			TacBillActTxt:      &values[10],
+			TacCostCtrNm:       &values[11],
+			Buic:               &values[12],
+			TacHistCd:          &values[13],
+			TacStatCd:          &values[14],
+			TrnsprtnAcntTx:     &values[15],
+			TrnsprtnAcntBgnDt:  &effectiveDate,
+			TrnsprtnAcntEndDt:  &expiredDate,
+			DdActvtyAdrsID:     &values[18],
+			TacBlldAddFrstLnTx: &values[19],
+			TacBlldAddScndLnTx: &values[20],
+			TacBlldAddThrdLnTx: &values[21],
+			TacBlldAddFrthLnTx: &values[22],
+			TacFnctPocNm:       &values[23],
 		}
 
 		codes = append(codes, code)

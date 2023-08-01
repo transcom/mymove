@@ -9,6 +9,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/stretchr/testify/suite"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/parser/tac"
 	"github.com/transcom/mymove/pkg/testingsuite"
@@ -36,8 +37,6 @@ func TestTacParserSuite(t *testing.T) {
 	hs.PopTestSuite.TearDown()
 }
 
-// Test that the parser correctly handles the test file and reports back at least
-// one correct Transportation Accounting Code
 func (suite *TacParserSuite) TestParsing() {
 	reader := bytes.NewReader(suite.txtContent)
 
@@ -47,18 +46,40 @@ func (suite *TacParserSuite) TestParsing() {
 
 	// Assuming the txt file has at least one record
 	suite.NotEmpty(codes)
+	var bgnDt = time.Date(2021, 10, 1, 0, 0, 0, 0, time.UTC)
+	var endDt = time.Date(2022, 9, 30, 0, 0, 0, 0, time.UTC)
+
+	// Create expected TransportationAccountingCode
+	expected := models.TransportationAccountingCode{
+		TacSysID:           models.IntPointer(1234567884061),
+		LoaSysID:           models.IntPointer(12345678),
+		TAC:                "0003",
+		TacFyTxt:           models.IntPointer(2022),
+		TacFnBlModCd:       models.StringPointer("3"),
+		OrgGrpDfasCd:       models.StringPointer("DF"),
+		TacMvtDsgID:        models.StringPointer(""),
+		TacTyCd:            models.StringPointer("O"),
+		TacUseCd:           models.StringPointer("O"),
+		TacMajClmtID:       models.StringPointer("USTC"),
+		TacBillActTxt:      models.StringPointer(""),
+		TacCostCtrNm:       models.StringPointer("G31M32"),
+		Buic:               models.StringPointer(""),
+		TacHistCd:          models.StringPointer(""),
+		TacStatCd:          models.StringPointer("I"),
+		TrnsprtnAcntTx:     models.StringPointer("FOR MOVEMENT TEST 1"),
+		TrnsprtnAcntBgnDt:  models.TimePointer(bgnDt),
+		TrnsprtnAcntEndDt:  models.TimePointer(endDt),
+		DdActvtyAdrsID:     models.StringPointer("F55555"),
+		TacBlldAddFrstLnTx: models.StringPointer("FIRST LINE"),
+		TacBlldAddScndLnTx: models.StringPointer("SECOND LINE"),
+		TacBlldAddThrdLnTx: models.StringPointer("THIRD LINE"),
+		TacBlldAddFrthLnTx: models.StringPointer("FOURTH LINE"),
+		TacFnctPocNm:       models.StringPointer("Contact Person Here"),
+	}
 
 	// Do a hard coded check to the first line of data to ensure a 1:1 match to what is expected.
 	firstCode := codes[0]
-	suite.Equal("0003", firstCode.TAC)
-	suite.Equal("FIRST LINE", firstCode.BillingAddressFirstLine)
-	suite.Equal("SECOND LINE", firstCode.BillingAddressSecondLine)
-	suite.Equal("THIRD LINE", firstCode.BillingAddressThirdLine)
-	suite.Equal("FOURTH LINE", firstCode.BillingAddressFourthLine)
-	suite.Equal("FOR MOVEMENT TEST 1", firstCode.Transaction)
-	suite.Equal(time.Date(2021, 10, 1, 0, 0, 0, 0, time.UTC), firstCode.EffectiveDate)
-	suite.Equal(time.Date(2022, 9, 30, 0, 0, 0, 0, time.UTC), firstCode.ExpirationDate)
-	suite.Equal("2022", firstCode.FiscalYear)
+	suite.Equal(expected, firstCode)
 }
 
 // This test will ensure that the parse function errors on an empty file.
@@ -107,57 +128,37 @@ Unclassified`)
 // This function will test the pruning of all expired TACs when called.
 func (suite *TacParserSuite) TestExpiredTACs() {
 
-	// Create an expired TAC
-	expiredTAC := models.TransportationAccountingCodeDesiredFromTRDM{
-		TAC:            "0003",
-		Transaction:    "FOR MOVEMENT TEST 1",
-		EffectiveDate:  time.Now().AddDate(-1, 0, 0), // A year ago
-		ExpirationDate: time.Now().AddDate(0, 0, -1), // A day ago
-		FiscalYear:     "2022",
-	}
+	// Create a TAC
+	expiredTac := factory.BuildFullTransportationAccountingCode(suite.DB())
+
+	// Make it expired
+	*expiredTac.TrnsprtnAcntBgnDt = time.Now().AddDate(-1, 0, 0) // A year ago
+	*expiredTac.TrnsprtnAcntEndDt = time.Now().AddDate(0, 0, -1) // A day ago
 
 	// Attempt to prune all expired TACs
-	parsedTACs := []models.TransportationAccountingCodeDesiredFromTRDM{expiredTAC}
-	prunedTACs := tac.PruneExpiredTACsDesiredFromTRDM(parsedTACs)
+	parsedTACs := []models.TransportationAccountingCode{expiredTac}
+	prunedTACs := tac.PruneExpiredTACs(parsedTACs)
 
 	// Check that the expired TAC was properly removed
-	suite.NotContains(prunedTACs, expiredTAC)
+	suite.NotContains(prunedTACs, expiredTac)
 }
 
 // This function will test the conslidation of two TACs with matching "TAC" and "ExpirationDate" values, but that have a difference in other values.
 // It is expected to combine their transaction descriptions and preserve the first code found in the array
 func (suite *TacParserSuite) TestDuplicateTACsWithDifferentValuesAndEquivalentExpirationDates() {
-	oneYearAgo := time.Now().AddDate(-1, 0, 0)  // A year ago
-	oneYearAhead := time.Now().AddDate(1, 0, 0) // A year from now
 
 	// Create duplicate TACs
-	duplicateTAC1 := models.TransportationAccountingCodeDesiredFromTRDM{
-		TAC:            "0003",
-		Transaction:    "FOR MOVEMENT TEST 1",
-		EffectiveDate:  oneYearAgo,
-		ExpirationDate: oneYearAhead,
-		FiscalYear:     "2022",
-	}
-
-	duplicateTAC2 := models.TransportationAccountingCodeDesiredFromTRDM{
-		TAC:            "0003",
-		Transaction:    "FOR MOVEMENT TEST 2",
-		EffectiveDate:  oneYearAgo,
-		ExpirationDate: oneYearAhead,
-		FiscalYear:     "2022",
-	}
-
-	parsedTACs := []models.TransportationAccountingCodeDesiredFromTRDM{duplicateTAC1, duplicateTAC2}
-	consolidatedTACs := tac.ConsolidateDuplicateTACsDesiredFromTRDM(parsedTACs)
+	tac1 := factory.BuildFullTransportationAccountingCode(suite.DB())
+	tac2 := tac1
+	// Set the second TAC to have a different transaction description
+	tac2.TrnsprtnAcntTx = models.StringPointer("Different")
 
 	// Create the expected TAC value for comparison
-	expectedConsolidatedTAC := models.TransportationAccountingCodeDesiredFromTRDM{
-		TAC:            "0003",
-		Transaction:    "FOR MOVEMENT TEST 1. Additional description found: FOR MOVEMENT TEST 2",
-		EffectiveDate:  oneYearAgo,
-		ExpirationDate: oneYearAhead,
-		FiscalYear:     "2022",
-	}
+	expectedConsolidatedTAC := tac1
+	*expectedConsolidatedTAC.TrnsprtnAcntTx = *tac1.TrnsprtnAcntTx + *tac2.TrnsprtnAcntTx
+
+	parsedTACs := []models.TransportationAccountingCode{tac1, tac2}
+	consolidatedTACs := tac.ConsolidateDuplicateTACsDesiredFromTRDM(parsedTACs)
 
 	suite.Contains(consolidatedTACs, expectedConsolidatedTAC)
 }
@@ -166,38 +167,27 @@ func (suite *TacParserSuite) TestDuplicateTACsWithDifferentValuesAndEquivalentEx
 // It is expected to combine their transaction descriptions and preserve the code with the expiration date further in the future.
 // The expiration dates will be different.
 func (suite *TacParserSuite) TestDuplicateTACsWithDifferentValuesAndDifferentExpirationDates() {
-	oneYearAgo := time.Now().AddDate(-1, 0, 0)     // A year ago
 	oneYearAhead := time.Now().AddDate(1, 0, 0)    // A year from now
 	twoYearsAhead := oneYearAhead.AddDate(1, 0, 0) // Two years from now
 
 	// Create duplicate TACs
-	duplicateTAC1 := models.TransportationAccountingCodeDesiredFromTRDM{
-		TAC:            "0003",
-		Transaction:    "FOR MOVEMENT TEST 1",
-		EffectiveDate:  oneYearAgo,
-		ExpirationDate: oneYearAhead,
-		FiscalYear:     "2022",
-	}
+	tac1 := factory.BuildFullTransportationAccountingCode(suite.DB())
+	tac2 := tac1
 
-	duplicateTAC2 := models.TransportationAccountingCodeDesiredFromTRDM{
-		TAC:            "0003",
-		Transaction:    "FOR MOVEMENT TEST 2",
-		EffectiveDate:  oneYearAgo,
-		ExpirationDate: twoYearsAhead,
-		FiscalYear:     "2022",
-	}
+	// Set the first TAC to have a new expiration date
+	tac1.TrnsprtnAcntEndDt = &oneYearAhead
 
-	parsedTACs := []models.TransportationAccountingCodeDesiredFromTRDM{duplicateTAC1, duplicateTAC2}
+	// Set the second TAC to have a different transaction description and expiration date
+	tac2.TrnsprtnAcntTx = models.StringPointer("Different")
+	tac2.TrnsprtnAcntEndDt = &twoYearsAhead
+
+	parsedTACs := []models.TransportationAccountingCode{tac1, tac2}
 	consolidatedTACs := tac.ConsolidateDuplicateTACsDesiredFromTRDM(parsedTACs)
 
 	// Create the expected TAC value for comparison
-	expectedConsolidatedTAC := models.TransportationAccountingCodeDesiredFromTRDM{
-		TAC:            "0003",
-		Transaction:    "FOR MOVEMENT TEST 1. Additional description found: FOR MOVEMENT TEST 2",
-		EffectiveDate:  oneYearAgo,
-		ExpirationDate: twoYearsAhead,
-		FiscalYear:     "2022",
-	}
+	// Tac 2 expires a year after tac 1
+	expectedConsolidatedTAC := tac2
+	*expectedConsolidatedTAC.TrnsprtnAcntTx = *tac1.TrnsprtnAcntTx + *tac2.TrnsprtnAcntTx
 
 	suite.Contains(consolidatedTACs, expectedConsolidatedTAC)
 }
