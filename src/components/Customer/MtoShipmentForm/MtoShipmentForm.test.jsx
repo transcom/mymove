@@ -11,6 +11,7 @@ import { customerRoutes } from 'constants/routes';
 import { createMTOShipment, getResponseError, patchMTOShipment } from 'services/internalApi';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { renderWithRouter } from 'testUtils';
+import { ORDERS_TYPE } from 'constants/orders';
 
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
@@ -139,8 +140,7 @@ describe('MtoShipmentForm component', () => {
     });
 
     it('renders the correct helper text for Delivery Location when orders type is RETIREMENT', async () => {
-      renderMtoShipmentForm({ orders: { orders_type: 'RETIREMENT' } });
-
+      renderMtoShipmentForm({ orders: { orders_type: ORDERS_TYPE.RETIREMENT } });
       await waitFor(() =>
         expect(
           screen.getByText('We can use the zip of the HOR, PLEAD or HOS you entered with your orders.')
@@ -150,14 +150,23 @@ describe('MtoShipmentForm component', () => {
     });
 
     it('renders the correct helper text for Delivery Location when orders type is SEPARATION', async () => {
-      renderMtoShipmentForm({ orders: { orders_type: 'SEPARATION' } });
-
+      renderMtoShipmentForm({ orders: { orders_type: ORDERS_TYPE.SEPARATION } });
       await waitFor(() =>
         expect(
           screen.getByText('We can use the zip of the HOR, PLEAD or HOS you entered with your orders.')
             .toBeInTheDocument,
         ),
       );
+    });
+
+    it('renders the correct helper text for Delivery Location when orders type is PERMANENT_CHANGE_OF_STATION', async () => {
+      renderMtoShipmentForm({ orders: { orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION } });
+      await waitFor(() => expect(screen.getByText(/We can use the zip of your new duty location./).toBeInTheDocument));
+    });
+
+    it('renders the correct helper text for Delivery Location when orders type is LOCAL_MOVE', async () => {
+      renderMtoShipmentForm({ orders: { orders_type: ORDERS_TYPE.LOCAL_MOVE } });
+      await waitFor(() => expect(screen.getByText(/We can use the zip of your new duty location./).toBeInTheDocument));
     });
 
     it('does not render special NTS What to expect section', async () => {
