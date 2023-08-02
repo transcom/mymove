@@ -2537,9 +2537,9 @@ definitions:
       secondaryPickupAddress:
         $ref: 'definitions/Address.yaml'
       hasSecondaryPickupAddress:
-          type: boolean
-          x-nullable: true
-          x-omitempty: false
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
       destinationAddress:
         $ref: 'definitions/Address.yaml'
       secondaryDeliveryAddress:
@@ -4454,7 +4454,7 @@ paths:
       parameters:
         - $ref: 'parameters/ppmShipmentId.yaml'
       responses:
-        '200':
+        '201':
           description: returns new moving expense object
           schema:
             $ref: 'definitions/MovingExpense.yaml'
