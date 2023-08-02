@@ -70,7 +70,7 @@ func NewClientCollectorHandler(appCtx appcontext.AppContext, telemetryConfig *te
 			resp, err := defaultTransport.RoundTrip(req)
 			var status string
 			var statusCode int
-			if err != nil && resp != nil {
+			if err == nil && resp != nil {
 				statusCode = resp.StatusCode
 				status = resp.Status
 			}

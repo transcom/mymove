@@ -73,7 +73,7 @@ func Init(logger *zap.Logger, config *Config) (func(), sdktrace.SpanExporter, sd
 
 	// convert our zap logger to the go-logr interface expected by
 	// otel, but only log otel errors
-	otel.SetLogger(zapr.NewLogger(logger.WithOptions(zap.IncreaseLevel(zap.ErrorLevel))))
+	otel.SetLogger(zapr.NewLogger(logger))
 
 	// explicitly set error handler
 	otel.SetErrorHandler(otel.ErrorHandlerFunc(func(err error) {

@@ -863,7 +863,7 @@ exporters:
 service:
   telemetry:
     logs:
-      level: ERROR
+      level: INFO
   pipelines:
     traces:
       receivers: [otlp,awsxray]
