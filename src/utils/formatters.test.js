@@ -123,6 +123,28 @@ describe('formatters', () => {
     });
   });
 
+  describe('formatDaysRemaining', () => {
+    it('returns 0 days when value is null', () => {
+      expect(formatters.formatDaysRemaining()).toEqual('0 days');
+    });
+
+    it('returns 0 days when value is zero', () => {
+      expect(formatters.formatDaysRemaining(0)).toEqual('0 days');
+    });
+
+    it('returns 1 day when value is one', () => {
+      expect(formatters.formatDaysRemaining(1)).toEqual('1 day');
+    });
+
+    it('returns plural when greater than 1', () => {
+      expect(formatters.formatDaysRemaining(2)).toEqual('2 days');
+    });
+
+    it('returns Expired when less than 0', () => {
+      expect(formatters.formatDaysRemaining(-5)).toEqual('Expired');
+    });
+  });
+
   describe('formatDelimitedNumber', () => {
     it('works for simple string numbers', () => {
       expect(formatters.formatDelimitedNumber('500')).toEqual(500);

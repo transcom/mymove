@@ -6,7 +6,7 @@ import { ShipmentPaymentSITBalanceShape } from '../../../types/serviceItems';
 
 import styles from './DaysInSITAllowance.module.scss';
 
-import { formatDate, formatDaysInTransit } from 'utils/formatters';
+import { formatDate, formatDaysInTransit, formatDaysRemaining } from 'utils/formatters';
 
 const DaysInSITAllowance = ({ className, shipmentPaymentSITBalance }) => {
   const {
@@ -40,7 +40,7 @@ const DaysInSITAllowance = ({ className, shipmentPaymentSITBalance }) => {
         <dd>{formatDaysInTransit(totalSITDaysAuthorized)}</dd>
         <dt>Authorized remaining</dt>
         <dd data-testid="totalRemaining">
-          {formatDaysInTransit(totalSITDaysRemaining)}, ends {formatDate(totalSITEndDate, 'YYYY-MM-DD', 'DD MMM YYYY')}
+          {formatDaysRemaining(totalSITDaysRemaining)}, ends {formatDate(totalSITEndDate, 'YYYY-MM-DD', 'DD MMM YYYY')}
         </dd>
       </dl>
     </div>

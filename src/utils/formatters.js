@@ -338,6 +338,19 @@ export const formatDaysInTransit = (days) => {
   return '0 days';
 };
 
+export const formatDaysRemaining = (days) => {
+  if (days) {
+    if (days === 1) {
+      return '1 day';
+    }
+    if (days < 0) {
+      return 'Expired';
+    }
+    return `${days} days`;
+  }
+  return '0 days';
+};
+
 export const formatAddressForPrimeAPI = (address) => {
   return {
     streetAddress1: address.streetAddress1,
