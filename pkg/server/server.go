@@ -7,9 +7,10 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
+	"github.com/spf13/viper"
+	"github.com/transcom/mymove/pkg/storage"
 	"golang.org/x/crypto/ocsp"
 	"io"
-	"io/fs"
 	"net/http"
 	"strconv"
 	"strings"
@@ -122,20 +123,68 @@ func getClientCert(request *http.Request) *x509.Certificate {
 	return clientCert
 }
 
+type Fetcher struct {
+	Fetch storage.FileStorer
+}
+
+func NewFetcher(fetch storage.FileStorer) (*Fetcher, error) {
+	return &Fetcher{
+		Fetch: fetch,
+	}, nil
+}
+
+//func containsIssuerName(content []byte) bool {
+//	re := regexp.MustCompile(`"issuer name":\s*".*?"`)
+//	return re.Match(content)
+//}
+//
+//func cleanupIssuerName(content string) string {
+//	// Regex that finds and replaces the issuer name value
+//	re := regexp.MustCompile(`"issuer name":\s*".*?"`)
+//	cleanedContent := re.ReplaceAllString(content, `"issuer name": "issuerName"`)
+//	return cleanedContent
+//}
+
 // Request CRL response from server.
 // Returns error if the server can't get the certificate
-func getCRLResponse(crlFile string, clientCert *x509.Certificate, issuerCert *x509.Certificate) error {
-	var filename string
-	crlRead, err := fs.ReadFile(filename, crlFile) // file name needs to be replaced with an actual file
+func getCRLResponse(fetch storage.FileStorer, v *viper.Viper, crlFile string, clientCert *x509.Certificate, issuerCert *x509.Certificate) error {
+	// NOTE: You will get file from S3 bucket
+	// Access S3 through Go SDK for AWS
+	// Call s3.Fetch get the ReadCloser
+	// ReadCloser is a path to the document that I need to Download
+	// Download that document
+	// helper to fetch value of keyname, in this case the bucket name
+
+	bucketName := "random_name" // This is the bucket name I am getting from Infra
+	bucketPath := v.GetString(bucketName)
+	crlFileName := NewFetcher(bucketPath) // returns value of the bucket, which is the crlFileName
+
+	crlRead, err := io.ReadAll(crlFileName)
 	if err != nil {
+		fmt.Printf("Error reading CRL file: %s\n", err)
 		return err
 	}
 
-	//Not a direct ASN.1 representation, so leaves the option to add more detailed information
+	//x509.ParseRevocationList is not a direct ASN.1 representation, so leaves the option to add more detailed information
 	parseCRL, err := x509.ParseRevocationList(crlRead)
 	if err != nil {
 		return err
 	}
+	//// Check if a file contains Issuer Name
+	//if containsIssuerName(parseCRL) {
+	//	// Clean up the issuer name value
+	//	cleanedContent := cleanupIssuerName(string(parseCRL))
+	//	// Write the cleane
+	//	//d content back to the file
+	//	err = os.WriteFile(crlFileName, []byte(cleanedContent), 0644)
+	//	if err != nil {
+	//		fmt.Printf("Error Writing to file: %s\n", err)
+	//		return err
+	//	}
+	//	fmt.Println("Issuer name clean up completed successfully")
+	//} else {
+	//	fmt.Println("File is missing 'issuer name' keyword.")
+	//}
 
 	// Parsed CRL against the issuer certificate
 	//err = parseCRL.CheckSignatureFrom(issuerCert)
