@@ -17,13 +17,15 @@ const AddressUpdatePreview = ({ deliveryAddressUpdate }) => {
       <h3 className={styles.previewHeading}>Delivery location</h3>
 
       <Alert type="warning">
-        If approved, the requested update to the delivery location will change one or all of the following:
-        <span className={styles.listItem}>Service area.</span>
-        <span className={styles.listItem}>Mileage bracket for direct delivery.</span>
-        <span className={styles.listItem}>
-          ZIP3 resulting in Domestic Shorthaul (DSH) changing to Domestic Linehaul (DLH) or vice versa.
+        <span className={styles.alertContent}>
+          If approved, the requested update to the delivery location will change one or all of the following:
+          <span className={styles.listItem}>Service area.</span>
+          <span className={styles.listItem}>Mileage bracket for direct delivery.</span>
+          <span className={styles.listItem}>
+            ZIP3 resulting in Domestic Shorthaul (DSH) changing to Domestic Linehaul (DLH) or vice versa.
+          </span>
+          Approvals will result in updated pricing for this shipment. Customer may be subject to excess costs.
         </span>
-        Approvals will result in updated pricing for this shipment. Customer may be subject to excess costs.
       </Alert>
 
       <DataTableWrapper
