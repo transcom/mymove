@@ -1142,23 +1142,25 @@ func fetchToken(code string, clientID string, loginGovProvider LoginGovProvider)
 	return &session, err
 }
 
-// InitAuth initializes the Okta provider
+// InitAuth initializes the Okta and Logingov provider
 func InitAuth(v *viper.Viper, logger *zap.Logger, appnames auth.ApplicationServername) (*OktaProvider, error) {
-	loginGovCallbackProtocol := v.GetString(cli.LoginGovCallbackProtocolFlag)
-	loginGovCallbackPort := v.GetInt(cli.LoginGovCallbackPortFlag)
-	loginGovSecretKey := v.GetString(cli.LoginGovSecretKeyFlag)
-	loginGovHostname := v.GetString(cli.LoginGovHostnameFlag)
 
-	loginGovProvider := NewLoginGovProvider(loginGovHostname, loginGovSecretKey, logger)
 	oktaProvider := NewOktaProvider(logger)
-	err := loginGovProvider.RegisterProvider(
-		appnames.MilServername,
-		v.GetString(cli.LoginGovMyClientIDFlag),
-		appnames.OfficeServername,
+	err := oktaProvider.RegisterProviders(
+		v.GetString(cli.OktaCustomerHostnameFlag),
+		v.GetString(cli.OktaTenantIssuerURLFlag),
+		v.GetString(cli.OktaCustomerClientIDFlag),
+		v.GetString(cli.OktaCustomerSecretKeyFlag),
+		v.GetString(cli.OktaCustomerHostnameFlag),
+		v.GetString(cli.OktaTenantIssuerURLFlag),
+		v.GetString(cli.OktaOfficeClientIDFlag),
+		v.GetString(cli.OktaOfficeSecretKeyFlag),
+		v.GetString(cli.OktaOfficeHostnameFlag),
+		v.GetString(cli.OktaTenantIssuerURLFlag),
+		v.GetString(cli.OktaAdminClientIDFlag),
+		v.GetString(cli.OktaAdminSecretKeyFlag),
 		v.GetString(cli.LoginGovOfficeClientIDFlag),
-		appnames.AdminServername,
-		v.GetString(cli.LoginGovAdminClientIDFlag),
-		loginGovCallbackProtocol,
-		loginGovCallbackPort)
+		v.GetInt(cli.OktaTenantCallbackPortFlag),
+		v.GetString(cli.OktaTenantIssuerURLFlag))
 	return oktaProvider, err
 }

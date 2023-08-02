@@ -5,10 +5,16 @@ import (
 	"net/url"
 	"os"
 
+	"github.com/markbates/goth"
 	"github.com/markbates/goth/providers/okta"
 	"github.com/transcom/mymove/pkg/auth"
 	"go.uber.org/zap"
 )
+
+const customerProviderName = "customerProvider"
+
+// const officeProviderName = "officeProvider" //used in the login_gov.go
+// const adminProviderName = "adminProvider" // used in login_gov.go
 
 type OktaProvider struct {
 	okta.Provider
@@ -76,4 +82,42 @@ func NewOktaProvider(logger *zap.Logger) *OktaProvider {
 		),
 		Logger: logger,
 	}
+}
+
+// This function allows us to wrap new registered providers with the zap logger. The initial Okta provider is already wrapped
+func wrapOktaProvider(provider *okta.Provider, logger *zap.Logger) *OktaProvider {
+	return &OktaProvider{
+		Provider: *provider,
+		Logger:   logger,
+	}
+}
+
+// This function allows us to register a new Okta provider with Goth. This is primarily used
+// for the three different Okta applications we're supporting: Customer, Office, and Admin
+func (op *OktaProvider) RegisterProvider(providerName string, clientID string, clientSecret string, issuerURL string, callbackURL string) error {
+
+	oktaProvider := okta.NewCustomisedURL(clientID, clientSecret, callbackURL, issuerURL+"/v1/authorize", issuerURL+"/v1/token", issuerURL, issuerURL+"/v1/userinfo", "openid", "profile", "email")
+
+	// set provider name for the Okta provider
+	oktaProvider.SetName(providerName)
+
+	goth.UseProviders(
+		wrapOktaProvider(oktaProvider, op.Logger),
+	)
+
+	return nil
+}
+
+func (op *OktaProvider) RegisterProviders(customerHostname string, customerCallbackUrl string, customerClientID string, customerSecret string, officeHostname string, officeCallbackUrl string, officeClientID string, officeSecret string, adminHostname string, adminCallbackUrl string, adminClientID string, adminSecret string, callbackProtocol string, callbackPort int, oktaIssuer string) error {
+	customerProvider := okta.New(customerClientID, customerSecret, oktaIssuer, customerCallbackUrl, "openid", "profile", "email")
+	officeProvider := okta.New(officeClientID, officeSecret, oktaIssuer, officeCallbackUrl, "openid", "profile", "email")
+	adminProvider := okta.New(adminClientID, adminSecret, oktaIssuer, adminCallbackUrl, "openid", "profile", "email")
+
+	goth.UseProviders(
+		wrapOktaProvider(customerProvider, op.Logger),
+		wrapOktaProvider(officeProvider, op.Logger),
+		wrapOktaProvider(adminProvider, op.Logger),
+	)
+
+	return nil
 }
