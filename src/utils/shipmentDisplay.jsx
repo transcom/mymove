@@ -143,7 +143,12 @@ export function formatPaymentRequestAddressString(pickupAddress, destinationAddr
   return ``;
 }
 
-export function formatPaymentRequestReviewAddressString(address) {
+/**
+ * @description This function is used to format the address in the
+ * ShipmentAddresses and PaymentRequestReview components.
+ * It displays only the city, state and postal code.
+ * */
+export function formatCityStateAndPostalCode(address) {
   if (address) {
     return `${address.city}, ${address.state} ${address.postalCode}`;
   }
