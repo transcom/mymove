@@ -37,7 +37,7 @@ export const ShipmentAddressUpdateReviewRequestModal = ({ deliveryAddressUpdate,
             <Form className={formStyles.form}>
               <div className={styles.modalbody}>
                 <AddressUpdatePreview deliveryAddressUpdate={deliveryAddressUpdate} shipmentType={shipmentType} />
-                <FormGroup>
+                <FormGroup className={styles.formGroup}>
                   <h4>Review Request</h4>
                   <Label htmlFor="acceptAddressUpdate" className={styles.approveLabel}>
                     Approve address change?

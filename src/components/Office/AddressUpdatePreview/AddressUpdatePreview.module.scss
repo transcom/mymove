@@ -1,11 +1,17 @@
 @import 'shared/styles/_basics';
 @import 'shared/styles/colors';
 
+.alert {
+  margin-top: 24px;
+  color: $base-darkest;
+}
+
 .alertContent {
     @include u-color('base-darkest');
 }
 
 .previewHeading {
+  color: $base-darkest;
   @include u-margin(0);
 }
 

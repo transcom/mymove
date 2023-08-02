@@ -16,7 +16,7 @@ const AddressUpdatePreview = ({ deliveryAddressUpdate }) => {
     <div>
       <h3 className={styles.previewHeading}>Delivery location</h3>
 
-      <Alert type="warning">
+      <Alert type="warning" className={styles.alert}>
         <span className={styles.alertContent}>
           If approved, the requested update to the delivery location will change one or all of the following:
           <span className={styles.listItem}>Service area.</span>
