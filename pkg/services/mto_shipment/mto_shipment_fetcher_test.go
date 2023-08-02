@@ -340,3 +340,53 @@ func (suite *MTOShipmentServiceSuite) TestGetMTOShipment() {
 		suite.Equalf(err, expectedError, "while looking for shipment")
 	})
 }
+
+func (suite *MTOShipmentServiceSuite) TestFindMTOShipment() {
+	// Test successful fetch
+	suite.Run("Returns a shipment successfully with correct ID", func() {
+		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), nil, nil)
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			OfficeUserID:    uuid.Must(uuid.NewV4()),
+		})
+
+		fetchedShipment, err := FindShipment(session, shipment.ID)
+		suite.NoError(err)
+		suite.Equal(shipment.ID, fetchedShipment.ID)
+	})
+
+	// Test 404 fetch
+	suite.Run("Returns not found error when shipment id doesn't exist", func() {
+		shipmentID := uuid.Must(uuid.NewV4())
+		expectedError := apperror.NewNotFoundError(shipmentID, "while looking for shipment")
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			OfficeUserID:    uuid.Must(uuid.NewV4()),
+		})
+
+		mtoShipment, err := FindShipment(session, shipmentID)
+
+		suite.Nil(mtoShipment)
+		suite.Equalf(err, expectedError, "while looking for shipment")
+	})
+
+	suite.Run("404 Not Found Error - shipment can only be created for service member associated with the current session", func() {
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.MilApp,
+			ServiceMemberID: uuid.Must(uuid.NewV4()),
+		})
+
+		move := factory.BuildMove(suite.DB(), nil, nil)
+
+		shipment := factory.BuildMTOShipment(nil, []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+		mtoShipment, err := FindShipment(session, shipment.ID)
+		suite.Error(err)
+		suite.Nil(mtoShipment)
+		suite.IsType(apperror.NotFoundError{}, err)
+	})
+}

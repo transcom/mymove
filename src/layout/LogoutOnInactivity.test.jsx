@@ -17,23 +17,20 @@ const mockState = (loggedIn) => {
 };
 
 // These tests assume that the idle time limit >= 1 second
-const idleTimeLimitSeconds = 1;
-const warningTimeLimitSeconds = 1;
+const idleTimeout = 3000;
+const warningTime = 1000;
 
 const renderComponent = ({ loggedIn }) => {
   render(
     <MockProviders initialState={mockState(loggedIn)}>
-      <LogoutOnInactivity
-        maxIdleTimeInSeconds={idleTimeLimitSeconds}
-        maxWarningTimeInSeconds={warningTimeLimitSeconds}
-      />
+      <LogoutOnInactivity idleTimeout={idleTimeout} warningTime={warningTime} />
     </MockProviders>,
   );
 };
 
-const sleep = (seconds) => {
+const sleep = (time) => {
   return new Promise((resolve) => {
-    setTimeout(resolve, seconds * 1000);
+    setTimeout(resolve, time);
   });
 };
 
@@ -55,27 +52,36 @@ describe('LogoutOnInactivity', () => {
     });
 
     it('becomes idle and triggers a warning', async () => {
-      // alert is missing before the user is idle for the timeout duration
-      expect(screen.queryByTestId('logoutAlert')).not.toBeInTheDocument();
+      // alert is missing before the user is idle for too long
+      expect(
+        screen.queryByText('You have been inactive and will be logged out', { exact: false }),
+      ).not.toBeInTheDocument();
       await act(async () => {
-        return sleep(idleTimeLimitSeconds);
+        return sleep(idleTimeout - warningTime);
       });
 
-      expect(screen.queryByTestId('logoutAlert')).toBeInTheDocument();
+      expect(screen.getByText('You have been inactive and will be logged out', { exact: false })).toBeInTheDocument();
     });
 
     it('removes the idle alert if a user performs a click', async () => {
-      // alert is missing before the user is idle for the timeout duration
-      expect(screen.queryByTestId('logoutAlert')).not.toBeInTheDocument();
+      // alert is missing before the user is idle for too long
+      expect(
+        screen.queryByText('You have been inactive and will be logged out', { exact: false }),
+      ).not.toBeInTheDocument();
       await act(async () => {
-        return sleep(idleTimeLimitSeconds);
+        return sleep(idleTimeout - warningTime);
       });
+
+      // alert is present after user is idle for too long
+      expect(screen.getByText('You have been inactive and will be logged out', { exact: false })).toBeInTheDocument();
 
       const wrapper = screen.getByTestId('logoutOnInactivityWrapper');
       await userEvent.click(wrapper);
 
       // alert is not present after the click
-      expect(screen.queryByTestId('logoutAlert')).not.toBeInTheDocument();
+      expect(
+        screen.queryByText('You have been inactive and will be logged out', { exact: false }),
+      ).not.toBeInTheDocument();
     });
   });
 
