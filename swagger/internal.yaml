@@ -5656,7 +5656,7 @@ paths:
       parameters:
         - $ref: '#/parameters/ppmShipmentId'
       responses:
-        '200':
+        '201':
           description: returns new moving expense object
           schema:
             $ref: '#/definitions/MovingExpense'
