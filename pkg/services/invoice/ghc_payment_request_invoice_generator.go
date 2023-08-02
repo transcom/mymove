@@ -558,7 +558,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(ap
 	return nil
 }
 
-func (g ghcPaymentRequestInvoiceGenerator) createLoaSegments(orders models.Order, shipment models.MTOShipment) (edisegment.FA1, []edisegment.FA2, error) {
+func (g ghcPaymentRequestInvoiceGenerator) createLoaSegments(appCtx appcontext.AppContext, orders models.Order, shipment models.MTOShipment) (edisegment.FA1, []edisegment.FA2, error) {
 	// We need to determine which TAC to use. We'll default to using the HHG TAC as that's what we've been doing
 	// up to this point. But now we need to look at the service item's MTOShipment (if there is one -- some
 	// service items like MS/CS aren't associated with a shipment) and see if it prefers the NTS TAC instead.
@@ -642,7 +642,104 @@ func (g ghcPaymentRequestInvoiceGenerator) createLoaSegments(orders models.Order
 		fa2s = append(fa2s, fa2SAC)
 	}
 
+	fa2LongLoaSegments, err := g.createLongLoaSegments(appCtx, orders, tac)
+	if err != nil {
+		return edisegment.FA1{}, nil, err
+	}
+	fa2s = append(fa2s, fa2LongLoaSegments...)
+
 	return fa1, fa2s, nil
+}
+
+func (g ghcPaymentRequestInvoiceGenerator) createLongLoaSegments(appCtx appcontext.AppContext, orders models.Order, tac string) ([]edisegment.FA2, error) {
+	var loa models.LineOfAccounting
+
+	err := appCtx.DB().Q().
+		Join("transportation_accounting_codes t", "t.loa_id = lines_of_accounting.id").
+		Where("t.tac = ?", tac).
+		Where("? between loa_bgn_dt and loa_end_dt", orders.IssueDate).
+		First(&loa)
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			// If no matching rows, don't include any long lines of accounting.
+			return nil, nil
+		default:
+			return nil, apperror.NewQueryError("lineOfAccounting", err, "Unexpected error")
+		}
+	}
+
+	var fa2LongLoaSegments []edisegment.FA2
+
+	var concatDate *string
+	if (loa.LoaBgnDt != nil && !loa.LoaBgnDt.IsZero()) &&
+		(loa.LoaEndDt != nil && !loa.LoaEndDt.IsZero()) {
+		fiscalYearStr := fmt.Sprintf("%d%d", loa.LoaBgnDt.Year(), loa.LoaEndDt.Year())
+		concatDate = &fiscalYearStr
+	}
+
+	// Create long LOA FA2 segments
+	segmentInputs := []struct {
+		detailCode string
+		infoCode   *string
+	}{
+		{"A1", loa.LoaDptID},
+		{"A2", loa.LoaTnsfrDptNm},
+		{"A3", concatDate},
+		{"A4", loa.LoaBafID},
+		{"A5", loa.LoaTrsySfxTx},
+		{"A6", loa.LoaMajClmNm},
+		{"B1", loa.LoaOpAgncyID},
+		{"B2", loa.LoaAlltSnID},
+		{"B3", loa.LoaUic},
+		{"C1", loa.LoaPgmElmntID},
+		{"C2", loa.LoaTskBdgtSblnTx},
+		{"D1", loa.LoaDfAgncyAlctnRcpntID},
+		{"D4", loa.LoaJbOrdNm},
+		{"D6", loa.LoaSbaltmtRcpntID},
+		{"D7", loa.LoaWkCntrRcpntNm},
+		{"E1", loa.LoaMajRmbsmtSrcID},
+		{"E2", loa.LoaDtlRmbsmtSrcID},
+		{"E3", loa.LoaCustNm},
+		{"F1", loa.LoaObjClsID},
+		{"F3", loa.LoaSrvSrcID},
+		{"G2", loa.LoaSpclIntrID},
+		{"I1", loa.LoaBdgtAcntClsNm},
+		{"J1", loa.LoaDocID},
+		{"K6", loa.LoaClsRefID},
+		{"L1", loa.LoaInstlAcntgActID},
+		{"M1", loa.LoaLclInstlID},
+		{"N1", loa.LoaFmsTrnsactnID},
+		{"P5", loa.LoaDscTx},
+	}
+
+	for _, input := range segmentInputs {
+		fa2 := createLongLoaSegment(input.detailCode, input.infoCode)
+		if fa2 != nil {
+			fa2LongLoaSegments = append(fa2LongLoaSegments, *fa2)
+		}
+	}
+
+	return fa2LongLoaSegments, nil
+}
+
+func createLongLoaSegment(detailCode string, infoCode *string) *edisegment.FA2 {
+	if infoCode == nil || *infoCode == "" {
+		return nil
+	}
+
+	value := *infoCode
+
+	// Trim if it exceeds the 80 character limit of the FinancialInformationCode field
+	// TODO: Is it OK to trim or should we error?
+	if len(value) > 80 {
+		value = value[:80]
+	}
+
+	return &edisegment.FA2{
+		BreakdownStructureDetailCode: detailCode,
+		FinancialInformationCode:     value,
+	}
 }
 
 func (g ghcPaymentRequestInvoiceGenerator) fetchPaymentServiceItemParam(appCtx appcontext.AppContext, serviceItemID uuid.UUID, key models.ServiceItemParamName) (models.PaymentServiceItemParam, error) {
@@ -883,7 +980,7 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(ap
 
 		}
 
-		fa1, fa2s, err := g.createLoaSegments(orders, serviceItem.MTOServiceItem.MTOShipment)
+		fa1, fa2s, err := g.createLoaSegments(appCtx, orders, serviceItem.MTOServiceItem.MTOShipment)
 		if err != nil {
 			return segments, l3, err
 		}
