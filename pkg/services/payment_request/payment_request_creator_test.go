@@ -639,13 +639,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 				LinkOnly: true,
 			},
 		}, nil)
-		shipmentID := shipment.ID
-		// estimatedWeight := unit.Pound(2048)
 		serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
-			{
-				Model:    move,
-				LinkOnly: true,
-			},
 			{
 				Model:    shipment,
 				LinkOnly: true,
@@ -655,15 +649,9 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 					Code: models.ReServiceCodeDLH,
 				},
 			},
-			// {
-			// 	Model: models.MTOShipment{
-			// 		PrimeEstimatedWeight: &estimatedWeight,
-			// 	},
-			// },
 			{
 				Model: models.MTOServiceItem{
-					Status:        models.MTOServiceItemStatusApproved,
-					MTOShipmentID: &shipmentID,
+					Status: models.MTOServiceItemStatusApproved,
 				},
 			},
 		}, nil)
@@ -678,32 +666,30 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			},
 			{
 				Model: models.PaymentRequest{
-					PaymentServiceItems: []models.PaymentServiceItem{
-						{
-							MTOServiceItemID: serviceItem.ID,
-							MTOServiceItem:   serviceItem,
-							PaymentServiceItemParams: models.PaymentServiceItemParams{
-								{
-									IncomingKey: models.ServiceItemParamNameWeightEstimated.String(),
-									Value:       "3254",
-								},
-								{
-									IncomingKey: models.ServiceItemParamNameRequestedPickupDate.String(),
-									Value:       "2022-03-16",
-								},
-							},
-							Status: models.PaymentServiceItemStatusPaid,
-						},
-					},
 					Status: models.PaymentRequestStatusPaid,
 				},
+			},
+		}, nil)
+
+		factory.BuildPaymentServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					Status: models.PaymentServiceItemStatusPaid,
+				},
+			},
+			{
+				Model:    paymentRequest1,
+				LinkOnly: true,
+			},
+			{
+				Model:    serviceItem,
+				LinkOnly: true,
 			},
 		}, nil)
 
 		var paymentRequests models.PaymentRequests
 		paymentRequests = append(paymentRequests, paymentRequest1)
 		shipment.MoveTaskOrder.PaymentRequests = paymentRequests
-		// suite.Equal(len(shipment.MoveTaskOrder.PaymentRequests), 10)
 
 		paymentRequest2 := models.PaymentRequest{
 			MoveTaskOrderID: move.ID,
@@ -726,16 +712,10 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			},
 		}
 		_, err := creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &paymentRequest2)
-		// suite.Equal(shipmentID.String(), paymentRequest1.PaymentServiceItems[0].MTOServiceItem.MTOShipmentID.String())
-		// suite.Equal(paymentRequest1.PaymentServiceItems[0].MTOServiceItemID, paymentRequest2.PaymentServiceItems[0].MTOServiceItemID)
-		// suite.Equal(paymentRequest1.PaymentServiceItems[0].Status.String(), "PAID" )
-		// suite.Equal(paymentRequest2.PaymentServiceItems[0].Status.String(), "APPROVED" )
-
-		// suite.NoError(err)
 		suite.Error(err)
 		suite.IsType(apperror.ConflictError{}, err)
 
-		suite.Equal(fmt.Sprintf("%s, Conflict Error: Payment Request for Service Item is already paid or requested", paymentRequest1.ID), err.Error())
+		suite.Equal(fmt.Sprintf("ID: %s is in a conflicting state Conflict Error: Payment Request for Service Item is already paid or requested", paymentRequest1.ID), err.Error())
 	})
 
 	suite.Run("Given no move task order id, the create should fail", func() {
@@ -813,9 +793,23 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 	for _, testData := range invalidOrdersTestData {
 		suite.Run(testData.TestDescription, func() {
 			mtoInvalid := testData.InvalidMove()
+			mtoServiceItem1.MoveTaskOrderID = mtoInvalid.ID
 			paymentRequest := models.PaymentRequest{
 				MoveTaskOrderID: mtoInvalid.ID,
+				PaymentServiceItems: models.PaymentServiceItems{
+					{
+						MTOServiceItemID: mtoServiceItem1.ID,
+						MTOServiceItem:   mtoServiceItem1,
+						PaymentServiceItemParams: models.PaymentServiceItemParams{
+							{
+								ServiceItemParamKeyID: serviceItemParamKey1.ID,
+								Value:                 "3254",
+							},
+						},
+					},
+				},
 			}
+
 			_, err := creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &paymentRequest)
 
 			suite.Error(err)
@@ -967,8 +961,21 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 	for _, testData := range invalidServiceMemberTestData {
 		suite.Run(testData.TestDescription, func() {
 			mtoInvalid := testData.InvalidMove()
+			mtoServiceItem1.MoveTaskOrderID = mtoInvalid.ID
 			paymentRequest := models.PaymentRequest{
 				MoveTaskOrderID: mtoInvalid.ID,
+				PaymentServiceItems: models.PaymentServiceItems{
+					{
+						MTOServiceItemID: mtoServiceItem1.ID,
+						MTOServiceItem:   mtoServiceItem1,
+						PaymentServiceItemParams: models.PaymentServiceItemParams{
+							{
+								ServiceItemParamKeyID: serviceItemParamKey1.ID,
+								Value:                 "3254",
+							},
+						},
+					},
+				},
 			}
 			_, err := creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &paymentRequest)
 
@@ -979,20 +986,24 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 	}
 
 	suite.Run("Given a non-existent service item id, the create should fail", func() {
-		badID := uuid.Nil
+		// badID := uuid.Nil
+		badID, _ := uuid.FromString("0aee14dd-b5ea-441a-89ad-db4439fa4ea2")
+		mtoServiceItem1.MoveTaskOrderID = moveTaskOrder.ID
 		invalidPaymentRequest := models.PaymentRequest{
 			MoveTaskOrderID: moveTaskOrder.ID,
 			IsFinal:         false,
 			PaymentServiceItems: models.PaymentServiceItems{
 				{
 					MTOServiceItemID: badID,
+					MTOServiceItem:   mtoServiceItem1,
+					Status:           models.PaymentServiceItemStatusApproved,
 				},
 			},
 		}
 		_, err := creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &invalidPaymentRequest)
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
-		suite.Contains(err.Error(), "Not found for MTO Service Item")
+		suite.Contains(err.Error(), "not found for MTO Service Item")
 	})
 
 	suite.Run("Given a submitted (not approved) service item, the create should fail", func() {
@@ -1101,8 +1112,8 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			IsFinal:         false,
 			PaymentServiceItems: models.PaymentServiceItems{
 				{
-					MTOServiceItemID: mtoServiceItem1.ID,
-					MTOServiceItem:   mtoServiceItem1,
+					MTOServiceItemID: mtoServiceItem2.ID,
+					MTOServiceItem:   mtoServiceItem2,
 					PaymentServiceItemParams: models.PaymentServiceItemParams{
 						{
 							ServiceItemParamKeyID: serviceItemParamKey1.ID,
@@ -1207,6 +1218,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 							Value:       "2019-12-16",
 						},
 					},
+					Status: models.PaymentServiceItemStatusApproved,
 				},
 				{
 					MTOServiceItemID: mtoServiceItem2.ID,
@@ -1217,8 +1229,10 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 							Value:       "7722",
 						},
 					},
+					Status: models.PaymentServiceItemStatusApproved,
 				},
 			},
+			Status: models.PaymentRequestStatusReviewed,
 		}
 
 		_, err = creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &paymentRequest2)
@@ -1267,7 +1281,11 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		suite.FatalNoError(err)
 
 		paymentRequest1.Status = models.PaymentRequestStatusReviewedAllRejected
+		paymentRequest1.PaymentServiceItems[0].Status = models.PaymentServiceItemStatusDenied
+		paymentRequest1.PaymentServiceItems[1].Status = models.PaymentServiceItemStatusDenied
 		suite.MustSave(&paymentRequest1)
+		// var paymentRequests models.PaymentRequests
+		// paymentRequests = append(paymentRequests, paymentRequest1)
 
 		paymentRequest2 := models.PaymentRequest{
 			MoveTaskOrderID: moveTaskOrder.ID,

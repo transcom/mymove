@@ -61,8 +61,8 @@ func checkStatusOfExistingPaymentRequest() paymentRequestValidator {
 		//paymentRequest.MoveTaskOrder.MTOShipment.ID
 		// return apperror.NewConflictError(paymentRequest.ID, "Conflict Error: Payment Request for Service Item is already paid or requested")
 
-		// return apperror.NewConflictError(paymentRequest.ID, "Conflict Error: Payment Request for Service Item is already paid or requested")
 		if len(existingPaymentRequests) > 0 {
+			// return apperror.NewConflictError(paymentRequest.ID, "Conflict Error: Payment Request for Service Item is already paid or requested")
 			for _, pr := range existingPaymentRequests {
 				for _, existingPaymentServiceItem := range pr.PaymentServiceItems {
 
@@ -77,7 +77,6 @@ func checkStatusOfExistingPaymentRequest() paymentRequestValidator {
 							if newPaymentServiceItem.MTOServiceItemID == existingPaymentServiceItem.MTOServiceItemID {
 								// if newPaymentServiceItem.MTOServiceItem.ReService.Code != models.ReServiceCodeDDASIT && newPaymentServiceItem.MTOServiceItem.ReService.Code != models.ReServiceCodeDOASIT {
 								if (newPaymentServiceItem.MTOServiceItem.ReService.Code != models.ReServiceCodeDDASIT && newPaymentServiceItem.MTOServiceItem.ReService.Code != models.ReServiceCodeDOASIT) && (existingPaymentServiceItem.Status == models.PaymentServiceItemStatusRequested || existingPaymentServiceItem.Status == models.PaymentServiceItemStatusPaid) {
-									// need to add back the exception for DDA and DOASIT
 									return apperror.NewConflictError(pr.ID, "Conflict Error: Payment Request for Service Item is already paid or requested")
 								}
 								// }
