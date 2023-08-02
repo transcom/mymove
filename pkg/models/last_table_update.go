@@ -85,9 +85,9 @@ func NewTRDMGetLastTableUpdate(physicalName string, soapClient SoapCaller) TRDMG
 }
 
 // FetchAllTACRecords queries and fetches all transportation_accounting_codes
-func fetchAllTACRecords(dbConnection *pop.Connection) ([]TACCodes, error) {
+func FetchAllTACRecords(dbConnection *pop.Connection) ([]TACCodes, error) {
 	var tacCodes []TACCodes
-	query := `Select * from transportation_accounting_codes`
+	query := `SELECT * FROM transportation_accounting_codes`
 
 	err := dbConnection.RawQuery(query).All(&tacCodes)
 	if err != nil {
@@ -124,7 +124,7 @@ func (d *getLastTableUpdateReq) GetLastTableUpdate(appCtx appcontext.AppContext,
 	}
 
 	if r.GetTableResponseElement.RowCount != 0 {
-		tacCodes, dbError := fetchAllTACRecords(appCtx.DB())
+		tacCodes, dbError := FetchAllTACRecords(appCtx.DB())
 		if dbError != nil {
 			return fmt.Errorf(err.Error())
 		}

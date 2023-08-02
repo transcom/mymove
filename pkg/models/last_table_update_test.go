@@ -9,6 +9,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/route/ghcmocks"
+	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
@@ -77,4 +78,24 @@ func (suite *TRDMTestSuite) TestTRDMGetLastTableUpdateFake() {
 			}
 		})
 	}
+}
+
+func (suite *ModelSuite) TestFetchAllTACRecords() {
+
+	// Get initial TAC codes count
+	initialCodes, err := models.FetchAllTACRecords(suite.DB())
+	initialTacCodeLength := len(initialCodes)
+	suite.NoError(err)
+
+	// Creates a test TAC code record in the DB
+	testdatagen.MakeDefaultTransportationAccountingCode(suite.DB())
+
+	// Fetch All TAC Records
+	codes, err := models.FetchAllTACRecords(suite.DB())
+
+	// Compare new TAC Code count to initial count
+	finalCodesLength := len(codes)
+
+	suite.NoError(err)
+	suite.Equal(finalCodesLength, initialTacCodeLength+1)
 }
