@@ -44,7 +44,6 @@ require (
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/jung-kurt/gofpdf v1.16.2
 	github.com/lib/pq v1.10.9
-	github.com/luna-duclos/instrumentedsql v1.1.3
 	github.com/markbates/goth v1.77.0
 	github.com/namsral/flag v1.7.4-pre
 	github.com/pdfcpu/pdfcpu v0.2.5
@@ -78,7 +77,7 @@ require (
 	go.opentelemetry.io/otel/trace v1.16.0
 	go.uber.org/zap v1.24.0
 	golang.org/x/crypto v0.11.0
-	golang.org/x/net v0.12.0
+	golang.org/x/net v0.13.0
 	golang.org/x/oauth2 v0.10.0
 	golang.org/x/text v0.11.0
 	golang.org/x/tools v0.11.0
@@ -161,6 +160,7 @@ require (
 	github.com/kr/text v0.2.0 // indirect
 	github.com/leodido/go-urn v1.2.4 // indirect
 	github.com/lithammer/fuzzysearch v1.1.8 // indirect
+	github.com/luna-duclos/instrumentedsql v1.1.3 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
