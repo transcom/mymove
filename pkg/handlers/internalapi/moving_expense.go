@@ -31,10 +31,6 @@ func (h CreateMovingExpenseHandler) Handle(params movingexpenseops.CreateMovingE
 			noSessionErr := apperror.NewSessionError("No user session")
 			return movingexpenseops.NewCreateMovingExpenseUnauthorized(), noSessionErr
 		}
-		if !appCtx.Session().IsMilApp() && appCtx.Session().ServiceMemberID == uuid.Nil {
-			noServiceMemberIDErr := apperror.NewSessionError("No service member ID")
-			return movingexpenseops.NewCreateMovingExpenseForbidden(), noServiceMemberIDErr
-		}
 
 		// No need for payload_to_model for Create
 		ppmShipmentID, err := uuid.FromString(params.PpmShipmentID.String())
@@ -84,7 +80,7 @@ func (h CreateMovingExpenseHandler) Handle(params movingexpenseops.CreateMovingE
 
 		// Add to payload
 		returnPayload := payloads.MovingExpense(h.FileStorer(), movingExpense)
-		return movingexpenseops.NewCreateMovingExpenseOK().WithPayload(returnPayload), nil
+		return movingexpenseops.NewCreateMovingExpenseCreated().WithPayload(returnPayload), nil
 	})
 }
 
