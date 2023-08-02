@@ -60,7 +60,7 @@ func (suite *ModelSuite) TestTRDMGetLastTableUpdateFake() {
 			).Return(soapResponseForGetLastTableUpdate(test.lastUpdate), soapError)
 
 			lastTableUpdate := models.NewTRDMGetLastTableUpdate(physicalName, testSoapClient)
-			err := lastTableUpdate.GetLastTableUpdate(suite.AppContextForTest(), "ACFT")
+			err := lastTableUpdate.GetLastTableUpdate(suite.AppContextForTest(), physicalName)
 
 			if err != nil {
 				suite.Error(err)
