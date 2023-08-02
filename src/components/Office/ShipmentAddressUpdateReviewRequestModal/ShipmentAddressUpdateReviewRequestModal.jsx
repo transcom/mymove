@@ -3,6 +3,7 @@ import { Button, Textarea, Label, FormGroup, Radio } from '@trussworks/react-usw
 import { Formik, Field } from 'formik';
 import * as Yup from 'yup';
 import * as PropTypes from 'prop-types';
+import classnames from 'classnames';
 
 import styles from './ShipmentAddressUpdateReviewRequestModal.module.scss';
 
@@ -12,6 +13,7 @@ import formStyles from 'styles/form.module.scss';
 import AddressUpdatePreview from 'components/Office/AddressUpdatePreview/AddressUpdatePreview';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { ShipmentAddressUpdateShape } from 'types';
+import Fieldset from 'shared/Fieldset';
 
 const formSchema = Yup.object().shape({
   addressUpdate: Yup.string().required('Required'),
@@ -39,10 +41,8 @@ export const ShipmentAddressUpdateReviewRequestModal = ({ deliveryAddressUpdate,
                 <AddressUpdatePreview deliveryAddressUpdate={deliveryAddressUpdate} shipmentType={shipmentType} />
                 <FormGroup className={styles.formGroup}>
                   <h4>Review Request</h4>
-                  <Label htmlFor="acceptAddressUpdate" className={styles.approveLabel}>
-                    Approve address change?
-                  </Label>
-                  <div>
+                  <Fieldset>
+                    <legend className={classnames('usa-label', styles.approveLabel)}>Approve address change?</legend>
                     <Field
                       as={Radio}
                       label="Yes"
@@ -59,7 +59,7 @@ export const ShipmentAddressUpdateReviewRequestModal = ({ deliveryAddressUpdate,
                       value="NO"
                       type="radio"
                     />
-                  </div>
+                  </Fieldset>
                 </FormGroup>
                 <Label htmlFor="officeRemarks">Office remarks</Label>
                 <p className={styles.subLabel}>Office remarks will be sent to the contractor.</p>

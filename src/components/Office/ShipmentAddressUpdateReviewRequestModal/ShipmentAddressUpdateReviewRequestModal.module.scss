@@ -21,10 +21,6 @@
     @include u-font-weight(bold);
   }
 
-  label {
-    color: $base-darkest;
-  }
-
   .approveLabel {
     @include u-margin-top(1.5);
   }
