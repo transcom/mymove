@@ -49,9 +49,8 @@ type TRDMGetLastTableUpdater interface {
 	GetLastTableUpdate(appCtx appcontext.AppContext, physicalName string, returnContent bool) error
 }
 type getLastTableUpdateReq struct {
-	physicalName  string
-	returnContent bool
-	soapClient    SoapCaller
+	physicalName string
+	soapClient   SoapCaller
 }
 
 type SoapCaller interface {
@@ -77,11 +76,10 @@ type TACCodes struct {
 	UpdatedAt time.Time `json:"updated_at" db:"updated_at"`
 }
 
-func NewTRDMGetLastTableUpdate(physicalName string, returnContent bool, soapClient SoapCaller) TRDMGetLastTableUpdater {
+func NewTRDMGetLastTableUpdate(physicalName string, soapClient SoapCaller) TRDMGetLastTableUpdater {
 	return &getLastTableUpdateReq{
-		physicalName:  physicalName,
-		returnContent: returnContent,
-		soapClient:    soapClient,
+		physicalName: physicalName,
+		soapClient:   soapClient,
 	}
 
 }

@@ -45,15 +45,14 @@ func (suite *TRDMTestSuite) TestTRDMGetLastTableUpdateFake() {
 	tests := []struct {
 		name          string
 		lastUpdate    string
-		returnContent bool
 		responseError bool
 		shouldError   bool
 	}{
-		{"", "AFCT", true, false, false},
-		{"", "FakeTable", false, false, false},
-		{"", "nano", false, false, true},
-		{"", "vi", false, true, true},
-		{"", "not Sure", false, false, false},
+		{"", "AFCT", false, false},
+		{"", "FakeTable", false, false},
+		{"", "nano", false, true},
+		{"", "vi", true, true},
+		{"", "not Sure", false, false},
 	}
 	for _, test := range tests {
 		suite.Run("fake call to TRDM: "+test.name, func() {
@@ -68,7 +67,7 @@ func (suite *TRDMTestSuite) TestTRDMGetLastTableUpdateFake() {
 				mock.Anything,
 			).Return(soapResponseForGetLastTableUpdate(test.lastUpdate), soapError)
 
-			lastTableUpdate := models.NewTRDMGetLastTableUpdate(physicalName, returnContent, nil) //! REPLACE nil with soapClient
+			lastTableUpdate := models.NewTRDMGetLastTableUpdate(physicalName, nil) //! REPLACE nil with soapClient
 			err := lastTableUpdate.GetLastTableUpdate(suite.AppContextForTest(), "ACFT", true)
 
 			if err != nil {
