@@ -46,15 +46,11 @@ SOAP Response:
  *******************************************/
 // Date/time value is used in conjunction with the contentUpdatedSinceDateTime column in the getTable method.
 type TRDMGetLastTableUpdater interface {
-	GetLastTableUpdate(appCtx appcontext.AppContext, physicalName string, returnContent bool) error
+	GetLastTableUpdate(appCtx appcontext.AppContext, physicalName string) error
 }
 type getLastTableUpdateReq struct {
 	physicalName string
 	soapClient   SoapCaller
-}
-
-type SoapCaller interface {
-	Call(m string, p gosoap.Params) (res *gosoap.Response, err error)
 }
 
 type getTableResponse struct {
@@ -98,7 +94,7 @@ func FetchAllTACRecords(dbConnection *pop.Connection) ([]TACCodes, error) {
 
 }
 
-func (d *getLastTableUpdateReq) GetLastTableUpdate(appCtx appcontext.AppContext, physicalName string, returnContent bool) error {
+func (d *getLastTableUpdateReq) GetLastTableUpdate(appCtx appcontext.AppContext, physicalName string) error {
 
 	gosoap.SetCustomEnvelope("soapenv", map[string]string{
 		"xmlns:soapenv": "http://schemas.xmlsoap.org/soap/envelope/",
@@ -106,9 +102,8 @@ func (d *getLastTableUpdateReq) GetLastTableUpdate(appCtx appcontext.AppContext,
 	})
 
 	params := gosoap.Params{
-		"TRDM": map[string]interface{}{
-			"physicalName":  physicalName,
-			"returnContent": returnContent,
+		"getLastTableUpdateRequestElement": map[string]interface{}{
+			"physicalName": physicalName,
 		},
 	}
 	res, err := d.soapClient.Call("ProcessRequest", params)

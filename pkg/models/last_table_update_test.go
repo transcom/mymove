@@ -2,15 +2,15 @@ package models_test
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/mock"
 	"github.com/tiaguinho/gosoap"
 
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/route/ghcmocks"
+	"github.com/transcom/mymove/pkg/models/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
-	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
 const getLastTableUpdateTemplate = `<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
@@ -25,35 +25,26 @@ const getLastTableUpdateTemplate = `<soap:Envelope xmlns:soap="http://schemas.xm
 </soap:Body>
 </soap:Envelope> `
 
-type TRDMTestSuite struct {
-	*testingsuite.PopTestSuite
-}
-
 const (
-	physicalName  = "fakePhysicalName"
-	returnContent = false
+	physicalName = "fakePhysicalName"
 )
 
-// TODO: Replace lastUpdate and all references
-func soapResponseForGetLastTableUpdate(lastUpdate string) *gosoap.Response {
+func soapResponseForGetLastTableUpdate(lastUpdate time.Time) *gosoap.Response {
 	return &gosoap.Response{
 		Body: []byte(fmt.Sprintf(getLastTableUpdateTemplate, lastUpdate)),
 	}
 }
 
-func (suite *TRDMTestSuite) TestTRDMGetLastTableUpdateFake() {
-
+func (suite *ModelSuite) TestTRDMGetLastTableUpdateFake() {
 	tests := []struct {
 		name          string
-		lastUpdate    string
+		lastUpdate    time.Time
 		responseError bool
 		shouldError   bool
 	}{
-		{"", "AFCT", false, false},
-		{"", "FakeTable", false, false},
-		{"", "nano", false, true},
-		{"", "vi", true, true},
-		{"", "not Sure", false, false},
+		{"No update", time.Now(), false, false},
+		{"Should error", time.Now(), true, true},
+		{"There is an update", time.Now().Add(-72 * time.Hour), false, false},
 	}
 	for _, test := range tests {
 		suite.Run("fake call to TRDM: "+test.name, func() {
@@ -62,14 +53,14 @@ func (suite *TRDMTestSuite) TestTRDMGetLastTableUpdateFake() {
 				soapError = errors.New("some error")
 			}
 
-			testSoapClient := &ghcmocks.SoapCaller{}
+			testSoapClient := &mocks.SoapCaller{}
 			testSoapClient.On("Call",
 				mock.Anything,
 				mock.Anything,
 			).Return(soapResponseForGetLastTableUpdate(test.lastUpdate), soapError)
 
-			lastTableUpdate := models.NewTRDMGetLastTableUpdate(physicalName, nil) //! REPLACE nil with soapClient
-			err := lastTableUpdate.GetLastTableUpdate(suite.AppContextForTest(), "ACFT", true)
+			lastTableUpdate := models.NewTRDMGetLastTableUpdate(physicalName, testSoapClient)
+			err := lastTableUpdate.GetLastTableUpdate(suite.AppContextForTest(), "ACFT")
 
 			if err != nil {
 				suite.Error(err)
