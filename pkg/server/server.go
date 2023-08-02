@@ -12,6 +12,8 @@ import (
 	"golang.org/x/crypto/ocsp"
 	"io"
 	"net/http"
+	"os"
+	"regexp"
 	"strconv"
 	"strings"
 	"sync"
@@ -133,17 +135,17 @@ func NewFetcher(fetch storage.FileStorer) (*Fetcher, error) {
 	}, nil
 }
 
-//func containsIssuerName(content []byte) bool {
-//	re := regexp.MustCompile(`"issuer name":\s*".*?"`)
-//	return re.Match(content)
-//}
-//
-//func cleanupIssuerName(content string) string {
-//	// Regex that finds and replaces the issuer name value
-//	re := regexp.MustCompile(`"issuer name":\s*".*?"`)
-//	cleanedContent := re.ReplaceAllString(content, `"issuer name": "issuerName"`)
-//	return cleanedContent
-//}
+func containsIssuerName(content []byte) bool {
+	re := regexp.MustCompile(`"issuer name":\s*".*?"`)
+	return re.Match(content)
+}
+
+func cleanupIssuerName(content string) string {
+	// Regex that finds and replaces the issuer name value
+	re := regexp.MustCompile(`"issuer name":\s*".*?"`)
+	cleanedContent := re.ReplaceAllString(content, `"issuer name": "issuerName"`)
+	return cleanedContent
+}
 
 // Request CRL response from server.
 // Returns error if the server can't get the certificate
@@ -170,21 +172,21 @@ func getCRLResponse(fetch storage.FileStorer, v *viper.Viper, crlFile string, cl
 	if err != nil {
 		return err
 	}
-	//// Check if a file contains Issuer Name
-	//if containsIssuerName(parseCRL) {
-	//	// Clean up the issuer name value
-	//	cleanedContent := cleanupIssuerName(string(parseCRL))
-	//	// Write the cleane
-	//	//d content back to the file
-	//	err = os.WriteFile(crlFileName, []byte(cleanedContent), 0644)
-	//	if err != nil {
-	//		fmt.Printf("Error Writing to file: %s\n", err)
-	//		return err
-	//	}
-	//	fmt.Println("Issuer name clean up completed successfully")
-	//} else {
-	//	fmt.Println("File is missing 'issuer name' keyword.")
-	//}
+	// Check if a file contains Issuer Name
+	if containsIssuerName(parseCRL) {
+		// Clean up the issuer name value
+		cleanedContent := cleanupIssuerName(string(parseCRL))
+		// Write the cleane
+		//d content back to the file
+		err = os.WriteFile(crlFileName, []byte(cleanedContent), 0644)
+		if err != nil {
+			fmt.Printf("Error Writing to file: %s\n", err)
+			return err
+		}
+		fmt.Println("Issuer name clean up completed successfully")
+	} else {
+		fmt.Println("File is missing 'issuer name' keyword.")
+	}
 
 	// Parsed CRL against the issuer certificate
 	//err = parseCRL.CheckSignatureFrom(issuerCert)
