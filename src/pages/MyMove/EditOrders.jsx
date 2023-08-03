@@ -18,12 +18,13 @@ import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 import {
   selectServiceMemberFromLoggedInUser,
   selectCurrentOrders,
+  selectCurrentMove,
   selectMoveIsApproved,
   selectUploadsForCurrentOrders,
   selectHasCurrentPPM,
 } from 'store/entities/selectors';
 import EditOrdersForm from 'components/Customer/EditOrdersForm/EditOrdersForm';
-import { OrdersShape, ServiceMemberShape } from 'types/customerShapes';
+import { OrdersShape, ServiceMemberShape, MoveShape } from 'types/customerShapes';
 import { formatWeight, formatYesNoInputValue, dropdownInputOptions } from 'utils/formatters';
 import { ORDERS_TYPE_OPTIONS } from 'constants/orders';
 import { ExistingUploadsShape } from 'types/uploads';
@@ -32,6 +33,7 @@ import { formatDateForSwagger } from 'shared/dates';
 export const EditOrders = ({
   serviceMember,
   currentOrders,
+  currentMove,
   updateOrders,
   existingUploads,
   moveIsApproved,
@@ -49,6 +51,7 @@ export const EditOrders = ({
     has_dependents: formatYesNoInputValue(currentOrders?.has_dependents),
     new_duty_location: currentOrders?.new_duty_location || null,
     uploaded_orders: existingUploads || [],
+    move_status: currentMove.status,
   };
 
   // Only allow PCS unless feature flag is on
@@ -179,6 +182,7 @@ EditOrders.propTypes = {
   setFlashMessage: PropTypes.func.isRequired,
   updateOrders: PropTypes.func.isRequired,
   currentOrders: OrdersShape.isRequired,
+  currentMove: MoveShape.isRequired,
   existingUploads: ExistingUploadsShape,
   context: PropTypes.shape({
     flags: PropTypes.shape({
@@ -194,11 +198,13 @@ EditOrders.defaultProps = {
 function mapStateToProps(state) {
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
   const currentOrders = selectCurrentOrders(state) || {};
+  const currentMove = selectCurrentMove(state) || {};
   const uploads = selectUploadsForCurrentOrders(state);
 
   return {
     serviceMember,
     currentOrders,
+    currentMove,
     existingUploads: uploads,
     moveIsApproved: selectMoveIsApproved(state),
     isPpm: selectHasCurrentPPM(state),

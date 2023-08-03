@@ -22,6 +22,7 @@ import (
 	uploadop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/uploads"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services/upload"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/uploader"
 )
@@ -246,32 +247,90 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailure() {
 
 func (suite *HandlerSuite) TestDeleteUploadHandlerSuccess() {
 	fakeS3 := storageTest.NewFakeS3Storage(true)
+	setupTestData := func() (models.UserUpload, models.Move) {
+		move := factory.BuildMove(suite.DB(), nil, nil)
+		uploadUser := factory.BuildUserUpload(suite.DB(), []factory.Customization{
+			{
+				Model:    move.Orders.UploadedOrders,
+				LinkOnly: true,
+			},
+			{
+				Model: models.Upload{
+					Filename:    "FileName",
+					Bytes:       int64(15),
+					ContentType: uploader.FileTypePDF,
+				},
+			},
+		}, nil)
 
-	uploadUser := factory.BuildUserUpload(suite.DB(), nil, nil)
-	suite.Nil(uploadUser.Upload.DeletedAt)
+		return uploadUser, move
+	}
 
-	file := suite.Fixture(FixturePDF)
-	fakeS3.Store(uploadUser.Upload.StorageKey, file.Data, "somehash", nil)
+	//when Move is in draft, upload can be deleted
+	suite.Run("delete upload from DRAFT Move", func() {
+		uploadUser, move := setupTestData()
+		suite.Equal(move.Status, models.MoveStatusDRAFT)
 
-	params := uploadop.NewDeleteUploadParams()
-	params.UploadID = strfmt.UUID(uploadUser.Upload.ID.String())
+		suite.Nil(uploadUser.Upload.DeletedAt)
 
-	req := &http.Request{}
-	req = suite.AuthenticateRequest(req, uploadUser.Document.ServiceMember)
-	params.HTTPRequest = req
+		file := suite.Fixture(FixturePDF)
+		fakeS3.Store(uploadUser.Upload.StorageKey, file.Data, "somehash", nil)
 
-	handlerConfig := suite.HandlerConfig()
-	handlerConfig.SetFileStorer(fakeS3)
-	handler := DeleteUploadHandler{handlerConfig}
-	response := handler.Handle(params)
+		params := uploadop.NewDeleteUploadParams()
+		params.UploadID = strfmt.UUID(uploadUser.Upload.ID.String())
 
-	_, ok := response.(*uploadop.DeleteUploadNoContent)
-	suite.True(ok)
+		req := &http.Request{}
+		req = suite.AuthenticateRequest(req, uploadUser.Document.ServiceMember)
+		params.HTTPRequest = req
 
-	queriedUpload := models.Upload{}
-	err := suite.DB().Find(&queriedUpload, uploadUser.Upload.ID)
-	suite.Nil(err)
-	suite.NotNil(queriedUpload.DeletedAt)
+		handlerConfig := suite.HandlerConfig()
+		handlerConfig.SetFileStorer(fakeS3)
+		uploadInformationFetcher := upload.NewUploadInformationFetcher()
+		fmt.Print(uploadInformationFetcher)
+		handler := DeleteUploadHandler{handlerConfig, uploadInformationFetcher}
+		response := handler.Handle(params)
+
+		_, ok := response.(*uploadop.DeleteUploadNoContent)
+		suite.True(ok)
+
+		queriedUpload := models.Upload{}
+		err := suite.DB().Find(&queriedUpload, uploadUser.Upload.ID)
+		suite.Nil(err)
+		suite.NotNil(queriedUpload.DeletedAt)
+	})
+
+	suite.Run("cannot delete upload once Move is out of DRAFT", func() {
+		uploadUser, _ := setupTestData()
+		move := factory.BuildNeedsServiceCounselingMove(suite.DB(), nil, nil)
+		suite.Equal(move.Status, models.MoveStatusNeedsServiceCounseling)
+
+		suite.Nil(uploadUser.Upload.DeletedAt)
+
+		file := suite.Fixture(FixturePDF)
+		fakeS3.Store(uploadUser.Upload.StorageKey, file.Data, "somehash", nil)
+
+		params := uploadop.NewDeleteUploadParams()
+
+		req := &http.Request{}
+		req = suite.AuthenticateRequest(req, uploadUser.Document.ServiceMember)
+		params.HTTPRequest = req
+
+		handlerConfig := suite.HandlerConfig()
+		handlerConfig.SetFileStorer(fakeS3)
+		uploadInformationFetcher := upload.NewUploadInformationFetcher()
+		fmt.Print(uploadInformationFetcher)
+		handler := DeleteUploadHandler{handlerConfig, uploadInformationFetcher}
+		response := handler.Handle(params)
+
+		_, ok := response.(*uploadop.DeleteUploadNoContent)
+		suite.False(ok)
+
+		queriedUpload := models.Upload{}
+		err := suite.DB().Find(&queriedUpload, uploadUser.Upload.ID)
+		suite.Nil(err)
+		suite.Nil(queriedUpload.DeletedAt)
+	})
+
 }
 
 func (suite *HandlerSuite) TestDeleteUploadsHandlerSuccess() {
@@ -320,9 +379,28 @@ func (suite *HandlerSuite) TestDeleteUploadHandlerSuccessEvenWithS3Failure() {
 	// uploader.DeleteUpload only performs soft deletes and does not use the Storer's Delete method,
 	// therefore a failure in the S3 storer will still result in a successful soft delete.
 	fakeS3 := storageTest.NewFakeS3Storage(true)
+	setupTestData := func() (models.UserUpload, models.Move) {
+		move := factory.BuildMove(suite.DB(), nil, nil)
+		uploadUser := factory.BuildUserUpload(suite.DB(), []factory.Customization{
+			{
+				Model:    move.Orders.UploadedOrders,
+				LinkOnly: true,
+			},
+			{
+				Model: models.Upload{
+					Filename:    "FileName",
+					Bytes:       int64(15),
+					ContentType: uploader.FileTypePDF,
+				},
+			},
+		}, nil)
 
-	uploadUser := factory.BuildUserUpload(suite.DB(), nil, nil)
+		return uploadUser, move
+	}
+
+	uploadUser, move := setupTestData()
 	suite.Nil(uploadUser.Upload.DeletedAt)
+	suite.Equal(move.Status, models.MoveStatusDRAFT)
 
 	file := suite.Fixture(FixturePDF)
 	fakeS3.Store(uploadUser.Upload.StorageKey, file.Data, "somehash", nil)
@@ -338,7 +416,8 @@ func (suite *HandlerSuite) TestDeleteUploadHandlerSuccessEvenWithS3Failure() {
 
 	handlerConfig := suite.HandlerConfig()
 	handlerConfig.SetFileStorer(fakeS3Failure)
-	handler := DeleteUploadHandler{handlerConfig}
+	uploadInformationFetcher := upload.NewUploadInformationFetcher()
+	handler := DeleteUploadHandler{handlerConfig, uploadInformationFetcher}
 	response := handler.Handle(params)
 
 	_, ok := response.(*uploadop.DeleteUploadNoContent)
