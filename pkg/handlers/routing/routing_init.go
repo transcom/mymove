@@ -7,12 +7,12 @@ import (
 	"net/http/pprof"
 	"path"
 	"path/filepath"
+	"strings"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/gomodule/redigo/redis"
 	"github.com/gorilla/csrf"
-	"github.com/gorilla/mux"
 	"github.com/spf13/afero"
-	"go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -22,7 +22,6 @@ import (
 	"github.com/transcom/mymove/pkg/handlers/authentication"
 	"github.com/transcom/mymove/pkg/handlers/ghcapi"
 	"github.com/transcom/mymove/pkg/handlers/internalapi"
-	"github.com/transcom/mymove/pkg/handlers/ordersapi"
 	"github.com/transcom/mymove/pkg/handlers/primeapi"
 	"github.com/transcom/mymove/pkg/handlers/primeapiv2"
 	"github.com/transcom/mymove/pkg/handlers/supportapi"
@@ -41,8 +40,6 @@ type Config struct {
 	// Use the afero filesystem interface to allow for replacement
 	// during testing
 	FileSystem afero.Fs
-
-	// routing config
 
 	// BuildRoot is where the client build is located (e.g. "build")
 	BuildRoot string
@@ -129,54 +126,112 @@ func InitCSRFMiddlware(csrfAuthKey []byte, secure bool, path string, cookieName 
 	)
 }
 
-// InitRouting sets up the routing
-func InitRouting(appCtx appcontext.AppContext, redisPool *redis.Pool,
-	routingConfig *Config, telemetryConfig *telemetry.Config) (http.Handler, error) {
+// a custom host router that ignores the port
+type HostRouter struct {
+	routes map[string]chi.Router
+}
 
-	// site is the base
-	site := mux.NewRouter()
+// make sure HostRoutes implements chi.Routes
+var _ chi.Routes = &HostRouter{}
 
+func NewHostRouter() *HostRouter {
+	return &HostRouter{
+		routes: make(map[string]chi.Router),
+	}
+}
+
+// Map adds a chi.Router for a hostname
+func (hr *HostRouter) Map(host string, r chi.Router) {
+	hr.routes[strings.ToLower(host)] = r
+}
+
+func (hr *HostRouter) Match(_ *chi.Context, _ string, _ string) bool {
+	// the chi.Context does not contain information about which host
+	// was requested and the host router is not distinguishing based
+	// on method or path, so the host router always matches every
+	// route. The per host dispatch happens below in ServeHTTP
+	return true
+}
+
+func (hr *HostRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	// host without the port
+	hostOnly := strings.Split(r.Host, ":")[0]
+	if router, ok := hr.routes[strings.ToLower(hostOnly)]; ok {
+		router.ServeHTTP(w, r)
+		return
+	}
+	// wildcard
+	if router, ok := hr.routes["*"]; ok {
+		router.ServeHTTP(w, r)
+		return
+	}
+	http.NotFound(w, r)
+}
+
+// The HostRouter does not use chi.Route as mentioned in Match, and so
+// the list of routes is always empty
+func (hr *HostRouter) Routes() []chi.Route {
+	return []chi.Route{}
+}
+
+// The HostRouter does not support setting up middleware for all
+// hosts, it should be done on a per host basis using the chi.Router
+// added via Map. Thus the host router always has empty middleware
+func (hr *HostRouter) Middlewares() chi.Middlewares {
+	return chi.Middlewares{}
+}
+
+func newBaseRouter(appCtx appcontext.AppContext, routingConfig *Config, telemetryConfig *telemetry.Config, serverName string) chi.Router {
+	router := chi.NewRouter()
+	// Add middleware: they are evaluated in the reverse order in which they
+	// are added, but the resulting http.Handlers execute in "normal" order
+	// (i.e., the http.Handler returned by the first Middleware added gets
+	// called first).
+	router.Use(telemetry.NewOtelHTTPMiddleware(telemetryConfig, serverName, appCtx.Logger()))
+	router.Use(auth.SessionIDMiddleware(routingConfig.HandlerConfig.AppNames(), routingConfig.HandlerConfig.SessionManagers()))
+	router.Use(middleware.Trace(telemetryConfig)) // injects trace id into the context
+	router.Use(middleware.ContextLogger("milmove_trace_id", appCtx.Logger()))
+	router.Use(middleware.Recovery(appCtx.Logger()))
+	router.Use(middleware.SecurityHeaders(appCtx.Logger()))
+
+	if routingConfig.MaxBodySize > 0 {
+		router.Use(middleware.LimitBodySize(routingConfig.MaxBodySize, appCtx.Logger()))
+	}
+
+	return router
+}
+
+func mountHealthRoute(appCtx appcontext.AppContext, redisPool *redis.Pool,
+	routingConfig *Config, site chi.Router) {
+	requestLoggerMiddleware := middleware.RequestLogger()
+	healthHandler := handlers.NewHealthHandler(appCtx, redisPool,
+		routingConfig.GitBranch, routingConfig.GitCommit)
+	site.Method("GET", "/health", requestLoggerMiddleware(healthHandler))
+}
+
+func mountLocalStorageRoute(appCtx appcontext.AppContext, routingConfig *Config, site chi.Router) {
 	if routingConfig.LocalStorageRoot != "" && routingConfig.LocalStorageWebRoot != "" {
-		localStorageHandlerFunc := storage.NewFilesystemHandler(routingConfig.LocalStorageRoot)
+		localStorageHandlerFunc := storage.NewFilesystemHandler(
+			routingConfig.FileSystem, routingConfig.LocalStorageRoot)
 
 		// path.Join removes trailing slashes, but we want it
 		storageHandlerPath := path.Join("/", routingConfig.LocalStorageWebRoot) + "/"
 		appCtx.Logger().Info("Registering storage handler",
 			zap.Any("storageHandlerPath", storageHandlerPath))
-		storageMux := site.PathPrefix(storageHandlerPath).Subrouter()
-		storageMux.Use(middleware.ValidMethodsStatic(appCtx.Logger()))
-		storageMux.Use(middleware.RequestLogger(appCtx.Logger()))
-		if telemetryConfig.Enabled {
-			storageMux.Use(otelmux.Middleware("storage"))
-		}
-		storageMux.PathPrefix("/").HandlerFunc(localStorageHandlerFunc).Methods("GET", "HEAD")
+		site.Route(storageHandlerPath, func(r chi.Router) {
+			r.Use(middleware.RequestLogger())
+			r.Get("/*", localStorageHandlerFunc)
+			r.Head("/*", localStorageHandlerFunc)
+		})
 	}
+}
 
-	// Add middleware: they are evaluated in the reverse order in which they
-	// are added, but the resulting http.Handlers execute in "normal" order
-	// (i.e., the http.Handler returned by the first Middleware added gets
-	// called first).
-	site.Use(auth.SessionIDMiddleware(routingConfig.HandlerConfig.AppNames(), routingConfig.HandlerConfig.SessionManagers()))
-	site.Use(middleware.Trace(appCtx.Logger())) // injects trace id into the context
-	site.Use(middleware.ContextLogger("milmove_trace_id", appCtx.Logger()))
-	site.Use(middleware.Recovery(appCtx.Logger()))
-	site.Use(middleware.SecurityHeaders(appCtx.Logger()))
-
-	if routingConfig.MaxBodySize > 0 {
-		site.Use(middleware.LimitBodySize(routingConfig.MaxBodySize, appCtx.Logger()))
-	}
-
-	// Session management and authentication middleware
-	sessionCookieMiddleware := auth.SessionCookieMiddleware(appCtx.Logger(), routingConfig.HandlerConfig.AppNames(), routingConfig.HandlerConfig.SessionManagers())
-	maskedCSRFMiddleware := auth.MaskedCSRFMiddleware(appCtx.Logger(), routingConfig.HandlerConfig.UseSecureCookie())
-	userAuthMiddleware := authentication.UserAuthMiddleware(appCtx.Logger())
-	isLoggedInMiddleware := authentication.IsLoggedInMiddleware(appCtx.Logger())
-	clientCertMiddleware := authentication.ClientCertMiddleware(appCtx)
-	addAuditUserToRequestContextMiddleware := authentication.AddAuditUserIDToRequestContextMiddleware(appCtx)
-
+func mountStaticRoutes(appCtx appcontext.AppContext, routingConfig *Config, site chi.Router) {
 	// Serves files out of build folder
 	cfs := handlers.NewCustomFileSystem(
-		http.Dir(routingConfig.BuildRoot),
+		// use afero HttpFS so we can wrap the existing FileSystem
+		// Super useful for testing
+		afero.NewHttpFs(routingConfig.FileSystem).Dir(routingConfig.BuildRoot),
 		"index.html",
 		appCtx.Logger(),
 	)
@@ -187,298 +242,462 @@ func InitRouting(appCtx appcontext.AppContext, redisPool *redis.Pool,
 		cfs,
 	)
 
-	// Stub health check
-	healthHandler := handlers.NewHealthHandler(appCtx, redisPool,
-		routingConfig.GitBranch, routingConfig.GitCommit)
-	requestLoggerMiddlware := middleware.RequestLogger(appCtx.Logger())
-	site.Handle("/health", requestLoggerMiddlware(healthHandler)).Methods("GET")
+	site.Route("/static/", func(r chi.Router) {
+		r.Use(middleware.RequestLogger())
+		r.Method("GET", "/*", clientHandler)
+		r.Method("HEAD", "/*", clientHandler)
+	})
 
-	staticMux := site.PathPrefix("/static/").Subrouter()
-	staticMux.Use(middleware.ValidMethodsStatic(appCtx.Logger()))
-	staticMux.Use(middleware.RequestLogger(appCtx.Logger()))
-	if telemetryConfig.Enabled {
-		staticMux.Use(otelmux.Middleware("static"))
-	}
-	staticMux.PathPrefix("/").Handler(clientHandler).Methods("GET", "HEAD")
+	site.Route("/downloads/", func(r chi.Router) {
+		r.Use(middleware.RequestLogger())
+		r.Method("GET", "/*", clientHandler)
+		r.Method("HEAD", "/*", clientHandler)
+	})
 
-	downloadMux := site.PathPrefix("/downloads/").Subrouter()
-	downloadMux.Use(middleware.ValidMethodsStatic(appCtx.Logger()))
-	downloadMux.Use(middleware.RequestLogger(appCtx.Logger()))
-	if telemetryConfig.Enabled {
-		downloadMux.Use(otelmux.Middleware("download"))
-	}
-	downloadMux.PathPrefix("/").Handler(clientHandler).Methods("GET", "HEAD")
-
-	site.Handle("/favicon.ico", clientHandler)
+	site.Method("GET", "/favicon.ico", clientHandler)
 
 	// Explicitly disable swagger.json route
-	site.Handle("/swagger.json", http.NotFoundHandler()).Methods("GET")
-	if routingConfig.ServeSwaggerUI {
-		appCtx.Logger().Info("Swagger UI static file serving is enabled")
-		site.PathPrefix("/swagger-ui/").Handler(clientHandler).Methods("GET")
-	} else {
-		site.PathPrefix("/swagger-ui/").Handler(http.NotFoundHandler()).Methods("GET")
-	}
+	site.Method("GET", "/swagger.json", http.NotFoundHandler())
 
-	if routingConfig.ServeOrders {
-		ordersServerName := routingConfig.HandlerConfig.AppNames().OrdersServername
-		ordersMux := site.Host(ordersServerName).PathPrefix("/orders/v1/").Subrouter()
-		ordersDetectionMiddleware := auth.HostnameDetectorMiddleware(appCtx.Logger(), ordersServerName)
-		ordersMux.Use(ordersDetectionMiddleware)
-		ordersMux.Use(middleware.NoCache(appCtx.Logger()))
-		ordersMux.Use(clientCertMiddleware)
-		ordersMux.Use(middleware.RequestLogger(appCtx.Logger()))
-		ordersMux.HandleFunc("/swagger.yaml", handlers.NewFileHandler(routingConfig.OrdersSwaggerPath)).Methods("GET")
-		if routingConfig.ServeSwaggerUI {
-			appCtx.Logger().Info("Orders API Swagger UI serving is enabled")
-			ordersMux.HandleFunc("/docs", handlers.NewFileHandler(path.Join(routingConfig.BuildRoot, "swagger-ui", "orders.html"))).Methods("GET")
-		} else {
-			ordersMux.Handle("/docs", http.NotFoundHandler()).Methods("GET")
-		}
-		api := ordersapi.NewOrdersAPI(routingConfig.HandlerConfig)
-		tracingMiddleware := middleware.OpenAPITracing(api)
-		ordersMux.PathPrefix("/").Handler(api.Serve(tracingMiddleware))
-	}
+	// Not sure this is right. We should serve swagger-ui per
+	// swagger endpoint, not globally - ahobson 2023-07-06
+	// if routingConfig.ServeSwaggerUI {
+	// 	appCtx.Logger().Info("Swagger UI static file serving is enabled")
+	// 	site.Method("GET", "/swagger-ui/", clientHandler)
+	// } else {
+	// 	site.Method("GET", "/swagger-ui/", http.NotFoundHandler())
+	// }
+}
 
+func mountPrimeAPI(appCtx appcontext.AppContext, routingConfig *Config, site chi.Router) {
 	if routingConfig.ServePrime {
-		primeServerName := routingConfig.HandlerConfig.AppNames().PrimeServername
-		primeMux := site.Host(primeServerName).PathPrefix("/prime/").Subrouter()
+		clientCertMiddleware := authentication.ClientCertMiddleware(appCtx)
 
 		// Setup shared middleware
-		primeDetectionMiddleware := auth.HostnameDetectorMiddleware(appCtx.Logger(), primeServerName)
-		primeMux.Use(primeDetectionMiddleware)
-		if routingConfig.ServeDevlocalAuth {
-			devlocalClientCertMiddleware := authentication.DevlocalClientCertMiddleware(appCtx)
-			primeMux.Use(devlocalClientCertMiddleware)
-		} else {
-			primeMux.Use(clientCertMiddleware)
-		}
-		primeMux.Use(authentication.PrimeAuthorizationMiddleware(appCtx.Logger()))
-		primeMux.Use(middleware.NoCache(appCtx.Logger()))
-		primeMux.Use(middleware.RequestLogger(appCtx.Logger()))
+		site.Route("/prime", func(primeRouter chi.Router) {
+			if routingConfig.ServeDevlocalAuth {
+				devlocalClientCertMiddleware := authentication.DevlocalClientCertMiddleware(appCtx)
+				primeRouter.Use(devlocalClientCertMiddleware)
+			} else {
+				primeRouter.Use(clientCertMiddleware)
+			}
+			primeRouter.Use(authentication.PrimeAuthorizationMiddleware(appCtx.Logger()))
+			primeRouter.Use(middleware.NoCache())
+			primeRouter.Use(middleware.RequestLogger())
 
-		// Setup version specific info
-		primeV1Mux := primeMux.PathPrefix("/v1/").Subrouter()
-		primeV2Mux := primeMux.PathPrefix("/v2/").Subrouter()
-
-		primeV1Mux.HandleFunc("/swagger.yaml", handlers.NewFileHandler(routingConfig.PrimeSwaggerPath)).Methods("GET")
-		primeV2Mux.HandleFunc("/swagger.yaml", handlers.NewFileHandler(routingConfig.PrimeV2SwaggerPath)).Methods("GET")
-		if routingConfig.ServeSwaggerUI {
-			appCtx.Logger().Info("Prime API Swagger UI serving is enabled")
-			primeV1Mux.HandleFunc("/docs", handlers.NewFileHandler(path.Join(routingConfig.BuildRoot, "swagger-ui", "prime.html"))).Methods("GET")
-			primeV2Mux.HandleFunc("/docs", handlers.NewFileHandler(path.Join(routingConfig.BuildRoot, "swagger-ui", "prime_v2.html"))).Methods("GET")
-		} else {
-			primeV1Mux.Handle("/docs", http.NotFoundHandler()).Methods("GET")
-			primeV2Mux.Handle("/docs", http.NotFoundHandler()).Methods("GET")
-		}
-
-		apiV1 := primeapi.NewPrimeAPI(routingConfig.HandlerConfig)
-		tracingMiddlewareV1 := middleware.OpenAPITracing(apiV1)
-		primeV1Mux.PathPrefix("/").Handler(apiV1.Serve(tracingMiddlewareV1))
-
-		apiV2 := primeapiv2.NewPrimeAPI(routingConfig.HandlerConfig)
-		tracingMiddlewareV2 := middleware.OpenAPITracing(apiV2)
-		primeV2Mux.PathPrefix("/").Handler(apiV2.Serve(tracingMiddlewareV2))
+			// Setup version specific info for v1
+			primeRouter.Route("/v1", func(r chi.Router) {
+				r.Method("GET", "/swagger.yaml",
+					handlers.NewFileHandler(routingConfig.FileSystem,
+						routingConfig.PrimeSwaggerPath))
+				if routingConfig.ServeSwaggerUI {
+					appCtx.Logger().Info("Prime API Swagger UI serving is enabled")
+					r.Method("GET", "/docs",
+						handlers.NewFileHandler(routingConfig.FileSystem,
+							path.Join(routingConfig.BuildRoot, "swagger-ui", "prime.html")))
+				} else {
+					r.Method("GET", "/docs", http.NotFoundHandler())
+				}
+				api := primeapi.NewPrimeAPI(routingConfig.HandlerConfig)
+				tracingMiddleware := middleware.OpenAPITracing(api)
+				r.Mount("/", api.Serve(tracingMiddleware))
+			})
+			// Setup version specific info for v2
+			primeRouter.Route("/v2", func(r chi.Router) {
+				r.Method("GET", "/swagger.yaml",
+					handlers.NewFileHandler(routingConfig.FileSystem,
+						routingConfig.PrimeV2SwaggerPath))
+				if routingConfig.ServeSwaggerUI {
+					r.Method("GET", "/docs",
+						handlers.NewFileHandler(routingConfig.FileSystem,
+							path.Join(routingConfig.BuildRoot, "swagger-ui", "prime_v2.html")))
+				} else {
+					r.Method("GET", "/docs", http.NotFoundHandler())
+				}
+				api := primeapiv2.NewPrimeAPI(routingConfig.HandlerConfig)
+				tracingMiddleware := middleware.OpenAPITracing(api)
+				r.Mount("/", api.Serve(tracingMiddleware))
+			})
+		})
 	}
+}
 
+func mountSupportAPI(appCtx appcontext.AppContext, routingConfig *Config, site chi.Router) {
 	if routingConfig.ServeSupport {
-		// only enable the test harness if support and devlocal auth
-		// is enabled, and do it before CSRF and other middleware
-		if routingConfig.ServeDevlocalAuth {
-			appCtx.Logger().Info("Enabling testharness")
-			testHarnessMux := site.PathPrefix("/testharness").Subrouter()
-			testHarnessMux.Use(middleware.RequestLogger(appCtx.Logger()))
-			testHarnessMux.Use(addAuditUserToRequestContextMiddleware)
-			testHarnessMux.Handle("/build/{action}",
-				testharnessapi.NewDefaultBuilder(routingConfig.HandlerConfig)).Methods("POST")
-			testHarnessMux.Handle("/list",
-				testharnessapi.NewBuilderList(routingConfig.HandlerConfig)).Methods("GET")
+		clientCertMiddleware := authentication.ClientCertMiddleware(appCtx)
 
-		}
-		primeServerName := routingConfig.HandlerConfig.AppNames().PrimeServername
-		supportMux := site.Host(primeServerName).PathPrefix("/support/v1/").Subrouter()
-
-		supportDetectionMiddleware := auth.HostnameDetectorMiddleware(appCtx.Logger(), primeServerName)
-		supportMux.Use(supportDetectionMiddleware)
-		supportMux.Use(clientCertMiddleware)
-		supportMux.Use(authentication.PrimeAuthorizationMiddleware(appCtx.Logger()))
-		supportMux.Use(middleware.NoCache(appCtx.Logger()))
-		supportMux.Use(middleware.RequestLogger(appCtx.Logger()))
-		supportMux.HandleFunc("/swagger.yaml", handlers.NewFileHandler(routingConfig.SupportSwaggerPath)).Methods("GET")
-		if routingConfig.ServeSwaggerUI {
-			appCtx.Logger().Info("Support API Swagger UI serving is enabled")
-			supportMux.HandleFunc("/docs", handlers.NewFileHandler(path.Join(routingConfig.BuildRoot, "swagger-ui", "support.html"))).Methods("GET")
-		} else {
-			supportMux.Handle("/docs", http.NotFoundHandler()).Methods("GET")
-		}
-		supportMux.PathPrefix("/").Handler(supportapi.NewSupportAPIHandler(routingConfig.HandlerConfig))
+		site.Route("/support/v1/", func(r chi.Router) {
+			r.Use(clientCertMiddleware)
+			r.Use(authentication.PrimeAuthorizationMiddleware(appCtx.Logger()))
+			r.Use(middleware.NoCache())
+			r.Use(middleware.RequestLogger())
+			r.Method("GET", "/swagger.yaml",
+				handlers.NewFileHandler(routingConfig.FileSystem,
+					routingConfig.SupportSwaggerPath))
+			if routingConfig.ServeSwaggerUI {
+				appCtx.Logger().Info("Support API Swagger UI serving is enabled")
+				r.Method("GET", "/docs",
+					handlers.NewFileHandler(routingConfig.FileSystem,
+						path.Join(routingConfig.BuildRoot, "swagger-ui", "support.html")))
+			} else {
+				r.Method("GET", "/docs", http.NotFoundHandler())
+			}
+			r.Mount("/", supportapi.NewSupportAPIHandler(routingConfig.HandlerConfig))
+		})
 	}
+}
 
-	// Handlers under mutual TLS need to go before this section that sets up middleware that shouldn't be enabled for mutual TLS (such as CSRF)
-	root := mux.NewRouter()
-	root.Use(sessionCookieMiddleware)
-	root.Use(middleware.RequestLogger(appCtx.Logger()))
+func mountTestharnessAPI(appCtx appcontext.AppContext, routingConfig *Config, site chi.Router) {
+	// only enable the test harness if support and devlocal auth
+	// is enabled, and do it before CSRF and other middleware
+	if routingConfig.ServeDevlocalAuth {
+		addAuditUserToRequestContextMiddleware := authentication.AddAuditUserIDToRequestContextMiddleware(appCtx)
+		appCtx.Logger().Info("Enabling testharness")
+		site.Route("/testharness", func(r chi.Router) {
+			r.Use(middleware.RequestLogger())
+			r.Use(addAuditUserToRequestContextMiddleware)
+			r.Method("POST", "/build/{action}",
+				testharnessapi.NewDefaultBuilder(routingConfig.HandlerConfig))
+			r.Method("GET", "/list",
+				testharnessapi.NewBuilderList(routingConfig.HandlerConfig))
 
-	debug := root.PathPrefix("/debug/pprof/").Subrouter()
-	debug.Use(userAuthMiddleware)
+		})
+	}
+}
+
+func mountDebugRoutes(appCtx appcontext.AppContext, routingConfig *Config, site chi.Router) {
 	if routingConfig.ServeDebugPProf {
 		appCtx.Logger().Info("Enabling pprof routes")
-		debug.HandleFunc("/", pprof.Index).Methods("GET")
-		debug.Handle("/allocs", pprof.Handler("allocs")).Methods("GET")
-		debug.Handle("/block", pprof.Handler("block")).Methods("GET")
-		debug.HandleFunc("/cmdline", pprof.Cmdline).Methods("GET")
-		debug.Handle("/goroutine", pprof.Handler("goroutine")).Methods("GET")
-		debug.Handle("/heap", pprof.Handler("heap")).Methods("GET")
-		debug.Handle("/mutex", pprof.Handler("mutex")).Methods("GET")
-		debug.HandleFunc("/profile", pprof.Profile).Methods("GET")
-		debug.HandleFunc("/trace", pprof.Trace).Methods("GET")
-		debug.Handle("/threadcreate", pprof.Handler("threadcreate")).Methods("GET")
-		debug.HandleFunc("/symbol", pprof.Symbol).Methods("GET")
-	} else {
-		debug.HandleFunc("/", http.NotFound).Methods("GET")
+
+		site.Route("/debug/pprof/", func(r chi.Router) {
+			r.Use(middleware.RequestLogger())
+			r.Get("/", pprof.Index)
+			r.Method("GET", "/allocs", pprof.Handler("allocs"))
+			r.Method("GET", "/block", pprof.Handler("block"))
+			r.Get("/cmdline", pprof.Cmdline)
+			r.Method("GET", "/goroutine", pprof.Handler("goroutine"))
+			r.Method("GET", "/heap", pprof.Handler("heap"))
+			r.Method("GET", "/mutex", pprof.Handler("mutex"))
+			r.Get("/profile", pprof.Profile)
+			r.Get("/trace", pprof.Trace)
+			r.Method("GET", "/threadcreate", pprof.Handler("threadcreate"))
+			r.Get("/symbol", pprof.Symbol)
+		})
 	}
+}
 
-	if routingConfig.CSRFMiddleware == nil {
-		return nil, errors.New("Missing CSRF Middleware")
-	}
-	appCtx.Logger().Info("Enabling CSRF protection")
-	root.Use(routingConfig.CSRFMiddleware)
-	root.Use(maskedCSRFMiddleware)
-
-	site.Host(routingConfig.HandlerConfig.AppNames().MilServername).PathPrefix("/").
-		Handler(routingConfig.HandlerConfig.SessionManagers().Mil.LoadAndSave(root))
-	site.Host(routingConfig.HandlerConfig.AppNames().AdminServername).PathPrefix("/").
-		Handler(routingConfig.HandlerConfig.SessionManagers().Admin.LoadAndSave(root))
-	site.Host(routingConfig.HandlerConfig.AppNames().OfficeServername).PathPrefix("/").
-		Handler(routingConfig.HandlerConfig.SessionManagers().Office.LoadAndSave(root))
-
+func mountInternalAPI(appCtx appcontext.AppContext, routingConfig *Config, site chi.Router) {
 	if routingConfig.ServeAPIInternal {
-		internalMux := root.PathPrefix("/internal/").Subrouter()
-		internalMux.HandleFunc("/swagger.yaml", handlers.NewFileHandler(routingConfig.APIInternalSwaggerPath)).Methods("GET")
-		if routingConfig.ServeSwaggerUI {
-			appCtx.Logger().Info("Internal API Swagger UI serving is enabled")
-			internalMux.HandleFunc("/docs", handlers.NewFileHandler(path.Join(routingConfig.BuildRoot, "swagger-ui", "internal.html"))).Methods("GET")
-		} else {
-			internalMux.Handle("/docs", http.NotFoundHandler()).Methods("GET")
-		}
-		internalMux.HandleFunc("/users/is_logged_in", isLoggedInMiddleware).Methods("GET")
-		// Mux for internal API that enforces auth
-		internalAPIMux := internalMux.PathPrefix("/").Subrouter()
-		internalAPIMux.Use(userAuthMiddleware)
-		internalAPIMux.Use(addAuditUserToRequestContextMiddleware)
-		internalAPIMux.Use(middleware.NoCache(appCtx.Logger()))
-		api := internalapi.NewInternalAPI(routingConfig.HandlerConfig)
-		// This middleware enables stricter checks for most of the internal api endpoints
-		customerAPIAuthMiddleware := authentication.CustomerAPIAuthMiddleware(appCtx, api)
-		internalAPIMux.Use(customerAPIAuthMiddleware)
-		tracingMiddleware := middleware.OpenAPITracing(api)
-		internalAPIMux.PathPrefix("/").Handler(api.Serve(tracingMiddleware))
+		isLoggedInMiddleware := authentication.IsLoggedInMiddleware(appCtx.Logger())
+		userAuthMiddleware := authentication.UserAuthMiddleware(appCtx.Logger())
+		addAuditUserToRequestContextMiddleware := authentication.AddAuditUserIDToRequestContextMiddleware(appCtx)
+		site.Route("/internal", func(r chi.Router) {
+			r.Method("GET", "/swagger.yaml",
+				handlers.NewFileHandler(routingConfig.FileSystem,
+					routingConfig.APIInternalSwaggerPath))
+			if routingConfig.ServeSwaggerUI {
+				appCtx.Logger().Info("Internal API Swagger UI serving is enabled")
+				r.Method("GET", "/docs",
+					handlers.NewFileHandler(routingConfig.FileSystem,
+						path.Join(routingConfig.BuildRoot, "swagger-ui", "internal.html")))
+			} else {
+				r.Method("GET", "/docs", http.NotFoundHandler())
+			}
+			r.Method("GET", "/users/is_logged_in", isLoggedInMiddleware)
+			// Mux for internal API that enforces auth
+			r.Route("/", func(rAuth chi.Router) {
+				rAuth.Use(userAuthMiddleware)
+				rAuth.Use(addAuditUserToRequestContextMiddleware)
+				rAuth.Use(middleware.NoCache())
+				api := internalapi.NewInternalAPI(routingConfig.HandlerConfig)
+				// This middleware enables stricter checks for most of the internal api endpoints
+				customerAPIAuthMiddleware := authentication.CustomerAPIAuthMiddleware(appCtx, api)
+				rAuth.Use(customerAPIAuthMiddleware)
+				tracingMiddleware := middleware.OpenAPITracing(api)
+				rAuth.Mount("/", api.Serve(tracingMiddleware))
+			})
+		})
 	}
+}
 
+func mountAdminAPI(appCtx appcontext.AppContext, routingConfig *Config, site chi.Router) {
 	if routingConfig.ServeAdmin {
-		adminMux := root.PathPrefix("/admin/v1/").Subrouter()
+		userAuthMiddleware := authentication.UserAuthMiddleware(appCtx.Logger())
+		addAuditUserToRequestContextMiddleware := authentication.AddAuditUserIDToRequestContextMiddleware(appCtx)
+		site.Route("/admin/v1", func(r chi.Router) {
+			r.Method("GET", "/swagger.yaml",
+				handlers.NewFileHandler(routingConfig.FileSystem,
+					routingConfig.AdminSwaggerPath))
+			if routingConfig.ServeSwaggerUI {
+				appCtx.Logger().Info("Admin API Swagger UI serving is enabled")
+				r.Method("GET", "/docs",
+					handlers.NewFileHandler(routingConfig.FileSystem,
+						path.Join(routingConfig.BuildRoot, "swagger-ui", "admin.html")))
+			} else {
+				r.Method("GET", "/docs", http.NotFoundHandler())
+			}
 
-		adminMux.HandleFunc("/swagger.yaml", handlers.NewFileHandler(routingConfig.AdminSwaggerPath)).Methods("GET")
-		if routingConfig.ServeSwaggerUI {
-			appCtx.Logger().Info("Admin API Swagger UI serving is enabled")
-			adminMux.HandleFunc("/docs", handlers.NewFileHandler(path.Join(routingConfig.BuildRoot, "swagger-ui", "admin.html"))).Methods("GET")
-		} else {
-			adminMux.Handle("/docs", http.NotFoundHandler()).Methods("GET")
-		}
-
-		// Mux for admin API that enforces auth
-		adminAPIMux := adminMux.PathPrefix("/").Subrouter()
-		adminAPIMux.Use(userAuthMiddleware)
-		adminAPIMux.Use(addAuditUserToRequestContextMiddleware)
-		adminAPIMux.Use(authentication.AdminAuthMiddleware(appCtx.Logger()))
-		adminAPIMux.Use(middleware.NoCache(appCtx.Logger()))
-		api := adminapi.NewAdminAPI(routingConfig.HandlerConfig)
-		tracingMiddleware := middleware.OpenAPITracing(api)
-		adminAPIMux.PathPrefix("/").Handler(api.Serve(tracingMiddleware))
+			// Mux for admin API that enforces auth
+			r.Route("/", func(rAuth chi.Router) {
+				rAuth.Use(userAuthMiddleware)
+				rAuth.Use(addAuditUserToRequestContextMiddleware)
+				rAuth.Use(authentication.AdminAuthMiddleware(appCtx.Logger()))
+				rAuth.Use(middleware.NoCache())
+				api := adminapi.NewAdminAPI(routingConfig.HandlerConfig)
+				tracingMiddleware := middleware.OpenAPITracing(api)
+				rAuth.Mount("/", api.Serve(tracingMiddleware))
+			})
+		})
 	}
+}
 
+func mountPrimeSimulatorAPI(appCtx appcontext.AppContext, routingConfig *Config, site chi.Router) {
 	if routingConfig.ServePrimeSimulator {
-		// attach prime simulator API to root so cookies are handled
-		officeServerName := routingConfig.HandlerConfig.AppNames().OfficeServername
-		primeSimulatorMux := root.Host(officeServerName).PathPrefix("/prime/v1/").Subrouter()
-		primeSimulatorMux.HandleFunc("/swagger.yaml", handlers.NewFileHandler(routingConfig.PrimeSwaggerPath)).Methods("GET")
-		if routingConfig.ServeSwaggerUI {
-			appCtx.Logger().Info("Prime Simulator API Swagger UI serving is enabled")
-			primeSimulatorMux.HandleFunc("/docs", handlers.NewFileHandler(path.Join(routingConfig.BuildRoot, "swagger-ui", "prime.html"))).Methods("GET")
-		} else {
-			primeSimulatorMux.Handle("/docs", http.NotFoundHandler()).Methods("GET")
-		}
+		userAuthMiddleware := authentication.UserAuthMiddleware(appCtx.Logger())
+		addAuditUserToRequestContextMiddleware := authentication.AddAuditUserIDToRequestContextMiddleware(appCtx)
+		site.Route("/prime/v1", func(r chi.Router) {
+			r.Method("GET", "/swagger.yaml",
+				handlers.NewFileHandler(routingConfig.FileSystem,
+					routingConfig.PrimeSwaggerPath))
+			if routingConfig.ServeSwaggerUI {
+				appCtx.Logger().Info("Prime Simulator API Swagger UI serving is enabled")
+				r.Method("GET", "/docs",
+					handlers.NewFileHandler(routingConfig.FileSystem,
+						path.Join(routingConfig.BuildRoot, "swagger-ui", "prime.html")))
+			} else {
+				r.Method("GET", "/docs", http.NotFoundHandler())
+			}
 
-		// Mux for prime simulator API that enforces auth
-		primeSimulatorAPIMux := primeSimulatorMux.PathPrefix("/").Subrouter()
-		primeSimulatorAPIMux.Use(userAuthMiddleware)
-		primeSimulatorAPIMux.Use(addAuditUserToRequestContextMiddleware)
-		primeSimulatorAPIMux.Use(authentication.PrimeSimulatorAuthorizationMiddleware(appCtx.Logger()))
-		primeSimulatorAPIMux.Use(middleware.NoCache(appCtx.Logger()))
-		api := primeapi.NewPrimeAPI(routingConfig.HandlerConfig)
-		tracingMiddleware := middleware.OpenAPITracing(api)
-		primeSimulatorAPIMux.PathPrefix("/").Handler(api.Serve(tracingMiddleware))
+			// Mux for prime simulator API that enforces auth
+			r.Route("/", func(rAuth chi.Router) {
+				rAuth.Use(userAuthMiddleware)
+				rAuth.Use(addAuditUserToRequestContextMiddleware)
+				rAuth.Use(authentication.PrimeSimulatorAuthorizationMiddleware(appCtx.Logger()))
+				rAuth.Use(middleware.NoCache())
+				api := primeapi.NewPrimeAPI(routingConfig.HandlerConfig)
+				tracingMiddleware := middleware.OpenAPITracing(api)
+				rAuth.Mount("/", api.Serve(tracingMiddleware))
+			})
+		})
 	}
+}
 
+func mountGHCAPI(appCtx appcontext.AppContext, routingConfig *Config, site chi.Router) {
 	if routingConfig.ServeGHC {
-		ghcMux := root.PathPrefix("/ghc/v1/").Subrouter()
-		ghcMux.HandleFunc("/swagger.yaml", handlers.NewFileHandler(routingConfig.GHCSwaggerPath)).Methods("GET")
-		if routingConfig.ServeSwaggerUI {
-			appCtx.Logger().Info("GHC API Swagger UI serving is enabled")
-			ghcMux.HandleFunc("/docs", handlers.NewFileHandler(path.Join(routingConfig.BuildRoot, "swagger-ui", "ghc.html"))).Methods("GET")
-		} else {
-			ghcMux.Handle("/docs", http.NotFoundHandler()).Methods("GET")
-		}
+		userAuthMiddleware := authentication.UserAuthMiddleware(appCtx.Logger())
+		addAuditUserToRequestContextMiddleware := authentication.AddAuditUserIDToRequestContextMiddleware(appCtx)
+		site.Route("/ghc/v1", func(r chi.Router) {
+			r.Method("GET", "/swagger.yaml",
+				handlers.NewFileHandler(routingConfig.FileSystem,
+					routingConfig.GHCSwaggerPath))
+			if routingConfig.ServeSwaggerUI {
+				appCtx.Logger().Info("GHC API Swagger UI serving is enabled")
+				r.Method("GET", "/docs",
+					handlers.NewFileHandler(routingConfig.FileSystem,
+						path.Join(routingConfig.BuildRoot, "swagger-ui", "ghc.html")))
+			} else {
+				r.Method("GET", "/docs", http.NotFoundHandler())
+			}
 
-		// Mux for GHC API that enforces auth
-		ghcAPIMux := ghcMux.PathPrefix("/").Subrouter()
-		ghcAPIMux.Use(userAuthMiddleware)
-		ghcAPIMux.Use(addAuditUserToRequestContextMiddleware)
-		ghcAPIMux.Use(middleware.NoCache(appCtx.Logger()))
-		api := ghcapi.NewGhcAPIHandler(routingConfig.HandlerConfig)
-		permissionsMiddleware := authentication.PermissionsMiddleware(appCtx, api)
-		ghcAPIMux.Use(permissionsMiddleware)
-		tracingMiddleware := middleware.OpenAPITracing(api)
-		ghcAPIMux.PathPrefix("/").Handler(api.Serve(tracingMiddleware))
+			// Mux for GHC API that enforces auth
+			r.Route("/", func(rAuth chi.Router) {
+				rAuth.Use(userAuthMiddleware)
+				rAuth.Use(addAuditUserToRequestContextMiddleware)
+				rAuth.Use(middleware.NoCache())
+				api := ghcapi.NewGhcAPIHandler(routingConfig.HandlerConfig)
+				permissionsMiddleware := authentication.PermissionsMiddleware(appCtx, api)
+				rAuth.Use(permissionsMiddleware)
+				tracingMiddleware := middleware.OpenAPITracing(api)
+				rAuth.Mount("/", api.Serve(tracingMiddleware))
+			})
+		})
 	}
+}
 
-	authMux := root.PathPrefix("/auth/").Subrouter()
-	authMux.Use(middleware.NoCache(appCtx.Logger()))
-	authMux.Use(otelmux.Middleware("auth"))
-	authMux.Handle("/login-gov", authentication.NewRedirectHandler(routingConfig.AuthContext, routingConfig.HandlerConfig, routingConfig.HandlerConfig.UseSecureCookie())).Methods("GET")
-	authMux.Handle("/login-gov/callback", authentication.NewCallbackHandler(routingConfig.AuthContext, routingConfig.HandlerConfig, routingConfig.HandlerConfig.NotificationSender())).Methods("GET")
-	authMux.Handle("/logout", authentication.NewLogoutHandler(routingConfig.AuthContext, routingConfig.HandlerConfig)).Methods("POST")
+func mountAuthRoutes(appCtx appcontext.AppContext, routingConfig *Config, site chi.Router) {
+	site.Route("/auth/", func(r chi.Router) {
+		r.Use(middleware.NoCache())
+		r.Method("GET", "/login-gov", authentication.NewRedirectHandler(routingConfig.AuthContext, routingConfig.HandlerConfig, routingConfig.HandlerConfig.UseSecureCookie()))
+		r.Method("GET", "/login-gov/callback", authentication.NewCallbackHandler(routingConfig.AuthContext, routingConfig.HandlerConfig, routingConfig.HandlerConfig.NotificationSender()))
+		r.Method("POST", "/logout", authentication.NewLogoutHandler(routingConfig.AuthContext, routingConfig.HandlerConfig))
+	})
 
 	if routingConfig.ServeDevlocalAuth {
 		appCtx.Logger().Info("Enabling devlocal auth")
-		localAuthMux := root.PathPrefix("/devlocal-auth/").Subrouter()
-		localAuthMux.Use(middleware.NoCache(appCtx.Logger()))
-		localAuthMux.Use(otelmux.Middleware("devlocal"))
-		localAuthMux.Handle("/login", authentication.NewUserListHandler(routingConfig.AuthContext, routingConfig.HandlerConfig)).Methods("GET")
-		localAuthMux.Handle("/login", authentication.NewAssignUserHandler(routingConfig.AuthContext, routingConfig.HandlerConfig)).Methods("POST")
-		localAuthMux.Handle("/new", authentication.NewCreateAndLoginUserHandler(routingConfig.AuthContext, routingConfig.HandlerConfig)).Methods("POST")
-		localAuthMux.Handle("/create", authentication.NewCreateUserHandler(routingConfig.AuthContext, routingConfig.HandlerConfig)).Methods("POST")
-
+		site.Route("/devlocal-auth/", func(r chi.Router) {
+			r.Use(middleware.NoCache())
+			r.Method("GET", "/login", authentication.NewUserListHandler(routingConfig.AuthContext, routingConfig.HandlerConfig))
+			r.Method("POST", "/login", authentication.NewAssignUserHandler(routingConfig.AuthContext, routingConfig.HandlerConfig))
+			r.Method("POST", "/new", authentication.NewCreateAndLoginUserHandler(routingConfig.AuthContext, routingConfig.HandlerConfig))
+			r.Method("POST", "/create", authentication.NewCreateUserHandler(routingConfig.AuthContext, routingConfig.HandlerConfig))
+		})
 	}
-
-	// Serve index.html to all requests that haven't matches a previous route,
-	root.PathPrefix("/").Handler(indexHandler(routingConfig, appCtx.Logger())).Methods("GET", "HEAD")
-
-	return site, nil
 }
 
-// InitHealthRouting sets up the routing for the health server. The
-// health server should only listen on localhost and not be available publicly
-func InitHealthRouting(appCtx appcontext.AppContext, redisPool *redis.Pool, routingConfig *Config) (http.Handler, error) {
+func mountDefaultStaticRoute(appCtx appcontext.AppContext, routingConfig *Config, site chi.Router) {
+	// Serve index.html to all requests that haven't matches a
+	// previous route,
 
-	// site is the base
-	site := mux.NewRouter()
+	defaultHandler := indexHandler(routingConfig, appCtx.Logger())
+	site.NotFound(defaultHandler)
+}
 
-	// Stub health check
-	healthHandler := handlers.NewHealthHandler(appCtx, redisPool,
-		routingConfig.GitBranch, routingConfig.GitCommit)
-	requestLoggerMiddlware := middleware.RequestLogger(appCtx.Logger())
-	site.Handle("/health", requestLoggerMiddlware(healthHandler)).Methods("GET")
+func mountSessionRoutes(appCtx appcontext.AppContext, routingConfig *Config, baseSite chi.Router, sessionManager auth.SessionManager, fn func(r chi.Router)) {
+	sessionCookieMiddleware := auth.SessionCookieMiddleware(appCtx.Logger(), routingConfig.HandlerConfig.AppNames(), routingConfig.HandlerConfig.SessionManagers())
+	maskedCSRFMiddleware := auth.MaskedCSRFMiddleware(routingConfig.HandlerConfig.UseSecureCookie())
+
+	baseSite.Route("/", func(r chi.Router) {
+		// need to load and save in the session manager before any other
+		r.Use(sessionManager.LoadAndSave)
+		r.Use(sessionCookieMiddleware)
+		r.Use(middleware.RequestLogger())
+
+		appCtx.Logger().Info("Enabling CSRF protection")
+		r.Use(routingConfig.CSRFMiddleware)
+		r.Use(maskedCSRFMiddleware)
+
+		mountAuthRoutes(appCtx, routingConfig, r)
+		// invoke callback to mount session routes
+		fn(r)
+	})
+
+}
+
+func newMilRouter(appCtx appcontext.AppContext, redisPool *redis.Pool,
+	routingConfig *Config, telemetryConfig *telemetry.Config, serverName string) chi.Router {
+
+	site := newBaseRouter(appCtx, routingConfig, telemetryConfig, serverName)
+
+	mountHealthRoute(appCtx, redisPool, routingConfig, site)
+	mountLocalStorageRoute(appCtx, routingConfig, site)
+	mountStaticRoutes(appCtx, routingConfig, site)
+	mountTestharnessAPI(appCtx, routingConfig, site)
+
+	milSessionManager := routingConfig.HandlerConfig.SessionManagers().Mil
+	mountSessionRoutes(appCtx, routingConfig, site, milSessionManager,
+		func(sessionRoute chi.Router) {
+			mountInternalAPI(appCtx, routingConfig, sessionRoute)
+		},
+	)
+
+	mountDefaultStaticRoute(appCtx, routingConfig, site)
+
+	return site
+}
+
+func newOfficeRouter(appCtx appcontext.AppContext, redisPool *redis.Pool,
+	routingConfig *Config, telemetryConfig *telemetry.Config, serverName string) chi.Router {
+
+	site := newBaseRouter(appCtx, routingConfig, telemetryConfig, serverName)
+
+	mountHealthRoute(appCtx, redisPool, routingConfig, site)
+	mountLocalStorageRoute(appCtx, routingConfig, site)
+	mountStaticRoutes(appCtx, routingConfig, site)
+	mountTestharnessAPI(appCtx, routingConfig, site)
+
+	officeSessionManager := routingConfig.HandlerConfig.SessionManagers().Office
+	mountSessionRoutes(appCtx, routingConfig, site, officeSessionManager,
+		func(sessionRoute chi.Router) {
+			mountInternalAPI(appCtx, routingConfig, sessionRoute)
+			mountPrimeSimulatorAPI(appCtx, routingConfig, sessionRoute)
+			mountGHCAPI(appCtx, routingConfig, sessionRoute)
+		},
+	)
+
+	mountDefaultStaticRoute(appCtx, routingConfig, site)
+
+	return site
+}
+
+func newAdminRouter(appCtx appcontext.AppContext, redisPool *redis.Pool,
+	routingConfig *Config, telemetryConfig *telemetry.Config, serverName string) chi.Router {
+
+	site := newBaseRouter(appCtx, routingConfig, telemetryConfig, serverName)
+
+	mountHealthRoute(appCtx, redisPool, routingConfig, site)
+	mountStaticRoutes(appCtx, routingConfig, site)
+	mountTestharnessAPI(appCtx, routingConfig, site)
+	// debug routes can go anywhere, but the admin site seems most appropriate
+
+	adminSessionManager := routingConfig.HandlerConfig.SessionManagers().Admin
+	mountSessionRoutes(appCtx, routingConfig, site, adminSessionManager,
+		func(sessionRoute chi.Router) {
+			mountInternalAPI(appCtx, routingConfig, sessionRoute)
+			mountAdminAPI(appCtx, routingConfig, sessionRoute)
+			mountDebugRoutes(appCtx, routingConfig, sessionRoute)
+		},
+	)
+
+	mountDefaultStaticRoute(appCtx, routingConfig, site)
+
+	return site
+}
+
+func newPrimeRouter(appCtx appcontext.AppContext, redisPool *redis.Pool,
+	routingConfig *Config, telemetryConfig *telemetry.Config, serverName string) chi.Router {
+
+	site := newBaseRouter(appCtx, routingConfig, telemetryConfig, serverName)
+
+	mountHealthRoute(appCtx, redisPool, routingConfig, site)
+	mountPrimeAPI(appCtx, routingConfig, site)
+	mountSupportAPI(appCtx, routingConfig, site)
+	mountTestharnessAPI(appCtx, routingConfig, site)
+
+	return site
+}
+
+// InitRouting sets up the routing for all the hosts (mil, office,
+// admin, api)
+func InitRouting(serverName string, appCtx appcontext.AppContext, redisPool *redis.Pool,
+	routingConfig *Config, telemetryConfig *telemetry.Config) (http.Handler, error) {
+
+	// check for missing CSRF middleware ASAP
+	if routingConfig.CSRFMiddleware == nil {
+		return nil, errors.New("Missing CSRF Middleware")
+	}
+
+	// With chi, we have to register all middleware before setting up
+	// routes
+	//
+	// Because we want different middleware for different hosts, we
+	// need to set up a router per host
+
+	hostRouter := NewHostRouter()
+
+	milServerName := routingConfig.HandlerConfig.AppNames().MilServername
+	milRouter := newMilRouter(appCtx, redisPool, routingConfig, telemetryConfig, serverName)
+	hostRouter.Map(milServerName, milRouter)
+
+	officeServerName := routingConfig.HandlerConfig.AppNames().OfficeServername
+
+	officeRouter := newOfficeRouter(appCtx, redisPool, routingConfig, telemetryConfig, serverName)
+	hostRouter.Map(officeServerName, officeRouter)
+
+	adminServerName := routingConfig.HandlerConfig.AppNames().AdminServername
+	adminRouter := newAdminRouter(appCtx, redisPool, routingConfig, telemetryConfig, serverName)
+	hostRouter.Map(adminServerName, adminRouter)
+
+	primeServerName := routingConfig.HandlerConfig.AppNames().PrimeServername
+	primeRouter := newPrimeRouter(appCtx, redisPool, routingConfig, telemetryConfig, serverName)
+	hostRouter.Map(primeServerName, primeRouter)
+
+	// need a wildcard health router as the ELB makes requests to the
+	// IP, not the hostname
+	healthRouter := chi.NewRouter()
+	mountHealthRoute(appCtx, redisPool, routingConfig, healthRouter)
+	hostRouter.Map("*", healthRouter)
+
+	return hostRouter, nil
+}
+
+// InitHealthRouting sets up the routing for the internal health
+// server used by the ECS health check
+func InitHealthRouting(serverName string, appCtx appcontext.AppContext, redisPool *redis.Pool,
+	routingConfig *Config, telemetryConfig *telemetry.Config) (http.Handler, error) {
+
+	site := chi.NewRouter()
+	site.Use(telemetry.NewOtelHTTPMiddleware(telemetryConfig, serverName, appCtx.Logger()))
+	mountHealthRoute(appCtx, redisPool, routingConfig, site)
 
 	return site, nil
 }
@@ -498,6 +717,10 @@ func indexHandler(routingConfig *Config, globalLogger *zap.Logger) http.HandlerF
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
-		http.ServeContent(w, r, "index.html", stat.ModTime(), reader)
+		if r.Method == http.MethodGet || r.Method == http.MethodHead {
+			http.ServeContent(w, r, "index.html", stat.ModTime(), reader)
+		} else {
+			http.NotFoundHandler().ServeHTTP(w, r)
+		}
 	}
 }

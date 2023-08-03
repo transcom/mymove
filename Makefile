@@ -96,7 +96,7 @@ endif
 
 .PHONY: check_go_version
 check_go_version: .check_go_version.stamp ## Check that the correct Golang version is installed
-.check_go_version.stamp: scripts/check-go-version .go-version
+.check_go_version.stamp: scripts/check-go-version .tool-versions
 	scripts/check-go-version
 	touch .check_go_version.stamp
 
@@ -112,7 +112,7 @@ endif
 
 .PHONY: check_node_version
 check_node_version: .check_node_version.stamp ## Check that the correct Node version is installed
-.check_node_version.stamp: scripts/check-node-version .node-version
+.check_node_version.stamp: scripts/check-node-version .tool-versions
 	scripts/check-node-version
 	touch .check_node_version.stamp
 
@@ -1051,7 +1051,7 @@ pretty: gofmt ## Run code through JS and Golang formatters
 
 .PHONY: docker_circleci
 docker_circleci: ## Run CircleCI container locally with project mounted
-	docker run -it --pull=always --rm=true -v $(PWD):$(PWD) -w $(PWD) -e CIRCLECI=1 milmove/circleci-docker:milmove-app-3e1a3c25b7a176f7d6994a9d542b522f3c08cf26 bash
+	docker run -it --pull=always --rm=true -v $(PWD):$(PWD) -w $(PWD) -e CIRCLECI=1 milmove/circleci-docker:milmove-app-726bfe44bd27d3b41da41acbe3eb231811a993f7 bash
 
 .PHONY: prune_images
 prune_images:  ## Prune docker images

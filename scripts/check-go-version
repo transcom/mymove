@@ -2,7 +2,7 @@
 
 set -eu -o pipefail
 
-VERSION_NUMBER="$(cat < ".go-version")"
+VERSION_NUMBER="$(awk '/golang/ { print $2 }' .tool-versions)"
 
 VERSION="go${VERSION_NUMBER}"
 

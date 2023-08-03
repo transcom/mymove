@@ -7,6 +7,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -24,8 +25,12 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentReweigh() {
 			},
 		}, nil)
 		fetchedShipment := models.MTOShipment{}
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			OfficeUserID:    uuid.Must(uuid.NewV4()),
+		})
 
-		reweigh, err := requester.RequestShipmentReweigh(suite.AppContextForTest(), shipment.ID, models.ReweighRequesterTOO)
+		reweigh, err := requester.RequestShipmentReweigh(session, shipment.ID, models.ReweighRequesterTOO)
 
 		suite.NoError(err)
 
@@ -53,8 +58,12 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentReweigh() {
 				},
 			},
 		}, nil)
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			OfficeUserID:    uuid.Must(uuid.NewV4()),
+		})
 
-		_, err := requester.RequestShipmentReweigh(suite.AppContextForTest(), rejectedShipment.ID, models.ReweighRequesterTOO)
+		_, err := requester.RequestShipmentReweigh(session, rejectedShipment.ID, models.ReweighRequesterTOO)
 
 		suite.Error(err)
 		suite.IsType(apperror.ConflictError{}, err)
@@ -64,8 +73,12 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentReweigh() {
 	suite.Run("When a reweigh already exists for the shipment, returns ConflictError", func() {
 		reweigh := testdatagen.MakeReweigh(suite.DB(), testdatagen.Assertions{})
 		existingShipment := reweigh.Shipment
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			OfficeUserID:    uuid.Must(uuid.NewV4()),
+		})
 
-		_, err := requester.RequestShipmentReweigh(suite.AppContextForTest(), existingShipment.ID, models.ReweighRequesterTOO)
+		_, err := requester.RequestShipmentReweigh(session, existingShipment.ID, models.ReweighRequesterTOO)
 
 		suite.Error(err)
 		suite.IsType(apperror.ConflictError{}, err)
@@ -74,8 +87,11 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentReweigh() {
 
 	suite.Run("Passing in a bad shipment id returns a Not Found error", func() {
 		badShipmentID := uuid.FromStringOrNil("424d930b-cf8d-4c10-8059-be8a25ba952a")
-
-		_, err := requester.RequestShipmentReweigh(suite.AppContextForTest(), badShipmentID, models.ReweighRequesterTOO)
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			OfficeUserID:    uuid.Must(uuid.NewV4()),
+		})
+		_, err := requester.RequestShipmentReweigh(session, badShipmentID, models.ReweighRequesterTOO)
 
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)

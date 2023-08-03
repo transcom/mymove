@@ -10,12 +10,13 @@ import (
 
 func (suite *ProgearWeightTicketSuite) TestProgearWeightTicketCreator() {
 	suite.Run("Successfully creates a ProgearWeightTicket", func() {
-		serviceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
+		ppmShipment := factory.BuildMinimalPPMShipment(suite.DB(), nil, nil)
+		serviceMemberID := ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMemberID
+
 		session := &auth.Session{
-			ServiceMemberID: serviceMember.ID,
+			ServiceMemberID: serviceMemberID,
 		}
 
-		ppmShipment := factory.BuildMinimalPPMShipment(suite.DB(), nil, nil)
 		progearWeightTicketCreator := NewCustomerProgearWeightTicketCreator()
 		progearWeightTicket, err := progearWeightTicketCreator.CreateProgearWeightTicket(suite.AppContextWithSessionForTest(session), ppmShipment.ID)
 
@@ -23,7 +24,7 @@ func (suite *ProgearWeightTicketSuite) TestProgearWeightTicketCreator() {
 		suite.NotNil(progearWeightTicket)
 		suite.Equal(ppmShipment.ID, progearWeightTicket.PPMShipmentID)
 		suite.NotNil(progearWeightTicket.DocumentID)
-		suite.Equal(serviceMember.ID, progearWeightTicket.Document.ServiceMemberID)
+		suite.Equal(serviceMemberID, progearWeightTicket.Document.ServiceMemberID)
 	})
 
 	suite.Run("Fails when an invalid ppmShipmentID is used", func() {
@@ -50,7 +51,7 @@ func (suite *ProgearWeightTicketSuite) TestProgearWeightTicketCreator() {
 
 		suite.Nil(progearWeightTicket)
 		suite.NotNil(err)
-		suite.IsType(apperror.InvalidInputError{}, err)
-		suite.Equal("Invalid input found while creating the Document.", err.Error())
+		suite.IsType(apperror.NotFoundError{}, err)
+		suite.Contains(err.Error(), "No such shipment found for this service member")
 	})
 }

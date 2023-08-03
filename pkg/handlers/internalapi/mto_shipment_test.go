@@ -1268,6 +1268,21 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentNotFound{}, response)
 	})
 
+	suite.Run("POST failure - 404 - not found - wrong SM does not match move", func() {
+		subtestData := getDefaultMTOShipmentAndParams(nil)
+
+		sm := factory.BuildServiceMember(suite.DB(), nil, nil)
+
+		req := subtestData.params.HTTPRequest
+		unauthorizedReq := suite.AuthenticateUserRequest(req, sm.User)
+		unauthorizedParams := subtestData.params
+		unauthorizedParams.HTTPRequest = unauthorizedReq
+
+		response := subtestData.handler.Handle(unauthorizedParams)
+
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentNotFound{}, response)
+	})
+
 	suite.Run("PATCH failure - 412 -- etag mismatch", func() {
 		subtestData := getDefaultMTOShipmentAndParams(nil)
 

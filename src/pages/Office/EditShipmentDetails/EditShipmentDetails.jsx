@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { GridContainer, Grid } from '@trussworks/react-uswds';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 
-import styles from '../ServicesCounselingMoveInfo/ServicesCounselingTab.module.scss';
+import styles from './EditShipmentDetails.module.scss';
 
 import 'styles/office.scss';
 import CustomerHeader from 'components/CustomerHeader';

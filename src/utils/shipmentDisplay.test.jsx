@@ -8,7 +8,7 @@ import {
   formatAgent,
   formatCustomerDestination,
   formatPaymentRequestAddressString,
-  formatPaymentRequestReviewAddressString,
+  formatCityStateAndPostalCode,
   getShipmentModificationType,
   retrieveSAC,
   retrieveTAC,
@@ -243,12 +243,12 @@ describe('shipmentDisplay utils', () => {
     };
 
     it('shows expected string when an address is present', () => {
-      const addressString = formatPaymentRequestReviewAddressString(address);
+      const addressString = formatCityStateAndPostalCode(address);
       expect(addressString).toEqual('Los Angeles, CA 111111');
     });
 
     it('shows expected string when an address is not present', () => {
-      const addressString = formatPaymentRequestReviewAddressString();
+      const addressString = formatCityStateAndPostalCode();
       expect(addressString).toEqual('');
     });
   });
